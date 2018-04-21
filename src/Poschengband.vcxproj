@@ -74,7 +74,8 @@
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /DMSVC %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>angband.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -86,10 +87,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="angband.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="archaeologist.c" />
     <ClCompile Include="archer.c" />
     <ClCompile Include="artifact.c" />
@@ -136,6 +133,7 @@
     <ClCompile Include="hex.c" />
     <ClCompile Include="high_mage.c" />
     <ClCompile Include="hissatsu.c" />
+    <ClCompile Include="home.c" />
     <ClCompile Include="imitator.c" />
     <ClCompile Include="init1.c" />
     <ClCompile Include="init2.c" />
@@ -143,6 +141,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="inv.c" />
     <ClCompile Include="load.c" />
     <ClCompile Include="mage.c" />
     <ClCompile Include="magic_eater.c" />
@@ -167,17 +166,23 @@
     <ClCompile Include="mystic.c" />
     <ClCompile Include="necromancer.c" />
     <ClCompile Include="ninja.c" />
+    <ClCompile Include="obj.c" />
+    <ClCompile Include="obj_prompt.c" />
     <ClCompile Include="object1.c" />
     <ClCompile Include="object2.c" />
     <ClCompile Include="object3.c" />
     <ClCompile Include="obj_display.c" />
     <ClCompile Include="obj_kind.c" />
+    <ClCompile Include="pack.c" />
     <ClCompile Include="paladin.c" />
     <ClCompile Include="personality.c" />
     <ClCompile Include="priest.c" />
     <ClCompile Include="psion.c" />
     <ClCompile Include="py_birth.c" />
     <ClCompile Include="py_display.c" />
+    <ClCompile Include="py_throw.c" />
+    <ClCompile Include="quest.c" />
+    <ClCompile Include="quiver.c" />
     <ClCompile Include="races.c" />
     <ClCompile Include="races_a.c" />
     <ClCompile Include="races_k.c" />
@@ -225,6 +230,7 @@
     <ClCompile Include="savefile.c" />
     <ClCompile Include="scores.c" />
     <ClCompile Include="scout.c" />
+    <ClCompile Include="shop.c" />
     <ClCompile Include="skillmaster.c" />
     <ClCompile Include="skills.c" />
     <ClCompile Include="sniper.c" />
@@ -242,7 +248,6 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/D _CRT_NONSTDC_NO_DEPRECATE %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="store.c" />
     <ClCompile Include="str-map.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>

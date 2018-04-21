@@ -247,10 +247,9 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
     /* It is dead now... or is it? */
     if (m_ptr->hp < 0)
     {
-        if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) ||
-            (r_ptr->flags7 & RF7_NAZGUL)) &&
-            !p_ptr->inside_battle &&
-            !prace_is_(RACE_MON_QUYLTHULG))
+        if ( ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL) || (m_ptr->mflag2 & MFLAG2_QUESTOR))
+          && !p_ptr->inside_battle
+          && !prace_is_(RACE_MON_QUYLTHULG))
         {
             m_ptr->hp = 1;
         }
@@ -580,7 +579,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
     {
         rng = AAF_LIMIT_RING;
     }
-    else if (!dun_level /*&& !p_ptr->town_num*/ && !p_ptr->inside_arena && !p_ptr->inside_battle && !p_ptr->inside_quest)
+    else if (py_on_surface())
         rng = AAF_LIMIT;
 
     /* Can monster cast attack spell? */
@@ -1248,7 +1247,9 @@ static bool get_moves(int m_idx, int *mm)
 
     if (!done)
     {
-        /* Flow towards the player */
+        /* Flow towards the player ... Note (x2,y2) == (px,py). If
+         * get_moves_aux fails (returns FALSE) then we proceed directly
+         * towards the player. */
         (void)get_moves_aux(m_idx, &y2, &x2, no_flow);
 
         /* Extract the "pseudo-direction" */
@@ -2208,7 +2209,7 @@ static void process_monster(int m_idx)
 
     int             i, d, oy, ox, ny, nx;
 
-    int             mm[8];
+    int             mm[8] = {0};
 
     cave_type       *c_ptr;
     feature_type    *f_ptr;
@@ -2319,7 +2320,7 @@ static void process_monster(int m_idx)
         if (!randint0(2)) return;
 
         /* Sometimes die */
-        if (!randint0((m_idx % 100) + 10) && !(r_ptr->flags1 & RF1_QUESTOR))
+        if (!randint0((m_idx % 100) + 10) && !(m_ptr->mflag2 & MFLAG2_QUESTOR))
         {
             bool sad = FALSE;
 
@@ -2391,7 +2392,7 @@ static void process_monster(int m_idx)
                 if (is_riding_mon && rakuba(-1, FALSE))
                     msg_print("You have fallen from riding pet.");
 
-                check_quest_completion(m_ptr);
+                quests_on_kill_mon(m_ptr);
                 delete_monster_idx(m_idx);
                 return;
             }
@@ -2766,11 +2767,6 @@ static void process_monster(int m_idx)
     if (projectable(py, px, m_ptr->fy, m_ptr->fx))
         mon_lore_move(m_ptr);
 
-    /* Hack -- Assume no movement */
-    mm[0] = mm[1] = mm[2] = mm[3] = 0;
-    mm[4] = mm[5] = mm[6] = mm[7] = 0;
-
-
     /* Confused -- 100% random */
     if (MON_CONFUSED(m_ptr) || !aware)
     {
@@ -2866,11 +2862,12 @@ static void process_monster(int m_idx)
     /* Friendly monster movement */
     else if (!is_hostile(m_ptr))
     {
-        /* by default, move randomly */
-        mm[0] = mm[1] = mm[2] = mm[3] = 5;
-
-        /* Look for an enemy */
-        get_enemy_dir(m_idx, mm);
+        /* XXX Perhaps friendly monsters should join up with the
+         * player? This would make them more interesting/useful
+         * (e.g. Gandalf). The random stuff just looks silly
+         * when there are no enemies around. */
+        if (!get_enemy_dir(m_idx, mm) && !get_moves(m_idx, mm))
+            mm[0] = mm[1] = mm[2] = mm[3] = 5;
     }
     /* Normal movement */
     else
@@ -3448,13 +3445,7 @@ static void process_monster(int m_idx)
                  (disturb_near && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
                  (disturb_high && ap_r_ptr->r_tkills && ap_r_ptr->level >= p_ptr->lev)))
             {
-                if ( town_no_disturb
-                  && !dun_level
-                  && p_ptr->town_num
-                  && !p_ptr->inside_arena
-                  && !p_ptr->inside_battle
-                  && !p_ptr->inside_quest
-                  && r_ptr->level == 0 )
+                if (town_no_disturb && py_in_town() && r_ptr->level == 0)
                 {
                 }
                 else if (is_hostile(m_ptr))
@@ -3568,7 +3559,7 @@ static void process_monster(int m_idx)
                         o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EFFECT_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);
 
                         /* Forget location */
-                        o_ptr->iy = o_ptr->ix = 0;
+                        o_ptr->loc.y = o_ptr->loc.x = 0;
 
                         /* Memorize monster */
                         o_ptr->held_m_idx = m_idx;
@@ -3584,18 +3575,25 @@ static void process_monster(int m_idx)
                     else if (!is_pet(m_ptr))
                     {
                         /* Take note */
-                        did_kill_item = TRUE;
+                        if (o_ptr->name2 != EGO_AMMO_ENDURANCE)
+                            did_kill_item = TRUE;
 
                         /* Describe observable situations */
                         if (player_has_los_bold(ny, nx))
                         {
                             /* Dump a message */
-                            msg_format("%^s destroys %s.", m_name, o_name);
-                            stats_on_m_destroy(o_ptr, o_ptr->number);
+                            if (o_ptr->name2 != EGO_AMMO_ENDURANCE)
+                            {
+                                msg_format("%^s destroys %s.", m_name, o_name);
+                                stats_on_m_destroy(o_ptr, o_ptr->number);
+                            }
+                            else
+                                msg_format("%^s tries to destroy %s but fails.", m_name, o_name);
                         }
 
                         /* Delete the object */
-                        delete_object_idx(this_o_idx);
+                        if (o_ptr->name2 != EGO_AMMO_ENDURANCE)
+                            delete_object_idx(this_o_idx);
                     }
                 }
             }
@@ -3812,7 +3810,7 @@ void process_monsters(void)
             /* Lure a potential ring bearer, no matter how distant */
             radius = AAF_LIMIT_RING;
         }
-        else if (!dun_level /*&& !p_ptr->town_num*/ && !p_ptr->inside_arena && !p_ptr->inside_battle && !p_ptr->inside_quest)
+        else if (py_on_surface())
             radius *= 3;
 
         if (m_ptr->cdis <= radius)

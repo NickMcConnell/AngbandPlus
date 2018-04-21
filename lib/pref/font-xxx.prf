@@ -379,6 +379,9 @@ E:40:0x03
 # RING
 E:45:0x04
 
+# QUIVER
+E:46:0x0F
+
 # STAFF
 E:55:0x0F
 

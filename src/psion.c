@@ -57,7 +57,7 @@ bool psion_can_wield(object_type *o_ptr)
       && p_ptr->pclass == CLASS_PSION
       && psion_weapon_graft() )
     {
-        msg_print("Failed!  Your weapon is currently grafted to your arm!");
+        msg_print("Failed! Your weapon is currently grafted to your arm!");
         return FALSE;
     }
     return TRUE;
@@ -816,37 +816,41 @@ void _psionic_crafting_spell(int power, int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int         item;
-        bool        okay = FALSE;
-        object_type *o_ptr;
-        char        o_name[MAX_NLEN];
+        obj_prompt_t prompt = {0};
+        bool         okay = FALSE;
+        char         o_name[MAX_NLEN];
 
         var_set_bool(res, FALSE);
 
-        item_tester_hook = object_is_weapon_armour_ammo;
-        item_tester_no_ryoute = TRUE;
+        prompt.prompt = "Enchant which item?";
+        prompt.error = "You have nothing to enchant.";
+        prompt.filter = object_is_weapon_armour_ammo;
+        prompt.where[0] = INV_PACK;
+        prompt.where[1] = INV_EQUIP;
+        prompt.where[2] = INV_QUIVER;
+        prompt.where[3] = INV_FLOOR;
 
-        if (!get_item(&item, "Enchant which item? ", "You have nothing to enchant.", (USE_EQUIP | USE_INVEN))) return;
+        obj_prompt(&prompt);
+        if (!prompt.obj) return;
 
-        o_ptr = &inventory[item];
-        object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+        object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
         _enchant_power = power; /* Hack for enchant(), which I'm too lazy to rewrite ... */
-        if (power == 5 && object_is_nameless(o_ptr) && o_ptr->number == 1)
+        if (power == 5 && object_is_nameless(prompt.obj) && prompt.obj->number == 1)
         {
-            if (object_is_weapon(o_ptr))
+            if (object_is_weapon(prompt.obj))
             {
-                if (brand_weapon_aux(item))
+                if (brand_weapon_aux(prompt.obj))
                 {
-                    o_ptr->discount = 99;
+                    prompt.obj->discount = 99;
                     okay = TRUE;
                 }
             }
-            else if (object_is_armour(o_ptr))
+            else if (object_is_armour(prompt.obj))
             {
-                if (brand_armour_aux(item))
+                if (brand_armour_aux(prompt.obj))
                 {
-                    o_ptr->discount = 99;
+                    prompt.obj->discount = 99;
                     okay = TRUE;
                 }
             }
@@ -854,20 +858,19 @@ void _psionic_crafting_spell(int power, int cmd, variant *res)
 
         if (!okay)
         {
-            if (object_is_weapon_ammo(o_ptr))
+            if (object_is_weapon_ammo(prompt.obj))
             {
-                if (enchant(o_ptr, randint0(4) + 1, ENCH_TOHIT | ENCH_PSI_HACK)) okay = TRUE;
-                if (enchant(o_ptr, randint0(4) + 1, ENCH_TODAM | ENCH_PSI_HACK)) okay = TRUE;
+                if (enchant(prompt.obj, randint0(4) + 1, ENCH_TOHIT | ENCH_PSI_HACK)) okay = TRUE;
+                if (enchant(prompt.obj, randint0(4) + 1, ENCH_TODAM | ENCH_PSI_HACK)) okay = TRUE;
             }
             else
             {
-                if (enchant(o_ptr, randint0(3) + 2, ENCH_TOAC | ENCH_PSI_HACK)) okay = TRUE;            
+                if (enchant(prompt.obj, randint0(3) + 2, ENCH_TOAC | ENCH_PSI_HACK)) okay = TRUE;            
             }
         }
 
-        msg_format("%s %s glow%s brightly!",
-                ((item >= 0) ? "Your" : "The"), o_name,
-                ((o_ptr->number > 1) ? "" : "s"));
+        msg_format("The %s glow%s brightly!", o_name,
+                ((prompt.obj->number > 1) ? "" : "s"));
 
         if (!okay)
         {
@@ -1947,7 +1950,7 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if (equip_find_artifact(ART_STONE_OF_MIND))
+    if (equip_find_art(ART_STONE_OF_MIND))
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;
@@ -2048,7 +2051,7 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
     if (p_ptr->magic_num1[_ARCHERY])
     {
-        info_ptr->num_fire += p_ptr->magic_num2[_ARCHERY] * 25;
+        info_ptr->num_fire += p_ptr->magic_num2[_ARCHERY] * 20;
     }
 }
 

@@ -1,0 +1,134 @@
+T:TOWN:NORMAL:NO_ROTATE
+%:t_pref.txt
+L:z:SHALLOW_WATER
+L:y:MOUNTAIN
+L:x:TREE
+L:A:JEWELER
+
+#################### Quest 10 - Node of Sorcery ####################
+?:[EQU $QUEST10 Taken]
+L:z:QUEST_ENTER(10)
+?:[EQU $QUEST10 Untaken Taken Completed Failed]
+L:i:BUILDING_8(10)
+?:[EQU $QUEST10 Finished FailedDone]
+L:i:BUILDING_8(0)
+?:1
+#################### Quest 11 - Node of Chaos ####################
+?:[EQU $QUEST11 Taken]
+L:y:QUEST_ENTER(11)
+?:[EQU $QUEST11 Untaken Taken Completed Failed]
+L:o:BUILDING_14(11)
+?:[EQU $QUEST11 Finished FailedDone]
+L:o:BUILDING_14(0)
+?:1
+#################### Quest 12 - Node of Nature ####################
+?:[EQU $QUEST12 Taken]
+L:x:QUEST_ENTER(12)
+?:[EQU $QUEST12 Untaken Taken Completed Failed]
+L:p:BUILDING_15(12)
+?:[EQU $QUEST12 Finished FailedDone]
+L:p:BUILDING_15(0)
+?:1
+
+#################### Buildings ####################
+
+B:4:N:BrokenSkull Tavern:Celebor:Half-Elf
+B:4:A:0:Rest for the night:20:20:r:17:0
+B:4:A:1:Buy food and drink:2:2:f:18:1
+B:4:A:2:Listen for rumors:10:10:u:19:0
+B:4:A:3:Identify item:100:100:i:44:0
+B:4:R:*:Member
+B:4:R:Golem:None
+B:4:R:Skeleton:None
+B:4:R:Zombie:None
+B:4:R:Vampire:None
+B:4:R:Spectre:None
+B:4:R:Ent:None
+B:4:R:Balrog:None
+B:4:R:Android:None
+B:4:R:Demon:None
+B:4:R:Lich:None
+B:4:R:Jelly:None
+
+B:8:N:Tower of Sorcery:Tanistil:Elf
+B:8:A:0:Identify possessions:100:800:i:26:0
+B:8:A:1:Request quest:0:0:q:6:1
+B:8:M:*:None
+B:8:M:Sorcery:Owner
+
+B:14:N:Chaos Tower:Xeno:Beastman
+B:14:A:0:Request quest:0:0:q:6:1
+B:14:A:1:Cure mutation:1000:5000:m:35:0
+B:14:R:*:None
+B:14:R:Beastman:Member
+B:14:M:*:None
+B:14:M:Chaos:Owner
+
+B:15:N:Nature Tower:Josh:Elf
+B:15:A:0:Request quest:0:0:q:6:1
+B:15:A:1:Ritual of balance:2000:10000:n:41:0
+B:15:M:*:None
+B:15:M:Nature:Owner
+
+
+# Town Layout
+M:        ^^^                                                                                   
+M:     ^^^^y^^^^                                                                                
+M:   ^^^KLLLKKK^^^^                                                                             
+M:  ^^KKLLLLLLLKKK^^                                         ^^^^^      ^^^^^                   
+M:^^^LLLLLLLLLLLKKK^                                         ^TxT^     ^^---^^^                 
+M:^KKLLLKLLLKLLLKK^^                                         ^T-T^    ^^--^---^                 
+M:^LLKLLLLLLLLLKK^^                                          ^^-^^  ^^^--^^^--^                 
+M:^^LLLLLLLLLLLKK^                                           ^-^^^^^^--^^^^--^^                 
+M: ^KKLLLLKLLLLK^^                                           ^^-^-^-^-^^^^---^                  
+M: ^^^KKLLLLLLLK^^^^^^^^^^^^^^^                               ^^-^-^-^^^--^^^^                  
+M:   ^^^^LLLLLL-----.....^^^--^^^                              ^^^^^^^^-^^^                     
+M:      ^^^^^--.....^^^^^.....--^^^^                                ^^-^^                       
+M:          ^^----^^^   ^^^---..---^^                   ^^^^^^^^^^^^^-^^^^^^^^^^                
+M:           ^^^^^^       ^^^---..--^                  ^^----------------------^^               
+M:                          ^^^--...^^^               ^^......................--^^              
+M:                            ^^---...^^^           ^^^..LL.LLLLLLL.LLLLLL.LL..--^^^            
+M:                             ^^----..-^^       ^^^^...LL^o^^LLL^^i^LLL^^p^LL..---^^           
+M:                              ^^----..-^^^^^^^^^--..LLL^^^^^^L^^^^^^L^^^^^^LLL.---^           
+M:                               ^^----..----------..-LLL^^^^^^^^^^^^^^^^^^^^LLL..--^           
+M:                                ^^---..............-LLL^^^^^^^^^^^^^^^^^^^^LLL...-^           
+M:                                 ^^---------------..LLL^^^^^^L^^^^^^L^^^^^^LLL...-^           
+M:                                  ^^^9^^^^^^^^^^^--..LLL^^^^LLL^^^^LLL^^^^LLL...^^^           
+M:                                    ^^^         ^^^-..-LLLLLLLLLLLLLLLLLLLL....^^             
+M:                           ^^^^^^^^^^^^          ^^^^........................^^^              
+M:                         ^^^----------^^^^^      ^6^^.-----------------^^^^^^^                
+M:                         ^-------...------^^^^^^^^---.--^^^^^^^^^^^^^^^^                      
+M:                         ^^^^^-----....--------------.---e^                                   
+M:                             ^^1^^----..........-----.-^^^^                                   
+M:               ^^^^^^^^^^^    ^^^^^^^^^--------...--...-^                                     
+M:               ^A......--^^^^^^       ^^5^^^^----....-.-^^^^                                  
+M:               ^^^^^^^-...----^^^^^    ^^^ ^^^^^^-----.---2^                                  
+M:                     ^^---...-----^^^^^^^^^^----------.--^^^                                  
+M:                      ^^^^---....--------------------..---3^                                  
+M:                         ^^------........----------...--^^^^                                  
+M:                          ^^^^---------....-----...---^^^                                     
+M:                             ^^^^^---------..---..---^^^^^^^^^^                               
+M:                                 ^^--------.....--------------^^^^^^^                         
+M:                                  ^--......................---------^^^^^                     
+M:                                ^^^-----------------------......--------^      ^^^^^^^^^      
+M:                              ^^^------------------------------.........^^  ^^^^-------^^     
+M:                              ^7----................--------------..-----^^^^----VVVVVV-^     
+M:                              ^^^------------------...........---..-----------VVVVWWWWV-^     
+M:                                ^^^------------------.-------..-..------------VVWWWWWWWV^^    
+M:                                  ^...................--------...---^^^------VVWWWWWWWWVV^    
+M:                    ^^^^^^^       ^^^^^^^^^^^------------------.---^^ ^^----VVzWWWWWWWWWV^    
+M:                    ^.....^              ^^-------------------..--^^   ^----VVVVWWWWWWVV^^    
+M:                    ^.....^^^^^^^        ^------...............-^^^    ^^^-----VVVVWWWV^^     
+M:                    ^...........^^       ^^^^--..---------------^        ^^^^----VVVWWV^      
+M:                    ^^^^^^^^^^^..^^         ^^..^^^^^^4^^^^^^^^^^           ^^^----VVV-^      
+M:                              ^^..^^^      ^^..^^    ^^^                      ^^^^----^^      
+M:                               ^^...^^^^^^^^..^^                                 ^^^^^^       
+M:                                ^^^..^^^^^^..^^                                               
+M:                                  ^^..^^^^..^^                                                
+M:                                   ^^..^^^..^                                                 
+M:                                    ^^..^^..^                                                 
+M:                                     ^^.....^                                                 
+M:                                      ^^^^^^^                                                 
+
+# vim: filetype=q :
+

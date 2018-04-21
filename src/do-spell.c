@@ -904,53 +904,28 @@ static bool item_tester_offer(object_type *o_ptr)
  */
 bool cast_summon_greater_demon(void)
 {
+    obj_prompt_t prompt = {0};
     int plev = p_ptr->lev;
-    int item;
-    cptr q, s;
     int summon_lev;
-    object_type *o_ptr;
 
-    item_tester_hook = item_tester_offer;
-    q = "Sacrifice which corpse? ";
-    s = "You have nothing to sacrifice.";
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
+    prompt.prompt = "Sacrifice which corpse?";
+    prompt.error = "You have nothing to sacrifice.";
+    prompt.filter = item_tester_offer;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
 
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
+    obj_prompt(&prompt);
+    if (!prompt.obj) return FALSE;
 
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    summon_lev = plev * 2 / 3 + r_info[o_ptr->pval].level;
+    summon_lev = plev * 2 / 3 + r_info[prompt.obj->pval].level;
 
     if (summon_specific(-1, py, px, summon_lev, SUMMON_HI_DEMON, (PM_ALLOW_GROUP | PM_FORCE_PET)))
     {
         msg_print("The area fills with a stench of sulphur and brimstone.");
-
-
         msg_print("'What is thy bidding... Master?'");
 
-        /* Decrease the item (from the pack) */
-        if (item >= 0)
-        {
-            inven_item_increase(item, -1);
-            inven_item_describe(item);
-            inven_item_optimize(item);
-        }
-
-        /* Decrease the item (from the floor) */
-        else
-        {
-            floor_item_increase(0 - item, -1);
-            floor_item_describe(0 - item);
-            floor_item_optimize(0 - item);
-        }
+        prompt.obj->number--;
+        obj_release(prompt.obj, 0);
     }
     else
     {
@@ -1715,7 +1690,7 @@ static cptr do_sorcery_spell(int spell, int mode)
                         return NULL;
                 }
                 else
-                    mass_identify();
+                    mass_identify(FALSE);
             }
         }
         break;
@@ -5293,55 +5268,66 @@ static cptr do_arcane_spell(int spell, int mode)
     return "";
 }
 
-static bool _craft_enchant(int max, int inc)
+bool craft_enchant(int max, int inc)
 {
-    int         item;
-    object_type *o_ptr;
-    char        o_name[MAX_NLEN];
-    bool        improved = FALSE;
+    obj_prompt_t prompt = {0};
+    char         o_name[MAX_NLEN];
+    bool         improved = FALSE;
+    u32b         flgs[OF_ARRAY_SIZE];
 
-    item_tester_hook = object_is_weapon_armour_ammo;
-    item_tester_no_ryoute = TRUE;
+    prompt.prompt = "Enchant which item?";
+    prompt.error = "You have nothing to enchant.";
+    prompt.filter = object_is_weapon_armour_ammo;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_QUIVER;
+    prompt.where[3] = INV_FLOOR;
 
-    if (!get_item(&item, "Enchant which item? ", "You have nothing to enchant.", (USE_EQUIP | USE_INVEN | USE_FLOOR)))
+    obj_prompt(&prompt);
+    if (!prompt.obj) return FALSE;
+
+    object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+
+    /* Some objects cannot be enchanted */
+    obj_flags(prompt.obj, flgs);
+    if (have_flag(flgs, OF_NO_ENCHANT))
         return FALSE;
-
-    if (item >= 0)
-        o_ptr = &inventory[item];
-    else
-        o_ptr = &o_list[0 - item];
-
-    object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
     /* Enchanting is now automatic ... It was always possible to max
      * out enchanting quickly with skilled macro usage, but other players
      * are inviting carpal tunnel issues to no purpose. */
-    if (object_is_weapon_ammo(o_ptr))
+    if (object_is_weapon_ammo(prompt.obj))
     {
-        if (o_ptr->to_h < max)
+        if (prompt.obj->to_h < max)
         {
-            o_ptr->to_h = MIN(max, o_ptr->to_h + inc);
+            prompt.obj->to_h = MIN(max, prompt.obj->to_h + inc);
+            if (prompt.obj->to_h >= 0)
+                break_curse(prompt.obj);
             improved = TRUE;
         }
-        if (o_ptr->to_d < max)
+        if (prompt.obj->to_d < max)
         {
-            o_ptr->to_d = MIN(max, o_ptr->to_d + inc);
+            prompt.obj->to_d = MIN(max, prompt.obj->to_d + inc);
+            if (prompt.obj->to_d >= 0)
+                break_curse(prompt.obj);
             improved = TRUE;
         }
     }
     else
     {
-        if (o_ptr->to_a < max)
+        if (prompt.obj->to_a < max)
         {
-            o_ptr->to_a = MIN(max, o_ptr->to_a + inc);
+            prompt.obj->to_a = MIN(max, prompt.obj->to_a + inc);
+            if (prompt.obj->to_a >= 0)
+                break_curse(prompt.obj);
             improved = TRUE;
         }
     }
 
 
     msg_format("%s %s glow%s brightly!",
-            ((item >= 0) ? "Your" : "The"), o_name,
-            ((o_ptr->number > 1) ? "" : "s"));
+            (prompt.obj->loc.where != INV_FLOOR) ? "Your" : "The", o_name,
+            (prompt.obj->number > 1) ? "" : "s");
 
     if (!improved)
     {
@@ -5353,12 +5339,9 @@ static bool _craft_enchant(int max, int inc)
     {
         virtue_add(VIRTUE_ENCHANTMENT, 1);
         /* Minor Enchantment should not allow gold farming ... */
-        if (inc == 1 && object_is_nameless(o_ptr))
-            o_ptr->discount = 99;
-        p_ptr->update |= PU_BONUS;
-        p_ptr->notice |= PN_COMBINE | PN_REORDER;
-        p_ptr->window |= PW_INVEN | PW_EQUIP;
-        android_calc_exp();
+        if (inc == 1 && object_is_nameless(prompt.obj))
+            prompt.obj->discount = 99;
+        obj_release(prompt.obj, OBJ_RELEASE_ENCHANT);
     }
     return TRUE;
 }
@@ -5380,7 +5363,7 @@ static cptr do_craft_spell(int spell, int mode)
 
         if (cast)
         {
-            if (!_craft_enchant(2 + plev/5, 1))
+            if (!craft_enchant(2 + plev/5, 1))
                 return NULL;
         }
         break;
@@ -5791,7 +5774,7 @@ static cptr do_craft_spell(int spell, int mode)
 
         if (cast)
         {
-            if (!_craft_enchant(15, 3))
+            if (!craft_enchant(15, 3))
                 return NULL;
         }
         break;
@@ -8068,7 +8051,7 @@ static cptr do_hex_spell(int spell, int mode)
     case 3:
         if (name) return "Stinking mist";
         if (desc) return "Deals few damages of poison to all monsters in your sight.";
-        power = plev / 2 + 5;
+        power = plev / 2 + 5 + p_ptr->to_d_spell;
         if (info) return info_damage(1, power, 0);
         if (cast || cont)
         {
@@ -8090,44 +8073,43 @@ static cptr do_hex_spell(int spell, int mode)
         if (desc) return "Curses your weapon.";
         if (cast)
         {
-            int item;
-            char *q, *s;
+            obj_prompt_t prompt = {0};
             char o_name[MAX_NLEN];
-            object_type *o_ptr;
             u32b f[OF_ARRAY_SIZE];
 
-            item_tester_hook = item_tester_hook_weapon_except_bow;
-            q = "Which weapon do you curse?";
-            s = "You wield no weapons.";
+            prompt.prompt = "Which weapon do you curse?";
+            prompt.error = "You wield no weapons.";
+            prompt.filter = item_tester_hook_weapon_except_bow;
+            prompt.where[0] = INV_EQUIP;
 
-            if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;
+            obj_prompt(&prompt);
+            if (!prompt.obj) return FALSE;
 
-            o_ptr = &inventory[item];
-            object_desc(o_name, o_ptr, OD_NAME_ONLY);
-            obj_flags(o_ptr, f);
+            object_desc(o_name, prompt.obj, OD_NAME_ONLY);
+            obj_flags(prompt.obj, f);
 
             if (!get_check(format("Do you curse %s, really?", o_name))) return FALSE;
 
             if (!one_in_(3) &&
-                (object_is_artifact(o_ptr) || have_flag(f, OF_BLESSED)))
+                (object_is_artifact(prompt.obj) || have_flag(f, OF_BLESSED)))
             {
                 msg_format("%s resists the effect.", o_name);
                 if (one_in_(3))
                 {
-                    if (o_ptr->to_d > 0)
+                    if (prompt.obj->to_d > 0)
                     {
-                        o_ptr->to_d -= randint1(3) % 2;
-                        if (o_ptr->to_d < 0) o_ptr->to_d = 0;
+                        prompt.obj->to_d -= randint1(3) % 2;
+                        if (prompt.obj->to_d < 0) prompt.obj->to_d = 0;
                     }
-                    if (o_ptr->to_h > 0)
+                    if (prompt.obj->to_h > 0)
                     {
-                        o_ptr->to_h -= randint1(3) % 2;
-                        if (o_ptr->to_h < 0) o_ptr->to_h = 0;
+                        prompt.obj->to_h -= randint1(3) % 2;
+                        if (prompt.obj->to_h < 0) prompt.obj->to_h = 0;
                     }
-                    if (o_ptr->to_a > 0)
+                    if (prompt.obj->to_a > 0)
                     {
-                        o_ptr->to_a -= randint1(3) % 2;
-                        if (o_ptr->to_a < 0) o_ptr->to_a = 0;
+                        prompt.obj->to_a -= randint1(3) % 2;
+                        if (prompt.obj->to_a < 0) prompt.obj->to_a = 0;
                     }
                     msg_format("Your %s was disenchanted!", o_name);
                 }
@@ -8136,26 +8118,26 @@ static cptr do_hex_spell(int spell, int mode)
             {
                 int power = 0;
                 msg_format("A terrible black aura blasts your %s!", o_name);
-                o_ptr->curse_flags |= (OFC_CURSED);
+                prompt.obj->curse_flags |= (OFC_CURSED);
 
-                if (object_is_artifact(o_ptr) || object_is_ego(o_ptr))
+                if (object_is_artifact(prompt.obj) || object_is_ego(prompt.obj))
                 {
 
-                    if (one_in_(3)) o_ptr->curse_flags |= (OFC_HEAVY_CURSE);
+                    if (one_in_(3)) prompt.obj->curse_flags |= (OFC_HEAVY_CURSE);
                     if (one_in_(666))
                     {
-                        o_ptr->curse_flags |= (OFC_TY_CURSE);
-                        if (one_in_(666)) o_ptr->curse_flags |= (OFC_PERMA_CURSE);
+                        prompt.obj->curse_flags |= (OFC_TY_CURSE);
+                        if (one_in_(666)) prompt.obj->curse_flags |= (OFC_PERMA_CURSE);
 
-                        add_flag(o_ptr->flags, OF_AGGRAVATE);
-                        add_flag(o_ptr->flags, OF_VORPAL);
-                        add_flag(o_ptr->flags, OF_BRAND_VAMP);
+                        add_flag(prompt.obj->flags, OF_AGGRAVATE);
+                        add_flag(prompt.obj->flags, OF_VORPAL);
+                        add_flag(prompt.obj->flags, OF_BRAND_VAMP);
                         msg_print("Blood, Blood, Blood!");
                         power = 2;
                     }
                 }
 
-                o_ptr->curse_flags |= get_curse(power, o_ptr);
+                prompt.obj->curse_flags |= get_curse(power, prompt.obj);
             }
 
             p_ptr->update |= (PU_BONUS);
@@ -8176,7 +8158,7 @@ static cptr do_hex_spell(int spell, int mode)
     case 7:
         if (name) return "Patience";
         if (desc) return "Bursts hell fire strongly after patients any damage while few turns.";
-        power = MIN(200, (p_ptr->magic_num1[2] * 2));
+        power = MIN(200, p_ptr->magic_num1[2] * 2 + p_ptr->to_d_spell);
         if (info) return info_damage(0, 0, power);
         if (cast)
         {
@@ -8203,7 +8185,7 @@ static cptr do_hex_spell(int spell, int mode)
 
             if ((p_ptr->magic_num2[2] <= 0) || (power >= 200))
             {
-                msg_print("Time for end of patioence!");
+                msg_print("Time for end of patience!");
                 if (power)
                 {
                     project(0, rad, py, px, power, GF_HELL_FIRE,
@@ -8266,7 +8248,7 @@ static cptr do_hex_spell(int spell, int mode)
     case 11:
         if (name) return "Vampiric mist";
         if (desc) return "Deals few damages of drain life to all monsters in your sight.";
-        power = (plev / 2) + 5;
+        power = (plev / 2) + 5 + p_ptr->to_d_spell;
         if (info) return info_damage(1, power, 0);
         if (cast || cont)
         {
@@ -8389,44 +8371,43 @@ static cptr do_hex_spell(int spell, int mode)
         if (desc) return "Curse a piece of armour that you wielding.";
         if (cast)
         {
-            int item;
-            char *q, *s;
+            obj_prompt_t prompt = {0};
             char o_name[MAX_NLEN];
-            object_type *o_ptr;
             u32b f[OF_ARRAY_SIZE];
 
-            item_tester_hook = object_is_armour;
-            q = "Which piece of armour do you curse?";
-            s = "You wield no piece of armours.";
+            prompt.prompt = "Which piece of armour do you curse?";
+            prompt.error = "You wield no piece of armours.";
+            prompt.filter = object_is_armour;
+            prompt.where[0] = INV_EQUIP;
 
-            if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;
+            obj_prompt(&prompt);
+            if (!prompt.obj) return FALSE;
 
-            o_ptr = &inventory[item];
-            object_desc(o_name, o_ptr, OD_NAME_ONLY);
-            obj_flags(o_ptr, f);
+            object_desc(o_name, prompt.obj, OD_NAME_ONLY);
+            obj_flags(prompt.obj, f);
 
             if (!get_check(format("Do you curse %s, really?", o_name))) return FALSE;
 
             if (!one_in_(3) &&
-                (object_is_artifact(o_ptr) || have_flag(f, OF_BLESSED)))
+                (object_is_artifact(prompt.obj) || have_flag(f, OF_BLESSED)))
             {
                 msg_format("%s resists the effect.", o_name);
                 if (one_in_(3))
                 {
-                    if (o_ptr->to_d > 0)
+                    if (prompt.obj->to_d > 0)
                     {
-                        o_ptr->to_d -= randint1(3) % 2;
-                        if (o_ptr->to_d < 0) o_ptr->to_d = 0;
+                        prompt.obj->to_d -= randint1(3) % 2;
+                        if (prompt.obj->to_d < 0) prompt.obj->to_d = 0;
                     }
-                    if (o_ptr->to_h > 0)
+                    if (prompt.obj->to_h > 0)
                     {
-                        o_ptr->to_h -= randint1(3) % 2;
-                        if (o_ptr->to_h < 0) o_ptr->to_h = 0;
+                        prompt.obj->to_h -= randint1(3) % 2;
+                        if (prompt.obj->to_h < 0) prompt.obj->to_h = 0;
                     }
-                    if (o_ptr->to_a > 0)
+                    if (prompt.obj->to_a > 0)
                     {
-                        o_ptr->to_a -= randint1(3) % 2;
-                        if (o_ptr->to_a < 0) o_ptr->to_a = 0;
+                        prompt.obj->to_a -= randint1(3) % 2;
+                        if (prompt.obj->to_a < 0) prompt.obj->to_a = 0;
                     }
                     msg_format("Your %s was disenchanted!", o_name);
                 }
@@ -8435,27 +8416,27 @@ static cptr do_hex_spell(int spell, int mode)
             {
                 int power = 0;
                 msg_format("A terrible black aura blasts your %s!", o_name);
-                o_ptr->curse_flags |= (OFC_CURSED);
+                prompt.obj->curse_flags |= (OFC_CURSED);
 
-                if (object_is_artifact(o_ptr) || object_is_ego(o_ptr))
+                if (object_is_artifact(prompt.obj) || object_is_ego(prompt.obj))
                 {
 
-                    if (one_in_(3)) o_ptr->curse_flags |= (OFC_HEAVY_CURSE);
+                    if (one_in_(3)) prompt.obj->curse_flags |= (OFC_HEAVY_CURSE);
                     if (one_in_(666))
                     {
-                        o_ptr->curse_flags |= (OFC_TY_CURSE);
-                        if (one_in_(666)) o_ptr->curse_flags |= (OFC_PERMA_CURSE);
+                        prompt.obj->curse_flags |= (OFC_TY_CURSE);
+                        if (one_in_(666)) prompt.obj->curse_flags |= (OFC_PERMA_CURSE);
 
-                        add_flag(o_ptr->flags, OF_AGGRAVATE);
-                        add_flag(o_ptr->flags, OF_RES_POIS);
-                        add_flag(o_ptr->flags, OF_RES_DARK);
-                        add_flag(o_ptr->flags, OF_RES_NETHER);
+                        add_flag(prompt.obj->flags, OF_AGGRAVATE);
+                        add_flag(prompt.obj->flags, OF_RES_POIS);
+                        add_flag(prompt.obj->flags, OF_RES_DARK);
+                        add_flag(prompt.obj->flags, OF_RES_NETHER);
                         msg_print("Blood, Blood, Blood!");
                         power = 2;
                     }
                 }
 
-                o_ptr->curse_flags |= get_curse(power, o_ptr);
+                prompt.obj->curse_flags |= get_curse(power, prompt.obj);
             }
 
             p_ptr->update |= (PU_BONUS);
@@ -8507,7 +8488,7 @@ static cptr do_hex_spell(int spell, int mode)
     case 22:
         if (name) return "Pains to mana";
         if (desc) return "Deals psychic damages to all monsters in sight, and drains some mana.";
-        power = plev * 3 / 2;
+        power = plev * 3 / 2 + p_ptr->to_d_spell;
         if (info) return info_damage(1, power, 0);
         if (cast || cont)
         {
@@ -8600,40 +8581,39 @@ static cptr do_hex_spell(int spell, int mode)
         if (desc) return "Drains curse on your weapon and heals SP a little.";
         if (cast)
         {
-            int item;
-            char *s, *q;
+            obj_prompt_t prompt = {0};
             u32b f[OF_ARRAY_SIZE];
-            object_type *o_ptr;
 
-            item_tester_hook = item_tester_hook_cursed;
-            q = "Which cursed equipment do you drain mana from?";
-            s = "You have no cursed equipment.";
+            prompt.prompt = "Which cursed equipment do you drain mana from?";
+            prompt.error = "You have no cursed equipment.";
+            prompt.filter = item_tester_hook_cursed;
+            prompt.where[0] = INV_EQUIP;
 
-            if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;
+            obj_prompt(&prompt);
+            if (!prompt.obj) return FALSE;
 
-            o_ptr = &inventory[item];
-            obj_flags(o_ptr, f);
+            obj_flags(prompt.obj, f);
 
             p_ptr->csp += (plev / 5) + randint1(plev / 5);
-            if (have_flag(f, OF_TY_CURSE) || (o_ptr->curse_flags & OFC_TY_CURSE)) p_ptr->csp += randint1(5);
+            if (have_flag(f, OF_TY_CURSE) || (prompt.obj->curse_flags & OFC_TY_CURSE)) p_ptr->csp += randint1(5);
             if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
 
-            if (o_ptr->curse_flags & OFC_PERMA_CURSE)
+            if (prompt.obj->curse_flags & OFC_PERMA_CURSE)
             {
                 /* Nothing */
             }
-            else if (o_ptr->curse_flags & OFC_HEAVY_CURSE)
+            else if (prompt.obj->curse_flags & OFC_HEAVY_CURSE)
             {
                 if (one_in_(7))
                 {
                     msg_print("Heavy curse vanished away.");
-                    o_ptr->curse_flags = 0L;
+                    prompt.obj->curse_flags = 0L;
                 }
             }
-            else if ((o_ptr->curse_flags & (OFC_CURSED)) && one_in_(3))
+            else if ((prompt.obj->curse_flags & (OFC_CURSED)) && one_in_(3))
             {
                 msg_print("Curse vanished away.");
-                o_ptr->curse_flags = 0L;
+                prompt.obj->curse_flags = 0L;
             }
 
             add = FALSE;
@@ -8726,7 +8706,7 @@ static cptr do_hex_spell(int spell, int mode)
     case 31:
         if (name) return "Revenge sentence";
         if (desc) return "Fires  a ball of hell fire to try revenging after few turns.";
-        power = p_ptr->magic_num1[2];
+        power = p_ptr->magic_num1[2] + p_ptr->to_d_spell;
         if (info) return info_damage(0, 0, power);
         if (cast)
         {
@@ -8772,7 +8752,7 @@ static cptr do_hex_spell(int spell, int mode)
                 }
                 else
                 {
-                    msg_print("You are not a mood to revenge.");
+                    msg_print("You are not in a mood for revenge.");
                 }
                 p_ptr->magic_num1[2] = 0;
             }
@@ -9366,7 +9346,7 @@ static cptr do_armageddon_spell(int spell, int mode)
 
             if (cast)
             {
-                if (!get_fire_dir(&dir)) return NULL;
+                if (!get_fire_dir_aux(&dir, TARGET_DISI)) return NULL;
                 fire_ball(GF_DISINTEGRATE, dir, dam, rad);
             }
         }

@@ -84,7 +84,7 @@ static bool _whip_fetch(int dir, int rng)
             tx += ddx[dir];
             c_ptr = &cave[ty][tx];
 
-            if ((distance(py, px, ty, tx) > MAX_RANGE) ||
+            if ((distance(py, px, ty, tx) > rng) ||
                 !in_bounds(ty, tx) ||
                 !cave_have_flag_bold(ty, tx, FF_PROJECT))
             {
@@ -105,16 +105,9 @@ static bool _whip_fetch(int dir, int rng)
     object_desc(o_name, o_ptr, OD_NAME_ONLY);
 
     /* Get the object */
-    if (!inven_carry_okay(o_ptr))
-    {
-        cmsg_format(TERM_VIOLET, "You fail to fetch %^s since your pack is full.", o_name);
-        /* Leave the object where it is */
-    }
-    else
-    {
-        msg_format("You skillfully crack your whip and fetch %^s.", o_name);
-        py_pickup_aux(c_ptr->o_idx);
-    }
+    msg_format("You skillfully crack your whip and fetch %^s.", o_name);
+    pack_carry(o_ptr);
+    obj_release(o_ptr, OBJ_RELEASE_QUIET);
 
     return TRUE;
 }
@@ -146,8 +139,8 @@ static bool _sense_great_discovery(int range)
         if (object_is_known(o_ptr)) continue;
 
         /* Location */
-        y = o_ptr->iy;
-        x = o_ptr->ix;
+        y = o_ptr->loc.y;
+        x = o_ptr->loc.x;
 
         /* Only detect nearby objects */
         if (distance(py, px, y, x) > range2) continue;
@@ -314,7 +307,7 @@ static void _excavation_spell(int cmd, variant *res)
         {
             int n = 200;
 
-            if (equip_find_object(TV_DIGGING, SV_ANY))
+            if (equip_find_obj(TV_DIGGING, SV_ANY))
                 n -= 120 * p_ptr->lev / 50;
             else
                 n -= 80 * p_ptr->lev / 50;
@@ -803,6 +796,30 @@ static void _birth(void)
     py_birth_obj_aux(TV_SCROLL, SV_SCROLL_MAPPING, rand_range(5, 10));
 }
 
+void _get_object(obj_ptr obj)
+{
+    if (object_is_artifact(obj) && !object_is_known(obj))
+    {
+        /* Suppress you are leaving something special behind message ... */
+        if (p_ptr->sense_artifact)
+        {
+            p_ptr->sense_artifact = FALSE;    /* There may be more than one? */
+            p_ptr->redraw |= PR_STATUS;
+        }
+
+        if (!(obj->ident & IDENT_SENSE))
+        {
+            char name[MAX_NLEN];
+
+            object_desc(name, obj, OD_COLOR_CODED);
+            cmsg_format(TERM_L_BLUE, "You feel that the %s is %s...", name, game_inscriptions[FEEL_SPECIAL]);
+
+            obj->ident |= IDENT_SENSE;
+            obj->feeling = FEEL_SPECIAL;
+        }
+    }
+}
+
 class_t *archaeologist_get_class(void)
 {
     static class_t me = {0};
@@ -843,6 +860,7 @@ class_t *archaeologist_get_class(void)
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
         me.character_dump = _character_dump;
+        me.get_object = _get_object;
 
         init = TRUE;
     }

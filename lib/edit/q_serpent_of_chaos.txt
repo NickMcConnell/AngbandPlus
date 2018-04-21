@@ -1,0 +1,9 @@
+# vim: filetype=q :
+
+?:[EQU $QUEST9 Taken InProgress]
+D:Your final quest is the ultimate quest that has always been
+D:required of you. You must enter the realm of the Serpent,
+D:travel deep, and defeat this source of all our problems.
+D:Be prepared, be patient, and good luck. May the light shine on you.
+?:1
+

@@ -182,18 +182,6 @@
 # include <curses.h>
 #endif
 
-/* gcc warns that these are implicitly declared:
-main-gcu.c:1123:7: warning: implicit declaration of function ‘usleep’ [-Wimplicit-function-declaration]
-       usleep(1000 * v);
-       ^
-main-gcu.c:1374:8: warning: implicit declaration of function ‘putenv’ [-Wimplicit-function-declaration]
-        putenv("ESCDELAY=20");
-        ^
-   Anybody know how to remove the warning? #include <stdlib.h> does not work ...
-*/
-extern int usleep(__useconds_t);
-extern int putenv(char*);
-
 typedef struct term_data term_data;
 
 struct term_data
@@ -208,7 +196,7 @@ struct term_data
 static term_data data[MAX_TERM_DATA];
 
 #define MAP_MIN_CX 80
-#define MAP_MIN_CY 27
+#define MAP_MIN_CY 24
 
 /*
  * Hack -- try to guess which systems use what commands
@@ -1395,8 +1383,8 @@ errr init_gcu(int argc, char *argv[])
    core_aux = hook_quit;
 
    /* Hack -- Require large screen, or Quit with message */
-   i = ((LINES < 27) || (COLS < 80));
-   if (i) quit("Angband needs an 80x27 'curses' screen");
+   i = ((LINES < 24) || (COLS < 80));
+   if (i) quit("Angband needs an 80x24 'curses' screen");
 
 
 #ifdef A_COLOR
@@ -1535,7 +1523,7 @@ errr init_gcu(int argc, char *argv[])
         EDIT: Added support for -left and -top.
     */
     {
-        rect_t remaining = rect_create(0, 0, COLS, LINES); 
+        rect_t remaining = rect(0, 0, COLS, LINES);
         int    spacer_cx = 1;
         int    spacer_cy = 1;
         int    next_term = 1;
@@ -1595,7 +1583,7 @@ errr init_gcu(int argc, char *argv[])
                         quit(format("Out of bounds in -%s: %d is too large (%d rows max for this strip)", 
                             left ? "left" : "right", cys[j], remaining.cy));
                     }
-                    data[next_term++].r = rect_create(x, y, cx, cy);
+                    data[next_term++].r = rect(x, y, cx, cy);
                     y += cy + spacer_cy;
                     term_ct++;
                 }
@@ -1647,7 +1635,7 @@ errr init_gcu(int argc, char *argv[])
                         quit(format("Out of bounds in -%s: %d is too large (%d cols max for this strip)", 
                             top ? "top" : "bottom", cxs[j], remaining.cx));
                     }
-                    data[next_term++].r = rect_create(x, y, cx, cy);
+                    data[next_term++].r = rect(x, y, cx, cy);
                     x += cx + spacer_cx;
                     term_ct++;
                 }

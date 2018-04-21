@@ -1744,6 +1744,14 @@ errr Term_putstr(int x, int y, int n, byte a, cptr s)
     return (0);
 }
 
+errr Term_clear_rect(rect_t r)
+{
+    int y;
+    for (y = r.y; y < r.y + r.cy; y++)
+        Term_erase(r.x, y, r.cx);
+    Term_gotoxy(r.x, r.y);
+    return 0;
+}
 
 /*
  * Place cursor at (x,y), and clear the next "n" chars

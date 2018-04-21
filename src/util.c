@@ -1146,7 +1146,7 @@ static int dehex(char c)
 }
 
 
-static int my_stricmp(cptr a, cptr b)
+int my_stricmp(cptr a, cptr b)
 {
     cptr s1, s2;
     char z1, z2;
@@ -2692,6 +2692,9 @@ void clear_from(int row)
  * BACKSPACE (^H) deletes a char at the left of cursor position.
  * ESCAPE clears the buffer and the window and returns FALSE.
  * RETURN accepts the current buffer contents and returns TRUE.
+ *
+ * N.B. len is not the length of buf, but the length of input.
+ * buf s/b char[len+1] ... at least!
  */
 bool askfor_aux(char *buf, int len, bool numpad_cursor)
 {
@@ -2896,6 +2899,9 @@ bool askfor_aux(char *buf, int len, bool numpad_cursor)
  * Get some string input at the cursor location.
  *
  * Allow to use numpad keys as cursor keys.
+ *
+ * N.B. len is not the length of buf, but the length of input.
+ * buf s/b char[len+1] ... at least!
  */
 bool askfor(char *buf, int len)
 {
@@ -2912,6 +2918,9 @@ bool askfor(char *buf, int len)
  * the default response, so be sure to "clear" it if needed.
  *
  * We clear the input, and return FALSE, on "ESCAPE".
+ *
+ * N.B. len is not the length of buf, but the length of input.
+ * buf s/b char[len+1] ... at least!
  */
 bool get_string(cptr prompt, char *buf, int len)
 {
@@ -3445,7 +3454,7 @@ static char inkey_from_menu(void)
                     if (p_ptr->pclass == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
                     break;
                 case MENU_WILD:
-                    if (!dun_level && !p_ptr->inside_arena && !p_ptr->inside_quest)
+                    if (py_on_surface())
                     {
                         if ((byte)p_ptr->wild_mode == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
                     }
@@ -3808,7 +3817,7 @@ void request_command(int shopping)
 
 
     /* Hack -- Scan equipment */
-    for (i = EQUIP_BEGIN; i < EQUIP_BEGIN + equip_count(); i++)
+    for (i = 1; i <= equip_max(); i++)
     {
         cptr s;
         object_type *o_ptr = equip_obj(i);

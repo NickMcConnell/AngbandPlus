@@ -282,10 +282,9 @@ int res_ct_known(int which)
        flag based approach to resistance is just wrong, but I'm
        too lazy to fix ...
     */
-    for (i = 0; i < equip_count(); i++)
+    for (i = 1; i <= equip_max(); i++)
     {
-        int          slot = EQUIP_BEGIN + i;
-        object_type *o_ptr = equip_obj(slot);
+        object_type *o_ptr = equip_obj(i);
         u32b         flgs[OF_ARRAY_SIZE];
         u32b         flgs_known[OF_ARRAY_SIZE];
 

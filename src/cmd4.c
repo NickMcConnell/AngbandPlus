@@ -362,7 +362,7 @@ void do_cmd_redraw(void)
 
 
     /* Combine and Reorder the pack (later) */
-    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+    p_ptr->notice |= (PN_OPTIMIZE_PACK | PN_OPTIMIZE_QUIVER);
 
 
     /* Update torch */
@@ -800,7 +800,7 @@ void do_cmd_options_aux(int page, cptr info)
 
 
         /* HACK -- description for easy-auto-destroy options */
-        if (page == OPT_PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 7, 3);
+        if (page == OPT_PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 8, 3);
 
         /* Display the options */
         for (i = 0; i < n; i++)
@@ -816,11 +816,11 @@ void do_cmd_options_aux(int page, cptr info)
                 (*option_info[opt[i]].o_var ? "yes" : "no "),
 
                 option_info[opt[i]].o_text);
-            if ((page == OPT_PAGE_AUTODESTROY) && i > 3) c_prt(a, buf, i + 5, 0);
+            if ((page == OPT_PAGE_AUTODESTROY) && i > 4) c_prt(a, buf, i + 6, 0);
             else c_prt(a, buf, i + 2, 0);
         }
 
-        if ((page == OPT_PAGE_AUTODESTROY) && (k > 3)) l = 3;
+        if ((page == OPT_PAGE_AUTODESTROY) && (k > 4)) l = 4;
         else l = 0;
 
         /* Hilite current option */
@@ -2322,7 +2322,8 @@ void do_cmd_visuals(void)
                 auto_dump_printf("# %s\n", o_name);
 
                 /* Dump the object attr/char info */
-                auto_dump_printf("K:%d:0x%02X/0x%02X\n\n", i,
+                auto_dump_printf("K:%d:%d:0x%02X/0x%02X\n\n",
+                    k_ptr->tval, k_ptr->sval,
                     (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
             }
 
@@ -3179,7 +3180,7 @@ static _feeling_info_t _level_feelings_lucky[11] =
 void do_cmd_feeling(void)
 {
     /* No useful feeling in quests */
-    if (p_ptr->inside_quest && !random_quest_number(dun_level))
+    if (!quests_allow_feeling())
     {
         msg_print("Looks like a typical quest level.");
     }
@@ -3187,7 +3188,7 @@ void do_cmd_feeling(void)
     /* No useful feeling in town */
     else if (p_ptr->town_num && !dun_level)
     {
-        if (!strcmp(town[p_ptr->town_num].name, "wilderness"))
+        if (!strcmp(town_name(p_ptr->town_num), "Wilderness"))
         {
             msg_print("Looks like a strange wilderness.");
         }
@@ -3411,24 +3412,22 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 
     if (grp_corpses)
     {
-        store_type *store_ptr = &town[1].store[STORE_HOME];
-
         available_corpses = int_map_alloc(NULL);
 
         /* In Pack */
-        for (i = 0; i < INVEN_PACK; i++)
+        for (i = 1; i <= pack_max(); i++)
         {
-            object_type *o_ptr = &inventory[i];
-            if (!o_ptr->k_idx) continue;
+            object_type *o_ptr = pack_obj(i);
+            if (!o_ptr) continue;
             if (!object_is_(o_ptr, TV_CORPSE, SV_CORPSE)) continue;
             int_map_add(available_corpses, o_ptr->pval, NULL);
         }
 
         /* At Home */
-        for (i = 0; i < store_ptr->stock_num; i++)
+        for (i = 1; i <= home_max(); i++)
         {
-            object_type *o_ptr = &store_ptr->stock[i];
-            if (!o_ptr->k_idx) continue;
+            object_type *o_ptr = home_obj(i);
+            if (!o_ptr) continue;
             if (!object_is_(o_ptr, TV_CORPSE, SV_CORPSE)) continue;
             int_map_add(available_corpses, o_ptr->pval, NULL);
         }
@@ -3783,215 +3782,6 @@ static int collect_features(int grp_cur, int *feat_idx, byte mode)
 
     /* Return the number of races */
     return feat_cnt;
-}
-
-
-#if 0
-/*
- * Build a list of monster indexes in the given group. Return the number
- * of monsters in the group.
- */
-static int collect_artifacts(int grp_cur, int object_idx[])
-{
-    int i, object_cnt = 0;
-
-    /* Get a list of x_char in this group */
-    byte group_tval = object_group_tval[grp_cur];
-
-    /* Check every object */
-    for (i = 0; i < max_a_idx; i++)
-    {
-        /* Access the artifact */
-        artifact_type *a_ptr = &a_info[i];
-
-        /* Skip empty artifacts */
-        if (!a_ptr->name) continue;
-
-        /* Skip "uncreated" artifacts */
-        if (!a_ptr->cur_num) continue;
-
-        /* Check for race in the group */
-        if (a_ptr->tval == group_tval)
-        {
-            /* Add the race */
-            object_idx[object_cnt++] = i;
-        }
-    }
-
-    /* Terminate the list */
-    object_idx[object_cnt] = 0;
-
-    /* Return the number of races */
-    return object_cnt;
-}
-#endif /* 0 */
-
-cptr inven_res_label =
- "                               AcElFiCoPoLiDkShSoNtNxCaDi BlFeCfFaSiHlEpSdRgLv";
-
-
-#define IM_FLAG_STR  "* "
-#define HAS_FLAG_STR "+ "
-#define NO_FLAG_STR  ". "
-
-#define print_im_or_res_flag(IM, RES) \
-{ \
-    fputs(have_flag(flgs, (IM)) ? IM_FLAG_STR : \
-          (have_flag(flgs, (RES)) ? HAS_FLAG_STR : NO_FLAG_STR), fff); \
-}
-
-#define print_flag(TR) \
-{ \
-    fputs(have_flag(flgs, (TR)) ? HAS_FLAG_STR : NO_FLAG_STR, fff); \
-}
-
-
-/* XTRA HACK RESLIST */
-static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr, int *j, byte tval, char *where)
-{
-    char o_name[MAX_NLEN];
-    u32b flgs[OF_ARRAY_SIZE];
-
-    if (!o_ptr->k_idx) return;
-    if (o_ptr->tval != tval) return;
-
-    /* Identified items only */
-    if (!object_is_known(o_ptr)) return;
-
-    /*
-     * HACK:Ring of Lordly protection and Dragon equipment
-     * have random resistances.
-     */
-    if ((object_is_wearable(o_ptr) && object_is_ego(o_ptr))
-        || object_is_dragon_armor(o_ptr)
-        || object_is_artifact(o_ptr))
-    {
-        int i = 0;
-        object_desc(o_name, o_ptr, OD_NAME_ONLY);
-
-        while (o_name[i] && (i < 26))
-        {
-            i++;
-        }
-
-        if (i < 28)
-        {
-            while (i < 28)
-            {
-                o_name[i] = ' '; i++;
-            }
-        }
-        o_name[i] = '\0';
-
-        fprintf(fff, "%s %s", where, o_name);
-
-        obj_flags_known(o_ptr, flgs);
-
-        print_im_or_res_flag(OF_IM_ACID, OF_RES_ACID);
-        print_im_or_res_flag(OF_IM_ELEC, OF_RES_ELEC);
-        print_im_or_res_flag(OF_IM_FIRE, OF_RES_FIRE);
-        print_im_or_res_flag(OF_IM_COLD, OF_RES_COLD);
-        print_flag(OF_RES_POIS);
-        print_flag(OF_RES_LITE);
-        print_flag(OF_RES_DARK);
-        print_flag(OF_RES_SHARDS);
-        print_flag(OF_RES_SOUND);
-        print_flag(OF_RES_NETHER);
-        print_flag(OF_RES_NEXUS);
-        print_flag(OF_RES_CHAOS);
-        print_flag(OF_RES_DISEN);
-
-        fputs(" ", fff);
-
-        print_flag(OF_RES_BLIND);
-        print_flag(OF_RES_FEAR);
-        print_flag(OF_RES_CONF);
-        print_flag(OF_FREE_ACT);
-        print_flag(OF_SEE_INVIS);
-        print_flag(OF_HOLD_LIFE);
-        print_flag(OF_TELEPATHY);
-        print_flag(OF_SLOW_DIGEST);
-        print_flag(OF_REGEN);
-        print_flag(OF_LEVITATION);
-
-        fputc('\n', fff);
-
-        (*j)++;
-        if (*j == 9)
-        {
-            *j = 0;
-            fprintf(fff, "%s\n", inven_res_label);
-        }
-    }
-}
-
-/*
- * Display *ID* ed weapons/armors's resistances
- */
-static void do_cmd_knowledge_inven(void)
-{
-    FILE *fff;
-
-    char file_name[1024];
-
-    store_type  *st_ptr;
-
-    byte tval;
-    int i = 0;
-    int j = 0;
-
-    char  where[32];
-
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff)
-    {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
-    fprintf(fff, "%s\n", inven_res_label);
-
-    for (tval = TV_WEARABLE_BEGIN; tval <= TV_WEARABLE_END; tval++)
-    {
-        if (j != 0)
-        {
-            for (; j < 9; j++) fputc('\n', fff);
-            j = 0;
-            fprintf(fff, "%s\n", inven_res_label);
-        }
-
-        strcpy(where, "E ");
-        for (i = EQUIP_BEGIN; i < EQUIP_BEGIN + equip_count(); i++)
-        {
-            object_type *o_ptr = equip_obj(i);
-            if (o_ptr)
-                do_cmd_knowledge_inven_aux(fff, o_ptr, &j, tval, where);
-        }
-
-        strcpy(where, "I ");
-        for (i = 0; i < INVEN_PACK; i++)
-        {
-            do_cmd_knowledge_inven_aux(fff, &inventory[i], &j, tval, where);
-        }
-
-        st_ptr = &town[1].store[STORE_HOME];
-        strcpy(where, "H ");
-
-        for (i = 0; i < st_ptr->stock_num; i++)
-        {
-            do_cmd_knowledge_inven_aux(fff, &st_ptr->stock[i], &j, tval, where);
-        }
-    }
-
-    /* Close the file */
-    my_fclose(fff);
-
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Resistances of *identified* equipment", 0, 0);
-
-    /* Remove the file */
-    fd_kill(file_name);
 }
 
 void do_cmd_save_screen_doc(void)
@@ -4594,7 +4384,7 @@ static void _prof_weapon_doc(doc_ptr doc, int tval)
         char         name[MAX_NLEN];
 
         strip_name(name, k_ptr->idx);
-        doc_printf(doc, "<color:%c>%-19s</color> ", equip_find_object(k_ptr->tval, k_ptr->sval) ? 'B' : 'w', name);
+        doc_printf(doc, "<color:%c>%-19s</color> ", equip_find_obj(k_ptr->tval, k_ptr->sval) ? 'B' : 'w', name);
         doc_printf(doc, "%c<color:%c>%-4s</color>", exp >= max ? '!' : ' ', _prof_exp_color[exp_lvl], _prof_exp_str[exp_lvl]);
         doc_newline(doc);
     }
@@ -5462,9 +5252,9 @@ static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
                         sprintf(buf, "%+3d%%", r_ptr->body.life);
                         c_put_str(TERM_WHITE, buf, row + i, 110);
 
-                        for (j = 0; j < body->count; j++)
+                        for (j = 1; j <= body->max; j++)
                         {
-                            int c = 116 + j;
+                            int c = 115 + j;
                             int r = row + i;
                             switch (body->slots[j].type)
                             {
@@ -7077,591 +6867,6 @@ static void do_cmd_knowledge_stat(void)
 }
 
 /*
- * Print all active quests
- */
-static void do_cmd_knowledge_quests_current(FILE *fff)
-{
-    char tmp_str[120];
-    char rand_tmp_str[120] = "\0";
-    char name[80];
-    monster_race *r_ptr;
-    int i;
-    int rand_level = 100;
-    int total = 0;
-
-    if (character_dump_hack)
-        fprintf(fff, "< Current Quests >\n");
-    else
-        fprintf(fff, "  [[[[r|Current Quests\n");
-
-    for (i = 1; i < max_quests; i++)
-    {
-        if ((quest[i].status == QUEST_STATUS_TAKEN) || (quest[i].status == QUEST_STATUS_COMPLETED))
-        {
-            /* Set the quest number temporary */
-            int old_quest = p_ptr->inside_quest;
-            int j;
-
-            /* Clear the text */
-            for (j = 0; j < 10; j++) quest_text[j][0] = '\0';
-            quest_text_line = 0;
-
-            p_ptr->inside_quest = i;
-
-            /* Get the quest text */
-            init_flags = INIT_SHOW_TEXT;
-
-            process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-
-            /* Reset the old quest number */
-            p_ptr->inside_quest = old_quest;
-
-            /* No info from "silent" quests */
-            if (quest[i].flags & QUEST_FLAG_SILENT) continue;
-
-            total++;
-
-            if (quest[i].type != QUEST_TYPE_RANDOM)
-            {
-                char note[80] = "\0";
-
-                if (quest[i].status == QUEST_STATUS_TAKEN)
-                {
-                    switch (quest[i].type)
-                    {
-                    case QUEST_TYPE_KILL_LEVEL:
-                    case QUEST_TYPE_KILL_ANY_LEVEL:
-                        r_ptr = &r_info[quest[i].r_idx];
-                        strcpy(name, r_name + r_ptr->name);
-                        if (quest[i].max_num > 1)
-                        {
-                            plural_aux(name);
-                            sprintf(note," - kill %d %s, have killed %d.",
-                                quest[i].max_num, name, quest[i].cur_num);
-                        }
-                        else
-                            sprintf(note," - kill %s.",name);
-                        break;
-
-                    case QUEST_TYPE_FIND_ARTIFACT:
-                        strcpy(name, a_name + a_info[quest[i].k_idx].name);
-                        sprintf(note," - Find out %s.", name);
-                        break;
-
-                    case QUEST_TYPE_FIND_EXIT:
-                        sprintf(note," - Search.");
-                        break;
-
-                    case QUEST_TYPE_KILL_NUMBER:
-                        sprintf(note," - Kill %d monsters, have killed %d.",
-                            quest[i].max_num, quest[i].cur_num);
-                        break;
-
-                    case QUEST_TYPE_KILL_ALL:
-                        sprintf(note," - Kill all monsters.");
-                        break;
-                    }
-                }
-
-                /* Print the quest info */
-                sprintf(tmp_str, "  %s (Danger level: %d)%s\n",
-                    quest[i].name, quest[i].level, note);
-
-                fprintf(fff, "%s", tmp_str);
-
-                if (quest[i].status == QUEST_STATUS_COMPLETED)
-                {
-                    sprintf(tmp_str, "    Quest Completed - Unrewarded\n");
-                    fprintf(fff, "%s", tmp_str);
-                }
-                else
-                {
-                    j = 0;
-
-                    while (quest_text[j][0] && j < 10)
-                    {
-                        fprintf(fff, "    %s\n", quest_text[j]);
-                        j++;
-                    }
-                }
-            }
-            else if (quest[i].level < rand_level) /* QUEST_TYPE_RANDOM */
-            {
-                /* New random */
-                rand_level = quest[i].level;
-
-                if (max_dlv[DUNGEON_ANGBAND] >= rand_level)
-                {
-                    /* Print the quest info */
-                    r_ptr = &r_info[quest[i].r_idx];
-                    strcpy(name, r_name + r_ptr->name);
-
-                    if (quest[i].max_num > 1)
-                    {
-                        plural_aux(name);
-
-                        sprintf(rand_tmp_str,"  %s (Dungeon level: %d)\n  Kill %d %s, have killed %d.\n",
-                            quest[i].name, quest[i].level,
-                            quest[i].max_num, name, quest[i].cur_num);
-                    }
-                    else
-                    {
-                        sprintf(rand_tmp_str,"  %s (Dungeon level: %d)\n  Kill %s.\n",
-                            quest[i].name, quest[i].level, name);
-                    }
-                }
-            }
-        }
-    }
-
-    /* Print the current random quest  */
-    if (rand_tmp_str[0]) fprintf(fff, "%s", rand_tmp_str);
-
-    if (!total) fprintf(fff, "  Nothing.\n");
-}
-
-
-/*
- * Print all finished quests
- */
-void do_cmd_knowledge_quests_completed(FILE *fff, int quest_num[])
-{
-    char tmp_str[120];
-    int i;
-    int total = 0;
-
-    if (character_dump_hack)
-        fprintf(fff, "< Completed Quests >\n");
-    else
-        fprintf(fff, "  [[[[r|Completed Quests\n");
-
-    for (i = 1; i < max_quests; i++)
-    {
-        int q_idx = quest_num[i];
-
-        if (quest[q_idx].status == QUEST_STATUS_FINISHED)
-        {
-            if (is_fixed_quest_idx(q_idx))
-            {
-                /* Set the quest number temporary */
-                int old_quest = p_ptr->inside_quest;
-
-                p_ptr->inside_quest = q_idx;
-
-                /* Get the quest */
-                init_flags = INIT_ASSIGN;
-
-                process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-
-                /* Reset the old quest number */
-                p_ptr->inside_quest = old_quest;
-
-                /* No info from "silent" quests */
-                if (quest[q_idx].flags & QUEST_FLAG_SILENT) continue;
-            }
-
-            total++;
-
-            if (!is_fixed_quest_idx(q_idx) && quest[q_idx].r_idx)
-            {
-                /* Print the quest info */
-
-                if (quest[q_idx].complev == 0)
-                {
-                    sprintf(tmp_str,
-                        "  %-40s (Dungeon level: %3d) - (Cancelled)\n",
-                        r_name+r_info[quest[q_idx].r_idx].name,
-                        quest[q_idx].level);
-                }
-                else
-                {
-                    sprintf(tmp_str,
-                        "  %-40s (Dungeon level: %3d) - level %2d\n",
-                        r_name+r_info[quest[q_idx].r_idx].name,
-                        quest[q_idx].level,
-                        quest[q_idx].complev);
-                }
-            }
-            else
-            {
-                /* Print the quest info */
-                sprintf(tmp_str, "  %-40s (Danger  level: %3d) - level %2d\n",
-                    quest[q_idx].name, quest[q_idx].level, quest[q_idx].complev);
-            }
-
-            fprintf(fff, "%s", tmp_str);
-        }
-    }
-    if (!total) fprintf(fff, "  Nothing.\n");
-}
-
-
-/*
- * Print all failed quests
- */
-void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[])
-{
-    char tmp_str[120];
-    int i;
-    int total = 0;
-
-    if (character_dump_hack)
-        fprintf(fff, "< Failed Quests >\n");
-    else
-        fprintf(fff, "  [[[[r|Failed Quests\n");
-    for (i = 1; i < max_quests; i++)
-    {
-        int q_idx = quest_num[i];
-
-        if ((quest[q_idx].status == QUEST_STATUS_FAILED_DONE) || (quest[q_idx].status == QUEST_STATUS_FAILED))
-        {
-            if (is_fixed_quest_idx(q_idx))
-            {
-                /* Set the quest number temporary */
-                int old_quest = p_ptr->inside_quest;
-
-                p_ptr->inside_quest = q_idx;
-
-                /* Get the quest text */
-                init_flags = INIT_ASSIGN;
-
-                process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-
-                /* Reset the old quest number */
-                p_ptr->inside_quest = old_quest;
-
-                /* No info from "silent" quests */
-                if (quest[q_idx].flags & QUEST_FLAG_SILENT) continue;
-            }
-
-            total++;
-
-            if (!is_fixed_quest_idx(q_idx) && quest[q_idx].r_idx)
-            {
-                monster_race *r_ptr = &r_info[quest[q_idx].r_idx];
-                if (r_ptr->flags1 & RF1_UNIQUE)
-                {
-                    sprintf(tmp_str, "  %-40s (Dungeon level: %3d) - level %2d\n",
-                        r_name+r_ptr->name, quest[q_idx].level, quest[q_idx].complev);
-                }
-                else
-                {
-                    sprintf(tmp_str, "  %-40s (Kill %d) (Dungeon level: %3d) - level %2d\n",
-                        r_name+r_ptr->name, quest[q_idx].max_num,
-                        quest[q_idx].level, quest[q_idx].complev);
-                }
-            }
-            else
-            {
-                /* Print the quest info */
-                sprintf(tmp_str, "  %-40s (Danger  level: %3d) - level %2d\n",
-                    quest[q_idx].name, quest[q_idx].level, quest[q_idx].complev);
-            }
-            fprintf(fff, "%s", tmp_str);
-        }
-    }
-    if (!total) fprintf(fff, "  Nothing.\n");
-}
-
-
-/*
- * Print all random quests
- */
-static void do_cmd_knowledge_quests_wiz_random(FILE *fff, int quest_num[])
-{
-    char tmp_str[120];
-    int i;
-    int total = 0;
-
-    fprintf(fff, "  [[[[r|Remaining Random Quest\n");
-    for (i = 1; i < max_quests; i++)
-    {
-        int            q_idx = quest_num[i];
-        quest_type *q_ptr = &quest[q_idx];
-
-        /* No info from "silent" quests */
-        if (q_ptr->flags & QUEST_FLAG_SILENT) continue;
-
-        if ((q_ptr->type == QUEST_TYPE_RANDOM) && (q_ptr->status == QUEST_STATUS_TAKEN))
-        {
-            monster_race *r_ptr = &r_info[q_ptr->r_idx];
-            total++;
-
-            if (q_ptr->max_num > 1)
-            {
-                char name[100];
-                strcpy(name, r_name + r_ptr->name);
-                plural_aux(name);
-
-                if (q_ptr->cur_num > 0)
-                {
-                    sprintf(tmp_str,"  (Lev: %d) Kill %d %s, have killed %d.\n",
-                        q_ptr->level,
-                        q_ptr->max_num, name, q_ptr->cur_num);
-                }
-                else
-                {
-                    sprintf(tmp_str,"  (Lev: %d) Kill %d %s.\n",
-                        q_ptr->level,
-                        q_ptr->max_num, name);
-                }
-            }
-            else
-            {
-                sprintf(tmp_str, "  (Lev: %d) Kill %s.\n",
-                    q_ptr->level, r_name+r_ptr->name);
-            }
-            fprintf(fff, "%s", tmp_str);
-        }
-    }
-    if (!total) fprintf(fff, "  Nothing.\n");
-}
-
-
-bool ang_sort_comp_quest_num(vptr u, vptr v, int a, int b)
-{
-    int *q_num = (int *)u;
-    quest_type *qa = &quest[q_num[a]];
-    quest_type *qb = &quest[q_num[b]];
-
-    /* Unused */
-    (void)v;
-
-    if (qa->complev < qb->complev) return TRUE;
-    if (qa->complev > qb->complev) return FALSE;
-    if (qa->level <= qb->level) return TRUE;
-    return FALSE;
-}
-
-void ang_sort_swap_quest_num(vptr u, vptr v, int a, int b)
-{
-    int *q_num = (int *)u;
-    int tmp;
-
-    /* Unused */
-    (void)v;
-
-    tmp = q_num[a];
-    q_num[a] = q_num[b];
-    q_num[b] = tmp;
-}
-
-
-/*
- * Print quest status of all active quests
- */
-static void do_cmd_knowledge_quests(void)
-{
-    FILE *fff;
-    char file_name[1024];
-    int *quest_num, dummy, i;
-
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff)
-    {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
-
-    /* Allocate Memory */
-    C_MAKE(quest_num, max_quests, int);
-
-    /* Sort by compete level */
-    for (i = 1; i < max_quests; i++) quest_num[i] = i;
-    ang_sort_comp = ang_sort_comp_quest_num;
-    ang_sort_swap = ang_sort_swap_quest_num;
-    ang_sort(quest_num, &dummy, max_quests);
-
-    /* Dump Quest Information */
-    do_cmd_knowledge_quests_current(fff);
-    fputc('\n', fff);
-    do_cmd_knowledge_quests_completed(fff, quest_num);
-    fputc('\n', fff);
-    do_cmd_knowledge_quests_failed(fff, quest_num);
-    if (p_ptr->wizard)
-    {
-        fputc('\n', fff);
-        do_cmd_knowledge_quests_wiz_random(fff, quest_num);
-    }
-
-    /* Close the file */
-    my_fclose(fff);
-
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Quest status", 0, 0);
-
-    /* Remove the file */
-    fd_kill(file_name);
-
-    /* Free Memory */
-    C_KILL(quest_num, max_quests, int);
-}
-
-
-/*
- * List my home
- * Code snagged from store.c, and probably should be shared.
- */
-static void do_cmd_knowledge_home(void)
-{
-    int         w, h, i;
-    int         page_size, page_top = 0;
-    store_type *st_ptr = &town[1].store[STORE_HOME];
-    bool        done = FALSE;
-    bool        show_weights2 = show_weights;
-
-    Term_get_size(&w, &h);
-    Term_clear();
-
-    page_size = h - 12;
-
-    while (!done)
-    {
-        int row, cmd;
-        int page_num = 1 + page_top / page_size;
-        int max_width = show_weights2 ? 65 : 75;
-
-        clear_from(1);
-        put_str("Your Home", 3, 30);
-        put_str(format("Item Description (Page %d)", page_num), 5, 3);
-        if (show_weights2)
-            put_str("Weight", 5, 70);
-
-        row = 6;
-
-        /* Draw the Inventory */
-        for (i = 0; i < page_size; i++, row++)
-        {
-            object_type *o_ptr;
-            char         buf[255];
-            char         o_name[MAX_NLEN];
-            int          col = 3;
-
-            col = 3;
-
-            if (page_top + i >= st_ptr->stock_num) break;
-            o_ptr = &st_ptr->stock[page_top + i];
-
-            sprintf(buf, "%c) ", ((i > 25) ? toupper(I2A(i - 26)) : I2A(i)));
-            prt(buf, row, 0);
-            if (show_item_graph)
-            {
-                byte a = object_attr(o_ptr);
-                char c = object_char(o_ptr);
-
-                Term_queue_bigchar(col, row, a, c, 0, 0);
-                if (use_bigtile) col++;
-
-                col += 2;
-            }
-
-            object_desc(o_name, o_ptr, 0);
-            o_name[max_width] = '\0';
-            c_put_str(tval_to_attr[o_ptr->tval], o_name, row, col);
-            if (show_weights2)
-            {
-                int wgt = o_ptr->weight;
-                sprintf(buf, "%3d.%d lb", wgt / 10, wgt % 10);
-                put_str(buf, row, 68);
-
-            }
-        }
-
-        /* Commands */
-        row++;
-        prt(" ESC) Quit.", row, 0);
-        if (st_ptr->stock_num > page_size)
-        {
-            prt(" -) Previous page", row + 1, 0);
-            prt(" SPACE) Next page", row + 2, 0);
-        }
-        prt("x) eXamine an item", row, 27);
-        if (show_weights2)
-            prt("w) Hide Weights", row + 1, 27);
-        else
-            prt("w) Show Weights", row + 1, 27);
-
-        cmd = inkey_special(FALSE);
-
-        switch (cmd)
-        {
-        case ESCAPE:
-            done = TRUE;
-            break;
-
-        case 'w':
-            show_weights2 = show_weights2 ? FALSE : TRUE;
-            break;
-
-        case '-':
-            if (st_ptr->stock_num <= page_size)
-                msg_print("Entire inventory is shown.");
-            else
-            {
-                page_top -= page_size;
-                if (page_top < 0)
-                    page_top = ((st_ptr->stock_num - 1)/page_size)*page_size;
-            }
-            break;
-
-        case ' ':
-            if (st_ptr->stock_num <= page_size)
-                msg_print("Entire inventory is shown.");
-            else
-            {
-                page_top += page_size;
-                if (page_top >= st_ptr->stock_num)
-                    page_top = 0;
-            }
-            break;
-
-        case 'x':
-            if (st_ptr->stock_num <= 0)
-                msg_print("Your home is empty.");
-            else
-            {
-                int cmd2, which = -1;
-                prt("Which item do you want to examine? (* for All)", 0, 0);
-                cmd2 = inkey_special(FALSE);
-                prt("", 0, 0);
-                if (cmd2 == '*')
-                {
-                    doc_ptr doc = doc_alloc(80);
-                    for (i = 0; i < st_ptr->stock_num; i++, row++)
-                    {
-                        if (!object_is_weapon_armour_ammo(&st_ptr->stock[i]) && !object_is_known(&st_ptr->stock[i])) continue;
-                        obj_display_doc(&st_ptr->stock[i], doc);
-                        /*doc_newline(doc);*/
-                    }
-                    doc_display(doc, "Your Home", 0);
-                    doc_free(doc);
-                }
-                else
-                {
-                    if (islower(cmd2))
-                        which = A2I(cmd2);
-                    else if (isupper(cmd2))
-                        which = A2I(tolower(cmd2)) + 26;
-
-                    if (0 <= which && which < page_size && page_top + which < st_ptr->stock_num)
-                    {
-                        object_type *o_ptr = &st_ptr->stock[page_top + which];
-                        if (object_is_flavor(o_ptr) && !obj_is_identified(o_ptr))
-                            msg_print("You have no special knowledge about that item.");
-                        else
-                            obj_display(o_ptr);
-                    }
-                }
-            }
-            break;
-        }
-    }
-}
-
-
-/*
  * Check the status of "autopick"
  */
 static void do_cmd_knowledge_autopick(void)
@@ -7746,8 +6951,6 @@ void do_cmd_knowledge(void)
         prt("(a) Artifacts", row++, col);
         prt("(o) Objects", row++, col);
         prt("(e) Egos", row++, col);
-        prt("(h) Home Inventory", row++, col);
-        prt("(i) *Identified* Equip.", row++, col);
         prt("(_) Auto Pick/Destroy", row++, col);
         row++;
 
@@ -7772,7 +6975,7 @@ void do_cmd_knowledge(void)
         prt("(@) About Yourself", row++, col);
         if (p_ptr->prace != RACE_MON_RING)
             prt("(W) Weapon Damage", row++, col);
-        if (equip_find_object(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo != TV_NO_AMMO)
+        if (equip_find_obj(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo != TV_NO_AMMO)
             prt("(S) Shooter Damage", row++, col);
         if (mut_count(NULL))
             prt("(M) Mutations", row++, col);
@@ -7809,12 +7012,6 @@ void do_cmd_knowledge(void)
         case 'e':
             do_cmd_knowledge_egos();
             break;
-        case 'h':
-            do_cmd_knowledge_home();
-            break;
-        case 'i':
-            do_cmd_knowledge_inven();
-            break;
         case '_':
             do_cmd_knowledge_autopick();
             break;
@@ -7841,7 +7038,7 @@ void do_cmd_knowledge(void)
             do_cmd_knowledge_dungeon();
             break;
         case 'q':
-            do_cmd_knowledge_quests();
+            quests_display();
             break;
         case 't':
             {
@@ -7861,7 +7058,7 @@ void do_cmd_knowledge(void)
                 bell();
             break;
         case 'S':
-            if (equip_find_object(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo != TV_NO_AMMO)
+            if (equip_find_obj(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo != TV_NO_AMMO)
                 do_cmd_knowledge_shooter();
             else
                 bell();
@@ -7907,26 +7104,6 @@ void do_cmd_knowledge(void)
 
     if (need_redraw) do_cmd_redraw();
 }
-
-
-/*
- * Check on the status of an active quest
- */
-void do_cmd_checkquest(void)
-{
-    /* File type is "TEXT" */
-    FILE_TYPE(FILE_TYPE_TEXT);
-
-    /* Save the screen */
-    screen_save();
-
-    /* Quest info */
-    do_cmd_knowledge_quests();
-
-    /* Restore the screen */
-    screen_load();
-}
-
 
 /*
  * Display the time and date

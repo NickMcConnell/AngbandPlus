@@ -261,7 +261,7 @@ static void _sniping_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
-        if (!equip_find_object(TV_BOW, SV_ANY))
+        if (!equip_find_obj(TV_BOW, SV_ANY))
         {
             msg_print("You need a bow to use this talent.");
             break;
@@ -467,7 +467,7 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
       && p_ptr->shooter_info.tval_ammo <= TV_BOLT
       && p_ptr->shooter_info.tval_ammo >= TV_SHOT )
     {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 150 / 50;
+        p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
     }
 }
 
@@ -557,8 +557,8 @@ static void _birth(void)
 {
     py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_BOW, SV_LIGHT_XBOW, 1);
-    py_birth_obj_aux(TV_BOLT, SV_AMMO_NORMAL, rand_range(20, 30));
+    py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
+    py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(20, 30));
 }
 
 class_t *scout_get_class(void)

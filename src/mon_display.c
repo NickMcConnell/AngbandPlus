@@ -387,10 +387,9 @@ static void _display_resists(monster_race *r_ptr, doc_ptr doc)
 static void _display_frequency(monster_race *r_ptr, doc_ptr doc)
 {
     int pct = 0;
-    /* I personally think we should always display the observed frequency ...
-    if (_easy_lore(r_ptr))
+    if (spoiler_hack)
         pct = r_ptr->freq_spell * 100;
-    else */if (r_ptr->r_spell_turns)
+    else if (r_ptr->r_spell_turns)
     {
         int total = r_ptr->r_spell_turns + r_ptr->r_move_turns;
         pct = r_ptr->r_spell_turns * 10000 / total;
@@ -400,7 +399,8 @@ static void _display_frequency(monster_race *r_ptr, doc_ptr doc)
         vec_ptr v = vec_alloc((vec_free_f)string_free);
 
         doc_printf(doc, "Spells  : <indent><color:G>%d.%02d%%</color> ", pct/100, pct%100);
-        doc_printf(doc, "(%d of %d moves) ", r_ptr->r_spell_turns, r_ptr->r_spell_turns + r_ptr->r_move_turns);
+        if (!spoiler_hack)
+            doc_printf(doc, "(%d of %d moves) ", r_ptr->r_spell_turns, r_ptr->r_spell_turns + r_ptr->r_move_turns);
 
         if (r_ptr->flags2 & RF2_SMART)
             vec_add(v, string_copy_s("<color:y>Intelligent</color>"));

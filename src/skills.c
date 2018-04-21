@@ -199,6 +199,20 @@ int skills_weapon_current(int tval, int sval)
     return cur;
 }
 
+void skills_weapon_init(int tval, int sval, int skill)
+{
+    int max, cur;
+
+    assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
+    assert(tval != TV_BOW);
+    assert(p_ptr->pclass != CLASS_SKILLMASTER);
+
+    max = skills_weapon_max(tval, sval);
+    cur = MIN(skill, max);
+
+    p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval] = cur;
+}
+
 int skills_weapon_max(int tval, int sval)
 {
     assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);

@@ -45,7 +45,7 @@ void msg_on_startup(void)
     _msg_head = 0;
     _msg_append = FALSE;
 
-    msg_line_init(NULL);
+    msg_line_init(ui_msg_rect());
 }
 
 void msg_on_shutdown(void)
@@ -188,7 +188,7 @@ void cmsg_add(byte color, cptr str)
 rect_t msg_line_rect(void)
 {
     assert(_msg_line_doc); /* call msg_on_startup()! */
-    return rect_create(
+    return rect(
         _msg_line_rect.x,
         _msg_line_rect.y,
         _msg_line_rect.cx,
@@ -196,27 +196,20 @@ rect_t msg_line_rect(void)
     );
 }
 
-void msg_line_init(const rect_t *display_rect)
+void msg_line_init(rect_t display_rect)
 {
-    if (display_rect && rect_is_valid(display_rect))
+    assert(rect_is_valid(display_rect));
+    if (_msg_line_doc)
     {
-        if (_msg_line_doc)
-        {
-            msg_line_clear();
-            doc_free(_msg_line_doc);
-        }
-        _msg_line_rect = *display_rect;
-        if (_msg_line_rect.x + _msg_line_rect.cx > Term->wid)
-            _msg_line_rect.cx = Term->wid - _msg_line_rect.x;
-        _msg_line_doc = doc_alloc(_msg_line_rect.cx);
-        _msg_line_sync_pos = doc_cursor(_msg_line_doc);
-        _msg_line_last_msg_pos = doc_cursor(_msg_line_doc);
+        msg_line_clear();
+        doc_free(_msg_line_doc);
     }
-    else
-    {
-        rect_t r = rect_create(0, 0, MIN(72, Term->wid - 13), 10);
-        msg_line_init(&r);
-    }
+    _msg_line_rect = display_rect;
+    if (_msg_line_rect.x + _msg_line_rect.cx > Term->wid)
+        _msg_line_rect.cx = Term->wid - _msg_line_rect.x;
+    _msg_line_doc = doc_alloc(_msg_line_rect.cx);
+    _msg_line_sync_pos = doc_cursor(_msg_line_doc);
+    _msg_line_last_msg_pos = doc_cursor(_msg_line_doc);
 }
 
 void msg_boundary(void)
@@ -239,7 +232,7 @@ bool msg_line_contains(int row, int col)
         col = r.x;
     if (row < 0)
         row = r.y;
-    return rect_contains_pt(&r, col, row);
+    return rect_contains_pt(r, col, row);
 }
 
 bool msg_line_is_empty(void)
@@ -380,16 +373,16 @@ static void msg_line_display(byte color, cptr msg)
        your coding).
 
    Sample Usage:
-   char ch = cmsg_prompt(TERM_VIOLET, "Really commit suicide? [Y,n]", "nY", PROMPT_NEW_LINE | PROMPT_CASE_SENSITIVE);
+   char ch = msg_prompt("Really commit suicide? [Y,n]", "nY", PROMPT_NEW_LINE | PROMPT_CASE_SENSITIVE);
    if (ch == 'Y') {...}
 */
-static char cmsg_prompt_imp(byte color, cptr prompt, char keys[], int options)
+static char msg_prompt_imp(cptr prompt, char keys[], int options)
 {
     if (options & PROMPT_NEW_LINE)
         msg_boundary();
 
     auto_more_state = AUTO_MORE_PROMPT;
-    cmsg_print(color, prompt);
+    msg_print(prompt);
 
     for (;;)
     {
@@ -409,7 +402,8 @@ static char cmsg_prompt_imp(byte color, cptr prompt, char keys[], int options)
             if (ch == choice) return choice;
             if (!(options & PROMPT_CASE_SENSITIVE))
             {
-                if (tolower(ch) == tolower(choice)) return choice;
+                if (tolower(ch) == tolower(choice))
+                    return choice;
             }
         }
 
@@ -418,59 +412,48 @@ static char cmsg_prompt_imp(byte color, cptr prompt, char keys[], int options)
     }
 }
 
-char cmsg_prompt(byte color, cptr prompt, char keys[], int options)
+char msg_prompt(cptr prompt, char keys[], int options)
 {
-    char ch = cmsg_prompt_imp(color, prompt, keys, options);
+    char ch = msg_prompt_imp(prompt, keys, options);
+    if (isprint(ch))
+        msg_print(format("=> <color:y>%c</color>.", ch));
     msg_line_clear();
     return ch;
 }
 
-char msg_prompt(cptr prompt, char keys[], int options)
-{
-    return cmsg_prompt(TERM_WHITE, prompt, keys, options);
-}
-
-bool cmsg_input(byte color, cptr prompt, char *buf, int len)
+bool msg_command(cptr prompt, char *cmd)
 {
     bool result = FALSE;
     msg_boundary();
     auto_more_state = AUTO_MORE_PROMPT;
-    cmsg_print(color, prompt);
-    result = askfor(buf, len);
-    if (result)
-        msg_print(buf);
+    msg_print(prompt);
+
+    if (get_com_no_macros)
+        *cmd = inkey_special(FALSE);
     else
+        *cmd = inkey();
+
+    if (*cmd == ESCAPE)
         cmsg_print(TERM_L_RED, "Cancelled");
+    else
+    {
+        if (isprint(*cmd))
+            msg_print(format("=> <color:y>%c</color>.", *cmd));
+        result = TRUE;
+    }
     msg_line_clear();
     return result;
 }
 
 bool msg_input(cptr prompt, char *buf, int len)
 {
-    return cmsg_input(TERM_WHITE, prompt, buf, len);
-}
-
-bool cmsg_input_num(byte color, cptr prompt, int *num, int min, int max)
-{
     bool result = FALSE;
-    char buf[10];
-
     msg_boundary();
     auto_more_state = AUTO_MORE_PROMPT;
-    cmsg_print(color, prompt);
-    result = askfor_aux(buf, 10, FALSE);
+    msg_print(prompt);
+    result = askfor(buf, len);
     if (result)
-    {
-        if (isalpha(buf[0]))
-            *num = max;
-        else
-            *num = atoi(buf);
-
-        if (*num > max) *num = max;
-        if (*num < min) *num = min;
-
-        msg_format("%d", *num);
-    }
+        msg_print(buf);
     else
         cmsg_print(TERM_L_RED, "Cancelled");
     msg_line_clear();
@@ -504,7 +487,18 @@ void cmsg_print(byte color, cptr msg)
         auto_more_state = AUTO_MORE_PROMPT;
 
     p_ptr->window |= PW_MESSAGE;
-    window_stuff();
+
+    /* BUG: notice_stuff()
+     *       pack_optimize()
+     *        cmsg_print()
+     *         window_stuff()
+     *          _fix_equip_aux()
+     * This means PW_EQUIP redraws before PU_BONUS and
+     * gives incorrect info with no way to fix! Clients
+     * are supposed to be able to set notice and redraw
+     * and update flags and have things just work! Grrr ...
+     *
+    window_stuff(); */
     if (fresh_message) /* ?? */
         Term_fresh();
 
@@ -584,5 +578,28 @@ void msg_on_save(savefile_ptr file)
 
 bool msg_input_num(cptr prompt, int *num, int min, int max)
 {
-    return cmsg_input_num(TERM_WHITE, prompt, num, min, max);
+    bool result = FALSE;
+    char buf[11] = {0};
+
+    sprintf(buf, "%d", MAX(min, MIN(max, *num)));
+    msg_boundary();
+    auto_more_state = AUTO_MORE_PROMPT;
+    msg_format("<color:y>%s <color:w>(%d to %d)</color>:</color> ", prompt, min, max);
+    result = askfor_aux(buf, 10, FALSE);
+    if (result)
+    {
+        if (isalpha(buf[0]))
+            *num = max;
+        else
+            *num = atoi(buf);
+
+        if (*num > max) *num = max;
+        if (*num < min) *num = min;
+
+        cmsg_format(TERM_YELLOW, "%d", *num);
+    }
+    else
+        cmsg_print(TERM_L_RED, "Cancelled");
+    msg_line_clear();
+    return result;
 }

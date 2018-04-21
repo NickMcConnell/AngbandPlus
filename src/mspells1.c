@@ -935,11 +935,7 @@ bool dispel_check(int m_idx)
         if (randint1(500) < get_race()->exp) return TRUE;
     }
 
-    if (p_ptr->tim_shrike) return TRUE;
-    if (p_ptr->tim_speed_essentia) return TRUE;
-
     /* Craft Munckin Checks :) */
-    if (p_ptr->tim_genji) return TRUE;
     if (p_ptr->tim_force) return TRUE;
     if (p_ptr->tim_enlarge_weapon) return TRUE;
     if (p_ptr->kabenuke) return TRUE;
@@ -1440,8 +1436,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
     bool direct;
     bool wall_scummer = FALSE;
 
-    bool in_no_magic_dungeon = (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) && dun_level
-        && (!p_ptr->inside_quest || is_fixed_quest_idx(p_ptr->inside_quest));
+    bool in_no_magic_dungeon = py_in_dungeon() && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC);
 
     bool can_use_lite_area = FALSE;
 
@@ -1618,7 +1613,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
               && !cave[m_ptr->fy][m_ptr->fx].dist
               && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY)
               && !(cave[py][px].info & CAVE_ICKY)
-              && !p_ptr->inside_quest
+              && !quests_get_current()
               && dun_level
               && (r_ptr->flags1 & RF1_UNIQUE) )
             {

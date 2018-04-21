@@ -170,6 +170,7 @@ doc_pos_t     doc_cprintf(doc_ptr doc, byte a, const char *fmt, ...);
 
 doc_char_ptr  doc_char(doc_ptr doc, doc_pos_t pos);
 void          doc_sync_term(doc_ptr doc, doc_region_t range, doc_pos_t term_pos);
+void          doc_sync_menu(doc_ptr doc);
 
 void          doc_change_name(doc_ptr doc, cptr name);
 void          doc_change_html_header(doc_ptr doc, cptr header);

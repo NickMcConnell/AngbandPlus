@@ -13,11 +13,8 @@
 
 X:rogue_like_commands
 X:always_pickup
-X:toggle_run_status
-X:carry_query_flag
 X:quick_messages
-Y:command_menu
-X:other_query_flag
+X:command_menu
 Y:use_old_target
 X:auto_target
 Y:always_repeat
@@ -27,8 +24,8 @@ Y:confirm_quest
 X:target_pet
 Y:easy_open
 Y:easy_disarm
-X:easy_floor
-X:over_exert
+Y:auto_get_ammo
+Y:auto_get_objects
 Y:numpad_as_cursorkey
 
 ##### Map Screen Options #####
@@ -51,7 +48,6 @@ Y:display_path
 ##### Text Display Options #####
 
 Y:plain_descriptions
-X:plain_pickup
 Y:always_show_list
 X:depth_in_feet
 Y:show_labels
@@ -114,7 +110,6 @@ X:ironman_rooms
 X:ironman_nightmare
 Y:enable_virtues
 Y:preserve_mode
-Y:powerup_home
 
 ##### Easy Object Auto-Destroyer #####
 

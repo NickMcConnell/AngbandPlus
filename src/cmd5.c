@@ -317,237 +317,14 @@ static bool item_tester_learn_spell(object_type *o_ptr)
         }
     }
 
-    if ((o_ptr->tval < TV_LIFE_BOOK) || (o_ptr->tval > (TV_LIFE_BOOK + MAX_REALM - 1))) return (FALSE);
-    if ((o_ptr->tval == TV_MUSIC_BOOK) && (p_ptr->pclass == CLASS_BARD)) return (TRUE);
+    if (!obj_is_book(o_ptr)) return FALSE;
+    if (o_ptr->tval == TV_MUSIC_BOOK && p_ptr->pclass == CLASS_BARD) return TRUE;
+    if (o_ptr->tval == TV_BURGLARY_BOOK && p_ptr->pclass == CLASS_ROGUE) return TRUE;
     else if (!is_magic(tval2realm(o_ptr->tval))) return FALSE;
-    if ((REALM1_BOOK == o_ptr->tval) || (REALM2_BOOK == o_ptr->tval)) return (TRUE);
-    if (choices & (0x0001 << (tval2realm(o_ptr->tval) - 1))) return (TRUE);
-    return (FALSE);
+    if (REALM1_BOOK == o_ptr->tval || REALM2_BOOK == o_ptr->tval) return TRUE;
+    if (choices & (0x0001 << (tval2realm(o_ptr->tval) - 1))) return TRUE;
+    return FALSE;
 }
-
-
-static bool player_has_no_spellbooks(void)
-{
-    int         i;
-    object_type *o_ptr;
-
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        o_ptr = &inventory[i];
-        if (o_ptr->k_idx && check_book_realm(o_ptr->tval, o_ptr->sval)) return FALSE;
-    }
-
-    for (i = cave[py][px].o_idx; i; i = o_ptr->next_o_idx)
-    {
-        o_ptr = &o_list[i];
-        if (o_ptr->k_idx && (o_ptr->marked & OM_FOUND) && check_book_realm(o_ptr->tval, o_ptr->sval)) return FALSE;
-    }
-
-    return TRUE;
-}
-
-
-static void confirm_use_force(bool browse_only)
-{
-    int  item;
-    char which;
-
-#ifdef ALLOW_REPEAT
-
-    /* Get the item index */
-    if (repeat_pull(&item) && (item == INVEN_FORCE))
-    {
-        browse_only ? do_cmd_spell_browse() : do_cmd_spell();
-        return;
-    }
-
-#endif /* ALLOW_REPEAT */
-
-    /* Show the prompt */
-    prt("(w for the Force, ESC) Hit 'w' or ESC. ", 0, 0);
-
-    while (1)
-    {
-        /* Get a key */
-        which = inkey();
-
-        if (which == ESCAPE) break;
-        else if (which == 'w')
-        {
-
-#ifdef ALLOW_REPEAT
-
-            repeat_push(INVEN_FORCE);
-
-#endif /* ALLOW_REPEAT */
-
-            break;
-        }
-    }
-
-    /* Clear the prompt line */
-    prt("", 0, 0);
-
-    if (which == 'w')
-    {
-        browse_only ? do_cmd_spell_browse() : do_cmd_spell();
-    }
-}
-
-
-/*
- * Peruse the spells/prayers in a book
- *
- * Note that *all* spells in the book are listed
- *
- * Note that browsing is allowed while confused or blind,
- * and in the dark, primarily to allow browsing in stores.
- */
-void do_cmd_browse(void)
-{
-    int        item, sval, use_realm = 0, j, line;
-    int        spell = -1;
-    int        num = 0;
-    rect_t     display = ui_menu_rect();
-    byte       spells[64];
-    char       temp[62*4];
-
-    object_type    *o_ptr;
-
-    cptr q, s;
-
-    /* Warriors are illiterate */
-    if (!(p_ptr->realm1 || p_ptr->realm2) && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_RED_MAGE))
-    {
-        msg_print("You cannot read books!");
-
-        return;
-    }
-
-    if (p_ptr->special_defense & KATA_MUSOU)
-    {
-        set_action(ACTION_NONE);
-    }
-
-    if (p_ptr->pclass == CLASS_FORCETRAINER)
-    {
-        if (player_has_no_spellbooks())
-        {
-            confirm_use_force(TRUE);
-            return;
-        }
-        select_the_force = TRUE;
-    }
-
-    /* Restrict choices to "useful" books */
-    if (p_ptr->realm2 == REALM_NONE) item_tester_tval = mp_ptr->spell_book;
-    else item_tester_hook = item_tester_learn_spell;
-
-    /* Get an item */
-    q = "Browse which book? ";
-
-    s = "You have no books that you can read.";
-
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
-    {
-        select_the_force = FALSE;
-        return;
-    }
-    select_the_force = FALSE;
-
-    if (item == INVEN_FORCE) /* the_force */
-    {
-        do_cmd_spell_browse();
-        return;
-    }
-
-    /* Get the item (in the pack) */
-    else if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    /* Access the item's sval */
-    sval = o_ptr->sval;
-
-    use_realm = tval2realm(o_ptr->tval);
-
-    /* Track the object kind */
-    object_kind_track(o_ptr->k_idx);
-
-    /* Hack -- Handle stuff */
-    handle_stuff();
-
-
-    /* Extract spells */
-    for (spell = 0; spell < 32; spell++)
-    {
-        /* Check for this spell */
-        if ((fake_spell_flags[sval] & (1L << spell)))
-        {
-            /* Collect this spell */
-            spells[num++] = spell;
-        }
-    }
-
-
-    /* Save the screen */
-    screen_save();
-
-    /* Clear the top line */
-    prt("", 0, 0);
-
-    /* Keep browsing spells. Exit browsing on cancel. */
-    while(TRUE)
-    {
-        /* Ask for a spell, allow cancel */
-        if (!get_spell(&spell, "browse", o_ptr->sval, TRUE, use_realm))
-        {
-            /* If cancelled, leave immediately. */
-            if (spell == -1) break;
-
-            /* Display a list of spells */
-            print_spells(0, spells, num, display, use_realm);
-
-            /* Notify that there's nothing to see, and wait. */
-            if (use_realm == REALM_HISSATSU)
-                prt("No techniques to browse.", 0, 0);
-            else
-                prt("No spells to browse.", 0, 0);
-            (void)inkey();
-
-
-            /* Restore the screen */
-            screen_load();
-
-            return;
-        }
-
-        /* Clear lines, position cursor  (really should use strlen here) */
-        line = display.y + num + 1;
-        Term_erase(display.x, line, display.cx);
-        Term_erase(display.x, line + 1, display.cx);
-        Term_erase(display.x, line + 2, display.cx);
-        Term_erase(display.x, line + 3, display.cx);
-
-        roff_to_buf(do_spell(use_realm, spell, SPELL_DESC), 62, temp, sizeof(temp));
-
-        for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
-        {
-            put_str(&temp[j], ++line, display.x);
-        }
-    }
-
-    /* Restore the screen */
-    screen_load();
-}
-
 
 static void change_realm2(int next_realm)
 {
@@ -571,7 +348,7 @@ static void change_realm2(int next_realm)
     p_ptr->old_realm |= 1 << (p_ptr->realm2-1);
     p_ptr->realm2 = next_realm;
 
-    p_ptr->notice |= (PN_REORDER);
+    p_ptr->notice |= (PN_OPTIMIZE_PACK); /* cf obj_cmp's initial hack */
     p_ptr->update |= (PU_SPELLS);
     handle_stuff();
 
@@ -585,51 +362,39 @@ static void change_realm2(int next_realm)
  */
 void do_cmd_study(void)
 {
-    int    i, item, sval;
-    int    increment = 0;
-    bool    learned = FALSE;
-
-    /* Spells of realm2 will have an increment of +32 */
-    int    spell = -1;
-
-    cptr p = spell_category_name(mp_ptr->spell_book);
-
-    object_type *o_ptr;
-
-    cptr q, s;
+    obj_prompt_t prompt = {0};
+    int          i;
+    int          increment = 0;
+    bool         learned = FALSE;
+    int          spell = -1; /* Spells of realm2 will have an increment of +32 */
+    cptr         p = spell_category_name(mp_ptr->spell_book);
 
     if (!p_ptr->realm1)
     {
         msg_print("You cannot read books!");
-
         return;
     }
 
     if (p_ptr->blind || no_lite())
     {
         msg_print("You cannot see!");
-
         return;
     }
 
     if (p_ptr->confused)
     {
         msg_print("You are too confused!");
-
         return;
     }
 
-    if (!(p_ptr->new_spells))
+    if (!p_ptr->new_spells)
     {
         msg_format("You cannot learn any new %ss!", p);
-
         return;
     }
 
     if (p_ptr->special_defense & KATA_MUSOU)
-    {
         set_action(ACTION_NONE);
-    }
 
 /*  Please, no more -more-!
     msg_format("You can learn %d new %s%s.", p_ptr->new_spells, p,
@@ -638,42 +403,27 @@ void do_cmd_study(void)
     msg_print(NULL);*/
 
 
-    /* Restrict choices to "useful" books */
-    if (p_ptr->realm2 == REALM_NONE) item_tester_tval = mp_ptr->spell_book;
-    else item_tester_hook = item_tester_learn_spell;
-
     /* Get an item */
-    q = "Study which book? ";
+    prompt.prompt = "Study which book?";
+    prompt.error = "You have no books that you can read.";
+    prompt.filter = item_tester_learn_spell;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+    
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
-    s = "You have no books that you can read.";
-
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    /* Access the item's sval */
-    sval = o_ptr->sval;
-
-    if (o_ptr->tval == REALM2_BOOK) increment = 32;
-    else if (o_ptr->tval != REALM1_BOOK)
+    if (prompt.obj->tval == REALM2_BOOK) increment = 32;
+    else if (prompt.obj->tval != REALM1_BOOK)
     {
         if (!get_check("Really, change magic realm? ")) return;
-        change_realm2(tval2realm(o_ptr->tval));
+        change_realm2(tval2realm(prompt.obj->tval));
         increment = 32;
+        autopick_alter_obj(prompt.obj, FALSE);
     }
 
     /* Track the object kind */
-    object_kind_track(o_ptr->k_idx);
+    object_kind_track(prompt.obj->k_idx);
 
     /* Hack -- Handle stuff */
     handle_stuff();
@@ -682,11 +432,10 @@ void do_cmd_study(void)
     if (mp_ptr->spell_book != TV_LIFE_BOOK)
     {
         /* Ask for a spell, allow cancel */
-        if (!get_spell(&spell, "study", sval, FALSE, o_ptr->tval - TV_LIFE_BOOK + 1)
+        if (!get_spell(&spell, "study", prompt.obj->sval, FALSE, prompt.obj->tval - TV_LIFE_BOOK + 1)
             && (spell == -1)) return;
 
     }
-
     /* Priest -- Learn a random prayer */
     else
     {
@@ -698,7 +447,7 @@ void do_cmd_study(void)
         for (spell = 0; spell < 32; spell++)
         {
             /* Check spells in the book */
-            if ((fake_spell_flags[sval] & (1L << spell)))
+            if ((fake_spell_flags[prompt.obj->sval] & (1L << spell)))
             {
                 /* Skip non "okay" prayers */
                 if (!spell_okay(spell, FALSE, TRUE,
@@ -719,14 +468,9 @@ void do_cmd_study(void)
     /* Nothing to study */
     if (spell < 0)
     {
-        /* Message */
         msg_format("You cannot learn any %ss in that book.", p);
-
-
-        /* Abort */
         return;
     }
-
 
     if (increment) spell += increment;
 
@@ -943,37 +687,76 @@ static void wild_magic(int spell)
 /*
  * Cast a spell
  */
+static int _force_handler(obj_prompt_context_ptr context, int cmd)
+{
+    if (cmd == 'F')
+        return OP_CMD_DISMISS;
+    return OP_CMD_SKIPPED;
+}
+
+#define _CAST 1
+#define _BROWSE 2
+static obj_ptr _get_spellbook(int mode)
+{
+    obj_prompt_t prompt = {0};
+    char         msg[255];
+
+    sprintf(msg, "%s which book%s?",
+        mode == _CAST ? "Use" : "Browse",
+        p_ptr->pclass == CLASS_FORCETRAINER ?
+            "(<color:keypress>F</color> for the Force)" : "");
+
+    prompt.prompt = msg;
+    prompt.error = "You have no books that you can read.";
+    prompt.filter = obj_is_readable_book;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+
+    if (p_ptr->pclass == CLASS_FORCETRAINER)
+    {
+        prompt.error = NULL;
+        prompt.cmd_handler = _force_handler;
+        switch (obj_prompt(&prompt))
+        {
+        case OP_CUSTOM:
+        case OP_NO_OBJECTS:
+            if (mode == _CAST)
+                do_cmd_spell();
+            else
+                do_cmd_spell_browse();
+            return NULL;
+        }
+        return prompt.obj;
+    }
+
+    obj_prompt(&prompt);
+    return prompt.obj;
+}
+
 void do_cmd_cast(void)
 {
-    int    item, sval, spell, realm;
-    int    chance;
-    int    increment = 0;
-    int    use_realm;
-    int    need_mana;
-    int take_mana;
-
-    cptr prayer;
-
-    object_type    *o_ptr;
-
-    magic_type    *s_ptr;
-
-    cptr q, s;
-
-    caster_info    *caster_ptr = get_caster_info();
+    obj_ptr      book;
+    int          spell, realm;
+    int          chance;
+    int          increment = 0;
+    int          use_realm;
+    int          need_mana;
+    int          take_mana;
+    cptr         prayer;
+    magic_type  *s_ptr;
+    caster_info *caster_ptr = get_caster_info();
 
     /* Require spell ability */
-    if (!p_ptr->realm1 && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_RED_MAGE))
+    if (!p_ptr->realm1 && p_ptr->pclass != CLASS_SORCERER && p_ptr->pclass != CLASS_RED_MAGE)
     {
         msg_print("You cannot cast spells!");
-
         return;
     }
 
     /* Require lite */
     if (p_ptr->blind || no_lite())
     {
-        if (p_ptr->pclass == CLASS_FORCETRAINER) confirm_use_force(FALSE);
+        if (p_ptr->pclass == CLASS_FORCETRAINER) do_cmd_spell();
         else
         {
             msg_print("You cannot see!");
@@ -1003,79 +786,32 @@ void do_cmd_cast(void)
         }
     }
 
-    if (p_ptr->pclass == CLASS_FORCETRAINER)
-    {
-        if (player_has_no_spellbooks())
-        {
-            confirm_use_force(FALSE);
-            return;
-        }
-        select_the_force = TRUE;
-    }
-
     prayer = spell_category_name(mp_ptr->spell_book);
 
-    /* Restrict choices to spell books */
-    item_tester_tval = mp_ptr->spell_book;
+    book = _get_spellbook(_CAST);
+    if (!book) return;
 
-    /* Get an item */
-    q = "Use which book? ";
+    if (p_ptr->pclass != CLASS_SORCERER && p_ptr->pclass != CLASS_RED_MAGE && book->tval == REALM2_BOOK)
+        increment = 32;
 
-    s = "You have no spell books!";
-
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
-    {
-        select_the_force = FALSE;
-        return;
-    }
-    select_the_force = FALSE;
-
-    if (item == INVEN_FORCE) /* the_force */
-    {
-        do_cmd_spell(); /* hack */
-        return;
-    }
-
-    /* Get the item (in the pack) */
-    else if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    /* Access the item's sval */
-    sval = o_ptr->sval;
-
-    if ((p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_RED_MAGE) && (o_ptr->tval == REALM2_BOOK)) increment = 32;
-
-
-    /* Track the object kind */
-    object_kind_track(o_ptr->k_idx);
-
-    /* Hack -- Handle stuff */
+    object_kind_track(book->k_idx);
     handle_stuff();
 
-    if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE))
-        realm = o_ptr->tval - TV_LIFE_BOOK + 1;
+    if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_RED_MAGE)
+        realm = book->tval - TV_LIFE_BOOK + 1;
     else if (increment) realm = p_ptr->realm2;
     else realm = p_ptr->realm1;
 
     /* Ask for a spell */
-    if (!get_spell(&spell, ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
-        sval, TRUE, realm))
+    if (!get_spell(&spell, mp_ptr->spell_book == TV_LIFE_BOOK ? "recite" : "cast",
+        book->sval, TRUE, realm))
     {
         if (spell == -2)
             msg_format("You don't know any %ss in that book.", prayer);
         return;
     }
 
-
-    use_realm = tval2realm(o_ptr->tval);
+    use_realm = tval2realm(book->tval);
 
     /* Hex */
     if (use_realm == REALM_HEX)
@@ -1118,12 +854,7 @@ void do_cmd_cast(void)
             ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
             prayer);
 
-
-        if (!over_exert) return;
-
-        /* Verify */
-        if (!get_check_strict("Attempt it anyway? ", CHECK_OKAY_CANCEL)) return;
-
+        return;
     }
 
     /* Spell failure chance */
@@ -1189,14 +920,14 @@ void do_cmd_cast(void)
         /* Failure casting may activate some side effect */
         do_spell(realm, spell, SPELL_FAIL);
 
-        if ((o_ptr->tval == TV_CHAOS_BOOK) && (randint1(100) < spell))
+        if ((book->tval == TV_CHAOS_BOOK) && (randint1(100) < spell))
         {
             msg_print("You produce a chaotic effect!");
             wild_magic(spell);
         }
-        else if ((o_ptr->tval == TV_DEATH_BOOK) && (randint1(100) < spell))
+        else if ((book->tval == TV_DEATH_BOOK) && (randint1(100) < spell))
         {
-            if ((sval == 3) && one_in_(2))
+            if ((book->sval == 3) && one_in_(2))
             {
                 sanity_blast(0, TRUE);
             }
@@ -1204,13 +935,13 @@ void do_cmd_cast(void)
             {
                 msg_print("It hurts!");
 
-                take_hit(DAMAGE_LOSELIFE, damroll(o_ptr->sval + 1, 6), "a miscast Death spell", -1);
+                take_hit(DAMAGE_LOSELIFE, damroll(book->sval + 1, 6), "a miscast Death spell", -1);
 
                 if ((spell > 15) && one_in_(6) && !p_ptr->hold_life)
                     lose_exp(spell * 250);
             }
         }
-        else if ((o_ptr->tval == TV_MUSIC_BOOK) && (randint1(200) < spell))
+        else if ((book->tval == TV_MUSIC_BOOK) && (randint1(200) < spell))
         {
             msg_print("An infernal sound echoed.");
             aggravate_monsters(0);
@@ -1328,11 +1059,13 @@ void do_cmd_cast(void)
                The turn check is for utility spells (Teleport & Detect tactics) since one
                might be doing a bunch of legitimate casting without fighting monsters.
 
+               The quest check is to prohibit spamming on completed quest levels.
+
                Note: Androids will probably always fail to pass the xp check! Hmm ...
                Note: One still might be able to macro up a cast followed by a rest command.
             */
             if ( last_pexp != p_ptr->exp
-              || (!p_ptr->inside_quest && game_turn > last_turn + 50 + randint1(50)) )
+              || (!quests_get_current() && game_turn > last_turn + 50 + randint1(50)) )
             {
                 if (cur_exp < SPELL_EXP_BEGINNER)
                     exp_gain += 60;
@@ -1375,62 +1108,6 @@ void do_cmd_cast(void)
         {
             p_ptr->csp -= need_mana;
         }
-
-        /* Over-exert the player */
-        else
-        {
-            int oops = need_mana;
-
-            /* No mana left */
-            p_ptr->csp = 0;
-            p_ptr->csp_frac = 0;
-
-            /* Message */
-            msg_print("You faint from the effort!");
-
-
-            /* Hack -- Bypass free action */
-            (void)set_paralyzed(randint1(5 * oops + 1), FALSE);
-
-            switch (realm)
-            {
-            case REALM_LIFE:
-                virtue_add(VIRTUE_VITALITY, -10);
-                break;
-            case REALM_DEATH:
-            case REALM_NECROMANCY:
-                virtue_add(VIRTUE_UNLIFE, -10);
-                break;
-            case REALM_DAEMON:
-                virtue_add(VIRTUE_JUSTICE, 10);
-                break;
-            case REALM_NATURE:
-                virtue_add(VIRTUE_NATURE, -10);
-                break;
-            case REALM_CRUSADE:
-                virtue_add(VIRTUE_JUSTICE, -10);
-                break;
-            case REALM_HEX:
-                virtue_add(VIRTUE_COMPASSION, 10);
-                break;
-            default:
-                virtue_add(VIRTUE_KNOWLEDGE, -10);
-                break;
-            }
-
-            /* Damage CON (possibly permanently) */
-            if (randint0(100) < 50)
-            {
-                bool perm = (randint0(100) < 25);
-
-                /* Message */
-                msg_print("You have damaged your health!");
-
-
-                /* Reduce constitution */
-                (void)dec_stat(A_CON, 15 + randint1(10), perm);
-            }
-        }
     }
 
     /* Redraw mana */
@@ -1440,6 +1117,98 @@ void do_cmd_cast(void)
     p_ptr->window |= (PW_SPELL);
 }
 
+/*
+ * Peruse the spells/prayers in a book
+ *
+ * Note that *all* spells in the book are listed
+ *
+ * Note that browsing is allowed while confused or blind,
+ * and in the dark, primarily to allow browsing in stores.
+ */
+void do_cmd_browse(void)
+{
+    obj_ptr book;
+    int     use_realm = 0, j, line;
+    int     spell = -1;
+    int     num = 0;
+    rect_t  display = ui_menu_rect();
+    byte    spells[64];
+    char    temp[62*4];
+
+    if (!(p_ptr->realm1 || p_ptr->realm2) && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_RED_MAGE))
+    {
+        msg_print("You cannot read books!");
+        return;
+    }
+
+    if (p_ptr->special_defense & KATA_MUSOU)
+        set_action(ACTION_NONE);
+
+    book = _get_spellbook(_BROWSE);
+    if (!book) return;
+
+    use_realm = tval2realm(book->tval);
+
+    /* Track the object kind */
+    object_kind_track(book->k_idx);
+    handle_stuff();
+
+    /* Extract spells */
+    for (spell = 0; spell < 32; spell++)
+    {
+        /* Check for this spell */
+        if ((fake_spell_flags[book->sval] & (1L << spell)))
+        {
+            /* Collect this spell */
+            spells[num++] = spell;
+        }
+    }
+
+    screen_save();
+    prt("", 0, 0);
+
+    /* Keep browsing spells. Exit browsing on cancel. */
+    while(TRUE)
+    {
+        /* Ask for a spell, allow cancel */
+        if (!get_spell(&spell, "browse", book->sval, TRUE, use_realm))
+        {
+            /* If cancelled, leave immediately. */
+            if (spell == -1) break;
+
+            /* Display a list of spells */
+            print_spells(0, spells, num, display, use_realm);
+
+            /* Notify that there's nothing to see, and wait. */
+            if (use_realm == REALM_HISSATSU)
+                prt("No techniques to browse.", 0, 0);
+            else
+                prt("No spells to browse.", 0, 0);
+            (void)inkey();
+
+
+            /* Restore the screen */
+            screen_load();
+
+            return;
+        }
+
+        /* Clear lines, position cursor  (really should use strlen here) */
+        line = display.y + num + 1;
+        Term_erase(display.x, line, display.cx);
+        Term_erase(display.x, line + 1, display.cx);
+        Term_erase(display.x, line + 2, display.cx);
+        Term_erase(display.x, line + 3, display.cx);
+
+        roff_to_buf(do_spell(use_realm, spell, SPELL_DESC), 62, temp, sizeof(temp));
+
+        for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
+        {
+            put_str(&temp[j], ++line, display.x);
+        }
+    }
+    screen_load();
+}
 
 static bool ang_sort_comp_pet_dismiss(vptr u, vptr v, int a, int b)
 {

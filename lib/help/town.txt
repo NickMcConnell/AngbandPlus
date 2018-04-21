@@ -148,34 +148,7 @@ One word of warning however: occasionally a creature who normally would inhabit 
 
 Your character will begin his adventure with some basic supplies, and some extra gold with which to purchase more supplies at the town stores. You may enter any open store and barter with the owner for items you can afford by simply moving onto the entrance, which is represented by a number from 1 to 9.
 
-Once inside a store, you will see the name and race of the store owner, the name of the store, the maximum amount of cash that the store owner will pay for any one item, and the store inventory, listed along with their prices.
-<style:screenshot>
-          Solostoran (Sprite)                     Magic Shop (15000)
-
-   Item Description                                         Weight      Price
-a) <color:s>?</color> <color:s>12 Arcane Spellbooks [Cantrips for Beginners]</color>             3.0        140
-b) <color:s>?</color> <color:s>2 Arcane Spellbooks [Minor Arcana]</color>                        3.0  <color:D>      350  </color>
-c) <color:s>?</color> <color:s>4 Arcane Spellbooks [Major Arcana]</color>                        3.0  <color:D>     1400  </color>
-d) <color:s>?</color> <color:s>2 Arcane Spellbooks [Manual of Mastery]</color>                   3.0  <color:D>     3500  </color>
-e) <color:B>?</color> <color:B>8 Sorcery Spellbooks [Beginner's Handbook]</color>                3.0        140
-f) <color:B>?</color> <color:B>7 Sorcery Spellbooks [Master Sorcerer's Handbook]</color>         3.0  <color:D>     1400  </color>
-g) <color:B>?</color> <color:B>a Sorcery Spellbook [Master Sorcerer's Handbook] {50% of</color>  3.0  <color:D>      700  </color>
-h) <color:B>-</color> <color:g>a Wand of Simplicity: Stinking Cloud (2/7 charges) (+2)</color>   0.2  <color:D>      512  </color>
-i) <color:U>_</color> <color:U>a Staff: Illumination (3/10 charges)</color>                      5.0  <color:D>      483  </color>
-j) <color:U>_</color> <color:U>a Staff: Detect Objects (5/10 charges) {50% off}</color>          5.0  <color:D>      560  </color>
-k) <color:U>_</color> <color:U>a Staff: Detect Treasure (3/6 charges)</color>                    5.0  <color:D>      392  </color>
-l) <color:U>_</color> <color:U>a Staff: Detect Objects (4/11 charges)</color>                    5.0  <color:D>     1170  </color>
-m) <color:U>_</color> <color:U>a Staff: Detect Traps (4/9 charges)</color>                       5.0  <color:D>      668  </color>
-
-
-
-                                                     Gold Remaining:   341
-You may:
- ESC) Exit from Building.     p) Purchase an item       i/e) Inventry/Equipment
-                              s) Sell an item           w/t) Wear/Take off equi
-                              x) eXamine an item          b) Buyout store
-</style>
-You will also see an (incomplete) list of available commands. Note that many of the commands which work in the dungeon work in the stores as well, but some do not, especially those which involve "using" objects.
+Shopping has been re-written for version 6.0.0. Please see <link:context_shop.txt> for up to date help about shopping commands.
 
 Stores do not always have everything in stock. As the game progresses, they may get new items so check from time to time. Also, if you sell them an item, it may get sold to a customer while you are adventuring, so don't always expect to be able to get back everything you have sold.
 
@@ -215,13 +188,13 @@ The Magic User's Shop deals in all sorts of rings, wands, amulets, and staves, a
 The Black Market will sell and buy anything at extortionate prices. However, it occasionally has VERY good items in it. The shopkeepers are not known for their tolerance...</indent>
 
   <indent><color:B>Your Home</color> (<$:FF_HOME>)
-This is your house where you can store objects that you cannot carry on your travels, or will need at a later date.</indent>
+This is your house where you can store objects that you cannot carry on your travels, or will need at a later date. See <link:context_home.txt> for more information.</indent>
 
   <indent><color:B>The Bookstore</color> (<$:FF_BOOKSTORE>)
 The Bookstore deals in all sorts of magical books. You can purchase and sell spellbooks for the spellcasters here.</indent>
 
   <indent><color:B>The Museum</color> (<$:FF_MUSEUM>)
-This is a place where you can donate any item to display. Use it when you find interesting but needless items and you want to leave it in memory.</indent>
+This is a place where you can donate any item to display. Use it when you find interesting but needless items and you want to leave it in memory. See <link:context_home.txt#Museum> for more information.</indent>
 
 <topic:Buildings><style:heading>Special Buildings</style>
 

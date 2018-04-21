@@ -155,7 +155,7 @@ void android_calc_exp(void)
 
     if (p_ptr->prace != RACE_ANDROID) return;
 
-    for (slot = EQUIP_BEGIN; slot < EQUIP_BEGIN + equip_count(); slot++)
+    for (slot = 1; slot <= equip_max(); slot++)
     {
         object_type *o_ptr = equip_obj(slot);
         total_exp += android_obj_exp(o_ptr);

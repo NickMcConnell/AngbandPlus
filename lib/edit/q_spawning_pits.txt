@@ -1,0 +1,73 @@
+# q0000023.txt
+# a quick creation by Jeff Coleburn <vsp@netaxs.com>
+
+?:[EQU $QUEST23 Taken InProgress]
+D:A great, great evil approaches, perhaps the end for our town.
+D:Our scouts lie slaughtered, their bodies crushed and mangled
+D:by powerful beasts. I know not what you shall face. 
+D:Monsters appear as if out of thin air, as if spawned by a foul 
+D:altar in a valley close to where you defeated the orcs.
+D:I am hesistant to ask for your help, knowing you may be sent 
+D:to your doom, and yet you are the last hope for our town. 
+D:Approach each nook carefully, as evil lies in unexpected places.
+D:Please prepare well, and strike hard in our names.
+?:1
+
+?:[EQU $QUEST23 Completed]
+D:Your valor shall go down in our legends; your name shall be
+D:sung by elvenkind for ages to come. Hail the conquering hero!
+D:May your battles with the Serpent be as successful.
+D:Use our gift wisely, and may the light shine on you.
+?:1
+
+?:[EQU $QUEST23 Failed]
+D:I've sent out someone else to do the job. Now leave me alone!
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:.:FLOOR
+L:<:UP_STAIR
+L:a:MON(^quylthulg$)
+L:b:MON(^rotting quylthulg)
+L:c:MON(^demonic quylthulg)
+L:d:MON(^draconic quylthulg)
+L:e:MON(master quylthulg)
+L:9:OBJ(*, DEPTH+7):MON(*, DEPTH+9)
+L:8:MON(*, DEPTH+11)
+M:#####################################################################
+M:###########################..<.........##############################
+M:#####################9.............................##################
+M:############..........................................###############
+M:###########...........................9..............################
+M:###a.b#####....9............########............9....################
+M:###.9..###...............##############................##############
+M:##..a.#####.............................................#############
+M:###...#######.....##..##..##..##..##..##..##..##........#############
+M:#####..####.......##..##..##..##..##..##..##..##...a.......##########
+M:#####..###........##..##..##..##..##..##..##..##.........############
+M:######...####.....##..##..##..##..##..##..##..##..........##9.d.9####
+M:#####.............##a.##b.##c.##d.##c.##b.##a.##.......#####....#####
+M:####..............##############################.........###....#####
+M:####....................##.c..9.##8..b..##................##....#####
+M:##8...........a.........##......##......##......................#####
+M:#######.................##......##......##........a...............###
+M:########...........................................................##
+M:########.............................................8...........####
+M:###########..9................####............................#######
+M:#####b9............a........########.a........................9b.####
+M:###########.................#......#..........................#######
+M:#####c9.....................#.#..#.#..........................9.d####
+M:###########................##.#..#.##..................a......#######
+M:#####d9...................##.##.e##.##........................9.c####
+M:###########...............##.######.##........9...............#######
+M:#####cd...................##........##.........................bb####
+M:###########................####..####.........................#######
+M:##############..............###9.###....................#############
+M:##################...................................################
+M:#####################################################################
+R:OBJ(balance dragon scale mail)
+?:[EQU [MOD $RANDOM23 77] 7]
+R:OBJ(power dragon scale mail)
+
+# vim: filetype=q :

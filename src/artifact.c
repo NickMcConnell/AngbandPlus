@@ -1876,6 +1876,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
     if (no_artifacts) return 0;
     if (have_flag(o_ptr->flags, OF_NO_REMOVE)) return 0;
+    if (o_ptr->tval == TV_QUIVER) return 0;
 
     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_HAYABUSA)
         is_falcon_sword = TRUE;
@@ -2736,7 +2737,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     /* Hack: Apply extra might at the end (so only once) */
     if (o_ptr->tval == TV_BOW && have_flag(o_ptr->flags, OF_XTRA_MIGHT) && o_ptr->mult)
     {
-        o_ptr->mult  += 25 + m_bonus(17, object_level) * 5;
+        o_ptr->mult += (25 + m_bonus(75, object_level)) * bow_energy(o_ptr->sval) / 10000;
         remove_flag(o_ptr->flags, OF_XTRA_MIGHT);
     }
 

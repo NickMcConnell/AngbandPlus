@@ -896,6 +896,42 @@ static void _detect_magic_spell(int cmd, variant *res)
     }
 }
 
+static obj_ptr _get_reforge_src(int max_power)
+{
+    obj_prompt_t prompt = {0};
+    char buf[255];
+
+    sprintf(buf, "Use what artifact for reforging (Max Power = %d)? ", max_power);
+    prompt.prompt = buf;
+    prompt.error = "You have no artifacts to reforge.";
+    prompt.filter = object_is_artifact;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+    prompt.flags = INV_SHOW_VALUE;
+
+    obj_prompt(&prompt);
+    return prompt.obj;
+}
+
+static obj_ptr _get_reforge_dest(int max_power)
+{
+    obj_prompt_t prompt = {0};
+    char buf[255];
+
+    sprintf(buf, "Reforge which object (Max Power = %d)? ", max_power);
+    prompt.prompt = buf;
+    prompt.error = "You have nothing to reforge.";
+    prompt.filter = item_tester_hook_nameless_weapon_armour;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_QUIVER;
+    prompt.where[3] = INV_FLOOR;
+    prompt.flags = INV_SHOW_VALUE;
+
+    obj_prompt(&prompt);
+    return prompt.obj;
+}
+
 static void _reforging_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -908,21 +944,16 @@ static void _reforging_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int src_idx, dest_idx, cost;
+        int cost;
         char o_name[MAX_NLEN];
-        char buf[255];
-        object_type *src, *dest;
+        obj_ptr src, dest;
         int power = p_ptr->lev * 5 / 2 + (p_ptr->lev >= 50 ? 5 : 0);
         int src_max_power = power * power * 10;
         int dest_max_power = 0;
 
         var_set_bool(res, FALSE);
-        item_tester_hook = object_is_artifact;
-        sprintf(buf, "Use what artifact for reforging (Max Power = %d)? ", src_max_power);
-        if (!get_item(&src_idx, buf, "You have no artifacts to reforge.", USE_INVEN | SHOW_VALUE))
-            return;
-
-        src = &inventory[src_idx];
+        src = _get_reforge_src(src_max_power);
+        if (!src) return;
         if (!object_is_artifact(src)) /* paranoia */
         {
             msg_print("You must choose an artifact for reforging.");
@@ -944,12 +975,8 @@ static void _reforging_spell(int cmd, variant *res)
         if (!get_check(format("Really use %s? (It will be destroyed!) ", o_name))) 
             return;
 
-        sprintf(buf, "Reforge which object (Max Power = %d)? ", dest_max_power);
-        item_tester_hook = item_tester_hook_nameless_weapon_armour;
-        if (!get_item(&dest_idx, buf, "You have nothing to reforge.", USE_EQUIP | USE_INVEN | SHOW_VALUE))
-            return;
-
-        dest = &inventory[dest_idx];
+        dest = _get_reforge_dest(dest_max_power);
+        if (!dest) return;
 
         if (dest->number > 1)
         {
@@ -987,8 +1014,8 @@ static void _reforging_spell(int cmd, variant *res)
             return;
         }
 
-        inven_item_increase(src_idx, -1);
-        inven_item_describe(src_idx);
+        src->number--;
+        obj_release(src, 0);
 
         obj_identify_fully(dest);
 
@@ -997,8 +1024,6 @@ static void _reforging_spell(int cmd, variant *res)
         handle_stuff();
 
         obj_display(dest);
-
-        inven_item_optimize(src_idx);
 
         var_set_bool(res, TRUE);
         break;

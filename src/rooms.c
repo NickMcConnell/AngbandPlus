@@ -16,12 +16,127 @@
 #include "grid.h"
 #include "rooms.h"
 
+#include <assert.h>
 /* Only one ROOM_SHOP room per level, please. Due to the
    current inventory implementation (viz, using NO_TOWN),
    multiple shops of the same kind on the same level would
    have the same keeper and stock! */
 static bool shop_allowed = TRUE;
 
+/************************************************************************
+ * Room Templates
+ ***********************************************************************/
+room_ptr room_alloc(cptr name)
+{
+    room_ptr room = malloc(sizeof(room_t));
+    memset(room, 0, sizeof(room_t));
+    room->name = z_string_make(name);
+    room->map = vec_alloc(free);
+    room->letters = int_map_alloc(free);
+    return room;
+}
+
+void room_free(room_ptr room)
+{
+    if (room)
+    {
+        z_string_free(room->name);
+        vec_free(room->map);
+        int_map_free(room->letters);
+        free(room);
+    }
+}
+
+/************************************************************************
+ * Coordinate Transforms
+ ***********************************************************************/
+point_t _transform(point_t p, int which)
+{
+    int i;
+    /* transform by
+     * [1] rotating counter clockwise: (x,y) -> (-y,x) */
+    for (i = 0; i < (which & 03); i++)
+    {
+        int tmp = p.x;
+        p.x = -p.y;
+        p.y = tmp;
+    }
+    /* [2] flipping: (x,y) -> (-x,y) */
+    if (which & 04)
+        p.x = -p.x;
+
+    return p;
+}
+
+transform_ptr transform_alloc(int which, rect_t src)
+{
+    transform_ptr result = malloc(sizeof(transform_t));
+
+    /* avoid SIGSEGV */
+    if (src.cx > MAX_HGT - 2)
+        which &= ~01;
+
+    result->which = which;
+    result->src = src;
+    if (which & 01) /* odd number of rotations: (w,h) -> (h,w) */
+        result->dest = rect(0, 0, src.cy, src.cx);
+    else
+        result->dest = rect(0, 0, src.cx, src.cy);
+
+    /* rotating around the center is conceptually cleaner, but has
+     * issues with rounding (ie the center might not be symmetric).
+     * instead, we rotate around the top left and translate to patch
+     * things up (with fudge) */
+    result->fudge = _transform(point(src.cx - 1, src.cy - 1), which);
+    if (result->fudge.x > 0) result->fudge.x = 0;
+    else result->fudge.x = -result->fudge.x;
+    if (result->fudge.y > 0) result->fudge.y = 0;
+    else result->fudge.y = -result->fudge.y;
+
+    return result;
+}
+transform_ptr transform_alloc_random(rect_t src, point_t max_size)
+{
+    int which = 0;
+    /* how many rotations? (0 .. 3) */
+    if ( src.cx <= max_size.y - 2 /* make sure odd rotations will fit */
+      && src.cy <= max_size.x - 2
+      && src.cy*100/src.cx > 70   /* make sure odd rotations look ok */
+      && one_in_(2) )
+    {
+        which |= 01;
+    }
+    if (one_in_(2))
+        which |= 02;
+    /* how many flips? (0 .. 1) */
+    if (one_in_(2))
+        which |= 04;
+    return transform_alloc(which, src);
+}
+
+transform_ptr transform_alloc_room(room_ptr room, point_t max_size)
+{
+    if (room->flags & ROOM_NO_ROTATE)
+        return transform_alloc(0, rect(0, 0, room->width, room->height));
+
+    return transform_alloc_random(rect(0, 0, room->width, room->height), max_size);
+}
+
+point_t transform_point(transform_ptr xform, point_t p)
+{
+    assert(rect_contains_pt(xform->src, p.x, p.y));
+    p = point_subtract(p, rect_topleft(xform->src));
+    p = _transform(p, xform->which);
+    p = point_add(p, xform->fudge);
+    p = point_add(p, rect_topleft(xform->dest));
+    assert(rect_contains_pt(xform->dest, p.x, p.y));
+    return p;
+}
+
+void transform_free(transform_ptr x)
+{
+    if (x) free(x);
+}
 /*
  * [from SAngband (originally from OAngband)]
  *
@@ -486,65 +601,46 @@ static bool find_space(int *y, int *x, int height, int width)
 
 static bool build_room_template(int type, int subtype)
 {
-    room_template_t *room_ptr;
-    int x, y;
-    int xval, yval;
-    int xoffset = 0;
-    int yoffset = 0;
-    int transno;
+    room_ptr      room;
+    transform_ptr xform;
+    point_t       center = {0};
 
     /* Pick a room template */
-    room_ptr = choose_room_template(type, subtype);
-    if (!room_ptr) return FALSE;
-    if (room_ptr->flags & ROOM_SHOP)
+    room = choose_room_template(type, subtype);
+    if (!room) return FALSE;
+    if (room->flags & ROOM_SHOP)
         shop_allowed = FALSE;
 
     /* pick type of transformation (0-7) */
-    if (room_ptr->flags & ROOM_NO_ROTATE)
-        transno = 0;
-    else if (type == ROOM_VAULT)
-        transno = randint0(8);
-    else 
-    {
-        int n = randint0(100);
-        if (n < 45)
-            transno = 0;
-        else if (n < 90)
-            transno = 2;
-        else if (n < 95)
-            transno = 1;
-        else
-            transno = 3;
-
-        if (one_in_(2))
-            transno |= 0x04;
-    }
-
-    /* calculate offsets */
-    x = room_ptr->width;
-    y = room_ptr->height;
-
-    /* Some huge vault cannot be rotated to fit in the dungeon */
-    if (x+2 > cur_hgt-2)
-    {
-        /* Forbid 90 or 270 degree rotation */
-        transno &= ~1;
-    }
-
-    coord_trans(&x, &y, 0, 0, transno);
-    if (x < 0) xoffset = -x - 1;
-    if (y < 0) yoffset = -y - 1;
+    if (room->flags & ROOM_NO_ROTATE)
+        xform = transform_alloc(0, rect(0, 0, room->width, room->height));
+    else
+        xform = transform_alloc_room(room, size(MAX_WID, MAX_HGT));
 
     /* Find and reserve some space in the dungeon. Get center of room.
      * Hack -- Prepare a bit larger space (+2, +2) to 
      * prevent generation of vaults with no-entrance. */
-    if (!find_space(&yval, &xval, abs(y) + 2, abs(x) + 2))
+    if (!find_space(&center.y, &center.x, xform->dest.cy + 2, xform->dest.cx + 2))
+    {
+        transform_free(xform);
         return FALSE;
+    }
+
+    /* Position the destination rect. Things are awkward due to find_space's weird interface.
+     * I'd prefer "rect_t find_space(point_t size)" for an API, but it's used elsewhere and some
+     * of the comments in find_space scared me off from a re-write ... */
+    {
+        point_t sz = point(xform->dest.cx/2, xform->dest.cy/2); /* this might cause rounding problems */
+        point_t v = point_subtract(center, sz); /* convert center to top-left */
+        rect_t  r = rect_translate(xform->dest, v.x, v.y);
+        xform->dest = r;
+    }
 
     /* Message */
-    if (cheat_room) msg_format("%s", room_name + room_ptr->name);
+    if (cheat_room) msg_format("%s", room->name);
 
-    build_room_template_aux(room_ptr, yval, xval, xoffset, yoffset, transno);
+    build_room_template_aux(room, xform, NULL);
+    transform_free(xform);
     return TRUE;
 }
 
@@ -1518,15 +1614,15 @@ void coord_trans(int *x, int *y, int xoffset, int yoffset, int transno)
 }
 
 
-static const room_grid_t *_find_room_grid(const room_template_t *room_ptr, char letter)
+static room_grid_ptr _find_room_grid(room_ptr room, char letter)
 {
-    int i;
-    for (i = 0; i < ROOM_MAX_LETTERS; i++)
+    room_grid_ptr grid1 = int_map_find(room->letters, letter);
+    if (grid1 && grid1->scramble)
     {
-        if (room_ptr->letters[i].letter == letter)
-            return &room_ptr->letters[i];
+        room_grid_ptr grid2 = int_map_find(room->letters, grid1->scramble);
+        if (grid2) return grid2;
     }
-    return NULL;
+    return grid1;
 }
 
 static bool _obj_kind_is_good = FALSE;
@@ -1550,138 +1646,48 @@ static bool _obj_kind_hook(int k_idx)
     }
 }
 
-static void _apply_room_grid1(int x, int y, const room_grid_t *grid_ptr, u16b room_flags)
+static void _apply_room_grid_feat(point_t p, room_grid_ptr grid, u16b room_flags)
 {
-    cave_type *c_ptr = &cave[y][x];
-    bool       trapped = FALSE;
+    cave_type *c_ptr = &cave[p.y][p.x];
 
     /* Feature */
-    if (grid_ptr->cave_feat)
+    if (grid->cave_feat)
     {
-        c_ptr->feat = conv_dungeon_feat(grid_ptr->cave_feat);
-        c_ptr->info = (c_ptr->info & (CAVE_MASK | CAVE_TEMP)) | grid_ptr->cave_info;
+        c_ptr->feat = conv_dungeon_feat(grid->cave_feat);
+        c_ptr->info = (c_ptr->info & (CAVE_MASK | CAVE_TEMP)) | grid->cave_info;
 
-        if (grid_ptr->flags & ROOM_GRID_SPECIAL)
-            c_ptr->special = grid_ptr->extra;
+        if (grid->flags & ROOM_GRID_SPECIAL)
+            c_ptr->special = grid->extra;
 
-        if (have_flag(f_info[c_ptr->feat].flags, FF_STORE))
-            store_init(NO_TOWN, f_info[c_ptr->feat].subtype);
+        /* Dungeon Shops need to init TOWN_RANDOM, but town shops definitely do not!
+         * The ROOM_SHOP flag won't be set by process_dungeon_file(), only in v_info.txt. */
+        if (have_flag(f_info[c_ptr->feat].flags, FF_STORE) && (room_flags & ROOM_SHOP))
+        {
+            town_ptr town = towns_get_town(TOWN_RANDOM);
+            shop_ptr shop = town_get_shop(town, f_info[c_ptr->feat].subtype);
+            shop_reset(shop);
+        }
     }
 
-    /* Traps */
-    if (grid_ptr->cave_trap)
+    /* Traps and Secret Doors */
+    if (grid->cave_trap)
     {
-        if (!grid_ptr->trap_pct || randint0(100) < grid_ptr->trap_pct)
+        if (!grid->trap_pct || randint0(100) < grid->trap_pct)
         {
             c_ptr->mimic = c_ptr->feat;
-            c_ptr->feat = conv_dungeon_feat(grid_ptr->cave_trap);
-            trapped = TRUE;
+            c_ptr->feat = conv_dungeon_feat(grid->cave_trap);
         }
     }
-    else if (grid_ptr->flags & ROOM_GRID_TRAP_RANDOM)
+    else if (grid->flags & ROOM_GRID_TRAP_RANDOM)
     {
-        if (!grid_ptr->trap_pct || randint0(100) < grid_ptr->trap_pct)
+        if (!grid->trap_pct || randint0(100) < grid->trap_pct)
         {
-            place_trap(y, x);
-            trapped = TRUE;
+            place_trap(p.y, p.x);
         }
     }
-
-    if (trapped)
-        return;
-
-    /* Object */
-    object_level = base_level + grid_ptr->object_level;
-    if (grid_ptr->flags & ROOM_GRID_OBJ_ARTIFACT)
-    {
-        int a_idx = grid_ptr->object;
-        if (no_artifacts)
-        {
-            int k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT);
-            object_type forge;
-
-            object_prep(&forge, k_idx);
-            drop_here(&forge, y, x);                
-        }
-        else if (a_info[a_idx].generated)
-        {
-            object_type forge;
-            create_replacement_art(a_idx, &forge);
-            drop_here(&forge, y, x);
-        }
-        else if (create_named_art(a_idx, y, x))
-            a_info[a_idx].generated = TRUE;
-    }
-    else if (grid_ptr->flags & ROOM_GRID_OBJ_RANDOM)
-    {
-        int mode = 0;
-        if (grid_ptr->flags & ROOM_GRID_ART_RANDOM)
-            mode = AM_GOOD | AM_GREAT | AM_SPECIAL | AM_NO_FIXED_ART;
-        else if (grid_ptr->flags & ROOM_GRID_EGO_RANDOM)
-            mode = AM_GOOD | AM_GREAT | AM_NO_FIXED_ART;
-        else if (grid_ptr->object_level)
-            mode = AM_GOOD;
-        place_object(y, x, mode);
-    }
-    else if ((grid_ptr->flags & ROOM_GRID_OBJ_TYPE) && grid_ptr->object == TV_GOLD)
-    {
-        object_type forge;
-        if (make_gold(&forge, FALSE))
-            drop_here(&forge, y, x);
-    }
-    else if (grid_ptr->object)
-    {
-        int k_idx;
-
-        if (grid_ptr->flags & ROOM_GRID_OBJ_TYPE)
-        {
-            if (grid_ptr->object == TV_JUNK || grid_ptr->object == TV_SKELETON)
-                object_level = 1;
-
-            _obj_kind_is_good = FALSE;
-            if (grid_ptr->object_level > 0)
-                _obj_kind_is_good = TRUE;
-            _obj_kind_hack = grid_ptr->object;
-            get_obj_num_hook = _obj_kind_hook;
-            get_obj_num_prep();
-            k_idx = get_obj_num(object_level);
-            get_obj_num_hook = NULL;
-            get_obj_num_prep();
-        }
-        else
-            k_idx = grid_ptr->object;
-
-        if (k_idx)
-        {
-            int         mode = 0;
-            object_type forge;
-
-            if (grid_ptr->flags & ROOM_GRID_ART_RANDOM)
-            {
-                mode = AM_GOOD | AM_GREAT | AM_SPECIAL | AM_NO_FIXED_ART;
-            }
-            else if (grid_ptr->flags & ROOM_GRID_EGO_RANDOM)
-            {
-                mode = AM_GOOD | AM_GREAT | AM_NO_FIXED_ART;
-            }
-            else if (grid_ptr->flags & ROOM_GRID_OBJ_EGO)
-            {
-                mode |= AM_GOOD | AM_GREAT | AM_FORCE_EGO;
-                apply_magic_ego = grid_ptr->extra;
-            }
-            else if (grid_ptr->object_level)
-                mode = AM_GOOD;
-
-            object_prep(&forge, k_idx);
-            apply_magic(&forge, object_level, mode);
-            mass_produce(&forge);
-            drop_here(&forge, y, x);
-        }
-    }
-    object_level = base_level;
 }
 
-static const room_grid_t *_room_grid_hack = 0;
+static room_grid_ptr _room_grid_hack = 0;
 static u16b _room_flags_hack = 0;
 static bool _room_grid_mon_hook(int r_idx)
 {
@@ -1726,21 +1732,20 @@ static bool _room_grid_mon_hook(int r_idx)
     return TRUE;
 }
 
-
-static void _apply_room_grid2(int x, int y, const room_grid_t *grid_ptr, u16b room_flags)
+static void _apply_room_grid_mon(point_t p, room_grid_ptr grid, u16b room_flags)
 {
     int mode = 0;
 
-    if (!(grid_ptr->flags & ROOM_GRID_MON_NO_GROUP))
+    if (!(grid->flags & ROOM_GRID_MON_NO_GROUP))
         mode |= PM_ALLOW_GROUP;
-    if (!(grid_ptr->flags & ROOM_GRID_MON_NO_SLEEP))
+    if (!(grid->flags & ROOM_GRID_MON_NO_SLEEP))
         mode |= PM_ALLOW_SLEEP;
-    /*if (!(grid_ptr->flags & ROOM_GRID_MON_NO_UNIQUE))
+    /*if (!(grid->flags & ROOM_GRID_MON_NO_UNIQUE))
         mode |= PM_ALLOW_UNIQUE;  Note: This flag does not work! */
-    if (grid_ptr->flags & ROOM_GRID_MON_HASTE)
+    if (grid->flags & ROOM_GRID_MON_HASTE)
         mode |= PM_HASTE;
 
-    if (grid_ptr->flags & ROOM_GRID_MON_FRIENDLY)
+    if (grid->flags & ROOM_GRID_MON_FRIENDLY)
         mode |= PM_FORCE_FRIENDLY;
     if (room_flags & ROOM_THEME_FRIENDLY)
         mode |= PM_FORCE_FRIENDLY;
@@ -1750,13 +1755,13 @@ static void _apply_room_grid2(int x, int y, const room_grid_t *grid_ptr, u16b ro
        quest files (process_dungeon_file) are broken in this respect. */
 
 
-    if (!(grid_ptr->flags & ROOM_GRID_MON_RANDOM) && !grid_ptr->monster)
+    if (!(grid->flags & ROOM_GRID_MON_RANDOM) && !grid->monster)
         return;
 
     /* The NIGHT theme is designed for wilderness cemeteries and 
        such, which should be populated with foul undead, but only
        in the deep, dark hours of night! */
-    if ((room_flags & ROOM_THEME_NIGHT) && !dun_level && !p_ptr->inside_quest)
+    if ((room_flags & ROOM_THEME_NIGHT) && py_on_surface())
     {
         int day, hour, min;
         extract_day_hour_min(&day, &hour, &min);
@@ -1765,7 +1770,7 @@ static void _apply_room_grid2(int x, int y, const room_grid_t *grid_ptr, u16b ro
     }
 
     /* Added for symmetry with ROOM_THEME_NIGHT ... any ideas? */
-    if ((room_flags & ROOM_THEME_DAY) && !dun_level && !p_ptr->inside_quest)
+    if ((room_flags & ROOM_THEME_DAY) && py_on_surface())
     {
         int day, hour, min;
         extract_day_hour_min(&day, &hour, &min);
@@ -1773,51 +1778,199 @@ static void _apply_room_grid2(int x, int y, const room_grid_t *grid_ptr, u16b ro
             return;
     }
 
-    if (grid_ptr->flags & (ROOM_GRID_MON_TYPE | ROOM_GRID_MON_RANDOM | ROOM_GRID_MON_CHAR))
+    if (grid->flags & (ROOM_GRID_MON_TYPE | ROOM_GRID_MON_RANDOM | ROOM_GRID_MON_CHAR))
     {
         int r_idx;
-        monster_level = base_level + grid_ptr->monster_level;
-        _room_grid_hack = grid_ptr;
+        monster_level = base_level + grid->monster_level;
+        _room_grid_hack = grid;
         _room_flags_hack = room_flags;
-        get_mon_num_prep(_room_grid_mon_hook, get_monster_hook2(y, x));
+        get_mon_num_prep(_room_grid_mon_hook, get_monster_hook2(p.y, p.x));
         r_idx = get_mon_num(monster_level);
-        place_monster_aux(0, y, x, r_idx, mode);
+        place_monster_aux(0, p.y, p.x, r_idx, mode);
         monster_level = base_level;
     }
-    else if (grid_ptr->monster)
+    else if (grid->monster)
     {
-        place_monster_aux(0, y, x, grid_ptr->monster, mode | PM_NO_KAGE);
-    }
+        int old_cur_num, old_max_num;
 
-    /* TODO: Letters in quest files need extra handling for cloned uniques,
-       as well as resurrecting uniques already slain. See process_dungeon_file_aux
-       in init1.c for gory details. */
+        /* Letters in quest files need extra handling for cloned uniques,
+           as well as resurrecting uniques already slain. */
+        old_cur_num = r_info[grid->monster].cur_num;
+        old_max_num = r_info[grid->monster].max_num;
+
+        if (r_info[grid->monster].flags1 & RF1_UNIQUE)
+        {
+            r_info[grid->monster].cur_num = 0;
+            r_info[grid->monster].max_num = 1;
+        }
+        else if (r_info[grid->monster].flags7 & RF7_NAZGUL)
+        {
+            if (r_info[grid->monster].cur_num == r_info[grid->monster].max_num)
+            {
+                r_info[grid->monster].max_num++;
+            }
+        }
+
+        place_monster_aux(0, p.y, p.x, grid->monster, mode | PM_NO_KAGE);
+        if (grid->flags & ROOM_GRID_MON_CLONED)
+        {
+            m_list[hack_m_idx_ii].smart |= SM_CLONED;
+
+            /* Make alive again for real unique monster */
+            r_info[grid->monster].cur_num = old_cur_num;
+            r_info[grid->monster].max_num = old_max_num;
+        }
+    }
+}
+
+obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
+{
+    obj_t forge = {0};
+    object_level = MAX(1, level + grid->object_level);
+    if (grid->flags & ROOM_GRID_OBJ_ARTIFACT)
+    {
+        if (no_artifacts)
+            object_prep(&forge, lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT));
+        else if (a_info[grid->object].generated || random_artifacts)
+            create_replacement_art(grid->object, &forge);
+        else
+        {
+            create_named_art_aux(grid->object, &forge);
+            a_info[grid->object].generated = TRUE;
+        }
+    }
+    else if (grid->flags & ROOM_GRID_OBJ_RANDOM)
+    {
+        int mode = 0;
+        if (grid->flags & ROOM_GRID_ART_RANDOM)
+            mode = AM_GOOD | AM_GREAT | AM_SPECIAL | AM_NO_FIXED_ART;
+        else if (grid->flags & ROOM_GRID_EGO_RANDOM)
+            mode = AM_GOOD | AM_GREAT | AM_NO_FIXED_ART;
+        else if (grid->object_level)
+            mode = AM_GOOD;
+        make_object(&forge, mode);
+    }
+    else if ((grid->flags & ROOM_GRID_OBJ_TYPE) && grid->object == TV_GOLD)
+    {
+        make_gold(&forge, FALSE);
+    }
+    else if (grid->object)
+    {
+        int k_idx;
+
+        if (grid->flags & ROOM_GRID_OBJ_TYPE)
+        {
+            if (grid->object == TV_JUNK || grid->object == TV_SKELETON)
+                object_level = 1;
+
+            /* rings and amulets are L10 objects ... make sure quest rewards generate */
+            if (grid->object == TV_RING || grid->object == TV_AMULET)
+                object_level = MAX(object_level, 10);
+
+            _obj_kind_is_good = FALSE;
+            if (grid->object_level > 0)
+                _obj_kind_is_good = TRUE;
+            _obj_kind_hack = grid->object;
+            get_obj_num_hook = _obj_kind_hook;
+            get_obj_num_prep();
+            k_idx = get_obj_num(object_level);
+            get_obj_num_hook = NULL;
+            get_obj_num_prep();
+        }
+        else
+            k_idx = grid->object;
+
+        if (k_idx)
+        {
+            int mode = 0;
+
+            if (grid->flags & ROOM_GRID_ART_RANDOM)
+            {
+                mode = AM_GOOD | AM_GREAT | AM_SPECIAL | AM_NO_FIXED_ART;
+            }
+            else if (grid->flags & ROOM_GRID_EGO_RANDOM)
+            {
+                mode = AM_GOOD | AM_GREAT | AM_NO_FIXED_ART;
+            }
+            else if (grid->flags & ROOM_GRID_OBJ_EGO)
+            {
+                mode |= AM_GOOD | AM_GREAT | AM_FORCE_EGO;
+                apply_magic_ego = grid->extra;
+            }
+            else if (grid->object_level)
+                mode = AM_GOOD;
+
+            object_prep(&forge, k_idx);
+            if (object_is_device(&forge) && (grid->flags & ROOM_GRID_OBJ_EFFECT))
+            {
+                /* Hack: There is only a single k_idx for each class of devices, so
+                 * we use the ego index to pick an effect. This means there is no way
+                 * to actually grant an ego device ...*/
+                if (!device_init_fixed(&forge, grid->extra))
+                {
+                    if (grid->extra)
+                    {
+                        char     name[255];
+                        effect_t e = {0};
+                        e.type = grid->extra;
+                        sprintf(name, "%s", do_effect(&e, SPELL_NAME, 0));
+                        msg_format("Software Bug: %s is not a valid effect for this device.", name);
+                        msg_print("Generating a random device instead.");
+                    }
+                    device_init(&forge, object_level, 0);
+                }
+            }
+            else
+            {
+                apply_magic(&forge, object_level, mode);
+                obj_make_pile(&forge);
+            }
+        }
+    }
+    object_level = base_level;
+    if (forge.k_idx) return obj_copy(&forge);
+    return NULL;
+}
+
+static void _apply_room_grid_obj(point_t p, room_grid_ptr grid, u16b room_flags)
+{
+    obj_ptr obj;
+
+    /* see if tile was trapped in _apply_room_grid_feat */
+    if (!cave_drop_bold(p.y, p.x)) return;
+
+    obj = room_grid_make_obj(grid, object_level);
+    if (obj)
+    {
+       drop_here(obj, p.y, p.x);
+       obj_free(obj);
+    }
 }
 
 #define _MAX_FORMATION 10
 static int _formation_monsters[_MAX_FORMATION];
 
-static bool _init_formation(const room_template_t *room_ptr, int x, int y)
+static bool _init_formation(room_ptr room, point_t p)
 {
-    const room_grid_t *grid_ptr = _find_room_grid(room_ptr, '0');
+    room_grid_ptr grid = _find_room_grid(room, '0');
     int i, j, n, which;
     monster_type align;
 
     for (i = 0; i < _MAX_FORMATION; i++)
         _formation_monsters[i] = 0;
 
-    if (!grid_ptr) 
+    if (!grid) 
         return FALSE;
 
-    monster_level = base_level + grid_ptr->monster_level;
+    monster_level = base_level + grid->monster_level;
 
-    if (grid_ptr->flags & (ROOM_GRID_MON_TYPE | ROOM_GRID_MON_CHAR))
+    if (grid->flags & (ROOM_GRID_MON_TYPE | ROOM_GRID_MON_CHAR))
     {
-        _room_grid_hack = grid_ptr;
-        _room_flags_hack = room_ptr->flags;
-        get_mon_num_prep(_room_grid_mon_hook, get_monster_hook2(y, x));
+        _room_grid_hack = grid;
+        _room_flags_hack = room->flags;
+        get_mon_num_prep(_room_grid_mon_hook, get_monster_hook2(p.y, p.x));
     }    
-    else if (grid_ptr->flags & ROOM_GRID_MON_RANDOM)
+    else if (grid->flags & ROOM_GRID_MON_RANDOM)
     {
         n = randint0(100);
         if (!dun_level) n = 99; /* Hack: Most nests/pits won't allocate on the surface! */
@@ -1859,8 +2012,8 @@ static bool _init_formation(const room_template_t *room_ptr, int x, int y)
             case 5: grid.monster = SUMMON_THIEF; break;
             }
             _room_grid_hack = &grid;
-            _room_flags_hack = room_ptr->flags;
-            get_mon_num_prep(_room_grid_mon_hook, get_monster_hook2(y, x));
+            _room_flags_hack = room->flags;
+            get_mon_num_prep(_room_grid_mon_hook, get_monster_hook2(p.y, p.x));
         }
         else 
         {
@@ -1868,15 +2021,15 @@ static bool _init_formation(const room_template_t *room_ptr, int x, int y)
             int r_idx;
 
             _room_grid_hack = &grid;
-            _room_flags_hack = room_ptr->flags;
+            _room_flags_hack = room->flags;
 
             grid.flags = ROOM_GRID_MON_RANDOM;
-            get_mon_num_prep(_room_grid_mon_hook, get_monster_hook2(y, x));
+            get_mon_num_prep(_room_grid_mon_hook, get_monster_hook2(p.y, p.x));
             r_idx = get_mon_num(monster_level);
 
             grid.flags = ROOM_GRID_MON_CHAR;
             grid.monster = r_info[r_idx].d_char;
-            get_mon_num_prep(_room_grid_mon_hook, get_monster_hook2(y, x));
+            get_mon_num_prep(_room_grid_mon_hook, get_monster_hook2(p.y, p.x));
             r_idx = get_mon_num(monster_level);
         }
     }
@@ -1933,80 +2086,87 @@ static bool _init_formation(const room_template_t *room_ptr, int x, int y)
 }
 
 /*
- * Build Rooms from Templates (e.g. Vaults)
- * TODO: Can we clean up the interface a bit?
+ * Build Rooms from Templates (e.g. Vaults, but also quest levels and towns)
  */
-void build_room_template_aux(const room_template_t *room_ptr, int yval, int xval, int xoffset, int yoffset, int transno)
+void build_room_template_aux(room_ptr room, transform_ptr xform, wild_scroll_ptr scroll)
 {
-    int dx, dy, x, y, i, j;
+    int           x, y;
+    cave_type    *c_ptr;
+    room_grid_ptr grid;
+    bool          initialized_formation = FALSE;
 
-    cptr t;
-    cptr data = room_text + room_ptr->text;
-    int  ymax = room_ptr->height;
-    int  xmax = room_ptr->width;
+    assert(room);
+    assert(xform);
+    assert(xform->src.x == 0);
+    assert(xform->src.y == 0);
 
-    cave_type *c_ptr;
-    const room_grid_t *grid_ptr;
-    bool initialized_formation = FALSE;
-
-    /* Place dungeon features and objects */
-    for (t = data, dy = 0; dy < ymax; dy++)
+    /* Pass 1: Place features */
+    for (y = 0; y < room->height; y++)
     {
-        for (dx = 0; dx < xmax; dx++, t++)
+        cptr line = vec_get(room->map, y);
+        for (x = 0; x < room->width; x++)
         {
-            /* prevent loop counter from being overwritten */
-            i = dx;
-            j = dy;
+            char    letter = line[x];
+            point_t p = transform_point(xform, point(x,y));
 
-            /* Flip / rotate */
-            coord_trans(&i, &j, xoffset, yoffset, transno);
-
-            /* Extract the location */
-            if (transno % 2 == 0)
+            if (scroll)
             {
-                /* no swap of x/y */
-                x = xval - (xmax / 2) + i;
-                y = yval - (ymax / 2) + j;
-            }
-            else
-            {
-                /* swap of x/y */
-                x = xval - (ymax / 2) + i;
-                y = yval - (xmax / 2) + j;
+                p = point_add(p, scroll->scroll);
+                if (rect_is_valid(scroll->exclude) && rect_contains_pt(scroll->exclude, p.x, p.y))
+                    continue;
             }
 
-            /* Hack -- skip "non-grids" */
-            if (*t == ' ') continue;
-            if (!in_bounds2(y, x)) continue;
+            if (!in_bounds2(p.y, p.x)) continue;
+
+            /* ' ' is a transparency for wilderness encounters/ambushes */
+            if (letter == ' ' && !_find_room_grid(room, letter)) continue;
 
             /* Access the grid */
-            c_ptr = &cave[y][x];
+            c_ptr = &cave[p.y][p.x];
 
             /* Lay down a floor */
-            if (room_ptr->type != ROOM_WILDERNESS && room_ptr->type != ROOM_AMBUSH)
+            if (room->type != ROOM_WILDERNESS && room->type != ROOM_AMBUSH)
+            {
                 place_floor_grid(c_ptr);
+                /* default feature specification to the '.' tile so that room
+                 * designers need not respecify features. For example, the following
+                 * would make GRASS the default floor feature:
+                 * L:.:GRASS
+                 * L:P:MON(morgoth)
+                 * L:$:ART(ringil) */
+                grid = _find_room_grid(room, '.');
+                if (grid)
+                    _apply_room_grid_feat(p, grid, room->flags);
+            }
 
             /* Remove any mimic */
             c_ptr->mimic = 0;
 
             /* Part of a vault? */
-            if (room_ptr->type == ROOM_VAULT)
+            if (room->type == ROOM_VAULT)
                 c_ptr->info |= CAVE_ROOM | CAVE_ICKY;
-            else if (room_ptr->type != ROOM_WILDERNESS && room_ptr->type != ROOM_AMBUSH)
+            else if (room->type != ROOM_WILDERNESS && room->type != ROOM_AMBUSH)
                 c_ptr->info |= CAVE_ROOM;
 
-            grid_ptr = _find_room_grid(room_ptr, *t);
-            if (!grid_ptr && (room_ptr->flags & ROOM_THEME_FORMATION) && '0' <= *t && *t <= '9')
-                grid_ptr = _find_room_grid(room_ptr, '.'); /* TODO ... */
-
-            if (grid_ptr)
+            grid = _find_room_grid(room, letter);
+            if (grid)
             {
-                _apply_room_grid1(x, y, grid_ptr, room_ptr->flags);
+                _apply_room_grid_feat(p, grid, room->flags);
+                /* Force consistent town behavior ... towns are auto-mapped. Quest
+                 * entrances and other permanent fixtures are mapped and glowing. */
+                if (room->type == ROOM_TOWN)
+                {
+                    c_ptr->info |= CAVE_AWARE;
+                    if (have_flag(f_info[c_ptr->feat].flags, FF_GLOW))
+                        c_ptr->info |= CAVE_MARK | CAVE_GLOW;
+                    if (have_flag(f_info[c_ptr->feat].flags, FF_PERMANENT))
+                        c_ptr->info |= CAVE_MARK | CAVE_GLOW;
+                }
                 continue;
             }
 
-            /* Analyze the grid */
-            switch (*t)
+            /* These letters are historical from v_info.txt and are hard-coded and unchangeable */
+            switch (letter)
             {
                 /* Granite wall (outer) */
             case '%':
@@ -2039,116 +2199,104 @@ void build_room_template_aux(const room_template_t *room_ptr, int yval, int xval
             case '*':
                 if (randint0(100) < 75)
                 {
-                    place_object(y, x, 0L);
+                    place_object(p.y, p.x, 0L);
                 }
                 else
                 {
-                    place_trap(y, x);
+                    place_trap(p.y, p.x);
                 }
                 break;
 
                 /* Secret doors */
             case '+':
-                if (room_ptr->type == ROOM_WILDERNESS)
-                    place_locked_door(y, x);
+                if (room->type == ROOM_WILDERNESS)
+                    place_locked_door(p.y, p.x);
                 else
-                    place_secret_door(y, x, DOOR_DEFAULT);
+                    place_secret_door(p.y, p.x, DOOR_DEFAULT);
                 break;
 
                 /* Secret glass doors */
             case '-':
-                place_secret_door(y, x, DOOR_GLASS_DOOR);
+                place_secret_door(p.y, p.x, DOOR_GLASS_DOOR);
                 if (is_closed_door(c_ptr->feat)) c_ptr->mimic = feat_glass_wall;
                 break;
 
                 /* Curtains */
             case '\'':
-                place_secret_door(y, x, DOOR_CURTAIN);
+                place_secret_door(p.y, p.x, DOOR_CURTAIN);
                 break;
 
                 /* Trap */
             case '^':
-                place_trap(y, x);
+                place_trap(p.y, p.x);
                 break;
 
                 /* The Pattern */
             case 'p':
-                set_cave_feat(y, x, feat_pattern_start);
+                set_cave_feat(p.y, p.x, feat_pattern_start);
                 break;
 
             case 'a':
-                set_cave_feat(y, x, feat_pattern_1);
+                set_cave_feat(p.y, p.x, feat_pattern_1);
                 break;
 
             case 'b':
-                set_cave_feat(y, x, feat_pattern_2);
+                set_cave_feat(p.y, p.x, feat_pattern_2);
                 break;
 
             case 'c':
-                set_cave_feat(y, x, feat_pattern_3);
+                set_cave_feat(p.y, p.x, feat_pattern_3);
                 break;
 
             case 'd':
-                set_cave_feat(y, x, feat_pattern_4);
+                set_cave_feat(p.y, p.x, feat_pattern_4);
                 break;
 
             case 'P':
-                set_cave_feat(y, x, feat_pattern_end);
+                set_cave_feat(p.y, p.x, feat_pattern_end);
                 break;
 
             case 'B':
-                set_cave_feat(y, x, feat_pattern_exit);
+                set_cave_feat(p.y, p.x, feat_pattern_exit);
                 break;
 
-            case 'A':
-                /* Reward for Pattern walk */
-                object_level = base_level + 12;
-                place_object(y, x, AM_GOOD | AM_GREAT);
-                object_level = base_level;
-                break;
             }
         }
     }
 
-    /* Place dungeon monsters and objects */
-    for (t = data, dy = 0; dy < ymax; dy++)
+    /* during a wilderness scroll event, there is no need to place monsters and treasure */
+    if (scroll && (scroll->flags & INIT_SCROLL_WILDERNESS))
+        return;
+
+    /* Pass2: Place monsters and objects */
+    for (y = 0; y < room->height; y++)
     {
-        for (dx = 0; dx < xmax; dx++, t++)
+        cptr line = vec_get(room->map, y);
+        for (x = 0; x < room->width; x++)
         {
-            /* prevent loop counter from being overwritten */
-            i = dx;
-            j = dy;
+            char    letter = line[x];
+            point_t p = transform_point(xform, point(x,y));
 
-            /* Flip / rotate */
-            coord_trans(&i, &j, xoffset, yoffset, transno);
-
-            /* Extract the location */
-            if (transno % 2 == 0)
+            if (scroll)
             {
-                /* no swap of x/y */
-                x = xval - (xmax / 2) + i;
-                y = yval - (ymax / 2) + j;
+                p = point_add(p, scroll->scroll);
+                if (rect_is_valid(scroll->exclude) && rect_contains_pt(scroll->exclude, p.x, p.y))
+                    continue;
             }
-            else
-            {
-                /* swap of x/y */
-                x = xval - (ymax / 2) + i;
-                y = yval - (xmax / 2) + j;
-            }
+            if (!in_bounds2(p.y, p.x)) continue;
 
-            /* Hack -- skip "non-grids" */
-            if (*t == ' ') continue;
-            if (!in_bounds(y, x)) continue;
+            /* ' ' is a transparency for wilderness encounters/ambushes */
+            if (letter == ' ' && !_find_room_grid(room, letter)) continue;
 
             /* Monster Formations are a huge, but worthwhile hack 
                '0' to '9' index into the formation array, initialized above.
                User specifies a '0' index in v_info to indicate the type of
                formation (e.g. L:0:MON(ORC, 10))
              */
-            if ( (room_ptr->flags & ROOM_THEME_FORMATION)
-              && '0' <= *t && *t <= '9' )
+            if ( (room->flags & ROOM_THEME_FORMATION)
+              && '0' <= letter && letter <= '9' )
             {
-                if ((room_ptr->flags & ROOM_THEME_FORMATION) && !initialized_formation)
+                if ((room->flags & ROOM_THEME_FORMATION) && !initialized_formation)
                 {
                     int k;
                     for (k = 0; k < 100; k++)
@@ -2156,158 +2304,172 @@ void build_room_template_aux(const room_template_t *room_ptr, int yval, int xval
                         /* The Old Monster Pits/Nest fail fairly often. For example,
                            when trying to generate a good chapel of vampires! More 
                            commonly, Orc Pits won't work after a certain depth ... */
-                        if (_init_formation(room_ptr, x, y)) 
+                        if (_init_formation(room, p)) 
                             break;
                     }
                     initialized_formation = TRUE;
                 }
                 {
-                    int idx = *t - '0';
+                    int idx = letter - '0';
                     int r_idx = _formation_monsters[idx];
 
                     if (r_idx)
                     {
-                        place_monster_aux(0, y, x, r_idx, PM_NO_KAGE);
+                        place_monster_aux(0, p.y, p.x, r_idx, PM_NO_KAGE);
                     }
                     continue;
                 }
             }
 
-            grid_ptr = _find_room_grid(room_ptr, *t);
-            if (grid_ptr)
+            grid = _find_room_grid(room, letter);
+            if (grid)
             {
-                _apply_room_grid2(x, y, grid_ptr, room_ptr->flags);
+                _apply_room_grid_mon(p, grid, room->flags);
+                _apply_room_grid_obj(p, grid, room->flags);
+                /* Remove need for tedious P:px:py line in quest files ... normally, we
+                 * can just use the '<' tile for the player's starting location. That worked
+                 * fine for me until the Royal Crypt ... So a '@' will take precedence. */
+                if (letter == '@' && room->type == ROOM_QUEST)
+                {
+                    py = p.y;
+                    px = p.x;
+                }
+                if (letter == '<' && !_find_room_grid(room, '@') && room->type == ROOM_QUEST)
+                {
+                    py = p.y;
+                    px = p.x;
+                }
+                /* initial positioning in towns (formerly P:x:y line) */
+                if ((letter == '<' || letter == '>') && room->type == ROOM_TOWN)
+                {
+                    if (!p_ptr->oldpx && !p_ptr->oldpy)
+                    {
+                        p_ptr->oldpx = p.x;
+                        p_ptr->oldpy = p.y;
+                    }
+                }
                 continue;
             }
 
-            /* Analyze the symbol */
-            switch (*t)
+            /* These letters are historical from v_info.txt and are hard-coded and unchangeable */
+            switch (letter)
             {
                 /* Monster */
                 case '&':
-                {
                     monster_level = base_level + 5;
-                    place_monster(y, x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
+                    place_monster(p.y, p.x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
                     monster_level = base_level;
                     break;
-                }
-
                 /* Meaner monster */
                 case '@':
-                {
-                    if (room_ptr->type == ROOM_AMBUSH)
+                    if (room->type == ROOM_AMBUSH)
                     {
-                        p_ptr->oldpx = x;
-                        p_ptr->oldpy = y;
+                        p_ptr->oldpx = p.x;
+                        p_ptr->oldpy = p.y;
                     }
                     else
                     {
                         monster_level = base_level + 11;
-                        place_monster(y, x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
+                        place_monster(p.y, p.x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
                         monster_level = base_level;
                     }
                     break;
-                }
-
                 /* Meaner monster, plus treasure */
                 case '9':
-                {
                     monster_level = base_level + 9;
-                    place_monster(y, x, PM_ALLOW_SLEEP);
+                    place_monster(p.y, p.x, PM_ALLOW_SLEEP);
                     monster_level = base_level;
                     object_level = base_level + 9;
-                    place_object(y, x, AM_GOOD);
+                    place_object(p.y, p.x, AM_GOOD);
                     object_level = base_level;
                     break;
-                }
-
                 /* Nasty monster and treasure */
                 case '8':
-                {
                     monster_level = base_level + 40;
-                    place_monster(y, x, PM_ALLOW_SLEEP);
+                    place_monster(p.y, p.x, PM_ALLOW_SLEEP);
                     monster_level = base_level;
                     object_level = base_level + 40;
-                    place_object(y, x, AM_GOOD | AM_GREAT);
+                    place_object(p.y, p.x, AM_GOOD | AM_GREAT);
                     object_level = base_level;
                     break;
-                }
-
                 /* Monster and/or object */
                 case ',':
-                {
                     if (randint0(100) < 50)
                     {
                         monster_level = base_level + 3;
-                        place_monster(y, x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
+                        place_monster(p.y, p.x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
                         monster_level = base_level;
                     }
                     if (randint0(100) < 50)
                     {
                         object_level = base_level + 7;
-                        place_object(y, x, 0L);
+                        place_object(p.y, p.x, 0L);
                         object_level = base_level;
                     }
                     break;
-                }
-
+                case 'A':
+                    /* Reward for Pattern walk */
+                    object_level = base_level + 12;
+                    place_object(p.y, p.x, AM_GOOD | AM_GREAT);
+                    object_level = base_level;
+                    break;
             }
         }
     }
 }
 
-static bool _room_is_allowed(const room_template_t * room_ptr, int type, int subtype)
+static bool _room_is_allowed(room_ptr room, int type, int subtype)
 {
-    if (!ironman_rooms && base_level < room_ptr->level) return FALSE;  /* Note: dun_level is 0 for wilderness encounters! */
-    if (room_ptr->max_level && room_ptr->max_level < base_level) return FALSE;
-    if (room_ptr->type != type) return FALSE;
-    if (subtype && room_ptr->subtype != subtype) return FALSE;
-    if (!room_ptr->rarity) return FALSE;
-    if ((room_ptr->flags & ROOM_SHOP) && !shop_allowed) return FALSE;
+    if (!ironman_rooms && base_level < room->level) return FALSE;  /* Note: dun_level is 0 for wilderness encounters! */
+    if (room->max_level && room->max_level < base_level) return FALSE;
+    if (room->type != type) return FALSE;
+    if (subtype && room->subtype != subtype) return FALSE;
+    if (!room->rarity) return FALSE;
+    if ((room->flags & ROOM_SHOP) && !shop_allowed) return FALSE;
 
     if (!dun_level)
     {
-        if ((room_ptr->flags & ROOM_THEME_DAY) && !is_daytime()) return FALSE;
-        if ((room_ptr->flags & ROOM_THEME_NIGHT) && is_daytime()) return FALSE;
+        if ((room->flags & ROOM_THEME_DAY) && !is_daytime()) return FALSE;
+        if ((room->flags & ROOM_THEME_NIGHT) && is_daytime()) return FALSE;
     }
 
     switch (dungeon_type)
     {
     case DUNGEON_HEAVEN:
-        if (room_ptr->flags & ROOM_THEME_EVIL) return FALSE;
+        if (room->flags & ROOM_THEME_EVIL) return FALSE;
         break;
     case DUNGEON_HELL:
-        if (room_ptr->flags & ROOM_THEME_GOOD) return FALSE;
+        if (room->flags & ROOM_THEME_GOOD) return FALSE;
         break;
     }
 
     return TRUE;
 }
 
-room_template_t *choose_room_template(int type, int subtype)
+room_ptr choose_room_template(int type, int subtype)
 {
     int total = 0;
     int i, n;
 
-    for (i = 0; i < max_room_idx; i++)
+    for (i = 0; i < vec_length(room_info); i++)
     {
-        room_template_t *room_ptr = &room_info[i];
-        if (!_room_is_allowed(room_ptr, type, subtype)) continue;
-        if (room_ptr->flags & ROOM_DEBUG) return room_ptr;
-        total += 1000 / room_ptr->rarity;
+        room_ptr room = vec_get(room_info, i);
+        if (!_room_is_allowed(room, type, subtype)) continue;
+        if (room->flags & ROOM_DEBUG) return room;
+        total += 1000 / room->rarity;
     }
 
     if (!total)
         return NULL;
 
     n = randint1(total);
-    for (i = 0; i < max_room_idx; i++)
+    for (i = 0; i < vec_length(room_info); i++)
     {
-        room_template_t *room_ptr = &room_info[i];
-        if (!_room_is_allowed(room_ptr, type, subtype)) continue;
-        n -= 1000 / room_ptr->rarity;
+        room_ptr room = vec_get(room_info, i);
+        if (!_room_is_allowed(room, type, subtype)) continue;
+        n -= 1000 / room->rarity;
         if (n <= 0)
-            return room_ptr;
+            return room;
     }
 
     return NULL;
@@ -3019,7 +3181,6 @@ static bool build_type9(void)
     return TRUE;
 }
 
-#ifdef ALLOW_CAVERNS_AND_LAKES
 /*
  * Builds a cave system in the center of the dungeon.
  */
@@ -3255,7 +3416,6 @@ void build_lake(int type)
         done = generate_lake(y0 + 1, x0 + 1, xsize, ysize, c1, c2, c3, type);
     }
 }
-#endif /* ALLOW_CAVERNS_AND_LAKES */
 
 /*
  * Routine that fills the empty areas of a room with treasure and monsters.
@@ -4092,3 +4252,4 @@ bool generate_rooms(void)
 
     return TRUE;
 }
+

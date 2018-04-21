@@ -1,60 +1,64 @@
 MKPATH=../../mk/
 include $(MKPATH)buildsys.mk
 
-DATA = Classes.txt \
+DATA = attack_contents.txt \
+attack.txt \
+birth_contents.txt \
+birth.txt \
+bldg.txt \
+Classes.txt \
+command_contents.txt \
+command.txt \
+commdesc_contents.txt \
+commdesc.txt \
+context_home.txt \
+context_message_recall.txt \
+context_monster_list.txt \
+context_more_prompt.txt \
+context_object_list.txt \
+context_obj_prompt.txt \
+context_shop.txt \
+context_targetting.txt \
+defend_contents.txt \
+defend.txt \
 Demigods.txt \
 Demons.txt \
 Draconians.txt \
 DragonRealms.txt \
 Dragons.txt \
-MonsterRaces.txt \
-Personalities.txt \
-Races.txt \
-Warlocks.txt \
-Weaponmasters.txt \
-attack.txt \
-attack_contents.txt \
-birth.txt \
-birth_contents.txt \
-bldg.txt \
-command.txt \
-command_contents.txt \
-commdesc.txt \
-commdesc_contents.txt \
-context_message_recall.txt \
-context_monster_list.txt \
-context_more_prompt.txt \
-context_object_list.txt \
-context_targetting.txt \
-defend.txt \
-defend_contents.txt \
-dungeon.txt \
 dungeon_contents.txt \
-editor.txt \
+dungeon.txt \
 editor_contents.txt \
+editor.txt \
 faq.txt \
 gambling.txt \
-general.txt \
 general_contents.txt \
+general.txt \
 helpinfo.txt \
-magic.txt \
 magic_contents.txt \
-monster.txt \
+magic.txt \
 monster_contents.txt \
-objects.txt \
+MonsterRaces.txt \
+monster.txt \
 objects_contents.txt \
-option.txt \
+objects.txt \
 option_contents.txt \
-pref.txt \
+option.txt \
+Personalities.txt \
 pref_contents.txt \
+pref.txt \
 raceclass_contents.txt \
+Races.txt \
 rings.txt \
+Skillmasters.txt \
 start.txt \
-tang.txt \
 tang_contents.txt \
-town.txt \
+tang.txt \
 town_contents.txt \
-version.txt
+town.txt \
+version.txt \
+Warlocks.txt \
+Weaponmasters.txt
 
 PACKAGE = help
 

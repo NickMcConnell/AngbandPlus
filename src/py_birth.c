@@ -90,7 +90,7 @@ int py_birth(void)
     return result;
 }
 
-extern void py_birth_obj_aux(int tval, int sval, int qty)
+void py_birth_obj_aux(int tval, int sval, int qty)
 {
     object_type forge;
 
@@ -105,6 +105,10 @@ extern void py_birth_obj_aux(int tval, int sval, int qty)
         qty = 1;
         break;
     }
+    case TV_QUIVER:
+        object_prep(&forge, lookup_kind(tval, sval));
+        apply_magic(&forge, 0, AM_AVERAGE);
+        break;
     default:
         object_prep(&forge, lookup_kind(tval, sval));
     }
@@ -113,7 +117,7 @@ extern void py_birth_obj_aux(int tval, int sval, int qty)
     py_birth_obj(&forge);
 }
 
-extern void py_birth_obj(object_type *o_ptr)
+void py_birth_obj(object_type *o_ptr)
 {
     int slot;
 
@@ -124,36 +128,46 @@ extern void py_birth_obj(object_type *o_ptr)
     if (p_ptr->prace == RACE_ANDROID && object_is_body_armour(o_ptr))
         return;
 
-    /* Big hack for sexy players ... only get one melee weapon */
-    if ( p_ptr->personality == PERS_SEXY
-      && object_is_melee_weapon(o_ptr)
-      && !object_is_(o_ptr, TV_HAFTED, SV_WHIP) )
+    /* Weed out duplicate gear (e.g. Artemis Archer) but note
+     * that centipedes start with duplicate boots (so allow
+     * multiple objects provided they can also be equipped) */
+    if ( object_is_wearable(o_ptr)
+      && o_ptr->number == 1
+      && p_ptr->prace != RACE_MON_RING /* Hack: Ring cannot wear rings, but can absorb them for powers */
+      && equip_find_obj(o_ptr->tval, o_ptr->sval)
+      && !equip_first_empty_slot(o_ptr) ) /* Hack: Centipede gets multiple boots */
     {
         return;
     }
 
-    /* Weed out duplicate gear (e.g. Artemis Archer) */
-    if (object_is_wearable(o_ptr) && o_ptr->number == 1 && equip_find_object(o_ptr->tval, o_ptr->sval))
-        return;
-
     obj_identify_fully(o_ptr);
+
+    /* Big hack for sexy players ... only wield the starting whip,
+     * but carry the alternate weapon. Previously, sexy characters
+     * would usually start off dual-wielding (ineffectual and confusing)*/
+    if ( p_ptr->personality == PERS_SEXY
+      && p_ptr->prace != RACE_MON_SWORD
+      && object_is_melee_weapon(o_ptr)
+      && !object_is_(o_ptr, TV_HAFTED, SV_WHIP) )
+    {
+        pack_carry(o_ptr);
+        return;
+    }
 
     slot = equip_first_empty_slot(o_ptr);
     if (slot && o_ptr->number == 1)
-        equip_wield_aux(o_ptr, slot);
+        equip_wield(o_ptr, slot);
     else
-        slot = inven_carry(o_ptr);
-
-    autopick_alter_item(slot, FALSE);
+        pack_carry(o_ptr);
 }
 
 /* Standard Food and Light */
-extern void py_birth_food(void)
+void py_birth_food(void)
 {
     py_birth_obj_aux(TV_FOOD, SV_FOOD_RATION, 2 + rand_range(3, 7));
 }
 
-extern void py_birth_light(void)
+void py_birth_light(void)
 {
     if (p_ptr->pclass != CLASS_NINJA)
     {
@@ -2535,10 +2549,19 @@ static void _birth_finalize(void)
     if (game_mode == GAME_MODE_BEGINNER)
         no_wilderness = TRUE;
 
-    equip_on_init();
+    equip_init();
+    pack_init();
+    quiver_init();
+    towns_init();
+    home_init();
     virtue_init();
+    quests_on_birth();
 
     p_ptr->au = randint1(600) + randint1(100) + 100;
+
+    /* Everybody gets a chaos patron. The chaos warrior is obvious,
+     * but anybody else can acquire MUT_CHAOS_GIFT during the game */
+    p_ptr->chaos_patron = randint0(MAX_PATRON);
 
     get_max_stats();
     do_cmd_rerate_aux();

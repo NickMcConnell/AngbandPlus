@@ -1,0 +1,43 @@
+# a quick creation by Jeff Coleburn <vsp@netaxs.com>
+
+?:[EQU $QUEST19 Taken InProgress]
+D:We need your help, adventurer. A hole has opened up to the
+D:northwest of our town, and strange demons lurk within. One
+D:of our townspeople investigated it unwittingly and barely 
+D:escaped with his life! Please destroy these demons and 
+D:ensure the continued safety of our town, else we are surely
+D:doomed.
+?:1
+
+?:[EQU $QUEST19 Completed]
+D:Thank you for killing the demons!
+?:1
+
+?:[EQU $QUEST19 Failed]
+D:I've sent out someone else to do the job. Now leave me alone!
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:.:FLOOR
+L:+:CLOSED_DOOR
+L:;:RUBBLE
+L:<:UP_STAIR
+L:$:OBJ(*)
+L:a:MON(^manes$)
+L:b:MON(^imp$)
+L:c:MON(flying skull)
+L:d:MON(arch-vile)
+M:###############################################
+M:#$....c....a....#$....#.......+c+...ca...;#.$$#
+M:#$......######..#.bcb.+..b.b..+c+..b...###...$#
+M:#.b.....#b......#..b..#..a....+c+....####....$#
+M:#####...#.$...b.#.....#.b..$$.+c+..#####c...d.#
+M:#$..+...#......#####+##.b..$$.+c+..#####....d.#
+M:#$b.#.a.#...b.##......#.......+c+...$####....$#
+M:#####...#..####.c.....#..b.b..+c+..b...###...$#
+M:#<..+...#...b........$#.......+c+...ca...;#.$$#
+M:###############################################
+R:OBJ(^ring$):EGO(elemental)
+
+# vim: filetype=q :

@@ -21,7 +21,7 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    d  Drop an item                         <color:y>D</color>  Disarm a trap
    <color:y>e</color>  Equipment list                       <color:y>E</color>  Eat some food
    <color:y>f</color>  Fire an arrow etc.                   <color:y>F</color>  Fuel your lantern/torch
-   g  Stay still (flip pickup)             <color:y>G</color>  Gain new spells/prayers
+   g  Get Objects                          <color:y>G</color>  Gain new spells/prayers
    <color:D>h  (unused)</color>                             <color:D>H  (unused)</color>
    <color:y>i</color>  Inventory list                       I  Inspect an item
    j  Jam a door                           <color:D>J  (unused)</color>
@@ -85,7 +85,7 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    d  Drop an item                         <color:y>D</color>  Disarm a trap or chest
    <color:y>e</color>  Equipment list                       <color:y>E</color>  Eat some food
    f  Bash a door (force)                  <color:y>F</color>  Fuel your lantern/torch
-   g  Stay still (flip pickup)             <color:y>G</color>  Gain new spells/prayers
+   g  Get Objects                          <color:y>G</color>  Gain new spells/prayers
    h  (walk - west)                        H  (run - west)
    <color:y>i</color>  Inventory list                       I  Inspect an item
    j  (walk - south)                       J  (run - south)
@@ -152,15 +152,13 @@ Some commands will prompt for a direction. You may enter a "compass" direction u
 
 <topic:SelectingObjects><style:heading>Selecting and Inscribing Objects</style>
 
-Many commands will also prompt for a particular object to be used. For example, the command to read a scroll will ask you which of the scrolls that you are carrying that you wish to read. In such cases, the selection is made by typing a letter of the alphabet. The prompt will indicate the possible letters, and will also allow you to type the key "*", which causes all of the available options to be described. The list of choices will also be shown in the Choice window, if you are using a windows environment and windows are turned on. Often you will be able to press "/" to select an object from your equipment instead of your inventory. Pressing space once will have the same effect as "*", and the second time will cancel the command and run the "i" or "e" command.
+The user interface for selecting objects has been changed (for version 6.0.0). Please see <link:context_obj_prompt.txt> for a basic introduction. This section will describe using custom inscriptions to override the default object labels when prompted for an object. As such, it is a rather advanced topic.
 
-The particular object may be selected by an upper case or a lower case letter. If lower case is used, the selection takes place immediately. If upper case is used, then the particular option is described, and you are given the option of confirming or retracting that choice. Upper case selection is thus safer, but requires an extra key stroke. Also see the "!*" and "!x" inscriptions, below.
+By default, the list of object choices are labelled with letters. For equipment choices, the letters correspond to the slots of your current body type (e.g. <color:keypress>a</color> for your right hand, etc.). These choices, since they are bound to slots rather than objects, never change. Though if you switch body types (Possessor) or play in monster mode (e.g. Dragon) then the available slots will be different, so the label corresponding to a slot will change. By contrast, inventory choices (pack and quiver) are not bound to slots. Rather, the labelling will begin at 'a' every time. Since the object list is filtered for relevant objects, this means that your choices will always begin with 'a'. This is a good thing since it makes the labels more stable in response to pack reordering. For example, to eat food, you probably just need to <color:keypress>Ea</color>. In the old days, it might have been <color:keypress>Ee</color> if you were a spellcaster ... until you picked up a new spellbook and the food label switched to <color:keypress>f</color>. (Of course, if you pick up a new food type that sorts before rations of food (e.g., a Mushroom of Disease), then the label for food will shift from <color:keypress>a</color> to <color:keypress>b</color>, but this change is easily detected since the object list now contains two choices.)
 
-For many commands, you can also use "-" to select an object on the floor where you are standing. This lets you read scrolls or quaff potions, for example, off the dungeon floor without picking them up.
+You may override the default labelling using custom inscriptions. First, you can inscribe <color:keypress>@1</color> on an object and it will always be labelled with <color:keypress>1</color> no matter which command you are currently using. Of course, you can change 1 to any other number and it will work. But this form of inscription requires you to use a number for the label override rather than a letter. Second, you can inscribe <color:keypress>@Ea</color> on your food to always have it labelled with <color:keypress>a</color> when using the Eat command (<color:keypress>E</color>). The format for this type of inscription override is @<color:G>CommandLetter</color><color:R>Label</color> where the CommandLetter is the built-in letter for the command (see <link:commdesc.txt>). Label can be any letter or number.
 
-If you enter a number between 0 and 9, the first item engraved with "@#" where "#" is the number you entered will be selected. For example, if you have a shovel engraved with "@0" and you type "w" (for wield) and then 0, you will wield the shovel. This is very useful for macros (see below), since you can use this to select an object regardless of its location in your pack. Multiple numbers can be engraved on the same object; for example, if a sword is engraved with @1@0, then either "w1" or "w0" will wield it. Normally, you inscribe "@1@0" on your primary weapon, and "@2@0" on your digger or secondary weapon. Note that an inscription containing "@x#" will act like "@#" but only when the current "game command" is "x". Thus you can put "@z4" on a rod and "@u4" on a staff, and then use both "z4" and "u4" as desired.
-
-Note that any object containing "!x" in its inscription, where "x" is the current "game command" will induce a verification prompt whenever that object is selected. Thus, inscribing, say, "!f!k!d" on an object will greatly reduce the odds of you losing it by accident, and inscribing "!*" on an object will allow you to be very paranoid about the object. Note that "selling" and "dropping" both use the "d" command. You can even repeat the inscription to invoke multiple verifications if you are truly paranoid. For example, having found, say, a potion of death, you might inscribe "!q!q!q!q" just to be absolutely, positively certain you don't accidently quaff the potion. And if you do, then your fingers are even fatter than mine!
+Note that any object containing "!x" in its inscription, where "x" is the current "game command" will induce a verification prompt whenever that object is selected. Thus, inscribing, say, "!f!k!d" on an object will greatly reduce the odds of you losing it by accident, and inscribing "!*" on an object will allow you to be very paranoid about the object. You can even repeat the inscription to invoke multiple verifications if you are truly paranoid. For example, having found, say, a potion of death, you might inscribe "!q!q!q!q" just to be absolutely, positively certain you don't accidently quaff the potion. And if you do, then your fingers are even fatter than mine! (Note: You can now use <color:keypress>!sdk</color> instead of <color:keypress>!s!d!k</color> ... Both forms mean the same thing.)
 
 While we are talking about inscriptions, there are certain object effects that can be annoying. For example, (and I hope this doesn't spoil the game for you) there are objects which randomly teleport the player away. This can be useful if you are out of other means of teleportation, but most of the time it is just plain annoying. You are prompted for the teleport, of course, but having prompts come up randomly is disturbing, and you often plow through the prompt anyway since you were in the middle of doing something else. In this case, you may inscribe "." on the object to eliminate the random teleportation.
 
@@ -169,7 +167,7 @@ Here is a summary of the effects of various example object inscriptions:
   <color:U>Inscription Effect
   =========== =====================================================</color>
       @1      Select this object whenever '1' is pressed in any cmd
-     @w7      Select this object whenever '7' is pressed after 'w'
+     @wa      Select this object whenever 'a' is pressed after 'w'
       !*      Verify using this object for all commands
       !q      Verify using this object for the 'q' command.
       !!      Notify when the item is fully recharged
@@ -184,6 +182,6 @@ Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.0.11
-Updated    : PosChengband 4.0.0
+Updated    : PosChengband 6.0.0
 </color>
 

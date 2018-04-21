@@ -1,0 +1,57 @@
+# Created by Topi Ylinen
+?:[EQU $QUEST11 Taken InProgress]
+D:The Wizards of Chaos have discovered a magical Node of
+D:Chaos in a nearby volcano. You must seek the Node and
+D:dispatch its guardians so that the Tower of Chaos can
+D:claim the mystical energies of the Node.
+?:1
+
+?:[EQU $QUEST11 Completed]
+D:You have done well.
+?:1
+
+?:[EQU $QUEST11 Failed]
+D:Begone, incompetent fool! The dimensional energies of the 
+D:mystic Node have faded away and are lost forever! You had
+D:your chance and botched the job. 
+?:1
+
+T:QUEST:NORMAL
+L:#:MOUNTAIN_WALL
+L:.:FLOOR
+L:~:SHALLOW_LAVA
+L:*:DEEP_LAVA
+L:<:UP_STAIR
+L:a:MON(chaos spawn)
+L:b:MON(hell hound)
+L:c:SHALLOW_LAVA:MON(fire elemental)
+L:d:SHALLOW_LAVA:MON(magma elemental)
+L:e:DEEP_LAVA:MON(great hell wyrm)
+M:###############################
+M:##*****~~~~~~*****~~~~~~~****##
+M:#***~~~c~~~~~~***~~~~~c~~~*~**#
+M:#*~~~~cdc~~~~~~~~~~~~cdc~~~~~*#
+M:#.~~~#########ccc#########~~~.#
+M:#..~#########cdddc#########~..#
+M:#..~###...aaaacccaaaa...###~..#
+M:#..~##....aaaabbbaaaa....##~..#
+M:#..~##...#############...##~..#
+M:#..~##..##...........##..##~..#
+M:#..~##..#.....cdc.....#..##~..#
+M:#..~##..#b...cdedc...b#..##~..#
+M:#..~##..bbb.cdeeedc.bbb..##~..#
+M:#..~##..#b...cdedc...b#..##~..#
+M:#..~##..#.....cdc.....#..##~..#
+M:#..~##..##...........##..##~..#
+M:#..~###..###.......###..###~..#
+M:#..~###..aaaaaaaaaaaaa..###~..#
+M:#..~####.aaaaabbbaaaaa.####~..#
+M:#..~#######################~..#
+M:#..~~#####################~~..#
+M:#...~~~~~~~~~~~~~~~~~~~~~~~...#
+M:#.....~~~~~~~~~~~~~~~~~~~.....#
+M:#<...........................##
+M:###############################
+R:OBJ(armageddon tome)
+
+# vim: filetype=q :

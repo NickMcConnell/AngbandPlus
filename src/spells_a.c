@@ -411,9 +411,9 @@ void banish_evil_spell(int cmd, variant *res)
         r_ptr = &r_info[m_ptr->r_idx];
 
         if ((r_ptr->flags3 & RF3_EVIL) &&
-            !(r_ptr->flags1 & RF1_QUESTOR) &&
+            !(m_ptr->mflag2 & MFLAG2_QUESTOR) &&
             !(r_ptr->flags1 & RF1_UNIQUE) &&
-            !p_ptr->inside_arena && !p_ptr->inside_quest &&
+            !p_ptr->inside_arena && !quests_get_current() &&
             (r_ptr->level < randint1(p_ptr->lev+50)) &&
             !(m_ptr->mflag2 & MFLAG2_NOGENO))
         {
@@ -589,7 +589,7 @@ void breathe_disintegration_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
+        if (!get_fire_dir_aux(&dir, TARGET_DISI)) return;
 
         stop_mouth();
         msg_print("You breathe disintegration.");

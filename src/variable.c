@@ -153,11 +153,7 @@ bool shimmer_objects;    /* Hack -- optimize multi-hued objects */
 bool repair_monsters;    /* Hack -- optimize detect monsters */
 bool repair_objects;    /* Hack -- optimize detect objects */
 
-s16b inven_nxt;            /* Hack -- unused */
 bool hack_mind;
-
-s16b inven_cnt;            /* Number of items in inventory */
-s16b equip_cnt;            /* Number of items in equipment */
 
 s16b o_max = 1;            /* Number of allocated objects */
 s16b o_cnt = 0;            /* Number of live objects */
@@ -174,7 +170,6 @@ char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 int total_friends = 0;
 s32b friend_align = 0;
 
-int leaving_quest = 0;
 bool reinit_wilderness = FALSE;
 
 int current_flow_depth = 0;
@@ -187,12 +182,8 @@ int current_flow_depth = 0;
 
 bool rogue_like_commands;    /* Rogue-like commands */
 bool always_pickup;    /* Pick things up by default */
-bool toggle_run_status;
-bool toggle_running;
-bool carry_query_flag;    /* Prompt before picking things up */
 bool quick_messages;    /* Activate quick messages */
 bool command_menu;    /* Enable command selection menu */
-bool other_query_flag;    /* Prompt for floor item selection */
 bool use_old_target;    /* Use old target by default */
 bool auto_target;    /* Automatically target nearest monster */
 bool always_repeat;    /* Repeat obvious commands */
@@ -209,11 +200,9 @@ bool easy_open;    /* Automatically open doors */
 bool easy_disarm;    /* Automatically disarm traps */
 #endif
 
-#ifdef ALLOW_EASY_FLOOR
-bool easy_floor;    /* Display floor stacks in a list */
-#endif
+bool auto_get_ammo;
+bool auto_get_objects;
 
-bool over_exert;    /* Allow casting spells when short of mana */
 bool numpad_as_cursorkey;    /* Use numpad keys as cursor key in editor mode */
 
 
@@ -238,7 +227,6 @@ bool display_path;    /* Display actual path before shooting */
 /*** Text Display Options ***/
 
 bool plain_descriptions;    /* Plain object descriptions */
-bool plain_pickup;    /* Plain pickup messages(japanese only) */
 bool always_show_list;    /* Always show list when choosing items */
 bool depth_in_feet;    /* Show dungeon level in feet */
 bool show_labels;    /* Show labels in object listings */
@@ -310,12 +298,10 @@ bool ironman_empty_levels;    /* Always create empty 'arena' levels (*) */
 bool ironman_rooms;    /* Always generate very unusual rooms (*) */
 bool ironman_nightmare;    /* Nightmare mode(it isn't even remotely fair!)(*) */
 bool preserve_mode;    /* Preserve artifacts (*) */
-bool powerup_home;    /* Increase capacity of your home (*) */
 bool allow_friendly_monster; /* Allow monsters friendly to player */
 bool allow_hostile_monster; /* Allow monsters hostile to each other */
 bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
 bool quest_unique; /* Random quests for unique monsters only */
-bool ironman_quests; /* Random quests must be completed */
 bool random_artifacts;
 bool no_artifacts;
 bool no_egos;
@@ -667,23 +653,6 @@ s16b mproc_max[MAX_MTIMED]; /* Number of monsters to be processed */
 
 
 /*
- * Maximum number of towns
- */
-u16b max_towns;
-
-/*
- * The towns [max_towns]
- */
-town_type *town;
-
-
-/*
- * The player's inventory [INVEN_TOTAL]
- */
-object_type *inventory;
-
-
-/*
  * The size of "alloc_kind_table" (at most max_k_idx * 4)
  */
 s16b alloc_kind_size;
@@ -757,9 +726,7 @@ birther previous_char;
 /*
  * Room Templates (Vaults, Special Rooms, Wilderness Encounters)
  */
-room_template_t *room_info;
-char *room_name;
-char *room_text;
+vec_ptr room_info = NULL;
 
 /*
  * The magic info
@@ -912,29 +879,6 @@ cptr ANGBAND_DIR_XTRA;
 
 
 /*
- * Total Hack -- allow all items to be listed (even empty ones)
- * This is only used by "do_cmd_inven_e()" and is cleared there.
- */
-bool item_tester_full;
-
-bool item_tester_no_ryoute = FALSE;
-
-/*
- * Here is a "pseudo-hook" used during calls to "get_item()" and
- * "show_inven()" and "show_equip()", and the choice window routines.
- */
-byte item_tester_tval;
-
-
-/*
- * Here is a "hook" used during calls to "get_item()" and
- * "show_inven()" and "show_equip()", and the choice window routines.
- */
-bool (*item_tester_hook)(object_type*);
-
-
-
-/*
  * Current "comp" function for ang_sort()
  */
 bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
@@ -972,10 +916,6 @@ bool easy_open;
 #ifdef ALLOW_EASY_DISARM /* TNB */
 bool easy_disarm;
 #endif /* ALLOW_EASY_DISARM -- TNB */
-
-#ifdef ALLOW_EASY_FLOOR /* TNB */
-bool easy_floor;
-#endif /* ALLOW_EASY_FLOOR -- TNB */
 
 bool center_player;
 bool center_running;
@@ -1063,35 +1003,9 @@ s32b max_wild_x;
 s32b max_wild_y;
 
 /*
- * Quest info
- */
-quest_type *quest;
-
-/*
- * Quest text
- */
-char quest_text[10][80];
-
-/*
- * Current line of the quest text
- */
-int quest_text_line;
-
-/*
  * Default spell color table (quark index)
  */
 s16b gf_color[MAX_GF];
-
-/*
- * Flags for initialization
- */
-int init_flags;
-
-/* Parameters for process_dungeon_file to support wilderness scrolling */
-int init_dx = 0;
-int init_dy = 0;
-const rect_t *init_exclude_rect = 0;
-
 
 /*
  * The "highscore" file descriptor, if available.

@@ -16,236 +16,43 @@
 
 #include <assert.h>
 
-/*
- * Display inventory
- */
-void do_cmd_inven(void)
-{
-    char out_val[160];
-
-
-    /* Note that we are in "inventory" mode */
-    command_wrk = FALSE;
-
-#ifdef ALLOW_EASY_FLOOR
-
-    /* Note that we are in "inventory" mode */
-    if (easy_floor) command_wrk = (USE_INVEN);
-
-#endif /* ALLOW_EASY_FLOOR */
-
-    /* Save screen */
-    screen_save();
-
-    /* Hack -- show empty slots */
-    item_tester_full = TRUE;
-
-    /* Display the inventory */
-    (void)show_inven(0, 0);
-
-    /* Hack -- hide empty slots */
-    item_tester_full = FALSE;
-
-    sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
-        (int)(p_ptr->total_weight / 10), (int)(p_ptr->total_weight % 10),
-        (p_ptr->total_weight * 100) / weight_limit());
-
-
-    /* Get a command */
-    prt(out_val, 0, 0);
-
-    /* Get a new command */
-    command_new = inkey();
-
-    /* Load screen */
-    screen_load();
-
-
-    /* Process "Escape" */
-    if (command_new == ESCAPE)
-    {
-        int wid, hgt;
-
-        /* Get size */
-        Term_get_size(&wid, &hgt);
-
-        /* Reset stuff */
-        command_new = 0;
-        command_gap = wid - 30;
-    }
-
-    /* Process normal keys */
-    else
-    {
-        /* Hack -- Use "display" mode */
-        command_see = TRUE;
-    }
-}
-
-
-/*
- * Display equipment
- */
-void do_cmd_equip(void)
-{
-    char out_val[160];
-
-
-    /* Note that we are in "equipment" mode */
-    command_wrk = TRUE;
-
-#ifdef ALLOW_EASY_FLOOR
-
-    /* Note that we are in "equipment" mode */
-    if (easy_floor) command_wrk = (USE_EQUIP);
-
-#endif /* ALLOW_EASY_FLOOR  */
-
-    /* Save the screen */
-    screen_save();
-
-    /* Hack -- show empty slots */
-    item_tester_full = TRUE;
-
-    /* Display the equipment */
-    (void)show_equip(0, 0);
-
-    /* Hack -- undo the hack above */
-    item_tester_full = FALSE;
-
-    /* Build a prompt */
-    sprintf(out_val, "Equipment: carrying %d.%d pounds (%d%% of capacity). Command: ",
-        (int)(p_ptr->total_weight / 10), (int)(p_ptr->total_weight % 10),
-        (p_ptr->total_weight * 100) / weight_limit());
-
-    /* Get a command */
-    prt(out_val, 0, 0);
-
-    /* Get a new command */
-    command_new = inkey();
-
-    /* Restore the screen */
-    screen_load();
-
-
-    /* Process "Escape" */
-    if (command_new == ESCAPE)
-    {
-        int wid, hgt;
-
-        /* Get size */
-        Term_get_size(&wid, &hgt);
-
-        /* Reset stuff */
-        command_new = 0;
-        command_gap = wid - 30;
-    }
-
-    /* Process normal keys */
-    else
-    {
-        /* Enter "display" mode */
-        command_see = TRUE;
-    }
-}
-
-
-void kamaenaoshi(int item)
-{
-}
 
 /*
  * Drop an item
  */
 void do_cmd_drop(void)
 {
-    int item, amt = 1;
-
-    object_type *o_ptr;
-
-    cptr q, s;
+    obj_prompt_t prompt = {0};
 
     if (p_ptr->special_defense & KATA_MUSOU)
-    {
         set_action(ACTION_NONE);
-    }
 
-    item_tester_no_ryoute = TRUE;
-    /* Get an item */
-    q = "Drop which item? ";
-    s = "You have nothing to drop.";
+    prompt.prompt = "Drop which item?";
+    prompt.error = "You have nothing to drop.";
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_QUIVER;
 
-    if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-
-        /* Ugly hack! */
-        if ( object_is_melee_weapon(o_ptr)
-          && equip_is_valid_slot(item)
-          && p_ptr->pclass == CLASS_PSION
-          && psion_weapon_graft() )
-        {
-            msg_print("Failed!  Your weapon is currently grafted to your arm!");
-            return;
-        }
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-
-    /* Hack -- Cannot remove cursed items */
-    if (equip_is_valid_slot(item))
-    {
-        if (object_is_cursed(o_ptr))
-        {
-            msg_print("Hmmm, it seems to be cursed.");
-            return;
-        }
-        if (have_flag(o_ptr->flags, OF_NO_REMOVE))
-        {
-            msg_print("You can't drop yourself, silly!");
-            return;
-        }
-    }
-
-    if (o_ptr->tval == TV_POTION && o_ptr->sval == SV_POTION_BLOOD)
-    {
-        msg_print("You can't do that!  Your blood will go sour!");
-        return;
-    }
-
-    /* See how many items */
-    if (o_ptr->number > 1)
-    {
-        /* Get a quantity */
-        amt = get_quantity(NULL, o_ptr->number);
-
-        /* Allow user abort */
-        if (amt <= 0) return;
-    }
-
-
-    /* Take a partial turn */
     energy_use = 50;
 
-    /* Drop (some of) the item */
-    inven_drop(item, amt);
-
-    if (equip_is_valid_slot(item))
-        android_calc_exp();
-
-    p_ptr->redraw |= PR_EQUIPPY;
+    switch (prompt.obj->loc.where)
+    {
+    case INV_PACK:
+        pack_drop(prompt.obj);
+        break;
+    case INV_EQUIP:
+        equip_drop(prompt.obj);
+        break;
+    case INV_QUIVER:
+        quiver_drop(prompt.obj);
+        break;
+    }
 }
 
-
-static bool high_level_book(object_type *o_ptr)
+bool high_level_book(object_type *o_ptr)
 {
     if ((o_ptr->tval == TV_LIFE_BOOK) ||
         (o_ptr->tval == TV_SORCERY_BOOK) ||
@@ -269,471 +76,6 @@ static bool high_level_book(object_type *o_ptr)
 
     return FALSE;
 }
-
-
-/*
- * Destroy an item
- */
-void do_cmd_destroy(void)
-{
-    int          item, amt = 1;
-    int          old_number;
-    bool         force = FALSE;
-    object_type *o_ptr;
-    object_type  forge;
-    object_type *q_ptr = &forge;
-    bool         is_equipped = FALSE;
-    char         o_name[MAX_NLEN];
-    char         out_val[MAX_NLEN+40];
-
-    cptr q, s;
-    int mode = USE_INVEN | USE_FLOOR;
-
-    if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
-        mode |= USE_EQUIP;
-
-    if (p_ptr->special_defense & KATA_MUSOU)
-    {
-        set_action(ACTION_NONE);
-    }
-
-    /* Hack -- force destruction */
-    if (command_arg > 0) force = TRUE;
-
-
-    /* Get an item */
-    q = "Destroy which item? ";
-    s = "You have nothing to destroy.";
-
-    if (!get_item(&item, q, s, mode)) return;
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-        is_equipped = equip_is_valid_slot(item);
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    /* Hack for Rune Knight: They can destroy worn equipment, but only
-       if it has the Sacrifice rune. get_item() is not smart enough
-       to handle this restriction ... */
-    if (is_equipped && o_ptr->rune != RUNE_SACRIFICE)
-    {
-        msg_print("You must first remove that item before destroying it.");
-        return;
-    }
-
-    /* Verify unless quantity given beforehand */
-    if (!force && (confirm_destroy || (obj_value(o_ptr) > 0)))
-    {
-        char ch;
-        int options = OD_COLOR_CODED;
-
-        if (o_ptr->number > 1)
-            options |= OD_OMIT_PREFIX;
-        object_desc(o_name, o_ptr, options);
-        sprintf(out_val, "Really destroy %s? <color:y>[y/n/Auto]</color>", o_name);
-
-        ch = msg_prompt(out_val, "nyA", PROMPT_DEFAULT);
-        if (ch == 'n') return;
-        if (ch == 'A')
-        {
-            if (autopick_autoregister(o_ptr))
-                autopick_alter_item(item, TRUE); /* destroyed! */
-            return;
-        }
-    }
-
-    /* Get a quantity */
-    if (o_ptr->number > 1)
-    {
-        amt = get_quantity(NULL, o_ptr->number);
-       if (amt <= 0) return;
-    }
-
-
-    /* Describe the object */
-    old_number = o_ptr->number;
-    o_ptr->number = amt;
-    object_desc(o_name, o_ptr, OD_COLOR_CODED);
-    o_ptr->number = old_number;
-
-    /* Take a turn */
-    energy_use = 100;
-
-    /* Artifacts cannot be destroyed */
-    if (!can_player_destroy_object(o_ptr))
-    {
-        energy_use = 0;
-        msg_format("You cannot destroy %s.", o_name);
-        return;
-    }
-
-    object_copy(q_ptr, o_ptr);
-
-    stats_on_p_destroy(o_ptr, amt);
-
-    {
-        race_t  *race_ptr = get_race();
-        class_t *class_ptr = get_class();
-        bool     handled = FALSE;
-        object_type copy = *o_ptr;
-
-        copy.number = amt;
-        if (!handled && race_ptr->destroy_object)
-            handled = race_ptr->destroy_object(&copy);
-
-        if (!handled && class_ptr->destroy_object)
-            handled = class_ptr->destroy_object(&copy);
-
-        if (!handled)
-        {
-            if (old_number == 1)
-                msg_print("Destroyed.");
-            else
-                msg_format("You destroy %s.", o_name);
-        }
-    }
-
-    if (o_ptr->rune == RUNE_SACRIFICE)
-    {
-        int add_hp = is_equipped ? p_ptr->mhp : p_ptr->mhp/3;
-        int add_sp = is_equipped ? p_ptr->msp : p_ptr->msp/3;
-
-        msg_print("You feel a surge of wondrous power enter your body.");
-
-        p_ptr->chp = MIN(p_ptr->mhp, p_ptr->chp + add_hp);
-        p_ptr->chp_frac = 0;
-        p_ptr->csp = MIN(p_ptr->msp, p_ptr->csp + add_sp);
-        p_ptr->csp_frac = 0;
-
-        p_ptr->redraw |= (PR_MANA);
-        p_ptr->window |= (PW_SPELL);
-        p_ptr->redraw |= (PR_HP);
-
-        if (is_equipped)
-        {
-            blast_object(o_ptr);
-            o_ptr->curse_flags = OFC_HEAVY_CURSE;
-        }
-    }
-    else if (is_equipped)
-        blast_object(o_ptr);
-
-    sound(SOUND_DESTITEM);
-
-    /* Reduce the charges of rods/wands */
-    reduce_charges(o_ptr, amt);
-
-    /* Eliminate the item (from the pack) */
-    if (item >= 0)
-    {
-        if (!is_equipped)
-        {
-            inven_item_increase(item, -amt);
-            if (amt < old_number)
-                inven_item_describe(item);
-            inven_item_optimize(item);
-        }
-    }
-
-    /* Eliminate the item (from the floor) */
-    else
-    {
-        floor_item_increase(0 - item, -amt);
-        if (amt < old_number)
-            floor_item_describe(0 - item);
-        floor_item_optimize(0 - item);
-    }
-
-    if ( p_ptr->pclass == CLASS_NECROMANCER
-      && (q_ptr->tval == TV_LIFE_BOOK || q_ptr->tval == TV_CRUSADE_BOOK) )
-    {
-        int sp = 0;
-        int osp = p_ptr->csp;
-        switch (q_ptr->sval)
-        {
-        case 0: sp = 10; break;
-        case 1: sp = 25; break;
-        case 2: sp = 100; break;
-        case 3: sp = 666; break;
-        }
-
-        p_ptr->csp += sp;
-        if (p_ptr->csp >= p_ptr->msp)
-        {
-            p_ptr->csp = p_ptr->msp;
-            p_ptr->csp_frac = 0;
-        }
-
-        if (p_ptr->csp > osp)
-            msg_print("You feel your head clear.");
-
-        p_ptr->redraw |= (PR_MANA);
-    }
-
-    if (high_level_book(q_ptr))
-    {
-        bool gain_expr = FALSE;
-
-        if (p_ptr->prace == RACE_ANDROID)
-        {
-        }
-        else if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_BERSERKER))
-        {
-            gain_expr = TRUE;
-        }
-        else if (p_ptr->pclass == CLASS_PALADIN)
-        {
-            if (is_good_realm(p_ptr->realm1))
-            {
-                if (!is_good_realm(tval2realm(q_ptr->tval))) gain_expr = TRUE;
-            }
-            else
-            {
-                if (is_good_realm(tval2realm(q_ptr->tval))) gain_expr = TRUE;
-            }
-        }
-
-        if (gain_expr && (p_ptr->exp < PY_MAX_EXP))
-        {
-            s32b tester_exp = p_ptr->max_exp / 20;
-            if (tester_exp > 10000) tester_exp = 10000;
-            if (q_ptr->sval < 3) tester_exp /= 4;
-            if (tester_exp<1) tester_exp = 1;
-
-            msg_print("You feel more experienced.");
-            gain_exp(tester_exp * amt);
-        }
-    }
-
-    if (high_level_book(q_ptr) && q_ptr->tval == TV_LIFE_BOOK)
-    {
-        virtue_add(VIRTUE_UNLIFE, 1);
-        virtue_add(VIRTUE_VITALITY, -1);
-    }
-    else if ( high_level_book(q_ptr)
-           && (q_ptr->tval == TV_DEATH_BOOK || q_ptr->tval == TV_NECROMANCY_BOOK) )
-    {
-        virtue_add(VIRTUE_UNLIFE, -1);
-        virtue_add(VIRTUE_VITALITY, 1);
-    }
-
-    if (q_ptr->to_a || q_ptr->to_h || q_ptr->to_d)
-        virtue_add(VIRTUE_ENCHANTMENT, -1);
-
-    if (obj_value_real(q_ptr) > 30000)
-        virtue_add(VIRTUE_SACRIFICE, 2);
-
-    else if (obj_value_real(q_ptr) > 10000)
-        virtue_add(VIRTUE_SACRIFICE, 1);
-
-    if (q_ptr->to_a != 0 || q_ptr->to_d != 0 || q_ptr->to_h != 0)
-        virtue_add(VIRTUE_HARMONY, 1);
-
-    if (equip_is_valid_slot(item))
-        android_calc_exp();
-}
-
-
-/*
- * Observe an item which has been *identify*-ed
- */
-void do_cmd_inspect(void)
-{
-    int            item;
-
-    object_type        *o_ptr;
-
-    cptr q, s;
-
-    item_tester_no_ryoute = TRUE;
-    /* Get an item */
-    q = "Examine which item? ";
-    s = "You have nothing to examine.";
-
-    if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | OPTION_ALL))) return;
-
-    if (item == INVEN_ALL)
-    {
-        int     slot, i;
-        doc_ptr doc = doc_alloc(80);
-
-        doc_insert(doc, "<style:wide><topic:Equipment>============================= Character <color:keypress>E</color>quipment =============================</style>\n\n");
-        for (slot = EQUIP_BEGIN, i = 0; slot < EQUIP_BEGIN + equip_count(); slot++, i++)
-        {
-            object_type *o_ptr = equip_obj(slot);
-            if (!o_ptr) continue;
-
-            obj_display_doc(o_ptr, doc);
-            /*doc_newline(doc);*/
-        }
-
-        doc_printf(doc, "<style:wide><topic:Inventory>============================= Character <color:keypress>I</color>nventory =============================</style>\n\n");
-        for (i = 0; i < INVEN_PACK; i++)
-        {
-            if (!inventory[i].k_idx) break;
-            if (!object_is_weapon_armour_ammo(&inventory[i]) && !object_is_known(&inventory[i])) continue;
-            obj_display_doc(&inventory[i], doc);
-            /*doc_newline(doc);*/
-        }
-
-        screen_save();
-        doc_display(doc, "Equipment", 0);
-        screen_load();
-        doc_free(doc);
-    }
-    else
-    {
-        /* Get the item (in the pack) */
-        if (item >= 0)
-        {
-            o_ptr = &inventory[item];
-        }
-
-        /* Get the item (on the floor) */
-        else
-        {
-            o_ptr = &o_list[0 - item];
-        }
-
-
-        /* Note, some descriptions (potions, scrolls, mushrooms) spoil the object's effects. */
-        if ( object_is_flavor(o_ptr) && !object_is_known(o_ptr))
-        {
-            msg_print("You have no special knowledge about that item.");
-            return;
-        }
-
-        obj_display(o_ptr);
-    }
-}
-
-
-
-/*
- * Remove the inscription from an object
- * XXX Mention item (when done)?
- */
-void do_cmd_uninscribe(void)
-{
-    int   item;
-
-    object_type *o_ptr;
-
-    cptr q, s;
-
-    item_tester_no_ryoute = TRUE;
-    /* Get an item */
-    q = "Un-inscribe which item? ";
-    s = "You have nothing to un-inscribe.";
-
-    if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    /* Nothing to remove */
-    if (!o_ptr->inscription)
-    {
-        msg_print("That item had no inscription to remove.");
-
-        return;
-    }
-
-    /* Message */
-    msg_print("Inscription removed.");
-
-
-    /* Remove the incription */
-    o_ptr->inscription = 0;
-
-    /* Combine the pack */
-    p_ptr->notice |= (PN_COMBINE);
-
-    /* Window stuff */
-    p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-    p_ptr->update |= (PU_BONUS);
-
-}
-
-
-/*
- * Inscribe an object with a comment
- */
-void do_cmd_inscribe(void)
-{
-    int          item;
-    object_type *o_ptr;
-    char         o_name[MAX_NLEN];
-    char         out_val[80];
-
-    item_tester_no_ryoute = TRUE;
-    /* Get an item */
-
-    if (!get_item(&item, "Inscribe which item? ", "You have nothing to inscribe.", (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    /* Describe the activity */
-    object_desc(o_name, o_ptr, OD_OMIT_INSCRIPTION | OD_COLOR_CODED);
-
-    /* Message */
-    msg_format("Inscribing %s.", o_name);
-
-    /* Start with nothing */
-    strcpy(out_val, "");
-
-    /* Use old inscription */
-    if (o_ptr->inscription)
-    {
-        /* Start with the old inscription */
-        strcpy(out_val, quark_str(o_ptr->inscription));
-    }
-
-    /* Get a new inscription (possibly empty) */
-    if (cmsg_input(TERM_YELLOW, "Inscription: ", out_val, 80))
-    {
-        /* Save the inscription */
-        o_ptr->inscription = quark_add(out_val);
-
-        /* Combine the pack */
-        p_ptr->notice |= (PN_COMBINE);
-
-        /* Window stuff */
-        p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-        p_ptr->update |= (PU_BONUS);
-    }
-}
-
-
 
 /*
  * An "item_tester_hook" for refilling lanterns
@@ -763,25 +105,26 @@ static bool _lite_is_darkness(object_type *lite)
  */
 static void do_cmd_refill_lamp(object_type *lantern)
 {
-    int item;
-    object_type *o_ptr;
+    obj_prompt_t prompt = {0};
 
-    item_tester_hook = item_tester_refill_lantern;
-    if (!get_item(&item, "Refill with which flask? ", "You have no flasks of oil.", USE_INVEN | USE_FLOOR)) return;
-    if (item >= 0)
-        o_ptr = &inventory[item];
-    else
-        o_ptr = &o_list[0 - item];
+    prompt.prompt = "Refill with which flask?";
+    prompt.error = "You have no flasks of oil.";
+    prompt.filter = item_tester_refill_lantern;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
     energy_use = 50;
-    lantern->xtra4 += o_ptr->xtra4;
+    lantern->xtra4 += prompt.obj->xtra4;
     msg_print("You fuel your lamp.");
-    if ( _lite_is_darkness(o_ptr) && lantern->xtra4 > 0)
+    if (_lite_is_darkness(prompt.obj) && lantern->xtra4 > 0)
     {
         lantern->xtra4 = 0;
         msg_print("Your lamp has gone out!");
     }
-    else if (_lite_is_darkness(o_ptr) || _lite_is_darkness(lantern))
+    else if (_lite_is_darkness(prompt.obj) || _lite_is_darkness(lantern))
     {
         lantern->xtra4 = 0;
         msg_print("Curiously, your lamp doesn't light.");
@@ -792,19 +135,8 @@ static void do_cmd_refill_lamp(object_type *lantern)
         msg_print("Your lamp is full.");
     }
 
-    if (item >= 0)
-    {
-        inven_item_increase(item, -1);
-        inven_item_describe(item);
-        inven_item_optimize(item);
-    }
-    else
-    {
-        floor_item_increase(0 - item, -1);
-        floor_item_describe(0 - item);
-        floor_item_optimize(0 - item);
-    }
-
+    prompt.obj->number--;
+    obj_release(prompt.obj, 0);
     p_ptr->update |= PU_TORCH;
 }
 
@@ -817,26 +149,27 @@ static bool _is_torch(object_type *o_ptr) {
 }
 static void do_cmd_refill_torch(object_type *torch)
 {
-    int item;
-    object_type *o_ptr;
+    obj_prompt_t prompt = {0};
 
-    item_tester_hook = _is_torch;
-    if (!get_item(&item, "Refuel with which torch? ", "You have no extra torches.", USE_INVEN | USE_FLOOR)) return;
-    if (item >= 0)
-        o_ptr = &inventory[item];
-    else
-        o_ptr = &o_list[0 - item];
+    prompt.prompt = "Refuel with which torch?";
+    prompt.error = "You have no extra torches.";
+    prompt.filter = _is_torch;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
     energy_use = 50;
-    torch->xtra4 += o_ptr->xtra4 + 5;
+    torch->xtra4 += prompt.obj->xtra4 + 5;
 
     msg_print("You combine the torches.");
-    if (_lite_is_darkness(o_ptr) && torch->xtra4 > 0)
+    if (_lite_is_darkness(prompt.obj) && torch->xtra4 > 0)
     {
         torch->xtra4 = 0;
         msg_print("Your torch has gone out!");
     }
-    else if (_lite_is_darkness(o_ptr) || _lite_is_darkness(torch))
+    else if (_lite_is_darkness(prompt.obj) || _lite_is_darkness(torch))
     {
         torch->xtra4 = 0;
         msg_print("Curiously, your torch does not light.");
@@ -849,29 +182,17 @@ static void do_cmd_refill_torch(object_type *torch)
     else
         msg_print("Your torch glows more brightly.");
 
-    if (item >= 0)
-    {
-        inven_item_increase(item, -1);
-        inven_item_describe(item);
-        inven_item_optimize(item);
-    }
-    else
-    {
-        floor_item_increase(0 - item, -1);
-        floor_item_describe(0 - item);
-        floor_item_optimize(0 - item);
-    }
-
+    prompt.obj->number--;
+    obj_release(prompt.obj, 0);
     p_ptr->update |= PU_TORCH;
 }
-
 
 /*
  * Refill the players lamp, or restock his torches
  */
 void do_cmd_refill(void)
 {
-    int slot = equip_find_object(TV_LITE, SV_ANY);
+    int slot = equip_find_obj(TV_LITE, SV_ANY);
 
     if (slot)
     {
@@ -2050,7 +1371,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                 assert(info_ptr);
                 if (info_ptr->m_idx)
                 {
-                    do_cmd_travel_xy(m_list[info_ptr->m_idx].fx, m_list[info_ptr->m_idx].fy);
+                    travel_begin(TRAVEL_MODE_NORMAL, m_list[info_ptr->m_idx].fx, m_list[info_ptr->m_idx].fy);
                     done = TRUE;
                     handled = TRUE;
                 }
@@ -2377,8 +1698,8 @@ static _obj_list_ptr _create_obj_list(void)
         info = _obj_list_info_alloc();
         info->subgroup = _SUBGROUP_DATA;
         info->idx = i;
-        info->x = o_ptr->ix;
-        info->y = o_ptr->iy;
+        info->x = o_ptr->loc.x;
+        info->y = o_ptr->loc.y;
         info->dy = info->y - py;
         info->dx = info->x - px;
         info->score = obj_value(o_ptr);
@@ -2612,7 +1933,7 @@ void do_cmd_list_objects(void)
                     assert(info_ptr);
                     if (info_ptr->idx)
                     {
-                        do_cmd_travel_xy(info_ptr->x, info_ptr->y);
+                        travel_begin(TRAVEL_MODE_NORMAL, info_ptr->x, info_ptr->y);
                         done = TRUE;
                     }
                 }

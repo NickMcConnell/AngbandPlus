@@ -1,0 +1,64 @@
+# Killing Fields, (C) Topi Ylinen 1999
+?:[EQU $QUEST26 Taken InProgress]
+D:A mysterious army has appeared near the eastern border.
+D:Their troops seem endless. There is not a hope a we can
+D:defeat them by numbers, we have to take out their general
+D:to make them retreat. Your mission is to infiltrate their
+D:headquarters, find the horned general and then get out of
+D:there alive. Beware of traps!
+?:1
+
+?:[EQU $QUEST26 Completed]
+D:The invasion from the east has been thwarted! As a reward,
+D:we will give you valuable item which may yet save your life.
+?:1
+
+?:[EQU $QUEST26 Failed]
+D:We have now been driven into a full war which we wished to
+D:avoid. You have failed your duty, your superiors and your
+D:country. You have lost your honour.
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:%:GRANITE
+L:.:FLOOR
+L:<:UP_STAIR
+L:T:TREE
+L:s:FLOOR(ICKY)
+L:^:TRAP(*)
+L:W:MON(warrior of the dawn, NO_GROUP)
+L:w:FLOOR(ICKY):MON(warrior of the dawn, NO_GROUP)
+L:a:MON(mine-dog)
+L:b:MON(landmine)
+L:c:MON(time bomb)
+L:M:MON(maulotaur)
+M:#####################################################################
+M:#TTTTTTT.TTTT..#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
+M:#TT.TT.TT.T..T.#WW.............^#####^...................^#####^...^#
+M:#T.T........T..##########......^#www#^^^^^^^^^^^^^^^^^^^^^#www#^...^#
+M:#TT.......T#####...............^#wws#######################sww#^...^#
+M:#T.T.......#...#....#.#.#.#########sssssssssssssssssssssssss###^...^#
+M:#TTT....####.#c#....#.#.#.......^^##sssssss###sssssssssssss##^^^...^#
+M:#T...W..#.cb.#b#....#.#.#bb#bb#b..^#ssssss##M##sssssssssss##^^.....^#
+M:#T.TT...#.####.#....#.#.#######...^#sssss##sss##ssssssssss#^^WWW..###
+M:#TTT....#...W#.#....#.#...........^#ssssss##s##sssssssssss#########^#
+M:#T<....W####.#^#^...#.##########b.^#sssssssss##sssssssssss%c^^^^^^^^#
+M:#T.........#^##^^...#.cbb......#b.^#sssss##sss##ssssssssss#########^#
+M:#TTaT......##^##^...#ccbb......#.^^#ssssss##s##sssssssssss#^^.WW...^#
+M:#TTTTT.#####..W#^...#bbbb......#^^##sssssss###ssssssssssss##^^^.c^.^#
+M:#TTTT..#......W#....#bbb.......####ssssssssssssssssssssssss###^....^#
+M:#TTT...#......W#########.......^#wws######################sww#^.^..^#
+M:#TTTTT.#..b...W#a........b.....^#www#^^^^^^^^^^^^^^^^^^^^#www#^..^.^#
+M:#TTTTTT#..######a...........^..^#####^W.W.W.W......W.W.W^#####^....^#
+M:#TTT...#c#.....#a..^..^........^^^^^^^....^......^....c.^^^^^^^.^..^#
+M:#T.....###.###.#a....^.....^...................^...^...............^#
+M:#T.......#.....#a........^.....^...b.......^...^.....^....^..^..a..^#
+M:#T.......#.....#a.....^......^......^..^....b..........^.c.......a.^#
+M:#TT..........Ta#a...c......^......^..............^.........^...a.a.^#
+M:#TT.T.T.TTaTTTT#a............c...........^....................a.aa.^#
+M:#TTTTTTTTTTTTTT#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
+M:#####################################################################
+R:OBJ(potion of life)
+
+# vim: filetype=q :

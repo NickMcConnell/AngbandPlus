@@ -1,0 +1,71 @@
+<style:title>Home, Sweet Home</style>
+
+Press <link:context_home.txt#QuickRef> for the <color:keyword>Quick Reference</color>.
+
+Your home is a special building found in all the normal towns on the surface (Outpost, Morivant, Telmora and Angwil). In your home, you may stash goodies for future use. There are currently no limits on the amount of objects you may store in your home, but if your house gets too cluttered, then you may find it rather annoying to find what you are looking for. So be sure to tidy up from time to time. Your home inventory is actually only a single inventory. So while there are four houses belonging to you, the contents of each is actually the same (This unrealistic behavior is for smoother gameplay).
+
+<topic:Tutorial><style:heading>Using Your Home</style>
+
+When you first enter your home, you will see an empty inventory. To add items to your home, simply drop them using the <color:keypress>d</color> command and select the item you wish to drop. Similarly, to get items from your home, you use the <color:keypress>g</color> command and then enter the label of the item you want. After a bit of game play, your home might look like so:
+<style:screenshot>
+                                   <color:G>Home</color>                                         
+                                                                                
+    Item Description                                               Weight  Score
+ a) <color:s>2 Soft Studded Leathers [5,+4]</color>                                9.0 lbs    514
+ b) <color:s>Rhino Hide Armour (-1) [8,+1]</color>                                11.0 lbs    384
+ c) <color:s>Cord Armour [6,+2]</color>                                            8.0 lbs    342
+ d) a Dagger (1d4) (+0,+0)                                        1.2 lbs      3
+ e) a Main Gauche (1d5) (+1,+5)                                   3.0 lbs    628
+ f) a Rapier (1d6) (+4,+5)                                        4.0 lbs    876
+ g) a Rapier (1d6) (+0,+0)                                        4.0 lbs     21
+ h) a Cutlass (1d7) (+0,+0)                                      11.0 lbs    133
+ i) a Khopesh (2d4) (+3,+5)                                      13.0 lbs    983
+ j) 2 Tulwars (2d4) (+0,+0)                                      10.0 lbs    135
+ k) a Broad Sword (2d5) (+0,+0)                                  15.0 lbs    186
+ l) a Long Sword (2d5) (+0,+0)                                   13.0 lbs    171
+ m) an Awl-Pike (1d8) (+0,+0)                                    16.0 lbs    175
+ n) a Trident (1d8) (+0,+0)                                       7.0 lbs     81
+<color:B>(Page 3 of 4)</color>                                                                   
+<color:o>g</color> to get an item. <color:o>d</color> to drop an item. <color:o>x</color> to begin examining items.                
+<color:o>r</color> to begin removing (destroying) items.                                         
+<color:o>Esc</color> to exit. <color:o>?</color> for help.                                                        
+</style>
+Once there are more objects then can be displayed on your screen, the inventory will be listed in pages. Use the <color:keypress>Page Up</color> and <color:keypress>Page Down</color> keys to navigate.
+
+If your home is too cluttered, then you will probably want to clean up a bit. Now, you can certainly <color:keypress>g</color>et items into your pack, walk outside, and drop them on the town commons. This is littering. It is also a bit of work. Sure, the townsfolk are poor and will eventually scavenge through your trash (once you leave, of course), but there is a better way to clean up, provided you realize that using this feature <color:v>permanently destroys</color> the indicated objects. This feature is the <color:keypress>r</color> command to remove items (<color:v>permanently</color>) from your home. Follow the prompts. You will be asked to confirm each removal (deletion) and you may not specify a quantity. Upon removal, you are prompted for another selection since it is likely you have more than one junk object in your home (If you are like me, you have much more than that!). Press <color:keypress>Esc</color> when you are done.
+
+<topic:Museum><style:heading>The Museum</style>
+
+The Museum is another building present in each town that behaves very much like your home. All four museum buildings share a common inventory just like all four of your homes. However, the museum accepts donations (<color:keypress>d</color>) but all donations are final: You are not allowed to take back your gifts! If the museum gets too cluttered for your tastes, you may tidy up with the <color:keypress>r</color> command. This permanently removes the selected object from the museum and this action can not be reversed.
+
+<topic:QuickRef><style:heading>Quick Reference</style>
+  <indent><color:G>Basic Commands</color>
+<color:keypress>d</color>         Drop an item from your pack to your home
+<color:keypress>g</color>         Get an item from your home to your pack
+<color:keypress>x</color>         Examine an item in your home
+<color:keypress>r</color>         Permanently remove items from your home
+<color:keypress>q Esc</color>     Leave your home
+
+<color:G>Extra Commands</color>
+<color:keypress>w</color>         Wear an item
+<color:keypress>t T</color>       Take off an item
+<color:keypress>k ^D</color>      Destroy items in your pack
+<color:keypress>e</color>         Display Equipment
+<color:keypress>i</color>         Display Inventory
+<color:keypress>I</color>         Inspect objects in your pack
+<color:keypress>Tab</color>       Toggle Inventory/Equipment Windows
+<color:keypress>{</color>         Inscribe objects in your pack
+<color:keypress>}</color>         Un-inscribe objects in your pack
+<color:keypress>C</color>         Display Character Sheet
+
+<style:note>Note: These <color:keyword>Extra Commands</color> are simply normal game commands made available for your convenience so you need not leave your home to use them. However, the keybindings for these commands are <color:keyword>hard-coded</color> so any keymaps you may have defined will not apply.</style>
+
+<color:G>Navigation</color>
+<color:keypress>Page Up</color>   Scroll Through Long Object Lists
+<color:keypress>Page Down</color>
+
+<color:G>Display Options</color>
+<color:keypress>^W</color>        Toggle Weights (see <link:option.txt#show_weights>)
+<color:keypress>^G</color>        Toggle Graphics (see <link:option.txt#show_item_graph>)
+</indent>
+

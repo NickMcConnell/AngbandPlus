@@ -47,7 +47,7 @@ be found in the dungeon section (see [b]).
   .   Grass                     9   Entrance to Bookstore
   >   Dungeon Entrance          0   Entrance to the Museum
   >   Quest Entrance
-  <   Quest Exit
+     Quest Exit
 
 Note that trees, water (deep and shallow) and lava (deep and shallow) 
 may also appear in the dungeon.
@@ -232,39 +232,8 @@ stores. You may enter any open store and barter with the owner for
 items you can afford by simply moving onto the entrance, which is 
 represented by a number from 1 to 9.
 
-Once inside a store, you will see the name and race of the store owner, 
-the name of the store, the maximum amount of cash that the store owner 
-will pay for any one item, and the store inventory, listed along with 
-their prices.
-
-          Solostoran (Sprite)                     Magic Shop (15000)
-
-   Item Description                                         Weight      Price
-a) ? 12 Arcane Spellbooks [Cantrips for Beginners]             3.0        140
-b) ? 2 Arcane Spellbooks [Minor Arcana]                        3.0        350  
-c) ? 4 Arcane Spellbooks [Major Arcana]                        3.0       1400  
-d) ? 2 Arcane Spellbooks [Manual of Mastery]                   3.0       3500  
-e) ? 8 Sorcery Spellbooks [Beginner's Handbook]                3.0        140
-f) ? 7 Sorcery Spellbooks [Master Sorcerer's Handbook]         3.0       1400  
-g) ? a Sorcery Spellbook [Master Sorcerer's Handbook] {50% of  3.0        700  
-h) - a Wand of Simplicity: Stinking Cloud (2/7 charges) (+2)   0.2        512  
-i) _ a Staff: Illumination (3/10 charges)                      5.0        483  
-j) _ a Staff: Detect Objects (5/10 charges) {50% off}          5.0        560  
-k) _ a Staff: Detect Treasure (3/6 charges)                    5.0        392  
-l) _ a Staff: Detect Objects (4/11 charges)                    5.0       1170  
-m) _ a Staff: Detect Traps (4/9 charges)                       5.0        668  
-
-
-
-                                                     Gold Remaining:   341
-You may:
- ESC) Exit from Building.     p) Purchase an item       i/e) Inventry/Equipment
-                              s) Sell an item           w/t) Wear/Take off equi
-                              x) eXamine an item          b) Buyout store
-
-You will also see an (incomplete) list of available commands. Note that 
-many of the commands which work in the dungeon work in the stores as 
-well, but some do not, especially those which involve "using" objects.
+Shopping has been re-written for version 6.0.0. Please see [e] for up 
+to date help about shopping commands.
 
 Stores do not always have everything in stock. As the game progresses, 
 they may get new items so check from time to time. Also, if you sell 
@@ -348,7 +317,8 @@ List of Shops
 
   Your Home (8)
   This is your house where you can store objects that you cannot carry 
-  on your travels, or will need at a later date.
+  on your travels, or will need at a later date. See [f] for more 
+  information.
 
   The Bookstore (9)
   The Bookstore deals in all sorts of magical books. You can purchase 
@@ -357,7 +327,7 @@ List of Shops
   The Museum (0)
   This is a place where you can donate any item to display. Use it when 
   you find interesting but needless items and you want to leave it in 
-  memory.
+  memory. See [g] for more information.
 
 Special Buildings
 

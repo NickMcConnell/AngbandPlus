@@ -844,8 +844,8 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if ( equip_find_artifact(ART_ETERNITY)
-      || equip_find_artifact(ART_ETERNAL_BLADE) )
+    if ( equip_find_art(ART_ETERNITY)
+      || equip_find_art(ART_ETERNAL_BLADE) )
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;

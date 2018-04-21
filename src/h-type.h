@@ -99,7 +99,12 @@ typedef unsigned char byte;
 /* Note that a bool is smaller than a full "int" */
 /* Simple True/False type */
 typedef char bool;
-
+/* This trick prevents conversion errors.
+ * e.g. BOOL(flags & OF_FOO) or BOOL(obj->name2)
+ * ! n when n == 0 -> 1
+ * ! n otherwise   -> 0
+ * bool b = 1024; has implementation defined behaviour (A.6.2 in K&R) */
+#define BOOL(E) !!(E)
 
 /* A signed, standard integer (at least 2 bytes) */
 typedef int sint;

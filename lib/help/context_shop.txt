@@ -1,0 +1,69 @@
+<style:title>Shopping</style>
+
+Press <link:context_shop.txt#QuickRef> for the <color:keyword>Quick Reference</color>.
+
+Each town on the surface contains numerous shops where you may purchase supplies or sell unwanted objects. Each shop specializes in a certain class of items: The Weapon Smiths sells weapons (melee and missile) while the Armory sells armor; the Alchemist sells potions and scrolls while the General Store sells basic utilities such as food, lanterns and oil. Each town also has a Black Market where you may, for an exorbitant price, purchase items normally found only in the dungeon.
+
+<topic:Tutorial><style:heading>Your First Shopping Spree</style>
+
+When you enter a shop, you will see a screen describing the shop's owner and the items available for purchase:
+<style:screenshot>
+    <color:U>Selaxis (Zombie)</color>                                            <color:G>Armory</color> (<color:r>10000</color>)  
+                                                                                
+    Item Description                                               Weight  Price
+ a) <color:s>Metal Scale Mail (-2) [13,+2]</color>                                25.0 lbs <color:D>  1860</color>
+ b) <color:s>a Robe [2,+4]</color>                                                 2.0 lbs    592
+ c) <color:s>2 Soft Studded Leathers [5,+0]</color>                                9.0 lbs    131
+ d) <color:s>Hard Leather Armour (-1) [6,+0]</color>                              10.0 lbs    111
+ e) <color:s>Hard Studded Leather (-1) [7,+0]</color>                             11.0 lbs    243
+ f) <color:s>2 Rhino Hide Armours (-1) [8,+0]</color>                             11.0 lbs    420
+ g) <color:s>Leather Scale Mail (-1) [11,+2]</color>                              14.0 lbs   1410
+ h) <color:s>Leather Scale Mail (-1) [11,+1]</color>                              14.0 lbs   1270
+ i) <color:s>5 Leather Scale Mails (-1) [11,+0]</color>                           14.0 lbs   1160
+ j) <color:s>a Leather Jacket of Elemental Protection (-1) [12,+10] {El</color>   13.0 lbs <color:D>  8730</color>
+ k) <color:U>a Small Metal Shield [5,+2]</color>                                   6.5 lbs    381
+ l) <color:U>a Small Metal Shield [5,+0]</color>                                   6.5 lbs    131
+<color:B>(Page 1 of 2)</color>                                                                   
+Gold Remaining: <color:y>1.41k</color>                                                           
+                                                                                
+<color:o>b</color> to buy. <color:o>s</color> to sell. <color:o>x</color> to begin examining items.                                
+<color:o>B</color> to buyout inventory.                                                          
+<color:o>Esc</color> to exit. <color:o>?</color> for help.                                                        
+</style>
+A quick list of available commands is displayed on the bottom of the screen. Simply choose the appropriate command and follow the instructions. Use <color:keypress>Page Up</color> and <color:keypress>Page Down</color> to navigate long lists of shop objects.
+
+Every store owner has access to limited funds, and will only pay so much for items that you sell. This amount is listed next to the store type on the top of the display.
+
+<topic:QuickRef><style:heading>Quick Reference</style>
+  <indent><color:G>Basic Commands</color>
+<color:keypress>p b g</color>     Purchase an item from the shop
+<color:keypress>s d</color>       Sell an item to the shop
+<color:keypress>x</color>         Examine an item in the shop
+<color:keypress>B</color>         Buyout the entire shop inventory
+<color:keypress>S</color>         <indent>Shuffle the stock inventory (<color:r>restricted</color>)</indent>
+<color:keypress>R</color>         <indent>Reserve a shop item for future purchase (<color:r>restricted</color>)</indent>
+<color:keypress>q Esc</color>     Leave the shop
+
+<color:G>Extra Commands</color>
+<color:keypress>w</color>         Wear an item
+<color:keypress>t T</color>       Take off an item
+<color:keypress>k ^D</color>      Destroy items in your pack
+<color:keypress>e</color>         Display Equipment
+<color:keypress>i</color>         Display Inventory
+<color:keypress>I</color>         Inspect objects in your pack
+<color:keypress>Tab</color>       Toggle Inventory/Equipment Windows
+<color:keypress>{</color>         Inscribe objects in your pack
+<color:keypress>}</color>         Un-inscribe objects in your pack
+<color:keypress>C</color>         Display Character Sheet
+
+<style:note>Note: These <color:keyword>Extra Commands</color> are simply normal game commands made available for your convenience so you need not leave the shop to use them. However, the keybindings for these commands are <color:keyword>hard-coded</color> so any keymaps you may have defined will not apply.</style>
+
+<color:G>Navigation</color>
+<color:keypress>Page Up</color>   Scroll Through Long Object Lists
+<color:keypress>Page Down</color>
+
+<color:G>Display Options</color>
+<color:keypress>^W</color>        Toggle Weights (see <link:option.txt#show_weights>)
+<color:keypress>^G</color>        Toggle Graphics (see <link:option.txt#show_item_graph>)
+</indent>
+

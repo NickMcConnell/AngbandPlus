@@ -517,6 +517,8 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (!heavy_armor())
     {
+        if (_get_toggle() == MYSTIC_TOGGLE_RETALIATE)
+            add_flag(flgs, OF_AURA_REVENGE);
         if (p_ptr->lev >= 10)
             add_flag(flgs, OF_SPEED);
         if (p_ptr->lev >= 25)

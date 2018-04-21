@@ -21,7 +21,6 @@ extern string_ptr string_read_file(FILE *fp);
 /* Destroy a string object */
 extern void string_free(string_ptr str);
 
-
 extern void string_clear(string_ptr str);
 
 /* String Building */
@@ -48,6 +47,8 @@ extern void string_trim(string_ptr str);
 
 extern int string_length(string_ptr str);
 extern const char *string_buffer(string_ptr str);
+extern char        string_get(string_ptr str, int pos);
+extern char        string_get_last(string_ptr str);
 
 extern vec_ptr    string_split(string_ptr str, char sep);
 extern string_ptr string_join(vec_ptr vec, char sep);

@@ -1,0 +1,98 @@
+?:[EQU $QUEST1 Taken InProgress]
+D:There are thieves robbing my people! They live in a small
+D:burrow outside the city walls robbing people as they pass
+D:on the roads. They even sneak inside the town to mug and
+D:pillage! Your task is to go to the burrow and kill these
+D:ruffians.
+?:1
+
+?:[EQU $QUEST1 Completed]
+D:Thank you for killing the band of thieves! Here is something
+D:I think you will enjoy.
+?:1
+
+?:[EQU $QUEST1 Failed]
+D:It seems like this task was too difficult for you. Good that I
+D:hired another adventurer to clean up the remaining thieves.
+?:1
+
+T:QUEST:NORMAL:FORMATION
+L:#:PERMANENT
+L:.:FLOOR
+L:+:CLOSED_DOOR
+L:<:UP_STAIR
+L:^:TRAP(*, 50)
+L:0:MON(THIEF, DEPTH+5)
+L:$:OBJ(*)
+M:###############
+M:#....4....#..$#
+M:#.........+^..#
+M:#8........#0..#
+M:#####.....#####
+M:#$.^+........5#
+M:#.2.#..^......#
+M:#####.........#
+M:#.^.+.........#
+M:#<^.+........7#
+M:###############
+
+R:OBJ(long sword)
+
+?:[EQU $RACE Beholder Spider Ring]
+R:OBJ(^ring$):EGO(protection)
+
+?:[EQU $RACE Centipede]
+R:OBJ(metal shod boots)
+
+?:[EQU $RACE Dragon]
+R:OBJ(^cloak$)
+
+?:[EQU $RACE Hound Hydra Vortex]
+R:OBJ(steel helm)
+
+?:[AND [EQU $CLASS Monster] [EQU $RACE Golem] ]
+R:OBJ(steel helm)
+
+?:[AND [EQU $CLASS Monster] [EQU $RACE Giant] ]
+R:OBJ(two-handed sword)
+
+?:[EQU $RACE Lich Quylthulg]
+R:OBJ(^ring$):EGO(protection)
+
+?:[EQU $CLASS Duelist]
+R:OBJ(rapier)
+
+?:[EQU $CLASS Rogue]
+R:OBJ(^sling$)
+
+?:[EQU $CLASS Archaeologist]
+R:OBJ(^whip$)
+
+?:[EQU $CLASS Beastmaster Cavalry]
+R:OBJ(broad spear)
+
+?:[EQU $CLASS Monk Force-Trainer Mystic]
+R:OBJ(gauntlets)
+
+?:[EQU $CLASS Priest]
+R:OBJ(war hammer)
+
+?:[EQU $RACE Angel]
+R:OBJ(war hammer)
+
+?:[EQU $CLASS Archer]
+R:OBJ(short bow)
+
+?:[EQU $CLASS Weaponsmith]
+R:OBJ(broad axe)
+
+?:[EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage Yellow-Mage Gray-Mage]
+R:OBJ(^ring$):EGO(protection)
+
+?:[EQU $CLASS Ninja]
+R:OBJ(^dagger$)
+
+?:[EQU $CLASS Sniper]
+R:OBJ(light crossbow)
+
+# vim: filetype=q :

@@ -422,8 +422,7 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
 
     /* Mundanity */
     object_prep(&new_obj, o_ptr->k_idx);
-    new_obj.iy = old_obj.iy;
-    new_obj.ix = old_obj.ix;
+    new_obj.loc = old_obj.loc;
     new_obj.next_o_idx = old_obj.next_o_idx;
     new_obj.marked = old_obj.marked;
     new_obj.number = old_obj.number;
@@ -2182,44 +2181,36 @@ static void _smith_object(object_type *o_ptr)
 /* entrypoint for smithing: pick an object and enter the toplevel menu */
 static bool _smithing(void)
 {
-    int          item;
-    object_type *o_ptr;
-    object_type  old_obj;
+    obj_prompt_t prompt = {0};
 
-    item_tester_hook = object_is_weapon_armour_ammo;
-    item_tester_no_ryoute = TRUE;
+    prompt.prompt = "Smith which object?";
+    prompt.error = "You have nothing to work with.";
+    prompt.filter = object_is_weapon_armour_ammo;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
 
-    if (!get_item(&item, "Smith which object? ", "You have nothing to work with.", (USE_INVEN | USE_FLOOR)))
-        return FALSE;
-    if (item >= 0)
-        o_ptr = &inventory[item];
-    else
-        o_ptr = &o_list[0 - item];
+    obj_prompt(&prompt);
+    if (!prompt.obj) return FALSE;
 
     /* Smithing now automatically 'Judges' the object for free */
     if (p_ptr->lev < 10)
     {
-        o_ptr->ident |= IDENT_SENSE;
-        o_ptr->feeling = value_check_aux1(o_ptr);
-        o_ptr->marked |= OM_TOUCHED;
+        prompt.obj->ident |= IDENT_SENSE;
+        prompt.obj->feeling = value_check_aux1(prompt.obj);
+        prompt.obj->marked |= OM_TOUCHED;
     }
     else
     {
-        identify_item(o_ptr);
+        identify_item(prompt.obj);
         if (p_ptr->lev >= 30)
-            obj_identify_fully(o_ptr);
+            obj_identify_fully(prompt.obj);
     }
-    old_obj = *o_ptr;
 
-    _smith_object(o_ptr);
+    _smith_object(prompt.obj);
+    if (prompt.obj->loc.where == INV_FLOOR)
+        autopick_alter_obj(prompt.obj, TRUE);
 
-    if (item >= 0)
-        p_ptr->total_weight += (o_ptr->weight*o_ptr->number - old_obj.weight*old_obj.number);
-    else
-        autopick_alter_item(item, TRUE);
-
-    p_ptr->notice |= PN_COMBINE | PN_REORDER;
-    p_ptr->window |= PW_INVEN;
+    obj_release(prompt.obj, OBJ_RELEASE_QUIET | OBJ_RELEASE_ID);
 
     return TRUE;
 }
@@ -2479,8 +2470,8 @@ static void _birth(void)
     _clear_essences();
     py_birth_obj_aux(TV_POLEARM, SV_BROAD_AXE, 1);
     py_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
-    py_birth_obj_aux(TV_BOW, SV_LIGHT_XBOW, 1);
-    py_birth_obj_aux(TV_BOLT, SV_AMMO_NORMAL, rand_range(15, 25));
+    py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
+    py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(15, 25));
 }
 
 /**********************************************************************

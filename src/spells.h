@@ -26,6 +26,7 @@ extern void spell_stats_on_fail(spell_info *spell);
 extern spell_stats_ptr spell_stats_aux(cptr name);
 extern spell_stats_ptr spell_stats(spell_info *spell);
 extern int spell_stats_fail(spell_stats_ptr stats);
+extern void spellbook_destroy(obj_ptr obj);
 
 extern spell_stats_ptr spell_stats_old(int realm, int spell); /* Deprecated */
 extern void spell_stats_on_cast_old(int realm, int spell); /* Deprecated */

@@ -1553,6 +1553,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
         /* Check for artifact */
         if (object_is_artifact(o_ptr)) is_art = TRUE;
+        else if (o_ptr->name2 == EGO_AMMO_ENDURANCE) is_art = TRUE; /* lazy */
 
         /* Analyze the type */
         switch (typ)
@@ -1657,7 +1658,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
             identify_item(o_ptr);
 
             /* Auto-inscription */
-            autopick_alter_item((-this_o_idx), FALSE);
+            autopick_alter_obj(o_ptr, FALSE);
             break;
     case GF_KILL_TRAP:
     case GF_KILL_DOOR:
@@ -2367,6 +2368,11 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             else
             {
                 do_poly = TRUE;
+                /* Try to make the Chaos Vortex more playable. With too frequent
+                 * polymorphing, you always seem to get stuck on a chaos resistant
+                 * foe eventually. */
+                if (p_ptr->current_r_idx == MON_CHAOS_VORTEX && !one_in_(5))
+                    do_poly = FALSE;
                 do_conf = (5 + randint1(11) + r) / (r + 1);
             }
             break;
@@ -2482,7 +2488,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 dam *= 2; dam /= randint1(6) + 6;
                 mon_lore_r(m_ptr, RFR_RES_SOUN);
             }
-            else if (who == 0 && randint1(10*r_ptr->level) > dam)
+            else if (who == 0 && randint1((1 + r_ptr->level/12)*r_ptr->level) > dam)
             {
                 note = " resists stunning.";
             }
@@ -3347,9 +3353,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             else
             {
-                bool unique = (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) ? TRUE : FALSE;
+                bool unique = BOOL(r_ptr->flags1 & RF1_UNIQUE);
 
-                if (!unique && power > 29 && randint1(100) < power)
+                if (!unique && !(m_ptr->mflag2 & MFLAG2_QUESTOR) && power > 29 && randint1(100) < power)
                 {
                     note = " is in your thrall!";
                     set_pet(m_ptr);
@@ -3542,7 +3548,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
             /* Powerful monsters can resist */
             if ((r_ptr->flags1 & RF1_UNIQUE) ||
-                (r_ptr->flags1 & RF1_QUESTOR) ||
+                (m_ptr->mflag2 & MFLAG2_QUESTOR) ||
                 (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
             {
                 note = " is unaffected!";
@@ -3563,7 +3569,11 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         {
             if (seen) obvious = TRUE;
 
-            if ((p_ptr->inside_arena) || is_pet(m_ptr) || (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)))
+            if ( p_ptr->inside_arena
+              || is_pet(m_ptr)
+              || (r_ptr->flags1 & RF1_UNIQUE)
+              || (r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2))
+              || (m_ptr->mflag2 & MFLAG2_QUESTOR) )
             {
                 note = " is unaffected!";
             }
@@ -3852,7 +3862,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
         case GF_SUBJUGATION:
         {
-            bool unique = (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) ? TRUE : FALSE;
+            bool unique = BOOL(r_ptr->flags1 & RF1_UNIQUE);
             int  attempts = randint1(1 + p_ptr->lev/50);
             int  ct = 0;
 
@@ -3888,7 +3898,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                     }
                     break;
                 case 3:
-                    if (!unique && randint1(r_ptr->level) <= randint1(dam))
+                    if (!unique && !(m_ptr->mflag2 & MFLAG2_QUESTOR) && randint1(r_ptr->level) <= randint1(dam))
                     {
                         note = " is frozen in terror!";
                         do_paralyzed = randint1(3);
@@ -3904,7 +3914,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                     }
                     break;
                 default:
-                    if (unique || p_ptr->inside_arena)
+                    if (unique || (m_ptr->mflag2 & MFLAG2_QUESTOR) || p_ptr->inside_arena)
                     {
                     }
                     else if ((m_ptr->mflag2 & MFLAG2_NOPET) || randint1(r_ptr->level) > randint1(dam))
@@ -4000,7 +4010,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 mon_lore_r(m_ptr, RFR_RES_ALL);
                 break;
             }
-            else if (r_ptr->flags1 & RF1_QUESTOR)
+            else if (m_ptr->mflag2 & MFLAG2_QUESTOR)
             {
                 note = " is unaffected!";
                 obvious = FALSE;
@@ -4052,10 +4062,10 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 dam = dam * 2 / 3;
 
             /* Attempt a saving throw */
-            if ((r_ptr->flags1 & RF1_QUESTOR) ||
-              (!(r_ptr->flags3 & RF3_UNDEAD)) ||
+            if ((m_ptr->mflag2 & MFLAG2_QUESTOR) ||
+                !(r_ptr->flags3 & RF3_UNDEAD) ||
                 (m_ptr->mflag2 & MFLAG2_NOPET) ||
-                 (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+                (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
             {
                 /* No obvious effect */
                 note = " is unaffected!";
@@ -4101,10 +4111,10 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 dam = dam * 2 / 3;
 
             /* Attempt a saving throw */
-            if ((r_ptr->flags1 & RF1_QUESTOR) ||
-              (!(r_ptr->flags3 & RF3_DEMON)) ||
+            if ((m_ptr->mflag2 & MFLAG2_QUESTOR) ||
+                !(r_ptr->flags3 & RF3_DEMON) ||
                 (m_ptr->mflag2 & MFLAG2_NOPET) ||
-                 (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+                (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
             {
                 /* No obvious effect */
                 note = " is unaffected!";
@@ -4150,11 +4160,11 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 dam = dam * 2 / 3;
 
             /* Attempt a saving throw */
-            if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
-              (!(r_ptr->flags3 & (RF3_ANIMAL))) ||
+            if ((m_ptr->mflag2 & MFLAG2_QUESTOR) ||
+                !(r_ptr->flags3 & RF3_ANIMAL) ||
                 (m_ptr->mflag2 & MFLAG2_NOPET) ||
-                 (r_ptr->flags3 & (RF3_NO_CONF)) ||
-                 (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+                (r_ptr->flags3 & RF3_NO_CONF) ||
+                (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
             {
                 /* Memorize a flag */
                 if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -4196,7 +4206,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 if (seen) obvious = TRUE;
 
                 /* Attempt a saving throw */
-                if ( (r_ptr->flags1 & RF1_QUESTOR)
+                if ( (m_ptr->mflag2 & MFLAG2_QUESTOR)
                   || (m_ptr->mflag2 & MFLAG2_NOPET)
                   || mon_save_p(m_ptr->r_idx, A_CHR)
                   || ((r_ptr->flags1 & RF1_UNIQUE) && mon_save_p(m_ptr->r_idx, A_CHR)) )
@@ -4253,7 +4263,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 dam = dam * 2 / 3;
 
             /* Attempt a saving throw */
-            if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
+            if ((m_ptr->mflag2 & MFLAG2_QUESTOR) ||
                 (m_ptr->mflag2 & MFLAG2_NOPET) ||
                  !monster_living(r_ptr) ||
                  ((r_ptr->level+10) > randint1(dam)))
@@ -5473,8 +5483,17 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         case GF_CAPTURE:
         {
             int nokori_hp;
-            if ((p_ptr->inside_quest && (quest[p_ptr->inside_quest].type == QUEST_TYPE_KILL_ALL) && !is_pet(m_ptr)) ||
-                (r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flags7 & (RF7_NAZGUL)) || (r_ptr->flags7 & (RF7_UNIQUE2)) || (r_ptr->flags1 & RF1_QUESTOR) || m_ptr->parent_m_idx)
+            if (!quests_allow_all_spells() && !is_pet(m_ptr))
+            {
+                msg_format("%^s is unaffected.", m_name);
+                skipped = TRUE;
+                break;
+            }
+            if ( (r_ptr->flags1 & RF1_UNIQUE)
+              || (r_ptr->flags7 & RF7_NAZGUL)
+              || (r_ptr->flags7 & RF7_UNIQUE2)
+              || (m_ptr->mflag2 & MFLAG2_QUESTOR)
+              || m_ptr->parent_m_idx )
             {
                 msg_format("%^s is unaffected.", m_name);
                 skipped = TRUE;
@@ -5500,6 +5519,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 if (m_ptr->mflag2 & MFLAG2_CHAMELEON) choose_new_monster(c_ptr->m_idx, FALSE, MON_CHAMELEON);
                 msg_format("You capture %^s!", m_name);
+                quests_on_kill_mon(m_ptr);
                 cap_mon = m_ptr->r_idx;
                 cap_mspeed = m_ptr->mspeed;
                 cap_hp = m_ptr->hp;
@@ -5768,7 +5788,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 }
 
                 /* Attempt a saving throw */
-                else if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
+                else if ((m_ptr->mflag2 & MFLAG2_QUESTOR) ||
                     (r_ptr->flags1 & (RF1_UNIQUE)) ||
                     (m_ptr->mflag2 & MFLAG2_NOPET) ||
                     (p_ptr->cursed & OFC_AGGRAVATE) ||
@@ -5850,12 +5870,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
     if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
 
     /* Quest monsters cannot be polymorphed */
-    if (r_ptr->flags1 & RF1_QUESTOR) do_poly = FALSE;
+    if (m_ptr->mflag2 & MFLAG2_QUESTOR) do_poly = FALSE;
 
     if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) do_poly = FALSE;
 
     /* "Unique" and "quest" monsters can only be "killed" by the player. */
-    if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & RF7_NAZGUL))
+    if (((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL) || (m_ptr->mflag2 & MFLAG2_QUESTOR))
       && !p_ptr->inside_battle
       && !prace_is_(RACE_MON_QUYLTHULG))
     {
@@ -5968,7 +5988,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 /* Obvious */
                 if (seen) obvious = TRUE;
-                dam = 0;
+                /* Why, in the name of all sanity, would you do this??!
+                 * dam = 0;*/
             }
             else
             {
@@ -6694,7 +6715,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
         case GF_ARROW:
         {
             if (fuzzy) msg_print("You are hit by something sharp!");
-            else if (equip_find_artifact(ART_ZANTETSU))
+            else if (equip_find_art(ART_ZANTETSU))
             {
                 msg_print("You cut down the arrow!");
                 break;

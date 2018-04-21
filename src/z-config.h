@@ -464,11 +464,6 @@
 #define ALLOW_EASY_DISARM
 
 /*
- * OPTION: Make floor stacks easy -- TNB
- */
-#define ALLOW_EASY_FLOOR
-
-/*
  * Use the new sorting routines for creation
  * of the monster allocation table
  */

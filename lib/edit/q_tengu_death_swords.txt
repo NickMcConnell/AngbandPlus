@@ -1,0 +1,59 @@
+# By Shayne Steele (steele@cs.fsu.edu)
+
+?:[EQU $QUEST29 Taken InProgress]
+D:The Magic Shop's owner is thinking of opening another Thieves Guild. 
+D:I do not need the competition, here is the key to the Magic Shop's
+D:back treasure room. Destroy everything you find there and you will
+D:be rewarded. The quest is located in the Black Market building.
+?:1
+
+?:[EQU $QUEST29 Completed]
+D:You have done well. Perhaps this will prove useful.
+?:1
+
+?:[EQU $QUEST29 Failed]
+D:You have failed this quest, but keep what you have found. 
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:%:GRANITE
+L:.:FLOOR
+L:<:UP_STAIR
+L:|:MON(death sword)
+L:u:MON(tengu)
+L:j:MON(gelatinous cube)
+L:$:OBJ(AMULET):EGO(barbarian talisman)
+L:A:GRANITE:SECRET(CLOSED_DOOR)
+L:B:GRANITE
+L:C:GRANITE
+L:D:GRANITE
+!:SCRAMBLE(A,B,C,D)
+M:#####################
+M:#...................#
+M:#.j...............j.#
+M:#..%%%%%%AAA%%%%%%..#
+M:#..%.............%..#
+M:#..%..|.u.|.u.|..%..#
+M:#..%.............%..#
+M:#..%..u.|.|.|.u..%..#
+M:#..D.............B..#
+M:#..D..|.|.$.|.|..B..#
+M:#..D.............B..#
+M:#..%..u.|.|.|.u..%..#
+M:#..%.............%..#
+M:#..%..|.u.|.u.|..%..#
+M:#..%.............%..#
+M:#..%%%%%%CCC%%%%%%..#
+M:#.j...............j.#
+M:#.........<.........#
+M:#####################
+R:OBJ(^ring$):EGO(protection)
+
+?:[EQU $RACE Death-Sword]
+R:OBJ(^dagger$):EGO(westernesse)
+
+?:[EQU $RACE Hydra]
+R:OBJ(^amulet$):EGO(elemental)
+
+# vim: filetype=q :

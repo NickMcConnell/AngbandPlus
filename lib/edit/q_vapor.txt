@@ -1,0 +1,75 @@
+# a quick creation by Jeff Coleburn <vsp@netaxs.com>
+
+?:[EQU $QUEST20 Taken InProgress]
+D:Something curious has taken root beneath our Inn. Celebor,
+D:the innkeeper, has reported strange vapors and auras in the
+D:basement that drive out all living things. A caged canary was
+D:placed there to test the air quality; it died within minutes,
+D:though the strange scents had vanished when the investigators
+D:returned. Then, suddenly, it was as if the air itself attacked!
+D:Please see if you can detect what is amiss.
+?:1
+
+?:[EQU $QUEST20 Completed]
+D:Strange tidings indeed. Where eldritch vapors gather, more
+D:dangerous creatures are often nearby. Perhaps this is an ill
+D:omen of dangers yet to come... We may be in need of your services
+D:again soon. This gift may help you detect what evils plague this land.
+?:1
+
+?:[EQU $QUEST20 Failed]
+D:I've sent out someone else to do the job. Now leave me alone!
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:%:GRANITE
+L:.:FLOOR
+L:+:CLOSED_DOOR
+L:<:UP_STAIR
+L:$:OBJ(*)
+L:a:MON(space monster)
+L:b:MON(clear mushroom patch)
+L:c:MON(air spirit)
+L:d:MON(lurker)
+L:e:MON(clear hound, NO_GROUP)
+L:f:MON(stunwall)
+L:g:MON(landmine)
+L:h:MON(vampiric mist, NO_GROUP)
+L:i:MON(^black$, NO_GROUP)
+L:j:MON(weird fume)
+M:###############################################
+M:#.$...........$.%$.....%.....$..+....%..+..%.j#
+M:#..haiahaiahai..%%.....%.hhhh..%%i...%..%.$+.$#
+M:#................%%...j%.hhhh.%%.....%.%%%%%%%#
+M:#%%%+%%%%%%%%+%%%%%%...%...g.%%..$i..%.%hhhhhh#
+M:#.................%%%+%%%%%+%%%i..i..%.%%%%%+%#
+M:#..............j..%...........%i...i.%g%......#
+M:#.................%...........%..i...%.%..$...#
+M:#%%%%%%%gg%%%%%%%%%......a....%%%%%%%%.%%%+%%%#
+M:#%%%%%%%..%....c.....................%.+......#
+M:#%%$$%%%..%............fff...........%.%%%%%%%#
+M:#%%dd%%%$.%......d..d..%%f..a..e.e...%.%......#
+M:#%....%%..%....a.......%%f...........%.+......#
+M:#%....%%..%............fff...........%.%......#
+M:#%..a.%%..%.....................e....%.%......#
+M:#%....%%..%...............c..........%.%..$...#
+M:#%....%%..%%%%%%%%%...........%%%%%%%%.%%%%%%%#
+M:#%.a..%%..%...$...%...........%f..........%.a.#
+M:#%....%%..+......$%....bbb....%f.....e....%...#
+M:#%....%%..%%%%%%%%%%%%%%+%%%%%%f.....e....%...#
+M:#%....%%e.........%.....d.....%f....e.....%.c.#
+M:#%.i..%%....c.....%...........%f....e.e...%...#
+M:#%....%%e.........%...........%f..........%...#
+M:#%....%%..........%...c.......%f..........+...#
+M:#%....%%%%%+%%%%%%%...........%%..........%...#
+M:#%....bb.....%.a..+...........+....e......%.$.#
+M:#%....bb.....%....%.bbbbbbbbb.%%...e......%...#
+M:#%....%%%....+....%.bbbbbbbbb.%f......e...%.c.#
+M:#%....%%%....%.a..%...........%f......e...%...#
+M:#%....he.....%....%...........%f...e......%...#
+M:#%....ab.....%.c..%...<.......%f..........%..c#
+M:###############################################
+R:OBJ(ROD_DETECT_ALL)
+
+# vim: filetype=q :

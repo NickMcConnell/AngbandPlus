@@ -584,7 +584,7 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if (equip_find_artifact(ART_STONE_OF_MIND))
+    if (equip_find_art(ART_STONE_OF_MIND))
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;

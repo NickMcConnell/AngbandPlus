@@ -313,6 +313,11 @@
 # endif
 #endif
 
-
+#ifdef _GNU_SOURCE
+#undef  HAVE_MKSTEMP
+#define HAVE_MKSTEMP 1
+#undef  HAVE_USLEEP
+#define HAVE_USLEEP 1
+#endif
 
 #endif /* INCLUDED_H_CONFIG_H */

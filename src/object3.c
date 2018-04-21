@@ -560,7 +560,7 @@ s32b jewelry_cost(object_type *o_ptr, int options)
     }
     if (have_flag(flgs, OF_XTRA_MIGHT))
     {
-        p += 7500 * pval;
+        p += 3000 * pval;
         if (cost_calc_hook)
         {
             sprintf(dbg_msg, "  * Extra Might: p = %d", p);
@@ -771,6 +771,132 @@ s32b lite_cost(object_type *o_ptr, int options)
     return p;
 }
 
+s32b quiver_cost(object_type *o_ptr, int options)
+{
+    s32b j, y, q, p;
+    int  pval = 0;
+    u32b flgs[OF_ARRAY_SIZE];
+    char dbg_msg[512];
+
+    if (options & COST_REAL)
+        obj_flags(o_ptr, flgs);
+    else
+        obj_flags_known(o_ptr, flgs);
+
+    pval = o_ptr->pval;
+
+    j = MAX(0, o_ptr->xtra4 - 60);
+    j = 30 + j * j / 5;
+    if (cost_calc_hook)
+    {
+        sprintf(dbg_msg, "  * Base Cost: j = %d", j);
+        cost_calc_hook(dbg_msg);
+    }
+
+    /* These egos don't use flags for their effects ... sigh. */
+    if ((options & COST_REAL) || object_is_known(o_ptr))
+    {
+        switch (o_ptr->name2)
+        {
+        case EGO_QUIVER_PROTECTION:
+            j += 1500;
+            break;
+        case EGO_QUIVER_PHASE:
+            j += 5000;
+            break;
+        }
+    }
+
+    /* Resistances */
+    q = _resistances_q(flgs);
+    p = j + q;
+
+    if (cost_calc_hook)
+    {
+        sprintf(dbg_msg, "  * Resistances: q = %d, p = %d", q, p);
+        cost_calc_hook(dbg_msg);
+    }
+
+    /* Abilities */
+    q = _abilities_q(flgs);
+    if (have_flag(flgs, OF_NO_MAGIC)) q += 7000;
+    if (have_flag(flgs, OF_NO_TELE)) q += 5000;
+    if (have_flag(flgs, OF_NO_SUMMON)) q += 1000000;
+    p += q;
+
+    if (cost_calc_hook)
+    {
+        sprintf(dbg_msg, "  * Abilities: q = %d, p = %d", q, p);
+        cost_calc_hook(dbg_msg);
+    }
+
+    /* Speed */
+    if (have_flag(flgs, OF_SPEED))
+    {
+        p += _speed_p(pval);
+
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Speed: p = %d", p);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    /* Stats */
+    q = _stats_q(flgs, pval);
+    if (q != 0)
+    {
+        p += q;
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Stats/Stealth: q = %d, p = %d", q, p);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    /* Other Bonuses */
+    y = 0;
+    if (have_flag(flgs, OF_SEARCH)) y += 100;
+    if (have_flag(flgs, OF_INFRA)) y += 500;
+
+    if (y != 0)
+    {
+        q = y*pval;
+        p += q;
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Other Crap: y = %d, q = %d, p = %d", y, q, p);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    /* Stats */
+    q = _stats_q(flgs, pval);
+    if (q != 0)
+    {
+        p += q;
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Stats/Stealth: q = %d, p = %d", q, p);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    /* Auras */
+    y = _aura_p(flgs);
+    if (y != 0)
+    {
+        p += y;
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * Auras: p = %d", p);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    p = _finalize_p(p, flgs, o_ptr);
+    return p;
+}
 s32b armor_cost(object_type *o_ptr, int options)
 {
     s32b a, y, q, p;
@@ -1213,64 +1339,73 @@ s32b ammo_cost(object_type *o_ptr, int options)
        Also, some egos, like EGO_AMMO_RETURNING will not score properly */
     s32b result = weapon_cost(o_ptr, options);
     result /= 25;
+    switch (o_ptr->name2)
+    {
+    case EGO_AMMO_ENDURANCE:
+        result += 200;
+        break;
+    case EGO_AMMO_EXPLODING:
+        result += 50;
+        break;
+    case EGO_AMMO_RETURNING:
+        result += 150;
+        break;
+    }
     if (!result)
         result = 1;
     return result;
 }
 
-static s32b _avg_dam_bow(object_type *o_ptr, int options)
+static s32b _avg_dam_bow(object_type *o_ptr, int options) /* scaled by 10 */
 {
     s32b d = 0;
     s32b m = o_ptr->mult;
-    int  to_d = 0;
-
-    if ((options & COST_REAL) || object_is_known(o_ptr))
-        to_d = o_ptr->to_d;
 
     switch (o_ptr->sval)
     {
     case SV_SLING:
-        d = m*(2 + to_d) / 100;
+        d = m*16 / 10;
         break;
 
     case SV_SHORT_BOW:
-        d = m*(2 + to_d) / 100;
+        d = m*17 / 10;
         break;
 
     case SV_LONG_BOW:
-        d = m*(3 + to_d) / 100;
+        d = m*20 / 10;
         break;
 
     case SV_NAMAKE_BOW:
-        d = m*(3 + to_d) / 100;
+        d = m*20 / 10;
         break;
 
     case SV_LIGHT_XBOW:
-        d = m*(4 + to_d) / 100;
+        d = m*25 / 10;
         break;
 
     case SV_HEAVY_XBOW:
-        d = m*(4 + to_d) / 100;
+        d = m*25 / 10;
         break;
 
     case SV_HARP:
-        d = 10;
+        d = 200;
         break;
 
     default:
-        d = 10; /* Gun */
+        d = 500; /* Gun */
     }
-    d = d * 10000 / bow_energy(o_ptr->sval);
 
     return MAX(0, d);
 }
 
 s32b bow_cost(object_type *o_ptr, int options)
 {
-    s32b y, w, p, q, t;
-    int  to_h = 0, to_a = 0, pval = 0;
-    u32b flgs[OF_ARRAY_SIZE];
-    char dbg_msg[512];
+    obj_t base_obj;
+    int   base_dam, dam, xtra_dam; /* scaled by 10 */
+    s32b  y, w, p, q;
+    int   to_h = 0, to_d = 0, to_a = 0, pval = 0;
+    u32b  flgs[OF_ARRAY_SIZE];
+    char  dbg_msg[512];
 
     if (options & COST_REAL)
         obj_flags(o_ptr, flgs);
@@ -1280,6 +1415,7 @@ s32b bow_cost(object_type *o_ptr, int options)
     if ((options & COST_REAL) || object_is_known(o_ptr))
     {
         to_h = o_ptr->to_h;
+        to_d = o_ptr->to_d;
         to_a = o_ptr->to_a;
     }
     pval = o_ptr->pval;
@@ -1292,45 +1428,54 @@ s32b bow_cost(object_type *o_ptr, int options)
         cost_calc_hook(dbg_msg);
     }
 
-    /* Base Cost calculated from expected damage output */
-    t = _avg_dam_bow(o_ptr, options);
-    if (have_flag(flgs, OF_BRAND_POIS)) t = t * 5 / 4;
-    if (have_flag(flgs, OF_BRAND_ACID)) t = t * 5 / 4;
-    if (have_flag(flgs, OF_BRAND_ELEC)) t = t * 5 / 4;
-    if (have_flag(flgs, OF_BRAND_FIRE)) t = t * 5 / 4;
-    if (have_flag(flgs, OF_BRAND_COLD)) t = t * 5 / 4;
+    /* Base Cost calculated from expected damage output
+       cf design/archer.ods. 32 is the base for a sling.
+       Note: our damages are scaled by 10 */
+    object_prep(&base_obj, o_ptr->k_idx);
+    base_dam = _avg_dam_bow(&base_obj, options);
+    dam = _avg_dam_bow(o_ptr, options);
+    xtra_dam = MAX(0, dam - base_dam);
 
-    w = (t * t / 11) * t;
+    w = base_dam/10 + (base_dam - 320)*(base_dam - 320)/200;
+    w += 10*xtra_dam + xtra_dam*xtra_dam*xtra_dam/1000;
+
+    if (have_flag(flgs, OF_BRAND_POIS)) w = w * 5 / 4;
+    if (have_flag(flgs, OF_BRAND_ACID)) w = w * 5 / 4;
+    if (have_flag(flgs, OF_BRAND_ELEC)) w = w * 5 / 4;
+    if (have_flag(flgs, OF_BRAND_FIRE)) w = w * 5 / 4;
+    if (have_flag(flgs, OF_BRAND_COLD)) w = w * 5 / 4;
+
+    /* ??? w = w * 10000 / bow_energy(o_ptr->sval);*/
     if (cost_calc_hook)
     {
         sprintf(dbg_msg, "  * Base Cost: w = %d", w);
         cost_calc_hook(dbg_msg);
     }
 
-    if (have_flag(flgs, OF_XTRA_SHOTS))
+    /* (+x,+y) */
+    if (to_h != 0 || to_d != 0)
     {
-        w += w * pval / 4; /* +.25 shots per pval */
+        int x = to_h * ABS(to_h);
+        int y = to_d * ABS(to_d);
+
+        w += 100 * to_h + 10 * x;
+        w += 25 * y;
+
+        if (cost_calc_hook)
+        {
+            sprintf(dbg_msg, "  * (+x,+y): w = %d", w);
+            cost_calc_hook(dbg_msg);
+        }
+    }
+
+    if (have_flag(flgs, OF_XTRA_SHOTS)) /* score xtra shots *after* scoring (+x,+y) */
+    {
+        w += w * pval * 15 / 100; /* +.15 shots per pval */
         if (cost_calc_hook)
         {
             sprintf(dbg_msg, "  * Extra Shots: w = %d", w);
             cost_calc_hook(dbg_msg);
         }
-    }
-
-    /* (+x,+y) */
-    if (to_h < 0) {}
-    else if (to_h <= 10)
-        w += 100 * to_h;
-    else
-    {
-        w += 100 * to_h;
-        /*w += 10 * o_ptr->to_h * o_ptr->to_h;*/
-    }
-
-    if (cost_calc_hook)
-    {
-        sprintf(dbg_msg, "  * Accuracy: w = %d", w);
-        cost_calc_hook(dbg_msg);
     }
 
     /* Resistances */
@@ -1439,6 +1584,7 @@ s32b new_object_cost(object_type *o_ptr, int options)
     else if (object_is_armour(o_ptr) || object_is_shield(o_ptr)) return armor_cost(o_ptr, options);
     else if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr))) return jewelry_cost(o_ptr, options);
     else if (o_ptr->tval == TV_LITE) return lite_cost(o_ptr, options);
+    else if (o_ptr->tval == TV_QUIVER) return quiver_cost(o_ptr, options);
     else if (object_is_device(o_ptr)) return device_value(o_ptr, options);
     return 0;
 }

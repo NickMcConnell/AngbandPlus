@@ -12,13 +12,13 @@ cptr _equip_error(void)
     if (wgt > (100 + (p_ptr->lev * 4)))
         return "The weight of your equipment is disrupting your talents.";
 
-    if (equip_find_object(TV_SHIELD, SV_ANY) || equip_find_object(TV_CAPTURE, SV_ANY))
+    if (equip_find_obj(TV_SHIELD, SV_ANY) || equip_find_obj(TV_CAPTURE, SV_ANY))
         return "Your shield is disrupting your talents.";
 
     if (p_ptr->weapon_ct > 1)
         return "Dual wielding is disrupting your talents.";
 
-    if (equip_find_object(TV_SWORD, SV_POISON_NEEDLE))
+    if (equip_find_obj(TV_SWORD, SV_POISON_NEEDLE))
         return "The Poison Needle is not an honorable dueling weapon.";
 
     if (p_ptr->anti_magic)

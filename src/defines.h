@@ -16,10 +16,10 @@
 #define VERSION_NAME "PosChengband"
 
 
-#define VER_MAJOR 5
+#define VER_MAJOR 6
 #define VER_MINOR 0
-#define VER_PATCH 5
-#define VER_EXTRA 0
+#define VER_PATCH 0
+#define VER_EXTRA 2
 
 #define GAME_MODE_BEGINNER  0
 #define GAME_MODE_NORMAL    1
@@ -86,18 +86,6 @@
 #define WILD_SCROLL_CX  (MAX_WID/3)
 
 /*
- * Quest constants
- */
-#define MIN_RANDOM_QUEST    40
-/*#define MAX_RANDOM_QUEST    (MIN_RANDOM_QUEST + num_random_quests - 1)*/
-
-/* Check is the quest index is "fixed" */
-#define is_fixed_quest_idx(Q_IDX) (((Q_IDX) < MIN_RANDOM_QUEST) || ((Q_IDX) >= MIN_RANDOM_QUEST + num_random_quests))
-
-#define QUEST_OBERON         8
-#define QUEST_SERPENT        9
-
-/*
  * Arena constants
  */
 #define MAX_ARENA_MONS        38    /* -KMW- */
@@ -114,30 +102,9 @@
  */
 #define MAX_BLDG        32
 
-/*
- * Store types
- */
-#define STORE_GENERAL   0
-#define STORE_ARMOURY   1
-#define STORE_WEAPON    2
-#define STORE_TEMPLE    3
-#define STORE_ALCHEMIST 4
-#define STORE_MAGIC     5
-#define STORE_BLACK     6
-#define STORE_HOME      7
-#define STORE_BOOK      8
-#define STORE_MUSEUM    9
-#define STORE_JEWELER  10
-
-
 #define BUILDING_NON_MEMBER 0
 #define BUILDING_MEMBER     1
 #define BUILDING_OWNER      2
-
-/*
- * Total number of owners per store (see "store.c", etc)
- */
-#define MAX_OWNERS      32
 
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
@@ -316,19 +283,6 @@
 #define SPECIAL_KEY_BUILDING 254
 #define SPECIAL_KEY_STORE    253
 #define SPECIAL_KEY_QUIT     252
-
-/*
- * Store constants
- */
-#define STORE_INVEN_MAX 24              /* Max number of discrete objs in inven */
-#define STORE_CHOICES   48              /* Number of items to choose stock from */
-#define STORE_OBJ_LEVEL 5               /* Magic Level for normal stores */
-#define STORE_TURNOVER  9               /* Normal shop turnover, per day */
-#define STORE_MIN_KEEP  6               /* Min slots to "always" keep full */
-#define STORE_MAX_KEEP  18              /* Max slots to "always" keep full */
-#define STORE_SHUFFLE   21              /* 1/Chance (per day) of an owner changing */
-#define STORE_TICKS     1000            /* Number of ticks between turnovers */
-
 
 /*
  * Random energy
@@ -580,25 +534,6 @@
 #define SPELL_HELP_DESC      18
 #define SPELL_VALUE          19      /* For valuing object activations */
 #define SPELL_ON_BROWSE      20      /* Custom Handler for browsing the spell */
-
-/*
- * Maximum number of "normal" pack slots, and the index of the "overflow"
- * slot, which can hold an item, but only temporarily, since it causes the
- * pack to "overflow", dropping the "last" item onto the ground.
- */
-#define INVEN_PACK      26
-#define EQUIP_BEGIN     (INVEN_PACK + 1)
-#define INVEN_TOTAL     50
-#define EQUIP_MAX_SLOTS (INVEN_TOTAL - EQUIP_BEGIN)
-
-/* If you are looking for old INVEN_* crap, look in equip.h instead ... */
-
-/*
- * Fake inventory slot for selecting force (hard-coded).
- */
-#define INVEN_FORCE               1111
-#define INVEN_UNLIMITED_QUIVER    1112
-#define INVEN_ALL                 1113
 
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
@@ -1070,8 +1005,8 @@ enum {
 #define FF_SPECIAL       96
 #define FF_HURT_DISI     97
 #define FF_QUEST_ENTER   98
-#define FF_QUEST_EXIT    99
-#define FF_QUEST         100
+/* #define FF_QUEST_EXIT    99 */
+/* #define FF_QUEST         100 */
 #define FF_SHAFT         101
 #define FF_MOUNTAIN      102
 #define FF_BLDG          103
@@ -1589,6 +1524,7 @@ enum {
 #define TV_LITE         39
 #define TV_AMULET       40
 #define TV_RING         45
+#define TV_QUIVER       46
 #define TV_CARD         50
 #define TV_STAFF        55
 #define TV_WAND         65
@@ -1656,13 +1592,28 @@ enum {
 #define SV_SKELETON             0
 #define SV_CORPSE            1
 
-/* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
-#define SV_AMMO_LIGHT                    0    /* pebbles */
-#define SV_AMMO_NORMAL                   1    /* shots, arrows, bolts */
-#define SV_AMMO_HEAVY                    2    /* seeker arrows and bolts, mithril shots */
+/* TV_ARROW */
+#define SV_ARROW         1
+#define SV_SHEAF_ARROW   2
+#define SV_MITHRIL_ARROW 3
+#define SV_SEEKER_ARROW  4
+#define SV_BLACK_ARROW  10
+
+/* TV_BOLT */
+#define SV_BOLT          1
+#define SV_STEEL_BOLT    2
+#define SV_MITHRIL_BOLT  3
+#define SV_SEEKER_BOLT   4
+
+/* TV_SHOT */
+#define SV_PEBBLE        1
+#define SV_SHOT          2
+#define SV_MITHRIL_SHOT  3
 
 /* The "sval" codes for TV_BOW. The weird sequencing is historic (Previously,
-   sval%10 gave the bow multiplier, but this is now specified in k_info, etc). */
+   sval%10 gave the bow multiplier, but this is now specified in k_info, etc).
+   BTW: Don't change svals unless you plan on spending quite some time patching
+   up s_info.txt for the proficiency system. */
 #define SV_SLING                         2
 #define SV_SHORT_BOW                    12
 #define SV_LONG_BOW                     13
@@ -1811,7 +1762,6 @@ enum {
 #define SV_ETHEREAL_CLOAK                5
 #define SV_SHADOW_CLOAK                  6
 #define SV_DRAGON_CLOAK                  7
-#define SV_WIZARD_CLOAK                  8
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES         1
@@ -2109,7 +2059,7 @@ enum {
 #define SV_BOOK_MIN_GOOD    2
 
 
-#define OBJ_GOLD_LIST   480     /* First "gold" entry */
+#define OBJ_GOLD_LIST   650     /* First "gold" entry */
 #define MAX_GOLD        18      /* Number of "gold" entries */
 
 
@@ -2119,33 +2069,37 @@ enum {
 /*
  * Special cave grid flags
  */
-#define CAVE_MARK       0x0001    /* memorized feature */
-#define CAVE_GLOW       0x0002    /* self-illuminating */
-#define CAVE_ICKY       0x0004    /* part of a vault */
-#define CAVE_ROOM       0x0008    /* part of a room */
-#define CAVE_LITE       0x0010    /* lite flag  */
-#define CAVE_VIEW       0x0020    /* view flag */
-#define CAVE_TEMP       0x0040    /* temp flag */
-#define CAVE_XTRA       0x0080    /* misc flag */
-#define CAVE_MNLT       0x0100    /* Illuminated by monster */
-#define CAVE_MNDK       0x8000    /* Darken by monster */
+#define CAVE_MARK       0x000001    /* memorized feature displayed in the map window */
+#define CAVE_GLOW       0x000002    /* self-illuminating */
+#define CAVE_ICKY       0x000004    /* part of a vault */
+#define CAVE_ROOM       0x000008    /* part of a room */
+#define CAVE_LITE       0x000010    /* lite flag  */
+#define CAVE_VIEW       0x000020    /* view flag */
+#define CAVE_TEMP       0x000040    /* temp flag */
+#define CAVE_XTRA       0x000080    /* misc flag */
+#define CAVE_MNLT       0x000100    /* Illuminated by monster */
+#define CAVE_MNDK       0x008000    /* Darken by monster */
 
 /* Used only while cave generation */
-#define CAVE_FLOOR      0x0200
-#define CAVE_EXTRA      0x0400
-#define CAVE_INNER      0x0800
-#define CAVE_OUTER      0x1000
-#define CAVE_SOLID      0x2000
-#define CAVE_VAULT      0x4000
+#define CAVE_FLOOR      0x000200
+#define CAVE_EXTRA      0x000400
+#define CAVE_INNER      0x000800
+#define CAVE_OUTER      0x001000
+#define CAVE_SOLID      0x002000
+#define CAVE_VAULT      0x004000
 #define CAVE_MASK (CAVE_FLOOR | CAVE_EXTRA | CAVE_INNER | CAVE_OUTER | CAVE_SOLID | CAVE_VAULT)
 
 /* Used only after cave generation */
-#define CAVE_NOTE       0x0400    /* Flag for delayed visual update (needs note_spot()) */
-#define CAVE_REDRAW     0x0800    /* Flag for delayed visual update (needs lite_spot()) */
-#define CAVE_OBJECT     0x1000    /* Mirror, glyph, etc. */
-#define CAVE_UNSAFE     0x2000    /* Might have trap */
-#define CAVE_IN_DETECT  0x4000    /* trap detected area (inner circle only) */
-/* NOTE: 0x8000 is used above, listed out of sequence!!!! Also note we are now out of bits ... :( */
+#define CAVE_NOTE       0x000400    /* Flag for delayed visual update (needs note_spot()) */
+#define CAVE_REDRAW     0x000800    /* Flag for delayed visual update (needs lite_spot()) */
+#define CAVE_OBJECT     0x001000    /* Mirror, glyph, etc. */
+#define CAVE_UNSAFE     0x002000    /* Might have trap */
+#define CAVE_IN_DETECT  0x004000    /* trap detected area (inner circle only) */
+/* NOTE: 0x8000 is used above, listed out of sequence!!!!*/
+#define CAVE_IN_MAP     0x010000
+#define CAVE_AWARE      0x020000    /* Similar to CAVE_MARK, but stronger. the player is CAVE_AWARE
+                                     * of floor tiles that might not be CAVE_MARKed (depending on options).
+                                     * We need this for a non-spoiling travel command. */
 
 /*
  * Bit flags for the "project()" function
@@ -2289,9 +2243,8 @@ enum {
 /*
  * Bit flags for the "p_ptr->notice" variable
  */
-#define PN_COMBINE      0x00000001     /* Combine the pack */
-#define PN_REORDER      0x00000002     /* Reorder the pack */
-#define PN_AUTODESTROY  0x00000004     /* Auto-destroy marked item */
+#define PN_OPTIMIZE_PACK   0x0001
+#define PN_OPTIMIZE_QUIVER 0x0002
 /* xxx (many) */
 
 
@@ -2384,6 +2337,7 @@ enum {
 #define PM_ALLOW_CLONED   0x00000800
 #define PM_WALL_SCUMMER   0x00001000
 #define PM_RING_BEARER    0x00002000
+#define PM_QUESTOR        0x00004000
 
 
 /* Bit flags for monster_desc() */
@@ -2413,6 +2367,7 @@ enum {
 #define OD_NAME_AND_DICE    0x00000100
 #define OD_COLOR_CODED      0x00000200  /* For msg_print only */
 #define OD_THROWING         0x00000400  /* buggy otherwise for throwing weapon info */
+#define OD_SINGULAR         0x00000800  /* pretend obj->number = 1 */
 
 #define OD_LORE (OD_NAME_ONLY | OD_OMIT_PREFIX | OD_COLOR_CODED)
 
@@ -2823,7 +2778,7 @@ enum summon_specific_e {
 #define OM_FOUND           0x0001    /* original boolean flag */
 #define OM_NOMSG           0x0002    /* temporary flag to suppress messages */
 #define OM_NO_QUERY        0x0004    /* Query for auto-pick was already answered as 'No' */
-#define OM_AUTODESTROY     0x0008    /* Destroy later to avoid illegal inventry shift */
+#define OM_AUTODESTROY     0x0008
 #define OM_TOUCHED         0x0010    /* Object was touched by player */
 #define OM_RESERVED        0x0020    /* Object reserved in the shop */
 #define OM_WORN            0x0040    /* Object was previously being worn but is possibly no longer a legal piece of equipment (Mimics) */
@@ -2856,8 +2811,9 @@ enum summon_specific_e {
 #define MFLAG2_AWARE            0x00000400
 #define MFLAG2_DROP_BASIC       0x00000800
 #define MFLAG2_DROP_UTILITY     0x00001000
-#define MFLAG2_DROP_PRIZE       0X00002000
+#define MFLAG2_DROP_PRIZE       0x00002000
 #define MFLAG2_DROP_MASK        (MFLAG2_DROP_BASIC | MFLAG2_DROP_UTILITY | MFLAG2_DROP_PRIZE)
+#define MFLAG2_QUESTOR          0x00004000   /* using monster_race.flags1 & RF1_QUESTOR is error prone */
 
 
 /*
@@ -3258,7 +3214,7 @@ enum obj_flags_e {
  * New monster race bit flags
  */
 #define RF1_UNIQUE              0x00000001  /* Unique Monster */
-#define RF1_QUESTOR             0x00000002  /* Quest Monster Remark: See dungeon() for setting/unsetting for quests.*/
+#define RF1_QUESTOR             0x00000002  /* Unique Monster tagged for a random quest */
 #define RF1_MALE                0x00000004  /* Male gender */
 #define RF1_FEMALE              0x00000008  /* Female gender */
 #define RF1_CHAR_CLEAR          0x00000010  /* Absorbs symbol */
@@ -3288,7 +3244,7 @@ enum obj_flags_e {
 #define RF1_DROP_GOOD           0x10000000  /* Drop good items */
 #define RF1_DROP_GREAT          0x20000000  /* Drop great items */
 #define RF1_TRUMP               0x40000000  /* Free teleport every turn */
-#define RF1_XXX3                0x80000000  /* XXX */
+#define RF1_NO_QUEST            0x80000000  /* Never a quest monster; never spawned in quests */
 
 /*
  * New monster race bit flags
@@ -3901,7 +3857,7 @@ enum r_drop_e
  * Test Two -- Check for "Easy Know" + "Aware"
  */
 #define object_is_known(T) \
-    (((T)->ident & (IDENT_KNOWN)) || \
+    (((T)->ident & (IDENT_KNOWN | IDENT_STORE)) || \
      (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware))
 
 
@@ -4417,42 +4373,14 @@ extern int PlayerUID;
 #define BACT_CHANGE_NAME            57
 
 /*
- * Quest status
- */
-#define QUEST_STATUS_UNTAKEN         0
-#define QUEST_STATUS_TAKEN           1
-#define QUEST_STATUS_COMPLETED       2
-#define QUEST_STATUS_REWARDED        3
-#define QUEST_STATUS_FINISHED        4
-#define QUEST_STATUS_FAILED          5
-#define QUEST_STATUS_FAILED_DONE     6
-
-/*
- * Quest type
- */
-#define QUEST_TYPE_KILL_LEVEL                1
-#define QUEST_TYPE_KILL_ANY_LEVEL            2
-#define QUEST_TYPE_FIND_ARTIFACT             3
-#define QUEST_TYPE_FIND_EXIT                 4
-#define QUEST_TYPE_KILL_NUMBER               5
-#define QUEST_TYPE_KILL_ALL                  6
-#define QUEST_TYPE_RANDOM                    7
-
-/*
  * Initialization flags
  */
-#define INIT_SHOW_TEXT          0x01
-#define INIT_ASSIGN             0x02
-#define INIT_CREATE_DUNGEON     0x04
+#define INIT_XXXXXX1            0x01
+#define INIT_XXXXXX2            0x02
+#define INIT_XXXXXX3            0x04
 #define INIT_SCROLL_WILDERNESS  0x08
-#define INIT_ONLY_BUILDINGS     0x10
-
-/*
- * Quest flags
- */
-#define QUEST_FLAG_SILENT  0x01 /* no messages fro completion */
-#define QUEST_FLAG_PRESET  0x02 /* quest is outside the main dungeon */
-#define QUEST_FLAG_ONCE    0x04 /* quest is marked finished after leaving */
+#define INIT_XXXXXX5            0x10
+#define INIT_DEBUG              0x20 /* error checking on dungeon files */
 
 /*
  * Available graphic modes
@@ -5405,62 +5333,6 @@ extern int PlayerUID;
 
 
 /*
- * Fields for wr_item()/rd_item() stored in savefiles (byte).
- */
-enum object_save_fields_e {
-    SAVE_ITEM_DONE = 0,
-    SAVE_ITEM_PVAL,
-    SAVE_ITEM_DISCOUNT,
-    SAVE_ITEM_NUMBER,
-    SAVE_ITEM_NAME1,
-    SAVE_ITEM_NAME2,
-    SAVE_ITEM_NAME3,
-    SAVE_ITEM_ART_NAME,
-    SAVE_ITEM_TIMEOUT,
-    SAVE_ITEM_COMBAT,
-    SAVE_ITEM_ARMOR,
-    SAVE_ITEM_DAMAGE_DICE,
-    SAVE_ITEM_IDENT,
-    SAVE_ITEM_MARKED_BYTE,
-    SAVE_ITEM_FEELING,
-    SAVE_ITEM_INSCRIPTION,
-    SAVE_ITEM_ART_FLAGS_0,
-    SAVE_ITEM_ART_FLAGS_1,
-    SAVE_ITEM_ART_FLAGS_2,
-    SAVE_ITEM_ART_FLAGS_3,
-    SAVE_ITEM_ART_FLAGS_4,
-    SAVE_ITEM_ART_FLAGS_5,
-    SAVE_ITEM_ART_FLAGS_6,
-    SAVE_ITEM_ART_FLAGS_7,
-    SAVE_ITEM_ART_FLAGS_8,
-    SAVE_ITEM_ART_FLAGS_9,
-    SAVE_ITEM_CURSE_FLAGS,
-    SAVE_ITEM_RUNE_FLAGS,
-    SAVE_ITEM_HELD_M_IDX,
-    SAVE_ITEM_XTRA1,
-    SAVE_ITEM_XTRA2,
-    SAVE_ITEM_XTRA3,
-    SAVE_ITEM_XTRA4,
-    SAVE_ITEM_XTRA5_OLD,
-    SAVE_ITEM_ACTIVATION,
-    SAVE_ITEM_MULT,
-    SAVE_ITEM_MARKED,
-    SAVE_ITEM_XTRA5,
-    SAVE_ITEM_KNOWN_FLAGS_0,
-    SAVE_ITEM_KNOWN_FLAGS_1,
-    SAVE_ITEM_KNOWN_FLAGS_2,
-    SAVE_ITEM_KNOWN_FLAGS_3,
-    SAVE_ITEM_KNOWN_FLAGS_4,
-    SAVE_ITEM_KNOWN_FLAGS_5,
-    SAVE_ITEM_KNOWN_FLAGS_6,
-    SAVE_ITEM_KNOWN_FLAGS_7,
-    SAVE_ITEM_KNOWN_FLAGS_8,
-    SAVE_ITEM_KNOWN_FLAGS_9,
-    SAVE_ITEM_KNOWN_CURSE_FLAGS,
-    SAVE_ITEM_LEVEL,
-};
-
-/*
  * Fields for wr_monster()/rd_monster() stored in savefiles (byte).
  */
 enum mon_save_fields_e {
@@ -5525,8 +5397,8 @@ enum mon_save_fields_e {
 /* Is "teleport level" ineffective to this target? */
 #define TELE_LEVEL_IS_INEFF(TARGET) \
     (p_ptr->inside_arena || p_ptr->inside_battle || \
-     (p_ptr->inside_quest && !random_quest_number(dun_level)) || \
-     (((TARGET) <= 0) && (quest_number(dun_level) || (dun_level >= d_info[dungeon_type].maxdepth)) && \
+     !quests_allow_all_spells() || \
+     (((TARGET) <= 0) && (quests_get_current() || (dun_level >= d_info[dungeon_type].maxdepth)) && \
       (dun_level >= 1) && ironman_downward))
 
 
@@ -5709,82 +5581,84 @@ enum mon_save_fields_e {
 #define SHOOT_ELEMENTAL    14
 #define SHOOT_SNIPING      15  /* Scout */
 
-/* Weaponmaster et. al. toggle modes */
-#define TOGGLE_NONE                0
+/* Weaponmaster et. al. toggle modes. These
+ * values are written to savefiles, so do not
+ * alter! (p_ptr->magic_num1[0]) */
+enum {
+    TOGGLE_NONE = 0,
 
-/* Slingmaster */
-#define TOGGLE_SHOT_ON_THE_RUN    1
-#define TOGGLE_RAPID_SHOT        2
+    /* Slingmaster */
+    TOGGLE_SHOT_ON_THE_RUN = 1,
+    TOGGLE_RAPID_SHOT,
 
-/* Daggermaster */
-#define TOGGLE_FLYING_DAGGER_STANCE    3
-#define TOGGLE_SHADOW_STANCE        4
-#define TOGGLE_FRENZY_STANCE        5
+    /* Daggermaster */
+    TOGGLE_FLYING_DAGGER_STANCE = 10,
+    TOGGLE_SHADOW_STANCE,
+    TOGGLE_FRENZY_STANCE,
 
-/* Clubmaster */
-#define TOGGLE_COMBAT_EXPERTISE        6
-#define TOGGLE_TRADE_BLOWS            8
+    /* Clubmaster */
+    TOGGLE_COMBAT_EXPERTISE = 20,
+    TOGGLE_TRADE_BLOWS,
 
-/* Axemaster */
-#define TOGGLE_POWER_ATTACK            9
+    /* Axemaster */
+    TOGGLE_POWER_ATTACK = 30,
 
-/* Swordmaster */
-#define TOGGLE_BURNING_BLADE        10
-#define TOGGLE_ICE_BLADE            11
-#define TOGGLE_THUNDER_BLADE        12
-#define TOGGLE_BLOOD_BLADE            13
-#define TOGGLE_HOLY_BLADE            14
-#define TOGGLE_ORDER_BLADE            15
-#define TOGGLE_WILD_BLADE            16
+    /* Swordmaster */
+    TOGGLE_BURNING_BLADE = 40,
+    TOGGLE_ICE_BLADE,
+    TOGGLE_THUNDER_BLADE,
+    TOGGLE_BLOOD_BLADE,
+    TOGGLE_HOLY_BLADE,
+    TOGGLE_ORDER_BLADE,
+    TOGGLE_WILD_BLADE,
 
-/* Scythemaster */
-#define TOGGLE_MANY_STRIKE            17
-#define TOGGLE_PIERCING_STRIKE        18
-#define TOGGLE_TRIP                    19
+    /* Scythemaster */
+    TOGGLE_MANY_STRIKE = 60,
+    TOGGLE_PIERCING_STRIKE,
+    TOGGLE_TRIP,
 
-/* Pickmaster */
-#define TOGGLE_STRENGTH_OF_THE_UNDERTAKER    22
-#define TOGGLE_STOICISM                        23
-#define TOGGLE_INDUSTRIOUS_MORTICIAN        24
+    /* Pickmaster */
+    TOGGLE_STRENGTH_OF_THE_UNDERTAKER = 70,
+    TOGGLE_STOICISM,
+    TOGGLE_INDUSTRIOUS_MORTICIAN,
 
-/* Shieldmaster */
-#define TOGGLE_SHIELD_BASH      25
-#define TOGGLE_BULWARK            26
-#define TOGGLE_SHIELD_REVENGE    27
+    /* Shieldmaster */
+    TOGGLE_SHIELD_BASH = 80,
+    TOGGLE_BULWARK,
+    TOGGLE_SHIELD_REVENGE,
 
-/* Mauler */
-#define MAULER_TOGGLE_BLOCK     28
-#define MAULER_TOGGLE_SHATTER   29
-#define MAULER_TOGGLE_TUNNEL    30
-#define MAULER_TOGGLE_DRAIN     31
-#define MAULER_TOGGLE_MAUL      32
-#define MAULER_TOGGLE_SPLATTER  33
+    /* Bowmaster */
+    TOGGLE_READIED_SHOT = 90,
+    TOGGLE_PIERCING_ARROW,
 
-/* Bowmaster */
-#define TOGGLE_READIED_SHOT      34
-#define TOGGLE_PIERCING_ARROW    35
+    /* Crossbowmaster */
+    TOGGLE_RAPID_RELOAD = 100,
+    TOGGLE_EXPLODING_BOLT,
+    TOGGLE_OVERDRAW,
+    TOGGLE_CAREFUL_AIM,
 
-/* Crossbowmaster */
-#define TOGGLE_RAPID_RELOAD      36
-#define TOGGLE_EXPLODING_BOLT    37
-#define TOGGLE_OVERDRAW          38
+    MAULER_TOGGLE_BLOCK = 110,
+    MAULER_TOGGLE_SHATTER,
+    MAULER_TOGGLE_TUNNEL,
+    MAULER_TOGGLE_DRAIN,
+    MAULER_TOGGLE_MAUL,
+    MAULER_TOGGLE_SPLATTER,
 
-/* Mystic */
-#define MYSTIC_TOGGLE_STEALTH    39
-#define MYSTIC_TOGGLE_FAST       40
-#define MYSTIC_TOGGLE_RETALIATE  41
-#define MYSTIC_TOGGLE_OFFENSE    42
-#define MYSTIC_TOGGLE_DEFENSE    43
+    MYSTIC_TOGGLE_STEALTH = 120,
+    MYSTIC_TOGGLE_FAST,
+    MYSTIC_TOGGLE_RETALIATE,
+    MYSTIC_TOGGLE_OFFENSE,
+    MYSTIC_TOGGLE_DEFENSE,
 
-#define LEPRECHAUN_TOGGLE_BLINK    44
+    LEPRECHAUN_TOGGLE_BLINK = 130,
+    LEPRECHAUN_TOGGLE_HOARDING,
 
-#define WARLOCK_DRAGON_TOGGLE_BLESS 45
-#define WARLOCK_DRAGON_TOGGLE_CANTER 46
-#define WARLOCK_DRAGON_TOGGLE_GALLOP 47
-#define WARLOCK_DRAGON_TOGGLE_HEALING 48
-#define WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE 49
-
-#define LEPRECHAUN_TOGGLE_HOARDING 50
+    WARLOCK_DRAGON_TOGGLE_BLESS = 140,
+    WARLOCK_DRAGON_TOGGLE_CANTER,
+    WARLOCK_DRAGON_TOGGLE_GALLOP,
+    WARLOCK_DRAGON_TOGGLE_HEALING,
+    WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE,
+};
 
 /* Wild Counters */
 #define WILD_INFRAVISION 1
@@ -5816,56 +5690,39 @@ enum mon_save_fields_e {
    entry, if present)
 */
 
-enum slot_e {
-    EQUIP_SLOT_NONE,
-    EQUIP_SLOT_GLOVES,
-    EQUIP_SLOT_WEAPON_SHIELD,
-    EQUIP_SLOT_RING,
-    EQUIP_SLOT_BOW,
-    EQUIP_SLOT_AMULET,
-    EQUIP_SLOT_LITE,
-    EQUIP_SLOT_BODY_ARMOR,
-    EQUIP_SLOT_CLOAK,
-    EQUIP_SLOT_BOOTS,
-    EQUIP_SLOT_HELMET,
-    EQUIP_SLOT_ANY,
-    EQUIP_SLOT_WEAPON,
-    EQUIP_SLOT_CAPTURE_BALL,
-    EQUIP_SLOT_MAX
-};
-
 /* Many ego types are now shared across mutliple kinds of equipment */
 enum ego_e {
     EGO_TYPE_NONE         = 0,
 
     /* Melee Weapons */
-    EGO_TYPE_WEAPON       = 0x00001,
-    EGO_TYPE_DIGGER       = 0x00002,
+    EGO_TYPE_WEAPON       = 0x00000001,
+    EGO_TYPE_DIGGER       = 0x00000002,
 
     /* Armor */
-    EGO_TYPE_SHIELD       = 0x00004,
-    EGO_TYPE_BODY_ARMOR   = 0x00008,
-    EGO_TYPE_ROBE         = 0x00010,
-    EGO_TYPE_DRAGON_ARMOR = 0x00020,
-    EGO_TYPE_CLOAK        = 0x00040,
-    EGO_TYPE_HELMET       = 0x00080,
-    EGO_TYPE_CROWN        = 0x00100,
-    EGO_TYPE_GLOVES       = 0x00200,
-    EGO_TYPE_BOOTS        = 0x00400,
+    EGO_TYPE_SHIELD       = 0x00000004,
+    EGO_TYPE_BODY_ARMOR   = 0x00000008,
+    EGO_TYPE_ROBE         = 0x00000010,
+    EGO_TYPE_DRAGON_ARMOR = 0x00000020,
+    EGO_TYPE_CLOAK        = 0x00000040,
+    EGO_TYPE_HELMET       = 0x00000080,
+    EGO_TYPE_CROWN        = 0x00000100,
+    EGO_TYPE_GLOVES       = 0x00000200,
+    EGO_TYPE_BOOTS        = 0x00000400,
 
     /* Missile Weapons */
-    EGO_TYPE_BOW          = 0x00800,
-    EGO_TYPE_AMMO         = 0x01000,
-    EGO_TYPE_HARP         = 0x02000,
+    EGO_TYPE_BOW          = 0x00000800,
+    EGO_TYPE_AMMO         = 0x00001000,
+    EGO_TYPE_HARP         = 0x00002000,
+    EGO_TYPE_QUIVER       = 0x00004000,
 
     /* Jewelry, Lights, Devices */
-    EGO_TYPE_RING         = 0x04000,
-    EGO_TYPE_AMULET       = 0x08000,
-    EGO_TYPE_LITE         = 0x10000,
-    EGO_TYPE_DEVICE       = 0x20000,
+    EGO_TYPE_RING         = 0x00008000,
+    EGO_TYPE_AMULET       = 0x00010000,
+    EGO_TYPE_LITE         = 0x00020000,
+    EGO_TYPE_DEVICE       = 0x00040000,
 
     /* (Blasted) */
-    EGO_TYPE_SPECIAL      = 0x40000,
+    EGO_TYPE_SPECIAL      = 0x00080000,
 };
 
 enum ego_type_e {
@@ -5990,18 +5847,15 @@ enum ego_type_e {
     EGO_BOW_LOTHLORIEN,
     EGO_BOW_HARADRIM = 165,
     EGO_BOW_BUCKLAND,
+    EGO_BOW_HUNTER,
 
-    EGO_AMMO_HURT_ANIMAL = 180,
-    EGO_AMMO_HURT_DRAGON,
-    EGO_AMMO_HURT_EVIL,
-    EGO_AMMO_SLAYING,
-    EGO_AMMO_WOUNDING,
-    EGO_AMMO_SHOCKING = 185,
-    EGO_AMMO_FLAME,
-    EGO_AMMO_FROST,
-    EGO_AMMO_PRISM,
+    EGO_AMMO_SLAYING = 180,
+    EGO_AMMO_ELEMENTAL,
+    EGO_AMMO_HOLY_MIGHT,
     EGO_AMMO_RETURNING,
-    EGO_AMMO_HOLY_MIGHT = 190,
+    EGO_AMMO_ENDURANCE,
+    EGO_AMMO_EXPLODING = 185,
+    EGO_AMMO_PIERCING,
 
     EGO_HARP_VANYAR = 195,
     EGO_HARP_EREBOR,
@@ -6049,6 +5903,12 @@ enum ego_type_e {
 
     /* Special */
     EGO_SPECIAL_BLASTED = 260,
+
+    /* Quivers */
+    EGO_QUIVER_HOLDING = 265,
+    EGO_QUIVER_PROTECTION,
+    EGO_QUIVER_ENDLESS,
+    EGO_QUIVER_PHASE,
 };
 
 
@@ -6125,7 +5985,6 @@ enum effect_e
     EFFECT_SPEED,
     EFFECT_SPEED_HERO,
     EFFECT_SPEED_HERO_BLESS,
-    EFFECT_SPEED_ESSENTIA,
     EFFECT_LIGHT_SPEED,
     EFFECT_ENLARGE_WEAPON,
     EFFECT_TELEPATHY,
@@ -6292,6 +6151,7 @@ enum effect_e
     EFFECT_POLYMORPH,
     EFFECT_STARLITE,
     EFFECT_NOTHING,      /* Food for undead players */
+    EFFECT_ENDLESS_QUIVER,
 
     /* Bad Effects */
     EFFECT_AGGRAVATE = 900,

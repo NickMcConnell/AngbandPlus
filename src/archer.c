@@ -9,82 +9,72 @@ static bool _create_ammo_p(object_type *o_ptr)
 
 static bool _create_arrows(void)
 {
-    int             item, slot;
+    obj_prompt_t prompt = {0};
     object_type  forge;
+    char         name[MAX_NLEN];
 
-    item_tester_hook = _create_ammo_p;
-    if (!get_item(&item, "Convert which item? ", "You have no item to convert.", USE_INVEN | USE_FLOOR)) 
-        return FALSE;
+    prompt.prompt = "Convert which item?";
+    prompt.error = "You have no item to convert.";
+    prompt.filter = _create_ammo_p;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
 
-    object_prep(&forge, lookup_kind(TV_ARROW, m_bonus(1, p_ptr->lev)+ 1));
-    forge.number = (byte)rand_range(5, 10);
+    obj_prompt(&prompt);
+
+    if (!prompt.obj) return FALSE;
+
+    object_prep(&forge, lookup_kind(TV_ARROW, SV_ARROW + m_bonus(3, p_ptr->lev)));
+    forge.number = rand_range(5, 10);
     apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
-    obj_identify(&forge);
+    obj_identify_fully(&forge);
     forge.discount = 99;
 
-    msg_print("You make some ammo.");
-    if (item >= 0)
-    {
-        inven_item_increase(item, -1);
-        inven_item_describe(item);
-        inven_item_optimize(item);
-    }
-    else
-    {
-        floor_item_increase(0 - item, -1);
-        floor_item_describe(0 - item);
-        floor_item_optimize(0 - item);
-    }
+    object_desc(name, &forge, OD_COLOR_CODED);
+    msg_format("You make %s.", name);
+    pack_carry(&forge);
 
-    slot = inven_carry(&forge);
-    if (slot >= 0) 
-        autopick_alter_item(slot, FALSE);
+    prompt.obj->number--;
+    obj_release(prompt.obj, 0);
     return TRUE;
 }
 
 static bool _create_bolts(void)
 {
-    int             item, slot;
+    obj_prompt_t prompt = {0};
     object_type  forge;
+    char         name[MAX_NLEN];
 
-    item_tester_hook = _create_ammo_p;
-    if (!get_item(&item, "Convert which item? ", "You have no item to convert.", USE_INVEN | USE_FLOOR)) 
-        return FALSE;
+    prompt.prompt = "Convert which item?";
+    prompt.error = "You have no item to convert.";
+    prompt.filter = _create_ammo_p;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
 
-    /* Note: You won't ever get Steel Bolts this way since I:18:1 is shared with 
-       by Bolts and Steel Bolts and lookup_kind() picks the first match in k_info.txt.
-       However, getting Steel from Bones/Junk would be a bit odd anyway ... */
-    object_prep(&forge, lookup_kind(TV_BOLT, m_bonus(1, p_ptr->lev)+ 1));
-    forge.number = (byte)rand_range(4, 8);
+    obj_prompt(&prompt);
+
+    if (!prompt.obj) return FALSE;
+
+    object_prep(&forge, lookup_kind(TV_BOLT, SV_BOLT + m_bonus(3, p_ptr->lev)));
+    forge.number = rand_range(4, 8);
     apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
-    obj_identify(&forge);
+    obj_identify_fully(&forge);
     forge.discount = 99;
 
-    msg_print("You make some ammo.");
-    if (item >= 0)
-    {
-        inven_item_increase(item, -1);
-        inven_item_describe(item);
-        inven_item_optimize(item);
-    }
-    else
-    {
-        floor_item_increase(0 - item, -1);
-        floor_item_describe(0 - item);
-        floor_item_optimize(0 - item);
-    }
+    object_desc(name, &forge, OD_COLOR_CODED);
+    msg_format("You make %s.", name);
+    pack_carry(&forge);
 
-    slot = inven_carry(&forge);
-    if (slot >= 0) 
-        autopick_alter_item(slot, FALSE);
+    prompt.obj->number--;
+    obj_release(prompt.obj, 0);
     return TRUE;
 }
 
 static bool _create_shots(void)
 {
-    int         x, y, dir, slot;
+    int         x, y, dir;
     cave_type  *c_ptr;
     object_type forge;
+    char        name[MAX_NLEN];
 
     if (!get_rep_dir(&dir, FALSE)) 
         return FALSE;
@@ -105,17 +95,15 @@ static bool _create_shots(void)
         return FALSE;
     }
 
-    object_prep(&forge, lookup_kind(TV_SHOT, m_bonus(1, p_ptr->lev) + 1));
+    object_prep(&forge, lookup_kind(TV_SHOT, SV_PEBBLE + m_bonus(2, p_ptr->lev)));
     forge.number = (byte)rand_range(15,30);
     apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
-    obj_identify(&forge);
+    obj_identify_fully(&forge);
     forge.discount = 99;
 
-    msg_print("You make some ammo.");
-
-    slot = inven_carry(&forge);
-    if (slot >= 0) 
-        autopick_alter_item(slot, FALSE);
+    object_desc(name, &forge, OD_COLOR_CODED);
+    msg_format("You make %s.", name);
+    pack_carry(&forge);
 
     cave_alter_feat(y, x, FF_HURT_ROCK);
     p_ptr->update |= PU_FLOW;
@@ -125,6 +113,7 @@ static bool _create_shots(void)
 static bool _create_ammo(void)
 {
     char com[256];
+    int  cmd = '\0';
 
     if (p_ptr->confused)
     {
@@ -135,6 +124,23 @@ static bool _create_ammo(void)
     {
         msg_print("You can't see!");
         return FALSE;
+    }
+
+    if (REPEAT_PULL(&cmd))
+    {
+        switch (cmd)
+        {
+        case 's': case 'S':
+            return _create_shots();
+        case 'a': case 'A':
+            if (p_ptr->lev >= 10)
+                return _create_arrows();
+            break;
+        case 'b': case 'B':
+            if (p_ptr->lev >= 20)
+                return _create_bolts();
+            break;
+        }
     }
 
     if (p_ptr->lev >= 20)
@@ -150,11 +156,20 @@ static bool _create_ammo(void)
         if (!get_com(com, &ch, TRUE))
             return FALSE;
         if (ch == 'S' || ch == 's')
+        {
+            REPEAT_PUSH('s');
             return _create_shots();
+        }
         if ((ch == 'A' || ch == 'a') && p_ptr->lev >= 10)
+        {
+            REPEAT_PUSH('a');
             return _create_arrows();
+        }
         else if ((ch == 'B' || ch == 'b') && p_ptr->lev >= 20)
+        {
+            REPEAT_PUSH('b');
             return _create_bolts();
+        }
     }
 }
 
@@ -183,9 +198,8 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
       && p_ptr->shooter_info.tval_ammo <= TV_BOLT
       && p_ptr->shooter_info.tval_ammo >= TV_SHOT )
     {
-        int tier = (p_ptr->lev - 1) / 7;
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 200 / 50;
-        p_ptr->shooter_info.breakage = MAX(0, 60 - tier * 10);
+        p_ptr->shooter_info.num_fire += p_ptr->lev * 3;
+        p_ptr->shooter_info.breakage -= 10;
     }
 }
 
@@ -207,7 +221,8 @@ static void _birth(void)
     py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL, 1);
     py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
-    py_birth_obj_aux(TV_ARROW, SV_AMMO_NORMAL, rand_range(30, 50));
+    py_birth_obj_aux(TV_QUIVER, 0, 1);
+    py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(30, 50));
 }
 
 class_t *archer_get_class(void)

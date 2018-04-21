@@ -127,45 +127,49 @@ static void _elemental_rage_spell(int cmd, variant *res)
     }
 }
 
+static void _destroy_aux(obj_ptr obj, cptr fmt)
+{
+    char o_name[MAX_NLEN];
+
+    object_desc(o_name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED | OD_SINGULAR);
+    msg_format(fmt, o_name);
+
+    stats_on_p_destroy(obj, 1);
+    obj->number--;
+    obj_release(obj, 0);
+}
+
 static void _elemental_pack_destroy(object_p p, cptr destroy_fmt, int chance)
 {
     int inven_ct = 0;
     int equip_ct = 0;
-    int i;
-    for (i = 0; i < INVEN_TOTAL; i++)
+    slot_t slot;
+    for (slot = 1; slot <= pack_max(); slot++)
     {
-        object_type *o_ptr = &inventory[i];
-        char         o_name[MAX_NLEN];
-        int          n = chance;
-        int          old_ct = 0;
+        obj_ptr obj = pack_obj(slot);
 
-        if (!o_ptr->k_idx) continue;
-        if (!p(o_ptr)) continue;
+        if (!obj) continue;
+        if (!p(obj)) continue;
         
-        if (i >= EQUIP_BEGIN) n /= 3;
-        if (randint0(1000) >= MAX(1, n)) continue;
+        if (randint0(1000) >= MAX(1, chance)) continue;
+        _destroy_aux(obj, destroy_fmt);
+        ++inven_ct;
+   }
+    for (slot = 1; slot <= equip_max(); slot++)
+    {
+        obj_ptr obj = equip_obj(slot);
 
-        old_ct = o_ptr->number;
-        o_ptr->number = 1;
-        object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-        o_ptr->number = old_ct;
-
-        msg_format(destroy_fmt, o_name);
-        stats_on_p_destroy(o_ptr, 1);
-
-        inven_item_increase(i, -1);
-        inven_item_describe(i);
-        inven_item_optimize(i);
-
-        if (i >= EQUIP_BEGIN) ++equip_ct;
-        else ++inven_ct;
+        if (!obj) continue;
+        if (!p(obj)) continue;
+        
+        if (randint0(1000) >= MAX(1, chance/3)) continue;
+        _destroy_aux(obj, destroy_fmt);
+        ++equip_ct;
     }
 
     if (equip_ct)
     {
-        p_ptr->update |= PU_BONUS;
-        p_ptr->update |= PU_TORCH;
-        p_ptr->update |= PU_MANA;
+        p_ptr->update |= PU_BONUS | PU_TORCH | PU_MANA;
         p_ptr->redraw |= PR_EQUIPPY;
         p_ptr->window |= PW_EQUIP;
     }
@@ -895,47 +899,40 @@ static void _water_get_flags(u32b flgs[OF_ARRAY_SIZE])
     _get_flags(flgs);
 }
 
-static void _water_process_world(void)
+static void _water_damage(obj_ptr obj)
 {
-    int inven_ct = 0;
-    int equip_ct = 0;
-    int chance = 15;
-    int i;
-    for (i = 0; i < INVEN_TOTAL; i++)
-    {
-        object_type *o_ptr = &inventory[i];
-        u32b         flgs[OF_ARRAY_SIZE];
-        char         o_name[MAX_NLEN];
+    u32b flgs[OF_ARRAY_SIZE];
+    char o_name[MAX_NLEN];
+    int  chance = 15;
 
-        if (!o_ptr->k_idx) continue;
-        if (!object_is_armour(o_ptr)) continue;
-        if (randint0(1000) >= chance) continue;
-        if (o_ptr->ac + o_ptr->to_a <= 0) continue;
+    if (!object_is_armour(obj)) return;
+    if (randint0(1000) >= chance) return;
+    if (obj->ac + obj->to_a <= 0) return;
 
-        obj_flags(o_ptr, flgs);
-        if (have_flag(flgs, OF_IM_ACID)) continue;
-        if (have_flag(flgs, OF_RES_ACID)) continue;
-        if (have_flag(flgs, OF_IGNORE_ACID) && !one_in_(10)) continue;
-        if (object_is_artifact(o_ptr) && !one_in_(2)) continue;
+    obj_flags(obj, flgs);
+    if (have_flag(flgs, OF_IM_ACID)) return;
+    if (have_flag(flgs, OF_RES_ACID)) return;
+    if (have_flag(flgs, OF_IGNORE_ACID) && !one_in_(10)) return;
+    if (object_is_artifact(obj) && !one_in_(2)) return;
 
-        object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-        msg_format("Your watery touch corrodes your %s!", o_name);
+    object_desc(o_name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
+    msg_format("Your watery touch corrodes your %s!", o_name);
+    obj->to_a--;
 
-
-        o_ptr->to_a--;
-
-        if (i >= EQUIP_BEGIN) ++equip_ct;
-        else ++inven_ct;
-    }
-
-    if (equip_ct)
+    if (obj->loc.where == INV_EQUIP)
     {
         p_ptr->update |= PU_BONUS;
         p_ptr->window |= PW_EQUIP;
     }
+    else if (obj->loc.where == INV_PACK)
+        p_ptr->window |= PW_INVEN;
+    disturb(1, 0);
+}
 
-    if (equip_ct + inven_ct)
-        disturb(1, 0);
+static void _water_process_world(void)
+{
+    equip_for_each(_water_damage);
+    pack_for_each(_water_damage);
 }
 
 static race_t *_water_get_race_t(void)

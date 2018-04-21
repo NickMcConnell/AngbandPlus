@@ -156,7 +156,7 @@ bool make_attack_normal(int m_idx)
 
     int ap_cnt, ht_cnt;
 
-    int i, k, tmp, ac, rlev;
+    int k, tmp, ac, rlev;
     int do_cut, do_stun;
 
     s32b gold;
@@ -597,30 +597,26 @@ bool make_attack_normal(int m_idx)
                     /* Find an item */
                     for (k = 0; k < 10; k++)
                     {
-                        /* Pick an item */
-                        i = randint0(INVEN_PACK);
+                        slot_t  slot = pack_random_slot(NULL);
+                        obj_ptr obj;
 
-                        /* Obtain the item */
-                        o_ptr = &inventory[i];
+                        if (!slot) continue;
+                        obj = pack_obj(slot);
+                        if (!obj) continue;
+                        if (!obj_is_device(obj)) continue;
 
-                        /* Skip non-objects */
-                        if (!o_ptr->k_idx) continue;
-
-                        /* Skip non-devices */
-                        if (o_ptr->tval != TV_WAND && o_ptr->tval != TV_STAFF && o_ptr->tval != TV_ROD) continue;
-
-                        obj_flags(o_ptr, flgs);
+                        obj_flags(obj, flgs);
                         if (have_flag(flgs, OF_HOLD_LIFE))
                         {
                             drained = TRUE; /* No food drain! */
                             break;
                         }
 
-                        if (o_ptr->tval == TV_ROD)
+                        if (obj->tval == TV_ROD)
                             drain_amt /= 3;
 
-                        if (drain_amt > device_sp(o_ptr))
-                            drain_amt = device_sp(o_ptr);
+                        if (drain_amt > device_sp(obj))
+                            drain_amt = device_sp(obj);
 
                         obvious = TRUE;
 
@@ -630,9 +626,9 @@ bool make_attack_normal(int m_idx)
                         if (p_ptr->pclass == CLASS_DEVICEMASTER)
                         {
                             int pl = p_ptr->lev;
-                            int dl = o_ptr->activation.difficulty;
+                            int dl = obj->activation.difficulty;
 
-                            if (devicemaster_is_speciality(o_ptr))
+                            if (devicemaster_is_speciality(obj))
                                 pl *= 2;
 
                             if (pl >= randint1(dl))
@@ -643,9 +639,9 @@ bool make_attack_normal(int m_idx)
                             }
                         }
 
-                        object_desc(buf, o_ptr, OD_OMIT_PREFIX);
+                        object_desc(buf, obj, OD_OMIT_PREFIX | OD_COLOR_CODED);
                         msg_format("Energy drains from your %s!", buf);
-                        device_decrease_sp(o_ptr, drain_amt);
+                        device_decrease_sp(obj, drain_amt);
                         drained = TRUE;
 
                         /* Heal the monster */
@@ -655,9 +651,6 @@ bool make_attack_normal(int m_idx)
 
                         /* Redraw (later) if needed */
                         check_mon_health_redraw(m_idx);
-
-                        /* Combine / Reorder the pack */
-                        p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
                         /* Window stuff */
                         p_ptr->window |= (PW_INVEN);
@@ -785,30 +778,24 @@ bool make_attack_normal(int m_idx)
                     /* Find an item */
                     for (k = 0; k < 10; k++)
                     {
-                        s16b o_idx;
+                        s16b    o_idx;
+                        slot_t  slot = pack_random_slot(NULL);
+                        obj_ptr obj;
 
-                        /* Pick an item */
-                        i = randint0(INVEN_PACK);
+                        if (!slot) continue;
+                        obj = pack_obj(slot);
 
-                        /* Obtain the item */
-                        o_ptr = &inventory[i];
+                        if (!obj) continue;
+                        if (object_is_artifact(obj)) continue;
 
-                        /* Skip non-objects */
-                        if (!o_ptr->k_idx) continue;
-
-                        /* Skip artifacts */
-                        if (object_is_artifact(o_ptr)) continue;
-
-                        /* Get a description */
-                        object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
+                        object_desc(o_name, obj, OD_OMIT_PREFIX);
 
                         /* Message */
-                        msg_format("%sour %s (%c) was stolen!",
-                               ((o_ptr->number > 1) ? "One of y" : "Y"),
-                               o_name, index_to_label(i));
+                        msg_format("%sour %s was stolen!",
+                               ((obj->number > 1) ? "One of y" : "Y"),
+                               o_name);
 
                         virtue_add(VIRTUE_SACRIFICE, 1);
-
 
                         /* Make an object */
                         o_idx = o_pop();
@@ -822,20 +809,10 @@ bool make_attack_normal(int m_idx)
                             j_ptr = &o_list[o_idx];
 
                             /* Copy object */
-                            object_copy(j_ptr, o_ptr);
+                            object_copy(j_ptr, obj);
 
                             /* Modify number */
                             j_ptr->number = 1;
-
-                            /* Hack -- If a rod or wand, allocate total
-                             * maximum timeouts or charges between those
-                             * stolen and those missed. -LM-
-                             */
-                            if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
-                            {
-                                j_ptr->pval = o_ptr->pval / o_ptr->number;
-                                o_ptr->pval -= j_ptr->pval;
-                            }
 
                             /* Forget mark */
                             j_ptr->marked = OM_TOUCHED;
@@ -851,8 +828,8 @@ bool make_attack_normal(int m_idx)
                         }
 
                         /* Steal the items */
-                        inven_item_increase(i, -1);
-                        inven_item_optimize(i);
+                        obj->number--;
+                        obj_release(obj, OBJ_RELEASE_QUIET);
 
                         /* Obvious */
                         obvious = TRUE;
@@ -881,31 +858,26 @@ bool make_attack_normal(int m_idx)
                     /* Steal some food */
                     for (k = 0; k < 10; k++)
                     {
-                        /* Pick an item from the pack */
-                        i = randint0(INVEN_PACK);
+                        slot_t  slot = pack_random_slot(NULL);
+                        obj_ptr obj;
 
-                        /* Get the item */
-                        o_ptr = &inventory[i];
-
-                        /* Skip non-objects */
-                        if (!o_ptr->k_idx) continue;
-
-                        /* Skip non-food objects */
-                        if ((o_ptr->tval != TV_FOOD) && !((o_ptr->tval == TV_CORPSE) && (o_ptr->sval))) continue;
-                        if (object_is_artifact(o_ptr)) continue;
+                        if (!slot) continue;
+                        obj = pack_obj(slot);
+                        if (!obj) continue;
+                        if (obj->tval != TV_FOOD && !(obj->tval == TV_CORPSE && obj->sval)) continue;
+                        if (object_is_artifact(obj)) continue;
 
                         /* Get a description */
-                        object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+                        object_desc(o_name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
 
                         /* Message */
-                        msg_format("%sour %s (%c) was eaten!",
-                               ((o_ptr->number > 1) ? "One of y" : "Y"),
-                               o_name, index_to_label(i));
-
+                        msg_format("%sour %s was eaten!",
+                               ((obj->number > 1) ? "One of y" : "Y"),
+                               o_name);
 
                         /* Steal the items */
-                        inven_item_increase(i, -1);
-                        inven_item_optimize(i);
+                        obj->number--;
+                        obj_release(obj, OBJ_RELEASE_QUIET);
 
                         /* Obvious */
                         obvious = TRUE;
@@ -919,7 +891,7 @@ bool make_attack_normal(int m_idx)
 
                 case RBE_EAT_LITE:
                 {
-                    int slot = equip_find_object(TV_LITE, SV_ANY);
+                    int slot = equip_find_obj(TV_LITE, SV_ANY);
 
                     damage = reduce_melee_dam_p(damage);
                     get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
@@ -1606,7 +1578,7 @@ bool make_attack_normal(int m_idx)
                   && !p_ptr->is_dead )
                 {
                     if (weaponmaster_get_toggle() == TOGGLE_TRADE_BLOWS)
-                        msg_format("You trade blows with %^s.", m_name);
+                        cmsg_print(TERM_L_UMBER, "(You trade blows:");
                     else
                         cmsg_print(TERM_L_UMBER, "(You retaliate:");
 

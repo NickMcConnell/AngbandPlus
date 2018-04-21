@@ -384,17 +384,10 @@ bool leprechaun_steal(int m_idx)
                 if (prace_is_(RACE_MON_LEPRECHAUN))
                     p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
             }
-            else if (!inven_carry_okay(&loot))
-            {
-                msg_format("You have no room for %s.", o_name);
-                drop_near(&loot, -1, py, px);
-            }
             else
             {
-                int slot = inven_carry(&loot);
-
-                msg_format("You steal %s (%c).", o_name, index_to_label(slot));
-                autopick_alter_item(slot, TRUE);
+                pack_carry(&loot);
+                msg_format("You steal %s.", o_name);
             }
         }
     }

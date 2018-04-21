@@ -170,8 +170,8 @@ static bool _detect_objects_ego(int range)
         if (!o_ptr->k_idx) continue;
         if (o_ptr->held_m_idx) continue;
 
-        y = o_ptr->iy;
-        x = o_ptr->ix;
+        y = o_ptr->loc.y;
+        x = o_ptr->loc.x;
 
         if (distance(py, px, y, x) > range) continue;
 
@@ -642,29 +642,35 @@ static void _shatter_device_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int item;
-        object_type *o_ptr;
+        obj_prompt_t prompt = {0};
 
         var_set_bool(res, FALSE);
-        item_tester_hook = object_is_device;
-        if (!get_item(&item, "Shatter which device?", "You have nothing to shatter.", USE_INVEN)) return;
-        o_ptr = &inventory[item];
+
+        prompt.prompt = "Shatter which device?";
+        prompt.error = "You have nothing to shatter.";
+        prompt.filter = object_is_device;
+        prompt.where[0] = INV_PACK;
+        prompt.where[1] = INV_FLOOR;
+
+        obj_prompt(&prompt);
+        if (!prompt.obj) return;
+
         var_set_bool(res, TRUE);
 
-        if (o_ptr->activation.type == EFFECT_NONE)
+        if (prompt.obj->activation.type == EFFECT_NONE)
         {
             msg_print("Nothing happens.");
         }
-        else if (o_ptr->activation.type == EFFECT_DESTRUCTION)
+        else if (prompt.obj->activation.type == EFFECT_DESTRUCTION)
         {
             if (destroy_area(py, px, 15 + p_ptr->lev + randint0(11), 4 * p_ptr->lev))
                 msg_print("The dungeon collapses...");
             else
                 msg_print("The dungeon trembles.");
         }
-        else if ( o_ptr->activation.type == EFFECT_HEAL_CURING
-               || o_ptr->activation.type == EFFECT_HEAL_CURING_HERO
-               || o_ptr->activation.type == EFFECT_RESTORING )
+        else if ( prompt.obj->activation.type == EFFECT_HEAL_CURING
+               || prompt.obj->activation.type == EFFECT_HEAL_CURING_HERO
+               || prompt.obj->activation.type == EFFECT_RESTORING )
         {
             msg_print("You feel life flow through your body!");
             restore_level();
@@ -683,22 +689,21 @@ static void _shatter_device_spell(int cmd, variant *res)
             update_stuff(); /* hp may change if Con was drained ... */
             hp_player(5000);
         }
-        else if ( o_ptr->activation.type == EFFECT_TELEPORT_AWAY
-               || o_ptr->activation.type == EFFECT_BANISH_EVIL
-               || o_ptr->activation.type == EFFECT_BANISH_ALL )
+        else if ( prompt.obj->activation.type == EFFECT_TELEPORT_AWAY
+               || prompt.obj->activation.type == EFFECT_BANISH_EVIL
+               || prompt.obj->activation.type == EFFECT_BANISH_ALL )
         {
             banish_monsters(p_ptr->lev * 4);
         }
         else
         {
             project(0, 5, py, px,
-                o_ptr->activation.difficulty * 16,
-                _object_dam_type(o_ptr),
+                prompt.obj->activation.difficulty * 16,
+                _object_dam_type(prompt.obj),
                 PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
         }
-        inven_item_increase(item, -1);
-        inven_item_describe(item);
-        inven_item_optimize(item);
+        prompt.obj->number--;
+        obj_release(prompt.obj, 0);
         break;
     }
     default:
@@ -1055,51 +1060,48 @@ static bool _gain_spell(int book)
     return FALSE;
 }
 
+static bool _is_rage_book(obj_ptr obj) { return obj->tval == TV_RAGE_BOOK; }
+
 void rage_mage_gain_spell(void)
 {
-    int item;
+    obj_prompt_t prompt = {0};
 
     if (p_ptr->blind || no_lite())
     {
         msg_print("You cannot see!");
         return;
     }
-
     if (p_ptr->confused)
     {
         msg_print("You are too confused!");
         return;
     }
-
     if (!p_ptr->new_spells)
     {
         msg_print("You cannot learn any new techniques!");
         return;
     }
 
-    /*msg_format("You can learn %d new technique%s.", p_ptr->new_spells, (p_ptr->new_spells == 1 ? "" : "s"));
-    msg_print(NULL);*/
+    prompt.prompt = "Study which book?";
+    prompt.error = "You have no books that you can read.";
+    prompt.filter = _is_rage_book;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
 
-    item_tester_tval = TV_RAGE_BOOK;
-    if (get_item(&item, "Study which book?", "You have no books that you can read.", USE_INVEN))
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
+
+    if (_gain_spell(prompt.obj->sval))
     {
-        int book = inventory[item].sval;
-        if (_gain_spell(book))
-        {
-            char o_name[MAX_NLEN];
-            int old_amt = inventory[item].number;
+        char o_name[MAX_NLEN];
 
-            inventory[item].number = 1;
-            object_desc(o_name, &inventory[item], 0);
-            inventory[item].number = old_amt;
+        object_desc(o_name, prompt.obj, OD_COLOR_CODED | OD_SINGULAR);
 
-            msg_format("%^s is destroyed.", o_name);
-            inven_item_increase(item, -1);
-            inven_item_describe(item);
-            inven_item_optimize(item);
+        msg_format("%^s is destroyed.", o_name);
+        prompt.obj->number--;
+        obj_release(prompt.obj, 0);
 
-            energy_use = 100;
-        }
+        energy_use = 100;
     }
 }
 

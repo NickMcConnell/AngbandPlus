@@ -16,19 +16,22 @@ struct rect_s
 };
 typedef struct rect_s rect_t;
 
-extern point_t point_create(int x, int y);
+extern point_t point(int x, int y);
 extern point_t point_add(point_t p1, point_t p2);
 extern point_t point_subtract(point_t p1, point_t p2);
-extern int point_compare(point_t p1, point_t p2);
+extern int     point_compare(point_t p1, point_t p2);
 
-extern point_t rect_topleft(const rect_t *r);
-extern point_t rect_center(const rect_t *r);
-extern rect_t rect_create(int x, int y, int cx, int cy);
-extern bool rect_is_valid(const rect_t *r);
-extern bool rect_contains_pt(const rect_t *r, int x, int y);
-extern bool rect_contains(const rect_t *r1, const rect_t *r2);
-extern rect_t rect_intersect(const rect_t *r1, const rect_t *r2);
-extern rect_t rect_translate(const rect_t *r, int dx, int dy);
-extern int rect_area(const rect_t *r);
+extern point_t size(int cx, int cy);
+
+extern rect_t  rect(int x, int y, int cx, int cy);
+extern rect_t  rect_invalid(void);
+extern point_t rect_topleft(rect_t r);
+extern point_t rect_center(rect_t r);
+extern bool    rect_is_valid(rect_t r);
+extern bool    rect_contains_pt(rect_t r, int x, int y);
+extern bool    rect_contains(rect_t r1, rect_t r2);
+extern rect_t  rect_intersect(rect_t r1, rect_t r2);
+extern rect_t  rect_translate(rect_t r, int dx, int dy);
+extern int     rect_area(rect_t r);
 
 #endif

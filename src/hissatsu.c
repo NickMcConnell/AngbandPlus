@@ -384,66 +384,51 @@ void do_cmd_hissatsu(void)
 }
 
 
+static bool _is_book(obj_ptr obj)
+{
+    return obj->tval == TV_HISSATSU_BOOK;
+}
+
 void do_cmd_gain_hissatsu(void)
 {
-    int item, i, j;
-
-    object_type *o_ptr;
-    cptr q, s;
-
-    bool gain = FALSE;
+    obj_prompt_t prompt = {0};
+    int          i, j;
+    bool         gain = FALSE;
 
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
-    {
         set_action(ACTION_NONE);
-    }
 
     if (p_ptr->blind || no_lite())
     {
         msg_print("You cannot see!");
-
         return;
     }
 
     if (p_ptr->confused)
     {
         msg_print("You are too confused!");
-
         return;
     }
 
     if (!(p_ptr->new_spells))
     {
         msg_print("You cannot learn any new special attacks!");
-
         return;
     }
 
     msg_format("You can learn %d new special attack%s.", p_ptr->new_spells,
         (p_ptr->new_spells == 1?"":"s"));
 
-    item_tester_tval = TV_HISSATSU_BOOK;
+    prompt.prompt = "Study which book?";
+    prompt.error = "You have no books that you can read.";
+    prompt.filter = _is_book;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
 
-    /* Get an item */
-    q = "Study which book? ";
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
-    s = "You have no books that you can read.";
-
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    for (i = o_ptr->sval * 8; i < o_ptr->sval * 8 + 8; i++)
+    for (i = prompt.obj->sval * 8; i < prompt.obj->sval * 8 + 8; i++)
     {
         if (p_ptr->spell_learned1 & (1L << i)) continue;
         if (technic_info[TECHNIC_HISSATSU][i].slevel > p_ptr->lev) continue;

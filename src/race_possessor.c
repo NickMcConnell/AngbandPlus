@@ -68,19 +68,24 @@ static void _history_on_possess(int r_idx)
     {
         p->r_idx = r_idx;
 
-        if (!dungeon_type)
+        if (!py_in_dungeon())
         {
-            if (p_ptr->inside_quest)
-            {
-                p->d_idx = DUNGEON_QUEST;
-                p->d_lvl = p_ptr->inside_quest;
-            }
-            else if (p_ptr->town_num)
+            if (py_in_town())
             {
                 p->d_idx = DUNGEON_TOWN;
                 p->d_lvl = p_ptr->town_num;
             }
-            else
+            else if (py_on_surface())
+            {
+                p->d_idx = DUNGEON_WILD;
+                p->d_lvl = wilderness_level(p_ptr->wilderness_x, p_ptr->wilderness_y);
+            }
+            else if (quests_get_current())
+            {
+                p->d_idx = DUNGEON_QUEST;
+                p->d_lvl = quests_get_current()->level;
+            }
+            else /* ??? */
             {
                 p->d_idx = DUNGEON_WILD;
                 p->d_lvl = wilderness_level(p_ptr->wilderness_x, p_ptr->wilderness_y);
@@ -584,10 +589,9 @@ static void _possess_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int item;
-        char o_name[MAX_NLEN];
-        object_type *o_ptr;
-        object_type copy;
+        obj_prompt_t  prompt = {0};
+        monster_race *r_ptr;
+        char          name[MAX_NLEN];
 
         var_set_bool(res, FALSE);
 
@@ -597,26 +601,25 @@ static void _possess_spell(int cmd, variant *res)
             return;
         }
 
-        item_tester_hook = _obj_can_possess;
-        if (!get_item(&item, "Possess which corpse? ", "You have nothing to possess.", (USE_INVEN | USE_FLOOR))) 
-            return;
+        prompt.prompt = "Possess which corpse?";
+        prompt.error = "You have nothing to possess.";
+        prompt.filter = _obj_can_possess;
+        prompt.where[0] = INV_PACK;
+        prompt.where[1] = INV_FLOOR;
 
-        if (item >= 0)
-            o_ptr = &inventory[item];
-        else
-            o_ptr = &o_list[0 - item];
+        obj_prompt(&prompt);
+        if (!prompt.obj) return;
+        r_ptr = &r_info[prompt.obj->pval];
 
-        object_copy(&copy, o_ptr);
-        copy.number = 1;
-        object_desc(o_name, &copy, OD_NAME_ONLY);
-
-        if (r_info[copy.pval].level > _calc_level(p_ptr->max_plv) + 5)
+        object_desc(name, prompt.obj, OD_NAME_ONLY | OD_SINGULAR);
+        if (r_ptr->level > _calc_level(p_ptr->max_plv) + 5)
         {
-            msg_format("You are not powerful enough to possess %s (Lvl %d).", o_name, r_info[copy.pval].level);
+            msg_format("You are not powerful enough to possess %s (Lvl %d).",
+                name, r_ptr->level);
             return;
         }
 
-        msg_format("You possess %s.", o_name);
+        msg_format("You possess %s.", name);
         if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
         {
             if (p_ptr->lev <= 10 || one_in_(3))
@@ -632,23 +635,9 @@ static void _possess_spell(int cmd, variant *res)
                 msg_print("Your previous body quickly decays!");
         }
 
-        /* Order is important. Changing body forms may result in illegal
-           equipment being placed in the pack, invalidating the item index.
-           This is exacerbated by corpses sorting to the bottom :( */
-        if (item >= 0)
-        {
-            inven_item_increase(item, -1);
-            inven_item_describe(item);
-            inven_item_optimize(item);
-        }
-        else
-        {
-            floor_item_increase(0 - item, -1);
-            floor_item_describe(0 - item);
-            floor_item_optimize(0 - item);
-        }
-        o_ptr = NULL;
-        possessor_set_current_r_idx(copy.pval);
+        possessor_set_current_r_idx(prompt.obj->pval);
+        prompt.obj->number--;
+        obj_release(prompt.obj, 0);
         var_set_bool(res, TRUE);
         break;
     }
@@ -771,8 +760,9 @@ static void _breathe_spell(int what, int cmd, variant *res)
     case SPELL_CAST:
     {
         int dir = 0;
+        int mode = (what == GF_DISINTEGRATE) ? TARGET_DISI : TARGET_KILL;
         var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
+        if (get_fire_dir_aux(&dir, mode))
         {
             if (p_ptr->current_r_idx == MON_BOTEI) 
                 msg_print("'Botei-Build cutter!!!'");
@@ -1328,7 +1318,7 @@ int possessor_r_speed(int r_idx)
             equip_template_ptr body = &b_info[r_ptr->body.body_idx];
             bool humanoid = FALSE;
 
-            for (i = 0; i < body->count; i++)
+            for (i = 1; i <= body->max; i++)
             {
                 if (body->slots[i].type == EQUIP_SLOT_WEAPON_SHIELD)
                 {
@@ -1390,12 +1380,12 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
           && p_ptr->shooter_info.tval_ammo <= TV_BOLT
           && p_ptr->shooter_info.tval_ammo >= TV_SHOT )
         {
-            p_ptr->shooter_info.num_fire += p_ptr->lev * 200 / 50;
+            p_ptr->shooter_info.num_fire += p_ptr->lev * 3;
         }
         else if ( r_ptr->body.class_idx == CLASS_RANGER
                && p_ptr->shooter_info.tval_ammo == TV_ARROW )
         {
-            p_ptr->shooter_info.num_fire += p_ptr->lev * 150 / 50;
+            p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
         }
         /* Note: I would do rogues as well, but many rogue forms probably shouldn't get
            this bonus (e.g. Hounds).*/
@@ -1926,33 +1916,11 @@ void possessor_character_dump(doc_ptr doc)
         switch (p->d_idx)
         {
         case DUNGEON_QUEST:
-            /* Yikes!! Quest names are not guaranteed to have been loaded!*/
-            if (!strlen(quest[p->d_lvl].name))
-            {
-                int old_quest = p_ptr->inside_quest;
-                int j;
-
-                for (j = 0; j < 10; j++) 
-                    quest_text[j][0] = '\0';
-                quest_text_line = 0;
-
-                p_ptr->inside_quest = p->d_lvl;
-                init_flags = INIT_SHOW_TEXT;
-                process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-                p_ptr->inside_quest = old_quest;
-            }
-
-            sprintf(loc, "%s", quest[p->d_lvl].name);
-            sprintf(lvl, "%3d", quest[p->d_lvl].level);
+            sprintf(loc, "%s", quests_get(p->d_lvl)->name);
+            sprintf(lvl, "%3d", quests_get(p->d_lvl)->level);
             break;
         case DUNGEON_TOWN:
-            /* Yikes!! Town names are not guaranteed to have ever been loaded! */
-            if (!strlen(town[p->d_lvl].name))
-            {
-                init_flags = INIT_SHOW_TEXT;
-                process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
-            }
-            sprintf(loc, "%s", town[p->d_lvl].name);
+            sprintf(loc, "%s", town_name(p->d_lvl));
             sprintf(lvl, "%s", "   ");
             break;
         default: /* DUNGEON_WILD is present in the pref file d_info.txt with the name: Wilderness */

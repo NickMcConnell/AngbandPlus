@@ -1513,6 +1513,27 @@ void doc_clear(doc_ptr doc)
     doc_rollback(doc, doc_pos_create(0, 0));
 }
 
+void doc_sync_menu(doc_ptr doc)
+{
+    rect_t mr = ui_doc_menu_rect();
+    rect_t dr = mr;
+
+    dr.cx = doc_width(doc);
+    dr.cy = doc_cursor(doc).y + 1;
+    /* Try to draw a shadow */
+    if (dr.cy >= mr.cy - 1)
+        doc_sync_term(doc, doc_range_top_lines(doc, mr.cy), doc_pos_create(mr.x, mr.y));
+    else
+    {
+        rect_t sr = dr;
+        if (sr.cx < mr.cx) sr.cx++;
+        sr.cy = dr.cy + 1;
+        Term_clear_rect(sr);
+        doc_sync_term(doc, doc_range_all(doc), doc_pos_create(dr.x, dr.y));
+    }
+
+}
+
 void doc_sync_term(doc_ptr doc, doc_region_t range, doc_pos_t term_pos)
 {
     doc_pos_t pos;

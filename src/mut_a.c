@@ -943,7 +943,7 @@ void eat_light_mut(int cmd, variant *res)
     case SPELL_PROCESS:
         if (one_in_(3000))
         {
-            int slot = equip_find_object(TV_LITE, SV_ANY);
+            int slot = equip_find_obj(TV_LITE, SV_ANY);
 
             msg_print("A shadow passes over you.");
             msg_print(NULL);
@@ -1364,10 +1364,10 @@ void fumbling_mut(int cmd, variant *res)
             if (slot)
             {
                 object_type *o_ptr = equip_obj(slot);
-                if (!object_is_cursed(o_ptr))
+                if (equip_can_takeoff(o_ptr))
                 {
                     cmsg_print(TERM_VIOLET, "You drop your weapon!");
-                    inven_drop(slot, 1);
+                    equip_drop(o_ptr);
                     msg_print("Press 'Y' to continue.");
                     flush();
                     for (;;)
@@ -2038,21 +2038,6 @@ void random_banish_mut(int cmd, variant *res)
             msg_print("You suddenly feel almost lonely.");
 
             banish_monsters(100);
-            if (!dun_level && p_ptr->town_num)
-            {
-                int n;
-
-                /* Pick a random shop (except home) */
-                do
-                {
-                    n = randint0(MAX_STORES);
-                }
-                while ((n == STORE_HOME) || (n == STORE_MUSEUM));
-
-                msg_print("You see one of the shopkeepers running for the hills!");
-                store_shuffle(n);
-            }
-            msg_print(NULL);
         }
         break;
     default:

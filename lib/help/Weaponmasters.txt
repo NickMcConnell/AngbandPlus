@@ -101,7 +101,7 @@ Base HP       12        Bows        <color:r>Bad          </color>
 Experience   135%
 </style></indent>
 <topic:Slings><color:o>Slings</color>
-Watch out, Goliath! As a master of slings you will shoot pebbles with uncanny speed. Your shots may even ricochet off other monsters to score multiple hits. As with other archery specializations, your ammo will break less often and, at high levels you will gain access to an 'unlimited quiver' which allows you to shoot an infinite amount of (average) ammo.
+Watch out, Goliath! As a master of slings you will shoot pebbles with uncanny speed. Your shots may even ricochet off other monsters to score multiple hits. As with other archery specializations, your ammo will break less often.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:v> +0</color>        Disarming   <color:o>Fair         </color>
@@ -206,4 +206,4 @@ Diggers           <color:R>Poor         </color> <color:r>Bad          </color> 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 5.0.4.</color>
+<color:s>Automatically generated for PosChengband 6.0.0.</color>

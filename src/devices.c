@@ -35,7 +35,8 @@ static bool ang_sort_comp_pet(vptr u, vptr v, int a, int b)
 /* Devices: We are following the do_spell() pattern which is quick and dirty,
    but not my preferred approach ... */
 
-/* Fail Rates ... Scaled by 10 (95.2% returned as 952) */
+/* Fail Rates ... Scaled by 10 (95.2% returned as 952)
+ * cf design/devices.ods */
 int  effect_calc_fail_rate(effect_t *effect)
 {
     int chance, fail;
@@ -111,120 +112,84 @@ int  device_extra_power = 0;
    It's ugly, but worthwhile! */
 int  device_available_charges = 0; /* How many can we do? */
 int  device_used_charges = 0;      /* How many did we do? */
+static bool _use_charges = FALSE;
 
-static bool _do_identify_hook(object_type *o_ptr)
+static void _do_identify_aux(obj_ptr obj)
 {
-    if (!object_is_known(o_ptr))
-        return TRUE;
-    return FALSE;
+    char name[MAX_NLEN];
+    bool old_known;
+
+    if (_use_charges && device_used_charges >= device_available_charges) return;
+
+    old_known = identify_item(obj);
+    object_desc(name, obj, OD_COLOR_CODED);
+    switch (obj->loc.where)
+    {
+    case INV_EQUIP:
+        msg_format("%^s: %s (%c).", equip_describe_slot(obj->loc.slot),
+                name, slot_label(obj->loc.slot));
+        break;
+    case INV_PACK:
+        msg_format("In your pack: %s (%c).", name, slot_label(obj->loc.slot));
+        break;
+    case INV_QUIVER:
+        msg_format("In your quiver: %s (%c).", name, slot_label(obj->loc.slot));
+        break;
+    case INV_FLOOR:
+        msg_format("On the ground: %s.", name);
+        break;
+    }
+    autopick_alter_obj(obj, destroy_identify && !old_known);
+    obj_release(obj, OBJ_RELEASE_ID | OBJ_RELEASE_QUIET);
+    if (_use_charges) device_used_charges++;
 }
 
-static void _do_identify_aux(int item)
+void mass_identify(bool use_charges) /* shared with Sorcery spell */
 {
-    object_type    *o_ptr;
-    char            o_name[MAX_NLEN];
-    bool            old_known;
+    inv_ptr floor = inv_filter_floor(obj_exists);
 
-    if (item >= 0)
-        o_ptr = &inventory[item];
-    else
-        o_ptr = &o_list[-item];
+    _use_charges = use_charges;
+    pack_for_each_that(_do_identify_aux, obj_is_unknown);
+    equip_for_each_that(_do_identify_aux, obj_is_unknown);
+    quiver_for_each_that(_do_identify_aux, obj_is_unknown);
+    inv_for_each_that(floor, _do_identify_aux, obj_is_unknown);
 
-    old_known = identify_item(o_ptr);
-    object_desc(o_name, o_ptr, OD_COLOR_CODED);
-
-    if (equip_is_valid_slot(item))
-        msg_format("%^s: %s (%c).", equip_describe_slot(item), o_name, index_to_label(item));
-    else if (item >= 0)
-        msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
-    else
-        msg_format("On the ground: %s.", o_name);
-
-    autopick_alter_item(item, (bool)(destroy_identify && !old_known));
+    inv_free(floor);
 }
 
-void mass_identify(void)
+static int _cmd_handler(obj_prompt_context_ptr context, int cmd)
 {
-    int i;
-    int this_o_idx, next_o_idx;
-
-    /* Equipment and Pack */
-    for (i = 0; i < INVEN_TOTAL; i++)
-    {
-        if (!inventory[i].k_idx) continue;
-        if (object_is_known(&inventory[i])) continue;
-        _do_identify_aux(i);
-    }
-
-    /* Floor */
-    for (this_o_idx = cave[py][px].o_idx;
-            this_o_idx;
-            this_o_idx = next_o_idx)
-    {
-        object_type *o_ptr = &o_list[this_o_idx];
-
-        next_o_idx = o_ptr->next_o_idx;
-        if (object_is_known(o_ptr)) continue;
-        _do_identify_aux(-this_o_idx);
-    }
+    if (cmd == '*')
+        return OP_CMD_DISMISS;
+    return OP_CMD_SKIPPED;
 }
 
 static bool _do_identify(void)
 {
-    int             item;
-    cptr            q, s;
-    int             options = USE_EQUIP | USE_INVEN | USE_FLOOR;
+    obj_prompt_t prompt = {0};
 
     assert(device_used_charges == 0);
-    if (device_available_charges > 1)
-        options |=  OPTION_ALL;
 
-    item_tester_no_ryoute = TRUE;
-    item_tester_hook = _do_identify_hook;
+    prompt.prompt = "Identify which item <color:w>(<color:keypress>*</color> for all)</color>?";
+    prompt.error = "All items are identified.";
+    prompt.filter = obj_is_unknown;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_QUIVER;
+    prompt.where[3] = INV_FLOOR;
+    prompt.cmd_handler = _cmd_handler;
 
-    if (can_get_item())
-        q = "Identify which item? ";
-    else
-        q = "All items are identified. ";
-
-    s = "You have nothing to identify.";
-    if (!get_item(&item, q, s, options))
-        return FALSE;
-
-    if (item == INVEN_ALL)
+    switch (obj_prompt(&prompt))
     {
-        int i;
-        int this_o_idx, next_o_idx;
-
-        /* Equipment and Pack */
-        for (i = 0; i < INVEN_TOTAL && device_used_charges < device_available_charges; i++)
-        {
-            if (!inventory[i].k_idx) continue;
-            if (object_is_known(&inventory[i])) continue;
-            _do_identify_aux(i);
-            device_used_charges++;
-        }
-
-        /* Floor */
-        for (this_o_idx = cave[py][px].o_idx;
-                this_o_idx && device_used_charges < device_available_charges;
-                this_o_idx = next_o_idx)
-        {
-            object_type *o_ptr = &o_list[this_o_idx];
-
-            next_o_idx = o_ptr->next_o_idx;
-            if (object_is_known(o_ptr)) continue;
-            _do_identify_aux(-this_o_idx);
-            device_used_charges++;
-        }
+    case OP_CUSTOM:
+        mass_identify(TRUE);
+        return TRUE;
+    case OP_SUCCESS:
+        _use_charges = TRUE;
+        _do_identify_aux(prompt.obj);
+        return TRUE;
     }
-    else
-    {
-        _do_identify_aux(item);
-        device_used_charges++;
-    }
-
-    return TRUE;
+    return FALSE;
 }
 
 /* Using Devices
@@ -1567,66 +1532,52 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It seems to be the hurried scribblings of a mad wizard on the verge of some great arcane discovery. You can't make heads or tails of it. Do you read it to see what happens?";
         if (cast)
         {
-            int item;
-            object_type *o_ptr;
             int n = randint0(_scroll_power(100));
-
-            item_tester_hook = item_tester_hook_nameless_weapon_armour;
-            if (!get_item(&item, "Use which item? ", "You have nothing to use.", (USE_EQUIP | USE_INVEN | USE_FLOOR))) return NULL;
-
-            if (item >= 0)
-                o_ptr = &inventory[item];
-            else
-                o_ptr = &o_list[0 - item];
-
-            if (o_ptr->number > 1)
-            {
-                msg_print("Don't be greedy. Just try it out on a single object at a time.");
-                return NULL;
-            }
-
             device_noticed = TRUE;
-
-            /* TODO: Add more goodies ... */
-            if (n < 10)
+            if (n < 2)
             {
-                msg_print("Ooops!  That didn't work at all!");
+                int curses = 1 + randint1(3);
+                bool stop_ty = FALSE;
+                int count = 0;
+
+                cmsg_print(TERM_VIOLET, "The scroll has an ancient, foul curse!");
+                curse_equipment(100, 50);
+                do
+                {
+                    stop_ty = activate_ty_curse(stop_ty, &count);
+                }
+                while (--curses);
+            }
+            else if (n < 12)
+            {
+                msg_print("Ooops! That didn't work at all!");
                 destroy_area(py, px, 13 + randint0(5), 300);
             }
-            else if (n < 15)
+            else if (n < 17)
             {
                 msg_print("You faintly hear crazy laughter for a moment.");
                 summon_cyber(-1, py, px);
             }
-            else if (n < 25)
+            else if (n < 27)
             {
                 msg_print("The scroll explodes violently!");
-                call_chaos(100);
+                project(0, 10, py, px, 300, GF_MANA, PROJECT_KILL | PROJECT_ITEM, -1);
             }
-            else if (n < 65)
+            else if (n < 50)
             {
-                curse_weapon(FALSE, item);    /* This curses armor too ... */
+                _do_scroll(SV_SCROLL_CURSE_ARMOR, mode);
             }
-            else if (n < 90)
+            else if (n < 75)
             {
-                if (object_is_melee_weapon(o_ptr))
-                {
-                    if (!brand_weapon_aux(item)) return "";
-                }
-                else
-                    msg_print("Funny, nothing happened.");
+                _do_scroll(SV_SCROLL_CURSE_WEAPON, mode);
+            }
+            else if (n < 95)
+            {
+                _do_scroll(SV_SCROLL_CRAFTING, mode);
             }
             else
             {
-                if (no_artifacts)
-                {
-                    if (object_is_melee_weapon(o_ptr))
-                    {
-                        if (!brand_weapon_aux(item)) return "";
-                    }
-                }
-                else
-                    create_artifact(o_ptr, CREATE_ART_SCROLL | CREATE_ART_GOOD);
+                _do_scroll(SV_SCROLL_ARTIFACT, mode);
             }
         }
         break;
@@ -1920,7 +1871,6 @@ static _effect_info_t _effect_info[] =
     {"SPEED",           EFFECT_SPEED,               25, 150,  4, BIAS_ROGUE | BIAS_MAGE | BIAS_ARCHER},
     {"SPEED_HERO",      EFFECT_SPEED_HERO,          35, 200,  6, BIAS_WARRIOR},
     {"SPEED_HERO_BLESS",EFFECT_SPEED_HERO_BLESS,    40, 250,  8, 0},
-    {"SPEED_ESSENTIA",  EFFECT_SPEED_ESSENTIA,      90, 999,  0, 0},
     {"LIGHT_SPEED",     EFFECT_LIGHT_SPEED,         99, 999, 99, 0},
     {"ENLARGE_WEAPON",  EFFECT_ENLARGE_WEAPON,      80, 900,  0, 0},
     {"TELEPATHY",       EFFECT_TELEPATHY,           30, 150,  8, BIAS_MAGE | BIAS_ARCHER},
@@ -2086,6 +2036,7 @@ static _effect_info_t _effect_info[] =
     {"POLYMORPH",       EFFECT_POLYMORPH,           15, 100,  2, BIAS_CHAOS},
     {"STARLITE",        EFFECT_STARLITE,            20, 100,  2, 0},
     {"NOTHING",         EFFECT_NOTHING,              1,   1,  0, 0},
+    {"ENDLESS_QUIVER",  EFFECT_ENDLESS_QUIVER,      50, 150,  0, BIAS_ARCHER},
 
     /* Bad Effects                                  Lv    T   R  Bias */
     {"AGGRAVATE",       EFFECT_AGGRAVATE,           10, 100,  1, BIAS_DEMON},
@@ -2144,6 +2095,18 @@ bool effect_learn(int type)
         return TRUE;
     }
     return FALSE;
+}
+
+int effect_parse_type(cptr type)
+{
+    int i;
+    for (i = 0; ; i++)
+    {
+        if (!_effect_info[i].text) break;
+        if (streq(type, _effect_info[i].text))
+            return _effect_info[i].type;
+    }
+    return EFFECT_NONE;
 }
 
 errr effect_parse(char *line, effect_t *effect) /* LITE_AREA:<Lvl>:<Timeout>:<Extra> */
@@ -2617,6 +2580,20 @@ static device_effect_info_ptr _device_find_effect(device_effect_info_ptr table, 
     return NULL;
 }
 
+bool device_is_valid_effect(int tval, int effect)
+{
+    switch (tval)
+    {
+    case TV_WAND:
+        return _device_find_effect(wand_effect_table, effect) != NULL;
+    case TV_ROD:
+        return _device_find_effect(rod_effect_table, effect) != NULL;
+    case TV_STAFF:
+        return _device_find_effect(staff_effect_table, effect) != NULL;
+    }
+    return FALSE;
+}
+
 /* Initialize a device with a fixed effect. This is useful for birth objects, quest rewards, etc */
 bool device_init_fixed(object_type *o_ptr, int effect)
 {
@@ -2689,13 +2666,30 @@ int device_sp(object_type *o_ptr)
     return 0;
 }
 
+int device_charges(object_type *o_ptr)
+{
+    if (_is_valid_device(o_ptr) && o_ptr->activation.cost)
+        return  device_sp(o_ptr) / o_ptr->activation.cost;
+    return 0;
+}
+
+int device_max_charges(object_type *o_ptr)
+{
+    if (_is_valid_device(o_ptr) && o_ptr->activation.cost)
+        return  device_max_sp(o_ptr) / o_ptr->activation.cost;
+    return 0;
+}
+
 void device_decrease_sp(object_type *o_ptr, int amt)
 {
     if (_is_valid_device(o_ptr))
     {
+        int charges = device_charges(o_ptr);
         o_ptr->xtra5 -= amt * 100;
         if (o_ptr->xtra5 < 0)
             o_ptr->xtra5 = 0;
+        if (device_charges(o_ptr) != charges)
+            p_ptr->window |= PW_INVEN;
     }
 }
 
@@ -2703,9 +2697,12 @@ void device_increase_sp(object_type *o_ptr, int amt)
 {
     if (_is_valid_device(o_ptr))
     {
+        int charges = device_charges(o_ptr);
         o_ptr->xtra5 += amt * 100;
         if (o_ptr->xtra5 > o_ptr->xtra4 * 100)
             o_ptr->xtra5 = o_ptr->xtra4 * 100;
+        if (device_charges(o_ptr) != charges)
+            p_ptr->window |= PW_INVEN;
     }
 }
 
@@ -2726,8 +2723,9 @@ void device_regen_sp_aux(object_type *o_ptr, int per_mill)
 {
     if (!device_is_fully_charged(o_ptr))
     {
-        int  div = 1000;
-        int  amt = o_ptr->xtra4 * 100 * per_mill;
+        int div = 1000;
+        int amt = o_ptr->xtra4 * 100 * per_mill;
+        int charges = device_charges(o_ptr);
 
         o_ptr->xtra5 += amt / div;
         if (randint0(div) < (amt % div))
@@ -2738,6 +2736,9 @@ void device_regen_sp_aux(object_type *o_ptr, int per_mill)
 
         if (device_is_fully_charged(o_ptr))
             recharged_notice(o_ptr);
+
+        if (device_charges(o_ptr) != charges)
+            p_ptr->window |= PW_INVEN;
     }
 }
 
@@ -2965,21 +2966,19 @@ void device_stats_on_save(savefile_ptr file)
 
 void device_stats_on_load(savefile_ptr file)
 {
+    int i, ct;
+
     _device_stats_load_imp(file, wand_effect_table);
     _device_stats_load_imp(file, rod_effect_table);
     _device_stats_load_imp(file, staff_effect_table);
 
-    if (!savefile_is_older_than(file, 5, 0, 0, 2))
+    ct = savefile_read_s32b(file);
+    for (i = 0; i < ct; i++)
     {
-        int i, ct;
-        ct = savefile_read_s32b(file);
-        for (i = 0; i < ct; i++)
-        {
-            int type = savefile_read_s32b(file);
-            _effect_info_ptr e = _get_effect_info(type);
-            if (e)
-                e->known = TRUE;
-        }
+        int type = savefile_read_s32b(file);
+        _effect_info_ptr e = _get_effect_info(type);
+        if (e)
+            e->known = TRUE;
     }
 }
 
@@ -3893,21 +3892,6 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     }
-    case EFFECT_SPEED_ESSENTIA:
-    {
-        int power = _extra(effect, 5);
-        if (name) return "Speed Essentia";
-        if (desc) return "It temporarily grants you extra melee attacks.";
-        if (info) return format("Dur d%d + %d", _BOOST(power), _BOOST(power));
-        if (value) return format("%d", 5000 + 1000*power);
-        if (color) return format("%d", TERM_VIOLET);
-        if (cast)
-        {
-            if (set_tim_speed_essentia(_BOOST(5 + randint1(5)), FALSE))
-                device_noticed = TRUE;
-        }
-        break;
-    }
     case EFFECT_LIGHT_SPEED:
     {
         int power = _extra(effect, 16);
@@ -4447,7 +4431,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     }
     case EFFECT_HEAL_CURING_HERO:
     {
-        int amt = _extra(effect, 6*effect->power);
+        int amt = _extra(effect, 50 + 5*effect->power);
         if (name) return "Angelic Healing";
         if (desc) return "It heals your hitpoints, cures what ails you, and makes you heroic.";
         if (info) return info_heal(0, 0, _BOOST(amt));
@@ -4862,7 +4846,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     case EFFECT_BOLT_WATER:
     {
         int dd = _extra(effect, 7 + effect->power/4);
-        int ds = 8;
+        int ds = 12;
         if (name) return "Water Bolt";
         if (desc) return "It fires a bolt of water.";
         if (info) return info_damage(_BOOST(dd), ds, 0);
@@ -4992,7 +4976,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_SLATE);
         if (cast)
         {
-            if (!get_fire_dir(&dir)) return NULL;
+            if (!get_fire_dir_aux(&dir, TARGET_DISI)) return NULL;
             fire_beam(GF_DISINTEGRATE, dir, _BOOST(damroll(dd, ds)));
             device_noticed = TRUE;
         }
@@ -6266,6 +6250,31 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             device_known = TRUE;
         }
         break;
+    case EFFECT_ENDLESS_QUIVER: /* should only be on a quiver ... */
+        if (name) return "Endless Quiver";
+        if (desc) return "Your quiver will refill with average ammo.";
+        if (value) return format("%d", 1500);
+        if (color) return format("%d", TERM_L_RED);
+        if (cast)
+        {
+            obj_t forge = {0};
+            int   tval = p_ptr->shooter_info.tval_ammo;
+
+            if (!tval) tval = TV_ARROW;
+
+            object_prep(&forge, lookup_kind(tval, SV_ARROW)); /* Hack: SV_ARROW == SV_BOLT == SV_PEBBLE */
+            forge.number = MAX(0, MIN(50, quiver_capacity() - quiver_count(NULL)));
+            obj_identify_fully(&forge);
+
+            if (!forge.number)
+                msg_print("Your quiver is full.");
+            else
+            {
+                msg_print("Your quiver refills.");
+                quiver_carry(&forge);
+            }
+        }
+        break;
     case EFFECT_WALL_BUILDING:
         if (name) return "Wall Building";
         if (desc) return "It creates a wall of stone.";
@@ -6521,7 +6530,6 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         {
             object_type forge;
             char o_name[MAX_NLEN];
-            int slot;
 
             object_prep(&forge, lookup_kind(TV_ARROW, m_bonus(1, p_ptr->lev)+ 1));
             forge.number = (byte)rand_range(5, 10);
@@ -6533,9 +6541,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             object_desc(o_name, &forge, 0);
             msg_format("It creates %s.", o_name);
 
-            slot = inven_carry(&forge);
-            if (slot >= 0) autopick_alter_item(slot, FALSE);
-
+            pack_carry(&forge);
             device_noticed = TRUE;
         }
         break;
@@ -6652,7 +6658,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         {
             /* TODO: Again, we need the underlying object ...
                For now, we safely assume the artifact is Bloody Moon. */
-            int slot = equip_find_artifact(ART_BLOOD);
+            int slot = equip_find_art(ART_BLOOD);
             if (slot)
             {
                 object_type *o_ptr = equip_obj(slot);
@@ -6713,7 +6719,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
                         Note: Effects might someday be triggered by spells, so passing
                         an object to this routine won't always make sense!
                      */
-                    int slot = equip_find_artifact(ART_MURAMASA);
+                    int slot = equip_find_art(ART_MURAMASA);
                     if (slot)
                     {
                         msg_print("The Muramasa is destroyed!");

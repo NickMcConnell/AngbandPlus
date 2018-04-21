@@ -321,8 +321,7 @@ bool mon_spell_mon(int m_idx, int options)
 
     bool pet = is_pet(m_ptr);
 
-    bool in_no_magic_dungeon = (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) && dun_level
-        && (!p_ptr->inside_quest || is_fixed_quest_idx(p_ptr->inside_quest));
+    bool in_no_magic_dungeon = py_in_dungeon() && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC);
 
     bool can_use_lite_area = FALSE;
 
@@ -2991,7 +2990,7 @@ bool mon_spell_mon(int m_idx, int options)
             {
                 if (see_t) msg_format("%^s is unaffected!", t_name);
             }
-            else if ((tr_ptr->flags1 & RF1_QUESTOR) ||
+            else if ((t_ptr->mflag2 & MFLAG2_QUESTOR) ||
                     (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10))
             {
                 if (see_t) msg_format("%^s resist the effects!", t_name);

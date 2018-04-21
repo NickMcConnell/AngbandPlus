@@ -649,7 +649,7 @@ static void _balrog_calc_bonuses(void) {
     p_ptr->pspeed += p_ptr->lev/8; /* Angels get +7 speed. Demons get +6 speed. */
     p_ptr->sh_fire = TRUE;
 
-    if (equip_find_artifact(ART_STONE_OF_DAEMON))
+    if (equip_find_art(ART_STONE_OF_DAEMON))
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;

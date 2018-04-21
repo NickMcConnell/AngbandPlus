@@ -134,9 +134,7 @@ Slings
 Watch out, Goliath! As a master of slings you will shoot pebbles with 
 uncanny speed. Your shots may even ricochet off other monsters to score 
 multiple hits. As with other archery specializations, your ammo will 
-break less often and, at high levels you will gain access to an 
-'unlimited quiver' which allows you to shoot an infinite amount of 
-(average) ammo.
+break less often.
 
   Stats                   Skills
   Strength      +0        Disarming   Fair         
@@ -251,5 +249,5 @@ Diggers           Poor          Bad           Superb        Bad
 
 
 
-Automatically generated for PosChengband 5.0.4.
+Automatically generated for PosChengband 6.0.0.
 

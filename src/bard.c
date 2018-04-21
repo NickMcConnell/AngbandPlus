@@ -159,7 +159,7 @@ static caster_info * _caster_info(void)
 static void _calc_bonuses(void)
 {
     res_add(RES_SOUND);
-    if (equip_find_artifact(ART_DAERON) || equip_find_artifact(ART_MAGLOR))
+    if (equip_find_art(ART_DAERON) || equip_find_art(ART_MAGLOR))
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;

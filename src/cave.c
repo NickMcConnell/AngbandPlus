@@ -1483,6 +1483,7 @@ void note_spot(int y, int x)
         p_ptr->window |= PW_OBJECT_LIST;
     }
 
+    c_ptr->info |= CAVE_AWARE;
 
     /* Hack -- memorize grids */
     if (!(c_ptr->info & (CAVE_MARK)))
@@ -1628,7 +1629,7 @@ void prt_map(void)
     /* Hide the cursor */
     (void)Term_set_cursor(0);
 
-    for (uip = rect_topleft(&map_rect); uip.y < map_rect.y + map_rect.cy; uip.y++)
+    for (uip = rect_topleft(map_rect); uip.y < map_rect.y + map_rect.cy; uip.y++)
     {
         if (msg_line_contains(uip.y, -1))
         {
@@ -1667,7 +1668,7 @@ void prt_map(void)
 /*
  * print project path
  */
-void prt_path(int y, int x)
+void prt_path(int y, int x, int xtra_flgs)
 {
     int i;
     int path_n;
@@ -1675,13 +1676,13 @@ void prt_path(int y, int x)
     int default_color = TERM_SLATE;
     int flgs = PROJECT_PATH|PROJECT_THRU;
 
+    flgs |= xtra_flgs;
+
     if (!display_path) return;
     if (-1 == project_length)
         return;
 
     /* Get projection path */
-    if (shoot_hack == SHOOT_DISINTEGRATE)
-        flgs |= PROJECT_DISI;
     path_n = project_path(path_g, (project_length ? project_length : MAX_RANGE), py, px, y, x, flgs);
 
     /* Redraw map */
@@ -1724,7 +1725,7 @@ void prt_path(int y, int x)
         }
 
         /* Known Wall */
-        if (shoot_hack != SHOOT_DISINTEGRATE)
+        if (!(flgs & PROJECT_DISI))
         {
             if ((c_ptr->info & CAVE_MARK) && !cave_have_flag_grid(c_ptr, FF_PROJECT)) break;
         }
@@ -4227,6 +4228,7 @@ void map_area(int range)
             if (distance(py, px, y, x) > range) continue;
 
             c_ptr = &cave[y][x];
+            c_ptr->info |= CAVE_IN_MAP;
 
             /* Feature code (applying "mimic" field) */
             feat = get_feat_mimic(c_ptr);
@@ -4235,6 +4237,7 @@ void map_area(int range)
             /* All non-walls are "checked" */
             if (!have_flag(f_ptr->flags, FF_WALL))
             {
+                c_ptr->info |= CAVE_AWARE;
                 /* Memorize normal features */
                 if (have_flag(f_ptr->flags, FF_REMEMBER))
                 {
@@ -4255,7 +4258,7 @@ void map_area(int range)
                     if (have_flag(f_ptr->flags, FF_REMEMBER))
                     {
                         /* Memorize the walls */
-                        c_ptr->info |= (CAVE_MARK);
+                        c_ptr->info |= (CAVE_MARK | CAVE_AWARE);
                     }
                 }
             }
@@ -4335,6 +4338,8 @@ void wiz_lite(bool ninja)
 
                     /* Feature code (applying "mimic" field) */
                     f_ptr = &f_info[get_feat_mimic(c_ptr)];
+
+                    c_ptr->info |= CAVE_AWARE;
 
                     /* Perma-lite the grid */
                     if (!(d_info[dungeon_type].flags1 & DF1_DARKNESS) && !ninja)
@@ -4754,7 +4759,7 @@ void hit_mon_trap(int y, int x, int m_idx)
                     }
                     break;
                 case 5: /* Trap Door */
-                    if (!p_ptr->inside_quest && !p_ptr->inside_arena)
+                    if (!quests_get_current() && !p_ptr->inside_arena)
                     {
                         if (r_ptr->flags7 & RF7_CAN_FLY)
                         {
@@ -5159,8 +5164,7 @@ void disturb(int stop_search, int unused_flag)
 
     if (travel.run)
     {
-        /* Cancel */
-        travel.run = 0;
+        travel_cancel();
 
         /* Check for new panel if appropriate */
         if (center_player && !center_running) viewport_verify();

@@ -102,7 +102,7 @@ void place_random_stairs(int y, int x)
         down_stairs = FALSE;
 
     /* Quest-level */
-    if (quest_number(dun_level) && (dun_level > 1))
+    if (quests_get_current() && (dun_level > 1))
         down_stairs = FALSE;
 
     /* We can't place both */

@@ -151,7 +151,7 @@ static void _apply_glow(bool all)
                     }
                     else
                     {
-                        c_ptr->info |= CAVE_GLOW;
+                        c_ptr->info |= CAVE_GLOW | CAVE_AWARE;
                         if (view_perma_grids) c_ptr->info |= CAVE_MARK;
                     }
                 }
@@ -169,7 +169,7 @@ static void _apply_glow(bool all)
                     }
                     else if (have_flag(f_ptr->flags, FF_ENTRANCE))
                     {
-                        c_ptr->info |= CAVE_GLOW;
+                        c_ptr->info |= CAVE_GLOW | CAVE_AWARE;
                         if (view_perma_grids) c_ptr->info |= CAVE_MARK;
                     }
                 }
@@ -223,8 +223,8 @@ static void _scroll_grid(int src_x, int src_y, int dest_x, int dest_y)
         for (this_o_idx = dest->o_idx; this_o_idx; this_o_idx = next_o_idx)
         {
             next_o_idx = o_list[this_o_idx].next_o_idx;
-            o_list[this_o_idx].iy = dest_y;
-            o_list[this_o_idx].ix = dest_x;
+            o_list[this_o_idx].loc.y = dest_y;
+            o_list[this_o_idx].loc.x = dest_x;
             if (_is_boundary(dest_x, dest_y))
                 delete_object_idx(this_o_idx);
         }
@@ -247,9 +247,12 @@ static void _scroll_cave(int dx, int dy)
 {
     int x, y, i;
 
-#if 0
-    msg_format("Scoll Cave (%d,%d)", dx, dy);
-    msg_boundary();
+#if 1
+    if (p_ptr->wizard)
+    {
+        cmsg_format(TERM_VIOLET, "Scoll Cave (%d,%d)", dx, dy);
+        msg_boundary();
+    }
 #endif
 
     if (dy == 0 && dx == 0)
@@ -360,9 +363,9 @@ int wilderness_level(int x, int y)
     return MIN(total / ct, 60);
 }
 
-static void _generate_cave(const rect_t *valid);
-static void _generate_area(int x, int y, int dx, int dy, const rect_t *exclude);
-static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *exclude);
+static void _generate_cave(rect_t exclude);
+static void _generate_area(int x, int y, int dx, int dy, rect_t exclude);
+static void _generate_encounters(int x, int y, rect_t r, rect_t exclude);
 bool wilderness_scroll_lock = FALSE;
 
 void wilderness_move_player(int old_x, int old_y)
@@ -401,16 +404,23 @@ void wilderness_move_player(int old_x, int old_y)
     if (qy == 0)
         dy = -1;
 
-#if 0
+#if 1
     /* Because I am so easily confused :( */
-    c_put_str(TERM_WHITE, format("P:%3d/%3d", px, py), 26, 0);
-    c_put_str(TERM_WHITE, format("W:%3d/%3d", p_ptr->wilderness_x, p_ptr->wilderness_y), 27, 0);
-    c_put_str(TERM_WHITE, format("D:%3d/%3d", p_ptr->wilderness_dx, p_ptr->wilderness_dy), 28, 0);
-    c_put_str(TERM_WHITE, format("O:%3d/%3d", old_qx, old_qy), 29, 0);
-    c_put_str(TERM_WHITE, format("Q:%3d/%3d", qx, qy), 30, 0);
-    c_put_str(TERM_WHITE, format("S:%3d/%3d", dx, dy), 31, 0);
-    c_put_str(TERM_WHITE, format("L:%3d", wilderness_level(p_ptr->wilderness_x, p_ptr->wilderness_y)), 32, 0);
-    c_put_str(TERM_WHITE, format("T:%3d", p_ptr->town_num), 33, 0);
+    if (p_ptr->wizard)
+    {
+        rect_t r = ui_char_info_rect();
+        int    row = r.y + r.cy - 11;
+        int    col = r.x;
+
+        c_put_str(TERM_WHITE, format("P:%3d/%3d", px, py), row++, col);
+        c_put_str(TERM_WHITE, format("W:%3d/%3d", p_ptr->wilderness_x, p_ptr->wilderness_y), row++, col);
+        c_put_str(TERM_WHITE, format("D:%3d/%3d", p_ptr->wilderness_dx, p_ptr->wilderness_dy), row++, col);
+        c_put_str(TERM_WHITE, format("O:%3d/%3d", old_qx, old_qy), row++, col);
+        c_put_str(TERM_WHITE, format("Q:%3d/%3d", qx, qy), row++, col);
+        c_put_str(TERM_WHITE, format("S:%3d/%3d", dx, dy), row++, col);
+        c_put_str(TERM_WHITE, format("L:%3d", wilderness_level(p_ptr->wilderness_x, p_ptr->wilderness_y)), row++, col);
+        c_put_str(TERM_WHITE, format("T:%3d", p_ptr->town_num), row++, col);
+    }
 #endif
 
     if (!dx && !dy)
@@ -461,10 +471,10 @@ void wilderness_move_player(int old_x, int old_y)
     }
 
     /* Scroll in new wilderness info with appropriate monsters! */
-    viewport = rect_create(0, 0, MAX_WID, MAX_HGT);
-    valid = rect_translate(&viewport, -dx*WILD_SCROLL_CX, -dy*WILD_SCROLL_CY);
-    valid = rect_intersect(&viewport, &valid);
-    _generate_cave(&valid);
+    viewport = rect(0, 0, MAX_WID, MAX_HGT);
+    valid = rect_translate(viewport, -dx*WILD_SCROLL_CX, -dy*WILD_SCROLL_CY);
+    valid = rect_intersect(viewport, valid);
+    _generate_cave(valid);
     _set_boundary();
 
     /* Note: While it is true that disturb() will cancel traveling, travel_step()
@@ -474,7 +484,7 @@ void wilderness_move_player(int old_x, int old_y)
        travel.run to 0 (prior to travel_step restoring it after we return!)
        In other words: Here is a cryptic sequencing issue with global variables! Do not move this!! */
     if (travel.run)
-        do_cmd_travel_xy(travel.x - dx*WILD_SCROLL_CX, travel.y - dy*WILD_SCROLL_CY);
+        travel_wilderness_scroll(travel.x - dx*WILD_SCROLL_CX, travel.y - dy*WILD_SCROLL_CY);
 
     if (do_disturb) disturb(0, 0);
     p_ptr->redraw |= PR_BASIC; /* In case the user left/entered a town ... */
@@ -489,15 +499,15 @@ void wilderness_move_player(int old_x, int old_y)
 #endif
 }
 
-static void _wipe_generate_cave_flags(const rect_t *r)
+static void _wipe_generate_cave_flags(rect_t r)
 {
     int x, y;
     /* CAVE_INNER == CAVE_REDRAW. Unless you do the following,
        inner feature tiles ('#') will not redraw when in the player's view.
        cf wipe_generate_cave_flags(); but don't call that guy! */
-    for (y = r->y; y < r->y + r->cy; y++)
+    for (y = r.y; y < r.y + r.cy; y++)
     {
-        for (x = r->x; x < r->x + r->cx; x++)
+        for (x = r.x; x < r.x + r.cx; x++)
         {
             cave[y][x].info &= ~CAVE_MASK;
             /* TODO: Setting CAVE_UNSAFE reveals where the rooms are! */
@@ -505,28 +515,6 @@ static void _wipe_generate_cave_flags(const rect_t *r)
                 cave[y][x].info |= CAVE_UNSAFE; */
         }
     }
-}
-
-static void _build_room(const room_template_t *room_ptr, const rect_t *r, int transno)
-{
-    int x = room_ptr->width;
-    int y = room_ptr->height;
-    int xoffset = 0;
-    int yoffset = 0;
-
-    coord_trans(&x, &y, 0, 0, transno);
-    if (x < 0) xoffset = -x;
-    if (y < 0) yoffset = -y;
-
-    build_room_template_aux(
-        room_ptr,
-        r->y + r->cy/2, /* expects the *center* of the rect ... sigh */
-        r->x + r->cx/2,
-        xoffset,
-        yoffset,
-        transno
-    );
-    _wipe_generate_cave_flags(r);
 }
 
 static int _encounter_terrain_type(int x, int y)
@@ -548,118 +536,85 @@ static int _encounter_terrain_type(int x, int y)
     return result;
 }
 
-static bool _generate_special_encounter(room_template_t *room_ptr, int x, int y, const rect_t *r, const rect_t *exclude)
+static bool _build_room(room_ptr room, transform_ptr xform, rect_t r, rect_t exclude)
 {
-    int    i, x2, y2;
-    rect_t room_rect, quad_rect;
-    int    qx_min = r->x/WILD_SCROLL_CX;
-    int    qx_max = (r->x + r->cx - 1)/WILD_SCROLL_CX;
-    int    qy_min = r->y/WILD_SCROLL_CY;
-    int    qy_max = (r->y + r->cy - 1)/WILD_SCROLL_CY;
+    int    qx_min = r.x/WILD_SCROLL_CX;
+    int    qx_max = (r.x + r.cx - 1)/WILD_SCROLL_CX;
+    int    qy_min = r.y/WILD_SCROLL_CY;
+    int    qy_max = (r.y + r.cy - 1)/WILD_SCROLL_CY;
+    int    qx = rand_range(qx_min, qx_max);
+    int    qy = rand_range(qy_min, qy_max);
+    rect_t qrect = rect(qx*WILD_SCROLL_CX, qy*WILD_SCROLL_CY, WILD_SCROLL_CX, WILD_SCROLL_CY);
+        
+    xform->dest = rect_translate(xform->dest, 
+        qrect.x + 2 + randint0(qrect.cx - xform->dest.cx - 4),
+        qrect.y + 1 + randint0(qrect.cy - xform->dest.cy - 2));
 
+    if (!rect_contains(r, xform->dest)) return FALSE;
+    if (!rect_contains(qrect, xform->dest)) return FALSE;
+
+    /* Exclude if overlaps the "valid region" during a scroll op */
+    if (rect_is_valid(exclude))
+    {
+        rect_t temp_rect = rect_intersect(exclude, xform->dest);
+        if (rect_is_valid(temp_rect)) return FALSE;
+    }
+    /* Exclude if player is in the room during a non-scroll op (e.g. ambush)
+        Note the player will always be inside the exclude rect during
+        a scroll op. */
+    else if (room->type == ROOM_WILDERNESS)
+    {
+        /* Player has not been placed yet, but will be placed at (oldpx, oldpy) shortly */
+        /* N.B. Ambush encounters include player placement information */
+        if (rect_contains_pt(xform->dest, p_ptr->oldpx, p_ptr->oldpy)) return FALSE;
+    }
+
+    build_room_template_aux(room, xform, NULL);
+    _wipe_generate_cave_flags(r);
+
+    if (is_daytime() && room->type == ROOM_WILDERNESS && disturb_minor)
+    {
+        msg_print("You've stumbled onto something interesting ...");
+        disturb(0, 0);
+    }
+    if (room->type == ROOM_AMBUSH)
+    {
+        msg_print("Press <color:y>Space</color> to continue.");
+        flush();
+        for (;;)
+        {
+            char ch = inkey();
+            if (ch == ' ') break;
+        }
+        msg_line_clear();
+    }
+    return TRUE;
+}
+
+static bool _generate_special_encounter(room_ptr room, rect_t r, rect_t exclude)
+{
+    int i;
     for (i = 0; i < 100; i++)
     {
-        int qx = rand_range(qx_min, qx_max);
-        int qy = rand_range(qy_min, qy_max);
-        int cx = room_ptr->width;
-        int cy = room_ptr->height;
-        int transno = 0;
-
-        quad_rect = rect_create(qx*WILD_SCROLL_CX, qy*WILD_SCROLL_CY, WILD_SCROLL_CX, WILD_SCROLL_CY);
-
-        /*Coordinate transforms (TODO: This code needs a rewrite, IMO)*/
-        if (room_ptr->flags & ROOM_NO_ROTATE)
-            transno = 0;
-        else
-        {
-            int n = randint0(100);
-            if (n < 45)
-                transno = 0;
-            else if (n < 90)
-                transno = 2;
-            else if (n < 95)
-            {
-                int temp = cx;
-                transno = 1;
-                cx = cy;
-                cy = temp;
-            }
-            else
-            {
-                int temp = cx;
-                transno = 3;
-                cx = cy;
-                cy = temp;
-            }
-
-            if (one_in_(2))
-                transno |= 0x04;
-        }
-
-        /* It's easy to exceed the 62x20 encounter size if you rotate. */
-        if (quad_rect.cx - cx - 4 < 0) continue;
-        if (quad_rect.cy - cy - 2 < 0) continue;
-
-        x2 = quad_rect.x + 2 + randint0(quad_rect.cx - cx - 4);
-        y2 = quad_rect.y + 1 + randint0(quad_rect.cy - cy - 2);
-
-        room_rect = rect_create(x2, y2, cx, cy);
-
-        /* Exclude out of bounds */
-        if (!rect_contains(r, &room_rect)) continue;
-
-        /* Exclude unless restricted to a single "quadrant" (Should never fail) */
-        if (!rect_contains(&quad_rect, &room_rect)) continue;
-
-        /* Exclude if overlaps the "valid region" during a scroll op */
-        if (exclude)
-        {
-            rect_t temp_rect = rect_intersect(exclude, &room_rect);
-            if (rect_is_valid(&temp_rect)) continue;
-        }
-        /* Exclude if player is in the room during a non-scroll op (e.g. ambush)
-            Note the player will always be inside the exclude rect during
-            a scroll op. */
-        else if (room_ptr->type == ROOM_WILDERNESS)
-        {
-            /* Player has not been placed yet, but will be placed at (oldpx, oldpy) shortly */
-            /* N.B. Ambush encounters include player placement information */
-            if (rect_contains_pt(&room_rect, p_ptr->oldpx, p_ptr->oldpy)) continue;
-        }
-
-        _build_room(room_ptr, &room_rect, transno);
-        if (is_daytime() && room_ptr->type == ROOM_WILDERNESS && disturb_minor)
-        {
-            msg_print("You've stumbled onto something interesting ...");
-            disturb(0, 0);
-        }
-        if (room_ptr->type == ROOM_AMBUSH)
-        {
-            msg_print("Press <color:y>Space</color> to continue.");
-            flush();
-            for (;;)
-            {
-                char ch = inkey();
-                if (ch == ' ') break;
-            }
-            msg_line_clear();
-        }
-        return TRUE;
+        transform_ptr xform = transform_alloc_room(room, size(WILD_SCROLL_CX-4, WILD_SCROLL_CY-2));
+        bool ok = _build_room(room, xform, r, exclude);
+        transform_free(xform);
+        if (ok) return TRUE;
     }
     return FALSE;
 }
 
 #define _WILD_ENCOUNTER_CHANCE 15
 
-static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *exclude)
+static void _generate_encounters(int x, int y, rect_t r, rect_t exclude)
 {
     int    ct, prob, i, x2, y2, r_idx, j;
     rect_t invalid = {0};
 
-    if (exclude)
+    if (rect_is_valid(exclude))
         invalid = rect_intersect(r, exclude);
 
-    if (r->cx < 10 || r->cy < 10)
+    if (r.cx < 10 || r.cy < 10)
         return;
 
     if (wilderness[y][x].terrain == TERRAIN_EDGE)
@@ -680,9 +635,9 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
       && !no_encounters_hack
       && one_in_(_WILD_ENCOUNTER_CHANCE))
     {
-        room_template_t *room_ptr = choose_room_template(ROOM_WILDERNESS, _encounter_terrain_type(x, y));
-        if (room_ptr)
-            _generate_special_encounter(room_ptr, x, y, r, exclude);
+        room_ptr room= choose_room_template(ROOM_WILDERNESS, _encounter_terrain_type(x, y));
+        if (room)
+            _generate_special_encounter(room, r, exclude);
     }
 
     /* Scripted Ambush? */
@@ -691,8 +646,8 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
       && !no_wilderness
       && one_in_(5))
     {
-        room_template_t *room_ptr = choose_room_template(ROOM_AMBUSH, _encounter_terrain_type(x, y));
-        if (room_ptr && _generate_special_encounter(room_ptr, x, y, r, exclude))
+        room_ptr room = choose_room_template(ROOM_AMBUSH, _encounter_terrain_type(x, y));
+        if (room && _generate_special_encounter(room, r, exclude))
             generate_encounter = FALSE;
     }
 
@@ -708,7 +663,7 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
     else
         ct = 4;
 
-    ct = ct * 100 * (rect_area(r) - rect_area(&invalid)) / (MAX_HGT * MAX_WID);
+    ct = ct * 100 * (rect_area(r) - rect_area(invalid)) / (MAX_HGT * MAX_WID);
     prob = ct % 100;
     ct /= 100;
     if (randint0(100) < prob)
@@ -726,9 +681,9 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
     {
         for (j = 0; j < 1000; j++)
         {
-            x2 = r->x + 5 + randint0(r->cx - 10);
-            y2 = r->y + 5 + randint0(r->cy - 10);
-            if (!exclude || !rect_contains_pt(exclude, x2, y2))
+            x2 = r.x + 5 + randint0(r.cx - 10);
+            y2 = r.y + 5 + randint0(r.cy - 10);
+            if (!rect_is_valid(exclude) || !rect_contains_pt(exclude, x2, y2))
             {
                 int options = PM_ALLOW_GROUP;
                 if (!generate_encounter && one_in_(3))
@@ -752,12 +707,12 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
    the wilderness. Coordinates (wilderness_x and y) and offsets (wilderness_dx and dy)
    apply to this cursor.
 
-   This routine will fill in the cave for both an initial level generation (valid == NULL)
+   This routine will fill in the cave for both an initial level generation
    and a scroll operation (in which case valid indicates the portion of the cave[][] that
    is correctly filled in). */
-void _generate_cave(const rect_t *valid)
+void _generate_cave(rect_t exclude)
 {
-    rect_t viewport = rect_create(0, 0, MAX_WID, MAX_HGT);
+    rect_t viewport = rect(0, 0, MAX_WID, MAX_HGT);
     int x, y;
 
     p_ptr->town_num = 0;
@@ -769,24 +724,26 @@ void _generate_cave(const rect_t *valid)
             int     wild_y = p_ptr->wilderness_y + y;
             int     dx = (x*3 - p_ptr->wilderness_dx) * WILD_SCROLL_CX;
             int     dy = (y*3 - p_ptr->wilderness_dy) * WILD_SCROLL_CY;
-            rect_t  tile = rect_translate(&viewport, dx, dy);
-            rect_t  r = rect_intersect(&viewport, &tile);
+            rect_t  tile = rect_translate(viewport, dx, dy);
+            rect_t  r = rect_intersect(viewport, tile);
 
-            if (!rect_is_valid(&r)) continue;
-
+            /* Keep the town_num accurate ... */
             if (wilderness[wild_y][wild_x].town)
             {
                 p_ptr->town_num = wilderness[wild_y][wild_x].town;
-                p_ptr->visit |= (1L << (p_ptr->town_num - 1));
+                town_on_visit(p_ptr->town_num);
             }
 
-            if (valid && rect_contains(valid, &r)) continue;
+            /* ... before excluding this tile during scrolling.
+             * We did just clear p_ptr->town_num at the top, after all! */
+            if (!rect_is_valid(r)) continue;
+            if (rect_is_valid(exclude) && rect_contains(exclude, r)) continue;
 
-            _generate_area(wild_x, wild_y, dx, dy, valid);
-            _generate_encounters(wild_x, wild_y, &r, valid);
+            _generate_area(wild_x, wild_y, dx, dy, exclude);
+            _generate_encounters(wild_x, wild_y, r, exclude);
         }
     }
-    _apply_glow(!valid);
+    _apply_glow(!rect_is_valid(exclude));
 }
 
 static void set_floor_and_wall_aux(s16b feat_type[100], feat_prob prob[DUNGEON_FEAT_PROB_NUM])
@@ -1075,7 +1032,7 @@ static void _generate_entrance(int x, int y, int dx, int dy)
  * be generated (for initializing the border structure).
  * If corner is set then only the corners of the area are needed.
  */
-static void _generate_area(int x, int y, int dx, int dy, const rect_t *exclude)
+static void _generate_area(int x, int y, int dx, int dy, rect_t exclude)
 {
     int x1, y1;
 
@@ -1143,7 +1100,7 @@ static void _generate_area(int x, int y, int dx, int dy, const rect_t *exclude)
                 int x2 = x1 + dx;
 
                 if (!in_bounds2(y2, x2)) continue;
-                if (exclude && rect_contains_pt(exclude, x2, y2)) continue;
+                if (rect_is_valid(exclude) && rect_contains_pt(exclude, x2, y2)) continue;
                 cave[y2][x2].feat = _cave[y1][x1];
             }
         }
@@ -1151,21 +1108,27 @@ static void _generate_area(int x, int y, int dx, int dy, const rect_t *exclude)
         /* Create the town on top of default terrain */
         if (wilderness[y][x].town)
         {
+            wild_scroll_t scroll = {{0}};
+            room_ptr      town_map;
+
             /* Reset the buildings */
             init_buildings();
 
             /* Initialize the town */
-            init_flags = INIT_CREATE_DUNGEON;
-            if (exclude)
-                init_flags |= INIT_SCROLL_WILDERNESS;
-            init_dx = dx;
-            init_dy = dy;
-            init_exclude_rect = exclude;
-            process_dungeon_file("t_info.txt", 0, 0, MAX_HGT, MAX_WID);
-            init_flags = 0;
-            init_dx = 0;
-            init_dy = 0;
-            init_exclude_rect = 0;
+            if (rect_is_valid(exclude))
+            {
+                scroll.flags |= INIT_SCROLL_WILDERNESS;
+                scroll.exclude = exclude;
+            }
+            scroll.scroll = point(dx, dy);
+            town_map = towns_get_map();
+            if (town_map)
+            {
+                transform_ptr xform = transform_alloc(0, rect(0, 0, town_map->width, town_map->height));
+                build_room_template_aux(town_map, xform, &scroll);
+                room_free(town_map);
+                transform_free(xform);
+            }
         }
 
 
@@ -1185,7 +1148,7 @@ static void _generate_area(int x, int y, int dx, int dy, const rect_t *exclude)
  */
 void wilderness_gen(void)
 {
-    int           i, y, x;
+    int           y, x;
     cave_type    *c_ptr;
     feature_type *f_ptr;
 
@@ -1194,11 +1157,11 @@ void wilderness_gen(void)
     cur_wid = MAX_WID;
 
     /* Init the wilderness */
-    process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
+    process_dungeon_file("w_info.txt", 0);
 
     dun_level = 0;
 
-    _generate_cave(NULL);
+    _generate_cave(rect_invalid());
     generate_encounter = FALSE;
     _set_boundary();
 
@@ -1252,13 +1215,6 @@ void wilderness_gen(void)
     /* Fill the arrays of floors and walls in the good proportions */
     set_floor_and_wall(0);
 
-    /* Set rewarded quests to finished */
-    for (i = 0; i < max_quests; i++)
-    {
-        if (quest[i].status == QUEST_STATUS_REWARDED)
-            quest[i].status = QUEST_STATUS_FINISHED;
-    }
-
     /* Force scroll after wilderness travel since we are typically
        placed in a boundary "quadrant" */
     viewport_verify();
@@ -1284,7 +1240,7 @@ void wilderness_gen_small(void)
     }
 
     /* Init the wilderness */
-    process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
+    process_dungeon_file("w_info.txt", 0);
 
     /* Fill the map */
     for (i = 0; i < max_wild_x; i++)
@@ -1303,7 +1259,7 @@ void wilderness_gen_small(void)
         }
         else cave[j][i].feat = conv_terrain2feat[wilderness[j][i].terrain];
 
-        cave[j][i].info |= (CAVE_GLOW | CAVE_MARK);
+        cave[j][i].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
     }
 
     cur_hgt = (s16b) max_wild_y;
@@ -1337,14 +1293,11 @@ static wilderness_grid w_letter[255];
 /*
  * Parse a sub-file of the "extra info"
  */
-errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, int *y, int *x)
+static int _parse_y;
+errr parse_line_wilderness(char *buf, int options)
 {
     int i, num;
     char *zz[33];
-
-    /* Unused */
-    (void)ymin;
-    (void)ymax;
 
     /* Paranoia */
     if (!(buf[0] == 'W')) return (PARSE_ERROR_GENERIC);
@@ -1357,6 +1310,7 @@ errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, in
     case 'F':
     case 'E':
     {
+        _parse_y = 0; /* hack: prepare to reparse the map */
         if ((num = tokenize(buf+4, 6, zz, 0)) > 1)
         {
             int index = zz[0][0];
@@ -1399,29 +1353,21 @@ errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, in
     /* Layout of the wilderness */
     case 'D':
     {
-        /* Acquire the text */
+        int   i;
         char *s = buf+4;
-
-        /* Length of the text */
         int len = strlen(s);
 
-        for (*x = xmin, i = 0; ((*x < xmax) && (i < len)); (*x)++, s++, i++)
+        assert(0 <= _parse_y && _parse_y < max_wild_y);
+        for (i = 0; i < len; i++)
         {
-            int idx = s[0];
-
-            wilderness[*y][*x].terrain = w_letter[idx].terrain;
-
-            wilderness[*y][*x].level = w_letter[idx].level;
-
-            wilderness[*y][*x].town = w_letter[idx].town;
-
-            wilderness[*y][*x].road = w_letter[idx].road;
-
-            strcpy(town[w_letter[idx].town].name, w_letter[idx].name);
+            int letter = s[i];
+            assert(0 <= i && i < max_wild_x);
+            wilderness[_parse_y][i].terrain = w_letter[letter].terrain;
+            wilderness[_parse_y][i].level = w_letter[letter].level;
+            wilderness[_parse_y][i].town = w_letter[letter].town;
+            wilderness[_parse_y][i].road = w_letter[letter].road;
         }
-
-        (*y)++;
-
+        _parse_y++;
         break;
     }
 
@@ -1743,3 +1689,19 @@ bool change_wild_mode(void)
     /* Succeed */
     return TRUE;
 }
+
+bool py_on_surface(void)
+{
+    return !dun_level && !p_ptr->inside_arena && !p_ptr->inside_battle && !quests_get_current();
+}
+
+bool py_in_town(void)
+{
+    return py_on_surface() && p_ptr->town_num;
+}
+
+bool py_in_dungeon(void)
+{
+    return dungeon_type != 0;
+}
+

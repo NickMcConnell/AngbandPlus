@@ -25,52 +25,14 @@
  * based on the object's level, always rounding up. If the player
  * remains "unaware", mark that object "kind" as "tried".
  *
- * This code now correctly handles the unstacking of wands, staffs,
- * and rods. Note the overly paranoid warning about potential pack
- * overflow, which allows the player to use and drop a stacked item.
- *
- * In all "unstacking" scenarios, the "used" object is "carried" as if
- * the player had just picked it up. In particular, this means that if
- * the use of an item induces pack overflow, that item will be dropped.
- *
- * For simplicity, these routines induce a full "pack reorganization"
- * which not only combines similar items, but also reorganizes various
- * items to obey the current "sorting" method. This may require about
- * 400 item comparisons, but only occasionally.
- *
- * There may be a BIG problem with any "effect" that can cause "changes"
- * to the inventory. For example, a "scroll of recharging" can cause
- * a wand/staff to "disappear", moving the inventory up. Luckily, the
- * scrolls all appear BEFORE the staffs/wands, so this is not a problem.
- * But, for example, a "staff of recharging" could cause MAJOR problems.
- * In such a case, it will be best to either (1) "postpone" the effect
- * until the end of the function, or (2) "change" the effect, say, into
- * giving a staff "negative" charges, or "turning a staff into a stick".
- * It seems as though a "rod of recharging" might in fact cause problems.
- * The basic problem is that the act of recharging (and destroying) an
- * item causes the inducer of that action to "move", causing "o_ptr" to
- * no longer point at the correct item, with horrifying results.
- *
  * Note that food/potions/scrolls no longer use bit-flags for effects,
  * but instead use the "sval" (which is also used to sort the objects).
  */
 
-static bool _pack_find_tval(int tval)
-{
-    int i;
-    for (i = 0; i < EQUIP_BEGIN; i++)
-    {
-        if (inventory[i].tval == tval)
-            return TRUE;
-    }
-    return FALSE;
-}
-
-
 bool restore_mana(void)
 {
-    bool result = FALSE;
-    int  i;
+    bool   result = FALSE;
+    slot_t slot;
 
     if (p_ptr->pclass == CLASS_MAGIC_EATER)
     {
@@ -90,65 +52,48 @@ bool restore_mana(void)
         result = TRUE;
     }
 
-    for (i = 0; i < INVEN_PACK; i++)
+    for (slot = 1; slot <= pack_max(); slot++)
     {
-        if (!inventory[i].k_idx) continue;
-        if (!object_is_device(&inventory[i])) continue;
-        if (inventory[i].activation.type == EFFECT_RESTORE_MANA) continue;
+        obj_ptr obj = pack_obj(slot);
 
-        if (inventory[i].tval == TV_ROD)
-            device_regen_sp_aux(&inventory[i], 500);
+        if (!obj) continue;
+        if (!object_is_device(obj)) continue;
+        if (obj->activation.type == EFFECT_RESTORE_MANA) continue;
+
+        if (obj->tval == TV_ROD)
+            device_regen_sp_aux(obj, 500);
         else
-            device_regen_sp_aux(&inventory[i], 250);
+            device_regen_sp_aux(obj, 250);
+        result = TRUE;
     }
 
     msg_print("You feel your head clear.");
     return result;
 }
 
-static void do_cmd_eat_food_aux(int item)
+static void do_cmd_eat_food_aux(obj_ptr obj)
 {
-    int ident, lev;
-    object_type *o_ptr;
+    int  lev = k_info[obj->k_idx].level;
+    bool ident = FALSE;
 
     if (music_singing_any()) bard_stop_singing();
     if (hex_spelling_any()) stop_hex_spell_all();
     warlock_stop_singing();
 
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    if (object_is_mushroom(o_ptr) && o_ptr->art_name && o_ptr->timeout)
+    if (object_is_mushroom(obj) && obj->art_name && obj->timeout)
     {
         msg_print("Your mushroom is still charging.");
         return;
     }
 
-    /* Sound */
     sound(SOUND_EAT);
-
-    /* Take a turn */
     energy_use = 100;
-
-    /* Identity not known yet */
     ident = FALSE;
 
-    /* Object level */
-    lev = k_info[o_ptr->k_idx].level;
-
-    if (o_ptr->tval == TV_FOOD)
+    /* Food may have effects */
+    if (obj->tval == TV_FOOD)
     {
-        /* Analyze the food */
-        switch (o_ptr->sval)
+        switch (obj->sval)
         {
             case SV_FOOD_POISON:
             {
@@ -213,7 +158,7 @@ static void do_cmd_eat_food_aux(int item)
             case SV_FOOD_WEAKNESS:
             {
                 take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "poisonous food", -1);
-                (void)do_dec_stat(A_STR);
+                do_dec_stat(A_STR);
                 ident = TRUE;
                 break;
             }
@@ -221,7 +166,7 @@ static void do_cmd_eat_food_aux(int item)
             case SV_FOOD_SICKNESS:
             {
                 take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "poisonous food", -1);
-                (void)do_dec_stat(A_CON);
+                do_dec_stat(A_CON);
                 ident = TRUE;
                 break;
             }
@@ -229,7 +174,7 @@ static void do_cmd_eat_food_aux(int item)
             case SV_FOOD_STUPIDITY:
             {
                 take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "poisonous food", -1);
-                (void)do_dec_stat(A_INT);
+                do_dec_stat(A_INT);
                 ident = TRUE;
                 break;
             }
@@ -237,7 +182,7 @@ static void do_cmd_eat_food_aux(int item)
             case SV_FOOD_NAIVETY:
             {
                 take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "poisonous food", -1);
-                (void)do_dec_stat(A_WIS);
+                do_dec_stat(A_WIS);
                 ident = TRUE;
                 break;
             }
@@ -245,7 +190,7 @@ static void do_cmd_eat_food_aux(int item)
             case SV_FOOD_UNHEALTH:
             {
                 take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "poisonous food", -1);
-                (void)do_dec_stat(A_CON);
+                do_dec_stat(A_CON);
                 ident = TRUE;
                 break;
             }
@@ -253,7 +198,7 @@ static void do_cmd_eat_food_aux(int item)
             case SV_FOOD_DISEASE:
             {
                 take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "poisonous food", -1);
-                (void)do_dec_stat(A_STR);
+                do_dec_stat(A_STR);
                 ident = TRUE;
                 break;
             }
@@ -343,8 +288,8 @@ static void do_cmd_eat_food_aux(int item)
             case SV_FOOD_WAYBREAD:
             {
                 msg_print("That tastes good.");
-                (void)set_poisoned(0, TRUE);
-                (void)hp_player(damroll(4, 8));
+                set_poisoned(0, TRUE);
+                hp_player(damroll(4, 8));
                 ident = TRUE;
                 break;
             }
@@ -359,9 +304,8 @@ static void do_cmd_eat_food_aux(int item)
         }
     }
 
-    if (prace_is_(RACE_SNOTLING) && object_is_mushroom(o_ptr))
+    if (prace_is_(RACE_SNOTLING) && object_is_mushroom(obj))
     {
-        int lev = k_info[o_ptr->k_idx].level;
         int dur = lev + randint1(lev);
         set_fast(p_ptr->fast + dur, FALSE);
         set_shield(p_ptr->shield + dur, FALSE);
@@ -369,10 +313,7 @@ static void do_cmd_eat_food_aux(int item)
         set_tim_building_up(p_ptr->tim_building_up + dur, FALSE);
     }
 
-    /* Combine / Reorder the pack (later) */
-    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-    if (!(object_is_aware(o_ptr)))
+    if (!object_is_aware(obj))
     {
         virtue_add(VIRTUE_KNOWLEDGE, -1);
         virtue_add(VIRTUE_PATIENCE, -1);
@@ -380,21 +321,18 @@ static void do_cmd_eat_food_aux(int item)
     }
 
     /* We have tried it */
-    if (o_ptr->tval == TV_FOOD) object_tried(o_ptr);
+    if (obj->tval == TV_FOOD) object_tried(obj);
 
-    stats_on_use(o_ptr, 1);
+    stats_on_use(obj, 1);
 
     /* The player is now aware of the object */
-    if (ident && !object_is_aware(o_ptr))
+    if (ident && !object_is_aware(obj))
     {
-        object_aware(o_ptr);
-        stats_on_notice(o_ptr, 1);
+        object_aware(obj);
+        stats_on_notice(obj, 1);
         gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+        p_ptr->notice |= PN_OPTIMIZE_PACK;
     }
-
-    /* Window stuff */
-    p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
 
     /* Food can feed the player */
     if ( prace_is_(RACE_VAMPIRE)
@@ -402,14 +340,14 @@ static void do_cmd_eat_food_aux(int item)
       || p_ptr->mimic_form == MIMIC_VAMPIRE )
     {
         /* Reduced nutritional benefit */
-        (void)set_food(p_ptr->food + (o_ptr->pval / 10));
+        set_food(p_ptr->food + obj->pval / 10);
         msg_print("Mere victuals hold scant sustenance for a being such as yourself.");
         if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
             msg_print("Your hunger can only be satisfied with fresh blood!");
     }
     else if (prace_is_(RACE_MON_JELLY))
     {
-        jelly_eat_object(o_ptr);
+        jelly_eat_object(obj);
     }
     else if ( ( prace_is_(RACE_SKELETON)
              || prace_is_(RACE_GOLEM)
@@ -425,12 +363,12 @@ static void do_cmd_eat_food_aux(int item)
              || prace_is_(RACE_SPECTRE)
              || prace_is_(RACE_MON_VORTEX)
              || elemental_is_(ELEMENTAL_AIR) )
-           && object_is_device(o_ptr) )
+           && object_is_device(obj) )
     {
-        int amt = o_ptr->activation.cost;
+        int amt = obj->activation.cost;
 
-        if (amt > device_sp(o_ptr))
-            amt = device_sp(o_ptr);
+        if (amt > device_sp(obj))
+            amt = device_sp(obj);
 
         if (!amt)
         {
@@ -438,45 +376,33 @@ static void do_cmd_eat_food_aux(int item)
             return;
         }
 
-        device_decrease_sp(o_ptr, amt);
+        device_decrease_sp(obj, amt);
         set_food(p_ptr->food + 5000);
 
-        if (item >= 0)
-            inven_item_charges(item);
-        else
-            floor_item_charges(0 - item);
-
-        p_ptr->window |= (PW_INVEN | PW_EQUIP);
+        obj_describe_charges(obj);
+        p_ptr->window |= PW_INVEN;
 
         /* Don't consume the object */
         return;
     }
     else if ((p_ptr->mimic_form == MIMIC_DEMON || p_ptr->mimic_form == MIMIC_DEMON_LORD || prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON))
-           && (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE && my_strchr("pht", r_info[o_ptr->pval].d_char)))
+           && (obj->tval == TV_CORPSE && obj->sval == SV_CORPSE && my_strchr("pht", r_info[obj->pval].d_char)))
     {
         /* Drain vitality of humanoids */
         char o_name[MAX_NLEN];
 
-        object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+        object_desc(o_name, obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
         msg_format("%^s is burnt to ashes. You absorb its vitality!", o_name);
-        (void)set_food(PY_FOOD_MAX - 1);
+        set_food(PY_FOOD_MAX - 1);
     }
     else if (prace_is_(RACE_SKELETON))
     {
-        if (!((o_ptr->sval == SV_FOOD_WAYBREAD) ||
-              (o_ptr->sval < SV_FOOD_BISCUIT)))
+        if (!(obj->sval == SV_FOOD_WAYBREAD ||
+              obj->sval < SV_FOOD_BISCUIT))
         {
-            object_type forge;
-            object_type *q_ptr = &forge;
-
             msg_print("The food falls through your jaws!");
-
-            /* Create the item */
-            object_prep(q_ptr, lookup_kind(o_ptr->tval, o_ptr->sval));
-
-            /* Drop the object from heaven */
-            (void)drop_near(q_ptr, -1, py, px);
+            drop_near(obj, -1, py, px);
         }
         else
         {
@@ -486,9 +412,9 @@ static void do_cmd_eat_food_aux(int item)
     else if ((get_race()->flags & RACE_IS_NONLIVING) || prace_is_(RACE_ENT))
     {
         msg_print("The food of mortals is poor sustenance for you.");
-        set_food(p_ptr->food + ((o_ptr->pval) / 20));
+        set_food(p_ptr->food + obj->pval / 20);
     }
-    else if (o_ptr->tval == TV_FOOD && (o_ptr->sval == SV_FOOD_WAYBREAD || o_ptr->sval == SV_FOOD_AMBROSIA))
+    else if (obj->tval == TV_FOOD && (obj->sval == SV_FOOD_WAYBREAD || obj->sval == SV_FOOD_AMBROSIA))
     {
         /* Waybread is always fully satisfying. */
         set_food(MAX(p_ptr->food, PY_FOOD_MAX - 1));
@@ -496,30 +422,16 @@ static void do_cmd_eat_food_aux(int item)
     else
     {
         /* Food can feed the player */
-        (void)set_food(p_ptr->food + o_ptr->pval);
+        set_food(p_ptr->food + obj->pval);
     }
 
-    /* Destroy a food in the pack */
-    if (o_ptr->art_name) /* Hack: Artifact Food does not get destroyed! */
-    {
-        o_ptr->timeout += 99;
-    }
+    /* Consume the object */
+    if (obj->art_name) /* Hack: Artifact Food does not get destroyed! */
+        obj->timeout += 99;
     else
     {
-        if (item >= 0)
-        {
-            inven_item_increase(item, -1);
-            inven_item_describe(item);
-            inven_item_optimize(item);
-        }
-
-        /* Destroy a food on the floor */
-        else
-        {
-            floor_item_increase(0 - item, -1);
-            floor_item_describe(0 - item);
-            floor_item_optimize(0 - item);
-        }
+        obj->number--;
+        obj_release(obj, 0);
     }
 }
 
@@ -527,7 +439,7 @@ static void do_cmd_eat_food_aux(int item)
 /*
  * Hook to determine if an object is eatable
  */
-static bool item_tester_hook_eatable(object_type *o_ptr)
+static bool _can_eat(object_type *o_ptr)
 {
     if (o_ptr->tval==TV_FOOD) return TRUE;
 
@@ -559,8 +471,7 @@ static bool item_tester_hook_eatable(object_type *o_ptr)
     else if (prace_is_(RACE_MON_JELLY))
         return TRUE;
 
-    /* Assume not */
-    return (FALSE);
+    return FALSE;
 }
 
 
@@ -569,26 +480,21 @@ static bool item_tester_hook_eatable(object_type *o_ptr)
  */
 void do_cmd_eat_food(void)
 {
-    int         item;
-    cptr        q, s;
-
+    obj_prompt_t prompt = {0};
 
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
-    {
         set_action(ACTION_NONE);
-    }
 
-    /* Restrict choices to food */
-    item_tester_hook = item_tester_hook_eatable;
+    prompt.prompt = "Eat which item?";
+    prompt.error = "You have nothing to eat.";
+    prompt.filter = _can_eat;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
 
-    /* Get an item */
-    q = "Eat which item? ";
-    s = "You have nothing to eat.";
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-    /* Eat the object */
-    do_cmd_eat_food_aux(item);
+    do_cmd_eat_food_aux(prompt.obj);
 
     if (p_ptr->fasting)
     {
@@ -602,17 +508,13 @@ void do_cmd_eat_food(void)
 /*
  * Quaff a potion (from the pack or the floor)
  */
-static void do_cmd_quaff_potion_aux(int item)
+static void do_cmd_quaff_potion_aux(obj_ptr obj)
 {
-    int         lev;
-    object_type    *o_ptr;
-    object_type forge;
-    object_type *q_ptr;
-    int         number = 1;
-
+    int   lev = k_info[obj->k_idx].level;
+    int   number = 1;
 
     /* Take a turn */
-    if (mut_present(MUT_POTION_CHUGGER) || p_ptr->tim_shrike)
+    if (mut_present(MUT_POTION_CHUGGER))
         energy_use = 50;
     else
         energy_use = 100;
@@ -632,21 +534,6 @@ static void do_cmd_quaff_potion_aux(int item)
     }
     warlock_stop_singing();
 
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    /* Object level */
-    lev = k_info[o_ptr->k_idx].level;
-
     if (devicemaster_is_(DEVICEMASTER_POTIONS) && !devicemaster_desperation)
     {
         int delta = MIN(50, 2*p_ptr->lev - lev);
@@ -659,7 +546,7 @@ static void do_cmd_quaff_potion_aux(int item)
     if (devicemaster_desperation)
     {
         int i, amt = 50;
-        number = o_ptr->number;
+        number = obj->number;
         if (number > 4) number = 4;
         for (i = 1; i < number && amt; i++)
         {
@@ -668,77 +555,30 @@ static void do_cmd_quaff_potion_aux(int item)
         }
     }
 
-    /* Copy */
-    q_ptr = &forge;
-    object_copy(q_ptr, o_ptr);
-    q_ptr->number = number;
-
-    /* Consume Item */
-    if (devicemaster_is_(DEVICEMASTER_POTIONS) && !devicemaster_desperation && randint1(3*p_ptr->lev/2) > MAX(10, lev))
-    {
-        msg_print("You sip the potion sparingly.");
-    }
-    else
-    {
-        stats_on_use(q_ptr, number);
-
-        if (item >= 0)
-        {
-            inven_item_increase(item, -number);
-            inven_item_describe(item);
-            inven_item_optimize(item);
-        }
-        else
-        {
-            stats_on_pickup(q_ptr);
-            floor_item_increase(0 - item, -number);
-            floor_item_describe(0 - item);
-            floor_item_optimize(0 - item);
-        }
-    }
-    o_ptr = NULL; /* Crappy code warning: Use q_ptr from here on ... */
-
     sound(SOUND_QUAFF);
-    if (q_ptr->tval == TV_POTION)
-        device_use(q_ptr, 0);
+    if (obj->tval == TV_POTION) /* Skip Flasks of Oil */
+        device_use(obj, 0);
 
     if (prace_is_(RACE_SKELETON) || (p_ptr->current_r_idx && r_info[p_ptr->current_r_idx].d_char == 's'))
     {
         msg_print("Some of the fluid falls through your jaws!");
-        potion_smash_effect(0, py, px, q_ptr->k_idx);
+        potion_smash_effect(0, py, px, obj->k_idx);
     }
 
-    /* Combine / Reorder the pack (later) */
-    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-    if (!(object_is_aware(q_ptr)))
+    if (!object_is_aware(obj))
     {
         virtue_add(VIRTUE_PATIENCE, -1);
         virtue_add(VIRTUE_CHANCE, 1);
         virtue_add(VIRTUE_KNOWLEDGE, -1);
     }
 
-    object_tried(q_ptr);
-    if (device_noticed && !object_is_aware(q_ptr))
+    object_tried(obj);
+    if (device_noticed && !object_is_aware(obj))
     {
-        object_aware(q_ptr);
+        object_aware(obj);
         gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
-
-        /* Try to keep stats up to date. It's possible inventory[item]
-           is no longer the item we just noticed and I'm rather frustrated
-           that the code consumes the objects before actually using them. */
-        if (item >= 0)
-            o_ptr = &inventory[item];
-        else
-            o_ptr = &o_list[0 - item];
-        if (o_ptr->k_idx == q_ptr->k_idx)
-            stats_on_notice(o_ptr, o_ptr->number + number);
-        else
-            k_info[q_ptr->k_idx].counts.found += number;
+        p_ptr->notice |= PN_OPTIMIZE_PACK;
     }
-
-    /* Window stuff */
-    p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
     /* Potions can feed the player */
     switch (p_ptr->mimic_form)
@@ -748,11 +588,10 @@ static void do_cmd_quaff_potion_aux(int item)
         {
             case RACE_VAMPIRE:
             case RACE_MON_VAMPIRE:
-                (void)set_food(p_ptr->food + (q_ptr->pval / 10));
+                set_food(p_ptr->food + obj->pval / 10);
                 break;
             case RACE_SKELETON:
             case RACE_MON_JELLY:
-                /* Do nothing */
                 break;
             case RACE_GOLEM:
             case RACE_MON_GOLEM:
@@ -764,49 +603,64 @@ static void do_cmd_quaff_potion_aux(int item)
             case RACE_MON_DEMON:
             case RACE_MON_SWORD:
             case RACE_MON_RING:
-                set_food(p_ptr->food + ((q_ptr->pval) / 20));
+                set_food(p_ptr->food + obj->pval / 20);
                 break;
             case RACE_ANDROID:
-                if (q_ptr->tval == TV_FLASK)
+                if (obj->tval == TV_FLASK)
                 {
                     msg_print("You replenish yourself with the oil.");
                     set_food(p_ptr->food + 5000);
                 }
                 else
                 {
-                    set_food(p_ptr->food + ((q_ptr->pval) / 20));
+                    set_food(p_ptr->food + obj->pval / 20);
                 }
                 break;
             case RACE_ENT:
                 msg_print("You are moistened.");
-                set_food(MIN(p_ptr->food + q_ptr->pval + MAX(0, q_ptr->pval * 10) + 2000, PY_FOOD_MAX - 1));
+                set_food(MIN(p_ptr->food + obj->pval + MAX(0, obj->pval * 10) + 2000, PY_FOOD_MAX - 1));
                 break;
             default:
                 if (elemental_is_(ELEMENTAL_WATER))
                 {
                     msg_print("That tastes delicious.");
-                    set_food(MIN(p_ptr->food + q_ptr->pval + MAX(0, q_ptr->pval * 10) + 2000, PY_FOOD_MAX - 1));
+                    set_food(MIN(p_ptr->food + obj->pval + MAX(0, obj->pval * 10) + 2000, PY_FOOD_MAX - 1));
                 }
-                else if (elemental_is_(ELEMENTAL_FIRE) && q_ptr->tval == TV_FLASK)
+                else if (elemental_is_(ELEMENTAL_FIRE) && obj->tval == TV_FLASK)
                 {
                     msg_print("Your body flames up with renewed vigor.");
                     set_food(p_ptr->food + 5000);
                 }
                 else
-                    set_food(p_ptr->food + q_ptr->pval);
+                    set_food(p_ptr->food + obj->pval);
                 break;
         }
         break;
     case MIMIC_DEMON:
     case MIMIC_DEMON_LORD:
-        set_food(p_ptr->food + ((q_ptr->pval) / 20));
+        set_food(p_ptr->food + obj->pval / 20);
         break;
     case MIMIC_VAMPIRE:
-        (void)set_food(p_ptr->food + (q_ptr->pval / 10));
+        set_food(p_ptr->food + obj->pval / 10);
         break;
     default:
-        (void)set_food(p_ptr->food + q_ptr->pval);
+        set_food(p_ptr->food + obj->pval);
         break;
+    }
+
+    /* Consume Item */
+    if (devicemaster_is_(DEVICEMASTER_POTIONS) && !devicemaster_desperation && randint1(3*p_ptr->lev/2) > MAX(10, lev))
+    {
+        msg_print("You sip the potion sparingly.");
+    }
+    else
+    {
+        stats_on_use(obj, number);
+        if (obj->loc.where == INV_FLOOR)
+            stats_on_pickup(obj);
+
+        obj->number -= number;
+        obj_release(obj, 0);
     }
 }
 
@@ -814,7 +668,7 @@ static void do_cmd_quaff_potion_aux(int item)
 /*
  * Hook to determine if an object can be quaffed
  */
-static bool item_tester_hook_quaff(object_type *o_ptr)
+static bool _can_quaff(object_type *o_ptr)
 {
     if (o_ptr->tval == TV_POTION) return TRUE;
 
@@ -833,25 +687,21 @@ static bool item_tester_hook_quaff(object_type *o_ptr)
  */
 void do_cmd_quaff_potion(void)
 {
-    int  item;
-    cptr q, s;
+    obj_prompt_t prompt = {0};
 
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
-    {
         set_action(ACTION_NONE);
-    }
 
-    /* Restrict choices to potions */
-    item_tester_hook = item_tester_hook_quaff;
+    prompt.prompt = "Quaff which potion?";
+    prompt.error = "You have no potions to quaff.";
+    prompt.filter = _can_quaff;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
 
-    /* Get an item */
-    q = "Quaff which potion? ";
-    s = "You have no potions to quaff.";
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-    /* Quaff the potion */
-    do_cmd_quaff_potion_aux(item);
+    do_cmd_quaff_potion_aux(prompt.obj);
 
     if (p_ptr->fasting)
     {
@@ -869,30 +719,14 @@ void do_cmd_quaff_potion(void)
  * include scrolls with no effects but recharge or identify, which are
  * cancelled before use. XXX Reading them still takes a turn, though.
  */
-static void do_cmd_read_scroll_aux(int item, bool known)
+static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
 {
-    int         used_up, lev;
-    object_type *o_ptr;
-    int         number = 1;
-
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    /* Object level */
-    lev = k_info[o_ptr->k_idx].level;
+    int  used_up, lev = k_info[o_ptr->k_idx].level;
+    int  number = 1;
+    bool known = object_is_aware(o_ptr);
 
     /* Take a turn */
-    if (mut_present(MUT_SPEED_READER) || p_ptr->tim_shrike)
+    if (mut_present(MUT_SPEED_READER))
         energy_use = 50;
     else
         energy_use = 100;
@@ -917,7 +751,7 @@ static void do_cmd_read_scroll_aux(int item, bool known)
     if (world_player)
     {
         if (flush_failure) flush();
-        msg_print("Nothing happen.");
+        msg_print("Nothing happens.");
         sound(SOUND_FAIL);
         return;
     }
@@ -999,7 +833,7 @@ static void do_cmd_read_scroll_aux(int item, bool known)
         used_up = FALSE;
     }
 
-    if (!(object_is_aware(o_ptr)))
+    if (!known)
     {
         virtue_add(VIRTUE_PATIENCE, -1);
         virtue_add(VIRTUE_CHANCE, 1);
@@ -1007,15 +841,13 @@ static void do_cmd_read_scroll_aux(int item, bool known)
     }
 
     object_tried(o_ptr);
-    if (device_noticed && !object_is_aware(o_ptr))
+    if (device_noticed && !known)
     {
         object_aware(o_ptr);
+        gear_notice_id(o_ptr);
         stats_on_notice(o_ptr, o_ptr->number);
         gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
     }
-
-    p_ptr->notice |= PN_COMBINE | PN_REORDER;
-    p_ptr->window |= PW_INVEN | PW_EQUIP;
 
     if (!used_up)
         return;
@@ -1028,116 +860,70 @@ static void do_cmd_read_scroll_aux(int item, bool known)
     else
     {
         stats_on_use(o_ptr, number);
-        if (item >= 0)
-        {
-            inven_item_increase(item, -number);
-            inven_item_describe(item);
-            inven_item_optimize(item);
-        }
-        else
-        {
-            floor_item_increase(0 - item, -number);
-            floor_item_describe(0 - item);
-            floor_item_optimize(0 - item);
-        }
+        o_ptr->number -= number;
+        obj_release(o_ptr, 0);
     }
 }
 
-
-/*
- * Hook to determine if an object is readable
- */
-static bool item_tester_hook_readable(object_type *o_ptr)
+static bool _can_read(object_type *o_ptr)
 {
-    if ((o_ptr->tval==TV_SCROLL) || (o_ptr->tval==TV_PARCHMENT) || (o_ptr->name1 == ART_GHB) || (o_ptr->name1 == ART_POWER)) return (TRUE);
-
-    /* Assume not */
-    return (FALSE);
+    if (!o_ptr) return FALSE;
+    if (o_ptr->tval==TV_SCROLL || o_ptr->tval==TV_PARCHMENT || o_ptr->name1 == ART_GHB || o_ptr->name1 == ART_POWER)
+        return TRUE;
+    return FALSE;
 }
-
 
 void do_cmd_read_scroll(void)
 {
-    object_type *o_ptr;
-    int  item;
-    cptr q, s;
+    obj_prompt_t prompt = {0};
 
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
-    {
         set_action(ACTION_NONE);
-    }
 
     /* Check some conditions */
     if (p_ptr->blind)
     {
         msg_print("You can't see anything.");
-
         return;
     }
     if (no_lite())
     {
         msg_print("You have no light to read by.");
-
         return;
     }
     if (p_ptr->confused)
     {
         msg_print("You are too confused!");
-
         return;
     }
 
+    prompt.prompt = "Read which scroll? ";
+    prompt.error = "You have no scrolls to read.";
+    prompt.filter = _can_read;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+    prompt.flags = INV_SHOW_FAIL_RATES;
 
-    /* Restrict choices to scrolls */
-    item_tester_hook = item_tester_hook_readable;
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
-    /* Get an item */
-    q = "Read which scroll? ";
-    s = "You have no scrolls to read.";
-    if (!get_item(&item, q, s, USE_INVEN | USE_FLOOR | SHOW_FAIL_RATES)) return;
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    /* Read the scroll */
-    do_cmd_read_scroll_aux(item, object_is_aware(o_ptr));
+    do_cmd_read_scroll_aux(prompt.obj);
 }
 
 /* Helper for Rods, Wands and Staves */
-static void do_cmd_device_aux(int item)
+static void do_cmd_device_aux(obj_ptr obj)
 {
-    object_type *o_ptr;
-    bool         used = FALSE;
-    int          charges = 1;
-    int          boost;
-    bool         is_devicemaster = FALSE;
-    u32b         flgs[OF_ARRAY_SIZE];
+    bool used = FALSE;
+    int  charges = 1;
+    int  boost;
+    bool is_devicemaster = FALSE;
+    u32b flgs[OF_ARRAY_SIZE];
 
-    if (item >= 0)
-        o_ptr = &inventory[item];
-    else
-    {
-        o_ptr = &o_list[0 - item];
-        if (o_ptr->number > 1)
-        {
-            msg_print("You must first pick up the wands.");
-            return;
-        }
-    }
-    assert(o_ptr->number == 1); /* Devices no longer stack */
-    obj_flags(o_ptr, flgs);
+    assert(obj->number == 1); /* Devices no longer stack */
+    obj_flags(obj, flgs);
 
     /* Devicemasters get extra power */
-    is_devicemaster = devicemaster_is_speciality(o_ptr);
+    is_devicemaster = devicemaster_is_speciality(obj);
     if (is_devicemaster)
         boost = device_power_aux(100, p_ptr->device_power + p_ptr->lev/10) - 100;
     else
@@ -1147,13 +933,13 @@ static void do_cmd_device_aux(int item)
     energy_use = 100;
     if (is_devicemaster && !devicemaster_desperation)
     {
-        int delta = MIN(50, 2*p_ptr->lev - o_ptr->activation.power);
+        int delta = MIN(50, 2*p_ptr->lev - obj->activation.power);
         if (delta > 0)
             energy_use -= delta;
     }
 
     if (have_flag(flgs, OF_SPEED))
-        energy_use -= energy_use * o_ptr->pval / 10;
+        energy_use -= energy_use * obj->pval / 10;
 
     if (p_ptr->tim_no_device)
     {
@@ -1176,7 +962,7 @@ static void do_cmd_device_aux(int item)
         return;
     }
 
-    if (!device_try(o_ptr))
+    if (!device_try(obj))
     {
         if (flush_failure) flush();
         msg_print("You failed to use the device properly.");
@@ -1184,29 +970,19 @@ static void do_cmd_device_aux(int item)
         return;
     }
 
-    if ((o_ptr->curse_flags & OFC_CURSED) && one_in_(6))
+    if ((obj->curse_flags & OFC_CURSED) && one_in_(6))
     {
         msg_print("Oops! The device explodes!");
         project(
             PROJECT_WHO_UNCTRL_POWER, 4, py, px,
-            device_sp(o_ptr), GF_MANA,
+            device_sp(obj), GF_MANA,
             PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
-        if (item >= 0)
-        {
-            inven_item_increase(item, -1);
-            inven_item_describe(item);
-            inven_item_optimize(item);
-        }
-        else
-        {
-            floor_item_increase(0 - item, -1);
-            floor_item_describe(0 - item);
-            floor_item_optimize(0 - item);
-        }
+        obj->number = 0;
+        obj_release(obj, OBJ_RELEASE_QUIET);
         return;
     }
 
-    if (device_sp(o_ptr) < o_ptr->activation.cost)
+    if (device_sp(obj) < obj->activation.cost)
     {
         if (flush_failure) flush();
         msg_print("The device has no charges left.");
@@ -1216,7 +992,7 @@ static void do_cmd_device_aux(int item)
     if (is_devicemaster && devicemaster_desperation)
     {
         int i, amt = 50;
-        charges = device_sp(o_ptr) / o_ptr->activation.cost;
+        charges = device_sp(obj) / obj->activation.cost;
         for (i = 1; i < charges && amt; i++)
         {
             boost += amt;
@@ -1224,150 +1000,134 @@ static void do_cmd_device_aux(int item)
         }
     }
 
-    if (o_ptr->activation.type == EFFECT_IDENTIFY)
-        device_available_charges = device_sp(o_ptr) / o_ptr->activation.cost;
+    if (obj->activation.type == EFFECT_IDENTIFY)
+        device_available_charges = device_sp(obj) / obj->activation.cost;
 
     sound(SOUND_ZAP);
-    used = device_use(o_ptr, boost);
+    used = device_use(obj, boost);
 
-    if (o_ptr->activation.type == EFFECT_IDENTIFY)
+    if (obj->activation.type == EFFECT_IDENTIFY)
         charges = device_used_charges;
 
-    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-    object_tried(o_ptr);
-    if (device_noticed && !object_is_known(o_ptr))
+    object_tried(obj);
+    if (device_noticed && !object_is_known(obj))
     {
-        identify_item(o_ptr);
-        autopick_alter_item(item, destroy_identify);
+        identify_item(obj);
+        autopick_alter_obj(obj, destroy_identify);
     }
-    p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
     if (used)
     {
-        stats_on_use(o_ptr, charges);
+        stats_on_use(obj, charges);
 
         /* Devicemasters can power the device with their mana once in a while */
         if ( is_devicemaster
           && !devicemaster_desperation
-          && p_ptr->csp > o_ptr->activation.cost
-          && randint1(20 + o_ptr->activation.difficulty) <= p_ptr->lev )
+          && p_ptr->csp > obj->activation.cost
+          && randint1(20 + obj->activation.difficulty) <= p_ptr->lev )
         {
             msg_print("Your mental focus powers the device!");
-            sp_player(-o_ptr->activation.cost);
+            sp_player(-obj->activation.cost);
         }
         else
         {
             /* Devicemaster Desperation can destroy the device! */
-            if (is_devicemaster && devicemaster_desperation && randint0(p_ptr->lev*7) < k_info[o_ptr->k_idx].level)
+            if (is_devicemaster && devicemaster_desperation && randint0(p_ptr->lev*7) < k_info[obj->k_idx].level)
             {
                 char o_name[MAX_NLEN];
-                object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+                object_desc(o_name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
                 msg_format("Desperation magic consumes your %s!", o_name);
-                if (item >= 0)
-                {
-                    inven_item_increase(item, -1);
-                    inven_item_describe(item);
-                    inven_item_optimize(item);
-                }
-                else
-                {
-                    floor_item_increase(0 - item, -1);
-                    floor_item_describe(0 - item);
-                    floor_item_optimize(0 - item);
-                }
+                obj->number = 0;
             }
             else
-                device_decrease_sp(o_ptr, o_ptr->activation.cost * charges);
+            {
+                device_decrease_sp(obj, obj->activation.cost * charges);
+            }
         }
     }
     else
         energy_use = 0;
+
+    obj_release(obj, OBJ_RELEASE_QUIET);
 }
 
 void do_cmd_use_staff(void)
 {
-    int  item;
-    cptr q, s;
+    obj_prompt_t prompt = {0};
 
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
-    {
         set_action(ACTION_NONE);
-    }
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER && !_pack_find_tval(TV_STAFF))
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_STAFF, SV_ANY))
     {
         magic_eater_cast(TV_STAFF);
         return;
     }
 
-    /* Restrict choices to wands */
-    item_tester_tval = TV_STAFF;
+    prompt.prompt = "Use which staff?";
+    prompt.error = "You have no staff to use.";
+    prompt.filter = obj_is_staff;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+    prompt.flags = INV_SHOW_FAIL_RATES;
 
-    /* Get an item */
-    q = "Use which staff? ";
-    s = "You have no staff to use.";
-    if (!get_item(&item, q, s, USE_INVEN | USE_FLOOR | SHOW_FAIL_RATES)) return;
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
-    do_cmd_device_aux(item);
+    do_cmd_device_aux(prompt.obj);
 }
 
 
 void do_cmd_aim_wand(void)
 {
-    int     item;
-    cptr    q, s;
+    obj_prompt_t prompt = {0};
 
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
-    {
         set_action(ACTION_NONE);
-    }
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER && !_pack_find_tval(TV_WAND))
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_WAND, SV_ANY))
     {
         magic_eater_cast(TV_WAND);
         return;
     }
 
-    /* Restrict choices to wands */
-    item_tester_tval = TV_WAND;
+    prompt.prompt = "Aim which wand?";
+    prompt.error = "You have no wand to aim.";
+    prompt.filter = obj_is_wand;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+    prompt.flags = INV_SHOW_FAIL_RATES;
 
-    /* Get an item */
-    q = "Aim which wand? ";
-    s = "You have no wand to aim.";
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
-    if (!get_item(&item, q, s, USE_INVEN | USE_FLOOR | SHOW_FAIL_RATES)) return;
-
-    /* Aim the wand */
-    do_cmd_device_aux(item);
+    do_cmd_device_aux(prompt.obj);
 }
 
 void do_cmd_zap_rod(void)
 {
-    int item;
-    cptr q, s;
+    obj_prompt_t prompt = {0};
 
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
-    {
         set_action(ACTION_NONE);
-    }
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER && !_pack_find_tval(TV_ROD))
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_ROD, SV_ANY))
     {
         magic_eater_cast(TV_ROD);
         return;
     }
 
-    /* Restrict choices to rods */
-    item_tester_tval = TV_ROD;
+    prompt.prompt = "Zap which rod?";
+    prompt.error = "You have no rod to zap.";
+    prompt.filter = obj_is_rod;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+    prompt.flags = INV_SHOW_FAIL_RATES;
 
-    /* Get an item */
-    q = "Zap which rod? ";
-    s = "You have no rod to zap.";
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
 
-    if (!get_item(&item, q, s, USE_INVEN | USE_FLOOR | SHOW_FAIL_RATES)) return;
-
-    /* Zap the rod */
-    do_cmd_device_aux(item);
+    do_cmd_device_aux(prompt.obj);
 }
 
 
@@ -1562,26 +1322,14 @@ static void _do_capture_ball(object_type *o_ptr)
  * Note that it always takes a turn to activate an artifact, even if
  * the user hits "escape" at the "direction" prompt.
  */
-static void do_cmd_activate_aux(int item)
+static void do_cmd_activate_aux(obj_ptr obj)
 {
-    object_type *o_ptr;
-    cptr         msg;
-    effect_t     effect;
-    int          boost = device_power(100) - 100;
-    u32b         flgs[OF_ARRAY_SIZE];
+    cptr     msg;
+    effect_t effect;
+    int      boost = device_power(100) - 100;
+    u32b     flgs[OF_ARRAY_SIZE];
 
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-    obj_flags_known(o_ptr, flgs);
+    obj_flags_known(obj, flgs);
 
     /* Take a turn */
     energy_use = 100;
@@ -1594,7 +1342,7 @@ static void do_cmd_activate_aux(int item)
         return;
     }
 
-    effect = obj_get_effect(o_ptr);
+    effect = obj_get_effect(obj);
     if (!effect_try(&effect))
     {
         if (flush_failure) flush();
@@ -1603,7 +1351,7 @@ static void do_cmd_activate_aux(int item)
         return;
     }
 
-    if (o_ptr->timeout)
+    if (obj->timeout)
     {
         msg_print("It whines, glows and fades...");
         return;
@@ -1612,22 +1360,22 @@ static void do_cmd_activate_aux(int item)
     msg_print("You activate it...");
     sound(SOUND_ZAP);
 
-    msg = obj_get_effect_msg(o_ptr);
+    msg = obj_get_effect_msg(obj);
     if (msg)
         msg_print(msg);
 
-    if (o_ptr->tval == TV_CAPTURE)
+    if (obj->tval == TV_CAPTURE)
     {
-        _do_capture_ball(o_ptr);
+        _do_capture_ball(obj);
         return;
     }
     device_known = have_flag(flgs, OF_ACTIVATE);
     if (effect_use(&effect, boost))
     {
         if (device_noticed)
-            obj_learn_activation(o_ptr);
+            obj_learn_activation(obj);
 
-        o_ptr->timeout = effect.cost;
+        obj->timeout = effect.cost;
         p_ptr->window |= (PW_INVEN | PW_EQUIP);
     }
 }
@@ -1639,24 +1387,19 @@ static bool _activate_p(object_type *o_ptr)
 
 void do_cmd_activate(void)
 {
-    int     item;
-    cptr    q, s;
-
+    obj_prompt_t prompt = {0};
 
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
-    {
         set_action(ACTION_NONE);
-    }
 
-    item_tester_no_ryoute = TRUE;
-    /* Prepare the hook */
-    item_tester_hook = _activate_p;
+    prompt.prompt ="Activate which item?"; 
+    prompt.error = "You have nothing to activate.";
+    prompt.filter = _activate_p;
+    prompt.where[0] = INV_EQUIP;
+    prompt.flags = INV_SHOW_FAIL_RATES;
 
-    /* Get an item */
-    q = "Activate which item? ";
-    s = "You have nothing to activate.";
-    if (!get_item(&item, q, s, USE_EQUIP | SHOW_FAIL_RATES)) return;
-
-    /* Activate the item */
-    do_cmd_activate_aux(item);
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
+    do_cmd_activate_aux(prompt.obj);
 }
+

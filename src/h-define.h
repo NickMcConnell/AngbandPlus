@@ -111,6 +111,14 @@
  * Note that all "index" values must be "lowercase letters", while
  * all "digits" must be "digits".  Control characters can be made
  * from any legal characters.  XXX XXX XXX
+ *
+ * Is this control encoding standard? It has the following undesirable
+ * effects which make it awkward for non-console users:
+ * [1] \t is ^I (Tab)
+ * [2] \r is ^M (Enter)
+ * [3] \n is ^J
+ * [4] \b is ^H (Backspace)
+ * ([5] <ESC> is ^[ but that isn't really annoying)
  */
 #ifdef VM
 #  define A2I(X)    alphatoindex(X)

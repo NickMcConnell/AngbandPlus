@@ -1,0 +1,83 @@
+?:[EQU $QUEST14 Taken InProgress]
+D:Our scouts report a large number of Wargs in the dungeon.
+D:We don't know who set them on guard at 250 feet, but we
+D:think their task is to hinder resupply of our outposts
+D:in the dungeon. We offer you a small reward if you clear
+D:the path for the supplies.
+?:1
+
+?:[EQU $QUEST14 Completed]
+D:Since most of the supplies have been sent to our troops
+D:in the dungeon, we can only give you a small reward.
+?:1
+
+?:[EQU $QUEST14 Failed]
+D:Bah! I'll have to find another for this simple task.
+?:1
+
+R:OBJ(small metal shield)
+
+?:[EQU $CLASS Magic-Eater]
+R:OBJ(WAND_BOLT_COLD)
+
+?:[EQU $RACE Death-Sword]
+R:OBJ(long sword)
+
+?:[EQU $CLASS Scout]
+R:OBJ(light crossbow)
+
+?:[EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage Yellow-Mage Gray-Mage]
+R:OBJ(^ring$):EGO(wizardry)
+
+?:[EQU $RACE Dragon Hound Spider]
+R:OBJ(^ring$):EGO(combat)
+
+?:[EQU $RACE Centipede]
+R:OBJ(metal shod boots)
+
+?:[EQU $RACE Ring Beholder Vortex]
+R:OBJ(^ring$):EGO(elemental)
+
+?:[EQU $RACE Hydra Quylthulg]
+R:OBJ(^cloak$)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] ]
+R:OBJ(broad axe)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] ]
+R:OBJ(short bow)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] ]
+R:OBJ(war hammer)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] ]
+R:OBJ(light crossbow)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] ]
+R:OBJ(^dagger$)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] ]
+R:OBJ(^pick$)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] ]
+R:OBJ(^pike$)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] ]
+R:OBJ(small leather shield)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Slings] ]
+R:OBJ(^sling$)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] ]
+R:OBJ(quarterstaff)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] ]
+R:OBJ(long sword)
+
+?:[EQU $CLASS Beastmaster Cavalry Ninja]
+R:OBJ(gauntlets)
+
+?:[EQU $CLASS Mauler]
+R:OBJ(two-handed flail)
+
+# vim: filetype=q :

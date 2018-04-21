@@ -1,138 +1,196 @@
 # File: q_info.txt
+#
+# Do not modify this file unless you know exactly what you are doing
+# and you wish to risk possible system crashes and broken savefiles.
+#
 
-# Includes all the quest files
+########################################################################
+# PosChengband Quests (cf quest.h and quest.c)
+#
+# N:id:lvl:name
+# T:type flags
+# W:where to find quest?
+# G:goal of quest?
+# F:quest file with map, descriptions and rewards
+#
+# Use lower case for all string lookups
+########################################################################
 
-# Quest feature preferences
-%:q_pref.txt
+N:1:5:The Thieves' Hideout
+T:TOWN | GENERATE
+F:q_thieves.txt
 
-# Thieves Hideout
-?:[EQU $QUEST_NUMBER 1]
-%:q0000001.txt
+N:2:15:The Sewer
+T:TOWN | GENERATE
+F:q_sewer.txt
 
-# Sever
-?:[EQU $QUEST_NUMBER 2]
-%:q0000002.txt
+N:3:25:The Logrus Master
+T:TOWN | GENERATE
+G:KILL(logrus master)
+F:q_logrus_master.txt
 
-# Druid Shop
-?:[EQU $QUEST_NUMBER 3]
-%:q0000003.txt
+N:4:30:The Vault
+T:TOWN | GENERATE
+G:FIND(sting)
+F:q_vault.txt
 
-# Vault
-?:[EQU $QUEST_NUMBER 4]
-%:q0000004.txt
+N:5:35:The Barrow Downs
+T:TOWN | GENERATE
+F:q_barrow_downs.txt
 
-# Tower
-?:[EQU $QUEST_NUMBER 5]
-%:q0000005.txt
+N:8:99:Oberon
+T:RETAKE
+W:angband
+G:KILL(oberon)
+F:q_oberon.txt
 
-# Tower part 2
-?:[EQU $QUEST_NUMBER 6]
-%:q0000006.txt
+N:9:100:Serpent of Chaos
+T:RETAKE
+W:angband
+G:KILL(serpent of chaos)
+F:q_serpent_of_chaos.txt
 
-# Tower part 3
-?:[EQU $QUEST_NUMBER 7]
-%:q0000007.txt
+N:10:65:The Node of Sorcery
+T:TOWN | GENERATE
+F:q_sorcery.txt
 
-# Oberon
-?:[EQU $QUEST_NUMBER 8]
-%:q_oberon.txt
+N:11:65:The Node of Chaos
+T:TOWN | GENERATE
+F:q_chaos.txt
 
-# Serpent of Chaos
-?:[EQU $QUEST_NUMBER 9]
-%:q_serpen.txt
+N:12:65:The Node of Nature
+T:TOWN | GENERATE
+F:q_nature.txt
 
-# Node of Sorcery
-?:[EQU $QUEST_NUMBER 10]
-%:q000sorc.txt
+N:14:5:The Warg Problem
+T:TOWN
+W:stronghold
+G:KILL(^warg$, 16)
+F:q_wargs.txt
 
-# Node of Chaos
-?:[EQU $QUEST_NUMBER 11]
-%:q000chao.txt
+N:15:70:Eric's Stronghold
+T:TOWN | GENERATE
+G:KILL(eric the usurper)
+F:q_eric.txt
 
-# Node of Nature
-?:[EQU $QUEST_NUMBER 12]
-%:q000natu.txt
+N:16:40:Assault on Montsalvat
+T:TOWN | GENERATE
+F:q_montsalvat.txt
 
-# Quest #13 is still unfinished
+N:19:15:Doom Quest I
+T:TOWN | GENERATE
+F:q_doom1.txt
 
-# Warg problem
-?:[EQU $QUEST_NUMBER 14]
-%:q_warg.txt
+N:20:25:Vapor Quest
+T:TOWN | GENERATE
+F:q_vapor.txt
 
-# Eric's Stronghold
-?:[EQU $QUEST_NUMBER 15]
-%:q000eric.txt
+N:21:55:Doom Quest II
+T:TOWN | GENERATE
+F:q_doom2.txt
 
-# Assault on Montsalvat
-?:[EQU $QUEST_NUMBER 16]
-%:q000dekn.txt
+N:22:15:The Orc Camp
+T:TOWN | GENERATE
+F:q_orcs.txt
 
-# The City beneath the Sea
-#?:[EQU $QUEST_NUMBER 17]
-#%:q000lyeh.txt
+N:23:65:The Spawning Pits
+T:TOWN | GENERATE
+F:q_spawning_pits.txt
 
-# Quest #18 was removed
+N:24:50:The Rise and Fall of Micro$oft
+T:TOWN | GENERATE
+G:KILL(bull gates)
+F:q_microsoft.txt
 
-# Doom Quest 1
-?:[EQU $QUEST_NUMBER 19]
-%:q0000019.txt
+N:25:48:The Haunted House
+T:TOWN | GENERATE
+F:q_haunted_house.txt
 
-# Vapor Quest
-?:[EQU $QUEST_NUMBER 20]
-%:q0000020.txt
+N:26:50:The Killing Fields
+T:TOWN | GENERATE
+G:KILL(maulotaur)
+F:q_killing_fields.txt
 
-# Doom Quest 2
-?:[EQU $QUEST_NUMBER 21]
-%:q0000021.txt
+N:27:50:The Old Castle
+T:TOWN | GENERATE
+F:q_old_castle.txt
 
-# Orc Camp
-?:[EQU $QUEST_NUMBER 22]
-%:q0000022.txt
+N:28:70:The Royal Crypt
+T:TOWN | GENERATE
+G:KILL(archlich, 5)
+F:q_crypt.txt
 
-# Spawning Pits
-?:[EQU $QUEST_NUMBER 23]
-%:q0000023.txt
+N:29:25:Tengu and Death Swords
+T:TOWN | GENERATE
+F:q_tengu_death_swords.txt
 
-# The Rise and Fall of Micro$oft
-?:[EQU $QUEST_NUMBER 24]
-%:q00000ms.txt
+N:30:25:The Mimic's Treasure
+T:TOWN | GENERATE
+F:q_mimics_treasure.txt
 
-# Haunted House
-?:[EQU $QUEST_NUMBER 25]
-%:qhaunted.txt
+N:31:22:Old Man Willow Quest
+T:TOWN | GENERATE
+F:q_old_man_willow.txt
 
-# Killing Fields
-?:[EQU $QUEST_NUMBER 26]
-%:q0fields.txt
+N:32:25:The Dark Elven Lords
+T:TOWN | GENERATE
+F:q_dark_elves.txt
 
-# The Old Castle
-?:[EQU $QUEST_NUMBER 27]
-%:q0000027.txt
+N:33:45:The Cloning Pits
+T:TOWN | GENERATE
+F:q_cloning_pits.txt
 
-# Royal Crypt
-?:[EQU $QUEST_NUMBER 28]
-%:q0000028.txt
+########################################################################
+# Random Quests ... assigned in quests_on_birth()
+########################################################################
+N:40:12:Angband L12
+T:RANDOM
+W:angband
+G:KILL(*)
 
-# Tengu and Death Swords
-?:[EQU $QUEST_NUMBER 29]
-%:q0thief2.txt
+N:41:24:Angband L24
+T:RANDOM
+W:angband
+G:KILL(*)
 
-# The Mimic's Treasure
-?:[EQU $QUEST_NUMBER 30]
-%:q0thief1.txt
+N:42:38:Angband L38
+T:RANDOM
+W:angband
+G:KILL(*)
 
-# Old Man Willow Quest
-?:[EQU $QUEST_NUMBER 31]
-%:q0willow.txt
+N:43:44:Angband L44
+T:RANDOM
+W:angband
+G:KILL(*)
 
-# Dark Elven Lords Quest
-?:[EQU $QUEST_NUMBER 32]
-%:qdarkelf.txt
+N:44:50:Angband L50
+T:RANDOM
+W:angband
+G:KILL(*)
 
-# The Cloning Pits
-?:[EQU $QUEST_NUMBER 33]
-%:q0clone0.txt
+N:45:56:Angband L56
+T:RANDOM
+W:angband
+G:KILL(*)
 
-# Random quests (always adressed with number 40)
-?:[EQU $QUEST_NUMBER 40]
-%:q_random.txt
+N:46:62:Angband L62
+T:RANDOM
+W:angband
+G:KILL(*)
+
+N:47:68:Angband L68
+T:RANDOM
+W:angband
+G:KILL(*)
+
+N:48:76:Angband L76
+T:RANDOM
+W:angband
+G:KILL(*)
+
+N:49:88:Angband L88
+T:RANDOM
+W:angband
+G:KILL(*)
+
+# vim: filetype=qi :

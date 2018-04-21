@@ -492,6 +492,13 @@ static void _melee_calc_bonuses(void)
     }
 }
 
+void _melee_get_flags(u32b flgs[OF_ARRAY_SIZE])
+{
+    int pts = _get_skill_pts(_TYPE_MELEE, _MARTIAL_ARTS);
+    if (pts >= 5)
+        add_flag(flgs, OF_AURA_REVENGE);
+}
+
 /************************************************************************
  * Shoot Skills
  ***********************************************************************/
@@ -504,7 +511,7 @@ static void _shoot_init_class(class_t *class_ptr)
         { 50, 20 },
         { 55, 25 },
         { 60, 27 },
-        { 70, 30 }
+        { 70, 28 }
     };
     int pts = MIN(5, _get_group_pts(_TYPE_SHOOT));
     _shoot_skill_t row = _tbl[pts];
@@ -518,15 +525,15 @@ static void _shoot_init_class(class_t *class_ptr)
     class_ptr->base_skills.stl += (pts + 1) / 2;
 }
 
-typedef struct { int to_h; int to_d; int prof; int shots; int breakage; } _shoot_info_t;
+typedef struct { int to_h; int to_d; int prof; int shots; } _shoot_info_t;
 static _shoot_info_t _shoot_info[6] = {
-    {  0,  0, 2000,   0, 100 },
+    {  0,  0, 2000,   0 },
 
-    {  0,  0, 4000,   0, 100 },
-    {  1,  0, 6000,  25,  90 },
-    {  3,  0, 7000,  50,  75 },
-    {  5,  2, 8000, 100,  50 },
-    { 10,  5, 8000, 150,  10 }
+    {  0,  0, 4000,   0 },
+    {  0,  0, 5000,  25 },
+    {  0,  0, 6000,  50 },
+    {  0,  0, 7000,  75 },
+    {  0,  0, 8000, 100 }
 };
 
 static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
@@ -543,8 +550,7 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
         p_ptr->shooter_info.dis_to_h += row.to_h;
         p_ptr->shooter_info.to_d += row.to_d;
         p_ptr->shooter_info.dis_to_d += row.to_d;
-        p_ptr->shooter_info.num_fire += row.shots;
-        p_ptr->shooter_info.breakage = row.breakage;
+        p_ptr->shooter_info.num_fire += row.shots * p_ptr->lev / 50;
     }
 }
 
@@ -575,437 +581,6 @@ static void _shoot_calc_bonuses(void)
     p_ptr->skill_tht += _throw_info[pts].skill;
 }
 
-/************************************************************************
- * Throw Weapon
- ***********************************************************************/
-typedef struct {
-    int hand;
-    int item;
-    object_type *o_ptr;
-    int mult; /* scaled by 100 */
-    int tdis;
-    int tx;
-    int ty;
-    bool come_back;
-    bool fail_catch;
-} _throw_weapon_info;
-
-static void _throw_weapon_imp(_throw_weapon_info * info_ptr);
-
-static int _throw_back_chance(void)
-{
-    int result = 0;
-    int pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
-    assert(0 <= pts && pts <= 5);
-
-    result += _throw_info[pts].back;
-    result += adj_dex_th[p_ptr->stat_ind[A_DEX]];
-    result -= 128;
-
-    return result;
-}
-
-static int _adj_str_td(void)
-{
-    int td = adj_str_td[p_ptr->stat_ind[A_STR]];
-    td -= 128;
-    return td;
-}
-
-static int _throw_mult(int hand)
-{
-    int          result;
-    int          pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
-    object_type *o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
-    u32b         flags[OF_ARRAY_SIZE];
-
-    assert(0 <= pts && pts <= 5);
-
-    result = _throw_info[pts].mult;
-    if (p_ptr->mighty_throw)
-        result += 100;
-
-    obj_flags(o_ptr, flags);
-    if (have_flag(flags, OF_THROWING))
-        result += 100;
-
-    /* Much like archery, STR increases the overall
-     * multiplier by up to +20% */
-    result = result * (100 + _adj_str_td()) / 100;
-    return result;
-}
-
-static int _throw_range(int hand)
-{
-    int          mul, div, rng;
-    object_type *o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
-
-    mul = 10 + 2 * (_throw_mult(hand) - 100) / 100;
-    div = o_ptr->weight > 10 ? o_ptr->weight : 10;
-    div /= 2;
-
-    rng = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
-    if (rng > mul) rng = mul;
-    if (rng < 5) rng = 5;
-
-    return rng;
-}
-
-static bool _throw_weapon(int hand)
-{
-    int dir;
-    _throw_weapon_info info;
-    int back_chance;
-    int oops = 100;
-
-    /* Setup info for the toss */
-    info.hand = hand;
-    info.item = p_ptr->weapon_info[hand].slot;
-    info.o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
-    info.come_back = FALSE;
-
-    if (!info.o_ptr) return FALSE; /* paranoia */
-    if (object_is_cursed(info.o_ptr))
-    {
-        msg_print("Hmmm, it seems to be cursed.");
-        return FALSE;
-    }
-
-    back_chance = _throw_back_chance() + randint1(30);
-
-    info.come_back = FALSE;
-    info.fail_catch = FALSE;
-    if (back_chance > 30 && !one_in_(oops))
-    {
-        info.come_back = TRUE;
-        if (p_ptr->blind || p_ptr->image || p_ptr->confused || one_in_(oops))
-            info.fail_catch = TRUE;
-        else
-        {
-            oops = 37;
-            if (p_ptr->stun)
-                oops += 10;
-            if (back_chance <= oops)
-                info.fail_catch = TRUE;
-        }
-    }
-
-    /* Pick a target */
-    info.mult = _throw_mult(hand);
-    info.tdis = _throw_range(hand);
-
-    project_length = info.tdis;
-    if (!get_fire_dir(&dir)) return FALSE;
-
-    info.tx = px + 99 * ddx[dir];
-    info.ty = py + 99 * ddy[dir];
-
-    if (dir == 5 && target_okay())
-    {
-        info.tx = target_col;
-        info.ty = target_row;
-    }
-    project_length = 0;
-
-    if (info.tx == px && info.ty == py) return FALSE;
-
-    /* Throw */
-    _throw_weapon_imp(&info);
-
-    if (info.come_back && object_is_(info.o_ptr, TV_POLEARM, SV_DEATH_SCYTHE) && (one_in_(3) || info.fail_catch))
-        death_scythe_miss(info.o_ptr, info.hand, MODE_THROWING);
-
-    /* Handle Inventory */
-    if (!info.come_back || info.fail_catch)
-    {
-        object_type copy;
-
-        if (!info.come_back)
-        {
-            char o_name[MAX_NLEN];
-            object_desc(o_name, info.o_ptr, OD_NAME_ONLY);
-            msg_format("Your %s fails to return!", o_name);
-        }
-
-        if (info.fail_catch)
-            cmsg_print(TERM_VIOLET, "But you can't catch!");
-
-        if (TRUE) /* This is a showstopper, so force the player to notice! */
-        {
-            msg_print("Press <color:y>Space</color> to continue.");
-            flush();
-            for (;;)
-            {
-                char ch = inkey();
-                if (ch == ' ') break;
-            }
-            msg_line_clear();
-        }
-
-        object_copy(&copy, info.o_ptr);
-        copy.number = 1;
-
-        inven_item_increase(info.item, -1);
-        inven_item_describe(info.item);
-        inven_item_optimize(info.item);
-
-
-        if (!info.come_back)
-            drop_near(&copy, 0, info.ty, info.tx);
-        else
-            drop_near(&copy, 0, py, px);
-
-        p_ptr->redraw |= PR_EQUIPPY;
-        p_ptr->update |= PU_BONUS;
-        android_calc_exp();
-        handle_stuff();
-    }
-    return TRUE;
-}
-
-static void _throw_weapon_imp(_throw_weapon_info * info)
-{
-    char o_name[MAX_NLEN];
-    u16b path[512];
-    int msec = delay_factor * delay_factor * delay_factor;
-    int y, x, ny, nx, tdam;
-    int cur_dis, ct;
-    int chance;
-    u32b flags[OF_ARRAY_SIZE];
-
-    obj_flags(info->o_ptr, flags);
-
-    chance = p_ptr->skill_tht + (p_ptr->shooter_info.to_h + info->o_ptr->to_h) * BTH_PLUS_ADJ;
-
-    object_desc(o_name, info->o_ptr, OD_NAME_ONLY | OD_OMIT_PREFIX);
-    ct = project_path(path, info->tdis, py, px, info->ty, info->tx, PROJECT_PATH);
-
-    y = py;
-    x = px;
-
-    for (cur_dis = 0; cur_dis < ct; )
-    {
-        /* Peek ahead at the next square in the path */
-        ny = GRID_Y(path[cur_dis]);
-        nx = GRID_X(path[cur_dis]);
-
-        /* Stopped by walls/doors/forest ... but allow hitting your target, please! */
-        if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
-         && !cave[ny][nx].m_idx)
-        {
-            break;
-        }
-
-        /* The player can see the (on screen) missile */
-        if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
-        {
-            char c = object_char(info->o_ptr);
-            byte a = object_attr(info->o_ptr);
-
-            /* Draw, Hilite, Fresh, Pause, Erase */
-            print_rel(c, a, ny, nx);
-            move_cursor_relative(ny, nx);
-            Term_fresh();
-            Term_xtra(TERM_XTRA_DELAY, msec);
-            lite_spot(ny, nx);
-            Term_fresh();
-        }
-
-        /* The player cannot see the missile */
-        else
-        {
-            /* Pause anyway, for consistancy */
-            Term_xtra(TERM_XTRA_DELAY, msec);
-        }
-
-        /* Save the new location */
-        x = nx;
-        y = ny;
-
-        /* Advance the distance */
-        cur_dis++;
-
-        /* Monster here, Try to hit it */
-        if (cave[y][x].m_idx)
-        {
-            cave_type    *c_ptr = &cave[y][x];
-            monster_type *m_ptr = &m_list[c_ptr->m_idx];
-            monster_race *r_ptr = &r_info[m_ptr->r_idx];
-            int           ac = MON_AC(r_ptr, m_ptr);
-            bool          visible = m_ptr->ml;
-
-            if (test_hit_fire(chance - cur_dis, ac, m_ptr->ml))
-            {
-                bool fear = FALSE;
-                bool ambush = MON_CSLEEP(m_ptr) && visible && p_ptr->ambush;
-
-                if (!visible)
-                    msg_format("The %s finds a mark.", o_name);
-                else
-                {
-                    char m_name[80];
-                    monster_desc(m_name, m_ptr, 0);
-                    if (ambush)
-                        cmsg_format(TERM_RED, "The %s cruelly hits %s.", o_name, m_name);
-                    else
-                        msg_format("The %s hits %s.", o_name, m_name);
-                    if (m_ptr->ml)
-                    {
-                        if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
-                        health_track(c_ptr->m_idx);
-                    }
-                }
-
-                /***** The Damage Calculation!!! *****/
-                tdam = damroll(info->o_ptr->dd, info->o_ptr->ds);
-                tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, 0, TRUE);
-                if (have_flag(flags, OF_VORPAL) || have_flag(flags, OF_VORPAL2))
-                {
-                    int  vorpal_chance = have_flag(flags, OF_VORPAL2) ? 2 : 4;
-                    if (one_in_(vorpal_chance * 3 / 2))
-                    {
-                        int mult = 2;
-                        char m_name[80];
-
-                        while (one_in_(vorpal_chance))
-                            mult++;
-
-                        tdam *= mult;
-
-                        monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
-                        switch (mult)
-                        {
-                        case 2: msg_format("Your weapon <color:U>gouges</color> %s!", m_name); break;
-                        case 3: msg_format("Your weapon <color:y>maims</color> %s!!", m_name); break;
-                        case 4: msg_format("Your weapon <color:R>carves</color> %s!!!", m_name); break;
-                        case 5: msg_format("Your weapon <color:r>cleaves</color> %s!!!!", m_name); break;
-                        case 6: msg_format("Your weapon <color:v>smites</color> %s!!!!!", m_name); break;
-                        case 7: msg_format("Your weapon <color:v>eviscerates</color> %s!!!!!!", m_name); break;
-                        default: msg_format("Your weapon <color:v>shreds</color> %s!!!!!!!", m_name); break;
-                        }
-
-                        if (have_flag(flags, OF_VORPAL2))
-                            obj_learn_slay(info->o_ptr, OF_VORPAL2, "is <color:v>*Sharp*</color>");
-                        else
-                            obj_learn_slay(info->o_ptr, OF_VORPAL, "is <color:R>Sharp</color>");
-                    }
-                }
-                if (!have_flag(flags, OF_BRAND_ORDER))
-                {
-                    critical_t crit = critical_throw(info->o_ptr->weight, info->o_ptr->to_h);
-                    if (crit.desc)
-                    {
-                        tdam = tdam * crit.mul/100 + crit.to_d;
-                        msg_print(crit.desc);
-                    }
-                }
-                tdam += info->o_ptr->to_d;
-                tdam = tdam * info->mult / 100;
-                if (ambush)
-                    tdam *= 2;
-
-
-                if (tdam < 0) tdam = 0;
-                tdam = mon_damage_mod(m_ptr, tdam, FALSE);
-                if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
-                {
-                    /* Dead monster */
-                }
-                else
-                {
-                    if (have_flag(flags, OF_BRAND_VAMP))
-                    {
-                        char m_name[80];
-                        int  heal = MIN(30, damroll(3, tdam / 8));
-                        monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
-                        msg_format("Your weapon drains life from %s!", m_name);
-                        hp_player_aux(heal);
-                        obj_learn_slay(info->o_ptr, OF_BRAND_VAMP, "is <color:D>Vampiric</color>");
-                    }
-                    message_pain(c_ptr->m_idx, tdam);
-                    if (tdam > 0)
-                        anger_monster(m_ptr);
-
-                    if (tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
-                    {
-                        if (mut_present(MUT_PEERLESS_SNIPER))
-                        {
-                        }
-                        else
-                        {
-                            m_ptr->anger_ct++;
-                        }
-                    }
-
-                    if (fear && m_ptr->ml)
-                    {
-                        char m_name[80];
-                        sound(SOUND_FLEE);
-                        monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
-                        msg_format("%^s flees in terror!", m_name);
-                    }
-                }
-            }
-
-            /* Stop looking */
-            break;
-        }
-    }
-
-    if (info->come_back)
-    {
-        int i;
-        for (i = cur_dis; i >= 0; i--)
-        {
-            y = GRID_Y(path[i]);
-            x = GRID_X(path[i]);
-            if (panel_contains(y, x) && player_can_see_bold(y, x))
-            {
-                char c = object_char(info->o_ptr);
-                byte a = object_attr(info->o_ptr);
-
-                /* Draw, Hilite, Fresh, Pause, Erase */
-                print_rel(c, a, y, x);
-                move_cursor_relative(y, x);
-                Term_fresh();
-                Term_xtra(TERM_XTRA_DELAY, msec);
-                lite_spot(y, x);
-                Term_fresh();
-            }
-            else
-            {
-                /* Pause anyway, for consistancy */
-                Term_xtra(TERM_XTRA_DELAY, msec);
-            }
-        }
-        msg_format("Your %s comes back to you.", o_name);
-    }
-    else
-    {
-        /* Record the actual location of the toss so we can drop the object here if required */
-        info->tx = x;
-        info->ty = y;
-    }
-}
-
-static int _throwing_hand(void)
-{
-    int hand;
-    for (hand = 0; hand < MAX_HANDS; hand++)
-    {
-        if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE && !p_ptr->weapon_info[hand].bare_hands)
-            return hand;
-    }
-    return HAND_NONE;
-}
-
-static int _throw_energy(void)
-{
-    int pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
-    assert(0 <= pts && pts <= 5);
-    return _throw_info[pts].energy;
-}
-
 static void _throw_weapon_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -1014,247 +589,25 @@ static void _throw_weapon_spell(int cmd, variant *res)
         var_set_string(res, "Throw Weapon");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Throws your leading weapon, which might return to you.");
+        var_set_string(res, "Throws your weapon, which might return to you.");
         break;
-    case SPELL_INFO:
-    {
-        int hand = _throwing_hand();
-        if (hand != HAND_NONE)
-            var_set_string(res, info_range(_throw_range(hand)));
-        break;
-    }
-    case SPELL_CAST:
-    {
-        int hand = _throwing_hand();
-        var_set_bool(res, FALSE);
-        if (hand != HAND_NONE)
-            var_set_bool(res, _throw_weapon(hand));
-        else
-            msg_print("You need to wield a weapon before throwing it.");
-        break;
-    }
-    case SPELL_ENERGY:
-        var_set_int(res, _throw_energy());
-        break;
+    case SPELL_CAST: {
+        py_throw_t context = {0};
+        int        pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
+
+        context.type = THROW_BOOMERANG;
+        context.mult = _throw_info[pts].mult;
+        context.back_chance = _throw_info[pts].back;
+        var_set_bool(res, py_throw(&context));
+        break; }
+    case SPELL_ENERGY: {
+        int pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
+        var_set_int(res, _throw_info[pts].energy);
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
-}
-
-/************************************************************************
- * Throw Weapon Display
- *   Modeled after combat.c. At some point, unify the various throwing
- *   mechanics and publish. Weaponmaster has two versions and the samurai
- *   a third.
- ***********************************************************************/
-static void _display_weapon_slay(int base_mult, int slay_mult, bool force, int throw_mult, int num_throw,
-                                 int dd, int ds, int to_d, cptr name, int color, doc_ptr doc)
-{
-    int mult, dam;
-
-    mult = slay_mult;
-    if (force)
-        mult = mult * 3/2 + 150;
-    mult = mult * base_mult / 100;
-
-    dam = mult * dd * (ds + 1)/200 + to_d;
-    dam = throw_mult * dam / 100;
-
-    doc_printf(doc, "<color:%c> %-7.7s</color>", attr_to_attr_char(color), name);
-    doc_printf(doc, ": %d/%d [%d.%02dx]\n",
-                    dam, num_throw * dam / 100,
-                    mult/100, mult%100);
-}
-
-static void _display_throwing_info(doc_ptr doc, int hand)
-{
-    object_type *o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
-    char o_name[MAX_NLEN];
-    u32b flgs[OF_ARRAY_SIZE];
-    int to_d = 0;
-    int to_h = 0;
-    int mult = 100;
-    critical_t crit = {0};
-    int crit_pct = 0;
-    int throw_mult = _throw_mult(hand);
-    int num_throw = 10000 / _throw_energy();
-    int back_chance = _throw_back_chance();
-    bool force = FALSE;
-    doc_ptr cols[2] = {0};
-
-    if (!o_ptr) return;
-
-    if (object_is_known(o_ptr))
-    {
-        to_d = o_ptr->to_d;
-        to_h = o_ptr->to_h;
-    }
-
-    obj_flags_known(o_ptr, flgs);
-    if (have_flag(flgs, OF_BRAND_MANA) || p_ptr->tim_force)
-    {
-        int cost = 1 + o_ptr->dd * o_ptr->ds / 7;
-        if (p_ptr->csp >= cost)
-            force = TRUE;
-    }
-
-    if (have_flag(flgs, OF_VORPAL2))
-        mult = mult * 5 / 3;  /* 1 + 1/3(1 + 1/2 + ...) = 1.667x */
-    else if (have_flag(flgs, OF_VORPAL))
-        mult = mult * 11 / 9; /* 1 + 1/6(1 + 1/4 + ...) = 1.222x */
-
-    if (!have_flag(flgs, OF_BRAND_ORDER))
-    {
-        const int attempts = 10 * 1000;
-        int i;
-        int crits = 0;
-        /* Compute Average Effects of Criticals by sampling */
-        for (i = 0; i < attempts; i++)
-        {
-            critical_t tmp = critical_throw(o_ptr->weight, o_ptr->to_h);
-            if (tmp.desc)
-            {
-                crit.mul += tmp.mul;
-                crit.to_d += tmp.to_d;
-                crits++;
-            }
-            else
-                crit.mul += 100;
-        }
-        crit.mul = crit.mul / attempts;
-        crit.to_d = crit.to_d * 100 / attempts;
-        crit_pct = crits * 1000 / attempts;
-    }
-    else
-        crit.mul = 100;
-
-
-    /* Display in 2 columns, side by side */
-    cols[0] = doc_alloc(60);
-    cols[1] = doc_alloc(10);
-
-    /* Column #1 */
-    object_desc(o_name, o_ptr, OD_COLOR_CODED | OD_NAME_AND_ENCHANT | OD_THROWING);
-    doc_printf(cols[0], "<color:y> Hand #%d:</color> <indent><style:indent>%s</style></indent>\n", hand+1, o_name);
-
-    doc_printf(cols[0], " %-7.7s: %d.%d lbs\n", "Weight", o_ptr->weight/10, o_ptr->weight%10);
-    doc_printf(cols[0], " %-7.7s: %d + %d = %d\n", "To Hit", to_h, p_ptr->shooter_info.dis_to_h, to_h + p_ptr->shooter_info.dis_to_h);
-
-    doc_printf(cols[0], " %-7.7s: %d\n", "Range", _throw_range(hand));
-    if (p_ptr->wizard && 0)
-        doc_printf(cols[0], " %-7.7s: %d (31 to return; 38 to catch)\n", "Back", back_chance);
-    doc_printf(cols[0], " %-7.7s: %d%%\n", "Return", 99*(1000 - MAX(0, (30 - back_chance))*1000/30)/1000);
-    doc_printf(cols[0], " %-7.7s: %d%%\n", "Catch", 99*(1000 - MAX(0, (37 - back_chance))*1000/30)/1000);
-    doc_printf(cols[0], " %-7.7s: %d.%2.2dx\n", "Mult", throw_mult/100, throw_mult%100);
-    doc_printf(cols[0], " %-7.7s: %d.%2.2d\n", "Throws", num_throw/100, num_throw%100);
-
-    mult = mult * crit.mul / 100;
-    to_d = to_d + crit.to_d/100;
-
-    doc_printf(cols[0], "<color:G> %-7.7s</color>\n", "Damage");
-
-    if (!have_flag(flgs, OF_BRAND_ORDER))
-    {
-        if (crit.to_d)
-        {
-            doc_printf(cols[0], " %-7.7s: %d.%02dx + %d.%02d\n", "Crits",
-                            crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
-        }
-        else
-        {
-            doc_printf(cols[0], " %-7.7s: %d.%02dx (%d.%d%%)\n", "Crits",
-                            crit.mul/100, crit.mul%100, crit_pct / 10, crit_pct % 10);
-        }
-    }
-
-    _display_weapon_slay(mult, 100, FALSE, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Normal", TERM_WHITE, cols[0]);
-    if (force)
-        _display_weapon_slay(mult, 100, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Force", TERM_L_BLUE, cols[0]);
-
-    if (have_flag(flgs, OF_KILL_ANIMAL))
-        _display_weapon_slay(mult, 400, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Animals", TERM_YELLOW, cols[0]);
-    else if (have_flag(flgs, OF_SLAY_ANIMAL))
-        _display_weapon_slay(mult, 250, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Animals", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_KILL_EVIL))
-        _display_weapon_slay(mult, 350, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Evil", TERM_YELLOW, cols[0]);
-    else if (have_flag(flgs, OF_SLAY_EVIL))
-        _display_weapon_slay(mult, 200, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Evil", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_SLAY_GOOD))
-        _display_weapon_slay(mult, 200, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Good", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_SLAY_LIVING))
-        _display_weapon_slay(mult, 200, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Living", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_KILL_HUMAN))
-        _display_weapon_slay(mult, 400, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Human", TERM_YELLOW, cols[0]);
-    else if (have_flag(flgs, OF_SLAY_HUMAN))
-        _display_weapon_slay(mult, 250, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Human", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_KILL_UNDEAD))
-        _display_weapon_slay(mult, 500, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Undead", TERM_YELLOW, cols[0]);
-    else if (have_flag(flgs, OF_SLAY_UNDEAD))
-        _display_weapon_slay(mult, 300, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Undead", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_KILL_DEMON))
-        _display_weapon_slay(mult, 500, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Demons", TERM_YELLOW, cols[0]);
-    else if (have_flag(flgs, OF_SLAY_DEMON))
-        _display_weapon_slay(mult, 300, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Demons", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_KILL_ORC))
-        _display_weapon_slay(mult, 500, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Orcs", TERM_YELLOW, cols[0]);
-    else if (have_flag(flgs, OF_SLAY_ORC))
-        _display_weapon_slay(mult, 300, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Orcs", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_KILL_TROLL))
-        _display_weapon_slay(mult, 500, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Trolls", TERM_YELLOW, cols[0]);
-    else if (have_flag(flgs, OF_SLAY_TROLL))
-        _display_weapon_slay(mult, 300, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Trolls", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_KILL_GIANT))
-        _display_weapon_slay(mult, 500, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Giants", TERM_YELLOW, cols[0]);
-    else if (have_flag(flgs, OF_SLAY_GIANT))
-        _display_weapon_slay(mult, 300, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Giants", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_KILL_DRAGON))
-        _display_weapon_slay(mult, 500, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Dragons", TERM_YELLOW, cols[0]);
-    else if (have_flag(flgs, OF_SLAY_DRAGON))
-        _display_weapon_slay(mult, 300, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Dragons", TERM_YELLOW, cols[0]);
-
-    if (have_flag(flgs, OF_BRAND_ACID))
-        _display_weapon_slay(mult, 250, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Acid", TERM_RED, cols[0]);
-
-    if (have_flag(flgs, OF_BRAND_ELEC))
-        _display_weapon_slay(mult, 250, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Elec", TERM_RED, cols[0]);
-
-    if (have_flag(flgs, OF_BRAND_FIRE))
-        _display_weapon_slay(mult, 250, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Fire", TERM_RED, cols[0]);
-
-    if (have_flag(flgs, OF_BRAND_COLD))
-        _display_weapon_slay(mult, 250, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Cold", TERM_RED, cols[0]);
-
-    if (have_flag(flgs, OF_BRAND_POIS))
-        _display_weapon_slay(mult, 250, force, throw_mult, num_throw, o_ptr->dd, o_ptr->ds, to_d, "Poison", TERM_RED, cols[0]);
-
-    /* Column #1 */
-    doc_insert(cols[1], "<color:G>Accuracy</color>\n");
-    doc_insert(cols[1], " AC Hit\n");
-
-    doc_printf(cols[1], "%3d %2d%%\n", 25, throw_hit_chance(to_h, 25, 10));
-    doc_printf(cols[1], "%3d %2d%%\n", 50, throw_hit_chance(to_h, 50, 10));
-    doc_printf(cols[1], "%3d %2d%%\n", 75, throw_hit_chance(to_h, 75, 10));
-    doc_printf(cols[1], "%3d %2d%%\n", 100, throw_hit_chance(to_h, 100, 10));
-    doc_printf(cols[1], "%3d %2d%%\n", 125, throw_hit_chance(to_h, 125, 10));
-    doc_printf(cols[1], "%3d %2d%%\n", 150, throw_hit_chance(to_h, 150, 10));
-    doc_printf(cols[1], "%3d %2d%%\n", 175, throw_hit_chance(to_h, 175, 10));
-    doc_printf(cols[1], "%3d %2d%%\n", 200, throw_hit_chance(to_h, 200, 10));
-
-    /* Assemble the result */
-    doc_insert_cols(doc, cols, 2, 1);
-    doc_free(cols[0]);
-    doc_free(cols[1]);
 }
 
 /************************************************************************
@@ -1492,11 +845,11 @@ static int _get_realm_stat(int realm)
     return A_NONE;
 }
 
-static bool _spellbook_hook(object_type *o_ptr)
+static bool _spellbook_hook(obj_ptr obj)
 {
-    if (TV_BOOK_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_BOOK_END)
+    if (obj_is_book(obj))
     {
-        int realm = tval2realm(o_ptr->tval);
+        int realm = tval2realm(obj->tval);
         int pts = _get_realm_pts(realm);
         if (pts > 0)
             return TRUE;
@@ -1504,19 +857,18 @@ static bool _spellbook_hook(object_type *o_ptr)
     return FALSE;
 }
 
-/* Note: At the moment, we only support spellbook base realms. Should that
- * change, I will probably need to replace get_item() with something more
- * intelligent that also handles non-book based realms in a single menu. */
 static object_type *_prompt_spellbook(void)
 {
-    int item;
-    item_tester_hook = _spellbook_hook;
-    if (!get_item(&item, "Use which book? ", "You have no spellbooks!", USE_INVEN | USE_FLOOR))
-        return NULL;
-    if (item >= 0)
-        return &inventory[item];
-    else
-        return &o_list[-item];
+    obj_prompt_t prompt = {0};
+
+    prompt.prompt = "Use which book?";
+    prompt.error = "You have no books that you can read.";
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+    prompt.filter = _spellbook_hook;
+
+    obj_prompt(&prompt);
+    return prompt.obj;
 }
 
 /* shared with spell table spoilers, so we pass in the skill points to use */
@@ -2233,6 +1585,7 @@ static void _calc_bonuses(void)
 
 void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
+    _melee_get_flags(flgs);
     _skills_get_flags(flgs);
 }
 
@@ -2284,15 +1637,11 @@ static void _dump_book(doc_ptr doc, object_type *spellbook)
 
 static object_type *_find_book(int realm, int book)
 {
-    int tval = realm2tval(realm);
-    int sval = book;
-    int i;
+    int    tval = realm2tval(realm);
+    int    sval = book;
+    slot_t slot = pack_find_obj(tval, sval);
 
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        if (inventory[i].tval == tval && inventory[i].sval == sval)
-            return &inventory[i];
-    }
+    if (slot) return pack_obj(slot);
     return NULL;
 }
 
@@ -2346,11 +1695,20 @@ static void _character_dump(doc_ptr doc)
     int i;
     if (_get_skill_pts(_TYPE_SHOOT, _THROWING))
     {
+        py_throw_t context = {0};
+        int        pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
+
+        context.type = THROW_BOOMERANG | THROW_DISPLAY;
+        context.mult = _throw_info[pts].mult;
+        context.back_chance = _throw_info[pts].back;
+        context.energy = _throw_info[pts].energy;
+
         doc_insert(doc, "<topic:Throwing>=================================== <color:keypress>T</color>hrowing ==================================\n\n");
         for (i = 0; i < MAX_HANDS; i++)
         {
             if (p_ptr->weapon_info[i].wield_how == WIELD_NONE) continue;
-            _display_throwing_info(doc, i);
+            context.obj = equip_obj(p_ptr->weapon_info[i].slot);
+            py_throw_doc(&context, doc);
         }
     }
     doc_printf(doc, "<topic:Skills>==================================== <color:keypress>S</color>kills ===================================\n\n");

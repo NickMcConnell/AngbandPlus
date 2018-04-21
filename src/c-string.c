@@ -320,6 +320,20 @@ const char *string_buffer(string_ptr str)
     return NULL;
 }
 
+char string_get(string_ptr str, int pos)
+{
+    assert(0 <= pos && pos < str->len);
+    return str->buf[pos];
+}
+
+char string_get_last(string_ptr str)
+{
+    char c = '\0';
+    if (str->len)
+        c = str->buf[str->len - 1];
+    return c;
+}
+
 int string_chr(string_ptr str, int start, char ch)
 {
     if (start < str->len)

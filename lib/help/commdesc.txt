@@ -36,6 +36,11 @@ Use this command to display a list of the objects currently being used by your c
 
 Each slot has a descriptive label, like "Right Hand" that determines what type of object it may receive, like a weapon or shield. And yes, you can wield a weapon in either hand, or even in both (Using the skill of <color:B>Dual Wielding</color>). You can even wear two shields if you aren't using melee fighting at all. The choice is yours! The types for each slot should be easy to figure out: Helmets go on your "Head" slot and Gloves go on your "Hands", etc.</indent>
 
+  <indent><color:U>Get Objects (<color:keypress>g</color>)</color>
+This command will get any objects located on the same tile as the player (autodestroyer applies). In addition, this command will automatically get nearby objects by travelling to them (similar to running). With <color:keyword>auto_get_objects</color> enabled, any object registered for either auto-pickup or auto-destroy will qualify for automatic get. If that is too much for you (perhaps you enjoy cleaning up after battles?) then the <color:keyword>auto_get_ammo</color> option only applies to objects inscribed with <color:keypress>=g</color> (which is typically your ammo, or perhaps spikes if you are a ninja).
+
+Automatic travelling is very useful, and you won't travel too far since the objects must be visible to qualify. Hence, this option is much safer than, say, travelling using the object list which allows you to undertake lengthy automatic journeys (often into harms way!). The automatic get travelling will terminate when there are no more visible qualifying objects; if your pack becomes full; or if you are disturbed for any reason, such as a nasty dragon waking up and deciding to breathe on you.</indent>
+
   <indent><color:U>Drop Item (<color:keypress>d</color>)</color>
 This drops an item from your inventory or equipment onto the dungeon floor. If the floor spot you are standing on already has an object in it, the game will attempt to drop the item onto an adjacent space. Be warned that if the floor is full and you attempt to drop something, it may disappear and be destroyed. Doors and traps are considered objects for the purpose of determining if the space is occupied. If the selected pile contains multiple items, you may specify a quantity.</indent>
 
@@ -73,9 +78,6 @@ There are always at least two staircases going down on each level, except for th
 
   <indent><color:U>Stay Still (with pickup) (<color:keypress>,</color>) or (<color:keypress>.</color>)</color>
 Stays in the same square for one move. If you normally pick up objects you encounter, you will pick up whatever you are standing on. This command can take a count. You may also use the "5" key (both keysets).  If object auto-picker/destroyer is set up, specified objects will be picked up or destroyed.</indent>
-
-  <indent><color:U>Stay Still (flip pickup) (<color:keypress>g</color>)</color>
-Stays in the same square for one move. If you normally pick up objects you encounter, you will not pick up whatever you are standing on. If you normally do not pick up objects, you will pick up what you are standing on. This command is normally only used when the "always_pickup" option is false. This command can take a count.  If object auto-picker/destroyer is set up, specified objects will be picked up or destroyed.</indent>
 
   <indent><color:U>Rest (<color:keypress>R</color>)</color>
 Resting is better for you than repeatedly staying still, and can be told to automatically stop after a certain amount of time, or when various conditions are met. In any case, you always wake up when anything disturbing happens, or when you press any key. To rest, enter the Rest command, followed by the number of turns you want to rest, or "*" to rest until your hitpoints and mana are restored, or "&" to rest until you are fully "healed". This command can take a count, which is used for the number of turns to rest.</indent>
@@ -392,6 +394,7 @@ If you have pets then this command allows you to give orders to your pets. You c
 <color:U>Inventory Commands         Original        Roguelike</color>
   Inventory List              <color:keypress>i                 </color>
   Equipment List              <color:keypress>e                 </color>
+  Get Objects                 <color:keypress>g                 </color>
   Drop Item                   <color:keypress>d                 </color>
   Destroy Item                <color:keypress>k               ^D</color>
   Wear/Wield Equipment        <color:keypress>w                 </color>
@@ -410,7 +413,6 @@ If you have pets then this command allows you to give orders to your pets. You c
 
 <color:U>Resting Commands           Original        Roguelike</color>
   Stay (pickup)               <color:keypress>,                .</color>
-  Stay (toggle pickup)        <color:keypress>g                 </color>
   Rest                        <color:keypress>R                 </color>
 
 <color:U>Searching Commands         Original        Roguelike</color>

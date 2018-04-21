@@ -72,10 +72,9 @@
  */
 
 #include "angband.h"
-
-/* This is my debugging prop for QtCreator on Linux. Hopefully, I remember
-   to comment this out when I am finished debugging!
-#define WINDOWS */
+#undef BOOL /* <== this really messes up windows.h 
+               h-type.h:107 #define BOOL(E) !!(E) 
+               windef.h:153 typedef int BOOL; */
 
 #ifdef WINDOWS
 
@@ -86,7 +85,6 @@
 
 #include <windows.h>
 #include <direct.h>
-
 
 /*
  * Extract the "WIN32" flag from the compiler

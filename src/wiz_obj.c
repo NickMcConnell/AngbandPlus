@@ -626,7 +626,7 @@ static int _smith_reroll(object_type *o_ptr)
         case ESCAPE: return _CANCEL;
         case 'm':
         {
-            char buf[50];
+            char buf[51];
             sprintf(buf, "%d", min);
             if (get_string("Min Score: ", buf, 50))
             {
@@ -851,6 +851,7 @@ static int _smith_device_effect(object_type *o_ptr)
         doc_insert(_doc, " <color:y>m</color>/<color:y>M</color>) Adjust mana\n");
         doc_insert(_doc, " <color:y>l</color>/<color:y>L</color>) Adjust effect level\n");
         doc_insert(_doc, " <color:y>c</color>/<color:y>C</color>) Adjust effect cost\n");
+        doc_insert(_doc, "   <color:y>r</color>) Recharge\n");
 
         doc_newline(_doc);
         doc_insert(_doc, " <color:y>RET</color>) Accept changes\n");
@@ -928,6 +929,9 @@ static int _smith_device_effect(object_type *o_ptr)
             }
             break;
         }
+        case 'r':
+            device_regen_sp(&copy, 1000);
+            break;
         }
     }
 }
@@ -1121,32 +1125,30 @@ static bool _smith_p(object_type *o_ptr)
 
 void wiz_obj_smith(void)
 {
-    int          item;
-    object_type *o_ptr;
-    object_type  copy;
+    obj_t        copy;
+    obj_prompt_t prompt = {0};
 
-    item_tester_hook = _smith_p;
-    item_tester_no_ryoute = TRUE;
+    prompt.prompt = "Smith which object?";
+    prompt.error = "You have nothing to work with.";
+    prompt.filter = _smith_p;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_QUIVER;
+    prompt.where[3] = INV_FLOOR;
 
-    if (!get_item(&item, "Smith which object? ", "You have nothing to work with.", USE_INVEN | USE_EQUIP | USE_FLOOR))
-        return;
-    if (item >= 0)
-        o_ptr = &inventory[item];
-    else
-        o_ptr = &o_list[0 - item];
-    
-    copy = *o_ptr;
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
+
+    copy = *prompt.obj;
     obj_identify_fully(&copy);
 
     msg_line_clear();
     if (_smith_object(&copy) == _OK)
     {
-        if (item >= 0) p_ptr->total_weight -= o_ptr->weight*o_ptr->number;
-        *o_ptr = copy;
-        if (item >= 0) p_ptr->total_weight += o_ptr->weight*o_ptr->number;
-        p_ptr->update |= PU_BONUS;
-        p_ptr->notice |= PN_COMBINE | PN_REORDER;
-        p_ptr->window |= PW_INVEN;
+        obj_loc_t loc = prompt.obj->loc; /* re-roll will erase this ... */
+        *prompt.obj = copy;
+        prompt.obj->loc = loc;
+        obj_release(prompt.obj, OBJ_RELEASE_ENCHANT);
     }
 }
 

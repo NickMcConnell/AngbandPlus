@@ -124,15 +124,6 @@ char *XSetIMValues(XIM, ...); /* Hack for XFree86 4.0 */
  */
 #include "maid-x11.c"
 
-/* gcc warns that this is implicitly declared:
-main-x11.c:2747:3: warning: implicit declaration of function ‘usleep’ [-Wimplicit-function-declaration]
-   case TERM_XTRA_DELAY: usleep(1000 * v); return (0);
-   ^
-   Anybody know how to remove the warning? #include <stdlib.h> does not work ... On my system, this
-   is defined in /usr/include/unistd.h but even #including this directly is not enough to satisfy gcc.
-*/
-extern int usleep(__useconds_t);
-
 /*
  * Hack -- avoid some compiler warnings
  */
@@ -3260,10 +3251,10 @@ static errr term_data_init(term_data *td, int i)
 	/* Main window has a differing minimum size */
 	if (i == 0)
 	{
-        /* Main window min size is 80x27 */
+        /* Main window min size is 80x24 */
         td->sizeh->flags = PMinSize | PMaxSize;
         td->sizeh->min_width = 80 * td->fnt->wid + (ox + ox);
-        td->sizeh->min_height = 27 * td->fnt->hgt + (oy + oy);
+        td->sizeh->min_height = 24 * td->fnt->hgt + (oy + oy);
         td->sizeh->max_width = 255 * td->fnt->wid + (ox + ox);
         td->sizeh->max_height = 255 * td->fnt->hgt + (oy + oy);
 	}

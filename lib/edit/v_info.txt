@@ -60,7 +60,8 @@
 # character in length. It may override built-in letters if you like.
 # Directives guide the feature, monster, trap and object options for the
 # square in question. You can specify these directives in any order, separating
-# multiple directives with a :.
+# multiple directives with a :. Note: Don't use " as a letter. The parser
+# will think you are quoting a string as in MON("fang, farmer maggot's dog", CLONE).
 #
 # Each directive is of the form NAME[(option_list)] where NAME is one of
 # MON, TRAP, OBJ, EGO, ART, or a feature name from f_info.txt (e.g. FLOOR
@@ -72,8 +73,9 @@
 #       [1] Which monster? Use * for completely random selection. Or
 #           use the display character (from r_info.txt) to limit the
 #           kind of monster (e.g. o for orc or Z for zephyr hound). Or
-#           enter the numeric sequence identifier of the exact monster
-#           you want (again, from r_info.txt) like 11 for a Raving Lunatic.
+#           enter the name from r_info.txt (like MON(raving lunatic)).
+#           You can try a partial match (like MON(lunatic)) but that might
+#           not always work.
 #           Finally, you can specify one of the various "Summoning Options"
 #           to guide monster selection. Look at the code for details, but here
 #           are some examples, chosen randomly:
@@ -92,8 +94,6 @@
 #           either a monster or the player can summon them. This is a numeric code passed to
 #           the summon_specific() api. So if the codes seem redundant or useless, just ignore 
 #           them. They weren't created for this file).
-#           (TODO: Allow partial text searches thru r_info, such as MON(lunatic) for our
-#           raving lunatic example rather than forcing MON(11)).
 #       [2] Which Options? The most common option is to generate out of depth monsters,
 #           but there are others as well. Separate multiple options with the | character.
 #              - NO_GROUP: Suppress normal group code for certain monsters
@@ -107,11 +107,11 @@
 #       [2] MON(*, DEPTH+40): Any monster, up to 40 levels OoD
 #       [3] MON(ORC, NO_GROUP | HASTE): A hasted orc loner
 #       [4] MON(o, NO_GROUP | HASTE): A hasted orc loner (The summon type options are sometimes redundant)
-#       [5] MON(442): A Black Knight
+#       [5] MON(black knight): A Black Knight
 #       [6] MON(*): Anything at all, subject to normal dungeon type or wilderness terrain restrictions.
 #
 #  * OBJ: The OBJ directive determines the object for this square. Like the MON directive, the
-#         syntax is OBJ(<which> [,<options>]). Note that you may augment an OBJ directive with
+#         syntax is OBJ(<type> [,<subtype>] [,<options>]). Note that you may augment an OBJ directive with
 #         an EGO or even ART directive if you wish to generate ego items or artifacts. Both EGO
 #         and ART are described separately below.
 #       [1] Which Object? You may use * for a randomly chosen object type if you just don't care.
@@ -127,24 +127,27 @@
 #              - WEAPON: Any melee weapon (there are 4 tvals for weapons).
 #              - BOW_AMMO: Any type of bow or ammo.
 #              - MISC: Junk, statues, etc. Basically, anything not caught by one of the preceding special categories.
-#           Finally, you can specify a k_idx directly (from k_info.txt), such as OBJ(242) for a potion of
-#           healing.
+#           Never use a k_idx directly. Instead, use OBJ(POTION, healing) for a potion of healing,
+#           or OBJ(SWORD, long sword, DEPTH+20) for an out of depth long sword. k_idx will be
+#           removed at some point ...
 #       [2] Which Options? Easy. There is only a single option at the moment: DEPTH+NN which says to generate this
 #           object up to NN levels out of depth.
 #     Sample OBJ directives are:
 #       [1] OBJ(*): Any object
 #       [2] OBJ(*, DEPTH+7): Any object, up to 7 levels OoD
-#       [3] OBJ(242): Potion of Healing
+#       [3] OBJ(POTION, healing): Potion of Healing
 #       [4] OBJ(POTION): Any potion
 #
 #  * EGO: The EGO directive augments the OBJ directive, specifying that an excellent object should be
 #         generated. The syntax is EGO(<which>), where which is either * for a random type (appropriate
-#         for the object in question or the numeric code from e_info.txt.
+#         for the object in question or the full name from e_info.txt. You may use the index for
+#         the ego type as well, since, at the moment, ego names are often duplicated. In the future
+#         I might be able to fix this based on context, but for now, be careful.
 #     Sample EGO directives are (Note you generally want an OBJ directive as well):
-#       [1] OBJ(RING):EGO(306): Ring of Speed
+#       [1] OBJ(RING):EGO(209): Ring of Speed (Note: Boots and Rings both use 'of Speed')
 #       [2] OBJ(RING):EGO(*): Any ego ring
 #       [3] OBJ(CLOAK, DEPTH+20):EGO(*): Any ego cloak generated up to 20 levels OoD
-#           (TODO: Allow partial text searches thru e_info, such as OBJ(RING):EGO(Speed) for [1]).
+#       [4] OBJ(SWORD, diamond edge):EGO(pattern)
 #
 #  * ART: The ART directive augments the OBJ directive, specifying that a special object should be
 #         generated. The syntax is ART(<which>) where which is either * for a rand-art or the 
@@ -186,7 +189,7 @@
 #        A friendly human that won't come as part of a monster group.
 #    [5] L:4:TEMPLE(GLOW)
 #        A lit entrance to a temple shop.
-#    [6] L:p:DIRT:MON(1026):OBJ(BOOK, DEPTH+50)
+#    [6] L:p:DIRT:MON(old sorcerer):OBJ(BOOK, DEPTH+50)
 #        An Old Sorcerer standing on a dirt tile with an out of depth good spellbook underfoot.
 #
 # M:<map_row>
@@ -461,7 +464,7 @@ M: ###########
 N:Logrus Master
 T:WILD:GRASS
 W:20:*:16
-L:p:DIRT:MON(498)
+L:p:DIRT:MON(logrus master)
 L:.:DIRT
 M:############
 M:#..........#
@@ -489,7 +492,7 @@ M:    X
 N:Murder
 T:WILD:GRASS
 W:10:*:16
-L:M:MON(61)
+L:M:MON(^crow$)
 M:  M  
 M: MMM 
 M:MMMMM
@@ -571,7 +574,7 @@ L:m:MOUNTAIN
 #1/5 chance of silent watchers, and a line selecting
 #warriors (p or not).
 L:*:FLOOR(GLOW):MON(DEMON_SUMMONER, NO_GROUP | DEPTH+25):OBJ(LITE, DEPTH+10):EGO(*)
-L:`:FLOOR(GLOW):MON(397, NO_GROUP):OBJ(LITE, DEPTH+10):EGO(*)
+L:`:FLOOR(GLOW):MON(silent watcher, NO_GROUP):OBJ(LITE, DEPTH+10):EGO(*)
 L:p:FLOOR(ROOM):MON(p, NO_UNIQUE | DEPTH+15)
 M: vvvv      mmmm 
 M:vvv__________mmm
@@ -675,7 +678,7 @@ T:WILD:LAVA
 W:40:*:16
 L:~:DEEP_LAVA
 L:U:DEEP_LAVA:MON(BALROG, NO_SLEEP | DEPTH+40)
-L:p:DIRT:MON(1008, NO_SLEEP)
+L:p:DIRT:MON(demonologist, NO_SLEEP)
 L:.:SHALLOW_LAVA
 M:.......
 M:..~~~..
@@ -688,7 +691,7 @@ M:...p...
 N:How Vile!
 T:WILD:LAVA
 W:20:*:2
-L:u:MON(357)
+L:u:MON(arch-vile)
 M:u   u
 M:  u  
 M:u   u
@@ -696,7 +699,7 @@ M:u   u
 N:Hounds of Hell
 T:WILD:LAVA
 W:40:*:32
-L:C:MON(829, NO_SLEEP)
+L:C:MON(hell hound of julian, NO_SLEEP)
 M:C
 
 #######################
@@ -824,7 +827,7 @@ M:#########
 N:Lord of Chaos
 T:WILD:MOUNTAIN
 W:40:*:16
-L:p:DIRT:MON(737)
+L:p:DIRT:MON(lord of chaos)
 L:.:DIRT
 M:############    
 M:#..........#    
@@ -838,7 +841,7 @@ N:Sorcerer's Tower II
 T:WILD:MOUNTAIN
 W:50:*:32
 L:.:DIRT
-L:p:DIRT:MON(1026):OBJ(BOOK, DEPTH+50)
+L:p:DIRT:MON(old sorcerer):OBJ(BOOK, DEPTH+50)
 M:.################
 M:.+..............#
 M:.##############.#
@@ -925,7 +928,7 @@ N:The Enchantress
 T:AMBUSH:MOUNTAIN:FORMATION
 W:30:*:8
 L:0:TREE:MON(DRAGON)
-L:p:TREE:MON(636, NO_SLEEP)
+L:p:TREE:MON(^enchantress$, NO_SLEEP)
 L:.:TREE
 M:741.....
 M:8p0..@..
@@ -1011,8 +1014,8 @@ M:   8$  4  $8
 N:Roasting Hobbits
 T:WILD:TREES:NIGHT
 W:15:*:4
-L:T:MON(297, NO_SLEEP)
-L:h:MON(74, FRIENDLY)
+L:T:MON(forest troll, NO_SLEEP)
+L:h:MON(scruffy looking hobbit, FRIENDLY)
 L:~:SHALLOW_LAVA
 L:$:OBJ(*)
 M:            T
@@ -1024,7 +1027,7 @@ M:T
 N:Ewok Village
 T:WILD:TREES
 W:10:*:4
-L:h:TREE:MON(92)
+L:h:TREE:MON(^ewok$)
 L:T:TREE
 L:~:GRASS
 M:TTh~hTTTh
@@ -1037,8 +1040,8 @@ N:Druidic Circle
 T:WILD:TREES
 W:10:*:32
 L:T:TREE
-L:M:GRASS:MON(329, NO_SLEEP)
-L:p:GRASS:MON(241)
+L:M:GRASS:MON(^huorn$, NO_SLEEP)
+L:p:GRASS:MON(^druid$)
 L:~:GRASS
 M:       TTT       
 M:     TTTTTTT     
@@ -1059,7 +1062,7 @@ M:       TTT
 N:Treeherder
 T:WILD:TREES
 W:30:*:200
-L:T:MON(708, FRIENDLY | NO_SLEEP)
+L:T:MON(^ent$, FRIENDLY | NO_SLEEP)
 M:T
 
 #Fishing Hole
@@ -1708,7 +1711,7 @@ M:%%%%%%%%%%%%%%%%%%%%%
 N:Object Vault (Potions?)
 T:ROOM:NORMAL
 W:20:50:32
-L:$:MON(310):OBJ(POTION)
+L:$:MON(potion mimic):OBJ(POTION)
 L:M:MON(*, DEPTH+10)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -1725,7 +1728,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 N:Object Vault (Swords?)
 T:ROOM:NORMAL
 W:10:30:32
-L:$:MON(107):OBJ(SWORD)
+L:$:MON(death sword):OBJ(SWORD)
 L:M:MON(*, DEPTH+10)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -1742,7 +1745,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 N:Object Vault (Scrolls?)
 T:ROOM:NORMAL
 W:20:50:32
-L:$:MON(352):OBJ(SCROLL)
+L:$:MON(scroll mimic):OBJ(SCROLL)
 L:M:MON(*, DEPTH+10)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -1759,7 +1762,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 N:Library?
 T:ROOM:NORMAL
 W:40:*:64
-L:$:MON(557):OBJ(BOOK)
+L:$:MON(raal's):OBJ(BOOK)
 L:M:MON(*, DEPTH+20)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -1776,7 +1779,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 N:Pantry?
 T:ROOM:NORMAL
 W:10:20:8
-L:$:MON(962):OBJ(24)
+L:$:MON(slime mold):OBJ(slime mold)
 L:M:MON(*)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -1820,7 +1823,7 @@ T:ROOM:NORMAL
 W:20:60:32
 L:~:DARK_PIT(ROOM)
 L:,:SHALLOW_LAVA(ROOM | GLOW)
-L:M:SHALLOW_LAVA(ROOM | GLOW):MON(357)
+L:M:SHALLOW_LAVA(ROOM | GLOW):MON(arch-vile)
 M:       %%%%%%%       
 M:     %%%.....%%%     
 M:    %%.........%%    
@@ -2548,7 +2551,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 N:"They have a cave troll!"
 T:ROOM:NORMAL:FORMATION
 W:15:25:8
-L:T:MON(496, NO_GROUP | NO_SLEEP | HASTE)
+L:T:MON(cave troll, NO_GROUP | NO_SLEEP | HASTE)
 L:0:MON(o, DEPTH+10)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
@@ -2693,8 +2696,8 @@ M:        %%%%%
 N:Cross V
 T:ROOM:NORMAL:FORMATION
 W:20:*:50
-L:+:MON(311)
-L:#:MON(898)
+L:+:MON(door mimic)
+L:#:MON(granite wall)
 L:0:MON(*)
 M:        %%%%%        
 M:        %.8.%        
@@ -4258,7 +4261,7 @@ M:%%%%%%%%%%%%%
 
 N:Jeweler
 T:ROOM:NORMAL:SHOP
-W:20:*:64
+W:20:*:32
 L:7:JEWELER(GLOW)
 M:%%%%%%%%%%%%%
 M:%...........%
@@ -4933,17 +4936,17 @@ T:ROOM:NORMAL
 W:1:*:64
 L:0:MON(*, DEPTH+3)
 L:l:DEEP_LAVA
-L:":RUBBLE
+L:;:RUBBLE
 M:    %%%%%%%%%%    
 M:  %%%.0......%%%  
 M: %%.....l......%% 
-M:%%...#...l".#0..%%
-M:%...l.ll"llll.l..%
+M:%%...#...l;.#0..%%
+M:%...l.ll;llll.l..%
 M:%..#.llllll#lll..%
-M:%..."l#lllllll"..%
+M:%...;l#lllllll;..%
 M:%0..lllllll#ll.0.%
-M:%...l"l#llllll#..%
-M:%%.l..l..l#l".l.%%
+M:%...l;l#llllll#..%
+M:%%.l..l..l#l;.l.%%
 M: %%.#...0..l...%% 
 M:  %%%........%%%  
 M:    %%%%%%%%%%    
@@ -5270,14 +5273,14 @@ T:ROOM:NORMAL
 W:1:*:8
 L:0:MON(UNDEAD)
 L:1:MON(UNDEAD, DEPTH+5)
-L:":RUBBLE
+L:;:RUBBLE
 M:%%%%%%%%%%%%%
 M:%...........%
 M:%.#.#.#.#.#.%
-M:%.".".".".".%
+M:%.;.;.;.;.;.%
 M:%..0......0.%
 M:%.....1.....%
-M:%.".".".".".%
+M:%.;.;.;.;.;.%
 M:%.#.#.#.#.#.%
 M:%......0....%
 M:%%%%%%%%%%%%%
@@ -5872,14 +5875,14 @@ N:Barrow 1
 T:ROOM:NORMAL
 W:1:*:5
 L:0:MON(UNDEAD)
-L:":RUBBLE
+L:;:RUBBLE
 M:%%%%%%%%%
 M:%.......%
-M:%.."""..%
-M:%.""0"".%
-M:%."000".%
-M:%.""0"".%
-M:%.."""..%
+M:%..;;;..%
+M:%.;;0;;.%
+M:%.;000;.%
+M:%.;;0;;.%
+M:%..;;;..%
 M:%.......%
 M:%%%%%%%%%
 
@@ -5888,16 +5891,16 @@ T:ROOM:NORMAL
 W:1:*:10
 L:0:MON(UNDEAD, DEPTH+3)
 L:1:MON(UNDEAD, DEPTH+7)
-L:":RUBBLE
+L:;:RUBBLE
 M:%%%%%%%%%%%%%
 M:%...........%
-M:%..."""""...%
-M:%..""...""..%
-M:%."".0.0."".%
-M:%."...1...".%
-M:%."".0.0."".%
-M:%..""...""..%
-M:%..."""""...%
+M:%...;;;;;...%
+M:%..;;...;;..%
+M:%.;;.0.0.;;.%
+M:%.;...1...;.%
+M:%.;;.0.0.;;.%
+M:%..;;...;;..%
+M:%...;;;;;...%
 M:%...........%
 M:%%%%%%%%%%%%%
 

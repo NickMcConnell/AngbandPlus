@@ -35,177 +35,7 @@ static void note(cptr msg)
 
 void rd_item(savefile_ptr file, object_type *o_ptr)
 {
-    object_kind *k_ptr;
-    char         buf[128];
-
-    object_wipe(o_ptr);
-
-    o_ptr->k_idx = savefile_read_s16b(file);
-    k_ptr = &k_info[o_ptr->k_idx];
-    o_ptr->tval = k_ptr->tval;
-    o_ptr->sval = k_ptr->sval;
-
-    o_ptr->iy = savefile_read_byte(file);
-    o_ptr->ix = savefile_read_byte(file);
-    o_ptr->weight = savefile_read_s16b(file);
-
-    o_ptr->number = 1;
-
-    for (;;)
-    {
-        byte code = savefile_read_byte(file);
-        if (code == SAVE_ITEM_DONE)
-            break;
-
-        switch (code)
-        {
-        case SAVE_ITEM_PVAL:
-            o_ptr->pval = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_DISCOUNT:
-            o_ptr->discount = savefile_read_byte(file);
-            break;
-        case SAVE_ITEM_NUMBER:
-            o_ptr->number = savefile_read_byte(file);
-            break;
-        case SAVE_ITEM_NAME1:
-            o_ptr->name1 = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_NAME2:
-            o_ptr->name2 = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_NAME3:
-            o_ptr->name3 = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_TIMEOUT:
-            o_ptr->timeout = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_COMBAT:
-            o_ptr->to_h = savefile_read_s16b(file);
-            o_ptr->to_d = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_ARMOR:
-            o_ptr->to_a = savefile_read_s16b(file);
-            o_ptr->ac = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_DAMAGE_DICE:
-            o_ptr->dd = savefile_read_byte(file);
-            o_ptr->ds = savefile_read_byte(file);
-            break;
-        case SAVE_ITEM_MULT:
-            o_ptr->mult = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_IDENT:
-            o_ptr->ident = savefile_read_byte(file);
-            break;
-        case SAVE_ITEM_MARKED_BYTE:
-            o_ptr->marked = savefile_read_byte(file);
-            break;
-        case SAVE_ITEM_MARKED:
-            o_ptr->marked = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_ART_FLAGS_0:
-            o_ptr->flags[0] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_ART_FLAGS_1:
-            o_ptr->flags[1] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_ART_FLAGS_2:
-            o_ptr->flags[2] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_ART_FLAGS_3:
-            o_ptr->flags[3] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_ART_FLAGS_4:
-            o_ptr->flags[4] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_ART_FLAGS_5:
-            o_ptr->flags[5] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_CURSE_FLAGS:
-            o_ptr->curse_flags = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_KNOWN_FLAGS_0:
-            o_ptr->known_flags[0] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_KNOWN_FLAGS_1:
-            o_ptr->known_flags[1] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_KNOWN_FLAGS_2:
-            o_ptr->known_flags[2] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_KNOWN_FLAGS_3:
-            o_ptr->known_flags[3] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_KNOWN_FLAGS_4:
-            o_ptr->known_flags[4] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_KNOWN_FLAGS_5:
-            o_ptr->known_flags[5] = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_KNOWN_CURSE_FLAGS:
-            o_ptr->known_curse_flags = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_RUNE_FLAGS:
-            o_ptr->rune = savefile_read_u32b(file);
-            break;
-        case SAVE_ITEM_HELD_M_IDX:
-            o_ptr->held_m_idx = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_XTRA1:
-            o_ptr->xtra1 = savefile_read_byte(file);
-            break;
-        case SAVE_ITEM_XTRA2:
-            o_ptr->xtra2 = savefile_read_byte(file);
-            break;
-        case SAVE_ITEM_XTRA3:
-            o_ptr->xtra3 = savefile_read_byte(file);
-            break;
-        case SAVE_ITEM_XTRA4:
-            o_ptr->xtra4 = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_XTRA5_OLD:
-            o_ptr->xtra5 = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_XTRA5:
-            o_ptr->xtra5 = savefile_read_s32b(file);
-            break;
-        case SAVE_ITEM_FEELING:
-            o_ptr->feeling = savefile_read_byte(file);
-            break;
-        case SAVE_ITEM_INSCRIPTION:
-            savefile_read_cptr(file, buf, sizeof(buf));
-            o_ptr->inscription = quark_add(buf);
-            break;
-        case SAVE_ITEM_ART_NAME:
-            savefile_read_cptr(file, buf, sizeof(buf));
-            o_ptr->art_name = quark_add(buf);
-            break;
-        case SAVE_ITEM_ACTIVATION:
-            o_ptr->activation.type = savefile_read_s16b(file);
-            o_ptr->activation.power = savefile_read_byte(file);
-            o_ptr->activation.difficulty = savefile_read_byte(file);
-            o_ptr->activation.cost = savefile_read_s16b(file);
-            o_ptr->activation.extra = savefile_read_s16b(file);
-            break;
-        case SAVE_ITEM_LEVEL:
-            o_ptr->level = savefile_read_s16b(file);
-            break;
-        /* default:
-            TODO: Report an error back to the load routine!!*/
-        }
-    }
-    if (object_is_device(o_ptr))
-        add_flag(o_ptr->flags, OF_ACTIVATE);
-
-    if (savefile_is_older_than(file, 5, 0, 1, 1))
-    {
-        if ( object_is_(o_ptr, TV_BOW, SV_SHORT_BOW)
-          || object_is_(o_ptr, TV_BOW, SV_LIGHT_XBOW) )
-        {
-            o_ptr->mult -= 50;
-        }
-    }
+    obj_load(o_ptr, file);
 }
 
 
@@ -325,16 +155,9 @@ static void rd_lore(savefile_ptr file, int r_idx)
     r_ptr->r_drop_gold = savefile_read_byte(file);
     r_ptr->r_drop_item = savefile_read_byte(file);
     r_ptr->r_cast_spell = savefile_read_byte(file);
-    if (savefile_is_older_than(file, 5, 0, 2, 1))
-    {
-        r_ptr->r_spell_turns = 0;
-        r_ptr->r_move_turns = 0;
-    }
-    else
-    {
-        r_ptr->r_spell_turns = savefile_read_u32b(file);
-        r_ptr->r_move_turns = savefile_read_u32b(file);
-    }
+    r_ptr->r_spell_turns = savefile_read_u32b(file);
+    r_ptr->r_move_turns = savefile_read_u32b(file);
+
     r_ptr->r_blows[0] = savefile_read_byte(file);
     r_ptr->r_blows[1] = savefile_read_byte(file);
     r_ptr->r_blows[2] = savefile_read_byte(file);
@@ -363,128 +186,6 @@ static void rd_lore(savefile_ptr file, int r_idx)
 
     if (pact)
         r_ptr->r_flagsr |= RFR_PACT_MONSTER;
-}
-
-/*
- * Add the item "o_ptr" to the inventory of the "Home"
- *
- * In all cases, return the slot (or -1) where the object was placed
- *
- * Note that this is a hacked up version of "inven_carry()".
- *
- * Also note that it may not correctly "adapt" to "knowledge" bacoming
- * known, the player may have to pick stuff up and drop it again.
- */
-static void home_carry(store_type *st_ptr, object_type *o_ptr)
-{
-    int                 slot;
-    s32b               value;
-    int     i;
-    object_type *j_ptr;
-
-
-    /* Check each existing item (try to combine) */
-    for (slot = 0; slot < st_ptr->stock_num; slot++)
-    {
-        /* Get the existing item */
-        j_ptr = &st_ptr->stock[slot];
-
-        /* The home acts just like the player */
-        if (object_similar(j_ptr, o_ptr))
-        {
-            /* Save the new number of items */
-            object_absorb(j_ptr, o_ptr);
-
-            /* All done */
-            return;
-        }
-    }
-
-    /* No space? */
-    if (st_ptr->stock_num >= STORE_INVEN_MAX * 10) {
-        return;
-    }
-
-    /* Determine the "value" of the item */
-    value = obj_value(o_ptr);
-
-    /* Check existing slots to see if we must "slide" */
-    for (slot = 0; slot < st_ptr->stock_num; slot++)
-    {
-        if (object_sort_comp(o_ptr, value, &st_ptr->stock[slot])) break;
-    }
-
-    /* Slide the others up */
-    for (i = st_ptr->stock_num; i > slot; i--)
-    {
-        st_ptr->stock[i] = st_ptr->stock[i-1];
-    }
-
-    /* More stuff now */
-    st_ptr->stock_num++;
-
-    /* Insert the new item */
-    st_ptr->stock[slot] = *o_ptr;
-
-    virtue_add(VIRTUE_SACRIFICE, -1);
-
-    /* Return the location */
-    return;
-}
-
-static errr rd_store(savefile_ptr file, int town_number, int store_number)
-{
-    store_type *st_ptr;
-
-    int j;
-
-    byte own;
-    s16b num;
-
-    bool sort = FALSE;
-
-    st_ptr = &town[town_number].store[store_number];
-
-    st_ptr->store_open = savefile_read_s32b(file);
-    st_ptr->insult_cur = savefile_read_s16b(file);
-    own = savefile_read_byte(file);
-    num = savefile_read_s16b(file);
-    st_ptr->good_buy = savefile_read_s16b(file);
-    st_ptr->bad_buy = savefile_read_s16b(file);
-    st_ptr->last_visit = savefile_read_s32b(file);
-    st_ptr->last_lev = savefile_read_s16b(file);
-    st_ptr->last_exp = savefile_read_s32b(file);
-
-    /* Extract the owner (see above) */
-    st_ptr->owner = own;
-
-    /* Read the items */
-    for (j = 0; j < num; j++)
-    {
-        object_type forge;
-        object_type *q_ptr;
-
-        q_ptr = &forge;
-
-        rd_item(file, q_ptr);
-
-        /* Acquire valid items */
-        if (st_ptr->stock_num < (store_number == STORE_HOME ? (STORE_INVEN_MAX) * 10 : (store_number == STORE_MUSEUM ? (STORE_INVEN_MAX) * 50 : STORE_INVEN_MAX)))
-        {
-            int k;
-            if (sort)
-            {
-                home_carry(st_ptr, q_ptr);
-            }
-            else
-            {
-                k = st_ptr->stock_num++;
-                object_copy(&st_ptr->stock[k], q_ptr);
-            }
-        }
-    }
-
-    return 0;
 }
 
 static void rd_randomizer(savefile_ptr file)
@@ -588,8 +289,7 @@ static void rd_quick_start(savefile_ptr file)
 {
     int i;
 
-    if (!savefile_is_older_than(file, 5, 0, 3, 1))
-        previous_char.game_mode = savefile_read_byte(file);
+    previous_char.game_mode = savefile_read_byte(file);
     previous_char.psex = savefile_read_byte(file);
     previous_char.prace = savefile_read_byte(file);
     previous_char.psubrace = savefile_read_byte(file);
@@ -599,25 +299,11 @@ static void rd_quick_start(savefile_ptr file)
     previous_char.realm1 = savefile_read_byte(file);
     previous_char.realm2 = savefile_read_byte(file);
     previous_char.dragon_realm = savefile_read_byte(file);
-    if (savefile_is_older_than(file, 5, 0, 3, 1))
-        previous_char.age = savefile_read_s16b(file);
     previous_char.au = savefile_read_s32b(file);
 
     for (i = 0; i < 6; i++)
         previous_char.stat_max[i] = savefile_read_s16b(file);
-    if (savefile_is_older_than(file, 5, 0, 3, 1))
-    {
-        for (i = 0; i < 6; i++) previous_char.stat_max_max[i] = savefile_read_s16b(file);
-        for (i = 0; i < PY_MAX_LEVEL; i++) previous_char.player_hp[i] = savefile_read_s16b(file);
-
-        previous_char.chaos_patron = savefile_read_s16b(file);
-        previous_char.mutation = savefile_read_s32b(file);
-
-        for (i = 0; i < 8; i++) previous_char.vir_types[i] = savefile_read_s16b(file);
-    }
     previous_char.quick_ok = savefile_read_byte(file);
-    if (savefile_is_older_than(file, 5, 0, 3, 1))
-        previous_char.quick_ok = FALSE;
 }
 
 static void rd_extra(savefile_ptr file)
@@ -692,7 +378,6 @@ static void rd_extra(savefile_ptr file)
 
     p_ptr->arena_number = savefile_read_s16b(file);
     p_ptr->inside_arena = (bool)savefile_read_s16b(file);
-    p_ptr->inside_quest = savefile_read_s16b(file);
     p_ptr->inside_battle = (bool)savefile_read_s16b(file);
     p_ptr->exit_bldg = savefile_read_byte(file);
 
@@ -780,22 +465,14 @@ static void rd_extra(savefile_ptr file)
     p_ptr->tim_sh_holy = savefile_read_s16b(file);
     p_ptr->tim_eyeeye = savefile_read_s16b(file);
     p_ptr->tim_spurt = savefile_read_s16b(file);
-    p_ptr->tim_spec_corporeal = savefile_read_s16b(file);
     p_ptr->tim_no_spells = savefile_read_s16b(file);
     p_ptr->tim_no_device = savefile_read_s16b(file);
-    p_ptr->tim_speed_essentia = savefile_read_s16b(file);
-    p_ptr->tim_slow_digest = savefile_read_s16b(file);
-    p_ptr->tim_crystal_skin = savefile_read_s16b(file);
-    p_ptr->tim_chaotic_surge = savefile_read_s16b(file);
-    p_ptr->tim_wild_pos = savefile_read_s16b(file);
-    p_ptr->tim_wild_mind = savefile_read_s16b(file);
     p_ptr->tim_blood_shield = savefile_read_s16b(file);
     p_ptr->tim_blood_sight = savefile_read_s16b(file);
     p_ptr->tim_blood_feast = savefile_read_s16b(file);
     p_ptr->tim_blood_revenge = savefile_read_s16b(file);
     p_ptr->tim_blood_seek = savefile_read_s16b(file);
     p_ptr->tim_blood_rite = savefile_read_s16b(file);
-    p_ptr->tim_genji = savefile_read_s16b(file);
     p_ptr->tim_force = savefile_read_s16b(file);
     p_ptr->tim_building_up = savefile_read_s16b(file);
     p_ptr->tim_vicious_strike = savefile_read_s16b(file);
@@ -809,7 +486,6 @@ static void rd_extra(savefile_ptr file)
     p_ptr->tim_stealthy_snipe = savefile_read_s16b(file);
     p_ptr->tim_killing_spree = savefile_read_s16b(file);
     p_ptr->tim_slay_sentient = savefile_read_s16b(file);
-    p_ptr->tim_shrike = savefile_read_s16b(file);
 
     {
         int i;
@@ -941,7 +617,6 @@ static void rd_extra(savefile_ptr file)
     p_ptr->floor_id = savefile_read_s16b(file);
 
     playtime = savefile_read_u32b(file);
-    p_ptr->visit = savefile_read_s32b(file);
     p_ptr->count = savefile_read_u32b(file);
 
     {
@@ -953,52 +628,6 @@ static void rd_extra(savefile_ptr file)
         if (class_ptr->load_player)
             class_ptr->load_player(file);
     }
-}
-
-/*
- * Read the player inventory
- * Note that the inventory is "re-sorted" later by "dungeon()".
- */
-static errr rd_inventory(savefile_ptr file)
-{
-    int           slot = 0;
-    object_type   forge;
-
-    p_ptr->total_weight = 0;
-    inven_cnt = 0;
-
-    /* Read until done */
-    while (1)
-    {
-        u16b n = savefile_read_u16b(file);
-
-        if (n == 0xFFFF) break;
-
-        rd_item(file, &forge);
-
-        if (!forge.k_idx) return (53);
-
-        if (n >= EQUIP_BEGIN)
-        {
-            forge.marked |= OM_TOUCHED;
-            object_copy(&inventory[n], &forge);
-            p_ptr->total_weight += (forge.number * forge.weight);
-        }
-        else if (inven_cnt == INVEN_PACK)
-        {
-            note("Too many items in the inventory!");
-            return (54);
-        }
-        else
-        {
-            n = slot++;
-            forge.marked |= OM_TOUCHED;
-            object_copy(&inventory[n], &forge);
-            p_ptr->total_weight += (forge.number * forge.weight);
-            inven_cnt++;
-        }
-    }
-    return 0;
 }
 
 /*
@@ -1066,7 +695,7 @@ static errr rd_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
     for (i = 0; i < limit; i++)
     {
         cave_template_type *ct_ptr = &template[i];
-        ct_ptr->info = savefile_read_u16b(file);
+        ct_ptr->info = savefile_read_u32b(file);
         ct_ptr->feat = savefile_read_s16b(file);
         ct_ptr->mimic = savefile_read_s16b(file);
         ct_ptr->special = savefile_read_s16b(file);
@@ -1142,7 +771,7 @@ static errr rd_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
         }
         else
         {
-            cave_type *c_ptr = &cave[o_ptr->iy][o_ptr->ix];
+            cave_type *c_ptr = &cave[o_ptr->loc.y][o_ptr->loc.x];
             o_ptr->next_o_idx = c_ptr->o_idx;
             c_ptr->o_idx = o_idx;
         }
@@ -1320,7 +949,6 @@ static errr rd_dungeon(savefile_ptr file)
 static errr rd_savefile_new_aux(savefile_ptr file)
 {
     int i, j;
-    int town_count;
 
     s32b wild_x_size;
     s32b wild_y_size;
@@ -1337,9 +965,10 @@ static errr rd_savefile_new_aux(savefile_ptr file)
              "Loading a %d.%d.%d savefile...",
              (z_major > 9) ? z_major - 10 : z_major, z_minor, z_patch));
 
-    if (savefile_is_older_than(file, 5, 0, 0, 0))
+    /* Savefiles break iff VER_MAJOR bumps */
+    if (savefile_is_older_than(file, VER_MAJOR, 0, 0, 0))
     {
-        note("Old savefiles are not supported!");
+        note(format("Savefiles older than %d.0.0 are not supported!", VER_MAJOR));
         return 1;
     }
 
@@ -1488,109 +1117,29 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         }
     }
 
+    quests_load(file);
+    if (arg_fiddle) note("Loaded Quests");
+
+    p_ptr->wilderness_x = savefile_read_s32b(file);
+    p_ptr->wilderness_y = savefile_read_s32b(file);
+    p_ptr->wilderness_dx = savefile_read_s16b(file);
+    p_ptr->wilderness_dy = savefile_read_s16b(file);
+    p_ptr->wild_mode = savefile_read_byte(file);
+    savefile_read_skip(file, 1);
+
+    wild_x_size = savefile_read_s32b(file);
+    wild_y_size = savefile_read_s32b(file);
+    if ((wild_x_size > max_wild_x) || (wild_y_size > max_wild_y))
     {
-        u16b max_towns_load;
-        u16b max_quests_load;
-        byte max_rquests_load;
-
-        max_towns_load = savefile_read_u16b(file);
-        if (max_towns_load > max_towns)
-        {
-            note(format("Too many (%u) towns!", max_towns_load));
-            return (23);
-        }
-
-        max_quests_load = savefile_read_u16b(file);
-        max_rquests_load = savefile_read_byte(file);
-        num_random_quests = max_rquests_load;
-        if (max_quests_load > max_quests)
-        {
-            note(format("Too many (%u) quests!", max_quests_load));
-            return (23);
-        }
-        for (i = 0; i < max_quests_load; i++)
-        {
-            if (i < max_quests)
-            {
-                quest[i].status = savefile_read_s16b(file);
-                quest[i].level = savefile_read_s16b(file);
-                quest[i].complev = savefile_read_byte(file);
-
-                if ((quest[i].status == QUEST_STATUS_TAKEN) ||
-                    (quest[i].status == QUEST_STATUS_COMPLETED) ||
-                    ((i >= MIN_RANDOM_QUEST) && (i < (MIN_RANDOM_QUEST + max_rquests_load))))
-                {
-                    quest[i].cur_num = savefile_read_s16b(file);
-                    quest[i].max_num = savefile_read_s16b(file);
-                    quest[i].type = savefile_read_s16b(file);
-                    quest[i].r_idx = savefile_read_s16b(file);
-
-                    if (quest[i].type == QUEST_TYPE_RANDOM)
-                    {
-                        if (!quest[i].r_idx || quest[i].r_idx == MON_NAZGUL)
-                        {
-                            quest_type      *q_ptr = &quest[i];
-                            monster_race    *quest_r_ptr;
-
-                            determine_random_questor(q_ptr);
-                            quest_r_ptr = &r_info[q_ptr->r_idx];
-
-                            if (quest_r_ptr->flags1 & RF1_UNIQUE)
-                            {
-                                quest_r_ptr->flags1 |= RF1_QUESTOR;
-                                q_ptr->max_num = 1;
-                            }
-                            else
-                            {
-                                q_ptr->max_num = randint1(20) + 5;
-                            }
-                        }
-                    }
-
-                    quest[i].k_idx = savefile_read_s16b(file);
-                    if (quest[i].k_idx)
-                        a_info[quest[i].k_idx].gen_flags |= OFG_QUESTITEM;
-
-                    quest[i].flags = savefile_read_byte(file);
-                    quest[i].dungeon = savefile_read_byte(file);
-                    /* Mark uniques */
-                    if (quest[i].status == QUEST_STATUS_TAKEN || quest[i].status == QUEST_STATUS_UNTAKEN)
-                        if (r_info[quest[i].r_idx].flags1 & RF1_UNIQUE)
-                            r_info[quest[i].r_idx].flags1 |= RF1_QUESTOR;
-
-                    quest[i].seed = savefile_read_u32b(file);
-                }
-            }
-            /* Ignore the empty quests from old versions */
-            else
-            {
-                savefile_read_skip(file, 4);
-            }
-        }
-
-        p_ptr->wilderness_x = savefile_read_s32b(file);
-        p_ptr->wilderness_y = savefile_read_s32b(file);
-        p_ptr->wilderness_dx = savefile_read_s16b(file);
-        p_ptr->wilderness_dy = savefile_read_s16b(file);
-        p_ptr->wild_mode = savefile_read_byte(file);
-        savefile_read_skip(file, 1);
-
-        wild_x_size = savefile_read_s32b(file);
-        wild_y_size = savefile_read_s32b(file);
-        if ((wild_x_size > max_wild_x) || (wild_y_size > max_wild_y))
-        {
-            note(format("Wilderness is too big (%u/%u)!", wild_x_size, wild_y_size));
-            return (23);
-        }
-
-        for (i = 0; i < wild_x_size; i++)
-        {
-            for (j = 0; j < wild_y_size; j++)
-                wilderness[j][i].seed = savefile_read_u32b(file);
-        }
+        note(format("Wilderness is too big (%u/%u)!", wild_x_size, wild_y_size));
+        return (23);
     }
 
-    if (arg_fiddle) note("Loaded Quests");
+    for (i = 0; i < wild_x_size; i++)
+    {
+        for (j = 0; j < wild_y_size; j++)
+            wilderness[j][i].seed = savefile_read_u32b(file);
+    }
 
     /* Load the Artifacts */
     tmp16u = savefile_read_u16b(file);
@@ -1603,8 +1152,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     {
         artifact_type *a_ptr = &a_info[i];
         a_ptr->generated = savefile_read_byte(file);
-        if (!savefile_is_older_than(file, 5, 0, 0, 1))
-            a_ptr->found = savefile_read_byte(file);
+        a_ptr->found = savefile_read_byte(file);
         a_ptr->floor_id = savefile_read_s16b(file);
     }
     if (arg_fiddle) note("Loaded Artifacts");
@@ -1654,22 +1202,17 @@ static errr rd_savefile_new_aux(savefile_ptr file)
 
 
     /* Read the inventory */
-    equip_on_init();
-    if (rd_inventory(file))
-    {
-        note("Unable to read inventory");
-        return (21);
-    }
+    equip_init();
+    pack_init();
+    quiver_init();
+    towns_init();
+    home_init();
 
-    town_count = savefile_read_u16b(file);
-    tmp16u = savefile_read_u16b(file);
-    for (i = 1; i < town_count; i++)
-    {
-        for (j = 0; j < tmp16u; j++)
-        {
-            if (rd_store(file, i, j)) return (22);
-        }
-    }
+    equip_load(file);
+    pack_load(file);
+    quiver_load(file);
+    towns_load(file);
+    home_load(file);
 
     p_ptr->pet_follow_distance = savefile_read_s16b(file);
     p_ptr->pet_extra_flags = savefile_read_s16b(file);
@@ -1679,14 +1222,6 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         char buf[SCREEN_BUF_SIZE];
         savefile_read_cptr(file, buf, sizeof(buf));
         if (buf[0]) screen_dump = z_string_make(buf);
-    }
-
-    if (p_ptr->is_dead)
-    {
-        for (i = MIN_RANDOM_QUEST; i < MIN_RANDOM_QUEST + num_random_quests; i++)
-        {
-            r_info[quest[i].r_idx].flags1 &= ~(RF1_QUESTOR);
-        }
     }
 
     spell_stats_on_load(file);

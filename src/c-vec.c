@@ -21,9 +21,7 @@ struct vec_s
 
    However, gcc whines about converting int <-> void* on 64 bit architectures,
    and as far as I could figure out, the only way to shut up this warning is to
-   convert intptr_t <-> void*. Since I have a sinking feeling that this will not
-   port to Windows, I added some routines to hide this conversion until I can
-   figure out what Windows will handle.
+   convert intptr_t <-> void*. This works just fine on Windows, btw.
 
    All we really need for the correctness of this long standing, traditional
    idiom is sizeof(int) <= sizeof(void*), and I really wish gcc would lighten
@@ -72,9 +70,12 @@ vec_ptr vec_alloc(vec_free_f free)
 
 void vec_free(vec_ptr vec)
 {
-    vec_clear(vec);
-    free(vec->objs);
-    free(vec);
+    if (vec)
+    {
+        vec_clear(vec);
+        free(vec->objs);
+        free(vec);
+    }
 }
 
 void vec_add(vec_ptr vec, vptr obj)
@@ -103,7 +104,7 @@ void vec_clear(vec_ptr vec)
             for (i = 0; i < vec->len; i++)
                 vec->free(vec->objs[i]);
         }
-        memset(vec->objs, 0, vec->size * sizeof(vptr)); /* unnecessary */
+        memset(vec->objs, 0, vec->size * sizeof(vptr));
         vec->len = 0;
     }
 }
@@ -132,8 +133,25 @@ void vec_set(vec_ptr vec, int i, vptr obj)
     if (i < vec->len)
     {
         assert(vec->objs);
+        if (vec->free)
+            vec->free(vec->objs[i]);
         vec->objs[i] = obj;
     }
+}
+
+void vec_set_int(vec_ptr vec, int i, int val)
+{
+    vec_set(vec, i, (vptr)(intptr_t)val);
+}
+
+void vec_swap(vec_ptr vec, int i, int j)
+{
+    vptr tmp;
+    assert(i >= 0 && i < vec->len);
+    assert(j >= 0 && j < vec->len);
+    tmp = vec->objs[i];
+    vec->objs[i] = vec->objs[j];
+    vec->objs[j] = tmp;
 }
 
 int vec_length(vec_ptr vec)
@@ -336,8 +354,13 @@ static void _merge_sort(vptr vec[], int left, int right, vec_cmp_f f)
 
 bool vec_is_sorted(vec_ptr vec, vec_cmp_f f)
 {
+    return vec_is_sorted_range(vec, 0, vec->len - 1, f);
+}
+
+bool vec_is_sorted_range(vec_ptr vec, int start, int stop, vec_cmp_f f)
+{
     int i;
-    for (i = 0; i < vec->len - 1; i++)
+    for (i = start; i < stop; i++)
     {
         if (f(vec->objs[i], vec->objs[i+1]) > 0)
             return FALSE;
@@ -349,6 +372,15 @@ void vec_quick_sort(vec_ptr vec, vec_cmp_f f)
 {
     _quick_sort(vec->objs, 0, vec->len - 1, f);
     assert(vec_is_sorted(vec, f));
+}
+
+void vec_sort_range(vec_ptr vec, int start, int stop, vec_cmp_f f)
+{
+    assert(0 <= start && start < vec->len);
+    assert(0 <= stop && stop < vec->len);
+    assert(start <= stop);
+    _quick_sort(vec->objs, start, stop, f);
+    assert(vec_is_sorted_range(vec, start, stop, f));
 }
 
 void vec_merge_sort(vec_ptr vec, vec_cmp_f f)

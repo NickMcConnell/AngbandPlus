@@ -253,20 +253,30 @@ void death_scythe_miss(object_type *o_ptr, int hand, int mode)
     u32b flgs[OF_ARRAY_SIZE];
     int k;
     critical_t crit;
+    int dd = o_ptr->dd;
+    int ds = o_ptr->ds;
+    int to_h = 0;
+    int to_d = 0;
 
     /* Sound */
     sound(SOUND_HIT);
 
     /* Message */
-    if (mode == MODE_THROWING)
+    if (hand == HAND_NONE) /* this is a thrown  weapon */
         cmsg_print(TERM_VIOLET, "Your scythe viciously slashes you!");
     else
+    {
         cmsg_print(TERM_VIOLET, "Your scythe returns to you!");
+        dd += p_ptr->weapon_info[hand].to_dd;
+        ds += p_ptr->weapon_info[hand].to_ds;
+        to_h += p_ptr->weapon_info[hand].to_h;
+        to_d += p_ptr->weapon_info[hand].to_d;
+    }
 
     /* Extract the flags */
     obj_flags(o_ptr, flgs);
 
-    k = damroll(o_ptr->dd + p_ptr->weapon_info[hand].to_dd, o_ptr->ds + p_ptr->weapon_info[hand].to_ds);
+    k = damroll(dd, ds);
     {
         int mult;
         switch (p_ptr->mimic_form)
@@ -326,11 +336,6 @@ void death_scythe_miss(object_type *o_ptr, int hand, int mode)
         if (!res_save_default(RES_POIS) && mult < 25)
             mult = 25;
 
-        if (p_ptr->tim_slay_sentient && p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS)
-        {
-            if (mult < 20) mult = 20;
-        }
-
         if ((have_flag(flgs, OF_BRAND_MANA) || p_ptr->tim_force) && (p_ptr->csp > (p_ptr->msp / 30)))
         {
             p_ptr->csp -= (1+(p_ptr->msp / 30));
@@ -342,7 +347,7 @@ void death_scythe_miss(object_type *o_ptr, int hand, int mode)
         k /= 10;
     }
 
-    crit = critical_norm(o_ptr->weight, o_ptr->to_h, p_ptr->weapon_info[hand].to_h, mode, hand);
+    crit = critical_norm(o_ptr->weight, o_ptr->to_h, to_h, mode, hand);
     if (crit.desc)
     {
         k = k * crit.mul/100 + crit.to_d;
@@ -361,7 +366,7 @@ void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 
         k *= mult;
     }
-    k += (p_ptr->weapon_info[hand].to_d + o_ptr->to_d);
+    k += to_d + o_ptr->to_d;
 
     if (k < 0) k = 0;
 
@@ -443,31 +448,48 @@ critical_t critical_shot(int weight, int plus)
     int i, k;
 
     /* Extract "shot" power */
-    i = ((p_ptr->shooter_info.to_h + plus) * 4) + (p_ptr->lev * 2);
+    i = (p_ptr->shooter_info.to_h + plus) * 3 + p_ptr->skills.thb * 2;
 
-    /* Snipers can shot more critically with crossbows */
-    if (p_ptr->concent) i += ((i * p_ptr->concent) / 10);
-    if ((p_ptr->pclass == CLASS_SNIPER) && (p_ptr->shooter_info.tval_ammo == TV_BOLT)) i *= 2;
+    /* Snipers and Crossbowmasters get more crits */
+    if (p_ptr->concent) i += i * p_ptr->concent / 10;
+    if (p_ptr->pclass == CLASS_SNIPER && p_ptr->shooter_info.tval_ammo == TV_BOLT) i = i * 3 / 2;
+    if (weaponmaster_get_toggle() == TOGGLE_CAREFUL_AIM)
+        i *= 3;
 
     /* Critical hit */
     if (randint1(5000) <= i)
     {
         k = weight * randint1(500);
 
-        if (k < 900)
+        if (k < 400)
         {
-            result.desc = "It was a good hit!";
-            result.mul = 150;
+            result.desc = "It was a <color:y>fair</color> shot!";
+            result.mul = 175;
+        }
+        else if (k < 700)
+        {
+            result.desc = "It was a <color:y>decent</color> shot!";
+            result.mul = 200;
+        }
+        else if (k < 1000)
+        {
+            result.desc = "It was a <color:R>good</color> shot!";
+            result.mul = 225;
         }
         else if (k < 1350)
         {
-            result.desc = "It was a great hit!";
-            result.mul = 200;
+            result.desc = "It was a <color:r>great</color> shot!";
+            result.mul = 250;
         }
-        else
+        else if (k < 1800)
         {
-            result.desc = "It was a superb hit!";
+            result.desc = "It was a <color:v>superb</color> shot!";
             result.mul = 300;
+        }
+        else /* requires 0.4+lb ammo: steel bolt or sheaf arrow or sling ammo */
+        {
+            result.desc = "It was a <color:v>*GREAT*</color> shot!";
+            result.mul = 350;
         }
     }
 
@@ -1543,234 +1565,6 @@ void search(void)
         }
     }
 }
-
-
-/*
- * Helper routine for py_pickup() and py_pickup_floor().
- *
- * Add the given dungeon object to the character's inventory.
- *
- * Delete the object afterwards.
- */
-void py_pickup_aux(int o_idx)
-{
-    int slot, i;
-
-    char o_name[MAX_NLEN];
-
-    object_type *o_ptr;
-
-    o_ptr = &o_list[o_idx];
-
-    /* Carry the object */
-    slot = inven_carry(o_ptr);
-
-    /* Get the object again */
-    o_ptr = &inventory[slot];
-
-    /* Delete the object */
-    delete_object_idx(o_idx);
-
-    if ( p_ptr->personality == PERS_MUNCHKIN
-      || randint0(1000) < virtue_current(VIRTUE_KNOWLEDGE) )
-    {
-        bool old_known = identify_item(o_ptr);
-
-        /* Auto-inscription/destroy */
-        autopick_alter_item(slot, (bool)(destroy_identify && !old_known));
-
-        /* If it is destroyed, don't pick it up */
-        if (o_ptr->marked & OM_AUTODESTROY) return;
-    }
-
-    /* Describe the object */
-    object_desc(o_name, o_ptr, OD_COLOR_CODED);
-
-    /* Message */
-    msg_format("You have %s (%c).", o_name, index_to_label(slot));
-
-    /* Runes confer benefits even when in inventory */
-    p_ptr->update |= PU_BONUS;
-
-    /* Hack: Archaeologists Instantly Pseudo-ID artifacts on pickup */
-    if ( p_ptr->pclass == CLASS_ARCHAEOLOGIST
-      && object_is_artifact(o_ptr)
-      && !object_is_known(o_ptr) )
-    {
-        /* Suppress you are leaving something special behind message ... */
-        if (p_ptr->sense_artifact)
-        {
-            p_ptr->sense_artifact = FALSE;    /* There may be more than one? */
-            p_ptr->redraw |= PR_STATUS;
-        }
-
-        if (!(o_ptr->ident & (IDENT_SENSE)))
-        {
-            cmsg_format(TERM_L_BLUE, "You feel that the %s is %s...", o_name, game_inscriptions[FEEL_SPECIAL]);
-
-            o_ptr->ident |= (IDENT_SENSE);
-            o_ptr->feeling = FEEL_SPECIAL;
-        }
-    }
-
-    /* Check if completed a quest */
-    for (i = 0; i < max_quests; i++)
-    {
-        if ((quest[i].type == QUEST_TYPE_FIND_ARTIFACT) &&
-            (quest[i].status == QUEST_STATUS_TAKEN) &&
-               (quest[i].k_idx == o_ptr->name1 || quest[i].k_idx == o_ptr->name3))
-        {
-            quest[i].status = QUEST_STATUS_COMPLETED;
-            quest[i].complev = (byte)p_ptr->lev;
-            msg_print("You completed your quest!");
-            msg_print(NULL);
-        }
-    }
-}
-
-
-/*
- * Player "wants" to pick up an object or gold.
- * Note that we ONLY handle things that can be picked up.
- * See "move_player()" for handling of other things.
- */
-void carry(bool pickup)
-{
-    cave_type *c_ptr = &cave[py][px];
-
-    s16b this_o_idx, next_o_idx = 0;
-
-    char    o_name[MAX_NLEN];
-
-    /* Recenter the map around the player */
-    viewport_verify();
-
-    /* Update stuff */
-    p_ptr->update |= (PU_MONSTERS);
-
-    /* Redraw map */
-    p_ptr->redraw |= (PR_MAP);
-
-    /* Window stuff */
-    p_ptr->window |= (PW_OVERHEAD);
-
-    /* Handle stuff */
-    handle_stuff();
-
-    /* Automatically pickup/destroy/inscribe items */
-    autopick_pickup_items(c_ptr);
-
-#ifdef ALLOW_EASY_FLOOR
-
-    if (easy_floor)
-    {
-        py_pickup_floor(pickup);
-        return;
-    }
-
-#endif /* ALLOW_EASY_FLOOR */
-
-    /* Scan the pile of objects */
-    for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-    {
-        object_type *o_ptr;
-
-        /* Acquire object */
-        o_ptr = &o_list[this_o_idx];
-
-#ifdef ALLOW_EASY_SENSE /* TNB */
-
-        /* Option: Make item sensing easy */
-        if (easy_sense)
-        {
-            /* Sense the object */
-            (void)sense_object(o_ptr);
-        }
-
-#endif /* ALLOW_EASY_SENSE -- TNB */
-
-        /* Describe the object */
-        object_desc(o_name, o_ptr, OD_COLOR_CODED);
-
-        /* Acquire next object */
-        next_o_idx = o_ptr->next_o_idx;
-
-        /* Hack -- disturb */
-        disturb(0, 0);
-
-        /* Pick up gold */
-        if (o_ptr->tval == TV_GOLD)
-        {
-            int value = o_ptr->pval;
-
-            /* Delete the gold */
-            delete_object_idx(this_o_idx);
-
-            /* Message */
-            msg_format("You collect %d gold pieces worth of %s.",
-                   value, o_name);
-
-            sound(SOUND_SELL);
-
-            /* Collect the gold */
-            p_ptr->au += value;
-            stats_on_gold_find(value);
-
-            /* Redraw gold */
-            p_ptr->redraw |= (PR_GOLD);
-
-            if (prace_is_(RACE_MON_LEPRECHAUN))
-                p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
-        }
-
-        /* Pick up objects */
-        else
-        {
-            /* Hack - some objects were handled in autopick_pickup_items(). */
-            if (o_ptr->marked & OM_NOMSG)
-            {
-                /* Clear the flag. */
-                o_ptr->marked &= ~OM_NOMSG;
-            }
-            /* Describe the object */
-            else if (!pickup)
-            {
-                msg_format("You see %s.", o_name);
-
-            }
-
-            /* Note that the pack is too full */
-            else if (!inven_carry_okay(o_ptr))
-            {
-                msg_format("You have no room for %s.", o_name);
-
-            }
-
-            /* Pick up the item (if requested and allowed) */
-            else
-            {
-                int okay = TRUE;
-
-                /* Hack -- query every item */
-                if (carry_query_flag)
-                {
-                    char out_val[MAX_NLEN+20];
-                    sprintf(out_val, "Pick up %s? ", o_name);
-
-                    okay = get_check(out_val);
-                }
-
-                /* Attempt to pick up an object. */
-                if (okay)
-                {
-                    /* Pick up the object */
-                    py_pickup_aux(this_o_idx);
-                }
-            }
-        }
-    }
-}
-
 
 /*
  * Determine if a trap affects the player.
@@ -3916,7 +3710,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         msg_print("Your chosen target is vanquished!");
                 }
 
-                if ((p_ptr->pclass == CLASS_BERSERKER || mut_present(MUT_FANTASTIC_FRENZY) || p_ptr->tim_shrike) && energy_use)
+                if ((p_ptr->pclass == CLASS_BERSERKER || mut_present(MUT_FANTASTIC_FRENZY)) && energy_use)
                 {
                     int ct = MAX(1, p_ptr->weapon_ct); /* paranoia ... if we are called with 0, that is a bug (I cannot reproduce) */
                     int frac = 100/ct;                 /* Perhaps the 'zerker leveled up to 35 in the middle of a round of attacks? */
@@ -4266,7 +4060,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             else if ((chaos_effect == 5) && (randint1(90) > r_ptr->level))
             {
-                if (!(r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) &&
+                if (!(r_ptr->flags1 & RF1_UNIQUE) &&
+                    !(m_ptr->mflag2 & MFLAG2_QUESTOR) && 
                     !(r_ptr->flagsr & RFR_EFF_RES_CHAO_MASK))
                 {
                     if (polymorph_monster(y, x))
@@ -4299,7 +4094,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     m_ptr->hold_o_idx = q_ptr->next_o_idx;
                     q_ptr->next_o_idx = 0;
                     msg_format("You snatched %s.", o_name);
-                    inven_carry(q_ptr);
+                    pack_carry(q_ptr);
+                    obj_release(q_ptr, OBJ_RELEASE_QUIET);
                 }
             }
 
@@ -4536,7 +4332,7 @@ bool py_attack(int y, int x, int mode)
 
     if ( (r_ptr->flags1 & RF1_FEMALE)
       && !(p_ptr->stun || p_ptr->confused || p_ptr->image || !m_ptr->ml)
-      && equip_find_artifact(ART_ZANTETSU))
+      && equip_find_art(ART_ZANTETSU))
     {
         msg_print("I can not attack women!");
         return FALSE;
@@ -4551,7 +4347,7 @@ bool py_attack(int y, int x, int mode)
     if ( !is_hostile(m_ptr)
       && !(p_ptr->stun || p_ptr->confused || p_ptr->image || IS_SHERO() || !m_ptr->ml) )
     {
-        if (equip_find_artifact(ART_STORMBRINGER))
+        if (equip_find_art(ART_STORMBRINGER))
         {
             msg_format("Your black blade greedily attacks %s!", m_name);
             virtue_add(VIRTUE_INDIVIDUALISM, 1);
@@ -5075,36 +4871,64 @@ bool player_can_enter(s16b feature, u16b mode)
 
 static bool _auto_detect_traps(void)
 {
-    int i;
+    slot_t slot;
     if (p_ptr->pclass == CLASS_BERSERKER) return FALSE;
     if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_detect_traps()) return TRUE;
 
-    i = pack_find(TV_SCROLL, SV_SCROLL_DETECT_TRAP);
-    if (i >= 0 && !p_ptr->blind && !(get_race()->flags & RACE_IS_ILLITERATE))
+    slot = pack_find_obj(TV_SCROLL, SV_SCROLL_DETECT_TRAP);
+    if (slot && !p_ptr->blind && !(get_race()->flags & RACE_IS_ILLITERATE))
     {
+        obj_ptr scroll = pack_obj(slot);
         detect_traps(DETECT_RAD_DEFAULT, TRUE);
-        stats_on_use(&inventory[i], 1);
-        inven_item_increase(i, -1);
-        inven_item_describe(i);
-        inven_item_optimize(i);
+        stats_on_use(scroll, 1);
+        scroll->number--;
+        obj_release(scroll, 0);
         return TRUE;
     }
-    i = pack_find_device(EFFECT_DETECT_TRAPS);
-    if (i >= 0)
+    slot = pack_find_device(EFFECT_DETECT_TRAPS);
+    if (slot)
     {
+        obj_ptr device = pack_obj(slot);
         detect_traps(DETECT_RAD_DEFAULT, TRUE);
-        stats_on_use(&inventory[i], 1);
-        device_decrease_sp(&inventory[i], inventory[i].activation.cost);
-        inven_item_charges(i);
+        stats_on_use(device, 1);
+        device_decrease_sp(device, device->activation.cost);
         return TRUE;
     }
-    i = pack_find_device(EFFECT_DETECT_ALL);
-    if (i >= 0)
+    slot = pack_find_device(EFFECT_DETECT_ALL);
+    if (slot)
     {
+        obj_ptr device = pack_obj(slot);
         detect_all(DETECT_RAD_DEFAULT);
-        stats_on_use(&inventory[i], 1);
-        device_decrease_sp(&inventory[i], inventory[i].activation.cost);
-        inven_item_charges(i);
+        stats_on_use(device, 1);
+        device_decrease_sp(device, device->activation.cost);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static bool _auto_mapping(void)
+{
+    slot_t slot;
+    if (p_ptr->pclass == CLASS_BERSERKER) return FALSE;
+    /*if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_mapping()) return TRUE;*/
+
+    slot = pack_find_obj(TV_SCROLL, SV_SCROLL_MAPPING);
+    if (slot && !p_ptr->blind && !(get_race()->flags & RACE_IS_ILLITERATE))
+    {
+        obj_ptr scroll = pack_obj(slot);
+        map_area(DETECT_RAD_MAP);
+        stats_on_use(scroll, 1);
+        scroll->number--;
+        obj_release(scroll, 0);
+        return TRUE;
+    }
+    slot = pack_find_device(EFFECT_ENLIGHTENMENT);
+    if (slot)
+    {
+        obj_ptr device = pack_obj(slot);
+        map_area(DETECT_RAD_MAP);
+        stats_on_use(device, 1);
+        device_decrease_sp(device, device->activation.cost);
         return TRUE;
     }
     return FALSE;
@@ -5119,6 +4943,7 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
     cave_type *c_ptr = &cave[ny][nx];
     feature_type *f_ptr = &f_info[c_ptr->feat];
     bool old_dtrap = FALSE, new_dtrap = FALSE;
+    bool old_map = FALSE, new_map = FALSE;
 
     if (cave[py][px].info & CAVE_IN_DETECT)
         old_dtrap = TRUE;
@@ -5135,6 +4960,19 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
             cmsg_print(TERM_VIOLET, "You are about to leave a trap detected zone.");
             return FALSE;
         }
+    }
+
+    /* Automatically detecting traps is just so lovable. Let's try the same
+     * with Magic Mapping! */
+    if (cave[py][px].info & CAVE_IN_MAP)
+        old_map = TRUE;
+    if (cave[ny][nx].info & CAVE_IN_MAP)
+        new_map = TRUE;
+
+    if (!(mpe_mode & MPE_STAYING) && (running || travel.run))
+    {
+        if (old_map && !new_map)
+            _auto_mapping();
     }
 
     if (cave[py][px].info & CAVE_IN_DETECT)
@@ -5218,10 +5056,24 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
         /* Update stuff */
         p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_DISTANCE);
         p_ptr->window |= PW_MONSTER_LIST | PW_OBJECT_LIST;
+
+        /* Position Targets are confusing. They should be dismissed when no longer valid.
+         * Note: Originally, I had this check in target_okay(), which is, of course, called
+         * fairly often and repeatedly. While this had the fortunate side effect of preventing
+         * many 'trick shot' projection abuses, it also messed up 'disintegration' effects
+         * (such as Breathe Disintegration or Beam of Disintegration). For these, the user
+         * needs to target a non-projectable monster. As a compromise, we will continue to
+         * dismiss such targets, but only once the player moves. */
         if (target_who < 0)
         {
-            target_okay(); /* dismiss if no longer valid */
-            p_ptr->redraw |= PR_HEALTH_BARS;
+            if ( !in_bounds(target_row, target_col)
+              || !projectable(py, px, target_row, target_col) )
+            {
+                target_who = 0;
+                target_row = 0;
+                target_col = 0;
+                p_ptr->redraw |= PR_HEALTH_BARS;
+            }
         }
 
         if (!view_unsafe_grids)
@@ -5298,7 +5150,22 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
     /* Handle "objects" */
     if (!(mpe_mode & MPE_DONT_PICKUP))
     {
-        carry((mpe_mode & MPE_DO_PICKUP) ? TRUE : FALSE);
+        if (mpe_mode & MPE_DO_PICKUP)
+            pack_get_floor();
+        else
+        {
+            char name[MAX_NLEN];
+            int  this_o_idx, next_o_idx = 0;
+            autopick_get_floor();
+            for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+            {
+                obj_ptr obj = &o_list[this_o_idx];
+                next_o_idx = obj->next_o_idx;
+                object_desc(name, obj, OD_COLOR_CODED);
+                msg_format("You see %s.", name);
+                disturb(0, 0);
+            }
+        }
     }
 
     /* Handle "store doors" */
@@ -5332,26 +5199,6 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
         energy_use = 0;
         /* Hack -- Enter quest level */
         command_new = SPECIAL_KEY_QUEST;
-    }
-
-    else if (have_flag(f_ptr->flags, FF_QUEST_EXIT))
-    {
-        if (quest[p_ptr->inside_quest].type == QUEST_TYPE_FIND_EXIT)
-        {
-            quest[p_ptr->inside_quest].status = QUEST_STATUS_COMPLETED;
-            quest[p_ptr->inside_quest].complev = (byte)p_ptr->lev;
-            msg_print("You accomplished your quest!");
-            msg_print(NULL);
-        }
-
-        leave_quest_check();
-
-        p_ptr->inside_quest = c_ptr->special;
-        dun_level = 0;
-        p_ptr->oldpx = 0;
-        p_ptr->oldpy = 0;
-
-        p_ptr->leaving = TRUE;
     }
 
     /* Set off a trap */
@@ -5473,7 +5320,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
     m_ptr = &m_list[c_ptr->m_idx];
 
 
-    if (equip_find_artifact(ART_STORMBRINGER)) stormbringer = TRUE;
+    if (equip_find_art(ART_STORMBRINGER)) stormbringer = TRUE;
 
     /* Player can not walk through "walls"... */
     /* unless in Shadow Form */
@@ -5753,7 +5600,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
                 msg_format("You feel %s %s blocking your way.",
                     is_a_vowel(name[0]) ? "an" : "a", name);
 
-                c_ptr->info |= (CAVE_MARK);
+                c_ptr->info |= (CAVE_MARK | CAVE_AWARE);
                 lite_spot(y, x);
             }
         }
@@ -6358,7 +6205,7 @@ static bool run_test(void)
 
                 /* Deep water */
                 else if (have_flag(f_ptr->flags, FF_WATER) && have_flag(f_ptr->flags, FF_DEEP) &&
-                         (p_ptr->levitation || p_ptr->can_swim || (p_ptr->total_weight <= weight_limit())))
+                         (p_ptr->levitation || p_ptr->can_swim || (py_total_weight() <= weight_limit())))
                 {
                     /* Ignore */
                     notice = FALSE;
@@ -6715,10 +6562,6 @@ static bool travel_abort(void)
     return FALSE;
 }
 
-
-/*
- * Travel command
- */
 void travel_step(void)
 {
     int i;
@@ -6777,7 +6620,11 @@ void travel_step(void)
     travel.run = old_run;
 
     if ((py == travel.y) && (px == travel.x))
-        travel.run = 0;
+    {
+        travel_end();
+    }
     else
         travel.run--;
 }
+
+

@@ -292,7 +292,7 @@ static cptr r_info_flags1[] =
     "DROP_GOOD",
     "DROP_GREAT",
     "TRUMP",
-    "XXX3"
+    "NO_QUEST"
 };
 
 /*
@@ -1207,6 +1207,39 @@ static bool _is_d_char(const char *token)
     return FALSE;
 }
 
+/* this is almost strip_name_aux ... but I want to support
+ * partial matches (e.g. EGO(speed) to match 'of Speed' and
+ * EGO(pattern) to match '(Pattern)' (Note: EGO((Pattern)) 
+ * would sadly confuse our parser ...) Also, MON(raal's)
+ * rather than MON(raal's tome of destruction) will keep
+ * my fingers happy. */
+static void _prep_name_aux(char *dest, const char *src)
+{
+    char *t;
+
+    while (*src == ' ' || *src == '&' || *src == '[' || *src == '(')
+        src++;
+
+    for (t = dest; *src; src++)
+    {
+        char c = *src;
+        if (c != '~' && c != ']' && c != ')')
+        {
+            if (isupper(c)) c = tolower(c);
+            *t++ = c;
+        }
+    }
+
+    *t = '\0';
+}
+
+static void _prep_name(char *dest, const char *src)
+{
+    strcpy(dest, "^"); /* OBJ(^dagger) matches ^dagger$ not ^broken dagger$ */
+    _prep_name_aux(dest + strlen(dest), src);
+    strcat(dest, "$"); /* MON(ent$) matches ^ent$ not ^agent of the black market$ */
+}
+
 /* Same order as summon_specific_e in defines.h
    These are legal monster types for the MON() directive when
    specifying room_grid_t
@@ -1297,12 +1330,51 @@ static const char *_summon_specific_types[] = {
     0,
 };
 
+int parse_lookup_monster(cptr name, int options)
+{
+    int i;
+    for (i = 1; i < max_r_idx; i++)
+    {
+        monster_race *r_ptr = &r_info[i];
+        char buf[255];
+        if (!r_ptr->name) continue;
+        _prep_name(buf, r_name + r_ptr->name);
+        if (strstr(buf, name))
+        {
+            if (trace_doc)
+                doc_printf(trace_doc, "Mapping <color:B>%s</color> to <color:R>%s</color> (%d).\n", name, buf, i);
+            return i;
+        }
+    }
+    return 0;
+}
+
+int parse_lookup_dungeon(cptr name, int options)
+{
+    int i;
+    for (i = 1; i < max_d_idx; i++)
+    {
+        dungeon_info_type *d_ptr = &d_info[i];
+        char buf[255];
+        if (!d_ptr->name) continue;
+        _prep_name(buf, d_name + d_ptr->name);
+        if (strstr(buf, name))
+        {
+            if (trace_doc)
+                doc_printf(trace_doc, "Mapping dungeon <color:B>%s</color> to <color:R>%s</color> (%d).\n", name, buf, i);
+            return i;
+        }
+    }
+    return 0;
+}
+
 /* MON(DRAGON, DEPTH+20)          Any dragon, 20 levels OoD
    MON(*, DEPTH+40)               Any monster, 40 levels OoD
    MON(ORC, NO_GROUP | HASTE)     A hasted orc loner at current depth
    MON(o, NO_GROUP | HASTE)       Ditto: You can use any valid d_char
-   MON(442)                       A Black Knight */
-static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_t *grid_ptr)
+   MON(black knight)              A Black Knight
+   MON(^ent$)                     An Ent (not an Agent of the black market) */
+static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_ptr grid, int options)
 {
     if (arg_ct < 1 || arg_ct > 2)
     {
@@ -1313,21 +1385,21 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_t *grid_
     /* Which monster? Can be random, by index, by display character, or by summoning type.*/
     if (streq(args[0], "*"))
     {
-        grid_ptr->flags |= ROOM_GRID_MON_RANDOM;
+        grid->flags |= ROOM_GRID_MON_RANDOM;
     }
     else if (_is_numeric(args[0]))
     {
-        grid_ptr->monster = atoi(args[0]);
-        if (!grid_ptr->monster)
+        grid->monster = atoi(args[0]);
+        if (!grid->monster)
         {
-            msg_format("Error: %d is not a valid monster index (See r_idx.txt).", grid_ptr->monster);
+            msg_format("Error: %d is not a valid monster index (See r_idx.txt).", grid->monster);
             return PARSE_ERROR_GENERIC;
         }
     }
     else if (_is_d_char(args[0]))
     {
-        grid_ptr->flags |= ROOM_GRID_MON_CHAR;
-        grid_ptr->monster = args[0][0];
+        grid->flags |= ROOM_GRID_MON_CHAR;
+        grid->monster = args[0][0];
     }
     else
     {
@@ -1336,13 +1408,18 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_t *grid_
         {
             if (!_summon_specific_types[i])
             {
-                msg_format("Error: Invalid monster specifier %s.", args[0]);
-                return PARSE_ERROR_GENERIC;
+                grid->monster = parse_lookup_monster(args[0], options);
+                if (!grid->monster)
+                {
+                    msg_format("Error: Invalid monster specifier %s.", args[0]);
+                    return PARSE_ERROR_GENERIC;
+                }
+                break;
             }
             if (streq(args[0], _summon_specific_types[i]))
             {
-                grid_ptr->flags |= ROOM_GRID_MON_TYPE;
-                grid_ptr->monster = i;
+                grid->flags |= ROOM_GRID_MON_TYPE;
+                grid->monster = i;
                 break;
             }
         }
@@ -1361,27 +1438,31 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_t *grid_
             char* flag = flags[i];
             if (streq(flag, "NO_GROUP"))
             {
-                grid_ptr->flags |= ROOM_GRID_MON_NO_GROUP;
+                grid->flags |= ROOM_GRID_MON_NO_GROUP;
             }
             else if (streq(flag, "NO_SLEEP"))
             {
-                grid_ptr->flags |= ROOM_GRID_MON_NO_SLEEP;
+                grid->flags |= ROOM_GRID_MON_NO_SLEEP;
             }
             else if (streq(flag, "NO_UNIQUE"))
             {
-                grid_ptr->flags |= ROOM_GRID_MON_NO_UNIQUE;
+                grid->flags |= ROOM_GRID_MON_NO_UNIQUE;
             }
             else if (streq(flag, "FRIENDLY"))
             {
-                grid_ptr->flags |= ROOM_GRID_MON_FRIENDLY;
+                grid->flags |= ROOM_GRID_MON_FRIENDLY;
             }
             else if (streq(flag, "HASTE"))
             {
-                grid_ptr->flags |= ROOM_GRID_MON_HASTE;
+                grid->flags |= ROOM_GRID_MON_HASTE;
+            }
+            else if (streq(flag, "CLONE"))
+            {
+                grid->flags |= ROOM_GRID_MON_CLONED;
             }
             else if (strstr(flag, "DEPTH+") == flag)
             {
-                grid_ptr->monster_level = atoi(flag + strlen("DEPTH+"));
+                grid->monster_level = atoi(flag + strlen("DEPTH+"));
             }
             else
             {
@@ -1397,6 +1478,7 @@ struct _object_type_s
 {
     cptr name;
     int  type;
+    int  ego_type;
 };
 typedef struct _object_type_s _object_type_t;
 
@@ -1410,29 +1492,29 @@ static _object_type_t _object_types[] =
     { "STATUE",             TV_STATUE },
     { "FIGURINE",           TV_FIGURINE },
     { "CHEST",              TV_CHEST },
-    { "SHOT",               TV_SHOT },
-    { "ARROW",              TV_ARROW },
-    { "BOLT",               TV_BOLT },
-    { "BOW",                TV_BOW },
-    { "DIGGING",            TV_DIGGING },
-    { "HAFTED",             TV_HAFTED },
-    { "POLEARM",            TV_POLEARM },
-    { "SWORD",              TV_SWORD },
-    { "BOOTS",              TV_BOOTS },
-    { "GLOVES",             TV_GLOVES },
-    { "HELM",               TV_HELM },
-    { "CROWN",              TV_CROWN },
-    { "SHIELD",             TV_SHIELD },
-    { "CLOAK",              TV_CLOAK },
-    { "SOFT_ARMOR",         TV_SOFT_ARMOR },
-    { "HARD_ARMOR",         TV_HARD_ARMOR },
-    { "DRAG_ARMOR",         TV_DRAG_ARMOR },
-    { "LITE",               TV_LITE },
-    { "AMULET",             TV_AMULET },
-    { "RING",               TV_RING },
-    { "STAFF",              TV_STAFF },
-    { "WAND",               TV_WAND },
-    { "ROD",                TV_ROD },
+    { "SHOT",               TV_SHOT, EGO_TYPE_AMMO },
+    { "ARROW",              TV_ARROW, EGO_TYPE_AMMO },
+    { "BOLT",               TV_BOLT, EGO_TYPE_AMMO },
+    { "BOW",                TV_BOW, EGO_TYPE_BOW },
+    { "DIGGING",            TV_DIGGING, EGO_TYPE_DIGGER },
+    { "HAFTED",             TV_HAFTED, EGO_TYPE_WEAPON },
+    { "POLEARM",            TV_POLEARM, EGO_TYPE_WEAPON },
+    { "SWORD",              TV_SWORD, EGO_TYPE_WEAPON },
+    { "BOOTS",              TV_BOOTS, EGO_TYPE_BOOTS },
+    { "GLOVES",             TV_GLOVES, EGO_TYPE_GLOVES },
+    { "HELM",               TV_HELM, EGO_TYPE_HELMET },
+    { "CROWN",              TV_CROWN, EGO_TYPE_CROWN },
+    { "SHIELD",             TV_SHIELD, EGO_TYPE_SHIELD },
+    { "CLOAK",              TV_CLOAK, EGO_TYPE_CLOAK },
+    { "SOFT_ARMOR",         TV_SOFT_ARMOR, EGO_TYPE_BODY_ARMOR },
+    { "HARD_ARMOR",         TV_HARD_ARMOR, EGO_TYPE_BODY_ARMOR },
+    { "DRAG_ARMOR",         TV_DRAG_ARMOR, EGO_TYPE_BODY_ARMOR },
+    { "LITE",               TV_LITE, EGO_TYPE_LITE },
+    { "AMULET",             TV_AMULET, EGO_TYPE_AMULET },
+    { "RING",               TV_RING, EGO_TYPE_RING },
+    { "STAFF",              TV_STAFF, EGO_TYPE_DEVICE },
+    { "WAND",               TV_WAND, EGO_TYPE_DEVICE },
+    { "ROD",                TV_ROD, EGO_TYPE_DEVICE },
     { "SCROLL",             TV_SCROLL },
     { "POTION",             TV_POTION },
     { "FOOD",               TV_FOOD },
@@ -1454,22 +1536,97 @@ static _object_type_t _object_types[] =
     { "RAGE_BOOK",          TV_RAGE_BOOK },
     { "BURGLARY_BOOK",      TV_BURGLARY_BOOK },
     { "GOLD",               TV_GOLD },
-    { "DEVICE",             OBJ_TYPE_DEVICE },
+    { "DEVICE",             OBJ_TYPE_DEVICE, EGO_TYPE_DEVICE },
     { "JEWELRY",            OBJ_TYPE_JEWELRY },
     { "BOOK",               OBJ_TYPE_BOOK },
-    { "BODY_ARMOR",         OBJ_TYPE_BODY_ARMOR },
+    { "BODY_ARMOR",         OBJ_TYPE_BODY_ARMOR, EGO_TYPE_BODY_ARMOR },
     { "OTHER_ARMOR",        OBJ_TYPE_OTHER_ARMOR },
-    { "WEAPON",             OBJ_TYPE_WEAPON },
-    { "BOW_AMMO",           OBJ_TYPE_BOW_AMMO },
+    { "WEAPON",             OBJ_TYPE_WEAPON, EGO_TYPE_WEAPON },
+    { "BOW_AMMO",           OBJ_TYPE_BOW_AMMO, EGO_TYPE_AMMO },
     { "MISC",               OBJ_TYPE_MISC },
     { 0, 0 }
 };
 
-/* OBJ(*)          Any object
-   OBJ(*, DEPTH+7) Any object, 7 levels OoD
-   OBJ(242)        Potion of Healing
-   OBJ(POTION)     Any potion                   */
-static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_t *grid_ptr)
+static int _lookup_ego_type(int object)
+{
+    int i;
+    for (i = 0; ; i++)
+    {
+        if (!_object_types[i].name) return EGO_TYPE_NONE;
+        if (_object_types[i].type == object)
+            return _object_types[i].ego_type;
+    }
+}
+
+static int _lookup_kind(char *arg, int options)
+{
+    int i;
+    for (i = 1; i < max_k_idx; i++)
+    {
+        object_kind *k_ptr = &k_info[i];
+        char         buf[255];
+
+        if (k_ptr->tval == TV_FOOD && k_ptr->sval <= SV_FOOD_MAX_MUSHROOM)
+            strcpy(buf, "^mushroom of ");
+        else if (k_ptr->tval == TV_POTION)
+            strcpy(buf, "^potion of ");
+        else if (k_ptr->tval == TV_SCROLL)
+            strcpy(buf, "^scroll of ");
+        else
+            strcpy(buf, "^");
+
+        _prep_name_aux(buf + strlen(buf), k_name + k_ptr->name);
+        strcat(buf, "$");
+        if (strstr(buf, arg))
+        {
+            if (trace_doc)
+                doc_printf(trace_doc, "Mapping kind <color:B>%s</color> to <color:R>%s</color> (%d).\n", arg, buf, i);
+            return i;
+        }
+    }
+    return 0;
+}
+
+/* OBJ(WAND_ROCKET)      -> _parse_effect(TV_WAND, "ROCKET")     -> EFFECT_ROCKET
+ * OBJ(STAFF_MANA_STORM) -> _parse_effect(TV_STAFF, "MANA_STORM")-> EFFECT_MANA_STORM */
+static errr _parse_effect(int tval, cptr arg, room_grid_ptr grid, int options)
+{
+    int effect_id = effect_parse_type(arg);
+    if (!effect_id)
+    {
+        msg_format("Unkown effect: %s", arg);
+        return PARSE_ERROR_GENERIC;
+    }
+    if (!device_is_valid_effect(tval, effect_id))
+    {
+        msg_format("Invalid effect for this device type: %s (%d)", arg, effect_id);
+        return PARSE_ERROR_GENERIC;
+    }
+    grid->object = lookup_kind(tval, SV_ANY);
+    grid->extra = effect_id;
+    grid->flags |= ROOM_GRID_OBJ_EFFECT;
+    if (trace_doc)
+    {
+        char     name[255];
+        effect_t e = {0};
+        e.type = grid->extra;
+        sprintf(name, "%s", do_effect(&e, SPELL_NAME, 0));
+        doc_printf(trace_doc, "Mapping effect <color:B>%s</color> to <color:R>%s</color> (%d).\n",
+            arg, name, grid->extra);
+    }
+    return 0;
+}
+
+/* OBJ(*)                       Any object
+   OBJ(*, DEPTH+7)              Any object, 7 levels OoD
+   OBJ(potion of healing)       Potion of Healing
+   OBJ(POTION)                  Any potion
+   OBJ(diamond edge, DEPTH+100) A really deep diamond edge
+   OBJ(STAFF_MANA_STORM)        A staff with EFFECT_MANA_STORM
+   OBJ(mushroom of cure serious wounds)
+   OBJ(potion of cure serious wounds)   i.e. you must disambiguate!
+*/
+static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_ptr grid, int options)
 {
     switch (arg_ct)
     {
@@ -1485,7 +1642,7 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_t *grid_p
             char* flag = flags[i];
             if (strstr(flag, "DEPTH+") == flag)
             {
-                grid_ptr->object_level = atoi(flag + strlen("DEPTH+"));
+                grid->object_level = atoi(flag + strlen("DEPTH+"));
             }
             else
             {
@@ -1493,38 +1650,48 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_t *grid_p
                 return PARSE_ERROR_GENERIC;
             }
         }
-        /* vvvvvvvvv Fall Through vvvvvvvvvvvv */
+        /* vvvvvvvvvvvvv Fall Through vvvvvvvvvvvvv */
     }
     case 1:
         if (streq(args[0], "*"))
         {
-            grid_ptr->flags |= ROOM_GRID_OBJ_RANDOM;
+            grid->flags |= ROOM_GRID_OBJ_RANDOM;
         }
         else
         {
             int i;
+            /* OBJ(WAND_ROCKET) ... note: OBJ(WAND) will fall thru to normal type handling */
+            if (prefix(args[0], "WAND_"))
+                return _parse_effect(TV_WAND, args[0] + strlen("WAND_"), grid, options);
+            if (prefix(args[0], "ROD_"))
+                return _parse_effect(TV_ROD, args[0] + strlen("ROD_"), grid, options);
+            if (prefix(args[0], "STAFF_"))
+                return _parse_effect(TV_STAFF, args[0] + strlen("STAFF_"), grid, options);
+            /* OBJ(SWORD) */
             for (i = 0; ; i++)
             {
-                if (!_object_types[i].name)
-                {
-                    grid_ptr->object = atoi(args[0]);
-                    if (!grid_ptr->object)
-                    {
-                        msg_format("Error: Invalid object %s.", args[0]);
-                        return PARSE_ERROR_GENERIC;
-                    }
-                    break;
-                }
+                if (!_object_types[i].name) break;
                 if (streq(args[0], _object_types[i].name))
                 {
-                    grid_ptr->object = _object_types[i].type;
-                    grid_ptr->flags |= ROOM_GRID_OBJ_TYPE;
-                    break;
+                    grid->object = _object_types[i].type;
+                    grid->flags |= ROOM_GRID_OBJ_TYPE;
+                    return 0;
+                }
+            }
+            /* OBJ(^dagger$) */
+            grid->object = _lookup_kind(args[0], options);
+            if (!grid->object)
+            {
+                /* OBJ(212) ... whatever that might be?? */
+                grid->object = atoi(args[0]);
+                if (!grid->object)
+                {
+                    msg_format("Invalid object: %s", args[0]);
+                    return PARSE_ERROR_GENERIC;
                 }
             }
         }
         break;
-
     default:
         msg_print("Error: Invalid OBJ() directive. Syntax: OBJ(<which> [,<flags>]).");
         return PARSE_ERROR_TOO_FEW_ARGUMENTS;
@@ -1532,28 +1699,63 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_t *grid_p
     return 0;
 }
 
-/* OBJ(RING):EGO(306)            Ring of Speed
+static int _lookup_ego(cptr name, int type, int options)
+{
+    int i;
+    for (i = 1; i < max_e_idx; i++)
+    {
+        ego_type *e_ptr = &e_info[i];
+        char      buf[255];
+        if (!e_ptr->name) continue;
+        if (type && !(e_ptr->type & type)) continue;
+        _prep_name(buf, e_name + e_ptr->name);
+        if (strstr(buf, name))
+        {
+            if (trace_doc)
+                doc_printf(trace_doc, "Matching ego <color:B>%s</color> to <color:R>%s</color> (%d).\n", name, e_name + e_ptr->name, i);
+            return i;
+        }
+    }
+    return 0;
+}
+
+/* OBJ(RING):EGO(speed)          Ring of Speed
    OBJ(RING):EGO(*)              Any ego ring
    OBJ(CLOAK, DEPTH+20):EGO(*)   Any ego cloak generated 20 levels OoD
-   OBJ(RING, DEPTH+50):EGO(306)  Ring of Speed generated 50 level OoD */
-static errr _parse_room_grid_ego(char **args, int arg_ct, room_grid_t *grid_ptr)
+   OBJ(RING, DEPTH+50):EGO(speed) Ring of Speed generated 50 level OoD
+   OBJ(SWORD):EGO(pattern)       A pattern blade
+*/   
+static errr _parse_room_grid_ego(char **args, int arg_ct, room_grid_ptr grid, int options)
 {
     switch (arg_ct)
     {
     case 1:
         if (streq(args[0], "*"))
         {
-            grid_ptr->flags |= ROOM_GRID_EGO_RANDOM;
+            grid->flags |= ROOM_GRID_EGO_RANDOM;
         }
         else
         {
-            grid_ptr->extra = atoi(args[0]);
-            if (!grid_ptr->extra)
+            if (_is_numeric(args[0]))
+                grid->extra = atoi(args[0]);
+            else if (grid->flags & ROOM_GRID_OBJ_TYPE)
+            {
+                int type = _lookup_ego_type(grid->object);
+                grid->extra = _lookup_ego(args[0], type, options);
+            }
+            else if (grid->object && !(grid->flags & ROOM_GRID_OBJ_RANDOM))
+            {
+                int type = _lookup_ego_type(k_info[grid->object].tval);
+                grid->extra = _lookup_ego(args[0], type, options);
+            }
+            else
+                grid->extra = _lookup_ego(args[0], 0, options);
+            if (!grid->extra)
             {
                 msg_format("Error: Unknown Ego %s.", args[0]);
                 return PARSE_ERROR_GENERIC;
             }
-            grid_ptr->flags |= ROOM_GRID_OBJ_EGO;
+            grid->flags |= ROOM_GRID_OBJ_EGO;
         }
         break;
 
@@ -1564,26 +1766,59 @@ static errr _parse_room_grid_ego(char **args, int arg_ct, room_grid_t *grid_ptr)
     return 0;
 }
 
+int parse_lookup_artifact(cptr name, int options)
+{
+    int i;
+    for (i = 1; i < max_a_idx; i++)
+    {
+        artifact_type *a_ptr = &a_info[i];
+        char           buf[255];
+        if (!a_ptr->name) continue;
+        if (have_flag(a_ptr->flags, OF_FULL_NAME))
+            _prep_name(buf, a_name + a_ptr->name);
+        else /* ART(bow of bard) matches "long bow of bard" */
+        {    /* not "black arrow of bard" or "soft leather boots of bard" */
+            int          k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+            object_kind *k_ptr = &k_info[k_idx];
+            strcpy(buf, "^");
+            _prep_name_aux(buf + strlen(buf), k_name + k_ptr->name);
+            strcat(buf, " ");
+            _prep_name_aux(buf + strlen(buf), a_name + a_ptr->name);
+            strcat(buf, "$");
+        }
+        if (strstr(buf, name))
+        {
+            if (trace_doc)
+                doc_printf(trace_doc, "Matching artifact <color:B>%s</color> to <color:R>%s</color> (%d).\n", name, buf, i);
+            return i;
+        }
+    }
+    return 0;
+}
+
 /* OBJ(CLOAK, DEPTH+20):ART(*)   Rand-art cloak generated 20 levels OoD
-   ART(6)                        Necklace of the Dwarves (a_idx = 6) */
-static errr _parse_room_grid_artifact(char **args, int arg_ct, room_grid_t *grid_ptr)
+   ART(dwarves)                  Necklace of the Dwarves */
+static errr _parse_room_grid_artifact(char **args, int arg_ct, room_grid_ptr grid, int options)
 {
     switch (arg_ct)
     {
     case 1:
         if (streq(args[0], "*"))
         {
-            grid_ptr->flags |= ROOM_GRID_ART_RANDOM;
+            grid->flags |= ROOM_GRID_ART_RANDOM;
         }
         else
         {
-            grid_ptr->object = atoi(args[0]);
-            if (!grid_ptr->object)
+            if (_is_numeric(args[0]))
+                grid->object = atoi(args[0]);
+            else
+                grid->object = parse_lookup_artifact(args[0], options);
+            if (!grid->object)
             {
                 msg_format("Error: Unknown Artifact %s.", args[0]);
                 return PARSE_ERROR_GENERIC;
             }
-            grid_ptr->flags |= ROOM_GRID_OBJ_ARTIFACT;
+            grid->flags |= ROOM_GRID_OBJ_ARTIFACT;
         }
         break;
 
@@ -1594,17 +1829,17 @@ static errr _parse_room_grid_artifact(char **args, int arg_ct, room_grid_t *grid
     return 0;
 }
 
-static errr _parse_room_grid_trap(char **args, int arg_ct, room_grid_t *grid_ptr)
+static errr _parse_room_grid_trap(char **args, int arg_ct, room_grid_ptr grid)
 {
     switch (arg_ct)
     {
     case 2:
-        grid_ptr->trap_pct = atoi(args[1]);
+        grid->trap_pct = atoi(args[1]);
         /* vvvvvvvvv Fall Through vvvvvvvvvvvv */
     case 1:
         if (streq(args[0], "*"))
         {
-            grid_ptr->flags |= ROOM_GRID_TRAP_RANDOM;
+            grid->flags |= ROOM_GRID_TRAP_RANDOM;
         }
         else
         {
@@ -1614,7 +1849,7 @@ static errr _parse_room_grid_trap(char **args, int arg_ct, room_grid_t *grid_ptr
                 msg_format("Error: Unknown Trap %s.", args[0]);
                 return PARSE_ERROR_GENERIC;
             }
-            grid_ptr->cave_trap = trap;
+            grid->cave_trap = trap;
         }
         break;
 
@@ -1627,7 +1862,7 @@ static errr _parse_room_grid_trap(char **args, int arg_ct, room_grid_t *grid_ptr
 
 /* GRANITE
    FLOOR(ROOM | ICKY | GLOW) */
-static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_grid_t *grid_ptr)
+static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_grid_ptr grid)
 {
     s16b feat = f_tag_to_index(name);
 
@@ -1636,7 +1871,7 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
         msg_format("Error: Unknown Feature %s.", name);
         return PARSE_ERROR_GENERIC;
     }
-    grid_ptr->cave_feat = feat;
+    grid->cave_feat = feat;
 
     if (arg_ct > 2)
     {
@@ -1646,8 +1881,8 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
     if (arg_ct >= 2)
     {
         /* Extra is the dungeon type for wilderness random dungeon entrances. */
-        grid_ptr->flags |= ROOM_GRID_SPECIAL;
-        grid_ptr->extra = atoi(args[1]);
+        grid->flags |= ROOM_GRID_SPECIAL;
+        grid->extra = atoi(args[1]);
     }
     if (arg_ct >= 1)
     {
@@ -1661,13 +1896,18 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
             char* flag = flags[i];
 
             if (streq(flag, "ROOM"))
-                grid_ptr->cave_info |= CAVE_ROOM;
+                grid->cave_info |= CAVE_ROOM;
             else if (streq(flag, "ICKY"))
-                grid_ptr->cave_info |= CAVE_ICKY;
+                grid->cave_info |= CAVE_ICKY;
             else if (streq(flag, "GLOW"))
-                grid_ptr->cave_info |= CAVE_GLOW;
+                grid->cave_info |= CAVE_GLOW;
             else if (streq(flag, "MARK"))
-                grid_ptr->cave_info |= CAVE_MARK;
+                grid->cave_info |= CAVE_MARK | CAVE_AWARE;
+            else if (_is_numeric(flag)) /* QUEST_ENTER(1) or QUEST_ENTER(GLOW, 1) */
+            {
+                grid->flags |= ROOM_GRID_SPECIAL;
+                grid->extra = atoi(flag);
+            }
             else
             {
                 msg_format("Error: Unknown Feature Option %s.", flag);
@@ -1678,10 +1918,12 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
     return 0;
 }
 
-/* L:.:FLOOR(ROOM|ICKY):MON(DRAGON, 20):EGO(*)
-   Room Grids are designed to replace old dungeon_grid F: lines
-   but I haven't got around to replacing those just yet. */
-errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
+/*     v---------- buf
+   L:.:FLOOR(ROOM|ICKY):MON(DRAGON, 20):EGO(*)
+   R:ART(ringil)
+     ^-----buf
+*/
+errr parse_room_grid(char *buf, room_grid_ptr grid, int options)
 {
     errr  result = 0;
     char *commands[10];
@@ -1689,23 +1931,7 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
     int   i;
     bool  found_feature = FALSE;
 
-    WIPE(grid_ptr, room_grid_t);
-
-    /* First command is the "letter" for this room grid */
-    if (command_ct < 2)
-    {
-        msg_print("Error: Not enough info on the L: line. Syntax: L:<letter>:<option_list>.");
-        return PARSE_ERROR_TOO_FEW_ARGUMENTS;
-    }
-    if (strlen(commands[0]) != 1)
-    {
-        msg_format("Error: Invalid letter %s on L: line. Should be one character only.", commands[0]);
-        return PARSE_ERROR_GENERIC;
-    }
-    grid_ptr->letter = commands[0][0];
-
-    /* Remaining commands are name(args) directives in any order */
-    for (i = 1; i < command_ct; i++)
+    for (i = 0; i < command_ct; i++)
     {
         char *command = commands[i];
         char *name;
@@ -1720,27 +1946,27 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
 
         if (streq(name, "MON"))
         {
-            result = _parse_room_grid_monster(args, arg_ct, grid_ptr);
+            result = _parse_room_grid_monster(args, arg_ct, grid, options);
             if (result) break;
         }
         else if (streq(name, "OBJ"))
         {
-            result = _parse_room_grid_object(args, arg_ct, grid_ptr);
+            result = _parse_room_grid_object(args, arg_ct, grid, options);
             if (result) break;
         }
         else if (streq(name, "EGO"))
         {
-            result = _parse_room_grid_ego(args, arg_ct, grid_ptr);
+            result = _parse_room_grid_ego(args, arg_ct, grid, options);
             if (result) break;
         }
         else if (streq(name, "ART"))
         {
-            result = _parse_room_grid_artifact(args, arg_ct, grid_ptr);
+            result = _parse_room_grid_artifact(args, arg_ct, grid, options);
             if (result) break;
         }
-        else if (streq(name, "TRAP"))
+        else if (streq(name, "TRAP") || streq(name, "SECRET"))
         {
-            result = _parse_room_grid_trap(args, arg_ct, grid_ptr);
+            result = _parse_room_grid_trap(args, arg_ct, grid);
             if (result) break;
         }
         else
@@ -1751,7 +1977,7 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
                 return PARSE_ERROR_GENERIC;
             }
 
-            result = _parse_room_grid_feature(name, args, arg_ct, grid_ptr);
+            result = _parse_room_grid_feature(name, args, arg_ct, grid);
             if (result) break;
             found_feature = TRUE;
         }
@@ -1760,7 +1986,7 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
     return result;
 }
 
-static errr _parse_room_flags(char* buf, room_template_t *room_ptr)
+static errr _parse_room_flags(char* buf, room_ptr room)
 {
     char *flags[10];
     int   flag_ct = z_string_split(buf, flags, 10, "|");
@@ -1772,23 +1998,23 @@ static errr _parse_room_flags(char* buf, room_template_t *room_ptr)
         char* flag = flags[i];
 
         if (streq(flag, "GOOD"))
-            room_ptr->flags |= ROOM_THEME_GOOD;
+            room->flags |= ROOM_THEME_GOOD;
         else if (streq(flag, "EVIL"))
-            room_ptr->flags |= ROOM_THEME_EVIL;
+            room->flags |= ROOM_THEME_EVIL;
         else if (streq(flag, "FRIENDLY"))
-            room_ptr->flags |= ROOM_THEME_FRIENDLY;
+            room->flags |= ROOM_THEME_FRIENDLY;
         else if (streq(flag, "NIGHT"))
-            room_ptr->flags |= ROOM_THEME_NIGHT;
+            room->flags |= ROOM_THEME_NIGHT;
         else if (streq(flag, "DAY"))
-            room_ptr->flags |= ROOM_THEME_DAY;
+            room->flags |= ROOM_THEME_DAY;
         else if (streq(flag, "SHOP"))
-            room_ptr->flags |= ROOM_SHOP;
+            room->flags |= ROOM_SHOP;
         else if (streq(flag, "DEBUG"))
-            room_ptr->flags |= ROOM_DEBUG;
+            room->flags |= ROOM_DEBUG;
         else if (streq(flag, "NO_ROTATE"))
-            room_ptr->flags |= ROOM_NO_ROTATE;
+            room->flags |= ROOM_NO_ROTATE;
         else if (streq(flag, "FORMATION"))
-            room_ptr->flags |= ROOM_THEME_FORMATION;
+            room->flags |= ROOM_THEME_FORMATION;
         else
         {
             msg_format("Error: Invalid room flag %s.", flag);
@@ -1798,16 +2024,97 @@ static errr _parse_room_flags(char* buf, room_template_t *room_ptr)
     return 0;
 }
 
-/*
- * Initialize the "v_info" array, by parsing an ascii "template" file
- */
-errr parse_v_info(char *buf, header *head)
+static errr _parse_room_type(char *buf, room_ptr room)
 {
-    int i;
-    char *s;
+    char *zz[10];
+    int   num = tokenize(buf, 10, zz, 0);
 
+    if (num < 2 || num > 3)
+    {
+        msg_print("Error: Invalid T: line. Syntax is T:<Type>:<Subtype>[:<Flags>].");
+        return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+    }
+
+    if (streq(zz[0], "VAULT"))
+    {
+        room->type = ROOM_VAULT;
+        if (streq(zz[1], "LESSER"))
+            room->subtype = VAULT_LESSER;
+        else if (streq(zz[1], "GREATER"))
+            room->subtype = VAULT_GREATER;
+
+        if (!room->subtype)
+        {
+            msg_format("Error: Unknown vault type %s.", zz[1]);
+            return PARSE_ERROR_GENERIC;
+        }
+    }
+    else if (streq(zz[0], "ROOM"))
+    {
+        room->type = ROOM_NORMAL;
+        room->subtype = 0; /* TODO */
+    }
+    else if (streq(zz[0], "QUEST"))
+    {
+        room->type = ROOM_QUEST;
+        room->subtype = 0; /* TODO */
+    }
+    else if (streq(zz[0], "TOWN"))
+    {
+        room->type = ROOM_TOWN;
+        room->subtype = 0; /* TODO */
+    }
+    else if (streq(zz[0], "WILD") || streq(zz[0], "AMBUSH"))
+    {
+        static struct { cptr name; int type; } types[] = {
+            {"WATER",    TERRAIN_DEEP_WATER}, /* TERRAIN_SHALLOW_WATER */
+            {"SWAMP",    TERRAIN_SWAMP},
+            {"GRASS",    TERRAIN_GRASS},      /* TERRAIN_DIRT, TERRAIN_DESERT */
+            {"TREES",    TERRAIN_TREES},
+            {"LAVA",     TERRAIN_DEEP_LAVA},  /* TERRAIN_SHALLOW_LAVA */
+            {"MOUNTAIN", TERRAIN_MOUNTAIN},
+            { 0, 0 }
+        };
+        int j;
+        if (streq(zz[0], "AMBUSH"))
+            room->type = ROOM_AMBUSH;
+        else
+            room->type = ROOM_WILDERNESS;
+        for (j = 0; ; j++)
+        {
+            if (!types[j].name) break;
+            if (streq(types[j].name, zz[1]))
+            {
+                room->subtype = types[j].type;
+                break;
+            }
+        }
+
+        if (!room->subtype)
+        {
+            msg_format("Error: Unknown wilderness type %s.", zz[1]);
+            return PARSE_ERROR_GENERIC;
+        }
+    }
+
+    if (!room->type)
+    {
+        msg_format("Error: Unknown room type %s.", zz[0]);
+        return PARSE_ERROR_GENERIC;
+    }
+
+    if (num == 3)
+    {
+        errr rc = _parse_room_flags(zz[2], room);
+        if (rc) return rc;
+    }
+    return 0;
+}
+
+static errr parse_v_info(char *buf, int options)
+{
     /* Current entry */
-    static room_template_t *room_ptr = NULL;
+    static room_ptr room = NULL;
 
     /* N:Name */
     if (buf[0] == 'N')
@@ -1821,177 +2128,38 @@ errr parse_v_info(char *buf, header *head)
             return PARSE_ERROR_TOO_FEW_ARGUMENTS;
         }
 
-        /* Auto-gen a sequence id ... these are never stored or referred to in code, so why force numbering? */
-        i = MAX(1, error_idx + 1);
-        if (i >= head->info_num)
+        error_idx = vec_length(room_info);
+        if (options & INIT_DEBUG)
         {
-            msg_format("Error: Too many v_info records. Max is currently set to %d in misc.txt.", head->info_num);
-            return (2);
+            room_free(room);
+            room = room_alloc(zz[0]);
         }
-        error_idx = i;
-
-        /* Point at the "info" */
-        room_ptr = &room_info[i];
-        WIPE(room_ptr, room_template_t);
-
-        /* Store the name */
-        if (!add_name(&room_ptr->name, head, zz[0])) return PARSE_ERROR_OUT_OF_MEMORY;
+        else
+        {
+            room = room_alloc(zz[0]);
+            vec_push(room_info, room);
+        }
     }
 
-    /* There better be a current room_ptr */
-    else if (!room_ptr)
+    /* There better be a current room */
+    else if (!room)
     {
         msg_print("Error: Missing N: line for new room template.");
         return PARSE_ERROR_MISSING_RECORD_HEADER;
     }
-
-    /* T:Type:Subtype[:Flags] */
-    else if (buf[0] == 'T')
-    {
-        char *zz[10];
-        int   num = tokenize(buf + 2, 10, zz, 0);
-
-        if (num < 2 || num > 3)
-        {
-            msg_print("Error: Invalid T: line. Syntax is T:<Type>:<Subtype>[:<Flags>].");
-            return PARSE_ERROR_TOO_FEW_ARGUMENTS;
-        }
-
-        if (streq(zz[0], "VAULT"))
-        {
-            room_ptr->type = ROOM_VAULT;
-            if (streq(zz[1], "LESSER"))
-                room_ptr->subtype = VAULT_LESSER;
-            else if (streq(zz[1], "GREATER"))
-                room_ptr->subtype = VAULT_GREATER;
-
-            if (!room_ptr->subtype)
-            {
-                msg_format("Error: Unknown vault type %s.", zz[1]);
-                return PARSE_ERROR_GENERIC;
-            }
-        }
-        else if (streq(zz[0], "ROOM"))
-        {
-            room_ptr->type = ROOM_NORMAL;
-            room_ptr->subtype = 0; /* TODO */
-        }
-        else if (streq(zz[0], "WILD") || streq(zz[0], "AMBUSH"))
-        {
-            static struct { cptr name; int type; } types[] = {
-                {"WATER",    TERRAIN_DEEP_WATER}, /* TERRAIN_SHALLOW_WATER */
-                {"SWAMP",    TERRAIN_SWAMP},
-                {"GRASS",    TERRAIN_GRASS},      /* TERRAIN_DIRT, TERRAIN_DESERT */
-                {"TREES",    TERRAIN_TREES},
-                {"LAVA",     TERRAIN_DEEP_LAVA},  /* TERRAIN_SHALLOW_LAVA */
-                {"MOUNTAIN", TERRAIN_MOUNTAIN},
-                { 0, 0 }
-            };
-            int j;
-            if (streq(zz[0], "AMBUSH"))
-                room_ptr->type = ROOM_AMBUSH;
-            else
-                room_ptr->type = ROOM_WILDERNESS;
-            for (j = 0; ; j++)
-            {
-                if (!types[j].name) break;
-                if (streq(types[j].name, zz[1]))
-                {
-                    room_ptr->subtype = types[j].type;
-                    break;
-                }
-            }
-
-            if (!room_ptr->subtype)
-            {
-                msg_format("Error: Unknown wilderness type %s.", zz[1]);
-                return PARSE_ERROR_GENERIC;
-            }
-        }
-
-        if (!room_ptr->type)
-        {
-            msg_format("Error: Unknown room type %s.", zz[0]);
-            return PARSE_ERROR_GENERIC;
-        }
-
-        if (num == 3)
-        {
-            errr rc = _parse_room_flags(zz[2], room_ptr);
-            if (rc) return rc;
-        }
-    }
-
-    /* W:Level:MaxLevel:Rarity */
-    else if (buf[0] == 'W')
-    {
-        char *zz[10];
-        int   num = tokenize(buf + 2, 10, zz, 0);
-        int   tmp;
-
-        if (num != 3)
-        {
-            msg_print("Error: Invalid W: line. Syntax: W:<Level>:<MaxLevel>:<Rarity>.");
-            return PARSE_ERROR_TOO_FEW_ARGUMENTS;
-        }
-        room_ptr->level = atoi(zz[0]);
-        if (streq(zz[1], "*"))
-            room_ptr->max_level = 0;
-        else
-            room_ptr->max_level = atoi(zz[1]);
-        tmp = atoi(zz[2]);
-        if (tmp < 0 || tmp > 255)
-        {
-            msg_format("Error: Invalid rarity %d. Enter a value between 1 and 255.", tmp);
-            return PARSE_ERROR_OUT_OF_BOUNDS;
-        }
-        room_ptr->rarity = tmp;
-    }
-
-    /* Process custom 'L'etters */
-    else if (buf[0] == 'L')
-    {
-        int j;
-        for (j = 0; j < ROOM_MAX_LETTERS; j++)
-        {
-            if (!room_ptr->letters[j].letter)
-                return parse_room_grid(buf + 2, &room_ptr->letters[j]);
-        }
-        msg_format("Error: Too many letters. Only %d letters are allowed.", ROOM_MAX_LETTERS);
-        return PARSE_ERROR_GENERIC;
-    }
-
-    /* Process 'M'ap lines */
-    else if (buf[0] == 'M')
-    {
-        /* Acquire the text */
-        s = buf+2;
-
-        /* Calculate room dimensions automagically */
-        room_ptr->height++;
-        if (!room_ptr->width)
-            room_ptr->width = strlen(s);
-        else if (strlen(s) != room_ptr->width)
-        {
-            msg_format(
-                "Error: Inconsistent map widths. Room width auto-calculated to %d but "
-                "current line is %d. Please make all map lines the same length.",
-                room_ptr->width, strlen(s)
-            );
-            return PARSE_ERROR_GENERIC;
-        }
-
-        /* Store the text */
-        if (!add_text(&room_ptr->text, head, s, FALSE)) return PARSE_ERROR_OUT_OF_MEMORY;
-    }
-    /* Oops */
-    else    return PARSE_ERROR_UNDEFINED_DIRECTIVE;
+    else
+        return parse_room_line(room, buf, options);
 
     /* Success */
     return 0;
 }
 
-
+errr init_v_info(int options)
+{
+    if (room_info) vec_free(room_info); /* double initialization?? */
+    room_info = vec_alloc((vec_free_f)room_free);
+    return parse_edit_file("v_info.txt", parse_v_info, options);
+}
 
 /*
  * Initialize the "s_info" array, by parsing an ascii "template" file
@@ -2648,13 +2816,11 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
  */
 errr parse_k_info(char *buf, header *head)
 {
-    int i;
-
     char *s, *t;
 
     /* Current entry */
     static object_kind *k_ptr = NULL;
-
+    static int k_idx = 0;
 
     /* Process 'N' for "New/Number/Name" */
     if (buf[0] == 'N')
@@ -2671,20 +2837,23 @@ errr parse_k_info(char *buf, header *head)
         *s++ = '\0';
 
         /* Get the index */
-        i = atoi(buf+2);
+        if (strcmp(buf+2, "*") == 0)
+            k_idx++;
+        else
+            k_idx = atoi(buf+2);
 
         /* Verify information */
-        if (i <= error_idx) return (4);
+        if (k_idx <= error_idx) return (4);
 
         /* Verify information */
-        if (i >= head->info_num) return (2);
+        if (k_idx >= head->info_num) return (2);
 
         /* Save the index */
-        error_idx = i;
+        error_idx = k_idx;
 
         /* Point at the "info" */
-        k_ptr = &k_info[i];
-        k_ptr->idx = i;
+        k_ptr = &k_info[k_idx];
+        k_ptr->idx = k_idx;
 
         /* Paranoia -- require a name */
         if (!*s) return (1);
@@ -2710,7 +2879,7 @@ errr parse_k_info(char *buf, header *head)
     else if (!k_ptr) return (3);
     /* From Vanilla: M:P:XdY to control object stacks. P is
        the probabilty (1 to 100) for a stack and XdY is how
-       many get rolled up. Replaces TRG_STACK and mass_produce(). */
+       many get rolled up. Replaces TRG_STACK and obj_make_pile(). */
     else if (buf[0] == 'M')
     {
         int p, x, y;
@@ -3159,6 +3328,7 @@ static bool grab_one_ego_type_flag(ego_type *e_ptr, cptr what)
     else if (streq(what, "SPECIAL")) e_ptr->type |= EGO_TYPE_SPECIAL;
     else if (streq(what, "DEVICE")) e_ptr->type |= EGO_TYPE_DEVICE;
     else if (streq(what, "DRAGON_ARMOR")) e_ptr->type |= EGO_TYPE_DRAGON_ARMOR;
+    else if (streq(what, "QUIVER")) e_ptr->type |= EGO_TYPE_QUIVER;
     else
     {
         msg_format("Unknown ego type flag: '%s'.", what);
@@ -3390,6 +3560,7 @@ static cptr b_info_slots[] =
     "ANY",
     "WEAPON",
     "CAPTURE_BALL",
+    "QUIVER",
 };
 
 errr parse_b_info(char *buf, header *head)
@@ -3442,7 +3613,8 @@ errr parse_b_info(char *buf, header *head)
     {
         int n1;
 
-        i = b_ptr->count++;
+        i = ++b_ptr->max;
+        if (i > EQUIP_MAX) return PARSE_ERROR_OUT_OF_BOUNDS;
 
         /* Analyze the first field */
         for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
@@ -4135,7 +4307,7 @@ errr parse_d_info(char *buf, header *head)
     /* Process 'F' for "Dungeon Flags" (multiple lines) */
     else if (buf[0] == 'F')
     {
-        int artif = 0, monst = 0;
+        int artif = 0, monst = 0, tval = 0, sval = 0;
 
         /* Parse every entry */
         for (s = buf + 2; *s; )
@@ -4164,9 +4336,11 @@ errr parse_d_info(char *buf, header *head)
             }
 
             /* XXX XXX XXX Hack -- Read Final Object */
-            if (1 == sscanf(s, "FINAL_OBJECT_%d", &artif))
+            if (2 == sscanf(s, "FINAL_OBJECT_%d_%d", &tval, &sval))
             {
-                d_ptr->final_object = artif;
+                int k_idx = lookup_kind(tval, sval);
+                if (!k_idx) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
+                d_ptr->final_object = k_idx;
                 s = t;
                 continue;
             }
@@ -4309,360 +4483,6 @@ static int i = 0;
 
 #endif    /* ALLOW_TEMPLATES */
 
-
-/* Random dungeon grid effects */
-#define RANDOM_NONE         0x00000000
-#define RANDOM_FEATURE      0x00000001
-#define RANDOM_MONSTER      0x00000002
-#define RANDOM_OBJECT       0x00000004
-#define RANDOM_EGO          0x00000008
-#define RANDOM_ARTIFACT     0x00000010
-#define RANDOM_TRAP         0x00000020
-
-
-typedef struct dungeon_grid dungeon_grid;
-
-struct dungeon_grid
-{
-    int        feature;        /* Terrain feature */
-    int        monster;        /* Monster */
-    int        object;            /* Object */
-    int        ego;            /* Ego-Item */
-    int        artifact;        /* Artifact */
-    int        trap;            /* Trap */
-    int        cave_info;        /* Flags for CAVE_MARK, CAVE_GLOW, CAVE_ICKY, CAVE_ROOM */
-    int        special;        /* Reserved for special terrain info */
-    int        random;            /* Number of the random effect */
-    int        level;          /* TODO: Quest Rewards should not be generated at DL0! Better solution? */
-};
-
-
-static dungeon_grid letter[255];
-
-
-/*
- * Process "F:<letter>:<terrain>:<cave_info>:<monster>:<object>:<ego>:<artifact>:<trap>:<special>:<level>" -- info for dungeon grid
- */
-static errr parse_line_feature(char *buf)
-{
-    int num;
-    char *zz[10];
-
-
-    if (init_flags & INIT_ONLY_BUILDINGS) return (0);
-
-    /* Tokenize the line */
-    if ((num = tokenize(buf+2, 10, zz, 0)) > 1)
-    {
-        /* Letter to assign */
-        int index = zz[0][0];
-
-        /* Reset the info for the letter */
-        letter[index].feature = feat_none;
-        letter[index].monster = 0;
-        letter[index].object = 0;
-        letter[index].ego = 0;
-        letter[index].artifact = 0;
-        letter[index].trap = feat_none;
-        letter[index].cave_info = 0;
-        letter[index].special = 0;
-        letter[index].random = RANDOM_NONE;
-        letter[index].level = 0;
-
-        switch (num)
-        {
-            case 10:
-                letter[index].level = atoi(zz[9]);
-                /* Fall through */
-            /* Special */
-            case 9:
-                letter[index].special = atoi(zz[8]);
-                /* Fall through */
-            /* Trap */
-            case 8:
-                if ((zz[7][0] == '*') && !zz[7][1])
-                {
-                    letter[index].random |= RANDOM_TRAP;
-                }
-                else
-                {
-                    letter[index].trap = f_tag_to_index(zz[7]);
-                    if (letter[index].trap < 0) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
-                }
-                /* Fall through */
-            /* Artifact */
-            case 7:
-                if (zz[6][0] == '*')
-                {
-                    letter[index].random |= RANDOM_ARTIFACT;
-                    if (zz[6][1]) letter[index].artifact = atoi(zz[6] + 1);
-                }
-                else
-                {
-                    letter[index].artifact = atoi(zz[6]);
-                }
-                /* Fall through */
-            /* Ego-item */
-            case 6:
-                if (zz[5][0] == '*')
-                {
-                    letter[index].random |= RANDOM_EGO;
-                    if (zz[5][1]) letter[index].ego = atoi(zz[5] + 1);
-                }
-                else
-                {
-                    letter[index].ego = atoi(zz[5]);
-                }
-                /* Fall through */
-            /* Object */
-            case 5:
-                if (zz[4][0] == '*')
-                {
-                    letter[index].random |= RANDOM_OBJECT;
-                    if (zz[4][1]) letter[index].object = atoi(zz[4] + 1);
-                }
-                else
-                {
-                    letter[index].object = atoi(zz[4]);
-                }
-                /* Fall through */
-            /* Monster */
-            case 4:
-                if (zz[3][0] == '*')
-                {
-                    letter[index].random |= RANDOM_MONSTER;
-                    if (zz[3][1]) letter[index].monster = atoi(zz[3] + 1);
-                }
-                else if (zz[3][0] == 'c')
-                {
-                    if (!zz[3][1]) return PARSE_ERROR_GENERIC;
-                    letter[index].monster = - atoi(zz[3] + 1);
-                }
-                else
-                {
-                    letter[index].monster = atoi(zz[3]);
-                }
-                /* Fall through */
-            /* Cave info */
-            case 3:
-                letter[index].cave_info = atoi(zz[2]);
-                /* Fall through */
-            /* Feature */
-            case 2:
-                if ((zz[1][0] == '*') && !zz[1][1])
-                {
-                    letter[index].random |= RANDOM_FEATURE;
-                }
-                else
-                {
-                    letter[index].feature = f_tag_to_index(zz[1]);
-                    if (letter[index].feature < 0) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
-                }
-                break;
-        }
-
-        return (0);
-    }
-
-    return (1);
-}
-
-
-/*
- * Process "B:<Index>:<Command>:..." -- Building definition
- */
-static errr parse_line_building(char *buf)
-{
-    int i;
-    char *zz[128];
-    int index;
-    char *s;
-
-    s = buf + 2;
-    /* Get the building number */
-    index = atoi(s);
-
-    /* Find the colon after the building number */
-    s = my_strchr(s, ':');
-
-    /* Verify that colon */
-    if (!s) return (1);
-
-    /* Nuke the colon, advance to the sub-index */
-    *s++ = '\0';
-
-    /* Paranoia -- require a sub-index */
-    if (!*s) return (1);
-
-    /* Building definition sub-index */
-    switch (s[0])
-    {
-        /* Building name, owner, race */
-        case 'N':
-        {
-            if (tokenize(s + 2, 3, zz, 0) == 3)
-            {
-                /* Name of the building */
-                strcpy(building[index].name, zz[0]);
-
-                /* Name of the owner */
-                strcpy(building[index].owner_name, zz[1]);
-
-                /* Race of the owner */
-                strcpy(building[index].owner_race, zz[2]);
-
-                break;
-            }
-
-            return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
-        }
-
-        /* Building Action */
-        case 'A':
-        {
-            if (tokenize(s + 2, 8, zz, 0) >= 7)
-            {
-                /* Index of the action */
-                int action_index = atoi(zz[0]);
-
-                /* Name of the action */
-                strcpy(building[index].act_names[action_index], zz[1]);
-
-                /* Cost of the action for members */
-                building[index].member_costs[action_index] = atoi(zz[2]);
-
-                /* Cost of the action for non-members */
-                building[index].other_costs[action_index] = atoi(zz[3]);
-
-                /* Letter assigned to the action */
-                building[index].letters[action_index] = zz[4][0];
-
-                /* Action code */
-                building[index].actions[action_index] = atoi(zz[5]);
-
-                /* Action restriction */
-                building[index].action_restr[action_index] = atoi(zz[6]);
-
-                break;
-            }
-
-            return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
-        }
-
-        /* Building Classes
-            The old way:
-            B:7:C:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:2:0:0:2:2:2:0:0:0:0:0:2:0:0:2:0:2:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-
-            The new way:
-            B:7:C:*:None to set a default
-            B:7:C:Warrior:Owner to set an owner
-            B:7:C:Ranger:Member to set a member
-            (You probably should always specify a default first since I am unsure if
-            code cleans up properly.)
-        */
-        case 'C':
-        {
-            if (tokenize(s + 2, 2, zz, 0) == 2)
-            {
-                int c = get_bldg_member_code(zz[1]);
-
-                if (c < 0)
-                    return PARSE_ERROR_GENERIC;
-
-                if (strcmp(zz[0], "*") == 0)
-                {
-                    for (i = 0; i < MAX_CLASS; i++)
-                        building[index].member_class[i] = c;
-                }
-                else
-                {
-                    int idx = lookup_class_idx(zz[0]);
-                    if (idx < 0 || idx >= MAX_CLASS)
-                        return PARSE_ERROR_GENERIC;
-                    building[index].member_class[idx] = c;
-                }
-                break;
-            }
-
-            return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
-        }
-
-        /* Building Races
-            Same as with classes ...
-        */
-        case 'R':
-        {
-            if (tokenize(s + 2, 2, zz, 0) == 2)
-            {
-                int c = get_bldg_member_code(zz[1]);
-
-                if (c < 0)
-                    return PARSE_ERROR_GENERIC;
-
-                if (strcmp(zz[0], "*") == 0)
-                {
-                    for (i = 0; i < MAX_RACES; i++)
-                        building[index].member_race[i] = c;
-                }
-                else
-                {
-                    int idx = get_race_idx(zz[0]);
-                    if (idx < 0 || idx >= MAX_RACES)
-                        return PARSE_ERROR_GENERIC;
-                    building[index].member_race[idx] = c;
-                    if (idx == RACE_VAMPIRE) /* We have 2 races with the same name! */
-                        building[index].member_race[RACE_MON_VAMPIRE] = c;
-                }
-                break;
-            }
-
-            return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
-        }
-
-        /* Building Realms */
-        case 'M':
-        {
-            if (tokenize(s + 2, 2, zz, 0) == 2)
-            {
-                int c = get_bldg_member_code(zz[1]);
-
-                if (c < 0)
-                    return PARSE_ERROR_GENERIC;
-
-                if (strcmp(zz[0], "*") == 0)
-                {
-                    for (i = 0; i <= MAX_REALM; i++)
-                        building[index].member_realm[i] = c;
-                }
-                else
-                {
-                    int idx = get_realm_idx(zz[0]);
-                    if (idx < 0 || idx > MAX_REALM)
-                        return PARSE_ERROR_GENERIC;
-                    building[index].member_realm[idx] = c;
-                }
-                break;
-            }
-
-            return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
-        }
-
-        case 'Z':
-        {
-            /* Ignore scripts */
-            break;
-        }
-
-        default:
-        {
-            return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-        }
-    }
-
-    return (0);
-}
-
-
 /*
  * Place the object j_ptr to a grid
  */
@@ -4682,8 +4502,10 @@ void drop_here(object_type *j_ptr, int y, int x)
 
 
     /* Locate */
-    o_ptr->iy = y;
-    o_ptr->ix = x;
+    o_ptr->loc.where = INV_FLOOR;
+    o_ptr->loc.y = y;
+    o_ptr->loc.x = x;
+    o_ptr->loc.slot = o_idx;
 
     /* No monster */
     o_ptr->held_m_idx = 0;
@@ -4697,17 +4519,143 @@ void drop_here(object_type *j_ptr, int y, int x)
     p_ptr->window |= PW_OBJECT_LIST;
 }
 
+errr parse_room_line(room_ptr room, char *line, int options)
+{
+    /* T:Type:Subtype[:Flags] */
+    if (line[0] == 'T' && line[1] == ':')
+        return _parse_room_type(line + 2, room);
+
+    /* W:Level:MaxLevel:Rarity */
+    else if (line[0] == 'W' && line[1] == ':')
+    {
+        char *zz[10];
+        int   num = tokenize(line + 2, 10, zz, 0);
+        int   tmp;
+
+        if (num != 3)
+        {
+            msg_print("Error: Invalid W: line. Syntax: W:<Level>:<MaxLevel>:<Rarity>.");
+            return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        }
+        room->level = atoi(zz[0]);
+        if (streq(zz[1], "*"))
+            room->max_level = 0;
+        else
+            room->max_level = atoi(zz[1]);
+        tmp = atoi(zz[2]);
+        if (tmp < 0 || tmp > 255)
+        {
+            msg_format("Error: Invalid rarity %d. Enter a value between 1 and 255.", tmp);
+            return PARSE_ERROR_OUT_OF_BOUNDS;
+        }
+        room->rarity = tmp;
+    }
+
+    /* L:X:... */
+    else if (line[0] == 'L' && line[1] == ':')
+    {
+        int rc;
+        room_grid_ptr letter = malloc(sizeof(room_grid_t));
+        memset(letter, 0, sizeof(room_grid_t));
+        letter->letter = line[2];
+        rc = parse_room_grid(line + 4, letter, options);
+        if (!rc) int_map_add(room->letters, letter->letter, letter);
+        else free(letter);
+        if (rc) return rc;
+    }
+
+    /* Process 'M'ap lines */
+    else if (line[0] == 'M' && line[1] == ':')
+    {
+        /* Acquire the text */
+        char *s = line+2;
+
+        /* Calculate room dimensions automagically */
+        room->height++;
+        if (!room->width)
+            room->width = strlen(s);
+        else if (strlen(s) != room->width)
+        {
+            msg_format(
+                "Error: Inconsistent map widths. Room width auto-calculated to %d but "
+                "current line is %d. Please make all map lines the same length.",
+                room->width, strlen(s)
+            );
+            return PARSE_ERROR_GENERIC;
+        }
+        vec_push(room->map, (vptr)z_string_make(s));
+    }
+    /* !:SCRAMBLE(a,b,c,d) */
+    else if (line[0] == '!' && line[1] == ':')
+    {
+        char *name;
+        char *args[10];
+        int   arg_ct = parse_args(line + 2, &name, args, 10);
+
+        if (arg_ct < 0)
+        {
+            msg_format("Error: Malformed argument %s. Missing )?", name);
+            return PARSE_ERROR_GENERIC;
+        }
+
+        if (streq(name, "SCRAMBLE") || streq(name, "SHUFFLE"))
+        {
+            #define _max_scramble 20 /* Windows */
+            char letters[_max_scramble], scrambles[_max_scramble];
+            int  i;
+            if (arg_ct > _max_scramble)
+            {
+                msg_format("I can only scramble %d letters.", _max_scramble);
+                return PARSE_ERROR_GENERIC;
+            }
+            for (i = 0; i < arg_ct; i++)
+            {
+                letters[i] = args[i][0];
+                scrambles[i] = letters[i];
+            }
+            for (i = 0; i < arg_ct - 1; i++) /* Skiena: _Algorithm_Design_Manual_ p248 */
+            {
+                int j = rand_range(i, arg_ct - 1);
+                char t = scrambles[i];
+                scrambles[i] = scrambles[j];
+                scrambles[j] = t;
+            }
+            for (i = 0; i < arg_ct; i++)
+            {
+                char letter = letters[i];
+                char scramble = scrambles[i];
+                room_grid_ptr grid = int_map_find(room->letters, letter);
+                if (!grid)
+                {
+                    msg_format("Error: Undefined letter: %c", letter);
+                    return PARSE_ERROR_GENERIC;
+                }
+                grid->scramble = scramble; /* cf _find_room_grid (rooms.c) */
+                grid = int_map_find(room->letters, scramble);
+                if (!grid)
+                {
+                    msg_format("Error: Undefined scramble: %c", scramble);
+                    return PARSE_ERROR_GENERIC;
+                }
+                if (trace_doc)
+                    doc_printf(trace_doc, "Scrambled <color:R>%c</color> to <color:B>%c</color>.\n", letter, scramble);
+            }
+        }
+        else
+        {
+            msg_format("Error: Unknown directive: %s", name);
+            return PARSE_ERROR_GENERIC;
+        }
+        return 0;
+    }
+    return 0;
+}
 
 /*
  * Parse a sub-file of the "extra info"
  */
-static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, int xmax, int *y, int *x)
+static errr process_dungeon_file_aux(char *buf, int options)
 {
-    int i;
-
-    char *zz[33];
-
-
     /* Skip "empty" lines */
     if (!buf[0]) return (0);
 
@@ -4724,489 +4672,14 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
     /* Process "%:<fname>" */
     if (buf[0] == '%')
     {
-        /* Attempt to Process the given file */
-        return (process_dungeon_file(buf + 2, ymin, xmin, ymax, xmax));
-    }
-
-    /* Process "F:<letter>:<terrain>:<cave_info>:<monster>:<object>:<ego>:<artifact>:<trap>:<special>" -- info for dungeon grid */
-    if (buf[0] == 'F')
-    {
-        return parse_line_feature(buf);
-    }
-
-    /* Process "D:<dungeon>" -- info for the cave grids */
-    else if (buf[0] == 'D')
-    {
-        object_type object_type_body;
-
-        /* Acquire the text */
-        char *s = buf + 2;
-
-        /* Length of the text */
-        int len = strlen(s);
-
-        if (init_flags & INIT_ONLY_BUILDINGS) return (0);
-
-        for (*x = xmin, i = 0; ((*x < xmax) && (i < len)); (*x)++, s++, i++)
-        {
-            int        x2 = *x + init_dx; /* Apply shift in order to support a scrolling wilderness */
-            int        y2 = *y + init_dy;
-            cave_type *c_ptr;
-            int        idx = s[0];
-            int        object_index = letter[idx].object;
-            int        monster_index = letter[idx].monster;
-            int        random = letter[idx].random;
-            int        artifact_index = letter[idx].artifact;
-            int        ego_index = letter[idx].ego;
-            int        level = letter[idx].level;
-            int        old_base_level = base_level;
-            int        old_object_level = object_level;
-            int        old_dun_level = dun_level;
-
-            if (!in_bounds2(y2, x2))
-                continue;
-
-            if (init_exclude_rect && rect_contains_pt(init_exclude_rect, x2, y2))
-                continue;
-
-            /* Access the grid */
-            c_ptr = &cave[y2][x2];
-
-            /* Lay down a floor */
-            c_ptr->feat = conv_dungeon_feat(letter[idx].feature);
-
-            /* Terrain special (e.g. Quest Number) */
-            c_ptr->special = letter[idx].special;
-
-            /* Only the features ... Scrolling wilderness should still "know" the town,
-               and its quests! */
-            if (init_flags & INIT_SCROLL_WILDERNESS)
-            {
-                c_ptr->info |= letter[idx].cave_info;
-                continue;
-            }
-
-            /* Hack: Quest Rewards were being generated on DL0 rather than the Quest Level */
-            if (level > 0)
-            {
-                base_level = level;
-                object_level = level;
-                dun_level = level;
-            }
-
-            /* Cave info */
-            c_ptr->info = letter[idx].cave_info;
-
-            /* Create a monster */
-            if (random & RANDOM_MONSTER)
-            {
-                monster_level = base_level + monster_index;
-
-                place_monster(y2, x2, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
-
-                monster_level = base_level;
-            }
-            else if (monster_index)
-            {
-                int old_cur_num, old_max_num;
-                bool clone = FALSE;
-
-                if (monster_index < 0)
-                {
-                    monster_index = -monster_index;
-                    clone = TRUE;
-                }
-                old_cur_num = r_info[monster_index].cur_num;
-                old_max_num = r_info[monster_index].max_num;
-
-                /* Make alive again */
-                if (r_info[monster_index].flags1 & RF1_UNIQUE)
-                {
-                    r_info[monster_index].cur_num = 0;
-                    r_info[monster_index].max_num = 1;
-                }
-
-                /* Make alive again */
-                /* Hack -- Non-unique Nazguls are semi-unique */
-                else if (r_info[monster_index].flags7 & RF7_NAZGUL)
-                {
-                    if (r_info[monster_index].cur_num == r_info[monster_index].max_num)
-                    {
-                        r_info[monster_index].max_num++;
-                    }
-                }
-
-                /* Place it */
-                place_monster_aux(0, y2, x2, monster_index, (PM_ALLOW_SLEEP | PM_NO_KAGE));
-                if (clone)
-                {
-                    /* clone */
-                    m_list[hack_m_idx_ii].smart |= SM_CLONED;
-
-                    /* Make alive again for real unique monster */
-                    r_info[monster_index].cur_num = old_cur_num;
-                    r_info[monster_index].max_num = old_max_num;
-                }
-            }
-
-            /* Object (and possible trap) */
-            if ((random & RANDOM_OBJECT) && (random & RANDOM_TRAP))
-            {
-                object_level = base_level + object_index;
-
-                /*
-                 * Random trap and random treasure defined
-                 * 25% chance for trap and 75% chance for object
-                 */
-                if (randint0(100) < 75)
-                {
-                    place_object(y2, x2, 0L);
-                }
-                else
-                {
-                    place_trap(y2, x2);
-                }
-
-                object_level = base_level;
-            }
-            else if (random & RANDOM_OBJECT)
-            {
-                object_level = base_level + object_index;
-
-                /* Create an out of deep object */
-                if (randint0(100) < 75)
-                    place_object(y2, x2, 0L);
-                else if (randint0(100) < 80)
-                    place_object(y2, x2, AM_GOOD);
-                else
-                    place_object(y2, x2, AM_GOOD | AM_GREAT);
-
-                object_level = base_level;
-            }
-            /* Random trap */
-            else if (random & RANDOM_TRAP)
-            {
-                place_trap(y2, x2);
-            }
-            /* Hidden trap (or door) */
-            else if (letter[idx].trap)
-            {
-                c_ptr->mimic = c_ptr->feat;
-                c_ptr->feat = conv_dungeon_feat(letter[idx].trap);
-            }
-            else if (object_index)
-            {
-                /* Get local object */
-                object_type *o_ptr = &object_type_body;
-
-                /* Create the item */
-                object_prep(o_ptr, object_index);
-
-                if (o_ptr->tval == TV_GOLD)
-                {
-                    coin_type = object_index - OBJ_GOLD_LIST;
-                    make_gold(o_ptr, FALSE);
-                    coin_type = 0;
-                }
-                else if (object_is_device(o_ptr))
-                {
-                    /* Hack: There is only a single k_idx for each class of devices, so
-                     * we use the ego index to pick an effect. This means there is no way
-                     * to actually grant an ego device ...*/
-                    if (!device_init_fixed(o_ptr, ego_index))
-                    {
-                        if (ego_index)
-                        {
-                            char     name[255];
-                            effect_t e = {0};
-                            e.type = ego_index;
-                            sprintf(name, "%s", do_effect(&e, SPELL_NAME, 0));
-                            msg_format("Software Bug: %s is not a valid effect for this device.", name);
-                            msg_print("Generating a random device instead.");
-                        }
-                        device_init(o_ptr, p_ptr->lev, 0);
-                    }
-                }
-                else if (ego_index)
-                {
-                    /* TODO: Ego initialization needs a rewrite. In the meantime, enjoy this ugly hack ... */
-                    apply_magic_ego = ego_index;
-                    apply_magic(o_ptr, base_level, AM_NO_FIXED_ART | AM_GOOD | AM_FORCE_EGO);
-                }
-                else
-                    apply_magic(o_ptr, base_level, AM_NO_FIXED_ART | AM_GOOD);
-
-                drop_here(o_ptr, y2, x2);
-            }
-
-            /* Artifact */
-            if (artifact_index)
-            {
-                if (no_artifacts)
-                {
-                    int k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT);
-                    object_type forge;
-                    object_type *q_ptr = &forge;
-
-                    object_prep(q_ptr, k_idx);
-                    drop_here(q_ptr, y2, x2);
-                }
-                else if (a_info[artifact_index].generated)
-                {
-                    object_type forge;
-                    create_replacement_art(artifact_index, &forge);
-                    drop_here(&forge, y2, x2);
-                }
-                else
-                {
-                    /* Create the artifact */
-                    if (create_named_art(artifact_index, y2, x2))
-                        a_info[artifact_index].generated = TRUE;
-                }
-            }
-            if (level > 0)
-            {
-                base_level = old_base_level;
-                object_level = old_object_level;
-                dun_level = old_dun_level;
-            }
-        }
-
-        (*y)++;
-
-        return (0);
-    }
-
-    /* Process "Q:<number>:<command>:... -- quest info */
-    else if (buf[0] == 'Q')
-    {
-        int num;
-        quest_type *q_ptr;
-
-        num = tokenize(buf + 2, 33, zz, 0);
-
-        /* Have we enough parameters? */
-        if (num < 3) return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
-
-        /* Get the quest */
-        q_ptr = &(quest[atoi(zz[0])]);
-
-        /* Process "Q:<q_index>:Q:<type>:<num_mon>:<cur_num>:<max_num>:<level>:<r_idx>:<k_idx>:<flags>" -- quest info */
-        if (zz[1][0] == 'Q')
-        {
-            if (init_flags & INIT_ASSIGN)
-            {
-                monster_race *r_ptr;
-                artifact_type *a_ptr;
-
-                if (num < 9) return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
-
-                q_ptr->type    = atoi(zz[2]);
-                q_ptr->num_mon = atoi(zz[3]);
-                q_ptr->cur_num = atoi(zz[4]);
-                q_ptr->max_num = atoi(zz[5]);
-                q_ptr->level   = atoi(zz[6]);
-                q_ptr->r_idx   = atoi(zz[7]);
-                q_ptr->k_idx   = atoi(zz[8]);
-                q_ptr->dungeon = atoi(zz[9]);
-
-                if (num > 10)
-                    q_ptr->flags  = atoi(zz[10]);
-
-                r_ptr = &r_info[q_ptr->r_idx];
-                if (r_ptr->flags1 & RF1_UNIQUE)
-                    r_ptr->flags1 |= RF1_QUESTOR;
-
-                a_ptr = &a_info[q_ptr->k_idx];
-                a_ptr->gen_flags |= OFG_QUESTITEM;
-            }
-            return (0);
-        }
-
-        /* Process "Q:<q_index>:N:<name>" -- quest name */
-        else if (zz[1][0] == 'N')
-        {
-            if (init_flags & (INIT_ASSIGN | INIT_SHOW_TEXT))
-            {
-                strcpy(q_ptr->name, zz[2]);
-            }
-
-            return (0);
-        }
-
-        /* Process "Q:<q_index>:T:<text>" -- quest description line */
-        else if (zz[1][0] == 'T')
-        {
-            if (init_flags & INIT_SHOW_TEXT)
-            {
-                strcpy(quest_text[quest_text_line], zz[2]);
-                quest_text_line++;
-            }
-
-            return (0);
-        }
+        return process_dungeon_file(buf + 2, options);
     }
 
     /* Process "W:<command>: ..." -- info for the wilderness */
     else if (buf[0] == 'W')
     {
-        return parse_line_wilderness(buf, ymin, xmin, ymax, xmax, y, x);
+        return parse_line_wilderness(buf, options);
     }
-
-    /* Process "P:<y>:<x>" -- player position */
-    else if (buf[0] == 'P')
-    {
-        if (init_flags & INIT_CREATE_DUNGEON)
-        {
-            if (tokenize(buf + 2, 2, zz, 0) == 2)
-            {
-                int panels_x, panels_y;
-
-                /* Hack - Set the dungeon size */
-                panels_y = (*y / SCREEN_HGT);
-                if (*y % SCREEN_HGT) panels_y++;
-                cur_hgt = panels_y * SCREEN_HGT;
-
-                panels_x = (*x / SCREEN_WID);
-                if (*x % SCREEN_WID) panels_x++;
-                cur_wid = panels_x * SCREEN_WID;
-
-                /* Assume illegal panel ... Well, there goes 5 hours of my life!
-                   Don't do this ... We might be reloading a town as a result of
-                   wilderness scrolling!
-                if (!panel_lock)
-                {
-                    panel_row_min = cur_hgt;
-                    panel_col_min = cur_wid;
-                } */
-
-                /* Place player in a quest level */
-                if (p_ptr->inside_quest)
-                {
-                    int y, x;
-
-                    /* Delete the monster (if any) */
-                    delete_monster(py, px);
-
-                    y = atoi(zz[0]);
-                    x = atoi(zz[1]);
-
-                    py = y + init_dy;
-                    px = x + init_dx;
-                }
-                /* Place player in the town */
-                else if (!p_ptr->oldpx && !p_ptr->oldpy)
-                {
-                    p_ptr->oldpy = atoi(zz[0]) + init_dy;
-                    p_ptr->oldpx = atoi(zz[1]) + init_dx;
-                }
-            }
-        }
-
-        return (0);
-    }
-
-    /* Process "B:<Index>:<Command>:..." -- Building definition */
-    else if (buf[0] == 'B')
-    {
-        return parse_line_building(buf);
-    }
-
-    /* Process "M:<type>:<maximum>" -- set maximum values */
-    else if (buf[0] == 'M')
-    {
-        if (tokenize(buf+2, 2, zz, 0) == 2)
-        {
-            /* Maximum towns */
-            if (zz[0][0] == 'T')
-            {
-                max_towns = atoi(zz[1]);
-            }
-
-            /* Maximum quests */
-            else if (zz[0][0] == 'Q')
-            {
-                max_quests = atoi(zz[1]);
-            }
-
-            /* Maximum r_idx */
-            else if (streq(zz[0], "R"))
-            {
-                max_r_idx = atoi(zz[1]);
-            }
-            else if (zz[0][0] == 'B')
-            {
-                max_b_idx = atoi(zz[1]);
-            }
-
-            /* Maximum k_idx */
-            else if (zz[0][0] == 'K')
-            {
-                max_k_idx = atoi(zz[1]);
-            }
-
-            /* Maximum v_idx */
-            else if (streq(zz[0], "ROOMS"))
-            {
-                max_room_idx = atoi(zz[1]);
-            }
-
-            /* Maximum f_idx */
-            else if (zz[0][0] == 'F')
-            {
-                max_f_idx = atoi(zz[1]);
-            }
-
-            /* Maximum a_idx */
-            else if (zz[0][0] == 'A')
-            {
-                max_a_idx = atoi(zz[1]);
-            }
-
-            /* Maximum e_idx */
-            else if (zz[0][0] == 'E')
-            {
-                max_e_idx = atoi(zz[1]);
-            }
-
-            /* Maximum d_idx */
-            else if (zz[0][0] == 'D')
-            {
-                max_d_idx = atoi(zz[1]);
-            }
-
-            /* Maximum o_idx */
-            else if (zz[0][0] == 'O')
-            {
-                max_o_idx = atoi(zz[1]);
-            }
-
-            /* Maximum m_idx */
-            else if (zz[0][0] == 'M')
-            {
-                max_m_idx = atoi(zz[1]);
-            }
-
-            else if (zz[0][0] == 'P')
-            {
-                max_pack_info_idx = atoi(zz[1]);
-            }
-
-            /* Wilderness size */
-            else if (zz[0][0] == 'W')
-            {
-                /* Maximum wild_x_size */
-                if (zz[0][1] == 'X')
-                    max_wild_x = atoi(zz[1]);
-                /* Maximum wild_y_size */
-                if (zz[0][1] == 'Y')
-                    max_wild_y = atoi(zz[1]);
-            }
-
-            return (0);
-        }
-    }
-
 
     /* Failure */
     return (1);
@@ -5214,7 +4687,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 
 
 static char tmp[255];
-static cptr variant_name = "CHENGBAND";
+static cptr variant_name = "POSCHENGBAND";
 
 /*
  * Helper function for "process_dungeon_file()"
@@ -5460,25 +4933,14 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
                 v = tmp;
             }
 
-            /* Current quest number */
-            else if (streq(b+1, "QUEST_NUMBER"))
-            {
-                sprintf(tmp, "%d", p_ptr->inside_quest);
-                v = tmp;
-            }
-
-            /* Number of last quest */
-            else if (streq(b+1, "LEAVING_QUEST"))
-            {
-                sprintf(tmp, "%d", leaving_quest);
-                v = tmp;
-            }
-
             /* Quest status */
             else if (prefix(b+1, "QUEST"))
             {
-                /* "QUEST" uses a special parameter to determine the number of the quest */
-                sprintf(tmp, "%d", quest[atoi(b+6)].status);
+                cptr _status[] = { "Untaken", "Taken", "InProgress", "Completed", "Finished", "Failed", "FailedDone" };
+                int  which = atoi(b+6);
+                quest_ptr q = quests_get(which);
+                if (q) sprintf(tmp, "%s", _status[q->status]);
+                else sprintf(tmp, "Unknown");
                 v = tmp;
             }
 
@@ -5492,7 +4954,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
             {
                 int q_idx = atoi(b+7);
                 /* "RANDOM" uses a special parameter to determine the number of the quest */
-                sprintf(tmp, "%d", quest[q_idx].seed);
+                sprintf(tmp, "%d", quests_get(q_idx)->seed);
                 v = tmp;
             }
 
@@ -5541,21 +5003,14 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
     return (v);
 }
 
-
-errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
+/* XXX Replace with parse_edit_file ... */
+errr process_dungeon_file(cptr name, int options)
 {
-    FILE *fp;
-
-    char buf[1024];
-
-    int num = -1;
-
-    errr err = 0;
-
-    bool bypass = FALSE;
-
-    int x = xmin, y = ymin;
-
+    FILE      *fp;
+    char       buf[1024];
+    int        num = 0;
+    errr       err = 0;
+    bool       bypass = FALSE;
 
     /* Build the filename */
     path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, name);
@@ -5565,7 +5020,6 @@ errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
 
     /* No such file */
     if (!fp) return (-1);
-
 
     /* Process the file */
     while (0 == my_fgets(fp, buf, sizeof(buf)))
@@ -5604,11 +5058,10 @@ errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
             continue;
         }
 
-        /* Apply conditionals */
-        if (bypass) continue;
+        /* Apply conditionals ... INIT_DEBUG is for testing purposes */
+        if (!(options & INIT_DEBUG) && bypass) continue;
 
-        /* Process the line */
-        err = process_dungeon_file_aux(buf, ymin, xmin, ymax, xmax, &y, &x);
+        err = process_dungeon_file_aux(buf, options);
 
         /* Oops */
         if (err) break;
@@ -5623,12 +5076,12 @@ errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
         oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
         /* Oops */
-        msg_format("Error %d (%s) at line %d of '%s'.", err, oops, num, name);
+        msg_boundary();
+        msg_format("<color:v>Error</color> %d (%s) at line %d of '%s'.", err, oops, num, name);
         msg_format("Parsing '%s'.", buf);
 
         msg_print(NULL);
     }
-
 
     /* Close the file */
     my_fclose(fp);
@@ -5637,5 +5090,64 @@ errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
     return (err);
 }
 
+errr parse_edit_file(cptr name, parser_f parser, int options)
+{
+    FILE *fp;
+    char  buf[1024];
+    int   line_num = 0;
+    errr  err = 0;
+    bool  bypass = FALSE;
+
+    assert(parser);
+
+    path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, name);
+    fp = my_fopen(buf, "r");
+    if (!fp) return (-1);
+
+    while (!err && 0 == my_fgets(fp, buf, sizeof(buf)))
+    {
+        line_num++;
+
+        if (!buf[0]) continue; /* empty line */
+        if (isspace(buf[0])) continue; /* blank line */
+        if (buf[0] == '#') continue; /* comment */
+        if (buf[0] == '?' && buf[1] == ':') /* ?:<exp> conditional controls subsequent parsing */
+        {
+            char f;
+            cptr v;
+            char *s;
+
+            s = buf + 2;
+            v = process_dungeon_file_expr(&s, &f);
+            bypass = streq(v, "0"); /* skip until subsequent ?: returns true */
+            continue;
+        }
+        if (!(options & INIT_DEBUG) && bypass) continue; /* apply skip unless debugging */
+
+        if (buf[0] == '%' && buf[1] == ':') /* %:file.txt */
+            err = parse_edit_file(buf + 2, parser, options);
+        else
+        {
+            if (trace_doc && (buf[0] == 'L' || buf[0] == 'R'))
+            {
+                doc_printf(trace_doc, "<color:R>%s:%d</color> <indent>%s</indent>\n",
+                    name, line_num, buf);
+            }
+            err = parser(buf, options);
+            if (err) /* report now for recursion */
+            {
+                cptr oops = (err > 0 && err < PARSE_ERROR_MAX) ? err_str[err] : "unknown";
+
+                msg_boundary();
+                msg_format("<color:v>Error</color> %d (%s) at line %d of '%s'.", err, oops, line_num, name);
+                msg_format("Parsing '%s'.", buf);
+                msg_print(NULL); /* quit() during initialization ... */
+            }
+        }
+    }
+
+    my_fclose(fp);
+    return err;
+}
 
 

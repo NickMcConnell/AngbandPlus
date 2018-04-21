@@ -1,0 +1,86 @@
+Shopping
+
+Press [a] for the Quick Reference.
+
+Each town on the surface contains numerous shops where you may purchase 
+supplies or sell unwanted objects. Each shop specializes in a certain 
+class of items: The Weapon Smiths sells weapons (melee and missile) 
+while the Armory sells armor; the Alchemist sells potions and scrolls 
+while the General Store sells basic utilities such as food, lanterns 
+and oil. Each town also has a Black Market where you may, for an 
+exorbitant price, purchase items normally found only in the dungeon.
+
+Your First Shopping Spree
+
+When you enter a shop, you will see a screen describing the shop's 
+owner and the items available for purchase:
+
+    Selaxis (Zombie)                                            Armory (10000)  
+                                                                                
+    Item Description                                               Weight  Price
+ a) Metal Scale Mail (-2) [13,+2]                                25.0 lbs   1860
+ b) a Robe [2,+4]                                                 2.0 lbs    592
+ c) 2 Soft Studded Leathers [5,+0]                                9.0 lbs    131
+ d) Hard Leather Armour (-1) [6,+0]                              10.0 lbs    111
+ e) Hard Studded Leather (-1) [7,+0]                             11.0 lbs    243
+ f) 2 Rhino Hide Armours (-1) [8,+0]                             11.0 lbs    420
+ g) Leather Scale Mail (-1) [11,+2]                              14.0 lbs   1410
+ h) Leather Scale Mail (-1) [11,+1]                              14.0 lbs   1270
+ i) 5 Leather Scale Mails (-1) [11,+0]                           14.0 lbs   1160
+ j) a Leather Jacket of Elemental Protection (-1) [12,+10] {El   13.0 lbs   8730
+ k) a Small Metal Shield [5,+2]                                   6.5 lbs    381
+ l) a Small Metal Shield [5,+0]                                   6.5 lbs    131
+(Page 1 of 2)                                                                   
+Gold Remaining: 1.41k                                                           
+                                                                                
+b to buy. s to sell. x to begin examining items.                                
+B to buyout inventory.                                                          
+Esc to exit. ? for help.                                                        
+
+A quick list of available commands is displayed on the bottom of the 
+screen. Simply choose the appropriate command and follow the 
+instructions. Use Page Up and Page Down to navigate long lists of shop 
+objects.
+
+Every store owner has access to limited funds, and will only pay so 
+much for items that you sell. This amount is listed next to the store 
+type on the top of the display.
+
+Quick Reference
+  Basic Commands
+  p b g     Purchase an item from the shop
+  s d       Sell an item to the shop
+  x         Examine an item in the shop
+  B         Buyout the entire shop inventory
+  S         Shuffle the stock inventory (restricted)
+  R         Reserve a shop item for future purchase (restricted)
+  q Esc     Leave the shop
+  
+  Extra Commands
+  w         Wear an item
+  t T       Take off an item
+  k ^D      Destroy items in your pack
+  e         Display Equipment
+  i         Display Inventory
+  I         Inspect objects in your pack
+  Tab       Toggle Inventory/Equipment Windows
+  {         Inscribe objects in your pack
+  }         Un-inscribe objects in your pack
+  C         Display Character Sheet
+  
+    Note: These Extra Commands are simply normal game 
+    commands made available for your convenience so you 
+    need not leave the shop to use them. However, the 
+    keybindings for these commands are hard-coded so any 
+    keymaps you may have defined will not apply.
+  
+  Navigation
+  Page Up   Scroll Through Long Object Lists
+  Page Down
+  
+  Display Options
+  ^W        Toggle Weights (see [b])
+  ^G        Toggle Graphics (see [c])
+  
+
+

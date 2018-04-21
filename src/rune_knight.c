@@ -134,7 +134,7 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
     if (prompt)
     {
         if (!get_check(
-                format("Really add %^s to %^s?", 
+                format("Really add %^s to %s?",
                     rune_desc(which), o_name))) return FALSE;
     }
 
@@ -301,30 +301,19 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
 /****************************************************************
  * Private Spells and Helpers
  ****************************************************************/
-
-typedef bool (*object_pred)(object_type *o_ptr);
-
-static object_type *_rune_object_prompt(object_pred pred)
+static object_type *_rune_object_prompt(obj_p filter)
 {
-    object_type * result = NULL;
-    object_pred   old = item_tester_hook;
-    int           item;
+    obj_prompt_t prompt = {0};
 
-    item_tester_hook = pred;
+    prompt.prompt = "Enchant which item?";
+    prompt.error = "You have nothing to enchant.";
+    prompt.filter = filter;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_FLOOR;
 
-    if (get_item(&item, 
-                 "Enchant which item?", 
-                 "You have nothing to enchant.", 
-                 (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
-    {
-        if (item >= 0) /* Pack */
-            result = &inventory[item];
-        else /* Floor */
-            result = &o_list[0 - item];
-    }
-
-    item_tester_hook = old;
-    return result;
+    obj_prompt(&prompt);
+    return prompt.obj;
 }
 
 static void _rune_default_spell(int cmd, variant *res)
@@ -1330,6 +1319,35 @@ static void _birth(void)
     py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 }
 
+static bool _destroy_object(obj_ptr obj)
+{
+    if (obj->rune == RUNE_SACRIFICE)
+    {
+        bool is_equipped = obj->loc.where == INV_EQUIP;
+        int add_hp = is_equipped ? p_ptr->mhp : p_ptr->mhp/3;
+        int add_sp = is_equipped ? p_ptr->msp : p_ptr->msp/3;
+
+        msg_print("You feel a surge of wondrous power enter your body.");
+
+        p_ptr->chp = MIN(p_ptr->mhp, p_ptr->chp + add_hp);
+        p_ptr->chp_frac = 0;
+        p_ptr->csp = MIN(p_ptr->msp, p_ptr->csp + add_sp);
+        p_ptr->csp_frac = 0;
+
+        p_ptr->redraw |= (PR_MANA);
+        p_ptr->window |= (PW_SPELL);
+        p_ptr->redraw |= (PR_HP);
+
+        if (is_equipped)
+        {
+            blast_object(obj);
+            obj->curse_flags = OFC_HEAVY_CURSE;
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
 class_t *rune_knight_get_class(void)
 {
     static class_t me = {0};
@@ -1368,6 +1386,7 @@ class_t *rune_knight_get_class(void)
         me.calc_bonuses = _calc_bonuses;
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
+        me.destroy_object = _destroy_object;
         init = TRUE;
     }
 

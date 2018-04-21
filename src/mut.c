@@ -41,7 +41,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
     {MUT_RATING_GOOD,        MUT_TYPE_ACTIVATION, A_INT, 4, {17, 50,  70, recall_spell}},
     {MUT_RATING_GOOD,        MUT_TYPE_ACTIVATION, A_WIS, 2, {25, 25,  70, banish_evil_spell}},
     {MUT_RATING_AVERAGE,    MUT_TYPE_ACTIVATION, A_CON, 4, {2,  2,  30, cold_touch_spell}},
-    {MUT_RATING_AVERAGE,    MUT_TYPE_ACTIVATION, A_STR, 4, {1,  0,  40, power_throw_spell}},
+    {MUT_RATING_AVERAGE,    MUT_TYPE_BONUS ,         0, 4, {0,  0,   0, power_throw_spell}},
     {MUT_RATING_BAD,        MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, berserk_rage_mut}},
     {MUT_RATING_BAD,        MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, cowardice_mut}},
     {MUT_RATING_BAD,        MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, random_teleport_mut}},

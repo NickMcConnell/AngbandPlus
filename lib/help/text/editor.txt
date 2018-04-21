@@ -1198,6 +1198,22 @@ Table V: Rules: Adjectives
   them by kind?
   
   Object Knowledge
+  Unsensed     Applies to objects that have not yet been identified nor 
+               even pseudo-identified. In this sense, it is more 
+               inclusive then the Unidentified adjective. Use a rule 
+               like (Unsensed Weapons to (i) automatically pickup newly 
+               dropped weapons so that you can pseudo-id them in your 
+               pack in the early to mid game; and (ii) automatically 
+               travel to newly dropped weapons in the remainder of the 
+               game using the newly enhanced get objects command (Turn 
+               on auto_get_objects).  If destroy_feeling is turned on, 
+               the set of rules will be rescanned once the given item 
+               is sensed, either in your pack at some future time 
+               (prior to CL35) or by stepping on the same square as the 
+               object (once you reach CL35).  If destroy_identify is 
+               turned on, the set of rules will be rescanned once you 
+               identify the object.
+  
   Unidentified Applies to objects that have not yet been identified and 
                is a very useful adjective. For example, ?Unidentified 
                Items has to be my favorite rule of all time!

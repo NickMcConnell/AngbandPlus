@@ -245,31 +245,23 @@ void _grasp_spell(int cmd, variant *res)
 
 void equip_shuffle(cptr tag)
 {
-    int i;
-    for (i = INVEN_PACK - 1; i >= 0; i--)
+    slot_t slot, equip_slot;
+    for (slot = 1; slot <= pack_max(); slot++)
     {
-        object_type *o_ptr = &inventory[i];
-        cptr         inscription;
-        int          slot;
+        obj_ptr obj = pack_obj(slot);
+        cptr    inscription;
 
-        if (!o_ptr->k_idx) continue;
-        if (!o_ptr->inscription) continue;
+        if (!obj) continue;
+        if (!obj->inscription) continue;
         
-        inscription = quark_str(o_ptr->inscription);
+        inscription = quark_str(obj->inscription);
         if (!strstr(inscription, tag)) continue;
         
-        slot = equip_first_empty_slot(o_ptr);
-        if (slot && o_ptr->number == 1)
+        equip_slot = equip_first_empty_slot(obj);
+        if (equip_slot)
         {
-            object_type copy;
-
-            object_copy(&copy, o_ptr);
-            copy.number = 1;
-
-            inven_item_increase(i, -1);
-            inven_item_optimize(i);
-
-            equip_wield_aux(&copy, slot);
+            equip_wield(obj, equip_slot);
+            obj_release(obj, OBJ_RELEASE_QUIET);
         }
     }
 }
@@ -454,7 +446,7 @@ static void _calc_bonuses(void)
     p_ptr->hold_life = TRUE;
     p_ptr->see_nocto = TRUE;
 
-    if (equip_find_artifact(ART_NIGHT))
+    if (equip_find_art(ART_NIGHT))
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;

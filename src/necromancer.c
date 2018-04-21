@@ -22,7 +22,7 @@ static bool _necro_check_touch(void)
         return FALSE;
     }
 
-    slot = equip_find_object(TV_GLOVES, SV_ANY);
+    slot = equip_find_obj(TV_GLOVES, SV_ANY);
     if (slot && equip_obj(slot)->name1 != ART_HAND_OF_VECNA)
     {
         msg_print("You can't touch while wielding gloves.");
@@ -33,7 +33,7 @@ static bool _necro_check_touch(void)
 
 static cptr _necro_info_damage(int dice, int sides, int base)
 {
-    if (equip_find_artifact(ART_HAND_OF_VECNA))
+    if (equip_find_art(ART_HAND_OF_VECNA))
     {
         dice *= 2;
         base *= 2;
@@ -43,7 +43,7 @@ static cptr _necro_info_damage(int dice, int sides, int base)
 
 static int _necro_damroll(int dice, int sides, int base)
 {
-    if (equip_find_artifact(ART_HAND_OF_VECNA))
+    if (equip_find_art(ART_HAND_OF_VECNA))
     {
         dice *= 2;
         base *= 2;
@@ -529,9 +529,9 @@ static void _calc_bonuses(void)
     p_ptr->align -= 200;
     p_ptr->spell_cap += 2;
 
-    if (equip_find_artifact(ART_EYE_OF_VECNA))
+    if (equip_find_art(ART_EYE_OF_VECNA))
         p_ptr->dec_mana = TRUE;
-    if (equip_find_artifact(ART_HAND_OF_VECNA))
+    if (equip_find_art(ART_HAND_OF_VECNA))
         p_ptr->easy_spell = TRUE;
 
     if (p_ptr->lev >= 5) res_add(RES_COLD);
@@ -590,6 +590,33 @@ static void _birth(void)
     py_birth_spellbooks();
 }
 
+static bool _destroy_object(obj_ptr obj)
+{
+    if (obj->tval == TV_LIFE_BOOK || obj->tval == TV_CRUSADE_BOOK)
+    {
+        char name[MAX_NLEN];
+        int  sp = 0;
+        int  osp = p_ptr->csp;
+
+        switch (obj->sval)
+        {
+        case 0: sp = 10; break;
+        case 1: sp = 25; break;
+        case 2: sp = 100; break;
+        case 3: sp = 666; break;
+        }
+
+        sp_player(sp);
+        object_desc(name, obj, OD_COLOR_CODED);
+        msg_format("You gleefully destroy %s!", name);
+        if (p_ptr->csp > osp)
+            msg_print("You feel your head clear.");
+
+        return TRUE;
+    }
+    return FALSE;
+}
+
 class_t *necromancer_get_class(void)
 {
     static class_t me = {0};
@@ -633,6 +660,7 @@ class_t *necromancer_get_class(void)
         me.get_flags = _get_flags;
         me.get_powers = _get_powers;
         me.character_dump = spellbook_character_dump;
+        me.destroy_object = _destroy_object;
         init = TRUE;
     }
 

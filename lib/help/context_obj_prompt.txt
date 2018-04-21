@@ -1,0 +1,127 @@
+<style:title>Selecting Objects</style>
+
+Objects are a big part of playing <color:keyword>PosChengband</color>. Many commands (such as quaffing potions or reading scrolls) require you to select an object to use. Other commands allow you to view and inspect the objects you are carrying or using. This helpfile explains the user interface for viewing and selecting objects.
+
+<topic:Sample><style:heading>An Example</style>
+
+To view your gear, you press <color:keypress>i</color> for inventory or <color:keypress>e</color> for equipment. Both keys bring up the same dialog but select the appropriate tab for you:
+<style:screenshot>
+<color:D>Inventory</color> <color:b>|</color> <color:G>Equipment</color> <color:b>|</color> <color:D>Quiver</color>                                                  
+ a) Right Hand: a Broad Sword (2d5) (+0,+0)                 15.0 lb LEVEL <color:G>     1</color>
+ b) Left Hand : <color:U>a Small Leather Shield [3,+0]</color>                5.0 lb EXP <color:G>      10</color>
+ c) Shooting  : <color:u>a Short Bow (x2.50) (+0,+0)</color>                  3.0 lb AU  <color:G>   5.31k</color>
+ d) Quiver    : <color:U>a Quiver [25 of 100]</color>                         1.0 lb <color:W>|</color><color:U>)}~</color><color:d>   </color><color:u>~</color><color:s>[</color><color:g>(</color><color:s>]</color><color:U>]</color>
+ e) Right Ring:                                                     STR : <color:G> 18/30</color>
+ f) Left Ring :                                                     INT : <color:G>     6</color>
+ g) Neck      :                                                     WIS : <color:G>     6</color>
+ h) Light     : <color:y>a Wooden Torch (with 2436 turns of light)</color>    3.0 lb DEX : <color:G> 18/10</color>
+ i) Body      : <color:s>Chain Mail (-2) [14,+0]</color>                     22.0 lb CON : <color:G>    17</color>
+ j) Cloak     : <color:U>a Cloak [1,+0]</color>                               1.0 lb CHR : <color:G>    10</color>
+ k) Head      : <color:U>a Metal Cap [3,+0]</color>                           2.0 lb AC     <color:G>   28</color>
+ l) Hands     : <color:U>a Set of Gauntlets [2,+0]</color>                    2.5 lb HP <color:G>  56</color>/<color:G>  56</color>
+ m) Feet      : <color:U>a Pair of Hard Leather Boots [3,+0]</color>          4.0 lb             
+                                                          <color:R>  58.5 lb</color>             
+Carrying 113.9 pounds (<color:G>81%</color> capacity).                                           
+                                                                                
+<color:y>Examine which item </color>(<color:o>Esc</color> to exit)<color:y>?</color>                                               
+                                                                                
+<color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>######</color>             
+<color:U>#####</color>.......................................................<color:U>#######</color>             
+<color:U>#####</color>.......................................................<color:v>+</color><color:U>######</color>             
+<color:U>#####</color>.......................................................<color:U>#######</color>             
+Outpost                                                                         
+</style>
+The first thing you should notice is that your objects are grouped into tabs depending on their location. The top line shows the available tabs (Inventory, Equipment and Quiver in this case) and the active tab is displayed in <color:G>color</color> while the inactive tabs are <color:D>grayed out</color>. You can switch tabs by pressing <color:keypress>/</color>.
+<style:screenshot>
+<color:D>Inventory</color> <color:b>|</color> <color:D>Equipment</color> <color:b>|</color> <color:G>Quiver</color>                                                  
+ a) <color:U>25 Arrows (3d4) (+0,+0)</color>                                  5.0 lb LEVEL <color:G>     1</color>
+                                                          <color:R>   5.0 lb</color> EXP <color:G>      10</color>
+Carrying 113.9 pounds (<color:G>81%</color> capacity).                               AU  <color:G>   5.31k</color>
+                                                                    <color:W>|</color><color:U>)}~</color><color:d>   </color><color:u>~</color><color:s>[</color><color:g>(</color><color:s>]</color><color:U>]</color>
+<color:y>Examine which item </color>(<color:o>Esc</color> to exit)<color:y>?</color>                                   STR : <color:G> 18/30</color>
+                                                                    INT : <color:G>     6</color>
+......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>##</color> WIS : <color:G>     6</color>
+......<color:U>##+##</color>..<color:U>###</color><color:o>9</color><color:U>###</color>..<color:U>####</color>3<color:U>####</color>...<color:U>####</color><color:r>6</color><color:U>####</color>..<color:U>###</color><color:g>4</color><color:U>###</color>..<color:U>##+##</color>......<color:U>##</color> DEX : <color:G> 18/10</color>
+.................................................................<color:U>##</color> CON : <color:G>    17</color>
+.................................................................<color:U>##</color> CHR : <color:G>    10</color>
+.................................................................<color:U>##</color> AC     <color:G>   28</color>
+................................<color:v>></color>.................................. HP <color:G>  56</color>/<color:G>  56</color>
+.................................................................<color:U>##</color>             
+..........................@......................................<color:U>##</color>             
+.................................................................<color:U>##</color>             
+......<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>##</color>             
+......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>##</color>             
+<color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>###</color>             
+<color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>######</color>             
+<color:U>#####</color>.......................................................<color:U>#######</color>             
+<color:U>#####</color>.......................................................<color:v>+</color><color:U>######</color>             
+<color:U>#####</color>.......................................................<color:U>#######</color>             
+Outpost                                                                         
+</style>
+
+To choose an object, simply press the indicated letter. What happens next depends on the context of the object prompt and is indicated by the bottom line on the dialog. In this case, you are simply browsing your gear, so what could be more useful than letting you inspect individual objects?
+<style:screenshot>
+<color:U>25 Arrows (3d4) (+0,+0)</color>                                                         
+  A standard clothyard arrow, straight and cleanly fletched.        LEVEL <color:G>     1</color>
+                                                                    EXP <color:G>      10</color>
+  <color:B>Score:</color> <color:D>2</color>                                                          AU  <color:G>   5.31k</color>
+                                                                    <color:W>|</color><color:U>)}~</color><color:d>   </color><color:u>~</color><color:s>[</color><color:g>(</color><color:s>]</color><color:U>]</color>
+<color:B>[Press </color><color:y>Any Key</color><color:B> to Continue]</color>                                         STR : <color:G> 18/30</color>
+                                                                    INT : <color:G>     6</color>
+</style>
+
+You'll notice that selecting an object in this case did not dismiss the dialog. This is both unusual and useful, since you might want to inspect multiple objects before you are done. A few other game commands behave this way, such as Inscribing (<color:keypress>{</color>) objects, but most dialogs are dismissed by making a selection. For example, let's read a scroll (Press <color:keypress>r</color>):
+<style:screenshot>
+<color:G>Inventory</color>                                                     <color:r>Fail</color>              
+ a) 9 Scrolls of Phase Door                                    8.3% LEVEL <color:G>     1</color>
+ b) 15 Scrolls of Teleportation                                8.3% EXP <color:G>      10</color>
+ c) 6 Scrolls of Word of Recall                                8.3% AU  <color:G>   5.31k</color>
+ d) 10 Scrolls of Identify                                     8.3% <color:W>|</color><color:U>)}~</color><color:d>   </color><color:u>~</color><color:s>[</color><color:g>(</color><color:s>]</color><color:U>]</color>
+                                                                    STR : <color:G> 18/30</color>
+<color:y>Read which scroll? </color>                                                 INT : <color:G>     6</color>
+                                                                    WIS : <color:G>     6</color>
+......<color:U>##+##</color>..<color:U>###</color><color:o>9</color><color:U>###</color>..<color:U>####</color>3<color:U>####</color>...<color:U>####</color><color:r>6</color><color:U>####</color>..<color:U>###</color><color:g>4</color><color:U>###</color>..<color:U>##+##</color>......<color:U>##</color> DEX : <color:G> 18/10</color>
+.................................................................<color:U>##</color> CON : <color:G>    17</color>
+.................................................................<color:U>##</color> CHR : <color:G>    10</color>
+.................................................................<color:U>##</color> AC     <color:G>   28</color>
+................................<color:v>></color>.................................. HP <color:G>  56</color>/<color:G>  56</color>
+.................................................................<color:U>##</color>             
+..........................@......................................<color:U>##</color>             
+.................................................................<color:U>##</color>             
+......<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>##</color>             
+......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>##</color>             
+<color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>###</color>             
+<color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>######</color>             
+<color:U>#####</color>.......................................................<color:U>#######</color>             
+<color:U>#####</color>.......................................................<color:v>+</color><color:U>######</color>             
+<color:U>#####</color>.......................................................<color:U>#######</color>             
+Outpost                                                                         
+</style>
+Notice that the game only displays relevant objects and that choices are labelled starting with <color:y>a</color>. Please take the time to read the object dialogs as you play until you are used to this change. I think you will find it more pleasant eventually, but it might take a bit for you to adjust.
+
+This time, when I make a selection, the dialog is dismissed and the scroll is read.
+
+<topic:QuickRef><style:heading>Quick Reference</style>
+  <indent>
+<color:G>Selection</color>
+<color:keypress>a-z</color>       Select Indicated Object
+<color:keypress>A-Z</color>       Inspect Indicated Object
+<color:keypress>Page Up</color>   Scroll Through Long Object Lists
+<color:keypress>Page Down</color>
+<color:keypress>Esc</color>       Cancel the Prompt
+
+<color:G>Tab Navigation</color>
+<color:keypress>/</color>         Next Tab
+<color:keypress>\</color>         Previous Tab
+<color:keypress>^P</color>        Switch to Pack (Inventory) Tab
+<color:keypress>^E</color>        Switch to Equipment Tab
+<color:keypress>^Q</color>        Switch to Quiver Tab
+<color:keypress>^F</color>        Switch to Floor Tab
+<color:keypress>- </color>        <indent>Switch to Floor Tab. Select the Floor Object if there is only one.</indent>
+
+<color:G>Display Options</color>
+<color:keypress>^W</color>        Toggle Weights (see <link:option.txt#show_weights>)
+<color:keypress>^G</color>        Toggle Graphics (see <link:option.txt#show_item_graph>)
+<color:keypress>^L</color>        Toggle Labels (see <link:option.txt#show_labels>)
+
+</indent>

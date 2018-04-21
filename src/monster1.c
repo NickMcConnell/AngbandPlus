@@ -511,7 +511,7 @@ monster_hook_type get_wilderness_monster_hook(int x, int y)
 
 monster_hook_type get_monster_hook(void)
 {
-    if (!dun_level && !p_ptr->inside_quest)
+    if (py_on_surface())
         return get_wilderness_monster_hook(p_ptr->wilderness_x, p_ptr->wilderness_y);
     else
         return (monster_hook_type)mon_hook_dungeon;
@@ -559,8 +559,7 @@ void set_pet(monster_type *m_ptr)
 {
     if (!is_pet(m_ptr)) check_pets_num_and_align(m_ptr, TRUE);
 
-    /* Check for quest completion */
-    check_quest_completion(m_ptr);
+    quests_on_kill_mon(m_ptr);
 
     m_ptr->smart |= SM_PET;
     if (!(r_info[m_ptr->r_idx].flags3 & (RF3_EVIL | RF3_GOOD)))
@@ -795,23 +794,3 @@ bool monster_magical(monster_race *r_ptr)
         return FALSE;
 }
 
-/*
- * Is this monster declined to be questor or bounty?
- */
-bool no_questor_or_bounty_uniques(int r_idx)
-{
-    switch (r_idx)
-    {
-    /*
-     * Decline them to be questor or bounty because they use
-     * special motion "split and combine"
-     */
-    case MON_BANORLUPART:
-    case MON_BANOR:
-    case MON_LUPART:
-    case MON_CHAMELEON_K: /* No Wilderness: He's not dropping a corpse for some reason? */
-        return TRUE;
-    default:
-        return FALSE;
-    }
-}

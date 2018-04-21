@@ -19,13 +19,13 @@ static void _build_shooting(doc_ptr doc);
 static void _build_powers(doc_ptr doc);
 static void _build_spells(doc_ptr doc);
 static void _build_dungeons(doc_ptr doc);
-static void _build_quests(doc_ptr doc);
 static void _build_uniques(doc_ptr doc);
 static void _build_virtues(doc_ptr doc);
 static void _build_race_history(doc_ptr doc);
 static void _build_mutations(doc_ptr doc);
 static void _build_pets(doc_ptr doc);
 static void _build_inventory(doc_ptr doc);
+static void _build_quiver(doc_ptr doc);
 static void _build_home(doc_ptr doc);
 static void _build_museum(doc_ptr doc);
 static void _build_statistics(doc_ptr doc);
@@ -242,7 +242,7 @@ static void _build_general2(doc_ptr doc)
 
     {
         skills_t skills = p_ptr->skills;
-        int      slot = equip_find_object(TV_BOW, SV_ANY);
+        int      slot = equip_find_obj(TV_BOW, SV_ANY);
 
         /* Patch Up Skills a bit */
         skills.thn += p_ptr->to_h_m * BTH_PLUS_ADJ;
@@ -291,10 +291,9 @@ static void _equippy_chars(doc_ptr doc, int col)
     {
         int i;
         doc_printf(doc, "<tab:%d>", col);
-        for (i = 0; i < equip_count(); i++)
+        for (i = 1; i <= equip_max(); i++)
         {
-            int          slot = EQUIP_BEGIN + i;
-            object_type *o_ptr = equip_obj(slot);
+            object_type *o_ptr = equip_obj(i);
 
             if (o_ptr)
             {
@@ -317,8 +316,8 @@ static void _equippy_heading_aux(doc_ptr doc, cptr heading, int col)
 {
     int i;
     doc_printf(doc, " <color:G>%-11.11s</color><tab:%d>", heading, col);
-    for (i = 0; i < equip_count(); i++)
-        doc_insert_char(doc, TERM_WHITE, 'a' + i);
+    for (i = 1; i <= equip_max(); i++)
+        doc_insert_char(doc, TERM_WHITE, 'a' + i - 1);
     doc_insert_char(doc, TERM_WHITE, '@');
 }
 
@@ -331,7 +330,7 @@ static void _equippy_heading(doc_ptr doc, cptr heading, int col)
 typedef struct {
     u32b py_flgs[OF_ARRAY_SIZE];
     u32b tim_py_flgs[OF_ARRAY_SIZE];
-    u32b obj_flgs[EQUIP_MAX_SLOTS][OF_ARRAY_SIZE];
+    u32b obj_flgs[EQUIP_MAX + 1][OF_ARRAY_SIZE];
 } _flagzilla_t, *_flagzilla_ptr;
 
 static _flagzilla_ptr _flagzilla_alloc(void)
@@ -343,10 +342,9 @@ static _flagzilla_ptr _flagzilla_alloc(void)
 
     player_flags(flagzilla->py_flgs);
     tim_player_flags(flagzilla->tim_py_flgs);
-    for (i = 0; i < equip_count(); i++)
+    for (i = 1; i <= equip_max(); i++)
     {
-        int          slot = EQUIP_BEGIN + i;
-        object_type *o_ptr = equip_obj(slot);
+        object_type *o_ptr = equip_obj(i);
 
         if (o_ptr)
             obj_flags_known(o_ptr, flagzilla->obj_flgs[i]);
@@ -371,7 +369,7 @@ static void _build_res_flags(doc_ptr doc, int which, _flagzilla_ptr flagzilla)
 
     doc_printf(doc, " %-11.11s: ", res_name(which));
 
-    for (i = 0; i < equip_count(); i++)
+    for (i = 1; i <= equip_max(); i++)
     {
         if (im_flg != OF_INVALID && have_flag(flagzilla->obj_flgs[i], im_flg))
             doc_insert_char(doc, TERM_VIOLET, '*');
@@ -437,10 +435,9 @@ static void _build_curse_flags(doc_ptr doc, cptr name)
 {
     int i;
     doc_printf(doc, " %-11.11s: ", name);
-    for (i = 0; i < equip_count(); i++)
+    for (i = 1; i <= equip_max(); i++)
     {
-        int          slot = EQUIP_BEGIN + i;
-        object_type *o_ptr = equip_obj(slot);
+        object_type *o_ptr = equip_obj(i);
 
         if (o_ptr)
         {
@@ -464,7 +461,7 @@ static void _build_slays_imp(doc_ptr doc, cptr name, int flg, int kill_flg, _fla
 {
     int i;
     doc_printf(doc, " %-11.11s: ", name);
-    for (i = 0; i < equip_count(); i++)
+    for (i = 1; i <= equip_max(); i++)
     {
         if (kill_flg != OF_INVALID && have_flag(flagzilla->obj_flgs[i], kill_flg))
             doc_insert_char(doc, TERM_RED, '*');
@@ -492,7 +489,7 @@ static int _build_flags_imp(doc_ptr doc, cptr name, int flg, int dec_flg, _flagz
     int result = 0;
     int i;
     doc_printf(doc, " %-11.11s: ", name);
-    for (i = 0; i < equip_count(); i++)
+    for (i = 1; i <= equip_max(); i++)
     {
         if (have_flag(flagzilla->obj_flgs[i], flg))
         {
@@ -517,7 +514,7 @@ static int _build_flags_imp(doc_ptr doc, cptr name, int flg, int dec_flg, _flagz
         doc_insert_char(doc, TERM_WHITE, '+');
         result++;
     }
-    else if (have_flag(flagzilla->py_flgs, dec_flg))
+    else if (dec_flg != OF_INVALID && have_flag(flagzilla->py_flgs, dec_flg))
     {
         doc_insert_char(doc, TERM_L_RED, '-');
         result++;
@@ -724,10 +721,9 @@ static void _build_stats(doc_ptr doc, _flagzilla_ptr flagzilla)
             doc_insert(doc, "  : ");
 
         /* abcdefghijkl */
-        for (j = 0; j < equip_count(); j++)
+        for (j = 1; j <= equip_max(); j++)
         {
-            int          slot = EQUIP_BEGIN + j;
-            object_type *o_ptr = equip_obj(slot);
+            object_type *o_ptr = equip_obj(j);
 
             if (o_ptr)
             {
@@ -853,18 +849,18 @@ static void _build_equipment(doc_ptr doc)
 
     if (equip_count_used())
     {
-        int slot, i;
+        int slot;
         char o_name[MAX_NLEN];
         _flagzilla_ptr flagzilla = 0;
 
         doc_insert(doc, "<topic:Equipment>============================= Character <color:keypress>E</color>quipment =============================\n\n");
-        for (slot = EQUIP_BEGIN, i = 0; slot < EQUIP_BEGIN + equip_count(); slot++, i++)
+        for (slot = 1; slot <= equip_max(); slot++)
         {
             object_type *o_ptr = equip_obj(slot);
             if (!o_ptr) continue;
 
             object_desc(o_name, o_ptr, OD_COLOR_CODED);
-            doc_printf(doc, " %c) <indent><style:indent>%s</style></indent>\n", index_to_label(i), o_name);
+            doc_printf(doc, " %c) <indent><style:indent>%s</style></indent>\n", slot - 1 + 'a', o_name);
         }
         doc_newline(doc);
 
@@ -921,7 +917,7 @@ static void _build_melee(doc_ptr doc)
 
 static void _build_shooting(doc_ptr doc)
 {
-    if (equip_find_object(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo != TV_NO_AMMO)
+    if (equip_find_obj(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo != TV_NO_AMMO)
     {
         doc_insert(doc, "<topic:Shooting>=================================== <color:keypress>S</color>hooting ==================================\n\n");
         display_shooter_info(doc);
@@ -989,6 +985,13 @@ static void _build_powers(doc_ptr doc)
 
 void py_display_spells(doc_ptr doc, spell_info *table, int ct)
 {
+    if (!ct) return;
+    doc_printf(doc, "<topic:Spells>=================================== <color:keypress>S</color>pells ====================================\n\n");
+    py_display_spells_aux(doc, table, ct);
+}
+
+void py_display_spells_aux(doc_ptr doc, spell_info *table, int ct)
+{
     int i;
     variant vn, vd, vc, vfm;
 
@@ -999,8 +1002,7 @@ void py_display_spells(doc_ptr doc, spell_info *table, int ct)
     var_init(&vc);
     var_init(&vfm);
 
-    doc_printf(doc, "<topic:Spells>=================================== <color:keypress>S</color>pells ====================================\n\n");
-    doc_printf(doc, "<color:G>%-20.20s Lvl Cost Fail %-15.15s  Cast Fail</color>\n", "", "Desc");
+    doc_printf(doc, "    <color:G>%-25.25s Lvl Cost Fail %-15.15s  Cast Fail</color>\n", "", "Desc");
 
     for (i = 0; i < ct; i++)
     {
@@ -1012,7 +1014,8 @@ void py_display_spells(doc_ptr doc, spell_info *table, int ct)
         spell->fn(SPELL_COST_EXTRA, &vc);
         spell->fn(SPELL_FAIL_MIN, &vfm);
 
-        doc_printf(doc, "%-20.20s %3d %4d %3d%% %-15.15s %5d %4d %3d%%\n",
+        doc_printf(doc, " %c) %-25.25s %3d %4d %3d%% %-15.15s %5d %4d %3d%%\n",
+            I2A(i),
             var_get_string(&vn),
             spell->level, calculate_cost(spell->cost + var_get_int(&vc)), MAX(spell->fail, var_get_int(&vfm)),
             var_get_string(&vd),
@@ -1069,186 +1072,6 @@ static void _build_race_history(doc_ptr doc)
         }
         doc_newline(doc);
     }
-}
-
-static int _compare_quests(quest_type *left, quest_type *right)
-{
-    if (left->complev < right->complev)
-        return -1;
-    if (left->complev > right->complev)
-        return 1;
-    if (left->level < right->level)
-        return -1;
-    if (left->level > right->level)
-        return 1;
-    return 0;
-}
-
-static void _build_quests(doc_ptr doc)
-{
-    int     i, ct;
-    vec_ptr v = vec_alloc(NULL);
-                          /*v--- 'q' and 'Q' are used to quit the document viewer, and take precedence over navigation keys */
-    doc_printf(doc, "<topic:uQuests>==================================== Q<color:keypress>u</color>ests ===================================\n\n");
-
-    /* Completed */
-    for (i = 1; i < max_quests; i++)
-    {
-        quest_type *q_ptr = &quest[i];
-
-        if (q_ptr->status == QUEST_STATUS_FINISHED)
-        {
-            q_ptr->id = i; /* You'll see why in a minute ... */
-            vec_add(v, q_ptr);
-        }
-    }
-    if (vec_length(v))
-    {
-        vec_sort(v, (vec_cmp_f)_compare_quests);
-
-        doc_printf(doc, "  <color:G>Completed Quests</color>\n");
-        ct = 0;
-        for (i = 0; i < vec_length(v); i++)
-        {
-            quest_type *q_ptr = vec_get(v, i);
-            if (is_fixed_quest_idx(q_ptr->id))
-            {
-                int old_quest = p_ptr->inside_quest;
-
-                p_ptr->inside_quest = q_ptr->id;
-                init_flags = INIT_ASSIGN;
-                process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-                p_ptr->inside_quest = old_quest;
-
-                if (q_ptr->flags & QUEST_FLAG_SILENT) continue;
-            }
-
-            ct++;
-
-            if (!is_fixed_quest_idx(q_ptr->id) && q_ptr->r_idx)
-            {
-                if (q_ptr->complev == 0)
-                {
-                    doc_printf(doc, "  %-40s (Dungeon level: %3d) - (Cancelled)\n",
-                        r_name + r_info[q_ptr->r_idx].name,
-                        q_ptr->level);
-                }
-                else
-                {
-                    doc_printf(doc, "  %-40s (Dungeon level: %3d) - level %2d\n",
-                        r_name + r_info[q_ptr->r_idx].name,
-                        q_ptr->level,
-                        q_ptr->complev);
-                }
-            }
-            else
-            {
-                doc_printf(doc, "  %-40s (Danger  level: %3d) - level %2d\n",
-                    q_ptr->name, q_ptr->level, q_ptr->complev);
-            }
-        }
-        if (!ct)
-            doc_printf(doc, "  Nothing.\n");
-
-        doc_newline(doc);
-    }
-
-    /* Failed */
-    vec_clear(v);
-    for (i = 1; i < max_quests; i++)
-    {
-        quest_type *q_ptr = &quest[i];
-
-        if ( q_ptr->status == QUEST_STATUS_FAILED_DONE
-          || q_ptr->status == QUEST_STATUS_FAILED )
-        {
-            q_ptr->id = i; /* You'll see why in a minute ... */
-            vec_add(v, q_ptr);
-        }
-    }
-
-    if (vec_length(v))
-    {
-        vec_sort(v, (vec_cmp_f)_compare_quests);
-
-        doc_printf(doc, "  <color:R>Failed Quests</color>\n");
-        ct = 0;
-        for (i = 0; i < vec_length(v); i++)
-        {
-            quest_type *q_ptr = vec_get(v, i);
-            if (is_fixed_quest_idx(q_ptr->id))
-            {
-                int old_quest = p_ptr->inside_quest;
-
-                p_ptr->inside_quest = q_ptr->id;
-                init_flags = INIT_ASSIGN;
-                process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-                p_ptr->inside_quest = old_quest;
-
-                if (q_ptr->flags & QUEST_FLAG_SILENT) continue;
-            }
-
-            ct++;
-
-            if (!is_fixed_quest_idx(q_ptr->id) && q_ptr->r_idx)
-            {
-                monster_race *r_ptr = &r_info[q_ptr->r_idx];
-                if (r_ptr->flags1 & RF1_UNIQUE)
-                {
-                    doc_printf(doc, "  %-40s (Dungeon level: %3d) - level %2d\n",
-                        r_name + r_ptr->name, q_ptr->level, q_ptr->complev);
-                }
-                else
-                {
-                    doc_printf(doc, "  %-40s (Kill %d) (Dungeon level: %3d) - level %2d\n",
-                        r_name + r_ptr->name, q_ptr->max_num,
-                        q_ptr->level, q_ptr->complev);
-                }
-            }
-            else
-            {
-                doc_printf(doc, "  %-40s (Danger  level: %3d) - level %2d\n",
-                    q_ptr->name, q_ptr->level, q_ptr->complev);
-            }
-        }
-        if (!ct)
-            doc_printf(doc, "  Nothing.\n");
-
-        doc_newline(doc);
-    }
-
-    doc_newline(doc);
-    vec_free(v);
-
-    if (p_ptr->arena_number < 0)
-    {
-        if (p_ptr->arena_number <= ARENA_DEFEATED_OLD_VER)
-        {
-            doc_printf(doc, "  <color:G>Arena</color>: <color:v>Defeated</color>\n");
-        }
-        else
-        {
-            doc_printf(doc, "  <color:G>Arena</color>: <color:v>Defeated</color> by %s in the %d%s fight\n",
-                r_name + r_info[arena_info[-1 - p_ptr->arena_number].r_idx].name,
-                -p_ptr->arena_number, get_ordinal_number_suffix(-p_ptr->arena_number));
-        }
-    }
-    else if (p_ptr->arena_number > MAX_ARENA_MONS + 2)
-    {
-        doc_printf(doc, "  <color:G>Arena</color>: <color:B>True Champion</color>\n");
-    }
-    else if (p_ptr->arena_number > MAX_ARENA_MONS - 1)
-    {
-        doc_printf(doc, "  <color:G>Arena</color>: <color:R>Champion</color>\n");
-    }
-    else
-    {
-        doc_printf(doc, "  <color:G>Arena</color>: %2d Victor%s\n",
-            p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number,
-            p_ptr->arena_number > 1 ? "ies" : "y");
-    }
-
-    doc_newline(doc);
 }
 
 static int _compare_monsters_counts(monster_race *left, monster_race *right)
@@ -1438,66 +1261,61 @@ static void _build_pets(doc_ptr doc)
 /****************************** Objects ************************************/
 static void _build_inventory(doc_ptr doc)
 {
-    int i;
+    slot_t slot;
     char o_name[MAX_NLEN];
 
     doc_printf(doc, "<topic:Inventory>============================= Character <color:keypress>I</color>nventory =============================\n\n");
 
-    for (i = 0; i < INVEN_PACK; i++)
+    for (slot = 1; slot <= pack_max(); slot++)
     {
-        if (!inventory[i].k_idx) break;
-
-        object_desc(o_name, &inventory[i], OD_COLOR_CODED);
-        doc_printf(doc, "%c) <indent><style:indent>%s</style></indent>\n", index_to_label(i), o_name);
+        obj_ptr obj = pack_obj(slot);
+        if (!obj) continue;
+        object_desc(o_name, obj, OD_COLOR_CODED);
+        doc_printf(doc, "<indent><style:indent>%s</style></indent>\n", o_name);
     }
 
     doc_newline(doc);
 }
 
-static void _build_home(doc_ptr doc)
+static void _build_quiver(doc_ptr doc)
 {
-    char o_name[MAX_NLEN];
-    store_type  *st_ptr = &town[1].store[STORE_HOME];
-
-    if (st_ptr->stock_num)
+    if (quiver_count(NULL))
     {
-        int i;
-        int page = 1;
+        slot_t slot;
+        char o_name[MAX_NLEN];
 
-        doc_printf(doc, "<topic:Home>================================ <color:keypress>H</color>ome Inventory ===============================\n");
+        doc_printf(doc, "<topic:vQuiver>============================== Character Qui<color:keypress>v</color>er ===============================\n\n");
 
-        for (i = 0; i < st_ptr->stock_num; i++)
+        for (slot = 1; slot <= quiver_max(); slot++)
         {
-            if ((i % 12) == 0)
-                doc_printf(doc, "\n ( page %d )\n", page++);
-            object_desc(o_name, &st_ptr->stock[i], OD_COLOR_CODED);
-            doc_printf(doc, "%c) <indent><style:indent>%s</style></indent>\n", I2A(i%12), o_name);
+            obj_ptr obj = quiver_obj(slot);
+            if (!obj) continue;
+            object_desc(o_name, obj, OD_COLOR_CODED);
+            doc_printf(doc, "<indent><style:indent>%s</style></indent>\n", o_name);
         }
 
         doc_newline(doc);
     }
 }
 
+static void _build_home(doc_ptr doc)
+{
+    if (home_count(NULL))
+    {
+        doc_printf(doc, "<topic:Home>================================ <color:keypress>H</color>ome Inventory ===============================\n");
+        doc_newline(doc);
+        home_display(doc, obj_exists, 0);
+        doc_newline(doc);
+    }
+}
+
 static void _build_museum(doc_ptr doc)
 {
-    char o_name[MAX_NLEN];
-    store_type  *st_ptr = &town[1].store[STORE_MUSEUM];
-
-    if (st_ptr->stock_num)
+    if (museum_count(NULL))
     {
-        int i;
-        int page = 1;
-
         doc_printf(doc, "<topic:Museum>==================================== <color:keypress>M</color>useum ===================================\n");
-
-        for (i = 0; i < st_ptr->stock_num; i++)
-        {
-            if ((i % 12) == 0)
-                doc_printf(doc, "\n ( page %d )\n", page++);
-            object_desc(o_name, &st_ptr->stock[i], OD_COLOR_CODED);
-            doc_printf(doc, "%c) <indent><style:indent>%s</style></indent>\n", I2A(i%12), o_name);
-        }
-
+        doc_newline(doc);
+        museum_display(doc, obj_exists, 0);
         doc_newline(doc);
     }
 }
@@ -1923,6 +1741,7 @@ static void _build_statistics(doc_ptr doc)
     _group_counts_imp(doc, kind_is_weapon, "Weapons");
     _group_counts_tval_imp(doc, TV_SHIELD, "Shields");
     _group_counts_tval_imp(doc, TV_BOW, "Bows");
+    _group_counts_tval_imp(doc, TV_QUIVER, "Quivers");
     _group_counts_tval_imp(doc, TV_RING, "Rings");
     _group_counts_tval_imp(doc, TV_AMULET, "Amulets");
     _group_counts_tval_imp(doc, TV_LITE, "Lights");
@@ -2170,52 +1989,35 @@ void py_display_dungeons(doc_ptr doc)
             doc_printf(doc, "<color:v>You %s after winning.</color>\n",
                 streq(p_ptr->died_from, "Seppuku") ? "did Seppuku" : "retired from the adventure");
         }
-        else if (!dun_level)
+        else if (py_on_surface())
         {
             doc_printf(doc, "You were killed by %s in %s.\n", p_ptr->died_from, map_name());
         }
-        else if (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest))
-        {
-            /* Get the quest text */
-            /* Bewere that INIT_ASSIGN resets the cur_num. */
-            init_flags = INIT_ASSIGN;
-
-            process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-            doc_printf(doc, "You were killed by %s in the quest '%s'.\n",
-                p_ptr->died_from, quest[p_ptr->inside_quest].name);
-        }
-        else
+        else if (py_in_dungeon())
         {
             doc_printf(doc, "You were killed by %s on level %d of %s.\n",
                 p_ptr->died_from, dun_level, map_name());
         }
+        else if (quests_get_current())
+        {
+            doc_printf(doc, "You were killed by %s in the quest '%s'.\n",
+                p_ptr->died_from, quests_get_current()->name);
+        }
+        else /* ??? */
+        {
+            doc_printf(doc, "You were killed by %s in %s.\n", p_ptr->died_from, map_name());
+        }
     }
     else if (character_dungeon)
     {
-        if (!dun_level)
-        {
+        if (py_on_surface())
             doc_printf(doc, "Now, you are in %s.\n", map_name());
-        }
-        else if (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest))
-        {
-            /* Clear the text */
-            /* Must be done before doing INIT_SHOW_TEXT */
-            for (i = 0; i < 10; i++)
-            {
-                quest_text[i][0] = '\0';
-            }
-            quest_text_line = 0;
-
-            /* Get the quest text */
-            init_flags = INIT_SHOW_TEXT;
-
-            process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-            doc_printf(doc, "Now, you are in the quest '%s'.\n", quest[p_ptr->inside_quest].name);
-        }
-        else
-        {
+        else if (py_in_dungeon())
             doc_printf(doc, "Now, you are exploring level %d of %s.\n", dun_level, map_name());
-        }
+        else if (quests_get_current())
+            doc_printf(doc, "Now, you are in the quest '%s'.\n", quests_get_current()->name);
+        else
+            doc_insert(doc, "Hmmm ... Where are you?");
     }
 
     if (p_ptr->last_message)
@@ -2311,9 +2113,6 @@ static void _build_options(doc_ptr doc)
     doc_printf(doc, " Arena Levels:       %s\n", ironman_empty_levels ? "*Always*" :
                                                     empty_levels ? "Sometimes" : "Never");
 
-    if (ironman_quests)
-        doc_printf(doc, " Ironman Quests:     Enabled\n");
-
     if (no_artifacts)
         doc_printf(doc, " No Artifacts:       Enabled\n");
     else if (random_artifacts)
@@ -2329,6 +2128,39 @@ static void _build_options(doc_ptr doc)
 }
 
 /****************************** Character Sheet ************************************/
+static void _build_quests(doc_ptr doc)
+{
+    doc_printf(doc, "<topic:uQuests>==================================== Q<color:keypress>u</color>ests ===================================\n\n");
+    quests_doc(doc);
+    doc_newline(doc);
+    if (p_ptr->arena_number < 0)
+    {
+        if (p_ptr->arena_number <= ARENA_DEFEATED_OLD_VER)
+        {
+            doc_printf(doc, "  <color:G>Arena</color>: <color:v>Defeated</color>\n");
+        }
+        else
+        {
+            doc_printf(doc, "  <color:G>Arena</color>: <color:v>Defeated</color> by %s in the %d%s fight\n",
+                r_name + r_info[arena_info[-1 - p_ptr->arena_number].r_idx].name,
+                -p_ptr->arena_number, get_ordinal_number_suffix(-p_ptr->arena_number));
+        }
+    }
+    else if (p_ptr->arena_number > MAX_ARENA_MONS + 2)
+    {
+        doc_printf(doc, "  <color:G>Arena</color>: <color:B>True Champion</color>\n");
+    }
+    else if (p_ptr->arena_number > MAX_ARENA_MONS - 1)
+    {
+        doc_printf(doc, "  <color:G>Arena</color>: <color:R>Champion</color>\n");
+    }
+    else
+    {
+        doc_printf(doc, "  <color:G>Arena</color>: %2d Victor%s\n",
+            p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number,
+            p_ptr->arena_number > 1 ? "ies" : "y");
+    }
+}
 void py_display_character_sheet(doc_ptr doc)
 {
     doc_insert(doc, "<style:wide>  [PosChengband <$:version> Character Dump]\n");
@@ -2364,6 +2196,7 @@ void py_display_character_sheet(doc_ptr doc)
     _build_mutations(doc);
     _build_pets(doc);
     _build_inventory(doc);
+    _build_quiver(doc);
     _build_home(doc);
     _build_museum(doc);
     _build_statistics(doc);

@@ -313,12 +313,16 @@ struct ego_type
 typedef struct object_type object_type;
 typedef bool (*object_p)(object_type *o_ptr);
 
+struct obj_loc_s {
+    byte where; /* INV_EQUIP, INV_PACK, INV_QUIVER, INV_SHOP or INV_FLOOR */
+    byte x, y;  /* where == INV_FLOOR */
+    int  slot;  /* o_idx if floor, slot otherwise */
+};
+typedef struct obj_loc_s obj_loc_t;
+
 struct object_type
 {
     s16b k_idx;            /* Kind index (zero if "dead") */
-
-    byte iy;            /* Y-position on map, or zero */
-    byte ix;            /* X-position on map, or zero */
 
     byte tval;            /* Item type (from kind) */
     byte sval;            /* Item sub-type (from kind) */
@@ -338,7 +342,7 @@ struct object_type
     byte xtra1;            /* Extra info type (now unused) */
     byte xtra2;            /* Extra info index */
     byte xtra3;            /* Extra info: Chests and Weaponsmith */
-    s16b xtra4;            /* Extra info: Lights, Capture, ... */
+    s16b xtra4;            /* Extra info: Lights, Capture, Quiver Capacity ... */
     s32b xtra5;            /* Extra info */
 
     s16b to_h;            /* Plusses to hit */
@@ -374,8 +378,10 @@ struct object_type
 
     s16b held_m_idx;    /* Monster holding us (if any) */
     effect_t activation;
+    obj_loc_t loc;
 
     s16b level;         /* object_level on generation for my statistical pleasures */
+    int  scratch;
 };
 #define object_is_(O, T, S) ((O)->tval == (T) && (O)->sval == (S))
 
@@ -466,7 +472,7 @@ struct monster_body_s
 typedef struct monster_body_s monster_body_t;
 
 
-typedef struct monster_race monster_race;
+typedef struct monster_race monster_race, *mon_race_ptr;
 
 #define MON_AC(r_ptr, m_ptr) MAX((r_ptr)->ac + (m_ptr)->ac_adj, 0)
 #define MON_MELEE_LVL(r_ptr, m_ptr) MAX(((r_ptr)->melee_level ? (r_ptr)->melee_level : (r_ptr)->level) + (m_ptr)->melee_adj, 1)
@@ -569,110 +575,6 @@ struct monster_race
 
 
 /*
- * Generating rooms from templates
- * This includes support for user defined "letters" in the template file
- * as well as built in predefined "letters" (for historical reasons).
- *
- * Sample syntax for the Parser for room_grid_t:
- * L:9:FLOOR(ROOM):OBJ(*, 7):MON(*, 9)  i.e., Random object 7 levels OoD and random monster 9 levels OoD
- * L:9:FLOOR(ROOM):MON(*, 9):OBJ(*, 7)  i.e., order of named directives does not matter
- * L:D:FLOOR(ROOM | ICKY):MON(DRAGON, 20):OBJ(SWORD, 20):EGO(*)
- * L:%:GRANITE(ROOM)
- * L:#:GRANITE
- * L:=:FLOOR(ROOM | ICKY):OBJ(RING, 50):EGO(306)  i.e., ring of speed on a "vault" tile generated 50 level OoD!!!
- */
-
-#define ROOM_GRID_MON_TYPE      0x00000001  /* monster is SUMMON_* rather than a specific r_idx */
-#define ROOM_GRID_MON_CHAR      0x00000002  /* monster is a "d_char" rather than a specific r_idx */
-#define ROOM_GRID_MON_RANDOM    0x00000004
-#define ROOM_GRID_MON_NO_GROUP  0x00000008
-#define ROOM_GRID_MON_NO_SLEEP  0x00000010
-#define ROOM_GRID_MON_NO_UNIQUE 0x00000020
-#define ROOM_GRID_MON_FRIENDLY  0x00000040
-#define ROOM_GRID_MON_HASTE     0x00000080
-#define ROOM_GRID_MON_CLONED    0x00000100  /* hack for The Cloning Pits */
-
-#define ROOM_GRID_OBJ_TYPE      0x00010000  /* object is TV_* or OBJ_TYPE_* rather than a specific k_idx */
-#define ROOM_GRID_OBJ_ARTIFACT  0x00020000  /* object is a_idx (which implies k_idx) */
-#define ROOM_GRID_OBJ_EGO       0x00040000  /* named ego using extra for type */
-#define ROOM_GRID_OBJ_RANDOM    0x00080000  /* object is completely random */
-#define ROOM_GRID_EGO_RANDOM    0x00100000  /* object is either k_idx or tval, but make it an ego */
-#define ROOM_GRID_ART_RANDOM    0x00200000  /* object is either k_idx or tval, but make it a rand art */
-
-#define ROOM_GRID_TRAP_RANDOM   0x10000000  /* this may override object info */
-#define ROOM_GRID_SPECIAL       0x20000000  /* use extra for cave.special field */
-
-
-#define ROOM_THEME_GOOD        0x0001
-#define ROOM_THEME_EVIL        0x0002
-#define ROOM_THEME_FRIENDLY    0x0004
-#define ROOM_THEME_NIGHT       0x0008  /* Useful for wilderness graveyards where monsters only spawn at night */
-#define ROOM_THEME_DAY         0x0010
-#define ROOM_THEME_FORMATION   0x0020  /* Hack (see source for details): Allows monster formations. */
-#define ROOM_SHOP              0x2000  /* Room is a shop ... NO_TOWN means multiple shops on same level
-                                          would all stock the same stuff. This is still a wilderness problem, though */
-#define ROOM_DEBUG             0x4000  /* For debugging ... force this template to always be chosen */
-#define ROOM_NO_ROTATE         0x8000
-
-#define ROOM_MAX_LETTERS       10
-
-enum obj_types_e                           /* OBJ(DEVICE), etc */
-{
-    OBJ_TYPE_TVAL_MAX = 255,
-    OBJ_TYPE_DEVICE,
-    OBJ_TYPE_JEWELRY,
-    OBJ_TYPE_BOOK,
-    OBJ_TYPE_BODY_ARMOR,
-    OBJ_TYPE_OTHER_ARMOR,
-    OBJ_TYPE_WEAPON,
-    OBJ_TYPE_BOW_AMMO,
-    OBJ_TYPE_MISC,
-};
-
-struct room_grid_s
-{
-    s16b cave_feat;
-    s16b cave_trap;
-
-    u16b cave_info;
-    s16b monster;
-
-    s16b object;
-    s16b extra;
-
-    u32b flags;
-
-    byte letter;
-    byte monster_level;
-    byte object_level;
-    byte trap_pct;
-};
-
-typedef struct room_grid_s room_grid_t;
-
-struct room_template_s
-{
-    u32b name;
-
-    byte level;
-    byte max_level;
-    byte rarity;
-    byte type;
-
-    u16b subtype;
-    u16b flags;
-
-    byte height;
-    byte width;
-
-    u32b text;
-    room_grid_t letters[ROOM_MAX_LETTERS];
-};
-
-typedef struct room_template_s room_template_t;
-
-
-/*
  * Information about "skill"
  */
 
@@ -717,7 +619,7 @@ typedef struct cave_type cave_type;
 
 struct cave_type
 {
-    u16b info;        /* Hack -- cave flags */
+    u32b info;        /* Hack -- cave flags */
 
     s16b feat;        /* Hack -- feature type */
 
@@ -896,91 +798,6 @@ struct option_type
 
     cptr    o_text;
     cptr    o_desc;
-};
-
-
-/*
- * Structure for the "quests"
- */
-typedef struct quest_type quest_type;
-
-struct quest_type
-{
-    s16b id;
-    s16b status;            /* Is the quest taken, completed, finished? */
-
-    s16b type;              /* The quest type */
-
-    char name[60];          /* Quest name */
-    s16b level;             /* Dungeon level */
-    s16b r_idx;             /* Monster race */
-
-    s16b cur_num;           /* Number killed */
-    s16b max_num;           /* Number required */
-
-    s16b k_idx;             /* object index */
-    s16b num_mon;           /* number of monsters on level */
-
-    byte flags;             /* quest flags */
-    byte dungeon;           /* quest dungeon */
-
-    byte complev;           /* player level (complete) */
-
-    u32b seed;                /* For $RANDOM_ in quest files ... using seed_town is really */
-                              /* not a good idea, as it correlates quest results unless you are careful */
-};
-
-/*
- * A store owner
- */
-typedef struct owner_type owner_type;
-
-struct owner_type
-{
-    cptr owner_name;    /* Name */
-
-    s16b max_cost;        /* Purse limit */
-
-    byte max_inflate;    /* Inflation (max) */
-    byte min_inflate;    /* Inflation (min) */
-
-    byte haggle_per;    /* Haggle unit */
-
-    byte insult_max;    /* Insult limit */
-
-    byte owner_race;    /* Owner race */
-};
-
-
-
-
-/*
- * A store, with an owner, various state flags, a current stock
- * of items, and a table of items that are often purchased.
- */
-typedef struct store_type store_type;
-
-struct store_type
-{
-    byte type;                /* Store type */
-
-    byte owner;                /* Owner index */
-    byte extra;                /* Unused for now */
-
-    s16b insult_cur;        /* Insult counter */
-
-    s16b good_buy;            /* Number of "good" buys */
-    s16b bad_buy;            /* Number of "bad" buys */
-
-    s32b store_open;        /* Closed until this turn */
-
-    s32b last_visit;        /* Last visited on this turn */
-    s16b last_lev;
-    s32b last_exp;
-
-    s16b stock_num;            /* Stock -- Number of entries */
-    s16b stock_size;        /* Stock -- Total Size of Array */
-    object_type *stock;        /* Stock -- Actual stock items */
 };
 
 
@@ -1180,7 +997,6 @@ struct player_type
     s16b town_num;            /* Current town number */
     s16b arena_number;        /* monster number in arena -KMW- */
     bool inside_arena;        /* Is character inside arena? */
-    s16b inside_quest;        /* Inside quest level */
     bool inside_battle;        /* Is character inside tougijou? */
 
     s32b wilderness_x;    /* Coordinates in the wilderness */
@@ -1266,23 +1082,14 @@ struct player_type
     s16b tim_eyeeye;
 
     s16b tim_spurt;
-    s16b tim_spec_corporeal;
-    s16b tim_speed_essentia;
-    s16b tim_slow_digest;
-    s16b tim_crystal_skin;
-    s16b tim_chaotic_surge;
-    s16b tim_wild_pos;
-    s16b tim_wild_mind;
 
     s16b tim_blood_shield;
     s16b tim_blood_seek;
     s16b tim_blood_sight;
     s16b tim_blood_feast;
     s16b tim_blood_revenge;
-
     s16b tim_blood_rite;
 
-    s16b tim_genji;
     s16b tim_force;
     s16b tim_building_up;
     s16b tim_vicious_strike;
@@ -1302,8 +1109,6 @@ struct player_type
     s16b tim_slay_sentient;
     bool maul_of_vice;
 
-    s16b tim_shrike;  /* cf Hyperion by Dan Simmons */
-
     counter_t wild_counters[MAX_WILD_COUNTERS];    /* Wild Weapons */
 
     bool            innate_attack_lock;
@@ -1313,7 +1118,6 @@ struct player_type
     bool sense_artifact;
     s16b duelist_target_idx;
 
-    bool unlimited_quiver;
     bool return_ammo;
     bool big_shot;
     bool painted_target;
@@ -1437,7 +1241,6 @@ struct player_type
 
     s16b riding;              /* Riding on a monster of this index */
     byte knowledge;           /* Knowledge about yourself */
-    s32b visit;               /* Visited towns */
 
     byte start_race;          /* Race at birth */
     s32b old_race1;           /* Record of race changes */
@@ -1517,8 +1320,6 @@ struct player_type
 
 
     /*** Extracted fields ***/
-    u32b total_weight;    /* Total weight being carried */
-
     s16b stat_add[6];    /* Modifiers to stat values */
     s16b stat_ind[6];    /* Indexes into stat tables */
 
@@ -1792,19 +1593,6 @@ struct wilderness_type
 
 
 /*
- * A structure describing a town with
- * stores and buildings
- */
-typedef struct town_type town_type;
-struct town_type
-{
-    char        name[32];
-    u32b        seed;      /* Seed for RNG */
-    store_type    *store;    /* The stores [MAX_STORES] */
-    byte        numstores;
-};
-
-/*
  * Sort-array element
  */
 typedef struct tag_type tag_type;
@@ -1964,7 +1752,7 @@ typedef struct
  */
 typedef struct
 {
-    u16b info;
+    u32b info;
     s16b feat;
     s16b mimic;
     s16b special;
@@ -2001,12 +1789,16 @@ typedef struct
 /*
  *  A structure type for travel command
  */
+#define TRAVEL_MODE_NORMAL   0
+#define TRAVEL_MODE_AMMO     1
+#define TRAVEL_MODE_AUTOPICK 2
 typedef struct {
     int run;
     int cost[MAX_HGT][MAX_WID];
     int x;
     int y;
     int dir;
+    int mode;
 } travel_type;
 
 /*
@@ -2135,7 +1927,8 @@ typedef struct {
     flags_fn                get_flags;
     load_fn                 load_player;
     save_fn                 save_player;
-    object_p                destroy_object;
+    obj_p                   destroy_object;
+    obj_f                   get_object;
 } class_t;
 
 struct equip_template_s;
@@ -2186,12 +1979,12 @@ typedef struct {
     int  type;
     s16b tag;
     int  hand;
-} slot_t;
+} equip_slot_t;
 
 typedef struct equip_template_s {
-    int        count;
-    u32b       name;
-    slot_t     slots[EQUIP_MAX_SLOTS];
+    int          max;
+    u32b         name;
+    equip_slot_t slots[EQUIP_MAX + 1];
 } equip_template_t, *equip_template_ptr;
 
 typedef struct {

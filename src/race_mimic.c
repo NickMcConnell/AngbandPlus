@@ -262,9 +262,9 @@ static void _list(_choice_array_t *choices)
                     sprintf(buf, "%+3d%%", r_ptr->body.life);
                     c_put_str(TERM_WHITE, buf, row, extra_col + 30);
 
-                    for (j = 0; j < body->count; j++)
+                    for (j = 1; j <= body->max; j++)
                     {
-                        int c = extra_col + 36 + j;
+                        int c = extra_col + 35 + j;
                         int r = row;
                         switch (body->slots[j].type)
                         {

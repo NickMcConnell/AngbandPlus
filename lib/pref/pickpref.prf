@@ -3,11 +3,11 @@
 #########################################
 mushroom of restoring#!E
 
-potions:resist#!k!q
-potions:resistance#!k!q
+potions:resist#!kq
+potions:resistance#!kq
 potions:stone skin#!k
 potions:heroism
-potions:speed#!k!q
+potions:speed#!kq
 potions:giant strength#!k
 
 potions:enlightenment
@@ -22,14 +22,14 @@ potions:augmentation#!k
 
 potions:experience
 potions:polymorph#!k
-potions:new life#!*!*
+potions:new life#!**
 potions:self knowledge#!k
 
 potions:curing
-potions:healing#!k!q
-potions:of life#!k!q
-potions:*healing*#!k!q
-potions:restore mana#!k!q
+potions:healing#!kq
+potions:of life#!kq
+potions:*healing*#!kq
+potions:restore mana#!kq
 
 ?:[NOT [EQU $CLASS Berserker]]
 scrolls:artifact creation#!*
@@ -52,13 +52,13 @@ scrolls:banish
 #!identified rings
 #!identified amulets
 
-rods:angelic healing#@zh!s!d!k
-rods:heroic speed#@zs!s!d!k
-?staves:healing#@uh!s!d!k
-?staves:speed#@us!s!d!k
-?staves:destruction#@ud!s!d!k
-?wands:rocket#@ar!s!d!k
-?wands:disintegrate#@ad!s!d!k
+rods:angelic healing#@zh!sdk
+rods:heroic speed#@zs!sdk
+?staves:healing#@uh!sdk
+?staves:speed#@us!sdk
+?staves:destruction#@ud!sdk
+?wands:rocket#@ar!sdk
+?wands:disintegrate#@ad!sdk
 
 ?:[OR [EQU $CLASS Mage High-Mage Sorcerer] [EQU $RACE Beholder Lich] ]
 wizardstaff
@@ -98,7 +98,7 @@ blade of chaos
 
 ?unidentified dice boosted weapons
 ?unidentified dice boosted shooters
-~?unidentified ego
+~?unidentified ego items
 
 ~dice boosted weapons
 ~dice boosted shooters
@@ -108,13 +108,13 @@ blade of chaos
 #########################################
 
 ?:[EQU $RACE Possessor]
-~wanted corpses#Wanted!k!k!k
-wanted skeletons#Wanted!k!k!k
+~wanted corpses#Wanted!kkk
+wanted skeletons#Wanted!kkk
 ~corpses more level than 0
 
 ?:[NOT [EQU $RACE Possessor]]
-wanted corpses#Wanted!k!k!k
-wanted skeletons#Wanted!k!k!k
+wanted corpses#Wanted!kkk
+wanted skeletons#Wanted!kkk
 ?:1
 
 #########################################
@@ -122,7 +122,7 @@ wanted skeletons#Wanted!k!k!k
 #########################################
 
 ?:[EQU $CLASS Sorcerer]
-fourth spellbooks#!s!d!k
+fourth spellbooks#!sdk
 third spellbooks#!k
 ~second spellbooks#!k
 ~first spellbooks#!k
@@ -132,12 +132,12 @@ third spellbooks#!k
 ~first spellbooks#!k
 
 ?:[NOT [EQU $CLASS Sorcerer Red-Mage]]
-first realm's fourth spellbooks#@md!s!d!k
+first realm's fourth spellbooks#@md!sdk
 first realm's third spellbooks#@mc!k
 ~first realm's second spellbooks#@mb!k
 ~first realm's first spellbooks#@ma!k
 
-second realm's fourth spellbooks#@mh!s!d!k
+second realm's fourth spellbooks#@mh!sdk
 second realm's third spellbooks#@mg!k
 ~second realm's second spellbooks#@mf!k
 ~second realm's first spellbooks#@me!k
@@ -186,10 +186,12 @@ Iron Spike#@v0
 !cursed nameless common items
 ?:1
 
-?:[LEQ $LEVEL 34]
-#(unidentified armors
-#(unidentified weapons
-#(unidentified shooters
+#If you are using the enhanced get command (auto_get_objects)
+#then I recommend the following 3 rules for the *entire* game.
+?:[LEQ $LEVEL 50]
+(unsensed armors
+(unsensed weapons
+(unsensed shooters
 ?:1
 
 ~special items

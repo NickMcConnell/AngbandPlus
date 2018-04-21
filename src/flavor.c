@@ -10,6 +10,7 @@
 
 #include "angband.h"
 
+#include <assert.h>
 /*
  * Certain items, if aware, are known instantly
  * This function is used only by "flavor_init()"
@@ -816,7 +817,7 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
 
     /* Is there more to learn about this object? Perhaps, but don't leak quality info! */
     if ( obj_is_identified(o_ptr)
-      && object_is_wearable(o_ptr)
+      && (object_is_wearable(o_ptr) || object_is_ammo(o_ptr))
       && (object_is_artifact(o_ptr) || object_is_ego(o_ptr))
       && !obj_is_identified_fully(o_ptr)
       && !(o_ptr->ident & IDENT_STORE) )
@@ -947,6 +948,7 @@ char tval_to_attr_char(int tval)
  *   OD_STORE            : Assume to be aware and known
  *   OD_NO_FLAVOR        : Allow to hidden flavor
  *   OD_FORCE_FLAVOR     : Get un-shuffled flavor name
+ *   OD_SINGULAR         : Pretend o_ptr->number == 1.
  */
 void object_desc(char *buf, object_type *o_ptr, u32b mode)
 {
@@ -983,11 +985,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     u32b            flgs[OF_ARRAY_SIZE];
     u32b            known_flgs[OF_ARRAY_SIZE];
 
-    int             slot;
-    object_type    *bow_ptr = NULL;
-
     object_kind    *k_ptr = &k_info[o_ptr->k_idx];
     object_kind    *flavor_k_ptr = &k_info[k_ptr->flavor];
+
+    int             number = (mode & OD_SINGULAR) ? 1 : o_ptr->number;
 
     /* Extract some flags */
     obj_flags(o_ptr, flgs); /* TR_FULL_NAME and TR_SHOW_MODS should never really be hidden ... */
@@ -1132,6 +1133,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
             break;
         }
+        case TV_QUIVER:
+            break;
 
         /* Armour */
         case TV_BOOTS:
@@ -1398,7 +1401,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     t = tmp_val;
 
     if (o_ptr->marked & OM_RESERVED)
-        t = object_desc_str(t, "<<Hold>> ");
+    {
+        if (mode & OD_COLOR_CODED)
+            t = object_desc_str(t, "<color:B><<Hold>></color> ");
+        else
+            t = object_desc_str(t, "<<Hold>> ");
+    }
 
     if (o_ptr->marked & OM_WORN)
         t = object_desc_str(t, "<<Worn>> ");
@@ -1416,15 +1424,15 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
 
         /* Hack -- None left */
-        else if (o_ptr->number <= 0)
+        else if (number <= 0)
         {
             t = object_desc_str(t, "no more ");
         }
 
         /* Extract the number */
-        else if (o_ptr->number > 1)
+        else if (number > 1)
         {
-            t = object_desc_num(t, o_ptr->number);
+            t = object_desc_num(t, number);
             t = object_desc_chr(t, ' ');
         }
 
@@ -1474,15 +1482,15 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
 
         /* Hack -- all gone */
-        else if (o_ptr->number <= 0)
+        else if (number <= 0)
         {
             t = object_desc_str(t, "no more ");
         }
 
         /* Prefix a number if required */
-        else if (o_ptr->number > 1)
+        else if (number > 1)
         {
-            t = object_desc_num(t, o_ptr->number);
+            t = object_desc_num(t, number);
             t = object_desc_chr(t, ' ');
         }
 
@@ -1533,7 +1541,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         else if (*s == '~')
         {
             /* Add a plural if needed */
-            if (!(mode & OD_NO_PLURAL) && (o_ptr->number != 1))
+            if (!(mode & OD_NO_PLURAL) && (number != 1))
             {
                 char k = t[-1];
 
@@ -1797,6 +1805,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         /* All done */
         break;
     }
+    case TV_QUIVER: /* show capacity */
+        if (o_ptr->loc.where == INV_EQUIP)
+            t = object_desc_str(t, format(" [%d of %d]", quiver_count(NULL), o_ptr->xtra4));
+        else
+            t = object_desc_str(t, format(" [%d]", o_ptr->xtra4));
+        break;
     }
 
     if (mode & OD_NAME_AND_DICE) goto object_desc_done;
@@ -1837,67 +1851,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
     }
 
-    slot = equip_find_object(TV_BOW, SV_ANY);
-    if (slot)
-        bow_ptr = equip_obj(slot);
-
-    /* If have a firing weapon + ammo matches bow */
-    if (bow_ptr && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
+    if ((p_ptr->pclass == CLASS_NINJA) && (o_ptr->tval == TV_SPIKE))
     {
-#if 0
-        int avgdam;
-        int tmul = bow_mult(bow_ptr);
-        /*s16b energy_fire = bow_energy(bow_ptr->sval);*/
-
-        if (p_ptr->big_shot && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
-            avgdam = o_ptr->dd * 2 * (o_ptr->ds + 1) * 10 / 2;
-        else
-            avgdam = o_ptr->dd * (o_ptr->ds + 1) * 10 / 2;
-
-        /* See if the bow is "known" - then set damage bonus */
-        if (object_is_known(bow_ptr)) avgdam += (bow_ptr->to_d * 10);
-        if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS) && p_ptr->lev >= 15)
-            avgdam += (1 + p_ptr->lev/10)*10;
-
-        /* Effect of ammo */
-        if (known) avgdam += (o_ptr->to_d * 10);
-
-        /* Launcher multiplier */
-        avgdam *= tmul;
-        avgdam /= (100 * 10);
-
-        /* Get extra damage from concentration */
-        if (p_ptr->concent) avgdam = boost_concentration_damage(avgdam);
-
-        /* Testing */
-        avgdam += p_ptr->shooter_info.to_d;
-
-        if (avgdam < 0) avgdam = 0;
-
-        /* Display (shot damage/ avg damage) */
-        t = object_desc_chr(t, ' ');       
-        t = object_desc_chr(t, p1);
-        t = object_desc_num(t, avgdam);
-        t = object_desc_chr(t, '/');
-
-        if (p_ptr->shooter_info.num_fire == 0)
-        {
-            t = object_desc_chr(t, '0');
-        }
-        else
-        {
-            /* Calc effects of energy */
-            avgdam *= (p_ptr->shooter_info.num_fire * 100);
-            avgdam /= energy_fire;
-            t = object_desc_num(t, avgdam);
-        }
-
-        t = object_desc_chr(t, p2);
-#endif
-    }
-    else if ((p_ptr->pclass == CLASS_NINJA) && (o_ptr->tval == TV_SPIKE))
-    {
-        int avgdam = p_ptr->mighty_throw ? (1 + 3) : 1;
+        int avgdam = 1;
         s16b energy_fire = 100 - p_ptr->lev;
 
         avgdam += ((p_ptr->lev + 30) * (p_ptr->lev + 30) - 900) / 55;

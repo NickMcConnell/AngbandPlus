@@ -133,9 +133,8 @@ static void show_building(building_type* bldg)
     {
         if (bldg->letters[i])
         {
-            int factor = store_calc_price_factor(100);
-            int member_cost = store_calc_sell_price(bldg->member_costs[i], factor);
-            int other_cost = store_calc_sell_price(bldg->other_costs[i], factor);
+            int member_cost = town_service_price(bldg->member_costs[i]);
+            int other_cost = town_service_price(bldg->other_costs[i]);
             bool owner = is_owner(bldg);
             bool member = is_member(bldg);
             int cost = owner ? member_cost : other_cost;
@@ -1696,203 +1695,151 @@ static struct {
 
 
 /* Get prize */
+static int _prize_count = 0;
+static bool _is_captured_tsuchinoko(obj_ptr obj)
+{
+    if (obj->tval == TV_CAPTURE && obj->pval == MON_TSUCHINOKO)
+        return TRUE;
+    return FALSE;
+}
+static bool _is_corpse_tsuchinoko(obj_ptr obj)
+{
+    if (obj->tval == TV_CORPSE && obj->pval == MON_TSUCHINOKO)
+        return TRUE;
+    return FALSE;
+}
+static int _tsuchinoko_amt(obj_ptr obj)
+{
+    if (obj->tval == TV_CAPTURE)
+        return 1000000 * obj->number;
+    if (obj->tval == TV_CORPSE && obj->sval == SV_CORPSE)
+        return 200000 * obj->number;
+    if (obj->tval == TV_CORPSE && obj->sval == SV_SKELETON)
+        return 100000 * obj->number;
+    return 0;
+}
+static void _obj_reward(obj_ptr obj, int amt)
+{
+    msg_format("You get %dgp.", amt);
+    p_ptr->au += amt;
+    stats_on_gold_winnings(amt);
+    obj->number = 0;
+    obj_release(obj, 0);
+    p_ptr->redraw |= PR_GOLD;
+    p_ptr->notice |= PN_OPTIMIZE_PACK;
+}
+static void _process_tsuchinoko(obj_ptr obj)
+{
+    char name[MAX_NLEN];
+    char buf[MAX_NLEN+30];
+    object_desc(name, obj, OD_COLOR_CODED);
+    sprintf(buf, "Convert %s into money? ", name);
+    if (get_check(buf))
+        _obj_reward(obj, _tsuchinoko_amt(obj));
+    ++_prize_count;
+}
+static bool _is_todays_prize(obj_ptr obj)
+{
+    if (obj->tval == TV_CORPSE)
+    {
+        if (streq(r_name + r_info[obj->pval].name,
+                  r_name + r_info[today_mon].name) )
+            return TRUE;
+    }
+    return FALSE;
+}
+static void _process_todays_prize(obj_ptr obj)
+{
+    char name[MAX_NLEN];
+    char buf[MAX_NLEN+30];
+    object_desc(name, obj, OD_COLOR_CODED);
+    sprintf(buf, "Convert %s into money? ", name);
+    if (get_check(buf))
+    {
+        int mult = obj->sval == SV_CORPSE ? 50 : 30;
+        int amt = (r_info[today_mon].level * mult + 100) * obj->number;
+        _obj_reward(obj, amt);
+    }
+    ++_prize_count;
+}
+static int _wanted_monster_idx(int r_idx)
+{
+    int i;
+    for (i = 0; i < MAX_KUBI; i++)
+    {
+        if (kubi_r_idx[i] == r_idx)
+            return i;
+    }
+    return -1;
+}
+static bool _is_wanted_monster(int r_idx)
+{
+    int idx = _wanted_monster_idx(r_idx);
+    if (idx >= 0) return TRUE;
+    return FALSE;
+}
+static void _forge_wanted_monster_prize(obj_ptr obj, int r_idx)
+{
+    int idx = _wanted_monster_idx(r_idx);
+    int tval = prize_list[idx].tval;
+    int sval = prize_list[idx].sval;
+
+    object_prep(obj, lookup_kind(tval, sval));
+    apply_magic(obj, object_level, AM_NO_FIXED_ART);
+    obj_make_pile(obj);
+    obj_identify_fully(obj);
+}
+static bool _is_wanted_corpse(obj_ptr obj)
+{
+    if (obj->tval == TV_CORPSE && _is_wanted_monster(obj->pval))
+        return TRUE;
+    return FALSE;
+}
+static void _process_wanted_corpse(obj_ptr obj)
+{
+    char  name[MAX_NLEN];
+    char  buf[MAX_NLEN+30];
+    obj_t prize;
+    int   r_idx = obj->pval;
+    int   num, k, kubi_idx = _wanted_monster_idx(r_idx);
+
+    ++_prize_count;
+
+    object_desc(name, obj, OD_COLOR_CODED);
+    sprintf(buf, "Hand %s over? ", name);
+    if (!get_check(buf)) return;
+
+    _forge_wanted_monster_prize(&prize, r_idx);
+    obj->number = 0;
+    obj_release(obj, 0);
+
+    virtue_add(VIRTUE_JUSTICE, 5);
+    p_ptr->fame++;
+    kubi_r_idx[kubi_idx] += 10000;
+
+    /* Count number of unique corpses already handed */
+    for (num = 0, k = 0; k < MAX_KUBI; k++)
+    {
+        if (kubi_r_idx[k] >= 10000) num++;
+    }
+
+    msg_format("You earned %d point%s total.", num, num > 1 ? "s" : "");
+
+    object_desc(name, &prize, OD_COLOR_CODED);
+    msg_format("You get %s.", name);
+    pack_carry(&prize);
+}
 static bool kankin(void)
 {
-    int i, j;
-    bool change = FALSE;
-    char o_name[MAX_NLEN];
-    object_type *o_ptr;
-
-    /* Loop for inventory and right/left arm */
-    for (i = 0; i < INVEN_TOTAL; i++)
+    _prize_count = 0;
+    equip_for_each_that(_process_tsuchinoko, _is_captured_tsuchinoko);
+    pack_for_each_that(_process_tsuchinoko, _is_captured_tsuchinoko);
+    pack_for_each_that(_process_tsuchinoko, _is_corpse_tsuchinoko);
+    pack_for_each_that(_process_todays_prize, _is_todays_prize);
+    pack_for_each_that(_process_wanted_corpse, _is_wanted_corpse);
+    if (!_prize_count)
     {
-        o_ptr = &inventory[i];
-
-        /* Living Tsuchinoko worthes $1000000 */
-        if ((o_ptr->tval == TV_CAPTURE) && (o_ptr->pval == MON_TSUCHINOKO))
-        {
-            char buf[MAX_NLEN+20];
-            object_desc(o_name, o_ptr, OD_COLOR_CODED);
-            sprintf(buf, "Convert %s into money? ",o_name);
-            if (get_check(buf))
-            {
-                int amt = 1000000 * o_ptr->number;
-                msg_format("You get %dgp.", amt);
-                p_ptr->au += amt;
-                stats_on_gold_winnings(amt);
-                p_ptr->redraw |= (PR_GOLD);
-                inven_item_increase(i, -o_ptr->number);
-                inven_item_describe(i);
-                inven_item_optimize(i);
-            }
-            change = TRUE;
-        }
-    }
-
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        o_ptr = &inventory[i];
-
-        /* Corpse of Tsuchinoko worthes $200000 */
-        if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (o_ptr->pval == MON_TSUCHINOKO))
-        {
-            char buf[MAX_NLEN+20];
-            object_desc(o_name, o_ptr, OD_COLOR_CODED);
-            sprintf(buf, "Convert %s into money? ",o_name);
-            if (get_check(buf))
-            {
-                int amt = 200000 * o_ptr->number;
-                msg_format("You get %dgp.", amt);
-                p_ptr->au += amt;
-                stats_on_gold_winnings(amt);
-                p_ptr->redraw |= (PR_GOLD);
-                inven_item_increase(i, -o_ptr->number);
-                inven_item_describe(i);
-                inven_item_optimize(i);
-            }
-            change = TRUE;
-        }
-    }
-
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        o_ptr = &inventory[i];
-
-        /* Bones of Tsuchinoko worthes $100000 */
-        if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (o_ptr->pval == MON_TSUCHINOKO))
-        {
-            char buf[MAX_NLEN+20];
-            object_desc(o_name, o_ptr, OD_COLOR_CODED);
-            sprintf(buf, "Convert %s into money? ",o_name);
-            if (get_check(buf))
-            {
-                int amt = 100000 * o_ptr->number;
-                msg_format("You get %dgp.", amt);
-                p_ptr->au += amt;
-                stats_on_gold_winnings(amt);
-                p_ptr->redraw |= (PR_GOLD);
-                inven_item_increase(i, -o_ptr->number);
-                inven_item_describe(i);
-                inven_item_optimize(i);
-            }
-            change = TRUE;
-        }
-    }
-
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        o_ptr = &inventory[i];
-        if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (streq(r_name + r_info[o_ptr->pval].name, r_name + r_info[today_mon].name)))
-        {
-            char buf[MAX_NLEN+20];
-            object_desc(o_name, o_ptr, OD_COLOR_CODED);
-            sprintf(buf, "Convert %s into money? ",o_name);
-            if (get_check(buf))
-            {
-                int amt = (int)(r_info[today_mon].level * 50 + 100) * o_ptr->number;
-                msg_format("You get %dgp.", amt);
-                p_ptr->au += amt;
-                stats_on_gold_winnings(amt);
-                p_ptr->redraw |= (PR_GOLD);
-                inven_item_increase(i, -o_ptr->number);
-                inven_item_describe(i);
-                inven_item_optimize(i);
-            }
-            change = TRUE;
-        }
-    }
-
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        o_ptr = &inventory[i];
-
-        if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (streq(r_name + r_info[o_ptr->pval].name, r_name + r_info[today_mon].name)))
-        {
-            char buf[MAX_NLEN+20];
-            object_desc(o_name, o_ptr, OD_COLOR_CODED);
-            sprintf(buf, "Convert %s into money? ",o_name);
-            if (get_check(buf))
-            {
-                int amt = (int)(r_info[today_mon].level * 30 + 60) * o_ptr->number;
-                msg_format("You get %dgp.", amt);
-                p_ptr->au += amt;
-                stats_on_gold_winnings(amt);
-                p_ptr->redraw |= (PR_GOLD);
-                inven_item_increase(i, -o_ptr->number);
-                inven_item_describe(i);
-                inven_item_optimize(i);
-            }
-            change = TRUE;
-        }
-    }
-
-    for (j = 0; j < MAX_KUBI; j++)
-    {
-        /* Need reverse order --- Positions will be changed in the loop */
-        for (i = INVEN_PACK-1; i >= 0; i--)
-        {
-            o_ptr = &inventory[i];
-            if ((o_ptr->tval == TV_CORPSE) && (o_ptr->pval == kubi_r_idx[j]))
-            {
-                char buf[MAX_NLEN+20];
-                int num, k, item_new;
-                object_type forge;
-
-                object_desc(o_name, o_ptr, OD_COLOR_CODED);
-                sprintf(buf, "Hand %s over? ",o_name);
-                if (!get_check(buf)) continue;
-
-                /* Hand it first */
-                inven_item_increase(i, -o_ptr->number);
-                inven_item_describe(i);
-                inven_item_optimize(i);
-
-                virtue_add(VIRTUE_JUSTICE, 5);
-                p_ptr->fame++;
-                kubi_r_idx[j] += 10000;
-
-                /* Count number of unique corpses already handed */
-                for (num = 0, k = 0; k < MAX_KUBI; k++)
-                {
-                    if (kubi_r_idx[k] >= 10000) num++;
-                }
-
-                msg_format("You earned %d point%s total.", num, (num > 1 ? "s" : ""));
-
-                /* Prepare to make a prize */
-                object_prep(&forge, lookup_kind(prize_list[num-1].tval, prize_list[num-1].sval));
-                apply_magic(&forge, object_level, AM_NO_FIXED_ART);
-                mass_produce(&forge);
-
-                /* Identify it fully */
-                obj_identify_fully(&forge);
-
-                /*
-                 * Hand it --- Assume there is an empty slot.
-                 * Since a corpse is handed at first,
-                 * there is at least one empty slot.
-                 */
-                item_new = inven_carry(&forge);
-
-                /* Describe the object */
-                object_desc(o_name, &forge, OD_COLOR_CODED);
-                msg_format("You get %s (%c). ", o_name, index_to_label(item_new));
-
-                /* Auto-inscription */
-                autopick_alter_item(item_new, FALSE);
-
-                /* Handle stuff */
-                handle_stuff();
-
-                change = TRUE;
-            }
-        }
-    }
-
-    if (!change)
-    {
-        msg_print("You have nothing.");
-        msg_print(NULL);
+        msg_print("You have nothing that I want.");
         return FALSE;
     }
     return TRUE;
@@ -2180,7 +2127,7 @@ static bool inn_comm(int cmd)
                 }
                 else
                 {
-                    int i;
+                    slot_t slot;
 
                     set_blind(0, TRUE);
                     set_confused(0, TRUE);
@@ -2192,15 +2139,17 @@ static bool inn_comm(int cmd)
                     if (p_ptr->pclass == CLASS_MAGIC_EATER)
                         magic_eater_restore_all();
 
-                    for (i = 0; i < INVEN_TOTAL; i++)
+                    for (slot = 1; slot <= pack_max(); slot++)
                     {
-                        object_type *o_ptr = &inventory[i];
-
-                        if (!o_ptr->k_idx) continue;
-                        if (object_is_device(o_ptr))
-                            device_regen_sp_aux(o_ptr, 1000);
-                        else if (o_ptr->timeout > 0)
-                            o_ptr->timeout = 0;
+                        obj_ptr obj = pack_obj(slot);
+                        if (obj && object_is_device(obj))
+                            device_regen_sp_aux(obj, 1000);
+                    }
+                    for (slot = 1; slot <= equip_max(); slot++)
+                    {
+                        obj_ptr obj = equip_obj(slot);
+                        if (obj && obj->timeout > 0)
+                            obj->timeout = 0;
                     }
 
                     if (prev_hour >= 6 && prev_hour <= 17)
@@ -2225,150 +2174,53 @@ static bool inn_comm(int cmd)
     return (TRUE);
 }
 
-
-/*
- * Display quest information
- */
-static void get_questinfo(int questnum)
-{
-    int     i;
-    int     old_quest;
-    char    tmp_str[80];
-
-
-    /* Clear the text */
-    for (i = 0; i < 10; i++)
-    {
-        quest_text[i][0] = '\0';
-    }
-
-    quest_text_line = 0;
-
-    /* Set the quest number temporary */
-    old_quest = p_ptr->inside_quest;
-    p_ptr->inside_quest = questnum;
-
-    /* Get the quest text */
-    init_flags = INIT_SHOW_TEXT | INIT_ASSIGN;
-
-    process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-
-    /* Reset the old quest number */
-    p_ptr->inside_quest = old_quest;
-
-    /* Print the quest info */
-    sprintf(tmp_str, "Quest Information (Danger level: %d)", quest[questnum].level);
-
-    prt(tmp_str, 5, 0);
-
-    prt(quest[questnum].name, 7, 0);
-
-    for (i = 0; i < 10; i++)
-    {
-        c_put_str(TERM_YELLOW, quest_text[i], i + 8, 0);
-    }
-}
-
-
 /*
  * Request a quest from the Lord.
  */
 static void castle_quest(void)
 {
-    int             q_index = 0;
-    monster_race    *r_ptr;
-    quest_type      *q_ptr;
-    cptr            name;
+    int             quest_id = 0;
+    quest_ptr       quest;
 
 
     clear_bldg(4, 18);
 
     /* Current quest of the building */
-    q_index = cave[py][px].special;
+    quest_id = cave[py][px].special;
 
     /* Is there a quest available at the building? */
-    if (!q_index)
+    if (!quest_id)
     {
         put_str("I don't have a quest for you at the moment.", 8, 0);
         return;
     }
 
-    q_ptr = &quest[q_index];
+    quest = quests_get(quest_id);
 
-    /* Quest is completed */
-    if (q_ptr->status == QUEST_STATUS_COMPLETED)
+    if (quest->status == QS_COMPLETED)
     {
-        /* Rewarded quest */
-        q_ptr->status = QUEST_STATUS_REWARDED;
-
-        get_questinfo(q_index);
-
+        quest_reward(quest);
         reinit_wilderness = TRUE;
     }
-    /* Failed quest */
-    else if (q_ptr->status == QUEST_STATUS_FAILED)
+    else if (quest->status == QS_FAILED)
     {
-        get_questinfo(q_index);
-
-        /* Mark quest as done (but failed) */
-        q_ptr->status = QUEST_STATUS_FAILED_DONE;
-
+        string_ptr s = quest_get_description(quest);
+        msg_format("<color:R>%s</color> (<color:U>Level %d</color>): %s",
+            quest->name, quest->level, string_buffer(s));
+        string_free(s);
+        quest->status = QS_FAILED_DONE;
         reinit_wilderness = TRUE;
     }
-    /* Quest is still unfinished */
-    else if (q_ptr->status == QUEST_STATUS_TAKEN)
+    else if (quest->status == QS_TAKEN)
     {
         put_str("You have not completed your current quest yet!", 8, 0);
-
         put_str("Use CTRL-Q to check the status of your quest.", 9, 0);
-
         put_str("Return when you have completed your quest.", 12, 0);
     }
-    /* No quest yet */
-    else if (q_ptr->status == QUEST_STATUS_UNTAKEN)
+    else if (quest->status == QS_UNTAKEN)
     {
-        q_ptr->status = QUEST_STATUS_TAKEN;
-
-        /* Handle $RANDOM_ for each quest independently */
-        q_ptr->seed = randint0(0x10000000);
-
+        quest_take(quest);
         reinit_wilderness = TRUE;
-
-        /* Assign a new quest */
-        if (q_ptr->type == QUEST_TYPE_KILL_ANY_LEVEL)
-        {
-            if (q_ptr->r_idx == 0)
-            {
-                /* Random monster at least 5 - 10 levels out of deep */
-                q_ptr->r_idx = get_mon_num(q_ptr->level + 4 + randint1(6));
-            }
-
-            r_ptr = &r_info[q_ptr->r_idx];
-
-            while ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->rarity != 1))
-            {
-                q_ptr->r_idx = get_mon_num(q_ptr->level) + 4 + randint1(6);
-                r_ptr = &r_info[q_ptr->r_idx];
-            }
-
-            if (q_ptr->max_num == 0)
-            {
-                /* Random monster number */
-                if (randint1(10) > 7)
-                    q_ptr->max_num = 1;
-                else
-                    q_ptr->max_num = randint1(3) + 1;
-            }
-
-            q_ptr->cur_num = 0;
-            name = (r_name + r_ptr->name);
-            msg_format("Your quest: kill %d %s", q_ptr->max_num, name);
-
-        }
-        else
-        {
-            get_questinfo(q_index);
-        }
     }
 }
 
@@ -2585,38 +2437,24 @@ static int _gamble_shop_roll(const _gamble_shop_t *choices)
 static bool _gamble_shop_aux(object_type *o_ptr)
 {
     char buf[MAX_NLEN];
-    int slot, auto_pick_idx;
+    int auto_pick_idx;
 
     obj_identify_fully(o_ptr);
     stats_on_identify(o_ptr);
     object_desc(buf, o_ptr, OD_COLOR_CODED);
-
-    clear_bldg(5, 10);
-    
-    c_put_str(TERM_YELLOW, "You Win:", 5, 0);
-    put_str(buf, 5, 9);
+    msg_format("You win %s.", buf);
 
     auto_pick_idx = is_autopick(o_ptr);
     if (auto_pick_idx >= 0)
     {
         if (autopick_list[auto_pick_idx].action & DO_AUTODESTROY)
         {
-            msg_format("You destroy %s.", buf);
+            msg_print("You destroy your prize.");
             return TRUE;
         }
     }
 
-    if (!inven_carry_okay(o_ptr))
-    {
-        msg_print("You cannot carry that many different items.");
-        /* Charge the player anyway. Otherwise, they can get whatever object
-           they want by playing games with their inventory! */
-        return TRUE;
-    }
-    slot = inven_carry(o_ptr);
-    object_desc(buf, &inventory[slot], OD_COLOR_CODED);
-    msg_format("You have %s (%c).", buf, index_to_label(slot));
-    handle_stuff();
+    pack_carry(o_ptr);
     return TRUE;
 }
 
@@ -2710,11 +2548,43 @@ static bool _gamble_shop_artifact(void)
     return _gamble_shop_aux(&forge);
 }
 
+static obj_ptr _get_reforge_src(int max_power)
+{
+    char buf[255];
+    obj_prompt_t prompt = {0};
+
+    sprintf(buf, "Use what artifact for reforging (Max Power = %d)? ", max_power);
+    prompt.prompt = buf;
+    prompt.error = "You have no artifacts to reforge.";
+    prompt.filter = object_is_artifact;
+    prompt.where[0] = INV_PACK;
+    prompt.flags = INV_SHOW_VALUE;
+
+    obj_prompt(&prompt);
+    return prompt.obj;
+}
+
+static obj_ptr _get_reforge_dest(int max_power)
+{
+    char buf[255];
+    obj_prompt_t prompt = {0};
+
+    sprintf(buf, "Reforge which object (Max Power = %d)? ", max_power);
+    prompt.prompt = buf;
+    prompt.error = "You have nothing to reforge.";
+    prompt.filter = item_tester_hook_nameless_weapon_armour;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.flags = INV_SHOW_VALUE;
+
+    obj_prompt(&prompt);
+    return prompt.obj;
+}
+
 static bool _reforge_artifact(void)
 {
-    int src_idx, dest_idx, cost;
+    int  cost;
     char o_name[MAX_NLEN];
-    char buf[255];
     object_type *src, *dest;
     int f = MIN(200, p_ptr->fame);
     int src_max_power = f*250 + f*f*3;
@@ -2726,12 +2596,9 @@ static bool _reforge_artifact(void)
         return FALSE;
     }
 
-    item_tester_hook = object_is_artifact;
-    sprintf(buf, "Use what artifact for reforging (Max Power = %d)? ", src_max_power);
-    if (!get_item(&src_idx, buf, "You have no artifacts to reforge.", USE_INVEN | SHOW_VALUE))
-        return FALSE;
+    src = _get_reforge_src(src_max_power);
+    if (!src) return FALSE;
 
-    src = &inventory[src_idx];
     if (!object_is_artifact(src)) /* paranoia */
     {
         msg_print("You must choose an artifact for reforging.");
@@ -2768,12 +2635,8 @@ static bool _reforge_artifact(void)
     if (!get_check(format("Really use %s? (It will be destroyed!) ", o_name))) 
         return FALSE;
 
-    sprintf(buf, "Reforge which object (Max Power = %d)? ", dest_max_power);
-    item_tester_hook = item_tester_hook_nameless_weapon_armour;
-    if (!get_item(&dest_idx, buf, "You have nothing to reforge.", USE_EQUIP | USE_INVEN | SHOW_VALUE))
-        return FALSE;
-
-    dest = &inventory[dest_idx];
+    dest = _get_reforge_dest(dest_max_power);
+    if (!dest) return FALSE;
 
     if (dest->number > 1)
     {
@@ -2784,6 +2647,12 @@ static bool _reforge_artifact(void)
     if (object_is_artifact(dest))
     {
         msg_print("This item is already an artifact!");
+        return FALSE;
+    }
+
+    if (dest->tval == TV_QUIVER)
+    {
+        msg_print("I am unable to reforge quivers.");
         return FALSE;
     }
 
@@ -2817,23 +2686,21 @@ static bool _reforge_artifact(void)
         return FALSE;
     }
 
-    inven_item_increase(src_idx, -1);
-    inven_item_describe(src_idx);
+    src->number = 0;
+    obj_release(src, OBJ_RELEASE_QUIET);
+    src = NULL;
+
     p_ptr->au -= cost;
     stats_on_gold_services(cost);
 
     msg_print("After several hours, you are presented your new artifact...");
+    game_turn += rand_range(5000, 15000);
 
     obj_identify_fully(dest);
-
-    p_ptr->update |= PU_BONUS;
-    p_ptr->window |= (PW_INVEN | PW_EQUIP);
+    gear_notice_enchant(dest);
     handle_stuff();
 
     obj_display(dest);
-
-    inven_item_optimize(src_idx);
-
     return TRUE;
 }
 
@@ -2866,18 +2733,16 @@ static void _enchant_menu_fn(int cmd, int which, vptr cookie, variant *res)
     }
 }
 
-static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_guild)
+static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_ac, bool is_guild)
 {
-    int         i, item;
-    bool        okay = FALSE;
-    object_type *o_ptr;
-    cptr        q, s;
-    int         maxenchant;
-    char        tmp_str[MAX_NLEN];
-    int         store_factor = store_calc_price_factor(100);
+    obj_prompt_t prompt = {0};
+    int          i;
+    bool         okay = FALSE;
+    int          maxenchant;
+    char         tmp_str[MAX_NLEN];
 
     if (cost == 0)
-        cost = store_calc_sell_price(1500, store_factor);
+        cost = town_service_price(1500);
 
     if (p_ptr->prace == RACE_MON_SWORD)
     {
@@ -2887,19 +2752,19 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
 
     clear_bldg(4, 18);
 
-    /* Which Item? Client sets item_tester_hook! */
-    item_tester_no_ryoute = TRUE;
-    q = "Improve which item? ";
-    s = "You have nothing to improve.";
-    if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return (FALSE);
-    o_ptr = &inventory[item];
+    prompt.prompt = "Improve which item?";
+    prompt.error = "You have nothing to improve.";
+    prompt.filter = filter;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_QUIVER;
+    obj_prompt(&prompt);
+    if (!prompt.obj) return FALSE;
 
-    if (o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT || o_ptr->tval == TV_SHOT)
-        maxenchant = (p_ptr->lev / 5);
-    else if (is_guild)
-        maxenchant = 5 + (p_ptr->lev / 5);
+    if (is_guild)
+        maxenchant = 5 + p_ptr->lev/5;
     else
-        maxenchant = 2 + (p_ptr->lev / 5);
+        maxenchant = 2 + p_ptr->lev/5;
 
     /* Streamline. Nothing is more fun then enchanting Twilight (-40,-60)->(+10, +10), I 
        admit. But other players might not share my love of carpal tunnel syndrome! */
@@ -2912,7 +2777,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
                         "Amt      Cost", _enchant_menu_fn,
                         choices, 25 };
 
-        object_copy(&copy, o_ptr);
+        object_copy(&copy, prompt.obj);
         copy.curse_flags = 0;
         remove_flag(copy.flags, OF_AGGRAVATE);
         remove_flag(copy.flags, OF_NO_TELE);
@@ -2944,14 +2809,14 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
                     m += v - 10;
             }
 
-            if (object_is_artifact(o_ptr))
+            if (object_is_artifact(prompt.obj))
                 m *= 3;
 
             if (!ok) break;
 
-            if (o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT || o_ptr->tval == TV_SHOT)
+            if (prompt.obj->tval == TV_ARROW || prompt.obj->tval == TV_BOLT || prompt.obj->tval == TV_SHOT)
             {
-                choices[i].cost = (i+1)*cost*o_ptr->number;
+                choices[i].cost = (i+1)*cost*prompt.obj->number;
             }
             else
             {
@@ -2961,7 +2826,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
 
                 unit_cost *= m;
 
-                unit_cost = store_calc_sell_price(unit_cost, store_factor);
+                unit_cost = town_service_price(unit_cost);
 
                 if (unit_cost < min_cost)
                     unit_cost = min_cost;
@@ -2977,7 +2842,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
         }
         if (!i)
         {
-            object_desc(tmp_str, o_ptr, OD_COLOR_CODED);
+            object_desc(tmp_str, prompt.obj, OD_COLOR_CODED);
             msg_format("%^s can not be further improved.", tmp_str);
             return FALSE;
         }
@@ -2995,7 +2860,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
     /* Check if the player has enough money */
     if (p_ptr->au < cost)
     {
-        object_desc(tmp_str, o_ptr, OD_NAME_ONLY | OD_COLOR_CODED);
+        object_desc(tmp_str, prompt.obj, OD_NAME_ONLY | OD_COLOR_CODED);
         msg_format("You do not have the gold to improve %s!", tmp_str);
         return FALSE;
     }
@@ -3003,9 +2868,9 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
     /* Enchant to hit */
     for (i = 0; i < to_hit; i++)
     {
-        if (o_ptr->to_h < maxenchant)
+        if (prompt.obj->to_h < maxenchant)
         {
-            if (enchant(o_ptr, 1, (ENCH_TOHIT | ENCH_FORCE)))
+            if (enchant(prompt.obj, 1, (ENCH_TOHIT | ENCH_FORCE)))
                 okay = TRUE;
         }
     }
@@ -3013,9 +2878,9 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
     /* Enchant to damage */
     for (i = 0; i < to_dam; i++)
     {
-        if (o_ptr->to_d < maxenchant)
+        if (prompt.obj->to_d < maxenchant)
         {
-            if (enchant(o_ptr, 1, (ENCH_TODAM | ENCH_FORCE)))
+            if (enchant(prompt.obj, 1, (ENCH_TODAM | ENCH_FORCE)))
                 okay = TRUE;
         }
     }
@@ -3023,9 +2888,9 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
     /* Enchant to AC */
     for (i = 0; i < to_ac; i++)
     {
-        if (o_ptr->to_a < maxenchant)
+        if (prompt.obj->to_a < maxenchant)
         {
-            if (enchant(o_ptr, 1, (ENCH_TOAC | ENCH_FORCE)))
+            if (enchant(prompt.obj, 1, (ENCH_TOAC | ENCH_FORCE)))
                 okay = TRUE;
         }
     }
@@ -3038,12 +2903,12 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
     }
     else
     {
-        object_desc(tmp_str, o_ptr, OD_NAME_AND_ENCHANT | OD_COLOR_CODED);
-        msg_format("Improved into %s for %d gold.", tmp_str, cost);
+        object_desc(tmp_str, prompt.obj, OD_NAME_AND_ENCHANT | OD_COLOR_CODED);
+        msg_format("Improved %s for %d gold.", tmp_str, cost);
 
         p_ptr->au -= cost;
         stats_on_gold_services(cost);
-        if (equip_is_valid_slot(item)) android_calc_exp();
+        obj_release(prompt.obj, OBJ_RELEASE_ENCHANT);
         return (TRUE);
     }
 }
@@ -3052,6 +2917,7 @@ bool tele_town(void)
 {
     int i, x, y;
     int num = 0;
+    int town_id = 0;
 
     if (dun_level)
     {
@@ -3068,16 +2934,14 @@ bool tele_town(void)
     screen_save();
     clear_bldg(4, 10);
 
-    for (i=1;i<max_towns;i++)
+    for (i = TOWN_MIN; i <= TOWN_MAX_STD; i++)
     {
         char buf[80];
 
-        if ((i == NO_TOWN) || 
-            (i == SECRET_TOWN) || 
-            (i == p_ptr->town_num) || 
-            (!(p_ptr->visit & (1L << (i-1))) && !p_ptr->wizard)) continue;
+        if (i == p_ptr->town_num) continue;
+        if (!town_visited(i) && !p_ptr->wizard) continue;
 
-        sprintf(buf,"%c) %-20s", I2A(i-1), town[i].name);
+        sprintf(buf,"%c) %-20s", I2A(i-1), town_name(i));
         prt(buf, 5+i, 5);
         num++;
     }
@@ -3100,8 +2964,11 @@ bool tele_town(void)
             screen_load();
             return FALSE;
         }
-        else if ((i < 'a') || (i > ('a'+max_towns-2))) continue;
-        else if (((i-'a'+1) == p_ptr->town_num) || ((i-'a'+1) == NO_TOWN) || ((i-'a'+1) == SECRET_TOWN) || (!(p_ptr->visit & (1L << (i-'a'))) && !p_ptr->wizard)) continue;
+        else if ((i < 'a') || (i > ('a'+TOWN_MAX_STD-1))) continue;
+
+        town_id = A2I(i) + 1;
+        if (town_id == p_ptr->town_num) continue;
+        if (!p_ptr->wizard && !town_visited(town_id)) continue;
         break;
     }
 
@@ -3109,7 +2976,7 @@ bool tele_town(void)
     {
         for (x = 0; x < max_wild_x; x++)
         {
-            if(wilderness[y][x].town == (i-'a'+1))
+            if(wilderness[y][x].town == town_id)
             {
                 p_ptr->wilderness_y = y;
                 p_ptr->wilderness_x = x;
@@ -3407,7 +3274,7 @@ static void bldg_process_command(building_type *bldg, int i)
         bcost = bldg->other_costs[i];
 
     /* Adjst price for race, charisma and fame */
-    bcost = store_calc_sell_price(bcost, store_calc_price_factor(100));
+    bcost = town_service_price(bcost);
 
     /* action restrictions */
     if (((bldg->action_restr[i] == 1) && !is_member(bldg)) ||
@@ -3470,12 +3337,10 @@ static void bldg_process_command(building_type *bldg, int i)
     /*    paid = compare_weapons(); */
         break;
     case BACT_ENCHANT_WEAPON:
-        item_tester_hook = object_allow_enchant_melee_weapon;
-        enchant_item(bcost, 1, 1, 0, is_guild);
+        enchant_item(object_allow_enchant_melee_weapon, bcost, 1, 1, 0, is_guild);
         break;
     case BACT_ENCHANT_ARMOR:
-        item_tester_hook = object_is_armour;
-        enchant_item(bcost, 0, 0, 1, is_guild);
+        enchant_item(object_is_armour, bcost, 0, 0, 1, is_guild);
         break;
     case BACT_RECHARGE:
         msg_print("My apologies, but that service is no longer available!");
@@ -3525,12 +3390,10 @@ static void bldg_process_command(building_type *bldg, int i)
         if (do_res_stat(A_CHR)) paid = TRUE;
         break;
     case BACT_ENCHANT_ARROWS:
-        item_tester_hook = item_tester_hook_ammo;
-        enchant_item(bcost, 1, 1, 0, is_guild);
+        enchant_item(item_tester_hook_ammo, bcost, 1, 1, 0, is_guild);
         break;
     case BACT_ENCHANT_BOW:
-        item_tester_tval = TV_BOW;
-        enchant_item(bcost, 1, 1, 0, is_guild);
+        enchant_item(object_is_bow, bcost, 1, 1, 0, is_guild);
         break;
     case BACT_RECALL:
         if (recall_player(1)) paid = TRUE;
@@ -3550,8 +3413,8 @@ static void bldg_process_command(building_type *bldg, int i)
         /* Limit depth in Angband */
         if (select_dungeon == DUNGEON_ANGBAND)
         {
-            if (quest[QUEST_OBERON].status != QUEST_STATUS_FINISHED) max_depth = 98;
-            else if(quest[QUEST_SERPENT].status != QUEST_STATUS_FINISHED) max_depth = 99;
+            if (quests_get(QUEST_OBERON)->status != QS_FINISHED) max_depth = 98;
+            else if(quests_get(QUEST_SERPENT)->status != QS_FINISHED) max_depth = 99;
         }
 
         amt = get_quantity(format("Teleport to which level of %s? ", d_name + d_info[select_dungeon].name), max_depth);
@@ -3686,15 +3549,14 @@ void do_cmd_quest(void)
         msg_print("There is an entry of a quest.");
         if (!get_check("Do you enter? ")) return;
 
-        /* Player enters a new quest */
-        p_ptr->oldpy = 0;
-        p_ptr->oldpx = 0;
+        /* Player enters a new quest XXX */
+        p_ptr->oldpy = py;
+        p_ptr->oldpx = px;
 
-        leave_quest_check();
+        /* XXX
+        dun_level = 1; */
 
-        if (quest[p_ptr->inside_quest].type != QUEST_TYPE_RANDOM) dun_level = 1;
-        p_ptr->inside_quest = cave[py][px].special;
-
+        enter_quest = cave[py][px].special;
         p_ptr->leaving = TRUE;
     }
 }
@@ -3709,8 +3571,6 @@ void do_cmd_bldg(void)
     char            command;
     bool            validcmd;
     building_type   *bldg;
-    rect_t          msg_display_rect;
-
 
     energy_use = 100;
 
@@ -3741,6 +3601,11 @@ void do_cmd_bldg(void)
         }
         else
         {
+            /* Player is not victorious unless they manage to leave the
+             * arena alive! */
+            if (p_ptr->arena_number > MAX_ARENA_MONS) p_ptr->arena_number++;
+            p_ptr->arena_number++;
+
             /* Don't save the arena as saved floor */
             prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_NO_RETURN);
 
@@ -3794,8 +3659,7 @@ void do_cmd_bldg(void)
     leave_bldg = FALSE;
     show_building(bldg);
 
-    msg_display_rect = rect_create(0, 0, 80, 3);
-    msg_line_init(&msg_display_rect);
+    msg_line_init(ui_shop_msg_rect());
     store_hack = TRUE;
 
     while (!leave_bldg)
@@ -3831,6 +3695,12 @@ void do_cmd_bldg(void)
             bldg_process_command(bldg, i);
         }
 
+        if (pack_overflow_count())
+        {
+            msg_print("<color:v>Your pack is overflowing!</color> It's time for you to leave!");
+            msg_print(NULL);
+            leave_bldg = TRUE;
+        }
         /* Notice stuff */
         notice_stuff();
 
@@ -3839,7 +3709,7 @@ void do_cmd_bldg(void)
     }
 
     store_hack = FALSE;
-    msg_line_init(NULL);
+    msg_line_init(ui_msg_rect());
 
     /* Reinit wilderness to activate quests ... */
     if (reinit_wilderness)
@@ -3864,114 +3734,3 @@ void do_cmd_bldg(void)
 }
 
 
-/* Array of places to find an inscription */
-static cptr find_quest[] =
-{
-    "You find the following inscription in the floor",
-
-    "You see a message inscribed in the wall",
-
-    "There is a sign saying",
-
-    "Something is written on the staircase",
-
-    "You find a scroll with the following message",
-
-};
-
-
-/*
- * Discover quest
- */
-void quest_discovery(int q_idx)
-{
-    quest_type      *q_ptr = &quest[q_idx];
-    monster_race    *r_ptr = &r_info[q_ptr->r_idx];
-    int             q_num = q_ptr->max_num;
-    char            name[80];
-
-    /* No quest index */
-    if (!q_idx) return;
-
-    strcpy(name, (r_name + r_ptr->name));
-
-    msg_print(find_quest[rand_range(0, 4)]);
-
-    if (q_num == 1)
-    {
-        /* Unique */
-
-        /* Hack -- "unique" monsters must be "unique" */
-        if ((r_ptr->flags1 & RF1_UNIQUE) &&
-            (0 == r_ptr->max_num))
-        {
-            msg_print("It seems that this level was protected by someone before...");
-            /* The unique is already dead */
-            quest[q_idx].status = QUEST_STATUS_FINISHED;
-        }
-        else
-        {
-            cmsg_format(TERM_VIOLET, "Beware, this level is protected by %s!", name);
-        }
-    }
-    else
-    {
-        /* Normal monsters */
-        plural_aux(name);
-        cmsg_format(TERM_VIOLET, "Be warned, this level is guarded by %d %s!", q_num, name);
-
-    }
-}
-
-
-/*
- * Hack -- Check if a level is a "quest" level
- */
-int quest_number(int level)
-{
-    int i;
-
-    /* Check quests */
-    if (p_ptr->inside_quest)
-        return (p_ptr->inside_quest);
-
-    for (i = 0; i < max_quests; i++)
-    {
-        if (quest[i].status != QUEST_STATUS_TAKEN) continue;
-
-        if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
-            !(quest[i].flags & QUEST_FLAG_PRESET) &&
-            (quest[i].level == level) &&
-            (quest[i].dungeon == dungeon_type))
-            return (i);
-    }
-
-    /* Check for random quest */
-    return (random_quest_number(level));
-}
-
-
-/*
- * Return the index of the random quest on this level
- * (or zero)
- */
-int random_quest_number(int level)
-{
-    int i;
-
-    if (dungeon_type != DUNGEON_ANGBAND) return 0;
-
-    for (i = MIN_RANDOM_QUEST; i < MIN_RANDOM_QUEST + num_random_quests; i++)
-    {
-        if ((quest[i].type == QUEST_TYPE_RANDOM) &&
-            (quest[i].status == QUEST_STATUS_TAKEN) &&
-            (quest[i].level == level) &&
-            (quest[i].dungeon == DUNGEON_ANGBAND))
-        {
-            return i;
-        }
-    }
-
-    /* Nope */
-    return 0;
-}

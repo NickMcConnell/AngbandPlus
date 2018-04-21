@@ -1,0 +1,40 @@
+?:[EQU $QUEST3 Taken InProgress]
+D:One of the houses in town was recently sold to a foreign
+D:mystic. Now more and more alarming things happen like the
+D:sudden plague of evil in the sewers, animals dying, people
+D:getting sick, and a general run of bad luck for our town.
+D:It is like someone is playing around with powers of chaos.
+D:I have evidence that the origin of everything is the stranger
+D:living in the house in the north-west corner of town.
+D:I need you to take this logrus adept out.
+?:1
+
+?:[EQU $QUEST3 Completed]
+D:You saved us from deep trouble again. Please accept this modest gift.
+?:1
+
+?:[EQU $QUEST3 Failed]
+D:It seems like I've overestimated your power. But at least
+D:my friend Astinus, the Librarian says that the Logrus Master
+D:has left the town. Lets hope that he never comes back.
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:.:FLOOR
+L:<:UP_STAIR
+L:a:MON(logrus master)
+M:###############
+M:#.............#
+M:#.........a...#
+M:#.............#
+M:#....##########
+M:#.............#
+M:#.............#
+M:#.............#
+M:#<............#
+M:###############
+R:OBJ(ROD_BEAM_CHAOS)
+
+
+# vim: filetype=q :

@@ -105,6 +105,8 @@
 #include "rooms.h"
 #include "streams.h"
 
+int enter_quest = 0;
+
 int dun_tun_rnd;
 int dun_tun_chg;
 int dun_tun_con;
@@ -192,25 +194,16 @@ static bool alloc_stairs(int feat, int num, int walls)
     }
     else if (have_flag(f_ptr->flags, FF_MORE))
     {
-        int q_idx = quest_number(dun_level);
+        /* player must complete the quest to gain the down staircase */
+        if (!quests_allow_downstairs()) return TRUE;
 
         /* No downstairs on random wilderness entrances */
         if (d_info[dungeon_type].flags1 & DF1_RANDOM) return TRUE;
 
-        /* No downstairs on quest levels */
-        if (dun_level > 1 && q_idx)
-        {
-            monster_race *r_ptr = &r_info[quest[q_idx].r_idx];
-
-            /* The quest monster(s) is still alive? */
-            if (!(r_ptr->flags1 & RF1_UNIQUE) || 0 < r_ptr->max_num)
-                return TRUE;
-        }
-
         /* No downstairs at the bottom */
         if (dun_level >= d_info[dungeon_type].maxdepth) return TRUE;
 
-        if ((dun_level < d_info[dungeon_type].maxdepth-1) && !quest_number(dun_level+1))
+        if (dun_level < d_info[dungeon_type].maxdepth-1 && quests_allow_downshaft())
             shaft_num = (randint1(num)+1)/2;
     }
 
@@ -383,7 +376,7 @@ static void alloc_object(int set, int typ, int num)
             else
                 k_idx = lookup_kind(TV_FOOD, SV_FOOD_RATION);
             object_prep(&forge, k_idx);
-            mass_produce(&forge);
+            obj_make_pile(&forge);
             drop_near(&forge, -1, y, x);
             break;
 
@@ -394,14 +387,14 @@ static void alloc_object(int set, int typ, int num)
                 k_idx = lookup_kind(TV_LITE, SV_LITE_LANTERN);
             object_prep(&forge, k_idx);
             apply_magic(&forge, dun_level, 0);
-            mass_produce(&forge);
+            obj_make_pile(&forge);
             drop_near(&forge, -1, y, x);
             break;
 
         case ALLOC_TYP_RECALL:
             k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
             object_prep(&forge, k_idx);
-            /*mass_produce(&forge);*/
+            /*obj_make_pile(&forge);*/
             drop_near(&forge, -1, y, x);
             break;
 
@@ -552,93 +545,6 @@ static void try_door(int y, int x)
 }
 
 
-/* Place quest monsters */
-bool place_quest_monsters(void)
-{
-    int i;
-
-    /* Handle the quest monster placements */
-    for (i = 0; i < max_quests; i++)
-    {
-        monster_race *r_ptr;
-        u32b mode;
-        int j;
-
-        if (quest[i].status != QUEST_STATUS_TAKEN ||
-            (quest[i].type != QUEST_TYPE_KILL_LEVEL &&
-             quest[i].type != QUEST_TYPE_RANDOM) ||
-            quest[i].level != dun_level ||
-            dungeon_type != quest[i].dungeon ||
-            (quest[i].flags & QUEST_FLAG_PRESET))
-        {
-            /* Ignore it */
-            continue;
-        }
-
-        r_ptr = &r_info[quest[i].r_idx];
-
-        /* Hack -- "unique" monsters must be "unique" */
-        if ((r_ptr->flags1 & RF1_UNIQUE) &&
-            (r_ptr->cur_num >= r_ptr->max_num)) continue;
-
-        mode = (PM_NO_KAGE | PM_NO_PET);
-
-        if (!(r_ptr->flags1 & RF1_FRIENDS))
-            mode |= PM_ALLOW_GROUP;
-
-        for (j = 0; j < (quest[i].max_num - quest[i].cur_num); j++)
-        {
-            int k;
-
-            for (k = 0; k < SAFE_MAX_ATTEMPTS; k++)
-            {
-                int x = 0, y = 0;
-                int l;
-
-                /* Find an empty grid */
-                for (l = SAFE_MAX_ATTEMPTS; l > 0; l--)
-                {
-                    cave_type    *c_ptr;
-                    feature_type *f_ptr;
-
-                    y = randint0(cur_hgt);
-                    x = randint0(cur_wid);
-
-                    c_ptr = &cave[y][x];
-                    f_ptr = &f_info[c_ptr->feat];
-
-                    if (!have_flag(f_ptr->flags, FF_MOVE) && !have_flag(f_ptr->flags, FF_CAN_FLY)) continue;
-                    if (!monster_can_enter(y, x, r_ptr, 0)) continue;
-                    if (distance(y, x, py, px) < 10) continue;
-                    if (c_ptr->info & CAVE_ICKY) continue;
-                    else break;
-                }
-
-                /* Failed to place */
-                if (!l) return FALSE;
-
-                /* Try to place the monster */
-                if (place_monster_aux(0, y, x, quest[i].r_idx, mode))
-                {
-                    /* Success */
-                    break;
-                }
-                else
-                {
-                    /* Failure - Try again */
-                    continue;
-                }
-            }
-
-            /* Failed to place */
-            if (k == SAFE_MAX_ATTEMPTS) return FALSE;
-        }
-    }
-
-    return TRUE;
-}
-
-
 /*
  * Set boundary mimic and add "solid" perma-wall
  */
@@ -674,7 +580,6 @@ static void set_bound_perm_wall(cave_type *c_ptr)
  */
 static void gen_caverns_and_lakes(void)
 {
-#ifdef ALLOW_CAVERNS_AND_LAKES
     /* Possible "destroyed" level */
     if ((dun_level > 30) && one_in_(DUN_DEST*2) && (small_levels) && (d_info[dungeon_type].flags1 & DF1_DESTROY))
     {
@@ -752,10 +657,9 @@ static void gen_caverns_and_lakes(void)
 
         build_cavern();
     }
-#endif /* ALLOW_CAVERNS_AND_LAKES */
 
     /* Hack -- No destroyed "quest" levels */
-    if (quest_number(dun_level)) dun->destroyed = FALSE;
+    if (quests_get_current()) dun->destroyed = FALSE;
 }
 
 
@@ -1085,8 +989,6 @@ static bool cave_gen(void)
     /* Determine the character location */
     if (!new_player_spot()) return FALSE;
 
-    if (!place_quest_monsters()) return FALSE;
-
     /* Basic "amount" */
     k = (dun_level / 3);
     if (k > 10) k = 10;
@@ -1197,40 +1099,40 @@ static void build_arena(void)
         for (j = x_left; j <= x_right; j++)
         {
             place_extra_perm_bold(i, j);
-            cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
+            cave[i][j].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
         }
     for (i = y_depth; i >= y_depth - 5; i--)
         for (j = x_left; j <= x_right; j++)
         {
             place_extra_perm_bold(i, j);
-            cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
+            cave[i][j].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
         }
     for (j = x_left; j <= x_left + 17; j++)
         for (i = y_height; i <= y_depth; i++)
         {
             place_extra_perm_bold(i, j);
-            cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
+            cave[i][j].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
         }
     for (j = x_right; j >= x_right - 17; j--)
         for (i = y_height; i <= y_depth; i++)
         {
             place_extra_perm_bold(i, j);
-            cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
+            cave[i][j].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
         }
 
     place_extra_perm_bold(y_height+6, x_left+18);
-    cave[y_height+6][x_left+18].info |= (CAVE_GLOW | CAVE_MARK);
+    cave[y_height+6][x_left+18].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
     place_extra_perm_bold(y_depth-6, x_left+18);
-    cave[y_depth-6][x_left+18].info |= (CAVE_GLOW | CAVE_MARK);
+    cave[y_depth-6][x_left+18].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
     place_extra_perm_bold(y_height+6, x_right-18);
-    cave[y_height+6][x_right-18].info |= (CAVE_GLOW | CAVE_MARK);
+    cave[y_height+6][x_right-18].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
     place_extra_perm_bold(y_depth-6, x_right-18);
-    cave[y_depth-6][x_right-18].info |= (CAVE_GLOW | CAVE_MARK);
+    cave[y_depth-6][x_right-18].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
 
     i = y_height + 5;
     j = xval;
     cave[i][j].feat = f_tag_to_index("ARENA_GATE");
-    cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
+    cave[i][j].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
     player_place(i, j);
 }
 
@@ -1257,7 +1159,7 @@ static void arena_gen(void)
             place_solid_perm_bold(y, x);
 
             /* Illuminate and memorize the walls */
-            cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
+            cave[y][x].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
         }
     }
 
@@ -1409,35 +1311,6 @@ static void battle_gen(void)
     }
 }
 
-/*
- * Generate a quest level
- */
-static void quest_gen(void)
-{
-    int x, y;
-
-    /* Start with perm walls */
-    for (y = 0; y < cur_hgt; y++)
-    {
-        for (x = 0; x < cur_wid; x++)
-        {
-            place_solid_perm_bold(y, x);
-        }
-    }
-
-    /* Set the quest level */
-    base_level = quest[p_ptr->inside_quest].level;
-    dun_level = base_level;
-    object_level = base_level;
-    monster_level = base_level;
-
-    /* Prepare allocation table */
-    get_mon_num_prep(get_monster_hook(), NULL);
-
-    init_flags = INIT_CREATE_DUNGEON | INIT_ASSIGN;
-
-    process_dungeon_file("q_info.txt", 0, 0, MAX_HGT, MAX_WID);
-}
 
 /* Make a real level */
 static bool level_gen(cptr *why)
@@ -1624,9 +1497,11 @@ void generate_cave(void)
         {
             battle_gen();
         }
-        else if (p_ptr->inside_quest)
+        /* Enter a special quest level from the wilderness (QUEST_ENTER(id)) */
+        else if (enter_quest)
         {
-            quest_gen();
+            quests_generate(enter_quest);
+            enter_quest = 0;
         }
         /* Build the town */
         else if (!dun_level)
@@ -1635,10 +1510,22 @@ void generate_cave(void)
             if (p_ptr->wild_mode) wilderness_gen_small();
             else wilderness_gen();
         }
-        /* Build a real level */
+        /* Build a real level, possibly a quest level.
+         * The quest level might want to generate itself 
+         * or it might simply need to 'place quest monsters' */
         else
         {
-            okay = level_gen(&why);
+            quest_ptr q;
+            quests_on_generate(dungeon_type, dun_level);
+            q = quests_get_current();
+            if (q && (q->flags & QF_GENERATE))
+                quest_generate(q);
+            else
+            {
+                okay = level_gen(&why);
+                if (okay && q)
+                    okay = quest_post_generate(q);
+            }
         }
 
 

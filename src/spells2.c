@@ -61,7 +61,7 @@ void self_knowledge(void)
     virtue_add(VIRTUE_ENLIGHTENMENT, 1);
 
     /* Acquire item flags from equipment */
-    for (k = EQUIP_BEGIN; k < EQUIP_BEGIN + equip_count(); k++)
+    for (k = 1; k <= equip_max(); k++)
     {
         u32b tflgs[OF_ARRAY_SIZE];
 
@@ -935,7 +935,7 @@ static bool detect_feat_flag(int range, int flag, bool known)
                 disclose_grid(y, x);
 
                 /* Hack -- Memorize */
-                c_ptr->info |= (CAVE_MARK);
+                c_ptr->info |= (CAVE_MARK | CAVE_AWARE);
 
                 /* Redraw */
                 lite_spot(y, x);
@@ -1058,8 +1058,8 @@ bool detect_objects_gold(int range)
         if (o_ptr->held_m_idx) continue;
 
         /* Location */
-        y = o_ptr->iy;
-        x = o_ptr->ix;
+        y = o_ptr->loc.y;
+        x = o_ptr->loc.x;
 
         /* Only detect nearby objects */
         if (distance(py, px, y, x) > range2) continue;
@@ -1121,8 +1121,8 @@ bool detect_objects_normal(int range)
         if (o_ptr->held_m_idx) continue;
 
         /* Location */
-        y = o_ptr->iy;
-        x = o_ptr->ix;
+        y = o_ptr->loc.y;
+        x = o_ptr->loc.x;
 
         /* Only detect nearby objects */
         if (distance(py, px, y, x) > range2) continue;
@@ -1190,8 +1190,8 @@ bool detect_objects_magic(int range)
         if (o_ptr->held_m_idx) continue;
 
         /* Location */
-        y = o_ptr->iy;
-        x = o_ptr->ix;
+        y = o_ptr->loc.y;
+        x = o_ptr->loc.x;
 
         /* Only detect nearby objects */
         if (distance(py, px, y, x) > range) continue;
@@ -2044,13 +2044,15 @@ bool genocide_aux(int m_idx, int power, bool player_cast, int dam_side, cptr spe
     if (is_pet(m_ptr) && !player_cast) return FALSE;
 
     /* Hack -- Skip Unique Monsters or Quest Monsters */
-    if (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) resist = TRUE;
+    if (r_ptr->flags1 & RF1_UNIQUE) resist = TRUE;
+    if (m_ptr->mflag2 & MFLAG2_QUESTOR) resist = TRUE;
 
     else if (r_ptr->flags7 & RF7_UNIQUE2) resist = TRUE;
 
     else if (m_idx == p_ptr->riding) resist = TRUE;
 
-    else if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena || p_ptr->inside_battle) resist = TRUE;
+    else if (!quests_allow_all_spells()) resist = TRUE;
+    else if (p_ptr->inside_arena || p_ptr->inside_battle) resist = TRUE;
 
     else if (player_cast && (r_ptr->level > randint0(power))) resist = TRUE;
 
@@ -2126,7 +2128,8 @@ bool symbol_genocide(int power, bool player_cast)
     bool do_virtue = FALSE;
 
     /* Prevent genocide in quest levels */
-    if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena || p_ptr->inside_battle)
+    if (!quests_allow_all_spells()) return TRUE;
+    if (p_ptr->inside_arena || p_ptr->inside_battle)
     {
         return TRUE; /* But charge the player for the (stupid) action! */
     }
@@ -2167,10 +2170,8 @@ bool mass_genocide(int power, bool player_cast)
     bool result = FALSE;
 
     /* Prevent mass genocide in quest levels */
-    if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena || p_ptr->inside_battle)
-    {
-        return (FALSE);
-    }
+    if (!quests_allow_all_spells()) return FALSE;
+    if (p_ptr->inside_arena || p_ptr->inside_battle) return FALSE;
 
     /* Delete the (nearby) monsters */
     for (i = 1; i < m_max; i++)
@@ -2207,10 +2208,8 @@ bool mass_genocide_undead(int power, bool player_cast)
     bool result = FALSE;
 
     /* Prevent mass genocide in quest levels */
-    if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena || p_ptr->inside_battle)
-    {
-        return (FALSE);
-    }
+    if (!quests_allow_all_spells()) return FALSE;
+    if (p_ptr->inside_arena || p_ptr->inside_battle) return FALSE;
 
     /* Delete the (nearby) monsters */
     for (i = 1; i < m_max; i++)
@@ -2396,7 +2395,7 @@ bool destroy_area(int y1, int x1, int r, int power)
         in_generate = TRUE;
 
     /* Prevent destruction of quest levels and town */
-    if ((p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest)) || !dun_level)
+    if (!py_in_dungeon() || !quests_allow_all_spells())
     {
         return (FALSE);
     }
@@ -2487,7 +2486,7 @@ bool destroy_area(int y1, int x1, int r, int power)
                             set_hostile(m_ptr);
                         }
 
-                        if (!(r_ptr->flags1 & RF1_QUESTOR) /* Questors becoming immune to *destruct* can be advantageous! */
+                        if (!(m_ptr->mflag2 & MFLAG2_QUESTOR) /* Questors becoming immune to *destruct* can be advantageous! */
                              && !(r_ptr->flags2 & RF2_MULTIPLY)  /* Unmakers ... *shudder* */
                              && one_in_(13))
                         {
@@ -2497,7 +2496,7 @@ bool destroy_area(int y1, int x1, int r, int power)
                     }
                     else
                     {
-                        if (r_ptr->flags1 & RF1_QUESTOR)
+                        if (m_ptr->mflag2 & MFLAG2_QUESTOR)
                         {
                             /* Heal the monster */
                             m_ptr->hp = m_ptr->maxhp;
@@ -2735,7 +2734,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 
 
     /* Prevent destruction of quest levels and town */
-    if ((p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest)) || !dun_level)
+    if (!py_in_dungeon())
     {
         return (FALSE);
     }
@@ -2937,7 +2936,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
                 monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
                 /* Quest monsters */
-                if (r_ptr->flags1 & RF1_QUESTOR)
+                if (m_ptr->mflag2 & MFLAG2_QUESTOR)
                 {
                     /* No wall on quest monsters */
                     map[16+yy-cy][16+xx-cx] = FALSE;
@@ -3494,8 +3493,12 @@ static void cave_temp_room_aux(int y, int x, bool only_room, bool (*pass_bold)(i
         /* Verify */
         if (!in_bounds2(y, x)) return;
 
-        /* Do not exceed the maximum spell range */
-        if (distance(py, px, y, x) > MAX_RANGE) return;
+        /* Do not exceed the maximum spell range ...
+         * ... x2 for quests. When designing quests, it is a bit
+         * tedious to set the ROOM flag correctly (unless the entire
+         * quest is a single room). Much easier to just have light
+         * area work a bit farther than normal.*/
+        if (distance(py, px, y, x) > MAX_RANGE*2) return;
 
         /* Verify this grid */
         /*
@@ -3716,8 +3719,12 @@ bool fire_ball_aux(int typ, int dir, int dam, int rad, int xtra_flgs)
     tx = px + 99 * ddx[dir];
     ty = py + 99 * ddy[dir];
 
-    /* Hack -- Use an actual "target" */
-    if ((dir == 5) && target_okay())
+    /* Hack -- Use an actual "target"
+     * Note: target_okay() will check target_able() which requires projectable() 
+     * This requirement is *wrong* in certain situations (e.g. Breathe Disintegration) 
+     * but it is unclear how to best communicate that fact. However, what would we do
+     * at this point anyway? Project() at the players feet? That is just silly ... */
+    if (dir == 5 /* && target_okay() */)
     {
         flg &= ~(PROJECT_STOP);
         tx = target_col;
@@ -3939,8 +3946,12 @@ bool project_hook(int typ, int dir, int dam, int flg)
     tx = px + ddx[dir];
     ty = py + ddy[dir];
 
-    /* Hack -- Use an actual "target" */
-    if ((dir == 5) && target_okay())
+    /* Hack -- Use an actual "target"
+     * Note: target_okay() will check target_able() which requires projectable() 
+     * This requirement is *wrong* in certain situations (e.g. Beam of Disintegration) 
+     * but it is unclear how to best communicate that fact. However, what would we do
+     * at this point anyway? Project() at the players feet? That is just silly ... */
+    if (dir == 5 /*&& target_okay()*/)
     {
         tx = target_col;
         ty = target_row;
@@ -4389,55 +4400,61 @@ int activate_hi_summon(int y, int x, bool can_pet)
 
     for (i = 0; i < (randint1(7) + (dun_level / 40)); i++)
     {
-        switch (randint1(25) + (dun_level / 20))
+        int j, ct = 0;
+        /* Make sure we get something on each roll ... */
+        for (j = 0; j < 1000 && !ct; j++)
         {
-            case 1: case 2:
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANT, mode);
-                break;
-            case 3: case 4:
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_SPIDER, mode);
-                break;
-            case 5: case 6:
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HOUND, mode);
-                break;
-            case 7: case 8:
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HYDRA, mode);
-                break;
-            case 9: case 10:
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANGEL, mode);
-                break;
-            case 11: case 12:
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNDEAD, mode);
-                break;
-            case 13: case 14:
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DRAGON, mode);
-                break;
-            case 15: case 16:
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DEMON, mode);
-                break;
-            case 17:
-                if (can_pet) break;
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_AMBERITE, (mode | PM_ALLOW_UNIQUE));
-                break;
-            case 18: case 19:
-                if (can_pet) break;
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNIQUE, (mode | PM_ALLOW_UNIQUE));
-                break;
-            case 20: case 21:
-                if (!can_pet) mode |= PM_ALLOW_UNIQUE;
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_UNDEAD, mode);
-                break;
-            case 22: case 23:
-                if (!can_pet) mode |= PM_ALLOW_UNIQUE;
-                count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_DRAGON, mode);
-                break;
-            case 24:
-                count += summon_specific((pet ? -1 : 0), y, x, 100, SUMMON_CYBER, mode);
-                break;
-            default:
-                if (!can_pet) mode |= PM_ALLOW_UNIQUE;
-                count += summon_specific((pet ? -1 : 0), y, x,pet ? summon_lev : (((summon_lev * 3) / 2) + 5), 0, mode);
+            switch (randint1(25) + (dun_level / 20))
+            {
+                case 1: case 2:
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANT, mode);
+                    break;
+                case 3: case 4:
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_SPIDER, mode);
+                    break;
+                case 5: case 6:
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HOUND, mode);
+                    break;
+                case 7: case 8:
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HYDRA, mode);
+                    break;
+                case 9: case 10:
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANGEL, mode);
+                    break;
+                case 11: case 12:
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNDEAD, mode);
+                    break;
+                case 13: case 14:
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DRAGON, mode);
+                    break;
+                case 15: case 16:
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DEMON, mode);
+                    break;
+                case 17:
+                    if (can_pet) break;
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_AMBERITE, (mode | PM_ALLOW_UNIQUE));
+                    break;
+                case 18: case 19:
+                    if (can_pet) break;
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNIQUE, (mode | PM_ALLOW_UNIQUE));
+                    break;
+                case 20: case 21:
+                    if (!can_pet) mode |= PM_ALLOW_UNIQUE;
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_UNDEAD, mode);
+                    break;
+                case 22: case 23:
+                    if (!can_pet) mode |= PM_ALLOW_UNIQUE;
+                    ct = summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_DRAGON, mode);
+                    break;
+                case 24:
+                    ct = summon_specific((pet ? -1 : 0), y, x, 100, SUMMON_CYBER, mode);
+                    break;
+                default:
+                    if (!can_pet) mode |= PM_ALLOW_UNIQUE;
+                    ct = summon_specific((pet ? -1 : 0), y, x,pet ? summon_lev : (((summon_lev * 3) / 2) + 5), 0, mode);
+            }
         }
+        count += ct;
     }
 
     return count;

@@ -683,6 +683,11 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
 {
     int powers = 0;
 
+    if (mode & AM_SPECIAL)
+    {
+        _art_create_random(o_ptr, level, power);
+        return;
+    }
     o_ptr->name2 = ego_choose_type(EGO_TYPE_RING, level);
 
     switch (o_ptr->name2)
@@ -1044,6 +1049,11 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
 {
     int powers = 0;
 
+    if (mode & AM_SPECIAL)
+    {
+        _art_create_random(o_ptr, level, power);
+        return;
+    }
     o_ptr->name2 = ego_choose_type(EGO_TYPE_AMULET, level);
 
     switch (o_ptr->name2)
@@ -1580,6 +1590,10 @@ static void _ego_create_harp(object_type *o_ptr, int level)
 {
     o_ptr->name2 = ego_choose_type(EGO_TYPE_HARP, level);
 }
+static void _increase_bow_mult(obj_ptr obj, int mult)
+{
+    obj->mult += mult * bow_energy(obj->sval) / 10000;
+}
 static void _ego_create_bow(object_type *o_ptr, int level)
 {
     bool done = FALSE;
@@ -1590,18 +1604,30 @@ static void _ego_create_bow(object_type *o_ptr, int level)
 
         switch (o_ptr->name2)
         {
+        case EGO_BOW_ACCURACY:
+            o_ptr->to_h += 10;
+            break;
         case EGO_BOW_VELOCITY:
-            o_ptr->mult  += 5 + m_bonus(4, level) * 5;
+            _increase_bow_mult(o_ptr, 5 + m_bonus(20, level));
+            o_ptr->to_d += 5;
             break;
         case EGO_BOW_EXTRA_MIGHT:
-            o_ptr->mult  += 25 + m_bonus(15, level) * 5;
+            _increase_bow_mult(o_ptr, 25 + m_bonus(75, level));
+            break;
+        case EGO_BOW_EXTRA_SHOTS:
+            o_ptr->pval = 1 + m_bonus(4, level);
+            break;
+        case EGO_BOW_HUNTER:
+            if (one_in_(5)) add_esp_strong(o_ptr);
+            else add_esp_weak(o_ptr, FALSE);
+            if (one_in_(30)) add_flag(o_ptr->flags, OF_SLAY_ANIMAL);
             break;
         case EGO_BOW_LOTHLORIEN:
             if (o_ptr->sval != SV_LONG_BOW)
                 done = FALSE;
             else
             {
-                o_ptr->mult  += 25 + m_bonus(17, level) * 5;
+                _increase_bow_mult(o_ptr, 25 + m_bonus(85, level));
 
                 if (one_in_(3))
                     add_flag(o_ptr->flags, OF_XTRA_SHOTS);
@@ -1615,7 +1641,7 @@ static void _ego_create_bow(object_type *o_ptr, int level)
             else
             {
                 if (one_in_(3))
-                    o_ptr->mult  += 25 + m_bonus(15, level) * 5;
+                    _increase_bow_mult(o_ptr, 25 + m_bonus(75, level));
                 else
                     one_high_resistance(o_ptr);
             }
@@ -1625,7 +1651,7 @@ static void _ego_create_bow(object_type *o_ptr, int level)
                 done = FALSE;
             else
             {
-                o_ptr->mult  += 25 + m_bonus(20, level) * 5;
+                _increase_bow_mult(o_ptr, 25 + m_bonus(85, level));
                 if (one_in_(3))
                 {
                     add_flag(o_ptr->flags, OF_XTRA_SHOTS);
@@ -1713,8 +1739,6 @@ static void _ego_create_weapon_slaying(object_type *o_ptr, int level)
     int rolls = 1 + m_bonus(4, level);
     int i;
 
-    assert(o_ptr->name2 == EGO_WEAPON_SLAYING);
-
     if (one_in_(GREAT_OBJ))
         rolls *= 2;
 
@@ -1728,13 +1752,13 @@ static void _ego_create_weapon_slaying(object_type *o_ptr, int level)
         if (info->kill_flag != OF_INVALID && one_in_(info->rarity*info->rarity*info->rarity))
         {
             add_flag(o_ptr->flags, info->kill_flag);
-            if (info->esp_flag != OF_INVALID)
+            if (info->esp_flag != OF_INVALID && !obj_is_ammo(o_ptr))
                 add_flag(o_ptr->flags, info->esp_flag);
         }
         else
         {
             add_flag(o_ptr->flags, info->slay_flag);
-            if (info->esp_flag != OF_INVALID && one_in_(6))
+            if (info->esp_flag != OF_INVALID && one_in_(6) && !obj_is_ammo(o_ptr))
                 add_flag(o_ptr->flags, info->esp_flag);
         }
     }
@@ -1817,8 +1841,6 @@ static void _ego_create_weapon_craft(object_type *o_ptr, int level)
     int rolls = 1 + m_bonus(4, level);
     int i;
 
-    assert(o_ptr->name2 == EGO_WEAPON_CRAFT);
-
     if (one_in_(GREAT_OBJ))
         rolls *= 2;
 
@@ -1855,7 +1877,7 @@ static void _ego_create_weapon_craft(object_type *o_ptr, int level)
         }
 
         /* Mimic old boring brand flavors ... */
-        if (i == 0 && one_in_(2))
+        if (i == 0 && one_in_(2) && !obj_is_ammo(o_ptr))
         {
             add_flag(o_ptr->flags, res_flag);
             if (one_in_(ACTIVATION_CHANCE))
@@ -1863,10 +1885,10 @@ static void _ego_create_weapon_craft(object_type *o_ptr, int level)
             break;
         }
 
-        if (one_in_(3))
+        if (one_in_(3) && !obj_is_ammo(o_ptr))
             add_flag(o_ptr->flags, res_flag);
     }
-    if (one_in_(6) && level > 60)
+    if (one_in_(6) && level > 60 && !obj_is_ammo(o_ptr))
         add_flag(o_ptr->flags, OF_BRAND_MANA);
 }
 static void _ego_create_weapon_defender(object_type *o_ptr, int level)
@@ -2154,12 +2176,6 @@ void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
     int todam2 = m_bonus(10, level);
     bool crafting = (mode & AM_CRAFTING) ? TRUE : FALSE;
 
-    if (object_is_ammo(o_ptr))
-    {
-        tohit2 = (tohit2+1)/2;
-        todam2 = (todam2+1)/2;
-    }
-
     if (object_is_(o_ptr, TV_SWORD, SV_DIAMOND_EDGE))
     {
         if (!crafting && power >= 2 && !one_in_(7)) return;
@@ -2220,13 +2236,22 @@ void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
         switch (o_ptr->name2)
         {
         case EGO_AMMO_SLAYING:
-            o_ptr->dd++;
+            _ego_create_weapon_slaying(o_ptr, level);
+            break;
+        case EGO_AMMO_ELEMENTAL:
+            _ego_create_weapon_craft(o_ptr, level);
             break;
         }
 
         /* Hack -- super-charge the damage dice */
-        while (one_in_(10 * o_ptr->dd * o_ptr->ds))
-            o_ptr->dd++;
+        if (one_in_(5 + 200/MAX(level, 1)))
+        {
+            do
+            {
+                o_ptr->dd++;
+            }
+            while (one_in_(o_ptr->dd * o_ptr->ds / 2));
+        }
 
         if (o_ptr->dd > 9)
             o_ptr->dd = 9;
@@ -2998,6 +3023,35 @@ void obj_create_armor(object_type *o_ptr, int level, int power, int mode)
 }
 
 /*************************************************************************
+ * Quivers
+ *************************************************************************/
+void obj_create_quiver(object_type *o_ptr, int level, int power, int mode)
+{
+    /* capacity */
+    o_ptr->xtra4 = 60;
+    while (one_in_(2)) o_ptr->xtra4 += 10;
+
+    /* egos */
+    if (power > 1)
+    {
+        o_ptr->name2 = ego_choose_type(EGO_TYPE_QUIVER, level);
+
+        switch (o_ptr->name2)
+        {
+        case EGO_QUIVER_HOLDING:
+            o_ptr->xtra4 *= 2;
+            break;
+        case EGO_QUIVER_PHASE:
+            o_ptr->weight = 0;
+            break;
+        }
+        o_ptr->xtra4 += 50;
+    }
+    else if (power == 1)
+        o_ptr->xtra4 += 20;
+}
+
+/*************************************************************************
  * Lites
  *************************************************************************/
 void obj_create_lite(object_type *o_ptr, int level, int power, int mode)
@@ -3075,7 +3129,7 @@ void ego_finalize(object_type *o_ptr, int level, int power, int mode)
         if (!store_hack)
             e_ptr->counts.generated++;
 
-        if (have_flag(o_ptr->flags, OF_BRAND_FIRE))
+        if (have_flag(o_ptr->flags, OF_BRAND_FIRE) && !obj_is_ammo(o_ptr))
             add_flag(o_ptr->flags, OF_LITE);
 
         /* Curses */

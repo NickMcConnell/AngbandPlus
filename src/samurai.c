@@ -70,7 +70,10 @@ cptr do_hissatsu_spell(int spell, int mode)
         if (desc) return "Throws current weapon. And it'll return to your hand unless failed.";
         if (cast)
         {
-            if (!do_cmd_throw_aux(1, TRUE, 0)) return NULL;
+            py_throw_t context = {0};
+            context.type = THROW_BOOMERANG;
+            context.back_chance = 24 + randint1(5);
+            if (!py_throw(&context)) return NULL;
         }
         break;
 

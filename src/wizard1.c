@@ -8,7 +8,9 @@
  * are included in all such copies. Other copyrights may also apply.
  */
 
-/* Purpose: Spoiler generation -BEN- */
+/* Purpose: Spoiler generation -BEN-
+ * This file has been mostly rewritten. If something is broke,
+ * don't blame -BEN- :) */
 
 #include "angband.h"
 
@@ -21,40 +23,6 @@
  */
 static FILE *fff = NULL;
 
-
-
-/*
- * Extract a textual representation of an attribute
- */
-static cptr attr_to_text(monster_race *r_ptr)
-{
-    if (r_ptr->flags1 & RF1_ATTR_CLEAR)    return "Clear";
-    if (r_ptr->flags1 & RF1_ATTR_MULTI)    return "Multi";
-    if (r_ptr->flags1 & RF1_ATTR_SEMIRAND) return "S.Rand";
-
-    switch (r_ptr->d_attr)
-    {
-    case TERM_DARK:    return "xxx";
-    case TERM_WHITE:   return "White";
-    case TERM_SLATE:   return "Slate";
-    case TERM_ORANGE:  return "Orange";
-    case TERM_RED:     return "Red";
-    case TERM_GREEN:   return "Green";
-    case TERM_BLUE:    return "Blue";
-    case TERM_UMBER:   return "Umber";
-    case TERM_L_DARK:  return "L.Dark";
-    case TERM_L_WHITE: return "L.Slate";
-    case TERM_VIOLET:  return "Violet";
-    case TERM_YELLOW:  return "Yellow";
-    case TERM_L_RED:   return "L.Red";
-    case TERM_L_GREEN: return "L.Green";
-    case TERM_L_BLUE:  return "L.Blue";
-    case TERM_L_UMBER: return "L.Umber";
-    }
-
-    /* Oops */
-    return "Icky";
-}
 
 
 
@@ -381,6 +349,13 @@ static void spoil_obj_desc(cptr fname)
     msg_print("Successfully created a spoiler file.");
 }
 
+/************************************************************************
+ * Object and Artifact Tables
+ * Note: The Object Tables are designed to be used with the wizard
+ *       commands for gathering statistics. Create a new character,
+ *       gather statistics and then display the Object tables. Egos
+ *       and rand-arts are forgotten when you restart the game.
+ ************************************************************************/
 /*
  * The artifacts categorized by type
  */
@@ -491,7 +466,6 @@ static void spoil_artifact_desc(void)
 
 #define ART_RANDOM -1
 #define ART_EGO    -2
-#define ART_STD_BEGIN 1
 
 typedef struct {
     int  id;
@@ -647,7 +621,7 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
             }
             else
             {
-            artifact_type *a_ptr = &a_info[entry->id];
+                artifact_type *a_ptr = &a_info[entry->id];
 
                 doc_printf(doc, "<color:%c>%3d) %7d</color> %3d %3d ",
                     (a_ptr->found) ? 'y' : 'w',
@@ -735,285 +709,21 @@ static void spoil_object_tables(void)
     _spoil_object_table_aux(doc, "Helmets", object_is_helmet);
     _spoil_object_table_aux(doc, "Gloves", object_is_gloves);
     _spoil_object_table_aux(doc, "Boots", object_is_boots);
+    _spoil_object_table_aux(doc, "Ammo", obj_is_ammo);
+    _spoil_object_table_aux(doc, "Quivers", obj_is_quiver);
     spoiler_hack = FALSE;
 
     doc_display(doc, "Object Tables", 0);
     doc_free(doc);
 }
 
-/*
- * Create a spoiler file for monsters   -BEN-
- */
-static void spoil_mon_desc(cptr fname)
-{
-    int i, n = 0;
+/************************************************************************
+ * Monster Tables
+ ************************************************************************/
+typedef bool (*_mon_pred)(monster_race *r_ptr);
 
-    u16b why = 2;
-    s16b *who;
-
-    char buf[1024];
-
-    char nam[80];
-    char lev[80];
-    char rar[80];
-    char spd[80];
-    char ac[80];
-    char hp[80];
-    char exp[80];
-
-    /* Build the filename */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
-
-    /* File type is "TEXT" */
-    FILE_TYPE(FILE_TYPE_TEXT);
-
-    /* Open the file */
-    fff = my_fopen(buf, "w");
-
-    /* Oops */
-    if (!fff)
-    {
-        msg_print("Cannot create spoiler file.");
-        return;
-    }
-
-    /* Allocate the "who" array */
-    C_MAKE(who, max_r_idx, s16b);
-
-    /* Dump the header */
-    fprintf(fff, "Spoiler File -- Monsters (PosChengband %d.%d.%d)\n\n\n",
-        VER_MAJOR, VER_MINOR, VER_PATCH);
-    fprintf(fff, "------------------------------------------\n\n");
-
-    /* Dump the header */
-    fprintf(fff, "    %-38.38s%4s%4s%4s%7s%5s  %11.11s\n",
-        "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
-    fprintf(fff, "%-42.42s%4s%4s%4s%7s%5s  %11.11s\n",
-        "--------", "---", "---", "---", "--", "--", "-----------");
-
-
-    /* Scan the monsters */
-    for (i = 1; i < max_r_idx; i++)
-    {
-        monster_race *r_ptr = &r_info[i];
-
-        /* Use that monster */
-        if (r_ptr->name) who[n++] = i;
-    }
-
-    /* Select the sort method */
-    ang_sort_comp = ang_sort_comp_hook;
-    ang_sort_swap = ang_sort_swap_hook;
-
-    /* Sort the array by dungeon depth of monsters */
-    ang_sort(who, &why, n);
-
-    /* Scan again */
-    for (i = 0; i < n; i++)
-    {
-        monster_race *r_ptr = &r_info[who[i]];
-
-        cptr name = (r_name + r_ptr->name);
-        if (r_ptr->flags7 & (RF7_KAGE)) continue;
-
-        /* Get the "name" */
-        /*
-        else if (r_ptr->flags1 & (RF1_QUESTOR))
-        {
-            sprintf(nam, "[Q] %s", name);
-        }
-        */
-        else if (r_ptr->flags1 & (RF1_UNIQUE))
-        {
-            sprintf(nam, "[U] %s", name);
-        }
-        else
-        {
-            sprintf(nam, "The %s", name);
-        }
-
-
-        /* Level */
-        sprintf(lev, "%d", r_ptr->level);
-
-        /* Rarity */
-        sprintf(rar, "%d", r_ptr->rarity);
-
-        /* Speed */
-        if (r_ptr->speed >= 110)
-        {
-            sprintf(spd, "+%d", (r_ptr->speed - 110));
-        }
-        else
-        {
-            sprintf(spd, "-%d", (110 - r_ptr->speed));
-        }
-
-        /* Armor Class */
-        sprintf(ac, "%d", r_ptr->ac);
-
-        /* Hitpoints */
-        if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
-        {
-            sprintf(hp, "%d", r_ptr->hdice * r_ptr->hside);
-        }
-        else
-        {
-            sprintf(hp, "%dd%d", r_ptr->hdice, r_ptr->hside);
-        }
-
-
-        /* Experience */
-        sprintf(exp, "%d", r_ptr->mexp);
-
-        /* Hack -- use visual instead */
-        sprintf(exp, "%s '%c'", attr_to_text(r_ptr), r_ptr->d_char);
-
-        /* Dump the info */
-        fprintf(fff, "%-42.42s%4s%4s%4s%7s%5s  %11.11s\n",
-            nam, lev, rar, spd, hp, ac, exp);
-    }
-
-    /* End it */
-    fprintf(fff, "\n");
-
-
-    /* Free the "who" array */
-    C_KILL(who, max_r_idx, s16b);
-
-    /* Check for errors */
-    if (ferror(fff) || my_fclose(fff))
-    {
-        msg_print("Cannot close spoiler file.");
-        return;
-    }
-
-    /* Worked */
-    msg_print("Successfully created a spoiler file.");
-}
-
-
-
-
-/*
- * Monster spoilers by: smchorse@ringer.cs.utsa.edu (Shawn McHorse)
- *
- * Primarily based on code already in mon-desc.c, mostly by -BEN-
- */
-
-
-
-/*
- * Buffer text to the given file. (-SHAWN-)
- * This is basically c_roff() from mon-desc.c with a few changes.
- */
-static void spoil_out(cptr str)
-{
-    cptr r;
-
-    /* Line buffer */
-    static char roff_buf[256];
-
-    /* Delay buffer */
-    static char roff_waiting_buf[256];
-
-    /* Current pointer into line roff_buf */
-    static char *roff_p = roff_buf;
-
-    /* Last space saved into roff_buf */
-    static char *roff_s = NULL;
-
-    /* Mega-Hack -- Delayed output */
-    static bool waiting_output = FALSE;
-
-    /* Special handling for "new sequence" */
-    if (!str)
-    {
-        if (waiting_output)
-        {
-            fputs(roff_waiting_buf, fff);
-            waiting_output = FALSE;
-        }
-
-        if (roff_p != roff_buf) roff_p--;
-        while (*roff_p == ' ' && roff_p != roff_buf) roff_p--;
-
-        if (roff_p == roff_buf) fprintf(fff, "\n");
-        else
-        {
-            *(roff_p + 1) = '\0';
-            fprintf(fff, "%s\n\n", roff_buf);
-        }
-
-        roff_p = roff_buf;
-        roff_s = NULL;
-        roff_buf[0] = '\0';
-        return;
-    }
-
-    /* Scan the given string, character at a time */
-    for (; *str; str++)
-    {
-        char ch = *str;
-        bool wrap = (ch == '\n');
-
-        if (!isprint(ch)) ch = ' ';
-
-        if (waiting_output)
-        {
-            fputs(roff_waiting_buf, fff);
-            if (!wrap) fputc('\n', fff);
-            waiting_output = FALSE;
-        }
-
-        if (!wrap)
-        {
-            if (roff_p >= roff_buf + 75) wrap = TRUE;
-            else if ((ch == ' ') && (roff_p >= roff_buf + 73)) wrap = TRUE;
-
-            if (wrap)
-            {
-                cptr tail = str + 1;
-
-                for (; *tail; tail++)
-                {
-                    if (*tail == ' ') continue;
-
-                    if (isprint(*tail)) break;
-                }
-
-                if (!*tail) waiting_output = TRUE;
-            }
-        }
-
-        /* Handle line-wrap */
-        if (wrap)
-        {
-            *roff_p = '\0';
-            r = roff_p;
-            if (roff_s && (ch != ' '))
-            {
-                *roff_s = '\0';
-                r = roff_s + 1;
-            }
-            if (!waiting_output) fprintf(fff, "%s\n", roff_buf);
-            else strcpy(roff_waiting_buf, roff_buf);
-            roff_s = NULL;
-            roff_p = roff_buf;
-            while (*r) *roff_p++ = *r++;
-        }
-
-        /* Save the char */
-        if ((roff_p > roff_buf) || (ch != ' '))
-        {
-            if (ch == ' ') roff_s = roff_p;
-
-            *roff_p++ = ch;
-        }
-    }
-}
-
-
+static bool _mon_is_unique(monster_race *r_ptr) { return r_ptr->flags1 & RF1_UNIQUE; }
+static bool _mon_is_nonunique(monster_race *r_ptr) { return !_mon_is_unique(r_ptr); }
 
 static int _compare_r_level(monster_race *l, monster_race *r)
 {
@@ -1029,6 +739,88 @@ static int _compare_r_level_desc(monster_race *l, monster_race *r)
 {
     return -_compare_r_level(l, r);
 }
+
+static vec_ptr _mon_table(_mon_pred p)
+{
+    vec_ptr monsters = vec_alloc(NULL);
+    int     i;
+
+    for (i = 1; i < max_r_idx; i++)
+    {
+        monster_race *r_ptr = &r_info[i];
+
+        if (!r_ptr->name) continue;
+        if (r_ptr->id == MON_MONKEY_CLONE) continue;
+        if (r_ptr->id == MON_KAGE) continue;
+        if (p && !p(r_ptr)) continue;
+
+        vec_add(monsters, r_ptr);
+    }
+
+    vec_sort(monsters, (vec_cmp_f)_compare_r_level);
+    return monsters;
+}
+
+static void _spoil_mon_table(doc_ptr doc, cptr heading, _mon_pred p)
+{
+    vec_ptr monsters = _mon_table(p);
+    int     i;
+
+    doc_printf(doc, "<topic:%s><color:G>%-38.38s Lvl Rar Spd     HP    AC Display</color>\n", heading, heading);
+    for (i = 0; i < vec_length(monsters); i++)
+    {
+        monster_race *r_ptr = vec_get(monsters, i);
+        if (r_ptr->flags1 & RF1_UNIQUE)
+            doc_printf(doc, "<color:%c>%-38.38s</color> ", p == _mon_is_unique ? 'w' : 'v', r_name + r_ptr->name);
+        else if (r_ptr->flags7 & RF7_UNIQUE2)
+            doc_printf(doc, "<color:%c>%-38.38s</color> ", p == _mon_is_nonunique ? 'v' : 'w', r_name + r_ptr->name);
+        else
+            doc_printf(doc, "The %-34.34s ", r_name + r_ptr->name);
+
+        doc_printf(doc, "%3d %3d %+3d", r_ptr->level, r_ptr->rarity, r_ptr->speed - 110);
+        if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || r_ptr->hside == 1)
+            doc_printf(doc, "%7d ", r_ptr->hdice * r_ptr->hside);
+        else
+        {
+            char buf[20];
+            sprintf(buf, "%dd%d", r_ptr->hdice, r_ptr->hside);
+            doc_printf(doc, "%7.7s ", buf);
+        }
+        doc_printf(doc, "%5d ", r_ptr->ac);
+        doc_printf(doc, "  <color:%c>%c</color>", attr_to_attr_char(r_ptr->d_attr), r_ptr->d_char);
+        if (use_graphics && (r_ptr->x_char != r_ptr->d_char || r_ptr->x_attr != r_ptr->d_attr))
+        {
+            doc_insert(doc, " / ");
+            doc_insert_char(doc, r_ptr->x_attr, r_ptr->x_char);
+        }
+        doc_newline(doc);
+    }
+    doc_newline(doc);
+
+    vec_free(monsters);
+}
+
+static void spoil_mon_desc(void)
+{
+    doc_ptr doc = doc_alloc(80);
+
+    doc_change_name(doc, "mon-desc.html");
+    doc_printf(doc, "<color:heading>Monster Tables for PosChengband Version %d.%d.%d</color>\n\n",
+                     VER_MAJOR, VER_MINOR, VER_PATCH);
+    doc_insert(doc, "<style:table>");
+
+    _spoil_mon_table(doc, "All Monsters", NULL);
+    _spoil_mon_table(doc, "Uniques", _mon_is_unique);
+    _spoil_mon_table(doc, "Non-uniques", _mon_is_nonunique);
+
+    doc_insert(doc, "</style>");
+    doc_display(doc, "Monster Tables", 0);
+    doc_free(doc);
+}
+
+/************************************************************************
+ * Monster Lore
+ ************************************************************************/
 static void spoil_mon_info(void)
 {
     int     i;
@@ -1062,233 +854,85 @@ static void spoil_mon_info(void)
     spoiler_hack = FALSE;
 }
 
-
-
-#define MAX_EVOL_DEPTH 64
-
-
-/*
- * Compare two int-type array like strncmp() and return TRUE if equals
- */
-static bool int_n_cmp(int *a, int *b, int length)
+/************************************************************************
+ * Monster Evolution
+ ************************************************************************/
+static vec_ptr _evol_roots(void)
 {
-    /* Null-string comparation is always TRUE */
-    if (!length) return TRUE;
+    vec_ptr     roots = vec_alloc(NULL);
+    int_map_ptr targets = int_map_alloc(NULL);
+    int         i;
 
-    do
-    {
-        if (*a != *(b++)) return FALSE;
-        if (!(*(a++))) break;
-    }
-    while (--length);
-
-    return TRUE;
-}
-
-
-/*
- * Returns TRUE if an evolution tree is "partial tree"
- */
-static bool is_partial_tree(int *tree, int *partial_tree)
-{
-    int pt_head = *(partial_tree++);
-    int pt_len = 0;
-
-    while (partial_tree[pt_len]) pt_len++;
-
-    while (*tree)
-    {
-        if (*(tree++) == pt_head)
-        {
-            if (int_n_cmp(tree, partial_tree, pt_len)) return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
-
-/*
- * Sorting hook -- Comp function
- */
-static bool ang_sort_comp_evol_tree(vptr u, vptr v, int a, int b)
-{
-    int **evol_tree = (int **)u;
-
-    int w1 = evol_tree[a][0];
-    int w2 = evol_tree[b][0];
-    monster_race *r1_ptr = &r_info[w1];
-    monster_race *r2_ptr = &r_info[w2];
-
-    /* Unused */
-    (void)v;
-
-    /* Used tree first */
-    if (w1 && !w2) return TRUE;
-    if (!w1 && w2) return FALSE;
-
-    /* Sort by monster level */
-    if (r1_ptr->level < r2_ptr->level) return TRUE;
-    if (r1_ptr->level > r2_ptr->level) return FALSE;
-
-    /* Sort by monster experience */
-    if (r1_ptr->mexp < r2_ptr->mexp) return TRUE;
-    if (r1_ptr->mexp > r2_ptr->mexp) return FALSE;
-
-    /* Compare indexes */
-    return w1 <= w2;
-}
-
-
-/*
- * Sorting hook -- Swap function
- */
-static void ang_sort_swap_evol_tree(vptr u, vptr v, int a, int b)
-{
-    int **evol_tree = (int **)u;
-    int *holder;
-
-    /* Unused */
-    (void)v;
-
-    /* Swap */
-    holder = evol_tree[a];
-    evol_tree[a] = evol_tree[b];
-    evol_tree[b] = holder;
-}
-
-
-/*
- * Print monsters' evolution information to file
- */
-static void spoil_mon_evol(cptr fname)
-{
-    char buf[1024];
-    monster_race *r_ptr;
-    int **evol_tree, i, j, n, r_idx;
-    int *evol_tree_zero; /* For C_KILL() */
-
-    /* Build the filename */
-    path_build(buf, sizeof buf, ANGBAND_DIR_USER, fname);
-
-    /* File type is "TEXT" */
-    FILE_TYPE(FILE_TYPE_TEXT);
-
-    /* Open the file */
-    fff = my_fopen(buf, "w");
-
-    /* Oops */
-    if (!fff)
-    {
-        msg_print("Cannot create spoiler file.");
-        return;
-    }
-
-    /* Dump the header */
-    sprintf(buf, "Monster Spoilers for PosChengband Version %d.%d.%d\n",
-         VER_MAJOR, VER_MINOR, VER_PATCH);
-
-    spoil_out(buf);
-    spoil_out("------------------------------------------\n\n");
-
-    /* Allocate the "evol_tree" array (2-dimension) */
-    C_MAKE(evol_tree, max_r_idx, int *);
-    C_MAKE(*evol_tree, max_r_idx * (MAX_EVOL_DEPTH + 1), int);
-    for (i = 1; i < max_r_idx; i++) evol_tree[i] = *evol_tree + i * (MAX_EVOL_DEPTH + 1);
-    evol_tree_zero = *evol_tree;
-
-    /* Step 1: Build the evolution tree */
+    /* Find all the targets (monsters that may
+     * be evolved into) */
     for (i = 1; i < max_r_idx; i++)
     {
-        r_ptr = &r_info[i];
-
-        /* No evolution */
+        monster_race *r_ptr = &r_info[i];
         if (!r_ptr->next_exp) continue;
-
-        /* Trace evolution */
-        n = 0;
-        evol_tree[i][n++] = i;
-        do
-        {
-            evol_tree[i][n++] = r_ptr->next_r_idx;
-            r_ptr = &r_info[r_ptr->next_r_idx];
-        }
-        while (r_ptr->next_exp && (n < MAX_EVOL_DEPTH));
+        int_map_add(targets, r_ptr->next_r_idx, NULL);
     }
 
-    /* Step 2: Scan the evolution trees and remove "partial tree" */
+    /* Now, the roots are simply monsters that
+     * may evolve, but aren't themselves targets */
     for (i = 1; i < max_r_idx; i++)
     {
-        /* Not evolution tree */
-        if (!evol_tree[i][0]) continue;
-
-        for (j = 1; j < max_r_idx; j++)
-        {
-            /* Same tree */
-            if (i == j) continue;
-
-            /* Not evolution tree */
-            if (!evol_tree[j][0]) continue;
-
-            /* Is evolution tree[i] is part of [j]? */
-            if (is_partial_tree(evol_tree[j], evol_tree[i]))
-            {
-                /* Remove this evolution tree */
-                evol_tree[i][0] = 0;
-                break;
-            }
-        }
+        monster_race *r_ptr = &r_info[i];
+        if (!r_ptr->next_exp) continue;
+        if (int_map_contains(targets, i)) continue;
+        vec_add(roots, r_ptr);
     }
+    int_map_free(targets);
 
-    /* Step 3: Sort the evolution trees */
-
-    /* Select the sort method */
-    ang_sort_comp = ang_sort_comp_evol_tree;
-    ang_sort_swap = ang_sort_swap_evol_tree;
-
-    /* Sort the array */
-    ang_sort(evol_tree, NULL, max_r_idx);
-
-    /* Step 4: Print the evolution trees */
-    for (i = 0; i < max_r_idx; i++)
-    {
-        r_idx = evol_tree[i][0];
-
-        /* No evolution or removed evolution tree */
-        if (!r_idx) continue;
-
-        /* Trace the evolution tree */
-        r_ptr = &r_info[r_idx];
-        fprintf(fff, "[%d]: %s (Level %d, '%c')\n", r_idx,
-            r_name + r_ptr->name, r_ptr->level, r_ptr->d_char);
-        for (n = 1; r_ptr->next_exp; n++)
-        {
-            fprintf(fff, "%*s-(%d)-> ", n * 2, "", r_ptr->next_exp);
-            fprintf(fff, "[%d]: ", r_ptr->next_r_idx);
-            r_ptr = &r_info[r_ptr->next_r_idx];
-            fprintf(fff, "%s (Level %d, '%c')\n",
-                r_name + r_ptr->name, r_ptr->level, r_ptr->d_char);
-        }
-
-        /* End of evolution tree */
-        fputc('\n', fff);
-    }
-
-    /* Free the "evol_tree" array (2-dimension) */
-    C_KILL(evol_tree_zero, max_r_idx * (MAX_EVOL_DEPTH + 1), int);
-    C_KILL(evol_tree, max_r_idx, int *);
-
-    /* Check for errors */
-    if (ferror(fff) || my_fclose(fff))
-    {
-        msg_print("Cannot close spoiler file.");
-        return;
-    }
-
-    /* Message */
-    msg_print("Successfully created a spoiler file.");
+    vec_sort(roots, (vec_cmp_f)_compare_r_level);
+    return roots;
 }
 
+static void _evol_mon_line(doc_ptr doc, monster_race *r_ptr)
+{
+    doc_printf(doc, "[%d]: <color:B>%s</color> (Level <color:G>%d</color>, ", r_ptr->id, r_name + r_ptr->name, r_ptr->level);
+    doc_printf(doc, "<color:%c>%c</color>", attr_to_attr_char(r_ptr->d_attr), r_ptr->d_char);
+    if (use_graphics && (r_ptr->x_char != r_ptr->d_char || r_ptr->x_attr != r_ptr->d_attr))
+    {
+        doc_insert(doc, " / ");
+        doc_insert_char(doc, r_ptr->x_attr, r_ptr->x_char);
+    }
+    doc_insert(doc, ")\n");
+}
+
+static void spoil_mon_evol(void)
+{
+    int     i, j;
+    vec_ptr roots = _evol_roots();
+    doc_ptr doc = doc_alloc(80);
+
+    doc_change_name(doc, "mon-evol.html");
+    doc_printf(doc, "<color:heading>Monster Evolution for PosChengband Version %d.%d.%d</color>\n",
+                     VER_MAJOR, VER_MINOR, VER_PATCH);
+    doc_insert(doc, "<style:table>");
+
+    for (i = 0; i < vec_length(roots); i++)
+    {
+        monster_race *r_ptr = vec_get(roots, i);
+
+        _evol_mon_line(doc, r_ptr);
+        for (j = 1; r_ptr->next_exp; j++)
+        {
+            doc_printf(doc, "%*s<color:y>-<color:R>%d</color>-></color> ", j * 2, "", r_ptr->next_exp);
+            r_ptr = &r_info[r_ptr->next_r_idx];
+            _evol_mon_line(doc, r_ptr);
+        }
+        doc_newline(doc);
+    }
+    vec_free(roots);
+
+    doc_insert(doc, "</style>");
+    doc_display(doc, "Monster Evolution", 0);
+    doc_free(doc);
+}
+
+/************************************************************************
+ * Magic Realms
+ ************************************************************************/
 static bool _check_realm(int class_idx, int realm_idx)
 {
     int bit = (1 << (realm_idx-1)); /* cf CH_LIFE and REALM_LIFE (etc) in defines.h */
@@ -1564,11 +1208,49 @@ static void spoil_spells_by_realm(void)
      }
 }
 
-/*
- * Create Spoiler files -BEN-
- * Converted from File Creation to Document Creation, with online
- * viewing (as well as the option for HTML output).  -CHRIS-
- */
+/************************************************************************
+ * Miscellaneous
+ ************************************************************************/
+static void spoil_option_bits(void)
+{
+    int     set, bit, seek;
+    doc_ptr doc = doc_alloc(80);
+    doc_ptr cols[2];
+
+    doc_insert(doc, "Options are stored in the savefile using hard coded "
+        "bits. When adding new options, it is hard to locate a free slot. "
+        "Perhaps this will help?\n\n");
+    cols[0] = doc_alloc(36);
+    cols[1] = doc_alloc(36);
+    for (set = 0; set < 8; set++) /* 8 is hardcoded ... */
+    {
+        doc_ptr col = cols[set < 4 ? 0 : 1];
+        for (bit = 0; bit < 32; bit++) /* u32b ... */
+        {
+            doc_printf(col, "<color:R>%d.%2d:</color> ", set, bit);
+            for (seek = 0; option_info[seek].o_desc; seek++)
+            {
+                if ( option_info[seek].o_set == set
+                  && option_info[seek].o_bit == bit )
+                {
+                    doc_printf(col, "%s", option_info[seek].o_text);
+                    break;
+                }
+            }
+            doc_newline(col);
+        }
+        doc_newline(col);
+    }
+    doc_insert_cols(doc, cols, 2, 0);
+    doc_free(cols[0]);
+    doc_free(cols[1]);
+    doc_display(doc, "Option Bits", 0);
+    doc_free(doc);
+}
+
+/************************************************************************
+ * Public
+ ************************************************************************/
 void do_cmd_spoilers(void)
 {
     int i, row, col;
@@ -1602,6 +1284,13 @@ void do_cmd_spoilers(void)
         prt("(r) Spells by Realm", row++, col);
         row++;
 
+        row = 4;
+        col = 40;
+
+        c_prt(TERM_RED, "Miscellaneous", row++, col - 2);
+        prt("(1) Option Bits", row++, col);
+        row++;
+
         /* Prompt */
         prt("ESC) Exit menu", 21, 1);
         prt("Command: ", 20, 0);
@@ -1629,13 +1318,13 @@ void do_cmd_spoilers(void)
 
         /* Monster Spoilers */
         case 'm':
-            spoil_mon_desc("mon-desc.spo");
+            spoil_mon_desc();
             break;
         case 'M':
             spoil_mon_info();
             break;
         case 'e':
-            spoil_mon_evol("mon-evol.spo");
+            spoil_mon_evol();
             break;
 
         /* Class Spoilers */
@@ -1644,6 +1333,11 @@ void do_cmd_spoilers(void)
             break;
         case 'r':
             spoil_spells_by_realm();
+            break;
+
+        /* Miscellaneous */
+        case '1':
+            spoil_option_bits();
             break;
 
         /* Oops */

@@ -1521,7 +1521,7 @@ D:songs record.
 N:126:of Brand
 I:19:23:5
 W:70:25:110:100000
-P:0:x4.25:10:12:0
+P:0:x4.25:10:17:0
 F:SPEED | RES_FIRE | SHOW_MODS | XTRA_RES_OR_POWER
 F:BRAND_FIRE
 
@@ -1612,7 +1612,7 @@ D: alive, by the command of Morgoth..."
 N:134:of Buckland
 I:19:2:3
 W:40:35:20:50000
-P:0:x3.00:19:15:0
+P:0:x2.75:19:15:0
 F:SPEED | RES_BLIND | RES_CONF | SHOW_MODS | XTRA_RES_OR_POWER
 D:A sling granting extraordinary clarity of mind amidst darkness and
 D:confusion, and which hurls shot with deadly speed.
@@ -2365,7 +2365,7 @@ D:This is of Robin Hood who live in the deep forest.
 N:222:of Hellfire
 I:19:23:4
 W:50:15:110:60000
-P:0:x4.00:10:12:0
+P:0:x4.00:10:18:0
 F:STR | INFRA | RES_FIRE | AURA_FIRE |
 F:HIDE_TYPE | SHOW_MODS
 F:BRAND_FIRE
@@ -2554,8 +2554,8 @@ N:242:of Bilbo
 I:37:20:2
 W:60:4:70:200000
 P:28:1d4:2:2:7
-F:STEALTH | DEC_STR | SEE_INVIS | DEX | SPEED |
-F:RES_ACID | RES_FIRE | RES_COLD | RES_POIS | RES_DARK | XTRA_H_RES
+F:STEALTH | SEE_INVIS | DEX | SPEED |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | RES_DARK | XTRA_H_RES
 D:"Also there is this!" said Bilbo, bringing out a parcel which seemed
 D:to be rather heavy for its size. He unwound several folds of old cloth,
 D:and held up a small shirt of mail. It was close-woven of many rings,
@@ -2865,7 +2865,7 @@ D:This arrow is traditionally shot only by fat, scantily clad babies.
 N:271:'Ballista'
 I:19:24:3
 W:50:15:110:60000
-P:0:x5.00:10:12:0
+P:0:x5.00:10:20:0
 F:HIDE_TYPE | SHOW_MODS
 F:STR | RES_CONF
 E:PIERCING_SHOT:30:100

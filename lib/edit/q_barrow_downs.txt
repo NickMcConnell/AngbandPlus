@@ -1,0 +1,73 @@
+?:[EQU $QUEST5 Taken InProgress]
+D:Lately, a dark evil has been discovered. An ancient burial ground
+D:has been taken over by something terrible. Creatures black as night
+D:now inhabit the place, attacking our villagers and eating our young.
+D:Please, we are desperate. We don't have much to offer, but we beg you
+D:to help us!
+?:1
+
+?:[EQU $QUEST5 Completed]
+D:Thank you! You have saved our town and our people rejoice!
+D:I've talked with Astinus, the local librarian, Suiyan, the local
+D:weaponmaster, and Lorien, the local beastmaster. They will offer you
+D:a special discount price when they serve you. It is not much, but
+D:we are a poor people.
+?:1
+
+?:[EQU $QUEST5 Failed]
+D:Oh no! We are doomed to periodic culling from the foul denizens of
+D:the Barrow Downs. You have disappointed me dearly. Please, begone
+D:for now. I must inform the village of your failure. Come back later
+D:after we have had time to grieve.
+?:1
+
+T:QUEST:NORMAL
+L:;:RUBBLE
+L:#:PERMANENT
+L:.:GRASS
+L:%:GRANITE
+L:<:UP_STAIR
+L:A:GRASS:MON(kouko)
+L:B:GRASS:MON(white wraith)
+L:C:GRASS:MON(grave wight)
+L:W:GRASS:MON(barrow wight)
+L:Z:GRASS:MON(emperor wight)
+L:2:GRASS:OBJ(potion of healing)
+L:4:GRASS:ART(merry)
+L:9:GRASS:OBJ(*)
+L:8:GRASS:OBJ(*, DEPTH+7)
+L:7:GRASS:OBJ(broken sword):EGO(westernesse)
+M:#######################################################
+M:#..............................................;.....2#
+M:#..................;;;;;;;;....................;...ZW9#
+M:#................;;;......;;;..................;......#
+M:#...............;;..........;;.................;;.;;;;#
+M:#........C.....;;.....C......;;...B...................#
+M:#..............;.9...CZC......;.......................#
+M:#........;.....;......C......;;......;................#
+M:#...............;;..........;;........................#
+M:#.B..............;;;......;;;.........................#
+M:#..................;;;;;;;;...........................#
+M:#....;;;;;;;;..................;;;;;;;;;;.............#
+M:#..;;;......;;;..............;;;........;;;...........#
+M:#.;;..........;;............;;.....%%%....;;..........#
+M:#;;............;;..........;;8...W.%4%....7;;.........#
+M:#;.9....WZ....9.;....B.....;.....Z.%Z%.Z...8;.........#
+M:#;;............;;..........;;......%Z%.W...;;.........#
+M:#.;;..........;;............;......%C%....;;..........#
+M:#..;;.......;;;..............;;;........;;;...........#
+M:#....;;;;;;;;..................;;;;;;;;;;.............#
+M:#.B...................................................#
+M:#.......A..........;;;;;;;;...........................#
+M:#................;;;......;;;.........................#
+M:#...............;;..........;;........................#
+M:#......;.......;;......C....9;;.......;.B.............#
+M:#..............;......CZC.....;.......................#
+M:#..............;;......C....9;;.......................#
+M:#...............;...........;;.................;;.;;;;#
+M:#................;;;......;;;..................;......#
+M:#..................;;;;;;;;....................;..ZW..#
+M:#<.................................A...........;....92#
+M:#######################################################
+
+# vim: filetype=q :

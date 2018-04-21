@@ -101,67 +101,49 @@ static byte value_check_aux2(object_type *o_ptr)
     return FEEL_AVERAGE;
 }
 
+static bool _sense_strong = FALSE;
 
-
-static void sense_inventory_aux(int slot, bool strong)
+static void _sense_obj(obj_ptr obj)
 {
-    byte        feel;
-    object_type *o_ptr = &inventory[slot];
-    char        o_name[MAX_NLEN];
+    byte feel;
+    char name[MAX_NLEN];
+    bool strong = _sense_strong;
 
-    /* We know about it already, do not tell us again */
-    if (o_ptr->ident & (IDENT_SENSE))return;
+    if (obj->ident & IDENT_SENSE) return;
+    if (object_is_known(obj)) return;
+    if (obj->loc.where == INV_PACK && !one_in_(3)) return;
 
-    /* It is fully known, no information needed */
-    if (object_is_known(o_ptr)) return;
-
-    /* Check for a feeling */
-    feel = (strong ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
-
-    /* Skip non-feelings */
+    if (!strong && p_ptr->good_luck && !randint0(13))
+        strong = TRUE;
+    feel = strong ? value_check_aux1(obj) : value_check_aux2(obj);
     if (!feel) return;
 
-    /* Stop everything */
-    if (disturb_minor) disturb(0, 0);
+    /*if (disturb_minor) disturb(0, 0);*/
 
-    /* Get an object description */
-    object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-    /* Message (equipment) */
-    if (equip_is_valid_slot(slot))
+    object_desc(name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
+    msg_boundary();
+    if (obj->loc.where == INV_EQUIP)
     {
-        msg_format("You feel the %s (%c) you are %s %s %s...",
-               o_name, index_to_label(slot), describe_use(slot),
-               ((o_ptr->number == 1) ? "is" : "are"),
+        msg_format("You feel the %s (%c) you are wearing %s %s...",
+               name, slot_label(obj->loc.slot),
+               obj->number == 1 ? "is" : "are",
                    game_inscriptions[feel]);
     }
-
-    /* Message (inventory) */
     else
     {
-        msg_format("You feel the %s (%c) in your pack %s %s...",
-               o_name, index_to_label(slot),
-               ((o_ptr->number == 1) ? "is" : "are"),
+        msg_format("You feel the %s (%c) in your %s %s %s...",
+               name, slot_label(obj->loc.slot),
+               obj->loc.where == INV_QUIVER ? "quiver" : "pack", 
+               obj->number == 1 ? "is" : "are",
                    game_inscriptions[feel]);
     }
 
-    /* We have "felt" it */
-    o_ptr->ident |= (IDENT_SENSE);
+    obj->ident |= IDENT_SENSE;
+    obj->feeling = feel;
 
-    /* Set the "inscription" */
-    o_ptr->feeling = feel;
-
-    /* Auto-inscription/destroy */
-    autopick_alter_item(slot, destroy_feeling);
-
-    /* Combine / Reorder the pack (later) */
-    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-    /* Window stuff */
-    p_ptr->window |= (PW_INVEN | PW_EQUIP);
+    autopick_alter_obj(obj, destroy_feeling && obj->loc.where != INV_EQUIP);
+    obj_release(obj, OBJ_RELEASE_ID | OBJ_RELEASE_QUIET);
 }
-
-
 
 /*
  * Sense the inventory
@@ -196,10 +178,8 @@ static int _get_pseudo_id_flags(void)
 
 static void sense_inventory1(void)
 {
-    int         i;             /* v~~~ Early Game speed is ridiculous otherwise */
-    int         plev = p_ptr->lev + 10;
-    bool        strong = FALSE;
-    object_type *o_ptr;
+    int  plev = p_ptr->lev + 10;
+    bool strong = FALSE;
 
     if (p_ptr->confused) return;
 
@@ -232,67 +212,17 @@ static void sense_inventory1(void)
     }
 
     /*** Sense everything ***/
-
-    /* Check everything */
-    for (i = 0; i < INVEN_TOTAL; i++)
-    {
-        bool okay = FALSE;
-
-        o_ptr = &inventory[i];
-
-        /* Skip empty slots */
-        if (!o_ptr->k_idx) continue;
-
-        /* Valid "tval" codes */
-        switch (o_ptr->tval)
-        {
-            case TV_SHOT:
-            case TV_ARROW:
-            case TV_BOLT:
-            case TV_BOW:
-            case TV_DIGGING:
-            case TV_HAFTED:
-            case TV_POLEARM:
-            case TV_SWORD:
-            case TV_BOOTS:
-            case TV_GLOVES:
-            case TV_HELM:
-            case TV_CROWN:
-            case TV_SHIELD:
-            case TV_CLOAK:
-            case TV_SOFT_ARMOR:
-            case TV_HARD_ARMOR:
-            case TV_DRAG_ARMOR:
-            case TV_CARD:
-            {
-                okay = TRUE;
-                break;
-            }
-        }
-
-        /* Skip non-sense machines */
-        if (!okay) continue;
-
-        /* Occasional failure on inventory items */
-        if ((i < INVEN_PACK) && (0 != randint0(5))) continue;
-
-        /* Good luck */
-        if (p_ptr->good_luck && !randint0(13))
-        {
-            strong = TRUE;
-        }
-
-        sense_inventory_aux(i, strong);
-    }
+    _sense_strong = strong;
+    pack_for_each_that(_sense_obj, obj_can_sense1);
+    equip_for_each_that(_sense_obj, obj_can_sense1);
+    quiver_for_each_that(_sense_obj, obj_can_sense1);
 }
 
 
 static void sense_inventory2(void)
 {
-    int         i;
-    int         plev = p_ptr->lev + 10;
-    bool        strong = FALSE;
-    object_type *o_ptr;
+    int  plev = p_ptr->lev + 10;
+    bool strong = FALSE;
 
     if (p_ptr->confused) return;
 
@@ -330,41 +260,9 @@ static void sense_inventory2(void)
     }
 
     /*** Sense everything ***/
-
-    /* Check everything */
-    for (i = 0; i < INVEN_TOTAL; i++)
-    {
-        bool okay = FALSE;
-
-        o_ptr = &inventory[i];
-
-        /* Skip empty slots */
-        if (!o_ptr->k_idx) continue;
-
-        /* Valid "tval" codes */
-        switch (o_ptr->tval)
-        {
-            case TV_RING:
-            case TV_AMULET:
-            case TV_LITE:
-            case TV_FIGURINE:
-            case TV_WAND:
-            case TV_STAFF:
-            case TV_ROD:
-            {
-                okay = TRUE;
-                break;
-            }
-        }
-
-        /* Skip non-sense machines */
-        if (!okay) continue;
-
-        /* Occasional failure on inventory items */
-        if ((i < INVEN_PACK) && (0 != randint0(5))) continue;
-
-        sense_inventory_aux(i, strong);
-    }
+    _sense_strong = strong;
+    pack_for_each_that(_sense_obj, obj_can_sense2);
+    equip_for_each_that(_sense_obj, obj_can_sense2);
 }
 
 
@@ -444,9 +342,7 @@ static void pattern_teleport(void)
     /* Change level */
     dun_level = command_arg;
 
-    leave_quest_check();
-
-    p_ptr->inside_quest = 0;
+    quests_on_leave();
     energy_use = 0;
 
     /*
@@ -781,55 +677,23 @@ static void regen_monsters(void)
  *
  * XXX XXX XXX Should probably be done during monster turns.
  */
+static bool _is_captured_mon(obj_ptr obj) { return obj->tval == TV_CAPTURE && obj->pval; }
+static void _regen_captured_mon(obj_ptr obj)
+{
+    monster_race *r_ptr = &r_info[obj->pval];
+    if (obj->xtra4 < obj->xtra5)
+    {
+        int amt = obj->xtra5 / 100;
+        if (!amt && one_in_(2)) amt = 1;
+        if (r_ptr->flags2 & RF2_REGENERATE) amt *= 2;
+        obj->xtra4 = MIN(obj->xtra5, obj->xtra4 + amt);
+    }
+}
+
 static void regen_captured_monsters(void)
 {
-    int i, frac;
-    bool heal = FALSE;
-
-    /* Regenerate everyone */
-    for (i = 0; i < INVEN_TOTAL; i++)
-    {
-        monster_race *r_ptr;
-        object_type *o_ptr = &inventory[i];
-
-        if (!o_ptr->k_idx) continue;
-        if (o_ptr->tval != TV_CAPTURE) continue;
-        if (!o_ptr->pval) continue;
-
-        heal = TRUE;
-
-        r_ptr = &r_info[o_ptr->pval];
-
-        /* Allow regeneration (if needed) */
-        if (o_ptr->xtra4 < o_ptr->xtra5)
-        {
-            /* Hack -- Base regeneration */
-            frac = o_ptr->xtra5 / 100;
-
-            /* Hack -- Minimal regeneration rate */
-            if (!frac) if (one_in_(2)) frac = 1;
-
-            /* Hack -- Some monsters regenerate quickly */
-            if (r_ptr->flags2 & RF2_REGENERATE) frac *= 2;
-
-            /* Hack -- Regenerate */
-            o_ptr->xtra4 += frac;
-
-            /* Do not over-regenerate */
-            if (o_ptr->xtra4 > o_ptr->xtra5) o_ptr->xtra4 = o_ptr->xtra5;
-        }
-    }
-
-    if (heal)
-    {
-        /* Combine pack */
-        p_ptr->notice |= (PN_COMBINE);
-
-        /* Window stuff */
-        p_ptr->window |= (PW_INVEN);
-        p_ptr->window |= (PW_EQUIP);
-        wild_regen = 20;
-    }
+    pack_for_each_that(_regen_captured_mon, _is_captured_mon);
+    equip_for_each_that(_regen_captured_mon, _is_captured_mon);
 }
 
 
@@ -892,40 +756,6 @@ void fame_on_failure(void)
     p_ptr->fame -= dec;
 }
 
-void leave_quest_check(void)
-{
-    /* Save quest number for dungeon pref file ($LEAVING_QUEST) */
-    leaving_quest = p_ptr->inside_quest;
-
-    /* Leaving an 'only once' quest marks it as failed */
-    if (leaving_quest &&
-        ((quest[leaving_quest].flags & QUEST_FLAG_ONCE)  || (quest[leaving_quest].type == QUEST_TYPE_RANDOM)) &&
-        (quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-    {
-        /* Hack: Ironman quests *must* be completed! */
-        if (quest[leaving_quest].type == QUEST_TYPE_RANDOM && ironman_quests)
-        {
-            quest[leaving_quest].cur_num = 0; /* Quests get "reinforcements" */
-            return;
-        }
-
-        quest[leaving_quest].status = QUEST_STATUS_FAILED;
-        quest[leaving_quest].complev = (byte)p_ptr->lev;
-        virtue_add(VIRTUE_VALOUR, -2);
-        fame_on_failure();
-
-        if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
-        {
-            if (quest[leaving_quest].r_idx)
-                r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
-
-            /* Floor of random quest will be blocked */
-            prepare_change_floor_mode(CFM_NO_RETURN);
-        }
-    }
-}
-
-
 /*
  * Forcibly pseudo-identify an object in the inventory
  * (or on the floor)
@@ -940,34 +770,23 @@ void leave_quest_check(void)
  */
 bool psychometry(void)
 {
-    int             item;
-    object_type     *o_ptr;
-    char            o_name[MAX_NLEN];
-    byte            feel;
-    cptr            q, s;
-    bool okay = FALSE;
+    obj_prompt_t prompt = {0};
+    char         o_name[MAX_NLEN];
+    byte         feel;
+    bool         okay = FALSE;
 
-    item_tester_no_ryoute = TRUE;
-    /* Get an item */
-    q = "Meditate on which item? ";
-    s = "You have nothing appropriate.";
+    prompt.prompt = "Meditate on which item?";
+    prompt.error = "You have nothing appropriate.";
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_QUIVER;
+    prompt.where[3] = INV_FLOOR;
 
-    if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
+    obj_prompt(&prompt);
+    if (!prompt.obj) return FALSE;
 
     /* It is fully known, no information needed */
-    if (object_is_known(o_ptr))
+    if (object_is_known(prompt.obj))
     {
         msg_print("You cannot find out anything more about that.");
 
@@ -975,10 +794,10 @@ bool psychometry(void)
     }
 
     /* Check for a feeling */
-    feel = value_check_aux1(o_ptr);
+    feel = value_check_aux1(prompt.obj);
 
     /* Get an object description */
-    object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+    object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
     /* Skip non-feelings */
     if (!feel)
@@ -989,27 +808,21 @@ bool psychometry(void)
     }
 
     msg_format("You feel that the %s %s %s...",
-               o_name, ((o_ptr->number == 1) ? "is" : "are"),
+               o_name, ((prompt.obj->number == 1) ? "is" : "are"),
                game_inscriptions[feel]);
 
 
     /* We have "felt" it */
-    o_ptr->ident |= (IDENT_SENSE);
+    prompt.obj->ident |= (IDENT_SENSE);
 
     /* "Inscribe" it */
-    o_ptr->feeling = feel;
+    prompt.obj->feeling = feel;
 
     /* Player touches it */
-    o_ptr->marked |= OM_TOUCHED;
-
-    /* Combine / Reorder the pack (later) */
-    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-    /* Window stuff */
-    p_ptr->window |= (PW_INVEN | PW_EQUIP);
+    prompt.obj->marked |= OM_TOUCHED;
 
     /* Valid "tval" codes */
-    switch (o_ptr->tval)
+    switch (prompt.obj->tval)
     {
     case TV_SHOT:
     case TV_ARROW:
@@ -1037,8 +850,8 @@ bool psychometry(void)
         break;
     }
 
-    /* Auto-inscription/destroy */
-    autopick_alter_item(item, (bool)(okay && destroy_feeling));
+    autopick_alter_obj(prompt.obj, okay && destroy_feeling);
+    obj_release(prompt.obj, OBJ_RELEASE_ID | OBJ_RELEASE_QUIET);
 
     /* Something happened */
     return (TRUE);
@@ -1170,7 +983,7 @@ static void process_world_aux_hp_and_sp(void)
             }
         }
 
-        slot = equip_find_object(TV_LITE, SV_ANY);
+        slot = equip_find_obj(TV_LITE, SV_ANY);
         if (slot)
         {
             object_type *lite = equip_obj(slot);
@@ -1231,7 +1044,7 @@ static void process_world_aux_hp_and_sp(void)
     if (have_flag(f_ptr->flags, FF_WATER) && have_flag(f_ptr->flags, FF_DEEP) &&
         !p_ptr->levitation && !p_ptr->can_swim && !elemental_is_(ELEMENTAL_WATER))
     {
-        if (p_ptr->total_weight > weight_limit())
+        if (py_total_weight() > weight_limit())
         {
             /* Take damage */
             msg_print("You are drowning!");
@@ -1700,16 +1513,6 @@ static void process_world_aux_timeout(void)
         (void)set_ultimate_res(p_ptr->ult_res - 1, TRUE);
     }
 
-    if (p_ptr->tim_speed_essentia)
-    {
-        (void)set_tim_speed_essentia(p_ptr->tim_speed_essentia - 1, TRUE);
-    }
-
-    if (p_ptr->tim_shrike)
-    {
-        (void)set_tim_shrike(p_ptr->tim_shrike - 1, TRUE);
-    }
-
     if (p_ptr->tim_spurt)
     {
         (void)set_tim_spurt(p_ptr->tim_spurt - 1, TRUE);
@@ -1747,11 +1550,6 @@ static void process_world_aux_timeout(void)
 
     if (p_ptr->tim_superstealth)
         set_tim_superstealth(p_ptr->tim_superstealth - 1, TRUE);
-
-    if (p_ptr->tim_genji)
-    {
-        set_tim_genji(p_ptr->tim_genji - 1, TRUE);
-    }
 
     if (p_ptr->tim_force)
     {
@@ -1908,7 +1706,7 @@ static void process_world_aux_timeout(void)
  */
 static void process_world_aux_light(void)
 {
-    int slot = equip_find_object(TV_LITE, SV_ANY);
+    int slot = equip_find_obj(TV_LITE, SV_ANY);
     if (slot)
     {
         object_type *lite = equip_obj(slot);
@@ -1944,7 +1742,7 @@ static void process_world_aux_curse(void)
             int i, i_keep = 0, count = 0;
 
             /* Scan the equipment with random teleport ability */
-            for (i = EQUIP_BEGIN; i < EQUIP_BEGIN + equip_count(); i++)
+            for (i = 1; i <= equip_max(); i++)
             {
                 u32b flgs[OF_ARRAY_SIZE];
                 o_ptr = equip_obj(i);
@@ -1964,7 +1762,7 @@ static void process_world_aux_curse(void)
 
             if (i_keep)
             {
-                o_ptr = &inventory[i_keep];
+                o_ptr = equip_obj(i_keep);
                 object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
                 msg_format("Your %s is activating teleportation.", o_name);
                 if (get_check_strict("Teleport? ", CHECK_OKAY_CANCEL))
@@ -2156,7 +1954,7 @@ static void process_world_aux_curse(void)
     /* Rarely, take damage from the Jewel of Judgement */
     if (one_in_(999) && !p_ptr->anti_magic)
     {
-        int slot = equip_find_artifact(ART_JUDGE);
+        int slot = equip_find_art(ART_JUDGE);
         if (slot)
         {
             object_type *o_ptr = equip_obj(slot);
@@ -2205,7 +2003,7 @@ static void process_world_aux_curse(void)
 
     if (one_in_(666))
     {
-        int slot = equip_find_artifact(ART_HAND_OF_VECNA);
+        int slot = equip_find_art(ART_HAND_OF_VECNA);
         if (slot)
         {
             object_type *o_ptr = equip_obj(slot);
@@ -2219,7 +2017,7 @@ static void process_world_aux_curse(void)
 
     if (one_in_(666))
     {
-        int slot = equip_find_artifact(ART_EYE_OF_VECNA);
+        int slot = equip_find_art(ART_EYE_OF_VECNA);
         if (slot)
         {
             object_type *o_ptr = equip_obj(slot);
@@ -2240,7 +2038,7 @@ static void process_world_aux_curse(void)
 
     if (!p_ptr->wild_mode && one_in_(66))
     {
-        int slot = equip_find_artifact(ART_BLOODRIP);
+        int slot = equip_find_art(ART_BLOODRIP);
         if (slot)
         {
             object_type *o_ptr = equip_obj(slot);
@@ -2276,7 +2074,7 @@ static void process_world_aux_recharge(void)
 {
     int i;
     _recharge_changed = FALSE;
-    equip_for_each_obj(_recharge_aux);
+    equip_for_each(_recharge_aux);
     if (_recharge_changed)
     {
         p_ptr->window |= PW_EQUIP;
@@ -2287,12 +2085,12 @@ static void process_world_aux_recharge(void)
      * Recharge Devices
      */
     _recharge_changed = FALSE;
-    for (i = 0; i < INVEN_PACK; i++)
+    for (i = 1; i <= pack_max(); i++)
     {
-        object_type *o_ptr = &inventory[i];
-        object_kind *k_ptr = &k_info[o_ptr->k_idx];
+        object_type *o_ptr = pack_obj(i);
 
-        if (!o_ptr->k_idx) continue;
+        if (!o_ptr) continue;
+
         switch (o_ptr->tval)
         {
         case TV_ROD:
@@ -2305,28 +2103,14 @@ static void process_world_aux_recharge(void)
             break;
         }
 
-        if (object_is_mushroom(o_ptr) && (o_ptr->timeout))
+        /* artifact mushrooms for the snotling ... they never stack */
+        if (object_is_mushroom(o_ptr) && o_ptr->timeout)
         {
-            /* Determine how many rods are charging. */
-            int temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
-            if (temp > o_ptr->number) temp = o_ptr->number;
-
-            /* Decrease timeout by that number. */
-            o_ptr->timeout -= temp;
-
-            /* Boundary control. */
+            o_ptr->timeout--;
             if (o_ptr->timeout < 0) o_ptr->timeout = 0;
-
-            /* Notice changes, provide message if object is inscribed. */
-            if (!(o_ptr->timeout))
+            if (!o_ptr->timeout)
             {
                 recharged_notice(o_ptr);
-                _recharge_changed = TRUE;
-            }
-
-            /* One of the stack of rod is charged */
-            else if (o_ptr->timeout % k_ptr->pval)
-            {
                 _recharge_changed = TRUE;
             }
         }
@@ -2367,18 +2151,7 @@ void process_world_aux_movement(void)
             disturb(0, 0);
 
             /* Determine the level */
-            if (dun_level || p_ptr->inside_quest)
-            {
-                cmsg_print(TERM_YELLOW, "You feel yourself yanked upwards!");
-                if (dungeon_type) p_ptr->recall_dungeon = dungeon_type;
-
-                dun_level = 0;
-                dungeon_type = 0;
-                leave_quest_check();
-                p_ptr->inside_quest = 0;
-                p_ptr->leaving = TRUE;
-            }
-            else
+            if (py_on_surface())
             {
                 cmsg_print(TERM_YELLOW, "You feel yourself yanked downwards!");
                 dungeon_type = p_ptr->recall_dungeon;
@@ -2428,26 +2201,16 @@ void process_world_aux_movement(void)
 
                 /* Leaving */
                 p_ptr->leaving = TRUE;
+            }
+            else
+            {
+                cmsg_print(TERM_YELLOW, "You feel yourself yanked upwards!");
+                if (dungeon_type) p_ptr->recall_dungeon = dungeon_type;
 
-                if (dungeon_type == DUNGEON_ANGBAND    &&
-                    !ironman_quests) /* Hack: Using the Trump Tower to circumvent quests does not fail them for Ironman Quests */
-                {
-                    int i;
-
-                    for (i = MIN_RANDOM_QUEST; i < MIN_RANDOM_QUEST + num_random_quests; i++)
-                    {
-                        if ((quest[i].type == QUEST_TYPE_RANDOM) &&
-                            (quest[i].status == QUEST_STATUS_TAKEN) &&
-                            (quest[i].level < dun_level))
-                        {
-                            quest[i].status = QUEST_STATUS_FAILED;
-                            quest[i].complev = (byte)p_ptr->lev;
-                            virtue_add(VIRTUE_VALOUR, -2);
-                            fame_on_failure(); /* Trump Tower?? */
-                            r_info[quest[i].r_idx].flags1 &= ~(RF1_QUESTOR);
-                        }
-                    }
-                }
+                dun_level = 0;
+                dungeon_type = 0;
+                quests_on_leave();
+                p_ptr->leaving = TRUE;
             }
 
             /* Sound */
@@ -2474,7 +2237,9 @@ void process_world_aux_movement(void)
             disturb(0, 0);
 
             /* Determine the level */
-            if (!quest_number(dun_level) && dun_level)
+            if (quests_get_current())
+                msg_print("The world seems to change for a moment!");
+            else
             {
                 msg_print("The world changes!");
 
@@ -2486,10 +2251,6 @@ void process_world_aux_movement(void)
 
                 /* Leaving */
                 p_ptr->leaving = TRUE;
-            }
-            else
-            {
-                msg_print("The world seems to change for a moment!");
             }
 
             /* Sound */
@@ -2667,7 +2428,6 @@ static byte get_dungeon_feeling(void)
 static void update_dungeon_feeling(void)
 {
     byte new_feeling;
-    int quest_num;
     int delay;
 
     /* No feeling on the surface */
@@ -2685,15 +2445,7 @@ static void update_dungeon_feeling(void)
      /* Not yet felt anything */
     if (game_turn < p_ptr->feeling_turn + delay && !cheat_xtra) return;
 
-    /* Extract quest number (if any) */
-    quest_num = quest_number(dun_level);
-
-    /* No feeling in a quest */
-    if (quest_num &&
-        (is_fixed_quest_idx(quest_num) &&
-         !((quest_num == QUEST_OBERON) || (quest_num == QUEST_SERPENT) ||
-           !(quest[quest_num].flags & QUEST_FLAG_PRESET)))) return;
-
+    if (!quests_allow_feeling()) return;
 
     /* Get new dungeon feeling */
     new_feeling = get_dungeon_feeling();
@@ -2856,7 +2608,7 @@ static void process_world(void)
     /*** Handle the wilderness/town (sunshine) ***/
 
     /* While in town/wilderness */
-    if (!dun_level && !p_ptr->inside_quest && !p_ptr->inside_battle && !p_ptr->inside_arena)
+    if (py_on_surface())
     {
         /* Hack -- Daybreak/Nighfall in town */
         if (!(game_turn % ((TURNS_PER_TICK * TOWN_DAWN) / 2)))
@@ -2885,7 +2637,7 @@ static void process_world(void)
                             cave_type *c_ptr = &cave[y][x];
 
                             /* Assume lit */
-                            c_ptr->info |= (CAVE_GLOW);
+                            c_ptr->info |= (CAVE_GLOW | CAVE_AWARE);
 
                             /* Hack -- Memorize lit grids if allowed */
                             if (view_perma_grids) c_ptr->info |= (CAVE_MARK);
@@ -2957,63 +2709,10 @@ static void process_world(void)
         }
     }
 
-    /* While in the dungeon (no_wilderness mode only) */
-    else if ( no_wilderness
-           && !p_ptr->inside_quest
-           && !p_ptr->inside_battle
-           && !p_ptr->inside_arena
-           && dun_level )
-    {
-        /*** Shuffle the Storekeepers ***/
-
-        /* Chance is only once a day (while in dungeon) */
-        if (!(game_turn % (TURNS_PER_TICK * STORE_TICKS)))
-        {
-            /* Sometimes, shuffle the shop-keepers */
-            if (one_in_(STORE_SHUFFLE))
-            {
-                int n, i;
-
-                /* Pick a random shop (except home and museum) */
-                do
-                {
-                    n = randint0(MAX_STORES);
-                }
-                while ((n == STORE_HOME) || (n == STORE_MUSEUM));
-
-                /* Check every feature */
-                for (i = 1; i < max_f_idx; i++)
-                {
-                    /* Access the index */
-                    feature_type *f_ptr = &f_info[i];
-
-                    /* Skip empty index */
-                    if (!f_ptr->name) continue;
-
-                    /* Skip non-store features */
-                    if (!have_flag(f_ptr->flags, FF_STORE)) continue;
-
-                    /* Verify store type */
-                    if (f_ptr->subtype == n)
-                    {
-                        /* Message */
-                        if (cheat_xtra) msg_format("Shuffle a Shopkeeper of %s.", f_name + f_ptr->name);
-
-                        /* Shuffle it */
-                        store_shuffle(n);
-
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-
     /*** Process the monsters ***/
 
     /* Check for creature generation. */
-    if (!p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle)
+    if (!p_ptr->inside_arena && !quests_get_current() && !p_ptr->inside_battle)
     {
         int  chance = d_info[dungeon_type].max_m_alloc_chance;
 
@@ -3029,7 +2728,7 @@ static void process_world(void)
         }
     }
     /* It's too easy to get stuck playing a race that can't move! Sigh ... */
-    else if ( p_ptr->inside_quest
+    else if ( quests_get_current()
            && p_ptr->action == ACTION_GLITTER
            && one_in_(50) )
     {
@@ -3196,6 +2895,9 @@ static void process_world(void)
     /* Process recharging */
     process_world_aux_recharge();
 
+    if (p_ptr->auto_id)
+        identify_pack();
+
     /* Feel the inventory */
     sense_inventory1();
     sense_inventory2();
@@ -3299,26 +3001,8 @@ extern void do_cmd_debug(void);
  *
  * XXX XXX XXX Make some "blocks"
  */
-static void process_command(void)
+static void _dispatch_command(int old_now_turn)
 {
-    int old_now_turn = now_turn;
-
-
-#ifdef ALLOW_REPEAT /* TNB */
-
-    /* Handle repeating the last command */
-    repeat_check(FALSE);
-
-#endif /* ALLOW_REPEAT -- TNB */
-
-    now_turn = game_turn;
-    msg_boundary();
-
-    /* Sniper */
-    if ((p_ptr->pclass == CLASS_SNIPER) && (p_ptr->concent))
-        reset_concent = TRUE;
-
-    /* Parse the command */
     switch (command_cmd)
     {
         /* Ignore */
@@ -3392,14 +3076,14 @@ static void process_command(void)
         /* Wear/wield equipment */
         case 'w':
         {
-            if (!p_ptr->wild_mode) equip_wield();
+            if (!p_ptr->wild_mode) equip_wield_ui();
             break;
         }
 
         /* Take off equipment */
         case 't':
         {
-            if (!p_ptr->wild_mode) equip_takeoff();
+            if (!p_ptr->wild_mode) equip_takeoff_ui();
             break;
         }
 
@@ -3413,21 +3097,21 @@ static void process_command(void)
         /* Destroy an item */
         case 'k':
         {
-            do_cmd_destroy();
+            obj_destroy_ui();
             break;
         }
 
         /* Equipment list */
         case 'e':
         {
-            do_cmd_equip();
+            equip_ui();
             break;
         }
 
         /* Inventory list */
         case 'i':
         {
-            do_cmd_inven();
+            pack_ui();
             break;
         }
 
@@ -3437,7 +3121,7 @@ static void process_command(void)
         /* Identify an object */
         case 'I':
         {
-            do_cmd_inspect();
+            obj_inspect_ui();
             break;
         }
 
@@ -3445,6 +3129,7 @@ static void process_command(void)
         case KTRL('I'):
         {
             toggle_inven_equip();
+            toggle_mon_obj_lists();
             break;
         }
 
@@ -3468,20 +3153,15 @@ static void process_command(void)
         /* Move (usually pick up things) */
         case ';':
         {
-            if (toggle_run_status && toggle_running)
-                do_cmd_run();
-            else
-            {
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
-                do_cmd_walk(FALSE);
+            do_cmd_walk(FALSE);
 
 #else /* ALLOW_EASY_DISARM -- TNB */
 
-                do_cmd_walk(always_pickup);
+            do_cmd_walk(always_pickup);
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
-            }
             break;
         }
 
@@ -3507,13 +3187,7 @@ static void process_command(void)
         /* Begin Running -- Arg is Max Distance */
         case '.':
         {
-            if (toggle_run_status)
-            {
-                toggle_running = !toggle_running;
-                p_ptr->redraw |= PR_STATUS;
-            }
-            else if (!p_ptr->wild_mode)
-                do_cmd_run();
+            do_cmd_run();
             break;
         }
 
@@ -3524,10 +3198,9 @@ static void process_command(void)
             break;
         }
 
-        /* Stay still (usually do not pick up) */
         case 'g':
         {
-            do_cmd_stay(!always_pickup);
+            do_cmd_get();
             break;
         }
 
@@ -3556,19 +3229,6 @@ static void process_command(void)
 
         /*** Stairs and Doors and Chests and Traps ***/
 
-        /* Enter store */
-        case SPECIAL_KEY_STORE:
-        {
-            if (!p_ptr->wild_mode) do_cmd_store();
-            break;
-        }
-
-        /* Enter building -KMW- */
-        case SPECIAL_KEY_BUILDING:
-        {
-            if (!p_ptr->wild_mode) do_cmd_bldg();
-            break;
-        }
 
         /* Enter quest level -KMW- */
         case SPECIAL_KEY_QUEST:
@@ -3580,7 +3240,7 @@ static void process_command(void)
         /* Go up staircase */
         case '<':
         {
-            if (!p_ptr->wild_mode && !dun_level && !p_ptr->inside_arena && !p_ptr->inside_quest)
+            if (py_on_surface())
             {
                 if (no_wilderness) break;
 
@@ -3828,14 +3488,14 @@ static void process_command(void)
         /* Inscribe an object */
         case '{':
         {
-            do_cmd_inscribe();
+            obj_inscribe_ui();
             break;
         }
 
         /* Uninscribe an object */
         case '}':
         {
-            do_cmd_uninscribe();
+            obj_uninscribe_ui();
             break;
         }
 
@@ -3844,14 +3504,13 @@ static void process_command(void)
         {
             if (!p_ptr->wild_mode)
             {
-            if (!p_ptr->inside_arena)
-                do_cmd_activate();
-            else
-            {
-                msg_print("The arena absorbs all attempted magic!");
-
-                msg_print(NULL);
-            }
+                if (!p_ptr->inside_arena)
+                    do_cmd_activate();
+                else
+                {
+                    msg_print("The arena absorbs all attempted magic!");
+                    msg_print(NULL);
+                }
             }
             break;
         }
@@ -3882,7 +3541,8 @@ static void process_command(void)
         {
             if (!p_ptr->wild_mode)
             {
-                do_cmd_throw();
+                py_throw_t context = {0};
+                py_throw(&context);
             }
             break;
         }
@@ -4113,7 +3773,6 @@ static void process_command(void)
         case '=':
         {
             do_cmd_options();
-            (void)combine_and_reorder_home(STORE_HOME);
             do_cmd_redraw();
             break;
         }
@@ -4151,7 +3810,7 @@ static void process_command(void)
         /* Show quest status -KMW- */
         case KTRL('Q'):
         {
-            do_cmd_checkquest();
+            quests_display();
             break;
         }
 
@@ -4234,6 +3893,56 @@ static void process_command(void)
             break;
         }
     }
+}
+
+static void process_command(void)
+{
+    int old_now_turn = now_turn;
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Handle repeating the last command */
+    repeat_check(FALSE);
+
+#endif /* ALLOW_REPEAT -- TNB */
+
+    now_turn = game_turn;
+    msg_boundary();
+
+    if (p_ptr->pclass == CLASS_SNIPER && p_ptr->concent)
+        reset_concent = TRUE;
+
+    switch (command_cmd)
+    {
+    case SPECIAL_KEY_STORE:
+        if (!p_ptr->wild_mode)
+        {
+            cave_type *c_ptr = &cave[py][px];
+
+            if (cave_have_flag_grid(c_ptr, FF_STORE))
+            {
+                int which = f_info[c_ptr->feat].subtype;
+
+                if (which == SHOP_HOME) home_ui();
+                else if (which == SHOP_MUSEUM) museum_ui();
+                else
+                {
+                    town_ptr town = towns_current_town();
+                    shop_ptr shop = town_get_shop(town, which);
+
+                    shop_ui(shop);
+                }
+            }
+        }
+        break;
+    case SPECIAL_KEY_BUILDING:
+        if (!p_ptr->wild_mode) do_cmd_bldg();
+        break;
+    default:
+        pack_lock();
+        _dispatch_command(old_now_turn);
+        pack_unlock();
+    }
 
     if (!energy_use)
         now_turn = old_now_turn;
@@ -4252,49 +3961,6 @@ static bool monster_tsuri(int r_idx)
         return FALSE;
 }
 
-
-/* Hack -- Pack Overflow */
-static void pack_overflow(void)
-{
-    if (inventory[INVEN_PACK].k_idx)
-    {
-        char o_name[MAX_NLEN];
-        object_type *o_ptr;
-
-        /* Is auto-destroy done? */
-        notice_stuff();
-        if (!inventory[INVEN_PACK].k_idx) return;
-
-        /* Access the slot to be dropped */
-        o_ptr = &inventory[INVEN_PACK];
-
-        /* Disturbing */
-        disturb(0, 0);
-
-        /* Warning */
-        msg_print("Your pack overflows!");
-
-        /* Describe */
-        object_desc(o_name, o_ptr, 0);
-
-        /* Message */
-        msg_format("You drop %s (%c).", o_name, index_to_label(INVEN_PACK));
-
-        /* Drop it (carefully) near the player */
-        (void)drop_near(o_ptr, 0, py, px);
-
-        /* Modify, Describe, Optimize */
-        inven_item_increase(INVEN_PACK, -255);
-        inven_item_describe(INVEN_PACK);
-        inven_item_optimize(INVEN_PACK);
-
-        /* Handle "p_ptr->notice" */
-        notice_stuff();
-
-        /* Handle "p_ptr->update" and "p_ptr->redraw" and "p_ptr->window" */
-        handle_stuff();
-    }
-}
 
 
 /*
@@ -4913,8 +4579,6 @@ static void process_player(void)
  */
 static void dungeon(bool load_game)
 {
-    int quest_num = 0;
-
     /* Set the base level */
     if (dun_level)
         base_level = dun_level;
@@ -4955,17 +4619,6 @@ static void dungeon(bool load_game)
     /* Disturb */
     disturb(1, 0);
 
-    /* Get index of current quest (if any) */
-    quest_num = quest_number(dun_level);
-
-    /* Inside a quest? */
-    if (quest_num)
-    {
-        /* Mark the quest monster */
-        if (quest[quest_num].r_idx) /* TODO: Non-monster quests are coming ... */
-            r_info[quest[quest_num].r_idx].flags1 |= RF1_QUESTOR;
-    }
-
     /* Track maximum player level */
     if (p_ptr->max_plv < p_ptr->lev)
     {
@@ -4973,9 +4626,10 @@ static void dungeon(bool load_game)
     }
 
 
-    /* Track maximum dungeon level (if not in quest -KMW-) */
+    /* Track maximum dungeon level (if not in quest -KMW-)
+     * XXX Why is this here? Why not in generate()? */
     if ( max_dlv[dungeon_type] < dun_level
-      && !p_ptr->inside_quest
+      && !quests_get_current()
       && !(d_info[dungeon_type].flags1 & DF1_RANDOM) )
     {
         max_dlv[dungeon_type] = dun_level;
@@ -5021,7 +4675,7 @@ static void dungeon(bool load_game)
     p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
     /* Combine / Reorder the pack */
-    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+    p_ptr->notice |= (PN_OPTIMIZE_PACK | PN_OPTIMIZE_QUIVER);
 
     /* Handle "p_ptr->notice" */
     notice_stuff();
@@ -5031,10 +4685,6 @@ static void dungeon(bool load_game)
 
     /* Refresh */
     Term_fresh();
-
-    if (quest_num && (is_fixed_quest_idx(quest_num) &&
-        !((quest_num == QUEST_OBERON) || (quest_num == QUEST_SERPENT) ||
-        !(quest[quest_num].flags & QUEST_FLAG_PRESET)))) do_cmd_feeling();
 
     if (p_ptr->inside_battle)
     {
@@ -5057,11 +4707,6 @@ static void dungeon(bool load_game)
     if (!p_ptr->playing || p_ptr->is_dead) return;
 
     /* Print quest message if appropriate */
-    if (!p_ptr->inside_quest && (dungeon_type == DUNGEON_ANGBAND))
-    {
-        quest_discovery(random_quest_number(dun_level));
-        p_ptr->inside_quest = random_quest_number(dun_level);
-    }
     if ((dun_level == d_info[dungeon_type].maxdepth) && d_info[dungeon_type].final_guardian)
     {
         if (r_info[d_info[dungeon_type].final_guardian].max_num)
@@ -5206,21 +4851,6 @@ static void dungeon(bool load_game)
         reinit_wilderness = FALSE;
     }
 
-    /* Inside a quest and non-unique questor?
-       Remark: leave_floor() requires RF1_QUESTOR still be valid for the old level
-               ... look up a few lines!
-    */
-    if (quest_num)
-    {
-        /* Mark the quest monster */
-        if ( quest[quest_num].r_idx /* TODO: Non-monster quests are coming ... */
-          && !(r_info[quest[quest_num].r_idx].flags1 & RF1_UNIQUE) )
-        {
-            /* Un-mark the quest monster */
-            r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
-        }
-    }
-
     /* Write about current level on the play record once per level */
     write_level = TRUE;
 }
@@ -5340,12 +4970,9 @@ void determine_bounty_uniques(void)
             r_ptr = &r_info[kubi_r_idx[i]];
 
             if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
-
+            if (r_ptr->flags1 & RF1_NO_QUEST) continue;
             if (!(r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON))) continue;
-
             if (r_ptr->rarity > 100) continue;
-
-            if (no_questor_or_bounty_uniques(kubi_r_idx[i])) continue;
 
             for (j = 0; j < i; j++)
                 if (kubi_r_idx[i] == kubi_r_idx[j]) break;
@@ -5580,7 +5207,6 @@ void play_game(bool new_game)
 
         /* Start in town */
         dun_level = 0;
-        p_ptr->inside_quest = 0;
         p_ptr->inside_arena = FALSE;
         p_ptr->inside_battle = FALSE;
 
@@ -5663,9 +5289,6 @@ void play_game(bool new_game)
                 /* Initialize the saved floors data */
                 init_saved_floors(TRUE);
 
-                /* Avoid crash */
-                p_ptr->inside_quest = 0;
-
                 /* Avoid crash in update_view() */
                 py = px = 10;
             }
@@ -5676,20 +5299,13 @@ void play_game(bool new_game)
         }
     }
 
-    /* Initialize the town-buildings if necessary */
-    if (!dun_level && !p_ptr->inside_quest)
+    /* Initialize the town-buildings if necessary ... user restarted the
+     * game while on the surface, possibly even inside a town */
+    if (py_on_surface())
     {
-        /* Init the wilderness */
-
-        process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
-
-        /* Init the town */
-        init_flags = INIT_ONLY_BUILDINGS;
-
-        process_dungeon_file("t_info.txt", 0, 0, MAX_HGT, MAX_WID);
-
+        process_dungeon_file("w_info.txt", 0);
+        towns_init_buildings();
     }
-
 
     /* Generate a dungeon level if needed */
     if (!character_dungeon)
@@ -5737,6 +5353,7 @@ void play_game(bool new_game)
     p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL);
     p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER_LIST | PW_OBJECT_LIST | PW_MONSTER | PW_OBJECT);
     window_stuff();
+    viewport_verify_aux(VIEWPORT_FORCE_CENTER);
 
     /* Give startup outfit (after loading pref files) */
     if (new_game)
@@ -5812,9 +5429,6 @@ void play_game(bool new_game)
         m_ptr->hp = r_ptr->hdice*(r_ptr->hside+1)/2;
         m_ptr->energy_need = ENERGY_NEED() + ENERGY_NEED();
     }
-
-    (void)combine_and_reorder_home(STORE_HOME);
-    (void)combine_and_reorder_home(STORE_MUSEUM);
 
     /* Process */
     while (TRUE)
@@ -5947,8 +5561,6 @@ void play_game(bool new_game)
                     dun_level = 0;
                     p_ptr->inside_arena = FALSE;
                     p_ptr->inside_battle = FALSE;
-                    leaving_quest = 0;
-                    p_ptr->inside_quest = 0;
                     if (dungeon_type) p_ptr->recall_dungeon = dungeon_type;
                     dungeon_type = 0;
                     if (no_wilderness)
@@ -6012,7 +5624,7 @@ s32b turn_real(s32b hoge)
 
 void prevent_turn_overflow(void)
 {
-    int rollback_days, i, j;
+    int rollback_days;
     s32b rollback_turns;
 
     if (game_turn < game_turn_limit) return;
@@ -6029,25 +5641,7 @@ void prevent_turn_overflow(void)
     if (p_ptr->feeling_turn > rollback_turns) p_ptr->feeling_turn -= rollback_turns;
     else p_ptr->feeling_turn = 1;
 
-    for (i = 1; i < max_towns; i++)
-    {
-        for (j = 0; j < MAX_STORES; j++)
-        {
-            store_type *st_ptr = &town[i].store[j];
-
-            if (st_ptr->last_visit > -10L * TURNS_PER_TICK * STORE_TICKS)
-            {
-                st_ptr->last_visit -= rollback_turns;
-                if (st_ptr->last_visit < -10L * TURNS_PER_TICK * STORE_TICKS) st_ptr->last_visit = -10L * TURNS_PER_TICK * STORE_TICKS;
-            }
-
-            if (st_ptr->store_open)
-            {
-                st_ptr->store_open -= rollback_turns;
-                if (st_ptr->store_open < 1) st_ptr->store_open = 1;
-            }
-        }
-    }
+    towns_on_turn_overflow(rollback_turns);
 }
 
 

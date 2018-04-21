@@ -1,0 +1,85 @@
+?:[EQU $QUEST28 Taken InProgress]
+D:A mysterious force has entered the royal crypt and is
+D:desecrating the graves of the king's noble ancestors. Their
+D:bodily remains have been magicly animated and their spirits
+D:enslaved and forcibly turned to evil. You must enter the
+D:crypt and seek out the Archliches. Once they have been
+D:eliminated, my guards should be able to take care of the
+D:rest.
+?:1
+
+?:[EQU $QUEST28 Completed]
+D:How can I ever thank you? Let the people rejoice - a hero
+D:of legend walks this day in Outpost. My treasurer tells me
+D:a number of rather valuable heirlooms seem to be missing
+D:from the crypt - how about I turn a blind eye and we call
+D:it quits? Oh wait a moment ... Now where did I put that?
+D:Ah! Take this trinket and be glad you still live.
+?:1
+
+?:[EQU $QUEST28 Failed]
+D:I trusted you and you have failed me. Heaven knows how
+D:we will appease the spirits of the king's ancestors now!
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:%:GRANITE
+L:.:FLOOR
+L:,:FLOOR(ICKY)
+L:@:FLOOR
+L:W:DEEP_WATER
+L:+:LOCKED_DOOR_7
+L:':BROKEN_DOOR
+L:^:TRAP(*)
+L:<:UP_STAIR(ICKY)
+L:~:OBJ(human skeleton)
+L:a:MON(crypt creep)
+L:b:MON(phantom beast)
+L:c:MON(greater mummy)
+L:d:MON(grey wraith)
+L:e:MON(master vampire)
+L:f:MON(crypt thing)
+L:g:MON(black wraith)
+L:h:MON(monastic lich)
+L:i:MON(nether wraith)
+L:j:MON(vampire lord)
+L:k:MON(master lich)
+L:l:MON(iron lich)
+L:m:MON(^dread$)
+L:n:MON(dreadmaster)
+L:o:MON(lesser black reaver)
+L:p:MON(demilich)
+L:q:FLOOR(ICKY):MON(eye druj)
+L:r:FLOOR(ICKY):MON(skull druj)
+L:s:MON(shadowlord)
+L:t:MON(archlich)
+L:u:MON(^black reaver$)
+L:$:FLOOR(ICKY):OBJ(DRAG_ARMOR, DEPTH+10):ART(*)
+L:&:FLOOR(ICKY):OBJ(RING, DEPTH+10):ART(*)
+L:*:FLOOR(ICKY):OBJ(AMULET, DEPTH+10):ART(*)
+M:#######################################################################
+M:#f..#.#b#aaaaa#.%.....#.+......%..%u%..+........................+.....#
+M:#...#.#b#aaaaa#.#..s..#.########..%%%..##########################.%%%.#
+M:####'.%b#%aaa##.##...##.#%%....##.....##^^^^^^^^^^^^^^^^^^##%#%#%.%u%.#
+M:#.....#bb##a##...##.##...##..t..##...##^#################^#%#%#%#.%%%.#
+M:#####.#%bb#.#.....#.#.....#......#####^^#t%p%p%o%o%l%l%k%^%######.....#
+M:#.#.##.####.#..t..#.#..s..#..t..##q#r##^#################^###q#r##....#
+M:#....##.....#.....#.%.....#....##,,,,,##^^^^^^^^^^^^^^^^^^##,,,,,###+##
+M:#.....#####.####################,,,,,,,####################,,,,,,&#j.j#
+M:#..@..+.....#%%%%%%%%%%%%%%%%%%%,,,,,,,%%%%%%%%%%<%%%%%%%%%,,,,,,$##.##
+M:#.....#####%#%##################,,,,,,,####################,,,,,,*#j.j#
+M:#....##...#.#.+.....#.....+....##,,,,,##WWWWWWWWWWWWWWWWWW##,,,,,###+##
+M:#.#.##.dd.#.#.#.###.#.#%#.#.###.##r#q##W##################W##r#q##....#
+M:#####.ggd.#.#.#.#m%.#.#m%.#.#m%#.#####W##..#.#.#.#.#.#.#.##W#####.%%%%#
+M:#~..+.igd...#.#.#%#.#.###.#.#nm#.+...+W#.t.'^s^'^n^'^n^'..%W+...+.%ooo#
+M:##.##.ggd.#.#.#.....+.....#.####.#####W##..#.#.#.#.#.#.#.##W#####.%%%%#
+M:#~..##.dd.###%#############.....##...##W##################W%#...##....#
+M:###..##...#e#e#e#e#e#^^^^^###+###.%+%.##WWWWWWWWWWWWWWWWWW##.%+%.######
+M:#b%%..#####+#+#+#+#+#^...^#n+.+n#.%s%.#####################..%s%..#^^^#
+M:#bb%#...............#^...^###.###.%%%.+^^^^^^^^^^^^^^^^^^^+..%%%..%^~^#
+M:#bbb#~#~#~#~#~#~#~#~#^^^^^%n+.+n#.....#c#c#c#c#c#c#c#c#c#c#......~#^^^#
+M:#######################################################################
+R:ART(bilbo)
+
+# vim: filetype=q :

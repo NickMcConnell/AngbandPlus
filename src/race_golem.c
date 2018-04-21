@@ -377,7 +377,7 @@ void _breathe_disintegration_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
+        if (!get_fire_dir_aux(&dir, TARGET_DISI)) return;
 
         msg_print("You breathe disintegration.");
         fire_ball(GF_DISINTEGRATE, dir, p_ptr->chp / 4, -3);

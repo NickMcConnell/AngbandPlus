@@ -285,7 +285,7 @@ static void _display_other_pval(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], do
     }
     if (have_flag(flgs, OF_XTRA_SHOTS))
     {
-        int num = o_ptr->pval * 25;
+        int num = o_ptr->pval * 15;
         doc_printf(doc, "<color:%c>%+d.%2.2d</color> to Shooting Speed\n",
                     (net > 0) ? 'G' : 'r', num / 100, num % 100);
     }
@@ -609,6 +609,25 @@ static void _display_auras(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     int net = 0;
+
+    switch (o_ptr->name2)
+    {
+    case EGO_AMMO_RETURNING:
+        doc_insert(doc, "It often returns to your pack after being fired.\n");
+        break;
+    case EGO_AMMO_ENDURANCE:
+        doc_insert(doc, "It endures almost anything without being destroyed.\n");
+        break;
+    case EGO_QUIVER_PHASE:
+        doc_insert(doc, "This quiver and its contents weigh absolutely nothing at all.\n");
+        break;
+    case EGO_QUIVER_PROTECTION:
+        doc_insert(doc, "This quiver protects its contents from accidental destruction.\n");
+        break;
+    case EGO_QUIVER_HOLDING:
+        doc_insert(doc, "This quiver has an increased carrying capacity.\n");
+        break;
+    }
 
     if (have_flag(flgs, OF_EASY_SPELL))
         doc_insert(doc, "It affects your ability to cast spells.\n");
@@ -1001,7 +1020,7 @@ void obj_display_rect(object_type *o_ptr, rect_t display)
     screen_save();
     if (doc_cursor(doc).y < display.cy - 3)
     {
-        doc_insert(doc, "\n[Press Any Key to Continue]\n\n");
+        doc_insert(doc, "\n<color:B>[Press <color:y>Any Key</color> to Continue]</color>\n\n");
         doc_sync_term(doc, doc_range_all(doc), doc_pos_create(display.x, display.y));
         inkey();
     }

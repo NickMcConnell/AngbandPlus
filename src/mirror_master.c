@@ -763,12 +763,12 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if (equip_find_artifact(ART_YATA))
+    if (equip_find_art(ART_YATA))
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;
     }
-    if (equip_find_artifact(ART_GIL_GALAD))
+    if (equip_find_art(ART_GIL_GALAD))
         p_ptr->dec_mana = TRUE;
 
     if (p_ptr->lev >= 40) 

@@ -1,0 +1,55 @@
+# Old Man Willow Quest
+# By Shayne Steele (steele@cs.fsu.edu)
+?:[EQU $QUEST31 Taken InProgress]
+D:Old Man Willow has gone too far! He has turned a small section
+D:of the forest against all men. Kill everything you find in Old 
+D:Man Willow's section of the forest. You will be well rewarded 
+D:for completing this quest. The quest is in a clearing east of
+D:the town.
+?:1
+
+?:[EQU $QUEST31 Completed]
+D:Thank you! Old Man Willow was much more manageable when good
+D:ol' Tom Bombadil was still around.
+?:1
+
+?:[EQU $QUEST31 Failed]
+D:The quest was more than you could handle.
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:.:GRASS
+L:<:UP_STAIR
+L:T:TREE
+L:r:MON(vorpal bunny)
+L:M:MON(old man willow)
+L:H:MON(huorn)
+L:f:MON(sabre-tooth tiger)
+L:Y:MON(sasquatch)
+M:###############################
+M:#TTTTTTTTTTTTTTTT.............#
+M:#T.........Y..TTT.TTHTTTTTTTT.#
+M:#T.H....H.....TTTY........r.T.#
+M:#T............TTTTTTTTTTTTT.T.#
+M:#T.....M....H.TTT.......r.T.T.#
+M:#T..H....H....TTT.TTTTTTT.T.T.#
+M:#T............TTT.....r.T.T.T.#
+M:#T.Y....Y..Y..HTTTTTTTT.T.T.T.#
+M:#T....Y...............T.T.T.T.#
+M:#TTTTTTTTTTTTTTTTTTTT.T.T.T.T.#
+M:#TTTTTTTTTTTTTTTTTTTT...T...T.#
+M:#TTTTTTTTTTTTTTTTTTTTTTTTTTTT.#
+M:#r..........................f.#
+M:#rTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+M:#r.......................f....#
+M:#TTHTTTTTTTTTTTTTTTTTTTTTTTTT.#
+M:#.............................#
+M:#<TTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+M:###############################
+R:OBJ(^ring$):EGO(elemental)
+
+?:[EQU $RACE Hydra]
+R:OBJ(^amulet$):EGO(elemental)
+
+# vim: filetype=q :

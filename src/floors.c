@@ -423,7 +423,7 @@ static void preserve_pet(void)
                     if (dun_level > 0) rng = 1;
                     if (dis > rng) continue;
                     if (r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) continue;
-                    if (r_info[m_ptr->r_idx].flags1 & RF1_QUESTOR) continue;
+                    if (m_ptr->mflag2 & MFLAG2_QUESTOR) continue;
                     if (!los(m_ptr->fy, m_ptr->fx, py, px)) continue;
                     m_ptr->energy_need += ENERGY_NEED();
                 }
@@ -864,13 +864,16 @@ static void locate_connected_stairs(saved_floor_type *sf_ptr)
  * Maintain quest monsters, mark next floor_id at stairs, save current
  * floor, and prepare to enter next floor.
  */
+static void _fix_art_hack(obj_ptr obj)
+{
+    if (obj->name1) a_info[obj->name1].floor_id = 0;
+    else if (obj->name3) a_info[obj->name3].floor_id = 0;
+}
 void leave_floor(void)
 {
     cave_type *c_ptr = NULL;
     feature_type *f_ptr;
     saved_floor_type *sf_ptr;
-    int quest_r_idx = 0;
-    int i;
 
     /* Preserve pets and prepare to take these to next floor */
     preserve_pet();
@@ -892,62 +895,10 @@ void leave_floor(void)
         p_ptr->floor_id = get_new_floor_id();
     }
 
-
-    /* Search the quest monster index */
-    for (i = 0; i < max_quests; i++)
-    {
-        if ((quest[i].status == QUEST_STATUS_TAKEN) &&
-            ((quest[i].type == QUEST_TYPE_KILL_LEVEL) ||
-            (quest[i].type == QUEST_TYPE_RANDOM)) &&
-            (quest[i].level == dun_level) &&
-            (dungeon_type == quest[i].dungeon) &&
-            !(quest[i].flags & QUEST_FLAG_PRESET))
-        {
-            quest_r_idx = quest[i].r_idx;
-        }
-    }
-
-    /* Maintain quest monsters */
-    for (i = 1; i < m_max; i++)
-    {
-        monster_race *r_ptr;
-        monster_type *m_ptr = &m_list[i];
-
-        /* Skip dead monsters */
-        if (!m_ptr->r_idx) continue;
-
-        /* Only maintain quest monsters */
-        if (quest_r_idx != m_ptr->r_idx) continue;
-
-        /* Extract real monster race */
-        r_ptr = real_r_ptr(m_ptr);
-
-        /* Ignore unique monsters */
-        if ((r_ptr->flags1 & RF1_UNIQUE) ||
-            (r_ptr->flags7 & RF7_NAZGUL)) continue;
-
-        /* Delete non-unique quest monsters */
-        delete_monster_idx(i);
-    }
-
     /* Check if there is a same item */
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        object_type *o_ptr = &inventory[i];
-
-        /* Skip dead objects */
-        if (!o_ptr->k_idx) continue;
-
-        /* Delete old memorized location of the artifact */
-        if (object_is_fixed_artifact(o_ptr))
-        {
-            a_info[o_ptr->name1].floor_id = 0;
-        }
-        else if (o_ptr->name3)
-        {
-            a_info[o_ptr->name3].floor_id = 0;
-        }
-    }
+    equip_for_each(_fix_art_hack);
+    pack_for_each(_fix_art_hack);
+    quiver_for_each(_fix_art_hack);
 
     /* Extract current floor info or NULL */
     sf_ptr = get_sf_ptr(p_ptr->floor_id);
@@ -1298,7 +1249,7 @@ void change_floor(void)
                 }
             }
 
-            (void)place_quest_monsters();
+            quests_on_restore_floor(dungeon_type, dun_level);
 
             /* Place some random monsters */
             alloc_times = absence_ticks / alloc_chance;
@@ -1357,7 +1308,7 @@ void change_floor(void)
                 /*** Create connected stairs ***/
 
                 /* No stairs down from Quest */
-                if ((change_floor_mode & CFM_UP) && !quest_number(dun_level))
+                if ((change_floor_mode & CFM_UP) && !quests_get_current())
                 {
                     c_ptr->feat = (change_floor_mode & CFM_SHAFT) ? feat_state(feat_down_stair, FF_SHAFT) : feat_down_stair;
                 }
@@ -1454,12 +1405,10 @@ void stair_creation(bool down_only)
     if (ironman_downward || down_only) up = FALSE;
 
     /* Forbid down staircases on quest level */
-    if (quest_number(dun_level) || (dun_level >= d_info[dungeon_type].maxdepth)) down = FALSE;
+    if (quests_get_current() || (dun_level >= d_info[dungeon_type].maxdepth)) down = FALSE;
 
     /* No effect out of standard dungeon floor */
-    if (!dun_level || (!up && !down) ||
-        (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest)) ||
-        p_ptr->inside_arena || p_ptr->inside_battle)
+    if (py_on_surface() || (!up && !down) || !quests_allow_all_spells())
     {
         /* arena or quest */
         msg_print("There is no effect!");

@@ -51,6 +51,15 @@ int mauler_get_toggle(void)
     return result;
 }
 
+static void _blast_obj(obj_ptr obj)
+{
+    char o_name[MAX_NLEN];
+    object_desc(o_name, obj, OD_OMIT_PREFIX | OD_COLOR_CODED);
+    msg_format("A terrible black aura blasts your %s!", o_name);
+    blast_object(obj);
+    disturb(1, 0);
+}
+
 void process_maul_of_vice(void)
 {
     int amt;
@@ -63,23 +72,16 @@ void process_maul_of_vice(void)
 
     if (p_ptr->au < 0)
     {
-        int i;
+        slot_t slot = pack_find_art(ART_MAUL_OF_VICE);
 
+        if (slot) _blast_obj(pack_obj(slot));
+        else
+        {
+            slot = equip_find_art(ART_MAUL_OF_VICE);
+            if (slot) _blast_obj(equip_obj(slot));
+        }
         p_ptr->au = 0;
         p_ptr->update |= PU_BONUS;
-
-        for (i = 0; i < INVEN_TOTAL; i++)
-        {
-            if (inventory[i].name1 == ART_MAUL_OF_VICE)
-            {
-                char o_name[MAX_NLEN];
-                object_desc(o_name, &inventory[i], OD_OMIT_PREFIX);
-                msg_format("A terrible black aura blasts your %s!", o_name);
-                blast_object(&inventory[i]);
-                disturb(1, 0);
-                break;
-            }
-        }
     }
     else if (p_ptr->au < 1000)
     {

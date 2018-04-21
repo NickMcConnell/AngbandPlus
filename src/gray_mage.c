@@ -539,7 +539,9 @@ void gray_mage_cast_spell(void)
 
 void gray_mage_gain_spell(void)
 {
-    int item;
+    obj_prompt_t    prompt = {0};
+    int             spell_idx;
+    _slot_info_ptr  slot_ptr;
 
     if (p_ptr->blind || no_lite())
     {
@@ -559,46 +561,44 @@ void gray_mage_gain_spell(void)
         return;
     }
 
-    item_tester_hook = _spell_book_p;
-    if (get_item(&item, "Study which book?", "You have no books that you can read.", USE_INVEN))
+    prompt.prompt = "Study which book?";
+    prompt.error = "You have no books that you can read.";
+    prompt.filter = _spell_book_p;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
+
+    /* Pick a spell to learn */
+    spell_idx = _choose_spell_to_gain(prompt.obj);
+    if (spell_idx == -1) return;
+
+    /* Pick a slot for storage (possibly replacing an already learned spell) */
+    slot_ptr = _choose("Replace", _ALLOW_EMPTY | _SHOW_INFO);
+    if (!slot_ptr) return;
+
+    if (slot_ptr->realm != REALM_NONE)
     {
-        object_type    *o_ptr = &inventory[item];
-        int             spell_idx;
-        _slot_info_ptr  slot_ptr;
+        char       c;
+        string_ptr prompt = string_alloc_format(
+            "Really replace %s? <color:y>[y/N]</color>",
+            do_spell(slot_ptr->realm, slot_ptr->spell, SPELL_NAME));
 
-        /* Pick a spell to learn */
-        spell_idx = _choose_spell_to_gain(o_ptr);
-        if (spell_idx == -1) return;
-
-        /* Pick a slot for storage (possibly replacing an already learned spell) */
-        slot_ptr = _choose("Replace", _ALLOW_EMPTY | _SHOW_INFO);
-        if (!slot_ptr) return;
-
-        if (slot_ptr->realm != REALM_NONE)
-        {
-            string_ptr prompt = string_alloc_format(
-                "Really replace %s? <color:y>[y/N]</color>",
-                do_spell(slot_ptr->realm, slot_ptr->spell, SPELL_NAME));
-
-            if (msg_prompt(string_buffer(prompt), "ny", PROMPT_DEFAULT) == 'n')
-            {
-                string_free(prompt);
-                return;
-            }
-
-            string_free(prompt);
-        }
-
-        /* Learn the spell: Note, we don't bother with spell_learned# and spell_order[], since
-           these are hard coded for 2 spell realms. Hopefully, ticking up learned_spells is enough? */
-        p_ptr->learned_spells++;
-        slot_ptr->realm = tval2realm(o_ptr->tval);
-        slot_ptr->spell = spell_idx;
-        msg_format("You have learned the spell '%s'.", do_spell(slot_ptr->realm, slot_ptr->spell, SPELL_NAME));
-        p_ptr->update |= PU_SPELLS;
-        p_ptr->redraw |= PR_EFFECTS;
-        energy_use = 100;
+        c = msg_prompt(string_buffer(prompt), "ny", PROMPT_DEFAULT);
+        string_free(prompt);
+        if (c == 'n') return;
     }
+
+    /* Learn the spell: Note, we don't bother with spell_learned# and spell_order[], since
+       these are hard coded for 2 spell realms. Hopefully, ticking up learned_spells is enough? */
+    p_ptr->learned_spells++;
+    slot_ptr->realm = tval2realm(prompt.obj->tval);
+    slot_ptr->spell = spell_idx;
+    msg_format("You have learned the spell '%s'.", do_spell(slot_ptr->realm, slot_ptr->spell, SPELL_NAME));
+    p_ptr->update |= PU_SPELLS;
+    p_ptr->redraw |= PR_EFFECTS;
+    energy_use = 100;
 }
 
 extern cptr gray_mage_speciality_name(int psubclass)

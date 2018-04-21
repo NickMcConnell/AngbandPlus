@@ -1,0 +1,206 @@
+# Town Name: Angwil
+# Note: this is a mainly elven town, as you'll notice by the guild
+# leaders etc.
+#
+# by Brett Flannigan <dagoth@hotmail.com> (at least the original,
+#  as of 10-8-98; feel free to tweak it as you please)
+# Tweaked 03-9-2017
+T:TOWN:NORMAL:NO_ROTATE
+%:t_pref.txt
+############### Additional default terrain settings ###############
+
+# Default for Quest 19 = entrance is tree
+L:z:TREE
+
+# Default for Quest 22 = entrance is tree
+L:y:TREE
+
+# Default for Quest 23 = entrance is tree
+L:x:TREE
+
+############### Quest 22 - Orc Camp ###################
+?:[EQU $QUEST22 Taken]
+L:y:QUEST_ENTER(22)
+?:[EQU $QUEST22 Untaken Taken Completed Failed]
+L:b:BUILDING_1(22)
+?:[EQU $QUEST22 Finished FailedDone]
+L:b:BUILDING_1(19)
+?:1
+############### Quest 19 - Doom Quest 1 ###############
+?:[EQU $QUEST19 Taken]
+L:z:QUEST_ENTER(19)
+?:[EQU $QUEST19 Taken Completed Failed]
+L:b:BUILDING_1(19)
+?:[EQU $QUEST19 Finished FailedDone]
+L:b:BUILDING_1(23)
+?:1
+###################### Quest 23 -- Spawning Pits ####################
+?:[EQU $QUEST23 Taken]
+L:x:QUEST_ENTER(23)
+?:[EQU $QUEST23 Taken Completed Failed]
+L:b:BUILDING_1(23)
+?:[EQU $QUEST23 Finished FailedDone]
+L:b:BUILDING_1(0)
+?:1
+############### Buildings ###############
+
+B:0:N:Library:Vanerion:Half-Elf
+B:0:A:0:Research item:1500:1500:a:1:0
+B:0:A:1:Town Overview:0:0:h:2:0
+#B:0:A:2:Race legends:0:0:l:3:0
+B:0:A:2:Identify item:50:50:i:44:0
+
+B:1:N:Manor:Colmanwen:High-Elf
+#B:1:A:0:Look at busts of Mayors:0:0:l:5:0
+B:1:A:0:Request quest:0:0:q:6:0
+
+B:3:N:Casino:Hentto:Hobbit
+B:3:A:0:In-Between:0:0:b:12:0
+B:3:A:1:Play craps:0:0:c:14:0
+B:3:A:2:Spin the wheel:0:0:s:15:0
+B:3:A:3:Play dice slots:0:0:d:16:0
+B:3:A:4:Monster arena:0:0:m:36:0
+B:3:A:5:Poker:0:0:p:43:0
+B:3:A:6:Game rules:0:0:r:13:0
+
+B:4:N:Inn:Dorchel:Elf
+B:4:A:0:Rest for the night:25:25:r:17:0
+B:4:A:1:Buy food and drink:3:3:f:18:1
+B:4:A:2:Listen for rumors:10:10:u:19:0
+B:4:A:3:Teleport to other town:500:500:m:42:0
+B:4:A:4:Ask about your reputation:1:1:a:55:0
+B:4:R:*:Member
+B:4:R:Golem:None
+B:4:R:Skeleton:None
+B:4:R:Zombie:None
+B:4:R:Vampire:None
+B:4:R:Spectre:None
+B:4:R:Ent:None
+B:4:R:Balrog:None
+B:4:R:Android:None
+B:4:R:Demon:None
+B:4:R:Lich:None
+B:4:R:Jelly:None
+
+B:5:N:Beastmaster:Aradreth:Elf
+B:5:A:0:Research monster:1500:1500:r:20:0
+
+B:6:N:Weaponmaster:Rodonwin:Human
+B:6:A:0:Evaluate AC:400:400:a:46:0
+
+B:7:N:Fighters Hall:Gharz:Golem
+B:7:A:0:Enchant weapon:0:0:w:23:0
+B:7:A:1:Enchant armor:0:0:a:24:0
+B:7:A:2:Request quest:0:0:q:6:0
+B:7:C:*:None
+B:7:C:Warrior:Owner
+B:7:C:Samurai:Owner
+B:7:C:Cavalry:Owner
+B:7:C:Berserker:Owner
+B:7:C:Blood-Knight:Owner
+B:7:C:Mauler:Owner
+
+B:8:N:Wizards Tower:Valceronwe:Sprite
+B:8:A:0:Identify posessions:200:1000:i:26:0
+B:8:C:*:None
+B:8:C:Mage:Owner
+B:8:C:High-Mage:Owner
+B:8:C:Blood-Mage:Owner
+B:8:C:Sorcerer:Owner
+B:8:C:Yellow-Mage:Owner
+B:8:C:Gray-Mage:Owner
+B:8:C:Ranger:Member
+B:8:C:Warrior-Mage:Member
+
+B:9:N:Inner Temple:Kabir:Dwarf
+B:9:A:0:Healing prayer:0:100:h:28:0
+B:9:A:1:Restoration:300:1000:r:29:0
+B:9:C:*:None
+B:9:C:Priest:Owner
+B:9:C:Paladin:Member
+
+B:10:N:Thieves Den:Molvrae:Dark Elf
+B:10:A:1:Rest for the night:0:50:r:17:0
+B:10:A:2:Identify possessions:175:800:i:26:0
+B:10:C:*:None
+B:10:C:Rogue:Owner
+
+B:11:N:Archers Tavern:Celegail:Elf
+B:11:A:0:Enchant missiles:22:44:a:30:0
+B:11:A:1:Enchant bow:0:0:b:31:0
+B:11:C:*:None
+B:11:C:Ranger:Owner
+B:11:C:Archer:Owner
+B:11:C:Sniper:Owner
+
+B:12:N:Paladins Sanctum:Calpirosse:Half-Elf
+B:12:A:0:Enchant armor:240:440:a:24:0
+B:12:A:1:See Healers:0:100:h:28:0
+B:12:C:*:None
+B:12:C:Paladin:Owner
+
+B:13:N:Trump Tower:Colleuse:Amberite
+B:13:A:0:Recall to dungeon:0:150:r:33:0
+B:13:A:1:Teleport to dungeon-level:100000:1000000:t:34:0
+B:13:R:*:None
+B:13:R:Amberite:Member
+B:13:M:*:None
+B:13:M:Trump:Owner
+
+# Town Layout
+M:                                                                                                  T,T           
+M:                                  TTTTTTTT--T-TT--TTT#####                                        T,T           
+M:                                  T,,,,,,,,,,,,,,,,,,#####                                        T,T           
+M:                #########         T,T,--TTT-TTTT-TTTT#####                                        T,T           
+M:                #########TTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT,T           
+M:                ########e,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T           
+M:                #########,TT-TTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT           
+M:                #########,T       T,T                                                                           
+M: z                 ######,T       T,T                                                                           
+M:                   #####d,T       T,T                                                                           
+M:                   ######TT       T,T                                                                           
+M:                                  T,T                                                                           
+M:                                  T,T                                                                           
+M:          #####                   T,T                                                                           
+M:          #####                   T,T                  ##   ##                                                  
+M:          #####                   T,T                  #######                                                  
+M:  ####    #####                   T,T              -TT-T#####                                                   
+M:  ####TTTT##6##   #####           T,T              T,,,,l####          ######                                   
+M:  ###9,,,TT-,TT-TT#####           T,T              -,TTT#####          ######                                   
+M:  ####-T,,,,,,,,,,5####          TT,T-           -TT,-T#######         ######                                   
+M:  #### TTT,T-TTT,T#####        TTT,,,TTT         T,,,TT##-TT##         ###h##                                   
+M:       ###4###-T,T#####       TT,,,,,,,TT        T,TTT                  TT,T                                    
+M:       #######TT,T            T,,##b##,,T        -,T                    T-,TTT#####                             
+M:       #######TT,T           TT,#######,TT       T,T                   TT,,,,,m####                             
+M:       ###j###-T,TTTTTTTTTTTTT,,#######,,TTTTTTT-T,T                  TT,,TTTT#####                             
+M:    T-TTTT,,,,,,,,,,,,,,,,,,,,,,#######,,,,,,,,TTT,TTTTTTTTTTTT-TT-T-TT,,TT    ####                             
+M:    T,,,,,,TTT,T,,TTTTTTTTTTTT,,#######,,T-TTT,,,,,,,,,,,,,,,,,,,,,,,,,,T-     ####                             
+M: ####,TTTTTTTTTT,,T          TT,#######,-T   TTTTTTTTTT,TTTT,TTTTT--TTT,,T-                                     
+M: ####a##T-TTTTT,,,T           T,,##7##,,TT            T,T  T,T        TT,,TT                          T-TTTT   T
+M: #######TTT,T,,,,TT           -T,,,,,,,TT           ###1##-T,T         TT,,TTT                       TT-----TTT-
+M: #######-TTT,,,TTT             TTT,,,TT,T           ######TT,T   #####  TT,,,TTT                    TT--###--,-T
+M:           T,,TT                 T-,TT T,TTT--TT  #######1,,,--TT#####   TTT,,,TTTTTTTTT-TTTTTTTTTTTT--#####--TT
+M:           T,,T         ####TTTT-TT,T  TT,,,,,,T  ########TT,,,,,3####     TTT,,,,,,,,,,,,,,,,,,TTTTT-#######-TT
+M:          TT,,T         ###8,,,,,,,,T   TT#g##f#  ######## T,-T-T#####       TTTTTTTTTTT,TTTTTT,,,,,,,i######-TT
+M:        # T,,,T #       ####-TTTTTT,T     ######  ######   T,T   #####                 T,TTTT,,TTTTTT-#######--T
+M:       #####0#####              TT,T      ######  ######  ##2##                        T,T         TT--#####---T
+M:        #########            TTTT,T                       #####                        T,TT         -T--###--TTT
+M:        #########           TT,,,T                        #####                      --T,T--T       TTT-----T-TT
+M:        #########          TT,TTTT                        #####                     -#--,--#-T        TTTT---TTT
+M:       ###########         T,----TT                       #####                   T-#-##n##-#-T         TT-T-T-T
+M:        #       #        ###,###--T                                                --#######--T          -TT    
+M:                         ###,###T--T                                               T-#######-T                  
+M:                         ###,###TT-T                                              T--#######--T                 
+M:                           #,#   T-TTT                                           -T,#-#####-#--T                
+M:                          ##,##  T----T                                            --#-----#--T                 
+M:                          #####  TTTTT-T                                            ---T-,-------T              
+M:                          #####      TT-T####                                                                   
+M:                          #####       TT-####                                                                   
+M:                                       T-k###                                                                   
+M:                                       T-####                                                                   
+M:                                       -T####                                                                   
+M:                                                                                                                
+M:                                                                                                                
+M:                                   y    x                                                                       
+
+# vim: filetype=q :

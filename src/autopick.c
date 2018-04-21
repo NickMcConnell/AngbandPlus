@@ -32,6 +32,7 @@ enum _keyword_e {
     FLG_ALL = 0,
 
     /* Object Knowledge */
+    FLG_UNSENSED,
     FLG_UNIDENTIFIED,
     FLG_IDENTIFIED,
     FLG_STAR_IDENTIFIED,
@@ -114,7 +115,7 @@ enum _keyword_e {
 
 #define FLG_ADJECTIVE_BEGIN     FLG_ALL
 #define FLG_ADJECTIVE_END       FLG_HUMAN
-#define FLG_KNOWLEDGE_BEGIN     FLG_UNIDENTIFIED
+#define FLG_KNOWLEDGE_BEGIN     FLG_UNSENSED
 #define FLG_KNOWLEDGE_END       FLG_UNAWARE
 #define FLG_QUALITY_BEGIN       FLG_AVERAGE
 #define FLG_QUALITY_END         FLG_NAMELESS
@@ -126,6 +127,7 @@ enum _keyword_e {
 
 static char KEY_ALL[] = "all";
 
+static char KEY_UNSENSED[] = "unsensed";
 static char KEY_UNIDENTIFIED[] = "unidentified";
 static char KEY_IDENTIFIED[] = "identified";
 static char KEY_STAR_IDENTIFIED[] = "*identified*";
@@ -304,6 +306,7 @@ static bool autopick_new_entry(autopick_type *entry, cptr str, bool allow_defaul
 
         if (MATCH_KEY(KEY_ALL)) ADD_FLG(FLG_ALL);
 
+        if (MATCH_KEY(KEY_UNSENSED)) ADD_FLG(FLG_UNSENSED);
         if (MATCH_KEY(KEY_UNIDENTIFIED)) ADD_FLG(FLG_UNIDENTIFIED);
         if (MATCH_KEY(KEY_IDENTIFIED)) ADD_FLG(FLG_IDENTIFIED);
         if (MATCH_KEY(KEY_STAR_IDENTIFIED)) ADD_FLG(FLG_STAR_IDENTIFIED);
@@ -579,17 +582,15 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
                 break;
 
             case FEEL_AVERAGE:
-                ADD_FLG(FLG_NAMELESS);
+                ADD_FLG(FLG_AVERAGE);
                 break;
 
             case FEEL_GOOD:
                 ADD_FLG(FLG_GOOD);
-                ADD_FLG(FLG_NAMELESS);
                 break;
 
             case FEEL_BAD:
                 ADD_FLG(FLG_CURSED);
-                ADD_FLG(FLG_NAMELESS);
                 break;
 
             case FEEL_EXCELLENT:
@@ -658,7 +659,14 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
         else
         {
             /* Wearable nameless object */
-            if (object_is_equipment(o_ptr))
+            if (object_is_ammo(o_ptr))
+            {
+                if (o_ptr->to_h || o_ptr->to_d)
+                    ADD_FLG(FLG_GOOD);
+                else
+                    ADD_FLG(FLG_AVERAGE);
+            }
+            else if (object_is_equipment(o_ptr))
                 ADD_FLG(FLG_NAMELESS);
         }
 
@@ -994,6 +1002,7 @@ string_ptr autopick_line_from_entry(autopick_type *entry, int options)
 
     if (IS_FLG(FLG_ALL)) string_printf(s, "%s ", KEY_ALL);
 
+    if (IS_FLG(FLG_UNSENSED)) string_printf(s, "%s ", KEY_UNSENSED);
     if (IS_FLG(FLG_UNIDENTIFIED)) string_printf(s, "%s ", KEY_UNIDENTIFIED);
     if (IS_FLG(FLG_IDENTIFIED)) string_printf(s, "%s ", KEY_IDENTIFIED);
     if (IS_FLG(FLG_STAR_IDENTIFIED)) string_printf(s, "%s ", KEY_STAR_IDENTIFIED);
@@ -1153,12 +1162,6 @@ static cptr autopick_line_from_entry_kill(autopick_type *entry)
 }
 
 
-static bool _collecting(object_type *o1, object_type *o2)
-{
-    if (o1->k_idx != o2->k_idx)     return FALSE;
-    return object_similar(o1, o2);
-}
-
 /*
  * A function for Auto-picker/destroyer
  * Examine whether the object matches to the entry
@@ -1243,13 +1246,13 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     if (IS_FLG(FLG_UNAWARE) && _is_aware(o_ptr))
         return FALSE;
 
-    /*** Unidentified ***/
-    if (IS_FLG(FLG_UNIDENTIFIED)
-        && object_is_known(o_ptr))
+    /*** Unsensed items ***/
+    if (IS_FLG(FLG_UNSENSED) && (object_is_known(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
         return FALSE;
-    /*if (IS_FLG(FLG_UNIDENTIFIED)
-        && (object_is_known(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
-        return FALSE;*/
+
+    /*** Unidentified ***/
+    if (IS_FLG(FLG_UNIDENTIFIED) && object_is_known(o_ptr))
+        return FALSE;
 
     /*** Identified ***/
     if (IS_FLG(FLG_IDENTIFIED) && !object_is_known(o_ptr))
@@ -1803,18 +1806,17 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     if (!IS_FLG(FLG_COLLECTING)) return TRUE;
 
     /* Check if there is a same item */
-    for (j = 0; j < INVEN_PACK; j++)
+    for (j = 1; j <= pack_max(); j++)
     {
-        /*
-         * 'Collecting' means the item must be absorbed
-         * into an inventory slot.
-         * But an item can not be absorbed into itself!
-         */
-        if ((&inventory[j] != o_ptr) &&
-            _collecting(&inventory[j], o_ptr))
-        {
+        obj_ptr obj = pack_obj(j);
+        if (obj && obj_can_combine(obj, o_ptr, 0))
             return TRUE;
-        }
+    }
+    for (j = 1; j <= quiver_max(); j++)
+    {
+        obj_ptr obj = quiver_obj(j);
+        if (obj && obj_can_combine(obj, o_ptr, 0))
+            return TRUE;
     }
 
     /* Not collecting */
@@ -1987,9 +1989,10 @@ static void msg_autopick(int idx, cptr action)
  */
 static object_type autopick_last_destroyed_object;
 
-static void auto_destroy_item(object_type *o_ptr, int autopick_idx)
+static void auto_destroy_obj(object_type *o_ptr, int autopick_idx)
 {
     bool destroy = FALSE;
+    char name[MAX_NLEN];
 
     /* Easy-Auto-Destroyer (3rd priority) */
     if (is_opt_confirm_destroy(o_ptr)) destroy = TRUE;
@@ -2021,148 +2024,35 @@ static void auto_destroy_item(object_type *o_ptr, int autopick_idx)
     /* Artifact? */
     if (!can_player_destroy_object(o_ptr))
     {
-        char o_name[MAX_NLEN];
-
         /* Describe the object (with {terrible/special}) */
-        object_desc(o_name, o_ptr, 0);
+        object_desc(name, o_ptr, OD_COLOR_CODED);
 
         /* Message */
-        msg_format("You cannot auto-destroy %s.", o_name);
+        msg_format("You cannot auto-destroy %s.", name);
 
         /* Done */
         return;
     }
 
     /* Record name of destroyed item */
-    COPY(&autopick_last_destroyed_object, o_ptr, object_type);
+    autopick_last_destroyed_object = *o_ptr;
 
-    /* Destroy Later */
-    o_ptr->marked |= OM_AUTODESTROY;
-    p_ptr->notice |= PN_AUTODESTROY;
+    if (destroy_debug)
+    {
+        int idx = is_autopick(o_ptr);
+        msg_autopick(idx, "Destroy");
+    }
+    object_desc(name, o_ptr, OD_COLOR_CODED);
+    msg_format("Auto-destroying %s.", name);
+    /* Note: It turns out to be convenient to delay destruction after
+     * all. But rather than waiting until notice_stuff(), we need
+     * only wait until obj_release(). Otherwise, clients need to think
+     * a bit to avoid accidentally using destroyed memory. */
+    o_ptr->marked |= OM_AUTODESTROY; /* clients *must* obj_release() */
+    /*obj_destroy(o_ptr, o_ptr->number);*/
 
     return;
 }
-
-/*
- *  Auto-destroy marked item
- */
-static void autopick_delayed_alter_aux(int item, bool detailed_msg)
-{
-    object_type *o_ptr;
-
-    /* Get the item (in the pack) */
-    if (item >= 0) o_ptr = &inventory[item];
-
-    /* Get the item (on the floor) */
-    else o_ptr = &o_list[0 - item];
-
-    if (o_ptr->k_idx && (o_ptr->marked & OM_AUTODESTROY))
-    {
-        char     o_name[MAX_NLEN];
-        bool     msg = FALSE;
-        race_t  *race_ptr = get_race();
-        class_t *class_ptr = get_class();
-        bool     handled = FALSE;
-
-        if (destroy_debug)
-        {
-            int idx = is_autopick(o_ptr);
-            msg_autopick(idx, "Destroy");
-        }
-        stats_on_p_destroy(o_ptr, o_ptr->number);
-
-        if (!handled && race_ptr->destroy_object)
-            handled = race_ptr->destroy_object(o_ptr);
-
-        if (!handled && class_ptr->destroy_object)
-            handled = class_ptr->destroy_object(o_ptr);
-
-        if (!handled)
-        {
-            if (detailed_msg)
-                object_desc(o_name, o_ptr, OD_COLOR_CODED);
-            msg = TRUE;
-        }
-
-        /* Eliminate the item (from the pack) */
-        if (item >= 0)
-        {
-            inven_item_increase(item, -(o_ptr->number));
-            inven_item_optimize(item);
-        }
-
-        /* Eliminate the item (from the floor) */
-        else
-        {
-            delete_object_idx(0 - item);
-        }
-
-        /* Print a message, but let's decrease message spam.
-           For example:
-           > You see 16 Rounded Pebbles (1d2) (+0,+0).
-           > Auto-destroying 16 Rounded Pebbles (1d2) (+0,+0).
-           The second repeated description is unnecessary and
-           forces a -more- prompt. */
-        if (msg)
-        {
-            if (detailed_msg)
-                msg_format("Auto-destroying %s.", o_name);
-            else
-                msg_print("Auto-destroying.");
-        }
-    }
-}
-
-static bool _show_detailed_msg(void)
-{
-    int  ct = 0;
-    int  item;
-
-    /* Always give details when destroying from the pack. */
-    for (item = INVEN_TOTAL - 1; item >= 0 ; item--)
-    {
-        if (inventory[item].marked & OM_AUTODESTROY)
-            return TRUE;
-    }
-
-    /* Only give details when destroying floor objects if there
-       are more than one possible object */
-    for (item = cave[py][px].o_idx; item; item = o_list[item].next_o_idx)
-    {
-        if (o_list[item].k_idx)
-            ct++;
-    }
-    if (ct > 1)
-        return TRUE;
-
-    return FALSE;
-}
-
-/*
- *  Auto-destroy marked items in inventory and on floor
- */
-void autopick_delayed_alter(void)
-{
-    bool detailed_msg = _show_detailed_msg();
-    int item;
-
-    /*
-     * Scan inventry in reverse order to prevent
-     * skipping after inven_item_optimize()
-     */
-    for (item = INVEN_TOTAL - 1; item >= 0 ; item--)
-        autopick_delayed_alter_aux(item, detailed_msg);
-
-    /* Scan the pile of objects */
-    item = cave[py][px].o_idx;
-    while (item)
-    {
-        int next = o_list[item].next_o_idx;
-        autopick_delayed_alter_aux(-item, detailed_msg);
-        item = next;
-    }
-}
-
 
 /*
  * Auto-inscription and/or destroy
@@ -2170,19 +2060,10 @@ void autopick_delayed_alter(void)
  * Auto-destroyer works only on inventory or on floor stack only when
  * requested.
  */
-void autopick_alter_item(int item, bool destroy)
+void autopick_alter_obj(obj_ptr o_ptr, bool allow_destroy)
 {
-    object_type *o_ptr;
-    int idx;
-
-    /* Get the item (in the pack) */
-    if (item >= 0) o_ptr = &inventory[item];
-
-    /* Get the item (on the floor) */
-    else o_ptr = &o_list[0 - item];
-
     /* Get the index in the auto-pick/destroy list */
-    idx = is_autopick(o_ptr);
+    int idx = is_autopick(o_ptr);
 
     /* Auto-id: Try "?unidentified good" for a L30 monk ... */
     if (idx >= 0 && autopick_list[idx].action & DO_AUTO_ID)
@@ -2199,8 +2080,8 @@ void autopick_alter_item(int item, bool destroy)
     auto_inscribe_item(o_ptr, idx);
 
     /* Do auto-destroy if needed */
-    if (destroy && item <= INVEN_PACK)
-        auto_destroy_item(o_ptr, idx);
+    if (allow_destroy && o_ptr->loc.where != INV_EQUIP)
+        auto_destroy_obj(o_ptr, idx);
 }
 
 static bool _can_sense_object(object_type *o_ptr)
@@ -2264,36 +2145,6 @@ static void _sense_object_floor(object_type *o_ptr)
     o_ptr->feeling = _get_object_feeling(o_ptr);
 }
 
-int pack_find_device(int effect)
-{
-    int i;
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        object_type *o_ptr = &inventory[i];
-
-        if (!o_ptr->k_idx) continue;
-        if (object_is_device(o_ptr) && object_is_known(o_ptr) && o_ptr->activation.type == effect)
-        {
-            if (device_sp(o_ptr) >= o_ptr->activation.cost)
-                return i;
-        }
-    }
-    return -1;
-}
-
-int pack_find(int tval, int sval)
-{
-    int i;
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        object_type *o_ptr = &inventory[i];
-        if (!o_ptr->k_idx) continue; /* tval and sval are probably 0 too ... */
-        if (!object_is_known(o_ptr)) continue;
-        if (o_ptr->tval == tval && o_ptr->sval == sval) return i;
-    }
-    return -1;
-}
-
 /* Automatically identify objects, consuming requisite resources.
    We support scrolls and devices as the source for this convenience.
    We ignore fail rates and don't even charge the player energy for
@@ -2309,39 +2160,36 @@ bool autopick_auto_id(object_type *o_ptr)
 
     if (!object_is_known(o_ptr) && class_idx != CLASS_BERSERKER)
     {
-        int i;
+        slot_t slot;
 
         if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_id(o_ptr))
             return TRUE;
 
-        i = pack_find(TV_SCROLL, SV_SCROLL_IDENTIFY);
-
-        if (i >= 0 && !p_ptr->blind && !(race->flags & RACE_IS_ILLITERATE))
+        slot = pack_find_obj(TV_SCROLL, SV_SCROLL_IDENTIFY);
+        if (slot && !p_ptr->blind && !(race->flags & RACE_IS_ILLITERATE))
         {
+            obj_ptr scroll = pack_obj(slot);
             identify_item(o_ptr);
-            stats_on_use(&inventory[i], 1);
-            inven_item_increase(i, -1);
-            inven_item_describe(i);
-            inven_item_optimize(i);
+            stats_on_use(scroll, 1);
+            scroll->number--;
+            obj_release(scroll, 0);
             return TRUE;
         }
 
-        i = pack_find_device(EFFECT_IDENTIFY);
-        if (i >= 0)
+        slot = pack_find_device(EFFECT_IDENTIFY);
+        if (slot)
         {
+            obj_ptr device = pack_obj(slot);
             identify_item(o_ptr);
-            stats_on_use(&inventory[i], 1);
-            device_decrease_sp(&inventory[i], inventory[i].activation.cost);
-            inven_item_charges(i);
+            stats_on_use(device, 1);
+            device_decrease_sp(device, device->activation.cost);
             return TRUE;
         }
 
         if (p_ptr->auto_id_sp && p_ptr->csp >= p_ptr->auto_id_sp)
         {
             identify_item(o_ptr);
-            p_ptr->csp -= p_ptr->auto_id_sp;
-            p_ptr->redraw |= PR_MANA;
-            p_ptr->window |= PW_SPELL;
+            sp_player(-p_ptr->auto_id_sp);
             return TRUE;
         }
     }
@@ -2349,117 +2197,96 @@ bool autopick_auto_id(object_type *o_ptr)
 }
 
 /*
- * Automatically pickup/destroy items in this grid.
+ * Automatically pickup/destroy items in player's current grid
  */
-void autopick_pickup_items(cave_type *c_ptr)
+static void _get_obj(obj_ptr obj)
 {
-    s16b this_o_idx, next_o_idx = 0;
-    bool auto_id = p_ptr->auto_id;
-    bool auto_pseudo_id = p_ptr->auto_pseudo_id;
+    int idx;
+    assert(obj);
 
-    /* Scan the pile of objects */
-    for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+    /* Gold always picks up */
+    if (obj->tval == TV_GOLD)
     {
-        int idx;
+        pack_get(obj);
+        return;
+    }
 
-        /* Acquire object */
-        object_type *o_ptr = &o_list[this_o_idx];
+    /* Player Sensing */
+    if (p_ptr->auto_id)
+    {
+        identify_item(obj);
+        equip_learn_flag(OF_LORE2);
+    }
+    else if (p_ptr->auto_pseudo_id)
+    {
+        _sense_object_floor(obj);
+        equip_learn_flag(OF_LORE1);
+    }
 
-        /* Acquire next object */
-        next_o_idx = o_ptr->next_o_idx;
+    idx = is_autopick(obj);
 
-        /* Identify or Pseudo-Identify before applying pickup rules */
-        if (o_ptr->tval != TV_GOLD)
+    /* AutoID (?unaware items) */
+    if (idx >= 0 && autopick_list[idx].action & DO_AUTO_ID)
+    {
+        if (autopick_auto_id(obj))
         {
-            if (auto_id)
-            {
-                identify_item(o_ptr);
-                equip_learn_flag(OF_LORE2);
-            }
-            else if (auto_pseudo_id)
-            {
-                _sense_object_floor(o_ptr);
-                equip_learn_flag(OF_LORE1);
-            }
-        }
-
-        idx = is_autopick(o_ptr);
-
-        if (idx >= 0 && autopick_list[idx].action & DO_AUTO_ID)
-        {
-            if (autopick_auto_id(o_ptr))
-            {
-                int new_idx = is_autopick(o_ptr); /* requery for destroy/pickup/inscribe once known */
-                if (destroy_debug)
-                    msg_autopick(idx, "AutoID");
-                if (new_idx >= 0)
-                    idx = new_idx;
-            }
-        }
-
-        /* Item index for floor -1,-2,-3,... */
-        auto_inscribe_item(o_ptr, idx); /* after auto-id, please! */
-
-        if (idx >= 0 &&
-            (autopick_list[idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK)))
-        {
-            disturb(0,0);
-
+            int new_idx = is_autopick(obj); /* requery for destroy/pickup/inscribe once known */
             if (destroy_debug)
-                msg_autopick(idx, "Pickup");
-
-            if (!inven_carry_okay(o_ptr))
-            {
-                char o_name[MAX_NLEN];
-
-                /* Describe the object */
-                object_desc(o_name, o_ptr, 0);
-
-                /* Message */
-                msg_format("You have no room for %s.", o_name);
-                /* Hack - remember that the item has given a message here. */
-                o_ptr->marked |= OM_NOMSG;
-
-                continue;
-            }
-            else if (autopick_list[idx].action & DO_QUERY_AUTOPICK)
-            {
-                char out_val[MAX_NLEN+20];
-                char o_name[MAX_NLEN];
-
-                if (o_ptr->marked & OM_NO_QUERY)
-                {
-                    /* Already answered as 'No' */
-                    continue;
-                }
-
-                /* Describe the object */
-                object_desc(o_name, o_ptr, OD_COLOR_CODED);
-
-                sprintf(out_val, "Pick up %s? ", o_name);
-
-                if (!get_check(out_val))
-                {
-                    /* Hack - remember that the item has given a message here. */
-                    o_ptr->marked |= (OM_NOMSG | OM_NO_QUERY);
-                    continue;
-                }
-
-            }
-            py_pickup_aux(this_o_idx);
+                msg_autopick(idx, "AutoID");
+            if (new_idx >= 0)
+                idx = new_idx;
         }
+    }
 
-        /*
-         * Do auto-destroy;
-         * When always_pickup is 'yes', we disable
-         * auto-destroyer from autopick function, and do only
-         * easy-auto-destroyer.
-         */
-        else
+    /* Inscribe */
+    auto_inscribe_item(obj, idx);
+
+    /* Pickup */
+    if (idx >= 0 &&
+        (autopick_list[idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK)))
+    {
+        /*disturb(0,0);*/
+
+        if (destroy_debug)
+            msg_autopick(idx, "Pickup");
+
+        if (autopick_list[idx].action & DO_QUERY_AUTOPICK)
         {
-            auto_destroy_item(o_ptr, idx);
+            char out_val[MAX_NLEN+20];
+            char o_name[MAX_NLEN];
+
+            if (obj->marked & OM_NO_QUERY)
+            {
+                /* Already answered as 'No' */
+                return;
+            }
+
+            /* Describe the object */
+            object_desc(o_name, obj, OD_COLOR_CODED);
+
+            sprintf(out_val, "Pick up %s? ", o_name);
+
+            if (!get_check(out_val))
+            {
+                obj->marked |= (OM_NOMSG | OM_NO_QUERY);
+                return;
+            }
+
         }
-    } /* for () */
+        pack_get(obj);
+        return;
+    }
+
+    /* Autodestroy */
+    auto_destroy_obj(obj, idx);
+    obj_release(obj, OBJ_RELEASE_QUIET);
+}
+
+void autopick_get_floor(void)
+{
+    inv_ptr floor = inv_filter_floor(NULL);
+    inv_for_each(floor, _get_obj);
+    inv_free(floor);
 }
 
 
@@ -2818,6 +2645,10 @@ static void describe_autopick(char *buff, autopick_type *entry)
         before_str[before_n++] = "unidentified";
         whose_str[whose_n++] = "basic abilities are not known";
     }
+
+    /*** Unsensed ***/
+    if (IS_FLG(FLG_UNSENSED))
+        before_str[before_n++] = "unsensed";
 
     /*** Unidentified ***/
     if (IS_FLG(FLG_UNIDENTIFIED))
@@ -3719,35 +3550,21 @@ static bool insert_return_code(text_body_type *tb)
 /*
  * Choose an item and get auto-picker entry from it.
  */
-static object_type *choose_object(cptr q, cptr s)
-{
-    int item;
-
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return NULL;
-
-    /* Get the item (in the pack) */
-    if (item >= 0) return &inventory[item];
-
-    /* Get the item (on the floor) */
-    else return &o_list[0 - item];
-}
-
-
-/*
- * Choose an item and get auto-picker entry from it.
- */
 static bool entry_from_choosed_object(autopick_type *entry)
 {
-    object_type *o_ptr;
-    cptr q, s;
+    obj_prompt_t prompt = {0};
 
-    /* Get an item */
-    q = "Enter which item? ";
-    s = "You have nothing to enter.";
-    o_ptr = choose_object(q, s);
-    if (!o_ptr) return FALSE;
+    prompt.prompt = "Enter which item?";
+    prompt.error = "You have nothing to enter.";
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_QUIVER;
+    prompt.where[3] = INV_FLOOR;
 
-    autopick_entry_from_object(entry, o_ptr);
+    obj_prompt(&prompt);
+    if (!prompt.obj) return FALSE;
+
+    autopick_entry_from_object(entry, prompt.obj);
     return TRUE;
 }
 
@@ -3758,16 +3575,19 @@ static bool entry_from_choosed_object(autopick_type *entry)
 static byte get_object_for_search(object_type **o_handle, cptr *search_strp)
 {
     char buf[MAX_NLEN+20];
-    object_type *o_ptr;
-    cptr q, s;
+    obj_prompt_t prompt = {0};
 
-    /* Get an item */
-    q = "Enter which item? ";
-    s = "You have nothing to enter.";
-    o_ptr = choose_object(q, s);
-    if (!o_ptr) return 0;
+    prompt.prompt = "Enter which item?";
+    prompt.error = "You have nothing to enter.";
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_QUIVER;
+    prompt.where[3] = INV_FLOOR;
 
-    *o_handle = o_ptr;
+    obj_prompt(&prompt);
+    if (!prompt.obj) return 0;
+
+    *o_handle = prompt.obj;
 
     z_string_free(*search_strp);
     object_desc(buf, *o_handle, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NO_PLURAL));
@@ -4255,6 +4075,7 @@ enum {
 
     EC_OK_COLLECTING,
     EC_IK_UNAWARE,
+    EC_IK_UNSENSED,
     EC_IK_UNIDENTIFIED,
     EC_IK_IDENTIFIED,
     EC_IK_STAR_IDENTIFIED,
@@ -4443,6 +4264,7 @@ command_menu_type menu_data[] =
 
      {MN_ADJECTIVE_GEN, 0, -1, -1},
     {KEY_UNAWARE, 1, -1, EC_IK_UNAWARE},
+    {KEY_UNSENSED, 1, -1, EC_IK_UNSENSED},
     {KEY_UNIDENTIFIED, 1, -1, EC_IK_UNIDENTIFIED},
     {KEY_IDENTIFIED, 1, -1, EC_IK_IDENTIFIED},
     {KEY_STAR_IDENTIFIED, 1, -1, EC_IK_STAR_IDENTIFIED},
@@ -6144,6 +5966,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
     case EC_CL_AUTO_ID: toggle_command_letter(tb, DO_AUTO_ID); break;
 
     case EC_IK_UNAWARE: toggle_keyword(tb, FLG_UNAWARE); break;
+    case EC_IK_UNSENSED: toggle_keyword(tb, FLG_UNSENSED); break;
     case EC_IK_UNIDENTIFIED: toggle_keyword(tb, FLG_UNIDENTIFIED); break;
     case EC_IK_IDENTIFIED: toggle_keyword(tb, FLG_IDENTIFIED); break;
     case EC_IK_STAR_IDENTIFIED: toggle_keyword(tb, FLG_STAR_IDENTIFIED); break;
@@ -6420,7 +6243,8 @@ void do_cmd_edit_autopick(void)
     }
 
     /* Save the screen */
-    screen_save();
+    Term_clear();
+    /*screen_save(); is currently very broken ... */
 
     /* Process requests until done */
     while (!quit)
@@ -6506,8 +6330,10 @@ void do_cmd_edit_autopick(void)
         if (com_id) quit = do_editor_command(tb, com_id);
     } /* while (TRUE) */
 
-    /* Restore the screen */
-    screen_load();
+    /* Restore the screen
+    screen_load(); is currently very broken.*/
+    Term_clear();
+    do_cmd_redraw();
 
     /* Get the filename of preference */
     strcpy(buf, pickpref_filename(tb->filename_mode));

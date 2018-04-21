@@ -79,15 +79,10 @@ static cptr _rogue_pick_pocket(int power)
                 stats_on_gold_find(loot.pval);
                 p_ptr->redraw |= (PR_GOLD);
             }
-            else if (!inven_carry_okay(&loot))
-            {
-                msg_format("You have no room for %s.", o_name);
-                drop_near(&loot, -1, y, x);
-            }
             else
             {
-                int slot = inven_carry(&loot);
-                msg_format("You steal %s (%c).", o_name, index_to_label(slot));
+                pack_carry(&loot);
+                msg_format("You steal %s.", o_name);
             }
         }
 
@@ -746,7 +741,7 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
     if ( !p_ptr->shooter_info.heavy_shoot
       && p_ptr->shooter_info.tval_ammo == TV_SHOT )
     {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 200 / 50;
+        p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
     }
 }
 

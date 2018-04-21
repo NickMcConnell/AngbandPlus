@@ -858,11 +858,8 @@ void power_throw_spell(int cmd, variant *res)
     case SPELL_MUT_DESC:
         var_set_string(res, "You can hurl objects with great force.");
         break;
-    case SPELL_COST_EXTRA:
-        var_set_int(res, p_ptr->lev);
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, do_cmd_throw_aux(2 + p_ptr->lev / 40, FALSE, 0));
+    case SPELL_CALC_BONUS:
+        p_ptr->mighty_throw = TRUE;
         break;
     default:
         default_spell(cmd, res);

@@ -122,7 +122,7 @@ void spell_stats_gain_skill(spell_info *spell)
        Note: One still might be able to macro up a cast followed by a rest command.
     */
     if ( last_pexp != p_ptr->exp
-      || (!p_ptr->inside_quest && game_turn > stats->last_turn + 50 + randint1(50)) )
+      || (!quests_get_current() && game_turn > stats->last_turn + 50 + randint1(50)) )
     {
         int skill = 0;
         int dlvl = MAX(base_level, dun_level);
@@ -1240,14 +1240,8 @@ static bool _has_book(int realm, int book)
 {
     int tval = realm2tval(realm);
     int sval = book;
-    int i;
 
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        if (inventory[i].tval == tval && inventory[i].sval == sval)
-            return TRUE;
-    }
-    return FALSE;
+    return pack_find_obj(tval, sval);
 }
 
 static void _dump_realm(doc_ptr doc, int realm)
@@ -1321,6 +1315,54 @@ void spellbook_character_dump(doc_ptr doc)
     if (p_ptr->spells_per_round > 100)
     {
         doc_printf(doc, " You may cast %d.%02d spells per round.\n\n", p_ptr->spells_per_round/100, p_ptr->spells_per_round%100);
+    }
+}
+
+void spellbook_destroy(obj_ptr obj)
+{
+    bool gain_expr = FALSE;
+    if (!high_level_book(obj)) return;
+
+    if (p_ptr->prace == RACE_ANDROID)
+    {
+    }
+    else if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_BERSERKER)
+    {
+        gain_expr = TRUE;
+    }
+    else if (p_ptr->pclass == CLASS_PALADIN)
+    {
+        if (is_good_realm(p_ptr->realm1))
+        {
+            if (!is_good_realm(tval2realm(obj->tval))) gain_expr = TRUE;
+        }
+        else
+        {
+            if (is_good_realm(tval2realm(obj->tval))) gain_expr = TRUE;
+        }
+    }
+
+    if (gain_expr && (p_ptr->exp < PY_MAX_EXP))
+    {
+        s32b tester_exp = p_ptr->max_exp / 20;
+        if (tester_exp > 10000) tester_exp = 10000;
+        if (obj->sval < 3) tester_exp /= 4;
+        if (tester_exp<1) tester_exp = 1;
+
+        msg_print("You feel more experienced.");
+        gain_exp(tester_exp * obj->number);
+    }
+
+    if (obj->tval == TV_LIFE_BOOK)
+    {
+        virtue_add(VIRTUE_UNLIFE, 1);
+        virtue_add(VIRTUE_VITALITY, -1);
+    }
+    else if ( high_level_book(obj)
+           && (obj->tval == TV_DEATH_BOOK || obj->tval == TV_NECROMANCY_BOOK) )
+    {
+        virtue_add(VIRTUE_UNLIFE, -1);
+        virtue_add(VIRTUE_VITALITY, 1);
     }
 }
 

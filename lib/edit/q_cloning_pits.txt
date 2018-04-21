@@ -1,0 +1,132 @@
+# The Cloning Pits
+# By Shayne Steele (steele@cs.fsu.edu)
+
+?:[EQU $QUEST33 Taken InProgress]
+D:For the past few years we have been cloning exceptionally powerful 
+D:creatures for gladiatorial combat. Something has gone very wrong in 
+D:the Cloning Pits. Please eliminate ALL the clones, you will be well
+D:rewarded. The active security systems have stopped working. The
+D:clones can use magic, teleport, summon, etc. "The Ultimate Dungeon 
+D:Cleaner" security bots are no longer controlled, so you will 
+D:eliminate them too. Levitation and a good distance weapon are
+D:needed. The entrance to the pits is in a building behind the inn.
+?:1
+
+?:[EQU $QUEST33 Completed]
+D:Impressive!!
+?:1
+
+?:[EQU $QUEST33 Failed]
+D:It seems like this task was too difficult for you.
+?:1
+
+T:QUEST:NORMAL
+###################################
+# The Monsters
+L:c:MON("fang, farmer maggot's dog", CLONE)
+L:f:MON(freesia, CLONE)
+L:I:MON(^it$, CLONE)
+L:R:MON(gachapin, CLONE)
+L:g:MON(ultimate dungeon cleaner, CLONE)
+L:S:MON(bokrug, CLONE | NO_GROUP)
+L:O:MON(grendel, CLONE | NO_GROUP)
+L:M:MON(bert the stone troll, CLONE | NO_GROUP)
+L:P:MON(fasolt, CLONE)
+L:p:MON(jurt the living trump, CLONE)
+L:t:MON(the borshin, CLONE)
+L:r:MON(rogrog, CLONE | NO_GROUP)
+L:a:MON(the queen ant, CLONE | NO_GROUP)
+L:u:MON(father dagon, CLONE | NO_GROUP)
+L:5:MON(*, DEPTH+5)
+
+###################################
+# Terrain
+L:#:PERMANENT
+L:%:GRANITE
+L:.:FLOOR
+L:+:LOCKED_DOOR_7
+L:<:UP_STAIR
+L:T:TREE
+L:L:DEEP_LAVA(GLOW)
+L:C:DARK_PIT
+L:W:DEEP_WATER
+
+###################################
+# Goodies
+L:!:OBJ(potion of *healing*)
+L:,:OBJ(elvish waybread)
+
+# Dungeon layout
+M:################################################################################
+M:#....................+..............+.+..+.+..............+....................#
+M:#..O..T.........O....+...r..........+.+..+.+.......M......+......P.......T..P..#
+M:#........O.........%%%.........TT...%%%gg%%%...TT.........%%%..................#
+M:#...T..............%.......T........LCW..WCL........T.......%.P............T...#
+M:#............O.....%..r...T..r......LCW..WCL.....M...T...M..%....P....P........#
+M:#..................%......T.........LCW..WCL.........T......%..................#
+M:#...O......%%%%%%%%%...r............LCW..WCL................%%%%%%%%%..........#
+M:#........%%%.......................LLCW..WCLL......M................%%%........#
+M:#++%%%%%%%...r.......TT.T.........LLCCW..WCCLL..........T.TT....M.....%%%%%%%++#
+M:#..%..............................LCCWW..WWCCL..............................%..#
+M:#..%LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLCWW....WWCLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL%..#
+M:#..%CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCW.%%%%.WCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC%..#
+M:#++%WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.%<++.WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW%++#
+M:#..g..................................%%%%..................................g..#
+M:#..g........................................................................g..#
+M:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT%%++%%TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+M:#CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC%%T..T%%CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC#
+M:#TTTTTTTTTTTTTTCTTTTTTTTTTTCTTTTTTTT%CT..TC%TTTTTTTTCTTTTTTTTTTTCTTTTTTTTTTTTTT#
+M:#%%%%%%%%%%%%.TCT.%%%%%%%.TCT.%%%%%%%CT..TC%%%%%%%.TCT.%%%%%%%.TCT.%%%%%%%%%%%%#
+M:#..5.%.S..S.%.TCT.%.I...%.TCT.%.p...%CT..TC%.u...%.TCT.%.R...%.TCT.%.a..a.%.5..#
+M:#....%......%.TCT.%...I.%.TCT.%...p.%CT..TC%...u.%.TCT.%...R.%.TCT.%......%....#
+M:#.5......S..%.TCT.%.I...%.TCT.%.p...%CT..TC%.u...%.TCT.%.R...%.TCT.%..a......5.#
+M:#...5.......%.TCT.%.....%.TCT.%.....%CTttTC%.....%.TCT.%.....%.TCT.%.......5...#
+M:#%%%%%....%%%.TCT.%%...%%.TCT.%%...%%CT..TC%%...%%.TCT.%%...%%.TCT.%%%....%%%%%#
+M:#ccc.+........TCT.........TCT........CTttTC........TCT.........TCT........+.fff#
+M:#ccc.+........TCT.........TCT......................TCT.........TCT........+.fff#
+M:#%%%%%........TCT.........TCT.........%%%%.........TCT.........TCT........%%%%%#
+M:#,,,.%...............................%%!!%%...............................%.,,,#
+M:#,,,.+...............................+....+...............................+.,,,#
+M:################################################################################
+!:SCRAMBLE(S,I,p,u,R,a)
+!:SCRAMBLE(O,r,M,P)
+
+?:[EQU [MOD $RANDOM33 6] 0]
+R:ART(boots of shiva's avatar)
+?:[EQU [MOD $RANDOM33 6] 1]
+R:ART(thror)
+?:[EQU [MOD $RANDOM33 6] 2]
+R:ART(stomper)
+?:[EQU [MOD $RANDOM33 6] 3]
+R:ART(aragorn)
+?:[EQU [MOD $RANDOM33 6] 4]
+R:ART(boots of the bard)
+?:[EQU [MOD $RANDOM33 6] 5]
+R:ART(flora)
+
+##########################################################################
+# Dragon/Hydra
+?:[AND [EQU $RACE Dragon Hydra Centaur] [EQU [MOD $RANDOM33 5] 0] ]
+R:ART(hammerhand)
+?:[AND [EQU $RACE Dragon Hydra Centaur] [GEQ [MOD $RANDOM33 5] 1] ]
+R:ART(thranduil)
+##########################################################################
+# Death-Sword
+?:[AND [EQU $RACE Death-Sword] [EQU [MOD $RANDOM33 5] 0] ]
+R:ART(werewindle)
+?:[AND [EQU $RACE Death-Sword] [GEQ [MOD $RANDOM33 5] 1] ]
+R:ART(grayswandir)
+##########################################################################
+# Beholder
+?:[AND [EQU $RACE Beholder Quylthulg] [EQU [MOD $RANDOM33 5] 0] ]
+R:ART(of the ages)
+?:[AND [EQU $RACE Beholder Quylthulg] [GEQ [MOD $RANDOM33 5] 1] ]
+R:ART(frakir)
+##########################################################################
+# Xorn
+?:[AND [EQU $RACE Xorn] [EQU [MOD $RANDOM33 5] 0] ]
+R:ART(thorin)
+?:[AND [EQU $RACE Xorn] [GEQ [MOD $RANDOM33 5] 1] ]
+R:ART(perseus)
+
+# vim: filetype=q :

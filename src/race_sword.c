@@ -356,7 +356,10 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
         int j = _slay_flag_info[i].flag;
         if (j < 0) break;
         if (_essences[j] >= _slay_power(i))
+        {
             add_flag(o_ptr->flags, j);
+            add_flag(o_ptr->known_flags, j);
+        }
     }
 
     info_ptr->xtra_blow += blows * _blows_mult();
@@ -542,11 +545,30 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (_essences[OF_TELEPATHY] >= 2)
         add_flag(flgs, OF_TELEPATHY);
 
-    for (i = OF_ESP_ANIMAL; i <= OF_ESP_UNIQUE; i++)
-    {
-        if (_essences[i] >= 2)
-            add_flag(flgs, i);
-    }
+    if (_essences[OF_ESP_EVIL] >= 2)
+        add_flag(flgs, OF_ESP_EVIL);
+    if (_essences[OF_ESP_GOOD] >= 2)
+        add_flag(flgs, OF_ESP_GOOD);
+    if (_essences[OF_ESP_NONLIVING] >= 2)
+        add_flag(flgs, OF_ESP_NONLIVING);
+    if (_essences[OF_ESP_UNIQUE] >= 2)
+        add_flag(flgs, OF_ESP_UNIQUE);
+    if (_essences[OF_ESP_DRAGON] >= 2)
+        add_flag(flgs, OF_ESP_DRAGON);
+    if (_essences[OF_ESP_DEMON] >= 2)
+        add_flag(flgs, OF_ESP_DEMON);
+    if (_essences[OF_ESP_UNDEAD] >= 2)
+        add_flag(flgs, OF_ESP_UNDEAD);
+    if (_essences[OF_ESP_ANIMAL] >= 2)
+        add_flag(flgs, OF_ESP_ANIMAL);
+    if (_essences[OF_ESP_HUMAN] >= 2)
+        add_flag(flgs, OF_ESP_HUMAN);
+    if (_essences[OF_ESP_ORC] >= 2)
+        add_flag(flgs, OF_ESP_ORC);
+    if (_essences[OF_ESP_TROLL] >= 2)
+        add_flag(flgs, OF_ESP_TROLL);
+    if (_essences[OF_ESP_GIANT] >= 2)
+        add_flag(flgs, OF_ESP_GIANT);
 
     if (_essences[OF_NO_MAGIC] >= 5)
         add_flag(flgs, OF_NO_MAGIC);
@@ -593,37 +615,25 @@ static void _absorb_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        object_type * o_ptr;
-        int item;
+        obj_prompt_t prompt = {0};
         char o_name[MAX_NLEN];
 
         var_set_bool(res, FALSE);
-        item_tester_hook = object_is_melee_weapon;
+        prompt.prompt = "Absorb which item?";
+        prompt.error = "You have nothing to absorb.";
+        prompt.filter = object_is_melee_weapon;
+        prompt.where[0] = INV_PACK;
+        prompt.where[1] = INV_FLOOR;
 
-        if (!get_item(&item, "Absorb which item? ", "You have nothing to absorb.", USE_INVEN | USE_FLOOR)) break;
+        obj_prompt(&prompt);
+        if (!prompt.obj) return;
 
-        if (item >= 0)
-            o_ptr = &inventory[item];
-        else
-            o_ptr = &o_list[0 - item];
-
-        object_desc(o_name, o_ptr, OD_NAME_ONLY);
+        object_desc(o_name, prompt.obj, OD_NAME_ONLY);
         msg_format("You absorb the power of %s!", o_name);
-        _absorb(o_ptr);
+        _absorb(prompt.obj);
 
-        if (item >= 0)
-        {
-            inven_item_increase(item, -1);
-            inven_item_describe(item);
-            inven_item_optimize(item);
-        }
-        else
-        {
-            floor_item_increase(0 - item, -1);
-            floor_item_describe(0 - item);
-            floor_item_optimize(0 - item);
-        }
-        
+        prompt.obj->number = 0;
+        obj_release(prompt.obj, 0);
 
         var_set_bool(res, TRUE);
         break;
@@ -658,8 +668,8 @@ static void _detect_spell(int cmd, variant *res)
 
             if (!o_ptr->k_idx) continue;
             if (o_ptr->held_m_idx) continue;
-            y = o_ptr->iy;
-            x = o_ptr->ix;
+            y = o_ptr->loc.y;
+            x = o_ptr->loc.x;
             if (distance(py, px, y, x) > rng) continue;
             if (!object_is_melee_weapon(o_ptr)) continue;
             o_ptr->marked |= OM_FOUND;

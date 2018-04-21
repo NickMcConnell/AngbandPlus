@@ -396,7 +396,7 @@ static bool use_mane(int spell)
         fire_ball(GF_CHAOS, dir, damage, 4);
         break;
     case MS_BR_DISI:
-        if (!get_fire_dir(&dir)) return FALSE;
+        if (!get_fire_dir_aux(&dir, TARGET_DISI)) return FALSE;
         else msg_print("You breathe disintegration.");
         fire_ball(GF_DISINTEGRATE, dir, damage, (plev > 35 ? -3 : -2));
         break;
@@ -649,7 +649,7 @@ static bool use_mane(int spell)
         monster_desc(m_name, m_ptr, 0);
         msg_format("You gesture at %^s's feet.", m_name);
         if ((r_ptr->flagsr & (RFR_EFF_RES_NEXU_MASK | RFR_RES_TELE)) ||
-            (r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->level + randint1(50) > plev + randint1(60)))
+            (m_ptr->mflag2 & MFLAG2_QUESTOR) || (r_ptr->level + randint1(50) > plev + randint1(60)))
         {
             msg_format("%^s is unaffected!", m_name);
         }

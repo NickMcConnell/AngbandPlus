@@ -305,7 +305,7 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
     case SP_LITE:
         if (r_ptr->flags3 & (RF3_HURT_LITE))
         {
-            int n = 20 + p_ptr->concent;
+            int n = 30 + p_ptr->concent;
             mon_lore_3(m_ptr, RF3_HURT_LITE);
             if (mult < n) mult = n;
         }
@@ -317,7 +317,7 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
         }
         else
         {
-            int n = 15 + (p_ptr->concent * 3);
+            int n = 20 + (p_ptr->concent * 3);
             if (mult < n) mult = n;
         }
         break;
@@ -328,7 +328,7 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
         }
         else
         {
-            int n = 15 + (p_ptr->concent * 3);
+            int n = 20 + (p_ptr->concent * 3);
             if (mult < n) mult = n;
         }
         break;
@@ -339,20 +339,20 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
         }
         else
         {
-            int n = 18 + (p_ptr->concent * 4);
+            int n = 23 + (p_ptr->concent * 4);
             if (mult < n) mult = n;
         }
         break;
     case SP_KILL_WALL:
         if (r_ptr->flags3 & RF3_HURT_ROCK)
         {
-            int n = 15 + (p_ptr->concent * 2);
+            int n = 20 + (p_ptr->concent * 2);
             mon_lore_3(m_ptr, RF3_HURT_ROCK);
             if (mult < n) mult = n;
         }
         else if (r_ptr->flags3 & RF3_NONLIVING)
         {
-            int n = 15 + (p_ptr->concent * 2);
+            int n = 20 + (p_ptr->concent * 2);
             mon_lore_3(m_ptr, RF3_NONLIVING);
             if (mult < n) mult = n;
         }
@@ -360,7 +360,7 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
     case SP_EVILNESS:
         if (r_ptr->flags3 & RF3_GOOD)
         {
-            int n = 15 + (p_ptr->concent * 4);
+            int n = 20 + (p_ptr->concent * 4);
             mon_lore_3(m_ptr, RF3_GOOD);
             if (mult < n) mult = n;
         }
@@ -368,7 +368,7 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
     case SP_HOLYNESS:
         if (r_ptr->flags3 & RF3_EVIL)
         {
-            int n = 12 + (p_ptr->concent * 3);
+            int n = 17 + (p_ptr->concent * 3);
             mon_lore_3(m_ptr, RF3_EVIL);
             if (r_ptr->flags3 & (RF3_HURT_LITE))
             {
@@ -379,7 +379,7 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
         }
         break;
     case SP_FINAL:
-        if (mult < 50) mult = 50;
+        if (mult < 60) mult = 60;
         break;
     }
 
@@ -388,7 +388,7 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
 
 static bool cast_sniper_spell(int spell)
 {
-    if (!equip_find_object(TV_BOW, SV_ANY))
+    if (!equip_find_obj(TV_BOW, SV_ANY))
     {
         msg_print("You wield no bow!");
         return (FALSE);
@@ -517,7 +517,7 @@ static void _birth(void)
     py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
     py_birth_obj_aux(TV_BOW, SV_LIGHT_XBOW, 1);
-    py_birth_obj_aux(TV_BOLT, SV_AMMO_NORMAL, rand_range(20, 30));
+    py_birth_obj_aux(TV_BOLT, SV_BOLT, rand_range(20, 30));
 }
 
 class_t *sniper_get_class(void)

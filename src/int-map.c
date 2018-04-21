@@ -114,8 +114,11 @@ int_map_ptr int_map_alloc(int_map_free_f free)
 
 void int_map_free(int_map_ptr map)
 {
-    int_map_clear(map);
-    free(map);
+    if (map)
+    {
+        int_map_clear(map);
+        free(map);
+    }
 }
 
 void int_map_add(int_map_ptr map, int key, void *val)

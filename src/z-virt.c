@@ -146,7 +146,7 @@ cptr z_string_make(cptr str)
     char *s, *res;
 
     /* Simple sillyness */
-    if (!str) return (str);
+    if (!str) return (char*)str;
 
     /* Get the number of chars in the string, including terminator */
     while (str[len++]) /* loop */;

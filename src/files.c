@@ -201,11 +201,13 @@ s16b tokenize(char *buf, s16b num, char **tokens, int mode)
     return (i);
 }
 
-/* tokenize, but with user supplied delimiters and no special backslash/quote handling */
+/* tokenize, but with user supplied delimiters and no special backslash/quote handling
+ * Added support for quoted delimiters, e.g. MON("fang, farmer maggot's dog", CLONE). */
 int z_string_split(char *buf, char **tokens, int max, cptr delim)
 {
     int i = 0;
     char *s = buf;
+    bool quote = FALSE;
 
     /* inch-worm alogorithm: s marks the start of the current token
        while t scans ahead for the next delimiter. buf is destroyed. */
@@ -215,7 +217,8 @@ int z_string_split(char *buf, char **tokens, int max, cptr delim)
 
         for (t = s; *t; t++)
         {
-            if (strchr(delim, *t)) break;
+            if (*t == '"') quote = !quote;
+            if (!quote && strchr(delim, *t)) break;
         }
 
         if (!*t) break;
@@ -241,6 +244,13 @@ void trim_tokens(char **tokens, int ct)
 
         while (*t && *t == ' ' && t > s)
             t--;
+
+        /* unquote */
+        if (*s && *s == '"' && *t && *t == '"' && t > s)
+        {
+            s++;
+            t--;
+        }
 
         t++;
         *t = '\0';
@@ -510,16 +520,20 @@ errr process_pref_file_command(char *buf)
         }
         break;
 
-    /* Process "K:<num>:<a>/<c>"  -- attr/char for object kinds */
+    /* Process "K:<tval>:<sval>:<a>/<c>"  -- attr/char for object kinds
+     * N.B. Stop using k_idx some day ... map (tv, sv)->obj_kind_ptr instead. */
     case 'K':
-        if (tokenize(buf+2, 3, zz, TOKENIZE_CHECKQUOTE) == 3)
+        if (tokenize(buf+2, 4, zz, TOKENIZE_CHECKQUOTE) == 4)
         {
             object_kind *k_ptr;
-            i = (huge)strtol(zz[0], NULL, 0);
-            n1 = strtol(zz[1], NULL, 0);
-            n2 = strtol(zz[2], NULL, 0);
-            if (i >= max_k_idx) return 1;
-            k_ptr = &k_info[i];
+            int tval, sval, k_idx;
+            tval = strtol(zz[0], NULL, 0);
+            sval = strtol(zz[1], NULL, 0);
+            n1 = strtol(zz[2], NULL, 0);
+            n2 = strtol(zz[3], NULL, 0);
+            k_idx = lookup_kind(tval, sval);
+            if (!k_idx) return 1;
+            k_ptr = &k_info[k_idx];
             if (n1 || (!(n2 & 0x80) && n2)) k_ptr->x_attr = n1; /* Allow TERM_DARK text */
             if (n2) k_ptr->x_char = n2;
             return 0;
@@ -1836,8 +1850,8 @@ int ct_artifacts(void)
  */
 cptr map_name(void)
 {
-    if (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest)
-        && (quest[p_ptr->inside_quest].flags & QUEST_FLAG_PRESET))
+    quest_ptr q = quests_get_current();
+    if (q && (q->flags & QF_GENERATE))
         return "Quest";
     else if (p_ptr->wild_mode)
         return "Surface";
@@ -1846,7 +1860,7 @@ cptr map_name(void)
     else if (p_ptr->inside_battle)
         return "Monster Arena";
     else if (!dun_level && p_ptr->town_num)
-        return town[p_ptr->town_num].name;
+        return town_name(p_ptr->town_num);
     else
         return d_name+d_info[dungeon_type].name;
 }
@@ -2990,7 +3004,6 @@ long total_points(void)
     if (ironman_shops) mult += 50;
     if (ironman_small_levels) mult += 10;
     if (ironman_empty_levels) mult += 20;
-    if (!powerup_home) mult += 50;
     if (ironman_rooms) mult += 100;
     if (ironman_nightmare) mult += 100;
 
@@ -3247,38 +3260,14 @@ static void print_tomb(void)
  */
 static void show_info(void)
 {
-    int             i, j;
-    object_type        *o_ptr;
-    store_type        *st_ptr;
+    pack_for_each(obj_identify);
+    equip_for_each(obj_identify);
+    quiver_for_each(obj_identify);
+    home_for_each(obj_identify);
 
-    /* Hack -- Know everything in the inven/equip */
-    for (i = 0; i < INVEN_TOTAL; i++)
-    {
-        o_ptr = &inventory[i];
-
-        /* Skip non-objects */
-        if (!o_ptr->k_idx) continue;
-
-        /* Aware and Known */
-        obj_identify(o_ptr);
-    }
-
-    for (i = 1; i < max_towns; i++)
-    {
-        st_ptr = &town[i].store[STORE_HOME];
-
-        /* Hack -- Know everything in the home */
-        for (j = 0; j < st_ptr->stock_num; j++)
-        {
-            o_ptr = &st_ptr->stock[j];
-
-            /* Skip non-objects */
-            if (!o_ptr->k_idx) continue;
-
-            /* Aware and Known */
-            obj_identify(o_ptr);
-        }
-    }
+    pack_optimize();
+    quiver_optimize();
+    home_optimize();
 
     /* Hack -- Recalculate bonuses */
     p_ptr->update |= (PU_BONUS);

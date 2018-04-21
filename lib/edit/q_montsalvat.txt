@@ -1,0 +1,72 @@
+?:[EQU $QUEST16 Taken InProgress]
+D:Those annoying do-gooders who call themselves the knights of
+D:the Holy Grail are a pain in our flesh. We can tolerate them
+D:no longer! You must storm their Castle Montsalvat and show them
+D:who's the boss!
+?:1
+
+?:[EQU $QUEST16 Completed]
+D:You have done well. Please accept this reward.
+?:1
+
+?:[EQU $QUEST16 Failed]
+D:Aaaargghh! You wimp, you feeble cry-baby! Do you have any idea 
+D:of the disgrace you have brought to our mighty guild? Who's going to
+D:fear Death Knights anymore when they hear how those Knights of the
+D:accursed Holy Grail wiped the floor with you? Get lost! GO! NOW!
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:T:TREE
+L:.:FLOOR
+L:<:UP_STAIR
+L:-:GRASS
+L:+:CLOSED_DOOR
+L:~:SHALLOW_WATER
+L:1:OBJ(book of common prayer)
+L:2:OBJ(high mass)
+L:3:OBJ(book of the unicorn)
+L:4:OBJ(blessings of the grail)
+L:p:MON(novice priest, NO_GROUP)
+L:P:MON(^priest$, NO_GROUP)
+L:l:MON(^paladin$, NO_GROUP)
+L:L:MON(ultra-elite paladin, NO_GROUP)
+M:######################################################################################
+M:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+M:#TT-TTT<-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+M:#TTTT-.................------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTT#
+M:#TT--..---------TT----....................................----TTT----TTTTTTTTTTTTTTTT#
+M:#TTT-.---TT----TTTT--T--#####T----------TT-----TTTT------............-T-T-TTTTTTTTTTT#
+M:#T....--TTTT-TTTTTT-TTT-#lll#TT-------TT#########TTTTT--------------......---TTTTTTTT#
+M:#T.----TTTTTTTTTTTTTTT--#...#TTTTTT-TTTT#.......#TTTTTTTT--TTT-T-T--T----........TTTT#
+M:#T.-#####################lll#############.......#########################---.---.-TTT#
+M:#T.-#l..............p...p...p...p...p...........+.......................#-------.TTTT#
+M:#T.-#l..#...#...#...#...#...#...#...#...#.......###########....#####....########.-TTT#
+M:#T.-##............................PP...........##pppppppppp....#PLP#....#112211#.--TT#
+M:#T.--#p..............................##........#lllllllllll....#PLP#....#123321#.--TT#
+M:#T.ll+p..............................##........#lllllllllll....#LLL+....+234432#.---T#
+M:#T.--#p...........................PP.##........#lllllllllll....#PLP#....#123321#.---T#
+M:#T.-##.........................................##pppppppppp....#PLP#....#112211#.--TT#
+M:#T.-#l..#...#...#...#...#...#...#...#...#.......###########....#####....########.--TT#
+M:#T.-#l..............p...p...p...p...p...........+.......................#-------.---T#
+M:#T.-######################################......#################..######-------.--TT#
+M:#T.---------TTTTTTTT#....................#......#TTTTTTTT------#LLLL#------TT---.--TT#
+M:#T........--T-TTTTTT#.########+#########.#......#TTTTTTT--T----#LLLL#-----TTTT--.-TTT#
+M:#TTT-----.-T-TTTTT-T#.#llllllllllllllll#.########TTTTTTTT-----########--TTTTTT--.--TT#
+M:#TTTTT---.--TTT-TTTT#.#llllllllllllllll#.#TTTTTTTTT-T######----#----#----TTT----.---T#
+M:#TTTTTTT-.-TTTTT-TTT#.#llllllllllllllll#.#TTTTTTT--T##....##--------TTT------....--TT#
+M:#TTTTTTT-.--T-TTTTTT#.#lllLLLllLLLlllll#.#TTTTT---T##lllll.##-----TTTTT------.-----TT#
+M:#TTTTT---.---TTTTTTT#.#lllLLLllLLLlllll#.###########.lpppl..##-TTTTT---------.---TTTT#
+M:#TTT---~~~~---TTTTTT#.#llllllllllllllll#.............lppPl...+................-TTTTTT#
+M:#TT---~~~~~--TTTTTTT#.#llllllllllllllll#.###########.lllll..##-TTTTT-------TTTTTTTTTT#
+M:#TT--~~~~~~~-TTTTTTT#.#llllllllllllllll#.#---------##......##---TTT-----TTTTTTTTTTTTT#
+M:#TT---~~~~~-TTTTTTTT#.##################.#---TTT----##....##---------TTTTTTTTTTTTTTTT#
+M:#TTT---~~~--TTTTTTTT#....................#--TTTT-T---######--------TTTTTTTTTTTTTTTTTT#
+M:#T-TTT-----TTTTTTTTT######################-TTTTTT-T------------TTTTTTTTTTTTTTTTTTTTTT#
+M:#TTTTT-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+M:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+M:######################################################################################
+R:OBJ(^amulet$, DEPTH+10):EGO(hell harness)
+
+# vim: filetype=q :

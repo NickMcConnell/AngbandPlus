@@ -337,6 +337,7 @@ static void _munchkin_birth(void)
 
 static void _munchkin_calc_bonuses(void)
 {
+    p_ptr->auto_id = TRUE;
     res_add(RES_BLIND);
     res_add(RES_CONF);
     p_ptr->hold_life = TRUE;
@@ -542,11 +543,15 @@ static personality_ptr _get_pious_personality(void)
  ****************************************************************/
 static void _sexy_birth(void)
 {
-    object_type forge = {0};
-    object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
-    if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
-        rune_add(&forge, RUNE_ABSORPTION, FALSE);
-    py_birth_obj(&forge);
+    if ( p_ptr->prace != RACE_MON_SWORD
+      && !demon_is_(DEMON_BALROG) )
+    {
+        object_type forge = {0};
+        object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
+        if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+            rune_add(&forge, RUNE_ABSORPTION, FALSE);
+        py_birth_obj(&forge);
+    }
 }
 static void _sexy_calc_bonuses(void)
 {

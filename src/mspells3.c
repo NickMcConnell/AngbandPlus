@@ -857,7 +857,7 @@ static bool cast_learned_spell(int spell, bool success)
         fire_ball(GF_CHAOS, dir, spell_power(damage), 4);
         break;
     case MS_BR_DISI:
-        if (!get_fire_dir(&dir)) return FALSE;
+        if (!get_fire_dir_aux(&dir, TARGET_DISI)) return FALSE;
             else msg_print("You breathe disintegration.");
         damage = MIN(hp / 6, 150);
         fire_ball(GF_DISINTEGRATE, dir, spell_power(damage), (plev > 40 ? -3 : -2));
@@ -1145,7 +1145,7 @@ static bool cast_learned_spell(int spell, bool success)
         msg_format("You gesture at %^s's feet.", m_name);
 
         if ((r_ptr->flagsr & (RFR_EFF_RES_NEXU_MASK | RFR_RES_TELE)) ||
-            (r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->level + randint1(50) > plev + randint1(60)))
+            (m_ptr->mflag2 & MFLAG2_QUESTOR) || (r_ptr->level + randint1(50) > plev + randint1(60)))
         {
             msg_format("%^s is unaffected!", m_name);
         }
@@ -1486,15 +1486,8 @@ bool do_cmd_cast_learned(void)
     /* Verify "dangerous" spells */
     if (need_mana > p_ptr->csp)
     {
-        /* Warning */
         msg_print("You do not have enough mana to use this power.");
-
-
-        if (!over_exert) return FALSE;
-
-        /* Verify */
-        if (!get_check("Attempt it anyway? ")) return FALSE;
-
+        return FALSE;
     }
 
     /* Spell failure chance */
@@ -1557,36 +1550,6 @@ bool do_cmd_cast_learned(void)
     {
         /* Use some mana */
         p_ptr->csp -= need_mana;
-    }
-    else
-    {
-        int oops = need_mana;
-
-        /* No mana left */
-        p_ptr->csp = 0;
-        p_ptr->csp_frac = 0;
-
-        /* Message */
-        msg_print("You faint from the effort!");
-
-
-        /* Hack -- Bypass free action */
-        (void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1), FALSE);
-
-        virtue_add(VIRTUE_KNOWLEDGE, -10);
-
-        /* Damage CON (possibly permanently) */
-        if (randint0(100) < 50)
-        {
-            bool perm = (randint0(100) < 25);
-
-            /* Message */
-            msg_print("You have damaged your health!");
-
-
-            /* Reduce constitution */
-            (void)dec_stat(A_CON, 15 + randint1(10), perm);
-        }
     }
 
     /* Take a turn */

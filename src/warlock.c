@@ -371,7 +371,7 @@ static void _undead_calc_bonuses(void)
     if (p_ptr->lev >= 35)
         res_add(RES_DARK);
 
-    if (equip_find_artifact(ART_STONE_OF_DEATH))
+    if (equip_find_art(ART_STONE_OF_DEATH))
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;
@@ -1078,7 +1078,7 @@ static void _angel_calc_bonuses(void)
     if (p_ptr->lev >= 35)
         p_ptr->reflect = TRUE;
 
-    if (equip_find_artifact(ART_STONE_OF_CRUSADE) || equip_find_artifact(ART_STONE_OF_LIFE))
+    if (equip_find_art(ART_STONE_OF_CRUSADE) || equip_find_art(ART_STONE_OF_LIFE))
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;
@@ -1190,7 +1190,7 @@ static void _demon_calc_bonuses(void)
     if (p_ptr->lev >= 50)
         res_add_immune(RES_FIRE);
 
-    if (equip_find_artifact(ART_STONE_OF_DAEMON))
+    if (equip_find_art(ART_STONE_OF_DAEMON))
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;
@@ -1939,7 +1939,13 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    if (p_ptr->psubclass == WARLOCK_GIANTS)
+    {
+        skills_weapon_init(TV_SWORD, SV_CLAYMORE, WEAPON_EXP_BEGINNER);
+        py_birth_obj_aux(TV_SWORD, SV_CLAYMORE, 1);
+    }
+    else
+        py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
     py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 }

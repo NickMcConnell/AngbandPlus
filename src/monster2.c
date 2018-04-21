@@ -443,7 +443,7 @@ void compact_monsters(int size)
             chance = 90;
 
             /* Only compact "Quest" Monsters in emergencies */
-            if ((r_ptr->flags1 & (RF1_QUESTOR)) && (cnt < 1000)) chance = 100;
+            if ((m_ptr->mflag2 & MFLAG2_QUESTOR) && cnt < 1000) chance = 100;
 
             /* Try not to compact Unique Monsters */
             if (r_ptr->flags1 & (RF1_UNIQUE)) chance = 100;
@@ -1430,7 +1430,7 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
         if (!p_ptr->inside_battle && !chameleon_change_m_idx &&
             summon_specific_type != SUMMON_GUARDIAN)
         {
-            /* Hack -- don't create questors */
+            /* Hack -- don't create (unique) questors */
             if (r_ptr->flags1 & RF1_QUESTOR)
                 continue;
 
@@ -1449,7 +1449,7 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
         /* Accept this monster */
         entry->prob2 = entry->prob1;
 
-        if (dun_level && (!p_ptr->inside_quest || is_fixed_quest_idx(p_ptr->inside_quest)) && !restrict_monster_to_dungeon(entry->index) && !p_ptr->inside_battle)
+        if (py_in_dungeon() && !restrict_monster_to_dungeon(entry->index))
         {
             int hoge = entry->prob2 * d_info[dungeon_type].special_div;
             entry->prob2 = hoge / 64;
@@ -1636,6 +1636,8 @@ s16b get_mon_num(int level)
             if ((r_ptr->flags2 & RF2_SOUTHERING) && dungeon_type != DUNGEON_STRONGHOLD) continue;
             if ((r_ptr->flags3 & RF3_OLYMPIAN) && dungeon_type != DUNGEON_OLYMPUS) continue;
         }
+        /* Hack: Some monsters are restricted from quests (e.g. Zeus in no_wilderness mode) */
+        if (quests_get_current() && (r_ptr->flags1 & RF1_NO_QUEST)) continue;
 
         if (!p_ptr->inside_battle && !chameleon_change_m_idx)
         {
@@ -2856,13 +2858,7 @@ void update_mon(int m_idx, bool full)
               && projectable(m_ptr->fy, m_ptr->fx, py, px)
               && projectable(py, px, m_ptr->fy, m_ptr->fx) )
             {
-                if ( town_no_disturb
-                  && !dun_level
-                  && p_ptr->town_num
-                  && !p_ptr->inside_arena
-                  && !p_ptr->inside_battle
-                  && !p_ptr->inside_quest
-                  && r_ptr->level == 0 )
+                if (town_no_disturb && py_in_town() && r_ptr->level == 0)
                 {
                 }
                 else if (disturb_pets || is_hostile(m_ptr))
@@ -3239,6 +3235,9 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
     /* Paranoia */
     if (!r_idx) return 0;
 
+    /* Sanity */
+    if (pack_idx && pack_info_list[pack_idx].count > 40) return 0;
+
     /* Paranoia */
     if (!r_ptr->name) return 0;
 
@@ -3283,28 +3282,6 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
         {
             /* Cannot create */
             return 0;
-        }
-    }
-
-    if (quest_number(dun_level))
-    {
-        int hoge = quest_number(dun_level);
-        if ((quest[hoge].type == QUEST_TYPE_KILL_LEVEL) || (quest[hoge].type == QUEST_TYPE_RANDOM))
-        {
-            if(r_idx == quest[hoge].r_idx)
-            {
-                int number_mon, i2, j2;
-                number_mon = 0;
-
-                /* Count all quest monsters */
-                for (i2 = 0; i2 < cur_wid; ++i2)
-                    for (j2 = 0; j2 < cur_hgt; j2++)
-                        if (cave[j2][i2].m_idx > 0)
-                            if (m_list[cave[j2][i2].m_idx].r_idx == quest[hoge].r_idx)
-                                number_mon++;
-                if(number_mon + quest[hoge].cur_num >= quest[hoge].max_num)
-                    return 0;
-            }
         }
     }
 
@@ -4017,7 +3994,7 @@ bool place_monster(int y, int x, u32b mode)
     {
         monster_race *r_ptr = &r_info[r_idx];
         if ( warlock_is_pact_monster(r_ptr)
-          && !(r_ptr->flags1 & RF1_QUESTOR)
+          && !(mode & PM_QUESTOR) /* RF1_QUESTOR is *not* set for non-unique quest monsters */
           && one_in_(12 - p_ptr->lev/5) )
         {
             mode |= PM_FORCE_FRIENDLY;
@@ -5052,6 +5029,22 @@ bool player_place(int y, int x)
 {
     /* Paranoia XXX XXX */
     if (cave[y][x].m_idx != 0) return FALSE;
+
+    /* returning from a quest (QUEST_ENTER -> PERMANENT) */
+    if (!player_can_enter(cave[y][x].feat, 0))
+    {
+        int dir, nx, ny;
+        for (dir = 1; dir < 9; dir++)
+        {
+            nx = x + ddx[dir];
+            ny = y + ddy[dir];
+            if (!in_bounds2(ny, nx)) continue;
+            if (!player_can_enter(cave[ny][nx].feat, 0)) continue;
+            x = nx;
+            y = ny;
+            break;
+        }
+    }
 
     /* Save player location */
     py = y;

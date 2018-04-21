@@ -4,9 +4,9 @@
 
 #include "angband.h"
 
-int shoot_hack = SHOOT_NONE;
-int shoot_count = 0;
-int shoot_item = 0;
+int       shoot_hack = SHOOT_NONE;
+int       shoot_count = 0;
+obj_loc_t shoot_item = {0};
 
 #define _MAX_TARGETS 100
 
@@ -45,18 +45,7 @@ static bool _check_direct_shot(int tx, int ty)
 
 static bool _check_speciality_equip(void);
 static bool _check_speciality_aux(object_type *o_ptr);
-
-static int _find_ammo_slot(void)
-{
-    int i;
-
-    for (i = 0; i < INVEN_PACK; i++)
-    {
-        if (inventory[i].tval == p_ptr->shooter_info.tval_ammo) return i;
-    }
-    if (p_ptr->unlimited_quiver) return INVEN_UNLIMITED_QUIVER;
-    return -1;
-}
+static bool _can_judge(obj_ptr obj);
 
 static int _get_nearest_target_los(void)
 {
@@ -176,6 +165,25 @@ static bool _fire(int power)
     return result;
 }
 
+static obj_ptr _get_ammo(bool allow_floor)
+{
+    obj_prompt_t prompt = {0};
+
+    if (allow_floor)
+        prompt.prompt = "Fire which ammo?";
+    else
+        prompt.prompt = "Choose ammo to use for this technique.";
+    prompt.error = "You have nothing to fire.";
+    prompt.filter = obj_can_shoot;
+    prompt.where[0] = INV_QUIVER;
+    prompt.where[1] = INV_PACK;
+    if (allow_floor)
+        prompt.where[2] = INV_FLOOR;
+
+    obj_prompt(&prompt);
+    return prompt.obj;
+}
+
 /* Weaponmasters have toggle based abilities */
 static int _get_toggle(void)
 {
@@ -273,9 +281,9 @@ static void _judge_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         if (p_ptr->lev >= 45)
-            var_set_bool(res, identify_fully(_check_speciality_aux));
+            var_set_bool(res, identify_fully(_can_judge));
         else
-            var_set_bool(res, ident_spell(_check_speciality_aux));
+            var_set_bool(res, ident_spell(_can_judge));
         break;
         break;
     default:
@@ -416,16 +424,13 @@ static void _readied_shot_spell(int cmd, variant *res)
             _set_toggle(TOGGLE_NONE);
         else
         {
-            /* Prompt for ammo to use, but disallow choosing from the floor since
-               the player will be moving */
-            item_tester_tval = p_ptr->shooter_info.tval_ammo;
-            if (!get_item(&shoot_item,
-                          "Choose ammo for this technique.",
-                          "You have nothing to fire.", (USE_INVEN | USE_QUIVER)))
+            obj_ptr ammo = _get_ammo(FALSE);
+            if (!ammo)
             {
                 flush();
                 return;
             }
+            shoot_item = ammo->loc;
             _set_toggle(TOGGLE_READIED_SHOT);
         }
         var_set_bool(res, TRUE);
@@ -588,346 +593,68 @@ static void _smash_ground_spell(int cmd, variant *res)
     }
 }
 
-/***** THROW WEAPON SPELL **********/
-typedef struct {
-    int item;
-    object_type *o_ptr;
-    int mult;
-    int tdis;
-    int tx;
-    int ty;
-    bool come_back;
-    bool fail_catch;
-} _club_toss_info;
-static void _club_toss_imp(_club_toss_info * info);
-
-static bool _club_toss(int hand)
+static void _toss_hit_mon(py_throw_ptr context, int m_idx)
 {
-    int dir;
-    _club_toss_info info;
-    int back_chance;
+    monster_type *m_ptr = &m_list[m_idx];
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    char          m_name[80];
+    int           odds = 5;
 
-    /* Setup info for the toss */
-    info.item = p_ptr->weapon_info[hand].slot;
-    info.o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
-
-    /* Toss mechanics stolen from Samurai Boomerang ... see do_cmd_throw_aux() */
-    back_chance = randint1(30)+20+((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-    back_chance += 4+randint1(5);
-
-    info.come_back = FALSE;
-    info.fail_catch = FALSE;
-    if (back_chance > 30 && !one_in_(100))
+    monster_desc(m_name, m_ptr, 0);
+    if (one_in_(odds))
     {
-        info.come_back = TRUE;
-        if (back_chance <= 37 && !p_ptr->blind)
-            info.fail_catch = TRUE;
-    }
-
-    if (!_check_speciality_aux(info.o_ptr)) return FALSE;
-    if (object_is_cursed(info.o_ptr))
-    {
-        msg_print("Hmmm, it seems to be cursed.");
-        return FALSE;
-    }
-
-    /* Pick a target */
-    info.mult = 1 + NUM_BLOWS(hand)/100;
-    if (p_ptr->mighty_throw) info.mult++;
-    {
-        int mul, div;
-        mul = 10 + 2 * (info.mult - 1);
-        div = (info.o_ptr->weight > 10) ? info.o_ptr->weight : 10;
-        div /= 2;
-        info.tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
-        if (info.tdis > mul) info.tdis = mul;
-
-        project_length = info.tdis + 1;
-        if (!get_fire_dir(&dir)) return FALSE;
-
-        info.tx = px + 99 * ddx[dir];
-        info.ty = py + 99 * ddy[dir];
-
-        if ((dir == 5) && target_okay())
+        if (r_ptr->flags3 & RF3_NO_CONF)
         {
-            info.tx = target_col;
-            info.ty = target_row;
+            mon_lore_3(m_ptr, RF3_NO_CONF);
+            msg_format("%^s is unaffected.", m_name);
         }
-
-        project_length = 0;
-
-        if (info.tx == px && info.ty == py) return FALSE;
-    }
-
-    /* Toss */
-    _club_toss_imp(&info);
-
-    /* Handle Inventory */
-    if (!info.come_back || info.fail_catch)
-    {
-        object_type copy;
-
-        if (info.fail_catch)
-            msg_print("But you can't catch!");
-
-        object_copy(&copy, info.o_ptr);
-        copy.number = 1;
-
-        inven_item_increase(info.item, -1);
-        inven_item_describe(info.item);
-        inven_item_optimize(info.item);
-
-
-        if (!info.come_back)
-            drop_near(&copy, 0, info.ty, info.tx);
-        else
-            drop_near(&copy, 0, py, px);
-
-        p_ptr->redraw |= PR_EQUIPPY;
-        p_ptr->update |= PU_BONUS;
-
-        android_calc_exp();
-        handle_stuff();
-    }
-
-    return TRUE;
-}
-
-static void _club_toss_imp(_club_toss_info * info)
-{
-    char o_name[MAX_NLEN];
-    u16b path[512];
-    int msec = delay_factor * delay_factor * delay_factor;
-    int y, x, ny, nx, dd, tdam;
-    int cur_dis, ct;
-    int chance;
-
-    chance = p_ptr->skill_tht + ((p_ptr->shooter_info.to_h + info->o_ptr->to_h) * BTH_PLUS_ADJ);
-    chance *= 2; /* mimicking code for ninja shuriken */
-
-    object_desc(o_name, info->o_ptr, OD_OMIT_PREFIX);
-    ct = project_path(path, info->tdis, py, px, info->ty, info->tx, PROJECT_PATH);
-
-    y = py;
-    x = px;
-
-    for (cur_dis = 0; cur_dis < ct; )
-    {
-        /* Peek ahead at the next square in the path */
-        ny = GRID_Y(path[cur_dis]);
-        nx = GRID_X(path[cur_dis]);
-
-        /* Stopped by walls/doors/forest ... but allow hitting your target, please! */
-        if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
-         && !cave[ny][nx].m_idx)
+        else if (mon_save_p(m_ptr->r_idx, A_STR))
         {
-            break;
+            msg_format("%^s is unaffected.", m_name);
         }
-
-        /* The player can see the (on screen) missile */
-        if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
-        {
-            char c = object_char(info->o_ptr);
-            byte a = object_attr(info->o_ptr);
-
-            /* Draw, Hilite, Fresh, Pause, Erase */
-            print_rel(c, a, ny, nx);
-            move_cursor_relative(ny, nx);
-            Term_fresh();
-            Term_xtra(TERM_XTRA_DELAY, msec);
-            lite_spot(ny, nx);
-            Term_fresh();
-        }
-
-        /* The player cannot see the missile */
         else
         {
-            /* Pause anyway, for consistancy */
-            Term_xtra(TERM_XTRA_DELAY, msec);
-        }
-
-        /* Save the new location */
-        x = nx;
-        y = ny;
-
-        /* Advance the distance */
-        cur_dis++;
-
-        /* Monster here, Try to hit it */
-        if (cave[y][x].m_idx)
-        {
-            cave_type *c_ptr = &cave[y][x];
-            monster_type *m_ptr = &m_list[c_ptr->m_idx];
-            monster_race *r_ptr = &r_info[m_ptr->r_idx];
-            bool visible = m_ptr->ml;
-
-            if (test_hit_fire(chance - cur_dis, MON_AC(r_ptr, m_ptr), m_ptr->ml))
-            {
-                bool fear = FALSE;
-                critical_t crit;
-
-                if (!visible)
-                    msg_format("The %s finds a mark.", o_name);
-                else
-                {
-                    char m_name[80];
-                    monster_desc(m_name, m_ptr, 0);
-                    msg_format("The %s hits %s.", o_name, m_name);
-                    if (m_ptr->ml)
-                    {
-                        if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
-                        health_track(c_ptr->m_idx);
-                    }
-                }
-
-                /***** The Damage Calculation!!! *****/
-                dd = info->o_ptr->dd;
-                tdam = damroll(dd, info->o_ptr->ds);
-                tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, 0, TRUE);
-                crit = critical_throw(info->o_ptr->weight, info->o_ptr->to_h);
-                if (crit.desc)
-                {
-                    tdam = tdam * crit.mul/100 + crit.to_d;
-                    msg_print(crit.desc);
-                }
-                tdam += info->o_ptr->to_d;
-                tdam *= info->mult;
-                tdam += p_ptr->to_d_m;
-                if (tdam < 0) tdam = 0;
-                tdam = mon_damage_mod(m_ptr, tdam, FALSE);
-
-                if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
-                {
-                    /* Dead monster */
-                }
-                else
-                {
-                    message_pain(c_ptr->m_idx, tdam);
-                    if (tdam > 0)
-                        anger_monster(m_ptr);
-
-                    if (tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
-                    {
-                        if (mut_present(MUT_PEERLESS_SNIPER))
-                        {
-                        }
-                        else
-                        {
-                            m_ptr->anger_ct++;
-                        }
-                    }
-
-                    if (fear && m_ptr->ml)
-                    {
-                        char m_name[80];
-                        sound(SOUND_FLEE);
-                        monster_desc(m_name, m_ptr, 0);
-                        msg_format("%^s flees in terror!", m_name);
-                    }
-
-                    {
-                        char m_name[80];
-                        int odds = 5;
-                        monster_desc(m_name, m_ptr, 0);
-
-                        if (one_in_(odds))
-                        {
-                            if (r_ptr->flags3 & RF3_NO_CONF)
-                            {
-                                mon_lore_3(m_ptr, RF3_NO_CONF);
-                                msg_format("%^s is unaffected.", m_name);
-                            }
-                            else if (mon_save_p(m_ptr->r_idx, A_STR))
-                            {
-                                msg_format("%^s is unaffected.", m_name);
-                            }
-                            else
-                            {
-                                msg_format("%^s appears confused.", m_name);
-                                set_monster_confused(c_ptr->m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
-                            }
-                        }
-
-                        if (p_ptr->lev >= 20 && one_in_(odds))
-                        {
-                            if (r_ptr->flags3 & RF3_NO_SLEEP)
-                            {
-                                mon_lore_3(m_ptr, RF3_NO_SLEEP);
-                                msg_format("%^s is unaffected.", m_name);
-                            }
-                            else if (mon_save_p(m_ptr->r_idx, A_STR))
-                            {
-                                msg_format("%^s is unaffected.", m_name);
-                            }
-                            else
-                            {
-                                msg_format("%^s is knocked out.", m_name);
-                                set_monster_csleep(c_ptr->m_idx, MON_CSLEEP(m_ptr) + 500);
-                            }
-                        }
-
-                        if (p_ptr->lev >= 45 && one_in_(odds))
-                        {
-                            if (r_ptr->flags3 & RF3_NO_STUN)
-                            {
-                                mon_lore_3(m_ptr, RF3_NO_STUN);
-                                msg_format("%^s is unaffected.", m_name);
-                            }
-                            else if (mon_save_p(m_ptr->r_idx, A_STR))
-                            {
-                                msg_format("%^s is unaffected.", m_name);
-                            }
-                            else
-                            {
-                                msg_format("%^s is stunned.", m_name);
-                                set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 2));
-                            }
-                        }
-                    }
-                }
-            }
-
-            /* Stop looking */
-            break;
+            msg_format("%^s appears confused.", m_name);
+            set_monster_confused(m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
         }
     }
 
-    if (info->come_back)
+    if (p_ptr->lev >= 20 && one_in_(odds))
     {
-        int i;
-        for (i = cur_dis; i >= 0; i--)
+        if (r_ptr->flags3 & RF3_NO_SLEEP)
         {
-            y = GRID_Y(path[i]);
-            x = GRID_X(path[i]);
-            if (panel_contains(y, x) && player_can_see_bold(y, x))
-            {
-                char c = object_char(info->o_ptr);
-                byte a = object_attr(info->o_ptr);
-
-                /* Draw, Hilite, Fresh, Pause, Erase */
-                print_rel(c, a, y, x);
-                move_cursor_relative(y, x);
-                Term_fresh();
-                Term_xtra(TERM_XTRA_DELAY, msec);
-                lite_spot(y, x);
-                Term_fresh();
-            }
-            else
-            {
-                /* Pause anyway, for consistancy */
-                Term_xtra(TERM_XTRA_DELAY, msec);
-            }
+            mon_lore_3(m_ptr, RF3_NO_SLEEP);
+            msg_format("%^s is unaffected.", m_name);
         }
-        msg_format("Your %s comes back to you.", o_name);
+        else if (mon_save_p(m_ptr->r_idx, A_STR))
+        {
+            msg_format("%^s is unaffected.", m_name);
+        }
+        else
+        {
+            msg_format("%^s is knocked out.", m_name);
+            set_monster_csleep(m_idx, MON_CSLEEP(m_ptr) + 500);
+        }
     }
-    else
+
+    if (p_ptr->lev >= 45 && one_in_(odds))
     {
-        /* Record the actual location of the toss so we can drop the object here if required */
-        info->tx = x;
-        info->ty = y;
+        if (r_ptr->flags3 & RF3_NO_STUN)
+        {
+            mon_lore_3(m_ptr, RF3_NO_STUN);
+            msg_format("%^s is unaffected.", m_name);
+        }
+        else if (mon_save_p(m_ptr->r_idx, A_STR))
+        {
+            msg_format("%^s is unaffected.", m_name);
+        }
+        else
+        {
+            msg_format("%^s is stunned.", m_name);
+            set_monster_stunned(m_idx, MAX(MON_STUNNED(m_ptr), 2));
+        }
     }
 }
-
 static void _throw_weapon_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -936,29 +663,25 @@ static void _throw_weapon_spell(int cmd, variant *res)
         var_set_string(res, "Throw Weapon");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Throws your leading weapon, which might return to you.");
+        var_set_string(res, "Throws your weapon which might return to you.");
         break;
     case SPELL_CAST:
-    {
-        int hand;
-        var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
             msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
-        for (hand = 0; hand < MAX_HANDS; hand++)
+        else
         {
-            if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-            {
-                if (_club_toss(hand))
-                    var_set_bool(res, TRUE);
-                else
-                    break;
-            }
+            py_throw_t context = {0};
+
+            context.type = THROW_BOOMERANG;
+            context.mult = 100 + 4 * p_ptr->lev;
+            context.back_chance = 24 + randint1(5);
+            context.after_hit_f = _toss_hit_mon;
+            var_set_bool(res, py_throw(&context));
         }
         break;
-    }
     default:
         default_spell(cmd, res);
         break;
@@ -984,6 +707,22 @@ static void _trade_blows_spell(int cmd, variant *res)
 /****************************************************************
  * Crossbowmaster
  ****************************************************************/
+static void _careful_aim_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Careful Aim");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "You shoot more slowly but much more accurately.");
+        break;
+    default:
+        _toggle_spell(TOGGLE_CAREFUL_AIM, cmd, res);
+        break;
+    }
+}
+
 static void _elemental_bolt_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -1080,325 +819,6 @@ static void _shattering_bolt_spell(int cmd, variant *res)
 /****************************************************************
  * Daggermaster
  ****************************************************************/
-/* DAGGER TOSS: Code spiked from do_cmd_throw with heavy mods */
-typedef struct {
-    int item;
-    object_type *o_ptr;
-    int mult;
-    int tdis;
-    int tx;
-    int ty;
-    bool come_back;
-    bool fail_catch;
-    bool flying_dagger;
-} _dagger_toss_info;
-
-static void _dagger_toss_imp(_dagger_toss_info * info_ptr);
-
-static bool _dagger_toss(int hand)
-{
-    int dir;
-    _dagger_toss_info info;
-    int back_chance;
-    int oops = 100;
-
-    /* Setup info for the toss */
-    info.item = p_ptr->weapon_info[hand].slot;
-    info.o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
-    info.come_back = FALSE;
-    info.flying_dagger = FALSE;
-    if (_get_toggle() == TOGGLE_FLYING_DAGGER_STANCE)
-        info.flying_dagger = TRUE;
-
-    if (!_check_speciality_aux(info.o_ptr)) return FALSE;
-    if (object_is_cursed(info.o_ptr))
-    {
-        msg_print("Hmmm, it seems to be cursed.");
-        return FALSE;
-    }
-
-    /* Toss mechanics stolen (with mods) from Samurai Boomerang ... see do_cmd_throw_aux() */
-    back_chance = randint1(30)+20+((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-
-    if (info.flying_dagger)
-    {
-        back_chance += 4+randint1(5);
-        oops = oops * 3/2;
-    }
-
-    info.come_back = FALSE;
-    info.fail_catch = FALSE;
-    if (back_chance > 30 && !one_in_(oops))
-    {
-        info.come_back = TRUE;
-        if (p_ptr->blind || p_ptr->image || p_ptr->confused || one_in_(oops))
-            info.fail_catch = TRUE;
-        else
-        {
-            oops = 37;
-            if (p_ptr->stun)
-                oops += 10;
-            if (back_chance <= oops)
-                info.fail_catch = TRUE;
-        }
-    }
-
-    /* Pick a target */
-    info.mult = NUM_BLOWS(hand)/100;
-    if (p_ptr->mighty_throw) info.mult++;
-    {
-        int mul, div;
-        mul = 10 + 2 * (info.mult - 1);
-        div = (info.o_ptr->weight > 10) ? info.o_ptr->weight : 10;
-        div /= 2;
-        info.tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
-        if (info.tdis > mul) info.tdis = mul;
-
-        project_length = info.tdis + 1;
-        if (!get_fire_dir(&dir)) return FALSE;
-
-        info.tx = px + 99 * ddx[dir];
-        info.ty = py + 99 * ddy[dir];
-
-        if ((dir == 5) && target_okay())
-        {
-            info.tx = target_col;
-            info.ty = target_row;
-        }
-
-        project_length = 0;
-
-        if (info.tx == px && info.ty == py) return FALSE;
-    }
-
-    /* Toss */
-    _dagger_toss_imp(&info);
-
-    /* Handle Inventory */
-    if (!info.come_back || info.fail_catch)
-    {
-        object_type copy;
-
-        if (!info.come_back)
-        {
-            char o_name[MAX_NLEN];
-            object_desc(o_name, info.o_ptr, OD_NAME_ONLY);
-            msg_format("Your %s fails to return!", o_name);
-        }
-
-        if (info.fail_catch)
-            msg_print("But you can't catch!");
-
-        if (TRUE) /* This is a showstopper, so force the player to notice! */
-        {
-            msg_print("Press <color:y>Space</color> to continue.");
-            flush();
-            for (;;)
-            {
-                char ch = inkey();
-                if (ch == ' ') break;
-            }
-            msg_line_clear();
-        }
-
-        object_copy(&copy, info.o_ptr);
-        copy.number = 1;
-
-        inven_item_increase(info.item, -1);
-        inven_item_describe(info.item);
-        inven_item_optimize(info.item);
-
-
-        if (!info.come_back)
-            drop_near(&copy, 0, info.ty, info.tx);
-        else
-            drop_near(&copy, 0, py, px);
-
-        p_ptr->redraw |= PR_EQUIPPY;
-        p_ptr->update |= PU_BONUS;
-        android_calc_exp();
-        handle_stuff();
-    }
-    return TRUE;
-}
-
-static void _dagger_toss_imp(_dagger_toss_info * info)
-{
-    char o_name[MAX_NLEN];
-    u16b path[512];
-    int msec = delay_factor * delay_factor * delay_factor;
-    int y, x, ny, nx, dd, tdam;
-    int cur_dis, ct;
-    int chance;
-
-    chance = p_ptr->skill_tht + ((p_ptr->shooter_info.to_h + info->o_ptr->to_h) * BTH_PLUS_ADJ);
-    chance *= 2; /* mimicking code for ninja shuriken */
-
-    object_desc(o_name, info->o_ptr, OD_NAME_ONLY);
-    ct = project_path(path, info->tdis, py, px, info->ty, info->tx, PROJECT_PATH);
-
-    y = py;
-    x = px;
-
-    for (cur_dis = 0; cur_dis < ct; )
-    {
-        /* Peek ahead at the next square in the path */
-        ny = GRID_Y(path[cur_dis]);
-        nx = GRID_X(path[cur_dis]);
-
-        /* Stopped by walls/doors/forest ... but allow hitting your target, please! */
-        if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
-         && !cave[ny][nx].m_idx)
-        {
-            break;
-        }
-
-        /* The player can see the (on screen) missile */
-        if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
-        {
-            char c = object_char(info->o_ptr);
-            byte a = object_attr(info->o_ptr);
-
-            /* Draw, Hilite, Fresh, Pause, Erase */
-            print_rel(c, a, ny, nx);
-            move_cursor_relative(ny, nx);
-            Term_fresh();
-            Term_xtra(TERM_XTRA_DELAY, msec);
-            lite_spot(ny, nx);
-            Term_fresh();
-        }
-
-        /* The player cannot see the missile */
-        else
-        {
-            /* Pause anyway, for consistancy */
-            Term_xtra(TERM_XTRA_DELAY, msec);
-        }
-
-        /* Save the new location */
-        x = nx;
-        y = ny;
-
-        /* Advance the distance */
-        cur_dis++;
-
-        /* Monster here, Try to hit it */
-        if (cave[y][x].m_idx)
-        {
-            cave_type *c_ptr = &cave[y][x];
-            monster_type *m_ptr = &m_list[c_ptr->m_idx];
-            monster_race *r_ptr = &r_info[m_ptr->r_idx];
-            bool visible = m_ptr->ml;
-
-            if (test_hit_fire(chance - cur_dis, MON_AC(r_ptr, m_ptr), m_ptr->ml))
-            {
-                bool fear = FALSE;
-                critical_t crit;
-
-                if (!visible)
-                    msg_format("The %s finds a mark.", o_name);
-                else
-                {
-                    char m_name[80];
-                    monster_desc(m_name, m_ptr, 0);
-                    msg_format("The %s hits %s.", o_name, m_name);
-                    if (m_ptr->ml)
-                    {
-                        if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
-                        health_track(c_ptr->m_idx);
-                    }
-                }
-
-                /***** The Damage Calculation!!! *****/
-                dd = info->o_ptr->dd;
-                if (info->flying_dagger)
-                    dd += p_ptr->lev/15;
-                tdam = damroll(dd, info->o_ptr->ds);
-                tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, 0, TRUE);
-                crit = critical_throw(info->o_ptr->weight, info->o_ptr->to_h);
-                if (crit.desc)
-                {
-                    tdam = tdam * crit.mul/100 + crit.to_d;
-                    msg_print(crit.desc);
-                }
-                tdam += info->o_ptr->to_d;
-                tdam *= info->mult;
-                tdam += p_ptr->shooter_info.to_d;
-                if (tdam < 0) tdam = 0;
-                tdam = mon_damage_mod(m_ptr, tdam, FALSE);
-
-                if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
-                {
-                    /* Dead monster */
-                }
-                else
-                {
-                    message_pain(c_ptr->m_idx, tdam);
-                    if (tdam > 0)
-                        anger_monster(m_ptr);
-
-                    if (tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
-                    {
-                        if (mut_present(MUT_PEERLESS_SNIPER))
-                        {
-                        }
-                        else
-                        {
-                            m_ptr->anger_ct++;
-                        }
-                    }
-
-                    if (fear && m_ptr->ml)
-                    {
-                        char m_name[80];
-                        sound(SOUND_FLEE);
-                        monster_desc(m_name, m_ptr, 0);
-                        msg_format("%^s flees in terror!", m_name);
-                    }
-                }
-            }
-
-            /* Stop looking */
-            break;
-        }
-    }
-
-    if (info->come_back)
-    {
-        int i;
-        for (i = cur_dis; i >= 0; i--)
-        {
-            y = GRID_Y(path[i]);
-            x = GRID_X(path[i]);
-            if (panel_contains(y, x) && player_can_see_bold(y, x))
-            {
-                char c = object_char(info->o_ptr);
-                byte a = object_attr(info->o_ptr);
-
-                /* Draw, Hilite, Fresh, Pause, Erase */
-                print_rel(c, a, y, x);
-                move_cursor_relative(y, x);
-                Term_fresh();
-                Term_xtra(TERM_XTRA_DELAY, msec);
-                lite_spot(y, x);
-                Term_fresh();
-            }
-            else
-            {
-                /* Pause anyway, for consistancy */
-                Term_xtra(TERM_XTRA_DELAY, msec);
-            }
-        }
-        msg_format("Your %s comes back to you.", o_name);
-    }
-    else
-    {
-        /* Record the actual location of the toss so we can drop the object here if required */
-        info->tx = x;
-        info->ty = y;
-    }
-}
-
 static void _dagger_toss_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -1407,29 +827,35 @@ static void _dagger_toss_spell(int cmd, variant *res)
         var_set_string(res, "Dagger Toss");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Throws your equipped weapons at target monster.");
+        var_set_string(res, "Throws your weapon at target monster.");
         break;
     case SPELL_CAST:
-    {
-        int hand;
-        var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
             msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
-        for (hand = 0; hand < MAX_HANDS; hand++)
+        else
         {
-            if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+            py_throw_t context = {0};
+
+            context.type = THROW_BOOMERANG;
+            context.mult = 100 + 4 * p_ptr->lev;
+            context.back_chance = 20;
+            if (_get_toggle() == TOGGLE_FLYING_DAGGER_STANCE)
             {
-                if (_dagger_toss(hand))
-                    var_set_bool(res, TRUE);
-                else
-                    break;
+                context.back_chance += 4 + randint1(5);
+                context.to_dd += p_ptr->lev/15;
             }
+            var_set_bool(res, py_throw(&context));
         }
         break;
-    }
+    case SPELL_ENERGY:
+        if (_get_toggle() == TOGGLE_FLYING_DAGGER_STANCE)
+            var_set_int(res, (100 - p_ptr->lev)*2/3);
+        else
+            var_set_int(res, 100 - p_ptr->lev);
+        break;
     default:
         default_spell(cmd, res);
         break;
@@ -1612,10 +1038,8 @@ static void _bury_dead_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int item;
+        obj_prompt_t prompt = {0};
         char o_name[MAX_NLEN];
-        object_type *o_ptr;
-        object_type copy;
         int turns;
 
         var_set_bool(res, FALSE);
@@ -1625,39 +1049,28 @@ static void _bury_dead_spell(int cmd, variant *res)
             return;
         }
 
-        item_tester_hook = _object_is_corpse_or_skeleton;
-        if (!get_item(&item, "Bury which corpse? ", "You have nothing to bury.", (USE_INVEN | USE_FLOOR))) return;
+        prompt.prompt = "Bury which corpse?";
+        prompt.error = "You have nothing to bury.";
+        prompt.filter = _object_is_corpse_or_skeleton;
+        prompt.where[0] = INV_PACK;
+        prompt.where[1] = INV_FLOOR;
 
-        if (item >= 0)
-            o_ptr = &inventory[item];
-        else
-            o_ptr = &o_list[0 - item];
+        obj_prompt(&prompt);
+        if (!prompt.obj) return;
 
         /* TV_CORPSE, SV_CORPSE = Corpse
            TV_CORPSE, SV_SKELETON = Skeleton
            TV_SKELETON, ??? = Skeleton */
-        if (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE)
+        if (prompt.obj->tval == TV_CORPSE && prompt.obj->sval == SV_CORPSE)
             turns = 40;
         else
             turns = 15;
 
-        object_copy(&copy, o_ptr);
-        copy.number = 1;
-        object_desc(o_name, &copy, OD_NAME_ONLY);
+        object_desc(o_name, prompt.obj, OD_NAME_ONLY | OD_COLOR_CODED | OD_SINGULAR);
         msg_format("You dig a hasty grave and toss in %s.", o_name);
 
-        if (item >= 0)
-        {
-            inven_item_increase(item, -1);
-            inven_item_describe(item);
-            inven_item_optimize(item);
-        }
-        else
-        {
-            floor_item_increase(0 - item, -1);
-            floor_item_describe(0 - item);
-            floor_item_optimize(0 - item);
-        }
+        prompt.obj->number--;
+        obj_release(prompt.obj, 0);
 
         set_blessed(p_ptr->blessed + turns, FALSE);
         if (p_ptr->lev >= 15)
@@ -2106,15 +1519,13 @@ static void _greater_many_shot_spell(int cmd, variant *res)
         }
         else
         {
-            int i, item;
+            int i;
             int tgts[_MAX_TARGETS];
             int ct = _get_greater_many_shot_targets(tgts, _MAX_TARGETS);
-            object_type *bow = equip_obj(p_ptr->shooter_info.slot);
+            obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
+            obj_ptr ammo = _get_ammo(TRUE);
 
-            item_tester_tval = p_ptr->shooter_info.tval_ammo;
-            if (!get_item(&item,
-                          "Fire which ammo? ",
-                          "You have nothing to fire.", (USE_INVEN | USE_QUIVER)))
+            if (!ammo)
             {
                 flush();
                 return;
@@ -2128,9 +1539,10 @@ static void _greater_many_shot_spell(int cmd, variant *res)
                 int tx = m_list[tgt].fx;
                 int ty = m_list[tgt].fy;
 
-                do_cmd_fire_aux2(item, bow, px, py, tx, ty);
+                do_cmd_fire_aux2(bow, ammo, px, py, tx, ty);
             }
 
+            obj_release(ammo, 0);
             shoot_hack = SHOOT_NONE;
             var_set_bool(res, TRUE);
         }
@@ -2160,15 +1572,13 @@ static void _many_shot_spell(int cmd, variant *res)
         }
         else
         {
-            int i, item;
+            int i;
             int tgts[_MAX_TARGETS];
             int ct = _get_many_shot_targets(tgts, _MAX_TARGETS);
-            object_type *bow = equip_obj(p_ptr->shooter_info.slot);
+            obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
+            obj_ptr ammo = _get_ammo(TRUE);
 
-            item_tester_tval = p_ptr->shooter_info.tval_ammo;
-            if (!get_item(&item,
-                          "Fire which ammo? ",
-                          "You have nothing to fire.", (USE_INVEN | USE_QUIVER)))
+            if (!ammo)
             {
                 flush();
                 return;
@@ -2182,9 +1592,10 @@ static void _many_shot_spell(int cmd, variant *res)
                 int tx = m_list[tgt].fx;
                 int ty = m_list[tgt].fy;
 
-                do_cmd_fire_aux2(item, bow, px, py, tx, ty);
+                do_cmd_fire_aux2(bow, ammo, px, py, tx, ty);
             }
 
+            obj_release(ammo, 0);
             shoot_hack = SHOOT_NONE;
             var_set_bool(res, TRUE);
         }
@@ -2232,16 +1643,13 @@ static void _shot_on_the_run_spell(int cmd, variant *res)
             _set_toggle(TOGGLE_NONE);
         else
         {
-            /* Prompt for ammo to use, but disallow choosing from the floor since
-               the player will be moving */
-            item_tester_tval = p_ptr->shooter_info.tval_ammo;
-            if (!get_item(&shoot_item,
-                          "Choose ammo for this technique.",
-                          "You have nothing to fire.", (USE_INVEN | USE_QUIVER)))
+            obj_ptr ammo = _get_ammo(FALSE);
+            if (!ammo)
             {
                 flush();
                 return;
             }
+            shoot_item = ammo->loc;
             _set_toggle(TOGGLE_SHOT_ON_THE_RUN);
             /* _move_player() will handle the gritty details */
         }
@@ -2408,7 +1816,7 @@ void _circle_kick(void)
     int ds = p_ptr->lev;
     int bonus = p_ptr->to_h_m;
     int chance = p_ptr->skills.thn + (bonus * BTH_PLUS_ADJ);
-    int slot = equip_find_object(TV_BOOTS, SV_ANY);
+    int slot = equip_find_obj(TV_BOOTS, SV_ANY);
 
     if (slot)
         dd = equip_obj(slot)->ac;
@@ -2483,7 +1891,7 @@ static void _circle_kick_spell(int cmd, variant *res)
     {
         int ds = p_ptr->lev;
         int dd = 0;
-        int slot = equip_find_object(TV_BOOTS, SV_ANY);
+        int slot = equip_find_obj(TV_BOOTS, SV_ANY);
 
         if (slot)
             dd = equip_obj(slot)->ac;
@@ -2928,13 +2336,14 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
         { TV_BOW, SV_HEAVY_XBOW },
         { 0, 0 },
       },
-      { {  5,   0,  0, _rapid_reload_spell },
+      { {  5,   0,  0, _careful_aim_spell },
         { 10,  10,  0, _shattering_bolt_spell },
         { 25,  20, 50, _judge_spell },
         { 25,  15,  0, _knockback_bolt_spell },
         { 30,   0,  0, _exploding_bolt_spell },
         { 35,  30,  0, _elemental_bolt_spell },
-        { 40,   0,  0, _overdraw_spell },
+        { 38,   0,  0, _rapid_reload_spell },
+        { 42,   0,  0, _overdraw_spell },
         { -1,   0,  0, NULL },
       },
       { TV_BOW, SV_LIGHT_XBOW },
@@ -3053,8 +2462,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     { "Slings",
       "Watch out, Goliath! As a master of slings you will shoot pebbles with uncanny speed. Your "
       "shots may even ricochet off other monsters to score multiple hits. As with other archery "
-      "specializations, your ammo will break less often and, at high levels you will gain access "
-      "to an 'unlimited quiver' which allows you to shoot an infinite amount of (average) ammo.",
+      "specializations, your ammo will break less often.",
       _WEAPONMASTER_BOWS,
     /*  S   I   W   D   C   C */
       {-1, +1, +1, +3, -1,  0},
@@ -3203,6 +2611,23 @@ static bool _check_speciality_aux(object_type *o_ptr)
     return FALSE;
 }
 
+static bool _can_judge(obj_ptr obj)
+{
+    switch (p_ptr->psubclass)
+    {
+    case WEAPONMASTER_CROSSBOWS:
+        if (obj->tval == TV_BOLT) return TRUE;
+        break;
+    case WEAPONMASTER_SLINGS:
+        if (obj->tval == TV_SHOT) return TRUE;
+        break;
+    case WEAPONMASTER_BOWS:
+        if (obj->tval == TV_ARROW) return TRUE;
+        break;
+    }
+    return _check_speciality_aux(obj);
+}
+
 static bool _check_speciality_equip(void)
 {
     bool result = equip_find_first(_check_speciality_aux);
@@ -3292,23 +2717,25 @@ void _on_birth(void)
         switch (kind.sval)
         {
         case SV_SLING:
-            object_prep(&forge, lookup_kind(TV_SHOT, SV_AMMO_NORMAL));
+            object_prep(&forge, lookup_kind(TV_SHOT, SV_SHOT));
             forge.number = (byte)rand_range(15, 20);
             py_birth_obj(&forge);
             break;
         case SV_SHORT_BOW:
         case SV_LONG_BOW:
-            object_prep(&forge, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
+            object_prep(&forge, lookup_kind(TV_ARROW, SV_ARROW));
             forge.number = (byte)rand_range(15, 20);
             py_birth_obj(&forge);
             break;
         case SV_LIGHT_XBOW:
         case SV_HEAVY_XBOW:
-            object_prep(&forge, lookup_kind(TV_BOLT, SV_AMMO_NORMAL));
+            object_prep(&forge, lookup_kind(TV_BOLT, SV_BOLT));
             forge.number = (byte)rand_range(15, 20);
             py_birth_obj(&forge);
             break;
         }
+        object_prep(&forge, lookup_kind(TV_SWORD, SV_DAGGER));
+        py_birth_obj(&forge);
     }
 
     for (i = 0; i < _MAX_OBJECTS_PER_SPECIALITY; i++)
@@ -3421,17 +2848,12 @@ static void _calc_bonuses(void)
 
             if (p_ptr->lev >= 20)
                 p_ptr->big_shot = TRUE;
-
-            if (p_ptr->lev >= 45)
-                p_ptr->unlimited_quiver = TRUE;
         }
     }
     else if (p_ptr->psubclass == WEAPONMASTER_BOWS)
     {
         if (spec)
         {
-            if (p_ptr->lev >= 45)
-                p_ptr->unlimited_quiver = TRUE;
         }
     }
     else if (p_ptr->psubclass == WEAPONMASTER_CROSSBOWS)
@@ -3823,9 +3245,9 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 
     if (spec && !p_ptr->shooter_info.heavy_shoot)
     {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 150 / 50;
+        p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
         if (p_ptr->psubclass == WEAPONMASTER_SLINGS && p_ptr->lev >= 40)
-            p_ptr->shooter_info.num_fire += 100;
+            p_ptr->shooter_info.num_fire += 50;
 
         p_ptr->shooter_info.to_d += p_ptr->lev/5;
         p_ptr->shooter_info.dis_to_d += p_ptr->lev/5;
@@ -3842,17 +3264,22 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
                 p_ptr->shooter_info.num_fire += p_ptr->shooter_info.num_fire * (10 + p_ptr->lev/3) / 100;
                 break;
             case TOGGLE_EXPLODING_BOLT:
-                p_ptr->shooter_info.num_fire /= 2;
+                p_ptr->shooter_info.num_fire -= p_ptr->lev;
                 break;
             case TOGGLE_OVERDRAW:
                 p_ptr->shooter_info.to_mult += 100;
                 p_ptr->shooter_info.to_h -= 20;
                 p_ptr->shooter_info.dis_to_h -= 20;
                 break;
+            case TOGGLE_CAREFUL_AIM:
+                p_ptr->shooter_info.to_h += 20;
+                p_ptr->shooter_info.dis_to_h += 20;
+                p_ptr->shooter_info.num_fire -= p_ptr->lev * 2;
+                break;
             }
         }
         if (p_ptr->psubclass == WEAPONMASTER_BOWS && p_ptr->lev >= 20)
-            p_ptr->shooter_info.breakage = 30;
+            p_ptr->shooter_info.breakage -= 10;
     }
 }
 
@@ -4108,12 +3535,36 @@ static void _process_player(void)
     }
 }
 
+static obj_ptr _relocate_ammo(obj_loc_t loc)
+{
+    obj_ptr ammo = NULL;
+    if (loc.where == INV_QUIVER && loc.slot)
+        ammo = quiver_obj(loc.slot);
+    else if (loc.where == INV_PACK && loc.slot)
+        ammo = pack_obj(loc.slot);
+    if (ammo && obj_can_shoot(ammo))
+        return ammo;
+    return NULL;
+}
+
+static obj_ptr _find_ammo(void)
+{
+    slot_t slot = quiver_find_first(obj_can_shoot);
+    if (slot)
+        return quiver_obj(slot);
+    slot = pack_find_first(obj_can_shoot);
+    if (slot)
+        return pack_obj(slot);
+    return NULL;
+}
+
 static void _move_player(void)
 {
     if (_get_toggle() == TOGGLE_SHOT_ON_THE_RUN)
     {
         int idx = -1;
         int num_shots = 1 + p_ptr->shooter_info.num_fire / 400;
+        obj_ptr ammo;
         int i;
 
         /* Paranoia:  Did the player remove their sling? */
@@ -4123,25 +3574,31 @@ static void _move_player(void)
             return;
         }
 
+        ammo = _relocate_ammo(shoot_item);
+        if (!ammo)
+            ammo = _find_ammo();
+        if (!ammo)
+        {
+            msg_print("You are out of ammo.");
+            _set_toggle(TOGGLE_NONE);
+            return;
+        }
+
         for (i = 0; i < num_shots; i++)
         {
             /* End the technique when the ammo runs out.  Note that "return ammo"
                might not consume the current shot. Note that we will intentionally spill
-               over into the next stack of shots, provided they are legal for this shooter. */
-            if (shoot_item != INVEN_UNLIMITED_QUIVER)
+               over into the next stack of shots, provided they are legal for this shooter. 
+            if (shoot_item != INVEN_UNLIMITED_QUIVER)??? */
+            if (!ammo->number)
             {
-                if (inventory[shoot_item].tval != p_ptr->shooter_info.tval_ammo)
+                obj_release(ammo, 0);
+                ammo = _find_ammo();
+                if (!ammo)
                 {
-                    /* Ugh, with this technique, the ammo slot is constantly moving thanks
-                       to pseudo-id/autodestroyer or unstacking and stacking of staves.
-                       Just try to find usable ammo should this occur */
-                    shoot_item = _find_ammo_slot();
-                    if (shoot_item < 0)
-                    {
-                        msg_print("Your ammo has run out. Time to reload!");
-                        _set_toggle(TOGGLE_NONE);
-                        return;
-                    }
+                    msg_print("Your ammo has run out. Time to reload!");
+                    _set_toggle(TOGGLE_NONE);
+                    return;
                 }
             }
 
@@ -4149,19 +3606,20 @@ static void _move_player(void)
             idx = _get_nearest_target_los();
             if (idx > 0)
             {
-                int tx, ty;
-                object_type *bow = equip_obj(p_ptr->shooter_info.slot);
+                int     tx, ty;
+                obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
 
                 if (bow)
                 {
                     tx = m_list[idx].fx;
                     ty = m_list[idx].fy;
                     shoot_hack = SHOOT_RUN;
-                    do_cmd_fire_aux2(shoot_item, bow, px, py, tx, ty);
+                    do_cmd_fire_aux2(bow, ammo, px, py, tx, ty);
                     shoot_hack = SHOOT_NONE;
                 }
             }
         }
+        obj_release(ammo, OBJ_RELEASE_QUIET);
     }
     if (p_ptr->psubclass == WEAPONMASTER_POLEARMS)
     {
@@ -4264,8 +3722,6 @@ static void _character_dump(doc_ptr doc)
         doc_printf(doc, "  * Your ammo often returns to you when wielding a sling.\n");
         if (p_ptr->lev >= 20)
             doc_printf(doc, "  * Your ammo gains extra damage dice when wielding a sling.\n");
-        if (p_ptr->lev >= 45)
-            doc_printf(doc, "  * You have access to an unlimited quiver when wielding a sling.\n");
 
         if (p_ptr->lev >= 10)
             doc_printf(doc, "  * <indent>Your shots never miss your target once you score 3 consecutive hits when wielding a sling.</indent>\n");
@@ -4415,12 +3871,29 @@ void weaponmaster_do_readied_shot(monster_type *m_ptr)
     {
         int tx = m_ptr->fx;
         int ty = m_ptr->fy;
-        object_type *bow = equip_obj(p_ptr->shooter_info.slot);
+        obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
 
         if (bow)
         {
+            obj_ptr ammo = _relocate_ammo(shoot_item);
+            /* Probably, the player should ready another? Also, 
+             * do_cmd_fire should clear the toggle? There is no
+             * game concept of a "loaded arrow", but ideally, the
+             * object would be copied out at time of casting and
+             * stored someplace else ... then do_cmd_fire would simply
+             * use the loaded arrow (rather than prompting) with
+             * less energy ... but that seems too complicated to implement.
+            if (!ammo)
+                ammo = _find_ammo();*/
+            if (!ammo)
+            {
+                msg_print("The ammo you readied no longer exists!");
+                _set_toggle(TOGGLE_NONE);
+                return;
+            }
             shoot_hack = SHOOT_RETALIATE;
-            do_cmd_fire_aux2(shoot_item, bow, px, py, tx, ty);
+            do_cmd_fire_aux2(bow, ammo, px, py, tx, ty);
+            obj_release(ammo, 0);
             shoot_hack = SHOOT_NONE;
         }
         /* Force the player to ready another arrow ... */
