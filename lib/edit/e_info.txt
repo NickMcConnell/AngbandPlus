@@ -1,6 +1,6 @@
 # File: e_info.txt
 
-# Redone for ComPosband 3.0.0 with ideas liberally borrowed from
+# Redone for PosChengband 3.0.0 with ideas liberally borrowed from
 # great variants everywhere! Many thanks!!
 
 # This file is used to initialize the "lib/raw/e_info.raw" file, which is
@@ -718,7 +718,7 @@ E:PHASE_DOOR:1:5
 
 N:147:(Dwarven)
 T:BOOTS
-W:20:80:4
+W:15:80:3
 C:0:0:10:3
 F:FREE_ACT | CON | DEC_STEALTH
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -895,7 +895,7 @@ F:HIDE_TYPE
 
 N:208:of Wizardry
 T:RING
-W:30:*:4
+W:25:*:3
 
 N:209:of Speed
 T:RING

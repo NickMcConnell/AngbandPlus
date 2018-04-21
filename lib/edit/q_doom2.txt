@@ -1,12 +1,11 @@
 # a quick creation by Jeff Coleburn <vsp@netaxs.com>
 
 ?:[EQU $QUEST21 Taken InProgress]
-D:A strange hole in reality has opened up on the edge of our
-D:town, near the dungeon entrance, and appears to be even more 
-D:dangerous than the hole reported in Angwil. Five of our 
-D:strongest knights ventured within -- only one returned, 
-D:scorched by fire and babbling incoherently. We have not the 
-D:resources to deal with this threat. Do you?
+D:Another strange hole in reality has opened up on the edge of
+D:our town, and appears to be even more dangerous than the  
+D:last. Five of our strongest knights ventured within -- only 
+D:one returned, scorched by fire and babbling incoherently.  
+D:We have not the resources to deal with this threat. Do you?
 ?:1
 
 ?:[EQU $QUEST21 Completed]

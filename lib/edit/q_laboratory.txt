@@ -1,0 +1,66 @@
+?:[EQU $QUEST65 Taken InProgress]
+D:You again. Tell you what, a couple of other students left
+D:the laboratory in a mess. Go and tidy it up! That should
+D:keep you busy.
+?:1
+
+?:[EQU $QUEST65 Completed]
+D:Hrm, you know you're meant to follow lab safety and wear
+D:gloves in there? Go to the stockroom and get yourself a
+D:pair.
+?:1
+
+?:[EQU $QUEST65 Failed]
+D:Ugh now who is going to clean up the mess in there.
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:+:CLOSED_DOOR
+L:.:FLOOR
+L:<:UP_STAIR
+L:^:TRAP(*, 25%)
+L:p:OBJ(POTION)
+L:w:OBJ(WAND_BOLT_FIRE)
+L:x:OBJ(WAND_BOLT_COLD)
+L:y:OBJ(WAND_BOLT_ACID)
+L:z:OBJ(WAND_BOLT_ELEC)
+L:e:MON(ooze elemental)
+L:f:MON(smoke elemental)
+L:g:MON(air elemental)
+L:h:MON(beer elemental)
+L:i:MON(quasit)
+L:s:OBJ(SCROLL, DEPTH+5)
+L:t:OBJ(JUNK)
+L:u:OBJ(STAFF_LITE_AREA)
+L:v:OBJ(STAFF_DARKNESS)
+L:a:OBJ(RING, DEPTH+10):EGO(wizardry)
+L:b:OBJ(BOOK)
+L:c:OBJ(ROD_CLARITY)
+L:d:MON(disenchanter mold)
+L:j:MON(ochre jelly)
+L:k:MON(silver jelly)
+!:SCRAMBLE(s,t,^,b)
+!:SCRAMBLE(i,j,p,f)
+!:SCRAMBLE(u,v)
+
+M:##########################################################
+M:#<..............#t^.........#.......#...........#........#
+M:#.......t.......#p.t..j.....#.......#.....h.....+.^...f..#
+M:#...............#p..k...b...#.......#...i..t....#..tf....#
+M:#.......^...g...#####+#######.......#.....^.....#........#
+M:#...t...........#...................#...........#........#
+M:#.......b.......+...........f....h..####+########...^.k..#
+M:#...............#..k............................#p...t.uv#
+M:#################^........s........^.s...e...y..##########
+M:#.....#..w........t.e..........^t...............#........#
+M:#.b...#.......................f.................#.......b#
+M:#....^+...^......#.^...#...^.#.....#.....#^...t.#.^t....s#
+M:#.cdk.#...j..t...#...^.#.^...#.....#...t.#.t....+..k...js#
+M:#kdat.#.p........#x..t.#...t.#.t...#.t...#.z....#.......s#
+M:##########################################################
+
+
+R:OBJ(leather gloves):EGO(wizard)
+
+# vim: filetype=q :

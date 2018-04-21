@@ -1,0 +1,21 @@
+?:[EQU $QUEST67 Taken InProgress]
+D:I always... uh, our city always needs more money, and I know a
+D:mage in Thalos who would pay handsomely for a shipment of dragons'
+D:hearts. What'd you say you open five great crystal drakes for him
+D:and we split the reward? You should find the drakes nesting in the
+D:crystal castle away to the east.
+?:1
+
+?:[EQU $QUEST67 Completed]
+D:Thank you very much, here's your share of the reward. I look forward
+D:to working together with you again.
+?:1
+
+?:[EQU $QUEST67 Failed]
+D:That's a pity, I guess I should have contracted someone more
+D:experienced. 
+?:1
+
+R:OBJ(AMULET):ART(*)
+
+# vim: filetype=q :

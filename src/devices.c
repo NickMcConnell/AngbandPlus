@@ -653,7 +653,7 @@ static cptr _do_potion(int sval, int mode)
         }
         break;
     case SV_POTION_CURE_CRITICAL:
-        if (desc) return "It heals you and cures stunned, cuts and berserk when you quaff it.";
+        if (desc) return "It heals you, reduces poisoning and cures stunning, cuts and berserk when you quaff it.";
         if (info) return info_heal(12, _potion_power(8), 0);
         if (cast)
         {
@@ -1493,6 +1493,7 @@ static cptr _do_scroll(int sval, int mode)
                 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
                 p_ptr->pclass == CLASS_WILD_TALENT ||
                 p_ptr->pclass == CLASS_NINJA ||
+                p_ptr->pclass == CLASS_NINJA_LAWYER ||
                 p_ptr->pclass == CLASS_SCOUT ||
                 p_ptr->pclass == CLASS_MYSTIC ||
                 p_ptr->pclass == CLASS_MAULER ||
@@ -2364,14 +2365,14 @@ device_effect_info_t wand_effect_table[] =
     {EFFECT_BALL_POIS,              5,   4,     1,  20,    33,  0, _STOCK_TOWN},
     {EFFECT_SLEEP_MONSTER,          5,   5,     1,  20,    33,  0, _STOCK_TOWN},
     {EFFECT_SLOW_MONSTER,           5,   5,     1,  20,    33,  0, _STOCK_TOWN},
-    {EFFECT_CONFUSE_MONSTER,        5,   5,     1,  20,    33,  0, 0},
-    {EFFECT_SCARE_MONSTER,          7,   5,     1,  20,    33,  0, 0},
+    {EFFECT_CONFUSE_MONSTER,        5,   5,     1,  20,    33,  0, _STOCK_TOWN},
+    {EFFECT_SCARE_MONSTER,          7,   5,     1,  20,    33,  0, _STOCK_TOWN},
     {EFFECT_STONE_TO_MUD,          10,   5,     1,   0,    10,  0, _COMMON},
     {EFFECT_POLYMORPH,             12,   6,     1,  30,     0,  0, 0},
-    {EFFECT_BOLT_COLD,             12,   7,     1,  30,    33,  0, 0},
-    {EFFECT_BOLT_ELEC,             15,   7,     1,  30,    33,  0, 0},
-    {EFFECT_BOLT_ACID,             17,   8,     1,  35,    33,  0, 0},
-    {EFFECT_BOLT_FIRE,             19,   9,     1,  35,    33,  0, 0},
+    {EFFECT_BOLT_COLD,             12,   7,     1,  30,    33,  0, _STOCK_TOWN},
+    {EFFECT_BOLT_ELEC,             15,   7,     1,  30,    33,  0, _STOCK_TOWN},
+    {EFFECT_BOLT_ACID,             17,   8,     1,  35,    33,  0, _STOCK_TOWN},
+    {EFFECT_BOLT_FIRE,             19,   9,     1,  35,    33,  0, _STOCK_TOWN},
     {EFFECT_HASTE_MONSTER,         20,   3,     1,  50,     0,  0, 0},
     {EFFECT_TELEPORT_AWAY,         20,  10,     1,   0,    10,  0, _COMMON},
     {EFFECT_DESTROY_TRAPS,         20,  10,     1,   0,    10,  0, 0},

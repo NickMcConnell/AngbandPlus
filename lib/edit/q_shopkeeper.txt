@@ -1,11 +1,11 @@
 ?:[EQU $QUEST53 Taken InProgress]
-D:While you were gone, I had a visit from
-D:an old friend and we were reminiscing about the infamous store
-D:keeper from the ancient city. My Dwarven friend always got the better
-D:end of the bargan when it came to haggling, but he met his match
-D:whenever he encountered this storekeeper. My advisor believes that
-D:the storekeeper used magic to charm his clients. Why don't you search
-D:the ruins and see if you can shed some light on the matter.
+D:While you were gone, I had a visit from an old friend and we were 
+D:reminiscing about the infamous storekeeper from the ancient city. 
+D:My Dwarven friend always got the better end of the bargain when it 
+D:came to haggling, but he met his match whenever he encountered this 
+D:storekeeper. My advisor believes that the storekeeper used magic
+D:to charm his clients. Why don't you search the ruins and see if 
+D:you can shed some light on the matter.
 ?:1
 
 ?:[EQU $QUEST53 Completed]

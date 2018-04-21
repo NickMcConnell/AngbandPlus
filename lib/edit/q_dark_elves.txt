@@ -50,6 +50,6 @@ M:#.......#
 M:#..%%%..#
 M:#...<...#
 M:#########
-R:ART(galadriel)
+R:OBJ(^amulet$):EGO(trickery)
 
 # vim: filetype=q :

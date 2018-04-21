@@ -24,13 +24,13 @@ Experience   300%       Infravision 50'
 Tanar'ri were originally slave demons, but rose up to overthrow their masters. They generally take on a humanoid form and are classic demons full of malice and cruelty. The ultimate form for this demon is the Marilith, a female demon with three sets of arms and a serpent body capable of attacking with six melee weapons!
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength     <color:w> +0</color>        Disarming   <color:y>Good         </color>
-Intelligence <color:v> +0</color>        Device      <color:y>Very Good    </color>
+Strength     <color:w> +3</color>        Disarming   <color:y>Good         </color>
+Intelligence <color:v> +1</color>        Device      <color:y>Very Good    </color>
 Wisdom       <color:w> -5</color>        Save        <color:o>Fair         </color>
-Dexterity    <color:w> +0</color>        Stealth     <color:y>Good         </color>
-Constitution <color:w> +0</color>        Searching   <color:R>Poor         </color>
-Charisma     <color:w> +0</color>        Perception  <color:r>Bad          </color>
-Life Rating   95%       Melee       <color:G>Excellent    </color>
+Dexterity    <color:w> +3</color>        Stealth     <color:y>Good         </color>
+Constitution <color:w> +3</color>        Searching   <color:R>Poor         </color>
+Charisma     <color:w> +1</color>        Perception  <color:r>Bad          </color>
+Life Rating  101%       Melee       <color:G>Excellent    </color>
 Base HP       30        Bows        <color:R>Poor         </color>
 Experience   250%       Infravision 50'
 </style></indent>
@@ -38,13 +38,13 @@ Experience   250%       Infravision 50'
 Khorne's servants come in many forms and are powerful forces of melee. They know nothing save melee, and strike at all that dare oppose the will of their master. As they gain experience, Khorne rewards his servants with new and more powerful forms.
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength     <color:w> +3</color>        Disarming   <color:y>Good         </color>
+Strength     <color:w> +5</color>        Disarming   <color:y>Good         </color>
 Intelligence <color:w> -5</color>        Device      <color:r>Bad          </color>
 Wisdom       <color:w> -5</color>        Save        <color:y>Good         </color>
 Dexterity    <color:w> +0</color>        Stealth     <color:r>Bad          </color>
-Constitution <color:w> +2</color>        Searching   <color:R>Poor         </color>
+Constitution <color:w> +4</color>        Searching   <color:R>Poor         </color>
 Charisma     <color:w> +0</color>        Perception  <color:r>Bad          </color>
-Life Rating  100%       Melee       <color:g>Superb       </color>
+Life Rating  110%       Melee       <color:g>Superb       </color>
 Base HP       42        Bows        <color:r>Bad          </color>
 Experience   250%       Infravision 50'
 </style></indent>
@@ -52,11 +52,11 @@ Experience   250%       Infravision 50'
 Cyberdemons are giant humanoid forms, half demon and half machine. They are a bit slow and move erratically, but their immense bodies and unsurpassable firepower more than make up for this. The walls of the dungeon reverberate with their heavy steps!
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength     <color:w> +5</color>        Disarming   <color:y>Good         </color>
+Strength     <color:w> +8</color>        Disarming   <color:y>Good         </color>
 Intelligence <color:w>-10</color>        Device      <color:D>Very Bad     </color>
 Wisdom       <color:w>-10</color>        Save        <color:R>Poor         </color>
 Dexterity    <color:w> -3</color>        Stealth     <color:r>Bad          </color>
-Constitution <color:w> +5</color>        Searching   <color:R>Poor         </color>
+Constitution <color:w> +8</color>        Searching   <color:R>Poor         </color>
 Charisma     <color:w> +0</color>        Perception  <color:r>Bad          </color>
 Life Rating  120%       Melee       <color:b>Heroic       </color>
 Base HP       50        Bows        <color:r>Bad          </color>
@@ -66,9 +66,9 @@ Experience   275%       Infravision 50'
 <style:table>
 <color:G>                 </color> <color:G>STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp  Shop</color>
 Balrog             +4   +1  -10   +1   +4   +2  105%  +45  300%  140%
-Tanar'ri           +0   +0   -5   +0   +0   +0   95%  +30  250%  140%
-Servant of Khorne  +3   -5   -5   +0   +2   +0  100%  +42  250%  140%
-Cyberdemon         +5  -10  -10   -3   +5   +0  120%  +50  275%  140%
+Tanar'ri           +3   +1   -5   +3   +3   +1  101%  +30  250%  140%
+Servant of Khorne  +5   -5   -5   +0   +4   +0  110%  +42  250%  140%
+Cyberdemon         +8  -10  -10   -3   +8   +0  120%  +50  275%  140%
 
 </style>
 <topic:Skills1><style:heading>Table 2 - Demon Skill Bonus Table I</style>
@@ -91,4 +91,4 @@ Cyberdemon        <color:R>Poor         </color> <color:r>Bad          </color> 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.0.1.</color>
+<color:s>Automatically generated for FrogComposband 7.0.strawberry.</color>

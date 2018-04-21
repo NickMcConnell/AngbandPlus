@@ -6,6 +6,8 @@ T:TOWN:NORMAL:NO_ROTATE
 L:&:FLOOR
 #L:&:QUEST_ENTER(27)
 
+L:<:ENTRANCE(GLOW | MARK, 1)
+
 # Default for Quest 1, 32
 L:z:PERMANENT
 

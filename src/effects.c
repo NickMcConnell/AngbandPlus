@@ -18,6 +18,11 @@ bool free_act_save_p(int ml)
 {
     int i, skill = p_ptr->skills.sav;
     if (p_ptr->pclass == CLASS_BERSERKER) return TRUE; /* negative skills */
+
+    /* Put in a hard limit because Chris's implementation was so unpopular */
+    if (p_ptr->free_act >= 3) return TRUE;
+    if ((ml < 42) && (p_ptr->free_act == 2)) return TRUE;
+
     for (i = 0; i < p_ptr->free_act; i++)
     {
         if (randint0(100 + ml/2) < skill)
@@ -25,18 +30,6 @@ bool free_act_save_p(int ml)
             equip_learn_flag(OF_FREE_ACT);
             return TRUE;
         }
-        /* OF_FREE_ACT is very common. End game with 4 sources is not unusual.
-         * Sample CL50 (sav=97) vs Umbaba on DL98:
-         * Ct  Fail1 Fail2
-         * ===============
-         *  1  33.6% 22.1%
-         *  2  18.9% 10.7%
-         *  3  13.4%  7.1%
-         *  4  10.9%  5.5%
-         *  5   9.5%  4.7%
-         *  Notice the diminishing returns with multiple sources. 3 is much better
-         *  than 1, but 5 only marginally better than 3. */
-        skill = skill * 2 / 3;
     }
     return FALSE;
 }
@@ -192,6 +185,7 @@ void reset_tim_flags(void)
     p_ptr->oppose_fire = 0;     /* Timed -- oppose heat */
     p_ptr->oppose_cold = 0;     /* Timed -- oppose cold */
     p_ptr->oppose_pois = 0;     /* Timed -- oppose poison */
+    p_ptr->spin = 0;            /* Timed -- spin (inc. oppose nether) */
 
     p_ptr->word_recall = 0;
     p_ptr->alter_reality = 0;
@@ -381,13 +375,14 @@ bool disenchant_player(void)
             }
             break;
         case 19:
-            if (p_ptr->oppose_acid || p_ptr->oppose_cold || p_ptr->oppose_elec || p_ptr->oppose_fire || p_ptr->oppose_pois)
+            if (p_ptr->oppose_acid || p_ptr->oppose_cold || p_ptr->oppose_elec || p_ptr->oppose_fire || p_ptr->oppose_pois || p_ptr->spin)
             {
                 (void)set_oppose_acid(0, TRUE);
                 (void)set_oppose_elec(0, TRUE);
                 (void)set_oppose_fire(0, TRUE);
                 (void)set_oppose_cold(0, TRUE);
                 (void)set_oppose_pois(0, TRUE);
+                (void)set_spin(0, TRUE);
                 result = TRUE;
                 return result;
             }
@@ -556,6 +551,7 @@ void dispel_player(void)
     (void)set_oppose_cold(0, TRUE);
     (void)set_oppose_pois(0, TRUE);
     (void)set_ultimate_res(0, TRUE);
+    (void)set_spin(0, TRUE);
     
     /* Its important that doppelganger gets called correctly and not set_mimic()
        since we monkey with things like the experience factor! */
@@ -1447,7 +1443,7 @@ bool set_tim_superstealth(int v, bool do_dec)
         if (p_ptr->tim_superstealth)
         {
             msg_print("You can no longer hide in shadows.");
-            if (p_ptr->pclass != CLASS_NINJA)
+            if (!player_is_ninja)
                 set_superstealth(FALSE);
             notice = TRUE;
         }
@@ -4365,6 +4361,63 @@ bool set_oppose_pois(int v, bool do_dec)
     return (TRUE);
 }
 
+/*
+ * Set "p_ptr->spin", notice observable changes
+ */
+bool set_spin(int v, bool do_dec)
+{
+    bool notice = FALSE;
+
+    /* Hack -- Force good values */
+    v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+    if (p_ptr->is_dead) return FALSE;
+
+    /* Open */
+    if (v)
+    {
+        if (p_ptr->spin && !do_dec)
+        {
+            if (p_ptr->spin > v) return FALSE;
+        }
+        else if (!IS_SPINNING())
+        {
+            msg_print("You start spinning stories!");
+
+            notice = TRUE;
+        }
+    }
+
+    /* Shut */
+    else
+    {
+        if (p_ptr->spin)
+        {
+            msg_print("You stop putting your own spin on stories.");
+
+            notice = TRUE;
+        }
+    }
+
+    /* Use the value */
+    p_ptr->spin = v;
+
+    /* Nothing to notice */
+    if (!notice) return (FALSE);
+
+    /* Redraw status bar */
+    p_ptr->redraw |= (PR_STATUS);
+    p_ptr->update |= (PU_BONUS);
+
+    /* Disturb */
+    if (disturb_state) disturb(0, 0);
+
+    /* Handle stuff */
+    handle_stuff();
+
+    /* Result */
+    return (TRUE);
+}
 
 /*
  * Set "p_ptr->stun", notice observable changes

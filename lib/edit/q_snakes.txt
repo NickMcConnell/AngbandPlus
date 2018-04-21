@@ -9,7 +9,7 @@ D:cleaning in the ruins.
 
 ?:[EQU $QUEST51 Completed]
 D:I will sleep easier now I do not have to think about those
-D:snakes. If you found my whip, you may keep it as a reward.
+D:snakes. If you found the whip you can keep it as a reward.
 ?:1
 
 ?:[EQU $QUEST51 Failed]

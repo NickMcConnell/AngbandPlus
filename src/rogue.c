@@ -597,6 +597,9 @@ cptr do_burglary_spell(int spell, int mode)
             if (!player_has_los_bold(target_row, target_col)) return NULL;
             if (!projectable(py, px, target_row, target_col)) return NULL;
 
+            /* This would cause bizarre behavior */
+            if (cave[target_row][target_col].m_idx == p_ptr->riding) return NULL;
+
             m_ptr = &m_list[cave[target_row][target_col].m_idx];
             r_ptr = &r_info[m_ptr->r_idx];
             monster_desc(m_name, m_ptr, 0);
@@ -806,7 +809,7 @@ class_t *rogue_get_class(void)
                     "fight, or to get in a telling first blow. A rogue may also "
                     "backstab a fleeing monster. Rogues also gain shooting bonuses "
                     "when using a sling.\n \n"
-                    "Rogues can select one realm from Sorcery, Death, Trump, Arcane, Craft, "
+                    "Rogues can select one realm - Sorcery, Death, Trump, Arcane, Craft, Law,"
                     "or Burglary. Except for this last realm, rogues have certain limitations " 
                     "on which spells they can learn, and they do not learn new spells "
                     "very quickly. The Burglary Realm however is unique to the rogue and "

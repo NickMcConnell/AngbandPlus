@@ -1,4 +1,4 @@
-/* File: dungeonc */
+/* File: dungeon.c */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -223,7 +223,7 @@ static void sense_inventory2(void)
 {
     int  plev = p_ptr->lev + 10;
     bool strong = FALSE;
-    int  flags = _get_pseudo_id_flags();
+//    int  flags = _get_pseudo_id_flags();
 
     if (p_ptr->confused) return;
 	if (easy_id)
@@ -919,6 +919,46 @@ static object_type *choose_cursed_obj_name(u32b flag)
     return NULL;
 }
 
+void do_alter_reality(void)
+{
+    /* Disturbing! */
+    disturb(0, 0);
+
+
+    /* Determine the level */
+    if ((!dungeon_type) && (quests_get_current()))
+    {
+        msg_print("The world seems to change for a moment!");
+        p_ptr->alter_reality = 0;
+    }
+    else
+    {
+        if (p_ptr->alter_reality) /* Mega-hack - law */
+        {
+            msg_print("You reject this reality and substitute your own!");
+            p_ptr->alter_reality = 0;
+        } 
+        else msg_print("The world changes!");
+
+        /*
+         * Clear all saved floors
+         * and create a first saved floor
+         */
+        prepare_change_floor_mode(CFM_FIRST_FLOOR);
+
+        /* Record position */
+        p_ptr->oldpx = px;
+        p_ptr->oldpy = py;
+
+        /* Leaving */
+        p_ptr->leaving = TRUE;
+        if (quests_get_current()) quests_on_leave();
+    }
+
+    /* Sound */
+    sound(SOUND_TPLEVEL);
+}
+
 static bool _fast_mana_regen(void)
 {
     switch (get_class_idx())
@@ -1036,6 +1076,58 @@ static void process_world_aux_hp_and_sp(void)
             cave_no_regen = TRUE;
         }
     }
+
+	if (have_flag(f_ptr->flags, FF_ACID) && !IS_INVULN() && !one_in_(3))
+	{
+		int a_damage = 0, p_damage = 0;
+		bool is_deep = have_flag(f_ptr->flags, FF_DEEP);
+
+		if (is_deep)
+		{
+			a_damage = 1400 + randint0(800);
+		}
+		else if (!p_ptr->levitation)
+		{
+			a_damage = 700 + randint0(400);
+		}
+
+		if (p_ptr->levitation) a_damage = a_damage / (is_deep ? 15 : 10);
+		p_damage = a_damage * 6 / 5;
+		a_damage = res_calc_dam(RES_ACID, a_damage);
+		p_damage = res_calc_dam(RES_POIS, p_damage);
+
+		if (a_damage > 0 || p_damage > 0)
+		{
+			a_damage = a_damage / 100 + (randint0(100) < (a_damage % 100));
+			p_damage = p_damage / 100 + (randint0(100) < (p_damage % 100));
+			if ((a_damage > 0) && (one_in_(16)) && (minus_ac())) a_damage = (a_damage + 1) / 2;
+
+			if ((p_ptr->levitation) && ((a_damage > 0) || (p_damage > 0)))
+			{
+				if (a_damage) msg_print("You are burned by toxic fumes!");
+				else msg_print("You are poisoned by toxic fumes!");
+				take_hit(DAMAGE_NOESCAPE, a_damage, format("flying over %s", f_name + f_info[get_feat_mimic(&cave[py][px])].name));
+				if ((p_damage > 0) && (a_damage == 0) && (!p_ptr->poisoned)) /* big fat hack - avoid message duplication */
+				{
+					p_ptr->poisoned += 1;
+					p_damage -= 1;
+				}				
+	 			set_poisoned(p_ptr->poisoned + p_damage, FALSE);
+			}
+			else if ((a_damage > 0) || (p_damage > 0))
+			{
+				cptr name = f_name + f_info[get_feat_mimic(&cave[py][px])].name;
+				msg_format("The %s burns you!", name);
+				take_hit(DAMAGE_NOESCAPE, a_damage, name);
+				set_poisoned(p_ptr->poisoned + p_damage, FALSE);
+			}
+
+			cave_no_regen = TRUE;
+
+                if ((one_in_(32)) && (!res_save_default(RES_POIS)))
+                do_dec_stat(A_CON);
+		}
+	}
 
     if (have_flag(f_ptr->flags, FF_WATER) && have_flag(f_ptr->flags, FF_DEEP) &&
         !p_ptr->levitation && !p_ptr->can_swim && !elemental_is_(ELEMENTAL_WATER))
@@ -1507,6 +1599,12 @@ static void process_world_aux_timeout(void)
     if (p_ptr->oppose_pois)
     {
         (void)set_oppose_pois(p_ptr->oppose_pois - 1, TRUE);
+    }
+
+    /* Spin */
+    if (p_ptr->spin)
+    {
+        (void)set_spin(p_ptr->spin - 1, TRUE);
     }
 
     if (p_ptr->ult_res)
@@ -2226,28 +2324,7 @@ void process_world_aux_movement(void)
         /* Activate the alter reality */
         if (!p_ptr->alter_reality)
         {
-            /* Disturbing! */
-            disturb(0, 0);
-
-            /* Determine the level */
-            if (quests_get_current())
-                msg_print("The world seems to change for a moment!");
-            else
-            {
-                msg_print("The world changes!");
-
-                /*
-                 * Clear all saved floors
-                 * and create a first saved floor
-                 */
-                prepare_change_floor_mode(CFM_FIRST_FLOOR);
-
-                /* Leaving */
-                p_ptr->leaving = TRUE;
-            }
-
-            /* Sound */
-            sound(SOUND_TPLEVEL);
+            do_alter_reality();
         }
     }
 }
@@ -2501,7 +2578,7 @@ static void process_world(void)
 
         if (number_mon == 0)
         {
-            msg_print("They have kill each other at the same time.");
+            msg_print("They have killed each other at the same time.");
             msg_print(NULL);
             p_ptr->energy_need = 0;
             battle_monsters();
@@ -2536,7 +2613,7 @@ static void process_world(void)
         }
         else if (game_turn - old_turn == 150*TURNS_PER_TICK)
         {
-            msg_format("This battle have ended in a draw.");
+            msg_format("This battle has ended in a draw.");
             p_ptr->au += kakekin;
             stats_on_gold_winnings(kakekin);
             msg_print(NULL);
@@ -2780,7 +2857,7 @@ static void process_world(void)
             int count = 0;
 
             disturb(1, 0);
-            msg_print("A distant bell tolls many times, fading into an deathly silence.");
+            msg_print("A distant bell tolls many times, fading into a deathly silence.");
 
             activate_ty_curse(FALSE, &count);
         }
@@ -2993,6 +3070,7 @@ static void _dispatch_command(int old_now_turn)
         /*** Wizard Commands ***/
 
         /* Toggle Wizard Mode */
+        case KTRL('Y'):
         case KTRL('W'):
         {
             if (p_ptr->wizard)
@@ -3387,6 +3465,8 @@ static void _dispatch_command(int old_now_turn)
                     which_power = "psionic powers";
                 else if (p_ptr->pclass == CLASS_SAMURAI)
                     which_power = "hissatsu";
+                else if (p_ptr->pclass == CLASS_LAWYER || p_ptr->pclass == CLASS_NINJA_LAWYER)
+                    which_power = "legal trickery";
                 else if (p_ptr->pclass == CLASS_MIRROR_MASTER)
                     which_power = "mirror magic";
                 else if (p_ptr->pclass == CLASS_NINJA)
@@ -3458,6 +3538,7 @@ static void _dispatch_command(int old_now_turn)
         /*** Use various objects ***/
 
         /* Inscribe an object */
+        case 'Z':
         case '{':
         {
             obj_inscribe_ui();
@@ -3653,11 +3734,13 @@ static void _dispatch_command(int old_now_turn)
             break;
         }
 
+        case 'Y':
         case '[':
             if (!p_ptr->image)
                 do_cmd_list_monsters(MON_LIST_NORMAL);
             break;
 
+        case KTRL('O'):
         case ']':
             if (!p_ptr->image)
                 do_cmd_list_objects();
@@ -3719,6 +3802,7 @@ static void _dispatch_command(int old_now_turn)
         }
 
         /* Interact with macros */
+        case KTRL('E'):
         case '@':
         {
             do_cmd_macros();
@@ -5199,7 +5283,16 @@ void play_game(bool new_game)
             /* No player?  -- Try to regenerate floor */
             if (!py || !px)
             {
+                quest_ptr qp = quests_get_current();
                 msg_print("What a strange player location. Regenerate the dungeon floor.");
+                if (qp && qp->id) qp->status = QS_TAKEN;
+                enter_quest = FALSE;
+                if (qp) /* Broken quest - force exit */
+                {
+                   dungeon_type = 0;
+                   dun_level = 0;
+                   quests_on_leave();
+                }
                 change_floor();
             }
 
@@ -5379,6 +5472,9 @@ void play_game(bool new_game)
                 /* Mega-Hack -- Allow player to cheat death */
                 if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
                 {
+                    quest_ptr qp = quests_get_current();
+                    bool was_in_dung = (dun_level > 0);
+
                     /* Mark savefile */
                     p_ptr->noscore |= 0x0001;
 
@@ -5417,6 +5513,16 @@ void play_game(bool new_game)
                         p_ptr->redraw |= (PR_STATUS);
                     }
 
+                    /* Hack -- cancel quest */
+                    if (qp && qp->id) qp->status = QS_TAKEN;
+                    enter_quest = FALSE;
+                    if (qp) /* Exit the quest */
+                    {
+                        dungeon_type = 0;
+                        dun_level = 0;
+                        quests_on_leave();
+                    }
+
                     /* Note cause of death XXX XXX XXX */
                     (void)strcpy(p_ptr->died_from, "Cheating death");
 
@@ -5441,25 +5547,27 @@ void play_game(bool new_game)
                     p_ptr->inside_battle = FALSE;
                     if (dungeon_type) p_ptr->recall_dungeon = dungeon_type;
                     dungeon_type = 0;
-                    if (no_wilderness)
+                    if (was_in_dung)
                     {
-                        p_ptr->wilderness_y = 1;
-                        p_ptr->wilderness_x = 1;
-                        p_ptr->wilderness_dx = 0;
-                        p_ptr->wilderness_dy = 0;
-                        p_ptr->oldpy = 33;
-                        p_ptr->oldpx = 131;
+                        if (no_wilderness)
+                        {
+                            p_ptr->wilderness_y = 1;
+                            p_ptr->wilderness_x = 1;
+                            p_ptr->wilderness_dx = 0;
+                            p_ptr->wilderness_dy = 0;
+                            p_ptr->oldpy = 33;
+                            p_ptr->oldpx = 131;
+                        }
+                        else /* Move to convenient safe location (Morivant) */
+                        {
+                            p_ptr->wilderness_y = 50;
+                            p_ptr->wilderness_x = 47;
+                            p_ptr->wilderness_dx = 0;
+                            p_ptr->wilderness_dy = 0;
+                            p_ptr->oldpy = 42;
+                            p_ptr->oldpx = 96;
+                        }
                     }
-                    else
-                    {
-                        p_ptr->wilderness_y = 48;
-                        p_ptr->wilderness_x = 5;
-                        p_ptr->wilderness_dx = 0;
-                        p_ptr->wilderness_dy = 0;
-                        p_ptr->oldpy = 33;
-                        p_ptr->oldpx = 131;
-                    }
-
                     /* Leaving */
                     p_ptr->wild_mode = FALSE;
                     p_ptr->leaving = TRUE;

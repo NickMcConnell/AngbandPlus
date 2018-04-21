@@ -1,0 +1,17 @@
+?:[EQU $QUEST63 Taken InProgress]
+D:Are you here to enrol? First thing I need from you is to go
+D:and get a pile of magic mushrooms. They grow in the icky cave.
+?:1
+
+?:[EQU $QUEST63 Completed]
+D:Good now I can finish my salad. Take this signet
+D:ring to show you're allowed to be here.
+?:1
+
+?:[EQU $QUEST63 Failed]
+D:You know what helps with mushrooms? Other mushrooms.
+?:1
+
+R:OBJ(RING):EGO(wizardry)
+
+# vim: filetype=q :

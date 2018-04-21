@@ -428,13 +428,13 @@ Experience   120%
 <topic:Rogue><color:o>Rogue</color>
 A Rogue is a character that prefers to live by his cunning, but is capable of fighting his way out of a tight spot. Rogues are good at locating hidden traps and doors and are masters of disarming traps and picking locks. A rogue has a high stealth allowing him to sneak around many creatures without having to fight, or to get in a telling first blow. A rogue may also backstab a fleeing monster. Rogues also gain shooting bonuses when using a sling.
  
-Rogues can select one realm from Sorcery, Death, Trump, Arcane, Craft, or Burglary. Except for this last realm, rogues have certain limitations on which spells they can learn, and they do not learn new spells very quickly. The Burglary Realm however is unique to the rogue and offers spells for setting traps, picking pockets, negotiating with other thieves, and escaping from a tight spot. Burglary rogues are agents of the Black Market and receive favorable pricing from that shop. A Burglary rogue uses DEX as their spellcasting stat, and may learn spells beginning at level 1. For other realms, however, the rogue uses INT as the spellcasting stat, and won't be able to learn spells until level 5.
+Rogues can select one realm - Sorcery, Death, Trump, Arcane, Craft, Law,or Burglary. Except for this last realm, rogues have certain limitations on which spells they can learn, and they do not learn new spells very quickly. The Burglary Realm however is unique to the rogue and offers spells for setting traps, picking pockets, negotiating with other thieves, and escaping from a tight spot. Burglary rogues are agents of the Black Market and receive favorable pricing from that shop. A Burglary rogue uses DEX as their spellcasting stat, and may learn spells beginning at level 1. For other realms, however, the rogue uses INT as the spellcasting stat, and won't be able to learn spells until level 5.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +2</color>        Disarming   <color:g>Superb       </color>
-Intelligence <color:v> +1</color>        Device      <color:G>Excellent    </color>
+Intelligence <color:w> +1</color>        Device      <color:G>Excellent    </color>
 Wisdom       <color:w> -1</color>        Save        <color:o>Fair         </color>
-Dexterity    <color:w> +3</color>        Stealth     <color:G>Excellent    </color>
+Dexterity    <color:v> +3</color>        Stealth     <color:G>Excellent    </color>
 Constitution <color:w> +1</color>        Searching   <color:y>Good         </color>
 Charisma     <color:w> +1</color>        Perception  <color:o>Fair         </color>
 Life Rating  110%       Melee       <color:G>Excellent    </color>
@@ -472,6 +472,20 @@ Charisma     <color:w> +1</color>        Perception  <color:R>Poor         </col
 Life Rating  111%       Melee       <color:G>Excellent    </color>
 Base HP       12        Bows        <color:y>Good         </color>
 Experience   125%
+</style></indent>
+<topic:Ninja-Lawyer><color:o>Ninja-Lawyer</color>
+The Ninja-Lawyer moves silently in the night, combining the stealth, agility and offensive power of the ninja with the subtle practical tools of the lawyer. Ninja-Lawyers, like specialist ninjas, prefer light armour and stabbing weapons and acquire the powerful 'Quick Walk' class power. A ninja-lawyer relies on both wisdom and dexterity, requiring the former for legal tricks and the latter for ninjutsu.
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength     <color:w> -1</color>        Disarming   <color:g>Superb       </color>
+Intelligence <color:w> +0</color>        Device      <color:y>Good         </color>
+Wisdom       <color:v> +0</color>        Save        <color:o>Fair         </color>
+Dexterity    <color:w> +2</color>        Stealth     <color:g>Superb       </color>
+Constitution <color:w> +0</color>        Searching   <color:G>Excellent    </color>
+Charisma     <color:w> +2</color>        Perception  <color:o>Fair         </color>
+Life Rating   99%       Melee       <color:G>Excellent    </color>
+Base HP        8        Bows        <color:R>Poor         </color>
+Experience   115%
 </style></indent>
 <topic:Paladin><color:o>Paladin</color>
 A Paladin is a combination of a warrior and a priest. Paladins are very good fighters, but not very good at missile weapons. A paladin lacks much in the way of abilities. He is poor at stealth, perception, searching, and magical devices but has a decent saving throw due to his divine alliance. Wisdom determines a Paladin's success at praying to his deity.
@@ -528,12 +542,12 @@ Warrior-mages begin the game with Arcane magic, and they can freely select anoth
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +2</color>        Disarming   <color:o>Fair         </color>
-Intelligence <color:v> +2</color>        Device      <color:y>Good         </color>
+Intelligence <color:v> +2</color>        Device      <color:G>Excellent    </color>
 Wisdom       <color:w> +0</color>        Save        <color:o>Fair         </color>
 Dexterity    <color:w> +1</color>        Stealth     <color:o>Fair         </color>
 Constitution <color:w> +0</color>        Searching   <color:o>Fair         </color>
 Charisma     <color:w> +1</color>        Perception  <color:R>Poor         </color>
-Life Rating  106%       Melee       <color:o>Fair         </color>
+Life Rating  106%       Melee       <color:y>Very Good    </color>
 Base HP        8        Bows        <color:y>Good         </color>
 Experience   140%
 </style></indent>
@@ -685,6 +699,20 @@ Life Rating  100%       Melee       <color:r>Bad          </color>
 Base HP        4        Bows        <color:r>Bad          </color>
 Experience   140%
 </style></indent>
+<topic:Lawyer><color:o>Lawyer</color>
+Known for his unsurpassed expertise in the mysterious realm of Law, the Lawyer has a comprehensive skillset that allows him to set and detect traps, to slow or mystify his enemies, to quietly escape or avoid dangerous fights, to acquire knowledge about the world around him, and to make friends and influence people. As he relies on his familiarity with Law and with tricks and approaches that have worked in the past, the lawyer uses WIS as his spellcasting stat.
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength     <color:w> -3</color>        Disarming   <color:g>Superb       </color>
+Intelligence <color:w> +2</color>        Device      <color:y>Very Good    </color>
+Wisdom       <color:v> +0</color>        Save        <color:y>Good         </color>
+Dexterity    <color:w> +0</color>        Stealth     <color:y>Good         </color>
+Constitution <color:w> -1</color>        Searching   <color:G>Excellent    </color>
+Charisma     <color:w> +1</color>        Perception  <color:y>Good         </color>
+Life Rating  102%       Melee       <color:y>Good         </color>
+Base HP       12        Bows        <color:o>Fair         </color>
+Experience   115%
+</style></indent>
 <topic:Rage-Mage><color:o>Rage-Mage</color>
 The Rage Mage is part of a secret sect descending from the Barbarians in response to their natural foes, the mages. As time passed, other races have also begun to learn their arts. The powers of the Rage Mage are spells learned from books, but they don't work the way normal spells do. First of all, the Rage Mage must perform a special Ritual of Anger to learn a spell, and this ritual destroys the spell book in the process. As a result, it may take a long time for the Rage Mage to learn all of their high level powers. Once learned, the Rage Mage no longers requires the spell book in order to perform the power.
  
@@ -780,9 +808,10 @@ Devicemaster   -1 <color:v>  +2 </color>  +1   +2   -2   -2  101%   +6  130%
 Magic-Eater    -1   +2   +1   +2   -2   -2  103%   +6  130%
 Priest         -1   -3 <color:v>  +3 </color>  -1   +0   +2  100%   +4  120%
 Ninja          +0   -1   -1 <color:v>  +3 </color>  +2   +2  100%   +4  120%
-Rogue          +2 <color:v>  +1 </color>  -1   +3   +1   +1  110%  +12  125%
+Rogue          +2   +1   -1 <color:v>  +3 </color>  +1   +1  110%  +12  125%
 Scout          +1   -1 <color:v>  +2 </color>  +3   +0   +0  104%   +8  130%
 Chaos-Warrior  +2 <color:v>  +1 </color>  -1   +0   +2   +1  111%  +12  125%
+Ninja-Lawyer   -1   +0 <color:v>  +0 </color>  +2   +0   +2   99%   +8  115%
 Paladin        +3   -3 <color:v>  +1 </color>  +0   +2   +2  111%  +12  135%
 Ranger         +2   +0 <color:v>  +2 </color>  +1   +1   +0  106%   +8  140%
 Red-Mage       +2 <color:v>  +2 </color>  -1   +1   +0   -1  106%   +8  140%
@@ -796,6 +825,7 @@ Time-Lord      -1   +0 <color:v>  +3 </color>  -1   -1   +0   96%   +0  125%
 Warlock        -1   +2   -3   +0   +2 <color:v>  +4 </color> 107%  +15  135%
 Archaeologist  -1   +1 <color:v>  +2 </color>  +1   -1   +0  106%   +8  120%
 Bard           -2   +1   +2   -1   -2 <color:v>  +4 </color> 100%   +4  140%
+Lawyer         -3   +2 <color:v>  +0 </color>  +0   -1   +1  102%  +12  115%
 Rage-Mage    <color:v>  +3 </color>  -2   -2   -2   +2   +1  106%   +6  150%
 Skillmaster    +0   +0   +0   +0   +0   +0  100%  +10  130%
 Tourist        -1 <color:v>  -1 </color>  -1   -1   -1   -3   95%   +0   70%
@@ -833,10 +863,11 @@ Ninja         <color:g>Superb       </color> <color:o>Fair         </color> <col
 Rogue         <color:g>Superb       </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:G>Excellent    </color>
 Scout         <color:G>Excellent    </color> <color:y>Very Good    </color> <color:o>Fair         </color> <color:G>Excellent    </color>
 Chaos-Warrior <color:r>Bad          </color> <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color>
+Ninja-Lawyer  <color:g>Superb       </color> <color:y>Good         </color> <color:o>Fair         </color> <color:g>Superb       </color>
 Paladin       <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Ranger        <color:o>Fair         </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:y>Good         </color>
 Red-Mage      <color:r>Bad          </color> <color:y>Very Good    </color> <color:o>Fair         </color> <color:o>Fair         </color>
-Warrior-Mage  <color:o>Fair         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color>
+Warrior-Mage  <color:o>Fair         </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Beastmaster   <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Cavalry       <color:o>Fair         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Mindcrafter   <color:y>Good         </color> <color:y>Very Good    </color> <color:o>Fair         </color> <color:y>Good         </color>
@@ -846,6 +877,7 @@ Time-Lord     <color:R>Poor         </color> <color:y>Very Good    </color> <col
 Warlock       <color:R>Poor         </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Very Good    </color>
 Archaeologist <color:g>Superb       </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:y>Very Good    </color>
 Bard          <color:R>Poor         </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:D>Very Bad     </color>
+Lawyer        <color:g>Superb       </color> <color:y>Very Good    </color> <color:y>Good         </color> <color:y>Good         </color>
 Rage-Mage     <color:r>Bad          </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:r>Bad          </color>
 Skillmaster   <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:R>Poor         </color>
 Tourist       <color:r>Bad          </color> <color:r>Bad          </color> <color:r>Bad          </color> <color:o>Fair         </color>
@@ -883,10 +915,11 @@ Ninja         <color:G>Excellent    </color> <color:y>Good         </color> <col
 Rogue         <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:y>Good         </color>
 Scout         <color:G>Excellent    </color> <color:o>Fair         </color> <color:y>Very Good    </color> <color:g>Superb       </color>
 Chaos-Warrior <color:R>Poor         </color> <color:R>Poor         </color> <color:G>Excellent    </color> <color:y>Good         </color>
+Ninja-Lawyer  <color:G>Excellent    </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:R>Poor         </color>
 Paladin       <color:R>Poor         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:y>Good         </color>
 Ranger        <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Very Good    </color> <color:y>Good         </color>
 Red-Mage      <color:R>Poor         </color> <color:r>Bad          </color> <color:y>Very Good    </color> <color:r>Bad          </color>
-Warrior-Mage  <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:y>Good         </color>
+Warrior-Mage  <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Very Good    </color> <color:y>Good         </color>
 Beastmaster   <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:g>Superb       </color>
 Cavalry       <color:R>Poor         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color>
 Mindcrafter   <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:y>Good         </color>
@@ -896,6 +929,7 @@ Time-Lord     <color:R>Poor         </color> <color:r>Bad          </color> <col
 Warlock       <color:R>Poor         </color> <color:o>Fair         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Archaeologist <color:G>Excellent    </color> <color:y>Good         </color> <color:y>Very Good    </color> <color:R>Poor         </color>
 Bard          <color:R>Poor         </color> <color:o>Fair         </color> <color:r>Bad          </color> <color:r>Bad          </color>
+Lawyer        <color:G>Excellent    </color> <color:y>Good         </color> <color:y>Good         </color> <color:o>Fair         </color>
 Rage-Mage     <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Skillmaster   <color:r>Bad          </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Tourist       <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:r>Bad          </color>
@@ -904,4 +938,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.0.1.</color>
+<color:s>Automatically generated for FrogComposband 7.0.strawberry.</color>
