@@ -2336,11 +2336,26 @@ static int _get_num_blow_innate(int which)
 
 static void do_monster_knockback(int x, int y, int dist);
 
+void wizard_report_damage(int amt)
+{
+#if 0
+    static int count = 0;
+    static int total = 0;
+
+    count++;
+    total += amt;
+    cmsg_format(TERM_L_RED, "You did %d damage (%d Avg).", amt, total / count);
+#endif
+}
+
 static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
 {
     int             dam, base_dam, effect_pow, to_h, chance;
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+    byte            old_fy = m_ptr->fy, old_fx = m_ptr->fx;
+    int             old_hp = m_ptr->hp;
+    int             old_r_idx = m_ptr->r_idx;
     char            m_name_subject[MAX_NLEN], m_name_object[MAX_NLEN];
     int             i, j, k;
     int             delay_sleep = 0;
@@ -2414,12 +2429,15 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         int               blows = _get_num_blow_innate(i);
 
         if (a->flags & INNATE_SKIP) continue;
+        if (m_ptr->fy != old_fy || m_ptr->fx != old_fx) break; /* Teleport Effect? */
 
         if (r_ptr->level + 10 > p_ptr->lev)
             skills_innate_gain(skills_innate_calc_name(a));
 
         for (j = 0; j < blows; j++)
         {
+            if (m_ptr->fy != old_fy || m_ptr->fx != old_fx) break; /* Teleport Effect? */
+
             to_h = a->to_h + p_ptr->to_h_m;
             chance = p_ptr->skills.thn + (to_h * BTH_PLUS_ADJ);
             if (fuiuchi || test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
@@ -2531,6 +2549,8 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                 {
                     int e = a->effect[k];
                     int p = a->effect_chance[k];
+
+                    if (m_ptr->fy != old_fy || m_ptr->fx != old_fx) break; /* Teleport Effect? */
 
                     if (p == 0) p = 100;
                     if (!e && k == 0)
@@ -2652,6 +2672,9 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     if (!e) continue;
                     if (randint1(100) > p) continue;
 
+                    if (p_ptr->current_r_idx == MON_AETHER_VORTEX)
+                        e = vortex_get_effect();
+
                     switch (e)
                     {
                     case GF_MISSILE:
@@ -2713,9 +2736,16 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                             project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, GF_STUN, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1);
                         }
                         break;
-                    default:
-                        project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1);
+                    default:                             /* v--- Check for pure elemental attack (e.g. Fire vortex) */
+                        project(0, 0, m_ptr->fy, m_ptr->fx, k ? effect_pow : dam, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1);
                         *mdeath = (m_ptr->r_idx == 0);
+                        /* Polymorph effect? */
+                        if (m_ptr->r_idx && m_ptr->r_idx != old_r_idx)
+                        {
+                            old_r_idx = m_ptr->r_idx;
+                            monster_desc(m_name_subject, m_ptr, MD_PRON_VISIBLE);
+                            monster_desc(m_name_object, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
+                        }
                     }
                 }
                 /* TODO: Should rings of power brand innate attacks? */
@@ -2727,7 +2757,11 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     return;
                 }
 
-                if (*mdeath) return;
+                if (*mdeath)
+                {
+                    wizard_report_damage(old_hp);
+                    return;
+                }
 
                 on_p_hit_m(m_idx);
 
@@ -2772,6 +2806,8 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         else
             teleport_player(25 + p_ptr->lev/2, 0L);
     }
+
+    wizard_report_damage(old_hp - m_ptr->hp);
 }
 
 /*
@@ -3836,7 +3872,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
                     if (p_ptr->lev >= 35)    /* Endless Duel */
                     {
-                        /* Hacks so that get_aim_dir() actually allows user to select a new target */
+                        /* Hacks so that get_fire_dir() actually allows user to select a new target */
                         target_who = 0;
                         command_dir = 0;
                         msg_print("Your chosen target is vanquished!  Select another.");
@@ -5139,6 +5175,11 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
         /* Update stuff */
         p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_DISTANCE);
         p_ptr->window |= PW_MONSTER_LIST | PW_OBJECT_LIST;
+        if (target_who < 0)
+        {
+            target_okay(); /* dismiss if no longer valid */
+            p_ptr->redraw |= PR_HEALTH_BARS;
+        }
 
         if (!view_unsafe_grids)
             p_ptr->redraw |= PR_STATUS;
@@ -5694,7 +5735,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             {
 #ifdef ALLOW_EASY_OPEN
                 /* Closed doors */
-                if (easy_open && is_closed_door(feat) && easy_open_door(y, x))
+                if (easy_open && is_closed_door(feat) && easy_open_door(y, x, dir))
                 {
                     /* Hack. Try to deduce what happened since easy_open_door hides this.
                        Try to repeat attempting to unlock the door, but do a quick check

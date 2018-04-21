@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 5
 #define VER_MINOR 0
-#define VER_PATCH 2
+#define VER_PATCH 3
 #define VER_EXTRA 1
 
 #define GAME_MODE_BEGINNER  0
@@ -526,7 +526,7 @@
 #define REALM_DEATH        5
 #define REALM_TRUMP        6
 #define REALM_ARCANE       7
-#define REALM_CRAFT           8
+#define REALM_CRAFT        8
 #define REALM_DAEMON       9
 #define REALM_CRUSADE      10
 #define REALM_NECROMANCY   11
@@ -685,10 +685,8 @@
 #define RACE_MON_MIMIC          59
 #define RACE_WOOD_ELF           60
 #define RACE_MON_CENTIPEDE      61
-/* TODO: New races are in progress! ... */
-    #define RACE_MON_GHOST          62
-    #define RACE_MON_ZOMBIE         63
-    #define MAX_RACES               62 /* TODO: Bump me!! */
+#define RACE_MON_VORTEX         62
+#define MAX_RACES               63
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -703,8 +701,8 @@
 #define DEMIGOD_HERA            10
 #define DEMIGOD_DEMETER         11
 #define DEMIGOD_APHRODITE       12
+#define DEMIGOD_MAX             13
 
-#define MAX_DEMIGOD_TYPES        13
 #define MAX_DEMIGOD_POWERS        5
 
 #define SPIDER_PHASE  0
@@ -841,26 +839,32 @@ enum _mimic_types {
 #define CLASS_NINJA             26
 #define CLASS_SNIPER            27
 #define CLASS_TIME_LORD         28
-#define CLASS_BLOOD_KNIGHT        29
-#define CLASS_WARLOCK            30
-#define CLASS_ARCHAEOLOGIST        31
-#define CLASS_DUELIST            32
-#define CLASS_WILD_TALENT        33
-#define CLASS_RUNE_KNIGHT        34
-#define CLASS_WEAPONMASTER        35
+#define CLASS_BLOOD_KNIGHT      29
+#define CLASS_WARLOCK           30
+#define CLASS_ARCHAEOLOGIST     31
+#define CLASS_DUELIST           32
+#define CLASS_WILD_TALENT       33
+#define CLASS_RUNE_KNIGHT       34
+#define CLASS_WEAPONMASTER      35
 #define CLASS_BLOOD_MAGE        36
-#define CLASS_NECROMANCER        37
-#define CLASS_PSION                38
-#define CLASS_RAGE_MAGE            39
+#define CLASS_NECROMANCER       37
+#define CLASS_PSION             38
+#define CLASS_RAGE_MAGE         39
 #define CLASS_SCOUT             40
 #define CLASS_MAULER            41
 #define CLASS_MONSTER           42
 #define CLASS_MYSTIC            43
 #define CLASS_DEVICEMASTER      44
+#define CLASS_YELLOW_MAGE       45
+#define CLASS_GRAY_MAGE         46
+#define MAX_CLASS               47
 
-#define MAX_CLASS               45
+/*
+#define CLASS_LOGRUS_MASTER     47
+#define CLASS_TERRAMANCER       48
+#define CLASS_CANNIBAL          49 */
 
-/* Warlock Pacts ... stored in p_ptr->psubclass */
+/* Subclasses */
 enum {
     WARLOCK_UNDEAD,
     WARLOCK_DRAGONS,
@@ -872,7 +876,13 @@ enum {
     WARLOCK_MAX
 };
 
-/* Weaponmaster Specialities ... stored in p_ptr->psubclass */
+enum {
+    GRAY_MAGE_GOOD,
+    GRAY_MAGE_NEUTRAL,
+    GRAY_MAGE_EVIL,
+    GRAY_MAGE_MAX,
+};
+
 #define WEAPONMASTER_NONE      -1
 #define WEAPONMASTER_AXES       0
 #define WEAPONMASTER_BOWS       1
@@ -4730,11 +4740,11 @@ extern int PlayerUID;
 #define MON_QUYLTHULG           342
 #define MON_D_ELF_LORD          348
 #define MON_CLOUD_GIANT         349
-#define MON_FIRE_VOR            354
-#define MON_WATER_VOR           355
+#define MON_FIRE_VORTEX         354
+#define MON_WATER_VORTEX        355
 #define MON_ARCH_VILE           357
-#define MON_COLD_VOR            358
-#define MON_ENERGY_VOR          359
+#define MON_COLD_VORTEX         358
+#define MON_ENERGY_VORTEX       359
 #define MON_VAMPIRIC_MIST       365
 #define MON_IRON_GOLEM          367
 #define MON_JADE_MONK           370
@@ -4825,19 +4835,19 @@ extern int PlayerUID;
 #define MON_CHAOS_SPAWN   574
 #define MON_CRYPT_THING   577
 #define MON_MAGMA_ELEMENTAL 584
-#define MON_NEXUS_VOR     587
-#define MON_PLASMA_VOR    588
-#define MON_TIME_VOR      589
-#define MON_MATURE_GOLD_DRAGON    590
-#define MON_CRYSTAL_DRAKE         591
-#define MON_M_MH_DRAGON   593
-#define MON_DEATH_KNIGHT 597
-#define MON_MANDOR        598
-#define MON_SHIM_VOR      600
-#define MON_ANCIENT_BRONZE_DRAGON 602
-#define MON_BEHOLDER 603
-#define MON_SERAPH        605
-#define MON_LOGE            606
+#define MON_NEXUS_VORTEX           587
+#define MON_PLASMA_VORTEX          588
+#define MON_MATURE_GOLD_DRAGON     590
+#define MON_CRYSTAL_DRAKE          591
+#define MON_M_MH_DRAGON            593
+#define MON_DEATH_KNIGHT           597
+#define MON_MANDOR                 598
+#define MON_TIME_VORTEX            599
+#define MON_SHIMMERING_VORTEX      600
+#define MON_ANCIENT_BRONZE_DRAGON  602
+#define MON_BEHOLDER               603
+#define MON_SERAPH                 605
+#define MON_LOGE                   606
 #define MON_MONASTIC_LICH 611
 #define MON_SEVEN_HEADED_HYDRA 614
 #define MON_MOIRE           615
@@ -4912,8 +4922,8 @@ extern int PlayerUID;
 #define MON_HAND_DRUJ           748
 #define MON_EYE_DRUJ            749
 #define MON_SKULL_DRUJ          750
-#define MON_CHAOS_VOR           751
-#define MON_AETHER_VOR          752
+#define MON_CHAOS_VORTEX        751
+#define MON_AETHER_VORTEX       752
 #define MON_LERNEAN_HYDRA       754
 #define MON_BLOODTHIRSTER       758
 #define MON_DRACONIC_QUYLTHULG  759
@@ -5006,7 +5016,7 @@ extern int PlayerUID;
 #define MON_TROLL_KING          894
 #define MON_SKY_GOLEM           895
 #define MON_BAZOOKER            896
-#define MON_SHARD_VOR           897
+#define MON_SHARD_VORTEX        897
 #define MON_FIRE_TROLL          899
 #define MON_SMALL_KRAKEN        903
 #define MON_POLEAXE_OF_ANIMATED_ATTACK 908
@@ -5065,6 +5075,7 @@ extern int PlayerUID;
 #define MON_PALADIN             1038
 #define MON_CHAMELEON           1040
 #define MON_CHAMELEON_K         1041
+#define MON_DISINTEGRATE_VORTEX 1045
 #define MON_TOPAZ_MONK          1047
 #define MON_STONE_DRAGON        1048
 #define MON_STEEL_DRAGON        1049
@@ -6330,3 +6341,15 @@ enum dragon_realm_e
     DRAGON_REALM_DEATH,
     DRAGON_REALM_MAX
 };
+
+enum ui_result_e
+{
+    UI_NONE = 0,
+    UI_OK,
+    UI_CANCEL,
+    UI_QUIT,
+    UI_RESTART,
+    UI_UNWIND,
+    UI_ERROR
+};
+

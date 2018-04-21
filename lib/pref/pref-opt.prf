@@ -13,11 +13,13 @@
 
 X:rogue_like_commands
 X:always_pickup
+X:toggle_run_status
 X:carry_query_flag
 X:quick_messages
 Y:command_menu
 X:other_query_flag
 Y:use_old_target
+X:auto_target
 Y:always_repeat
 X:confirm_destroy
 Y:confirm_wear
@@ -112,7 +114,6 @@ X:ironman_rooms
 X:ironman_nightmare
 Y:enable_virtues
 Y:preserve_mode
-Y:autoroller
 Y:powerup_home
 
 ##### Easy Object Auto-Destroyer #####

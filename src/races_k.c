@@ -175,7 +175,7 @@ race_t *kutar_get_race(void)
         me.stats[A_WIS] = -1;
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  0;
+        me.stats[A_CHR] =  2;
 
         me.skills.dis = -2;
         me.skills.dev = 5;
@@ -432,6 +432,11 @@ static void _skeleton_get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (p_ptr->lev >= 10)
         add_flag(flgs, OF_RES_COLD);
 }
+static void _skeleton_birth(void)
+{
+    py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
+    py_birth_light();
+}
 race_t *skeleton_get_race(void)
 {
     static race_t me = {0};
@@ -473,6 +478,7 @@ race_t *skeleton_get_race(void)
         me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
         me.shop_adjust = 125;
 
+        me.birth = _skeleton_birth;
         me.calc_bonuses = _skeleton_calc_bonuses;
         me.get_powers = _skeleton_get_powers;
         me.get_flags = _skeleton_get_flags;
@@ -525,6 +531,12 @@ static void _snotling_calc_bonuses(void)
 static void _snotling_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
 }
+static void _snotling_birth(void)
+{
+    py_birth_obj_aux(TV_FOOD, SV_FOOD_CURE_SERIOUS, randint1(3));
+    py_birth_food();
+    py_birth_light();
+}
 race_t *snotling_get_race(void)
 {
     static race_t me = {0};
@@ -560,6 +572,7 @@ race_t *snotling_get_race(void)
         me.infra = 2;
         me.shop_adjust = 125;
 
+        me.birth = _snotling_birth;
         me.calc_bonuses = _snotling_calc_bonuses;
         me.get_powers = _snotling_get_powers;
         me.get_flags = _snotling_get_flags;
@@ -603,6 +616,11 @@ static void _spectre_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_POIS);
     add_flag(flgs, OF_SLOW_DIGEST);
 }
+static void _spectre_birth(void)
+{
+    py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
+    py_birth_light();
+}
 race_t *spectre_get_race(void)
 {
     static race_t me = {0};
@@ -643,6 +661,7 @@ race_t *spectre_get_race(void)
         me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
         me.shop_adjust = 135;
 
+        me.birth = _spectre_birth;
         me.calc_bonuses = _spectre_calc_bonuses;
         me.get_powers = _spectre_get_powers;
         me.get_flags = _spectre_get_flags;
@@ -845,6 +864,10 @@ static void _vampire_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_POIS);
     add_flag(flgs, OF_RES_COLD);
 }
+static void _vampire_birth(void)
+{
+    py_birth_obj_aux(TV_SCROLL, SV_SCROLL_DARKNESS, rand_range(2, 5));
+}
 race_t *vampire_get_race(void)
 {
     static race_t me = {0};
@@ -885,6 +908,7 @@ race_t *vampire_get_race(void)
         me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
         me.shop_adjust = 130;
 
+        me.birth = _vampire_birth;
         me.calc_bonuses = _vampire_calc_bonuses;
         me.get_powers = _vampire_get_powers;
         me.get_flags = _vampire_get_flags;
@@ -1046,6 +1070,11 @@ static void _zombie_get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (p_ptr->lev >= 5)
         add_flag(flgs, OF_RES_COLD);
 }
+static void _zombie_birth(void)
+{
+    py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
+    py_birth_light();
+}
 race_t *zombie_get_race(void)
 {
     static race_t me = {0};
@@ -1084,6 +1113,7 @@ race_t *zombie_get_race(void)
         me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
         me.shop_adjust = 140;
 
+        me.birth = _zombie_birth;
         me.calc_bonuses = _zombie_calc_bonuses;
         me.get_powers = _zombie_get_powers;
         me.get_flags = _zombie_get_flags;

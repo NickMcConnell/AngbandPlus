@@ -72,14 +72,14 @@ whatever your character happens to be named.
 
 For this example, we will be directly entering a single user preference 
 command. To do this, we use the special Enter a user pref command 
-command which is available with the " key. This requires us to know the 
+command which is available with the ! key. This requires us to know the 
 exact syntax of the preference command we want, as well as the internal 
 numeric code for various values. It is an advanced command, and 
 normally you will want to use one of the friendlier in-game commands 
 (for visuals, in this case) instead.
 
 I find @ so boring to look at. Let's use @ instead! To make this 
-change, type " then enter R:0:11:@. The R preference command is used to 
+change, type ! then enter R:0:11:@. The R preference command is used to 
 set display values for monster races (which, as you may know, are 
 defined in /lib/edit/r_info.txt). The game uses the special 0'th entry 
 in the monster race table as the display options for the player. That 
@@ -221,7 +221,7 @@ section. If you look at the top line, you see 0b/40 which is
 hexadecimal for 11 (which is yellow) and the ascii character code for 
 @. Go ahead and choose ENTER to accept the change.
 
-All of this accomplished the same change as " followed by R:0:11:@ 
+All of this accomplished the same change as ! followed by R:0:11:@ 
 which we did in the last section. It's quite a bit more work, but you 
 can see what your change will be as you make it, so it is easier to do 
 things correctly. If you repeat this in graphics mode, you'll find that 
@@ -257,7 +257,7 @@ Interacting with Options (=)
 The various game options are documented elsewhere (see [a]). Here, I'll 
 just mention that there exist two preference commands for turning 
 options on and off. You may use Y:option_name to turn an option on and 
-X:option_name to turn it off (Use the " option, or embed this 
+X:option_name to turn it off (Use the ! option, or embed this 
 preference command inside a macro as discussed below). Obviously, 
 replace option_name with the exact name for the option you wish to 
 configure. The list of internal option names is documented in the 
@@ -373,4 +373,5 @@ Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.7.0
 Updated    : PosChengband 4.0.0
+
 

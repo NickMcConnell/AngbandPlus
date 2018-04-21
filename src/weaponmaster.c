@@ -643,7 +643,7 @@ static bool _club_toss(int hand)
         if (info.tdis > mul) info.tdis = mul;
 
         project_length = info.tdis + 1;
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
 
         info.tx = px + 99 * ddx[dir];
         info.ty = py + 99 * ddy[dir];
@@ -1149,7 +1149,7 @@ static bool _dagger_toss(int hand)
         if (info.tdis > mul) info.tdis = mul;
 
         project_length = info.tdis + 1;
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
 
         info.tx = px + 99 * ddx[dir];
         info.ty = py + 99 * ddy[dir];
@@ -1861,7 +1861,7 @@ static void _reach_spell(int cmd, variant *res)
             bool b = FALSE;
 
             project_length = 2 + p_ptr->lev/40;
-            if (get_aim_dir(&dir))
+            if (get_fire_dir(&dir))
             {
                 project_hook(GF_ATTACK, dir, HISSATSU_2, PROJECT_STOP | PROJECT_KILL);
                 b = TRUE;
@@ -2509,7 +2509,7 @@ static void _circle_kick_spell(int cmd, variant *res)
 
     project_length = 3;
 
-    if (!get_aim_dir(&dir)) return FALSE;
+    if (!get_fire_dir(&dir)) return FALSE;
 
     tx = px + project_length * ddx[dir];
     ty = py + project_length * ddy[dir];
@@ -3324,7 +3324,7 @@ void _on_birth(void)
     /* Give the player a starting weapon from this group */
     kind = _specialities[p_ptr->psubclass].birth_obj;
     object_prep(&forge, lookup_kind(kind.tval, kind.sval));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     if (kind.tval == TV_BOW)
     {
@@ -3333,19 +3333,19 @@ void _on_birth(void)
         case SV_SLING:
             object_prep(&forge, lookup_kind(TV_SHOT, SV_AMMO_NORMAL));
             forge.number = (byte)rand_range(15, 20);
-            add_outfit(&forge);
+            py_birth_obj(&forge);
             break;
         case SV_SHORT_BOW:
         case SV_LONG_BOW:
             object_prep(&forge, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
             forge.number = (byte)rand_range(15, 20);
-            add_outfit(&forge);
+            py_birth_obj(&forge);
             break;
         case SV_LIGHT_XBOW:
         case SV_HEAVY_XBOW:
             object_prep(&forge, lookup_kind(TV_BOLT, SV_AMMO_NORMAL));
             forge.number = (byte)rand_range(15, 20);
-            add_outfit(&forge);
+            py_birth_obj(&forge);
             break;
         }
     }
@@ -3360,6 +3360,8 @@ void _on_birth(void)
     }
 
     weaponmaster_adjust_skills();
+
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_JACK, 1);
 }
 
 static void _set_max_skill(int tval, int skill)
@@ -4212,8 +4214,8 @@ static void _character_dump(doc_ptr doc)
     {
         doc_printf(doc, "  * You pay reduced energy costs when equipping a dagger.\n");
         doc_printf(doc, "  * You dual wield very effectively with daggers.\n");
-        if (p_ptr->lev >= 20)
-            doc_printf(doc, "  * You gain a bonus to AC when wielding a dagger.\n");
+        if (p_ptr->lev >= 25)
+            doc_printf(doc, "  * You gain a bonus to AC when wielding dual wielding daggers.\n");
         if (p_ptr->lev >= 12)
             doc_printf(doc, "  * You gain a bonus to stealth when wielding a dagger.\n");
         if (p_ptr->lev >= 30)

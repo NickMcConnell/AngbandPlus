@@ -1828,7 +1828,7 @@ s16b m_bonus(int max, int level)
 /*
  * Cheat -- describe a created object for the user
  */
-static void object_mention(object_type *o_ptr)
+void object_mention(object_type *o_ptr)
 {
     char o_name[MAX_NLEN];
 
@@ -2697,6 +2697,8 @@ static bool _is_device_class(void)
     case CLASS_NECROMANCER:
     case CLASS_ROGUE:
     case CLASS_SORCERER:
+    case CLASS_YELLOW_MAGE:
+    case CLASS_GRAY_MAGE:
         return TRUE;
     }
     /* Note: Devicemasters only want their speciality, which is checked below. */

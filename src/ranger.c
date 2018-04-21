@@ -39,6 +39,15 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
+    py_birth_obj_aux(TV_ARROW, SV_AMMO_NORMAL, rand_range(20, 40));
+    py_birth_spellbooks();
+}
+
 class_t *ranger_get_class(void)
 {
     static class_t me = {0};
@@ -78,6 +87,7 @@ class_t *ranger_get_class(void)
         me.exp = 140;
         me.pets = 35;
         
+        me.birth = _birth;
         me.caster_info = _caster_info;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;
         /* TODO: This class uses spell books, so we are SOL

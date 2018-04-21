@@ -551,6 +551,14 @@ static void _move_player(void)
     p_ptr->update |= PU_BONUS;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_BOW, SV_LIGHT_XBOW, 1);
+    py_birth_obj_aux(TV_BOLT, SV_AMMO_NORMAL, rand_range(20, 30));
+}
+
 class_t *scout_get_class(void)
 {
     static class_t me = {0};
@@ -583,6 +591,7 @@ class_t *scout_get_class(void)
         me.exp = 130;
         me.pets = 40;
 
+        me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;

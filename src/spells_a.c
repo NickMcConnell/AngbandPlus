@@ -17,7 +17,7 @@ void acid_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_ACID, dir, spell_power(3*p_ptr->lev/2 + 35 + p_ptr->to_d_spell), 2);
         var_set_bool(res, TRUE);
         break;
@@ -48,7 +48,7 @@ void acid_bolt_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt_or_beam(
             beam_chance(),
             GF_ACID,
@@ -136,7 +136,7 @@ void amnesia_spell(int cmd, variant *res)
             lvl += (p_ptr->lev - 40) * 2;
 
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         project_hook(GF_AMNESIA, dir, lvl, PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE);
         var_set_bool(res, TRUE);
         break;
@@ -164,7 +164,7 @@ void android_ray_gun_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         
         msg_print("You fire your ray gun.");
         fire_bolt(GF_MISSILE, dir, spell_power(5 + (p_ptr->lev+1) / 2));
@@ -195,7 +195,7 @@ void android_blaster_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You fire your blaster.");
         fire_bolt(GF_MISSILE, dir, spell_power(5 + p_ptr->lev));
@@ -226,7 +226,7 @@ void android_bazooka_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You fire your bazooka.");
         fire_ball(GF_MISSILE, dir, spell_power(25 + p_ptr->lev * 2), 2);
@@ -257,7 +257,7 @@ void android_beam_cannon_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You fire a beam cannon.");
         fire_beam(GF_MISSILE, dir, spell_power(25 + p_ptr->lev * 3));
@@ -288,7 +288,7 @@ void android_rocket_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You launch a rocket.");
         fire_rocket(GF_ROCKET, dir, spell_power(p_ptr->lev * 7), 2);
@@ -556,7 +556,7 @@ void brain_smash_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball_hide(
             GF_BRAIN_SMASH,
             dir,
@@ -589,7 +589,7 @@ void breathe_disintegration_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         stop_mouth();
         msg_print("You breathe disintegration.");
@@ -635,7 +635,7 @@ void breathe_fire_I_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             stop_mouth();
             msg_print("You breathe fire...");
@@ -671,7 +671,7 @@ void breathe_fire_II_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             stop_mouth();
             msg_print("You breathe fire...");

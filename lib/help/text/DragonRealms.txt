@@ -82,7 +82,7 @@ master.
 
   Stats                   Skills
   Strength      -1        Disarming   Very Good    
-  Intelligence  -1        Device      Legendary[7] 
+  Intelligence  -1        Device      Amber[7]     
   Wisdom        +3        Save        Excellent    
   Dexterity     -1        Stealth     Fair         
   Constitution  -1        Searching   Bad          
@@ -203,7 +203,7 @@ Table 2 - Dragon Realm Skill Bonus Table I
 Lore           Very Good     Superb        Excellent     Fair         
 Breath         Good          Good          Excellent     Fair         
 Attack         Poor          Bad           Poor          Fair         
-Craft          Very Good     Legendary[7]  Excellent     Fair         
+Craft          Very Good     Amber[7]      Excellent     Fair         
 Armor          Fair          Poor          Superb        Good         
 Domination     Fair          Poor          Fair          Fair         
 Crusade        Poor          Good          Fair          Fair         
@@ -225,5 +225,5 @@ Death          Very Bad      Very Bad      Excellent     Good
 
 
 
-Automatically generated for PosChengband 5.0.2.
+Automatically generated for PosChengband 5.0.3.
 

@@ -67,7 +67,7 @@ Original Keyset
    x  (unused)                             X  (unused)
    y  (unused)                             Y  (unused)
    z  Zap a rod                            Z  (unused)
-   !  (unused)                            ^A  (special - wizard command)
+   !  Enter a user pref command           ^A  (special - wizard command)
    @  Interact with macros                ^B  (unused)
    #  (unused)                            ^C  (special - break)
    $  Reload Auto-picker pref             ^D  (unused)
@@ -87,8 +87,8 @@ Original Keyset
    =  Set options                         ^R  Redraw the screen
    ;  Walk (with pickup)                  ^S  Save and don't quit
    :  Take notes                          ^T  Display game time
-   '  (unused)                            ^U  (unused)
-   "  Enter a user pref command           ^V  Recenter Viewport
+   '  Playback Recorded Command           ^U  (unused)
+   "  Record Command                      ^V  Recenter Viewport
    ,  Stay still (with pickup)            ^W  (special - wizard mode)
    <  Go up staircase (Enter global map)  ^X  Save and quit
    .  Run                                 ^Y  (unused)
@@ -131,7 +131,7 @@ Roguelike Keyset
    x  Look around                          X  Repeat Last Command
    y  (walk - north west)                  Y  (run - north west)
    z  Aim a wand (Zap)                     Z  Use a staff (Zap)
-   !  (unused)                            ^A  (special - wizard command)
+   !  Enter a user pref command           ^A  (special - wizard command)
    @  Interact with macros                ^B  (tunnel - south west)
    #  Toggle search mode                  ^C  (special - break)
    $  Reload Auto-picker pref             ^D  Destroy item
@@ -151,8 +151,8 @@ Roguelike Keyset
    =  Set options                         ^R  Redraw the screen
    ;  Walk (with pickup)                  ^S  Save and don't quit
    :  Take notes                          ^T  Dig a Tunnel
-   '  Display game time                   ^U  (tunnel - north east)
-   "  Enter a user pref command           ^V  Recenter Viewport
+   '  Playback Recorded Command           ^U  (tunnel - north east)
+   "  Record Command                      ^V  Recenter Viewport
    ,  Run                                 ^W  (special - wizard mode)
    <  Go up staircase (Enter global map)  ^X  Save and quit
    .  Stay still (with pickup)            ^Y  (tunnel - north west)

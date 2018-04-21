@@ -127,7 +127,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
     choice = (always_show_list || use_menu) ? ESCAPE : 1;
     while (!flag)
     {
-        if (choice == ESCAPE) choice = ' '; 
+        if (choice == ESCAPE) choice = ' ';
         else if (!get_com(out_val, &choice, TRUE))break;
 
         if (use_menu && choice != ' ')
@@ -1149,9 +1149,16 @@ void do_cmd_cast(void)
 
     /* Take a turn ... Note some spells might have variable
         energy costs, so we allow them to override the default
-        value of 100 when handling SPELL_CAST.
+        value when handling SPELL_CAST.
     */
     energy_use = 100;
+    if (p_ptr->pclass == CLASS_YELLOW_MAGE)
+    {
+        int delta = p_ptr->lev - s_ptr->slevel;
+        if (delta > 0) /* paranoia */
+            energy_use -= delta;
+    }
+    energy_use = energy_use * 100 / p_ptr->spells_per_round;
 
     /* Failed spell */
     if (randint0(100) < chance)
@@ -1160,7 +1167,7 @@ void do_cmd_cast(void)
 
         msg_format("You failed to cast %s!", do_spell(increment ? p_ptr->realm2 : p_ptr->realm1, spell % 32, SPELL_NAME));
 
-        if (take_mana && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
+        if (take_mana && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
             p_ptr->csp += take_mana/2;
 
         spell_stats_on_fail_old(realm, spell);
@@ -1210,7 +1217,6 @@ void do_cmd_cast(void)
         if ((o_ptr->tval == TV_CHAOS_BOOK) && (randint1(100) < spell))
         {
             msg_print("You produce a chaotic effect!");
-
             wild_magic(spell);
         }
         else if ((o_ptr->tval == TV_DEATH_BOOK) && (randint1(100) < spell))
@@ -1231,8 +1237,7 @@ void do_cmd_cast(void)
         }
         else if ((o_ptr->tval == TV_MUSIC_BOOK) && (randint1(200) < spell))
         {
-msg_print("An infernal sound echoed.");
-
+            msg_print("An infernal sound echoed.");
             aggravate_monsters(0);
         }
         if (randint1(100) >= chance)
@@ -1384,14 +1389,14 @@ msg_print("An infernal sound echoed.");
             /* Hack: Try to eliminate spell spamming for experience.
                The experience check is for blasting monsters with consecutive Mana Bursts
                which should be granting spell experience, provided one is damaging monsters.
-               
+
                The turn check is for utility spells (Teleport & Detect tactics) since one
                might be doing a bunch of legitimate casting without fighting monsters.
 
                Note: Androids will probably always fail to pass the xp check! Hmm ...
                Note: One still might be able to macro up a cast followed by a rest command.
             */
-            if ( last_pexp != p_ptr->exp 
+            if ( last_pexp != p_ptr->exp
               || (!p_ptr->inside_quest && game_turn > last_turn + 50 + randint1(50)) )
             {
                 if (cur_exp < SPELL_EXP_BEGINNER)
@@ -1418,7 +1423,7 @@ msg_print("An infernal sound echoed.");
         }
     }
 
-    /* In general, we already charged the players sp. However, in the event the 
+    /* In general, we already charged the players sp. However, in the event the
        player knowingly exceeded their csp, then, well, they get what they deserve!
     */
     if (take_mana == 0)
@@ -1533,7 +1538,7 @@ static bool ang_sort_comp_pet_dismiss(vptr u, vptr v, int a, int b)
 
     if (m_ptr1->hp > m_ptr2->hp) return TRUE;
     if (m_ptr2->hp > m_ptr1->hp) return FALSE;
-    
+
     return w1 <= w2;
 }
 
@@ -1572,7 +1577,7 @@ int calculate_upkeep(void)
     {
         monster_type *m_ptr;
         monster_race *r_ptr;
-        
+
         m_ptr = &m_list[m_idx];
         if (!m_ptr->r_idx) continue;
         r_ptr = &r_info[m_ptr->r_idx];
@@ -1820,22 +1825,10 @@ bool rakuba(int dam, bool force)
         {
             int cur = skills_riding_current();
             int max = skills_riding_max();
-            int ridinglevel = r_ptr->level;
             int rakubalevel = r_ptr->level;
             if (p_ptr->riding_ryoute) rakubalevel += 20;
 
-            if ((cur < max) && (max > 1000) &&
-                (dam / 2 + ridinglevel) > (cur / 30 + 10))
-            {
-                int inc = 0;
-
-                if (ridinglevel > (cur / 100 + 15))
-                    inc += 1 + (ridinglevel - cur / 100 - 15);
-                else
-                    inc += 1;
-
-                p_ptr->skill_exp[SKILL_RIDING] = MIN(max, cur + inc);
-            }
+            skills_riding_gain_rakuba(dam);
 
             /* see design/riding.ods */
             if (randint0(dam / 2 + rakubalevel * 2) < cur / 30 + 10)
@@ -2036,10 +2029,14 @@ bool do_riding(bool force)
 
             return FALSE;
         }
-        if ( p_ptr->prace != RACE_MON_RING 
+        if ( p_ptr->prace != RACE_MON_RING
           && r_info[m_ptr->r_idx].level > randint1((skills_riding_current() / 50 + p_ptr->lev / 2 + 20)))
         {
-            msg_print("You failed to ride.");
+            if (p_ptr->wizard)
+                msg_format("Failed: %d > 1d%d", r_info[m_ptr->r_idx].level, skills_riding_current()/50 + p_ptr->lev/2 + 20);
+            else
+                msg_print("You failed to ride.");
+
 
             energy_use = 100;
 
@@ -2508,7 +2505,7 @@ void do_cmd_pet(void)
         {
             project_length = -1;
             target_pet = FALSE;
-            if (!target_set(TARGET_MARK)) 
+            if (!target_set(TARGET_MARK))
                 pet_t_m_idx = 0;
             else
             {
@@ -2527,7 +2524,7 @@ void do_cmd_pet(void)
             p_ptr->pet_follow_distance = PET_CLOSE_DIST;
             pet_t_m_idx = 0;
             break;
-        }        
+        }
         /* "Follow Me" */
         case PET_FOLLOW_ME:
         {

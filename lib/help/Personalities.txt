@@ -153,13 +153,13 @@ The Munchkin personality is for beginners. It raises all your stats and skills. 
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +3        Disarming   <color:g>Superb       </color>
-Intelligence  +3        Device      <color:v>Legendary[12]</color>
+Intelligence  +3        Device      <color:v>Amber[12]    </color>
 Wisdom        +3        Save        <color:b>Heroic       </color>
 Dexterity     +3        Stealth     <color:G>Excellent    </color>
-Constitution  +3        Searching   <color:v>Legendary[15]</color>
-Charisma      +3        Perception  <color:v>Legendary[15]</color>
-Life Rating  150%       Melee       <color:v>Legendary[62]</color>
-Experience    50%       Bows        <color:v>Legendary[62]</color>
+Constitution  +3        Searching   <color:v>Amber[15]    </color>
+Charisma      +3        Perception  <color:v>Amber[15]    </color>
+Life Rating  150%       Melee       <color:v>Amber[62]    </color>
+Experience    50%       Bows        <color:v>Amber[62]    </color>
 </style></indent>
 <topic:Craven><color:o>Craven</color>
 A Craven person is a coward, preferring to avoid a fight at any cost. Craven adventurers shoot and use devices well, and their stealth is impressive. But their stats and other skills are somewhat wanting.
@@ -220,7 +220,7 @@ Lazy         <color:D>Very Bad     </color> <color:D>Very Bad     </color> <colo
 Sexy         <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Good         </color> <color:R>Poor         </color>
 Lucky        <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Good         </color> <color:o>Fair         </color>
 Patient      <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:y>Good         </color> <color:o>Fair         </color>
-Munchkin     <color:g>Superb       </color> <color:v>Legendary[12]</color> <color:b>Heroic       </color> <color:G>Excellent    </color>
+Munchkin     <color:g>Superb       </color> <color:v>Amber[12]    </color> <color:b>Heroic       </color> <color:G>Excellent    </color>
 Craven       <color:G>Excellent    </color> <color:G>Excellent    </color> <color:r>Bad          </color> <color:y>Good         </color>
 Hasty        <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
 
@@ -239,11 +239,11 @@ Lazy         <color:D>Very Bad     </color> <color:r>Bad          </color> <colo
 Sexy         <color:G>Excellent    </color> <color:y>Good         </color> <color:g>Superb       </color> <color:g>Superb       </color>
 Lucky        <color:g>Superb       </color> <color:g>Superb       </color> <color:b>Heroic       </color> <color:b>Heroic       </color>
 Patient      <color:o>Fair         </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
-Munchkin     <color:v>Legendary[15]</color> <color:v>Legendary[15]</color> <color:v>Legendary[62]</color> <color:v>Legendary[62]</color>
+Munchkin     <color:v>Amber[15]    </color> <color:v>Amber[15]    </color> <color:v>Amber[62]    </color> <color:v>Amber[62]    </color>
 Craven       <color:o>Fair         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:g>Superb       </color>
 Hasty        <color:D>Very Bad     </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 5.0.2.</color>
+<color:s>Automatically generated for PosChengband 5.0.3.</color>

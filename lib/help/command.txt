@@ -41,7 +41,7 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    <color:D>x  (unused)</color>                             <color:D>X  (unused)</color>
    <color:D>y  (unused)</color>                             <color:D>Y  (unused)</color>
    <color:y>z</color>  Zap a rod                            <color:D>Z  (unused)</color>
-   <color:D>!  (unused)</color>                            ^A  (special - wizard command)
+   !  Enter a user pref command           ^A  (special - wizard command)
    @  Interact with macros                <color:D>^B  (unused)</color>
    <color:D>#  (unused)</color>                            ^C  (special - break)
    $  Reload Auto-picker pref             <color:D>^D  (unused)</color>
@@ -61,8 +61,8 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    =  Set options                         ^R  Redraw the screen
    ;  Walk (with pickup)                  ^S  Save and don't quit
    :  Take notes                          ^T  Display game time
-   <color:D>'  (unused)</color>                            <color:D>^U  (unused)</color>
-   "  Enter a user pref command           ^V  Recenter Viewport
+   '  Playback Recorded Command           <color:D>^U  (unused)</color>
+   "  Record Command                      ^V  Recenter Viewport
    ,  Stay still (with pickup)            ^W  (special - wizard mode)
    <color:y><</color>  Go up staircase (Enter global map)  <color:y>^X</color>  Save and quit
    .  Run                                 <color:D>^Y  (unused)</color>
@@ -105,7 +105,7 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    <color:y>x</color>  Look around                          X  Repeat Last Command
    y  (walk - north west)                  Y  (run - north west)
    <color:y>z</color>  Aim a wand (Zap)                     Z  Use a staff (Zap)
-   <color:D>!  (unused)</color>                            ^A  (special - wizard command)
+   !  Enter a user pref command           ^A  (special - wizard command)
    @  Interact with macros                ^B  (tunnel - south west)
    #  Toggle search mode                  ^C  (special - break)
    $  Reload Auto-picker pref             ^D  Destroy item
@@ -125,8 +125,8 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    =  Set options                         ^R  Redraw the screen
    ;  Walk (with pickup)                  ^S  Save and don't quit
    :  Take notes                          ^T  Dig a Tunnel
-   '  Display game time                   ^U  (tunnel - north east)
-   "  Enter a user pref command           ^V  Recenter Viewport
+   '  Playback Recorded Command           ^U  (tunnel - north east)
+   "  Record Command                      ^V  Recenter Viewport
    ,  Run                                 ^W  (special - wizard mode)
    <color:y><</color>  Go up staircase (Enter global map)  <color:y>^X</color>  Save and quit
    .  Stay still (with pickup)            ^Y  (tunnel - north west)

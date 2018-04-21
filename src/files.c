@@ -254,7 +254,7 @@ int parse_args(char *buf, char **name, char **args, int max)
     char *s = buf;
     char *t;
     int   ct = 0;
-    
+
     for (t = s; *t; t++)
     {
         if (*t == '(') break;
@@ -1290,7 +1290,7 @@ errr process_pref_file(cptr name)
 
     /* Build the filename */
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
-    
+
     /* Process the user pref file */
     err2 = process_pref_file_aux(buf, PREF_TYPE_NORMAL);
 
@@ -1644,7 +1644,7 @@ void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
 
     if (p_ptr->tim_blood_shield)
     {
-        int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
+        int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp;
         if (amt > 60)
             add_flag(flgs, OF_REFLECT);
     }
@@ -2985,7 +2985,6 @@ long total_points(void)
     int arena_win = MIN(p_ptr->arena_number, MAX_ARENA_MONS);
 
     if (!preserve_mode) mult += 10;
-    if (!autoroller) mult += 10;
     if (!smart_learn) mult -= 20;
     if (smart_cheat) mult += 30;
     if (ironman_shops) mult += 50;
@@ -3187,7 +3186,7 @@ static void print_tomb(void)
         /* Normal */
         else
         {
-            p =  player_title[p_ptr->pclass][(p_ptr->lev - 1) / 5];
+            p =  "Vanquished";
         }
 
         center_string(buf, player_name);
@@ -3657,7 +3656,7 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
         if (!buf[0]) break;
 
         /* Copy the line */
-        if (one_in_(counter + 1)) 
+        if (one_in_(counter + 1))
             strcpy(output, buf);
     }
 

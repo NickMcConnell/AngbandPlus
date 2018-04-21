@@ -3,15 +3,14 @@ Creating a Character
 Please choose one of the following online help files:
 
     [a] Creating a Character
-    [b] The Game Mode
-    [c] Character Attributes
-    [d] Primary Statistics
-    [e] Primary Skills
-    [f] Proficiency Levels
-    [g] Birth Options
-    [h] The Auto-Roller
-    [i] Quick Start
-    [j] Your Character's Name
+    [b] The Welcome Screen
+    [c] The Race/Class Screen
+    [d] The Stats Screen
+    [e] Primary Statistics
+    [f] Primary Skills
+    [g] Proficiency Levels
+    [h] Birth Options
+    [i] Reference
 
     (?) Help System Commands
 

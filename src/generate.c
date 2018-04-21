@@ -174,8 +174,8 @@ static bool alloc_stairs(int feat, int num, int walls)
     {
         /* No up stairs in town or in ironman mode */
         if (ironman_downward || !dun_level) return TRUE;
-        
-        /* No way out!! 
+
+        /* No way out!!
         if ( dun_level == d_info[dungeon_type].mindepth
           && (dungeon_flags[dungeon_type] & DUNGEON_NO_ENTRANCE) )
         {
@@ -361,7 +361,20 @@ static void alloc_object(int set, int typ, int num)
             break;
 
         case ALLOC_TYP_OBJECT:
+            /* Comment: Monsters drop objects at (ML + DL)/2. In practice,
+               this means that your best drops are just laying on the ground,
+               and this encourages recall scumming for end game resources such
+               as wands of rockets. Note: Vaults are not affected and we want
+               to encourage these! Room templates need some thought ... */
+            if (base_level > 31)
+            {
+               int n = base_level - 30;
+               object_level = 30 + n/2 + randint1(n/2);
+            }
+            else
+                object_level = base_level; /* paranoia */
             place_object(y, x, 0L);
+            object_level = base_level;
             break;
 
         case ALLOC_TYP_FOOD:
@@ -410,11 +423,11 @@ static void _mon_give_extra_drop(u32b flag, int ct)
     for (i = 0; i < max_m_idx; i++)
     {
         monster_type *m_ptr = &m_list[i];
-        
+
         if (!m_ptr->r_idx) continue;
         if (!m_ptr->drop_ct) continue;
         if (r_info[m_ptr->r_idx].flags1 & RF1_ONLY_GOLD) continue;
-        
+
         tot++;
     }
 
@@ -1525,7 +1538,7 @@ void clear_cave(void)
     o_max = 1;
     o_cnt = 0;
     unique_count = 0;
-    
+
     /* Note, when I replaced the above with wipe_o_list(), artifacts started spawning
        multiple times!
       wipe_o_list();*/
@@ -1640,11 +1653,11 @@ void generate_cave(void)
             okay = FALSE;
         }
 
-        if (okay) 
+        if (okay)
             break;
-        if (why) 
+        if (why)
             msg_format("Generation restarted (%s)", why);
-        
+
         wipe_o_list();
         wipe_m_list();
     }
@@ -1690,21 +1703,21 @@ void generate_cave(void)
                 uniques++;
         }
         msg_format("DL=%d, Monsters=%d, Drops=%d, <ML>= %d, Uniques=%d", dun_level, ct, ct_drops, lvl/MAX(ct, 1), uniques);
-		for (i = 0; i < ct_drops; i++)
-		{
-			object_type forge;
-			char        buf[MAX_NLEN];
+        for (i = 0; i < ct_drops; i++)
+        {
+            object_type forge;
+            char        buf[MAX_NLEN];
 
-			make_object(&forge, 0); /* TODO: DROP_GOOD? */
+            make_object(&forge, 0); /* TODO: DROP_GOOD? */
             /*if (forge.name1 || forge.name2)*/
-			if (forge.curse_flags)
+            if (forge.curse_flags)
             {
-				identify_item(&forge);
-				forge.ident |= IDENT_MENTAL;
+                identify_item(&forge);
+                forge.ident |= IDENT_MENTAL;
                 object_desc(buf, &forge, 0);
                 msg_print(buf);
             }
-		}
+        }
     }
 #endif
 }

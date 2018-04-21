@@ -77,6 +77,14 @@ bool priest_is_evil(void)
     return FALSE;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_HAFTED, SV_MACE, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_ROBE, 1);
+    py_birth_obj_aux(TV_POTION, SV_POTION_HEALING, 1);
+    py_birth_spellbooks();
+}
+
 class_t *priest_get_class(void)
 {
     static class_t me = {0};
@@ -122,6 +130,7 @@ class_t *priest_get_class(void)
         me.exp = 120;
         me.pets = 35;
 
+        me.birth = _birth;
         me.caster_info = _caster_info;
         /* TODO: This class uses spell books, so we are SOL
         me.get_spells = _get_spells;*/

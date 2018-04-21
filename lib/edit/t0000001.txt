@@ -73,7 +73,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:123
 
 # Steel Helm
-?:[AND [EQU $QUEST1 3] [EQU $RACE Hound Hydra] ]
+?:[AND [EQU $QUEST1 3] [EQU $RACE Hound Hydra Vortex] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:97
 
@@ -138,7 +138,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:70
 
 # Ring of Protection
-?:[AND [EQU $QUEST1 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage] ]
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage Yellow-Mage Gray-Mage] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:132:205
 
@@ -199,7 +199,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:75
 
 # Ring of Wizardry
-?:[AND [EQU $QUEST14 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage] ]
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage Yellow-Mage Gray-Mage] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:208
 
@@ -214,7 +214,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:93
 
 # Elemental Ring
-?:[AND [EQU $QUEST14 3] [EQU $RACE Ring Beholder] ]
+?:[AND [EQU $QUEST14 3] [EQU $RACE Ring Beholder Vortex] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:201
 
@@ -600,12 +600,12 @@ F:@:FLOOR:3:0:0:0:218
 ##########################################################################
 # Hydra
 # Dor-Lomin
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Monster] [EQU $RACE Hydra Golem] [EQU [MOD $RANDOM27 5] 0] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Monster] [EQU $RACE Hydra Golem Vortex] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:39
 
 # Colluin
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Monster] [EQU $RACE Hydra Golem] [GEQ [MOD $RANDOM27 5] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Monster] [EQU $RACE Hydra Golem Vortex] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:44
 
@@ -635,16 +635,15 @@ F:@:FLOOR:3:0:0:0:215
 
 ##########################################################################
 # Archaeologist
-# Jewel?  Help me out here ... I'm thinking Clairvoyance is a fit.
-# And it is a rare treasure :)
+# Nain
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:3
+F:@:FLOOR:3:0:0:0:211
 
-# Whip of Dr. Jones ... note this class gets a "buffed" version!
+# Palantir
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:162
+F:@:FLOOR:3:0:0:0:15
 
 ##########################################################################
 # Duelist
@@ -957,17 +956,17 @@ F:@:FLOOR:3:0:0:0:215
 # Mage, High-Mage, Sorcerer, Blue-Mage, Blood-Mage
 
 # Gandalf
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage] [EQU [MOD $RANDOM27 10] 0] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage Yellow-Mage Gray-Mage] [EQU [MOD $RANDOM27 10] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:120
 
 # Saruman
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage] [EQU [MOD $RANDOM27 10] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage Yellow-Mage Gray-Mage] [EQU [MOD $RANDOM27 10] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:249
 
 # Thranduil
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage] [GEQ [MOD $RANDOM27 10] 2] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage Yellow-Mage Gray-Mage] [GEQ [MOD $RANDOM27 10] 2] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:36
 

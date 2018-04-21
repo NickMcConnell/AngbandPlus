@@ -1374,7 +1374,7 @@ void battle_monsters(void)
                 case MON_LOGRUS_MASTER:
                 case MON_JURT:
                 case MON_GRAV_HOUND:
-                case MON_SHIM_VOR:
+                case MON_SHIMMERING_VORTEX:
                 case MON_JUBJUB:
                 case MON_CLUB_DEMON:
                 case MON_LLOIGOR:
@@ -1393,15 +1393,15 @@ void battle_monsters(void)
                     power[i] = power[i] * 4 / 3;
                     break;
                 case MON_UMBER_HULK:
-                case MON_FIRE_VOR:
-                case MON_WATER_VOR:
-                case MON_COLD_VOR:
-                case MON_ENERGY_VOR:
+                case MON_FIRE_VORTEX:
+                case MON_WATER_VORTEX:
+                case MON_COLD_VORTEX:
+                case MON_ENERGY_VORTEX:
                 case MON_GACHAPIN:
                 case MON_REVENANT:
-                case MON_NEXUS_VOR:
-                case MON_PLASMA_VOR:
-                case MON_TIME_VOR:
+                case MON_NEXUS_VORTEX:
+                case MON_PLASMA_VORTEX:
+                case MON_TIME_VORTEX:
                 case MON_MANDOR:
                 case MON_KAVLAX:
                 case MON_RINALDO:
@@ -1409,8 +1409,8 @@ void battle_monsters(void)
                 case MON_TIME_HOUND:
                 case MON_PLASMA_HOUND:
                 case MON_TINDALOS:
-                case MON_CHAOS_VOR:
-                case MON_AETHER_VOR:
+                case MON_CHAOS_VORTEX:
+                case MON_AETHER_VORTEX:
                 case MON_AETHER_HOUND:
                 case MON_CANTORAS:
                 case MON_GODZILLA:
@@ -1421,7 +1421,7 @@ void battle_monsters(void)
                 case MON_OROCHI:
                 case MON_D_ELF_SHADE:
                 case MON_MANA_HOUND:
-                case MON_SHARD_VOR:
+                case MON_SHARD_VORTEX:
                 case MON_BANORLUPART:
                 case MON_BOTEI:
                 case MON_JAIAN:

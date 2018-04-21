@@ -12,6 +12,10 @@
 
 #include "angband.h"
 
+#include <assert.h>
+
+static bool do_cmd_bash_aux(int y, int x, int dir);
+
 /*
  * Go up one level
  */
@@ -1117,7 +1121,10 @@ void do_cmd_open(void)
         else
         {
             /* Open the door */
-            more = do_cmd_open_aux(y, x);
+            if (p_ptr->prace == RACE_MON_VORTEX)
+                more = do_cmd_bash_aux(y, x, dir);
+            else
+                more = do_cmd_open_aux(y, x);
         }
     }
 
@@ -1537,7 +1544,7 @@ void do_cmd_tunnel(void)
  *    The code here should be nearly identical to that in
  *    do_cmd_open_test() and do_cmd_open_aux().
  */
-bool easy_open_door(int y, int x)
+bool easy_open_door(int y, int x, int dir)
 {
     int i, j;
 
@@ -1551,12 +1558,16 @@ bool easy_open_door(int y, int x)
         return (FALSE);
     }
 
+    if (p_ptr->prace == RACE_MON_VORTEX)
+    {
+        do_cmd_bash_aux(y, x, dir);
+        return TRUE;
+    }
+
     /* Jammed door */
     if (!have_flag(f_ptr->flags, FF_OPEN))
     {
-        /* Stuck */
         msg_format("The %s appears to be stuck.", f_name + f_info[get_feat_mimic(c_ptr)].name);
-
     }
 
     /* Locked door */
@@ -1973,6 +1984,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
     temp = (bash - (temp * 10));
 
     if (p_ptr->pclass == CLASS_BERSERKER) temp *= 2;
+    if (p_ptr->prace == RACE_MON_VORTEX) temp = 100;
 
     /* Hack -- always have a chance */
     if (temp < 1) temp = 1;
@@ -2508,6 +2520,9 @@ void do_cmd_stay(bool pickup)
  */
 void do_cmd_rest(void)
 {
+    int tmp;
+    if (REPEAT_PULL(&tmp))
+        command_arg = tmp;
 
     set_action(ACTION_NONE);
     if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
@@ -2524,7 +2539,7 @@ void do_cmd_rest(void)
     warlock_stop_singing();
 
     /* Prompt for time if needed */
-    if (command_arg <= 0)
+    if (command_arg == 0)
     {
         cptr p = "<color:y>Rest</color> (0-9999, '*' for HP/SP, '&' as needed): ";
 
@@ -2556,6 +2571,7 @@ void do_cmd_rest(void)
             command_arg = atoi(out_val);
             if (command_arg <= 0) return;
         }
+        REPEAT_PUSH(command_arg);
     }
 
 
@@ -3044,7 +3060,7 @@ bool do_cmd_fire_aux1(int item, object_type *bow)
     }
     else
     {
-        if (!get_aim_dir(&dir))
+        if (!get_fire_dir(&dir))
         {
             energy_use = 0;
             if (snipe_type == SP_AWAY) snipe_type = SP_NONE;
@@ -4147,7 +4163,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
         project_length = tdis + 1;
 
         /* Get a direction (or cancel) */
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
 
         /* Predict the "target" location */
         tx = px + 99 * ddx[dir];
@@ -4639,7 +4655,7 @@ static void travel_flow(int ty, int tx)
 
     if (!have_flag(f_ptr->flags, FF_MOVE)) wall = TRUE;
 
-    /* Add the player's grid to the queue */
+    /* Add the target destination grid to the queue */
     wall = travel_flow_aux(ty, tx, 0, wall);
 
     /* Now process the queue */
@@ -4672,18 +4688,15 @@ void do_cmd_travel_xy(int x, int y)
 
     travel.run = 0;
 
-    /* Bug with wilderness scrolling yet to be located ... */
-    if (!in_bounds2(y, x))
-    {
-        forget_travel_flow();
-        travel.y = py;
-        travel.x = px;
-        return;
-    }
+    assert(in_bounds2(y, x)); /* Old bug with traveling in a scrollable wilderness */
 
-    if ((x == px) && (y == py))
+    if (x == px && y == py)
     {
-        msg_print("You are already there!!");
+        /* Shut up already ... perhaps we are being called from wilderness_move_player, rather
+        than from the top level. It turns out that the Museum in Outpost is located on a scroll
+        boundary, and the scroll fires on the last move of the travel flow, but is processed
+        before travel_step checks that we are finished.
+        msg_print("You are already there!!"); */
         return;
     }
 

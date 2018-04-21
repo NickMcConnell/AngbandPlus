@@ -8,14 +8,20 @@ This command lists all monsters you are currently aware of. The list is grouped 
   <color:keypress>PAGEUP/PAGEDOWN</color>    Scroll One Page at a Time
   <color:keypress>HOME/END</color>           Scroll to Top/Bottom of List
 
-  <color:keypress>r</color>                  Recall Selected Monster
-  <color:keypress>p</color>                  Probe Selected Monster (if allowed)
-  <color:keypress>n</color>                  Name Selected Pet (if allowed)
+  <color:keypress>/ or R</color>             Recall Selected Monster
+  <color:keypress>P</color>                  Probe Selected Monster (if allowed)
+  <color:keypress>N</color>                  Name Selected Pet (if allowed)
   <color:keypress>`</color>                  Travel to Selected Monster
-  <color:keypress>*/t/5</color>              Target Selected Monster
+  <color:keypress>* or T or 5</color>        Target Selected Monster
 
-  <color:keypress>ESC/q</color>              Quit this Command
+  <color:keypress>ESC or Q</color>           Quit this Command
   <color:keypress>?</color>                  Display this Help Topic
+
+  <color:keypress>[a-z]</color>              Select next matching entry
+
+<style:note>Note: Since lowercase keystrokes now attempt to match the next entry, only uppercase alphabetic commands are available. For example, to recall monster info, you now must press <color:keypress>R</color> rather than <color:keypress>r</color>.</style>
+
+<style:note>Note: If <color:keyword>quick_messages</color> is enabled, then an unhandled keystroke will dismiss the monster list.</style>
 
 <topic:Usage><style:heading>Usage</style>
 

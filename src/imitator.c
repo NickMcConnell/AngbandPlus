@@ -262,12 +262,12 @@ static bool use_mane(int spell)
         break;
     }
     case MS_ROCKET:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You fire a rocket.");
         fire_rocket(GF_ROCKET, dir, damage, 2);
         break;
     case MS_SHOOT:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You fire an arrow.");
         fire_bolt(GF_ARROW, dir, damage);
         break;
@@ -276,285 +276,285 @@ static bool use_mane(int spell)
     case MS_XXX3:
         break;
     case MS_BR_STORM:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe storm.");
         fire_ball(GF_STORM, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_ACID:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe acid.");
         fire_ball(GF_ACID, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_ELEC:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe lightning.");
         fire_ball(GF_ELEC, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_FIRE:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe fire.");
         fire_ball(GF_FIRE, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_COLD:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe frost.");
         fire_ball(GF_COLD, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_POIS:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe gas.");
         fire_ball(GF_POIS, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_NETHER:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe nether.");
         fire_ball(GF_NETHER, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_LITE:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe light.");
         fire_ball(GF_LITE, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_DARK:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe darkness.");
         fire_ball(GF_DARK, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_CONF:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe confusion.");
         fire_ball(GF_CONFUSION, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_SOUND:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe sound.");
         fire_ball(GF_SOUND, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_CHAOS:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe chaos.");
         fire_ball(GF_CHAOS, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_DISEN:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe disenchantment.");
         fire_ball(GF_DISENCHANT, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_NEXUS:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe nexus.");
         fire_ball(GF_NEXUS, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_TIME:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe time.");
         fire_ball(GF_TIME, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_INERTIA:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe inertia.");
         fire_ball(GF_INERT, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_GRAVITY:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe gravity.");
         fire_ball(GF_GRAVITY, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_SHARDS:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe shards.");
         fire_ball(GF_SHARDS, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_PLASMA:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe plasma.");
         fire_ball(GF_PLASMA, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_FORCE:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe force.");
         fire_ball(GF_FORCE, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BR_MANA:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe mana.");
         fire_ball(GF_MANA, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BALL_NUKE:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a ball of radiation.");
         fire_ball(GF_NUKE, dir, damage, 2);
         break;
     case MS_BR_NUKE:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe toxic waste.");
         fire_ball(GF_NUKE, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BALL_CHAOS:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You invoke a raw Logrus.");
         fire_ball(GF_CHAOS, dir, damage, 4);
         break;
     case MS_BR_DISI:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You breathe disintegration.");
         fire_ball(GF_DISINTEGRATE, dir, damage, (plev > 35 ? -3 : -2));
         break;
     case MS_BALL_ACID:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast an acid ball.");
         fire_ball(GF_ACID, dir, damage, 2);
         break;
     case MS_BALL_ELEC:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a lightning ball.");
         fire_ball(GF_ELEC, dir, damage, 2);
         break;
     case MS_BALL_FIRE:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a fire ball.");
         fire_ball(GF_FIRE, dir, damage, 2);
         break;
     case MS_BALL_COLD:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a frost ball.");
         fire_ball(GF_COLD, dir, damage, 2);
         break;
     case MS_BALL_POIS:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a stinking cloud.");
         fire_ball(GF_POIS, dir, damage, 2);
         break;
     case MS_BALL_NETHER:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a nether ball.");
         fire_ball(GF_NETHER, dir, damage, 2);
         break;
     case MS_BALL_WATER:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You gesture fluidly.");
         fire_ball(GF_WATER, dir, damage, 4);
         break;
     case MS_BALL_MANA:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You invoke a mana storm.");
         fire_ball(GF_MANA, dir, damage, 4);
         break;
     case MS_BALL_DARK:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You invoke a darkness storm.");
         fire_ball(GF_DARK, dir, damage, 4);
         break;
     case MS_DRAIN_MANA:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         fire_ball_hide(GF_DRAIN_MANA, dir, randint1(plev*3)+plev, 0);
         break;
     case MS_MIND_BLAST:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         fire_ball_hide(GF_MIND_BLAST, dir, damage, 0);
         break;
     case MS_BRAIN_SMASH:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         fire_ball_hide(GF_BRAIN_SMASH, dir, damage, 0);
         break;
     case MS_CAUSE_1:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         fire_ball_hide(GF_CAUSE_1, dir, damage, 0);
         break;
     case MS_CAUSE_2:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         fire_ball_hide(GF_CAUSE_2, dir, damage, 0);
         break;
     case MS_CAUSE_3:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         fire_ball_hide(GF_CAUSE_3, dir, damage, 0);
         break;
     case MS_CAUSE_4:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         fire_ball_hide(GF_CAUSE_4, dir, damage, 0);
         break;
     case MS_BOLT_ACID:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast an acid bolt.");
         fire_bolt(GF_ACID, dir, damage);
         break;
     case MS_BOLT_ELEC:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a lightning bolt.");
         fire_bolt(GF_ELEC, dir, damage);
         break;
     case MS_BOLT_FIRE:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a fire bolt.");
         fire_bolt(GF_FIRE, dir, damage);
         break;
     case MS_BOLT_COLD:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a frost bolt.");
         fire_bolt(GF_COLD, dir, damage);
         break;
     case MS_STARBURST:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You invoke a starburst.");
         fire_ball(GF_LITE, dir, damage, 4);
         break;
     case MS_BOLT_NETHER:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a nether bolt.");
         fire_bolt(GF_NETHER, dir, damage);
         break;
     case MS_BOLT_WATER:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a water bolt.");
         fire_bolt(GF_WATER, dir, damage);
         break;
     case MS_BOLT_MANA:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a mana bolt.");
         fire_bolt(GF_MANA, dir, damage);
         break;
     case MS_BOLT_PLASMA:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a plasma bolt.");
         fire_bolt(GF_PLASMA, dir, damage);
         break;
     case MS_BOLT_ICE:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a ice bolt.");
         fire_bolt(GF_ICE, dir, damage);
         break;
     case MS_MAGIC_MISSILE:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a magic missile.");
         fire_bolt(GF_MISSILE, dir, damage);
         break;
     case MS_SCARE:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a fearful illusion.");
         fear_monster(dir, plev+10);
         break;
     case MS_BLIND:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         confuse_monster(dir, plev * 2);
         break;
     case MS_CONF:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You cast a mesmerizing illusion.");
         confuse_monster(dir, plev * 2);
         break;
     case MS_SLOW:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         slow_monster(dir);
         break;
     case MS_SLEEP:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         sleep_monster(dir, plev*3);
         break;
     case MS_SPEED:
         (void)set_fast(randint1(20 + plev) + plev, FALSE);
         break;
     case MS_HAND_DOOM:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You invoke the Hand of Doom!");
         fire_ball_hide(GF_HAND_DOOM, dir, 200, 0);
         break;
@@ -629,7 +629,7 @@ static bool use_mane(int spell)
         break;
     }
     case MS_TELE_AWAY:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         (void)fire_beam(GF_AWAY_ALL, dir, plev);
         break;
     case MS_TELE_LEVEL:
@@ -657,7 +657,7 @@ static bool use_mane(int spell)
         break;
     }
     case MS_PSY_SPEAR:
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
         else msg_print("You throw a psycho-spear.");
         fire_beam(GF_PSY_SPEAR, dir, damage);
         break;
@@ -948,6 +948,13 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, rand_range(2, 5));
+}
+
 class_t *imitator_get_class(void)
 {
     static class_t me = {0};
@@ -988,6 +995,7 @@ class_t *imitator_get_class(void)
         me.exp = 110;
         me.pets = 20;
         
+        me.birth = _birth;
         me.get_powers = _get_powers;
         init = TRUE;
     }

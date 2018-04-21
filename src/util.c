@@ -3978,46 +3978,84 @@ int get_keymap_dir(char ch)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-#define REPEAT_MAX        20
+#define REPEAT_MAX 20
 
-/* Number of chars saved */
-static int repeat__cnt = 0;
+typedef struct {
+    int keys[REPEAT_MAX];
+    int ct;
+    int pos;
+} _repeat_buffer_t, *_repeat_buffer_ptr;
 
-/* Current index */
-static int repeat__idx = 0;
+static _repeat_buffer_t _repeat_buffers[255];
 
-/* Saved "stuff" */
-static int repeat__key[REPEAT_MAX];
+enum { _UNKNOWN, _RECORDING, _PLAYING };
+static char _repeat_reg;
+static int _repeat_state;
 
+static void _repeat_push(_repeat_buffer_ptr buf, int what)
+{
+    if (buf->ct == REPEAT_MAX) return;
+    buf->keys[buf->ct++] = what;
+}
 
 void repeat_push(int what)
 {
-    /* Too many keys */
-    if (repeat__cnt == REPEAT_MAX) return;
-
-    /* Push the "stuff" */
-    repeat__key[repeat__cnt++] = what;
-
-    /* Prevents us from pulling keys */
-    ++repeat__idx;
+    if (_repeat_state == _RECORDING)
+    {
+        _repeat_push(&_repeat_buffers['.'], what);
+        if (_repeat_reg && _repeat_reg != '.')
+            _repeat_push(&_repeat_buffers[(int)_repeat_reg], what);
+    }
 }
 
+static bool _repeat_pull(_repeat_buffer_ptr buf, int *what)
+{
+    if (buf->pos >= buf->ct) return FALSE;
+    *what = buf->keys[buf->pos++];
+    return TRUE;
+}
 
 bool repeat_pull(int *what)
 {
-    /* All out of keys */
-    if (repeat__idx == repeat__cnt) return (FALSE);
-
-    /* Grab the next key, advance */
-    *what = repeat__key[repeat__idx++];
-
-    /* Success */
-    return (TRUE);
+    if (_repeat_state == _PLAYING)
+        return _repeat_pull(&_repeat_buffers[(int)_repeat_reg], what);
+    return FALSE;
 }
 
-void repeat_check(void)
+static void _repeat_list_aux(doc_ptr doc, int i)
 {
-    int        what;
+    _repeat_buffer_ptr buf = &_repeat_buffers[i];
+    if (buf->ct)
+    {
+        int j, c;
+        doc_printf(doc, "<color:y>%c</color>:", (char)i);
+        for (j = 0; j < buf->ct; j++)
+        {
+            c = buf->keys[j];
+            if (isprint(c))
+                doc_printf(doc, "'%c' ", (char)c);
+            else
+                doc_printf(doc, "%d ", c);
+        }
+        doc_newline(doc);
+    }
+}
+
+static void _repeat_list(void)
+{
+    int     i;
+    rect_t  r = ui_map_rect();
+    doc_ptr doc = doc_alloc(r.cx < 80 ? r.cx : 80);
+
+    for (i = 0; i < 255; i++)
+        _repeat_list_aux(doc, i);
+    doc_sync_term(doc, doc_range_all(doc), doc_pos_create(r.x, r.y));
+    doc_free(doc);
+}
+
+void repeat_check(int shopping)
+{
+    int what;
 
     /* Ignore some commands */
     if (command_cmd == ESCAPE) return;
@@ -4025,30 +4063,77 @@ void repeat_check(void)
     if (command_cmd == '\r') return;
     if (command_cmd == '\n') return;
 
-    /* Repeat Last Command */
-    if (command_cmd == 'n')
+    /* Playback Command */
+    if (command_cmd == '\'')
     {
-        /* Reset */
-        repeat__idx = 0;
-
-        /* Get the command */
-        if (repeat_pull(&what))
+        _repeat_state = _PLAYING;
+        prt("Playback: ", 0, 0);
+        _repeat_reg = inkey_special(FALSE);
+        if (_repeat_reg == '\'')
         {
-            /* Save the command */
+            Term_save();
+            _repeat_list();
+            _repeat_reg = inkey_special(FALSE);
+            Term_load();
+        }
+        prt("", 0, 0);
+        if (_repeat_reg == ESCAPE)
+        {
+            _repeat_reg = 0;
+            command_cmd = ESCAPE;
+            _repeat_state = _UNKNOWN;
+            return;
+        }
+        _repeat_buffers[(int)_repeat_reg].pos = 0;
+        if (repeat_pull(&what))
             command_cmd = what;
+        else
+        {
+            msg_format("There is no recorded command in <color:y>%c</color>. Type <color:keypress>'</color> to view recordings.", _repeat_reg);
+            _repeat_reg = 0;
+            _repeat_state = _UNKNOWN;
+            command_cmd = ESCAPE;
+            return;
         }
     }
-
-    /* Start saving new command */
-    else
+    /* Repeat Last Command: Backwards Compatibility. Same as '. */
+    else if (command_cmd == 'n')
     {
-        /* Reset */
-        repeat__cnt = 0;
-        repeat__idx = 0;
+        _repeat_state = _PLAYING;
+        _repeat_reg = '.';
+        _repeat_buffers[(int)_repeat_reg].pos = 0;
+        if (repeat_pull(&what))
+            command_cmd = what;
+        else
+            request_command(shopping);
+    }
+    /* Record Command */
+    else 
+    {
+        _repeat_state = _RECORDING;
+        _repeat_reg = 0;
+        if (command_cmd == '"')
+        {
+            prt("Record: ", 0, 0);
+            _repeat_reg = inkey_special(FALSE);
+            prt("", 0, 0);
+            if (_repeat_reg == ESCAPE)
+            {
+                _repeat_reg = 0;
+                command_cmd = ESCAPE;
+                _repeat_state = _UNKNOWN;
+                return;
+            }
+            _repeat_buffers[(int)_repeat_reg].ct = 0;
+            _repeat_buffers[(int)_repeat_reg].pos = 0;
+            prt("Command: ", 0, 0);
+            request_command(shopping);
+            prt("", 0, 0);
+        }
+        _repeat_buffers['.'].ct = 0;
+        _repeat_buffers['.'].pos = 0;
 
         what = command_cmd;
-
-        /* Save this command */
         repeat_push(what);
     }
 }

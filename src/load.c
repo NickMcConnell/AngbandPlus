@@ -588,6 +588,8 @@ static void rd_quick_start(savefile_ptr file)
 {
     int i;
 
+    if (!savefile_is_older_than(file, 5, 0, 3, 1))
+        previous_char.game_mode = savefile_read_byte(file);
     previous_char.psex = savefile_read_byte(file);
     previous_char.prace = savefile_read_byte(file);
     previous_char.psubrace = savefile_read_byte(file);
@@ -597,18 +599,25 @@ static void rd_quick_start(savefile_ptr file)
     previous_char.realm1 = savefile_read_byte(file);
     previous_char.realm2 = savefile_read_byte(file);
     previous_char.dragon_realm = savefile_read_byte(file);
-    previous_char.age = savefile_read_s16b(file);
+    if (savefile_is_older_than(file, 5, 0, 3, 1))
+        previous_char.age = savefile_read_s16b(file);
     previous_char.au = savefile_read_s32b(file);
 
-    for (i = 0; i < 6; i++) previous_char.stat_max[i] = savefile_read_s16b(file);
-    for (i = 0; i < 6; i++) previous_char.stat_max_max[i] = savefile_read_s16b(file);
-    for (i = 0; i < PY_MAX_LEVEL; i++) previous_char.player_hp[i] = savefile_read_s16b(file);
+    for (i = 0; i < 6; i++)
+        previous_char.stat_max[i] = savefile_read_s16b(file);
+    if (savefile_is_older_than(file, 5, 0, 3, 1))
+    {
+        for (i = 0; i < 6; i++) previous_char.stat_max_max[i] = savefile_read_s16b(file);
+        for (i = 0; i < PY_MAX_LEVEL; i++) previous_char.player_hp[i] = savefile_read_s16b(file);
 
-    previous_char.chaos_patron = savefile_read_s16b(file);
-    previous_char.mutation = savefile_read_s32b(file);
+        previous_char.chaos_patron = savefile_read_s16b(file);
+        previous_char.mutation = savefile_read_s32b(file);
 
-    for (i = 0; i < 8; i++) previous_char.vir_types[i] = savefile_read_s16b(file);
+        for (i = 0; i < 8; i++) previous_char.vir_types[i] = savefile_read_s16b(file);
+    }
     previous_char.quick_ok = savefile_read_byte(file);
+    if (savefile_is_older_than(file, 5, 0, 3, 1))
+        previous_char.quick_ok = FALSE;
 }
 
 static void rd_extra(savefile_ptr file)
@@ -1618,7 +1627,6 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         p_ptr->player_hp[i] = savefile_read_s16b(file);
 
     /* Important -- Initialize stuff */
-    sp_ptr = &sex_info[p_ptr->psex];
     mp_ptr = &m_info[p_ptr->pclass];
 
     /* Read spell info */

@@ -36,7 +36,11 @@ Z:GF_NETHER:G
 Z:GF_DISENCHANT:wsorgbuDWvyRGBU
 Z:GF_NEXUS:RRRr
 Z:GF_TIME:B
-Z:GF_GRAVITY:ddDs
+#d is causing display anomalies in curses running under xterm
+#It looks to be erasing from the * to the edge of the screen,
+#and not repainting. Only in xterm, though ...
+#Z:GF_GRAVITY:ddDs
+Z:GF_GRAVITY:Ds
 Z:GF_KILL_WALL:W
 Z:GF_KILL_DOOR:U
 Z:GF_KILL_TRAP:R

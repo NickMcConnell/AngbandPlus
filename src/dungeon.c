@@ -251,6 +251,8 @@ static void sense_inventory1(void)
             case CLASS_SORCERER:
             case CLASS_MAGIC_EATER:
             case CLASS_DEVICEMASTER:
+            case CLASS_YELLOW_MAGE:
+            case CLASS_GRAY_MAGE:
             {
                 /* Good (light) sensing ... I never understood why the classes with the
                    greatest magical understanding were so oblivious to the magic around them.
@@ -539,6 +541,8 @@ static void sense_inventory2(void)
             case CLASS_BLUE_MAGE:
             case CLASS_ARCHAEOLOGIST:
             case CLASS_DEVICEMASTER:
+            case CLASS_YELLOW_MAGE:
+            case CLASS_GRAY_MAGE:
             {
                 /* Good sensing */
                 if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
@@ -1343,6 +1347,8 @@ static bool _fast_mana_regen(void)
     case CLASS_NECROMANCER:
     case CLASS_HIGH_MAGE:
     case CLASS_SORCERER:
+    case CLASS_YELLOW_MAGE:
+    case CLASS_GRAY_MAGE:
         return TRUE;
     }
     return FALSE;
@@ -3534,7 +3540,7 @@ static void process_command(void)
 #ifdef ALLOW_REPEAT /* TNB */
 
     /* Handle repeating the last command */
-    repeat_check();
+    repeat_check(FALSE);
 
 #endif /* ALLOW_REPEAT -- TNB */
 
@@ -3695,16 +3701,20 @@ static void process_command(void)
         /* Move (usually pick up things) */
         case ';':
         {
+            if (toggle_run_status && toggle_running)
+                do_cmd_run();
+            else
+            {
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
-            do_cmd_walk(FALSE);
+                do_cmd_walk(FALSE);
 
 #else /* ALLOW_EASY_DISARM -- TNB */
 
-            do_cmd_walk(always_pickup);
+                do_cmd_walk(always_pickup);
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
-
+            }
             break;
         }
 
@@ -3730,7 +3740,13 @@ static void process_command(void)
         /* Begin Running -- Arg is Max Distance */
         case '.':
         {
-            if (!p_ptr->wild_mode) do_cmd_run();
+            if (toggle_run_status)
+            {
+                toggle_running = !toggle_running;
+                p_ptr->redraw |= PR_STATUS;
+            }
+            else if (!p_ptr->wild_mode)
+                do_cmd_run();
             break;
         }
 
@@ -3874,6 +3890,8 @@ static void process_command(void)
                 rage_mage_gain_spell();
             else if (p_ptr->pclass == CLASS_MAGIC_EATER)
                 magic_eater_gain();
+            else if (p_ptr->pclass == CLASS_GRAY_MAGE)
+                gray_mage_gain_spell();
             else if (p_ptr->pclass == CLASS_PSION)
             {
                 msg_print("You can only gain spells at certain levels.");
@@ -3894,6 +3912,8 @@ static void process_command(void)
                 do_cmd_snipe_browse();
             else if (p_ptr->pclass == CLASS_RAGE_MAGE)
                 rage_mage_browse_spell();
+            else if (p_ptr->pclass == CLASS_GRAY_MAGE)
+                gray_mage_browse_spell();
             else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
                      p_ptr->pclass == CLASS_BERSERKER ||
                      p_ptr->pclass == CLASS_DUELIST ||
@@ -3993,6 +4013,8 @@ static void process_command(void)
                     do_cmd_cast_learned();
                 else if (p_ptr->pclass == CLASS_SNIPER)
                     do_cmd_snipe();
+                else if (p_ptr->pclass == CLASS_GRAY_MAGE)
+                    gray_mage_cast_spell();
                 else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
                             p_ptr->pclass == CLASS_BERSERKER ||
                             p_ptr->pclass == CLASS_DUELIST ||
@@ -4272,15 +4294,8 @@ static void process_command(void)
 
         /*** System Commands ***/
 
-        /* Hack -- User interface */
-        case '!':
-        {
-            (void)Term_user(0);
-            break;
-        }
-
         /* Single line from a pref file */
-        case '"':
+        case '!':
         {
             do_cmd_pref();
             break;
@@ -4633,6 +4648,7 @@ static void process_player(void)
     {
         /* Check for "player abort" (semi-efficiently for resting) */
         if ( running
+          || travel.run
           || command_rep
           || p_ptr->action == ACTION_REST
           || p_ptr->action == ACTION_GLITTER
@@ -4981,9 +4997,11 @@ static void process_player(void)
             else
             {
                 int amt = (s16b)((s32b)energy_use * ENERGY_NEED() / 100L);
-                #if 0
-                c_put_str(TERM_WHITE, format("E:%3d/%3d", amt, energy_use), 24, 0);
-                #endif
+                if (p_ptr->wizard)
+                {
+                    rect_t r = ui_char_info_rect();
+                    c_put_str(TERM_WHITE, format("E:%3d/%3d", amt, energy_use), r.y + r.cy - 2, r.x);
+                }
                 p_ptr->energy_need += amt;
             }
 
@@ -5828,11 +5846,16 @@ void play_game(bool new_game)
     now_turn = game_turn;
     start_time = time(NULL);
 
+    /* TODO: py_skills_init() or some such ... w_max needs to be reset each time you play, 
+     * not just on player birth */
     if (p_ptr->prace == RACE_TONBERRY)
         s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_WEAPON_BEGIN][SV_SABRE] = WEAPON_EXP_MASTER;
 
     if (p_ptr->pclass == CLASS_WEAPONMASTER && !new_game)
         weaponmaster_adjust_skills();
+
+    if (p_ptr->personality == PERS_SEXY)
+        s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = WEAPON_EXP_MASTER;
 
     /* Fill the arrays of floors and walls in the good proportions */
     set_floor_and_wall(dungeon_type);
@@ -5953,23 +5976,31 @@ void play_game(bool new_game)
         if (pers_ptr->birth) /* Hack: Personality goes first for the Sexy Whip! */
             pers_ptr->birth();
 
-        player_outfit();
+        /* birth functions should handle this
+        player_outfit();*/
 
+        /* Note: The class birth function should give starting
+         * equipment and spellbooks while the race birth function
+         * should give starting food and light (in general) */
         if (class_ptr->birth)
             class_ptr->birth();
 
         if (race_ptr->birth)
             race_ptr->birth();
+        else
+        {
+            /* most races won't need a special birth function, so
+             * give standard food and light by default */
+            py_birth_food();
+            py_birth_light();
+        }
 
         spell_stats_on_birth();
 
         stats_on_gold_find(p_ptr->au); /* Found? Inherited? What's the difference? */
 
-        if (game_mode == GAME_MODE_BEGINNER)
-        {
-            /*TODO: Write up a quick start guide. We are Light Town, so no wilderness references please! */
-            /*show_file(TRUE, "beginner.txt", NULL, 0, 0);*/
-        }
+        if (class_ptr->gain_level) /* Gain CL1 (e.g. Chaos Warriors) */
+            (class_ptr->gain_level)(p_ptr->lev);
     }
 
 

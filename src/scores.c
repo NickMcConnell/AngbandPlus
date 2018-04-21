@@ -777,7 +777,7 @@ void kingly(void)
     /* Display a message */
     put_str("Veni, Vidi, Vici!", cy + 3, cx - 9);
     put_str("I came, I saw, I conquered!", cy + 4, cx - 14);
-    put_str(format("All Hail the Mighty %s!", sp_ptr->winner), cy + 5, cx - 13);
+    put_str(format("All Hail the Mighty %s!", sex_info[p_ptr->psex].winner), cy + 5, cx - 13);
 
 
     /* Flush input */

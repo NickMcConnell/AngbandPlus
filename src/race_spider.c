@@ -572,13 +572,20 @@ static void _birth(void)
     forge.to_d = 2;
     forge.pval = 1;
     add_flag(forge.flags, OF_DEX);
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_food();
 }
 
-race_t *mon_spider_get_race(void)
+static name_desc_t _info[SPIDER_MAX] = {
+    { "Phase Spider", "Phase Spiders have unsurpassed powers of teleportation and average offense." },
+    { "Aranea", "Aranea are stronger in melee than Phase Spiders but lack special powers except for their Spider Web." },
+};
+
+race_t *mon_spider_get_race(int psubrace)
 {
     race_t *result = NULL;
 
@@ -615,5 +622,12 @@ race_t *mon_spider_get_race(void)
     result->shop_adjust = 115;
 
     result->boss_r_idx = MON_UNGOLIANT;
+
+    if (birth_hack || spoiler_hack)
+    {
+        result->subname = _info[psubrace].name;
+        result->subdesc = _info[psubrace].desc;
+    }
+
     return result;
 }

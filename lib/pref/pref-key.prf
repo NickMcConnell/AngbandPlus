@@ -196,5 +196,5 @@ A:U
 C:1:O
 
 # Display Game Time
-A:^t
-C:1:'
+#A:^t
+#C:1:'

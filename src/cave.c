@@ -2067,7 +2067,7 @@ void display_map(int *cy, int *cx)
           char buf[13] = "\0";
           strncpy(buf,autopick_list[match_autopick].name,12);
           buf[12] = '\0';
-          put_str(buf,y,0); 
+          put_str(buf,y,0);
       }
 #endif
 
@@ -2179,7 +2179,7 @@ void do_cmd_view_map(void)
                 break;
 
             Term_fresh();
-            
+
             if (~display_autopick & flag)
                 display_autopick |= flag;
             else
@@ -2187,7 +2187,7 @@ void do_cmd_view_map(void)
             /* Display the map */
             display_map(&cy, &cx);
         }
-        
+
         display_autopick = 0;
 
     }
@@ -4129,17 +4129,17 @@ static int scent_when = 0;
 /*
  * Characters leave scent trails for perceptive monsters to track.
  *
- * Smell is rather more limited than sound. Many creatures cannot use 
- * it at all, it doesn't extend very far outwards from the character's 
- * current position, and monsters can use it to home in the character, 
+ * Smell is rather more limited than sound. Many creatures cannot use
+ * it at all, it doesn't extend very far outwards from the character's
+ * current position, and monsters can use it to home in the character,
  * but not to run away from him.
  *
- * Smell is valued according to age. When a character takes his turn, 
- * scent is aged by one, and new scent of the current age is laid down. 
- * Speedy characters leave more scent, true, but it also ages faster, 
+ * Smell is valued according to age. When a character takes his turn,
+ * scent is aged by one, and new scent of the current age is laid down.
+ * Speedy characters leave more scent, true, but it also ages faster,
  * which makes it harder to hunt them down.
  *
- * Whenever the age count loops, most of the scent trail is erased and 
+ * Whenever the age count loops, most of the scent trail is erased and
  * the age of the remainder is recalculated.
  */
 void update_smell(void)
@@ -4148,7 +4148,7 @@ void update_smell(void)
     int y, x;
 
     /* Create a table that controls the spread of scent */
-    const int scent_adjust[5][5] = 
+    const int scent_adjust[5][5] =
     {
         { -1, 0, 0, 0,-1 },
         {  0, 1, 1, 1, 0 },
@@ -4618,7 +4618,7 @@ int feat_state(int feat, int action)
 }
 
 /*
- * Takes a location and action and changes the feature at that 
+ * Takes a location and action and changes the feature at that
  * location through applying the given action.
  */
 void cave_alter_feat(int y, int x, int action)
@@ -4754,21 +4754,22 @@ void hit_mon_trap(int y, int x, int m_idx)
                     }
                     break;
                 case 5: /* Trap Door */
-                    if (r_ptr->flags7 & RF7_CAN_FLY)
+                    if (!p_ptr->inside_quest && !p_ptr->inside_arena)
                     {
-                        if (m_ptr->ml)
-                            msg_format("%s flies over the trap door.", m_name);
-                    }
-                    else
-                    {
-                        if (m_ptr->ml)
-                            msg_format("%s falls through the trap door.", m_name);
-                        if (p_ptr->inside_arena)
-                            msg_format("%s climbs back out to continue the fight!", m_name);
+                        if (r_ptr->flags7 & RF7_CAN_FLY)
+                        {
+                            if (m_ptr->ml)
+                                msg_format("%s flies over the trap door.", m_name);
+                        }
                         else
+                        {
+                            if (m_ptr->ml)
+                                msg_format("%s falls through the trap door.", m_name);
                             delete_monster_idx(m_idx);
+                        }
+                        break;
                     }
-                    break;
+                    /* vvv=== Fall Thru: No Trapdoors in the Arena or Fixed Town Quests */
                 case 6: case 7: case 8: case 9: /* Arrow Trap */
                     if (m_ptr->ml)
                         msg_format("%s is hit by an arrow.", m_name);
@@ -5131,8 +5132,8 @@ void disturb(int stop_search, int unused_flag)
     }
 
     /* Cancel Resting */
-    if ( p_ptr->action == ACTION_REST 
-      || p_ptr->action == ACTION_FISH 
+    if ( p_ptr->action == ACTION_REST
+      || p_ptr->action == ACTION_FISH
       || p_ptr->action == ACTION_GLITTER
       || (stop_search && p_ptr->action == ACTION_SEARCH) )
     {

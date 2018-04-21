@@ -4,6 +4,8 @@
 
 #include "angband.h"
 
+#include <assert.h>
+
 int lookup_class_idx(cptr name)
 {
     int i;
@@ -86,13 +88,16 @@ class_t *result = NULL;
         result = chaos_warrior_get_class();
         break;
     case CLASS_DEVICEMASTER:
-        result = devicemaster_get_class();
+        result = devicemaster_get_class(psubclass);
         break;
     case CLASS_DUELIST:
         result = duelist_get_class();
         break;
     case CLASS_FORCETRAINER:
         result = force_trainer_get_class();
+        break;
+    case CLASS_GRAY_MAGE:
+        result = gray_mage_get_class(psubclass);
         break;
     case CLASS_HIGH_MAGE:
         result = high_mage_get_class();
@@ -190,8 +195,14 @@ class_t *result = NULL;
     case CLASS_WILD_TALENT:
         result = wild_talent_get_class();
         break;
+    case CLASS_YELLOW_MAGE:
+        result = yellow_mage_get_class();
+        break;
     }
 
+    assert(result);
+    result->id = pclass;
+    result->subid = psubclass;
     return result;
 }
 
@@ -210,6 +221,17 @@ caster_info *get_caster_info(void)
         result = (race_ptr->caster_info)();
     else if (class_ptr->caster_info)
         result = (class_ptr->caster_info)();
+    return result;
+}
+
+int get_spell_stat(void)
+{
+    int          result = A_NONE;
+    caster_info *caster_ptr = get_caster_info();
+
+    if (caster_ptr)
+        result = caster_ptr->which_stat;
+
     return result;
 }
 

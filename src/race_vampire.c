@@ -32,17 +32,17 @@ static void _birth(void)
     equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_DAGGER));
     forge.name2 = EGO_WEAPON_DEATH;
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     /* Encourage shapeshifting! */
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 4;
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 }
 
 static void _gain_level(int new_level) 
@@ -176,7 +176,7 @@ void _gaze_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_DOMINATION, dir, _gaze_power(), 0);
         var_set_bool(res, TRUE);
         break;
@@ -575,6 +575,11 @@ race_t *mon_vampire_get_race(void)
 
     me.equip_template = mon_get_equip_template();
 
+    if (birth_hack || spoiler_hack)
+    {
+        me.subname = NULL;
+        me.subdesc = NULL;
+    }
     return &me;
 }
 

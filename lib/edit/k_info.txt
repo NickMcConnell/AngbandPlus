@@ -973,8 +973,8 @@ D:curtain of mail.
 N:98:& Iron Crown~
 G:]:s
 I:33:10:0
-W:40:0:0:20:500
-A:40/1
+W:30:0:0:20:500
+A:30/1
 P:0:1d1:0:0:0
 D:A plain band of iron, crowned with iron spikes.  It is a tyrant's
 D:symbol.
@@ -982,8 +982,8 @@ D:symbol.
 N:99:& Golden Crown~
 G:]:y
 I:33:11:0
-W:45:0:0:30:1000
-A:45/1
+W:40:0:0:30:1000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 D:An elegant golden circlet, with slender spines thrusting upward.
@@ -992,8 +992,8 @@ D:It looks like it should be resting over the brow of a king.
 N:100:& Jewel Encrusted Crown~
 G:]:v
 I:33:12:0
-W:50:0:0:40:2000
-A:50/1
+W:40:0:0:40:2000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 D:An elaborately decorated crown of massive gold, studded with a rainbow

@@ -28,6 +28,12 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _calc_bonuses(void)
+{
+    p_ptr->spells_per_round += py_prorata_level(150);
+}
+
+
 static void _birth(void)
 {
     py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
@@ -35,7 +41,7 @@ static void _birth(void)
     py_birth_spellbooks();
 }
 
-class_t *mage_get_class(void)
+class_t *yellow_mage_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -45,23 +51,19 @@ class_t *mage_get_class(void)
     skills_t bs = { 30,  40,  38,   3,  16,  20,  34,  20};
     skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
 
-        me.name = "Mage";
-        me.desc = "A Mage is a spell caster that must live by his wits as he cannot "
-                    "hope to simply hack his way through the dungeon like a warrior. "
-                    "In addition to his spellbooks, a Mage should carry a range of "
-                    "magical devices to help him in his endeavors which he can master "
-                    "far more easily than anyone else. A Mage's prime statistic is "
-                    "Intelligence as this determines his spell casting ability.\n \n"
-                    "Mages have the least restrictions in choosing and learning spells. "
-                    "They can freely choose any two realms when a character is created. "
-                    "Their natural inclination makes Life magic fairly hard to learn. "
-                    "Otherwise, a mage tends to learn and cast all the spells in his or "
-                    "her realms better than any other character. The ability to choose "
-                    "second realm of magic has a special meaning: Only the "
-                    "second realm can be changed in the middle of the game. You can "
-                    "change second realm by studying ('G') from a spellbook of new "
-                    "realm. They have a class power - 'Eat Magic' - which absorbs mana "
-                    "from wands, staves or rods.";
+        me.name = "Yellow-Mage";
+        me.desc = "A Yellow Mage is a type of Mage who focuses on rapid spell casting. "
+                    "Much as the Warrior gets multiple attacks per round, the Yellow Mage "
+                    "may cast multiple spells per round. Their spell speed increases with "
+                    "level. In addition, they may also cast low level spells more quickly "
+                    "as they gain in experience (For example, a CL50 Yellow Mage casting a "
+                    "L35 spell only requires 85% of the normal time, and this bonus applies "
+                    "before their spells per round bonus).\n \n"
+                    "In all other respects, the Yellow Mage is similar to the Mage. They "
+                    "may learn spells from two spell realms and use Intelligence as their "
+                    "primary spell statistic. However, due to their focus upon hasty "
+                    "casting, they are unable to learn the mightiest of spells in most realms, "
+                    "especially as regards powerful offensive spells like Mana Storm.";
 
         me.stats[A_STR] = -4;
         me.stats[A_INT] =  3;
@@ -75,11 +77,10 @@ class_t *mage_get_class(void)
         me.base_hp = 0;
         me.exp = 130;
         me.pets = 30;
-        
+
         me.birth = _birth;
+        me.calc_bonuses = _calc_bonuses;
         me.caster_info = _caster_info;
-        /* TODO: This class uses spell books, so we are SOL
-        me.get_spells = _get_spells;*/
         me.character_dump = spellbook_character_dump;
         me.get_powers = _get_powers;
         init = TRUE;

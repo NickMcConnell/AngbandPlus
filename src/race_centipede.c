@@ -37,13 +37,16 @@ static void _birth(void)
     forge.to_d = 2;
     forge.pval = 1;
     add_flag(forge.flags, OF_DEX);
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_food();
+    py_birth_light();
 }
 
 static int _rank(void)
@@ -221,7 +224,10 @@ race_t *mon_centipede_get_race(void)
         init = TRUE;
     }
 
-    me.subname = titles[r];
+    if (!birth_hack && !spoiler_hack)
+        me.subname = titles[r];
+    else
+        me.subname = NULL;
     me.stats[A_STR] = (r + 1)/3;
     me.stats[A_INT] = -3;
     me.stats[A_WIS] = -3;

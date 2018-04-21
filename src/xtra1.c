@@ -597,6 +597,8 @@ static void prt_stat(int stat)
 #define BAR_DRAGON_HEALING 171
 #define BAR_DRAGON_HEROIC_CHARGE 172
 #define BAR_HOARDING 173
+#define BAR_RUNNING  174
+#define BAR_WALKING  175
 
 static struct {
     byte attr;
@@ -779,6 +781,8 @@ static struct {
     {TERM_YELLOW, "Hl", "Healing"},
     {TERM_VIOLET, "Chg", "Heroic Charge"},
     {TERM_YELLOW, "$$", "Hoarding"},
+    {TERM_L_RED, "Run", "Running"},
+    {TERM_L_BLUE, "Walk", "Walking"},
     {0, NULL, NULL}
 };
 
@@ -817,6 +821,14 @@ static void prt_status(void)
 
     /* Tsuyoshi  */
     if (p_ptr->tsuyoshi) ADD_FLG(BAR_TSUYOSHI);
+
+    if (toggle_run_status)
+    {
+        if (toggle_running)
+            ADD_FLG(BAR_RUNNING);
+        else
+            ADD_FLG(BAR_WALKING);
+    }
 
     /* prt_effects()
     if (p_ptr->image) ADD_FLG(BAR_HALLUCINATION);
@@ -1891,7 +1903,7 @@ static void prt_effects(void)
         prt_food(row++, col);
     if (p_ptr->wizard)
         c_put_str(TERM_L_BLUE, "Wizard", row++, col);
-    if (p_ptr->new_spells)
+    if (p_ptr->new_spells && p_ptr->pclass != CLASS_RAGE_MAGE)
     {
         char tmp[20];
         sprintf(tmp, "Study (%d)", p_ptr->new_spells);
@@ -2083,6 +2095,18 @@ static void prt_health_bars(void)
             prt_mon_health_bar(p_ptr->health_who, row++, col);
         if (target_who > 0 && target_who != p_ptr->riding && target_who != p_ptr->health_who)
             prt_mon_health_bar(target_who, row++, col);
+        if (target_who < 0)
+        {
+            int dx = target_col - px;
+            int dy = target_row - py;
+            cptr s;
+            s = format("%c%3d %c%3d",
+                    (dy > 0) ? 'S' : 'N', abs(dy),
+                    (dx > 0) ? 'E' : 'W', abs(dx));
+            Term_putstr(col, row, -1, TERM_RED, "T: ");
+            Term_addstr(-1, TERM_WHITE, s);
+            row++;
+        }
     }
 }
 
@@ -2504,14 +2528,18 @@ static void calc_spells(void)
     {
         num_allowed = 32;
     }
+    else if ( p_ptr->pclass == CLASS_MAGE
+           || p_ptr->pclass == CLASS_BLOOD_MAGE
+           || p_ptr->pclass == CLASS_PRIEST
+           || p_ptr->pclass == CLASS_YELLOW_MAGE
+           || p_ptr->pclass == CLASS_GRAY_MAGE )
+    {
+        if (num_allowed>(96+bonus)) num_allowed = 96+bonus;
+    }
     else if (p_ptr->realm2 == REALM_NONE)
     {
         num_allowed = (num_allowed+1)/2;
         if (num_allowed>(32+bonus)) num_allowed = 32+bonus;
-    }
-    else if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_BLOOD_MAGE) || (p_ptr->pclass == CLASS_PRIEST))
-    {
-        if (num_allowed>(96+bonus)) num_allowed = 96+bonus;
     }
     else
     {
@@ -2881,6 +2909,8 @@ static void _calc_encumbrance(void)
     case CLASS_MONK:
     case CLASS_FORCETRAINER:
     case CLASS_SORCERER:
+    case CLASS_YELLOW_MAGE:
+    case CLASS_GRAY_MAGE:
         weight += equip_weight(object_is_melee_weapon);
         break;
 
@@ -3040,6 +3070,8 @@ static void calc_mana(void)
         case CLASS_BLOOD_MAGE:
         case CLASS_HIGH_MAGE:
         case CLASS_BLUE_MAGE:
+        case CLASS_YELLOW_MAGE:
+        case CLASS_GRAY_MAGE:
             msp -= msp * p_ptr->cumber_armor_amt / 600;
             break;
 
@@ -3185,6 +3217,8 @@ static int _calc_xtra_hp(int amt)
     case CLASS_MAGE:
     case CLASS_HIGH_MAGE:
     case CLASS_SORCERER:
+    case CLASS_YELLOW_MAGE:
+    case CLASS_GRAY_MAGE:
         w1 = 0; w2 = 0; w3 = 1;
         break;
 
@@ -3507,6 +3541,8 @@ void calc_bonuses(void)
         for (i = 0; i < OF_ARRAY_SIZE; i++)
             p_ptr->innate_attack_info.flags[i] = 0;
     }
+    p_ptr->spells_per_round = 100;
+
     /* Start with "normal" speed */
     p_ptr->pspeed = 110;
 

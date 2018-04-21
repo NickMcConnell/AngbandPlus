@@ -2684,6 +2684,7 @@ errr parse_k_info(char *buf, header *head)
 
         /* Point at the "info" */
         k_ptr = &k_info[i];
+        k_ptr->idx = i;
 
         /* Paranoia -- require a name */
         if (!*s) return (1);

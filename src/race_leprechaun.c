@@ -36,6 +36,11 @@ static void _birth(void)
     msg_print("You feel the luck of the Irish!");
     mut_gain(MUT_GOOD_LUCK);
     mut_lock(MUT_GOOD_LUCK);
+
+    p_ptr->au = 50000;
+
+    py_birth_food();
+    py_birth_light();
 }
 
 static int _get_toggle(void)
@@ -468,7 +473,8 @@ race_t *mon_leprechaun_get_race(void)
     if (!spoiler_hack)
         me.life += MIN(p_ptr->au / 500000, 20);
 
-    me.subname = titles[rank];
+    if (!birth_hack && !spoiler_hack)
+        me.subname = titles[rank];
     me.stats[A_STR] = -2 - 2*rank;
     me.stats[A_INT] = 1;
     me.stats[A_WIS] = 1;

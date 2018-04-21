@@ -515,6 +515,7 @@ static void wr_quick_start(savefile_ptr file)
 {
     int i;
 
+    savefile_write_byte(file, previous_char.game_mode);
     savefile_write_byte(file, previous_char.psex);
     savefile_write_byte(file, previous_char.prace);
     savefile_write_byte(file, previous_char.psubrace);
@@ -524,17 +525,10 @@ static void wr_quick_start(savefile_ptr file)
     savefile_write_byte(file, previous_char.realm1);
     savefile_write_byte(file, previous_char.realm2);
     savefile_write_byte(file, previous_char.dragon_realm);
-    savefile_write_s16b(file, previous_char.age);
     savefile_write_s32b(file, previous_char.au);
 
-    for (i = 0; i < 6; i++) savefile_write_s16b(file, previous_char.stat_max[i]);
-    for (i = 0; i < 6; i++) savefile_write_s16b(file, previous_char.stat_max_max[i]);
-    for (i = 0; i < PY_MAX_LEVEL; i++) savefile_write_s16b(file, previous_char.player_hp[i]);
-
-    savefile_write_s16b(file, previous_char.chaos_patron);
-    savefile_write_s32b(file, previous_char.mutation);
-
-    for (i = 0; i < 8; i++) savefile_write_s16b(file, previous_char.vir_types[i]);
+    for (i = 0; i < 6; i++)
+        savefile_write_s16b(file, previous_char.stat_max[i]);
 
 #ifndef _DEBUG
     /* No quick start after using debug mode or cheat options */

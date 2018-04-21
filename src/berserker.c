@@ -185,6 +185,13 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_POLEARM, SV_BROAD_AXE, 1);
+    py_birth_obj_aux(TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL, 1);
+    py_birth_obj_aux(TV_POTION, SV_POTION_HEALING, 1);
+}
+
 class_t *berserker_get_class(void)
 {
     static class_t me = {0};
@@ -225,6 +232,7 @@ class_t *berserker_get_class(void)
         me.exp = 160;
         me.pets = 255;
         
+        me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;

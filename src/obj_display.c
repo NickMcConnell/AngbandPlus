@@ -9,6 +9,7 @@ extern void obj_display_rect(object_type *o_ptr, rect_t display);
 extern void obj_display_doc(object_type *o_ptr, doc_ptr doc);
 extern void obj_display_smith(object_type *o_ptr, doc_ptr doc);
 extern void device_display_doc(object_type *o_ptr, doc_ptr doc);
+extern void device_display_smith(object_type *o_ptr, doc_ptr doc);
 
 static void _display_name(object_type *o_ptr, doc_ptr doc);
 static void _display_desc(object_type *o_ptr, doc_ptr doc);
@@ -1077,6 +1078,12 @@ void obj_display_smith(object_type *o_ptr, doc_ptr doc)
 {
     u32b flgs[OF_ARRAY_SIZE];
 
+    if (object_is_device(o_ptr))
+    {
+        device_display_smith(o_ptr, doc);
+        return;
+    }
+
     obj_flags_known(o_ptr, flgs);
 
     _display_name(o_ptr, doc);
@@ -1122,6 +1129,7 @@ void obj_display_smith(object_type *o_ptr, doc_ptr doc)
     _display_extra(o_ptr, flgs, doc);
     _display_curses(o_ptr, flgs, doc);
     _display_ignore(flgs, doc);
+    _display_score(o_ptr, doc);
 
     doc_insert(doc, "</style></indent>\n");
 }
@@ -1201,7 +1209,7 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
 
     net = _calc_net_bonus(o_ptr->pval, flgs, OF_EASY_SPELL, OF_INVALID);
     if (net > 0)
-        vec_add(v, string_copy_s("<color:G>Easy Use</color>"));
+        vec_add(v, string_alloc_format("<color:G>%+d Easy Use</color>", net));
     else if (net < 0)
         vec_add(v, string_copy_s("<color:r>Hard Use</color>"));
 
@@ -1279,6 +1287,93 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
     _display_autopick(o_ptr, doc);
 
     doc_insert(doc, "</style></indent>\n");
+}
+
+/* For wiz_smithing ... TODO: Consolidate common code with device_display_doc */
+void device_display_smith(object_type *o_ptr, doc_ptr doc)
+{
+    u32b    flgs[OF_ARRAY_SIZE];
+    int     net = 0;
+    int     boost = 0;
+    vec_ptr v = NULL;
+
+    assert(object_is_device(o_ptr));
+    assert(obj_is_identified_fully(o_ptr));
+
+    _display_name(o_ptr, doc);
+    doc_insert(doc, "  <indent>");
+
+    obj_flags_known(o_ptr, flgs);
+    if (devicemaster_is_speciality(o_ptr))
+        boost = device_power_aux(100, p_ptr->device_power + p_ptr->lev/10) - 100;
+    else
+        boost = device_power(100) - 100;
+
+    {
+        int sp = device_sp(o_ptr);
+        int max_sp = device_max_sp(o_ptr);
+
+        doc_insert(doc, "<color:U>This device has the following magical strength:</color>\n");
+        doc_printf(doc, "Power  : <color:G>%d</color>\n", device_level(o_ptr));
+        doc_printf(doc, "Mana   : <color:%c>%d</color>/<color:G>%d</color>\n",
+                    (sp < max_sp) ? 'y' : 'G', sp, max_sp);
+    }
+
+    v = vec_alloc((vec_free_f)string_free);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_SPEED, OF_DEC_SPEED);
+    if (net)
+        vec_add(v, string_alloc_format("<color:%c>%+d Quickness</color>", (net > 0) ? 'G' : 'r', net));
+
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_DEVICE_POWER, OF_INVALID);
+    if (net)
+    {
+        int        pct = device_power_aux(100, net) - 100;
+        string_ptr s = string_alloc_format("<color:%c>%+d%% to Power</color>", (net > 0) ? 'G' : 'r', pct);
+        vec_add(v, s);
+    }
+
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_EASY_SPELL, OF_INVALID);
+    if (net > 0)
+        vec_add(v, string_alloc_format("<color:G>%+d Easy Use</color>", net));
+    else if (net < 0)
+        vec_add(v, string_copy_s("<color:r>Hard Use</color>"));
+
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_REGEN, OF_INVALID);
+    if (net)
+        vec_add(v, string_alloc_format("<color:%c>%+d to Regeneration</color>", (net > 0) ? 'G' : 'r', net));
+
+    if (have_flag(flgs, OF_HOLD_LIFE))
+        vec_add(v, string_copy_s("<color:y>Hold Charges</color>"));
+
+    if (vec_length(v))
+    {
+        doc_insert(doc, "Extra  : <indent>");
+        _print_list(v, doc, ';', '\0');
+        doc_insert(doc, "</indent>\n\n");
+    }
+    else
+        doc_newline(doc);
+
+    vec_free(v);
+
+    if (o_ptr->activation.type != EFFECT_NONE)
+    {
+        int  fail = device_calc_fail_rate(o_ptr);
+        cptr desc;
+
+        doc_insert(doc, "<color:U>This device is loaded with a spell:</color>\n");
+        doc_printf(doc, "Spell  : <color:B>%s</color>\n", do_device(o_ptr, SPELL_NAME, boost));
+        desc = do_device(o_ptr, SPELL_INFO, boost);
+        if (desc && strlen(desc))
+            doc_printf(doc, "Info   : <color:w>%s</color>\n", desc);
+        doc_printf(doc, "Level  : <color:G>%d</color>\n", o_ptr->activation.difficulty);
+        doc_printf(doc, "Cost   : <color:G>%d</color>\n", o_ptr->activation.cost);
+        doc_printf(doc, "Fail   : <color:G>%d.%d%%</color>\n", fail/10, fail%10);
+    }
+
+    _display_score(o_ptr, doc);
+    _display_ignore(flgs, doc);
+    doc_insert(doc, "</indent>\n");
 }
 
 void ego_display(ego_type *e_ptr)

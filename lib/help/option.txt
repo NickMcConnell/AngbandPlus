@@ -50,9 +50,6 @@ If this option is enabled, all monsters become unusually powerful, and fast. And
 <topic:preserve_mode><color:U>Preserve artifacts</color> <color:D>(preserve_mode)</color>
 In non-preserve mode, once a fixed artifact is generated (either on the dungeon floor or in a monster drop), it will never be generated again during that game. This means that if you miss the artifact by leaving the level before you pick it up it is gone forever. On the other hand, in preserve mode this behavior is only exhibited once you have identified the artifact. It is therefor safer to leave a level before it is completely explored as any fixed artifact can be regenerated in subsequent levels.
 
-<topic:autoroller><color:U>Allow use of autoroller for stats</color> <color:D>(autoroller)</color>
-If you choose to use the auto-roller, you can specify minimum limit of each stat. Once you have specified your desired statistics, the computer will then randomly roll successive start-up characters and compare them to your specified criteria. Each stat is rolled as a number from 8 to 17, with a normal distribution, and is then immediately modified based upon the race and class which you have chosen. Once a character that matches or exceeds your expectations has been rolled, the computer will display the character for you to look at, and asks you whether you accept or not. You may press Enter to accept. If you do not accept, you may press 'r' to resume rolling and searching for the next match or, if this is not your first match, 'p' to return to the previous character which met your criteria.
-
 <topic:powerup_home><color:U>Increase capacity of your home</color> <color:D>(powerup_home)</color>
 If this option is enabled, the capacity of your home will be expanded to 20 pages. If not, capacity is only 2 pages.
 </indent>
@@ -63,6 +60,11 @@ Selects the <color:keyword>roguelike</color> command set which is an alternative
 
 <topic:always_pickup><color:U>Pick things up by default</color> <color:D>(always_pickup)</color>
 Tells the game that walking onto an item should attempt to pick it up. Otherwise, you must use the <color:keypress>g</color> command, or the <color:keypress>-</color> command while walking. Combined with <color:keyword>carry_query_flag</color>, allows you to selectively pick up all items which you step on.
+
+<topic:toggle_run_status><color:U>Toggle Run Status</color> <color:D>(toggle_run_status)</color>
+Internally, the player walks in a direction by pressing <color:keypress>;</color> followed by the direction argument <color:keypress>(0-9)</color> and runs by pressing <color:keypress>.</color> followed by the direction argument <color:keypress>(0-9)</color> (Roguelike: Pressing <color:keypress>,</color> followed by the direction argument). Of course, this is ridiculous tedium, so the game uses keymaps to map the number keys, arrow keys, and numpad keys to the appropriate <color:keypress>;<dir></color> sequence. For all ports but Curses, the player can press <color:keypress><shift><dir></color> to run since the default preferences map this single keypress into a <color:keypress>.<dir></color> sequence. In Curses with the default keyset, the <color:keypress><shift><arrow or numpad></color> keymaps are not available ("Curses doesn't do that"), so the player is forced to manually enter the <color:keypress>.<dir></color> sequence by hand in order to run, or to play with the Roguelike keyset (see <link:command.txt#RogueKeyset>).
+
+With the <color:keyword>toggle_run_status</color> option enabled, the internal key commands are altered from the default. The direction keys now either walk or run in the indicated direction, depending on the current status. This status is toggled by pressing <color:keypress>.</color> (Roguelike: <color:keypress>,</color>) and displayed to the user on the bottom of the screen. Thus, with this option, the player can run during dungeon exploration with a single keystroke rather than two, toggling between running and walking as needed.
 
 <topic:carry_query_flag><color:U>Prompt before picking things up</color> <color:D>(carry_query_flag)</color>
 Forces the game to ask you if you want to pick something up when you do something that would normally cause the item to be picked up.
@@ -87,7 +89,10 @@ The command selection menu is a helpful tool for beginning players. By pressing 
 Forces the game to ask you before select an item on floor.
 
 <topic:use_old_target><color:U>Use old target by default</color> <color:D>(use_old_target)</color>
-Forces all commands which normally ask for a <color:keyword>direction</color> to use the current <color:keyword>target</color> if there is one. Use of this option can be dangerous if you target locations on the ground, unless you clear them when done.
+This option forces all commands which normally ask for a <color:keyword>direction</color> to use the current <color:keyword>target</color> if there is one. Use of this option can be dangerous if you target locations on the ground, unless you clear them when done. Actually, position targets now automatically clear when they are no longer valid (e.g. after a teleport). Pay attention to the character info section of your screen as it always shows your current target, whether monster or location.
+
+<topic:auto_target><color:U>Automatically target nearest monster</color> <color:D>(auto_target)</color>
+With this option enabled, every offensive spell you cast or device you use will automatically target the closest monster if there is not already a valid target selected. If you use this option, then it is highly recommended that you also enable the <color:keyword>use_old_target</color> option. That way, if you are in a situation where the automatic targeting is not what you want, you can just select a target up front before casting your spell.
 
 <topic:always_repeat><color:U>Repeat obvious commands</color> <color:D>(always_repeat)</color>
 Tells the game that when you attempt to <color:keyword>open</color> a door or chest, <color:keyword>bash</color> a door, <color:keyword>tunnel</color> through walls, or <color:keyword>disarm</color> traps or chests, that you wish to repeat the command 99 times (see <link:command.txt#CommandCounts>).
@@ -150,16 +155,16 @@ Unknown grids that have not been traversed previously, or had a detect trap spel
 
 <topic:fresh_before><color:U>Flush output while continuous command</color> <color:D>(fresh_before)</color>
 This option forces the game to flush all output before every command. This will give you maximal information, but may slow down the game somewhat. Note that this option is only useful when using macros, resting, running, or repeating commands, since the output is always flushed when the game is waiting for a keypress from the user.
-    
+
 <topic:fresh_after><color:U>Flush output after monster's move</color> <color:D>(fresh_after)</color>
 This option forces the game to flush all output after not only every player command, but also after every round of processing monsters and objects, which will give you maximal information, but may slow down the game a lot, especially on slower machines, and on faster machines you normally do not have a chance to see the results anyway.
-    
+
 <topic:fresh_message><color:U>Flush output after every message</color> <color:D>(fresh_message)</color>
 This option forces the game to flush all output after every message displayed by the game. This will give you maximal information, but may slow down the game somewhat.
 
 <topic:hilite_player><color:U>Hilite the player with the cursor</color> <color:D>(hilite_player)</color>
 Place the visible cursor on the player. This looks fine on some Unix machines, but horrible on most graphics machines. Note that only some machines are able to *not* show the cursor, but on those machines, hiding the cursor often speeds up the game and looks better.
-    
+
 <topic:display_path><color:U>Display actual path before shooting</color> <color:D>(display_path)</color>
 When this option is set, the targeting mode will show path from you to current target point continuously.
 </indent>
@@ -255,22 +260,22 @@ Since use of debug command(^A), wizard mode(^W), and Cheating options ('C' in op
   <indent>
 <topic:find_ignore_stairs><color:U>Run past stairs</color> <color:D>(find_ignore_stairs)</color>
 Ignore stairs when running.
-    
+
 <topic:find_ignore_doors><color:U>Run through open doors</color> <color:D>(find_ignore_doors)</color>
 Ignore open doors when running.
-    
+
 <topic:find_cut><color:U>Run past known corners</color> <color:D>(find_cut)</color>
 Cut sharply around known corners when running. This will result in faster running, but may cause you to run into a lurking monster.
 
 <topic:check_abort><color:U>Check for user abort while continuous command</color> <color:D>(check_abort)</color>
-Avoid checking to see if the user has pressed a key during resting or running or repeated commands. This not only makes the game much more efficient (on many systems), but also allows the use of certain obscure macro sequences, such as turning this option on, resting until done, turning this option off, and casting a spell. Note that the use of this option may be dangerous on certain "graphic" machines. Resting for long periods of time with this option set is dangerous since the resting may not stop until the user takes damage from starvation.
+Turning this option off will avoid checking to see if the user has pressed a key during resting or running or repeated commands. This not only makes the game much more efficient (on many systems), but also allows the use of certain obscure macro sequences, such as turning this option off, resting until done, turning this option on, and casting a spell. Resting for long periods of time with this option turned off is dangerous since the resting may not stop until the user takes damage from starvation.
 
 <topic:flush_failure><color:U>Flush input on various failures</color> <color:D>(flush_failure)</color>
 This option forces the game to flush all pending input whenever various "failures" occur, such as failure to cast a spell, failure to use a wand, etc. This is very useful if you use macros which include "directional" components with commands that can fail, since it will prevent you from walking towards monsters when your spells fail.
 
 <topic:flush_disturb><color:U>Flush input whenever disturbed</color> <color:D>(flush_disturb)</color>
 This option forces the game to flush all pending input whenever the character is "disturbed". This is useful if you use macros which take time, since it will prevent you from continuing your macro while being attacked by a monster.
-    
+
 <topic:disturb_move><color:U>Disturb whenever any monster moves</color> <color:D>(disturb_move)</color>
 Disturb the player when any monster moves, appears, or disappears. This includes monsters which are only visible due to telepathy, so you should probably turn this option off if you want to "rest" near such monsters.
 
@@ -285,7 +290,7 @@ The player may wish that some of the disturbance options do not apply to pets: f
 
 <topic:disturb_panel><color:U>Disturb whenever map panel changes</color> <color:D>(disturb_panel)</color>
 This option causes you to be disturbed by the map scrolling, as it does automatically when you get close to the edge of the screen.
-    
+
 <topic:disturb_state><color:U>Disturb whenever player state changes</color> <color:D>(disturb_state)</color>
 This option causes you to be disturbed whenever the player state changes, including changes in hunger, resistance, confusion, etc.
 
@@ -294,7 +299,7 @@ This option causes you to be disturbed by various bring things, including monste
 
 <topic:ring_bell><color:U>Audible bell (on errors, etc)</color> <color:D>(ring_bell)</color>
 Attempt to make a bell noise when various errors occur.
-    
+
 <topic:disturb_trap_detect><color:U>Disturb when leaving trap detected area</color> <color:D>(disturb_trap_detect)</color>
 This option causes you to be disturbed when the player is running out of trap-detected area.
 

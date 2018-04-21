@@ -228,6 +228,18 @@ static void _android_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_HOLD_LIFE);
     /*add_flag(flgs, TR_VULN_ELEC);*/
 }
+static void _android_birth(void)
+{
+    object_type forge = {0};
+    object_prep(&forge, lookup_kind(TV_FLASK, SV_ANY));
+    apply_magic(&forge, 1, AM_NO_FIXED_ART); /* Hack (pval->xtra4) */
+    forge.number = rand_range(7, 12);
+    py_birth_obj(&forge);
+
+    py_birth_light();
+
+    p_ptr->au /= 5;
+}
 race_t *android_get_race(void)
 {
     static race_t me = {0};
@@ -271,6 +283,7 @@ race_t *android_get_race(void)
         me.shop_adjust = 120;
 
 
+        me.birth = _android_birth;
         me.calc_bonuses = _android_calc_bonuses;
         me.get_powers = _android_get_powers;
         me.get_flags = _android_get_flags;
@@ -369,6 +382,19 @@ static void _balrog_get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (p_ptr->lev >= 10)
         add_flag(flgs, OF_SEE_INVIS);
 }
+static void _balrog_birth(void)
+{
+    int i, ct = rand_range(3, 4);
+    get_mon_num_prep(monster_hook_human, NULL);
+    for (i = 0; i < ct; i++)
+    {
+        object_type forge = {0};
+        object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
+        forge.pval = get_mon_num(2);
+        py_birth_obj(&forge);
+    }
+    py_birth_light();
+}
 race_t *balrog_get_race(void)
 {
     static race_t me = {0};
@@ -407,6 +433,7 @@ race_t *balrog_get_race(void)
         me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
         me.shop_adjust = 140;
 
+        me.birth = _balrog_birth;
         me.calc_bonuses = _balrog_calc_bonuses;
         me.get_powers = _balrog_get_powers;
         me.get_flags = _balrog_get_flags;
@@ -501,6 +528,12 @@ static void _beastman_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_SOUND);
     add_flag(flgs, OF_RES_CONF);
 }
+static void _beastman_birth(void)
+{
+    mut_gain_random(mut_good_pred);
+    py_birth_food();
+    py_birth_light();
+}
 race_t *beastman_get_race(void)
 {
     static race_t me = {0};
@@ -540,6 +573,7 @@ race_t *beastman_get_race(void)
         me.infra = 0;
         me.shop_adjust = 130;
 
+        me.birth = _beastman_birth;
         me.calc_bonuses = _beastman_calc_bonuses;
         me.gain_level = _beastman_gain_level;
         me.get_flags = _beastman_get_flags;
@@ -557,6 +591,8 @@ static void _centaur_birth(void)
 {
     equip_on_change_race();
     skills_innate_init("Hooves", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+    py_birth_food();
+    py_birth_light();
 }
 
 void jump_spell(int cmd, variant *res)
@@ -956,7 +992,7 @@ static void _draconian_breathe_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             int e = _draconian_breath_effect();
             int dam = _draconian_breath_amount();
@@ -1143,6 +1179,8 @@ static int _draconian_attack_level(void)
     case CLASS_TOURIST:
     case CLASS_MIRROR_MASTER:
     case CLASS_BLOOD_MAGE:
+    case CLASS_YELLOW_MAGE:
+    case CLASS_GRAY_MAGE:
         l = MAX(1, l * 80 / 100);
         break;
     case CLASS_SORCERER:
@@ -1593,6 +1631,11 @@ static void _ent_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     /*add_flag(flgs, TR_VULN_FIRE);*/
 }
+static void _ent_birth(void)
+{
+    py_birth_obj_aux(TV_POTION, SV_POTION_WATER, rand_range(15, 23));
+    py_birth_light();
+}
 race_t *ent_get_race(void)
 {
     static race_t me = {0};
@@ -1622,6 +1665,7 @@ race_t *ent_get_race(void)
         me.infra = 0;
         me.shop_adjust = 95;
 
+        me.birth = _ent_birth;
         me.calc_bonuses = _ent_calc_bonuses;
         me.get_powers = _ent_get_powers;
         me.get_flags = _ent_get_flags;
@@ -1757,6 +1801,11 @@ static void _golem_get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (p_ptr->lev >= 16)
         add_flag(flgs, OF_DEC_SPEED);
 }
+static void _golem_birth(void)
+{
+    py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
+    py_birth_light();
+}
 race_t *golem_get_race(void)
 {
     static race_t me = {0};
@@ -1798,7 +1847,7 @@ race_t *golem_get_race(void)
         me.flags = RACE_IS_NONLIVING;
         me.shop_adjust = 120;
 
-
+        me.birth = _golem_birth;
         me.get_powers = _golem_get_powers;
         me.calc_bonuses = _golem_calc_bonuses;
         me.get_flags = _golem_get_flags;

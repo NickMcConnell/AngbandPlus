@@ -387,9 +387,10 @@ static void _display_resists(monster_race *r_ptr, doc_ptr doc)
 static void _display_frequency(monster_race *r_ptr, doc_ptr doc)
 {
     int pct = 0;
+    /* I personally think we should always display the observed frequency ...
     if (_easy_lore(r_ptr))
         pct = r_ptr->freq_spell * 100;
-    else if (r_ptr->r_spell_turns)
+    else */if (r_ptr->r_spell_turns)
     {
         int total = r_ptr->r_spell_turns + r_ptr->r_move_turns;
         pct = r_ptr->r_spell_turns * 10000 / total;

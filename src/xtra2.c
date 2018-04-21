@@ -2772,7 +2772,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
       && !mon_save_p(m_ptr->r_idx, A_NONE) )
     {
         char m_name[MAX_NLEN];
-        monster_desc(m_name, m_ptr, MD_POSSESSIVE);
+        monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
         msg_format("%^s armor melts.", m_name);
         m_ptr->ac_adj -= randint1(2);
         if (p_ptr->wizard || cheat_xtra)
@@ -3262,6 +3262,11 @@ rect_t ui_map_rect(void)
     );
 }
 
+rect_t ui_screen_rect(void)
+{
+    return rect_create(0, 0, Term->wid, Term->hgt);
+}
+
 rect_t ui_menu_rect(void)
 {
     return ui_map_rect();
@@ -3515,8 +3520,21 @@ bool target_able(int m_idx)
  */
 bool target_okay(void)
 {
-    /* Accept stationary targets */
-    if (target_who < 0) return (TRUE);
+    /* Accept (projectable) stationary targets */
+    if (target_who < 0)
+    {
+        if ( in_bounds(target_row, target_col)
+          && projectable(py, px, target_row, target_col) )
+        {
+            return TRUE;
+        }
+        /* Position Targets are confusing. They should be dismissed when no longer valid. */
+        target_who = 0;
+        target_row = 0;
+        target_col = 0;
+        p_ptr->redraw |= PR_HEALTH_BARS;
+        return FALSE;
+    }
 
     /* Check moving targets */
     if (target_who > 0)
@@ -4393,7 +4411,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 /*
  * Handle "target" and "look".
  *
- * Note that this code can be called from "get_aim_dir()".
+ * Note that this code can be called from "get_fire_dir()".
  *
  * All locations must be on the current panel. Consider the use of
  * "panel_bounds()" to allow "off-panel" targets, perhaps by using
@@ -4939,7 +4957,44 @@ bool target_set(int mode)
  * if there is a usable target already set.
  *
  * Note that confusion over-rides any (explicit?) user choice.
+ *
  */
+bool get_fire_dir(int *dp)
+{
+    bool valid_target = FALSE;
+    if (use_old_target && target_okay())
+        valid_target = TRUE;
+    /* auto_target the closest monster if no valid target is selected up front */
+    if (!valid_target && auto_target && !p_ptr->confused && !p_ptr->image)
+    {
+        int i, best_m_idx = 0, best_dis = 9999;
+
+        for (i = 0; i < max_m_idx; i++)
+        {
+            monster_type *m_ptr = &m_list[i];
+            if (!m_ptr->r_idx) continue;
+            if (!m_ptr->ml) continue;
+            if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
+            if (m_ptr->cdis < best_dis)
+            {
+                best_dis = m_ptr->cdis;
+                best_m_idx = i;
+            }
+        }
+        if (best_m_idx)
+        {
+            target_who = best_m_idx;
+            target_row = m_list[best_m_idx].fy;
+            target_col = m_list[best_m_idx].fx;
+            *dp = 5;
+            p_ptr->redraw |= PR_HEALTH_BARS;
+            return TRUE;
+        }
+    }
+    /* fall back on normal target selection */
+    return get_aim_dir(dp);
+}
+
 bool get_aim_dir(int *dp)
 {
     int        dir;
@@ -5173,7 +5228,7 @@ bool get_rep_dir(int *dp, bool under)
             dir = ddd[randint0(8)];
         }
     }
-    else if (p_ptr->move_random)
+    else if (p_ptr->move_random && !p_ptr->wild_mode)
     {
         if (one_in_(66))
         {

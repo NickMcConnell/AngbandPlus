@@ -645,7 +645,7 @@ cptr do_burglary_spell(int spell, int mode)
 
             if (cast)
             {
-                if (!get_aim_dir(&dir)) return NULL;
+                if (!get_fire_dir(&dir)) return NULL;
                 fire_ball(GF_DARK, dir, dam, rad);
             }
         }
@@ -773,6 +773,16 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SCROLL, SV_SCROLL_TELEPORT, randint1(3));
+    py_birth_spellbooks();
+
+    p_ptr->au += 200;
+}
+
 /****************************************************************************
  * Public
  ****************************************************************************/
@@ -818,6 +828,7 @@ class_t *rogue_get_class(void)
         me.exp = 125;
         me.pets = 40;
         
+        me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.caster_info = _caster_info;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;

@@ -367,7 +367,13 @@ This command will tell you what version of the game you are using. For more info
 <topic:Extra><style:heading>Extra Commands</style>
 
   <indent><color:U>Repeat Last Command (<color:keypress>n</color>) or (<color:keypress>X</color>)</color>
-This command repeat previously executed command with all its arguments. Very useful to repeat casting, for example, magic missile to same opponent.</indent>
+This command repeats the previously executed command with all its arguments. Very useful to repeat casting, for example, magic missile to same opponent.</indent>
+
+  <indent><color:U>Record Command (<color:keypress>"</color>)</color>
+Commands that you enter may be recorded to any normal ascii character register. In fact, every command that you manually enter is automatically recorded to the <color:keypress>.</color> register. When you repeat the last command, you are really playing back the contents of this special <color:keypress>.</color> register. But you can also record the next command to a register of your choosing and then play it back manually later. For example, the command sequence <color:keypress>"Fmae*t</color> records the command <color:keypress>mae*t</color> to the <color:keypress>F</color> register in addition to the <color:keypress>.</color> register. You can later play back this command with <color:keypress>'F</color> whereas playing back with <color:keypress>'.</color> or <color:keypress>n</color> is only valid on the very next turn.</indent>
+
+  <indent><color:U>Playback Command (<color:keypress>'</color>)</color>
+As mentioned above, you may record commands with the <color:keypress>"</color> command and play them back later with the <color:keypress>'</color> command. Commands are stored in registers, each of which is addressed with a single ASCII character. For example, if you record a command with <color:keypress>"t<cmd></color>, then you may later play it back by pressing <color:keypress>'t</color>. These command registers are temporary and will be erased every time you restart the game. To view your recorded commands, choose the <color:keypress>'</color> register (i.e., press <color:keypress>''</color> from the top level). You can then enter the register you wish to use (e.g. <color:keypress>''t</color> works the same as <color:keypress>'t</color> except that the register contents of all recorded commands are displayed to you after you press the second <color:keypress>'</color>).</indent>
 
   <indent><color:U>Toggle Choice Window (<color:keypress>^I</color>)</color>
 Toggles the display in the choice window (if available) between your inventory and your equipment. This command only applies if you are running PosChengband under a windowing environment and the choice window is available. This also redraws the choice window.</indent>

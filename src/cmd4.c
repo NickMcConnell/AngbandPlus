@@ -4536,196 +4536,138 @@ static void do_cmd_knowledge_extra(void)
 
 /*
  * Display weapon-exp.
- * Since we are writing to a file, it is a bit more cumbersome to get a
- * proper multi-column display. In the end, I decided to just hard-code
- * the rows rather than dynamically inspecting k_info. Also, I tried
- * hard to make 3 columns fit on an 80 column display, but this required
- * abbreviating the skill levels.
  */
-struct _tval_sval_s
+static int _compare_k_lvl(object_kind *left, object_kind *right)
 {
-int tval;
-int sval;
-};
-typedef struct _tval_sval_s _tval_sval_t;
+    if (left->level < right->level) return -1;
+    if (left->level > right->level) return 1;
+    return 0;
+}
 
-struct _prof_row_s
+static vec_ptr _prof_weapon_alloc(int tval)
 {
-    _tval_sval_t cols[3];
-};
-typedef struct _prof_row_s _prof_row_t;
-typedef struct _prof_row_s *_prof_row_ptr;
-
-#define _HEADING -1
-#define _MISC_PROF -2
-
-static _prof_row_t _prof_rows[] = {
-    {{{TV_SWORD, _HEADING},              {TV_POLEARM, _HEADING},             {TV_HAFTED, _HEADING}}},
-    {{{TV_SWORD, SV_BROKEN_DAGGER},      {TV_POLEARM, SV_HATCHET},           {TV_HAFTED, SV_CLUB}}},
-    {{{TV_SWORD, SV_BROKEN_SWORD},       {TV_POLEARM, SV_SPEAR},             {TV_HAFTED, SV_WHIP}}},
-    {{{TV_SWORD, SV_DAGGER},             {TV_POLEARM, SV_SICKLE},            {TV_HAFTED, SV_QUARTERSTAFF}}},
-    {{{TV_SWORD, SV_MAIN_GAUCHE},        {TV_POLEARM, SV_AWL_PIKE},          {TV_HAFTED, SV_NUNCHAKU}}},
-    {{{TV_SWORD, SV_TANTO},              {TV_POLEARM, SV_TRIDENT},           {TV_HAFTED, SV_MACE}}},
-    {{{TV_SWORD, SV_RAPIER},             {TV_POLEARM, SV_FAUCHARD},          {TV_HAFTED, SV_BALL_AND_CHAIN}}},
-    {{{TV_SWORD, SV_SMALL_SWORD},        {TV_POLEARM, SV_BROAD_SPEAR},       {TV_HAFTED, SV_JO_STAFF}}},
-    {{{TV_SWORD, SV_BASILLARD},          {TV_POLEARM, SV_PIKE},              {TV_HAFTED, SV_WAR_HAMMER}}},
-    {{{TV_SWORD, SV_SHORT_SWORD},        {TV_POLEARM, SV_NAGINATA},          {TV_HAFTED, SV_THREE_PIECE_ROD}}},
-    {{{TV_SWORD, SV_SABRE},              {TV_POLEARM, SV_BEAKED_AXE},        {TV_HAFTED, SV_MORNING_STAR}}},
-    {{{TV_SWORD, SV_CUTLASS},            {TV_POLEARM, SV_BROAD_AXE},         {TV_HAFTED, SV_FLAIL}}},
-    {{{TV_SWORD, SV_WAKIZASHI},          {TV_POLEARM, SV_LUCERNE_HAMMER},    {TV_HAFTED, SV_BO_STAFF}}},
-    {{{TV_SWORD, SV_KHOPESH},            {TV_POLEARM, SV_GLAIVE},            {TV_HAFTED, SV_LEAD_FILLED_MACE}}},
-    {{{TV_SWORD, SV_TULWAR},             {TV_POLEARM, SV_LAJATANG},          {TV_HAFTED, SV_TETSUBO}}},
-    {{{TV_SWORD, SV_BROAD_SWORD},        {TV_POLEARM, SV_HALBERD},           {TV_HAFTED, SV_TWO_HANDED_FLAIL}}},
-    {{{TV_SWORD, SV_LONG_SWORD},         {TV_POLEARM, SV_GUISARME},          {TV_HAFTED, SV_GREAT_HAMMER}}},
-    {{{TV_SWORD, SV_SCIMITAR},           {TV_POLEARM, SV_SCYTHE},            {TV_HAFTED, SV_MACE_OF_DISRUPTION}}},
-    {{{TV_SWORD, SV_NINJATO},            {TV_POLEARM, SV_LANCE},             {TV_HAFTED, SV_WIZSTAFF}}},
-    {{{TV_SWORD, SV_KATANA},             {TV_POLEARM, SV_BATTLE_AXE},        {TV_HAFTED, SV_GROND}}},
-    {{{TV_SWORD, SV_BASTARD_SWORD},      {TV_POLEARM, SV_GREAT_AXE},         {TV_HAFTED, SV_NAMAKE_HAMMER}}},
-    {{{TV_SWORD, SV_GREAT_SCIMITAR},     {TV_POLEARM, SV_TRIFURCATE_SPEAR},  {0, 0}}},
-    {{{TV_SWORD, SV_CLAYMORE},           {TV_POLEARM, SV_LOCHABER_AXE},      {TV_DIGGING, _HEADING}}},
-    {{{TV_SWORD, SV_ESPADON},            {TV_POLEARM, SV_HEAVY_LANCE},       {TV_DIGGING, SV_SHOVEL}}},
-    {{{TV_SWORD, SV_TWO_HANDED_SWORD},   {TV_POLEARM, SV_SCYTHE_OF_SLICING}, {TV_DIGGING, SV_GNOMISH_SHOVEL}}},
-    {{{TV_SWORD, SV_FLAMBERGE},          {TV_POLEARM, SV_TSURIZAO},          {TV_DIGGING, SV_DWARVEN_SHOVEL}}},
-    {{{TV_SWORD, SV_NO_DACHI},           {TV_POLEARM, SV_DEATH_SCYTHE},      {TV_DIGGING, SV_PICK}}},
-    {{{TV_SWORD, SV_EXECUTIONERS_SWORD}, {0, 0},                             {TV_DIGGING, SV_ORCISH_PICK}}},
-    {{{TV_SWORD, SV_ZWEIHANDER},         {TV_BOW, _HEADING},                 {TV_DIGGING, SV_DWARVEN_PICK}}},
-    {{{TV_SWORD, SV_BLADE_OF_CHAOS},     {TV_BOW, SV_SLING},                 {TV_DIGGING, SV_MATTOCK}}},
-    {{{TV_SWORD, SV_DIAMOND_EDGE},       {TV_BOW, SV_SHORT_BOW},             {0, 0}}},
-    {{{TV_SWORD, SV_DOKUBARI},           {TV_BOW, SV_LONG_BOW},              {_MISC_PROF, _HEADING}}},
-    {{{TV_SWORD, SV_HAYABUSA},           {TV_BOW, SV_LIGHT_XBOW},            {_MISC_PROF, SKILL_MARTIAL_ARTS}}},
-    {{{TV_SWORD, SV_RUNESWORD},          {TV_BOW, SV_HEAVY_XBOW},            {_MISC_PROF, SKILL_DUAL_WIELDING}}},
-    {{{TV_SWORD, SV_DRAGON_FANG},        {TV_BOW, SV_NAMAKE_BOW},            {_MISC_PROF, SKILL_RIDING}}},
-    {{{0, 0},                            {0, 0},                             {0,0}}}
-};
-
-cptr _exp_level_str[5]=
-{"[Un]", "[Be]", "[Sk]", "[Ex]", "[Ma]"};
-
-char _exp_level_color[5] = {'w', 'G', 'y', 'r', 'v'};
-
-static void _prof_aux(FILE *fff, int tval, int sval)
+    int i;
+    vec_ptr v = vec_alloc(NULL);
+    for (i = 0; i < max_k_idx; i++)
+    {
+        object_kind *k_ptr = &k_info[i];
+        if (k_ptr->tval != tval) continue;
+        if (tval == TV_POLEARM && k_ptr->sval == SV_DEATH_SCYTHE_HACK) continue;
+        if (tval == TV_BOW && k_ptr->sval == SV_HARP) continue;
+        if (tval == TV_BOW && k_ptr->sval == SV_CRIMSON) continue;
+        if (tval == TV_BOW && k_ptr->sval == SV_RAILGUN) continue;
+        vec_add(v, k_ptr);
+    }
+    vec_sort(v, (vec_cmp_f)_compare_k_lvl);
+    return v;
+}
+ 
+static cptr _prof_exp_str[5]   = {"[Un]", "[Be]", "[Sk]", "[Ex]", "[Ma]"};
+static char _prof_exp_color[5] = {'w',    'G',    'y',    'r',    'v'};
+static cptr _prof_weapon_heading(int tval)
 {
-    /* Case 1: Skip this column.*/
-    if (!tval)
+    switch (tval)
     {
-        fprintf(fff, "%-19s  %-4s  ", "", "");
+    case TV_SWORD: return "Swords";
+    case TV_POLEARM: return "Polearms";
+    case TV_HAFTED: return "Hafted";
+    case TV_DIGGING: return "Diggers";
+    case TV_BOW: return "Bows";
     }
+    return "";
+}
 
-    /* Case 2: Give a group heading for this column.*/
-    else if (sval == _HEADING)
+static void _prof_weapon_doc(doc_ptr doc, int tval)
+{
+    vec_ptr v = _prof_weapon_alloc(tval);
+    int     i;
+
+    doc_insert_text(doc, TERM_RED, _prof_weapon_heading(tval));
+    doc_newline(doc);
+
+    for (i = 0; i < vec_length(v); i++)
     {
-        cptr heading = "";
-        switch (tval)
-        {
-        case TV_SWORD: heading = "Swords"; break;
-        case TV_POLEARM: heading = "Polearms"; break;
-        case TV_HAFTED: heading = "Hafted"; break;
-        case TV_DIGGING: heading = "Diggers"; break;
-        case TV_BOW: heading = "Bows"; break;
-        case _MISC_PROF: heading = "Miscellaneous"; break;
-        }
-        fprintf(fff, "[[[[r|%-19s|  %-4s  ", heading, "");
-    }
+        object_kind *k_ptr = vec_get(v, i);
+        int          exp = skills_weapon_current(k_ptr->tval, k_ptr->sval);
+        int          max = skills_weapon_max(k_ptr->tval, k_ptr->sval);
+        int          exp_lvl = weapon_exp_level(exp);
+        char         name[MAX_NLEN];
 
-    /* Case 3: Miscellaneous Skills */
-    else if (tval == _MISC_PROF)
+        strip_name(name, k_ptr->idx);
+        doc_printf(doc, "<color:%c>%-19s</color> ", equip_find_object(k_ptr->tval, k_ptr->sval) ? 'B' : 'w', name);
+        doc_printf(doc, "%c<color:%c>%-4s</color>", exp >= max ? '!' : ' ', _prof_exp_color[exp_lvl], _prof_exp_str[exp_lvl]);
+        doc_newline(doc);
+    }
+    doc_newline(doc);
+    vec_free(v);
+}
+
+static void _prof_skill_aux(doc_ptr doc, int skill)
+{
+    int  exp, max, exp_lvl;
+    cptr name;
+    char color = 'w';
+
+    switch (skill)
     {
-        cptr name = "";
-        int  exp, max, idx;
-
-        switch (sval)
-        {
-        case SKILL_MARTIAL_ARTS:
-            name = "Martial Arts";
-            exp = skills_martial_arts_current();
-            max = skills_martial_arts_max();
-            idx = weapon_exp_level(exp);
-            break;
-        case SKILL_DUAL_WIELDING:
-            name = "Dual Wielding";
-            exp = skills_dual_wielding_current();
-            max = skills_dual_wielding_max();
-            idx = weapon_exp_level(exp);
-            break;
-        case SKILL_RIDING:
-        default: /* gcc warnings ... */
-            name = "Riding";
-            exp = skills_riding_current();
-            max = skills_riding_max();
-            idx = riding_exp_level(exp);
-            break;
-        }
-        fprintf(fff, "%-19s ", name);
-
-        if (exp >= max)
-            fprintf(fff, "!");
-        else
-            fprintf(fff, " ");
-
-        fprintf(fff, "[[[[%c|%-4s|  ", _exp_level_color[idx], _exp_level_str[idx]);
+    case SKILL_MARTIAL_ARTS:
+        name = "Martial Arts";
+        exp = skills_martial_arts_current();
+        max = skills_martial_arts_max();
+        exp_lvl = weapon_exp_level(exp);
+        break;
+    case SKILL_DUAL_WIELDING:
+        name = "Dual Wielding";
+        exp = skills_dual_wielding_current();
+        max = skills_dual_wielding_max();
+        exp_lvl = weapon_exp_level(exp);
+        break;
+    case SKILL_RIDING:
+    default: /* gcc warnings ... */
+        name = "Riding";
+        exp = skills_riding_current();
+        max = skills_riding_max();
+        exp_lvl = riding_exp_level(exp);
+        break;
     }
+    doc_printf(doc, "<color:%c>%-19s</color> ", color, name);
+    doc_printf(doc, "%c<color:%c>%-4s</color>", exp >= max ? '!' : ' ', _prof_exp_color[exp_lvl], _prof_exp_str[exp_lvl]);
+    doc_newline(doc);
+}
 
-    /* Case 4: Weapon Skills for a tval/sval*/
-    else
-    {
-        int  exp = skills_weapon_current(tval, sval);
-        int  max = skills_weapon_max(tval, sval);
-        int  k_idx = lookup_kind(tval, sval);
-        int  idx = weapon_exp_level(exp);
-        char name[MAX_NLEN];
-
-        strip_name(name, k_idx);
-        if (equip_find_object(tval, sval))
-            fprintf(fff, "[[[[B|%-19s| ", name);
-        else
-            fprintf(fff, "%-19s ", name);
-
-        if (exp >= max)
-            fprintf(fff, "!");
-        else
-            fprintf(fff, " ");
-
-        fprintf(fff, "[[[[%c|%-4s|  ", _exp_level_color[idx], _exp_level_str[idx]);
-    }
+static void _prof_skill_doc(doc_ptr doc)
+{
+    doc_insert_text(doc, TERM_RED, "Miscellaneous");
+    doc_newline(doc);
+    _prof_skill_aux(doc, SKILL_MARTIAL_ARTS);
+    _prof_skill_aux(doc, SKILL_DUAL_WIELDING);
+    _prof_skill_aux(doc, SKILL_RIDING);
+    doc_newline(doc);
 }
 
 static void do_cmd_knowledge_weapon_exp(void)
 {
-    int   i;
-    FILE *fff;
-    char  file_name[1024];
+    doc_ptr doc = doc_alloc(80);
+    doc_ptr cols[3] = {0};
+    int     i;
 
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff) {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
+    for (i = 0; i < 3; i++)
+        cols[i] = doc_alloc(26);
 
-    for (i = 0; ; i++)
-    {
-        _prof_row_ptr row_ptr = &_prof_rows[i];
+    _prof_weapon_doc(cols[0], TV_SWORD);
+    _prof_weapon_doc(cols[1], TV_POLEARM);
+    _prof_weapon_doc(cols[1], TV_BOW);
+    _prof_weapon_doc(cols[2], TV_HAFTED);
+    _prof_weapon_doc(cols[2], TV_DIGGING);
+    _prof_skill_doc(cols[2]);
 
-        if (!row_ptr->cols[0].tval)
-            break;
+    doc_insert_cols(doc, cols, 3, 1);
+    doc_display(doc, "Proficiency", 0);
 
-        _prof_aux(fff, row_ptr->cols[0].tval, row_ptr->cols[0].sval);
-        _prof_aux(fff, row_ptr->cols[1].tval, row_ptr->cols[1].sval);
-        _prof_aux(fff, row_ptr->cols[2].tval, row_ptr->cols[2].sval);
-        fprintf(fff, "\n");
-    }
-
-    /* Close the file */
-    my_fclose(fff);
-
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Proficiency", 0, 0);
-
-    /* Remove the file */
-    fd_kill(file_name);
+    doc_free(doc);
+    for (i = 0; i < 3; i++)
+        doc_free(cols[i]);
 }
-
 
 /*
  * Display spell-exp
@@ -7842,7 +7784,8 @@ void do_cmd_knowledge(void)
 
         c_prt(TERM_RED, "Skills", row++, col - 2);
         prt("(P) Proficiency", row++, col);
-        prt("(s) Spell Proficiency", row++, col);
+        if (p_ptr->pclass != CLASS_RAGE_MAGE) /* TODO */
+            prt("(s) Spell Proficiency", row++, col);
         row++;
 
         /* Prompt */
@@ -7947,7 +7890,8 @@ void do_cmd_knowledge(void)
             do_cmd_knowledge_weapon_exp();
             break;
         case 's':
-            do_cmd_knowledge_spell_exp();
+            if (p_ptr->pclass != CLASS_RAGE_MAGE)  /* TODO */
+                do_cmd_knowledge_spell_exp();
             break;
 
         default:

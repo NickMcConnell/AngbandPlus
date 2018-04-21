@@ -742,6 +742,10 @@ bool check_book_realm(const byte book_tval, const byte book_sval)
         if (is_magic(tval2realm(book_tval)))
             return ((book_tval == TV_ARCANE_BOOK) || (book_sval < 2));
     }
+    else if (p_ptr->pclass == CLASS_GRAY_MAGE)
+    {
+        return gray_mage_is_allowed_book(book_tval, book_sval);
+    }
     return (REALM1_BOOK == book_tval || REALM2_BOOK == book_tval);
 }
 
@@ -965,23 +969,29 @@ static bool get_tag(int *cp, char tag, int mode)
 {
     int i, start, end;
     cptr s;
+    bool equip = FALSE, inven = FALSE;
+
+    if (mode & USE_EQUIP) equip = TRUE;
+    if (mode & USE_INVEN) inven = TRUE;
 
     /* Extract index from mode */
-    switch (mode)
+    if (equip && inven)
     {
-    case USE_EQUIP:
+        start = 0;
+        end = EQUIP_BEGIN + equip_count() - 1;
+    }
+    else if (equip)
+    {
         start = EQUIP_BEGIN;
         end = EQUIP_BEGIN + equip_count() - 1;
-        break;
-
-    case USE_INVEN:
+    }
+    else if (inven)
+    {
         start = 0;
         end = INVEN_PACK - 1;
-        break;
-
-    default:
-        return FALSE;
     }
+    else
+        return FALSE;
 
     /**** Find a tag in the form of {@x#} (allow alphabet tag) ***/
 
@@ -1850,10 +1860,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
     int max_equip = 0;
 
 #ifdef ALLOW_REPEAT
-
-    static char prev_tag = '\0';
     char cur_tag = '\0';
-
 #endif /* ALLOW_REPEAT */
 
 #ifdef ALLOW_EASY_FLOOR /* TNB */
@@ -1870,9 +1877,17 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 #ifdef ALLOW_REPEAT
 
-    /* Get the item index */
+    /* Get the item index or the last tag. Note that the
+     * special INVEN_* codes are not ascii printable characters. */
     if (repeat_pull(cp))
     {
+        bool is_tag = command_cmd && isprint(*cp);
+
+        /* Hack: Distinguish between pushed tags and inventory[] indices
+         * which may, after all, be valid ascii printable characters */
+        if (!is_tag && *cp > 0)
+            *cp -= 255;
+
         if (select_the_force && (*cp == INVEN_FORCE))
         {
             item_tester_tval = 0;
@@ -1885,14 +1900,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
             item_tester_tval = 0;
             item_tester_hook = NULL;
             command_cmd = 0; /* Hack -- command_cmd is no longer effective */
-            return (TRUE);            
+            return (TRUE);
         }
         else if ((mode & OPTION_ALL) && *cp == INVEN_ALL)
         {
             item_tester_tval = 0;
             item_tester_hook = NULL;
             command_cmd = 0; /* Hack -- command_cmd is no longer effective */
-            return (TRUE);            
+            return (TRUE);
         }
 
         /* Floor item? */
@@ -1918,35 +1933,31 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
                 return TRUE;
             }
         }
+        /* Handle a pushed tag character matching an inscription like @mf or @5 */
+        else if (is_tag)
+        {
+            if (!get_tag(&k, *cp, mode)) /* Reject if tag no longer exists */;
+            else if (!get_item_okay(k)) /* Reject */;
+            else
+            {
+                /* Accept that choice */
+                (*cp) = k;
 
-        else if ( (inven && (*cp >= 0) && (*cp < INVEN_PACK)) 
+                /* Forget restrictions */
+                item_tester_tval = 0;
+                item_tester_hook = NULL;
+                command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+
+                /* Success */
+                return TRUE;
+            }
+        }
+        /* Handle a pushed inventory[] index. Note, this will not work well for
+         * recorded commands unless you are repeating immediately. Inventory shuffles! */
+        else if ( (inven && (*cp >= 0) && (*cp < INVEN_PACK))
                || (equip && equip_is_valid_slot(*cp)) )
         {
-            if (prev_tag && command_cmd)
-            {
-                /* Look up the tag and validate the item */
-                if (!get_tag(&k, prev_tag, equip_is_valid_slot(*cp) ? USE_EQUIP : USE_INVEN)) /* Reject */;
-                else if ((k < INVEN_PACK) ? !inven : !equip) /* Reject */;
-                else if (!get_item_okay(k)) /* Reject */;
-                else
-                {
-                    /* Accept that choice */
-                    (*cp) = k;
-
-                    /* Forget restrictions */
-                    item_tester_tval = 0;
-                    item_tester_hook = NULL;
-                    command_cmd = 0; /* Hack -- command_cmd is no longer effective */
-
-                    /* Success */
-                    return TRUE;
-                }
-
-                prev_tag = '\0'; /* prev_tag is no longer effective */
-            }
-
-            /* Verify the item */
-            else if (get_item_okay(*cp))
+             if (get_item_okay(*cp))
             {
                 /* Forget restrictions */
                 item_tester_tval = 0;
@@ -2667,8 +2678,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
     if (item)
     {
 #ifdef ALLOW_REPEAT
-        repeat_push(*cp);
-        if (command_cmd) prev_tag = cur_tag;
+        if (command_cmd && isprint(cur_tag))
+            repeat_push(cur_tag);
+        else if (*cp < 0)
+            repeat_push(*cp);
+        /* Hack: Distinguish between pushed tags and inventory[] indices
+         * which may, after all, be valid ascii printable characters */
+        else
+            repeat_push(255 + *cp);
 #endif /* ALLOW_REPEAT */
 
         command_cmd = 0; /* Hack -- command_cmd is no longer effective */
@@ -2952,7 +2969,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
             }
         }
 
-        else if ( (inven && (*cp >= 0) && (*cp < INVEN_PACK)) 
+        else if ( (inven && (*cp >= 0) && (*cp < INVEN_PACK))
                || (equip && equip_is_valid_slot(*cp)) )
         {
             if (prev_tag && command_cmd)
@@ -3602,7 +3619,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
                 /* Add after the last object. */
                 o_list[i].next_o_idx = o_idx;
 
-                /* Re-scan floor list */ 
+                /* Re-scan floor list */
                 floor_num = scan_floor(floor_list, py, px, 0x03);
 
                 /* Hack -- Fix screen */

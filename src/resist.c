@@ -157,7 +157,7 @@ int res_calc_dam(int which, int dam)
     }
     else if (result > dam)
     {
-        equip_learn_resist(res_get_object_vuln_flag(which));
+        equip_learn_vuln(res_get_object_vuln_flag(which));
     }
 
     return result;

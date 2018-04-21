@@ -751,7 +751,7 @@ Other Races
     Wisdom        -1        Save        Good         
     Dexterity     +1        Stealth     Excellent    
     Constitution  +2        Searching   Very Bad     
-    Charisma      +0        Perception  Very Good    
+    Charisma      +2        Perception  Very Good    
     Life Rating  102%       Melee       Poor         
     Base HP       21        Bows        Bad          
     Experience   175%       Infravision 0'
@@ -855,7 +855,7 @@ Doppelganger  -3   -3   -3   -3   -3   -3   85%  +12  150%  150%
 Ent           +2   +0   +2   -3   +2   +0  105%  +25  135%   95%
 Golem         +4   -5   -5   -2   +4   +0  105%  +23  185%  120%
 Klackon       +2   -1   -1   +1   +2   +1  105%  +23  170%  115%
-Kutar         +0   -1   -1   +1   +2   +0  102%  +21  175%   95%
+Kutar         +0   -1   -1   +1   +2   +2  102%  +21  175%   95%
 Mindflayer    -3   +4   +4   +0   -2   -1   97%  +18  150%  115%
 Tonberry      +4   +0   -2   -4   +5   +0  108%  +26  175%  115%
 Yeek          -2   +1   -2   +1   -2   -4   92%  +14   70%  105%
@@ -953,5 +953,5 @@ Yeek         Good          Heroic        Bad           Bad             20'
 
 
 
-Automatically generated for PosChengband 5.0.2.
+Automatically generated for PosChengband 5.0.3.
 

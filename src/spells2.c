@@ -4228,7 +4228,7 @@ void call_chaos(int pct)
     }
     else
     {
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         if (line_chaos)
             fire_beam(chaos_type, dir, 250*pct/100);
         else
@@ -4714,7 +4714,7 @@ bool rush_attack(int rng, bool *mdeath)
     }
     else
     {
-        if (!get_aim_dir(&dir)) return FALSE;
+        if (!get_fire_dir(&dir)) return FALSE;
 
         /* Use the given direction */
         tx = px + project_length * ddx[dir];

@@ -41,7 +41,7 @@ void magic_missile_spell(int cmd, variant *res)
         int dir = 0;
 
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt_or_beam(
             beam_chance() - 10,
             GF_MISSILE,
@@ -94,7 +94,7 @@ void mana_bolt_I_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You cast a mana bolt.");
         fire_bolt(
@@ -129,7 +129,7 @@ void mana_bolt_II_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You cast a mana bolt.");
         fire_bolt(
@@ -164,7 +164,7 @@ void mana_storm_I_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You cast a mana storm.");
         fire_ball(GF_MANA, dir, spell_power(p_ptr->lev * 5 + damroll(10, 10) + p_ptr->to_d_spell), 4);
@@ -195,7 +195,7 @@ void mana_storm_II_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You cast a mana storm.");
         fire_ball(GF_MANA, dir, spell_power(p_ptr->lev * 8 + 50 + damroll(10, 10) + p_ptr->to_d_spell), 4);
@@ -273,7 +273,7 @@ void mind_blast_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             msg_print("You concentrate...");
             fire_bolt(
@@ -335,7 +335,7 @@ void nether_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_NETHER, dir, dam, rad);
         var_set_bool(res, TRUE);
         break;
@@ -365,7 +365,7 @@ void nether_bolt_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt_or_beam(
             beam_chance(),
             GF_NETHER,
@@ -385,7 +385,7 @@ void orb_of_entropy_spell(int cmd, variant *res)
 {
     int base;
 
-    if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER)
+    if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_YELLOW_MAGE || p_ptr->pclass == CLASS_GRAY_MAGE)
         base = p_ptr->lev + p_ptr->lev / 2;
     else
         base = p_ptr->lev + p_ptr->lev / 4;
@@ -408,7 +408,7 @@ void orb_of_entropy_spell(int cmd, variant *res)
 
         var_set_bool(res, FALSE);
 
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_OLD_DRAIN, dir, spell_power(damroll(3, 6) + base + p_ptr->to_d_spell), rad);
 
         var_set_bool(res, TRUE);
@@ -487,7 +487,7 @@ void paralyze_spell(int cmd, variant *res)
     {
         int dir;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         stasis_monster(dir);
         var_set_bool(res, TRUE);
         break;
@@ -602,7 +602,7 @@ void plasma_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_PLASMA, dir, dam, rad);
         var_set_bool(res, TRUE);
         break;
@@ -633,7 +633,7 @@ void plasma_bolt_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt_or_beam(
             beam_chance(),
             GF_PLASMA,
@@ -666,7 +666,7 @@ void poison_dart_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         msg_print("You throw a dart of poison.");
         fire_bolt(GF_POIS, dir, p_ptr->lev);
         var_set_bool(res, TRUE);
@@ -689,8 +689,7 @@ void polish_shield_spell(int cmd, variant *res)
         var_set_string(res, "Makes your shield reflect missiles and bolt spells.");
         break;
     case SPELL_CAST:
-        polish_shield();
-        var_set_bool(res, TRUE);
+        var_set_bool(res, polish_shield());
         break;
     default:
         default_spell(cmd, res);
@@ -933,7 +932,7 @@ void punishment_spell(int cmd, variant *res)
     {
         int dir;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt_or_beam(
             beam_chance() - 10,
             GF_ELEC,
@@ -966,7 +965,7 @@ void radiation_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_NUKE, dir, spell_power(damroll(10, 6) + p_ptr->lev*2), 2);
         var_set_bool(res, TRUE);
         break;
@@ -1028,7 +1027,7 @@ void ray_of_sunlight_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         lite_line(dir);
         var_set_bool(res, TRUE);
         break;
@@ -1429,7 +1428,7 @@ void rocket_I_spell(int cmd, variant *res)
         int rad = 2;
 
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You launch a rocket!");
         fire_rocket(GF_ROCKET, dir, dam, rad);
@@ -1463,7 +1462,7 @@ void rocket_II_spell(int cmd, variant *res)
         int rad = 2;
 
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You launch a rocket!");
         fire_rocket(GF_ROCKET, dir, dam, rad);

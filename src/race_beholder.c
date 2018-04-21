@@ -5,6 +5,9 @@ static void _birth(void)
     p_ptr->current_r_idx = MON_GAZER;
     equip_on_change_race();
     skills_innate_init("Gaze", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+
+    py_birth_food();
+    py_birth_light();
 }
 
 static int _rank(void)
@@ -106,7 +109,7 @@ static void _gaze_spell(int cmd, variant *res)
         int dir = 0;
         var_set_bool(res, FALSE);
         project_length = 6 + _rank();
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             project_hook(GF_ATTACK, dir, BEHOLDER_GAZE, PROJECT_STOP | PROJECT_KILL);
             var_set_bool(res, TRUE);
@@ -336,7 +339,6 @@ static void _gain_level(int new_level) {
     {
         p_ptr->current_r_idx = MON_ULTIMATE_BEHOLDER;
         p_ptr->psex = SEX_FEMALE;
-        sp_ptr = &sex_info[p_ptr->psex];
         msg_print("You have evolved into an Ultimate Beholder.");
         equip_on_change_race();
         p_ptr->redraw |= PR_MAP | PR_BASIC;
@@ -415,7 +417,8 @@ race_t *mon_beholder_get_race(void)
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (!birth_hack && !spoiler_hack)
+        me.subname = titles[rank];
     me.stats[A_STR] = -3;
     me.stats[A_INT] =  4 + rank;
     me.stats[A_WIS] =  0;

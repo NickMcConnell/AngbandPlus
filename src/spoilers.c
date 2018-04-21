@@ -68,6 +68,8 @@ static void _csv_file(cptr name, _file_fn fn)
  * purposes. For example, Warriors have "Bad" device skills while a Mage is "Superb".
  * Of course, a CL50 Warrior's Character Sheet might list their device skill as
  * "Superb", but it really is "Bad" ... Trust me!
+ *
+ * TODO: I copied this to skills.c ... please rewrite here (cf wiz_doc.c)
  ******************************************************************************/
 static cptr _skill_desc(int amt, int div)
 {
@@ -339,7 +341,7 @@ static void _demigods_help(FILE* fp)
     fputs(get_race_aux(RACE_DEMIGOD, 0)->desc, fp);
     fputs("\n\n", fp);
 
-    for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
+    for (i = 0; i < DEMIGOD_MAX; i++)
     {
         race_t *race_ptr = get_race_aux(RACE_DEMIGOD, i);
 
@@ -352,7 +354,7 @@ static void _demigods_help(FILE* fp)
     fputs("<topic:Tables><style:heading>Table 1 - Demigod Statistic Bonus Table</style>\n\n", fp);
     fputs("<style:table><color:G>               STR  INT  WIS  DEX  CON  CHR  Life  Exp  Shop</color>\n", fp);
 
-    for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
+    for (i = 0; i < DEMIGOD_MAX; i++)
     {
         race_t *race_ptr = get_race_aux(RACE_DEMIGOD, i);
 
@@ -367,7 +369,7 @@ static void _demigods_help(FILE* fp)
 
     fputs("<topic:Skills1><style:heading>Table 2 - Demigod Skill Bonus Table I</style>\n<style:table>\n", fp);
     fprintf(fp, "%-12.12s <color:w>%-13.13s %-13.13s %-13.13s %-13.13s</color>\n", "", "Disarming", "Device", "Save", "Stealth");
-    for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
+    for (i = 0; i < DEMIGOD_MAX; i++)
     {
         race_t *race_ptr = get_race_aux(RACE_DEMIGOD, i);
         fprintf(fp, "%-12.12s", race_ptr->subname);
@@ -381,7 +383,7 @@ static void _demigods_help(FILE* fp)
 
     fputs("<topic:Skills2><style:heading>Table 3 - Demigod Skill Bonus Table II</style>\n<style:table>\n", fp);
     fprintf(fp, "%-12.12s <color:w>%-13.13s %-13.13s %-13.13s %-13.13s %s</color>\n", "", "Searching", "Perception", "Melee", "Bows", "Infra");
-    for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
+    for (i = 0; i < DEMIGOD_MAX; i++)
     {
         race_t *race_ptr = get_race_aux(RACE_DEMIGOD, i);
         fprintf(fp, "%-12.12s", race_ptr->subname);
@@ -551,8 +553,8 @@ static _race_group_t _mon_race_groups[_MAX_MON_RACE_GROUPS] = {
         {RACE_MON_BEHOLDER, -1} },
     { "Dragon",
         {RACE_MON_DRAGON, -1} },
-    { "Elemental",
-        {RACE_MON_ELEMENTAL, -1} },
+    { "Elemental/Vortex",
+        {RACE_MON_ELEMENTAL, RACE_MON_VORTEX, -1} },
     { "Golem",
         {RACE_MON_GOLEM, -1} },
     { "Jelly",
@@ -1053,8 +1055,8 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
                     CLASS_WEAPONSMITH, -1} },
     { "Archery", {CLASS_ARCHER, CLASS_SNIPER, -1} },
     { "Martial Arts", {CLASS_FORCETRAINER, CLASS_MONK, CLASS_MYSTIC, -1} },
-    { "Magic", {CLASS_BLOOD_MAGE, CLASS_BLUE_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
-                    CLASS_NECROMANCER, CLASS_SORCERER, -1} },
+    { "Magic", {CLASS_BLOOD_MAGE, CLASS_BLUE_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
+                    CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, -1} },
     { "Devices", {CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
     { "Prayer", {CLASS_PRIEST, -1} },
     { "Stealth", {CLASS_NINJA, CLASS_ROGUE, CLASS_SCOUT, -1} },
@@ -1541,7 +1543,7 @@ static void _skills_race_table(FILE* fp)
     {
         int max_j = 1;
         if (i == RACE_DEMIGOD)
-            max_j = MAX_DEMIGOD_TYPES;
+            max_j = DEMIGOD_MAX;
         else if (i == RACE_DRACONIAN)
             max_j = DRACONIAN_MAX;
 

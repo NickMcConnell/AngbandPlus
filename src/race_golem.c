@@ -48,10 +48,13 @@ static void _birth(void)
     skills_innate_init("Fist", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
+    py_birth_light();
 }
 
 static int _attack_level(void)
@@ -344,7 +347,7 @@ void _breathe_cold_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You breathe cold.");
         fire_ball(GF_COLD, dir, p_ptr->chp / 2, -3);
@@ -374,7 +377,7 @@ void _breathe_disintegration_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You breathe disintegration.");
         fire_ball(GF_DISINTEGRATE, dir, p_ptr->chp / 4, -3);
@@ -404,7 +407,7 @@ void _breathe_light_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You breathe light.");
         fire_ball(GF_LITE, dir, p_ptr->chp / 3, -3);
@@ -434,7 +437,7 @@ void _breathe_time_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You breathe time.");
         fire_ball(GF_TIME, dir, p_ptr->chp / 5, -3);
@@ -464,7 +467,7 @@ void _shoot_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         msg_print("You shoot a missile.");
         fire_bolt(GF_MISSILE, dir, damroll(15, 15));
         var_set_bool(res, TRUE);
@@ -555,6 +558,17 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
+static name_desc_t _info[GOLEM_MAX] = {
+    { "Colossus", "The Colossus is the biggest of all golems, truly immense. "
+                  "Unfortunately, they are also the slowest of all golems on "
+                  "account of their great size." },
+    { "Sky Golem", "The Sky Golem is the product of powerful enchantments, resistant "
+                   "to the ravages of time. They may even breathe time!" },
+    { "Spellwarp Automaton", "The Spellwarp Automaton is nearly indestructible, being "
+                             "almost completely immune to magic. However, their great "
+                             "power takes a seeming eternity to mature." },
+};
+
 /**********************************************************************
  * Public
  **********************************************************************/
@@ -604,23 +618,17 @@ race_t *mon_golem_get_race(int psubrace)
     switch (psubrace)
     {
     case GOLEM_SKY:
-        if (!p_ptr->current_r_idx)
-            me.subname = "Sky Golem";
         me.life = 100 + 2*rank;
         me.exp = 250;
         break;
 
     case GOLEM_SPELLWARP:
-        if (!p_ptr->current_r_idx)
-            me.subname = "Spellwarp Automaton";
         me.life = 100 + 3*rank;
         me.exp = 350;
         break;
 
     case GOLEM_COLOSSUS:
     default:
-        if (!p_ptr->current_r_idx)
-            me.subname = "Colossus";
         if (p_ptr->current_r_idx == MON_COLOSSUS)
         {
             me.stats[A_STR] += 3;
@@ -630,6 +638,12 @@ race_t *mon_golem_get_race(int psubrace)
         me.life = 100 + 5*rank;
         me.exp = 200;
         break;
+    }
+
+    if (birth_hack || spoiler_hack)
+    {
+        me.subname = _info[psubrace].name;
+        me.subdesc = _info[psubrace].desc;
     }
 
     return &me;

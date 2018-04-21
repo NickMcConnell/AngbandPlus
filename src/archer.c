@@ -200,6 +200,14 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL, 1);
+    py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
+    py_birth_obj_aux(TV_ARROW, SV_AMMO_NORMAL, rand_range(30, 50));
+}
+
 class_t *archer_get_class(void)
 {
     static class_t me = {0};
@@ -232,6 +240,7 @@ class_t *archer_get_class(void)
         me.exp = 110;
         me.pets = 40;
         
+        me.birth = _birth;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.get_powers = _get_powers;
         init = TRUE;

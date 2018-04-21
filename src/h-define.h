@@ -126,8 +126,7 @@
 #  define I2D(X)    ((X) + '0')
 #  define KTRL(X)    ((X) & 0x1F)
 #  define ESCAPE    '\033'
-/* Hack: ESC no longer functions on my keyboard :( */
-#  define IS_ESCAPE(X) ((X) == ESCAPE || (X) == '`')
+#  define IS_ESCAPE(X) ((X) == ESCAPE)
 #endif
 
 

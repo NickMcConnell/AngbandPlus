@@ -1279,6 +1279,9 @@ static void _dump_realm(doc_ptr doc, int realm)
 
 void spellbook_character_dump(doc_ptr doc)
 {
+    if (p_ptr->pclass == CLASS_RAGE_MAGE)
+        return; /* TODO */
+
     doc_printf(doc, "<topic:Spells>==================================== <color:keypress>S</color>pells ===================================\n\n");
 
     if (p_ptr->pclass == CLASS_RED_MAGE || p_ptr->pclass == CLASS_SORCERER)
@@ -1304,6 +1307,11 @@ void spellbook_character_dump(doc_ptr doc)
             doc_printf(doc, " You were able to use %s magic before.\n", realm_names[i+1]);
         }
         doc_newline(doc);
+    }
+
+    if (p_ptr->spells_per_round > 100)
+    {
+        doc_printf(doc, " You may cast %d.%02d spells per round.\n\n", p_ptr->spells_per_round/100, p_ptr->spells_per_round%100);
     }
 }
 

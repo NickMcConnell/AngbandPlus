@@ -5966,10 +5966,6 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 /* Obvious */
                 if (seen) obvious = TRUE;
-
-                /* Monster polymorphs */
-                note = " changes!";
-                /* Turn off the damage */
                 dam = 0;
             }
             else

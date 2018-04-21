@@ -52,7 +52,7 @@ The most powerful magical items have long been believed forged by dragonflame. T
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> -1</color>        Disarming   <color:y>Very Good    </color>
-Intelligence <color:w> -1</color>        Device      <color:v>Legendary[7] </color>
+Intelligence <color:w> -1</color>        Device      <color:v>Amber[7]     </color>
 Wisdom       <color:v> +3</color>        Save        <color:G>Excellent    </color>
 Dexterity    <color:w> -1</color>        Stealth     <color:o>Fair         </color>
 Constitution <color:w> -1</color>        Searching   <color:r>Bad          </color>
@@ -141,7 +141,7 @@ Death         <color:v>  +2 </color>  -2   -2   +0   -2   +1   95%  105%    90% 
 Lore           <color:y>Very Good    </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:o>Fair         </color>
 Breath         <color:y>Good         </color> <color:y>Good         </color> <color:G>Excellent    </color> <color:o>Fair         </color>
 Attack         <color:R>Poor         </color> <color:r>Bad          </color> <color:R>Poor         </color> <color:o>Fair         </color>
-Craft          <color:y>Very Good    </color> <color:v>Legendary[7] </color> <color:G>Excellent    </color> <color:o>Fair         </color>
+Craft          <color:y>Very Good    </color> <color:v>Amber[7]     </color> <color:G>Excellent    </color> <color:o>Fair         </color>
 Armor          <color:o>Fair         </color> <color:R>Poor         </color> <color:g>Superb       </color> <color:y>Good         </color>
 Domination     <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Crusade        <color:R>Poor         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color>
@@ -163,4 +163,4 @@ Death          <color:D>Very Bad     </color> <color:D>Very Bad     </color> <co
 </style>
 
 
-<color:s>Automatically generated for PosChengband 5.0.2.</color>
+<color:s>Automatically generated for PosChengband 5.0.3.</color>

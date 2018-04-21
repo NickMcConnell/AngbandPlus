@@ -187,6 +187,8 @@ B:8:C:Mage:Owner
 B:8:C:High-Mage:Owner
 B:8:C:Blood-Mage:Owner
 B:8:C:Sorcerer:Owner
+B:8:C:Yellow-Mage:Owner
+B:8:C:Gray-Mage:Owner
 B:8:C:Ranger:Member
 B:8:C:Warrior-Mage:Member
 

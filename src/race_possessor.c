@@ -176,12 +176,15 @@ static void _birth(void)
 
     object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
     if (device_init_fixed(&forge, EFFECT_BOLT_COLD))
-        add_outfit(&forge);
+        py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 3;
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_food();
+    py_birth_light();
 }
 
 static int _get_toggle(void)
@@ -769,7 +772,7 @@ static void _breathe_spell(int what, int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             if (p_ptr->current_r_idx == MON_BOTEI) 
                 msg_print("'Botei-Build cutter!!!'");
@@ -868,7 +871,7 @@ static void _rocket_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("You launch a rocket.");
         fire_rocket(GF_ROCKET, dir, p_ptr->chp / 3, 2);
@@ -1407,13 +1410,11 @@ void possessor_calc_bonuses(void)
     if ((r_ptr->flags1 & RF1_FEMALE) && p_ptr->psex != SEX_FEMALE)
     {
         p_ptr->psex = SEX_FEMALE;
-        sp_ptr = &sex_info[p_ptr->psex];
     }
 
     if ((r_ptr->flags1 & RF1_MALE) && p_ptr->psex != SEX_MALE)
     {
         p_ptr->psex = SEX_MALE;
-        sp_ptr = &sex_info[p_ptr->psex];
     }
 
     if (!equip_can_wield_kind(TV_LITE, SV_LITE_FEANOR))
@@ -1726,6 +1727,11 @@ int           r_idx = p_ptr->current_r_idx, i;
         race_ptr->pseudo_class_idx = r_ptr->body.class_idx;
 
         race_ptr->subname = mon_name(r_idx);
+    }
+    if (birth_hack || spoiler_hack)
+    {
+        race_ptr->subname = NULL;
+        race_ptr->subdesc = NULL;
     }
 }
 race_t *mon_possessor_get_race(void)

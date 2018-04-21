@@ -3223,6 +3223,8 @@ void ego_finalize(object_type *o_ptr, int level, int power, int mode)
                 o_ptr->pval = randint1(3);
         }
     }
+    if (cheat_peek)
+        object_mention(o_ptr);
 }
 
 /*************************************************************************

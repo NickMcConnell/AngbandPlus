@@ -89,9 +89,7 @@ extern u32b fake_spell_flags[4];
 extern s32b realm_choices1[];
 extern s32b realm_choices2[];
 extern cptr realm_names[];
-extern cptr spell_names[VALID_REALM][32];
 extern int chest_traps[64];
-extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr color_names[16];
 extern cptr stat_names[6];
 extern cptr stat_names_reduced[6];
@@ -206,11 +204,14 @@ extern bool hack_mind;
 
 extern bool rogue_like_commands;    /* Rogue-like commands */
 extern bool always_pickup;    /* Pick things up by default */
+extern bool toggle_run_status;
+extern bool toggle_running;
 extern bool carry_query_flag;    /* Prompt before picking things up */
 extern bool quick_messages;    /* Activate quick messages */
 extern bool command_menu;    /* Enable command selection menu */
 extern bool other_query_flag;    /* Prompt for floor item selection */
 extern bool use_old_target;    /* Use old target by default */
+extern bool auto_target;       /* Automatically target nearest monster */
 extern bool always_repeat;    /* Repeat obvious commands */
 extern bool confirm_destroy;    /* Prompt for destruction of known worthless items */
 extern bool confirm_wear;    /* Confirm to wear/wield known cursed items */
@@ -326,7 +327,6 @@ extern bool ironman_empty_levels;    /* Always create empty 'arena' levels (*) *
 extern bool ironman_rooms;    /* Always generate very unusual rooms (*) */
 extern bool ironman_nightmare;    /* Nightmare mode(it isn't even remotely fair!)(*) */
 extern bool preserve_mode;    /* Preserve artifacts (*) */
-extern bool autoroller;    /* Allow use of autoroller for stats (*) */
 extern bool powerup_home;    /* Increase capacity of your home (*) */
 extern bool allow_friendly_monster; /* Allow monsters friendly to player */
 extern bool allow_hostile_monster; /* Allow monsters hostile to each other */
@@ -437,7 +437,6 @@ extern byte tval_to_attr[128];
 extern char tval_to_char[128];
 extern cptr keymap_act[KEYMAP_MODES][256];
 extern player_type *p_ptr;
-extern player_sex *sp_ptr;
 extern player_magic *mp_ptr;
 extern birther previous_char;
 extern room_template_t *room_info;
@@ -632,14 +631,21 @@ extern int pack_find(int tval, int sval);
 extern cptr realm_jouhou[VALID_REALM];
 extern bool birth_hack;
 extern void add_history_from_pref_line(cptr t);
-extern void add_outfit(object_type *o_ptr);
 extern cptr birth_get_class_desc(int i);
 extern cptr birth_get_realm_desc(int i);
 extern void player_birth(void);
 extern void get_max_stats(void);
 extern void determine_random_questor(quest_type *q_ptr);
-extern void player_outfit(void);
 extern int calc_exp_factor(void);
+extern bool monster_hook_human(int r_idx);
+
+/* py_birth.c */
+extern int  py_birth(void);
+extern void py_birth_obj(object_type *o_ptr);
+extern void py_birth_obj_aux(int tval, int sval, int qty);
+extern void py_birth_food(void);
+extern void py_birth_light(void);
+extern void py_birth_spellbooks(void);
 
 /* cave.c */
 extern int distance(int y1, int x1, int y2, int x2);
@@ -1257,6 +1263,7 @@ extern s16b lookup_kind(int tval, int sval);
 extern void object_wipe(object_type *o_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
 extern void object_copy(object_type *o_ptr, object_type *j_ptr);
+extern void object_mention(object_type *o_ptr);
 extern bool apply_magic(object_type *o_ptr, int lev, u32b mode);
 extern int  apply_magic_ego;
 extern void choose_obj_kind(int mode); /* Hack for BM to use new object tval frequencies */
@@ -1824,6 +1831,7 @@ extern rect_t ui_map_rect(void);
 extern rect_t ui_menu_rect(void);
 extern rect_t ui_status_bar_rect(void);
 extern rect_t ui_char_info_rect(void);
+extern rect_t ui_screen_rect(void);
 /* cf msg_line_rect() in message.h and note that the message "line" is
    really a drop down box of sorts. It may drop on top of whatever is beneath
    it (currently the map region). */
@@ -1873,7 +1881,14 @@ extern void ang_sort(vptr u, vptr v, int n);
 extern bool target_able(int m_idx);
 extern bool target_okay(void);
 extern bool target_set(int mode);
+
+/* get_fire_dir will attempt to auto_target (if set) and should be used
+ * by any offensive player spell.
+ * get_aim_dir will not auto_target. Use it for things like telekinesis
+ * and stone to mud. */
+extern bool get_fire_dir(int *dp);
 extern bool get_aim_dir(int *dp);
+
 extern bool get_hack_dir(int *dp);
 extern bool get_rep_dir(int *dp, bool under);
 extern bool get_rep_dir2(int *dp);
@@ -2001,7 +2016,7 @@ extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype);
 extern int count_bits(u32b x);
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
-extern void repeat_check(void);
+extern void repeat_check(int shopping);
 
 #else
 #define REPEAT_PULL(pn) FALSE
@@ -2014,7 +2029,7 @@ extern void repeat_check(void);
 extern bool easy_open;
 
 /* cmd2.c */
-extern bool easy_open_door(int y, int x);
+extern bool easy_open_door(int y, int x, int dir);
 
 #endif /* ALLOW_EASY_OPEN -- TNB */
 
@@ -2109,6 +2124,10 @@ extern vec_ptr stats_rand_arts(void);
 extern void stats_add_rand_art(object_type *o_ptr);
 extern vec_ptr stats_egos(void);
 extern void stats_add_ego(object_type *o_ptr);
+
+/* wiz_obj.c */
+extern void wiz_obj_create(void);
+extern void wiz_obj_smith(void);
 
 /* avatar.c */
 extern cptr virtue_name(int which);
@@ -2233,11 +2252,12 @@ extern race_t *mon_mimic_get_race(void);
 extern race_t *mon_possessor_get_race(void);
 extern race_t *mon_quylthulg_get_race(void);
 extern race_t *mon_ring_get_race(void);
-extern race_t *mon_spider_get_race(void);
+extern race_t *mon_spider_get_race(int psubrace);
 extern void    spider_web_spell(int cmd, variant *res);
 extern race_t *mon_sword_get_race(void);
-extern race_t *mon_troll_get_race(void);
+extern race_t *mon_troll_get_race(int psubrace);
 extern race_t *mon_vampire_get_race(void);
+extern race_t *mon_vortex_get_race(void);
 extern race_t *mon_xorn_get_race(void);
 
 extern bool dragon_vamp_hack;
@@ -2251,6 +2271,8 @@ extern void    hound_sniff_spell(int cmd, variant *res);
 extern void    hound_stalk_spell(int cmd, variant *res);
 extern void    hound_run_spell(int cmd, variant *res);
 extern void    hound_leap_spell(int cmd, variant *res);
+
+extern int     vortex_get_effect(void);
 
 extern bool    possessor_can_gain_exp(void);
 extern int     possessor_get_toggle(void);
@@ -2323,6 +2345,7 @@ extern class_t *get_class_aux(int pclass, int psubclass);
 extern int lookup_class_idx(cptr name);
 extern int get_class_idx(void);
 extern caster_info *get_caster_info(void);
+extern int get_spell_stat(void);
 extern int get_powers_aux(spell_info* spells, int max, power_info* table);
 extern int get_spells_aux(spell_info* spells, int max, spell_info* table);
 extern void dump_spells_aux(FILE *fff, spell_info *table, int ct);
@@ -2402,16 +2425,24 @@ extern class_t *blue_mage_get_class(void);
 extern class_t *cavalry_get_class(void);
 extern class_t *chaos_warrior_get_class(void);
 extern void     chaos_warrior_reward(void);
-extern class_t *devicemaster_get_class(void);
+extern class_t *devicemaster_get_class(int psubclass);
 extern bool     devicemaster_desperation;
 extern cptr     devicemaster_speciality_name(int psubclass);
 extern cptr     devicemaster_speciality_desc(int psubclass);
 extern bool     devicemaster_is_speciality(object_type *o_ptr);
 extern class_t *force_trainer_get_class(void);
+
+extern void     gray_mage_browse_spell(void);
+extern void     gray_mage_cast_spell(void);
+extern void     gray_mage_gain_spell(void);
+extern class_t *gray_mage_get_class(int psubclass);
+extern bool     gray_mage_is_allowed_book(int tval, int sval);
+extern cptr     gray_mage_speciality_name(int psubclass);
+extern cptr     gray_mage_speciality_desc(int psubclass);
+
 extern class_t *high_mage_get_class(void);
 extern bool     imitator_cast(bool revenge);
 extern class_t *imitator_get_class(void);
-extern void     spellbook_character_dump(doc_ptr doc);
 extern class_t *mage_get_class(void);
 extern equip_template_ptr mon_get_equip_template(void);
 extern cptr     mon_name(int r_idx);
@@ -2484,6 +2515,7 @@ extern void     samurai_posture_spell(int cmd, variant *res);
 extern void     samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE]);
 extern void     samurai_posture_calc_stats(s16b stats[MAX_STATS]);
 extern void     samurai_posture_calc_bonuses(void);
+extern cptr     do_hissatsu_spell(int spell, int mode);
 
 extern class_t *tourist_get_class(void);
 extern class_t *scout_get_class(void);
@@ -2501,7 +2533,7 @@ extern class_t *warrior_mage_get_class(void);
 extern void     weaponsmith_object_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
 extern class_t *weaponsmith_get_class(void);
 
-extern cptr do_hissatsu_spell(int spell, int mode);
+extern class_t *yellow_mage_get_class(void);
 
 /* necromancer.c */
 extern bool     repose_of_the_dead;
@@ -2516,6 +2548,12 @@ extern void skills_scale(skills_t *dest, int num, int denom);
 extern void skills_init(skills_t *dest);
 typedef struct { cptr desc; byte color; } skill_desc_t;
 extern skill_desc_t skills_describe(int amt, int div);
+extern void skills_desc_class(class_t *class_ptr, skills_desc_t *skills);
+extern void skills_desc_mon_race(race_t *race_ptr, skills_desc_t *skills);
+extern void skills_desc_race(race_t *race_ptr, skills_desc_t *skills);
+extern void skills_desc_pers(personality_t *pers_ptr, skills_desc_t *skills);
+extern void skills_desc_realm(dragon_realm_ptr realm_ptr, skills_desc_t *skills);
+extern void skills_desc_aux(skills_t *base, skills_t *xtra, skills_desc_t *skills);
 
 extern int skills_bow_current(int sval);
 extern int skills_bow_max(int sval);
@@ -2544,6 +2582,7 @@ extern int skills_martial_arts_max(void);
 
 extern void skills_riding_gain_melee(monster_race *r_ptr);
 extern void skills_riding_gain_archery(monster_race *r_ptr);
+extern void skills_riding_gain_rakuba(int dam);
 extern int skills_riding_current(void);
 extern int skills_riding_max(void);
 
@@ -2566,6 +2605,7 @@ extern bool check_foresight(void);
 extern bool devolve_monster(int m_idx, bool msg);
 extern bool evolve_monster(int m_idx, bool msg);
 extern bool mon_amnesia(int m_idx);
+extern void mon_change_race(int m_idx, int new_r_idx, cptr verb);
 
 /* weaponmaster.c */
 extern class_t *weaponmaster_get_class(int subclass);

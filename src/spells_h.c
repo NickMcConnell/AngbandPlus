@@ -62,7 +62,7 @@ void ice_bolt_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt(
             GF_ICE,
             dir,
@@ -131,7 +131,7 @@ void hand_of_doom_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         msg_print("You invoke the Hand of Doom!");
         fire_ball_hide(GF_HAND_DOOM, dir, spell_power(p_ptr->lev * 3), 0);
         var_set_bool(res, TRUE);
@@ -235,7 +235,7 @@ void hellfire_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             fire_ball(GF_HELL_FIRE, dir, spell_power(666 + p_ptr->to_d_spell), 3);
             if (!demon_is_(DEMON_BALROG))
@@ -268,7 +268,7 @@ void hell_lance_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             fire_beam(GF_HELL_FIRE, dir, dam);
             var_set_bool(res, TRUE);
@@ -300,7 +300,7 @@ void holy_lance_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             fire_beam(GF_HOLY_FIRE, dir, dam);
             var_set_bool(res, TRUE);
@@ -402,7 +402,7 @@ void hypnotic_gaze_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             int power = p_ptr->lev;
             
@@ -455,7 +455,7 @@ void imp_fire_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         if (p_ptr->lev >= ball_lev)
             fire_ball(GF_FIRE, dir, spell_power(p_ptr->lev * 2), 2);
         else
@@ -492,7 +492,7 @@ void invoke_logrus_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_CHAOS, dir, spell_power(damroll(10, 10) + p_ptr->lev*4 + p_ptr->to_d_spell), 4);
         var_set_bool(res, TRUE);
         break;
@@ -545,7 +545,7 @@ void kiss_of_succubus_spell(int cmd, variant *res)
     {
         int dir;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) break;
+        if (!get_fire_dir(&dir)) break;
         fire_ball(GF_NEXUS, dir, dam, 4);
         var_set_bool(res, TRUE);
         break;
@@ -602,7 +602,7 @@ void laser_eye_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             fire_beam(GF_LITE, dir, spell_power(2 * p_ptr->lev));
             var_set_bool(res, TRUE);
@@ -667,7 +667,7 @@ void lightning_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_ELEC, dir, spell_power(3*p_ptr->lev/2 + 20 + p_ptr->to_d_spell), 2);
         var_set_bool(res, TRUE);
         break;
@@ -698,7 +698,7 @@ void lightning_bolt_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt_or_beam(
             beam_chance(),
             GF_ELEC,

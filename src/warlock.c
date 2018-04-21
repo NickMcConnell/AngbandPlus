@@ -138,7 +138,7 @@ static void _basic_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_ELDRITCH,
                   dir,
@@ -174,7 +174,7 @@ static void _extended_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range() + 10 * p_ptr->lev/50;
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_ELDRITCH,
                   dir,
@@ -207,7 +207,7 @@ static void _spear_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_beam(GF_ELDRITCH,
                   dir,
@@ -239,7 +239,7 @@ static void _burst_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball_aux(
             GF_ELDRITCH,
@@ -275,7 +275,7 @@ static void _stunning_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_ELDRITCH_STUN,
                   dir,
@@ -311,7 +311,7 @@ static void _empowered_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_ELDRITCH,
                   dir,
@@ -418,7 +418,7 @@ static void _draining_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_ELDRITCH_DRAIN,
                   dir,
@@ -544,7 +544,7 @@ static void _dragon_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball_aux(GF_ELDRITCH, dir, spell_power(damroll(dice, sides) + p_ptr->to_d_spell), -1 - (p_ptr->lev / 20), PROJECT_FULL_DAM);
         var_set_bool(res, TRUE);
@@ -931,7 +931,7 @@ static void _mount_breathe_spell(int cmd, variant *res)
             return;
         }
 
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         if (mon_spell_mon(p_ptr->riding, DRAGONRIDER_HACK))
             mount->energy_need += ENERGY_NEED();
@@ -973,7 +973,7 @@ static void _pets_breathe_spell(int cmd, variant *res)
             return;
         }
 
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         msg_print("<color:v>Dragons: As One!!</color>");
         msg_boundary();
@@ -1116,7 +1116,7 @@ static void _dispelling_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_ELDRITCH_DISPEL,
                   dir,
@@ -1233,7 +1233,7 @@ static void _vengeful_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_ELDRITCH, dir, dam, 0);
         take_hit(DAMAGE_USELIFE, 100, "vengeful blast", -1);
@@ -1356,7 +1356,7 @@ static void _aether_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         for (i = 0; i < ct; i++)
         {
@@ -1503,7 +1503,7 @@ static void _phase_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_ELDRITCH,
                   dir,
@@ -1537,7 +1537,7 @@ static void _nexus_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(
             GF_NEXUS,
             dir,
@@ -1732,7 +1732,7 @@ static void _confusing_blast(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = _blast_range();
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_ELDRITCH_CONFUSE,
                   dir,
@@ -1930,6 +1930,13 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
+}
+
 /****************************************************************
  * Public API
  ****************************************************************/
@@ -2003,6 +2010,7 @@ class_t *warlock_get_class(int psubclass)
         "with their chosen kin, and these monsters tend to have a strong will of their own, resisting "
         "the binding forces which the warlock imposes to gain both mastery and power.";
 
+        me.birth = _birth;
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
         me.get_powers = _get_powers;

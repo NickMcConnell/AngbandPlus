@@ -141,7 +141,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:32
 F:!:FLOOR:3:0:70
 
 # Ring of Protection
-?:[AND [EQU $QUEST1 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage] ]
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage Yellow-Mage Gray-Mage] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:32
 F:!:FLOOR:3:0:132:205
 
@@ -515,16 +515,15 @@ F:!:FLOOR:3:0:0:0:215
 
 ##########################################################################
 # Archaeologist
-# Jewel?  Help me out here ... I'm thinking Claurvoiyance is a fit.
-# And it is a rare treasure :)
+# Nain
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [EQU [MOD $RANDOM27 5] 0] ]
 F:b:BUILDING_1:3
-F:!:FLOOR:3:0:0:0:3
+F:!:FLOOR:3:0:0:0:211
 
-# Whip of Dr. Jones ... note this class gets a buffed version!
+# Palantir
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [GEQ [MOD $RANDOM27 5] 1] ]
 F:b:BUILDING_1:3
-F:!:FLOOR:3:0:0:0:162
+F:!:FLOOR:3:0:0:0:15
 
 ##########################################################################
 # Duelist
@@ -829,17 +828,17 @@ F:!:FLOOR:3:0:0:0:215
 # Mage, High-Mage, Sorcerer, Blue-Mage, Blood-Mage
 
 # Gandalf
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage] [EQU [MOD $RANDOM27 10] 0] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage Yellow-Mage Gray-Mage] [EQU [MOD $RANDOM27 10] 0] ]
 F:b:BUILDING_1:3
 F:!:FLOOR:3:0:0:0:120
 
 # Saruman
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage] [EQU [MOD $RANDOM27 10] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage Yellow-Mage Gray-Mage] [EQU [MOD $RANDOM27 10] 1] ]
 F:b:BUILDING_1:3
 F:!:FLOOR:3:0:0:0:249
 
 # Thranduil
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage] [GEQ [MOD $RANDOM27 10] 2] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage Yellow-Mage Gray-Mage] [GEQ [MOD $RANDOM27 10] 2] ]
 F:b:BUILDING_1:3
 F:!:FLOOR:3:0:0:0:36
 

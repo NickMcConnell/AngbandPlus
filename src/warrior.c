@@ -45,6 +45,14 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_BROAD_SWORD, 1);
+    py_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
+    py_birth_obj_aux(TV_BOW, SV_LIGHT_XBOW, 1);
+    py_birth_obj_aux(TV_BOLT, SV_AMMO_NORMAL, rand_range(15, 30));
+}
+
 class_t *warrior_get_class(void)
 {
     static class_t me = {0};
@@ -78,6 +86,7 @@ class_t *warrior_get_class(void)
         me.exp = 100;
         me.pets = 40;
 
+        me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;

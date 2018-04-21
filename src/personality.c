@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 /****************************************************************
  * Combat
  ****************************************************************/
@@ -186,6 +188,10 @@ static personality_ptr _get_hasty_personality(void)
 /****************************************************************
  * Lazy
  ****************************************************************/
+static void _lazy_birth(void)
+{
+    p_ptr->au /= 2;
+}
 static void _lazy_calc_bonuses(void)
 {
     p_ptr->to_m_chance += 10;
@@ -220,6 +226,7 @@ static personality_ptr _get_lazy_personality(void)
         me.life = 95;
         me.exp = 100;
 
+        me.birth = _lazy_birth;
         me.calc_bonuses = _lazy_calc_bonuses;
 
         init = TRUE;
@@ -323,6 +330,11 @@ static personality_ptr _get_mighty_personality(void)
 /****************************************************************
  * Munchkin
  ****************************************************************/
+static void _munchkin_birth(void)
+{
+    p_ptr->au = 10 * 1000 * 1000;
+}
+
 static void _munchkin_calc_bonuses(void)
 {
     res_add(RES_BLIND);
@@ -373,6 +385,7 @@ static personality_ptr _get_munchkin_personality(void)
         me.life = 150;
         me.exp = 50;
 
+        me.birth = _munchkin_birth;
         me.calc_bonuses = _munchkin_calc_bonuses;
         me.get_flags = _munchkin_get_flags;
 
@@ -533,10 +546,7 @@ static void _sexy_birth(void)
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
     if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
         rune_add(&forge, RUNE_ABSORPTION, FALSE);
-    add_outfit(&forge);
-
-    /* skills_on_birth() is doing this already ...
-    s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = WEAPON_EXP_MASTER; */
+    py_birth_obj(&forge);
 }
 static void _sexy_calc_bonuses(void)
 {
@@ -637,38 +647,55 @@ static personality_ptr _get_shrewd_personality(void)
  ****************************************************************/
 personality_ptr get_personality_aux(int index)
 {
+    personality_ptr result = NULL;
     switch (index)
     {
     case PERS_COMBAT:
-        return _get_combat_personality();
+        result = _get_combat_personality();
+        break;
     case PERS_CRAVEN:
-        return _get_craven_personality();
+        result = _get_craven_personality();
+        break;
     case PERS_FEARLESS:
-        return _get_fearless_personality();
+        result = _get_fearless_personality();
+        break;
     case PERS_HASTY:
-        return _get_hasty_personality();
+        result = _get_hasty_personality();
+        break;
     case PERS_LAZY:
-        return _get_lazy_personality();
+        result = _get_lazy_personality();
+        break;
     case PERS_LUCKY:
-        return _get_lucky_personality();
+        result = _get_lucky_personality();
+        break;
     case PERS_MIGHTY:
-        return _get_mighty_personality();
+        result = _get_mighty_personality();
+        break;
     case PERS_MUNCHKIN:
-        return _get_munchkin_personality();
+        result = _get_munchkin_personality();
+        break;
     case PERS_NIMBLE:
-        return _get_nimble_personality();
+        result = _get_nimble_personality();
+        break;
     case PERS_ORDINARY:
-        return _get_odinary_personality();
+        result = _get_odinary_personality();
+        break;
     case PERS_PATIENT:
-        return _get_patient_personality();
+        result = _get_patient_personality();
+        break;
     case PERS_PIOUS:
-        return _get_pious_personality();
+        result = _get_pious_personality();
+        break;
     case PERS_SEXY:
-        return _get_sexy_personality();
+        result = _get_sexy_personality();
+        break;
     case PERS_SHREWD:
-        return _get_shrewd_personality();
+        result = _get_shrewd_personality();
+        break;
     }
-    return _get_odinary_personality();
+    assert(result);
+    result->id = index;
+    return result;
 }
 
 personality_ptr get_personality(void)

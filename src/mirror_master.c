@@ -71,7 +71,7 @@ static void _banishing_mirror_spell(int cmd, variant *res)
     {
         int dir;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_beam(GF_AWAY_ALL, dir, spell_power(p_ptr->lev));
         var_set_bool(res, TRUE);
         break;
@@ -157,7 +157,7 @@ static void _drip_of_light_spell(int cmd, variant *res)
     {
         int dir;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         if (beam)
             fire_beam(GF_LITE, dir,spell_power(damroll(dd, ds) + p_ptr->to_d_spell));
         else
@@ -246,7 +246,7 @@ static void _mirror_clashing_spell(int cmd, variant *res)
     {
         int dir;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_SHARDS, dir, spell_power(damroll(dd, ds) + p_ptr->to_d_spell), rad);
         var_set_bool(res, TRUE);
         break;
@@ -610,7 +610,7 @@ static void _seeker_ray_spell(int cmd, variant *res)
     {
         int dir;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_beam(GF_SEEKER, dir, spell_power(damroll(dd,ds) + p_ptr->to_d_spell));
         var_set_bool(res, TRUE);
         break;
@@ -673,7 +673,7 @@ static void _super_ray_spell(int cmd, variant *res)
     {
         int dir;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_beam(GF_SUPER_RAY, dir, spell_power(damroll(dd,ds) + b));
         var_set_bool(res, TRUE);
         break;
@@ -826,6 +826,13 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_ROBE, 1);
+    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, rand_range(2, 5));
+}
+
 class_t *mirror_master_get_class(void)
 {
     static class_t me = {0};
@@ -868,6 +875,7 @@ class_t *mirror_master_get_class(void)
         me.exp = 130;
         me.pets = 30;
 
+        me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;
         me.caster_info = _caster_info;

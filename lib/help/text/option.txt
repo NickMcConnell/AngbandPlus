@@ -106,20 +106,6 @@ off after the creation is finished!
   before it is completely explored as any fixed artifact can be 
   regenerated in subsequent levels.
   
-  Allow use of autoroller for stats (autoroller)
-  If you choose to use the auto-roller, you can specify minimum limit 
-  of each stat. Once you have specified your desired statistics, the 
-  computer will then randomly roll successive start-up characters and 
-  compare them to your specified criteria. Each stat is rolled as a 
-  number from 8 to 17, with a normal distribution, and is then 
-  immediately modified based upon the race and class which you have 
-  chosen. Once a character that matches or exceeds your expectations 
-  has been rolled, the computer will display the character for you to 
-  look at, and asks you whether you accept or not. You may press Enter 
-  to accept. If you do not accept, you may press 'r' to resume rolling 
-  and searching for the next match or, if this is not your first match, 
-  'p' to return to the previous character which met your criteria.
-  
   Increase capacity of your home (powerup_home)
   If this option is enabled, the capacity of your home will be expanded 
   to 20 pages. If not, capacity is only 2 pages.
@@ -135,6 +121,28 @@ Input Options
   up. Otherwise, you must use the g command, or the - command while 
   walking. Combined with carry_query_flag, allows you to selectively 
   pick up all items which you step on.
+  
+  Toggle Run Status (toggle_run_status)
+  Internally, the player walks in a direction by pressing ; followed by 
+  the direction argument (0-9) and runs by pressing . followed by the 
+  direction argument (0-9) (Roguelike: Pressing , followed by the 
+  direction argument). Of course, this is ridiculous tedium, so the 
+  game uses keymaps to map the number keys, arrow keys, and numpad keys 
+  to the appropriate ;<dir> sequence. For all ports but Curses, the 
+  player can press <shift><dir> to run since the default preferences 
+  map this single keypress into a .<dir> sequence. In Curses with the 
+  default keyset, the <shift><arrow or numpad> keymaps are not 
+  available ("Curses doesn't do that"), so the player is forced to 
+  manually enter the .<dir> sequence by hand in order to run, or to 
+  play with the Roguelike keyset (see [e]).
+  
+  With the toggle_run_status option enabled, the internal key commands 
+  are altered from the default. The direction keys now either walk or 
+  run in the indicated direction, depending on the current status. This 
+  status is toggled by pressing . (Roguelike: ,) and displayed to the 
+  user on the bottom of the screen. Thus, with this option, the player 
+  can run during dungeon exploration with a single keystroke rather 
+  than two, toggling between running and walking as needed.
   
   Prompt before picking things up (carry_query_flag)
   Forces the game to ask you if you want to pick something up when you 
@@ -166,15 +174,27 @@ Input Options
   Forces the game to ask you before select an item on floor.
   
   Use old target by default (use_old_target)
-  Forces all commands which normally ask for a direction to use the 
-  current target if there is one. Use of this option can be dangerous 
-  if you target locations on the ground, unless you clear them when 
-  done.
+  This option forces all commands which normally ask for a direction to 
+  use the current target if there is one. Use of this option can be 
+  dangerous if you target locations on the ground, unless you clear 
+  them when done. Actually, position targets now automatically clear 
+  when they are no longer valid (e.g. after a teleport). Pay attention 
+  to the character info section of your screen as it always shows your 
+  current target, whether monster or location.
+  
+  Automatically target nearest monster (auto_target)
+  With this option enabled, every offensive spell you cast or device 
+  you use will automatically target the closest monster if there is not 
+  already a valid target selected. If you use this option, then it is 
+  highly recommended that you also enable the use_old_target option. 
+  That way, if you are in a situation where the automatic targeting is 
+  not what you want, you can just select a target up front before 
+  casting your spell.
   
   Repeat obvious commands (always_repeat)
   Tells the game that when you attempt to open a door or chest, bash a 
   door, tunnel through walls, or disarm traps or chests, that you wish 
-  to repeat the command 99 times (see [e]).
+  to repeat the command 99 times (see [f]).
   
   Prompt for destruction of known worthless items (confirm_destroy)
   Normally, no confirmation will be asked if you attempt to destroy an 
@@ -318,14 +338,14 @@ Map & Screen Options
   somewhat. Note that this option is only useful when using macros, 
   resting, running, or repeating commands, since the output is always 
   flushed when the game is waiting for a keypress from the user.
-      
+  
   Flush output after monster's move (fresh_after)
   This option forces the game to flush all output after not only every 
   player command, but also after every round of processing monsters and 
   objects, which will give you maximal information, but may slow down 
   the game a lot, especially on slower machines, and on faster machines 
   you normally do not have a chance to see the results anyway.
-      
+  
   Flush output after every message (fresh_message)
   This option forces the game to flush all output after every message 
   displayed by the game. This will give you maximal information, but 
@@ -336,7 +356,7 @@ Map & Screen Options
   machines, but horrible on most graphics machines. Note that only some 
   machines are able to *not* show the cursor, but on those machines, 
   hiding the cursor often speeds up the game and looks better.
-      
+  
   Display actual path before shooting (display_path)
   When this option is set, the targeting mode will show path from you 
   to current target point continuously.
@@ -416,7 +436,7 @@ Text Display Options
   Fire is not an EXTRA resistance.
   
   The list of abbreviations for each resistances and abilities are 
-  described in [f].
+  described in [g].
   
   Describe obj's all resistances by abbreviation (abbrev_all)
   When an *identified* equipment is displayed, an abbreviation string 
@@ -424,7 +444,7 @@ Text Display Options
   inscriptions of the object.
   
   The list of abbreviations for each resistances and abilities are 
-  described in [g].
+  described in [h].
   
   Show the experience needed for the next level (exp_need)
   Setting this option to yes alters the display of experience on the 
@@ -498,24 +518,23 @@ Disturbance Options
   
   Run past stairs (find_ignore_stairs)
   Ignore stairs when running.
-      
+  
   Run through open doors (find_ignore_doors)
   Ignore open doors when running.
-      
+  
   Run past known corners (find_cut)
   Cut sharply around known corners when running. This will result in 
   faster running, but may cause you to run into a lurking monster.
   
   Check for user abort while continuous command (check_abort)
-  Avoid checking to see if the user has pressed a key during resting or 
-  running or repeated commands. This not only makes the game much more 
-  efficient (on many systems), but also allows the use of certain 
-  obscure macro sequences, such as turning this option on, resting 
-  until done, turning this option off, and casting a spell. Note that 
-  the use of this option may be dangerous on certain "graphic" 
-  machines. Resting for long periods of time with this option set is 
-  dangerous since the resting may not stop until the user takes damage 
-  from starvation.
+  Turning this option off will avoid checking to see if the user has 
+  pressed a key during resting or running or repeated commands. This 
+  not only makes the game much more efficient (on many systems), but 
+  also allows the use of certain obscure macro sequences, such as 
+  turning this option off, resting until done, turning this option on, 
+  and casting a spell. Resting for long periods of time with this 
+  option turned off is dangerous since the resting may not stop until 
+  the user takes damage from starvation.
   
   Flush input on various failures (flush_failure)
   This option forces the game to flush all pending input whenever 
@@ -529,7 +548,7 @@ Disturbance Options
   character is "disturbed". This is useful if you use macros which take 
   time, since it will prevent you from continuing your macro while 
   being attacked by a monster.
-      
+  
   Disturb whenever any monster moves (disturb_move)
   Disturb the player when any monster moves, appears, or disappears. 
   This includes monsters which are only visible due to telepathy, so 
@@ -559,7 +578,7 @@ Disturbance Options
   Disturb whenever map panel changes (disturb_panel)
   This option causes you to be disturbed by the map scrolling, as it 
   does automatically when you get close to the edge of the screen.
-      
+  
   Disturb whenever player state changes (disturb_state)
   This option causes you to be disturbed whenever the player state 
   changes, including changes in hunger, resistance, confusion, etc.
@@ -571,7 +590,7 @@ Disturbance Options
   
   Audible bell (on errors, etc) (ring_bell)
   Attempt to make a bell noise when various errors occur.
-      
+  
   Disturb when leaving trap detected area (disturb_trap_detect)
   This option causes you to be disturbed when the player is running out 
   of trap-detected area.
@@ -589,7 +608,7 @@ Easy Auto-Destroyer Options
   
     Note: The Easy Auto-Destroyer is a simpler to use 
     version of the full featured Mogaminator discussed in 
-    [h]. It is designed for those who feel the full version 
+    [i]. It is designed for those who feel the full version 
     is too complicated to use. However, you really should 
     only use one or the other. So if you are using the full 
     version, then you should not also enable the easy 

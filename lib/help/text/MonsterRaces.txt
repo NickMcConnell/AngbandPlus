@@ -220,8 +220,8 @@ Beholder
     Intelligence  +4        Device      Heroic       
     Wisdom        +0        Save        Superb       
     Dexterity     +1        Stealth     Heroic       
-    Constitution  +0        Searching   Legendary[7] 
-    Charisma      +0        Perception  Legendary[7] 
+    Constitution  +0        Searching   Amber[7]     
+    Charisma      +0        Perception  Amber[7]     
     Life Rating  100%       Melee       Fair         
     Base HP       20        Bows        Very Bad     
     Experience   200%       Infravision 80'
@@ -267,7 +267,7 @@ Dragon
     Experience   250%       Infravision 50'
     
   
-Elemental
+Elemental/Vortex
   Elemental
   Elementals are mindless creatures animated from a single elemental 
   form. As a species, elementals can never be confused or cut, and they 
@@ -307,6 +307,40 @@ Elemental
     Life Rating  105%       Melee       Superb       
     Base HP       30        Bows        Bad          
     Experience   170%       Infravision 50'
+    
+  Vortex
+  Vortices are mindless whirlwinds of elemental forces randomly moving 
+  about the dungeon in search of prey. They are seldom confused and 
+  never blinded since they lack vision in the normal sense. Indeed, 
+  they seem to be aware of their surroundings even without eyes and 
+  need not wear a light source. They can be neither stunned, nor cut, 
+  and their mindless nature renders them immune to fear. But, alas, 
+  they are hopeless with magical devices, are rather weak in melee, 
+  and, while they may breathe almost effortlessly, their breath attacks 
+  are rather weak.
+   
+  Vortices do not have normal bodies. Rather they are simply a rapidly 
+  spinning elemental mass, and as such, they may incorporate objects 
+  into their rotating essence, gaining bonuses and protection in the 
+  process. The number of objects they may use increases with level, and 
+  there are no restrictions on the types of equipment they may 'wield' 
+  in each slot. While they may 'wield' weapons this way, they cannot 
+  attack with them. Instead, the vortex may engulf nearby monsters with 
+  their elemental essence.
+   
+  Vortices evolve randomly, though all seem to end up with the 
+  evolutionary perfection of the Aether vortex.
+  
+    Stats                   Skills
+    Strength      +0        Disarming   Fair         
+    Intelligence  -5        Device      Bad          
+    Wisdom        -5        Save        Superb       
+    Dexterity     +2        Stealth     Very Good    
+    Constitution  +1        Searching   Bad          
+    Charisma      +0        Perception  Bad          
+    Life Rating  102%       Melee       Superb       
+    Base HP       25        Bows        Very Bad     
+    Experience   125%       Infravision 0'
     
   
 Golem
@@ -716,6 +750,7 @@ Angel         +1   +1   +4   +1   +1   +1   90%  +26  325%   90%
 Beholder      -3   +4   +0   +1   +0   +0  100%  +20  200%  140%
 Dragon        +1   -1   -2   -2   +0   -1  100%  +40  250%  130%
 Elemental     +2   -5   -5   -2   +2   +0  105%  +30  170%  120%
+Vortex        +0   -5   -5   +2   +1   +0  102%  +25  125%  120%
 Golem         +1   -2   -2   -1   +1   +0  100%  +50  200%  130%
 Jelly         +1   -5   -5   +1   +1   -2   90%  +40  150%  125%
 Quylthulg     -5   -5   -5   -5   -5   +6   95%   +0  150%  120%
@@ -742,6 +777,7 @@ Angel        Poor          Excellent     Superb        Good
 Beholder     Good          Heroic        Superb        Heroic       
 Dragon       Fair          Good          Fair          Fair         
 Elemental    Fair          Bad           Excellent     Excellent    
+Vortex       Fair          Bad           Superb        Very Good    
 Golem        Fair          Bad           Superb        Poor         
 Jelly        Good          Bad           Good          Superb       
 Quylthulg    Fair          Superb        Excellent     Superb       
@@ -765,9 +801,10 @@ Hound        Fair          Poor          Excellent     Bad             50'
 Hydra        Bad           Bad           Superb        Bad             50'
 Spider       Fair          Poor          Very Good     Bad             50'
 Angel        Fair          Poor          Good          Fair            30'
-Beholder     Legendary[7]  Legendary[7]  Fair          Very Bad        80'
+Beholder     Amber[7]      Amber[7]      Fair          Very Bad        80'
 Dragon       Fair          Fair          Excellent     Bad             50'
 Elemental    Fair          Poor          Superb        Bad             50'
+Vortex       Bad           Bad           Superb        Very Bad         0'
 Golem        Bad           Bad           Superb        Bad             50'
 Jelly        Poor          Bad           Superb        Bad              0'
 Quylthulg    Fair          Good          Very Bad      Very Bad        50'
@@ -785,5 +822,5 @@ Xorn         Poor          Bad           Excellent     Bad             50'
 
 
 
-Automatically generated for PosChengband 5.0.2.
+Automatically generated for PosChengband 5.0.3.
 

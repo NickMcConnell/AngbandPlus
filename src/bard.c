@@ -169,6 +169,13 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_SOUND);
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_spellbooks();
+}
+
 class_t *bard_get_class(void)
 {
     static class_t me = {0};
@@ -204,6 +211,7 @@ class_t *bard_get_class(void)
         me.exp = 140;
         me.pets = 25;
 
+        me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;        
         me.caster_info = _caster_info;

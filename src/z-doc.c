@@ -1600,13 +1600,14 @@ int doc_display_aux(doc_ptr doc, cptr caption, int top, rect_t display)
         int cmd;
 
         Term_erase(display.x, display.y, display.cx);
-        put_str(format("[%s, Line %d/%d]", caption, top, doc->cursor.y), display.y, display.x);
+        c_put_str(TERM_L_GREEN, format("[%s, Line %d/%d]", caption, top, doc->cursor.y), display.y, display.x);
         doc_sync_term(doc, doc_region_create(0, top, doc->width, top + page_size - 1), doc_pos_create(display.x, display.y + 2));
         Term_erase(display.x, display.y + display.cy - 1, display.cx);
-        put_str("[Press ESC to exit. Press ? for help]", display.y + display.cy - 1, display.x);
+        c_put_str(TERM_L_GREEN, "[Press ESC to exit. Press ? for help]", display.y + display.cy - 1, display.x);
 
         cmd = inkey_special(TRUE);
 
+        /* links */
         if ('a' <= cmd && cmd <= 'z')
         {
             doc_link_ptr link = int_map_find(doc->links, cmd);
@@ -1615,6 +1616,37 @@ int doc_display_aux(doc_ptr doc, cptr caption, int top, rect_t display)
                 rc = doc_display_help_aux(string_buffer(link->file), string_buffer(link->topic), display);
                 if (rc == _UNWIND)
                     done = TRUE;
+                continue;
+            }
+        }
+
+        /* vi like movement for roguelike keyset */
+        if (rogue_like_commands)
+        {
+            if (cmd == 'j')
+            {
+                top++;
+                if (top > doc->cursor.y - page_size)
+                    top = MAX(0, doc->cursor.y - page_size);
+                continue;
+            }
+            else if (cmd == 'k')
+            {
+                top--;
+                if (top < 0) top = 0;
+                continue;
+            }
+            else if (cmd == KTRL('F'))
+            {
+                top += page_size;
+                if (top > doc->cursor.y - page_size)
+                    top = MAX(0, doc->cursor.y - page_size);
+                continue;
+            }
+            else if (cmd == KTRL('B'))
+            {
+                top -= page_size;
+                if (top < 0) top = 0;
                 continue;
             }
         }

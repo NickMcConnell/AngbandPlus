@@ -50,6 +50,13 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_BROAD_SWORD, 1);
+    py_birth_obj_aux(TV_HARD_ARMOR, SV_RING_MAIL, 1);
+    py_birth_spellbooks();
+}
+
 class_t *paladin_get_class(void)
 {
     static class_t me = {0};
@@ -90,6 +97,7 @@ class_t *paladin_get_class(void)
         me.exp = 135;
         me.pets = 40;
         
+        me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.caster_info = _caster_info;
         /* TODO: This class uses spell books, so we are SOL

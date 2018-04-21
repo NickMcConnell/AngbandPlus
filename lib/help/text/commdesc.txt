@@ -758,9 +758,34 @@ Message Commands
   Extra Commands
   
     Repeat Last Command (n) or (X)
-    This command repeat previously executed command with all its 
+    This command repeats the previously executed command with all its 
     arguments. Very useful to repeat casting, for example, magic 
     missile to same opponent.
+  
+    Record Command (")
+    Commands that you enter may be recorded to any normal ascii 
+    character register. In fact, every command that you manually enter 
+    is automatically recorded to the . register. When you repeat the 
+    last command, you are really playing back the contents of this 
+    special . register. But you can also record the next command to a 
+    register of your choosing and then play it back manually later. For 
+    example, the command sequence "Fmae*t records the command mae*t to 
+    the F register in addition to the . register. You can later play 
+    back this command with 'F whereas playing back with '. or n is only 
+    valid on the very next turn.
+  
+    Playback Command (')
+    As mentioned above, you may record commands with the " command and 
+    play them back later with the ' command. Commands are stored in 
+    registers, each of which is addressed with a single ASCII 
+    character. For example, if you record a command with "t<cmd>, then 
+    you may later play it back by pressing 't. These command registers 
+    are temporary and will be erased every time you restart the game. 
+    To view your recorded commands, choose the ' register (i.e., press 
+    '' from the top level). You can then enter the register you wish to 
+    use (e.g. ''t works the same as 't except that the register 
+    contents of all recorded commands are displayed to you after you 
+    press the second ').
   
     Toggle Choice Window (^I)
     Toggles the display in the choice window (if available) between 

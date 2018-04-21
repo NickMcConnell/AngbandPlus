@@ -126,6 +126,9 @@
     <ClCompile Include="variable.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wiz_obj.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="wizard1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -504,6 +507,9 @@
     <ClCompile Include="race_hound.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
+    <ClCompile Include="race_vortex.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
     <ClCompile Include="race_giant.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
@@ -517,6 +523,12 @@
       <Filter>Player\Classes\PosChengband</Filter>
     </ClCompile>
     <ClCompile Include="mystic.c">
+      <Filter>Player\Classes\PosChengband</Filter>
+    </ClCompile>
+    <ClCompile Include="gray_mage.c">
+      <Filter>Player\Classes\PosChengband</Filter>
+    </ClCompile>
+    <ClCompile Include="yellow_mage.c">
       <Filter>Player\Classes\PosChengband</Filter>
     </ClCompile>
     <ClCompile Include="race_hydra.c">
@@ -589,6 +601,9 @@
       <Filter>Objects</Filter>
     </ClCompile>
     <ClCompile Include="personality.c">
+      <Filter>Player</Filter>
+    </ClCompile>
+    <ClCompile Include="py_birth.c">
       <Filter>Player</Filter>
     </ClCompile>
     <ClCompile Include="py_display.c">

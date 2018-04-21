@@ -17,7 +17,7 @@ Wisdom       <color:w>-20</color>        Save        <color:D>Very Bad     </col
 Dexterity    <color:w> +4</color>        Stealth     <color:D>Very Bad     </color>
 Constitution <color:w> +4</color>        Searching   <color:D>Very Bad     </color>
 Charisma     <color:w> +4</color>        Perception  <color:D>Very Bad     </color>
-Life Rating  200%       Melee       <color:v>Legendary[20]</color>
+Life Rating  200%       Melee       <color:v>Amber[20]    </color>
 Base HP       22        Bows        <color:D>Very Bad     </color>
 Experience   160%
 </style></indent>
@@ -267,6 +267,22 @@ Life Rating  100%       Melee       <color:r>Bad          </color>
 Base HP        4        Bows        <color:r>Bad          </color>
 Experience   130%
 </style></indent>
+<topic:Gray-Mage><color:o>Gray-Mage</color>
+The Gray-Mage casts spells from memory, rather than from a book.  Indeed, the spell book is only required for the initial learning process. However, only a small number of spells may be learned at any given time, and while the Gray-Mage may replace old spells with new ones, they can only learn a fixed number of total spells (based upon Intelligence and Experience).
+ 
+The Gray-Mage does not choose spell realms the way an ordinary spell caster would. Instead, they choose a general bias towards one of Good, Neutral or Evil magic. So while all Gray-Mages may learn spells from the Arcane, Armageddon, Chaos, Craft, Sorcery and Trump realms, only a Good Bias allows access to Life and Crusade magic; only a Neutral Bias allows access to Nature magic; and only an Evil Bias allows access to Death and Daemon magic. Still, it is obvious that the Gray Mage will have an extremely large pool of spells from which to choose. Like the Mage, Intelligence is the key stat.
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength     <color:w> -4</color>        Disarming   <color:o>Fair         </color>
+Intelligence <color:v> +3</color>        Device      <color:g>Superb       </color>
+Wisdom       <color:w> +0</color>        Save        <color:y>Good         </color>
+Dexterity    <color:w> +1</color>        Stealth     <color:y>Good         </color>
+Constitution <color:w> -2</color>        Searching   <color:R>Poor         </color>
+Charisma     <color:w> -2</color>        Perception  <color:o>Fair         </color>
+Life Rating   95%       Melee       <color:D>Very Bad     </color>
+Base HP        0        Bows        <color:D>Very Bad     </color>
+Experience   130%
+</style></indent>
 <topic:High-Mage><color:o>High-Mage</color>
 High-mages are mages who specialize in one particular field of magic and learn it very well - much better than the ordinary mage. A high mage's prime statistic is intelligence as this determines his spell casting ability.
  
@@ -330,6 +346,22 @@ Charisma     <color:v> +6</color>        Perception  <color:o>Fair         </col
 Life Rating   65%       Melee       <color:D>Very Bad     </color>
 Base HP        0        Bows        <color:D>Very Bad     </color>
 Experience   160%
+</style></indent>
+<topic:Yellow-Mage><color:o>Yellow-Mage</color>
+A Yellow Mage is a type of Mage who focuses on rapid spell casting. Much as the Warrior gets multiple attacks per round, the Yellow Mage may cast multiple spells per round. Their spell speed increases with level. In addition, they may also cast low level spells more quickly as they gain in experience (For example, a CL50 Yellow Mage casting a L35 spell only requires 85% of the normal time, and this bonus applies before their spells per round bonus).
+ 
+In all other respects, the Yellow Mage is similar to the Mage. They may learn spells from two spell realms and use Intelligence as their primary spell statistic. However, due to their focus upon hasty casting, they are unable to learn the mightiest of spells in most realms, especially as regards powerful offensive spells like Mana Storm.
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength     <color:w> -4</color>        Disarming   <color:o>Fair         </color>
+Intelligence <color:v> +3</color>        Device      <color:g>Superb       </color>
+Wisdom       <color:w> +0</color>        Save        <color:y>Good         </color>
+Dexterity    <color:w> +1</color>        Stealth     <color:y>Good         </color>
+Constitution <color:w> -2</color>        Searching   <color:R>Poor         </color>
+Charisma     <color:w> -2</color>        Perception  <color:o>Fair         </color>
+Life Rating   95%       Melee       <color:D>Very Bad     </color>
+Base HP        0        Bows        <color:D>Very Bad     </color>
+Experience   130%
 </style></indent>
 </indent>
 <style:heading>Devices</style>
@@ -747,10 +779,12 @@ Monk           +2   -1 <color:v>  +1 </color>  +3   +2   +1  110%  +12  130%
 Mystic         +2   -1   -2   +3   +1 <color:v>  +2 </color> 100%   +4  130%
 Blood-Mage     -4 <color:v>  +3 </color>  -2   +1   +2   -2  108%  +10  135%
 Blue-Mage      -4 <color:v>  +4 </color>  -1   +1   -2   -2  100%   +4  130%
+Gray-Mage      -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
 High-Mage      -4 <color:v>  +4 </color>  +0   +0   -2   -2   94%   +0  130%
 Mage           -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
 Necromancer    -2 <color:v>  +3 </color>  -4   +1   -1   -2   95%   +2  125%
 Sorcerer       -5   +0   -2   +2   +0 <color:v>  +6 </color>  65%   +0  160%
+Yellow-Mage    -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
 Devicemaster   -1 <color:v>  +2 </color>  +1   +2   -2   -2  101%   +6  130%
 Magic-Eater    -1   +2   +1   +2   -2   -2  103%   +6  130%
 Priest         -1   -3 <color:v>  +3 </color>  -1   +0   +2  100%   +4  120%
@@ -796,10 +830,12 @@ Monk          <color:g>Superb       </color> <color:y>Very Good    </color> <col
 Mystic        <color:g>Superb       </color> <color:y>Very Good    </color> <color:o>Fair         </color> <color:G>Excellent    </color>
 Blood-Mage    <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
 Blue-Mage     <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
+Gray-Mage     <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
 High-Mage     <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
 Mage          <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
 Necromancer   <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Very Good    </color>
 Sorcerer      <color:o>Fair         </color> <color:b>Heroic       </color> <color:b>Heroic       </color> <color:o>Fair         </color>
+Yellow-Mage   <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
 Devicemaster  <color:R>Poor         </color> <color:g>Superb       </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Magic-Eater   <color:R>Poor         </color> <color:g>Superb       </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Priest        <color:R>Poor         </color> <color:y>Very Good    </color> <color:G>Excellent    </color> <color:o>Fair         </color>
@@ -829,7 +865,7 @@ Wild-Talent   <color:o>Fair         </color> <color:y>Good         </color> <col
 <topic:Skills2><style:heading>Table 3 - Class Skill Bonus Table II</style>
 <style:table>
               <color:w>Searching     Perception    Melee         Bows         </color>
-Berserker     <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:v>Legendary[20]</color> <color:D>Very Bad     </color>
+Berserker     <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:v>Amber[20]    </color> <color:D>Very Bad     </color>
 Blood-Knight  <color:R>Poor         </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:R>Poor         </color>
 Duelist       <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color>
 Mauler        <color:R>Poor         </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:D>Very Bad     </color>
@@ -845,10 +881,12 @@ Monk          <color:y>Good         </color> <color:o>Fair         </color> <col
 Mystic        <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:G>Excellent    </color>
 Blood-Mage    <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Blue-Mage     <color:o>Fair         </color> <color:R>Poor         </color> <color:r>Bad          </color> <color:r>Bad          </color>
+Gray-Mage     <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 High-Mage     <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Mage          <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Necromancer   <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Sorcerer      <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
+Yellow-Mage   <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Devicemaster  <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Magic-Eater   <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Priest        <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color>
@@ -877,4 +915,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 5.0.2.</color>
+<color:s>Automatically generated for PosChengband 5.0.3.</color>

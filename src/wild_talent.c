@@ -613,6 +613,13 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_SWORD, SV_SMALL_SWORD, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
+}
+
 class_t *wild_talent_get_class(void)
 {
     static class_t me = {0};
@@ -651,6 +658,7 @@ class_t *wild_talent_get_class(void)
         me.exp = 110;
         me.pets = 35;
         
+        me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.calc_stats = _calc_stats;
         me.get_flags = _get_flags;

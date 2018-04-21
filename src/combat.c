@@ -81,6 +81,8 @@ static _blow_info_t _get_blow_info(int hand)
     case CLASS_BLOOD_MAGE:
     case CLASS_HIGH_MAGE:
     case CLASS_BLUE_MAGE:
+    case CLASS_YELLOW_MAGE:
+    case CLASS_GRAY_MAGE:
         result.num = 400; result.wgt = 100; result.mul = 20; break;
 
     case CLASS_WARLOCK:
@@ -727,6 +729,9 @@ void display_weapon_info(doc_ptr doc, int hand)
  **********************************************************************/
 static cptr _effect_name(int which)
 {
+    if (p_ptr->current_r_idx == MON_AETHER_VORTEX)
+        return "Random";
+
     switch (which)
     {
     case 0: case GF_MISSILE: return "Normal";
@@ -736,7 +741,11 @@ static cptr _effect_name(int which)
     case GF_COLD: return "Cold";
     case GF_POIS: return "Poison";
     case GF_NETHER: return "Nether";
+    case GF_NEXUS: return "Nexus";
+    case GF_LITE: return "Light";
+    case GF_CHAOS: return "Chaos";
     case GF_SHARDS: return "Shards";
+    case GF_DISINTEGRATE: return "Disint";
     case GF_DISENCHANT: return "Disench";
     case GF_TIME: return "Time";
     case GF_OLD_DRAIN: return "Drain";
@@ -845,57 +854,68 @@ void display_innate_attack_info(doc_ptr doc, int which)
         doc_printf(cols[0], " %-7.7s: %d\n",_effect_name(a->effect[0]), blows * (min + max)/200);
     }
 
-    for (i = 1; i < MAX_INNATE_EFFECTS; i++)
+    if (p_ptr->current_r_idx == MON_AETHER_VORTEX) /* Hack ... cf race_vortex.c:_calc_innate_attacks() */
     {
-        int p = a->effect_chance[i];
-        char xtra[255];
-        if (!a->effect[i]) continue;
-        if (!p)
-            sprintf(xtra, "%s", "");
-        else
-            sprintf(xtra, " (%d%%)", p);
-
-        switch (a->effect[i])
+        int min3 = 9*(min_base + a->to_d)/4 + p_ptr->to_d_m; /* 1 + .75 + .5 = 2.25 = 9/4 */
+        int max3 = 9*(max_base + a->to_d)/4 + p_ptr->to_d_m;
+        doc_printf(cols[0], "<color:r> %-7.7s</color>: %d\n",
+                _effect_name(a->effect[i]),
+                blows * (min3 + max3)/200
+        );
+    }
+    else
+    {
+        for (i = 1; i < MAX_INNATE_EFFECTS; i++)
         {
-        case GF_STEAL:
-            doc_printf(cols[0], "<tab:10><color:B>Steals%s</color>\n", xtra);
-            break;
-        case GF_OLD_SLOW:
-            doc_printf(cols[0], "<tab:10><color:U>Slows%s</color>\n", xtra);
-            break;
-        case GF_OLD_CONF:
-            doc_printf(cols[0], "<tab:10><color:u>Confuses%s</color>\n", xtra);
-            break;
-        case GF_OLD_SLEEP:
-            doc_printf(cols[0], "<tab:10><color:b>Sleeps%s</color>\n", xtra);
-            break;
-        case GF_STASIS:
-        case GF_PARALYSIS:
-            doc_printf(cols[0], "<tab:10><color:r>Paralyzes%s</color>\n", xtra);
-            break;
-        case GF_DRAIN_MANA:
-            doc_printf(cols[0], "<tab:10><color:B>Drains Mana%s</color>\n", xtra);
-            break;
-        case GF_STUN:
-            doc_printf(cols[0], "<tab:10><color:B>Stuns%s</color>\n", xtra);
-            break;
-        case GF_AMNESIA:
-            doc_printf(cols[0], "<tab:10><color:R>Causes Amnesia%s</color>\n", xtra);
-            break;
-        case GF_TURN_ALL:
-            doc_printf(cols[0], "<tab:10><color:r>Terrifies%s</color>\n", xtra);
-            break;
-        case GF_QUAKE:
-            doc_printf(cols[0], "<tab:10><color:B>Shatters%s</color>\n", xtra);
-            break;
-        default:
-            doc_printf(cols[0], "<color:r> %-7.7s</color>: %d\n",
-                    _effect_name(a->effect[i]),
-                    blows * (min2 + max2)/200
-            );
+            int p = a->effect_chance[i];
+            char xtra[255];
+            if (!a->effect[i]) continue;
+            if (!p)
+                sprintf(xtra, "%s", "");
+            else
+                sprintf(xtra, " (%d%%)", p);
+
+            switch (a->effect[i])
+            {
+            case GF_STEAL:
+                doc_printf(cols[0], "<tab:10><color:B>Steals%s</color>\n", xtra);
+                break;
+            case GF_OLD_SLOW:
+                doc_printf(cols[0], "<tab:10><color:U>Slows%s</color>\n", xtra);
+                break;
+            case GF_OLD_CONF:
+                doc_printf(cols[0], "<tab:10><color:u>Confuses%s</color>\n", xtra);
+                break;
+            case GF_OLD_SLEEP:
+                doc_printf(cols[0], "<tab:10><color:b>Sleeps%s</color>\n", xtra);
+                break;
+            case GF_STASIS:
+            case GF_PARALYSIS:
+                doc_printf(cols[0], "<tab:10><color:r>Paralyzes%s</color>\n", xtra);
+                break;
+            case GF_DRAIN_MANA:
+                doc_printf(cols[0], "<tab:10><color:B>Drains Mana%s</color>\n", xtra);
+                break;
+            case GF_STUN:
+                doc_printf(cols[0], "<tab:10><color:B>Stuns%s</color>\n", xtra);
+                break;
+            case GF_AMNESIA:
+                doc_printf(cols[0], "<tab:10><color:R>Causes Amnesia%s</color>\n", xtra);
+                break;
+            case GF_TURN_ALL:
+                doc_printf(cols[0], "<tab:10><color:r>Terrifies%s</color>\n", xtra);
+                break;
+            case GF_QUAKE:
+                doc_printf(cols[0], "<tab:10><color:B>Shatters%s</color>\n", xtra);
+                break;
+            default:
+                doc_printf(cols[0], "<color:r> %-7.7s</color>: %d\n",
+                        _effect_name(a->effect[i]),
+                        blows * (min2 + max2)/200
+                );
+            }
         }
     }
-
     /* Second Column */
     doc_insert(cols[1], "<color:G>Accuracy</color>\n");
     doc_insert(cols[1], " AC Hit\n");

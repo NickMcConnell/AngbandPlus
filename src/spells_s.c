@@ -35,7 +35,7 @@ void scare_monster_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         stop_mouth();
         /*
         msg_print("You make a horrible scream!";
@@ -66,7 +66,7 @@ void scare_spell(int cmd, variant *res)
         if (p_ptr->lev < 30)
         {
             int dir = 0;
-            if (!get_aim_dir(&dir)) return;
+            if (!get_fire_dir(&dir)) return;
             fear_monster(dir, p_ptr->lev);
         }
         else
@@ -177,7 +177,7 @@ void shoot_arrow_spell(int cmd, variant *res)
         int slot;
         
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         msg_print("You fire an arrow.");
 
         slot = equip_find_first(object_is_melee_weapon);
@@ -283,7 +283,7 @@ void sleep_spell(int cmd, variant *res)
         if (p_ptr->lev < 30)
         {
             int dir = 0;
-            if (!get_aim_dir(&dir)) return;
+            if (!get_fire_dir(&dir)) return;
             sleep_monster(dir, p_ptr->lev*2);
         }
         else
@@ -311,7 +311,7 @@ void slow_spell(int cmd, variant *res)
         if (p_ptr->lev < 30)
         {
             int dir = 0;
-            if (!get_aim_dir(&dir)) return;
+            if (!get_fire_dir(&dir)) return;
             slow_monster(dir);
         }
         else
@@ -472,7 +472,7 @@ void spit_acid_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             stop_mouth();
             msg_print("You spit acid...");
@@ -511,7 +511,7 @@ void starburst_I_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         msg_print("You invoke a starburst.");
         fire_ball(GF_LITE, dir, spell_power(_starburst_I_dam() + p_ptr->to_d_spell), spell_power(4));
         var_set_bool(res, TRUE);
@@ -545,7 +545,7 @@ void starburst_II_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         msg_print("You invoke a starburst.");
         fire_ball(GF_LITE, dir, 
             spell_power(_starburst_II_dam() + p_ptr->to_d_spell),
@@ -610,7 +610,7 @@ void stinking_cloud_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_POIS, dir, spell_power(10 + p_ptr->lev / 2 + p_ptr->to_d_spell), spell_power(2));
         var_set_bool(res, TRUE);
         break;
@@ -1387,7 +1387,7 @@ void swap_pos_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         project_length = -1;
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             teleport_swap(dir);
             var_set_bool(res, TRUE);
@@ -1515,7 +1515,7 @@ void teleport_other_spell(int cmd, variant *res)
 
         var_set_bool(res, FALSE);
 
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_beam(GF_AWAY_ALL, dir, power);
             
         var_set_bool(res, TRUE);
@@ -1659,7 +1659,7 @@ void throw_boulder_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         msg_print("You throw a huge boulder.");
         fire_bolt(GF_ROCK, dir, _boulder_dam());
         var_set_bool(res, TRUE);
@@ -1823,7 +1823,7 @@ void water_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         msg_print("You gesture fluidly.");
         fire_ball(GF_WATER, dir, spell_power(50 + p_ptr->lev*4 + p_ptr->to_d_spell), 2);
         var_set_bool(res, TRUE);
@@ -1855,7 +1855,7 @@ void water_bolt_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt(
             GF_WATER,
             dir,
@@ -1914,7 +1914,7 @@ void wonder_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         cast_wonder(dir);
         var_set_bool(res, TRUE);
         break;

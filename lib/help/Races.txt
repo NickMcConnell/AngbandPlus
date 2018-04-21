@@ -535,7 +535,7 @@ Intelligence  -1        Device      <color:y>Good         </color>
 Wisdom        -1        Save        <color:y>Good         </color>
 Dexterity     +1        Stealth     <color:G>Excellent    </color>
 Constitution  +2        Searching   <color:D>Very Bad     </color>
-Charisma      +0        Perception  <color:y>Very Good    </color>
+Charisma      +2        Perception  <color:y>Very Good    </color>
 Life Rating  102%       Melee       <color:R>Poor         </color>
 Base HP       21        Bows        <color:r>Bad          </color>
 Experience   175%       Infravision 0'
@@ -622,7 +622,7 @@ Doppelganger  -3   -3   -3   -3   -3   -3   85%  +12  150%  150%
 Ent           +2   +0   +2   -3   +2   +0  105%  +25  135%   95%
 Golem         +4   -5   -5   -2   +4   +0  105%  +23  185%  120%
 Klackon       +2   -1   -1   +1   +2   +1  105%  +23  170%  115%
-Kutar         +0   -1   -1   +1   +2   +0  102%  +21  175%   95%
+Kutar         +0   -1   -1   +1   +2   +2  102%  +21  175%   95%
 Mindflayer    -3   +4   +4   +0   -2   -1   97%  +18  150%  115%
 Tonberry      +4   +0   -2   -4   +5   +0  108%  +26  175%  115%
 Yeek          -2   +1   -2   +1   -2   -4   92%  +14   70%  105%
@@ -720,4 +720,4 @@ Yeek         <color:y>Good         </color> <color:b>Heroic       </color> <colo
 </style>
 
 
-<color:s>Automatically generated for PosChengband 5.0.2.</color>
+<color:s>Automatically generated for PosChengband 5.0.3.</color>

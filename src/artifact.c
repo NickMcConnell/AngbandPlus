@@ -1974,6 +1974,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             case CLASS_BLOOD_MAGE:
             case CLASS_NECROMANCER:
             case CLASS_DEVICEMASTER:
+            case CLASS_YELLOW_MAGE:
+            case CLASS_GRAY_MAGE:
                 artifact_bias = BIAS_MAGE;
                 warrior_artifact_bias = 20;
                 break;

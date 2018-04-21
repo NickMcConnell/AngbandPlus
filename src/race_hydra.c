@@ -27,13 +27,16 @@ static void _birth(void)
     object_prep(&forge, lookup_kind(TV_AMULET, 0));
     forge.name2 = EGO_JEWELRY_ELEMENTAL;
     add_flag(forge.flags, OF_RES_ACID);
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
     forge.name2 = EGO_CROWN_MIGHT;
     forge.pval = 1;
     forge.to_a = 5;
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_food();
+    py_birth_light();
 }
 
 /**********************************************************************
@@ -131,7 +134,7 @@ static void _breathe_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             int e = _breath_effect();
             msg_format("You breathe %s", gf_name(e));
@@ -331,7 +334,9 @@ race_t *mon_hydra_get_race(void)
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    me.subname = NULL;
+    if (!birth_hack && !spoiler_hack)
+        me.subname = titles[rank];
     me.stats[A_STR] = rank;
     me.stats[A_INT] = -2;
     me.stats[A_WIS] = -2;

@@ -736,7 +736,9 @@ static void _birth(void)
     add_flag(forge.flags, OF_NO_REMOVE);
     forge.to_h =  1;
     forge.to_d =  3;
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
 }
 
 static object_type *_weapon(void)
@@ -989,6 +991,12 @@ race_t *mon_sword_get_race(void)
     me.boss_r_idx = MON_STORMBRINGER;
 
     me.equip_template = mon_get_equip_template();
+
+    if (birth_hack || spoiler_hack)
+    {
+        me.subname = NULL;
+        me.subdesc = NULL;
+    }
     return &me;
 }
 

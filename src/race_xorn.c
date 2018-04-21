@@ -8,17 +8,20 @@ static void _birth(void)
     skills_innate_init("Gaze", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 5;
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     equip_on_change_race();
+
+    py_birth_food();
+    py_birth_light();
 }
 
 static void _calc_innate_attacks(void)
@@ -159,5 +162,10 @@ race_t *mon_xorn_get_race(void)
 
     me.equip_template = mon_get_equip_template();
 
+    if (birth_hack || spoiler_hack)
+    {
+        me.subname = NULL;
+        me.subdesc = NULL;
+    }
     return &me;
 }

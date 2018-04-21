@@ -17,7 +17,7 @@ void cause_wounds_I_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball_hide(GF_CAUSE_1, dir, spell_power(damroll(3, 8) + p_ptr->to_d_spell), 0);
         var_set_bool(res, TRUE);
         break;
@@ -45,7 +45,7 @@ void cause_wounds_II_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball_hide(GF_CAUSE_2, dir, spell_power(damroll(8, 8) + p_ptr->to_d_spell), 0);
         var_set_bool(res, TRUE);
         break;
@@ -73,7 +73,7 @@ void cause_wounds_III_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball_hide(GF_CAUSE_3, dir, spell_power(damroll(10, 15) + p_ptr->to_d_spell), 0);
         var_set_bool(res, TRUE);
         break;
@@ -101,7 +101,7 @@ void cause_wounds_IV_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball_hide(GF_CAUSE_4, dir, spell_power(damroll(15, 15) + p_ptr->to_d_spell), 0);
         var_set_bool(res, TRUE);
         break;
@@ -202,7 +202,7 @@ void confuse_spell(int cmd, variant *res)
         if (p_ptr->lev < 40)
         {
             int dir = 0;
-            if (!get_aim_dir(&dir)) return;
+            if (!get_fire_dir(&dir)) return;
             confuse_monster(dir, p_ptr->lev*2);
         }
         else
@@ -679,7 +679,7 @@ void darkness_storm_I_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         msg_print("You invoke a darkness storm.");
         fire_ball(
             GF_DARK,
@@ -718,7 +718,7 @@ void darkness_storm_II_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         msg_print("You invoke a darkness storm.");
         fire_ball(GF_DARK, dir,
             spell_power(_darkness_storm_II_dam() + p_ptr->to_d_spell),
@@ -846,7 +846,7 @@ void demon_breath_spell(int cmd, variant *res)
         int type = (one_in_(2) ? GF_NETHER : GF_FIRE);
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
 
         stop_mouth();
 
@@ -1152,7 +1152,7 @@ void disintegrate_spell(int cmd, variant *res)
 
         var_set_bool(res, FALSE);
 
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_DISINTEGRATE, dir, dam, rad);
 
         var_set_bool(res, TRUE);
@@ -1283,7 +1283,7 @@ void dominate_living_I_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball_hide(GF_CONTROL_LIVING, dir, p_ptr->lev, 0);
         var_set_bool(res, TRUE);
         break;
@@ -1337,7 +1337,7 @@ void drain_mana_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball_hide(GF_DRAIN_MANA, dir, spell_power(randint1(p_ptr->lev*3)+p_ptr->lev), 0);
         var_set_bool(res, TRUE);
         break;
@@ -1726,7 +1726,7 @@ void enslave_undead_spell(int cmd, variant *res)
             power = spell_power(p_ptr->lev);
 
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         control_one_undead(dir, power);
         var_set_bool(res, TRUE);
         break;
@@ -1795,7 +1795,7 @@ void fire_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(
             GF_FIRE,
             dir,
@@ -1831,7 +1831,7 @@ void fire_bolt_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt_or_beam(
             beam_chance(),
             GF_FIRE,
@@ -1911,7 +1911,7 @@ void frost_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_COLD, dir, spell_power(3*p_ptr->lev/2 + 25 + p_ptr->to_d_spell), 2);
         var_set_bool(res, TRUE);
         break;
@@ -1942,7 +1942,7 @@ void frost_bolt_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt_or_beam(
             beam_chance(),
             GF_COLD,

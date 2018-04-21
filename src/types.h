@@ -44,6 +44,11 @@
  * and increase the complexity of the code.
  */
 
+typedef struct {
+    cptr name;
+    cptr desc;
+} name_desc_t, *name_desc_ptr;
+
 /*
  * Feature state structure
  *
@@ -130,6 +135,7 @@ typedef struct object_kind object_kind;
 
 struct object_kind
 {
+    u32b idx;
     u32b name;            /* Name (offset) */
     u32b text;            /* Text (offset) */
     u32b flavor_name;        /* Flavor name (offset) */
@@ -432,6 +438,18 @@ typedef struct {
     s16b thn;            /* combat (normal) */
     s16b thb;            /* combat (shooting) */
 } skills_t;
+
+#define SKILL_DESC_LEN 50
+typedef struct {
+    char dis[SKILL_DESC_LEN];
+    char dev[SKILL_DESC_LEN];
+    char sav[SKILL_DESC_LEN];
+    char stl[SKILL_DESC_LEN];
+    char srh[SKILL_DESC_LEN];
+    char fos[SKILL_DESC_LEN];
+    char thn[SKILL_DESC_LEN];
+    char thb[SKILL_DESC_LEN];
+} skills_desc_t, *skills_desc_ptr;
 
 struct monster_body_s
 {
@@ -966,10 +984,6 @@ struct store_type
 };
 
 
-/*
- * The "name" of spell 'N' is stored as spell_names[X][N],
- * where X is 0 for mage-spells and 1 for priest-spells.
- */
 typedef struct magic_type magic_type;
 
 struct magic_type
@@ -979,7 +993,6 @@ struct magic_type
     byte sfail;            /* Minimum chance of failure */
     byte sexp;            /* Encoded experience bonus */
 };
-
 
 /*
  * Information about the player's "magic"
@@ -1386,6 +1399,7 @@ struct player_type
     s32b spell_turn[64];      /* Turn last cast successfully, or 0 */
     s16b weapon_exp[5][64];   /* Proficiency of weapons */
     s16b skill_exp[10];       /* Proficiency of misc. skill */
+    s16b spells_per_round;    /* 175 = 1.75 spells per round, etc. Calculated in calc_bonuses(). Only works for book casters (do_cmd_cast) at the moment. */
 
     s32b magic_num1[MAX_MAGIC_NUM];     /* Array for non-spellbook type magic */
     byte magic_num2[MAX_MAGIC_NUM];     /* Flags for non-spellbook type magics */
@@ -1614,11 +1628,14 @@ struct player_type
 
 /*
  * A structure to hold "rolled" information
+ *
+ * TODO: Dead fields are mis-aligned ... remove for 6.0
  */
 typedef struct birther birther;
 
 struct birther
 {
+    byte game_mode;
     byte psex;         /* Sex index */
     byte prace;        /* Race index */
     byte psubrace;
@@ -1629,21 +1646,21 @@ struct birther
     byte realm2;       /* Second magic realm */
     byte dragon_realm;
 
-    s16b age;
-    s16b ht;
-    s16b wt;
-    s16b sc;
+s16b age;
+s16b ht;
+s16b wt;
+s16b sc;
 
     s32b au;
 
     s16b stat_max[6];        /* Current "maximal" stat values */
-    s16b stat_max_max[6];    /* Maximal "maximal" stat values */
-    s16b player_hp[PY_MAX_LEVEL]; /* Map (L-1)->Cumulative Percentage of Base HD */
-                                  /* See calc_hitpoints() in xtra1.c for details */
-    s16b chaos_patron;
-    int  mutation;
+s16b stat_max_max[6];    /* Maximal "maximal" stat values */
+s16b player_hp[PY_MAX_LEVEL]; /* Map (L-1)->Cumulative Percentage of Base HD */
+                              /* See calc_hitpoints() in xtra1.c for details */
+s16b chaos_patron;
+int  mutation;
 
-    s16b vir_types[8];
+s16b vir_types[8];
 
     bool quick_ok;
 };
@@ -2061,8 +2078,11 @@ typedef void(*flags_fn)(u32b flgs[OF_ARRAY_SIZE]);
 typedef void(*stats_fn)(s16b stats[MAX_STATS]);
 typedef void(*load_fn)(savefile_ptr file);
 typedef void(*save_fn)(savefile_ptr file);
+typedef int(*birth_ui_fn)(doc_ptr doc);
 
 typedef struct {
+    int                     id;
+    int                     subid;
     cptr                    name;
     cptr                    subname;
     cptr                    desc;
@@ -2075,7 +2095,8 @@ typedef struct {
     s16b                    exp;
     byte                    pets;
 
-    birth_fn                birth;
+    birth_fn                birth;          /* After py_birth() ... grant starting gear, etc */
+    birth_ui_fn             birth_ui;       /* Used during py_birth() ... choose a subclass */ 
     process_player_fn       process_player; /* Called from process_player ... but player take 0 or more actions per call */
     player_action_fn        player_action;  /* Called once per player action, so long as the action consumes energy */
     move_player_fn          move_player;    /* Called every time the player actually moves */
@@ -2098,6 +2119,8 @@ typedef struct {
 struct equip_template_s;
 
 typedef struct {
+    int                     id;
+    int                     subid;
     cptr                    name;
     cptr                    subname;
     cptr                    desc;
@@ -2109,7 +2132,8 @@ typedef struct {
     s16b                    base_hp;
     s16b                    exp;
     s16b                    infra;
-    birth_fn                birth;
+    birth_fn                birth; /* Note: If specified, give starting food and light as well
+                                      See: py_birth_food() and py_birth_light() for defaults */
     calc_bonuses_fn         calc_bonuses;    /* Do flag related bonuses here ... */
     stats_fn                calc_stats;      /* ... and stat related stuff here */
     calc_weapon_bonuses_fn  calc_weapon_bonuses;
@@ -2149,6 +2173,7 @@ typedef struct equip_template_s {
 } equip_template_t, *equip_template_ptr;
 
 typedef struct {
+    int                     id;
     cptr                    name;
     cptr                    desc;
     s16b                    stats[MAX_STATS];
@@ -2180,6 +2205,7 @@ typedef struct device_effect_info_s *device_effect_info_ptr;
 
 struct personality_s
 {
+    int             id;
     cptr            name;
     cptr            desc;
     s16b            stats[MAX_STATS];

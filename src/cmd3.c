@@ -1614,9 +1614,36 @@ static _mon_list_ptr _create_monster_list(int mode)
         vec_add(result->list, int_map_iter_current(iter));
     }
     int_map_iter_free(iter);
-    int_map_free(map);
 
     vec_sort(result->list, (vec_cmp_f)_mon_list_comp);
+
+    /* Hack: Auto track the first monster on the list
+     * if the old track is either missing, or stale. */
+    if ( !p_ptr->monster_race_idx
+      || !int_map_find(map, -p_ptr->monster_race_idx) )
+    {
+        /* If there is a valid target, it should already be tracking,
+         * but let's double check */
+        if ( target_who > 0
+          && int_map_find(map, -m_list[target_who].r_idx) )
+        {
+            monster_race_track(m_list[target_who].r_idx);
+        }
+        else
+        {
+            for (i = 0; i < vec_length(result->list); i++)
+            {
+                _mon_list_info_ptr info_ptr = vec_get(result->list, i);
+                if (info_ptr->subgroup == _SUBGROUP_DATA)
+                {
+                    monster_race_track(info_ptr->r_idx);
+                    break;
+                }
+            }
+        }
+    }
+
+    int_map_free(map);
     return result;
 }
 
@@ -1834,6 +1861,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
     while (!done)
     {
         int  cmd;
+        bool handled = FALSE;
 
         if (redraw)
         {
@@ -1874,7 +1902,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
         switch (cmd)
         {
         /* Monster Recall */
-        case 'r': case 'R':
+        case '/': case 'R':
         {
             int idx = top + pos;
             if (0 <= idx && idx < ct_types)
@@ -1887,12 +1915,13 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                     screen_load();
                     screen_save();
                     redraw = TRUE;
+                    handled = TRUE;
                 }
             }
             break;
         }
         /* Probe Monster Info */
-        case 'p': case 'P':
+        case 'P':
         {
             if (mode == MON_LIST_PROBING)
             {
@@ -1946,11 +1975,12 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                         redraw = TRUE;
                     }
                 }
+                handled = TRUE;
             }
             break;
         }
         /* Rename Pet */
-        case 'n': case 'N':
+        case 'N':
         {
             int idx = top + pos;
             if (0 <= idx && idx < ct_types)
@@ -1980,13 +2010,14 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                         screen_load();
                         screen_save();
                         redraw = TRUE;
+                        handled = TRUE;
                     }
                 }
             }
             break;
         }
         /* Set Current Target */
-        case '*': case 't': case '5':
+        case '*': case '5': case 'T':
         {
             int idx = top + pos;
             if (0 <= idx && idx < ct_types)
@@ -2004,6 +2035,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                     p_ptr->redraw |= PR_HEALTH_BARS;
                     p_ptr->window |= PW_MONSTER_LIST;
                     done = TRUE; /* Building a better target command :) */
+                    handled = TRUE;
                 }
             }
             break;
@@ -2020,6 +2052,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                 {
                     do_cmd_travel_xy(m_list[info_ptr->m_idx].fx, m_list[info_ptr->m_idx].fy);
                     done = TRUE;
+                    handled = TRUE;
                 }
             }
             break;
@@ -2029,11 +2062,13 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
             top = 0;
             pos = 0;
             redraw = TRUE;
+            handled = TRUE;
             break;
         case '1': case SKEY_BOTTOM:
             top = MAX(0, ct_types - page_size);
             pos = 0;
             redraw = TRUE;
+            handled = TRUE;
             break;
         case '9': case SKEY_PGUP:
             top -= page_size;
@@ -2043,6 +2078,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                 pos = 0;
             }
             redraw = TRUE;
+            handled = TRUE;
             break;
         case '3': case SKEY_PGDOWN:
             top += page_size;
@@ -2052,6 +2088,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                 pos = 0;
             }
             redraw = TRUE;
+            handled = TRUE;
             break;
         case '2': case SKEY_DOWN:
             if (top + pos < ct_types - 1)
@@ -2063,6 +2100,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                 top++;
                 redraw = TRUE;
             }
+            handled = TRUE;
             break;
         case '8': case SKEY_UP:
             if (pos > 0)
@@ -2073,6 +2111,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                 top--;
                 redraw = TRUE;
             }
+            handled = TRUE;
             break;
         /* Help */
         case '?':
@@ -2080,20 +2119,68 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
             screen_load();
             screen_save();
             redraw = TRUE;
+            handled = TRUE;
             break;
         /* Exit */
         case ESCAPE:
-        case 'q':
         case 'Q':
         case '\n':
         case '\r':
+        case '[':
             done = TRUE;
+            handled = TRUE;
             break;
-        /* Exit on unknown key? */
-        default:
-            if (mode != MON_LIST_PROBING) /* Hey, it cost mana to get here! */
-                done = TRUE;
         }
+
+        /* Goto next text match */
+        if (!handled && islower(cmd))
+        {
+            int  search = cmd;
+            int  i;
+
+            for (i = pos + 1; i != pos; )
+            {
+                int idx = top + i;
+                _mon_list_info_ptr info_ptr = NULL;
+
+                if (idx >= ct_types)
+                {
+                    i = 0;
+                    continue;
+                }
+
+                info_ptr = vec_get(list->list, idx);
+                assert(info_ptr);
+                if (info_ptr->m_idx)
+                {
+                    monster_type *m_ptr = &m_list[info_ptr->m_idx];
+                    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                    cptr          name = r_name + r_ptr->name;
+                    int           c;
+
+                    if (strstr(name, "The ") == name)
+                        name += 4;
+
+                    c = name[0];
+                    if (isalpha(c))
+                        c = tolower(c);
+
+                    if (c == search)
+                    {
+                        pos = i;
+                        handled = TRUE;
+                        break;
+                    }
+                }
+                i++;
+                if (i >= page_size)
+                    i = 0;
+            }
+        }
+
+        /* Exit on unkown key? */
+        if (!handled && quick_messages && mode != MON_LIST_PROBING) /* Hey, it cost mana to get here! */
+            done = TRUE;
     }
     screen_load();
 }
@@ -2157,8 +2244,8 @@ struct _obj_list_info_s
 {
     int group;
     int subgroup;
-    int o_idx;
-    int  x,  y;
+    int idx;
+    int x,  y;
     int dx, dy;
     int score;
     int count;
@@ -2177,6 +2264,7 @@ struct _obj_list_s
     vec_ptr list;
     int     ct_autopick;
     int     ct_total;
+    int     ct_feature;
 };
 
 typedef struct _obj_list_s _obj_list_t, *_obj_list_ptr;
@@ -2187,6 +2275,7 @@ static _obj_list_ptr _obj_list_alloc(void)
     result->list = vec_alloc(free);
     result->ct_autopick = 0;
     result->ct_total = 0;
+    result->ct_feature = 0;
     return result;
 }
 
@@ -2197,8 +2286,9 @@ static void _obj_list_free(_obj_list_ptr list)
     free(list);
 }
 
-#define _GROUP_AUTOPICK 1
-#define _GROUP_OTHER    2
+#define _GROUP_FEATURE  1
+#define _GROUP_AUTOPICK 2
+#define _GROUP_OTHER    3
 
 static int _obj_list_comp(_obj_list_info_ptr left, _obj_list_info_ptr right)
 {
@@ -2217,14 +2307,25 @@ static int _obj_list_comp(_obj_list_info_ptr left, _obj_list_info_ptr right)
     if (left->score < right->score)
         return 1;
 
+    if (left->subgroup == _SUBGROUP_DATA) /* Assert: Left and Right are same group/subgroup */
     {
-        object_type *left_obj = &o_list[left->o_idx];
-        object_type *right_obj = &o_list[right->o_idx];
+        if (left->group == _GROUP_FEATURE)
+        {
+            if (left->idx < right->idx)
+                return -1;
+            if (left->idx > right->idx)
+                return 1;
+        }
+        else
+        {
+            object_type *left_obj = &o_list[left->idx];
+            object_type *right_obj = &o_list[right->idx];
 
-        if (left_obj->tval < right_obj->tval)
-            return -1;
-        if (left_obj->tval > right_obj->tval)
-            return 1;
+            if (left_obj->tval < right_obj->tval)
+                return -1;
+            if (left_obj->tval > right_obj->tval)
+                return 1;
+        }
     }
 
     return 0;
@@ -2233,7 +2334,35 @@ static int _obj_list_comp(_obj_list_info_ptr left, _obj_list_info_ptr right)
 static _obj_list_ptr _create_obj_list(void)
 {
     _obj_list_ptr list = _obj_list_alloc();
-    int i;
+    int i, y, x;
+
+    /* The object list now includes features, at least on the surface. This permits
+       easy town traveling to the various shops */
+    if (!dun_level && !p_ptr->wild_mode)
+    {
+        for (y = 0; y < cur_hgt - 1; y++)
+        {
+            for (x = 0; x < cur_wid - 1; x++)
+            {
+                cave_type *c_ptr = &cave[y][x];
+                feature_type *f_ptr = &f_info[c_ptr->feat];
+                if (have_flag(f_ptr->flags, FF_STORE) || have_flag(f_ptr->flags, FF_STAIRS))
+                {
+                    _obj_list_info_ptr info = _obj_list_info_alloc();
+                    info->group = _GROUP_FEATURE;
+                    info->subgroup = _SUBGROUP_DATA;
+                    info->idx = c_ptr->feat;
+                    info->x = x;
+                    info->y = y;
+                    info->dy = info->y - py;
+                    info->dx = info->x - px;
+
+                    vec_add(list->list, info);
+                    list->ct_feature++;
+                }
+            }
+        }
+    }
 
     for (i = 0; i < max_o_idx; i++)
     {
@@ -2247,7 +2376,7 @@ static _obj_list_ptr _create_obj_list(void)
 
         info = _obj_list_info_alloc();
         info->subgroup = _SUBGROUP_DATA;
-        info->o_idx = i;
+        info->idx = i;
         info->x = o_ptr->ix;
         info->y = o_ptr->iy;
         info->dy = info->y - py;
@@ -2291,6 +2420,14 @@ static _obj_list_ptr _create_obj_list(void)
         info->count = list->ct_total - list->ct_autopick;
         vec_add(list->list, info);
     }
+    if (list->ct_feature)
+    {
+        _obj_list_info_ptr info = _obj_list_info_alloc();
+        info->group = _GROUP_FEATURE;
+        info->subgroup = _SUBGROUP_HEADER;
+        info->count = list->ct_feature;
+        vec_add(list->list, info);
+    }
     vec_sort(list->list, (vec_cmp_f)_obj_list_comp);
 
     return list;
@@ -2321,7 +2458,16 @@ static int _draw_obj_list(_obj_list_ptr list, int top, rect_t rect)
 
         if (info_ptr->subgroup == _SUBGROUP_HEADER)
         {
-            if (info_ptr->group == _GROUP_AUTOPICK)
+            if (info_ptr->group == _GROUP_FEATURE)
+            {
+                c_put_str(TERM_WHITE,
+                      format("There %s %d interesting feature%s:",
+                             info_ptr->count != 1 ? "are" : "is",
+                             info_ptr->count,
+                             info_ptr->count != 1 ? "s" : ""),
+                      rect.y + i, rect.x);
+            }
+            else if (info_ptr->group == _GROUP_AUTOPICK)
             {
                 c_put_str(TERM_WHITE,
                       format("There %s %d wanted object%s:",
@@ -2344,9 +2490,23 @@ static int _draw_obj_list(_obj_list_ptr list, int top, rect_t rect)
         else if (info_ptr->subgroup == _SUBGROUP_FOOTER)
         {
         }
+        else if (info_ptr->group == _GROUP_FEATURE)
+        {
+            feature_type *f_ptr = &f_info[info_ptr->idx];
+            char          loc[100];
+
+            sprintf(loc, "%c%3d %c%3d",
+                    (info_ptr->dy > 0) ? 'S' : 'N', abs(info_ptr->dy),
+                    (info_ptr->dx > 0) ? 'E' : 'W', abs(info_ptr->dx));
+
+            Term_queue_bigchar(rect.x + 1, rect.y + i, f_ptr->x_attr[F_LIT_STANDARD], f_ptr->x_char[F_LIT_STANDARD], 0, 0);
+            c_put_str(use_graphics ? f_ptr->d_attr[F_LIT_STANDARD] : f_ptr->x_attr[F_LIT_STANDARD],
+                format(obj_fmt, f_name + f_ptr->name), rect.y + i, rect.x + 3);
+            c_put_str(TERM_WHITE, format("%-9.9s ", loc), rect.y + i, rect.x + 3 + cx_obj + 1);
+        }
         else
         {
-            object_type *o_ptr = &o_list[info_ptr->o_idx];
+            object_type *o_ptr = &o_list[info_ptr->idx];
             char         o_name[MAX_NLEN];
             char         loc[100];
             byte         attr = tval_to_attr[o_ptr->tval % 128];
@@ -2376,7 +2536,7 @@ void do_cmd_list_objects(void)
     if (display_rect.cx > 50)
         display_rect.cx = 50;
 
-    if (list->ct_total)
+    if (list->ct_total + list->ct_feature)
     {
         int  top = 0, page_size, pos = 1;
         int  ct_types = vec_length(list->list);
@@ -2415,13 +2575,13 @@ void do_cmd_list_objects(void)
                 redraw = TRUE;
                 break;
             case ESCAPE:
-            case 'q':
             case 'Q':
             case '\n':
             case '\r':
+            case ']':
                 done = TRUE;
                 break;
-            case 'x':
+            case '/':
             case 'I':
             {
                 int idx = top + pos;
@@ -2429,9 +2589,9 @@ void do_cmd_list_objects(void)
                 {
                     _obj_list_info_ptr info_ptr = vec_get(list->list, idx);
                     assert(info_ptr);
-                    if (info_ptr->o_idx)
+                    if (info_ptr->idx && info_ptr->group != _GROUP_FEATURE)
                     {
-                        object_type *o_ptr = &o_list[info_ptr->o_idx];
+                        object_type *o_ptr = &o_list[info_ptr->idx];
                         if (object_is_weapon_armour_ammo(o_ptr) || object_is_known(o_ptr))
                         {
                             obj_display(o_ptr);
@@ -2450,7 +2610,7 @@ void do_cmd_list_objects(void)
                 {
                     _obj_list_info_ptr info_ptr = vec_get(list->list, idx);
                     assert(info_ptr);
-                    if (info_ptr->o_idx)
+                    if (info_ptr->idx)
                     {
                         do_cmd_travel_xy(info_ptr->x, info_ptr->y);
                         done = TRUE;
@@ -2514,9 +2674,72 @@ void do_cmd_list_objects(void)
                 }
                 break;
 
-            default:
-                done = TRUE;
-            }
+            default: /* Attempt to locate next element in list beginning with pressed key */
+            {
+                bool found = FALSE;
+                if (islower(cmd))
+                {
+                    int search = cmd;
+                    int i = pos + 1;
+                    for (i = pos + 1; i != pos; )
+                    {
+                        int idx = top + i;
+                        _obj_list_info_ptr info_ptr = NULL;
+
+                        if (idx >= ct_types)
+                        {
+                            i = 0;
+                            continue;
+                        }
+
+                        info_ptr = vec_get(list->list, idx);
+                        assert(info_ptr);
+                        if (info_ptr->idx)
+                        {
+                            if (info_ptr->group == _GROUP_FEATURE)
+                            {
+                                feature_type *f_ptr = &f_info[info_ptr->idx];
+                                cptr          name = f_name + f_ptr->name;
+                                int           c = name[0];
+
+                                if (isalpha(c))
+                                    c = tolower(c);
+
+                                if (c == search)
+                                {
+                                    pos = i;
+                                    found = TRUE;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                object_type *o_ptr = &o_list[info_ptr->idx];
+                                char         name[MAX_NLEN];
+                                char         c;
+
+                                object_desc(name, o_ptr, OD_NAME_ONLY | OD_OMIT_PREFIX | OD_OMIT_INSCRIPTION | OD_NO_FLAVOR | OD_NO_PLURAL);
+                                c = name[0];
+                                if (isalpha(c))
+                                    c = tolower(c);
+
+                                if (c == search)
+                                {
+                                    pos = i;
+                                    found = TRUE;
+                                    break;
+                                }
+                            }
+                        }
+                        i++;
+                        if (i >= page_size)
+                            i = 0;
+                    }
+                }
+
+                if (!found && quick_messages)
+                    done = TRUE;
+            }}
         }
         screen_load();
     }
@@ -2534,7 +2757,7 @@ void _fix_object_list_aux(void)
 
     Term_get_size(&display_rect.cx, &display_rect.cy);
 
-    if (list->ct_total)
+    if (list->ct_total + list->ct_feature)
         ct = _draw_obj_list(list, 0, display_rect);
 
     for (i = ct; i < display_rect.cy; i++)

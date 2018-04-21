@@ -2679,7 +2679,7 @@ D:quite made it. It had been stepped on, twisted, had holes poked into the
 D:sickly dough of its head-bulge. Bones showed through the transparent flesh
 D:of its torso and its short legs were as thick as trees, terminating in
 D:disk-shaped pads from which dozens of long toes hung like roots or worms.
-D:its arms were longer than its entire body. it was a crushed slug, a thing
+D:Its arms were longer than its entire body. It was a crushed slug, a thing
 D:that had been frozen and thawed before it was fully baked. It was -
 D:'It is the Borshin', said the Lord of Bats."
 
@@ -5492,7 +5492,7 @@ F:IM_ACID | NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN | NONLIVING
 F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Zombie:Rage-Mage
 P:Stats:-5:0:0:0:0:0
-P:Body:Vortex3
+P:Body:Vortex4
 S:1_IN_6 |
 S:BR_ACID
 D:A caustic spinning whirlpool of water.
@@ -5559,7 +5559,7 @@ F:IM_ELEC | NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN | NONLIVING
 F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Zombie:Rage-Mage
 P:Stats:-5:0:0:0:0:0
-P:Body:Vortex3
+P:Body:Vortex4
 S:1_IN_6 |
 S:BR_ELEC
 D:A shimmering tornado of air, sparks crackle along its length.
@@ -9571,7 +9571,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
 F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Zombie:Rage-Mage
 P:Stats:-4:0:0:0:0:0
-P:Body:Vortex5
+P:Body:Vortex6
 S:1_IN_6 |
 S:BR_NEXU
 D:A maelstrom of potent magical energy.
@@ -9589,7 +9589,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
 F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Zombie:Rage-Mage
 P:Stats:-4:0:0:0:0:0
-P:Body:Vortex5
+P:Body:Vortex6
 S:1_IN_6 |
 S:BR_PLAS
 D:A whirlpool of intense flame, charring the stones at your feet.
@@ -9804,7 +9804,7 @@ F:RES_TIME | NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
 F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Zombie:Rage-Mage
 P:Stats:-4:0:0:0:0:0
-P:Body:Vortex5
+P:Body:Vortex7
 S:1_IN_6 |
 S:BR_TIME
 D:You haven't seen it yet.
@@ -9821,7 +9821,7 @@ F:RES_LITE | NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
 F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Zombie:Rage-Mage
 P:Stats:-4:0:0:0:0:0
-P:Body:Vortex7
+P:Body:Vortex6
 S:1_IN_4 |
 S:BR_LITE | SHRIEK
 D:A strange pillar of shining light that hurts your eyes. Its shape changes
@@ -12959,7 +12959,7 @@ F:RES_TIME | RES_DISE | RES_NETH | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
 F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Zombie:Rage-Mage
 P:Stats:-3:0:0:0:0:0
-P:Body:Vortex8
+P:Body:Vortex7
 S:1_IN_4 |
 S:BR_TIME | BR_DISI | BR_NETH
 D:Void, nothingness, spinning destructively. Run!
@@ -16380,7 +16380,7 @@ F:RES_SHAR | NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN | POWERFUL | NONLIVING
 F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Zombie:Rage-Mage
 P:Stats:-4:0:0:0:0:0
-P:Body:Vortex5
+P:Body:Vortex7
 S:1_IN_4 |
 S:BR_SHAR
 D:A howling blast of razor-sharp mountain fragments, kept intact by perilous
@@ -18897,7 +18897,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
 F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Zombie:Rage-Mage
 P:Stats:-3:0:0:0:0:0
-P:Body:Vortex8
+P:Body:Vortex7
 S:1_IN_6 |
 S:BR_DISI
 

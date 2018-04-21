@@ -423,6 +423,7 @@ static void do_cmd_eat_food_aux(int item)
              || prace_is_(RACE_ZOMBIE)
              || prace_is_(RACE_MON_LICH)
              || prace_is_(RACE_SPECTRE)
+             || prace_is_(RACE_MON_VORTEX)
              || elemental_is_(ELEMENTAL_AIR) )
            && object_is_device(o_ptr) )
     {
@@ -541,6 +542,7 @@ static bool item_tester_hook_eatable(object_type *o_ptr)
         p_ptr->mimic_form == MIMIC_COLOSSUS ||
         prace_is_(RACE_ZOMBIE) ||
         prace_is_(RACE_MON_LICH) ||
+        prace_is_(RACE_MON_VORTEX) ||
         prace_is_(RACE_SPECTRE) ||
         elemental_is_(ELEMENTAL_AIR))
     {
@@ -754,6 +756,7 @@ static void do_cmd_quaff_potion_aux(int item)
                 break;
             case RACE_GOLEM:
             case RACE_MON_GOLEM:
+            case RACE_MON_VORTEX:
             case RACE_ZOMBIE:
             case RACE_MON_LICH:
             case RACE_BALROG:

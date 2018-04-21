@@ -39,7 +39,7 @@ Melee
     Dexterity     +4        Stealth     Very Bad     
     Constitution  +4        Searching   Very Bad     
     Charisma      +4        Perception  Very Bad     
-    Life Rating  200%       Melee       Legendary[20]
+    Life Rating  200%       Melee       Amber[20]    
     Base HP       22        Bows        Very Bad     
     Experience   160%
     
@@ -433,6 +433,35 @@ Magic
     Base HP        4        Bows        Bad          
     Experience   130%
     
+  Gray-Mage
+  The Gray-Mage casts spells from memory, rather than from a book.  
+  Indeed, the spell book is only required for the initial learning 
+  process. However, only a small number of spells may be learned at any 
+  given time, and while the Gray-Mage may replace old spells with new 
+  ones, they can only learn a fixed number of total spells (based upon 
+  Intelligence and Experience).
+   
+  The Gray-Mage does not choose spell realms the way an ordinary spell 
+  caster would. Instead, they choose a general bias towards one of 
+  Good, Neutral or Evil magic. So while all Gray-Mages may learn spells 
+  from the Arcane, Armageddon, Chaos, Craft, Sorcery and Trump realms, 
+  only a Good Bias allows access to Life and Crusade magic; only a 
+  Neutral Bias allows access to Nature magic; and only an Evil Bias 
+  allows access to Death and Daemon magic. Still, it is obvious that 
+  the Gray Mage will have an extremely large pool of spells from which 
+  to choose. Like the Mage, Intelligence is the key stat.
+  
+    Stats                   Skills
+    Strength      -4        Disarming   Fair         
+    Intelligence  +3        Device      Superb       
+    Wisdom        +0        Save        Good         
+    Dexterity     +1        Stealth     Good         
+    Constitution  -2        Searching   Poor         
+    Charisma      -2        Perception  Fair         
+    Life Rating   95%       Melee       Very Bad     
+    Base HP        0        Bows        Very Bad     
+    Experience   130%
+    
   High-Mage
   High-mages are mages who specialize in one particular field of magic 
   and learn it very well - much better than the ordinary mage. A high 
@@ -531,6 +560,33 @@ Magic
     Life Rating   65%       Melee       Very Bad     
     Base HP        0        Bows        Very Bad     
     Experience   160%
+    
+  Yellow-Mage
+  A Yellow Mage is a type of Mage who focuses on rapid spell casting. 
+  Much as the Warrior gets multiple attacks per round, the Yellow Mage 
+  may cast multiple spells per round. Their spell speed increases with 
+  level. In addition, they may also cast low level spells more quickly 
+  as they gain in experience (For example, a CL50 Yellow Mage casting a 
+  L35 spell only requires 85% of the normal time, and this bonus 
+  applies before their spells per round bonus).
+   
+  In all other respects, the Yellow Mage is similar to the Mage. They 
+  may learn spells from two spell realms and use Intelligence as their 
+  primary spell statistic. However, due to their focus upon hasty 
+  casting, they are unable to learn the mightiest of spells in most 
+  realms, especially as regards powerful offensive spells like Mana 
+  Storm.
+  
+    Stats                   Skills
+    Strength      -4        Disarming   Fair         
+    Intelligence  +3        Device      Superb       
+    Wisdom        +0        Save        Good         
+    Dexterity     +1        Stealth     Good         
+    Constitution  -2        Searching   Poor         
+    Charisma      -2        Perception  Fair         
+    Life Rating   95%       Melee       Very Bad     
+    Base HP        0        Bows        Very Bad     
+    Experience   130%
     
   
 Devices
@@ -1221,10 +1277,12 @@ Monk           +2   -1   +1   +3   +2   +1  110%  +12  130%
 Mystic         +2   -1   -2   +3   +1   +2  100%   +4  130%
 Blood-Mage     -4   +3   -2   +1   +2   -2  108%  +10  135%
 Blue-Mage      -4   +4   -1   +1   -2   -2  100%   +4  130%
+Gray-Mage      -4   +3   +0   +1   -2   -2   95%   +0  130%
 High-Mage      -4   +4   +0   +0   -2   -2   94%   +0  130%
 Mage           -4   +3   +0   +1   -2   -2   95%   +0  130%
 Necromancer    -2   +3   -4   +1   -1   -2   95%   +2  125%
 Sorcerer       -5   +0   -2   +2   +0   +6   65%   +0  160%
+Yellow-Mage    -4   +3   +0   +1   -2   -2   95%   +0  130%
 Devicemaster   -1   +2   +1   +2   -2   -2  101%   +6  130%
 Magic-Eater    -1   +2   +1   +2   -2   -2  103%   +6  130%
 Priest         -1   -3   +3   -1   +0   +2  100%   +4  120%
@@ -1270,10 +1328,12 @@ Monk          Superb        Very Good     Fair          Excellent
 Mystic        Superb        Very Good     Fair          Excellent    
 Blood-Mage    Fair          Superb        Good          Good         
 Blue-Mage     Fair          Superb        Good          Good         
+Gray-Mage     Fair          Superb        Good          Good         
 High-Mage     Fair          Superb        Good          Good         
 Mage          Fair          Superb        Good          Good         
 Necromancer   Fair          Superb        Good          Very Good    
 Sorcerer      Fair          Heroic        Heroic        Fair         
+Yellow-Mage   Fair          Superb        Good          Good         
 Devicemaster  Poor          Superb        Fair          Fair         
 Magic-Eater   Poor          Superb        Fair          Fair         
 Priest        Poor          Very Good     Excellent     Fair         
@@ -1303,7 +1363,7 @@ Wild-Talent   Fair          Good          Fair          Fair
 Table 3 - Class Skill Bonus Table II
 
               Searching     Perception    Melee         Bows         
-Berserker     Very Bad      Very Bad      Legendary[20] Very Bad     
+Berserker     Very Bad      Very Bad      Amber[20]     Very Bad     
 Blood-Knight  Poor          Bad           Superb        Poor         
 Duelist       Fair          Poor          Fair          Very Bad     
 Mauler        Poor          Bad           Superb        Very Bad     
@@ -1319,10 +1379,12 @@ Monk          Good          Fair          Excellent     Excellent
 Mystic        Good          Fair          Excellent     Excellent    
 Blood-Mage    Poor          Fair          Very Bad      Very Bad     
 Blue-Mage     Fair          Poor          Bad           Bad          
+Gray-Mage     Poor          Fair          Very Bad      Very Bad     
 High-Mage     Poor          Fair          Very Bad      Very Bad     
 Mage          Poor          Fair          Very Bad      Very Bad     
 Necromancer   Poor          Fair          Very Bad      Very Bad     
 Sorcerer      Poor          Fair          Very Bad      Very Bad     
+Yellow-Mage   Poor          Fair          Very Bad      Very Bad     
 Devicemaster  Fair          Poor          Fair          Poor         
 Magic-Eater   Fair          Poor          Fair          Poor         
 Priest        Poor          Bad           Fair          Poor         
@@ -1351,5 +1413,5 @@ Wild-Talent   Fair          Poor          Very Good     Very Good
 
 
 
-Automatically generated for PosChengband 5.0.2.
+Automatically generated for PosChengband 5.0.3.
 

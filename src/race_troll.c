@@ -68,7 +68,7 @@ static void _aklash_breathe_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (get_aim_dir(&dir))
+        if (get_fire_dir(&dir))
         {
             msg_print("You breathe gas.");
             fire_ball(GF_POIS, dir, p_ptr->chp / 4, -2);
@@ -174,19 +174,22 @@ static void _birth(void)
     skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 7;
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_CLUB));
     forge.weight = 100;
     forge.dd = 3;
     forge.ds = 4;
     forge.to_d = 7;
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_food();
+    py_birth_light();
 }
 
 static void _gain_level(int new_level) 
@@ -417,10 +420,23 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     }
 }
 
+static name_desc_t _info[TROLL_MAX] = {
+    { "Ettin", "Ettins are large, two-headed trolls. They lack much in the way of "
+                "powers and abilities, but make up for this with the ability to "
+                "wield an extra helmet." },
+    { "Storm Troll", "Storm Trolls are fast trolls with elemental powers. They may call "
+                        "forth elemental balls and bolts. Their weapons are wreathed in "
+                        "electricity as their fury rains down on all they meet." },
+    { "Spirit Troll", "Spirit trolls may pass through walls on their quest to demolish "
+                        "all that oppose them." },
+    { "Troll King", "Troll Kings are lords of their kind, fast and extremely deadly in "
+                        "melee. They may blink themselves out of harms way." },
+};
+
 /******************************************************************************
  * Troll Public API
  ******************************************************************************/
-race_t *mon_troll_get_race(void)
+race_t *mon_troll_get_race(int psubrace)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -466,6 +482,12 @@ race_t *mon_troll_get_race(void)
     me.stats[A_CON] =  3 + p_ptr->lev/13;
     me.stats[A_CHR] =  0;
     me.life = 100 + (p_ptr->lev/10)*4;
+
+    if (birth_hack || spoiler_hack)
+    {
+        me.subname = _info[psubrace].name;
+        me.subdesc = _info[psubrace].desc;
+    }
 
     me.equip_template = mon_get_equip_template();
     return &me;

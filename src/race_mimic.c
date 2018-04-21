@@ -733,15 +733,18 @@ static void _birth(void)
     equip_on_change_race();
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 3;
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_food();
+    py_birth_light();
 }
 
 static bool _is_visible(int r_idx)

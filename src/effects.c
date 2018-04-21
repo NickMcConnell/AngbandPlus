@@ -5721,14 +5721,12 @@ void do_poly_self(void)
             if (p_ptr->psex == SEX_MALE)
             {
                 p_ptr->psex = SEX_FEMALE;
-                sp_ptr = &sex_info[p_ptr->psex];
                 sprintf(effect_msg, "female ");
 
             }
             else
             {
                 p_ptr->psex = SEX_MALE;
-                sp_ptr = &sex_info[p_ptr->psex];
                 sprintf(effect_msg, "male ");
 
             }

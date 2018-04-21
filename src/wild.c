@@ -9,7 +9,7 @@
  * are included in all such copies. Other copyrights may also apply.
  */
 
-/* Purpose: Wilderness generation 
+/* Purpose: Wilderness generation
  *
  * CTK: Added infinitely scrolling wilderness support (hackish).
  */
@@ -24,7 +24,7 @@ monster_hook_type wilderness_mon_hook = NULL;
    entering and leaving wild_mode while waiting for desired monsters to get
    spawned adjacent to the player. For example, dragons in the mountains
    were a good, quick source of experience and loot for a mid level player.
-   Let's prevent any encounters when the player leaves wild mode (excepting ambushes, 
+   Let's prevent any encounters when the player leaves wild mode (excepting ambushes,
    of course). To get encounters, the player must seek them by traveling about. */
 bool no_encounters_hack = FALSE;
 
@@ -143,7 +143,7 @@ static void _apply_glow(bool all)
                 f_ptr = &f_info[get_feat_mimic(c_ptr)];
                 if (is_daytime())
                 {
-                    if ( (c_ptr->info & CAVE_ROOM) 
+                    if ( (c_ptr->info & CAVE_ROOM)
                       && !have_flag(f_ptr->flags, FF_WALL)
                       && !have_flag(f_ptr->flags, FF_DOOR) )
                     {
@@ -157,8 +157,8 @@ static void _apply_glow(bool all)
                 }
                 else
                 {
-                    if ( !is_mirror_grid(c_ptr) 
-                      && !have_flag(f_ptr->flags, FF_QUEST_ENTER) 
+                    if ( !is_mirror_grid(c_ptr)
+                      && !have_flag(f_ptr->flags, FF_QUEST_ENTER)
                       && !have_flag(f_ptr->flags, FF_ENTRANCE) )
                     {
                         c_ptr->info &= ~CAVE_GLOW;
@@ -249,6 +249,7 @@ static void _scroll_cave(int dx, int dy)
 
 #if 0
     msg_format("Scoll Cave (%d,%d)", dx, dy);
+    msg_boundary();
 #endif
 
     if (dy == 0 && dx == 0)
@@ -386,8 +387,8 @@ void wilderness_move_player(int old_x, int old_y)
        [2] Only scroll when the user hits a boundary "quadrant".
 
        Let's try [2] but I left the code in for [1] for easy reversion.
-       Note that [1] allows "back and forth" "scroll scumming" for 
-       wilderness encounters while [2] would require extensive movement, 
+       Note that [1] allows "back and forth" "scroll scumming" for
+       wilderness encounters while [2] would require extensive movement,
        so is probably to be preferred. */
     dx = 0;
     dy = 0;
@@ -415,7 +416,7 @@ void wilderness_move_player(int old_x, int old_y)
     if (!dx && !dy)
         return;
 
-    /* Some code might not be prepared for _scroll_cave ... For example, rush attacks build a path, 
+    /* Some code might not be prepared for _scroll_cave ... For example, rush attacks build a path,
        and then repeatedly move the player. */
     if (wilderness_scroll_lock)
     {
@@ -428,7 +429,7 @@ void wilderness_move_player(int old_x, int old_y)
     no_encounters_hack = FALSE;
     _unset_boundary();
     _scroll_cave(-dx*WILD_SCROLL_CX, -dy*WILD_SCROLL_CY);
-    
+
     p_ptr->wilderness_dx += dx;
     p_ptr->wilderness_dy += dy;
 
@@ -466,12 +467,18 @@ void wilderness_move_player(int old_x, int old_y)
     _generate_cave(&valid);
     _set_boundary();
 
+    /* Note: While it is true that disturb() will cancel traveling, travel_step()
+       will undo the effects of any disturb() calls processed by move_player() (which
+       includes us, btw). I have no idea why this is so, but it is (undocumented from Henband).
+       And thus, we gosh darn better update the travel flow before disturb() sets
+       travel.run to 0 (prior to travel_step restoring it after we return!)
+       In other words: Here is a cryptic sequencing issue with global variables! Do not move this!! */
+    if (travel.run)
+        do_cmd_travel_xy(travel.x - dx*WILD_SCROLL_CX, travel.y - dy*WILD_SCROLL_CY);
+
     if (do_disturb) disturb(0, 0);
     p_ptr->redraw |= PR_BASIC; /* In case the user left/entered a town ... */
     handle_stuff();  /* Is this necessary?? */
-
-    if (travel.run)
-        do_cmd_travel_xy(travel.x - dx*WILD_SCROLL_CX, travel.y - dy*WILD_SCROLL_CY);
 
 #if 0
     c_put_str(TERM_WHITE, format("P:%3d/%3d", px, py), 26, 0);
@@ -512,10 +519,10 @@ static void _build_room(const room_template_t *room_ptr, const rect_t *r, int tr
     if (y < 0) yoffset = -y;
 
     build_room_template_aux(
-        room_ptr, 
+        room_ptr,
         r->y + r->cy/2, /* expects the *center* of the rect ... sigh */
-        r->x + r->cx/2, 
-        xoffset, 
+        r->x + r->cx/2,
+        xoffset,
         yoffset,
         transno
     );
@@ -563,7 +570,7 @@ static bool _generate_special_encounter(room_template_t *room_ptr, int x, int y,
         /*Coordinate transforms (TODO: This code needs a rewrite, IMO)*/
         if (room_ptr->flags & ROOM_NO_ROTATE)
             transno = 0;
-        else 
+        else
         {
             int n = randint0(100);
             if (n < 45)
@@ -610,7 +617,7 @@ static bool _generate_special_encounter(room_template_t *room_ptr, int x, int y,
             rect_t temp_rect = rect_intersect(exclude, &room_rect);
             if (rect_is_valid(&temp_rect)) continue;
         }
-        /* Exclude if player is in the room during a non-scroll op (e.g. ambush) 
+        /* Exclude if player is in the room during a non-scroll op (e.g. ambush)
             Note the player will always be inside the exclude rect during
             a scroll op. */
         else if (room_ptr->type == ROOM_WILDERNESS)
@@ -665,8 +672,8 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
     object_level = base_level;
 
     /* Special Encounter? */
-    if ( !wilderness[y][x].town 
-      && !wilderness[y][x].road 
+    if ( !wilderness[y][x].town
+      && !wilderness[y][x].road
       && !wilderness[y][x].entrance
       && !no_wilderness
       && !generate_encounter
@@ -727,7 +734,7 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
                 if (!generate_encounter && one_in_(3))
                     options |= PM_ALLOW_SLEEP;
                 r_idx = get_mon_num(monster_level);
-                if (r_idx) 
+                if (r_idx)
                 {
                     if (r_info[r_idx].level == 0) options |= PM_ALLOW_SLEEP;
                     place_monster_aux(0, y2, x2, r_idx, options);
@@ -741,10 +748,10 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
 }
 
 /* The current cave[][] is a 3x3 viewport on a very large wilderness map.
-   Picture a "cursor" which you can slide about on the map and peer into 
-   the wilderness. Coordinates (wilderness_x and y) and offsets (wilderness_dx and dy) 
-   apply to this cursor. 
-   
+   Picture a "cursor" which you can slide about on the map and peer into
+   the wilderness. Coordinates (wilderness_x and y) and offsets (wilderness_dx and dy)
+   apply to this cursor.
+
    This routine will fill in the cave for both an initial level generation (valid == NULL)
    and a scroll operation (in which case valid indicates the portion of the cave[][] that
    is correctly filled in). */
@@ -1164,7 +1171,7 @@ static void _generate_area(int x, int y, int dx, int dy, const rect_t *exclude)
 
         /* Ah ... well, our _cave scratch buffer can't handle the stairs. */
         if ( dun_idx
-         && !wilderness[y][x].town 
+         && !wilderness[y][x].town
          && (p_ptr->total_winner || !(d_info[dun_idx].flags1 & DF1_WINNER))
          && (ironman_rooms || !(dungeon_flags[dun_idx] & DUNGEON_NO_ENTRANCE) ) )
         {
@@ -1353,27 +1360,27 @@ errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, in
         if ((num = tokenize(buf+4, 6, zz, 0)) > 1)
         {
             int index = zz[0][0];
-            
+
             if (num > 1)
                 w_letter[index].terrain = atoi(zz[1]);
             else
                 w_letter[index].terrain = 0;
-            
+
             if (num > 2)
                 w_letter[index].level = atoi(zz[2]);
             else
                 w_letter[index].level = 0;
-            
+
             if (num > 3)
                 w_letter[index].town = atoi(zz[3]);
             else
                 w_letter[index].town = 0;
-            
+
             if (num > 4)
                 w_letter[index].road = atoi(zz[4]);
             else
                 w_letter[index].road = 0;
-            
+
             if (num > 5)
                 strcpy(w_letter[index].name, zz[5]);
             else
@@ -1384,40 +1391,40 @@ errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, in
                 /* Failure */
             return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
         }
-        
+
         break;
     }
-    
+
     /* Process "W:D:<layout> */
     /* Layout of the wilderness */
     case 'D':
     {
         /* Acquire the text */
         char *s = buf+4;
-        
+
         /* Length of the text */
         int len = strlen(s);
-        
+
         for (*x = xmin, i = 0; ((*x < xmax) && (i < len)); (*x)++, s++, i++)
         {
             int idx = s[0];
-            
+
             wilderness[*y][*x].terrain = w_letter[idx].terrain;
-            
+
             wilderness[*y][*x].level = w_letter[idx].level;
-            
+
             wilderness[*y][*x].town = w_letter[idx].town;
-            
+
             wilderness[*y][*x].road = w_letter[idx].road;
-            
+
             strcpy(town[w_letter[idx].town].name, w_letter[idx].name);
         }
-        
+
         (*y)++;
-        
+
         break;
     }
-    
+
     /* Process "W:P:<x>:<y> - starting position in the wilderness */
     case 'P':
     {
@@ -1428,7 +1435,7 @@ errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, in
             {
                 p_ptr->wilderness_y = atoi(zz[0]);
                 p_ptr->wilderness_x = atoi(zz[1]);
-                
+
                 if ((p_ptr->wilderness_x < 1) ||
                     (p_ptr->wilderness_x > max_wild_x) ||
                     (p_ptr->wilderness_y < 1) ||
@@ -1442,15 +1449,15 @@ errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, in
                 return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
             }
         }
-        
+
         break;
     }
-    
+
     default:
         /* Failure */
         return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
     }
-    
+
     for (i = 1; i < max_d_idx; i++)
     {
         if (!d_info[i].maxdepth) continue;

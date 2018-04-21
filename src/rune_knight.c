@@ -1317,6 +1317,17 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _birth(void)
+{
+    object_type forge = {0};
+    object_prep(&forge, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
+    rune_add(&forge, RUNE_ABSORPTION, FALSE);
+    py_birth_obj(&forge);
+
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
+}
+
 class_t *rune_knight_get_class(void)
 {
     static class_t me = {0};
@@ -1350,6 +1361,7 @@ class_t *rune_knight_get_class(void)
         me.exp = 150;
         me.pets = 35;
 
+        me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;

@@ -25,7 +25,7 @@ static cptr _names[VIRTUE_MAX] =
     "Individualism",
 };
 
-static cptr _good_msg[VIRTUE_MAX] = 
+static cptr _good_msg[VIRTUE_MAX] =
 {
     "Bug: Invalid Virtue",
     "That was very compassionate.",
@@ -48,7 +48,7 @@ static cptr _good_msg[VIRTUE_MAX] =
     "You walk your own road in life.",
 };
 
-static cptr _bad_msg[VIRTUE_MAX] = 
+static cptr _bad_msg[VIRTUE_MAX] =
 {
     "Bug: Invalid Virtue",
     "Stop, you brute!",
@@ -222,6 +222,8 @@ void virtue_init(void)
     case CLASS_MAGE:
     case CLASS_BLOOD_MAGE:
     case CLASS_NECROMANCER:
+    case CLASS_YELLOW_MAGE:
+    case CLASS_GRAY_MAGE:
         p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
         break;
@@ -427,13 +429,13 @@ void virtue_init(void)
     if (p_ptr->realm1)
     {
         s16b v = _realm_virtue(p_ptr->realm1);
-        if (_is_valid_virtue(v)) 
+        if (_is_valid_virtue(v))
             p_ptr->vir_types[i++] = v;
     }
     if (p_ptr->realm2)
     {
         s16b v = _realm_virtue(p_ptr->realm2);
-        if (_is_valid_virtue(v)) 
+        if (_is_valid_virtue(v))
             p_ptr->vir_types[i++] = v;
     }
 
@@ -457,7 +459,7 @@ void virtue_init(void)
     /* Fill in the blanks */
     for (i = 0; i < 8; i++)
     {
-        if (!_is_valid_virtue(p_ptr->vir_types[i])) 
+        if (!_is_valid_virtue(p_ptr->vir_types[i]))
             p_ptr->vir_types[i] = _random_virtue();
     }
 }
@@ -466,14 +468,14 @@ void virtue_init(void)
 void virtue_add(int which, int amount)
 {
     int idx;
-    
-    if (!enable_virtues) 
+
+    if (!enable_virtues)
         return;
-    
+
     idx = virtue_find(which);
-    if (!_is_valid_index(idx)) 
+    if (!_is_valid_index(idx))
         return;
-    
+
     if (amount > 0)
     {
         p_ptr->update |= PU_BONUS;

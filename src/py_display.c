@@ -41,7 +41,7 @@ static void _build_general1(doc_ptr doc)
     personality_ptr  pers_ptr = get_personality();
 
     doc_printf(doc, " Name       : <color:B>%s</color>\n", player_name);
-    doc_printf(doc, " Sex        : <color:B>%s</color>\n", sp_ptr->title);
+    doc_printf(doc, " Sex        : <color:B>%s</color>\n", sex_info[p_ptr->psex].title);
     doc_printf(doc, " Personality: <color:B>%s</color>\n", pers_ptr->name);
 
     if (race_ptr->mimic)
@@ -71,10 +71,6 @@ static void _build_general1(doc_ptr doc)
     /* Assume Subclass and Magic are mutually exclusive ... */
     if (class_ptr->subname)
         doc_printf(doc, " Subclass   : <color:B>%-26.26s</color>\n", class_ptr->subname);
-    else if (p_ptr->pclass == CLASS_WARLOCK)
-        doc_printf(doc, " Subclass   : <color:B>%-26.26s</color>\n", pact_info[p_ptr->psubclass].title);
-    else if (p_ptr->pclass == CLASS_WEAPONMASTER)
-        doc_printf(doc, " Subclass   : <color:B>%-26.26s</color>\n", weaponmaster_speciality_name(p_ptr->psubclass));
     else if (p_ptr->prace == RACE_MON_DRAGON)
     {
         dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
@@ -1439,6 +1435,8 @@ static void _build_pets(doc_ptr doc)
         doc_printf(doc, "  Allow cast attack spell:            %s\n", (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow cast summon spell:            %s\n", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow involve player in area spell: %s\n", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
+        if (p_ptr->wizard)
+            doc_printf(doc, "  Riding Skill:                       %d\n", skills_riding_current());
 
         doc_newline(doc);
     }
@@ -2398,10 +2396,16 @@ static int _max_depth(void)
     return result;
 }
 
+static bool _is_retired(void)
+{
+    if (p_ptr->total_winner && p_ptr->is_dead && strcmp(p_ptr->died_from, "Ripe Old Age") == 0)
+        return TRUE;
+    return FALSE;
+}
 void py_display(void)
 {
     doc_ptr    d = doc_alloc(80);
-    string_ptr s = string_alloc_format("%s.txt", player_base);
+    string_ptr s = string_alloc_format("%s.html", player_base);
     string_ptr header = string_alloc();
 
     doc_change_name(d, string_buffer(s));
@@ -2419,6 +2423,19 @@ void py_display(void)
     string_printf(header,  " <meta name='max_depth' value='%d'>\n", _max_depth());
     string_printf(header,  " <meta name='score' value='%d'>\n", p_ptr->exp); /* ?? Does oook need this? */
     string_printf(header,  " <meta name='fame' value='%d'>\n", p_ptr->fame);
+
+    /* For angband.oook.cz ... I'm not sure what is best for proper display of html dumps so I'll need to ask pav
+     * Note: A retired winning player is_dead, but has died_from set to 'Ripe Old Age'.
+     * Approach #1: Give oook a string status field */
+    string_printf(header,  " <meta name='status' value='%s'>\n",
+        p_ptr->total_winner ? "winner" : (p_ptr->is_dead ? "dead" : "alive"));
+    /* Approach #2: Give oook some boolean fields */
+    string_printf(header,  " <meta name='winner' value='%d'>\n", p_ptr->total_winner ? 1 : 0);
+    string_printf(header,  " <meta name='dead' value='%d'>\n", p_ptr->is_dead ? 1 : 0);
+    string_printf(header,  " <meta name='retired' value='%d'>\n", _is_retired() ? 1 : 0);
+
+    if (p_ptr->is_dead)
+        string_printf(header,  " <meta name='killer' value='%s'>\n", p_ptr->died_from);
     string_append_s(header, "</head>");
     doc_change_html_header(d, string_buffer(header));
 

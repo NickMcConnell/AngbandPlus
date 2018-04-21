@@ -18,6 +18,9 @@ static void _birth(void)
         memset(&_staves[i], 0, sizeof(object_type));
         memset(&_rods[i], 0, sizeof(object_type));
     }
+    py_birth_obj_aux(TV_WAND, EFFECT_BOLT_MISSILE, 1);
+    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
 }
 
 static object_type *_which_list(int tval)
@@ -113,7 +116,7 @@ static void _display(object_type *list, rect_t display)
 #define _ALLOW_EMPTY    0x01 /* Absorb */
 #define _ALLOW_SWITCH   0x02 /* Browse/Use */
 #define _ALLOW_EXCHANGE 0x04
-object_type *_choose(cptr verb, int tval, int options)
+static object_type *_choose(cptr verb, int tval, int options)
 {
     object_type *result = NULL;
     int          slot = 0;
@@ -254,7 +257,7 @@ object_type *_choose(cptr verb, int tval, int options)
     return result;
 }
 
-void _use_object(object_type *o_ptr)
+static void _use_object(object_type *o_ptr)
 {
     int  boost = device_power(100) - 100;
     u32b flgs[OF_ARRAY_SIZE];

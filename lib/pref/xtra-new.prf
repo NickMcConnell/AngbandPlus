@@ -92,7 +92,7 @@ R:0:0/0x97
 
 ?:[EQU $CLASS Warrior]
 R:0:0x92/0
-?:[EQU $CLASS Mage Blood-Mage Necromancer]
+?:[EQU $CLASS Mage Blood-Mage Necromancer Yellow-Mage Gray-Mage]
 R:0:0x93/0
 ?:[EQU $CLASS Priest]
 R:0:0x94/0

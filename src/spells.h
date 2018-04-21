@@ -31,6 +31,8 @@ extern void spell_stats_on_cast_old(int realm, int spell); /* Deprecated */
 extern void spell_stats_on_fail_old(int realm, int spell); /* Deprecated */
 
 
+extern void spellbook_character_dump(doc_ptr doc);
+
 /* Public Spells:  I'm using the following system for placing code.
    This makes it easier to split a too large file, and easier to locate
    the correct file for a spell.

@@ -189,15 +189,17 @@ static void _earth_birth(void)
     forge.to_d = 6;
     forge.pval = 3;
     add_flag(forge.flags, OF_STR);
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_CLUB));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     p_ptr->current_r_idx = MON_EARTH_SPIRIT; 
+
+    py_birth_light();
 }
 
 static void _earth_gain_level(int new_level) 
@@ -230,7 +232,7 @@ static void _shard_bolt_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_bolt(GF_SHARDS, dir, damroll(dd, ds));
         var_set_bool(res, TRUE);
         break;
@@ -304,7 +306,7 @@ static void _shard_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_SHARDS, dir, dam, 2);
         var_set_bool(res, TRUE);
         break;
@@ -460,17 +462,18 @@ static void _air_birth(void)
     add_flag(forge.flags, OF_RES_ELEC);
     add_flag(forge.flags, OF_AURA_ELEC);
     add_flag(forge.flags, OF_IGNORE_ELEC);
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_STAFF, SV_ANY));
     if (device_init_fixed(&forge, EFFECT_NOTHING))
-        add_outfit(&forge);
+        py_birth_obj(&forge);
+    py_birth_light();
 
     p_ptr->current_r_idx = MON_AIR_SPIRIT; 
 }
@@ -542,7 +545,7 @@ static void _lightning_storm_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_ELEC, dir, dam, 4);
         var_set_bool(res, TRUE);
         break;
@@ -722,15 +725,18 @@ static void _water_birth(void)
     forge.name2 = EGO_JEWELRY_ELEMENTAL;
     forge.to_a = 15;
     add_flag(forge.flags, OF_RES_ACID);
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 5;
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_POLEARM, SV_TRIDENT));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_obj_aux(TV_POTION, SV_POTION_WATER, rand_range(15, 23));
+    py_birth_light();
 
     p_ptr->current_r_idx = MON_WATER_SPIRIT; 
 }
@@ -783,7 +789,7 @@ static void _water_ball_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_WATER2, dir, dam, 4);
         var_set_bool(res, TRUE);
         break;
@@ -987,18 +993,20 @@ static void _fire_birth(void)
     forge.to_a = 15;
     add_flag(forge.flags, OF_RES_FIRE);
     add_flag(forge.flags, OF_AURA_FIRE);
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_FLASK, SV_ANY));
     apply_magic(&forge, 1, AM_NO_FIXED_ART);
     forge.number = (byte)rand_range(7, 12);
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_light();
 
     p_ptr->current_r_idx = MON_FIRE_SPIRIT; 
 }
@@ -1041,7 +1049,7 @@ static void _fire_whip_spell(int cmd, variant *res)
         int dir = 0;
         var_set_bool(res, FALSE);
         project_length = range;
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_beam(GF_FIRE, dir, damroll(dd, ds));
         var_set_bool(res, TRUE);
         break;
@@ -1071,7 +1079,7 @@ static void _fire_storm_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_ball(GF_FIRE, dir, dam, 4);
         var_set_bool(res, TRUE);
         break;
@@ -1272,6 +1280,30 @@ static race_t *_fire_get_race_t(void)
     return &me;
 }
 
+static name_desc_t _info[ELEMENTAL_MAX] = {
+    { "Earth Elemental",
+        "Earth Elementals are creatures of rock: Strong, tough and slow. "
+        "They may move freely through the earth and are capable of conjuring "
+        "sharp clods of earth to hurl at their foes. Their skin is very tough, "
+        "and they can even turn their bodies to stone. However, being made of "
+        "earth, their potions frequently turn to mud." },
+    { "Air Elemental",
+        "Air Elementals are creatures of electricity. They are incredibly fast, "
+        "blinking in and out of sight as they shower their enemies with confusing "
+        "and shocking blows. Electricity crackles menacingly about their nimble frames, "
+        "tending to destroy rings, amulets, wands and rods." },
+    { "Water Elemental",
+        "Water Elementals are creatures of water, able to modify this ubiquitous "
+        "liquid into a deadly and often corrosive weapon of destruction. Fear their "
+        "rage! They cannot be stunned. Their corrosive nature erodes any armor that "
+        "gets too close." },
+    { "Fire Elemental",
+        "Fire Elementals are creatures of flame. They have a vast arsenal of "
+        "flaming attacks with which to singe the fiercest of foes. However, they "
+        "must beware of cold based attacks! Being wreathed in flames, scrolls and "
+        "staves are quickly burned to ash." },
+};
+
 /**********************************************************************
  * Public
  **********************************************************************/
@@ -1303,6 +1335,12 @@ race_t *mon_elemental_get_race(int psubrace)
     result->base_hp = 30;
     result->pseudo_class_idx = CLASS_WARRIOR;
     result->shop_adjust = 120;
+
+    if (birth_hack || spoiler_hack)
+    {
+        result->subname = _info[psubrace].name;
+        result->subdesc = _info[psubrace].desc;
+    }
 
     return result;
 }

@@ -36,6 +36,13 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _birth(void)
+{
+    py_birth_obj_aux(TV_POLEARM, SV_SPEAR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_spellbooks();
+}
+
 class_t *beastmaster_get_class(void)
 {
     static class_t me = {0};
@@ -74,6 +81,7 @@ class_t *beastmaster_get_class(void)
         me.exp = 120;
         me.pets = 10;
         
+        me.birth = _birth;
         me.caster_info = _caster_info;
         /* TODO: This class uses spell books, so we are SOL
         me.get_spells = _get_spells;*/

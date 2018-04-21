@@ -22,14 +22,16 @@ static void _birth(void)
     skills_innate_init("Finger", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_STAFF, SV_ANY));
     if (device_init_fixed(&forge, EFFECT_ANIMATE_DEAD))
-        add_outfit(&forge);
+        py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_ROBE));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_light();
 }
 
 /**********************************************************************
@@ -300,5 +302,11 @@ race_t *mon_lich_get_race(void)
     result->shop_adjust = 135;
 
     result->boss_r_idx = MON_VECNA;
+
+    if (birth_hack || spoiler_hack)
+    {
+        result->subname = NULL;
+        result->subdesc = NULL;
+    }
     return result;
 }

@@ -1,6 +1,6 @@
 #include "angband.h"
 
-static cptr _desc = 
+static cptr _desc =
     "Angels are heavenly beings on a holy mission. They are winged creatures able "
     "to fly over chasms and pits. They also become resistant to the elements as they "
     "mature and are not fooled by invisibility. Their stats are truly awe-inspiring "
@@ -13,24 +13,27 @@ static cptr _desc =
     "primary spell stat.\n \n"
     "Angels use the same equipment slots as normal player races and have no innate attacks.";
 
-static void _birth(void) 
-{ 
+static void _birth(void)
+{
     object_type    forge;
 
     p_ptr->current_r_idx = MON_ANGEL;
-    
+
     object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_HEALING));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_MACE));
-    add_outfit(&forge);
+    py_birth_obj(&forge);
+
+    py_birth_food();
+    py_birth_light();
 }
 
 /******************************************************************************
- *              10           20        30        40        45          50 
+ *              10           20        30        40        45          50
  * Angel: Angel -> Archangel -> Cherub -> Seraph -> Archon -> Planetar -> Solar
  ******************************************************************************/
 static void _psycho_spear_spell(int cmd, variant *res)
@@ -50,7 +53,7 @@ static void _psycho_spear_spell(int cmd, variant *res)
     {
         int dir = 0;
         var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
+        if (!get_fire_dir(&dir)) return;
         fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(p_ptr->lev*3) + p_ptr->lev*3 + p_ptr->to_d_spell));
         var_set_bool(res, TRUE);
         break;
@@ -73,8 +76,8 @@ static spell_info _spells[] = {
     { 23, 15, 50, brain_smash_spell},
     { 25, 17, 50, haste_self_spell},
     { 27, 20, 50, protection_from_evil_spell},
-    { 29, 20, 60, dispel_evil_spell}, 
-    { 31, 20, 60, teleport_other_spell}, 
+    { 29, 20, 60, dispel_evil_spell},
+    { 31, 20, 60, teleport_other_spell},
     { 32, 20, 60, healing_I_spell},
     { 35, 25, 60, destruction_spell},
     { 37, 25, 60, summon_monsters_spell},
@@ -97,7 +100,7 @@ static void _calc_bonuses(void) {
     p_ptr->levitation = TRUE;
     res_add(RES_POIS);
 
-    if (equip_find_artifact(ART_STONE_OF_LIFE) || equip_find_artifact(ART_STONE_OF_CRUSADE))
+    if (equip_find_artifact(ART_STONE_OF_CRUSADE))
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;
@@ -210,7 +213,7 @@ static race_t *_solar_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[7] =  {"Angel", "Archangel", "Cherub", "Seraph", "Archon", "Planetar", "Solar"};    
+    static cptr   titles[7] =  {"Angel", "Archangel", "Cherub", "Seraph", "Archon", "Planetar", "Solar"};
     int           rank = 0;
 
     if (p_ptr->lev >= 10) rank++;
@@ -288,5 +291,12 @@ race_t *mon_angel_get_race(void)
     result->shop_adjust = 90;
 
     result->boss_r_idx = MON_RAPHAEL;
+
+    if (birth_hack || spoiler_hack)
+    {
+        result->subname = NULL;
+        result->subdesc = NULL;
+    }
+
     return result;
 }
