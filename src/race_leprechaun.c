@@ -235,6 +235,8 @@ static void _calc_bonuses(void)
         p_ptr->device_power += 1;
     }
 
+    p_ptr->skills.thb += MIN(p_ptr->au / 100000, 100);
+
     switch (p_ptr->current_r_idx)
     {
     case MON_CHEERFUL_LEPRECHAUN:
@@ -421,8 +423,8 @@ race_t *mon_leprechaun_get_race(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  45,  38,  10,  24,  16,  48,  60 };
-    skills_t xs = { 12,  18,  11,   1,   0,   0,  13,  28 };
+    skills_t bs = { 30,  45,  38,  10,  24,  16,  48,  50 };
+    skills_t xs = { 12,  18,  11,   1,   0,   0,  13,  10 };
 
         me.skills = bs;
         me.extra_skills = xs;

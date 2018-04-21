@@ -545,7 +545,7 @@ void cure_poison_spell(int cmd, variant *res)
         var_set_string(res, "Cure poison status.");
         break;
     case SPELL_CAST:
-        set_poisoned(p_ptr->poisoned - MAX(25, p_ptr->poisoned / 10), TRUE);
+        set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -643,7 +643,7 @@ void curing_spell(int cmd, variant *res)
     case SPELL_CAST:
         hp_player(spell_power(50));
         set_blind(0, TRUE);
-        set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
+        set_poisoned(p_ptr->poisoned - MAX(150, p_ptr->poisoned / 3), TRUE);
         set_confused(0, TRUE);
         set_stun(0, TRUE);
         set_cut(0, TRUE);

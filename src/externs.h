@@ -62,7 +62,7 @@ extern byte adj_exp_gain[];
 extern s16b adj_fear_m[];
 extern s16b adj_stat_save_fear[];
 extern s16b adj_stat_save[];
-extern byte adj_int_dev[];
+extern s16b adj_int_dev[];
 extern byte adj_wis_sav[];
 extern byte adj_dex_dis[];
 extern byte adj_int_dis[];
@@ -103,8 +103,6 @@ extern kamae kamae_shurui[MAX_KAMAE];
 extern kamae kata_shurui[MAX_KATA];
 extern cptr exp_level_str[5];
 extern cptr silly_attacks[MAX_SILLY_ATTACK];
-extern monster_power monster_powers[MAX_MONSPELLS];
-extern cptr monster_powers_short[MAX_MONSPELLS];
 extern cptr ident_info[];
 extern byte feature_action_flags[FF_FLAG_MAX];
 
@@ -184,6 +182,7 @@ extern s16b m_max;
 extern s16b m_cnt;
 extern s16b hack_m_idx;
 extern s16b hack_m_idx_ii;
+extern int hack_max_m_dam;
 extern int total_friends;
 extern s32b friend_align;
 extern bool reinit_wilderness;
@@ -205,7 +204,6 @@ extern bool auto_target;       /* Automatically target nearest monster */
 extern bool always_repeat;    /* Repeat obvious commands */
 extern bool confirm_destroy;    /* Prompt for destruction of known worthless items */
 extern bool confirm_wear;    /* Confirm to wear/wield known cursed items */
-extern bool confirm_quest;    /* Prompt before exiting a quest level */
 extern bool target_pet;    /* Allow targetting pets */
 
 #ifdef ALLOW_EASY_OPEN
@@ -270,8 +268,6 @@ extern bool display_race; /* Display monster races with their racial char */
 extern bool stack_force_notes;    /* Merge inscriptions when stacking */
 extern bool stack_force_costs;    /* Merge discounts when stacking */
 extern bool expand_list;    /* Expand the power of the list commands */
-extern bool small_levels;    /* Allow unusually small dungeon levels */
-extern bool always_small_levels;    /* Always create unusually small dungeon levels */
 extern bool empty_levels;    /* Allow empty 'arena' levels */
 extern bool bound_walls_perm;    /* Boundary walls become 'permanent wall' */
 extern bool last_words;    /* Leave last words when your character dies */
@@ -306,17 +302,12 @@ extern bool alert_trap_detect;    /* Alert when leaving trap detected area */
 
 /*** Birth Options ***/
 
-extern bool easy_id;        /* Easy Identify */
-extern bool easy_lore;      /* Easy Monster Lore */
-extern bool allow_spoilers;
 extern bool smart_learn;    /* Monsters learn from their mistakes (*) */
 extern bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
 extern bool no_wilderness;  /* Play without a normal wilderness */
 extern bool ironman_shops;    /* Stores are permanently closed (*) */
-extern bool ironman_small_levels;    /* Always create unusually small dungeon levels (*) */
 extern bool ironman_downward;    /* Disable recall and use of up stairs (*) */
 extern bool ironman_empty_levels;    /* Always create empty 'arena' levels (*) */
-extern bool ironman_rooms;    /* Always generate very unusual rooms (*) */
 extern bool ironman_nightmare;    /* Nightmare mode(it isn't even remotely fair!)(*) */
 extern bool preserve_mode;    /* Preserve artifacts (*) */
 extern bool allow_friendly_monster; /* Allow monsters friendly to player */
@@ -327,12 +318,8 @@ extern bool random_artifacts;
 extern byte random_artifact_pct;
 extern bool no_artifacts;
 extern bool no_egos;
-extern bool no_selling;
-extern bool enable_virtues;
-extern bool enable_spell_prof;
 extern bool reduce_uniques;
 extern byte reduce_uniques_pct;
-extern bool quickmode;
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -431,6 +418,7 @@ extern player_type *p_ptr;
 extern player_magic *mp_ptr;
 extern birther previous_char;
 extern vec_ptr room_info;
+extern int_map_ptr room_letters;
 extern player_magic *m_info;
 extern feature_type *f_info;
 extern char *f_name;
@@ -813,6 +801,7 @@ extern bool device_try(object_type *o_ptr);
 extern bool device_use(object_type *o_ptr, int boost);
 extern bool device_known;
 extern bool device_noticed;
+extern bool device_lore; /* OFL_DEVICE_POWER */
 extern int  device_extra_power;
 extern int  device_available_charges;
 extern int  device_used_charges;
@@ -1087,6 +1076,7 @@ extern bool monster_magical(monster_race *r_ptr);
 
 
 /* monster2.c */
+extern int summon_specific_who;
 extern cptr horror_desc[MAX_SAN_HORROR];
 extern cptr funny_desc[MAX_SAN_FUNNY];
 extern cptr funny_comments[MAX_SAN_COMMENT];
@@ -1116,6 +1106,12 @@ extern void mon_set_parent(monster_type *m_ptr, int pm_idx);
 extern s16b m_pop(void);
 extern errr get_mon_num_prep(monster_hook_type monster_hook, monster_hook_type monster_hook2);
 extern s16b get_mon_num(int level);
+/* GMN = Get Monster Num */
+#define GMN_POWER_BOOST 0x01 /* pick best roll out of several */
+#define GMN_NO_UNIQUES  0x02 /* prohibit unique monsters */
+#define GMN_ALLOW_OOD   0x04 /* allow level param to be mysteriously boosted */
+#define GMN_DEFAULT     (GMN_ALLOW_OOD)
+extern s16b get_mon_num_aux(int level, int min_level, u32b options);
 extern void monster_desc(char *desc, monster_type *m_ptr, int mode);
 extern int lore_do_probe(int r_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
@@ -1440,6 +1436,7 @@ extern bool rush_attack(int rng, bool *mdeath);
 
 
 /* spells3.c */
+extern int minus_ac(void);
 extern bool dimension_door_aux(int x, int y, int rng);
 extern bool teleport_away(int m_idx, int dis, u32b mode);
 extern void teleport_monster_to(int m_idx, int ty, int tx, int power, u32b mode);
@@ -1502,10 +1499,6 @@ extern int set_elec_destroy(object_type *o_ptr);
 extern int set_fire_destroy(object_type *o_ptr);
 extern int set_cold_destroy(object_type *o_ptr);
 extern void inven_damage(inven_func typ, int perc, int which);
-extern int acid_dam(int dam, cptr kb_str);
-extern int elec_dam(int dam, cptr kb_str);
-extern int fire_dam(int dam, cptr kb_str);
-extern int cold_dam(int dam, cptr kb_str);
 extern bool rustproof(void);
 extern bool curse_armor(int slot);
 extern bool curse_weapon(bool force, int slot);
@@ -2343,6 +2336,7 @@ extern bool magic_eater_can_regen(void);
 extern int  magic_eater_regen_amt(int tval);
 extern bool magic_eater_auto_id(object_type *o_ptr);
 extern bool magic_eater_auto_detect_traps(void);
+extern bool magic_eater_auto_mapping(void);
 
 extern void magic_eater_browse(void);
 extern void magic_eater_cast(int tval);
@@ -2549,7 +2543,9 @@ extern void skills_desc_aux(skills_t *base, skills_t *xtra, skills_desc_t *skill
 
 extern int skills_bow_current(int sval);
 extern int skills_bow_max(int sval);
-extern void skills_bow_gain(int sval);
+extern void skills_bow_gain(int sval, int rlvl);
+extern int skills_bow_calc_bonus(int sval);
+extern cptr skills_bow_describe_current(int sval);
 
 extern int skills_weapon_current(int tval, int sval);
 extern int skills_weapon_max(int tval, int sval);

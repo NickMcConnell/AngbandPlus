@@ -536,7 +536,7 @@ byte adj_gold[] =
 /*
  * Stat Table (INT) -- Magic devices
  */
-byte adj_int_dev[] =
+s16b adj_int_dev[] =
 {
    -5       /* 3 */,
    -3       /* 4 */,
@@ -1904,127 +1904,6 @@ int chest_traps[64] =
     (CHEST_EXPLODE | CHEST_SUMMON),
 };
 
-monster_power monster_powers[MAX_MONSPELLS] =
-{
-/*lv,  sp,fail,  dam,fail,  stat,  name */
-{  1,   1,  10,    0,  15, A_CON,  "shriek"},
-{ 10,   4,  35,   89,  40, A_INT,  "something"},
-{ 40,  35,  85,    0,  40, A_INT,  "dispel-magic"},
-{ 35,  30,  80,  800,  70, A_STR,  "rocket"},
-{  2,   1,  15,   10,  15, A_DEX,  "arrow"},
-{  5,   2,  20,   18,  20, A_DEX,  "arrows"},
-{ 12,   3,  25,   30,  25, A_DEX,  "missile"},
-{ 35,  18,  80,  300,  95, A_CON,  "breathe storm"},
-{ 20,  15,  55, 1600,  95, A_CON,  "breathe acid"},
-{ 20,  15,  55, 1600,  95, A_CON,  "breathe lightning"},
-{ 20,  15,  55, 1600,  95, A_CON,  "breathe fire"},
-{ 20,  15,  55, 1600,  95, A_CON,  "breathe cold"},
-{ 20,  15,  55,  800,  95, A_CON,  "breathe poison"},
-{ 20,  15,  70,  550,  95, A_CON,  "breathe nether"},
-{ 20,  16,  70,  400,  95, A_CON,  "breathe light"},
-{ 20,  16,  70,  400,  95, A_CON,  "breathe dark"},
-{ 20,  20,  70,  450,  95, A_CON,  "breathe confusion"},
-{ 20,  20,  70,  450,  95, A_CON,  "breathe sound"},
-{ 20,  20,  70,  600,  95, A_CON,  "breathe chaos"},
-{ 20,  16,  70,  500,  95, A_CON,  "breathe disenchantment"},
-{ 30,  25,  80,  250,  95, A_CON,  "breathe nexus"},
-{ 35,  18,  80,  150,  95, A_CON,  "breathe time"},
-{ 30,  25,  80,  200,  95, A_CON,  "breathe inertia"},
-{ 30,  28,  90,  200,  95, A_CON,  "breathe gravity"},
-{ 20,  15,  70,  500,  95, A_CON,  "breathe shards"},
-{ 35,  15,  80,  150,  95, A_CON,  "breathe plasma"},
-{ 30,  18,  70,  200,  95, A_CON,  "breathe force"},
-{ 30,  28,  80,  250,  95, A_CON,  "breathe mana"},
-{ 25,  20,  95,  320,  80, A_INT,  "nuke ball"},
-{ 25,  15,  70,  800,  95, A_CON,  "breathe nuke"},
-{ 30,  32,  85,  400,  80, A_INT,  "raw Logrus"},
-{ 35,  40,  95,  150,  95, A_CON,  "breathe disintegrate"},
-{ 18,  13,  55,  630,  80, A_INT,  "acid ball"},
-{ 14,  10,  45,  316,  60, A_INT,  "lightning ball"},
-{ 20,  14,  60,  720,  80, A_INT,  "fire ball"},
-{ 15,  11,  50,  320,  60, A_INT,  "frost ball"},
-{  5,   3,  40,   48,  20, A_INT,  "stinking cloud"},
-{ 25,  18,  70,  350,  80, A_INT,  "nether ball"},
-{ 30,  22,  75,  350,  80, A_INT,  "water ball"},
-{ 44,  45,  85,  550,  95, A_INT,  "mana storm"},
-{ 40,  42,  90,  550,  95, A_INT,  "darkness storm"},
-{ 10,   5,  50,    0,  25, A_INT,  "drain mana"},
-{ 25,  10,  60,    0,  30, A_INT,  "mind blast"},
-{ 30,  14,  65,    0,  30, A_INT,  "brain smash"},
-{  3,   1,  25,   24,  20, A_INT,  "cause light wounds"},
-{ 12,   2,  35,   64,  25, A_INT,  "cause serious wounds"},
-{ 22,   6,  50,  150,  30, A_INT,  "cause critical wounds"},
-{ 32,  10,  70,  225,  35, A_INT,  "cause mortal wounds"},
-{ 13,   7,  40,  178,  40, A_INT,  "acid bolt"},
-{ 10,   5,  35,  130,  35, A_INT,  "lightning bolt"},
-{ 15,   9,  50,  210,  45, A_INT,  "fire bolt"},
-{ 12,   6,  35,  162,  40, A_INT,  "frost bolt"},
-{ 40,  42,  90,  550,  95, A_INT,  "starburst"},
-{ 25,  17,  60,  255,  60, A_INT,  "nether bolt"},
-{ 25,  20,  65,  250,  60, A_INT,  "water bolt"},
-{ 25,  24,  90,  400,  80, A_INT,  "mana bolt"},
-{ 25,  20,  80,  216,  60, A_INT,  "plasma bolt"},
-{ 25,  16,  60,  186,  60, A_INT,  "ice bolt"},
-{  3,   1,  25,   12,  20, A_INT,  "magic missile"},
-{  5,   3,  35,    0,  20, A_INT,  "scare"},
-{ 10,   5,  40,    0,  20, A_INT,  "blind"},
-{ 10,   5,  40,    0,  20, A_INT,  "confuse"},
-{ 10,   5,  40,    0,  20, A_INT,  "slow"},
-{ 10,   5,  40,    0,  20, A_INT,  "sleep"},
-{ 20,  10,  70,    0,  40, A_INT,  "speed"},
-{ 45, 120,  95,    0,  60, A_INT,  "the Hand of Doom"},
-{ 20,  15,  70,    0,  20, A_WIS,  "heal-self"},
-{ 45,  65,  80,    0,  60, A_INT,  "make invulnerable"},
-{  5,   1,  30,    0,  20, A_INT,  "blink-self"},
-{ 15,   8,  40,    0,  30, A_INT,  "teleport-self"},
-{ 40, 999,  99,    0,  80, A_INT,  "The world"},
-{  1,   0,   0,    0,  15, A_INT,  "something"},
-{ 15,   8,  50,    0,  30, A_INT,  "teleport to"},
-{ 20,  13,  80,    0,  30, A_INT,  "teleport away"},
-{ 30,  40,  95,    0,  40, A_INT,  "teleport level"},
-{ 35,  30,  80,  350,  70, A_INT,  "psycho-spear"},
-{  5,   1,  20,    0,  15, A_INT,  "create darkness"},
-{  5,   1,  20,    0,  15, A_DEX,  "create traps"},
-{ 15,   3,  40,    0,  30, A_INT,  "cause amnesia"},
-{ 30,  30,  70,    0,  40, A_INT,  "raise dead"},
-{ 40,  70,  85,    0,  45, A_INT,  "summon aid"},
-{ 45,  90,  90,    0,  50, A_INT,  "summon Cyberdemons"},
-{ 25,  20,  65,    0,  30, A_INT,  "summon a monster"},
-{ 35,  30,  75,    0,  40, A_INT,  "summon monsters"},
-{ 25,  25,  65,    0,  25, A_INT,  "summon ants"},
-{ 25,  20,  60,    0,  25, A_INT,  "summon spiders"},
-{ 35,  26,  75,    0,  40, A_INT,  "summon hounds"},
-{ 30,  23,  70,    0,  35, A_INT,  "summon hydras"},
-{ 40,  50,  85,    0,  40, A_INT,  "summon an angel"},
-{ 35,  50,  80,    0,  35, A_INT,  "summon a daemon"},
-{ 30,  30,  75,    0,  35, A_INT,  "summon an undead"},
-{ 39,  70,  80,    0,  40, A_INT,  "summon a dragon"},
-{ 43,  85,  85,    0,  45, A_INT,  "summon Greater Undead"},
-{ 46,  90,  85,    0,  45, A_INT,  "summon Ancient Dragon"},
-{ 48, 120,  90,    0,  50, A_INT,  "summon Lords of Amber"},
-{ 50, 150,  95,    0,  50, A_INT,  "summon Unique Monsters"},
-};
-
-
-cptr monster_powers_short[MAX_MONSPELLS] = {
-
-    "Shriek", "Something", "Dispel-magic", "Rocket", "Arrow", "Arrows", "Missile", "Storm",
-    "Acid", "Lightning", "Fire", "Cold", "Poison", "Nether", "Light", "Dark",
-    "Confusion", "Sound", "Chaos", "Disenchantment", "Nexus", "Time", "Inertia", "Gravity",
-    "Shards", "Plasma", "Force", "Mana", "Nuke", "Nuke", "Logrus", "Disintergrate",
-
-    "Acid", "Lightning", "Fire", "Frost", "Stinking Cloud", "Nether", "Water", "Mana storm",
-    "Darkness storm", "Drain mana", "Mind blast", "Brain smash", "Cause Light Wound", "Cause Serious Wound", "Cause Critical Wound", "Cause Mortal Wound",
-    "Acid", "Lightning", "Fire", "Frost", "Starburst", "Nether", "Water", "Mana",
-    "Plasm", "Ice", "Magic missile", "Scare", "Blind", "Confuse", "Slow", "Sleep",
-
-    "Speed", "Hand of doom", "Heal-self", "Invulnerable", "Blink", "Teleport", "The world", "Something",
-    "Teleport to", "Teleport away", "Teleport level", "Psycho-spear", "Create darkness", "Create traps", "Amnesia", "Raise dead",
-    "Aid", "Cyberdeamons", "A monster", "Monsters", "Ants", "Spiders", "Hounds", "Hydras",
-    "Angel", "Daemon", "Undead", "Dragon", "Greater Undead", "Ancient Dragon", "Lords of Amber", "Unique monsters"
-
-};
-
 
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
@@ -2180,9 +2059,6 @@ option_type option_info[] =
     { &confirm_wear,                TRUE,  OPT_PAGE_INPUT, 5, 4,
     "confirm_wear",                 "Confirm to wear/wield known cursed items" },
 
-    { &confirm_quest,               TRUE,  OPT_PAGE_INPUT, 1, 9,
-    "confirm_quest",                "Prompt before exiting a quest level" },
-
     { &target_pet,                  FALSE, OPT_PAGE_INPUT, 2, 5,
     "target_pet",                   "Allow targetting pets" },
 
@@ -2327,12 +2203,6 @@ option_type option_info[] =
     { &expand_list,                 TRUE,  OPT_PAGE_GAMEPLAY, 1, 5,
     "expand_list",                  "Expand the power of the list commands" },
 
-    { &small_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 30,
-    "small_levels",                 "Allow unusually small dungeon levels" },
-
-    { &always_small_levels,         FALSE, OPT_PAGE_GAMEPLAY, 2, 3,
-    "always_small_levels",          "Always create unusually small dungeon levels" },
-
     { &empty_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 31,
     "empty_levels",                 "Allow empty 'arena' levels" },
 
@@ -2402,15 +2272,6 @@ option_type option_info[] =
 
     /*** Birth Options ***/
 
-    { &easy_id,                     FALSE, OPT_PAGE_BIRTH, 6, 31,
-    "easy_id",                      "Easy Identify" },
-
-    { &easy_lore,                   FALSE, OPT_PAGE_BIRTH, 6, 30,
-    "easy_lore",                    "Easy Lore" },
-
-    { &allow_spoilers,              FALSE, OPT_PAGE_BIRTH, 6, 29,
-    "allow_spoilers",               "Allow Spoilers" },
-
     { &smart_learn,                 TRUE,  OPT_PAGE_BIRTH, 1, 14,
     "smart_learn",                  "Monsters learn from their mistakes (*)" },
 
@@ -2423,26 +2284,14 @@ option_type option_info[] =
     { &ironman_shops,               FALSE, OPT_PAGE_BIRTH, 6, 2,
     "ironman_shops",                "Stores are permanently closed (*)" },
 
-    { &ironman_small_levels,        FALSE, OPT_PAGE_BIRTH, 6, 3,
-    "ironman_small_levels",         "Always create unusually small dungeon levels (*)" },
-
     { &ironman_downward,            FALSE, OPT_PAGE_BIRTH, 6, 4,
     "ironman_downward",             "Disable recall and use of up stairs (*)" },
 
     { &ironman_empty_levels,        FALSE, OPT_PAGE_BIRTH, 6, 8,
     "ironman_empty_levels",         "Always create empty 'arena' levels (*)" },
 
-    { &ironman_rooms,               FALSE, OPT_PAGE_BIRTH, 6, 12,
-    "ironman_rooms",                "Always generate very unusual rooms (*)" },
-
     { &ironman_nightmare,           FALSE, OPT_PAGE_BIRTH, 6, 18,
     "ironman_nightmare",            "Nightmare mode(it isn't even remotely fair!)(*)" },
-
-    { &enable_virtues,              FALSE, OPT_PAGE_BIRTH, 6, 13,
-    "enable_virtues",               "Enable the Virtue System" },
-
-    { &enable_spell_prof,           FALSE, OPT_PAGE_BIRTH, 6, 15,
-    "enable_spell_prof",            "Enable the Spell Proficiency System" },
 
     { &preserve_mode,               TRUE,  OPT_PAGE_BIRTH, 6, 14,
     "preserve_mode",                "Preserve artifacts (*)" },
@@ -2470,12 +2319,6 @@ option_type option_info[] =
 
     { &reduce_uniques,              FALSE, OPT_PAGE_BIRTH, 6, 26,
     "reduce_uniques",               "Reduce the number of uniques (randomly)" },
-
-    { &quickmode,                   FALSE, OPT_PAGE_BIRTH, 6, 27,
-    "quickmode",                    "Makes the game much shorter and easier" },
-
-    { &no_selling,                  FALSE, OPT_PAGE_BIRTH, 6, 28,
-    "no_selling",                   "Prohibit selling to shops" },
 
     /*** Easy Object Auto-Destroyer ***/
 

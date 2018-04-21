@@ -107,7 +107,7 @@ N:13:BIAS_PRIESTLY
 N: 8:BIAS_WIS
 'Lawgiver'
 'Sun Sword'
-'Deamonbane'
+'Demonbane'
 'Gospel'
 'Advent'
 'Mundwine'

@@ -3549,7 +3549,10 @@ void calc_bonuses(void)
         p_ptr->weapon_info[i].to_dd = 0;
         p_ptr->weapon_info[i].to_ds = 0;
         for (j = 0; j < OF_ARRAY_SIZE; j++)
+        {
             p_ptr->weapon_info[i].flags[j] = 0;
+            p_ptr->weapon_info[i].known_flags[j] = 0;
+        }
 
         p_ptr->weapon_info[i].base_blow = 100;
         p_ptr->weapon_info[i].xtra_blow = 0;
@@ -3683,7 +3686,7 @@ void calc_bonuses(void)
     p_ptr->align = friend_align;
     p_ptr->maul_of_vice = FALSE;
 
-    if (easy_id || p_ptr->lev >= 35 || (quickmode && p_ptr->lev >= 20))
+    if (p_ptr->lev >= 35)
         p_ptr->auto_pseudo_id = TRUE;
 
     if (p_ptr->tim_sustain_str) p_ptr->sustain_str = TRUE;
@@ -4918,43 +4921,40 @@ void calc_bonuses(void)
 
     if ((p_ptr->ult_res || IS_RESIST_MAGIC() || p_ptr->magicdef) && (p_ptr->skills.sav < (95 + p_ptr->lev))) p_ptr->skills.sav = 95 + p_ptr->lev;
 
-    if (enable_virtues)
+    for (i = 0, j = 0; i < 8; i++)
     {
-        for (i = 0, j = 0; i < 8; i++)
+        switch (p_ptr->vir_types[i])
         {
-            switch (p_ptr->vir_types[i])
-            {
-            case VIRTUE_JUSTICE:
-                p_ptr->align += p_ptr->virtues[i] * 2;
-                break;
-            case VIRTUE_CHANCE:
-                /* Do nothing */
-                break;
-            case VIRTUE_NATURE:
-            case VIRTUE_HARMONY:
-                neutral[j++] = i;
-                break;
-            case VIRTUE_UNLIFE:
-                p_ptr->align -= p_ptr->virtues[i];
-                break;
-            default:
-                p_ptr->align += p_ptr->virtues[i];
-                break;
-            }
+        case VIRTUE_JUSTICE:
+            p_ptr->align += p_ptr->virtues[i] * 2;
+            break;
+        case VIRTUE_CHANCE:
+            /* Do nothing */
+            break;
+        case VIRTUE_NATURE:
+        case VIRTUE_HARMONY:
+            neutral[j++] = i;
+            break;
+        case VIRTUE_UNLIFE:
+            p_ptr->align -= p_ptr->virtues[i];
+            break;
+        default:
+            p_ptr->align += p_ptr->virtues[i];
+            break;
         }
+    }
 
-        for (i = 0; i < j; i++)
+    for (i = 0; i < j; i++)
+    {
+        if (p_ptr->align > 0)
         {
-            if (p_ptr->align > 0)
-            {
-                p_ptr->align -= p_ptr->virtues[neutral[i]] / 2;
-                if (p_ptr->align < 0) p_ptr->align = 0;
-            }
-            else if (p_ptr->align < 0)
-            {
-                p_ptr->align += p_ptr->virtues[neutral[i]] / 2;
-                if (p_ptr->align > 0) p_ptr->align = 0;
-            }
+            p_ptr->align -= p_ptr->virtues[neutral[i]] / 2;
+            if (p_ptr->align < 0) p_ptr->align = 0;
+        }
+        else if (p_ptr->align < 0)
+        {
+            p_ptr->align += p_ptr->virtues[neutral[i]] / 2;
+            if (p_ptr->align > 0) p_ptr->align = 0;
         }
     }
 

@@ -336,7 +336,10 @@ void do_cmd_locate(void)
     p_ptr->update |= PU_MONSTERS;
     p_ptr->redraw |= PR_MAP;
     p_ptr->window |= PW_OVERHEAD | PW_DUNGEON;
+
+    redraw_hack = TRUE;
     handle_stuff();
+    redraw_hack = FALSE;
 }
 
 
@@ -530,7 +533,7 @@ void do_cmd_query_symbol(void)
         monster_race *r_ptr = &r_info[i];
 
         /* Nothing to recall */
-        if (!(easy_lore || p_ptr->wizard) && !r_ptr->r_sights) continue;
+        if (!p_ptr->wizard && !r_ptr->r_sights) continue;
         if (r_ptr->flagsx & RFX_SUPPRESS) continue;
 
         /* Require non-unique monsters if needed */
@@ -752,6 +755,7 @@ struct _mon_list_s
     int     ct_total;
     int     ct_los;
     int     ct_awake;
+    int     ct_level;
 };
 
 typedef struct _mon_list_s _mon_list_t, *_mon_list_ptr;
@@ -763,6 +767,7 @@ static _mon_list_ptr _mon_list_alloc(void)
     result->ct_total = 0;
     result->ct_los = 0;
     result->ct_awake = 0;
+    result->ct_level = 0;
     return result;
 }
 
@@ -871,6 +876,7 @@ static _mon_list_ptr _create_monster_list(int mode)
         assert(info_ptr);
         info_ptr->ct_total++;
         result->ct_total++;
+        result->ct_level += r_info[r_idx].level;
 
         if (target_who == i)
         {
@@ -1010,14 +1016,23 @@ static int _draw_monster_list(_mon_list_ptr list, int top, rect_t rect, int mode
             }
             else if (info_ptr->group == _GROUP_AWARE)
             {
-                c_put_str(TERM_WHITE,
-                      format("You are aware of %d %smonster%s, %d %s awake:",
-                             info_ptr->ct_total,
-                             list->ct_los ? "other " : "",
-                             info_ptr->ct_total != 1 ? "s" : "",
-                             info_ptr->ct_awake,
-                             info_ptr->ct_awake == 1 ? "is" : "are"),
-                      rect.y + i, rect.x);
+                char buf[200];
+
+                sprintf(buf, "You are aware of %d %smonster%s, %d %s awake:",
+                    info_ptr->ct_total,
+                    list->ct_los ? "other " : "",
+                    info_ptr->ct_total != 1 ? "s" : "",
+                    info_ptr->ct_awake,
+                    info_ptr->ct_awake == 1 ? "is" : "are"
+                );
+                if (p_ptr->wizard && list->ct_total)
+                {
+                    sprintf(buf + strlen(buf), " %d.%02d",
+                        list->ct_level/list->ct_total,
+                        (list->ct_level*100/list->ct_total)%100
+                    );
+                }
+                c_put_str(TERM_WHITE, buf, rect.y + i, rect.x);
             }
         }
         else if (info_ptr->subgroup == _SUBGROUP_FOOTER)

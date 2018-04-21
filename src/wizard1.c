@@ -1390,7 +1390,6 @@ static void _spoil_mon_melee_dam_aux_aux(doc_ptr doc, vec_ptr v)
             char buf[10];
 
             xp = info->mon->mexp * info->mon->level / (plev + 2);
-            if (quickmode) xp *= 2;
             big_num_display(xp, buf);
             doc_printf(doc, " %5.5s", buf);
         }
@@ -1442,6 +1441,16 @@ static bool _martial_arts(mon_blow_ptr blow)
 {
     return blow->method == RBM_KICK || blow->method == RBM_PUNCH;
 }
+static bool _paralysis(mon_blow_ptr blow)
+{
+    int i;
+    for (i = 0; i < MAX_MON_BLOW_EFFECTS; i++)
+    {
+        if (blow->effects[i].effect == GF_PARALYSIS)
+            return TRUE;
+    }
+    return FALSE;
+}
 
 static bool _has_blow(mon_race_ptr r, _blow_p p)
 {
@@ -1461,11 +1470,27 @@ static bool _is_monk(mon_race_ptr r)
     return _has_blow(r, _martial_arts);
 }
 
+static bool _summon_spell_only(mon_race_ptr r)
+{
+    int i;
+    if (!r->spells) return FALSE;
+    if (!r->spells->groups[MST_SUMMON]) return FALSE;
+
+    for (i = 0; i < MST_COUNT; i++)
+    {
+        if (i == MST_SUMMON) continue;
+        if (r->spells->groups[i]) return FALSE;
+    }
+    return TRUE;
+}
+
 static bool _mon_dam_p(mon_race_ptr r)
 {
     int min = 0, max = 200;
 
+    return _summon_spell_only(r);
     return TRUE;
+    return _has_blow(r, _paralysis);
     return r->d_char == 'd' || r->d_char == 'D';
     return !r->blows[0].method;
     return r->level <= mimic_max_lvl();

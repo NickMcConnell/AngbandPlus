@@ -280,7 +280,7 @@ static cptr r_info_flags1[] =
     "ATTR_SEMIRAND",
     "FRIENDS",
     "ESCORT",
-    "XXX16",
+    "NO_SUMMON",
     "NEVER_BLOW",
     "NEVER_MOVE",
     "RAND_25",
@@ -1344,7 +1344,7 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_ptr grid
     {
         char *flags[10];
         int   flag_ct = z_string_split(args[1], flags, 10, "|");
-        int   i;
+        int   i, n;
 
         for (i = 0; i < flag_ct; i++)
         {
@@ -1373,9 +1373,13 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_ptr grid
             {
                 grid->flags |= ROOM_GRID_MON_CLONED;
             }
-            else if (strstr(flag, "DEPTH+") == flag)
+            else if (sscanf(flag, "DEPTH+%d", &n) == 1)
             {
-                grid->monster_level = atoi(flag + strlen("DEPTH+"));
+                grid->monster_level = n;
+            }
+            else if (sscanf(flag, "%d%%", &n) == 1)
+            {
+                grid->mon_pct = n;
             }
             else
             {
@@ -1548,14 +1552,18 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_ptr grid,
     {
         char *flags[10];
         int   flag_ct = z_string_split(args[1], flags, 10, "|");
-        int   i;
+        int   i, n;
 
         for (i = 0; i < flag_ct; i++)
         {
             char* flag = flags[i];
-            if (strstr(flag, "DEPTH+") == flag)
+            if (sscanf(flag, "DEPTH+%d", &n) == 1)
             {
-                grid->object_level = atoi(flag + strlen("DEPTH+"));
+                grid->object_level = n;
+            }
+            else if (sscanf(flag, "%d%%", &n) == 1)
+            {
+                grid->obj_pct = n;
             }
             else
             {
@@ -1744,10 +1752,12 @@ static errr _parse_room_grid_artifact(char **args, int arg_ct, room_grid_ptr gri
 
 static errr _parse_room_grid_trap(char **args, int arg_ct, room_grid_ptr grid)
 {
+    int n;
     switch (arg_ct)
     {
     case 2:
-        grid->trap_pct = atoi(args[1]);
+        if (sscanf(args[1], "%d%%", &n) == 1)
+            grid->trap_pct = n;
         /* vvvvvvvvv Fall Through vvvvvvvvvvvv */
     case 1:
         if (streq(args[0], "*"))
@@ -1815,6 +1825,10 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
                 grid->cave_info |= CAVE_GLOW;
             else if (streq(flag, "MARK"))
                 grid->cave_info |= CAVE_MARK | CAVE_AWARE;
+            else if (streq(flag, "INNER"))
+                grid->cave_info |= CAVE_INNER | CAVE_VAULT;
+            else if (streq(flag, "OUTER"))
+                grid->cave_info |= CAVE_OUTER | CAVE_VAULT;
             else if (_is_numeric(flag)) /* QUEST_ENTER(1) or QUEST_ENTER(GLOW, 1) */
             {
                 grid->flags |= ROOM_GRID_SPECIAL;
@@ -1926,6 +1940,8 @@ static errr _parse_room_flags(char* buf, room_ptr room)
             room->flags |= ROOM_NO_ROTATE;
         else if (streq(flag, "FORMATION"))
             room->flags |= ROOM_THEME_FORMATION;
+        else if (streq(flag, "THEME_OBJECT"))
+            room->flags |= ROOM_THEME_OBJECT;
         else
         {
             msg_format("Error: Invalid room flag %s.", flag);
@@ -2027,8 +2043,20 @@ static errr parse_v_info(char *buf, int options)
     /* Current entry */
     static room_ptr room = NULL;
 
+    /* Default letters for all rooms and vaults */
+    if (buf[0] == 'L' && buf[1] == ':' && !room)
+    {
+        int rc;
+        room_grid_ptr letter = malloc(sizeof(room_grid_t));
+        memset(letter, 0, sizeof(room_grid_t));
+        letter->letter = buf[2];
+        rc = parse_room_grid(buf + 4, letter, options);
+        if (!rc) int_map_add(room_letters, letter->letter, letter);
+        else free(letter);
+        if (rc) return rc;
+    }
     /* N:Name */
-    if (buf[0] == 'N')
+    else if (buf[0] == 'N')
     {
         char *zz[10];
         int   num = tokenize(buf + 2, 10, zz, 0);
@@ -2069,6 +2097,8 @@ errr init_v_info(int options)
 {
     if (room_info) vec_free(room_info); /* double initialization?? */
     room_info = vec_alloc((vec_free_f)room_free);
+    if (room_letters) int_map_free(room_letters);
+    room_letters = int_map_alloc(free);
     return parse_edit_file("v_info.txt", parse_v_info, options);
 }
 
@@ -3605,7 +3635,7 @@ static int _default_blow_power(int effect)
 }
 
 /*   V------------------- buf
- * B:BITE:SUPERHURT:15d10   <===== The old syntax, supported for *sanity*
+ * B:BITE:SUPERHURT:15d10   <===== The old syntax (no longer supported)
  * B:BITE(60):HURT(15d10):HURT(15d10, 20%):STUN(5d5, 10%)  <=== New syntax, multiple effects
  *   ^------------------- buf
  */
@@ -3739,6 +3769,51 @@ static errr parse_mon_auras(char *buf, mon_race_ptr r_ptr)
 
     return rc;
 }
+static errr parse_mon_flags(char *buf, mon_race_ptr race)
+{
+    errr  rc = 0;
+    char *tokens[20];
+    int   token_ct = z_string_split(buf, tokens, 20, "|");
+    int   i, j;
+
+    for (i = 0; i < token_ct; i++)
+    {
+        char *token = tokens[i];
+
+        if (!strlen(token)) continue;
+        if (prefix(token, "FRIENDS"))
+        {
+            char *name;
+            char *args[10];
+            int   arg_ct = parse_args(token, &name, args, 10);
+            race->flags1 |= RF1_FRIENDS;
+            if (!streq(name, "FRIENDS")) return 5; /* eg FRIENDS_I_LIKE s/b an error */
+            if (arg_ct > 2)
+                return PARSE_ERROR_TOO_FEW_ARGUMENTS; /* s/FEW/MANY */
+            for (j = 0; j < arg_ct; j++)  /* XXX parsing logic duplicated above ... */
+            {
+                char arg[100], sentinel = '~', check;
+                int  dd, ds, pct;
+                sprintf(arg, "%s%c", args[j], sentinel);
+                
+                if (2 == sscanf(arg, "%d%%%c", &pct, &check) && check == sentinel)
+                    race->pack_pct = MAX(0, MIN(100, pct));
+                else if (3 == sscanf(arg, "%dd%d%c", &dd, &ds, &check) && check == sentinel)
+                {
+                    race->pack_dice = MAX(0, MIN(100, dd)); /* 100d100 max */
+                    race->pack_sides = MAX(0, MIN(100, ds));
+                }
+                else
+                {
+                    msg_format("Error: Unknown argument %s.", args[j]);
+                    return PARSE_ERROR_GENERIC;
+                }
+            }
+        }
+        else if (0 != grab_one_basic_flag(race, token)) return 5;
+    }
+    return rc;
+}
 static errr parse_mon_spells(char *buf, mon_race_ptr race)
 {
     errr  rc = 0;
@@ -3774,7 +3849,7 @@ errr parse_r_info(char *buf, header *head)
 {
     int i;
 
-    char *s, *t;
+    char *s;
 
     /* Current entry */
     static monster_race *r_ptr = NULL;
@@ -4085,25 +4160,7 @@ errr parse_r_info(char *buf, header *head)
     /* Process 'F' for "Basic Flags" (multiple lines) */
     else if (buf[0] == 'F')
     {
-        /* Parse every entry */
-        for (s = buf + 2; *s; )
-        {
-                /* Find the end of this entry */
-            for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-
-                /* Nuke and skip any dividers */
-            if (*t)
-            {
-                *t++ = '\0';
-                while (*t == ' ' || *t == '|') t++;
-            }
-
-                /* Parse this entry */
-            if (0 != grab_one_basic_flag(r_ptr, s)) return (5);
-
-                /* Start the next entry */
-            s = t;
-        }
+        return parse_mon_flags(buf + 2, r_ptr);
     }
 
     /* Process 'S' for "Spell Flags" (multiple lines) */
@@ -4542,7 +4599,7 @@ errr parse_room_line(room_ptr room, char *line, int options)
         else
             room->max_level = atoi(zz[1]);
         tmp = atoi(zz[2]);
-        if (tmp < 0 || tmp > 255)
+        if (tmp < 0 || tmp > 255) /* room_t.rarity is a byte */
         {
             msg_format("Error: Invalid rarity %d. Enter a value between 1 and 255.", tmp);
             return PARSE_ERROR_OUT_OF_BOUNDS;

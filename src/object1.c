@@ -123,9 +123,8 @@ void weapon_flags_known(int hand, u32b flgs[OF_ARRAY_SIZE])
     {
         int i;
         obj_flags_known(o_ptr, flgs);
-        /* TODO: Some of the following flags might not be known ... */
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            flgs[i] |= p_ptr->weapon_info[hand].flags[i];
+            flgs[i] |= p_ptr->weapon_info[hand].known_flags[i];
     }
 }
 
@@ -368,6 +367,17 @@ static void _obj_identify_aux(object_type *o_ptr)
             a_ptr->known_flags[i] |= (o_ptr->known_flags[i] & a_ptr->flags[i]);
             o_ptr->known_flags[i] &= ~a_ptr->flags[i];
         }
+        add_flag(a_ptr->known_flags, OF_IGNORE_ACID);
+        add_flag(a_ptr->known_flags, OF_IGNORE_ELEC);
+        add_flag(a_ptr->known_flags, OF_IGNORE_FIRE);
+        add_flag(a_ptr->known_flags, OF_IGNORE_COLD);
+    }
+    else if (o_ptr->art_name)
+    {
+        add_flag(o_ptr->known_flags, OF_IGNORE_ACID);
+        add_flag(o_ptr->known_flags, OF_IGNORE_ELEC);
+        add_flag(o_ptr->known_flags, OF_IGNORE_FIRE);
+        add_flag(o_ptr->known_flags, OF_IGNORE_COLD);
     }
     else if (o_ptr->name2)
     {
@@ -465,9 +475,7 @@ bool obj_is_identified_fully(object_type *o_ptr)
 void obj_identify(object_type *o_ptr)
 {
     assert(o_ptr);
-    if (easy_id)
-        obj_identify_fully(o_ptr);
-    else if (!obj_is_identified(o_ptr))
+    if (!obj_is_identified(o_ptr))
         _obj_identify_aux(o_ptr);
 }
 
@@ -612,6 +620,8 @@ void obj_learn_slay(object_type *o_ptr, int which, cptr msg)
         object_desc(buf, o_ptr, OD_LORE);
         msg_format("<color:B>You learn that your %s %s.</color>", buf, msg);
     }
+    /* Gloves and rings may give additional slays ... */
+    equip_learn_slay(which, msg);
 }
 
 const int _xtra_lore_flags[] = {

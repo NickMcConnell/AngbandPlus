@@ -12,14 +12,6 @@ Various concepts are mentioned in the descriptions below, including <color:keywo
 
 The birth options can only be accessed while creating a new character (press <color:keypress>=</color> while creating the character). There is no way to turn them off after the creation is finished!
   <indent>
-<topic:easy_id><color:U>Easy Identify</color> <color:D>(easy_id)</color>
-This option simplifies the identification of objects, making Identify work just like *Identify*. However, this renders many spells (such as <color:keyword>Stone Tell</color> in Nature and <color:keyword>Identify True</color> in Sorcery) and objects (such as <color:keyword>Staves of *Identify*</color>) redundant or pointless. Also, some classes (such as the Archaeologist) are designed with early access to *Identify* as a principle bonus. Enabling this option removes the advantages of these classes, making them less worthy of playing.
-
-In addition, this birth option will also affect the early game pseudo-identification of objects. Normally, objects must be carried in your pack for some time before you become aware of their quality. The length of time is class dependent, as is the amount of information revealed through pseudo-identification (see <link:objects.txt#Pseudo-ID>). With <color:keyword>Easy Identify</color> enabled, all players will get instantaneous and full pseudo-identification of objects, making this aspect of gameplay much easier as well.
-
-<topic:easy_lore><color:U>Easy Lore</color> <color:D>(easy_lore)</color>
-With this option enabled, the player will be born with complete knowledge of monster lore, including the various attacks and nasty surprises that many monsters usually offer to the uninitiated. This is a bit of a spoiler option, but is available for those who don't enjoy learning each of the many monsters present in the game. Like the <color:U>Easy Identify</color> option, <color:U>Easy Lore</color> also renders a few aspects of the game non-functional or pointless, including the ability to <color:keyword>Probe</color> monsters to learn about them as you encounter them, and the town <color:keyword>Beastmaster Lore</color> service to learn about monsters before you see them (for a price, of course).
-
 <topic:smart_learn><color:U>Monsters learn from their mistakes</color> <color:D>(smart_learn)</color>
 Allow monsters to learn what spell attacks you are resistant to, and to use this information to choose the best attacks.
 
@@ -32,17 +24,11 @@ This option disables the wilderness, forcing you to play with a single special t
 <topic:ironman_shops><color:U>Stores are permanently closed</color> <color:D>(ironman_shops)</color>
 This option closes all shops. Try to survive in the deeps of the dungeon without supplies from town. Your Home still functions normally, and various town services are still available.
 
-<topic:ironman_small_levels><color:U>Always create unusually small dungeon levels</color> <color:D>(ironman_small_levels)</color>
-If this option is enabled, then every level will be smaller than usual. See the 'Allow unusually small dungeon levels' option below.
-
 <topic:ironman_downward><color:U>Disable recall and use of up stairs</color> <color:D>(ironman_downward)</color>
 You are not allowed to climb upwards, or recall to town. All stairs are downstairs and every time you teleport level, you'll teleport to a deeper level.
 
 <topic:ironman_empty_levels><color:U>Always create empty 'arena' levels</color> <color:D>(ironman_empty_levels)</color>
 If this option is enabled, then every level will be empty 'arena' level. See the "Allow empty 'arena' levels" option below.
-
-<topic:ironman_rooms><color:U>Always generate very unusual rooms</color> <color:D>(ironman_rooms)</color>
-If this option is enabled, every room becomes a vault. It is unclear whether this makes the game harder or easier.
 
 <topic:ironman_nightmare><color:U>Nightmare mode(it isn't even remotely fair!)</color> <color:D>(ironman_nightmare)</color>
 If this option is enabled, all monsters become unusually powerful, and fast. And there will be various unbelievable things happening in various situations. Furthermore, at 12:00 every night, you will have a real nightmare. You need to be crazy to turn this option on!
@@ -90,9 +76,6 @@ Normally, no confirmation will be asked if you attempt to destroy an object whic
 
 <topic:confirm_wear><color:U>Confirm to wear/wield known cursed items</color> <color:D>(confirm_wear)</color>
 Some players may occasionally, due to a typing mistake, find themselves wearing an item which they knew was cursed. If this option is set, you should be safe from such typing mistakes: you will be prompted if you attempt to wear or wield an item if your character knows it is cursed.
-
-<topic:confirm_quest><color:U>Prompt before exiting a quest level</color> <color:D>(confirm_quest)</color>
-In the dungeon, you can freely climb up/down stairs and can return to former floors normally. But in some quest level, including the random quest, you can not return once you escaped from the level. If this option is set, the program asks for confirmation before you go up the stairs from such quest levels.
 
 <topic:target_pet><color:U>Allow targetting pets</color> <color:D>(target_pet)</color>
 Normally, the program doesn't automatically choose pets as target in the targeting mode of attack spells. If this option is set, the program always chooses every monster in sight as target.
@@ -237,12 +220,6 @@ Force otherwise identical objects to merge, even if they have different discount
 
 <topic:expand_list><color:U>Expand the power of the list commands</color> <color:D>(expand_list)</color>
 Expand the "listing" commands so that they "wrap" at the "edges" of the appropriate list. This allows the "look" and "target" commands to "cycle" through all appropriate grids forever, and the "identify symbol" to browse through all of the monsters of a given type.
-
-<topic:small_levels><color:U>Allow unusually small dungeon levels</color> <color:D>(small_levels)</color>
-This option enables the creation of levels of varying sizes. Levels that are as small as the town level (i.e. 1 'screen') are possible, yet they can be dangerous, especially for a low level character. Note that this option has the side effect of enabling / disabling 'destroyed' levels (they are enabled if small levels are).
-
-<topic:always_small_levels><color:U>Always create unusually small dungeon levels</color> <color:D>(always_small_levels)</color>
-If this option is enabled, then every level will be smaller than usual. See the 'Allow unusually small dungeon levels' option above.
 
 <topic:empty_levels><color:U>Allow empty 'arena' levels</color> <color:D>(empty_levels)</color>
 Normal dungeon levels consist mostly of rock. If this option is in use, levels which have empty floor instead of solid rock may also be created (somewhat reminiscent of Nethack's "big-room" levels). These levels can be extremely deadly, especially with breathing monsters (since there are few obstructions to shield). Arena levels may have vaults, nests and pits in them like normal levels. Some arena levels are dark when they are created, but most are lit.

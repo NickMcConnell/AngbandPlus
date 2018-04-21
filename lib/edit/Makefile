@@ -29,12 +29,15 @@ CONFIG = a_info.txt \
 	q_old_castle.txt \
 	q_old_man_willow.txt \
 	q_orcs.txt \
+	q_removed.txt \
 	q_serpent_of_chaos.txt \
 	q_sewer.txt \
 	q_sorcery.txt \
+	q_sorcerer.txt \
 	q_spawning_pits.txt \
 	q_tengu_death_swords.txt \
 	q_thieves.txt \
+	q_vapor2.txt \
 	q_vapor.txt \
 	q_vault.txt \
 	q_wargs.txt \
@@ -50,6 +53,8 @@ CONFIG = a_info.txt \
 	t_telmora.txt \
 	t_zul.txt \
 	v_info.txt \
+	vaults.txt \
+	rooms.txt \
 	w_info.txt
 
 PACKAGE = edit

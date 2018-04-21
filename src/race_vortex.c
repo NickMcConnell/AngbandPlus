@@ -238,9 +238,15 @@ static int _breath_amount(void)
 
 static cptr _breath_desc(void)
 {
+    gf_info_ptr gf;
     if (p_ptr->current_r_idx == MON_AETHER_VORTEX)
         return "almost anything";
-    return gf_name(_breath_effect());
+    /* XXX gf_name() returns a color coded result, but the 'powers' menu is still
+     * old school and does not use a z-doc for formatting. */
+    gf = gf_lookup(_breath_effect());
+    if (gf)
+        return gf->name;
+    return "";
 }
 
 static void _breathe_spell(int cmd, variant *res)
@@ -319,9 +325,11 @@ static void _explode_spell(int cmd, variant *res)
     case SPELL_NAME:
         var_set_string(res, "Elemental Explosion");
         break;
-    case SPELL_DESC:
-        var_set_string(res, format("Generates a large ball of %s.", _breath_desc()));
-        break;
+    case SPELL_DESC: {
+        char buf[255];
+        sprintf(buf, "Generates a large ball of %s.", _breath_desc());
+        var_set_string(res, buf);
+        break; }
     case SPELL_INFO:
         var_set_string(res, info_damage(0, 0, _breath_amount()));
         break;

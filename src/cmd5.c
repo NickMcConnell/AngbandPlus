@@ -494,7 +494,7 @@ void do_cmd_study(void)
         int new_rank = EXP_LEVEL_UNSKILLED;
         cptr name = do_spell(increment ? p_ptr->realm2 : p_ptr->realm1, spell%32, SPELL_NAME);
 
-        if (old_exp >= max_exp || !enable_spell_prof)
+        if (old_exp >= max_exp)
         {
             msg_format("You don't need to study this %s anymore.", p);
             return;
@@ -586,13 +586,7 @@ void do_cmd_study(void)
 
 static void wild_magic(int spell)
 {
-    int counter = 0;
-    int type = SUMMON_BIZARRE1 + randint0(6);
-
-    if (type < SUMMON_BIZARRE1) type = SUMMON_BIZARRE1;
-    else if (type > SUMMON_BIZARRE6) type = SUMMON_BIZARRE6;
-
-    switch (randint1(spell) + randint1(8) + 1)
+    switch (randint1(spell) + randint0(8))
     {
     case 1:
     case 2:
@@ -657,28 +651,23 @@ static void wild_magic(int spell)
         fire_ball(GF_CHAOS, 0, spell + 5, 1 + (spell / 10));
         break;
     case 33:
+    case 34:
         wall_stone();
         break;
-    case 34:
     case 35:
+    case 36: {
+        int counter = 0;
+        int type = rand_range(SUMMON_BIZARRE1, SUMMON_BIZARRE6);
+        int dl = dun_level*3/2;
         while (counter++ < 8)
-        {
-            (void)summon_specific(0, py, px, (dun_level * 3) / 2, type, (PM_ALLOW_GROUP | PM_NO_PET));
-        }
-        break;
-    case 36:
+            summon_specific(0, py, px, dl, type, PM_ALLOW_GROUP | PM_NO_PET);
+        break; }
     case 37:
+    case 38:
+    case 39: /* current max */
+    default: /* paranoia */
         activate_hi_summon(py, px, FALSE);
         break;
-    case 38:
-        (void)summon_cyber(-1, py, px);
-        break;
-    default:
-        {
-            int count = 0;
-            (void)activate_ty_curse(FALSE, &count);
-            break;
-        }
     }
 
     return;
@@ -1041,13 +1030,7 @@ void do_cmd_cast(void)
 
         virtue_on_cast_spell(use_realm, need_mana, chance);
 
-        /* Casting spells for no purpose other than gaining proficiency is considered
-         * a scum ... You should not do this! If you cannot restrain yourself, then
-         * disable spell proficiency by turning off the enable_spell_prof birth option.
-         * But for those players who like an interesting game, I tweaked the progression
-         * and depth limits quite a bit. I'll publish my design spreadsheet once I have
-         * time to clean it up ...*/
-        if (enable_spell_prof && (mp_ptr->spell_xtra & MAGIC_GAIN_EXP))
+        if (mp_ptr->spell_xtra & MAGIC_GAIN_EXP)
         {
             int  index = (increment ? 32 : 0)+spell;
             s16b cur_exp = p_ptr->spell_exp[index];

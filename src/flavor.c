@@ -2086,18 +2086,22 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     {
         int  fail = device_calc_fail_rate(o_ptr);
         strcat(tmp_val2, format("%d%%", (fail + 5)/10));
-        if (statistics_hack)
+        if (statistics_hack || (mode & OD_SHOW_DEVICE_INFO))
         {
-            effect_t e = obj_get_effect(o_ptr);
-            cptr     info = do_effect(&e, SPELL_INFO, 0);
-            char     buf[255];
-
-            if (info)
+            cptr info = do_device(o_ptr, SPELL_INFO, 0);
+            if (info && strlen(info))
             {
+                char buf[255];
                 sprintf(buf, " %s", info);
                 strcat(tmp_val2, buf);
             }
+        }
+        if (statistics_hack)
+        {
+            char buf[255];
             sprintf(buf, " %dsp", o_ptr->activation.cost);
+            strcat(tmp_val2, buf);
+            sprintf(buf, " P%d D%d", o_ptr->activation.power, o_ptr->activation.difficulty);
             strcat(tmp_val2, buf);
         }
     }

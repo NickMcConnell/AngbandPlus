@@ -2195,9 +2195,12 @@ static bool _smithing(void)
     /* Smithing now automatically 'Judges' the object for free */
     if (p_ptr->lev < 10)
     {
-        prompt.obj->ident |= IDENT_SENSE;
-        prompt.obj->feeling = value_check_aux1(prompt.obj);
-        prompt.obj->marked |= OM_TOUCHED;
+        if (!obj_is_identified(prompt.obj))
+        {
+            prompt.obj->ident |= IDENT_SENSE;
+            prompt.obj->feeling = value_check_aux1(prompt.obj);
+            prompt.obj->marked |= OM_TOUCHED;
+        }
     }
     else
     {

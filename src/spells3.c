@@ -1865,7 +1865,7 @@ static bool _alchemy_aux(obj_ptr obj, bool force)
 
     price = obj_value_real(obj);
 
-    if (price <= 0 || no_selling)
+    if (price <= 0)
     {
         msg_format("You turn %s to fool's gold.", o_name);
     }
@@ -2983,7 +2983,6 @@ s16b experience_of_spell(int spell, int use_realm)
 {
     if (p_ptr->pclass == CLASS_SORCERER) return SPELL_EXP_MASTER;
     else if (p_ptr->pclass == CLASS_RED_MAGE) return SPELL_EXP_SKILLED;
-    else if (!enable_spell_prof) return SPELL_EXP_EXPERT; /* XXX */
     else if (use_realm == p_ptr->realm1) return p_ptr->spell_exp[spell];
     else if (use_realm == p_ptr->realm2) return p_ptr->spell_exp[spell + 32];
     else return 0;
@@ -3271,21 +3270,14 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
     else
     {
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
-        {
-            if (enable_spell_prof)
-                strcpy(buf,"Profic Lvl  HP Fail Desc");
-            else
-                strcpy(buf, "Lvl  HP Fail Desc");
-        }
-        else if (enable_spell_prof)
-            strcpy(buf,"Profic Lvl  SP Fail Desc");
+            strcpy(buf,"Profic Lvl  HP Fail Desc");
         else
-            strcpy(buf,"Lvl  SP Fail Desc");
+            strcpy(buf,"Profic Lvl  SP Fail Desc");
     }
 
     Term_erase(display.x, display.y, display.cx);
     put_str("Name", display.y, display.x + 5);
-    put_str(buf, display.y, display.x + enable_spell_prof ? 29 : 31);
+    put_str(buf, display.y, display.x + 29);
 
     if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE)) increment = 0;
     else if (use_realm == p_ptr->realm1) increment = 0;
@@ -3413,17 +3405,11 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
                 do_spell(use_realm, spell, SPELL_NAME),
                 s_ptr->slevel, need_mana));
         }
-        else if (enable_spell_prof)
+        else
         {
             strcat(out_val, format("%-25s%c%-4s %3d %3d %3d%% %s",
                 do_spell(use_realm, spell, SPELL_NAME),
                 (max ? '!' : ' '), ryakuji,
-                s_ptr->slevel, need_mana, spell_chance(spell, use_realm), comment));
-        }
-        else
-        {
-            strcat(out_val, format("%-25s %3d %3d %3d%% %s",
-                do_spell(use_realm, spell, SPELL_NAME),
                 s_ptr->slevel, need_mana, spell_chance(spell, use_realm), comment));
         }
         c_put_str(line_attr, out_val, display.y + i + 1, display.x);
@@ -3742,7 +3728,7 @@ void inven_damage(inven_func typ, int p1, int which)
  *
  * If any armor is damaged (or resists), the player takes less damage.
  */
-static int minus_ac(void)
+int minus_ac(void)
 {
     int slot = equip_random_slot(object_is_armour);
 
@@ -3779,131 +3765,6 @@ static int minus_ac(void)
     }
     return FALSE;
 }
-
-
-/*
- * Hurt the player with Acid
- */
-static int _inv_dam_pct(int dam)
-{
-    return (dam < 30) ? 3 : (dam < 60) ? 6 : 9;
-}
-
-int acid_dam(int dam, cptr kb_str)
-{
-    int get_damage;
-    int inv = _inv_dam_pct(dam);
-
-    dam = res_calc_dam(RES_ACID, dam);
-
-    /* Total Immunity */
-    if (dam <= 0) return 0;
-
-    if (!CHECK_MULTISHADOW())
-    {
-        if (!res_save_default(RES_ACID) && one_in_(HURT_CHANCE))
-            (void)do_dec_stat(A_CHR);
-
-        /* If any armor gets hit, defend the player */
-        if (minus_ac()) dam = (dam + 1) / 2;
-    }
-
-    /* Take damage */
-    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str);
-
-    /* Inventory damage */
-    inven_damage(set_acid_destroy, inv, RES_ACID);
-
-    return get_damage;
-}
-
-
-/*
- * Hurt the player with electricity
- */
-int elec_dam(int dam, cptr kb_str)
-{
-    int get_damage;
-    int inv = _inv_dam_pct(dam);
-
-    dam = res_calc_dam(RES_ELEC, dam);
-
-    /* Total immunity */
-    if (dam <= 0) return 0;
-
-    if (!CHECK_MULTISHADOW())
-    {
-        if (!res_save_default(RES_ELEC) && one_in_(HURT_CHANCE))
-            (void)do_dec_stat(A_DEX);
-    }
-
-    /* Take damage */
-    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str);
-
-    /* Inventory damage */
-    inven_damage(set_elec_destroy, inv, RES_ELEC);
-
-    return get_damage;
-}
-
-
-/*
- * Hurt the player with Fire
- */
-int fire_dam(int dam, cptr kb_str)
-{
-    int get_damage;
-    int inv = _inv_dam_pct(dam);
-
-    dam = res_calc_dam(RES_FIRE, dam);
-
-    /* Totally immune */
-    if (dam <= 0) return 0;
-
-    if (!CHECK_MULTISHADOW())
-    {
-        if (!res_save_default(RES_FIRE) && one_in_(HURT_CHANCE))
-            (void)do_dec_stat(A_STR);
-    }
-
-    /* Take damage */
-    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str);
-
-    /* Inventory damage */
-    inven_damage(set_fire_destroy, inv, RES_FIRE);
-
-    return get_damage;
-}
-
-
-/*
- * Hurt the player with Cold
- */
-int cold_dam(int dam, cptr kb_str)
-{
-    int get_damage;
-    int inv = _inv_dam_pct(dam);
-
-    dam = res_calc_dam(RES_COLD, dam);
-
-    /* Total immunity */
-    if (dam <= 0) return 0;
-
-    if (!CHECK_MULTISHADOW())
-    {
-        if (!res_save_default(RES_COLD) && one_in_(HURT_CHANCE))
-            (void)do_dec_stat(A_STR);
-    }
-
-    /* Take damage */
-    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str);
-
-    /* Inventory damage */
-    inven_damage(set_cold_destroy, inv, RES_COLD);
-
-    return get_damage;
-}
-
 
 bool rustproof(void)
 {
@@ -4231,6 +4092,7 @@ bool eat_magic(int power)
     {
         device_decrease_sp(prompt.obj, amt);
         sp_player(amt);
+        obj_release(prompt.obj, OBJ_RELEASE_DELAYED_MSG);
     }
 
     p_ptr->window |= PW_INVEN;

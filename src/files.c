@@ -1497,6 +1497,7 @@ void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
     if (p_ptr->tim_sustain_chr) add_flag(flgs, OF_SUST_CHR);
     if (p_ptr->tim_hold_life) add_flag(flgs, OF_HOLD_LIFE);
     if (p_ptr->tim_dark_stalker) add_flag(flgs, OF_STEALTH);
+    if (p_ptr->tim_levitation) add_flag(flgs, OF_LEVITATION);
 
     if (p_ptr->special_attack & ATTACK_ACID)
         add_flag(flgs, OF_BRAND_ACID);
@@ -1650,6 +1651,7 @@ int ct_kills(void)
     for (i = 0; i < max_r_idx; i++)
     {
         monster_race *r_ptr = &r_info[i];
+        if (!r_ptr->name) continue;
         if (r_ptr->flags1 & RF1_UNIQUE)
         {
             if (r_ptr->max_num == 0) result++;
@@ -1670,6 +1672,7 @@ int ct_kills_all(void)
     for (i = 0; i < max_r_idx; i++)
     {
         monster_race *r_ptr = &r_info[i];
+        if (!r_ptr->name) continue;
         if (r_ptr->flags1 & RF1_UNIQUE)
         {
             if (r_ptr->max_num == 0) result++;
@@ -1691,6 +1694,7 @@ int ct_uniques(void)
     for (i = 0; i < max_r_idx; i++)
     {
         monster_race *r_ptr = &r_info[i];
+        if (!r_ptr->name) continue;
         if (r_ptr->flags1 & RF1_UNIQUE)
         {
             if (r_ptr->max_num == 0) result++;
@@ -2861,9 +2865,7 @@ long total_points(void)
     if (!smart_learn) mult -= 20;
     if (smart_cheat) mult += 30;
     if (ironman_shops) mult += 50;
-    if (ironman_small_levels) mult += 10;
     if (ironman_empty_levels) mult += 20;
-    if (ironman_rooms) mult += 100;
     if (ironman_nightmare) mult += 100;
 
     if (mult < 5) mult = 5;
@@ -3113,8 +3115,6 @@ static void print_tomb(void)
  */
 static void show_info(void)
 {
-    bool dumped = FALSE;
-
     pack_for_each(obj_identify);
     equip_for_each(obj_identify);
     quiver_for_each(obj_identify);
@@ -3136,7 +3136,6 @@ static void show_info(void)
     /* Flush messages */
     msg_print(NULL);
 
-
     /* Describe options */
     prt("You may now dump a character record to one or more files.", 21, 0);
     prt("Then, hit RETURN to see the character, or ESC to abort.", 22, 0);
@@ -3155,13 +3154,8 @@ static void show_info(void)
         strcpy(out_val, "");
 
         /* Ask for filename (or abort) */
-        if (!askfor(out_val, 60))
-        {
-            if (dumped) return;
-            if (get_check("<color:v>Warning:</color> You forgot to grab a character dump. "
-                          "Are you sure you want to abort? ")) return;
-            continue;
-        }
+        if (!askfor(out_val, 60)) return;
+
         /* Return means "show on screen" */
         if (!out_val[0]) break;
 
@@ -3170,7 +3164,6 @@ static void show_info(void)
 
         /* Dump a character file */
         (void)file_character(out_val);
-        dumped = TRUE;
 
         /* Load screen */
         screen_load();

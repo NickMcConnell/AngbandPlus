@@ -339,11 +339,11 @@ struct object_type
     s16b name2;            /* Ego-Item type, if any */
     s16b name3;         /* Random replacement for a fixed art */
 
-    byte xtra1;            /* Extra info type (now unused) */
+    byte xtra1;            /* Extra info: Weaponsmith */
     byte xtra2;            /* Extra info index */
-    byte xtra3;            /* Extra info: Chests and Weaponsmith */
-    s16b xtra4;            /* Extra info: Lights, Capture, Quiver Capacity ... */
-    s32b xtra5;            /* Extra info */
+    byte xtra3;            /* Extra info: Chests and Weaponsmith. Device Power. */
+    s16b xtra4;            /* Extra info: Lights, Capture, Quiver Capacity, Device MaxSP. */
+    s32b xtra5;            /* Extra info: Device CSP */
 
     s16b to_h;            /* Plusses to hit */
     s16b to_d;            /* Plusses to damage */
@@ -371,6 +371,7 @@ struct object_type
 
     u32b known_flags[OF_ARRAY_SIZE];
     u32b known_curse_flags;
+    u32b known_xtra;
 
     u32b rune;
 
@@ -510,8 +511,12 @@ struct monster_race
     mon_blow_t blows[MAX_MON_BLOWS];
     mon_effect_t auras[MAX_MON_AURAS];
 
-    s16b next_r_idx;
+    s16b next_r_idx;          /* Evolution */
     u32b next_exp;
+
+    byte pack_pct;           /* FRIENDS has become FRIENDS(XdY[,Z%]) if desired */
+    byte pack_dice;
+    byte pack_sides;
 
     byte level;               /* Level of creature */
     byte melee_level;
@@ -660,6 +665,7 @@ enum {
     SM_CLONED,
     SM_PET,
     SM_FRIENDLY,
+    SM_SUMMONED,
     SM_MAX
 };
 
@@ -919,6 +925,7 @@ typedef struct {
     int  giant_wield;
     int  dual_wield_pct; /* Scaled by 10 so 123 = 12.3%. Set to 1000 (ie 100%) if not dual wielding */
     u32b flags[OF_ARRAY_SIZE];
+    u32b known_flags[OF_ARRAY_SIZE];
     byte info_attr;
     cptr info;
 } weapon_info_t, *weapon_info_ptr;
@@ -2035,7 +2042,8 @@ struct device_effect_info_s
     int      cost;
     int      rarity;
     int      max_depth;
-    int      extra;
+    int      difficulty_base;
+    int      difficulty_xtra;
     int      flags;
     counts_t counts;
     int      prob;

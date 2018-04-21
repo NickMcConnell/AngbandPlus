@@ -3745,6 +3745,12 @@ void process_monsters(void)
         /* Give this monster some energy */
         m_ptr->energy_need -= SPEED_TO_ENERGY(speed);
 
+        /* Check for SI now in case the monster is sleeping or lacks enough
+         * energy to move. Should the monster move or attack, we'll make another
+         * (overriding) check again later. */
+        if ((r_ptr->flags2 & RF2_INVISIBLE) && p_ptr->see_inv)
+            update_mon(i, FALSE);
+
         /* Not enough energy to move */
         if (m_ptr->energy_need > 0) continue;
 

@@ -1,0 +1,27 @@
+# Stub file for removed quests. If I remove a quest in an active
+# release, I'd like it not to break existing games. I'm pretty sure
+# that q_info.txt changes will suffice, but worry that some code might
+# try to parse the file link.
+?:[EQU $QUEST26 Taken InProgress]
+D:This quest has been removed. If you are seeing this, then
+D:you probably took the quest before upgrading to a version
+D:in which the quest no longer exists.
+?:1
+
+?:[EQU $QUEST26 Completed]
+D:You accomplished something truly noble. Well done!
+?:1
+
+?:[EQU $QUEST26 Failed]
+D:You failed this quest.
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:<:UP_STAIR
+M:###
+M:#<#
+M:###
+R:OBJ(potion of slime mold juice)
+
+# vim: filetype=q :

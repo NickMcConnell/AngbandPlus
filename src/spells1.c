@@ -3369,7 +3369,6 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
         }
     }
 
-
     /* Check monsters */
     if (flg & (PROJECT_KILL))
     {
@@ -3380,6 +3379,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
         /* Start with "dist" of zero */
         dist = 0;
+
+        hack_max_m_dam = 0;  /* XXX see below for device lore */
 
         /* Scan for monsters */
         for (i = 0; i < grids; i++)
@@ -3526,6 +3527,12 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
             if (project_m(who, effective_dist, y, x, dam, typ, flg, see_s_msg)) notice = TRUE;
         }
 
+        /* Hack: Handle device lore for offensive effects. We could do this on
+         * a case by case basis in do_effect(), but this is easier. Of course,
+         * we don't know whether or not project() was called from a device at
+         * this point, but erroneously setting device_lore is harmless. */
+        if (hack_max_m_dam >= dam) /* && one_in_(?) */
+            device_lore = TRUE;
 
         /* Player affected one monster (without "jumping") */
         if (!who && (project_m_n == 1) && !jump)
@@ -3555,6 +3562,13 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
     /* Check player */
     if (flg & (PROJECT_KILL))
     {
+        /* XXX If project_p moves the player short range, then there
+         * is the possibility that the effect projects on them more
+         * than once. For example, Kavlax can breathe nexus for 500,
+         * which is a bit harsh, don't you think? This is also a big
+         * issue with BR_STORM which does 300 dam + short teleport. */
+        bool did_project_p = FALSE;
+
         /* Start with "dist" of zero */
         dist = 0;
 
@@ -3622,8 +3636,12 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
                 }
             }
 
-            /* Affect the player */
-            if (project_p(who, who_name, effective_dist, y, x, dam, typ, flg)) notice = TRUE;
+            /* Affect the player ... at most once! */
+            if (!did_project_p)
+            {
+                if (project_p(who, who_name, effective_dist, y, x, dam, typ, flg)) notice = TRUE;
+                did_project_p = TRUE;
+            }
         }
     }
 

@@ -1762,8 +1762,7 @@ static void hit_trap(bool break_trap)
             msg_print("You are enveloped in flames!");
 
             dam = damroll(4, 6);
-            (void)fire_dam(dam, "a fire trap");
-
+            gf_affect_p(GF_WHO_TRAP, GF_FIRE, dam, GF_AFFECT_TRAP);
             break;
         }
 
@@ -1772,8 +1771,7 @@ static void hit_trap(bool break_trap)
             msg_print("You are splashed with acid!");
 
             dam = damroll(4, 6);
-            (void)acid_dam(dam, "an acid trap");
-
+            gf_affect_p(GF_WHO_TRAP, GF_ACID, dam, GF_AFFECT_TRAP);
             break;
         }
 
@@ -4932,7 +4930,7 @@ static bool _auto_mapping(void)
     slot_t slot;
     if (!auto_map_area) return FALSE;
     if (p_ptr->pclass == CLASS_BERSERKER) return FALSE;
-    /*if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_mapping()) return TRUE;*/
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_mapping()) return TRUE;
 
     slot = pack_find_obj(TV_SCROLL, SV_SCROLL_MAPPING);
     if (slot && !p_ptr->blind && !(get_race()->flags & RACE_IS_ILLITERATE))
@@ -5580,8 +5578,15 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             energy_use *= 2;
         }
     }
-    else if (have_flag(f_ptr->flags, FF_WEB) && !prace_is_(RACE_MON_SPIDER) && !warlock_is_(WARLOCK_SPIDERS))
-        energy_use *= 2;
+    else if (have_flag(f_ptr->flags, FF_WEB))
+    {
+        if (prace_is_(RACE_MON_SPIDER))
+            energy_use = energy_use * (90 - p_ptr->lev) / 100;
+        else if (warlock_is_(WARLOCK_SPIDERS))
+            energy_use = energy_use * (150 - p_ptr->lev) / 150;
+        else
+            energy_use *= 2;
+    }
 
 #ifdef ALLOW_EASY_DISARM /* TNB */
 

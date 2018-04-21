@@ -21,7 +21,7 @@ L:#:PERMANENT
 L:.:FLOOR
 L:+:CLOSED_DOOR
 L:<:UP_STAIR
-L:^:TRAP(*, 50)
+L:^:TRAP(*, 50%)
 L:0:MON(THIEF, DEPTH+5)
 L:$:OBJ(*)
 M:###############

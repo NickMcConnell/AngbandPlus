@@ -2367,7 +2367,7 @@ static cptr do_nature_spell(int spell, int mode)
                 hp_player(heal);
                 set_stun(0, TRUE);
                 set_cut(0, TRUE);
-                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(300, p_ptr->poisoned / 2), TRUE);
             }
         }
         break;
@@ -4950,7 +4950,7 @@ static cptr do_arcane_spell(int spell, int mode)
         {
             if (cast)
             {
-                set_poisoned(p_ptr->poisoned - MAX(25, p_ptr->poisoned / 10), TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
             }
         }
         break;
@@ -5570,7 +5570,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (cast)
             {
                 fear_clear_p();
-                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(150, p_ptr->poisoned / 3), TRUE);
                 set_stun(0, TRUE);
                 set_cut(0, TRUE);
                 set_image(0, TRUE);
@@ -6596,7 +6596,7 @@ static cptr do_crusade_spell(int spell, int mode)
 
     case 7:
         if (name) return "Purify";
-        if (desc) return "Heals all cut, stun and poison status.";
+        if (desc) return "Heals cuts and stuns as well as reducing poison.";
 
         {
             if (cast)

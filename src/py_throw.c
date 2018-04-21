@@ -116,6 +116,13 @@ bool _init_context(py_throw_ptr context)
     {
         context->obj = _get_obj(context->type);
         if (!context->obj) return FALSE;
+        if ( context->obj->loc.where == INV_EQUIP
+          && context->obj->tval == TV_QUIVER
+          && quiver_count(NULL) )
+        {
+            msg_print("Your quiver still holds ammo. Remove all the ammo from your quiver first.");
+            return FALSE;
+        }
     }
     obj_flags(context->obj, context->flags);
     object_desc(context->obj_name, context->obj, OD_NAME_ONLY | OD_OMIT_PREFIX | OD_OMIT_INSCRIPTION);
@@ -388,6 +395,8 @@ void _throw(py_throw_ptr context)
          * so we can drop the object if needed */
         if (context->path_pos == context->path_ct - 1) break;
     }
+    if (p_ptr->pclass == CLASS_NINJA && context->obj->tval == TV_SPIKE)
+        stats_on_use(context->obj, 1);
 }
 
 void _return(py_throw_ptr context)

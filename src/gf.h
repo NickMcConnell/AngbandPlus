@@ -182,6 +182,7 @@ extern gf_info_ptr gf_lookup(int id);
  * negative code when using project(), but not for the gf_affect_* routines.
  */
 #define GF_WHO_PLAYER      0  /* same as PROJECT_WHO_PLAYER */
+#define GF_WHO_TRAP       -3  /* same as PROJECT_WHO_TRAP */
 
 /* We also need information on whether the effect is spell/breath based,
  * or whether it is the result of melee contact. Mostly, this if for message
@@ -195,6 +196,7 @@ extern gf_info_ptr gf_lookup(int id);
 #define GF_AFFECT_SPELL  0x01 /* Monster spell or breath from a project() */
 #define GF_AFFECT_ATTACK 0x02 /* Monster melee B:HIT:HURT(10d10):DISENCHANT */
 #define GF_AFFECT_AURA   0x04 /* Monster aura  A:DISENCHANT(3d5) */
+#define GF_AFFECT_TRAP   0x08
 extern int gf_affect_p(int who, int type, int dam, int flags);
 extern bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags);
 

@@ -83,8 +83,7 @@ F:q_doom1.txt
 
 N:20:25:Vapor Quest
 T:TOWN | GENERATE
-#F:q_vapor.txt
-F:q_vapor2.txt
+F:q_vapor.txt
 
 N:21:55:Doom Quest II
 T:TOWN | GENERATE
@@ -103,7 +102,7 @@ T:TOWN | GENERATE
 G:KILL(bull gates)
 F:q_microsoft.txt
 
-N:25:30:The Haunted House
+N:25:45:The Haunted House
 T:TOWN | GENERATE
 F:q_haunted_house.txt
 
@@ -141,17 +140,19 @@ N:33:45:The Cloning Pits
 T:TOWN | GENERATE
 F:q_cloning_pits.txt
 
-N:34:50:The Mountain Shrine
+#vvv Don't reuse these ids until version 8 vvv
+N:34:200:Removed Quest
 T:TOWN | GENERATE
-F:q_shrine.txt
+F:q_removed.txt
 
-N:35:42:Dragon Quest
+N:35:200:Removed Quest
 T:TOWN | GENERATE
-F:q_dragons.txt
+F:q_removed.txt
+#^^^ Don't reuse these ids until version 8 ^^^
 
-N:36:38:The Sand Pit
+N:36:45:The Renegade Sorcerer
 T:TOWN | GENERATE
-F:q_worms.txt
+F:q_sorcerer.txt
 
 ########################################################################
 # Random Quests ... assigned in quests_on_birth()

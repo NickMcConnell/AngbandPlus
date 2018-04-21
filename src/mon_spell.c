@@ -613,7 +613,7 @@ static mon_spell_parm_t _breath_parm(int which)
         parm.v.hp_pct = _hp_pct(33, 250);
         break;
     case GF_STORM:
-        parm.v.hp_pct = _hp_pct(13, 300);
+        parm.v.hp_pct = _hp_pct(13, 250);
         break;
     case GF_INERT:
     case GF_PLASMA:
@@ -816,16 +816,23 @@ static mon_spell_parm_t _summon_parm(int which)
     switch (which)
     {
     case SUMMON_CYBER:
+    case SUMMON_HI_UNDEAD:
+    case SUMMON_HI_DRAGON:
+    case SUMMON_HI_DEMON:
         parm.v.dice = _dice(1, 3, 0);
         break;
     case SUMMON_UNIQUE:
+    case SUMMON_GUARDIAN:
+    case SUMMON_AMBERITE:
+    case SUMMON_OLYMPIAN: /* Zeus, Hermes, Aprhrodite */
         parm.v.dice = _dice(1, 2, 0);
         break;
     case SUMMON_SPIDER:
     case SUMMON_HOUND:
+    case SUMMON_KIN:
         parm.v.dice = _dice(1, 2, 1);
         break;
-    default: /* XXX */
+    default:
         parm.v.dice = _dice(1, 3, 1);
     }
     return parm;
@@ -1367,6 +1374,11 @@ static bool _can_cast(mon_ptr mon)
     return TRUE;
 }
 
+static bool _not_innate_p(mon_spell_ptr spell)
+{
+    return !(spell->flags & MSF_INNATE);
+}
+
 bool mon_spell_cast(mon_ptr mon, mon_spell_ai ai)
 {
     mon_spell_cast_t cast = {0};
@@ -1383,6 +1395,18 @@ bool mon_spell_cast(mon_ptr mon, mon_spell_ai ai)
     _spell_cast_init(&cast, mon);
     if (ai(&cast))
     {
+        /* XXX Historically, the spell ai has removed non-innate spells from consideration
+         * prior to choosing a spell inside the Anti-magic caves. The result is that certain
+         * monsters get very very hard (e.g. Ghatanathoa). Instead, we'll now let the ai
+         * pick spells using the normal frequencies, and then reject magical spells. */
+        if ( py_in_dungeon()
+          && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC)
+          && _not_innate_p(cast.spell) )
+        {
+            /* attack instead */
+            return FALSE;
+        }
+
         _current = cast;
         _spell_cast_aux();
         memset(&_current, 0, sizeof(mon_spell_cast_t));
@@ -2966,10 +2990,6 @@ static bool _ball0_p(mon_spell_ptr spell)
 {
     return BOOL(spell->flags & MSF_BALL0);
 }
-static bool _not_innate_p(mon_spell_ptr spell)
-{
-    return !(spell->flags & MSF_INNATE);
-}
 static bool _blink_check_p(mon_spell_ptr spell)
 {
     switch (spell->id.type)
@@ -3280,7 +3300,7 @@ static void _ai_direct(mon_spell_cast_ptr cast)
         spell->prob = 0;
 
     /* XXX Currently, tactical spells involve making space for spellcasting monsters. */
-    if (spells->groups[MST_TACTIC] && _distance(cast->src, cast->dest) < 4 && _find_spell(spells, _blink_check_p))
+    if (spells->groups[MST_TACTIC] && _distance(cast->src, cast->dest) < 4 && _find_spell(spells, _blink_check_p) && !world_monster)
         _adjust_group(spells->groups[MST_TACTIC], NULL, 700);
 
     if (_distance(cast->src, cast->dest) > 5)
@@ -3509,9 +3529,6 @@ static void _ai_think(mon_spell_cast_ptr cast)
     /* Hack: Restrict for special dungeons or town buildings */
     if (p_ptr->inside_arena || p_ptr->inside_battle)
         _remove_group(cast->race->spells->groups[MST_SUMMON], NULL);
-
-    if (py_in_dungeon() && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC))
-        _remove_spells(cast->race->spells, _not_innate_p);
 
     /* Generally, we require direct los to spell against the player.
      * However, smart monsters might splash, summon, heal or escape.

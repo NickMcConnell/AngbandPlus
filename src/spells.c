@@ -1056,16 +1056,9 @@ static void _dump_book(doc_ptr doc, int realm, int book)
     else
     {
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
-        {
-            if (enable_spell_prof)
-                doc_printf(doc, "<color:G>    %-23.23s Profic Lvl  HP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
-            else
-                doc_printf(doc, "<color:G>    %-23.23s Lvl  HP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
-        }
-        else if (enable_spell_prof)
-            doc_printf(doc, "<color:G>    %-23.23s Profic Lvl  SP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
+            doc_printf(doc, "<color:G>    %-23.23s Profic Lvl  HP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
         else
-            doc_printf(doc, "<color:G>    %-23.23s Lvl  SP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
+            doc_printf(doc, "<color:G>    %-23.23s Profic Lvl  SP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
     }
 
     for (i = 0; i < 8; i++)
@@ -1163,7 +1156,7 @@ static void _dump_book(doc_ptr doc, int realm, int book)
                 )
             );
         }
-        else if (enable_spell_prof)
+        else
         {
             spell_stats_ptr stats = spell_stats_old(realm, s_idx);
             strcat(
@@ -1174,25 +1167,6 @@ static void _dump_book(doc_ptr doc, int realm, int book)
                     do_spell(realm, s_idx, SPELL_NAME),
                     (max ? '!' : ' '),
                     proficiency,
-                    s_ptr->slevel,
-                    cost,
-                    spell_chance(s_idx, realm),
-                    comment,
-                    stats->ct_cast,
-                    stats->ct_fail,
-                    spell_stats_fail(stats)
-                )
-            );
-        }
-        else
-        {
-            spell_stats_ptr stats = spell_stats_old(realm, s_idx);
-            strcat(
-                line,
-                format(
-                    "<color:%c>%-23s %3d %3d %3d%% %-15.15s %5d %4d %3d%%</color>",
-                    color,
-                    do_spell(realm, s_idx, SPELL_NAME),
                     s_ptr->slevel,
                     cost,
                     spell_chance(s_idx, realm),

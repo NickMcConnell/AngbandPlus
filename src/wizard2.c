@@ -765,7 +765,7 @@ static void do_cmd_wiz_jump(void)
     if (command_arg > d_info[dungeon_type].maxdepth) command_arg = d_info[dungeon_type].maxdepth;
 
     /* Accept request */
-    msg_format("You jump to dungeon level %d.", command_arg);
+    msg_format("<color:U>You jump to dungeon level %d:</color>", command_arg);
 
     if (autosave_l) do_cmd_save_game(TRUE);
 
@@ -1399,9 +1399,6 @@ static void _wiz_stats_inspect(int level)
         if (0 && !object_is_nameless(o_ptr) && object_is_ammo(o_ptr))
             _wiz_stats_log_obj(level, o_ptr);
 
-        if (0 && o_ptr->name2 && object_is_jewelry(o_ptr))
-            _wiz_stats_log_obj(level, o_ptr);
-
         if (0 && object_is_dragon_armor(o_ptr))
             _wiz_stats_log_obj(level, o_ptr);
 
@@ -1758,10 +1755,11 @@ void do_cmd_debug(void)
             }
         }
         wiz_lite(FALSE);
-        if (1) detect_treasure(255);
+        if (0) detect_treasure(255);
+        if (1)
         {
             int i, ct = 0;
-            char buf[MAX_NLEN];
+            /*char buf[MAX_NLEN];*/
             for (i = 0; i < max_o_idx; i++)
             {
                 if (!o_list[i].k_idx) continue;
@@ -1769,13 +1767,15 @@ void do_cmd_debug(void)
                 ct += o_list[i].number;
                 identify_item(&o_list[i]);
                 obj_identify_fully(&o_list[i]);
+                #if 0
                 if (o_list[i].name1 || o_list[i].name2)
                 {
                     object_desc(buf, &o_list[i], 0);
                     msg_print(buf);
                 }
+                #endif
             }
-            msg_format("Objects=%d", ct);
+            if (0) msg_format("Objects=%d", ct);
         }
         break;
 
@@ -1825,7 +1825,6 @@ void do_cmd_debug(void)
             if (lev % 10 == 0) reps += 1;
             if (lev % 20 == 0) reps += 1;
             if (lev % 30 == 0) reps += 2;
-            reps = 3; /* XXX Hi level stat gathering ... remove this! */
 
             _wiz_stats_gather(DUNGEON_ANGBAND, lev, reps);
         }
@@ -1912,9 +1911,15 @@ void do_cmd_debug(void)
 
         break;
     }
-    case '_':
-        apply_nexus(NULL);
-        break;
+    case '_': {
+        int i;
+        for (i = 0; i < 1000 * 1000; i++)
+        {
+            int roll = damroll(11,6);
+            if (roll < 66*19/20) continue;
+            msg_format("%d ", roll);
+        }
+        break; }
     default:
         msg_print("That is not a valid debug command.");
         break;

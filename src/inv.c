@@ -672,7 +672,8 @@ void inv_display(inv_ptr inv, slot_t start, slot_t stop, obj_p p, doc_ptr doc, i
                 doc_pop_style(doc);
             if (flags & INV_SHOW_FAIL_RATES)
             {
-                if (object_is_aware(obj) && obj_is_identified_fully(obj))
+                if ( object_is_aware(obj)
+                  && (obj_is_identified_fully(obj) || (obj->known_xtra & OFL_DEVICE_FAIL)) )
                 {
                     int fail;
                     if (obj_is_device(obj) || obj->tval == TV_SCROLL)

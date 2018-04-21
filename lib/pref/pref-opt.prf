@@ -20,14 +20,13 @@ X:auto_target
 Y:always_repeat
 X:confirm_destroy
 Y:confirm_wear
-Y:confirm_quest
 X:target_pet
 Y:easy_open
 Y:easy_disarm
-Y:auto_get_ammo
-Y:auto_get_objects
+X:auto_get_ammo
+X:auto_get_objects
 Y:numpad_as_cursorkey
-Y:use_pack_slots
+X:use_pack_slots
 
 ##### Map Screen Options #####
 
@@ -70,8 +69,6 @@ X:display_distance
 Y:stack_force_notes
 Y:stack_force_costs
 Y:expand_list
-Y:small_levels
-X:always_small_levels
 Y:empty_levels
 Y:bound_walls_perm
 Y:last_words
@@ -98,20 +95,13 @@ Y:alert_trap_detect
 
 ##### Birth Options #####
 
-X:easy_id
-X:easy_lore
-X:allow_spoilers
 Y:smart_learn
 X:smart_cheat
 X:no_wilderness
 X:ironman_shops
-X:ironman_small_levels
 X:ironman_downward
 X:ironman_empty_levels
-X:ironman_rooms
 X:ironman_nightmare
-Y:enable_virtues
-Y:enable_spell_prof
 Y:preserve_mode
 
 ##### Easy Object Auto-Destroyer #####

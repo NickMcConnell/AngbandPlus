@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 7
 #define VER_MINOR 0
-#define VER_PATCH 1
+#define VER_PATCH 2
 #define VER_EXTRA 0
 
 #define GAME_MODE_BEGINNER  0
@@ -2151,8 +2151,9 @@ enum {
 #define PROJECT_WHO_TRAP         -3
 #define PROJECT_WHO_MIRROR       -4
 
-#define SUMMON_WHO_PLAYER -1  /* gotta love inconsistency! */
-#define SUMMON_WHO_NOBODY  0
+#define SUMMON_WHO_BIRTHER -2
+#define SUMMON_WHO_PLAYER  -1
+#define SUMMON_WHO_NOBODY   0
 
 
 /*
@@ -2337,6 +2338,7 @@ enum {
 #define OD_COLOR_CODED      0x00000200  /* For msg_print only */
 #define OD_THROWING         0x00000400  /* buggy otherwise for throwing weapon info */
 #define OD_SINGULAR         0x00000800  /* pretend obj->number = 1 */
+#define OD_SHOW_DEVICE_INFO 0x00001000
 
 #define OD_LORE (OD_NAME_ONLY | OD_OMIT_PREFIX | OD_COLOR_CODED)
 
@@ -2868,6 +2870,12 @@ enum obj_flags_e {
 /* u32b flgs[OF_ARRAY_SIZE];
    assert((OF_COUNT + 31)/32 == OF_ARRAY_SIZE); is checked during initialization */
 
+/* Extra flags for object lore (OFL_*)
+ * cf object_type.known_flags and .known_curse_flags for normal stuff.
+ * cf .known_xtra for the following: */
+#define OFL_DEVICE_POWER 0x01
+#define OFL_DEVICE_FAIL  0x02
+
 /* Object Flags for Generation (OFG_*) */
 #define OFG_INSTA_ART           0x00000001     /* Item must be an artifact */
 #define OFG_QUESTITEM           0x00000002     /* quest level item -KMW- */
@@ -3030,7 +3038,7 @@ enum {
 #define RF1_ATTR_SEMIRAND       0x00001000  /* Color is determined semi-randomly */
 #define RF1_FRIENDS             0x00002000  /* Arrive with some friends */
 #define RF1_ESCORT              0x00004000  /* Arrive with an escort */
-#define RF1_XXX16               0x00008000
+#define RF1_NO_SUMMON           0x00008000  /* Monster never answers summons */
 #define RF1_NEVER_BLOW          0x00010000  /* Never make physical blow */
 #define RF1_NEVER_MOVE          0x00020000  /* Never make physical move */
 #define RF1_RAND_25             0x00040000  /* Moves randomly (25%) */

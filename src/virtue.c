@@ -187,12 +187,9 @@ bool virtue_present(int which)
 
 int virtue_current(int which)
 {
-    if (enable_virtues)
-    {
-        int idx = virtue_find(which);
-        if (_is_valid_index(idx))
-            return p_ptr->virtues[idx];
-    }
+    int idx = virtue_find(which);
+    if (_is_valid_index(idx))
+        return p_ptr->virtues[idx];
     return 0;
 }
 
@@ -463,9 +460,6 @@ void virtue_init(void)
 void virtue_add(int which, int amount)
 {
     int idx;
-
-    if (!enable_virtues)
-        return;
 
     idx = virtue_find(which);
     if (!_is_valid_index(idx))

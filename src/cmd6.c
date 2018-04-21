@@ -943,6 +943,18 @@ static void do_cmd_device_aux(obj_ptr obj)
         if (flush_failure) flush();
         msg_print("You failed to use the device properly.");
         sound(SOUND_FAIL);
+        if ( obj_is_identified(obj)
+          && one_in_(10)
+          && !obj_is_identified_fully(obj)
+          && !(obj->known_xtra & OFL_DEVICE_FAIL))
+        {
+            char buf[MAX_NLEN];
+            object_desc(buf, obj, OD_LORE);
+            msg_format("<color:B>You learn more about your %s.</color>", buf);
+            obj->known_xtra |= OFL_DEVICE_FAIL;
+            if (obj->known_xtra & OFL_DEVICE_POWER)
+                add_flag(obj->known_flags, OF_ACTIVATE);
+        }
         return;
     }
 
@@ -991,6 +1003,17 @@ static void do_cmd_device_aux(obj_ptr obj)
     {
         identify_item(obj);
         autopick_alter_obj(obj, destroy_identify);
+    }
+    if ( device_lore
+      && !obj_is_identified_fully(obj)
+      && !(obj->known_xtra & OFL_DEVICE_POWER) )
+    {
+        char buf[MAX_NLEN];
+        object_desc(buf, obj, OD_LORE);
+        msg_format("<color:B>You learn more about your %s.</color>", buf);
+        obj->known_xtra |= OFL_DEVICE_POWER;
+        if (obj->known_xtra & OFL_DEVICE_FAIL)
+            add_flag(obj->known_flags, OF_ACTIVATE);
     }
 
     if (used)

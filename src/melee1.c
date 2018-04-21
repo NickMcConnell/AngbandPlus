@@ -184,7 +184,7 @@ bool make_attack_normal(int m_idx)
     for (ap_cnt = 0; ap_cnt < MAX_MON_BLOWS; ap_cnt++)
     {
         bool         obvious = FALSE;
-        mon_blow_ptr blow = &r_ptr->blows[ap_cnt];
+        mon_blow_ptr blow;
         int          blow_dam = 0; /* total physical damage for this blow */
         cptr         act = NULL;
 
@@ -201,6 +201,7 @@ bool make_attack_normal(int m_idx)
             ap_cnt = retaliation_count;
             if (ap_cnt >= MAX_MON_BLOWS) return FALSE;
         }
+        blow = &r_ptr->blows[ap_cnt];
 
         if (!m_ptr->r_idx) break;
 
@@ -388,7 +389,12 @@ bool make_attack_normal(int m_idx)
             /* Hack -- assume all attacks are obvious */
             obvious = TRUE;
 
-            for (j = 0; j < MAX_MON_BLOW_EFFECTS; j++)
+            /* XXX Wrt to explode, we now skip effect processing. When
+             * the monster is killed below, monster_death() will project
+             * the correct effect. This change is nastier than heng, but
+             * simplifies processing (And heng relied on RBE_* codes that
+             * no longer exist).  ~~~~~~~~~~~~~~~~~~~v */
+            for (j = 0; j < MAX_MON_BLOW_EFFECTS && !explode; j++)
             {
                 mon_effect_ptr effect = &blow->effects[j];
                 int            effect_dam;
@@ -409,9 +415,6 @@ bool make_attack_normal(int m_idx)
                 {
                     effect_dam -= effect_dam/3;
                 }
-
-                if (explode) /* XXX Explosion already causes the effect ... but then why process at all? */
-                    effect_dam = 0;
 
                 switch (effect->effect)
                 {
@@ -725,7 +728,7 @@ bool make_attack_normal(int m_idx)
                     effect_dam = reduce_melee_dam_p(effect_dam);
                     blow_dam += take_hit(DAMAGE_ATTACK, effect_dam, ddesc);
 
-                    if (effect_dam > 23 || explode)
+                    if (effect_dam > 23)
                         earthquake_aux(m_ptr->fy, m_ptr->fx, 8, m_idx);
                     break; }
 
@@ -790,11 +793,8 @@ bool make_attack_normal(int m_idx)
                     set_cut(p_ptr->cut + effect_dam, FALSE);
                     break;
                 default: /* using GF_* ... damage 0 is OK: B:BITE:HURT(4d4):DISENCHANT */
-                    if (!explode)
-                    {
-                        effect_dam = reduce_melee_dam_p(effect_dam);
-                        gf_affect_p(m_idx, effect->effect, effect_dam, GF_AFFECT_ATTACK);
-                    }
+                    effect_dam = reduce_melee_dam_p(effect_dam);
+                    gf_affect_p(m_idx, effect->effect, effect_dam, GF_AFFECT_ATTACK);
                 } /* switch (effect) */
                 mon_lore_effect(m_ptr, effect);
             } /* for each effect */

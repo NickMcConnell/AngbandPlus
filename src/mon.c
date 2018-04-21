@@ -102,8 +102,8 @@ void mon_anger_spell(mon_ptr mon, int dam)
 {
     int inc = 10 + mon->anger/2;
 
-    if (dam < 250)
-        inc = inc*(dam + 50)/300;
+    if (dam < 450)
+        inc = inc*(dam + 50)/500;
 
     mon->anger = MIN(100, mon->anger + inc);
 }

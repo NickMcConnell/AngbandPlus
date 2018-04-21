@@ -99,6 +99,7 @@ extern void    equip_learn_curse(int flag);
 extern void    equip_learn_resist(int obj_flag); /* pass OF_RES_FIRE rather than RES_FIRE */
 extern void    equip_learn_vuln(int obj_flag);
 extern void    equip_learn_flag(int obj_flag);
+extern void    equip_learn_slay(int slay_flag, cptr msg);
 
 extern void    equip_load(savefile_ptr file);
 extern void    equip_save(savefile_ptr file);

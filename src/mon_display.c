@@ -54,7 +54,6 @@ static string_ptr _get_res_name(int res)
 
 static bool _easy_lore(monster_race *r_ptr)
 {
-    if (easy_lore) return TRUE;
     if (p_ptr->wizard) return TRUE;
     if (spoiler_hack) return TRUE;
     if (r_ptr->r_xtra1 & MR1_LORE) return TRUE; /* Probing */
@@ -74,11 +73,23 @@ static bool _know_armor_hp(monster_race *r_ptr)
     return FALSE;
 }
 
-static bool _know_damage_aux(int ct, int dam, int lvl, bool unique)
+/* XXX The following calculations are slightly tweaked from very
+ * old original code (was using 80). Spreadsheeting things up showed
+ * spell damage not quite right (divisor is a hack) and what I would
+ * guess to be the effect of melee damage inflation over the years.
+ * I'm not sure what the following is going for, or what advantage it
+ * has over say, just requiring 30 sightings to know stuff. */
+static bool _know_damage_need(int dam, int lvl, bool unique)
 {
-    int need = 80*dam/MAX(1, lvl);
+    int need = 50*dam/MAX(1, lvl); /* was 80 */
     if (unique) need /= 5;
     need = MIN(100, MAX(5, need));
+    return need;
+}
+
+static bool _know_damage_aux(int ct, int dam, int lvl, bool unique)
+{
+    int need = _know_damage_need(dam, lvl, unique);
     return ct >= need;
 }
 
@@ -93,7 +104,7 @@ static bool _know_spell_damage(mon_race_ptr race, mon_spell_ptr spell)
 {
     if (_easy_lore(race)) return TRUE;
     return _know_damage_aux(
-        spell->lore, mon_spell_avg_dam(spell, race, FALSE)/5,
+        spell->lore, MIN(500, mon_spell_avg_dam(spell, race, FALSE))/10,
         race->level + 4, BOOL(race->flags1 & RF1_UNIQUE));
 }
 
@@ -406,7 +417,6 @@ static void _display_frequency(monster_race *r_ptr, doc_ptr doc)
     int pct = 0;
     assert(r_ptr->spells);
     if ( spoiler_hack
-      || easy_lore
       || (!r_ptr->r_spell_turns && (r_ptr->r_xtra1 & MR1_LORE)) ) /* probing */
     {
         pct = r_ptr->spells->freq * 100;
@@ -479,7 +489,7 @@ static void _display_spell_group(mon_race_ptr r_ptr, mon_spell_group_ptr group, 
             }
             else if (!spoiler_hack && !_possessor_hack && spell->lore) /* XXX stop repeating yourself! */
                 string_printf(s, " (%dx)", spell->lore);
-             vec_add(v, s);
+            vec_add(v, s);
         }
     }
 }
@@ -870,7 +880,6 @@ static void _display_kills(monster_race *r_ptr, doc_ptr doc)
         int xp = r_ptr->mexp * r_ptr->level / (plev + 2);
         char buf[10];
 
-        if (quickmode) xp *= 2;
         big_num_display(xp, buf);
         doc_printf(doc, "Exp     : <color:G>%s</color> at CL%d\n", buf, plev);
     }

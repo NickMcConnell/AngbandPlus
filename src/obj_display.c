@@ -1197,20 +1197,21 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
     else
         boost = device_power(100) - 100;
 
+    doc_insert(doc, "<color:U>This device has the following magical strength:</color>\n");
+    if (obj_is_identified_fully(o_ptr) || (o_ptr->known_xtra & OFL_DEVICE_POWER))
+        doc_printf(doc, "Power  : <color:G>%d</color>\n", device_level(o_ptr));
+    else
+        doc_insert(doc, "Power  : <color:G>?</color>\n");
     if (obj_is_identified_fully(o_ptr))
     {
         int sp = device_sp(o_ptr);
         int max_sp = device_max_sp(o_ptr);
 
-        doc_insert(doc, "<color:U>This device has the following magical strength:</color>\n");
-        doc_printf(doc, "Power  : <color:G>%d</color>\n", device_level(o_ptr));
         doc_printf(doc, "Mana   : <color:%c>%d</color>/<color:G>%d</color>\n",
                     (sp < max_sp) ? 'y' : 'G', sp, max_sp);
     }
     else
     {
-        doc_insert(doc, "<color:U>This device has the following magical strength:</color>\n");
-        doc_insert(doc, "Power  : <color:G>?</color>\n");
         doc_insert(doc, "Mana   : <color:G>?</color>/<color:G>?</color>\n");
     }
 
@@ -1253,19 +1254,22 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
 
     if (o_ptr->activation.type != EFFECT_NONE)
     {
-        if (obj_is_identified_fully(o_ptr))
+        doc_insert(doc, "<color:U>This device is loaded with a spell:</color>\n");
+        doc_printf(doc, "Spell  : <color:B>%s</color>\n", do_device(o_ptr, SPELL_NAME, boost));
+        if (obj_is_identified_fully(o_ptr) || (o_ptr->known_xtra & OFL_DEVICE_POWER))
         {
-            int  fail = device_calc_fail_rate(o_ptr);
-            int  charges = device_sp(o_ptr) / o_ptr->activation.cost;
-            int  max_charges = device_max_sp(o_ptr) / o_ptr->activation.cost;
             cptr desc;
-
-            doc_insert(doc, "<color:U>This device is loaded with a spell:</color>\n");
-            doc_printf(doc, "Spell  : <color:B>%s</color>\n", do_device(o_ptr, SPELL_NAME, boost));
             desc = do_device(o_ptr, SPELL_INFO, boost);
             if (desc && strlen(desc))
                 doc_printf(doc, "Info   : <color:w>%s</color>\n", desc);
+        }
+        if (obj_is_identified_fully(o_ptr) || (o_ptr->known_xtra & OFL_DEVICE_FAIL))
             doc_printf(doc, "Level  : <color:G>%d</color>\n", o_ptr->activation.difficulty);
+
+        if (obj_is_identified_fully(o_ptr))
+        {
+            int  charges = device_sp(o_ptr) / o_ptr->activation.cost;
+            int  max_charges = device_max_sp(o_ptr) / o_ptr->activation.cost;
             doc_printf(doc, "Cost   : <color:G>%d</color>\n", o_ptr->activation.cost);
             doc_printf(doc, "Charges: <color:%c>%d</color>/<color:G>%d</color>\n",
                         (charges < max_charges) ? 'y' : 'G', charges, max_charges);
@@ -1284,24 +1288,20 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
 
                 doc_printf(doc, "Regen  : <color:G>%d.%02d</color> rounds per charge\n", turns / scale, turns % scale);
             }
-            doc_printf(doc, "Fail   : <color:G>%d.%d%%</color>\n", fail/10, fail%10);
-            doc_printf(doc, "Desc   : <indent>%s</indent>\n\n", do_device(o_ptr, SPELL_DESC, boost));
         }
-        else
+        if (obj_is_identified_fully(o_ptr) || (o_ptr->known_xtra & OFL_DEVICE_FAIL))
         {
-            doc_insert(doc, "<color:U>This device is loaded with a spell:</color>\n");
-            doc_printf(doc, "Spell: <color:B>%s</color>\n", do_device(o_ptr, SPELL_NAME, boost));
-            doc_printf(doc, "Desc : <indent>%s</indent>\n\n", do_device(o_ptr, SPELL_DESC, boost));
+            int  fail = device_calc_fail_rate(o_ptr);
+            doc_printf(doc, "Fail   : <color:G>%d.%d%%</color>\n", fail/10, fail%10);
         }
+        doc_printf(doc, "Desc   : <indent>%s</indent>\n\n", do_device(o_ptr, SPELL_DESC, boost));
     }
 
     doc_insert(doc, "<style:indent>"); /* Indent a bit when word wrapping long lines */
     _display_score(o_ptr, doc);
 
-    if (object_is_ego(o_ptr) && !obj_is_identified_fully(o_ptr))
-        doc_printf(doc, "\nThis object may have additional powers which you may learn by *identifying* or selling this object.\n");
-    else if (!obj_is_identified_fully(o_ptr))
-        doc_printf(doc, "\nYou may *identify* or sell this object to learn more about this device.\n");
+    if (!obj_is_identified_fully(o_ptr))
+        doc_printf(doc, "\nYou may *identify* or sell this object to learn more about this device. Also, for many device types, you can learn more by actually using this device long enough.\n");
 
     _display_ignore(flgs, doc);
     _display_autopick(o_ptr, doc);

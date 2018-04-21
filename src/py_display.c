@@ -645,7 +645,7 @@ static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
     doc_printf(doc, " %3d%%\n", p_ptr->regen); /* TODO: Only display known amount ... but then again, you can feel this, no? */
 
     _build_flags(doc, "Levitation", OF_LEVITATION, OF_INVALID, flagzilla);
-    _build_flags(doc, "Perm Lite", OF_LITE, OF_INVALID, flagzilla);
+    _build_flags(doc, "Perm Lite", OF_LITE, OF_DARKNESS, flagzilla);
     _build_flags(doc, "Reflection", OF_REFLECT, OF_INVALID, flagzilla);
 
     _build_flags_imp(doc, "Hold Life", OF_HOLD_LIFE, OF_INVALID, flagzilla);
@@ -1166,6 +1166,7 @@ static void _build_uniques(doc_ptr doc)
         for (i = 0; i < max_r_idx; i++)
         {
             monster_race *r_ptr = &r_info[i];
+            if (!r_ptr->name) continue;
             if (r_ptr->flags1 & RF1_UNIQUE)
             {
                 if (r_ptr->max_num == 0)
@@ -1214,6 +1215,7 @@ static void _build_uniques(doc_ptr doc)
         for (i = 0; i < max_r_idx; i++)
         {
             monster_race *r_ptr = &r_info[i];
+            if (!r_ptr->name) continue;
             if (!(r_ptr->flags1 & RF1_UNIQUE))
             {
                 if (r_ptr->r_pkills)
@@ -1258,12 +1260,9 @@ static void _build_uniques(doc_ptr doc)
 
 static void _build_virtues(doc_ptr doc)
 {
-    if (enable_virtues)
-    {
-        doc_printf(doc, "<topic:Virtues>=================================== <color:keypress>V</color>irtues ===================================\n\n");
-        virtue_display(doc);
-        doc_newline(doc);
-    }
+    doc_printf(doc, "<topic:Virtues>=================================== <color:keypress>V</color>irtues ===================================\n\n");
+    virtue_display(doc);
+    doc_newline(doc);
 }
 
 static void _build_mutations(doc_ptr doc)
@@ -1845,6 +1844,7 @@ static void _build_monster_histogram(doc_ptr doc)
             max_bucket = MAX(bucket, max_bucket);
         }
     }
+    if (!total) return;
 
     doc_insert(doc, "  <color:G>Level   Count</color>\n");
     for (i = 0; i <= max_bucket; i++)
@@ -1992,6 +1992,7 @@ static void _build_statistics(doc_ptr doc)
         _device_counts_imp(doc, TV_WAND, EFFECT_BREATHE_FIRE);
         _device_counts_imp(doc, TV_WAND, EFFECT_BREATHE_ONE_MULTIHUED);
         _device_counts_imp(doc, TV_WAND, EFFECT_METEOR);
+        _device_counts_imp(doc, TV_WAND, EFFECT_GENOCIDE_ONE);
         _device_counts_imp(doc, TV_WAND, EFFECT_BALL_WATER);
         _device_counts_imp(doc, TV_WAND, EFFECT_BALL_DISINTEGRATE);
         _device_counts_imp(doc, TV_WAND, EFFECT_ROCKET);
@@ -2237,19 +2238,6 @@ static void _build_options(doc_ptr doc)
 
     doc_printf(doc, " Preserve Mode:      %s\n", preserve_mode ? "On" : "Off");
 
-    doc_printf(doc, " Small Levels:       %s\n", ironman_small_levels ? "*Always*" :
-                                                    always_small_levels ? "Always" :
-                                                    small_levels ? "Sometimes" : "Never");
-
-    if (easy_id)
-        doc_printf(doc, " Easy Identify:      On\n");
-
-    if (easy_lore)
-        doc_printf(doc, " Easy Lore:          On\n");
-
-    if (quickmode)
-        doc_printf(doc, " <color:r>Quickmode</color>:          On\n");
-
     if (no_wilderness)
         doc_printf(doc, " Wilderness:         Off\n");
 
@@ -2258,9 +2246,6 @@ static void _build_options(doc_ptr doc)
 
     if (ironman_downward)
         doc_printf(doc, " Diving Only:        On\n");
-
-    if (ironman_rooms)
-        doc_printf(doc, " <color:r>Unusual Rooms</color>:      On\n");
 
     if (ironman_nightmare)
         doc_printf(doc, " <color:v>Nightmare Mode</color>:     On\n");
@@ -2279,9 +2264,6 @@ static void _build_options(doc_ptr doc)
     if (reduce_uniques)
         doc_printf(doc, " Reduce Uniques:     %d%%\n", reduce_uniques_pct);
 
-    if (no_selling)
-        doc_printf(doc, " No Selling:         On\n");
-
     if (p_ptr->noscore)
         doc_printf(doc, "\n <color:v>You have done something illegal.</color>\n");
 
@@ -2293,33 +2275,36 @@ static void _build_quests(doc_ptr doc)
 {
     doc_printf(doc, "<topic:uQuests>==================================== Q<color:keypress>u</color>ests ===================================\n\n");
     quests_doc(doc);
-    doc_newline(doc);
-    if (p_ptr->arena_number < 0)
+    if (!no_wilderness)
     {
-        if (p_ptr->arena_number <= ARENA_DEFEATED_OLD_VER)
+        doc_newline(doc);
+        if (p_ptr->arena_number < 0)
         {
-            doc_printf(doc, "  <color:G>Arena</color>: <color:v>Defeated</color>\n");
+            if (p_ptr->arena_number <= ARENA_DEFEATED_OLD_VER)
+            {
+                doc_printf(doc, "  <color:G>Arena</color>: <color:v>Defeated</color>\n");
+            }
+            else
+            {
+                doc_printf(doc, "  <color:G>Arena</color>: <color:v>Defeated</color> by %s in the %d%s fight\n",
+                    r_name + r_info[arena_info[-1 - p_ptr->arena_number].r_idx].name,
+                    -p_ptr->arena_number, get_ordinal_number_suffix(-p_ptr->arena_number));
+            }
+        }
+        else if (p_ptr->arena_number > MAX_ARENA_MONS + 2)
+        {
+            doc_printf(doc, "  <color:G>Arena</color>: <color:B>True Champion</color>\n");
+        }
+        else if (p_ptr->arena_number > MAX_ARENA_MONS - 1)
+        {
+            doc_printf(doc, "  <color:G>Arena</color>: <color:R>Champion</color>\n");
         }
         else
         {
-            doc_printf(doc, "  <color:G>Arena</color>: <color:v>Defeated</color> by %s in the %d%s fight\n",
-                r_name + r_info[arena_info[-1 - p_ptr->arena_number].r_idx].name,
-                -p_ptr->arena_number, get_ordinal_number_suffix(-p_ptr->arena_number));
+            doc_printf(doc, "  <color:G>Arena</color>: %2d Victor%s\n",
+                p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number,
+                p_ptr->arena_number > 1 ? "ies" : "y");
         }
-    }
-    else if (p_ptr->arena_number > MAX_ARENA_MONS + 2)
-    {
-        doc_printf(doc, "  <color:G>Arena</color>: <color:B>True Champion</color>\n");
-    }
-    else if (p_ptr->arena_number > MAX_ARENA_MONS - 1)
-    {
-        doc_printf(doc, "  <color:G>Arena</color>: <color:R>Champion</color>\n");
-    }
-    else
-    {
-        doc_printf(doc, "  <color:G>Arena</color>: %2d Victor%s\n",
-            p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number,
-            p_ptr->arena_number > 1 ? "ies" : "y");
     }
 }
 

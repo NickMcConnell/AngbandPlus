@@ -210,7 +210,6 @@ static bool alloc_stairs(int feat, int num, int walls)
         /*&& quests_allow_downshaft()*/)
         {
             shaft_num = (randint1(num)+1)/2;
-            if (quickmode) shaft_num *= 2;
         }
     }
 
@@ -320,16 +319,17 @@ static bool _get_loc(int set, int* x, int *y)
 /*
  * Allocates some objects (using "place" and "type")
  */
+static int _adjust_small_level(int n);
 static void alloc_object(int set, int typ, int num)
 {
     int y = 0, x = 0, k;
 
-    /* A small level has few objects. */
-    num = MAX(1, num * cur_hgt * cur_wid / (MAX_HGT*MAX_WID));
-
     /* Diligent players should be encouraged to explore more! */
     if (typ == ALLOC_TYP_OBJECT || typ == ALLOC_TYP_GOLD)
         num = num * (625 + virtue_current(VIRTUE_DILIGENCE)) / 625;
+
+    /* A small level has few objects. */
+    num = MAX(1, _adjust_small_level(num));
 
     for (k = 0; k < num; k++)
     {
@@ -419,6 +419,9 @@ static void _mon_give_extra_drop(u32b flag, int ct)
 {
     int tot = 0;
     int i;
+
+    ct = _adjust_small_level(ct);
+    if (ct <= 0) return;
 
     for (i = 0; i < max_m_idx; i++)
     {
@@ -588,7 +591,7 @@ static void set_bound_perm_wall(cave_type *c_ptr)
 static void gen_caverns_and_lakes(void)
 {
     /* Possible "destroyed" level */
-    if ((dun_level > 30) && one_in_(DUN_DEST*2) && (small_levels) && (d_info[dungeon_type].flags1 & DF1_DESTROY))
+    if ((dun_level > 30) && one_in_(DUN_DEST*2) && (d_info[dungeon_type].flags1 & DF1_DESTROY))
     {
         dun->destroyed = TRUE;
 
@@ -676,9 +679,83 @@ static void gen_caverns_and_lakes(void)
  *
  * Note that "dun_body" adds about 4000 bytes of memory to the stack.
  */
+static int _adjust_small_level(int n)
+{
+    if (cur_hgt < MAX_HGT || cur_wid < MAX_WID)
+    {
+        int div = MAX_HGT * MAX_WID;
+        int amt = n * cur_hgt * cur_wid * 10 / div;
+
+        n = amt/10;
+        if (randint0(10) < amt%10)
+            n++;
+    }
+    return n;
+}
+static int _depth_amt(void)
+{
+    return MAX(2, MIN(10, dun_level/3));
+}
+static void _cave_gen_monsters(void)
+{
+    if (dungeon_type != DUNGEON_ARENA)
+    {
+        int ct, i;
+
+        /* Note: These are extra monsters, filling out NORMAL and FRACAVE rooms.
+         * Most TEMPLATE rooms and all VAULT rooms will generate their own monsters
+         * during room generation. */
+        ct = d_info[dungeon_type].min_m_alloc_level; /* usually 14 */
+        ct += randint1(_depth_amt());
+        ct = _adjust_small_level(ct);
+        /* XXX I'm not a fan of always_small_levels, but this option may be too easy now */
+        if (ct < 4)
+            ct = 4;
+
+        for (i = 0; i < ct; i++)
+            alloc_monster(0, PM_ALLOW_SLEEP);
+    }
+}
+static void _cave_gen_traps(void)
+{
+    int ct = _depth_amt();
+    /* XXX alloc_object will _adjust_small_level() for us ... */
+    alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint1(ct));
+    if (!(d_info[dungeon_type].flags1 & DF1_NO_CAVE))
+        alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint1(ct));
+}
+static void _cave_gen_objects(void)
+{
+    if (dungeon_type != DUNGEON_ARENA)
+    {
+        /* Put some objects in rooms */
+        alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ROOM, 3));
+
+        /* Put some objects/gold in the dungeon */
+        alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ITEM, 3));
+        alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, randnor(DUN_AMT_GOLD, 3));
+
+        /* Experimental: Guarantee certain objects. Give surprise goodies. */
+        if (one_in_(2))
+            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_FOOD, 1);
+        if (dun_level <= 15 && one_in_(2))
+            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_LIGHT, 1);
+        if (dun_level >= 10  && dun_level < 50 && one_in_(2))
+            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_RECALL, 1);
+        if (dun_level >= 10 && one_in_(20))
+            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_SKELETON, damroll(3, 5));
+
+        _mon_give_extra_drop(MFLAG2_DROP_BASIC, 1);
+        _mon_give_extra_drop(MFLAG2_DROP_UTILITY, randint0(4));
+        if (dun_level > max_dlv[dungeon_type])
+            _mon_give_extra_drop(MFLAG2_DROP_PRIZE, 1);
+    }
+
+    object_level = base_level;
+}
 static bool cave_gen(void)
 {
-    int i, k, y, x;
+    int i, y, x;
 
     dun_data dun_body;
 
@@ -996,77 +1073,10 @@ static bool cave_gen(void)
     /* Determine the character location */
     if (!new_player_spot()) return FALSE;
 
-    /* Basic "amount" */
-    k = (dun_level / 3);
-    if (k > 10) k = 10;
-    if (k < 2) k = 2;
+    _cave_gen_monsters();
+    _cave_gen_traps();
 
-    /* Pick a base number of monsters */
-    i = d_info[dungeon_type].min_m_alloc_level;
-
-    /* To make small levels a bit more playable */
-    if (cur_hgt < MAX_HGT || cur_wid < MAX_WID)
-    {
-        int small_tester = i;
-
-        i = (i * cur_hgt) / MAX_HGT;
-        i = (i * cur_wid) / MAX_WID;
-        i += 1;
-
-        if (i > small_tester) i = small_tester;
-        else if (cheat_hear)
-        {
-            msg_format("Reduced monsters base from %d to %d", small_tester, i);
-
-        }
-    }
-
-
-    if (dungeon_type != DUNGEON_ARENA)
-    {
-        i += randint1(8);
-
-        /* Put some monsters in the dungeon */
-        for (i = (dun_level < 50 ? (i+k) : (i+k)*6/10); i > 0; i--)
-        {
-            (void)alloc_monster(0, PM_ALLOW_SLEEP);
-        }
-    }
-
-    /* Place some traps in the dungeon */
-    alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint1(k));
-
-    /* Put some rubble in corridors (except NO_CAVE dungeon (Castle)) */
-    if (!(d_info[dungeon_type].flags1 & DF1_NO_CAVE)) alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint1(k));
-
-    if (dungeon_type != DUNGEON_ARENA)
-    {
-        /* Put some objects in rooms */
-        alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ROOM, 3));
-
-        /* Put some objects/gold in the dungeon */
-        alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ITEM, 3));
-        alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, randnor(DUN_AMT_GOLD, 3));
-
-        /* Experimental: Guarantee certain objects. Give surprise goodies. */
-        if (one_in_(2))
-            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_FOOD, 1);
-        if (dun_level <= 15)
-            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_LIGHT, 1);
-        if (dun_level >= 10 && one_in_(2))
-            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_RECALL, 1);
-        if (dun_level >= 10 && one_in_(20))
-            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_SKELETON, damroll(3, 5));
-
-        _mon_give_extra_drop(MFLAG2_DROP_BASIC, 1);
-        _mon_give_extra_drop(MFLAG2_DROP_UTILITY, randint0(4));
-        if (dun_level > max_dlv[dungeon_type])
-            _mon_give_extra_drop(MFLAG2_DROP_PRIZE, 1);
-
-    }
-
-    /* Set back to default */
-    object_level = base_level;
+    _cave_gen_objects();
 
     /* Put the Guardian */
     if (!alloc_guardian(TRUE)) return FALSE;
@@ -1318,46 +1328,55 @@ static void battle_gen(void)
     }
 }
 
-
 /* Make a real level */
 static bool level_gen(cptr *why)
 {
-    int level_height, level_width;
+    bool small = FALSE;
 
-    if ((always_small_levels || ironman_small_levels ||
-        (one_in_(SMALL_LEVEL) && small_levels) ||
-         (d_info[dungeon_type].flags1 & DF1_BEGINNER) ||
-        (d_info[dungeon_type].flags1 & DF1_SMALLEST)) &&
-        !(d_info[dungeon_type].flags1 & DF1_BIG))
+    /* XXX Roll for a small level. Users should not be able to control
+     * the level size at runtime. For example, I personally used to force
+     * levels small to fight Oberon since this made him much easier to deal
+     * with! Small levels also give an inordinate advantage against thieving
+     * monsters (like most Amberites and Bull Gates). They are no longer harder
+     * than normal sized levels since all aspects of dungeon generation scale
+     * with dungeon size (including monster density). */
+    if (d_info[dungeon_type].flags1 & DF1_BIG)
+        small = FALSE;
+    else if (d_info[dungeon_type].flags1 & DF1_SMALLEST)
+        small = TRUE;
+    else if (one_in_(SMALL_LEVEL))
+        small = TRUE;
+
+    if (small)
     {
-        if (cheat_room)
-            msg_print("A 'small' dungeon level.");
+        int hgt, wid;
 
-        if (d_info[dungeon_type].flags1 & DF1_SMALLEST)
+        if (d_info[dungeon_type].flags1 & DF1_SMALLEST) /* Labyrinth and Mine */
         {
-            level_height = 1;
-            level_width = 1;
-        }
-        else if (d_info[dungeon_type].flags1 & DF1_BEGINNER)
-        {
-            level_height = 2;
-            level_width = 2;
+            hgt = 1;
+            wid = 1;
         }
         else
         {
-            do
+            int max_hgt = MAX_HGT/SCREEN_HGT;
+            int max_wid = MAX_WID/SCREEN_WID;
+
+            for (;;)
             {
-                level_height = randint1(MAX_HGT/SCREEN_HGT);
-                level_width = randint1(MAX_WID/SCREEN_WID);
+                hgt = randint1(max_hgt);
+                wid = randint1(max_wid);
+                if (hgt == max_hgt && wid == max_wid) continue;
+                /* exclude 1x1, 1x2 and 2x1 */
+                if (hgt * wid <= 2) continue;
+                break;
             }
-            while (level_height + level_width > MAX_HGT/SCREEN_HGT + MAX_WID/SCREEN_WID - 2);
         }
 
-        cur_hgt = level_height * SCREEN_HGT;
-        cur_wid = level_width * SCREEN_WID;
+        cur_hgt = hgt * SCREEN_HGT;
+        cur_wid = wid * SCREEN_WID;
 
         if (cheat_room)
-          msg_format("X:%d, Y:%d.", cur_wid, cur_hgt);
+          msg_format("<color:B>A 'small' dungeon level: (<color:R>%d,%d</color>).</color>", cur_wid, cur_hgt);
     }
     else
     {

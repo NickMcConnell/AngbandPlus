@@ -2588,12 +2588,19 @@ static int _compare_rlvl(mon_race_ptr left, mon_race_ptr right)
     return 0;
 }
 
+bool _is_unique(int r_idx)
+{
+    mon_race_ptr race = &r_info[r_idx];
+    return BOOL(race->flags1 & RF1_UNIQUE);
+}
+
 static void _bounty_uniques(void)
 {
     vec_ptr v = vec_alloc(NULL);
     int     skip = 0, i;
 
-    get_mon_num_prep(NULL, NULL);
+    get_mon_num_prep(_is_unique, NULL);
+    summon_specific_who = SUMMON_WHO_BIRTHER; /* XXX cf unique_count in get_mon_num_aux() */
     for (i = 0; i < MAX_KUBI; i++)
     {
         while (1)
@@ -2612,6 +2619,8 @@ static void _bounty_uniques(void)
             break;
         }
     }
+    summon_specific_who = SUMMON_WHO_NOBODY;
+
     assert(vec_length(v) == MAX_KUBI);
     vec_sort(v, (vec_cmp_f)_compare_rlvl);
     /* skip the first N wanted uniques in a reduce uniques game. we keep the

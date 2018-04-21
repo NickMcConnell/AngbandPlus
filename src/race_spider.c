@@ -303,7 +303,13 @@ static void _phase_spider_calc_innate_attacks(void)
 static void _phase_spider_calc_bonuses(void)
 {
     p_ptr->pspeed += 5 + (p_ptr->lev - 25)/5;
-    res_add_immune(RES_POIS);
+    if (p_ptr->lev >= 50)
+        res_add_immune(RES_POIS);
+    else
+    {
+        res_add(RES_POIS);
+        res_add(RES_POIS);
+    }
     res_add(RES_NEXUS);
     res_add(RES_CONF);
     res_add_immune(RES_TELEPORT);
@@ -317,7 +323,10 @@ static void _phase_spider_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_CONF);
     add_flag(flgs, OF_FREE_ACT);
 
-    add_flag(flgs, OF_IM_POIS);
+    if (p_ptr->lev >= 50)
+        add_flag(flgs, OF_IM_POIS);
+    else
+        add_flag(flgs, OF_RES_POIS);
 }
 race_t *_phase_spider_get_race_t(void)
 {
@@ -325,7 +334,7 @@ race_t *_phase_spider_get_race_t(void)
     static bool   init = FALSE;
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  40,  38,  10,  20,  15,  56,  30};
+    skills_t bs = { 25,  40,  38,  10,  25,  15,  56,  30};
     skills_t xs = {  8,  15,  10,   0,   0,   0,  18,   7};
 
         me.skills = bs;
@@ -383,7 +392,13 @@ static void _aranea_calc_innate_attacks(void)
 static void _aranea_calc_bonuses(void)
 {
     p_ptr->pspeed += 5;
-    res_add_immune(RES_POIS);
+    if (p_ptr->lev >= 50)
+        res_add_immune(RES_POIS);
+    else
+    {
+        res_add(RES_POIS);
+        res_add(RES_POIS);
+    }
     res_add(RES_DARK);
     res_add(RES_CONF);
     res_add(RES_FEAR);
@@ -399,7 +414,10 @@ static void _aranea_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_FEAR);
     add_flag(flgs, OF_FREE_ACT);
 
-    add_flag(flgs, OF_IM_POIS);
+    if (p_ptr->lev >= 50)
+        add_flag(flgs, OF_IM_POIS);
+    else
+        add_flag(flgs, OF_RES_POIS);
 }
 race_t *_aranea_get_race_t(void)
 {
@@ -458,7 +476,13 @@ static void _elder_aranea_calc_bonuses(void)
 {
     p_ptr->pspeed += 10;
 
-    res_add_immune(RES_POIS);
+    if (p_ptr->lev >= 50)
+        res_add_immune(RES_POIS);
+    else
+    {
+        res_add(RES_POIS);
+        res_add(RES_POIS);
+    }
 
     res_add(RES_FIRE);
     res_add(RES_NETHER);
@@ -488,7 +512,10 @@ static void _elder_aranea_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_SEE_INVIS);
     add_flag(flgs, OF_REGEN);
 
-    add_flag(flgs, OF_IM_POIS);
+    if (p_ptr->lev >= 50)
+        add_flag(flgs, OF_IM_POIS);
+    else
+        add_flag(flgs, OF_RES_POIS);
     add_flag(flgs, OF_VULN_LITE);
 }
 race_t *_elder_aranea_get_race_t(void)

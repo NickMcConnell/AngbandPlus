@@ -808,6 +808,9 @@ static errr rd_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
         c_ptr = &cave[m_ptr->fy][m_ptr->fx];
         c_ptr->m_idx = m_idx;
         real_r_ptr(m_ptr)->cur_num++;
+        /* XXX monster removed from r_info */
+        if (!r_info[m_ptr->r_idx].name)
+            delete_monster_idx(m_idx);
     }
 
     {
@@ -824,12 +827,20 @@ static errr rd_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
 
             old_idx = savefile_read_s16b(file);
             ptr->leader_idx = savefile_read_s16b(file);
+            if (ptr->leader_idx && !m_list[ptr->leader_idx].r_idx) /* XXX monster removed from r_info */
+                ptr->leader_idx = 0;
             ptr->count = savefile_read_s16b(file);
             ptr->ai = savefile_read_s16b(file);
             ptr->guard_idx = savefile_read_s16b(file);
             ptr->guard_x = savefile_read_s16b(file);
             ptr->guard_y = savefile_read_s16b(file);
             ptr->distance = savefile_read_s16b(file);
+
+            if (ptr->guard_idx && !m_list[ptr->guard_idx].r_idx) /* XXX monster removed from r_info */
+            {
+                ptr->guard_idx = 0;
+                ptr->ai = AI_SEEK;
+            }
 
             /* I make no effort to keep the same pack_info index on a reload, so
                patch things up. I'm pretty sure, but not certain, that monster

@@ -24,10 +24,10 @@ L:%:GRANITE
 L:.:FLOOR
 L:+:CLOSED_DOOR
 L:<:UP_STAIR
-L:^:TRAP(*, 25)
+L:^:TRAP(*, 25%)
 L:5:MON(*, DEPTH+7)
 L:9:OBJ(*, DEPTH+7):MON(*, DEPTH+9)
-L:*:TRAP(*, 25):OBJ(*)
+L:*:TRAP(*, 25%):OBJ(*)
 L:a:ART(sting)
 L:b:OBJ(small sword, DEPTH+5)
 L:c:OBJ(small sword, DEPTH+5)

@@ -609,6 +609,7 @@ static int _spellbook_max(int tval, int sval)
     return max;
 }
 
+#if 0
 static bool _is_stat_potion(int tval, int sval)
 {
     if (tval != TV_POTION) return FALSE;
@@ -623,6 +624,7 @@ static bool _is_stat_potion(int tval, int sval)
     }
     return FALSE;
 }
+#endif
 
 /*
  * Choose an object kind that seems "appropriate" to the given level
@@ -646,7 +648,6 @@ s16b get_obj_num(int level)
     if (level > MAX_DEPTH - 1) level = MAX_DEPTH - 1;
 
     /* Boost level */
-    if (quickmode) level += 5;
     if (level > 0 && !(d_info[dungeon_type].flags1 & DF1_BEGINNER))
     {
         /* Occasional "boost" */
@@ -682,13 +683,8 @@ s16b get_obj_num(int level)
         k_ptr = &k_info[k_idx];
         if (k_ptr->tval == TV_FOOD && k_ptr->sval == SV_FOOD_AMBROSIA && dungeon_type != DUNGEON_OLYMPUS) continue;
         if (k_ptr->tval == TV_BOW && k_ptr->sval == SV_HARP && p_ptr->pclass != CLASS_BARD) continue;
-        if (easy_id && k_ptr->tval == TV_SCROLL && k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) continue;
         /* Hack -- prevent embedded chests */
         if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
-
-        /* Probably the slowest thing in "slowband" is stat gain ... sigh */
-        if (quickmode && _is_stat_potion(k_ptr->tval, k_ptr->sval))
-            p *= 2;
 
         /* TODO: Add some sort of max_num field to limit certain objects (I'm looking at you, spellbooks!)
            Note, this also ensures an even distribution of spellbook kinds for high level books! */
@@ -2024,13 +2020,6 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     int maxf1 = d_info[dungeon_type].obj_good;
     int maxf2 = d_info[dungeon_type].obj_great;
 
-    if (quickmode && !(mode & AM_STOCK_TOWN))
-    {
-        lev += 10;
-        maxf1 += 10;
-        maxf2 += 10;
-    }
-
     if (mode & AM_QUEST)
         lev += 10;
 
@@ -2672,6 +2661,7 @@ bool kind_is_good(int k_idx)
         /* Ammo -- Arrows/Bolts are good */
         case TV_BOLT:
         case TV_ARROW:
+        case TV_SHOT:  /* XXX needed for ROOM_THEME_OBJECT in rooms.txt */
         {
             return (TRUE);
         }
@@ -4344,66 +4334,85 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
 #define MAX_NORMAL_TRAPS 18
 
 /* See init_feat_variables() in init2.c */
-static s16b normal_traps[MAX_NORMAL_TRAPS];
+typedef struct { s16b feat; byte min_lvl; byte rarity; } _trap_info_t, *_trap_info_ptr;
+static _trap_info_t normal_traps[MAX_NORMAL_TRAPS];
 
 /*
  * Initialize arrays for normal traps
  */
-void init_normal_traps(void)
+static void _init_normal_trap(int which, cptr feat, byte min_lvl, byte rarity)
 {
-    int cur_trap = 0;
-
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_TRAPDOOR");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_PIT");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_SPIKED_PIT");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_POISON_PIT");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_TY_CURSE");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_TELEPORT");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_FIRE");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_ACID");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_SLOW");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_LOSE_STR");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_LOSE_DEX");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_LOSE_CON");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_BLIND");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_CONFUSE");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_POISON");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_SLEEP");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_TRAPS");
-    normal_traps[cur_trap++] = f_tag_to_index_in_init("TRAP_ALARM");
+    _trap_info_ptr trap;
+    assert(0 <= which && which < MAX_NORMAL_TRAPS);
+    trap = &normal_traps[which];
+    trap->feat = f_tag_to_index_in_init(feat);
+    trap->min_lvl = min_lvl;
+    trap->rarity = rarity;
 }
 
-/*
- * Get random trap
- *
- * XXX XXX XXX This routine should be redone to reflect trap "level".
- * That is, it does not make sense to have spiked pits at 50 feet.
- * Actually, it is not this routine, but the "trap instantiation"
- * code, which should also check for "trap doors" on quest levels.
- */
+void init_normal_traps(void)
+{
+    int i = 0;
+
+    _init_normal_trap(i++, "TRAP_TRAPDOOR",    0,  3);
+    _init_normal_trap(i++, "TRAP_SLEEP",       0,  2);
+    _init_normal_trap(i++, "TRAP_TRAPS",       0,  3);
+    _init_normal_trap(i++, "TRAP_ALARM",       0,  2);
+    _init_normal_trap(i++, "TRAP_PIT",         0,  3);
+    _init_normal_trap(i++, "TRAP_TELEPORT",    0,  2);
+    _init_normal_trap(i++, "TRAP_SLOW",        0,  2);
+    _init_normal_trap(i++, "TRAP_BLIND",       0,  2);
+    _init_normal_trap(i++, "TRAP_CONFUSE",     0,  2);
+    _init_normal_trap(i++, "TRAP_FIRE",        3,  3);
+    _init_normal_trap(i++, "TRAP_ACID",        5,  3);
+    _init_normal_trap(i++, "TRAP_POISON",      5,  3);
+    _init_normal_trap(i++, "TRAP_SPIKED_PIT",  5,  5);
+    _init_normal_trap(i++, "TRAP_POISON_PIT",  7,  5);
+    _init_normal_trap(i++, "TRAP_LOSE_STR",   15,  6);
+    _init_normal_trap(i++, "TRAP_LOSE_DEX",   15,  6);
+    _init_normal_trap(i++, "TRAP_LOSE_CON",   15,  6);
+    _init_normal_trap(i++, "TRAP_TY_CURSE",   30, 20);
+}
+
 s16b choose_random_trap(void)
 {
-    s16b feat;
+    int  tot = 0, i, roll;
+    bool allow_down = TRUE;
 
-    /* Pick a trap */
-    while (1)
+    if ( p_ptr->inside_arena
+      || quests_get_current()
+      || dun_level >= d_info[dungeon_type].maxdepth )
     {
-        /* Hack -- pick a trap */
-        feat = normal_traps[randint0(MAX_NORMAL_TRAPS)];
-
-        /* Accept non-trapdoors */
-        if (!have_flag(f_info[feat].flags, FF_MORE)) break;
-
-        /* Hack -- no trap doors on special levels */
-        if (p_ptr->inside_arena || quests_get_current()) continue;
-
-        /* Hack -- no trap doors on the deepest level */
-        if (dun_level >= d_info[dungeon_type].maxdepth) continue;
-
-        break;
+        allow_down = FALSE;
     }
 
-    return feat;
+    for (i = 0; i < MAX_NORMAL_TRAPS; i++)
+    {
+        _trap_info_ptr trap = &normal_traps[i];
+
+        if (!trap->rarity) continue;
+        if (trap->min_lvl > dun_level) continue;
+        if (!allow_down && have_flag(f_info[trap->feat].flags, FF_MORE)) continue;
+
+        tot += 100 / trap->rarity;
+    }
+
+    if (tot <= 0) return feat_floor; /* impossible */
+    roll = randint1(tot);
+
+    for (i = 0; i < MAX_NORMAL_TRAPS; i++)
+    {
+        _trap_info_ptr trap = &normal_traps[i];
+
+        if (!trap->rarity) continue;
+        if (trap->min_lvl > dun_level) continue;
+        if (!allow_down && have_flag(f_info[trap->feat].flags, FF_MORE)) continue;
+
+        roll -= 100 / trap->rarity;
+        if (roll <= 0)
+            return trap->feat;
+    }
+    return feat_floor; /* unreachable */
 }
 
 /*
@@ -4454,6 +4463,11 @@ void place_trap(int y, int x)
     /* Place an invisible trap */
     c_ptr->mimic = c_ptr->feat;
     c_ptr->feat = choose_random_trap();
+
+    #if 0
+    if (p_ptr->wizard)
+        msg_format("<color:r>Trap:</color> %s", f_tag + f_info[c_ptr->feat].tag);
+    #endif
 }
 
 

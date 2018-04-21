@@ -4,9 +4,8 @@
 /*
  * Dungeon generation values
  */
-#define DUN_UNUSUAL 250 /* Level/chance of unusual room (was 200) */
 #define DUN_DEST    18  /* 1/chance of having a destroyed level */
-#define SMALL_LEVEL 3   /* 1/chance of smaller size (3) */
+#define SMALL_LEVEL 8   /* 1/chance of smaller size (was 3) */
 #define EMPTY_LEVEL 24  /* 1/chance of being 'empty' (15) */
 #define LAKE_LEVEL  24  /* 1/chance of being a lake on the level */
 #define DARK_EMPTY  5   /* 1/chance of arena level NOT being lit (2) */

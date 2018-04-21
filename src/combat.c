@@ -48,16 +48,12 @@ int throw_hit_chance(int to_h, int ac, int range)
     return (odds+5)/10;
 }
 
-int bow_hit_chance(int sval, int to_h, int ac)
+int bow_hit_chance(int to_h, int ac)
 {
     int chance;
     int odds;
 
-    if (sval == SV_LIGHT_XBOW || sval == SV_HEAVY_XBOW)
-        chance = (p_ptr->skills.thb + (skills_bow_current(sval) / 400 + to_h) * BTH_PLUS_ADJ);
-    else
-        chance = (p_ptr->skills.thb + ((skills_bow_current(sval) - (WEAPON_EXP_MASTER / 2)) / 200 + to_h) * BTH_PLUS_ADJ);
-
+    chance = p_ptr->skills.thb + to_h * BTH_PLUS_ADJ;
     if (p_ptr->stun)
         chance -= chance * MIN(100, p_ptr->stun) / 150;
     if (chance <= 0) return 0;
@@ -1079,6 +1075,7 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
         to_h_bow = bow->to_h;
         to_d_bow = bow->to_d;
     }
+    to_h_bow += skills_bow_calc_bonus(bow->sval);
 
     if (object_is_known(arrow))
     {
@@ -1257,12 +1254,12 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
     to_h = to_h + to_h_bow + to_h_xtra;
 
     doc_insert(cols[1], " <color:G>AC Hit</color>\n");
-    doc_printf(cols[1], "%3d %2d%%\n", 25, bow_hit_chance(bow->sval, to_h, 25));
-    doc_printf(cols[1], "%3d %2d%%\n", 50, bow_hit_chance(bow->sval, to_h, 50));
-    doc_printf(cols[1], "%3d %2d%%\n", 100, bow_hit_chance(bow->sval, to_h, 100));
-    doc_printf(cols[1], "%3d %2d%%\n", 150, bow_hit_chance(bow->sval, to_h, 150));
-    doc_printf(cols[1], "%3d %2d%%\n", 175, bow_hit_chance(bow->sval, to_h, 175));
-    doc_printf(cols[1], "%3d %2d%%\n", 200, bow_hit_chance(bow->sval, to_h, 200));
+    doc_printf(cols[1], "%3d %2d%%\n", 25, bow_hit_chance(to_h, 25));
+    doc_printf(cols[1], "%3d %2d%%\n", 50, bow_hit_chance(to_h, 50));
+    doc_printf(cols[1], "%3d %2d%%\n", 100, bow_hit_chance(to_h, 100));
+    doc_printf(cols[1], "%3d %2d%%\n", 150, bow_hit_chance(to_h, 150));
+    doc_printf(cols[1], "%3d %2d%%\n", 175, bow_hit_chance(to_h, 175));
+    doc_printf(cols[1], "%3d %2d%%\n", 200, bow_hit_chance(to_h, 200));
 
     doc_insert_cols(doc, cols, 2, 1);
     doc_free(cols[0]);
@@ -1296,6 +1293,7 @@ void display_shooter_info(doc_ptr doc)
         to_h = bow_ptr->to_h;
         to_d = bow_ptr->to_d;
     }
+    to_h += skills_bow_calc_bonus(bow_ptr->sval);
 
     /* Shooter */
     object_desc(o_name, bow_ptr, OD_OMIT_INSCRIPTION | OD_COLOR_CODED);
@@ -1304,6 +1302,7 @@ void display_shooter_info(doc_ptr doc)
     doc_printf(doc, " %-8.8s: %d'\n", "Range", (bow_range(bow_ptr) + 1) * 10);
     doc_printf(doc, " %-8.8s: %d.%02d\n", "Shots", num_fire/100, num_fire%100);
     doc_printf(doc, " %-8.8s: %d.%02dx\n", "Mult", mult/100, mult%100);
+    doc_printf(doc, " %-8.8s: %s (%+d To Hit)\n", "Profic", skills_bow_describe_current(bow_ptr->sval), skills_bow_calc_bonus(bow_ptr->sval));
     doc_printf(doc, " %-8.8s: %d + %d = %d\n", "To Hit", to_h, p_ptr->shooter_info.dis_to_h, to_h + p_ptr->shooter_info.dis_to_h);
     if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS) && p_ptr->lev >= 15)
         doc_printf(doc, " %-8.8s: %d (%s)\n", "To Dam", 1 + p_ptr->lev/10, "Multiplier Applies");

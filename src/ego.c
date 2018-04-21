@@ -720,53 +720,72 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
             effect_add_random(o_ptr, BIAS_NECROMANTIC);
         break;
     case EGO_RING_COMBAT:
-        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(5, level, power); powers > 0;)
         {
-            switch (randint1(7))
+            switch (randint1(10))
             {
+            /* 30% boost fighting stats */
             case 1:
                 if (!have_flag(o_ptr->flags, OF_CON))
                 {
                     add_flag(o_ptr->flags, OF_CON);
                     if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
-                    if (one_in_(3)) add_flag(o_ptr->flags, OF_SUST_CON);
-                    break;
+                    if (one_in_(6)) add_flag(o_ptr->flags, OF_SUST_CON);
+                    powers--;
                 }
+                break;
             case 2:
                 if (!have_flag(o_ptr->flags, OF_DEX))
                 {
                     add_flag(o_ptr->flags, OF_DEX);
                     if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
-                    if (one_in_(3)) add_flag(o_ptr->flags, OF_SUST_DEX);
-                    break;
+                    if (one_in_(6)) add_flag(o_ptr->flags, OF_SUST_DEX);
+                    powers--;
                 }
-            case 3:
-                add_flag(o_ptr->flags, OF_STR);
-                if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
-                if (one_in_(3)) add_flag(o_ptr->flags, OF_SUST_STR);
                 break;
-            case 4:
+            case 3:
+                if (!have_flag(o_ptr->flags, OF_STR))
+                {
+                    add_flag(o_ptr->flags, OF_STR);
+                    if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                    if (one_in_(6)) add_flag(o_ptr->flags, OF_SUST_STR);
+                    powers--;
+                }
+                break;
+            /* 20% boost accuracy */
+            case 4: case 5:
                 o_ptr->to_h += randint1(5) + m_bonus(5, level);
+                powers--;
                 while (one_in_(2) && powers > 0)
                 {
                     o_ptr->to_h += randint1(5) + m_bonus(5, level);
                     powers--;
                 }
                 break;
-            case 5:
+            /* 20% boost damage */
+            case 6: case 7:
                 o_ptr->to_d += randint1(5) + m_bonus(5, level);
+                powers--;
                 while (one_in_(2) && powers > 0)
                 {
                     o_ptr->to_d += randint1(5) + m_bonus(5, level);
                     powers--;
                 }
                 break;
-            case 6:
+            /* 20% boost (+H,+D) (efficiently) */
+            case 8: case 9:
+                o_ptr->to_h += randint1(4) + m_bonus(4, level);
+                o_ptr->to_d += randint1(4) + m_bonus(4, level);
+                powers--;
+                break;
+            /* 10% special bonus (usually resist fear) */
+            case 10:
                 if (abs(power) >= 2 && one_in_(30) && level >= 50)
                 {
                     add_flag(o_ptr->flags, OF_WEAPONMASTERY);
                     o_ptr->pval = _jewelry_pval(3, level);
-                    if (one_in_(30))
+                    powers--;
+                    if (one_in_(30) && powers > 0)
                     {
                         switch (randint1(5))
                         {
@@ -776,6 +795,7 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
                         case 4: add_flag(o_ptr->flags, OF_BRAND_ELEC); break;
                         case 5: add_flag(o_ptr->flags, OF_BRAND_POIS); break;
                         }
+                        powers--;
                     }
                     break;
                 }
@@ -785,15 +805,12 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
                     o_ptr->pval = _jewelry_pval(3, level);
                     powers = 0;
                 }
-                else if (one_in_(3))
+                else if (!have_flag(o_ptr->flags, OF_RES_FEAR))
                 {
                     add_flag(o_ptr->flags, OF_RES_FEAR);
-                    break;
+                    powers--;
                 }
-            default:
-                if (one_in_(4))
-                    o_ptr->to_h += randint1(3) + m_bonus(3, level);
-                o_ptr->to_d += randint1(5) + m_bonus(5, level);
+                break;
             }
         }
         if (o_ptr->to_h > 25) o_ptr->to_h = 25;
@@ -806,55 +823,84 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
         int div = 1;
         if (abs(power) >= 2) div++;
 
-        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(5, level, power); powers > 0; )
         {
-            switch (randint1(7))
+            switch (randint1(10))
             {
+            /* 20% Dex and Stealth (perhaps Speed) */
             case 1:
-                add_flag(o_ptr->flags, OF_DEX);
-                if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                if (!have_flag(o_ptr->flags, OF_DEX))
+                {
+                    add_flag(o_ptr->flags, OF_DEX);
+                    if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                    powers--;
+                }
                 break;
             case 2:
-                if (_create_level_check(200/div, level - 40))
+                if (!have_flag(o_ptr->flags, OF_SPEED) && _create_level_check(200/div, level - 40))
+                {
                     add_flag(o_ptr->flags, OF_SPEED);
-                else
+                    if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(3, level);
+                    powers--;
+                }
+                else if (!have_flag(o_ptr->flags, OF_STEALTH))
+                {
                     add_flag(o_ptr->flags, OF_STEALTH);
-                if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                    if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                    powers--;
+                }
                 break;
-            case 3:
+            /* 20% boost accuracy */
+            case 3: case 4:
                 o_ptr->to_h += randint1(5) + m_bonus(5, level);
+                powers--;
                 while (one_in_(2) && powers > 0)
                 {
                     o_ptr->to_h += randint1(5) + m_bonus(5, level);
                     powers--;
                 }
                 break;
-            case 4:
+            /* 20% boost damage (Note: +D should be higher than melee since fewer shots per round) */
+            case 5: case 6:
                 o_ptr->to_d += randint1(7) + m_bonus(7, level);
+                powers--;
                 while (one_in_(2) && powers > 0)
                 {
                     o_ptr->to_d += randint1(7) + m_bonus(7, level);
                     powers--;
                 }
                 break;
-            case 5:
-                if ( _create_level_check(100/div, level)
-                  && (!have_flag(o_ptr->flags, OF_XTRA_MIGHT) || one_in_(7) ) )
+            /* 20% boost (+H,+D) (efficiently) */
+            case 7: case 8:
+                o_ptr->to_h += randint1(4) + m_bonus(4, level);
+                o_ptr->to_d += randint1(6) + m_bonus(5, level);
+                powers--;
+                break;
+            /* 20% extra shots or might */
+            case 9:
+                if (!have_flag(o_ptr->flags, OF_XTRA_SHOTS))
                 {
-                    add_flag(o_ptr->flags, OF_XTRA_SHOTS);
-                    o_ptr->pval = _jewelry_pval(5, level);
-                    break;
+                    if ( _create_level_check(100/div, level)
+                      && (!have_flag(o_ptr->flags, OF_XTRA_MIGHT) || one_in_(7) ) )
+                    {
+                        add_flag(o_ptr->flags, OF_XTRA_SHOTS);
+                        if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                        powers--;
+                    }
                 }
-            case 6:
-                if ( _create_level_check(200/div, level)
-                  && (!have_flag(o_ptr->flags, OF_XTRA_SHOTS) || one_in_(7) ) )
+                break;
+            case 10:
+                if (!have_flag(o_ptr->flags, OF_XTRA_MIGHT))
                 {
-                    add_flag(o_ptr->flags, OF_XTRA_MIGHT);
-                    o_ptr->pval = _jewelry_pval(5, level);
-                    break;
+                    if ( _create_level_check(200/div, level)
+                      && (!have_flag(o_ptr->flags, OF_XTRA_SHOTS) || one_in_(7) ) )
+                    {
+                        add_flag(o_ptr->flags, OF_XTRA_MIGHT);
+                        if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                        powers--;
+                    }
                 }
-            default:
-                o_ptr->to_d += randint1(7) + m_bonus(7, level);
+                break;
             }
         }
         if (o_ptr->to_h > 30) o_ptr->to_h = 30;
@@ -1520,8 +1566,11 @@ bool obj_create_device(object_type *o_ptr, int level, int power, int mode)
         }
     }
 
+    /* XXX Let's turn off cursed devices for a bit. While exploding devices
+     * have actually killed me once, and nearly so a couple of times, they
+     * generally just induce *id* paranoia ...
     if (power < 0)
-        o_ptr->curse_flags |= OFC_CURSED;
+        o_ptr->curse_flags |= OFC_CURSED;*/
 
     return TRUE;
 }

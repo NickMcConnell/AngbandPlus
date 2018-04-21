@@ -1131,56 +1131,57 @@ void obj_describe_charges(obj_ptr obj)
  ***********************************************************************/
 
 enum object_save_fields_e {
-    SAVE_ITEM_DONE = 0,
-    SAVE_ITEM_PVAL,
-    SAVE_ITEM_DISCOUNT,
-    SAVE_ITEM_NUMBER,
-    SAVE_ITEM_NAME1,
-    SAVE_ITEM_NAME2,
-    SAVE_ITEM_NAME3,
-    SAVE_ITEM_ART_NAME,
-    SAVE_ITEM_TIMEOUT,
-    SAVE_ITEM_COMBAT,
-    SAVE_ITEM_ARMOR,
-    SAVE_ITEM_DAMAGE_DICE,
-    SAVE_ITEM_IDENT,
-    SAVE_ITEM_MARKED_BYTE,
-    SAVE_ITEM_FEELING,
-    SAVE_ITEM_INSCRIPTION,
-    SAVE_ITEM_ART_FLAGS_0,
-    SAVE_ITEM_ART_FLAGS_1,
-    SAVE_ITEM_ART_FLAGS_2,
-    SAVE_ITEM_ART_FLAGS_3,
-    SAVE_ITEM_ART_FLAGS_4,
-    SAVE_ITEM_ART_FLAGS_5,
-    SAVE_ITEM_ART_FLAGS_6,
-    SAVE_ITEM_ART_FLAGS_7,
-    SAVE_ITEM_ART_FLAGS_8,
-    SAVE_ITEM_ART_FLAGS_9,
-    SAVE_ITEM_CURSE_FLAGS,
-    SAVE_ITEM_RUNE_FLAGS,
-    SAVE_ITEM_HELD_M_IDX,
-    SAVE_ITEM_XTRA1,
-    SAVE_ITEM_XTRA2,
-    SAVE_ITEM_XTRA3,
-    SAVE_ITEM_XTRA4,
-    SAVE_ITEM_XTRA5_OLD,
-    SAVE_ITEM_ACTIVATION,
-    SAVE_ITEM_MULT,
-    SAVE_ITEM_MARKED,
-    SAVE_ITEM_XTRA5,
-    SAVE_ITEM_KNOWN_FLAGS_0,
-    SAVE_ITEM_KNOWN_FLAGS_1,
-    SAVE_ITEM_KNOWN_FLAGS_2,
-    SAVE_ITEM_KNOWN_FLAGS_3,
-    SAVE_ITEM_KNOWN_FLAGS_4,
-    SAVE_ITEM_KNOWN_FLAGS_5,
-    SAVE_ITEM_KNOWN_FLAGS_6,
-    SAVE_ITEM_KNOWN_FLAGS_7,
-    SAVE_ITEM_KNOWN_FLAGS_8,
-    SAVE_ITEM_KNOWN_FLAGS_9,
-    SAVE_ITEM_KNOWN_CURSE_FLAGS,
-    SAVE_ITEM_LEVEL,
+    OBJ_SAVE_DONE = 0,
+    OBJ_SAVE_PVAL,
+    OBJ_SAVE_DISCOUNT,
+    OBJ_SAVE_NUMBER,
+    OBJ_SAVE_NAME1,
+    OBJ_SAVE_NAME2,
+    OBJ_SAVE_NAME3,
+    OBJ_SAVE_ART_NAME,
+    OBJ_SAVE_TIMEOUT,
+    OBJ_SAVE_COMBAT,
+    OBJ_SAVE_ARMOR,
+    OBJ_SAVE_DAMAGE_DICE,
+    OBJ_SAVE_IDENT,
+    OBJ_SAVE_MARKED_BYTE,
+    OBJ_SAVE_FEELING,
+    OBJ_SAVE_INSCRIPTION,
+    OBJ_SAVE_ART_FLAGS_0,
+    OBJ_SAVE_ART_FLAGS_1,
+    OBJ_SAVE_ART_FLAGS_2,
+    OBJ_SAVE_ART_FLAGS_3,
+    OBJ_SAVE_ART_FLAGS_4,
+    OBJ_SAVE_ART_FLAGS_5,
+    OBJ_SAVE_ART_FLAGS_6,
+    OBJ_SAVE_ART_FLAGS_7,
+    OBJ_SAVE_ART_FLAGS_8,
+    OBJ_SAVE_ART_FLAGS_9,
+    OBJ_SAVE_CURSE_FLAGS,
+    OBJ_SAVE_RUNE_FLAGS,
+    OBJ_SAVE_HELD_M_IDX,
+    OBJ_SAVE_XTRA1,
+    OBJ_SAVE_XTRA2,
+    OBJ_SAVE_XTRA3,
+    OBJ_SAVE_XTRA4,
+    OBJ_SAVE_XTRA5_OLD,
+    OBJ_SAVE_ACTIVATION,
+    OBJ_SAVE_MULT,
+    OBJ_SAVE_MARKED,
+    OBJ_SAVE_XTRA5,
+    OBJ_SAVE_KNOWN_FLAGS_0,
+    OBJ_SAVE_KNOWN_FLAGS_1,
+    OBJ_SAVE_KNOWN_FLAGS_2,
+    OBJ_SAVE_KNOWN_FLAGS_3,
+    OBJ_SAVE_KNOWN_FLAGS_4,
+    OBJ_SAVE_KNOWN_FLAGS_5,
+    OBJ_SAVE_KNOWN_FLAGS_6,
+    OBJ_SAVE_KNOWN_FLAGS_7,
+    OBJ_SAVE_KNOWN_FLAGS_8,
+    OBJ_SAVE_KNOWN_FLAGS_9,
+    OBJ_SAVE_KNOWN_CURSE_FLAGS,
+    OBJ_SAVE_LEVEL,
+    OBJ_SAVE_KNOWN_XTRA,
 };
 
 void obj_load(obj_ptr obj, savefile_ptr file)
@@ -1207,141 +1208,144 @@ void obj_load(obj_ptr obj, savefile_ptr file)
     for (;;)
     {
         byte code = savefile_read_byte(file);
-        if (code == SAVE_ITEM_DONE)
+        if (code == OBJ_SAVE_DONE)
             break;
 
         switch (code)
         {
-        case SAVE_ITEM_PVAL:
+        case OBJ_SAVE_PVAL:
             obj->pval = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_DISCOUNT:
+        case OBJ_SAVE_DISCOUNT:
             obj->discount = savefile_read_byte(file);
             break;
-        case SAVE_ITEM_NUMBER:
+        case OBJ_SAVE_NUMBER:
             obj->number = savefile_read_byte(file);
             break;
-        case SAVE_ITEM_NAME1:
+        case OBJ_SAVE_NAME1:
             obj->name1 = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_NAME2:
+        case OBJ_SAVE_NAME2:
             obj->name2 = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_NAME3:
+        case OBJ_SAVE_NAME3:
             obj->name3 = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_TIMEOUT:
+        case OBJ_SAVE_TIMEOUT:
             obj->timeout = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_COMBAT:
+        case OBJ_SAVE_COMBAT:
             obj->to_h = savefile_read_s16b(file);
             obj->to_d = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_ARMOR:
+        case OBJ_SAVE_ARMOR:
             obj->to_a = savefile_read_s16b(file);
             obj->ac = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_DAMAGE_DICE:
+        case OBJ_SAVE_DAMAGE_DICE:
             obj->dd = savefile_read_byte(file);
             obj->ds = savefile_read_byte(file);
             break;
-        case SAVE_ITEM_MULT:
+        case OBJ_SAVE_MULT:
             obj->mult = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_IDENT:
+        case OBJ_SAVE_IDENT:
             obj->ident = savefile_read_byte(file);
             break;
-        case SAVE_ITEM_MARKED_BYTE:
+        case OBJ_SAVE_MARKED_BYTE:
             obj->marked = savefile_read_byte(file);
             break;
-        case SAVE_ITEM_MARKED:
+        case OBJ_SAVE_MARKED:
             obj->marked = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_ART_FLAGS_0:
+        case OBJ_SAVE_ART_FLAGS_0:
             obj->flags[0] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_ART_FLAGS_1:
+        case OBJ_SAVE_ART_FLAGS_1:
             obj->flags[1] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_ART_FLAGS_2:
+        case OBJ_SAVE_ART_FLAGS_2:
             obj->flags[2] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_ART_FLAGS_3:
+        case OBJ_SAVE_ART_FLAGS_3:
             obj->flags[3] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_ART_FLAGS_4:
+        case OBJ_SAVE_ART_FLAGS_4:
             obj->flags[4] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_ART_FLAGS_5:
+        case OBJ_SAVE_ART_FLAGS_5:
             obj->flags[5] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_CURSE_FLAGS:
+        case OBJ_SAVE_CURSE_FLAGS:
             obj->curse_flags = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_KNOWN_FLAGS_0:
+        case OBJ_SAVE_KNOWN_FLAGS_0:
             obj->known_flags[0] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_KNOWN_FLAGS_1:
+        case OBJ_SAVE_KNOWN_FLAGS_1:
             obj->known_flags[1] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_KNOWN_FLAGS_2:
+        case OBJ_SAVE_KNOWN_FLAGS_2:
             obj->known_flags[2] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_KNOWN_FLAGS_3:
+        case OBJ_SAVE_KNOWN_FLAGS_3:
             obj->known_flags[3] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_KNOWN_FLAGS_4:
+        case OBJ_SAVE_KNOWN_FLAGS_4:
             obj->known_flags[4] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_KNOWN_FLAGS_5:
+        case OBJ_SAVE_KNOWN_FLAGS_5:
             obj->known_flags[5] = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_KNOWN_CURSE_FLAGS:
+        case OBJ_SAVE_KNOWN_CURSE_FLAGS:
             obj->known_curse_flags = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_RUNE_FLAGS:
+        case OBJ_SAVE_KNOWN_XTRA:
+            obj->known_xtra = savefile_read_u32b(file);
+            break;
+        case OBJ_SAVE_RUNE_FLAGS:
             obj->rune = savefile_read_u32b(file);
             break;
-        case SAVE_ITEM_HELD_M_IDX:
+        case OBJ_SAVE_HELD_M_IDX:
             obj->held_m_idx = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_XTRA1:
+        case OBJ_SAVE_XTRA1:
             obj->xtra1 = savefile_read_byte(file);
             break;
-        case SAVE_ITEM_XTRA2:
+        case OBJ_SAVE_XTRA2:
             obj->xtra2 = savefile_read_byte(file);
             break;
-        case SAVE_ITEM_XTRA3:
+        case OBJ_SAVE_XTRA3:
             obj->xtra3 = savefile_read_byte(file);
             break;
-        case SAVE_ITEM_XTRA4:
+        case OBJ_SAVE_XTRA4:
             obj->xtra4 = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_XTRA5_OLD:
+        case OBJ_SAVE_XTRA5_OLD:
             obj->xtra5 = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_XTRA5:
+        case OBJ_SAVE_XTRA5:
             obj->xtra5 = savefile_read_s32b(file);
             break;
-        case SAVE_ITEM_FEELING:
+        case OBJ_SAVE_FEELING:
             obj->feeling = savefile_read_byte(file);
             break;
-        case SAVE_ITEM_INSCRIPTION:
+        case OBJ_SAVE_INSCRIPTION:
             savefile_read_cptr(file, buf, sizeof(buf));
             obj->inscription = quark_add(buf);
             break;
-        case SAVE_ITEM_ART_NAME:
+        case OBJ_SAVE_ART_NAME:
             savefile_read_cptr(file, buf, sizeof(buf));
             obj->art_name = quark_add(buf);
             break;
-        case SAVE_ITEM_ACTIVATION:
+        case OBJ_SAVE_ACTIVATION:
             obj->activation.type = savefile_read_s16b(file);
             obj->activation.power = savefile_read_byte(file);
             obj->activation.difficulty = savefile_read_byte(file);
             obj->activation.cost = savefile_read_s16b(file);
             obj->activation.extra = savefile_read_s16b(file);
             break;
-        case SAVE_ITEM_LEVEL:
+        case OBJ_SAVE_LEVEL:
             obj->level = savefile_read_s16b(file);
             break;
         /* default:
@@ -1362,195 +1366,200 @@ void obj_save(obj_ptr obj, savefile_ptr file)
     savefile_write_s16b(file, obj->weight);
     if (obj->pval)
     {
-        savefile_write_byte(file, SAVE_ITEM_PVAL);
+        savefile_write_byte(file, OBJ_SAVE_PVAL);
         savefile_write_s16b(file, obj->pval);
     }
     if (obj->discount)
     {
-        savefile_write_byte(file, SAVE_ITEM_DISCOUNT);
+        savefile_write_byte(file, OBJ_SAVE_DISCOUNT);
         savefile_write_byte(file, obj->discount);
     }
     if (obj->number != 1)
     {
-        savefile_write_byte(file, SAVE_ITEM_NUMBER);
+        savefile_write_byte(file, OBJ_SAVE_NUMBER);
         savefile_write_byte(file, obj->number);
     }
     if (obj->name1)
     {
-        savefile_write_byte(file, SAVE_ITEM_NAME1);
+        savefile_write_byte(file, OBJ_SAVE_NAME1);
         savefile_write_s16b(file, obj->name1);
     }
     if (obj->name2)
     {
-        savefile_write_byte(file, SAVE_ITEM_NAME2);
+        savefile_write_byte(file, OBJ_SAVE_NAME2);
         savefile_write_s16b(file, obj->name2);
     }
     if (obj->name3)
     {
-        savefile_write_byte(file, SAVE_ITEM_NAME3);
+        savefile_write_byte(file, OBJ_SAVE_NAME3);
         savefile_write_s16b(file, obj->name3);
     }
     if (obj->timeout)
     {
-        savefile_write_byte(file, SAVE_ITEM_TIMEOUT);
+        savefile_write_byte(file, OBJ_SAVE_TIMEOUT);
         savefile_write_s16b(file, obj->timeout);
     }
     if (obj->to_h || obj->to_d)
     {
-        savefile_write_byte(file, SAVE_ITEM_COMBAT);
+        savefile_write_byte(file, OBJ_SAVE_COMBAT);
         savefile_write_s16b(file, obj->to_h);
         savefile_write_s16b(file, obj->to_d);
     }
     if (obj->to_a || obj->ac)
     {
-        savefile_write_byte(file, SAVE_ITEM_ARMOR);
+        savefile_write_byte(file, OBJ_SAVE_ARMOR);
         savefile_write_s16b(file, obj->to_a);
         savefile_write_s16b(file, obj->ac);
     }
     if (obj->dd || obj->ds)
     {
-        savefile_write_byte(file, SAVE_ITEM_DAMAGE_DICE);
+        savefile_write_byte(file, OBJ_SAVE_DAMAGE_DICE);
         savefile_write_byte(file, obj->dd);
         savefile_write_byte(file, obj->ds);
     }
     if (obj->mult)
     {
-        savefile_write_byte(file, SAVE_ITEM_MULT);
+        savefile_write_byte(file, OBJ_SAVE_MULT);
         savefile_write_s16b(file, obj->mult);
     }
     if (obj->ident)
     {
-        savefile_write_byte(file, SAVE_ITEM_IDENT);
+        savefile_write_byte(file, OBJ_SAVE_IDENT);
         savefile_write_byte(file, obj->ident);
     }
     if (obj->marked)
     {
-        savefile_write_byte(file, SAVE_ITEM_MARKED);
+        savefile_write_byte(file, OBJ_SAVE_MARKED);
         savefile_write_u32b(file, obj->marked);
     }
     if (obj->flags[0])
     {
-        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_0);
+        savefile_write_byte(file, OBJ_SAVE_ART_FLAGS_0);
         savefile_write_u32b(file, obj->flags[0]);
     }
     if (obj->flags[1])
     {
-        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_1);
+        savefile_write_byte(file, OBJ_SAVE_ART_FLAGS_1);
         savefile_write_u32b(file, obj->flags[1]);
     }
     if (obj->flags[2])
     {
-        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_2);
+        savefile_write_byte(file, OBJ_SAVE_ART_FLAGS_2);
         savefile_write_u32b(file, obj->flags[2]);
     }
     if (obj->flags[3])
     {
-        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_3);
+        savefile_write_byte(file, OBJ_SAVE_ART_FLAGS_3);
         savefile_write_u32b(file, obj->flags[3]);
     }
     if (obj->flags[4])
     {
-        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_4);
+        savefile_write_byte(file, OBJ_SAVE_ART_FLAGS_4);
         savefile_write_u32b(file, obj->flags[4]);
     }
     if (obj->flags[5])
     {
-        savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_5);
+        savefile_write_byte(file, OBJ_SAVE_ART_FLAGS_5);
         savefile_write_u32b(file, obj->flags[5]);
     }
     if (obj->curse_flags)
     {
-        savefile_write_byte(file, SAVE_ITEM_CURSE_FLAGS);
+        savefile_write_byte(file, OBJ_SAVE_CURSE_FLAGS);
         savefile_write_u32b(file, obj->curse_flags);
     }
     if (obj->known_flags[0])
     {
-        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_0);
+        savefile_write_byte(file, OBJ_SAVE_KNOWN_FLAGS_0);
         savefile_write_u32b(file, obj->known_flags[0]);
     }
     if (obj->known_flags[1])
     {
-        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_1);
+        savefile_write_byte(file, OBJ_SAVE_KNOWN_FLAGS_1);
         savefile_write_u32b(file, obj->known_flags[1]);
     }
     if (obj->known_flags[2])
     {
-        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_2);
+        savefile_write_byte(file, OBJ_SAVE_KNOWN_FLAGS_2);
         savefile_write_u32b(file, obj->known_flags[2]);
     }
     if (obj->known_flags[3])
     {
-        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_3);
+        savefile_write_byte(file, OBJ_SAVE_KNOWN_FLAGS_3);
         savefile_write_u32b(file, obj->known_flags[3]);
     }
     if (obj->known_flags[4])
     {
-        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_4);
+        savefile_write_byte(file, OBJ_SAVE_KNOWN_FLAGS_4);
         savefile_write_u32b(file, obj->known_flags[4]);
     }
     if (obj->known_flags[5])
     {
-        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_5);
+        savefile_write_byte(file, OBJ_SAVE_KNOWN_FLAGS_5);
         savefile_write_u32b(file, obj->known_flags[5]);
     }
     if (obj->known_curse_flags)
     {
-        savefile_write_byte(file, SAVE_ITEM_KNOWN_CURSE_FLAGS);
+        savefile_write_byte(file, OBJ_SAVE_KNOWN_CURSE_FLAGS);
         savefile_write_u32b(file, obj->known_curse_flags);
+    }
+    if (obj->known_xtra)
+    {
+        savefile_write_byte(file, OBJ_SAVE_KNOWN_XTRA);
+        savefile_write_u32b(file, obj->known_xtra);
     }
     if (obj->rune)
     {
-        savefile_write_byte(file, SAVE_ITEM_RUNE_FLAGS);
+        savefile_write_byte(file, OBJ_SAVE_RUNE_FLAGS);
         savefile_write_u32b(file, obj->rune);
     }
     if (obj->held_m_idx)
     {
-        savefile_write_byte(file, SAVE_ITEM_HELD_M_IDX);
+        savefile_write_byte(file, OBJ_SAVE_HELD_M_IDX);
         savefile_write_s16b(file, obj->held_m_idx);
     }
     if (obj->xtra1)
     {
-        savefile_write_byte(file, SAVE_ITEM_XTRA1);
+        savefile_write_byte(file, OBJ_SAVE_XTRA1);
         savefile_write_byte(file, obj->xtra1);
     }
     if (obj->xtra2)
     {
-        savefile_write_byte(file, SAVE_ITEM_XTRA2);
+        savefile_write_byte(file, OBJ_SAVE_XTRA2);
         savefile_write_byte(file, obj->xtra2);
     }
     if (obj->xtra3)
     {
-        savefile_write_byte(file, SAVE_ITEM_XTRA3);
+        savefile_write_byte(file, OBJ_SAVE_XTRA3);
         savefile_write_byte(file, obj->xtra3);
     }
     if (obj->xtra4)
     {
-        savefile_write_byte(file, SAVE_ITEM_XTRA4);
+        savefile_write_byte(file, OBJ_SAVE_XTRA4);
         savefile_write_s16b(file, obj->xtra4);
     }
     if (obj->xtra5)
     {
-        savefile_write_byte(file, SAVE_ITEM_XTRA5);
+        savefile_write_byte(file, OBJ_SAVE_XTRA5);
         savefile_write_s32b(file, obj->xtra5);
     }
     if (obj->feeling)
     {
-        savefile_write_byte(file, SAVE_ITEM_FEELING);
+        savefile_write_byte(file, OBJ_SAVE_FEELING);
         savefile_write_byte(file, obj->feeling);
     }
     if (obj->inscription)
     {
-        savefile_write_byte(file, SAVE_ITEM_INSCRIPTION);
+        savefile_write_byte(file, OBJ_SAVE_INSCRIPTION);
         savefile_write_cptr(file, quark_str(obj->inscription));
     }
     if (obj->art_name)
     {
-        savefile_write_byte(file, SAVE_ITEM_ART_NAME);
+        savefile_write_byte(file, OBJ_SAVE_ART_NAME);
         savefile_write_cptr(file, quark_str(obj->art_name));
     }
     if (obj->activation.type)
     {
-        savefile_write_byte(file, SAVE_ITEM_ACTIVATION);
+        savefile_write_byte(file, OBJ_SAVE_ACTIVATION);
         savefile_write_s16b(file, obj->activation.type);
         savefile_write_byte(file, obj->activation.power);
         savefile_write_byte(file, obj->activation.difficulty);
@@ -1559,10 +1568,10 @@ void obj_save(obj_ptr obj, savefile_ptr file)
     }
     if (obj->level)
     {
-        savefile_write_byte(file, SAVE_ITEM_LEVEL);
+        savefile_write_byte(file, OBJ_SAVE_LEVEL);
         savefile_write_s16b(file, obj->level);
     }
 
-    savefile_write_byte(file, SAVE_ITEM_DONE);
+    savefile_write_byte(file, OBJ_SAVE_DONE);
 }
 

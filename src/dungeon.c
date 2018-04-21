@@ -180,36 +180,31 @@ static void sense_inventory1(void)
 {
     int  plev = p_ptr->lev + 10;
     bool strong = FALSE;
+    int  flags = _get_pseudo_id_flags();
 
     if (p_ptr->confused) return;
 
-    if (easy_id)
+    if (flags & CLASS_SENSE1_STRONG)
         strong = TRUE;
-    else
+    else if (!(flags & CLASS_SENSE1_WEAK))
+        return;
+    if (flags & CLASS_SENSE1_FAST)
     {
-        int flags = _get_pseudo_id_flags();
-        if (flags & CLASS_SENSE1_STRONG)
-            strong = TRUE;
-        else if (!(flags & CLASS_SENSE1_WEAK))
+        if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
             return;
-        if (flags & CLASS_SENSE1_FAST)
-        {
-            if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
-                return;
-        }
-        else if (flags & CLASS_SENSE1_MED)
-        {
-            if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
-                return;
-        }
-        else if (flags & CLASS_SENSE1_SLOW)
-        {
-            if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
-                return;
-        }
-        if (virtue_current(VIRTUE_KNOWLEDGE) >= 100)
-            strong = TRUE;
     }
+    else if (flags & CLASS_SENSE1_MED)
+    {
+        if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
+            return;
+    }
+    else if (flags & CLASS_SENSE1_SLOW)
+    {
+        if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
+            return;
+    }
+    if (virtue_current(VIRTUE_KNOWLEDGE) >= 100)
+        strong = TRUE;
 
     /*** Sense everything ***/
     _sense_strong = strong;
@@ -223,40 +218,33 @@ static void sense_inventory2(void)
 {
     int  plev = p_ptr->lev + 10;
     bool strong = FALSE;
+    int  flags = _get_pseudo_id_flags();
 
     if (p_ptr->confused) return;
 
-    if (easy_id)
-    {
+    if (flags & CLASS_SENSE2_STRONG)
         strong = TRUE;
-    }
-    else
+    else if (!(flags & CLASS_SENSE2_WEAK))
+        return;
+    if (flags & CLASS_SENSE2_FAST)
     {
-        int flags = _get_pseudo_id_flags();
-        if (flags & CLASS_SENSE2_STRONG)
-            strong = TRUE;
-        else if (!(flags & CLASS_SENSE2_WEAK))
+        if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
             return;
-        if (flags & CLASS_SENSE2_FAST)
-        {
-            if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
-                return;
-        }
-        else if (flags & CLASS_SENSE2_MED)
-        {
-            if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
-                return;
-        }
-        else if (flags & CLASS_SENSE2_SLOW)
-        {
-            if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
-                return;
-        }
-        else /* Super duper slow */
-        {
-            if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5)))
-                return;
-        }
+    }
+    else if (flags & CLASS_SENSE2_MED)
+    {
+        if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
+            return;
+    }
+    else if (flags & CLASS_SENSE2_SLOW)
+    {
+        if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
+            return;
+    }
+    else /* Super duper slow */
+    {
+        if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5)))
+            return;
     }
 
     /*** Sense everything ***/
@@ -950,19 +938,6 @@ static void process_world_aux_hp_and_sp(void)
 
 
     /*** Damage over Time ***/
-
-    /* Take damage from poison.
-     * Note: Poison is now a delayed damage pool. No longer is there
-     * any immediate damage. It's also much harder to 'cure'. */
-    if (p_ptr->poisoned && !IS_INVULN())
-    {   /*                   v--- make waiting for poison to clear less tedious */
-        int amt = MAX(MAX(1, p_ptr->mhp/150), p_ptr->poisoned/15);
-        /* Take 15 "game turns" for the entire effect ------^ */
-        if (amt > p_ptr->poisoned) amt = p_ptr->poisoned;
-        /*msg_format("<color:G> %d Poison Damage</color>", amt);*/
-        take_hit(DAMAGE_NOESCAPE, amt, "poison");
-        set_poisoned(p_ptr->poisoned - amt, TRUE);
-    }
 
     /* Take damage from cuts */
     if (p_ptr->cut && !IS_INVULN())
@@ -3044,13 +3019,6 @@ static void _dispatch_command(int old_now_turn)
 #endif /* ALLOW_WIZARD */
 
 
-#ifdef ALLOW_SPOILERS
-        case KTRL('Z'):
-            if (allow_spoilers)
-                do_cmd_spoilers();
-            break;
-#endif /* ALLOW_SPOILERS */
-
         /*** Inventory Commands ***/
 
         /* Wear/wield equipment */
@@ -4185,7 +4153,10 @@ static void process_player(void)
 
     load = FALSE;
 
-    /* Fast */
+    /* XXX While many timed effects are processed every 10 game turns, some
+     * game mechanics work better if they are indexed to player actions.
+     * cf process_world_aux_hp_and_sp. */
+
     if (p_ptr->lightspeed)
     {
         (void)set_lightspeed(p_ptr->lightspeed - 1, TRUE);
@@ -4415,6 +4386,31 @@ static void process_player(void)
 
             if (race_ptr->player_action)
                 race_ptr->player_action(energy_use);
+
+            /* Take damage from poison.
+             * Note: Poison is now a delayed damage pool. No longer is there
+             * any immediate damage. It's also much harder to 'cure'. This mechanic
+             * works better if the player is hurt on every move they make. */
+            if (p_ptr->poisoned)
+            {
+                /* XXX This mechanic might need some work ... as poisoned goes
+                 * down, so too does the damage you take per move. So, in practice,
+                 * you get waaaay more than 10 moves to deal with things. On the other
+                 * hand, poisoned=2000+ is not uncommon, and taking damage amounts of
+                 * 200, 180, 162, 145, 131, 118, 106, ... might be OK. */
+                int amt = MAX(MAX(1, p_ptr->mhp/60), p_ptr->poisoned/10);
+
+                /* quickwalking ninjas should not be overly poisoned! */
+                amt = amt * energy_use / 100;
+
+                if (amt > p_ptr->poisoned)
+                    amt = p_ptr->poisoned;
+                if (0 || p_ptr->wizard)
+                    msg_format("<color:G> %d Poison Damage</color>", amt);
+                if (!IS_INVULN())
+                    take_hit(DAMAGE_NOESCAPE, amt, "poison");
+                set_poisoned(p_ptr->poisoned - amt, TRUE);
+            }
 
 
             if (p_ptr->free_turns)

@@ -151,7 +151,32 @@ int skills_bow_max(int sval)
     return s_info[_class_idx()].w_max[0][sval];
 }
 
-void skills_bow_gain(int sval)
+static int _bow_calc_bonus_aux(int sval, int skill)
+{
+    int bonus;
+
+    /* XXX Historically, crossbows have never had proficiency penalties, while
+     * bows and slings have behaved just like melee weapons. I'm not sure why this
+     * has always been so ... */
+    if (sval == SV_LIGHT_XBOW || sval == SV_HEAVY_XBOW)
+        bonus = skill / 400; /* +0 to +20 */
+    else              /* v~~~~~~ WEAPON_EXP_BEGINNER */
+        bonus = (skill - WEAPON_EXP_MASTER/2) / 200; /* -20 to +20 */
+
+    return bonus;
+}
+
+int skills_bow_calc_bonus(int sval)
+{
+    int current = skills_bow_current(sval);
+    return _bow_calc_bonus_aux(sval, current);
+}
+
+/* XXX Use same logic as melee weapons for now ... */
+static int _weapon_min_rlvl(int plvl);
+static int _weapon_max_skill(int rlvl);
+static int _weapon_gain_amt(int skill);
+void skills_bow_gain(int sval, int rlvl)
 {
     int max = skills_bow_max(sval);
     int cur = p_ptr->weapon_exp[0][sval];
@@ -159,20 +184,47 @@ void skills_bow_gain(int sval)
     if (p_ptr->pclass == CLASS_SKILLMASTER) return;
     if (cur < max)
     {
-        int add = 0;
+        int step;
+        int add;
 
-        if (cur < WEAPON_EXP_BEGINNER) add = 80;
-        else if (cur < WEAPON_EXP_SKILLED) add = 25;
-        else if (cur < WEAPON_EXP_EXPERT && p_ptr->lev > 19) add = 10;
-        else if (p_ptr->lev > 34) add = 2;
+        if (rlvl < _weapon_min_rlvl(p_ptr->lev))
+        {
+            if (p_ptr->wizard)
+                msg_format("<color:B>You must shoot level <color:R>%d</color> monsters to gain bow proficiency.</color>", _weapon_min_rlvl(p_ptr->lev));
+            return;
+        }
+        if (cur >= _weapon_max_skill(rlvl))
+        {
+            if (p_ptr->wizard)
+            {
+                msg_format("<color:B>Against level <color:R>%d</color> foes, you can only train bow "
+                    "proficiency to <color:R>%d</color> (Current Skill: <color:R>%d</color>).</color>",
+                    rlvl, _weapon_max_skill(rlvl), cur);
+            }
+            return;
+        }
+
+        step = _weapon_gain_amt(cur);
+        add = step / 10;
+        if (step%10 && randint0(10) < step%10) add++;
 
         if (add > 0)
         {
+            int old_bonus = _bow_calc_bonus_aux(sval, cur);
+            int new_bonus;
             cur += add;
             if (cur > max)
                 cur = max;
-            p_ptr->weapon_exp[0][sval] += add;
-            p_ptr->update |= (PU_BONUS);
+            new_bonus = _bow_calc_bonus_aux(sval, cur);
+            p_ptr->weapon_exp[0][sval] = cur;
+            if (old_bonus != new_bonus)
+            {
+                int k_idx = lookup_kind(TV_BOW, sval);
+                char buf[MAX_NLEN];
+                strip_name(buf, k_idx);
+                msg_format("<color:B>Your <color:R>%s</color> skills are improving.</color>", buf);
+                p_ptr->update |= PU_BONUS;
+            }
         }
     }
 }
@@ -424,6 +476,13 @@ cptr skills_weapon_describe_current(int tval, int sval)
     return _weapon_describe_aux(
         skills_weapon_current(tval, sval),
         skills_weapon_max(tval, sval));
+}
+
+cptr skills_bow_describe_current(int sval)
+{
+    return _weapon_describe_aux(
+        skills_bow_current(sval),
+        skills_bow_max(sval));
 }
 
 /* Shieldmasters 'Shield Bash' technique */

@@ -25,7 +25,7 @@ L:T:TREE
 L:~:DEEP_WATER
 L:+:CLOSED_DOOR
 L:^:TRAP(*)
-L:$:TRAP(*, 25):OBJ(*, DEPTH+10)
+L:$:TRAP(*, 25%):OBJ(*, DEPTH+10)
 L:a:MON(black knight)
 L:b:MON(ninja)
 L:c:MON(logrus master)

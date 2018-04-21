@@ -288,7 +288,8 @@ bool quest_post_generate(quest_ptr q)
         int           mode = PM_NO_KAGE | PM_NO_PET | PM_QUESTOR, i, j, k;
         int           ct = q->goal_count - q->goal_current;
 
-        if ((r_ptr->flags1 & RF1_UNIQUE) && r_ptr->max_num == 0)
+        if ( !r_ptr->name  /* temp ... remove monsters without breaking savefiles */
+          || ((r_ptr->flags1 & RF1_UNIQUE) && r_ptr->max_num == 0) )
         {
             msg_print("It seems that this level was protected by someone before...");
             q->status = QS_FINISHED;
@@ -1047,6 +1048,13 @@ void quests_display(void)
     doc_free(doc);
 }
 
+static cptr _safe_r_name(int id)
+{
+    mon_race_ptr r = &r_info[id];
+    if (!r->name)
+        return "Monster Removed";
+    return r_name + r->name;
+}
 static void quest_doc(quest_ptr q, doc_ptr doc)
 {
     if (q->flags & QF_RANDOM)
@@ -1056,13 +1064,12 @@ static void quest_doc(quest_ptr q, doc_ptr doc)
             if (q->completed_lev == 0)
             {
                 doc_printf(doc, "  Kill %s <tab:60>DL%3d <color:B>Cancelled</color>\n",
-                    r_name + r_info[q->goal_idx].name, q->level);
+                    _safe_r_name(q->goal_idx), q->level);
             }
             else if (q->goal_count > 1)
             {
                 char name[MAX_NLEN];
-                monster_race *r_ptr = &r_info[q->goal_idx];
-                strcpy(name, r_name + r_ptr->name);
+                strcpy(name, _safe_r_name(q->goal_idx));
                 plural_aux(name);
                 doc_printf(doc, "  Kill %d %s (%d killed) <tab:60>DL%3d CL%2d\n",
                     q->goal_count, name, q->goal_current, q->level, q->completed_lev);
@@ -1070,7 +1077,7 @@ static void quest_doc(quest_ptr q, doc_ptr doc)
             else
             {
                 doc_printf(doc, "  Kill %s <tab:60>DL%3d CL%2d\n",
-                    r_name + r_info[q->goal_idx].name, q->level, q->completed_lev);
+                    _safe_r_name(q->goal_idx), q->level, q->completed_lev);
             }
         }
     }
@@ -1348,7 +1355,7 @@ static void _display_menu(_ui_context_ptr context)
             doc_printf(doc, "%c) <color:%c>", I2A(i), _quest_color(quest));
             if ((quest->flags & QF_RANDOM) && quest->goal == QG_KILL_MON)
             {
-                string_ptr s = string_alloc_format("%-34.34s", r_name + r_info[quest->goal_idx].name);
+                string_ptr s = string_alloc_format("%-34.34s", _safe_r_name(quest->goal_idx));
                 if (quest->goal_count > 1)
                     string_printf(s, " (%d)", quest->goal_count);
                 else

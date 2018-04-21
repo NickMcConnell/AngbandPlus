@@ -87,6 +87,11 @@ cptr funny_comments[MAX_SAN_COMMENT] =
 
 };
 
+/* cf design/see_invisible.ods. One can greatly improve the
+ * odds of perceiving invisible foes with a something like an
+ * elven cloak +4 and more than one source of SI. Pay attention
+ * to searching skills when choosing race/class/personality as 
+ * this skill does not increase with level or stats. */
 bool py_see_invis(int rlev)
 {
     int i;
@@ -815,7 +820,7 @@ static bool summon_specific_okay(int r_idx);
 /*
  * Hack -- the index of the summoning monster
  */
-static int summon_specific_who = 0;
+int summon_specific_who = 0;
 
 
 static bool summon_unique_okay = FALSE;
@@ -1454,82 +1459,89 @@ static bool _ignore_depth_hack = FALSE;
 
 s16b get_mon_num(int level)
 {
-    int            i, j, p;
+    u32b options = GMN_DEFAULT;
+    int  min_level = 0;
+    if (summon_specific_who == SUMMON_WHO_NOBODY && dungeon_type == DUNGEON_ARENA)
+        min_level = MIN(50, level - 5);
+    return get_mon_num_aux(level, min_level, options);
+}
 
-    int            r_idx;
+s16b get_mon_num_aux(int level, int min_level, u32b options)
+{
+    int            i, r_idx, value, total;
+    monster_race  *r_ptr;
+    alloc_entry   *table = alloc_race_table;
 
-    long        value, total;
-
-    monster_race    *r_ptr;
-
-    alloc_entry        *table = alloc_race_table;
-    bool         allow_unique = TRUE;
-
-    int pls_kakuritu, pls_level;
-    int hoge=mysqrt(level*10000L);
-
-    if (level > MAX_DEPTH - 1) level = MAX_DEPTH - 1;
-
-    if ((dungeon_turn > hoge*(TURNS_PER_TICK*500L)) && !level)
+    /* Restrict uniques in _aux() so that _apply_room_grid_mon() need not know
+     * about this hack. Without some sort of unique limitation, end game levels
+     * will have far too many uniques per level ... at least until the player
+     * kills most of them! Odds are 1 in N^2 for allowing allocation of unique #N. */
+    if (summon_specific_who == SUMMON_WHO_NOBODY && unique_count)
     {
-        pls_kakuritu = MAX(2, NASTY_MON-((dungeon_turn/(TURNS_PER_TICK*2500L)-hoge/10)));
-        pls_level = MIN(8,3 + dungeon_turn/(TURNS_PER_TICK*20000L)-hoge/40);
-    }
-    else
-    {
-        pls_kakuritu = NASTY_MON;
-        pls_level = 2;
+        int odds = unique_count + 1;
+        odds *= odds;
+        if (!one_in_(odds))
+            options |= GMN_NO_UNIQUES;
     }
 
-    if (d_info[dungeon_type].flags1 & DF1_MAZE)
+    if (options & GMN_ALLOW_OOD)
     {
-        pls_kakuritu = MIN(pls_kakuritu/2, pls_kakuritu-10);
-        if (pls_kakuritu < 2) pls_kakuritu = 2;
-        pls_level += 2;
-        level += 3;
-    }
+        int pls_kakuritu, pls_level;
+        int hoge=mysqrt(level*10000L);
 
-    /* Restrict uniques ... except for summoning, of course ;) */
-    if ( unique_count
-      && !summon_specific_who
-      && !one_in_(unique_count) )
-    {
-        allow_unique = FALSE;
-    }
-
-    /* Boost the level */
-    if ((level > 0) && !p_ptr->inside_battle && !(d_info[dungeon_type].flags1 & DF1_BEGINNER))
-    {
-        /* Nightmare mode allows more out-of depth monsters */
-        if (ironman_nightmare && !randint0(pls_kakuritu))
+        if ((dungeon_turn > hoge*(TURNS_PER_TICK*500L)) && !level)
         {
-            /* What a bizarre calculation */
-            level = 1 + (level * MAX_DEPTH / randint1(MAX_DEPTH));
+            pls_kakuritu = MAX(2, NASTY_MON-((dungeon_turn/(TURNS_PER_TICK*2500L)-hoge/10)));
+            pls_level = MIN(8,3 + dungeon_turn/(TURNS_PER_TICK*20000L)-hoge/40);
         }
         else
         {
-            /* Occasional "nasty" monster */
-            if (!randint0(pls_kakuritu))
-            {
-                /* Pick a level bonus */
-                int d = MIN(5, level/10) + pls_level;
+            pls_kakuritu = NASTY_MON;
+            pls_level = 2;
+        }
 
-                /* Boost the level */
-                level += d;
+        if (d_info[dungeon_type].flags1 & DF1_MAZE)
+        {
+            pls_kakuritu = MIN(pls_kakuritu/2, pls_kakuritu-10);
+            if (pls_kakuritu < 2) pls_kakuritu = 2;
+            pls_level += 2;
+            level += 3;
+        }
+
+        /* Boost the level */
+        if (level > 0 && !p_ptr->inside_battle && !(d_info[dungeon_type].flags1 & DF1_BEGINNER))
+        {
+            /* Nightmare mode allows more out-of depth monsters */
+            if (ironman_nightmare && !randint0(pls_kakuritu))
+            {
+                /* What a bizarre calculation */
+                level = 1 + (level * MAX_DEPTH / randint1(MAX_DEPTH));
             }
-
-            /* Occasional "nasty" monster */
-            if (!randint0(pls_kakuritu))
+            else
             {
-                /* Pick a level bonus */
-                int d = MIN(5, level/10) + pls_level;
+                /* Occasional "nasty" monster */
+                if (!randint0(pls_kakuritu))
+                {
+                    /* Pick a level bonus */
+                    int d = MIN(5, level/10) + pls_level;
 
-                /* Boost the level */
-                level += d;
+                    /* Boost the level */
+                    level += d;
+                }
+
+                /* Occasional "nasty" monster */
+                if (!randint0(pls_kakuritu))
+                {
+                    /* Pick a level bonus */
+                    int d = MIN(5, level/10) + pls_level;
+
+                    /* Boost the level */
+                    level += d;
+                }
             }
         }
     }
-
+    if (level > MAX_DEPTH - 1) level = MAX_DEPTH - 1;
 
     /* Reset total */
     total = 0L;
@@ -1541,7 +1553,7 @@ s16b get_mon_num(int level)
         table[i].prob3 = 0;
 
         if (!_ignore_depth_hack && table[i].max_level < level) continue;
-        if (!summon_specific_who && dungeon_type == DUNGEON_ARENA && table[i].level < MIN(50, dun_level-5)) continue;
+        if (table[i].level < min_level) continue;
 
         /* Hack: Sparing early unique monsters is no longer a viable end game strategy */
         if (summon_specific_who > 0 && summon_specific_type == SUMMON_UNIQUE)
@@ -1572,8 +1584,10 @@ s16b get_mon_num(int level)
             if ((r_ptr->flags2 & RF2_SOUTHERING) && dungeon_type != DUNGEON_STRONGHOLD) continue;
             if ((r_ptr->flags3 & RF3_OLYMPIAN) && dungeon_type != DUNGEON_OLYMPUS) continue;
         }
-        /* Hack: Some monsters are restricted from quests (e.g. Zeus in no_wilderness mode) */
+
+        /* Hack: Some monsters are restricted from quests and summons */
         if (quests_get_current() && (r_ptr->flags1 & RF1_NO_QUEST)) continue;
+        if (summon_specific_who != SUMMON_WHO_NOBODY && (r_ptr->flags1 & RF1_NO_SUMMON)) continue;
 
         if (!p_ptr->inside_battle && !chameleon_change_m_idx)
         {
@@ -1585,7 +1599,7 @@ s16b get_mon_num(int level)
                 if (!summon_cloned_okay || r_ptr->level < 70) continue;
             }
 
-            if ((r_ptr->flags1 & RF1_UNIQUE) && !allow_unique)
+            if ((r_ptr->flags1 & RF1_UNIQUE) && (options & GMN_NO_UNIQUES))
                 continue;
 
             if ((r_ptr->flags7 & (RF7_UNIQUE2)) &&
@@ -1623,7 +1637,6 @@ s16b get_mon_num(int level)
     /* No legal monsters */
     if (total <= 0) return (0);
 
-
     /* Pick a monster */
     value = randint0(total);
 
@@ -1634,47 +1647,28 @@ s16b get_mon_num(int level)
         value = value - table[i].prob3;
     }
 
-
-    /* Power boost */
-    p = randint0(100);
-
-    /* Try for a "harder" monster once (50%) or twice (10%) */
-    if (p < (60 >> (level/10)))
+    if (options & GMN_POWER_BOOST)
     {
-        /* Save old */
+        int j;
+
+        /* try for better monster */
         j = i;
-
-        /* Pick a monster */
         value = randint0(total);
-
-        /* Find the monster */
         for (i = 0; i < alloc_race_size; i++)
         {
             if (value < table[i].prob3) break;
             value = value - table[i].prob3;
         }
-
-        /* Keep the "best" one */
         if (table[i].level < table[j].level) i = j;
-    }
 
-    /* Try for a "harder" monster twice (10%) */
-    if (p < (10 >> (level/10)))
-    {
-        /* Save old */
+        /* best of 3 */
         j = i;
-
-        /* Pick a monster */
         value = randint0(total);
-
-        /* Find the monster */
         for (i = 0; i < alloc_race_size; i++)
         {
             if (value < table[i].prob3) break;
             value = value - table[i].prob3;
         }
-
-        /* Keep the "best" one */
         if (table[i].level < table[j].level) i = j;
     }
 
@@ -3318,6 +3312,8 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
 
     if (cloned)
         m_ptr->smart |= (1U << SM_CLONED);
+    if (who > 0)
+        m_ptr->smart |= (1U << SM_SUMMONED);
 
     /* Place the monster at the location */
     m_ptr->fy = y;
@@ -3654,40 +3650,47 @@ static bool place_monster_group(int who, int y, int x, int r_idx, int pack_idx, 
     monster_race *r_ptr = &r_info[r_idx];
 
     int n, i;
-    int total = 0, extra = 0;
+    int total = 0;
 
     int hack_n = 0;
 
     byte hack_y[GROUP_MAX];
     byte hack_x[GROUP_MAX];
 
-
-    /* Pick a group size */
-    total = randint1(10);
-
-    /* Hard monsters, small groups */
-    if (base_level)
+    if (r_ptr->pack_dice)
     {
-        if (r_ptr->level > base_level)
-        {
-            extra = r_ptr->level - base_level;
-            extra = 0 - randint1(extra);
-        }
-
-        /* Easy monsters, large groups */
-        else if (r_ptr->level < base_level)
-        {
-            extra = base_level - r_ptr->level;
-            extra = randint1(extra);
-        }
+        total = damroll(r_ptr->pack_dice, r_ptr->pack_sides);
     }
+    else
+    {
+        int extra = 0;
 
-    /* Hack -- limit group reduction */
-    if (extra > 9) extra = 9;
+        /* Pick a group size */
+        total = randint1(10);
 
-    /* Modify the group size */
-    total += extra;
+        if (base_level)
+        {
+            /* Hard monsters, small groups */
+            if (r_ptr->level > base_level)
+            {
+                extra = r_ptr->level - base_level;
+                extra = 0 - randint1(extra);
+            }
 
+            /* Easy monsters, large groups */
+            else if (r_ptr->level < base_level)
+            {
+                extra = base_level - r_ptr->level;
+                extra = randint1(extra);
+            }
+        }
+
+        /* Hack -- limit group reduction */
+        if (extra > 9) extra = 9;
+
+        /* Modify the group size */
+        total += extra;
+    }
     total = total * (625 - virtue_current(VIRTUE_INDIVIDUALISM)) / 625;
 
     /* Minimum size */
@@ -3825,13 +3828,19 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
 
         if (r_ptr->flags1 & RF1_FRIENDS)
         {
-            int pack_idx = pack_info_pop();
+            if (0 < r_ptr->pack_pct && randint1(100) > r_ptr->pack_pct)
+            {
+            }
+            else
+            {
+                int pack_idx = pack_info_pop();
 
-            pack_ptr = &pack_info_list[pack_idx];
-            m_list[m_idx].pack_idx = pack_idx;
-            pack_ptr->count++;
-            (void)place_monster_group(who, y, x, r_idx, pack_idx, mode);
-            pack_choose_ai(m_idx);
+                pack_ptr = &pack_info_list[pack_idx];
+                m_list[m_idx].pack_idx = pack_idx;
+                pack_ptr->count++;
+                (void)place_monster_group(who, y, x, r_idx, pack_idx, mode);
+                pack_choose_ai(m_idx);
+            }
         }
         else if (r_ptr->flags1 & RF1_ESCORT)
         {
@@ -3984,12 +3993,10 @@ bool alloc_horde(int y, int x)
     if (m_list[m_idx].mflag2 & MFLAG2_CHAMELEON) r_ptr = &r_info[m_list[m_idx].r_idx];
     summon_kin_type = r_ptr->d_char;
 
-    for (attempts = randint1(10) + 5; attempts; attempts--)
+    for (attempts = damroll(3, 3); attempts; attempts--)
     {
         scatter(&cy, &cx, y, x, 5, 0);
-
-        (void)summon_specific(m_idx, cy, cx, dun_level + 5, SUMMON_KIN, PM_ALLOW_GROUP);
-
+        summon_specific(m_idx, cy, cx, dun_level, SUMMON_KIN, 0);
         y = cy;
         x = cx;
     }
@@ -4089,7 +4096,19 @@ bool alloc_monster(int dis, u32b mode)
 
 
 #ifdef MONSTER_HORDES
-    if (randint1(5000) <= dun_level && dungeon_type != DUNGEON_ARENA)
+    /* XXX This mechanic is very fragile. On balance it is good, but occasionally it
+     * finds some accidental oddity in r_info. Examples include hordes of Flying Polyps (l)
+     * on DL30, hordes of Lesser Hell Beasts (U) in the Labyrinth, and hordes of deep
+     * dragons (D) in the early DL30's. A pack of wide awake Dracoliches, AMHDs, Great Crystal
+     * Drakes and Ethereal Dragons is not welcome the first time a player stretches towards
+     * stat gain depths. I would suggest that get_mon_num() have an option to disallow
+     * OoD monsters so that the inital choice for the horde is reasonable. Also, the kin
+     * monsters should either disable the +5 level boost, the random OoD stuff in get_mon_num(),
+     * or both. Pending these, I'm disabling this mechanic below DL40. XXX */
+    if ( dun_level >= 40
+      && randint1(5000) <= dun_level
+      && dungeon_type != DUNGEON_ARENA
+      && dungeon_type != DUNGEON_MAZE ) /* redundant */
     {
         if (alloc_horde(y, x))
         {
@@ -4250,6 +4269,15 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
     /* Prepare allocation table */
     get_mon_num_prep(summon_specific_okay, get_monster_hook2(y, x));
 
+    /* XXX Trying something out ... One way to nerf monster summoning
+     * is to disregard max_depth specifications in r_info. As things currently
+     * are, monster quality is so high (end game) that summoning forces all
+     * but truly insane players to instantly bail. If monsters get this, then
+     * so do players. Look below for code that needs to be added back if this
+     * is removed. */
+    if (summon_specific_who != SUMMON_WHO_NOBODY)
+        _ignore_depth_hack = TRUE;
+
     /* Pick a monster, using the level calculation */
     r_idx = get_mon_num((dun_level + lev) / 2 + 5);
 
@@ -4270,14 +4298,14 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
              should always work when cast. And for fairness,
              monsters gain the same consideration.
              Note, we only do this on failure so that spells
-             like Summon Animal will get beefier results! */
-    if (!r_idx && summon_specific_who)
+             like Summon Animal will get beefier results!
+    if (!r_idx && summon_specific_who != SUMMON_WHO_NOBODY)
     {
         _ignore_depth_hack = TRUE;
         r_idx = get_mon_num((dun_level + lev) / 2 + 5);
-        _ignore_depth_hack = FALSE;
-    }
+    } XXX cf above for why this is commented out. */
 
+    _ignore_depth_hack = FALSE;
     summon_cloned_okay = FALSE; /* This is a hack for RF6_S_UNIQUE ... get_mon_num() is much more widely used, however! */
                                 /* place_monster_aux() will now handle setting the unique as "cloned" if appropriate */
     /* Handle failure */

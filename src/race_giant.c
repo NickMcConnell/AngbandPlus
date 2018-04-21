@@ -868,7 +868,7 @@ static void _breathe_storm_spell(int cmd, variant *res)
         var_set_string(res, "Breathe Storm");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Breathes Storm at your opponent.");
+        var_set_string(res, "Breathes storm winds at your opponent.");
         break;
     case SPELL_INFO:
         var_set_string(res, info_damage(0, 0, p_ptr->chp*3/10));
@@ -882,7 +882,7 @@ static void _breathe_storm_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (get_fire_dir(&dir))
         {
-            msg_print("You breathe storm...");
+            msg_print("You breathe storm winds...");
             fire_ball(GF_STORM, dir, p_ptr->chp*3/10, -3);
             var_set_bool(res, TRUE);
         }

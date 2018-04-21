@@ -163,6 +163,7 @@ s16b m_cnt = 0;            /* Number of live monsters */
 
 s16b hack_m_idx = 0;    /* Hack -- see "process_monsters()" */
 s16b hack_m_idx_ii = 0;
+int  hack_max_m_dam = 0;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
 int total_friends = 0;
@@ -187,7 +188,6 @@ bool auto_target;    /* Automatically target nearest monster */
 bool always_repeat;    /* Repeat obvious commands */
 bool confirm_destroy;    /* Prompt for destruction of known worthless items */
 bool confirm_wear;    /* Confirm to wear/wield known cursed items */
-bool confirm_quest;    /* Prompt before exiting a quest level */
 bool target_pet;    /* Allow targetting pets */
 
 #ifdef ALLOW_EASY_OPEN
@@ -253,8 +253,6 @@ bool display_race; /* Display monster races with their racial char */
 bool stack_force_notes;    /* Merge inscriptions when stacking */
 bool stack_force_costs;    /* Merge discounts when stacking */
 bool expand_list;    /* Expand the power of the list commands */
-bool small_levels;    /* Allow unusually small dungeon levels */
-bool always_small_levels;    /* Always create unusually small dungeon levels */
 bool empty_levels;    /* Allow empty 'arena' levels */
 bool bound_walls_perm;    /* Boundary walls become 'permanent wall' */
 bool last_words;    /* Leave last words when your character dies */
@@ -289,17 +287,12 @@ bool alert_trap_detect;    /* Alert when leaving trap detected area */
 
 /*** Birth Options ***/
 
-bool easy_id;        /* Easy Identify */
-bool easy_lore;      /* Easy Monster Lore */
-bool allow_spoilers;
 bool smart_learn;    /* Monsters learn from their mistakes (*) */
 bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
 bool no_wilderness;
 bool ironman_shops;    /* Stores are permanently closed (*) */
-bool ironman_small_levels;    /* Always create unusually small dungeon levels (*) */
 bool ironman_downward;    /* Disable recall and use of up stairs (*) */
 bool ironman_empty_levels;    /* Always create empty 'arena' levels (*) */
-bool ironman_rooms;    /* Always generate very unusual rooms (*) */
 bool ironman_nightmare;    /* Nightmare mode(it isn't even remotely fair!)(*) */
 bool preserve_mode;    /* Preserve artifacts (*) */
 bool allow_friendly_monster; /* Allow monsters friendly to player */
@@ -310,12 +303,8 @@ bool random_artifacts;
 byte random_artifact_pct = 100;
 bool no_artifacts;
 bool no_egos;
-bool no_selling;
-bool enable_virtues;
-bool enable_spell_prof;
 bool reduce_uniques;
 byte reduce_uniques_pct = 100; /* This is the pct of uniques to face */
-bool quickmode;
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -729,7 +718,8 @@ birther previous_char;
 /*
  * Room Templates (Vaults, Special Rooms, Wilderness Encounters)
  */
-vec_ptr room_info = NULL;
+vec_ptr     room_info = NULL;
+int_map_ptr room_letters = NULL;
 
 /*
  * The magic info
