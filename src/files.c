@@ -3035,7 +3035,12 @@ void display_player(int mode)
         _print_field(4, 1, "Race       :", race_ptr->mimic ? format("[%s]", race_ptr->name) : race_ptr->name, TERM_L_BLUE, 0);
 
         if (race_ptr->subname)
-            _print_field(5, 1, "Subrace    :", format("%-27.27s", race_ptr->subname), TERM_L_BLUE, 0);
+        {
+            if (p_ptr->prace == RACE_MON_RING)
+                _print_field(5, 1, "Controlling:", format("%-27.27s", race_ptr->subname), TERM_L_BLUE, 0);
+            else
+                _print_field(5, 1, "Subrace    :", format("%-27.27s", race_ptr->subname), TERM_L_BLUE, 0);
+        }
         else if (p_ptr->prace == RACE_DEMIGOD)
             _print_field(5, 1, "Subrace    :", demigod_info[p_ptr->psubrace].name, TERM_L_BLUE, 0);
         else
@@ -3178,11 +3183,7 @@ void display_player(int mode)
 
             if (tmp_speed)
             {
-                if (!p_ptr->riding)
-                    sprintf(buf, "%+d%+d", i-tmp_speed, tmp_speed);
-                else
-                    sprintf(buf, "Riding: %+d%+d", i-tmp_speed, tmp_speed);
-
+                sprintf(buf, "%+d%+d", i-tmp_speed, tmp_speed);
                 if (tmp_speed > 0)
                     attr = TERM_YELLOW;
                 else
@@ -3190,10 +3191,7 @@ void display_player(int mode)
             }
             else
             {
-                if (!p_ptr->riding)
-                    sprintf(buf, "%+d", i);
-                else
-                    sprintf(buf, "Riding: %+d", i);
+                sprintf(buf, "%+d", i);
             }
     
             _print_field(12, 49, "Speed:", buf, attr, 16);
@@ -3350,25 +3348,28 @@ static void dump_aux_display_player(FILE *fff)
     display_player_stat_info();
     dump_screen(fff);
 
-    fprintf(fff, "==================================== Melee ====================================\n\n");
-    for (i = 0; i < MAX_HANDS; i++)
+    if (p_ptr->prace != RACE_MON_RING)
     {
-        if (p_ptr->weapon_info[i].wield_how == WIELD_NONE) continue;
+        fprintf(fff, "==================================== Melee ====================================\n\n");
+        for (i = 0; i < MAX_HANDS; i++)
+        {
+            if (p_ptr->weapon_info[i].wield_how == WIELD_NONE) continue;
 
-        Term_clear();
-        if (p_ptr->weapon_info[i].bare_hands)
-            monk_display_attack_info(i, 0, 0);
-        else
-            display_weapon_info(i, 0, 0);
+            Term_clear();
+            if (p_ptr->weapon_info[i].bare_hands)
+                monk_display_attack_info(i, 0, 0);
+            else
+                display_weapon_info(i, 0, 0);
 
-        dump_screen(fff);
-    }
+            dump_screen(fff);
+        }
 
-    for (i = 0; i < p_ptr->innate_attack_ct; i++)
-    {
-        Term_clear();
-        display_innate_attack_info(i, 0, 0);
-        dump_screen(fff);
+        for (i = 0; i < p_ptr->innate_attack_ct; i++)
+        {
+            Term_clear();
+            display_innate_attack_info(i, 0, 0);
+            dump_screen(fff);
+        }
     }
 
     if (equip_find_object(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY))

@@ -16,9 +16,9 @@ typedef struct {
     cptr    choose_prompt;
     cptr    browse_prompt;
     cptr    heading;
-    menu_fn    fn;
+    menu_fn fn;
     vptr    cookie;
-    int        count;
+    int     count;
 } menu_t, *menu_ptr;
 
 extern int menu_choose(menu_ptr menu);

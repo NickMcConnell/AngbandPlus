@@ -1679,6 +1679,8 @@ static void autopick_delayed_alter_aux(int item)
             jelly_eat_object(o_ptr);
         else if (prace_is_(RACE_MON_SWORD) && object_is_melee_weapon(o_ptr))
             sword_absorb_object(o_ptr);
+        else if (prace_is_(RACE_MON_RING) && object_is_jewelry(o_ptr))
+            ring_absorb_object(o_ptr);
         else
         {
             object_desc(o_name, o_ptr, 0);

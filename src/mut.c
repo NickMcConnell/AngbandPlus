@@ -196,6 +196,24 @@ int _mut_prob_gain(int i)
         result = 1;
     }
 
+    if (p_ptr->prace == RACE_MON_RING || p_ptr->prace == RACE_MON_SWORD)
+    {
+        switch (i)
+        {
+        case MUT_SCORPION_TAIL:
+        case MUT_HORNS:
+        case MUT_BEAK:
+        case MUT_TRUNK:
+        case MUT_TENTACLES:
+        case MUT_FLESH_ROT:
+        case MUT_ALBINO:
+        case MUT_XTRA_LEGS:
+        case MUT_SHORT_LEG:
+            result = 0;
+            break;
+        }
+    }
+
     return result;
 }
 

@@ -193,6 +193,9 @@ bool make_attack_normal(int m_idx)
     /* Get the "died from" information (i.e. "a kobold") */
     monster_desc(ddesc, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
+    if (p_ptr->prace == RACE_MON_RING && ring_dominate_m(m_idx))
+        return FALSE;
+
     if (p_ptr->special_defense & KATA_IAI)
     {
         msg_format("You took sen, draw and cut in one motion before %s move.", m_name);
@@ -539,6 +542,10 @@ bool make_attack_normal(int m_idx)
                         {
                         }
                         else if (prace_is_(RACE_MON_SWORD) && one_in_(2) && sword_disenchant())
+                        {
+                            obvious = TRUE;
+                        }
+                        else if (prace_is_(RACE_MON_RING) && one_in_(2) && ring_disenchant())
                         {
                             obvious = TRUE;
                         }

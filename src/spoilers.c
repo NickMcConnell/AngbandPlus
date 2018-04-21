@@ -59,6 +59,11 @@ static void _race_help(FILE *fff, int idx)
         fprintf(fff, "\n\n");
         _wrap_text(fff, "See [a] for more details on demigod parentage.", 2, 80);
     }
+    if (idx == RACE_MON_RING)
+    {
+        fprintf(fff, "\n\n");
+        _wrap_text(fff, "See [a] for more details on rings.", 2, 80);
+    }
 
     fprintf(fff, "\n\n");
 }
@@ -118,7 +123,6 @@ static void _races_help(FILE* fff)
     }
     fprintf(fff, "\n\n");
     fprintf(fff, "***** [a] Demigods.txt\n");
-
 }
 
 static void _monster_races_help(FILE* fff)
@@ -137,6 +141,7 @@ static void _monster_races_help(FILE* fff)
         _race_help(fff, i);
 
         if (i == RACE_MON_SWORD) continue;
+        if (i == RACE_MON_RING) continue;
 
         switch (i)
         {
@@ -241,6 +246,7 @@ static void _monster_races_help(FILE* fff)
         fprintf(fff, "\n");
     }
     fprintf(fff, "\n\n");
+    fprintf(fff, "***** [a] Rings.txt\n");
 
     *p_ptr = old;
 }

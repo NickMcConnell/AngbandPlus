@@ -83,6 +83,8 @@ void set_action(int typ)
     }
 
     p_ptr->update |= (PU_BONUS);
+    if (p_ptr->action == ACTION_GLITTER || prev_typ == ACTION_GLITTER)
+        p_ptr->update |= PU_FLOW;
     p_ptr->redraw |= (PR_STATE);
 }
 

@@ -273,7 +273,7 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
 {
     int k_idx = get_quantity("Enter k_idx: ", 1000);
     int ct = get_quantity("How Many?", 10000);
-    int depths[] = { 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, -1 };
+    int depths[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90, -1 };
     int i, j;
     int counts[1024];
     int max = 0;
@@ -300,7 +300,7 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
             object_prep(&forge, k_idx);
             apply_magic(&forge, depth, 0);
 
-            if (forge.name2 == EGO_WEAPON_EXTRA_ATTACKS)
+            if (forge.name2)
             {
                 char buf[MAX_NLEN];
 
@@ -311,10 +311,13 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
                 forge.ident |= (IDENT_MENTAL); 
                 object_desc(buf, &forge, 0);
                 fprintf(file, "%s %d.%d lbs\n", buf, forge.weight/10, forge.weight%10);
+
+                if (p_ptr->prace == RACE_MON_RING)
+                    ring_absorb_object(&forge);
               
                 /*msg_print(buf);*/
 
-                if (1)
+                if (0)
                 {
                     drop_near(&forge, -1, py, px);
                 }

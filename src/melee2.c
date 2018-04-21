@@ -581,12 +581,19 @@ bool _summon_possible(int candidate_y, int candidate_x)
 static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
 {
     int i, y, x, y1, x1, best;
+    int rng = 16; /* <== I don't understand this value! */
 
     cave_type *c_ptr;
     bool use_scent = FALSE;
 
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+    if ( p_ptr->action == ACTION_GLITTER
+      && mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER) )
+    {
+        rng = AAF_LIMIT_RING;
+    }
 
     /* Can monster cast attack spell? */
     if (r_ptr->flags4 & (RF4_ATTACK_MASK) ||
@@ -678,8 +685,8 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
         }
 
         /* Hack -- Save the "twiddled" location */
-        (*yp) = py + MAX(16, r_ptr->aaf) * ddy_ddd[i];
-        (*xp) = px + MAX(16, r_ptr->aaf) * ddx_ddd[i];
+        (*yp) = py + MAX(rng, r_ptr->aaf) * ddy_ddd[i];
+        (*xp) = px + MAX(rng, r_ptr->aaf) * ddx_ddd[i];
     }
 
     /* No legal move (?) */
@@ -2208,14 +2215,13 @@ static void process_monster(int m_idx)
 
     bool            see_m = is_seen(m_ptr);
 
-    /* Hack
-       Ultimate Magus blinks continually for free.  Can we make this a TRUMP flag?
-       Note, if you move this code below, the Magus actually spawns???  Probably,
+    /* Hack: Trump monsters blink continually for free.
+       Note, if you move this code below, the monster actually spawns???  Probably,
        he is just in N places at once.
     */
     if ((r_ptr->flags1 & RF1_TRUMP) && one_in_(2))
     {
-        if (!MON_CSLEEP(m_ptr))
+        if (!MON_CSLEEP(m_ptr) && !is_riding_mon) /* TODO: Currently broken for riding! */
             teleport_away(m_idx, 5, 0L);
     }
 
@@ -2223,14 +2229,21 @@ static void process_monster(int m_idx)
     {                                     /* v------ Ego Whip killed it! */
         if (psion_process_monster(m_idx)) return;
     }
-    
-    if (is_riding_mon && !(r_ptr->flags7 & RF7_RIDING))
+
+    if (is_riding_mon)
     {
-        if (rakuba(0, TRUE))
+        if (p_ptr->prace == RACE_MON_RING)
         {
-            char m_name[80];
-            monster_desc(m_name, &m_list[p_ptr->riding], 0);
-            msg_format("You have fallen from %s.", m_name);
+            ring_process_m(m_idx);
+        }
+        else if (!(r_ptr->flags7 & RF7_RIDING))
+        {
+            if (rakuba(0, TRUE))
+            {
+                char m_name[80];
+                monster_desc(m_name, &m_list[p_ptr->riding], 0);
+                msg_format("You have fallen from %s.", m_name);
+            }
         }
     }
 
@@ -2249,6 +2262,11 @@ static void process_monster(int m_idx)
         if (r_ptr->level > (p_ptr->lev*p_ptr->lev/20+10)) tmp /= 3;
         /* Low-level monsters will find it difficult to locate the player. */
         if (randint0(tmp) > (r_ptr->level+20)) aware = FALSE;
+
+        /* Note: The aware flag will induce random monster movement since
+           the player is hiding in the shadows. The is_aware() attribute
+           means the monster is unaware that a mimic is not an object. In
+           this case, movement should still be towards the object (player). */
     }
 
     /* Are there its parent? */
@@ -2368,6 +2386,14 @@ static void process_monster(int m_idx)
         }
     }
 
+    /* Hack: Rings wake up potential ring bearers */
+    if ( MON_CSLEEP(m_ptr) 
+      && p_ptr->action == ACTION_GLITTER 
+      && mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER) )
+    {
+        set_monster_csleep(m_idx, 0);
+    }
+
     /* Handle "sleep" */
     if (MON_CSLEEP(m_ptr))
     {
@@ -2416,7 +2442,8 @@ static void process_monster(int m_idx)
         ((((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL)) &&
           monster_has_hostile_align(NULL, 10, -10, r_ptr))))
     {
-        gets_angry = TRUE;
+        if (!p_ptr->prace == RACE_MON_RING)
+            gets_angry = TRUE;
     }
 
     if (p_ptr->inside_battle) gets_angry = FALSE;
@@ -2529,7 +2556,7 @@ static void process_monster(int m_idx)
         }
 
         /* Some monsters can speak */
-        if ((ap_r_ptr->flags2 & RF2_CAN_SPEAK) && aware &&
+        if ((ap_r_ptr->flags2 & RF2_CAN_SPEAK) && aware && is_aware(m_ptr) &&
             one_in_(SPEAK_CHANCE) &&
             player_has_los_bold(oy, ox) &&
             projectable(oy, ox, py, px))
@@ -2941,7 +2968,7 @@ static void process_monster(int m_idx)
                 else
                 {
                     /* Try to unlock it XXX XXX XXX */
-                    if (randint0(m_ptr->hp / 10) > f_ptr->power)
+                    if (randint0(m_ptr->hp / 10) > f_ptr->power || p_ptr->action == ACTION_GLITTER)
                     {
                         /* Unlock the door */
                         cave_alter_feat(ny, nx, FF_DISARM);
@@ -3671,6 +3698,8 @@ void process_monsters(void)
     /* Process the monsters (backwards) */
     for (i = m_max - 1; i >= 1; i--)
     {
+        int radius = 0;
+
         /* Access the monster */
         m_ptr = &m_list[i];
         r_ptr = &r_info[m_ptr->r_idx];
@@ -3683,7 +3712,6 @@ void process_monsters(void)
 
         if (p_ptr->wild_mode) continue;
 
-
         /* Handle "fresh" monsters */
         if (m_ptr->mflag & MFLAG_BORN)
         {
@@ -3695,12 +3723,30 @@ void process_monsters(void)
         }
 
         /* Hack -- Require proximity */
-        if (m_ptr->cdis >= AAF_LIMIT) continue;
-
+        if (p_ptr->action == ACTION_GLITTER)
+        {
+            if (m_ptr->cdis >= AAF_LIMIT_RING) continue;
+        }
+        else
+        {
+            if (m_ptr->cdis >= AAF_LIMIT) continue;
+        }
 
         /* Access the location */
         fx = m_ptr->fx;
         fy = m_ptr->fy;
+
+        /* Hack -- Monsters are automatically aware of the player (except for mimics) */
+        if (!is_aware(m_ptr))
+        {
+            if (p_ptr->prace != RACE_MON_RING)
+                m_ptr->mflag2 |= MFLAG2_AWARE;
+            else if (p_ptr->riding && player_has_los_bold(fy, fx))
+            {
+                /* Player has a ring bearer, which this monster can see */
+                m_ptr->mflag2 |= MFLAG2_AWARE;
+            }
+        }
 
         /* Flow by smell is allowed */
         if (!p_ptr->no_flowed)
@@ -3712,7 +3758,20 @@ void process_monsters(void)
         test = FALSE;
 
         /* Handle "sensing radius" */
-        if (m_ptr->cdis <= (is_pet(m_ptr) ? (r_ptr->aaf > MAX_SIGHT ? MAX_SIGHT : r_ptr->aaf) : r_ptr->aaf))
+        radius = r_ptr->aaf;
+        if (is_pet(m_ptr) && radius > MAX_SIGHT)
+            radius = MAX_SIGHT;
+        
+        if ( p_ptr->prace == RACE_MON_RING
+          && !p_ptr->riding
+          && !is_aware(m_ptr) 
+          && mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER) )
+        {
+            /* Lure a potential ring bearer, no matter how distant */
+            radius = AAF_LIMIT_RING;
+        }
+        
+        if (m_ptr->cdis <= radius)
         {
             /* We can "sense" the player */
             test = TRUE;
@@ -3729,7 +3788,8 @@ void process_monsters(void)
         else if (m_ptr->target_y) test = TRUE;
 
         /* Do nothing */
-        if (!test) continue;
+        if (!test) 
+            continue;
 
 
         if (p_ptr->riding == i)
@@ -4515,10 +4575,20 @@ void monster_gain_exp(int m_idx, int s_idx)
     /* Experimental: Share the xp with the player */
     if (is_pet(m_ptr))
     {
-        int div = prace_is_(RACE_MON_QUYLTHULG) ? 1 : 5;
-        int exp = new_exp / div;
+        int  div = 5;
+        bool penalty = TRUE; 
+        int  exp;
+
+        if ( prace_is_(RACE_MON_QUYLTHULG)
+          || (prace_is_(RACE_MON_RING) && p_ptr->riding == m_idx) )
+        {
+            div = 1;
+            penalty = FALSE;
+        }
+
+        exp = new_exp / div;
         gain_exp(exp);
-        if (!prace_is_(RACE_MON_QUYLTHULG))
+        if (penalty)
             new_exp -= exp;
         if (new_exp < 0) new_exp = 0;
     }

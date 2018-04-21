@@ -655,7 +655,10 @@ void equip_wield_aux(object_type *src, int slot)
     handle_stuff();
 
     object_desc(o_name, dest, 0);
-    msg_format("You are wearing %s (%c).", o_name, index_to_label(slot)); /* TODO */
+    if (p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_RING)
+        msg_format("You are %s.", o_name);
+    else
+        msg_format("You are wearing %s (%c).", o_name, index_to_label(slot));
 
     /* After Effects? */
     if (object_is_cursed(dest))
@@ -1018,7 +1021,11 @@ void equip_calc_bonuses(void)
     if (p_ptr->riding)
     {
         p_ptr->riding_ryoute = TRUE;
-        if (!(p_ptr->pet_extra_flags & PF_RYOUTE))
+        if (p_ptr->prace == RACE_MON_RING)
+        {
+            p_ptr->riding_ryoute = FALSE;
+        }
+        else if (!(p_ptr->pet_extra_flags & PF_RYOUTE))
         {
             for (i = MAX_HANDS - 1; i >= 0; i--)
             {

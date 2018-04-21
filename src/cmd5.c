@@ -1581,7 +1581,7 @@ int calculate_upkeep(void)
             total_friends++;
             if (r_ptr->flags1 & RF1_UNIQUE)
             {
-                if (p_ptr->pclass == CLASS_CAVALRY)
+                if (p_ptr->pclass == CLASS_CAVALRY || p_ptr->prace == RACE_MON_RING)
                 {
                     if (p_ptr->riding == m_idx)
                         total_friend_levels += (r_ptr->level+5)*2;
@@ -1754,7 +1754,7 @@ void do_cmd_pet_dismiss(void)
         msg_print("'U'nnamed means all your pets except named pets and your mount.");
 }
 
-static bool player_can_ride_aux(cave_type *c_ptr, bool now_riding)
+bool player_can_ride_aux(cave_type *c_ptr, bool now_riding)
 {
     bool p_can_enter;
     bool old_character_xtra = character_xtra;
@@ -1801,6 +1801,7 @@ bool rakuba(int dam, bool force)
     bool fall_dam = FALSE;
 
     if (!p_ptr->riding) return FALSE;
+    if (p_ptr->prace == RACE_MON_RING) return FALSE; /* cf ring_process_m instead ... */
     if (p_ptr->wild_mode) return FALSE;
 
     if (dam >= 0 || force)
@@ -1991,11 +1992,22 @@ bool do_riding(bool force)
 
             return FALSE;
         }
-        if (!(r_info[m_ptr->r_idx].flags7 & RF7_RIDING))
+        if (p_ptr->prace == RACE_MON_RING)
         {
-            msg_print("This monster doesn't seem suitable for riding.");
+            if (!mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER))
+            {
+                msg_print("This monster is not a suitable ring bearer.");
+                return FALSE;
+            }
+        }
+        else
+        {
+            if (!(r_info[m_ptr->r_idx].flags7 & RF7_RIDING))
+            {
+                msg_print("This monster doesn't seem suitable for riding.");
 
-            return FALSE;
+                return FALSE;
+            }
         }
 
         if (!pattern_seq(py, px, y, x)) return FALSE;
@@ -2011,7 +2023,8 @@ bool do_riding(bool force)
 
             return FALSE;
         }
-        if (r_info[m_ptr->r_idx].level > randint1((skills_riding_current() / 50 + p_ptr->lev / 2 + 20)))
+        if ( p_ptr->prace != RACE_MON_RING 
+          && r_info[m_ptr->r_idx].level > randint1((skills_riding_current() / 50 + p_ptr->lev / 2 + 20)))
         {
             msg_print("You failed to ride.");
 
@@ -2029,6 +2042,7 @@ bool do_riding(bool force)
         }
 
         if (p_ptr->action == ACTION_KAMAE) set_action(ACTION_NONE);
+        if (p_ptr->action == ACTION_GLITTER) set_action(ACTION_NONE);
 
         p_ptr->riding = c_ptr->m_idx;
 
@@ -2253,7 +2267,7 @@ void do_cmd_pet(void)
 
     powers[num++] = PET_NAME;
 
-    if (p_ptr->riding)
+    if (p_ptr->riding && p_ptr->prace != RACE_MON_RING)
     {
         /* TODO: We used to check weapons to see if 2-handed was an option ... */
         if (p_ptr->pet_extra_flags & PF_RYOUTE)

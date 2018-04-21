@@ -426,6 +426,8 @@ void do_cmd_destroy(void)
         jelly_eat_object(o_ptr);
     else if (prace_is_(RACE_MON_SWORD) && object_is_melee_weapon(o_ptr))
         sword_absorb_object(o_ptr);
+    else if (prace_is_(RACE_MON_RING) && object_is_jewelry(o_ptr))
+        ring_absorb_object(o_ptr);
     else
         msg_format("You destroy %s.", o_name);
 

@@ -188,6 +188,7 @@
     <ClCompile Include="race_lich.c" />
     <ClCompile Include="race_possessor.c" />
     <ClCompile Include="race_quylthulg.c" />
+    <ClCompile Include="race_ring.c" />
     <ClCompile Include="race_spider.c" />
     <ClCompile Include="race_sword.c" />
     <ClCompile Include="race_troll.c" />
@@ -427,6 +428,7 @@
     <None Include="..\lib\help\raceclas.hlp" />
     <None Include="..\lib\help\raceclas.txt" />
     <None Include="..\lib\help\Races.txt" />
+    <None Include="..\lib\help\rings.txt" />
     <None Include="..\lib\help\tang.txt" />
     <None Include="..\lib\help\town.hlp" />
     <None Include="..\lib\help\town.txt" />

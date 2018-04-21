@@ -2151,6 +2151,19 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
     }
 
+#ifdef _DEBUG
+    if ( (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) 
+      && object_is_known(o_ptr)
+      && obj_has_effect(o_ptr) )
+    {
+        char     buf[255];
+        effect_t e = obj_get_effect(o_ptr);
+        
+        sprintf(buf, " !! %s", do_effect(&e, SPELL_NAME, 0));
+        strcat(tmp_val2, buf);
+    }
+#endif
+
     /* Use the standard inscription if available */
     if (o_ptr->inscription)
     {

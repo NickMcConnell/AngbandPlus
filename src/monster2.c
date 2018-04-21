@@ -786,6 +786,7 @@ s16b m_pop(void)
  * Hack -- the "type" of the current "summon specific"
  */
 static int summon_specific_type = 0;
+static bool summon_specific_okay(int r_idx);
 
 
 /*
@@ -797,6 +798,7 @@ static int summon_specific_who = 0;
 static bool summon_unique_okay = FALSE;
 static bool summon_cloned_okay = FALSE;
 static bool summon_wall_scummer = FALSE;
+static bool summon_ring_bearer = FALSE;
 
 
 static bool summon_specific_aux(int r_idx)
@@ -1088,6 +1090,12 @@ bool mon_is_type(int r_idx, int type)
         break;
     case SUMMON_MAGICAL:
         return monster_magical(r_ptr);
+    case SUMMON_RING_BEARER:
+        if (strchr("pthAy", r_ptr->d_char))
+            return TRUE;
+        else if (r_ptr->flags7 & RF7_NAZGUL)
+            return TRUE;
+        break;
     }
     return FALSE;
 }
@@ -1844,7 +1852,12 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
         }
 
         if (p_ptr->riding && (&m_list[p_ptr->riding] == m_ptr))
-            strcat(desc," (riding)");
+        {
+            if (p_ptr->prace == RACE_MON_RING)
+                strcat(desc," (controlling)");
+            else
+                strcat(desc," (riding)");
+        }
 
         if ((mode & MD_IGNORE_HALLU) && (m_ptr->mflag2 & MFLAG2_CHAMELEON))
         {
@@ -3805,7 +3818,13 @@ bool place_monster(int y, int x, u32b mode)
     int r_idx;
 
     /* Prepare allocation table */
-    get_mon_num_prep(get_monster_hook(), get_monster_hook2(y, x));
+    if (mode & PM_RING_BEARER)
+    {
+        summon_specific_type = SUMMON_RING_BEARER;
+        get_mon_num_prep(get_monster_hook(), summon_specific_okay);
+    }
+    else
+        get_mon_num_prep(get_monster_hook(), get_monster_hook2(y, x));
 
     /* Pick a monster */
     r_idx = get_mon_num(monster_level);
@@ -4036,6 +4055,11 @@ static bool summon_specific_okay(int r_idx)
         if (!ok)
             return FALSE;
     }
+    if (summon_ring_bearer)
+    {
+        if (!mon_is_type(r_idx, SUMMON_RING_BEARER))
+            return FALSE;
+    }
 
     /* Hack -- identify the summoning monster */
     if (summon_specific_who > 0)
@@ -4174,6 +4198,7 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
     summon_unique_okay = (mode & PM_ALLOW_UNIQUE) ? TRUE : FALSE;
     summon_cloned_okay = (mode & PM_ALLOW_CLONED) ? TRUE : FALSE;
     summon_wall_scummer = (mode & PM_WALL_SCUMMER) && one_in_(2) ? TRUE : FALSE;
+    summon_ring_bearer = (mode & PM_RING_BEARER) ? TRUE : FALSE;
 
     /* Prepare allocation table */
     get_mon_num_prep(summon_specific_okay, get_monster_hook2(y, x));
@@ -4185,6 +4210,11 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
     if (!r_idx && summon_wall_scummer)
     {
         summon_wall_scummer = FALSE;
+        r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+    }
+    if (!r_idx && summon_ring_bearer)
+    {
+        summon_ring_bearer = FALSE;
         r_idx = get_mon_num((dun_level + lev) / 2 + 5);
     }
 

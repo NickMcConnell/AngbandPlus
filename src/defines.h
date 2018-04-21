@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 1
-#define VER_PATCH 0
-#define VER_EXTRA 1
+#define VER_PATCH 1
+#define VER_EXTRA 2
 
 
 /*
@@ -430,6 +430,7 @@
 #define MAX_SIGHT       20      /* Maximum view distance */
 #define MAX_RANGE       (p_ptr->inside_battle ? 36 : 18)      /* Maximum range (spells, etc) */
 #define AAF_LIMIT       100     /* Limit of sensing radius */
+#define AAF_LIMIT_RING  255
 
 
 
@@ -668,11 +669,12 @@
 #define RACE_MON_QUYLTHULG      55
 #define RACE_MON_POSSESSOR      56
 #define RACE_MON_VAMPIRE        57
+#define RACE_MON_RING           58
 /* TODO: New races are in progress! ... */
-    #define RACE_MON_GHOST          58
-    #define RACE_MON_ZOMBIE         59
-    #define RACE_MON_CENTIPEDE      60
-    #define MAX_RACES               58 /* TODO: Bump me!! */
+    #define RACE_MON_GHOST          59
+    #define RACE_MON_ZOMBIE         60
+    #define RACE_MON_CENTIPEDE      61
+    #define MAX_RACES               59 /* TODO: Bump me!! */
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -2526,6 +2528,7 @@ enum _mimic_types {
 #define PM_MULTIPLY       0x00000400
 #define PM_ALLOW_CLONED   0x00000800
 #define PM_WALL_SCUMMER   0x00001000
+#define PM_RING_BEARER    0x00002000
 
 
 /* Bit flags for monster_desc() */
@@ -2610,6 +2613,7 @@ enum _mimic_types {
 #define ACTION_QUICK_WALK 8
 #define ACTION_SPELL      9
 #define ACTION_STALK      10
+#define ACTION_GLITTER    11      /* Ring waiting for a suitable ring bearer ... */
 
 /*** General index values ***/
 
@@ -2697,6 +2701,7 @@ enum summon_specific_e {
     SUMMON_TROLL,
     SUMMON_CHAPEL_GOOD,
     SUMMON_CHAPEL_EVIL,
+    SUMMON_RING_BEARER,
 };
 
 /*
@@ -2829,8 +2834,9 @@ enum summon_specific_e {
 #define GF_WATER2   140
 #define GF_STORM    141
 #define GF_QUAKE    142
+#define GF_CHARM_RING_BEARER  143
 
-#define MAX_GF                142
+#define MAX_GF                143
 
 /*
  * Some things which induce learning
@@ -2980,6 +2986,7 @@ enum summon_specific_e {
 #define MFLAG2_TRIPPED      0x00000080
 #define MFLAG2_XXXXXXXX   0x00000100
 #define MFLAG2_NODESTRUCT 0x00000200    /* Cannot destruct */
+#define MFLAG2_AWARE      0x00000400
 
 
 /*
@@ -3896,6 +3903,9 @@ enum summon_specific_e {
 
 #define is_pet(A) \
      (bool)(((A)->smart & SM_PET) ? TRUE : FALSE)
+
+#define is_aware(A) \
+     (bool)(((A)->mflag2 & MFLAG2_AWARE) ? TRUE : FALSE)
 
 #define is_hostile(A) \
      (bool)((is_friendly(A) || is_pet(A)) ? FALSE : TRUE)
@@ -4850,6 +4860,7 @@ extern int PlayerUID;
 #define MON_BASILISK      453
 #define MON_ICE_TROLL    454
 #define MON_ARCHANGEL     456
+#define MON_RING_MIMIC    457
 #define MON_YOUNG_BRONZE_DRAGON   462
 #define MON_AKLASH       463
 #define MON_MITHRIL_GOLEM 464
@@ -6324,6 +6335,7 @@ enum effect_e
 #define BIAS_FIRE            0x00000004
 #define BIAS_COLD            0x00000008
 #define BIAS_ACID            0x00000010
+#define BIAS_ELEMENTAL      (BIAS_ELEC | BIAS_POIS | BIAS_FIRE | BIAS_COLD | BIAS_ACID)
 #define BIAS_STR             0x00000020
 #define BIAS_INT             0x00000040
 #define BIAS_WIS             0x00000080
@@ -6339,4 +6351,6 @@ enum effect_e
 #define BIAS_WARRIOR         0x00020000
 #define BIAS_RANGER          0x00040000
 #define BIAS_DEMON           0x00080000
+#define BIAS_PROTECTION      0x00100000
+#define BIAS_ARCHER          0x00200000
 

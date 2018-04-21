@@ -1626,6 +1626,7 @@ bool change_wild_mode(void)
         if (MON_CSLEEP(m_ptr)) continue;
         if (m_ptr->cdis > MAX_SIGHT) continue;
         if (!is_hostile(m_ptr)) continue;
+        if (!is_aware(m_ptr)) continue;
         /*if (r_info[m_ptr->r_idx].level < p_ptr->lev - 10) continue;*/
         msg_print("You cannot enter the global map since there are some monsters nearby!");
         energy_use = 0;

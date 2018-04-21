@@ -58,7 +58,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:42
 
 # Ring of Protection
-?:[AND [EQU $QUEST1 3] [EQU $RACE Beholder Spider] ]
+?:[AND [EQU $QUEST1 3] [EQU $RACE Beholder Spider Ring] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:132:300
 
@@ -182,6 +182,11 @@ F:!:FLOOR:3:0:42
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Beholder Dragon Hound Possessor Spider] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:302
+
+# Elemental Ring
+?:[AND [EQU $QUEST14 3] [EQU $RACE Ring] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:132:301
 
 # Cloak
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Hydra Quylthulg] ]
@@ -449,12 +454,12 @@ F:@:FLOOR:3:0:0:0:72
 ##########################################################################
 # Beholder
 # Ring of the Ages
-?:[AND [EQU $QUEST33 3] [EQU $RACE Beholder Quylthulg] [EQU [MOD $RANDOM33 5] 0] ]
+?:[AND [EQU $QUEST33 3] [EQU $RACE Beholder Quylthulg Ring] [EQU [MOD $RANDOM33 5] 0] ]
 F:a:BUILDING_0:3:0:0:0:0:NONE:27
 F:@:FLOOR:3:0:0:0:274
 
 # Frakir
-?:[AND [EQU $QUEST33 3] [EQU $RACE Beholder Quylthulg] [GEQ [MOD $RANDOM33 5] 1] ]
+?:[AND [EQU $QUEST33 3] [EQU $RACE Beholder Quylthulg Ring] [GEQ [MOD $RANDOM33 5] 1] ]
 F:a:BUILDING_0:3:0:0:0:0:NONE:27
 F:@:FLOOR:3:0:0:0:8
 
@@ -510,8 +515,14 @@ F:@:FLOOR:3:0:0:0:80
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:42
 
+# Tulkas??
+?:[AND [EQU $QUEST27 3] [EQU $RACE Ring] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+#F:@:FLOOR:3:0:132:306 <== Ring of Speed
+F:@:FLOOR:3:0:0:0:9
+
 # Tulkas
-?:[AND [EQU $QUEST27 3] [EQU $RACE Beholder Quylthulg] [GEQ [MOD $RANDOM27 5] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $RACE Beholder Quylthulg Ring] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:9
 

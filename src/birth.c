@@ -757,7 +757,7 @@ static int _prompt_class(void)
     /*return _BIRTH_ESCAPE;  unreachable */
 }
 
-#define _MAX_RACES_PER_GROUP 20
+#define _MAX_RACES_PER_GROUP 21
 #define _MAX_RACE_GROUPS     9
 typedef struct _race_group_s {
     cptr name;
@@ -787,7 +787,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
         {RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_SWORD, RACE_MON_DEMON, 
             RACE_MON_DRAGON, RACE_MON_ELEMENTAL, RACE_MON_GIANT, RACE_MON_GOLEM, RACE_MON_HOUND, 
             RACE_MON_HYDRA, RACE_MON_JELLY, RACE_MON_LEPRECHAUN, RACE_MON_LICH, RACE_MON_POSSESSOR,
-            RACE_MON_QUYLTHULG, RACE_MON_SPIDER, RACE_MON_TROLL, RACE_MON_VAMPIRE, RACE_MON_XORN, -1} },
+            RACE_MON_QUYLTHULG, RACE_MON_RING, RACE_MON_SPIDER, RACE_MON_TROLL, RACE_MON_VAMPIRE, RACE_MON_XORN, -1} },
 };
 
 static void _race_group_menu_fn(int cmd, int which, vptr cookie, variant *res)
@@ -2713,7 +2713,8 @@ void player_outfit(void)
     else if ( p_ptr->prace == RACE_MON_JELLY 
            || p_ptr->prace == RACE_MON_SPIDER 
            || p_ptr->prace == RACE_MON_VAMPIRE
-           || p_ptr->prace == RACE_MON_SWORD)
+           || p_ptr->prace == RACE_MON_SWORD
+           || p_ptr->prace == RACE_MON_RING )
     {
     }
     else if (p_ptr->pclass != CLASS_NINJA)

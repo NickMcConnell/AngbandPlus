@@ -312,6 +312,8 @@ int skills_riding_current(void)
 {
     int current = p_ptr->skill_exp[SKILL_RIDING];
     int max = s_info[_class_idx()].s_max[SKILL_RIDING];
+    if (p_ptr->prace == RACE_MON_RING)
+        return RIDING_EXP_MASTER;
     return MIN(current, max);
 }
 

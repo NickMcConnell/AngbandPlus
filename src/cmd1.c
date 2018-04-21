@@ -523,31 +523,26 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
         {
             result.desc = "It was a good hit!";
             result.mul = 200;
-            result.to_d = 5;
         }
         else if (k < 700)
         {
             result.desc = "It was a great hit!";
-            result.mul = 200;
-            result.to_d = 10;
+            result.mul = 250;
         }
         else if (k < 900)
         {
             result.desc = "It was a superb hit!";
             result.mul = 300;
-            result.to_d = 15;
         }
         else if (k < 1300)
         {
             result.desc = "It was a *GREAT* hit!";
-            result.mul = 300;
-            result.to_d = 20;
+            result.mul = 350;
         }
         else
         {
             result.desc = "It was a *SUPERB* hit!";
-            result.mul = 350;
-            result.to_d = 25;
+            result.mul = 400;
         }
     }
 
@@ -4936,11 +4931,19 @@ void move_player(int dir, bool do_pickup, bool break_trap)
         }
     }
 
+    if (oktomove && p_ptr->prace == RACE_MON_RING && !p_ptr->riding)
+    {
+        msg_print("You can't move! Try using your Glitter power to lure a ringbearer instead.");
+        energy_use = 0;
+        oktomove = FALSE;
+        disturb(0, 0);
+    }
+
     if (oktomove && p_ptr->riding)
     {
         if (riding_r_ptr->flags1 & RF1_NEVER_MOVE)
         {
-            msg_print("Can't move!");
+            msg_print("You can't move!");
             energy_use = 0;
             oktomove = FALSE;
             disturb(0, 0);

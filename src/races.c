@@ -32,6 +32,7 @@ int get_race_idx(cptr name)
             case RACE_MON_TROLL:
             case RACE_MON_ELEMENTAL:
             case RACE_MON_SWORD:
+            case RACE_MON_RING:
             case RACE_MON_GOLEM:
             case RACE_MON_QUYLTHULG:
             case RACE_MON_POSSESSOR:
@@ -188,6 +189,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
         break;
     case RACE_MON_SWORD:
         result = mon_sword_get_race_t();
+        break;
+    case RACE_MON_RING:
+        result = mon_ring_get_race_t();
         break;
     case RACE_MON_TROLL:
         result = mon_troll_get_race_t();

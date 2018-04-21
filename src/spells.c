@@ -514,6 +514,7 @@ void do_cmd_spell_browse(void)
     spell_info spells[MAX_SPELLS];
     caster_info *caster = get_caster_info();
     int ct = _get_spell_table(spells, MAX_SPELLS);
+
     if (ct == 0)
     {
         /* User probably canceled the prompt for a spellbook */

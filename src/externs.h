@@ -817,6 +817,7 @@ extern void check_pets_num_and_align(monster_type *m_ptr, bool inc);
 extern int calculate_upkeep(void);
 extern void do_cmd_pet_dismiss(void);
 extern void do_cmd_pet(void);
+extern bool player_can_ride_aux(cave_type *c_ptr, bool now_riding);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -2004,6 +2005,7 @@ extern race_t *mon_leprechaun_get_race_t(void);
 extern race_t *mon_lich_get_race_t(void);
 extern race_t *mon_possessor_get_race_t(void);
 extern race_t *mon_quylthulg_get_race_t(void);
+extern race_t *mon_ring_get_race_t(void);
 extern race_t *mon_spider_get_race_t(void);
 extern race_t *mon_sword_get_race_t(void);
 extern race_t *mon_troll_get_race_t(void);
@@ -2031,6 +2033,14 @@ extern int     leprechaun_get_toggle(void);
 extern void    sword_absorb_object(object_type *o_ptr);
 extern int     sword_calc_torch(void);
 extern bool    sword_disenchant(void);
+
+extern void    ring_absorb_object(object_type *o_ptr);
+extern int     ring_calc_torch(void);
+extern bool    ring_disenchant(void);
+extern void    ring_cast(void);
+extern void    ring_browse(void);
+extern bool    ring_dominate_m(int m_idx);
+extern void    ring_process_m(int m_idx);
 
 extern bool    vampiric_drain_hack;
 extern void    vampire_feed(int amt);

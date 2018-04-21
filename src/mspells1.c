@@ -1442,12 +1442,13 @@ bool make_attack_spell(int m_idx, bool ticked_off)
     if (MON_CONFUSED(m_ptr))
     {
         reset_target(m_ptr);
-        return (FALSE);
+        return FALSE;
     }
 
     /* Cannot cast spells when nice */
-    if (m_ptr->mflag & MFLAG_NICE) return (FALSE);
-    if (!is_hostile(m_ptr)) return (FALSE);
+    if (m_ptr->mflag & MFLAG_NICE) return FALSE;
+    if (!is_hostile(m_ptr)) return FALSE;
+    if (!is_aware(m_ptr)) return FALSE;
 
 
     /* Sometimes forbid inate attacks (breaths) */

@@ -1358,6 +1358,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
         default:
             r_ptr = &r_info[p_ptr->current_r_idx];
         }
+        if (p_ptr->prace == RACE_MON_RING && p_ptr->riding)
+            r_ptr = &r_info[m_list[p_ptr->riding].r_idx];
+
         assert(r_ptr);
 
         /* Get the "player" attr */
@@ -4116,8 +4119,11 @@ void update_flow(void)
     int x, y, d;
     int flow_head = 1;
     int flow_tail = 0;
+    int max_flow_depth = MONSTER_FLOW_DEPTH;
 
     current_flow_depth = 0;
+    if (p_ptr->action == ACTION_GLITTER)
+        max_flow_depth = 1000;
 
     /* Paranoia -- make sure the array is empty */
     if (temp_n) return;
@@ -4192,7 +4198,7 @@ void update_flow(void)
             current_flow_depth = MAX(current_flow_depth, n);
 
             /* Hack -- limit flow depth */
-            if (n == MONSTER_FLOW_DEPTH) continue;
+            if (n == max_flow_depth) continue;
 
             /* Enqueue that entry */
             temp_y[flow_head] = y;
@@ -5220,7 +5226,10 @@ void disturb(int stop_search, int unused_flag)
     }
 
     /* Cancel Resting */
-    if ((p_ptr->action == ACTION_REST) || (p_ptr->action == ACTION_FISH) || (stop_search && (p_ptr->action == ACTION_SEARCH)))
+    if ( p_ptr->action == ACTION_REST 
+      || p_ptr->action == ACTION_FISH 
+      || p_ptr->action == ACTION_GLITTER
+      || (stop_search && p_ptr->action == ACTION_SEARCH) )
     {
         /* Cancel */
         set_action(ACTION_NONE);

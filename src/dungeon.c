@@ -603,7 +603,7 @@ static void sense_inventory2(void)
  */
 static void pattern_teleport(void)
 {
-    int min_level = 0;
+    int min_level = 1;
     int max_level = 99;
 
     /* Ask for level */
@@ -1605,9 +1605,9 @@ static void process_world_aux_hp_and_sp(void)
             regen_amount /= 5;
     }
 
-
-    /* Searching or Resting */
-    if ((p_ptr->action == ACTION_SEARCH) || (p_ptr->action == ACTION_REST))
+    if ( p_ptr->action == ACTION_SEARCH 
+      || p_ptr->action == ACTION_REST
+      || p_ptr->action == ACTION_GLITTER )
     {
         regen_amount = regen_amount * 2;
     }
@@ -3218,15 +3218,31 @@ static void process_world(void)
     /*** Process the monsters ***/
 
     /* Check for creature generation. */
-    if (!p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle && dun_level)
+    if (!p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle)
     {
-        int chance = d_info[dungeon_type].max_m_alloc_chance;
+        int  chance = d_info[dungeon_type].max_m_alloc_chance;
+        bool ring_hack = FALSE;
 
         chance = chance * (100 + dun_level) / 100;
         chance = chance * (375 - virtue_current(VIRTUE_PATIENCE)) / 375;
 
+        if (p_ptr->action == ACTION_GLITTER && one_in_(2))
+            ring_hack = TRUE;
+
+        if (ring_hack)
+            chance = 2;
+
         if (one_in_(chance))
-            alloc_monster(MAX_SIGHT + 5, 0);
+        {
+            int mode = 0;
+            int rng = MAX_SIGHT + 5;
+            if (ring_hack)
+            {
+                /*rng = 5;*/
+                mode = PM_RING_BEARER;
+            }
+            alloc_monster(rng, mode);
+        }
     }
 
     /* Hack -- Check for creature regeneration */
@@ -3869,7 +3885,9 @@ static void process_command(void)
         /* Browse a book */
         case 'b':
         {
-            if (p_ptr->pclass == CLASS_WEAPONSMITH)
+            if (p_ptr->prace == RACE_MON_RING)
+                ring_browse();
+            else if (p_ptr->pclass == CLASS_WEAPONSMITH)
                 do_cmd_kaji(TRUE);
             else if (p_ptr->pclass == CLASS_MAGIC_EATER)
                 magic_eater_browse();
@@ -3965,7 +3983,9 @@ static void process_command(void)
             }
             else
             {
-                if (p_ptr->pclass == CLASS_IMITATOR)
+                if (p_ptr->prace == RACE_MON_RING)
+                    ring_cast();
+                else if (p_ptr->pclass == CLASS_IMITATOR)
                     imitator_cast(FALSE);
                 else if (p_ptr->pclass == CLASS_MAGIC_EATER)
                     magic_eater_cast(0);
@@ -4636,7 +4656,11 @@ static void process_player(void)
     if (check_abort)
     {
         /* Check for "player abort" (semi-efficiently for resting) */
-        if (running || command_rep || (p_ptr->action == ACTION_REST) || (p_ptr->action == ACTION_FISH))
+        if ( running 
+          || command_rep 
+          || p_ptr->action == ACTION_REST 
+          || p_ptr->action == ACTION_GLITTER
+          || p_ptr->action == ACTION_FISH )
         {
             /* Do not wait */
             inkey_scan = TRUE;
@@ -4880,10 +4904,12 @@ static void process_player(void)
             energy_use = 100;
         }
 
-        /* Fishing */
         else if (p_ptr->action == ACTION_FISH)
         {
-            /* Take a turn */
+            energy_use = 100;
+        }
+        else if (p_ptr->action == ACTION_GLITTER)
+        {
             energy_use = 100;
         }
 
@@ -5322,6 +5348,15 @@ static void dungeon(bool load_game)
 
         /* Process all of the monsters */
         process_monsters();
+
+#ifdef _DEBUG
+        if (p_ptr->action == ACTION_GLITTER)
+        {
+            int msec = delay_factor * delay_factor * delay_factor;
+            Term_xtra(TERM_XTRA_DELAY, msec);
+            Term_fresh();
+        }
+#endif
 
         /* Handle "p_ptr->notice" */
         notice_stuff();

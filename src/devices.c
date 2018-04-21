@@ -2711,172 +2711,172 @@ typedef struct
 static _effect_info_t _effect_info[] = 
 {
     /* Detection:                                   Lv    T   R  Bias */
-    {"LITE_AREA",       EFFECT_LITE_AREA,            1,  10,  1, 0},
-    {"LITE_MAP_AREA",   EFFECT_LITE_MAP_AREA,       20,  50,  6, 0},
-    {"ENLIGHTENMENT",   EFFECT_ENLIGHTENMENT,       20,  50,  3, 0},
-    {"CLAIRVOYANCE",    EFFECT_CLAIRVOYANCE,        35, 100, 32, 0},
+    {"LITE_AREA",       EFFECT_LITE_AREA,            1,  10,  1, BIAS_MAGE},
+    {"LITE_MAP_AREA",   EFFECT_LITE_MAP_AREA,       20,  50,  3, 0},
+    {"ENLIGHTENMENT",   EFFECT_ENLIGHTENMENT,       20,  50,  2, BIAS_PRIESTLY | BIAS_ARCHER},
+    {"CLAIRVOYANCE",    EFFECT_CLAIRVOYANCE,        35, 100,  8, BIAS_MAGE},
 
     {"DETECT_TRAPS",    EFFECT_DETECT_TRAPS,         3,  10,  1, BIAS_ROGUE},
-    {"DETECT_MONSTERS", EFFECT_DETECT_MONSTERS,      5,  20,  1, BIAS_MAGE},
+    {"DETECT_MONSTERS", EFFECT_DETECT_MONSTERS,      5,  20,  1, BIAS_MAGE | BIAS_ARCHER},
     {"DETECT_OBJECTS",  EFFECT_DETECT_OBJECTS,       8,  25,  1, BIAS_ROGUE},
     {"DETECT_ALL",      EFFECT_DETECT_ALL,          25,  50,  3, BIAS_ROGUE},
 
     /* Utility:                                     Lv    T   R  Bias */
-    {"PHASE_DOOR",      EFFECT_PHASE_DOOR,           8,  20,  1, BIAS_MAGE},
+    {"PHASE_DOOR",      EFFECT_PHASE_DOOR,           8,  20,  1, BIAS_MAGE | BIAS_ARCHER},
     {"TELEPORT",        EFFECT_TELEPORT,            12,  20,  1, BIAS_ROGUE},
-    {"TELEPORT_AWAY",   EFFECT_TELEPORT_AWAY,       20,  50,  2, 0},
-    {"STRAFING",        EFFECT_STRAFING,            20,  10,  3, 0},
-    {"DIMENSION_DOOR",  EFFECT_DIMENSION_DOOR,      50, 100, 16, BIAS_MAGE},
-    {"ESCAPE",          EFFECT_ESCAPE,              30,  70,  6, BIAS_ROGUE},
-    {"RECALL",          EFFECT_RECALL,              25, 100,  2, 0},
+    {"TELEPORT_AWAY",   EFFECT_TELEPORT_AWAY,       20,  50,  2, BIAS_MAGE},
+    {"STRAFING",        EFFECT_STRAFING,            20,  10,  3, BIAS_ARCHER},
+    {"DIMENSION_DOOR",  EFFECT_DIMENSION_DOOR,      50, 100,  8, BIAS_MAGE | BIAS_ARCHER},
+    {"ESCAPE",          EFFECT_ESCAPE,              30,  70,  3, BIAS_ROGUE},
+    {"RECALL",          EFFECT_RECALL,              25, 100,  2, BIAS_MAGE},
 
-    {"STONE_TO_MUD",    EFFECT_STONE_TO_MUD,        15,  20,  1, 0},
-    {"EARTHQUAKE",      EFFECT_EARTHQUAKE,          25, 100,  1, 0},
+    {"STONE_TO_MUD",    EFFECT_STONE_TO_MUD,        15,  20,  1, BIAS_STR | BIAS_RANGER},
+    {"EARTHQUAKE",      EFFECT_EARTHQUAKE,          25, 100,  1, BIAS_STR},
     {"DESTRUCTION",     EFFECT_DESTRUCTION,         50, 250,  6, BIAS_DEMON},
-    {"GENOCIDE",        EFFECT_GENOCIDE,            70, 500, 32, BIAS_NECROMANTIC},
-    {"MASS_GENOCIDE",   EFFECT_MASS_GENOCIDE,       80, 750, 64, BIAS_NECROMANTIC},
+    {"GENOCIDE",        EFFECT_GENOCIDE,            70, 500, 16, BIAS_NECROMANTIC},
+    {"MASS_GENOCIDE",   EFFECT_MASS_GENOCIDE,       80, 750, 16, BIAS_NECROMANTIC},
 
-    {"RECHARGING",      EFFECT_RECHARGING,          35, 500,  6, BIAS_MAGE | BIAS_DEMON},
-    {"ENCHANTMENT",     EFFECT_ENCHANTMENT,         30, 900, 64, 0},
+    {"RECHARGING",      EFFECT_RECHARGING,          35, 500,  3, BIAS_MAGE | BIAS_DEMON},
+    {"ENCHANTMENT",     EFFECT_ENCHANTMENT,         30, 900, 16, 0},
     {"IDENTIFY",        EFFECT_IDENTIFY,            15,  50,  1, BIAS_ROGUE | BIAS_MAGE},
-    {"IDENTIFY_FULL",   EFFECT_IDENTIFY_FULL,       50, 200,  6, BIAS_ROGUE | BIAS_MAGE},
-    {"PROBING",         EFFECT_PROBING,             30,  50,  1, 0},
+    {"IDENTIFY_FULL",   EFFECT_IDENTIFY_FULL,       50, 200,  3, BIAS_ROGUE | BIAS_MAGE},
+    {"PROBING",         EFFECT_PROBING,             30,  50,  1, BIAS_MAGE},
     {"RUNE_EXPLOSIVE",  EFFECT_RUNE_EXPLOSIVE,      30, 100,  2, BIAS_MAGE},
-    {"RUNE_PROTECTION", EFFECT_RUNE_PROTECTION,     70, 500, 16, BIAS_PRIESTLY},
+    {"RUNE_PROTECTION", EFFECT_RUNE_PROTECTION,     70, 500,  4, BIAS_PRIESTLY},
 
     {"SATISFY_HUGER",   EFFECT_SATISFY_HUGER,        5, 100,  1, BIAS_RANGER},
     {"DESTROY_TRAP",    EFFECT_DESTROY_TRAP,        20,  50,  1, 0},
     {"DESTROY_TRAPS",   EFFECT_DESTROY_TRAPS,       25,  50,  1, BIAS_ROGUE},
-    {"WHIRLWIND_ATTACK",EFFECT_WHIRLWIND_ATTACK,    50, 500, 16, BIAS_WARRIOR},
-    {"LIST_UNIQUES",    EFFECT_LIST_UNIQUES,        80, 250, 64, 0},
-    {"LIST_ARTIFACTS",  EFFECT_LIST_ARTIFACTS,      80, 250, 99, 0},
-    {"BANISH_EVIL",     EFFECT_BANISH_EVIL,         50, 100, 16, BIAS_PRIESTLY | BIAS_LAW},
-    {"BANISH_ALL",      EFFECT_BANISH_ALL,          50, 100, 32, 0},
-    {"TELEKINESIS",     EFFECT_TELEKINESIS,         25, 100,  8, 0},
-    {"ALCHEMY",         EFFECT_ALCHEMY,             70, 500, 64, BIAS_MAGE},
+    {"WHIRLWIND_ATTACK",EFFECT_WHIRLWIND_ATTACK,    50, 500,  4, BIAS_WARRIOR},
+    {"LIST_UNIQUES",    EFFECT_LIST_UNIQUES,        80, 250,  8, 0},
+    {"LIST_ARTIFACTS",  EFFECT_LIST_ARTIFACTS,      80, 250,  8, 0},
+    {"BANISH_EVIL",     EFFECT_BANISH_EVIL,         50, 100,  4, BIAS_PRIESTLY | BIAS_LAW},
+    {"BANISH_ALL",      EFFECT_BANISH_ALL,          50, 100,  8, BIAS_MAGE},
+    {"TELEKINESIS",     EFFECT_TELEKINESIS,         25, 100,  2, BIAS_MAGE},
+    {"ALCHEMY",         EFFECT_ALCHEMY,             70, 500,  4, BIAS_MAGE},
 
     /* Timed Buffs:                                 Lv    T   R  Bias */
-    {"STONE_SKIN",      EFFECT_STONE_SKIN,          25, 150,  8, BIAS_WARRIOR},
-    {"RESIST_ACID",     EFFECT_RESIST_ACID,         15, 100,  2, BIAS_ACID},
-    {"RESIST_ELEC",     EFFECT_RESIST_ELEC,         15, 100,  2, BIAS_ELEC},
-    {"RESIST_FIRE",     EFFECT_RESIST_FIRE,         15, 100,  2, BIAS_FIRE | BIAS_DEMON},
-    {"RESIST_COLD",     EFFECT_RESIST_COLD,         15, 100,  2, BIAS_COLD},
-    {"RESIST_POIS",     EFFECT_RESIST_POIS,         30, 150,  4, BIAS_POIS},
-    {"RESISTANCE",      EFFECT_RESISTANCE,          35, 200, 16, BIAS_RANGER},
-    {"PROT_EVIL",       EFFECT_PROT_EVIL,           35, 200,  4, BIAS_PRIESTLY | BIAS_LAW},
-    {"HOLY_GRAIL",      EFFECT_HOLY_GRAIL,          50, 500, 99, BIAS_PRIESTLY},
-    {"BLESS",           EFFECT_BLESS,               10, 100,  1, BIAS_PRIESTLY},
-    {"HEROISM",         EFFECT_HEROISM,             15, 100,  2, BIAS_WARRIOR},
+    {"STONE_SKIN",      EFFECT_STONE_SKIN,          25, 150,  2, BIAS_WARRIOR | BIAS_PROTECTION},
+    {"RESIST_ACID",     EFFECT_RESIST_ACID,         15, 100,  1, BIAS_ACID | BIAS_PROTECTION},
+    {"RESIST_ELEC",     EFFECT_RESIST_ELEC,         15, 100,  1, BIAS_ELEC | BIAS_PROTECTION},
+    {"RESIST_FIRE",     EFFECT_RESIST_FIRE,         15, 100,  1, BIAS_FIRE | BIAS_DEMON | BIAS_PROTECTION},
+    {"RESIST_COLD",     EFFECT_RESIST_COLD,         15, 100,  1, BIAS_COLD | BIAS_PROTECTION},
+    {"RESIST_POIS",     EFFECT_RESIST_POIS,         30, 150,  2, BIAS_POIS | BIAS_PROTECTION},
+    {"RESISTANCE",      EFFECT_RESISTANCE,          35, 200,  4, BIAS_RANGER | BIAS_PROTECTION},
+    {"PROT_EVIL",       EFFECT_PROT_EVIL,           35, 200,  2, BIAS_PRIESTLY | BIAS_LAW | BIAS_PROTECTION},
+    {"HOLY_GRAIL",      EFFECT_HOLY_GRAIL,          50, 500,  4, BIAS_PRIESTLY},
+    {"BLESS",           EFFECT_BLESS,               10, 100,  1, BIAS_PRIESTLY | BIAS_DEMON},
+    {"HEROISM",         EFFECT_HEROISM,             15, 100,  1, BIAS_WARRIOR | BIAS_PRIESTLY | BIAS_DEMON},
     {"BERSERK",         EFFECT_BERSERK,             20, 100,  2, BIAS_WARRIOR},
-    {"SPEED",           EFFECT_SPEED,               25, 150,  8, BIAS_ROGUE | BIAS_MAGE},
-    {"SPEED_HERO",      EFFECT_SPEED_HERO,          35, 200, 16, BIAS_WARRIOR},
-    {"SPEED_HERO_BLESS",EFFECT_SPEED_HERO_BLESS,    40, 250, 25, 0},
+    {"SPEED",           EFFECT_SPEED,               25, 150,  4, BIAS_ROGUE | BIAS_MAGE | BIAS_ARCHER},
+    {"SPEED_HERO",      EFFECT_SPEED_HERO,          35, 200,  6, BIAS_WARRIOR},
+    {"SPEED_HERO_BLESS",EFFECT_SPEED_HERO_BLESS,    40, 250,  8, 0},
     {"SPEED_ESSENTIA",  EFFECT_SPEED_ESSENTIA,      90, 999,  0, 0},
     {"LIGHT_SPEED",     EFFECT_LIGHT_SPEED,         99, 999, 99, 0},
     {"ENLARGE_WEAPON",  EFFECT_ENLARGE_WEAPON,      80, 900,  0, 0},
-    {"TELEPATHY",       EFFECT_TELEPATHY,           30, 150,  8, BIAS_MAGE},
-    {"WRAITHFORM",      EFFECT_WRAITHFORM,          90, 666, 64, BIAS_NECROMANTIC},
-    {"INVULNERABILITY", EFFECT_INVULNERABILITY,     90, 777, 64, BIAS_MAGE},
+    {"TELEPATHY",       EFFECT_TELEPATHY,           30, 150,  8, BIAS_MAGE | BIAS_ARCHER},
+    {"WRAITHFORM",      EFFECT_WRAITHFORM,          90, 666, 16, BIAS_NECROMANTIC},
+    {"INVULNERABILITY", EFFECT_INVULNERABILITY,     90, 777, 16, BIAS_MAGE | BIAS_PROTECTION},
 
     /* Pets:                                        Lv    T   R  Bias */
-    {"SUMMON_MONSTERS", EFFECT_SUMMON_MONSTERS,     30, 500,  2, 0},
-    {"SUMMON_HOUNDS",   EFFECT_SUMMON_HOUNDS,       35, 500,  4, BIAS_RANGER},
+    {"SUMMON_MONSTERS", EFFECT_SUMMON_MONSTERS,     30, 500,  1, BIAS_MAGE},
+    {"SUMMON_HOUNDS",   EFFECT_SUMMON_HOUNDS,       35, 500,  1, BIAS_RANGER},
     {"SUMMON_ANTS",     EFFECT_SUMMON_ANTS,         20, 200,  1, BIAS_RANGER},
-    {"SUMMON_HYDRAS",   EFFECT_SUMMON_HYDRAS,       40, 500,  4, BIAS_RANGER},
+    {"SUMMON_HYDRAS",   EFFECT_SUMMON_HYDRAS,       40, 500,  1, BIAS_RANGER},
     {"SUMMON_OCTOPUS",  EFFECT_SUMMON_OCTOPUS,      30, 600, 16, 0},
     {"SUMMON_DAWN",     EFFECT_SUMMON_DAWN,         60, 888, 16, 0},
-    {"SUMMON_PHANTASMAL",EFFECT_SUMMON_PHANTASMAL,  25, 150,  2, BIAS_MAGE},
-    {"SUMMON_ELEMENTAL",EFFECT_SUMMON_ELEMENTAL,    30, 150,  2, BIAS_MAGE},
-    {"SUMMON_DRAGON",   EFFECT_SUMMON_DRAGON,       60, 600, 16, 0},
-    {"SUMMON_UNDEAD",   EFFECT_SUMMON_UNDEAD,       60, 600,  8, BIAS_NECROMANTIC},
-    {"SUMMON_DEMON",    EFFECT_SUMMON_DEMON,        66, 666,  8, BIAS_CHAOS | BIAS_DEMON},
-    {"SUMMON_CYBERDEMON",EFFECT_SUMMON_CYBERDEMON,  90, 900, 64, BIAS_CHAOS},
-    {"SUMMON_ANGEL",    EFFECT_SUMMON_ANGEL,        70, 777, 32, BIAS_PRIESTLY},
-    {"SUMMON_KRAKEN",   EFFECT_SUMMON_KRAKEN,       90, 900, 99, 0},
+    {"SUMMON_PHANTASMAL",EFFECT_SUMMON_PHANTASMAL,  25, 150,  1, BIAS_MAGE},
+    {"SUMMON_ELEMENTAL",EFFECT_SUMMON_ELEMENTAL,    30, 150,  1, BIAS_MAGE},
+    {"SUMMON_DRAGON",   EFFECT_SUMMON_DRAGON,       60, 600,  2, BIAS_MAGE},
+    {"SUMMON_UNDEAD",   EFFECT_SUMMON_UNDEAD,       60, 600,  2, BIAS_NECROMANTIC},
+    {"SUMMON_DEMON",    EFFECT_SUMMON_DEMON,        66, 666,  2, BIAS_CHAOS | BIAS_DEMON},
+    {"SUMMON_CYBERDEMON",EFFECT_SUMMON_CYBERDEMON,  90, 900, 16, BIAS_CHAOS},
+    {"SUMMON_ANGEL",    EFFECT_SUMMON_ANGEL,        70, 777,  8, BIAS_PRIESTLY},
+    {"SUMMON_KRAKEN",   EFFECT_SUMMON_KRAKEN,       90, 900,  8, 0},
 
-    {"CHARM_ANIMAL",    EFFECT_CHARM_ANIMAL,        30, 200,  2, BIAS_RANGER},
-    {"CHARM_DEMON",     EFFECT_CHARM_DEMON,         50, 500,  3, BIAS_CHAOS | BIAS_DEMON},
-    {"CHARM_UNDEAD",    EFFECT_CHARM_UNDEAD,        50, 500,  3, BIAS_NECROMANTIC},
+    {"CHARM_ANIMAL",    EFFECT_CHARM_ANIMAL,        30, 200,  1, BIAS_RANGER},
+    {"CHARM_DEMON",     EFFECT_CHARM_DEMON,         50, 500,  1, BIAS_CHAOS | BIAS_DEMON},
+    {"CHARM_UNDEAD",    EFFECT_CHARM_UNDEAD,        50, 500,  1, BIAS_NECROMANTIC},
 
     {"RETURN_PETS",     EFFECT_RETURN_PETS,         10,   0,  0, 0},
     {"CAPTURE_PET",     EFFECT_CAPTURE_PET,         20,   0,  0, 0},
 
     /* Healing and Recovery:                        Lv    T   R  Bias */
-    {"RESTORE_STATS",   EFFECT_RESTORE_STATS,       50, 600,  4, BIAS_PRIESTLY},
-    {"RESTORE_EXP",     EFFECT_RESTORE_EXP,         40, 500,  4, BIAS_PRIESTLY},
-    {"RESTORING",       EFFECT_RESTORING,           70, 800,  8, BIAS_PRIESTLY},
-    {"HEAL",            EFFECT_HEAL,                40, 500,  8, BIAS_PRIESTLY},
-    {"CURING",          EFFECT_CURING,              45, 200,  8, BIAS_PRIESTLY},
-    {"HEAL_CURING",     EFFECT_HEAL_CURING,         60, 900, 16, BIAS_PRIESTLY},
-    {"HEAL_CURING_HERO",EFFECT_HEAL_CURING_HERO,    70, 900, 32, BIAS_PRIESTLY},
-    {"RESTORE_MANA",    EFFECT_RESTORE_MANA,        80, 900, 64, BIAS_MAGE},
+    {"RESTORE_STATS",   EFFECT_RESTORE_STATS,       50, 600,  2, BIAS_PRIESTLY},
+    {"RESTORE_EXP",     EFFECT_RESTORE_EXP,         40, 500,  1, BIAS_PRIESTLY},
+    {"RESTORING",       EFFECT_RESTORING,           70, 800,  3, BIAS_PRIESTLY},
+    {"HEAL",            EFFECT_HEAL,                40, 500,  1, BIAS_PRIESTLY},
+    {"CURING",          EFFECT_CURING,              45, 200,  1, BIAS_PRIESTLY},
+    {"HEAL_CURING",     EFFECT_HEAL_CURING,         60, 900,  4, BIAS_PRIESTLY},
+    {"HEAL_CURING_HERO",EFFECT_HEAL_CURING_HERO,    70, 900,  4, BIAS_PRIESTLY},
+    {"RESTORE_MANA",    EFFECT_RESTORE_MANA,        80, 900,  8, BIAS_MAGE},
     {"CURE_POIS",       EFFECT_CURE_POIS,           10,  50,  1, BIAS_POIS | BIAS_PRIESTLY | BIAS_RANGER},
     {"CURE_FEAR",       EFFECT_CURE_FEAR,           25, 100,  1, BIAS_PRIESTLY},
-    {"CURE_FEAR_POIS",  EFFECT_CURE_FEAR_POIS,      30, 100,  2, BIAS_PRIESTLY},
+    {"CURE_FEAR_POIS",  EFFECT_CURE_FEAR_POIS,      30, 100,  1, BIAS_PRIESTLY},
     {"REMOVE_CURSE",    EFFECT_REMOVE_CURSE,        30, 200,  1, BIAS_PRIESTLY},
-    {"REMOVE_ALL_CURSE",EFFECT_REMOVE_ALL_CURSE,    70, 500, 16, BIAS_PRIESTLY},
-    {"CLARITY",         EFFECT_CLARITY,             20, 100,  8, BIAS_PRIESTLY | BIAS_MAGE},
+    {"REMOVE_ALL_CURSE",EFFECT_REMOVE_ALL_CURSE,    70, 500,  4, BIAS_PRIESTLY},
+    {"CLARITY",         EFFECT_CLARITY,             20, 100, 12, BIAS_PRIESTLY | BIAS_MAGE},
 
     /* Offense: Bolts                               Lv    T   R  Bias */
-    {"BOLT_MISSILE",    EFFECT_BOLT_MISSILE,         1,  10,  1, BIAS_MAGE},
+    {"BOLT_MISSILE",    EFFECT_BOLT_MISSILE,         1,  10,  1, BIAS_MAGE | BIAS_ARCHER},
     {"BOLT_ACID",       EFFECT_BOLT_ACID,           15,  20,  1, BIAS_ACID},
     {"BOLT_ELEC",       EFFECT_BOLT_ELEC,           15,  20,  1, BIAS_ELEC},
     {"BOLT_FIRE",       EFFECT_BOLT_FIRE,           15,  20,  1, BIAS_FIRE | BIAS_DEMON},
     {"BOLT_COLD",       EFFECT_BOLT_COLD,           15,  20,  1, BIAS_COLD},
     {"BOLT_POIS",       EFFECT_BOLT_POIS,           10,  10,  1, BIAS_POIS},
-    {"BOLT_LITE",       EFFECT_BOLT_LITE,           20,  25,  2, 0},
-    {"BOLT_DARK",       EFFECT_BOLT_DARK,           20,  25,  2, BIAS_NECROMANTIC},
-    {"BOLT_CONF",       EFFECT_BOLT_CONF,           30,  50,  4, 0},
-    {"BOLT_NETHER",     EFFECT_BOLT_NETHER,         20,  25,  2, BIAS_NECROMANTIC | BIAS_DEMON},
-    {"BOLT_NEXUS",      EFFECT_BOLT_NEXUS,          20,  25,  8, 0},
-    {"BOLT_SOUND",      EFFECT_BOLT_SOUND,          40,  50,  8, BIAS_LAW},
-    {"BOLT_SHARDS",     EFFECT_BOLT_SHARDS,         40,  50,  8, BIAS_LAW},
-    {"BOLT_CHAOS",      EFFECT_BOLT_CHAOS,          50, 100,  8, BIAS_CHAOS},
-    {"BOLT_DISEN",      EFFECT_BOLT_DISEN,          40,  50,  6, 0},
+    {"BOLT_LITE",       EFFECT_BOLT_LITE,           20,  25,  1, 0},
+    {"BOLT_DARK",       EFFECT_BOLT_DARK,           20,  25,  1, BIAS_NECROMANTIC},
+    {"BOLT_CONF",       EFFECT_BOLT_CONF,           30,  50,  2, 0},
+    {"BOLT_NETHER",     EFFECT_BOLT_NETHER,         20,  25,  1, BIAS_NECROMANTIC | BIAS_DEMON},
+    {"BOLT_NEXUS",      EFFECT_BOLT_NEXUS,          20,  25,  2, 0},
+    {"BOLT_SOUND",      EFFECT_BOLT_SOUND,          40,  50,  2, BIAS_LAW},
+    {"BOLT_SHARDS",     EFFECT_BOLT_SHARDS,         40,  50,  2, BIAS_LAW},
+    {"BOLT_CHAOS",      EFFECT_BOLT_CHAOS,          50, 100,  2, BIAS_CHAOS},
+    {"BOLT_DISEN",      EFFECT_BOLT_DISEN,          40,  50,  2, 0},
     {"BOLT_TIME",       EFFECT_BOLT_TIME,           60, 200, 90, 0},
-    {"BOLT_WATER",      EFFECT_BOLT_WATER,          55, 150, 32, 0},
-    {"BOLT_MANA",       EFFECT_BOLT_MANA,           50, 100, 32, BIAS_MAGE},
+    {"BOLT_WATER",      EFFECT_BOLT_WATER,          55, 150,  4, BIAS_MAGE},
+    {"BOLT_MANA",       EFFECT_BOLT_MANA,           50, 100,  4, BIAS_MAGE},
 
     /* Offense: Beams                               Lv    T   R  Bias */
     {"BEAM_LITE_WEAK",  EFFECT_BEAM_LITE_WEAK,      10,  20,  1, 0},
-    {"BEAM_LITE",       EFFECT_BEAM_LITE,           40, 100, 16, 0},
+    {"BEAM_LITE",       EFFECT_BEAM_LITE,           40, 100,  2, 0},
 
     /* Offense: Balls                               Lv    T   R  Bias */
-    {"BALL_ACID",       EFFECT_BALL_ACID,           25,  50,  2, BIAS_ACID},
-    {"BALL_ELEC",       EFFECT_BALL_ELEC,           25,  50,  2, BIAS_ELEC},
-    {"BALL_FIRE",       EFFECT_BALL_FIRE,           25,  50,  2, BIAS_FIRE | BIAS_DEMON},
-    {"BALL_COLD",       EFFECT_BALL_COLD,           25,  50,  2, BIAS_COLD},
-    {"BALL_POIS",       EFFECT_BALL_POIS,           10,   5,  2, BIAS_POIS},
-    {"BALL_LITE",       EFFECT_BALL_LITE,           65, 100,  4, 0},
-    {"BALL_DARK",       EFFECT_BALL_DARK,           66, 100,  4, BIAS_NECROMANTIC},
-    {"BALL_CONF",       EFFECT_BALL_CONF,           50, 150,  8, 0},
-    {"BALL_NETHER",     EFFECT_BALL_NETHER,         40,  50,  4, BIAS_NECROMANTIC | BIAS_DEMON},
-    {"BALL_NEXUS",      EFFECT_BALL_NEXUS,          50, 100, 16, 0},
-    {"BALL_SOUND",      EFFECT_BALL_SOUND,          60, 100, 16, BIAS_LAW},
-    {"BALL_SHARDS",     EFFECT_BALL_SHARDS,         60, 100, 16, BIAS_LAW},
-    {"BALL_CHAOS",      EFFECT_BALL_CHAOS,          65, 150, 16, BIAS_CHAOS},
-    {"BALL_DISEN",      EFFECT_BALL_DISEN,          55, 100, 16, 0},
-    {"BALL_TIME",       EFFECT_BALL_TIME,           80, 250, 90, 0},
-    {"BALL_WATER",      EFFECT_BALL_WATER,          70, 200, 64, 0},
-    {"BALL_MANA",       EFFECT_BALL_MANA,           80, 200, 64, BIAS_MAGE},
+    {"BALL_ACID",       EFFECT_BALL_ACID,           25,  50,  1, BIAS_ACID},
+    {"BALL_ELEC",       EFFECT_BALL_ELEC,           25,  50,  1, BIAS_ELEC},
+    {"BALL_FIRE",       EFFECT_BALL_FIRE,           25,  50,  1, BIAS_FIRE | BIAS_DEMON},
+    {"BALL_COLD",       EFFECT_BALL_COLD,           25,  50,  1, BIAS_COLD},
+    {"BALL_POIS",       EFFECT_BALL_POIS,           10,   5,  1, BIAS_POIS},
+    {"BALL_LITE",       EFFECT_BALL_LITE,           65, 100,  2, 0},
+    {"BALL_DARK",       EFFECT_BALL_DARK,           66, 100,  2, BIAS_NECROMANTIC},
+    {"BALL_CONF",       EFFECT_BALL_CONF,           50, 150,  2, 0},
+    {"BALL_NETHER",     EFFECT_BALL_NETHER,         40,  50,  2, BIAS_NECROMANTIC | BIAS_DEMON},
+    {"BALL_NEXUS",      EFFECT_BALL_NEXUS,          50, 100,  2, 0},
+    {"BALL_SOUND",      EFFECT_BALL_SOUND,          60, 100,  2, BIAS_LAW},
+    {"BALL_SHARDS",     EFFECT_BALL_SHARDS,         60, 100,  2, BIAS_LAW},
+    {"BALL_CHAOS",      EFFECT_BALL_CHAOS,          65, 150,  4, BIAS_CHAOS},
+    {"BALL_DISEN",      EFFECT_BALL_DISEN,          55, 100,  2, 0},
+    {"BALL_TIME",       EFFECT_BALL_TIME,           80, 250, 32, 0},
+    {"BALL_WATER",      EFFECT_BALL_WATER,          70, 200,  4, BIAS_MAGE},
+    {"BALL_MANA",       EFFECT_BALL_MANA,           80, 200,  6, BIAS_MAGE},
 
     /* Offense: Breaths                             Lv    T   R  Bias */
-    {"BREATHE_ACID",    EFFECT_BREATHE_ACID,        40, 100, 16, BIAS_ACID},
-    {"BREATHE_ELEC",    EFFECT_BREATHE_ELEC,        40, 100, 16, BIAS_ELEC},
-    {"BREATHE_FIRE",    EFFECT_BREATHE_FIRE,        40, 100, 16, BIAS_FIRE | BIAS_DEMON},
-    {"BREATHE_COLD",    EFFECT_BREATHE_COLD,        40, 100, 16, BIAS_COLD},
-    {"BREATHE_POIS",    EFFECT_BREATHE_POIS,        40, 100, 16, BIAS_POIS},
-    {"BREATHE_LITE",    EFFECT_BREATHE_LITE,        50, 125, 32, 0},
-    {"BREATHE_DARK",    EFFECT_BREATHE_DARK,        50, 125, 32, BIAS_NECROMANTIC},
-    {"BREATHE_CONF",    EFFECT_BREATHE_CONF,        60, 200, 64, 0},
-    {"BREATHE_NETHER",  EFFECT_BREATHE_NETHER,      50,  75, 32, BIAS_NECROMANTIC | BIAS_DEMON},
-    {"BREATHE_NEXUS",   EFFECT_BREATHE_NEXUS,       60, 150, 64, 0},
-    {"BREATHE_SOUND",   EFFECT_BREATHE_SOUND,       70, 200, 64, BIAS_LAW},
-    {"BREATHE_SHARDS",  EFFECT_BREATHE_SHARDS,      70, 200, 64, BIAS_LAW},
-    {"BREATHE_CHAOS",   EFFECT_BREATHE_CHAOS,       75, 250, 64, BIAS_CHAOS},
-    {"BREATHE_DISEN",   EFFECT_BREATHE_DISEN,       60, 150, 64, 0},
-    {"BREATHE_TIME",    EFFECT_BREATHE_TIME,        90, 500,200, 0},
-    {"BREATHE_ELEMENTS", EFFECT_BREATHE_ELEMENTS,   60, 100,200, 0},
+    {"BREATHE_ACID",    EFFECT_BREATHE_ACID,        40, 100,  2, BIAS_ACID},
+    {"BREATHE_ELEC",    EFFECT_BREATHE_ELEC,        40, 100,  2, BIAS_ELEC},
+    {"BREATHE_FIRE",    EFFECT_BREATHE_FIRE,        40, 100,  2, BIAS_FIRE | BIAS_DEMON},
+    {"BREATHE_COLD",    EFFECT_BREATHE_COLD,        40, 100,  2, BIAS_COLD},
+    {"BREATHE_POIS",    EFFECT_BREATHE_POIS,        40, 100,  2, BIAS_POIS},
+    {"BREATHE_LITE",    EFFECT_BREATHE_LITE,        50, 125,  3, 0},
+    {"BREATHE_DARK",    EFFECT_BREATHE_DARK,        50, 125,  3, BIAS_NECROMANTIC},
+    {"BREATHE_CONF",    EFFECT_BREATHE_CONF,        60, 200,  4, 0},
+    {"BREATHE_NETHER",  EFFECT_BREATHE_NETHER,      50,  75,  2, BIAS_NECROMANTIC | BIAS_DEMON},
+    {"BREATHE_NEXUS",   EFFECT_BREATHE_NEXUS,       60, 150,  4, 0},
+    {"BREATHE_SOUND",   EFFECT_BREATHE_SOUND,       70, 200,  4, BIAS_LAW},
+    {"BREATHE_SHARDS",  EFFECT_BREATHE_SHARDS,      70, 200,  4, BIAS_LAW},
+    {"BREATHE_CHAOS",   EFFECT_BREATHE_CHAOS,       75, 250,  4, BIAS_CHAOS},
+    {"BREATHE_DISEN",   EFFECT_BREATHE_DISEN,       60, 150,  8, 0},
+    {"BREATHE_TIME",    EFFECT_BREATHE_TIME,        90, 500, 32, 0},
+    {"BREATHE_ELEMENTS", EFFECT_BREATHE_ELEMENTS,   60, 100, 64, 0},
 
     {"BREATHE_ONE_MULTIHUED", EFFECT_BREATHE_ONE_MULTIHUED, 0, 0, 0, 0},
     {"BREATHE_ONE_CHAOS",EFFECT_BREATHE_ONE_CHAOS,   0, 0, 0, 0},
@@ -2885,31 +2885,31 @@ static _effect_info_t _effect_info[] =
     {"BREATHE_ONE_SHINING",EFFECT_BREATHE_ONE_SHINING, 0, 0, 0, 0},
 
     /* Offense: Other                               Lv    T   R  Bias */
-    {"DISPEL_EVIL",     EFFECT_DISPEL_EVIL,         50, 200,  8, BIAS_PRIESTLY | BIAS_LAW},
-    {"DISPEL_EVIL_HERO",EFFECT_DISPEL_EVIL_HERO,    60, 250, 16, BIAS_PRIESTLY},
-    {"DISPEL_GOOD",     EFFECT_DISPEL_GOOD,         50, 150,  4, BIAS_NECROMANTIC},
-    {"DISPEL_LIFE",     EFFECT_DISPEL_LIFE,         55, 200,  4, BIAS_NECROMANTIC},
-    {"DISPEL_DEMON",    EFFECT_DISPEL_DEMON,        60, 200,  8, 0},
-    {"DISPEL_UNDEAD",   EFFECT_DISPEL_UNDEAD,       60, 200,  8, BIAS_PRIESTLY},
-    {"DISPEL_MONSTERS", EFFECT_DISPEL_MONSTERS,     70, 250, 32, 0},
-    {"DRAIN_LIFE",      EFFECT_DRAIN_LIFE,          40, 100,  8, BIAS_NECROMANTIC},
+    {"DISPEL_EVIL",     EFFECT_DISPEL_EVIL,         50, 200,  2, BIAS_PRIESTLY | BIAS_LAW},
+    {"DISPEL_EVIL_HERO",EFFECT_DISPEL_EVIL_HERO,    60, 250,  3, BIAS_PRIESTLY},
+    {"DISPEL_GOOD",     EFFECT_DISPEL_GOOD,         50, 150,  1, BIAS_NECROMANTIC},
+    {"DISPEL_LIFE",     EFFECT_DISPEL_LIFE,         55, 200,  1, BIAS_NECROMANTIC},
+    {"DISPEL_DEMON",    EFFECT_DISPEL_DEMON,        60, 200,  2, BIAS_LAW},
+    {"DISPEL_UNDEAD",   EFFECT_DISPEL_UNDEAD,       60, 200,  2, BIAS_PRIESTLY},
+    {"DISPEL_MONSTERS", EFFECT_DISPEL_MONSTERS,     70, 250,  8, 0},
+    {"DRAIN_LIFE",      EFFECT_DRAIN_LIFE,          40, 100,  2, BIAS_NECROMANTIC},
     {"STAR_BALL",       EFFECT_STAR_BALL,           80, 900,200, 0},
-    {"ROCKET",          EFFECT_ROCKET,              70, 200, 99, BIAS_DEMON},
-    {"MANA_STORM",      EFFECT_MANA_STORM,          80, 250, 99, BIAS_MAGE},
-    {"CONFUSING_LITE",  EFFECT_CONFUSING_LITE,      60, 100, 32, BIAS_CHAOS},
-    {"ARROW",           EFFECT_ARROW,               30, 100,  8, BIAS_RANGER},
+    {"ROCKET",          EFFECT_ROCKET,              70, 200,  8, BIAS_DEMON},
+    {"MANA_STORM",      EFFECT_MANA_STORM,          80, 250,  8, BIAS_MAGE},
+    {"CONFUSING_LITE",  EFFECT_CONFUSING_LITE,      60, 100,  6, BIAS_CHAOS},
+    {"ARROW",           EFFECT_ARROW,               30, 100,  2, BIAS_RANGER | BIAS_ARCHER},
 
     /* Misc                                         Lv    T   R  Bias */
-    {"POLY_SELF",       EFFECT_POLY_SELF,           20, 500,  2, BIAS_CHAOS},
-    {"ANIMATE_DEAD",    EFFECT_ANIMATE_DEAD,        25, 100,  2, BIAS_NECROMANTIC},
-    {"SCARE_MONSTERS",  EFFECT_SCARE_MONSTERS,      20, 100,  2, 0},
-    {"SLEEP_MONSTERS",  EFFECT_SLEEP_MONSTERS,      25, 100,  2, BIAS_ROGUE},
-    {"SLOW_MONSTERS",   EFFECT_SLOW_MONSTERS,       25, 100,  2, BIAS_RANGER},
-    {"STASIS_MONSTERS", EFFECT_STASIS_MONSTERS,     50, 250, 32, 0},
-    {"CONFUSE_MONSTERS",EFFECT_CONFUSE_MONSTERS,    25, 100,  2, 0},
+    {"POLY_SELF",       EFFECT_POLY_SELF,           20, 500,  1, BIAS_CHAOS},
+    {"ANIMATE_DEAD",    EFFECT_ANIMATE_DEAD,        25, 100,  1, BIAS_NECROMANTIC},
+    {"SCARE_MONSTERS",  EFFECT_SCARE_MONSTERS,      20, 100,  1, BIAS_NECROMANTIC},
+    {"SLEEP_MONSTERS",  EFFECT_SLEEP_MONSTERS,      25, 100,  1, BIAS_ROGUE},
+    {"SLOW_MONSTERS",   EFFECT_SLOW_MONSTERS,       25, 100,  1, BIAS_RANGER},
+    {"STASIS_MONSTERS", EFFECT_STASIS_MONSTERS,     50, 250,  8, BIAS_MAGE},
+    {"CONFUSE_MONSTERS",EFFECT_CONFUSE_MONSTERS,    25, 100,  1, BIAS_CHAOS},
     {"FISHING",         EFFECT_FISHING,             10,   0,  0, 0},
     {"AGGRAVATE",       EFFECT_AGGRAVATE,           10, 100,  1, BIAS_DEMON},
-    {"PIERCING_SHOT",   EFFECT_PIERCING_SHOT,       30, 100,  0, 0},
+    {"PIERCING_SHOT",   EFFECT_PIERCING_SHOT,       30, 100,  0, BIAS_ARCHER},
     {"CHARGE",          EFFECT_CHARGE,              15, 100,  0, 0},
 
     /* Specific Artifacts                           Lv    T   R  Bias */
@@ -3731,7 +3731,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         {
             int dur = _BOOST(randint1(power) + power);
             if (set_fast(dur, FALSE)) device_noticed = TRUE;
-            if (set_shero(dur, FALSE)) device_noticed = TRUE;
+            if (set_hero(dur, FALSE)) device_noticed = TRUE;
         }
         break;
     }
@@ -3746,7 +3746,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         {
             int dur = _BOOST(randint1(power) + power);
             if (set_fast(dur, FALSE)) device_noticed = TRUE;
-            if (set_shero(dur, FALSE)) device_noticed = TRUE;
+            if (set_hero(dur, FALSE)) device_noticed = TRUE;
             if (set_blessed(dur, FALSE)) device_noticed = TRUE;
         }
         break;
@@ -4221,7 +4221,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     case EFFECT_CURING:
     {
         int amt = _extra(effect, 50);
-        if (name) return "Healing";
+        if (name) return "Curing";
         if (desc) return "It heals you a bit and cures blindness, poison, confusion, stunning, cuts and hallucination when you quaff it.";
         if (info) return info_heal(0, 0, _BOOST(amt));
         if (value) return format("%d", 500 + 10*amt);
@@ -4395,7 +4395,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     case EFFECT_BOLT_ACID:
     {
         int dd = _extra(effect, 6 + p_ptr->lev/7);
-        if (name) return "Acit Bolt";
+        if (name) return "Acid Bolt";
         if (desc) return "It fires a bolt of acid.";
         if (info) return info_damage(_BOOST(dd), 8, 0);
         if (value) return format("%d", 250 + 150*_extra(effect, 6));
@@ -5499,7 +5499,8 @@ cptr do_effect(effect_t *effect, int mode, int boost)
               && p_ptr->pclass != CLASS_DEVICEMASTER
               && p_ptr->pclass != CLASS_MAGIC_EATER 
               && p_ptr->pclass != CLASS_BLUE_MAGE 
-              && p_ptr->pclass != CLASS_BLOOD_MAGE )
+              && p_ptr->pclass != CLASS_BLOOD_MAGE
+              && p_ptr->prace != RACE_MON_RING )
             {
                 take_hit(DAMAGE_NOESCAPE, 50, "unleashing magics too mighty to control", -1);
             }

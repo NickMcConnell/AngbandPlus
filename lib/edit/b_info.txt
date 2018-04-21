@@ -795,3 +795,6 @@ S:RING:Foot
 S:AMULET:Amulet
 S:CLOAK:Cloak
 S:HELMET:Helm
+
+N:75:Ring
+S:RING:You

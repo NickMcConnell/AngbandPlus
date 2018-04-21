@@ -1797,6 +1797,10 @@ void monster_death(int m_idx, bool drop_item)
             a_idx = ART_STONEMASK;
             chance = 0; /* This traditionally belongs to Dio Brando but Vlad is the Vampire boss! */
             break;
+        case MON_ONE_RING:
+            a_idx = ART_POWER;
+            chance = 5;
+            break;
         }
 
         /* I think the bug is Kill Amberite, get Blood Curse, entomb said Amberite,
@@ -2293,6 +2297,25 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     int         expdam;
 
     set_sanctuary(FALSE);
+
+    /* Hack: Player mimic has revealed itself! */
+    if (p_ptr->prace == RACE_MON_RING && !p_ptr->riding)
+    {
+        m_ptr->mflag2 |= MFLAG2_AWARE;
+        for (i = 1; i < m_max; i++)
+        {
+            monster_type *m_ptr2 = &m_list[i];
+            
+            if (!m_ptr2->r_idx) continue;
+            if (is_aware(m_ptr2)) continue;
+            if (MON_CSLEEP(m_ptr2)) continue;
+
+            if (!player_has_los_bold(m_ptr2->fy, m_ptr2->fx)) continue;
+            /*if (!projectable(m_ptr2->fy, m_ptr2->fx, py, px)) continue;*/
+            
+            m_ptr2->mflag2 |= MFLAG2_AWARE;
+        }
+    }
 
     (void)COPY(&exp_mon, m_ptr, monster_type);
     if (!(r_ptr->flags7 & RF7_KILL_EXP))

@@ -16,7 +16,7 @@
 
 #include <assert.h>
 
-#define ACTIVATION_CHANCE 5
+#define ACTIVATION_CHANCE (p_ptr->prace == RACE_MON_RING ? 2 : 5)
 
 /*
  * Excise a dungeon object from any stacks
@@ -2216,6 +2216,8 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
     case EGO_RING_NAZGUL:
         o_ptr->to_d += 6;
         o_ptr->to_h += 6;
+        if (one_in_(ACTIVATION_CHANCE))
+            effect_add_random(o_ptr, BIAS_NECROMANTIC);
         break;
     case EGO_RING_COMBAT:
         for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
@@ -2286,7 +2288,7 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
         if (o_ptr->to_h > 25) o_ptr->to_h = 25;
         if (o_ptr->to_d > 20) o_ptr->to_d = 20;
         if (one_in_(ACTIVATION_CHANCE))
-            effect_add_random(o_ptr, BIAS_WARRIOR);
+            effect_add_random(o_ptr, BIAS_WARRIOR | BIAS_STR);
         break;
     case EGO_RING_ARCHERY:
         for (powers = _jewelry_powers(4, level, power); powers > 0; --powers)
@@ -2335,6 +2337,8 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
         {
             o_ptr->pval = 3;
         }
+        if (one_in_(ACTIVATION_CHANCE))
+            effect_add_random(o_ptr, BIAS_ARCHER);
         break;
     case EGO_RING_PROTECTION:
         for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
@@ -2383,6 +2387,8 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
             }
         }
         if (o_ptr->to_a > 35) o_ptr->to_a = 35;
+        if (one_in_(ACTIVATION_CHANCE))
+            effect_add_random(o_ptr, BIAS_PROTECTION);
         break;
     case EGO_RING_ELEMENTAL:
         if (abs(power) >= 2)
@@ -2457,6 +2463,8 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
             one_ele_resistance(o_ptr);
             if (one_in_(3))
                 one_ele_resistance(o_ptr);
+            if (one_in_(ACTIVATION_CHANCE))
+                effect_add_random(o_ptr, BIAS_ELEMENTAL);
         }
         break;
     case EGO_RING_DEFENDER:
@@ -2520,12 +2528,23 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
             one_ele_resistance(o_ptr);
             one_ele_resistance(o_ptr);
         }
+        if (one_in_(ACTIVATION_CHANCE))
+            effect_add_random(o_ptr, BIAS_PROTECTION);
         break;
     case EGO_RING_SPEED:
         o_ptr->pval = randint1(5) + m_bonus(5, level);
         while (randint0(100) < 50) 
             o_ptr->pval++;
         if (cheat_peek) object_mention(o_ptr);
+        if (one_in_(ACTIVATION_CHANCE*2))
+        {
+            if (one_in_(777))
+                effect_add(o_ptr, EFFECT_LIGHT_SPEED);
+            else if (one_in_(77))
+                effect_add(o_ptr, EFFECT_SPEED_HERO);
+            else
+                effect_add(o_ptr, EFFECT_SPEED);
+        }
         break;
     case EGO_RING_WIZARDRY:
         for (powers = _jewelry_powers(4, level, power); powers > 0; --powers)
@@ -2828,7 +2847,7 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
             }
         }
         if (o_ptr->to_a > 15) o_ptr->to_a = 15;
-        if (one_in_(ACTIVATION_CHANCE))
+        if (one_in_(ACTIVATION_CHANCE*2))
             effect_add(o_ptr, EFFECT_BERSERK);
         break;
     case EGO_AMULET_SACRED:
@@ -2986,7 +3005,7 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
                 one_ele_resistance(o_ptr);
         }
         if (one_in_(ACTIVATION_CHANCE))
-            effect_add_random(o_ptr, BIAS_ACID | BIAS_ELEC | BIAS_FIRE | BIAS_COLD);
+            effect_add_random(o_ptr, BIAS_ELEMENTAL);
         break;
     case EGO_AMULET_DEFENDER:
         add_flag(o_ptr->art_flags, TR_FREE_ACT);
@@ -3049,6 +3068,8 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
             one_ele_resistance(o_ptr);
             one_ele_resistance(o_ptr);
         }
+        if (one_in_(ACTIVATION_CHANCE))
+            effect_add_random(o_ptr, BIAS_PROTECTION);
         break;
     }
     /* Be sure to cursify later! */
@@ -3301,6 +3322,30 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
             done = TRUE;
             switch (o_ptr->name2)
             {
+            case EGO_WEAPON_BURNING:
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_FIRE);
+                break;
+            case EGO_WEAPON_FREEZING:
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_COLD);
+                break;
+            case EGO_WEAPON_MELTING:
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_ACID);
+                break;
+            case EGO_WEAPON_SHOCKING:
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_ELEC);
+                break;
+            case EGO_WEAPON_VENOM:
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_POIS);
+                break;
+            case EGO_WEAPON_CHAOS:
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_CHAOS);
+                break;
             case EGO_WEAPON_ARCANE:
                 if (o_ptr->tval != TV_HAFTED || o_ptr->sval != SV_WIZSTAFF)
                     done = FALSE;
@@ -3311,6 +3356,8 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                         o_ptr->pval++;
                     o_ptr->to_h = -10;
                     o_ptr->to_d = -10;
+                    if (one_in_(ACTIVATION_CHANCE))
+                        effect_add_random(o_ptr, BIAS_MAGE);
                 }
                 break;
             case EGO_WEAPON_ARMAGEDDON:
@@ -3434,13 +3481,63 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                         o_ptr->pval = m_bonus(3, level);
                 }
                 break;
+            case EGO_WEAPON_KILL_DEMON:
+                if (one_in_(3))
+                    one_demon_resistance(o_ptr);
+                if (one_in_(5))
+                    add_flag(o_ptr->art_flags, TR_KILL_DEMON);
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_DEMON);
+                break;
             case EGO_WEAPON_KILL_DRAGON:
                 if (one_in_(3))
                     add_flag(o_ptr->art_flags, TR_RES_POIS);
+                if (one_in_(5))
+                    add_flag(o_ptr->art_flags, TR_KILL_DRAGON);
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_ELEMENTAL);
                 break;
             case EGO_WEAPON_KILL_EVIL:
                 if (one_in_(30))
                     add_flag(o_ptr->art_flags, TR_KILL_EVIL);
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_LAW);
+                break;
+            case EGO_WEAPON_KILL_GIANT:
+                if (one_in_(3))
+                    add_flag(o_ptr->art_flags, TR_SUST_STR);
+                if (one_in_(5))
+                    add_flag(o_ptr->art_flags, TR_KILL_GIANT);
+                if (one_in_(ACTIVATION_CHANCE*2)) /* TODO: Need more "Giant" activations */
+                    effect_add_random(o_ptr, BIAS_STR);
+                break;
+            case EGO_WEAPON_KILL_HUMAN:
+                if (one_in_(5))
+                    add_flag(o_ptr->art_flags, TR_KILL_HUMAN);
+                break;
+            case EGO_WEAPON_KILL_ORC:
+                if (one_in_(3))
+                    add_flag(o_ptr->art_flags, TR_KILL_ORC);
+                break;
+            case EGO_WEAPON_KILL_TROLL:
+                if (one_in_(3))
+                    add_flag(o_ptr->art_flags, TR_REGEN);
+                if (one_in_(3))
+                    add_flag(o_ptr->art_flags, TR_KILL_TROLL);
+                break;
+            case EGO_WEAPON_KILL_UNDEAD:
+                if (one_in_(3))
+                    add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
+                if (one_in_(5))
+                    add_flag(o_ptr->art_flags, TR_KILL_UNDEAD);
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_NECROMANTIC);
+                break;
+            case EGO_WEAPON_NATURE:
+                if (one_in_(5))
+                    add_flag(o_ptr->art_flags, TR_KILL_ANIMAL);
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_RANGER);
                 break;
             case EGO_WEAPON_NOLDOR:
                 if ( o_ptr->tval != TV_SWORD 
@@ -3830,6 +3927,8 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
                     done = FALSE;
                 else
                 {
+                    if (one_in_(ACTIVATION_CHANCE))
+                        effect_add_random(o_ptr, BIAS_DEMON);
                 }
                 break;
             }
@@ -3993,11 +4092,25 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
         o_ptr->name2 = _get_random_ego(EGO_TYPE_CLOAK);
         switch (o_ptr->name2)
         {
+        case EGO_CLOAK_IMMOLATION:
+            if (one_in_(ACTIVATION_CHANCE))
+                effect_add_random(o_ptr, BIAS_FIRE);
+            break;
+        case EGO_CLOAK_ELECTRICITY:
+            if (one_in_(ACTIVATION_CHANCE))
+                effect_add_random(o_ptr, BIAS_ELEC);
+            break;
+        case EGO_CLOAK_FREEZING:
+            if (one_in_(ACTIVATION_CHANCE))
+                effect_add_random(o_ptr, BIAS_COLD);
+            break;
         case EGO_CLOAK_ELEMENTAL_PROTECTION:
             one_ele_resistance(o_ptr);
             do { one_ele_resistance(o_ptr); } while (one_in_(4));
             if (one_in_(7))
                 add_flag(o_ptr->art_flags, TR_RES_POIS);
+            if (one_in_(ACTIVATION_CHANCE))
+                effect_add_random(o_ptr, BIAS_ELEMENTAL);
             break;
         case EGO_CLOAK_BAT:
         case EGO_CLOAK_FAIRY:
@@ -7243,6 +7356,7 @@ bool process_warning(int xx, int yy)
 
             if (MON_CSLEEP(m_ptr)) continue;
             if (!is_hostile(m_ptr)) continue;
+            if (!is_aware(m_ptr)) continue;
 
             r_ptr = &r_info[m_ptr->r_idx];
 

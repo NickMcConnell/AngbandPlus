@@ -1489,6 +1489,11 @@ static void prt_state(void)
     {
         switch(p_ptr->action)
         {
+            case ACTION_GLITTER:
+            {
+                strcpy(text, "Lure");
+                break;
+            }
             case ACTION_SEARCH:
             {
                 strcpy(text, "Sear");
@@ -3035,6 +3040,8 @@ static void calc_torch(void)
         p_ptr->cur_lite++;
     if (prace_is_(RACE_MON_SWORD))
         p_ptr->cur_lite += sword_calc_torch();
+    if (prace_is_(RACE_MON_RING))
+        p_ptr->cur_lite += ring_calc_torch();
 
     equip_for_each_obj(_calc_torch_imp);
 
@@ -4089,6 +4096,7 @@ void calc_bonuses(void)
         monster_type *riding_m_ptr = &m_list[p_ptr->riding];
         monster_race *riding_r_ptr = &r_info[riding_m_ptr->r_idx];
         int speed = riding_m_ptr->mspeed;
+        int old_pspeed = p_ptr->pspeed;
 
         if (riding_m_ptr->mspeed > 110)
         {
@@ -4099,7 +4107,17 @@ void calc_bonuses(void)
         {
             p_ptr->pspeed = speed;
         }
-        p_ptr->pspeed += (skills_riding_current() + p_ptr->lev *160)/3200;
+
+        if (p_ptr->prace == RACE_MON_RING)
+        {
+            /* Hey, the player *is* a Ring of Speed, right? */
+            if (old_pspeed > 110)
+                p_ptr->pspeed += (old_pspeed - 110 + 2) / 3;
+        }
+        else
+        {
+            p_ptr->pspeed += (skills_riding_current() + p_ptr->lev *160)/3200;
+        }
         if (MON_FAST(riding_m_ptr)) p_ptr->pspeed += 10;
         if (MON_SLOW(riding_m_ptr)) p_ptr->pspeed -= 10;
         riding_levitation = (riding_r_ptr->flags7 & RF7_CAN_FLY) ? TRUE : FALSE;
@@ -4284,7 +4302,7 @@ void calc_bonuses(void)
         {
             info_ptr->base_blow = calculate_base_blows(i, p_ptr->stat_ind[A_STR], p_ptr->stat_ind[A_DEX]);
 
-            if (p_ptr->tim_speed_essentia)
+            if (p_ptr->tim_speed_essentia && p_ptr->pclass != CLASS_MAULER)
                 info_ptr->xtra_blow += 200;
 
             if (p_ptr->special_defense & KATA_FUUJIN) info_ptr->xtra_blow -= 100;

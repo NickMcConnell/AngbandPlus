@@ -38,8 +38,21 @@ static void _load(savefile_ptr file)
         int j = savefile_read_s16b(file);
         int n = savefile_read_s16b(file);
 
+        /* *Slay Foo* weapons no longer automatically get kill brands */
+        if (savefile_is_older_than(file, 3, 1, 1, 2))
+        {
+            if (j == TR_KILL_DEMON) j = TR_SLAY_DEMON;
+            else if (j == TR_KILL_ANIMAL) j = TR_SLAY_ANIMAL;
+            else if (j == TR_KILL_DRAGON) j = TR_SLAY_DRAGON;
+            else if (j == TR_KILL_GIANT) j = TR_SLAY_GIANT;
+            else if (j == TR_KILL_HUMAN) j = TR_SLAY_HUMAN;
+            else if (j == TR_KILL_ORC) j = TR_SLAY_ORC;
+            else if (j == TR_KILL_TROLL) j = TR_SLAY_TROLL;
+            else if (j == TR_KILL_UNDEAD) j = TR_SLAY_UNDEAD;
+        }
+
         if (0 <= j && j < _MAX_ESSENCE)
-            _essences[j] = n;
+            _essences[j] += n;
     }
 }
 
@@ -230,15 +243,22 @@ static int _res_power(int which)
     case RES_ELEC:
     case RES_CONF:
     case RES_FEAR:
-        return 1;
+    case RES_TIME:
+    case RES_TELEPORT:
+        return 2;
 
     case RES_SOUND:
     case RES_SHARDS:
-        return 3;
-
     case RES_CHAOS:
+        return 4;
+
     case RES_DISEN:
-        return 2;
+    case RES_POIS:
+    case RES_LITE:
+    case RES_DARK:
+    case RES_NETHER:
+    case RES_NEXUS:
+        return 3;
     }
 
     return 2;
@@ -407,7 +427,7 @@ static void _calc_bonuses(void)
     p_ptr->skills.stl += _calc_amount(_essences[TR_STEALTH], 2, 1);
     p_ptr->pspeed += _calc_amount(_essences[TR_SPEED], 1, 10);
     p_ptr->skills.dev += 8*_calc_amount(_essences[TR_MAGIC_MASTERY], 2, 1);
-    p_ptr->device_power += _calc_amount(_essences[TR_MAGIC_MASTERY], 2, 1);
+    p_ptr->device_power += _calc_amount(_essences[TR_DEVICE_POWER], 2, 1);
     p_ptr->skills.srh += 5*_calc_amount(_essences[TR_SEARCH], 2, 1);
     p_ptr->skills.fos += 5*_calc_amount(_essences[TR_SEARCH], 2, 1);
     p_ptr->see_infra += _calc_amount(_essences[TR_INFRA], 2, 1);
@@ -567,7 +587,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 /**********************************************************************
  * Powers
  **********************************************************************/
-void _absorb_spell(int cmd, variant *res)
+static void _absorb_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -682,7 +702,6 @@ static void _judge_spell(int cmd, variant *res)
             var_set_bool(res, identify_fully(object_is_melee_weapon));
         else
             var_set_bool(res, ident_spell(object_is_melee_weapon));
-        break;
         break;
     default:
         default_spell(cmd, res);

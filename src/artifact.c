@@ -1850,7 +1850,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     bool    a_cursed = FALSE;
     int     warrior_artifact_bias = 0;
     int     i;
-    bool    has_resistance = FALSE, boosted_ac = FALSE, boosted_dam = FALSE, boosted_hit = FALSE;
+    bool    has_resistance = FALSE, boosted_ac = FALSE, boosted_dam = FALSE, boosted_hit = FALSE, esp_count = 0;
     int     lev = object_level;
     bool    is_falcon_sword = FALSE;
     int     max_a = MAX(o_ptr->to_a, 30);
@@ -2419,13 +2419,14 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     {
                         add_flag(o_ptr->art_flags, TR_LEVITATION);
                     }
-                    else if ( (o_ptr->tval == TV_CROWN && one_in_(2))
-                           || (o_ptr->tval == TV_HELM && one_in_(7)) )
+                    else if ( (o_ptr->tval == TV_CROWN && one_in_(2 + esp_count*10))
+                           || (o_ptr->tval == TV_HELM && one_in_(7 + esp_count*10)) )
                     {
                         if (add_esp_strong(o_ptr))
                             add_esp_weak(o_ptr, TRUE);
                         else
                             add_esp_weak(o_ptr, FALSE);
+                        ++esp_count;
                     }
                     else if (!boosted_ac && randint1(225) < lev)
                     {

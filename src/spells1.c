@@ -3926,13 +3926,23 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         }
         /* Charm monster */
         case GF_CHARM:
+        case GF_CHARM_RING_BEARER:
         {
             dam += (adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1);
-            dam += virtue_current(VIRTUE_HARMONY)/10;
-            dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
+            if (typ != GF_CHARM_RING_BEARER)
+            {
+                dam += virtue_current(VIRTUE_HARMONY)/10;
+                dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
+            }
 
             if (seen) obvious = TRUE;
 
+            if (typ == GF_CHARM_RING_BEARER && !mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER))
+            {
+                note = " is immune.";
+                dam = 0;
+                break;
+            }
             if ((r_ptr->flagsr & RFR_RES_ALL) || p_ptr->inside_arena)
             {
                 note = " is immune.";
