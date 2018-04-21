@@ -556,6 +556,8 @@ void possessor_calc_innate_attacks(void)
             a.flags |= INNATE_NO_DAM;
 
         calc_innate_blows(&a, 100 * cts[i]);
+        if (p_ptr->weapon_ct)
+            a.blows /= 2;
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
     }
 }
@@ -792,6 +794,7 @@ static void _breathe_spell(int what, int cmd, variant *res)
         case 'D': div = 15; break;
         case 'd': div = 12; break;
         case 'Z': div = 8; break;
+        case 'R': div = 12; break; /* Tarrasque, Godzilla */
         }
         
         var_set_int(res, (_breath_amount(what) + div - 1) / div);
@@ -930,7 +933,6 @@ int possessor_get_powers(spell_info* spells, int max)
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
     int           ct = 0;
-
     if (ct < max && (r_ptr->flags1 & RF1_TRUMP))
         _add_power(&spells[ct++], 1, 0, 0, blink_toggle_spell, p_ptr->stat_ind[A_DEX]);
     if (ct < max && (r_ptr->flags2 & RF2_MULTIPLY))
@@ -969,7 +971,7 @@ int possessor_get_powers(spell_info* spells, int max)
         _add_power(&spells[ct++], _breath_lvl(20), 15, _breath_fail(70), _breathe_chaos_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_DISE))
         _add_power(&spells[ct++], _breath_lvl(20), 5, _breath_fail(70), _breathe_disenchantment_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->body.class_idx == CLASS_MAGE || r_ptr->body.class_idx == CLASS_HIGH_MAGE))
+    if (ct < max && (r_ptr->body.class_idx == CLASS_MAGE || r_ptr->body.class_idx == CLASS_HIGH_MAGE || r_ptr->body.class_idx == CLASS_SORCERER))
         _add_power(&spells[ct++], 25, 1, 90, eat_magic_spell, p_ptr->stat_ind[A_INT]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_NUKE))
         _add_power(&spells[ct++], _breath_lvl(25), 0, _breath_fail(70), _breathe_nuke_spell, p_ptr->stat_ind[A_CON]);
@@ -1041,7 +1043,7 @@ void _healing_spell(int cmd, variant *res)
         var_set_bool(res, TRUE);
         break;
     case SPELL_COST_EXTRA:
-        var_set_int(res, _healing_amt()/10);
+        var_set_int(res, _healing_amt()/8);
         break;
     default:
         default_spell(cmd, res);
@@ -1317,19 +1319,36 @@ int possessor_r_speed(int r_idx)
         sp = (int)r_ptr->speed - 110;
         if (sp > 0)
         {
-            int factor = 100;
             int i;
             equip_template_ptr body = &b_info[r_ptr->body.body_idx];
+            bool humanoid = FALSE;
 
             for (i = 0; i < body->count; i++)
             {
                 if (body->slots[i].type == EQUIP_SLOT_WEAPON_SHIELD)
                 {
-                    factor = 35;
+                    humanoid = TRUE;
                     break;
                 }
             }
-            sp = sp * factor / 100;
+
+            if (humanoid)
+            {
+                int factor = 35;
+                int tsp = sp * 10;
+                sp = 0;
+                while (tsp > 0)
+                {
+                    if (tsp >= 100)
+                        sp += factor;
+                    else
+                        sp += tsp * factor / 100;
+ 
+                    factor /= 2;
+                    tsp -= 100;
+                }
+                sp = sp/10;
+            }
         }
     }
     sp = sp * MIN(p_lvl, r_lvl) / r_lvl;
@@ -1354,6 +1373,26 @@ int possessor_r_ac(int r_idx)
         ac = ac * ac_percent / 100;
     }
     return MAX(0, ac);
+}
+
+static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
+{
+    if (p_ptr->current_r_idx && !p_ptr->shooter_info.heavy_shoot)
+    {
+        monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+
+        if ( r_ptr->body.class_idx == CLASS_ARCHER
+          && p_ptr->shooter_info.tval_ammo <= TV_BOLT
+          && p_ptr->shooter_info.tval_ammo >= TV_SHOT )
+        {
+            p_ptr->shooter_info.num_fire += p_ptr->lev * 200 / 50;
+        }
+        else if ( r_ptr->body.class_idx == CLASS_RANGER
+               && p_ptr->shooter_info.tval_ammo == TV_ARROW )
+        {
+            p_ptr->shooter_info.num_fire += p_ptr->lev * 150 / 50;
+        }
+    }
 }
 
 void possessor_calc_bonuses(void) 
@@ -1508,6 +1547,16 @@ void possessor_calc_bonuses(void)
         p_ptr->no_cut = TRUE;
     if (strchr("sg", r_ptr->d_char))
         p_ptr->no_stun = TRUE;
+
+    switch (r_ptr->body.class_idx)
+    {
+    case CLASS_MAGE:
+        p_ptr->spell_cap += 2;
+        break;
+    case CLASS_HIGH_MAGE:
+        p_ptr->spell_cap += 3;
+        break;
+    }
 }
 
 void possessor_get_flags(u32b flgs[TR_FLAG_SIZE]) 
@@ -1681,7 +1730,6 @@ int           r_idx = p_ptr->current_r_idx, i;
         race_ptr->subname = mon_name(r_idx);
     }
 }
-
 race_t *mon_possessor_get_race_t(void)
 {
     static race_t me = {0};
@@ -1714,6 +1762,7 @@ race_t *mon_possessor_get_race_t(void)
         me.get_powers = _get_powers;
 
         me.calc_bonuses = possessor_calc_bonuses;
+        me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.get_flags = possessor_get_flags;
         me.get_immunities = possessor_get_immunities;
         me.get_vulnerabilities = possessor_get_vulnerabilities;
@@ -1929,4 +1978,15 @@ void possessor_on_save(savefile_ptr file)
 void possessor_on_load(savefile_ptr file)
 {
     _history_on_load(file);
+}
+
+int possessor_class_idx(void)
+{
+    int result = p_ptr->pclass;
+    if ( (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+      && p_ptr->current_r_idx )
+    {
+        result = r_info[p_ptr->current_r_idx].body.class_idx;
+    }
+    return result;
 }

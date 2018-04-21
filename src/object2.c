@@ -4482,7 +4482,7 @@ static void _create_lite(object_type *o_ptr, int level, int power, int mode)
     if (-1 <= power && power <= 1)
         return;
 
-    if (o_ptr->sval == SV_LITE_FEANOR && (one_in_(35) || power > 2))
+    if (o_ptr->sval == SV_LITE_FEANOR && (one_in_(20) || power > 2))
     {
         _create_artifact(o_ptr, power);
         return;
@@ -4776,6 +4776,10 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 
     /* Base chance of being "good" */
     f1 = lev + 10;
+
+    /* Temp Hack: It's a bit too hard to find good rings early on */
+    if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
+        f1 += 30;
 
     /* Maximal chance of being "good" */
     if (f1 > d_info[dungeon_type].obj_good) f1 = d_info[dungeon_type].obj_good;
@@ -5299,7 +5303,7 @@ static bool kind_is_tailored(int k_idx)
 
 static bool _drop_tailored = FALSE;
 
-static bool kind_is_great(int k_idx)
+bool kind_is_great(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
 
@@ -5403,7 +5407,7 @@ static bool kind_is_great(int k_idx)
     return (FALSE);
 }
 
-static bool kind_is_good(int k_idx)
+bool kind_is_good(int k_idx)
 {
     object_kind *k_ptr = &k_info[k_idx];
 

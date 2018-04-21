@@ -1043,6 +1043,7 @@ static void wr_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
             savefile_write_s16b(file, pack_ptr->guard_m_idx);
             savefile_write_s16b(file, pack_ptr->guard_x);
             savefile_write_s16b(file, pack_ptr->guard_y);
+            savefile_write_s16b(file, pack_ptr->distance);
         }
     }
 }

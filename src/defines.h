@@ -17,8 +17,8 @@
 
 
 #define VER_MAJOR 3
-#define VER_MINOR 3
-#define VER_PATCH 6
+#define VER_MINOR 4
+#define VER_PATCH 0
 #define VER_EXTRA 1
 
 /*
@@ -2705,6 +2705,9 @@ enum summon_specific_e {
     SUMMON_CHAPEL_GOOD,
     SUMMON_CHAPEL_EVIL,
     SUMMON_RING_BEARER,
+    SUMMON_ARCHER,
+    SUMMON_MONK,
+    SUMMON_MAGE,
 };
 
 /*
@@ -4564,7 +4567,7 @@ extern int PlayerUID;
  * Parse errors
  */
 #define PARSE_ERROR_GENERIC                  1
-#define PARSE_ERROR_ABSOLETE_FILE            2
+#define PARSE_ERROR_OBSOLETE_FILE            2
 #define PARSE_ERROR_MISSING_RECORD_HEADER    3
 #define PARSE_ERROR_NON_SEQUENTIAL_RECORDS   4
 #define PARSE_ERROR_INVALID_FLAG             5

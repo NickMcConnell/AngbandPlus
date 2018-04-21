@@ -1236,47 +1236,76 @@ static const char *_summon_specific_types[] = {
     "TROLL",
     "CHAPEL_GOOD",
     "CHAPEL_EVIL",
+    "RING_BEARER",
+    "ARCHER",
+    "MONK",
+    "MAGE",
     0,
 };
 
-/* MON(DRAGON, 20)                Any dragon, 20 levels OoD
-   MON(*, 40)                     Any monster, 40 levels OoD
-   MON(ORC | NO_GROUP | HASTED)   A hasted orc loner at current depth
-   MON(441 | CLONED)              A Gachapin Clone
+/* MON(DRAGON, DEPTH+20)          Any dragon, 20 levels OoD
+   MON(*, DEPTH+40)               Any monster, 40 levels OoD
+   MON(ORC, NO_GROUP | HASTE)     A hasted orc loner at current depth
+   MON(o, NO_GROUP | HASTE)       Ditto: You can use any valid d_char
    MON(442)                       A Black Knight */
 static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_t *grid_ptr)
 {
-    if (arg_ct < 1 || arg_ct > 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+    if (arg_ct < 1 || arg_ct > 2) 
+    {
+        msg_print("Invalid MON() directive: Syntax: MON(<which> [,<options>]).");
+        return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+    }
 
+    /* Which monster? Can be random, by index, by display character, or by summoning type.*/
+    if (streq(args[0], "*"))
+    {
+        grid_ptr->flags |= ROOM_GRID_MON_RANDOM;
+    }
+    else if (_is_numeric(args[0]))
+    {
+        grid_ptr->monster = atoi(args[0]);
+        if (!grid_ptr->monster) 
+        {
+            msg_format("Error: %d is not a valid monster index (See r_idx.txt).", grid_ptr->monster);
+            return PARSE_ERROR_GENERIC;
+        }
+    }
+    else if (_is_d_char(args[0]))
+    {
+        grid_ptr->flags |= ROOM_GRID_MON_CHAR;
+        grid_ptr->monster = args[0][0];
+    }
+    else
+    {
+        int i;
+        for (i = 0; ; i++)
+        {
+            if (!_summon_specific_types[i])
+            {
+                msg_format("Error: Invalid monster specifier %s.", args[0]);
+                return PARSE_ERROR_GENERIC;
+            }
+            if (streq(args[0], _summon_specific_types[i]))
+            {
+                grid_ptr->flags |= ROOM_GRID_MON_TYPE;
+                grid_ptr->monster = i;
+                break;
+            }
+        }
+    }
+
+    /* Options */
     if (arg_ct >= 2)
     {
-        grid_ptr->monster_level = atoi(args[1]);
-    }
-    if (arg_ct >= 1)
-    {
         char *flags[10];
-        int   flag_ct = string_split(args[0], flags, 10, "|");
+        int   flag_ct = string_split(args[1], flags, 10, "|");
         int   i;
                 
         trim_tokens(flags, flag_ct);
         for (i = 0; i < flag_ct; i++)
         {
             char* flag = flags[i];
-            if (streq(flag, "*"))
-            {
-                grid_ptr->flags |= ROOM_GRID_MON_RANDOM;
-            }
-            else if (_is_numeric(flag))
-            {
-                grid_ptr->monster = atoi(flag);
-                if (!grid_ptr->monster) return PARSE_ERROR_GENERIC;
-            }
-            else if (_is_d_char(flag))
-            {
-                grid_ptr->flags |= ROOM_GRID_MON_CHAR;
-                grid_ptr->monster = flag[0];
-            }
-            else if (streq(flag, "NO_GROUP"))
+            if (streq(flag, "NO_GROUP"))
             {
                 grid_ptr->flags |= ROOM_GRID_MON_NO_GROUP;
             }
@@ -1296,20 +1325,14 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_t *grid_
             {
                 grid_ptr->flags |= ROOM_GRID_MON_HASTE;
             }
+            else if (strstr(flag, "DEPTH+") == flag)
+            {
+                grid_ptr->monster_level = atoi(flag + strlen("DEPTH+"));
+            }
             else
             {
-                int i;
-                for (i = 0; ; i++)
-                {
-                    if (!_summon_specific_types[i])
-                        return PARSE_ERROR_GENERIC;
-                    if (streq(flag, _summon_specific_types[i]))
-                    {
-                        grid_ptr->flags |= ROOM_GRID_MON_TYPE;
-                        grid_ptr->monster = i;
-                        break;
-                    }
-                }
+                msg_format("Error: Invalid monster option %s.", flag);
+                return PARSE_ERROR_GENERIC;
             }
         }
     }
@@ -1329,7 +1352,9 @@ typedef struct _object_type_s _object_type_t;
 static _object_type_t _object_types[] = 
 {
     { "JUNK",               TV_JUNK },
+    { "SKELETON",           TV_SKELETON },
     { "STATUE",             TV_STATUE },
+    { "FIGURINE",           TV_FIGURINE },
     { "CHEST",              TV_CHEST },
     { "SHOT",               TV_SHOT },
     { "ARROW",              TV_ARROW },
@@ -1386,17 +1411,36 @@ static _object_type_t _object_types[] =
     { 0, 0 }
 };
 
-/* OBJ(*)         Any object
-   OBJ(*, 7)      Any monster, 7 levels OoD
-   OBJ(242)       Potion of Healing
-   OBJ(POTION)    Any potion                   */
+/* OBJ(*)          Any object
+   OBJ(*, DEPTH+7) Any object, 7 levels OoD
+   OBJ(242)        Potion of Healing
+   OBJ(POTION)     Any potion                   */
 static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_t *grid_ptr)
 {
     switch (arg_ct)
     {
     case 2:
-        grid_ptr->object_level = atoi(args[1]);
-
+    {
+        char *flags[10];
+        int   flag_ct = string_split(args[1], flags, 10, "|");
+        int   i;
+                
+        trim_tokens(flags, flag_ct);
+        for (i = 0; i < flag_ct; i++)
+        {
+            char* flag = flags[i];
+            if (strstr(flag, "DEPTH+") == flag)
+            {
+                grid_ptr->object_level = atoi(flag + strlen("DEPTH+"));
+            }
+            else
+            {
+                msg_format("Error: Invalid object option %s.", flag);
+                return PARSE_ERROR_GENERIC;
+            }
+        }
+        /* vvvvvvvvv Fall Through vvvvvvvvvvvv */
+    }
     case 1:
         if (streq(args[0], "*"))
         {
@@ -1410,7 +1454,11 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_t *grid_p
                 if (!_object_types[i].name)
                 {
                     grid_ptr->object = atoi(args[0]);
-                    if (!grid_ptr->object) return PARSE_ERROR_GENERIC;
+                    if (!grid_ptr->object) 
+                    {
+                        msg_format("Error: Invalid object %s.", args[0]);
+                        return PARSE_ERROR_GENERIC;
+                    }
                     break;
                 }
                 if (streq(args[0], _object_types[i].name))
@@ -1424,15 +1472,16 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_t *grid_p
         break;
 
     default:
+        msg_print("Error: Invalid OBJ() directive. Syntax: OBJ(<which> [,<flags>]).");
         return PARSE_ERROR_TOO_FEW_ARGUMENTS;
     }
     return 0;
 }
 
-/* OBJ(RING):EGO(306)      Ring of Speed
-   OBJ(RING):EGO(*)        Any ego ring
-   OBJ(CLOAK, 20):EGO(*)   Any ego cloak generated 20 levels OoD
-   OBJ(RING, 50):EGO(306)  Ring of Speed generated 50 level OoD */
+/* OBJ(RING):EGO(306)            Ring of Speed
+   OBJ(RING):EGO(*)              Any ego ring
+   OBJ(CLOAK, DEPTH+20):EGO(*)   Any ego cloak generated 20 levels OoD
+   OBJ(RING, DEPTH+50):EGO(306)  Ring of Speed generated 50 level OoD */
 static errr _parse_room_grid_ego(char **args, int arg_ct, room_grid_t *grid_ptr)
 {
     switch (arg_ct)
@@ -1445,19 +1494,24 @@ static errr _parse_room_grid_ego(char **args, int arg_ct, room_grid_t *grid_ptr)
         else
         {
             grid_ptr->extra = atoi(args[0]);
-            if (!grid_ptr->extra) return PARSE_ERROR_GENERIC;
+            if (!grid_ptr->extra) 
+            {
+                msg_format("Error: Unknown Ego %s.", args[0]);
+                return PARSE_ERROR_GENERIC;
+            }
             grid_ptr->flags |= ROOM_GRID_OBJ_EGO;
         }
         break;
 
     default:
+        msg_print("Error: Invalid EGO() directive. Syntax: EGO(<which>).");
         return PARSE_ERROR_TOO_FEW_ARGUMENTS;
     }
     return 0;
 }
 
-/* OBJ(CLOAK, 20):ART(*)   Rand-art cloak generated 20 levels OoD
-   ART(6)                  Necklace of the Dwarves (a_idx = 6) */
+/* OBJ(CLOAK, DEPTH+20):ART(*)   Rand-art cloak generated 20 levels OoD
+   ART(6)                        Necklace of the Dwarves (a_idx = 6) */
 static errr _parse_room_grid_artifact(char **args, int arg_ct, room_grid_t *grid_ptr)
 {
     switch (arg_ct)
@@ -1470,12 +1524,17 @@ static errr _parse_room_grid_artifact(char **args, int arg_ct, room_grid_t *grid
         else
         {
             grid_ptr->object = atoi(args[0]);
-            if (!grid_ptr->object) return PARSE_ERROR_GENERIC;
+            if (!grid_ptr->object)
+            {
+                msg_format("Error: Unknown Artifact %s.", args[0]);
+                return PARSE_ERROR_GENERIC;
+            }
             grid_ptr->flags |= ROOM_GRID_OBJ_ARTIFACT;
         }
         break;
 
     default:
+        msg_print("Error: Invalid ART() directive. Syntax: ART(<which>).");
         return PARSE_ERROR_TOO_FEW_ARGUMENTS;
     }
     return 0;
@@ -1487,6 +1546,7 @@ static errr _parse_room_grid_trap(char **args, int arg_ct, room_grid_t *grid_ptr
     {
     case 2:
         grid_ptr->trap_pct = atoi(args[1]);
+        /* vvvvvvvvv Fall Through vvvvvvvvvvvv */
     case 1:
         if (streq(args[0], "*"))
         {
@@ -1495,12 +1555,17 @@ static errr _parse_room_grid_trap(char **args, int arg_ct, room_grid_t *grid_ptr
         else
         {
             s16b trap = f_tag_to_index(args[0]);
-            if (trap < 0) return PARSE_ERROR_GENERIC;
+            if (trap < 0) 
+            {
+                msg_format("Error: Unknown Trap %s.", args[0]);
+                return PARSE_ERROR_GENERIC;
+            }
             grid_ptr->cave_trap = trap;
         }
         break;
 
     default:
+        msg_print("Error: Invalid TRAP() directive. Syntax: TRAP(<which> [,<pct odds>]).");
         return PARSE_ERROR_TOO_FEW_ARGUMENTS;
     }
     return 0;
@@ -1512,12 +1577,21 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
 {
     s16b feat = f_tag_to_index(name);
 
-    if (feat < 0) return PARSE_ERROR_GENERIC;
+    if (feat < 0)
+    {
+        msg_format("Error: Unknown Feature %s.", name);
+        return PARSE_ERROR_GENERIC;
+    }
     grid_ptr->cave_feat = feat;
 
-    if (arg_ct > 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+    if (arg_ct > 2)
+    {
+        msg_print("Error: Invalid feature directive. Syntax: <Name>[(<flags> [,<special info>])].");
+        return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+    }
     if (arg_ct >= 2)
     {
+        /* Extra is the dungeon type for wilderness random dungeon entrances. */
         grid_ptr->flags |= ROOM_GRID_SPECIAL;
         grid_ptr->extra = atoi(args[1]);
     }
@@ -1541,13 +1615,16 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
             else if (streq(flag, "MARK"))
                 grid_ptr->cave_info |= CAVE_MARK;
             else
+            {
+                msg_format("Error: Unknown Feature Option %s.", flag);
                 return PARSE_ERROR_INVALID_FLAG;
+            }
         }
     }
     return 0;
 }
 
-/* D:FLOOR(ROOM|ICKY):MON(DRAGON, 20):EGO(*) 
+/* L:.:FLOOR(ROOM|ICKY):MON(DRAGON, 20):EGO(*) 
    Room Grids are designed to replace old dungeon_grid F: lines
    but I haven't got around to replacing those just yet. */
 errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
@@ -1556,12 +1633,21 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
     char *commands[10];
     int   command_ct = string_split(buf, commands, 10, ":");
     int   i;
+    bool  found_feature = FALSE;
 
     WIPE(grid_ptr, room_grid_t);
 
     /* First command is the "letter" for this room grid */
-    if (command_ct < 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
-    if (strlen(commands[0]) != 1) return PARSE_ERROR_GENERIC;
+    if (command_ct < 2) 
+    {
+        msg_print("Error: Not enough info on the L: line. Syntax: L:<letter>:<option_list>.");
+        return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+    }
+    if (strlen(commands[0]) != 1) 
+    {
+        msg_format("Error: Invalid letter %s on L: line. Should be one character only.", commands[0]);
+        return PARSE_ERROR_GENERIC;
+    }
     grid_ptr->letter = commands[0][0];
     
     /* Remaining commands are name(args) directives in any order */
@@ -1572,7 +1658,11 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
         char *args[10];
         int   arg_ct = parse_args(command, &name, args, 10);
 
-        if (arg_ct < 0) return PARSE_ERROR_GENERIC;
+        if (arg_ct < 0) 
+        {
+            msg_format("Error: Malformed argument %s. Missing )?", name);
+            return PARSE_ERROR_GENERIC;
+        }
 
         if (streq(name, "MON"))
         {
@@ -1601,8 +1691,15 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
         }
         else
         {
+            if (found_feature)
+            {
+                msg_format("Error: Unkown %s directive.", name);
+                return PARSE_ERROR_GENERIC;
+            }
+
             result = _parse_room_grid_feature(name, args, arg_ct, grid_ptr);
             if (result) break;
+            found_feature = TRUE;
         }
     }
 
@@ -1637,7 +1734,10 @@ static errr _parse_room_flags(char* buf, room_template_t *room_ptr)
         else if (streq(flag, "FORMATION"))
             room_ptr->flags |= ROOM_THEME_FORMATION;
         else
+        {
+            msg_format("Error: Invalid room flag %s.", flag);
             return PARSE_ERROR_INVALID_FLAG;
+        }
     }
     return 0;
 }
@@ -1653,31 +1753,25 @@ errr parse_v_info(char *buf, header *head)
     /* Current entry */
     static room_template_t *room_ptr = NULL;
 
-    /* N:<idx>:Name */
+    /* N:Name */
     if (buf[0] == 'N')
     {
-        /* Find the colon before the name */
-        s = my_strchr(buf+2, ':');
+        char *zz[10];
+        int   num = tokenize(buf + 2, 10, zz, 0);
 
-        /* Verify that colon */
-        if (!s) return (1);
+        if (num != 1 || !*zz[0]) 
+        {
+            msg_print("Error: Invalid N: line. Syntax: N:<Name>.");
+            return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        }
 
-        /* Nuke the colon, advance to the name */
-        *s++ = '\0';
-
-        /* Paranoia -- require a name */
-        if (!*s) return PARSE_ERROR_GENERIC;
-
-        /* Get the index */
-        i = atoi(buf+2);
-
-        /* Verify information */
-        if (i <= error_idx) return PARSE_ERROR_NON_SEQUENTIAL_RECORDS;
-
-        /* Verify information */
-        if (i >= head->info_num) return (2);
-
-        /* Save the index */
+        /* Auto-gen a sequence id ... these are never stored or referred to in code, so why force numbering? */
+        i = MAX(1, error_idx + 1);
+        if (i >= head->info_num) 
+        {
+            msg_format("Error: Too many v_info records. Max is currently set to %d in misc.txt.", head->info_num);
+            return (2);
+        }
         error_idx = i;
 
         /* Point at the "info" */
@@ -1685,11 +1779,15 @@ errr parse_v_info(char *buf, header *head)
         WIPE(room_ptr, room_template_t);
 
         /* Store the name */
-        if (!add_name(&room_ptr->name, head, s)) return PARSE_ERROR_OUT_OF_MEMORY;
+        if (!add_name(&room_ptr->name, head, zz[0])) return PARSE_ERROR_OUT_OF_MEMORY;
     }
 
     /* There better be a current room_ptr */
-    else if (!room_ptr) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    else if (!room_ptr) 
+    {
+        msg_print("Error: Missing N: line for new room template.");
+        return PARSE_ERROR_MISSING_RECORD_HEADER;
+    }
 
     /* T:Type:Subtype[:Flags] */
     else if (buf[0] == 'T')
@@ -1697,7 +1795,11 @@ errr parse_v_info(char *buf, header *head)
         char *zz[10];
         int   num = tokenize(buf + 2, 10, zz, 0);
 
-        if (num < 2 || num > 3) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        if (num < 2 || num > 3) 
+        {
+            msg_print("Error: Invalid T: line. Syntax is T:<Type>:<Subtype>[:<Flags>].");
+            return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        }
 
         if (streq(zz[0], "VAULT"))
         {
@@ -1707,7 +1809,11 @@ errr parse_v_info(char *buf, header *head)
             else if (streq(zz[1], "GREATER"))
                 room_ptr->subtype = VAULT_GREATER;
 
-            if (!room_ptr->subtype) return PARSE_ERROR_GENERIC;
+            if (!room_ptr->subtype) 
+            {
+                msg_format("Error: Unknown vault type %s.", zz[1]);
+                return PARSE_ERROR_GENERIC;
+            }
         }
         else if (streq(zz[0], "ROOM"))
         {   
@@ -1740,10 +1846,18 @@ errr parse_v_info(char *buf, header *head)
                 }
             }
 
-            if (!room_ptr->subtype) return PARSE_ERROR_GENERIC;
+            if (!room_ptr->subtype) 
+            {
+                msg_format("Error: Unknown wilderness type %s.", zz[1]);
+                return PARSE_ERROR_GENERIC;
+            }
         }
 
-        if (!room_ptr->type) return PARSE_ERROR_GENERIC;
+        if (!room_ptr->type) 
+        {
+            msg_format("Error: Unknown room type %s.", zz[0]);
+            return PARSE_ERROR_GENERIC;
+        }
 
         if (num == 3)
         {
@@ -1757,14 +1871,25 @@ errr parse_v_info(char *buf, header *head)
     {
         char *zz[10];
         int   num = tokenize(buf + 2, 10, zz, 0);
+        int   tmp;
 
-        if (num != 3) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        if (num != 3) 
+        {
+            msg_print("Error: Invalid W: line. Syntax: W:<Level>:<MaxLevel>:<Rarity>.");
+            return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        }
         room_ptr->level = atoi(zz[0]);
         if (streq(zz[1], "*"))
             room_ptr->max_level = 0;
         else
             room_ptr->max_level = atoi(zz[1]);
-        room_ptr->rarity = atoi(zz[2]);
+        tmp = atoi(zz[2]);
+        if (tmp < 0 || tmp > 255)
+        {
+            msg_format("Error: Invalid rarity %d. Enter a value between 1 and 255.", tmp);
+            return PARSE_ERROR_OUT_OF_BOUNDS;
+        }
+        room_ptr->rarity = tmp;
     }
 
     /* Process custom 'L'etters */
@@ -1776,7 +1901,8 @@ errr parse_v_info(char *buf, header *head)
             if (!room_ptr->letters[j].letter)
                 return parse_room_grid(buf + 2, &room_ptr->letters[j]);
         }
-        return PARSE_ERROR_GENERIC; /* Too many letters */
+        msg_format("Error: Too many letters. Only %d letters are allowed.", ROOM_MAX_LETTERS); 
+        return PARSE_ERROR_GENERIC;
     }
 
     /* Process 'M'ap lines */
@@ -1790,7 +1916,14 @@ errr parse_v_info(char *buf, header *head)
         if (!room_ptr->width)
             room_ptr->width = strlen(s);
         else if (strlen(s) != room_ptr->width) 
+        {
+            msg_format(
+                "Error: Inconsistent map widths. Room width auto-calculated to %d but "
+                "current line is %d. Please make all map lines the same length.",
+                room_ptr->width, strlen(s)
+            );
             return PARSE_ERROR_GENERIC;
+        }
 
         /* Store the text */
         if (!add_text(&room_ptr->text, head, s, FALSE)) return PARSE_ERROR_OUT_OF_MEMORY;

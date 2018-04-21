@@ -4125,7 +4125,7 @@ void do_cmd_store(void)
 
     old_town_num = p_ptr->town_num;
     if ((which == STORE_HOME) || (which == STORE_MUSEUM)) p_ptr->town_num = 1;
-    if (dun_level) p_ptr->town_num = NO_TOWN;
+    if (dun_level || !p_ptr->town_num) p_ptr->town_num = NO_TOWN;
     inner_town_num = p_ptr->town_num;
 
     /* Berserkers in Vanilla Town are forced into a tough iron man game, with no id 

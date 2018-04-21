@@ -786,7 +786,8 @@ enum {
     AI_GUARD_MON = 2,
     AI_GUARD_POS = 3,
     AI_FEAR = 4,
-    AI_SHOOT = 5
+    AI_SHOOT = 5,
+    AI_MAINTAIN_DISTANCE = 6,
 };
 
 typedef struct {
@@ -797,7 +798,7 @@ typedef struct {
     s16b guard_m_idx;    /* Pack is guarding another monster, perhaps the leader */
     s16b guard_x;       /* Pack is defending a specific location */
     s16b guard_y;
-
+    s16b distance;
     s16b next_idx;        /* Free list */
 } pack_info_t;
 
@@ -2102,6 +2103,7 @@ typedef struct {
     birth_fn                birth;
     calc_bonuses_fn         calc_bonuses;
     calc_weapon_bonuses_fn  calc_weapon_bonuses;
+    calc_shooter_bonuses_fn calc_shooter_bonuses;
     calc_innate_attacks_fn  calc_innate_attacks;
     caster_info_fn          caster_info;
     get_spells_fn           get_spells;

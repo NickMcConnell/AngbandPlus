@@ -1233,6 +1233,15 @@ static errr rd_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
             ptr->guard_m_idx = savefile_read_s16b(file);
             ptr->guard_x = savefile_read_s16b(file);
             ptr->guard_y = savefile_read_s16b(file);
+            if (savefile_is_older_than(file, 3, 4, 0, 1))
+            {
+                if (ptr->ai == AI_MAINTAIN_DISTANCE)
+                    ptr->distance = 5;
+                else
+                    ptr->distance = 0;
+            }
+            else
+                ptr->distance = savefile_read_s16b(file);
 
             /* I make no effort to keep the same pack_info index on a reload, so
                patch things up.  I'm pretty sure, but not certain, that monster

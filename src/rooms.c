@@ -1522,9 +1522,13 @@ static const room_grid_t *_find_room_grid(const room_template_t *room_ptr, char 
     return NULL;
 }
 
+static bool _obj_kind_is_good = FALSE;
 static int _obj_kind_hack = 0;
 static bool _obj_kind_hook(int k_idx)
 {
+    if (_obj_kind_is_good && !kind_is_good(k_idx))
+        return FALSE;
+
     switch (_obj_kind_hack)
     {
     case OBJ_TYPE_DEVICE:       return kind_is_device(k_idx);
@@ -1552,6 +1556,9 @@ static void _apply_room_grid1(int x, int y, const room_grid_t *grid_ptr, u16b ro
 
         if (grid_ptr->flags & ROOM_GRID_SPECIAL)
             c_ptr->special = grid_ptr->extra;
+
+        if (have_flag(f_info[c_ptr->feat].flags, FF_STORE))
+            store_init(NO_TOWN, f_info[c_ptr->feat].subtype);
     }
 
     /* Traps */
@@ -1621,9 +1628,12 @@ static void _apply_room_grid1(int x, int y, const room_grid_t *grid_ptr, u16b ro
 
         if (grid_ptr->flags & ROOM_GRID_OBJ_TYPE)
         {
-            if (grid_ptr->object == TV_JUNK)
+            if (grid_ptr->object == TV_JUNK || grid_ptr->object == TV_SKELETON)
                 object_level = 1;
 
+            _obj_kind_is_good = FALSE;
+            if (grid_ptr->object_level > 0)
+                _obj_kind_is_good = TRUE;
             _obj_kind_hack = grid_ptr->object;
             get_obj_num_hook = _obj_kind_hook;
             get_obj_num_prep();
@@ -1680,6 +1690,12 @@ static bool _room_grid_mon_hook(int r_idx)
             return FALSE;
     }
 
+    if (_room_grid_hack->flags & ROOM_GRID_MON_NO_UNIQUE)
+    {
+        if (r_info[r_idx].flags1 & RF1_UNIQUE)
+            return FALSE;
+    }
+
     if (_room_grid_hack->flags & ROOM_GRID_MON_TYPE)
     {
         if (!mon_is_type(r_idx, _room_grid_hack->monster))
@@ -1712,8 +1728,8 @@ static void _apply_room_grid2(int x, int y, const room_grid_t *grid_ptr, u16b ro
         mode |= PM_ALLOW_GROUP;
     if (!(grid_ptr->flags & ROOM_GRID_MON_NO_SLEEP))
         mode |= PM_ALLOW_SLEEP;
-    if (!(grid_ptr->flags & ROOM_GRID_MON_NO_UNIQUE))
-        mode |= PM_ALLOW_UNIQUE;
+    /*if (!(grid_ptr->flags & ROOM_GRID_MON_NO_UNIQUE))
+        mode |= PM_ALLOW_UNIQUE;  Note: This flag does not work! */
     if (grid_ptr->flags & ROOM_GRID_MON_HASTE)
         mode |= PM_HASTE;
 

@@ -1319,6 +1319,19 @@ static object_type *choose_cursed_obj_name(u32b flag)
     return NULL;
 }
 
+static bool _fast_mana_regen(void)
+{
+    switch (possessor_class_idx())
+    {
+    case CLASS_MAGE:
+    case CLASS_BLOOD_MAGE:
+    case CLASS_NECROMANCER:
+    case CLASS_HIGH_MAGE:
+    case CLASS_SORCERER:
+        return TRUE;
+    }
+    return FALSE;
+}
 
 /*
  * Handle timed damage and regeneration every 10 game turns
@@ -1622,14 +1635,10 @@ static void process_world_aux_hp_and_sp(void)
 
     /* Regenerate the mana */
     upkeep_regen = (100 - upkeep_factor) * regen_amount;
-    if (p_ptr->pclass == CLASS_MAGE ||
-        p_ptr->pclass == CLASS_BLOOD_MAGE ||
-        p_ptr->pclass == CLASS_NECROMANCER ||
-        p_ptr->pclass == CLASS_HIGH_MAGE ||
-        p_ptr->pclass == CLASS_SORCERER)
-    {
+
+    if (_fast_mana_regen())
         upkeep_regen = upkeep_regen * 2;
-    }
+
     regenmana(upkeep_regen);
 
     if (magic_eater_regen(regen_amount))
@@ -5004,7 +5013,7 @@ static void process_player(void)
             else
             {
                 int amt = (s16b)((s32b)energy_use * ENERGY_NEED() / 100L);
-                #if _DEBUG
+                #ifdef _DEBUG
                 c_put_str(TERM_WHITE, format("E:%3d/%3d", amt, energy_use), 24, 0);
                 #endif
                 p_ptr->energy_need += amt;

@@ -610,7 +610,8 @@ bool make_attack_normal(int m_idx)
                             if( o_ptr->tval == TV_STAFF)
                                 heal *=  o_ptr->number;
 
-                            /* Don't heal more than max hp */
+                            /* Don't heal more than max hp. Two star cap. */
+                            heal = MIN(heal, m_ptr->max_maxhp / 5);
                             heal = MIN(heal, m_ptr->maxhp - m_ptr->hp);
 
                             obvious = TRUE;

@@ -1182,10 +1182,10 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num, bool ticked_o
     /* Summon if possible (sometimes) */
     if (summon_num)
     {
-        int odds = 25;
+        int odds = 20;
 
         if (ticked_off && attack_num)
-            odds = 15;
+            odds = 10;
 
         if (randint0(100) < odds) return (summon[randint0(summon_num)]);
     }
@@ -1615,7 +1615,8 @@ bool make_attack_spell(int m_idx, bool ticked_off)
               && !(r_ptr->flags1 & RF1_NEVER_MOVE)
               && !cave[m_ptr->fy][m_ptr->fx].dist
               && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY)
-              && !p_ptr->inside_quest )
+              && !p_ptr->inside_quest 
+              && dun_level )
             {
                 y = m_ptr->fy;
                 x = m_ptr->fx;
@@ -2955,7 +2956,8 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             }
             else
             {
-                msg_format("%^s blinks away.", m_name);
+                if (seen)
+                    msg_format("%^s blinks away.", m_name);
                 teleport_away(m_idx, 10, 0L);
                 p_ptr->update |= (PU_MONSTERS);
             }
@@ -2972,7 +2974,8 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             }
             else
             {
-                msg_format("%^s teleports away.", m_name);
+                if (seen)
+                    msg_format("%^s teleports away.", m_name);
                 teleport_away_followable(m_idx);
             }
             break;

@@ -3612,9 +3612,10 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
             while (o_idx)
             {
                 object_type *o_ptr = &o_list[o_idx];
-                if (!o_ptr->k_idx) continue;
-                if (!object_is_(o_ptr, TV_CORPSE, SV_CORPSE)) continue;
-                int_map_add(available_corpses, o_ptr->pval, NULL);
+
+                if (object_is_(o_ptr, TV_CORPSE, SV_CORPSE))
+                    int_map_add(available_corpses, o_ptr->pval, NULL);
+
                 o_idx = o_ptr->next_o_idx;
             }
         }

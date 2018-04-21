@@ -483,7 +483,7 @@ void wilderness_move_player(int old_x, int old_y)
        and then repeatedly move the player. */
     if (wilderness_scroll_lock)
     {
-    #if _DEBUG
+    #ifdef _DEBUG
         msg_format("Skip Scroll (%d,%d)", dx, dy);
     #endif
         return;
@@ -561,18 +561,23 @@ static void _wipe_generate_cave_flags(const rect_t *r)
     }
 }
 
-static void _build_room(const room_template_t *room_ptr, const rect_t *r)
+static void _build_room(const room_template_t *room_ptr, const rect_t *r, int transno)
 {
-    int transno = 0;
+    int x = room_ptr->width;
+    int y = room_ptr->height;
+    int xoffset = 0;
+    int yoffset = 0;
 
-    assert(r->cx == room_ptr->width);
-    assert(r->cy == room_ptr->height);
+    coord_trans(&x, &y, 0, 0, transno);
+    if (x < 0) xoffset = -x;
+    if (y < 0) yoffset = -y;
+
     build_room_template_aux(
         room_ptr, 
-        r->y + room_ptr->height/2, /* expects the *center* of the rect ... sigh */
-        r->x + room_ptr->width/2, 
-        0, 
-        0,
+        r->y + r->cy/2, /* expects the *center* of the rect ... sigh */
+        r->x + r->cx/2, 
+        xoffset, 
+        yoffset,
         transno
     );
     _wipe_generate_cave_flags(r);
@@ -610,15 +615,49 @@ static bool _generate_special_encounter(room_template_t *room_ptr, int x, int y,
     {
         int qx = rand_range(qx_min, qx_max);
         int qy = rand_range(qy_min, qy_max);
+        int cx = room_ptr->width;
+        int cy = room_ptr->height;
+        int transno = 0;
 
         quad_rect = rect_create(qx*WILD_SCROLL_CX, qy*WILD_SCROLL_CY, WILD_SCROLL_CX, WILD_SCROLL_CY);
 
-        /* TODO: Coordinate transforms */
+        /*Coordinate transforms (TODO: This code needs a rewrite, IMO)*/
+        if (room_ptr->flags & ROOM_NO_ROTATE)
+            transno = 0;
+        else 
+        {
+            int n = randint0(100);
+            if (n < 45)
+                transno = 0;
+            else if (n < 90)
+                transno = 2;
+            else if (n < 95)
+            {
+                int temp = cx;
+                transno = 1;
+                cx = cy;
+                cy = temp;
+            }
+            else
+            {
+                int temp = cx;
+                transno = 3;
+                cx = cy;
+                cy = temp;
+            }
 
-        x2 = quad_rect.x + 2 + randint0(quad_rect.cx - room_ptr->width - 4);
-        y2 = quad_rect.y + 1 + randint0(quad_rect.cy - room_ptr->height - 2);
+            if (one_in_(2))
+                transno |= 0x04;
+        }
 
-        room_rect = rect_create(x2, y2, room_ptr->width, room_ptr->height);
+        /* It's easy to exceed the 62x20 encounter size if you rotate. */
+        if (quad_rect.cx - cx - 4 < 0) continue;
+        if (quad_rect.cy - cy - 2 < 0) continue;
+
+        x2 = quad_rect.x + 2 + randint0(quad_rect.cx - cx - 4);
+        y2 = quad_rect.y + 1 + randint0(quad_rect.cy - cy - 2);
+
+        room_rect = rect_create(x2, y2, cx, cy);
 
         /* Exclude out of bounds */
         if (!rect_contains(r, &room_rect)) continue;
@@ -642,7 +681,7 @@ static bool _generate_special_encounter(room_template_t *room_ptr, int x, int y,
             if (rect_contains_pt(&room_rect, p_ptr->oldpx, p_ptr->oldpy)) continue;
         }
 
-        _build_room(room_ptr, &room_rect);
+        _build_room(room_ptr, &room_rect, transno);
         if (is_daytime() && room_ptr->type == ROOM_WILDERNESS && disturb_minor)
         {
             msg_print("You've stumbled onto something interesting ...");
@@ -664,6 +703,12 @@ static bool _generate_special_encounter(room_template_t *room_ptr, int x, int y,
     }
     return FALSE;
 }
+
+#ifdef _DEBUG
+#   define _WILD_ENCOUNTER_CHANCE 1
+#else
+#   define _WILD_ENCOUNTER_CHANCE 15
+#endif
 
 static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *exclude)
 {
@@ -693,7 +738,7 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
       && !lite_town
       && !generate_encounter
       && !no_encounters_hack
-      && one_in_(15))
+      && one_in_(_WILD_ENCOUNTER_CHANCE))
     {
         room_template_t *room_ptr = choose_room_template(ROOM_WILDERNESS, _encounter_terrain_type(x, y));
         if (room_ptr)
@@ -707,7 +752,6 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
       && !lite_town
       && one_in_(5))
     {
-        /*room_template_t *room_ptr = choose_room_template(ROOM_AMBUSH, 0);*/
         room_template_t *room_ptr = choose_room_template(ROOM_AMBUSH, _encounter_terrain_type(x, y));
         if (room_ptr && _generate_special_encounter(room_ptr, x, y, r, exclude))
             generate_encounter = FALSE;

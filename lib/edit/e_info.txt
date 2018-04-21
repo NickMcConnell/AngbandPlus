@@ -919,7 +919,7 @@ W:20:*:1
 F:HIDE_TYPE
 
 N:303:RING:of Archery
-W:20:*:1
+W:20:*:2
 F:HIDE_TYPE
 
 N:304:RING:(Defender)

@@ -1058,6 +1058,9 @@ extern void pack_on_slay_monster(int m_idx);
 extern void pack_on_damage_monster(int m_idx);
 extern pack_info_t *pack_info_ptr(int m_idx);
 extern void pack_choose_ai(int m_idx);
+extern bool mon_has_attack_spell(int m_idx);
+extern bool mon_has_worthy_attack_spell(int m_idx);
+extern bool mon_has_summon_spell(int m_idx);
 
 extern monster_type *mon_get_parent(monster_type *m_ptr);
 extern void mon_set_parent(monster_type *m_ptr, int pm_idx);
@@ -1141,6 +1144,8 @@ extern void apply_magic(object_type *o_ptr, int lev, u32b mode);
 extern int  apply_magic_ego;
 extern void choose_obj_kind(int mode); /* Hack for BM to use new object tval frequencies */
 extern bool make_object(object_type *j_ptr, u32b mode);
+extern bool kind_is_good(int k_idx);
+extern bool kind_is_great(int k_idx);
 extern bool kind_is_device(int k_idx);
 extern bool kind_is_jewelry(int k_idx);
 extern bool kind_is_book(int k_idx);
@@ -2065,6 +2070,7 @@ extern int     possessor_get_spells(spell_info* spells, int max);
 extern 
 caster_info   *possessor_caster_info(void);
 extern void    possessor_calc_bonuses(void);
+extern int     possessor_class_idx(void);
 extern int     possessor_r_speed(int r_idx);
 extern int     possessor_r_ac(int r_idx);
 extern void    possessor_get_flags(u32b flgs[TR_FLAG_SIZE]);
