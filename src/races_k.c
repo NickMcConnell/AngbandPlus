@@ -35,7 +35,7 @@ race_t *klackon_get_race(void)
         me.name = "Klackon";
         me.desc = "Klackons are bizarre semi-intelligent ant-like insectoid creatures. "
                     "They make great fighters, but their mental abilities are severely limited. "
-                    "Obedient and well-ordered, they can never be confused. They are also very "
+                    "Obedient and well-ordered, they are resistant to confusion. They are also very "
                     "nimble, and become faster as they advance levels. They are also very acidic, "
                     "inherently resisting acid, and capable of spitting acid at higher levels.";
 
@@ -164,7 +164,7 @@ race_t *kutar_get_race(void)
         me.name = "Kutar";
         me.desc = "A Kutar is an expressionless animal-like living creature. The word 'kuta' means "
                     "'absentmindedly' or 'vacantly'. Their absentmindedness hurts their searching and "
-                    "perception skills, but renders them incapable of being confused. Their unearthly "
+                    "perception skills, but renders them resistant to being confused. Their unearthly "
                     "calmness and serenity make them among the most stealthy of any race. Kutars, "
                     "although expressionless, are beautiful and so have a high charisma. Members of "
                     "this race can learn to expand their body horizontally. This increases armour class, "
@@ -309,7 +309,7 @@ race_t *nibelung_get_race(void)
         me.name = "Nibelung";
         me.desc = "The hated and persecuted race of nocturnal dwarves, these cave-dwellers are "
                     "not much bothered by darkness. Their natural inclination to magical items "
-                    "has made them immune to effects which could drain away magical energy.";
+                    "has made them resistant to effects which could disenchant magical energy.";
 
         me.stats[A_STR] =  1;
         me.stats[A_INT] = -1;
@@ -940,7 +940,8 @@ race_t *wood_elf_get_race(void)
         me.name = "Wood-Elf";
         me.desc = "Wood-Elves are the most common of elves. They prefer the seclusion of thick "
                     "forests and are unhampered when moving through dense foliage. Their skills "
-                    "with tracking and bow are unsurpassed.";
+                    "with tracking and bow are unsurpassed, and as they advance they gain the "
+                    "power of Nature Awareness.";
 
         me.stats[A_STR] = -1;
         me.stats[A_INT] =  1;

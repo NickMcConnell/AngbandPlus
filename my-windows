@@ -5,12 +5,13 @@
 make clean
 make -j4
 cp src/poschengband.exe .
-if [ "$1" == "" ]; then
-    rm poschengband.zip
-    zip -r poschengband.zip lib -x Makefile \*.deps 
-    zip -r poschengband.zip poschengband.exe readme.txt
+if [ -n "$1" ]
+then
+    file=poschengband-"$1".zip
 else
-    rm poschengband-$1.zip
-    zip -r poschengband-$1.zip lib -x Makefile \*.deps 
-    zip -r poschengband-$1.zip poschengband.exe readme.txt
+    file=poschengband-"$(git describe)".zip
 fi
+
+rm $file
+find ./lib -name Makefile -prune -o -name .deps -prune -o -print | zip $file -@
+zip $file poschengband.exe readme.txt

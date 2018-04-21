@@ -562,6 +562,7 @@ vec_ptr quests_get_finished(void) { return _quests_get(_is_finished); }
 vec_ptr quests_get_failed(void) { return _quests_get(_is_failed); }
 vec_ptr quests_get_hidden(void) { return _quests_get(_is_hidden); }
 vec_ptr quests_get_random(void) { return _quests_get(_is_random); }
+typedef vec_ptr (*quests_get_f)(void);
 
 /************************************************************************
  * Quests: Randomize on Birth (from birth.c with slight mods)
@@ -1168,7 +1169,8 @@ static void _display_map(room_ptr room);
 void quests_wizard(void)
 {
     _ui_context_t context = {0};
-    context.quests = quests_get_all();
+    quests_get_f  qgf = quests_get_all; /* remember last filter after 'R' command */
+    context.quests = qgf();
 
     forget_lite(); /* resizing the term would redraw the map ... sigh */
     forget_view();
@@ -1206,31 +1208,36 @@ void quests_wizard(void)
         case 'R':
             quests_on_birth();
             vec_free(context.quests);
-            context.quests = quests_get_all();
+            context.quests = qgf();
             break;
         case KTRL('R'):
             vec_free(context.quests);
-            context.quests = quests_get_random();
+            qgf = quests_get_random;
+            context.quests = qgf();
             context.top = 0;
             break;
         case KTRL('A'):
             vec_free(context.quests);
-            context.quests = quests_get_active();
+            qgf = quests_get_active;
+            context.quests = qgf();
             context.top = 0;
             break;
         case KTRL('C'):
             vec_free(context.quests);
-            context.quests = quests_get_finished();
+            qgf = quests_get_finished;
+            context.quests = qgf();
             context.top = 0;
             break;
         case KTRL('F'):
             vec_free(context.quests);
-            context.quests = quests_get_failed();
+            qgf = quests_get_failed;
+            context.quests = qgf();
             context.top = 0;
             break;
         case '*':
             vec_free(context.quests);
-            context.quests = quests_get_all();
+            qgf = quests_get_all;
+            context.quests = qgf();
             context.top = 0;
             break;
         case KTRL('P'):
@@ -1319,14 +1326,13 @@ static void _display_menu(_ui_context_ptr context)
             doc_printf(doc, "%c) <color:%c>", I2A(i), _quest_color(quest));
             if ((quest->flags & QF_RANDOM) && quest->goal == QG_KILL_MON)
             {
+                string_ptr s = string_alloc_format("%-34.34s", r_name + r_info[quest->goal_idx].name);
                 if (quest->goal_count > 1)
-                {
-                    string_ptr s = string_alloc_format("%s (%d)", r_name + r_info[quest->goal_idx].name, quest->goal_count);
-                    doc_printf(doc, "%-40.40s ", string_buffer(s));
-                    string_free(s);
-                }
+                    string_printf(s, " (%d)", quest->goal_count);
                 else
-                    doc_printf(doc, "%-40.40s ", r_name + r_info[quest->goal_idx].name);
+                    string_printf(s, " (L%d)", r_info[quest->goal_idx].level);
+                doc_printf(doc, "%-40.40s ", string_buffer(s));
+                string_free(s);
             }
             else
                 doc_printf(doc, "%-40.40s ", quest->name);

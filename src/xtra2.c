@@ -3118,7 +3118,7 @@ void viewport_verify_aux(u32b options)
 void viewport_verify(void)
 {
     int options = 0;
-    if (center_player && (center_running || !running))
+    if (center_player && (center_running || (!running && !travel.run)))
         options |= VIEWPORT_FORCE_CENTER;
     viewport_verify_aux(options);
 }

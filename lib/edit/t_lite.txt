@@ -138,38 +138,6 @@ L:x:QUEST_ENTER(20)
 ?:[EQU $QUEST20 Taken Completed Failed]
 L:a:BUILDING_0(20)
 ?:[EQU $QUEST20 Finished FailedDone]
-L:a:BUILDING_0(25)
-?:1
-############### Quest 25 - Haunted House ##############
-?:[EQU $QUEST25 Taken]
-L:r:QUEST_ENTER(25)
-?:[EQU $QUEST25 Taken Completed Failed]
-L:a:BUILDING_0(25)
-?:[EQU $QUEST25 Finished FailedDone]
-L:a:BUILDING_0(36)
-?:1
-############### Quest 36 - The Sand Pit
-?:[EQU $QUEST36 Taken]
-L:S:QUEST_ENTER(36)
-?:[EQU $QUEST36 Taken Completed Failed]
-L:a:BUILDING_0(36)
-?:[EQU $QUEST36 Finished FailedDone]
-L:a:BUILDING_0(35)
-?:1
-############### Quest 35 - Dragon Quest
-?:[EQU $QUEST35 Taken]
-L:S:QUEST_ENTER(35)
-?:[EQU $QUEST35 Taken Completed Failed]
-L:a:BUILDING_0(35)
-?:[EQU $QUEST35 Finished FailedDone]
-L:a:BUILDING_0(34)
-?:1
-############### Quest 34 - The Mountain Shrine
-?:[EQU $QUEST34 Taken]
-L:F:QUEST_ENTER(34)
-?:[EQU $QUEST34 Taken Completed Failed]
-L:a:BUILDING_0(34)
-?:[EQU $QUEST34 Finished FailedDone]
 L:a:BUILDING_0(21)
 ?:1
 ############### Quest 21 - Doom Quest 2 ###############
@@ -205,6 +173,40 @@ L:y:QUEST_ENTER(30)
 L:k:BUILDING_10(30)
 ?:[EQU $QUEST30 Finished FailedDone]
 L:k:BUILDING_10(0)
+?:1
+
+############### Quest Chain 4 - Trump Tower (?!)
+############### Quest 25 - Haunted House
+?:[EQU $QUEST25 Taken]
+L:r:QUEST_ENTER(25)
+?:[EQU $QUEST25 Untaken Taken Completed Failed]
+L:n:BUILDING_13(25)
+?:[EQU $QUEST25 Finished FailedDone]
+L:n:BUILDING_13(36)
+?:1
+############### Quest 36 - The Sand Pit
+?:[EQU $QUEST36 Taken]
+L:S:QUEST_ENTER(36)
+?:[EQU $QUEST36 Taken Completed Failed]
+L:n:BUILDING_13(36)
+?:[EQU $QUEST36 Finished FailedDone]
+L:n:BUILDING_13(35)
+?:1
+############### Quest 35 - Dragon Quest
+?:[EQU $QUEST35 Taken]
+L:S:QUEST_ENTER(35)
+?:[EQU $QUEST35 Taken Completed Failed]
+L:n:BUILDING_13(35)
+?:[EQU $QUEST35 Finished FailedDone]
+L:n:BUILDING_13(34)
+?:1
+############### Quest 34 - The Mountain Shrine
+?:[EQU $QUEST34 Taken]
+L:F:QUEST_ENTER(34)
+?:[EQU $QUEST34 Taken Completed Failed]
+L:n:BUILDING_13(34)
+?:[EQU $QUEST34 Finished FailedDone]
+L:n:BUILDING_13(0)
 ?:1
 
 #################### Quest 10 - Node of Sorcery ####################
@@ -351,6 +353,7 @@ B:12:C:Paladin:Owner
 B:13:N:Trump Tower:Pelloi:Amberite
 B:13:A:0:Recall to dungeon:100:200:r:33:0
 B:13:A:1:Teleport to dungeon-level:100000:1000000:t:34:0
+B:13:A:2:Request quest:0:0:q:6:0
 B:13:M:*:None
 B:13:M:Trump:Owner
 

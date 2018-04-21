@@ -2302,6 +2302,9 @@ option_type option_info[] =
     { &display_distance,            FALSE,  OPT_PAGE_TEXT, 1, 4,
     "display_distance",             "Display distance in monster list" },
 
+    { &display_race,		        TRUE, OPT_PAGE_TEXT, 2, 29,
+    "display_race",                  "Player character depends on race" },
+
     /*** Game-Play ***/
 
     { &stack_force_notes,           TRUE,  OPT_PAGE_GAMEPLAY, 0, 8,
@@ -2453,6 +2456,9 @@ option_type option_info[] =
 
     { &quickband,                   FALSE, OPT_PAGE_BIRTH, 6, 27,
     "quickband",                    "Makes the game much shorter and easier" },
+
+    { &no_selling,                  FALSE, OPT_PAGE_BIRTH, 6, 28,
+    "no_selling",                   "Prohibit selling to shops" },
 
     /*** Easy Object Auto-Destroyer ***/
 

@@ -1816,14 +1816,21 @@ static int _draw_obj_list(_obj_list_ptr list, int top, rect_t rect)
         {
             feature_type *f_ptr = &f_info[info_ptr->idx];
             char          loc[100];
+            char          name[255];
 
             sprintf(loc, "%c%3d %c%3d",
                     (info_ptr->dy > 0) ? 'S' : 'N', abs(info_ptr->dy),
                     (info_ptr->dx > 0) ? 'E' : 'W', abs(info_ptr->dx));
 
+            sprintf(name, "%s", f_name + f_ptr->name);
+            if (have_flag(f_ptr->flags, FF_QUEST_ENTER))
+            {
+                int quest_id = cave[info_ptr->y][info_ptr->x].special;
+                sprintf(name + strlen(name), ": %s", quests_get_name(quest_id));
+            }
             Term_queue_bigchar(rect.x + 1, rect.y + i, f_ptr->x_attr[F_LIT_STANDARD], f_ptr->x_char[F_LIT_STANDARD], 0, 0);
             c_put_str(use_graphics ? f_ptr->d_attr[F_LIT_STANDARD] : f_ptr->x_attr[F_LIT_STANDARD],
-                format(obj_fmt, f_name + f_ptr->name), rect.y + i, rect.x + 3);
+                format(obj_fmt, name), rect.y + i, rect.x + 3);
             c_put_str(TERM_WHITE, format("%-9.9s ", loc), rect.y + i, rect.x + 3 + cx_obj + 1);
         }
         else

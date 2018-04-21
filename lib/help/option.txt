@@ -217,6 +217,9 @@ Setting this option to yes alters the display of experience on the left of the m
 
 <topic:ignore_unview><color:U>Ignore actions of out of sight monsters</color> <color:D>(ignore_unview)</color>
 With this option, you won't receive messages when out of sight monsters fight one another. This is useful if you are playing with lots of pets and don't wish to read a blow by blow account of the battle raging around you.
+
+<topic:display_race><color:U>Player character depends on their race</color> <color:D>(display_race)</color>
+With this option a player who plays as a Quylthulg, for example, will be represented by a Q. If the option is turned off the player will always be @. 
 </indent>
 <topic:GamePlay><style:heading>Game Play Options</style>
   <indent>

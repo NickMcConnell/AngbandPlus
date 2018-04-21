@@ -43,12 +43,16 @@
   (ALT: For development, doing an install is undesirable. Try the following instead:
     $ sudo apt-get install clang-3.5 llvm-3.5
     $ sh autogen.sh
-    $ ./configure CFLAGS=-fsanitize=address LDFLAGS=-fsanitize=address --with-no-install CC=clang-3.5
+    $ ./configure SANITIZE_FLAGS=-fsanitize=address --with-no-install CC=clang-3.5
     $ make clean
     $ make -j4
     $ cp src/poschengband .
     $ ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-3.5 ./poschengband -g -u<Savefile> -- -n1
     
+    Note: Never pass sanitizer flags to CFLAGS as sanitizing configure causes it to fail.
+    Instead, configure will append SANITIZE_FLAGS to CFLAGS and LDFLAGS once it has finished
+    generating test programs. (see configure.ac)
+
     Note, you need to remember to copy the executable up after every build (TODO: Fix Makefile to do this!)
     Also, I like to develop with the address sanitizer enabled at all times. This works best with clang as
     your compiler, rather than gcc. Of course, 3.5 should be replaced with latest version of clang.).

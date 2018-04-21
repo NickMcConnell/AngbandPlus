@@ -1576,8 +1576,8 @@ race_t *dwarf_get_race(void)
         me.desc = "Dwarves are the headstrong miners and fighters of legend. Dwarves tend to be stronger "
                     "and tougher but slower and less intelligent than humans. Because they are so headstrong "
                     "and are somewhat wise, they resist spells which are cast on them. They are very good "
-                    "at searching, perception, fighting, and bows. Dwarves  have miserable stealth. They "
-                    "can never be blinded.";
+                    "at searching, perception, fighting, and bows. Dwarves have miserable stealth. They "
+                    "resist being blinded.";
 
         me.stats[A_STR] =  2;
         me.stats[A_INT] = -2;
@@ -1649,7 +1649,8 @@ race_t *ent_get_race(void)
                     "animals or plants who inhabit Arda. Spirits of the land, they were summoned to "
                     "guard the forests of Middle-earth. Being much like trees they are very clumsy but "
                     "strong, and very susceptible to fire. They gain very little nutrition from the food "
-                    "of mortals, but they can absorb water from potions as their nutrition.";
+                    "of mortals, but they can absorb water from potions as their nutrition. Finally, they "
+                    "can summon the trees of the forest to their side.";
 
         me.skills.dis = -5;
         me.skills.dev =  2;

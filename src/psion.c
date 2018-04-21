@@ -1991,7 +1991,9 @@ static void _calc_bonuses(void)
 
     if (p_ptr->magic_num1[_SPEED])
     {
-        if (!p_ptr->fast)
+        if (IS_FAST())
+            p_ptr->pspeed += MAX(4*p_ptr->magic_num2[_SPEED] - 10, 0);
+        else
             p_ptr->pspeed += 4*p_ptr->magic_num2[_SPEED];
     }
     if (p_ptr->magic_num1[_FORTRESS])

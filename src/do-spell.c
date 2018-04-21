@@ -1073,12 +1073,6 @@ static cptr do_life_spell(int spell, int mode)
             if (cast)
             {
                 set_food(PY_FOOD_MAX - 1);
-                if (p_ptr->fasting)
-                {
-                    msg_print("You break your fast.");
-                    p_ptr->redraw |= PR_STATUS;
-                    p_ptr->fasting = FALSE;
-                }
             }
         }
         break;
@@ -1138,7 +1132,7 @@ static cptr do_life_spell(int spell, int mode)
 
     case 11:
         if (name) return "Resist Heat and Cold";
-        if (desc) return "Gives resistance to fire and cold. These resistances can be added to which from equipment for more powerful resistances.";
+        if (desc) return "Gives resistance to fire and cold.";
 
         {
             int base = spell_power(20);
@@ -2173,7 +2167,7 @@ static cptr do_nature_spell(int spell, int mode)
 
     case 6:
         if (name) return "Resist Environment";
-        if (desc) return "Gives resistance to fire, cold and electricity for a while. These resistances can be added to which from equipment for more powerful resistances.";
+        if (desc) return "Gives resistance to fire, cold and electricity for a while.";
 
         {
             int base = spell_power(20);
@@ -2421,7 +2415,7 @@ static cptr do_nature_spell(int spell, int mode)
 
     case 18:
         if (name) return "Resistance True";
-        if (desc) return "Gives resistance to fire, cold, electricity, acid and poison for a while. These resistances can be added to which from equipment for more powerful resistances.";
+        if (desc) return "Gives resistance to fire, cold, electricity, acid and poison for a while.";
 
         {
             int base = spell_power(20);
@@ -3501,7 +3495,7 @@ static cptr do_death_spell(int spell, int mode)
 
     case 5:
         if (name) return "Undead Resistance";
-        if (desc) return "Gives resistance to poison and cold. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to poison and cold.";
 
         {
             int base = spell_power(20);
@@ -4958,7 +4952,7 @@ static cptr do_arcane_spell(int spell, int mode)
 
     case 14:
         if (name) return "Resist Cold";
-        if (desc) return "Gives resistance to cold. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to cold.";
 
         {
             int base = spell_power(20);
@@ -4974,7 +4968,7 @@ static cptr do_arcane_spell(int spell, int mode)
 
     case 15:
         if (name) return "Resist Fire";
-        if (desc) return "Gives resistance to fire. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to fire.";
 
         {
             int base = spell_power(20);
@@ -4990,7 +4984,7 @@ static cptr do_arcane_spell(int spell, int mode)
 
     case 16:
         if (name) return "Resist Lightning";
-        if (desc) return "Gives resistance to electricity. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to electricity.";
 
         {
             int base = spell_power(20);
@@ -5006,7 +5000,7 @@ static cptr do_arcane_spell(int spell, int mode)
 
     case 17:
         if (name) return "Resist Acid";
-        if (desc) return "Gives resistance to acid. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to acid.";
 
         {
             int base = spell_power(20);
@@ -5139,7 +5133,7 @@ static cptr do_arcane_spell(int spell, int mode)
 
     case 25:
         if (name) return "Resist Poison";
-        if (desc) return "Gives resistance to poison. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to poison.";
 
         {
             int base = spell_power(20);
@@ -5398,7 +5392,7 @@ static cptr do_craft_spell(int spell, int mode)
 
     case 3:
         if (name) return "Resist Cold";
-        if (desc) return "Gives resistance to cold. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to cold.";
 
         {
             int base = spell_power(20);
@@ -5414,7 +5408,7 @@ static cptr do_craft_spell(int spell, int mode)
 
     case 4:
         if (name) return "Resist Fire";
-        if (desc) return "Gives resistance to fire. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to fire.";
 
         {
             int base = spell_power(20);
@@ -5446,7 +5440,7 @@ static cptr do_craft_spell(int spell, int mode)
 
     case 6:
         if (name) return "Resist Lightning";
-        if (desc) return "Gives resistance to electricity. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to electricity.";
 
         {
             int base = spell_power(20);
@@ -5462,7 +5456,7 @@ static cptr do_craft_spell(int spell, int mode)
 
     case 7:
         if (name) return "Resist Acid";
-        if (desc) return "Gives resistance to acid. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to acid.";
 
         {
             int base = spell_power(20);
@@ -5505,7 +5499,7 @@ static cptr do_craft_spell(int spell, int mode)
 
     case 10:
         if (name) return "Resist Poison";
-        if (desc) return "Gives resistance to poison. This resistance can be added to which from equipment for more powerful resistance.";
+        if (desc) return "Gives resistance to poison.";
 
         {
             int base = spell_power(20);
@@ -5627,7 +5621,7 @@ static cptr do_craft_spell(int spell, int mode)
 
     case 18:
         if (name) return "Resistance";
-        if (desc) return "Gives resistance to fire, cold, electricity, acid and poison for a while. These resistances can be added to which from equipment for more powerful resistances.";
+        if (desc) return "Gives resistance to fire, cold, electricity, acid and poison for a while.";
 
         {
             int base = spell_power(20);
@@ -5916,7 +5910,7 @@ static cptr do_daemon_spell(int spell, int mode)
 
     case 3:
         if (name) return "Resist Fire";
-        if (desc) return "Gives resistance to fire for a while. This resistance can be added to which from equipment for more powerful resistances.";
+        if (desc) return "Gives resistance to fire for a while.";
 
         {
             int base = spell_power(20);
@@ -6205,7 +6199,7 @@ static cptr do_daemon_spell(int spell, int mode)
 
     case 17:
         if (name) return "Devilish Cloak";
-        if (desc) return "Gives resistance to fire, acid and poison as well as an aura of fire. These resistances can be added to which from equipment for more powerful resistances.";
+        if (desc) return "Gives resistance to fire, acid and poison as well as an aura of fire.";
 
         {
             int base = spell_power(20);
@@ -7532,7 +7526,7 @@ static cptr do_music_spell(int spell, int mode)
 
     case 17:
         if (name) return "Finrod's Resistance";
-        if (desc) return "Gives resistance to fire, cold, electricity, acid and poison. These resistances can be added to which from equipment for more powerful resistances.";
+        if (desc) return "Gives resistance to fire, cold, electricity, acid and poison.";
 
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();

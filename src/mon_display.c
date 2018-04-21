@@ -815,6 +815,12 @@ static void _display_other(monster_race *r_ptr, doc_ptr doc)
     int        ct = 0;
     vec_ptr    v = vec_alloc((vec_free_f)string_free);
 
+    if (r_ptr->flags2 & RF2_KILL_WALL)
+        vec_add(v, string_copy_s("<color:U>Eats Walls</color>"));
+
+    if (r_ptr->flags2 & RF2_PASS_WALL)
+        vec_add(v, string_copy_s("<color:B>Passes through Walls</color>"));
+
     if (r_ptr->flags2 & RF2_REFLECTING)
         vec_add(v, string_copy_s("<color:o>Reflection</color>"));
 

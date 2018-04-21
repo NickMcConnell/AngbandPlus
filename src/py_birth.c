@@ -343,6 +343,18 @@ static void _set_mode(int mode)
             _stats_init();
         }
     }
+    if ((first || game_mode != mode) && mode == previous_char.game_mode && previous_char.quick_ok)
+    {
+        p_ptr->prace = previous_char.prace;
+        p_ptr->psubrace = previous_char.psubrace;
+        p_ptr->pclass = previous_char.pclass;
+        p_ptr->psubclass = previous_char.psubclass;
+        p_ptr->personality = previous_char.personality;
+        p_ptr->realm1 = previous_char.realm1;
+        p_ptr->realm2 = previous_char.realm2;
+        p_ptr->dragon_realm = previous_char.dragon_realm;
+        _stats_init();
+    }
     game_mode = mode;
     first = FALSE;
 }

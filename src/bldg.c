@@ -1502,7 +1502,7 @@ static bool kakutoujou(void)
             char buf[80];
             monster_race *r_ptr = &r_info[battle_mon[i]];
 
-            sprintf(buf,"%d) %-58s  %4ud.%02ud", i+1, format("%s%s", r_name + r_ptr->name, (r_ptr->flags1 & RF1_UNIQUE) ? " (clone)" : ""), mon_odds[i]/100, mon_odds[i]%100);
+            sprintf(buf,"%d) %-58s  %4u.%02u", i+1, format("%s%s", r_name + r_ptr->name, (r_ptr->flags1 & RF1_UNIQUE) ? " (clone)" : ""), mon_odds[i]/100, mon_odds[i]%100);
             prt(buf, 5+i, 1);
         }
 
@@ -3550,17 +3550,16 @@ void do_cmd_quest(void)
     }
     else
     {
-        msg_print("There is an entry of a quest.");
+        int quest_id = cave[py][px].special;
+        msg_format("This is the entrance to the quest: <color:B>%s</color>.",
+            quests_get_name(quest_id));
         if (!get_check("Do you enter? ")) return;
 
         /* Player enters a new quest XXX */
         p_ptr->oldpy = py;
         p_ptr->oldpx = px;
 
-        /* XXX
-        dun_level = 1; */
-
-        enter_quest = cave[py][px].special;
+        enter_quest = quest_id;
         p_ptr->leaving = TRUE;
     }
 }

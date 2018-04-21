@@ -30,6 +30,9 @@
 ?:[EQU $SYS gcu]
 %:pref-gcu.prf
 
+?:[EQU $SYS sdl]
+%:pref-sdl.prf
+
 ?:[EQU $SYS ami]
 %:pref-ami.prf
 

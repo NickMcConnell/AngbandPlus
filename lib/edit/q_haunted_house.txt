@@ -1,17 +1,14 @@
 # Haunted House, (C) Topi Ylinen 1999
+# updated by clouded
+# I added a Dread to make it more challenging
+
 ?:[EQU $QUEST25 Taken InProgress]
 D:There is something evil going on in the old, thatched house
 D:near the south-west corner of the city wall. People say that
 D:the house is haunted and refuse to go near it. We need someone
 D:to exorcise the evil spirits that are infesting the house.
-?:1
-
 ?:[EQU $QUEST25 Completed]
 D:Well done, indeed! Our citizens can finally sigh in relief.
-D:As a reward, we would like to give you something that will
-D:help you banish the forces of evil even more efficiently!
-?:1
-
 ?:[EQU $QUEST25 Failed]
 D:Bah, what a loser!
 D:Fortunately, a bunch of pilgrims who were passing by turned
@@ -22,41 +19,30 @@ D:try to find them: you could learn a thing or two!
 ?:1
 
 T:QUEST:NORMAL
-L:#:PERMANENT
-L:%:GRANITE
+L:X:PERMANENT
+L:#:GRANITE
 L:+:CLOSED_DOOR
 L:.:FLOOR
-L:~:DEEP_WATER
-L:!:TRAP(*, 25):OBJ(*, DEPTH+10)
-L:^:TRAP(*)
 L:<:UP_STAIR
-L:Z:MON(hound of tindalos)
-L:?:MON(raal's)
-L:I:MON(ipsissimus)
-L:Q:MON(nexus q)
-L:S:MON(shadow demon)
-L:>:MON(stairway to hell)
-L:j:MON(hand druj)
-L:t:MON(skeletal tyrannosaurus)
-L:T:MON(spectral tyrannosaurus)
-L:m:MON(undead mass):TRAP(*)
-L:C:MON(spectre)
-L:V:MON(^vampire$)
-M:###############################
-M:#..+!..+^^^m^^m^^^+...........#
-M:#..#.t.#^^^^^^^^^^#...........#
-M:#!#################...........#
-M:#+#...............#.!!!!!!!!!.#
-M:#.................#.!#######!.#
-M:#..###..........~~#.!#######!.#
-M:#.##Z#..........~I#.!!!!!!!!!.#
-M:#.#..#.~~~~.~~~.~I#...........#
-M:#+#%##.~?Q~.~Q~.~I#T..........#
-M:#..###+####+###+########+######
-M:#..#^....#SSS#...#j+^^^^^^^^+!#
-M:#..#..!..#SSS#.!.###^......^###
-M:#<.#C...C#SSS#.V.#!+^^^^^^^^+>#
-M:###############################
-R:OBJ(STAFF_HOLINESS)
+L:M:MON(moaning spirit)
+L:B:MON(banshee)
+L:G:MON(^ghost$)
+L:S:MON(spectre)
+L:D:MON(^dread$)
+M:XXXXXXXXXXXXXXXXXXXX
+M:X##################X
+M:X#......#B.......G#X
+M:X#.####.###.....###X
+M:X#.#M.#.#B.......B#X
+M:X#.#..+.#####+#####X
+M:X#+####.........###X
+M:X#..###.........#D#X
+M:X#..###+####+####+#X
+M:X#..#.....#...#...#X
+M:X#..#.M.M.#.G.+.S.#X
+M:X#<.#.....#...#...#X
+M:X##################X
+M:XXXXXXXXXXXXXXXXXXXX
+R:OBJ(RING):EGO(combat)
 
 # vim: filetype=q :

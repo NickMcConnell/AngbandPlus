@@ -2684,7 +2684,7 @@ D:that had been frozen and thawed before it was fully baked. It was -
 D:'It is the Borshin', said the Lord of Bats."
 
 N:178:Dark elven mage
-G:h:v
+G:h:r
 I:120:7d10:20:16:20:150
 W:10:1:40:50:700:375
 M:5:15
@@ -2703,7 +2703,7 @@ O:DROP_MAGE
 D:A dark elven figure, dressed all in black, hurling spells at you.
 
 N:179:Kamikaze yeek
-G:y:u
+G:y:R
 I:113:4d8:18:18:10:90
 W:10:1:40:10:0:0
 B:EXPLODE:HURT:15d2
@@ -3292,7 +3292,7 @@ D:The shaman of a skaven tribe gets his powers from a mystic
 D:stone corrupted by chaos, called a Warp Stone.
 
 N:218:Gazer
-G:e:b
+G:e:G
 I:110:9d9:15:18:40:50
 W:12:1:50:40:300:488
 B:GAZE:PARALYZE:1d2
@@ -5646,7 +5646,7 @@ D:suppleness. There was a loud hissing of formulae as they
 D:went to and fro."
 
 N:365:Vampiric mist
-G:#:D
+G:#:b
 I:110:10d8:12:55:10:10
 W:22:1:60:40:0:0
 B:ENGULF:EXP_VAMP:2d6
@@ -5956,7 +5956,7 @@ O:DROP_DWARF
 D:Alberich's son, born of a mortal woman won with gold.
 
 N:384:Meneldor the Swift
-G:B:u
+G:B:b
 I:140:13d100:20:65:20:120
 W:38:1:999:7000:0:0
 B:CLAW:HURT:7d5
@@ -6258,7 +6258,7 @@ O:DROP_WARRIOR
 D:He is a giant troll with scabrous black skin.
 
 N:402:Black
-G:j:d
+G:j:D
 I:111:14d14:12:65:30:50
 W:25:3:60:50:0:0
 B:ENGULF:EXP_VAMP:2d6
@@ -6367,7 +6367,7 @@ P:Body:Ant
 D:It is an ant encased in shaggy grey fur.
 
 N:409:Kharis the Powerslave
-G:z:u
+G:z:v
 I:110:85d11:20:40:40:150
 W:26:4:999:500:0:0
 B:GAZE:TERRIFY
@@ -6386,7 +6386,7 @@ S:S_KIN | ANIM_DEAD
 D:He is out to have a revenge on you who have desecrated his tomb.
 
 N:410:Gwaihir the Windlord
-G:B:u
+G:B:B
 I:142:15d100:20:65:20:150
 W:40:1:999:8000:0:0
 B:CLAW:HURT:15d5
@@ -7399,7 +7399,7 @@ P:Body:Fish
 D:The biggest white shark who has ever lived, it is hunting for you now!
 
 N:468:Thorondor
-G:B:u
+G:B:v
 I:142:30d100:20:65:20:150
 W:55:1:999:22222:0:0
 B:CLAW:HURT:16d5
@@ -9368,7 +9368,7 @@ D:It is a fast, deadly dragonoid creature. It was bred and trained
 D:in the Courts of Chaos for assassination.
 
 N:577:Crypt thing
-G:L:B
+G:L:b
 I:120:160d5:20:60:60:125
 W:37:3:80:2000:10000:658
 B:TOUCH:EXP_40
@@ -9711,7 +9711,7 @@ S:BRAIN_SMASH | CONF | SCARE | FORGET | TELE_TO | TELE_AWAY | SHRIEK
 D:A vastly intelligent whale from the stars.
 
 N:595:Father Dagon
-G:u:g
+G:u:v
 I:120:19d99:12:80:50:500
 W:38:3:999:3250:0:0
 B:CLAW:POISON:8d4
@@ -9731,7 +9731,7 @@ D:The king of the deep ones. "Vast, Polyphemous-like, and loathsome, it
 D:darted like a stupendous monster of nightmares..."
 
 N:596:Mother Hydra
-G:u:g
+G:u:v
 I:120:19d99:12:80:50:500
 W:38:3:999:3250:0:0
 B:CLAW:POISON:8d4
@@ -10007,7 +10007,7 @@ S:BO_PLAS
 D:A minor demon lord with a goat's head, tough to kill.
 
 N:610:Scylla
-G:M:G
+G:M:y
 I:125:100d15:20:90:20:500
 W:39:2:999:3500:0:0
 B:BITE:POISON:10d3
@@ -10927,7 +10927,7 @@ D:Another Dark Judge, he is a rotting humanoid with a cow's skull as
 D:his head.
 
 N:657:Dark elven sorceror
-G:h:v
+G:h:B
 I:130:80d10:20:70:10:150
 W:41:2:999:5000:30000:886
 B:HIT:HURT:2d8
@@ -11498,7 +11498,7 @@ O:DROP_WARRIOR
 D:A frost giant chieftain, unusually smart for a giant.
 
 N:684:Quachil Uttaus, Treader of the Dust
-G:z:D
+G:z:B
 I:120:50d66:30:80:15:30
 W:44:3:999:20000:0:0
 B:CLAW:HURT:50d1
@@ -11633,7 +11633,7 @@ D:spells.
 P:Copy:Dark-Elf:Priest
 
 N:690:Dreadmaster
-G:G:o
+G:G:y
 I:120:12d100:20:100:10:120
 W:44:2:999:8000:30000:774
 B:HIT:HURT:6d6
@@ -13017,7 +13017,7 @@ D:In the bowels of Hel, the dread Nidhogg, a dragon blacker than the
 D:night, feasts on the essences of the dead.
 
 N:754:The Lernean Hydra
-G:M:G
+G:M:B
 I:120:45d100:20:140:20:1000
 W:55:2:999:20000:0:0
 B:BITE:POISON:8d6

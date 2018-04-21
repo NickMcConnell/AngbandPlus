@@ -3,9 +3,14 @@ if [ "$1" == "mingw" ]; then
     ./configure CFLAGS="-DNDEBUG -O2" --enable-win --disable-curses --build=i686-pc-linux-gnu \
         --host=i586-mingw32msvc --with-no-install
 elif [ "$1" == "gcc" ]; then
-    ./configure --with-no-install
+    ./configure --enable-sdl --with-no-install
+elif [ "$1" == "clang" ]; then
+    # Note: Never pass sanitizer flags to CFLAGS as sanitizing configure causes it to fail.
+    # Instead, configure will append SANITIZE_FLAGS to CFLAGS and LDFLAGS once it has finished
+    # generating test programs. (see configure.ac)
+    ./configure SANITIZE_FLAGS="-fsanitize=undefined -fsanitize=address" \
+        CC=clang-3.8 --enable-sdl --with-no-install
 else
-    ./configure CFLAGS="-fsanitize=undefined -fsanitize=address -fstandalone-debug" \
-        LDFLAGS=-fsanitize=address --with-no-install CC=clang-3.8
+    echo "Specify target: mingw, gcc or clang"
 fi
 

@@ -1169,7 +1169,7 @@ void resistance_spell(int cmd, variant *res)
         var_set_string(res, "Resistance");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Gives resistance to fire, cold, electricity, acid and poison for a while. These resistances can be added to which from equipment for more powerful resistances.");
+        var_set_string(res, "Gives resistance to fire, cold, electricity, acid and poison for a while.");
         break;
     case SPELL_CAST:
     {
@@ -1272,7 +1272,7 @@ void resist_environment_spell(int cmd, variant *res)
         var_set_string(res, "Resist Environment");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Gives resistance to fire, cold and electricity for a while. These resistances can be added to which from equipment for more powerful resistances.");
+        var_set_string(res, "Gives resistance to fire, cold and electricity for a while.");
         break;
     case SPELL_INFO:
         var_set_string(res, info_duration(base, base));
@@ -1322,7 +1322,7 @@ void resist_heat_cold_spell(int cmd, variant *res)
         var_set_string(res, "Resist Heat and Cold");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Gives resistance to fire and cold. These resistances can be added to which from equipment for more powerful resistances.");
+        var_set_string(res, "Gives resistance to fire and cold.");
         break;
     case SPELL_INFO:
         var_set_string(res, info_duration(base, base));

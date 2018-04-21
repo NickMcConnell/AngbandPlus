@@ -495,13 +495,6 @@ void do_cmd_eat_food(void)
     if (!prompt.obj) return;
 
     do_cmd_eat_food_aux(prompt.obj);
-
-    if (p_ptr->fasting)
-    {
-        msg_print("You break your fast.");
-        p_ptr->redraw |= PR_STATUS;
-        p_ptr->fasting = FALSE;
-    }
 }
 
 
@@ -702,13 +695,6 @@ void do_cmd_quaff_potion(void)
     if (!prompt.obj) return;
 
     do_cmd_quaff_potion_aux(prompt.obj);
-
-    if (p_ptr->fasting)
-    {
-        msg_print("You break your fast.");
-        p_ptr->redraw |= PR_STATUS;
-        p_ptr->fasting = FALSE;
-    }
 }
 
 
@@ -986,6 +972,7 @@ static void do_cmd_device_aux(obj_ptr obj)
     {
         if (flush_failure) flush();
         msg_print("The device has no charges left.");
+        energy_use = 0;
         return;
     }
 

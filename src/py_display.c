@@ -2096,7 +2096,7 @@ static void _build_options(doc_ptr doc)
         doc_printf(doc, " Easy Lore:          On\n");
 
     if (quickband)
-        doc_printf(doc, " Quickband:          On\n");
+        doc_printf(doc, " <color:r>Quickband</color>:          On\n");
 
     if (no_wilderness)
         doc_printf(doc, " Wilderness:         Off\n");
@@ -2108,24 +2108,27 @@ static void _build_options(doc_ptr doc)
         doc_printf(doc, " Diving Only:        On\n");
 
     if (ironman_rooms)
-        doc_printf(doc, " Unusual Rooms:      On\n");
+        doc_printf(doc, " <color:r>Unusual Rooms</color>:      On\n");
 
     if (ironman_nightmare)
-        doc_printf(doc, " Nightmare Mode:     On\n");
+        doc_printf(doc, " <color:v>Nightmare Mode</color>:     On\n");
 
     doc_printf(doc, " Arena Levels:       %s\n", ironman_empty_levels ? "*Always*" :
                                                     empty_levels ? "Sometimes" : "Never");
 
     if (no_artifacts)
-        doc_printf(doc, " No Artifacts:       Enabled\n");
+        doc_printf(doc, " No Artifacts:       On\n");
     else if (random_artifacts)
         doc_printf(doc, " Random Artifacts:   %d%%\n", random_artifact_pct);
 
     if (no_egos)
-        doc_printf(doc, " No Egos:            Enabled\n");
+        doc_printf(doc, " No Egos:            On\n");
 
     if (reduce_uniques)
         doc_printf(doc, " Reduce Uniques:     %d%%\n", reduce_uniques_pct);
+
+    if (no_selling)
+        doc_printf(doc, " No Selling:         On\n");
 
     if (p_ptr->noscore)
         doc_printf(doc, "\n <color:v>You have done something illegal.</color>\n");

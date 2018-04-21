@@ -1502,12 +1502,6 @@ void eat_rock_spell(int cmd, variant *res)
                 set_food(p_ptr->food + 10000);
             }
         }
-        if (p_ptr->fasting)
-        {
-            msg_print("You break your fast.");
-            p_ptr->redraw |= PR_STATUS;
-            p_ptr->fasting = FALSE;
-        }
 
         /* Destroy the wall */
         cave_alter_feat(y, x, FF_HURT_ROCK);

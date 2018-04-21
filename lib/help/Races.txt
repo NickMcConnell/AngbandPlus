@@ -107,7 +107,7 @@ Base HP       19        Bows        <color:b>Heroic       </color>
 Experience   190%       Infravision 40'
 </style></indent>
 <topic:Wood-Elf><color:o>Wood-Elf</color>
-Wood-Elves are the most common of elves. They prefer the seclusion of thick forests and are unhampered when moving through dense foliage. Their skills with tracking and bow are unsurpassed.
+Wood-Elves are the most common of elves. They prefer the seclusion of thick forests and are unhampered when moving through dense foliage. Their skills with tracking and bow are unsurpassed, and as they advance they gain the power of Nature Awareness.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      -1        Disarming   <color:y>Good         </color>
@@ -123,7 +123,7 @@ Experience   125%       Infravision 30'
 </indent>
 <style:heading>Hobbits/Dwarves</style>
   <indent><topic:Dwarf><color:o>Dwarf</color>
-Dwarves are the headstrong miners and fighters of legend. Dwarves tend to be stronger and tougher but slower and less intelligent than humans. Because they are so headstrong and are somewhat wise, they resist spells which are cast on them. They are very good at searching, perception, fighting, and bows. Dwarves  have miserable stealth. They can never be blinded.
+Dwarves are the headstrong miners and fighters of legend. Dwarves tend to be stronger and tougher but slower and less intelligent than humans. Because they are so headstrong and are somewhat wise, they resist spells which are cast on them. They are very good at searching, perception, fighting, and bows. Dwarves have miserable stealth. They resist being blinded.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +2        Disarming   <color:o>Fair         </color>
@@ -165,7 +165,7 @@ Base HP       14        Bows        <color:g>Superb       </color>
 Experience   120%       Infravision 40'
 </style></indent>
 <topic:Nibelung><color:o>Nibelung</color>
-The hated and persecuted race of nocturnal dwarves, these cave-dwellers are not much bothered by darkness. Their natural inclination to magical items has made them immune to effects which could drain away magical energy.
+The hated and persecuted race of nocturnal dwarves, these cave-dwellers are not much bothered by darkness. Their natural inclination to magical items has made them resistant to effects which could disenchant magical energy.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +1        Disarming   <color:o>Fair         </color>
@@ -485,7 +485,7 @@ Base HP       12        Bows        <color:D>Very Bad     </color>
 Experience   150%       Infravision 0'
 </style></indent>
 <topic:Ent><color:o>Ent</color>
-The Ents are a powerful race dating from the beginning of the world, oldest of all animals or plants who inhabit Arda. Spirits of the land, they were summoned to guard the forests of Middle-earth. Being much like trees they are very clumsy but strong, and very susceptible to fire. They gain very little nutrition from the food of mortals, but they can absorb water from potions as their nutrition.
+The Ents are a powerful race dating from the beginning of the world, oldest of all animals or plants who inhabit Arda. Spirits of the land, they were summoned to guard the forests of Middle-earth. Being much like trees they are very clumsy but strong, and very susceptible to fire. They gain very little nutrition from the food of mortals, but they can absorb water from potions as their nutrition. Finally, they can summon the trees of the forest to their side.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +2        Disarming   <color:r>Bad          </color>
@@ -513,7 +513,7 @@ Base HP       23        Bows        <color:R>Poor         </color>
 Experience   185%       Infravision 40'
 </style></indent>
 <topic:Klackon><color:o>Klackon</color>
-Klackons are bizarre semi-intelligent ant-like insectoid creatures. They make great fighters, but their mental abilities are severely limited. Obedient and well-ordered, they can never be confused. They are also very nimble, and become faster as they advance levels. They are also very acidic, inherently resisting acid, and capable of spitting acid at higher levels.
+Klackons are bizarre semi-intelligent ant-like insectoid creatures. They make great fighters, but their mental abilities are severely limited. Obedient and well-ordered, they are resistant to confusion. They are also very nimble, and become faster as they advance levels. They are also very acidic, inherently resisting acid, and capable of spitting acid at higher levels.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +2        Disarming   <color:G>Excellent    </color>
@@ -527,7 +527,7 @@ Base HP       23        Bows        <color:y>Good         </color>
 Experience   170%       Infravision 20'
 </style></indent>
 <topic:Kutar><color:o>Kutar</color>
-A Kutar is an expressionless animal-like living creature. The word 'kuta' means 'absentmindedly' or 'vacantly'. Their absentmindedness hurts their searching and perception skills, but renders them incapable of being confused. Their unearthly calmness and serenity make them among the most stealthy of any race. Kutars, although expressionless, are beautiful and so have a high charisma. Members of this race can learn to expand their body horizontally. This increases armour class, but renders them vulnerable to magical attacks.
+A Kutar is an expressionless animal-like living creature. The word 'kuta' means 'absentmindedly' or 'vacantly'. Their absentmindedness hurts their searching and perception skills, but renders them resistant to being confused. Their unearthly calmness and serenity make them among the most stealthy of any race. Kutars, although expressionless, are beautiful and so have a high charisma. Members of this race can learn to expand their body horizontally. This increases armour class, but renders them vulnerable to magical attacks.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +0        Disarming   <color:r>Bad          </color>

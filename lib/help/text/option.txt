@@ -434,6 +434,11 @@ Text Display Options
   lots of pets and don't wish to read a blow by blow account of the 
   battle raging around you.
   
+  Player character depends on their race (display_race)
+  With this option a player who plays as a Quylthulg, for example, will 
+  be represented by a Q. If the option is turned off the player will 
+  always be @. 
+  
 Game Play Options
   
   Merge inscriptions when stacking (stack_force_notes)

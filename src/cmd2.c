@@ -4089,7 +4089,10 @@ void travel_end(void)
             travel_cancel();
     }
     else
+    {
         travel.mode = TRAVEL_MODE_NORMAL;
+        if (center_player && !center_running) viewport_verify();
+    }
 }
 
 void do_cmd_travel(void)

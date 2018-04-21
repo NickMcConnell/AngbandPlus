@@ -737,7 +737,7 @@ static obj_ptr _get_spellbook(int mode)
 void do_cmd_cast(void)
 {
     obj_ptr      book;
-    int          spell, realm;
+    int          spell;
     int          chance;
     int          increment = 0;
     int          use_realm;
@@ -798,21 +798,16 @@ void do_cmd_cast(void)
     object_kind_track(book->k_idx);
     handle_stuff();
 
-    if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_RED_MAGE)
-        realm = book->tval - TV_LIFE_BOOK + 1;
-    else if (increment) realm = p_ptr->realm2;
-    else realm = p_ptr->realm1;
+    use_realm = tval2realm(book->tval);
 
     /* Ask for a spell */
-    if (!get_spell(&spell, mp_ptr->spell_book == TV_LIFE_BOOK ? "recite" : "cast",
-        book->sval, TRUE, realm))
+    if (!get_spell(&spell, (mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast",
+        book->sval, TRUE, use_realm))
     {
         if (spell == -2)
             msg_format("You don't know any %ss in that book.", prayer);
         return;
     }
-
-    use_realm = tval2realm(book->tval);
 
     /* Hex */
     if (use_realm == REALM_HEX)
@@ -830,11 +825,11 @@ void do_cmd_cast(void)
     }
     else
     {
-        s_ptr = &mp_ptr->info[realm - 1][spell];
+        s_ptr = &mp_ptr->info[use_realm - 1][spell];
     }
 
     /* Extract mana consumption rate */
-    need_mana = mod_need_mana(s_ptr->smana, spell, realm);
+    need_mana = mod_need_mana(s_ptr->smana, spell, use_realm);
 
     /* Verify "dangerous" spells */
     if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
@@ -897,12 +892,12 @@ void do_cmd_cast(void)
     {
         if (flush_failure) flush();
 
-        msg_format("You failed to cast %s!", do_spell(increment ? p_ptr->realm2 : p_ptr->realm1, spell % 32, SPELL_NAME));
+        msg_format("You failed to cast %s!", do_spell(use_realm, spell % 32, SPELL_NAME));
 
         if (take_mana && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
             p_ptr->csp += take_mana/2;
 
-        spell_stats_on_fail_old(realm, spell);
+        spell_stats_on_fail_old(use_realm, spell);
         sound(SOUND_FAIL);
 
         if (caster_ptr && caster_ptr->on_fail != NULL)
@@ -916,10 +911,10 @@ void do_cmd_cast(void)
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
             take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard", -1);
 
-        virtue_on_fail_spell(realm, chance);
+        virtue_on_fail_spell(use_realm, chance);
 
         /* Failure casting may activate some side effect */
-        do_spell(realm, spell, SPELL_FAIL);
+        do_spell(use_realm, spell, SPELL_FAIL);
 
         if ((book->tval == TV_CHAOS_BOOK) && (randint1(100) < spell))
         {
@@ -953,7 +948,7 @@ void do_cmd_cast(void)
     else
     {
         /* Canceled spells cost neither a turn nor mana */
-        if (!do_spell(realm, spell, SPELL_CAST))
+        if (!do_spell(use_realm, spell, SPELL_CAST))
         {
             /* If we eagerly took mana for this spell, then put it back! */
             if (take_mana > 0)
@@ -962,7 +957,7 @@ void do_cmd_cast(void)
             return;
         }
 
-        spell_stats_on_cast_old(realm, spell);
+        spell_stats_on_cast_old(use_realm, spell);
 
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
             take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard", -1);
@@ -986,7 +981,7 @@ void do_cmd_cast(void)
             int e = s_ptr->sexp;
 
             /* The spell worked */
-            if (realm == p_ptr->realm1)
+            if (use_realm == p_ptr->realm1)
             {
                 p_ptr->spell_worked1 |= (1L << spell);
             }
@@ -1001,7 +996,7 @@ void do_cmd_cast(void)
             /* Redraw object recall */
             p_ptr->window |= (PW_OBJECT);
 
-            switch (realm)
+            switch (use_realm)
             {
             case REALM_LIFE:
                 virtue_add(VIRTUE_TEMPERANCE, 1);
@@ -1044,7 +1039,7 @@ void do_cmd_cast(void)
             }
         }
 
-        virtue_on_cast_spell(spell, need_mana, chance);
+        virtue_on_cast_spell(use_realm, need_mana, chance);
 
         if (mp_ptr->spell_xtra & MAGIC_GAIN_EXP)
         {
@@ -1737,11 +1732,14 @@ bool do_riding(bool force)
         if ( p_ptr->prace != RACE_MON_RING
           && r_info[m_ptr->r_idx].level > randint1((skills_riding_current() / 50 + p_ptr->lev / 2 + 20)))
         {
-            if (p_ptr->wizard)
-                msg_format("Failed: %d > 1d%d", r_info[m_ptr->r_idx].level, skills_riding_current()/50 + p_ptr->lev/2 + 20);
+            if (r_info[m_ptr->r_idx].level > (skills_riding_current() / 50 + p_ptr->lev / 2 + 20))
+            {
+                msg_print("This monster is too powerful for you to ride!");
+            }
             else
+            {
                 msg_print("You failed to ride.");
-
+            }
 
             energy_use = 100;
 

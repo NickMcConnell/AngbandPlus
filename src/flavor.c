@@ -572,6 +572,7 @@ static flag_insc_table flag_insc_brand[] =
     { "Ca", OF_BRAND_CHAOS, -1 },
     { "V", OF_BRAND_VAMP, -1 },
     { "Q", OF_IMPACT, -1 },
+    { "St", OF_STUN, -1 },
     { "S", OF_VORPAL, -1 },
     { "S", OF_VORPAL2, -1 },
     { "M", OF_BRAND_MANA, -1 },

@@ -3714,15 +3714,15 @@ bool mon_spell_mon(int m_idx, int options)
     {
         /* Inate spell */
         if (thrown_spell < 32 * 4)
-            mon_lore_aux_4(r_ptr, 1 << (thrown_spell - 32 * 3));
+            mon_lore_aux_4(r_ptr, 1U << (thrown_spell - 32 * 3));
 
         /* Bolt or Ball */
         else if (thrown_spell < 32 * 5)
-            mon_lore_aux_5(r_ptr, 1 << (thrown_spell - 32 * 4));
+            mon_lore_aux_5(r_ptr, 1U << (thrown_spell - 32 * 4));
 
         /* Special spell */
         else if (thrown_spell < 32 * 6)
-            mon_lore_aux_6(r_ptr, 1 << (thrown_spell - 32 * 5));
+            mon_lore_aux_6(r_ptr, 1U << (thrown_spell - 32 * 5));
     }
 
     /* Always take note of monsters that kill you */

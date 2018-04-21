@@ -25,7 +25,7 @@ static const char *snipe_tips[MAX_SNIPE_POWERS] =
     "Deals more damage to evil monsters.",
     "An arrow explodes when it hits a monster.",
     "Shoot arrows twice.",
-    "Deals extra damage of lightning.",
+    "Deals great extra damage of lightning.",
     "Deals quick death or 1 damage.",
     "Deals great damage to all monsters, and some side effects to you.",
 };
@@ -46,7 +46,7 @@ snipe_power snipe_powers[MAX_SNIPE_POWERS] =
     { 26,   4,  "Holy Shot" },
     { 30,   3,  "Missile"},
     { 32,   4,  "Double Shot" },
-    { 36,   3,  "Plasma Bolt" },
+    { 36,   3,  "Thunder Shot" },
     { 40,   3,  "Needle Shot" },
     { 48,   7,  "Saint Stars Arrow" },
 };
@@ -54,9 +54,16 @@ snipe_power snipe_powers[MAX_SNIPE_POWERS] =
 
 static bool snipe_concentrate(void)
 {
-    if ((int)p_ptr->concent < (2 + (p_ptr->lev + 5) / 10)) p_ptr->concent++;
+    int concent_max = (2 + (p_ptr->lev + 5) / 10);
 
-    msg_format("You concentrate deeply. (lvl %d)", p_ptr->concent);
+    if (p_ptr->concent < concent_max)
+        p_ptr->concent++;
+
+    if (p_ptr->concent < concent_max)
+        msg_format("You concentrate deeply. (lvl %d)", p_ptr->concent);
+    else
+        msg_format("You are fully concentrated. (lvl %d)", p_ptr->concent);
+
     reset_concent = FALSE;
 
     p_ptr->update |= PU_BONUS;

@@ -4617,63 +4617,109 @@ void str_tolower(char *str)
     }
 }
 
-
 /*
  * Get a keypress from the user.
  * And interpret special keys as internal code.
  *
  * This function is a Mega-Hack and depend on pref-xxx.prf's.
  * Currently works on Linux(UNIX), Windows, and Macintosh only.
+ *
+ * CTK: I don't fully understand this routine, but the codes
+ * parsed were those in X11. Perhaps Windows uses the same?
+ * At any rate, they definitely don't work under curses and
+ * sdl which make things like the Mogaminator editor painful
+ * to use. I'm trying a fix for sdl ...
  */
+typedef struct {
+    cptr keyname;
+    int keyflag;
+} _modifier_t, *_modifier_ptr; 
+
+static _modifier_t _x11_modifiers[] = {
+    {"shift-", SKEY_MOD_SHIFT},
+    {"control-", SKEY_MOD_CONTROL},
+    {NULL, 0},
+};
+
+/* sdl: ^_S[[7]] for SHIFT+NUM_PAD7
+ *      ^_C[up] for SHIFT+UP (not on the numpad) */
+static _modifier_t _sdl_modifiers[] = {
+    {"S", SKEY_MOD_SHIFT},
+    {"C", SKEY_MOD_CONTROL},
+    {NULL, 0},
+};
+
+typedef struct {
+    bool numpad;
+    cptr keyname;
+    int keycode;
+} _special_key_t, *_special_key_ptr;
+
+static _special_key_t _x11_special_keys[] = {
+    {FALSE, "Down]", SKEY_DOWN},
+    {FALSE, "Left]", SKEY_LEFT},
+    {FALSE, "Right]", SKEY_RIGHT},
+    {FALSE, "Up]", SKEY_UP},
+    {FALSE, "Page_Up]", SKEY_PGUP},
+    {FALSE, "Page_Down]", SKEY_PGDOWN},
+    {FALSE, "Home]", SKEY_TOP},
+    {FALSE, "End]", SKEY_BOTTOM},
+    {TRUE, "KP_Down]", SKEY_DOWN},
+    {TRUE, "KP_Left]", SKEY_LEFT},
+    {TRUE, "KP_Right]", SKEY_RIGHT},
+    {TRUE, "KP_Up]", SKEY_UP},
+    {TRUE, "KP_Page_Up]", SKEY_PGUP},
+    {TRUE, "KP_Page_Down]", SKEY_PGDOWN},
+    {TRUE, "KP_Home]", SKEY_TOP},
+    {TRUE, "KP_End]", SKEY_BOTTOM},
+    {TRUE, "KP_2]", SKEY_DOWN},
+    {TRUE, "KP_4]", SKEY_LEFT},
+    {TRUE, "KP_6]", SKEY_RIGHT},
+    {TRUE, "KP_8]", SKEY_UP},
+    {TRUE, "KP_9]", SKEY_PGUP},
+    {TRUE, "KP_3]", SKEY_PGDOWN},
+    {TRUE, "KP_7]", SKEY_TOP},
+    {TRUE, "KP_1]", SKEY_BOTTOM},
+    {FALSE, NULL, 0},
+};
+static _special_key_t _sdl_special_keys[] = {
+    {FALSE, "[down]", SKEY_DOWN},
+    {FALSE, "[left]", SKEY_LEFT},
+    {FALSE, "[right]", SKEY_RIGHT},
+    {FALSE, "[up]", SKEY_UP},
+    {FALSE, "[page_up]", SKEY_PGUP},
+    {FALSE, "[page_down]", SKEY_PGDOWN},
+    {FALSE, "[home]", SKEY_TOP},
+    {FALSE, "[end]", SKEY_BOTTOM},
+    {TRUE, "[[2]]", SKEY_DOWN},
+    {TRUE, "[[4]]", SKEY_LEFT},
+    {TRUE, "[[6]]", SKEY_RIGHT},
+    {TRUE, "[[8]]", SKEY_UP},
+    {TRUE, "[[9]]", SKEY_PGUP},
+    {TRUE, "[[3]]", SKEY_PGDOWN},
+    {TRUE, "[[7]]", SKEY_TOP},
+    {TRUE, "[[1]]", SKEY_BOTTOM},
+    {FALSE, NULL, 0},
+};
 int inkey_special(bool numpad_cursor)
 {
-    static const struct {
-        cptr keyname;
-        int keyflag;
-    } modifier_key_list[] = {
-        {"shift-", SKEY_MOD_SHIFT},
-        {"control-", SKEY_MOD_CONTROL},
-        {NULL, 0},
-    };
+    _modifier_ptr    modifiers = _x11_modifiers;
+    _special_key_ptr keys = _x11_special_keys;
+    cptr             start = "\\[";
+    char             buf[1024];
+    cptr             str = buf;
+    char             key;
+    int              skey = 0;
+    int              modifier = 0;
+    int              i;
+    size_t           trig_len;
 
-    static const struct {
-        bool numpad;
-        cptr keyname;
-        int keycode;
-    } special_key_list[] = {
-        {FALSE, "Down]", SKEY_DOWN},
-        {FALSE, "Left]", SKEY_LEFT},
-        {FALSE, "Right]", SKEY_RIGHT},
-        {FALSE, "Up]", SKEY_UP},
-        {FALSE, "Page_Up]", SKEY_PGUP},
-        {FALSE, "Page_Down]", SKEY_PGDOWN},
-        {FALSE, "Home]", SKEY_TOP},
-        {FALSE, "End]", SKEY_BOTTOM},
-        {TRUE, "KP_Down]", SKEY_DOWN},
-        {TRUE, "KP_Left]", SKEY_LEFT},
-        {TRUE, "KP_Right]", SKEY_RIGHT},
-        {TRUE, "KP_Up]", SKEY_UP},
-        {TRUE, "KP_Page_Up]", SKEY_PGUP},
-        {TRUE, "KP_Page_Down]", SKEY_PGDOWN},
-        {TRUE, "KP_Home]", SKEY_TOP},
-        {TRUE, "KP_End]", SKEY_BOTTOM},
-        {TRUE, "KP_2]", SKEY_DOWN},
-        {TRUE, "KP_4]", SKEY_LEFT},
-        {TRUE, "KP_6]", SKEY_RIGHT},
-        {TRUE, "KP_8]", SKEY_UP},
-        {TRUE, "KP_9]", SKEY_PGUP},
-        {TRUE, "KP_3]", SKEY_PGDOWN},
-        {TRUE, "KP_7]", SKEY_TOP},
-        {TRUE, "KP_1]", SKEY_BOTTOM},
-        {FALSE, NULL, 0},
-    };
-    char buf[1024];
-    cptr str = buf;
-    char key;
-    int skey = 0;
-    int modifier = 0;
-    int i;
-    size_t trig_len;
+    if (strcmp(ANGBAND_SYS, "sdl") == 0)
+    {
+        modifiers = _sdl_modifiers;
+        keys = _sdl_special_keys;
+        start = "^_";
+    }
 
     /*
      * Forget macro trigger ----
@@ -4708,38 +4754,38 @@ int inkey_special(bool numpad_cursor)
     ascii_to_text(buf, inkey_macro_trigger_string);
 
     /* Check the prefix "\[" */
-    if (prefix(str, "\\["))
+    if (prefix(str, start))
     {
         /* Skip "\[" */
-        str += 2;
+        str += strlen(start);
 
         /* Examine modifier keys */
         while (TRUE)
         {
-            for (i = 0; modifier_key_list[i].keyname; i++)
+            for (i = 0; modifiers[i].keyname; i++)
             {
-                if (prefix(str, modifier_key_list[i].keyname))
+                if (prefix(str, modifiers[i].keyname))
                 {
                     /* Get modifier key flag */
-                    str += strlen(modifier_key_list[i].keyname);
-                    modifier |= modifier_key_list[i].keyflag;
+                    str += strlen(modifiers[i].keyname);
+                    modifier |= modifiers[i].keyflag;
                 }
             }
 
             /* No more modifier key found */
-            if (!modifier_key_list[i].keyname) break;
+            if (!modifiers[i].keyname) break;
         }
 
         /* numpad_as_cursorkey option force numpad keys to input numbers */
         if (!numpad_as_cursorkey) numpad_cursor = FALSE;
 
         /* Get a special key code */
-        for (i = 0; special_key_list[i].keyname; i++)
+        for (i = 0; keys[i].keyname; i++)
         {
-            if ((!special_key_list[i].numpad || numpad_cursor) &&
-                streq(str, special_key_list[i].keyname))
+            if ((!keys[i].numpad || numpad_cursor) &&
+                streq(str, keys[i].keyname))
             {
-                skey = special_key_list[i].keycode;
+                skey = keys[i].keycode;
                 break;
             }
         }

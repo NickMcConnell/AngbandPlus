@@ -1,0 +1,59 @@
+#new version by st_
+
+?:[EQU $QUEST20 Taken InProgress]
+D:Something curious has taken root beneath our Inn. Celebor,
+D:the innkeeper, has reported strange vapors and auras in the
+D:basement that drive out all living things. A caged canary was
+D:placed there to test the air quality; it died within minutes,
+D:though the strange scents had vanished when the investigators
+D:returned. Then, suddenly, it was as if the air itself attacked!
+D:Please see if you can detect what is amiss.
+?:1
+
+?:[EQU $QUEST20 Completed]
+D:Strange tidings indeed. Where eldritch vapors gather, more
+D:dangerous creatures are often nearby. Perhaps this is an ill
+D:omen of dangers yet to come... We may be in need of your services
+D:again soon. This gift may help you detect what evils plague this land.
+?:1
+
+?:[EQU $QUEST20 Failed]
+D:I've sent out someone else to do the job. Now leave me alone!
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:.:FLOOR
+L:<:UP_STAIR
+L:e:MON(radiation eye)
+L:g:MON(gas spore)
+L:E:MON(air elemental)
+L:v:MON(shimmering vortex)
+L:j:MON(weird fume)
+L:b:OBJ(RING)
+L:c:OBJ(AMULET)
+M:#########################
+M:############v############
+M:###########...###########
+M:#########E.....E#########
+M:###########...###########
+M:############.############
+M:###########.g.###########
+M:########.........########
+M:#######...........#######
+M:######e...........e######
+M:#######...........#######
+M:##ccE#e...........e#Ebb##
+M:#c...##...........##...b#
+M:#j.....................j#
+M:#c...##...........##...b#
+M:##ccE#e...........e#Ebb##
+M:#######...........#######
+M:######e...........e######
+M:#######...........#######
+M:########.........########
+M:###########.<.###########
+M:#########################
+R:OBJ(ROD_DETECT_ALL)
+
+# vim: filetype=q :

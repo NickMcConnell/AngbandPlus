@@ -107,11 +107,11 @@ static bool _scroll_panel(int dx, int dy)
     y = viewport_origin.y + dy;
     x = viewport_origin.x + dx;
 
-    if (y > cur_hgt - r.cy) y = cur_hgt - r.cy;
-    if (y < 0) y = 0;
+    if (y > cur_hgt - 3*r.cy/4) y = cur_hgt - 3*r.cy/4;
+    if (y < -r.cy/4) y = -r.cy/4;
 
-    if (x > cur_wid - r.cx) x = cur_wid - r.cx;
-    if (x < 0) x = 0;
+    if (x > cur_wid - 3*r.cx/4) x = cur_wid - 3*r.cx/4;
+    if (x < -r.cx/4) x = -r.cx/4;
 
     if (y != viewport_origin.y || x != viewport_origin.x)
     {
@@ -312,7 +312,7 @@ static void _scroll_cave(int dx, int dy)
         }
     }
 
-    if (center_player && (center_running || !running))
+    if (center_player && (center_running || (!running && !travel.run)))
     {
         /* Note: This is jerky if the panel is too big, but
            that is not our fault! Rather, the auto-center option

@@ -992,6 +992,10 @@ bool apply_disenchant(int mode)
 
         object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
+        if (demigod_is_(DEMIGOD_HEPHAESTUS))
+        {
+            return TRUE;
+        }
         if (object_is_artifact(o_ptr) && (randint0(100) < 71))
         {
             msg_format("Your %s resists disenchantment!", o_name);
@@ -1813,7 +1817,7 @@ static bool _alchemy_aux(obj_ptr obj, bool force)
 
     price = obj_value_real(obj);
 
-    if (price <= 0)
+    if (price <= 0 || no_selling)
     {
         msg_format("You turn %s to fool's gold.", o_name);
     }
@@ -2445,6 +2449,33 @@ bool recharge_from_player(int power)
 {
     obj_prompt_t prompt = {0};
     int          amt, max;
+    cptr         resource = NULL;
+
+    amt = power;
+    if (p_ptr->prace == RACE_MON_LEPRECHAUN)
+    {
+        if (amt > p_ptr->au / 100)
+            amt = p_ptr->au / 100;
+        resource = "money";
+    }
+    else if (p_ptr->pclass == CLASS_BLOOD_MAGE)
+    {
+        if (amt > p_ptr->chp)
+            amt = p_ptr->chp;
+        resource = "health";
+    }
+    else
+    {
+        if (amt > p_ptr->csp)
+            amt = p_ptr->csp;
+        resource = "mana";
+    }
+
+    if (amt == 0) 
+    {
+        msg_format("Failed! You don't have enough %s!", resource);
+        return FALSE;
+    }
 
     /* Get destination device */
     _obj_recharge_src_ptr = NULL;
@@ -2457,22 +2488,9 @@ bool recharge_from_player(int power)
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
 
-    amt = power;
     max = device_max_sp(prompt.obj) - device_sp(prompt.obj);
     if (amt > max)
         amt = max;
-    if (p_ptr->prace == RACE_MON_LEPRECHAUN)
-    {
-        if (amt > p_ptr->au / 100)
-            amt = p_ptr->au / 100;
-    }
-    else if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-    {
-        if (amt > p_ptr->chp)
-            amt = p_ptr->chp;
-    }
-    else if (amt > p_ptr->csp)
-        amt = p_ptr->csp;
 
     if (p_ptr->prace == RACE_MON_LEPRECHAUN)
     {
@@ -3678,8 +3696,12 @@ static int minus_ac(void)
         object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
         obj_flags(o_ptr, flgs);
 
-        if ( have_flag(flgs, OF_IGNORE_ACID)
-          || demigod_is_(DEMIGOD_HEPHAESTUS) )
+        if (demigod_is_(DEMIGOD_HEPHAESTUS))
+        {
+            obj_learn_flag(o_ptr, OF_IGNORE_ACID);
+            return TRUE;
+        }
+        if (have_flag(flgs, OF_IGNORE_ACID))
         {
             msg_format("Your %s is unaffected!", o_name);
             obj_learn_flag(o_ptr, OF_IGNORE_ACID);

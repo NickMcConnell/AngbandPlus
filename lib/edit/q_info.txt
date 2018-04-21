@@ -83,7 +83,8 @@ F:q_doom1.txt
 
 N:20:25:Vapor Quest
 T:TOWN | GENERATE
-F:q_vapor.txt
+#F:q_vapor.txt
+F:q_vapor2.txt
 
 N:21:55:Doom Quest II
 T:TOWN | GENERATE
@@ -102,7 +103,7 @@ T:TOWN | GENERATE
 G:KILL(bull gates)
 F:q_microsoft.txt
 
-N:25:48:The Haunted House
+N:25:30:The Haunted House
 T:TOWN | GENERATE
 F:q_haunted_house.txt
 

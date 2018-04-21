@@ -149,7 +149,8 @@ Elves
   Wood-Elf
   Wood-Elves are the most common of elves. They prefer the seclusion of 
   thick forests and are unhampered when moving through dense foliage. 
-  Their skills with tracking and bow are unsurpassed.
+  Their skills with tracking and bow are unsurpassed, and as they 
+  advance they gain the power of Nature Awareness.
   
     Stats                   Skills
     Strength      -1        Disarming   Good         
@@ -169,8 +170,8 @@ Hobbits/Dwarves
   tend to be stronger and tougher but slower and less intelligent than 
   humans. Because they are so headstrong and are somewhat wise, they 
   resist spells which are cast on them. They are very good at 
-  searching, perception, fighting, and bows. Dwarves  have miserable 
-  stealth. They can never be blinded.
+  searching, perception, fighting, and bows. Dwarves have miserable 
+  stealth. They resist being blinded.
   
     Stats                   Skills
     Strength      +2        Disarming   Fair         
@@ -226,8 +227,8 @@ Hobbits/Dwarves
   Nibelung
   The hated and persecuted race of nocturnal dwarves, these 
   cave-dwellers are not much bothered by darkness. Their natural 
-  inclination to magical items has made them immune to effects which 
-  could drain away magical energy.
+  inclination to magical items has made them resistant to effects which 
+  could disenchant magical energy.
   
     Stats                   Skills
     Strength      +1        Disarming   Fair         
@@ -680,7 +681,8 @@ Other Races
   land, they were summoned to guard the forests of Middle-earth. Being 
   much like trees they are very clumsy but strong, and very susceptible 
   to fire. They gain very little nutrition from the food of mortals, 
-  but they can absorb water from potions as their nutrition.
+  but they can absorb water from potions as their nutrition. Finally, 
+  they can summon the trees of the forest to their side.
   
     Stats                   Skills
     Strength      +2        Disarming   Bad          
@@ -719,9 +721,9 @@ Other Races
   Klackon
   Klackons are bizarre semi-intelligent ant-like insectoid creatures. 
   They make great fighters, but their mental abilities are severely 
-  limited. Obedient and well-ordered, they can never be confused. They 
-  are also very nimble, and become faster as they advance levels. They 
-  are also very acidic, inherently resisting acid, and capable of 
+  limited. Obedient and well-ordered, they are resistant to confusion. 
+  They are also very nimble, and become faster as they advance levels. 
+  They are also very acidic, inherently resisting acid, and capable of 
   spitting acid at higher levels.
   
     Stats                   Skills
@@ -739,7 +741,7 @@ Other Races
   A Kutar is an expressionless animal-like living creature. The word 
   'kuta' means 'absentmindedly' or 'vacantly'. Their absentmindedness 
   hurts their searching and perception skills, but renders them 
-  incapable of being confused. Their unearthly calmness and serenity 
+  resistant to being confused. Their unearthly calmness and serenity 
   make them among the most stealthy of any race. Kutars, although 
   expressionless, are beautiful and so have a high charisma. Members of 
   this race can learn to expand their body horizontally. This increases 

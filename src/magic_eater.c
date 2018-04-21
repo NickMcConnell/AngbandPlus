@@ -288,6 +288,7 @@ static void _use_object(object_type *o_ptr)
     {
         if (flush_failure) flush();
         msg_print("The device has no charges left.");
+        energy_use = 0;
         return;
     }
 

@@ -260,6 +260,7 @@ extern bool abbrev_all;    /* Describe obj's all resistances by abbreviation */
 extern bool exp_need;    /* Show the experience needed for next level */
 extern bool ignore_unview;    /* Ignore whenever any monster does */
 extern bool display_distance;    /* Display distance of LoS monsters in monster list */
+extern bool display_race; /* Display monster races with their racial char */
 
 
 /*** Game-Play Options ***/
@@ -323,6 +324,7 @@ extern bool random_artifacts;
 extern byte random_artifact_pct;
 extern bool no_artifacts;
 extern bool no_egos;
+extern bool no_selling;
 extern bool enable_virtues;
 extern bool reduce_uniques;
 extern byte reduce_uniques_pct;
