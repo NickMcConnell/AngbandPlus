@@ -746,7 +746,7 @@ bool monst_spell_monst(int m_idx)
     /* Can the player be aware of this attack? */
     known = (m_ptr->cdis <= MAX_SIGHT) || (t_ptr->cdis <= MAX_SIGHT);
 
-    if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
+    if (disturb_minor && p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
     /* Check for spell failure (inate attacks never fail) */
     if (!spell_is_inate(thrown_spell) && (in_no_magic_dungeon || (MON_STUNNED(m_ptr) && one_in_(2))))

@@ -3928,21 +3928,35 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         case GF_CHARM:
         case GF_CHARM_RING_BEARER:
         {
-            dam += (adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1);
-            if (typ != GF_CHARM_RING_BEARER)
-            {
-                dam += virtue_current(VIRTUE_HARMONY)/10;
-                dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
-            }
-
             if (seen) obvious = TRUE;
 
-            if (typ == GF_CHARM_RING_BEARER && !mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER))
+            if (typ == GF_CHARM_RING_BEARER)
             {
-                note = " is immune.";
-                dam = 0;
-                break;
+                if (!mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER))
+                {
+                    note = " is not a suitable ring bearer.";
+                    dam = 0;
+                    break;
+                }
             }
+            else
+            {
+                dam += (adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1);
+                dam += virtue_current(VIRTUE_HARMONY)/10;
+                dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
+                if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL))
+                    dam = dam * 2 / 3;
+
+                if (r_ptr->flags3 & RF3_NO_CONF)
+                {
+                    if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_CONF);
+                    note = " is unaffected!";
+                    obvious = FALSE;
+                    dam = 0;
+                    break;
+                }
+            }
+
             if ((r_ptr->flagsr & RFR_RES_ALL) || p_ptr->inside_arena)
             {
                 note = " is immune.";
@@ -3950,34 +3964,20 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
                 break;
             }
-
-            if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL))
-                dam = dam * 2 / 3;
-
-            /* Attempt a saving throw */
-            if ((r_ptr->flags1 & RF1_QUESTOR) ||
-                (r_ptr->flags3 & RF3_NO_CONF) ||
-                (m_ptr->mflag2 & MFLAG2_NOPET) ||
-                (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 5))
+            else if (r_ptr->flags1 & RF1_QUESTOR)
             {
-                /* Memorize a flag */
-                if (r_ptr->flags3 & RF3_NO_CONF)
-                {
-                    if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_CONF);
-                }
-
-                /* Resist */
-                /* No obvious effect */
                 note = " is unaffected!";
-
                 obvious = FALSE;
-
+            }
+            else if ((m_ptr->mflag2 & MFLAG2_NOPET) || r_ptr->level > randint1(dam))
+            {
+                note = " resists!";
+                obvious = FALSE;
                 if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
             }
             else if (p_ptr->cursed & TRC_AGGRAVATE)
             {
                 note = " hates you too much!";
-
                 if (one_in_(4)) m_ptr->mflag2 |= MFLAG2_NOPET;
             }
             else
@@ -5727,7 +5727,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         dam = mon_damage_mod_mon(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
     else
         dam = mon_damage_mod(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
-    if ((tmp > 0) && (dam == 0)) note = " is unharmed.";
+    if (tmp > 0 && dam == 0) 
+        note = " is unharmed.";
 
     /* Check for death */
     if (dam > m_ptr->hp)

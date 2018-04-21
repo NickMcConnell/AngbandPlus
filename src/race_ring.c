@@ -7,6 +7,23 @@ static cptr _mon_name(int r_idx)
     return ""; /* Birth Menu */
 }
 
+static int _count(int list[])
+{
+    int i;
+    for (i = 0; ; i++)
+    {
+        if (list[i] == -1) return i;
+    }
+    /* return 0;  error: missing sentinel ... unreachable */
+}
+
+static int _random(int list[])
+{
+    if (spoiler_hack)
+        return list[0];
+    return list[randint0(_count(list))];
+}
+
 /**********************************************************************
  * Essences
  **********************************************************************/
@@ -14,6 +31,13 @@ static cptr _mon_name(int r_idx)
 
 static int _essences[_MAX_ESSENCE] = {0};
 static int _effects[EFFECT_MAX] = {0};
+
+static int _bounds_check(int n)
+{
+    if (n < 0) n = 0;
+    if (n > 10000) n = 10000;
+    return n;
+}
 
 static void _load(savefile_ptr file)
 {
@@ -27,7 +51,8 @@ static void _load(savefile_ptr file)
     for (i = 0; i < ct; i++)
     {
         int j = savefile_read_s16b(file);
-        int n = savefile_read_s16b(file);
+        int n = _bounds_check(savefile_read_s16b(file));
+
 
         if (0 <= j && j < _MAX_ESSENCE)
             _essences[j] += n;
@@ -41,7 +66,7 @@ static void _load(savefile_ptr file)
     for (i = 0; i < ct; i++)
     {
         int j = savefile_read_s16b(file);
-        int n = savefile_read_s16b(file);
+        int n = _bounds_check(savefile_read_s16b(file));
 
         if (0 <= j && j < EFFECT_MAX)
             _effects[j] += n;
@@ -118,7 +143,7 @@ static bool _skip_flag(int which)
     case TR_RIDING:
     case TR_THROW:
     case TR_SLAY_HUMAN:
-    case TR_NO_TELE:
+   /*case TR_NO_TELE:*/
     case TR_NO_MAGIC:
     case TR_TY_CURSE:
     case TR_HIDE_TYPE:
@@ -191,15 +216,15 @@ static bool _add_essence(int which, int amount)
     int n = _essences[which];
 
     if (amount > 0)
-        n += amount;
-
-    if (n > 10000)
-        n = 10000;
-
-    if (n != _essences[which])
     {
-        _essences[which] = n;
-        return TRUE;
+        n += amount;
+        n = _bounds_check(n);
+
+        if (n != _essences[which])
+        {
+            _essences[which] = n;
+            return TRUE;
+        }
     }
 
     return FALSE;
@@ -231,6 +256,7 @@ static bool _absorb(object_type *o_ptr)
             else
             {
                 _essences[i]++;
+                if (i == TR_SH_FIRE && !have_flag(flags, TR_LITE)) _essences[TR_LITE]++;
                 result = TRUE;
             }
         }
@@ -416,8 +442,59 @@ static bool _drain_essences(int div)
     return result;
 }
 
+static void _gain_one_effect(int list[])
+{
+    effect_t e = {0};
+    e.type = _random(list);
+    if (!_effects[e.type])
+        msg_format("You have gained the power of '%s'.", do_effect(&e, SPELL_NAME, 0));
+    else
+        msg_format("Your power of '%s' has grown stronger.", do_effect(&e, SPELL_NAME, 0));
+    _effects[e.type]++;
+}
+
 static void _gain_level(int new_level) 
 {
+    switch (new_level)
+    {
+    case 10:
+    {
+        int choices[] = {EFFECT_LITE_AREA, EFFECT_DETECT_TRAPS, EFFECT_DETECT_MONSTERS, 
+                         EFFECT_DETECT_OBJECTS, EFFECT_SATISFY_HUNGER, -1};
+        _gain_one_effect(choices);
+        break;
+    }
+    case 15:
+    {
+        int choices[] = {EFFECT_BOLT_COLD, EFFECT_BOLT_FIRE, EFFECT_BOLT_ACID, 
+                         EFFECT_BOLT_ELEC, EFFECT_BOLT_POIS, -1};
+        _gain_one_effect(choices);
+        break;
+    }
+    case 25:
+    {
+        int choices[] = {EFFECT_BALL_COLD, EFFECT_BALL_FIRE, EFFECT_BALL_ACID, 
+                         EFFECT_BALL_ELEC, EFFECT_BALL_POIS, -1};
+        _gain_one_effect(choices);
+        break;
+    }
+    case 35:
+    {
+        int choices[] = {EFFECT_BREATHE_COLD, EFFECT_BREATHE_FIRE, EFFECT_BREATHE_ACID, 
+                         EFFECT_BREATHE_ELEC, EFFECT_BREATHE_POIS, -1};
+        _gain_one_effect(choices);
+        break;
+    }
+    case 45:
+    {
+        int choices[] = {EFFECT_BOLT_WATER, EFFECT_BOLT_MANA, EFFECT_BALL_LITE, 
+                         EFFECT_BALL_DARK, EFFECT_BALL_CHAOS, EFFECT_BALL_WATER,
+                         EFFECT_BALL_MANA, EFFECT_BREATHE_SOUND, EFFECT_BREATHE_SHARDS,
+                         EFFECT_BREATHE_CHAOS, -1};
+        _gain_one_effect(choices);
+        break;
+    }
+    }
 }
 
 /**********************************************************************
@@ -570,6 +647,10 @@ static void _glitter_spell(int cmd, variant *res)
     }
 }
 
+static int _charm_power(void)
+{
+    return spell_power(p_ptr->lev * 3 / 2 + p_ptr->stat_ind[A_CHR] + 3);
+}
 static void _charm_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -580,14 +661,16 @@ static void _charm_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attempt to dominate a single ring bearer.");
         break;
+    case SPELL_INFO:
+        var_set_string(res, info_power(_charm_power()));
+        break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (get_aim_dir(&dir))
         {
-            int power = spell_power(p_ptr->lev * 2);          
-            project_hook(GF_CHARM_RING_BEARER, dir, power, PROJECT_STOP | PROJECT_KILL);
+            project_hook(GF_CHARM_RING_BEARER, dir, _charm_power(), PROJECT_STOP | PROJECT_KILL);
             var_set_bool(res, TRUE);
         }
         break;
@@ -681,8 +764,8 @@ static _group_t _groups[] = {
         { EFFECT_BALL_SHARDS,         32,  27, 65 },
         { EFFECT_BALL_DISEN,          34,  27, 65 },
         { EFFECT_BALL_TIME,           34,  30, 65 },
-        { EFFECT_BALL_LITE,           35,  18, 55 },
-        { EFFECT_BALL_DARK,           36,  18, 60 },
+        { EFFECT_BALL_LITE,           35,  35, 65 },
+        { EFFECT_BALL_DARK,           36,  35, 65 },
         { EFFECT_BALL_CHAOS,          37,  35, 65 },
         { EFFECT_BALL_WATER,          38,  37, 70 },
         { EFFECT_BALL_MANA,           40,  42, 75 },
@@ -717,6 +800,8 @@ static _group_t _groups[] = {
         { EFFECT_CONFUSING_LITE,      37,  40, 60 },
         { EFFECT_DISPEL_EVIL_HERO,    40,  40, 60 },
         { EFFECT_ROCKET,              42,  45, 65 },
+        { EFFECT_WRATH_OF_GOD,        43,  50, 70 },
+        { EFFECT_STAR_BALL,           44,  55, 75 },
         { EFFECT_MANA_STORM,          45,  55, 75 },
         { EFFECT_NONE } } },
 
@@ -753,6 +838,7 @@ static _group_t _groups[] = {
         { EFFECT_HEAL_CURING,         32,  45, 60 }, /* 300hp */
         { EFFECT_RESTORE_EXP,         35,  40, 60 },
         { EFFECT_REMOVE_ALL_CURSE,    37,  50, 60 },
+        { EFFECT_SACRED_KNIGHTS,      39,  50, 65 },
         { EFFECT_RESTORE_STATS,       40,  60, 70 },
         { EFFECT_RESTORING,           40,  60, 70 },
         { EFFECT_HEAL_CURING_HERO,    45,  65, 80 },
@@ -788,7 +874,7 @@ static _group_t _groups[] = {
         { EFFECT_NONE } } },
 
     { "Utility", 'U', TERM_L_BLUE, 
-      { { EFFECT_SATISFY_HUGER,        5,   5, 35 },
+      { { EFFECT_SATISFY_HUNGER,       5,   5, 35 },
         { EFFECT_STONE_TO_MUD,        15,  10, 50 },
         { EFFECT_DESTROY_TRAP,        20,  12, 50 },
         { EFFECT_DESTROY_TRAPS,       25,  15, 55 },
@@ -813,6 +899,7 @@ static _group_t _groups[] = {
         { EFFECT_CHARM_UNDEAD,        32,  30, 50 },
         { EFFECT_SUMMON_HOUNDS,       33,  35, 50 },
         { EFFECT_SUMMON_HYDRAS,       35,  40, 50 },
+        { EFFECT_MITO_KOUMON,         36,  45, 55 },
         { EFFECT_SUMMON_DRAGON,       37,  45, 55 },
         { EFFECT_SUMMON_UNDEAD,       39,  50, 55 },
         { EFFECT_SUMMON_DEMON,        40,  55, 55 },
@@ -1142,6 +1229,9 @@ static void _calc_bonuses(void)
     res_add(RES_POIS);
     p_ptr->hold_life = TRUE;
 
+    /* Speed rings come very late, and very unreliably ... */
+    p_ptr->pspeed += p_ptr->lev / 10;
+
     if (p_ptr->lev >= 25)
     {
         res_add(RES_COLD);
@@ -1295,7 +1385,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     if (_essences[TR_EASY_SPELL] >= 7)
         add_flag(flgs, TR_EASY_SPELL);
 
-    if (_calc_amount(_essences[TR_SPEED], 1, 5))
+    if (p_ptr->lev >= 10 || _calc_amount(_essences[TR_SPEED], 1, 5))
         add_flag(flgs, TR_SPEED);
     if (_calc_amount(_essences[TR_STEALTH], 2, 1))
         add_flag(flgs, TR_STEALTH);
@@ -1625,6 +1715,8 @@ bool ring_dominate_m(int m_idx)
     if ( p_ptr->prace == RACE_MON_RING 
       && !p_ptr->riding
       && !is_aware(m_ptr) 
+      && !p_ptr->inside_arena
+      && !p_ptr->inside_battle
       && mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER) )
     {
         char m_name[MAX_NLEN];
@@ -1726,7 +1818,38 @@ void ring_process_m(int m_idx)
                 p_ptr->redraw |= PR_UHEALTH;
 
                 move_player_effect(py, px, MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
-            }
+                handle_stuff();
+
+                /* This can be quite jarring when it happens out of the blue! */ 
+                msg_print("Press Space to continue.");
+                flush();
+                for (;;)
+                {
+                    char ch = inkey();
+                    if (ch == ' ') break;
+                }
+                prt("", 0, 0);
+                msg_flag = FALSE; /* prevents "-more-" message. */
+           }
         }
     }
+}
+
+void ring_summon_ring_bearer(void)
+{
+    if (p_ptr->prace == RACE_MON_RING && p_ptr->action == ACTION_GLITTER && !p_ptr->riding)
+    {
+        int x, y, i;
+        const int max_attempts = 10000;
+
+        for (i = 0; i < max_attempts; i++)
+        {
+            x = rand_spread(px, 10);
+            y = rand_spread(py, 10);
+            if (!in_bounds(y, x)) continue;
+            if (!cave_empty_bold(y, x)) continue;
+            summon_specific(-1, y, x, dun_level, SUMMON_RING_BEARER, PM_ALLOW_UNIQUE);
+            break;
+        }
+    }    
 }

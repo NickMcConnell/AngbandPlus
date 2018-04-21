@@ -2798,7 +2798,7 @@ static bool _reforge_artifact(void)
     int src_max_power = p_ptr->fame * p_ptr->fame * 10;
     int dest_max_power = 0;
 
-    if (p_ptr->prace == RACE_MON_SWORD)
+    if (p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_RING)
     {
         msg_print("Go enchant yourself!");
         return FALSE;
@@ -3908,6 +3908,17 @@ static void bldg_process_command(building_type *bldg, int i)
         set_confused(0, TRUE);
         set_cut(0, TRUE);
         set_stun(0, TRUE);
+
+        if (p_ptr->riding)
+        {
+            monster_type *m_ptr = &m_list[p_ptr->riding];
+            int           amt = 500;
+
+            if (m_ptr->hp < 30000) m_ptr->hp += amt;
+            if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+            p_ptr->redraw |= PR_UHEALTH;
+        }
+
         paid = TRUE;
         break;
     case BACT_RESTORE: /* needs work */

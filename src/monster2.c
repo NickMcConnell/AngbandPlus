@@ -1095,6 +1095,8 @@ bool mon_is_type(int r_idx, int type)
             return TRUE;
         else if (r_ptr->flags7 & RF7_NAZGUL)
             return TRUE;
+        else if (r_idx == MON_ANGMAR || r_idx == MON_HOARMOUTH)
+             return TRUE;
         break;
     }
     return FALSE;
@@ -4125,7 +4127,10 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 {
     int x, y, r_idx;
 
-    if (p_ptr->inside_arena && !prace_is_(RACE_MON_QUYLTHULG)) return (FALSE);
+    if (type != SUMMON_RING_BEARER)
+    {
+        if (p_ptr->inside_arena && !prace_is_(RACE_MON_QUYLTHULG)) return (FALSE);
+    }
 
     /* Note: summon_specific does not imply summoning at all, despite the name ... 
        Let's try to guess whether or not this is really a summon spell ...

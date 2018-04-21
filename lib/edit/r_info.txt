@@ -11,10 +11,6 @@
 
 # Zangband notes:
 
-# Semantics of S_AMBERITES: Since all non-Tolkienian unique Ringwraiths
-# have been removed (i.e. all except the Witch-king of Angmar and
-# Khamul), the spell summons unique Amberites instead of Ringwraiths.
-
 # Currently, "unique" monsters are just "special" monster races, with
 # the requirement that only one monster of that race can exist at a time,
 # and when it is killed, it can never again be generated.

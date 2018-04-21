@@ -419,6 +419,7 @@ static void preserve_pet(void)
                 if (!is_pet(m_ptr))
                 {
                     int rng = 3;
+                    if (dun_level == 0) continue;
                     if (dun_level > 0) rng = 1;
                     if (dis > rng) continue;
                     if (r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) continue;

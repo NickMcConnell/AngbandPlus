@@ -3221,28 +3221,24 @@ static void process_world(void)
     if (!p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle)
     {
         int  chance = d_info[dungeon_type].max_m_alloc_chance;
-        bool ring_hack = FALSE;
 
         chance = chance * (100 + dun_level) / 100;
         chance = chance * (375 - virtue_current(VIRTUE_PATIENCE)) / 375;
 
-        if (p_ptr->action == ACTION_GLITTER && one_in_(2))
-            ring_hack = TRUE;
-
-        if (ring_hack)
-            chance = 2;
-
         if (one_in_(chance))
         {
-            int mode = 0;
-            int rng = MAX_SIGHT + 5;
-            if (ring_hack)
-            {
-                /*rng = 5;*/
-                mode = PM_RING_BEARER;
-            }
-            alloc_monster(rng, mode);
+            if (p_ptr->action == ACTION_GLITTER && one_in_(3))
+                ring_summon_ring_bearer();
+            else
+                alloc_monster(MAX_SIGHT + 5, 0);
         }
+    }
+    /* It's too easy to get stuck playing a race that can't move! Sigh ... */
+    else if ( p_ptr->inside_quest 
+           && p_ptr->action == ACTION_GLITTER 
+           && one_in_(50) )
+    {
+        ring_summon_ring_bearer();
     }
 
     /* Hack -- Check for creature regeneration */

@@ -2744,7 +2744,7 @@ static _effect_info_t _effect_info[] =
     {"RUNE_EXPLOSIVE",  EFFECT_RUNE_EXPLOSIVE,      30, 100,  2, BIAS_MAGE},
     {"RUNE_PROTECTION", EFFECT_RUNE_PROTECTION,     70, 500,  4, BIAS_PRIESTLY},
 
-    {"SATISFY_HUGER",   EFFECT_SATISFY_HUGER,        5, 100,  1, BIAS_RANGER},
+    {"SATISFY_HUNGER",  EFFECT_SATISFY_HUNGER,        5, 100,  1, BIAS_RANGER},
     {"DESTROY_TRAP",    EFFECT_DESTROY_TRAP,        20,  50,  1, 0},
     {"DESTROY_TRAPS",   EFFECT_DESTROY_TRAPS,       25,  50,  1, BIAS_ROGUE},
     {"WHIRLWIND_ATTACK",EFFECT_WHIRLWIND_ATTACK,    50, 500,  4, BIAS_WARRIOR},
@@ -2893,11 +2893,12 @@ static _effect_info_t _effect_info[] =
     {"DISPEL_UNDEAD",   EFFECT_DISPEL_UNDEAD,       60, 200,  2, BIAS_PRIESTLY},
     {"DISPEL_MONSTERS", EFFECT_DISPEL_MONSTERS,     70, 250,  8, 0},
     {"DRAIN_LIFE",      EFFECT_DRAIN_LIFE,          40, 100,  2, BIAS_NECROMANTIC},
-    {"STAR_BALL",       EFFECT_STAR_BALL,           80, 900,200, 0},
+    {"STAR_BALL",       EFFECT_STAR_BALL,           80, 900, 64, BIAS_LAW},
     {"ROCKET",          EFFECT_ROCKET,              70, 200,  8, BIAS_DEMON},
     {"MANA_STORM",      EFFECT_MANA_STORM,          80, 250,  8, BIAS_MAGE},
     {"CONFUSING_LITE",  EFFECT_CONFUSING_LITE,      60, 100,  6, BIAS_CHAOS},
     {"ARROW",           EFFECT_ARROW,               30, 100,  2, BIAS_RANGER | BIAS_ARCHER},
+    {"WRATH_OF_GOD",    EFFECT_WRATH_OF_GOD,        80, 250, 32, BIAS_LAW},
 
     /* Misc                                         Lv    T   R  Bias */
     {"POLY_SELF",       EFFECT_POLY_SELF,           20, 500,  1, BIAS_CHAOS},
@@ -3379,7 +3380,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             if (warding_glyph()) device_noticed = TRUE;
         }
         break;
-    case EFFECT_SATISFY_HUGER:
+    case EFFECT_SATISFY_HUNGER:
         if (name) return "Satisfy Hunger";
         if (desc) return "It fills your belly with nourishing victuals.";
         if (value) return format("%d", 500);
@@ -4760,7 +4761,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     }
     case EFFECT_BALL_LITE:
     {
-        int dam = _extra(effect, 100 + p_ptr->lev);
+        int dam = _extra(effect, 100 + 4*p_ptr->lev);
         if (name) return "Star Burst";
         if (desc) return "It fires a huge ball of powerful light.";
         if (info) return info_damage(0, 0, _BOOST(dam));
@@ -4775,7 +4776,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     }
     case EFFECT_BALL_DARK:
     {
-        int dam = _extra(effect, 100 + p_ptr->lev);
+        int dam = _extra(effect, 100 + 4*p_ptr->lev);
         if (name) return "Darkness Storm";
         if (desc) return "It fires a huge ball of darkness.";
         if (info) return info_damage(0, 0, _BOOST(dam));
@@ -4865,7 +4866,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     }
     case EFFECT_BALL_CHAOS:
     {
-        int dam = _extra(effect, 99 + 2*p_ptr->lev);
+        int dam = _extra(effect, 100 + 3*p_ptr->lev);
         if (name) return "Invoke Logrus";
         if (desc) return "It fires a huge ball of chaos.";
         if (info) return info_damage(0, 0, _BOOST(dam));
@@ -4910,7 +4911,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     }
     case EFFECT_BALL_WATER:
     {
-        int dam = _extra(effect, 100 + p_ptr->lev);
+        int dam = _extra(effect, 100 + 3*p_ptr->lev);
         if (name) return "Whirlpool";
         if (desc) return "It fires a huge ball of water.";
         if (info) return info_damage(0, 0, _BOOST(dam));
@@ -4925,7 +4926,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     }
     case EFFECT_BALL_MANA:
     {
-        int dam = _extra(effect, 200 + p_ptr->lev);
+        int dam = _extra(effect, 100 + 5*p_ptr->lev);
         if (name) return "Mana Ball";
         if (desc) return "It fires a powerful ball of mana.";
         if (info) return info_damage(0, 0, _BOOST(dam));
@@ -5465,6 +5466,20 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     }
+    case EFFECT_WRATH_OF_GOD:
+    {
+        int dam = _extra(effect, 25 + p_ptr->lev*3);
+        if (name) return "Wrath of the God";
+        if (desc) return "It drops many balls of disintegration near the target.";
+        if (info) return info_damage(0, 0, _BOOST(dam));
+        if (value) return format("%d", 50*dam);
+        if (cast)
+        {
+            if (!cast_wrath_of_the_god(_BOOST(dam), 2)) return NULL;
+        }
+        break;
+    }
+
     case EFFECT_ROCKET:
     {
         int dam = _extra(effect, 250 + p_ptr->lev*3);

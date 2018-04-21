@@ -2766,6 +2766,7 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
         break;
     case EGO_AMULET_DWARVEN:
         add_flag(o_ptr->art_flags, TR_INFRA);
+        if (one_in_(2)) add_flag(o_ptr->art_flags, TR_LITE);
         for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
         {
             switch (randint1(9))
@@ -2853,6 +2854,7 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
     case EGO_AMULET_SACRED:
         add_flag(o_ptr->art_flags, TR_BLESSED);
         o_ptr->to_a = 5;
+        if (one_in_(2)) add_flag(o_ptr->art_flags, TR_LITE);
         for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
         {
             switch (randint1(8))

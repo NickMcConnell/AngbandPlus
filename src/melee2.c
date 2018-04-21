@@ -422,6 +422,14 @@ static int mon_will_run(int m_idx)
     /* Nearby monsters will not become terrified */
     if (m_ptr->cdis <= 5) return (FALSE);
 
+    if ( p_ptr->prace == RACE_MON_RING
+      && !p_ptr->riding
+      && !is_aware(m_ptr)
+      && mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER) )
+    {
+        return FALSE;
+    }
+
     /* Examine player power (level) */
     p_lev = p_ptr->lev;
 
@@ -2557,6 +2565,7 @@ static void process_monster(int m_idx)
 
         /* Some monsters can speak */
         if ((ap_r_ptr->flags2 & RF2_CAN_SPEAK) && aware && is_aware(m_ptr) &&
+            m_idx != p_ptr->riding &&
             one_in_(SPEAK_CHANCE) &&
             player_has_los_bold(oy, ox) &&
             projectable(oy, ox, py, px))

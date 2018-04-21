@@ -804,7 +804,7 @@ static void cast_meteor(int dam, int rad)
 /*
  * Drop 10+1d10 disintegration ball at random places near the target
  */
-static bool cast_wrath_of_the_god(int dam, int rad)
+bool cast_wrath_of_the_god(int dam, int rad)
 {
     int x, y, tx, ty;
     int nx, ny;

@@ -877,6 +877,7 @@ extern cptr info_power(int power);
 extern cptr info_delay(int base, int sides);
 extern cptr info_weight(int weight);
 extern bool cast_summon_greater_demon(void);
+extern bool cast_wrath_of_the_god(int dam, int rad);
 
 /* dungeon.c */
 extern void leave_quest_check(void);
@@ -2041,6 +2042,7 @@ extern void    ring_cast(void);
 extern void    ring_browse(void);
 extern bool    ring_dominate_m(int m_idx);
 extern void    ring_process_m(int m_idx);
+extern void    ring_summon_ring_bearer(void);
 
 extern bool    vampiric_drain_hack;
 extern void    vampire_feed(int amt);

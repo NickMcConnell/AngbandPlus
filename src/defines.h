@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 1
-#define VER_PATCH 1
-#define VER_EXTRA 2
+#define VER_PATCH 2
+#define VER_EXTRA 0
 
 
 /*
@@ -5111,6 +5111,7 @@ extern int PlayerUID;
 #define MON_LUPART              934
 #define MON_KENSHIROU           936
 #define MON_W_KNIGHT            938
+#define MON_HOARMOUTH           939
 #define MON_LESSER_BALROG       940
 #define MON_BONE_DRAGON         941
 #define MON_PLANETAR            942
@@ -6145,7 +6146,7 @@ enum effect_e
     EFFECT_RUNE_EXPLOSIVE,
     EFFECT_RUNE_PROTECTION,
 
-    EFFECT_SATISFY_HUGER,
+    EFFECT_SATISFY_HUNGER,
     EFFECT_DESTROY_TRAP,
     EFFECT_DESTROY_TRAPS,
     EFFECT_WHIRLWIND_ATTACK,
@@ -6298,6 +6299,7 @@ enum effect_e
     EFFECT_MANA_STORM,
     EFFECT_CONFUSING_LITE,
     EFFECT_ARROW,
+    EFFECT_WRATH_OF_GOD,
 
     /* Misc */
     EFFECT_POLY_SELF = 600,

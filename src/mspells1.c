@@ -1479,6 +1479,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             f4 = r_ptr->flags4;
             f5 = r_ptr->flags5;
             f6 = r_ptr->flags6;
+            ticked_off = FALSE;
         }
     }
 
