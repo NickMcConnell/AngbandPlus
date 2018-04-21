@@ -6708,7 +6708,8 @@ s16b inven_carry(object_type *o_ptr)
     j_ptr->iy = j_ptr->ix = 0;
 
     /* Player touches it, and no longer marked */
-    j_ptr->marked = OM_TOUCHED;
+    j_ptr->marked &= OM_WORN;  /* Ah, but remember the "worn" status ... */
+    j_ptr->marked |= OM_TOUCHED;
 
     /* Increase the weight */
     p_ptr->total_weight += (j_ptr->number * j_ptr->weight);
@@ -6841,6 +6842,7 @@ void inven_drop(int item, int amt)
 
     /* Modify quantity */
     q_ptr->number = amt;
+    q_ptr->marked &= ~OM_WORN;
 
     /* Describe local object */
     object_desc(o_name, q_ptr, 0);

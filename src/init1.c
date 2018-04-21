@@ -3421,6 +3421,25 @@ errr parse_r_info(char *buf, header *head)
             else
                 return PARSE_ERROR_TOO_FEW_ARGUMENTS;
         }
+        else if (strcmp(zz[0], "Speed") == 0)
+        {
+            int sp = atoi(zz[1]);
+            if (num != 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+            if (sp > 90) /* Hack: 110 -> +0, 100 -> -10, etc. This is old school.*/
+                sp = sp - 110;
+            r_ptr->body.speed = sp;
+        }
+        else if (strcmp(zz[0], "SpellStat") == 0)
+        {
+            if (num != 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+            if (streq(zz[1], "Str")) r_ptr->body.spell_stat = A_STR;
+            else if (streq(zz[1], "Int")) r_ptr->body.spell_stat = A_INT;
+            else if (streq(zz[1], "Wis")) r_ptr->body.spell_stat = A_WIS;
+            else if (streq(zz[1], "Dex")) r_ptr->body.spell_stat = A_DEX;
+            else if (streq(zz[1], "Con")) r_ptr->body.spell_stat = A_CON;
+            else if (streq(zz[1], "Chr")) r_ptr->body.spell_stat = A_CHR;
+            else return PARSE_ERROR_OUT_OF_BOUNDS;
+        }
         /* P:Stats:<Str>:<Int>:<Wis>:<Dex>:<Con>:<Chr> */
         else if (strcmp(zz[0], "Stats") == 0)
         {

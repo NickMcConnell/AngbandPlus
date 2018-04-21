@@ -3094,7 +3094,7 @@ cptr look_mon_desc(monster_type *m_ptr, u32b mode)
     }
 
     /* Display monster's level --- idea borrowed from ToME */
-    if (ap_r_ptr->r_tkills && !(m_ptr->mflag2 & MFLAG2_KAGE))
+    if ((ap_r_ptr->r_tkills || p_ptr->wizard) && !(m_ptr->mflag2 & MFLAG2_KAGE))
     {
         return format("Level %d, %s%s%s", ap_r_ptr->level, desc, attitude, clone);
     }

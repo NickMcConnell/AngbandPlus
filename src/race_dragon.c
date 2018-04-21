@@ -2370,7 +2370,7 @@ static race_t *_nether_get_race_t(void)
         me.extra_skills = xs;
 
         me.infra = 5;
-        me.exp = 350;
+        me.exp = 300;
 
         me.birth = _nether_birth;
         me.get_powers = _dragon_get_powers;
@@ -2459,7 +2459,7 @@ static race_t *_law_get_race_t(void)
         me.extra_skills = xs;
 
         me.infra = 5;
-        me.exp = 300;
+        me.exp = 280;
 
         me.birth = _law_birth;
         me.get_powers = _dragon_get_powers;
@@ -2548,7 +2548,7 @@ static race_t *_chaos_get_race_t(void)
         me.extra_skills = xs;
 
         me.infra = 5;
-        me.exp = 300;
+        me.exp = 280;
 
         me.birth = _chaos_birth;
         me.get_powers = _dragon_get_powers;
@@ -2637,7 +2637,7 @@ static race_t *_balance_get_race_t(void)
         me.extra_skills = xs;
 
         me.infra = 5;
-        me.exp = 350;
+        me.exp = 300;
 
         me.birth = _balance_birth;
         me.get_powers = _dragon_get_powers;

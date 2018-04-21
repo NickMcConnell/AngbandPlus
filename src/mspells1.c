@@ -4027,17 +4027,23 @@ msg_format("They say 'The %d meets! We are the Ring-Ranger!'.", count);
             int non_unique_type = SUMMON_HI_UNDEAD;
             u32b mode = (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE);
 
-            if (r_ptr->level > 98 && one_in_(13))
-                mode |= PM_ALLOW_CLONED;
-
             disturb(1, 0);
             if (blind) msg_format("%^s mumbles.", m_name);
-
             else msg_format("%^s magically summons special opponents!", m_name);
 
             for (k = 0; k < s_num_4; k++)
             {
                 count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, mode);
+            }
+
+            /* If all uniques are down, occasionally bring them back from the grave! */
+            if (!count && r_ptr->level > 98 && one_in_(3))
+            {
+                mode |= PM_ALLOW_CLONED;
+                for (k = 0; k < s_num_4; k++)
+                {
+                    count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, mode);
+                }
             }
 
             if (count) uniques_are_summoned = TRUE;

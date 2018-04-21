@@ -80,6 +80,8 @@
 # P:ExtraSkills:<Dis>:<Dev>:<Sav>:<Stl>:<Srh>:<Fos>:<Thn>:<Thb>
 # P:Life:<Life>
 # P:Body:<BodyName>
+# P:SpellStat:<Str|Int|Wis|Dex|Con|Chr>
+# P:Speed:+12
 
 # 'N' indicates the beginning of an entry. The serial number must
 # increase for each new item. Entry 0 is used for the player.
@@ -3544,6 +3546,7 @@ S:1_IN_3 |
 S:HEAL | BLINK | TPORT | BLIND | SLOW | 
 S:S_KIN
 P:Copy:Yeek:Mage
+P:Speed:+7
 D:A great yeek, powerful in magic and sorcery, but a yeek all the same.
 
 N:238:Ogre
@@ -3638,7 +3641,7 @@ F:MALE | WILD_ALL | DROP_SKELETON | DROP_CORPSE
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | HURT_LITE | RES_DARK
-P:Copy:Kobold:Weaponmaster
+P:Copy:Kobold:Warrior
 S:1_IN_15
 S:SHOOT
 D:He is a large orc with powerful arms and deep black skin.
@@ -3657,6 +3660,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 F:POS_GAIN_AC
 P:Copy:Imp:Warrior
 P:Body:Jelly5
+P:Speed:+10
 D:A fast moving highly acidic jelly thing, that is eating away the floor it 
 D:rests on.
 
@@ -3846,6 +3850,7 @@ F:DROP_CORPSE | POS_CLAIRVOYANCE
 P:Copy:High-Elf:Ninja
 P:Skills:0:0:0:7:0:0:0:0
 P:Life:60
+P:Speed:+10
 S:1_IN_6
 S:BLINK
 D:A merry little gnome.
@@ -4046,6 +4051,7 @@ F:BASH_DOOR |
 F:ANIMAL | RES_LITE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
 S:BR_LITE
@@ -4062,6 +4068,7 @@ F:BASH_DOOR | HURT_LITE |
 F:ANIMAL | RES_DARK
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
 S:BR_DARK
@@ -4219,6 +4226,7 @@ F:INVISIBLE | BASH_DOOR |
 F:ANIMAL
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_SEE_INVIS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 D:A completely translucent hound.
 
@@ -4270,7 +4278,7 @@ F:MALE | WILD_ALL |
 F:DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | ESCORT | DROP_SKELETON | DROP_CORPSE
 F:EVIL | ORC | RES_DARK | CAN_SPEAK
-P:Copy:Kobold:Weaponmaster
+P:Copy:Kobold:Warrior
 S:1_IN_15
 S:SHOOT
 D:An armoured orc with an air of authority.
@@ -4399,6 +4407,7 @@ F:WILD_WASTE |
 F:DROP_SKELETON | DROP_CORPSE | POS_BERSERK
 P:Copy:Dunadan:Berserker
 P:Life:75
+P:Speed:+3
 D:A warrior in a battle-frenzy; he'll stop only when he drops.
 
 N:294:Quasit
@@ -4603,6 +4612,7 @@ F:BASH_DOOR | HURT_COLD |
 F:ANIMAL | RES_FIRE |
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
 S:BR_FIRE
@@ -4622,6 +4632,7 @@ F:BASH_DOOR |
 F:ANIMAL | RES_COLD
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
 S:BR_COLD
@@ -4641,6 +4652,7 @@ F:BASH_DOOR |
 F:ANIMAL | RES_ELEC
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
 S:BR_ELEC
@@ -4689,6 +4701,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC
 S:1_IN_4 | 
 S:BLINK | TELE_TO
 P:Copy:Human:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 D:A strange magical member of the canine race, its form seems to shimmer and 
 D:fade in front of your very eyes.
@@ -4704,7 +4717,7 @@ F:MALE |
 F:FORCE_MAXHP | FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL | ORC | RES_POIS | RES_DARK
-P:Copy:Kobold:Weaponmaster
+P:Copy:Kobold:Warrior
 S:1_IN_12
 S:SHOOT
 D:He is a cunning orc of power, as tall as a man, and stronger.  It fears 
@@ -4801,6 +4814,7 @@ F:EVIL | DEMON | RES_POIS | RES_FIRE
 F:POS_HOLD_LIFE | POS_SEE_INVIS
 P:Copy:Imp:Chaos-Warrior
 P:Body:Monk
+P:Speed:+5
 S:1_IN_8
 S:SCARE | S_DEMON | CAUSE_2 | CONF | BO_FIRE | BO_COLD 
 D:It is minor female demon, vaguely human-like, but with crab-like 
@@ -5083,6 +5097,7 @@ F:BASH_DOOR | HURT_ROCK |
 F:ANIMAL | RES_SHAR
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
 S:BR_SHAR
@@ -5103,6 +5118,7 @@ F:BASH_DOOR |
 F:ANIMAL | RES_POIS
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
 S:BR_POIS
@@ -5138,6 +5154,7 @@ F:BASH_DOOR | CAN_SWIM |
 F:ANIMAL | RES_ACID
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
 S:BR_ACID
@@ -5411,6 +5428,7 @@ F:OPEN_DOOR | BASH_DOOR | COLD_BLOOD |
 F:IM_FIRE | RES_NETH | NO_CONF | NO_SLEEP | NONLIVING | NO_STUN
 F:POS_HOLD_LIFE | POS_SEE_INVIS
 P:Copy:Imp:Chaos-Warrior
+P:Speed:+10
 S:1_IN_3 |
 S:BA_FIRE | ANIM_DEAD
 D:A pale, corpse-like lesser demon, who moves very fast and spawns evil 
@@ -5614,6 +5632,7 @@ S:1_IN_6 |
 S:BO_ELEC
 P:Copy:Dunadan:Monk
 P:Body:Monk
+P:Speed:+5
 D:A green-garbed monk, trained in martial arts.
 
 N:371:Black ooze
@@ -5661,6 +5680,7 @@ F:EVIL | ORC | RES_POIS | RES_DARK
 F:DROP_SKELETON | DROP_CORPSE | POS_BERSERK
 P:Copy:Kobold:Mauler
 P:Stats:1:0:0:1:1:1
+P:Speed:+5
 D:He is also known as the King of Khazad-dum.  His ego is renowned to be 
 D:bigger than his head.
 
@@ -5694,6 +5714,7 @@ F:OPEN_DOOR | BASH_DOOR | FRIENDS
 F:EVIL | RES_POIS | RES_DARK | HURT_LITE
 F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_DETECT_TRAPS
 P:Copy:Dark-Elf:Mage
+P:Speed:+5
 S:1_IN_5 | 
 S:CONF | MISSILE | DARKNESS | BO_MANA
 D:A dark elven mage with spells of frightening destructive power.
@@ -5710,6 +5731,7 @@ F:DROP_2D2
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
 P:Copy:High-Elf:Rogue
+P:Speed:+5
 D:A thief of great power and shifty speed.
 
 N:377:Red dragon bat
@@ -6408,6 +6430,7 @@ F:EVIL | RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:NO_CONF | NO_SLEEP | RES_DARK | RES_DISE | RES_TELE
 F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS 
 P:Copy:Nibelung:Rogue
+P:Speed:+5
 S:1_IN_6 | 
 S:HEAL | SCARE | BO_ACID | BA_ACID | TPORT | S_MONSTER 
 D:Made invisible with his magic cap, the greedy dwarf plots for 
@@ -6546,6 +6569,7 @@ F:BASH_DOOR |
 F:ANIMAL | RES_SOUN | NO_CONF | NO_SLEEP |
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
 S:BR_SOUN
@@ -6566,6 +6590,7 @@ F:BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
 S:BR_NEXU
@@ -7550,6 +7575,7 @@ F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE |
 F:EVIL | NO_CONF | NO_SLEEP | 
 P:Copy:Hobbit:Ninja
 P:Life:90
+P:Speed:+10
 D:A humanoid clothed in black who moves with blinding speed.
 
 N:486:Memory moss
@@ -7669,6 +7695,7 @@ F:RES_POIS | NO_CONF | NO_SLEEP | HAS_LITE_1 | HAS_LITE_2 | AURA_REVENGE
 F:DROP_SKELETON | DROP_CORPSE | POS_DETECT_MONSTERS | POS_MAPPING
 P:Copy:Dunadan:Monk
 P:Body:Monk
+P:Speed:+7
 S:1_IN_7 | 
 S:HEAL
 D:A monk in white robes.  He is skilled in martial arts.
@@ -7773,6 +7800,7 @@ F:INVISIBLE | OPEN_DOOR | BASH_DOOR |
 F:RES_ACID | RES_POIS | NO_CONF | NO_SLEEP | 
 F:DROP_SKELETON | DROP_CORPSE | POS_DETECT_MONSTERS | POS_MAPPING | POS_SEE_INVIS
 P:Copy:Dunadan:Mystic
+P:Speed:+7
 S:1_IN_6 | 
 S:HEAL | 
 S:S_SPIDER | BA_CHAO | S_DEMON
@@ -8049,6 +8077,7 @@ F:ANIMAL | NO_CONF | NO_SLEEP | SELF_LITE_2 |
 F:RES_ELEC | RES_POIS | RES_ACID | RES_FIRE | RES_COLD
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5
 S:BR_ACID | BR_POIS | BR_COLD | BR_FIRE | BR_ELEC
@@ -8097,6 +8126,7 @@ F:DROP_90 | DROP_2D2 | DROP_SKELETON | DROP_CORPSE
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
 P:Copy:High-Elf:Rogue
+P:Speed:+10
 D:Cool and confident, fast and lithe; protect your possessions quickly!
 
 N:517:Jurt the Living Trump
@@ -8111,7 +8141,7 @@ F:UNIQUE | MALE | CAN_SPEAK | HAS_LITE_1 | HUMAN | EVIL | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | TRUMP
 F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS
-P:Copy:Dunadan:Mystic
+P:Copy:Dunadan:Beastmaster
 S:1_IN_6
 S:TPORT | BLINK | BA_CHAO
 D:A magical treatment has turned Jurt, an adept of Logrus, 
@@ -8325,6 +8355,7 @@ F:DROP_CORPSE | POS_CLAIRVOYANCE | POS_SEE_INVIS
 P:Copy:High-Elf:Ninja
 P:Skills:0:0:0:7:0:0:0:0
 P:Life:75
+P:Speed:+10
 S:1_IN_6
 S:BLINK | TPORT | TELE_TO | CAUSE_1
 D:This little creature has a fiendish gleam in its eyes.
@@ -8369,6 +8400,7 @@ F:DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL | HUMAN | NO_CONF | NO_SLEEP
 P:Copy:Dunadan:Warrior
+P:Speed:+7
 D:A human warrior, moving with lightning speed.
 
 N:533:Headless ghost
@@ -8505,6 +8537,7 @@ F:BASH_DOOR |
 F:ANIMAL | RES_GRAV | NO_CONF | NO_SLEEP | 
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
 S:BR_GRAV
@@ -8528,6 +8561,7 @@ F:NO_FEAR | NO_CONF | NO_SLEEP
 F:POS_GAIN_AC
 P:Copy:Barbarian:Warrior
 P:Body:Jelly6
+P:Speed:+10
 D:A disgusting animated blob of destruction.  Flee its gruesome hunger!
 
 N:542:Inertia hound
@@ -8543,6 +8577,7 @@ F:BASH_DOOR |
 F:ANIMAL | RES_INER | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
 S:BR_INER
@@ -8563,6 +8598,7 @@ F:BASH_DOOR |
 F:ANIMAL | RES_WALL | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_8 | 
 S:BR_WALL
@@ -8952,6 +8988,7 @@ F:OPEN_DOOR | BASH_DOOR | HURT_LITE |
 F:EVIL | RES_DARK | NO_CONF | NO_SLEEP
 F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS
 P:Copy:Dark-Elf:Ninja
+P:Speed:+7
 D:A dark elven assassin, so stealthy that he is almost impossible to see.
 
 N:565:Trapper
@@ -9584,7 +9621,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
 F:EVIL | RES_TELE
 F:DROP_SKELETON | DROP_CORPSE | POS_DETECT_MONSTERS | POS_MAPPING | POS_IDENTIFY
-P:Copy:Dark-Elf:Mystic
+P:Copy:Dark-Elf:Beastmaster
 S:1_IN_2 |
 S:BO_FIRE | BO_COLD | HOLD | BO_MANA | S_MONSTER
 S:TRAPS | BO_ICEE | HEAL | BO_PLAS | BA_CHAO | POLY
@@ -9837,6 +9874,7 @@ F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY
 P:Copy:Skeleton:Monk
 P:Body:Monk
+P:Speed:+7
 S:1_IN_3 | 
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:DRAIN_MANA | BRAIN_SMASH | ANIM_DEAD 
@@ -11008,9 +11046,10 @@ S:1_IN_3
 S:BLIND | HEAL | BA_DARK | HASTE | CONF | TRAPS
 D:Deriving his strength from the shadows, this king of thieves 
 D:steals only for the challenge.
-P:Copy:High-Elf:Ninja
+P:Copy:High-Elf:Rogue
 P:Skills:0:0:0:7:0:0:0:0
 P:Life:90
+P:Speed:+20
 
 N:671:Zephyr Lord
 G:W:v
@@ -11208,6 +11247,7 @@ F:DROP_CORPSE | POS_CLAIRVOYANCE | POS_SEE_INVIS
 P:Copy:High-Elf:Ninja
 P:Skills:0:0:0:7:0:0:0:0
 P:Life:85
+P:Speed:+10
 S:1_IN_6
 S:BLINK | TPORT | TELE_TO | CAUSE_3 | ANIM_DEAD
 D:Nasty undead little creatures.  They are chanting the name of the 
@@ -11273,6 +11313,7 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | GIANT | MALE 
 F:DROP_CORPSE | POS_SUST_STR
 P:Copy:Half-Titan:Mauler
+P:Speed:+5
 S:1_IN_3 | 
 S:HEAL | TELE_TO | 
 S:S_KIN | BR_COLD | THROW
@@ -11318,6 +11359,7 @@ F:IM_ACID | RES_FIRE | RES_PLAS | RES_POIS | RES_COLD | RES_ELEC | RES_TELE
 F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | POS_SUST_STR | POS_SUST_CON
 P:Copy:Barbarian:Warrior
 P:Body:Jelly7
+P:Speed:+10
 D:"The nightmare, plastic column of fetid, black iridescence oozed 
 D:tightly onward... A shapeless congerie of protoplasmic bubbles, 
 D:faintly self-luminous and with myriads of temporary eyes forming 
@@ -11630,6 +11672,7 @@ B:EXPLODE:HURT:20d5
 F:MULTIPLY | RAND_25 | TAKE_ITEM | SMART |
 F:EVIL | OPEN_DOOR | MALE | HAS_LITE_1 |
 P:Copy:Dark-Elf:Rogue
+P:Speed:+13
 S:1_IN_6
 S:BLINK | TPORT | TELE_TO
 D:These leprechauns are not afraid to die for their cause. They are 
@@ -12134,6 +12177,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
 S:BR_NETH
@@ -12154,6 +12198,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | RES_TIME | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_8 | 
 S:BR_TIME
@@ -12175,6 +12220,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | RES_ELEC | RES_FIRE | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
 S:BR_PLAS
@@ -12413,6 +12459,7 @@ F:INVISIBLE | OPEN_DOOR | BASH_DOOR | SMART | HAS_LITE_2 | RES_CHAO |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING
 P:Copy:Amberite:Mystic
+P:Speed:+10
 S:1_IN_2 |
 S:HEAL | MIND_BLAST | BA_CHAO |
 S:S_MONSTERS | S_DEMON | PSY_SPEAR
@@ -12456,6 +12503,7 @@ F:INVISIBLE | PASS_WALL | EVIL | CAN_FLY |
 F:ANIMAL | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_SEE_INVIS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 |
 S:BLINK | TELE_TO | BR_NETH | BR_TIME
@@ -12930,6 +12978,7 @@ S:BR_DARK | BR_NUKE | BR_ACID | BR_POIS
 F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | POS_SUST_STR | POS_SUST_CON
 P:Copy:Barbarian:Mauler
 P:Body:Jelly7
+P:Speed:+10
 D:"...a little finger of blackness crept out from beneath its edge 
 D:a great wave of iridescent blackness, neither liquid nor solid,
 D:a frightful gelatinous mass."
@@ -13162,6 +13211,7 @@ F:NO_CONF | NO_SLEEP | AURA_FEAR
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_BLESSING | POS_HEROISM | POS_MAPPING
 P:Copy:Archon:Paladin
 P:Stats:2:2:5:2:2:5
+P:Speed:+10
 S:1_IN_2 |
 S:TELE_TO | BLIND | BO_MANA | S_ANGEL | S_KIN | INVULNER | DISPEL | ANTI_MAGIC | PSY_SPEAR
 S:BR_MANA | BR_LITE | BR_ELEC | BA_MANA | HAND_DOOM | S_HI_DRAGON |
@@ -13397,6 +13447,7 @@ F:BASH_DOOR |
 F:ANIMAL | RES_CHAO | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
 S:BR_CHAO
@@ -14149,6 +14200,7 @@ F:RES_WALL | RES_INER | RES_TIME | RES_GRAV | RES_PLAS | RES_NEXU | RES_SHAR |
 F:NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | 
@@ -14542,6 +14594,7 @@ F:RES_POIS | NO_CONF | NO_SLEEP | POWERFUL |
 F:POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Stats:0:0:0:7:0:0
+P:Speed:+15
 S:1_IN_3 | 
 S:MIND_BLAST | BO_ELEC | BO_MANA | BA_ELEC | PSY_SPEAR
 D:A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you 
@@ -14563,6 +14616,7 @@ F:EVIL | DEMON | RES_ACID | RES_FIRE | RES_COLD | RES_ELEC |
 F:RES_POIS | NO_CONF | NO_SLEEP | POWERFUL |
 F:POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
+P:Speed:+15
 S:1_IN_3 | 
 S:BO_MANA | SCARE | BR_COLD | S_DEMON | BO_ELEC | BA_ELEC | PSY_SPEAR |
 S:MIND_BLAST | CAUSE_4 | BA_CHAO | BA_WATE | S_HI_UNDEAD | S_KIN
@@ -14608,6 +14662,7 @@ F:NO_CONF | NO_SLEEP | POWERFUL | AURA_FEAR
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_CLAIRVOYANCE | POS_TELEPATHY
 P:Copy:Skeleton:Mage
 P:Stats:0:4:0:0:0:7
+P:Speed:+15
 S:1_IN_1 | 
 S:TELE_TO | SLOW | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | 
@@ -14632,6 +14687,7 @@ F:NO_CONF | NO_SLEEP | NONLIVING | EVIL | DEMON |
 F:RES_COLD | RES_POIS
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Balrog:Chaos-Warrior
+P:Speed:+15
 S:1_IN_3 |
 S:TELE_TO | SCARE | HOLD | BRAIN_SMASH |
 S:S_DEMON | S_HI_UNDEAD | S_UNDEAD |
@@ -14962,6 +15018,7 @@ S:BA_CHAO | S_DEMON | S_HI_UNDEAD | S_HOUND | BR_MANA | BR_DISI | PSY_SPEAR
 F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | POS_SUST_STR | POS_SUST_CON
 P:Copy:Barbarian:Mauler
 P:Body:Jelly7
+P:Speed:+15
 D:"Great globes of light massing towards the opening... the breaking 
 D:apart of the nearest globes, and the protoplasmic flesh that 
 D:flowed blackly outward to join together and form that eldritch, 
@@ -15060,6 +15117,7 @@ F:NO_SLEEP | RES_NEXU | RES_NETH | RES_WATE | POWERFUL |
 F:POS_TELEPATHY
 P:Copy:Mindflayer:High-Mage
 P:Stats:0:2:0:0:-2:0
+P:Speed:+10
 S:1_IN_1 |
 S:TELE_AWAY | TELE_TO | TELE_LEVEL | TPORT |
 S:BO_MANA | BA_MANA | S_MONSTERS | HEAL |
@@ -15213,6 +15271,7 @@ P:Copy:Golem:Mauler
 P:Stats:7:0:0:0:5:5
 P:Life:120
 P:Body:Monk
+P:Speed:+10
 S:1_IN_3 |
 S:BR_DISI | BO_MANA
 D:The Destroyer was built by the Norse deities to be their ultimate weapon 
@@ -15296,6 +15355,7 @@ F:EVIL | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_DARK |
 F:NO_CONF | NO_SLEEP | RES_TELE | POWERFUL |
 P:Copy:Amberite:Sorcerer
 P:Life:150
+P:Speed:+10
 S:1_IN_2 | 
 S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | 
 S:BRAIN_SMASH | FORGET |
@@ -15395,6 +15455,7 @@ F:POS_GAIN_AC | POS_HOLD_LIFE | POS_SEE_INVIS | POS_TELEPATHY
 F:POS_SUST_STR | POS_SUST_INT | POS_SUST_WIS | POS_SUST_DEX | POS_SUST_CON | POS_SUST_CHR
 P:Copy:Half-Giant:Mauler
 P:Life:120
+P:Speed:+15
 S:1_IN_3 | 
 S:BRAIN_SMASH | DISPEL | ANTI_MAGIC |
 S:BA_MANA | BO_MANA | BA_NETH | ANIM_DEAD 
@@ -15530,6 +15591,7 @@ F:WILD_WASTE | WILD_SWAMP |
 F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Zombie:Rage-Mage
 P:Body:Jelly7
+P:Speed:+10
 S:1_IN_5
 S:HEAL | INVULNER | DISPEL | ANTI_MAGIC
 D:A thing like a massive, jet black oyster with four groping tendrils.
@@ -15600,6 +15662,7 @@ S:BO_NETH
 D:A monk in dusky robes trained in the most lethal martial arts.
 P:Copy:Dunadan:Monk
 P:Body:Monk
+P:Speed:+7
 
 N:871:Metal Babble
 G:j:s
@@ -15663,6 +15726,7 @@ F:DROP_CORPSE | POS_GAIN_AC
 S:1_IN_2 | 
 S:ROCKET | HEAL | BLINK | INVULNER
 P:Copy:Human:Beastmaster
+P:Speed:+15
 D:His favorite food is roasting rice noodle. 
 D:He is the lone wolf filled with the adventurous spirit. 
 D:His righteousness and courage are more than the average. 
@@ -15799,6 +15863,7 @@ S:TELE_TO | CONF | BO_MANA | BRAIN_SMASH |
 S:BA_WATE | TELE_AWAY |
 S:DISPEL | ANTI_MAGIC | WORLD | PSY_SPEAR
 P:Copy:Dark-Elf:Time-Lord
+P:Speed:+15
 
 N:881:Locke, the Superman
 G:p:G
@@ -15925,6 +15990,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_8 |
 S:BR_MANA
@@ -16358,6 +16424,7 @@ D:can summon help from nature and is able to focus his power to ease any
 D:pain.
 P:Copy:Demigod:Mystic
 P:Body:Monk
+P:Speed:+5
 
 N:916:Master mystic
 G:p:o
@@ -16365,7 +16432,7 @@ I:130:11d100:30:60:5:170
 W:50:3:999:6000:50000:917
 B:KICK:HURT:15d2
 B:KICK:HURT:15d2
-B:HIT:POISON:20d1
+B:PUNCH:POISON:20d1
 B:HIT:PARALYZE:15d1
 F:MALE | GOOD | 
 F:FORCE_SLEEP | FORCE_MAXHP | HUMAN |
@@ -16382,6 +16449,7 @@ D:of martial arts and is at one with nature, able to summon help from the
 D:wild if need be.
 P:Copy:Demigod:Mystic
 P:Body:Monk
+P:Speed:+10
 
 N:917:Grand master mystic
 G:p:o
@@ -16389,7 +16457,7 @@ I:130:22d100:30:80:5:170
 W:59:3:999:15000:0:0
 B:KICK:HURT:20d2
 B:KICK:HURT:20d2
-B:HIT:POISON:20d1
+B:PUNCH:POISON:20d1
 B:HIT:PARALYZE:20d1
 F:MALE | GOOD | 
 F:FORCE_SLEEP | FORCE_MAXHP | HUMAN |
@@ -16405,6 +16473,7 @@ D:all forms of unarmed combat and controlling the world's natural creatures
 D:with disdainful ease.
 P:Copy:Demigod:Mystic
 P:Body:Monk
+P:Speed:+15
 
 N:918:Devilfish
 G:l:v
@@ -16747,7 +16816,9 @@ F:DROP_2D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT | ONLY_ITEM | CAN_SWIM | AURA_REV
 F:GOOD | RES_COLD | RES_POIS | RES_ACID | RES_ELEC | RES_FIRE | REGENERATE |
 S:1_IN_3 |
 S:CAUSE_4 | TELE_TO
-P:Copy:Half-Titan:Mauler
+P:Copy:Half-Titan:Monk
+P:Body:Monk
+P:Speed:+10
 
 N:937:Lems the Cyborg
 G:g:W
@@ -16767,6 +16838,7 @@ P:Copy:Half-Titan:Warrior
 P:Stats:2:0:0:0:1:0
 P:Life:105
 P:Body:Monk
+P:Speed:+7
 
 # Description in English by Nick Keulmann
 N:938:White knight
@@ -16951,6 +17023,7 @@ F:UNIQUE | DROP_CORPSE | FORCE_MAXHP | CAN_SPEAK | HUMAN | MALE |
 F:EVIL | ONLY_ITEM | DROP_1D2 | DROP_60 | DROP_GOOD |
 F:NO_SLEEP | NO_CONF | BASH_DOOR
 P:Copy:Snotling:Tourist
+P:Speed:-1
 
 N:948:Rich, the Thief
 G:p:b
@@ -16966,6 +17039,7 @@ F:NO_SLEEP | NO_CONF | OPEN_DOOR | MOVE_BODY |
 S:1_IN_2 |
 S:BLINK | TPORT | TRAPS | CONF | BLIND | SLOW | HOLD | FORGET
 P:Copy:High-Elf:Rogue
+P:Speed:+10
 
 N:949:Iketa, the Brave
 G:p:B
@@ -17031,6 +17105,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 F:POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 
 N:953:Broken death sword
@@ -17055,7 +17130,7 @@ B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 F:FORCE_SLEEP | DROP_1D2 | SMART | DROP_CORPSE | DROP_SKELETON |
 F:ORC | HURT_LITE | EVIL | RES_DARK
-P:Copy:Kobold:Weaponmaster
+P:Copy:Kobold:Warrior
 S:1_IN_2 |
 S:SHOOT
 D:In a rare display of ingenuity, the Orcs invented an incredibly
@@ -17189,7 +17264,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY | TAKE_ITEM |
 F:DROP_1D2 | DROP_90 | DROP_GOOD | ONLY_ITEM | CAN_SWIM |
 F:REGENERATE | 
 F:DROP_SKELETON | DROP_CORPSE |
-P:Copy:Half-Giant:Mauler
+P:Copy:Half-Giant:Mystic
+P:Body:Monk
+P:Speed:+5
 S:1_IN_6 |
 S:BR_SHAR | TELE_TO
 
@@ -17848,6 +17925,7 @@ F:OPEN_DOOR | BASH_DOOR | UNIQUE2
 D:He is always traveling togather with 
 D:Mitsukuni of the Yellow Gate, Grand Duke of Mito
 P:Copy:Dunadan:Warrior
+P:Speed:+5
 
 N:1002:Kaku-san, the Mitsukuni's Warder
 G:p:s
@@ -17860,6 +17938,7 @@ F:OPEN_DOOR | BASH_DOOR | UNIQUE2
 D:He is always traveling togather with 
 D:Mitsukuni of the Yellow Gate, Grand Duke of Mito
 P:Copy:Dunadan:Warrior
+P:Speed:+5
 
 N:1003:The Ghost 'Q'
 G:G:w
@@ -17995,6 +18074,7 @@ F:TAKE_ITEM | OPEN_DOOR |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | NO_CONF | NO_SLEEP
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Archon:Rogue
+P:Speed:+15
 S:1_IN_3 | 
 S:TPORT | HASTE | TELE_AWAY | TELE_LEVEL | BLINK
 D:Collect 5 marks of Silver Angel or 1 mark of Gold Angel! 
@@ -18011,6 +18091,7 @@ F:TAKE_ITEM | OPEN_DOOR |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | NO_CONF | NO_SLEEP
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Archon:Rogue
+P:Speed:+10
 S:1_IN_3 | 
 S:TPORT | HASTE | TELE_AWAY | TELE_LEVEL | BLINK
 D:Collect 5 marks of Silver Angel or 1 mark of Gold Angel! 
@@ -18042,7 +18123,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | UNIQUE |
 F:OPEN_DOOR | EVIL | BASH_DOOR | SMART
 S:1_IN_3
 S:BA_FIRE | HASTE | SPECIAL
-P:Copy:Human:Mystic
+P:Copy:Human:Beastmaster
+P:Speed:+10
 
 N:1014:M. Bison
 G:p:g
@@ -18113,7 +18195,9 @@ F:DROP_2D2 | DROP_1D2 | DROP_GOOD | ONLY_ITEM | CAN_SWIM |
 F:GOOD | RES_COLD | RES_POIS | RES_ACID | RES_ELEC | RES_FIRE | REGENERATE |
 S:1_IN_3 |
 S:CAUSE_3 | TELE_TO
-P:Copy:Demigod:Mauler
+P:Copy:Demigod:Monk
+P:Body:Monk
+P:Speed:+10
 
 N:1019:Kokuo, Raou's Steed
 G:q:D
@@ -18155,6 +18239,7 @@ F:TAKE_ITEM | OPEN_DOOR | CAN_SWIM | DROP_SKELETON | DROP_CORPSE
 S:1_IN_3
 S:HEAL | TRAPS
 P:Copy:Human:Rogue
+P:Speed:+10
 
 N:1022:Nappa the Saiyan
 G:p:U
@@ -18201,6 +18286,7 @@ F:DROP_CORPSE | POS_TELEPATHY | POS_SEE_INVIS |
 F:POS_DETECT_OBJECTS | POS_DETECT_MONSTERS | POS_MAPPING | POS_DETECT_TRAPS
 P:Copy:High-Elf:Rogue
 P:Skills:0:0:0:5:0:0:0:0
+P:Speed:+15
 S:1_IN_2 |
 S:BLINK | TPORT | TELE_TO | CONF | TRAPS
 D:A class of its own: you are already too late to protect your possessions 
@@ -18335,6 +18421,7 @@ P:Copy:Half-Titan:Warrior
 P:Stats:5:0:0:0:3:3
 P:Life:110
 P:Body:Monk
+P:Speed:+10
 D:He was the braver of Atlantis. His body was converted by a Shinto priest, 
 D:in order to fight against "Papa". His body is now made by Orihalcon.
 
@@ -18415,6 +18502,7 @@ F:DROP_1D2 | OPEN_DOOR | BASH_DOOR | EVIL |
 S:1_IN_2 |
 S:TRAPS | BLINK
 P:Copy:Hobbit:Rogue
+P:Speed:+10
 
 N:1037:Knight templar
 G:p:w
@@ -18602,6 +18690,7 @@ S:HASTE
 D:A yellow-garbed monk, trained in martial arts.
 P:Copy:Human:Mystic
 P:Body:Monk
+P:Speed:+7
 
 N:1048:Stone dragon
 G:D:D
@@ -18883,6 +18972,7 @@ F:CAN_FLY | WEIRD_MIND | ANIMAL |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:DROP_CORPSE
 P:Copy:Human:Tourist
+P:Speed:+10
 S:1_IN_6
 S:S_KIN
 D:This huge louse is the ruin of the sad man 
@@ -18983,6 +19073,7 @@ F:INVISIBLE | PASS_WALL |
 F:UNDEAD | EVIL
 F:DROP_CORPSE | POS_SEE_INVIS | POS_TELEPATHY | POS_DETECT_MONSTERS | POS_MAPPING
 P:Copy:High-Elf:Rogue
+P:Speed:+15
 S:1_IN_2 |
 S:SHOOT | TELE_AWAY | TPORT | HASTE | BLINK | HEAL
 D:He is one of the greatest trickster. Even greatest warrior cannot
@@ -19228,6 +19319,7 @@ F:RES_TIME | NO_CONF | NO_SLEEP | FORCE_MAXHP | KILL_WALL
 F:AURA_FEAR | NO_FEAR
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_2 | 
 S:BR_TIME | BR_DISI | BR_NETH
@@ -19392,6 +19484,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:DROP_SKELETON | DROP_CORPSE | HUMAN |
 F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
 P:Copy:Demigod:Time-Lord
+P:Speed:+5
 S:1_IN_3 | HASTE | SLOW | TELE_LEVEL
 D:A human, clothed in a blue robe, moving with speed uncanny.
 D:He seems both young and old.
@@ -19409,6 +19502,7 @@ F:DROP_SKELETON | DROP_CORPSE | HUMAN |
 F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
 P:Copy:Dunadan:Time-Lord
+P:Speed:+10
 S:1_IN_3 | HASTE | SLOW | TELE_LEVEL
 D:A human, clothed in a blue robe, moving with speed uncanny.
 D:He seems to be in several places at once.
@@ -20171,8 +20265,9 @@ N:1131:Mimic
 G:@:w
 I:110:1d1:4:1:40:60
 W:50:0:0:0:10:14
-P:Copy:Human:Imitator
 F:CAN_SWIM
+P:Copy:Human:Imitator
+P:SpellStat:Dex
 
 # N: serial number : monster name
 # G: symbol : color

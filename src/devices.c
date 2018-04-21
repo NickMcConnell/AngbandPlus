@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 static bool ang_sort_comp_pet(vptr u, vptr v, int a, int b)
 {
     u16b *who = (u16b*)(u);
@@ -90,6 +92,100 @@ bool device_noticed = FALSE;
    in a device at once (with diminishing returns) and potentially destroys
    the device as well. */
 int  device_extra_power = 0;
+
+/* Hack for identifying all relevant objects in a single action. 
+   It's ugly, but worthwhile! */
+int  device_available_charges = 0; /* How many can we do? */
+int  device_used_charges = 0;      /* How many did we do? */
+
+static bool _do_identify_hook(object_type *o_ptr)
+{
+    if (!object_is_known(o_ptr))
+        return TRUE;
+    return FALSE;
+}
+
+static void _do_identify_aux(int item)
+{
+    object_type    *o_ptr;
+    char            o_name[MAX_NLEN];
+    bool            old_known;
+
+    if (item >= 0)
+        o_ptr = &inventory[item];
+    else
+        o_ptr = &o_list[-item];
+
+    old_known = identify_item(o_ptr);
+    object_desc(o_name, o_ptr, 0);
+
+    if (equip_is_valid_slot(item))
+        msg_format("%^s: %s (%c).", equip_describe_slot(item), o_name, index_to_label(item));
+    else if (item >= 0)
+        msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
+    else
+        msg_format("On the ground: %s.", o_name);
+
+    autopick_alter_item(item, (bool)(destroy_identify && !old_known));
+}
+
+static bool _do_identify(void)
+{
+    int             item;
+    cptr            q, s;
+    int             options = USE_EQUIP | USE_INVEN | USE_FLOOR;
+
+    assert(device_used_charges == 0);
+    if (device_available_charges > 1)
+        options |=  OPTION_ALL;
+
+    item_tester_no_ryoute = TRUE;
+    item_tester_hook = _do_identify_hook;
+
+    if (can_get_item())
+        q = "Identify which item? ";
+    else
+        q = "All items are identified. ";
+
+    s = "You have nothing to identify.";
+    if (!get_item(&item, q, s, options)) 
+        return FALSE;
+
+    if (item == INVEN_ALL)
+    {
+        int i;
+        int this_o_idx, next_o_idx;
+
+        /* Equipment and Pack */
+        for (i = 0; i < INVEN_TOTAL && device_used_charges < device_available_charges; i++)
+        {
+            if (!inventory[i].k_idx) continue;
+            if (object_is_known(&inventory[i])) continue;
+            _do_identify_aux(i);
+            device_used_charges++;
+        }
+
+        /* Floor */
+        for (this_o_idx = cave[py][px].o_idx; 
+                this_o_idx && device_used_charges < device_available_charges; 
+                this_o_idx = next_o_idx)
+        {
+            object_type *o_ptr = &o_list[this_o_idx];
+
+            next_o_idx = o_ptr->next_o_idx;
+            if (object_is_known(o_ptr)) continue;
+            _do_identify_aux(-this_o_idx);
+            device_used_charges++;
+        }
+    }
+    else
+    {
+        _do_identify_aux(item);
+        device_used_charges++;
+    }
+
+    return TRUE;
+}
 
 /* Using Devices 
       if (!device_try(o_ptr)) ... "You failed to use the device" ...
@@ -1077,7 +1173,7 @@ static cptr _do_scroll(int sval, int mode)
         if (cast)
         {
             device_noticed = TRUE;
-            if (!ident_spell(NULL)) return NULL;
+            if (!_do_identify()) return NULL;
         }
         break;
     case SV_SCROLL_STAR_IDENTIFY:
@@ -1648,7 +1744,7 @@ static cptr _do_staff(int sval, int mode)
         if (desc) return "It identifies an item when you use it.";
         if (cast)
         {
-            if (!ident_spell(NULL)) return NULL;
+            if (!_do_identify()) return NULL;
             device_noticed = TRUE;
         }
         break;
@@ -2591,6 +2687,7 @@ cptr do_device(int tval, int sval, int mode)
     cptr result = NULL;
 
     device_noticed = FALSE;
+    device_used_charges = 0;
     switch (tval)
     {
     case TV_STAFF: result = _do_staff(sval, mode); break;
@@ -2601,6 +2698,7 @@ cptr do_device(int tval, int sval, int mode)
     }
     device_known = FALSE;
     device_extra_power = 0;
+    device_available_charges = 0;
     return result;
 }
 

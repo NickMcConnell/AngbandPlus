@@ -2415,7 +2415,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
     /* Get the item index */
     if (repeat_pull(cp))
     {
-        /* the_force */
         if (select_the_force && (*cp == INVEN_FORCE))
         {
             item_tester_tval = 0;
@@ -2423,8 +2422,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
             command_cmd = 0; /* Hack -- command_cmd is no longer effective */
             return (TRUE);
         }
-
         else if (quiver && (*cp == INVEN_UNLIMITED_QUIVER))
+        {
+            item_tester_tval = 0;
+            item_tester_hook = NULL;
+            command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+            return (TRUE);            
+        }
+        else if ((mode & OPTION_ALL) && *cp == INVEN_ALL)
         {
             item_tester_tval = 0;
             item_tester_hook = NULL;
@@ -2699,7 +2704,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
             }
 
             /* Indicate ability to "view" */
-            if (!command_see && !use_menu) strcat(out_val, " * to see,");
+            if (!(mode & OPTION_ALL) && !command_see && !use_menu) strcat(out_val, " * to see,");
 
             /* Append */
             if (equip) strcat(out_val, format(" %s for Equip,", use_menu ? "4 or 6" : "/"));
@@ -2723,7 +2728,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
             }
 
             /* Indicate ability to "view" */
-            if (!command_see) strcat(out_val, " * to see,");
+            else if (!(mode & OPTION_ALL) && !command_see) strcat(out_val, " * to see,");
 
             /* Append */
             if (inven) strcat(out_val, format(" %s for Inven,", use_menu ? "4 or 6" : "'/'"));
@@ -2733,6 +2738,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
         if (allow_floor) strcat(out_val, " - for floor,");
         if (select_the_force) strcat(out_val, " w for the Force,");
         if (quiver && p_ptr->unlimited_quiver) strcat(out_val, " z for unlimited quiver,");
+        if (mode & OPTION_ALL) strcat(out_val, " * for All,");
 
         /* Finish the prompt */
         strcat(out_val, " ESC");
@@ -2748,118 +2754,118 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
         if (use_menu)
         {
-        int max_line = (command_wrk ? max_equip : max_inven);
-        switch (which)
-        {
-            case ESCAPE:
-            case '0':
+            int max_line = (command_wrk ? max_equip : max_inven);
+            switch (which)
             {
-                done = TRUE;
-                break;
-            }
-
-            case '8':
-            case 'k':
-            case 'K':
-            {
-                menu_line += (max_line - 1);
-                break;
-            }
-
-            case '2':
-            case 'j':
-            case 'J':
-            {
-                menu_line++;
-                break;
-            }
-
-            case '4':
-            case '6':
-            case 'h':
-            case 'H':
-            case 'l':
-            case 'L':
-            {
-                /* Verify legality */
-                if (!inven || !equip)
+                case ESCAPE:
+                case '0':
                 {
-                    bell();
+                    done = TRUE;
                     break;
                 }
 
-                /* Hack -- Fix screen */
-                if (command_see)
+                case '8':
+                case 'k':
+                case 'K':
                 {
-                    /* Load screen */
-                    screen_load();
-
-                    /* Save screen */
-                    screen_save();
+                    menu_line += (max_line - 1);
+                    break;
                 }
 
-                /* Switch inven/equip */
-                command_wrk = !command_wrk;
-                max_line = (command_wrk ? max_equip : max_inven);
-                if (menu_line > max_line) menu_line = max_line;
-
-                /* Need to redraw */
-                break;
-            }
-
-            case 'x':
-            case 'X':
-            case '\r':
-            case '\n':
-            {
-                if (command_wrk == USE_FLOOR)
+                case '2':
+                case 'j':
+                case 'J':
                 {
-                    /* Special index */
-                    (*cp) = -get_item_label;
+                    menu_line++;
+                    break;
                 }
-                else
+
+                case '4':
+                case '6':
+                case 'h':
+                case 'H':
+                case 'l':
+                case 'L':
                 {
-                    /* Validate the item */
-                    if (!get_item_okay(get_item_label))
+                    /* Verify legality */
+                    if (!inven || !equip)
                     {
                         bell();
                         break;
                     }
 
-                    /* Allow player to "refuse" certain actions */
-                    if (!get_item_allow(get_item_label))
+                    /* Hack -- Fix screen */
+                    if (command_see)
                     {
-                        done = TRUE;
-                        break;
+                        /* Load screen */
+                        screen_load();
+
+                        /* Save screen */
+                        screen_save();
                     }
 
-                    /* Accept that choice */
-                    (*cp) = get_item_label;
+                    /* Switch inven/equip */
+                    command_wrk = !command_wrk;
+                    max_line = (command_wrk ? max_equip : max_inven);
+                    if (menu_line > max_line) menu_line = max_line;
+
+                    /* Need to redraw */
+                    break;
                 }
 
-                item = TRUE;
-                done = TRUE;
-                break;
-            }
-            case 'w':
-            {
-                if (select_the_force) {
-                    *cp = INVEN_FORCE;
-                    item = TRUE;
-                    done = TRUE;
-                }
-                break;
+                case 'x':
+                case 'X':
+                case '\r':
+                case '\n':
+                {
+                    if (command_wrk == USE_FLOOR)
+                    {
+                        /* Special index */
+                        (*cp) = -get_item_label;
+                    }
+                    else
+                    {
+                        /* Validate the item */
+                        if (!get_item_okay(get_item_label))
+                        {
+                            bell();
+                            break;
+                        }
 
-            case 'z':
-                if (quiver && p_ptr->unlimited_quiver) {
-                    *cp = INVEN_UNLIMITED_QUIVER;
+                        /* Allow player to "refuse" certain actions */
+                        if (!get_item_allow(get_item_label))
+                        {
+                            done = TRUE;
+                            break;
+                        }
+
+                        /* Accept that choice */
+                        (*cp) = get_item_label;
+                    }
+
                     item = TRUE;
                     done = TRUE;
+                    break;
                 }
-                break;
+                case 'w':
+                {
+                    if (select_the_force) {
+                        *cp = INVEN_FORCE;
+                        item = TRUE;
+                        done = TRUE;
+                    }
+                    break;
+
+                case 'z':
+                    if (quiver && p_ptr->unlimited_quiver) {
+                        *cp = INVEN_UNLIMITED_QUIVER;
+                        item = TRUE;
+                        done = TRUE;
+                    }
+                    break;
+                }
             }
-        }
-        if (menu_line > max_line) menu_line -= max_line;
+            if (menu_line > max_line) menu_line -= max_line;
         }
         else
         {
@@ -2873,6 +2879,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
             }
 
             case '*':
+                if (mode & OPTION_ALL)
+                {
+                    (*cp) = INVEN_ALL;
+                    item = TRUE;
+                    done = TRUE;
+                    break;
+                }
+
             case '?':
             case ' ':
             {

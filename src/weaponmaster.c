@@ -1408,7 +1408,7 @@ static void _dagger_toss_spell(int cmd, variant *res)
         var_set_string(res, "Dagger Toss");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Throws both equipped weapons, or 1 inventory weapon at target monster.");
+        var_set_string(res, "Throws your equipped weapons at target monster.");
         break;
     case SPELL_CAST:
     {

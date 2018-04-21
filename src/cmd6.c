@@ -932,6 +932,9 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 
     if (o_ptr->tval == TV_SCROLL)
     {
+        if (object_is_(o_ptr, TV_SCROLL, SV_SCROLL_IDENTIFY))
+            device_available_charges = o_ptr->number;
+
         if (!device_try(o_ptr))
         {
             if (flush_failure) flush();
@@ -952,6 +955,8 @@ static void do_cmd_read_scroll_aux(int item, bool known)
             }
         }
         used_up = device_use(o_ptr);
+        if (object_is_(o_ptr, TV_SCROLL, SV_SCROLL_IDENTIFY))
+            number = device_used_charges;
     }
     else if (o_ptr->name1 == ART_GHB)
     {
@@ -1178,6 +1183,9 @@ static void do_cmd_use_staff_aux(int item)
             amt /= 2;
         }
     }
+    
+    if (object_is_(o_ptr, TV_STAFF, SV_STAFF_IDENTIFY))
+        device_available_charges = o_ptr->number * o_ptr->pval;
 
     sound(SOUND_ZAP);
     used = device_use(o_ptr);
@@ -1203,6 +1211,9 @@ static void do_cmd_use_staff_aux(int item)
         energy_use = 0;
         return;
     }
+
+    if (object_is_(o_ptr, TV_STAFF, SV_STAFF_IDENTIFY))
+        charges = device_used_charges;
 
     if (devicemaster_is_(DEVICEMASTER_STAVES) && !devicemaster_desperation && randint1(100) <= p_ptr->lev)
     {
@@ -1233,17 +1244,23 @@ static void do_cmd_use_staff_aux(int item)
         }
         else if ((item >= 0) && (o_ptr->number > 1))
         {
-            object_type forge;
-            object_type *q_ptr;
+            int overflow = charges % o_ptr->number;
 
-            q_ptr = &forge;
-            object_copy(q_ptr, o_ptr);
-            q_ptr->number = 1;
-            q_ptr->pval = o_ptr->pval - charges;
-            o_ptr->number--;
-            p_ptr->total_weight -= q_ptr->weight;
-            item = inven_carry(q_ptr);
-            msg_print("You unstack your staff.");
+            /* Draw down total stack uniformly */
+            o_ptr->pval -= charges / o_ptr->number;
+
+            /* Overflow the rest */
+            if (overflow)
+            {
+                object_type copy;
+                object_copy(&copy, o_ptr);
+                copy.number = overflow;
+                copy.pval--;
+                o_ptr->number -= overflow;
+                p_ptr->total_weight -= copy.number * copy.weight;
+                item = inven_carry(&copy);
+                msg_print("You unstack your staff.");
+            }
         }
         else
             o_ptr->pval -= charges;

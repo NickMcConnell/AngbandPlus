@@ -312,6 +312,7 @@ static void sense_inventory1(void)
 
         case CLASS_PALADIN:
         case CLASS_SNIPER:
+        case CLASS_IMITATOR:
         {
             /* Bad sensing */
             if (0 != randint0(_adj_pseudo_id(77777) / (plev * plev + 40))) return;
@@ -335,7 +336,6 @@ static void sense_inventory1(void)
 
         case CLASS_MINDCRAFTER:
         case CLASS_PSION:
-        case CLASS_IMITATOR:
         case CLASS_BLUE_MAGE:
         case CLASS_MIRROR_MASTER:
         {

@@ -1530,8 +1530,27 @@ void equip_on_change_race(void)
             else 
             {
                 char name[MAX_NLEN];
+                
                 object_desc(name, src, 0);
                 msg_format("You can no longer wield %s.", name);
+
+                /* Mark the object as previously worn. Next time we shift bodies,
+                   we will attempt to wield this item again automatically */
+                if (!src->inscription)
+                    src->marked |= OM_WORN;
+                else
+                {
+                    cptr inscription = quark_str(src->inscription);
+                    if ( !strstr(inscription, "@mimic")
+                      && !strstr(inscription, "@vampire")
+                      && !strstr(inscription, "@bat")
+                      && !strstr(inscription, "@mist")
+                      && !strstr(inscription, "@wolf") )
+                    {
+                        src->marked |= OM_WORN;
+                    }
+                }
+
                 p_ptr->total_weight -= src->weight;
                 if (inven_carry_okay(src))
                     inven_carry(src);
@@ -1541,6 +1560,30 @@ void equip_on_change_race(void)
                     msg_format("You drop %s.", name);
                     drop_near(src, -1, py, px);
                 }
+            }
+        }
+
+        for (i = INVEN_PACK - 1; i >= 0; i--)
+        {
+            object_type *o_ptr = &inventory[i];
+            int          slot;
+
+            if (!o_ptr->k_idx) continue;
+            if (!(o_ptr->marked & OM_WORN)) continue;
+        
+            slot = equip_first_empty_slot(o_ptr);
+            if (slot && o_ptr->number == 1)
+            {
+                object_type copy;
+
+                object_copy(&copy, o_ptr);
+                copy.number = 1;
+                copy.marked &= ~OM_WORN;
+
+                inven_item_increase(i, -1);
+                inven_item_optimize(i);
+
+                equip_wield_aux(&copy, slot);
             }
         }
 

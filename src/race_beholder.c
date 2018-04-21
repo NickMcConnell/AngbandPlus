@@ -141,6 +141,18 @@ static int _get_spells(spell_info* spells, int max) {
     else
         return get_spells_aux(spells, max, _beholder_spells);
 }
+static int _get_powers(spell_info* spells, int max)
+{
+    int ct = 0;
+
+    spell_info* spell = &spells[ct++];
+    spell->level = 25;
+    spell->cost = 1;
+    spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_INT]);
+    spell->fn = eat_magic_spell;
+
+    return ct;
+}
 static void _calc_bonuses(void) {
     int l = p_ptr->lev;
     int ac = l/2 + l*l/100;
@@ -325,6 +337,7 @@ race_t *mon_beholder_get_race_t(void)
         me.birth = _birth;
         me.calc_innate_attacks = _calc_innate_attacks;
         me.get_spells = _get_spells;
+        me.get_powers = _get_powers;
         me.caster_info = _caster_info;
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;

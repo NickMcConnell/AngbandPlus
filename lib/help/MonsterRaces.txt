@@ -189,9 +189,9 @@
   Great Venom Wyrm      28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Shadow Drake           +0   -1   -2   -2   -1   -1   90%  +40  350%
-  Death Drake            +2   +1   -1   -1   +0   +2   95%  +40  350%
-  Spectral Wyrm          +4   +3   +0   +0   +1   +5  100%  +40  350%
+  Shadow Drake           +0   -1   -2   -2   -1   -1   90%  +40  300%
+  Death Drake            +2   +1   -1   -1   +0   +2   95%  +40  300%
+  Spectral Wyrm          +4   +3   +0   +0   +1   +5  100%  +40  300%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Shadow Drake          28+8   35+10  38+11   4+0  25+0  26+0  50+15  30+7 
@@ -199,24 +199,24 @@
   Spectral Wyrm         28+8   35+10  38+11   4+0  25+0  26+0  50+15  30+7 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Law Drake              +0   -1   -2   -2   -1   -1  100%  +40  300%
-  Great Wyrm of Law      +5   +4   +0   +1   +3   +4  110%  +40  300%
+  Law Drake              +0   -1   -2   -2   -1   -1  100%  +40  280%
+  Great Wyrm of Law      +5   +4   +0   +1   +3   +4  110%  +40  280%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Law Drake             28+8   40+11  40+11   2+0  25+0  26+0  55+15  30+7 
   Great Wyrm of Law     28+8   40+11  40+11   2+0  25+0  26+0  55+15  30+7 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Chaos Drake            +0   -1   -2   -2   -1   -1  100%  +40  300%
-  Great Wyrm of Chaos    +5   +4   +0   +1   +3   +4  110%  +40  300%
+  Chaos Drake            +0   -1   -2   -2   -1   -1  100%  +40  280%
+  Great Wyrm of Chaos    +5   +4   +0   +1   +3   +4  110%  +40  280%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Chaos Drake           28+8   40+11  40+11   2+0  25+0  26+0  55+15  30+7 
   Great Wyrm of Chaos   28+8   40+11  40+11   2+0  25+0  26+0  55+15  30+7 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Balance Drake          +0   -1   -2   -2   -1   -1   95%  +40  350%
-  Great Wyrm of Balance  +4   +3   +0   +1   +2   +4  105%  +40  350%
+  Balance Drake          +0   -1   -2   -2   -1   -1   95%  +40  300%
+  Great Wyrm of Balance  +4   +3   +0   +1   +2   +4  105%  +40  300%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Balance Drake         28+8   35+10  35+10   2+0  25+0  26+0  50+15  30+7 
@@ -288,10 +288,10 @@
 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Lich                   +0   +3   -3   +1   +0   +0  100%  +20  300%
-  Master Lich            -2   +4   -4   +2   -1   +1   98%  +20  300%
-  Demilich               -4   +5   -5   +3   -1   +2   96%  +20  300%
-  Archlich               -5   +6   -6   +4   -2   +3   94%  +20  300%
+  Lich                   +0   +3   -3   +1   +0   +0  100%  +20  275%
+  Master Lich            -2   +4   -4   +2   -1   +1   98%  +20  275%
+  Demilich               -4   +5   -5   +3   -1   +2   96%  +20  275%
+  Archlich               -5   +6   -6   +4   -2   +3   94%  +20  275%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Lich                  30+7   45+15  38+12   7+0  20+0  30+0  34+6   20+7 
@@ -349,13 +349,13 @@
 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Angel                  +1   +1   +4   +1   +1   +1   90%  +26  350%
-  Archangel              +1   +1   +4   +1   +1   +2   93%  +26  350%
-  Cherub                 +2   +2   +5   +2   +2   +3   96%  +26  350%
-  Seraph                 +2   +2   +5   +2   +2   +4   99%  +26  350%
-  Archon                 +3   +3   +6   +3   +3   +5  102%  +26  350%
-  Planetar               +3   +3   +6   +3   +3   +6  105%  +26  350%
-  Solar                  +4   +4   +7   +4   +4   +7  108%  +26  350%
+  Angel                  +1   +1   +4   +1   +1   +1   90%  +26  275%
+  Archangel              +1   +1   +4   +1   +1   +2   93%  +26  275%
+  Cherub                 +2   +2   +5   +2   +2   +3   96%  +26  275%
+  Seraph                 +2   +2   +5   +2   +2   +4   99%  +26  275%
+  Archon                 +3   +3   +6   +3   +3   +5  102%  +26  275%
+  Planetar               +3   +3   +6   +3   +3   +6  105%  +26  275%
+  Solar                  +4   +4   +7   +4   +4   +7  108%  +26  275%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Angel                 25+7   35+13  40+15   3+0  18+0  12+0  48+18  35+13
@@ -556,8 +556,8 @@
 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Lesser Balrog          +4   +1  -10   +1   +4   +2  105%  +45  350%
-  Greater Balrog         +7   +3  -10   +3   +6   +3  115%  +45  350%
+  Lesser Balrog          +4   +1  -10   +1   +4   +2  105%  +45  300%
+  Greater Balrog         +7   +3  -10   +3   +6   +3  115%  +45  300%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Lesser Balrog         20+12  35+11  40+15  -2+0  10+0   7+0  75+35  30+7 
@@ -578,10 +578,10 @@
   Marilith              20+12  35+11  36+10   3+0  16+0  10+0  56+20  35+11
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Bloodletter of Khorne  +3   -5   -5   +0   +2   +0  100%  +42  275%
-  Fleshhound of Khorne   +4   -5   -5   +0   +3   +0  105%  +42  275%
-  Juggernaut of Khorne   +5   -5   -5   +0   +4   +0  110%  +42  275%
-  Bloodthirster          +6   -5   -5   +1   +5   +1  115%  +42  275%
+  Bloodletter of Khorne  +3   -5   -5   +0   +2   +0  100%  +42  250%
+  Fleshhound of Khorne   +4   -5   -5   +0   +3   +0  105%  +42  250%
+  Juggernaut of Khorne   +5   -5   -5   +0   +4   +0  110%  +42  250%
+  Bloodthirster          +6   -5   -5   +1   +5   +1  115%  +42  250%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Bloodletter of Khorne 20+12  20+8   40+10  -1+0  13+0   7+0  70+32  30+7 
@@ -590,7 +590,7 @@
   Bloodthirster         20+12  20+8   40+10  -1+0  13+0   7+0  70+32  30+7 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Cyberdemon             +5  -10  -10   -3   +5   +0  120%  +50  300%
+  Cyberdemon             +5  -10  -10   -3   +5   +0  120%  +50  275%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Cyberdemon            20+12  18+6   31+9   -1+0  13+0   7+0  75+35  30+7 
@@ -1003,10 +1003,41 @@
   See [a] for more details on rings.
 
 
+***** <Mimic>
+[[[[r|  Mimic
+
+  Mimics are similar to possessors but instead of controlling the corpses of
+  the vanquished, the mimic imitates those about them. This allows the mimic to
+  assume the forms of foes they have yet to conquer and is quite useful.
+  However, there is a small catch: The mimic can only copy what they see! This
+  limitation forces the mimic to change forms much more often than the
+  possessor would as knowledge of their current body rapidly fades when the
+  original is no longer about. Occasionally, the mimic is able to memorize a
+  particular form well enough to use it again without the original body to
+  imitate, though this does not happen very often and the mimic can only
+  memorize a small number of forms. To have a chance of this, the mimic must be
+  in the desired form when slaying the original.
+   
+  Mimics are monsters and do not choose a normal class. Their stats, skills,
+  resistances and spells are determined by the form they assume. Their current
+  body also determines their spell stat (e.g. a novice priest uses wisdom, a
+  novice mage uses intelligence). Their current body may offer innate powers
+  (e.g. breath weapons or rockets) in addition to or in lieu of magical powers
+  (e.g. mana storms and frost bolts). Be sure to check both the racial power
+  command ('U') and the magic command ('m') after assuming a new body.
+
+
+[[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Mimic                  +0   +1   -1   +2   +0   -1  108%  +15  250%
+
+[[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Mimic                 25+7   30+10  36+10   2+0  18+0  26+0  60+18  50+20
+
+
 
 
 ***** [a] Rings.txt
 ***** [b] DragonRealms.txt
 
 
-[[[[s|  Automatically generated for PosChengband 3.1.6.
+[[[[s|  Automatically generated for PosChengband 3.3.1.

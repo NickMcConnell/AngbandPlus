@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 3
-#define VER_PATCH 0
+#define VER_PATCH 1
 #define VER_EXTRA 0
 
 /*
@@ -586,6 +586,7 @@
  */
 #define INVEN_FORCE               1111
 #define INVEN_UNLIMITED_QUIVER    1112
+#define INVEN_ALL                 1113
 
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
@@ -2412,13 +2413,15 @@ enum _mimic_types {
 /*
  * Bit flags for the "get_item" function
  */
-#define USE_EQUIP        0x01    /* Allow equip items */
-#define USE_INVEN        0x02    /* Allow inven items */
-#define USE_FLOOR        0x04    /* Allow floor items */
-#define USE_QUIVER       0x08
-#define SHOW_FAIL_RATES  0x10
-#define SHOW_VALUE       0x20    /* For Reforging */
-
+#define USE_EQUIP               0x001   /* Allow equip items */
+#define USE_INVEN               0x002   /* Allow inven items */
+#define USE_FLOOR               0x004   /* Allow floor items */
+#define USE_QUIVER              0x008
+#define SHOW_FAIL_RATES         0x010
+#define SHOW_VALUE              0x020   /* For Reforging */
+#define OPTION_ALL              0x040   /* Allow user to select all (e.g. identify entire pack) */
+#define OPTION_FORCE            0x080   /* TODO: Remove old hack code ... */
+#define OPTION_UNLIMITED_QUIVER 0x100   /* TODO Remove old hack code ... */
 
 /*
  * Bit flags for the "p_ptr->notice" variable
@@ -2965,6 +2968,7 @@ enum summon_specific_e {
 #define OM_AUTODESTROY  0x08    /* Destroy later to avoid illegal inventry shift */
 #define OM_TOUCHED      0x10    /* Object was touched by player */
 #define OM_RESERVED     0x20    /* Object reserved in the shop */
+#define OM_WORN         0x40    /* Object was previously being worn but is possibly no longer a legal piece of equipment (Mimics) */
 
 
 /*
@@ -4860,6 +4864,7 @@ extern int PlayerUID;
 #define MON_FIVE_HEADED_HYDRA 440
 #define MON_GACHAPIN      441
 #define MON_BLACK_KNIGHT 442
+#define MON_DEEP_ONE      452
 #define MON_BASILISK      453
 #define MON_ICE_TROLL    454
 #define MON_ARCHANGEL     456
@@ -5225,6 +5230,7 @@ extern int PlayerUID;
 #define DONT_AUTOPICK     0x08
 #define ITEM_DISPLAY      0x10
 #define DO_QUERY_AUTOPICK 0x20
+#define DO_AUTO_ID        0x40
 
 
 #define MAGIC_GLOVE_REDUCE_MANA 0x0001

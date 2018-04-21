@@ -2756,7 +2756,7 @@ void do_cmd_debug(void)
 		while (num--)
 		{
 			object_wipe(&forge);
-			if (!make_object(&forge, AM_CURSED)) continue;
+			if (!make_object(&forge, AM_GOOD)) continue;
 			drop_near(&forge, -1, py, px);
 		}
 	}
@@ -2846,8 +2846,8 @@ void do_cmd_debug(void)
     /*
         for (n = 0; n < 120; n++)
             mut_gain_random(NULL);*/
-        mut_gain_choice(mut_demigod_pred);
-    /*
+    /*  mut_gain_choice(mut_demigod_pred);*/
+
         n = get_quantity("Which One? ", 500);
         if (n == 500)
         {
@@ -2856,7 +2856,7 @@ void do_cmd_debug(void)
                 mut_gain(i);
         }
         else
-            mut_gain(n);*/
+            mut_gain(n);
         break;
     }
 

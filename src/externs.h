@@ -841,6 +841,8 @@ extern bool device_use(object_type *o_ptr);
 extern bool device_known;
 extern bool device_noticed;
 extern int  device_extra_power;
+extern int  device_available_charges;
+extern int  device_used_charges;
 extern cptr do_device(int tval, int sval, int mode);
 
 extern effect_t obj_get_effect(object_type *o_ptr);
@@ -2041,6 +2043,8 @@ extern int     possessor_get_spells(spell_info* spells, int max);
 extern 
 caster_info   *possessor_caster_info(void);
 extern void    possessor_calc_bonuses(void);
+extern int     possessor_r_speed(int r_idx);
+extern int     possessor_r_ac(int r_idx);
 extern void    possessor_get_flags(u32b flgs[TR_FLAG_SIZE]);
 extern void    possessor_get_immunities(u32b flgs[TR_FLAG_SIZE]);
 extern void    possessor_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]);

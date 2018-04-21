@@ -180,7 +180,7 @@
 #
 #      Strict syntax of each line is below.
 #      
-#      [! ~ ; (]
+#      [! ~ ; ( ?]
 #      [[all] [collecting]
 #       [unaware] [unidentified] [identified] [*identified*] 
 #       [artifact] [ego] [good] [nameless] [average] [cursed]

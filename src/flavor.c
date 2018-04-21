@@ -1406,6 +1406,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     if (o_ptr->marked & OM_RESERVED)
         t = object_desc_str(t, "<<Hold>> ");
 
+    if (o_ptr->marked & OM_WORN)
+        t = object_desc_str(t, "<<Worn>> ");
+
     /* The object "expects" a "number" */
     if (basenm[0] == '&')
     {

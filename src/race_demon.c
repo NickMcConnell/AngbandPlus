@@ -307,7 +307,7 @@ static race_t *_khorne_get_race_t(void)
         me.skills = bs;
         me.extra_skills = xs;
 
-        me.exp = 275;
+        me.exp = 250;
         me.infra = 5;
         me.base_hp = 42;
 
@@ -687,7 +687,7 @@ static race_t *_balrog_get_race_t(void)
         me.skills = bs;
         me.extra_skills = xs;
 
-        me.exp = 350;
+        me.exp = 300;
         me.base_hp = 45;
 
         me.birth = _balrog_birth;
@@ -861,7 +861,7 @@ static race_t *_cyber_get_race_t(void)
         me.infra = 5;
         me.life = 120;
 
-        me.exp = 300;
+        me.exp = 275;
         me.base_hp = 50;
 
         me.birth = _cyber_birth;

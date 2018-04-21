@@ -3533,6 +3533,7 @@ static void store_sell(void)
 
     /* Modify quantity */
     q_ptr->number = amt;
+    q_ptr->marked &= ~OM_WORN;
 
     /*
      * Hack -- If a rod or wand, allocate total maximum

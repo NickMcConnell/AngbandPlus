@@ -330,25 +330,8 @@ static void _list(_choice_array_t *choices)
                 }
                 else if (_display_mode == _DISPLAY_MODE_EXTRA)
                 {
-                    int speed = 0;
-                    int ac = 0;
-
-                    /* Copied from race_possessor.c _calc_bonuses() */
-                    if (r_ptr->flags9 & RF9_POS_GAIN_AC)
-                        ac = r_ptr->ac;
-                    
-                    if (r_ptr->speed != 110)
-                    {
-                        speed = (int)r_ptr->speed - 110;
-
-                        if (speed > 0)
-                        {
-                            if (strchr("ghknoOpPTVWz", r_ptr->d_char))
-                                speed /= 3;
-                            if (strchr("H", r_ptr->d_char))
-                                speed = speed * 2/3;
-                        }
-                    }
+                    int speed = possessor_r_speed(choice->r_idx);
+                    int ac = possessor_r_ac(choice->r_idx);
 
                     sprintf(buf, "%3d  %3d  %+5d  %+4d  %s", 
                         r_ptr->level, MAX(15, r_ptr->level + 5), speed, ac,
@@ -776,6 +759,10 @@ static void _player_action(int energy_use)
 {
     if (possessor_get_toggle() == LEPRECHAUN_TOGGLE_BLINK)
         teleport_player(10, TELEPORT_LINE_OF_SIGHT);
+
+    /* In wilderness travel mode, there is no place for dropped objects to go! */
+    if (p_ptr->wild_mode)
+        return;
 
     /* Maintain current form. 
        Rules: If the source is visible, then we can always maintain the form. 

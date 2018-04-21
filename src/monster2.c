@@ -1134,9 +1134,9 @@ static bool restrict_monster_to_dungeon(int r_idx)
             !(r_ptr->flags5 & RF5_NOMAGIC_MASK) &&
             !(r_ptr->flags6 & RF6_NOMAGIC_MASK))
             return FALSE;
-    }
-    if (d_ptr->flags1 & DF1_NO_MELEE && (summon_specific_who != -1))
-    {                                 /* ^---- Block players spamming the anti-melee cave for better summons */
+    }                                                              /* v--- ...but prevent the Summon Mold exploit. Sigh ... */
+    if (d_ptr->flags1 & DF1_NO_MELEE && (summon_specific_who != -1 || !allow_pets))
+    {                                 /* ^---- Block players spamming the anti-melee cave for better summons... */
         if (r_idx == MON_CHAMELEON) return TRUE;
         if (!(r_ptr->flags4 & (RF4_BOLT_MASK | RF4_BEAM_MASK | RF4_BALL_MASK)) &&
             !(r_ptr->flags5 & (RF5_BOLT_MASK | RF5_BEAM_MASK | RF5_BALL_MASK | RF5_CAUSE_1 | RF5_CAUSE_2 | RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_MIND_BLAST | RF5_BRAIN_SMASH)) &&
@@ -1518,6 +1518,18 @@ s16b get_mon_num(int level)
 
         if (!_ignore_depth_hack && table[i].max_level < level) continue;
         if (!summon_specific_who && dungeon_type == DUNGEON_ARENA && table[i].level < MIN(50, dun_level-5)) continue;
+
+        /* Hack: Sparing early unique monsters is no longer a viable end game strategy */
+        if (summon_specific_who && summon_specific_type == SUMMON_UNIQUE)
+        {
+            monster_type *who_ptr = &m_list[summon_specific_who];
+            int           who_lvl = r_info[who_ptr->r_idx].level;
+
+            if (who_lvl >= 50)
+            {
+                if (table[i].level < who_lvl - 40) continue;
+            }
+        }
 
         r_idx = table[i].index;
         r_ptr = &r_info[r_idx];

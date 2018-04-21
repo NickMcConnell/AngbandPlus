@@ -1553,6 +1553,7 @@ static void random_slay(object_type *o_ptr)
             default:
                 add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
                 if (!one_in_(7)) remove_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
+                has_pval = TRUE;
                 if (!artifact_bias && one_in_(9))
                     artifact_bias = BIAS_RANGER;
                 break;

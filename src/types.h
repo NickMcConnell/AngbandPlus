@@ -413,6 +413,7 @@ struct monster_body_s
     s16b     spell_stat;
     s16b     body_idx;
     s16b     class_idx;
+    s16b     speed;
 };
 typedef struct monster_body_s monster_body_t;
 

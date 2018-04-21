@@ -123,6 +123,20 @@ static spell_info _spells[] = {
 static int _get_spells(spell_info* spells, int max) {
     return get_spells_aux(spells, max, _spells);
 }
+
+static int _get_powers(spell_info* spells, int max)
+{
+    int ct = 0;
+
+    spell_info* spell = &spells[ct++];
+    spell->level = 25;
+    spell->cost = 1;
+    spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_INT]);
+    spell->fn = eat_magic_spell;
+
+    return ct;
+}
+
 static void _calc_bonuses(void) {
     if (p_ptr->lev < 25)
         res_add_vuln(RES_LITE);
@@ -229,10 +243,11 @@ static race_t *_archlich_get_race_t(void)
         me.extra_skills = xs;
 
         me.infra = 5;
-        me.exp = 300;
+        me.exp = 275;
         me.base_hp = 20;
 
         me.get_spells = _get_spells;
+        me.get_powers = _get_powers;
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;
         me.get_immunities = _get_immunities;
