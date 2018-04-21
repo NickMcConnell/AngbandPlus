@@ -1717,7 +1717,7 @@ static bool _mon_save_p(monster_type *m_ptr)
     
     /* Player may not exert their force of will out of sight! */
     if (projectable(py, px, m_ptr->fy, m_ptr->fx))
-        pl += adj_stat_save[p_ptr->stat_ind[A_CHR]];
+        pl += adj_stat_save_fear[p_ptr->stat_ind[A_CHR]];
 
     if (pl <= 1) 
         return TRUE;

@@ -1200,12 +1200,12 @@ static void _rapid_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with extra blows.");
         break;
     case SPELL_CAST:
-        p_ptr->innate_attacks[0].blows += 100;
-        p_ptr->innate_attacks[1].blows += 50;
+        p_ptr->innate_attacks[0].blows += 50;
+        p_ptr->innate_attacks[1].blows += 25;
         var_set_bool(res, do_blow(DRAGON_RAPID_STRIKE));
         /* Bug Note (Applies below as well):
-         * p_ptr->innate_attacks[0].blows -= 100;
-         * p_ptr->innate_attacks[1].blows -= 50;
+         * p_ptr->innate_attacks[0].blows -= 50;
+         * p_ptr->innate_attacks[1].blows -= 25;
          * Would seem to be correct, but alas, if any code triggers a calc_bonuses() call during
          * do_blow(), then the player would end up with fewer blows than normal. Alas, this *is*
          * actually happening in some situations, but I haven't been able to track down the cause.
@@ -1214,8 +1214,8 @@ static void _rapid_strike_spell(int cmd, variant *res)
         handle_stuff();
         break;
     case SPELL_ON_BROWSE:
-        p_ptr->innate_attacks[0].blows += 100;
-        p_ptr->innate_attacks[1].blows += 50;
+        p_ptr->innate_attacks[0].blows += 50;
+        p_ptr->innate_attacks[1].blows += 25;
         do_cmd_knowledge_weapon();
         p_ptr->update |= PU_BONUS;
         handle_stuff();

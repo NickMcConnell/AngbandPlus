@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 4
-#define VER_PATCH 4
+#define VER_PATCH 5
 #define VER_EXTRA 0
 
 /*

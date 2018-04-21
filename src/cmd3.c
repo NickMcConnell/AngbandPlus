@@ -1595,7 +1595,7 @@ void do_cmd_list_objects(void)
         {
             if (auto_pick_idx < 0) continue;
             if (!(autopick_list[auto_pick_idx].action & DO_DISPLAY)) continue;
-            if (!(autopick_list[auto_pick_idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK))) continue;
+            if (!(autopick_list[auto_pick_idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK | DONT_AUTOPICK))) continue;
         }
         list[ct++] = i;
     }

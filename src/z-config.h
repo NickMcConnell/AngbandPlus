@@ -92,9 +92,9 @@
  * Currently used whenever available, if you get a warning about
  * "nodelay()" undefined, then make sure to undefine this.
  */
-#if defined(SYS_V) || defined(AMIGA)
+/*#if defined(SYS_V) || defined(AMIGA)*/
 # define USE_GETCH
-#endif
+/*#endif*/
 
 /*
  * OPTION: Use the "curs_set()" call in "main-gcu.c".

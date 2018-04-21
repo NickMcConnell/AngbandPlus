@@ -754,6 +754,39 @@ static void Term_nuke_gcu(term *t)
 
 #ifdef USE_GETCH
 
+static int _getstr(char *buf, int cb)
+{
+    int   ct = 0, j;
+
+    buf[ct] = '\0';
+    nodelay(stdscr, TRUE);
+    for (;;)
+    {
+        if (ct >= cb - 1)
+            break;
+
+        j = getch();
+        if (j == ERR)
+            break;
+
+        buf[ct++] = (char)j;
+    }
+    buf[ct] = '\0';
+    nodelay(stdscr, FALSE);
+
+    return ct;
+}
+
+static void _ungetstr(const char *buf, int cb)
+{
+    int pos;
+    for (pos = cb - 1; pos >= 0; pos--)
+    {
+        char ch = buf[pos];
+        ungetch(ch);
+    }
+}
+
 /*
  * Process events, with optional wait
  */
@@ -794,6 +827,50 @@ static errr Term_xtra_gcu_event(int v)
       if (i == ERR) return (1);
       if (i == EOF) return (1);
    }
+
+   /* Issue: Currently, we map curses escape sequences via the macro processing system (see pref-gcu.prf).
+    * If you don't already know, this is required for things like arrow keys and the numpad and what not.
+    * The advantage of this approach is that users can (theoretically) edit the pref file themselves in
+    * the event that their terminal is sending a different escape sequence for some reason. All good, right?
+    * Well, except for those places in the code that *disable* macro processing! This includes all user prompts,
+    * the store UI (TODO) and the autopicker. Now, it's rather disconcerting if arrow keys aren't available in
+    * a text editor or if the user can't correct typos with backspace!
+    *
+    * The idea of translating here is from current Vanilla
+    * TODO */
+
+   /* Backspace */
+   if (i == 0x7F)
+      i = '\b';
+
+    if (i == 27) /* \e is not ansi c */
+    {
+        /*
+        char  buf[255];
+        int   cb = _getstr(buf, 255);
+        if (cb > 0)
+        {
+            if (strcmp(buf, "[3~") == 0)
+                i = '.';
+            else if (strcmp(buf, "[2~") == 0)
+                i = '0';
+            else if (strcmp(buf, "[4~") == 0)
+                i = '1';
+            else if (strcmp(buf, "[F") == 0)
+                i = '1';
+            else if (strcmp(buf, "[B") == 0)
+                i = '2';
+            ...
+            else
+                _ungetstr(buf, cb);
+        }
+        CTK: Actually, I'm not so sure this is going to work. Arrow keys need
+        to be known as such by the game engine not translated to numbers. And
+        looking at what main-win.c and main-x11.c do to get this working is ...
+        uh, a bit overwhelming. So this is on hold for now ...
+        */
+    }
+
 
    /* Enqueue the keypress */
    Term_keypress(i);
@@ -911,6 +988,26 @@ static errr Term_xtra_gcu_sound(int v)
 }
 #endif
 
+static int scale_color(int i, int j, int scale)
+{
+    return (angband_color_table[i][j] * (scale - 1) + 127) / 255;
+}
+
+static int create_color(int i, int scale)
+{
+    int r = scale_color(i, 1, scale);
+    int g = scale_color(i, 2, scale);
+    int b = scale_color(i, 3, scale);
+    int rgb = 16 + scale * scale * r + scale * g + b;
+    /* In the case of white and black we need to use the ANSI colors */
+    if (r == g && g == b)
+    {
+        if (b == 0) rgb = 0;
+        if (b == scale) rgb = 15;
+    }
+    return rgb;
+}
+
 /*
  * React to changes
  */
@@ -918,20 +1015,28 @@ static errr Term_xtra_gcu_react(void)
 {
 
 #ifdef A_COLOR
-
-	int i;
-
-	/* Cannot handle color redefinition */
-	if (!can_fix_color) return (0);
-
-	/* Set the colors */
-	for (i = 0; i < 16; i++)
-	{
-		/* Set one color (note scaling) */
-		init_color(i, angband_color_table[i][1] * 1000 / 255,
-			      angband_color_table[i][2] * 1000 / 255,
-			      angband_color_table[i][3] * 1000 / 255);
-	}
+    if (COLORS == 256 || COLORS == 88)
+    {
+        /* CTK: I snagged this color handling from current Vanilla */
+        /* If we have more than 16 colors, find the best matches. These numbers
+        * correspond to xterm/rxvt's builtin color numbers--they do not
+        * correspond to curses' constants OR with curses' color pairs.
+        *
+        * XTerm has 216 (6*6*6) RGB colors, with each RGB setting 0-5.
+        * RXVT has 64 (4*4*4) RGB colors, with each RGB setting 0-3.
+        *
+        * Both also have the basic 16 ANSI colors, plus some extra grayscale
+        * colors which we do not use.
+        */
+        int i;
+        int scale = COLORS == 256 ? 6 : 4;
+        for (i = 0; i < 16; i++)
+        {
+            int fg = create_color(i, scale);
+            init_pair(i + 1, fg, COLOR_BLACK);
+            colortable[i] = COLOR_PAIR(i + 1) | A_NORMAL;
+        }
+    }
 
 #endif
 
@@ -1253,30 +1358,8 @@ errr init_gcu(int argc, char *argv[])
 			 (COLORS >= 16) && (COLOR_PAIRS > 8));
 #endif
 
-   /* Attempt to use customized colors */
-   if (can_fix_color)
-   {
-      /* Prepare the color pairs */
-      for (i = 1; i <= 63; i++)
-      {
-	 /* Reset the color */
-	 if (init_pair(i, (i - 1) % 8, (i - 1) / 8) == ERR)
-	 {
-	    quit("Color pair init failed");
-	 }
-
-	/* Set up the colormap */
-	colortable[i - 1] = (COLOR_PAIR(i) | A_NORMAL);
-	colortable[i + 7] = (COLOR_PAIR(i) | A_BRIGHT);
-
-	/* XXX XXX XXX Take account of "gamma correction" */
-
-	/* Prepare the "Angband Colors" */
-	Term_xtra_gcu_react();
-      }
-   }
    /* Attempt to use colors */
-   else if (can_use_color)
+   if (can_use_color)
    {
 		/* Color-pair 0 is *always* WHITE on BLACK */
 
@@ -1423,6 +1506,11 @@ errr init_gcu(int argc, char *argv[])
 
    /* Store */
    term_screen = &data[0].t;
+
+#ifdef USE_GETCH
+   /* Title screen (news.txt) won't draw otherwise for some reason ... */
+   wrefresh(stdscr);
+#endif
 
    /* Success */
    return (0);
