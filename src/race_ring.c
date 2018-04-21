@@ -1070,7 +1070,7 @@ static _spell_t _prompt_spell(_spell_ptr spells)
             
             choice->effect = spell->effect;
             choice->level = spell->level;
-            choice->cost = spell->cost;
+            choice->cost = calculate_cost(spell->cost);
             choice->fail = calculate_fail_rate(spell->level, spell->fail, p_ptr->stat_ind[A_INT]);
 
             ct_avail++;
@@ -1479,7 +1479,9 @@ static void _dump_effects(FILE* fff)
                 sprintf(name, "%s", do_effect(&effect, SPELL_NAME, 0));
                 sprintf(info, "%s", do_effect(&effect, SPELL_INFO, _boost(s->effect)));
 
-                sprintf(buf, "%-30.30s %3d %3d %3d %3d%% ", name, _effects[s->effect], s->level, s->cost, calculate_fail_rate(s->level, s->fail, p_ptr->stat_ind[A_INT]));
+                sprintf(buf, "%-30.30s %3d %3d %3d %3d%% ", 
+                              name, _effects[s->effect], s->level, calculate_cost(s->cost), 
+                              calculate_fail_rate(s->level, s->fail, p_ptr->stat_ind[A_INT]));
                 if (info)
                     strcat(buf, info);
 
@@ -1758,7 +1760,9 @@ void ring_process_m(int m_idx)
 {
     if ( p_ptr->prace == RACE_MON_RING 
       && p_ptr->riding == m_idx 
-      && !p_ptr->wild_mode )
+      && !p_ptr->wild_mode 
+      && !p_ptr->inside_arena 
+      && !p_ptr->inside_battle )
     {
         monster_type *m_ptr = &m_list[m_idx];
         monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1767,7 +1771,7 @@ void ring_process_m(int m_idx)
         if (r_ptr->flags1 & RF1_UNIQUE)
             odds = 1000;
 
-        if (one_in_(odds) && !_mon_save_p(m_ptr))
+        if (one_in_(odds) && _mon_save_p(m_ptr))
         {
             char m_name[MAX_NLEN];
             int  x, y, ox, oy;
