@@ -136,6 +136,7 @@ void vec_delete(vec_ptr vec, int i)
         vec->free(vec->objs[i]);
     for (j = i; j < vec->len - 1; j++)
         vec->objs[j] = vec->objs[j+1];
+    vec->len--;
 }
 
 void vec_set(vec_ptr vec, int i, vptr obj)
@@ -193,7 +194,18 @@ void vec_for_each(vec_ptr vec, vec_item_f f)
     for (i = 0; i < vec->len; i++)
         f(vec->objs[i]);
 }
-
+vec_ptr vec_filter(vec_ptr vec, vec_item_p p)
+{
+    vec_ptr v = vec_alloc(NULL);
+    int     i;
+    for (i = 0; i < vec->len; i++)
+    {
+        void *item = vec->objs[i];
+        if (!p(item)) continue;
+        vec_add(v, item);
+    }
+    return v;
+}
 int vec_compare(vec_ptr left, vec_ptr right, vec_cmp_f f)
 {
     int i;
@@ -416,7 +428,7 @@ void vec_sort(vec_ptr vec, vec_cmp_f f)
  * */
 int_stat_t int_calc_stats(vec_ptr v)
 {
-    int_stat_t r;
+    int_stat_t r = {0};
     int n = vec_length(v);
     int i, max = 0;
     double tx2 = 0.0, tx = 0.0;
@@ -427,10 +439,13 @@ int_stat_t int_calc_stats(vec_ptr v)
         tx2 += (double)x*(double)x;
         if (x > max) max = x;
     }
-    r.mean = tx/(double)n;
-    r.variance = tx2/(double)n - (r.mean)*(r.mean);
-    r.sigma = sqrt(r.variance);
-    r.max = max;
+    if (n)
+    {
+        r.mean = tx/(double)n;
+        r.variance = tx2/(double)n - (r.mean)*(r.mean);
+        r.sigma = sqrt(r.variance);
+        r.max = max;
+    }
     return r;
 }
 

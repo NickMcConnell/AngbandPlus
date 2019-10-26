@@ -1,7 +1,7 @@
 #include "angband.h"
 #include "equip.h"
 
-static void _absconding_spell(int cmd, variant *res)
+static void _absconding_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -14,7 +14,7 @@ static void _absconding_spell(int cmd, variant *res)
     }
 }
 
-static void _ancient_knowledge_spell(int cmd, variant *res)
+static void _ancient_knowledge_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -27,7 +27,7 @@ static void _ancient_knowledge_spell(int cmd, variant *res)
     }
 }
 
-static void _bind_monster_spell(int cmd, variant *res)
+static void _bind_monster_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -52,7 +52,7 @@ static void _bind_monster_spell(int cmd, variant *res)
     }
 }
 
-static void _bunshin_spell(int cmd, variant *res)
+static void _bunshin_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -63,7 +63,7 @@ static void _bunshin_spell(int cmd, variant *res)
         var_set_string(res, "Creates shadows of yourself which gives you ability to completely evade any attacks at one in two chance for a while.");
         break;
     case SPELL_CAST:
-        set_multishadow(6+randint1(6), FALSE);
+        plr_tim_add(T_MULTISHADOW, 6+randint1(6));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -72,7 +72,7 @@ static void _bunshin_spell(int cmd, variant *res)
     }
 }
 
-static void _chain_hook_spell(int cmd, variant *res)
+static void _chain_hook_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -84,57 +84,49 @@ static void _chain_hook_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        monster_type *m_ptr;
-        int m_idx;
-        char m_name[80];
+        mon_ptr mon;
+        char m_name[MAX_NLEN_MON];
         int i;
         int path_n;
-        u16b path_g[512];
-        int ty,tx;
+        point_t path[MAX_SIGHT];
+        point_t tgt, cur, next;
 
         var_set_bool(res, FALSE);
         if (!target_set(TARGET_KILL)) return;
-        m_idx = cave[target_row][target_col].m_idx;
-        if (!m_idx) return;
-        if (m_idx == p_ptr->riding) return;
+        tgt = point_create(target_col, target_row);
+        mon = mon_at(tgt);
+        if (!mon) return;
+        if (mon->id == p_ptr->riding) return;
         if (!player_has_los_bold(target_row, target_col)) return;
-        if (!projectable(py, px, target_row, target_col)) return;
-        m_ptr = &m_list[m_idx];
-        monster_desc(m_name, m_ptr, 0);
+        if (!projectable(p_ptr->pos.y, p_ptr->pos.x, target_row, target_col)) return;
+
+        monster_desc(m_name, mon, 0);
         msg_format("You pull back %s.", m_name);
 
-        path_n = project_path(path_g, MAX_RANGE, target_row, target_col, py, px, 0);
-        ty = target_row, tx = target_col;
+        /* start at target, and project back to the player */
+        path_n = project_path(path, MAX_RANGE, tgt, p_ptr->pos, 0);
+        cur = tgt;
         for (i = 1; i < path_n; i++)
         {
-            int ny = GRID_Y(path_g[i]);
-            int nx = GRID_X(path_g[i]);
-            cave_type *c_ptr = &cave[ny][nx];
+            cave_type *c_ptr;
+            next = path[i];
+            c_ptr = cave_at(next);
 
-            if (in_bounds(ny, nx) && cave_empty_bold(ny, nx) &&
-                !(c_ptr->info & CAVE_OBJECT) &&
-                !pattern_tile(ny, nx))
-            {
-                ty = ny;
-                tx = nx;
-            }
+            if (cave_empty_at(next) && !(c_ptr->info & CAVE_OBJECT) && !pattern_tile(next.y, next.x))
+                cur = next;
         }
-        cave[target_row][target_col].m_idx = 0;
-        cave[ty][tx].m_idx = m_idx;
-        m_ptr->fy = ty;
-        m_ptr->fx = tx;
-        (void)set_monster_csleep(m_idx, 0);
-        update_mon(m_idx, TRUE);
-        lite_spot(target_row, target_col);
-        lite_spot(ty, tx);
+        mon_tim_delete(mon, MT_SLEEP);
+        dun_move_mon(cave, mon, cur);
+        lite_pos(tgt);
+        lite_pos(cur);
 
-        if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+        if (mon_race(mon)->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
             p_ptr->update |= (PU_MON_LITE);
 
-        if (m_ptr->ml)
+        if (mon->ml)
         {
-            if (!p_ptr->image) mon_track(m_ptr);
-            health_track(m_idx);
+            if (!plr_tim_find(T_HALLUCINATE)) mon_track(mon);
+            health_track(mon->id);
         }
 
         var_set_bool(res, TRUE);
@@ -146,7 +138,7 @@ static void _chain_hook_spell(int cmd, variant *res)
     }
 }
 
-static void _detect_near_spell(int cmd, variant *res)
+static void _detect_near_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -166,7 +158,7 @@ static void _detect_near_spell(int cmd, variant *res)
     case SPELL_CAST:
         if (p_ptr->lev >= 45)
         {
-            wiz_lite(TRUE);
+            wiz_lite();
         }
         detect_monsters_normal(DETECT_RAD_DEFAULT);
         if (p_ptr->lev >= 5)
@@ -174,6 +166,7 @@ static void _detect_near_spell(int cmd, variant *res)
             detect_traps(DETECT_RAD_DEFAULT, TRUE);
             detect_doors(DETECT_RAD_DEFAULT);
             detect_stairs(DETECT_RAD_DEFAULT);
+            detect_recall(DETECT_RAD_DEFAULT);
         }
         if (p_ptr->lev >= 15)
         {
@@ -187,7 +180,7 @@ static void _detect_near_spell(int cmd, variant *res)
     }
 }
 
-static void _floating_spell(int cmd, variant *res)
+static void _floating_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -198,7 +191,7 @@ static void _floating_spell(int cmd, variant *res)
         var_set_string(res, "Gives levitation for a while.");
         break;
     case SPELL_CAST:
-        set_tim_levitation(randint1(20) + 20, FALSE);
+        plr_tim_add(T_LEVITATION, randint1(20) + 20);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -207,7 +200,7 @@ static void _floating_spell(int cmd, variant *res)
     }
 }
 
-static void _glyph_of_explosion_spell(int cmd, variant *res)
+static void _glyph_of_explosion_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -220,7 +213,7 @@ static void _glyph_of_explosion_spell(int cmd, variant *res)
     }
 }
 
-void hide_in_flame_spell(int cmd, variant *res)
+void hide_in_flame_spell(int cmd, var_ptr res)
 {
     int dam = 50 + p_ptr->lev;
     int rad = 2 + p_ptr->lev/10;
@@ -238,7 +231,7 @@ void hide_in_flame_spell(int cmd, variant *res)
     case SPELL_CAST:
         fire_ball(GF_FIRE, 0, dam, rad);
         teleport_player(30, 0);
-        set_oppose_fire(p_ptr->lev, FALSE);
+        plr_tim_add(T_RES_FIRE, p_ptr->lev);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -247,7 +240,7 @@ void hide_in_flame_spell(int cmd, variant *res)
     }
 }
 
-static void _hide_in_leaves_spell(int cmd, variant *res)
+static void _hide_in_leaves_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -260,7 +253,7 @@ static void _hide_in_leaves_spell(int cmd, variant *res)
     }
 }
 
-void hide_in_mist_spell(int cmd, variant *res)
+void hide_in_mist_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -283,7 +276,7 @@ void hide_in_mist_spell(int cmd, variant *res)
     }
 }
 
-static void _hit_and_away_spell(int cmd, variant *res)
+static void _hit_and_away_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -296,7 +289,7 @@ static void _hit_and_away_spell(int cmd, variant *res)
     }
 }
 
-static void _kawarimi_spell(int cmd, variant *res)
+static void _kawarimi_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -321,7 +314,7 @@ static void _kawarimi_spell(int cmd, variant *res)
     }
 }
 
-static void _nyusin_spell(int cmd, variant *res)
+static void _nyusin_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -340,7 +333,7 @@ static void _nyusin_spell(int cmd, variant *res)
     }
 }
 
-void quick_walk_spell(int cmd, variant *res)
+void quick_walk_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -364,7 +357,7 @@ void quick_walk_spell(int cmd, variant *res)
     }
 }
 
-static void _rengoku_kaen_spell(int cmd, variant *res)
+static void _rengoku_kaen_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -374,36 +367,35 @@ static void _rengoku_kaen_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Fires some number of beams of fire, nether or plasma in random directions.");
         break;
-    case SPELL_CAST:
-    {
-        int k, x = 0, y = 0;
+    case SPELL_CAST: {
+        int k;
         int num = damroll(3, 9);
 
         for (k = 0; k < num; k++)
         {
             int typ = one_in_(2) ? GF_FIRE : one_in_(3) ? GF_NETHER : GF_PLASMA;
-            int attempts = 1000;
+            point_t p;
+            int attempt = 1000;
 
-            while (attempts--)
+            while (attempt--)
             {
-                scatter(&y, &x, py, px, 4, 0);
-
-                if (!player_bold(y, x)) break;
+                p = scatter(p_ptr->pos, 4);
+                if (!plr_at(p)) break;
             }
-            project(0, 0, y, x, damroll(6 + p_ptr->lev / 8, 10), typ,
+            if (attempt < 0) continue;
+            project(0, 0, p.y, p.x, damroll(6 + p_ptr->lev / 8, 10), typ,
                 (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_KILL));
         }
 
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _smoke_ball_spell(int cmd, variant *res)
+static void _smoke_ball_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -430,7 +422,7 @@ static void _smoke_ball_spell(int cmd, variant *res)
 
 static bool _obj_is_shuriken(obj_ptr obj) { return obj->tval == TV_SPIKE; }
 
-static void _syuriken_spreading_spell(int cmd, variant *res)
+static void _syuriken_spreading_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -445,8 +437,8 @@ static void _syuriken_spreading_spell(int cmd, variant *res)
         int i;
         for (i = 0; i < 8; i++)
         {
-            int        slot = pack_find_first(_obj_is_shuriken);
-            py_throw_t context = {0}; /* better reset for each shot! */
+            int         slot = pack_find_first(_obj_is_shuriken);
+            plr_throw_t context = {0}; /* better reset for each shot! */
             if (!slot)
             {
                 if (!i) msg_print("You have no Iron Spikes.");
@@ -455,7 +447,7 @@ static void _syuriken_spreading_spell(int cmd, variant *res)
             }
             context.dir = DIR_RANDOM;
             context.obj = pack_obj(slot);
-            py_throw(&context);
+            plr_throw(&context);
         }
         var_set_bool(res, TRUE);
         break;
@@ -497,7 +489,7 @@ static spell_info _spells[] =
 
 static power_info _powers[] =
 {
-    { A_NONE, { 20, 0,  0, quick_walk_spell}}, 
+    { A_DEX, { 20, 0,  0, quick_walk_spell}}, 
     { -1, {-1, -1, -1, NULL}}
 };
 
@@ -511,7 +503,7 @@ static void _character_dump(doc_ptr doc)
     spell_info spells[MAX_SPELLS];
     int        ct = _get_spells(spells, MAX_SPELLS);
 
-    py_display_spells(doc, spells, ct);
+    plr_display_spells(doc, spells, ct);
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -536,6 +528,9 @@ static void _calc_bonuses(void)
         /* Ninjas are not archers, and have relatively poor thb skills.
          * However, they excel at throwing (tht)! */
         p_ptr->skill_tht += 30 + p_ptr->lev;
+        p_ptr->ambush = 300 + p_ptr->lev*4;
+        p_ptr->backstab = 150;
+        p_ptr->crit_freq_add = 100; /* add 10.0% to critical frequency since daggers never crit! */
     }
     if (!equip_find_obj(TV_SHIELD, SV_ANY))
     {
@@ -571,18 +566,73 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (p_ptr->lev >= 30) add_flag(flgs, OF_SEE_INVIS);
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(object_type *o_ptr, plr_attack_info_ptr info)
 {
     if ( skills_weapon_is_icky(o_ptr->tval, o_ptr->sval) 
       || equip_find_obj(TV_SHIELD, SV_ANY) )
     {
-        info_ptr->to_h -= 40;
-        info_ptr->dis_to_h -= 40;
-        info_ptr->icky_wield = TRUE;
-        info_ptr->base_blow /= 2;
-        info_ptr->xtra_blow /= 2;
-        if (info_ptr->base_blow < 100) info_ptr->base_blow = 100;
+        info->to_h -= 40;
+        info->dis_to_h -= 40;
+        add_flag(info->paf_flags, PAF_ICKY);
+        info->base_blow /= 2;
+        info->xtra_blow /= 2;
+        if (info->base_blow < 100) info->base_blow = 100;
     }
+}
+
+static bool _is_critical_blow(plr_attack_ptr context)
+{
+    int odds = context->technique ? 14 : 27;
+    return one_in_(odds);
+}
+static bool _is_unique(mon_race_ptr race)
+{
+    if (race->flags1 & RF1_UNIQUE) return TRUE;
+    if (race->flags7 & RF7_UNIQUE2) return TRUE;
+    return FALSE;
+}
+static bool _is_fatal_blow(plr_attack_ptr context)
+{
+    int maxhp = maxroll(context->race->hdice, context->race->hside);
+    if (context->mon->hp < maxhp/2 && one_in_(context->blow_ct*10)) return TRUE;
+    if (_is_unique(context->race)) return FALSE;
+    if (one_in_(666)) return TRUE;
+    if (context->technique > 150 && one_in_(11)) return TRUE;
+    return FALSE;
+}
+static void _mod_damage(plr_attack_ptr context)
+{
+    if (context->info.type != PAT_WEAPON && !mut_present(MUT_DRACONIAN_METAMORPHOSIS)) return;
+    if (have_flag(context->info.paf_flags, PAF_ICKY)) return;
+    if (!context->dam) return;  /* MON_INVULNER() */
+    if (p_ptr->cur_lite <= 0 || one_in_(7))
+    {
+        if (_is_critical_blow(context))
+        {
+            context->dam *= 5;
+            context->dam_drain *= 2;
+            msg_format("<color:R>You critically injured %s!</color>", context->mon_name_obj);
+        }
+        else if (_is_fatal_blow(context))
+        {
+            int maxhp = maxroll(context->race->hdice, context->race->hside);
+            if (_is_unique(context->race) || context->mon->hp >= maxhp/2)
+            {
+                context->dam = MAX(context->dam*5, context->mon->hp/2);
+                context->dam_drain *= 2;
+                msg_format("<color:v>You fatally injured %s!</color>", context->mon_name_obj);
+            }
+            else
+            {
+                context->dam = context->mon->hp + 1;
+                msg_format("<color:v>You hit %s on a fatal spot!</color>", context->mon_name_obj);
+            }
+        }
+    }
+}
+static void _attack_init(plr_attack_ptr context)
+{
+    context->hooks.mod_damage_f = _mod_damage;
 }
 
 static caster_info * _caster_info(void)
@@ -601,25 +651,36 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
-    py_birth_obj_aux(TV_SPIKE, 0, rand_range(15, 20));
+    plr_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
+    plr_birth_obj_aux(TV_SPIKE, 0, rand_range(15, 20));
 }
 
-class_t *ninja_get_class(void)
+static status_display_t _status_display(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    status_display_t d = {0};
+    if (p_ptr->special_defense & NINJA_KAWARIMI)
+    {
+        d.name = "Kawarimi";
+        d.abbrev = "Kw";
+        d.color = TERM_L_BLUE;
+    }
+    return d;
+}
 
-    /* static info never changes */
-    if (!init)
+plr_class_ptr ninja_get_class(void)
+{
+    static plr_class_ptr me = NULL;
+
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 45,  24,  36,   8,  48,  32,  70,  35 };
     skills_t xs = { 15,  10,  10,   0,   0,   0,  25,  11 };
 
-        me.name = "Ninja";
-        me.desc = "A Ninja is a fearful assassin lurking in darkness. He or she can "
+        me = plr_class_alloc(CLASS_NINJA);
+        me->name = "Ninja";
+        me->desc = "A Ninja is a fearful assassin lurking in darkness. He or she can "
                     "navigate effectively with no light source, catch enemies by surprise, "
                     "and kill with a single blow. Ninjas can use Ninjutsu, and are "
                     "good at locating hidden traps and doors, disarming traps and "
@@ -634,31 +695,32 @@ class_t *ninja_get_class(void)
                     "class power - 'Quick Walk' - which makes their walking speed "
                     "extremely fast.";
 
-        me.stats[A_STR] =  0;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  3;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  2;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 100;
-        me.base_hp = 4;
-        me.exp = 120;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_STRONG;
+        me->stats[A_STR] =  0;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  3;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  2;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 100;
+        me->base_hp = 4;
+        me->exp = 120;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_MED | CLASS_SENSE1_STRONG |
+                    CLASS_SENSE2_STRONG;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.get_powers = _get_powers;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.attack_init = _attack_init;
+        me->hooks.status_display = _status_display;
     }
 
-    return &me;
+    return me;
 }

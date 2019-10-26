@@ -69,6 +69,7 @@ struct feature_state
  */
 
 typedef struct feature_type feature_type;
+typedef struct feature_type feat_t, *feat_ptr;
 
 struct feature_type
 {
@@ -142,6 +143,7 @@ struct object_kind
 
     byte tval;            /* Object type */
     byte sval;            /* Object sub type */
+    byte stack;           /* Max Stack Size (0 => use tv_info_t settings) */
 
     s16b pval;            /* Object extra info */
 
@@ -168,7 +170,6 @@ struct object_kind
     byte chance[4];        /* Allocation chance(s) */
 
     byte level;            /* Level */
-    byte extra;            /* Something */
     byte max_level;        /* Level */
 
     effect_t activation;
@@ -241,7 +242,7 @@ struct artifact_type
     bool generated; /* Artifact has been created, but possibly yet to be discovered */
     bool found;     /* Player has found and identified this artifact */
 
-    s16b floor_id;          /* Leaved on this location last time */
+    s16b tries;     /* Debug: Number of times the game tried to roll this art (statistics runs only) */
 };
 
 
@@ -280,6 +281,9 @@ struct ego_type
     effect_t activation;
 
     counts_t counts;
+
+    vec_ptr  art_names;
+    vec_ptr  art_names_high;
 };
 
 /*
@@ -314,11 +318,14 @@ typedef struct object_type object_type;
 typedef bool (*object_p)(object_type *o_ptr);
 
 struct obj_loc_s {
-    byte where; /* INV_EQUIP, INV_PACK, INV_QUIVER, INV_SHOP or INV_FLOOR */
-    byte x, y;  /* where == INV_FLOOR */
-    int  slot;  /* o_idx if floor, slot otherwise */
+    byte where; /* INV_* code (see inv.h) */
+    union {
+        int slot; /* INV_PACK, INV_EQUIP, etc */
+        struct { u16b dun_id, obj_id; s16b x, y; } floor;  /* INV_FLOOR */
+        struct { u16b dun_id, obj_id, mon_id; } mon_pack; /* INV_MON_PACK */
+    } v;
 };
-typedef struct obj_loc_s obj_loc_t;
+typedef struct obj_loc_s obj_loc_t, *obj_loc_ptr;
 
 struct object_type
 {
@@ -375,37 +382,17 @@ struct object_type
 
     u32b rune;
 
-    s16b next_o_idx;    /* Next object in stack (if any) */
+    object_type *next;  /* piles (floor or monster) */
 
-    s16b held_m_idx;    /* Monster holding us (if any) */
     effect_t activation;
     obj_loc_t loc;
 
-    s16b level;         /* object_level on generation for my statistical pleasures */
+    s16b level;         /* object level on generation for my statistical pleasures */
     int  scratch;
 };
-#define object_is_(O, T, S) ((O)->tval == (T) && (O)->sval == (S))
+#define object_is_(O, T, S) ((O) && (O)->tval == (T) && (O)->sval == (S))
 
-/* Monster blows ... Redone. Note that changing any
- * of the following values will break savefiles (or
- * at least require special code to read old files). */
-#define MAX_MON_BLOW_EFFECTS 4
-#define MAX_MON_BLOWS        4
 #define MAX_MON_AURAS        3
-typedef struct {
-    s16b effect; /* either RBE_* or GF_* */
-    byte dd;
-    byte ds;
-    byte pct;    /* 0 => 100% (as does 100) */
-    s16b lore;   /* monster lore: number of times this effect experienced */
-} mon_effect_t, *mon_effect_ptr;
-
-typedef struct {
-    byte method;
-    byte power;
-    s16b lore;   /* monster lore: number of times this blow seen (hit or miss) */
-    mon_effect_t effects[MAX_MON_BLOW_EFFECTS];
-} mon_blow_t, *mon_blow_ptr;
 
 /*
  * Monster "race" information, including racial memories
@@ -450,15 +437,6 @@ typedef struct {
     char thb[SKILL_DESC_LEN];
 } skills_desc_t, *skills_desc_ptr;
 
-/* For the blows calculation, see calculate_base_blows in combat.c
- * This structure should be initialized in the appropriate calc_weapon_bonuses
- * cf calc_bonuses in xtra1.c */
-typedef struct {
-    int max;
-    int wgt;
-    int mult;
-} _blows_calc_t;
-
 struct monster_body_s
 {
     s16b     stats[MAX_STATS];
@@ -470,7 +448,7 @@ struct monster_body_s
     s16b     body_idx;
     s16b     class_idx;
     s16b     speed;
-    _blows_calc_t blows_calc;
+    blows_calc_t blows_calc;
 };
 typedef struct monster_body_s monster_body_t;
 
@@ -493,10 +471,11 @@ struct monster_race
     s32b mexp;                /* Exp value for kill */
 
     s16b weight;
-    byte freq_spell;          /* Spell frequency */
     byte drop_theme;
 
     mon_spells_ptr spells;
+    mon_drop_ptr drops;
+
     u32b flags1;              /* Flags 1 (general) */
     u32b flags2;              /* Flags 2 (abilities) */
     u32b flags3;              /* Flags 3 (race/resist) */
@@ -508,7 +487,7 @@ struct monster_race
                                  For example, this unique is a questor. Or this
                                  unique is suppressed and won't appear in this game. */
 
-    mon_blow_t blows[MAX_MON_BLOWS];
+    vec_ptr blows;
     mon_effect_t auras[MAX_MON_AURAS];
 
     s16b next_r_idx;          /* Evolution */
@@ -518,9 +497,8 @@ struct monster_race
     byte pack_dice;
     byte pack_sides;
 
+    s16b dun_type_id;         /* restricted to specified dungeon (e.g. Olympians to Mt Olympus; Amberites to Amber) */
     byte level;               /* Level of creature */
-    byte melee_level;
-    byte save_level;
     byte rarity;              /* Rarity of creature */
 
     s16b max_level;
@@ -533,9 +511,8 @@ struct monster_race
     byte x_char;              /* Desired monster character */
 
 
-    byte max_num;             /* Maximum population allowed per level */
-    byte cur_num;             /* Monster population on current level */
-    s16b floor_id;            /* Location of unique monster */
+    s16b max_num;             /* Maximum population allowed per level */
+    s16b cur_num;             /* Monster population on current level */
 
 
     s16b r_sights;            /* Count sightings of this monster */
@@ -568,6 +545,7 @@ struct monster_race
     byte stolen_ct;           /* For uniques in this lifetime only. Prevents PickPocket scumming of excellent drop uniques */
 
     monster_body_t body;      /* For The Possessor */
+    int scratch;
 };
 
 
@@ -589,64 +567,21 @@ struct skill_table
 
 /*
  * A single "grid" in a Cave
- *
- * Note that several aspects of the code restrict the actual cave
- * to a max size of 256 by 256.  In partcular, locations are often
- * saved as bytes, limiting each coordinate to the 0-255 range.
- *
- * The "o_idx" and "m_idx" fields are very interesting.  There are
- * many places in the code where we need quick access to the actual
- * monster or object(s) in a given cave grid.  The easiest way to
- * do this is to simply keep the index of the monster and object
- * (if any) with the grid, but this takes 198*66*4 bytes of memory.
- * Several other methods come to mind, which require only half this
- * amound of memory, but they all seem rather complicated, and would
- * probably add enough code that the savings would be lost.  So for
- * these reasons, we simply store an index into the "o_list" and
- * "m_list" arrays, using "zero" when no monster/object is present.
- *
- * Note that "o_idx" is the index of the top object in a stack of
- * objects, using the "next_o_idx" field of objects (see below) to
- * create the singly linked list of objects.  If "o_idx" is zero
- * then there are no objects in the grid.
- *
- * Note the special fields for the "MONSTER_FLOW" code.
  */
 
 typedef struct cave_type cave_type;
+typedef struct cave_type cave_t, *cave_ptr;
 
 struct cave_type
 {
-    u32b info;        /* Hack -- cave flags */
+    u16b info;        /* Hack -- cave flags */
 
     s16b feat;        /* Hack -- feature type */
-
-    s16b o_idx;        /* Object in this grid */
-
-    s16b m_idx;        /* Monster in this grid */
 
     s16b special;    /* Special cave info */
 
     s16b mimic;        /* Feature to mimic */
-
-    byte cost;        /* Hack -- cost of flowing */
-    byte dist;        /* Hack -- distance from player */
-    byte when;        /* Hack -- when cost was computed */
 };
-
-
-
-/*
- * Simple structure to hold a map location
- */
-typedef struct coord coord;
-
-struct coord
-{
-    byte y;
-    byte x;
-};
-
 
 /*
  * Monster information, for a specific monster.
@@ -666,63 +601,43 @@ enum {
     SM_PET,
     SM_FRIENDLY,
     SM_SUMMONED,
+    SM_NO_S_SPECIAL,
     SM_MAX
 };
 
-enum {
-    MTIMED_CSLEEP,
-    MTIMED_FAST,
-    MTIMED_SLOW,
-    MTIMED_STUNNED,
-    MTIMED_CONFUSED,
-    MTIMED_MONFEAR,
-    MTIMED_INVULNER,
-    MTIMED_PARALYZED,
-    MTIMED_COUNT
-};
-
-#define MON_CSLEEP(M_PTR)   ((M_PTR)->mtimed[MTIMED_CSLEEP])
-#define MON_FAST(M_PTR)     ((M_PTR)->mtimed[MTIMED_FAST])
-#define MON_SLOW(M_PTR)     ((M_PTR)->mtimed[MTIMED_SLOW])
-#define MON_STUNNED(M_PTR)  ((M_PTR)->mtimed[MTIMED_STUNNED])
-#define MON_CONFUSED(M_PTR) ((M_PTR)->mtimed[MTIMED_CONFUSED])
-#define MON_MONFEAR(M_PTR)  ((M_PTR)->mtimed[MTIMED_MONFEAR])
-#define MON_INVULNER(M_PTR) ((M_PTR)->mtimed[MTIMED_INVULNER])
-#define MON_PARALYZED(M_PTR) ((M_PTR)->mtimed[MTIMED_PARALYZED])
-
 struct monster_type
 {
-    int  id;
+    u16b id;
     s16b r_idx;        /* Monster race index */
     s16b ap_r_idx;        /* Monster race appearance index */
     byte sub_align;        /* Sub-alignment for a neutral monster */
+    byte mspeed;            /* Monster "speed" */
 
-    byte fy;        /* Y location on map */
-    byte fx;        /* X location on map */
+    u16b dun_id;
+    bool ml;        /* Monster is "visible" */
+
+    point_t pos;
+    point_t target;
 
     s16b hp;        /* Current Hit points */
     s16b maxhp;        /* Max Hit points */
     s16b max_maxhp;        /* Max Max Hit points */
+    s16b pain;
     s16b ac_adj;
     s16b mpower;    /* Monster power scales various things like melee skill, damage, AC, etc.
                        This field is a per mill value, just like p_ptr->clp */
 
-    s16b mtimed[MTIMED_COUNT];    /* Timed status counter */
+    mon_tim_ptr timers;
 
-    byte mspeed;            /* Monster "speed" */
     s16b energy_need;    /* Monster "energy" */
-
-    byte cdis;        /* Current dis from player */
+    s16b cdis;        /* Current dis from player */
 
     u32b mflag;        /* Extra monster flags. (Note: Not saved!) */
     u32b mflag2;        /* Extra monster flags. (This one *is* saved)  */
 
-    bool ml;        /* Monster is "visible" */
 
-    s16b hold_o_idx;    /* Object being held (if any) */
+    object_type *obj;
 
-    s16b target_y;        /* Can attack !los player */
-    s16b target_x;        /* Can attack !los player */
 
     u16b nickname;        /* Monster's Nickname */
 
@@ -736,8 +651,6 @@ struct monster_type
     byte drop_ct;
     byte stolen_ct;
 
-    byte ego_whip_ct;
-    byte ego_whip_pow;
     byte anti_magic_ct;
     byte anger;
     s16b mana;
@@ -755,17 +668,18 @@ enum {
     AI_MAINTAIN_DISTANCE = 6,
 };
 
-typedef struct {
-    s16b pack_idx;        /* Set when allocated */
-    s16b leader_idx;
+typedef struct pack_info_s pack_info_t;
+struct pack_info_s
+{
+    u16b pack_idx;        /* Set when allocated */
+    u16b leader_idx;
     s16b count;
     s16b ai;            /* How is the pack behaving? */
-    s16b guard_idx;     /* Pack is guarding another monster, perhaps the leader. Or, this is a dungeon entrance being guarded. */
+    u16b guard_idx;     /* Pack is guarding another monster, perhaps the leader. Or, this is a dungeon entrance being guarded. */
     s16b guard_x;       /* Pack is defending a specific location */
     s16b guard_y;
     s16b distance;
-    s16b next_idx;        /* Free list */
-} pack_info_t;
+};
 
 
 /*
@@ -895,44 +809,17 @@ struct player_pact
  * is saved in the savefile.  The "transient" info is recomputed
  * whenever anything important changes.
  */
-#define WIELD_NONE       0
-#define WIELD_ONE_HAND   1
-#define WIELD_TWO_HANDS  2
-
 #define MAX_HANDS 6
 #define MAX_ARMS  3
 #define HAND_NONE -1
+#define BLOW_NONE -1
 
-typedef struct {
-    int  wield_how;
-    bool omoi;   /* WIELD_TWO_HANDS but too heavy for WIELD_ONE_HAND */
-    bool bare_hands; /* Monks and Forcetrainers */
-    bool riding; /* Riding requires one hand to control your mount */
-    int  slot;
-    int  to_h;
-    int  to_d;
-    int  dis_to_h;
-    int  dis_to_d;
-    int  to_dd;
-    int  to_ds;
-    _blows_calc_t blows_calc; /* set in calc_weapon_bonuses (class_t or sometimes race_t) */
-    int  base_blow;
-    int  xtra_blow;
-    bool genji;
-    bool heavy_wield;
-    bool icky_wield;
-    bool riding_wield;
-    int  giant_wield;
-    int  dual_wield_pct; /* Scaled by 10 so 123 = 12.3%. Set to 1000 (ie 100%) if not dual wielding */
-    u32b flags[OF_ARRAY_SIZE];
-    u32b known_flags[OF_ARRAY_SIZE];
-    byte info_attr;
-    cptr info;
-} weapon_info_t, *weapon_info_ptr;
+/* XXX Player melee is being refactored.  Checkout plr_attack.h */
 
-#define NUM_BLOWS(h) (p_ptr->weapon_info[h].base_blow + p_ptr->weapon_info[h].xtra_blow)
+#define NUM_BLOWS(h) (p_ptr->attack_info[h].base_blow + p_ptr->attack_info[h].xtra_blow)
 
-typedef struct {
+struct shooter_info_s
+{
     int slot;
     int to_h;
     int to_d;
@@ -945,55 +832,27 @@ typedef struct {
     int breakage; /* pct of normal breakage odds ... default is 100 */
     bool heavy_shoot;
     u32b flags[OF_ARRAY_SIZE];
-} shooter_info_t;
+};
 
 #define NUM_SHOTS (p_ptr->shooter_info.base_shot + p_ptr->shooter_info.xtra_shot)
 
-typedef struct {
-    int to_dd;
-    int xtra_blow;
-    u32b flags[OF_ARRAY_SIZE]; /* TODO */
-} innate_attack_info_t;
-
 typedef struct player_type player_type;
-
-typedef struct {
-    s16b type;
-    s16b counter;
-} counter_t;
-
-#define MAX_WILD_COUNTERS  5
-#define MAX_INNATE_EFFECTS 8
-
-#define INNATE_SKIP        0x0001
-#define INNATE_VORPAL      0x0002
-#define INNATE_EXPLODE     0x0004
-#define INNATE_NO_DAM      0x0008
-#define INNATE_NO_CRIT     0x0010
-
-typedef struct {
-    int dd;
-    int ds;
-    int to_h;
-    int to_d;
-    int blows;
-    int weight;
-    int effect[MAX_INNATE_EFFECTS];
-    int effect_chance[MAX_INNATE_EFFECTS];
-    int flags;
-    cptr msg;   /* "You bite %s.", "You hit %s with your horns.", etc. */
-    cptr name;
-} innate_attack_t, *innate_attack_ptr;
-#define MAX_INNATE_ATTACKS 10
 
 struct player_type
 {
     s32b id;
-    s16b oldpy;        /* Previous player location -KMW- */
-    s16b oldpx;        /* Previous player location -KMW- */
+
+    /* XXX These are all TODO */
+    u16b world_id;     /* 0 => randomly generated D_WORLD; non-0 => id used to parse world map */
+    u16b dun_id;       /* may differ from cave->dun_id */
+    point_t pos;       /* current position in dun_id */
+    point_t old_pos;   /* last position in D_SURFACE for recall */
+    point_t new_pos;   /* D_QUEST position: setting pos too early can break savefiles on panic_save */
+    u32b turn;
+    dun_bmp_ptr los;
 
     byte psex;            /* Sex index */
-    byte prace;            /* Race index */
+    s16b prace;            /* Race index */
     byte pclass;        /* Class index */
     byte personality;        /* Seikaku index */
     byte realm1;        /* First magic realm */
@@ -1015,17 +874,6 @@ struct player_type
     u32b exp_frac;        /* Cur exp frac (times 2^16) */
 
     s16b lev;            /* Level */
-
-    s16b town_num;            /* Current town number */
-    s16b arena_number;        /* monster number in arena -KMW- */
-    bool inside_arena;        /* Is character inside arena? */
-    bool inside_battle;        /* Is character inside tougijou? */
-
-    s32b wilderness_x;    /* Coordinates in the wilderness */
-    s32b wilderness_y;
-    s16b wilderness_dx;   /* Offset of 4x4 viewport window */
-    s16b wilderness_dy;
-    bool wild_mode;
 
     s32b mmhp;           /* Max Max hit pts */
     s32b mhp;            /* Max hit pts */
@@ -1049,97 +897,13 @@ struct player_type
 
     u32b count;
 
-    s16b fast;        /* Timed -- Fast */
-    s16b slow;        /* Timed -- Slow */
-    s16b blind;        /* Timed -- Blindness */
-    s16b paralyzed;        /* Timed -- Paralysis */
-    s16b confused;        /* Timed -- Confusion */
     s16b afraid;        /* Timed -- Fear */
-    s16b image;        /* Timed -- Hallucination */
-    s16b poisoned;        /* Timed -- Poisoned */
-    s16b cut;        /* Timed -- Cut */
-    s16b stun;        /* Timed -- Stun */
-
-    s16b protevil;        /* Timed -- Protection */
-    s16b invuln;        /* Timed -- Invulnerable */
-    s16b ult_res;        /* Timed -- Ultimate Resistance */
-    s16b hero;        /* Timed -- Heroism */
-    s16b shero;        /* Timed -- Super Heroism */
-    s16b shield;        /* Timed -- Shield Spell */
-    s16b blessed;        /* Timed -- Blessed */
-    s16b tim_invis;        /* Timed -- See Invisible */
-    s16b tim_infra;        /* Timed -- Infra Vision */
-    s16b tsuyoshi;        /* Timed -- Tsuyoshi Special */
-    s16b ele_attack;    /* Timed -- Elemental Attack */
-    s16b ele_immune;    /* Timed -- Elemental Immune */
-
-    s16b oppose_acid;    /* Timed -- oppose acid */
-    s16b oppose_elec;    /* Timed -- oppose lightning */
-    s16b oppose_fire;    /* Timed -- oppose heat */
-    s16b oppose_cold;    /* Timed -- oppose cold */
-    s16b oppose_pois;    /* Timed -- oppose poison */
-
-
-    s16b tim_esp;       /* Timed ESP */
-    s16b tim_esp_magical;
-    s16b wraith_form;   /* Timed wraithform */
-
-    s16b resist_magic;  /* Timed Resist Magic (later) */
-    s16b tim_regen;
-    s16b kabenuke;
-    s16b tim_stealth;
-    s16b tim_levitation;
-    s16b tim_sh_touki;
-    s16b lightspeed;
-    s16b tsubureru;
-    s16b magicdef;
-    s16b tim_res_nether;
-    s16b tim_res_time;
-    s16b tim_res_disenchantment;
     s16b mimic_form;
     s16b tim_mimic;
-    s16b tim_sh_fire;
-    s16b tim_sh_elements;
-    s16b tim_sh_shards;
-    s16b tim_sh_domination;
-    s16b tim_weaponmastery;
-    s16b tim_sh_holy;
-    s16b tim_eyeeye;
 
-    s16b tim_spurt;
-
-    s16b tim_blood_shield;
-    s16b tim_blood_seek;
-    s16b tim_blood_sight;
-    s16b tim_blood_feast;
-    s16b tim_blood_revenge;
-    s16b tim_blood_rite;
-
-    s16b tim_force;
-    s16b tim_building_up;
-    s16b tim_vicious_strike;
-    s16b tim_enlarge_weapon;
-
-    s16b tim_spell_reaction;
-    s16b tim_resist_curses;
-    s16b tim_armor_of_fury;
-    s16b tim_spell_turning;
     bool spell_turned;
-
-    s16b tim_dark_stalker;
-    s16b tim_nimble_dodge;
-    s16b tim_stealthy_snipe;
-
-    s16b tim_killing_spree;
-    s16b tim_slay_sentient;
-    bool maul_of_vice;
-
-    counter_t wild_counters[MAX_WILD_COUNTERS];    /* Wild Weapons */
-
-    bool            innate_attack_lock;
-    innate_attack_t innate_attacks[MAX_INNATE_ATTACKS];
-    int             innate_attack_ct;
-
+    bool fasting;
+    s16b free_turns;
     bool sense_artifact;
     s16b duelist_target_idx;
 
@@ -1150,10 +914,11 @@ struct player_type
     int  painted_target_ct;
     bool easy_2weapon;
     bool speciality_equip;
-    bool sneak_attack;
-    bool enhanced_crit;
+    s16b crit_freq_mul;  /* per cent; so 150 makes 10%->15% and 20%->30%; 0 disables crits; 100 default */
+    s16b crit_freq_add;  /* per mil; so 25 makes 10%->12.5% and 20%->22.5% (ninja); 1000 forces every hit critical */
+    s16b crit_qual_mul;  /* per cent; scale the base of critical roll (i.e., the weight) */
+    s16b crit_qual_add;  /* add to quality roll (see _plr_attack_crit_aux) */
     bool cleave;
-    bool constant_hero;
     bool vorpal;
     bool whirlwind;
     s16b elaborate_defense;
@@ -1161,7 +926,8 @@ struct player_type
     bool lightning_reflexes;
     bool clear_mind;
 
-    bool ambush;
+    s16b ambush;     /* Non-zero allows ambush on sleeping monster. Pct damage multiplier */
+    s16b backstab;   /* Non-zero allows backstab on fleeing monster. Pct damage multiplier */
     bool peerless_stealth;
     s16b open_terrain_ct;
 
@@ -1172,27 +938,6 @@ struct player_type
     bool inven_prot;
     bool quick_walk;
 
-    s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
-    s16b tim_no_device;        /* For a more powerful twist, this will block devices as well!  But that is really an evil death sentence :) */
-
-    s16b tim_superstealth;
-
-    bool fasting;
-    s16b tim_sustain_str;
-    s16b tim_sustain_int;
-    s16b tim_sustain_wis;
-    s16b tim_sustain_dex;
-    s16b tim_sustain_con;
-    s16b tim_sustain_chr;
-    s16b tim_hold_life;
-    s16b tim_transcendence;
-    s16b tim_quick_walk;
-    s16b tim_inven_prot;
-    s16b tim_device_power;
-    s16b tim_sh_time;
-    s16b free_turns;
-    s16b tim_foresight;
-
     /* Rune Knight: Some Rune effects might become general game mechanics, like Magic Resistance
        and Magic Absorption.  Also, let's consolidate the White Aura mutation with the Rune of
        Good Fortune into a cached Good Luck value */
@@ -1200,11 +945,6 @@ struct player_type
     bool good_luck;
 
     bool rune_elem_prot;
-
-    /* for mirror master */
-    s16b tim_reflect;       /* Timed -- Reflect */
-    s16b multishadow;       /* Timed -- Multi-shadow */
-    s16b dustrobe;          /* Timed -- Robe of dust */
 
     s16b chaos_patron;
     u32b muta[MUT_FLAG_SIZE];
@@ -1214,10 +954,6 @@ struct player_type
 
     s16b virtues[8];
     s16b vir_types[8];
-
-    s16b word_recall;      /* Word of recall counter */
-    s16b alter_reality;      /* Alter reality counter */
-    byte recall_dungeon;      /* Dungeon set to be recalled */
 
     s16b energy_need;      /* Energy needed for next move */
 
@@ -1243,10 +979,6 @@ struct player_type
     s32b magic_num1[MAX_MAGIC_NUM];     /* Array for non-spellbook type magic */
     byte magic_num2[MAX_MAGIC_NUM];     /* Flags for non-spellbook type magics */
 
-    s16b mane_spell[MAX_MANE];
-    s16b mane_dam[MAX_MANE];
-    s16b mane_num;
-
     s16b concent;      /* Sniper's concentration level */
 
     s16b player_hp[PY_MAX_LEVEL];
@@ -1258,15 +990,14 @@ struct player_type
 
     u16b noscore;          /* Cheating flags */
 
-    bool wait_report_score;   /* Waiting to report score */
     bool is_dead;          /* Player is dead */
 
     bool wizard;          /* Player is in wizard mode */
 
-    s16b riding;              /* Riding on a monster of this index */
+    u16b riding;              /* Riding on a monster of this index */
     byte knowledge;           /* Knowledge about yourself */
 
-    byte start_race;          /* Race at birth */
+    s16b start_race;          /* Race at birth */
     s32b old_race1;           /* Record of race changes */
     s32b old_race2;           /* Record of race changes */
     s16b old_realm;           /* Record of realm changes */
@@ -1276,27 +1007,14 @@ struct player_type
 
     s16b today_mon;           /* Wanted monster */
 
-    s16b floor_id;            /* Current floor location */
-
     bool autopick_autoregister; /* auto register is in-use or not */
-
-    byte feeling;        /* Most recent dungeon feeling */
-    s32b feeling_turn;    /* The turn of the last dungeon feeling */
-
 
     /*** Temporary fields ***/
 
     bool playing;            /* True if player is playing */
     bool leaving;            /* True if player is leaving */
-    int  leaving_method;
 
-    byte exit_bldg;            /* Goal obtained in arena? -KMW- */
-
-    byte leaving_dungeon;    /* Which dungeon the player is leaving if any */
-    bool teleport_town;
-    bool enter_dungeon;     /* Just enter the dungeon */
-
-    s16b health_who;    /* Health bar trackee */
+    u16b health_who;    /* Health bar trackee */
 
     s16b monster_race_idx;    /* Monster race trackee */
 
@@ -1367,8 +1085,12 @@ struct player_type
     bool melt_armor;
 
     bool anti_magic;    /* Anti-magic */
+    bool res_magic;
+    bool vuln_magic;
     bool anti_tele;     /* Prevent teleportation */
     bool anti_summon;
+    bool stealthy_snipe; /* MUT_PEERLESS_SNIPER and scout's Stealthy Snipe */
+    bool nimble_dodge;
 
     bool sustain_str;    /* Keep strength */
     bool sustain_int;    /* Keep intelligence */
@@ -1407,15 +1129,17 @@ struct player_type
     bool esp_nonliving;
     bool esp_unique;
     bool esp_magical;
+    bool esp_living;
+    bool wizard_sight;
 
     bool slow_digest;    /* Slower digestion */
     bool pass_wall;     /* Permanent wraithform */
     bool kill_wall;
-    bool dec_mana;
+    s16b dec_mana;
     s16b spell_power;
     s16b device_power;
     s16b spell_cap;
-    bool easy_spell;
+    s16b easy_spell;
     bool heavy_spell;
     bool warning;
     bool mighty_throw;
@@ -1427,11 +1151,14 @@ struct player_type
     bool move_random;   /* Cyberdemons and Possessors ... */
 
     s16b monk_lvl;
+    cptr monk_tbl;
 
-    int           weapon_ct;
-    weapon_info_t weapon_info[MAX_HANDS];
-    innate_attack_info_t innate_attack_info;
-    shooter_info_t shooter_info;
+    vec_ptr           innate_blows; /* vec<mon_blow_ptr> (cf PU_INNATE) */
+
+    int               weapon_ct;
+    plr_attack_info_t attack_info[MAX_HANDS];
+    plr_attack_info_t innate_attack_info;
+    shooter_info_t    shooter_info;
 
     s16b dis_to_a;        /* Known bonus to ac */
 
@@ -1440,14 +1167,14 @@ struct player_type
     s16b to_h_m;            /* Bonus to hit (misc) */
     s16b to_d_m;            /* Bonus to dam (misc) */
     s16b to_a;            /* Bonus to ac */
+    s16b bonus_to_a;   /* bless < stone skin < ult. (plr_bonus_ac) */
+    s16b bonus_speed;  /* quicken vs !Speed vs psion */
 
     s16b to_d_spell;
 
     s16b to_m_chance;        /* Minusses to cast chance */
 
     bool ryoute;
-    bool migite;
-    bool hidarite;
 
     bool no_flowed;
 
@@ -1468,8 +1195,6 @@ struct player_type
 
 /*
  * A structure to hold "rolled" information
- *
- * TODO: Dead fields are mis-aligned ... remove for 6.0
  */
 typedef struct birther birther;
 
@@ -1477,7 +1202,7 @@ struct birther
 {
     byte game_mode;
     byte psex;         /* Sex index */
-    byte prace;        /* Race index */
+    s16b prace;        /* Race index */
     byte psubrace;
     byte pclass;       /* Class index */
     byte psubclass;       /* Subclass index */
@@ -1486,40 +1211,12 @@ struct birther
     byte realm2;       /* Second magic realm */
     byte dragon_realm;
 
-s16b age;
-s16b ht;
-s16b wt;
-s16b sc;
-
     s32b au;
 
     s16b stat_max[6];        /* Current "maximal" stat values */
-s16b stat_max_max[6];    /* Maximal "maximal" stat values */
-s16b player_hp[PY_MAX_LEVEL]; /* Map (L-1)->Cumulative Percentage of Base HD */
-                              /* See calc_hitpoints() in xtra1.c for details */
-s16b chaos_patron;
-int  mutation;
-
-s16b vir_types[8];
-
     bool quick_ok;
 };
 
-
-/* For Monk martial arts */
-
-typedef struct martial_arts martial_arts;
-
-struct martial_arts
-{
-    cptr    name;
-    cptr    desc;       /* A verbose attack description */
-    int     min_level;  /* Minimum level to use */
-    int     chance;     /* Chance of 'success' */
-    int     dd;         /* Damage dice */
-    int     ds;         /* Damage sides */
-    int     effect;     /* Special effects */
-};
 
 typedef struct kamae kamae;
 
@@ -1529,93 +1226,6 @@ struct kamae
     int     min_level;  /* Minimum level to use */
     cptr    info;
 };
-
-/* Mindcrafters */
-typedef struct mind_type mind_type;
-struct mind_type
-{
-    int     min_lev;
-    int     mana_cost;
-    int     fail;
-    cptr    name;
-};
-
-typedef struct mind_power mind_power;
-struct mind_power
-{
-    mind_type info[MAX_MIND_POWERS];
-};
-
-/* Imitator */
-
-typedef struct monster_power monster_power;
-struct monster_power
-{
-    int     level;
-    int     smana;
-    int     fail;
-    int     manedam;
-    int     manefail;
-    int     use_stat;
-    cptr    name;
-};
-
-
-/*
- * A structure to describe a building.
- * From Kamband
- */
-typedef struct building_type building_type;
-
-struct building_type
-{
-    char name[20];                  /* proprietor name */
-    char owner_name[20];            /* proprietor name */
-    char owner_race[20];            /* proprietor race */
-
-    char act_names[8][30];          /* action names */
-    s32b member_costs[8];           /* Costs for class members of building */
-    s32b other_costs[8];            /* Costs for nonguild members */
-    char letters[8];                /* action letters */
-    s16b actions[8];                /* action codes */
-    s16b action_restr[8];           /* action restrictions */
-
-    s16b member_class[MAX_CLASS];   /* which classes are part of guild */
-    s16b member_race[MAX_RACES];    /* which races are part of guild */
-    s16b member_realm[MAX_REALM+1]; /* which realms are part of guild */
-};
-
-
-/* Border */
-typedef struct border_type border_type;
-struct border_type
-{
-    s16b north[MAX_WID];
-    s16b south[MAX_WID];
-    s16b east[MAX_HGT];
-    s16b west[MAX_HGT];
-    s16b north_west;
-    s16b north_east;
-    s16b south_west;
-    s16b south_east;
-};
-
-
-/*
- * A structure describing a wilderness area
- * with a terrain or a town
- */
-typedef struct wilderness_type wilderness_type;
-struct wilderness_type
-{
-    int         terrain;
-    int         town;
-    int         road;
-    u32b        seed;
-    s16b        level;
-    byte        entrance;
-};
-
 
 /*
  * Sort-array element
@@ -1636,112 +1246,6 @@ typedef bool (*monster_hook_type)(int r_idx);
  */
 typedef int (*inven_func)(object_type *);
 
-
-/*
- * Semi-Portable High Score List Entry (128 bytes) -- BEN
- *
- * All fields listed below are null terminated ascii strings.
- *
- * In addition, the "number" fields are right justified, and
- * space padded, to the full available length (minus the "null").
- *
- * Note that "string comparisons" are thus valid on "pts".
- */
-
-typedef struct high_score high_score;
-
-struct high_score
-{
-    char what[8];        /* Version info (string) */
-
-    char pts[10];        /* Total Score (number) */
-
-    char gold[10];        /* Total Gold (number) */
-
-    char turns[10];        /* Turns Taken (number) */
-
-    char day[10];        /* Time stamp (string) */
-
-    char who[16];        /* Player Name (string) */
-
-    char uid[8];        /* Player UID (number) */
-
-    char sex[2];        /* Player Sex (string) */
-    char p_r[3];        /* Player Race (number) */
-    char p_c[3];        /* Player Class (number) */
-    char p_a[3];        /* Player Seikaku (number) */
-
-    char cur_lev[4];        /* Current Player Level (number) */
-    char cur_dun[4];        /* Current Dungeon Level (number) */
-    char max_lev[4];        /* Max Player Level (number) */
-    char max_dun[4];        /* Max Dungeon Level (number) */
-
-    char how[40];        /* Method of death (string) */
-};
-
-
-typedef struct
-{
-    s16b feat;    /* Feature tile */
-    byte percent; /* Chance of type */
-}
-feat_prob;
-
-
-/* A structure for the != dungeon types */
-typedef struct dungeon_info_type dungeon_info_type;
-struct dungeon_info_type {
-    int  id;
-    u32b name;        /* Name */
-    u32b text;        /* Description */
-
-    byte dy;
-    byte dx;
-
-    feat_prob floor[DUNGEON_FEAT_PROB_NUM]; /* Floor probability */
-    feat_prob fill[DUNGEON_FEAT_PROB_NUM];  /* Cave wall probability */
-    s16b outer_wall;                        /* Outer wall tile */
-    s16b inner_wall;                        /* Inner wall tile */
-    s16b stream1;                           /* stream tile */
-    s16b stream2;                           /* stream tile */
-
-    s16b mindepth;         /* Minimal depth */
-    s16b maxdepth;         /* Maximal depth */
-    byte min_plev;         /* Minimal plev needed to enter -- it's an anti-cheating mesure */
-    s16b pit;
-    s16b nest;
-    byte mode;        /* Mode of combinaison of the monster flags */
-
-    int min_m_alloc_level;    /* Minimal number of monsters per level */
-    int max_m_alloc_chance;    /* There is a 1/max_m_alloc_chance chance per round of creating a new monster */
-
-    u32b flags1;        /* Flags 1 */
-
-    u32b mflags1;        /* The monster flags that are allowed */
-    u32b mflags2;
-    u32b mflags3;
-    u32b mflags4;
-    u32b mflags5;
-    u32b mflags6;
-    u32b mflags7;
-    u32b mflags8;
-    u32b mflags9;
-    u32b mflagsr;
-
-    char r_char[5];     /* Monster race allowed */
-    int final_object;    /* The object you'll find at the bottom */
-    int final_ego;       /* Ego type for final_object, or effect type for devices */
-    int final_artifact;    /* The artifact you'll find at the bottom */
-    int final_guardian;    /* The artifact's guardian. If an artifact is specified, then it's NEEDED */
-    int initial_guardian;  /* Guarding the entrance */
-
-    byte special_div;    /* % of monsters affected by the flags/races allowed, to add some variety */
-    int tunnel_percent;
-    int obj_great;
-    int obj_good;
-};
-
-
 /*
  *  A structure type for entry of auto-picker/destroyer
  */
@@ -1756,46 +1260,6 @@ typedef struct {
     byte weight;
     int  value;
 } autopick_type;
-
-
-/*
- *  A structure type for the saved floor
- */
-typedef struct
-{
-    s16b floor_id;        /* No recycle until 65536 IDs are all used */
-    byte savefile_id;     /* ID for savefile (from 0 to MAX_SAVED_FLOOR) */
-    s16b dun_level;
-    s32b last_visit;      /* Time count of last visit. 0 for new floor. */
-    u32b visit_mark;      /* Older has always smaller mark. */
-    s16b upper_floor_id;  /* a floor connected with level teleportation */
-    s16b lower_floor_id;  /* a floor connected with level tel. and trap door */
-} saved_floor_type;
-
-
-/*
- *  A structure type for terrain template of saving dungeon floor
- */
-typedef struct
-{
-    u32b info;
-    s16b feat;
-    s16b mimic;
-    s16b special;
-    u16b occurrence;
-} cave_template_type;
-
-
-/*
- * A structure type for arena entry
- */
-typedef struct
-{
-    s16b r_idx; /* Monster (0 means victory prizing) */
-    byte tval;  /* tval of prize (0 means no prize) */
-    int  sval;  /* sval of prize, or effect_e for devices */
-} arena_type;
-
 
 /*
  * A structure type for doors
@@ -1819,12 +1283,15 @@ typedef struct
 #define TRAVEL_MODE_AMMO     1
 #define TRAVEL_MODE_AUTOPICK 2
 typedef struct {
-    int run;
-    int cost[MAX_HGT][MAX_WID];
-    int x;
-    int y;
-    int dir;
+    point_t pos;
     int mode;
+    int run;
+    /* travel either by a direct path (This is an optimization for "auto_get") */
+    point_vec_ptr path;
+    int path_idx;
+    /* or by a more expensive "flow" (Calculating this on D_SURFACE can be expensive) */
+    dun_flow_ptr flow;
+    int dir;
 } travel_type;
 
 typedef struct {
@@ -1841,7 +1308,7 @@ typedef struct {
  * Below here, is under construction, to be cleaned up later!
  */
 
-typedef void (*ang_spell)(int cmd, variant *res);
+typedef void (*ang_spell)(int cmd, var_ptr res);
 
 typedef struct {
     int level;
@@ -1905,110 +1372,154 @@ typedef struct {
     u32b options;
     ang_spell_action on_fail;    /* Hallucinate, Temporal Inversion, etc. */
     ang_spell_action on_cast;    /* Blood Knights take cuts, etc. */
+    u32b realm1_choices;         /* XXX replace this after realm re-write */
+    u32b realm2_choices;
 } caster_info;
 
-typedef void(*process_player_fn)(void);
-typedef void(*move_player_fn)(void);
-typedef void(*process_world_fn)(void);
-typedef void(*move_monster_fn)(int m_idx);
-typedef void(*calc_bonuses_fn)(void);
-typedef void(*calc_innate_attacks_fn)(void);
-typedef void(*birth_fn)(void);
-typedef void(*calc_weapon_bonuses_fn)(object_type *o_ptr, weapon_info_t *info_ptr);
-typedef void(*calc_shooter_bonuses_fn)(object_type *o_ptr, shooter_info_t *info_ptr);
-typedef caster_info*(*caster_info_fn)(void);
-typedef int(*get_spells_fn)(spell_info* spells, int max);
-typedef void(*gain_level_fn)(int new_level);
-typedef void(*change_level_fn)(int old_level, int new_level);
-typedef void(*character_dump_fn)(doc_ptr doc);
-typedef void(*player_action_fn)(int energy_use);
-typedef void(*flags_fn)(u32b flgs[OF_ARRAY_SIZE]);
-typedef void(*stats_fn)(s16b stats[MAX_STATS]);
-typedef void(*load_fn)(savefile_ptr file);
-typedef void(*save_fn)(savefile_ptr file);
-typedef int(*birth_ui_fn)(doc_ptr doc);
+/************************************************************************
+ * Player Race/Class Hooks. Because of Monster Mode, the plr_race_t needs
+ * to be just as informative as plr_class_t.
+ * Note: Hooks are typically named after their system point of origin.
+ * For example, prt_effects() prints the player's current effect status,
+ * so the hook is called prt_effects. Ditto with process_world, process_player,
+ * move_player, etc. At some point, I will try for consistent system-wide
+ * naming ...
+ ************************************************************************/
+typedef void (*birth_f)(void);
+typedef int  (*birth_ui_f)(doc_ptr doc);
+typedef void (*register_timers_f)(void);
+typedef void (*load_f)(savefile_ptr file);
+typedef void (*save_f)(savefile_ptr file);
 
-typedef struct {
-    int                     id;
-    int                     subid;
-    cptr                    name;
-    cptr                    subname;
-    cptr                    desc;
-    cptr                    subdesc;
-    s16b                    stats[MAX_STATS];
-    skills_t                base_skills;
-    skills_t                extra_skills; /* Prorata every 10 levels */
-    s16b                    life;
-    s16b                    base_hp;
-    s16b                    exp;
-    byte                    pets;
-    u32b                    flags;
+typedef void (*process_world_f)(void);
+typedef void (*process_player_f)(void);
+typedef void (*player_action_f)(void);
+typedef void (*move_player_f)(void);
+typedef void (*move_monster_f)(mon_ptr mon);
+typedef void (*kill_monster_f)(mon_ptr mon);
+typedef int  (*obj_alloc_f)(obj_kind_ptr kind, int prob);
 
-    birth_fn                birth;          /* After py_birth() ... grant starting gear, etc */
-    birth_ui_fn             birth_ui;       /* Used during py_birth() ... choose a subclass */ 
-    process_player_fn       process_player; /* Called from process_player ... but player take 0 or more actions per call */
-    player_action_fn        player_action;  /* Called once per player action, so long as the action consumes energy */
-    move_player_fn          move_player;    /* Called every time the player actually moves */
-    move_monster_fn         move_monster;    /* Called whenever a monster moves */
-    calc_bonuses_fn         calc_bonuses;    /* Do flag related bonuses here ... */
-    stats_fn                calc_stats;      /* ... and stat related stuff here */
-    calc_weapon_bonuses_fn  calc_weapon_bonuses;
-    calc_shooter_bonuses_fn calc_shooter_bonuses;
-    caster_info_fn          caster_info;
-    get_spells_fn           get_spells;
-    get_spells_fn           get_powers;
-    gain_level_fn           gain_level; /* Only ever called when a new max level is achieved */
-    character_dump_fn       character_dump;
-    flags_fn                get_flags;
-    load_fn                 load_player;
-    save_fn                 save_player;
+typedef void (*timer_on_f)(plr_tim_ptr timer);
+typedef void (*timer_off_f)(plr_tim_ptr timer);
+
+typedef void (*calc_bonuses_f)(void);
+typedef void (*stats_f)(s16b stats[MAX_STATS]);
+typedef void (*calc_weapon_bonuses_f)(obj_ptr obj, plr_attack_info_ptr info);
+typedef void (*calc_shooter_bonuses_f)(obj_ptr obj, shooter_info_t *info_ptr);
+typedef void (*flags_f)(u32b flgs[OF_ARRAY_SIZE]);
+typedef status_display_t (*status_display_f)(void);
+
+typedef caster_info* (*caster_info_f)(void);
+typedef int  (*get_spells_f)(spell_info* spells, int max);
+
+typedef void (*gain_level_f)(int new_level);
+typedef void (*change_level_f)(int old_level, int new_level);
+typedef void (*doc_f)(doc_ptr doc);
+
+typedef void (*calc_innate_bonuses_f)(mon_blow_ptr blow);
+typedef void (*calc_innate_attacks_f)(void);
+
+typedef struct plr_hooks_s plr_hooks_t, *plr_hooks_ptr;
+struct plr_hooks_s
+{
+    /* startup and savefiles */
+    birth_f                 birth;          /* After py_birth() ... grant starting gear, etc */
+    birth_ui_f              birth_ui;       /* Used during py_birth() ... choose a subclass */ 
+    register_timers_f       register_timers;
+    load_f                  load_player;
+    save_f                  save_player;
+
+    /* game processing */
+    process_world_f         process_world;  /* Called every 10 game turns */
+    process_player_f        process_player; /* Called from process_player ... but player take 0 or more actions per call */
+    player_action_f         player_action;  /* Called once per player action, so long as the action consumes energy */
+    move_player_f           move_player;    /* Called every time the player actually moves */
+    move_monster_f          move_monster;    /* Called whenever a monster moves */
+    kill_monster_f          kill_monster;
     obj_p                   destroy_object;
     obj_f                   get_object;
-} class_t, *class_ptr;
+    obj_alloc_f             obj_alloc;
+
+    /* timers */
+    timer_on_f              timer_on;
+    timer_off_f             timer_off;
+
+    /* bonuses and status display */
+    calc_bonuses_f          calc_bonuses;    /* Do flag related bonuses here ... */
+    stats_f                 calc_stats;      /* ... and stat related stuff here */
+    calc_weapon_bonuses_f   calc_weapon_bonuses;
+    calc_shooter_bonuses_f  calc_shooter_bonuses;
+    flags_f                 get_flags;
+    status_display_f        status_display;
+    doc_f                   prt_effects;
+
+    /* spellcasting */
+    caster_info_f           caster_info;
+    get_spells_f            get_spells;
+    get_spells_f            get_powers;
+
+    /* character sheet and levelling up */
+    gain_level_f            gain_level;
+    change_level_f          change_level;
+    doc_f                   character_dump;
+
+    /* melee attacks */
+    plr_attack_init_f       attack_init;
+    mon_attack_init_f       mon_attack_init;
+    calc_innate_attacks_f   calc_innate_attacks;   /* build the attacks: PU_INNATE */
+    calc_innate_bonuses_f   calc_innate_bonuses;   /* tweak attacks: PU_BONUS (e.g. calculate blow->blows) */
+};
+
+typedef struct class_s class_t, *class_ptr;
+struct class_s
+{
+    int         id;
+    int         subid;
+    cptr        name;
+    cptr        subname;
+    cptr        desc;
+    cptr        subdesc;
+    s16b        stats[MAX_STATS];
+    skills_t    skills;
+    skills_t    extra_skills; /* Prorata every 10 levels */
+    s16b        life;
+    s16b        base_hp;
+    s16b        exp;
+    byte        pets;
+    u32b        flags;
+
+    plr_hooks_t hooks;
+};
 
 struct equip_template_s;
+typedef struct equip_template_s equip_template_t, *equip_template_ptr;
 
-typedef struct {
-    int                     id;
-    int                     subid;
-    cptr                    name;
-    cptr                    subname;
-    cptr                    desc;
-    cptr                    subdesc;
-    s16b                    stats[MAX_STATS];
-    skills_t                skills;
-    skills_t                extra_skills; /* Prorata every 10 levels (Monster Races) */
-    s16b                    life;
-    s16b                    base_hp;
-    s16b                    exp;
-    s16b                    infra;
-    birth_fn                birth; /* Note: If specified, give starting food and light as well
-                                      See: py_birth_food() and py_birth_light() for defaults */
-    calc_bonuses_fn         calc_bonuses;    /* Do flag related bonuses here ... */
-    stats_fn                calc_stats;      /* ... and stat related stuff here */
-    calc_weapon_bonuses_fn  calc_weapon_bonuses;
-    calc_shooter_bonuses_fn calc_shooter_bonuses;
-    calc_innate_attacks_fn  calc_innate_attacks;
-    caster_info_fn          caster_info;
-    get_spells_fn           get_spells;
-    get_spells_fn           get_powers;
-    gain_level_fn           gain_level;
-    change_level_fn         change_level;
-    character_dump_fn       character_dump;
-    flags_fn                get_flags;
-    u32b                    flags;
-    bool                    mimic;
-    struct equip_template_s *equip_template;
-    int                     boss_r_idx;
-    player_action_fn        player_action;  /* Called once per player action, so long as the action consumes energy */
-    move_player_fn          move_player;
-    process_world_fn        process_world;  /* Called every 10 game turns */
-    load_fn                 load_player;
-    save_fn                 save_player;
-    object_p                destroy_object;
-    s16b                    pseudo_class_idx; /* For the "Monster" class ... */
-    s16b                    shop_adjust;
-} race_t, *race_ptr;
+typedef struct race_s race_t, *race_ptr;
+struct race_s
+{
+    int         id;
+    int         subid;
+    cptr        name;
+    cptr        subname;
+    cptr        desc;
+    cptr        subdesc;
+    s16b        stats[MAX_STATS];
+    skills_t    skills;
+    skills_t    extra_skills; /* Prorata every 10 levels (Monster Races) */
+    s16b        life;
+    s16b        base_hp;
+    s16b        exp;
+    s16b        infra;
+    u32b        flags;
+    bool        mimic;
+    equip_template_ptr
+                equip_template;
+    int         boss_r_idx;
+    s16b        pseudo_class_idx; /* For the "Monster" class ... */
+    s16b        shop_adjust;
+
+    plr_hooks_t hooks;
+};
 
 typedef struct {
     int  type;
@@ -2016,11 +1527,12 @@ typedef struct {
     int  hand;
 } equip_slot_t;
 
-typedef struct equip_template_s {
+struct equip_template_s
+{
     int          max;
     u32b         name;
     equip_slot_t slots[EQUIP_MAX + 1];
-} equip_template_t, *equip_template_ptr;
+};
 
 typedef struct {
     int                     id;
@@ -2054,17 +1566,17 @@ typedef struct device_effect_info_s *device_effect_info_ptr;
 
 struct personality_s
 {
-    int             id;
-    cptr            name;
-    cptr            desc;
-    s16b            stats[MAX_STATS];
-    skills_t        skills;
-    s16b            life;
-    s16b            exp;
-    int             flags;
-    birth_fn        birth;
-    calc_bonuses_fn calc_bonuses;
-    flags_fn        get_flags;
+    int            id;
+    cptr           name;
+    cptr           desc;
+    s16b           stats[MAX_STATS];
+    skills_t       skills;
+    s16b           life;
+    s16b           exp;
+    int            flags;
+    birth_f        birth;
+    calc_bonuses_f calc_bonuses;
+    flags_f        get_flags;
 };
 
 typedef struct personality_s personality_t, *personality_ptr;

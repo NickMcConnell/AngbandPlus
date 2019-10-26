@@ -31,22 +31,174 @@ int mystic_get_toggle(void)
     return result;
 }
 
-static void _on_browse(int which)
+/****************************************************************
+ * Mystic Combat
+ ****************************************************************/
+enum {
+    _MYSTIC_ACID = PLR_HIT_CUSTOM,
+    _MYSTIC_ELEC,
+    _MYSTIC_FIRE,
+    _MYSTIC_COLD,
+    _MYSTIC_POIS,
+    _MYSTIC_KNOCKOUT,
+};
+static bool _begin_weapon(plr_attack_ptr context)
 {
-    bool screen_hack = screen_is_saved();
-    if (screen_hack) screen_load();
-
-    display_weapon_mode = which;
-    do_cmd_knowledge_weapon();
-    display_weapon_mode = 0;
-
-    if (screen_hack) screen_save();
+    if (context->info.type == PAT_MONK)
+    {
+        switch (context->mode)
+        {
+        case _MYSTIC_KNOCKOUT:
+            context->info.base_blow = 100;
+            context->info.xtra_blow = 0;
+            context->info.info = "Attempt to knockout an adjacent opponent.";
+            break;
+        case PLR_HIT_CRIT:
+            p_ptr->crit_qual_add += 650;
+            break;
+        }
+    }
+    return TRUE;
+}
+static slay_t _calc_brand(plr_attack_ptr context, slay_ptr best_brand)
+{
+    slay_t brand = {0};
+    bool display = BOOL(context->flags & PAC_DISPLAY);
+    if (context->info.type != PAT_MONK) return brand;
+    switch (context->mode)
+    {
+    case _MYSTIC_ACID:
+        if (!display && mon_res_acid(context->mon))
+            mon_lore_res_acid(context->mon);
+        else
+        {
+            brand.id = OF_BRAND_ACID;
+            brand.name = "Acid";
+            if (have_flag(context->obj_flags, OF_BRAND_ACID)) brand.mul = 350;
+            else brand.mul = 250;
+            brand.add = 5;
+        }
+        break;
+    case _MYSTIC_ELEC:
+        if (!display && mon_res_elec(context->mon))
+            mon_lore_res_elec(context->mon);
+        else
+        {
+            brand.id = OF_BRAND_ELEC;
+            brand.name = "Elec";
+            if (have_flag(context->obj_flags, OF_BRAND_ELEC)) brand.mul = 600;
+            else brand.mul = 500;
+            brand.add = 7;
+        }
+        break;
+    case _MYSTIC_FIRE:
+        if (!display && mon_res_fire(context->mon))
+            mon_lore_res_fire(context->mon);
+        else
+        {
+            brand.id = OF_BRAND_FIRE;
+            brand.name = "Fire";
+            if (have_flag(context->obj_flags, OF_BRAND_FIRE)) brand.mul = 350;
+            else brand.mul = 250;
+            if (!display && mon_vuln_fire(context->mon))
+            {
+                mon_lore_vuln_fire(context->mon);
+                brand.mul = 100 + 2*(brand.mul - 100);
+            }
+            brand.add = 3;
+        }
+        break;
+    case _MYSTIC_COLD:
+        if (!display && mon_res_cold(context->mon))
+            mon_lore_res_cold(context->mon);
+        else
+        {
+            brand.id = OF_BRAND_COLD;
+            brand.name = "Cold";
+            if (have_flag(context->obj_flags, OF_BRAND_COLD)) brand.mul = 350;
+            else brand.mul = 250;
+            if (!display && mon_vuln_cold(context->mon))
+            {
+                mon_lore_vuln_cold(context->mon);
+                brand.mul = 100 + 2*(brand.mul - 100);
+            }
+            brand.add = 3;
+        }
+        break;
+    case _MYSTIC_POIS:
+        if (!display && mon_res_pois(context->mon))
+            mon_lore_res_pois(context->mon);
+        else
+        {
+            brand.id = OF_BRAND_POIS;
+            brand.name = "Poison";
+            if (have_flag(context->obj_flags, OF_BRAND_POIS)) brand.mul = 350;
+            else brand.mul = 250;
+            brand.add = 5;
+        }
+        break;
+    }
+    return brand;
+}
+static void _after_hit(plr_attack_ptr context)
+{
+    if (context->info.type != PAT_MONK) return;
+    if (context->mode == _MYSTIC_KNOCKOUT && !mon_tim_find(context->mon, T_PARALYZED))
+    {
+        if (context->race->flagsr & RFR_RES_ALL)
+        {
+            mon_lore_r(context->mon, RFR_RES_ALL);
+            msg_format("%^s is immune.", context->mon_name);
+        }
+        else if (mon_save_p(context->mon->r_idx, A_DEX))
+        {
+            msg_format("%^s resists.", context->mon_name);
+        }
+        else
+        {
+            msg_format("%^s is <color:b>knocked out</color>.", context->mon_name);
+            mon_tim_add(context->mon, T_PARALYZED, randint1(3));
+        }
+    }
+}
+static void _end_weapon(plr_attack_ptr context)
+{
+    if (context->info.type == PAT_MONK)
+    {
+        switch (context->mode)
+        {
+        case PLR_HIT_CRIT:
+            p_ptr->crit_qual_add -= 650;
+            break;
+        }
+    }
+}
+static void _strike_spell(int mode, int cmd, var_ptr res)
+{
+    if (cmd == SPELL_CAST || cmd == SPELL_ON_BROWSE)
+    {
+        plr_attack_t ctx = {0};
+        ctx.mode = mode;
+        ctx.flags = PAC_NO_INNATE;
+        ctx.hooks.begin_weapon_f = _begin_weapon;
+        ctx.hooks.after_hit_f = _after_hit;
+        ctx.hooks.calc_brand_f = _calc_brand;
+        ctx.hooks.end_weapon_f = _end_weapon;
+        if (cmd == SPELL_CAST)
+            var_set_bool(res, plr_attack_special_aux(&ctx, 1));
+        else if (mode != PLR_HIT_KILL && mode != PLR_HIT_STUN)
+        {
+            plr_attack_display_aux(&ctx);
+            var_set_bool(res, TRUE);
+        }
+    }
+    else default_spell(cmd, res);
 }
 
 /****************************************************************
- * Spells
+ * Mystic Spells
  ****************************************************************/
-static void _toggle_spell(int which, int cmd, variant *res)
+static void _toggle_spell(int which, int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -66,100 +218,45 @@ static void _toggle_spell(int which, int cmd, variant *res)
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
-
-static void _acid_strike_spell(int cmd, variant *res)
+static void _acid_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
         var_set_string(res, "Corrosive Blow");
         break;
-    case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent with an acid blow.");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MYSTIC_ACID));
-        break;
-    case SPELL_ON_BROWSE:
-        _on_browse(MYSTIC_ACID);
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        _strike_spell(_MYSTIC_ACID, cmd, res);
     }
 }
 
-static void _cold_strike_spell(int cmd, variant *res)
+static void _cold_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
         var_set_string(res, "Icy Fists");
         break;
-    case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent with a freezing blow.");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MYSTIC_COLD));
-        break;
-    case SPELL_ON_BROWSE:
-        _on_browse(MYSTIC_COLD);
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        _strike_spell(_MYSTIC_COLD, cmd, res);
     }
 }
 
-/* For the Logrus Master
-static void _confusing_strike_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Confusing Strike");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent with confusing blows.");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MYSTIC_CONFUSE));
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-} */
-
-static void _crushing_blow_spell(int cmd, variant *res)
+static void _crushing_blow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
         var_set_string(res, "Crushing Blow");
         break;
-    case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent with crushing blows for extra damage.");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MYSTIC_CRITICAL));
-        break;
-    case SPELL_ON_BROWSE:
-        _on_browse(MYSTIC_CRITICAL);
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        _strike_spell(PLR_HIT_CRIT, cmd, res);
     }
 }
 
-static void _defense_toggle_spell(int cmd, variant *res)
+static void _defense_toggle_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -171,34 +268,22 @@ static void _defense_toggle_spell(int cmd, variant *res)
         break;
     default:
         _toggle_spell(MYSTIC_TOGGLE_DEFENSE, cmd, res);
-        break;
     }
 }
 
-static void _elec_strike_spell(int cmd, variant *res)
+static void _elec_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
         var_set_string(res, "Lightning Eagle");
         break;
-    case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent with a shocking blow.");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MYSTIC_ELEC));
-        break;
-    case SPELL_ON_BROWSE:
-        _on_browse(MYSTIC_ELEC);
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        _strike_spell(_MYSTIC_ELEC, cmd, res);
     }
 }
 
-static void _fast_toggle_spell(int cmd, variant *res)
+static void _fast_toggle_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -210,34 +295,22 @@ static void _fast_toggle_spell(int cmd, variant *res)
         break;
     default:
         _toggle_spell(MYSTIC_TOGGLE_FAST, cmd, res);
-        break;
     }
 }
 
-static void _fire_strike_spell(int cmd, variant *res)
+static void _fire_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
         var_set_string(res, "Flaming Strike");
         break;
-    case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent with a flaming blow.");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MYSTIC_FIRE));
-        break;
-    case SPELL_ON_BROWSE:
-        _on_browse(MYSTIC_FIRE);
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        _strike_spell(_MYSTIC_FIRE, cmd, res);
     }
 }
 
-static void _killing_strike_spell(int cmd, variant *res)
+static void _killing_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -247,35 +320,24 @@ static void _killing_strike_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attempt to kill an adjacent opponent with a single blow.");
         break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MYSTIC_KILL));
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        _strike_spell(PLR_HIT_KILL, cmd, res);
     }
 }
 
-static void _knockout_blow_spell(int cmd, variant *res)
+static void _knockout_blow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
         var_set_string(res, "Knockout Blow");
         break;
-    case SPELL_DESC:
-        var_set_string(res, "Attempt to knockout an adjacent opponent.");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MYSTIC_KNOCKOUT));
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        _strike_spell(_MYSTIC_KNOCKOUT, cmd, res);
     }
 }
 
-static void _mystic_insights_spell(int cmd, variant *res)
+static void _mystic_insights_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -284,11 +346,10 @@ static void _mystic_insights_spell(int cmd, variant *res)
         break;
     default:
         probing_spell(cmd, res);
-        break;
     }
 }
 
-static void _offense_toggle_spell(int cmd, variant *res)
+static void _offense_toggle_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -300,34 +361,22 @@ static void _offense_toggle_spell(int cmd, variant *res)
         break;
     default:
         _toggle_spell(MYSTIC_TOGGLE_OFFENSE, cmd, res);
-        break;
     }
 }
 
-static void _poison_strike_spell(int cmd, variant *res)
+static void _poison_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
         var_set_string(res, "Serpent's Tongue");
         break;
-    case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent with a poisonous blow.");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MYSTIC_POIS));
-        break;
-    case SPELL_ON_BROWSE:
-        _on_browse(MYSTIC_POIS);
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        _strike_spell(_MYSTIC_POIS, cmd, res);
     }
 }
 
-static void _retaliate_toggle_spell(int cmd, variant *res)
+static void _retaliate_toggle_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -339,11 +388,10 @@ static void _retaliate_toggle_spell(int cmd, variant *res)
         break;
     default:
         _toggle_spell(MYSTIC_TOGGLE_RETALIATE, cmd, res);
-        break;
     }
 }
 
-static void _stealth_toggle_spell(int cmd, variant *res)
+static void _stealth_toggle_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -355,11 +403,10 @@ static void _stealth_toggle_spell(int cmd, variant *res)
         break;
     default:
         _toggle_spell(MYSTIC_TOGGLE_STEALTH, cmd, res);
-        break;
     }
 }
 
-static void _stunning_blow_spell(int cmd, variant *res)
+static void _stunning_blow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -369,16 +416,12 @@ static void _stunning_blow_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attack an adjacent opponent with stunning blows.");
         break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MYSTIC_STUN));
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        _strike_spell(PLR_HIT_STUN, cmd, res);
     }
 }
 
-static void _summon_hounds_spell(int cmd, variant *res)
+static void _summon_hounds_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -396,7 +439,7 @@ static void _summon_hounds_spell(int cmd, variant *res)
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, py, px, l, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP);
+            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP);
         }
         if (!ct)
             msg_print("No hounds arrive.");
@@ -405,11 +448,10 @@ static void _summon_hounds_spell(int cmd, variant *res)
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
-static void _summon_spiders_spell(int cmd, variant *res)
+static void _summon_spiders_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -427,7 +469,7 @@ static void _summon_spiders_spell(int cmd, variant *res)
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, py, px, l, SUMMON_SPIDER, PM_FORCE_PET | PM_ALLOW_GROUP);
+            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_SPIDER, PM_FORCE_PET | PM_ALLOW_GROUP);
         }
         if (!ct)
             msg_print("No spiders arrive.");
@@ -436,10 +478,8 @@ static void _summon_spiders_spell(int cmd, variant *res)
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
-
 
 /****************************************************************
  * Spell Table and Exports
@@ -458,7 +498,6 @@ static spell_info _spells[] =
     { 17,  0,  0, _fast_toggle_spell},
     { 19,  0,  0, _defense_toggle_spell},
     { 21, 15, 50, _mystic_insights_spell},
-    /* For the Logrus Master: { 23, 15,  0, _confusing_strike_spell}, */
     { 25, 17,  0, _acid_strike_spell},
     { 27, 20,  0, _stunning_blow_spell},
     { 29,  0,  0, _retaliate_toggle_spell},
@@ -546,20 +585,20 @@ static void _character_dump(doc_ptr doc)
     spell_info spells[MAX_SPELLS];
     int        ct = _get_spells(spells, MAX_SPELLS);
 
-    py_display_spells(doc, spells, ct);
+    plr_display_spells(doc, spells, ct);
 }
-class_t *mystic_get_class(void)
+plr_class_ptr mystic_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 45,  34,  36,   5,  32,  24,  64,  60};
-    skills_t xs = { 15,  11,  10,   0,   0,   0,  18,  18};
+    skills_t bs = { 45,  34,  36,   5,  32,  24,  64,  40};
+    skills_t xs = { 15,  11,  10,   0,   0,   0,  18,  15};
 
-        me.name = "Mystic";
-        me.desc = "Mystics are masters of bare handed fighting, like Monks. However, they "
+        me = plr_class_alloc(CLASS_MYSTIC);
+        me->name = "Mystic";
+        me->desc = "Mystics are masters of bare handed fighting, like Monks. However, they "
                   "do not learn normal spells. Instead, they gain mystical powers with experience, "
                   "and these powers directly influence their martial arts. In this respect, "
                   "Mystics are similar to the Samurai. Indeed, they even concentrate to boost "
@@ -571,28 +610,27 @@ class_t *mystic_get_class(void)
                   "been whispered that mystics have even discovered how to kill an opponent with "
                   "a single touch, though they do not share this knowledge with novices.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] = -2;
-        me.stats[A_DEX] =  3;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  2;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 100;
-        me.base_hp = 4;
-        me.exp = 130;
-        me.pets = 35;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] = -2;
+        me->stats[A_DEX] =  3;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] =  2;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 100;
+        me->base_hp = 4;
+        me->exp = 130;
+        me->pets = 35;
+        me->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG | CLASS_MARTIAL_ARTS;
 
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.character_dump = _character_dump;
     }
 
-    return &me;
+    return me;
 }

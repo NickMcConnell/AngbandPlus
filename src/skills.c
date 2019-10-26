@@ -1,7 +1,7 @@
 #include "angband.h"
 
 #include <assert.h>
-#include "str-map.h"
+#include "str_map.h"
 
 skill_table *s_info;
 
@@ -234,10 +234,10 @@ int skills_weapon_current(int tval, int sval)
     int max;
     int cur;
 
-    assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
-
     if (tval == TV_BOW)
         return skills_bow_current(sval);
+
+    assert(tv_is_weapon(tval));
 
     if (p_ptr->pclass == CLASS_SKILLMASTER)
         return skillmaster_weapon_prof(tval);
@@ -255,10 +255,7 @@ void skills_weapon_init(int tval, int sval, int skill)
 {
     int max, cur;
 
-    assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
-    assert(tval != TV_BOW);
-    /* XXX Poseidon Demigod!
-     * assert(p_ptr->pclass != CLASS_SKILLMASTER); */
+    assert(tv_is_weapon(tval) || tval == TV_BOW);
 
     max = skills_weapon_max(tval, sval);
     cur = MIN(skill, max);
@@ -268,10 +265,10 @@ void skills_weapon_init(int tval, int sval, int skill)
 
 int skills_weapon_max(int tval, int sval)
 {
-    assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
-
     if (tval == TV_BOW)
         return skills_bow_max(sval);
+
+    assert(tv_is_weapon(tval));
 
     if (p_ptr->pclass == CLASS_SKILLMASTER)
         return skillmaster_weapon_prof(tval);
@@ -301,14 +298,11 @@ int skills_weapon_max(int tval, int sval)
     /* Edged weapons for priests. I never understood the restriction for evil priests! */
     if (p_ptr->pclass == CLASS_PRIEST && (tval == TV_SWORD || tval == TV_POLEARM))
     {
-        if (priest_is_good())
-            return WEAPON_EXP_BEGINNER;
-        else if (priest_is_evil())
+        if (priest_is_evil())
             return WEAPON_EXP_SKILLED;
+        else /* priests of life and nature abhor bloodshed */
+            return WEAPON_EXP_BEGINNER;
     }
-
-    if (p_ptr->prace == RACE_TONBERRY && tval == TV_SWORD && sval == SV_SABRE)
-        return WEAPON_EXP_MASTER;
 
     if (p_ptr->personality == PERS_SEXY && tval == TV_HAFTED && sval == SV_WHIP)
         return WEAPON_EXP_MASTER;
@@ -333,6 +327,12 @@ static int _weapon_calc_bonus_aux(int skill)
 int skills_weapon_calc_bonus(int tval, int sval)
 {
     int current = skills_weapon_current(tval, sval);
+    return _weapon_calc_bonus_aux(current);
+}
+
+int skills_martial_arts_calc_bonus(void)
+{
+    int current = skills_martial_arts_current();
     return _weapon_calc_bonus_aux(current);
 }
 
@@ -361,10 +361,15 @@ void skills_weapon_gain(int tval, int sval, int rlvl)
     int max;
     int cur;
 
-    assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
-    assert(tval != TV_BOW);
-
     if (p_ptr->pclass == CLASS_SKILLMASTER) return;
+    if (tval == TV_SHIELD)
+    {
+        /*assert(weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH);*/
+        skills_shield_gain(sval, rlvl);
+        return;
+    }
+
+    assert(tv_is_weapon(tval));
 
     max = skills_weapon_max(tval, sval);
     cur = p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval];
@@ -420,12 +425,12 @@ bool skills_weapon_is_icky(int tval, int sval)
 {
     bool result = FALSE;
 
-    assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
+    assert(tv_is_weapon(tval) || tval == TV_BOW);
 
     /* Some classes use weapon skill tables to determine allowable weapons.
        But if the character gains the Weapon Versatility ability, all weapons
        will be masterable, even "icky" ones ... */
-    switch (p_ptr->pclass)
+    switch (get_class_idx())
     {
     case CLASS_MONK:
     case CLASS_MYSTIC:
@@ -476,6 +481,13 @@ cptr skills_weapon_describe_current(int tval, int sval)
     return _weapon_describe_aux(
         skills_weapon_current(tval, sval),
         skills_weapon_max(tval, sval));
+}
+
+cptr skills_martial_arts_describe_current(void)
+{
+    return _weapon_describe_aux(
+        skills_martial_arts_current(), 
+        skills_martial_arts_max());
 }
 
 cptr skills_bow_describe_current(int sval)
@@ -663,7 +675,7 @@ void skills_riding_gain_melee(monster_race *r_ptr)
 
     if (current < max)
     {
-        int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
+        int ridinglevel = plr_riding_lvl();
         int inc = 0;
 
         if (current/200 - 5 < r_ptr->level)
@@ -695,7 +707,7 @@ void skills_riding_gain_rakuba(int dam)
 
     if (current < max && max > 1000)
     {
-        int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
+        int ridinglevel = plr_riding_lvl();
         int inc = 0;
 
         if (dam/2 + ridinglevel > current/30 + 10)
@@ -723,7 +735,7 @@ void skills_riding_gain_archery(monster_race *r_ptr)
 
     if (current < max)
     {
-        int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
+        int ridinglevel = plr_riding_lvl();
 
         if ((current - RIDING_EXP_BEGINNER*2) / 200 < ridinglevel && one_in_(2))
         {
@@ -890,28 +902,29 @@ void skills_innate_gain(cptr name, int rlvl)
             if (old_bonus != new_bonus)
             {
                 msg_format("<color:B>Your <color:R>%s</color> skills are improving.</color>", name);
-                p_ptr->update |= PU_BONUS;
+                /*p_ptr->update |= PU_BONUS;*/
             }
         }
     }
 }
 
-cptr skills_innate_calc_name(innate_attack_ptr attack)
+cptr skills_innate_calc_name(mon_blow_ptr blow)
 {
     static char buf[MAX_NLEN];
+    cptr name = blow->name;
     buf[0] = '\0';
-#if 0
-    if ((p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC) && p_ptr->current_r_idx)
+    if (!name)
+        name = mon_blow_info_lookup(blow->method)->name;
+    if (blow->flags & MBF_POSSESSOR)
     {
-        monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+        monster_race *r_ptr = mon_race_lookup(p_ptr->current_r_idx);
         if (r_ptr->flags1 & RF1_UNIQUE)
-            sprintf(buf, "%d.%s", p_ptr->current_r_idx, attack->name);
+            sprintf(buf, "%d.%s", p_ptr->current_r_idx, name);
         else
-            sprintf(buf, "%c.%s", r_ptr->d_char, attack->name);
+            sprintf(buf, "%c.%s", r_ptr->d_char, name);
     }
     else
-#endif
-        sprintf(buf, "%s", attack->name);
+        sprintf(buf, "%s", name);
     return buf;
 }
 
@@ -1030,7 +1043,7 @@ static cptr _skill_desc(int amt, int div)
 
 /* Disarming */
 static cptr _dis_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 40, 8); }
-static cptr _class_dis_skill_desc(class_t *class_ptr) { return _dis_skill_desc(class_ptr->base_skills.dis, class_ptr->extra_skills.dis); }
+static cptr _class_dis_skill_desc(class_t *class_ptr) { return _dis_skill_desc(class_ptr->skills.dis, class_ptr->extra_skills.dis); }
 static cptr _mon_race_dis_skill_desc(race_t *race_ptr) { return _dis_skill_desc(race_ptr->skills.dis, race_ptr->extra_skills.dis); }
 
 static cptr _dis_skill_desc2(int base) { return _skill_desc(base + 5, 2); }
@@ -1040,7 +1053,7 @@ static cptr _realm_dis_skill_desc(dragon_realm_ptr realm_ptr) { return _skill_de
 
 /* Devices */
 static cptr _dev_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 50, 6); }
-static cptr _class_dev_skill_desc(class_t *class_ptr) { return _dev_skill_desc(class_ptr->base_skills.dev, class_ptr->extra_skills.dev); }
+static cptr _class_dev_skill_desc(class_t *class_ptr) { return _dev_skill_desc(class_ptr->skills.dev, class_ptr->extra_skills.dev); }
 static cptr _mon_race_dev_skill_desc(race_t *race_ptr) { return _dev_skill_desc(race_ptr->skills.dev, race_ptr->extra_skills.dev); }
 
 static cptr _dev_skill_desc2(int base) { return _skill_desc(base + 5, 2); }
@@ -1050,7 +1063,7 @@ static cptr _realm_dev_skill_desc(dragon_realm_ptr realm_ptr) { return _skill_de
 
 /* Saving Throws */
 static cptr _sav_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 65, 5); }
-static cptr _class_sav_skill_desc(class_t *class_ptr) { return _sav_skill_desc(class_ptr->base_skills.sav, class_ptr->extra_skills.sav); }
+static cptr _class_sav_skill_desc(class_t *class_ptr) { return _sav_skill_desc(class_ptr->skills.sav, class_ptr->extra_skills.sav); }
 static cptr _mon_race_sav_skill_desc(race_t *race_ptr) { return _sav_skill_desc(race_ptr->skills.sav, race_ptr->extra_skills.sav); }
 
 static cptr _sav_skill_desc2(int base) { return _skill_desc(base + 5, 2); }
@@ -1060,7 +1073,7 @@ static cptr _realm_sav_skill_desc(dragon_realm_ptr realm_ptr) { return _skill_de
 
 /* Melee */
 static cptr _thn_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 70, 12); }
-static cptr _class_thn_skill_desc(class_t *class_ptr) { return _thn_skill_desc(class_ptr->base_skills.thn, class_ptr->extra_skills.thn); }
+static cptr _class_thn_skill_desc(class_t *class_ptr) { return _thn_skill_desc(class_ptr->skills.thn, class_ptr->extra_skills.thn); }
 static cptr _mon_race_thn_skill_desc(race_t *race_ptr) { return _thn_skill_desc(race_ptr->skills.thn, race_ptr->extra_skills.thn); }
 
 static cptr _thn_skill_desc2(int base) { return _skill_desc(base + 5, 2); }
@@ -1070,7 +1083,7 @@ static cptr _realm_thn_skill_desc(dragon_realm_ptr realm_ptr) { return _skill_de
 
 /* Bows */
 static cptr _thb_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 60, 12); }
-static cptr _class_thb_skill_desc(class_t *class_ptr) { return _thb_skill_desc(class_ptr->base_skills.thb, class_ptr->extra_skills.thb); }
+static cptr _class_thb_skill_desc(class_t *class_ptr) { return _thb_skill_desc(class_ptr->skills.thb, class_ptr->extra_skills.thb); }
 static cptr _mon_race_thb_skill_desc(race_t *race_ptr) { return _thb_skill_desc(race_ptr->skills.thb, race_ptr->extra_skills.thb); }
 
 static cptr _thb_skill_desc2(int base) { return _skill_desc(base + 5, 2); }
@@ -1080,7 +1093,7 @@ static cptr _realm_thb_skill_desc(dragon_realm_ptr realm_ptr) { return _skill_de
 
 /* Stealth */
 static cptr _stl_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra + 2, 1); }
-static cptr _class_stl_skill_desc(class_t *class_ptr) { return _stl_skill_desc(class_ptr->base_skills.stl, class_ptr->extra_skills.stl); }
+static cptr _class_stl_skill_desc(class_t *class_ptr) { return _stl_skill_desc(class_ptr->skills.stl, class_ptr->extra_skills.stl); }
 static cptr _mon_race_stl_skill_desc(race_t *race_ptr) { return _stl_skill_desc(race_ptr->skills.stl, race_ptr->extra_skills.stl); }
 static cptr _race_stl_skill_desc(race_t *race_ptr) { return _stl_skill_desc(race_ptr->skills.stl, 0); }
 static cptr _pers_stl_skill_desc(personality_ptr pers_ptr) { return _stl_skill_desc(pers_ptr->skills.stl, 0); }
@@ -1088,7 +1101,7 @@ static cptr _realm_stl_skill_desc(dragon_realm_ptr realm_ptr) { return _skill_de
 
 /* Searching */
 static cptr _srh_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra, 6); }
-static cptr _class_srh_skill_desc(class_t *class_ptr) { return _srh_skill_desc(class_ptr->base_skills.srh, class_ptr->extra_skills.srh); }
+static cptr _class_srh_skill_desc(class_t *class_ptr) { return _srh_skill_desc(class_ptr->skills.srh, class_ptr->extra_skills.srh); }
 static cptr _mon_race_srh_skill_desc(race_t *race_ptr) { return _srh_skill_desc(race_ptr->skills.srh, race_ptr->extra_skills.srh); }
 
 static cptr _srh_skill_desc2(int base) { return _skill_desc(base, 1); }
@@ -1098,7 +1111,7 @@ static cptr _realm_srh_skill_desc(dragon_realm_ptr realm_ptr) { return _skill_de
 
 /* Perception */
 static cptr _fos_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra, 6); }
-static cptr _class_fos_skill_desc(class_t *class_ptr) { return _fos_skill_desc(class_ptr->base_skills.fos, class_ptr->extra_skills.fos); }
+static cptr _class_fos_skill_desc(class_t *class_ptr) { return _fos_skill_desc(class_ptr->skills.fos, class_ptr->extra_skills.fos); }
 static cptr _mon_race_fos_skill_desc(race_t *race_ptr) { return _fos_skill_desc(race_ptr->skills.fos, race_ptr->extra_skills.fos); }
 
 static cptr _fos_skill_desc2(int base) { return _skill_desc(base, 1); }

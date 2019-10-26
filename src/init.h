@@ -104,7 +104,6 @@ struct header
 extern errr init_info_txt(FILE *fp, char *buf, header *head,
               parse_info_txt_func parse_info_txt_line);
 
-#ifdef ALLOW_TEMPLATES
 extern errr parse_z_info(char *buf, header *head);
 extern errr parse_f_info(char *buf, header *head);
 extern void retouch_f_info(header *head);
@@ -112,7 +111,6 @@ extern errr parse_k_info(char *buf, header *head);
 extern errr parse_a_info(char *buf, header *head);
 extern errr parse_e_info(char *buf, header *head);
 extern errr parse_r_info(char *buf, header *head);
-extern errr parse_d_info(char *buf, header *head);
 extern errr parse_s_info(char *buf, header *head);
 extern errr parse_m_info(char *buf, header *head);
 extern errr parse_b_info(char *buf, header *head);
@@ -123,7 +121,6 @@ extern errr parse_b_info(char *buf, header *head);
 extern int error_idx;
 extern int error_line;
 
-#endif /* ALLOW_TEMPLATES */
 
 
 /*

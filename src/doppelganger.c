@@ -47,7 +47,7 @@ void mimic_race(int new_race, const char *msg)
 
     if (new_race == RACE_HUMAN || new_race == RACE_DEMIGOD)
     {
-        get_race()->gain_level(p_ptr->lev);    /* This is OK ... Just make sure we get to choose racial powers on mimicry */
+        get_race()->hooks.gain_level(p_ptr->lev);    /* This is OK ... Just make sure we get to choose racial powers on mimicry */
     }
 
     if (new_race == RACE_BEASTMAN)
@@ -62,7 +62,7 @@ void mimic_race(int new_race, const char *msg)
     }
 
     p_ptr->redraw |= (PR_BASIC | PR_STATUS | PR_MAP | PR_EFFECTS);
-    p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+    p_ptr->update |= (PU_BONUS | PU_INNATE | PU_HP | PU_MANA);
 
     equip_on_change_race();
     reset_visuals();
@@ -151,7 +151,6 @@ static _form_t _forms[] =
     { 25, 50, RACE_GOLEM }, 
     { 26, 50, RACE_SPRITE }, 
     /*{ 27, 60, RACE_DRACONIAN }, */
-    { 28, 60, RACE_TONBERRY }, 
     { 29, 60, RACE_BALROG }, 
     { 30, 60, RACE_KUTAR }, 
     { 31, 60, RACE_DUNADAN }, 
@@ -352,7 +351,7 @@ static int _choose_form(void)
     return choice;
 }
 
-static void _mimic_spell(int cmd, variant *res)
+static void _mimic_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -428,44 +427,43 @@ static int _get_powers(spell_info* spells, int max)
     return get_powers_aux(spells, max, _powers);
 }
 
-race_t *doppelganger_get_race(void)
+plr_race_ptr doppelganger_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Doppelganger";
-        me.desc = "Doppelgangers a truly pathetic creatures. While nobody has actually ever seen "
+        me = plr_race_alloc(RACE_DOPPELGANGER);
+        me->name = "Doppelganger";
+        me->desc = "Doppelgangers a truly pathetic creatures. While nobody has actually ever seen "
                     "their true form, they are rumored to be small, plain, pathetic creatures. "
                     "Their one saving grace is the ability to mimic other races.";
         
-        me.stats[A_STR] = -3;
-        me.stats[A_INT] = -3;
-        me.stats[A_WIS] = -3;
-        me.stats[A_DEX] = -3;
-        me.stats[A_CON] = -3;
-        me.stats[A_CHR] = -3;
+        me->stats[A_STR] = -3;
+        me->stats[A_INT] = -3;
+        me->stats[A_WIS] = -3;
+        me->stats[A_DEX] = -3;
+        me->stats[A_CON] = -3;
+        me->stats[A_CHR] = -3;
         
-        me.skills.dis = -20;
-        me.skills.dev = -20;
-        me.skills.sav = -20;
-        me.skills.stl = 5;
-        me.skills.srh = -10;
-        me.skills.fos = 10;
-        me.skills.thn = -20;
-        me.skills.thb = -20;
+        me->skills.dis = -20;
+        me->skills.dev = -20;
+        me->skills.sav = -20;
+        me->skills.stl = 5;
+        me->skills.srh = -10;
+        me->skills.fos = 10;
+        me->skills.thn = -20;
+        me->skills.thb = -20;
 
-        me.life = 85;
-        me.base_hp = 12;
-        me.exp = 150;
-        me.infra = 0;
-        me.shop_adjust = 150; /* But really, you should shapeshift first, no? */
+        me->life = 85;
+        me->base_hp = 12;
+        me->exp = 150;
+        me->infra = 0;
+        me->shop_adjust = 150; /* But really, you should shapeshift first, no? */
 
-        me.get_powers = _get_powers;
-        init = TRUE;
+        me->hooks.get_powers = _get_powers;
     }
 
-    return &me;
+    return me;
 }
 

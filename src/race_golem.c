@@ -20,7 +20,7 @@ static cptr _desc =
 static cptr _mon_name(int r_idx)
 {
     if (r_idx)
-        return r_name + r_info[r_idx].name;
+        return r_name + mon_race_lookup(r_idx)->name;
     return ""; /* Birth Menu */
 }
 
@@ -35,76 +35,28 @@ static int _rank(void)
     return r;
 }
 
-/**********************************************************************
- * Common Evolution: 
- *       10       20      30         40     45
- *  Clay -> Stone -> Iron -> Mithril -> Eog -> Colossus | Sky | Spellwarp
- **********************************************************************/
 static void _birth(void) 
 { 
     object_type forge;
 
     p_ptr->current_r_idx = MON_CLAY_GOLEM;
-    skills_innate_init("Fist", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+    skills_innate_init("Punch", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
-    py_birth_light();
+    plr_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
+    plr_birth_light();
 }
 
-static int _attack_level(void)
-{
-    int l = p_ptr->lev;
-    switch (p_ptr->psubrace)
-    {
-    case GOLEM_COLOSSUS:
-        l = MAX(1, l * 100 / 100);
-        break;
-    case GOLEM_SKY:
-        l = MAX(1, l * 95 / 100);
-        break;
-    case GOLEM_SPELLWARP:
-        l = MAX(1, l * 97 / 100);
-        break;
-    }
-    return l;
-}
-
-static void _calc_innate_attacks(void)
-{
-    if (p_ptr->weapon_ct == 0 && equip_find_empty_hand())
-    {
-        innate_attack_t a = {0};
-        int l = _attack_level();
-
-        a.dd = 5 + l/5 + l*l/250;
-        a.ds = 5 + l/5 + l*l/250;
-        a.weight = 100 + 8*l;
-        a.to_h = l;
-        a.to_d = l + l*l/50 + l*l*l/2500;
-
-        if (!equip_find_first(object_is_shield))
-        {
-            a.to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128) + ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-            a.to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) * 3/4;
-        }
-
-        if (l >= 30)
-            a.effect[1] = GF_STUN;
-
-        a.blows = 100;
-        a.msg = "You punch.";
-        a.name = "Fist";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
-}
-
+/**********************************************************************
+ * Common Evolution: 
+ *       10       20      30         40     45
+ *  Clay -> Stone -> Iron -> Mithril -> Eog -> Colossus | Sky | Spellwarp
+ **********************************************************************/
 static void _gain_level(int new_level) 
 {
     if (p_ptr->current_r_idx == MON_CLAY_GOLEM && new_level >= 10)
@@ -152,11 +104,102 @@ static void _gain_level(int new_level)
     }
 }
 
+/**********************************************************************
+ * Attacks
+ **********************************************************************/
+static int _attack_level_aux(int l)
+{
+    switch (p_ptr->psubrace)
+    {
+    case GOLEM_COLOSSUS:
+        l = MAX(1, l * 100 / 100);
+        break;
+    case GOLEM_SKY:
+        l = MAX(1, l * 95 / 100);
+        break;
+    case GOLEM_SPELLWARP:
+        l = MAX(1, l * 97 / 100);
+        break;
+    }
+    return l;
+}
+static int _attack_level(void)
+{
+    return _attack_level_aux(p_ptr->lev);
+}
+static dice_t _calc_dice(int dam, int pct_dice)
+{
+    dice_t dice = {0};
+    int dice_dam = dam * pct_dice; /* scaled by 100 */
+    int x = mysqrt(2*dice_dam); /* scaled by sqrt(100) = 10 */
+    dice.dd = MAX(1, (x + 5)/10);
+    dice.ds = MAX(5, (x + 5)/10);
+    dice.base = MAX(0, dam - dice_avg_roll(dice));
+    return dice;
+}
+static void _spoiler_dump(doc_ptr doc)
+{
+    int cl;
+    for (cl = 1; cl <= 50; cl++)
+    {
+        int l = _attack_level_aux(cl);
+        int dam = 25 + prorate(450, l, 50, 1, 1, 1);
+        dice_t dice = _calc_dice(dam, 30);
+        int avg_dam = dice_avg_roll(dice);
+
+        doc_printf(doc, "%2d %3d ", cl, l);
+        doc_printf(doc, "<color:%c>Punch(%dd%d+%d)=%d</color>\n",
+            dam == avg_dam ? 'w' : 'r',
+            dice.dd, dice.ds, dice.base, avg_dam);
+    }
+}
+static void _calc_innate_attacks(void)
+{
+    int          l = _attack_level();
+    int          dam = 25 + prorate(450, l, 50, 1, 1, 1);
+    mon_blow_ptr blow = mon_blow_alloc(RBM_PUNCH);
+
+    blow->power = l*BTH_PLUS_ADJ;
+    blow->weight = 100 + 8*l;
+    mon_blow_push_effect(blow, RBE_HURT, _calc_dice(dam, 30));
+    if (l >= 30)
+        mon_blow_push_effect(blow, GF_STUN, dice_create(3, 3 + l/16, 0))->pct = l;
+    vec_add(p_ptr->innate_blows, blow);
+}
+static void _calc_innate_bonuses(mon_blow_ptr blow)
+{
+    if (blow->method != RBM_PUNCH) return;
+    p_ptr->innate_attack_info.xtra_blow = 0;  /* never gain extra attacks */
+    blow->blows = 100;
+    if (!equip_find_first(obj_is_shield)) /* give 2-handed wielding bonus */
+    {
+        int to_h = ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128) + ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+        int to_d = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) * 3/4;
+
+        p_ptr->innate_attack_info.to_h += to_h;
+        p_ptr->innate_attack_info.dis_to_h += to_h;
+        p_ptr->innate_attack_info.to_d += to_d;
+        p_ptr->innate_attack_info.dis_to_d += to_d;
+    }
+}
+static bool _begin_weapon(plr_attack_ptr context)
+{
+    if (context->info.type != PAT_INNATE) return TRUE;
+    if (context->blow->method != RBM_PUNCH) return TRUE;
+    if (!context->blow->blows) return FALSE;
+    context->skill = context->skill * (100 + 2*_attack_level()) / 100;
+    return TRUE;
+}
+static void _attack_init(plr_attack_ptr context)
+{
+    context->hooks.begin_weapon_f = _begin_weapon;
+}
+
+/**********************************************************************
+ * Bonuses
+ **********************************************************************/
 static void _calc_bonuses(void) 
 {
-    if (p_ptr->innate_attack_info.xtra_blow > 0)
-        p_ptr->innate_attack_info.xtra_blow = 0;
-
     /* Clay Golem */
     p_ptr->to_a += 5;
     p_ptr->dis_to_a += 5;
@@ -300,13 +343,28 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 
     if (p_ptr->current_r_idx == MON_SPELLWARP_AUTOMATON)
     {
+        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_RES_LITE);
+        add_flag(flgs, OF_RES_DARK);
+        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_NEXUS);
+        add_flag(flgs, OF_RES_SOUND);
+        add_flag(flgs, OF_RES_CHAOS);
+        add_flag(flgs, OF_RES_DISEN);
     }
 }
 
 /**********************************************************************
  * Powers
  **********************************************************************/
-static void _big_punch_spell(int cmd, variant *res)
+static bool _check_punch(void)
+{
+    mon_blow_ptr punch = mon_blows_find(p_ptr->innate_blows, RBM_PUNCH);
+    if (!punch) return FALSE; /* paranoia */
+    if (!punch->blows) return FALSE;
+    return TRUE;
+}
+static void _big_punch_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -316,21 +374,28 @@ static void _big_punch_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attack an adjacent opponent with a single devastating blow.");
         break;
+    case SPELL_ON_BROWSE:
     case SPELL_CAST:
-        if (p_ptr->innate_attack_ct)
-            var_set_bool(res, do_blow(GOLEM_BIG_PUNCH));
-        else
+        var_set_bool(res, FALSE);
+        if (_check_punch())
         {
-            msg_print("Not while you are wielding a weapon!");
-            var_set_bool(res, FALSE);
+            if (cmd == SPELL_CAST)
+                var_set_bool(res, plr_attack_special(PLR_HIT_CRIT, PAC_NO_WEAPON));
+            else
+            {
+                plr_attack_display_special(PLR_HIT_CRIT, PAC_NO_WEAPON);
+                var_set_bool(res, TRUE);
+            }
         }
+        else
+            msg_print("You need to use your bare fists for this power.");
         break;
     default:
         default_spell(cmd, res);
         break;
     }
 }
-void _breathe_cold_spell(int cmd, variant *res)
+void _breathe_cold_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -360,7 +425,7 @@ void _breathe_cold_spell(int cmd, variant *res)
         break;
     }
 }
-void _breathe_disintegration_spell(int cmd, variant *res)
+void _breathe_disintegration_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -390,7 +455,7 @@ void _breathe_disintegration_spell(int cmd, variant *res)
         break;
     }
 }
-void _breathe_light_spell(int cmd, variant *res)
+void _breathe_light_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -420,7 +485,7 @@ void _breathe_light_spell(int cmd, variant *res)
         break;
     }
 }
-void _breathe_time_spell(int cmd, variant *res)
+void _breathe_time_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -450,7 +515,7 @@ void _breathe_time_spell(int cmd, variant *res)
         break;
     }
 }
-void _shoot_spell(int cmd, variant *res)
+void _shoot_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -478,7 +543,7 @@ void _shoot_spell(int cmd, variant *res)
         break;
     }
 }
-static void _stone_smash_spell(int cmd, variant *res)
+static void _stone_smash_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -496,8 +561,8 @@ static void _stone_smash_spell(int cmd, variant *res)
         if (!get_rep_dir2(&dir)) return;
         if (dir == 5) return;
 
-        y = py + ddy[dir];
-        x = px + ddx[dir];
+        y = p_ptr->pos.y + ddy[dir];
+        x = p_ptr->pos.x + ddx[dir];
         
         if (!in_bounds(y, x)) return;
 
@@ -572,80 +637,81 @@ static name_desc_t _info[GOLEM_MAX] = {
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_golem_get_race(int psubrace)
+plr_race_ptr mon_golem_get_race(int psubrace)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     int           rank = _rank();
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  40,   0,  10,   7,  70,  30};
     skills_t xs = { 10,   7,  15,   0,   0,   0,  30,  10};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_GOLEM);
 
-        me.infra = 5;
-        me.shop_adjust = 130;
+        me->name = "Golem";
+        me->desc = _desc;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->infra = 5;
+        me->shop_adjust = 130;
+        me->base_hp = 50;
+        me->pseudo_class_idx = CLASS_MAULER;
+        me->boss_r_idx = MON_DESTROYER;
+        me->flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
 
-        me.name = "Golem";
-        me.desc = _desc;
-        me.calc_innate_attacks = _calc_innate_attacks;
-        me.birth = _birth;
-        me.gain_level = _gain_level;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_powers = _get_powers;
-        me.get_flags = _get_flags;
-        me.flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
-        me.base_hp = 50;
-        me.boss_r_idx = MON_DESTROYER;
-        me.pseudo_class_idx = CLASS_MAULER;
-
-        init = TRUE;
-
+        me->hooks.attack_init = _attack_init;
+        me->hooks.calc_innate_attacks = _calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = _calc_innate_bonuses;
+        me->hooks.birth = _birth;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.get_flags = _get_flags;
     }
 
-    me.subname = _mon_name(p_ptr->current_r_idx);
+    me->subid = psubrace;
+    me->subname = _mon_name(p_ptr->current_r_idx);
 
-    me.stats[A_STR] =  1 + rank;
-    me.stats[A_INT] = -2 - (rank+1)/2;
-    me.stats[A_WIS] = -2 - (rank+1)/2;
-    me.stats[A_DEX] = -1 - (rank+1)/2;
-    me.stats[A_CON] =  1 + rank;
-    me.stats[A_CHR] =  0 + (rank+1)/2;
+    me->stats[A_STR] =  1 + rank;
+    me->stats[A_INT] = -2 - (rank+1)/2;
+    me->stats[A_WIS] = -2 - (rank+1)/2;
+    me->stats[A_DEX] = -1 - (rank+1)/2;
+    me->stats[A_CON] =  1 + rank;
+    me->stats[A_CHR] =  0 + (rank+1)/2;
 
     switch (psubrace)
     {
     case GOLEM_SKY:
-        me.life = 100 + 2*rank;
-        me.exp = 250;
+        me->life = 100 + 2*rank;
+        me->exp = 250;
         break;
 
     case GOLEM_SPELLWARP:
-        me.life = 100 + 3*rank;
-        me.exp = 350;
+        me->life = 100 + 3*rank;
+        me->exp = 350;
         break;
 
     case GOLEM_COLOSSUS:
     default:
         if (p_ptr->current_r_idx == MON_COLOSSUS)
         {
-            me.stats[A_STR] += 3;
-            me.stats[A_DEX] -= 2;
-            me.stats[A_CON] += 3;
+            me->stats[A_STR] += 3;
+            me->stats[A_DEX] -= 2;
+            me->stats[A_CON] += 3;
         }
-        me.life = 100 + 5*rank;
-        me.exp = 200;
+        me->life = 100 + 5*rank;
+        me->exp = 200;
         break;
     }
 
     if (birth_hack || spoiler_hack)
     {
-        me.subname = _info[psubrace].name;
-        me.subdesc = _info[psubrace].desc;
+        me->subname = _info[psubrace].name;
+        me->subdesc = _info[psubrace].desc;
     }
+    me->hooks.character_dump = p_ptr->wizard ? _spoiler_dump : NULL;
 
-    return &me;
+    return me;
 }
 

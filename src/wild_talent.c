@@ -1,6 +1,6 @@
 #include "angband.h"
 
-void burning_strike_spell(int cmd, variant *res)
+void burning_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -11,7 +11,7 @@ void burning_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attacks a monster with more damage unless it has resistance to fire.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, do_blow(HISSATSU_FIRE));
+        var_set_bool(res, plr_attack_special(PLR_HIT_FIRE, PAC_NO_INNATE));
         break;
     default:
         default_spell(cmd, res);
@@ -19,7 +19,22 @@ void burning_strike_spell(int cmd, variant *res)
     }
 }
 
-void lightning_eagle_spell(int cmd, variant *res)
+slay_t _lightning_eagle(plr_attack_ptr context, slay_ptr best_slay)
+{
+    slay_t brand = {0};
+    bool display = BOOL(context->flags & PAC_DISPLAY);
+    if (!display && mon_res_elec(context->mon))
+        mon_lore_res_elec(context->mon);
+    else
+    {
+        brand.id = OF_BRAND_ELEC;
+        brand.name = "Elec";
+        if (have_flag(context->obj_flags, OF_BRAND_ELEC)) brand.mul = 700;
+        else brand.mul = 500;
+    }
+    return brand;
+}
+void lightning_eagle_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -29,9 +44,18 @@ void lightning_eagle_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attacks a monster with more damage unless it has resistance to electricity.");
         break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(HISSATSU_ELEC));
-        break;
+    case SPELL_ON_BROWSE:
+    case SPELL_CAST: {
+        plr_attack_t context = {0};
+        context.hooks.calc_brand_f = _lightning_eagle;
+        if (cmd == SPELL_CAST)
+            var_set_bool(res, plr_attack_special_aux(&context, 1));
+        else
+        {
+            plr_attack_display_aux(&context);
+            var_set_bool(res, TRUE);
+        }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -65,7 +89,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
         { A_STR, "like an Android", {1, 1, 30, android_ray_gun_spell}},
         { A_CON, "like a Vampire", {1, 1, 70, vampirism_spell}},
         { A_DEX, "like a Novice Ranger", {1, 1, 30, shoot_arrow_spell}},
-        { A_WIS, "like a Novice Paladin", {1, 1, 30, cause_wounds_I_spell}},
+        { A_WIS, "like an Evil Priest", {1, 1, 30, malediction_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
     /* CL3: Weak utility */
@@ -152,7 +176,6 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     {
         { A_STR, "like a Half Troll", {10, 12, 50, berserk_spell}},
         { A_CON, "like a Golem", {20, 15, 50, stone_skin_spell}},
-        { A_CHR, "like a Kutar", {20, 15, 40, kutar_expand_spell}},
         { A_CHR, "like a Holy Knight", {15, 10, 30, heroism_spell}},
         { A_CHR, "like a Crusade Paladin", {21, 40, 40, protection_from_evil_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
@@ -172,6 +195,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
         { A_CON, "like a Balrog", {15, 10, 50, demon_breath_spell}},
         { A_WIS, "like a Blue-Mage", {20, 10,  40, brain_smash_spell}},
         { A_INT, "like a Chaos Warrior", {5, 4, 30, touch_of_confusion_spell}},
+        { A_STR, "like a Giant", {20, 0, 0, monster_toss_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
     /* CL27: Good Utility */
@@ -220,11 +244,10 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     },
     /* CL37: Great Buff */
     {
-        { A_DEX, "like a Monk", {25, 0, 0, monk_posture_spell}},
-        { A_DEX, "like a Samurai", {25, 0, 0, samurai_posture_spell}},
         { A_CON, "like a Mutant", {25, 10, 50, resist_elements_spell}},
         { A_INT, "like a Daemon Mage", {35, 40, 80, polymorph_demon_spell}},
         { A_CHR, "like a Warlock", {35, 40, 80, polymorph_vampire_spell}},
+        { A_INT, "like a Craft Mage", {35, 40, 80, polymorph_mithril_golem_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
     /* CL39: Great Utility */
@@ -350,7 +373,7 @@ group_choice _groups[] =  {
     { "Wild Destructions", "Your most powerful wild talents. Death!  Destruction!  Devastation!  Monsters tremble in fear before the awesomeness of your power!", 17, _MAX_TALENTS - 1, TERM_RED},
 };
 
-static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
+static void _spell_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
 {
     switch (cmd)
     {
@@ -403,7 +426,7 @@ int group_idx = -1;
 
     if (group_idx >= 0 && group_idx < _MAX_TALENTS && _group_size(group_idx) > 0)
     {
-        variant name;
+        var_t name;
         int idx = randint0(_group_size(group_idx));
         talent_t *talent = &_talents[group_idx][idx];
 
@@ -413,13 +436,13 @@ int group_idx = -1;
             return;
         }
 
-        var_init(&name);
+        name = var_create();
         (talent->spell.fn)(SPELL_NAME, &name);
 
         msg_format("<color:B>You gain the power of <color:R>%s</color> %s.</color>", var_get_string(&name), talent->gain_desc);
         p_ptr->magic_num1[group_idx] = idx + 1;
 
-        var_clear(&name);
+        var_destroy(&name);
     }
 }
 
@@ -541,20 +564,12 @@ void wild_talent_new_life(void)
 
 static void _calc_bonuses(void)
 {
-    samurai_posture_calc_bonuses();
-    monk_posture_calc_bonuses();
-    if (equip_find_ego(EGO_WEAPON_WILD))
-        p_ptr->dec_mana = TRUE;
 }
 static void _calc_stats(s16b stats[MAX_STATS])
 {
-    samurai_posture_calc_stats(stats);
-    monk_posture_calc_stats(stats);
 }
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    samurai_posture_get_flags(flgs);
-    monk_posture_get_flags(flgs);
 }
 
 static void _character_dump(doc_ptr doc)
@@ -573,10 +588,8 @@ static void _character_dump(doc_ptr doc)
     if (ct > 0)
     {
         int i;
-        variant name, info;
-
-        var_init(&name);
-        var_init(&info);
+        var_t name = var_create();
+        var_t info = var_create();
 
         doc_printf(doc, "<topic:WildTalent>================================= <color:keypress>W</color>ild Talents ================================\n\n");
         doc_printf(doc, "<color:G>%-23.23s Lv Stat Cost Fail Info</color>\n", "");
@@ -596,8 +609,8 @@ static void _character_dump(doc_ptr doc)
                             var_get_string(&info));
         }
 
-        var_clear(&name);
-        var_clear(&info);
+        var_destroy(&name);
+        var_destroy(&info);
 
         doc_newline(doc);
     }
@@ -620,24 +633,23 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_SMALL_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
+    plr_birth_obj_aux(TV_SWORD, SV_SMALL_SWORD, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 }
 
-class_t *wild_talent_get_class(void)
+plr_class_ptr wild_talent_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    /* static info never changes */
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  25,  31,   2,  24,  16,  56,  50 };
     skills_t xs = {  8,  11,  10,   0,   0,   0,  18,  18 };
 
-        me.name = "Wild-Talent";
-        me.desc = "The Wild-Talent gains random talents and abilities as they "
+        me = plr_class_alloc(CLASS_WILD_TALENT);
+        me->name = "Wild-Talent";
+        me->desc = "The Wild-Talent gains random talents and abilities as they "
                   "level up. They are good fighters, and decent with magical devices, "
                   "but their true forte is their vast array of potential random "
                   "powers. Except you never know what those might be!\n \n"
@@ -648,33 +660,32 @@ class_t *wild_talent_get_class(void)
                   "to cast, but the amount of mana available is not influenced by any "
                   "particular stat and is simply determined by experience.";
         
-        me.stats[A_STR] = -1;
-        me.stats[A_INT] =  1;
-        me.stats[A_WIS] =  1;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] = -2;
-        me.stats[A_CHR] =  1;
+        me->stats[A_STR] = -1;
+        me->stats[A_INT] =  1;
+        me->stats[A_WIS] =  1;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] = -2;
+        me->stats[A_CHR] =  1;
         
-        me.base_skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
         
-        me.life = 100;
-        me.base_hp = 4;
-        me.exp = 110;
-        me.pets = 35;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
+        me->life = 100;
+        me->base_hp = 4;
+        me->exp = 110;
+        me->pets = 35;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
         
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_stats = _calc_stats;
-        me.get_flags = _get_flags;
-        me.get_spells = _get_spells;
-        me.caster_info = _caster_info;
-        me.gain_level = _gain_level;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_stats = _calc_stats;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.character_dump = _character_dump;
     }
 
-    return &me;
+    return me;
 }

@@ -5,46 +5,24 @@
  ******************************************************************************/
 static void _calc_innate_attacks(void) 
 {
-    innate_attack_t    a = {0};
+    mon_race_ptr race = mon_race_lookup(p_ptr->current_r_idx);
+    mon_blow_ptr blow = mon_blows_find(race->blows, RBM_BITE);
 
-    a.dd = 1 + p_ptr->lev / 13;
-    a.ds = 5 + p_ptr->lev / 10;
-    a.weight = 250 + p_ptr->lev * 2;
-    a.to_h = p_ptr->lev/2;
-
-    a.blows = 50 + p_ptr->lev;
-    a.effect[0] = GF_MISSILE;
-
-    switch (p_ptr->current_r_idx)
+    if (blow)
     {
-    case MON_ICE_TROLL:
-        a.effect[0] = GF_COLD;
-        break;
-    case MON_FIRE_TROLL:
-        a.effect[0] = GF_FIRE;
-        break;
-    case MON_ALGROTH:
-    case MON_AKLASH:
-        a.effect[0] = GF_POIS;
-        break;
-    case MON_STORM_TROLL:
-        a.effect[1] = GF_ELEC;
-        break;
-    case MON_ETTIN:
-        a.blows += 50;
-        break;
+        mon_blow_ptr copy = mon_blow_copy(blow);
+        copy->power = 25 + p_ptr->lev;
+        copy->blows = 50 + p_ptr->lev;
+        if (p_ptr->current_r_idx == MON_ETTIN)
+            copy->blows += 50;
+        vec_add(p_ptr->innate_blows, copy);
     }
-
-    a.msg = "You bite.";
-    a.name = "Bite";
-
-    p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
 }
 
 /******************************************************************************
  * Troll Powers
  ******************************************************************************/
-static void _aklash_breathe_spell(int cmd, variant *res)
+static void _aklash_breathe_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -75,7 +53,13 @@ static void _aklash_breathe_spell(int cmd, variant *res)
     }
 }
 
-static void _super_attack_spell(int cmd, variant *res)
+static void _begin(plr_attack_ptr context)
+{
+    context->attack_desc = "<color:R>powerfully attack</color>";
+    context->to_h += 10;
+    context->to_d += p_ptr->lev/2;
+}
+static void _super_attack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -86,21 +70,17 @@ static void _super_attack_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent powerfully.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, do_blow(PY_POWER_ATTACK));
-        break;
-    case SPELL_ON_BROWSE:
-    {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        display_weapon_mode = PY_POWER_ATTACK;
-        do_cmd_knowledge_weapon();
-        display_weapon_mode = 0;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break;
-    }
+    case SPELL_ON_BROWSE: {
+        plr_attack_t context = {0};
+        context.hooks.begin_f = _begin;
+        if (cmd == SPELL_CAST)
+            var_set_bool(res, plr_attack_special_aux(&context, 1));
+        else
+        {
+            plr_attack_display_aux(&context);
+            var_set_bool(res, TRUE);
+        }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -167,22 +147,23 @@ static void _birth(void)
     skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 7;
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_CLUB));
     forge.weight = 100;
     forge.dd = 3;
     forge.ds = 4;
     forge.to_d = 7;
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 static void _gain_level(int new_level) 
@@ -261,7 +242,7 @@ static void _gain_level(int new_level)
  ******************************************************************************/
 static void _calc_bonuses(void) 
 {
-    int to_a = py_prorata_level_aux(25, 1, 2, 2);
+    int to_a = plr_prorata_level_aux(25, 1, 2, 2);
 
     p_ptr->to_a += to_a;
     p_ptr->dis_to_a += to_a;
@@ -390,25 +371,29 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     }
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
     switch (p_ptr->current_r_idx)
     {
     case MON_ICE_TROLL:
-        add_flag(info_ptr->flags, OF_BRAND_COLD);
+        add_flag(info->obj_flags, OF_BRAND_COLD);
+        add_flag(info->obj_known_flags, OF_BRAND_COLD);
         break;
     case MON_FIRE_TROLL:
-        add_flag(info_ptr->flags, OF_BRAND_FIRE);
+        add_flag(info->obj_flags, OF_BRAND_FIRE);
+        add_flag(info->obj_known_flags, OF_BRAND_FIRE);
         break;
     case MON_ALGROTH:
-        add_flag(info_ptr->flags, OF_BRAND_POIS);
+        add_flag(info->obj_flags, OF_BRAND_POIS);
+        add_flag(info->obj_known_flags, OF_BRAND_POIS);
         break;
     case MON_STORM_TROLL:
-        add_flag(info_ptr->flags, OF_BRAND_ELEC);
+        add_flag(info->obj_flags, OF_BRAND_ELEC);
+        add_flag(info->obj_known_flags, OF_BRAND_ELEC);
         break;
     case MON_TROLL_KING:
-        info_ptr->to_d += 10;
-        info_ptr->dis_to_d += 10;
+        info->to_d += 10;
+        info->dis_to_d += 10;
         break;
     }
 }
@@ -429,59 +414,58 @@ static name_desc_t _info[TROLL_MAX] = {
 /******************************************************************************
  * Troll Public API
  ******************************************************************************/
-race_t *mon_troll_get_race(int psubrace)
+plr_race_ptr mon_troll_get_race(int psubrace)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  30,   1,  13,   7,  65,  30 };
     skills_t xs = {  7,   7,  10,   0,   0,   0,  28,  10 };
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_TROLL);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.name = "Troll";
-        me.desc =     
+        me->name = "Troll";
+        me->desc =     
             "Trolls are disgusting creatures: Big, strong and stupid. They make excellent warriors "
             "but are hopeless with magical devices. Trolls have incredible powers of regeneration.";
 
-        me.infra = 5;
-        me.exp = 150;
-        me.base_hp = 50;
-        me.shop_adjust = 135;
+        me->infra = 5;
+        me->exp = 150;
+        me->base_hp = 50;
+        me->shop_adjust = 135;
 
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.calc_innate_attacks = _calc_innate_attacks;
-        me.get_powers = _get_powers;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
-        me.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.calc_innate_attacks = _calc_innate_attacks;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.birth = _birth;
 
-        me.flags = RACE_IS_MONSTER;
-        me.boss_r_idx = MON_ULIK;
-        me.pseudo_class_idx = CLASS_WARRIOR;
-
-        init = TRUE;
+        me->flags = RACE_IS_MONSTER;
+        me->boss_r_idx = MON_ULIK;
+        me->pseudo_class_idx = CLASS_WARRIOR;
     }
 
-    me.subname = mon_name(p_ptr->current_r_idx);
-    me.stats[A_STR] =  3 + p_ptr->lev/12;
-    me.stats[A_INT] = -5;
-    me.stats[A_WIS] = -5;
-    me.stats[A_DEX] = -2 + p_ptr->lev/20;
-    me.stats[A_CON] =  3 + p_ptr->lev/13;
-    me.stats[A_CHR] =  0;
-    me.life = 100 + (p_ptr->lev/10)*4;
+    me->subid = psubrace;
+    me->subname = mon_name(p_ptr->current_r_idx);
+    me->stats[A_STR] =  3 + p_ptr->lev/12;
+    me->stats[A_INT] = -5;
+    me->stats[A_WIS] = -5;
+    me->stats[A_DEX] = -2 + p_ptr->lev/20;
+    me->stats[A_CON] =  3 + p_ptr->lev/13;
+    me->stats[A_CHR] =  0;
+    me->life = 100 + (p_ptr->lev/10)*4;
 
     if (birth_hack || spoiler_hack)
     {
-        me.subname = _info[psubrace].name;
-        me.subdesc = _info[psubrace].desc;
+        me->subname = _info[psubrace].name;
+        me->subdesc = _info[psubrace].desc;
     }
 
-    me.equip_template = mon_get_equip_template();
-    return &me;
+    me->equip_template = mon_get_equip_template();
+    return me;
 }

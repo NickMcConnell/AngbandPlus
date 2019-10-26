@@ -217,7 +217,6 @@ void virtue_init(void)
         p_ptr->vir_types[i++] = VIRTUE_HONOUR;
         break;
     case CLASS_MAGE:
-    case CLASS_BLOOD_MAGE:
     case CLASS_NECROMANCER:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
@@ -278,10 +277,6 @@ void virtue_init(void)
         p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
         p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         break;
-    case CLASS_TOURIST:
-        p_ptr->vir_types[i++] = VIRTUE_ENLIGHTENMENT;
-        p_ptr->vir_types[i++] = VIRTUE_CHANCE;
-        break;
     case CLASS_WILD_TALENT:
         p_ptr->vir_types[i++] = VIRTUE_CHANCE;
         break;
@@ -302,10 +297,6 @@ void virtue_init(void)
         p_ptr->vir_types[i++] = VIRTUE_VALOUR;
         p_ptr->vir_types[i++] = VIRTUE_HARMONY;
         break;
-    case CLASS_BERSERKER:
-        p_ptr->vir_types[i++] = VIRTUE_VALOUR;
-        p_ptr->vir_types[i++] = VIRTUE_INDIVIDUALISM;
-        break;
     case CLASS_WEAPONSMITH:
         p_ptr->vir_types[i++] = VIRTUE_HONOUR;
         p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
@@ -323,6 +314,7 @@ void virtue_init(void)
     {
     case RACE_CENTAUR:
     case RACE_WOOD_ELF:
+    case RACE_WATER_ELF:
         p_ptr->vir_types[i++] = VIRTUE_NATURE;
         break;
     case RACE_MON_SWORD:
@@ -362,7 +354,7 @@ void virtue_init(void)
     case RACE_MON_XORN:
         p_ptr->vir_types[i++] = VIRTUE_DILIGENCE;
         break;
-    case RACE_HUMAN: case RACE_DEMIGOD: case RACE_TONBERRY: case RACE_DUNADAN:
+    case RACE_HUMAN: case RACE_DEMIGOD: case RACE_DUNADAN:
         p_ptr->vir_types[i++] = VIRTUE_INDIVIDUALISM;
         break;
     case RACE_SPRITE: case RACE_ENT:
@@ -468,7 +460,7 @@ void virtue_add(int which, int amount)
     if (amount > 0)
     {
         p_ptr->update |= PU_BONUS;
-        if (disturb_minor && !p_ptr->wild_mode)
+        if (disturb_minor)
             msg_print(_good_msg[which]);
 
         if (amount + p_ptr->virtues[idx] > 50 && one_in_(2))
@@ -493,7 +485,7 @@ void virtue_add(int which, int amount)
     }
     else
     {
-        if (disturb_minor && !p_ptr->wild_mode)
+        if (disturb_minor)
             msg_print(_bad_msg[which]);
 
         if (amount + p_ptr->virtues[idx] < -50 && one_in_(2))
@@ -529,11 +521,11 @@ static char _alignment_color(void)
     else return 'v';
 }
 
-void virtue_display(doc_ptr doc)
+void virtue_display(doc_ptr doc, bool spoil)
 {
     int idx = 0;
 
-    doc_printf(doc, "<color:G>Your alignment:</color> <color:%c>%s</color>\n\n", _alignment_color(), your_alignment());
+    doc_printf(doc, "<color:G>Your alignment:</color> <color:%c>%s</color>\n", _alignment_color(), your_alignment());
 
     for (idx = 0; idx < 8; idx++)
     {
@@ -548,31 +540,36 @@ void virtue_display(doc_ptr doc)
             strcpy(name, virtue_name(p_ptr->vir_types[idx]));
 
             if (tester < -100)
-                doc_printf(doc, "You are the <color:v>polar opposite</color> of %s.\n", name);
+                doc_printf(doc, "You are the <color:v>polar opposite</color> of %s", name);
             else if (tester < -80)
-                doc_printf(doc, "You are an <color:r>arch-enemy</color> of %s.\n", name);
+                doc_printf(doc, "You are an <color:r>arch-enemy</color> of %s", name);
             else if (tester < -60)
-                doc_printf(doc, "You are a <color:R>bitter enemy</color> of %s.\n", name);
+                doc_printf(doc, "You are a <color:R>bitter enemy</color> of %s", name);
             else if (tester < -40)
-                doc_printf(doc, "You are an <color:o>enemy</color> of %s.\n", name);
+                doc_printf(doc, "You are an <color:o>enemy</color> of %s", name);
             else if (tester < -20)
-                doc_printf(doc, "You have <color:y>sinned against</color> %s.\n", name);
+                doc_printf(doc, "You have <color:y>sinned against</color> %s", name);
             else if (tester < 0)
-                doc_printf(doc, "You have <color:U>strayed</color> from the path of %s.\n", name);
+                doc_printf(doc, "You have <color:U>strayed</color> from the path of %s", name);
             else if (tester == 0)
-                doc_printf(doc, "You are neutral to %s.\n", name);
+                doc_printf(doc, "You are neutral to %s", name);
             else if (tester < 20)
-                doc_printf(doc, "You are <color:G>somewhat virtuous</color> in %s.\n", name);
+                doc_printf(doc, "You are <color:G>somewhat virtuous</color> in %s", name);
             else if (tester < 40)
-                doc_printf(doc, "You are <color:G>virtuous</color> in %s.\n", name);
+                doc_printf(doc, "You are <color:G>virtuous</color> in %s", name);
             else if (tester < 60)
-                doc_printf(doc, "You are <color:g>very virtuous</color> in %s.\n", name);
+                doc_printf(doc, "You are <color:g>very virtuous</color> in %s", name);
             else if (tester < 80)
-                doc_printf(doc, "You are a <color:g>champion</color> of %s.\n", name);
+                doc_printf(doc, "You are a <color:g>champion</color> of %s", name);
             else if (tester < 100)
-                doc_printf(doc, "You are a <color:B>great champion</color> of %s.\n",  name);
+                doc_printf(doc, "You are a <color:B>great champion</color> of %s",  name);
             else
-                doc_printf(doc, "You are the <color:B>living embodiment</color> of %s.\n", name);
+                doc_printf(doc, "You are the <color:B>living embodiment</color> of %s", name);
+
+            if (spoil)
+                doc_printf(doc, " (%d).\n", tester);
+            else
+                doc_insert(doc, ".\n");
         }
     }
 }

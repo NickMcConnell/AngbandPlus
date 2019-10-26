@@ -2,42 +2,47 @@
 
 bool player_is_monster_king(void)
 {
-    race_t *race_ptr;
+    plr_race_ptr race_ptr;
     if (p_ptr->pclass != CLASS_MONSTER) return FALSE;
-    race_ptr = get_race();
+    race_ptr = plr_race();
     if (!race_ptr->boss_r_idx) return FALSE;
-    if (r_info[race_ptr->boss_r_idx].max_num) return FALSE;
-    return TRUE;
+    return unique_is_dead(race_ptr->boss_r_idx);
+}
+
+static void _calc_bonuses(void)
+{
+    if (player_is_monster_king())
+        plr_tim_lock(T_HERO);
 }
 
 equip_template_ptr mon_get_equip_template(void)
 {
-    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+    monster_race *r_ptr = mon_race_lookup(p_ptr->current_r_idx);
     return &b_info[r_ptr->body.body_idx];
 }
 
 cptr mon_name(int r_idx)
 {
     if (r_idx)
-        return r_name + r_info[r_idx].name;
+        return r_name + mon_race_lookup(r_idx)->name;
     return ""; /* Birth Menu */
 }
 
-class_t *monster_get_class(void)
+plr_class_ptr monster_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Monster";
-        me.desc = "";
-        me.life = 100;
-        me.exp = 100;
-        me.pets = 25;
-        init = TRUE;
+        me = plr_class_alloc(CLASS_MONSTER);
+        me->name = "Monster";
+        me->desc = "";
+        me->life = 100;
+        me->exp = 100;
+        me->pets = 25;
+        me->hooks.calc_bonuses = _calc_bonuses;
     }
 
-    return &me;
+    return me;
 }
 

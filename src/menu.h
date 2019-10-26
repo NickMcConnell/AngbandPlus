@@ -9,8 +9,8 @@ enum menu_e {
     MENU_ON_BROWSE,
 };
 
-typedef void (*menu_fn)(int cmd, int which, vptr cookie, variant *res);
-extern void default_menu(int cmd, int which, vptr cookie, variant *res);
+typedef void (*menu_fn)(int cmd, int which, vptr cookie, var_ptr res);
+extern void default_menu(int cmd, int which, vptr cookie, var_ptr res);
 
 typedef struct {
     cptr    choose_prompt;

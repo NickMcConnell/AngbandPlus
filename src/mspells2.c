@@ -18,34 +18,35 @@
 bool direct_beam(int y1, int x1, int y2, int x2, monster_type *m_ptr)
 {
     bool hit2 = FALSE;
-    int i, y, x;
+    int i;
+    point_t p1 = point_create(x1, y1);
+    point_t p2 = point_create(x2, y2);
 
-    int grid_n = 0;
-    u16b grid_g[512];
+    int path_n = 0;
+    point_t path[512];
 
     bool friend = is_pet(m_ptr);
 
     /* Check the projection path */
-    grid_n = project_path(grid_g, MAX_RANGE, y1, x1, y2, x2, PROJECT_THRU);
+    path_n = project_path(path, MAX_RANGE, p1, p2, PROJECT_THRU);
 
     /* No grid is ever projectable from itself */
-    if (!grid_n) return (FALSE);
+    if (!path_n) return FALSE;
 
-    for (i = 0; i < grid_n; i++)
+    for (i = 0; i < path_n; i++)
     {
-        y = GRID_Y(grid_g[i]);
-        x = GRID_X(grid_g[i]);
+        point_t p = path[i];
+        mon_ptr mon = mon_at(p);
 
-        if (y == y2 && x == x2)
+        if (point_equals(p, p2))
             hit2 = TRUE;
-        else if (friend && cave[y][x].m_idx > 0 &&
-             !are_enemies(m_ptr, &m_list[cave[y][x].m_idx]))
+        else if (friend && mon && !are_enemies(m_ptr, mon))
         {
             /* Friends don't shoot friends */
             return FALSE;
         }
 
-        if (friend && player_bold(y, x))
+        if (friend && plr_at(p))
             return FALSE;
     }
     if (!hit2)
@@ -60,14 +61,15 @@ bool breath_direct(int y1, int x1, int y2, int x2, int rad, int typ, bool friend
     int i;
 
     /* Initial grid */
-    int y = y1;
-    int x = x1;
+    point_t p1 = point_create(x1, y1);
+    point_t p2 = point_create(x2, y2);
+    point_t cur = p1;
 
-    int grid_n = 0;
-    u16b grid_g[512];
+    int path_n = 0;
+    point_t path[512];
 
     int grids = 0;
-    byte gx[1024], gy[1024];
+    point_t gp[1024];
     byte gm[32];
     int gm_rad = rad;
 
@@ -91,67 +93,62 @@ bool breath_direct(int y1, int x1, int y2, int x2, int rad, int typ, bool friend
     }
 
     /* Check the projection path */
-    grid_n = project_path(grid_g, MAX_RANGE, y1, x1, y2, x2, flg);
+    path_n = project_path(path, MAX_RANGE, p1, p2, flg);
 
     /* Project along the path */
-    for (i = 0; i < grid_n; ++i)
+    for (i = 0; i < path_n; ++i)
     {
-        int ny = GRID_Y(grid_g[i]);
-        int nx = GRID_X(grid_g[i]);
+        point_t next = path[i];
 
         if (flg & PROJECT_DISI)
         {
             /* Hack -- Balls explode before reaching walls */
-            if (cave_stop_disintegration(ny, nx)) break;
+            if (cave_stop_disintegration(next)) break;
         }
         else if (flg & PROJECT_LOS)
         {
             /* Hack -- Balls explode before reaching walls */
-            if (!cave_los_bold(ny, nx)) break;
+            if (!cave_have_flag_at(next, FF_LOS)) break;
         }
         else
         {
             /* Hack -- Balls explode before reaching walls */
-            if (!cave_have_flag_bold(ny, nx, FF_PROJECT)) break;
+            if (!cave_have_flag_at(next, FF_PROJECT)) break;
         }
 
         /* Save the "blast epicenter" */
-        y = ny;
-        x = nx;
+        cur = next;
     }
 
-    grid_n = i;
+    path_n = i;
 
-    if (!grid_n)
+    if (!path_n)
     {
         if (flg & PROJECT_DISI)
         {
             if (in_disintegration_range(y1, x1, y2, x2) && (distance(y1, x1, y2, x2) <= rad)) hit2 = TRUE;
-            if (in_disintegration_range(y1, x1, py, px) && (distance(y1, x1, py, px) <= rad)) hityou = TRUE;
+            if (in_disintegration_range(y1, x1, p_ptr->pos.y, p_ptr->pos.x) && (distance(y1, x1, p_ptr->pos.y, p_ptr->pos.x) <= rad)) hityou = TRUE;
         }
         else if (flg & PROJECT_LOS)
         {
             if (los(y1, x1, y2, x2) && (distance(y1, x1, y2, x2) <= rad)) hit2 = TRUE;
-            if (los(y1, x1, py, px) && (distance(y1, x1, py, px) <= rad)) hityou = TRUE;
+            if (los(y1, x1, p_ptr->pos.y, p_ptr->pos.x) && (distance(y1, x1, p_ptr->pos.y, p_ptr->pos.x) <= rad)) hityou = TRUE;
         }
         else
         {
             if (projectable(y1, x1, y2, x2) && (distance(y1, x1, y2, x2) <= rad)) hit2 = TRUE;
-            if (projectable(y1, x1, py, px) && (distance(y1, x1, py, px) <= rad)) hityou = TRUE;
+            if (projectable(y1, x1, p_ptr->pos.y, p_ptr->pos.x) && (distance(y1, x1, p_ptr->pos.y, p_ptr->pos.x) <= rad)) hityou = TRUE;
         }
     }
     else
     {
-        breath_shape(grid_g, grid_n, &grids, gx, gy, gm, &gm_rad, rad, y1, x1, y, x, typ);
+        breath_shape(path, path_n, &grids, gp, gm, &gm_rad, rad, y1, x1, cur.y, cur.x, typ);
 
         for (i = 0; i < grids; i++)
         {
-            /* Extract the location */
-            y = gy[i];
-            x = gx[i];
-
-            if ((y == y2) && (x == x2)) hit2 = TRUE;
-            if (player_bold(y, x)) hityou = TRUE;
+            point_t p = gp[i];
+            if (point_equals(p, p2)) hit2 = TRUE;
+            if (plr_at(p)) hityou = TRUE;
         }
     }
 
@@ -166,10 +163,10 @@ bool breath_direct(int y1, int x1, int y2, int x2, int rad, int typ, bool friend
  */
 void get_project_point(int sy, int sx, int *ty, int *tx, int flg)
 {
-    u16b path_g[128];
+    point_t path[128];
     int  path_n, i;
 
-    path_n = project_path(path_g, MAX_RANGE, sy, sx, *ty, *tx, flg);
+    path_n = project_path(path, MAX_RANGE, point_create(sx, sy), point_create(*tx, *ty), flg);
 
     *ty = sy;
     *tx = sx;
@@ -177,8 +174,8 @@ void get_project_point(int sy, int sx, int *ty, int *tx, int flg)
     /* Project along the path */
     for (i = 0; i < path_n; i++)
     {
-        sy = GRID_Y(path_g[i]);
-        sx = GRID_X(path_g[i]);
+        sy = path[i].y;
+        sx = path[i].x;
 
         /* Hack -- Balls explode before reaching walls */
         if (!cave_have_flag_bold(sy, sx, FF_PROJECT)) break;

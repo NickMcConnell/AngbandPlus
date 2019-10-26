@@ -1,30 +1,36 @@
-<color:y>PosChengband <$:version></color>
-<style:screenshot>
-<color:g>Azog, King of the Uruk-Hai attacks you: </color>He misses.<color:g> </color>He hits.<color:g> </color>He hits.<color:g> </color>             
-<color:B>You feel that your </color>Guisarme (Pattern)<color:B> is protecting you.</color><color:g> </color>You stand your           
-ground!                                                                           
-<color:g>The Snaga sapper attacks you: </color>He hits.<color:g> </color>He misses.                                 
-                                                                                  
-<color:U>You attack Azog, King of the Uruk-Hai: </color>You miss.<color:U> </color>You miss.<color:U> </color>You hit.<color:U> </color>You           
-bite.<color:U> </color>He is <color:r>burned</color>!                                                               
-<color:g>Azog, King of the Uruk-Hai</color> says, 'I shall have my way with your women!'           
-<color:g>Azog, King of the Uruk-Hai attacks you: </color>He hits.<color:g> </color>He hits.<color:g> </color>He misses.              
-<color:g>Azog, King of the Uruk-Hai attacks you: </color>He hits.<color:g> </color>He misses.<color:g> </color>He hits.              
-                                                                                  
-<color:U>You attack Azog, King of the Uruk-Hai: </color>You hit.<color:U> </color>You hit.<color:U> </color>You hit.<color:U> </color>You             
-hit.<color:U> </color>Azog, King of the Uruk-Hai shouts, 'AAAARRRGGGHHH!!!'<color:U> </color>That was               
-very harmonious.<color:U> </color><color:R>You have slain Azog, King of the Uruk-Hai.</color>                       
-Are you sure? <color:y>[y/n]</color> => <color:y>y</color>. Wow! You feel very dextrous! <color:G>You have </color>                  
-<color:G>conquered Orc cave!</color> How heroic!                                                   
-                         <color:U>######</color>                                                   
-                        ##<color:u>...</color> <color:o>#</color>              #####                                
-                        <color:o>#</color><color:u>.</color><color:g>.</color><color:o>##</color><color:g>.</color>###           ##<color:u>..</color><color:g>.</color>#                                
-                      ###<color:u>.</color>###<color:u>.</color><color:g>.</color><color:u>.</color>#          ##<color:u>.</color><color:g>.</color><color:u>.</color><color:g>..</color>                                
-                     ##<color:u>....</color>##<color:g>.</color><color:u>..</color>##        ##<color:u>.</color><color:g>.</color><color:u>.</color><color:g>.</color><color:u>..</color>                                
-    <color:o>#</color>##              #<color:u>...</color><color:r>T</color><color:u>..</color>##<color:u>..</color><color:g>.</color>          <color:U>'</color><color:u>......</color>                                
-      <color:o>#</color>              #<color:u>..</color><color:G>o</color><color:r>o</color><color:u>...</color>#<color:g>.</color><color:u>.</color>##         #<color:g>..</color><color:u>....</color>                                
-    #<color:s>/</color><color:o>#</color>#             ##<color:u>.</color><color:U>o</color><color:g>=</color><color:u>..</color>##<color:u>.</color><color:g>.</color>#           #<color:g>.</color><color:u>..</color><color:g>.</color><color:u>.</color>                                
-    # <color:G>$</color>#<color:o>#</color>##           <color:u>'..</color>#<color:u>.</color>##<color:u>...</color>#           ##<color:g>.</color><color:u>..</color>#                                
-    <color:o>##</color>   ~#<color:o>#</color>         <color:g>.</color>### ##<color:u>....</color><color:o>#</color>            ##<color:u>.</color>##                                
-     <color:o>##</color><color:b>(</color>   <color:o>##</color>       <color:g>.</color>      <color:o>#</color><color:g>.</color><color:o>#</color>##<color:o>#</color>             <color:o>#</color><color:g>.</color><color:o>#</color>#                                
-</style>
+<color:y>PosChengband <$:version></color><style:screenshot>
+<color:w>Name       : </color><color:B>Dragonfist                    </color><color:w>========== Stats ==========
+Sex        : </color><color:B>Female                              </color><color:w>STR  :    </color><color:G>18/204
+</color><color:w>Personality: </color><color:B>Nimble                              </color><color:w>INT  :    </color><color:G>18/***
+</color><color:w>Race       : </color><color:B>High-Elf                            </color><color:w>WIS! :     </color><color:G>18/90
+</color><color:w>Subrace    : </color><color:B>None                                </color><color:w>DEX! :    </color><color:G>18/***
+</color><color:w>Class      : </color><color:B>Skillmaster                         </color><color:w>CON! :    </color><color:G>18/150
+                                                 </color><color:w>CHR  :    </color><color:G>18/136
+                                        
+</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   :   </color><color:r>-53/829
+</color><color:w>Cur Exp    : </color><color:G>23823534                            </color><color:w>SP   :   </color><color:y>359/457
+</color><color:w>Max Exp    : </color><color:G>23823534                            </color><color:w>AC   :       </color><color:G>186
+</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:    </color><color:y>+22+10
+                                        
+                                           </color><color:w>========== Skills =========
+Gold       :   </color><color:G>429131                      </color><color:w>Melee      : </color><color:v>Amber[15]
+</color><color:w>Kills      :     </color><color:G>9607                      </color><color:w>Archery    : </color><color:v>Amber[5]
+</color><color:w>Uniques    :      </color><color:G>236                      </color><color:w>SavingThrow: </color><color:g>Superb
+</color><color:w>Artifacts  :  </color><color:G>132+103                      </color><color:w>Stealth    : </color><color:b>Heroic
+                                           </color><color:w>Perception : </color><color:g>Superb
+</color><color:w>Game Day   :       </color><color:G>97                      </color><color:w>Searching  : </color><color:G>Excellent
+</color><color:w>Game Time  :     </color><color:G>6:17                      </color><color:w>Disarming  : </color><color:b>Heroic
+</color><color:w>Play Time  :    </color><color:G>27:27                      </color><color:w>Device     : </color><color:v>Amber[17]
+                                        
+</color><color:w>b) </color><color:U>The Large Leather Shield of Celegorm [6,+20] {Cf}
+</color><color:w>c) </color><color:u>The Sling 'Hornet' (x2) (+12,+9) (+4) {StIn;Po;Xs}
+</color><color:w>d) </color><color:U>a Quiver of Protection [22 of 120]
+</color><color:w>e) </color><color:r>The Ring of Power (Nenya) (+2)
+</color><color:w>f) </color><color:r>a Ring of Speed (+11) {</color><color:B>A:Speed</color><color:r>}
+</color><color:w>g) </color><color:o>an Amulet (Defender) [+10] {PoCaDi;FaSiHlLv}
+</color><color:w>h) </color><color:y>The Feanorian Lamp 'Tonbo giri' (+1) {Wi;SoShBl}
+</color><color:w>i) </color><color:W>The Mithril Chain Mail of Bilbo (+2,+2) [28,+12] (+2) {So}
+</color><color:w>j) </color><color:U>The Pair of Dragon Wings 'Excalibur' [4,+20] (+3) {SpSr;CoLiDkNtFe;Hl}
+</color><color:w>k) </color><color:U>The Steel Helm of Hammerhand (+3,+4) [6,+20] (+3)
+</color><color:w>l) </color><color:U>a Set of Gauntlets of the Wizard (-7,-4) [2,+11] (+3) {-Cn, !sdk}
+</color><color:w>m) </color><color:U>The Pair of Soft Leather Boots of Shiva's Avatar (+5,+5) [4,+16] (+4)</style>

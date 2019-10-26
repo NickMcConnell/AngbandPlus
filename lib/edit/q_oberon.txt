@@ -1,8 +1,0 @@
-# vim: filetype=q :
-
-?:[EQU $QUEST8 Taken InProgress]
-D:It is time to take the battle to the Serpent. But before you can
-D:reach it, you must find and kill Oberon. Only after defeating
-D:the powerful king of Amber will the stairs leading to the Serpent's
-D:lair be opened.
-?:1

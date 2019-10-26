@@ -79,8 +79,7 @@ void pack_carry_aux(obj_ptr obj)
 /* Helper for pack_get_floor ... probably s/b private but the autopicker needs it */
 void pack_get(obj_ptr obj)
 {
-    char     name[MAX_NLEN];
-    class_t *class_ptr = get_class();
+    char name[MAX_NLEN];
 
     object_desc(name, obj, OD_COLOR_CODED);
 
@@ -105,11 +104,8 @@ void pack_get(obj_ptr obj)
     }
     else
     {
-        if (class_ptr->get_object)
-            class_ptr->get_object(obj);
-
+        plr_hook_get_object(obj);
         /*msg_format("You get %s.", name);*/
-
         quests_on_get_obj(obj);
         pack_carry(obj);
     }
@@ -177,7 +173,7 @@ bool pack_get_floor(void)
 
     autopick_get_floor(); /* no energy charge */
 
-    floor = inv_filter_floor(point(px, py), NULL);
+    floor = inv_filter_floor(p_ptr->pos, NULL);
     result = _get_floor(floor);
     inv_free(floor);
 
@@ -211,10 +207,10 @@ void pack_describe(obj_ptr obj)
 
     assert(obj);
     assert(obj->loc.where == INV_PACK);
-    assert(1 <= obj->loc.slot && obj->loc.slot <= 26);
+    assert(1 <= obj->loc.v.slot && obj->loc.v.slot <= 26);
 
     object_desc(name, obj, OD_COLOR_CODED);
-    msg_format("You have %s (%c).", name, slot_label(obj->loc.slot));
+    msg_format("You have %s (%c).", name, slot_label(obj->loc.v.slot));
 }
 
 void pack_remove(slot_t slot)
@@ -283,8 +279,8 @@ slot_t pack_find_device(int effect)
     {
         obj_ptr obj = inv_obj(_inv, slot);
         if (!obj) continue;
-        if (!object_is_device(obj)) continue;
-        if (!object_is_known(obj)) continue;
+        if (!obj_is_device(obj)) continue;
+        if (!obj_is_known(obj)) continue;
         if (obj->activation.type != effect) continue;
         if (device_sp(obj) < obj->activation.cost) continue;
         return slot;
@@ -305,8 +301,6 @@ void pack_calc_bonuses(void)
     {
         obj_ptr obj = inv_obj(_inv, slot);
         if (!obj) continue;
-        if (obj->name1 == ART_MAUL_OF_VICE)
-            p_ptr->maul_of_vice = TRUE;
         if (obj->rune == RUNE_ELEMENTAL_PROTECTION)
             p_ptr->rune_elem_prot = TRUE;
         if (obj->rune == RUNE_GOOD_FORTUNE)
@@ -364,7 +358,7 @@ bool pack_overflow(void)
         }
         object_desc(name, obj, OD_COLOR_CODED);
         msg_format("You drop %s.", name);
-        drop_near(obj, 0, py, px);
+        drop_near(obj, p_ptr->pos, -1);
         free(obj);
     }
     if (result)

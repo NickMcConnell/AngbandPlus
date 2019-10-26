@@ -1,27 +1,35 @@
-<color:y>PosChengband <$:version></color>
-<style:screenshot>
-The Mithril Bolt (Elemental) (5d5) (+14,+15) hits Sekhmet the                   
-Mistress of Fury. It was a <color:v>*GREAT*</color> shot! Sekhmet the Mistress of    LEVEL <color:G>    50</color>
-Fury shouts, 'AAAARRRGGGHHH!!!' <color:R>You have slain Sekhmet the </color>         EXP <color:G>   26.9M</color>
-<color:R>Mistress of Fury.</color>                                                   AU  <color:G>   6.72M</color>
-...%        #.#                                     #......<color:g>^</color>#       <color:d>            </color>
-##<color:s>%%%</color>%###<color:s>%</color>  #.#                                     #########       STR!: <color:G>18/***</color>
-#>#...%..<color:s>%</color>  #.<color:s>%</color>                                                     INT!: <color:G>18/130</color>
-<color:U>'</color>...<color:s>%</color>....#  #.#                                                     WIS!: <color:G>18/***</color>
-%#%#<color:s>%</color>#%.###<color:s>%</color>#<color:U>'</color>##<color:s>%</color>                    #######                        DEX!: <color:G>18/150</color>
-#%#.....<color:U>'</color>.......<color:s>%</color>               ###%%%.....##                       CON!: <color:G>18/170</color>
-.....##%#.......#       ##%#    %..##.......##                      CHR!: <color:G>18/***</color>
-.<color:r>!</color>..%%%<color:s>%%</color>.......<color:s>%</color>## ####%?<color:s>(</color>#####%.#<color:U>'</color>.........##                     AC     <color:G>  262</color>
-<color:g>!</color>........#......#.##<color:s>%</color>.<color:B>{{</color><color:s>/</color><color:U>)</color><color:s>/</color><color:W>(</color><color:y>(</color><color:G>$</color>...@%...........#                     HP <color:G>1068</color>/<color:G>1068</color>
-.<color:D>~</color><color:g>,</color><color:o>{</color>#%....#......<color:r>^</color>.#<color:s>%</color>.#.<color:s>)</color>{###<color:o>*</color>#%#.#..........##                     SP <color:y> 423</color>/<color:G> 437</color>
-...<color:y>!</color>.%..##<color:s>%</color>.....<color:s>%</color>.....#####     %..##.......##                                  
-#.#......##.....<color:U>'</color>.<color:s>%</color>##<color:s>%</color>#         ######.....## <color:D>xx</color>                    @ <color:G>100%</color>      
-###.#%.#..<color:U>'</color>#.<color:s>%</color><color:U>+</color><color:s>%</color>##<color:s>%</color>                  ###%##%  <color:D>xxxx</color>                  <color:W>?</color> <color:y> 96%</color>      
-<color:U>#</color> <color:U>##############</color>                                                    <color:U>,</color> <color:G>127%</color>      
-                                                                                
-                                                                                
-                                                                                
-                                                                    <color:y>Fast (+34)</color>  
-                                                                    <color:G>Full</color>        
-<color:B>Angband: L98</color>                  <color:y>Ultima</color> <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>                   
-</style>
+<color:y>PosChengband <$:version></color><style:screenshot>
+<color:w>Name       : </color><color:B>Biggles                       </color><color:w>========== Stats ==========
+Sex        : </color><color:B>Male                                </color><color:w>STR  :     </color><color:G>18/19
+</color><color:w>Personality: </color><color:B>Ordinary                            </color><color:w>INT  :    </color><color:G>18/196
+</color><color:w>Race       : </color><color:B>Gnome                               </color><color:w>WIS  :        </color><color:G>10
+</color><color:w>Subrace    : </color><color:B>None                                </color><color:w>DEX  :        </color><color:G>17
+</color><color:w>Class      : </color><color:B>High-Mage                           </color><color:w>CON  :    </color><color:G>18/107
+</color><color:w>Realm      : </color><color:B>Armageddon                          </color><color:w>CHR  :     </color><color:G>18/08
+                                        
+</color><color:w>Level      :       </color><color:G>34                            </color><color:w>HP   :   </color><color:r>-84/298
+</color><color:w>Cur Exp    :   </color><color:G>489752                            </color><color:w>SP   :   </color><color:y>248/316
+</color><color:w>Max Exp    :   </color><color:G>489752                            </color><color:w>AC   :        </color><color:G>68
+</color><color:w>Adv Exp    :   </color><color:G>521500                            </color><color:w>Speed:        </color><color:G>+8
+                                        
+                                           </color><color:w>========== Skills =========
+Gold       :   </color><color:G>260630                      </color><color:w>Melee      : </color><color:o>Fair
+</color><color:w>Kills      :     </color><color:G>3131                      </color><color:w>Archery    : </color><color:o>Fair
+</color><color:w>Uniques    :       </color><color:G>61                      </color><color:w>SavingThrow: </color><color:g>Superb
+</color><color:w>Artifacts  :    </color><color:G>14+12                      </color><color:w>Stealth    : </color><color:b>Heroic
+                                           </color><color:w>Perception : </color><color:b>Heroic
+</color><color:w>Game Day   :       </color><color:G>33                      </color><color:w>Searching  : </color><color:b>Heroic
+</color><color:w>Game Time  :    </color><color:G>12:52                      </color><color:w>Disarming  : </color><color:g>Superb
+</color><color:w>Play Time  :    </color><color:G>06:13                      </color><color:w>Device     : </color><color:v>Amber[5]
+                                        
+</color><color:w>a) The Spear of Hagen (1d6) (+11,+13) (+3)
+</color><color:w>b) a Wizardstaff (1d2) (+0,+0)
+</color><color:w>e) </color><color:r>a Ring (Defender) [+5] {AcElFi;FaSi}
+</color><color:w>f) </color><color:r>a Ring of Speed (+5)
+</color><color:w>g) </color><color:o>an Amulet of the Magi (+0,+11) (+1) {InSr(In}
+</color><color:w>h) </color><color:y>The Phial 'Pathfinder' (+2) {In;AcFe;Hl}
+</color><color:w>i) </color><color:W>The Filthy Rag 'Electron' [1,+8] (+2) {If;ElPoCf[E}
+</color><color:w>j) </color><color:U>an Elven Cloak of Stealth [4,+8] (+7)
+</color><color:w>k) </color><color:U>a Hard Leather Cap of Seeing [2,+6] (+6)
+</color><color:w>l) </color><color:U>The Set of Leather Gloves 'Cammithrim' [1,+10]
+</color><color:w>m) </color><color:U>The Pair of Soft Leather Boots of Diamond [2,+20] (+2) {StDxCn;CoShFe}</style>

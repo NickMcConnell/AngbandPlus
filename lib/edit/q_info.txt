@@ -29,182 +29,141 @@ T:TOWN | GENERATE
 G:KILL(logrus master)
 F:q_logrus_master.txt
 
-N:4:30:The Vault
-T:TOWN | GENERATE
-G:FIND(sting)
-F:q_vault.txt
-
 N:5:35:The Barrow Downs
 T:TOWN | GENERATE
 F:q_barrow_downs.txt
 
-N:8:99:Oberon
-T:RETAKE
-W:angband
-G:KILL(oberon)
-F:q_oberon.txt
-
-N:9:100:Serpent of Chaos
-T:RETAKE
-W:angband
-G:KILL(serpent of chaos)
-F:q_serpent_of_chaos.txt
-
-N:10:65:The Node of Sorcery
-T:TOWN | GENERATE
-F:q_sorcery.txt
-
-N:11:65:The Node of Chaos
-T:TOWN | GENERATE
-F:q_chaos.txt
-
-N:12:65:The Node of Nature
-T:TOWN | GENERATE
-F:q_nature.txt
-
-N:14:5:The Warg Problem
+N:6:5:The Warg Problem
 T:TOWN
-W:stronghold
+W:Stronghold
 G:KILL(^warg$, 16)
 F:q_wargs.txt
 
-N:15:70:Eric's Stronghold
+N:7:70:Eric's Stronghold
 T:TOWN | GENERATE
 G:KILL(eric the usurper)
 F:q_eric.txt
 
-N:16:40:Assault on Montsalvat
+N:8:40:Assault on Montsalvat
 T:TOWN | GENERATE
 F:q_montsalvat.txt
 
-N:19:15:Doom Quest I
+N:9:15:Doom Quest I
 T:TOWN | GENERATE
 F:q_doom1.txt
 
-N:20:25:Vapor Quest
+N:10:25:Vapor Quest
 T:TOWN | GENERATE
 F:q_vapor.txt
 
-N:21:55:Doom Quest II
+N:11:55:Doom Quest II
 T:TOWN | GENERATE
 F:q_doom2.txt
 
-N:22:15:The Orc Camp
+N:12:15:The Orc Camp
 T:TOWN | GENERATE
 F:q_orcs.txt
 
-N:23:65:The Spawning Pits
+N:13:65:The Spawning Pits
 T:TOWN | GENERATE
 F:q_spawning_pits.txt
 
-N:24:50:The Rise and Fall of Micro$oft
-T:TOWN | GENERATE
-G:KILL(bull gates)
-F:q_microsoft.txt
-
-N:25:45:The Haunted House
+N:14:45:The Haunted House
 T:TOWN | GENERATE
 F:q_haunted_house.txt
 
-N:26:50:The Killing Fields
+N:15:50:The Killing Fields
 T:TOWN | GENERATE
 G:KILL(maulotaur)
 F:q_killing_fields.txt
 
-N:27:50:The Old Castle
+N:16:50:The Old Castle
 T:TOWN | GENERATE
 F:q_old_castle.txt
 
-N:28:70:The Royal Crypt
+N:17:70:The Royal Crypt
 T:TOWN | GENERATE
 G:KILL(archlich, 5)
 F:q_crypt.txt
 
-N:29:25:Tengu and Death Swords
+N:18:25:Tengu and Death Swords
 T:TOWN | GENERATE
 F:q_tengu_death_swords.txt
 
-N:30:25:The Mimic's Treasure
+N:19:25:The Mimic's Treasure
 T:TOWN | GENERATE
 F:q_mimics_treasure.txt
 
-N:31:22:Old Man Willow Quest
+N:20:22:Old Man Willow Quest
 T:TOWN | GENERATE
 F:q_old_man_willow.txt
 
-N:32:25:The Dark Elven Lords
+N:21:25:The Dark Elven Lords
 T:TOWN | GENERATE
 F:q_dark_elves.txt
 
-N:33:45:The Cloning Pits
+N:22:45:The Cloning Pits
 T:TOWN | GENERATE
 F:q_cloning_pits.txt
 
-#vvv Don't reuse these ids until version 8 vvv
-N:34:200:Removed Quest
-T:TOWN | GENERATE
-F:q_removed.txt
-
-N:35:200:Removed Quest
-T:TOWN | GENERATE
-F:q_removed.txt
-#^^^ Don't reuse these ids until version 8 ^^^
-
-N:36:45:The Renegade Sorcerer
+N:23:45:The Renegade Sorcerer
 T:TOWN | GENERATE
 F:q_sorcerer.txt
+
+# XXX Rethink random quests. Amber has been removed ...
+?:0
 
 ########################################################################
 # Random Quests ... assigned in quests_on_birth()
 ########################################################################
 N:40:10:Random 1
-T:RANDOM | RETAKE
-W:angband
+T:RANDOM
+W:Amber
 G:KILL(*)
 
 N:41:18:Random 2
-T:RANDOM | RETAKE
-W:angband
+T:RANDOM
+W:Amber
 G:KILL(*)
 
 N:42:26:Random 3
-T:RANDOM | RETAKE
-W:angband
+T:RANDOM
+W:Amber
 G:KILL(*)
 
 N:43:34:Random 4
-T:RANDOM | RETAKE
-W:angband
+T:RANDOM
+W:Amber
 G:KILL(*)
 
 N:44:42:Random 5
-T:RANDOM | RETAKE
-W:angband
+T:RANDOM
+W:Amber
 G:KILL(*)
 
 N:45:50:Random 6
-T:RANDOM | RETAKE
-W:angband
+T:RANDOM
+W:Amber
 G:KILL(*)
 
 N:46:58:Random 7
-T:RANDOM | RETAKE
-W:angband
+T:RANDOM
+W:Amber
 G:KILL(*)
 
 N:47:66:Random 8
-T:RANDOM | RETAKE
-W:angband
+T:RANDOM
+W:Amber
 G:KILL(*)
 
 N:48:74:Random 9
-T:RANDOM | RETAKE
-W:angband
+T:RANDOM
+W:Amber
 G:KILL(*)
 
 N:49:82:Random 10
-T:RANDOM | RETAKE
-W:angband
+T:RANDOM
+W:Amber
 G:KILL(*)
 
 # vim: filetype=qi :

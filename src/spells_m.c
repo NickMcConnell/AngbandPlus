@@ -1,6 +1,6 @@
 #include "angband.h"
 
-void magic_mapping_spell(int cmd, variant *res)
+void magic_mapping_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -21,7 +21,7 @@ void magic_mapping_spell(int cmd, variant *res)
 }
 bool cast_magic_mapping(void) { return cast_spell(magic_mapping_spell); }
 
-void magic_missile_spell(int cmd, variant *res)
+void magic_missile_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -58,7 +58,50 @@ void magic_missile_spell(int cmd, variant *res)
 }
 bool cast_magic_missile(void) { return cast_spell(magic_missile_spell); }
 
-void mana_branding_spell(int cmd, variant *res)
+void malediction_spell(int cmd, var_ptr res)
+{
+    int dd = 3 + (p_ptr->lev - 1) / 5;
+    int ds = 4;
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Malediction");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Fires a tiny ball of evil power which hurts good monsters greatly.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_damage(spell_power(dd), ds, spell_power(p_ptr->to_d_spell)));
+        break;
+    case SPELL_CAST:
+    {
+        int dir = 0, dam;
+        var_set_bool(res, FALSE);
+        if (!get_fire_dir(&dir)) return;
+        dam = spell_power(damroll(dd, ds) + p_ptr->to_d_spell);
+        fire_ball(GF_HELL_FIRE, dir, dam, 0);
+        if (one_in_(5))
+        {
+            int effect = randint1(1000);
+            if (effect == 666)
+                fire_ball_hide(GF_DEATH_RAY, dir, spell_power(p_ptr->lev * 200), 0);
+            else if (effect < 500)
+                fire_ball_hide(GF_TURN_ALL, dir, spell_power(p_ptr->lev), 0);
+            else if (effect < 800)
+                fire_ball_hide(GF_OLD_CONF, dir, dam, 0);
+            else
+                fire_ball_hide(GF_STUN, dir, dam, 0);
+        }
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void mana_branding_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -77,7 +120,7 @@ void mana_branding_spell(int cmd, variant *res)
     }
 }
 
-void mana_bolt_I_spell(int cmd, variant *res)
+void mana_bolt_I_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -112,7 +155,7 @@ void mana_bolt_I_spell(int cmd, variant *res)
     }
 }
 
-void mana_bolt_II_spell(int cmd, variant *res)
+void mana_bolt_II_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -147,7 +190,7 @@ void mana_bolt_II_spell(int cmd, variant *res)
     }
 }
 
-void mana_storm_I_spell(int cmd, variant *res)
+void mana_storm_I_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -178,7 +221,7 @@ void mana_storm_I_spell(int cmd, variant *res)
     }
 }
 
-void mana_storm_II_spell(int cmd, variant *res)
+void mana_storm_II_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -209,7 +252,7 @@ void mana_storm_II_spell(int cmd, variant *res)
     }
 }
 
-void massacre_spell(int cmd, variant *res)
+void massacre_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -219,33 +262,24 @@ void massacre_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attack all adjacent monsters in a fit of wild, uncontrollable fury.");
         break;
-    case SPELL_CAST:
-    {
-        int              dir, x, y;
-        cave_type       *c_ptr;
-        monster_type    *m_ptr;
-
-        for (dir = 0; dir < 8; dir++)
+    case SPELL_CAST: {
+        int i;
+        for (i = 0; i < 8; i++)
         {
-            y = py + ddy_ddd[dir];
-            x = px + ddx_ddd[dir];
-            c_ptr = &cave[y][x];
-
-            m_ptr = &m_list[c_ptr->m_idx];
-
-            if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
-                py_attack(y, x, 0);
+            point_t p = point_step(p_ptr->pos, ddd[i]);
+            mon_ptr mon = mon_at(p);
+            if (mon && (mon->ml || cave_have_flag_at(p, FF_PROJECT)))
+                plr_attack_normal(p);
         }
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-void mind_blast_spell(int cmd, variant *res)
+void mind_blast_spell(int cmd, var_ptr res)
 {
     int dice = 3 + (p_ptr->lev - 1)/5;
     int sides = 3;
@@ -292,7 +326,7 @@ void mind_blast_spell(int cmd, variant *res)
 }
 bool cast_mind_blast(void) { return cast_spell(mind_blast_spell); }
 
-void nature_awareness_spell(int cmd, variant *res)
+void nature_awareness_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -307,6 +341,7 @@ void nature_awareness_spell(int cmd, variant *res)
         detect_traps(DETECT_RAD_DEFAULT, TRUE);
         detect_doors(DETECT_RAD_DEFAULT);
         detect_stairs(DETECT_RAD_DEFAULT);
+        detect_recall(DETECT_RAD_DEFAULT);
         detect_monsters_normal(DETECT_RAD_DEFAULT);
         var_set_bool(res, TRUE);
         break;
@@ -316,9 +351,9 @@ void nature_awareness_spell(int cmd, variant *res)
     }
 }
 
-void nether_ball_spell(int cmd, variant *res)
+void nether_ball_spell(int cmd, var_ptr res)
 {
-    int dam = spell_power(p_ptr->lev * 3 / 2 + 100 + p_ptr->to_d_spell);
+    int dam = spell_power(50 + plr_prorata_level(150) + p_ptr->to_d_spell);
     int rad = spell_power(p_ptr->lev / 20 + 2);
     switch (cmd)
     {
@@ -346,9 +381,9 @@ void nether_ball_spell(int cmd, variant *res)
     }
 }
 
-void nether_bolt_spell(int cmd, variant *res)
+void nether_bolt_spell(int cmd, var_ptr res)
 {
-    int dd = 8 + (p_ptr->lev - 5) / 4;
+    int dd = 5 + (p_ptr->lev - 5) / 4;
     int ds = 8;
     switch (cmd)
     {
@@ -381,11 +416,11 @@ void nether_bolt_spell(int cmd, variant *res)
     }
 }
 
-void orb_of_entropy_spell(int cmd, variant *res)
+void orb_of_entropy_spell(int cmd, var_ptr res)
 {
     int base;
 
-    if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_YELLOW_MAGE || p_ptr->pclass == CLASS_GRAY_MAGE)
+    if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_YELLOW_MAGE || p_ptr->pclass == CLASS_GRAY_MAGE)
         base = p_ptr->lev + p_ptr->lev / 2;
     else
         base = p_ptr->lev + p_ptr->lev / 4;
@@ -420,7 +455,7 @@ void orb_of_entropy_spell(int cmd, variant *res)
     }
 }
 
-void panic_hit_spell(int cmd, variant *res)
+void panic_hit_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -440,32 +475,8 @@ void panic_hit_spell(int cmd, variant *res)
         var_set_string(res, "You can run for your life after hitting something.");
         break;
     case SPELL_CAST:
-    {
-        int dir = 0;
-        int x, y;
-
-        var_set_bool(res, FALSE);
-        if (!get_rep_dir2(&dir)) break;
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-        if (cave[y][x].m_idx)
-        {
-            py_attack(y, x, 0);
-            if (randint0(p_ptr->skills.dis) < 7)
-                msg_print("You failed to teleport.");
-            else
-                teleport_player(30, 0L);
-
-            var_set_bool(res, TRUE);
-        }
-        else
-        {
-            msg_print("You don't see any monster in this direction");
-            msg_print(NULL);
-            /* No Charge for this Action ... */
-        }
+        var_set_bool(res, plr_attack_special(PLR_HIT_TELEPORT, 0));
         break;
-    }
     default:
         default_spell(cmd, res);
         break;
@@ -473,7 +484,7 @@ void panic_hit_spell(int cmd, variant *res)
 }
 bool cast_panic_hit(void) { return cast_spell(panic_hit_spell); }
 
-void paralyze_spell(int cmd, variant *res)
+void paralyze_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -498,7 +509,7 @@ void paralyze_spell(int cmd, variant *res)
     }
 }
 
-void pattern_mindwalk_spell(int cmd, variant *res)
+void pattern_mindwalk_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -511,11 +522,11 @@ void pattern_mindwalk_spell(int cmd, variant *res)
     case SPELL_CAST:
         msg_print("You picture the Pattern in your mind and walk it...");
 
-        set_poisoned(0, TRUE);
-        set_image(0, TRUE);
-        set_stun(0, TRUE);
-        set_cut(0, TRUE);
-        set_blind(0, TRUE);
+        plr_tim_remove(T_POISON);
+        plr_tim_remove(T_HALLUCINATE);
+        plr_tim_remove(T_STUN);
+        plr_tim_remove(T_CUT);
+        plr_tim_remove(T_BLIND);
         fear_clear_p();
         do_res_stat(A_STR);
         do_res_stat(A_INT);
@@ -524,7 +535,7 @@ void pattern_mindwalk_spell(int cmd, variant *res)
         do_res_stat(A_CON);
         do_res_stat(A_CHR);
         restore_level();
-        lp_player(1000);
+        plr_restore_life(1000);
 
         var_set_bool(res, TRUE);
         break;
@@ -534,7 +545,7 @@ void pattern_mindwalk_spell(int cmd, variant *res)
     }
 }
 
-void perception_spell(int cmd, variant *res)
+void perception_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -547,7 +558,7 @@ void perception_spell(int cmd, variant *res)
     }
 }
 
-void phase_door_spell(int cmd, variant *res)
+void phase_door_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -583,7 +594,7 @@ void phase_door_spell(int cmd, variant *res)
 }
 bool cast_phase_door(void) { return cast_spell(phase_door_spell); }
 
-void plasma_ball_spell(int cmd, variant *res)
+void plasma_ball_spell(int cmd, var_ptr res)
 {
     int dam = spell_power(p_ptr->lev * 3 / 2 + 80 + p_ptr->to_d_spell);
     int rad = spell_power(2 + p_ptr->lev / 40);
@@ -614,7 +625,7 @@ void plasma_ball_spell(int cmd, variant *res)
     }
 }
 
-void plasma_bolt_spell(int cmd, variant *res)
+void plasma_bolt_spell(int cmd, var_ptr res)
 {
     int dd = 11 + p_ptr->lev / 4;
     int ds = 8;
@@ -650,7 +661,7 @@ void plasma_bolt_spell(int cmd, variant *res)
     }
 }
 
-void poison_dart_spell(int cmd, variant *res)
+void poison_dart_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -679,7 +690,7 @@ void poison_dart_spell(int cmd, variant *res)
     }
 }
 
-void polish_shield_spell(int cmd, variant *res)
+void polish_shield_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -699,7 +710,7 @@ void polish_shield_spell(int cmd, variant *res)
 }
 bool cast_polish_shield(void) {    return cast_spell(polish_shield_spell); }
 
-void polymorph_colossus_spell(int cmd, variant *res)
+void polymorph_colossus_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -724,8 +735,34 @@ void polymorph_colossus_spell(int cmd, variant *res)
         break;
     }
 }
+void polymorph_mithril_golem_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Polymorph Mithril Golem");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Mimic a Colossus for a while. Loses abilities of original race and gets great abilities as a mithril golem.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_duration(spell_power(15), spell_power(15)));
+        break;
+    case SPELL_CAST:
+    {
+        int base = spell_power(15);
+        set_mimic(base + randint1(base), MIMIC_MITHRIL_GOLEM, FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
 
-void polymorph_demon_spell(int cmd, variant *res)
+
+void polymorph_demon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -751,7 +788,7 @@ void polymorph_demon_spell(int cmd, variant *res)
     }
 }
 
-void polymorph_demonlord_spell(int cmd, variant *res)
+void polymorph_demonlord_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -777,7 +814,7 @@ void polymorph_demonlord_spell(int cmd, variant *res)
     }
 }
 
-void polymorph_self_spell(int cmd, variant *res)
+void polymorph_self_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -811,7 +848,7 @@ void polymorph_self_spell(int cmd, variant *res)
 }
 bool cast_polymorph_self(void) { return cast_spell(polymorph_self_spell); }
 
-void polymorph_vampire_spell(int cmd, variant *res)
+void polymorph_vampire_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -840,7 +877,7 @@ void polymorph_vampire_spell(int cmd, variant *res)
     }
 }
 
-void power_throw_spell(int cmd, variant *res)
+void power_throw_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -869,7 +906,7 @@ void power_throw_spell(int cmd, variant *res)
 }
 bool cast_power_throw(void) { return cast_spell(power_throw_spell); }
 
-void probing_spell(int cmd, variant *res)
+void probing_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -890,7 +927,7 @@ void probing_spell(int cmd, variant *res)
 }
 bool cast_probing(void) { return cast_spell(probing_spell); }
 
-void protection_from_evil_spell(int cmd, variant *res)
+void protection_from_evil_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -901,7 +938,7 @@ void protection_from_evil_spell(int cmd, variant *res)
         var_set_string(res, "Attempts to prevent evil monsters from attacking you. When a weak evil monster melees you, it may be repelled by the forces of good.");
         break;
     case SPELL_CAST:
-        set_protevil(randint1(3 * p_ptr->lev) + 25, FALSE);
+        plr_tim_add(T_PROT_EVIL, randint1(3 * p_ptr->lev) + 25);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -911,7 +948,7 @@ void protection_from_evil_spell(int cmd, variant *res)
 }
 bool cast_protection_from_evil(void) { return cast_spell(protection_from_evil_spell); }
 
-void punishment_spell(int cmd, variant *res)
+void punishment_spell(int cmd, var_ptr res)
 {
     int dd = 3 + (p_ptr->lev - 1)/5;
     int ds = 4;
@@ -946,7 +983,7 @@ void punishment_spell(int cmd, variant *res)
     }
 }
 
-void radiation_ball_spell(int cmd, variant *res)
+void radiation_ball_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -974,7 +1011,7 @@ void radiation_ball_spell(int cmd, variant *res)
     }
 }
 
-void radiation_spell(int cmd, variant *res)
+void radiation_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1008,7 +1045,7 @@ void radiation_spell(int cmd, variant *res)
 }
 bool cast_radiation(void) { return cast_spell(radiation_spell); }
 
-void ray_of_sunlight_spell(int cmd, variant *res)
+void ray_of_sunlight_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1036,7 +1073,7 @@ void ray_of_sunlight_spell(int cmd, variant *res)
     }
 }
 
-void recall_spell(int cmd, variant *res)
+void recall_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1057,7 +1094,7 @@ void recall_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
-        if (word_of_recall())
+        if (dun_mgr_recall_plr())
             var_set_bool(res, TRUE);
         break;
     default:
@@ -1067,7 +1104,7 @@ void recall_spell(int cmd, variant *res)
 }
 bool cast_recall(void) { return cast_spell(recall_spell); }
 
-void recharging_spell(int cmd, variant *res)
+void recharging_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1097,7 +1134,7 @@ void recharging_spell(int cmd, variant *res)
 }
 bool cast_recharging(void) { return cast_spell(recharging_spell); }
 
-void remove_curse_I_spell(int cmd, variant *res)
+void remove_curse_I_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1119,7 +1156,7 @@ void remove_curse_I_spell(int cmd, variant *res)
 }
 bool cast_remove_curse_I(void) { return cast_spell(remove_curse_I_spell); }
 
-void remove_curse_II_spell(int cmd, variant *res)
+void remove_curse_II_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1141,7 +1178,7 @@ void remove_curse_II_spell(int cmd, variant *res)
 }
 bool cast_remove_curse_II(void) { return cast_spell(remove_curse_II_spell); }
 
-void remove_fear_spell(int cmd, variant *res)
+void remove_fear_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1162,7 +1199,7 @@ void remove_fear_spell(int cmd, variant *res)
 }
 bool cast_remove_fear(void) { return cast_spell(remove_fear_spell); }
 
-void resistance_spell(int cmd, variant *res)
+void resistance_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1176,11 +1213,11 @@ void resistance_spell(int cmd, variant *res)
     {
         int base = spell_power(20);
 
-        set_oppose_acid(randint1(base) + base, FALSE);
-        set_oppose_elec(randint1(base) + base, FALSE);
-        set_oppose_fire(randint1(base) + base, FALSE);
-        set_oppose_cold(randint1(base) + base, FALSE);
-        set_oppose_pois(randint1(base) + base, FALSE);
+        plr_tim_add(T_RES_ACID, randint1(base) + base);
+        plr_tim_add(T_RES_ELEC, randint1(base) + base);
+        plr_tim_add(T_RES_FIRE, randint1(base) + base);
+        plr_tim_add(T_RES_COLD, randint1(base) + base);
+        plr_tim_add(T_RES_POIS, randint1(base) + base);
 
         var_set_bool(res, TRUE);
         break;
@@ -1191,7 +1228,7 @@ void resistance_spell(int cmd, variant *res)
     }
 }
 
-void resist_elements_spell(int cmd, variant *res)
+void resist_elements_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1231,27 +1268,27 @@ void resist_elements_spell(int cmd, variant *res)
 
         if (randint0(5) < num)
         {
-            set_oppose_acid(dur, FALSE);
+            plr_tim_add(T_RES_ACID, dur);
             num--;
         }
         if (randint0(4) < num)
         {
-            set_oppose_elec(dur, FALSE);
+            plr_tim_add(T_RES_ELEC, dur);
             num--;
         }
         if (randint0(3) < num)
         {
-            set_oppose_fire(dur, FALSE);
+            plr_tim_add(T_RES_FIRE, dur);
             num--;
         }
         if (randint0(2) < num)
         {
-            set_oppose_cold(dur, FALSE);
+            plr_tim_add(T_RES_COLD, dur);
             num--;
         }
         if (num)
         {
-            set_oppose_pois(dur, FALSE);
+            plr_tim_add(T_RES_POIS, dur);
             num--;
         }
         var_set_bool(res, TRUE);
@@ -1264,7 +1301,7 @@ void resist_elements_spell(int cmd, variant *res)
 }
 bool cast_resist_elements(void) { return cast_spell(resist_elements_spell); }
 
-void resist_environment_spell(int cmd, variant *res)
+void resist_environment_spell(int cmd, var_ptr res)
 {
     int base = spell_power(20);
     switch (cmd)
@@ -1279,9 +1316,9 @@ void resist_environment_spell(int cmd, variant *res)
         var_set_string(res, info_duration(base, base));
         break;
     case SPELL_CAST:
-        set_oppose_cold(randint1(base) + base, FALSE);
-        set_oppose_fire(randint1(base) + base, FALSE);
-        set_oppose_elec(randint1(base) + base, FALSE);
+        plr_tim_add(T_RES_COLD, randint1(base) + base);
+        plr_tim_add(T_RES_FIRE, randint1(base) + base);
+        plr_tim_add(T_RES_ELEC, randint1(base) + base);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1290,7 +1327,7 @@ void resist_environment_spell(int cmd, variant *res)
     }
 }
 
-void resist_fire_spell(int cmd, variant *res)
+void resist_fire_spell(int cmd, var_ptr res)
 {
     int base = spell_power(20);
     switch (cmd)
@@ -1305,7 +1342,7 @@ void resist_fire_spell(int cmd, variant *res)
         var_set_string(res, info_duration(base, base));
         break;
     case SPELL_CAST:
-        set_oppose_fire(randint1(base) + base, FALSE);
+        plr_tim_add(T_RES_FIRE, randint1(base) + base);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1314,7 +1351,7 @@ void resist_fire_spell(int cmd, variant *res)
     }
 }
 
-void resist_heat_cold_spell(int cmd, variant *res)
+void resist_heat_cold_spell(int cmd, var_ptr res)
 {
     int base = spell_power(20);
     switch (cmd)
@@ -1329,8 +1366,8 @@ void resist_heat_cold_spell(int cmd, variant *res)
         var_set_string(res, info_duration(base, base));
         break;
     case SPELL_CAST:
-        set_oppose_cold(randint1(base) + base, FALSE);
-        set_oppose_fire(randint1(base) + base, FALSE);
+        plr_tim_add(T_RES_COLD, randint1(base) + base);
+        plr_tim_add(T_RES_FIRE, randint1(base) + base);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1339,7 +1376,7 @@ void resist_heat_cold_spell(int cmd, variant *res)
     }
 }
 
-void resist_poison_spell(int cmd, variant *res)
+void resist_poison_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1350,7 +1387,7 @@ void resist_poison_spell(int cmd, variant *res)
         var_set_string(res, "Provides temporary resistance to poison.");
         break;
     case SPELL_CAST:
-        set_oppose_pois(randint1(20) + 20, FALSE);
+        plr_tim_add(T_RES_POIS, randint1(20) + 20);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1359,7 +1396,7 @@ void resist_poison_spell(int cmd, variant *res)
     }
 }
 
-void restoration_spell(int cmd, variant *res)
+void restoration_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1377,7 +1414,7 @@ void restoration_spell(int cmd, variant *res)
         do_res_stat(A_CON);
         do_res_stat(A_CHR);
         restore_level();
-        lp_player(1000);
+        plr_restore_life(1000);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1386,7 +1423,7 @@ void restoration_spell(int cmd, variant *res)
     }
 }
 
-void restore_life_spell(int cmd, variant *res)
+void restore_life_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1398,7 +1435,7 @@ void restore_life_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         restore_level();
-        lp_player(150);
+        plr_restore_life(150);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1408,7 +1445,7 @@ void restore_life_spell(int cmd, variant *res)
 }
 bool cast_restore_life(void) { return cast_spell(restore_life_spell); }
 
-void rocket_I_spell(int cmd, variant *res)
+void rocket_I_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1442,7 +1479,7 @@ void rocket_I_spell(int cmd, variant *res)
     }
 }
 
-void rocket_II_spell(int cmd, variant *res)
+void rocket_II_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1476,7 +1513,7 @@ void rocket_II_spell(int cmd, variant *res)
     }
 }
 
-void rush_attack_spell(int cmd, variant *res)
+void rush_attack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {

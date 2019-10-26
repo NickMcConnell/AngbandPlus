@@ -90,7 +90,7 @@ static cptr _mon_name(int r_idx)
     if (r_idx == MON_CHAOS_VORTEX) /* This became a Death vortex, but we are being nostalgic ... */
         return "Chaos vortex";
     if (r_idx)
-        return r_name + r_info[r_idx].name;
+        return r_name + mon_race_lookup(r_idx)->name;
     return ""; /* Birth Menu */
 }
 
@@ -125,18 +125,19 @@ static void _birth(void)
     forge.name2 = EGO_RING_COMBAT;
     forge.to_h = 7;
     forge.to_d = 2;
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_JACK));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
+    plr_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
 }
 
 /**********************************************************************
  * Attacks
  **********************************************************************/
-int vortex_get_effect(void)
+static int _get_effect(void)
 {
     switch (p_ptr->current_r_idx)
     {
@@ -183,43 +184,56 @@ int vortex_get_effect(void)
     return GF_MISSILE;
 }
 
+static void _before_engulf(plr_attack_ptr context)
+{
+    if (context->info.type == PAT_INNATE && context->blow->method == RBM_ENGULF)
+    {
+        if (p_ptr->current_r_idx == MON_AETHER_VORTEX)
+        {
+            int i;
+            for (i = 0; i < context->blow->effect_ct; i++)
+                context->blow->effects[i].effect = _get_effect();
+        }
+    }
+}
+static void _attack_init(plr_attack_ptr context)
+{
+    context->hooks.before_hit_f = _before_engulf;
+}
+static void _calc_innate_bonuses(mon_blow_ptr blow)
+{
+    if (blow->method == RBM_ENGULF)
+        plr_calc_blows_innate(blow, 400);
+}
 static void _calc_innate_attacks(void)
 {
     int l = p_ptr->lev;
     int r = _rank();
+    int dd = 3 + r;
+    int ds = 3 + r;
     int to_d = r + l/5;
-    int to_h = l/2;
+    mon_blow_ptr blow;
 
     /* Engulf */
+    blow = mon_blow_alloc(RBM_ENGULF);
+    blow->weight = 150;
+    blow->power = l*3/2;
+    if (p_ptr->current_r_idx == MON_AETHER_VORTEX)
     {
-        innate_attack_t a = {0};
-
-        a.dd = 3 + r;
-        a.ds = 3 + r;
-        a.to_d += to_d;
-        a.to_h += to_h;
-
-        a.weight = 150;
-        if (p_ptr->current_r_idx == MON_AETHER_VORTEX)
-        {
-            /* Note: see cmd1.c innate_attacks() ... the effect will
-               be randomly chosen on each hit. These are just placeholders. */
-            a.effect[0] = GF_ELEC;
-            a.effect[1] = GF_FIRE; a.effect_chance[1] = 75;
-            a.effect[2] = GF_ACID; a.effect_chance[2] = 50;
-        }
-        else
-            a.effect[0] = vortex_get_effect();
-
-        if (p_ptr->current_r_idx == MON_SHARD_VORTEX)
-            a.flags |= INNATE_VORPAL;
-
-        calc_innate_blows(&a, 400);
-        a.msg = "You engulf.";
-        a.name = "Engulf";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        /* Note: The effect will be randomly chosen on each hit by _before_engulf */
+        mon_blow_push_effect(blow, GF_ELEC, dice_create(dd, ds, to_d));
+        mon_blow_push_effect(blow, GF_FIRE, dice_create(dd, ds, to_d))->pct = 75;
+        mon_blow_push_effect(blow, GF_COLD, dice_create(dd, ds, to_d))->pct = 50;
     }
+    else
+    {
+        mon_blow_push_effect(blow, _get_effect(), dice_create(dd, ds, to_d));
+        if (p_ptr->current_r_idx == MON_SHARD_VORTEX)
+            mon_blow_push_effect(blow, RBE_CUT, dice_create(0, 0, 0))->pct = 16;
+    }
+
+    _calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
 }
 
 /**********************************************************************
@@ -227,12 +241,12 @@ static void _calc_innate_attacks(void)
  **********************************************************************/
 static int _breath_effect(void)
 {
-    return vortex_get_effect();
+    return _get_effect();
 }
 
 static int _breath_amount(void)
 {
-    int pct = 10 + py_prorata_level(15);
+    int pct = 10 + plr_prorata_level(15);
     return MAX(5, p_ptr->chp * pct / 100);
 }
 
@@ -249,7 +263,7 @@ static cptr _breath_desc(void)
     return "";
 }
 
-static void _breathe_spell(int cmd, variant *res)
+static void _breathe_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -288,7 +302,7 @@ static void _breathe_spell(int cmd, variant *res)
     }
 }
 
-static void _escape_spell(int cmd, variant *res)
+static void _escape_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -318,7 +332,7 @@ static void _escape_spell(int cmd, variant *res)
     }
 }
 
-static void _explode_spell(int cmd, variant *res)
+static void _explode_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -351,7 +365,7 @@ static void _explode_spell(int cmd, variant *res)
     }
 }
 
-static void _spin_away_spell(int cmd, variant *res)
+static void _spin_away_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -367,7 +381,7 @@ static void _spin_away_spell(int cmd, variant *res)
     }
 }
 
-static void _whirlwind_spell(int cmd, variant *res)
+static void _whirlwind_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -383,7 +397,7 @@ static void _whirlwind_spell(int cmd, variant *res)
     }
 }
 
-static void _unleash_elements_spell(int cmd, variant *res)
+static void _unleash_elements_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -396,29 +410,28 @@ static void _unleash_elements_spell(int cmd, variant *res)
     case SPELL_COST_EXTRA:
         _breathe_spell(cmd, res);
         break;
-    case SPELL_CAST:
-    {
+    case SPELL_CAST: {
         int num = damroll(5, 3);
         int dam = MAX(1, _breath_amount()/3);
-        int y = py, x = px, i;
+        int i;
 
         var_set_bool(res, FALSE);
-
         for (i = 0; i < num; i++)
         {
             int attempts = 1000;
+            point_t pos;
             while (attempts--)
             {
-                scatter(&y, &x, py, px, 4, 0);
-                if (!cave_have_flag_bold(y, x, FF_PROJECT)) continue;
-                if (!player_bold(y, x)) break;
+                pos = scatter(p_ptr->pos, 4);
+                if (!cave_have_flag_at(pos, FF_PROJECT)) continue;
+                if (!plr_at(pos)) break;
             }
-            project(0, 3, y, x, dam, _breath_effect(),
+            if (attempts < 0) continue;
+            project(0, 3, pos.y, pos.x, dam, _breath_effect(),
                 (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
         }
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -640,22 +653,22 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_vortex_get_race(void)
+plr_race_ptr mon_vortex_get_race(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     int           r = _rank();
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  40,   4,   5,   5,  60,   0};
     skills_t xs = {  8,   7,  15,   0,   0,   0,  25,   0};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_VORTEX);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.name = "Vortex";
-        me.desc = "Vortices are mindless whirlwinds of elemental forces randomly "
+        me->name = "Vortex";
+        me->desc = "Vortices are mindless whirlwinds of elemental forces randomly "
                     "moving about the dungeon in search of prey. They are seldom confused "
                     "and never blinded since they lack vision in the normal sense. Indeed, they "
                     "seem to be aware of their surroundings even without eyes and need not wear a "
@@ -673,34 +686,33 @@ race_t *mon_vortex_get_race(void)
                     "Vortices evolve randomly, though all seem to end up with the evolutionary "
                     "perfection of the Aether vortex.";
 
-        me.infra = 0;
-        me.exp = 125;
-        me.life = 102;
-        me.base_hp = 25;
-        me.shop_adjust = 120;
+        me->infra = 0;
+        me->exp = 125;
+        me->life = 102;
+        me->base_hp = 25;
+        me->shop_adjust = 120;
 
-        me.calc_innate_attacks = _calc_innate_attacks;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_powers = _get_powers;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
-        me.birth = _birth;
+        me->hooks.calc_innate_attacks = _calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = _calc_innate_bonuses;
+        me->hooks.attack_init = _attack_init;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.birth = _birth;
 
-        me.flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
-
-        me.pseudo_class_idx = CLASS_WARRIOR;
-
-        init = TRUE;
+        me->flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
+        me->pseudo_class_idx = CLASS_WARRIOR;
     }
 
-    me.subname = _mon_name(p_ptr->current_r_idx);
-    me.stats[A_STR] =  0 + r;
-    me.stats[A_INT] = -5;
-    me.stats[A_WIS] = -5;
-    me.stats[A_DEX] =  2 + r;
-    me.stats[A_CON] =  1 + r/2;
-    me.stats[A_CHR] =  0;
-    me.equip_template = mon_get_equip_template();
+    me->subname = _mon_name(p_ptr->current_r_idx);
+    me->stats[A_STR] =  0 + r;
+    me->stats[A_INT] = -5;
+    me->stats[A_WIS] = -5;
+    me->stats[A_DEX] =  2 + r;
+    me->stats[A_CON] =  1 + r/2;
+    me->stats[A_CHR] =  0;
+    me->equip_template = mon_get_equip_template();
 
-    return &me;
+    return me;
 }

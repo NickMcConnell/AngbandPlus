@@ -32,17 +32,18 @@ static void _birth(void)
     equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_DAGGER));
     forge.name2 = EGO_WEAPON_DEATH;
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     /* Encourage shapeshifting! */
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 4;
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 }
 
 static void _gain_level(int new_level) 
@@ -72,9 +73,9 @@ static void _gain_level(int new_level)
  ******************************************************************************/
 static int _bite_amt(void)
 {
-    return 5 + py_prorata_level_aux(300, 1, 2, 3);
+    return 5 + plr_prorata_level_aux(300, 1, 2, 3);
 }
-static void _bite_spell(int cmd, variant *res)
+static void _bite_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -87,62 +88,25 @@ static void _bite_spell(int cmd, variant *res)
     case SPELL_INFO:
         var_set_string(res, info_damage(0, 0, _bite_amt()));
         break;
-    case SPELL_CAST:
+    case SPELL_CAST: {
+        mon_ptr mon = plr_target_adjacent_mon();
+        int amt;
+
         var_set_bool(res, FALSE);
-        if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
-        {
-            msg_print("Something prevents you from attacking.");
-            return;
-        }
-        else
-        {
-            int x = 0, y = 0, amt, m_idx = 0;
-            int dir = 0;
+        if (!mon) break;
 
-            if (use_old_target && target_okay())
-            {
-                y = target_row;
-                x = target_col;
-                m_idx = cave[y][x].m_idx;
-                if (m_idx)
-                {
-                    if (m_list[m_idx].cdis > 1)
-                        m_idx = 0;
-                    else
-                        dir = 5;
-                }
-            }
+        msg_print("You grin and bare your fangs...");
+        amt = _bite_amt();
 
-            if (!m_idx)
-            {
-                if (!get_rep_dir2(&dir)) return;
-                if (dir == 5) return;
-                y = py + ddy[dir];
-                x = px + ddx[dir];
-                m_idx = cave[y][x].m_idx;
+        vampiric_drain_hack = TRUE;  /* cf monster_death */
+        if (plr_touch_mon(mon, GF_OLD_DRAIN, amt))
+            vampire_feed(amt);
+        else if (!mon_is_living(mon))
+            msg_print("Yechh. That tastes foul.");
+        vampiric_drain_hack = FALSE;
 
-                if (!m_idx)
-                {
-                    msg_print("There is no monster there.");
-                    return;
-                }
-            }
-
-            var_set_bool(res, TRUE);
-
-            msg_print("You grin and bare your fangs...");
-            amt = _bite_amt();
-
-            vampiric_drain_hack = TRUE;
-            if (project(0, 0, y, x, amt, GF_OLD_DRAIN, PROJECT_STOP | PROJECT_KILL | PROJECT_THRU))
-            {
-                vampire_feed(amt);
-            }
-            else
-                msg_print("Yechh. That tastes foul.");
-            vampiric_drain_hack = FALSE;
-        }
-        break;
+        var_set_bool(res, TRUE);
+        break; }
     case SPELL_COST_EXTRA:
         var_set_int(res, MIN(_bite_amt() / 10, 29));
         break;
@@ -159,7 +123,7 @@ static int _gaze_power(void)
     power += adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1;
     return power;
 }
-void _gaze_spell(int cmd, variant *res)
+void _gaze_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -186,7 +150,7 @@ void _gaze_spell(int cmd, variant *res)
         break;
     }
 }
-void _grasp_spell(int cmd, variant *res)
+void _grasp_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -196,47 +160,37 @@ void _grasp_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Pulls a target creature to you.");
         break;
-    case SPELL_CAST:
-    {
-        int           m_idx;
-        bool          fear = FALSE;
-        monster_type *m_ptr;
-        monster_race *r_ptr;
-        char m_name[MAX_NLEN];
+    case SPELL_CAST: {
+        bool         fear = FALSE;
+        mon_ptr      mon = plr_target_mon();
+        mon_race_ptr race;
+        char         m_name[MAX_NLEN];
 
         var_set_bool(res, FALSE);
-
-        if (!target_set(TARGET_KILL)) break;
-        if (!cave[target_row][target_col].m_idx) break;
-        if (!player_has_los_bold(target_row, target_col)) break;
-        if (!projectable(py, px, target_row, target_col)) break;
-
+        if (!mon) break;
         var_set_bool(res, TRUE);
 
-        m_idx = cave[target_row][target_col].m_idx;
-        m_ptr = &m_list[m_idx];
-        r_ptr = &r_info[m_ptr->r_idx];
-        monster_desc(m_name, m_ptr, 0);
-        if (r_ptr->flagsr & RFR_RES_TELE)
+        race = mon_race(mon);
+        monster_desc(m_name, mon, 0);
+        if (race->flagsr & RFR_RES_TELE)
         {
-            if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flagsr & RFR_RES_ALL))
+            if ((race->flags1 & RF1_UNIQUE) || (race->flagsr & RFR_RES_ALL))
             {
-                mon_lore_r(m_ptr, RFR_RES_TELE);
+                mon_lore_r(mon, RFR_RES_TELE);
                 msg_format("%s is unaffected!", m_name);
                 break;
             }
-            else if (r_ptr->level > randint1(100))
+            else if (race->level > randint1(100))
             {
-                mon_lore_r(m_ptr, RFR_RES_TELE);
+                mon_lore_r(mon, RFR_RES_TELE);
                 msg_format("%s resists!", m_name);
                 break;
             }
         }
         msg_format("You grasp %s.", m_name);
-        teleport_monster_to(m_idx, py, px, 100, TELEPORT_PASSIVE);
-        mon_take_hit(m_idx, damroll(10, 10), &fear, extract_note_dies(real_r_ptr(m_ptr)));
-        break;
-    }
+        teleport_monster_to(mon->id, p_ptr->pos.y, p_ptr->pos.x, 100, TELEPORT_PASSIVE);
+        mon_take_hit(mon->id, damroll(10, 10), &fear, extract_note_dies(real_r_ptr(mon)));
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -275,11 +229,11 @@ static void _set_mimic_form(int which)
         set_action(ACTION_NONE);
 
     p_ptr->redraw |= PR_BASIC | PR_STATUS | PR_MAP | PR_EQUIPPY;
-    p_ptr->update |= PU_BONUS | PU_HP;
+    p_ptr->update |= PU_BONUS | PU_INNATE | PU_HP;
     handle_stuff();
 }
 
-static void _polymorph_undo_spell(int cmd, variant *res)
+static void _polymorph_undo_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -301,7 +255,7 @@ static void _polymorph_undo_spell(int cmd, variant *res)
     }
 }
 
-static void _polymorph_bat_spell(int cmd, variant *res)
+static void _polymorph_bat_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -323,7 +277,7 @@ static void _polymorph_bat_spell(int cmd, variant *res)
     }
 }
 
-static void _polymorph_mist_spell(int cmd, variant *res)
+static void _polymorph_mist_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -345,7 +299,7 @@ static void _polymorph_mist_spell(int cmd, variant *res)
     }
 }
 
-static void _polymorph_wolf_spell(int cmd, variant *res)
+static void _polymorph_wolf_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -367,29 +321,6 @@ static void _polymorph_wolf_spell(int cmd, variant *res)
     }
 }
 
-void _repose_of_the_dead_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Repose of the Dead");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Sleep the sleep of the dead for a few rounds, during which time nothing can awaken you, except perhaps death. When (if?) you wake up, you will be thoroughly refreshed!");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, FALSE);
-        if (!get_check("You will enter a deep slumber. Are you sure?")) return;
-        repose_of_the_dead = TRUE;
-        set_paralyzed(4 + randint1(4), FALSE);
-        var_set_bool(res, TRUE);
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
 static spell_info _spells[] = 
 {
     {  2,  1, 30, _bite_spell },
@@ -403,7 +334,7 @@ static spell_info _spells[] =
     { 25, 20, 50, _polymorph_mist_spell },
     { 35, 25, 50, nether_ball_spell },       /* Vampire Lord */
     { 35, 30, 60, _grasp_spell },
-    { 40, 50, 70, _repose_of_the_dead_spell },
+    { 40, 50, 70, repose_of_the_dead_spell },
     { 45, 50, 80, darkness_storm_II_spell }, /* Elder Vampire */
     { -1, -1, -1, NULL}
 };
@@ -448,8 +379,8 @@ static void _calc_bonuses(void)
 
     if (equip_find_art(ART_NIGHT))
     {
-        p_ptr->dec_mana = TRUE;
-        p_ptr->easy_spell = TRUE;
+        p_ptr->dec_mana++;
+        p_ptr->easy_spell++;
     }
 
     if (p_ptr->lev >= 35)
@@ -475,12 +406,12 @@ static void _calc_bonuses(void)
     }
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
     if (_light_penalty)
     {
-        info_ptr->dis_to_h -= 3*_light_penalty;
-        info_ptr->to_h -= 3*_light_penalty;
+        info->dis_to_h -= 3*_light_penalty;
+        info->to_h -= 3*_light_penalty;
     }
 }
 
@@ -511,10 +442,9 @@ static void _move_player(void)
 /******************************************************************************
  * Public
  ******************************************************************************/
-race_t *mon_vampire_get_race(void)
+plr_race_ptr mon_vampire_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr titles[4] =  {"Vampire", "Master Vampire", "Vampire Lord", "Elder Vampire"};    
     int         rank = 0;
 
@@ -522,59 +452,59 @@ race_t *mon_vampire_get_race(void)
     if (p_ptr->lev >= 35) rank++;
     if (p_ptr->lev >= 45) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  37,  36,   0,  32,  25,  60,  35};
     skills_t xs = {  7,  12,  10,   0,   0,   0,  21,  11};
 
-        me.name = "Vampire";
-        me.desc = _desc;
+        me = plr_race_alloc(RACE_MON_VAMPIRE);
+        me->name = "Vampire";
+        me->desc = _desc;
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.base_hp = 20;
-        me.exp = 250;
-        me.infra = 5;
-        me.shop_adjust = 130;
+        me->base_hp = 20;
+        me->exp = 250;
+        me->infra = 5;
+        me->shop_adjust = 130;
 
-        me.birth = _birth;
-        me.gain_level = _gain_level;
-        me.move_player = _move_player;
+        me->hooks.birth = _birth;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.move_player = _move_player;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.timer_on = repose_timer_on;
+        me->hooks.timer_off = repose_timer_off;
 
-        me.get_spells = _get_spells;
-        me.caster_info = _caster_info;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.get_flags = _get_flags;
+        me->flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+        me->pseudo_class_idx = CLASS_ROGUE;
 
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
-        me.pseudo_class_idx = CLASS_ROGUE;
-
-        me.boss_r_idx = MON_VLAD;
-
-        init = TRUE;
+        me->boss_r_idx = MON_VLAD;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  2 + rank;
-    me.stats[A_INT] =  1;
-    me.stats[A_WIS] = -1 - rank;
-    me.stats[A_DEX] =  0 + rank;
-    me.stats[A_CON] = -2;
-    me.stats[A_CHR] =  1 + 3*rank/2;
-    me.life = 90 + 3*rank;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  2 + rank;
+    me->stats[A_INT] =  1;
+    me->stats[A_WIS] = -1 - rank;
+    me->stats[A_DEX] =  0 + rank;
+    me->stats[A_CON] = -2;
+    me->stats[A_CHR] =  1 + 3*rank/2;
+    me->life = 90 + 3*rank;
 
-    me.skills.stl = 7 + 4*rank/3; /* 7, 8, 9, 11 */
+    me->skills.stl = 7 + 4*rank/3; /* 7, 8, 9, 11 */
 
-    me.equip_template = mon_get_equip_template();
+    me->equip_template = mon_get_equip_template();
 
     if (birth_hack || spoiler_hack)
     {
-        me.subname = NULL;
-        me.subdesc = NULL;
+        me->subname = NULL;
+        me->subdesc = NULL;
     }
-    return &me;
+    return me;
 }
 
 void vampire_feed(int amt)
@@ -609,10 +539,10 @@ void vampire_check_light_status(void)
 {
     static int _last_light_penalty = -1;
 
-    if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
+    if ((cave_at(p_ptr->pos)->info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
     {
         _light_penalty = 1;
-        if (!dun_level && is_daytime())
+        if (cave->dun_type_id == D_SURFACE && is_daytime())
             _light_penalty++;
         if (res_pct(RES_LITE) < 0)
             _light_penalty++;
@@ -625,7 +555,7 @@ void vampire_check_light_status(void)
         _last_light_penalty = _light_penalty;
         if (_light_penalty)
         {
-            int n = _light_penalty * _light_penalty * _light_penalty * MAX(1, dun_level/5);
+            int n = _light_penalty * _light_penalty * _light_penalty * MAX(1, cave->dun_lvl/5);
             if (!fear_save_p(n))
             {
                 msg_print("You fear the light!");
@@ -682,7 +612,7 @@ void vampire_take_light_damage(int amt)
             break;
 
         case 11: case 12:
-            if (disenchant_player())
+            if (plr_tim_disenchant())
                 msg_print("You feel diminished!");
             break;
         }
@@ -721,22 +651,20 @@ static int _mimic_get_spells(spell_info* spells, int max)
 /****************************************************************
  * Bat
  ****************************************************************/
+static void _bat_calc_innate_bonuses(mon_blow_ptr blow)
+{
+    if (blow->method == RBM_BITE)
+        plr_calc_blows_innate(blow, 400);
+}
 static void _bat_calc_innate_attacks(void) 
 {
-    innate_attack_t    a = {0};
-
-    a.dd = 1 + p_ptr->lev/12;
-    a.ds = 4 + p_ptr->lev/15;
-    a.weight = 50;
-    a.to_h = p_ptr->lev/5;
-
-    a.effect[0] = GF_OLD_DRAIN;
-    calc_innate_blows(&a, 400);
-
-    a.msg = "You bite.";
-    a.name = "Bite";
-
-    p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+    int l = p_ptr->lev;
+    mon_blow_ptr blow = mon_blow_alloc(RBM_BITE);
+    blow->power = l;
+    blow->weight = 50;
+    mon_blow_push_effect(blow, RBE_VAMP, dice_create(1 + l/12, 4 + l/15, 0));
+    _bat_calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
 }
 static void _bat_calc_bonuses(void)
 {
@@ -761,48 +689,48 @@ static void _bat_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_POIS);
     add_flag(flgs, OF_HOLD_LIFE);
 }
-race_t *bat_get_race(void)
+plr_race_ptr bat_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  45,  38,  10,  24,  16,  48,  30 };
     skills_t xs = { 12,  18,  11,   1,   0,   0,  13,  10 };
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(MIMIC_BAT);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.name = "Vampire Bat";
-        me.desc = "";
+        me->name = "Vampire Bat";
+        me->desc = "";
 
-        me.stats[A_STR] = -3;
-        me.stats[A_INT] =  0;
-        me.stats[A_WIS] =  0;
-        me.stats[A_DEX] =  4;
-        me.stats[A_CON] = -3;
-        me.stats[A_CHR] = -3;
+        me->stats[A_STR] = -3;
+        me->stats[A_INT] =  0;
+        me->stats[A_WIS] =  0;
+        me->stats[A_DEX] =  4;
+        me->stats[A_CON] = -3;
+        me->stats[A_CHR] = -3;
         
-        me.life = 75;
-        me.base_hp = 10;
-        me.exp = 75;
-        me.infra = 10;
-        me.shop_adjust = 120;
+        me->life = 75;
+        me->base_hp = 10;
+        me->exp = 75;
+        me->infra = 10;
+        me->shop_adjust = 120;
 
-        me.get_spells = _mimic_get_spells;
-        me.calc_innate_attacks = _bat_calc_innate_attacks;
-        me.calc_bonuses = _bat_calc_bonuses;
-        me.get_flags = _bat_get_flags;
-        me.caster_info = _caster_info;
+        me->hooks.get_spells = _mimic_get_spells;
+        me->hooks.calc_innate_attacks = _bat_calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = _bat_calc_innate_bonuses;
+        me->hooks.calc_bonuses = _bat_calc_bonuses;
+        me->hooks.get_flags = _bat_get_flags;
+        me->hooks.caster_info = _caster_info;
 
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+        me->flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
 
-        me.equip_template = &b_info[r_info[MON_VAMPIRE_BAT].body.body_idx];
-        init = TRUE;
+        me->equip_template = &b_info[mon_race_lookup(MON_VAMPIRE_BAT)->body.body_idx];
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -837,49 +765,48 @@ static void _mist_get_flags(u32b flgs[OF_ARRAY_SIZE])
 
     add_flag(flgs, OF_MAGIC_RESISTANCE);
 }
-race_t *mist_get_race(void)
+plr_race_ptr mist_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  20,  40,  10,  10,   7,  0,  0};
     skills_t xs = {  6,   7,  10,   1,   0,   0,  0,  0};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(MIMIC_MIST);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.name = "Vampiric Mist";
-        me.desc = "You are a cloud of evil, sentient mist. As such you are incorporeal and are "
+        me->name = "Vampiric Mist";
+        me->desc = "You are a cloud of evil, sentient mist. As such you are incorporeal and are "
             "unable to attack enemies directly. Conversely, you are resistant to material damage "
             "and may pass through walls. Probably, you should run away upon assuming this form.";
 
-        me.stats[A_STR] = -3;
-        me.stats[A_INT] = -3;
-        me.stats[A_WIS] = -3;
-        me.stats[A_DEX] = -3;
-        me.stats[A_CON] = -3;
-        me.stats[A_CHR] = -3;    
+        me->stats[A_STR] = -3;
+        me->stats[A_INT] = -3;
+        me->stats[A_WIS] = -3;
+        me->stats[A_DEX] = -3;
+        me->stats[A_CON] = -3;
+        me->stats[A_CHR] = -3;    
 
-        me.life = 80;
-        me.base_hp = 15;
-        me.exp = 75;
-        me.infra = 10;
-        me.shop_adjust = 130;
+        me->life = 80;
+        me->base_hp = 15;
+        me->exp = 75;
+        me->infra = 10;
+        me->shop_adjust = 130;
 
-        me.get_spells = _mimic_get_spells;
-        me.calc_bonuses = _mist_calc_bonuses;
-        me.get_flags = _mist_get_flags;
-        me.caster_info = _caster_info;
+        me->hooks.get_spells = _mimic_get_spells;
+        me->hooks.calc_bonuses = _mist_calc_bonuses;
+        me->hooks.get_flags = _mist_get_flags;
+        me->hooks.caster_info = _caster_info;
 
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+        me->flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
 
-        me.equip_template = &b_info[r_info[MON_VAMPIRIC_MIST].body.body_idx];
-        init = TRUE;
+        me->equip_template = &b_info[mon_race_lookup(MON_VAMPIRIC_MIST)->body.body_idx];
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -907,47 +834,47 @@ static void _wolf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SPEED);
 }
-race_t *wolf_get_race(void)
+plr_race_ptr wolf_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  20,  31,   4,  20,  15,  56,  30};
     skills_t xs = {  8,   8,  10,   1,   0,   0,  20,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(MIMIC_WOLF);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.name = "Dire Wolf";
-        me.desc = "";
+        me->name = "Dire Wolf";
+        me->desc = "";
 
-        me.life = 100;
-        me.base_hp = 22;
-        me.exp = 120;
-        me.infra = 5;
-        me.shop_adjust = 115;
+        me->life = 100;
+        me->base_hp = 22;
+        me->exp = 120;
+        me->infra = 5;
+        me->shop_adjust = 115;
 
-        me.get_spells = _mimic_get_spells;
-        me.get_powers = _wolf_get_powers;
-        me.calc_innate_attacks = hound_calc_innate_attacks;
-        me.calc_bonuses = _wolf_calc_bonuses;
-        me.get_flags = _wolf_get_flags;
-        me.caster_info = _caster_info;
+        me->hooks.get_spells = _mimic_get_spells;
+        me->hooks.get_powers = _wolf_get_powers;
+        me->hooks.calc_innate_attacks = hound_calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = hound_calc_innate_bonuses;
+        me->hooks.calc_bonuses = _wolf_calc_bonuses;
+        me->hooks.get_flags = _wolf_get_flags;
+        me->hooks.caster_info = _caster_info;
 
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+        me->flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
 
-        me.equip_template = &b_info[73];
-        init = TRUE;
+        me->equip_template = &b_info[73];
     }
-    me.stats[A_STR] =  1 + p_ptr->lev/12;
-    me.stats[A_INT] = -3;
-    me.stats[A_WIS] = -5;
-    me.stats[A_DEX] =  2 + p_ptr->lev/15;
-    me.stats[A_CON] =  1 + p_ptr->lev/15;
-    me.stats[A_CHR] =  0 + p_ptr->lev/25;
+    me->stats[A_STR] =  1 + p_ptr->lev/12;
+    me->stats[A_INT] = -3;
+    me->stats[A_WIS] = -5;
+    me->stats[A_DEX] =  2 + p_ptr->lev/15;
+    me->stats[A_CON] =  1 + p_ptr->lev/15;
+    me->stats[A_CHR] =  0 + p_ptr->lev/25;
 
-    return &me;
+    return me;
 }
 

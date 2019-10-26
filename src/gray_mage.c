@@ -246,32 +246,32 @@ static void _birth(void)
     int i;
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_DAGGER));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     if (p_ptr->psubclass == GRAY_MAGE_GOOD)
     {
         object_prep(&forge, lookup_kind(TV_LIFE_BOOK, 0));
-        py_birth_obj(&forge);
+        plr_birth_obj(&forge);
 
         object_prep(&forge, lookup_kind(TV_CRUSADE_BOOK, 0));
-        py_birth_obj(&forge);
+        plr_birth_obj(&forge);
     }
     else if (p_ptr->psubclass == GRAY_MAGE_NEUTRAL)
     {
         object_prep(&forge, lookup_kind(TV_NATURE_BOOK, 0));
-        py_birth_obj(&forge);
+        plr_birth_obj(&forge);
     }
     else if (p_ptr->psubclass == GRAY_MAGE_EVIL)
     {
         object_prep(&forge, lookup_kind(TV_DEATH_BOOK, 0));
-        py_birth_obj(&forge);
+        plr_birth_obj(&forge);
 
         object_prep(&forge, lookup_kind(TV_DAEMON_BOOK, 0));
-        py_birth_obj(&forge);
+        plr_birth_obj(&forge);
     }
 
     object_prep(&forge, lookup_kind(TV_ARCANE_BOOK, 0));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     /* Restart? player_wipe doesn't know about this stuff, of course ... */
     for (i = 0; i < _MAX_SLOTS; i++)
@@ -284,6 +284,12 @@ static void _birth(void)
 /**********************************************************************
  * Private Helpers
  **********************************************************************/
+static void _calc_bonuses(void)
+{
+    if (p_ptr->lev >= 30)
+        p_ptr->wizard_sight = TRUE;
+}
+
 static void _character_dump(doc_ptr doc)
 {
     doc_printf(doc, "<topic:Spells>==================================== <color:keypress>S</color>pells ===================================\n\n");
@@ -482,7 +488,7 @@ void gray_mage_cast_spell(void)
 
     /* Blind is OK!!! */
 
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;
@@ -543,13 +549,13 @@ void gray_mage_gain_spell(void)
     int             spell_idx;
     _slot_info_ptr  slot_ptr;
 
-    if (p_ptr->blind || no_lite())
+    if (plr_tim_find(T_BLIND) || no_lite())
     {
         msg_print("You cannot see!");
         return;
     }
 
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;
@@ -623,18 +629,18 @@ extern cptr gray_mage_speciality_desc(int psubclass)
     return "";
 }
 
-class_t *gray_mage_get_class(int psubclass)
+plr_class_ptr gray_mage_get_class(int psubclass)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  40,  38,   3,  16,  20,  34,  20};
     skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
 
-        me.name = "Gray-Mage";
-        me.desc = "The Gray-Mage casts spells from memory, rather than from a "
+        me = plr_class_alloc(CLASS_GRAY_MAGE);
+        me->name = "Gray-Mage";
+        me->desc = "The Gray-Mage casts spells from memory, rather than from a "
                     "book.  Indeed, the spell book is only required for the initial learning process. "
                     "However, only a small number of spells may be learned at "
                     "any given time, and while the Gray-Mage may replace old spells "
@@ -650,32 +656,32 @@ class_t *gray_mage_get_class(int psubclass)
                     "the Gray Mage will have an extremely large pool of spells from which "
                     "to choose. Like the Mage, Intelligence is the key stat.";
 
-        me.stats[A_STR] = -4;
-        me.stats[A_INT] =  3;
-        me.stats[A_WIS] =  0;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] = -2;
-        me.stats[A_CHR] = -2;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 95;
-        me.base_hp = 0;
-        me.exp = 130;
-        me.pets = 30;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] = -4;
+        me->stats[A_INT] =  3;
+        me->stats[A_WIS] =  0;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] = -2;
+        me->stats[A_CHR] = -2;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 95;
+        me->base_hp = 0;
+        me->exp = 130;
+        me->pets = 30;
+        me->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG | CLASS_MAGE_BONUS;
 
-        me.caster_info = _caster_info;
-        me.character_dump = _character_dump;
-        me.get_powers = _get_powers;
-        me.birth = _birth;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.birth = _birth;
 
-        me.load_player = _load_player;
-        me.save_player = _save_player;
-
-        init = TRUE;
+        me->hooks.load_player = _load_player;
+        me->hooks.save_player = _save_player;
     }
-    me.subname = gray_mage_speciality_name(psubclass);
-    me.subdesc = gray_mage_speciality_desc(psubclass);
-    return &me;
+    me->subid = psubclass;
+    me->subname = gray_mage_speciality_name(psubclass);
+    me->subdesc = gray_mage_speciality_desc(psubclass);
+    return me;
 }

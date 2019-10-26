@@ -78,7 +78,7 @@ static bool _elemental_travel(int flag)
     {
         /* Note: teleport_player_to requires FF_TELEPORTABLE, which won't work for walls */
         if (flag == FF_WALL && !cave_have_flag_bold(y, x, FF_PERMANENT))
-            move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+            move_player_effect(point_create(x, y), MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
         else
             teleport_player_to(y, x, 0);
     }
@@ -89,7 +89,7 @@ static bool _elemental_healing(int flag)
 {
     int dir, ct = 0;
 
-    if (!cave_have_flag_bold(py, px, flag))
+    if (!cave_have_flag_at(p_ptr->pos, flag))
     {
         msg_print("Failed! You are out of your element!");
         return FALSE;
@@ -97,11 +97,8 @@ static bool _elemental_healing(int flag)
 
     for (dir = 0; dir < 8; dir++)
     {
-        int x = px + ddx_ddd[dir];
-        int y = py + ddy_ddd[dir];
-        
-        if (!in_bounds(y, x)) continue;
-        if (cave_have_flag_bold(y, x, flag)) ct++;
+        point_t p = point_step(p_ptr->pos, dir);
+        if (cave_have_flag_at(p, flag)) ct++; /* note: we count the boundary walls for the earth elemental */
     }
 
     if (ct < 4)
@@ -115,7 +112,7 @@ static bool _elemental_healing(int flag)
     return TRUE;
 }
 
-static void _elemental_rage_spell(int cmd, variant *res)
+static void _elemental_rage_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -193,17 +190,18 @@ static void _earth_birth(void)
     forge.to_d = 6;
     forge.pval = 3;
     add_flag(forge.flags, OF_STR);
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_CLUB));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     p_ptr->current_r_idx = MON_EARTH_SPIRIT; 
 
-    py_birth_light();
+    plr_birth_light();
 }
 
 static void _earth_gain_level(int new_level) 
@@ -216,7 +214,7 @@ static void _earth_gain_level(int new_level)
     }
 }
 
-static void _shard_bolt_spell(int cmd, variant *res)
+static void _shard_bolt_spell(int cmd, var_ptr res)
 {
     int dd = 1 + p_ptr->lev / 3;
     int ds = 8;
@@ -247,7 +245,7 @@ static void _shard_bolt_spell(int cmd, variant *res)
     }
 }
 
-static void _earthen_healing_spell(int cmd, variant *res)
+static void _earthen_healing_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -272,7 +270,7 @@ static void _earthen_healing_spell(int cmd, variant *res)
     }
 }
 
-static void _earthen_portal_spell(int cmd, variant *res)
+static void _earthen_portal_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -291,9 +289,9 @@ static void _earthen_portal_spell(int cmd, variant *res)
     }
 }
 
-static void _shard_ball_spell(int cmd, variant *res)
+static void _shard_ball_spell(int cmd, var_ptr res)
 {
-    int dam = py_prorata_level(300);
+    int dam = plr_prorata_level(300);
 
     switch (cmd)
     {
@@ -324,7 +322,7 @@ static void _shard_ball_spell(int cmd, variant *res)
     }
 }
 
-static void _wall_of_earth_spell(int cmd, variant *res)
+static void _wall_of_earth_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -365,7 +363,7 @@ static int _earth_get_powers(spell_info* spells, int max)
 
 static void _earth_calc_bonuses(void) 
 {
-    int to_a = py_prorata_level(50);
+    int to_a = plr_prorata_level(50);
 
     p_ptr->to_a += to_a;
     p_ptr->dis_to_a += to_a;
@@ -399,7 +397,7 @@ static void _earth_get_flags(u32b flgs[OF_ARRAY_SIZE])
 
 static bool _earth_p(object_type *o_ptr)
 {
-    if (object_is_artifact(o_ptr)) return FALSE;
+    if (obj_is_art(o_ptr)) return FALSE;
     if (o_ptr->tval != TV_POTION) return FALSE;
     return TRUE;
 }
@@ -410,46 +408,46 @@ static void _earth_process_world(void)
     _elemental_pack_destroy(_earth_p, "Your %s turns to mud.", chance);
 }
 
-static race_t *_earth_get_race_t(void)
+static plr_race_ptr _earth_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[2] =  {"Earth Spirit", "Earth Elemental"};
     int           rank = 0;
 
     if (p_ptr->lev >= 25) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  18,  40,   5,  25,  16,  70,  25};
     skills_t xs = {  8,   8,  12,   0,   0,   0,  30,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc_aux(RACE_MON_ELEMENTAL, ELEMENTAL_EARTH);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 170;
+        me->infra = 5;
+        me->exp = 170;
 
-        me.birth = _earth_birth;
-        me.get_powers = _earth_get_powers;
-        me.calc_bonuses = _earth_calc_bonuses;
-        me.get_flags = _earth_get_flags;
-        me.gain_level = _earth_gain_level;
-        me.process_world = _earth_process_world;
-        init = TRUE;
+        me->hooks.birth = _earth_birth;
+        me->hooks.get_powers = _earth_get_powers;
+        me->hooks.calc_bonuses = _earth_calc_bonuses;
+        me->hooks.get_flags = _earth_get_flags;
+        me->hooks.gain_level = _earth_gain_level;
+        me->hooks.process_world = _earth_process_world;
+
+        me->boss_r_idx = MON_QUAKER;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  2 + 3*rank;
-    me.stats[A_INT] = -5;
-    me.stats[A_WIS] = -5;
-    me.stats[A_DEX] = -2 - 2*rank;
-    me.stats[A_CON] =  2 + 4*rank;
-    me.stats[A_CHR] =  0;
-    me.life = 105 + 15*rank;
-    me.boss_r_idx = MON_QUAKER;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  2 + 3*rank;
+    me->stats[A_INT] = -5;
+    me->stats[A_WIS] = -5;
+    me->stats[A_DEX] = -2 - 2*rank;
+    me->stats[A_CON] =  2 + 4*rank;
+    me->stats[A_CHR] =  0;
+    me->life = 105 + 15*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -466,18 +464,18 @@ static void _air_birth(void)
     add_flag(forge.flags, OF_RES_ELEC);
     add_flag(forge.flags, OF_AURA_ELEC);
     add_flag(forge.flags, OF_IGNORE_ELEC);
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_STAFF, SV_ANY));
     if (device_init_fixed(&forge, EFFECT_NOTHING))
-        py_birth_obj(&forge);
-    py_birth_light();
+        plr_birth_obj(&forge);
+    plr_birth_light();
 
     p_ptr->current_r_idx = MON_AIR_SPIRIT; 
 }
@@ -492,7 +490,7 @@ static void _air_gain_level(int new_level)
     }
 }
 
-static void _confusing_strike_spell(int cmd, variant *res)
+static void _confusing_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -503,7 +501,7 @@ static void _confusing_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a confusing blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, do_blow(HISSATSU_CONF));
+        var_set_bool(res, plr_attack_special(PLR_HIT_CONFUSE, PAC_NO_INNATE));
         break;
     default:
         default_spell(cmd, res);
@@ -511,7 +509,7 @@ static void _confusing_strike_spell(int cmd, variant *res)
     }
 }
 
-static void _lightning_strike_spell(int cmd, variant *res)
+static void _lightning_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -521,18 +519,15 @@ static void _lightning_strike_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attack an adjacent opponent with a shocking blow.");
         break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(HISSATSU_ELEC));
-        break;
     default:
-        default_spell(cmd, res);
+        lightning_eagle_spell(cmd, res);
         break;
     }
 }
 
-static void _lightning_storm_spell(int cmd, variant *res)
+static void _lightning_storm_spell(int cmd, var_ptr res)
 {
-    int dam = py_prorata_level(350);
+    int dam = plr_prorata_level(350);
 
     switch (cmd)
     {
@@ -563,7 +558,7 @@ static void _lightning_storm_spell(int cmd, variant *res)
     }
 }
 
-static void _whirlwind_spell(int cmd, variant *res)
+static void _whirlwind_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -575,7 +570,7 @@ static void _whirlwind_spell(int cmd, variant *res)
     }
 }
 
-static void _sky_gate_spell(int cmd, variant *res)
+static void _sky_gate_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -656,8 +651,7 @@ static void _air_get_flags(u32b flgs[OF_ARRAY_SIZE])
 
 static bool _air_p(object_type *o_ptr)
 {
-    u32b flgs[OF_ARRAY_SIZE];
-    if (object_is_artifact(o_ptr)) return FALSE;
+    if (obj_is_art(o_ptr)) return FALSE;
     if ( o_ptr->tval != TV_RING 
       && o_ptr->tval != TV_AMULET 
       && o_ptr->tval != TV_WAND 
@@ -665,8 +659,7 @@ static bool _air_p(object_type *o_ptr)
     {
         return FALSE;
     }
-    obj_flags(o_ptr, flgs);
-    if (have_flag(flgs, OF_IGNORE_ELEC)) return FALSE;
+    if (obj_has_flag(o_ptr, OF_IGNORE_ELEC)) return FALSE;
     return TRUE;
 }
 
@@ -675,46 +668,46 @@ static void _air_process_world(void)
     _elemental_pack_destroy(_air_p, "Your shocking touch destroys your %s.", 40);
 }
 
-static race_t *_air_get_race_t(void)
+static plr_race_ptr _air_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[2] =  {"Air Spirit", "Air Elemental"};
     int           rank = 0;
 
     if (p_ptr->lev >= 25) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  25,  35,   6,  25,  16,  55,  35};
     skills_t xs = {  8,  10,   9,   0,   0,   0,  20,  15};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc_aux(RACE_MON_ELEMENTAL, ELEMENTAL_AIR);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 225;
+        me->infra = 5;
+        me->exp = 225;
 
-        me.birth = _air_birth;
-        me.get_powers = _air_get_powers;
-        me.calc_bonuses = _air_calc_bonuses;
-        me.get_flags = _air_get_flags;
-        me.gain_level = _air_gain_level;
-        me.process_world = _air_process_world;
-        init = TRUE;
+        me->hooks.birth = _air_birth;
+        me->hooks.get_powers = _air_get_powers;
+        me->hooks.calc_bonuses = _air_calc_bonuses;
+        me->hooks.get_flags = _air_get_flags;
+        me->hooks.gain_level = _air_gain_level;
+        me->hooks.process_world = _air_process_world;
+
+        me->boss_r_idx = MON_ARIEL;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  0 + 2*rank;
-    me.stats[A_INT] = -4;
-    me.stats[A_WIS] = -4;
-    me.stats[A_DEX] =  3 + 3*rank;
-    me.stats[A_CON] =  0 + 2*rank;
-    me.stats[A_CHR] =  0;
-    me.life = 90 + 10*rank;
-    me.boss_r_idx = MON_ARIEL;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  0 + 2*rank;
+    me->stats[A_INT] = -4;
+    me->stats[A_WIS] = -4;
+    me->stats[A_DEX] =  3 + 3*rank;
+    me->stats[A_CON] =  0 + 2*rank;
+    me->stats[A_CHR] =  0;
+    me->life = 90 + 10*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -729,18 +722,19 @@ static void _water_birth(void)
     forge.name2 = EGO_JEWELRY_ELEMENTAL;
     forge.to_a = 15;
     add_flag(forge.flags, OF_RES_ACID);
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 5;
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_POLEARM, SV_TRIDENT));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_obj_aux(TV_POTION, SV_POTION_WATER, rand_range(15, 23));
-    py_birth_light();
+    plr_birth_obj_aux(TV_POTION, SV_POTION_WATER, rand_range(15, 23));
+    plr_birth_light();
 
     p_ptr->current_r_idx = MON_WATER_SPIRIT; 
 }
@@ -755,7 +749,7 @@ static void _water_gain_level(int new_level)
     }
 }
 
-static void _acid_strike_spell(int cmd, variant *res)
+static void _acid_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -766,7 +760,7 @@ static void _acid_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a corrosive blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, do_blow(PY_ATTACK_ACID));
+        var_set_bool(res, plr_attack_special(PLR_HIT_ACID, PAC_NO_INNATE));
         break;
     default:
         default_spell(cmd, res);
@@ -774,9 +768,9 @@ static void _acid_strike_spell(int cmd, variant *res)
     }
 }
 
-static void _water_ball_spell(int cmd, variant *res)
+static void _water_ball_spell(int cmd, var_ptr res)
 {
-    int dam = py_prorata_level(300);
+    int dam = plr_prorata_level(300);
 
     switch (cmd)
     {
@@ -807,7 +801,7 @@ static void _water_ball_spell(int cmd, variant *res)
     }
 }
 
-static void _water_gate_spell(int cmd, variant *res)
+static void _water_gate_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -826,7 +820,7 @@ static void _water_gate_spell(int cmd, variant *res)
     }
 }
 
-static void _water_healing_spell(int cmd, variant *res)
+static void _water_healing_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -905,7 +899,7 @@ static void _water_damage(obj_ptr obj)
     char o_name[MAX_NLEN];
     int  chance = 15;
 
-    if (!object_is_armour(obj)) return;
+    if (!obj_is_armor(obj)) return;
     if (randint0(1000) >= chance) return;
     if (obj->ac + obj->to_a <= 0) return;
 
@@ -913,10 +907,10 @@ static void _water_damage(obj_ptr obj)
     if (have_flag(flgs, OF_IM_ACID)) return;
     if (have_flag(flgs, OF_RES_ACID)) return;
     if (have_flag(flgs, OF_IGNORE_ACID) && !one_in_(10)) return;
-    if (object_is_artifact(obj) && !one_in_(2)) return;
+    if (obj_is_art(obj) && !one_in_(2)) return;
 
     object_desc(o_name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
-    msg_format("Your watery touch corrodes your %s!", o_name);
+    msg_format("<color:R>Your watery touch corrodes your %s!</color>", o_name);
     obj->to_a--;
 
     if (obj->loc.where == INV_EQUIP)
@@ -926,7 +920,8 @@ static void _water_damage(obj_ptr obj)
     }
     else if (obj->loc.where == INV_PACK)
         p_ptr->window |= PW_INVEN;
-    disturb(1, 0);
+    if (disturb_minor)
+        disturb(1, 0);
 }
 
 static void _water_process_world(void)
@@ -935,46 +930,46 @@ static void _water_process_world(void)
     pack_for_each(_water_damage);
 }
 
-static race_t *_water_get_race_t(void)
+static plr_race_ptr _water_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[2] =  {"Water Spirit", "Water Elemental"};
     int           rank = 0;
 
     if (p_ptr->lev >= 25) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  25,  35,   5,  25,  16,  65,  35};
     skills_t xs = {  8,  10,   9,   0,   0,   0,  20,  15};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc_aux(RACE_MON_ELEMENTAL, ELEMENTAL_WATER);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 200;
+        me->infra = 5;
+        me->exp = 200;
 
-        me.birth = _water_birth;
-        me.get_powers = _water_get_powers;
-        me.calc_bonuses = _water_calc_bonuses;
-        me.get_flags = _water_get_flags;
-        me.gain_level = _water_gain_level;
-        me.process_world = _water_process_world;
-        init = TRUE;
+        me->hooks.birth = _water_birth;
+        me->hooks.get_powers = _water_get_powers;
+        me->hooks.calc_bonuses = _water_calc_bonuses;
+        me->hooks.get_flags = _water_get_flags;
+        me->hooks.gain_level = _water_gain_level;
+        me->hooks.process_world = _water_process_world;
+
+        me->boss_r_idx = MON_MOIRE;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  2 + 2*rank;
-    me.stats[A_INT] = -4;
-    me.stats[A_WIS] = -4;
-    me.stats[A_DEX] =  1 + rank;
-    me.stats[A_CON] =  2 + 2*rank;
-    me.stats[A_CHR] =  1;
-    me.life = 100 + 10*rank;
-    me.boss_r_idx = MON_MOIRE;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  2 + 2*rank;
+    me->stats[A_INT] = -4;
+    me->stats[A_WIS] = -4;
+    me->stats[A_DEX] =  1 + rank;
+    me->stats[A_CON] =  2 + 2*rank;
+    me->stats[A_CHR] =  1;
+    me->life = 100 + 10*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -990,20 +985,20 @@ static void _fire_birth(void)
     forge.to_a = 15;
     add_flag(forge.flags, OF_RES_FIRE);
     add_flag(forge.flags, OF_AURA_FIRE);
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_FLASK, SV_ANY));
     apply_magic(&forge, 1, AM_NO_FIXED_ART);
     forge.number = (byte)rand_range(7, 12);
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_light();
+    plr_birth_light();
 
     p_ptr->current_r_idx = MON_FIRE_SPIRIT; 
 }
@@ -1024,7 +1019,7 @@ static void _fire_gain_level(int new_level)
     }
 }
 
-static void _fire_whip_spell(int cmd, variant *res)
+static void _fire_whip_spell(int cmd, var_ptr res)
 {
     int dd = 3 + p_ptr->lev / 7;
     int ds = 6;
@@ -1057,9 +1052,9 @@ static void _fire_whip_spell(int cmd, variant *res)
     }
 }
 
-static void _fire_storm_spell(int cmd, variant *res)
+static void _fire_storm_spell(int cmd, var_ptr res)
 {
-    int dam = py_prorata_level(400);
+    int dam = plr_prorata_level(400);
 
     switch (cmd)
     {
@@ -1090,7 +1085,7 @@ static void _fire_storm_spell(int cmd, variant *res)
     }
 }
 
-static void _flaming_strike_spell(int cmd, variant *res)
+static void _flaming_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1101,7 +1096,7 @@ static void _flaming_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a fiery blow.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, do_blow(HISSATSU_FIRE));
+        var_set_bool(res, plr_attack_special(PLR_HIT_FIRE, PAC_NO_INNATE));
         break;
     default:
         default_spell(cmd, res);
@@ -1109,7 +1104,7 @@ static void _flaming_strike_spell(int cmd, variant *res)
     }
 }
 
-static void _fire_door_spell(int cmd, variant *res)
+static void _fire_door_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1128,7 +1123,7 @@ static void _fire_door_spell(int cmd, variant *res)
     }
 }
 
-static void _fire_healing_spell(int cmd, variant *res)
+static void _fire_healing_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1206,6 +1201,7 @@ static void _fire_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_VULN_COLD);
     add_flag(flgs, OF_RES_FIRE);
     add_flag(flgs, OF_AURA_FIRE);
+    add_flag(flgs, OF_LITE); /* cf calc_torch */
 
     if (p_ptr->lev >= 25)
         add_flag(flgs, OF_SPEED);
@@ -1221,11 +1217,9 @@ static void _fire_get_flags(u32b flgs[OF_ARRAY_SIZE])
 
 static bool _fire_p(object_type *o_ptr)
 {
-    u32b flgs[OF_ARRAY_SIZE];
-    if (object_is_artifact(o_ptr)) return FALSE;
+    if (obj_is_art(o_ptr)) return FALSE;
     if (o_ptr->tval != TV_SCROLL && o_ptr->tval != TV_STAFF) return FALSE;
-    obj_flags(o_ptr, flgs);
-    if (have_flag(flgs, OF_IGNORE_FIRE)) return FALSE;
+    if (obj_has_flag(o_ptr, OF_IGNORE_FIRE)) return FALSE;
     return TRUE;
 }
 
@@ -1234,47 +1228,46 @@ static void _fire_process_world(void)
     _elemental_pack_destroy(_fire_p, "Your fiery touch burns your %s.", 40);
 }
 
-static race_t *_fire_get_race_t(void)
+static plr_race_ptr _fire_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[3] =  {"Fire Spirit", "Fire Elemental", "Magma Elemental"};
     int           rank = 0;
 
     if (p_ptr->lev >= 25) rank++;
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  25,  35,   4,  25,  16,  65,  35};
     skills_t xs = {  8,  10,   9,   0,   0,   0,  25,  15};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc_aux(RACE_MON_ELEMENTAL, ELEMENTAL_FIRE);
 
-        me.infra = 5;
-        me.exp = 200;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->infra = 5;
+        me->exp = 200;
+        me->boss_r_idx = MON_LOGE;
 
-        me.birth = _fire_birth;
-        me.get_powers = _fire_get_powers;
-        me.calc_bonuses = _fire_calc_bonuses;
-        me.get_flags = _fire_get_flags;
-        me.gain_level = _fire_gain_level;
-        me.process_world = _fire_process_world;
-        init = TRUE;
+        me->hooks.birth = _fire_birth;
+        me->hooks.get_powers = _fire_get_powers;
+        me->hooks.calc_bonuses = _fire_calc_bonuses;
+        me->hooks.get_flags = _fire_get_flags;
+        me->hooks.gain_level = _fire_gain_level;
+        me->hooks.process_world = _fire_process_world;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  1 + 2*rank;
-    me.stats[A_INT] = -4;
-    me.stats[A_WIS] = -4;
-    me.stats[A_DEX] =  0 + rank;
-    me.stats[A_CON] =  1 + rank;
-    me.stats[A_CHR] =  0;
-    me.life = 100 + 5*rank;
-    me.boss_r_idx = MON_LOGE;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  1 + 2*rank;
+    me->stats[A_INT] = -4;
+    me->stats[A_WIS] = -4;
+    me->stats[A_DEX] =  0 + rank;
+    me->stats[A_CON] =  1 + rank;
+    me->stats[A_CHR] =  0;
+    me->life = 100 + 5*rank;
 
-    return &me;
+    return me;
 }
 
 static name_desc_t _info[ELEMENTAL_MAX] = {
@@ -1304,9 +1297,9 @@ static name_desc_t _info[ELEMENTAL_MAX] = {
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_elemental_get_race(int psubrace)
+plr_race_ptr mon_elemental_get_race(int psubrace)
 {
-    race_t *result = NULL;
+    plr_race_ptr result = NULL;
 
     switch (psubrace)
     {

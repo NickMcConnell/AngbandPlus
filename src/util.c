@@ -2316,8 +2316,6 @@ char inkey(void)
     /* Cancel the various "global parameters" */
     inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
-    update_playtime(); /* ... which now limits to 30s max */
-
     /* Return the keypress */
     return (ch);
 }
@@ -3373,7 +3371,6 @@ special_menu_naiyou special_menu_info[] =
     {"Song/Special", 0, 0, MENU_CLASS, CLASS_BARD},
     {"Technique/Special", 0, 0, MENU_CLASS, CLASS_SAMURAI},
     {"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_FORCETRAINER},
-    {"BrutalPower/Special", 0, 0, MENU_CLASS, CLASS_BERSERKER},
     {"MirrorMagic/Special", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
     {"Ninjutsu/Special", 0, 0, MENU_CLASS, CLASS_NINJA},
     {"Enter global map(<)", 2, 6, MENU_WILD, FALSE},
@@ -3427,10 +3424,6 @@ static char inkey_from_menu(void)
                     if (p_ptr->pclass == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
                     break;
                 case MENU_WILD:
-                    if (py_on_surface())
-                    {
-                        if ((byte)p_ptr->wild_mode == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
-                    }
                     break;
                 default:
                     break;
@@ -3443,7 +3436,7 @@ static char inkey_from_menu(void)
         put_str("> ",basey + 1 + num / 2, basex + 2 + (num % 2) * 24);
 
         /* Place the cursor on the player */
-        move_cursor_relative(py, px);
+        move_cursor_relative(p_ptr->pos);
 
         /* Get a command */
         sub_cmd = inkey();
@@ -4794,3 +4787,43 @@ int count_bits(u32b x)
     return (n);
 }
 
+u32b playtime;
+static time_t _last_time = 0;
+static bool _paused = FALSE;
+
+void playtime_update(void)
+{
+    if (!_paused)
+    {
+        time_t tmp = time(NULL);
+        if (_last_time)
+            playtime += (u32b)(tmp - _last_time);
+        _last_time = tmp;
+    }
+}
+
+cptr playtime_display(void)
+{
+    static char buf[20];
+    int hours, minutes/*, seconds*/;
+    playtime_update();
+    hours = playtime/3600;
+    minutes = (playtime/60)%60;
+    /* XXX 
+    seconds = playtime%60;
+    sprintf(buf, "%.2d:%.2d:%.2d", hours, minutes, seconds);*/
+    sprintf(buf, "%.2d:%.2d", hours, minutes);
+    return buf;
+}
+
+void playtime_pause(void)
+{
+    playtime_update();
+    _paused = TRUE;
+}
+
+void playtime_resume(void)
+{
+    _last_time = time(NULL);
+    _paused = FALSE;
+}

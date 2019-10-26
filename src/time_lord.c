@@ -18,7 +18,7 @@ static int _find_evolution_idx(int r_idx)
     monster_race *r_ptr;
 
     if (r_idx <= 0) return 0;
-    r_ptr = &r_info[r_idx];
+    r_ptr = mon_race_lookup(r_idx);
     return r_ptr->next_r_idx;
 }
 
@@ -57,11 +57,12 @@ void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb)
     old_r_idx = mon->r_idx;
     old_sub_align = mon->sub_align;
 
+    assert(mon_true_race(mon)->cur_num > 0);
     mon_true_race(mon)->cur_num--;
 
     monster_desc(m_name, mon, 0);
     mon->r_idx = new_r_idx;
-    mon->drop_ct = get_monster_drop_ct(mon);
+    mon_drop_init(mon);
 
     mon_true_race(mon)->cur_num++;
 
@@ -75,12 +76,6 @@ void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb)
     else
     {
         mon->max_maxhp = damroll(race->hdice, race->hside);
-    }
-    if (ironman_nightmare)
-    {
-        u32b hp = mon->max_maxhp * 2L;
-
-        mon->max_maxhp = (s16b)MIN(30000, hp);
     }
     mon->maxhp = mon->max_maxhp;
     mon->hp = old_hp * mon->maxhp / old_maxhp;
@@ -100,9 +95,9 @@ void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb)
 
     if (is_pet(mon) || mon->ml)
     {
-        if (!ignore_unview || player_can_see_bold(mon->fy, mon->fx))
+        if (!ignore_unview || plr_can_see(mon->pos))
         {
-            if (p_ptr->image)
+            if (plr_tim_find(T_HALLUCINATE))
             {
                 monster_race *hallu_race;
                 do
@@ -118,12 +113,13 @@ void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb)
                 cmsg_format(TERM_L_BLUE, "%^s %s into %s.", m_name, verb, new_name);
             }
         }
-        if (!p_ptr->image) r_info[old_r_idx].r_xtra1 |= MR1_SINKA;
+        if (!plr_tim_find(T_HALLUCINATE))
+            mon_race_lookup(old_r_idx)->r_xtra1 |= MR1_SINKA;
         mon_set_parent(mon, 0);
     }
 
-    update_mon(mon->id, FALSE);
-    lite_spot(mon->fy, mon->fx);
+    update_mon(mon, FALSE);
+    lite_pos(mon->pos);
 }
 
 static bool _monster_save(monster_race* r_ptr, int power)
@@ -138,14 +134,14 @@ static bool _monster_save(monster_race* r_ptr, int power)
 
 bool devolve_monster(int m_idx, bool msg)
 {
-    monster_type* m_ptr = &m_list[m_idx];
+    monster_type* m_ptr = dun_mon(cave, m_idx);
     monster_race *r_ptr;
     int r_idx = real_r_idx(m_ptr);
     char m_name[MAX_NLEN];
 
     if (r_idx <= 0) return FALSE;
 
-    r_ptr = &r_info[r_idx];    /* We'll use the current race for a saving throw */
+    r_ptr = mon_race_lookup(r_idx);    /* We'll use the current race for a saving throw */
     r_idx = _find_devolution_idx(r_idx);
     monster_desc(m_name, m_ptr, 0);
 
@@ -163,14 +159,14 @@ bool devolve_monster(int m_idx, bool msg)
         return FALSE;
     }
 
-    set_monster_csleep(m_idx, 0);
+    mon_tim_delete(m_ptr, MT_SLEEP);
     mon_change_race(m_ptr, r_idx, "devolved");
     return TRUE;
 }
 
 bool evolve_monster(int m_idx, bool msg)
 {
-    monster_type* m_ptr = &m_list[m_idx];
+    monster_type* m_ptr = dun_mon(cave, m_idx);
     monster_race *r_ptr;
     int r_idx = real_r_idx(m_ptr);
     char m_name[MAX_NLEN];
@@ -185,8 +181,8 @@ bool evolve_monster(int m_idx, bool msg)
             msg_format("%^s has reached evolutionary perfection.", m_name);
         return FALSE;
     }
-    r_ptr = &r_info[r_idx];    /* We'll use the target race for a saving throw */
-    set_monster_csleep(m_idx, 0);
+    r_ptr = mon_race_lookup(r_idx);    /* We'll use the target race for a saving throw */
+    mon_tim_delete(m_ptr, MT_SLEEP);
     if (_monster_save(r_ptr, 2*p_ptr->lev))
     {
         if (msg)
@@ -197,24 +193,134 @@ bool evolve_monster(int m_idx, bool msg)
     return TRUE;
 }
 
-bool check_foresight(void)
+/****************************************************************
+ * Private Timers
+ ****************************************************************/
+enum {
+    _QUICKEN = T_CUSTOM,
+    _SHIELD,
+    _FORESIGHT,
+};
+
+/* _QUICKEN */
+static bool _quicken_on(plr_tim_ptr timer)
 {
-    if (psion_check_foresight())
-        return TRUE;
+    if (plr_tim_find(T_FAST)) return FALSE;
+    msg_print("You feel time slow down.");
+    p_ptr->update |= PU_BONUS;
+    return TRUE;
+}
+static void _quicken_off(plr_tim_ptr timer)
+{
+    msg_print("You feel time speed up.");
+    p_ptr->update |= PU_BONUS;
+}
+static void _quicken_bonus(plr_tim_ptr timer)
+{
+    plr_bonus_speed(3); /* won't stack with T_FAST; also works if riding */
+}
+static void _quicken_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
+{
+    add_flag(flags, OF_SPEED);
+}
+static status_display_t _quicken_display(plr_tim_ptr timer)
+{
+    return status_display_create("Quick", "Qk", TERM_YELLOW);
+}
+static plr_tim_info_ptr _quicken(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_QUICKEN, "Quicken");
+    info->desc = "The flow of time has slowed down.";
+    info->on_f = _quicken_on;
+    info->off_f = _quicken_off;
+    info->calc_bonuses_f = _quicken_bonus;
+    info->flags_f = _quicken_flags;
+    info->status_display_f = _quicken_display;
+    return info;
+}
 
-    if (p_ptr->tim_foresight && randint1(100) <= 25)
+/* _SHIELD */
+static bool _shield_on(plr_tim_ptr timer)
+{
+    msg_print("You are cloaked in time.");
+    return TRUE;
+}
+static void _shield_off(plr_tim_ptr timer)
+{
+    msg_print("You are no longer cloaked in time.");
+}
+static status_display_t _shield_display(plr_tim_ptr timer)
+{
+    return status_display_create("Shield", "Sh", TERM_L_BLUE);
+}
+static plr_tim_info_ptr _shield(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_SHIELD, "Shield");
+    info->desc = "You are protected by a temporal aura.";
+    info->on_f = _shield_on;
+    info->off_f = _shield_off;
+    info->status_display_f = _shield_display;
+    return info;
+}
+
+/* _FORESIGHT */
+static bool _foresight_on(plr_tim_ptr timer)
+{
+    msg_print("You can see the future!");
+    return TRUE;
+}
+static void _foresight_off(plr_tim_ptr timer)
+{
+    msg_print("You can no longer see the future.");
+}
+static status_display_t _foresight_display(plr_tim_ptr timer)
+{
+    return status_display_create("Foresight", "Fs", TERM_YELLOW);
+}
+static plr_tim_info_ptr _foresight(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_FORESIGHT, "Foresight");
+    info->desc = "You are looking into the future to avoid monster attacks.";
+    info->on_f = _foresight_on;
+    info->off_f = _foresight_off;
+    info->status_display_f = _foresight_display;
+    info->dispel_prob = 100;
+    return info;
+}
+
+static void _register_timers(void)
+{
+    plr_tim_register(_quicken());
+    plr_tim_register(_shield());
+    plr_tim_register(_foresight());
+}
+
+/****************************************************************
+ * Attack
+ ****************************************************************/
+static void _after_hit(mon_attack_ptr context)
+{
+    if (plr_tim_find(_SHIELD)) /* paranoia */
     {
-        msg_print("You saw that one coming!");
-        return TRUE;
+        if (!(context->race->flagsr & RFR_EFF_RES_TIME_MASK))
+        {
+            int dam = 2 + damroll(1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10));
+            gf_affect_m(GF_WHO_PLAYER, context->mon, GF_TIME, dam, GF_AFFECT_AURA);
+        }
+        else
+            mon_lore_r(context->mon, RFR_EFF_RES_TIME_MASK);
     }
-
-    return FALSE;
+}
+static void _mon_attack_init(mon_attack_ptr context)
+{
+    if (plr_tim_find(_SHIELD))
+        context->after_hit_f = _after_hit;
 }
 
 /****************************************************************
  * Private Spells
  ****************************************************************/
-static void _bolt_spell(int cmd, variant *res)
+static void _bolt_spell(int cmd, var_ptr res)
 {
     int dd = 3 + p_ptr->lev/4;
     int ds = 4;
@@ -251,7 +357,7 @@ static void _bolt_spell(int cmd, variant *res)
     }
 }
 
-static void _regeneration_spell(int cmd, variant *res)
+static void _regeneration_spell(int cmd, var_ptr res)
 {
     int b = spell_power(80);
     switch (cmd)
@@ -266,7 +372,7 @@ static void _regeneration_spell(int cmd, variant *res)
         var_set_string(res, info_duration(b, b));
         break;
     case SPELL_CAST:
-        set_tim_regen(b + randint1(b), FALSE);
+        plr_tim_add(T_REGEN, b + randint1(b));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -275,7 +381,7 @@ static void _regeneration_spell(int cmd, variant *res)
     }
 }
 
-static void _foretell_spell(int cmd, variant *res)
+static void _foretell_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -295,7 +401,7 @@ static void _foretell_spell(int cmd, variant *res)
     }
 }
 
-static void _quicken_spell(int cmd, variant *res)
+static void _quicken_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -309,7 +415,7 @@ static void _quicken_spell(int cmd, variant *res)
         var_set_string(res, info_duration(7, 7));
         break;
     case SPELL_CAST:
-        set_tim_spurt(spell_power(7 + randint1(7)), FALSE);
+        plr_tim_add(_QUICKEN, spell_power(7 + randint1(7)));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -318,7 +424,7 @@ static void _quicken_spell(int cmd, variant *res)
     }
 }
 
-static void _withering_spell(int cmd, variant *res)
+static void _withering_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -338,8 +444,8 @@ static void _withering_spell(int cmd, variant *res)
 
         if (dir == 5) return;
 
-        y = py + ddy[dir];
-        x = px + ddx[dir];
+        y = p_ptr->pos.y + ddy[dir];
+        x = p_ptr->pos.x + ddx[dir];
 
         if (!in_bounds(y, x)) return;
         if (cave_have_flag_bold(y, x, FF_DOOR))
@@ -371,7 +477,7 @@ static void _withering_spell(int cmd, variant *res)
     }
 }
 
-static void _blast_spell(int cmd, variant *res)
+static void _blast_spell(int cmd, var_ptr res)
 {
     int dam = spell_power(3*p_ptr->lev/2 + 15 + p_ptr->to_d_spell);
     switch (cmd)
@@ -402,7 +508,18 @@ static void _blast_spell(int cmd, variant *res)
     }
 }
 
-static void _back_to_origins_spell(int cmd, variant *res)
+static bool _reversion_p(mon_ptr mon)
+{
+    mon_race_ptr race = real_r_ptr(mon);
+    if ( (race->flags2 & RF2_MULTIPLY)
+        && race->cur_num > 1  /* shouldn't this be 2 ... well, breeding in *band has never been biologically accurate */
+        && !_monster_save(race, 3*p_ptr->lev) )
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+static void _back_to_origins_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -414,29 +531,20 @@ static void _back_to_origins_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int i, ct;
+        vec_ptr v = dun_filter_mon(cave, _reversion_p);
+        int i;
 
-        ct = 0;
-        for (i = 1; i < max_m_idx; i++)
+        for (i = 0; i < vec_length(v); i++)
         {
-        monster_type *m_ptr = &m_list[i];
-        monster_race *r_ptr;
-
-            if (!m_ptr->r_idx) continue;
-            r_ptr = real_r_ptr(m_ptr);
-            if ( (r_ptr->flags2 & RF2_MULTIPLY)
-                && r_ptr->cur_num > 1  /* shouldn't this be 2 ... well, breeding in *band has never been biologically accurate */
-                && !_monster_save(r_ptr, 3*p_ptr->lev) )
-            {
-                delete_monster_idx(i);
-                ct++;
-            }
+            mon_ptr mon = vec_get(v, i);
+            delete_monster(mon);
         }
-
-        if (ct > 0)
+        if (vec_length(v) > 0)
             msg_print("You feel the local population has reverted to an earlier state.");
         else
             msg_print("You feel the local population is stable.");
+
+        vec_free(v);
         var_set_bool(res, TRUE);
         break;
     }
@@ -446,7 +554,7 @@ static void _back_to_origins_spell(int cmd, variant *res)
     }
 }
 
-static void _haste_spell(int cmd, variant *res)
+static void _haste_spell(int cmd, var_ptr res)
 {
     int base = spell_power(p_ptr->lev);
     int sides = spell_power(20 + p_ptr->lev);
@@ -462,7 +570,7 @@ static void _haste_spell(int cmd, variant *res)
         var_set_string(res, info_duration(base, sides));
         break;
     case SPELL_CAST:
-        set_fast(base + randint1(sides), FALSE);
+        plr_tim_add(T_FAST, base + randint1(sides));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -471,7 +579,7 @@ static void _haste_spell(int cmd, variant *res)
     }
 }
 
-static void _wave_spell(int cmd, variant *res)
+static void _wave_spell(int cmd, var_ptr res)
 {
     int ds = 3*p_ptr->lev/2;
     switch (cmd)
@@ -486,7 +594,7 @@ static void _wave_spell(int cmd, variant *res)
         var_set_string(res, info_damage(1, spell_power(ds), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
-        project_hack(GF_TIME, spell_power(randint1(ds) + p_ptr->to_d_spell));
+        project_los(GF_TIME, spell_power(randint1(ds) + p_ptr->to_d_spell));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -495,7 +603,7 @@ static void _wave_spell(int cmd, variant *res)
     }
 }
 
-static void _shield_spell(int cmd, variant *res)
+static void _shield_spell(int cmd, var_ptr res)
 {
     int b = spell_power(15);
     switch (cmd)
@@ -510,7 +618,7 @@ static void _shield_spell(int cmd, variant *res)
         var_set_string(res, info_duration(b, b));
         break;
     case SPELL_CAST:
-        set_tim_sh_time(b + randint1(b), FALSE);
+        plr_tim_add(_SHIELD, b + randint1(b));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -519,7 +627,7 @@ static void _shield_spell(int cmd, variant *res)
     }
 }
 
-static void _rewind_time_spell(int cmd, variant *res)
+static void _rewind_time_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -534,15 +642,13 @@ static void _rewind_time_spell(int cmd, variant *res)
         if (!get_check("You will irreversibly alter the time line. Are you sure?")) return;
         var_set_bool(res, TRUE);
 
-        if (p_ptr->inside_arena || ironman_downward || !dun_level)
+        if (cave->dun_type_id == D_SURFACE)
         {
             msg_print("Nothing happens.");
             return;
         }
 
-        recall_player(1);
-        p_ptr->leaving_method = LEAVING_REWIND_TIME; /* Set after recall_player() to override LEAVING_RECALL */
-        process_world_aux_movement(); /* Hack! Recall Now, Now, Now!!! */
+        dun_mgr_recall_plr();
 
         if (p_ptr->prace == RACE_ANDROID)
         {
@@ -583,7 +689,7 @@ static int  _breath_dam(void) {
     int l = (p_ptr->lev - 30);
     return spell_power(9*p_ptr->lev/2 + l*l/4 + p_ptr->to_d_spell); /* 325 max damage ... */
 }
-static void _breath_spell(int cmd, variant *res)
+static void _breath_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -613,7 +719,7 @@ static void _breath_spell(int cmd, variant *res)
     }
 }
 
-static void _remember_spell(int cmd, variant *res)
+static void _remember_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -631,7 +737,7 @@ static void _remember_spell(int cmd, variant *res)
         do_res_stat(A_CON);
         do_res_stat(A_CHR);
         restore_level();
-        lp_player(1000);
+        plr_restore_life(1000);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -640,7 +746,7 @@ static void _remember_spell(int cmd, variant *res)
     }
 }
 
-static void _stasis_spell(int cmd, variant *res)
+static void _stasis_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -660,7 +766,7 @@ static void _stasis_spell(int cmd, variant *res)
     }
 }
 
-static void _travel_spell(int cmd, variant *res)
+static void _travel_spell(int cmd, var_ptr res)
 {
     int r = spell_power(p_ptr->lev / 2 + 10);
     switch (cmd)
@@ -683,7 +789,7 @@ static void _travel_spell(int cmd, variant *res)
     }
 }
 
-static void _double_move_spell(int cmd, variant *res)
+static void _double_move_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -700,9 +806,8 @@ static void _double_move_spell(int cmd, variant *res)
         }
         else
         {
-            /* 3 is a bit of a hack to prevent chain casting this spell.
-               See process_player in dungeon.c for details */
-            p_ptr->free_turns = 3;
+            p_ptr->free_turns = 3; /* this spell + 2 more free moves */
+            p_ptr->redraw |= PR_EFFECTS;
         }
         var_set_bool(res, TRUE);
         break;
@@ -712,7 +817,7 @@ static void _double_move_spell(int cmd, variant *res)
     }
 }
 
-static void _foresee_spell(int cmd, variant *res)
+static void _foresee_spell(int cmd, var_ptr res)
 {
     int b = spell_power(7);
     switch (cmd)
@@ -727,7 +832,7 @@ static void _foresee_spell(int cmd, variant *res)
         var_set_string(res, format("dur %d", b));
         break;
     case SPELL_CAST:
-        set_tim_foresight(b, FALSE);
+        plr_tim_add(_FORESIGHT, b);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -767,14 +872,21 @@ static int _get_spells(spell_info* spells, int max)
     return get_spells_aux(spells, max, _spells);
 }
 
+static void _dec_mana(int a_idx)
+{
+    if (equip_find_art(a_idx))
+    {
+        p_ptr->dec_mana++;
+        p_ptr->easy_spell++;
+    }
+}
+
 static void _calc_bonuses(void)
 {
-    if ( equip_find_art(ART_ETERNITY)
-      || equip_find_art(ART_ETERNAL_BLADE) )
-    {
-        p_ptr->dec_mana = TRUE;
-        p_ptr->easy_spell = TRUE;
-    }
+    _dec_mana(ART_ETERNAL_BLADE);
+    _dec_mana(ART_ETERNITY);
+    _dec_mana(ART_AGES);
+
     if (p_ptr->lev >= 30) res_add(RES_TIME);
     p_ptr->pspeed += (p_ptr->lev) / 7;
 }
@@ -795,8 +907,8 @@ static void _on_fail(const spell_info *spell)
         }
         else if (b <= 95)
         {
-            set_fast(0, TRUE);
-            set_slow(randint1(5) + 5, FALSE);
+            plr_tim_remove(T_FAST);
+            plr_tim_add(T_SLOW, randint1(5) + 5);
             msg_print("You feel caught in a temporal inversion!");
         }
         else if (b <= 99)
@@ -806,12 +918,12 @@ static void _on_fail(const spell_info *spell)
         }
         else
         {
-            dec_stat(A_DEX, 10, FALSE);
-            dec_stat(A_WIS, 10, FALSE);
-            dec_stat(A_CON, 10, FALSE);
             dec_stat(A_STR, 10, FALSE);
-            dec_stat(A_CHR, 10, FALSE);
             dec_stat(A_INT, 10, FALSE);
+            dec_stat(A_WIS, 10, FALSE);
+            dec_stat(A_DEX, 10, FALSE);
+            dec_stat(A_CON, 10, FALSE);
+            dec_stat(A_CHR, 10, FALSE);
             msg_print("You feel as weak as a newborn kitten!");
         }
     }
@@ -826,8 +938,8 @@ static caster_info * _caster_info(void)
         me.magic_desc = "timecraft";
         me.which_stat = A_WIS;
         me.encumbrance.max_wgt = 400;
-        me.encumbrance.weapon_pct = 80;
-        me.encumbrance.enc_wgt = 600;
+        me.encumbrance.weapon_pct = 67;
+        me.encumbrance.enc_wgt = 800;
         me.on_fail = _on_fail;
         init = TRUE;
     }
@@ -839,29 +951,51 @@ static void _character_dump(doc_ptr doc)
     spell_info spells[MAX_SPELLS];
     int        ct = _get_spells(spells, MAX_SPELLS);
 
-    py_display_spells(doc, spells, ct);
+    plr_display_spells(doc, spells, ct);
 }
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, rand_range(4, 7));
+    plr_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_POTION, SV_POTION_SPEED, rand_range(4, 7));
 }
 
-class_t *time_lord_get_class(void)
+static void _player_action(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    if (p_ptr->free_turns)
+    {
+        p_ptr->redraw |= PR_EFFECTS;
+        p_ptr->free_turns--;
+        /* 3->2 is the spell - no energy
+         * 2->1 is the first move - no energy
+         * 1->0 is the second and gets charged energy */
+        if (p_ptr->free_turns)
+            energy_use = 0;
+    }
+}
 
-    /* static info never changes */
-    if (!init)
+static void _prt_effects(doc_ptr doc)
+{
+    if (p_ptr->free_turns)
+        doc_insert(doc, "<color:y>DblMove</color>\n");
+}
+
+/************************************************************************
+ * Public
+ ************************************************************************/
+plr_class_ptr time_lord_get_class(void)
+{
+    static plr_class_ptr me = NULL;
+
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  35,  35,   2,  16,   8,  48,  20 };
     skills_t xs = {  7,  11,  10,   0,   0,   0,  13,  13 };
 
-        me.name = "Time-Lord";
-        me.desc = "Time-Lords are masters of temporal magic, altering the flow of time "
+        me = plr_class_alloc(CLASS_TIME_LORD);
+        me->name = "Time-Lord";
+        me->desc = "Time-Lords are masters of temporal magic, altering the flow of time "
                   "to their advantage. They don't learn spells from books, but rather "
                   "gain new powers as they grow more experienced. They are the only class "
                   "that can affect monsters with time based attacks. Not only do these damage "
@@ -877,30 +1011,48 @@ class_t *time_lord_get_class(void)
                   "stealth. At high levels, they become resistant to time. The Time-Lord's primary "
                   "magic stat is Wisdom.";
 
-        me.stats[A_STR] = -1;
-        me.stats[A_INT] =  0;
-        me.stats[A_WIS] =  3;
-        me.stats[A_DEX] = -1;
-        me.stats[A_CON] = -1;
-        me.stats[A_CHR] =  0;
+        me->stats[A_STR] = -1;
+        me->stats[A_INT] =  0;
+        me->stats[A_WIS] =  3;
+        me->stats[A_DEX] = -1;
+        me->stats[A_CON] = -1;
+        me->stats[A_CHR] =  0;
 
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 96;
-        me.base_hp = 0;
-        me.exp = 125;
-        me.pets = 20;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 96;
+        me->base_hp = 0;
+        me->exp = 125;
+        me->pets = 20;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.register_timers = _register_timers;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.mon_attack_init = _mon_attack_init;
+        me->hooks.player_action = _player_action;
+        me->hooks.prt_effects = _prt_effects;
     }
 
-    return &me;
+    return me;
 }
+
+bool check_foresight(void)
+{
+    if (psion_check_foresight()) return TRUE;
+    if (p_ptr->pclass != CLASS_TIME_LORD) return FALSE;
+
+    if (plr_tim_find(_FORESIGHT) && randint1(100) <= 25)
+    {
+        msg_print("You saw that one coming!");
+        return TRUE;
+    }
+
+    return FALSE;
+}
+

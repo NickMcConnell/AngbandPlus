@@ -177,8 +177,8 @@ static void change_path(cptr info)
 	{
 		case 'a':
 		{
-            z_string_free(ANGBAND_DIR_APEX);
-            ANGBAND_DIR_APEX = z_string_make(s+1);
+            z_string_free(ANGBAND_DIR_SCORES);
+            ANGBAND_DIR_SCORES = z_string_make(s+1);
 			break;
 		}
 

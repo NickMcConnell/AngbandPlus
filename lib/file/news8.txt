@@ -1,27 +1,36 @@
-<color:y>PosChengband <$:version></color>
-<style:screenshot>
-The Mithril Bolt (Elemental) (5d5) (+14,+15) hits Gothmog, the                  
-High Captain of Balrogs. Gothmog, the High Captain of Balrogs       LEVEL <color:G>    50</color>
-roars with pain. Gothmog, the High Captain of Balrogs flees in      EXP <color:G>   22.8M</color>
-terror! Gothmog, the High Captain of Balrogs is scared stiff!       AU  <color:G>   5.95M</color>
-      #########....#...#    ##<color:U>+</color>....##......<color:U>~</color>{<color:r>~</color>{<color:U>~</color>......#       <color:D>xxxxx</color> <color:d>            </color>
-        #.............##    #.#....##....<color:U>~~</color>{<color:r>~</color><color:U>~~</color>.......#        <color:D>xxxx</color> STR!: <color:G>18/***</color>
-      ###............## #####.<color:U>'</color>....% <color:B>{</color><color:U>~~</color>{<color:U>~</color><color:r>~~</color>{<color:U>~</color>....<color:g>^</color>...#        <color:D>xxxx</color> INT!: <color:G>18/130</color>
-      #..............####.....#.....<color:U>~</color><color:R>U</color><color:U>~</color>{{<color:r>~</color>{{<color:U>~</color>...<color:r>^</color>.....<color:s>%</color>        <color:D>xxxx</color> WIS!: <color:G>18/***</color>
-      #................<color:D>~</color>#.#%#%####..<color:U>~~</color>{<color:r>~</color>{{<color:U>~</color>...........<color:s>%</color>       <color:D>xxxxx</color> DEX!: <color:G>18/150</color>
-      #.....#............<color:D>~</color>#   ##%%%..<color:U>~</color>{<color:U>~~</color>....<color:s>%</color>........#       <color:D>xxxxx</color> CON!: <color:G>18/170</color>
-      #.....#........####.#   %..............#........#       <color:D>xxxxx</color> CHR!: <color:G>18/***</color>
-      #.....#......#.#<color:U>+</color>#..%   %.....#..............#<color:s>%</color>#<color:s>%</color>       <color:D>xxxxx</color> AC     <color:G>  270</color>
-      #.................#%%   #..@.<color:D>^</color>...............<color:s>%</color>          <color:D>xxxxx</color> HP <color:y> 923</color>/<color:G>1068</color>
-      #...#....###......#     #...................###         <color:D>xxxxx</color> SP <color:y>  59</color>/<color:G> 397</color>
-      #...#......#......#     #%##..................#        <color:D>xxxxxx</color>             
-      #####.............#        <color:s>%</color>........<color:g>^</color>.........#        <color:D>xxxxxx</color> @ <color:y> 86%</color>      
-          #......##...#%#        ##.................#        <color:D>xxxxxx</color> <color:W>?</color> <color:y> 14%</color>      
-          ##....###...#           #.....###.........#       <color:D>xxxxxxx</color> <color:U>,</color> <color:G>116%</color>      
-           ###### #####           ####### ##<color:s>%</color>########       <color:D>xxxxxxx</color> <color:R>U</color> <color:r>  1%</color> <color:R>*</color><color:v>F</color>   
-                                                                                
-                                                                                
-                                                                    <color:y>Fast (+34)</color>  
-                                                                    <color:G>Full</color>        
-<color:o>Angband: L90</color>                  <color:y>Ultima</color> <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>                   
-</style>
+<color:y>PosChengband <$:version></color><style:screenshot>
+<color:w>Name       : </color><color:B>Splattersprite                </color><color:w>========== Stats ==========
+Sex        : </color><color:B>Male                                </color><color:w>STR! :    </color><color:G>18/***
+</color><color:w>Personality: </color><color:B>Mighty                              </color><color:w>Int! :     </color><color:y>18/60
+</color><color:w>Race       : </color><color:B>Sprite                              </color><color:w>Wis! :     </color><color:y>18/40
+</color><color:w>Subrace    : </color><color:B>None                                </color><color:w>DEX! :    </color><color:G>18/***
+</color><color:w>Class      : </color><color:B>Mauler                              </color><color:w>Con! :    </color><color:y>18/210
+                                                 </color><color:w>CHR! :    </color><color:G>18/140
+                                        
+</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   :   </color><color:y>681/981
+</color><color:w>Cur Exp    : </color><color:G>27106131                            </color><color:w>SP   :       </color><color:G>0/0
+</color><color:w>Max Exp    : </color><color:G>27106131                            </color><color:w>AC   :       </color><color:G>188
+</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:       </color><color:G>+26
+                                        
+                                           </color><color:w>========== Skills =========
+Gold       : </color><color:G>11998255                      </color><color:w>Melee      : </color><color:v>Amber[32]
+</color><color:w>Kills      :     </color><color:G>8903                      </color><color:w>Archery    : </color><color:v>Amber[2]
+</color><color:w>Uniques    :      </color><color:G>245                      </color><color:w>SavingThrow: </color><color:b>Heroic
+</color><color:w>Artifacts  :  </color><color:G>143+114                      </color><color:w>Stealth    : </color><color:g>Superb
+                                           </color><color:w>Perception : </color><color:G>Excellent
+</color><color:w>Game Day   :       </color><color:G>82                      </color><color:w>Searching  : </color><color:g>Superb
+</color><color:w>Game Time  :     </color><color:G>6:27                      </color><color:w>Disarming  : </color><color:G>Excellent
+</color><color:w>Play Time  :    </color><color:G>21:41                      </color><color:w>Device     : </color><color:g>Superb
+                                        
+</color><color:w>a) The Mace of Disruption of Aqua Regia (9d10) (+16,+15) (+3) {DxDg;AcPo|A/*p}
+</color><color:w>c) </color><color:u>The Sling 'Bull Elephant' (x2) (+15,+20) (+3) {CnSlSr;Ca;Xs}
+</color><color:w>d) </color><color:U>a Quiver [0 of 140]
+</color><color:w>e) </color><color:r>The Ring of Power (Narya) (+1)
+</color><color:w>f) </color><color:r>a Ring of Protection [+17] {SoShCa;Si(Ch </color><color:B>A:Stone Skin</color><color:r>}
+</color><color:w>g) </color><color:o>an Amulet of Trickery (+1) {DxSlSr;Po~Tele </color><color:B>A:Speed</color><color:o>}
+</color><color:w>h) </color><color:y>The Jewel of Judgement (+3) (charging) {!!}
+</color><color:w>i) </color><color:W>The Metal Scale Mail of Julian (-2) [15,+40] (+4) {Fe}
+</color><color:w>j) </color><color:U>an Elven Cloak of Aman [4,+15] (+3) {Sh}
+</color><color:w>k) </color><color:U>The Steel Helm of Hammerhand (+3,+4) [6,+20] (+3)
+</color><color:w>l) </color><color:U>The Set of Leather Gloves 'Red Belet' (+9,+3) [1,+17] (+3) {cursed, CnIf;Nt}
+</color><color:w>m) </color><color:U>The Pair of Hard Leather Boots of Feanor [3,+20] (+15)</style>

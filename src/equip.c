@@ -3,97 +3,78 @@
 
 #include <assert.h>
 
+static plr_attack_info_ptr _hand(int h) { return &p_ptr->attack_info[h]; }
+static bool _hand_test(int h, int flag) { return have_flag(_hand(h)->paf_flags, flag); }
+static void _hand_set(int h, int flag)  { add_flag(_hand(h)->paf_flags, flag); }
+
 /* Slots on the equipment template now *match* slots in our inventory. */
 static equip_template_ptr _template = NULL;
 static inv_ptr _inv = NULL;
 
-static bool _object_is_amulet(obj_ptr obj)
-    { return obj->tval == TV_AMULET || obj->tval == TV_WHISTLE; }
+/************************************************************************
+ * Slot Accept Functions
+ * XXX Just because EQUIP_SLOT_AMULET accepts whistles doesn't make them
+ *     count as amulets for the rest of the system. Same thing with
+ *     EQUIP_SLOT_WEAPON_SHIELD and TV_CAPTURE. XXX
+ ************************************************************************/
+static bool _slot_accept_amulet(obj_ptr obj)
+    { return (tv_lookup(obj->tval)->flags & TVF_AMULET) || obj->tval == TV_WHISTLE; }
 
-static bool _object_is_anything(obj_ptr obj)
-    { return TV_WEARABLE_BEGIN <= obj->tval && obj->tval <= TV_WEARABLE_END; }
+static bool _slot_accept_anything(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_WEARABLE); }
 
-static bool _object_is_body_armor(obj_ptr obj)
-{
-    switch (obj->tval)
-    {
-    case TV_SOFT_ARMOR: case TV_HARD_ARMOR: case TV_DRAG_ARMOR:
-        return TRUE;
-    }
-    return FALSE;
-}
+static bool _slot_accept_body_armor(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_BODY_ARMOR); }
 
-static bool _object_is_boots(obj_ptr obj)
-    { return obj->tval == TV_BOOTS; }
+static bool _slot_accept_boots(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_BOOTS); }
 
-static bool _object_is_bow(obj_ptr obj)
-    { return obj->tval == TV_BOW; }
+static bool _slot_accept_bow(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_BOW); }
 
-static bool _object_is_quiver(obj_ptr obj)
-    { return obj->tval == TV_QUIVER; }
+static bool _slot_accept_quiver(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_QUIVER); }
 
-static bool _object_is_cloak(obj_ptr obj)
-    { return obj->tval == TV_CLOAK; }
+static bool _slot_accept_cloak(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_CLOAK); }
 
-static bool _object_is_gloves(obj_ptr obj)
-    { return obj->tval == TV_GLOVES; }
+static bool _slot_accept_gloves(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_GLOVES); }
 
-static bool _object_is_helmet(obj_ptr obj)
-{
-    switch (obj->tval)
-    {
-    case TV_HELM: case TV_CROWN:
-        return TRUE;
-    }
-    return FALSE;
-}
+static bool _slot_accept_helmet(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_HELMET); }
 
-static bool _object_is_lite(obj_ptr obj)
-    { return obj->tval == TV_LITE; }
+static bool _slot_accept_lite(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_LITE); }
 
-static bool _object_is_ring(obj_ptr obj)
-    { return obj->tval == TV_RING; }
+static bool _slot_accept_ring(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_RING); }
 
-static bool _object_is_weapon(obj_ptr obj)
-{
-    switch (obj->tval)
-    {
-    case TV_DIGGING: case TV_HAFTED: case TV_POLEARM: case TV_SWORD:
-        return TRUE;
-    }
-    return FALSE;
-}
+static bool _slot_accept_weapon(obj_ptr obj)
+    { return BOOL(tv_lookup(obj->tval)->flags & TVF_WEAPON); }
 
-static bool _object_is_weapon_or_shield(obj_ptr obj)
-{
-    switch (obj->tval)
-    {
-    case TV_DIGGING: case TV_HAFTED: case TV_POLEARM: case TV_SWORD:
-    case TV_SHIELD:  case TV_CARD: case TV_CAPTURE:
-        return TRUE;
-    }
-    return FALSE;
-}
+static bool _slot_accept_weapon_or_shield(obj_ptr obj)
+    { return (tv_lookup(obj->tval)->flags & (TVF_WEAPON | TVF_SHIELD)) || obj->tval == TV_CAPTURE; }
 
-static bool _object_is_capture_ball(obj_ptr obj)
+static bool _slot_accept_capture_ball(obj_ptr obj)
     { return obj->tval == TV_CAPTURE; }
 
 static obj_p _accept[EQUIP_SLOT_MAX] = {
     NULL,
-    _object_is_gloves,
-    _object_is_weapon_or_shield,
-    _object_is_ring,
-    _object_is_bow,
-    _object_is_amulet,
-    _object_is_lite,
-    _object_is_body_armor,
-    _object_is_cloak,
-    _object_is_boots,
-    _object_is_helmet,
-    _object_is_anything,
-    _object_is_weapon,
-    _object_is_capture_ball,
-    _object_is_quiver,
+    _slot_accept_gloves,
+    _slot_accept_weapon_or_shield,
+    _slot_accept_ring,
+    _slot_accept_bow,
+    _slot_accept_amulet,
+    _slot_accept_lite,
+    _slot_accept_body_armor,
+    _slot_accept_cloak,
+    _slot_accept_boots,
+    _slot_accept_helmet,
+    _slot_accept_anything,
+    _slot_accept_weapon,
+    _slot_accept_capture_ball,
+    _slot_accept_quiver,
 };
 
 static int _slot_count(obj_ptr obj)
@@ -130,7 +111,7 @@ static int _get_slots(obj_ptr obj, slot_t slots[EQUIP_MAX + 1])
     return ct;
 }
 
-static void _slot_menu_fn(int cmd, int which, vptr cookie, variant *res)
+static void _slot_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
 {
     slot_t  slot = ((slot_t*)cookie)[which];
     obj_ptr obj = equip_obj(slot);
@@ -162,7 +143,7 @@ static void _slot_menu_fn(int cmd, int which, vptr cookie, variant *res)
             if (obj->timeout)
                 var_set_int(res, TERM_L_DARK);
             else
-                var_set_int(res, tval_to_attr[obj->tval % 128]);
+                var_set_int(res, tv_color(obj->tval));
         }
         break;
     default:
@@ -199,16 +180,16 @@ cptr equip_describe_slot(slot_t slot)
     if (_template->slots[slot].type == EQUIP_SLOT_WEAPON_SHIELD || _template->slots[slot].type == EQUIP_SLOT_WEAPON)
     {
         int hand = _template->slots[slot].hand;
-        if (p_ptr->weapon_info[hand].heavy_wield)
+        if (_hand_test(hand, PAF_HEAVY))
             return "Just Lifting";
-        if (p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS && !prace_is_(RACE_MON_SWORD))
+        if (_hand_test(hand, PAF_TWO_HANDS) && !prace_is_(RACE_MON_SWORD))
         {
             if (p_ptr->current_r_idx == MON_BLOODTHIRSTER)
                 return "Both Paws";
             else
                 return "Both Arms";
         }
-        if (p_ptr->weapon_info[hand].riding)
+        if (_hand_test(hand, PAF_CONTROL_MOUNT))
             return "Riding Reins";
     }
     if (_template->slots[slot].type == EQUIP_SLOT_BOW)
@@ -227,6 +208,22 @@ slot_t equip_find_art(int which)
 slot_t equip_find_ego(int which)
 {
     return inv_find_ego(_inv, which);
+}
+
+slot_t equip_find_device(int effect)
+{
+    int slot;
+    for (slot = 1; slot <= _template->max; slot++)
+    {
+        obj_ptr obj = equip_obj(slot);
+        if (!obj) continue;
+        if (!obj_is_(obj, TV_HAFTED, SV_WIZSTAFF)) continue;
+        if (!obj_is_known(obj)) continue;
+        if (obj->activation.type != effect) continue;
+        if (device_sp(obj) < obj->activation.cost) continue;
+        return slot;
+    }
+    return 0;
 }
 
 slot_t equip_find_obj(int tval, int sval)
@@ -418,7 +415,7 @@ bool equip_is_empty_two_handed_slot(int slot)
         int lhand = arm*2 + 1;
         int other_hand = (hand == rhand) ? lhand : rhand;
 
-        if (p_ptr->weapon_info[other_hand].wield_how == WIELD_TWO_HANDS)
+        if (_hand_test(other_hand, PAF_TWO_HANDS))
             return TRUE;
     }
     return FALSE;
@@ -465,7 +462,7 @@ void equip_wield_ui(void)
     if (obj_is_ammo(obj))
     {
         int amt = obj->number;
-        assert(equip_find_obj(TV_QUIVER, SV_ANY));
+        assert(equip_find_obj(TV_QUIVER, SV_QUIVER_AMMO));
         if (quiver_capacity() <= quiver_count(NULL))
         {
             msg_print("Your quiver is full.");
@@ -478,6 +475,24 @@ void equip_wield_ui(void)
             quiver_carry(&copy);
             amt -= copy.number; /* quiver might not hold the requested amt */
             obj->number -= amt;
+            obj_release(obj, obj->number ? OBJ_RELEASE_DELAYED_MSG : OBJ_RELEASE_QUIET);
+            energy_use = 50;
+        }
+    }
+    else if (obj_is_wand(obj) || obj_is_rod(obj))
+    {
+        assert(equip_find_obj(TV_QUIVER, SV_QUIVER_MAGE));
+        assert(obj->number == 1);
+        if (quiver_capacity() <= quiver_count(NULL))
+        {
+            msg_print("Your quiver is full.");
+            return;
+        }
+        else
+        {
+            obj_t copy = *obj;
+            quiver_carry(&copy);
+            obj->number = 0;
             obj_release(obj, obj->number ? OBJ_RELEASE_DELAYED_MSG : OBJ_RELEASE_QUIET);
             energy_use = 50;
         }
@@ -525,12 +540,8 @@ static bool _wield_verify(obj_ptr obj)
     if (!psion_can_wield(obj)) return FALSE;
     /* We'll confirm cursed gear later (_wield_confirm)
      * since the user might cancle the slot prompt */
-    if (obj->tval == TV_QUIVER && quiver_count(NULL) > obj->xtra4)
-    {
-        msg_format("Failed! Your current quiver holds %d missiles but this quiver "
-            "only has a capacity for %d missiles.", quiver_count(NULL), obj->xtra4);
-        return FALSE;
-    }
+    if (obj->tval == TV_QUIVER)
+        return quiver_check_swap(obj);
     return TRUE;
 }
 
@@ -552,7 +563,7 @@ static bool _wield_confirm(obj_ptr obj, slot_t slot)
         return FALSE;
     }
 
-    if (old_obj && object_is_cursed(old_obj))
+    if (old_obj && obj_is_cursed(old_obj))
     {
         object_desc(o_name, old_obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
         msg_format("The %s you are wearing appears to be cursed.", o_name);
@@ -563,7 +574,7 @@ static bool _wield_confirm(obj_ptr obj, slot_t slot)
     {
         bool do_prompt = FALSE;
 
-        if (object_is_known(obj) && object_is_cursed(obj))
+        if (obj_is_known(obj) && obj_is_cursed(obj))
         {
             do_prompt = TRUE;
         }
@@ -588,8 +599,15 @@ static bool _wield_confirm(obj_ptr obj, slot_t slot)
             if (!get_check(dummy)) return FALSE;
         }
     }
+    if (obj->name1 == ART_HAND_OF_VECNA || obj->name1 == ART_EYE_OF_VECNA)
+    {
+        char dummy[MAX_NLEN+80];
+        object_desc(o_name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
+        sprintf(dummy, "Really use the %s? It can never be removed! ", o_name);
+        if (!get_check(dummy)) return FALSE;
+    }
     if ( obj->name1 == ART_STONEMASK
-      && object_is_known(obj)
+      && obj_is_known(obj)
       && p_ptr->prace != RACE_VAMPIRE
       && p_ptr->prace != RACE_ANDROID
       && !(get_race()->flags & RACE_IS_MONSTER)
@@ -645,7 +663,7 @@ static void _wield_after(slot_t slot)
         msg_format("You are wearing %s (%c).", o_name, slot - 1 + 'a');
 
     /* After Effects? */
-    if (object_is_cursed(obj))
+    if (obj_is_cursed(obj))
     {
         msg_print("Oops! It feels deathly cold!");
         virtue_add(VIRTUE_HARMONY, -1);
@@ -654,12 +672,12 @@ static void _wield_after(slot_t slot)
     if (obj->name1 == ART_HAND_OF_VECNA)
     {
         cmsg_print(TERM_VIOLET, "You chop off your own hand to wield the Hand of Vecna!");
-        set_cut(CUT_MORTAL_WOUND, FALSE);
+        if (!p_ptr->no_cut) plr_tim_add(T_CUT, CUT_MORTAL_WOUND);
     }
     if (obj->name1 == ART_EYE_OF_VECNA)
     {
         cmsg_print(TERM_VIOLET, "You pluck out your own eye to wield the Eye of Vecna!");
-        set_cut(CUT_MORTAL_WOUND, FALSE);
+        if (!p_ptr->no_cut) plr_tim_add(T_CUT, CUT_MORTAL_WOUND);
     }
     if ( obj->name1 == ART_STONEMASK
       && p_ptr->prace != RACE_VAMPIRE
@@ -771,9 +789,9 @@ bool _unwield_verify(obj_ptr obj)
         energy_use = 0;
         return FALSE;
     }
-    if (object_is_cursed(obj) && obj->loc.where == INV_EQUIP)
+    if (obj_is_cursed(obj) && obj->loc.where == INV_EQUIP)
     {
-        if ((obj->curse_flags & OFC_PERMA_CURSE) || p_ptr->pclass != CLASS_BERSERKER)
+        if (obj->curse_flags & OFC_PERMA_CURSE)
         {
             msg_print("Hmmm, it seems to be cursed.");
             energy_use = 0;
@@ -865,42 +883,51 @@ void _unwield_after(void)
  */
 static void _add_weapon_info_flag(int hand, int flg, bool known)
 {
-    add_flag(p_ptr->weapon_info[hand].flags, flg);
+    add_flag(_hand(hand)->obj_flags, flg);
     if (known)
-        add_flag(p_ptr->weapon_info[hand].known_flags, flg);
+        add_flag(_hand(hand)->obj_known_flags, flg);
 }
 static void _weapon_info_flag(slot_t slot, u32b flgs[OF_ARRAY_SIZE], u32b known_flgs[OF_ARRAY_SIZE], int flg)
 {
     if (have_flag(flgs, flg))
     {
-        int  hand = _template->slots[slot].hand;
-        int  arm = hand / 2;
-        int  rhand = arm*2;
-        int  lhand = arm*2 + 1;
-        int  other_hand = (hand == rhand) ? lhand : rhand;
-        bool known = have_flag(known_flgs, flg);
-
-        switch (_template->slots[slot].type)
+        if (!p_ptr->weapon_ct) /* XXX p_ptr->innate_blows hasn't been built yet ... */
         {
-        case EQUIP_SLOT_GLOVES:
-            if (p_ptr->weapon_info[rhand].wield_how != WIELD_NONE)
-                _add_weapon_info_flag(rhand, flg, known);
-            if (p_ptr->weapon_info[lhand].wield_how != WIELD_NONE)
-                _add_weapon_info_flag(lhand, flg, known);
-            break;
-        case EQUIP_SLOT_RING:
-            if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-                _add_weapon_info_flag(hand, flg, known);
-            else if (p_ptr->weapon_info[other_hand].wield_how == WIELD_TWO_HANDS)
-                _add_weapon_info_flag(other_hand, flg, known);
-            break;
-        default:
-            for (hand = 0; hand < MAX_HANDS; hand++)
+            add_flag(p_ptr->innate_attack_info.obj_flags, flg);
+            if (have_flag(known_flgs, flg))
+                add_flag(p_ptr->innate_attack_info.obj_known_flags, flg);
+        }
+        else
+        {
+            int  hand = _template->slots[slot].hand;
+            int  arm = hand / 2;
+            int  rhand = arm*2;
+            int  lhand = arm*2 + 1;
+            int  other_hand = (hand == rhand) ? lhand : rhand;
+            bool known = have_flag(known_flgs, flg);
+
+            switch (_template->slots[slot].type)
             {
-                if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+            case EQUIP_SLOT_GLOVES:
+                if (_hand(rhand)->type)
+                    _add_weapon_info_flag(rhand, flg, known);
+                if (_hand(lhand)->type)
+                    _add_weapon_info_flag(lhand, flg, known);
+                break;
+            case EQUIP_SLOT_RING:
+                if (_hand(hand)->type)
                     _add_weapon_info_flag(hand, flg, known);
+                else if (_hand_test(other_hand, PAF_TWO_HANDS))
+                    _add_weapon_info_flag(other_hand, flg, known);
+                break;
+            default:
+                for (hand = 0; hand < MAX_HANDS; hand++)
+                {
+                    if (_hand(hand)->type)
+                        _add_weapon_info_flag(hand, flg, known);
+                }
+                break;
             }
-            break;
         }
     }
 }
@@ -916,16 +943,16 @@ static void _weaponmastery(slot_t slot, int amt)
     switch (_template->slots[slot].type)
     {
     case EQUIP_SLOT_RING:
-        if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-            p_ptr->weapon_info[hand].to_dd += amt;
-        else if (p_ptr->weapon_info[other_hand].wield_how == WIELD_TWO_HANDS)
-            p_ptr->weapon_info[other_hand].to_dd += amt;
+        if (_hand(hand)->type)
+            _hand(hand)->to_dd += amt;
+        else if (_hand_test(other_hand, PAF_TWO_HANDS))
+            _hand(other_hand)->to_dd += amt;
         else
             p_ptr->innate_attack_info.to_dd += amt;
         break;
     case EQUIP_SLOT_ANY:
-        if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-            p_ptr->weapon_info[hand].to_dd += amt;
+        if (_hand(hand)->type)
+            _hand(hand)->to_dd += amt;
         else
             p_ptr->innate_attack_info.to_dd += amt;
         break;
@@ -934,12 +961,12 @@ static void _weaponmastery(slot_t slot, int amt)
         {
             for (hand = 0; hand < MAX_HANDS; hand++)
             {
-                if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[hand].to_dd += amt / p_ptr->weapon_ct;
+                if (_hand(hand)->type)
+                    _hand(hand)->to_dd += amt / p_ptr->weapon_ct;
             }
         }
-        else if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE) /* TODO: I'm not sure martial arts should boost the weapon_ct ... */
-            p_ptr->weapon_info[hand].to_dd += amt;
+        else if (_hand(hand)->type) /* TODO: I'm not sure martial arts should boost the weapon_ct ... */
+            _hand(hand)->to_dd += amt;
         else
             p_ptr->innate_attack_info.to_dd += amt;
     }
@@ -947,12 +974,23 @@ static void _weaponmastery(slot_t slot, int amt)
 
 static void _weapon_bonus_hand(int hand, int to_h, int to_d, bool known)
 {
-    p_ptr->weapon_info[hand].to_h += to_h;
-    p_ptr->weapon_info[hand].to_d += to_d;
+    plr_attack_info_ptr info = _hand(hand);
+    info->to_h += to_h;
+    info->to_d += to_d;
     if (known)
     {
-        p_ptr->weapon_info[hand].dis_to_h += to_h;
-        p_ptr->weapon_info[hand].dis_to_d += to_d;
+        info->dis_to_h += to_h;
+        info->dis_to_d += to_d;
+    }
+}
+static void _weapon_bonus_innate(int to_h, int to_d, bool known)
+{
+    p_ptr->innate_attack_info.to_h += to_h;
+    p_ptr->innate_attack_info.to_d += to_d;
+    if (known)
+    {
+        p_ptr->innate_attack_info.dis_to_h += to_h;
+        p_ptr->innate_attack_info.dis_to_d += to_d;
     }
 }
 
@@ -977,21 +1015,21 @@ static void _weapon_bonus(slot_t slot, int to_h, int to_d)
     switch (_template->slots[slot].type)
     {
     case EQUIP_SLOT_GLOVES:
-        if (p_ptr->weapon_info[rhand].wield_how != WIELD_NONE && p_ptr->weapon_info[lhand].wield_how != WIELD_NONE)
+        if (_hand(rhand)->type && _hand(lhand)->type)
         {
-            _weapon_bonus_hand(rhand, (to_h + 1) / 2, (to_d + 1) / 2, object_is_known(obj));
-            _weapon_bonus_hand(lhand, to_h/2, to_d/2, object_is_known(obj));
+            _weapon_bonus_hand(rhand, (to_h + 1) / 2, (to_d + 1) / 2, obj_is_known(obj));
+            _weapon_bonus_hand(lhand, to_h/2, to_d/2, obj_is_known(obj));
         }
-        else if (p_ptr->weapon_info[rhand].wield_how != WIELD_NONE)
-            _weapon_bonus_hand(rhand, to_h, to_d, object_is_known(obj));
-        else if (p_ptr->weapon_info[lhand].wield_how != WIELD_NONE)
-            _weapon_bonus_hand(lhand, to_h, to_d, object_is_known(obj));
+        else if (_hand(rhand)->type)
+            _weapon_bonus_hand(rhand, to_h, to_d, obj_is_known(obj));
+        else if (_hand(lhand)->type)
+            _weapon_bonus_hand(lhand, to_h, to_d, obj_is_known(obj));
         break;
     case EQUIP_SLOT_RING:
-        if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-            _weapon_bonus_hand(hand, to_h, to_d, object_is_known(obj));
-        else if (p_ptr->weapon_info[other_hand].wield_how == WIELD_TWO_HANDS)
-            _weapon_bonus_hand(other_hand, to_h, to_d, object_is_known(obj));
+        if (_hand(hand)->type)
+            _weapon_bonus_hand(hand, to_h, to_d, obj_is_known(obj));
+        else if (_hand_test(other_hand, PAF_TWO_HANDS))
+            _weapon_bonus_hand(other_hand, to_h, to_d, obj_is_known(obj));
         break;
     default:
     {
@@ -999,14 +1037,14 @@ static void _weapon_bonus(slot_t slot, int to_h, int to_d)
         int x_to_d = to_d - (to_d/p_ptr->weapon_ct)*p_ptr->weapon_ct;
         for (hand = 0; hand < MAX_HANDS; hand++)
         {
-            if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-                _weapon_bonus_hand(hand, to_h/p_ptr->weapon_ct, to_d/p_ptr->weapon_ct, object_is_known(obj));
+            if (_hand(hand)->type)
+                _weapon_bonus_hand(hand, to_h/p_ptr->weapon_ct, to_d/p_ptr->weapon_ct, obj_is_known(obj));
         }
         for (hand = 0; hand < MAX_HANDS && (x_to_h || x_to_d); hand++)
         {
-            if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+            if (_hand(hand)->type)
             {
-                _weapon_bonus_hand(hand, _sign(x_to_h), _sign(x_to_d), object_is_known(obj));
+                _weapon_bonus_hand(hand, _sign(x_to_h), _sign(x_to_d), obj_is_known(obj));
                 if (x_to_h > 0) x_to_h--;
                 else if (x_to_h < 0) x_to_h++;
                 if (x_to_d > 0) x_to_d--;
@@ -1020,13 +1058,13 @@ static void _weapon_bonus(slot_t slot, int to_h, int to_d)
 bool equip_is_valid_hand(int hand)
 {
     if (hand == HAND_NONE) return FALSE;
-    return p_ptr->weapon_info[hand].slot;
+    return _hand(hand)->slot;
 }
 
 bool equip_is_empty_hand(int hand)
 {
     return equip_is_valid_hand(hand)
-        && !equip_obj(p_ptr->weapon_info[hand].slot);
+        && !equip_obj(_hand(hand)->slot);
 }
 
 void equip_xtra_might(int pval)
@@ -1051,59 +1089,50 @@ void equip_calc_bonuses(void)
           || _template->slots[slot].type == EQUIP_SLOT_WEAPON )
         {
             obj_ptr obj;
-            int     hand = _template->slots[slot].hand;
+            plr_attack_info_ptr info = _hand(_template->slots[slot].hand);
 
-            p_ptr->weapon_info[hand].slot = slot;
-            p_ptr->weapon_info[hand].wield_how = WIELD_NONE;
+            info->slot = slot;
+            info->type = PAT_NONE;
             obj = equip_obj(slot);
 
             if (obj)
             {
-                if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
+                if (obj_is_weapon(obj) && weaponmaster_get_toggle() != TOGGLE_SHIELD_BASH)
+                    info->type = PAT_WEAPON;
+                else if (obj_is_shield(obj))
                 {
-                    if (object_is_shield(obj))
-                        p_ptr->weapon_info[hand].wield_how = WIELD_ONE_HAND;
-                }
-                else if (object_is_melee_weapon(obj))
-                {
-                    p_ptr->weapon_info[hand].wield_how = WIELD_ONE_HAND;
-                    if (obj->rune == RUNE_AIR)
-                        p_ptr->weapon_info[hand].xtra_blow += 75;
+                    add_flag(info->paf_flags, PAF_SHIELD);
+                    if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
+                        info->type = PAT_WEAPON;
                 }
             }
-            /* N.B. if (p_ptr->monk_lvl) would be a simpler check, but class_t.calc_bonuses gets called after equip_calc_bonuses ... */
-            else if ( p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_MYSTIC || p_ptr->pclass == CLASS_FORCETRAINER
-                   || (p_ptr->pclass == CLASS_SKILLMASTER && skillmaster_martial_arts_prof() > 0) )
-            {
-                p_ptr->weapon_info[hand].wield_how = WIELD_ONE_HAND;
-                p_ptr->weapon_info[hand].bare_hands = TRUE;
-            }
+            else if (plr_allow_martial_arts())
+                info->type = PAT_MONK;
         }
     }
 
-    /* Patch up for monks using weapons (with empty hands too) */
+    /* Patch up for monks using weapons (with empty hands too)
+     * Flag hands belonging to dual wielding arms. */
     for (i = 0; i < MAX_ARMS; i++)
     {
-        int rhand = i*2;
-        int lhand = i*2+1;
+        plr_attack_info_ptr right = _hand(i*2);
+        plr_attack_info_ptr left = _hand(i*2 + 1);
 
-        if (!equip_is_valid_hand(rhand) || !equip_is_valid_hand(lhand)) continue;
+        if (!right->slot || !left->slot) continue; /* e.g. Benedict, the Ideal Warrior */
 
-        if ( p_ptr->weapon_info[rhand].wield_how != WIELD_NONE
-          && p_ptr->weapon_info[rhand].bare_hands
-          && p_ptr->weapon_info[lhand].wield_how != WIELD_NONE
-          && equip_obj(p_ptr->weapon_info[lhand].slot) )
+        if (right->type == PAT_WEAPON && left->type == PAT_WEAPON)
         {
-            p_ptr->weapon_info[rhand].wield_how = WIELD_NONE;
-            p_ptr->weapon_info[rhand].bare_hands = FALSE;
+            add_flag(right->paf_flags, PAF_DUAL_WIELDING);
+            add_flag(left->paf_flags, PAF_DUAL_WIELDING);
         }
-        if ( p_ptr->weapon_info[lhand].wield_how != WIELD_NONE
-          && p_ptr->weapon_info[lhand].bare_hands
-          && p_ptr->weapon_info[rhand].wield_how != WIELD_NONE
-          && equip_obj(p_ptr->weapon_info[rhand].slot) )
+        /* turn off monk attacks if other hand is weaponed */
+        else if (right->type == PAT_MONK && left->type == PAT_WEAPON)
         {
-            p_ptr->weapon_info[lhand].wield_how = WIELD_NONE;
-            p_ptr->weapon_info[lhand].bare_hands = FALSE;
+            right->type = PAT_NONE;
+        }
+        else if (left->type == PAT_MONK && right->type == PAT_WEAPON)
+        {
+            left->type = PAT_NONE;
         }
     }
 
@@ -1121,9 +1150,8 @@ void equip_calc_bonuses(void)
             {
                 if (equip_is_empty_hand(i))
                 {
-                    p_ptr->weapon_info[i].riding = TRUE;
-                    p_ptr->weapon_info[i].wield_how = WIELD_NONE;
-                    p_ptr->weapon_info[i].bare_hands = FALSE;
+                    _hand_set(i, PAF_CONTROL_MOUNT);
+                    _hand(i)->type = PAT_NONE; /* could have been PAT_MONK */
                     p_ptr->riding_ryoute = FALSE;
                     break;
                 }
@@ -1131,63 +1159,44 @@ void equip_calc_bonuses(void)
         }
     }
 
-    /* Figure out which weapons are being used with 2 hands */
+    /* Figure out which weapons are being used with 2 hands (requires riding checks first) */
     if (CAN_TWO_HANDS_WIELDING())
     {
         for (i = 0; i < MAX_ARMS; i++)
         {
-            int rhand = 2*i;
-            int lhand = 2*i+1;
+            plr_attack_info_ptr right = _hand(i*2);
+            plr_attack_info_ptr left = _hand(i*2 + 1);
 
-            if ( p_ptr->weapon_info[rhand].wield_how == WIELD_ONE_HAND
-              && (p_ptr->weapon_info[rhand].bare_hands || object_allow_two_hands_wielding(equip_obj(p_ptr->weapon_info[rhand].slot))))
+            if (right->type == PAT_MONK && left->type == PAT_MONK)
             {
-                if (equip_is_empty_hand(lhand))
-                {
-                    p_ptr->weapon_info[rhand].wield_how = WIELD_TWO_HANDS;
-                    p_ptr->weapon_info[lhand].wield_how = WIELD_NONE;
-                }
-                /* Hack for Shieldmaster */
-                else if ( weaponmaster_is_(WEAPONMASTER_SHIELDS)
-                       && weaponmaster_get_toggle() != TOGGLE_SHIELD_BASH
-                       && equip_is_valid_hand(lhand)
-                       && object_is_shield(equip_obj(p_ptr->weapon_info[lhand].slot)) )
-                {
-                    p_ptr->weapon_info[rhand].wield_how = WIELD_TWO_HANDS;
-                    p_ptr->weapon_info[lhand].wield_how = WIELD_NONE;
-                }
+                add_flag(right->paf_flags, PAF_TWO_HANDS);
+                left->type = PAT_NONE;
+                continue;
             }
-
-            if ( p_ptr->weapon_info[lhand].wield_how == WIELD_ONE_HAND
-              && (p_ptr->weapon_info[lhand].bare_hands || object_allow_two_hands_wielding(equip_obj(p_ptr->weapon_info[lhand].slot))))
+            if ( right->type == PAT_WEAPON && !left->type
+              && object_allow_two_hands_wielding(equip_obj(right->slot)) )
             {
-                if (equip_is_empty_hand(rhand))
-                {
-                    p_ptr->weapon_info[lhand].wield_how = WIELD_TWO_HANDS;
-                    p_ptr->weapon_info[rhand].wield_how = WIELD_NONE;
-                }
-                /* Hack for Shieldmaster */
-                else if ( weaponmaster_is_(WEAPONMASTER_SHIELDS)
-                       && weaponmaster_get_toggle() != TOGGLE_SHIELD_BASH
-                       && equip_is_valid_hand(rhand)
-                       && object_is_shield(equip_obj(p_ptr->weapon_info[rhand].slot)) )
-                {
-                    p_ptr->weapon_info[lhand].wield_how = WIELD_TWO_HANDS;
-                    p_ptr->weapon_info[rhand].wield_how = WIELD_NONE;
-                }
+                if (!have_flag(left->paf_flags, PAF_SHIELD) || weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
+                    add_flag(right->paf_flags, PAF_TWO_HANDS);
+            }
+            if ( left->type == PAT_WEAPON && !right->type
+              && object_allow_two_hands_wielding(equip_obj(left->slot)) )
+            {
+                if (!have_flag(right->paf_flags, PAF_SHIELD) || weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
+                    add_flag(left->paf_flags, PAF_TWO_HANDS);
             }
         }
     }
 
     /* Hack for Death Swords ... but not Broken Death Swords ;) */
     if (prace_is_(RACE_MON_SWORD) && p_ptr->lev >= 10)
-        p_ptr->weapon_info[0].wield_how = WIELD_TWO_HANDS;
+        _hand_set(0, PAF_TWO_HANDS);
 
     /* Its convenient to have an accurate weapon count later */
     p_ptr->weapon_ct = 0;
     for (i = 0; i < MAX_HANDS; i++)
     {
-        if (p_ptr->weapon_info[i].wield_how != WIELD_NONE)
+        if (_hand(i)->type) /* PAT_MONK counts as a weapon */
             p_ptr->weapon_ct++;
     }
 
@@ -1209,9 +1218,6 @@ void equip_calc_bonuses(void)
             p_ptr->redraw |= PR_EFFECTS;
         if (obj->name1 == ART_CHAINSWORD) p_ptr->cursed |= OFC_CHAINSWORD;
 
-        if (obj->name1 == ART_MAUL_OF_VICE)
-            p_ptr->maul_of_vice = TRUE;
-
         if (have_flag(flgs, OF_LORE2))
             p_ptr->auto_id = TRUE;
         else if (have_flag(flgs, OF_LORE1))
@@ -1223,10 +1229,10 @@ void equip_calc_bonuses(void)
             int arm = hand / 2;
             int rhand = arm*2;
             int lhand = arm*2 + 1;
-            if (p_ptr->weapon_info[rhand].wield_how == WIELD_TWO_HANDS)
-                p_ptr->weapon_info[rhand].giant_wield = obj->pval;
-            else if (p_ptr->weapon_info[lhand].wield_how == WIELD_TWO_HANDS)
-                p_ptr->weapon_info[lhand].giant_wield = obj->pval;
+            if (_hand_test(rhand, PAF_TWO_HANDS))
+                _hand(rhand)->giant_wield += obj->pval;
+            else if (_hand_test(lhand, PAF_TWO_HANDS))
+                _hand(lhand)->giant_wield += obj->pval;
         }
 
         if (obj->rune)
@@ -1290,32 +1296,32 @@ void equip_calc_bonuses(void)
             case EQUIP_SLOT_GLOVES:
             {
                 int arm = hand / 2;
-                int rhand = arm*2;
-                int lhand = arm*2 + 1;
-                if (p_ptr->weapon_info[rhand].wield_how != WIELD_NONE && p_ptr->weapon_info[lhand].wield_how != WIELD_NONE)
+                plr_attack_info_ptr right = _hand(arm*2);
+                plr_attack_info_ptr left = _hand(arm*2 + 1);
+                if (right->type && left->type)
                 {
                     if (amt > 0)
                     {
-                        p_ptr->weapon_info[rhand].xtra_blow += amt/2;
-                        p_ptr->weapon_info[lhand].xtra_blow += amt/2;
+                        right->xtra_blow += amt/2;
+                        left->xtra_blow += amt/2;
                     }
                     else
                     {
-                        p_ptr->weapon_info[rhand].xtra_blow += amt;
-                        p_ptr->weapon_info[lhand].xtra_blow += amt;
+                        right->xtra_blow += amt;
+                        left->xtra_blow += amt;
                     }
                 }
-                else if (p_ptr->weapon_info[rhand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[rhand].xtra_blow += amt;
-                else if (p_ptr->weapon_info[lhand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[lhand].xtra_blow += amt;
+                else if (right->type)
+                    right->xtra_blow += amt;
+                else if (left->type)
+                    left->xtra_blow += amt;
                 else
                     p_ptr->innate_attack_info.xtra_blow += amt;
                 break;
             }
             case EQUIP_SLOT_RING:
-                if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[hand].xtra_blow += amt;
+                if (_hand(hand)->type)
+                    _hand(hand)->xtra_blow += amt;
                 else
                 {
                     int other_hand;
@@ -1323,27 +1329,27 @@ void equip_calc_bonuses(void)
                         other_hand = hand + 1;
                     else
                         other_hand = hand - 1;
-                    if (p_ptr->weapon_info[other_hand].wield_how == WIELD_TWO_HANDS)
-                        p_ptr->weapon_info[other_hand].xtra_blow += amt;
-                    else if (p_ptr->weapon_info[other_hand].wield_how == WIELD_NONE)
+                    if (_hand_test(other_hand, PAF_TWO_HANDS))
+                        _hand(other_hand)->xtra_blow += amt;
+                    else if (!_hand(other_hand)->type) /* no weapons on this set of arms */
                         p_ptr->innate_attack_info.xtra_blow += amt;
                 }
                 break;
             case EQUIP_SLOT_WEAPON_SHIELD:
             case EQUIP_SLOT_WEAPON:
-                if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[hand].xtra_blow += amt;
+                if (_hand(hand)->type)
+                    _hand(hand)->xtra_blow += amt;
                 break;
             default:
             {
-                if (object_is_melee_weapon(obj)) break; /* Hack for Jellies ... */
+                if (obj_is_weapon(obj)) break; /* Hack for Jellies ... */
                 if (p_ptr->weapon_ct)
                 {
                     int  j;
                     for (j = 0; j < MAX_HANDS; j++)
                     {
-                        if (p_ptr->weapon_info[j].wield_how != WIELD_NONE)
-                            p_ptr->weapon_info[j].xtra_blow += amt/p_ptr->weapon_ct;
+                        if (_hand(j)->type)
+                            _hand(j)->xtra_blow += amt/p_ptr->weapon_ct;
                     }
                 }
                 else
@@ -1353,18 +1359,23 @@ void equip_calc_bonuses(void)
         }
 
         /* New: Rings and Gloves can grant weapon slays */
-        if ( !object_is_melee_weapon(obj) /* Hack for Jellies ... */
-          && !object_is_bow(obj) )
+        if ( !obj_is_weapon(obj) /* Hack for Jellies ... */
+          && !obj_is_bow(obj) )
         {
-            _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_FIRE);
-            _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_COLD);
-            _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_ELEC);
-            _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_ACID);
-            _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_POIS);
-            _weapon_info_flag(slot, flgs, known_flgs, OF_IMPACT);     /* Quaker */
-            _weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_GOOD);  /* Thanos, Nazgul */
-            _weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_HUMAN); /* Nazgul */
-            _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_VAMP); /* Dragon Armor (Death), Helm of the Vampire */
+            vec_ptr v = of_lookup_brand();
+            for (i = 0; i < vec_length(v); i++)
+            {
+                of_info_ptr info = vec_get(v, i);
+                _weapon_info_flag(slot, flgs, known_flgs, info->id);
+            }
+            vec_free(v);
+            v = of_lookup_slay();
+            for (i = 0; i < vec_length(v); i++)
+            {
+                of_info_ptr info = vec_get(v, i);
+                _weapon_info_flag(slot, flgs, known_flgs, info->id);
+            }
+            vec_free(v);
         }
 
         if (have_flag(flgs, OF_XTRA_SHOTS))
@@ -1384,25 +1395,16 @@ void equip_calc_bonuses(void)
             /* In general, you need to be a Mage/Priest to gain from wizardstaves, et. al.
              * There are exceptions (e.g. Bards and the two artifact harps; Vampires
              * and The Amulet of the Pitch Dark Night; etc). You will find code
-             * for these exceptions in class/race specific calc_bonuses functions.
-             * However, The Yumi of Irresponsibility works for everybody! */
-            if (obj->name1 == ART_NAMAKE_BOW)
-            {
-                p_ptr->dec_mana = TRUE;
-            }
-            else
-            {
-                caster_info *caster_ptr = get_caster_info();
-                if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
-                    p_ptr->dec_mana = TRUE;
-            }
-
+             * for these exceptions in class/race specific calc_bonuses functions. */
+            caster_info *caster_ptr = get_caster_info();
+            if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
+                p_ptr->dec_mana++;
         }
         if (have_flag(flgs, OF_EASY_SPELL))
         {
             caster_info *caster_ptr = get_caster_info();
             if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
-                p_ptr->easy_spell = TRUE;
+                p_ptr->easy_spell++;
         }
 
         if (have_flag(flgs, OF_SPELL_POWER)) p_ptr->spell_power += obj->pval;
@@ -1442,7 +1444,7 @@ void equip_calc_bonuses(void)
 
         if (have_flag(flgs, OF_TELEPORT))
         {
-            if (object_is_cursed(obj)) p_ptr->cursed |= OFC_TELEPORT;
+            if (obj_is_cursed(obj)) p_ptr->cursed |= OFC_TELEPORT;
             else
             {
                 cptr insc = quark_str(obj->inscription);
@@ -1481,13 +1483,13 @@ void equip_calc_bonuses(void)
                 int rhand = arm*2;
                 int lhand = arm*2 + 1;
 
-                p_ptr->weapon_info[rhand].genji = TRUE;
-                p_ptr->weapon_info[lhand].genji = TRUE;
+                _hand_set(rhand, PAF_GENJI);
+                _hand_set(lhand, PAF_GENJI);
                 break;
             }
             default: /* Weaponsmith with their beloved Boots of Genji :) */
-                p_ptr->weapon_info[0].genji = TRUE;
-                p_ptr->weapon_info[1].genji = TRUE;
+                _hand_set(0, PAF_GENJI); /* first set of arms only */
+                _hand_set(1, PAF_GENJI);
             }
         }
 
@@ -1513,7 +1515,7 @@ void equip_calc_bonuses(void)
 
         /* Apply the bonuses to armor class */
         p_ptr->to_a += obj->to_a;
-        if (object_is_known(obj)) p_ptr->dis_to_a += obj->to_a;
+        if (obj_is_known(obj)) p_ptr->dis_to_a += obj->to_a;
 
         if (obj->curse_flags & OFC_LOW_MELEE)
         {
@@ -1529,9 +1531,9 @@ void equip_calc_bonuses(void)
             case EQUIP_SLOT_WEAPON:
             {
                 int hand = _template->slots[slot].hand;
-                p_ptr->weapon_info[hand].to_h += penalty;
+                _hand(hand)->to_h += penalty;
                 if (obj->known_curse_flags & OFC_LOW_MELEE)
-                    p_ptr->weapon_info[hand].dis_to_h += penalty;
+                    _hand(hand)->dis_to_h += penalty;
                 break;
             }
             }
@@ -1553,76 +1555,51 @@ void equip_calc_bonuses(void)
         }
 
         /* Hack -- do not apply "weapon" bonuses */
-        if (object_is_melee_weapon(obj)) continue;
+        if (obj_is_weapon(obj)) continue;
 
         /* Hack -- do not apply "bow" bonuses */
-        if (_object_is_bow(obj)) continue;
+        if (obj_is_bow(obj)) continue;
 
-        /* Hack -- Sniper gloves apply to missiles only */
-        if (obj->name2 == EGO_GLOVES_SNIPER || obj->name2 == EGO_RING_ARCHERY)
+        if (have_flag(flgs, OF_ARCHERY))
         {
             p_ptr->shooter_info.to_h += obj->to_h;
             p_ptr->shooter_info.to_d += obj->to_d;
-            if (object_is_known(obj))
+            if (obj_is_known(obj))
             {
                 p_ptr->shooter_info.dis_to_h += obj->to_h;
                 p_ptr->shooter_info.dis_to_d += obj->to_d;
             }
-            continue;
         }
-        /* Hack -- Spell Damage on Wizard Egos */
-        if ( obj->name2 == EGO_RING_WIZARDRY
-          || obj->name2 == EGO_AMULET_MAGI
-          || obj->name2 == EGO_CROWN_MAGI )
+        if (have_flag(flgs, OF_SPELL_DAM))
         {
             p_ptr->to_d_spell += obj->to_d;
-            continue;
         }
 
-        /* Hack -- Archery now benefits from equipment slays. Without this, only
-           Sniper gloves and Archery rings affect shooting, and that seems a bit
-           unfair (especially since melee is so favored).
-           BTW, as best I can tell, Hengband always applied bonuses to hit to archery,
-           but never applied bonuses to damage.
-           Perhaps we need a TR_ARCHERY flag?  */
-        else if ( obj->name2 != EGO_GLOVES_BERSERKER
-               && obj->name2 != EGO_GLOVES_GIANT
-               && obj->name2 != EGO_GLOVES_SLAYING
-               && obj->name2 != EGO_GLOVES_THIEF
-               && obj->name2 != EGO_RING_COMBAT
-               && obj->name2 != EGO_HELMET_TROLL
-               && obj->name2 != EGO_HELMET_RAGE
-               && obj->name2 != EGO_SHIELD_DWARVEN
-               && obj->name2 != EGO_SHIELD_ORCISH
-               && obj->name2 != EGO_CROWN_MIGHT
-               && obj->name2 != EGO_CLOAK_BAT
-               && obj->name2 != EGO_CLOAK_COWARDICE
-               && obj->name1 != ART_KAMIKAZE_ROBE
-               && obj->name1 != ART_TERROR
-               && obj->name1 != ART_HAMMERHAND )
+        if (have_flag(flgs, OF_MELEE))
         {
-            p_ptr->shooter_info.to_h += obj->to_h;
-            p_ptr->shooter_info.to_d += obj->to_d;
-            if (object_is_known(obj))
+            bonus_to_h = obj->to_h;
+            bonus_to_d = obj->to_d;
+
+            if (p_ptr->pclass == CLASS_NINJA)
             {
-                p_ptr->shooter_info.dis_to_h += obj->to_h;
-                p_ptr->shooter_info.dis_to_d += obj->to_d;
+                if (obj->to_h > 0) bonus_to_h = (obj->to_h+1)/2;
+                if (obj->to_d > 0) bonus_to_d = (obj->to_d+1)/2;
             }
+
+            _weapon_bonus_innate(bonus_to_h, bonus_to_d, obj_is_known(obj));
+
+            p_ptr->to_h_m += bonus_to_h;
+            p_ptr->to_d_m += bonus_to_d;
+
+            _weapon_bonus(slot, bonus_to_h, bonus_to_d);
         }
-
-        bonus_to_h = obj->to_h;
-        bonus_to_d = obj->to_d;
-
-        if (p_ptr->pclass == CLASS_NINJA)
+        else if (obj_is_body_armor(obj) && obj->to_h < 0)
         {
-            if (obj->to_h > 0) bonus_to_h = (obj->to_h+1)/2;
-            if (obj->to_d > 0) bonus_to_d = (obj->to_d+1)/2;
+            _weapon_bonus_innate(obj->to_h, 0, obj_is_known(obj));
+            p_ptr->to_h_m += obj->to_h;
+            _weapon_bonus(slot, obj->to_h, 0);
         }
 
-        p_ptr->to_h_m += bonus_to_h;
-        p_ptr->to_d_m += bonus_to_d;
-
-        _weapon_bonus(slot, bonus_to_h, bonus_to_d);
         if (have_flag(flgs, OF_WEAPONMASTERY))
         {
             _weaponmastery(slot, obj->pval);
@@ -1852,14 +1829,14 @@ void equip_learn_slay(int slay_flag, cptr msg)
     {
         obj_ptr obj = inv_obj(_inv, slot);
         if ( obj 
-          && !object_is_melee_weapon(obj) /* Hack for Jellies ... */
-          && !object_is_bow(obj)
+          && !obj_is_weapon(obj) /* Hack for Jellies ... */
+          && !obj_is_bow(obj)
           && obj_learn_flag(obj, slay_flag) )
         {
             char buf[MAX_NLEN];
             object_desc(buf, obj, OD_LORE);
             msg_format("<color:B>You learn that your %s %s.</color>", buf, msg);
-            /* We need to update p_ptr->weapon_info[].known_flags (cf equip_calc_bonuses()) */
+            /* We need to update p_ptr->attack_info[].known_flags (cf equip_calc_bonuses()) */
             p_ptr->update |= PU_BONUS;
         }
     }

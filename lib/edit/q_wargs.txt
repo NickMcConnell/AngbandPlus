@@ -26,7 +26,7 @@ R:OBJ(long sword)
 ?:[EQU $CLASS Scout]
 R:OBJ(light crossbow)
 
-?:[EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage Yellow-Mage Gray-Mage]
+?:[EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Yellow-Mage Gray-Mage]
 R:OBJ(^ring$):EGO(wizardry)
 
 ?:[EQU $RACE Dragon Hound Spider]

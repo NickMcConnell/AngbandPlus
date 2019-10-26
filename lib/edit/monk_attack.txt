@@ -1,0 +1,165 @@
+# Monsters can use monk attacks by setting blows in r_info. For example,
+# B:MONK(x6) gives 6 strikes using the "Monk" default attack table.
+# B:MONK(Lich, x8) gives 8 strikes using the "Lich" attack table.
+# You can have both normal blows and MONK blows for the same monster if desired.
+#
+# Players can use monk attacks by setting CLASS_MARTIAL_ARTS or RACE_MARTIAL_ARTS
+# flags on class_t.flags or race_t.flags. p_ptr->monk_tbl names the table to use
+# ("Monk" is assumed if not set). Players will also want to set p_ptr->monk_lvl.
+
+# Syntax:
+# [1] Each table begins with an "N:Name" line that uniquely names the table.
+#     This name is probably used in code to set p_ptr->monk_tbl.
+#     This name is probably used in r_info on the B: line
+# [2] Each blow in the table is a "B:L:F:{monster blow description}" line.
+#    [2.a] L is the minimum "monk_lvl" required for the blow.
+#    [2.b] F is a skill check: Need to roll 1dL > F to use this blow.
+#    [2.c] {monster blow description} describes the blow, the same way that
+#          a B:{monster blow description} describes it in r_info. Look there
+#          for documentation but, as of this writing, the new format is undocumented.
+
+# XXX
+# [1] At the moment, we are assuming that tables describe martial arts, but they
+#     could be used for other purposes. The possessor, for example, will apply
+#     monk heavy armor restrictions to any possessed form that uses a table.
+#     Perhaps the N: line should describe the type of table, allowing these
+#     restrictions to become optional.
+# [2] Monster lore doesn't work well with "B:MONK" monster blows. During combat,
+#     the mon_blow_ptr of the attack gets re-rolled for every strike. There are
+#     display issues as well (mon_display)
+# [3] Currently, each strike uses the same weight for criticals. I'm not sure this
+#     is a big deal since critical damage is entirely dice driven and weaker attacks
+#     have lame dice. The old monk code let the L of the attack influence the
+#     critical roll, but I think the amount of influence was weak. For the curious,
+#     monk_choose_attack_plr and _mon currently set the weight of the blow on each call.
+# XXX
+
+#Here is the original monk attack table for reference. STUN percentages are completely redone.
+N:Monk.Old
+B:1:0:PUNCH:HURT(1d4)
+B:2:0:KICK:HURT(1d6)
+B:3:0:STRIKE:HURT(1d7)
+B:5:5:KNEE:HURT(2d3):STUN_MALE(1d13+7)
+B:7:5:ELBOW:HURT(1d8)
+B:9:10:BUTT:HURT(2d5)
+B:11:10:KICK:HURT(3d4):SLOW_ANKLE
+B:13:12:UPPERCUT:HURT(4d4):STUN(1d3+3, 20%)
+B:16:15:DOUBLE_KICK:HURT(5d4):STUN(1d4+4, 25%)
+B:20:20:CATS_CLAW:HURT(5d5)
+B:25:25:JUMP_KICK:HURT(5d6):STUN(1d5+5, 30%)
+B:29:25:EAGLES_CLAW:HURT(6d6)
+B:33:30:CIRCLE_KICK:HURT(6d8):STUN(1d5+5, 30%)
+B:37:35:IRON_FIST:HURT(8d8):STUN(1d5+5, 30%)
+B:41:35:FLYING_KICK:HURT(8d10):STUN(1d6+6, 30%)
+B:45:35:DRAGON_FIST:HURT(10d10):STUN(1d8+8, 30%)
+B:48:35:CRUSHING_BLOW:HURT(10d12):STUN(1d9+9, 40%)
+
+#In this version, we'll tone down the raw damage dice so that
+#slays are not overpowered.
+N:Monk
+B:1:0:PUNCH:HURT(1d4)
+B:2:0:KICK:HURT(1d6)
+B:3:0:STRIKE:HURT(1d7)
+B:5:5:KNEE:HURT(2d3):STUN_MALE(1d13+7)
+B:7:5:ELBOW:HURT(1d8)
+B:9:10:BUTT:HURT(2d5)
+B:11:10:KICK:HURT(3d4):SLOW_ANKLE
+B:13:12:UPPERCUT:HURT(2d4+5):STUN(1d3+3, 20%)
+B:16:15:DOUBLE_KICK:HURT(3d4+5):STUN(1d4+4, 25%)
+B:20:20:CATS_CLAW:HURT(3d5+5)
+B:25:25:JUMP_KICK:HURT(3d6+7):STUN(1d5+5, 30%)
+B:29:25:EAGLES_CLAW:HURT(3d6+10)
+B:33:30:CIRCLE_KICK:HURT(3d7+15):STUN(1d5+5, 30%)
+B:37:35:IRON_FIST:HURT(3d8+22):STUN(1d5+5, 30%)
+B:41:35:FLYING_KICK:HURT(3d9+27):STUN(1d6+6, 30%)
+B:45:35:DRAGON_FIST:HURT(3d10+36):STUN(1d8+8, 30%)
+B:48:35:CRUSHING_BLOW:HURT(3d12+43):STUN(1d9+9, 40%)
+
+#A monastic lich gets some undeadly blows, stealing your life force
+#to enhance their power. They can even paralyze the unwary with their
+#ghastly fingers!
+N:Monk.Lich
+B:1:0:PUNCH:HURT(1d4)
+B:2:0:KICK:HURT(1d6)
+B:3:0:STRIKE:HURT(1d7)
+B:5:5:KNEE:HURT(2d3):STUN_MALE(1d13+7)
+B:7:5:ELBOW:HURT(1d8)
+B:9:10:BUTT:HURT(2d5)
+B:11:10:KICK:HURT(3d4):SLOW_ANKLE
+B:13:12:UPPERCUT:HURT(2d4+5):STUN(1d3+3, 20%)
+B:16:15:DOUBLE_KICK:HURT(3d4+5):STUN(1d4+4, 25%)
+B:20:20:ZOMBIE_CLAW:NETHER(3d5+5):UNLIFE(3d5, 20%)
+B:25:25:JUMP_KICK:HURT(3d6+7):STUN(1d5+5, 30%)
+B:29:25:GHOUL_TOUCH:DAM(3d6+10):PARALYZE:UNLIFE(5d5, 20%)
+B:33:30:CIRCLE_KICK:HURT(3d7+15):STUN(1d5+5, 30%)
+B:37:35:LICH_FIST:VAMP(3d8+22):UNLIFE(3d10):STUN(1d5+5, 30%)
+B:41:35:FLYING_KICK:HURT(3d9+27):STUN(1d6+6, 30%)
+B:45:35:REAVER_FIST:DISENCHANT(3d10+36):UNLIFE(4d10):STUN(1d8+8, 30%)
+B:48:35:HAND_OF_VECNA:DAM(3d12+43):UNLIFE(5d10):DRAINING_TOUCH(2d10):STUN(1d9+9, 40%)
+
+#Devilish martial arts. Rumor has it they can remove your still-beating heart
+#with their bare fingers!
+N:Monk.Demon
+B:1:0:PUNCH:HURT(1d4)
+B:2:0:KICK:HURT(1d6)
+B:3:0:STRIKE:HURT(1d7)
+B:5:5:KNEE:HURT(2d3):STUN_MALE(1d13+7)
+B:7:5:ELBOW:HURT(1d8)
+B:9:10:BUTT:HURT(2d5)
+B:11:10:KICK:HURT(3d4):SLOW_ANKLE
+B:13:12:UPPERCUT:HURT(2d4+5):STUN(1d3+3, 20%)
+B:16:15:DOUBLE_KICK:HURT(3d4+5):STUN(1d4+4, 25%)
+B:20:20:IMP_CLAW:HURT(3d5):FIRE(2d5):CUT(3d3, 20%)
+B:25:25:JUMP_KICK:HURT(3d6+7):STUN(1d5+5, 30%)
+B:29:25:DEVIL_CLAW:HURT(3d6):FIRE(3d6):CUT(4d4, 30%)
+B:33:30:CIRCLE_KICK:HURT(3d7+15):STUN(1d5+5, 30%)
+B:37:35:HELL_HAMMER:HURT(3d8+22):CONFUSE(50%):STUN(1d6+6)
+B:41:35:FLYING_KICK:HURT(3d9+27):STUN(1d6+6, 30%)
+B:45:35:SATANS_CLAW:HURT(3d9+12):HELL_FIRE(3d9):CUT(5d5, 40%)
+B:48:35:HELL_CLAW:HURT(3d12+43):TERRIFY:CUT(6d6, 50%)
+
+#The Death monk is a small alteration of normal monk attacks,
+#allowing for some drain life effects. Unlife effects are Lich only.
+N:Monk.Death
+B:1:0:PUNCH:HURT(1d4)
+B:2:0:KICK:HURT(1d6)
+B:3:0:STRIKE:HURT(1d7)
+B:5:5:KNEE:HURT(2d3):STUN_MALE(1d13+7)
+B:7:5:ELBOW:HURT(1d8)
+B:9:10:BUTT:HURT(2d5)
+B:11:10:KICK:HURT(3d4):SLOW_ANKLE
+B:13:12:UPPERCUT:HURT(2d4+5):STUN(1d3+3, 20%)
+B:16:15:DOUBLE_KICK:HURT(3d4+5):STUN(1d4+4, 25%)
+B:20:20:ZOMBIE_CLAW:NETHER(3d5+5)
+B:25:25:JUMP_KICK:HURT(3d6+7):STUN(1d5+5, 30%)
+B:29:25:GHOUL_TOUCH:DAM(3d6+10):PARALYZE
+B:33:30:CIRCLE_KICK:HURT(3d7+15):STUN(1d5+5, 30%)
+B:37:35:IRON_FIST:HURT(3d8+22):STUN(1d5+5, 30%)
+B:41:35:FLYING_KICK:HURT(3d9+27):STUN(1d6+6, 30%)
+B:45:35:VAMP_FIST:VAMP(3d10+36):STUN(1d8+8, 30%)
+B:48:35:CRUSHING_BLOW:HURT(3d12+43):STUN(1d9+9, 40%)
+
+#Logrus masters are engines of confusion and change!
+N:Monk.Chaos
+B:1:0:PUNCH:HURT(1d4):CONFUSE(10%)
+B:2:0:KICK:HURT(1d6)
+B:3:0:STRIKE:HURT(1d7):POLYMORPH(5%)
+B:5:5:KNEE:HURT(2d3):STUN_MALE(1d13+7)
+B:7:5:ELBOW:HURT(1d8)
+B:9:10:BUTT:HURT(2d5):CONFUSE(25%)
+B:11:10:KICK:HURT(3d4):SLOW_ANKLE
+B:13:12:UPPERCUT:HURT(2d4+5):STUN(1d3+3, 20%)
+B:16:15:DOUBLE_KICK:HURT(3d4+5):STUN(1d4+4, 25%)
+B:20:20:CATS_CLAW:HURT(3d5+5):CONFUSE(35%)
+B:25:25:JUMP_KICK:HURT(3d6+7):STUN(1d5+5, 30%)
+B:29:25:EAGLES_CLAW:HURT(3d6+10):CONFUSE(50%)
+B:33:30:CIRCLE_KICK:HURT(3d7+15):STUN(1d5+5, 30%)
+B:37:35:IRON_FIST:HURT(3d8+22):CONFUSE(50%):STUN(1d5+5, 30%)
+B:41:35:FLYING_KICK:HURT(3d9+27):STUN(1d6+6, 30%)
+B:45:35:CHAOS_FIST:HURT(3d10+21):CHAOS(3d10):STUN(1d8+8, 30%)
+B:48:35:CRUSHING_BLOW:HURT(3d12+43):STUN(1d9+9, 40%)
+
+?:0
+N:Beholder XXX
+
+# vim: filetype=ri :

@@ -1524,7 +1524,7 @@ errr init_gcu(int argc, char *argv[])
         EDIT: Added support for -left and -top.
     */
     {
-        rect_t remaining = rect(0, 0, COLS, LINES);
+        rect_t remaining = rect_create(0, 0, COLS, LINES);
         int    spacer_cx = 1;
         int    spacer_cy = 1;
         int    next_term = 1;
@@ -1584,7 +1584,7 @@ errr init_gcu(int argc, char *argv[])
                         quit(format("Out of bounds in -%s: %d is too large (%d rows max for this strip)", 
                             left ? "left" : "right", cys[j], remaining.cy));
                     }
-                    data[next_term++].r = rect(x, y, cx, cy);
+                    data[next_term++].r = rect_create(x, y, cx, cy);
                     y += cy + spacer_cy;
                     term_ct++;
                 }
@@ -1636,7 +1636,7 @@ errr init_gcu(int argc, char *argv[])
                         quit(format("Out of bounds in -%s: %d is too large (%d cols max for this strip)", 
                             top ? "top" : "bottom", cxs[j], remaining.cx));
                     }
-                    data[next_term++].r = rect(x, y, cx, cy);
+                    data[next_term++].r = rect_create(x, y, cx, cy);
                     x += cx + spacer_cx;
                     term_ct++;
                 }
@@ -1645,7 +1645,7 @@ errr init_gcu(int argc, char *argv[])
 
         /* Map Terminal */
         if (remaining.cx < MAP_MIN_CX || remaining.cy < MAP_MIN_CY)
-            quit(format("Failed: PosChengband needs an %dx%d map screen, not %dx%d", MAP_MIN_CX, MAP_MIN_CY, remaining.cx, remaining.cy));
+            quit(format("Failed: %s needs an %dx%d map screen, not %dx%d", VERSION_NAME, MAP_MIN_CX, MAP_MIN_CY, remaining.cx, remaining.cy));
         data[0].r = remaining;
         term_data_init(&data[0]);
         angband_term[0] = Term;

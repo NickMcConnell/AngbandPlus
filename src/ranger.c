@@ -33,13 +33,15 @@ static caster_info * _caster_info(void)
     if (!init)
     {
         me.magic_desc = "spell";
-        me.which_stat = A_WIS;
+        me.which_stat = A_INT;
         me.encumbrance.max_wgt = 450;
         me.encumbrance.weapon_pct = 33;
         me.encumbrance.enc_wgt = 1000;
         me.min_level = 3;
         me.min_fail = 5;
         me.options = CASTER_GLOVE_ENCUMBRANCE;
+        me.realm1_choices = CH_NATURE;
+        me.realm2_choices = CH_SORCERY | CH_CHAOS | CH_DEATH | CH_TRUMP | CH_ARCANE | CH_DAEMON;
         init = TRUE;
     }
     return &me;
@@ -47,30 +49,30 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
-    py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(20, 40));
-    py_birth_spellbooks();
+    plr_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
+    plr_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(20, 40));
+    plr_birth_spellbooks();
 }
 
-class_t *ranger_get_class(void)
+plr_class_ptr ranger_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  37,  36,   3,  24,  16,  56,  50};
     skills_t xs = {  8,  11,  10,   0,   0,   0,  18,  16};
 
-        me.name = "Ranger";
-        me.desc = "A Ranger is a combination of a warrior and a mage who has "
+        me = plr_class_alloc(CLASS_RANGER);
+        me->name = "Ranger";
+        me->desc = "A Ranger is a combination of a warrior and a mage who has "
                     "developed a special affinity for the natural world around him. He "
                     "is a good fighter and also excellent with a bow. A ranger has "
                     "good stealth, perception, searching and magical resistance. Also, "
                     "rangers are familiar with magical devices and use them well. "
-                    "Wisdom determines a Ranger's spell casting ability.\n \n"
+                    "Intelligence determines a Ranger's spell casting ability.\n \n"
                     "All rangers are trained in Nature magic, and all of these spells are "
                     "available to them. They even learn these spells almost as fast as "
                     "mages. They can also select a secondary realm (from Sorcery, "
@@ -80,31 +82,28 @@ class_t *ranger_get_class(void)
                     "which allows them to know a monster's HP, speed, and experience "
                     "required to evolve.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] =  0;
-        me.stats[A_WIS] =  2;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  0;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 106;
-        me.base_hp = 8;
-        me.exp = 140;
-        me.pets = 35;
-        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] =  2;
+        me->stats[A_WIS] =  0;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] =  0;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 106;
+        me->base_hp = 8;
+        me->exp = 140;
+        me->pets = 35;
+        me->flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_STRONG |
+                    CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG;
         
-        me.birth = _birth;
-        me.caster_info = _caster_info;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_shooter_bonuses = _calc_shooter_bonuses;
-        /* TODO: This class uses spell books, so we are SOL
-        me.get_spells = _get_spells;*/
-        me.get_powers = _get_powers;
-        me.character_dump = spellbook_character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_shooter_bonuses = _calc_shooter_bonuses;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = spellbook_character_dump;
     }
 
-    return &me;
+    return me;
 }

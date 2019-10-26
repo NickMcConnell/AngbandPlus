@@ -13,8 +13,6 @@
 
 ?:[EQU $RACE Human Doppelganger]
 R:0:0/0x80
-?:[EQU $RACE Tonberry]
-R:0:0/0x95
 ?:[EQU $RACE Demigod]
 R:0:0x92/0x80
 ?:[EQU $RACE Hobbit]
@@ -29,7 +27,7 @@ R:0:0/0x90
 R:0:0/0x87
 ?:[EQU $RACE Dunadan]
 R:0:0/0x88
-?:[EQU $RACE High-Elf Wood-Elf]
+?:[EQU $RACE High-Elf Wood-Elf Water-Elf]
 R:0:0/0x89
 ?:[EQU $RACE Amberite]
 R:0:0/0x8A
@@ -113,8 +111,6 @@ R:0:0x9B/0
 ?:[EQU $CLASS High-Mage]
 R:0:0x9C/0
 
-?:[EQU $CLASS Tourist]
-R:0:0x98/0
 ?:[EQU $CLASS Imitator]
 R:0:0x98/0
 ?:[EQU $CLASS Beastmaster]

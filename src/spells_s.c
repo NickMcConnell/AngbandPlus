@@ -1,6 +1,6 @@
 #include "angband.h"
 
-void satisfy_hunger_spell(int cmd, variant *res)
+void satisfy_hunger_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -21,7 +21,7 @@ void satisfy_hunger_spell(int cmd, variant *res)
 }
 bool cast_satisfy_hunger(void) { return cast_spell(satisfy_hunger_spell); }
 
-void scare_monster_spell(int cmd, variant *res)
+void scare_monster_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -51,7 +51,7 @@ void scare_monster_spell(int cmd, variant *res)
     }
 }
 
-void scare_spell(int cmd, variant *res)
+void scare_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -81,7 +81,7 @@ void scare_spell(int cmd, variant *res)
     }
 }
 
-void self_knowledge_spell(int cmd, variant *res)
+void self_knowledge_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -101,7 +101,7 @@ void self_knowledge_spell(int cmd, variant *res)
     }
 }
 
-void sense_surroundings_spell(int cmd, variant *res)
+void sense_surroundings_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -114,7 +114,7 @@ void sense_surroundings_spell(int cmd, variant *res)
     }
 }
 
-void shadow_shifting_spell(int cmd, variant *res)
+void shadow_shifting_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -135,7 +135,7 @@ void shadow_shifting_spell(int cmd, variant *res)
     }
 }
 
-void shoot_arrow_spell(int cmd, variant *res)
+void shoot_arrow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -147,26 +147,11 @@ void shoot_arrow_spell(int cmd, variant *res)
         break;
     case SPELL_INFO:
     {
-        int slot = equip_find_first(object_is_melee_weapon);
+        int slot = equip_find_first(obj_is_weapon);
         if (slot)
         {
             object_type *o_ptr = equip_obj(slot);
             var_set_string(res, info_damage(o_ptr->dd, o_ptr->ds, o_ptr->to_d));
-        }
-        else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
-        {
-            /* XXX Remove this spell for Possessors.
-            monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-            int i;
-            for (i = 0; i < 4; i++)
-            {
-                if (r_ptr->blows[i].method == RBM_SHOOT)
-                {
-                    var_set_string(res, info_damage(r_ptr->blows[i].effects[0].dd, r_ptr->blows[i].effects[0].ds, 0));
-                    return;
-                }
-            }
-            */
         }
         else
             var_set_string(res, info_damage(0, 0, 1));
@@ -182,7 +167,7 @@ void shoot_arrow_spell(int cmd, variant *res)
         if (!get_fire_dir(&dir)) return;
         msg_print("You fire an arrow.");
 
-        slot = equip_find_first(object_is_melee_weapon);
+        slot = equip_find_first(obj_is_weapon);
         if (slot)
         {
             object_type *o_ptr = equip_obj(slot);
@@ -204,7 +189,7 @@ void shoot_arrow_spell(int cmd, variant *res)
     }
 }
 
-void shriek_spell(int cmd, variant *res)
+void shriek_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -239,7 +224,7 @@ void shriek_spell(int cmd, variant *res)
 }
 bool cast_shriek(void) { return cast_spell(shriek_spell); }
 
-void sleeping_dust_spell(int cmd, variant *res)
+void sleeping_dust_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -261,7 +246,7 @@ void sleeping_dust_spell(int cmd, variant *res)
     }
 }
 
-void sleep_spell(int cmd, variant *res)
+void sleep_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -289,7 +274,7 @@ void sleep_spell(int cmd, variant *res)
     }
 }
 
-void slow_spell(int cmd, variant *res)
+void slow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -317,7 +302,7 @@ void slow_spell(int cmd, variant *res)
     }
 }
 
-void smell_metal_spell(int cmd, variant *res)
+void smell_metal_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -347,7 +332,7 @@ void smell_metal_spell(int cmd, variant *res)
     }
 }
 
-void smell_monsters_spell(int cmd, variant *res)
+void smell_monsters_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -377,7 +362,7 @@ void smell_monsters_spell(int cmd, variant *res)
     }
 }
 
-void sp_to_hp_spell(int cmd, variant *res)
+void sp_to_hp_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -433,7 +418,7 @@ void sp_to_hp_spell(int cmd, variant *res)
     }
 }
 
-void spit_acid_spell(int cmd, variant *res)
+void spit_acid_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -485,11 +470,11 @@ bool cast_spit_acid(void) { return cast_spell(spit_acid_spell); }
 static int _starburst_I_dam(void)
 {
     if (p_ptr->pclass == CLASS_WILD_TALENT) /* Wild-Talents gain both I and II versions ... */
-        return 100 + py_prorata_level_aux(100, 1, 1, 0);
-    return 100 + py_prorata_level_aux(200, 1, 1, 2);
+        return 100 + plr_prorata_level_aux(100, 1, 1, 0);
+    return 100 + plr_prorata_level_aux(200, 1, 1, 2);
 }
 
-void starburst_I_spell(int cmd, variant *res)
+void starburst_I_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -520,10 +505,10 @@ void starburst_I_spell(int cmd, variant *res)
 
 static int _starburst_II_dam(void)
 {
-    return py_prorata_level_aux(450, 1, 0, 2);
+    return plr_prorata_level_aux(450, 1, 0, 2);
 }
 
-void starburst_II_spell(int cmd, variant *res)
+void starburst_II_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -554,7 +539,7 @@ void starburst_II_spell(int cmd, variant *res)
     }
 }
 
-void sterility_spell(int cmd, variant *res)
+void sterility_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -578,7 +563,7 @@ void sterility_spell(int cmd, variant *res)
         take_hit(DAMAGE_LOSELIFE, randint1(17) + 17, "the strain of forcing abstinence");
 
         /* Fake a population explosion. */
-        num_repro += MAX_REPRO;
+        cave->breed_ct += MAX_REPRO;
         var_set_bool(res, TRUE);
         break;
     default:
@@ -588,7 +573,7 @@ void sterility_spell(int cmd, variant *res)
 }
 bool cast_sterility(void) { return cast_spell(sterility_spell); }
 
-void stinking_cloud_spell(int cmd, variant *res)
+void stinking_cloud_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -616,7 +601,7 @@ void stinking_cloud_spell(int cmd, variant *res)
     }
 }
 
-void stone_skin_spell(int cmd, variant *res)
+void stone_skin_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -627,7 +612,7 @@ void stone_skin_spell(int cmd, variant *res)
         var_set_string(res, "");
         break;
     case SPELL_CAST:
-        set_shield(randint1(30) + 20, FALSE);
+        plr_tim_add(T_STONE_SKIN, randint1(30) + 20);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -637,7 +622,7 @@ void stone_skin_spell(int cmd, variant *res)
 }
 bool cast_stone_skin(void) { return cast_spell(stone_skin_spell); }
 
-void stone_to_mud_spell(int cmd, variant *res)
+void stone_to_mud_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -663,7 +648,7 @@ void stone_to_mud_spell(int cmd, variant *res)
 }
 bool cast_stone_to_mud(void) { return cast_spell(stone_to_mud_spell); }
 
-void stop_time_spell(int cmd, variant *res)
+void stop_time_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -712,7 +697,7 @@ void stop_time_spell(int cmd, variant *res)
     }
 }
 
-void summon_amberites_spell(int cmd, variant *res)
+void summon_amberites_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -724,10 +709,10 @@ void summon_amberites_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(85));
 
         msg_print("You summon a Lord of Amber!");
-        if (!summon_specific(-1, py, px, l, SUMMON_AMBERITE, PM_FORCE_PET | PM_ALLOW_UNIQUE))
+        if (!summon_specific(-1, p_ptr->pos, l, SUMMON_AMBERITE, PM_FORCE_PET | PM_ALLOW_UNIQUE))
             msg_print("No Amberites arrives.");
 
         var_set_bool(res, TRUE);
@@ -739,7 +724,7 @@ void summon_amberites_spell(int cmd, variant *res)
     }
 }
 
-void summon_angel_spell(int cmd, variant *res)
+void summon_angel_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -752,9 +737,9 @@ void summon_angel_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int ct = 0;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(75));
 
-        ct += summon_specific(-1, py, px, l, SUMMON_ANGEL, PM_FORCE_PET);
+        ct += summon_specific(-1, p_ptr->pos, l, SUMMON_ANGEL, PM_FORCE_PET);
         if (!ct)
             msg_print("No angel arrives.");
 
@@ -767,7 +752,7 @@ void summon_angel_spell(int cmd, variant *res)
     }
 }
 
-void summon_ants_spell(int cmd, variant *res)
+void summon_ants_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -781,11 +766,11 @@ void summon_ants_spell(int cmd, variant *res)
     {
         int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(75));
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, py, px, l, SUMMON_ANT, PM_FORCE_PET | PM_ALLOW_GROUP);
+            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_ANT, PM_FORCE_PET | PM_ALLOW_GROUP);
         }
         if (!ct)
             msg_print("No ants arrive.");
@@ -798,7 +783,7 @@ void summon_ants_spell(int cmd, variant *res)
     }
 }
 
-void summon_cyberdemon_spell(int cmd, variant *res)
+void summon_cyberdemon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -811,9 +796,9 @@ void summon_cyberdemon_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int ct = 0;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(100)); /* CL45 to get DL77 */
 
-        ct += summon_specific(-1, py, px, l, SUMMON_CYBER, PM_FORCE_PET);
+        ct += summon_specific(-1, p_ptr->pos, l, SUMMON_CYBER, PM_FORCE_PET);
         if (!ct)
             msg_print("No cyberdemon arrives.");
 
@@ -826,7 +811,7 @@ void summon_cyberdemon_spell(int cmd, variant *res)
     }
 }
 
-void summon_demon_spell(int cmd, variant *res)
+void summon_demon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -840,12 +825,13 @@ void summon_demon_spell(int cmd, variant *res)
     {
         bool pet = !one_in_(3);
         u32b mode = 0L;
+        int  l = spell_power(plr_prorata_level(85));
 
         if (pet) mode |= PM_FORCE_PET;
         else mode |= PM_NO_PET;
         if (!(pet && (p_ptr->lev < 50))) mode |= PM_ALLOW_GROUP;
 
-        if (summon_specific((pet ? -1 : 0), py, px, spell_power(p_ptr->lev*2/3+randint1(p_ptr->lev/2)), SUMMON_DEMON, mode))
+        if (summon_specific((pet ? -1 : 0), p_ptr->pos, l, SUMMON_DEMON, mode))
         {
             msg_print("The area fills with a stench of sulphur and brimstone.");
             if (pet)
@@ -863,7 +849,7 @@ void summon_demon_spell(int cmd, variant *res)
     }
 }
 
-void summon_demon_II_spell(int cmd, variant *res)
+void summon_demon_II_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -876,9 +862,9 @@ void summon_demon_II_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int ct = 0;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(85));
 
-        ct += summon_specific(-1, py, px, l, SUMMON_DEMON, PM_FORCE_PET);
+        ct += summon_specific(-1, p_ptr->pos, l, SUMMON_DEMON, PM_FORCE_PET);
         if (ct)
             msg_print("The area fills with a stench of sulphur and brimstone.");
         else
@@ -893,7 +879,7 @@ void summon_demon_II_spell(int cmd, variant *res)
     }
 }
 
-void summon_dragon_spell(int cmd, variant *res)
+void summon_dragon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -906,9 +892,9 @@ void summon_dragon_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int ct = 0;
-        int l = p_ptr->lev + randint1(p_ptr->lev * 2 / 3);
+        int l = spell_power(plr_prorata_level(75));
 
-        ct += summon_specific(-1, py, px, l, SUMMON_DRAGON, PM_FORCE_PET);
+        ct += summon_specific(-1, p_ptr->pos, l, SUMMON_DRAGON, PM_FORCE_PET);
         if (!ct)
             msg_print("No dragon arrives.");
 
@@ -921,7 +907,7 @@ void summon_dragon_spell(int cmd, variant *res)
     }
 }
 
-void summon_greater_demon_spell(int cmd, variant *res)
+void summon_greater_demon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -940,7 +926,7 @@ void summon_greater_demon_spell(int cmd, variant *res)
     }
 }
 
-void summon_hi_dragon_spell(int cmd, variant *res)
+void summon_hi_dragon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -960,8 +946,8 @@ void summon_hi_dragon_spell(int cmd, variant *res)
 
         for (i = 0; i < num; i++)
         {
-            int l = p_ptr->lev + randint1(p_ptr->lev * 2 / 3);
-            ct += summon_specific(-1, py, px, l, SUMMON_HI_DRAGON, PM_FORCE_PET);
+            int l = spell_power(plr_prorata_level(85));
+            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_HI_DRAGON, PM_FORCE_PET);
         }
         if (!ct)
             msg_print("No dragons arrive.");
@@ -974,7 +960,7 @@ void summon_hi_dragon_spell(int cmd, variant *res)
     }
 }
 
-void summon_hi_undead_spell(int cmd, variant *res)
+void summon_hi_undead_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -988,11 +974,11 @@ void summon_hi_undead_spell(int cmd, variant *res)
     {
         int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(85));
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, py, px, l, SUMMON_HI_UNDEAD, PM_FORCE_PET);
+            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_HI_UNDEAD, PM_FORCE_PET);
         }
         if (!ct)
             msg_print("No undead arrive.");
@@ -1005,7 +991,7 @@ void summon_hi_undead_spell(int cmd, variant *res)
     }
 }
 
-void summon_hounds_spell(int cmd, variant *res)
+void summon_hounds_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1019,11 +1005,11 @@ void summon_hounds_spell(int cmd, variant *res)
     {
         int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(75));
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, py, px, l, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP);
+            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP);
         }
         if (!ct)
             msg_print("No hounds arrive.");
@@ -1036,7 +1022,7 @@ void summon_hounds_spell(int cmd, variant *res)
     }
 }
 
-void summon_hydras_spell(int cmd, variant *res)
+void summon_hydras_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1050,11 +1036,11 @@ void summon_hydras_spell(int cmd, variant *res)
     {
         int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(75));
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, py, px, l, SUMMON_HYDRA, PM_FORCE_PET | PM_ALLOW_GROUP);
+            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_HYDRA, PM_FORCE_PET | PM_ALLOW_GROUP);
         }
         if (!ct)
             msg_print("No hydras arrive.");
@@ -1067,7 +1053,7 @@ void summon_hydras_spell(int cmd, variant *res)
     }
 }
 
-void summon_kin_spell(int cmd, variant *res)
+void summon_kin_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1078,7 +1064,7 @@ void summon_kin_spell(int cmd, variant *res)
         var_set_string(res, "Summon related monsters for assistance.");
         break;
     case SPELL_CAST:
-        if (!summon_kin_player(p_ptr->lev, py, px, PM_FORCE_PET | PM_ALLOW_GROUP))
+        if (!summon_kin_player(p_ptr->lev, p_ptr->pos.y, p_ptr->pos.x, PM_FORCE_PET | PM_ALLOW_GROUP))
             msg_print("No help arrives.");
         var_set_bool(res, TRUE);
         break;
@@ -1088,7 +1074,7 @@ void summon_kin_spell(int cmd, variant *res)
     }
 }
 
-void summon_manes_spell(int cmd, variant *res)
+void summon_manes_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1099,7 +1085,7 @@ void summon_manes_spell(int cmd, variant *res)
         var_set_string(res, "Attempts to summon some demonic friends.");
         break;
     case SPELL_CAST:
-        if (!summon_specific(-1, py, px, (p_ptr->lev * 3) / 2, SUMMON_MANES, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+        if (!summon_specific(-1, p_ptr->pos, (p_ptr->lev * 3) / 2, SUMMON_MANES, (PM_ALLOW_GROUP | PM_FORCE_PET)))
             msg_print("No Manes arrive.");
 
         var_set_bool(res, TRUE);
@@ -1110,7 +1096,7 @@ void summon_manes_spell(int cmd, variant *res)
     }
 }
 
-void summon_monster_spell(int cmd, variant *res)
+void summon_monster_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1122,9 +1108,9 @@ void summon_monster_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(75));
 
-        if (!summon_specific(-1, py, px, l, 0, PM_FORCE_PET | PM_ALLOW_GROUP))
+        if (!summon_specific(-1, p_ptr->pos, l, 0, PM_FORCE_PET | PM_ALLOW_GROUP))
             msg_print("No monsters arrive.");
         var_set_bool(res, TRUE);
         break;
@@ -1135,7 +1121,7 @@ void summon_monster_spell(int cmd, variant *res)
     }
 }
 
-void summon_monsters_spell(int cmd, variant *res)
+void summon_monsters_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1149,11 +1135,11 @@ void summon_monsters_spell(int cmd, variant *res)
     {
         int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(75));
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, py, px, l, 0, PM_FORCE_PET | PM_ALLOW_GROUP);
+            ct += summon_specific(-1, p_ptr->pos, l, 0, PM_FORCE_PET | PM_ALLOW_GROUP);
         }
         if (!ct)
             msg_print("No monsters arrive.");
@@ -1166,7 +1152,7 @@ void summon_monsters_spell(int cmd, variant *res)
     }
 }
 
-void summon_spiders_spell(int cmd, variant *res)
+void summon_spiders_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1180,11 +1166,11 @@ void summon_spiders_spell(int cmd, variant *res)
     {
         int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(75));
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, py, px, l, SUMMON_SPIDER, PM_FORCE_PET | PM_ALLOW_GROUP);
+            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_SPIDER, PM_FORCE_PET | PM_ALLOW_GROUP);
         }
         if (!ct)
             msg_print("No spiders arrive.");
@@ -1197,7 +1183,7 @@ void summon_spiders_spell(int cmd, variant *res)
     }
 }
 
-void summon_tree_spell(int cmd, variant *res)
+void summon_tree_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1243,8 +1229,8 @@ void summon_tree_spell(int cmd, variant *res)
                 if (dir == 5) continue;
 
                 attempts++;
-                y = py + ddy[dir];
-                x = px + ddx[dir];
+                y = p_ptr->pos.y + ddy[dir];
+                x = p_ptr->pos.x + ddx[dir];
 
                 if (!in_bounds(y, x)) continue;
                 if (!cave_naked_bold(y, x)) continue;
@@ -1271,7 +1257,7 @@ void summon_tree_spell(int cmd, variant *res)
 }
 bool cast_summon_tree(void) { return cast_spell(summon_tree_spell); }
 
-void summon_undead_spell(int cmd, variant *res)
+void summon_undead_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1285,11 +1271,11 @@ void summon_undead_spell(int cmd, variant *res)
     {
         int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(75));
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, py, px, l, SUMMON_UNDEAD, PM_FORCE_PET);
+            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_UNDEAD, PM_FORCE_PET);
         }
         if (!ct)
             msg_print("No undead arrive.");
@@ -1302,7 +1288,7 @@ void summon_undead_spell(int cmd, variant *res)
     }
 }
 
-void summon_uniques_spell(int cmd, variant *res)
+void summon_uniques_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1314,10 +1300,10 @@ void summon_uniques_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = spell_power(plr_prorata_level(85));
 
         msg_print("You summon a special opponent!");
-        if (!summon_specific(-1, py, px, l, SUMMON_UNIQUE, PM_FORCE_PET | PM_ALLOW_UNIQUE))
+        if (!summon_specific(-1, p_ptr->pos, l, SUMMON_UNIQUE, PM_FORCE_PET | PM_ALLOW_UNIQUE))
             msg_print("Nobody arrives.");
 
         var_set_bool(res, TRUE);
@@ -1329,7 +1315,7 @@ void summon_uniques_spell(int cmd, variant *res)
     }
 }
 
-void super_stealth_spell(int cmd, variant *res)
+void super_stealth_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1340,14 +1326,14 @@ void super_stealth_spell(int cmd, variant *res)
         var_set_string(res, "Grants the stealth of the Ninja!  You may hide in shadows and see in the dark. Your light radius is decreased by 3.");
         break;
     case SPELL_CAST:
-        if (p_ptr->tim_superstealth)
+        if (plr_tim_find(T_SUPERSTEALTH))
         {
             msg_print("You are already moving in the shadows.");
             var_set_bool(res, FALSE);
         }
         else
         {
-            set_tim_superstealth(spell_power(randint1(p_ptr->lev/2) + p_ptr->lev/2), FALSE);
+            plr_tim_add(T_SUPERSTEALTH, spell_power(randint1(p_ptr->lev/2) + p_ptr->lev/2));
             var_set_bool(res, TRUE);
         }
         break;
@@ -1357,7 +1343,7 @@ void super_stealth_spell(int cmd, variant *res)
     }
 }
 
-void swap_pos_spell(int cmd, variant *res)
+void swap_pos_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1397,7 +1383,7 @@ void swap_pos_spell(int cmd, variant *res)
 }
 bool cast_swap_pos(void) { return cast_spell(swap_pos_spell); }
 
-void sword_dance_spell(int cmd, variant *res)
+void sword_dance_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1407,33 +1393,26 @@ void sword_dance_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attacks adjacent monsters randomly.");
         break;
-    case SPELL_CAST:
-    {
-        int y = 0, x = 0, i, dir = 0;
-        cave_type *c_ptr;
-
+    case SPELL_CAST: {
+        int i;
         for (i = 0; i < 6; i++)
         {
-            dir = randint0(8);
-            y = py + ddy_ddd[dir];
-            x = px + ddx_ddd[dir];
-            c_ptr = &cave[y][x];
+            int     dir = ddd[randint0(8)];
+            point_t p = point_step(p_ptr->pos, dir);
+            mon_ptr mon = mon_at(p);
 
-            if (c_ptr->m_idx)
-                py_attack(y, x, 0);
-            else
-                msg_print("You attack the empty air.");
+            if (mon) plr_attack_normal(p);
+            else msg_print("You attack the empty air.");
         }
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-void telekinesis_spell(int cmd, variant *res)
+void telekinesis_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1470,7 +1449,7 @@ void telekinesis_spell(int cmd, variant *res)
 }
 bool cast_telekinesis(void) { return cast_spell(telekinesis_spell); }
 
-void telepathy_spell(int cmd, variant *res)
+void telepathy_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1484,7 +1463,7 @@ void telepathy_spell(int cmd, variant *res)
         var_set_string(res, info_duration(25, 30));
         break;
     case SPELL_CAST:
-        set_tim_esp(randint1(25) + 30, FALSE);
+        plr_tim_add(T_TELEPATHY, randint1(25) + 30);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1493,7 +1472,7 @@ void telepathy_spell(int cmd, variant *res)
     }
 }
 
-void teleport_other_spell(int cmd, variant *res)
+void teleport_other_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1522,7 +1501,7 @@ void teleport_other_spell(int cmd, variant *res)
     }
 }
 
-void teleport_spell(int cmd, variant *res)
+void teleport_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1559,7 +1538,7 @@ void teleport_spell(int cmd, variant *res)
 }
 bool cast_teleport(void) { return cast_spell(teleport_spell); }
 
-void teleport_level_spell(int cmd, variant *res)
+void teleport_level_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1582,7 +1561,7 @@ void teleport_level_spell(int cmd, variant *res)
 }
 bool cast_teleport_level(void) { return cast_spell(teleport_level_spell); }
 
-void teleport_to_spell(int cmd, variant *res)
+void teleport_to_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1592,21 +1571,20 @@ void teleport_to_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Teleport a visible monster next to you.");
         break;
-    case SPELL_CAST:
-    {
+    case SPELL_CAST: {
         monster_type *m_ptr;
         monster_race *r_ptr;
         char m_name[80];
 
         if (!target_set(TARGET_KILL)) break;
-        if (!cave[target_row][target_col].m_idx) break;
+        if (!mon_at_xy(target_col, target_row)) break;
         if (!player_has_los_bold(target_row, target_col)) break;
-        if (!projectable(py, px, target_row, target_col)) break;
+        if (!projectable(p_ptr->pos.y, p_ptr->pos.x, target_row, target_col)) break;
 
         var_set_bool(res, TRUE);
 
-        m_ptr = &m_list[cave[target_row][target_col].m_idx];
-        r_ptr = &r_info[m_ptr->r_idx];
+        m_ptr = mon_at_xy(target_col, target_row);
+        r_ptr = mon_race(m_ptr);
         monster_desc(m_name, m_ptr, 0);
         if (r_ptr->flagsr & RFR_RES_TELE)
         {
@@ -1624,9 +1602,8 @@ void teleport_to_spell(int cmd, variant *res)
             }
         }
         msg_format("You command %s to return.", m_name);
-        teleport_monster_to(cave[target_row][target_col].m_idx, py, px, 100, TELEPORT_PASSIVE);
-        break;
-    }
+        teleport_monster_to(m_ptr->id, p_ptr->pos.y, p_ptr->pos.x, 100, TELEPORT_PASSIVE);
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -1635,9 +1612,9 @@ void teleport_to_spell(int cmd, variant *res)
 
 static int _boulder_dam(void)
 {
-    return py_prorata_level_aux(250, 2, 1, 2);
+    return plr_prorata_level_aux(250, 2, 1, 2);
 }
-void throw_boulder_spell(int cmd, variant *res)
+void throw_boulder_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1669,7 +1646,7 @@ void throw_boulder_spell(int cmd, variant *res)
     }
 }
 
-void touch_of_confusion_spell(int cmd, variant *res)
+void touch_of_confusion_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1694,7 +1671,7 @@ void touch_of_confusion_spell(int cmd, variant *res)
     }
 }
 
-void turn_undead_spell(int cmd, variant *res)
+void turn_undead_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1705,7 +1682,7 @@ void turn_undead_spell(int cmd, variant *res)
         var_set_string(res, "Attempts to scare undead monsters in sight.");
         break;
     case SPELL_CAST:
-        if (project_hack(GF_TURN_UNDEAD, spell_power(p_ptr->lev)))
+        if (project_los(GF_TURN_UNDEAD, spell_power(p_ptr->lev)))
             virtue_add(VIRTUE_UNLIFE, -1);
         var_set_bool(res, TRUE);
         break;
@@ -1715,7 +1692,7 @@ void turn_undead_spell(int cmd, variant *res)
     }
 }
 
-void vampirism_spell(int cmd, variant *res)
+void vampirism_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1737,60 +1714,34 @@ void vampirism_spell(int cmd, variant *res)
     case SPELL_MUT_DESC:
         var_set_string(res, "You can drain life from a foe like a vampire.");
         break;
-    case SPELL_CAST:
+    case SPELL_CAST: {
+        int dam = spell_power(p_ptr->lev*2);
+        mon_ptr mon = plr_target_adjacent_mon();
+
         var_set_bool(res, FALSE);
-        if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
+        if (!mon) break;
+        var_set_bool(res, TRUE);
+
+        msg_print("You grin and bare your fangs...");
+        stop_mouth(); /* no singing with your mouth full! */
+
+        if (plr_touch_mon(mon, GF_OLD_DRAIN, dam))
         {
-            msg_print("Something prevent you from attacking.");
-            return;
-        }
-        else
-        {
-            int x, y, dummy;
-            cave_type *c_ptr;
-            int dir = 0;
-
-            /* Only works on adjacent monsters */
-            if (!get_rep_dir2(&dir)) break;
-
-            var_set_bool(res, TRUE);
-
-            y = py + ddy[dir];
-            x = px + ddx[dir];
-            c_ptr = &cave[y][x];
-
-            stop_mouth();
-
-            if (!(c_ptr->m_idx))
-            {
-                msg_print("You bite into thin air!");
-                break;
-            }
-
-            msg_print("You grin and bare your fangs...");
-            dummy = spell_power(p_ptr->lev * 2);
-
-            if (drain_life(dir, dummy))
-            {
-                /* No heal if we are "full" */
-                if (p_ptr->food < PY_FOOD_FULL)
-                    vamp_player(dummy);
-                else
-                    msg_print("You were not hungry.");
-
-                /* Gain nutritional sustenance: 150/hp drained
-                 * A Food ration gives 5000 food points (by contrast)
-                 * Don't ever get more than "Full" this way
-                 * But if we ARE Gorged,  it won't cure us 
-                 */
-                dummy = p_ptr->food + MIN(5000, 100 * dummy);
-                if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
-                    set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
-            }
+            if (p_ptr->food < PY_FOOD_FULL)
+                vamp_player(dam);
             else
-                msg_print("Yechh. That tastes foul.");
+                msg_print("You were not hungry.");
+
+            if (p_ptr->food < PY_FOOD_MAX)
+            {
+                int food = p_ptr->food + MIN(5000, 100*dam);
+                food = MIN(PY_FOOD_MAX - 1, food);
+                set_food(food);
+            }
         }
-        break;
+        else if (!mon_is_living(mon))
+            msg_print("Yechh. That tastes foul.");
+        break; }
     case SPELL_COST_EXTRA:
         var_set_int(res, p_ptr->lev / 3);
         break;
@@ -1801,7 +1752,7 @@ void vampirism_spell(int cmd, variant *res)
 }
 bool cast_vampirism(void) { return cast_spell(vampirism_spell); }
 
-void water_ball_spell(int cmd, variant *res)
+void water_ball_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1830,7 +1781,7 @@ void water_ball_spell(int cmd, variant *res)
     }
 }
 
-void water_bolt_spell(int cmd, variant *res)
+void water_bolt_spell(int cmd, var_ptr res)
 {
     int dd = 7 + p_ptr->lev / 4;
     int ds = 15;
@@ -1865,7 +1816,7 @@ void water_bolt_spell(int cmd, variant *res)
     }
 }
 
-void weigh_magic_spell(int cmd, variant *res)
+void weigh_magic_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1895,7 +1846,7 @@ void weigh_magic_spell(int cmd, variant *res)
 }
 bool cast_weigh_magic(void) { return cast_spell(weigh_magic_spell); }
 
-void wonder_spell(int cmd, variant *res)
+void wonder_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1920,7 +1871,7 @@ void wonder_spell(int cmd, variant *res)
     }
 }
 
-void wraithform_spell(int cmd, variant *res)
+void wraithform_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1936,7 +1887,7 @@ void wraithform_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int base = spell_power(p_ptr->lev / 2);
-        set_wraith_form(randint1(base) + base, FALSE);
+        plr_tim_add(T_WRAITH, randint1(base) + base);
         var_set_bool(res, TRUE);
         break;
     }

@@ -56,7 +56,6 @@ enum {
     GF_PSY_SPEAR,
     GF_PSI,
     GF_PSI_DRAIN,
-    GF_PSI_EGO_WHIP,
     GF_PSI_BRAIN_SMASH,
     GF_PSI_STORM,
     GF_TELEKINESIS,
@@ -137,7 +136,6 @@ enum {
     GF_IDENTIFY,
 
     /* Class Specific */
-    GF_PHOTO,
     GF_ATTACK,
     GF_ENGETSU,
     GF_SEEKER,
@@ -154,6 +152,9 @@ enum {
     GF_DRAINING_TOUCH,
     GF_DEATH_TOUCH,
     GF_STEAL,
+    GF_LICH_DRAIN,
+    GF_LICH_GENOCIDE,
+    GF_LICH_WORD,
 
     /* New Stuff (unsorted) */
     /* Add new effects here. Reorganize later for next major version upgrade. */
@@ -161,12 +162,28 @@ enum {
     GF_COUNT  /* enumerate 0 <= i < GF_COUNT */
 };            /* allocate gf[GF_COUNT] */
 
+/* GF_* flags (GFF_*) provide a loose classification of effects.
+ * Mostly, we need to know when to display damage numbers or apply
+ * auras to riding players, etc. */
+#define GFF_ELEMENTAL   0x00000001
+#define GFF_CURSE       0x00000002
+#define GFF_MENTAL      0x00000004
+#define GFF_STATUS      0x00000008  /* confuse, sleep, fear, etc. */
+#define GFF_TERRAIN     0x00000010  /* wall of stone, summon tree, stone to mud, etc */
+#define GFF_TELEPORT    0x00000020
+#define GFF_CHARM       0x00000040
+#define GFF_OBJECT      0x00000080  /* identify (bard?) */
+#define GFF_SPECIAL     0x00000100  /* class specific special effect */
+
+#define GFF_DAMAGE      0x00010000  /* causes physical damage */
+#define GFF_RIDING      0x00020000  /* apply aura to player when riding */
 typedef struct {
     int  id;
     cptr name;
     byte color;
     int  resist;
     cptr parse;
+    int  flags;
 } gf_info_t, *gf_info_ptr;
 
 extern gf_info_ptr gf_parse_name(cptr token);
@@ -197,6 +214,7 @@ extern gf_info_ptr gf_lookup(int id);
 #define GF_AFFECT_ATTACK 0x02 /* Monster melee B:HIT:HURT(10d10):DISENCHANT */
 #define GF_AFFECT_AURA   0x04 /* Monster aura  A:DISENCHANT(3d5) */
 #define GF_AFFECT_TRAP   0x08
+#define GF_AFFECT_QUIET  0x10 /* stop "It resists" and "It is unaffected" message spam */
 extern int gf_affect_p(int who, int type, int dam, int flags);
 extern bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags);
 
@@ -205,6 +223,4 @@ extern bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags);
 extern int gf_holy_dam(int dam);
 extern int gf_hell_dam(int dam);
 
-/* XXX Remove these ... */
-extern int gf_distance_hack;
 #endif

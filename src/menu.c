@@ -1,16 +1,15 @@
 #include "angband.h"
 #include "menu.h"
 
-void default_menu(int cmd, int which, vptr cookie, variant *res)
+void default_menu(int cmd, int which, vptr cookie, var_ptr res)
 {
     var_clear(res);
 }
 
 static void _describe(menu_ptr menu, int which)
 {
-    variant v;
+    var_t v = var_create();
 
-    var_init(&v);
     menu->fn(MENU_HELP, which, menu->cookie, &v);
     if (!var_is_null(&v))
     {
@@ -28,7 +27,7 @@ static void _describe(menu_ptr menu, int which)
             line++;
         }
     }
-    var_clear(&v);
+    var_destroy(&v);
 }
 
 static void _list(menu_ptr menu, char *keys)
@@ -36,21 +35,19 @@ static void _list(menu_ptr menu, char *keys)
     char temp[255];
     int  i;
     int  y = 1;
-    int  x = 13;
+    int  x = 0;
 
     Term_erase(x, y, 255);
 
     if (menu->heading)
-        put_str(format("     %s", menu->heading), y++, x);
+        put_str(format("    %s", menu->heading), y++, x);
 
     for (i = 0; i < menu->count; i++)
     {
         byte attr = TERM_WHITE;
-        variant key, text, color;
-
-        var_init(&key);
-        var_init(&text);
-        var_init(&color);
+        var_t key = var_create();
+        var_t text = var_create();
+        var_t color = var_create();
 
         menu->fn(MENU_KEY, i, menu->cookie, &key);
         if (var_is_null(&key))
@@ -72,19 +69,19 @@ static void _list(menu_ptr menu, char *keys)
         if (attr == TERM_DARK)
             keys[i] = '\0';
 
-        sprintf(temp, "  %c) %s", keys[i], var_get_string(&text));
+        sprintf(temp, " %c) %s", keys[i], var_get_string(&text));
         c_prt(attr, temp, y + i, x);
 
-        var_clear(&key);
-        var_clear(&text);
-        var_clear(&color);
+        var_destroy(&key);
+        var_destroy(&text);
+        var_destroy(&color);
     }
     Term_erase(x, y + menu->count, 255);
 }
 
 static int _choose(menu_ptr menu)
 {
-    int     choice = -1;
+    int  choice = -1;
     bool describe = FALSE;
     bool allow_browse = FALSE;
     char choose_prompt[255];

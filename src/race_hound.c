@@ -83,7 +83,7 @@ static int _find_tier(int r_idx)
 static cptr _mon_name(int r_idx)
 {
     if (r_idx)
-        return r_name + r_info[r_idx].name;
+        return r_name + mon_race_lookup(r_idx)->name;
     return ""; /* Birth Menu */
 }
 
@@ -102,64 +102,49 @@ static void _birth(void)
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 3;
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 /**********************************************************************
  * Hound Attacks
  **********************************************************************/
+void hound_calc_innate_bonuses(mon_blow_ptr blow)
+{
+    if (blow->method == RBM_CLAW)
+        plr_calc_blows_innate(blow, 200);
+    if (blow->method == RBM_BITE)
+        plr_calc_blows_innate(blow, 300);
+}
 void hound_calc_innate_attacks(void)
 {
     int l = p_ptr->lev;
-    int to_d = py_prorata_level(15);
-    int to_h = l/2;
+    int to_d = plr_prorata_level(15);
+    mon_blow_ptr blow;
 
     /* Claws */
-    {
-        innate_attack_t    a = {0};
+    blow = mon_blow_alloc(RBM_CLAW);
+    blow->power = l*3/2;
+    blow->weight = 100;
+    mon_blow_push_effect(blow, RBE_HURT, dice_create(1 + l/17, 3 + l/21, to_d));
+    hound_calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
 
-        a.dd = 1 + l / 17;
-        a.ds = 3 + l / 21;
-        a.to_d += to_d;
-        a.to_h += to_h;
-
-        a.weight = 100;
-        calc_innate_blows(&a, 200);
-        a.msg = "You claw.";
-        a.name = "Claw";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
     /* Bite */
-    {
-        innate_attack_t    a = {0};
-
-        a.dd = 1 + l / 23;
-        a.ds = 4 + l / 5;
-        a.to_d += to_d;
-        a.to_h += to_h;
-
-        a.weight = 200;
-        a.effect[0] = GF_MISSILE;
-        if (p_ptr->current_r_idx == MON_HOUND_OF_TINDALOS)
-        {
-            a.effect[1] = GF_TIME;
-            a.effect_chance[1] = 50;
-            a.dd = 2; /* 3d14+15 -> 2d14+10 with 50% 2d14+10 additional time damage */
-            a.to_d = py_prorata_level(10);
-        }
-
-        calc_innate_blows(&a, 300);
-        a.msg = "You bite.";
-        a.name = "Bite";
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
+    blow = mon_blow_alloc(RBM_BITE);
+    blow->power = l*3/2;
+    blow->weight = 200;
+    mon_blow_push_effect(blow, RBE_HURT, dice_create(1 + l/23, 4 + l/5, to_d));
+    if (p_ptr->current_r_idx == MON_HOUND_OF_TINDALOS)
+        mon_blow_push_effect(blow, GF_TIME, dice_create(6, 6, 0))->pct = 50;
+    hound_calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
 }
 
 /**********************************************************************
@@ -227,7 +212,7 @@ static int _breath_effect(void)
 
 static int _breath_amount(void)
 {
-    int pct = 15 + py_prorata_level(15);
+    int pct = 15 + plr_prorata_level(15);
     return MAX(5, p_ptr->chp * pct / 100);
 }
 
@@ -242,16 +227,18 @@ static cptr _breath_desc(void)
     return gf_name(_breath_effect());
 }
 
-static void _breathe_spell(int cmd, variant *res)
+static void _breathe_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
         var_set_string(res, "Breathe");
         break;
-    case SPELL_DESC:
-        var_set_string(res, format("Breathes %s at your opponent.", _breath_desc()));
-        break;
+    case SPELL_DESC: { /* XXX Don't call format() with the results of a previous call to format() */
+        string_ptr s = string_alloc_format("Breathes %s at your opponent.", _breath_desc());
+        var_set_string(res, string_buffer(s));
+        string_free(s);
+        break; }
     case SPELL_INFO:
         var_set_string(res, info_damage(0, 0, _breath_amount()));
         break;
@@ -269,7 +256,7 @@ static void _breathe_spell(int cmd, variant *res)
         if (get_fire_dir(&dir))
         {
             int e = _breath_effect();
-            msg_format("You breathe %s", gf_name(e));
+            msg_format("You breathe %s.", gf_name(e));
             fire_ball(e, dir, _breath_amount(), -1 - (p_ptr->lev / 20));
             var_set_bool(res, TRUE);
         }
@@ -281,7 +268,7 @@ static void _breathe_spell(int cmd, variant *res)
     }
 }
 
-void _bark_spell(int cmd, variant *res)
+void _bark_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -302,7 +289,7 @@ void _bark_spell(int cmd, variant *res)
     }
 }
 
-void hound_leap_spell(int cmd, variant *res)
+void hound_leap_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -318,7 +305,7 @@ void hound_leap_spell(int cmd, variant *res)
     }
 }
 
-void hound_run_spell(int cmd, variant *res)
+void hound_run_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -334,7 +321,7 @@ void hound_run_spell(int cmd, variant *res)
     }
 }
 
-void hound_sniff_spell(int cmd, variant *res)
+void hound_sniff_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -354,7 +341,7 @@ void hound_sniff_spell(int cmd, variant *res)
     }
 }
 
-void hound_stalk_spell(int cmd, variant *res)
+void hound_stalk_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -403,7 +390,7 @@ static int _get_powers(spell_info* spells, int max) {
     return ct;
 }
 static void _calc_bonuses(void) {
-    int to_a = py_prorata_level_aux(25, 1, 2, 2);
+    int to_a = plr_prorata_level_aux(25, 1, 2, 2);
     int tier = _find_tier(p_ptr->current_r_idx);
 
     p_ptr->skill_dig += 100;
@@ -689,21 +676,18 @@ static void _gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-race_t *mon_hound_get_race(void)
+plr_race_ptr mon_hound_get_race(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  20,  31,   4,  20,  15,  56,  30};
     skills_t xs = {  8,   8,  10,   1,   0,   0,  20,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
-
-        me.name = "Hound";
-        me.desc = "While Hounds typically hunt in packs, you have chosen to go it alone. "
+        me = plr_race_alloc(RACE_MON_HOUND);
+        me->name = "Hound";
+        me->desc = "While Hounds typically hunt in packs, you have chosen to go it alone. "
                     "You will begin life in the weak form of a Clear Hound. As you mature "
                     "you will take a number of evolutionary steps. At each such step, the "
                     "form you evolve into will be randomly determined. But each tier offers "
@@ -720,36 +704,35 @@ race_t *mon_hound_get_race(void)
                     "hind legs, an amulet around their neck and even a cloak and a suit of "
                     "body armor.";
 
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->infra = 5;
+        me->exp = 150;
+        me->life = 100;
+        me->base_hp = 22;
+        me->shop_adjust = 110;
+        me->pseudo_class_idx = CLASS_ROGUE;
+        me->boss_r_idx = MON_CARCHAROTH;
 
-        me.infra = 5;
-        me.exp = 150;
-        me.life = 100;
-        me.base_hp = 22;
-        me.shop_adjust = 110;
+        me->hooks.calc_innate_attacks = hound_calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = hound_calc_innate_bonuses;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.birth = _birth;
 
-        me.calc_innate_attacks = hound_calc_innate_attacks;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_powers = _get_powers;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
-        me.birth = _birth;
-
-        me.flags = RACE_IS_MONSTER; /* | RACE_IS_ILLITERATE? */
-        me.boss_r_idx = MON_CARCHAROTH;
-
-        me.pseudo_class_idx = CLASS_ROGUE;
-
-        init = TRUE;
+        me->flags = RACE_IS_MONSTER; /* | RACE_IS_ILLITERATE? No ... think Scooby-doo! */
     }
 
-    me.subname = _mon_name(p_ptr->current_r_idx);
-    me.stats[A_STR] =  1 + p_ptr->lev/12;
-    me.stats[A_INT] = -3;
-    me.stats[A_WIS] = -5;
-    me.stats[A_DEX] =  2 + p_ptr->lev/15;
-    me.stats[A_CON] =  1 + p_ptr->lev/15;
-    me.stats[A_CHR] =  0 + p_ptr->lev/25;
-    me.equip_template = mon_get_equip_template();
+    me->subname = _mon_name(p_ptr->current_r_idx);
+    me->stats[A_STR] =  1 + p_ptr->lev/12;
+    me->stats[A_INT] = -3;
+    me->stats[A_WIS] = -5;
+    me->stats[A_DEX] =  2 + p_ptr->lev/15;
+    me->stats[A_CON] =  1 + p_ptr->lev/15;
+    me->stats[A_CHR] =  0 + p_ptr->lev/25;
+    me->equip_template = mon_get_equip_template();
 
-    return &me;
+    return me;
 }

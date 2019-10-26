@@ -29,14 +29,19 @@ extern slot_t  label_slot(char label);
 
 typedef struct inv_s inv_t, *inv_ptr; /* Hidden/Abstract */
 
-#define INV_EQUIP     1
-#define INV_PACK      2
-#define INV_QUIVER    3
-#define INV_SHOP      4
-#define INV_FLOOR     5
-#define INV_HOME      6
-#define INV_MUSEUM    7
-#define INV_TMP_ALLOC 8  /* Hack so obj_release knows to free() temp objs */
+enum {
+    INV_NONE = 0,   /* object during forging, but not yet placed */
+    INV_EQUIP,
+    INV_PACK,
+    INV_QUIVER,
+    INV_SHOP,
+    INV_HOME,
+    INV_MUSEUM,
+    INV_FLOOR,
+    INV_MON_PACK,
+    INV_TEMP,
+    INV_JUNK,       /* dun_t.junkpile */
+};
 
 /* Creation ... be sure to inv_free() any returned inv_ptr */
 extern inv_ptr inv_alloc(cptr name, int type, int max);

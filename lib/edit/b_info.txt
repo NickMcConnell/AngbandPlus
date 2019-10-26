@@ -824,13 +824,6 @@ S:HELMET:Helm
 S:HELMET:Helm
 S:HELMET:Helm
 
-# Without a pseudopod for a poison needle, the mimic
-# will never learn this form.
-N:77:Babble
-S:ANY:Belly
-S:ANY:Belly
-S:ANY:Belly
-
 N:78:Culverin
 S:RING:Ring
 S:RING:Ring
@@ -920,6 +913,8 @@ N:86:Skull
 S:HELMET:Skull
 S:LITE:Eye Socket
 S:LITE:Eye Socket
+S:RING:Tooth
+S:RING:Tooth
 S:RING:Tooth
 S:RING:Tooth
 S:RING:Tooth

@@ -23,51 +23,49 @@ static void _amberite_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_SUST_CON);
     add_flag(flgs, OF_REGEN);
 }
-race_t *amberite_get_race(void)
+plr_race_ptr amberite_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Amberite";
-        me.desc = "The Amberites are a reputedly immortal race, who are endowed with numerous "
+        me = plr_race_alloc(RACE_AMBERITE);
+        me->name = "Amberite";
+        me->desc = "The Amberites are a reputedly immortal race, who are endowed with numerous "
                     "advantages in addition to their longevity. They are very tough and their "
                     "constitution cannot be reduced, and their ability to heal wounds far "
                     "surpasses that of any other race. Having seen virtually everything, "
                     "very little is new to them, and they gain levels much slower than the "
                     "other races.";
 
-        me.stats[A_STR] =  1;
-        me.stats[A_INT] =  2;
-        me.stats[A_WIS] =  2;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  0;
+        me->stats[A_STR] =  1;
+        me->stats[A_INT] =  2;
+        me->stats[A_WIS] =  2;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] =  0;
 
-        me.skills.dis =  4;
-        me.skills.dev =  3;
-        me.skills.sav =  3;
-        me.skills.stl =  2;
-        me.skills.srh =  3;
-        me.skills.fos = 13;
-        me.skills.thn = 15;
-        me.skills.thb =  7;
+        me->skills.dis =  4;
+        me->skills.dev =  3;
+        me->skills.sav =  3;
+        me->skills.stl =  2;
+        me->skills.srh =  3;
+        me->skills.fos = 13;
+        me->skills.thn = 15;
+        me->skills.thb =  7;
 
-        me.life = 100;
-        me.base_hp = 20;
-        me.exp = 190;
-        me.infra = 0;
-        me.shop_adjust = 100;
+        me->life = 100;
+        me->base_hp = 20;
+        me->exp = 190;
+        me->infra = 0;
+        me->shop_adjust = 100;
 
-
-        me.calc_bonuses = _amberite_calc_bonuses;
-        me.get_powers = _amberite_get_powers;
-        me.get_flags = _amberite_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _amberite_calc_bonuses;
+        me->hooks.get_powers = _amberite_get_powers;
+        me->hooks.get_flags = _amberite_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -85,8 +83,8 @@ int android_obj_exp(object_type *o_ptr)
     int value, exp, level;
 
     if (!o_ptr) return 0;
-    if (!object_is_wearable(o_ptr)) return 0;
-    if (object_is_jewelry(o_ptr)) return 0;
+    if (!obj_is_wearable(o_ptr)) return 0;
+    if (obj_is_jewelry(o_ptr)) return 0;
     if (o_ptr->tval == TV_LITE) return 0;
 
     value = _obj_value(o_ptr);
@@ -97,7 +95,7 @@ int android_obj_exp(object_type *o_ptr)
 
     level = MAX(k_info[o_ptr->k_idx].level - 8, 1);
 
-    if (object_is_fixed_artifact(o_ptr))
+    if (obj_is_std_art(o_ptr))
     {
         artifact_type *a_ptr = &a_info[o_ptr->name1];
         int            a_lvl = MAX(a_ptr->level - 8, 5);
@@ -119,10 +117,9 @@ int android_obj_exp(object_type *o_ptr)
 
     if (o_ptr->tval == TV_DRAG_ARMOR || o_ptr->tval == TV_CARD) level /= 2;
 
-    if ( object_is_artifact(o_ptr)
-      || object_is_ego(o_ptr)
-      || o_ptr->tval == TV_DRAG_ARMOR
-      || object_is_dragon_armor(o_ptr)
+    if ( obj_is_art(o_ptr)
+      || obj_is_ego(o_ptr)
+      || obj_is_dragon_armor(o_ptr)
       || object_is_(o_ptr, TV_SWORD, SV_DIAMOND_EDGE) )
     {
         if (level > 65) level = 35 + (level - 65) / 5;
@@ -138,9 +135,9 @@ int android_obj_exp(object_type *o_ptr)
         if (value > 100000L)
             exp += (value - 100000L) * level / 4;
     }
-    if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_BOW)
+    if (obj_is_weapon(o_ptr) || o_ptr->tval == TV_BOW)
         return exp / 48;
-    else if (object_is_body_armour(o_ptr))
+    else if (obj_is_body_armor(o_ptr))
         return 3 * exp / 32;
     else
         return exp / 16;
@@ -234,21 +231,21 @@ static void _android_birth(void)
     object_prep(&forge, lookup_kind(TV_FLASK, SV_ANY));
     apply_magic(&forge, 1, AM_NO_FIXED_ART); /* Hack (pval->xtra4) */
     forge.number = rand_range(7, 12);
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_light();
+    plr_birth_light();
 
     p_ptr->au /= 5;
 }
-race_t *android_get_race(void)
+plr_race_ptr android_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Android";
-        me.desc = "An android is a artificial creation with a body of machinery. Over the millenia, artificial "
+        me = plr_race_alloc(RACE_ANDROID);
+        me->name = "Android";
+        me->desc = "An android is a artificial creation with a body of machinery. Over the millenia, artificial "
                     "intelligence has improved to the point where androids are nearly as smart as humans, though "
                     "perhaps not so wise. Of course, their mechanical body offers great physical advantages, far "
                     "surpassing the powers of man. Androids don't acquire experience like other "
@@ -260,39 +257,37 @@ race_t *android_get_race(void)
                     "They gain very little nutrition from the food of mortals, but they can use flasks "
                     "of oil as their energy source.";
 
-        me.stats[A_STR] =  3;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] = -5;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  0;
+        me->stats[A_STR] =  3;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] = -5;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] =  0;
 
-        me.skills.dis =  0;
-        me.skills.dev = -3;
-        me.skills.sav =  0;
-        me.skills.stl = -2;
-        me.skills.srh =  3;
-        me.skills.fos = 14;
-        me.skills.thn = 20;
-        me.skills.thb =  6;
+        me->skills.dis =  0;
+        me->skills.dev = -3;
+        me->skills.sav =  0;
+        me->skills.stl = -2;
+        me->skills.srh =  3;
+        me->skills.fos = 14;
+        me->skills.thn = 20;
+        me->skills.thb =  6;
 
-        me.life = 108;
-        me.base_hp = 26;
-        me.exp = 200;
-        me.infra = 0;
-        me.shop_adjust = 120;
+        me->life = 108;
+        me->base_hp = 26;
+        me->exp = 200;
+        me->infra = 0;
+        me->shop_adjust = 120;
 
 
-        me.birth = _android_birth;
-        me.calc_bonuses = _android_calc_bonuses;
-        me.get_powers = _android_get_powers;
-        me.get_flags = _android_get_flags;
-        me.flags = RACE_IS_NONLIVING;
-
-        init = TRUE;
+        me->hooks.birth = _android_birth;
+        me->hooks.calc_bonuses = _android_calc_bonuses;
+        me->hooks.get_powers = _android_get_powers;
+        me->hooks.get_flags = _android_get_flags;
+        me->flags = RACE_IS_NONLIVING;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -309,48 +304,47 @@ static void _archon_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_LEVITATION);
     add_flag(flgs, OF_SEE_INVIS);
 }
-race_t *archon_get_race(void)
+plr_race_ptr archon_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Archon";
-        me.desc = "Archons are a higher class of angels. They are good at all skills, and are strong, "
+        me = plr_race_alloc(RACE_ARCHON);
+        me->name = "Archon";
+        me->desc = "Archons are a higher class of angels. They are good at all skills, and are strong, "
                     "wise, and are a favorite with any people. They are able to see the unseen, and "
                     "their wings allow them to safely fly over traps and other dangerous places. However, "
                     "belonging to a higher plane as they do, the experiences of this world do not leave "
                     "a strong impression on them and they gain levels slowly.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] =  0;
-        me.stats[A_WIS] =  4;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  3;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] =  0;
+        me->stats[A_WIS] =  4;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  3;
 
-        me.skills.dis =  0;
-        me.skills.dev =  8;
-        me.skills.sav =  8;
-        me.skills.stl =  2;
-        me.skills.srh =  2;
-        me.skills.fos = 11;
-        me.skills.thn = 10;
-        me.skills.thb =  7;
+        me->skills.dis =  0;
+        me->skills.dev =  8;
+        me->skills.sav =  8;
+        me->skills.stl =  2;
+        me->skills.srh =  2;
+        me->skills.fos = 11;
+        me->skills.thn = 10;
+        me->skills.thb =  7;
 
-        me.life = 103;
-        me.base_hp = 22;
-        me.exp = 200;
-        me.infra = 3;
-        me.shop_adjust = 90;
+        me->life = 103;
+        me->base_hp = 22;
+        me->exp = 200;
+        me->infra = 3;
+        me->shop_adjust = 90;
 
-        me.calc_bonuses = _archon_calc_bonuses;
-        me.get_flags = _archon_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _archon_calc_bonuses;
+        me->hooks.get_flags = _archon_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -385,62 +379,62 @@ static void _balrog_get_flags(u32b flgs[OF_ARRAY_SIZE])
 static void _balrog_birth(void)
 {
     int i, ct = rand_range(3, 4);
-    get_mon_num_prep(monster_hook_human, NULL);
+    mon_alloc_push_filter(monster_hook_human);
     for (i = 0; i < ct; i++)
     {
         object_type forge = {0};
         object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
-        forge.pval = get_mon_num(2);
-        py_birth_obj(&forge);
+        forge.pval = mon_alloc_choose(2)->id;
+        plr_birth_obj(&forge);
     }
-    py_birth_light();
+    mon_alloc_pop_filter();
+    plr_birth_light();
 }
-race_t *balrog_get_race(void)
+plr_race_ptr balrog_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Balrog";
-        me.desc = "Balrogs are a higher class of demons. They are strong, intelligent and tough. They do "
+        me = plr_race_alloc(RACE_BALROG);
+        me->name = "Balrog";
+        me->desc = "Balrogs are a higher class of demons. They are strong, intelligent and tough. They do "
                     "not believe in gods, and are not suitable for priest at all. Balrog are resistant to "
                     "fire and nether, and have a firm hold on their life force. They also eventually learn "
                     "to see invisible things. They are good at almost all skills except stealth. They gain "
                     "very little nutrition from the food of mortals, and need human corpses as sacrifices "
                     "to regain their vitality.";
 
-        me.stats[A_STR] =  4;
-        me.stats[A_INT] =  2;
-        me.stats[A_WIS] =-10;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  2;
+        me->stats[A_STR] =  4;
+        me->stats[A_INT] =  2;
+        me->stats[A_WIS] =-10;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] =  2;
 
-        me.skills.dis = -3;
-        me.skills.dev =  8;
-        me.skills.sav = 15;
-        me.skills.stl = -2;
-        me.skills.srh =  1;
-        me.skills.fos =  8;
-        me.skills.thn = 20;
-        me.skills.thb =  0;
+        me->skills.dis = -3;
+        me->skills.dev =  8;
+        me->skills.sav = 15;
+        me->skills.stl = -2;
+        me->skills.srh =  1;
+        me->skills.fos =  8;
+        me->skills.thn = 20;
+        me->skills.thb =  0;
 
-        me.life = 106;
-        me.base_hp = 24;
-        me.exp = 180;
-        me.infra = 5;
-        me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
-        me.shop_adjust = 140;
+        me->life = 106;
+        me->base_hp = 24;
+        me->exp = 180;
+        me->infra = 5;
+        me->flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
+        me->shop_adjust = 140;
 
-        me.birth = _balrog_birth;
-        me.calc_bonuses = _balrog_calc_bonuses;
-        me.get_powers = _balrog_get_powers;
-        me.get_flags = _balrog_get_flags;
-        init = TRUE;
+        me->hooks.birth = _balrog_birth;
+        me->hooks.calc_bonuses = _balrog_calc_bonuses;
+        me->hooks.get_powers = _balrog_get_powers;
+        me->hooks.get_flags = _balrog_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -463,48 +457,47 @@ static void _barbarian_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_RES_FEAR);
 }
-race_t *barbarian_get_race(void)
+plr_race_ptr barbarian_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Barbarian";
-        me.desc = "Barbarians are hardy men of the north. They are fierce in combat, and their wrath "
+        me = plr_race_alloc(RACE_BARBARIAN);
+        me->name = "Barbarian";
+        me->desc = "Barbarians are hardy men of the north. They are fierce in combat, and their wrath "
                     "is feared throughout the world. Combat is their life: they feel no fear, and they "
                     "learn to enter battle frenzy at will even sooner than half-trolls. Barbarians are, "
                     "however, suspicious of magic, which makes magic devices fairly hard for them to use.";
 
-        me.stats[A_STR] =  3;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  2;
+        me->stats[A_STR] =  3;
+        me->stats[A_INT] = -2;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  2;
 
-        me.skills.dis = -2;
-        me.skills.dev = -7;
-        me.skills.sav = 2;
-        me.skills.stl = -1;
-        me.skills.srh = 1;
-        me.skills.fos = 7;
-        me.skills.thn = 12;
-        me.skills.thb =  6;
+        me->skills.dis = -2;
+        me->skills.dev = -7;
+        me->skills.sav = 2;
+        me->skills.stl = -1;
+        me->skills.srh = 1;
+        me->skills.fos = 7;
+        me->skills.thn = 12;
+        me->skills.thb =  6;
 
-        me.life = 103;
-        me.base_hp = 22;
-        me.exp = 135;
-        me.infra = 0;
-        me.shop_adjust = 120;
+        me->life = 103;
+        me->base_hp = 22;
+        me->exp = 135;
+        me->infra = 0;
+        me->shop_adjust = 120;
 
-        me.calc_bonuses = _barbarian_calc_bonuses;
-        me.get_powers = _barbarian_get_powers;
-        me.get_flags = _barbarian_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _barbarian_calc_bonuses;
+        me->hooks.get_powers = _barbarian_get_powers;
+        me->hooks.get_flags = _barbarian_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -531,18 +524,18 @@ static void _beastman_get_flags(u32b flgs[OF_ARRAY_SIZE])
 static void _beastman_birth(void)
 {
     mut_gain_random(mut_good_pred);
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
-race_t *beastman_get_race(void)
+plr_race_ptr beastman_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Beastman";
-        me.desc = "This race is a blasphemous abomination produced by Chaos. It is not an independent "
+        me = plr_race_alloc(RACE_BEASTMAN);
+        me->name = "Beastman";
+        me->desc = "This race is a blasphemous abomination produced by Chaos. It is not an independent "
                     "race but rather a humanoid creature, most often a human, twisted by the Chaos, "
                     "or a nightmarish crossbreed of a human and a beast. All Beastmen are accustomed "
                     "to Chaos so much that they are untroubled by confusion and sound, although raw "
@@ -551,36 +544,35 @@ race_t *beastman_get_race(void)
                     "they receive a random mutation. After that, every time they advance a level "
                     "they have a small chance of gaining yet another mutation.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] = -1;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  1;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] = -2;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] = -1;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  1;
 
-        me.skills.dis = -5;
-        me.skills.dev = -1;
-        me.skills.sav = -1;
-        me.skills.stl = -1;
-        me.skills.srh = -1;
-        me.skills.fos = 5;
-        me.skills.thn = 12;
-        me.skills.thb = 3;
+        me->skills.dis = -5;
+        me->skills.dev = -1;
+        me->skills.sav = -1;
+        me->skills.stl = -1;
+        me->skills.srh = -1;
+        me->skills.fos = 5;
+        me->skills.thn = 12;
+        me->skills.thb = 3;
 
-        me.life = 102;
-        me.base_hp = 22;
-        me.exp = 150;
-        me.infra = 0;
-        me.shop_adjust = 130;
+        me->life = 102;
+        me->base_hp = 22;
+        me->exp = 150;
+        me->infra = 0;
+        me->shop_adjust = 130;
 
-        me.birth = _beastman_birth;
-        me.calc_bonuses = _beastman_calc_bonuses;
-        me.gain_level = _beastman_gain_level;
-        me.get_flags = _beastman_get_flags;
-        init = TRUE;
+        me->hooks.birth = _beastman_birth;
+        me->hooks.calc_bonuses = _beastman_calc_bonuses;
+        me->hooks.gain_level = _beastman_gain_level;
+        me->hooks.get_flags = _beastman_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 
@@ -591,11 +583,11 @@ static void _centaur_birth(void)
 {
     equip_on_change_race();
     skills_innate_init("Hooves", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
-void jump_spell(int cmd, variant *res)
+void jump_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -605,8 +597,7 @@ void jump_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Leap a short distance, clearing any intervening monsters or obstacles.");
         break;
-    case SPELL_CAST:
-    {
+    case SPELL_CAST: {
         int x, y;
         int len = 2 + p_ptr->lev/35;
 
@@ -614,12 +605,12 @@ void jump_spell(int cmd, variant *res)
 
         if (!tgt_pt(&x, &y, len)) return;
 
-        if (distance(y, x, py, px) > len)
+        if (distance(y, x, p_ptr->pos.y, p_ptr->pos.x) > len)
         {
             msg_print("You can't jump that far.");
             return;
         }
-        if (!los(py, px, y, x))
+        if (!los(p_ptr->pos.y, p_ptr->pos.x, y, x))
         {
             msg_print("You can't see that location.");
             return;
@@ -632,8 +623,7 @@ void jump_spell(int cmd, variant *res)
         teleport_player_to(y, x, 0L);
 
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -653,7 +643,7 @@ static int _centaur_get_powers(spell_info* spells, int max)
 
 static void _centaur_calc_bonuses(void)
 {
-    int slot = equip_find_first(object_is_body_armour);
+    int slot = equip_find_first(obj_is_body_armor);
     p_ptr->pspeed += p_ptr->lev / 10;
 
     if (slot)
@@ -676,35 +666,32 @@ static void _centaur_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_SPEED);
 }
 
+static void _centaur_calc_innate_bonuses(mon_blow_ptr blow)
+{
+    if (blow->method == RBM_KICK)
+        plr_calc_blows_innate(blow, 200);
+}
 static void _centaur_calc_innate_attacks(void)
 {
     int l = p_ptr->lev;
-    int to_d = py_prorata_level(15);
-    int to_h = l/2;
-    innate_attack_t    a = {0};
-
-    a.dd = 1 + l / 16;
-    a.ds = 4 + l / 21;
-    a.to_d += to_d;
-    a.to_h += to_h;
-
-    a.weight = 150;
-    calc_innate_blows(&a, 200);
-    a.msg = "You kick.";
-    a.name = "Hooves";
-
-    p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+    mon_blow_ptr blow = mon_blow_alloc(RBM_KICK);
+    blow->name = "Hooves";
+    blow->weight = 150;
+    blow->power = l*3/2;
+    mon_blow_push_effect(blow, RBE_HURT, dice_create(1 + l/16, 4 + l/21, plr_prorata_level(15)));
+    _centaur_calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
 }
 
-race_t *centaur_get_race(void)
+plr_race_ptr centaur_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Centaur";
-        me.desc = "Centaurs are creatures with the head, arms and torso of a human combined with the "
+        me = plr_race_alloc(RACE_CENTAUR);
+        me->name = "Centaur";
+        me->desc = "Centaurs are creatures with the head, arms and torso of a human combined with the "
                     "body and legs of a horse. As such, they are able to move more quickly as "
                     "they gain experience and are capable of leaping great distances. They may "
                     "attack monsters with their hooves in addition to any normal melee weapons. "
@@ -713,40 +700,39 @@ race_t *centaur_get_race(void)
                     "Finally, being at home in the forests of the world, Centaurs "
                     "are able to move quickly through foliage.";
 
-        me.stats[A_STR] =  3;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] =  1;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  0;
+        me->stats[A_STR] =  3;
+        me->stats[A_INT] = -2;
+        me->stats[A_WIS] =  1;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] =  0;
 
-        me.skills.dis =  0;
-        me.skills.dev = -3;
-        me.skills.sav =  2;
-        me.skills.stl =  1;
-        me.skills.srh =  3;
-        me.skills.fos =  5;
-        me.skills.thn = 10;
-        me.skills.thb =  8;
+        me->skills.dis =  0;
+        me->skills.dev = -3;
+        me->skills.sav =  2;
+        me->skills.stl =  1;
+        me->skills.srh =  3;
+        me->skills.fos =  5;
+        me->skills.thn = 10;
+        me->skills.thb =  8;
 
-        me.life = 103;
-        me.base_hp = 22;
-        me.exp = 190;
-        me.infra = 0;
-        me.shop_adjust = 95;
+        me->life = 103;
+        me->base_hp = 22;
+        me->exp = 190;
+        me->infra = 0;
+        me->shop_adjust = 95;
 
-        me.birth = _centaur_birth;
-        me.calc_innate_attacks = _centaur_calc_innate_attacks;
-        me.get_powers = _centaur_get_powers;
-        me.calc_bonuses = _centaur_calc_bonuses;
-        me.get_flags = _centaur_get_flags;
+        me->hooks.birth = _centaur_birth;
+        me->hooks.calc_innate_attacks = _centaur_calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = _centaur_calc_innate_bonuses;
+        me->hooks.get_powers = _centaur_get_powers;
+        me->hooks.calc_bonuses = _centaur_calc_bonuses;
+        me->hooks.get_flags = _centaur_get_flags;
 
-        me.equip_template = &b_info[46];
-
-        init = TRUE;
+        me->equip_template = &b_info[46];
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -769,48 +755,47 @@ static void _cyclops_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_RES_SOUND);
 }
-race_t *cyclops_get_race(void)
+plr_race_ptr cyclops_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Cyclops";
-        me.desc = "With but one eye, a Cyclops can see more than many with two eyes. They are "
+        me = plr_race_alloc(RACE_CYCLOPS);
+        me->name = "Cyclops";
+        me->desc = "With but one eye, a Cyclops can see more than many with two eyes. They are "
                     "headstrong, and loud noises bother them very little. They are not quite "
                     "qualified for the magic using professions, but as a certain Mr. Ulysses "
                     "can testify, their accuracy with thrown rocks can be deadly!";
 
-        me.stats[A_STR] =  4;
-        me.stats[A_INT] = -3;
-        me.stats[A_WIS] = -2;
-        me.stats[A_DEX] = -3;
-        me.stats[A_CON] =  4;
-        me.stats[A_CHR] = -1;
+        me->stats[A_STR] =  4;
+        me->stats[A_INT] = -3;
+        me->stats[A_WIS] = -2;
+        me->stats[A_DEX] = -3;
+        me->stats[A_CON] =  4;
+        me->stats[A_CHR] = -1;
 
-        me.skills.dis = -4;
-        me.skills.dev = -3;
-        me.skills.sav = -3;
-        me.skills.stl = -2;
-        me.skills.srh = -2;
-        me.skills.fos =  5;
-        me.skills.thn = 20;
-        me.skills.thb = 10;
+        me->skills.dis = -4;
+        me->skills.dev = -3;
+        me->skills.sav = -3;
+        me->skills.stl = -2;
+        me->skills.srh = -2;
+        me->skills.fos =  5;
+        me->skills.thn = 20;
+        me->skills.thb = 10;
 
-        me.life = 108;
-        me.base_hp = 24;
-        me.exp = 155;
-        me.infra = 1;
-        me.shop_adjust = 135;
+        me->life = 108;
+        me->base_hp = 24;
+        me->exp = 155;
+        me->infra = 1;
+        me->shop_adjust = 135;
 
-        me.calc_bonuses = _cyclops_calc_bonuses;
-        me.get_powers = _cyclops_get_powers;
-        me.get_flags = _cyclops_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _cyclops_calc_bonuses;
+        me->hooks.get_powers = _cyclops_get_powers;
+        me->hooks.get_flags = _cyclops_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -838,49 +823,48 @@ static void _dark_elf_get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (p_ptr->lev >= 20)
         add_flag(flgs, OF_SEE_INVIS);
 }
-race_t *dark_elf_get_race(void)
+plr_race_ptr dark_elf_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Dark-Elf";
-        me.desc = "Another dark, cave-dwelling race, likewise unhampered by darkness attacks, "
+        me = plr_race_alloc(RACE_DARK_ELF);
+        me->name = "Dark-Elf";
+        me->desc = "Another dark, cave-dwelling race, likewise unhampered by darkness attacks, "
                     "the Dark Elves have a long tradition and knowledge of magic. They have an "
                     "inherent magic missile attack available to them at a low level. With their "
                     "keen sight, they also learn to see invisible things as their relatives "
                     "High-Elves do, but at a higher level.";
 
-        me.stats[A_STR] = -1;
-        me.stats[A_INT] =  3;
-        me.stats[A_WIS] =  2;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] = -2;
-        me.stats[A_CHR] =  3;
+        me->stats[A_STR] = -1;
+        me->stats[A_INT] =  3;
+        me->stats[A_WIS] =  2;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] = -2;
+        me->stats[A_CHR] =  3;
 
-        me.skills.dis = 5;
-        me.skills.dev = 7;
-        me.skills.sav = 12;
-        me.skills.stl = 3;
-        me.skills.srh = 8;
-        me.skills.fos = 12;
-        me.skills.thn = -5;
-        me.skills.thb =  6;
+        me->skills.dis = 5;
+        me->skills.dev = 7;
+        me->skills.sav = 12;
+        me->skills.stl = 3;
+        me->skills.srh = 8;
+        me->skills.fos = 12;
+        me->skills.thn = -5;
+        me->skills.thb =  6;
 
-        me.life = 97;
-        me.base_hp = 18;
-        me.exp = 155;
-        me.infra = 5;
-        me.shop_adjust = 120;
+        me->life = 97;
+        me->base_hp = 18;
+        me->exp = 155;
+        me->infra = 5;
+        me->shop_adjust = 120;
 
-        me.calc_bonuses = _dark_elf_calc_bonuses;
-        me.get_powers = _dark_elf_get_powers;
-        me.get_flags = _dark_elf_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _dark_elf_calc_bonuses;
+        me->hooks.get_powers = _dark_elf_get_powers;
+        me->hooks.get_flags = _dark_elf_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -972,7 +956,7 @@ static void _draconian_do_breathe(int effect, int dir, int dam)
         fire_ball(effect, dir, dam, -1 - (p_ptr->lev / 20));
 }
 
-static void _draconian_breathe_spell(int cmd, variant *res)
+static void _draconian_breathe_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1059,7 +1043,7 @@ static void _draconian_calc_bonuses(void)
     if (mut_present(MUT_DRACONIAN_METAMORPHOSIS))
     {
         int l = p_ptr->lev;
-        int to_a = py_prorata_level(75);
+        int to_a = plr_prorata_level(75);
         int ac = 15 + (l/10)*5;
 
         p_ptr->ac += ac;
@@ -1137,9 +1121,6 @@ static int _draconian_attack_level(void)
 
     switch (p_ptr->pclass)
     {
-    case CLASS_BERSERKER:
-        l = MAX(1, l * 170 / 100);
-        break;
     case CLASS_WARRIOR:
     case CLASS_MONK:
     case CLASS_BLOOD_KNIGHT:
@@ -1175,9 +1156,7 @@ static int _draconian_attack_level(void)
     case CLASS_NINJA:
     case CLASS_MAGE:
     case CLASS_HIGH_MAGE:
-    case CLASS_TOURIST:
     case CLASS_MIRROR_MASTER:
-    case CLASS_BLOOD_MAGE:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
         l = MAX(1, l * 80 / 100);
@@ -1189,84 +1168,13 @@ static int _draconian_attack_level(void)
 
     return MAX(1, l);
 }
+static void _draconian_calc_innate_bonuses(mon_blow_ptr blow)
+{
+    dragon_calc_innate_bonuses(blow, _draconian_attack_level());
+}
 static void _draconian_calc_innate_attacks(void)
 {
-    int l = _draconian_attack_level();
-    int l2 = p_ptr->lev; /* Note: Using attack_level() for both dd and ds gives too much variation */
-    int to_d = 0;
-    int to_h = l2*3/5;
-
-    if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
-    {
-        /* These monk postures get "1 try" when selecting a monk attack.
-           Translate this into a lower attack rating. */
-        if (p_ptr->special_defense & (KAMAE_GENBU | KAMAE_SUZAKU))
-            l = (l + 2) / 3;
-        /* Conversely, the White Tiger gets more "tries" for martial arts,
-           so needs a better power rating */
-        else if (p_ptr->special_defense & KAMAE_BYAKKO)
-            l = l * 5 / 4;
-    }
-
-    /* Claws */
-    {
-        innate_attack_t    a = {0};
-
-        a.dd = 1 + l / 15;
-        a.ds = 3 + l2 / 16; /* d6 max for everybody */
-        a.to_h += to_h;
-        a.to_d += to_d;
-
-        a.weight = 100 + l;
-        calc_innate_blows(&a, 400);
-        a.msg = "You claw.";
-        a.name = "Claw";
-
-        if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
-        {
-            a.effect[1] = GF_STUN;
-            a.effect_chance[1] = 15 + l/4;
-
-            if (p_ptr->special_defense & (KAMAE_GENBU | KAMAE_SUZAKU))
-                a.blows = MAX(100, a.blows - 200);
-        }
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
-    /* Bite */
-    {
-        innate_attack_t    a = {0};
-
-        a.dd = 1 + l2 / 10; /* 6d max for everybody */
-        a.ds = 4 + l / 6;
-        a.to_h += to_h;
-        a.to_d += to_d;
-
-        a.weight = 200 + 2 * l;
-
-        if (l >= 175) /* White Berserker Only */
-            calc_innate_blows(&a, 400);
-        else if (l >= 160) /* Berserker Only */
-            calc_innate_blows(&a, 300);
-        else if (l >= 135) /* Berserker Only */
-            calc_innate_blows(&a, 250);
-        else if (l >= 85)  /* CL50 for a Shadow Priest */
-            calc_innate_blows(&a, 200);
-        else if (l >= 70) /* CL45 for a White Mage (Max Rating = 84) */
-            calc_innate_blows(&a, 150);
-        else
-            a.blows = 100;
-        a.msg = "You bite.";
-        a.name = "Bite";
-
-        if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
-        {
-            if (p_ptr->special_defense & (KAMAE_GENBU | KAMAE_SUZAKU))
-                a.blows = MAX(100, a.blows - 100);
-        }
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
+    dragon_calc_innate_attacks(_draconian_attack_level());
 }
 static void _draconian_gain_power(void)
 {
@@ -1294,197 +1202,197 @@ static void _draconian_gain_level(int new_level)
     if (new_level >= 35)
         _draconian_gain_power();
 }
-race_t *draconian_get_race(int psubrace)
+plr_race_ptr draconian_get_race(int psubrace)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
     static int subrace_init = -1;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Draconian";
-        me.desc = "Draconians are a humanoid race with dragon-like attributes. There are several "
+        me = plr_race_alloc(RACE_DRACONIAN);
+        me->name = "Draconian";
+        me->desc = "Draconians are a humanoid race with dragon-like attributes. There are several "
                     "subtypes of draconians with different resistances, breaths and attributes. "
                     "For example, Red Draconians are resistant to fire which they may also breathe "
                     "at will, while White Draconians breathe and resist cold instead. All draconians "
                     "levitate. In addition, when they mature enough, they may choose a special "
                     "draconian power.";
 
-        me.base_hp = 22;
+        me->base_hp = 22;
 
-        me.calc_bonuses = _draconian_calc_bonuses;
-        me.get_powers = _draconian_get_powers;
-        me.get_flags = _draconian_get_flags;
-        me.gain_level = _draconian_gain_level;
-
-        init = TRUE;
+        me->hooks.calc_bonuses = _draconian_calc_bonuses;
+        me->hooks.get_powers = _draconian_get_powers;
+        me->hooks.get_flags = _draconian_get_flags;
+        me->hooks.gain_level = _draconian_gain_level;
     }
 
     if (subrace_init != psubrace)
     {
         /* Reset to baseline */
-        me.subname = NULL;
-        me.subdesc = NULL;
-        me.stats[A_STR] =  1;
-        me.stats[A_INT] =  1;
-        me.stats[A_WIS] =  1;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  2;
+        me->subname = NULL;
+        me->subdesc = NULL;
+        me->stats[A_STR] =  1;
+        me->stats[A_INT] =  1;
+        me->stats[A_WIS] =  1;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  2;
 
-        me.skills.dis = -2;
-        me.skills.dev = 3;
-        me.skills.sav = 2;
-        me.skills.stl = 1;
-        me.skills.srh = 1;
-        me.skills.fos = 10;
-        me.skills.thn = 5;
-        me.skills.thb = 3;
+        me->skills.dis = -2;
+        me->skills.dev = 3;
+        me->skills.sav = 2;
+        me->skills.stl = 1;
+        me->skills.srh = 1;
+        me->skills.fos = 10;
+        me->skills.thn = 5;
+        me->skills.thb = 3;
 
-        me.infra = 2;
+        me->infra = 2;
 
-        me.exp = 190;
-        me.life = 103;
-        me.shop_adjust = 105;
+        me->exp = 190;
+        me->life = 103;
+        me->shop_adjust = 105;
 
 
         /* Override with New Type */
         switch (psubrace)
         {
         case DRACONIAN_RED:
-            me.subname = "Red";
-            me.subdesc = "Red Draconians have an affinity for fire, which they both breathe at will and resist. "
+            me->subname = "Red";
+            me->subdesc = "Red Draconians have an affinity for fire, which they both breathe at will and resist. "
                          "Together with their White kin, they are the strongest in combat of the draconians. "
                          "But they are not so good with magic and their stealth is quite poor. Should they choose "
                          "the power of Dragon Skin, they will gain a fiery aura as well. Should they choose the "
                          "power of Dragon Strike, their blows will burn their enemies.";
-            me.stats[A_STR] += 2;
-            me.stats[A_INT] -= 1;
-            me.stats[A_WIS] -= 1;
-            me.skills.dev -= 3;
-            me.skills.stl -= 2;
-            me.skills.thn += 10;
-            me.life += 3;
-            me.shop_adjust = 115;
+            me->stats[A_STR] += 2;
+            me->stats[A_INT] -= 1;
+            me->stats[A_WIS] -= 1;
+            me->skills.dev -= 3;
+            me->skills.stl -= 2;
+            me->skills.thn += 10;
+            me->life += 3;
+            me->shop_adjust = 115;
             break;
         case DRACONIAN_WHITE:
-            me.subname = "White";
-            me.subdesc = "White Draconians have an affinity for frost, which they both breathe at will and resist. "
+            me->subname = "White";
+            me->subdesc = "White Draconians have an affinity for frost, which they both breathe at will and resist. "
                          "Together with their Red kin, they are the strongest in combat of the draconians. "
                          "But they are not so good with magic and their stealth is quite poor. Should they choose "
                          "the power of Dragon Skin, they will gain an aura of cold as well. Should they choose the "
                          "power of Dragon Strike, their blows will freeze their enemies.";
-            me.stats[A_STR] += 2;
-            me.stats[A_INT] -= 1;
-            me.stats[A_WIS] -= 1;
-            me.skills.dev -= 3;
-            me.skills.stl -= 2;
-            me.skills.thn += 9;
-            me.life += 3;
-            me.shop_adjust = 115;
+            me->stats[A_STR] += 2;
+            me->stats[A_INT] -= 1;
+            me->stats[A_WIS] -= 1;
+            me->skills.dev -= 3;
+            me->skills.stl -= 2;
+            me->skills.thn += 9;
+            me->life += 3;
+            me->shop_adjust = 115;
             break;
         case DRACONIAN_BLUE:
-            me.subname = "Blue";
-            me.subdesc = "Blue Draconians have an affinity for lightning, which they both breathe at will "
+            me->subname = "Blue";
+            me->subdesc = "Blue Draconians have an affinity for lightning, which they both breathe at will "
                          "and resist. They are strong in combat but not so good with magic or stealth. "
                          "Should they choose the power of Dragon Skin, they will gain a shocking aura as well. "
                          "Should they choose the power of Dragon Strike, their blows will electrocute "
                          "their enemies.";
-            me.stats[A_STR] += 1;
-            me.skills.dev -= 2;
-            me.skills.stl -= 1;
-            me.skills.thn += 7;
-            me.life += 2;
-            me.shop_adjust = 110;
+            me->stats[A_STR] += 1;
+            me->skills.dev -= 2;
+            me->skills.stl -= 1;
+            me->skills.thn += 7;
+            me->life += 2;
+            me->shop_adjust = 110;
             break;
         case DRACONIAN_BLACK:
-            me.subname = "Black";
-            me.subdesc = "Black Draconians have an affinity for acid, which they both breathe at will "
+            me->subname = "Black";
+            me->subdesc = "Black Draconians have an affinity for acid, which they both breathe at will "
                          "and resist. They are strong in combat but not so good with magic or stealth. "
                          "With the power of Dragon Strike, their blows will corrode their enemies.";
-            me.stats[A_STR] += 1;
-            me.skills.dev -= 2;
-            me.skills.stl -= 1;
-            me.skills.thn += 8;
-            me.life += 2;
-            me.shop_adjust = 110;
+            me->stats[A_STR] += 1;
+            me->skills.dev -= 2;
+            me->skills.stl -= 1;
+            me->skills.thn += 8;
+            me->life += 2;
+            me->shop_adjust = 110;
             break;
         case DRACONIAN_GREEN:
-            me.subname = "Green";
-            me.subdesc = "Green Draconians have an affinity for poison, which they both breathe at will "
+            me->subname = "Green";
+            me->subdesc = "Green Draconians have an affinity for poison, which they both breathe at will "
                          "and resist. They are average in all respects among the draconians. With the "
                          "power of Dragon Strike, their blows will poison their enemies.";
-            me.exp += 15;
+            me->exp += 15;
             break;
         case DRACONIAN_BRONZE:
-            me.subname = "Bronze";
-            me.subdesc = "Bronze Draconians are the most intelligent of their kind, and the best with "
+            me->subname = "Bronze";
+            me->subdesc = "Bronze Draconians are the most intelligent of their kind, and the best with "
                          "magic as well. They are seldom confused, though the same may not be said of "
                          "their enemies. With the power of Dragon Strike, even the melee attacks of "
                          "the Bronze Draconian will baffle their enemies.";
-            me.stats[A_INT] += 1;
-            me.skills.sav += 1;
-            me.skills.thn -= 2;
-            me.skills.dev += 5;
-            me.exp += 25;
-            me.shop_adjust = 100;
+            me->stats[A_INT] += 1;
+            me->skills.sav += 1;
+            me->skills.thn -= 2;
+            me->skills.dev += 5;
+            me->exp += 25;
+            me->shop_adjust = 100;
             break;
         case DRACONIAN_CRYSTAL:
-            me.subname = "Crystal";
-            me.subdesc = "Hard of skin, the Crystal Draconian is difficult to hit in melee. But their agility "
+            me->subname = "Crystal";
+            me->subdesc = "Hard of skin, the Crystal Draconian is difficult to hit in melee. But their agility "
                          "suffers and they are not the brightest of their kind. They resist shards, which they "
                          "may also breathe on command. With the power of Dragon Skin, they gain an aura of "
                          "shards as well. With the power of Dragon Strike, even their melee attacks will shred "
                          "their enemies.";
-            me.stats[A_INT] -= 2;
-            me.stats[A_DEX] -= 1;
-            me.stats[A_CON] += 1;
-            me.skills.dev -= 3;
-            me.skills.stl -= 1;
-            me.skills.thn += 7;
-            me.life += 2;
-            me.exp += 60;
+            me->stats[A_INT] -= 2;
+            me->stats[A_DEX] -= 1;
+            me->stats[A_CON] += 1;
+            me->skills.dev -= 3;
+            me->skills.stl -= 1;
+            me->skills.thn += 7;
+            me->life += 2;
+            me->exp += 60;
             break;
         case DRACONIAN_GOLD:
-            me.subname = "Gold";
-            me.subdesc = "The wisest of their kind, Gold Draconians are resilient in the face of magical "
+            me->subname = "Gold";
+            me->subdesc = "The wisest of their kind, Gold Draconians are resilient in the face of magical "
                          "attacks. They are resistant to sound which they may also breathe at will, stunning "
                          "their enemies. With the power of Dragon Strike, even their melee attacks will "
                          "stun their enemies.";
-            me.stats[A_WIS] += 1;
-            me.skills.dev += 3;
-            me.skills.sav += 3;
-            me.life += 1;
-            me.exp += 30;
-            me.shop_adjust = 95;
+            me->stats[A_WIS] += 1;
+            me->skills.dev += 3;
+            me->skills.sav += 3;
+            me->life += 1;
+            me->exp += 30;
+            me->shop_adjust = 95;
             break;
         case DRACONIAN_SHADOW:
-            me.subname = "Shadow";
-            me.subdesc = "Lithe, stealthy and nimble, the Shadow Draconian is seldom seen in this world. "
+            me->subname = "Shadow";
+            me->subdesc = "Lithe, stealthy and nimble, the Shadow Draconian is seldom seen in this world. "
                          "They are resistant to the forces of nether which they may also breathe. They are the "
                          "weakest of the draconians, and the poorest in melee. But they are better than average "
                          "with magic. With the power of Dragon Strike, they may steal life from their enemies "
                          "in melee.";
-            me.stats[A_STR] -= 1;
-            me.stats[A_DEX] += 2;
-            me.skills.dev += 2;
-            me.skills.stl += 3;
-            me.skills.thn -= 5;
-            me.life -= 1;
-            me.exp += 35;
-            me.infra += 2;
+            me->stats[A_STR] -= 1;
+            me->stats[A_DEX] += 2;
+            me->skills.dev += 2;
+            me->skills.stl += 3;
+            me->skills.thn -= 5;
+            me->life -= 1;
+            me->exp += 35;
+            me->infra += 2;
             break;
         }
         subrace_init = psubrace;
     }
-    me.equip_template = NULL;
-    me.calc_innate_attacks = NULL;
+    me->equip_template = NULL;
+    me->hooks.calc_innate_attacks = NULL;
+    me->hooks.calc_innate_bonuses = NULL;
     if (mut_present(MUT_DRACONIAN_METAMORPHOSIS))
     {
-        me.equip_template = &b_info[20];
-        me.calc_innate_attacks = _draconian_calc_innate_attacks;
+        me->equip_template = &b_info[20];
+        me->hooks.calc_innate_attacks = _draconian_calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = _draconian_calc_innate_bonuses;
     }
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -1498,47 +1406,46 @@ static void _dunadan_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SUST_CON);
 }
-race_t *dunadan_get_race(void)
+plr_race_ptr dunadan_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Dunadan";
-        me.desc = "Dunedain are a race of hardy men from the West. This elder race surpasses human "
+        me = plr_race_alloc(RACE_DUNADAN);
+        me->name = "Dunadan";
+        me->desc = "Dunedain are a race of hardy men from the West. This elder race surpasses human "
                     "abilities in every field, especially constitution. However, being men of the world, "
                     "very little is new to them, and levels are very hard for them to gain. Their "
                     "constitution cannot be reduced. ";
 
-        me.stats[A_STR] =  1;
-        me.stats[A_INT] =  2;
-        me.stats[A_WIS] =  2;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  0;
+        me->stats[A_STR] =  1;
+        me->stats[A_INT] =  2;
+        me->stats[A_WIS] =  2;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] =  0;
 
-        me.skills.dis =  4;
-        me.skills.dev =  3;
-        me.skills.sav =  3;
-        me.skills.stl =  2;
-        me.skills.srh =  3;
-        me.skills.fos = 13;
-        me.skills.thn = 15;
-        me.skills.thb =  7;
+        me->skills.dis =  4;
+        me->skills.dev =  3;
+        me->skills.sav =  3;
+        me->skills.stl =  2;
+        me->skills.srh =  3;
+        me->skills.fos = 13;
+        me->skills.thn = 15;
+        me->skills.thb =  7;
 
-        me.life = 100;
-        me.base_hp = 20;
-        me.exp = 160;
-        me.infra = 0;
-        me.shop_adjust = 100;
+        me->life = 100;
+        me->base_hp = 20;
+        me->exp = 160;
+        me->infra = 0;
+        me->shop_adjust = 100;
 
-        me.calc_bonuses = _dunadan_calc_bonuses;
-        me.get_flags = _dunadan_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _dunadan_calc_bonuses;
+        me->hooks.get_flags = _dunadan_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 
@@ -1563,49 +1470,48 @@ static void _dwarf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_RES_BLIND);
 }
-race_t *dwarf_get_race(void)
+plr_race_ptr dwarf_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Dwarf";
-        me.desc = "Dwarves are the headstrong miners and fighters of legend. Dwarves tend to be stronger "
+        me = plr_race_alloc(RACE_DWARF);
+        me->name = "Dwarf";
+        me->desc = "Dwarves are the headstrong miners and fighters of legend. Dwarves tend to be stronger "
                     "and tougher but slower and less intelligent than humans. Because they are so headstrong "
                     "and are somewhat wise, they resist spells which are cast on them. They are very good "
                     "at searching, perception, fighting, and bows. Dwarves have miserable stealth. They "
                     "resist being blinded.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] =  2;
-        me.stats[A_DEX] = -2;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  1;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] = -2;
+        me->stats[A_WIS] =  2;
+        me->stats[A_DEX] = -2;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  1;
 
-        me.skills.dis = 2;
-        me.skills.dev = 5;
-        me.skills.sav = 6;
-        me.skills.stl = -1;
-        me.skills.srh = 7;
-        me.skills.fos = 10;
-        me.skills.thn = 15;
-        me.skills.thb = 0;
+        me->skills.dis = 2;
+        me->skills.dev = 5;
+        me->skills.sav = 6;
+        me->skills.stl = -1;
+        me->skills.srh = 7;
+        me->skills.fos = 10;
+        me->skills.thn = 15;
+        me->skills.thb = 0;
 
-        me.life = 103;
-        me.base_hp = 22;
-        me.exp = 135;
-        me.infra = 5;
-        me.shop_adjust = 115;
+        me->life = 103;
+        me->base_hp = 22;
+        me->exp = 135;
+        me->infra = 5;
+        me->shop_adjust = 115;
 
-        me.calc_bonuses = _dwarf_calc_bonuses;
-        me.get_powers = _dwarf_get_powers;
-        me.get_flags = _dwarf_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _dwarf_calc_bonuses;
+        me->hooks.get_powers = _dwarf_get_powers;
+        me->hooks.get_flags = _dwarf_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -1623,7 +1529,7 @@ static int _ent_get_powers(spell_info* spells, int max)
 static void _ent_calc_bonuses(void)
 {
     /*res_add_vuln(RES_FIRE); cf resists.c res_pct_aux() for an alternative*/
-    if (!equip_find_first(object_is_melee_weapon))
+    if (!equip_find_first(obj_is_weapon))
         p_ptr->skill_dig += p_ptr->lev * 10;
 }
 static void _ent_get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -1632,56 +1538,55 @@ static void _ent_get_flags(u32b flgs[OF_ARRAY_SIZE])
 }
 static void _ent_birth(void)
 {
-    py_birth_obj_aux(TV_POTION, SV_POTION_WATER, rand_range(15, 23));
-    py_birth_light();
+    plr_birth_obj_aux(TV_POTION, SV_POTION_WATER, rand_range(15, 23));
+    plr_birth_light();
 }
-race_t *ent_get_race(void)
+plr_race_ptr ent_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Ent";
-        me.desc = "The Ents are a powerful race dating from the beginning of the world, oldest of all "
+        me = plr_race_alloc(RACE_ENT);
+        me->name = "Ent";
+        me->desc = "The Ents are a powerful race dating from the beginning of the world, oldest of all "
                     "animals or plants who inhabit Arda. Spirits of the land, they were summoned to "
                     "guard the forests of Middle-earth. Being much like trees they are very clumsy but "
                     "strong, and very susceptible to fire. They gain very little nutrition from the food "
                     "of mortals, but they can absorb water from potions as their nutrition. Finally, they "
                     "can summon the trees of the forest to their side.";
 
-        me.skills.dis = -5;
-        me.skills.dev =  1;
-        me.skills.sav =  5;
-        me.skills.stl = -1;
-        me.skills.srh =  0;
-        me.skills.fos =  9;
-        me.skills.thn = 15;
-        me.skills.thb = -3;
+        me->skills.dis = -5;
+        me->skills.dev =  1;
+        me->skills.sav =  5;
+        me->skills.stl = -1;
+        me->skills.srh =  0;
+        me->skills.fos =  9;
+        me->skills.thn = 15;
+        me->skills.thb = -3;
 
-        me.life = 105;
-        me.base_hp = 25;
-        me.exp = 135;
-        me.infra = 0;
-        me.shop_adjust = 95;
+        me->life = 105;
+        me->base_hp = 25;
+        me->exp = 135;
+        me->infra = 0;
+        me->shop_adjust = 95;
 
-        me.birth = _ent_birth;
-        me.calc_bonuses = _ent_calc_bonuses;
-        me.get_powers = _ent_get_powers;
-        me.get_flags = _ent_get_flags;
-        init = TRUE;
+        me->hooks.birth = _ent_birth;
+        me->hooks.calc_bonuses = _ent_calc_bonuses;
+        me->hooks.get_powers = _ent_get_powers;
+        me->hooks.get_flags = _ent_get_flags;
     }
 
     /* Since Ent racial stat bonuses are level dependent, we recalculate.
        Note, this prevents hackery in files.c for displaying racial stat bonuses correctly.
     */
     {
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] =  0;
-        me.stats[A_WIS] =  2;
-        me.stats[A_DEX] = -3;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  0;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] =  0;
+        me->stats[A_WIS] =  2;
+        me->stats[A_DEX] = -3;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  0;
 
         if (!spoiler_hack) /* Otherwise, I need to be careful when generating automatic spoiler files! */
         {
@@ -1689,12 +1594,12 @@ race_t *ent_get_race(void)
             if (p_ptr->lev >= 26) amount++;
             if (p_ptr->lev >= 41) amount++;
             if (p_ptr->lev >= 46) amount++;
-            me.stats[A_STR] += amount;
-            me.stats[A_DEX] -= amount;
-            me.stats[A_CON] += amount;
+            me->stats[A_STR] += amount;
+            me->stats[A_DEX] -= amount;
+            me->stats[A_CON] += amount;
         }
     }
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -1717,50 +1622,49 @@ static void _gnome_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_FREE_ACT);
 }
-race_t *gnome_get_race(void)
+plr_race_ptr gnome_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Gnome";
-        me.desc = "Gnomes are smaller than dwarves but larger than Halflings. They, like the hobbits, "
+        me = plr_race_alloc(RACE_GNOME);
+        me->name = "Gnome";
+        me->desc = "Gnomes are smaller than dwarves but larger than Halflings. They, like the hobbits, "
                     "live in the earth in burrow-like homes. Gnomes make excellent mages, and have very "
                     "good saving throws. They are good at searching, disarming, perception, and stealth. "
                     "They have lower strength than humans so they are not very good at fighting with hand "
                     "weapons. Gnomes have fair infra-vision, so they can detect warm-blooded creatures "
                     "at a distance. Gnomes are intrinsically protected against paralysis.";
 
-        me.stats[A_STR] = -1;
-        me.stats[A_INT] =  2;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] = -1;
+        me->stats[A_STR] = -1;
+        me->stats[A_INT] =  2;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] = -1;
 
-        me.skills.dis = 10;
-        me.skills.dev = 6;
-        me.skills.sav = 7;
-        me.skills.stl = 3;
-        me.skills.srh = 6;
-        me.skills.fos = 13;
-        me.skills.thn = -8;
-        me.skills.thb =  8;
+        me->skills.dis = 10;
+        me->skills.dev = 6;
+        me->skills.sav = 7;
+        me->skills.stl = 3;
+        me->skills.srh = 6;
+        me->skills.fos = 13;
+        me->skills.thn = -8;
+        me->skills.thb =  8;
 
-        me.life = 95;
-        me.base_hp = 16;
-        me.exp = 115;
-        me.infra = 4;
-        me.shop_adjust = 115;
+        me->life = 95;
+        me->base_hp = 16;
+        me->exp = 115;
+        me->infra = 4;
+        me->shop_adjust = 115;
 
-        me.calc_bonuses = _gnome_calc_bonuses;
-        me.get_powers = _gnome_get_powers;
-        me.get_flags = _gnome_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _gnome_calc_bonuses;
+        me->hooks.get_powers = _gnome_get_powers;
+        me->hooks.get_flags = _gnome_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -1803,18 +1707,18 @@ static void _golem_get_flags(u32b flgs[OF_ARRAY_SIZE])
 }
 static void _golem_birth(void)
 {
-    py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
-    py_birth_light();
+    plr_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
+    plr_birth_light();
 }
-race_t *golem_get_race(void)
+plr_race_ptr golem_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Golem";
-        me.desc = "A Golem is an artificial creature, built from a lifeless raw material like clay, "
+        me = plr_race_alloc(RACE_GOLEM);
+        me->name = "Golem";
+        me->desc = "A Golem is an artificial creature, built from a lifeless raw material like clay, "
                     "and awakened to life. They are nearly mindless, making them useless for "
                     "professions which rely on magic, but as warriors they are very tough. They "
                     "are resistant to poison, they can see invisible things, and move freely. "
@@ -1824,37 +1728,36 @@ race_t *golem_get_race(void)
                     "also gain a natural armor class bonus from their tough body. Golems become "
                     "slower with age.";
 
-        me.stats[A_STR] =  4;
-        me.stats[A_INT] = -5;
-        me.stats[A_WIS] = -5;
-        me.stats[A_DEX] = -2;
-        me.stats[A_CON] =  4;
-        me.stats[A_CHR] =  0;
+        me->stats[A_STR] =  4;
+        me->stats[A_INT] = -5;
+        me->stats[A_WIS] = -5;
+        me->stats[A_DEX] = -2;
+        me->stats[A_CON] =  4;
+        me->stats[A_CHR] =  0;
 
-        me.skills.dis = -5;
-        me.skills.dev = -5;
-        me.skills.sav = 6;
-        me.skills.stl = -1;
-        me.skills.srh = -1;
-        me.skills.fos = 8;
-        me.skills.thn = 20;
-        me.skills.thb = 0;
+        me->skills.dis = -5;
+        me->skills.dev = -5;
+        me->skills.sav = 6;
+        me->skills.stl = -1;
+        me->skills.srh = -1;
+        me->skills.fos = 8;
+        me->skills.thn = 20;
+        me->skills.thb = 0;
 
-        me.life = 105;
-        me.base_hp = 23;
-        me.exp = 185;
-        me.infra = 4;
-        me.flags = RACE_IS_NONLIVING;
-        me.shop_adjust = 120;
+        me->life = 105;
+        me->base_hp = 23;
+        me->exp = 185;
+        me->infra = 4;
+        me->flags = RACE_IS_NONLIVING;
+        me->shop_adjust = 120;
 
-        me.birth = _golem_birth;
-        me.get_powers = _golem_get_powers;
-        me.calc_bonuses = _golem_calc_bonuses;
-        me.get_flags = _golem_get_flags;
-        init = TRUE;
+        me->hooks.birth = _golem_birth;
+        me->hooks.get_powers = _golem_get_powers;
+        me->hooks.calc_bonuses = _golem_calc_bonuses;
+        me->hooks.get_flags = _golem_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 
@@ -1880,48 +1783,47 @@ static void _half_giant_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_SHARDS);
     add_flag(flgs, OF_SUST_STR);
 }
-race_t *half_giant_get_race(void)
+plr_race_ptr half_giant_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Half-Giant";
-        me.desc = "Half-Giants limited intelligence makes it difficult for them to become full spellcasters, "
+        me = plr_race_alloc(RACE_HALF_GIANT);
+        me->name = "Half-Giant";
+        me->desc = "Half-Giants limited intelligence makes it difficult for them to become full spellcasters, "
                     "but with their huge strength they make excellent warriors. Their thick skin makes "
                     "them resistant to shards, and like Half-Ogres and Half-Trolls, they have their strength "
                     "sustained.";
 
-        me.stats[A_STR] =  4;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] = -2;
-        me.stats[A_DEX] = -2;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  0;
+        me->stats[A_STR] =  4;
+        me->stats[A_INT] = -2;
+        me->stats[A_WIS] = -2;
+        me->stats[A_DEX] = -2;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] =  0;
 
-        me.skills.dis = -6;
-        me.skills.dev = -5;
-        me.skills.sav = -3;
-        me.skills.stl = -2;
-        me.skills.srh = -1;
-        me.skills.fos =  5;
-        me.skills.thn = 25;
-        me.skills.thb =  3;
+        me->skills.dis = -6;
+        me->skills.dev = -5;
+        me->skills.sav = -3;
+        me->skills.stl = -2;
+        me->skills.srh = -1;
+        me->skills.fos =  5;
+        me->skills.thn = 25;
+        me->skills.thb =  3;
 
-        me.life = 108;
-        me.base_hp = 26;
-        me.exp = 150;
-        me.infra = 3;
-        me.shop_adjust = 125;
+        me->life = 108;
+        me->base_hp = 26;
+        me->exp = 150;
+        me->infra = 3;
+        me->shop_adjust = 125;
 
-        me.calc_bonuses = _half_giant_calc_bonuses;
-        me.get_powers = _half_giant_get_powers;
-        me.get_flags = _half_giant_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _half_giant_calc_bonuses;
+        me->hooks.get_powers = _half_giant_get_powers;
+        me->hooks.get_flags = _half_giant_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -1946,50 +1848,49 @@ static void _half_ogre_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_SUST_STR);
     add_flag(flgs, OF_RES_DARK);
 }
-race_t *half_ogre_get_race(void)
+plr_race_ptr half_ogre_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Half-Ogre";
-        me.desc = "Half-Ogres are like Half-Orcs, only more so. They are big, bad, and stupid. "
+        me = plr_race_alloc(RACE_HALF_OGRE);
+        me->name = "Half-Ogre";
+        me->desc = "Half-Ogres are like Half-Orcs, only more so. They are big, bad, and stupid. "
                     "For warriors, they have all the necessary attributes, and they can even "
                     "become wizards: after all, they are related to Ogre Magi, from whom they "
                     "have learned the skill of setting trapped runes once their level is high "
                     "enough. Like Half-Orcs, they resist darkness, and like Half-Trolls, they "
                     "have their strength sustained.";
 
-        me.stats[A_STR] =  3;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] =  0;
-        me.stats[A_DEX] = -1;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  1;
+        me->stats[A_STR] =  3;
+        me->stats[A_INT] = -2;
+        me->stats[A_WIS] =  0;
+        me->stats[A_DEX] = -1;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] =  1;
 
-        me.skills.dis = -3;
-        me.skills.dev = -3;
-        me.skills.sav = -3;
-        me.skills.stl = -2;
-        me.skills.srh = -1;
-        me.skills.fos =  5;
-        me.skills.thn = 20;
-        me.skills.thb =  0;
+        me->skills.dis = -3;
+        me->skills.dev = -3;
+        me->skills.sav = -3;
+        me->skills.stl = -2;
+        me->skills.srh = -1;
+        me->skills.fos =  5;
+        me->skills.thn = 20;
+        me->skills.thb =  0;
 
-        me.life = 106;
-        me.base_hp = 23;
-        me.exp = 140;
-        me.infra = 3;
-        me.shop_adjust = 125;
+        me->life = 106;
+        me->base_hp = 23;
+        me->exp = 140;
+        me->infra = 3;
+        me->shop_adjust = 125;
 
-        me.calc_bonuses = _half_ogre_calc_bonuses;
-        me.get_powers = _half_ogre_get_powers;
-        me.get_flags = _half_ogre_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _half_ogre_calc_bonuses;
+        me->hooks.get_powers = _half_ogre_get_powers;
+        me->hooks.get_flags = _half_ogre_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -2012,49 +1913,48 @@ static void _half_titan_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_RES_CHAOS);
 }
-race_t *half_titan_get_race(void)
+plr_race_ptr half_titan_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Half-Titan";
-        me.desc = "Half-mortal descendants of the mighty titans, these immensely powerful creatures "
+        me = plr_race_alloc(RACE_HALF_TITAN);
+        me->name = "Half-Titan";
+        me->desc = "Half-mortal descendants of the mighty titans, these immensely powerful creatures "
                     "put almost any other race to shame. They may lack the fascinating special powers "
                     "of certain other races, but their enhanced attributes more than make up for that. "
                     "They learn to estimate the strengths of their foes, and their love for law and "
                     "order makes them resistant to the effects of Chaos.";
 
-        me.stats[A_STR] =  5;
-        me.stats[A_INT] =  1;
-        me.stats[A_WIS] =  2;
-        me.stats[A_DEX] = -2;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  3;
+        me->stats[A_STR] =  5;
+        me->stats[A_INT] =  1;
+        me->stats[A_WIS] =  2;
+        me->stats[A_DEX] = -2;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] =  3;
 
-        me.skills.dis = -5;
-        me.skills.dev =  3;
-        me.skills.sav =  1;
-        me.skills.stl = -2;
-        me.skills.srh =  1;
-        me.skills.fos =  8;
-        me.skills.thn = 25;
-        me.skills.thb =  0;
+        me->skills.dis = -5;
+        me->skills.dev =  3;
+        me->skills.sav =  1;
+        me->skills.stl = -2;
+        me->skills.srh =  1;
+        me->skills.fos =  8;
+        me->skills.thn = 25;
+        me->skills.thb =  0;
 
-        me.life = 110;
-        me.base_hp = 28;
-        me.exp = 200;
-        me.infra = 0;
-        me.shop_adjust = 90;
+        me->life = 110;
+        me->base_hp = 28;
+        me->exp = 200;
+        me->infra = 0;
+        me->shop_adjust = 90;
 
-        me.calc_bonuses = _half_titan_calc_bonuses;
-        me.get_powers = _half_titan_get_powers;
-        me.get_flags = _half_titan_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _half_titan_calc_bonuses;
+        me->hooks.get_powers = _half_titan_get_powers;
+        me->hooks.get_flags = _half_titan_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -2081,49 +1981,48 @@ static void _half_troll_get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (p_ptr->lev >= 15)
         add_flag(flgs, OF_REGEN);
 }
-race_t *half_troll_get_race(void)
+plr_race_ptr half_troll_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Half-Troll";
-        me.desc = "Half-Trolls are incredibly strong, and have more hit points than most other races. "
+        me = plr_race_alloc(RACE_HALF_TROLL);
+        me->name = "Half-Troll";
+        me->desc = "Half-Trolls are incredibly strong, and have more hit points than most other races. "
                     "They are also very stupid and slow. They are bad at searching, disarming, perception, "
                     "and stealth. They are so ugly that a Half-Orc grimaces in their presence. "
                     "They also happen to be fun to run... Half-trolls always have their strength sustained. "
                     "At higher levels, Half-Trolls regenerate wounds automatically.";
 
-        me.stats[A_STR] =  4;
-        me.stats[A_INT] = -4;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] = -3;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] = -2;
+        me->stats[A_STR] =  4;
+        me->stats[A_INT] = -4;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] = -3;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] = -2;
 
-        me.skills.dis = -5;
-        me.skills.dev = -6;
-        me.skills.sav = -5;
-        me.skills.stl = -2;
-        me.skills.srh = -1;
-        me.skills.fos =  5;
-        me.skills.thn = 20;
-        me.skills.thb = -6;
+        me->skills.dis = -5;
+        me->skills.dev = -6;
+        me->skills.sav = -5;
+        me->skills.stl = -2;
+        me->skills.srh = -1;
+        me->skills.fos =  5;
+        me->skills.thn = 20;
+        me->skills.thb = -6;
 
-        me.life = 107;
-        me.base_hp = 25;
-        me.exp = 150;
-        me.infra = 3;
-        me.shop_adjust = 135;
+        me->life = 107;
+        me->base_hp = 25;
+        me->exp = 150;
+        me->infra = 3;
+        me->shop_adjust = 135;
 
-        me.calc_bonuses = _half_troll_calc_bonuses;
-        me.get_powers = _half_troll_get_powers;
-        me.get_flags = _half_troll_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _half_troll_calc_bonuses;
+        me->hooks.get_powers = _half_troll_get_powers;
+        me->hooks.get_flags = _half_troll_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -2139,49 +2038,48 @@ static void _high_elf_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_LITE);
     add_flag(flgs, OF_SEE_INVIS);
 }
-race_t *high_elf_get_race(void)
+plr_race_ptr high_elf_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "High-Elf";
-        me.desc = "High-elves are a race of immortal beings dating from the beginning of time. "
+        me = plr_race_alloc(RACE_HIGH_ELF);
+        me->name = "High-Elf";
+        me->desc = "High-elves are a race of immortal beings dating from the beginning of time. "
                     "They are masters of all skills, and are strong and intelligent, although "
                     "their wisdom is sometimes suspect. High-elves begin their lives able to "
                     "see the unseen, and resist light effects just like regular elves. However, "
                     "there are few things that they have not seen already, and experience is "
                     "very hard for them to gain.";
 
-        me.stats[A_STR] =  1;
-        me.stats[A_INT] =  3;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  3;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  1;
+        me->stats[A_STR] =  1;
+        me->stats[A_INT] =  3;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  3;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] =  1;
 
-        me.skills.dis =  4;
-        me.skills.dev =  9;
-        me.skills.sav = 12;
-        me.skills.stl =  4;
-        me.skills.srh =  3;
-        me.skills.fos = 14;
-        me.skills.thn = 10;
-        me.skills.thb = 15;
+        me->skills.dis =  4;
+        me->skills.dev =  9;
+        me->skills.sav = 12;
+        me->skills.stl =  4;
+        me->skills.srh =  3;
+        me->skills.fos = 14;
+        me->skills.thn = 10;
+        me->skills.thb = 15;
 
-        me.life = 99;
-        me.base_hp = 19;
-        me.exp = 190;
-        me.infra = 4;
-        me.shop_adjust = 90;
+        me->life = 99;
+        me->base_hp = 19;
+        me->exp = 190;
+        me->infra = 4;
+        me->shop_adjust = 90;
 
-        me.calc_bonuses = _high_elf_calc_bonuses;
-        me.get_flags = _high_elf_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _high_elf_calc_bonuses;
+        me->hooks.get_flags = _high_elf_get_flags;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -2196,47 +2094,46 @@ static int _hobbit_get_powers(spell_info* spells, int max)
 {
     return get_powers_aux(spells, max, _hobbit_powers);
 }
-race_t *hobbit_get_race(void)
+plr_race_ptr hobbit_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Hobbit";
-        me.desc = "Hobbits, or Halflings, are very good at bows, throwing, and have good saving throws. "
+        me = plr_race_alloc(RACE_HOBBIT);
+        me->name = "Hobbit";
+        me->desc = "Hobbits, or Halflings, are very good at bows, throwing, and have good saving throws. "
                     "They also are very good at searching, disarming, perception, and stealth; so they "
                     "make excellent rogues, but prefer to be called burglars. They are much weaker than "
                     "humans, and no good at melee fighting. Halflings have fair infravision, so they can "
                     "detect warm creatures at a distance.";
 
-        me.stats[A_STR] = -2;
-        me.stats[A_INT] =  1;
-        me.stats[A_WIS] =  1;
-        me.stats[A_DEX] =  3;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  1;
+        me->stats[A_STR] = -2;
+        me->stats[A_INT] =  1;
+        me->stats[A_WIS] =  1;
+        me->stats[A_DEX] =  3;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  1;
 
-        me.skills.dis = 15;
-        me.skills.dev = 8;
-        me.skills.sav = 10;
-        me.skills.stl = 5;
-        me.skills.srh = 12;
-        me.skills.fos = 15;
-        me.skills.thn = -10;
-        me.skills.thb = 10;
+        me->skills.dis = 15;
+        me->skills.dev = 8;
+        me->skills.sav = 10;
+        me->skills.stl = 5;
+        me->skills.srh = 12;
+        me->skills.fos = 15;
+        me->skills.thn = -10;
+        me->skills.thb = 10;
 
-        me.life = 92;
-        me.base_hp = 14;
-        me.exp = 120;
-        me.infra = 4;
-        me.shop_adjust = 100;
+        me->life = 92;
+        me->base_hp = 14;
+        me->exp = 120;
+        me->infra = 4;
+        me->shop_adjust = 100;
 
-        me.get_powers = _hobbit_get_powers;
-        init = TRUE;
+        me->hooks.get_powers = _hobbit_get_powers;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -2260,48 +2157,47 @@ race_t *hobbit_get_race(void)
     }
 }
 
-race_t *human_get_race(void)
+plr_race_ptr human_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Human";
-        me.desc = "The human is the base character. All other races are compared to them. "
+        me = plr_race_alloc(RACE_HUMAN);
+        me->name = "Human";
+        me->desc = "The human is the base character. All other races are compared to them. "
                     "Humans are average at everything and also tend to go up levels faster "
                     "than most other races because of their shorter life spans. No racial "
                     "adjustments or intrinsics occur to characters choosing human. However, "
                     "humans may choose a special talent at L30 that more than makes up for "
                     "their overall mediocrity.";
 
-        me.stats[A_STR] =  0;
-        me.stats[A_INT] =  0;
-        me.stats[A_WIS] =  0;
-        me.stats[A_DEX] =  0;
-        me.stats[A_CON] =  0;
-        me.stats[A_CHR] =  0;
+        me->stats[A_STR] =  0;
+        me->stats[A_INT] =  0;
+        me->stats[A_WIS] =  0;
+        me->stats[A_DEX] =  0;
+        me->stats[A_CON] =  0;
+        me->stats[A_CHR] =  0;
 
-        me.skills.dis = 0;
-        me.skills.dev = 0;
-        me.skills.sav = 0;
-        me.skills.stl = 0;
-        me.skills.srh = 0;
-        me.skills.fos = 10;
-        me.skills.thn = 0;
-        me.skills.thb = 0;
+        me->skills.dis = 0;
+        me->skills.dev = 0;
+        me->skills.sav = 0;
+        me->skills.stl = 0;
+        me->skills.srh = 0;
+        me->skills.fos = 10;
+        me->skills.thn = 0;
+        me->skills.thb = 0;
 
-        me.life = 100;
-        me.base_hp = 20;
-        me.exp = 100;
-        me.infra = 0;
-        me.shop_adjust = 100;
+        me->life = 100;
+        me->base_hp = 20;
+        me->exp = 100;
+        me->infra = 0;
+        me->shop_adjust = 100;
 
-        me.gain_level = _human_gain_level;
-        init = TRUE;
+        me->hooks.gain_level = _human_gain_level;
     }
 
-    return &me;
+    return me;
 }
 
 /****************************************************************
@@ -2327,48 +2223,47 @@ static void _imp_get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (p_ptr->lev >= 10)
         add_flag(flgs, OF_SEE_INVIS);
 }
-race_t *imp_get_race(void)
+plr_race_ptr imp_get_race(void)
 {
-    static race_t me = {0};
-    static bool init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Imp";
-        me.desc = "A demon-creature from the nether-world, naturally resistant to fire attacks, "
+        me = plr_race_alloc(RACE_IMP);
+        me->name = "Imp";
+        me->desc = "A demon-creature from the nether-world, naturally resistant to fire attacks, "
                     "and capable of learning fire bolt and fire ball attacks. They are little "
                     "loved by other races, but can perform fairly well in most professions. "
                     "As they advance levels, they gain the powers of See Invisible.";
 
-        me.stats[A_STR] =  0;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] = -1;
+        me->stats[A_STR] =  0;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] = -1;
 
-        me.skills.dis = -3;
-        me.skills.dev = 1;
-        me.skills.sav = -1;
-        me.skills.stl = 1;
-        me.skills.srh = -1;
-        me.skills.fos = 10;
-        me.skills.thn = 5;
-        me.skills.thb = -3;
+        me->skills.dis = -3;
+        me->skills.dev = 1;
+        me->skills.sav = -1;
+        me->skills.stl = 1;
+        me->skills.srh = -1;
+        me->skills.fos = 10;
+        me->skills.thn = 5;
+        me->skills.thb = -3;
 
-        me.life = 99;
-        me.base_hp = 19;
-        me.exp = 90;
-        me.infra = 3;
-        me.flags = RACE_IS_DEMON;
-        me.shop_adjust = 120;
+        me->life = 99;
+        me->base_hp = 19;
+        me->exp = 90;
+        me->infra = 3;
+        me->flags = RACE_IS_DEMON;
+        me->shop_adjust = 120;
 
-        me.calc_bonuses = _imp_calc_bonuses;
-        me.get_powers = _imp_get_powers;
-        me.get_flags = _imp_get_flags;
-        init = TRUE;
+        me->hooks.calc_bonuses = _imp_calc_bonuses;
+        me->hooks.get_powers = _imp_get_powers;
+        me->hooks.get_flags = _imp_get_flags;
     }
 
-    return &me;
+    return me;
 }
 

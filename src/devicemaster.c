@@ -17,7 +17,7 @@ static int _speciality_tval(int psubclass)
     return TV_WAND;
 }
 
-void _desperation_spell(int cmd, variant *res)
+void _desperation_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -49,46 +49,24 @@ void _desperation_spell(int cmd, variant *res)
     }
 }
 
-bool _detect_devices(int range)
+static bool _obj_is_device(obj_ptr obj)
 {
-    bool result = FALSE;
-    int i, y, x;
-
-    if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
-
-    for (i = 1; i < o_max; i++)
+    switch (obj->tval)
     {
-        object_type *o_ptr = &o_list[i];
-
-        if (!o_ptr->k_idx) continue;
-        if (o_ptr->held_m_idx) continue;
-
-        y = o_ptr->loc.y;
-        x = o_ptr->loc.x;
-
-        if (distance(py, px, y, x) > range) continue;
-
-        switch (o_ptr->tval)
-        {
-        case TV_ROD:
-        case TV_WAND:
-        case TV_STAFF:
-        case TV_SCROLL:
-        case TV_POTION:
-            o_ptr->marked |= OM_FOUND;
-            p_ptr->window |= PW_OBJECT_LIST;
-            lite_spot(y, x);
-            result = TRUE;
-        }
+    case TV_ROD:
+    case TV_WAND:
+    case TV_STAFF:
+    case TV_SCROLL:
+    case TV_POTION: return TRUE;
     }
-
-    if (result)
-        msg_print("You sense the presence of magical devices!");
-
-    return result;
+    return FALSE;
 }
-
-void _detect_devices_spell(int cmd, variant *res)
+static void _detect_devices(int range)
+{
+    if (detect_obj_aux(_obj_is_device, range))
+        msg_print("You sense the presence of magical devices!");
+}
+void _detect_devices_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -122,7 +100,7 @@ static bool _is_device(object_type *o_ptr)
     return FALSE;
 }
 
-void _identify_device_spell(int cmd, variant *res)
+void _identify_device_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -144,7 +122,7 @@ void _identify_device_spell(int cmd, variant *res)
     }
 }
 
-void _recharging_spell(int cmd, variant *res)
+void _recharging_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -224,7 +202,7 @@ static bool _transfer_effect(void)
     /* Choose the objects */
     src_obj = _get_src_obj();
     if (!src_obj) return FALSE;
-    if (object_is_artifact(src_obj))
+    if (obj_is_art(src_obj))
     {
         msg_print("Failed! You cannot transfer from artifacts.");
         return FALSE;
@@ -237,7 +215,7 @@ static bool _transfer_effect(void)
         msg_print("Failed! Please pick distinct objects for the source and destination.");
         return FALSE;
     }
-    if (object_is_artifact(dest_obj))
+    if (obj_is_art(dest_obj))
     {
         msg_print("Failed! You cannot transfer to artifacts.");
         return FALSE;
@@ -322,7 +300,7 @@ static bool _transfer_essence(void)
     obj_release(src_obj, 0);
     return TRUE;
 }
-void _transfer_charges_spell(int cmd, variant *res)
+void _transfer_charges_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -419,32 +397,32 @@ static void _birth(void)
     case DEVICEMASTER_RODS:
         object_prep(&forge, lookup_kind(TV_ROD, SV_ANY));
         if (device_init_fixed(&forge, EFFECT_DETECT_MONSTERS))
-            py_birth_obj(&forge);
+            plr_birth_obj(&forge);
         break;
     case DEVICEMASTER_STAVES:
         object_prep(&forge, lookup_kind(TV_STAFF, SV_ANY));
         if (device_init_fixed(&forge, EFFECT_SLEEP_MONSTERS))
-            py_birth_obj(&forge);
+            plr_birth_obj(&forge);
         break;
     case DEVICEMASTER_WANDS:
         object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
         if (device_init_fixed(&forge, EFFECT_SLEEP_MONSTER))
-            py_birth_obj(&forge);
+            plr_birth_obj(&forge);
         break;
     case DEVICEMASTER_POTIONS:
         object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_SPEED));
         forge.number = 6;
-        py_birth_obj(&forge);
+        plr_birth_obj(&forge);
         break;
     case DEVICEMASTER_SCROLLS:
         object_prep(&forge, lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT));
         forge.number = 6;
-        py_birth_obj(&forge);
+        plr_birth_obj(&forge);
         break;
     }
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
-    py_birth_obj_aux(TV_WAND, EFFECT_BOLT_MISSILE, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    plr_birth_obj_aux(TV_WAND, EFFECT_BOLT_MISSILE, 1);
 }
 
 static void _character_dump(doc_ptr doc)
@@ -471,7 +449,7 @@ static void _character_dump(doc_ptr doc)
         spell_info spells[MAX_SPELLS];
         int        ct = _get_spells(spells, MAX_SPELLS);
 
-        py_display_spells(doc, spells, ct);
+        plr_display_spells(doc, spells, ct);
     }
 }
 
@@ -491,19 +469,18 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-class_t *devicemaster_get_class(int psubclass)
+plr_class_ptr devicemaster_get_class(int psubclass)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    /* static info never changes */
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  40,  36,   2,  20,  16,  48,  35 };
     skills_t xs = {  7,  15,  10,   0,   0,   0,  13,  11 };
 
-        me.name = "Devicemaster";
-        me.desc = 
+        me = plr_class_alloc(CLASS_DEVICEMASTER);
+        me->name = "Devicemaster";
+        me->desc = 
             "Devicemasters are excellent with magical devices, but poor in most other skills. "
             "They may shoot or use melee in a pinch, but this will never be their forte. Instead, "
             "they must rely on their arsenal of magical devices in order to survive.\n \n"
@@ -522,29 +499,29 @@ class_t *devicemaster_get_class(int psubclass)
             "desperation. This greatly increases the power of the effect, but may destroy the device "
             "in the process.";
     
-        me.stats[A_STR] = -1;
-        me.stats[A_INT] =  2;
-        me.stats[A_WIS] =  1;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] = -2;
-        me.stats[A_CHR] = -2;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 101;
-        me.base_hp = 6;
-        me.exp = 130;
-        me.pets = 30;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+        me->stats[A_STR] = -1;
+        me->stats[A_INT] =  2;
+        me->stats[A_WIS] =  1;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] = -2;
+        me->stats[A_CHR] = -2;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 101;
+        me->base_hp = 6;
+        me->exp = 130;
+        me->pets = 30;
+        me->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
                    CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
-        me.birth = _birth;
-        me.get_spells = _get_spells;
-        me.character_dump = _character_dump;
-        me.caster_info = _caster_info;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.caster_info = _caster_info;
     }
 
-    me.subname = devicemaster_speciality_name(psubclass);
-    me.subdesc = devicemaster_speciality_desc(psubclass);
-    return &me;
+    me->subid = psubclass;
+    me->subname = devicemaster_speciality_name(psubclass);
+    me->subdesc = devicemaster_speciality_desc(psubclass);
+    return me;
 }

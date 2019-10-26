@@ -3,7 +3,7 @@
 static cptr _mon_name(int r_idx)
 {
     if (r_idx)
-        return r_name + r_info[r_idx].name;
+        return r_name + mon_race_lookup(r_idx)->name;
     return ""; /* Birth Menu */
 }
 
@@ -114,9 +114,9 @@ static void _save(savefile_ptr file)
     }
 }
 
-static bool _skip_flag(int which)
+static bool _of_filter(of_info_ptr info)
 {
-    switch (which)
+    switch (info->id)
     {
     case OF_BRAND_MANA:
     case OF_TUNNEL:
@@ -169,8 +169,6 @@ static bool _skip_flag(int which)
     case OF_KILL_HUMAN:
     case OF_FULL_NAME:
     case OF_FIXED_FLAVOR:
-    case OF_BRAND_WILD:
-    case OF_BRAND_ORDER:
     case OF_DARKNESS:
     case OF_SLAY_GOOD:
     case OF_DEC_STR:
@@ -205,9 +203,9 @@ static bool _skip_flag(int which)
     case OF_DEC_SPELL_POWER:
     case OF_SLAY_LIVING:
     case OF_STUN:
-        return TRUE;
+        return FALSE;
     }
-    return FALSE;
+    return TRUE;
 }
 
 static bool _add_essence(int which, int amount)
@@ -231,10 +229,12 @@ static bool _add_essence(int which, int amount)
 
 static bool _absorb(object_type *o_ptr)
 {
-    bool result = FALSE;
-    int i;
-    int div = 1;
-    u32b flags[OF_ARRAY_SIZE];
+    bool    result = FALSE;
+    int     i;
+    int     div = 1;
+    vec_ptr v = NULL;
+    u32b    flags[OF_ARRAY_SIZE];
+
     obj_flags(o_ptr, flags);
 
     if (o_ptr->curse_flags & OFC_AGGRAVATE)
@@ -242,25 +242,30 @@ static bool _absorb(object_type *o_ptr)
     if (o_ptr->curse_flags & (OFC_TY_CURSE | OFC_HEAVY_CURSE))
         div++;
 
-    for (i = 0; i < OF_COUNT; i++)
+    /* Object Flags */
+    v = of_lookup_filter(_of_filter);
+    for (i = 0; i < vec_length(v); i++)
     {
-        if (_skip_flag(i)) continue;
-        if (have_flag(flags, i))
+        of_info_ptr info = vec_get(v, i);
+        if (have_flag(flags, info->id))
         {
-            if (is_pval_flag(i))
+            if (info->flags & OFT_PVAL)
             {
-                if (_add_essence(i, o_ptr->pval/div))
+                if (_add_essence(info->id, o_ptr->pval/div))
                     result = TRUE;
             }
             else
             {
-                _essences[i]++;
-                if (i == OF_AURA_FIRE && !have_flag(flags, OF_LITE)) _essences[OF_LITE]++;
+                _essences[info->id]++;
+                if (info->id == OF_AURA_FIRE && !have_flag(flags, OF_LITE)) _essences[OF_LITE]++;
                 result = TRUE;
             }
         }
     }
+    vec_free(v);
+    v = NULL;
 
+    /* Special Bonuses for AC and Activations */
     if (_add_essence(_ESSENCE_AC, o_ptr->to_a/div))
         result = TRUE;
 
@@ -285,7 +290,7 @@ static bool _absorb(object_type *o_ptr)
 
 static bool _absorb_object(object_type *o_ptr)
 {
-    if (object_is_jewelry(o_ptr))
+    if (obj_is_jewelry(o_ptr))
     {
         char o_name[MAX_NLEN];
         object_desc(o_name, o_ptr, OD_NAME_ONLY);
@@ -427,29 +432,29 @@ static void _birth(void)
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     add_flag(forge.flags, OF_NO_REMOVE);
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
-    get_random_name(buf, &forge, 1);
+    get_rnd_line("ring_low.txt", 0, buf);
     forge.art_name = quark_add(buf);
     forge.to_a = 10;
     effect_add(&forge, EFFECT_BOLT_MISSILE);
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_AMULET, 0));
-    get_random_name(buf, &forge, 1);
+    get_rnd_line("ring_low.txt", 0, buf);
     forge.art_name = quark_add(buf);
     forge.pval = 1;
     add_flag(forge.flags, OF_INT);
     add_flag(forge.flags, OF_CHR);
     effect_add(&forge, EFFECT_PHASE_DOOR);
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT));
     forge.number = 10;
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
+    plr_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
 
     doc_display_help("rings.txt", NULL);
 }
@@ -533,7 +538,7 @@ static void _gain_level(int new_level)
 /**********************************************************************
  * Powers
  **********************************************************************/
-static void _absorb_spell(int cmd, variant *res)
+static void _absorb_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -551,7 +556,7 @@ static void _absorb_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         prompt.prompt = "Absorb which item?";
         prompt.error = "You have nothing to absorb.";
-        prompt.filter = object_is_jewelry;
+        prompt.filter = obj_is_jewelry;
         prompt.where[0] = INV_PACK;
         prompt.where[1] = INV_FLOOR;
 
@@ -574,7 +579,24 @@ static void _absorb_spell(int cmd, variant *res)
     }
 }
 
-static void _detect_spell(int cmd, variant *res)
+static bool _detect = FALSE;
+static void _detect_obj(point_t pos, obj_ptr obj)
+{
+    int rng = DETECT_RAD_ALL;
+    if (!obj_is_jewelry(obj)) return;
+    if (distance(p_ptr->pos.y, p_ptr->pos.x, pos.y, pos.x) > rng) return;
+    obj->marked |= OM_FOUND;
+    p_ptr->window |= PW_OBJECT_LIST;
+    lite_pos(pos);
+    _detect = TRUE;
+}
+static void _detect_pile(point_t pos, obj_ptr pile)
+{
+    obj_ptr obj;
+    for (obj = pile; obj; obj = obj->next)
+        _detect_obj(pos, obj);
+}
+static void _detect_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -586,33 +608,10 @@ static void _detect_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int rng = DETECT_RAD_ALL;
-        int i, y, x;
-        bool detect = FALSE;
-
-        if (d_info[dungeon_type].flags1 & DF1_DARKNESS) rng /= 3;
-
-        for (i = 1; i < o_max; i++)
-        {
-            object_type *o_ptr = &o_list[i];
-
-            if (!o_ptr->k_idx) continue;
-            if (o_ptr->held_m_idx) continue;
-            y = o_ptr->loc.y;
-            x = o_ptr->loc.x;
-            if (distance(py, px, y, x) > rng) continue;
-            if (!object_is_jewelry(o_ptr)) continue;
-            o_ptr->marked |= OM_FOUND;
-            p_ptr->window |= PW_OBJECT_LIST;
-            lite_spot(y, x);
-            detect = TRUE;
-        }
-        if (detect_monsters_string(DETECT_RAD_DEFAULT, "=\""))
-            detect = TRUE;
-
-        if (detect)
-            msg_print("You sense your kind.");
-
+        _detect = FALSE;
+        dun_iter_floor_obj(cave, _detect_pile);
+        if (detect_monsters_string(DETECT_RAD_DEFAULT, "=\"")) _detect = TRUE;
+        if (_detect) msg_print("You sense your kind.");
         var_set_bool(res, TRUE);
         break;
     }
@@ -622,7 +621,7 @@ static void _detect_spell(int cmd, variant *res)
     }
 }
 
-static void _judge_spell(int cmd, variant *res)
+static void _judge_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -634,9 +633,9 @@ static void _judge_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         if (p_ptr->lev >= 35)
-            var_set_bool(res, identify_fully(object_is_jewelry));
+            var_set_bool(res, identify_fully(obj_is_jewelry));
         else
-            var_set_bool(res, ident_spell(object_is_jewelry));
+            var_set_bool(res, ident_spell(obj_is_jewelry));
         break;
     default:
         default_spell(cmd, res);
@@ -644,7 +643,7 @@ static void _judge_spell(int cmd, variant *res)
     }
 }
 
-static void _glitter_spell(int cmd, variant *res)
+static void _glitter_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -674,7 +673,7 @@ static int _charm_power(void)
 {
     return spell_power(p_ptr->lev * 3 / 2 + p_ptr->stat_ind[A_CHR] + 3);
 }
-static void _charm_spell(int cmd, variant *res)
+static void _charm_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -816,6 +815,7 @@ static _group_t _groups[] = {
         { EFFECT_BREATHE_CHAOS,       40,  50, 70 },
         { EFFECT_BREATHE_SOUND,       41,  55, 70 },
         { EFFECT_BREATHE_SHARDS,      42,  55, 70 },
+        { EFFECT_BREATHE_HOLY_FIRE,   43,  60, 70 },
         { EFFECT_NONE } } },
 
     { "Offense: Other", '4', TERM_RED,
@@ -942,7 +942,6 @@ static _group_t _groups[] = {
         { EFFECT_CHARM_UNDEAD,        32,  30, 50 },
         { EFFECT_SUMMON_HOUNDS,       33,  35, 50 },
         { EFFECT_SUMMON_HYDRAS,       35,  40, 50 },
-        { EFFECT_MITO_KOUMON,         36,  45, 55 },
         { EFFECT_SUMMON_DRAGON,       37,  45, 55 },
         { EFFECT_SUMMON_UNDEAD,       39,  50, 55 },
         { EFFECT_SUMMON_DEMON,        40,  55, 55 },
@@ -998,7 +997,7 @@ int _prorata_level_aux(int amt, int lvl, int w1, int w2, int w3)
 
 static int _power(_spell_ptr spell)
 {
-    /* cf py_prorata_level.ods ... py_prorata_level_aux() assumes the player's level.
+    /* cf plr_prorata_level.ods ... plr_prorata_level_aux() assumes the player's level.
      * Historically, absorbed ring powers have always used the spell's level, but this
      * is unsatisfactory for high end spells (and depends on implementation in devices.c;
      * for example, Rockets are fine with Power 42 but Starburst is lame with power 45). */
@@ -1086,7 +1085,7 @@ static vec_ptr _missing_effects(void)
 /* Menu Code 1: Choose which group of magic to use */
 static cptr _group_choice = NULL;
 
-static void _group_menu_fn(int cmd, int which, vptr cookie, variant *res)
+static void _group_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
 {
     switch (cmd)
     {
@@ -1120,7 +1119,7 @@ static _group_ptr _prompt_group(void)
 }
 
 /* Menu Code 2: Choose which spell to use */
-static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
+static void _spell_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
 {
     _spell_ptr ss = (_spell_ptr)cookie;
     _spell_ptr s = ss + which;
@@ -1228,7 +1227,7 @@ void ring_cast(void)
 {
     _spell_t spell = {0};
 
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;
@@ -1364,12 +1363,9 @@ static void _calc_bonuses(void)
     p_ptr->see_infra += _calc_amount(_essences[OF_INFRA], 2, 1);
 
     if (_essences[OF_DEC_MANA] >= 7)
-        p_ptr->dec_mana = TRUE;
+        p_ptr->dec_mana++;
     if (_essences[OF_EASY_SPELL] >= 7)
-        p_ptr->easy_spell = TRUE;
-
-    if (_essences[OF_HOLD_LIFE] >= 7)
-        p_ptr->hold_life++; /* XXX */
+        p_ptr->easy_spell++;
 
     if (_essences[OF_SUST_STR] >= 5)
         p_ptr->sustain_str = TRUE;
@@ -1413,14 +1409,14 @@ static void _calc_bonuses(void)
 
     if (_essences[OF_LEVITATION] >= 2)
         p_ptr->levitation = TRUE;
-    if (_essences[OF_FREE_ACT] >= 1)
-        p_ptr->free_act++;
-    if (_essences[OF_SEE_INVIS] >= 1)
-        p_ptr->see_inv++;
+
+    p_ptr->free_act += _calc_amount(_essences[OF_FREE_ACT], 2, 1);
+    p_ptr->see_inv += _calc_amount(_essences[OF_SEE_INVIS], 3, 1);
+    p_ptr->hold_life += _calc_amount(_essences[OF_HOLD_LIFE], 3, 1);
+    p_ptr->regen += 5 * _calc_amount(_essences[OF_REGEN], 2, 10);
+
     if (_essences[OF_SLOW_DIGEST] >= 2)
         p_ptr->slow_digest = TRUE;
-    if (_essences[OF_REGEN] >= 7)
-        p_ptr->regen += 100;
     if (_essences[OF_REFLECT] >= 7)
         p_ptr->reflect = TRUE;
 
@@ -1469,9 +1465,6 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (_essences[OF_EASY_SPELL] >= 7)
         add_flag(flgs, OF_EASY_SPELL);
 
-    if (_essences[OF_HOLD_LIFE] >= 7)
-        add_flag(flgs, OF_HOLD_LIFE);
-
     if (p_ptr->lev >= 10 || _calc_amount(_essences[OF_SPEED], 1, 5))
         add_flag(flgs, OF_SPEED);
     if (_calc_amount(_essences[OF_STEALTH], 2, 1))
@@ -1517,14 +1510,18 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 
     if (_essences[OF_LEVITATION] >= 2)
         add_flag(flgs, OF_LEVITATION);
-    if (_essences[OF_FREE_ACT] >= 1)
+
+    if (_calc_amount(_essences[OF_FREE_ACT], 2, 1))
         add_flag(flgs, OF_FREE_ACT);
-    if (_essences[OF_SEE_INVIS] >= 1)
+    if (_calc_amount(_essences[OF_SEE_INVIS], 3, 1))
         add_flag(flgs, OF_SEE_INVIS);
+    if (_calc_amount(_essences[OF_HOLD_LIFE], 3, 1))
+        add_flag(flgs, OF_HOLD_LIFE);
+    if (_calc_amount(_essences[OF_REGEN], 2, 10))
+        add_flag(flgs, OF_REGEN);
+
     if (_essences[OF_SLOW_DIGEST] >= 2)
         add_flag(flgs, OF_SLOW_DIGEST);
-    if (_essences[OF_REGEN] >= 7)
-        add_flag(flgs, OF_REGEN);
     if (_essences[OF_REFLECT] >= 7)
         add_flag(flgs, OF_REFLECT);
 
@@ -1664,12 +1661,23 @@ static void _character_dump(doc_ptr doc)
     _dump_ability_flag(doc, OF_IM_COLD, 2, "Immune Cold");
 
     doc_printf(doc, "\n   <color:G>%-22.22s Total  Need Bonus</color>\n", "Abilities");
-    _dump_ability_flag(doc, OF_FREE_ACT, 1, "Free Action");
-    _dump_ability_flag(doc, OF_SEE_INVIS, 1, "See Invisible");
+    _dump_bonus_flag(doc, OF_FREE_ACT, 2, 1, "Free Action");
+    _dump_bonus_flag(doc, OF_SEE_INVIS, 3, 1, "See Invisible");
+    _dump_bonus_flag(doc, OF_HOLD_LIFE, 3, 1, "Hold Life");
     _dump_ability_flag(doc, OF_LEVITATION, 2, "Levitation");
     _dump_ability_flag(doc, OF_SLOW_DIGEST, 2, "Slow Digestion");
-    _dump_ability_flag(doc, OF_HOLD_LIFE, 7, "Hold Life");
-    _dump_ability_flag(doc, OF_REGEN, 7, "Regeneration");
+    {
+        int n = _essences[OF_REGEN];
+        if (n > 0)
+        {
+            doc_printf(doc, "   %-22.22s %5d %5d %+5d%%\n",
+                "Regeneration",
+                n, 
+                _calc_needed(n, 2, 10),
+                5*_calc_amount(n, 2, 10)
+            );
+        }
+    }
     _dump_bonus_flag(doc, OF_DEC_MANA, 1, 1, "Economical Mana");
     _dump_ability_flag(doc, OF_EASY_SPELL, 7, "Wizardry");
     _dump_ability_flag(doc, OF_REFLECT, 7, "Reflection");
@@ -1703,21 +1711,21 @@ static void _character_dump(doc_ptr doc)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_ring_get_race(void)
+plr_race_ptr mon_ring_get_race(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  40,  38,   5,  16,  20,  34,  20};
+    skills_t bs = { 30,  40,  38,   5,  25,  20,  34,  20};
     skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_RING);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.name = "Ring";
-        me.desc = "Rings are sentient creatures animated by magical means.\n \n"
+        me->name = "Ring";
+        me->desc = "Rings are sentient creatures animated by magical means.\n \n"
                     "Rings cannot wear normal equipment. Rather, they simply are a ring, "
                     "magically enchanted. They gain resistances, attributes and spells "
                     "by absorbing the magic from jewelry they find (rings or amulets).\n \n"
@@ -1729,48 +1737,45 @@ race_t *mon_ring_get_race(void)
                     "spells (once learned, of course). Or, they may simply lie back and let their "
                     "current bearer do the fighting for them.";
 
-        me.stats[A_STR] = -3;
-        me.stats[A_INT] =  4;
-        me.stats[A_WIS] =  1;
-        me.stats[A_DEX] =  0;
-        me.stats[A_CON] = -1;
-        me.stats[A_CHR] =  3;
+        me->stats[A_STR] = -3;
+        me->stats[A_INT] =  4;
+        me->stats[A_WIS] =  1;
+        me->stats[A_DEX] =  0;
+        me->stats[A_CON] = -1;
+        me->stats[A_CHR] =  3;
 
-        me.life = 85;
-        me.infra = 5;
-        me.exp = 150;
-        me.base_hp = 10;
-        me.shop_adjust = 110; /* Really should depend on current bearer */
+        me->life = 85;
+        me->infra = 5;
+        me->exp = 150;
+        me->base_hp = 10;
+        me->shop_adjust = 110; /* Really should depend on current bearer */
 
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_stats = _calc_stats;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_stats = _calc_stats;
 
-        me.get_powers = _get_powers;
-        me.caster_info = _caster_info;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.caster_info = _caster_info;
 
-        me.character_dump = _character_dump;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
-        me.birth = _birth;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.birth = _birth;
 
-        me.load_player = _load;
-        me.save_player = _save;
-        me.destroy_object = _absorb_object;
+        me->hooks.load_player = _load;
+        me->hooks.save_player = _save;
+        me->hooks.destroy_object = _absorb_object;
 
-        me.flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
-        me.pseudo_class_idx = CLASS_MAGE;
-        me.boss_r_idx = MON_ONE_RING;
-
-        init = TRUE;
+        me->flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
+        me->pseudo_class_idx = CLASS_MAGE;
     }
 
     if (p_ptr->riding)
-        me.subname = _mon_name(m_list[p_ptr->riding].r_idx);
+        me->subname = _mon_name(dun_mon(cave, p_ptr->riding)->r_idx);
     else
-        me.subname = NULL;
+        me->subname = NULL;
 
-    me.equip_template = mon_get_equip_template();
-    return &me;
+    me->equip_template = mon_get_equip_template();
+    return me;
 }
 
 int ring_calc_torch(void)
@@ -1810,7 +1815,7 @@ int ml = r_ptr->level;
 static bool _mon_save_p(monster_type *m_ptr)
 {
     int           pl = _plev();
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_race *r_ptr = mon_race_lookup(m_ptr->r_idx);
     int           ml = _r_level(r_ptr);
     bool          result = FALSE;
 
@@ -1818,7 +1823,7 @@ static bool _mon_save_p(monster_type *m_ptr)
         return TRUE;
     
     /* Player may not exert their force of will out of sight! */
-    if (projectable(py, px, m_ptr->fy, m_ptr->fx))
+    if (plr_project_mon(m_ptr))
         pl += adj_stat_save_fear[p_ptr->stat_ind[A_CHR]];
 
     if (pl <= 1) 
@@ -1832,12 +1837,10 @@ static bool _mon_save_p(monster_type *m_ptr)
 
 bool ring_dominate_m(int m_idx)
 {
-    monster_type *m_ptr = &m_list[m_idx];
+    monster_type *m_ptr = dun_mon(cave, m_idx);
     if ( p_ptr->prace == RACE_MON_RING 
       && !p_ptr->riding
       && !is_aware(m_ptr) 
-      && !p_ptr->inside_arena
-      && !p_ptr->inside_battle
       && mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER) )
     {
         char m_name[MAX_NLEN];
@@ -1869,7 +1872,7 @@ bool ring_dominate_m(int m_idx)
             p_ptr->update |= PU_BONUS;
             p_ptr->redraw |= PR_MAP | PR_EXTRA;
             p_ptr->redraw |= PR_HEALTH_BARS;
-            move_player_effect(m_ptr->fy, m_ptr->fx, MPE_HANDLE_STUFF | MPE_ENERGY_USE | MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
+            move_player_effect(m_ptr->pos, MPE_HANDLE_STUFF | MPE_ENERGY_USE | MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
         
             return TRUE;
         }
@@ -1879,14 +1882,10 @@ bool ring_dominate_m(int m_idx)
 
 void ring_process_m(int m_idx)
 {
-    if ( p_ptr->prace == RACE_MON_RING 
-      && p_ptr->riding == m_idx 
-      && !p_ptr->wild_mode 
-      && !p_ptr->inside_arena 
-      && !p_ptr->inside_battle )
+    if (p_ptr->prace == RACE_MON_RING && p_ptr->riding == m_idx)
     {
-        monster_type *m_ptr = &m_list[m_idx];
-        monster_race *r_ptr = &r_info[m_ptr->r_idx];
+        monster_type *m_ptr = dun_mon(cave, m_idx);
+        monster_race *r_ptr = mon_race_lookup(m_ptr->r_idx);
         int           odds = 10000;
 
         if (r_ptr->flags1 & RF1_UNIQUE)
@@ -1894,43 +1893,37 @@ void ring_process_m(int m_idx)
 
         if (one_in_(odds) && _mon_save_p(m_ptr))
         {
-            char m_name[MAX_NLEN];
-            int  x, y, ox, oy;
-            int  sn = 0, sx = 0, sy = 0;
+            int  sn = 0;
+            point_t sp = p_ptr->pos;
             int  i;
-            monster_desc(m_name, m_ptr, 0);
 
             for (i = 0; i < 8; i++)
             {
-                cave_type *c_ptr;
-                y = py + ddy_ddd[i];
-                x = px + ddx_ddd[i];
+                point_t p = point_step(p_ptr->pos, ddd[i]);
+                cave_ptr c_ptr;
 
-                if (!in_bounds(y, x)) continue;
+                if (!dun_pos_interior(cave, p)) continue;
+                if (mon_at(p)) continue;
 
-                c_ptr = &cave[y][x];
-                if (c_ptr->m_idx) continue;
+                c_ptr = cave_at(p);
                 if (!cave_have_flag_grid(c_ptr, FF_MOVE) && !cave_have_flag_grid(c_ptr, FF_CAN_FLY))
                 {
-                    if (!player_can_ride_aux(c_ptr, FALSE)) continue;
+                    if (!player_can_ride_aux(p, FALSE)) continue;
                 }
-
                 if (cave_have_flag_grid(c_ptr, FF_PATTERN)) continue;
 
                 /* This location is safe! */
                 sn++;
                 if (randint0(sn) > 0) continue;
-                sy = y; sx = x;
+                sp = p;
             }
-            if (sn && sy && sx)
+            if (sn)
             {
+                char m_name[MAX_NLEN];
+                monster_desc(m_name, m_ptr, 0);
                 cmsg_format(TERM_VIOLET, "%^s removes you in disgust.", m_name);
-                oy = py;
-                ox = px;
-                py = sy;
-                px = sx;
-                lite_spot(oy, ox);
-                lite_spot(py, px);
+                dun_lite_pos(cave, p_ptr->pos);
+                dun_lite_pos(cave, sp);
                 viewport_verify();
                 set_hostile(m_ptr);
                 p_ptr->riding = 0;
@@ -1941,7 +1934,7 @@ void ring_process_m(int m_idx)
                 p_ptr->redraw |= PR_EXTRA;
                 p_ptr->redraw |= PR_HEALTH_BARS;
 
-                move_player_effect(py, px, MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
+                move_player_effect(sp, MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
                 handle_stuff();
 
                 /* This can be quite jarring when it happens out of the blue! */ 
@@ -1962,16 +1955,15 @@ void ring_summon_ring_bearer(void)
 {
     if (p_ptr->prace == RACE_MON_RING && p_ptr->action == ACTION_GLITTER && !p_ptr->riding)
     {
-        int x, y, i;
+        int i;
         const int max_attempts = 10000;
 
         for (i = 0; i < max_attempts; i++)
         {
-            x = rand_spread(px, 10);
-            y = rand_spread(py, 10);
-            if (!in_bounds(y, x)) continue;
-            if (!cave_empty_bold(y, x)) continue;
-            summon_specific(-1, y, x, dun_level, SUMMON_RING_BEARER, PM_ALLOW_UNIQUE);
+            point_t pos = point_random_jump(p_ptr->pos, 10);
+            if (!dun_pos_interior(cave, pos)) continue;
+            if (!cave_empty_at(pos)) continue;
+            summon_specific(-1, pos, cave->difficulty, SUMMON_RING_BEARER, PM_ALLOW_UNIQUE);
             break;
         }
     }    

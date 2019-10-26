@@ -301,23 +301,34 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 }
 
 
+static caster_info *_caster_info(void)
+{
+    class_t *class_ptr = get_class_aux(p_ptr->pclass, p_ptr->psubclass);
+    if (class_ptr->hooks.caster_info)
+        return class_ptr->hooks.caster_info();
+    return NULL;
+}
+static u32b _realm2_bits(void)
+{
+    caster_info *info = _caster_info();
+    if (!info) return 0;
+    return info->realm2_choices;
+}
 static bool item_tester_learn_spell(object_type *o_ptr)
 {
-    s32b choices = realm_choices2[p_ptr->pclass];
+    u32b choices = _realm2_bits();
 
     if (p_ptr->pclass == CLASS_PRIEST)
     {
-        if (is_good_realm(p_ptr->realm1))
-        {
+        if (p_ptr->realm1 == REALM_NATURE)
+            choices &= ~(CH_DEATH | CH_DAEMON | CH_LIFE | CH_CRUSADE);
+        else if (is_good_realm(p_ptr->realm1))
             choices &= ~(CH_DEATH | CH_DAEMON);
-        }
         else
-        {
             choices &= ~(CH_LIFE | CH_CRUSADE);
-        }
     }
 
-    if (!obj_is_book(o_ptr)) return FALSE;
+    if (!obj_is_spellbook(o_ptr)) return FALSE;
     if (o_ptr->tval == TV_MUSIC_BOOK && p_ptr->pclass == CLASS_BARD) return TRUE;
     if (o_ptr->tval == TV_BURGLARY_BOOK && p_ptr->pclass == CLASS_ROGUE) return TRUE;
     else if (o_ptr->tval == TV_HEX_BOOK && p_ptr->pclass == CLASS_HIGH_MAGE && REALM1_BOOK == o_ptr->tval) return TRUE;
@@ -376,13 +387,13 @@ void do_cmd_study(void)
         return;
     }
 
-    if (p_ptr->blind || no_lite())
+    if (plr_tim_find(T_BLIND) || no_lite())
     {
         msg_print("You cannot see!");
         return;
     }
 
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;
@@ -622,7 +633,7 @@ static void wild_magic(int spell)
         break;
     case 19:
     case 20:
-        trap_creation(py, px);
+        trap_creation(p_ptr->pos.y, p_ptr->pos.x);
         break;
     case 21:
     case 22:
@@ -634,9 +645,9 @@ static void wild_magic(int spell)
         aggravate_monsters(0);
         break;
     case 26:
-        earthquake(py, px, 5);
-        break;
     case 27:
+        earthquake(p_ptr->pos, 5);
+        break;
     case 28:
         mut_gain_random(NULL);
         break;
@@ -658,15 +669,15 @@ static void wild_magic(int spell)
     case 36: {
         int counter = 0;
         int type = rand_range(SUMMON_BIZARRE1, SUMMON_BIZARRE6);
-        int dl = dun_level*3/2;
+        int dl = cave->dun_lvl*3/2;
         while (counter++ < 8)
-            summon_specific(0, py, px, dl, type, PM_ALLOW_GROUP | PM_NO_PET);
+            summon_specific(0, p_ptr->pos, dl, type, PM_ALLOW_GROUP | PM_NO_PET);
         break; }
     case 37:
     case 38:
     case 39: /* current max */
     default: /* paranoia */
-        activate_hi_summon(py, px, FALSE);
+        activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
         break;
     }
 
@@ -694,7 +705,7 @@ static obj_ptr _get_spellbook(int mode)
     sprintf(msg, "%s which book%s?",
         mode == _CAST ? "Use" : "Browse",
         p_ptr->pclass == CLASS_FORCETRAINER ?
-            "(<color:keypress>F</color> for the Force)" : "");
+            " (<color:keypress>F</color> for the Force)" : "");
 
     prompt.prompt = msg;
     prompt.error = "You have no books that you can read.";
@@ -744,7 +755,7 @@ void do_cmd_cast(void)
     }
 
     /* Require lite */
-    if (p_ptr->blind || no_lite())
+    if (plr_tim_find(T_BLIND) || no_lite())
     {
         if (p_ptr->pclass == CLASS_FORCETRAINER) do_cmd_spell();
         else
@@ -756,7 +767,7 @@ void do_cmd_cast(void)
     }
 
     /* Not when confused */
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         flush();
@@ -1034,7 +1045,7 @@ void do_cmd_cast(void)
         {
             int  index = (increment ? 32 : 0)+spell;
             s16b cur_exp = p_ptr->spell_exp[index];
-            int  dlvl = MAX(base_level, dun_level); /* gain prof in wilderness ... */
+            int  dlvl = cave->difficulty; /* gain prof in wilderness ... */
             s16b exp_gain = 0;
 
             if (dlvl) /* ... but not in town */
@@ -1062,7 +1073,7 @@ void do_cmd_cast(void)
                         {800, 8}, {1000, 4}, {1200, 2}, {1400, 1}, {1600, 1} };
                     exp_gain = interpolate(cur_exp, gain_tbl, 9);
                 }
-                else if (p_ptr->wizard)
+                else if (0 || p_ptr->wizard)
                 {
                     msg_format("<color:B>When casting an <color:R>L%d</color> spell on "
                         "<color:R>DL%d</color> your max proficiency is <color:R>%d</color> "
@@ -1205,6 +1216,8 @@ void do_cmd_browse(void)
             return;
         }
 
+        if (do_spell(use_realm, spell, SPELL_ON_BROWSE)) continue;
+
         /* Clear lines, position cursor  (really should use strlen here) */
         line = display.y + num + 1;
         Term_erase(display.x, line, display.cx);
@@ -1222,46 +1235,10 @@ void do_cmd_browse(void)
     screen_load();
 }
 
-static bool ang_sort_comp_pet_dismiss(vptr u, vptr v, int a, int b)
-{
-    u16b *who = (u16b*)(u);
-
-    int w1 = who[a];
-    int w2 = who[b];
-
-    monster_type *m_ptr1 = &m_list[w1];
-    monster_type *m_ptr2 = &m_list[w2];
-    monster_race *r_ptr1 = &r_info[m_ptr1->r_idx];
-    monster_race *r_ptr2 = &r_info[m_ptr2->r_idx];
-
-    /* Unused */
-    (void)v;
-
-    if (w1 == p_ptr->riding) return TRUE;
-    if (w2 == p_ptr->riding) return FALSE;
-
-    if (m_ptr1->nickname && !m_ptr2->nickname) return TRUE;
-    if (m_ptr2->nickname && !m_ptr1->nickname) return FALSE;
-
-    if (!m_ptr1->parent_m_idx && m_ptr2->parent_m_idx) return TRUE;
-    if (!m_ptr2->parent_m_idx && m_ptr1->parent_m_idx) return FALSE;
-
-    if ((r_ptr1->flags1 & RF1_UNIQUE) && !(r_ptr2->flags1 & RF1_UNIQUE)) return TRUE;
-    if ((r_ptr2->flags1 & RF1_UNIQUE) && !(r_ptr1->flags1 & RF1_UNIQUE)) return FALSE;
-
-    if (r_ptr1->level > r_ptr2->level) return TRUE;
-    if (r_ptr2->level > r_ptr1->level) return FALSE;
-
-    if (m_ptr1->hp > m_ptr2->hp) return TRUE;
-    if (m_ptr2->hp > m_ptr1->hp) return FALSE;
-
-    return w1 <= w2;
-}
-
 void check_pets_num_and_align(monster_type *m_ptr, bool inc)
 {
     s32b old_friend_align = friend_align;
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_race *r_ptr = mon_race(m_ptr);
 
     if (inc)
     {
@@ -1281,62 +1258,58 @@ void check_pets_num_and_align(monster_type *m_ptr, bool inc)
 
 int calculate_upkeep(void)
 {
-    s32b old_friend_align = friend_align;
-    int m_idx;
-    bool have_a_unique = FALSE;
-    s32b total_friend_levels = 0;
+    vec_ptr pets = plr_pets();
+    int     upkeep_factor = 0;
+    s32b    old_friend_align = friend_align;
+    bool    have_a_unique = FALSE;
+    s32b    total_friend_levels = 0;
+    int     i;
 
     total_friends = 0;
     friend_align = 0;
 
-    for (m_idx = m_max - 1; m_idx >=1; m_idx--)
+    for (i = 0; i < vec_length(pets); i++)
     {
-        monster_type *m_ptr;
-        monster_race *r_ptr;
+        mon_ptr mon = vec_get(pets, i);
+        mon_race_ptr race = mon_race(mon);
 
-        m_ptr = &m_list[m_idx];
-        if (!m_ptr->r_idx) continue;
-        r_ptr = &r_info[m_ptr->r_idx];
-
-        if (is_pet(m_ptr))
+        total_friends++;
+        if (warlock_is_pact_monster(race))
         {
-            total_friends++;
-            if (warlock_is_pact_monster(r_ptr))
+            total_friend_levels += race->level/2;
+            if (race->flags1 & RF1_UNIQUE)
             {
-                total_friend_levels += r_ptr->level/2;
-                if (r_ptr->flags1 & RF1_UNIQUE)
-                    total_friend_levels += r_ptr->level/2;
+                total_friend_levels += race->level/2;
+                have_a_unique = TRUE;
             }
-            else if (r_ptr->flags1 & RF1_UNIQUE)
+        }
+        else if (race->flags1 & RF1_UNIQUE)
+        {
+            if (p_ptr->pclass == CLASS_CAVALRY || p_ptr->prace == RACE_MON_RING)
             {
-                if (p_ptr->pclass == CLASS_CAVALRY || p_ptr->prace == RACE_MON_RING)
-                {
-                    if (p_ptr->riding == m_idx)
-                        total_friend_levels += (r_ptr->level+5)*2;
-                    else if (!have_a_unique && (r_info[m_ptr->r_idx].flags7 & RF7_RIDING))
-                        total_friend_levels += (r_ptr->level+5)*7/2;
-                    else
-                        total_friend_levels += (r_ptr->level+5)*10;
-                    have_a_unique = TRUE;
-                }
+                if (p_ptr->riding == mon->id)
+                    total_friend_levels += (race->level+5)*2;
+                else if (!have_a_unique && (race->flags7 & RF7_RIDING))
+                    total_friend_levels += (race->level+5)*7/2;
                 else
-                    total_friend_levels += (r_ptr->level+5)*10;
+                    total_friend_levels += (race->level+5)*10;
+                have_a_unique = TRUE;
             }
             else
-                total_friend_levels += r_ptr->level;
-
-            /* Determine pet alignment */
-            if (r_ptr->flags3 & RF3_GOOD) friend_align += r_ptr->level;
-            if (r_ptr->flags3 & RF3_EVIL) friend_align -= r_ptr->level;
+                total_friend_levels += (race->level+5)*10;
         }
+        else
+            total_friend_levels += race->level;
+
+        /* Determine pet alignment */
+        if (race->flags3 & RF3_GOOD) friend_align += race->level;
+        if (race->flags3 & RF3_EVIL) friend_align -= race->level;
     }
     if (old_friend_align != friend_align) p_ptr->update |= (PU_BONUS);
     if (total_friends)
     {
-        int upkeep_factor;
-        int div = get_class()->pets;
+        int div = plr_class()->pets;
 
-        /* Lower divs are better ... I think. */
         if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE)
             div /= 2;
 
@@ -1353,65 +1326,41 @@ int calculate_upkeep(void)
 
         if (upkeep_factor < 0) upkeep_factor = 0;
         if (upkeep_factor > 1000) upkeep_factor = 1000;
-        return upkeep_factor;
     }
-    else
-        return 0;
+    vec_free(pets);
+    return upkeep_factor;
 }
 
 void do_cmd_pet_dismiss(void)
 {
-    monster_type    *m_ptr;
-    bool        all_pets = FALSE;
-    int pet_ctr, i;
-    int Dismissed = 0;
-
-    u16b *who;
-    u16b dummy_why;
-    int max_pet = 0;
-    int cu, cv;
+    vec_ptr pets = plr_pets_for_dismiss();
+    int     max_pet = 0;
+    bool    all_pets = FALSE;
+    int     Dismissed = 0;
+    int     i, cu, cv;
 
     cu = Term->scr->cu;
     cv = Term->scr->cv;
     Term->scr->cu = 0;
     Term->scr->cv = 1;
 
-    /* Allocate the "who" array */
-    C_MAKE(who, max_m_idx, u16b);
-
-    /* Process the monsters (backwards) */
-    for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
-    {
-        if (is_pet(&m_list[pet_ctr]))
-            who[max_pet++] = pet_ctr;
-    }
-
-    /* Select the sort method */
-    ang_sort_comp = ang_sort_comp_pet_dismiss;
-    ang_sort_swap = ang_sort_swap_hook;
-
-    ang_sort(who, &dummy_why, max_pet);
-
-    /* Process the monsters (backwards) */
+    max_pet = vec_length(pets);
     for (i = 0; i < max_pet; i++)
     {
+        mon_ptr m_ptr = vec_get(pets, i);
         bool delete_this;
         char friend_name[MAX_NLEN];
         char buf[512];
         bool kakunin;
 
-        /* Access the monster */
-        pet_ctr = who[i];
-        m_ptr = &m_list[pet_ctr];
-
         delete_this = FALSE;
-        kakunin = ((pet_ctr == p_ptr->riding) || (m_ptr->nickname));
+        kakunin = m_ptr->id == p_ptr->riding || m_ptr->nickname;
         monster_desc(friend_name, m_ptr, MD_ASSUME_VISIBLE);
 
         if (!all_pets)
         {
             /* Hack -- health bar for this monster */
-            health_track(pet_ctr);
+            health_track(m_ptr->id);
 
             /* Hack -- handle stuff */
             handle_stuff();
@@ -1420,7 +1369,7 @@ void do_cmd_pet_dismiss(void)
             prt(buf, 0, 0);
 
             if (m_ptr->ml)
-                move_cursor_relative(m_ptr->fy, m_ptr->fx);
+                move_cursor_relative(m_ptr->pos);
 
             while (TRUE)
             {
@@ -1454,7 +1403,7 @@ void do_cmd_pet_dismiss(void)
 
         if ((all_pets && !kakunin) || (!all_pets && delete_this))
         {
-            if (pet_ctr == p_ptr->riding)
+            if (m_ptr->id == p_ptr->riding)
             {
                 msg_format("You have got off %s. ", friend_name);
                 p_ptr->riding = 0;
@@ -1468,7 +1417,7 @@ void do_cmd_pet_dismiss(void)
             p_ptr->window |= (PW_MESSAGE);
             window_stuff();
 
-            delete_monster_idx(pet_ctr);
+            delete_monster(m_ptr);
             Dismissed++;
         }
     }
@@ -1477,7 +1426,7 @@ void do_cmd_pet_dismiss(void)
     Term->scr->cv = cv;
     Term_fresh();
 
-    C_KILL(who, max_m_idx, u16b);
+    vec_free(pets);
 
     msg_format("You have dismissed %d pet%s.", Dismissed,
            (Dismissed == 1 ? "" : "s"));
@@ -1485,7 +1434,7 @@ void do_cmd_pet_dismiss(void)
         msg_print("'U'nnamed means all your pets except named pets and your mount.");
 }
 
-bool player_can_ride_aux(cave_type *c_ptr, bool now_riding)
+bool player_can_ride_aux(point_t pos, bool now_riding)
 {
     bool p_can_enter;
     bool old_character_xtra = character_xtra;
@@ -1493,11 +1442,13 @@ bool player_can_ride_aux(cave_type *c_ptr, bool now_riding)
     bool old_riding_ryoute = p_ptr->riding_ryoute;
     bool old_old_riding_ryoute = p_ptr->old_riding_ryoute;
     bool old_pf_ryoute = (p_ptr->pet_extra_flags & PF_RYOUTE) ? TRUE : FALSE;
+    cave_ptr c_ptr = cave_at(pos);
+    mon_ptr mon = mon_at(pos);
 
     /* Hack -- prevent "icky" message */
     character_xtra = TRUE;
 
-    if (now_riding) p_ptr->riding = c_ptr->m_idx;
+    if (now_riding && mon) p_ptr->riding = mon->id;
     else
     {
         p_ptr->riding = 0;
@@ -1527,13 +1478,12 @@ bool rakuba(int dam, bool force)
     int i, y, x, oy, ox;
     int sn = 0, sy = 0, sx = 0;
     char m_name[80];
-    monster_type *m_ptr = &m_list[p_ptr->riding];
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_type *m_ptr = dun_mon(cave, p_ptr->riding);
+    monster_race *r_ptr = mon_race(m_ptr);
     bool fall_dam = FALSE;
 
     if (!p_ptr->riding) return FALSE;
     if (p_ptr->prace == RACE_MON_RING) return FALSE; /* cf ring_process_m instead ... */
-    if (p_ptr->wild_mode) return FALSE;
 
     if (dam >= 0 || force)
     {
@@ -1562,17 +1512,17 @@ bool rakuba(int dam, bool force)
             cave_type *c_ptr;
 
             /* Access the location */
-            y = py + ddy_ddd[i];
-            x = px + ddx_ddd[i];
+            y = p_ptr->pos.y + ddy_ddd[i];
+            x = p_ptr->pos.x + ddx_ddd[i];
 
-            c_ptr = &cave[y][x];
+            c_ptr = cave_at_xy(x, y);
 
-            if (c_ptr->m_idx) continue;
+            if (mon_at_xy(x, y)) continue;
 
             /* Skip non-empty grids */
             if (!cave_have_flag_grid(c_ptr, FF_MOVE) && !cave_have_flag_grid(c_ptr, FF_CAN_FLY))
             {
-                if (!player_can_ride_aux(c_ptr, FALSE)) continue;
+                if (!player_can_ride_aux(point_create(x, y), FALSE)) continue;
             }
 
             if (cave_have_flag_grid(c_ptr, FF_PATTERN)) continue;
@@ -1594,17 +1544,13 @@ bool rakuba(int dam, bool force)
             return FALSE;
         }
 
-        oy = py;
-        ox = px;
+        oy = p_ptr->pos.y;
+        ox = p_ptr->pos.x;
 
-        py = sy;
-        px = sx;
+        dun_move_plr(cave, point_create(sx, sy));
 
         /* Redraw the old spot */
         lite_spot(oy, ox);
-
-        /* Redraw the new spot */
-        lite_spot(py, px);
 
         /* Check for new panel */
         viewport_verify();
@@ -1642,44 +1588,41 @@ bool rakuba(int dam, bool force)
 
     /* Move the player */
     if (sy && !p_ptr->is_dead)
-        (void)move_player_effect(py, px, MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
+        move_player_effect(p_ptr->pos, MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
 
     return fall_dam;
 }
 
 bool do_riding(bool force)
 {
-    int x, y, dir = 0;
-    cave_type *c_ptr;
-    monster_type *m_ptr;
+    int dir = 0;
+    point_t pos;
+    cave_ptr c_ptr;
+    mon_ptr mon;
 
     if (!get_rep_dir2(&dir)) return FALSE;
-    y = py + ddy[dir];
-    x = px + ddx[dir];
-    c_ptr = &cave[y][x];
+    pos = point_step(p_ptr->pos, dir);
+    c_ptr = cave_at(pos);
+    mon = mon_at(pos);
 
     if (p_ptr->special_defense & KATA_MUSOU) set_action(ACTION_NONE);
 
     if (p_ptr->riding)
     {
         /* Skip non-empty grids */
-        if (!player_can_ride_aux(c_ptr, FALSE))
+        if (!player_can_ride_aux(pos, FALSE))
         {
             msg_print("You cannot go to that direction.");
             return FALSE;
         }
 
-        if (!pattern_seq(py, px, y, x)) return FALSE;
+        if (!pattern_seq(p_ptr->pos, pos)) return FALSE;
 
-        if (c_ptr->m_idx)
+        if (mon)
         {
-            /* Take a turn */
             energy_use = 100;
-
-            /* Message */
             msg_print("There is a monster in the way!");
-
-            py_attack(y, x, 0);
+            plr_attack_normal(pos);
             return FALSE;
         }
 
@@ -1689,29 +1632,27 @@ bool do_riding(bool force)
     }
     else
     {
-        if (p_ptr->confused)
+        int roll;
+        mon_race_ptr race = mon_race(mon);
+
+        if (plr_tim_find(T_CONFUSED))
         {
             msg_print("You are too confused!");
             return FALSE;
         }
-
-        m_ptr = &m_list[c_ptr->m_idx];
-
-        if (!c_ptr->m_idx || !m_ptr->ml)
+        if (!mon || !mon->ml)
         {
-            msg_print("Here is no monster.");
-
+            msg_print("There is no monster.");
             return FALSE;
         }
-        if (!is_pet(m_ptr) && !force)
+        if (!is_pet(mon) && !force)
         {
             msg_print("That monster is not a pet.");
-
             return FALSE;
         }
         if (p_ptr->prace == RACE_MON_RING)
         {
-            if (!mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER))
+            if (!mon_is_type(mon->r_idx, SUMMON_RING_BEARER))
             {
                 msg_print("This monster is not a suitable ring bearer.");
                 return FALSE;
@@ -1719,22 +1660,21 @@ bool do_riding(bool force)
         }
         else
         {
-            if (!(r_info[m_ptr->r_idx].flags7 & RF7_RIDING))
+            if (!(race->flags7 & RF7_RIDING))
             {
                 msg_print("This monster doesn't seem suitable for riding.");
-
                 return FALSE;
             }
-            if (warlock_is_(WARLOCK_DRAGONS) && !(r_info[m_ptr->r_idx].flags3 & RF3_DRAGON))
+            if (warlock_is_(WARLOCK_DRAGONS) && !(race->flags3 & RF3_DRAGON))
             {
                 msg_print("You are a dragon rider!");
                 return FALSE;
             }
         }
 
-        if (!pattern_seq(py, px, y, x)) return FALSE;
+        if (!pattern_seq(p_ptr->pos, pos)) return FALSE;
 
-        if (!player_can_ride_aux(c_ptr, TRUE))
+        if (!player_can_ride_aux(pos, TRUE))
         {
             /* Feature code (applying "mimic" field) */
             feature_type *f_ptr = &f_info[get_feat_mimic(c_ptr)];
@@ -1745,37 +1685,23 @@ bool do_riding(bool force)
 
             return FALSE;
         }
-        if ( p_ptr->prace != RACE_MON_RING
-          && r_info[m_ptr->r_idx].level > randint1((skills_riding_current() / 50 + p_ptr->lev / 2 + 20)))
+        roll = skills_riding_current()/50 + p_ptr->lev/2 + 20;
+        if (p_ptr->prace != RACE_MON_RING && race->level > randint1(roll))
         {
-            if (r_info[m_ptr->r_idx].level > (skills_riding_current() / 50 + p_ptr->lev / 2 + 20))
-            {
+            if (race->level > roll) /* XXX spoil that it is hopeless! */
                 msg_print("This monster is too powerful for you to ride!");
-            }
             else
-            {
                 msg_print("You failed to ride.");
-            }
 
             energy_use = 100;
-
             return FALSE;
         }
 
-        if (MON_CSLEEP(m_ptr))
-        {
-            char m_name[80];
-            monster_desc(m_name, m_ptr, 0);
-            (void)set_monster_csleep(c_ptr->m_idx, 0);
-            msg_format("You have waked %s up.", m_name);
-        }
-
+        mon_tim_remove(mon, MT_SLEEP);
         if (p_ptr->action == ACTION_KAMAE) set_action(ACTION_NONE);
         if (p_ptr->action == ACTION_GLITTER) set_action(ACTION_NONE);
 
-        p_ptr->riding = c_ptr->m_idx;
-
-        /* Hack -- remove tracked monster */
+        p_ptr->riding = mon->id;
         if (p_ptr->riding == p_ptr->health_who) health_track(0);
     }
 
@@ -1793,7 +1719,7 @@ bool do_riding(bool force)
     p_ptr->redraw |= PR_HEALTH_BARS;
 
     /* Move the player */
-    (void)move_player_effect(y, x, MPE_HANDLE_STUFF | MPE_ENERGY_USE | MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
+    move_player_effect(pos, MPE_HANDLE_STUFF | MPE_ENERGY_USE | MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
 
     return TRUE;
 }
@@ -1813,17 +1739,16 @@ static void do_name_pet(void)
     }
     target_pet = old_target_pet;
 
-    if (cave[target_row][target_col].m_idx)
+    m_ptr = mon_at_xy(target_col, target_row);
+    if (m_ptr)
     {
-        m_ptr = &m_list[cave[target_row][target_col].m_idx];
-
         if (!is_pet(m_ptr))
         {
             /* Message */
             msg_format("This monster is not a pet.");
             return;
         }
-        if (r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE)
+        if (mon_race(m_ptr)->flags1 & RF1_UNIQUE)
         {
             msg_format("You cannot change name of this monster!");
             return;
@@ -1863,6 +1788,15 @@ static void do_name_pet(void)
 /*
  * Issue a pet command
  */
+static cptr _pet_tgt_desc(void)
+{
+    mon_ptr mon;
+    if (!pet_t_m_idx) return "nothing";
+    if (plr_tim_find(T_HALLUCINATE)) return "something strange";
+    mon = dun_mon(cave, pet_t_m_idx);
+    if (!mon) return "something on another level";
+    return r_name + mon_apparent_race(mon)->name;
+}
 void do_cmd_pet(void)
 {
     int            i = 0;
@@ -1873,8 +1807,6 @@ void do_cmd_pet(void)
     int            ask = FALSE;
     char            choice;
     char            out_val[160];
-    int            pet_ctr;
-    monster_type    *m_ptr;
 
     int mode = 0;
 
@@ -1889,8 +1821,7 @@ void do_cmd_pet(void)
 
     powers[num++] = PET_DISMISS;
 
-    sprintf(target_buf, "specify a target of pet (now:%s)",
-        (pet_t_m_idx ? (p_ptr->image ? "something strange" : (r_name + r_info[m_list[pet_t_m_idx].ap_r_idx].name)) : "nothing"));
+    sprintf(target_buf, "specify a target of pet (now:%s)", _pet_tgt_desc());
     power_desc[num] = target_buf;
 
     powers[num++] = PET_TARGET;
@@ -2204,20 +2135,27 @@ void do_cmd_pet(void)
     {
         case PET_DISMISS: /* Dismiss pets */
         {
-            /* Check pets (backwards) */
-            for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+            bool have_pet = FALSE;
+            int_map_iter_ptr iter;
+            for (iter = int_map_iter_alloc(cave->mon);
+                    int_map_iter_is_valid(iter);
+                    int_map_iter_next(iter))
             {
-                /* Player has pet */
-                if (is_pet(&m_list[pet_ctr])) break;
+                mon_ptr mon = int_map_iter_current(iter);
+                if (mon_is_pet(mon))
+                {
+                    have_pet = TRUE;
+                    break;
+                }
             }
-
-            if (!pet_ctr)
+            int_map_iter_free(iter);
+            if (!have_pet)
             {
                 msg_print("You have no pets!");
                 break;
             }
             do_cmd_pet_dismiss();
-            (void)calculate_upkeep();
+            calculate_upkeep();
             break;
         }
         case PET_TARGET:
@@ -2231,7 +2169,13 @@ void do_cmd_pet(void)
                 if (target_who > 0)
                     pet_t_m_idx = target_who;
                 else
-                    pet_t_m_idx = cave[target_row][target_col].m_idx;
+                {
+                    mon_ptr mon = mon_at_xy(target_col, target_row);
+                    if (mon)
+                        pet_t_m_idx = mon->id;
+                    else
+                        pet_t_m_idx = 0;
+                }
             }
             project_length = 0;
 
@@ -2281,17 +2225,16 @@ void do_cmd_pet(void)
         {
             if (p_ptr->pet_extra_flags & PF_PICKUP_ITEMS)
             {
-                p_ptr->pet_extra_flags &= ~(PF_PICKUP_ITEMS);
-                for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+                vec_ptr pets = plr_pets();
+                int i;
+                for (i = 0; i < vec_length(pets); i++)
                 {
-                    /* Access the monster */
-                    m_ptr = &m_list[pet_ctr];
-
-                    if (is_pet(m_ptr))
-                    {
-                        monster_drop_carried_objects(m_ptr);
-                    }
+                    mon_ptr pet = vec_get(pets, i);
+                    dun_mon_drop_carried_obj(cave, pet);
                 }
+                vec_free(pets);
+
+                p_ptr->pet_extra_flags &= ~(PF_PICKUP_ITEMS);
             }
             else p_ptr->pet_extra_flags |= (PF_PICKUP_ITEMS);
 

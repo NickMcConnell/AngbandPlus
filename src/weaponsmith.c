@@ -75,9 +75,9 @@ enum {
 
 static bool _object_is_allowed(object_type *o_ptr, int flags)
 {
-    if (object_is_armour(o_ptr))
+    if (obj_is_armor(o_ptr))
         return (flags & _ALLOW_ARMOR) ? TRUE : FALSE;
-    else if (object_is_ammo(o_ptr))
+    else if (obj_is_ammo(o_ptr))
         return (flags & _ALLOW_AMMO) ? TRUE : FALSE;
 
     switch (o_ptr->tval)
@@ -182,8 +182,11 @@ static _essence_group_t _essence_groups[ESSENCE_TYPE_MAX] = {
         { OF_BRAND_COLD,    "Brand Cold",      20, _ALLOW_MELEE | _ALLOW_AMMO },
         { _ESSENCE_SPECIAL, "Brand Elements", 100, _ALLOW_MELEE | _ALLOW_AMMO, 0, _SPECIAL_BRAND_ELEMENTS },
         { OF_BRAND_POIS,    "Brand Poison",    20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { OF_BRAND_CHAOS,       "Chaotic",         20, _ALLOW_MELEE },
-        { OF_BRAND_VAMP,      "Vampiric",        60, _ALLOW_MELEE },
+        { OF_BRAND_LITE,    "Brand Light",     30, _ALLOW_MELEE },
+        { OF_BRAND_DARK,    "Brand Dark",      30, _ALLOW_MELEE },
+        { OF_BRAND_PLASMA,  "Brand Plasma",    30, _ALLOW_MELEE },
+        { OF_BRAND_CHAOS,   "Chaotic",         50, _ALLOW_MELEE },
+        { OF_BRAND_VAMP,    "Vampiric",        60, _ALLOW_MELEE },
         { OF_IMPACT,        "Impact",          20, _ALLOW_HAFTED },
         { OF_STUN,          "Stun",            50, _ALLOW_HAFTED },
         { OF_VORPAL,        "Vorpal",         100, _ALLOW_SWORD },
@@ -423,7 +426,7 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
     /* Mundanity */
     object_prep(&new_obj, o_ptr->k_idx);
     new_obj.loc = old_obj.loc;
-    new_obj.next_o_idx = old_obj.next_o_idx;
+    new_obj.next = old_obj.next;
     new_obj.marked = old_obj.marked;
     new_obj.number = old_obj.number;
     if (old_obj.tval == TV_DRAG_ARMOR) new_obj.timeout = old_obj.timeout;
@@ -437,7 +440,7 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
     if (have_flag(old_flgs, OF_DRAIN_EXP)) div++;
     if (have_flag(old_flgs, OF_TY_CURSE)) div++;
 
-    if (object_is_ammo(&old_obj))
+    if (obj_is_ammo(&old_obj))
         div *= _AMMO_DIV;
 
     /* Normal Handling */
@@ -476,7 +479,7 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
     }
 
     /* Special Handling */
-    if (object_is_weapon_ammo(&old_obj) && !have_flag(old_flgs, OF_BRAND_ORDER) && !have_flag(old_flgs, OF_BRAND_WILD))
+    if (obj_is_bow_weapon_ammo(&old_obj))
     {
         if (old_obj.ds > new_obj.ds)
             absorb_f(_find_essence_info(_ESSENCE_XTRA_DICE), (old_obj.ds - new_obj.ds)*10*mult/div);
@@ -490,14 +493,14 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
     if (old_obj.to_a > new_obj.to_a)
         absorb_f(_find_essence_info(_ESSENCE_AC), (old_obj.to_a - new_obj.to_a)*10*mult/div);
 
-    if (object_is_weapon_ammo(&old_obj))
+    if (obj_is_bow_weapon_ammo(&old_obj))
     {
         if (old_obj.to_h > new_obj.to_h)
             absorb_f(_find_essence_info(_ESSENCE_TO_HIT), (old_obj.to_h - new_obj.to_h)*10*mult/div);
         if (old_obj.to_d > new_obj.to_d)
             absorb_f(_find_essence_info(_ESSENCE_TO_DAM), (old_obj.to_d - new_obj.to_d)*10*mult/div);
     }
-    else if (object_is_armour(&old_obj))
+    else if (obj_is_armor(&old_obj))
     {
         if (old_obj.to_h > new_obj.to_h)
             absorb_f(_find_essence_info(_ESSENCE_TO_HIT_A), (old_obj.to_h - new_obj.to_h)*10*mult/div);
@@ -543,7 +546,7 @@ static void _remove(object_type *o_ptr)
     }
     o_ptr->xtra3 = 0;
     obj_flags(o_ptr, flgs);
-    if (!have_pval_flag(flgs))
+    if (!of_has_pval(flgs))
         o_ptr->pval = 0;
 }
 
@@ -590,7 +593,7 @@ const int _ench_factor[_MAX_ENCH + 1] = {
 };
 static int _enchant_limit(void)
 {
-    return 5 + py_prorata_level_aux(150, 1, 0, 2) / 10;
+    return 5 + plr_prorata_level_aux(150, 1, 0, 2) / 10;
 }
 
 static int _calc_enchant_cost(int bonus, int cost)
@@ -675,7 +678,7 @@ static int _smith_absorb(object_type *o_ptr)
     string_ptr  spy_before = NULL;
     string_ptr  spy_after = NULL;
 
-    if (object_is_known(o_ptr))
+    if (obj_is_known(o_ptr))
     {
         obj_flags_known(o_ptr, _spy_known_flags);
 
@@ -822,7 +825,7 @@ static int _calc_enchant_to_a(object_type *o_ptr, int to_a)
     int    mult = o_ptr->number;
     int    cost;
 
-    if (object_is_artifact(o_ptr))
+    if (obj_is_art(o_ptr))
         mult *= _ART_ENCH_MULT;
 
     cost  = _calc_enchant_cost(to_a, _COST_TO_AC);
@@ -946,10 +949,10 @@ static int _calc_enchant_to_h(object_type *o_ptr, int to_h)
     int    div = 1;
     int    cost;
 
-    if (object_is_ammo(o_ptr))
+    if (obj_is_ammo(o_ptr))
         div = _AMMO_DIV;
 
-    if (object_is_artifact(o_ptr))
+    if (obj_is_art(o_ptr))
         mult *= _ART_ENCH_MULT;
 
     cost  = _calc_enchant_cost(to_h, _COST_TO_HIT);
@@ -964,10 +967,10 @@ static int _calc_enchant_to_d(object_type *o_ptr, int to_d)
     int    div = 1;
     int    cost;
 
-    if (object_is_ammo(o_ptr))
+    if (obj_is_ammo(o_ptr))
         div = _AMMO_DIV;
 
-    if (object_is_artifact(o_ptr))
+    if (obj_is_art(o_ptr))
         mult *= _ART_ENCH_MULT;
 
     cost  = _calc_enchant_cost(to_d, _COST_TO_DAM);
@@ -1089,7 +1092,7 @@ static int _smith_enchant_weapon(object_type *o_ptr)
 
 static int _smith_enchant(object_type *o_ptr)
 {
-    if (object_is_weapon_ammo(o_ptr))
+    if (obj_is_bow_weapon_ammo(o_ptr))
         return _smith_enchant_weapon(o_ptr);
     return _smith_enchant_armor(o_ptr);
 }
@@ -1099,7 +1102,7 @@ static int _calc_enchant_to_h_a(object_type *o_ptr, int to_h)
 {
     int mult = o_ptr->number;
 
-    if (object_is_artifact(o_ptr))
+    if (obj_is_art(o_ptr))
         mult *= _ART_ENCH_MULT;
 
     return _calc_enchant_cost(to_h, _COST_TO_HIT_A) * mult;
@@ -1108,7 +1111,7 @@ static int _calc_enchant_to_d_a(object_type *o_ptr, int to_d)
 {
     int mult = o_ptr->number;
 
-    if (object_is_artifact(o_ptr))
+    if (obj_is_art(o_ptr))
         mult *= _ART_ENCH_MULT;
 
     return _calc_enchant_cost(to_d, _COST_TO_DAM_A) * mult;
@@ -1232,7 +1235,7 @@ static int _smith_add_essence(object_type *o_ptr, int type)
     vec_ptr             choices = vec_alloc(NULL);
     bool                done = FALSE;
     int                 result = _OK;
-    bool                is_ammo = object_is_ammo(o_ptr);
+    bool                is_ammo = obj_is_ammo(o_ptr);
 
     /* Build list of choices. The player needs some essences of
        the required type, and we avoid adding a redundant ability
@@ -1963,7 +1966,7 @@ static void _smith_weapon_armor(object_type *o_ptr)
         doc_insert(_doc, "   <color:y>A</color>) Absorb all essences\n");
         if (object_is_smith(o_ptr))
             doc_insert(_doc, "   <color:y>R</color>) Remove added essence\n");
-        else if (object_is_artifact(o_ptr) || object_is_(o_ptr, TV_SWORD, SV_RUNESWORD))
+        else if (obj_is_art(o_ptr))
         {
         }
         else
@@ -1981,14 +1984,14 @@ static void _smith_weapon_armor(object_type *o_ptr)
                 doc_insert(_doc, "   <color:y>5</color>) Add Ability\n");
             if (_count_essences_aux(ESSENCE_TYPE_TELEPATHY))
                 doc_insert(_doc, "   <color:y>6</color>) Add Telepathy\n");
-            if (object_is_melee_weapon(o_ptr))
+            if (obj_is_weapon(o_ptr))
             {
                 if (_count_essences_aux(ESSENCE_TYPE_SLAYS))
                     doc_insert(_doc, "   <color:y>7</color>) Add Slay\n");
                 if (_count_essences_aux(ESSENCE_TYPE_BRANDS))
                     doc_insert(_doc, "   <color:y>8</color>) Add Brand\n");
             }
-            else if (object_is_armour(o_ptr))
+            else if (obj_is_armor(o_ptr))
             {
                 if (_get_essence(_ESSENCE_TO_HIT_A) || _get_essence(_ESSENCE_TO_DAM_A))
                     doc_insert(_doc, "   <color:y>7</color>) Add Slaying\n");
@@ -2025,50 +2028,50 @@ static void _smith_weapon_armor(object_type *o_ptr)
                 done = TRUE;
             break;
         case '1':
-            if (object_is_smith(o_ptr) || object_is_artifact(o_ptr)) break;
+            if (object_is_smith(o_ptr) || obj_is_art(o_ptr)) break;
             if (!_count_essences_aux(ESSENCE_TYPE_STATS)) break;
             if (_smith_add_pval(o_ptr, ESSENCE_TYPE_STATS) == _UNWIND)
                 done = TRUE;
             break;
         case '2':
-            if (object_is_smith(o_ptr) || object_is_artifact(o_ptr)) break;
+            if (object_is_smith(o_ptr) || obj_is_art(o_ptr)) break;
             if (!_count_essences_aux(ESSENCE_TYPE_BONUSES)) break;
             if (_smith_add_pval(o_ptr, ESSENCE_TYPE_BONUSES) == _UNWIND)
                 done = TRUE;
             break;
         case '3':
-            if (object_is_smith(o_ptr) || object_is_artifact(o_ptr)) break;
+            if (object_is_smith(o_ptr) || obj_is_art(o_ptr)) break;
             if (!_count_essences_aux(ESSENCE_TYPE_RESISTS)) break;
             if (_smith_add_essence(o_ptr, ESSENCE_TYPE_RESISTS) == _UNWIND)
                 done = TRUE;
             break;
         case '4':
-            if (object_is_smith(o_ptr) || object_is_artifact(o_ptr)) break;
+            if (object_is_smith(o_ptr) || obj_is_art(o_ptr)) break;
             if (!_count_essences_aux(ESSENCE_TYPE_SUSTAINS)) break;
             if (_smith_add_essence(o_ptr, ESSENCE_TYPE_SUSTAINS) == _UNWIND)
                 done = TRUE;
             break;
         case '5':
-            if (object_is_smith(o_ptr) || object_is_artifact(o_ptr)) break;
+            if (object_is_smith(o_ptr) || obj_is_art(o_ptr)) break;
             if (!_count_essences_aux(ESSENCE_TYPE_ABILITIES)) break;
             if (_smith_add_essence(o_ptr, ESSENCE_TYPE_ABILITIES) == _UNWIND)
                 done = TRUE;
             break;
         case '6':
-            if (object_is_smith(o_ptr) || object_is_artifact(o_ptr)) break;
+            if (object_is_smith(o_ptr) || obj_is_art(o_ptr)) break;
             if (!_count_essences_aux(ESSENCE_TYPE_TELEPATHY)) break;
             if (_smith_add_essence(o_ptr, ESSENCE_TYPE_TELEPATHY) == _UNWIND)
                 done = TRUE;
             break;
         case '7':
-            if (object_is_smith(o_ptr) || object_is_artifact(o_ptr)) break;
-            if (object_is_melee_weapon(o_ptr))
+            if (object_is_smith(o_ptr) || obj_is_art(o_ptr)) break;
+            if (obj_is_weapon(o_ptr))
             {
                 if (!_count_essences_aux(ESSENCE_TYPE_SLAYS)) break;
                 if (_smith_add_essence(o_ptr, ESSENCE_TYPE_SLAYS) == _UNWIND)
                     done = TRUE;
             }
-            else if (object_is_armour(o_ptr))
+            else if (obj_is_armor(o_ptr))
             {
                 if (!_get_essence(_ESSENCE_TO_HIT_A) && !_get_essence(_ESSENCE_TO_DAM_A)) break;
                 if (_smith_add_slaying(o_ptr) == _UNWIND)
@@ -2076,8 +2079,8 @@ static void _smith_weapon_armor(object_type *o_ptr)
             }
             break;
         case '8':
-            if (object_is_smith(o_ptr) || object_is_artifact(o_ptr)) break;
-            if (object_is_melee_weapon(o_ptr))
+            if (object_is_smith(o_ptr) || obj_is_art(o_ptr)) break;
+            if (obj_is_weapon(o_ptr))
             {
                 if (!_count_essences_aux(ESSENCE_TYPE_BRANDS)) break;
                 if (_smith_add_essence(o_ptr, ESSENCE_TYPE_BRANDS) == _UNWIND)
@@ -2106,7 +2109,7 @@ static void _smith_ammo(object_type *o_ptr)
         doc_insert(_doc, "   <color:y>A</color>) Absorb all essences\n");
         if (object_is_smith(o_ptr))
             doc_insert(_doc, "   <color:y>R</color>) Remove added essence\n");
-        else if (object_is_artifact(o_ptr))
+        else if (obj_is_art(o_ptr))
         {
         }
         else
@@ -2147,13 +2150,13 @@ static void _smith_ammo(object_type *o_ptr)
                 done = TRUE;
             break;
         case '1':
-            if (object_is_smith(o_ptr) || object_is_artifact(o_ptr)) break;
+            if (object_is_smith(o_ptr) || obj_is_art(o_ptr)) break;
             if (!_count_essences_aux(ESSENCE_TYPE_SLAYS)) break;
             if (_smith_add_essence(o_ptr, ESSENCE_TYPE_SLAYS) == _UNWIND)
                 done = TRUE;
             break;
         case '2':
-            if (object_is_smith(o_ptr) || object_is_artifact(o_ptr)) break;
+            if (object_is_smith(o_ptr) || obj_is_art(o_ptr)) break;
             if (!_count_essences_aux(ESSENCE_TYPE_BRANDS)) break;
             if (_smith_add_essence(o_ptr, ESSENCE_TYPE_BRANDS) == _UNWIND)
                 done = TRUE;
@@ -2168,7 +2171,7 @@ static void _smith_object(object_type *o_ptr)
     msg_line_clear();
     Term_save();
 
-    if (object_is_ammo(o_ptr))
+    if (obj_is_ammo(o_ptr))
         _smith_ammo(o_ptr);
     else
         _smith_weapon_armor(o_ptr);
@@ -2191,6 +2194,11 @@ static bool _smithing(void)
 
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
+    if (obj_is_(prompt.obj, TV_HAFTED, SV_WIZSTAFF))
+    {   /* Wizardstaves are "staves" and use xtra3 for device power */
+        msg_print("Failed! You are no wizard!");
+        return FALSE;
+    }
 
     /* Smithing now automatically 'Judges' the object for free */
     if (p_ptr->lev < 10)
@@ -2221,7 +2229,7 @@ static bool _smithing(void)
 /**********************************************************************
  * Powers
  **********************************************************************/
-void _smithing_spell(int cmd, variant *res)
+void _smithing_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2233,12 +2241,12 @@ void _smithing_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
-        if (p_ptr->blind)
+        if (plr_tim_find(T_BLIND))
         {
             msg_print("Better not work the forge while blind!");
             return;
         }
-        if (p_ptr->image)
+        if (plr_tim_find(T_HALLUCINATE))
         {
             msg_print("Better not work the forge while hallucinating!");
             return;
@@ -2471,27 +2479,27 @@ static void _character_dump(doc_ptr doc)
 static void _birth(void)
 {
     _clear_essences();
-    py_birth_obj_aux(TV_POLEARM, SV_BROAD_AXE, 1);
-    py_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
-    py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
-    py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(15, 25));
+    plr_birth_obj_aux(TV_POLEARM, SV_BROAD_AXE, 1);
+    plr_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
+    plr_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
+    plr_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(15, 25));
 }
 
 /**********************************************************************
  * Public
  **********************************************************************/
-class_t *weaponsmith_get_class(void)
+plr_class_ptr weaponsmith_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  28,  28,   1,  20,  10,  60,  45};
     skills_t xs = { 10,  10,  10,   0,   0,   0,  21,  15};
 
-        me.name = "Weaponsmith";
-        me.desc = "A Weaponsmith can improve weapons and armors for him or herself. "
+        me = plr_class_alloc(CLASS_WEAPONSMITH);
+        me->name = "Weaponsmith";
+        me->desc = "A Weaponsmith can improve weapons and armors for him or herself. "
                     "They are good at fighting, and they have potential ability to "
                     "become even better than Warriors using improved equipment. They "
                     "cannot cast spells, and are poor at skills such as stealth or "
@@ -2505,34 +2513,30 @@ class_t *weaponsmith_get_class(void)
                     "up to a maximum value depending on level. Weaponsmiths now use class "
                     "powers for Smithing commands.";
 
-        me.stats[A_STR] =  3;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] =  0;
-        me.stats[A_CHR] =  0;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 111;
-        me.base_hp = 12;
-        me.exp = 130;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_STRONG;
+        me->stats[A_STR] =  3;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] =  0;
+        me->stats[A_CHR] =  0;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 111;
+        me->base_hp = 12;
+        me->exp = 130;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
+                    CLASS_SENSE2_STRONG;
 
-        me.birth = _birth;
-        me.get_powers = _get_powers;
-        me.character_dump = _character_dump;
-
-        me.birth = _birth;
-        me.load_player = _load;
-        me.save_player = _save;
-        me.destroy_object = _on_destroy_object;
-
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.load_player = _load;
+        me->hooks.save_player = _save;
+        me->hooks.destroy_object = _on_destroy_object;
     }
 
-    return &me;
+    return me;
 }
 
 void weaponsmith_object_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])

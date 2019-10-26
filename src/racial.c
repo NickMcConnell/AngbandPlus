@@ -15,7 +15,7 @@
 
 bool can_do_cmd_cast(void)
 {
-    if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC))
+    if (cave->dun_type_id == D_SURFACE && (cave->flags & DF_NO_MAGIC))
     {
         msg_print("The dungeon absorbs all attempted magic!");
         msg_print(NULL);
@@ -27,7 +27,7 @@ bool can_do_cmd_cast(void)
         equip_learn_flag(OF_NO_MAGIC);
         return FALSE;
     }
-    else if (IS_SHERO())
+    else if (plr_tim_find(T_BERSERK))
     {
         msg_format("You cannot think directly!");
         return FALSE;

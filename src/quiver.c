@@ -15,35 +15,57 @@ void quiver_display(doc_ptr doc, obj_p p, int flags)
     inv_display(_inv, 1, quiver_max(), p, doc, flags);
 }
 
+static obj_ptr _get_quiver(void)
+{
+    slot_t slot = equip_find_obj(TV_QUIVER, SV_ANY);
+    if (!slot) return NULL;
+    return equip_obj(slot);
+}
+
 /* Adding and removing: Quivers allow a large number of slots
  * (QUIVER_MAX) but restrict the number arrows, etc. The capacity 
  * of the quiver may change as the user finds new and better 
  * quivers in the dungeon. */
 bool quiver_likes(obj_ptr obj)
 {
-    if (!equip_find_obj(TV_QUIVER, SV_ANY)) return FALSE;
-    if (obj->tval != p_ptr->shooter_info.tval_ammo) return FALSE;
-    if (!obj_is_identified(obj)) return FALSE;
-    /* Restrict what automatically goes into the quiver a bit. For
-     * example, if an Archer is doing a lot of Create Ammo, then it
-     * is annoying to have the junk results automatically added. On
-     * the other hand, one wants artifact ammo to always add, so we
-     * can't just rely on object piles ... */
-    if (inv_can_combine(_inv, obj)) return TRUE;
-    if (obj->inscription && strstr(quark_str(obj->inscription), "=g")) return TRUE;
+    obj_ptr quiver = _get_quiver();
+    if (!quiver) return FALSE;
+    if (quiver->sval == SV_QUIVER_MAGE)
+    {
+        /* XXX Mage quiver never auto equips? */
+    }
+    else
+    {
+        if (obj->tval != p_ptr->shooter_info.tval_ammo) return FALSE;
+        /* Restrict what automatically goes into the quiver a bit. For
+         * example, if an Archer is doing a lot of Create Ammo, then it
+         * is annoying to have the junk results automatically added. On
+         * the other hand, one wants artifact ammo to always add, so we
+         * can't just rely on object piles ... */
+        if (inv_can_combine(_inv, obj)) return TRUE;
+        /* Require identified ammo *after* combining. Early game players shooting
+         * piles of un-identified ammo from their quiver should recombine on auto-pickup */
+        if (!obj_is_identified(obj)) return FALSE;
+        if (obj->inscription && strstr(quark_str(obj->inscription), "=g")) return TRUE;
+    }
     return FALSE;
 }
 
 bool quiver_tolerates(obj_ptr obj)
 {
-    return equip_find_obj(TV_QUIVER, SV_ANY) && obj_is_ammo(obj);
+    obj_ptr quiver = _get_quiver();
+    if (!quiver) return FALSE;
+    if (quiver->sval == SV_QUIVER_MAGE)
+        return obj_is_wand(obj) || obj_is_rod(obj);
+    else
+        return obj_is_ammo(obj);
 }
 
 int quiver_capacity(void)
 {
-    slot_t slot = equip_find_obj(TV_QUIVER, SV_ANY);
-    if (!slot) return 0;
-    return equip_obj(slot)->xtra4;
+    obj_ptr quiver = _get_quiver();
+    if (!quiver) return 0;
+    return quiver->xtra4;
 }
 
 void quiver_carry(obj_ptr obj)
@@ -66,6 +88,7 @@ void quiver_carry(obj_ptr obj)
         {
             obj_ptr new_obj = inv_obj(_inv, slot);
             new_obj->marked |= OM_TOUCHED;
+            new_obj->marked &= ~OM_WORN;
             autopick_alter_obj(new_obj, FALSE);
             p_ptr->notice |= PN_OPTIMIZE_QUIVER;
         }
@@ -73,6 +96,28 @@ void quiver_carry(obj_ptr obj)
     obj->number += xtra;
     p_ptr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
     p_ptr->notice |= PN_CARRY;
+}
+
+bool quiver_check_swap(obj_ptr obj)
+{
+    obj_ptr quiver = _get_quiver();
+    int     ct = quiver_count(NULL);
+    if (!quiver) return TRUE;
+    /* XXX Swapping from ammo to devices or vice versa is currently clumsy */
+    if (ct && obj->sval != quiver->sval)
+    {
+        msg_print("You must remove the contents of your current quiver first.");
+        return FALSE;
+    }
+    /* Make sure the new quiver can hold the current contents */
+    if (ct > obj->xtra4)
+    {
+        cptr s = quiver->sval == SV_QUIVER_AMMO ? "missiles" : "devices";
+        msg_format("Failed! Your current quiver holds %d %s but this quiver "
+            "only has a capacity for %d %s.", quiver_count(NULL), s, obj->xtra4, s);
+        return FALSE;
+    }
+    return TRUE;
 }
 
 void quiver_remove(slot_t slot)
@@ -164,6 +209,28 @@ slot_t quiver_find_ego(int which)
 slot_t quiver_find_obj(int tval, int sval)
 {
     return inv_find_obj(_inv, tval, sval);
+}
+
+slot_t quiver_find_device(int effect)
+{
+    int     slot;
+    obj_ptr quiver = _get_quiver();
+
+    if (!quiver) return 0;
+    if (quiver->sval != SV_QUIVER_MAGE) return 0;
+
+    for (slot = 1; slot <= PACK_MAX; slot++)
+    {
+        obj_ptr obj = inv_obj(_inv, slot);
+        if (!obj) continue;
+        if (!obj_is_device(obj)) continue;
+        if (!obj_is_known(obj)) continue;
+        if (obj->activation.type != effect) continue;
+        if (device_sp(obj) < obj->activation.cost) continue;
+        return slot;
+    }
+
+    return 0;
 }
 
 slot_t quiver_random_slot(obj_p p)

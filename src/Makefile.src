@@ -36,17 +36,19 @@ X11MAINFILES = main-x11.o
 WINMAINFILES = $(PROGNAME).res main-win.o readdib.o
 
 ANGFILES = \
-    archaeologist.o archer.o artifact.o autopick.o virtue.o bard.o \
-    beastmaster.o berserker.o birth.o bldg.o blood_knight.o blood_mage.o \
+    archaeologist.o archer.o art.o art_name.o artifact.o autopick.o virtue.o bard.o \
+    beastmaster.o birth.o blood_knight.o \
     cavalry.o cave.o chaos_warrior.o classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o \
-    cmd6.o combat.o demigod.o devicemaster.o devices.o do-spell.o doppelganger.o duelist.o dungeon.o \
-    ego.o effects.o equip.o fear.o files.o flavor.o floors.o force_trainer.o generate.o gf.o gray_mage.o \
-    grid.o hex.o high_mage.o hissatsu.o home.o init1.o init2.o int-map.o inv.o load.o mage.o \
+    cmd6.o combat.o demigod.o devicemaster.o devices.o do-spell.o doppelganger.o duelist.o \
+	dun.o dun_gen.o dun_mon.o dun_obj.o dun_type.o dun_util.o dun_world.o \
+    dungeon.o ego.o effects.o equip.o fear.o files.o flavor.o force_trainer.o gf.o gray_mage.o \
+    hex.o high_mage.o hissatsu.o home.o init1.o init2.o int_map.o inv.o load.o mage.o map.o \
     magic_eater.o mauler.o melee1.o melee2.o menu.o message.o mindcrafter.o mirror_master.o \
-    mon.o mon_display.o mon_spell.o monk.o monster.o monster1.o monster2.o mspells1.o mspells2.o mut.o \
+    mon.o mon_attack.o mon_display.o mon_spell.o mon_tim.o monk.o monk_attack.o monster.o monster1.o monster2.o mspells1.o mspells2.o mut.o \
     mut_a.o mystic.o necromancer.o ninja.o obj.o obj_display.o obj_prompt.o \
-	object1.o object2.o object3.o obj_kind.o pack.o paladin.o \
-    personality.o priest.o psion.o py_birth.o py_display.o py_throw.o quest.o quiver.o \
+	object1.o object2.o object3.o obj_kind.o pack.o paladin.o personality.o \
+    plr.o plr_attack.o plr_birth.o plr_class.o plr_display.o plr_race.o plr_throw.o plr_tim.o \
+	point_map.o priest.o psion.o quest.o quiver.o \
 	races.o races_a.o races_k.o races_mimic.o race_angel.o \
     race_beholder.o race_centipede.o race_demon.o race_dragon.o race_elemental.o race_giant.o race_golem.o \
     race_hound.o race_hydra.o race_jelly.o race_leprechaun.o race_lich.o \
@@ -55,7 +57,7 @@ ANGFILES = \
     race_xorn.o racial.o rage-mage.o ranger.o rect.o red_mage.o \
     resist.o rogue.o rooms.o rune_knight.o samurai.o save.o savefile.o scores.o scout.o shop.o skillmaster.o \
     skills.o sniper.o sorcerer.o spells.o spells1.o spells2.o spells3.o spells_a.o \
-    spells_c.o spells_h.o spells_m.o spells_s.o spoilers.o str-map.o streams.o \
-    tables.o time_lord.o tourist.o util.o variable.o variant.o warlock.o warrior.o \
-    warrior_mage.o weaponmaster.o weaponsmith.o wild.o wild_realm.o wild_talent.o \
+    spells_c.o spells_h.o spells_m.o spells_s.o spoilers.o str_map.o \
+    tables.o time_lord.o util.o variable.o var.o warlock.o warrior.o \
+    warrior_mage.o weaponmaster.o weaponsmith.o wild.o wild_talent.o \
     wizard1.o wizard2.o wiz_obj.o xtra1.o xtra2.o yellow_mage.o

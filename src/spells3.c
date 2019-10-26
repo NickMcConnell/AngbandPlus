@@ -20,25 +20,22 @@
 #define HURT_CHANCE 16
 
 
-static bool cave_monster_teleportable_bold(int m_idx, int y, int x, u32b mode)
+static bool cave_monster_teleportable_bold(mon_ptr mon, int y, int x, u32b mode)
 {
-    monster_type *m_ptr = &m_list[m_idx];
-    cave_type    *c_ptr = &cave[y][x];
-    feature_type *f_ptr = &f_info[c_ptr->feat];
+    point_t   dest_pos = point_create(x, y);
+    cave_ptr  dest_grid = cave_at(dest_pos);
+    mon_ptr   dest_mon = mon_at(dest_pos);
+    feat_ptr  dest_feat = &f_info[dest_grid->feat];
 
-    /* Require "teleportable" space */
-    if (!have_flag(f_ptr->flags, FF_TELEPORTABLE)) return FALSE;
-
-    if (c_ptr->m_idx && (c_ptr->m_idx != m_idx)) return FALSE;
-    if (player_bold(y, x)) return FALSE;
-
-    /* Hack -- no teleport onto glyph of warding */
-    if (is_glyph_grid(c_ptr)) return FALSE;
-    if (is_mon_trap_grid(c_ptr)) return FALSE;
+    if (!have_flag(dest_feat->flags, FF_TELEPORTABLE)) return FALSE;
+    if (dest_mon && dest_mon != mon) return FALSE;
+    if (plr_at(dest_pos)) return FALSE;
+    if (is_glyph_grid(dest_grid)) return FALSE;
+    if (is_mon_trap_grid(dest_grid)) return FALSE;
 
     if (!(mode & TELEPORT_PASSIVE))
     {
-        if (!monster_can_cross_terrain(c_ptr->feat, &r_info[m_ptr->r_idx], 0)) return FALSE;
+        if (!monster_can_cross_terrain(dest_grid->feat, mon_race(mon), 0)) return FALSE;
     }
 
     return TRUE;
@@ -54,20 +51,17 @@ static bool cave_monster_teleportable_bold(int m_idx, int y, int x, u32b mode)
  */
 bool teleport_away(int m_idx, int dis, u32b mode)
 {
-    int oy, ox, d, i, min;
+    int d, i, min;
     int tries = 0;
-    int ny = 0, nx = 0;
 
     bool look = TRUE;
 
-    monster_type *m_ptr = &m_list[m_idx];
+    monster_type *m_ptr = dun_mon(cave, m_idx);
+    point_t old_pos = m_ptr->pos;
+    point_t new_pos = {0};
 
     /* Paranoia */
-    if (!m_ptr->r_idx) return (FALSE);
-
-    /* Save the old location */
-    oy = m_ptr->fy;
-    ox = m_ptr->fx;
+    if (mon_is_dead(m_ptr)) return FALSE;
 
     /* Minimum distance */
     min = dis / 2;
@@ -90,23 +84,21 @@ bool teleport_away(int m_idx, int dis, u32b mode)
         /* Try several locations */
         for (i = 0; i < 500; i++)
         {
-            /* Pick a (possibly illegal) location */
+            /* Pick a (possibly illegal) location
+             * XXX We must bounds check outside the loop. For example,
+             * in the Thieves' Quest, it is impossible to get a tile
+             * farther than min that is also legal. */
             while (1)
             {
-                ny = rand_spread(oy, dis);
-                nx = rand_spread(ox, dis);
-                d = distance(oy, ox, ny, nx);
-                if ((d >= min) && (d <= dis)) break;
+                new_pos = point_random_jump(old_pos, dis);
+                d = point_distance(old_pos, new_pos);
+                if (min <= d && d <= dis) break;
             }
-
-            /* Ignore illegal locations */
-            if (!in_bounds(ny, nx)) continue;
-
-            if (!cave_monster_teleportable_bold(m_idx, ny, nx, mode)) continue;
+            if (!dun_pos_interior(cave, new_pos)) continue;
+            if (!cave_monster_teleportable_bold(m_ptr, new_pos.y, new_pos.x, mode)) continue;
 
             /* No teleporting into vaults and such */
-            if (!(quests_get_current() || p_ptr->inside_arena))
-                if (cave[ny][nx].info & CAVE_ICKY) continue;
+            if (!quests_get_current() && (cave_at(new_pos)->info & CAVE_ICKY)) continue;
 
             /* This grid looks good */
             look = FALSE;
@@ -124,33 +116,11 @@ bool teleport_away(int m_idx, int dis, u32b mode)
         /* Stop after MAX_TRIES tries */
         if (tries > MAX_TRIES) return (FALSE);
     }
+    
+    dun_move_mon(cave, m_ptr, new_pos);
 
-    /* Sound */
-    sound(SOUND_TPOTHER);
-
-    /* Update the old location */
-    cave[oy][ox].m_idx = 0;
-
-    /* Update the new location */
-    cave[ny][nx].m_idx = m_idx;
-
-    /* Move the monster */
-    m_ptr->fy = ny;
-    m_ptr->fx = nx;
-
-    /* Forget the counter target */
     reset_target(m_ptr);
-
-    /* Update the monster (new location) */
-    update_mon(m_idx, TRUE);
-
-    /* Redraw the old grid */
-    lite_spot(oy, ox);
-
-    /* Redraw the new grid */
-    lite_spot(ny, nx);
-
-    if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+    if (mon_race(m_ptr)->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
         p_ptr->update |= (PU_MON_LITE);
 
     return (TRUE);
@@ -163,25 +133,19 @@ bool teleport_away(int m_idx, int dis, u32b mode)
  */
 void teleport_monster_to(int m_idx, int ty, int tx, int power, u32b mode)
 {
-    int ny, nx, oy, ox, d, i, min;
+    int d, i, min;
     int attempts = 500;
     int dis = 2;
     bool look = TRUE;
-    monster_type *m_ptr = &m_list[m_idx];
+    monster_type *m_ptr = dun_mon(cave, m_idx);
+    point_t tgt_pos = point_create(tx, ty);
+    point_t new_pos = {0};
 
     /* Paranoia */
-    if (!m_ptr->r_idx) return;
+    if (mon_is_dead(m_ptr)) return;
 
     /* "Skill" test */
     if (randint1(100) > power) return;
-
-    /* Initialize */
-    ny = m_ptr->fy;
-    nx = m_ptr->fx;
-
-    /* Save the old location */
-    oy = m_ptr->fy;
-    ox = m_ptr->fx;
 
     /* Minimum distance */
     min = dis / 2;
@@ -198,19 +162,16 @@ void teleport_monster_to(int m_idx, int ty, int tx, int power, u32b mode)
             /* Pick a (possibly illegal) location */
             while (1)
             {
-                ny = rand_spread(ty, dis);
-                nx = rand_spread(tx, dis);
-                d = distance(ty, tx, ny, nx);
-                if ((d >= min) && (d <= dis)) break;
+                new_pos = point_random_jump(tgt_pos, dis);
+                if (!dun_pos_interior(cave, new_pos)) continue;
+                d = point_distance(tgt_pos, new_pos);
+                if (min <= d && d <= dis) break;
             }
 
-            /* Ignore illegal locations */
-            if (!in_bounds(ny, nx)) continue;
-
-            if (!cave_monster_teleportable_bold(m_idx, ny, nx, mode)) continue;
+            if (!cave_monster_teleportable_bold(m_ptr, new_pos.y, new_pos.x, mode)) continue;
 
             /* No teleporting into vaults and such */
-            /* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */
+            /* if (cave_at_xy(nx, ny)->info & (CAVE_ICKY)) continue; */
 
             /* This grid looks good */
             look = FALSE;
@@ -228,62 +189,38 @@ void teleport_monster_to(int m_idx, int ty, int tx, int power, u32b mode)
 
     if (attempts < 1) return;
 
-    /* Sound */
-    sound(SOUND_TPOTHER);
+    dun_move_mon(cave, m_ptr, new_pos);
 
-    /* Update the old location */
-    cave[oy][ox].m_idx = 0;
-
-    /* Update the new location */
-    cave[ny][nx].m_idx = m_idx;
-
-    /* Move the monster */
-    m_ptr->fy = ny;
-    m_ptr->fx = nx;
-
-    /* Update the monster (new location) */
-    update_mon(m_idx, TRUE);
-
-    /* Redraw the old grid */
-    lite_spot(oy, ox);
-
-    /* Redraw the new grid */
-    lite_spot(ny, nx);
-
-    if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+    if (mon_race(m_ptr)->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
         p_ptr->update |= (PU_MON_LITE);
 }
 
 
 bool cave_player_teleportable_bold(int y, int x, u32b mode)
 {
-    cave_type    *c_ptr = &cave[y][x];
-    feature_type *f_ptr = &f_info[c_ptr->feat];
+    point_t  pos = point_create(x, y);
+    cave_ptr grid = cave_at(pos);
+    mon_ptr  mon = mon_at(pos);
+    feat_ptr feat = &f_info[grid->feat];
 
-    /* Require "teleportable" space */
-    if (!have_flag(f_ptr->flags, FF_TELEPORTABLE)) return FALSE;
-
-    /* No magical teleporting into vaults and such */
-    if (!(mode & TELEPORT_NONMAGICAL) && (c_ptr->info & CAVE_ICKY)) return FALSE;
-
-    if (c_ptr->m_idx && (c_ptr->m_idx != p_ptr->riding)) return FALSE;
-
-    /* don't teleport on a trap. */
-    if (have_flag(f_ptr->flags, FF_HIT_TRAP)) return FALSE;
+    if (!have_flag(feat->flags, FF_TELEPORTABLE)) return FALSE;
+    if (!(mode & TELEPORT_NONMAGICAL) && (grid->info & CAVE_ICKY)) return FALSE; /* no vaults */
+    if (mon && mon->id != p_ptr->riding) return FALSE;
+    if (have_flag(feat->flags, FF_HIT_TRAP)) return FALSE;
 
     if (!(mode & TELEPORT_PASSIVE))
     {
-        if (!player_can_enter(c_ptr->feat, 0)) return FALSE;
+        if (!player_can_enter(grid->feat, 0)) return FALSE;
 
-        if (have_flag(f_ptr->flags, FF_WATER) && have_flag(f_ptr->flags, FF_DEEP))
+        if (have_flag(feat->flags, FF_WATER) && have_flag(feat->flags, FF_DEEP))
         {
             if (!p_ptr->levitation && !p_ptr->can_swim) return FALSE;
         }
 
-        if (have_flag(f_ptr->flags, FF_LAVA) && res_pct(RES_FIRE) < 100 && !IS_INVULN())
+        if (have_flag(feat->flags, FF_LAVA) && res_pct(RES_FIRE) < 100 && !plr_tim_find(T_INVULN))
         {
             /* (Almost) always forbid deep lava */
-            if (have_flag(f_ptr->flags, FF_DEEP) && !elemental_is_(ELEMENTAL_FIRE)) return FALSE;
+            if (have_flag(feat->flags, FF_DEEP) && !elemental_is_(ELEMENTAL_FIRE)) return FALSE;
 
             /* Forbid shallow lava when the player don't have levitation */
             if (!p_ptr->levitation) return FALSE;
@@ -318,14 +255,9 @@ bool teleport_player_aux(int dis, u32b mode)
 {
     int candidates_at[MAX_TELEPORT_DISTANCE + 1];
     int total_candidates, cur_candidates;
-    int y = 0, x = 0, min, pick, i;
-
-    int left = MAX(1, px - dis);
-    int right = MIN(cur_wid - 2, px + dis);
-    int top = MAX(1, py - dis);
-    int bottom = MIN(cur_hgt - 2, py + dis);
-
-    if (p_ptr->wild_mode) return FALSE;
+    int min_dis, pick, i;
+    rect_t rect;
+    point_t min, max, p;
 
     if (p_ptr->anti_tele && !(mode & TELEPORT_NONMAGICAL))
     {
@@ -333,6 +265,14 @@ bool teleport_player_aux(int dis, u32b mode)
         equip_learn_flag(OF_NO_TELE);
         return FALSE;
     }
+
+    /* calculate a search rect centered on the player */
+    rect = rect_create_centered(p_ptr->pos, dis, dis);
+
+    /* clip search rect to dungeon and get iteration bounds */
+    rect = rect_intersect(rect_interior(cave->rect), rect);
+    min = rect_top_left(rect);
+    max = rect_bottom_right(rect);
 
     /* Initialize counters */
     total_candidates = 0;
@@ -343,23 +283,23 @@ bool teleport_player_aux(int dis, u32b mode)
     if (dis > MAX_TELEPORT_DISTANCE) dis = MAX_TELEPORT_DISTANCE;
 
     /* Search valid locations */
-    for (y = top; y <= bottom; y++)
+    for (p.y = min.y; p.y <= max.y; p.y++)
     {
-        for (x = left; x <= right; x++)
+        for (p.x = min.x; p.x <= max.x; p.x++)
         {
             int d;
 
             /* Skip illegal locations */
-            if (!cave_player_teleportable_bold(y, x, mode)) continue;
+            if (!cave_player_teleportable_bold(p.y, p.x, mode)) continue;
 
             /* Calculate distance */
-            d = distance(py, px, y, x);
+            d = plr_distance(p);
 
             /* Skip too far locations */
             if (d > dis) continue;
 
             /* Strafing ... Maintains LoS with old location */
-            if ((mode & TELEPORT_LINE_OF_SIGHT) && !los(y, x, py, px)) continue;
+            if ((mode & TELEPORT_LINE_OF_SIGHT) && !plr_los(p)) continue;
 
             /* Count the total number of candidates */
             total_candidates++;
@@ -373,9 +313,9 @@ bool teleport_player_aux(int dis, u32b mode)
     if (0 == total_candidates) return FALSE;
 
     /* Fix the minimum distance */
-    for (cur_candidates = 0, min = dis; min >= 0; min--)
+    for (cur_candidates = 0, min_dis = dis; min_dis >= 0; min_dis--)
     {
-        cur_candidates += candidates_at[min];
+        cur_candidates += candidates_at[min_dis];
 
         /* 50% of all candidates will have an equal chance to be choosen. */
         if (cur_candidates && (cur_candidates >= total_candidates / 2)) break;
@@ -385,26 +325,26 @@ bool teleport_player_aux(int dis, u32b mode)
     pick = randint1(cur_candidates);
 
     /* Search again the choosen location */
-    for (y = top; y <= bottom; y++)
+    for (p.y = min.y; p.y <= max.y; p.y++)
     {
-        for (x = left; x <= right; x++)
+        for (p.x = min.x; p.x <= max.x; p.x++)
         {
             int d;
 
             /* Skip illegal locations */
-            if (!cave_player_teleportable_bold(y, x, mode)) continue;
+            if (!cave_player_teleportable_bold(p.y, p.x, mode)) continue;
 
             /* Calculate distance */
-            d = distance(py, px, y, x);
+            d = plr_distance(p);
 
             /* Skip too far locations */
             if (d > dis) continue;
 
             /* Skip too close locations */
-            if (d < min) continue;
+            if (d < min_dis) continue;
 
             /* Strafing ... Maintains LoS with old location */
-            if ((mode & TELEPORT_LINE_OF_SIGHT) && !los(y, x, py, px)) continue;
+            if ((mode & TELEPORT_LINE_OF_SIGHT) && !plr_los(p)) continue;
 
             /* This grid was picked up? */
             pick--;
@@ -415,62 +355,51 @@ bool teleport_player_aux(int dis, u32b mode)
         if (!pick) break;
     }
 
-    if (player_bold(y, x)) return FALSE;
-
-    /* Sound */
-    sound(SOUND_TELEPORT);
+    if (plr_at(p)) return FALSE;
 
     /* Move the player */
-    (void)move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
-
+    move_player_effect(p, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
     return TRUE;
 }
 
 void teleport_player(int dis, u32b mode)
 {
-    int yy, xx;
-
-    /* Save the old location */
-    int oy = py;
-    int ox = px;
+    point_t old_pos = p_ptr->pos;
+    point_t d;
 
     if (!teleport_player_aux(dis, mode)) return;
-    if (!dun_level) return; /* Wilderness scrolling ... */
 
     /* Monsters with teleport ability may follow the player */
-    for (xx = -2; xx < 3; xx++)
+    for (d.x = -2; d.x < 3; d.x++)
     {
-        for (yy = -2; yy < 3; yy++)
+        for (d.y = -2; d.y < 3; d.y++)
         {
-            int tmp_m_idx;
-            if (!in_bounds(oy+yy, ox+xx)) continue;
-            tmp_m_idx = cave[oy+yy][ox+xx].m_idx;
+            point_t pos = point_add(old_pos, d);
+            mon_ptr mon;
+
+            if (!dun_pos_interior(cave, pos)) continue;
+            mon = mon_at(pos);
 
             /* A monster except your mount may follow */
-            if (tmp_m_idx && (p_ptr->riding != tmp_m_idx))
+            if (mon && mon->id != p_ptr->riding)
             {
-                monster_type *m_ptr = &m_list[tmp_m_idx];
-                monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                mon_race_ptr race = mon_race(mon);
 
                 /* Hack: Duelist Disengage. Marked foe can never follow */
-                if ((mode & TELEPORT_DISENGAGE) && tmp_m_idx == p_ptr->duelist_target_idx)
+                if ((mode & TELEPORT_DISENGAGE) && mon->id == p_ptr->duelist_target_idx)
                     continue;
 
-                if (!projectable(oy+yy, ox+xx, oy, ox)) /* Careful: Player has already left!!! */
-                    continue;
+                if (!point_project(old_pos, pos)) continue;
 
-                /*
-                 * The latter limitation is to avoid
-                 * totally unkillable suckers...
-                 */
-                if (mon_race_can_teleport(r_ptr) &&
-                    !(r_ptr->flagsr & RFR_RES_TELE))
+                /* The latter limitation is to avoid totally unkillable suckers...  */
+                if (mon_race_can_teleport(race) && !(race->flagsr & RFR_RES_TELE))
                 {
-                    if (!MON_CSLEEP(m_ptr)) teleport_monster_to(tmp_m_idx, py, px, r_ptr->level, 0L);
+                    if (!mon_tim_find(mon, MT_SLEEP))
+                        teleport_monster_to(mon->id, p_ptr->pos.y, p_ptr->pos.x, race->level, 0);
                 }
 
-                if (m_ptr->r_idx == MON_MONKEY_CLONE)
-                    teleport_monster_to(tmp_m_idx, py, px, 10000, 0L);
+                if (mon->r_idx == MON_MONKEY_CLONE)
+                    teleport_monster_to(mon->id, p_ptr->pos.y, p_ptr->pos.x, 10000, 0);
             }
         }
     }
@@ -479,35 +408,34 @@ void teleport_player(int dis, u32b mode)
 
 void teleport_player_away(int m_idx, int dis)
 {
-    int yy, xx;
-
-    /* Save the old location */
-    int oy = py;
-    int ox = px;
+    point_t old_pos = p_ptr->pos;
+    point_t d;
 
     if (!teleport_player_aux(dis, TELEPORT_PASSIVE)) return;
 
     /* Monsters with teleport ability may follow the player */
-    for (xx = -1; xx < 2; xx++)
+    for (d.x = -2; d.x < 3; d.x++)
     {
-        for (yy = -1; yy < 2; yy++)
+        for (d.y = -2; d.y < 3; d.y++)
         {
-            int tmp_m_idx = cave[oy+yy][ox+xx].m_idx;
+            point_t pos = point_add(old_pos, d);
+            mon_ptr mon;
+
+            if (!dun_pos_interior(cave, pos)) continue;
+            mon = mon_at(pos);
 
             /* A monster except your mount or caster may follow */
-            if (tmp_m_idx && (p_ptr->riding != tmp_m_idx) && (m_idx != tmp_m_idx))
+            if (mon && mon->id != p_ptr->riding && mon->id != m_idx)
             {
-                monster_type *m_ptr = &m_list[tmp_m_idx];
-                monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                mon_race_ptr race = mon_race(mon);
 
-                /*
-                 * The latter limitation is to avoid
-                 * totally unkillable suckers...
-                 */
-                if (mon_race_can_teleport(r_ptr) &&
-                    !(r_ptr->flagsr & RFR_RES_TELE))
+                if (!point_project(old_pos, pos)) continue;
+
+                /* The latter limitation is to avoid totally unkillable suckers...  */
+                if (mon_race_can_teleport(race) && !(race->flagsr & RFR_RES_TELE))
                 {
-                    if (!MON_CSLEEP(m_ptr)) teleport_monster_to(tmp_m_idx, py, px, r_ptr->level, 0L);
+                    if (!mon_tim_find(mon, MT_SLEEP))
+                        teleport_monster_to(mon->id, p_ptr->pos.y, p_ptr->pos.x, race->level, 0);
                 }
             }
         }
@@ -523,7 +451,9 @@ void teleport_player_away(int m_idx, int dis)
  */
 void teleport_player_to(int ny, int nx, u32b mode)
 {
-    int y, x, dis = 0, ctr = 0;
+    point_t tgt_pos = point_create(nx, ny);
+    point_t new_pos;
+    int dis = 0, ctr = 0;
     int attempt = 0;
     const int max_attempts = 10 * 1000;
 
@@ -540,9 +470,8 @@ void teleport_player_to(int ny, int nx, u32b mode)
         /* Pick a nearby legal location */
         while (1)
         {
-            y = rand_spread(ny, dis);
-            x = rand_spread(nx, dis);
-            if (in_bounds(y, x)) break;
+            new_pos = point_random_jump(tgt_pos, dis);
+            if (dun_pos_interior(cave, new_pos)) break;
         }
 
         ++attempt;
@@ -552,11 +481,8 @@ void teleport_player_to(int ny, int nx, u32b mode)
             return;
         }
 
-        /* Accept any grid when wizard mode */
-        if (p_ptr->wizard && !(mode & TELEPORT_PASSIVE) && (!cave[y][x].m_idx || (cave[y][x].m_idx == p_ptr->riding))) break;
-
         /* Accept teleportable floor grids */
-        if (cave_player_teleportable_bold(y, x, mode)) break;
+        if (cave_player_teleportable_bold(new_pos.y, new_pos.x, mode)) break;
 
         /* Occasionally advance the distance */
         if (++ctr > (4 * dis * dis + 4 * dis + 1))
@@ -570,30 +496,26 @@ void teleport_player_to(int ny, int nx, u32b mode)
     sound(SOUND_TELEPORT);
 
     /* Move the player */
-    (void)move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+    move_player_effect(new_pos, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
 }
 
 static u32b _flag = 0;
 static bool _has_flag(object_type *o_ptr) {
-    if (!object_is_cursed(o_ptr))
-    {
-        u32b flgs[OF_ARRAY_SIZE];
-        obj_flags(o_ptr, flgs);
-        return have_flag(flgs, _flag);
-    }
+    if (!obj_is_cursed(o_ptr))
+        return obj_has_flag(o_ptr, _flag);
     return FALSE;
 }
 void teleport_away_followable(int m_idx)
 {
-    monster_type *m_ptr = &m_list[m_idx];
-    int          oldfy = m_ptr->fy;
-    int          oldfx = m_ptr->fx;
+    monster_type *m_ptr = dun_mon(cave, m_idx);
+    int          oldfy = m_ptr->pos.y;
+    int          oldfx = m_ptr->pos.x;
     bool         old_ml = m_ptr->ml;
     int          old_cdis = m_ptr->cdis;
 
     teleport_away(m_idx, MAX_SIGHT * 2 + 5, 0L);
 
-    if (old_ml && (old_cdis <= MAX_SIGHT) && !world_monster && !p_ptr->inside_battle && los(py, px, oldfy, oldfx))
+    if (old_ml && (old_cdis <= MAX_SIGHT) && !world_monster && los(p_ptr->pos.y, p_ptr->pos.x, oldfy, oldfx))
     {
         bool follow = FALSE;
 
@@ -628,7 +550,7 @@ void teleport_away_followable(int m_idx)
                     {
                         msg_print("You invoke Unending Pursuit ... The duel continues!");
                     }
-                    teleport_player_to(m_ptr->fy, m_ptr->fx, 0L);
+                    teleport_player_to(m_ptr->pos.y, m_ptr->pos.x, 0L);
                 }
                 p_ptr->energy_need += ENERGY_NEED();
             }
@@ -643,21 +565,14 @@ void teleport_away_followable(int m_idx)
  */
 void teleport_level(int m_idx)
 {
-    bool         go_up;
-    char         m_name[160];
-    bool         see_m = TRUE;
+    bool see_m = TRUE;
 
-    if (m_idx <= 0) /* To player */
+    if (m_idx <= 0)
     {
-        strcpy(m_name, "you");
     }
     else /* To monster */
     {
-        monster_type *m_ptr = &m_list[m_idx];
-
-        /* Get the monster name (or "it") */
-        monster_desc(m_name, m_ptr, 0);
-
+        monster_type *m_ptr = dun_mon(cave, m_idx);
         see_m = mon_show_msg(m_ptr);
     }
 
@@ -665,277 +580,45 @@ void teleport_level(int m_idx)
     if (TELE_LEVEL_IS_INEFF(m_idx))
     {
         if (see_m) msg_print("There is no effect.");
-
         return;
     }
 
-    if ((m_idx <= 0) && p_ptr->anti_tele) /* To player */
+    if (m_idx <= 0 && p_ptr->anti_tele) /* To player */
     {
         msg_print("A mysterious force prevents you from teleporting!");
         equip_learn_flag(OF_NO_TELE);
         return;
     }
 
-    /* Choose up or down */
-    if (randint0(100) < 50) go_up = TRUE;
-    else go_up = FALSE;
-
-    if ((m_idx <= 0) && p_ptr->wizard)
+    if (m_idx <= 0)
     {
-        if (get_check("Force to go up? ")) go_up = TRUE;
-        else if (get_check("Force to go down? ")) go_up = FALSE;
-    }
-
-    /* Down only */
-    if ((ironman_downward && (m_idx <= 0)) || (dun_level <= d_info[dungeon_type].mindepth))
-    {
-        if (see_m) msg_format("%^s sink%s through the floor.", m_name, (m_idx <= 0) ? "" : "s");
-        if (m_idx <= 0) /* To player */
-        {
-            if (!dun_level)
-            {
-                dungeon_type = p_ptr->recall_dungeon;
-                p_ptr->oldpy = py;
-                p_ptr->oldpx = px;
-            }
-
-            if (autosave_l) do_cmd_save_game(TRUE);
-
-            if (!dun_level)
-            {
-                dun_level = d_info[dungeon_type].mindepth;
-                prepare_change_floor_mode(CFM_RAND_PLACE);
-            }
-            else
-            {
-                prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
-            }
-
-            /* Leaving */
-            p_ptr->leaving = TRUE;
-            p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
-        }
-    }
-
-    /* Up only */
-    else if (quests_get_current() || (dun_level >= d_info[dungeon_type].maxdepth))
-    {
-        if (see_m) msg_format("%^s rise%s up through the ceiling.", m_name, (m_idx <= 0) ? "" : "s");
-
-
-        if (m_idx <= 0) /* To player */
-        {
-            if (autosave_l) do_cmd_save_game(TRUE);
-
-            prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP | CFM_RAND_PLACE | CFM_RAND_CONNECT);
-
-            quests_on_leave();
-            p_ptr->leaving = TRUE;
-            p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
-        }
-    }
-    else if (go_up)
-    {
-        if (see_m) msg_format("%^s rise%s up through the ceiling.", m_name, (m_idx <= 0) ? "" : "s");
-
-
-        if (m_idx <= 0) /* To player */
-        {
-            if (autosave_l) do_cmd_save_game(TRUE);
-
-            prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP | CFM_RAND_PLACE | CFM_RAND_CONNECT);
-
-            /* Leaving */
-            p_ptr->leaving = TRUE;
-            p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
-        }
+        assert(p_ptr->dun_id == cave->dun_id);
+        dun_teleport_level_plr(cave);
     }
     else
     {
-        if (see_m) msg_format("%^s sink%s through the floor.", m_name, (m_idx <= 0) ? "" : "s");
-
-        if (m_idx <= 0) /* To player */
-        {
-            /* Never reach this code on the surface */
-            /* if (!dun_level) dungeon_type = p_ptr->recall_dungeon; */
-
-            if (autosave_l) do_cmd_save_game(TRUE);
-
-            prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
-
-            /* Leaving */
-            p_ptr->leaving = TRUE;
-            p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
-        }
+        dun_teleport_level_mon(cave, dun_mon(cave, m_idx));
     }
-
-    /* Monster level teleportation is simple deleting now */
-    if (m_idx > 0)
-    {
-        monster_type *m_ptr = &m_list[m_idx];
-        quests_on_kill_mon(m_ptr);
-        delete_monster_idx(m_idx);
-    }
-
-    /* Sound */
-    sound(SOUND_TPLEVEL);
 }
-
-
-
-int choose_dungeon(cptr note, int y, int x)
-{
-    int select_dungeon;
-    int i, num = 0;
-    s16b *dun;
-
-    /* Hack -- No need to choose dungeon in some case */
-    if (no_wilderness || ironman_downward)
-    {
-        if (max_dlv[DUNGEON_ANGBAND]) return DUNGEON_ANGBAND;
-        else
-        {
-            msg_format("You haven't entered %s yet.", d_name + d_info[DUNGEON_ANGBAND].name);
-            msg_print(NULL);
-            return 0;
-        }
-    }
-
-    /* Allocate the "dun" array */
-    C_MAKE(dun, max_d_idx, s16b);
-
-    screen_save();
-    for(i = 1; i < max_d_idx; i++)
-    {
-        char buf[80];
-        bool seiha = FALSE;
-
-        if (!d_info[i].maxdepth) continue;
-        if (d_info[i].flags1 & DF1_RANDOM) continue;
-        if (!max_dlv[i]) continue;
-        if (d_info[i].final_guardian)
-        {
-            if (!r_info[d_info[i].final_guardian].max_num) seiha = TRUE;
-        }
-        else if (max_dlv[i] == d_info[i].maxdepth) seiha = TRUE;
-
-        sprintf(buf," %c) %c%-16s : Max level %d ", 'a'+num, seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
-        put_str(buf, y + num, x);
-        dun[num++] = i;
-    }
-
-    if (!num)
-    {
-        put_str(" No dungeon is available.", y, x);
-    }
-
-    prt(format("Which dungeon do you %s?: ", note), 0, 0);
-    while(1)
-    {
-        i = inkey();
-        if ((i == ESCAPE) || !num)
-        {
-            /* Free the "dun" array */
-            C_KILL(dun, max_d_idx, s16b);
-
-            screen_load();
-            return 0;
-        }
-        if (i >= 'a' && i <('a'+num))
-        {
-            select_dungeon = dun[i-'a'];
-            break;
-        }
-        else bell();
-    }
-    screen_load();
-
-    /* Free the "dun" array */
-    C_KILL(dun, max_d_idx, s16b);
-
-    return select_dungeon;
-}
-
-
-/*
- * Recall the player to town or dungeon
- */
-bool recall_player(int turns)
-{
-    if (!py_can_recall())
-    {
-        msg_print("Nothing happens.");
-        return TRUE;
-    }
-
-    if ( py_in_dungeon()
-      && !(d_info[dungeon_type].flags1 & DF1_RANDOM)
-      && !p_ptr->word_recall
-      && max_dlv[dungeon_type] > dun_level )
-    {
-        if (get_check("Reset recall depth? "))
-        {
-            max_dlv[dungeon_type] = dun_level;
-        }
-
-    }
-    if (!p_ptr->word_recall)
-    {
-        if (!dun_level)
-        {
-            int select_dungeon;
-            select_dungeon = choose_dungeon("recall", 1, 1);
-            if (!select_dungeon) return FALSE;
-            p_ptr->recall_dungeon = select_dungeon;
-        }
-        p_ptr->word_recall = turns;
-        p_ptr->leaving_method = LEAVING_RECALL;
-
-        cmsg_print(TERM_L_BLUE, "The air about you becomes charged...");
-
-        p_ptr->redraw |= (PR_STATUS);
-    }
-    else
-    {
-        p_ptr->word_recall = 0;
-        cmsg_print(TERM_L_BLUE, "A tension leaves the air around you...");
-
-        p_ptr->leaving_method = LEAVING_UNKOWN;
-        p_ptr->redraw |= (PR_STATUS);
-    }
-    return TRUE;
-}
-
-
-bool word_of_recall(void)
-{
-    return(recall_player(randint0(21) + 15));
-}
-
 
 bool reset_recall(void)
 {
-    int select_dungeon, dummy = 0;
+    int  dummy = 0;
     char ppp[80];
     char tmp_val[160];
+    dun_type_ptr type = dun_types_choose("Reset Which Dungeon?", FALSE);
 
-    select_dungeon = choose_dungeon("reset", 1, 1);
-
-    /* Ironman option */
-    if (ironman_downward)
+    if (!type) return FALSE;
+    if (!dun_pos_interior(dun_mgr()->world, type->world_pos))
     {
-        msg_print("Nothing happens.");
-
-        return TRUE;
+        msg_format("%s does not exist in this world.", type->name);
+        return FALSE;
     }
 
-    if (!select_dungeon) return FALSE;
-    /* Prompt */
-    sprintf(ppp, "Reset to which level (%d-%d): ", d_info[select_dungeon].mindepth, max_dlv[select_dungeon]);
-
+    sprintf(ppp, "Reset to which level (%d-%d): ", type->min_dun_lvl, type->plr_max_lvl);
 
     /* Default */
-    sprintf(tmp_val, "%d", MAX(dun_level, 1));
+    sprintf(tmp_val, "%d", MAX(cave->dun_lvl, 1));
 
     /* Ask for a level */
     if (get_string(ppp, tmp_val, 10))
@@ -947,10 +630,10 @@ bool reset_recall(void)
         if (dummy < 1) dummy = 1;
 
         /* Paranoia */
-        if (dummy > max_dlv[select_dungeon]) dummy = max_dlv[select_dungeon];
-        if (dummy < d_info[select_dungeon].mindepth) dummy = d_info[select_dungeon].mindepth;
+        if (dummy > type->plr_max_lvl) dummy = type->plr_max_lvl;
+        if (dummy < type->min_dun_lvl) dummy = type->min_dun_lvl;
 
-        max_dlv[select_dungeon] = dummy;
+        type->plr_max_lvl = dummy;
 
         msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50);
     }
@@ -977,7 +660,6 @@ bool apply_disenchant(int mode)
     {
         object_type     *o_ptr = equip_obj(slot);
         char            o_name[MAX_NLEN];
-        u32b            flgs[OF_ARRAY_SIZE];
         int to_h, to_d, to_a, pval;
 
         if (o_ptr->to_h <= 0 && o_ptr->to_d <= 0 && o_ptr->to_a <= 0 && o_ptr->pval <= 1)
@@ -989,14 +671,13 @@ bool apply_disenchant(int mode)
         {
             return TRUE;
         }
-        if (object_is_artifact(o_ptr) && (randint0(100) < 71))
+        if (obj_is_art(o_ptr) && (randint0(100) < 71))
         {
             msg_format("Your %s resists disenchantment!", o_name);
             return TRUE;
         }
 
-        obj_flags(o_ptr, flgs);
-        if (have_flag(flgs, OF_RES_DISEN))
+        if (obj_has_flag(o_ptr, OF_RES_DISEN))
         {
             msg_format("Your %s resists disenchantment!", o_name);
             obj_learn_flag(o_ptr, OF_RES_DISEN);
@@ -1101,43 +782,23 @@ void mutate_player(void)
 /*
  * Apply Nexus
  */
-static void _nexus_pick_dungeon(void)
-{
-    int which, lvl;
-    int max_lvl = 10 + MAX(20, py_prorata_level(100));
-    for (;;)
-    {
-        dungeon_info_type *d_ptr;
-        which = rand_range(2, max_d_idx);
-        d_ptr = &d_info[which];
-        if (!d_ptr->name) continue;
-        if (d_ptr->flags1 & (DF1_RANDOM | DF1_WINNER)) continue;
-        if (which == dungeon_type) continue;
-        if (d_ptr->mindepth > max_lvl) continue;
-        lvl = rand_range(d_ptr->mindepth, MIN(d_ptr->maxdepth, max_lvl));
-        break;
-    }
-    dungeon_type = which;
-    dun_level = lvl;
-}
 static void _nexus_travel(void)
 {
-    if (!py_on_surface() && !py_in_dungeon())
+    int          level = 10 + MAX(20, plr_prorata_level(100));
+    dun_type_ptr type;
+    if (!plr_on_surface() && !plr_in_dungeon())
     {
         msg_print("There is no effect.");
         return; /* paranoia wrt arena or town quests */
     }
-    if (autosave_l) do_cmd_save_game(TRUE); /* XXX Sequence issue. Must be called first */
-    if (py_on_surface())
+    type = dun_types_random(level);
+    if (type)
     {
-        p_ptr->oldpy = py;
-        p_ptr->oldpx = px;
+        if (level > type->max_dun_lvl) level = type->max_dun_lvl;
+        if (level < type->min_dun_lvl) level = type->min_dun_lvl;
+        level = rand_range(type->min_dun_lvl, level);
+        dun_mgr_wizard_jump(type->id, level);
     }
-    quests_on_leave();
-    _nexus_pick_dungeon();
-    prepare_change_floor_mode(CFM_RAND_PLACE);
-    p_ptr->leaving = TRUE;
-    p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
 }
 
 void apply_nexus(monster_type *m_ptr)
@@ -1157,7 +818,7 @@ void apply_nexus(monster_type *m_ptr)
 
         case 4: case 5:
         {
-            teleport_player_to(m_ptr->fy, m_ptr->fx, TELEPORT_PASSIVE);
+            teleport_player_to(m_ptr->pos.y, m_ptr->pos.x, TELEPORT_PASSIVE);
             break;
         }
 
@@ -1186,11 +847,6 @@ void apply_nexus(monster_type *m_ptr)
             {
                 msg_print("Your body starts to scramble...");
                 wild_talent_scramble();
-            }
-            else if (no_wilderness)
-            {
-                msg_print("Your body starts to scramble...");
-                mutate_player();
             }
             else
             {
@@ -1244,10 +900,9 @@ void phlogiston(void)
  */
 static bool _can_brand_weapon(obj_ptr obj)
 {
-    if (!object_is_melee_weapon(obj)) return FALSE;
+    if (!obj_is_weapon(obj)) return FALSE;
     if (!object_is_nameless(obj)) return FALSE;
     if (object_is_(obj, TV_SWORD, SV_POISON_NEEDLE)) return FALSE;
-    if (object_is_(obj, TV_SWORD, SV_RUNESWORD)) return FALSE;
     /* Hengband: if (object_is_(obj, TV_SWORD, SV_DIAMOND_EDGE)) return FALSE;*/
     if (have_flag(obj->flags, OF_NO_REMOVE)) return FALSE;
     return TRUE;
@@ -1325,154 +980,65 @@ bool brand_weapon_slaying(int brand_flag, int res_flag)
     obj_release(prompt.obj, OBJ_RELEASE_ENCHANT);
     return TRUE;
 }
+static int _crafting_lvl(void)
+{
+    return plr_prorata_level(75);
+}
 bool brand_weapon_aux(object_type *o_ptr)
 {
     if (have_flag(o_ptr->flags, OF_NO_REMOVE))
         return FALSE;
-    apply_magic(o_ptr, p_ptr->lev, AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
+    apply_magic(o_ptr, _crafting_lvl(), AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
     return TRUE;
 }
 bool brand_armour_aux(object_type *o_ptr)
 {
     if (have_flag(o_ptr->flags, OF_NO_REMOVE))
         return FALSE;
-    apply_magic(o_ptr, p_ptr->lev, AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
+    apply_magic(o_ptr, _crafting_lvl(), AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
     return TRUE;
 }
 
 /*
  * Vanish all walls in this floor
  */
+static void _vanish_interior(point_t pos, dun_grid_ptr grid)
+{
+    feat_ptr f_ptr = &f_info[grid->feat];
+    mon_ptr  mon = mon_at(pos);
+
+    grid->info &= ~(CAVE_ROOM | CAVE_ICKY);
+    if (mon) mon_tim_remove(mon, MT_SLEEP);
+    if (have_flag(f_ptr->flags, FF_HURT_DISI)) cave_alter_feat(pos.y, pos.x, FF_HURT_DISI);
+}
+static void _vanish_boundary(point_t pos, dun_grid_ptr grid)
+{
+    feat_ptr f_ptr = &f_info[grid->mimic];
+
+    grid->info &= ~(CAVE_ROOM | CAVE_ICKY);
+
+    /* Set boundary mimic if needed */
+    if (grid->mimic && have_flag(f_ptr->flags, FF_HURT_DISI))
+    {
+        grid->mimic = feat_state(grid->mimic, FF_HURT_DISI);
+
+        /* Check for change to boring grid */
+        if (!have_flag(f_info[grid->mimic].flags, FF_REMEMBER)) grid->info &= ~(CAVE_MARK);
+    }
+}
 static bool vanish_dungeon(void)
 {
-    int          y, x;
-    cave_type    *c_ptr;
-    feature_type *f_ptr;
-    monster_type *m_ptr;
-    char         m_name[80];
-
     /* Prevent vasishing of quest levels and town */
-    if (!py_in_dungeon())
+    if (!plr_in_dungeon())
         return FALSE;
 
-    /* Scan all normal grids */
-    for (y = 1; y < cur_hgt - 1; y++)
-    {
-        for (x = 1; x < cur_wid - 1; x++)
-        {
-            c_ptr = &cave[y][x];
+    dun_iter_interior(cave, _vanish_interior);
+    dun_iter_boundary(cave, _vanish_boundary);
 
-            /* Seeing true feature code (ignore mimic) */
-            f_ptr = &f_info[c_ptr->feat];
-
-            /* Lose room and vault */
-            c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
-
-            m_ptr = &m_list[c_ptr->m_idx];
-
-            /* Awake monster */
-            if (c_ptr->m_idx && MON_CSLEEP(m_ptr))
-            {
-                /* Reset sleep counter */
-                (void)set_monster_csleep(c_ptr->m_idx, 0);
-
-                /* Notice the "waking up" */
-                if (m_ptr->ml)
-                {
-                    /* Acquire the monster name */
-                    monster_desc(m_name, m_ptr, 0);
-
-                    /* Dump a message */
-                    msg_format("%^s wakes up.", m_name);
-                }
-            }
-
-            /* Process all walls, doors and patterns */
-            if (have_flag(f_ptr->flags, FF_HURT_DISI)) cave_alter_feat(y, x, FF_HURT_DISI);
-        }
-    }
-
-    /* Special boundary walls -- Top and bottom */
-    for (x = 0; x < cur_wid; x++)
-    {
-        c_ptr = &cave[0][x];
-        f_ptr = &f_info[c_ptr->mimic];
-
-        /* Lose room and vault */
-        c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
-
-        /* Set boundary mimic if needed */
-        if (c_ptr->mimic && have_flag(f_ptr->flags, FF_HURT_DISI))
-        {
-            c_ptr->mimic = feat_state(c_ptr->mimic, FF_HURT_DISI);
-
-            /* Check for change to boring grid */
-            if (!have_flag(f_info[c_ptr->mimic].flags, FF_REMEMBER)) c_ptr->info &= ~(CAVE_MARK);
-        }
-
-        c_ptr = &cave[cur_hgt - 1][x];
-        f_ptr = &f_info[c_ptr->mimic];
-
-        /* Lose room and vault */
-        c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
-
-        /* Set boundary mimic if needed */
-        if (c_ptr->mimic && have_flag(f_ptr->flags, FF_HURT_DISI))
-        {
-            c_ptr->mimic = feat_state(c_ptr->mimic, FF_HURT_DISI);
-
-            /* Check for change to boring grid */
-            if (!have_flag(f_info[c_ptr->mimic].flags, FF_REMEMBER)) c_ptr->info &= ~(CAVE_MARK);
-        }
-    }
-
-    /* Special boundary walls -- Left and right */
-    for (y = 1; y < (cur_hgt - 1); y++)
-    {
-        c_ptr = &cave[y][0];
-        f_ptr = &f_info[c_ptr->mimic];
-
-        /* Lose room and vault */
-        c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
-
-        /* Set boundary mimic if needed */
-        if (c_ptr->mimic && have_flag(f_ptr->flags, FF_HURT_DISI))
-        {
-            c_ptr->mimic = feat_state(c_ptr->mimic, FF_HURT_DISI);
-
-            /* Check for change to boring grid */
-            if (!have_flag(f_info[c_ptr->mimic].flags, FF_REMEMBER)) c_ptr->info &= ~(CAVE_MARK);
-        }
-
-        c_ptr = &cave[y][cur_wid - 1];
-        f_ptr = &f_info[c_ptr->mimic];
-
-        /* Lose room and vault */
-        c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
-
-        /* Set boundary mimic if needed */
-        if (c_ptr->mimic && have_flag(f_ptr->flags, FF_HURT_DISI))
-        {
-            c_ptr->mimic = feat_state(c_ptr->mimic, FF_HURT_DISI);
-
-            /* Check for change to boring grid */
-            if (!have_flag(f_info[c_ptr->mimic].flags, FF_REMEMBER)) c_ptr->info &= ~(CAVE_MARK);
-        }
-    }
-
-    /* Mega-Hack -- Forget the view and lite */
     p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
-
-    /* Update stuff */
     p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-
-    /* Update the monsters */
     p_ptr->update |= (PU_MONSTERS);
-
-    /* Redraw map */
     p_ptr->redraw |= (PR_MAP);
-
-    /* Window stuff */
     p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
     return TRUE;
@@ -1487,7 +1053,7 @@ void call_the_(void)
 
     for (i = 0; i < 9; i++)
     {
-        c_ptr = &cave[py + ddy_ddd[i]][px + ddx_ddd[i]];
+        c_ptr = cave_at_xy(p_ptr->pos.x + ddx_ddd[i], p_ptr->pos.y + ddy_ddd[i]);
 
         if (!cave_have_flag_grid(c_ptr, FF_PROJECT))
         {
@@ -1519,7 +1085,7 @@ void call_the_(void)
     }
 
     /* Prevent destruction of quest levels and town */
-    else if (!py_in_dungeon())
+    else if (!plr_in_dungeon())
     {
         msg_print("The ground trembles.");
     }
@@ -1537,7 +1103,7 @@ void call_the_(void)
         }
         else
         {
-            if (destroy_area(py, px, 15 + p_ptr->lev + randint0(11), 8 * p_ptr->lev))
+            if (destroy_area(p_ptr->pos.y, p_ptr->pos.x, 15 + p_ptr->lev + randint0(11), 8 * p_ptr->lev))
                 msg_print("The dungeon collapses...");
 
             else
@@ -1554,139 +1120,90 @@ void call_the_(void)
  */
 void fetch(int dir, int wgt, bool require_los)
 {
-    int             ty, tx, i;
-    cave_type       *c_ptr;
-    object_type     *o_ptr;
-    char            o_name[MAX_NLEN];
+    point_t tgt;
+    obj_ptr obj;
+    char    o_name[MAX_NLEN];
 
     /* Check to see if an object is already there */
-    if (cave[py][px].o_idx)
+    if (obj_at(p_ptr->pos))
     {
         msg_print("You can't fetch when you're already standing on something.");
-
         return;
     }
 
     /* Use a target */
     if (dir == 5 && target_okay())
     {
-        tx = target_col;
-        ty = target_row;
+        tgt = point_create(target_col, target_row);
 
-        if (distance(py, px, ty, tx) > MAX_RANGE)
+        if (point_distance(p_ptr->pos, tgt) > MAX_RANGE)
         {
             msg_print("You can't fetch something that far away!");
-
             return;
         }
-
-        c_ptr = &cave[ty][tx];
-
-        /* We need an item to fetch */
-        if (!c_ptr->o_idx)
+        if (!obj_at(tgt))
         {
             msg_print("There is no object at this place.");
-
             return;
         }
-
-        /* No fetching from vault */
-        if (c_ptr->info & CAVE_ICKY)
+        if (cave_at(tgt)->info & CAVE_ICKY)
         {
             msg_print("The item slips from your control.");
-
             return;
         }
-
-        /* We need to see the item */
         if (require_los)
         {
-            if (!player_has_los_bold(ty, tx))
+            if (!player_has_los_bold(tgt.y, tgt.x))
             {
                 msg_print("You have no direct line of sight to that location.");
-
                 return;
             }
-            else if (!projectable(py, px, ty, tx))
+            else if (!projectable(p_ptr->pos.y, p_ptr->pos.x, tgt.y, tgt.x))
             {
                 msg_print("You have no direct line of sight to that location.");
-
                 return;
             }
         }
     }
     else
     {
-        /* Use a direction */
-        ty = py; /* Where to drop the item */
-        tx = px;
-
+        tgt = p_ptr->pos;
         do
         {
-            ty += ddy[dir];
-            tx += ddx[dir];
-            c_ptr = &cave[ty][tx];
-
-            if ((distance(py, px, ty, tx) > MAX_RANGE) ||
-                !cave_have_flag_bold(ty, tx, FF_PROJECT)) return;
+            tgt = point_step(tgt, dir);
+            if (!dun_pos_interior(cave, tgt)) return;
+            if (point_distance(p_ptr->pos, tgt) > MAX_RANGE || !cave_have_flag_at(tgt, FF_PROJECT)) return;
         }
-        while (!c_ptr->o_idx);
+        while (!obj_at(tgt));
     }
 
-    o_ptr = &o_list[c_ptr->o_idx];
+    obj = obj_at(tgt);
+    assert(obj);
 
-    if (o_ptr->weight > wgt)
+    if (obj->weight > wgt)
     {
-        /* Too heavy to 'fetch' */
         msg_print("The object is too heavy.");
-
         return;
     }
 
-    i = c_ptr->o_idx;
-    c_ptr->o_idx = o_ptr->next_o_idx;
-    cave[py][px].o_idx = i; /* 'move' it */
-    o_ptr->next_o_idx = 0;
-    o_ptr->loc.y = (byte)py;
-    o_ptr->loc.x = (byte)px;
-
-    object_desc(o_name, o_ptr, OD_NAME_ONLY);
+    object_desc(o_name, obj, OD_NAME_ONLY);
     msg_format("%^s flies through the air to your feet.", o_name);
-
-
-    note_spot(py, px);
+    dun_fetch_obj(cave, tgt, p_ptr->pos);
+    note_pos(p_ptr->pos);
     p_ptr->redraw |= PR_MAP;
 }
 
 
 void alter_reality(void)
 {
-    /* Ironman option */
-    if (p_ptr->inside_arena || ironman_downward)
+    if (cave->dun_type_id == D_SURFACE)
     {
         msg_print("Nothing happens.");
         return;
     }
 
-    if (!p_ptr->alter_reality)
-    {
-        int turns = randint0(21) + 15;
-
-        p_ptr->alter_reality = turns;
-        msg_print("The view around you begins to change...");
-
-        p_ptr->leaving_method = LEAVING_ALTER_REALITY;
-        p_ptr->redraw |= (PR_STATUS);
-    }
-    else
-    {
-        p_ptr->alter_reality = 0;
-        msg_print("The view around you got back...");
-
-        p_ptr->leaving_method = LEAVING_UNKOWN;
-        p_ptr->redraw |= (PR_STATUS);
-    }
-    return;
+    msg_print("The world around you changes!");
+    dun_mgr_wizard_jump(cave->dun_type_id, cave->dun_lvl);
 }
 
 
@@ -1696,7 +1213,7 @@ void alter_reality(void)
 bool warding_glyph(void)
 {
     /* XXX XXX XXX */
-    if (!cave_clean_bold(py, px))
+    if (!cave_clean_bold(p_ptr->pos.y, p_ptr->pos.x))
     {
         msg_print("The object resists the spell.");
 
@@ -1704,14 +1221,11 @@ bool warding_glyph(void)
     }
 
     /* Create a glyph */
-    cave[py][px].info |= CAVE_OBJECT;
-    cave[py][px].mimic = feat_glyph;
+    cave_at(p_ptr->pos)->info |= CAVE_OBJECT;
+    cave_at(p_ptr->pos)->mimic = feat_glyph;
 
-    /* Notice */
-    note_spot(py, px);
-
-    /* Redraw */
-    lite_spot(py, px);
+    note_pos(p_ptr->pos);
+    lite_pos(p_ptr->pos);
 
     return TRUE;
 }
@@ -1723,13 +1237,13 @@ bool set_trap(int y, int x, int feature)
 
     if (!cave_clean_bold(y, x))
     {
-        if (y == py && x == px) /* Hack: I only want the message sometimes ... */
+        if (y == p_ptr->pos.y && x == p_ptr->pos.x) /* Hack: I only want the message sometimes ... */
             msg_print("The object resists the spell.");
         return FALSE;
     }
 
-    cave[y][x].info |= CAVE_OBJECT;
-    cave[y][x].mimic = feature;
+    cave_at_xy(x, y)->info |= CAVE_OBJECT;
+    cave_at_xy(x, y)->mimic = feature;
     note_spot(y, x);
     lite_spot(y, x);
 
@@ -1738,7 +1252,7 @@ bool set_trap(int y, int x, int feature)
 
 bool explosive_rune(void)
 {
-    return set_trap(py, px, feat_explosive_rune);
+    return set_trap(p_ptr->pos.y, p_ptr->pos.x, feat_explosive_rune);
 }
 
 
@@ -1789,9 +1303,9 @@ static int remove_curse_aux(int all)
     int slot;
     int ct = 0;
 
-    for (slot = equip_find_first(object_is_cursed);
+    for (slot = equip_find_first(obj_is_cursed);
             slot;
-            slot = equip_find_next(object_is_cursed, slot))
+            slot = equip_find_next(obj_is_cursed, slot))
     {
         object_type *o_ptr = equip_obj(slot);
 
@@ -1938,7 +1452,7 @@ bool alchemy(void)
  */
 void break_curse(object_type *o_ptr)
 {
-    if (object_is_cursed(o_ptr) && !(o_ptr->curse_flags & OFC_PERMA_CURSE) && !(o_ptr->curse_flags & OFC_HEAVY_CURSE) && (randint0(100) < 25))
+    if (obj_is_cursed(o_ptr) && !(o_ptr->curse_flags & OFC_PERMA_CURSE) && !(o_ptr->curse_flags & OFC_HEAVY_CURSE) && (randint0(100) < 25))
     {
         msg_print("The curse is broken!");
 
@@ -1970,18 +1484,15 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 {
     int     i, chance, prob;
     bool    res = FALSE;
-    bool    a = object_is_artifact(o_ptr);
+    bool    a = obj_is_art(o_ptr);
     bool    force = BOOL(eflag & ENCH_FORCE);
     int     minor_limit = 2 + p_ptr->lev/5; /* This matches the town service ... */
-    u32b    flgs[OF_ARRAY_SIZE];
-
 
     /* Large piles resist enchantment */
     prob = o_ptr->number * 100;
 
     /* Some objects cannot be enchanted */
-    obj_flags(o_ptr, flgs);
-    if (have_flag(flgs, OF_NO_ENCHANT))
+    if (obj_has_flag(o_ptr, OF_NO_ENCHANT))
         return FALSE;
 
 
@@ -2103,7 +1614,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
     prompt.prompt = "Enchant which item?";
     prompt.error = "You have nothing to enchant.";
-    prompt.filter = num_ac ? object_is_armour : object_allow_enchant_weapon;
+    prompt.filter = num_ac ? obj_is_armor : object_allow_enchant_weapon;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
@@ -2152,11 +1663,11 @@ bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
         return FALSE;
     }
 
-    /* Require nameless object if the object is well known */
-    if (object_is_known(o_ptr) && !object_is_nameless(o_ptr))
+    /* Require nameless object if the object is well known
+     * XXX Egos are now OK. */
+    if (obj_is_known(o_ptr) && obj_is_art(o_ptr))
         return FALSE;
 
-    if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD) return FALSE;
     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE) return FALSE;
 
     return TRUE;
@@ -2185,18 +1696,11 @@ bool artifact_scroll(void)
     msg_format("The %s radiate%s a blinding light!", o_name,
           ((prompt.obj->number > 1) ? "" : "s"));
 
-    if (object_is_artifact(prompt.obj))
+    if (obj_is_art(prompt.obj))
     {
         msg_format("The %s %s already %s!",
             o_name, ((prompt.obj->number > 1) ? "are" : "is"),
             ((prompt.obj->number > 1) ? "artifacts" : "an artifact"));
-    }
-
-    else if (object_is_ego(prompt.obj))
-    {
-        msg_format("The %s %s already %s!",
-            o_name, ((prompt.obj->number > 1) ? "are" : "is"),
-            ((prompt.obj->number > 1) ? "ego items" : "an ego item"));
     }
 
     else if (prompt.obj->xtra3)
@@ -2226,7 +1730,13 @@ bool artifact_scroll(void)
         }
         else
         {
-            okay = create_artifact(prompt.obj, CREATE_ART_SCROLL | CREATE_ART_GOOD);
+            int lvl = plr_prorata_level(75);
+            if (obj_is_ego(prompt.obj))
+                art_create_ego(prompt.obj, lvl, AM_CRAFTING);
+            else
+                art_create_random(prompt.obj, lvl, AM_CRAFTING);
+            art_remember_name(quark_str(prompt.obj->art_name));
+            okay = TRUE;
         }
     }
 
@@ -2263,7 +1773,7 @@ bool identify_item(object_type *o_ptr)
 
     if (!spoiler_hack && !old_known)
     {
-        if (object_is_artifact(o_ptr) || one_in_(5))
+        if (obj_is_art(o_ptr) || one_in_(5))
             virtue_add(VIRTUE_KNOWLEDGE, 1);
     }
 
@@ -2283,7 +1793,7 @@ bool identify_item(object_type *o_ptr)
 static object_p _hack_obj_p = NULL;
 static bool item_tester_hook_identify(object_type *o_ptr)
 {
-    if ( !object_is_known(o_ptr)
+    if ( !obj_is_known(o_ptr)
       && (!_hack_obj_p || _hack_obj_p(o_ptr)) )
     {
         return TRUE;
@@ -2355,20 +1865,20 @@ bool mundane_spell(bool only_equip)
     msg_print("There is a bright flash of light!");
     {
         obj_loc_t loc = prompt.obj->loc;
-        s16b next_o_idx = prompt.obj->next_o_idx;
         byte marked = prompt.obj->marked;
         u16b inscription = prompt.obj->inscription;
         int  number = prompt.obj->number;
+        obj_ptr next = prompt.obj->next;
 
         /* Wipe it clean ... note this erases info that must
          * not be erased. Thus, all the code to remember and restore ... sigh. */
         object_prep(prompt.obj, prompt.obj->k_idx);
 
         prompt.obj->loc = loc;
-        prompt.obj->next_o_idx = next_o_idx;
         prompt.obj->marked = marked;
         prompt.obj->inscription = inscription;
         prompt.obj->number = number;
+        prompt.obj->next = next;
     }
     p_ptr->update |= PU_BONUS;
     android_calc_exp();
@@ -2380,8 +1890,8 @@ bool mundane_spell(bool only_equip)
 
 static bool item_tester_hook_identify_fully(object_type *o_ptr)
 {
-    if ( (!object_is_known(o_ptr) || !obj_is_identified_fully(o_ptr))
-      && (!_hack_obj_p || _hack_obj_p(o_ptr)) )
+    if (_hack_obj_p && !_hack_obj_p(o_ptr)) return FALSE;
+    if (!obj_is_known(o_ptr) || !obj_is_identified_fully(o_ptr))
     {
         return TRUE;
     }
@@ -2421,7 +1931,7 @@ bool identify_fully(object_p p)
       && prompt.obj->tval == TV_CORPSE
       && prompt.obj->sval == SV_CORPSE )
     {
-        if (!(r_info[prompt.obj->pval].r_xtra1 & MR1_POSSESSOR))
+        if (!(mon_race_lookup(prompt.obj->pval)->r_xtra1 & MR1_POSSESSOR))
             msg_print("You learn more about this body.");
         lore_do_probe(prompt.obj->pval);
     }
@@ -2506,12 +2016,6 @@ bool recharge_from_player(int power)
             amt = p_ptr->au / 100;
         resource = "money";
     }
-    else if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-    {
-        if (amt > p_ptr->chp)
-            amt = p_ptr->chp;
-        resource = "health";
-    }
     else
     {
         if (amt > p_ptr->csp)
@@ -2530,8 +2034,9 @@ bool recharge_from_player(int power)
     prompt.prompt = "Recharge which item?";
     prompt.error = "You have nothing to recharge.";
     prompt.filter = _obj_recharge_dest;
-    prompt.where[0] = INV_PACK;
-    prompt.where[1] = INV_FLOOR;
+    prompt.where[0] = INV_QUIVER;
+    prompt.where[1] = INV_PACK;
+    prompt.where[2] = INV_FLOOR;
 
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
@@ -2546,8 +2051,6 @@ bool recharge_from_player(int power)
         stats_on_gold_services(amt * 100); /* ? */
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
     }
-    else if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-        take_hit(DAMAGE_NOESCAPE, amt, "recharging");
     else
         sp_player(-amt);
 
@@ -2563,8 +2066,9 @@ static obj_ptr _get_recharge_src(void)
     prompt.prompt = "Pick a source device?";
     prompt.error = "You need a source device to power the recharging.";
     prompt.filter = _obj_recharge_src;
-    prompt.where[0] = INV_PACK;
-    prompt.where[1] = INV_FLOOR;
+    prompt.where[0] = INV_QUIVER;
+    prompt.where[1] = INV_PACK;
+    prompt.where[2] = INV_FLOOR;
 
     obj_prompt(&prompt);
     return prompt.obj;
@@ -2579,8 +2083,9 @@ static obj_ptr _get_recharge_dest(obj_ptr src)
     prompt.prompt = "Recharge which item?";
     prompt.error = "You have nothing to recharge.";
     prompt.filter = _obj_recharge_dest;
-    prompt.where[0] = INV_PACK;
-    prompt.where[1] = INV_FLOOR;
+    prompt.where[0] = INV_QUIVER;
+    prompt.where[1] = INV_PACK;
+    prompt.where[2] = INV_FLOOR;
 
     obj_prompt(&prompt);
     return prompt.obj;
@@ -2618,7 +2123,7 @@ bool recharge_from_device(int power)
 
     if (destroy)
     {
-        if (object_is_fixed_artifact(src_ptr))
+        if (obj_is_std_art(src_ptr))
             device_decrease_sp(src_ptr, amt);
         else
         {
@@ -2641,12 +2146,11 @@ bool recharge_from_device(int power)
 bool bless_weapon(void)
 {
     obj_prompt_t prompt = {0};
-    u32b         flgs[OF_ARRAY_SIZE];
     char         o_name[MAX_NLEN];
 
     prompt.prompt = "Bless which weapon?";
     prompt.error = "You have weapon to bless.";
-    prompt.filter = object_is_weapon;
+    prompt.filter = obj_is_weapon;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_FLOOR;
@@ -2655,9 +2159,8 @@ bool bless_weapon(void)
     if (!prompt.obj) return FALSE;
 
     object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-    obj_flags(prompt.obj, flgs);
 
-    if (object_is_cursed(prompt.obj))
+    if (obj_is_cursed(prompt.obj))
     {
         if (((prompt.obj->curse_flags & OFC_HEAVY_CURSE) && (randint1(100) < 33)) ||
             (prompt.obj->curse_flags & OFC_PERMA_CURSE))
@@ -2695,7 +2198,7 @@ bool bless_weapon(void)
      * artifact weapon they find. Ego weapons and normal weapons
      * can be blessed automatically.
      */
-    if (have_flag(flgs, OF_BLESSED))
+    if (obj_has_flag(prompt.obj, OF_BLESSED))
     {
         msg_format("%s %s %s blessed already.",
             ((prompt.obj->loc.where != INV_FLOOR) ? "Your" : "The"), o_name,
@@ -2704,7 +2207,7 @@ bool bless_weapon(void)
         return TRUE;
     }
 
-    if (!(object_is_artifact(prompt.obj) || object_is_ego(prompt.obj)) || one_in_(3))
+    if (!(obj_is_art(prompt.obj) || obj_is_ego(prompt.obj)) || one_in_(3))
     {
         /* Describe */
         msg_format("%s %s shine%s!",
@@ -2713,7 +2216,8 @@ bool bless_weapon(void)
 
         add_flag(prompt.obj->flags, OF_BLESSED);
         add_flag(prompt.obj->known_flags, OF_BLESSED);
-        prompt.obj->discount = 99;
+        if (object_is_nameless(prompt.obj))
+            prompt.obj->discount = 99;
     }
     else
     {
@@ -2778,12 +2282,11 @@ bool bless_weapon(void)
 bool polish_shield(void)
 {
     obj_prompt_t prompt = {0};
-    u32b         flgs[OF_ARRAY_SIZE];
     char         o_name[MAX_NLEN];
 
     prompt.prompt = "Polish which shield?";
     prompt.error = "You have no shield to polish.";
-    prompt.filter = object_is_shield; 
+    prompt.filter = obj_is_shield; 
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_FLOOR;
@@ -2792,10 +2295,9 @@ bool polish_shield(void)
     if (!prompt.obj) return FALSE;
 
     object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-    obj_flags(prompt.obj, flgs);
 
-    if (!object_is_artifact(prompt.obj) && !object_is_ego(prompt.obj) &&
-        !object_is_cursed(prompt.obj) && (prompt.obj->sval != SV_MIRROR_SHIELD))
+    if (!obj_is_art(prompt.obj) && !obj_is_ego(prompt.obj) &&
+        !obj_is_cursed(prompt.obj) && (prompt.obj->sval != SV_MIRROR_SHIELD))
     {
         msg_format("%s %s shine%s!",
             ((prompt.obj->loc.where != INV_FLOOR) ? "Your" : "The"), o_name,
@@ -2988,46 +2490,60 @@ s16b experience_of_spell(int spell, int use_realm)
     else return 0;
 }
 
+/* Multiple sources of DEC_MANA now matter. Code is shared with skillmaster,
+ * mon_spell, and bookless spellcasting systems */
+int dec_mana_cost(int dec_mana)
+{
+    int pct[5] = { 100, 75, 65, 57, 50 };
+    int i = MIN(4, MAX(0, dec_mana));
+    return pct[i];
+}
+
+int dec_mana_fail1(int dec_mana, int easy_spell)
+{
+    if (!dec_mana)
+    {
+        if (easy_spell) return -2;
+        return 0;
+    }
+    else
+    {
+        int i = dec_mana + easy_spell;
+        return -2 - i;
+    }
+}
+
+int dec_mana_fail2(int dec_mana, int easy_spell)
+{
+    if (dec_mana > 2) return -2;
+    if (dec_mana) return -1;
+    return 0;
+}
 
 /*
  * Modify mana consumption rate using spell exp and p_ptr->dec_mana
  */
 int mod_need_mana(int need_mana, int spell, int realm)
 {
-#define MANA_CONST   2400
-#define MANA_DIV        4
-#define DEC_MANA_DIV    3
-
-    bool dec_mana = p_ptr->dec_mana;
+    int dec_mana = p_ptr->dec_mana;
 
     if (p_ptr->easy_realm1 && realm == p_ptr->easy_realm1)
-        dec_mana = TRUE;
+        dec_mana++;
 
     /* Realm magic */
-    if ((realm > REALM_NONE) && (realm <= MAX_REALM))
+    if (realm > REALM_NONE && realm <= MAX_REALM)
     {
-        /*
-         * need_mana defaults if spell exp equals SPELL_EXP_EXPERT and !p_ptr->dec_mana.
-         * MANA_CONST is used to calculate need_mana effected from spell proficiency.
-         */
-        need_mana = need_mana * (MANA_CONST + SPELL_EXP_EXPERT - experience_of_spell(spell, realm)) + (MANA_CONST - 1);
-        need_mana *= dec_mana ? DEC_MANA_DIV : MANA_DIV;
-        need_mana /= MANA_CONST * MANA_DIV;
-        if (need_mana < 1) need_mana = 1;
+        need_mana = need_mana * (2400 + SPELL_EXP_EXPERT - experience_of_spell(spell, realm)) + 2399;
+        need_mana *= dec_mana_cost(dec_mana);
+        need_mana /= 2400 * 100;
     }
 
     /* Non-realm magic */
     else
     {
-        if (p_ptr->dec_mana) need_mana = (need_mana + 1) * DEC_MANA_DIV / MANA_DIV;
+        need_mana = (need_mana + 1) * dec_mana_cost(dec_mana) / 100;
     }
-
-#undef DEC_MANA_DIV
-#undef MANA_DIV
-#undef MANA_CONST
-
-    if (p_ptr->tim_blood_rite)
-        need_mana *= 2;
+    if (need_mana < 1) need_mana = 1;
 
     return need_mana;
 }
@@ -3042,21 +2558,13 @@ int mod_spell_chance_1(int chance, int realm)
     bool dec_mana = p_ptr->dec_mana;
 
     if (realm && realm == p_ptr->easy_realm1)
-        dec_mana = TRUE;
+        dec_mana++;
 
     chance += p_ptr->to_m_chance;
 
     if (p_ptr->heavy_spell) chance += 20;
 
-    if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-    {
-        if (p_ptr->cumber_glove) chance += 20;
-        if (p_ptr->cumber_armor) chance += 100 * p_ptr->cumber_armor_amt / 600;
-    }
-
-    if (dec_mana && p_ptr->easy_spell) chance -= 4;
-    else if (p_ptr->easy_spell) chance -= 3;
-    else if (dec_mana) chance -= 2;
+    chance += dec_mana_fail1(dec_mana, p_ptr->easy_spell);
 
     if (mut_present(MUT_ARCANE_MASTERY))
         chance -= 3;
@@ -3077,15 +2585,11 @@ int mod_spell_chance_2(int chance, int realm)
     bool dec_mana = p_ptr->dec_mana;
 
     if (realm && realm == p_ptr->easy_realm1)
-        dec_mana = TRUE;
+        dec_mana++;
 
-    if (dec_mana) chance--;
+    chance += dec_mana_fail2(dec_mana, p_ptr->easy_spell);
+
     if (p_ptr->heavy_spell) chance += 5;
-    if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-    {
-        if (p_ptr->cumber_glove) chance += 5;
-        if (p_ptr->cumber_armor) chance += 5;
-    }
 
     return MAX(chance, 0);
 }
@@ -3126,7 +2630,7 @@ s16b spell_chance(int spell, int use_realm)
     chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[caster_ptr->which_stat]] - 1);
 
     if (p_ptr->riding)
-        chance += MAX(r_info[m_list[p_ptr->riding].r_idx].level - skills_riding_current() / 100 - 10, 0);
+        chance += MAX(plr_riding_lvl() - skills_riding_current() / 100 - 10, 0);
 
     /* Extract mana consumption rate */
     need_mana = mod_need_mana(s_ptr->smana, spell, use_realm);
@@ -3143,7 +2647,6 @@ s16b spell_chance(int spell, int use_realm)
 
     if ( use_realm != p_ptr->realm1
       && ( p_ptr->pclass == CLASS_MAGE
-        || p_ptr->pclass == CLASS_BLOOD_MAGE
         || p_ptr->pclass == CLASS_PRIEST
         || p_ptr->pclass == CLASS_YELLOW_MAGE ) )
     {
@@ -3164,8 +2667,11 @@ s16b spell_chance(int spell, int use_realm)
         minfail -= 1;
 
     /* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-    if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_SORCERER)) && p_ptr->weapon_info[0].icky_wield) chance += 25;
-    if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_SORCERER)) && p_ptr->weapon_info[1].icky_wield) chance += 25;
+    if (p_ptr->pclass == CLASS_PRIEST || p_ptr->pclass == CLASS_SORCERER)
+    {
+        if (have_flag(p_ptr->attack_info[0].paf_flags, PAF_ICKY)) chance += 25;
+        if (have_flag(p_ptr->attack_info[1].paf_flags, PAF_ICKY)) chance += 25;
+    }
 
     chance = mod_spell_chance_1(chance, use_realm);
     chance = virtue_mod_spell_fail(use_realm, chance);
@@ -3174,8 +2680,8 @@ s16b spell_chance(int spell, int use_realm)
     if (chance < minfail) chance = minfail;
 
     /* Stunning makes spells harder */
-    if (p_ptr->stun)
-        chance += 50 * p_ptr->stun / 100;
+    if (plr_tim_find(T_STUN))
+        chance += 50 * plr_tim_amount(T_STUN) / 100;
 
     /* Always a 5 percent chance of working */
     if (chance > 95) chance = 95;
@@ -3585,11 +3091,9 @@ bool hates_cold(object_type *o_ptr)
  */
 int set_acid_destroy(object_type *o_ptr)
 {
-    u32b flgs[OF_ARRAY_SIZE];
-    if (!hates_acid(o_ptr)) return (FALSE);
-    obj_flags(o_ptr, flgs);
-    if (have_flag(flgs, OF_IGNORE_ACID)) return (FALSE);
-    return (TRUE);
+    if (!hates_acid(o_ptr)) return FALSE;
+    if (obj_has_flag(o_ptr, OF_IGNORE_ACID)) return FALSE;
+    return TRUE;
 }
 
 
@@ -3598,11 +3102,9 @@ int set_acid_destroy(object_type *o_ptr)
  */
 int set_elec_destroy(object_type *o_ptr)
 {
-    u32b flgs[OF_ARRAY_SIZE];
-    if (!hates_elec(o_ptr)) return (FALSE);
-    obj_flags(o_ptr, flgs);
-    if (have_flag(flgs, OF_IGNORE_ELEC)) return (FALSE);
-    return (TRUE);
+    if (!hates_elec(o_ptr)) return FALSE;
+    if (obj_has_flag(o_ptr, OF_IGNORE_ELEC)) return FALSE;
+    return TRUE;
 }
 
 
@@ -3611,11 +3113,9 @@ int set_elec_destroy(object_type *o_ptr)
  */
 int set_fire_destroy(object_type *o_ptr)
 {
-    u32b flgs[OF_ARRAY_SIZE];
-    if (!hates_fire(o_ptr)) return (FALSE);
-    obj_flags(o_ptr, flgs);
-    if (have_flag(flgs, OF_IGNORE_FIRE)) return (FALSE);
-    return (TRUE);
+    if (!hates_fire(o_ptr)) return FALSE;
+    if (obj_has_flag(o_ptr, OF_IGNORE_FIRE)) return FALSE;
+    return TRUE;
 }
 
 
@@ -3624,11 +3124,9 @@ int set_fire_destroy(object_type *o_ptr)
  */
 int set_cold_destroy(object_type *o_ptr)
 {
-    u32b flgs[OF_ARRAY_SIZE];
-    if (!hates_cold(o_ptr)) return (FALSE);
-    obj_flags(o_ptr, flgs);
-    if (have_flag(flgs, OF_IGNORE_COLD)) return (FALSE);
-    return (TRUE);
+    if (!hates_cold(o_ptr)) return FALSE;
+    if (obj_has_flag(o_ptr, OF_IGNORE_COLD)) return FALSE;
+    return TRUE;
 }
 
 
@@ -3667,8 +3165,8 @@ static void _damage_obj(obj_ptr obj, int p1, int p2, int which_res)
         else
             msg_format("All of your %s were destroyed!", o_name);
 
-        if (object_is_potion(obj))
-            potion_smash_effect(0, py, px, obj->k_idx);
+        if (obj_is_potion(obj))
+            potion_smash_effect(0, p_ptr->pos.y, p_ptr->pos.x, obj->k_idx);
 
         stats_on_m_destroy(obj, amt);
 
@@ -3682,7 +3180,6 @@ void inven_damage(inven_func typ, int p1, int which)
     int    p2 = 100;
 
     if (CHECK_MULTISHADOW()) return;
-    if (p_ptr->inside_arena) return;
 
     if (p_ptr->rune_elem_prot) p2 = 50;
     if (p_ptr->inven_prot) p2 = 50;
@@ -3693,7 +3190,7 @@ void inven_damage(inven_func typ, int p1, int which)
         obj_ptr obj = pack_obj(slot);
 
         if (!obj) continue;
-        if (object_is_artifact(obj)) continue;
+        if (obj_is_art(obj)) continue;
         if (!typ(obj)) continue;
 
         _damage_obj(obj, p1, p2, which);
@@ -3711,7 +3208,7 @@ void inven_damage(inven_func typ, int p1, int which)
                 obj_ptr obj = quiver_obj(slot);
 
                 if (!obj) continue;
-                if (object_is_artifact(obj)) continue;
+                if (obj_is_art(obj)) continue;
                 if (!typ(obj)) continue;
 
                 _damage_obj(obj, p1, p2, which);
@@ -3730,25 +3227,23 @@ void inven_damage(inven_func typ, int p1, int which)
  */
 int minus_ac(void)
 {
-    int slot = equip_random_slot(object_is_armour);
+    int slot = equip_random_slot(obj_is_armor);
 
     if (slot)
     {
         object_type *o_ptr = equip_obj(slot);
-        u32b         flgs[OF_ARRAY_SIZE];
         char         o_name[MAX_NLEN];
 
         if (o_ptr->ac + o_ptr->to_a <= 0) return FALSE;
 
         object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-        obj_flags(o_ptr, flgs);
 
         if (demigod_is_(DEMIGOD_HEPHAESTUS))
         {
             obj_learn_flag(o_ptr, OF_IGNORE_ACID);
             return TRUE;
         }
-        if (have_flag(flgs, OF_IGNORE_ACID))
+        if (obj_has_flag(o_ptr, OF_IGNORE_ACID))
         {
             if (disturb_minor)
                 msg_format("Your %s is unaffected!", o_name);
@@ -3773,7 +3268,7 @@ bool rustproof(void)
 
     prompt.prompt = "Rustproof which piece of armour?";
     prompt.error = "You have nothing to rustproof.";
-    prompt.filter = object_is_armour;
+    prompt.filter = obj_is_armor;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_FLOOR;
@@ -3786,7 +3281,7 @@ bool rustproof(void)
     add_flag(prompt.obj->flags, OF_IGNORE_ACID);
     add_flag(prompt.obj->known_flags, OF_IGNORE_ACID);
 
-    if ((prompt.obj->to_a < 0) && !object_is_cursed(prompt.obj))
+    if ((prompt.obj->to_a < 0) && !obj_is_cursed(prompt.obj))
     {
         msg_format("%s %s look%s as good as new!",
             ((prompt.obj->loc.where != INV_FLOOR) ? "Your" : "The"), o_name,
@@ -3809,8 +3304,8 @@ bool rustproof(void)
 
 void blast_object(object_type *o_ptr)
 {
-    bool is_armor = object_is_armour(o_ptr);
-    bool is_weapon = object_is_weapon(o_ptr);
+    bool is_armor = obj_is_armor(o_ptr);
+    bool is_weapon = obj_is_weapon(o_ptr);
     int i;
 
     if (have_flag(o_ptr->flags, OF_NO_REMOVE))
@@ -3861,7 +3356,7 @@ bool curse_armor(int slot)
 
     object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
-    if (object_is_artifact(o_ptr) && (randint0(100) < 50))
+    if (obj_is_art(o_ptr) && (randint0(100) < 50))
     {
         msg_format("A %s tries to %s, but your %s resists the effects!",
                "terrible black aura", "surround your armor", o_name);
@@ -3893,7 +3388,7 @@ bool curse_weapon(bool force, int slot)
     object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
     /* Attempt a saving throw */
-    if (object_is_artifact(o_ptr) && (randint0(100) < 50) && !force)
+    if (obj_is_art(o_ptr) && (randint0(100) < 50) && !force)
     {
         msg_format("A %s tries to %s, but your %s resists the effects!",
                "terrible black aura", "surround your weapon", o_name);
@@ -3915,9 +3410,9 @@ bool curse_weapon(bool force, int slot)
  */
 static s16b poly_r_idx(int r_idx)
 {
-    monster_race *r_ptr = &r_info[r_idx];
+    monster_race *r_ptr = mon_race_lookup(r_idx);
 
-    int i, r, lev1, lev2;
+    int i, lev1, lev2;
 
     /* Hack -- Uniques never polymorph */
     if (r_ptr->flags1 & RF1_UNIQUE) return r_idx;
@@ -3946,13 +3441,10 @@ static s16b poly_r_idx(int r_idx)
     for (i = 0; i < 1000; i++)
     {
         /* Pick a new race, using a level calculation */
-        r = get_mon_num((dun_level + r_ptr->level) / 2 + 5);
+        r_ptr = mon_alloc_choose((cave->difficulty + r_ptr->level) / 2 + 5);
 
         /* Handle failure */
-        if (!r) break;
-
-        /* Obtain race */
-        r_ptr = &r_info[r];
+        if (!r_ptr) break;
 
         /* Ignore unique monsters */
         if (r_ptr->flags1 & RF1_UNIQUE) continue;
@@ -3961,7 +3453,7 @@ static s16b poly_r_idx(int r_idx)
         if ((r_ptr->level < lev1) || (r_ptr->level > lev2)) continue;
 
         /* Use that index */
-        r_idx = r;
+        r_idx = r_ptr->id;
 
         /* Done */
         break;
@@ -4000,7 +3492,7 @@ bool dimension_door_aux(int x, int y, int rng)
         return TRUE;
     }
     else if ( !cave_player_teleportable_bold(y, x, 0L)
-           || distance(y, x, py, px) > rng
+           || distance(y, x, p_ptr->pos.y, p_ptr->pos.x) > rng
            || !randint0(plev / 10 + 10) )
     {
         if (!mut_present(MUT_ASTRAL_GUIDE))
@@ -4052,8 +3544,9 @@ bool eat_magic(int power)
     prompt.prompt = "Drain which item?";
     prompt.error = "You have nothing to drain.";
     prompt.filter = _obj_recharge_src;
-    prompt.where[0] = INV_PACK;
-    prompt.where[1] = INV_FLOOR;
+    prompt.where[0] = INV_QUIVER;
+    prompt.where[1] = INV_PACK;
+    prompt.where[2] = INV_FLOOR;
 
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
@@ -4071,18 +3564,19 @@ bool eat_magic(int power)
         char name[MAX_NLEN];
         bool drain = FALSE;
 
-        object_desc(name, prompt.obj, OD_OMIT_PREFIX | OD_COLOR_CODED);
 
-        if (object_is_fixed_artifact(prompt.obj) || !one_in_(10))
+        if (obj_is_std_art(prompt.obj) || !one_in_(10))
             drain = TRUE;
 
         if (drain)
         {
-            msg_format("Failed! Your %s is completely drained.", name);
             device_decrease_sp(prompt.obj, device_sp(prompt.obj));
+            object_desc(name, prompt.obj, OD_OMIT_PREFIX | OD_COLOR_CODED);
+            msg_format("Failed! Your %s is completely drained.", name);
         }
         else
         {
+            object_desc(name, prompt.obj, OD_OMIT_PREFIX | OD_COLOR_CODED);
             msg_format("Failed! Your %s is destroyed.", name);
             prompt.obj->number--;
             obj_release(prompt.obj, OBJ_RELEASE_QUIET);
@@ -4102,6 +3596,7 @@ bool eat_magic(int power)
 
 bool summon_kin_player(int level, int y, int x, u32b mode)
 {
+    point_t pos = point_create(x, y);
     bool pet = BOOL(mode & PM_FORCE_PET);
     if (!pet) mode |= PM_NO_PET;
 
@@ -4118,13 +3613,14 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
             case RACE_DEMIGOD:
                 summon_kin_type = 'p';
                 break;
-            case RACE_TONBERRY:
+            case RACE_DARK_ELF:
+            case RACE_HIGH_ELF:
+            case RACE_WATER_ELF:
+            case RACE_WOOD_ELF:
             case RACE_HOBBIT:
             case RACE_GNOME:
             case RACE_DWARF:
-            case RACE_HIGH_ELF:
             case RACE_NIBELUNG:
-            case RACE_DARK_ELF:
             case RACE_MIND_FLAYER:
             case RACE_KUTAR:
             case RACE_SHADOW_FAIRY:
@@ -4218,7 +3714,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
         summon_kin_type = 'P';
 
     if (p_ptr->current_r_idx)
-        summon_kin_type = r_info[p_ptr->current_r_idx].d_char;
+        summon_kin_type = mon_race_lookup(p_ptr->current_r_idx)->d_char;
 
-    return summon_specific((pet ? -1 : 0), y, x, level, SUMMON_KIN, mode);
+    return summon_specific((pet ? -1 : 0), pos, level, SUMMON_KIN, mode);
 }

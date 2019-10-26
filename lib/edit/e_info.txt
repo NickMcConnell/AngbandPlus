@@ -20,6 +20,7 @@
 # F: flag | flag | etc
 # E: effect : level : timeout
 # E: effect_msg  (on the optional second E: line only)
+# A: name | name | etc
 
 # 'C' is for creation bonuses - maximum to-hit, to-dam, to-ac, and
 # pval. Cursed ego-items will negate the given value.
@@ -31,6 +32,10 @@
 # 'F' is for flags. These are fairly self-explanatory. As many F:
 # lines may be used as are needed to specify all the flags and flags
 # are separated by the '|' symbol.
+
+# 'A' allows this ego type to be promoted into a artifact, named
+# by one of the items in this list. The 'A-list' is used for upper
+# tier artifacts. Everything else uses the 'B-list' (B: name | name | etc)
 
 #############################################################
 #                          Weapons                          #
@@ -44,12 +49,18 @@
 N:1:of Slaying
 T:WEAPON
 W:0:*:2
+C:5:5:0:0
+A:of *Slaying* | 'Destroyer' | 'Annihilator' | of Pain | 'Ruin'
+B:'Slayer' | of Slay Monsters | of Killing
 
 N:2:of Sharpness
 T:WEAPON
 W:10:*:2
 C:0:0:0:5
 F:VORPAL | TUNNEL
+A:of *Sharpness* | 'Bloodbath' | 'Mortal Wound' | 'Eviscerator' | (*Vorpal*)
+B:'Cutter' | 'Ginsu' | 'Gouger' | 'Biter' | 'Flesh Wound' | 'Gasher' | 'Limbslicer' | 'Nibbler'
+B:'Botei-Build cutter!!!'
 
 N:3:of Force
 T:WEAPON
@@ -57,6 +68,8 @@ W:20:*:4
 C:3:3:0:2
 F:INT | WIS |
 F:BRAND_MANA | SEE_INVIS
+A:'Ultimate Destruction' | (*Force*)
+B:'Manabringer' | of The Force | of Yoda | 'Mindkill'
 
 N:4:(Blessed)
 T:WEAPON | DIGGER
@@ -70,6 +83,8 @@ T:WEAPON | DIGGER
 W:50:*:8
 C:0:0:0:6
 F:BLOWS
+A:'Whirlwind' | of *Attacks* | 'Death Vortex'
+B:'Quickstrike' | 'Speed Kill' | of Quickness
 
 ### Realms ###
 N:6:(Arcane)
@@ -82,12 +97,17 @@ N:7:(Armageddon)
 T:WEAPON
 W:40:*:3
 C:0:10:0:0
+A:(*Armageddon*) | 'Day of Ragnarok' | (*Slayer*) | (*Destruction*) | of *Wrath* | 'Avatar of Destruction'
+B:'Path of Destruction' | (Slayer) | (Destruction) | of Wrath | 'Insta-death'
 
 N:8:(Chaos)
 T:WEAPON
 W:30:*:4
 F:BRAND_CHAOS | RES_CHAOS | XTRA_RES
 F:IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE
+A:(*Logrus*) | 'Lord of Chaos' | 'Lord of Change' | of Tzeentch | of Khorne | of Slaanesh
+A:of Nurgle | of Khaine | of Slortar | of Chardros | of Balaan | of Hionhurn | (*Unmaker*)
+B:'Unmaker' | (Logrus) | 'Logrus Master' | 'Path of Chaos' | of Change | 'Blade of Chaos'
 
 N:9:(Craft)
 T:WEAPON
@@ -101,6 +121,9 @@ C:6:6:0:4
 F:WIS |
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON |
 F:SEE_INVIS | BLESSED | RES_FEAR | ONE_SUSTAIN
+A:(*Holy Avenger*) | 'Divine Intervention' | 'God Hand' | 'Avenging Angel' | 'Wrath of God'
+A:'Angel of Death' | 'Angel of Ruin' | 'Divine Retribution'
+B:'Holy Avenger' | (Vengeance) | 'Justice' | 'Judgment Day' | 'Cosmic Avenger' | 'Punishment'
 
 N:11:(Daemon)
 T:WEAPON
@@ -108,24 +131,31 @@ W:70:*:6
 C:0:0:0:3
 F:BLOWS | STR | DEX | DEC_WIS
 E:DESTRUCTION:50:150
+A:(*Daemon*) | of Gothmog | of Mephistopheles | (Unholy Avenger) | (666) | of the Demon-Lord
+B:'Devilish Eye' | of the Lesser Balrog | 'Demonthoughts' | of the Demon | of the Hell
+B:'Hellblade'
 
 N:12:(Death)
 T:WEAPON | DIGGER
 W:20:*:4
 F:BRAND_VAMP | HOLD_LIFE
+A:of Thuringwethil | of Vlad | of Dio Brando | (Stormbringer) | (*Death*) | 'Black Reaver'
+B:'Black of Night' | of the Damned | 'Nightblade' | 'Bloodlance' | 'Bloodsucker' | 'Night Terrors'
+B:'Grave Robber' | 'Necrophile'
 
 N:13:(Life)
 T:WEAPON
 W:20:*:4
 C:0:0:0:4
-F:HOLD_LIFE | LIFE | BLESSED
+F:HOLD_LIFE | LIFE | BLESSED | REGEN
 F:SLAY_UNDEAD | SLAY_DEMON
+A:of *Life* | (*Order*) | (*Life*) | of Raphael | of Immortality | of the Holy Grail
+B:of Life | of the Unicorn | of Order | 'Veriditas' | of Genesis | of Elysium
 
 N:14:(Nature)
 T:WEAPON
 W:15:*:2
-C:0:0:0:2
-F:INT | SLAY_ANIMAL | REGEN | ESP_ANIMAL
+F:SLAY_ANIMAL | REGEN | ESP_ANIMAL
 
 N:15:(Trump)
 T:WEAPON
@@ -135,15 +165,6 @@ F:SLAY_EVIL | TELEPORT | FREE_ACT | SEARCH |
 F:REGEN | SLOW_DIGEST | RES_NEXUS | XTRA_H_RES
 E:TELEPORT:15:25
 
-N:16:(Wild)
-T:WEAPON
-W:80:*:16
-F:BRAND_WILD | XTRA_RES | XTRA_H_RES | XTRA_POWER
-
-N:17:(Order)
-T:WEAPON
-W:90:*:16
-F:BRAND_ORDER | RES_SOUND | RES_SHARDS
 
 ### Upper Tier ###
 N:18:(Defender)
@@ -152,6 +173,8 @@ W:20:*:4
 C:4:4:8:0
 F:FREE_ACT | SEE_INVIS | ONE_SUSTAIN |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:(*Defender*) | 'Ultimate Protection' | of Lordly Protection
+B:'Sanctuary' | 'Defense!' | of Protection
 
 N:19:of Westernesse
 T:WEAPON
@@ -164,7 +187,7 @@ F:FREE_ACT | SEE_INVIS
 
 N:20:of Gondolin
 T:WEAPON
-W:30:*:3
+W:30:60:3
 C:7:7:0:0
 F:SLAY_DEMON | SLAY_ORC | SLAY_TROLL | SLAY_DRAGON | LITE
 F:RES_DARK | SEE_INVIS | FREE_ACT
@@ -177,6 +200,8 @@ C:20:20:10:0
 F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | CURSED |
 F:SLAY_UNDEAD | BRAND_POIS | ESP_UNDEAD | SLAY_GOOD
 F:RANDOM_CURSE2
+A:of Angmar | 'Bloodcurse' | of the Nazgul | 'Black Death'
+B:'Necrosis' | 'Befouler' | 'Defiler'
 
 N:22:(Pattern)
 T:WEAPON
@@ -185,16 +210,19 @@ C:6:6:0:3
 F:STR | CON |
 F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD |
 F:FREE_ACT | SEE_INVIS | XTRA_H_RES
+A:(*Pattern*) | of Eric | (*Amber*) | of Corwin | of Gerard | of the Ideal Warrior
+B:of Rinaldo | of Brand | (Amber) | 'Agent of Benedict'
 
 N:23:of the Noldor
 T:WEAPON
 W:70:*:50
 C:10:10:0:5
 F:CHR | SPEED | REGEN | LITE
-F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | BRAND_COLD
+F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | BRAND_LITE
 F:RES_LITE | FREE_ACT | SEE_INVIS | SLOW_DIGEST
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
-
+A:'Star Blade' | of the *Noldor* | of Eternity
+B:'Lightbringer' | 'Sun Sword' | of the Dawn
 
 ### Lances ###
 N:24:of Jousting
@@ -240,7 +268,8 @@ C:0:7:0:5
 F:TUNNEL | BRAND_ACID | STR
 F:IGNORE_ACID
 E:STONE_TO_MUD:10:5
-
+A:of Khazad-dum | (*Disruption*)
+B:'Disruptor' | (*Digging*) | 'Tunneler' | 'Excavator'
 
 #############################################################
 #                           Armor                           #
@@ -260,12 +289,18 @@ T:BODY_ARMOR | SHIELD | CLOAK
 W:0:60:3
 C:0:0:8:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:(*Elemental*)
+B:(Elemental) | 'Call of the Wild' | 'Nature's Gifts' | of the Ranger | of Low Resistance
+B:of Basic Protection | of Nature's Secrets
 
 N:52:of Celestial Protection
 T:BODY_ARMOR | SHIELD | CROWN
 W:50:*:4
 C:0:0:10:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:of Raphael | of Michael | of *Protection* | 'Divine Shield' | (Invulnerability) | 'Eternal Bastion'
+B:(Sanctuary) | 'Warder' | 'Untouchable' | of Sacred Knights | of the Knights Templar | of the White Knight
+B:'Final Stand' | 'Spirit of Resistance' | 'Andromeda' | 'Cassiopeia' 
 
 N:53:of Elvenkind
 T:BODY_ARMOR | SHIELD
@@ -274,6 +309,9 @@ C:0:0:10:3
 F:STEALTH |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | XTRA_H_RES
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:of Feanor | of the Noldor | (*Elvenkind*) | of the Eldar
+B:(Elvenkind) | of Elrond | of Legolas | of Galadriel | of the Galadhrim | (Silvan)
+B:of Elbereth | of Celebrimbor
 
 N:54:of Stealth
 T:CLOAK | BOOTS
@@ -300,14 +338,14 @@ N:60:(Dwarven)
 T:SHIELD
 W:10:*:3
 C:5:5:12:0
-F:SUST_STR
+F:SUST_STR | MELEE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:61:(Orcish)
 T:SHIELD
 W:10:*:3
 C:3:6:10:3
-F:STR | RES_DARK | XTRA_E_RES
+F:STR | RES_DARK | XTRA_E_RES | MELEE
 F:DEC_INT | DEC_STEALTH | VULN_LITE |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -340,6 +378,9 @@ W:30:*:3
 C:0:0:15:3
 F:STR |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:of Gimli | of Thorin | of Thrain | of Fundin | (*Dwarven*) | of the Dwarves
+B:of Dwalin | of Kili | of Fili | of Dori | of Nori | of Ori | of Oin | of Gloin
+B:of Bifur | of Bofur | of Bombur
 
 N:71:of the Uruk-hai
 T:BODY_ARMOR
@@ -347,32 +388,39 @@ W:30:*:8
 C:5:5:5:3
 F:STR |
 F:DEC_INT |
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | XTRA_H_RES |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | XTRA_H_RES | MELEE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | SHOW_MODS
+A:of Azog | of Bolg | (Uruk-hai) | 'Agent of Saruman'
+B:of the Orc Champion | (Orcish) | of Golfimbul | of Ugluk | of Shagrat | of Gorbag | of Ufthak
+B:of Grishnakh | 'Day of the Orc' | 'Power Orc Scale Mail'
 
 N:72:of the Olog-hai
 T:BODY_ARMOR
 W:30:*:8
 C:0:7:10:4
-F:STR | REGEN | RES_ACID | RES_POIS | XTRA_H_RES
+F:STR | REGEN | RES_ACID | RES_POIS | XTRA_H_RES | MELEE
 F:DEC_INT |
 F:IGNORE_ACID | SHOW_MODS
 E:BERSERK:10:50
+A:(*Olog-hai*) | of Ulik | of the Storm Troll
+B:'Torog' | (Olog-hai) | of Rogrog | of the Cave Troll
 
 N:73:of the Demon
 T:BODY_ARMOR
 W:60:*:8
 C:0:7:10:4
 F:STR | INT |
-F:RES_FIRE | RES_POIS | RES_NETHER | AURA_FIRE | XTRA_H_RES |
+F:RES_FIRE | RES_POIS | RES_NETHER | AURA_FIRE | XTRA_H_RES | MELEE
 F:DEC_WIS | DEC_STEALTH |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | SHOW_MODS
+A:(Demon-Lord) | of Lungorthin | of Gothmog | 'Bloodthirster' | of Oremorj | of the Cyberdemon
+B:(Demon) | 'Nightgaunt' | 'Baron of Hell' | of the Black Knight | of the Hell Knight
 
 N:74:of the Demon-Lord
 T:BODY_ARMOR
 W:90:*:64
 C:0:15:15:5
-F:STR | INT | CON | TELEPATHY
+F:STR | INT | CON | TELEPATHY | MELEE
 F:IM_FIRE | RES_POIS | RES_NETHER | RES_CHAOS | AURA_FIRE | XTRA_H_RES |
 F:DEC_WIS | AGGRAVATE | TY_CURSE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | SHOW_MODS
@@ -388,6 +436,8 @@ C:0:0:10:0
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR |
 F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | XTRA_H_RES
+A:of the Sorcerer | of Incanus | of the White Wizard | of the Order of Istari
+B:'Sorcerer's Apprentice' | (Permanence) | of Stability
 
 N:81:of the Twilight
 T:ROBE
@@ -402,10 +452,10 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:82:of the Sorcerer
 T:ROBE
-W:70:*:10
-C:-25:-25:0:5
+W:70:*:3
+C:0:25:0:5
 F:INT | SUST_INT | DEC_MANA | EASY_SPELL | SPELL_CAP | REFLECT
-F:DEC_CON
+F:DEC_CON | SPELL_DAM | SHOW_MODS
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ####################
@@ -428,7 +478,7 @@ N:87:(Attack)
 T:DRAGON_ARMOR
 W:0:*:1
 C:5:5:0:3
-F:STR
+F:STR | MELEE
 
 N:88:(Craft)
 T:DRAGON_ARMOR
@@ -452,7 +502,7 @@ N:91:(Crusade)
 T:DRAGON_ARMOR
 W:0:*:2
 C:5:5:0:1
-F:STR | CHR | HOLD_LIFE
+F:STR | CHR | HOLD_LIFE | MELEE
 
 N:92:(Death)
 T:DRAGON_ARMOR
@@ -468,7 +518,7 @@ N:95:of Cowardice
 T:CLOAK
 W:0:70:4
 C:-10:-10:-10:3
-F:SPEED | VULN_FEAR | DEC_CHR
+F:SPEED | VULN_FEAR | DEC_CHR | MELEE
 E:TELEPORT:20:100
 
 N:96:of Immolation
@@ -497,6 +547,9 @@ T:CLOAK
 W:30:*:8
 C:0:0:0:7
 F:STEALTH | RES_DARK | DARKNESS
+A:'Nightwalker' | of *Shadows* | of Jack of Shadows | 'Shadowsold'
+B:'Darkstalker' | of Hiding | 'Darknesslurker' | of the Night |'Invisible Stalker'
+B:of Illusion
 
 N:101:of Aman
 T:CLOAK
@@ -504,12 +557,14 @@ W:50:*:16
 C:0:0:10:3
 F:STEALTH | SPEED | XTRA_H_RES
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:(*Aman*) | of Tuor
+B:(Aman)
 
 N:102:of the Bat
 T:CLOAK
 W:50:*:16
 C:-7:-7:-5:5
-F:SPEED | LEVITATION | RES_DARK | SEE_INVIS | INFRA | STEALTH |
+F:SPEED | LEVITATION | RES_DARK | SEE_INVIS | INFRA | STEALTH | MELEE
 F:HIDE_TYPE | SHOW_MODS
 
 N:103:of the Nazgul
@@ -517,7 +572,7 @@ T:CLOAK
 W:50:*:0
 C:6:6:6:3
 F:STEALTH | SPEED | RES_COLD | RES_POIS | RES_NETHER | FREE_ACT | SEE_INVIS | XTRA_H_RES
-F:VULN_LITE | RANDOM_CURSE2 | DEC_WIS | DEC_LIFE | DRAIN_EXP | HEAVY_CURSE
+F:VULN_LITE | RANDOM_CURSE2 | DEC_WIS | DEC_LIFE | DRAIN_EXP | HEAVY_CURSE | MELEE
 F:HIDE_TYPE | SHOW_MODS
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
@@ -553,14 +608,17 @@ N:114:of the Kobold
 T:HELMET
 W:10:70:4
 C:0:5:0:2
-F:STR | RES_POIS | DEC_CHR | SHOW_MODS
+F:STR | RES_POIS | DEC_CHR | SHOW_MODS | MELEE
+A:(*Kobold*) | of Mughash | 'Dogs of War'
+B:(Kobold) | of the Large Kobold
 
 N:115:of the Troll
 T:HELMET
 W:10:60:6
 C:0:8:5:2
 F:STR | REGEN |
-F:DEC_INT | VULN_LITE | SHOW_MODS
+F:DEC_INT | VULN_LITE | SHOW_MODS | MELEE
+B:of Tom | of Bert | of Bill | of the Stone Troll
 
 N:116:of the Vampire
 T:HELMET
@@ -569,6 +627,8 @@ C:0:0:0:3
 F:DARKNESS | RES_DARK | RES_POIS | HOLD_LIFE | STR | CHR | STEALTH |
 F:DEC_WIS |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:of the Elder Vampire | of Vlad | of Thuringwethil | of Immortal Hatred
+B:'Pitch Black Night' | 'Stonemask' | 'Impaler' | of the Master Vampire | 'Dracula' | 'Eternal Hunger'
 
 N:117:of Sunlight
 T:HELMET
@@ -586,19 +646,23 @@ N:119:of the Valkyrie
 T:HELMET
 W:40:*:32
 C:5:5:0:2
-F:SPEED | STR | CHR | RES_FEAR | SHOW_MODS
+F:SPEED | STR | CHR | RES_FEAR | SHOW_MODS | MELEE | ARCHERY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:HEROISM:15:50
+A:of Valhalla | of Odin | of the Immortals | of the Vanir | of the Aesir
+B:'Undying Hero' | of Valor
 
 N:120:of Rage
 T:HELMET
 W:40:*:32
 C:-10:10:-10:3
 F:STR | RES_FEAR
-F:DEC_INT | DEC_WIS
+F:DEC_INT | DEC_WIS | MELEE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:SHOW_MODS
 E:BERSERK:10:50
+A:'Terror Mask' | (*Rage*)
+B:of the Berserker | 'Battle Frenzy' | (Rage) | of Bloodlust
 
 ##############
 ### Crowns ###
@@ -615,26 +679,31 @@ C:0:0:0:3
 F:INT | SUST_INT |
 F:XTRA_H_RES | XTRA_POWER |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:of the Archimage | of the Master Sorcerer | of Fell Sorcery
+B:of the Wizard | of Grand Wizardry | of Spellcasting | of Sorcery
 
 N:127:of Might
 T:CROWN
 W:30:*:4
 C:0:0:0:3
 F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
-F:DEC_INT
+A:of *Might* | of Titans | of Habu
+B:'Warrior's Honor' | of Giant Strength | of the Storm Giant
 
 N:128:of Lordliness
 T:CROWN
 W:30:*:4
 C:0:0:0:3
 F:WIS | CHR | SUST_WIS | SUST_CHR | XTRA_H_RES
+A:of *Lordliness* | of Divine Insight
+B:of the Priests | (Wisdom) | (Lordliness)
 
 N:129:of Angmar
 T:CROWN
 W:90:*:32
 C:10:10:0:3
 F:TELEPATHY | RES_COLD | RES_POIS | RES_DARK | RES_NETHER | HOLD_LIFE | SEE_INVIS
-F:STEALTH
+F:STEALTH | MELEE
 F:VULN_LITE | VULN_FIRE | TY_CURSE | DEC_CON
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE | SHOW_MODS
 
@@ -653,52 +722,55 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:135:of Slaying
 T:GLOVES
 W:0:*:2
-C:8:8:0:0
-F:SHOW_MODS | AWARE
+F:SHOW_MODS | AWARE | MELEE
+A:'Touch of Death' | 'Fists of Fury' | (*Slaying*)
+B:(Slaying) | of Battle | of Slaughter
 
 N:136:of the Thief
 T:GLOVES
 W:10:*:3
 C:5:-5:0:4
-F:DEX | STEALTH | SUST_DEX | HIDE_TYPE
+F:DEX | STEALTH | SUST_DEX | HIDE_TYPE | MELEE
 
 N:137:of the Giant
 T:GLOVES
 W:40:*:6
 C:-5:10:0:4
-F:STR | CON | SHOW_MODS | HIDE_TYPE | SUST_STR |
+F:STR | CON | SHOW_MODS | HIDE_TYPE | SUST_STR | MELEE
 F:DEC_INT
 
 N:138:of the Wizard
 T:GLOVES
 W:30:*:4
-C:-10:-10:-20:3
-F:INT | MAGIC_MASTERY | HIDE_TYPE
+C:0:10:-20:3
+F:INT | MAGIC_MASTERY | HIDE_TYPE | SPELL_DAM | SHOW_MODS
+A:of Gandalf | of the Master Spellcaster 
+B:of Wizardry | of Magic Mastery | of the Spellcaster
 
 N:139:of the Yeek
 T:GLOVES
 W:0:50:16
 C:-10:-10:0:7
-F:DEC_STR | DEC_DEX | DEC_CON | DEC_CHR | STEALTH | HIDE_TYPE
+F:DEC_STR | DEC_DEX | DEC_CON | DEC_CHR | STEALTH | HIDE_TYPE | MELEE
 F:RES_ACID | IGNORE_ACID
 
 N:140:of Genji
 T:GLOVES
 W:60:*:16
 C:8:0:0:3
-F:DEX | SHOW_MODS | HIDE_TYPE | DUAL_WIELDING
+F:DEX | SHOW_MODS | HIDE_TYPE | DUAL_WIELDING | MELEE
 
 N:141:of the Sniper
 T:GLOVES
 W:50:*:16
 C:0:5:0:3
-F:XTRA_MIGHT | STEALTH | SHOW_MODS | HIDE_TYPE
+F:XTRA_MIGHT | STEALTH | SHOW_MODS | HIDE_TYPE | ARCHERY
 
 N:142:of the Berserker
 T:GLOVES
 W:70:*:32
 C:-15:8:-15:3
-F:BLOWS | SHOW_MODS | RES_FEAR | DEC_STEALTH | DEC_INT | NO_ENCHANT
+F:BLOWS | SHOW_MODS | RES_FEAR | DEC_STEALTH | DEC_INT | NO_ENCHANT | MELEE
 E:WHIRLWIND_ATTACK:30:250
 
 #############
@@ -715,6 +787,8 @@ T:BOOTS
 W:0:60:2
 F:FREE_ACT
 E:PHASE_DOOR:1:5
+A:(*Gnomish*)
+B:'Trickster' | 'Prankster' | of Mischief
 
 N:147:(Dwarven)
 T:BOOTS
@@ -734,13 +808,8 @@ W:30:*:8
 C:0:0:0:3
 F:STEALTH | SPEED
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:150:of Feanor
-T:BOOTS
-W:100:*:250
-F:SPEED | HIDE_TYPE | FREE_ACT | RES_NEXUS
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:SPEED:30:200
+A:of Feanor | (*Elvenkind*) | of Lothlorien
+B:of the Ranger | (Elvenkind)
 
 N:151:of the Sprite
 T:BOOTS
@@ -748,14 +817,18 @@ W:30:*:6
 C:0:0:0:3
 F:LEVITATION | SPEED | RES_LITE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+B:'Lightweaver' | of the Fairy | of the Sylph | of the Wood-Sprite | 'Lightdancer' | 'Moonbeam'
+B:of Effulgence | of Radiance
 
 N:152:of the Golem
 T:BOOTS
 W:40:*:12
 C:8:8:15:3
-F:DEC_SPEED | STR | CON | DEC_DEX | LIFE
+F:DEC_SPEED | STR | CON | DEC_DEX | LIFE | MELEE
 F:RES_POIS | FREE_ACT | SEE_INVIS | XTRA_H_RES
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:of Talos | of the Colossus
+B:'Stonefoot' | (Golem)
 
 #############################################################
 #                         Archery                           #
@@ -780,8 +853,7 @@ F:AWARE
 N:162:of Extra Might
 T:BOW
 W:20:*:2
-C:2:4:0:3
-F:STR
+C:2:4:0:0
 
 N:163:of Extra Shots
 T:BOW
@@ -795,6 +867,7 @@ W:60:*:4
 C:10:10:0:3
 F:DEX | STEALTH |
 F:IGNORE_ACID | IGNORE_FIRE
+B:(Lothlorien)
 
 N:165:of the Haradrim
 T:BOW
@@ -809,12 +882,16 @@ W:30:*:3
 C:10:5:0:3
 F:SPEED | XTRA_SHOTS |
 F:IGNORE_ACID | IGNORE_FIRE
+A:of *Buckland* | of The Shire
+B:'Hobbit Slinger' | (Buckland) | 'Hobbit Dreams'
 
 N:167:of the Hunter
 T:BOW
 W:20:*:3
-C:10:5:0:4
+C:10:5:0:3
 F:STEALTH
+A:of the Sniper | 'Deerslayer' | of the Great Hunt | of the Last Hunt
+B:of the Hunter | 'Stalker' | 'Deadshot'
 
 ############
 ### Ammo ###
@@ -822,11 +899,11 @@ F:STEALTH
 
 N:180:of Slaying
 T:AMMO
-W:10:*:2
+W:1:*:2
 
 N:181:(Elemental)
 T:AMMO
-W:20:*:3
+W:1:*:3
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
 N:182:of Holy Might
@@ -837,7 +914,7 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
 N:183:of Returning
 T:AMMO
-W:40:*:4
+W:1:*:4
 
 N:184:of Endurance
 T:AMMO
@@ -846,7 +923,7 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
 N:185:of Exploding
 T:AMMO
-W:1:60:5
+W:1:45:5
 
 #############
 ### Harps ###
@@ -907,7 +984,7 @@ T:RING
 W:70:*:0
 C:13:13:0:2
 F:STEALTH | SPEED | RES_COLD | RES_POIS | RES_NETHER | FREE_ACT | SEE_INVIS | XTRA_H_RES
-F:STR | INT | DEC_WIS | DEX | DEC_CON | CHR
+F:STR | INT | DEC_WIS | DEX | DEC_CON | CHR | MELEE
 F:VULN_LITE | RANDOM_CURSE2 | DEC_LIFE | DRAIN_EXP | HEAVY_CURSE
 F:HIDE_TYPE | SHOW_MODS
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
@@ -916,7 +993,7 @@ N:211:of the Dwarves
 T:RING
 W:70:*:0
 C:-10:13:0:2
-F:STR | CON | TUNNEL | DEC_STEALTH
+F:STR | CON | TUNNEL | DEC_STEALTH | MELEE
 F:REGEN | RES_BLIND | XTRA_H_RES
 F:RANDOM_CURSE2 | DRAIN_EXP | HEAVY_CURSE
 F:FREE_ACT | SEE_INVIS | SUST_CON
@@ -949,12 +1026,13 @@ F:FULL_NAME | HIDE_TYPE
 
 N:224:of the Magi
 T:AMULET
+F:SPELL_DAM
 W:30:*:3
 
 N:225:& Torc~ of the Hero
 T:AMULET
 W:60:*:16
-F:FREE_ACT | SEE_INVIS | SUST_STR | SUST_DEX |
+F:FREE_ACT | SEE_INVIS | SUST_STR | SUST_DEX | MELEE | ARCHERY
 F:RES_FEAR | REGEN | AURA_FIRE | HIDE_TYPE | FULL_NAME |
 
 N:226:of Devotion
@@ -1087,6 +1165,10 @@ N:268:& Phase Quiver
 T:QUIVER
 W:50:*:4
 F:FULL_NAME
+
+N:269:of Regeneration
+T:QUIVER
+W:70:*:8
 
 
 

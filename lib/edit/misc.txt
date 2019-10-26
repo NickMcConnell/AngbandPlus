@@ -1,14 +1,5 @@
 # File: misc.txt
 
-# Maximum number of quests
-Q:100
-
-# Maximum x size of the wilderness
-WX:99
-
-# Maximum y size of the wilderness
-WY:66
-
 # Maximum number of monsters in r_info.txt
 R:1200
 
@@ -26,15 +17,3 @@ A:329
 
 # Maximum number of ego-items in e_info.txt
 E:500
-
-# Maximum number of dungeon types in d_info.txt
-D:32
-
-# Maximum size for "o_list[]"
-O:1024
-
-# Maximum size for "m_list[]"
-M:1024
-
-# Maximum size for "pack_info_list[]" for 'monster packs'
-P:256

@@ -100,7 +100,7 @@ bool fear_set_p(int v)
     if (new_lvl > old_lvl)
     {
         msg_format("You feel <color:%c>%s</color>.", _get_level_color(new_lvl), _get_level_name(new_lvl));
-        if (old_lvl <= FEAR_SCARED && one_in_(6) && !fear_save_p(v/5))
+        if (old_lvl <= FEAR_SCARED && randint0(30) < cave->difficulty && one_in_(6) && !fear_save_p(v/5))
             do_dec_stat(A_CHR);
         if (p_ptr->special_defense & KATA_MASK)
         {
@@ -139,33 +139,32 @@ bool fear_set_p(int v)
 /* Effective monster level for fear calculations */
 static int _r_level(monster_race *r_ptr)
 {
-int ml = r_ptr->level;
-
+    int ml = r_ptr->level;
     if (r_ptr->flags1 & RF1_UNIQUE)
         ml += 3;
-
     return ml;
 }
 
 /* Effective threat level for player recovery */
 int fear_threat_level(void)
 {
-    int dl = MIN(dun_level + 2, 127);
+    int dl = MIN(cave->dun_lvl + 2, 127);
     int ml = 0;
-    int i;
 
-    for (i = 1; i < m_max; i++)
+    int_map_iter_ptr iter;
+    for (iter = int_map_iter_alloc(cave->mon);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
     {
-        monster_type *m_ptr = &m_list[i];
-        monster_race *r_ptr = &r_info[m_ptr->r_idx];
+        mon_ptr mon = int_map_iter_current(iter);
+        mon_race_ptr race = mon_race(mon);
+        if (!mon->ml) continue;
+        if (!(race->flags2 & RF2_AURA_FEAR)) continue;
+        if (!plr_project(mon->pos)) continue;
 
-        if (!m_ptr->r_idx) continue;
-        if (!m_ptr->ml) continue;
-        if (!(r_ptr->flags2 & RF2_AURA_FEAR)) continue;
-        if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
-
-        ml = MAX(ml, _r_level(r_ptr)/MAX(1, m_ptr->cdis - 2));
+        ml = MAX(ml, _r_level(race)/MAX(1, mon->cdis - 2));
     }
+    int_map_iter_free(iter);
 
     return MAX(dl, ml);
 }
@@ -283,12 +282,14 @@ bool life_save_p(int ml)
 bool fear_save_m(monster_type *m_ptr)
 {
     int           pl = _plev();
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_race *r_ptr = mon_race(m_ptr);
     int           ml = _r_level(r_ptr);
     bool          result = FALSE;
 
+    if (mon_tim_find(m_ptr, T_BERSERK)) return TRUE;
+
     /* Player may not exert their force of will out of sight! */
-    if (projectable(py, px, m_ptr->fy, m_ptr->fx))
+    if (plr_project(m_ptr->pos))
         pl += adj_stat_save[p_ptr->stat_ind[A_CHR]];
 
     if (pl <= 1) return TRUE;
@@ -338,33 +339,31 @@ void fear_recover_p(void)
 }
 
 /* Handle the Terrifying Aura of Fear! */
-void fear_process_p(void)
+static void _fear_process_p_aux(int id, mon_ptr mon)
 {
-    int i, r_level;
-    for (i = 1; i < m_max; i++)
+    if (mon->ml)
     {
-        monster_type *m_ptr = &m_list[i];
-        monster_race *r_ptr;
+        int r_level;
+        mon_race_ptr race = mon_apparent_race(mon);
 
-        if (!m_ptr->r_idx) continue;
-        if (!m_ptr->ml) continue;
+        if (!(race->flags2 & RF2_AURA_FEAR)) return;
+        if (is_pet(mon) || is_friendly(mon)) return;
+        if (!plr_project(mon->pos)) return;
 
-        r_ptr = mon_apparent_race(m_ptr);
-
-        if (!(r_ptr->flags2 & RF2_AURA_FEAR)) continue;
-        if (is_pet(m_ptr) || is_friendly(m_ptr)) continue;
-        if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
-
-        r_level = _r_level(r_ptr);
-        if (!fear_save_p(r_level/MAX(1, m_ptr->cdis-2)))
+        r_level = _r_level(race);
+        if (!fear_save_p(r_level/MAX(1, mon->cdis-2)))
         {
             char m_name[80];
-            monster_desc(m_name, m_ptr, 0);
+            monster_desc(m_name, mon, 0);
             msg_format("You behold the terrifying visage of %s!", m_name);
-            mon_lore_2(m_ptr, RF2_AURA_FEAR);
-            fear_add_p(r_level/MAX(1, m_ptr->cdis-2));
+            mon_lore_2(mon, RF2_AURA_FEAR);
+            fear_add_p(r_level/MAX(1, mon->cdis-2));
         }
     }
+}
+void fear_process_p(void)
+{
+    dun_iter_mon(cave, _fear_process_p_aux);
 }
 
 void fear_update_m(monster_type *m_ptr)
@@ -401,12 +400,12 @@ void fear_p_touch_m(monster_type *m_ptr)
 
 bool fear_p_hurt_m(int m_idx, int dam)
 {
-    monster_type *m_ptr = &m_list[m_idx];
+    monster_type *m_ptr = dun_mon(cave, m_idx);
     monster_race *r_ptr = mon_apparent_race(m_ptr);
     bool          result = FALSE;
 
     /* Apply Aura of Fear to the Player for non-melee damage */
-    if (!melee_hack && (r_ptr->flags2 & RF2_AURA_FEAR))
+    if (!plr_attack_current() && (r_ptr->flags2 & RF2_AURA_FEAR))
     {
         int r_level = _r_level(r_ptr);
         if (!fear_save_p(r_level))
@@ -416,7 +415,7 @@ bool fear_p_hurt_m(int m_idx, int dam)
         }
     }
 
-    if (!MON_MONFEAR(m_ptr) && !(r_ptr->flags3 & (RF3_NO_FEAR)))
+    if (!mon_tim_find(m_ptr, T_FEAR) && !(r_ptr->flags3 & (RF3_NO_FEAR)))
     {
         int percentage = (100 * m_ptr->hp) / m_ptr->maxhp;
         int n = 10;
@@ -428,7 +427,7 @@ bool fear_p_hurt_m(int m_idx, int dam)
             if (!fear_save_m(m_ptr))
             {
                 result = TRUE;
-                set_monster_monfear(m_idx, randint1(10) + 20);
+                mon_tim_add(m_ptr, T_FEAR, randint1(10) + 20);
             }
         }
     }
@@ -463,34 +462,26 @@ void fear_scare_p(monster_type *m_ptr)
 /* Monster Fear */
 bool fear_process_m(int m_idx)
 {
-    monster_type *m_ptr = &m_list[m_idx];
-    if (MON_MONFEAR(m_ptr) && !MON_CSLEEP(m_ptr))
+    monster_type *m_ptr = dun_mon(cave, m_idx);
+
+    if (!m_ptr) return FALSE; /* paranoia */
+
+    /* XXX Pain cancels fear hack */
+    if (m_ptr->pain)
+        mon_tim_subtract(m_ptr, T_FEAR, damroll(1, m_ptr->pain));
+
+    if (mon_tim_find(m_ptr, T_FEAR) && !mon_tim_find(m_ptr, MT_SLEEP))
     {
         if (fear_save_m(m_ptr))
         {
-            bool recovered = FALSE;
             if (fear_save_m(m_ptr))
-            {
-                set_monster_monfear(m_idx, 0);
-                recovered = TRUE;
-            }
+                mon_tim_remove(m_ptr, T_FEAR);
             else
             {
                 monster_race *r_ptr = mon_apparent_race(m_ptr);
-                recovered = set_monster_monfear(m_idx,
-                    MON_MONFEAR(m_ptr) - randint1(r_ptr->level / 20 + 1));
+                mon_tim_subtract(m_ptr, T_FEAR, randint1(r_ptr->level/20 + 1));
             }
 
-            if (recovered && mon_show_msg(m_ptr))
-            {
-                char m_name[80];
-                char m_poss[80];
-
-                monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
-                monster_desc(m_name, m_ptr, 0);
-
-                msg_format("%^s recovers %s courage.", m_name, m_poss);
-            }
         }
         else if (one_in_(3) && !fear_save_m(m_ptr))
         {
@@ -500,7 +491,7 @@ bool fear_process_m(int m_idx)
                 monster_desc(m_name, m_ptr, 0);
                 msg_format("%^s is scared stiff!", m_name);
             }
-            return FALSE;
+            return FALSE; /* cf _process_monster */
         }
     }
     return TRUE;
@@ -559,7 +550,7 @@ static int _get_hurt_level(int chp)
 
 void fear_heal_p(int old_hp, int new_hp)
 {
-    if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_BLOOD_MAGE && p_ptr->afraid)
+    if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->afraid)
     {
         int old_hurt = _get_hurt_level(old_hp);
         int new_hurt = _get_hurt_level(new_hp);
@@ -571,7 +562,7 @@ void fear_heal_p(int old_hp, int new_hp)
 
 void fear_hurt_p(int old_hp, int new_hp)
 {
-    if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_BLOOD_MAGE)
+    if (p_ptr->pclass != CLASS_BLOOD_KNIGHT)
     {
         int old_hurt = _get_hurt_level(old_hp);
         int new_hurt = _get_hurt_level(new_hp);

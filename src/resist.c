@@ -20,6 +20,18 @@ void res_add_all(void)
         res_add(i);
 }
 
+void res_add_ultimate(void)
+{
+    int i;
+    for (i = 0; i < RES_MAX; i++)
+    {
+        if (i == RES_TIME) continue;
+        if (i == RES_TELEPORT) continue;
+        if (i == RES_BLIND) continue;
+        res_add(i);
+    }
+}
+
 void res_add_immune(int which)
 {
     p_ptr->resist[which] += 100;
@@ -238,7 +250,7 @@ int res_pct_aux(int which, int count)
     {
         if (which == RES_CONF)
         {
-            if (prace_is_(RACE_TONBERRY) || demon_is_(DEMON_CYBERDEMON))
+            if (demon_is_(DEMON_CYBERDEMON))
                 result = (result + 1) / 2;
         }
 

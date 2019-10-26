@@ -134,9 +134,9 @@ R:ART(stone of war)
 ##########################################################################
 # Hound
 ?:[AND [EQU $RACE Hound] [EQU [MOD $RANDOM27 5] 0] ]
-R:ART(jack of shadows)
+R:ART(colluin)
 ?:[AND [EQU $RACE Hound] [GEQ [MOD $RANDOM27 5] 1] ]
-R:ART(harness of the hell)
+R:ART(hammerhand)
 ##########################################################################
 # Hydra
 ?:[AND [EQU $CLASS Monster] [EQU $RACE Hydra Golem] [EQU [MOD $RANDOM27 5] 0] ]
@@ -147,6 +147,8 @@ R:ART(colluin)
 # Lich
 ?:[AND [EQU $RACE Lich] [EQU [MOD $RANDOM27 5] 0] ]
 R:ART(kaschei)
+?:[AND [EQU $RACE Lich] [EQU $SUBRACE Monastic-Lich] [EQU [MOD $RANDOM27 5] 0] ]
+R:ART(eternity)
 ?:[AND [EQU $RACE Lich] [GEQ [MOD $RANDOM27 5] 1] ]
 R:ART(indra)
 ##########################################################################
@@ -180,13 +182,9 @@ R:OBJ(balance dragon scale mail)
 ?:[AND [EQU $CLASS Weaponsmith] [GEQ [MOD $RANDOM27 5] 1] ]
 R:OBJ(multi-hued dragon scale mail)
 ##########################################################################
-# Tourist
-?:[EQU $CLASS Tourist]
-R:ART(platinum yendorian express card)
-##########################################################################
 # Archer
 ?:[AND [EQU $CLASS Archer] [EQU [MOD $RANDOM27 5] 0] ]
-R:ART(brand)
+R:ART(belthronding)
 ?:[AND [EQU $CLASS Archer] [GEQ [MOD $RANDOM27 5] 1] ]
 R:ART(bow of bard)
 ##########################################################################
@@ -203,9 +201,9 @@ R:ART(bloodrip)
 R:ART(crisdurian)
 ##########################################################################
 # Warrior, Beserker
-?:[AND [EQU $CLASS Warrior Berserker] [EQU [MOD $RANDOM27 5] 0] ]
+?:[AND [EQU $CLASS Warrior] [EQU [MOD $RANDOM27 5] 0] ]
 R:ART(slayer)
-?:[AND [EQU $CLASS Warrior Berserker] [GEQ [MOD $RANDOM27 5] 1] ]
+?:[AND [EQU $CLASS Warrior] [GEQ [MOD $RANDOM27 5] 1] ]
 R:ART(pain)
 ##########################################################################
 # Beastmaster
@@ -257,7 +255,7 @@ R:ART(aegir)
 R:ART(aegis fang)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] [EQU [MOD $RANDOM27 5] 0] ]
-R:ART(brand)
+R:ART(hellfire)
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] [GEQ [MOD $RANDOM27 5] 1] ]
 R:ART(bow of wilhelm tell)
 
@@ -318,12 +316,12 @@ R:ART(silver chariot)
 ?:[AND [EQU $CLASS Ninja] [GEQ [MOD $RANDOM27 5] 1] ]
 R:ART(pitch dark night)
 ##########################################################################
-# Mage, High-Mage, Sorcerer, Blue-Mage, Blood-Mage
-?:[AND [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage Yellow-Mage Gray-Mage] [EQU [MOD $RANDOM27 10] 0] ]
+# Mage, High-Mage, Sorcerer, Blue-Mage
+?:[AND [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Yellow-Mage Gray-Mage] [EQU [MOD $RANDOM27 10] 0] ]
 R:ART(gandalf)
-?:[AND [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage Yellow-Mage Gray-Mage] [EQU [MOD $RANDOM27 10] 1] ]
+?:[AND [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Yellow-Mage Gray-Mage] [EQU [MOD $RANDOM27 10] 1] ]
 R:ART(saruman)
-?:[AND [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Blood-Mage Yellow-Mage Gray-Mage] [GEQ [MOD $RANDOM27 10] 2] ]
+?:[AND [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage Yellow-Mage Gray-Mage] [GEQ [MOD $RANDOM27 10] 2] ]
 R:ART(indra)
 ##########################################################################
 # Priest
@@ -373,23 +371,19 @@ R:ART(taro dachi)
 ?:[AND [EQU $CLASS Paladin] [EQU $REALM1 Crusade Life] [EQU [MOD $RANDOM27 5] 0] ]
 R:ART('excalibur'$)
 ?:[AND [EQU $CLASS Paladin] [EQU $REALM1 Crusade Life] [GEQ [MOD $RANDOM27 5] 1] ]
-R:ART(sacred knights)
+R:ART(earendil)
 ##########################################################################
 # Evil Paladin
 ?:[AND [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] [EQU [MOD $RANDOM27 5] 0] ]
 R:ART(doomcaller)
 ?:[AND [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] [GEQ [MOD $RANDOM27 5] 1] ]
-R:ART(harness of the hell)
+R:ART(calris)
 ##########################################################################
 # Warrior-Mage, Red-Mage, Magic-Eater
 ?:[AND [EQU $CLASS Warrior-Mage Red-Mage Magic-Eater Wild-Talent] [EQU [MOD $RANDOM27 5] 0] ]
 R:ART(lohengrin)
 ?:[AND [EQU $CLASS Warrior-Mage Red-Mage Magic-Eater Wild-Talent] [GEQ [MOD $RANDOM27 5] 1] ]
-R:ART(charmed pendant)
-##########################################################################
-# Imitator
-?:[EQU $CLASS Imitator]
-R:ART(gogo)
+R:ART(numenor)
 ##########################################################################
 # Necromancer
 ?:[EQU $CLASS Necromancer]
@@ -397,7 +391,7 @@ R:ART(eye of vecna)
 ##########################################################################
 # Sniper
 ?:[AND [EQU $CLASS Sniper] [EQU [MOD $RANDOM27 5] 0] ]
-R:ART(brand)
+R:ART(ballista)
 ?:[AND [EQU $CLASS Sniper] [GEQ [MOD $RANDOM27 5] 1] ]
 R:ART(tuor)
 ##########################################################################

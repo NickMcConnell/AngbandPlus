@@ -2398,11 +2398,12 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 
 static void windows_map(void)
 {
+    #if 0
     term_data *td = &data[0];
     byte a;
     char c;
-    int x, min_x, max_x;
-    int y, min_y, max_y;
+    int x;
+    int y;
 
     byte ta;
     char tc;
@@ -2417,30 +2418,23 @@ static void windows_map(void)
     td->map_tile_hgt = (td->tile_hgt * td->rows) / MAX_HGT;
     td->map_active = TRUE;
 
-    {
-        min_x = 0;
-        min_y = 0;
-        max_x = cur_wid;
-        max_y = cur_hgt;
-    }
-
     /* Draw the map */
-    for (x = min_x; x < max_x; x++)
+    for (x = cave->rect.x; x < cave->rect.x + cave->rect.cx; x++)
     {
-        for (y = min_y; y < max_y; y++)
+        for (y = cave->rect.y; y < cave->rect.y + cave->rect.cy; y++)
         {
             map_info(y, x, &a, (char*)&c, &ta, (char*)&tc);
 
             /* Ignore non-graphics */
             if ((a & 0x80) && (c & 0x80))
             {
-                Term_pict_win(x - min_x, y - min_y, 1, &a, &c, &ta, &tc);
+                Term_pict_win(x - cave->rect.x, y - cave->rect.y, 1, &a, &c, &ta, &tc);
             }
         }
     }
 
     /* Hilite the player */
-    Term_curs_win(px - min_x, py - min_y);
+    Term_curs_win(p_ptr->pos.x - min_x, p_ptr->pos.y - min_y);
 
     /* Wait for a keypress, flush key buffer */
     Term_inkey(&c, TRUE, TRUE);
@@ -2452,6 +2446,7 @@ static void windows_map(void)
     /* Restore screen */
     Term_xtra_win_clear();
     Term_redraw();
+    #endif
 }
 
 
@@ -4398,7 +4393,7 @@ static void init_stuff(void)
     init_file_paths(path, path, path);
 
     /* Hack -- Validate the paths */
-    validate_dir(ANGBAND_DIR_APEX, FALSE);
+    validate_dir(ANGBAND_DIR_SCORES, FALSE);
     validate_dir(ANGBAND_DIR_BONE, FALSE);
 
     /* Allow missing 'edit' directory */

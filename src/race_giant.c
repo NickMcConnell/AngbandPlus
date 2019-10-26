@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 static cptr _desc =
     "Giants are humanoids of immense stature. There are several types of giants. "
     "Fire, Frost and Storm giants are elemental giants and gain extra resistance, "
@@ -18,13 +20,13 @@ static void _birth(void)
     p_ptr->current_r_idx = MON_HILL_GIANT;
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_EXECUTIONERS_SWORD));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 /**********************************************************************
@@ -60,7 +62,6 @@ static bool _weapon_is_small(int tval, int sval)
         {
         case SV_HATCHET:
         case SV_SICKLE:
-        case SV_TSURIZAO:
             return TRUE;
         }
     }
@@ -136,25 +137,25 @@ static bool _weapon_is_giant(int tval, int sval)
     }
     return FALSE;
 }
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    if (_weapon_is_small(o_ptr->tval, o_ptr->sval))
+    if (_weapon_is_small(obj->tval, obj->sval))
     {
-        info_ptr->to_h -= 20;
-        info_ptr->dis_to_h -= 20;
-        info_ptr->to_d -= 5;
-        info_ptr->dis_to_d -= 5;
-        info_ptr->info_attr = TERM_RED;
-        info_ptr->info = "Your weapon is too small.";
+        info->to_h -= 20;
+        info->dis_to_h -= 20;
+        info->to_d -= 5;
+        info->dis_to_d -= 5;
+        info->info_attr = TERM_RED;
+        info->info = "Your weapon is too small.";
     }
-    if (_weapon_is_giant(o_ptr->tval, o_ptr->sval))
+    if (_weapon_is_giant(obj->tval, obj->sval))
     {
-        info_ptr->to_h += 5 + p_ptr->lev/5;
-        info_ptr->dis_to_h += 5 + p_ptr->lev/5;
-        info_ptr->to_d += 3 + p_ptr->lev/7;
-        info_ptr->dis_to_d += 3 + p_ptr->lev/7;
-        info_ptr->info_attr = TERM_L_GREEN;
-        info_ptr->info = "You love your weapon.";
+        info->to_h += 5 + p_ptr->lev/5;
+        info->dis_to_h += 5 + p_ptr->lev/5;
+        info->to_d += 3 + p_ptr->lev/7;
+        info->dis_to_d += 3 + p_ptr->lev/7;
+        info->info_attr = TERM_L_GREEN;
+        info->info = "You love your weapon.";
     }
 }
 
@@ -175,8 +176,8 @@ bool monster_toss(int m_idx)
 {
     int dir, chance;
     _monster_toss_info info = {0};
-    monster_type *m_ptr = &m_list[m_idx];
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_type *m_ptr = dun_mon(cave, m_idx);
+    monster_race *r_ptr = mon_race(m_ptr);
     char m_name[MAX_NLEN];
 
     monster_desc(m_name, m_ptr, 0);
@@ -226,8 +227,8 @@ bool monster_toss(int m_idx)
         target_who = 0;  /* TODO: Repeat command is busted ... */
         if (!get_aim_dir(&dir)) return FALSE;
 
-        info.tx = px + 99 * ddx[dir];
-        info.ty = py + 99 * ddy[dir];
+        info.tx = p_ptr->pos.x + 99 * ddx[dir];
+        info.ty = p_ptr->pos.y + 99 * ddy[dir];
 
         if ((dir == 5) && target_okay())
         {
@@ -237,7 +238,7 @@ bool monster_toss(int m_idx)
 
         project_length = 0;
 
-        if (info.tx == px && info.ty == py) return FALSE;
+        if (info.tx == p_ptr->pos.x && info.ty == p_ptr->pos.y) return FALSE;
     }
 
     /* Toss */
@@ -249,63 +250,61 @@ bool monster_toss(int m_idx)
 static void _monster_toss_imp(_monster_toss_info *info)
 {
     char m_name[MAX_NLEN];
-    u16b path[512];
-    int msec = delay_factor * delay_factor * delay_factor;
-    int y, x, ny, nx, dam = 0;
+    point_t path[32];
+    int dam = 0;
     int cur_dis, ct;
     bool do_stun = FALSE;
     int chance;
-    monster_type *m_ptr = &m_list[info->m_idx];
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    point_t tgt = point_create(info->tx, info->ty);
+    point_t cur;
+    mon_ptr tossed_mon = dun_mon(cave, info->m_idx);
+    mon_race_ptr tossed_race = mon_race(tossed_mon);
 
     chance = p_ptr->skill_tht + (p_ptr->lev * BTH_PLUS_ADJ);
     chance *= 2;
 
-    monster_desc(m_name, m_ptr, 0);
+    monster_desc(m_name, tossed_mon, 0);
     msg_format("You toss %s.", m_name);
 
-    cave[m_ptr->fy][m_ptr->fx].m_idx = 0;
-    lite_spot(m_ptr->fy, m_ptr->fx);
+    dun_detach_mon(cave, tossed_mon->id);
 
-    ct = project_path(path, info->tdis, py, px, info->ty, info->tx, PROJECT_PATH);
-    y = py;
-    x = px;
+    ct = project_path(path, info->tdis, p_ptr->pos, tgt, 0);
+    cur = p_ptr->pos;
 
     for (cur_dis = 0; cur_dis < ct; )
     {
         /* Peek ahead at the next square in the path */
-        ny = GRID_Y(path[cur_dis]);
-        nx = GRID_X(path[cur_dis]);
+        point_t next = path[cur_dis];
+        mon_ptr hit_mon = mon_at(next);
 
         /* Always draw the visual effect ... Its nice to see
            monsters bouncing off nearby walls :) */
-        if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
+        if (panel_contains(next.y, next.x) && player_can_see_bold(next.y, next.x))
         {
-            char c = r_ptr->x_char;
-            byte a = r_ptr->x_attr;
+            char c = tossed_race->x_char;
+            byte a = tossed_race->x_attr;
 
-            print_rel(c, a, ny, nx);
-            move_cursor_relative(ny, nx);
+            print_rel(c, a, next.y, next.x);
+            move_cursor_relative(next);
             Term_fresh();
-            Term_xtra(TERM_XTRA_DELAY, msec);
-            lite_spot(ny, nx);
+            Term_xtra(TERM_XTRA_DELAY, delay_animation);
+            lite_pos(next);
             Term_fresh();
         }
         else
         {
-            Term_xtra(TERM_XTRA_DELAY, msec);
+            Term_xtra(TERM_XTRA_DELAY, delay_animation);
         }
 
         /* Stopped by walls/doors/forest ... but allow hitting your target, please! */
-        if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
-         && !cave[ny][nx].m_idx)
+        if (!cave_have_flag_at(next, FF_PROJECT) && !hit_mon)
         {
-            if (cave_have_flag_bold(ny, nx, FF_WALL))
+            if (cave_have_flag_at(next, FF_WALL))
             {
                 dam = p_ptr->lev * info->mult;
                 do_stun = one_in_(2);
             }
-            else if (!(r_ptr->flags7 & RF7_CAN_FLY))
+            else if (!(tossed_race->flags7 & RF7_CAN_FLY))
                 dam = p_ptr->lev / 5 * info->mult;
 
             break;
@@ -315,19 +314,16 @@ static void _monster_toss_imp(_monster_toss_info *info)
         cur_dis++;
 
         /* Monster here, Try to hit it */
-        if (cave[ny][nx].m_idx)
+        if (hit_mon)
         {
-            cave_type *c_ptr = &cave[ny][nx];
-            monster_type *m_ptr2 = &m_list[c_ptr->m_idx];
             char m_name2[80];
-            bool visible = m_ptr2->ml;
+            bool visible = hit_mon->ml;
 
-            monster_desc(m_name2, m_ptr2, 0);
-
-            if (test_hit_fire(chance - cur_dis, mon_ac(m_ptr2), visible))
+            monster_desc(m_name2, hit_mon, 0);
+            if (test_hit_fire(chance - cur_dis, mon_ac(hit_mon), visible))
             {
                 bool fear = FALSE;
-                critical_t crit;
+                slay_t crit = {0};
 
                 if (!visible)
                     msg_format("%^s finds a mark.", m_name);
@@ -336,37 +332,36 @@ static void _monster_toss_imp(_monster_toss_info *info)
                     msg_format("%^s hits %s.", m_name, m_name2);
                     if (visible)
                     {
-                        if (!p_ptr->image) mon_track(m_ptr2);
-                        health_track(c_ptr->m_idx);
+                        if (!plr_tim_find(T_HALLUCINATE)) mon_track(hit_mon);
+                        health_track(hit_mon->id);
                     }
                 }
 
                 /***** The Damage Calculation!!! *****/
                 dam = damroll(1 + MIN(10 + p_ptr->lev/3, info->wgt / 25), 5);
-                crit = critical_throw(info->wgt * 10, p_ptr->lev);
-                if (crit.desc)
+                crit = crit_aux(CRIT_FREQ_ROLL, info->wgt * 10, chance - cur_dis);
+                if (crit.id)
                 {
-                    dam = dam * crit.mul/100 + crit.to_d;
-                    msg_print(crit.desc);
+                    dam = dam * crit.mul/100 + crit.add;
+                    if (crit.msg) msg_print(crit.msg);
                 }
                 dam *= info->mult;
                 if (dam < 0) dam = 0;
-                dam = mon_damage_mod(m_ptr, dam, FALSE);
+                dam = mon_damage_mod(hit_mon, dam, FALSE);
 
-                if (mon_take_hit(c_ptr->m_idx, dam, &fear, extract_note_dies(real_r_ptr(m_ptr2))))
+                if (mon_take_hit(hit_mon->id, dam, &fear, extract_note_dies(real_r_ptr(hit_mon))))
                 {
                     /* Dead monster */
-                    x = nx;
-                    y = ny;
+                    cur = next;
                 }
                 else
                 {
-                    message_pain(c_ptr->m_idx, dam);
+                    message_pain(hit_mon->id, dam);
                     if (dam > 0)
-                        anger_monster(m_ptr);
+                        anger_monster(hit_mon);
 
-                    if (dam > 0 && m_ptr2->cdis > 1)
-                        mon_anger_spell(m_ptr2, dam);
+                    if (dam > 0 && hit_mon->cdis > 1)
+                        mon_anger_spell(hit_mon, dam);
 
                     if (fear && visible)
                     {
@@ -385,53 +380,46 @@ static void _monster_toss_imp(_monster_toss_info *info)
         }
 
         /* Save the new location */
-        x = nx;
-        y = ny;
+        cur = next;
 
         if (cur_dis >= ct)
         {
-            if (!(r_ptr->flags7 & RF7_CAN_FLY))
+            if (!(tossed_race->flags7 & RF7_CAN_FLY))
                 dam = p_ptr->lev / 5 * info->mult;
             break;
         }
     }
 
-    if (cave_empty_bold(y, x))
-    {
-        cave[y][x].m_idx = info->m_idx;
-        m_ptr->fy = y;
-        m_ptr->fx = x;
-        lite_spot(y, x);
-    }
-    else /* oops ... put the monster back where it started! */
-    {
-        cave[m_ptr->fy][m_ptr->fx].m_idx = info->m_idx;
-        lite_spot(m_ptr->fy, m_ptr->fx);
-    }
+    while (!cave_empty_at(cur))
+        cur = scatter(cur, 1);
+    dun_place_mon(cave, tossed_mon, cur);
+
     if (dam)
     {
         bool fear = FALSE;
-        if (mon_take_hit(info->m_idx, dam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
+        if (plr_attack_current()) /* _snatch_spell */
+            plr_attack_current()->dam_total += dam;
+        if (mon_take_hit(tossed_mon->id, dam, &fear, extract_note_dies(real_r_ptr(tossed_mon))))
         {
             /* Dead monster */
         }
         else
         {
             if ( !do_stun
-              || (r_ptr->flagsr & RFR_RES_ALL)
-              || (r_ptr->flags3 & RF3_NO_STUN)
-              || ((r_ptr->flags1 & RF1_UNIQUE) && mon_stun_save(r_ptr->level, dam)) )
+              || (tossed_race->flagsr & RFR_RES_ALL)
+              || (tossed_race->flags3 & RF3_NO_STUN)
+              || ((tossed_race->flags1 & RF1_UNIQUE) && mon_save_stun(tossed_race->level, dam)) )
             {
             }
             else
             {
                 msg_format("%^s is stunned.", m_name);
-                mon_stun(m_ptr, mon_stun_amount(dam));
+                mon_stun(tossed_mon, mon_stun_amount(dam));
             }
 
-            message_pain(info->m_idx, dam);
+            message_pain(tossed_mon->id, dam);
             if (dam > 0)
-                anger_monster(m_ptr);
+                anger_monster(tossed_mon);
 
             if (fear)
                 msg_format("%^s flees in terror!", m_name);
@@ -439,7 +427,7 @@ static void _monster_toss_imp(_monster_toss_info *info)
     }
 }
 
-void monster_toss_spell(int cmd, variant *res)
+void monster_toss_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -449,28 +437,12 @@ void monster_toss_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Throw an adjacent monster at chosen target, provided it is light enough, of course!");
         break;
-    case SPELL_CAST:
-    {
-        int x, y;
-        int dir;
-        int m_idx = 0;
+    case SPELL_CAST: {
+        mon_ptr mon = plr_target_adjacent_mon();
         var_set_bool(res, FALSE);
-        if (!get_rep_dir2(&dir)) return;
-        if (dir == 5) return;
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-        m_idx = cave[y][x].m_idx;
-
-        if (!m_idx)
-        {
-            msg_print("There is no monster there.");
-            return;
-        }
-
-        var_set_bool(res, monster_toss(m_idx));
-        break;
-    }
+        if (!mon) break;
+        var_set_bool(res, monster_toss(mon->id));
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -535,10 +507,9 @@ static void _hru_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_hru_get_race_t(void)
+static plr_race_ptr _hru_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Rock Giant", "Hru"};
     int           rank = 0;
 
@@ -546,46 +517,44 @@ static race_t *_hru_get_race_t(void)
     if (p_ptr->lev >= 30) rank++;
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  30,   0,  13,   7,  75,  30};
     skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  15};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc_aux(RACE_MON_GIANT, GIANT_HRU);
 
-        me.infra = 5;
-        me.exp = 225;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->infra = 5;
+        me->exp = 225;
+        me->boss_r_idx = MON_ATLAS;
 
-        me.birth = _birth;
-        /* This defeats the purpose of their monster king reward:
-        me.calc_innate_attacks = _hru_calc_innate_attacks;*/
-        me.get_powers = _hru_get_powers;
-        me.calc_bonuses = _hru_calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.get_flags = _hru_get_flags;
-        me.gain_level = _hru_gain_level;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.get_powers = _hru_get_powers;
+        me->hooks.calc_bonuses = _hru_calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.get_flags = _hru_get_flags;
+        me->hooks.gain_level = _hru_gain_level;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  7 + rank;
-    me.stats[A_INT] = -5;
-    me.stats[A_WIS] = -5;
-    me.stats[A_DEX] = -3;
-    me.stats[A_CON] =  4 + rank;
-    me.stats[A_CHR] =  0 + rank/2;
-    me.life = 110 + 5*rank;
-    me.boss_r_idx = MON_ATLAS;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  7 + rank;
+    me->stats[A_INT] = -5;
+    me->stats[A_WIS] = -5;
+    me->stats[A_DEX] = -3;
+    me->stats[A_CON] =  4 + rank;
+    me->stats[A_CHR] =  0 + rank/2;
+    me->life = 110 + 5*rank;
 
-    return &me;
+    return me;
 }
 
 /******************************************************************************
  *                        20             30            40
  * Fire Giant: Hill Giant -> Stone Giant -> Fire Giant -> Elder Fire Giant
  ******************************************************************************/
-static void _breathe_plasma_spell(int cmd, variant *res)
+static void _breathe_plasma_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -652,11 +621,14 @@ static void _fire_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     if (p_ptr->lev >= 40)
         add_flag(flgs, OF_BRAND_FIRE);
 }
-static void _fire_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _fire_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    _calc_weapon_bonuses(o_ptr, info_ptr);
+    _calc_weapon_bonuses(obj, info);
     if (p_ptr->lev >= 40)
-        add_flag(info_ptr->flags, OF_BRAND_FIRE);
+    {
+        add_flag(info->obj_flags, OF_BRAND_FIRE);
+        add_flag(info->obj_known_flags, OF_BRAND_FIRE);
+    }
 }
 static void _fire_gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_HILL_GIANT && new_level >= 20)
@@ -678,10 +650,9 @@ static void _fire_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_fire_get_race_t(void)
+static plr_race_ptr _fire_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Fire Giant", "Elder Fire Giant"};
     int           rank = 0;
 
@@ -689,44 +660,44 @@ static race_t *_fire_get_race_t(void)
     if (p_ptr->lev >= 30) rank++;
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  30,   0,  13,   7,  75,  30};
     skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  15};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc_aux(RACE_MON_GIANT, GIANT_FIRE);
 
-        me.infra = 5;
-        me.exp = 200;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->infra = 5;
+        me->exp = 200;
+        me->boss_r_idx = MON_SURTUR;
 
-        me.birth = _birth;
-        me.get_powers = _fire_get_powers;
-        me.calc_bonuses = _fire_calc_bonuses;
-        me.calc_weapon_bonuses = _fire_calc_weapon_bonuses;
-        me.get_flags = _fire_get_flags;
-        me.gain_level = _fire_gain_level;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.get_powers = _fire_get_powers;
+        me->hooks.calc_bonuses = _fire_calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _fire_calc_weapon_bonuses;
+        me->hooks.get_flags = _fire_get_flags;
+        me->hooks.gain_level = _fire_gain_level;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  6 + rank;
-    me.stats[A_INT] = -3;
-    me.stats[A_WIS] = -3;
-    me.stats[A_DEX] = -2;
-    me.stats[A_CON] =  3 + rank;
-    me.stats[A_CHR] =  0 + rank/2;
-    me.life = 107 + 5*rank;
-    me.boss_r_idx = MON_SURTUR;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  6 + rank;
+    me->stats[A_INT] = -3;
+    me->stats[A_WIS] = -3;
+    me->stats[A_DEX] = -2;
+    me->stats[A_CON] =  3 + rank;
+    me->stats[A_CHR] =  0 + rank/2;
+    me->life = 107 + 5*rank;
 
-    return &me;
+    return me;
 }
 
 /******************************************************************************
  *                         20             30             40
  * Frost Giant: Hill Giant -> Stone Giant -> Frost Giant -> Ice Giant
  ******************************************************************************/
-static void _ice_storm_spell(int cmd, variant *res)
+static void _ice_storm_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -786,11 +757,14 @@ static void _frost_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     if (p_ptr->lev >= 40)
         add_flag(flgs, OF_BRAND_COLD);
 }
-static void _frost_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _frost_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    _calc_weapon_bonuses(o_ptr, info_ptr);
+    _calc_weapon_bonuses(obj, info);
     if (p_ptr->lev >= 40)
-        add_flag(info_ptr->flags, OF_BRAND_COLD);
+    {
+        add_flag(info->obj_flags, OF_BRAND_COLD);
+        add_flag(info->obj_known_flags, OF_BRAND_COLD);
+    }
 }
 static void _frost_gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_HILL_GIANT && new_level >= 20)
@@ -812,10 +786,9 @@ static void _frost_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_frost_get_race_t(void)
+static plr_race_ptr _frost_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Frost Giant", "Ice Giant"};
     int           rank = 0;
 
@@ -823,44 +796,44 @@ static race_t *_frost_get_race_t(void)
     if (p_ptr->lev >= 30) rank++;
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  30,   0,  13,   7,  75,  30};
     skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  15};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc_aux(RACE_MON_GIANT, GIANT_FROST);
 
-        me.infra = 5;
-        me.exp = 200;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->infra = 5;
+        me->exp = 200;
+        me->boss_r_idx = MON_YMIR;
 
-        me.birth = _birth;
-        me.get_powers = _frost_get_powers;
-        me.calc_bonuses = _frost_calc_bonuses;
-        me.calc_weapon_bonuses = _frost_calc_weapon_bonuses;
-        me.get_flags = _frost_get_flags;
-        me.gain_level = _frost_gain_level;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.get_powers = _frost_get_powers;
+        me->hooks.calc_bonuses = _frost_calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _frost_calc_weapon_bonuses;
+        me->hooks.get_flags = _frost_get_flags;
+        me->hooks.gain_level = _frost_gain_level;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  6 + rank;
-    me.stats[A_INT] = -3;
-    me.stats[A_WIS] = -3;
-    me.stats[A_DEX] = -2;
-    me.stats[A_CON] =  3 + rank;
-    me.stats[A_CHR] =  0 + rank/2;
-    me.life = 107 + 5*rank;
-    me.boss_r_idx = MON_YMIR;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  6 + rank;
+    me->stats[A_INT] = -3;
+    me->stats[A_WIS] = -3;
+    me->stats[A_DEX] = -2;
+    me->stats[A_CON] =  3 + rank;
+    me->stats[A_CHR] =  0 + rank/2;
+    me->life = 107 + 5*rank;
 
-    return &me;
+    return me;
 }
 
 /*******************************************************************************************
  *                         20             30             40             45
  * Storm Giant: Hill Giant -> Stone Giant -> Cloud Giant -> Storm Giant -> Elder Storm Giant
  *******************************************************************************************/
-static void _breathe_storm_spell(int cmd, variant *res)
+static void _breathe_storm_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -893,7 +866,7 @@ static void _breathe_storm_spell(int cmd, variant *res)
         break;
     }
 }
-static void _lightning_storm_spell(int cmd, variant *res)
+static void _lightning_storm_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -956,11 +929,14 @@ static void _storm_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
         add_flag(flgs, OF_BRAND_ELEC);
     }
 }
-static void _storm_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _storm_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    _calc_weapon_bonuses(o_ptr, info_ptr);
+    _calc_weapon_bonuses(obj, info);
     if (p_ptr->lev >= 40)
-        add_flag(info_ptr->flags, OF_BRAND_ELEC);
+    {
+        add_flag(info->obj_flags, OF_BRAND_ELEC);
+        add_flag(info->obj_known_flags, OF_BRAND_ELEC);
+    }
 }
 static void _storm_gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_HILL_GIANT && new_level >= 20)
@@ -988,10 +964,9 @@ static void _storm_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_storm_get_race_t(void)
+static plr_race_ptr _storm_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[5] =  {"Hill Giant", "Stone Giant", "Cloud Giant", "Storm Giant", "Elder Storm Giant"};
     int           rank = 0;
 
@@ -1000,37 +975,37 @@ static race_t *_storm_get_race_t(void)
     if (p_ptr->lev >= 40) rank++;
     if (p_ptr->lev >= 45) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  30,   0,  13,   7,  70,  30};
     skills_t xs = { 10,   7,  10,   0,   0,   0,  30,  15};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc_aux(RACE_MON_GIANT, GIANT_STORM);
 
-        me.infra = 5;
-        me.exp = 250;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->infra = 5;
+        me->exp = 250;
+        me->boss_r_idx = MON_TYPHOEUS;
 
-        me.birth = _birth;
-        me.get_powers = _storm_get_powers;
-        me.calc_bonuses = _storm_calc_bonuses;
-        me.calc_weapon_bonuses = _storm_calc_weapon_bonuses;
-        me.get_flags = _storm_get_flags;
-        me.gain_level = _storm_gain_level;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.get_powers = _storm_get_powers;
+        me->hooks.calc_bonuses = _storm_calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _storm_calc_weapon_bonuses;
+        me->hooks.get_flags = _storm_get_flags;
+        me->hooks.gain_level = _storm_gain_level;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  5 + (rank + 1)/2;
-    me.stats[A_INT] = -3;
-    me.stats[A_WIS] = -3;
-    me.stats[A_DEX] = -2;
-    me.stats[A_CON] =  3 + (rank + 1)/2;
-    me.stats[A_CHR] =  0 + rank/2;
-    me.life = 105 + 3*rank;
-    me.boss_r_idx = MON_TYPHOEUS;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  5 + (rank + 1)/2;
+    me->stats[A_INT] = -3;
+    me->stats[A_WIS] = -3;
+    me->stats[A_DEX] = -2;
+    me->stats[A_CON] =  3 + (rank + 1)/2;
+    me->stats[A_CHR] =  0 + rank/2;
+    me->life = 105 + 3*rank;
 
-    return &me;
+    return me;
 }
 
 /******************************************************************************
@@ -1088,10 +1063,9 @@ static void _titan_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_titan_get_race_t(void)
+static plr_race_ptr _titan_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Lesser Titan", "Greater Titan"};
     int           rank = 0;
 
@@ -1099,41 +1073,41 @@ static race_t *_titan_get_race_t(void)
     if (p_ptr->lev >= 30) rank++;
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  20,  32,   0,  15,  10,  75,  30};
     skills_t xs = { 11,   8,  10,   0,   0,   0,  35,  15};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc_aux(RACE_MON_GIANT, GIANT_TITAN);
 
-        me.infra = 5;
-        me.exp = 300;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->infra = 5;
+        me->exp = 300;
+        me->boss_r_idx = MON_KRONOS;
 
-        me.birth = _birth;
-        me.get_powers = _titan_get_powers;
-        me.calc_bonuses = _titan_calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.get_flags = _titan_get_flags;
-        me.gain_level = _titan_gain_level;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.get_powers = _titan_get_powers;
+        me->hooks.calc_bonuses = _titan_calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.get_flags = _titan_get_flags;
+        me->hooks.gain_level = _titan_gain_level;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  5 + rank;
-    me.stats[A_INT] =  0 + rank;
-    me.stats[A_WIS] =  0 + rank;
-    me.stats[A_DEX] = -2;
-    me.stats[A_CON] =  3 + rank;
-    me.stats[A_CHR] =  3 + rank;
-    me.life = 102 + 5*rank;
-    me.boss_r_idx = MON_KRONOS;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  5 + rank;
+    me->stats[A_INT] =  0 + rank;
+    me->stats[A_WIS] =  0 + rank;
+    me->stats[A_DEX] = -2;
+    me->stats[A_CON] =  3 + rank;
+    me->stats[A_CHR] =  3 + rank;
+    me->life = 102 + 5*rank;
 
-    return &me;
+    return me;
 }
 
 static name_desc_t _info[GIANT_MAX] = {
-    { "Fire Giant", "Fire Giants are massive giants of flame. At high levels they become "
+    { "Fire Giant", "Fire Giants are massive giants of flame-> At high levels they become "
                         "wreathed in flames and even their weapons will burn their foes. Like "
                         "all giants, they may toss loose rubble at their foes. In addition, "
                         "they have a few fire based distance attacks up their sleeves." },
@@ -1162,9 +1136,9 @@ bool giant_is_favorite(object_type *o_ptr)
     return FALSE;
 }
 
-race_t *mon_giant_get_race(int psubrace)
+plr_race_ptr mon_giant_get_race(int psubrace)
 {
-    race_t *result = NULL;
+    plr_race_ptr result = NULL;
 
     switch (psubrace)
     {

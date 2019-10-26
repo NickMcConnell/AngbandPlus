@@ -27,8 +27,8 @@ static void _help_file(cptr name, _file_fn fn)
     }
 
     fn(fp);
-    fprintf(fp, "\n\n<color:s>Automatically generated for PosChengband %d.%d.%d.</color>\n",
-            VER_MAJOR, VER_MINOR, VER_PATCH);
+    fprintf(fp, "\n\n<color:s>Automatically generated for %s %d.%d.%d.</color>\n",
+            VERSION_NAME, VER_MAJOR, VER_MINOR, VER_PATCH);
 
     my_fclose(fp);
     msg_format("Created %s", buf);
@@ -81,7 +81,7 @@ static cptr _skill_desc(int amt, int div)
 
 /* Disarming */
 static cptr _dis_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 40, 8); }
-static cptr _class_dis_skill_desc(class_t *class_ptr) { return _dis_skill_desc(class_ptr->base_skills.dis, class_ptr->extra_skills.dis); }
+static cptr _class_dis_skill_desc(class_t *class_ptr) { return _dis_skill_desc(class_ptr->skills.dis, class_ptr->extra_skills.dis); }
 static cptr _mon_race_dis_skill_desc(race_t *race_ptr) { return _dis_skill_desc(race_ptr->skills.dis, race_ptr->extra_skills.dis); }
 
 static cptr _dis_skill_desc2(int base) { return _skill_desc(base + 5, 2); }
@@ -90,7 +90,7 @@ static cptr _pers_dis_skill_desc(personality_ptr pers_ptr) { return _dis_skill_d
 
 /* Devices */
 static cptr _dev_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 50, 6); }
-static cptr _class_dev_skill_desc(class_t *class_ptr) { return _dev_skill_desc(class_ptr->base_skills.dev, class_ptr->extra_skills.dev); }
+static cptr _class_dev_skill_desc(class_t *class_ptr) { return _dev_skill_desc(class_ptr->skills.dev, class_ptr->extra_skills.dev); }
 static cptr _mon_race_dev_skill_desc(race_t *race_ptr) { return _dev_skill_desc(race_ptr->skills.dev, race_ptr->extra_skills.dev); }
 
 static cptr _dev_skill_desc2(int base) { return _skill_desc(base + 5, 2); }
@@ -99,7 +99,7 @@ static cptr _pers_dev_skill_desc(personality_ptr pers_ptr) { return _dev_skill_d
 
 /* Saving Throws */
 static cptr _sav_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 65, 5); }
-static cptr _class_sav_skill_desc(class_t *class_ptr) { return _sav_skill_desc(class_ptr->base_skills.sav, class_ptr->extra_skills.sav); }
+static cptr _class_sav_skill_desc(class_t *class_ptr) { return _sav_skill_desc(class_ptr->skills.sav, class_ptr->extra_skills.sav); }
 static cptr _mon_race_sav_skill_desc(race_t *race_ptr) { return _sav_skill_desc(race_ptr->skills.sav, race_ptr->extra_skills.sav); }
 
 static cptr _sav_skill_desc2(int base) { return _skill_desc(base + 5, 2); }
@@ -108,7 +108,7 @@ static cptr _pers_sav_skill_desc(personality_ptr pers_ptr) { return _sav_skill_d
 
 /* Melee */
 static cptr _thn_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 70, 12); }
-static cptr _class_thn_skill_desc(class_t *class_ptr) { return _thn_skill_desc(class_ptr->base_skills.thn, class_ptr->extra_skills.thn); }
+static cptr _class_thn_skill_desc(class_t *class_ptr) { return _thn_skill_desc(class_ptr->skills.thn, class_ptr->extra_skills.thn); }
 static cptr _mon_race_thn_skill_desc(race_t *race_ptr) { return _thn_skill_desc(race_ptr->skills.thn, race_ptr->extra_skills.thn); }
 
 static cptr _thn_skill_desc2(int base) { return _skill_desc(base + 5, 2); }
@@ -117,7 +117,7 @@ static cptr _pers_thn_skill_desc(personality_ptr pers_ptr) { return _thn_skill_d
 
 /* Bows */
 static cptr _thb_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 60, 12); }
-static cptr _class_thb_skill_desc(class_t *class_ptr) { return _thb_skill_desc(class_ptr->base_skills.thb, class_ptr->extra_skills.thb); }
+static cptr _class_thb_skill_desc(class_t *class_ptr) { return _thb_skill_desc(class_ptr->skills.thb, class_ptr->extra_skills.thb); }
 static cptr _mon_race_thb_skill_desc(race_t *race_ptr) { return _thb_skill_desc(race_ptr->skills.thb, race_ptr->extra_skills.thb); }
 
 static cptr _thb_skill_desc2(int base) { return _skill_desc(base + 9, 2); }
@@ -126,7 +126,7 @@ static cptr _pers_thb_skill_desc(personality_ptr pers_ptr) { return _thb_skill_d
 
 /* Stealth */
 static cptr _stl_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra + 2, 1); }
-static cptr _class_stl_skill_desc(class_t *class_ptr) { return _stl_skill_desc(class_ptr->base_skills.stl, class_ptr->extra_skills.stl); }
+static cptr _class_stl_skill_desc(class_t *class_ptr) { return _stl_skill_desc(class_ptr->skills.stl, class_ptr->extra_skills.stl); }
 static cptr _mon_race_stl_skill_desc(race_t *race_ptr) { return _stl_skill_desc(race_ptr->skills.stl, race_ptr->extra_skills.stl); }
 static cptr _race_stl_skill_desc(race_t *race_ptr) { return _stl_skill_desc(race_ptr->skills.stl, 0); }
 static cptr _pers_stl_skill_desc(personality_ptr pers_ptr) { return _stl_skill_desc(pers_ptr->skills.stl, 0); }
@@ -146,7 +146,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Humans",
         {RACE_AMBERITE, RACE_BARBARIAN, RACE_DEMIGOD, RACE_DUNADAN, RACE_HUMAN, -1} },
     { "Elves",
-        {RACE_DARK_ELF, RACE_HIGH_ELF, RACE_WOOD_ELF, -1} },
+        {RACE_DARK_ELF, RACE_HIGH_ELF, RACE_WATER_ELF, RACE_WOOD_ELF, -1} },
     { "Hobbits/Dwarves",
         {RACE_DWARF, RACE_GNOME, RACE_HOBBIT, RACE_NIBELUNG, -1} },
     { "Fairies",
@@ -160,7 +160,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
         {RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
     { "Other Races",
         {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT,
-         RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
+         RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_YEEK,-1 } },
 };
 
 static void _race_help_table(FILE *fp, race_t *race_ptr)
@@ -575,8 +575,8 @@ static void _mon_race_help_table(FILE *fp, race_t *race_ptr)
 {
     caster_info *caster_ptr = NULL;
 
-    if (race_ptr->caster_info)
-        caster_ptr = race_ptr->caster_info();
+    if (race_ptr->hooks.caster_info)
+        caster_ptr = race_ptr->hooks.caster_info();
 
     fputs("  <indent><style:table><color:G>Stats                   Skills</color>\n", fp);
     fprintf(fp, "Strength     <color:%c>%+3d</color>        Disarming   %s\n",
@@ -984,8 +984,8 @@ static void _class_help_table(FILE *fp, class_t *class_ptr)
 {
     caster_info *caster_ptr = NULL;
 
-    if (class_ptr->caster_info && !streq(class_ptr->name, "Psion") && !streq(class_ptr->name, "Wild-Talent"))
-        caster_ptr = class_ptr->caster_info();
+    if (class_ptr->hooks.caster_info && !streq(class_ptr->name, "Psion") && !streq(class_ptr->name, "Wild-Talent"))
+        caster_ptr = class_ptr->hooks.caster_info();
 
     fputs("  <indent><style:table><color:G>Stats                   Skills</color>\n", fp);
     fprintf(fp, "Strength     <color:%c>%+3d</color>        Disarming   %s\n",
@@ -1007,11 +1007,11 @@ static void _class_help_table(FILE *fp, class_t *class_ptr)
     fprintf(fp, "Constitution <color:%c>%+3d</color>        Searching   %s\n",
         (caster_ptr && caster_ptr->which_stat == A_CON) ? 'v' : 'w',
         class_ptr->stats[A_CON],
-        _skill_desc(class_ptr->base_skills.srh + 5*class_ptr->extra_skills.srh, 6));
+        _skill_desc(class_ptr->skills.srh + 5*class_ptr->extra_skills.srh, 6));
     fprintf(fp, "Charisma     <color:%c>%+3d</color>        Perception  %s\n",
         (caster_ptr && caster_ptr->which_stat == A_CHR) ? 'v' : 'w',
         class_ptr->stats[A_CHR],
-        _skill_desc(class_ptr->base_skills.fos + 5*class_ptr->extra_skills.fos, 6));
+        _skill_desc(class_ptr->skills.fos + 5*class_ptr->extra_skills.fos, 6));
     fprintf(fp, "Life Rating  %3d%%       Melee       %s\n",
         class_ptr->life,
         _class_thn_skill_desc(class_ptr));
@@ -1056,12 +1056,12 @@ typedef struct _class_group_s {
     int ids[_MAX_CLASSES_PER_GROUP];
 } _class_group_t;
 static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
-    { "Melee", {CLASS_BERSERKER, CLASS_BLOOD_KNIGHT, CLASS_DUELIST, CLASS_MAULER,
+    { "Melee", {CLASS_BLOOD_KNIGHT, CLASS_DUELIST, CLASS_MAULER,
                     CLASS_RUNE_KNIGHT, CLASS_SAMURAI, CLASS_WARRIOR, CLASS_WEAPONMASTER,
                     CLASS_WEAPONSMITH, -1} },
     { "Archery", {CLASS_ARCHER, CLASS_SNIPER, -1} },
     { "Martial Arts", {CLASS_FORCETRAINER, CLASS_MONK, CLASS_MYSTIC, -1} },
-    { "Magic", {CLASS_BLOOD_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
+    { "Magic", {CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
                     CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, -1} },
     { "Devices", {CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
     { "Prayer", {CLASS_PRIEST, -1} },
@@ -1072,7 +1072,7 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
     { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION,
                     CLASS_TIME_LORD, CLASS_WARLOCK, -1} },
     { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_RAGE_MAGE,
-                    CLASS_SKILLMASTER, CLASS_TOURIST, CLASS_WILD_TALENT, -1} },
+                    CLASS_SKILLMASTER, CLASS_WILD_TALENT, -1} },
 };
 
 static void _classes_help(FILE* fp)
@@ -1121,8 +1121,8 @@ static void _classes_help(FILE* fp)
 
             if (class_idx == -1) break;
             class_ptr = get_class_aux(class_idx, 0);
-            if (class_ptr->caster_info)
-                caster_ptr = class_ptr->caster_info();
+            if (class_ptr->hooks.caster_info)
+                caster_ptr = class_ptr->hooks.caster_info();
 
             sprintf(line, "%-13.13s", class_ptr->name);
             for (k = 0; k < 6; k++)
@@ -1173,8 +1173,8 @@ static void _classes_help(FILE* fp)
             if (class_idx == -1) break;
             class_ptr = get_class_aux(class_idx, 0);
             fprintf(fp, "%-13.13s", class_ptr->name);
-            fprintf(fp, " %s", _skill_desc(class_ptr->base_skills.srh + 5*class_ptr->extra_skills.srh, 6));
-            fprintf(fp, " %s", _skill_desc(class_ptr->base_skills.fos + 5*class_ptr->extra_skills.fos, 6));
+            fprintf(fp, " %s", _skill_desc(class_ptr->skills.srh + 5*class_ptr->extra_skills.srh, 6));
+            fprintf(fp, " %s", _skill_desc(class_ptr->skills.fos + 5*class_ptr->extra_skills.fos, 6));
             fprintf(fp, " %s", _class_thn_skill_desc(class_ptr));
             fprintf(fp, " %s", _class_thb_skill_desc(class_ptr));
             fputc('\n', fp);
@@ -1233,8 +1233,8 @@ static void _weaponmasters_help(FILE *fp)
     {
         class_t *class_ptr = get_class_aux(CLASS_WEAPONMASTER, i);
         fprintf(fp, "%-17.17s", class_ptr->subname);
-        fprintf(fp, " %s", _skill_desc(class_ptr->base_skills.srh + 5*class_ptr->extra_skills.srh, 6));
-        fprintf(fp, " %s", _skill_desc(class_ptr->base_skills.fos + 5*class_ptr->extra_skills.fos, 6));
+        fprintf(fp, " %s", _skill_desc(class_ptr->skills.srh + 5*class_ptr->extra_skills.srh, 6));
+        fprintf(fp, " %s", _skill_desc(class_ptr->skills.fos + 5*class_ptr->extra_skills.fos, 6));
         fprintf(fp, " %s", _class_thn_skill_desc(class_ptr));
         fprintf(fp, " %s", _class_thb_skill_desc(class_ptr));
         fputc('\n', fp);
@@ -1292,8 +1292,8 @@ static void _warlocks_help(FILE *fp)
     {
         class_t *class_ptr = get_class_aux(CLASS_WARLOCK, i);
         fprintf(fp, "%-17.17s", class_ptr->subname);
-        fprintf(fp, " %s", _skill_desc(class_ptr->base_skills.srh + 5*class_ptr->extra_skills.srh, 6));
-        fprintf(fp, " %s", _skill_desc(class_ptr->base_skills.fos + 5*class_ptr->extra_skills.fos, 6));
+        fprintf(fp, " %s", _skill_desc(class_ptr->skills.srh + 5*class_ptr->extra_skills.srh, 6));
+        fprintf(fp, " %s", _skill_desc(class_ptr->skills.fos + 5*class_ptr->extra_skills.fos, 6));
         fprintf(fp, " %s", _class_thn_skill_desc(class_ptr));
         fprintf(fp, " %s", _class_thb_skill_desc(class_ptr));
         fputc('\n', fp);
@@ -1475,7 +1475,7 @@ static void _possessor_stats_table(FILE* fp)
 static void _skills_race_table(FILE* fp)
 {
     int i,j;
-    fputs("Race,Dis,Dev,Sav,Stl,Srh,Fos,Thn,Thb,Stats,Exp\n", fp);
+    fputs("Race,Str,Int,Wis,Dex,Con,Chr,Life,Exp,Dis,Dev,Sav,Stl,Srh,Fos,Thn,Thb\n", fp);
     for (i = 0; i < MAX_RACES; i++)
     {
         int max_j = 1;
@@ -1487,18 +1487,19 @@ static void _skills_race_table(FILE* fp)
         for (j = 0; j < max_j; j++)
         {
             race_t *race_ptr = get_race_aux(i, j);
-            int     stats = 0, k;
 
             if (race_ptr->flags & RACE_IS_MONSTER) continue;
-
-            for (k = 0; k < MAX_STATS; k++)
-                stats += race_ptr->stats[k];
 
             if (race_ptr->subname && strlen(race_ptr->subname))
                 fprintf(fp, "\"%s:%s\",", race_ptr->name, race_ptr->subname);
             else
                 fprintf(fp, "\"%s\",", race_ptr->name);
-            fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+            fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+                race_ptr->stats[A_STR], race_ptr->stats[A_INT], 
+                race_ptr->stats[A_WIS], race_ptr->stats[A_DEX], 
+                race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+                race_ptr->life,
+                race_ptr->exp, 
                 race_ptr->skills.dis,
                 race_ptr->skills.dev,
                 race_ptr->skills.sav,
@@ -1506,9 +1507,7 @@ static void _skills_race_table(FILE* fp)
                 race_ptr->skills.srh,
                 race_ptr->skills.fos,
                 race_ptr->skills.thn,
-                race_ptr->skills.thb,
-                stats,
-                race_ptr->exp
+                race_ptr->skills.thb
             );
         }
     }
@@ -1522,9 +1521,7 @@ static void _skills_class_table(FILE* fp)
     {
         int max_j = 1;
 
-        if (i == CLASS_MONSTER || i == CLASS_XXX12 || i == CLASS_XXX21)
-            continue;
-        else if (i == CLASS_WEAPONMASTER)
+        if (i == CLASS_WEAPONMASTER)
             max_j = WEAPONMASTER_MAX;
         else if (i == CLASS_WARLOCK)
             max_j = WARLOCK_MAX;
@@ -1538,19 +1535,19 @@ static void _skills_class_table(FILE* fp)
             else
                 fprintf(fp, "\"%s\",", class_ptr->name);
             fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d+%d,%d+%d,%d+%d,%d+%d,%d+%d,%d,%d,%d,%d\n",
-                class_ptr->base_skills.dis + 5*class_ptr->extra_skills.dis,
-                class_ptr->base_skills.dev + 5*class_ptr->extra_skills.dev,
-                class_ptr->base_skills.sav + 5*class_ptr->extra_skills.sav,
-                class_ptr->base_skills.stl + 5*class_ptr->extra_skills.stl,
-                class_ptr->base_skills.srh,
-                class_ptr->base_skills.fos,
-                class_ptr->base_skills.thn + 5*class_ptr->extra_skills.thn,
-                class_ptr->base_skills.thb + 5*class_ptr->extra_skills.thb,
-                class_ptr->base_skills.dis, class_ptr->extra_skills.dis,
-                class_ptr->base_skills.dev, class_ptr->extra_skills.dev,
-                class_ptr->base_skills.sav, class_ptr->extra_skills.sav,
-                class_ptr->base_skills.thn, class_ptr->extra_skills.thn,
-                class_ptr->base_skills.thb, class_ptr->extra_skills.thb,
+                class_ptr->skills.dis + 5*class_ptr->extra_skills.dis,
+                class_ptr->skills.dev + 5*class_ptr->extra_skills.dev,
+                class_ptr->skills.sav + 5*class_ptr->extra_skills.sav,
+                class_ptr->skills.stl + 5*class_ptr->extra_skills.stl,
+                class_ptr->skills.srh,
+                class_ptr->skills.fos,
+                class_ptr->skills.thn + 5*class_ptr->extra_skills.thn,
+                class_ptr->skills.thb + 5*class_ptr->extra_skills.thb,
+                class_ptr->skills.dis, class_ptr->extra_skills.dis,
+                class_ptr->skills.dev, class_ptr->extra_skills.dev,
+                class_ptr->skills.sav, class_ptr->extra_skills.sav,
+                class_ptr->skills.thn, class_ptr->extra_skills.thn,
+                class_ptr->skills.thb, class_ptr->extra_skills.thb,
                 class_ptr->life, class_ptr->base_hp,
                 s_info[i].s_max[SKILL_RIDING],
                 s_info[i].s_max[SKILL_DUAL_WIELDING]
@@ -1567,7 +1564,6 @@ static void _spells_table(FILE* fp) /*m_info.txt*/
     {
         class_t      *class_ptr;
         player_magic *magic_ptr;
-        if (class_idx == CLASS_XXX12 || class_idx == CLASS_XXX21) continue;
         class_ptr = get_class_aux(class_idx, 0);
         magic_ptr = &m_info[class_idx];
         for (realm_idx = REALM_LIFE; realm_idx <= MAX_MAGIC; realm_idx++)
@@ -1764,6 +1760,7 @@ void generate_spoilers(void)
     _csv_file("Skills-Class.csv", _skills_class_table);
     /*_csv_file("Skills-Monster.csv", _skills_mon_table);*/
     _csv_file("Spells.csv", _spells_table);
+    _csv_file("Exp.csv", export_exp_table);
 
     _generate_html_help();
     _generate_text_help();

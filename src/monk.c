@@ -2,291 +2,20 @@
 
 #include <assert.h>
 
-/* TODO: Move special py_attack code here
-         Move blows calculations here
-         Move posture code here */
-
-static int _max_tries(int lvl, u32b defense)
-{
-    int tries = 0;
-    if (defense & KAMAE_BYAKKO)
-        tries = (lvl < 3 ? 1 : lvl / 3);
-    else if (defense & KAMAE_SUZAKU)
-        tries = 1;
-    else if (defense & KAMAE_GENBU)
-        tries = 1;
-    else if (mystic_get_toggle() == MYSTIC_TOGGLE_OFFENSE)
-        tries = 1 + lvl/4;
-    else if (mystic_get_toggle() == MYSTIC_TOGGLE_DEFENSE)
-        tries = 1 + lvl/15;
-    else
-        tries = (lvl < 7 ? 1 : lvl / 7);
-
-    return tries;
-}
-
-static int _get_attack_idx(int lvl, u32b defense)
-{
-    int tries = _max_tries(lvl, defense);
-    int i;
-    int attack_idx = 0;
-    int best_attack_idx = 0;
-    int min_level;
-
-    assert(lvl > 0);
-    if (p_ptr->confused)
-        tries = 1;
-    if (p_ptr->stun)
-        tries -= tries * MIN(100, p_ptr->stun) / 150;
-
-    for (i = 0; i < tries; i++)
-    {
-        martial_arts *ma_ptr;
-        do
-        {
-            attack_idx = randint0(MAX_MA);
-            ma_ptr = &ma_blows[attack_idx];
-            min_level = ma_ptr->min_level;
-        }
-        while (min_level > lvl || randint1(lvl) < ma_ptr->chance);
-
-        if (ma_ptr->min_level > ma_blows[best_attack_idx].min_level)
-            best_attack_idx = attack_idx;
-    }
-
-    return best_attack_idx;
-}
-
-typedef struct _attack_s {
-    int count;
-    int mul;
-    int to_d;
-} _attack_t;
-
-void _get_attack_counts(int tot, _attack_t *counts, int hand)
+static bool _is_martial_arts(void)
 {
     int i;
-    _attack_t *_attack_ptr;
-    critical_t crit;
-
-    for (i = 0; i < MAX_MA; i++)
-    {
-        _attack_ptr = &counts[i];
-        _attack_ptr->count = 0;
-        _attack_ptr->mul = 0;
-        _attack_ptr->to_d = 0;
-    }
-
-    for (i = 0; i < tot; i++)
-    {
-        int attack_idx = _get_attack_idx(p_ptr->monk_lvl, p_ptr->special_defense);
-        martial_arts *ma_ptr = &ma_blows[attack_idx];
-
-        _attack_ptr = &counts[attack_idx];
-        _attack_ptr->count++;
-
-        /* Crits depend on the attack chosen. The following won't be stable
-           for attacks that occur infrequently, but hopefully things will just
-           average out */
-        crit = monk_get_critical(ma_ptr, hand, display_weapon_mode);
-
-        if (crit.desc)
-        {
-            _attack_ptr->mul += crit.mul;
-            _attack_ptr->to_d += crit.to_d;
-        }
-        else
-            _attack_ptr->mul += 100;
-    }
+    for (i = 0; i < MAX_HANDS; i++)
+        if (p_ptr->attack_info[i].type == PAT_MONK) return TRUE;
+    return FALSE;
 }
-
-static int _get_weight(void)
-{
-    int weight = 8;
-    if (p_ptr->special_defense & KAMAE_SUZAKU) weight = 4;
-    if (mystic_get_toggle() == MYSTIC_TOGGLE_DEFENSE) weight = 6;
-    if (mystic_get_toggle() == MYSTIC_TOGGLE_OFFENSE) weight = 10;
-    if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
-    {
-        weight += (p_ptr->magic_num1[0]/30);
-        if (weight > 20) weight = 20;
-    }
-    return weight * p_ptr->monk_lvl;
-}
-
-critical_t monk_get_critical(martial_arts *ma_ptr, int hand, int mode)
-{
-    int min_level = ma_ptr->min_level;
-    int weight = _get_weight();
-
-    return critical_norm(weight, min_level, p_ptr->weapon_info[hand].to_h, mode, 0);
-}
-
-int monk_get_attack_idx(void)
-{
-    return _get_attack_idx(p_ptr->monk_lvl, p_ptr->special_defense);
-}
-
-static int _calc_damage_per_hit(int dice_dmg, int xtra_dmg, int mult, bool force)
-{
-    if (force)
-        mult = mult * 12 / 10 + 5;
-    return dice_dmg * mult / 10 + xtra_dmg;
-}
-
-void monk_display_attack_info(doc_ptr doc, int hand)
-{
-    _attack_t counts[MAX_MA];
-    int i;
-    const int tot = 5000;
-    int tot_dam = 0;              /* Scaled by 10 */
-    int tot_mul = 0;
-    int tot_to_d = 0;             /* Scaled by 10 */
-    int blows = NUM_BLOWS(hand);  /* Scaled by 100: 100 = 1.00 blows, 275 = 2.75 blows, etc */
-    int to_d = p_ptr->weapon_info[hand].to_d * 10;
-    critical_t crit;
-    doc_ptr cols[2] = {0};
-
-    cols[0] = doc_alloc(45);
-    cols[1] = doc_alloc(35);
-
-    /* First Column */
-    doc_printf(cols[0], "<color:G>%-14.14s %6s %5s %6s</color>\n", "Attack", "Dice", "Pct", "Dam");
-
-    _get_attack_counts(tot, counts, hand);
-    for (i = 0; i < MAX_MA; i++)
-    {
-        martial_arts *ma_ptr = &ma_blows[i];
-        int dd = ma_ptr->dd + p_ptr->weapon_info[hand].to_dd;
-        int ds = ma_ptr->ds + p_ptr->weapon_info[hand].to_ds;
-        char tmp[20];
-        int dam = dd * (ds + 1) * 10 * counts[i].count / (2 * tot);
-
-        if (counts[i].count == 0) continue;
-
-        tot_dam += dam;
-        tot_mul += counts[i].mul;
-        tot_to_d += counts[i].to_d;
-
-        sprintf(tmp, "%dd%d", dd, ds);
-        doc_printf(cols[0], "%-14.14s %6s %3d.%1d%% %3d.%1d\n",
-                                ma_ptr->name, tmp,
-                                counts[i].count*100/tot, (counts[i].count*1000/tot)%10,
-                                dam/10, dam%10);
-    }
-
-    doc_printf(cols[0], "<tab:8>%20s %3d.%1d\n", "Total:", tot_dam/10, tot_dam%10);
-
-    crit.mul = tot_mul/tot;
-    crit.to_d = tot_to_d*10/tot;
-    doc_printf(cols[0], "<tab:8>%20s %3d.%02dx\n", "Criticals:", crit.mul/100, crit.mul%100);
-
-    /* Account for criticals in all that follows ... */
-    tot_dam = tot_dam * crit.mul/100;
-    to_d += crit.to_d;
-    if (p_ptr->stun)
-    {
-        tot_dam -= tot_dam * MIN(100, p_ptr->stun)/150;
-        to_d -= to_d * MIN(100, p_ptr->stun)/150;
-    }
-
-    doc_printf(cols[0], "<tab:8>%20s %3d.%1d +%3d\n", "One Strike:", tot_dam/10, tot_dam%10, to_d/10);
-
-    /* Second Column */
-    if (p_ptr->monk_lvl < p_ptr->lev)
-        doc_printf(cols[1], "<color:y> Your Fists</color> (L%d)\n", p_ptr->monk_lvl);
-    else
-        doc_insert(cols[1], "<color:y>Your Fists</color>\n");
-
-    doc_printf(cols[1], "Number of Blows: %d.%2.2d\n", blows/100, blows%100);
-    doc_printf(cols[1], "To Hit:  0  50 100 150 200 (AC)\n");
-    doc_printf(cols[1], "        %2d  %2d  %2d  %2d  %2d (%%)\n",
-        hit_chance(0, 0, 0),
-        hit_chance(0, 0, 50),
-        hit_chance(0, 0, 100),
-        hit_chance(0, 0, 150),
-        hit_chance(0, 0, 200)
-    );
-
-    doc_newline(cols[1]);
-    doc_insert(cols[1], "<color:y>Average Damage:</color>\n");
-    doc_printf(cols[1], " One Strike: %d.%1d\n", (tot_dam + to_d)/10, (tot_dam + to_d)%10);
-
-    /* Note: blows are scaled by 100. tot_dam and to_d by 10. So we divide by 1000 to recover the integer part ... */
-    doc_printf(cols[1], " One Attack: %d\n", blows*(tot_dam + to_d)/1000);
-
-    if (p_ptr->tim_force)
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d, 10, TRUE);
-        doc_printf(cols[1], " <color:B>     Force</color>: %d\n", blows * hit / 1000);
-    }
-    if (display_weapon_mode == MYSTIC_ACID)
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d + 50, 20, p_ptr->tim_force);
-        doc_printf(cols[1], " <color:r>      Acid</color>: %d\n", blows * hit / 1000);
-    }
-    else if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_ACID))
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d, 17, p_ptr->tim_force);
-        doc_printf(cols[1], " <color:r>      Acid</color>: %d\n", blows * hit / 1000);
-    }
-
-    if (display_weapon_mode == MYSTIC_FIRE)
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d + 30, 17, p_ptr->tim_force);
-        doc_printf(cols[1], " <color:r>      Fire</color>: %d\n", blows * hit / 1000);
-    }
-    else if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_FIRE))
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d, 17, p_ptr->tim_force);
-        doc_printf(cols[1], " <color:r>      Fire</color>: %d\n", blows * hit / 1000);
-    }
-
-    if (display_weapon_mode == MYSTIC_COLD)
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d + 30, 17, p_ptr->tim_force);
-        doc_printf(cols[1], " <color:r>      Cold</color>: %d\n", blows * hit / 1000);
-    }
-    else if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_COLD))
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d, 17, p_ptr->tim_force);
-        doc_printf(cols[1], " <color:r>      Cold</color>: %d\n", blows * hit / 1000);
-    }
-
-    if (display_weapon_mode == MYSTIC_ELEC)
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d + 70, 25, p_ptr->tim_force);
-        doc_printf(cols[1], " <color:r>      Elec</color>: %d\n", blows * hit / 1000);
-    }
-    else if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_ELEC))
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d, 17, p_ptr->tim_force);
-        doc_printf(cols[1], " <color:r>      Elec</color>: %d\n", blows * hit / 1000);
-    }
-
-    if (display_weapon_mode == MYSTIC_POIS)
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d + 30, 17, p_ptr->tim_force);
-        doc_printf(cols[1], " <color:r>      Pois</color>: %d\n", blows * hit / 1000);
-    }
-    else if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_POIS))
-    {
-        int hit = _calc_damage_per_hit(tot_dam, to_d, 17, p_ptr->tim_force);
-        doc_printf(cols[1], " <color:r>      Pois</color>: %d\n", blows * hit / 1000);
-    }
-
-    doc_insert_cols(doc, cols, 2, 0);
-    doc_free(cols[0]);
-    doc_free(cols[1]);
-}
-
 static bool _monk_check_spell(void)
 {
     if (p_ptr->pclass == CLASS_WILD_TALENT || mut_present(MUT_DRACONIAN_METAMORPHOSIS))
         return TRUE;
     if ((p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC) && !p_ptr->weapon_ct)
         return TRUE;
-    if (!p_ptr->weapon_info[0].bare_hands && !p_ptr->weapon_info[1].bare_hands)
+    if (!_is_martial_arts())
     {
         msg_print("You need to fight bare handed.");
         return FALSE;
@@ -310,7 +39,7 @@ static bool choose_kamae(void)
     if (display.cx > 40)
         display.cx = 40;
 
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused.");
         return FALSE;
@@ -389,7 +118,25 @@ static bool choose_kamae(void)
     return TRUE;
 }
 
-void monk_double_attack_spell(int cmd, variant *res)
+static bool _double_attack_begin(plr_attack_ptr context)
+{
+    if (context->info.type != PAT_MONK) return TRUE;
+    context->info.base_blow *= 2;
+    context->info.xtra_blow *= 2;
+    if (!(context->flags & PAC_DISPLAY))
+    {
+        if (one_in_(2)) msg_print("Ahhhtatatatatatatatatatatatatatataatatatatattaaaaa!!!!");
+        else msg_print("Oraoraoraoraoraoraoraoraoraoraoraoraoraoraoraoraora!!!!");
+    }
+    return TRUE;
+}
+static void _double_attack_end(plr_attack_ptr context)
+{
+    if (context->info.type != PAT_MONK) return;
+    context->info.base_blow /= 2;
+    context->info.xtra_blow /= 2;
+}
+void monk_double_attack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -397,38 +144,25 @@ void monk_double_attack_spell(int cmd, variant *res)
         var_set_string(res, "Double Attack");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Attack twice at an adjacent enemy. This action consumes double the normal energy.");
+        var_set_string(res, "Attack an adjacent enemy with twice the normal number of attacks. This action consumes double the normal energy.");
         break;
     case SPELL_CAST:
+    case SPELL_ON_BROWSE: {
+        plr_attack_t context = {0};
+        context.hooks.begin_weapon_f = _double_attack_begin;
+        context.hooks.end_weapon_f = _double_attack_end;
         var_set_bool(res, FALSE);
-        if (_monk_check_spell())
+        if (cmd == SPELL_CAST)
         {
-            int x, y, dir = 0;
-
-            if (!get_rep_dir(&dir, FALSE)) return;
-
-            y = py + ddy[dir];
-            x = px + ddx[dir];
-            if (cave[y][x].m_idx)
-            {
-                if (one_in_(2)) msg_print("Ahhhtatatatatatatatatatatatatatataatatatatattaaaaa!!!!");
-                else msg_print("Oraoraoraoraoraoraoraoraoraoraoraoraoraoraoraoraora!!!!");
-
-                py_attack(y, x, 0);
-                if (cave[y][x].m_idx)
-                {
-                    handle_stuff();
-                    py_attack(y, x, 0);
-                }
-            }
-            else
-            {
-                msg_print("You don't see any monster in this direction");
-                msg_print(NULL);
-            }
+            if (_monk_check_spell())
+                var_set_bool(res, plr_attack_special_aux(&context, 1));
+        }
+        else
+        {
+            plr_attack_display_aux(&context);
             var_set_bool(res, TRUE);
         }
-        break;
+        break; }
     case SPELL_ENERGY:
         var_set_int(res, 100 + ENERGY_NEED());
         break;
@@ -438,7 +172,7 @@ void monk_double_attack_spell(int cmd, variant *res)
     }
 }
 
-void monk_posture_spell(int cmd, variant *res)
+static void _posture_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -471,7 +205,7 @@ static int _get_powers(spell_info* spells, int max)
     spell->level = 25;
     spell->cost = 0;
     spell->fail = 0;
-    spell->fn = monk_posture_spell;
+    spell->fn = _posture_spell;
 
     spell = &spells[ct++];
     spell->level = 30;
@@ -534,18 +268,12 @@ void monk_ac_bonus(void)
 void monk_posture_calc_bonuses(void)
 {
     int i;
-    if (!heavy_armor() || p_ptr->pclass == CLASS_WILD_TALENT)
+    if (!heavy_armor())
     {
         if (p_ptr->special_defense & KAMAE_BYAKKO)
         {
             p_ptr->to_a -= 40;
             p_ptr->dis_to_a -= 40;
-            if (p_ptr->pclass == CLASS_WILD_TALENT)
-            {
-                /* Hack: This should "strengthen your attacks" */
-                for (i = 0; i < MAX_HANDS; i++)
-                    p_ptr->weapon_info[i].xtra_blow += 100;
-            }
 
             /* Didn't this used to give vulnerabilites?? */
             res_add_vuln(RES_ACID);
@@ -575,9 +303,9 @@ void monk_posture_calc_bonuses(void)
             p_ptr->reflect = TRUE;
             for (i = 0; i < MAX_HANDS; i++)
             {
-                p_ptr->weapon_info[i].xtra_blow -= 200;
+                p_ptr->attack_info[i].xtra_blow -= 200;
                 if (p_ptr->lev > 42)
-                    p_ptr->weapon_info[i].xtra_blow -= 100;
+                    p_ptr->attack_info[i].xtra_blow -= 100;
             }
         }
         else if (p_ptr->special_defense & KAMAE_SUZAKU)
@@ -585,12 +313,12 @@ void monk_posture_calc_bonuses(void)
             p_ptr->pspeed += 10;
             for (i = 0; i < MAX_HANDS; i++)
             {
-                p_ptr->weapon_info[i].to_h -= (p_ptr->lev / 3);
-                p_ptr->weapon_info[i].to_d -= (p_ptr->lev / 6);
+                p_ptr->attack_info[i].to_h -= (p_ptr->lev / 3);
+                p_ptr->attack_info[i].to_d -= (p_ptr->lev / 6);
 
-                p_ptr->weapon_info[i].dis_to_h -= (p_ptr->lev / 3);
-                p_ptr->weapon_info[i].dis_to_d -= (p_ptr->lev / 6);
-                p_ptr->weapon_info[i].base_blow /= 2;
+                p_ptr->attack_info[i].dis_to_h -= (p_ptr->lev / 3);
+                p_ptr->attack_info[i].dis_to_d -= (p_ptr->lev / 6);
+                p_ptr->attack_info[i].base_blow /= 2;
             }
             p_ptr->levitation = TRUE;
         }
@@ -599,7 +327,7 @@ void monk_posture_calc_bonuses(void)
 
 void monk_posture_calc_stats(s16b stats[MAX_STATS])
 {
-    if (!heavy_armor() || p_ptr->pclass == CLASS_WILD_TALENT)
+    if (!heavy_armor())
     {
         if (p_ptr->special_defense & KAMAE_BYAKKO)
         {
@@ -671,6 +399,20 @@ static void _calc_bonuses(void)
             p_ptr->free_act++;
     }
     monk_ac_bonus();
+    switch (p_ptr->realm1)
+    {
+    case REALM_DAEMON:
+        p_ptr->monk_tbl = "Monk.Demon";
+        break;
+    case REALM_CHAOS:
+        p_ptr->monk_tbl = "Monk.Chaos";
+        break;
+    case REALM_DEATH:
+        p_ptr->monk_tbl = "Monk.Death";
+        break;
+    default:
+        p_ptr->monk_tbl = "Monk";
+    }
 }
 
 static void _calc_stats(s16b stats[MAX_STATS])
@@ -703,6 +445,7 @@ static caster_info *_caster_info(void)
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 1000;
         me.min_fail = 5;
+        me.realm1_choices = CH_LIFE | CH_NATURE | CH_DEATH | CH_ENCHANT | CH_DAEMON | CH_CHAOS;
         init = TRUE;
     }
     return &me;
@@ -710,23 +453,35 @@ static caster_info *_caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_POTION, SV_POTION_HEROISM, randint1(5));
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_spellbooks();
+    plr_birth_obj_aux(TV_POTION, SV_POTION_HEROISM, randint1(5));
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_spellbooks();
 }
 
-class_t *monk_get_class(void)
+static void _timer_on(plr_tim_ptr timer)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    if (timer->id == T_CONFUSED && p_ptr->action == ACTION_KAMAE)
+    {
+        msg_print("Your posture gets loose.");
+        p_ptr->special_defense &= ~(KAMAE_MASK);
+        p_ptr->update |= PU_BONUS;
+        p_ptr->redraw |= PR_STATE;
+        p_ptr->action = ACTION_NONE;
+    }
+}
 
-    if (!init)
+plr_class_ptr monk_get_class(void)
+{
+    static plr_class_ptr me = NULL;
+
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 45,  34,  36,   5,  32,  24,  64,  60};
     skills_t xs = { 15,  11,  10,   0,   0,   0,  18,  18};
 
-        me.name = "Monk";
-        me.desc = "The Monk character class is very different from all other classes. "
+        me = plr_class_alloc(CLASS_MONK);
+        me->name = "Monk";
+        me->desc = "The Monk character class is very different from all other classes. "
                     "Their training in martial arts makes them much more powerful with "
                     "no armor or weapons. To gain the resistances necessary for "
                     "survival a monk may need to wear some kind of armor, but if the "
@@ -736,39 +491,38 @@ class_t *monk_get_class(void)
                     "likewise, but if armour is being worn, this effect decreases. "
                     "Wisdom determines a Monk's spell casting ability.\n \n"
                     "The different sects of monks are devoted to different areas of "
-                    "magic. They select a realm from Life, Nature, Craft, Trump and Death. "
+                    "magic. They select a realm from Life, Nature, Craft, Daemon and Death; "
+                    "their choice may even influence their martial arts attacks! "
                     "They will eventually learn all prayers in the discipline of their "
                     "choice. They have two class powers - 'Assume a Posture' and "
                     "'Double Attack'. They can choose different forms of postures in "
                     "different situations, and use powerful combinations of attacks for "
                     "the finishing blow.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] =  1;
-        me.stats[A_DEX] =  3;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  1;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 110;
-        me.base_hp = 12;
-        me.exp = 130;
-        me.pets = 35;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] =  1;
+        me->stats[A_DEX] =  3;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  1;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 110;
+        me->base_hp = 12;
+        me->exp = 130;
+        me->pets = 35;
+        me->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG | CLASS_MARTIAL_ARTS;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_stats = _calc_stats;
-        me.get_flags = _get_flags;
-        me.caster_info = _caster_info;
-        /* TODO: This class uses spell books, so we are SOL
-        me.get_spells = _get_spells;*/
-        me.get_powers = _get_powers;
-        me.character_dump = spellbook_character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_stats = _calc_stats;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = spellbook_character_dump;
+        me->hooks.timer_on = _timer_on;
     }
 
-    return &me;
+    return me;
 }

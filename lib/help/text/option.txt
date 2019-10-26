@@ -23,36 +23,6 @@ The birth options can only be accessed while creating a new character
 (press = while creating the character). There is no way to turn them 
 off after the creation is finished!
   
-  Easy Identify (easy_id)
-  This option simplifies the identification of objects, making Identify 
-  work just like *Identify*. However, this renders many spells (such as 
-  Stone Tell in Nature and Identify True in Sorcery) and objects (such 
-  as Staves of *Identify*) redundant or pointless. Also, some classes 
-  (such as the Archaeologist) are designed with early access to 
-  *Identify* as a principle bonus. Enabling this option removes the 
-  advantages of these classes, making them less worthy of playing.
-  
-  In addition, this birth option will also affect the early game 
-  pseudo-identification of objects. Normally, objects must be carried 
-  in your pack for some time before you become aware of their quality. 
-  The length of time is class dependent, as is the amount of 
-  information revealed through pseudo-identification (see [b]). With 
-  Easy Identify enabled, all players will get instantaneous and full 
-  pseudo-identification of objects, making this aspect of gameplay much 
-  easier as well.
-  
-  Easy Lore (easy_lore)
-  With this option enabled, the player will be born with complete 
-  knowledge of monster lore, including the various attacks and nasty 
-  surprises that many monsters usually offer to the uninitiated. This 
-  is a bit of a spoiler option, but is available for those who don't 
-  enjoy learning each of the many monsters present in the game. Like 
-  the Easy Identify option, Easy Lore also renders a few aspects of the 
-  game non-functional or pointless, including the ability to Probe 
-  monsters to learn about them as you encounter them, and the town 
-  Beastmaster Lore service to learn about monsters before you see them 
-  (for a price, of course).
-  
   Monsters learn from their mistakes (smart_learn)
   Allow monsters to learn what spell attacks you are resistant to, and 
   to use this information to choose the best attacks.
@@ -66,16 +36,12 @@ off after the creation is finished!
   single special town level. As a result, the only dungeon that will be 
   available is the Pits of Angband. However, the town is relatively 
   well serviced and many, if not most, of the various fixed quests will 
-  be available for your pleasure (see [c]).
+  be available for your pleasure (see [b]).
   
   Stores are permanently closed (ironman_shops)
   This option closes all shops. Try to survive in the deeps of the 
   dungeon without supplies from town. Your Home still functions 
   normally, and various town services are still available.
-  
-  Always create unusually small dungeon levels (ironman_small_levels)
-  If this option is enabled, then every level will be smaller than 
-  usual. See the 'Allow unusually small dungeon levels' option below.
   
   Disable recall and use of up stairs (ironman_downward)
   You are not allowed to climb upwards, or recall to town. All stairs 
@@ -85,10 +51,6 @@ off after the creation is finished!
   Always create empty 'arena' levels (ironman_empty_levels)
   If this option is enabled, then every level will be empty 'arena' 
   level. See the "Allow empty 'arena' levels" option below.
-  
-  Always generate very unusual rooms (ironman_rooms)
-  If this option is enabled, every room becomes a vault. It is unclear 
-  whether this makes the game harder or easier.
   
   Nightmare mode(it isn't even remotely fair!) (ironman_nightmare)
   If this option is enabled, all monsters become unusually powerful, 
@@ -111,7 +73,7 @@ Input Options
   
   Rogue-like commands (rogue_like_commands)
   Selects the roguelike command set which is an alternative way of 
-  mapping keystrokes to underlying game commands. (see [d] for info).
+  mapping keystrokes to underlying game commands. (see [c] for info).
   
   Pick things up by default (always_pickup)
   Tells the game that walking onto an item should attempt to pick it 
@@ -163,7 +125,7 @@ Input Options
   Repeat obvious commands (always_repeat)
   Tells the game that when you attempt to open a door or chest, bash a 
   door, tunnel through walls, or disarm traps or chests, that you wish 
-  to repeat the command 99 times (see [e]).
+  to repeat the command 99 times (see [d]).
   
   Prompt for destruction of known worthless items (confirm_destroy)
   Normally, no confirmation will be asked if you attempt to destroy an 
@@ -176,13 +138,6 @@ Input Options
   is set, you should be safe from such typing mistakes: you will be 
   prompted if you attempt to wear or wield an item if your character 
   knows it is cursed.
-  
-  Prompt before exiting a quest level (confirm_quest)
-  In the dungeon, you can freely climb up/down stairs and can return to 
-  former floors normally. But in some quest level, including the random 
-  quest, you can not return once you escaped from the level. If this 
-  option is set, the program asks for confirmation before you go up the 
-  stairs from such quest levels.
   
   Allow targetting pets (target_pet)
   Normally, the program doesn't automatically choose pets as target in 
@@ -448,7 +403,7 @@ Text Display Options
   Fire is not an EXTRA resistance.
   
   The list of abbreviations for each resistances and abilities are 
-  described in [f].
+  described in [e].
   
   Describe obj's all resistances by abbreviation (abbrev_all)
   When an *identified* equipment is displayed, an abbreviation string 
@@ -456,7 +411,7 @@ Text Display Options
   inscriptions of the object.
   
   The list of abbreviations for each resistances and abilities are 
-  described in [g].
+  described in [f].
   
   Show the experience needed for the next level (exp_need)
   Setting this option to yes alters the display of experience on the 
@@ -492,17 +447,6 @@ Game Play Options
   the appropriate list. This allows the "look" and "target" commands to 
   "cycle" through all appropriate grids forever, and the "identify 
   symbol" to browse through all of the monsters of a given type.
-  
-  Allow unusually small dungeon levels (small_levels)
-  This option enables the creation of levels of varying sizes. Levels 
-  that are as small as the town level (i.e. 1 'screen') are possible, 
-  yet they can be dangerous, especially for a low level character. Note 
-  that this option has the side effect of enabling / disabling 
-  'destroyed' levels (they are enabled if small levels are).
-  
-  Always create unusually small dungeon levels (always_small_levels)
-  If this option is enabled, then every level will be smaller than 
-  usual. See the 'Allow unusually small dungeon levels' option above.
   
   Allow empty 'arena' levels (empty_levels)
   Normal dungeon levels consist mostly of rock. If this option is in 
@@ -625,7 +569,7 @@ Easy Auto-Destroyer Options
   
     Note: The Easy Auto-Destroyer is a simpler to use 
     version of the full featured Mogaminator discussed in 
-    [h]. It is designed for those who feel the full version 
+    [g]. It is designed for those who feel the full version 
     is too complicated to use. However, you really should 
     only use one or the other. So if you are using the full 
     version, then you should not also enable the easy 
@@ -661,25 +605,25 @@ Easy Auto-Destroyer Options
       Autopick: ~*identified* amulets more value than 10000
     
   Auto-destroyer leaves known worthy items (leave_worth)
-  This option protects known objects that can be sold in stores from auto-destr 
+  This option protects known objects that can be sold in stores from auto-destru
   
   Auto-destroyer leaves weapons and armour (leave_equip)
-  This option protects all weapons and armour from auto-destruction by The EasyD
+  This option protects all weapons and armour from auto-destruction by The Easy
   
   Auto-destroyer leaves closed chests (leave_chest)
-  This option protects all chests which are not yet opened from auto-destructio 
+  This option protects all chests which are not yet opened from auto-destruction
   
   Auto-destroyer leaves wanted corpses (leave_wanted)
-  This option protects corpses of monsters wanted at the Hunter's office from a 
+  This option protects corpses of monsters wanted at the Hunter's office from au
   
   Auto-destroyer leaves corpses and skeletons (leave_corpse)
-  This option protects all corpses and skeletons from auto-destruction by The E 
+  This option protects all corpses and skeletons from auto-destruction by The Ea
   
   Auto-destroyer leaves junk (leave_junk)
-  This option protects all 'junk', such as Shards of Pottery or Broken Stick, f 
+  This option protects all 'junk', such as Shards of Pottery or Broken Stick, fr
   
   Auto-destroyer leaves items your race/class needs (leave_special)
-  This option protects specific items which are normally worthless, but very im 
+  This option protects specific items which are normally worthless, but very imp
   
   Base Delay Factor
   

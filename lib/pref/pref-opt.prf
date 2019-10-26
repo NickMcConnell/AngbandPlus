@@ -69,7 +69,6 @@ X:display_distance
 Y:stack_force_notes
 Y:stack_force_costs
 Y:expand_list
-Y:empty_levels
 Y:bound_walls_perm
 Y:last_words
 
@@ -85,7 +84,7 @@ X:disturb_move
 X:disturb_high
 Y:disturb_near
 X:disturb_pets
-Y:disturb_panel
+X:disturb_panel
 Y:disturb_state
 Y:disturb_minor
 X:town_no_disturb
@@ -97,12 +96,6 @@ Y:alert_trap_detect
 
 Y:smart_learn
 X:smart_cheat
-X:no_wilderness
-X:ironman_shops
-X:ironman_downward
-X:ironman_empty_levels
-X:ironman_nightmare
-Y:preserve_mode
 
 ##### Easy Object Auto-Destroyer #####
 

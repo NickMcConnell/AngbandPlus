@@ -1,6 +1,6 @@
 #include "angband.h"
 
-void acid_ball_spell(int cmd, variant *res)
+void acid_ball_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -28,7 +28,7 @@ void acid_ball_spell(int cmd, variant *res)
     }
 }
 
-void acid_bolt_spell(int cmd, variant *res)
+void acid_bolt_spell(int cmd, var_ptr res)
 {
     int dd = 5 + p_ptr->lev / 4;
     int ds = 8;
@@ -64,7 +64,7 @@ void acid_bolt_spell(int cmd, variant *res)
     }
 }
 
-void alchemy_spell(int cmd, variant *res)
+void alchemy_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -95,7 +95,7 @@ void alchemy_spell(int cmd, variant *res)
 }
 bool cast_alchemy(void) { return cast_spell(alchemy_spell); }
 
-void alter_reality_spell(int cmd, variant *res)
+void alter_reality_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -104,9 +104,6 @@ void alter_reality_spell(int cmd, variant *res)
         break;
     case SPELL_DESC:
         var_set_string(res, "Recreates current dungeon level.");
-        break;
-    case SPELL_INFO:
-        var_set_string(res, info_delay(15, 20));
         break;
     case SPELL_CAST:
         alter_reality();
@@ -118,7 +115,7 @@ void alter_reality_spell(int cmd, variant *res)
     }
 }
 
-void amnesia_spell(int cmd, variant *res)
+void amnesia_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -147,7 +144,7 @@ void amnesia_spell(int cmd, variant *res)
     }
 }
 
-void android_ray_gun_spell(int cmd, variant *res)
+void android_ray_gun_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -178,7 +175,7 @@ void android_ray_gun_spell(int cmd, variant *res)
     }
 }
 
-void android_blaster_spell(int cmd, variant *res)
+void android_blaster_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -209,7 +206,7 @@ void android_blaster_spell(int cmd, variant *res)
     }
 }
 
-void android_bazooka_spell(int cmd, variant *res)
+void android_bazooka_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -240,7 +237,7 @@ void android_bazooka_spell(int cmd, variant *res)
     }
 }
 
-void android_beam_cannon_spell(int cmd, variant *res)
+void android_beam_cannon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -271,7 +268,7 @@ void android_beam_cannon_spell(int cmd, variant *res)
     }
 }
 
-void android_rocket_spell(int cmd, variant *res)
+void android_rocket_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -302,7 +299,7 @@ void android_rocket_spell(int cmd, variant *res)
     }
 }
 
-void animate_dead_spell(int cmd, variant *res)
+void animate_dead_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -313,7 +310,7 @@ void animate_dead_spell(int cmd, variant *res)
         var_set_string(res, "Resurrects nearby corpse and skeletons. And makes these your pets.");
         break;
     case SPELL_CAST:
-        animate_dead(0, py, px);
+        animate_dead(0, p_ptr->pos.y, p_ptr->pos.x);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -322,7 +319,63 @@ void animate_dead_spell(int cmd, variant *res)
     }
 }
 
-void awesome_blow_spell(int cmd, variant *res)
+static void _awesome_blow(plr_attack_ptr ctx)
+{
+    int dir = point_step_dir(p_ptr->pos, ctx->mon_pos);
+    if (dir != 5)
+    {
+        int ct = 0;
+        int max = 3;
+        point_t last = ctx->mon_pos;
+
+        if (p_ptr->pclass == CLASS_RAGE_MAGE)
+        {
+            if (plr_tim_find(T_BERSERK)) max = 6;
+        }
+        else if (p_ptr->pclass == CLASS_MAULER && ctx->obj)
+        {
+            int w = ctx->obj->weight;
+            max = MIN(p_ptr->lev/5, w/40);
+        }
+
+        for (ct = 0; ct < max; ct++)
+        {
+            point_t pos = point_step(last, dir);
+            
+            if (!cave_empty_at(pos))
+            {
+                int dam = 50;
+
+                if ( mon_at(pos)
+                  || cave_have_flag_at(pos, FF_TREE)
+                  || cave_at(pos)->feat == feat_rubble
+                  || cave_at(pos)->feat == feat_dark_pit )
+                {
+                    dam = 25;
+                }
+                msg_format("%^s is wounded.", ctx->mon_name);
+                dam = dam * (max - ct);
+                ctx->dam_total += dam;
+                if (mon_take_hit(ctx->mon->id, dam, &ctx->fear, NULL))
+                    ctx->stop = STOP_MON_DEAD;
+                break;
+            }
+            else
+            {
+                dun_move_mon(cave, ctx->mon, pos);
+                last = pos;
+
+                if (ctx->race->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+                    p_ptr->update |= PU_MON_LITE;
+
+                Term_fresh();
+                Term_xtra(TERM_XTRA_DELAY, delay_animation);
+                ctx->stop = STOP_MON_MOVED;
+            }
+        }
+    }
+}
+void awesome_blow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -332,37 +385,19 @@ void awesome_blow_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attack a monster with a single melee blow. If blow hits, does normal melee damage and propels the monster backwards.");
         break;
-    case SPELL_CAST:
-    {
-        int y, x, dir;
-        var_set_bool(res, FALSE);
-
-        if (!get_rep_dir2(&dir)) return;
-        if (dir == 5) return;
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-
-        if (cave[y][x].m_idx)
-        {
-            py_attack(y, x, MELEE_AWESOME_BLOW);
-        }
-        else
-        {
-            msg_print("There is no monster.");
-            return;
-        }
-
-        var_set_bool(res, TRUE);
-        break;
-    }
+    case SPELL_CAST: {
+        plr_attack_t ctx = {0};
+        ctx.flags = PAC_NO_INNATE | PAC_ONE_BLOW;
+        ctx.hooks.after_hit_f = _awesome_blow;
+        var_set_bool(res, plr_attack_special_aux(&ctx, 1));
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-void banish_evil_spell(int cmd, variant *res)
+void banish_evil_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -383,48 +418,33 @@ void banish_evil_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int dir = 0;
-        int x, y;
-        cave_type *c_ptr;
-        monster_type *m_ptr;
-        monster_race *r_ptr;
+        mon_ptr mon = plr_target_mon();
+        mon_race_ptr race;
 
-        if (!get_rep_dir2(&dir)) 
-        {
-            var_set_bool(res, FALSE);
-            break;
-        }
-
-        var_set_bool(res, TRUE);
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-        c_ptr = &cave[y][x];
-
-        if (!c_ptr->m_idx)
+        var_set_bool(res, FALSE);
+        if (!mon)
         {
             msg_print("You sense no evil there!");
             break;
         }
+        var_set_bool(res, TRUE);
 
-        m_ptr = &m_list[c_ptr->m_idx];
-        r_ptr = &r_info[m_ptr->r_idx];
-
-        if ((r_ptr->flags3 & RF3_EVIL) &&
-            !(m_ptr->mflag2 & MFLAG2_QUESTOR) &&
-            !(r_ptr->flags1 & RF1_UNIQUE) &&
-            !p_ptr->inside_arena && !quests_get_current() &&
-            (r_ptr->level < randint1(p_ptr->lev+50)) &&
-            !(m_ptr->mflag2 & MFLAG2_NOGENO))
+        race = mon_race(mon);
+        if ((race->flags3 & RF3_EVIL) &&
+            !(mon->mflag2 & MFLAG2_QUESTOR) &&
+            !(race->flags1 & RF1_UNIQUE) &&
+            !quests_get_current() &&
+            (race->level < randint1(p_ptr->lev+50)) &&
+            !(mon->mflag2 & MFLAG2_NOGENO))
         {
             /* Delete the monster, rather than killing it. */
-            delete_monster_idx(c_ptr->m_idx);
+            delete_monster(mon);
             msg_print("The evil creature vanishes in a puff of sulfurous smoke!");
         }
         else
         {
             msg_print("Your invocation is ineffectual!");
-            if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
+            if (one_in_(13)) mon->mflag2 |= MFLAG2_NOGENO;
         }
         break;
     }
@@ -435,7 +455,7 @@ void banish_evil_spell(int cmd, variant *res)
 }
 bool cast_banish_evil(void) { return cast_spell(banish_evil_spell); }
 
-void battle_frenzy_spell(int cmd, variant *res)
+void battle_frenzy_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -451,8 +471,8 @@ void battle_frenzy_spell(int cmd, variant *res)
         int sp_base = spell_power(p_ptr->lev / 2);
         int sp_sides = 20 + p_ptr->lev / 2;
 
-        set_shero(randint1(b_base) + b_base, FALSE);
-        set_fast(randint1(sp_sides) + sp_base, FALSE);
+        plr_tim_add(T_BERSERK, randint1(b_base) + b_base);
+        plr_tim_add(T_FAST, randint1(sp_sides) + sp_base);
 
         var_set_bool(res, TRUE);
         break;
@@ -463,7 +483,7 @@ void battle_frenzy_spell(int cmd, variant *res)
     }
 }
 
-void berserk_spell(int cmd, variant *res)
+void berserk_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -485,7 +505,7 @@ void berserk_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         msg_print("Raaagh! You feel like hitting something.");
-        set_shero(10 + randint1(p_ptr->lev), FALSE);
+        plr_tim_add(T_BERSERK, 10 + randint1(p_ptr->lev));
         var_set_bool(res, TRUE);
         break;
     }
@@ -496,7 +516,7 @@ void berserk_spell(int cmd, variant *res)
 }
 bool cast_berserk(void) { return cast_spell(berserk_spell); }
 
-void bless_spell(int cmd, variant *res)
+void bless_spell(int cmd, var_ptr res)
 {
     int base = spell_power(12);
     switch (cmd)
@@ -511,7 +531,7 @@ void bless_spell(int cmd, variant *res)
         var_set_string(res, info_duration(base, base));
         break;
     case SPELL_CAST:
-        set_blessed(randint1(base) + base, FALSE);
+        plr_tim_add(T_BLESSED, randint1(base) + base);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -520,7 +540,7 @@ void bless_spell(int cmd, variant *res)
     }
 }
 
-void bless_weapon_spell(int cmd, variant *res)
+void bless_weapon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -539,7 +559,15 @@ void bless_weapon_spell(int cmd, variant *res)
     }
 }
 
-void brain_smash_spell(int cmd, variant *res)
+static dice_t _brain_smash_dice(void)
+{
+    dice_t dice = {0};
+    dice.dd = 2 + p_ptr->lev/5;
+    dice.ds = dice.dd;
+    dice.base = MAX(p_ptr->lev - 20, 0) + p_ptr->to_d_spell;
+    return dice;
+}
+void brain_smash_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -549,9 +577,10 @@ void brain_smash_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Gaze intently at a single foe, causing damage, confusion and stunning");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(12, spell_power(12), spell_power(p_ptr->to_d_spell)));
-        break;
+    case SPELL_INFO: {
+        dice_t d = _brain_smash_dice();
+        var_set_string(res, info_damage(d.dd, spell_power(d.ds), spell_power(d.base)));
+        break; }
     case SPELL_CAST:
     {
         int dir = 0;
@@ -560,7 +589,7 @@ void brain_smash_spell(int cmd, variant *res)
         fire_ball_hide(
             GF_BRAIN_SMASH,
             dir,
-            spell_power(damroll(12, 12) + p_ptr->to_d_spell),
+            spell_power(dice_roll(_brain_smash_dice())),
             0
         );
         var_set_bool(res, TRUE);
@@ -572,7 +601,7 @@ void brain_smash_spell(int cmd, variant *res)
     }
 }
 
-void breathe_disintegration_spell(int cmd, variant *res)
+void breathe_disintegration_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -606,7 +635,7 @@ void breathe_disintegration_spell(int cmd, variant *res)
     }
 }
 
-void breathe_fire_I_spell(int cmd, variant *res)
+void breathe_fire_I_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -651,7 +680,7 @@ void breathe_fire_I_spell(int cmd, variant *res)
 }
 bool cast_breathe_fire_I(void) { return cast_spell(breathe_fire_I_spell); }
 
-void breathe_fire_II_spell(int cmd, variant *res)
+void breathe_fire_II_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -686,7 +715,7 @@ void breathe_fire_II_spell(int cmd, variant *res)
     }
 }
 
-void building_up_spell(int cmd, variant *res)
+void building_up_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -697,7 +726,7 @@ void building_up_spell(int cmd, variant *res)
         var_set_string(res, "Increases your physical prowess");
         break;
     case SPELL_CAST:
-        set_tim_building_up(20 + randint1(20), FALSE);
+        plr_tim_add(T_GIANT_STRENGTH, 20 + randint1(20));
         var_set_bool(res, TRUE);
         break;
     default:

@@ -6,13 +6,19 @@ elif [ "$1" == "gcc" ]; then
     #./configure --enable-sdl --with-no-install
     #./configure SANITIZE_FLAGS="-fsanitize=undefined -fsanitize=address" \
     #    CC=gcc-6 --with-no-install
-    ./configure CC=gcc-6 --enable-sdl --with-no-install
+    ./configure CC=gcc-6 CFLAGS="-g -O0" --with-no-install
+elif [ "$1" == "install" ]; then
+    ./configure CC=gcc-6 CFLAGS="-g -O0"
+elif [ "$1" == "profile" ]; then
+    ./configure CC=gcc-6 CFLAGS="-g -pg -O0 -DNDEBUG" LDFLAGS="-pg" --with-no-install
+elif [ "$1" == "release" ]; then
+    ./configure CC=gcc-6 CFLAGS="-g -DNDEBUG -O2" --with-no-install
 elif [ "$1" == "clang" ]; then
     # Note: Never pass sanitizer flags to CFLAGS as sanitizing configure causes it to fail.
     # Instead, configure will append SANITIZE_FLAGS to CFLAGS and LDFLAGS once it has finished
     # generating test programs. (see configure.ac)
     ./configure SANITIZE_FLAGS="-fsanitize=undefined -fsanitize=address" \
-        CC=clang-3.8 --enable-sdl --with-no-install
+        CC=clang-3.8 CFLAGS="-g -O0" --with-no-install
 else
     echo "Specify target: mingw, gcc or clang"
 fi

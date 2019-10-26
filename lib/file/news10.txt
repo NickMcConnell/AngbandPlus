@@ -1,30 +1,37 @@
-<color:y>PosChengband <$:version></color>
-<style:screenshot>
-The Bolt of Wilhelm Tell (6d5) (+20,+16) hits Eric the Usurper. <color:v>Eric </color>             
-<color:v>the Usurper puts a terrible blood curse on you!</color> There is a malignant  LEVEL <color:G>    50</color>
-black aura surrounding Metal Scale Mail of Julian... The ground       EXP <color:G>   23.2M</color>
-trembles... A portal opens to a plane of raw mana! You feel a surge   AU  <color:G>   6.13M</color>
-of energy! The granite wall turns into mud! The granite wall turns    <color:d>            </color>
-into mud! The granite wall turns into mud! The granite wall turns     STR!: <color:G>18/***</color>
-into mud! The granite wall turns into mud! The granite wall turns     INT!: <color:G>18/130</color>
-into mud! The granite wall turns into mud! The quartz vein turns      WIS!: <color:G>18/***</color>
-into mud! The magma vein turns into mud! The granite wall turns into  DEX!: <color:G>18/150</color>
-mud! The granite wall turns into mud! The quartz vein turns into      CON!: <color:G>18/170</color>
-mud!<color:B>-more-</color>                                                            CHR!: <color:G>18/***</color>
-     ### #....#...###....##.######             ## #                   AC     <color:G>  270</color>
-     #>###.######## #####...##                 # ##                   HP <color:y>1007</color>/<color:G>1068</color>
-  ####....:#            ###..#                 ## #                   SP <color:y> 369</color>/<color:G> 397</color>
-###....#####            ####.#                 # ##                               
-#.:.####                #....#                 ## #                   @ <color:y> 94%</color>      
-..###                   #.####                 # ##          ...      <color:W>?</color> <color:y> 92%</color>      
-.##                     #..#           ##########.###      .<color:g>M</color>.<color:B>V</color>.      <color:U>,</color>  77%      
-.#                      ##.##          #..........p..       .<color:s>D</color>@.      <color:G>M</color> <color:G>100%</color>      
-.#                       #:.#          #.............      .<color:D>B</color><color:G>M</color><color:U>M</color>.      <color:R> [---------]</color>
-##########################..# ##########..............   ....<color:W>u</color>..                  
-...........................## #.......................   .....        <color:y>Fast (+34)</color>  
-######################..#<color:R>^</color>.#  #.########..............    ..#. #      <color:D>CURSED</color>      
-#                  #......##  #.#      #...............               <color:B>Study (1)</color>   
-#                 ##.######   #.#      #################       #                  
-#                 #..#        #.#                                                 
-<color:B>Angband: L90</color>                   <color:y>Ultima</color> <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>                    
-</style>
+<color:y>PosChengband <$:version></color><style:screenshot>
+<color:w>Name       : </color><color:B>Arator                        </color><color:w>========== Stats ==========
+Sex        : </color><color:B>Male                                </color><color:w>STR! :    </color><color:G>18/***
+</color><color:w>Personality: </color><color:B>Lucky                               </color><color:w>INT! :    </color><color:G>18/***
+</color><color:w>Race       : </color><color:B>Demigod                             </color><color:w>WIS! :    </color><color:G>18/160
+</color><color:w>Subrace    : </color><color:B>Hermes                              </color><color:w>DEX! :    </color><color:G>18/120
+</color><color:w>Class      : </color><color:B>Skillmaster                         </color><color:w>CON! :    </color><color:G>18/***
+                                                 </color><color:w>CHR! :    </color><color:G>18/120
+                                        
+</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   : </color><color:G>1028/1028
+</color><color:w>Cur Exp    : </color><color:G>21446546                            </color><color:w>SP   :   </color><color:y>321/378
+</color><color:w>Max Exp    : </color><color:G>21446546                            </color><color:w>AC   :       </color><color:G>141
+</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:    </color><color:y>+27+10
+                                        
+                                           </color><color:w>========== Skills =========
+Gold       : </color><color:G>11779703                      </color><color:w>Melee      : </color><color:v>Amber[5]
+</color><color:w>Kills      :     </color><color:G>6289                      </color><color:w>Archery    : </color><color:v>Amber[45]
+</color><color:w>Uniques    :      </color><color:G>233                      </color><color:w>SavingThrow: </color><color:b>Heroic
+</color><color:w>Artifacts  :  </color><color:G>139+103                      </color><color:w>Stealth    : </color><color:b>Heroic
+                                           </color><color:w>Perception : </color><color:G>Excellent
+</color><color:w>Game Day   :       </color><color:G>83                      </color><color:w>Searching  : </color><color:G>Excellent
+</color><color:w>Game Time  :     </color><color:G>6:51                      </color><color:w>Disarming  : </color><color:b>Heroic
+</color><color:w>Play Time  :    </color><color:G>27:23                      </color><color:w>Device     : </color><color:v>Amber[17]
+                                        
+</color><color:w>a) The Scimitar 'Soulsword' (5d5) (+12,+12) (+3) {So}
+</color><color:w>b) </color><color:U>The Large Leather Shield of Celegorm [6,+20] {Ca}
+</color><color:w>c) </color><color:u>The Heavy Crossbow '*ARATOR*' (x5.59) (+25,+46) {CoNxFe}
+</color><color:w>d) </color><color:U>a Quiver of Holding [84 of 190]
+</color><color:w>e) </color><color:r>The Ring of Power (Nenya) (+2) {Sd}
+</color><color:w>f) </color><color:r>a Ring of Archery (+12,+36) (+1) {Xm}
+</color><color:w>g) </color><color:o>a Dwarven Necklace (+3) {StCnIf;DkDiBl}
+</color><color:w>h) </color><color:y>The Feanorian Lamp 'Moonglow' (+3) {SpInCnSl;Hl}
+</color><color:w>i) </color><color:W>The Haramakido 'Terminater' (-2) [17,+25] (+4) {StCn;DkSoShDiFe[F}
+</color><color:w>j) </color><color:U>The Fur Cloak of Scorpio (+4,+7) [3,+20] {FiPoCf}
+</color><color:w>k) </color><color:U>The Golden Crown of Amber [0,+15] (+3) {Lv}
+</color><color:w>l) </color><color:U>a Set of Leather Gloves of the Wizard (-7,-4) [1,+8] (+3) {Bl}
+</color><color:w>m) </color><color:U>a Pair of Hard Leather Boots of Speed [3,+15] (+8)</style>

@@ -8,41 +8,36 @@ static void _birth(void)
     skills_innate_init("Gaze", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 5;
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     equip_on_change_race();
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 static void _calc_innate_attacks(void)
 {
-    if (p_ptr->lev < 20 && !p_ptr->blind) /* Umber Hulk only ... */
+    if (p_ptr->current_r_idx == MON_UMBER_HULK)
     {
-        innate_attack_t    a = {0};
-
-        a.flags |= INNATE_NO_DAM;
-        a.effect[0] = GF_OLD_CONF;
-        a.blows = 100;
-        a.to_h = p_ptr->lev/5;
-        a.msg = "You gaze.";
-        a.name = "Gaze";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        mon_blow_ptr blow = mon_blow_alloc(RBM_GAZE);
+        blow->power = 20;
+        mon_blow_push_effect(blow, GF_OLD_CONF, dice_create(0, 0, 0));
+        vec_add(p_ptr->innate_blows, blow);
     }
 }
 
 static void _calc_bonuses(void) {
-    int to_a = py_prorata_level(75);
+    int to_a = plr_prorata_level(75);
     int ac = 10;
 
     p_ptr->ac += ac;
@@ -105,26 +100,26 @@ static void _gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-race_t *mon_xorn_get_race(void)
+plr_race_ptr mon_xorn_get_race(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[3] =  {"Umber Hulk", "Xorn", "Xaren"};    
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
     if (p_ptr->lev >= 35) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  20,  31,   2,  14,   5,  56,  30};
     skills_t xs = { 12,   8,  10,   0,   0,   0,  20,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_XORN);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.name = "Xorn";
-        me.desc = "Xorn are huge creatures of the element earth. They begin life as an Umber Hulk which is a bizarre "
+        me->name = "Xorn";
+        me->desc = "Xorn are huge creatures of the element earth. They begin life as an Umber Hulk which is a bizarre "
                     "creature with glaring eyes capable of confusing their foes, and large mandibles capable of slicing "
                     "through rock. At this stage in their evolution, their body is vaguely humanoid allowing them to "
                     "wear a helmet, an amulet, a cloak and even a pair of boots. However, once the Umber Hulk evolves "
@@ -134,38 +129,36 @@ race_t *mon_xorn_get_race(void)
                     "their ability to hide in rocks combined with their ability to attack with up to four weapons. They "
                     "play like warriors and are strong as such.";
 
-        me.infra = 5;
-        me.exp = 150;
-        me.base_hp = 30;
-        me.shop_adjust = 120;
+        me->infra = 5;
+        me->exp = 150;
+        me->base_hp = 30;
+        me->shop_adjust = 120;
 
-        me.calc_innate_attacks = _calc_innate_attacks;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
-        me.birth = _birth;
+        me->hooks.calc_innate_attacks = _calc_innate_attacks;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.birth = _birth;
 
-        me.flags = RACE_IS_MONSTER;
-        me.pseudo_class_idx = CLASS_WARRIOR;
-
-        init = TRUE;
+        me->flags = RACE_IS_MONSTER;
+        me->pseudo_class_idx = CLASS_WARRIOR;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  2 + rank;
-    me.stats[A_INT] = -4;
-    me.stats[A_WIS] = -2;
-    me.stats[A_DEX] = -3 + rank;
-    me.stats[A_CON] =  1 + rank;
-    me.stats[A_CHR] = -1;
-    me.life = 100 + 4*rank;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  2 + rank;
+    me->stats[A_INT] = -4;
+    me->stats[A_WIS] = -2;
+    me->stats[A_DEX] = -3 + rank;
+    me->stats[A_CON] =  1 + rank;
+    me->stats[A_CHR] = -1;
+    me->life = 100 + 4*rank;
 
-    me.equip_template = mon_get_equip_template();
+    me->equip_template = mon_get_equip_template();
 
     if (birth_hack || spoiler_hack)
     {
-        me.subname = NULL;
-        me.subdesc = NULL;
+        me->subname = NULL;
+        me->subdesc = NULL;
     }
-    return &me;
+    return me;
 }

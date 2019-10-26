@@ -2,9 +2,10 @@
 # Consumables
 #########################################
 mushroom of restoring#!E
+mushroom of cure poison#!E
 
-potions:resist#!kq
 potions:resistance#!kq
+potions:resist#!kq
 potions:stone skin#!k
 potions:heroism
 potions:speed#!kq
@@ -30,6 +31,7 @@ potions:healing#!kq
 potions:of life#!kq
 potions:*healing*#!kq
 potions:restore mana#!kq
+potions:cure mutation#!kq
 
 ?:[NOT [EQU $CLASS Berserker]]
 scrolls:artifact creation#!*
@@ -37,7 +39,6 @@ scrolls:of destruction#!*
 scrolls:mass genocide#!*
 scrolls:genocide#!*
 scrolls:forest creation
-scrolls:wall of stone
 scrolls:acquirement#!*
 scrolls:banish
 ?:1
@@ -45,6 +46,18 @@ scrolls:banish
 #########################################
 # Devices
 #########################################
+?unidentified rods
+?unidentified staves
+?unidentified wands
+
+rods:angelic healing#@zh!sdk
+rods:heroic speed#@zs!sdk
+staves:healing#@uh!sdk
+staves:speed#@us!sdk
+staves:destruction#@ud!sdk
+wands:rocket#@ar!sdk
+wands:disintegrate#@ad!sdk
+
 #identified rings more value than 5000
 #identified amulets more value than 5000
 ?unidentified rings
@@ -52,52 +65,36 @@ scrolls:banish
 #!identified rings
 #!identified amulets
 
-rods:angelic healing#@zh!sdk
-rods:heroic speed#@zs!sdk
-?staves:healing#@uh!sdk
-?staves:speed#@us!sdk
-?staves:destruction#@ud!sdk
-?wands:rocket#@ar!sdk
-?wands:disintegrate#@ad!sdk
-
 ?:[OR [EQU $CLASS Mage High-Mage Sorcerer] [EQU $RACE Beholder Lich] ]
-wizardstaff
+?wizardstaff
 ?:1
-
-?unidentified rods
-?unidentified staves
-?unidentified wands
 
 #########################################
 # Armor
 #########################################
 
-power dragon
-balance dragon
+?power dragon
+?balance dragon
 
-dragon gloves
-dragon boots
-dragon shield
-dragon helm
-dragon wings
-dragon fang
-armors:dragon
+?dragon gloves
+?dragon boots
+?dragon shield
+?dragon helm
+?dragon cloak
+?dragon fang
+?armors:dragon
 
-elven cloak
-shadow cloak
-mirror shield
+?elven cloak
+?shadow cloak
+?mirror shield
 
 #########################################
 # Weaponry
 #########################################
 
-weapons:poison needle
-diamond edge
-#rune sword
-blade of chaos
+?diamond edge
+?blade of chaos
 
-?unidentified dice boosted weapons
-?unidentified dice boosted shooters
 ~?unidentified ego items
 
 ~dice boosted weapons
@@ -192,6 +189,7 @@ Iron Spike#@v0
 (unsensed armors
 (unsensed weapons
 (unsensed shooters
+#(unsensed ammo
 ?:1
 
 ~special items

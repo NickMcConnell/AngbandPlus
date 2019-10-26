@@ -1,29 +1,34 @@
-<color:y>PosChengband <$:version></color>
-<style:screenshot>
-#<color:u>.</color>#######<color:D>#</color>#<color:s>%%</color># #%#            %<color:u>.......</color><color:g>^</color><color:u>................</color><color:s>)</color><color:u>..........</color># LEVEL <color:G>    47</color>
-<color:u>......</color><color:D>#</color>##<color:D>#</color>###  <color:s>%</color><color:D>#</color>%%%#         <color:s>%</color><color:u>.............</color>%###<color:U>+</color>#<color:s>%</color>##<color:u>.............</color># EXP <color:G>    223k</color>
-#<color:s>%</color>###<color:u>..</color>#<color:o>*</color>#<color:s>%</color><color:D>#</color>#  <color:s>%%%%</color><color:D>#</color><color:s>%</color>         #<color:u>.............</color><color:s>%</color>ddddddd#<color:u>.............</color># AU  <color:G>   5.43M</color>
-#<color:D>xxx</color>#<color:u>..</color>##<color:s>%</color>#<color:s>%</color>%     %%<color:s>%</color>         #<color:u>.............</color><color:s>%</color>ddddddd<color:s>%</color><color:u>.............</color># <color:d>            </color>
-<color:D>xxxx</color>##<color:u>...</color><color:s>%%</color> <color:s>%%%</color>  ###        <color:s>%</color>##<color:u>.............</color>%ddddddd#<color:u>.............</color># STR!: <color:G>18/***</color>
-##<color:D>xxx</color>#<color:s>%</color><color:u>..</color><color:D>#</color><color:s>%</color>%#<color:D>#</color><color:s>%</color>  #<color:D>#</color><color:s>%</color>  #<color:s>%%</color>   #<color:D>#</color><color:s>%</color><color:u>.......</color><color:s>%</color>#<color:s>%</color>#%#<color:s>%</color>#<color:s>%</color>ddd<color:o>*</color><color:s>%%</color>##%#<color:s>%%</color><color:u>.......</color># INT!: <color:G> 18/50</color>
-<color:D>#</color>#<color:D>xx</color>###%<color:u>.</color><color:s>%</color><color:D>#</color>#%<color:s>%</color>%  <color:s>%%%</color> <color:s>%</color>#<color:D>#</color><color:s>%</color>   <color:s>%%</color>#<color:u>.......</color>#<color:y>ddddd</color>% #<color:u>.</color>dd<color:s>%</color> <color:s>%</color><color:y>ddddd</color><color:s>%</color><color:u>.......</color># WIS!: <color:G>18/200</color>
-##<color:s>%%</color>#<color:D>#</color>#<color:u>..</color>##<color:s>%</color>         <color:s>%</color><color:D>#</color>#<color:s>%</color>     <color:s>%</color><color:u>.......</color>#<color:y>ddddd</color><color:s>%%</color>##d<color:s>%%</color>#%<color:y>ddddd</color><color:s>%</color><color:u>.......</color># DEX!: <color:G>18/190</color>
-<color:o>*</color><color:s>%</color><color:D>#</color>#<color:s>%</color>#<color:D>#</color><color:u>.</color><color:s>%</color>#           #<color:s>%</color>#      #<color:u>.......</color>#<color:y>dddddd</color><color:u>.</color><color:y>d</color><color:u>.</color><color:D>dd</color><color:U>+</color><color:y>ddddddd</color>%<color:u>.......</color># CON!: <color:G>18/170</color>
-####<color:D>x</color>#<color:s>%</color><color:u>..</color><color:s>%</color> <color:s>%</color>#<color:s>%</color>                <color:s>%</color><color:u>.</color>#<color:s>%</color>#<color:s>%%</color>####<color:y>ddd</color>##<color:s>%</color>#<color:D>d</color>#%%<color:s>%</color><color:y>ddd</color>#<color:s>%</color>#<color:s>%</color>#####<color:u>.</color># CHR!: <color:G>18/140</color>
-<color:u>..</color><color:s>%</color><color:D>xx</color><color:s>%</color>#<color:u>..</color><color:s>%</color> #<color:D>#</color>#     %##  #<color:s>%%</color>   <color:s>%</color><color:u>.</color><color:s>%</color><color:u>.</color><color:b>ddd</color><color:u>.</color><color:s>%</color> #<color:y>ddd</color><color:s>%</color><color:W>[</color>%<color:D>d</color><color:u>.</color><color:D>d</color>#<color:v>]</color><color:s>%</color><color:y>ddd</color>% %<color:b>dddd</color><color:u>.</color>#<color:u>.</color>% AC     <color:G>  157</color>
-<color:u>..</color>#<color:D>xx</color>#<color:u>..</color><color:s>%</color>%%<color:s>%</color>#%<color:s>%</color>##<color:s>%%%</color><color:D>#</color>#  <color:s>%</color><color:D>#</color><color:s>%</color>   #<color:u>.</color>%<color:b>dddd</color><color:u>.</color><color:s>%</color>%<color:s>%</color>%<color:s>%%</color>##<color:s>%</color><color:D>dd</color><color:u>.</color>%%<color:s>%</color>#<color:s>%</color>#<color:s>%%</color>#<color:b>dddd</color><color:u>.</color><color:o>*</color><color:u>.</color>% HP <color:G> 859</color>/<color:G> 859</color>
-<color:u>..</color><color:s>%</color><color:D>xx</color><color:s>%</color><color:u>.</color>%# %<color:u>....</color><color:s>%</color>#<color:D>#</color><color:s>%</color>###  ##<color:s>%</color>   <color:s>%</color><color:b>d</color><color:u>'</color><color:b>d</color><color:u>.</color><color:b>ddddddd</color><color:D>dddddddddd</color><color:U>+</color><color:D>ddd</color><color:U>+</color><color:b>dddddd</color><color:u>.</color>#<color:u>.</color># SP <color:y> 218</color>/<color:G> 386</color>
-<color:u>..</color>#<color:D>x</color>##<color:u>.</color>## #<color:u>...</color>#####<color:u>..</color>##<color:o>*</color>#<color:s>%</color> %##%<color:b>d</color>#<color:b>ddddd</color>#####%#%#<color:D>ddd</color><color:s>%</color>#<color:s>%%%%</color>%<color:s>%</color>#<color:b>ddddd</color>#<color:u>.</color>#             
-<color:u>..</color>###<color:D>#</color><color:u>..</color>###<color:u>....</color><color:U>'</color><color:u>...</color>#%<color:u>....</color># #<color:D>#</color>#%<color:u>.</color><color:s>%</color><color:b>ddddd</color>% #<color:y>ddd</color>#<color:D>?</color>%<color:D>ddd</color>%<color:U>]</color>#<color:y>ddd</color>% #<color:b>ddddd</color>#<color:u>.</color># @ <color:G>100%</color>      
-<color:u>.</color>###<color:D>#</color>##<color:u>.............</color><color:U>'</color><color:u>..</color>#<color:u>.</color>##%###<color:u>.</color>#%#<color:s>%</color>####%<color:y>ddd</color>%%##<color:U>'</color>#<color:s>%%</color>%<color:y>ddd</color>#%#%#%#%#<color:u>.</color># <color:W>?</color> <color:y> 56%</color>      
-<color:u>'</color>##########<color:u>.........</color>#<color:u>.</color>##<color:s>^</color><color:u>.....</color><color:U>+</color><color:u>.......</color><color:o>*</color><color:y>dddddddd</color><color:D>dddd</color><color:y>ddddddd</color><color:s>%</color><color:u>.......</color># <color:U>,</color>  62%      
-<color:u>..</color>#<color:u>......</color><color:G>$</color><color:u>...........</color>####<color:u>..</color>#<color:u>..</color>#<color:u>.......</color><color:s>%</color><color:y>dddd</color><color:u>.</color>####d#<color:s>%%%</color><color:y>ddddd</color><color:o>*</color><color:u>.......</color><color:U>+</color>             
-#<color:u>...</color>####<color:u>.</color>#<color:u>...........</color>%%#%%#<color:s>%</color>#<color:u>.......</color><color:D>D</color><color:u>.</color>#<color:y>ddddd</color># #<color:D>d</color><color:u>.</color>d% <color:s>%</color><color:y>ddddd</color><color:s>%</color><color:u>.......</color>#             
-<color:u>.</color>#######<color:u>.</color><color:U>+</color><color:u>..........</color>##<color:D>#</color>#  #<color:s>%%</color>#%<color:u>..</color><color:G>###</color><color:u>..</color>#%%###%%#ddd###%<color:s>%</color>##%<color:s>%</color><color:u>....</color><color:g>d</color><color:u>..</color>#             
-<color:u>.</color>#<color:D>xx</color>#<color:D>#</color>####<color:u>..........</color>##%#  #<color:D>#</color>% #<color:u>..</color><color:G>#</color>@<color:G>#</color><color:u>........</color>%ddd<color:u>.</color>ddd<color:s>%</color><color:u>.............</color># <color:G>Fast (+15)</color>  
-<color:u>.</color>#<color:D>xx</color>###  #<color:u>...........</color>#<color:D>#</color>#####<color:s>%</color>##<color:u>..</color><color:G>###</color><color:u>...</color><color:s>[</color><color:u>....</color>#dd<color:u>.</color>dddd<color:s>%</color><color:u>.............</color>#             
-<color:D>#</color>#<color:D>xxx</color>    #<color:u>...........</color>##<color:s>%</color>#<color:u>..</color>###<color:u>..............</color>#ddddddd<color:s>%</color><color:u>.............</color>#             
-##<color:D>xxx</color>    #<color:u>...........</color>####<color:u>.....</color>#<color:u>.........</color><color:s>[</color><color:u>...</color><color:s>%</color>#<color:s>%%</color>d##<color:s>%%</color><color:u>.............</color>%             
-#<color:D>xxx</color>###  #<color:u>.........</color>#<color:u>.</color>#<color:u>....</color>####<color:u>.................</color>dd<color:u>.................</color>#             
-<color:s>Dragon's lair: L71</color>                           <color:D>Stealth</color>                            
-</style>
+<color:y>PosChengband <$:version></color><style:screenshot>
+<color:w>Name       : </color><color:B>Animus                        </color><color:w>========== Stats ==========
+Sex        : </color><color:B>Male                                </color><color:w>STR! :    </color><color:G>18/200
+</color><color:w>Personality: </color><color:B>Mighty                              </color><color:w>INT! :     </color><color:G>18/90
+</color><color:w>Race       : </color><color:B>Possessor                           </color><color:w>WIS! :    </color><color:G>18/***
+</color><color:w>Subrace    : </color><color:B>Fenghuang                           </color><color:w>DEX! :    </color><color:G>18/160
+</color><color:w>Class      : </color><color:B>Monster                             </color><color:w>CON! :    </color><color:G>18/***
+                                                 </color><color:w>CHR! :    </color><color:G>18/180
+                                        
+</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   :   </color><color:G>949/949
+</color><color:w>Cur Exp    : </color><color:G>31648141                            </color><color:w>SP   :   </color><color:y>363/437
+</color><color:w>Max Exp    : </color><color:G>31648141                            </color><color:w>AC   :       </color><color:G>218
+</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:    </color><color:y>+27+10
+                                        
+                                           </color><color:w>========== Skills =========
+Gold       : </color><color:G>14568940                      </color><color:w>Melee      : </color><color:v>Amber[37]
+</color><color:w>Kills      :    </color><color:G>12158                      </color><color:w>Archery    : </color><color:G>Excellent
+</color><color:w>Uniques    :      </color><color:G>246                      </color><color:w>SavingThrow: </color><color:v>Amber[2]
+</color><color:w>Artifacts  :  </color><color:G>132+109                      </color><color:w>Stealth    : </color><color:o>Fair
+                                           </color><color:w>Perception : </color><color:o>Fair
+</color><color:w>Game Day   :       </color><color:G>54                      </color><color:w>Searching  : </color><color:o>Fair
+</color><color:w>Game Time  :    </color><color:G>12:56                      </color><color:w>Disarming  : </color><color:G>Excellent
+</color><color:w>Play Time  :    </color><color:G>31:03                      </color><color:w>Device     : </color><color:b>Heroic
+
+</color><color:w>a) <color:r>a Ring of Combat (+4,+20) (+1) {St(St </color><color:B>A:Whirlwind Attack</color><color:r>}
+</color><color:w>b) </color><color:r>a Ring of Combat (+0,+20) (+4) {St}
+</color><color:w>c) </color><color:r>a Ring of Combat (+12,+20) (+1) {St}
+</color><color:w>d) </color><color:r>a Ring of Combat (+13,+20) (+2) {Cn}
+</color><color:w>e) </color><color:r>The Ring of Power (Nenya) (+2)
+</color><color:w>f) </color><color:r>a Ring of Protection [+8] {LiDkNtDiBlFe}
+</color><color:w>g) </color><color:o>a Hell Harness (+8,+14) [-7] {-Co;Ca;Fa}
+</color><color:w>h) </color><color:y>The Jewel of Judgement (+3) {!!}
+</color><color:w>i) </color><color:U>The Pair of Dragon Wings 'Animus' [4,+20] {ShFe;Rf}
+</color><color:w>j) </color><color:U>The Golden Crown of Dragonkind (+5,+5) [0,+15] (+2) {Nx}</style>

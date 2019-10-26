@@ -273,14 +273,21 @@ put_str("name              Lv  SP      name              Lv  SP ", y, x + 5);
         /* Verify it */
         if (ask)
         {
-            char tmp_val[160];
+            if (do_spell(REALM_HISSATSU, j, SPELL_ON_BROWSE))
+            {
+                continue;
+            }
+            else
+            {
+                char tmp_val[160];
 
-            /* Prompt */
-            (void)strnfmt(tmp_val, 78, "Use %s? ", do_spell(REALM_HISSATSU, j, SPELL_NAME));
+                /* Prompt */
+                (void)strnfmt(tmp_val, 78, "Use %s? ", do_spell(REALM_HISSATSU, j, SPELL_NAME));
 
 
-            /* Belay that order */
-            if (!get_check(tmp_val)) continue;
+                /* Belay that order */
+                if (!get_check(tmp_val)) continue;
+            }
         }
 
         /* Stop the loop */
@@ -325,15 +332,21 @@ void do_cmd_hissatsu(void)
 
 
     /* not if confused */
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;
     }
-    if (!equip_find_first(object_is_melee_weapon))
+    if (!equip_find_first(obj_is_weapon))
     {
         if (flush_failure) flush();
         msg_print("You need to wield a weapon!");
+        return;
+    }
+    if (equip_find_obj(TV_SWORD, SV_POISON_NEEDLE))
+    {
+        if (flush_failure) flush();
+        msg_print("Your weapon is dishonorable!");
         return;
     }
     if (!p_ptr->spell_learned1)
@@ -363,7 +376,11 @@ void do_cmd_hissatsu(void)
     sound(SOUND_ZAP);
 
     /* Cast the spell */
-    if (!do_spell(REALM_HISSATSU, n, SPELL_CAST)) return;
+    if (!do_spell(REALM_HISSATSU, n, SPELL_CAST))
+    {
+        energy_use = 0;
+        return;
+    }
 
     spell_stats_on_cast_old(REALM_HISSATSU, n);
 
@@ -398,13 +415,13 @@ void do_cmd_gain_hissatsu(void)
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
-    if (p_ptr->blind || no_lite())
+    if (plr_tim_find(T_BLIND) || no_lite())
     {
         msg_print("You cannot see!");
         return;
     }
 
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;

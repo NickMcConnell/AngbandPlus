@@ -27,16 +27,16 @@ static void _birth(void)
     object_prep(&forge, lookup_kind(TV_AMULET, 0));
     forge.name2 = EGO_JEWELRY_ELEMENTAL;
     add_flag(forge.flags, OF_RES_ACID);
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
     forge.name2 = EGO_CROWN_MIGHT;
     forge.pval = 1;
     forge.to_a = 5;
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 /**********************************************************************
@@ -55,7 +55,6 @@ static int _head_count(void)
     }
     return 2; /* paranoia */
 }
-
 static int _bite_effect(void)
 {
     switch (p_ptr->current_r_idx)
@@ -68,24 +67,25 @@ static int _bite_effect(void)
     }
     return 0;
 }
-
+static void _calc_innate_bonuses(mon_blow_ptr blow)
+{
+    if (blow->method == RBM_BITE)
+        plr_calc_blows_innate(blow, _head_count() * 100);
+}
 static void _calc_innate_attacks(void)
 {
-    innate_attack_t    a = {0};
     int l = p_ptr->lev;
+    int dd = 1 + (l+3)/14;
+    int ds = 4 + l/16;
+    mon_blow_ptr blow = mon_blow_alloc(RBM_BITE);
 
-    a.dd = 1 + (l+3)/14;
-    a.ds = 4 + l/16;
-    a.to_h = l/2;
-    a.weight = 100 + l*2;
-    a.effect[0] = GF_MISSILE;
-    a.effect[1] = _bite_effect();
-
-    calc_innate_blows(&a, _head_count() * 100);
-    
-    a.msg = "You bite.";
-    a.name = "Bite";
-    p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+    blow->weight = 100 + l*2;
+    blow->power = l*3/2;
+    mon_blow_push_effect(blow, RBE_HURT, dice_create(dd, ds, 0));
+    if (_bite_effect())
+        mon_blow_push_effect(blow, _bite_effect(), dice_create(dd, ds, 0));
+    _calc_innate_bonuses(blow);
+    vec_push(p_ptr->innate_blows, blow);
 }
 
 /**********************************************************************
@@ -114,7 +114,7 @@ static int _breath_cost(void)
     return MAX(l/2 + l*l*15/2500, 1);
 }
 
-static void _breathe_spell(int cmd, variant *res)
+static void _breathe_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -291,10 +291,9 @@ static void _gain_level(int new_level)
 /**********************************************************************
  * Public Methods
  **********************************************************************/
-race_t *mon_hydra_get_race(void)
+plr_race_ptr mon_hydra_get_race(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[6] =  {"2-headed hydra", "4-headed hydra", "5-headed hydra", "7-headed hydra", "9-headed hydra", "11-headed hydra"};    
     int           rank = 0;
 
@@ -304,47 +303,45 @@ race_t *mon_hydra_get_race(void)
     if (p_ptr->lev >= 37) rank++;
     if (p_ptr->lev >= 45) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  21,  35,   1,  10,   7,  62,  30};
     skills_t xs = { 12,  10,  10,   0,   0,   0,  25,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_HYDRA);
 
-        me.name = "Hydra";
-        me.desc = _desc;
+        me->name = "Hydra";
+        me->desc = _desc;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->infra = 5;
+        me->exp = 130;
+        me->base_hp = 45;
+        me->shop_adjust = 130;
+        me->pseudo_class_idx = CLASS_WARRIOR;
+        me->boss_r_idx = MON_LERNEAN_HYDRA;
+        me->flags = RACE_IS_MONSTER;
 
-        me.infra = 5;
-        me.exp = 130;
-        me.base_hp = 45;
-        me.shop_adjust = 130;
-
-        me.get_powers = _get_powers;
-        me.calc_innate_attacks = _calc_innate_attacks;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
-        me.birth = _birth;
-
-        me.flags = RACE_IS_MONSTER;
-        me.boss_r_idx = MON_LERNEAN_HYDRA;
-        me.pseudo_class_idx = CLASS_WARRIOR;
-
-        init = TRUE;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.calc_innate_attacks = _calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = _calc_innate_bonuses;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.birth = _birth;
     }
 
-    me.subname = NULL;
+    me->subname = NULL;
     if (!birth_hack && !spoiler_hack)
-        me.subname = titles[rank];
-    me.stats[A_STR] = rank;
-    me.stats[A_INT] = -2;
-    me.stats[A_WIS] = -2;
-    me.stats[A_DEX] = (rank + 1)/2;
-    me.stats[A_CON] = rank;
-    me.stats[A_CHR] =  0;
-    me.life = 100 + 3*rank;
-    me.equip_template = mon_get_equip_template();
+        me->subname = titles[rank];
+    me->stats[A_STR] = rank;
+    me->stats[A_INT] = -2;
+    me->stats[A_WIS] = -2;
+    me->stats[A_DEX] = (rank + 1)/2;
+    me->stats[A_CON] = rank;
+    me->stats[A_CHR] =  0;
+    me->life = 100 + 3*rank;
+    me->equip_template = mon_get_equip_template();
 
-    return &me;
+    return me;
 }

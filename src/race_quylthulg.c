@@ -3,11 +3,11 @@
 static cptr _mon_name(int r_idx)
 {
     if (r_idx)
-        return r_name + r_info[r_idx].name;
+        return r_name + mon_race_lookup(r_idx)->name;
     return ""; /* Birth Menu */
 }
 
-static bool _summon_aux(int num, bool pet, int y, int x, int lev, int type, u32b mode)
+static bool _summon_aux(int num, bool pet, point_t pos, int lev, int type, u32b mode)
 {
     int plev = p_ptr->lev;
     int who;
@@ -15,7 +15,7 @@ static bool _summon_aux(int num, bool pet, int y, int x, int lev, int type, u32b
     bool success = FALSE;
 
     /*if (!lev) lev = spell_power(plev) + randint1(spell_power(plev * 2 / 3));*/
-    if (!lev) lev = MAX(plev, dun_level);
+    if (!lev) lev = MAX(plev, cave->difficulty);
 
     if (pet)
     {
@@ -35,7 +35,7 @@ static bool _summon_aux(int num, bool pet, int y, int x, int lev, int type, u32b
 
     for (i = 0; i < num; i++)
     {
-        if (summon_specific(who, y, x, lev, type, mode))
+        if (summon_specific(who, pos, lev, type, mode))
             success = TRUE;
     }
 
@@ -47,8 +47,7 @@ static bool _summon_aux(int num, bool pet, int y, int x, int lev, int type, u32b
 
 static void _summon(int what, int num, bool fail)
 {
-    int x = px;
-    int y = py;
+    point_t pos = p_ptr->pos;
 
     if (fail) /* Failing spells should not be insta-death ... */
     {
@@ -59,12 +58,12 @@ static void _summon(int what, int num, bool fail)
     else
         num = spell_power(num);
 
-    if (!fail && use_old_target && target_okay() && los(py, px, target_row, target_col) && !one_in_(3))
+    if (!fail && use_old_target && target_okay() && los(p_ptr->pos.y, p_ptr->pos.x, target_row, target_col) && !one_in_(3))
     {
-        y = target_row;
-        x = target_col;
+        pos.y = target_row;
+        pos.x = target_col;
     }
-    if (_summon_aux(num, !fail, y, x, 0, what, PM_ALLOW_UNIQUE | PM_ALLOW_GROUP))
+    if (_summon_aux(num, !fail, pos, 0, what, PM_ALLOW_UNIQUE | PM_ALLOW_GROUP))
     {
         if (fail)
         {
@@ -79,7 +78,7 @@ static void _summon(int what, int num, bool fail)
 /**********************************************************************
  * Spells
  **********************************************************************/
-void _heal_monster_spell(int cmd, variant *res)
+void _heal_monster_spell(int cmd, var_ptr res)
 {
     int heal = spell_power(p_ptr->lev * 10 + 200);
     switch (cmd)
@@ -116,7 +115,7 @@ void _heal_monster_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_ancient_dragon_spell(int cmd, variant *res)
+void _summon_ancient_dragon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -138,7 +137,7 @@ void _summon_ancient_dragon_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_ant_spell(int cmd, variant *res)
+void _summon_ant_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -160,7 +159,7 @@ void _summon_ant_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_balrog_spell(int cmd, variant *res)
+void _summon_balrog_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -182,7 +181,7 @@ void _summon_balrog_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_clubber_demon_spell(int cmd, variant *res)
+void _summon_clubber_demon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -204,7 +203,7 @@ void _summon_clubber_demon_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_dark_elf_spell(int cmd, variant *res)
+void _summon_dark_elf_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -226,7 +225,7 @@ void _summon_dark_elf_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_demon_spell(int cmd, variant *res)
+void _summon_demon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -248,7 +247,7 @@ void _summon_demon_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_demon_summoner_spell(int cmd, variant *res)
+void _summon_demon_summoner_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -270,7 +269,7 @@ void _summon_demon_summoner_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_dragon_spell(int cmd, variant *res)
+void _summon_dragon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -292,7 +291,7 @@ void _summon_dragon_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_dragon_summoner_spell(int cmd, variant *res)
+void _summon_dragon_summoner_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -314,7 +313,7 @@ void _summon_dragon_summoner_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_elemental_spell(int cmd, variant *res)
+void _summon_elemental_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -336,7 +335,7 @@ void _summon_elemental_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_giant_spell(int cmd, variant *res)
+void _summon_giant_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -358,7 +357,7 @@ void _summon_giant_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_golem_spell(int cmd, variant *res)
+void _summon_golem_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -380,7 +379,7 @@ void _summon_golem_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_high_dragon_spell(int cmd, variant *res)
+void _summon_high_dragon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -402,7 +401,7 @@ void _summon_high_dragon_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_high_demon_spell(int cmd, variant *res)
+void _summon_high_demon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -424,7 +423,7 @@ void _summon_high_demon_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_high_undead_spell(int cmd, variant *res)
+void _summon_high_undead_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -446,7 +445,7 @@ void _summon_high_undead_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_hounds_spell(int cmd, variant *res)
+void _summon_hounds_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -468,7 +467,7 @@ void _summon_hounds_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_lich_spell(int cmd, variant *res)
+void _summon_lich_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -490,7 +489,7 @@ void _summon_lich_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_mature_dragon_spell(int cmd, variant *res)
+void _summon_mature_dragon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -512,7 +511,7 @@ void _summon_mature_dragon_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_orc_spell(int cmd, variant *res)
+void _summon_orc_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -534,7 +533,7 @@ void _summon_orc_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_spider_spell(int cmd, variant *res)
+void _summon_spider_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -556,7 +555,7 @@ void _summon_spider_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_ultimate_spell(int cmd, variant *res)
+void _summon_ultimate_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -578,7 +577,7 @@ void _summon_ultimate_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_undead_spell(int cmd, variant *res)
+void _summon_undead_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -600,7 +599,7 @@ void _summon_undead_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_undead_summoner_spell(int cmd, variant *res)
+void _summon_undead_summoner_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -622,7 +621,7 @@ void _summon_undead_summoner_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_wight_spell(int cmd, variant *res)
+void _summon_wight_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -644,7 +643,7 @@ void _summon_wight_spell(int cmd, variant *res)
         break;
     }
 }
-void _summon_yeek_spell(int cmd, variant *res)
+void _summon_yeek_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -888,14 +887,14 @@ static void _birth(void)
     equip_on_change_race();
     
     object_prep(&forge, lookup_kind(TV_CAPTURE, 0));
-    py_birth_obj(&forge);
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_WHISTLE, 1));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 static void _gain_level(int new_level) 
@@ -959,10 +958,9 @@ static void _gain_level(int new_level)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_quylthulg_get_race(void)
+plr_race_ptr mon_quylthulg_get_race(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
@@ -970,49 +968,48 @@ race_t *mon_quylthulg_get_race(void)
     if (p_ptr->lev >= 40) rank++;
     if (p_ptr->lev >= 50) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  45,  40,   7,  20,  30,   0,   0 };
     skills_t xs = {  7,  15,  12,   0,   0,   0,   0,   0 };
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_QUYLTHULG);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.name = "Quylthulg";
-        me.desc = "Quylthulgs are disgusting, quivering mounds of pulsating flesh, scarcely "
+        me->name = "Quylthulg";
+        me->desc = "Quylthulgs are disgusting, quivering mounds of pulsating flesh, scarcely "
                     "able to move about. Physically, they are pathetic. However, their ability "
                     "to control others to do their bidding is legendary, and they are quite "
                     "capable of fleeing when the going gets tough. Quylthulgs have no physical "
                     "attacks.";
 
-        me.infra = 5;
-        me.exp = 150;
-        me.base_hp = 0;
-        me.shop_adjust = 120;
+        me->infra = 5;
+        me->exp = 150;
+        me->base_hp = 0;
+        me->shop_adjust = 120;
+        me->life = 95;
 
-        me.get_spells = _get_spells;
-        me.caster_info = _caster_info;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
-        me.birth = _birth;
-        me.pseudo_class_idx = CLASS_SORCERER;
+        me->hooks.birth = _birth;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
 
-        me.flags = RACE_IS_MONSTER;
-
-        init = TRUE;
+        me->pseudo_class_idx = CLASS_SORCERER;
+        me->boss_r_idx = MON_EMPEROR_QUYLTHULG;
+        me->flags = RACE_IS_MONSTER;
     }
 
-    me.subname = _mon_name(p_ptr->current_r_idx);
-    me.stats[A_STR] = -5 + rank;
-    me.stats[A_INT] = -5 + rank;
-    me.stats[A_WIS] = -5 + rank;
-    me.stats[A_DEX] = -5 + rank;
-    me.stats[A_CON] = -5 + rank;
-    me.stats[A_CHR] =  6 + rank;
-    me.life = 95;
-    me.boss_r_idx = MON_EMPEROR_QUYLTHULG;
+    me->subname = _mon_name(p_ptr->current_r_idx);
+    me->stats[A_STR] = -5 + rank;
+    me->stats[A_INT] = -5 + rank;
+    me->stats[A_WIS] = -5 + rank;
+    me->stats[A_DEX] = -5 + rank;
+    me->stats[A_CON] = -5 + rank;
+    me->stats[A_CHR] =  6 + rank;
 
-    me.equip_template = mon_get_equip_template();
-    return &me;
+    me->equip_template = mon_get_equip_template();
+    return me;
 }

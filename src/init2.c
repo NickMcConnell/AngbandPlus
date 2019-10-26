@@ -14,6 +14,7 @@
 
 #include "init.h"
 #include "z-doc.h"
+#include "dun.h"
 
 #ifdef HAVE_STAT
 #include <sys/stat.h>
@@ -106,7 +107,7 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
     z_string_free(ANGBAND_DIR);
 
     /* Free the sub-paths */
-    z_string_free(ANGBAND_DIR_APEX);
+    z_string_free(ANGBAND_DIR_SCORES);
     z_string_free(ANGBAND_DIR_BONE);
     z_string_free(ANGBAND_DIR_DATA);
     z_string_free(ANGBAND_DIR_EDIT);
@@ -135,7 +136,7 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
     /*** Use "flat" paths with VM/ESA ***/
 
     /* Use "blank" path names */
-    ANGBAND_DIR_APEX = z_string_make("");
+    ANGBAND_DIR_SCORES = z_string_make("");
     ANGBAND_DIR_BONE = z_string_make("");
     ANGBAND_DIR_DATA = z_string_make("");
     ANGBAND_DIR_EDIT = z_string_make("");
@@ -170,7 +171,7 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
     ANGBAND_DIR_USER = z_string_make(buf);
 
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
-    ANGBAND_DIR_APEX = z_string_make(buf);
+    ANGBAND_DIR_SCORES = z_string_make(buf);
 
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "bone");
     ANGBAND_DIR_BONE = z_string_make(buf);
@@ -188,7 +189,7 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
 
     /* Build pathnames */
     ANGBAND_DIR_USER = z_string_make(format("%suser", datapath));
-    ANGBAND_DIR_APEX = z_string_make(format("%sapex", datapath));
+    ANGBAND_DIR_SCORES = z_string_make(format("%sscores", datapath));
     ANGBAND_DIR_BONE = z_string_make(format("%sbone", datapath));
     ANGBAND_DIR_DATA = z_string_make(format("%sdata", datapath));
     ANGBAND_DIR_SCRIPT = z_string_make(format("%sscript", datapath));
@@ -318,7 +319,10 @@ void create_needed_dirs(void)
     path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_SAVE, "");
     if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
 
-    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_APEX, "");
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_SCORES, "");
+    if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_SCORES, "html");
     if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
 
     path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_DATA, "");
@@ -327,11 +331,6 @@ void create_needed_dirs(void)
     path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_HELP, "");
     if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
 }
-
-
-
-
-#ifdef ALLOW_TEMPLATES
 
 
 /*
@@ -359,9 +358,6 @@ cptr err_str[PARSE_ERROR_MAX] =
     "undefined terrain tag",
 
 };
-
-
-#endif /* ALLOW_TEMPLATES */
 
 
 /*
@@ -499,7 +495,6 @@ static errr init_f_info(void)
     /* Init the header */
     init_header(&f_head, max_f_idx, sizeof(feature_type));
 
-#ifdef ALLOW_TEMPLATES
 
     /* Save a pointer to the parsing function */
     f_head.parse_info_txt = parse_f_info;
@@ -507,7 +502,6 @@ static errr init_f_info(void)
     /* Save a pointer to the retouch fake tags */
     f_head.retouch = retouch_f_info;
 
-#endif /* ALLOW_TEMPLATES */
 
     return init_info("f_info", &f_head,
              (void*)&f_info, &f_name, NULL, &f_tag);
@@ -522,12 +516,10 @@ static errr init_k_info(void)
     /* Init the header */
     init_header(&k_head, max_k_idx, sizeof(object_kind));
 
-#ifdef ALLOW_TEMPLATES
 
     /* Save a pointer to the parsing function */
     k_head.parse_info_txt = parse_k_info;
 
-#endif /* ALLOW_TEMPLATES */
 
     return init_info("k_info", &k_head,
              (void*)&k_info, &k_name, &k_text, NULL);
@@ -543,12 +535,10 @@ static errr init_a_info(void)
     /* Init the header */
     init_header(&a_head, max_a_idx, sizeof(artifact_type));
 
-#ifdef ALLOW_TEMPLATES
 
     /* Save a pointer to the parsing function */
     a_head.parse_info_txt = parse_a_info;
 
-#endif /* ALLOW_TEMPLATES */
 
     return init_info("a_info", &a_head,
              (void*)&a_info, &a_name, &a_text, NULL);
@@ -564,12 +554,10 @@ static errr init_e_info(void)
     /* Init the header */
     init_header(&e_head, max_e_idx, sizeof(ego_type));
 
-#ifdef ALLOW_TEMPLATES
 
     /* Save a pointer to the parsing function */
     e_head.parse_info_txt = parse_e_info;
 
-#endif /* ALLOW_TEMPLATES */
 
     return init_info("e_info", &e_head,
              (void*)&e_info, &e_name, &e_text, NULL);
@@ -580,12 +568,10 @@ static errr init_b_info(void)
     /* Init the header */
     init_header(&b_head, max_b_idx, sizeof(equip_template_t));
 
-#ifdef ALLOW_TEMPLATES
 
     /* Save a pointer to the parsing function */
     b_head.parse_info_txt = parse_b_info;
 
-#endif /* ALLOW_TEMPLATES */
 
     return init_info("b_info", &b_head,
              (void*)&b_info, &b_name, NULL, &b_tag);
@@ -599,39 +585,14 @@ static errr init_r_info(void)
     /* Init the header */
     init_header(&r_head, max_r_idx, sizeof(monster_race));
 
-#ifdef ALLOW_TEMPLATES
 
     /* Save a pointer to the parsing function */
     r_head.parse_info_txt = parse_r_info;
 
-#endif /* ALLOW_TEMPLATES */
 
     return init_info("r_info", &r_head,
              (void*)&r_info, &r_name, &r_text, NULL);
 }
-
-
-
-/*
- * Initialize the "d_info" array
- */
-static errr init_d_info(void)
-{
-    /* Init the header */
-    init_header(&d_head, max_d_idx, sizeof(dungeon_info_type));
-
-#ifdef ALLOW_TEMPLATES
-
-    /* Save a pointer to the parsing function */
-    d_head.parse_info_txt = parse_d_info;
-
-#endif /* ALLOW_TEMPLATES */
-
-    return init_info("d_info", &d_head,
-             (void*)&d_info, &d_name, &d_text, NULL);
-}
-
-
 
 /*
  * Initialize the "s_info" array
@@ -641,12 +602,10 @@ static errr init_s_info(void)
     /* Init the header */
     init_header(&s_head, MAX_CLASS, sizeof(skill_table));
 
-#ifdef ALLOW_TEMPLATES
 
     /* Save a pointer to the parsing function */
     s_head.parse_info_txt = parse_s_info;
 
-#endif /* ALLOW_TEMPLATES */
 
     return init_info("s_info", &s_head,
              (void*)&s_info, NULL, NULL, NULL);
@@ -661,12 +620,10 @@ static errr init_m_info(void)
     /* Init the header */
     init_header(&m_head, MAX_CLASS, sizeof(player_magic));
 
-#ifdef ALLOW_TEMPLATES
 
     /* Save a pointer to the parsing function */
     m_head.parse_info_txt = parse_m_info;
 
-#endif /* ALLOW_TEMPLATES */
 
     return init_info("m_info", &m_head,
              (void*)&m_info, NULL, NULL, NULL);
@@ -683,9 +640,7 @@ static errr _parse_misc(char *line, int options)
     char *zz[2];
     if (tokenize(line, 2, zz, 0) == 2)
     {
-        if (zz[0][0] == 'Q')
-            max_quests = atoi(zz[1]);
-        else if (streq(zz[0], "R"))
+        if (streq(zz[0], "R"))
             max_r_idx = atoi(zz[1]);
         else if (zz[0][0] == 'B')
             max_b_idx = atoi(zz[1]);
@@ -697,21 +652,6 @@ static errr _parse_misc(char *line, int options)
             max_a_idx = atoi(zz[1]);
         else if (zz[0][0] == 'E')
             max_e_idx = atoi(zz[1]);
-        else if (zz[0][0] == 'D')
-            max_d_idx = atoi(zz[1]);
-        else if (zz[0][0] == 'O')
-            max_o_idx = atoi(zz[1]);
-        else if (zz[0][0] == 'M')
-            max_m_idx = atoi(zz[1]);
-        else if (zz[0][0] == 'P')
-            max_pack_info_idx = atoi(zz[1]);
-        else if (zz[0][0] == 'W')
-        {
-            if (zz[0][1] == 'X')
-                max_wild_x = atoi(zz[1]);
-            if (zz[0][1] == 'Y')
-                max_wild_y = atoi(zz[1]);
-        }
         return 0;
     }
     return PARSE_ERROR_GENERIC;
@@ -721,49 +661,6 @@ static errr init_misc(void)
 {
     return parse_edit_file("misc.txt", _parse_misc, 0);
 }
-
-/*
- * Initialize buildings
- */
-errr init_buildings(void)
-{
-    int i, j;
-
-    for (i = 0; i < MAX_BLDG; i++)
-    {
-        building[i].name[0] = '\0';
-        building[i].owner_name[0] = '\0';
-        building[i].owner_race[0] = '\0';
-
-        for (j = 0; j < 8; j++)
-        {
-            building[i].act_names[j][0] = '\0';
-            building[i].member_costs[j] = 0;
-            building[i].other_costs[j] = 0;
-            building[i].letters[j] = 0;
-            building[i].actions[j] = 0;
-            building[i].action_restr[j] = 0;
-        }
-
-        for (j = 0; j < MAX_CLASS; j++)
-        {
-            building[i].member_class[j] = 0;
-        }
-
-        for (j = 0; j < MAX_RACES; j++)
-        {
-            building[i].member_race[j] = 0;
-        }
-
-        for (j = 0; j < MAX_MAGIC+1; j++)
-        {
-            building[i].member_realm[j] = 0;
-        }
-    }
-
-    return (0);
-}
-
 
 static bool feat_tag_is_not_found = FALSE;
 
@@ -790,6 +687,7 @@ static errr init_feat_variables(void)
 
     /* Floor */
     feat_floor = f_tag_to_index_in_init("FLOOR");
+    feat_road = f_tag_to_index_in_init("ROAD");
 
     /* Objects */
     feat_glyph = f_tag_to_index_in_init("GLYPH");
@@ -915,15 +813,15 @@ static errr init_feat_variables(void)
     feat_brake = f_tag_to_index_in_init("BRAKE");
     feat_tree = f_tag_to_index_in_init("TREE");
     feat_mountain = f_tag_to_index_in_init("MOUNTAIN");
+    feat_mountain_wall = f_tag_to_index_in_init("MOUNTAIN_WALL");
     feat_swamp = f_tag_to_index_in_init("SWAMP");
     feat_dark_pit = f_tag_to_index_in_init("DARK_PIT");
     feat_web = f_tag_to_index_in_init("WEB");
+    feat_recall = f_tag_to_index_in_init("RECALL");
+    feat_travel = f_tag_to_index_in_init("TRAVEL");
 
     /* Unknown grid (not detected) */
     feat_undetected = f_tag_to_index_in_init("UNDETECTED");
-
-    /* Wilderness terrains */
-    init_wilderness_terrains();
 
     return feat_tag_is_not_found ? PARSE_ERROR_UNDEFINED_TERRAIN_TAG : 0;
 }
@@ -935,29 +833,6 @@ static errr init_feat_variables(void)
 static errr init_other(void)
 {
     int i, n;
-
-
-    /*** Prepare the "dungeon" information ***/
-
-    /* Allocate and Wipe the object list */
-    C_MAKE(o_list, max_o_idx, object_type);
-
-    /* Allocate and Wipe the monster list */
-    C_MAKE(m_list, max_m_idx, monster_type);
-
-    C_MAKE(pack_info_list, max_pack_info_idx, pack_info_t);
-
-    /* Allocate and Wipe the max dungeon level */
-    C_MAKE(max_dlv, max_d_idx, s16b);
-    C_MAKE(dungeon_flags, max_d_idx, u32b);
-
-    /* Allocate and wipe each line of the cave */
-    for (i = 0; i < MAX_HGT; i++)
-    {
-        /* Allocate one row of the cave */
-        C_MAKE(cave[i], MAX_WID, cave_type);
-    }
-
 
     /*** Prepare the various "bizarre" arrays ***/
 
@@ -1022,7 +897,7 @@ static errr init_other(void)
     /*** Pre-allocate space for the "format()" buffer ***/
 
     /* Hack -- Just call the "format()" function */
-    (void)format("%s (%s).", "PosChengband", "Hack Whack");
+    (void)format("%s (%s).", VERSION_NAME, "Hack Whack");
 
 
     /* Success */
@@ -1148,151 +1023,7 @@ static errr init_object_alloc(void)
  */
 static errr init_alloc(void)
 {
-    int i;
-    monster_race *r_ptr;
-
-#ifdef SORT_R_INFO
-
-    tag_type *elements;
-
-    /* Allocate the "r_info" array */
-    C_MAKE(elements, max_r_idx, tag_type);
-
-    /* Scan the monsters */
-    for (i = 1; i < max_r_idx; i++)
-    {
-        elements[i].tag = r_info[i].level;
-        elements[i].value = i;
-    }
-
-    tag_sort(elements, max_r_idx);
-
-    /*** Initialize monster allocation info ***/
-
-    /* Size of "alloc_race_table" */
-    alloc_race_size = max_r_idx;
-
-    /* Allocate the alloc_race_table */
-    C_MAKE(alloc_race_table, alloc_race_size, alloc_entry);
-
-    /* Scan the monsters */
-    for (i = 1; i < max_r_idx; i++)
-    {
-        /* Get the i'th race */
-        r_ptr = &r_info[elements[i].value];
-
-        /* Count valid pairs */
-        if (r_ptr->rarity)
-        {
-            int p;
-
-            /* Extract the base probability */
-            p = (100 / r_ptr->rarity);
-
-            /* Load the entry */
-            alloc_race_table[i].index = elements[i].value;
-            alloc_race_table[i].level = r_ptr->level;
-            alloc_race_table[i].max_level = r_ptr->max_level;
-            alloc_race_table[i].prob1 = p;
-            alloc_race_table[i].prob2 = p;
-            alloc_race_table[i].prob3 = p;
-        }
-    }
-
-    /* Free the "r_info" array */
-    C_KILL(elements, max_r_idx, tag_type);
-
-#else /* SORT_R_INFO */
-
-    int j;
-    alloc_entry *table;
-    s16b num[MAX_DEPTH];
-    s16b aux[MAX_DEPTH];
-
-    /*** Analyze monster allocation info ***/
-
-    /* Clear the "aux" array */
-    C_WIPE(&aux, MAX_DEPTH, s16b);
-
-    /* Clear the "num" array */
-    C_WIPE(&num, MAX_DEPTH, s16b);
-
-    /* Size of "alloc_race_table" */
-    alloc_race_size = 0;
-
-    /* Scan the monsters */
-    for (i = 1; i < max_r_idx; i++)
-    {
-        /* Get the i'th race */
-        r_ptr = &r_info[i];
-
-        /* Legal monsters */
-        if (r_ptr->rarity)
-        {
-            /* Count the entries */
-            alloc_race_size++;
-
-            /* Group by level */
-            num[r_ptr->level]++;
-        }
-    }
-
-    /* Collect the level indexes */
-    for (i = 1; i < MAX_DEPTH; i++)
-    {
-        /* Group by level */
-        num[i] += num[i-1];
-    }
-
-    /* Paranoia */
-    if (!num[0]) quit("No town monsters!");
-
-
-
-    /*** Initialize monster allocation info ***/
-
-    /* Allocate the alloc_race_table */
-    C_MAKE(alloc_race_table, alloc_race_size, alloc_entry);
-
-    /* Access the table entry */
-    table = alloc_race_table;
-
-    /* Scan the monsters */
-    for (i = 1; i < max_r_idx; i++)
-    {
-        /* Get the i'th race */
-        r_ptr = &r_info[i];
-
-        /* Count valid pairs */
-        if (r_ptr->rarity)
-        {
-            int p, x, y, z;
-
-            /* Extract the base level */
-            x = r_ptr->level;
-
-            /* Extract the base probability */
-            p = (100 / r_ptr->rarity);
-
-            /* Skip entries preceding our locale */
-            y = (x > 0) ? num[x-1] : 0;
-
-            /* Skip previous entries at this locale */
-            z = y + aux[x];
-
-            /* Load the entry */
-            table[z].index = i;
-            table[z].level = x;
-            table[z].prob1 = p;
-            table[z].prob2 = p;
-            table[z].prob3 = p;
-
-            /* Another entry complete for this locale */
-            aux[x]++;
-        }
-    }
-
-#endif /* SORT_R_INFO */
+    mon_alloc_init();
 
     /* Init the "alloc_kind_table" */
     (void)init_object_alloc();
@@ -1355,7 +1086,7 @@ static void _display_file(cptr name)
         doc_ptr doc;
 
         Term_get_size(&w, &h);
-        doc = doc_alloc(w);
+        doc = doc_alloc(100);
         doc_read_file(doc, fp);
         doc_sync_term(doc, doc_range_all(doc), doc_pos_create(0, 0));
         doc_free(doc);
@@ -1379,6 +1110,7 @@ void display_news(void)
     {
         char name[100];
         int  cmd;
+
         sprintf(name, "news%d.txt", n);
         _display_file(name);
 
@@ -1463,6 +1195,9 @@ void init_angband(void)
     int fd = -1;
     char buf[1024];
 
+    /* XXX needs to be first */
+    plr_startup();
+
     /*** Verify the "news" file ***/
 
     /* Build the filename */
@@ -1502,16 +1237,13 @@ void init_angband(void)
     if (init_f_info()) quit("Cannot initialize features");
     if (init_feat_variables()) quit("Cannot initialize features");
 
-
     /* Initialize object info */
     note("[Initializing arrays... (objects)]");
     if (init_k_info()) quit("Cannot initialize objects");
 
-
     /* Initialize artifact info */
     note("[Initializing arrays... (artifacts)]");
     if (init_a_info()) quit("Cannot initialize artifacts");
-
 
     /* Initialize ego-item info */
     note("[Initializing arrays... (ego-items)]");
@@ -1521,20 +1253,12 @@ void init_angband(void)
     note("[Initializing arrays... (body-types)]");
     if (init_b_info()) quit("Cannot initialize body types");
 
+    note("[Initializing arrays... (monk attacks)]");
+    if (!monk_attack_init()) quit("Cannot initialize monk attacks");
 
-    /* Initialize monster info ... requires b_info */
+    /* Initialize monster info ... requires b_info, k_info, a_info, e_info, monk_attacks */
     note("[Initializing arrays... (monsters)]");
     if (init_r_info()) quit("Cannot initialize monsters");
-
-    /* Initialize dungeon info ... requires k_info */
-    note("[Initializing arrays... (dungeon)]");
-    if (init_d_info()) quit("Cannot initialize dungeon");
-    {
-        int i;
-        for (i = 1; i < max_d_idx; i++)
-            if (d_info[i].final_guardian)
-                r_info[d_info[i].final_guardian].flags7 |= RF7_GUARDIAN;
-    }
 
     /* Initialize magic info */
     note("[Initializing arrays... (magic)]");
@@ -1544,21 +1268,8 @@ void init_angband(void)
     note("[Initializing arrays... (skill)]");
     if (init_s_info()) quit("Cannot initialize skill");
 
-    /* Initialize wilderness array */
-    note("[Initializing arrays... (wilderness)]");
-
-    if (init_wilderness()) quit("Cannot initialize wilderness");
-
-
-    /* Initialize building array */
-    note("[Initializing arrays... (buildings)]");
-
-    if (init_buildings()) quit("Cannot initialize buildings");
-
-
     note("[Initializing arrays... (quests)]");
     if (!quests_init()) quit("Cannot initialize quests");
-
 
     /* Initialize vault info */
     if (init_v_info(0)) quit("Cannot initialize vaults");
@@ -1566,7 +1277,6 @@ void init_angband(void)
     /* Initialize some other arrays */
     note("[Initializing arrays... (other)]");
     if (init_other()) quit("Cannot initialize other stuff");
-
 
     /* Initialize some other arrays */
     note("[Initializing arrays... (alloc)]");
@@ -1576,7 +1286,6 @@ void init_angband(void)
 
     /* Initialize feature info */
     note("[Initializing user pref files...]");
-
 
     /* Access the "basic" pref file */
     strcpy(buf, "pref.prf");

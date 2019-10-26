@@ -36,8 +36,6 @@ cptr macro_modifier_name[MAX_MACRO_MOD];
 cptr macro_trigger_name[MAX_MACRO_TRIG];
 cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
-int level_up = 0;
-
 /*
  *  List for auto-picker/destroyer entries
  */
@@ -83,7 +81,6 @@ bool arg_bigtile = FALSE;    /* Command arg -- Request big tile mode */
  * Various things
  */
 bool character_generated;    /* The character exists */
-bool character_dungeon;        /* The character has a dungeon */
 bool character_loaded;        /* The character was loaded from a savefile */
 bool character_saved;        /* The character was just saved to a savefile */
 
@@ -93,7 +90,6 @@ bool character_xtra;        /* The game is in an icky startup mode */
 bool creating_savefile;        /* New savefile is currently created */
 
 u32b seed_flavor;        /* Hack -- consistent object colors */
-u32b seed_town;            /* Hack -- consistent town layout */
 
 s16b command_cmd;        /* Current "Angband Command" */
 
@@ -115,21 +111,6 @@ s16b resting;            /* Current counter for resting, if any */
 
 s16b cur_hgt;            /* Current dungeon height */
 s16b cur_wid;            /* Current dungeon width */
-s16b dun_level;            /* Current dungeon level */
-s16b unique_count;
-s16b num_repro;            /* Current reproducer count */
-s16b num_repro_kill;
-s16b object_level;        /* Current object creation level */
-s16b monster_level;        /* Current monster creation level */
-s16b base_level;        /* Base dungeon level */
-
-s32b game_turn;                /* Current game turn */
-s32b game_turn_limit;        /* Limit of game turn */
-s32b dungeon_turn;            /* Game turn in dungeon */
-s32b dungeon_turn_limit;    /* Limit of game turn in dungeon */
-s32b old_turn;            /* Turn when level began */
-s32b old_battle;
-s32b player_turn;
 
 bool use_sound;            /* The "sound" mode is enabled */
 bool use_graphics;        /* The "graphics" mode is enabled */
@@ -143,8 +124,6 @@ bool inkey_scan;        /* See the "inkey()" function */
 bool inkey_flag;        /* See the "inkey()" function */
 bool get_com_no_macros = FALSE;    /* Expand macros in "get_com" or not */
 
-s16b coin_type;            /* Hack -- force coin type */
-
 bool opening_chest;        /* Hack -- prevent chest generation */
 
 bool shimmer_monsters;    /* Hack -- optimize multi-hued monsters */
@@ -155,14 +134,8 @@ bool repair_objects;    /* Hack -- optimize detect objects */
 
 bool hack_mind;
 
-s16b o_max = 1;            /* Number of allocated objects */
-s16b o_cnt = 0;            /* Number of live objects */
-
-s16b m_max = 1;            /* Number of allocated monsters */
-s16b m_cnt = 0;            /* Number of live monsters */
-
-s16b hack_m_idx = 0;    /* Hack -- see "process_monsters()" */
-s16b hack_m_idx_ii = 0;
+u16b hack_m_idx = 0;    /* Hack -- see "process_monsters()" */
+u16b hack_m_idx_ii = 0; /* Hack -- place_monster_one() XXX Try not to use this. It is buggy with ESCORTS and FRIENDS */
 int  hack_max_m_dam = 0;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
@@ -170,8 +143,6 @@ int total_friends = 0;
 s32b friend_align = 0;
 
 bool reinit_wilderness = FALSE;
-
-int current_flow_depth = 0;
 
 /*
  * Software options (set via the '=' command). See "tables.c"
@@ -201,7 +172,6 @@ bool easy_disarm;    /* Automatically disarm traps */
 bool auto_get_ammo;
 bool auto_get_objects;
 bool auto_detect_traps;
-bool auto_map_area;
 
 bool numpad_as_cursorkey;    /* Use numpad keys as cursor key in editor mode */
 bool use_pack_slots;
@@ -238,7 +208,6 @@ bool equippy_chars;    /* Display 'equippy' chars */
 bool display_food_bar;
 bool display_hp_bar;
 bool display_sp_bar;
-bool display_percentages;
 bool compress_savefile;    /* Compress messages in savefiles */
 bool abbrev_extra;    /* Describe obj's extra resistances by abbreviation */
 bool abbrev_all;    /* Describe obj's all resistances by abbreviation */
@@ -253,13 +222,8 @@ bool display_race; /* Display monster races with their racial char */
 bool stack_force_notes;    /* Merge inscriptions when stacking */
 bool stack_force_costs;    /* Merge discounts when stacking */
 bool expand_list;    /* Expand the power of the list commands */
-bool empty_levels;    /* Allow empty 'arena' levels */
 bool bound_walls_perm;    /* Boundary walls become 'permanent wall' */
 bool last_words;    /* Leave last words when your character dies */
-
-#ifdef WORLD_SCORE
-bool send_score;    /* Send score dump to the world score server */
-#endif
 
 bool allow_debug_opts;    /* Allow use of debug/cheat options */
 
@@ -289,12 +253,6 @@ bool alert_trap_detect;    /* Alert when leaving trap detected area */
 
 bool smart_learn;    /* Monsters learn from their mistakes (*) */
 bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
-bool no_wilderness;
-bool ironman_shops;    /* Stores are permanently closed (*) */
-bool ironman_downward;    /* Disable recall and use of up stairs (*) */
-bool ironman_empty_levels;    /* Always create empty 'arena' levels (*) */
-bool ironman_nightmare;    /* Nightmare mode(it isn't even remotely fair!)(*) */
-bool preserve_mode;    /* Preserve artifacts (*) */
 bool allow_friendly_monster; /* Allow monsters friendly to player */
 bool allow_hostile_monster; /* Allow monsters hostile to each other */
 bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
@@ -302,9 +260,6 @@ bool quest_unique; /* Random quests for unique monsters only */
 bool random_artifacts;
 byte random_artifact_pct = 100;
 bool no_artifacts;
-bool no_egos;
-bool reduce_uniques;
-byte reduce_uniques_pct = 100; /* This is the pct of uniques to face */
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -320,24 +275,13 @@ bool leave_corpse;    /* Auto-destroyer leaves corpses and skeletons */
 bool leave_junk;    /* Auto-destroyer leaves junk */
 bool leave_special;    /* Auto-destroyer leaves items your race/class needs */
 
-
-
-/* Cheating options */
-
-bool cheat_peek;    /* Peek into object creation */
-bool cheat_hear;    /* Peek into monster creation */
-bool cheat_room;    /* Peek into dungeon creation */
-bool cheat_xtra;    /* Peek into something else */
-bool cheat_live;    /* Allow player to avoid death */
-bool cheat_save;    /* Ask for saving death */
-
-
 /* Special options */
 
 byte hitpoint_warn = 3;    /* Hitpoint warning (0 to 9) */
 byte mana_warn;    /* Mana color (0 to 9) */
 
-byte delay_factor = 2;    /* Delay factor (0 to 9) */
+int delay_animation = 10;
+int delay_run = 5;
 
 bool autosave_l;    /* Autosave before entering new levels */
 bool autosave_t;    /* Timed autosave */
@@ -357,17 +301,11 @@ bool closing_flag;        /* Dungeon is closing */
 point_t viewport_origin;
 
 /*
- * Player location in dungeon
- */
-int py;
-int px;
-
-/*
  * Targetting variables
  */
-s16b target_who;
-s16b target_col;
-s16b target_row;
+int target_who;
+int target_col;
+int target_row;
 
 
 /*
@@ -408,13 +346,6 @@ s16b lite_x[LITE_MAX];
 s16b mon_lite_n;
 s16b mon_lite_y[MON_LITE_MAX];
 s16b mon_lite_x[MON_LITE_MAX];
-
-/*
- * Array of grids viewable to the player (see "cave.c")
- */
-s16b view_n;
-s16b view_y[VIEW_MAX];
-s16b view_x[VIEW_MAX];
 
 /*
  * Array of grids for use by various functions (see "cave.c")
@@ -492,7 +423,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-    "PosChengband",
+    VERSION_NAME,
     "Term-1",
     "Term-2",
     "Term-3",
@@ -602,49 +533,6 @@ char angband_sound_name[SOUND_MAX][16] =
 
 
 /*
- * The array of "cave grids" [MAX_WID][MAX_HGT].
- * Not completely allocated, that would be inefficient
- * Not completely hardcoded, that would overflow memory
- */
-cave_type *cave[MAX_HGT];
-
-
-/*
- * The array of saved floors
- */
-saved_floor_type saved_floors[MAX_SAVED_FLOORS];
-
-
-/*
- * Number of floor_id used from birth
- */
-s16b max_floor_id;
-
-
-/*
- * Sign for current process used in temporal files.
- * Actually it is the start time of current process.
- */
-u32b saved_floor_file_sign;
-
-
-/*
- * The array of dungeon items [max_o_idx]
- */
-object_type *o_list;
-
-/*
- * The array of dungeon monsters [max_m_idx]
- */
-monster_type *m_list;
-
-pack_info_t *pack_info_list;
-s16b max_pack_info_idx;
-s16b pack_info_free_list;
-s16b pack_info_count;
-
-
-/*
  * The size of "alloc_kind_table" (at most max_k_idx * 4)
  */
 s16b alloc_kind_size;
@@ -653,18 +541,6 @@ s16b alloc_kind_size;
  * The entries in the "kind allocator table"
  */
 alloc_entry *alloc_kind_table;
-
-
-/*
- * The size of "alloc_race_table" (at most max_r_idx)
- */
-s16b alloc_race_size;
-
-/*
- * The entries in the "race allocator table"
- */
-alloc_entry *alloc_race_table;
-
 
 /*
  * Specify attr/char pairs for visual special effects
@@ -675,14 +551,6 @@ char misc_to_char[256];
 
 
 /*
- * Specify attr/char pairs for inventory items (by tval)
- * Be sure to use "index & 0x7F" to avoid illegal access
- */
-byte tval_to_attr[128];
-char tval_to_char[128];
-
-
-/*
  * Keymaps for each "mode" associated with each keypress.
  */
 cptr keymap_act[KEYMAP_MODES][256];
@@ -690,16 +558,6 @@ cptr keymap_act[KEYMAP_MODES][256];
 
 
 /*** Player information ***/
-
-/*
- * Static player info record
- */
-player_type p_body;
-
-/*
- * Pointer to the player info
- */
-player_type *p_ptr = &p_body;
 
 /*
  * Pointer to the player tables
@@ -767,14 +625,6 @@ char *b_name;
 char *b_tag;
 
 /*
- * The dungeon arrays
- */
-dungeon_info_type *d_info;
-char *d_name;
-char *d_text;
-
-
-/*
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
@@ -802,7 +652,7 @@ cptr ANGBAND_DIR;
  * High score files (binary)
  * These files may be portable between platforms
  */
-cptr ANGBAND_DIR_APEX;
+cptr ANGBAND_DIR_SCORES;
 
 /*
  * Bone files for player ghosts (ascii)
@@ -885,13 +735,6 @@ void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 
 
 /*
- * Hack -- function hooks to restrict "get_mon_num_prep()" function
- */
-monster_hook_type get_mon_num_hook;
-monster_hook_type get_mon_num2_hook;
-
-
-/*
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
@@ -926,25 +769,6 @@ bool leave_chest;
 bool leave_special;
 
 /*
- * Wilderness
- */
-wilderness_type **wilderness;
-u32b wilderness_seed;
-
-
-/*
- * Buildings
- */
-building_type building[MAX_BLDG];
-
-
-/*
- * Maximum number of quests
- */
-u16b max_quests;
-byte num_random_quests;
-
-/*
  * Maximum number of monsters in r_info.txt
  */
 u16b max_r_idx;
@@ -954,11 +778,6 @@ u16b max_b_idx;
  * Maximum number of items in k_info.txt
  */
 u16b max_k_idx;
-
-/*
- * Maximum number of vaults in v_info.txt
- */
-u16b max_room_idx;
 
 /*
  * Maximum number of terrain features in f_info.txt
@@ -974,27 +793,6 @@ u16b max_a_idx;
  * Maximum number of ego-items in e_info.txt
  */
 u16b max_e_idx;
-
-/*
- * Maximum number of dungeon in d_info.txt
- */
-u16b max_d_idx;
-
-/*
- * Maximum number of objects in the level
- */
-u16b max_o_idx;
-
-/*
- * Maximum number of monsters in the level
- */
-u16b max_m_idx;
-
-/*
- * Maximum size of the wilderness
- */
-s32b max_wild_x;
-s32b max_wild_y;
 
 /*
  * Default spell color table (quark index)
@@ -1014,33 +812,17 @@ int cap_hp;
 int cap_maxhp;
 u16b cap_nickname;
 
-s16b battle_mon[4];
-int sel_monster;
-int battle_odds;
-int kakekin;
-u32b mon_odds[4];
-
 int pet_t_m_idx;
 int riding_t_m_idx;
 
 s16b kubi_r_idx[MAX_KUBI];
 s16b today_mon;
 
-bool write_level;
-
-u32b playtime;
-time_t start_time;
-
 int tsuri_dir;
 
-bool sukekaku;
 bool new_mane;
 
 bool mon_fight;
-
-bool generate_encounter;
-
-cptr screen_dump = NULL;
 
 /*** Terrain feature variables ***/
 
@@ -1049,6 +831,7 @@ s16b feat_none;
 
 /* Floor */
 s16b feat_floor;
+s16b feat_road;
 
 /* Objects */
 s16b feat_glyph;
@@ -1115,24 +898,15 @@ s16b feat_flower;
 s16b feat_brake;
 s16b feat_tree;
 s16b feat_mountain;
+s16b feat_mountain_wall;
 s16b feat_swamp;
 s16b feat_dark_pit;
 s16b feat_web;
+s16b feat_recall;
+s16b feat_travel;
 
 /* Unknown grid (not detected) */
 s16b feat_undetected;
-
-/*
- * Which dungeon ?
- */
-byte dungeon_type;
-s16b *max_dlv;
-u32b *dungeon_flags;
-
-s16b feat_wall_outer;
-s16b feat_wall_inner;
-s16b feat_wall_solid;
-s16b floor_type[100], fill_type[100];
 
 s32b now_turn;
 bool use_menu;

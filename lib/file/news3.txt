@@ -1,30 +1,37 @@
-<color:y>PosChengband <$:version></color>
-<style:screenshot>
-The Steel Bolt (Elemental) (4d5) (+12,+12) misses Hastur the                      
-Unspeakable.                                                          LEVEL <color:G>    50</color>
-<color:G>Hastur the Unspeakable</color> breathes <color:D>Nether</color>. You nimbly dodge the attack!  EXP <color:G>   10.0M</color>
-#   #%###%      <color:s>%%</color>#  <color:s>%</color>    % % <color:D>#</color>#<color:u>.......</color>#  #<color:D>#</color>###<color:u>..............</color>####<color:u>.</color>### AU  <color:G>   7.36M</color>
-#####<color:D>#</color>###%%## <color:s>%</color>##  <color:s>%</color>%% %  ##<color:s>%</color> #<color:s>%</color><color:u>.......</color>#  ####<color:u>...............</color><color:s>%%</color><color:u>...</color># # <color:d>            </color>
-#<color:u>...</color>###%<color:D>#</color>##<color:D>#</color>###  %  %  %%%    # % <color:u>.....</color>#   ##<color:u>......</color><color:U>D</color><color:u>.........</color>##<color:u>.</color><color:D>#</color>## # STR!: <color:G>18/***</color>
-%<color:u>...</color>#  %%%%#<color:D>#</color>#% % <color:s>%</color>   # <color:s>%</color>   <color:s>%</color>#%%  #<color:u>....</color>#  ##<color:u>.................</color><color:U>'</color><color:u>..</color>##    INT!: <color:G>18/120</color>
-#<color:u>...</color>#    %#%  <color:s>%</color>% <color:s>%</color>   #%# % %  %  %   <color:u>..</color># ##<color:u>............</color><color:B>M</color><color:u>.....</color>#<color:u>.</color>##  ## WIS!: <color:G>18/200</color>
-##<color:U>'</color>#%%   #<color:D>#</color>%%  <color:s>%</color>   % %%   <color:s>%</color>%%% <color:s>%</color>   % <color:u>..</color># #<color:u>...............</color>?<color:u>....</color>##   #<color:D>#</color> DEX!: <color:G>18/120</color>
- #<color:u>...</color>##  ##%%%   <color:s>%</color># #        %<color:s>%</color>%%%<color:s>%</color> %<color:s>%</color><color:u>.</color>###<color:u>...................</color>###   #<color:D>#</color> CON!: <color:G>18/***</color>
- ###<color:u>..</color>###%  <color:s>%</color>%#   % % %%%%<color:s>%</color>  <color:s>%</color>#   %  % #<color:D>#</color>#<color:u>............</color><color:b>$</color><color:u>........</color>##  ## CHR!: <color:G>18/150</color>
-   #<color:u>....</color>%#<color:s>%</color>% % # %%<color:s>%</color> <color:s>%</color>    %<color:s>%</color>     # %<color:s>%</color>  <color:D>#</color>###<color:u>.....................</color>###   AC     <color:G>  202</color>
-## ####<color:u>..</color>% <color:s>%%</color>   <color:s>%</color>%  #<color:s>%</color> %<color:s>%</color>%<color:s>%%</color># % # <color:s>%</color>   %<color:u>.................</color><color:r>D</color><color:u>.........</color>### HP <color:y> 920</color>/<color:G>1059</color>
-<color:u>.</color>####<color:D>#</color>%#<color:u>.</color>%  <color:s>%</color>%%%<color:s>%</color>#   %   %  #%#  #   %<color:s>%</color>%<color:u>.</color><color:D>#</color>@<color:u>............</color>{<color:b>H</color>{<color:u>..........</color># SP <color:y> 246</color>/<color:G> 409</color>
-<color:u>..</color>##<color:D>#</color>%##%% % <color:s>%%</color>  %<color:s>%</color>#<color:s>%</color> <color:s>%</color>% %<color:s>%</color> %%%     % <color:u>...</color><color:D>#</color><color:u>...</color><color:U>'</color><color:u>..........</color>{<color:u>............</color>             
-#<color:u>..</color>#<color:D>#</color>#<color:D>#</color>%<color:s>%</color>   %<color:s>%</color> %<color:s>%</color> %#%%#%   % % #%#%<color:s>%</color>  %<color:s>%</color>%<color:s>%%</color>#<color:u>.</color>##<color:u>....</color>d<color:u>........</color><color:g>p</color><color:u>........</color> @ <color:y> 86%</color>      
-##<color:u>...</color>#<color:D>#</color>#  <color:s>%</color> %#<color:s>%</color> %% #  ## #<color:s>%</color>%#% %  <color:s>%</color>   #  ###<color:u>...</color>#<color:u>.....................</color> <color:W>?</color> <color:y> 60%</color>      
-####<color:u>.</color>###<color:s>%</color> %%  %# #<color:s>%</color>     %% #  %#%%%     <color:s>%</color>#<color:u>....</color>#<color:s>%</color><color:u>'...</color>D<color:u>................</color> <color:U>,</color> <color:G>147%</color>      
-<color:u>...</color><color:U>'</color><color:r>^</color><color:u>..</color> # <color:s>%</color> # %    #<color:s>%</color>    % <color:s>%%</color> %<color:s>%</color> #%    <color:s>%%</color>%<color:u>.</color>#<color:u>.</color>#<color:u>'......................</color> <color:b>H</color> <color:R> 20%</color> <color:R>*</color>    
-<color:u>...</color>#<color:u>.</color>##% #  % %# %%%#%<color:s>%</color>%    <color:s>%%</color> <color:s>%</color>#<color:s>%</color> <color:s>%</color>%  <color:s>%</color>% <color:u>.</color>#<color:u>.</color>#<color:u>.......................</color>             
-#<color:U>'</color>#<color:U>'</color><color:u>.</color>##<color:s>%</color> %<color:s>%</color>%  %  %    <color:s>%</color>%<color:s>%</color>  %<color:s>%</color> % <color:s>%</color>  % # # <color:s>%%%</color>#<color:u>........................</color>             
-<color:u>...</color>### #  <color:s>%%</color>   %<color:s>%</color>  %  <color:s>%%</color> <color:s>%</color> ## <color:s>%</color>    #    <color:s>%</color># ##<color:u>...</color>U<color:u>........</color>#<color:u>...........</color> <color:y>Fast (+26)</color>  
-##<color:u>.</color>#####  %<color:s>%%</color>#   #<color:s>%</color>% <color:s>%%</color>   # #   %  <color:s>%</color>  % %# <color:s>%</color><color:u>...........</color>#####<color:u>.</color><color:b>(</color><color:u>.......</color> <color:G>Full</color>        
-#<color:U>'</color><color:u>.</color>##<color:D>#</color>##<color:s>%%</color>%% %      <color:s>%</color>   %     %## ##<color:s>%</color>#<color:s>%</color>%%# #<color:u>..........</color>##<color:D>#</color># ##<color:u>........</color>             
-<color:u>.</color>#<color:u>..</color>#<color:D>#</color># <color:s>%</color>#  % <color:s>%</color> %<color:s>%</color>       % #   %   #<color:s>%%</color>%# # <color:s>%</color><color:u>..........</color>########<color:u>.....</color><color:b>$</color><color:u>.</color>             
-<color:u>....</color>#<color:D>#</color># # <color:s>%%</color>  <color:s>%</color> <color:s>%%</color>% #%#<color:s>%</color> %%   %%%  #  # ## <color:s>%</color><color:u>..........</color>#   #<color:D>##</color>#<color:u>..</color><color:r>^</color><color:u>....</color>             
-<color:W>Dragon's lair: L71</color>                    Hero <color:D>Stealth</color> <color:B>Dodge</color> <color:u>Snipe</color>                    
-</style>
+<color:y>PosChengband <$:version></color><style:screenshot>
+<color:w>Name       : </color><color:B>Pip                           </color><color:w>========== Stats ==========
+Sex        : </color><color:B>Male                                </color><color:w>STR! :    </color><color:G>18/***
+</color><color:w>Personality: </color><color:B>Craven                              </color><color:w>INT! :    </color><color:G>18/110
+</color><color:w>Race       : </color><color:B>Hobbit                              </color><color:w>WIS! :    </color><color:G>18/170
+</color><color:w>Subrace    : </color><color:B>None                                </color><color:w>DEX! :    </color><color:G>18/200
+</color><color:w>Class      : </color><color:B>Warrior                             </color><color:w>CON! :    </color><color:G>18/180
+                                                 </color><color:w>CHR! :    </color><color:G>18/***
+                                        
+</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   :   </color><color:G>950/950
+</color><color:w>Cur Exp    : </color><color:G>29921778                            </color><color:w>SP   :       </color><color:G>0/0
+</color><color:w>Max Exp    : </color><color:G>29921778                            </color><color:w>AC   :       </color><color:G>183
+</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:    </color><color:y>+24+10
+                                        
+                                           </color><color:w>========== Skills =========
+Gold       : </color><color:G>15385490                      </color><color:w>Melee      : </color><color:v>Amber[40]
+</color><color:w>Kills      :    </color><color:G>10727                      </color><color:w>Archery    : </color><color:v>Amber[45]
+</color><color:w>Uniques    :      </color><color:G>246                      </color><color:w>SavingThrow: </color><color:v>Amber[7]
+</color><color:w>Artifacts  :  </color><color:G>153+108                      </color><color:w>Stealth    : </color><color:g>Superb
+                                           </color><color:w>Perception : </color><color:G>Excellent
+</color><color:w>Game Day   :       </color><color:G>69                      </color><color:w>Searching  : </color><color:g>Superb
+</color><color:w>Game Time  :    </color><color:G>16:31                      </color><color:w>Disarming  : </color><color:g>Superb
+</color><color:w>Play Time  :    </color><color:G>23:13                      </color><color:w>Device     : </color><color:g>Superb
+                                        
+</color><color:w>a) The Lochaber Axe of Darkness Storm (6d8) (+19,+22) (+2) {Sr|CoPV/XL/*}
+</color><color:w>b) </color><color:U>The Small Metal Shield of Thorin [5,+21] (+4) {Nt}
+</color><color:w>c) </color><color:u>The Sling of Buckland (x2.75) (+19,+22) (+3) {Ca}
+</color><color:w>d) </color><color:U>a Phase Quiver [60 of 160]
+</color><color:w>e) </color><color:r>The Ring of Power (Nenya) (+2) {Lu}
+</color><color:w>f) </color><color:r>a Ring of Speed (+15) {</color><color:B>A:Speed</color><color:r>}
+</color><color:w>g) </color><color:o>an Amulet of Trickery (+2) {DxSr;Po~Tele(Dx}
+</color><color:w>h) </color><color:y>The Jewel of Judgement (+3)
+</color><color:w>i) </color><color:W>The Metal Scale Mail of Julian (-2) [15,+40] (+4) {Cf}
+</color><color:w>j) </color><color:U>The Cloak of Crystal [1,+20] (+3) {Dx;Sh;Hl}
+</color><color:w>k) </color><color:U>The Iron Helm 'Terror Mask' (+18,+18) [5,+15] (+3) {Hl, .}
+</color><color:w>l) </color><color:U>a Set of Dragon Gloves of Slaying (+4,+7) [4,+20] {SoShCa}
+</color><color:w>m) </color><color:U>The Pair of Soft Leather Boots of Aragorn (+7,+3) [4,+17] (+2)</style>

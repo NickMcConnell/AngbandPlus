@@ -195,7 +195,9 @@ int chaos_rewards[MAX_PATRON][20] =
 
 void chaos_warrior_reward(void)
 {
-    if (one_in_(6))
+    int count = mut_count(mut_unlocked_pred);
+    if (prace_is_(RACE_BEASTMAN)) count = 0;
+    if (one_in_(6 + count*count)) /* XXX removing mutations is now highly non-trivial */
     {
         msg_format("%^s rewards you with a mutation!",
             chaos_patrons[p_ptr->chaos_patron]);
@@ -266,14 +268,14 @@ void chaos_warrior_reward(void)
             msg_format("The voice of %s whispers:",
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Use my gift wisely.'");
-            acquirement(py, px, 1, FALSE, FALSE);
+            acquirement(p_ptr->pos.y, p_ptr->pos.x, 1, FALSE, FALSE);
             break;
         case REW_GREA_OBJ:
             msg_format("The voice of %s booms out:",
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Use my gift wisely.'");
 
-            acquirement(py, px, 1, TRUE, FALSE);
+            acquirement(p_ptr->pos.y, p_ptr->pos.x, 1, TRUE, FALSE);
             break;
         case REW_CHAOS_WP:
         {
@@ -372,12 +374,12 @@ void chaos_warrior_reward(void)
             }
 
             object_prep(&forge, lookup_kind(dummy, dummy2));
-            forge.to_h = 3 + randint1(dun_level) % 10;
-            forge.to_d = 3 + randint1(dun_level) % 10;
+            forge.to_h = 3 + randint1(cave->dun_lvl) % 10;
+            forge.to_d = 3 + randint1(cave->dun_lvl) % 10;
             one_resistance(&forge);
             forge.name2 = EGO_WEAPON_CHAOS;
 
-            drop_near(&forge, -1, py, px);
+            drop_near(&forge, p_ptr->pos, -1);
             break;
         }
         case REW_GOOD_OBS:
@@ -385,14 +387,14 @@ void chaos_warrior_reward(void)
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Thy deed hath earned thee a worthy reward.'");
 
-            acquirement(py, px, randint1(2) + 1, FALSE, FALSE);
+            acquirement(p_ptr->pos.y, p_ptr->pos.x, randint1(2) + 1, FALSE, FALSE);
             break;
         case REW_GREA_OBS:
             msg_format("The voice of %s booms out:",
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Behold, mortal, how generously I reward thy loyalty.'");
 
-            acquirement(py, px, randint1(2) + 1, TRUE, FALSE);
+            acquirement(p_ptr->pos.y, p_ptr->pos.x, randint1(2) + 1, TRUE, FALSE);
             break;
         case REW_TY_CURSE:
             msg_format("The voice of %s thunders:",
@@ -406,13 +408,13 @@ void chaos_warrior_reward(void)
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'My pets, destroy the arrogant mortal!'");
             for (dummy = 0; dummy < randint1(5) + 1; dummy++)
-                summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
+                summon_specific(0, p_ptr->pos, cave->dun_lvl, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
             break;
         case REW_H_SUMMON:
             msg_format("The voice of %s booms out:",
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Thou needst worthier opponents!'");
-            activate_hi_summon(py, px, FALSE);
+            activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
             break;
         case REW_DO_HAVOC:
             msg_format("The voice of %s booms out:",
@@ -471,19 +473,19 @@ void chaos_warrior_reward(void)
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Rise, my servant!'");
             restore_level();
-            set_poisoned(0, TRUE);
-            set_blind(0, TRUE);
-            set_confused(0, TRUE);
-            set_image(0, TRUE);
-            set_stun(0, TRUE);
-            set_cut(0, TRUE);
+            plr_tim_remove(T_POISON);
+            plr_tim_remove(T_BLIND);
+            plr_tim_remove(T_CONFUSED);
+            plr_tim_remove(T_HALLUCINATE);
+            plr_tim_remove(T_STUN);
+            plr_tim_remove(T_CUT);
             hp_player(5000);
             for (dummy = 0; dummy < 6; dummy++)
                 do_res_stat(dummy);
             break;
         case REW_CURSE_WP:
         {
-            int slot = equip_random_slot(object_is_melee_weapon);
+            int slot = equip_random_slot(obj_is_weapon);
             if (slot)
             {
                 msg_format("The voice of %s booms out:",
@@ -495,7 +497,7 @@ void chaos_warrior_reward(void)
         }
         case REW_CURSE_AR:
         {
-            int slot = equip_random_slot(object_is_armour);
+            int slot = equip_random_slot(obj_is_armor);
             if (slot)
             {
                 msg_format("The voice of %s booms out:",
@@ -515,18 +517,18 @@ void chaos_warrior_reward(void)
                     activate_ty_curse(FALSE, &count);
                     break;
                 case 2:
-                    activate_hi_summon(py, px, FALSE);
+                    activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
                     break;
                 case 3:
                     if (one_in_(2))
                     {
-                        int slot = equip_random_slot(object_is_melee_weapon);
+                        int slot = equip_random_slot(obj_is_weapon);
                         if (slot)
                             curse_weapon(FALSE, slot);
                     }
                     else
                     {
-                        int slot = equip_random_slot(object_is_armour);
+                        int slot = equip_random_slot(obj_is_armor);
                         if (slot)
                             curse_armor(slot);
                     }
@@ -544,17 +546,17 @@ void chaos_warrior_reward(void)
             take_hit(DAMAGE_LOSELIFE, p_ptr->lev * 4, wrath_reason);
             for (dummy = 0; dummy < 6; dummy++)
                 dec_stat(dummy, 10 + randint1(15), FALSE);
-            activate_hi_summon(py, px, FALSE);
+            activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
             activate_ty_curse(FALSE, &count);
             if (one_in_(2))
             {
-                int slot = equip_random_slot(object_is_melee_weapon);
+                int slot = equip_random_slot(obj_is_weapon);
                 if (slot)
                     curse_weapon(FALSE, slot);
             }
             if (one_in_(2))
             {
-                int slot = equip_random_slot(object_is_armour);
+                int slot = equip_random_slot(obj_is_armor);
                 if (slot)
                     curse_armor(slot);
             }
@@ -563,7 +565,7 @@ void chaos_warrior_reward(void)
             msg_format("The voice of %s booms out:",
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Death and destruction! This pleaseth me!'");
-            destroy_area(py, px, 25, 3 * p_ptr->lev);
+            destroy_area(p_ptr->pos.y, p_ptr->pos.x, 25, 3 * p_ptr->lev);
             break;
         case REW_GENOCIDE:
             msg_format("The voice of %s booms out:",
@@ -588,17 +590,17 @@ void chaos_warrior_reward(void)
             break;
         case REW_SER_DEMO:
             msg_format("%s rewards you with a demonic servant!",chaos_patrons[p_ptr->chaos_patron]);
-            if (!summon_specific(-1, py, px, dun_level, SUMMON_DEMON, PM_FORCE_PET))
+            if (!summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_DEMON, PM_FORCE_PET))
                 msg_print("Nobody ever turns up...");
             break;
         case REW_SER_MONS:
             msg_format("%s rewards you with a servant!",chaos_patrons[p_ptr->chaos_patron]);
-            if (!summon_specific(-1, py, px, dun_level, 0, PM_FORCE_PET))
+            if (!summon_specific(-1, p_ptr->pos, cave->dun_lvl, 0, PM_FORCE_PET))
                 msg_print("Nobody ever turns up...");
             break;
         case REW_SER_UNDE:
             msg_format("%s rewards you with an undead servant!",chaos_patrons[p_ptr->chaos_patron]);
-            if (!summon_specific(-1, py, px, dun_level, SUMMON_UNDEAD, PM_FORCE_PET))
+            if (!summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_UNDEAD, PM_FORCE_PET))
                 msg_print("Nobody ever turns up...");
             break;
         default:
@@ -658,6 +660,7 @@ static caster_info * _caster_info(void)
         me.min_fail = 5;
         me.min_level = 2;
         me.options = CASTER_GLOVE_ENCUMBRANCE;
+        me.realm1_choices = CH_CHAOS | CH_DAEMON;
         init = TRUE;
     }
     return &me;
@@ -665,23 +668,23 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_BROAD_SWORD, 1);
-    py_birth_obj_aux(TV_HARD_ARMOR, SV_METAL_SCALE_MAIL, 1);
-    py_birth_spellbooks();
+    plr_birth_obj_aux(TV_SWORD, SV_BROAD_SWORD, 1);
+    plr_birth_obj_aux(TV_HARD_ARMOR, SV_METAL_SCALE_MAIL, 1);
+    plr_birth_spellbooks();
 }
 
-class_t *chaos_warrior_get_class(void)
+plr_class_ptr chaos_warrior_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  25,  34,   1,  14,  12,  65,  40};
     skills_t xs = {  7,  11,  10,   0,   0,   0,  20,  17};
 
-        me.name = "Chaos-Warrior";
-        me.desc = "Chaos Warriors are the feared servants of the terrible Demon Lords "
+        me = plr_class_alloc(CLASS_CHAOS_WARRIOR);
+        me->name = "Chaos-Warrior";
+        me->desc = "Chaos Warriors are the feared servants of the terrible Demon Lords "
                     "of Chaos. Every Chaos Warrior has a Patron Demon and, when "
                     "gaining a level, may receive a reward from his Patron. He might "
                     "be healed or polymorphed, his stats could be increased, or he "
@@ -696,30 +699,29 @@ class_t *chaos_warrior_get_class(void)
                     "spell. They have a class power - 'Confusing Light' - which stuns, "
                     "confuses, and scares all monsters in sight.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] =  1;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  0;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  1;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 111;
-        me.base_hp = 12;
-        me.exp = 125;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_STRONG |
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] =  1;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  0;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  1;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 111;
+        me->base_hp = 12;
+        me->exp = 125;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_STRONG |
                    CLASS_SENSE2_STRONG;
         
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.caster_info = _caster_info;
-        me.get_powers = _get_powers;
-        me.gain_level = _gain_level;
-        me.character_dump = spellbook_character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.character_dump = spellbook_character_dump;
     }
 
-    return &me;
+    return me;
 }

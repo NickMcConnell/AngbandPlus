@@ -268,7 +268,7 @@ Dexterity    <color:v> +3</color>        Stealth     <color:b>Heroic       </col
 Constitution <color:w> -2</color>        Searching   <color:o>Fair         </color>
 Charisma     <color:w> -2</color>        Perception  <color:R>Poor         </color>
 Life Rating   80%       Melee       <color:o>Fair         </color>
-Base HP       15        Bows        <color:g>Superb       </color>
+Base HP       15        Bows        <color:o>Fair         </color>
 Experience   150%       Infravision 50'
 </style></indent>
 </indent>
@@ -281,7 +281,7 @@ Strength     <color:w> +1</color>        Disarming   <color:y>Good         </col
 Intelligence <color:w> -5</color>        Device      <color:o>Fair         </color>
 Wisdom       <color:w> -5</color>        Save        <color:G>Excellent    </color>
 Dexterity    <color:w> +0</color>        Stealth     <color:y>Very Good    </color>
-Constitution <color:w> +1</color>        Searching   <color:R>Poor         </color>
+Constitution <color:w> +1</color>        Searching   <color:o>Fair         </color>
 Charisma     <color:w> +0</color>        Perception  <color:r>Bad          </color>
 Life Rating   85%       Melee       <color:G>Excellent    </color>
 Base HP       30        Bows        <color:D>Very Bad     </color>
@@ -293,14 +293,14 @@ Mimics are similar to possessors but instead of controlling the corpses of the v
 Mimics are monsters and do not choose a normal class. Their stats, skills, resistances and spells are determined by the form they assume. Their current body also determines their spell stat (e.g. a novice priest uses wisdom, a novice mage uses intelligence). Their current body may offer innate powers (e.g. breath weapons or rockets) in addition to or in lieu of magical powers (e.g. mana storms and frost bolts). Be sure to check both the racial power command ('U') and the magic command ('m') after assuming a new body.
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength     <color:w> +4</color>        Disarming   <color:y>Good         </color>
-Intelligence <color:w> -2</color>        Device      <color:r>Bad          </color>
-Wisdom       <color:w> -2</color>        Save        <color:o>Fair         </color>
+Strength     <color:w> +0</color>        Disarming   <color:R>Poor         </color>
+Intelligence <color:w> +1</color>        Device      <color:y>Good         </color>
+Wisdom       <color:w> -1</color>        Save        <color:o>Fair         </color>
 Dexterity    <color:w> +2</color>        Stealth     <color:o>Fair         </color>
-Constitution <color:w> +2</color>        Searching   <color:R>Poor         </color>
-Charisma     <color:w> +1</color>        Perception  <color:R>Poor         </color>
-Life Rating  115%       Melee       <color:g>Superb       </color>
-Base HP       15        Bows        <color:g>Superb       </color>
+Constitution <color:w> +0</color>        Searching   <color:o>Fair         </color>
+Charisma     <color:w> -1</color>        Perception  <color:R>Poor         </color>
+Life Rating  108%       Melee       <color:y>Very Good    </color>
+Base HP       15        Bows        <color:G>Excellent    </color>
 Experience   250%       Infravision 0'
 </style></indent>
 <topic:Possessor><color:o>Possessor</color>
@@ -309,14 +309,14 @@ The Possessor is an odd creature, completely harmless in its natural form. Howev
 Possessors are monsters and do not choose a normal class. Their stats, skills, resistances and spells are completely determined by the body they inhabit. Their current body also determines their spell stat (e.g. a novice priest uses wisdom, a novice mage uses intelligence). Their current body may offer innate powers (e.g. breath weapons or rockets) in addition to or in lieu of magical powers (e.g. mana storms and frost bolts). Be sure to check both the racial power command ('U') and the magic command ('m') after possessing a new body.
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength     <color:w> -3</color>        Disarming   <color:r>Bad          </color>
-Intelligence <color:w> +0</color>        Device      <color:r>Bad          </color>
-Wisdom       <color:w> -3</color>        Save        <color:R>Poor         </color>
-Dexterity    <color:w> +0</color>        Stealth     <color:g>Superb       </color>
-Constitution <color:w> -3</color>        Searching   <color:R>Poor         </color>
-Charisma     <color:w> -7</color>        Perception  <color:R>Poor         </color>
-Life Rating   60%       Melee       <color:o>Fair         </color>
-Base HP       15        Bows        <color:r>Bad          </color>
+Strength     <color:w> -3</color>        Disarming   <color:o>Fair         </color>
+Intelligence <color:w> +2</color>        Device      <color:y>Good         </color>
+Wisdom       <color:w> -1</color>        Save        <color:o>Fair         </color>
+Dexterity    <color:w> +2</color>        Stealth     <color:b>Heroic       </color>
+Constitution <color:w> -4</color>        Searching   <color:o>Fair         </color>
+Charisma     <color:w> -3</color>        Perception  <color:y>Good         </color>
+Life Rating   64%       Melee       <color:y>Good         </color>
+Base HP       15        Bows        <color:y>Very Good    </color>
 Experience   250%       Infravision 70'
 </style></indent>
 <topic:Ring><color:o>Ring</color>
@@ -335,7 +335,7 @@ Strength     <color:w> -3</color>        Disarming   <color:o>Fair         </col
 Intelligence <color:v> +4</color>        Device      <color:g>Superb       </color>
 Wisdom       <color:w> +1</color>        Save        <color:y>Good         </color>
 Dexterity    <color:w> +0</color>        Stealth     <color:G>Excellent    </color>
-Constitution <color:w> -1</color>        Searching   <color:R>Poor         </color>
+Constitution <color:w> -1</color>        Searching   <color:o>Fair         </color>
 Charisma     <color:w> +3</color>        Perception  <color:o>Fair         </color>
 Life Rating   85%       Melee       <color:D>Very Bad     </color>
 Base HP       10        Bows        <color:D>Very Bad     </color>
@@ -378,11 +378,9 @@ Experience   150%       Infravision 50'
 </indent>
 <style:heading>Undead</style>
   <indent><topic:Lich><color:o>Lich</color>
-Liches are the undead forms of former sorcerers. Their magic is strong but their fighting is weak. As undead, they quickly gain resistance to cold, poison and nether, and these resistances increase as the lich evolves.
+Liches are skeletal forms back from the dead to hunt the living. Their are several types of liches from the <color:keyword>Archlich</color> with powerful undead sorcery to the <color:keyword>Monastic Lich</color> who prefers martial arts combat, with a necromantic twist. The <color:keyword>Iron Lich</color> is a floating skull with a powerful arsenal of attack spells but severely limited equipment slots. Finally, the <color:keyword> Black Reaver</color> is out to harvest the living, allowing nothing to stand in his way! Each form of lich will begin life as a normal Lich with some weak magic, and must evolve a bit before they gain their specific powers.
  
-Liches are monsters and cannot choose a normal class. Instead, they are born with magical powers and gain additional powers as they advance. Of all the monster races, none can surpass the firepower of an Archlich, but managing to evolve that far can be a challenge. Intelligence is the primary spell stat.
- 
-Liches are humanoid so use the standard set of equipment items. Should they forgo the use of a normal weapon, they may touch their opponents for various powerful effects. However, melee is not the strong suit of the Lich and even their deadly touch is often not enough.
+Liches are monsters and cannot choose a normal class. Instead, they are born with magical powers and gain additional powers as they advance. Intelligence is the primary spell stat. In their initial form, they gain the ability to touch opponents in melee for various foul effects should they forgo the use of a normal melee weapon.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +0</color>        Disarming   <color:o>Fair         </color>
@@ -447,8 +445,8 @@ Jelly         +1   -5   -5   +1   +1   -2   90%  +40  150%  125%
 Quylthulg     -5   -5   -5   -5   -5   +6   95%   +0  150%  120%
 Leprechaun    -2   +1   +1   +3   -2   -2   80%  +15  150%   85%
 Death-Sword   +1   -5   -5   +0   +1   +0   85%  +30  150%  110%
-Mimic         +4   -2   -2   +2   +2   +1  115%  +15  250%  110%
-Possessor     -3   +0   -3   +0   -3   -7   60%  +15  250%  110%
+Mimic         +0   +1   -1   +2   +0   -1  108%  +15  250%  110%
+Possessor     -3   +2   -1   +2   -4   -3   64%  +15  250%  110%
 Ring          -3   +4   +1   +0   -1   +3   85%  +10  150%  110%
 Giant         +6   -3   -3   -2   +3   +0  107%  +46  200%  130%
 Troll         +3   -5   -5   -2   +3   +0  100%  +50  150%  135%
@@ -474,8 +472,8 @@ Jelly        <color:y>Good         </color> <color:r>Bad          </color> <colo
 Quylthulg    <color:o>Fair         </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:g>Superb       </color>
 Leprechaun   <color:y>Very Good    </color> <color:b>Heroic       </color> <color:y>Good         </color> <color:b>Heroic       </color>
 Death-Sword  <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:y>Very Good    </color>
-Mimic        <color:y>Good         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
-Possessor    <color:r>Bad          </color> <color:r>Bad          </color> <color:R>Poor         </color> <color:g>Superb       </color>
+Mimic        <color:R>Poor         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color>
+Possessor    <color:o>Fair         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:b>Heroic       </color>
 Ring         <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:G>Excellent    </color>
 Giant        <color:o>Fair         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Troll        <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
@@ -499,11 +497,11 @@ Vortex       <color:r>Bad          </color> <color:r>Bad          </color> <colo
 Golem        <color:r>Bad          </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:r>Bad          </color>   50'
 Jelly        <color:R>Poor         </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:r>Bad          </color>    0'
 Quylthulg    <color:o>Fair         </color> <color:y>Good         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>   50'
-Leprechaun   <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:g>Superb       </color>   50'
-Death-Sword  <color:R>Poor         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:D>Very Bad     </color>   30'
-Mimic        <color:R>Poor         </color> <color:R>Poor         </color> <color:g>Superb       </color> <color:g>Superb       </color>    0'
-Possessor    <color:R>Poor         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:r>Bad          </color>   70'
-Ring         <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>   50'
+Leprechaun   <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:o>Fair         </color>   50'
+Death-Sword  <color:o>Fair         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:D>Very Bad     </color>   30'
+Mimic        <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Very Good    </color> <color:G>Excellent    </color>    0'
+Possessor    <color:o>Fair         </color> <color:y>Good         </color> <color:y>Good         </color> <color:y>Very Good    </color>   70'
+Ring         <color:o>Fair         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>   50'
 Giant        <color:R>Poor         </color> <color:r>Bad          </color> <color:b>Heroic       </color> <color:o>Fair         </color>   50'
 Troll        <color:R>Poor         </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:r>Bad          </color>   50'
 Lich         <color:o>Fair         </color> <color:y>Good         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>   50'
@@ -513,4 +511,4 @@ Xorn         <color:R>Poor         </color> <color:r>Bad          </color> <colo
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.0.1.</color>
+<color:s>Automatically generated for PosChengband 7.1.0.</color>

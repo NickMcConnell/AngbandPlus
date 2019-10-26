@@ -89,9 +89,9 @@ B:4:R:Spectre:None
 B:4:R:Ent:None
 B:4:R:Balrog:None
 B:4:R:Android:None
-B:4:R:Demon:None
-B:4:R:Lich:None
-B:4:R:Jelly:None
+#B:4:R:Demon:None
+#B:4:R:Lich:None
+#B:4:R:Jelly:None
 
 B:5:N:Beastmaster:Aradreth:Elf
 B:5:A:0:Research monster:1500:1500:r:20:0
@@ -107,7 +107,6 @@ B:7:C:*:None
 B:7:C:Warrior:Owner
 B:7:C:Samurai:Owner
 B:7:C:Cavalry:Owner
-B:7:C:Berserker:Owner
 B:7:C:Blood-Knight:Owner
 B:7:C:Mauler:Owner
 
@@ -116,7 +115,6 @@ B:8:A:0:Identify posessions:200:1000:i:26:0
 B:8:C:*:None
 B:8:C:Mage:Owner
 B:8:C:High-Mage:Owner
-B:8:C:Blood-Mage:Owner
 B:8:C:Sorcerer:Owner
 B:8:C:Yellow-Mage:Owner
 B:8:C:Gray-Mage:Owner
@@ -169,13 +167,13 @@ M:                #########,TT-TTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 M:                #########,T       T,T                                                                           
 M: z                 ######,T       T,T                                                                           
 M:                   #####d,T       T,T                                                                           
-M:                   ######TT       T,T                                                                           
-M:                                  T,T                                                                           
-M:                                  T,T                                                                           
-M:          #####                   T,T                                                                           
-M:          #####                   T,T                  ##   ##                                                  
-M:          #####                   T,T                  #######                                                  
-M:  ####    #####                   T,T              -TT-T#####                                                   
+M:                   ######TT       T,T     TTTTT                                                                 
+M:                                  T,T    TTWWWTT                                                                
+M:                                  T,TTTTTTWVTVWT                                                                
+M:          #####                   T,,,,,,,WT*TWT                                                                
+M:          #####                   T,TTTTTTWVTVWT       ##   ##                                                  
+M:          #####                   T,T    TTWWWTT       #######                                                  
+M:  ####    #####                   T,T     TTTTT    -TT-T#####                                                   
 M:  ####TTTT##6##   #####           T,T              T,,,,l####          ######                                   
 M:  ###9,,,TT-,TT-TT#####           T,T              -,TTT#####          ######                                   
 M:  ####-T,,,,,,,,,,5####          TT,T-           -TT,-T#######         ######                                   

@@ -18,9 +18,9 @@ static void _birth(void)
         memset(&_staves[i], 0, sizeof(object_type));
         memset(&_rods[i], 0, sizeof(object_type));
     }
-    py_birth_obj_aux(TV_WAND, EFFECT_BOLT_MISSILE, 1);
-    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_WAND, EFFECT_BOLT_MISSILE, 1);
+    plr_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
 }
 
 static object_type *_which_list(int tval)
@@ -57,7 +57,7 @@ static void _display(object_type *list, rect_t display)
 {
     char    buf[MAX_NLEN];
     int     i;
-    point_t pos = rect_topleft(display);
+    point_t pos = rect_top_left(display);
     int     padding, max_o_len = 20;
     doc_ptr doc = NULL;
 
@@ -272,14 +272,12 @@ static object_type *_choose(cptr verb, int tval, int options)
 static void _use_object(object_type *o_ptr)
 {
     int  boost = device_power(100) - 100;
-    u32b flgs[OF_ARRAY_SIZE];
     bool used = FALSE;
     int  charges = 1;
 
     energy_use = 100;
 
-    obj_flags(o_ptr, flgs);
-    if (have_flag(flgs, OF_SPEED))
+    if (obj_has_flag(o_ptr, OF_SPEED))
         energy_use -= energy_use * o_ptr->pval / 10;
 
     if (!fear_allow_device())
@@ -335,12 +333,12 @@ void magic_eater_cast(int tval)
 
     /* Duplicate anti-magic checks since "device" commands might re-route here (as "magic" commands)
        For example, do_cmd_use_staff() will allow magic-eaters to invoke staff based spells. */
-    if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC))
+    if (cave->dun_type_id == D_SURFACE && (cave->flags & DF_NO_MAGIC))
     {
         msg_print("The dungeon absorbs all attempted magic!");
         return;
     }
-    else if (p_ptr->tim_no_spells)
+    else if (plr_tim_find(T_NO_SPELLS))
     {
         msg_print("Your spells are blocked!");
         return;
@@ -350,13 +348,13 @@ void magic_eater_cast(int tval)
         msg_print("An anti-magic shell disrupts your magic!");
         return;
     }
-    else if (IS_SHERO())
+    else if (plr_tim_find(T_BERSERK))
     {
         msg_print("You cannot think clearly!");
         return;
     }
 
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;
@@ -379,7 +377,7 @@ static bool gain_magic(void)
 
     prompt.prompt = "Gain power of which item?";
     prompt.error = "You have nothing to gain power from.";
-    prompt.filter = object_is_device;
+    prompt.filter = obj_is_device;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_FLOOR;
 
@@ -405,7 +403,6 @@ static bool gain_magic(void)
     *dest_ptr = *prompt.obj;
 
     dest_ptr->loc.where = 0;
-    dest_ptr->loc.slot = 0;
     dest_ptr->inscription = 0;
     obj_identify_fully(dest_ptr);
     stats_on_identify(dest_ptr);
@@ -415,7 +412,7 @@ static bool gain_magic(void)
     return TRUE;
 }
 
-static void _absorb_magic_spell(int cmd, variant *res)
+static void _absorb_magic_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -464,13 +461,10 @@ static void _do_regen(int tval)
         object_type *o_ptr = _which_obj(tval, i);
         if (o_ptr->k_idx)
         {
-            int  amt = base;
-            u32b flgs[OF_ARRAY_SIZE];
+            int amt = base;
 
-            obj_flags(o_ptr, flgs);
-            if (have_flag(flgs, OF_REGEN))
+            if (obj_has_flag(o_ptr, OF_REGEN))
                 amt += o_ptr->pval * base / 5;
-
             device_regen_sp_aux(o_ptr, amt);
         }
     }
@@ -715,19 +709,18 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
-class_t *magic_eater_get_class(void)
+plr_class_ptr magic_eater_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    /* static info never changes */
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  42,  36,   2,  20,  16,  48,  35 };
     skills_t xs = {  7,  16,  10,   0,   0,   0,  13,  11 };
 
-        me.name = "Magic-Eater";
-        me.desc = "The Magic-Eater can absorb magical devices. Once absorbed, "
+        me = plr_class_alloc(CLASS_MAGIC_EATER);
+        me->name = "Magic-Eater";
+        me->desc = "The Magic-Eater can absorb magical devices. Once absorbed, "
                     "these devices will function like normal objects and can be "
                     "used whenever charges are available. In effect, it is as "
                     "if the Magic-Eater had extra inventory slots for devices. "
@@ -742,28 +735,27 @@ class_t *magic_eater_get_class(void)
                     "mana to speed this process, though this will not necessarily "
                     "restore all of their absorbed magic.";
 
-        me.stats[A_STR] = -1;
-        me.stats[A_INT] =  2;
-        me.stats[A_WIS] =  1;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] = -2;
-        me.stats[A_CHR] = -2;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 103;
-        me.base_hp = 6;
-        me.exp = 130;
-        me.pets = 30;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] = -1;
+        me->stats[A_INT] =  2;
+        me->stats[A_WIS] =  1;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] = -2;
+        me->stats[A_CHR] = -2;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 103;
+        me->base_hp = 6;
+        me->exp = 130;
+        me->pets = 30;
+        me->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
-        me.birth = _birth;
-        me.get_powers = _get_powers;
-        me.character_dump = _character_dump;
-        me.load_player = _load_player;
-        me.save_player = _save_player;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.load_player = _load_player;
+        me->hooks.save_player = _save_player;
     }
 
-    return &me;
+    return me;
 }

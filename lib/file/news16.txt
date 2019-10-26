@@ -1,26 +1,37 @@
-<color:y>PosChengband <$:version></color>
-<style:screenshot>
-<color:D>xxxxxxxxxxxx</color>                               ###  ##     %              LEVEL <color:G>    39</color>
-<color:D>xxxxxxxxxxx</color>                                  ## ###    #              EXP <color:G>    269k</color>
-<color:D>xxxxxxxxxxx</color>                                   #<color:U><</color>       #              AU  <color:G>   1.51M</color>
-<color:D>xxxxxxxx</color>###<color:s>%</color>##############                    #####    #              <color:d>            </color>
-<color:D>xxxxxxxxx</color>      <color:s>/</color>         #                        #   #%              STR!: <color:G>18/160</color>
-<color:D>xxxxxxx</color>#<color:o>*</color>#<color:s>%</color>###<color:u>'</color>######### #                        ###%#               INT : <color:G>18/***</color>
-<color:D>xxxxxxxx</color><color:B>###############</color># #                                            WIS : <color:G> 18/56</color>
-<color:D>xxxxxxx</color>###<color:s>%</color>###<color:U>'</color>######### #                                            DEX!: <color:G>18/***</color>
-<color:D>xxxxxxx</color>#<color:y>PPP</color>  <color:y>PPP</color> <color:y>P</color> <color:y>PP</color>#   #                                            CON : <color:G>18/146</color>
-<color:D>xxxxxxx</color><color:s>%%</color>##<color:s>%</color>##<color:U>'</color><color:s>%</color>%#####   #                                            CHR : <color:G>18/103</color>
-<color:D>xxxxxx</color>   #  <color:s>P</color> <color:s>P</color> <color:y>P</color> <color:y>P</color>      <color:s>%</color>                                            AC     <color:G>  185</color>
-<color:D>xxxxxx</color>   <color:s>%%</color>#<color:s>%%</color><color:U>'</color><color:s>P</color>P<color:y>P</color> PP    #                                            HP <color:G> 688</color>/<color:G> 688</color>
-<color:D>xxxxxx</color>     <color:s>%</color>   <color:y>P</color> %P P    #                                            SP <color:y> 255</color>/<color:G> 328</color>
-<color:D>xxxxx</color>      %#<color:s>%</color>#%%% <color:s>P</color> <color:s>P</color>   #                                                        
-<color:D>xxxxx</color>                 <color:s>P</color>  #                                            @ <color:G>100%</color>      
-<color:D>xxxx</color><color:s>%%</color>#%<color:s>%%%%</color>#<color:s>%%</color>#%%<color:s>%</color>%<color:s>%</color>#% <color:s>PP</color>                                            <color:y>?</color> <color:y> 77%</color>      
-<color:D>xxxxx</color>                  <color:s>%</color> <color:s>P</color>                                            <color:U>,</color> <color:G>140%</color>      
-<color:D>xxxxx</color>                  <color:s>%</color> <color:s>%%%</color>#<color:s>%%</color>#<color:s>%</color>                                                 
-<color:D>xxxxx</color>                  <color:s>%</color>     <color:R>v</color>  #                            <color:s>%</color>%#<color:s>%</color>###<color:s>%</color>             
-<color:D>xxxx</color>                   %<color:s>%</color>#<color:s>%</color>#%#<color:s>%</color><color:U>+</color><color:o>*</color>%#<color:s>%%</color>#%<color:s>%%</color>#%#%<color:s>%</color>%<color:s>%</color><color:o>*</color><color:s>%%%</color>##<color:s>%</color>%%<color:s>%</color>#<color:s>%</color>#%     #              
-<color:D>xxxx</color>                          <color:o>*</color>...@...>                        <color:s>%</color>## #  <color:y>Fast (+21)</color>  
-<color:D>xxxx</color>                          #<color:U>'</color>%<color:s>%%%</color>#<color:s>%</color>###<color:s>%</color>#%#%%#<color:s>%</color>%<color:s>%%</color>## <color:s>%%</color>%###### #    <color:G>Full</color>        
-<color:D>xxxxx</color>                         <color:s>%</color>     %               ##<color:s>%</color> #        #    <color:B>Study (17)</color>  
-</style>
+<color:y>PosChengband <$:version></color><style:screenshot>
+<color:w>Name       : </color><color:B>Nimrod                        </color><color:w>========== Stats ==========
+Sex        : </color><color:B>Male                                </color><color:w>STR! :    </color><color:G>18/120
+</color><color:w>Personality: </color><color:B>Combat                              </color><color:w>INT! :    </color><color:G>18/180
+</color><color:w>Race       : </color><color:B>Skeleton                            </color><color:w>WIS! :     </color><color:G>18/90
+</color><color:w>Subrace    : </color><color:B>None                                </color><color:w>DEX! :    </color><color:G>18/***
+</color><color:w>Class      : </color><color:B>Devicemaster                        </color><color:w>CON! :    </color><color:G>18/200
+</color><color:w>Subclass   : </color><color:B>Rods                                </color><color:w>CHR! :     </color><color:G>18/80
+                                        
+</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   :   </color><color:r>-14/930
+</color><color:w>Cur Exp    : </color><color:y>14619513                            </color><color:w>SP   :   </color><color:y>102/362
+</color><color:w>Max Exp    : </color><color:G>15222521                            </color><color:w>AC   :       </color><color:G>176
+</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:       </color><color:G>+30
+                                        
+                                           </color><color:w>========== Skills =========
+Gold       :  </color><color:G>1994012                      </color><color:w>Melee      : </color><color:v>Amber[10]
+</color><color:w>Kills      :     </color><color:G>9086                      </color><color:w>Archery    : </color><color:v>Amber[15]
+</color><color:w>Uniques    :      </color><color:G>199                      </color><color:w>SavingThrow: </color><color:g>Superb
+</color><color:w>Artifacts  :   </color><color:G>103+58                      </color><color:w>Stealth    : </color><color:b>Heroic
+                                           </color><color:w>Perception : </color><color:b>Heroic
+</color><color:w>Game Day   :       </color><color:G>74                      </color><color:w>Searching  : </color><color:g>Superb
+</color><color:w>Game Time  :    </color><color:G>12:34                      </color><color:w>Disarming  : </color><color:g>Superb
+</color><color:w>Play Time  :    </color><color:G>21:59                      </color><color:w>Device     : </color><color:v>Amber[10]
+                                        
+</color><color:w>a) The Katana 'Kusanagi-no-tsurugi' (4d4) (+15,+15) (+3)
+</color><color:w>b) </color><color:U>The Large Metal Shield of Anarion [8,+18] {So}
+</color><color:w>c) </color><color:u>The Short Bow 'Bull Elephant' (x2.50) (+19,+31) (+4) {Cn;DiFe(Cn}
+</color><color:w>d) </color><color:U>a Quiver of Protection [1 of 140]
+</color><color:w>e) </color><color:r>a Ring of Speed (+11)
+</color><color:w>f) </color><color:r>a Ring of Speed (+12)
+</color><color:w>g) </color><color:o>an Amulet of Trickery (+5) {SlSr;PoDk </color><color:B>A:Sleep Monsters</color><color:o>}
+</color><color:w>h) </color><color:y>The Jewel of Judgement (+3) {!!}
+</color><color:w>i) </color><color:W>The Metal Brigandine Armour of the Hunter (+6,+11) [19,+25] (+2) {Cn;*Co;FiPoCfNxSoDi;Sd}
+</color><color:w>j) </color><color:U>an Elven Cloak of Elemental Protection [4,+21] (+4) {AcElFiCo}
+</color><color:w>k) </color><color:U>The Jewel Encrusted Crown of Eyes [0,+25] (+3)
+</color><color:w>l) </color><color:U>The Set of Leather Gloves 'Cambeleg' (+8,+8) [1,+15] (+2)
+</color><color:w>m) </color><color:U>The Pair of Soft Leather Boots of Shiva's Avatar (+5,+5) [4,+16] (+4)</style>

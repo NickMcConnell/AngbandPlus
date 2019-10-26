@@ -17,25 +17,25 @@ static void _calc_bonuses(void)
 {
     p_ptr->to_a -= 50;
     p_ptr->dis_to_a -= 50;
+    p_ptr->wizard_sight = TRUE;
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    if ( object_is_(o_ptr, TV_HAFTED, SV_WIZSTAFF)
-      || object_is_(o_ptr, TV_HAFTED, SV_NAMAKE_HAMMER) )
+    if (object_is_(obj, TV_HAFTED, SV_WIZSTAFF))
     {
-        info_ptr->to_h -= 30;
-        info_ptr->to_d -= 10;
-        info_ptr->dis_to_h -= 30;
-        info_ptr->dis_to_d -= 10;
+        info->to_h -= 30;
+        info->to_d -= 10;
+        info->dis_to_h -= 30;
+        info->dis_to_d -= 10;
     }
     else
     {
-        info_ptr->to_h -= 200;
-        info_ptr->to_d -= 200;
-        info_ptr->dis_to_h -= 200;
-        info_ptr->dis_to_d -= 200;
-        info_ptr->icky_wield = TRUE;
+        info->to_h -= 200;
+        info->to_d -= 200;
+        info->dis_to_h -= 200;
+        info->dis_to_d -= 200;
+        add_flag(info->paf_flags, PAF_ICKY);
     }
 }
 
@@ -62,29 +62,29 @@ static void _birth(void)
     for (i = 0; i < 64; i++)
         p_ptr->spell_exp[i] = SPELL_EXP_MASTER;
 
-    py_birth_obj_aux(TV_HAFTED, SV_WIZSTAFF, 1);
-    py_birth_obj_aux(TV_WAND, EFFECT_BOLT_MISSILE, 1);
-    py_birth_obj_aux(TV_POTION, SV_POTION_CLARITY, rand_range(10, 20));
+    plr_birth_obj_aux(TV_HAFTED, SV_WIZSTAFF, 1);
+    plr_birth_obj_aux(TV_WAND, EFFECT_BOLT_MISSILE, 1);
+    plr_birth_obj_aux(TV_POTION, SV_POTION_CLARITY, rand_range(10, 20));
 
     for (i = TV_LIFE_BOOK; i < TV_LIFE_BOOK + MAX_MAGIC; i++)
     {
         if (i == TV_NECROMANCY_BOOK) continue;
-        py_birth_obj_aux(i, 0, 1);
+        plr_birth_obj_aux(i, 0, 1);
     }
 }
 
-class_t *sorcerer_get_class(void)
+plr_class_ptr sorcerer_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  48,  75,   2,  12,  22,   0,   0};
     skills_t xs = {  7,  18,  13,   0,   0,   0,   0,   0};
 
-        me.name = "Sorcerer";
-        me.desc = "Sorcerers are the all-around best magicians, being able to cast "
+        me = plr_class_alloc(CLASS_SORCERER);
+        me->name = "Sorcerer";
+        me->desc = "Sorcerers are the all-around best magicians, being able to cast "
                     "any spell from most magic realms without having to learn it. On "
                     "the downside, they are the worst fighters in the dungeon, being "
                     "unable to use any weapon but a Wizardstaff.\n \n"
@@ -93,31 +93,28 @@ class_t *sorcerer_get_class(void)
                     "They have a class power - 'Eat Magic' - which absorbs mana from "
                     "wands, staves or rods.";
 
-        me.stats[A_STR] = -5;
-        me.stats[A_INT] =  0;
-        me.stats[A_WIS] = -2;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  0;
-        me.stats[A_CHR] =  6;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 65;
-        me.base_hp = 0;
-        me.exp = 160;
-        me.pets = 25;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] = -5;
+        me->stats[A_INT] =  0;
+        me->stats[A_WIS] = -2;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  0;
+        me->stats[A_CHR] =  6;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 65;
+        me->base_hp = 0;
+        me->exp = 160;
+        me->pets = 25;
+        me->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG | CLASS_MAGE_BONUS;
         
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.caster_info = _caster_info;
-        /* TODO: This class uses spell books, so we are SOL
-        me.get_spells = _get_spells;*/
-        me.get_powers = _get_powers;
-        me.character_dump = spellbook_character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = spellbook_character_dump;
     }
 
-    return &me;
+    return me;
 }

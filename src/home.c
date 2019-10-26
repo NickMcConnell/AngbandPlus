@@ -94,7 +94,14 @@ void home_display(doc_ptr doc, obj_p p, int flags)
         obj_ptr obj = inv_obj(inv, slot);
         if (!obj) continue; /* bug */
         object_desc(name, obj, OD_COLOR_CODED);
-        doc_printf(doc, "<color:R>%6d</color> <indent><style:indent>%s</style></indent>\n", obj->scratch, name);
+        doc_printf(doc, "<color:R>%6d</color> <indent><style:indent>", obj->scratch);
+        if (equippy_chars)
+        {
+            obj_kind_ptr kind = &k_info[obj->k_idx];
+            doc_insert_char(doc, kind->d_attr, kind->d_char);
+            doc_insert_char(doc, TERM_WHITE, ' ');
+        }
+        doc_printf(doc, "%s</style></indent>\n", name);
     }
     inv_free(inv);
 }
@@ -217,7 +224,11 @@ static void _ui(_ui_context_ptr context)
             switch (cmd)
             {
             case 'g': case 'b': case 'p':  _get(context); break;
-            case 'd': case 's':  _drop(context); break;
+            case 'd': case 's':
+                command_cmd = cmd; /* hack for !s and !d inscriptions */
+                _drop(context);
+                command_cmd = '\0';
+                break;
             case 'x': _examine(context); break;
             case 'r': _remove(context); break;
             case '?':

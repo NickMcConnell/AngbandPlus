@@ -11,7 +11,7 @@
 /* Purpose: Wizard commands */
 
 #include "angband.h"
-
+#include "dun_gen.h"
 #include <assert.h>
 
 /* Statistics: Use the wizard commands '-' and '=' to gather statistics.
@@ -76,6 +76,14 @@ static void _stats_reset_monster_levels(void)
         _monster_levels[i].total = 0;
         _monster_levels[i].count = 0;
     }
+    #if 1
+    /* This is useful for testing custom dun_type_s.mon_alloc_f's */
+    for (i = 1; i < max_r_idx; i++)
+    {
+        r_info[i].r_pkills = 0;
+        r_info[i].r_akills = 0;
+    }
+    #endif
 }
 
 static void _stats_note_monster_level(int dlvl, int mlvl)
@@ -217,7 +225,7 @@ static bool wiz_dimension_door(void)
  */
 static void wiz_create_named_art(int a_idx)
 {
-    if (create_named_art(a_idx, py, px))
+    if (create_named_art(a_idx, p_ptr->pos))
         a_info[a_idx].generated = TRUE;
 }
 
@@ -226,16 +234,16 @@ static void wiz_create_named_art(int a_idx)
 /* Summon a horde of monsters */
 static void do_cmd_summon_horde(void)
 {
-    int wy = py, wx = px;
+    point_t pos;
     int attempts = 1000;
 
     while (--attempts)
     {
-        scatter(&wy, &wx, py, px, 3, 0);
-        if (cave_empty_bold(wy, wx)) break;
+        pos = scatter(p_ptr->pos, 3);
+        if (cave_empty_at(pos)) break;
     }
 
-    (void)alloc_horde(wy, wx);
+    alloc_horde(pos, cave->difficulty);
 }
 
 #endif /* MONSTER_HORDES */
@@ -454,6 +462,7 @@ static tval_desc tvals[] =
     { TV_FLASK,             "Flask"                },
     { TV_JUNK,              "Junk"                 },
     { TV_SKELETON,          "Skeleton"             },
+    { TV_QUIVER,            "Quiver"               },
     { 0,                    NULL                   }
 };
 
@@ -614,7 +623,7 @@ static void wiz_create_item(void)
             if (a_info[i].sval != k_info[k_idx].sval) continue;
 
             /* Create this artifact */
-            if (create_named_art(i, py, px))
+            if (create_named_art(i, p_ptr->pos))
                 a_info[i].generated = TRUE;
 
             /* All done */
@@ -652,14 +661,16 @@ static void wiz_create_item(void)
     object_prep(q_ptr, k_idx);
 
     /* Apply magic */
-    apply_magic(q_ptr, dun_level, AM_NO_FIXED_ART);
+    apply_magic(q_ptr, cave->dun_lvl, AM_NO_FIXED_ART);
     if (k_info[k_idx].tval == TV_CORPSE)
-        q_ptr->pval = n;
+    {
+        if (n) q_ptr->pval = n;
+    }
     else
         q_ptr->number = n;
 
     /* Drop the object from heaven */
-    (void)drop_near(q_ptr, -1, py, px);
+    (void)drop_near(q_ptr, p_ptr->pos, -1);
 
     /* All done */
     msg_print("Allocated.");
@@ -703,15 +714,15 @@ static void do_cmd_wiz_cure_all(void)
     }
 
     /* Cure stuff */
-    (void)set_blind(0, TRUE);
-    (void)set_confused(0, TRUE);
-    (void)set_poisoned(0, TRUE);
+    plr_tim_remove(T_BLIND);
+    plr_tim_remove(T_CONFUSED);
+    plr_tim_remove(T_POISON);
     fear_clear_p();
-    (void)set_paralyzed(0, TRUE);
-    (void)set_image(0, TRUE);
-    (void)set_stun(0, TRUE);
-    (void)set_cut(0, TRUE);
-    (void)set_slow(0, TRUE);
+    plr_tim_remove(T_PARALYZED);
+    plr_tim_remove(T_HALLUCINATE);
+    plr_tim_remove(T_STUN);
+    plr_tim_remove(T_CUT);
+    plr_tim_remove(T_SLOW);
 
     /* No longer hungry
     (void)set_food(PY_FOOD_MAX - 1);*/
@@ -723,75 +734,17 @@ static void do_cmd_wiz_cure_all(void)
  */
 static void do_cmd_wiz_jump(void)
 {
-    /* Ask for level */
-    if (command_arg <= 0)
-    {
-        char    ppp[80];
+    dun_type_ptr type = dun_types_choose("Jump to Which Dungeon?", TRUE);
+    int          dun_lvl;
 
-        char    tmp_val[160];
-        int        tmp_dungeon_type;
+    if (!type) return;
+    if (cave->dun_type_id == type->id)
+        dun_lvl = cave->dun_lvl;
+    else
+        dun_lvl = MAX(type->plr_max_lvl, type->min_dun_lvl);
 
-        /* Prompt */
-        sprintf(ppp, "Jump which dungeon : ");
-
-        /* Default */
-        sprintf(tmp_val, "%d", dungeon_type);
-
-        /* Ask for a level */
-        if (!get_string(ppp, tmp_val, 2)) return;
-
-        tmp_dungeon_type = atoi(tmp_val);
-        if (!d_info[tmp_dungeon_type].maxdepth || (tmp_dungeon_type > max_d_idx)) tmp_dungeon_type = DUNGEON_ANGBAND;
-
-        /* Prompt */
-        sprintf(ppp, "Jump to level (0, %d-%d): ", d_info[tmp_dungeon_type].mindepth, d_info[tmp_dungeon_type].maxdepth);
-
-        /* Default */
-        sprintf(tmp_val, "%d", dun_level);
-
-        /* Ask for a level */
-        if (!get_string(ppp, tmp_val, 10)) return;
-
-        /* Extract request */
-        command_arg = atoi(tmp_val);
-
-        dungeon_type = tmp_dungeon_type;
-    }
-
-    /* Paranoia */
-    if (command_arg < d_info[dungeon_type].mindepth) command_arg = 0;
-
-    /* Paranoia */
-    if (command_arg > d_info[dungeon_type].maxdepth) command_arg = d_info[dungeon_type].maxdepth;
-
-    /* Accept request */
-    msg_format("<color:U>You jump to dungeon level %d:</color>", command_arg);
-
-    if (autosave_l) do_cmd_save_game(TRUE);
-
-    /* Change level */
-    dun_level = command_arg;
-
-    prepare_change_floor_mode(CFM_RAND_PLACE);
-
-    if (!dun_level) dungeon_type = 0;
-    p_ptr->inside_arena = FALSE;
-    p_ptr->wild_mode = FALSE;
-
-    quests_on_leave();
-    energy_use = 0;
-
-    /* Prevent energy_need from being too lower than 0 */
-    p_ptr->energy_need = 0;
-
-    /*
-     * Clear all saved floors
-     * and create a first saved floor
-     */
-    prepare_change_floor_mode(CFM_FIRST_FLOOR);
-
-    /* Leaving */
-    p_ptr->leaving = TRUE;
+    if (msg_input_num("Level", &dun_lvl, type->min_dun_lvl, type->max_dun_lvl))
+        dun_mgr_wizard_jump(type->id, dun_lvl);
 }
 
 
@@ -835,7 +788,7 @@ static void do_cmd_wiz_summon(int num)
 
     for (i = 0; i < num; i++)
     {
-        (void)summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+        (void)summon_specific(0, p_ptr->pos, cave->dun_lvl, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
     }
 }
 
@@ -847,8 +800,8 @@ static void do_cmd_wiz_summon(int num)
  */
 static void do_cmd_wiz_named(int r_idx)
 {
-    int x = px;
-    int y = py;
+    int x = p_ptr->pos.x;
+    int y = p_ptr->pos.y;
 
     if (target_who < 0)
     {
@@ -857,7 +810,7 @@ static void do_cmd_wiz_named(int r_idx)
     }
 
     {
-        monster_race *r_ptr = &r_info[r_idx];
+        monster_race *r_ptr = mon_race_lookup(r_idx);
         if (((r_ptr->flags1 & (RF1_UNIQUE)) ||
                 (r_ptr->flags7 & (RF7_NAZGUL))) &&
             (r_ptr->cur_num >= r_ptr->max_num))
@@ -867,7 +820,7 @@ static void do_cmd_wiz_named(int r_idx)
         }
     }
 
-    (void)summon_named_creature(0, y, x, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
+    (void)summon_named_creature(0, point_create(x, y), r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
 }
 
 
@@ -878,7 +831,7 @@ static void do_cmd_wiz_named(int r_idx)
  */
 static void do_cmd_wiz_named_friendly(int r_idx)
 {
-    (void)summon_named_creature(0, py, px, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP | PM_FORCE_PET));
+    (void)summon_named_creature(0, p_ptr->pos, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP | PM_FORCE_PET));
 }
 
 
@@ -888,28 +841,19 @@ static void do_cmd_wiz_named_friendly(int r_idx)
  */
 static void do_cmd_wiz_zap(void)
 {
-    int i;
-
-
-    /* Genocide everyone nearby */
-    for (i = 1; i < m_max; i++)
+    vec_ptr v = dun_filter_mon(cave, NULL);
+    int     i;
+    for (i = 0; i < vec_length(v); i++)
     {
-        monster_type *m_ptr = &m_list[i];
+        mon_ptr mon = vec_get(v, i);
+        bool    fear = FALSE;
 
-        /* Paranoia -- Skip dead monsters */
-        if (!m_ptr->r_idx) continue;
-
-        /* Skip the mount */
-        if (i == p_ptr->riding) continue;
-
-        /* Delete nearby monsters */
-        if (m_ptr->cdis <= MAX_SIGHT)
-        {
-            bool fear = FALSE;
-            mon_take_hit(i, m_ptr->hp + 1, &fear, NULL);
-            /*delete_monster_idx(i);*/
-        }
+        if (mon_is_dead(mon)) continue; /* killed by nearby exploding monster */
+        if (mon->id == p_ptr->riding) continue;
+        if (mon->cdis > MAX_SIGHT) continue;
+        mon_take_hit(mon->id, mon->hp + 1, &fear, NULL);
     }
+    vec_free(v);
 }
 
 
@@ -918,21 +862,16 @@ static void do_cmd_wiz_zap(void)
  */
 static void do_cmd_wiz_zap_all(void)
 {
-    int i;
-
-    /* Genocide everyone */
-    for (i = 1; i < m_max; i++)
+    vec_ptr v = dun_filter_mon(cave, NULL);
+    int     i;
+    for (i = 0; i < vec_length(v); i++)
     {
-        monster_type *m_ptr = &m_list[i];
-
-        /* Paranoia -- Skip dead monsters */
-        if (!m_ptr->r_idx) continue;
-
-        /* Skip the mount */
-        if (i == p_ptr->riding) continue;
-
-        delete_monster_idx(i);
+        mon_ptr mon = vec_get(v, i);
+        if (mon_is_dead(mon)) continue; /* killed by nearby exploding monster */
+        if (mon->id == p_ptr->riding) continue;
+        delete_monster(mon);
     }
+    vec_free(v);
 }
 
 
@@ -951,7 +890,7 @@ static void do_cmd_wiz_create_feature(void)
 
     if (!tgt_pt(&x, &y, -1)) return;
 
-    c_ptr = &cave[y][x];
+    c_ptr = cave_at_xy(x, y);
 
     /* Default */
     sprintf(tmp_val, "%d", prev_feat);
@@ -1013,6 +952,7 @@ static void _wiz_stats_begin(void)
     doc_insert(_wiz_doc, "<style:table>");
     _wiz_obj_count = 0;
     _wiz_obj_score = 0;
+    wiz_obj_stat_reset();
     statistics_hack = TRUE;
 }
 
@@ -1026,6 +966,12 @@ static void _wiz_stats_end(void)
     }
     if (original_score)
         doc_printf(_wiz_doc, "<color:R>%d%%</color> replacement power.\n", replacement_score * 100 / original_score);
+
+    doc_newline(_wiz_doc);
+    wiz_obj_stat_calc();
+    wiz_obj_stat_report(_wiz_doc, FALSE);
+    wiz_obj_stat_reset();
+
     statistics_hack = FALSE;
 }
 
@@ -1116,14 +1062,12 @@ static void _wiz_stats_log_obj(int level, object_type *o_ptr)
 }
 static void _wiz_stats_log_speed(int level, object_type *o_ptr)
 {
-    u32b flgs[OF_ARRAY_SIZE];
-    obj_flags(o_ptr, flgs);
-    if (have_flag(flgs, OF_SPEED) && !object_is_artifact(o_ptr))
+    if (obj_has_flag(o_ptr, OF_SPEED) && !obj_is_art(o_ptr))
         _wiz_stats_log_obj(level, o_ptr);
 }
 static void _wiz_stats_log_books(int level, object_type *o_ptr, int max3, int max4)
 {
-    if (obj_is_book(o_ptr) && o_ptr->tval != TV_ARCANE_BOOK)
+    if (obj_is_spellbook(o_ptr) && o_ptr->tval != TV_ARCANE_BOOK)
     {
             if ( (o_ptr->sval == 2 && k_info[o_ptr->k_idx].counts.found < max3)
               || (o_ptr->sval == 3 && k_info[o_ptr->k_idx].counts.found < max4) )
@@ -1177,34 +1121,30 @@ static void _wiz_stats_log_rand_arts(int level, object_type *o_ptr)
 }
 static bool _wiz_stats_skip(point_t pt)
 {
-    if (0 && (cave[pt.y][pt.x].info & CAVE_ICKY)) return TRUE;
+    if (0 && (cave_at_xy(pt.x, pt.y)->info & CAVE_ICKY)) return TRUE;
     return FALSE;
 }
 static void _wiz_stats_kill(int level)
 {
-    int i;
+    vec_ptr v = dun_filter_mon(cave, NULL);
+    int     i;
 
-    for (i = 1; i < m_max; i++)
+    for (i = 0; i < vec_length(v); i++)
     {
-        monster_type *m_ptr = &m_list[i];
-        monster_race *r_ptr;
-        bool          fear = FALSE;
-        int           slot = equip_find_obj(TV_SWORD, SV_RUNESWORD);
+        mon_ptr mon = vec_get(v, i);
+        mon_race_ptr race = mon_race(mon);
+        bool    fear = FALSE;
 
-        if (!m_ptr->r_idx) continue;
-        if (i == p_ptr->riding) continue;
+        if (mon_is_dead(mon)) continue;
+        if (mon->id == p_ptr->riding) continue;
+        if (mon->r_idx == MON_DAWN) continue; /* inflates pct of humans */
+        if (_wiz_stats_skip(mon->pos)) continue;
 
-        r_ptr = &r_info[m_ptr->r_idx];
-        if (0 && r_ptr->level > level) continue;
-        if (r_ptr->id == MON_DAWN) continue; /* inflates pct of humans */
-        if (0 && (r_ptr->flags1 & RF1_UNIQUE) && r_ptr->level > level - 4) continue;
-        if (_wiz_stats_skip(point(m_ptr->fx, m_ptr->fy))) continue;
-
-        r_ptr->r_sights++;
-        _stats_note_monster_level(level, r_ptr->level);
-        mon_take_hit(i, m_ptr->hp + 1, &fear, NULL);
-        if (slot) rune_sword_kill(equip_obj(slot), r_ptr);
+        race->r_sights++; /* lore */
+        _stats_note_monster_level(level, race->level);
+        mon_take_hit(mon->id, mon->hp + 1, &fear, NULL); /* drops and experience */
     }
+    vec_free(v);
 }
 static bool _is_stat_potion(obj_ptr obj)
 {
@@ -1227,8 +1167,8 @@ static bool _wiz_improve_gear_aux(obj_ptr obj, slot_t slot)
     if (old)
     {
         int score, old_score;
-        if (object_is_melee_weapon(old) && !object_is_melee_weapon(obj)) return FALSE;
-        if (object_is_shield(old) && !object_is_shield(obj)) return FALSE;
+        if (obj_is_weapon(old) && !obj_is_weapon(obj)) return FALSE;
+        if (obj_is_shield(old) && !obj_is_shield(obj)) return FALSE;
         score = obj_value_real(obj);
         old_score = obj_value_real(old);
         if (score > old_score)
@@ -1251,14 +1191,15 @@ static void _wiz_improve_gear(obj_ptr obj)
 {
     slot_t slot;
 
+    if (p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_RING) return;
     /* XXX this is tedious ... */
-    if (object_is_gloves(obj))
+    if (obj_is_gloves(obj))
     {
         class_t *class_ptr = get_class();
         caster_info *caster = NULL;
 
-        if (class_ptr->caster_info)
-            caster = class_ptr->caster_info();
+        if (class_ptr->hooks.caster_info)
+            caster = class_ptr->hooks.caster_info();
 
         if (caster && caster->options & CASTER_GLOVE_ENCUMBRANCE)
         {
@@ -1272,10 +1213,11 @@ static void _wiz_improve_gear(obj_ptr obj)
             }
         }
     }
-    if (object_is_melee_weapon(obj) && skills_weapon_is_icky(obj->tval, obj->sval)) return;
+    if (obj_is_weapon(obj) && skills_weapon_is_icky(obj->tval, obj->sval)) return;
 
     if (obj->name1 == ART_POWER || obj->name1 == ART_STONEMASK || have_flag(obj->flags, OF_NO_SUMMON)) return;
     if (obj->name2 == EGO_RING_NAZGUL) return;
+    if (obj_is_(obj, TV_POLEARM, SV_DEATH_SCYTHE)) return;
     /* hydras have many heads ... */
     for (slot = equip_first_slot(obj); slot; slot = equip_next_slot(obj, slot))
     {
@@ -1343,104 +1285,117 @@ static bool _device_is_(obj_ptr obj, int tval, int effect)
         && obj->activation.type == effect;
 }
 
-static void _wiz_stats_inspect(int level)
+static void _wiz_stats_inspect_obj(obj_ptr pile)
 {
-    race_t  *race_ptr = get_race();
-    class_t *class_ptr = get_class();
-    int      i;
-
-    for (i = 0; i < max_o_idx; i++)
+    obj_ptr obj;
+    int level = cave->dun_lvl;
+    for (obj = pile; obj; obj = obj->next)
     {
-        object_type *o_ptr = &o_list[i];
-
-        if (!o_ptr->k_idx) continue;
-        if (o_ptr->tval == TV_GOLD)
+        if (obj->tval == TV_GOLD)
         {
-            pack_get(o_ptr);
+            pack_get(obj);
             continue;
         }
-        if (o_ptr->held_m_idx) continue;
-        if (o_ptr->marked & OM_COUNTED) continue; /* skip player drops */
-        if (_wiz_stats_skip(point(o_ptr->loc.x, o_ptr->loc.y))) continue;
+        if (obj->marked & OM_COUNTED) continue; /* skip player drops */
 
-        obj_identify_fully(o_ptr);
-        stats_on_identify(o_ptr);
-        if (o_ptr->level)
-            _stats_note_object_level(level, o_ptr->level);
+        obj_identify_fully(obj);
+        stats_on_identify(obj);
+        if (obj->level)
+            _stats_note_object_level(level, obj->level);
 
-        if (o_ptr->art_name)
-            stats_add_rand_art(o_ptr);
+        #if 1
+        if (obj->art_name)
+            stats_add_rand_art(obj);
 
-        if (o_ptr->name2)
-            stats_add_ego(o_ptr);
+        if (obj->name2)
+            stats_add_ego(obj);
+        #endif
 
         /* Logging: I simply hand-edit this and recompile as desired */
-        if (0 && (o_ptr->name1 || o_ptr->name3))
-            _wiz_stats_log_obj(level, o_ptr);
+        if (0 && obj_is_weapon(obj) && (obj->name1 || obj->name3 || obj->art_name))
+            _wiz_stats_log_obj(level, obj);
 
-        if (0) _wiz_stats_log_speed(level, o_ptr);
-        if (0) _wiz_stats_log_books(level, o_ptr, 20, 20);
-        if (1) _wiz_stats_log_devices(level, o_ptr);
-        if (0) _wiz_stats_log_arts(level, o_ptr);
-        if (0) _wiz_stats_log_rand_arts(level, o_ptr);
+        if (0) _wiz_stats_log_speed(level, obj);
+        if (0) _wiz_stats_log_books(level, obj, 20, 20);
+        if (0) _wiz_stats_log_devices(level, obj);
+        if (0) _wiz_stats_log_arts(level, obj);
+        if (0) _wiz_stats_log_rand_arts(level, obj);
 
-        if (0 && o_ptr->name3)
-            _wiz_stats_log_obj(level, o_ptr);
+        if (1 && !object_is_nameless(obj) && weaponmaster_is_favorite(obj))
+            _wiz_stats_log_obj(level, obj);
 
-        if (0 && o_ptr->name2 && !object_is_device(o_ptr) && !object_is_ammo(o_ptr))
-            _wiz_stats_log_obj(level, o_ptr);
+        if (0 && obj->name2 == EGO_BOOTS_SPEED)
+            _wiz_stats_log_obj(level, obj);
 
-        if (0 && !object_is_nameless(o_ptr) && o_ptr->tval == TV_BOW)
-            _wiz_stats_log_obj(level, o_ptr);
+        if (0 && obj->name3)
+            _wiz_stats_log_obj(level, obj);
 
-        if (0 && !object_is_nameless(o_ptr) && o_ptr->tval == TV_QUIVER)
-            _wiz_stats_log_obj(level, o_ptr);
+        if (0 && obj->name2 && !obj_is_device(obj) && !obj_is_ammo(obj))
+            _wiz_stats_log_obj(level, obj);
 
-        if (0 && !object_is_nameless(o_ptr) && object_is_ammo(o_ptr))
-            _wiz_stats_log_obj(level, o_ptr);
+        if (0 && !object_is_nameless(obj) && obj->tval == TV_BOW)
+            _wiz_stats_log_obj(level, obj);
 
-        if (0 && object_is_dragon_armor(o_ptr))
-            _wiz_stats_log_obj(level, o_ptr);
+        if (0 && !object_is_nameless(obj) && obj->tval == TV_QUIVER)
+            _wiz_stats_log_obj(level, obj);
 
-        if (0 && _device_is_(o_ptr, TV_WAND, EFFECT_BALL_WATER))
-            _wiz_stats_log_obj(level, o_ptr);
+        if (0 && !object_is_nameless(obj) && obj_is_ammo(obj))
+            _wiz_stats_log_obj(level, obj);
+
+        if (0 && obj_is_dragon_armor(obj))
+            _wiz_stats_log_obj(level, obj);
+
+        if (0 && _device_is_(obj, TV_WAND, EFFECT_BALL_WATER))
+            _wiz_stats_log_obj(level, obj);
 
         /* Use Resources: Quaff stat potions and improve equipment (mindlessly).
          * This makes it easier for me to poke around a bit after a stat run.
          * Destroying objects is for Death-swords or other race/classes that
          * gain powers that way. */
-        if (_is_stat_potion(o_ptr))
-            do_device(o_ptr, SPELL_CAST, 0);
+        if (_is_stat_potion(obj))
+            do_device(obj, SPELL_CAST, 0);
+
+        #if 1
+        /* XXX Yes ... another stat module. But a better one! */
+        if (/*!object_is_nameless(obj) &&*/ obj_is_wearable(obj))
+            wiz_obj_stat_add(obj);
+        #endif
 
         /* Use the autopicker to 'improve' this character. For example, you can
          * conditionally have rogues only use weapons less than a certain weight
          * and only shoot slings. */
-        if (o_ptr->number)
+        if (obj->number)
         {
-            int auto_pick_idx = is_autopick(o_ptr);
+            int auto_pick_idx = is_autopick(obj);
             if (auto_pick_idx >= 0 && autopick_list[auto_pick_idx].action & DO_AUTOPICK)
             {
-                if (object_is_wearable(o_ptr))
-                    _wiz_improve_gear(o_ptr);
+                if (obj_is_wearable(obj))
+                    _wiz_improve_gear(obj);
                 else
-                    _wiz_improve_pack(o_ptr);
+                    _wiz_improve_pack(obj);
             }
             else if ( (auto_pick_idx < 0 || !(autopick_list[auto_pick_idx].action & DO_AUTODESTROY))
-                   && object_is_wearable(o_ptr) )
+                   && obj_is_wearable(obj) )
             {
-                _wiz_improve_gear(o_ptr);
+                _wiz_improve_gear(obj);
             }
         }
 
-        if (o_ptr->number)
-        {
-            if (race_ptr->destroy_object)
-                race_ptr->destroy_object(o_ptr);
-
-            if (class_ptr->destroy_object)
-                class_ptr->destroy_object(o_ptr);
-        }
+        if (obj->number)
+            plr_hook_destroy_object(obj);
+        obj_release(obj, OBJ_RELEASE_QUIET);
     }
+}
+static void _wiz_stats_inspect(int level)
+{
+    vec_ptr objects = dun_filter_obj(cave, NULL);
+    int     i;
+    for (i = 0; i < vec_length(objects); i++)
+    {
+        obj_ptr obj = vec_get(objects, i);
+        _wiz_stats_inspect_obj(obj);
+    }
+    vec_free(objects);
     pack_overflow();
     home_optimize();
     if (p_ptr->cursed) remove_all_curse();
@@ -1448,29 +1403,89 @@ static void _wiz_stats_inspect(int level)
 static void _wiz_stats_gather(int which_dungeon, int level, int reps)
 {
     int i;
-    dungeon_type = which_dungeon;
     for (i = 0; i < reps; i++)
     {
-        quests_on_leave();
-
-        dun_level = level;
-        prepare_change_floor_mode(CFM_RAND_PLACE);
         energy_use = 0;
         p_ptr->energy_need = 0;
-        change_floor();
-
+        dun_mgr_wizard_jump(which_dungeon, level);
         _wiz_stats_kill(level);
         _wiz_stats_inspect(level);
     }
 }
+static bool _wiz_dun_skip(int id)
+{
+    switch (id)
+    {
+    case D_AMBER:
+    case D_CAMELOT:
+    case D_ICKY_CAVE:
+    case D_MOUNTAIN:
+    case D_CASTLE:
+    case D_MOUNT_DOOM: return TRUE;
+    }
+    return FALSE;
+}
+static void _wiz_stats_world(void)
+{
+    dun_world_ptr world = dun_worlds_current();
+    vec_ptr v = world_dun_types();
+    int     i, j;
+    for (i = 0; i < vec_length(v); i++)
+    {
+        dun_type_ptr type = vec_get(v, i);
+        if (_wiz_dun_skip(type->id)) continue;
+        for (j = type->min_dun_lvl; j <= type->max_dun_lvl; j++)
+        {
+            dun_mgr_wizard_jump(type->id, j);
+            _wiz_stats_kill(j);
+            _wiz_stats_inspect(j);
 
+            vec_clear(cave->graveyard);
+            vec_clear(cave->junkpile);
+        }
+    }
+    vec_free(v);
+
+    if ((world->plr_flags & WFP_COMPLETED) && world->next_world_id)
+    {
+        dun_worlds_wizard(world->next_world_id);
+        _wiz_stats_world();
+    }
+}
+static void _obj_id_full(point_t pos, obj_ptr pile)
+{
+    obj_ptr obj;
+    for (obj = pile; obj; obj = obj->next)
+    {
+        if (obj->tval == TV_GOLD) continue;
+        identify_item(obj);
+        obj_identify_fully(obj);
+    }
+}
+static void _obj_id_full_desc(point_t pos, obj_ptr pile)
+{
+    obj_ptr obj;
+    for (obj = pile; obj; obj = obj->next)
+    {
+        if (obj->tval == TV_GOLD) continue;
+        identify_item(obj);
+        obj_identify_fully(obj);
+        if (obj->name1 || obj->name2)
+        {
+            char name[MAX_NLEN_OBJ];
+            object_desc(name, obj, OD_COLOR_CODED);
+            msg_print(name);
+        }
+    }
+}
+static void _wiz_glow(point_t pos, cave_ptr grid) { grid->info |= CAVE_GLOW | CAVE_MARK | CAVE_AWARE; }
 /*************************************************************************
  * Handle the ^A wizard commands. Perhaps there should be a UI for this?
  ************************************************************************/
 extern void do_cmd_debug(void);
 void do_cmd_debug(void)
 {
-    int     x, y, n, repeat;
+    int     n, repeat;
     char    cmd;
 
     if (REPEAT_PULL(&repeat))
@@ -1520,10 +1535,6 @@ void do_cmd_debug(void)
         do_cmd_wiz_bamf();
         break;
 
-    case 'B':
-        battle_monsters();
-        break;
-
     /* Create any object */
     case 'c':
         wiz_create_item();
@@ -1557,9 +1568,18 @@ void do_cmd_debug(void)
         do_cmd_wiz_change();
         break;
 
-    /* View item info */
-    case 'f':
-        identify_fully(NULL);
+    case 'f': /* debug surface fractals */
+        if (cave->dun_type_id == D_SURFACE)
+        {
+            dun_mgr_ptr dm = dun_mgr();
+            dm->world_seed = randint0(0x10000000);
+            dun_world_reseed(dm->world_seed);
+            dun_regen_surface(cave);
+            do_cmd_redraw();
+            /*dun_world_dump_frac(cave);*/
+        }
+        else
+            dun_gen_cave_wizard();
         break;
 
     /* Create desired feature */
@@ -1577,13 +1597,13 @@ void do_cmd_debug(void)
         while (num--)
         {
             object_wipe(&forge);
-            if (!make_object(&forge, AM_GOOD)) continue;
-            drop_near(&forge, -1, py, px);
+            if (!make_object(&forge, cave->difficulty, AM_GOOD)) continue;
+            drop_near(&forge, p_ptr->pos, -1);
         }
     }
 #else
         if (command_arg <= 0) command_arg = 10;
-        acquirement(py, px, command_arg, FALSE, TRUE);
+        acquirement(p_ptr->pos.y, p_ptr->pos.x, command_arg, FALSE, TRUE);
 #endif
         break;
 
@@ -1620,23 +1640,8 @@ void do_cmd_debug(void)
         break;
 
     case 'I':
-    {
-        int i, ct = 0;
-        char buf[MAX_NLEN];
-        for (i = 0; i < max_o_idx; i++)
-        {
-            if (!o_list[i].k_idx) continue;
-            ct++;
-            obj_identify_fully(&o_list[i]);
-            if (o_list[i].name1 || o_list[i].name2)
-            {
-                object_desc(buf, &o_list[i], 0);
-                msg_print(buf);
-            }
-        }
-        msg_format("Objects=%d", ct);
+        dun_iter_floor_obj(cave, _obj_id_full_desc);
         break;
-    }
 
     /* Go up or down in the dungeon */
     case 'j':
@@ -1652,6 +1657,38 @@ void do_cmd_debug(void)
     case 'l':
         do_cmd_wiz_learn();
         break;
+
+    case 'L': { /* los check */
+        point_t uip;
+        rect_t  map_rect = ui_map_rect();
+
+        msg_line_clear();
+        msg_print("<color:B> Current Line of Sight (<color:R>CAVE_VIEW</color>)</color>. Hit Any Key.");
+        for (uip.y = map_rect.y; uip.y < map_rect.y + map_rect.cy; uip.y++)
+        {
+            for (uip.x = map_rect.x; uip.x < map_rect.x + map_rect.cx; uip.x++)
+            {
+                point_t cp = ui_pt_to_cave_pt(uip);
+
+                if (msg_line_contains(uip.y, uip.x)) continue;
+                if (!dun_pos_valid(cave, cp)) continue;
+
+                if (plr_los(cp))
+                {
+                    if (use_graphics)
+                    {
+                        dun_feat_ptr feat = dun_feat_at(cave, cp);
+                        Term_queue_bigchar(uip.x, uip.y, feat->d_attr[F_LIT_STANDARD], feat->d_char[F_LIT_STANDARD], 0, 0);
+                    }
+                    else
+                        Term_queue_bigchar(uip.x, uip.y, TERM_WHITE, '*', 0, 0);
+                }
+            }
+        }
+        inkey();
+        msg_line_clear();
+        prt_map();
+        break;}
 
     /* Magic Mapping */
     case 'm':
@@ -1705,6 +1742,36 @@ void do_cmd_debug(void)
         wiz_obj_smith();
         break;
 
+    case 'O':
+        if (target_who > 0)
+        {
+            mon_ptr mon = dun_mon(cave, target_who);
+            doc_ptr doc = doc_alloc(120);
+            int i, j;
+
+            wiz_obj_stat_reset();
+            statistics_hack = TRUE;
+            for (i = 0; i < 1000; i++)
+            {
+                vec_ptr v = mon_drop_make(mon);
+                for (j = 0; j < vec_length(v); j++)
+                {
+                    obj_ptr obj = vec_get(v, j);
+                    if (obj->tval == TV_GOLD) continue;
+                    obj_identify_fully(obj);
+                    wiz_obj_stat_add(obj);
+                }
+                vec_free(v);
+            }
+            wiz_obj_stat_calc();
+            wiz_obj_stat_report(doc, TRUE);
+            statistics_hack = FALSE;
+
+            doc_display(doc, "Drops", 0);
+            doc_free(doc);
+            do_cmd_redraw();
+        }
+        break;
     /* Phase Door */
     case 'p':
         teleport_player(10, 0L);
@@ -1714,7 +1781,7 @@ void do_cmd_debug(void)
     case 'P':
         if (target_who > 0)
         {
-            mon_ptr mon = &m_list[target_who];
+            mon_ptr mon = dun_mon(cave, target_who);
             doc_ptr doc = doc_alloc(80);
             mon_spell_wizard(mon, NULL, doc);
             doc_display(doc, "Spells", 0);
@@ -1727,6 +1794,38 @@ void do_cmd_debug(void)
         quests_wizard();
         break;
     }
+    case 'R': {
+        doc_ptr doc = doc_alloc(120);
+        obj_t   forge = {0};
+        int     i, j, k_idx = lookup_kind(TV_SWORD, SV_EXECUTIONERS_SWORD);
+
+        wiz_obj_stat_reset();
+        statistics_hack = TRUE;
+        for (i = 1; i < 100;)
+        {
+            for (j = 0; j < 100; j++)
+            {
+                object_prep(&forge, k_idx);
+                apply_magic_ego = EGO_WEAPON_MORGUL;
+                apply_magic(&forge, 100, AM_NO_FIXED_ART | AM_GOOD | AM_FORCE_EGO);
+                if (!forge.art_name)
+                    art_create_ego(&forge, 100, 0);
+                if (obj_value_real(&forge) > 60000) break;
+            }
+            obj_identify_fully(&forge);
+            wiz_obj_stat_add(&forge);
+            i++;
+        }
+        wiz_obj_stat_calc();
+        wiz_obj_stat_report(doc, TRUE);
+        statistics_hack = FALSE;
+
+        doc_display(doc, "Objects", 0);
+
+        doc_free(doc);
+        wiz_obj_stat_reset();
+        do_cmd_redraw();
+        break; }
     /* Summon Random Monster(s) */
     case 's':
         if (command_arg <= 0) command_arg = 1;
@@ -1744,51 +1843,30 @@ void do_cmd_debug(void)
         dimension_door(255);
         /*teleport_player(100, 0L);*/
         break;
-
     /* Make every dungeon square "known" to test streamers -KMW- */
     case 'u':
-        for (y = 0; y < cur_hgt; y++)
-        {
-            for (x = 0; x < cur_wid; x++)
-            {
-                cave[y][x].info |= (CAVE_GLOW | CAVE_MARK | CAVE_AWARE);
-            }
-        }
-        wiz_lite(FALSE);
+        dun_iter_grids(cave, _wiz_glow);
+        wiz_lite();
         if (0) detect_treasure(255);
-        if (1)
-        {
-            int i, ct = 0;
-            /*char buf[MAX_NLEN];*/
-            for (i = 0; i < max_o_idx; i++)
-            {
-                if (!o_list[i].k_idx) continue;
-                if (o_list[i].tval == TV_GOLD) continue;
-                ct += o_list[i].number;
-                identify_item(&o_list[i]);
-                obj_identify_fully(&o_list[i]);
-                #if 0
-                if (o_list[i].name1 || o_list[i].name2)
-                {
-                    object_desc(buf, &o_list[i], 0);
-                    msg_print(buf);
-                }
-                #endif
-            }
-            if (0) msg_format("Objects=%d", ct);
-        }
+        if (1) dun_iter_floor_obj(cave, _obj_id_full);
         break;
 
 
     /* Very Good Objects */
     case 'v':
         if (command_arg <= 0) command_arg = 1;
-        acquirement(py, px, command_arg, TRUE, TRUE);
+        acquirement(p_ptr->pos.y, p_ptr->pos.x, command_arg, TRUE, TRUE);
+        break;
+
+    case 'V':
+        msg_print("You receive an equalization ritual.");
+        virtue_init();
+        p_ptr->update |= PU_BONUS;
         break;
 
     /* Wizard Light the Level */
     case 'w':
-        wiz_lite(p_ptr->pclass == CLASS_NINJA);
+        wiz_lite();
         break;
 
     /* Increase Experience */
@@ -1812,29 +1890,18 @@ void do_cmd_debug(void)
            character, run this command, then create a character dump
            or browse the object knowledge command (~2). Wizard commands "A and "O
            are also useful.*/
-        int lev;
-        int max_depth = get_quantity("Max Depth? ", 100);
 
         _wiz_stats_begin();
         _stats_reset_monster_levels();
         _stats_reset_object_levels();
-        for (lev = MAX(1, dun_level); lev <= max_depth; lev += 1)
-        {
-            int reps = 1;
-
-            if (lev % 10 == 0) reps += 1;
-            if (lev % 20 == 0) reps += 1;
-            if (lev % 30 == 0) reps += 2;
-
-            _wiz_stats_gather(DUNGEON_ANGBAND, lev, reps);
-        }
-#if 1
+        _wiz_stats_world();
+#if 0
         {
             _tally_t mon_total_tally = {0};
             _tally_t obj_total_tally = {0};
             int      obj_total = 0;
             int      obj_running = 0;
-            int      last_lev = 0;
+            int      last_lev = 0, lev;
 
             for (lev = 0; lev < MAX_DEPTH; lev++)
                 obj_total += _object_histogram[lev];
@@ -1904,7 +1971,8 @@ void do_cmd_debug(void)
         int reps = get_quantity("How many reps? ", 100);
 
         _wiz_stats_begin();
-        _wiz_stats_gather(dungeon_type, dun_level, reps);
+        _stats_reset_monster_levels(); /* XXX */
+        _wiz_stats_gather(cave->dun_type_id, cave->dun_lvl, reps);
         _wiz_stats_end();
         _wiz_stats_display();
         _wiz_stats_free();
@@ -1912,13 +1980,8 @@ void do_cmd_debug(void)
         break;
     }
     case '_': {
-        int i;
-        for (i = 0; i < 1000 * 1000; i++)
-        {
-            int roll = damroll(11,6);
-            if (roll < 66*19/20) continue;
-            msg_format("%d ", roll);
-        }
+        int id = get_quantity("Which? ", 100);
+        dun_worlds_wizard(id);
         break; }
     default:
         msg_print("That is not a valid debug command.");

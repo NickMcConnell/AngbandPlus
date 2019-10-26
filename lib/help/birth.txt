@@ -1,6 +1,6 @@
 <style:title>Creating a Character</style>
 
-PosChengband is a role playing game, in which you, the player, control a character in a dangerous world of myth and magic. The most important decision you make on your quest to the kill the <color:keyword>Serpent of Chaos</color> is what kind of character to play: Spell-wielding magician or sword-waving warrior? Stealthy rogue or musical bard? Holy priest or evil spawn of chaos? The choices are myriad and the process of generating a new character is described in this help file, which will also serve to introduce you to many of the core concepts of the game.
+PosChengband is a role playing game, in which you, the player, control a character in a dangerous world of myth and magic. The most important decision you make on your quest to the kill <color:keyword>Morgoth, Lord of Darkness</color> is what kind of character to play: Spell-wielding magician or sword-waving warrior? Stealthy rogue or musical bard? Holy priest or evil spawn of chaos? The choices are myriad and the process of generating a new character is described in this help file, which will also serve to introduce you to many of the core concepts of the game.
 
 Character creation, or birth, is controlled through a variety of choices. You must choose your character's race (<color:keyword>Human</color>, <color:keyword>Elf</color>, <color:keyword>Hobbit</color>, <color:keyword>Orc</color>, <color:keyword>Undead</color>, <color:keyword>Demon</color>, etc), your character's class (<color:keyword>Warrior</color>, <color:keyword>Mage</color>, <color:keyword>Priest</color>, <color:keyword>Rogue</color>, etc) and you character's personality (<color:keyword>Mighty</color>, <color:keyword>Shrewd</color>, <color:keyword>Patient</color>, etc). Each of these choices are described in the help files (see <link:raceclass_contents.txt>).
 
@@ -9,12 +9,12 @@ There are three main screens for the birth process. The first is a brief welcome
 <topic:Welcome><style:heading>The Welcome Screen</style>
 The first screen is the Welcome Screen. It simply introduces you to the game and allows you to choose one of several options that will control the birth process. It looks someting like this:
 <style:screenshot>  <indent>
-Welcome to <color:R>Poschengband</color>, a dungeon exploration role playing game. Your          
-goal is to defeat the dreaded <color:R>Serpent of Chaos</color>, but before you can face         
-it, you must battle many foes. Your first step is to create a character         
-for this quest. The following screens will guide you through this               
-process so that you may quickly begin playing. You can get general help         
-at any time by pressing <color:o>?</color>.                                                      
+Welcome to <color:R>PosChengband</color>, a dungeon exploration role playing game. Your          
+goal is to defeat <color:R>Morgoth, Lord of Darkness</color>, but before you can face            
+him, you must battle many foes. Your first step is to create a                  
+character for this quest. The following screens will guide you through          
+this process so that you may quickly begin playing. You can get general         
+help at any time by pressing <color:o>?</color>.                                                 
                                                                                 
 First, you must decide what type of game to play. If you are new, it is         
 recommended you play in <color:R>Beginner Mode</color>.                                          
@@ -24,9 +24,9 @@ recommended you play in <color:R>Beginner Mode</color>.
   <color:y>n</color>) Normal                                                                     
   <color:y>m</color>) Monster                                                                    
                                                                                 
-  <color:y>q</color>) Quick Start                                                                
   <color:y>=</color>) Options                                                                    
   <color:y>?</color>) Help                                                                       
+  <color:y>s</color>) View Scores                                                                
 <color:y>ESC</color>) <color:v>Quit</color>                                                                       
                                                                                 
 <color:G>Tip:</color> You can often get specific help by entering the uppercase letter           
@@ -38,7 +38,7 @@ If you are new to the game then it is highly recommended you choose the <color:k
 
 If you are truly bold, you can experiment with the <color:keyword>Monster</color> option which allows you to play as one of many different types of monster. Monsters don't have a class, but instead evolve into more powerful forms as they gain experience. They also tend to have variable body types, making the equipment sub-game both more fun and more challenging.
 
-For the remainder of this document, and most of the rest of the help files, we will be assuming you are playing with the <color:keyword>Normal</color> option, which includes the full array of race and class choices as well as a vast wilderness to explore.
+For the remainder of this document, and most of the rest of the help files, we will be assuming you are playing with the <color:keyword>Normal</color> option, which includes the full array of race and class choices.
 
 Also on this screen may be an option to Quick Start. This option simply repeats the birth options from your previous character, who presumably just met an untimely demise. This is a useful option if you are dying often in the early game as it greatly speeds up the birth process.
 
@@ -47,9 +47,9 @@ On this screen, you can change your race, class and possibly your personality. T
 <style:screenshot>
 Name : <color:B>Fatty Bolger</color><color:d>        </color>                                                     
 Sex  : <color:B>Male</color><color:d>                </color> STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp        
-Race : <color:B>Hobbit</color><color:d>              </color> <color:G> -2</color><color:r>  </color><color:v> +1</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +3</color><color:r>  </color><color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>   92%  +14  120%</color>       
-Class: <color:B>Rogue</color><color:d>               </color> <color:G> +2</color><color:r>  </color><color:v> +1</color><color:r>  </color><color:G> -1</color><color:r>  </color><color:G> +3</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  110%  +12  125%</color>       
-Magic: <color:B>Burglary</color><color:d>            </color> <color:R> +0</color><color:r>  </color><color:v> +2</color><color:r>  </color><color:R> +0</color><color:r>  </color><color:R> +6</color><color:r>  </color><color:R> +3</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R>101%  +26  150%</color>       
+Race : <color:B>Hobbit</color><color:d>              </color> <color:G> -2</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:v> +3</color><color:r>  </color><color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>   92%  +14  120%</color>       
+Class: <color:B>Rogue</color><color:d>               </color> <color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> -1</color><color:r>  </color><color:v> +3</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  110%  +12  125%</color>       
+Magic: <color:B>Burglary</color><color:d>            </color> <color:R> +0</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R> +0</color><color:r>  </color><color:v> +6</color><color:r>  </color><color:R> +3</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R>101%  +26  150%</color>       
 <color:d>                           </color>                                                     
   <color:y>n</color>) Change Name<color:d>              </color> <color:y>  ?</color>) Help                                        
   <color:y>s</color>) Change Sex<color:d>               </color> <color:y>TAB</color>) More Info                                   
@@ -94,18 +94,15 @@ Below the player fields and the information table is a list of commands that you
 <style:screenshot>
 Name : <color:B>Fatty Bolger</color><color:d>        </color>                                                     
 Sex  : <color:B>Male</color><color:d>                </color> STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp        
-Race : <color:B>Hobbit</color><color:d>              </color> <color:G> -2</color><color:r>  </color><color:v> +1</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +3</color><color:r>  </color><color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>   92%  +14  120%</color>       
-Class: <color:B>Rogue</color><color:d>               </color> <color:G> +2</color><color:r>  </color><color:v> +1</color><color:r>  </color><color:G> -1</color><color:r>  </color><color:G> +3</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  110%  +12  125%</color>       
-Magic: <color:B>Burglary</color><color:d>            </color> <color:R> +0</color><color:r>  </color><color:v> +2</color><color:r>  </color><color:R> +0</color><color:r>  </color><color:R> +6</color><color:r>  </color><color:R> +3</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R>101%  +26  150%</color>       
+Race : <color:B>Hobbit</color><color:d>              </color> <color:G> -2</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:v> +3</color><color:r>  </color><color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>   92%  +14  120%</color>       
+Class: <color:B>Rogue</color><color:d>               </color> <color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> -1</color><color:r>  </color><color:v> +3</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  110%  +12  125%</color>       
+Magic: <color:B>Burglary</color><color:d>            </color> <color:R> +0</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R> +0</color><color:r>  </color><color:v> +6</color><color:r>  </color><color:R> +3</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R>101%  +26  150%</color>       
 <color:d>                           </color>                                                     
 <color:G>Choose Your Race</color>                                                                
-  <color:y>a</color>) Human<color:d>                    </color>                                                  
-  <color:y>b</color>) Dwarf<color:d>                    </color>                                                  
-  <color:y>c</color>) <color:B>Hobbit</color><color:d>                   </color>                                                  
-  <color:y>d</color>) Gnome<color:d>                    </color>                                                  
-  <color:y>e</color>) Dunadan<color:d>                  </color>                                                  
-  <color:y>f</color>) High-Elf<color:d>                 </color>                                                  
-  <color:y>g</color>) Half-Troll<color:d>               </color>                                                  
+  <color:y>a</color>) Human<color:d>                    </color>   <color:y>e</color>) Dunadan                                     
+  <color:y>b</color>) Dwarf<color:d>                    </color>   <color:y>f</color>) High-Elf                                    
+  <color:y>c</color>) <color:B>Hobbit</color><color:d>                   </color>   <color:y>g</color>) Half-Troll                                  
+  <color:y>d</color>) Gnome<color:d>                    </color>   <color:y>*</color>) Random                                      
 <color:d>                              </color>                                                  
      Use SHIFT+choice to display help topic                                     
 </style>
@@ -113,9 +110,9 @@ Aternatively, the command might take effect immediately, as with the Change Sex 
 <style:screenshot>
 Name : <color:y>Fatty Bolger</color>   <color:d>     </color>                                                     
 Sex  : <color:B>Male</color><color:d>                </color> STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp        
-Race : <color:B>Hobbit</color><color:d>              </color> <color:G> -2</color><color:r>  </color><color:v> +1</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +3</color><color:r>  </color><color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>   92%  +14  120%</color>       
-Class: <color:B>Rogue</color><color:d>               </color> <color:G> +2</color><color:r>  </color><color:v> +1</color><color:r>  </color><color:G> -1</color><color:r>  </color><color:G> +3</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  110%  +12  125%</color>       
-Magic: <color:B>Burglary</color><color:d>            </color> <color:R> +0</color><color:r>  </color><color:v> +2</color><color:r>  </color><color:R> +0</color><color:r>  </color><color:R> +6</color><color:r>  </color><color:R> +3</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R>101%  +26  150%</color>       
+Race : <color:B>Hobbit</color><color:d>              </color> <color:G> -2</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:v> +3</color><color:r>  </color><color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>   92%  +14  120%</color>       
+Class: <color:B>Rogue</color><color:d>               </color> <color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> -1</color><color:r>  </color><color:v> +3</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  110%  +12  125%</color>       
+Magic: <color:B>Burglary</color><color:d>            </color> <color:R> +0</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R> +0</color><color:r>  </color><color:v> +6</color><color:r>  </color><color:R> +3</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R>101%  +26  150%</color>       
 <color:d>                           </color>                                                     
   <color:y>n</color>) Change Name<color:d>              </color> <color:y>  ?</color>) Help                                        
   <color:y>s</color>) Change Sex<color:d>               </color> <color:y>TAB</color>) More Info                                   
@@ -136,9 +133,9 @@ Here is a sample screen:
 <style:screenshot>
 Name : <color:B>Fatty Bolger</color><color:d>        </color>                                                     
 Sex  : <color:B>Male</color><color:d>                </color> STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp        
-Race : <color:B>Hobbit</color><color:d>              </color> <color:G> -2</color><color:r>  </color><color:v> +1</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +3</color><color:r>  </color><color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>   92%  +14  120%</color>       
-Class: <color:B>Rogue</color><color:d>               </color> <color:G> +2</color><color:r>  </color><color:v> +1</color><color:r>  </color><color:G> -1</color><color:r>  </color><color:G> +3</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  110%  +12  125%</color>       
-Magic: <color:B>Burglary</color><color:d>            </color> <color:R> +0</color><color:r>  </color><color:v> +2</color><color:r>  </color><color:R> +0</color><color:r>  </color><color:R> +6</color><color:r>  </color><color:R> +3</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R>101%  +26  150%</color>       
+Race : <color:B>Hobbit</color><color:d>              </color> <color:G> -2</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:v> +3</color><color:r>  </color><color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>   92%  +14  120%</color>       
+Class: <color:B>Rogue</color><color:d>               </color> <color:G> +2</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> -1</color><color:r>  </color><color:v> +3</color><color:r>  </color><color:G> +1</color><color:r>  </color><color:G> +1</color><color:r>  110%  +12  125%</color>       
+Magic: <color:B>Burglary</color><color:d>            </color> <color:R> +0</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R> +0</color><color:r>  </color><color:v> +6</color><color:r>  </color><color:R> +3</color><color:r>  </color><color:R> +2</color><color:r>  </color><color:R>101%  +26  150%</color>       
 <color:d>                           </color>                                                     
 <color:G>Enter Your Starting Stats</color><color:d>       </color>                                                
          Base  Pts  Mod  Total<color:d>  </color>                                                
@@ -163,7 +160,7 @@ Follow the instructions to make changes. If your point total exceeds 30, the opt
 You can begin playing at this point. Use the help system (<color:keypress>?</color>) to learn the basic commands. Alternatively, you may wish to read the <link:tang.txt> Newbie Guide next. It contains a brief tutorial to help get you started.
 
 <topic:CharAttributes><style:heading>Character Attributes</style>
-Once you begin character generation you will be asked to choose your character's four primary attributes: sex, race, class and personality. If you have selected a spellcasting class, you will also be prompted for your choice of magic realm(s). Your character's sex has a minimal effect on game play, but some personalities are restricted to male only or female only. More details of attributes are found in the Races, Classes and Personalities section (see <link:raceclass_contents.txt>) and the Magic System section (see <link:magic_contents.txt>).
+Once you begin character generation you will be asked to choose your character's four primary attributes: sex, race, class and personality. If you have selected a spellcasting class, you will also be prompted for your choice of magic realm(s). Your character's sex has almost no effect on game play. More details of attributes are found in the Races, Classes and Personalities section (see <link:raceclass_contents.txt>) and the Magic System section (see <link:magic_contents.txt>).
 
 In addition to these attributes, there are several statistics which are used to determine your character's relative skills and abilities as follows:
 
@@ -175,7 +172,7 @@ Experience affects almost everything else about your character. Experience can b
 
 When your character's experience crosses certain fixed boundaries, you will attain a new experience level (up to a maximum of 50). When this happens, your hitpoints, mana (if any), certain skills such as melee fighting and bows and throws will all increase. Some races and classes will also gain new powers and abilities when crossing certain experience thresholds.
 
-Deep down inside, the real objective of the game is to increase your experience, and certain other characteristics, and also to collect useful items, to give you a decent chance against the dreaded <color:keyword>Serpent of Chaos</color>. Certain monsters can "drain" your experience, and thus your level, which will cause you to lose all of the effects of the higher level. Luckily, you can restore drained experience through magical means, or by simply regaining the experience all over again.
+Deep down inside, the real objective of the game is to increase your experience, and certain other characteristics, and also to collect useful items, to give you a decent chance against the dreaded <color:keyword>Morgoth</color>. Certain monsters can "drain" your experience, and thus your level, which will cause you to lose all of the effects of the higher level. Luckily, you can restore drained experience through magical means, or by simply regaining the experience all over again.
 </indent>
   <indent><color:B>Gold (Au)</color>
 Each character has some gold, which can be used to buy items and services from the shops and other buildings on the town level. Gold can be obtained by selling items to the shops, taking it from the corpses of dead monsters, mining it and by finding it lying on the dungeon floor.
@@ -265,26 +262,22 @@ For the proficiency level of the Riding, you need to attack in melee or shoot wi
 <topic:BirthOptions><style:heading>Birth Options</style>
 During character generation you may press '=' at any time to access the birth options. A more detailed description of the various birth options can be found in the section on the Options Page (see <link:option.txt#Birth>). Feel free to ignore these options if you are new to the game. In fact, if you chose the <color:keyword>Beginner</color> startup option as suggested, then the birth options won't even be displayed to you (i.e., you will play with the default options).
 
-Perhaps one of the most important features of the birth options is the ability to decide what type of town level you want. The various town options are discussed on the Town page (see <link:town.txt#TownLevel>).
-
 <topic:Reference><style:heading>Reference</style>
 
-<topic:BeginnerMode><style:keyword>Beginner Mode</style>  <indent>Designed for new players, this mode greatly restricts the races and classes available to the player. In addition, it removes <color:keyword>Personality</color> from the birth process, forcing the player to play with the Ordinary personality (which has absolutely no gameplay effects). Also, the player is unable to enter birth options (<color:keypress>=</color>) and must play with the default options (Too much to confuse new players otherwise). Finally, this option forces the player to play without a wilderness, using the special Light Town.</indent>
+<topic:BeginnerMode><style:keyword>Beginner Mode</style>  <indent>Designed for new players, this mode greatly restricts the races and classes available to the player. In addition, it removes <color:keyword>Personality</color> from the birth process, forcing the player to play with the Ordinary personality (which has absolutely no gameplay effects). Also, the player is unable to enter birth options (<color:keypress>=</color>) and must play with the default options (Too much to confuse new players otherwise).</indent>
 
-<topic:NormalMode><style:keyword>Normal Mode</style>    <indent>This is the standard way to play: the Full Monty, so to speak. All races and classes are available to choose from, even ones that might be under development and not yet fully tested. The player has access to both the Birth Options and the Personality subsystem. By using the Birth Options to turn off the no_wilderness option, the player may play with a vast surface wilderness, complete with numerous dungeons to explore.</indent>
+<topic:NormalMode><style:keyword>Normal Mode</style>    <indent>This is the standard way to play: the Full Monty, so to speak. All races and classes are available to choose from, even ones that might be under development and not yet fully tested. The player has access to both the Birth Options and the Personality subsystem.</indent>
 
-<topic:MonsterMode><style:keyword>Monster Mode</style>   <indent>This mode allows the player to play as a monster rather than a normal character. There is no class to choose (The game forces a special Monster class that has absolutely no gameplay effects). Instead, the racial (and subracial) choices determine the type of monster to play. There are many options to choose from. Most monter forms evolve from weak forms to stronger ones (e.g. from a Forest Troll to a Fire Troll, and so forth) and many forms have unique body types (e.g. a Xorn has two full sets of arms and can wield up to four weapons in melee). In addition, most monster races have a boss who will drop a nifty artifact when slain. But the goal of the game remains the same: kill the <color:keyword>Serpent of Chaos</color>.</indent>
+<topic:MonsterMode><style:keyword>Monster Mode</style>   <indent>This mode allows the player to play as a monster rather than a normal character. There is no class to choose (The game forces a special Monster class that has absolutely no gameplay effects). Instead, the racial (and subracial) choices determine the type of monster to play. There are many options to choose from. Most monter forms evolve from weak forms to stronger ones (e.g. from a Forest Troll to a Fire Troll, and so forth) and many forms have unique body types (e.g. a Xorn has two full sets of arms and can wield up to four weapons in melee). In addition, most monster races have a boss who will drop a nifty artifact when slain. But the goal of the game remains the same: kill <color:keyword>Morgoth, Lord of Darkness</color>.</indent>
 
 <topic:QuickStart><style:keyword>Quick Start</style>    <indent>Once an existing character dies you may create a new one from the same savefile. If so, you will be asked whether you want to use quick start or not at start up. If you choose to use quick start, you get a new character with exactly the same race, class, stats, and personality as your last character. Since it is common to die early on, this option can save you the tedium of re-rolling a new character from scratch.</indent>
 
-<topic:CharacterName><style:keyword>Character Name</style> <indent>During the birth process, you may change the name of your character. This name will be used for your savefile (unless you created this character inside an existing, already named savefile) and any options and preferences you may set. So choose your name carefully. Changing your name, as you may imagine, is a complicated legal process involving much paperwork (and a hefty fee). Should you decide to change your name in the future, inquire at the Mayor's office and he will direct you how to proceed.</indent>
+<topic:CharacterName><style:keyword>Character Name</style> <indent>During the birth process, you may change the name of your character. This name will be used for your savefile (unless you created this character inside an existing, already named savefile) and any options and preferences you may set. So choose your name carefully. You may rename an existing character using the <color:keypress>~n</color> command.</indent>
 
 <color:D>
 Original : (??)
 Updated  : (??)
 Updated  : Zangband DevTeam
 Updated  : Hengband 1.5.2
-Updated  : PosChengband 1.0.0
-Updated  : PosChengband 4.0.0
-Updated  : PosChengband 5.0.3
+Updated  : PosChengband 7.1.0
 </color>

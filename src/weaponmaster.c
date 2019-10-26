@@ -4,153 +4,744 @@
 
 #include "angband.h"
 
+static bool _check_speciality_equip(void);
+static bool _check_speciality_aux(object_type *o_ptr);
+static bool _can_judge(obj_ptr obj);
+
+/* Weaponmasters have toggle based abilities */
+static void _toggle_on(int toggle)
+{
+    switch (toggle)
+    {
+    case TOGGLE_SHIELD_REVENGE:
+        plr_tim_lock(T_REVENGE);
+        break;
+    }
+}
+static void _toggle_off(int toggle)
+{
+    switch (toggle)
+    {
+    case TOGGLE_SHIELD_REVENGE:
+        plr_tim_unlock(T_REVENGE);
+        break;
+    }
+}
+static int _get_toggle(void)
+{
+    return p_ptr->magic_num1[0];
+}
+
+static int _set_toggle(s32b toggle)
+{
+    int result = p_ptr->magic_num1[0];
+
+    if (toggle == result) return result;
+    _toggle_off(result);
+    p_ptr->magic_num1[0] = toggle;
+    _toggle_on(toggle);
+
+    p_ptr->redraw |= PR_STATUS;
+    p_ptr->update |= PU_BONUS;
+    handle_stuff();
+
+    return result;
+}
+
+/***********************************************************************
+ * Weaponmaster Melee: Heavily Customized!
+ ***********************************************************************/
+enum {
+    _HIT_CUSTOM = PLR_HIT_CUSTOM,
+    _HIT_CRUSADERS_STRIKE,
+    _HIT_VICIOUS_STRIKE,
+    _HIT_CUNNING_STRIKE,
+    _HIT_SMITE_EVIL,
+    _HIT_ELUSIVE_STRIKE,
+    _PROXIMITY_ALERT,
+    _AUTO_BLOW,
+    _HIT_WHIRLWIND,
+    _HIT_REACH,
+    _HIT_PIERCING_STRIKE,
+    _HIT_REAPING,
+    _HIT_FLURRY,
+};
+
+static point_t _mon_pos; /* change target monster for each strike with TOGGLE_MANY_STRIKE */
+static bool _do_msg;     /* tell the user whenever the target changes */
+static obj_ptr _shield;  /* change a shield into a fake weapon; remember old object */
+static int _get_next_dir(int dir)
+{
+    switch (dir)
+    {
+    case 1: return 4;
+    case 4: return 7;
+    case 7: return 8;
+    case 8: return 9;
+    case 9: return 6;
+    case 6: return 3;
+    case 3: return 2;
+    case 2: return 1;
+    }
+    return 5;
+}
+static bool _check_plr_stop_code(plr_attack_ptr context)
+{
+    switch (context->stop)
+    {
+    case STOP_PLR_FEAR:
+    case STOP_PLR_DEAD:
+    case STOP_PLR_LEAVING:
+    case STOP_PLR_MOVED:
+    case STOP_PLR_PARALYZED:
+    case STOP_PLR_CONFUSED:  return FALSE;
+    }
+    return TRUE;
+}
+static bool _check_many_strike(plr_attack_ptr context)
+{
+    if (weaponmaster_get_toggle() != TOGGLE_MANY_STRIKE) return FALSE;
+    if (context->mode) return FALSE;
+    if (!_check_plr_stop_code(context)) return FALSE;
+    return TRUE;
+}
+static bool _check_whirlwind(plr_attack_ptr context)
+{
+    if (!p_ptr->whirlwind) return FALSE;
+    if (weaponmaster_get_toggle() == TOGGLE_PIERCING_STRIKE) return FALSE;
+    if (context->mode) return FALSE;
+    if (!_check_plr_stop_code(context)) return FALSE;
+    return one_in_(5);
+}
+static bool _check_piercing_strike(plr_attack_ptr context)
+{
+    if (weaponmaster_get_toggle() != TOGGLE_PIERCING_STRIKE) return FALSE;
+    if (context->mode) return FALSE;
+    if (!_check_plr_stop_code(context)) return FALSE;
+    return TRUE;
+}
+static void _set_pos(plr_attack_ptr context, point_t pos) /* change the target monster in middle of battle! */
+{
+    mon_ptr mon = mon_at(pos);
+    if (mon)
+    {
+        context->mon = mon;
+        context->race = mon_race(mon);
+        monster_desc(context->mon_full_name, mon, 0);
+        monster_desc(context->mon_name, mon, MD_PRON_VISIBLE);
+        monster_desc(context->mon_name_obj, mon, MD_PRON_VISIBLE | MD_OBJECTIVE);
+        context->mon_pos = pos;
+        context->fear = FALSE;
+    }
+}
+static int _reap(mon_race_ptr r)
+{
+    if (!monster_living(r)) return 0;
+    if (r->flags1 & RF1_UNIQUE) return 30;
+    if (r->flags3 & RF3_GOOD) return 15;
+    return 10;
+}
+
+/************** hooks **************/
+static bool _attack_begin_weapon(plr_attack_ptr context)
+{
+    if (!context->obj) return TRUE;
+    _mon_pos = context->mon_pos; /* in case I move it! */
+    _do_msg = FALSE;
+    _shield = NULL;
+    if ((_get_toggle() == TOGGLE_MANY_STRIKE || _get_toggle() == TOGGLE_PIERCING_STRIKE) && !context->mode)
+        context->flags |= PAC_ANIMATE;
+    switch (context->mode)
+    {
+    case _HIT_CUNNING_STRIKE:
+        context->skill += 60;
+        break;
+    case _HIT_SMITE_EVIL:
+        if ((context->flags & PAC_DISPLAY) || (context->race->flags3 & RF3_EVIL))
+            context->skill += 600;
+        break;
+    case _HIT_REAPING:
+        context->skill -= 120;
+        break;
+    }
+    switch (_get_toggle())
+    {
+    case TOGGLE_SHIELD_BASH:
+        /* shieldmasters can fight with their shields as if they were weapons.
+         * let's fake things up to make life easy for plr_attack.c */
+        if (obj_is_shield(context->obj))
+        {
+            obj_ptr obj = obj_copy(context->obj);
+            _shield = obj;
+            obj->dd = 3;
+            obj->ds = _shield->ac;
+            obj->to_h = _shield->to_a + 2*_shield->to_h;
+            obj->to_d = _shield->to_a + 2*_shield->to_d;
+            obj->ac = 0;
+            obj->to_a = 0;
+            add_flag(obj->flags, OF_FAKE);
+            add_flag(context->obj_flags, OF_STUN);
+            context->obj = obj;
+        }
+        break;
+    case TOGGLE_SHARD_BLADE:
+        if (p_ptr->lev >= 45)
+            add_flag(context->obj_flags, OF_VORPAL2);
+        else
+            add_flag(context->obj_flags, OF_VORPAL);
+        break;
+    case TOGGLE_CHAOS_BLADE:
+        add_flag(context->obj_flags, OF_BRAND_CHAOS);
+        break;
+    case TOGGLE_DEATH_BLADE:
+        add_flag(context->obj_flags, OF_BRAND_VAMP);
+        break;
+    case TOGGLE_DEMON_BLADE:
+        add_flag(context->obj_flags, OF_SLAY_GOOD);
+        if (p_ptr->lev >= 45)
+            add_flag(context->obj_flags, OF_BRAND_PLASMA);
+        break;
+    case TOGGLE_PATTERN_BLADE:
+        add_flag(context->obj_flags, OF_SLAY_EVIL);
+        add_flag(context->obj_flags, OF_SLAY_DEMON);
+        add_flag(context->obj_flags, OF_SLAY_UNDEAD);
+        break;
+    case TOGGLE_HOLY_BLADE:
+        add_flag(context->obj_flags, OF_SLAY_EVIL);
+        add_flag(context->obj_flags, OF_SLAY_UNDEAD);
+        add_flag(context->obj_flags, OF_SLAY_DEMON);
+        if (p_ptr->lev >= 50)
+            add_flag(context->obj_flags, OF_BRAND_LITE);
+        break;
+    }
+    if (weaponmaster_is_(WEAPONMASTER_CLUBS) && p_ptr->speciality_equip)
+    {
+        if (context->mode == _HIT_CUNNING_STRIKE || p_ptr->lev >= 45)
+            add_flag(context->obj_flags, OF_STUN);
+    }
+    return TRUE;
+}
+static bool _attack_check_hit(plr_attack_ptr context)
+{
+    if (_do_msg) /* message works better here in case we miss */
+    {
+        if (!(context->flags & PAC_NO_START_MSG))
+        {
+            cptr desc = context->attack_desc;
+            if (!desc) desc = "attack";
+            cmsg_format(TERM_L_UMBER, "You %s %s:", desc, context->mon_full_name);
+        }
+        _do_msg = FALSE;
+    }
+    if (_get_toggle() == TOGGLE_BURNING_BLADE) return TRUE;
+    return plr_check_hit(context);
+}
+static void _attack_mod_blows(plr_attack_ptr context)
+{
+    if (!context->obj) return;
+    switch (context->mode)
+    {
+    case _HIT_CRUSADERS_STRIKE:
+    case _HIT_REAPING:
+        context->blow_ct = 1;
+        break;
+    case _HIT_CUNNING_STRIKE:
+        context->blow_ct = (context->blow_ct + 1)/2;
+        break;
+    case _PROXIMITY_ALERT:
+        context->blow_ct = 1 + p_ptr->lev/25;
+        break;
+    case _HIT_FLURRY:
+        context->blow_ct *= 2;
+        break;
+    }
+}
+static void _attack_before_hit(plr_attack_ptr context)
+{
+}
+static void _attack_mod_damage(plr_attack_ptr context)
+{
+    if (!context->obj) return;
+    switch (context->mode)
+    {
+    case _HIT_CRUSADERS_STRIKE:
+        context->dam = context->dam*3/2;
+        break;
+    case _HIT_VICIOUS_STRIKE:
+        context->dam *= 2;
+        break;
+    case _HIT_REAPING:
+        context->dam += context->dam * NUM_BLOWS(context->info.which)/300;
+        break;
+    }
+    switch (_get_toggle())
+    {
+    case TOGGLE_BURNING_BLADE:
+        msg_format("%^s is <color:r>burned</color>!", context->mon_name);
+        if (context->race->flagsr & RFR_RES_ALL)
+        {
+            msg_format("%^s is immune.", context->mon_name);
+            context->dam = 0;
+            mon_lore_r(context->mon, RFR_RES_ALL);
+        }
+        else if (context->race->flagsr & RFR_IM_FIRE)
+        {
+            msg_format("%^s is immune.", context->mon_name);
+            context->dam = 0;
+            mon_lore_r(context->mon, RFR_IM_FIRE);
+        }
+        else if (context->race->flagsr & RFR_RES_FIRE)
+        {
+            msg_format("%^s resists.", context->mon_name);
+            context->dam /= 3;
+            mon_lore_r(context->mon, RFR_RES_FIRE);
+        }
+        else if (context->race->flags3 & (RF3_HURT_FIRE))
+        {
+            msg_format("%^s is hit hard.", context->mon_name);
+            context->dam *= 2;
+            mon_lore_3(context->mon, RF3_HURT_FIRE);
+        }
+        break;
+    case TOGGLE_ICE_BLADE:
+        msg_format("%^s is <color:W>frozen</color>!", context->mon_name);
+        if (context->race->flagsr & RFR_RES_ALL)
+        {
+            msg_format("%^s is immune.", context->mon_name);
+            context->dam = 0;
+            mon_lore_r(context->mon, RFR_RES_ALL);
+        }
+        else if (context->race->flagsr & RFR_IM_COLD)
+        {
+            msg_format("%^s is immune.", context->mon_name);
+            context->dam = 0;
+            mon_lore_r(context->mon, RFR_IM_COLD);
+        }
+        else if (context->race->flagsr & RFR_RES_COLD)
+        {
+            msg_format("%^s resists.", context->mon_name);
+            context->dam /= 3;
+            mon_lore_r(context->mon, RFR_RES_COLD);
+        }
+        else
+        {
+            if (context->race->flags3 & (RF3_HURT_COLD))
+            {
+                msg_format("%^s is hit hard.", context->mon_name);
+                context->dam *= 2;
+                mon_lore_3(context->mon, RF3_HURT_COLD);
+            }
+            if (one_in_(5)
+                && !(context->race->flags1 & RF1_UNIQUE)
+                && !mon_save_p(context->race->id, A_STR) )
+            {
+                msg_format("%^s is slowed by the cold.", context->mon_name);
+                mon_tim_add(context->mon, T_SLOW, 50);
+            }
+        }
+        break;
+    case TOGGLE_THUNDER_BLADE:
+        msg_format("%^s is <color:b>shocked</color>!", context->mon_name);
+        if (context->race->flagsr & RFR_RES_ALL)
+        {
+            msg_format("%^s is immune.", context->mon_name);
+            context->dam = 0;
+            mon_lore_r(context->mon, RFR_RES_ALL);
+        }
+        else if (context->race->flagsr & RFR_IM_ELEC)
+        {
+            msg_format("%^s is immune.", context->mon_name);
+            context->dam = 0;
+            mon_lore_r(context->mon, RFR_IM_ELEC);
+        }
+        else if (context->race->flagsr & RFR_RES_ELEC)
+        {
+            msg_format("%^s resists.", context->mon_name);
+            context->dam /= 3;
+            mon_lore_r(context->mon, RFR_RES_ELEC);
+        }
+        else
+        {
+            if ( one_in_(5)
+              && !(context->race->flags3 & RF3_NO_STUN)
+              && !mon_save_stun(context->race->level, context->dam) )
+            {
+                msg_format("%^s is shocked convulsively.", context->mon_name);
+                mon_stun(context->mon, mon_stun_amount(context->dam));
+            }
+        }
+        break;
+    }
+    context->dam_drain = context->dam;
+}
+static void _attack_after_hit(plr_attack_ptr context)
+{
+    if (!context->obj) return;
+    /* Special Blows */
+    if (context->mode == _HIT_CRUSADERS_STRIKE)
+    {
+        msg_format("Your Crusader's Strike drains life from %s!", context->mon_name_obj);
+        hp_player(MIN(150, context->dam));
+    }
+    else if (context->mode == _HIT_REAPING)
+    {
+        int ct = 0, dir, start_dir;
+        point_t pt;
+        mon_ptr mon;
+        bool fear = FALSE;
+
+        if (context->stop == STOP_MON_DEAD)
+            ct = 2*_reap(context->race);
+        msg_format("Your swing your %s about, reaping a harvest of death!", context->obj_name);
+
+        /* Next hit all adjacent targets in a swinging circular arc */
+        start_dir = calculate_dir(p_ptr->pos.x, p_ptr->pos.y, context->mon_pos.x, context->mon_pos.y);
+        dir = start_dir;
+
+        for (;;)
+        {
+            dir = _get_next_dir(dir);
+            if (dir == start_dir || dir == 5) break;
+
+            pt = point_step(p_ptr->pos, dir);
+            mon = mon_at(pt);
+            if (mon && (mon->ml || cave_have_flag_at(pt, FF_PROJECT)))
+            {
+                if (mon_take_hit(mon->id, context->dam, &fear, NULL))
+                    ct += _reap(mon_race(mon));
+            }
+        }
+
+        /* Finally, gain Wraithform */
+        if (ct) plr_tim_add(T_WRAITH, plr_tim_amount(T_WRAITH) + ct/2); /* pretend TF_AUGMENT */
+        else msg_print("You make a poor harvest!");
+    }
+    /* Clubmaster even enhances normal melee (context->mode == 0) */
+    if (weaponmaster_is_(WEAPONMASTER_CLUBS) && p_ptr->speciality_equip && !context->stop)
+    {
+        int odds = 5;
+
+        if (context->mode == _HIT_CUNNING_STRIKE)
+            odds = 2;
+
+        if (one_in_(odds))
+        {
+            if (context->race->flagsr & RFR_RES_ALL)
+            {
+                mon_lore_r(context->mon, RFR_RES_ALL);
+                if (disturb_minor) msg_format("%^s is immune.", context->mon_name);
+            }
+            else if (context->race->flags3 & RF3_NO_CONF)
+            {
+                mon_lore_3(context->mon, RF3_NO_CONF);
+                if (disturb_minor) msg_format("%^s is immune.", context->mon_name);
+            }
+            else if (mon_save_p(context->mon->r_idx, A_STR))
+            {
+                if (disturb_minor) msg_format("%^s resists.", context->mon_name);
+            }
+            else
+                mon_tim_add(context->mon, T_CONFUSED, 10 + randint0(p_ptr->lev)/5);
+        }
+
+        if (p_ptr->lev >= 20 && !mon_tim_find(context->mon, T_PARALYZED) && one_in_(odds))
+        {
+            if (context->race->flagsr & RFR_RES_ALL)
+            {
+                mon_lore_r(context->mon, RFR_RES_ALL);
+                if (disturb_minor) msg_format("%^s is immune.", context->mon_name);
+            }
+            else if (context->race->flags3 & RF3_NO_SLEEP)
+            {
+                mon_lore_3(context->mon, RF3_NO_SLEEP);
+                if (disturb_minor) msg_format("%^s is immune.", context->mon_name);
+            }
+            else if (mon_save_p(context->mon->r_idx, A_STR))
+            {
+                if (disturb_minor) msg_format("%^s resists.", context->mon_name);
+            }
+            else
+            {
+                mon_tim_add(context->mon, T_PARALYZED, randint1(3));
+            }
+        }
+    }
+    /* polearm-master can scatter strikes among adjacent foes during battle */
+    if (_check_many_strike(context))
+    {
+        point_t loc = context->mon_pos;
+        if (random_opponent(&loc.y, &loc.x) && point_compare(loc, context->mon_pos) != 0)
+        {
+            context->stop = 0; /* could have been STOP_MON_DEAD or STOP_MON_MOVED */
+            _set_pos(context, loc);
+            _do_msg = TRUE; /* later ... we might be out of strikes with this weapon */
+        }
+    }
+    /* polearm-master can turn a successful hit in the middle of battle into
+     * a single-strike whirlwind that also tries to hit every other adjacent monster
+     * (once). */
+    if (_check_whirlwind(context))
+    {
+        int        start_dir, dir, ct = 0;
+        mon_ptr    mon;
+        point_t    pt;
+
+        start_dir = point_step_dir(p_ptr->pos, context->mon_pos);
+        dir = start_dir;
+
+        for (;;)
+        {
+            dir = _get_next_dir(dir);
+            if (dir == start_dir || dir == 5) break;
+
+            pt = point_step(p_ptr->pos, dir);
+            mon = mon_at(pt);
+            if (mon && (mon->ml || cave_have_flag_at(pt, FF_PROJECT)))
+            {
+                plr_attack_t ctx = {0};
+                ctx.mode = _HIT_WHIRLWIND;
+                ctx.flags = PAC_ANIMATE;
+                if (!ct++)
+                    cmsg_format(TERM_L_BLUE, "(You swing your %s in a wide arc:", context->obj_name);
+                plr_attack_begin(&ctx, pt);
+                plr_attack_start_msg(&ctx);
+                plr_attack_init_hand(&ctx, context->info.which);
+                plr_hit_mon(&ctx);
+                plr_attack_end(&ctx);
+            }
+        }
+        if (ct) cmsg_print(TERM_L_BLUE, ")");
+    }
+    /* polearm-master can poke his spear thru one monster to hit distant monsters in line */
+    if (_check_piercing_strike(context))
+    {
+        point_t path[10];
+        int     ct_path = project_path(path, 3, p_ptr->pos, context->mon_pos, /*PROJECT_PATH |*/ PROJECT_THRU);
+        int     i, ct = 0;
+
+        for (i = 0; i < ct_path; i++)
+        {
+            point_t pt = path[i];
+            mon_ptr mon = mon_at(pt);
+            cave_ptr grid = cave_at(pt);
+
+            if (point_equals(pt, context->mon_pos)) continue;
+
+            if (!cave_have_flag_grid(grid, FF_PROJECT) && !mon) break;
+            if (mon) /* XXX allow continue thru empty grids? */
+            {
+                plr_attack_t ctx = {0};
+                bool hit = FALSE;
+                ctx.mode = _HIT_PIERCING_STRIKE;
+                ctx.flags = PAC_ANIMATE;
+                if (!ct++)
+                    cmsg_format(TERM_L_BLUE, "(You pierce %s:", context->mon_name);
+                plr_attack_begin(&ctx, pt);
+                plr_attack_start_msg(&ctx);
+                plr_attack_init_hand(&ctx, context->info.which);
+                hit = plr_hit_mon(&ctx);
+                plr_attack_end(&ctx);
+                if (!hit) break; /* need to hit to continue */
+                if (!_check_plr_stop_code(&ctx)) break; /* auras could have killed/confused/moved us */
+            }
+        }
+        if (ct) cmsg_print(TERM_L_BLUE, ")");
+    }
+    /* Staffmaster gains elaborate defense */
+    if (weaponmaster_is_(WEAPONMASTER_STAVES) && p_ptr->speciality_equip)
+    {
+        bool update = FALSE;
+        if (p_ptr->elaborate_defense == 0) update = TRUE;
+        p_ptr->elaborate_defense = 1;
+        if (update)
+        {
+            p_ptr->update |= PU_BONUS;
+            p_ptr->redraw |= PR_ARMOR;
+        }
+    }
+}
+static void _attack_end_weapon(plr_attack_ptr context)
+{
+    if (context->flags & PAC_DISPLAY) return;
+    if (!context->obj) return;
+    if (_get_toggle() == TOGGLE_MANY_STRIKE && !context->mode)
+        context->flags &= ~PAC_ANIMATE;
+    if (point_compare(context->mon_pos, _mon_pos) != 0)
+    {
+        _set_pos(context, _mon_pos);
+        _do_msg = FALSE;
+    }
+    if (_get_toggle() == TOGGLE_SHIELD_BASH && _shield)
+    {
+        obj_free(context->obj);
+        context->obj = _shield;
+        _shield = NULL;
+    }
+}
+static void _attack_end(plr_attack_ptr context)
+{
+    if (context->flags & PAC_DISPLAY) return;
+    if (p_ptr->cleave && context->stop == STOP_MON_DEAD && !context->mode)
+    {
+        int i;
+        for (i = 1; i <= 4 + p_ptr->lev/10; i++)
+        {
+            point_t p = point_step(p_ptr->pos, ddd[randint0(8)]);
+            if (mon_at(p))
+            {
+                msg_print("You attempt to cleave another foe!");
+                plr_attack_normal(p); /* recursive attacks! */
+                break;
+            }
+        }
+    }
+    if (context->mode == _HIT_ELUSIVE_STRIKE && context->hits)
+        teleport_player(10, TELEPORT_LINE_OF_SIGHT);
+    if (weaponmaster_get_toggle() == TOGGLE_TRIP && !context->mode && !context->stop && !(context->mon->mflag2 & MFLAG2_TRIPPED))
+    {
+        if (test_hit_norm(context->skill, mon_ac(context->mon), context->mon->ml))
+        {
+            if ( !(context->race->flags1 & RF1_UNIQUE)
+              || !mon_save_p(context->mon->r_idx, A_STR) )
+            {
+                msg_format("<color:B>You trip %s!</color>", context->mon_name_obj);
+                context->mon->mflag2 |= MFLAG2_TRIPPED;
+            }
+            else
+                msg_format("%^s nimbly dodges your attempt to trip.", context->mon_name);
+        }
+        else
+            msg_format("You attempt to trip %s but miss.", context->mon_name_obj);
+    }
+}
+static void _attack_init(plr_attack_ptr context)
+{
+    context->hooks.begin_weapon_f = _attack_begin_weapon;
+    context->hooks.check_hit_f = _attack_check_hit;
+    context->hooks.mod_blows_f = _attack_mod_blows;
+    context->hooks.before_hit_f = _attack_before_hit;
+    context->hooks.mod_damage_f = _attack_mod_damage;
+    context->hooks.after_hit_f = _attack_after_hit;
+    context->hooks.end_weapon_f = _attack_end_weapon;
+    context->hooks.end_f = _attack_end;
+}
+static bool _do_blow_aux(int type, int flags, int range)
+{
+    if (!_check_speciality_equip())
+    {
+        msg_print("Failed! You do not feel comfortable with your weapon.");
+        return FALSE;
+    }
+    return plr_attack_ranged(type, flags, range);
+}
+static bool _do_blow(int type)
+{
+    return _do_blow_aux(type, PAC_NO_INNATE, 1);
+}
+static bool _browse_blow(int type)
+{
+    if (!_check_speciality_equip())
+        return FALSE;
+    plr_attack_display_special(type, 0);
+    return TRUE;
+}
+
+/***********************************************************************
+ * Weaponmaster Shooting: Heavily Customized!
+ ***********************************************************************/
 int       shoot_hack = SHOOT_NONE;
 int       shoot_count = 0;
 obj_loc_t shoot_item = {0};
 
 #define _MAX_TARGETS 100
 
-/****************************************************************
- * Private Helpers
- ****************************************************************/
-
-static bool _check_direct_shot(int tx, int ty)
+static bool _check_direct_shot(mon_ptr mon)
 {
     bool result = FALSE;
-    u16b path[512];
-    int ct = project_path(path, 50, py, px, ty, tx, PROJECT_PATH); /* We don't know the length ... just project from source to target, please! */
-    int x, y, i;
+    point_t path[512];
+    point_t tgt = mon->pos;
+    int ct = project_path(path, 50, p_ptr->pos, tgt, 0); /* We don't know the length ... just project from source to target, please! */
+    int i;
 
     for (i = 0; i < ct; i++)
     {
-        x = GRID_X(path[i]);
-        y = GRID_Y(path[i]);
+        point_t p = path[i];
 
-        /* Reached target! Yay! */
-        if (x == tx && y == ty)
+        if (point_equals(p, tgt))
         {
             result = TRUE;
             break;
         }
 
-        /* Stopped by walls/doors */
-        if (!cave_have_flag_bold(y, x, FF_PROJECT) && !cave[y][x].m_idx) break;
+        /* Stopped by walls/doors (unless passwall monster) */
+        if (!cave_have_flag_at(p, FF_PROJECT) && !mon_at(p)) break;
 
         /* Monster in the way of target */
-        if (cave[y][x].m_idx) break;
+        if (mon_at(p)) break;
     }
 
     return result;
 }
 
-static bool _check_speciality_equip(void);
-static bool _check_speciality_aux(object_type *o_ptr);
-static bool _can_judge(obj_ptr obj);
-
-static int _get_nearest_target_los(void)
+static mon_ptr _get_nearest_target_los(void)
 {
-    int result = 0;
+    mon_ptr result = NULL;
     int dis = AAF_LIMIT + 1;
-    int i;
-    monster_type *m_ptr = NULL;
     int rng = 0;
+    int_map_iter_ptr iter;
 
     if (p_ptr->shooter_info.slot)
         rng = bow_range(equip_obj(p_ptr->shooter_info.slot));
 
-    for (i = m_max - 1; i >= 1; i--)
+    for (iter = int_map_iter_alloc(cave->mon);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
     {
-        m_ptr = &m_list[i];
-        if (!m_ptr->r_idx
-        ) continue;
-        if (m_ptr->smart & (1U << SM_FRIENDLY)) continue;
-        if (m_ptr->smart & (1U << SM_PET)) continue;
-        if (m_ptr->cdis > rng) continue;
-        if (!m_ptr->ml) continue;
-        if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
+        mon_ptr mon = int_map_iter_current(iter);
+        if (mon_is_friendly(mon)) continue;
+        if (mon_is_pet(mon)) continue;
+        if (mon->cdis > rng) continue;
+        if (!mon->ml) continue;
+        if (!plr_los(mon->pos)) continue;
 
-        if (m_ptr->cdis < dis)
+        if (mon->cdis < dis)
         {
-            result = i;
-            dis = m_ptr->cdis;
+            result = mon;
+            dis = mon->cdis;
         }
     }
-
+    int_map_iter_free(iter);
     return result;
 }
 
-static int _get_greater_many_shot_targets(int *targets, int max)
+static vec_ptr _get_los_targets(mon_p filter)
 {
-    int result = 0;
-    int i;
-    monster_type *m_ptr = NULL;
+    vec_ptr targets = vec_alloc(NULL);
+    int_map_iter_ptr iter;
     int rng = 0;
 
     if (p_ptr->shooter_info.slot)
         rng = bow_range(equip_obj(p_ptr->shooter_info.slot));
 
-    /* shoot *all* line of sight monsters */
-    for (i = m_max - 1; i >= 1; i--)
+    for (iter = int_map_iter_alloc(cave->mon);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
     {
-        m_ptr = &m_list[i];
-        if (!m_ptr->r_idx) continue;
-        if (m_ptr->smart & (1U << SM_FRIENDLY)) continue;
-        if (m_ptr->smart & (1U << SM_PET)) continue;
-        if (m_ptr->cdis > rng) continue;
-        if (!m_ptr->ml) continue;
-        if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
-        if (result >= max) break;
+        mon_ptr mon = int_map_iter_current(iter);
+        if (mon_is_friendly(mon)) continue;
+        if (mon_is_pet(mon)) continue;
+        if (mon->cdis > rng) continue;
+        if (!mon->ml) continue;
+        if (!plr_los(mon->pos)) continue;
+        if (filter && !filter(mon)) continue;
 
-        targets[result] = i;
-        result++;
+        vec_add(targets, mon);
     }
-
-    return result;
+    int_map_iter_free(iter);
+    return targets;
 }
-
-static int _get_many_shot_targets(int *targets, int max)
-{
-    int result = 0;
-    int i;
-    monster_type *m_ptr = NULL;
-    int in_sight[_MAX_TARGETS];
-    int ct = 0;
-    int rng = 0;
-
-    if (p_ptr->shooter_info.slot)
-        rng = bow_range(equip_obj(p_ptr->shooter_info.slot));
-
-    /* pass 1: get line of sight monsters */
-    for (i = m_max - 1; i >= 1; i--)
-    {
-        m_ptr = &m_list[i];
-        if (!m_ptr->r_idx) continue;
-        if (m_ptr->smart & (1U << SM_FRIENDLY)) continue;
-        if (m_ptr->smart & (1U << SM_PET)) continue;
-        if (m_ptr->cdis > rng) continue;
-        if (!m_ptr->ml) continue;
-        if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
-        if (ct >= _MAX_TARGETS) break;
-
-        in_sight[ct] = i;
-        ct++;
-    }
-
-    /* pass 2: for each monster in los, build a path from the player to the
-       monster and make sure there are no other intervening monsters */
-    for (i = 0; i < ct; i++)
-    {
-        m_ptr = &m_list[in_sight[i]];
-        if (_check_direct_shot(m_ptr->fx, m_ptr->fy))
-        {
-            if (result > max) break;
-            targets[result] = in_sight[i];
-            result++;
-        }
-    }
-
-    return result;
-}
+static vec_ptr _get_greater_many_shot_targets(void) { return _get_los_targets(NULL); }
+static vec_ptr _get_many_shot_targets(void) { return _get_los_targets(_check_direct_shot); }
 
 static bool _fire(int power)
 {
@@ -184,40 +775,49 @@ static obj_ptr _get_ammo(bool allow_floor)
     return prompt.obj;
 }
 
-/* Weaponmasters have toggle based abilities */
-static int _get_toggle(void)
+/****************************************************************
+ * Timers
+ ****************************************************************/
+enum { _VICIOUS_STRIKE = T_CUSTOM };
+static bool _vicious_strike_on(plr_tim_ptr timer)
 {
-    return p_ptr->magic_num1[0];
-}
-
-static int _set_toggle(s32b toggle)
-{
-    int result = p_ptr->magic_num1[0];
-
-    if (toggle == result) return result;
-    p_ptr->magic_num1[0] = toggle;
-
-    p_ptr->redraw |= PR_STATUS;
+    msg_print("You feel greatly exposed by your last attack.");
     p_ptr->update |= PU_BONUS;
-    handle_stuff();
-
-    return result;
+    return TRUE;
 }
-
-static bool _do_blow(int type)
+static void _vicious_strike_off(plr_tim_ptr timer)
 {
-    if (!_check_speciality_equip())
-    {
-        msg_print("Failed! You do not feel comfortable with your weapon.");
-        return FALSE;
-    }
-    return do_blow(type);
+    msg_print("You no longer feel greatly exposed.");
+    p_ptr->update |= PU_BONUS;
 }
-
+static void _vicious_strike_bonus(plr_tim_ptr timer)
+{
+    p_ptr->to_a -= 120;
+    p_ptr->dis_to_a -= 120;
+}
+static status_display_t _vicios_strike_display(plr_tim_ptr timer)
+{
+    return status_display_create("Exposed", "Vs", TERM_RED);
+}
+static plr_tim_info_ptr _vicious_strike(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_VICIOUS_STRIKE, "Vicious Strike");
+    info->desc = "You are greatly exposed to enemy attacks.";
+    info->on_f = _vicious_strike_on;
+    info->off_f = _vicious_strike_off;
+    info->calc_bonuses_f = _vicious_strike_bonus;
+    info->status_display_f = _vicios_strike_display;
+    info->flags = TF_FAST_TICK | TF_AUGMENT | TF_NO_DISPEL;
+    return info;
+}
+static void _register_timers(void)
+{
+    plr_tim_register(_vicious_strike());
+}
 /****************************************************************
  * Private Spells
  ****************************************************************/
-static void _fire_spell(int which, int cmd, variant *res)
+static void _fire_spell(int which, int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -240,7 +840,7 @@ static void _fire_spell(int which, int cmd, variant *res)
     }
 }
 
-static void _toggle_spell(int which, int cmd, variant *res)
+static void _toggle_spell(int which, int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -269,7 +869,7 @@ static void _toggle_spell(int which, int cmd, variant *res)
     }
 }
 
-static void _judge_spell(int cmd, variant *res)
+static void _judge_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -295,7 +895,7 @@ static void _judge_spell(int cmd, variant *res)
 /****************************************************************
  * Axemaster
  ****************************************************************/
-static void _crusaders_strike_spell(int cmd, variant *res)
+static void _crusaders_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -306,7 +906,7 @@ static void _crusaders_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a single blow. You regain hp.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(WEAPONMASTER_CRUSADERS_STRIKE));
+        var_set_bool(res, _do_blow(_HIT_CRUSADERS_STRIKE));
         break;
     default:
         default_spell(cmd, res);
@@ -314,7 +914,7 @@ static void _crusaders_strike_spell(int cmd, variant *res)
     }
 }
 
-static void _power_attack_spell(int cmd, variant *res)
+static void _power_attack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -330,7 +930,7 @@ static void _power_attack_spell(int cmd, variant *res)
     }
 }
 
-static void _vicious_strike_spell(int cmd, variant *res)
+static void _vicious_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -342,9 +942,9 @@ static void _vicious_strike_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
-        if (_do_blow(WEAPONMASTER_VICIOUS_STRIKE))
+        if (_do_blow(_HIT_VICIOUS_STRIKE))
         {
-            set_tim_vicious_strike(p_ptr->tim_vicious_strike + 10, FALSE);
+            plr_tim_add(_VICIOUS_STRIKE, 5 + randint1(5));
             var_set_bool(res, TRUE);
         }
         break;
@@ -357,7 +957,7 @@ static void _vicious_strike_spell(int cmd, variant *res)
 /****************************************************************
  * Bowmaster
  ****************************************************************/
-static void _arrow_of_slaying_spell(int cmd, variant *res)
+static void _arrow_of_slaying_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -372,7 +972,7 @@ static void _arrow_of_slaying_spell(int cmd, variant *res)
     }
 }
 
-static void _disintegration_arrow_spell(int cmd, variant *res)
+static void _disintegration_arrow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -387,7 +987,7 @@ static void _disintegration_arrow_spell(int cmd, variant *res)
     }
 }
 
-static void _piercing_arrow_spell(int cmd, variant *res)
+static void _piercing_arrow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -403,7 +1003,7 @@ static void _piercing_arrow_spell(int cmd, variant *res)
     }
 }
 
-static void _readied_shot_spell(int cmd, variant *res)
+static void _readied_shot_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -447,7 +1047,7 @@ static void _readied_shot_spell(int cmd, variant *res)
     }
 }
 
-static void _tranquilizing_arrow_spell(int cmd, variant *res)
+static void _tranquilizing_arrow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -462,7 +1062,7 @@ static void _tranquilizing_arrow_spell(int cmd, variant *res)
     }
 }
 
-static void _volley_spell(int cmd, variant *res)
+static void _volley_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -480,7 +1080,7 @@ static void _volley_spell(int cmd, variant *res)
 /****************************************************************
  * Clubmaster
  ****************************************************************/
-static void _combat_expertise_spell(int cmd, variant *res)
+static void _combat_expertise_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -496,7 +1096,7 @@ static void _combat_expertise_spell(int cmd, variant *res)
     }
 }
 
-static void _cunning_strike_spell(int cmd, variant *res)
+static void _cunning_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -507,7 +1107,7 @@ static void _cunning_strike_spell(int cmd, variant *res)
         var_set_string(res, "Number of attacks are cut in half, but blows are more likely to confuse, stun, knock out your opponent.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(WEAPONMASTER_CUNNING_STRIKE));
+        var_set_bool(res, _do_blow(_HIT_CUNNING_STRIKE));
         break;
     default:
         default_spell(cmd, res);
@@ -515,7 +1115,7 @@ static void _cunning_strike_spell(int cmd, variant *res)
     }
 }
 
-static void _smite_evil_spell(int cmd, variant *res)
+static void _smite_evil_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -523,11 +1123,17 @@ static void _smite_evil_spell(int cmd, variant *res)
         var_set_string(res, "Smite Evil");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Attack powerfully at an evil monster.");
+        var_set_string(res, "Attack powerfully at an evil monster. You are less likely to miss and more likely to score critical hits.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(WEAPONMASTER_SMITE_EVIL));
+        var_set_bool(res, _do_blow(_HIT_SMITE_EVIL));
         break;
+    case SPELL_ON_BROWSE:
+        if (_browse_blow(_HIT_SMITE_EVIL))
+        {
+            var_set_bool(res, TRUE);
+            break;
+        }
     default:
         default_spell(cmd, res);
         break;
@@ -541,15 +1147,15 @@ static int _smash_ground_dam(void)
     /* Modified from Samurai "Crack" */
     for (hand = 0; hand < MAX_HANDS; hand++)
     {
-        if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+        if (p_ptr->attack_info[hand].type == PAT_WEAPON)
         {
-            object_type *o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
+            object_type *o_ptr = equip_obj(p_ptr->attack_info[hand].slot);
             int          damage, dd, ds;
 
             if (!o_ptr) continue;
 
-            dd = o_ptr->dd + p_ptr->weapon_info[hand].to_dd;
-            ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
+            dd = o_ptr->dd + p_ptr->attack_info[hand].to_dd;
+            ds = o_ptr->ds + p_ptr->attack_info[hand].to_ds;
 
             damage = dd * (ds + 1) * 50;
             damage += o_ptr->to_d * 100;
@@ -559,7 +1165,7 @@ static int _smash_ground_dam(void)
     }
     return result;
 }
-static void _smash_ground_spell(int cmd, variant *res)
+static void _smash_ground_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -582,7 +1188,7 @@ static void _smash_ground_spell(int cmd, variant *res)
             return;
         }
         msg_print("You smash your weapon mightily on the ground.");
-        project(0, 8, py, px, device_power(dam*2), GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
+        project(0, 8, p_ptr->pos.y, p_ptr->pos.x, device_power(dam*2), GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
 
         var_set_bool(res, TRUE);
         break;
@@ -593,10 +1199,10 @@ static void _smash_ground_spell(int cmd, variant *res)
     }
 }
 
-static void _toss_hit_mon(py_throw_ptr context, int m_idx)
+static void _toss_hit_mon(plr_throw_ptr context, int m_idx)
 {
-    monster_type *m_ptr = &m_list[m_idx];
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_type *m_ptr = dun_mon(cave, m_idx);
+    monster_race *r_ptr = mon_race(m_ptr);
     char          m_name[80];
     int           odds = 2;
 
@@ -613,10 +1219,7 @@ static void _toss_hit_mon(py_throw_ptr context, int m_idx)
             msg_format("%^s is unaffected.", m_name);
         }
         else
-        {
-            msg_format("%^s appears <color:U>confused</color>.", m_name);
-            set_monster_confused(m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
-        }
+            mon_tim_add(m_ptr, T_CONFUSED, 10 + randint0(p_ptr->lev)/5);
     }
 
     if (p_ptr->lev >= 20 && one_in_(odds))
@@ -633,7 +1236,7 @@ static void _toss_hit_mon(py_throw_ptr context, int m_idx)
         else
         {
             msg_format("%^s is <color:b>knocked out</color>.", m_name);
-            set_monster_csleep(m_idx, MON_CSLEEP(m_ptr) + 500);
+            mon_tim_add(m_ptr, MT_SLEEP, 500);
         }
     }
 
@@ -644,7 +1247,7 @@ static void _toss_hit_mon(py_throw_ptr context, int m_idx)
             mon_lore_3(m_ptr, RF3_NO_STUN);
             msg_format("%^s is unaffected.", m_name);
         }
-        else if (mon_stun_save(r_ptr->level, context->dam))
+        else if (mon_save_stun(r_ptr->level, context->dam))
         {
             msg_format("%^s is unaffected.", m_name);
         }
@@ -655,14 +1258,14 @@ static void _toss_hit_mon(py_throw_ptr context, int m_idx)
         }
     }
 }
-static void _init_throw_context(py_throw_ptr context)
+static void _init_throw_context(plr_throw_ptr context)
 {
     context->type = THROW_BOOMERANG;
     context->mult = 100 + 4 * p_ptr->lev;
     context->back_chance = 24 + randint1(5);
     context->after_hit_f = _toss_hit_mon;
 }
-static void _throw_weapon_spell(int cmd, variant *res)
+static void _throw_weapon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -680,20 +1283,20 @@ static void _throw_weapon_spell(int cmd, variant *res)
         }
         else
         {
-            py_throw_t context = {0};
+            plr_throw_t context = {0};
             _init_throw_context(&context);
-            var_set_bool(res, py_throw(&context));
+            var_set_bool(res, plr_throw(&context));
         }
         break;
     case SPELL_ON_BROWSE:
     {
-        bool       screen_hack = screen_is_saved();
-        py_throw_t context = {0};
-        doc_ptr    doc = doc_alloc(80);
+        bool        screen_hack = screen_is_saved();
+        plr_throw_t context = {0};
+        doc_ptr     doc = doc_alloc(80);
 
         _init_throw_context(&context);
         context.type |= THROW_DISPLAY;
-        py_throw_doc(&context, doc);
+        plr_throw_doc(&context, doc);
 
         if (screen_hack) screen_load();
         screen_save();
@@ -711,7 +1314,7 @@ static void _throw_weapon_spell(int cmd, variant *res)
     }
 }
 
-static void _trade_blows_spell(int cmd, variant *res)
+static void _trade_blows_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -730,7 +1333,7 @@ static void _trade_blows_spell(int cmd, variant *res)
 /****************************************************************
  * Crossbowmaster
  ****************************************************************/
-static void _careful_aim_spell(int cmd, variant *res)
+static void _careful_aim_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -746,7 +1349,7 @@ static void _careful_aim_spell(int cmd, variant *res)
     }
 }
 
-static void _elemental_bolt_spell(int cmd, variant *res)
+static void _elemental_bolt_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -761,7 +1364,7 @@ static void _elemental_bolt_spell(int cmd, variant *res)
     }
 }
 
-static void _exploding_bolt_spell(int cmd, variant *res)
+static void _exploding_bolt_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -777,7 +1380,7 @@ static void _exploding_bolt_spell(int cmd, variant *res)
     }
 }
 
-static void _knockback_bolt_spell(int cmd, variant *res)
+static void _knockback_bolt_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -792,7 +1395,7 @@ static void _knockback_bolt_spell(int cmd, variant *res)
     }
 }
 
-static void _overdraw_spell(int cmd, variant *res)
+static void _overdraw_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -808,7 +1411,7 @@ static void _overdraw_spell(int cmd, variant *res)
     }
 }
 
-static void _rapid_reload_spell(int cmd, variant *res)
+static void _rapid_reload_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -824,7 +1427,7 @@ static void _rapid_reload_spell(int cmd, variant *res)
     }
 }
 
-static void _shattering_bolt_spell(int cmd, variant *res)
+static void _shattering_bolt_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -842,7 +1445,7 @@ static void _shattering_bolt_spell(int cmd, variant *res)
 /****************************************************************
  * Daggermaster
  ****************************************************************/
-static void _dagger_toss_spell(int cmd, variant *res)
+static void _dagger_toss_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -860,7 +1463,7 @@ static void _dagger_toss_spell(int cmd, variant *res)
         }
         else
         {
-            py_throw_t context = {0};
+            plr_throw_t context = {0};
 
             context.type = THROW_BOOMERANG;
             context.mult = 100 + 4 * p_ptr->lev;
@@ -870,7 +1473,7 @@ static void _dagger_toss_spell(int cmd, variant *res)
                 context.back_chance += 4 + randint1(5);
                 context.to_dd += p_ptr->lev/15;
             }
-            var_set_bool(res, py_throw(&context));
+            var_set_bool(res, plr_throw(&context));
         }
         break;
     case SPELL_ENERGY:
@@ -885,7 +1488,7 @@ static void _dagger_toss_spell(int cmd, variant *res)
     }
 }
 
-static void _flying_dagger_spell(int cmd, variant *res)
+static void _flying_dagger_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -920,7 +1523,7 @@ static void _flying_dagger_spell(int cmd, variant *res)
     }
 }
 
-static void _elusive_strike_spell(int cmd, variant *res)
+static void _elusive_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -931,7 +1534,7 @@ static void _elusive_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent monster and blink to a new location in the line of sight of your current location.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(WEAPONMASTER_ELUSIVE_STRIKE));
+        var_set_bool(res, _do_blow(_HIT_ELUSIVE_STRIKE));
         break;
     default:
         default_spell(cmd, res);
@@ -939,7 +1542,7 @@ static void _elusive_strike_spell(int cmd, variant *res)
     }
 }
 
-static void _frenzy_spell(int cmd, variant *res)
+static void _frenzy_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -955,7 +1558,7 @@ static void _frenzy_spell(int cmd, variant *res)
     }
 }
 
-static void _shadow_stance_spell(int cmd, variant *res)
+static void _shadow_stance_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -974,7 +1577,7 @@ static void _shadow_stance_spell(int cmd, variant *res)
 /****************************************************************
  * Diggermaster
  ****************************************************************/
-static void _tunnel_spell(int cmd, variant *res)
+static void _tunnel_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -991,14 +1594,14 @@ static void _tunnel_spell(int cmd, variant *res)
             msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
-        if (!cave_valid_bold(py, px))
+        if (!cave_valid_bold(p_ptr->pos.y, p_ptr->pos.x))
         {
             msg_print("You need room to dig!");
         }
         else
         {
             msg_print("You tunnel downwards ...");
-            stair_creation(TRUE);
+            dun_create_stairs(cave, TRUE);
             var_set_bool(res, TRUE);
         }
         break;
@@ -1008,7 +1611,7 @@ static void _tunnel_spell(int cmd, variant *res)
     }
 }
 
-static void _calamity_of_the_living_spell(int cmd, variant *res)
+static void _calamity_of_the_living_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1027,12 +1630,12 @@ static void _calamity_of_the_living_spell(int cmd, variant *res)
         }
         if (p_ptr->lev >= 50 || one_in_(3))
         {
-            destroy_area(py, px, 12 + randint1(4), 4 * p_ptr->lev);
+            destroy_area(p_ptr->pos.y, p_ptr->pos.x, 12 + randint1(4), 4 * p_ptr->lev);
         }
         else
         {
             msg_print("The ground rumbles!");
-            earthquake(py, px, 10);
+            earthquake(p_ptr->pos, 10);
         }
         var_set_bool(res, TRUE);
         break;
@@ -1049,7 +1652,7 @@ static bool _object_is_corpse_or_skeleton(object_type *o_ptr)
     return FALSE;
 }
 
-static void _bury_dead_spell(int cmd, variant *res)
+static void _bury_dead_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1095,22 +1698,20 @@ static void _bury_dead_spell(int cmd, variant *res)
         prompt.obj->number--;
         obj_release(prompt.obj, 0);
 
-        set_blessed(p_ptr->blessed + turns, FALSE);
+        plr_tim_add(T_BLESSED, turns);
         if (p_ptr->lev >= 15)
-            set_hero(p_ptr->hero + turns, FALSE);
+            plr_tim_add(T_HERO, turns);
         if (p_ptr->lev >= 30)
-            set_fast(p_ptr->fast + turns, FALSE);
+            plr_tim_add(T_FAST, turns);
         if (p_ptr->lev >= 40)
-            set_resist_magic(p_ptr->resist_magic + turns, FALSE);
+            plr_tim_add(T_RES_MAGIC, turns);
 
         if (p_ptr->lev >= 15)
-            set_oppose_cold(p_ptr->oppose_cold + turns, FALSE);
+            plr_tim_add(T_RES_COLD, turns);
         if (p_ptr->lev >= 25)
-            set_oppose_pois(p_ptr->oppose_pois + turns, FALSE);
-        if (p_ptr->lev >= 30)
-            set_tim_hold_life(p_ptr->tim_hold_life + turns, FALSE);
+            plr_tim_add(T_RES_POIS, turns);
         if (p_ptr->lev >= 35)
-            set_tim_res_nether(p_ptr->tim_res_nether + turns, FALSE);
+            plr_tim_add(T_RES_NETHER, turns);
 
         var_set_bool(res, TRUE);
         break;
@@ -1121,7 +1722,7 @@ static void _bury_dead_spell(int cmd, variant *res)
     }
 }
 
-static void _barricade_spell(int cmd, variant *res)
+static void _barricade_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1145,8 +1746,8 @@ static void _barricade_spell(int cmd, variant *res)
         {
             for (dir = 0; dir < 8; dir++)
             {
-                y = py + ddy_ddd[dir];
-                x = px + ddx_ddd[dir];
+                y = p_ptr->pos.y + ddy_ddd[dir];
+                x = p_ptr->pos.x + ddx_ddd[dir];
 
                 if (!in_bounds(y, x)) continue;
                 if (!cave_naked_bold(y, x)) continue;
@@ -1163,21 +1764,21 @@ static void _barricade_spell(int cmd, variant *res)
 
             if (cdir == 8) return;
 
-            y = py + ddy_cdd[cdir];
-            x = px + ddx_cdd[cdir];
+            y = p_ptr->pos.y + ddy_cdd[cdir];
+            x = p_ptr->pos.x + ddx_cdd[cdir];
 
             if (in_bounds(y, x) && cave_naked_bold(y, x))
                 cave_set_feat(y, x, feat_rubble);
 
             if (p_ptr->lev >= 35)
             {
-                y = py + ddy_cdd[(cdir + 7) % 8];
-                x = px + ddx_cdd[(cdir + 7) % 8];
+                y = p_ptr->pos.y + ddy_cdd[(cdir + 7) % 8];
+                x = p_ptr->pos.x + ddx_cdd[(cdir + 7) % 8];
                 if (in_bounds(y, x) && cave_naked_bold(y, x))
                     cave_set_feat(y, x, feat_rubble);
 
-                y = py + ddy_cdd[(cdir + 1) % 8];
-                x = px + ddx_cdd[(cdir + 1) % 8];
+                y = p_ptr->pos.y + ddy_cdd[(cdir + 1) % 8];
+                x = p_ptr->pos.x + ddx_cdd[(cdir + 1) % 8];
                 if (in_bounds(y, x) && cave_naked_bold(y, x))
                     cave_set_feat(y, x, feat_rubble);
             }
@@ -1193,7 +1794,7 @@ static void _barricade_spell(int cmd, variant *res)
     }
 }
 
-static void _strength_of_the_undertaker_spell(int cmd, variant *res)
+static void _strength_of_the_undertaker_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1209,7 +1810,7 @@ static void _strength_of_the_undertaker_spell(int cmd, variant *res)
     }
 }
 
-static void _stoicism_spell(int cmd, variant *res)
+static void _stoicism_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1225,7 +1826,7 @@ static void _stoicism_spell(int cmd, variant *res)
     }
 }
 
-static void _industrious_mortician_spell(int cmd, variant *res)
+static void _industrious_mortician_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1244,7 +1845,7 @@ static void _industrious_mortician_spell(int cmd, variant *res)
 /****************************************************************
  * Polearmmaster
  ****************************************************************/
-static void _many_strike_spell(int cmd, variant *res)
+static void _many_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1260,7 +1861,7 @@ static void _many_strike_spell(int cmd, variant *res)
     }
 }
 
-static void _piercing_strike_spell(int cmd, variant *res)
+static void _piercing_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1276,7 +1877,7 @@ static void _piercing_strike_spell(int cmd, variant *res)
     }
 }
 
-static void _trip_spell(int cmd, variant *res)
+static void _trip_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1292,7 +1893,7 @@ static void _trip_spell(int cmd, variant *res)
     }
 }
 
-static void _reach_spell(int cmd, variant *res)
+static void _reach_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1303,24 +1904,7 @@ static void _reach_spell(int cmd, variant *res)
         var_set_string(res, "This spell extends the range of your melee attack.");
         break;
     case SPELL_CAST:
-        if (_check_speciality_equip())
-        {
-            int dir = 5;
-            bool b = FALSE;
-
-            project_length = 2 + p_ptr->lev/40;
-            if (get_fire_dir(&dir))
-            {
-                project_hook(GF_ATTACK, dir, HISSATSU_2, PROJECT_STOP | PROJECT_KILL);
-                b = TRUE;
-            }
-            var_set_bool(res, b);
-        }
-        else
-        {
-            msg_print("Failed! You do not feel comfortable with your weapon.");
-            var_set_bool(res, FALSE);
-        }
+        var_set_bool(res, _do_blow_aux(_HIT_REACH, PAC_NO_INNATE, 2 + p_ptr->lev/40));
         break;
     default:
         default_spell(cmd, res);
@@ -1328,7 +1912,7 @@ static void _reach_spell(int cmd, variant *res)
     }
 }
 
-static void _knock_back_spell(int cmd, variant *res)
+static void _knock_back_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1339,7 +1923,7 @@ static void _knock_back_spell(int cmd, variant *res)
         var_set_string(res, "A successful attack will push your opponent back a square.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(WEAPONMASTER_KNOCK_BACK));
+        var_set_bool(res, _do_blow(PLR_HIT_KNOCKBACK));
         break;
     default:
         default_spell(cmd, res);
@@ -1347,7 +1931,7 @@ static void _knock_back_spell(int cmd, variant *res)
     }
 }
 
-static void _reaping_spell(int cmd, variant *res)
+static void _reaping_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1358,7 +1942,7 @@ static void _reaping_spell(int cmd, variant *res)
         var_set_string(res, "A successful strike will damage all adjacent opponents granting you wraithform.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(WEAPONMASTER_REAPING));
+        var_set_bool(res, _do_blow(_HIT_REAPING));
         break;
     default:
         default_spell(cmd, res);
@@ -1369,7 +1953,7 @@ static void _reaping_spell(int cmd, variant *res)
 /****************************************************************
  * Shieldmaster
  ****************************************************************/
-static void _desperation_spell(int cmd, variant *res)
+static void _desperation_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1391,7 +1975,7 @@ static void _desperation_spell(int cmd, variant *res)
             msg_print("Failed! You do need a shield.");
             return;
         }
-        slot = equip_random_slot(object_is_melee_weapon);
+        slot = equip_random_slot(obj_is_weapon);
         if (!slot)
         {
             msg_print("Failed! You do need a weapon to disenchant.");
@@ -1406,7 +1990,7 @@ static void _desperation_spell(int cmd, variant *res)
             hp = damroll(7, ds);
             hp_player(hp);
 
-            if (!object_is_artifact(o_ptr) || one_in_(2))
+            if (!obj_is_art(o_ptr) || one_in_(2))
             {
                 if (o_ptr->to_h > 0) o_ptr->to_h--;
                 if (o_ptr->to_d > 0) o_ptr->to_d--;
@@ -1431,7 +2015,7 @@ static void _desperation_spell(int cmd, variant *res)
     }
 }
 
-static void _sanctuary_spell(int cmd, variant *res)
+static void _sanctuary_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1457,7 +2041,7 @@ static void _sanctuary_spell(int cmd, variant *res)
     }
 }
 
-static void _shield_bash_spell(int cmd, variant *res)
+static void _shield_bash_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1473,7 +2057,7 @@ static void _shield_bash_spell(int cmd, variant *res)
     }
 }
 
-static void _bulwark_spell(int cmd, variant *res)
+static void _bulwark_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1489,7 +2073,7 @@ static void _bulwark_spell(int cmd, variant *res)
     }
 }
 
-static void _shield_revenge_spell(int cmd, variant *res)
+static void _shield_revenge_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1508,7 +2092,7 @@ static void _shield_revenge_spell(int cmd, variant *res)
 /****************************************************************
  * Slingmaster
  ****************************************************************/
-static void _bouncing_pebble_spell(int cmd, variant *res)
+static void _bouncing_pebble_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1523,7 +2107,7 @@ static void _bouncing_pebble_spell(int cmd, variant *res)
     }
 }
 
-static void _greater_many_shot_spell(int cmd, variant *res)
+static void _greater_many_shot_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1533,50 +2117,46 @@ static void _greater_many_shot_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Fires pebbles at all visible monsters.");
         break;
-    case SPELL_CAST:
+    case SPELL_CAST: {
+        obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
+        obj_ptr ammo;
+        vec_ptr targets;
+        int     i;
+
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
             msg_print("Failed! You do not feel comfortable with your shooter.");
             return;
         }
-        else
+        ammo = _get_ammo(TRUE);
+        if (!ammo)
         {
-            int i;
-            int tgts[_MAX_TARGETS];
-            int ct = _get_greater_many_shot_targets(tgts, _MAX_TARGETS);
-            obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
-            obj_ptr ammo = _get_ammo(TRUE);
-
-            if (!ammo)
-            {
-                flush();
-                return;
-            }
-
-            shoot_hack = SHOOT_ALL;
-
-            for (i = 0; i < ct; i++)
-            {
-                int tgt = tgts[i];
-                int tx = m_list[tgt].fx;
-                int ty = m_list[tgt].fy;
-
-                do_cmd_fire_aux2(bow, ammo, px, py, tx, ty);
-            }
-
-            obj_release(ammo, 0);
-            shoot_hack = SHOOT_NONE;
-            var_set_bool(res, TRUE);
+            flush();
+            return;
         }
-        break;
+
+        shoot_hack = SHOOT_ALL;
+        targets = _get_greater_many_shot_targets();
+        for (i = 0; i < vec_length(targets); i++)
+        {
+            mon_ptr target = vec_get(targets, i);
+            do_cmd_fire_aux2(bow, ammo, p_ptr->pos.x, p_ptr->pos.y, target->pos.x, target->pos.y);
+            if (!ammo->number) break;
+        }
+        vec_free(targets);
+        shoot_hack = SHOOT_NONE;
+
+        obj_release(ammo, 0);
+        var_set_bool(res, TRUE);
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _many_shot_spell(int cmd, variant *res)
+static void _many_shot_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1586,50 +2166,46 @@ static void _many_shot_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Fires pebbles at all visible monsters. You need to have a direct line of fire to each target, though.");
         break;
-    case SPELL_CAST:
+    case SPELL_CAST: {
+        obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
+        obj_ptr ammo;
+        vec_ptr targets;
+        int     i;
+
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
             msg_print("Failed! You do not feel comfortable with your shooter.");
             return;
         }
-        else
+        ammo = _get_ammo(TRUE);
+        if (!ammo)
         {
-            int i;
-            int tgts[_MAX_TARGETS];
-            int ct = _get_many_shot_targets(tgts, _MAX_TARGETS);
-            obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
-            obj_ptr ammo = _get_ammo(TRUE);
-
-            if (!ammo)
-            {
-                flush();
-                return;
-            }
-
-            shoot_hack = SHOOT_MANY;
-
-            for (i = 0; i < ct; i++)
-            {
-                int tgt = tgts[i];
-                int tx = m_list[tgt].fx;
-                int ty = m_list[tgt].fy;
-
-                do_cmd_fire_aux2(bow, ammo, px, py, tx, ty);
-            }
-
-            obj_release(ammo, 0);
-            shoot_hack = SHOOT_NONE;
-            var_set_bool(res, TRUE);
+            flush();
+            return;
         }
-        break;
+
+        shoot_hack = SHOOT_MANY;
+        targets = _get_many_shot_targets();
+        for (i = 0; i < vec_length(targets); i++)
+        {
+            mon_ptr target = vec_get(targets, i);
+            do_cmd_fire_aux2(bow, ammo, p_ptr->pos.x, p_ptr->pos.y, target->pos.x, target->pos.y);
+            if (!ammo->number) break;
+        }
+        vec_free(targets);
+        shoot_hack = SHOOT_NONE;
+
+        obj_release(ammo, 0);
+        var_set_bool(res, TRUE);
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _rapid_shot_spell(int cmd, variant *res)
+static void _rapid_shot_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1645,7 +2221,7 @@ static void _rapid_shot_spell(int cmd, variant *res)
     }
 }
 
-static void _shot_on_the_run_spell(int cmd, variant *res)
+static void _shot_on_the_run_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1695,13 +2271,8 @@ static void _shot_on_the_run_spell(int cmd, variant *res)
  ****************************************************************/
 bool _design_monkey_clone(void)
 {
-    int hand, i;
-    monster_race *r_ptr = &r_info[MON_MONKEY_CLONE];
-    int dd = 10;
-    int ds = 10;
-    int dam = 0;
-    int tdam = 0;
-    int blows = 0;
+    int hand;
+    monster_race *r_ptr = mon_race_lookup(MON_MONKEY_CLONE);
     int acc = 0;
 
     if (r_ptr->cur_num == 1)
@@ -1716,49 +2287,29 @@ bool _design_monkey_clone(void)
     r_ptr->speed = (byte)p_ptr->pspeed;
 
     /* Combat */
+    vec_clear(r_ptr->blows);
     for (hand = 0; hand < MAX_HANDS; hand++)
     {
-        if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+        if (p_ptr->attack_info[hand].type == PAT_WEAPON)
         {
-            object_type *o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
-            int          dd, ds;
+            obj_ptr obj = equip_obj(p_ptr->attack_info[hand].slot);
+            mon_blow_ptr blow = mon_blow_alloc(RBM_HIT);
+            plr_attack_info_ptr info = &p_ptr->attack_info[hand];
+            int dd = obj->dd + info->to_dd;
+            int ds = obj->ds + info->to_ds;
+            int to_d = obj->to_d + info->to_d;
 
-            if (!o_ptr) continue;
+            mon_blow_push_effect(blow, RBE_HURT, dice_create(dd, ds, to_d));
+            blow->blows = NUM_BLOWS(hand);
+            vec_add(r_ptr->blows, blow);
 
-            dd = o_ptr->dd + p_ptr->weapon_info[hand].to_dd;
-            ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
+            acc = hit_chance(hand, obj->to_h, 150);
 
-            tdam += NUM_BLOWS(hand) *
-                (dd * (ds + 1)/2 + p_ptr->weapon_info[hand].to_d + o_ptr->to_d)/100;
-
-            blows += NUM_BLOWS(hand)/100;
-            acc = hit_chance(hand, o_ptr->to_h, 150);
+            break; /* only clone the first hand! */
         }
     }
 
-    dam = tdam / MIN(4, blows);
-    dd = 10;
-    ds = dam/5;
-    if (ds < 1)
-    {
-        dd = 1;
-        ds = 1;
-    }
-
     r_ptr->level = (60*acc + 5200)/(300 - 3*acc); /* Don't ask ... */
-
-    for (i = 0; i < 4 && i < blows; i++)
-    {
-        r_ptr->blows[i].method = 0;
-    }
-
-    for (i = 0; i < 4; i++)
-    {
-        r_ptr->blows[i].method = RBM_HIT;
-        r_ptr->blows[i].effects[0].effect = RBE_HURT;
-        r_ptr->blows[i].effects[0].dd = dd;
-        r_ptr->blows[i].effects[0].ds = ds;
-    }
 
     /* Resistances */
     r_ptr->flagsr = 0;
@@ -1783,12 +2334,9 @@ bool _design_monkey_clone(void)
     if (p_ptr->resist[RES_CONF]) r_ptr->flags3 |= RF3_NO_CONF;
     if (p_ptr->resist[RES_FEAR]) r_ptr->flags3 |= RF3_NO_FEAR;
     if (p_ptr->free_act) r_ptr->flags3 |= RF3_NO_SLEEP;
-    if (p_ptr->sh_cold) r_ptr->flags3 |= RF3_AURA_COLD;
 
     if (p_ptr->reflect) r_ptr->flags2 |= RF2_REFLECTING;
     if (p_ptr->regen >= 200) r_ptr->flags2 |= RF2_REGENERATE;
-    if (p_ptr->sh_fire) r_ptr->flags2 |= RF2_AURA_FIRE;
-    if (p_ptr->sh_elec) r_ptr->flags2 |= RF2_AURA_ELEC;
     if (p_ptr->pass_wall) r_ptr->flags2 |= RF2_PASS_WALL;
     r_ptr->flags2 |= RF2_OPEN_DOOR;
     r_ptr->flags2 |= RF2_CAN_SPEAK;
@@ -1801,7 +2349,7 @@ bool _design_monkey_clone(void)
     return TRUE;
 }
 
-static void _monkey_king_spell(int cmd, variant *res)
+static void _monkey_king_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1819,7 +2367,7 @@ static void _monkey_king_spell(int cmd, variant *res)
             msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
-        if (_design_monkey_clone() && summon_named_creature(0, py, px, MON_MONKEY_CLONE, PM_FORCE_PET))
+        if (_design_monkey_clone() && summon_named_creature(0, p_ptr->pos, MON_MONKEY_CLONE, PM_FORCE_PET))
             var_set_bool(res, TRUE);
         break;
     }
@@ -1846,48 +2394,34 @@ void _circle_kick(void)
 
     for (i = 0; i < 8; i++)
     {
-        int           dir = cdd[i];
-        int           y = py + ddy[dir];
-        int           x = px + ddx[dir];
-        cave_type    *c_ptr = &cave[y][x];
-        monster_type *m_ptr = &m_list[c_ptr->m_idx];
+        point_t pos = point_step(p_ptr->pos, cdd[i]);
+        mon_ptr mon = mon_at(pos);
 
-        if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
+        if (mon && (mon->ml || cave_have_flag_at(pos, FF_PROJECT)))
         {
-            monster_race *r_ptr = &r_info[m_ptr->r_idx];
-            char          m_name[MAX_NLEN];
+            mon_race_ptr race = mon_race(mon);
+            char         m_name[MAX_NLEN_MON];
 
-            monster_desc(m_name, m_ptr, 0);
+            monster_desc(m_name, mon, 0);
 
-            if (test_hit_norm(chance, mon_ac(m_ptr), m_ptr->ml))
+            if (test_hit_norm(chance, mon_ac(mon), mon->ml))
             {
                 int dam = damroll(dd, ds) + p_ptr->to_d_m;
 
                 sound(SOUND_HIT);
                 msg_format("You kick %s.", m_name);
 
-                if (!(r_ptr->flags3 & RF3_NO_STUN))
-                {
-                    if (mon_stun(m_ptr, mon_stun_amount(dam)))
-                        msg_format("%s is dazed.", m_name);
-                    else
-                        msg_format("%s is more dazed.", m_name);
-                }
-                else
-                    msg_format("%s is not affected.", m_name);
+                if (!(race->flags3 & RF3_NO_STUN))
+                    mon_stun(mon, mon_stun_amount(dam));
 
-
-                dam = mon_damage_mod(m_ptr, dam, FALSE);
-
+                dam = mon_damage_mod(mon, dam, FALSE);
                 if (dam > 0)
                 {
                     bool fear;
-                    mon_take_hit(c_ptr->m_idx, dam, &fear, NULL);
-
-                    anger_monster(m_ptr);
+                    mon_take_hit(mon->id, dam, &fear, NULL);
+                    anger_monster(mon);
                 }
-                retaliation_count = 0; /* AURA_REVENGE */
-                touch_zap_player(c_ptr->m_idx);
+                plr_on_touch_mon(mon);
             }
             else
             {
@@ -1898,7 +2432,7 @@ void _circle_kick(void)
     }
 }
 
-static void _circle_kick_spell(int cmd, variant *res)
+static void _circle_kick_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1942,7 +2476,8 @@ static void _circle_kick_spell(int cmd, variant *res)
 {
     int tx, ty;
     int tm_idx = 0;
-    u16b path_g[32];
+    point_t path[32];
+    point_t cur;
     int path_n, i;
     bool moved = FALSE;
     int flg = PROJECT_THRU | PROJECT_KILL;
@@ -1952,8 +2487,8 @@ static void _circle_kick_spell(int cmd, variant *res)
 
     if (!get_fire_dir(&dir)) return FALSE;
 
-    tx = px + project_length * ddx[dir];
-    ty = py + project_length * ddy[dir];
+    tx = p_ptr->pos.x + project_length * ddx[dir];
+    ty = p_ptr->pos.y + project_length * ddy[dir];
 
     if ((dir == 5) && target_okay())
     {
@@ -1961,73 +2496,64 @@ static void _circle_kick_spell(int cmd, variant *res)
         ty = target_row;
     }
 
-    if (in_bounds(ty, tx)) tm_idx = cave[ty][tx].m_idx;
+    if (in_bounds(ty, tx))
+    {
+        mon_ptr mon = mon_at_xy(tx, ty);
+        if (mon) tm_idx = mon->id;
+    }
 
-    path_n = project_path(path_g, project_length, py, px, ty, tx, flg);
+    path_n = project_path(path, project_length, p_ptr->pos, point_create(tx, ty), flg);
     project_length = 0;
 
     if (!path_n) return FALSE;
 
-    ty = py;
-    tx = px;
-
-    /* Scrolling the cave would invalidate our path! */
-    if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
-        wilderness_scroll_lock = TRUE;
+    cur = p_ptr->pos;
 
     for (i = 0; i < path_n; i++)
     {
-        cave_type *c_ptr;
+        point_t next = path[i];
+        mon_ptr mon = mon_at(next);
+        cave_ptr grid = cave_at(next);
         bool can_enter = FALSE;
-        int ny = GRID_Y(path_g[i]);
-        int nx = GRID_X(path_g[i]);
 
-        c_ptr = &cave[ny][nx];
-        can_enter = !c_ptr->m_idx && player_can_enter(c_ptr->feat, 0);
+        can_enter = !mon && player_can_enter(grid->feat, 0);
 
         if (can_enter)
         {
-            ty = ny;
-            tx = nx;
+            cur = next;
             continue;
         }
 
-        if (!c_ptr->m_idx)
+        if (!mon)
         {
             msg_print("Failed!");
             break;
         }
 
         /* Move player before updating the monster */
-        if (!player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+        if (!plr_at(cur)) move_player_effect(cur, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
         moved = TRUE;
 
-        update_mon(c_ptr->m_idx, TRUE);
+        update_mon(mon, TRUE);
 
-        if (tm_idx != c_ptr->m_idx)
+        if (tm_idx != mon->id)
         {
             /* Just like "Acrobatic Charge." Attempts to displace monsters on route. */
-            set_monster_csleep(c_ptr->m_idx, 0);
-            move_player_effect(ny, nx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
-            ty = ny;
-            tx = nx;
+            mon_tim_delete(mon, MT_SLEEP);
+            move_player_effect(next, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+            cur = next;
             continue;
         }
-        py_attack(ny, nx, 0);
+        plr_attack_normal(next);
         break;
     }
 
-    if (!moved && !player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+    if (!moved && !plr_at(cur)) move_player_effect(cur, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
 
-    if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
-    {
-        wilderness_scroll_lock = FALSE;
-        wilderness_move_player(px, py);
-    }
     return TRUE;
 }
 
-static void _vault_attack_spell(int cmd, variant *res)
+static void _vault_attack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2058,7 +2584,7 @@ static void _vault_attack_spell(int cmd, variant *res)
     }
 }
 
-static void _flurry_of_blows_spell(int cmd, variant *res)
+static void _flurry_of_blows_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2069,7 +2595,7 @@ static void _flurry_of_blows_spell(int cmd, variant *res)
         var_set_string(res, "Attack a single opponent with a great number of blows, exhausting yourself in the process.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(WEAPONMASTER_FLURRY));
+        var_set_bool(res, _do_blow(_HIT_FLURRY));
         break;
     case SPELL_ENERGY:
         var_set_int(res, 100 + ENERGY_NEED());
@@ -2084,7 +2610,7 @@ static void _flurry_of_blows_spell(int cmd, variant *res)
 /****************************************************************
  * Swordmaster
  ****************************************************************/
-static void _burning_blade_spell(int cmd, variant *res)
+static void _burning_blade_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2100,7 +2626,7 @@ static void _burning_blade_spell(int cmd, variant *res)
     }
 }
 
-static void _ice_blade_spell(int cmd, variant *res)
+static void _ice_blade_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2116,7 +2642,7 @@ static void _ice_blade_spell(int cmd, variant *res)
     }
 }
 
-static void _thunder_blade_spell(int cmd, variant *res)
+static void _thunder_blade_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2132,23 +2658,87 @@ static void _thunder_blade_spell(int cmd, variant *res)
     }
 }
 
-static void _blood_blade_spell(int cmd, variant *res)
+static void _shard_blade_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Blade");
+        var_set_string(res, "Shard Blade");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Your blade thirsts for the living.");
+        var_set_string(res, "Your blade becomes very sharp.");
         break;
     default:
-        _toggle_spell(TOGGLE_BLOOD_BLADE, cmd, res);
+        _toggle_spell(TOGGLE_SHARD_BLADE, cmd, res);
         break;
     }
 }
 
-static void _holy_blade_spell(int cmd, variant *res)
+static void _chaos_blade_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Chaos Blade");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Your blade channels the forces of chaos.");
+        break;
+    default:
+        _toggle_spell(TOGGLE_CHAOS_BLADE, cmd, res);
+        break;
+    }
+}
+
+static void _death_blade_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Death Blade");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Your blade thirsts for the blood of the living.");
+        break;
+    default:
+        _toggle_spell(TOGGLE_DEATH_BLADE, cmd, res);
+        break;
+    }
+}
+
+static void _demon_blade_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Demon Blade");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Your blade gains devilish powers.");
+        break;
+    default:
+        _toggle_spell(TOGGLE_DEMON_BLADE, cmd, res);
+        break;
+    }
+}
+
+static void _pattern_blade_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Pattern Blade");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Your blade becomes a Pattern weapon.");
+        break;
+    default:
+        _toggle_spell(TOGGLE_PATTERN_BLADE, cmd, res);
+        break;
+    }
+}
+
+static void _holy_blade_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2156,7 +2746,7 @@ static void _holy_blade_spell(int cmd, variant *res)
         var_set_string(res, "Holy Blade");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Your blade fights powerful against the forces of evil.");
+        var_set_string(res, "Your blade becomes a Holy Avenger.");
         break;
     default:
         _toggle_spell(TOGGLE_HOLY_BLADE, cmd, res);
@@ -2164,38 +2754,21 @@ static void _holy_blade_spell(int cmd, variant *res)
     }
 }
 
-static void _order_blade_spell(int cmd, variant *res)
+static void _armageddon_blade_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Order Blade");
+        var_set_string(res, "Armageddon Blade");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Your blade becomes a weapon of order, always dealing maximal damage.");
+        var_set_string(res, "Your blade becomes an Armageddon weapon.");
         break;
     default:
-        _toggle_spell(TOGGLE_ORDER_BLADE, cmd, res);
+        _toggle_spell(TOGGLE_ARMAGEDDON_BLADE, cmd, res);
         break;
     }
 }
-
-static void _wild_blade_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Wild Blade");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "This is too crazy to describe. You wouldn't believe me anyway!");
-        break;
-    default:
-        _toggle_spell(TOGGLE_WILD_BLADE, cmd, res);
-        break;
-    }
-}
-
 
 /****************************************************************
  * Spell Table and Exports
@@ -2203,7 +2776,7 @@ static void _wild_blade_spell(int cmd, variant *res)
 
 #define _MAX_OBJECTS_PER_SPECIALITY 32
 #define _MAX_SPECIALITIES           11
-#define _MAX_SPELLS_PER_SPECIALITY  10
+#define _MAX_SPELLS_PER_SPECIALITY  12
 
 int weaponmaster_get_toggle(void)
 {
@@ -2293,7 +2866,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       {   8,  10,  10,   0,   0,   0, 13, 28},
       { { TV_BOW, SV_SHORT_BOW },
         { TV_BOW, SV_LONG_BOW },
-        { TV_BOW, SV_NAMAKE_BOW },
+        { TV_BOW, SV_GREAT_BOW },
         { 0, 0 },
       },
       { {  5,   0,  0, _readied_shot_spell },
@@ -2329,7 +2902,6 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
           { TV_HAFTED, SV_TWO_HANDED_FLAIL },
           { TV_HAFTED, SV_WAR_HAMMER },
           { TV_HAFTED, SV_GROND },
-          { TV_HAFTED, SV_NAMAKE_HAMMER },
           { 0, 0 },
         },
         { {  5,   0,  0, _combat_expertise_spell },
@@ -2519,7 +3091,6 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
         { TV_HAFTED, SV_BO_STAFF },
         { TV_HAFTED, SV_JO_STAFF },
         { TV_HAFTED, SV_QUARTERSTAFF },
-        { TV_HAFTED, SV_WIZSTAFF },
         { TV_HAFTED, SV_THREE_PIECE_ROD },
         { 0, 0 },
       },
@@ -2542,39 +3113,42 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  25,  23,  31,   1,  14,   2, 70, 25},
       {  11,   9,  10,   0,   0,   0, 29, 11},
-      { { TV_SWORD, SV_BASTARD_SWORD } ,
-        { TV_SWORD, SV_BROKEN_SWORD } ,
-        { TV_SWORD, SV_BLADE_OF_CHAOS } ,
-        { TV_SWORD, SV_BROAD_SWORD } ,
-        { TV_SWORD, SV_CLAYMORE } ,
-        { TV_SWORD, SV_CUTLASS } ,
-        { TV_SWORD, SV_DIAMOND_EDGE } ,
-        { TV_SWORD, SV_ESPADON } ,
-        { TV_SWORD, SV_EXECUTIONERS_SWORD } ,
-        { TV_SWORD, SV_FLAMBERGE } ,
-        { TV_SWORD, SV_GREAT_SCIMITAR } , /* Falchion */
-        { TV_SWORD, SV_KATANA } ,
-        { TV_SWORD, SV_LONG_SWORD } ,
-        { TV_SWORD, SV_KHOPESH } ,
+      { { TV_SWORD, SV_BASTARD_SWORD },
+        { TV_SWORD, SV_BROKEN_SWORD },
+        { TV_SWORD, SV_BLADE_OF_CHAOS },
+        { TV_SWORD, SV_BROAD_SWORD },
+        { TV_SWORD, SV_CLAYMORE },
+        { TV_SWORD, SV_CUTLASS },
+        { TV_SWORD, SV_DIAMOND_EDGE },
+        { TV_SWORD, SV_ESPADON },
+        { TV_SWORD, SV_EXECUTIONERS_SWORD },
+        { TV_SWORD, SV_FLAMBERGE },
+        { TV_SWORD, SV_GREAT_SCIMITAR }, /* Falchion */
+        { TV_SWORD, SV_KATANA },
+        { TV_SWORD, SV_LONG_SWORD },
+        { TV_SWORD, SV_KHOPESH },
         { TV_SWORD, SV_NO_DACHI },
-        { TV_SWORD, SV_SCIMITAR } ,
-        { TV_SWORD, SV_SHORT_SWORD } ,
-        { TV_SWORD, SV_SMALL_SWORD } ,
-        { TV_SWORD, SV_TULWAR } ,
-        { TV_SWORD, SV_TWO_HANDED_SWORD } ,
-        { TV_SWORD, SV_WAKIZASHI } ,
-        { TV_SWORD, SV_ZWEIHANDER } ,
+        { TV_SWORD, SV_SCIMITAR },
+        { TV_SWORD, SV_SHORT_SWORD },
+        { TV_SWORD, SV_SMALL_SWORD },
+        { TV_SWORD, SV_TULWAR },
+        { TV_SWORD, SV_TWO_HANDED_SWORD },
+        { TV_SWORD, SV_WAKIZASHI },
+        { TV_SWORD, SV_ZWEIHANDER },
         { 0, 0 },
       },
       {
         {  5,   0,  0, _burning_blade_spell },
         { 10,   0,  0, _ice_blade_spell },
         { 15,   0,  0, _thunder_blade_spell },
+        { 20,   0,  0, _shard_blade_spell },
         { 25,  20, 50, _judge_spell },
-        { 25,   0,  0, _blood_blade_spell },
-        { 30,   0,  0, _holy_blade_spell },
-        { 35,   0,  0, _order_blade_spell },
-        { 40,   0,  0, _wild_blade_spell },
+        { 25,   0,  0, _chaos_blade_spell },
+        { 30,   0,  0, _death_blade_spell },
+        { 35,   0,  0, _demon_blade_spell },
+        { 40,   0,  0, _pattern_blade_spell },
+        { 45,   0,  0, _holy_blade_spell },
+        { 50,   0,  0, _armageddon_blade_spell },
         { -1,   0,  0, NULL },
       },
       { TV_SWORD, SV_LONG_SWORD } ,
@@ -2657,9 +3231,9 @@ static bool _check_speciality_equip(void)
     if (_specialities[p_ptr->psubclass].kind == _WEAPONMASTER_MELEE)
     {
         int slot;
-        for (slot = equip_find_first(object_is_melee_weapon);
+        for (slot = equip_find_first(obj_is_weapon);
                 slot;
-                slot = equip_find_next(object_is_melee_weapon, slot))
+                slot = equip_find_next(obj_is_weapon, slot))
         {
             object_type *o_ptr = equip_obj(slot);
             if (!_check_speciality_aux(o_ptr))
@@ -2671,7 +3245,24 @@ static bool _check_speciality_equip(void)
 
 bool weaponmaster_is_favorite(object_type *o_ptr)
 {
+    if (p_ptr->pclass != CLASS_WEAPONMASTER) return FALSE;
     return _check_speciality_aux(o_ptr);
+}
+bool weaponmaster_kind_is_favorite(obj_kind_ptr kind)
+{
+    int i;
+    _speciality *ptr;
+
+    if (p_ptr->pclass != CLASS_WEAPONMASTER) return FALSE;
+
+    ptr = &_specialities[p_ptr->psubclass];
+    for (i = 0; i < _MAX_OBJECTS_PER_SPECIALITY; i++)
+    {
+        if (ptr->objects[i].tval == 0) break;
+        if (ptr->objects[i].tval == kind->tval && ptr->objects[i].sval == kind->sval) return TRUE;
+    }
+
+    return FALSE;
 }
 
 static int _get_spells_aux(spell_info* spells, int max)
@@ -2730,7 +3321,7 @@ void _on_birth(void)
     /* Give the player a starting weapon from this group */
     kind = _specialities[p_ptr->psubclass].birth_obj;
     object_prep(&forge, lookup_kind(kind.tval, kind.sval));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     if (kind.tval == TV_BOW)
     {
@@ -2739,23 +3330,24 @@ void _on_birth(void)
         case SV_SLING:
             object_prep(&forge, lookup_kind(TV_SHOT, SV_SHOT));
             forge.number = (byte)rand_range(15, 20);
-            py_birth_obj(&forge);
+            plr_birth_obj(&forge);
             break;
         case SV_SHORT_BOW:
         case SV_LONG_BOW:
+        case SV_GREAT_BOW:
             object_prep(&forge, lookup_kind(TV_ARROW, SV_ARROW));
             forge.number = (byte)rand_range(15, 20);
-            py_birth_obj(&forge);
+            plr_birth_obj(&forge);
             break;
         case SV_LIGHT_XBOW:
         case SV_HEAVY_XBOW:
             object_prep(&forge, lookup_kind(TV_BOLT, SV_BOLT));
             forge.number = (byte)rand_range(15, 20);
-            py_birth_obj(&forge);
+            plr_birth_obj(&forge);
             break;
         }
         object_prep(&forge, lookup_kind(TV_SWORD, SV_DAGGER));
-        py_birth_obj(&forge);
+        plr_birth_obj(&forge);
     }
 
     for (i = 0; i < _MAX_OBJECTS_PER_SPECIALITY; i++)
@@ -2776,7 +3368,7 @@ void _on_birth(void)
     }
     weaponmaster_adjust_skills();
 
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_JACK, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_JACK, 1);
 }
 
 static void _set_max_skill(int tval, int skill)
@@ -2836,9 +3428,9 @@ static int _max_pval(void)
     int slot;
     int result = 0;
 
-    for (slot = equip_find_first(object_is_melee_weapon);
+    for (slot = equip_find_first(obj_is_weapon);
             slot;
-            slot = equip_find_next(object_is_melee_weapon, slot))
+            slot = equip_find_next(obj_is_weapon, slot))
     {
         object_type *o_ptr = equip_obj(slot);
         result = MAX(result, o_ptr->pval);
@@ -2910,7 +3502,7 @@ static void _calc_bonuses(void)
             p_ptr->skills.stl += p_ptr->lev/12;
 
             if (p_ptr->lev >= 30)
-                p_ptr->sneak_attack = TRUE;
+                p_ptr->ambush = 300 + p_ptr->lev*4;
 
             switch (_get_toggle())
             {
@@ -2934,7 +3526,10 @@ static void _calc_bonuses(void)
         if (spec)
         {
             if (p_ptr->lev >= 40)
-                p_ptr->enhanced_crit = TRUE;
+            {
+                p_ptr->crit_freq_mul = 150;
+                p_ptr->crit_qual_add = 650;
+            }
 
             switch (_get_toggle())
             {
@@ -2952,13 +3547,6 @@ static void _calc_bonuses(void)
     }
     else if (p_ptr->psubclass == WEAPONMASTER_AXES)
     {
-        if (p_ptr->tim_vicious_strike)
-        {
-            p_ptr->to_a -= 120;
-            p_ptr->dis_to_a -= 120;
-            /* AC should not go below 0 ... See xtra1.c calc_bonuses() */
-        }
-
         if (spec)
         {
             if (p_ptr->lev >= 5)
@@ -2973,19 +3561,33 @@ static void _calc_bonuses(void)
         if (spec)
         {
             if (p_ptr->lev >= 20)
-            {
-                /* Hackery to keep the status bar up to date ... sigh */
-                if (!IS_HERO())
-                {
-                    p_ptr->constant_hero = TRUE;
-                    p_ptr->redraw |= (PR_STATUS);
-                }
-                else
-                    p_ptr->constant_hero = TRUE;
-            }
+                plr_tim_lock(T_HERO);
+            else
+                plr_tim_unlock(T_HERO);
 
-            if (p_ptr->lev >= 45)
-                p_ptr->vorpal = TRUE;
+            switch (_get_toggle())
+            {
+            case TOGGLE_CHAOS_BLADE:
+                res_add(RES_CHAOS);
+                break;
+            case TOGGLE_DEATH_BLADE:
+                res_add(RES_NETHER);
+                if (p_ptr->lev >= 35) res_add(RES_POIS);
+                if (p_ptr->lev >= 40) res_add(RES_DARK);
+                p_ptr->hold_life++;
+                break;
+            case TOGGLE_DEMON_BLADE:
+                p_ptr->skills.stl -= 3;
+                break;
+            case TOGGLE_PATTERN_BLADE:
+                p_ptr->free_act++;
+                p_ptr->see_inv++;
+                break;
+            case TOGGLE_HOLY_BLADE:
+                res_add(RES_FEAR);
+                p_ptr->see_inv++;
+                break;
+            }
         }
         else if (last_spec && p_ptr->lev >= 20)
         {
@@ -3004,7 +3606,7 @@ static void _calc_bonuses(void)
                 if (p_ptr->entrench_ct >= 3)
                 {
                     p_ptr->entrenched = TRUE;
-                    p_ptr->redraw |= PR_STATUS;
+                    p_ptr->redraw |= PR_EFFECTS;
 
                     p_ptr->to_a += 20 + p_ptr->entrench_ct;
                     p_ptr->dis_to_a += 20 + p_ptr->entrench_ct;
@@ -3032,15 +3634,15 @@ static void _calc_bonuses(void)
             if (p_ptr->lev >= 5)
             {
                 int slot;
-                for (slot = equip_find_first(object_is_shield);
+                for (slot = equip_find_first(obj_is_shield);
                         slot;
-                        slot = equip_find_next(object_is_shield, slot))
+                        slot = equip_find_next(obj_is_shield, slot))
                 {
                     object_type *o_ptr = equip_obj(slot);
                     p_ptr->to_a += k_info[o_ptr->k_idx].ac;
                     p_ptr->dis_to_a += k_info[o_ptr->k_idx].ac;
                     p_ptr->to_a += o_ptr->to_a;
-                    if (object_is_known(o_ptr))
+                    if (obj_is_known(o_ptr))
                         p_ptr->dis_to_a += o_ptr->to_a;
                 }
             }
@@ -3076,7 +3678,7 @@ static void _calc_bonuses(void)
                 p_ptr->lightning_reflexes = TRUE;
         }
 
-        if (equip_find_first(object_is_shield))
+        if (equip_find_first(obj_is_shield))
             p_ptr->pspeed -= 5;
     }
     else if (p_ptr->psubclass == WEAPONMASTER_DIGGERS)
@@ -3098,13 +3700,13 @@ static void _calc_bonuses(void)
 
                 for (dir = 0; dir < 8; dir++)
                 {
-                    y = py + ddy_ddd[dir];
-                    x = px + ddx_ddd[dir];
+                    y = p_ptr->pos.y + ddy_ddd[dir];
+                    x = p_ptr->pos.x + ddx_ddd[dir];
 
                     if (!in_bounds(y, x)) continue;
 
                     if ( cave_have_flag_bold(y, x, FF_WALL)
-                      || cave[y][x].feat == feat_rubble )
+                      || cave_at_xy(x, y)->feat == feat_rubble )
                     {
                         count++;
                     }
@@ -3210,6 +3812,22 @@ static void _calc_stats(s16b stats[MAX_STATS])
             }
         }
     }
+    else if (p_ptr->psubclass == WEAPONMASTER_SWORDS)
+    {
+        if (_check_speciality_equip())
+        {
+            switch (_get_toggle())
+            {
+            case TOGGLE_PATTERN_BLADE:
+                stats[A_STR] += 3;
+                stats[A_CON] += 3;
+                break;
+            case TOGGLE_HOLY_BLADE:
+                stats[A_WIS] += 3;
+                break;
+            }
+        }
+    }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -3225,7 +3843,52 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     {
         if (p_ptr->speciality_equip)
         {
-            if (p_ptr->lev >= 45) add_flag(flgs, OF_VORPAL);
+            switch (_get_toggle())
+            {
+            case TOGGLE_SHARD_BLADE:
+                if (p_ptr->lev >= 45)
+                    add_flag(flgs, OF_VORPAL2);
+                else
+                    add_flag(flgs, OF_VORPAL);
+                break;
+            case TOGGLE_CHAOS_BLADE:
+                add_flag(flgs, OF_BRAND_CHAOS);
+                add_flag(flgs, OF_RES_CHAOS);
+                break;
+            case TOGGLE_DEATH_BLADE:
+                add_flag(flgs, OF_BRAND_VAMP);
+                add_flag(flgs, OF_RES_NETHER);
+                if (p_ptr->lev >= 35) add_flag(flgs, OF_RES_POIS);
+                if (p_ptr->lev >= 40) add_flag(flgs, OF_RES_DARK);
+                add_flag(flgs, OF_HOLD_LIFE);
+                break;
+            case TOGGLE_DEMON_BLADE:
+                add_flag(flgs, OF_BLOWS);
+                add_flag(flgs, OF_SLAY_GOOD);
+                add_flag(flgs, OF_DEC_STEALTH);
+                if (p_ptr->lev >= 50)
+                    add_flag(flgs, OF_BRAND_PLASMA);
+                break;
+            case TOGGLE_PATTERN_BLADE:
+                add_flag(flgs, OF_SLAY_EVIL);
+                add_flag(flgs, OF_SLAY_DEMON);
+                add_flag(flgs, OF_SLAY_UNDEAD);
+                add_flag(flgs, OF_FREE_ACT);
+                add_flag(flgs, OF_SEE_INVIS);
+                add_flag(flgs, OF_STR);
+                add_flag(flgs, OF_CON);
+                break;
+            case TOGGLE_HOLY_BLADE:
+                add_flag(flgs, OF_SLAY_EVIL);
+                add_flag(flgs, OF_SLAY_DEMON);
+                add_flag(flgs, OF_SLAY_UNDEAD);
+                add_flag(flgs, OF_RES_FEAR);
+                add_flag(flgs, OF_SEE_INVIS);
+                add_flag(flgs, OF_WIS);
+                if (p_ptr->lev >= 50)
+                    add_flag(flgs, OF_BRAND_LITE);
+                break;
+            }
         }
     }
     else if (p_ptr->psubclass == WEAPONMASTER_SHIELDS)
@@ -3308,52 +3971,52 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
     }
 }
 
-static void _init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _init_blows_calc(obj_ptr obj, plr_attack_info_ptr info)
 {
-    info_ptr->blows_calc.max = 100; /* Default for melee specialties with unfavored weapons */
-    info_ptr->blows_calc.wgt = 70;
-    info_ptr->blows_calc.mult = 50;
+    info->blows_calc.max = 100; /* Default for melee specialties with unfavored weapons */
+    info->blows_calc.wgt = 70;
+    info->blows_calc.mult = 50;
     switch (_specialities[p_ptr->psubclass].kind)
     {
     case _WEAPONMASTER_BOWS:
-        info_ptr->blows_calc.max = 300;
+        info->blows_calc.max = 300;
         break;
 
     case _WEAPONMASTER_SHIELDS: /* Shieldmaster can bash or melee with aplomb */
-        info_ptr->blows_calc.max = 500;
+        info->blows_calc.max = 500;
         break;
 
     case _WEAPONMASTER_MELEE:
-        if (_check_speciality_aux(o_ptr))
+        if (_check_speciality_aux(obj))
         {
             switch (p_ptr->psubclass)
             {
             case WEAPONMASTER_AXES:
-                if (info_ptr->wield_how == WIELD_TWO_HANDS)
-                    info_ptr->blows_calc.max = 600;
+                if (have_flag(info->paf_flags, PAF_TWO_HANDS))
+                    info->blows_calc.max = 600;
                 else
-                    info_ptr->blows_calc.max = 500;
+                    info->blows_calc.max = 500;
                 break;
             case WEAPONMASTER_DAGGERS:
                 if (_get_toggle() == TOGGLE_FRENZY_STANCE)
-                    info_ptr->blows_calc.max = 600;
+                    info->blows_calc.max = 600;
                 else
-                    info_ptr->blows_calc.max = 500;
+                    info->blows_calc.max = 500;
                 break;
             case WEAPONMASTER_CLUBS:
-                info_ptr->blows_calc.max = 525;
+                info->blows_calc.max = 525;
                 break;
             case WEAPONMASTER_POLEARMS:
-                info_ptr->blows_calc.max = 525;
+                info->blows_calc.max = 525;
                 break;
             case WEAPONMASTER_STAVES:
-                info_ptr->blows_calc.max = 500;
+                info->blows_calc.max = 500;
                 break;
             case WEAPONMASTER_SWORDS:
-                info_ptr->blows_calc.max = 525;
+                info->blows_calc.max = 525;
                 break;
             case WEAPONMASTER_DIGGERS:
-                info_ptr->blows_calc.max = 550;
+                info->blows_calc.max = 550;
                 break;
             }
         }
@@ -3361,54 +4024,54 @@ static void _init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
     }
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    int spec1 = _check_speciality_aux(o_ptr);
+    int spec1 = _check_speciality_aux(obj);
 
-    _init_blows_calc(o_ptr, info_ptr);
+    _init_blows_calc(obj, info);
 
     /* (+L/5, +L/5) for all weaponmasters replacing 'Signature Weapon' */
     if (spec1 && p_ptr->speciality_equip)
     {
-        info_ptr->to_d += p_ptr->lev/5;
-        info_ptr->dis_to_d += p_ptr->lev/5;
-        info_ptr->to_h += p_ptr->lev/5;
-        info_ptr->dis_to_h += p_ptr->lev/5;
+        info->to_d += p_ptr->lev/5;
+        info->dis_to_d += p_ptr->lev/5;
+        info->to_h += p_ptr->lev/5;
+        info->dis_to_h += p_ptr->lev/5;
     }
 
     if (p_ptr->psubclass == WEAPONMASTER_AXES)
     {
         if (spec1 && p_ptr->speciality_equip)
         {
-            info_ptr->to_d += 5;
-            info_ptr->dis_to_d += 5;
+            info->to_d += 5;
+            info->dis_to_d += 5;
 
             if (p_ptr->lev >= 20)
             {
-                info_ptr->to_d += 5;
-                info_ptr->dis_to_d += 5;
+                info->to_d += 5;
+                info->dis_to_d += 5;
             }
 
             if (p_ptr->lev >= 45)
             {
-                info_ptr->to_d += 10;
-                info_ptr->dis_to_d += 10;
+                info->to_d += 10;
+                info->dis_to_d += 10;
             }
 
             switch (_get_toggle())
             {
             case TOGGLE_POWER_ATTACK:
-                info_ptr->dis_to_h -= 2*p_ptr->lev/3;
-                info_ptr->to_h -= 2*p_ptr->lev/3;
-                if (info_ptr->wield_how == WIELD_TWO_HANDS && !info_ptr->omoi)
+                info->dis_to_h -= 2*p_ptr->lev/3;
+                info->to_h -= 2*p_ptr->lev/3;
+                if (plr_attack_info_two_hand_bonus(info))
                 {
-                    info_ptr->dis_to_d += p_ptr->lev/2;
-                    info_ptr->to_d += p_ptr->lev/2;
+                    info->dis_to_d += p_ptr->lev/2;
+                    info->to_d += p_ptr->lev/2;
                 }
                 else
                 {
-                    info_ptr->dis_to_d += p_ptr->lev/4;
-                    info_ptr->to_d += p_ptr->lev/4;
+                    info->dis_to_d += p_ptr->lev/4;
+                    info->to_d += p_ptr->lev/4;
                 }
                 break;
             }
@@ -3419,12 +4082,12 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
         switch (_get_toggle())
         {
         case TOGGLE_SHADOW_STANCE:
-            info_ptr->to_d -= 10;
-            info_ptr->dis_to_d -= 10;
+            info->to_d -= 10;
+            info->dis_to_d -= 10;
             break;
         case TOGGLE_FRENZY_STANCE:
-            info_ptr->to_h += p_ptr->lev/5;
-            info_ptr->dis_to_h += p_ptr->lev/5;
+            info->to_h += p_ptr->lev/5;
+            info->dis_to_h += p_ptr->lev/5;
             break;
         }
     }
@@ -3434,16 +4097,16 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
         {
             if (p_ptr->lev >= 25)
             {
-                info_ptr->to_h += 20;
-                info_ptr->dis_to_h += 20;
+                info->to_h += 20;
+                info->dis_to_h += 20;
             }
         }
 
         switch (_get_toggle())
         {
         case TOGGLE_COMBAT_EXPERTISE:
-            info_ptr->to_h -= 5 + p_ptr->lev/2;
-            info_ptr->dis_to_h -= 5 + p_ptr->lev/2;
+            info->to_h -= 5 + p_ptr->lev/2;
+            info->dis_to_h -= 5 + p_ptr->lev/2;
             break;
         }
     }
@@ -3454,34 +4117,44 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     {
         if (spec1 && p_ptr->speciality_equip)
         {
-            info_ptr->to_h += 10;
-            info_ptr->dis_to_h += 10;
+            info->to_h += 10;
+            info->dis_to_h += 10;
+            switch (_get_toggle())
+            {
+            case TOGGLE_DEMON_BLADE:
+                info->xtra_blow += 100;
+                break;
+            case TOGGLE_ARMAGEDDON_BLADE:
+                info->to_dd += 2;
+                info->to_ds += 1;
+                break;
+            }
         }
     }
     else if (p_ptr->psubclass == WEAPONMASTER_POLEARMS)
     {
         if (p_ptr->entrenched)
         {
-            info_ptr->to_h += 20 + p_ptr->entrench_ct;
-            info_ptr->dis_to_h += 20 + p_ptr->entrench_ct;
+            info->to_h += 20 + p_ptr->entrench_ct;
+            info->dis_to_h += 20 + p_ptr->entrench_ct;
         }
 
         switch (_get_toggle())
         {
         case TOGGLE_MANY_STRIKE:
-            info_ptr->to_h -= 5;
-            info_ptr->dis_to_h -= 5;
+            info->to_h -= 5;
+            info->dis_to_h -= 5;
             break;
         case TOGGLE_TRIP:
-            info_ptr->to_h -= 30;
-            info_ptr->dis_to_h -= 30;
+            info->to_h -= 30;
+            info->dis_to_h -= 30;
             break;
         }
     }
     else if (p_ptr->psubclass == WEAPONMASTER_STAVES)
     {
         if (spec1 && p_ptr->speciality_equip && p_ptr->lev >= 30 && p_ptr->chp == p_ptr->mhp)
-            info_ptr->xtra_blow += 100;
+            info->xtra_blow += 100;
     }
     else if (p_ptr->psubclass == WEAPONMASTER_DIGGERS)
     {
@@ -3490,27 +4163,29 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
             switch (_get_toggle())
             {
             case TOGGLE_INDUSTRIOUS_MORTICIAN:
-                info_ptr->xtra_blow += 100;
-                /*info_ptr->xtra_blow += MIN(o_ptr->pval*50, 250);*/
+                info->xtra_blow += 100;
+                /*info->xtra_blow += MIN(obj->pval*50, 250);*/
                 break;
             }
         }
     }
 }
 
-static void _move_monster(int m_idx)
+static void _move_monster(mon_ptr mon)
 {
     if (p_ptr->psubclass == WEAPONMASTER_POLEARMS)
     {
         if (p_ptr->lev >= 20 && p_ptr->speciality_equip)
         {
-            monster_type *m_ptr = &m_list[m_idx];
-            if (m_ptr->cdis == 1)
+            if (mon->cdis == 1)
             {
+                plr_attack_t context = {0};
                 char m_name[80];
-                monster_desc(m_name, m_ptr, 0);
+                monster_desc(m_name, mon, 0);
                 msg_format("%^s gets too close!", m_name);
-                py_attack(m_ptr->fy, m_ptr->fx, WEAPONMASTER_PROXIMITY_ALERT);
+                context.mode = _PROXIMITY_ALERT;
+                context.flags = PAC_NO_INNATE;
+                plr_attack(&context, mon->pos);
             }
         }
     }
@@ -3521,20 +4196,20 @@ static void _process_player(void)
     if (p_ptr->psubclass == WEAPONMASTER_POLEARMS)
     {
         /* process_player() fires before move_player() */
-        if (px == p_ptr->entrench_x && py == p_ptr->entrench_y)
+        if (p_ptr->pos.x == p_ptr->entrench_x && p_ptr->pos.y == p_ptr->entrench_y)
         {
             if (p_ptr->entrench_ct < 30)
                 p_ptr->entrench_ct++;
             p_ptr->update |= PU_BONUS;
-            p_ptr->redraw |= PR_STATUS;
+            p_ptr->redraw |= PR_EFFECTS;
         }
         else
         {
-            p_ptr->entrench_x = px;
-            p_ptr->entrench_y = py;
+            p_ptr->entrench_x = p_ptr->pos.x;
+            p_ptr->entrench_y = p_ptr->pos.y;
             p_ptr->entrench_ct = 0;
             p_ptr->update |= PU_BONUS;
-            p_ptr->redraw |= PR_STATUS;
+            p_ptr->redraw |= PR_EFFECTS;
         }
     }
     else if (p_ptr->psubclass == WEAPONMASTER_STAVES)
@@ -3563,10 +4238,10 @@ static void _process_player(void)
 static obj_ptr _relocate_ammo(obj_loc_t loc)
 {
     obj_ptr ammo = NULL;
-    if (loc.where == INV_QUIVER && loc.slot)
-        ammo = quiver_obj(loc.slot);
-    else if (loc.where == INV_PACK && loc.slot)
-        ammo = pack_obj(loc.slot);
+    if (loc.where == INV_QUIVER && loc.v.slot)
+        ammo = quiver_obj(loc.v.slot);
+    else if (loc.where == INV_PACK && loc.v.slot)
+        ammo = pack_obj(loc.v.slot);
     if (ammo && obj_can_shoot(ammo))
         return ammo;
     return NULL;
@@ -3587,13 +4262,13 @@ static void _move_player(void)
 {
     if (_get_toggle() == TOGGLE_SHOT_ON_THE_RUN)
     {
-        int idx = -1;
         int num_shots = 1 + NUM_SHOTS / 400;
+        obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
         obj_ptr ammo;
         int i;
 
         /* Paranoia:  Did the player remove their sling? */
-        if (!_check_speciality_equip())
+        if (!_check_speciality_equip() || !bow)
         {
             _set_toggle(TOGGLE_NONE);
             return;
@@ -3611,6 +4286,7 @@ static void _move_player(void)
 
         for (i = 0; i < num_shots; i++)
         {
+            mon_ptr tgt_mon;
             /* End the technique when the ammo runs out.  Note that "return ammo"
                might not consume the current shot. Note that we will intentionally spill
                over into the next stack of shots, provided they are legal for this shooter. 
@@ -3628,20 +4304,12 @@ static void _move_player(void)
             }
 
             /* Pick a target to blast */
-            idx = _get_nearest_target_los();
-            if (idx > 0)
+            tgt_mon = _get_nearest_target_los();
+            if (tgt_mon)
             {
-                int     tx, ty;
-                obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
-
-                if (bow)
-                {
-                    tx = m_list[idx].fx;
-                    ty = m_list[idx].fy;
-                    shoot_hack = SHOOT_RUN;
-                    do_cmd_fire_aux2(bow, ammo, px, py, tx, ty);
-                    shoot_hack = SHOOT_NONE;
-                }
+                shoot_hack = SHOOT_RUN;
+                do_cmd_fire_aux2(bow, ammo, p_ptr->pos.x, p_ptr->pos.y, tgt_mon->pos.x, tgt_mon->pos.y);
+                shoot_hack = SHOOT_NONE;
             }
         }
         obj_release(ammo, OBJ_RELEASE_QUIET);
@@ -3651,7 +4319,10 @@ static void _move_player(void)
         int y, x;
         if (one_in_(5) && random_opponent(&y, &x))
         {
-            py_attack(y, x, WEAPONMASTER_AUTO_BLOW);
+            plr_attack_t context = {0};
+            context.mode = _AUTO_BLOW;
+            context.flags = PAC_NO_INNATE;
+            plr_attack(&context, point_create(x, y));
             energy_use = 0;
         }
     }
@@ -3773,13 +4444,13 @@ static void _character_dump(doc_ptr doc)
         doc_printf(doc, "  * <indent>You gain a bonus to AC until your next turn after any successful hit when wielding a staff.</indent>\n");
         doc_printf(doc, "  * You suffer a penalty to speed when wielding a shield.\n");
         if (p_ptr->lev >= 5)
-            doc_printf(doc, "  * You gain a bonus AC after moving until your next turn when wielding a staff.\n");
+            doc_printf(doc, "  * <indent>You gain a bonus AC after moving until your next turn when wielding a staff.</indent>\n");
         if (p_ptr->lev >= 10)
             doc_printf(doc, "  * You retaliate when struck when wielding a staff.\n");
         if (p_ptr->lev >= 20)
             doc_printf(doc, "  * You gain a bonus to speed when wielding a staff.\n");
         if (p_ptr->lev >= 30)
-            doc_printf(doc, "  * You gain an extra attack when you are at full health and wielding a staff.\n");
+            doc_printf(doc, "  * <indent>You gain an extra attack when you are at full health and wielding a staff.</indent>\n");
         if (p_ptr->lev >= 35)
             doc_printf(doc, "  * You are unaffected by monster auras when wielding a staff.\n");
     }
@@ -3788,8 +4459,6 @@ static void _character_dump(doc_ptr doc)
         doc_printf(doc, "  * You gain a bonus to hit when wielding a sword.\n");
         if (p_ptr->lev >= 20)
             doc_printf(doc, "  * You gain constant heroism when wielding a sword.\n");
-        if (p_ptr->lev >= 45)
-            doc_printf(doc, "  * You gain vorpal attacks when wielding a sword.\n");
     }
 
     doc_newline(doc);
@@ -3799,52 +4468,166 @@ static void _character_dump(doc_ptr doc)
         int        ct = _get_spells_aux(spells, MAX_SPELLS);
 
         if (ct)
-            py_display_spells(doc, spells, ct);
+            plr_display_spells(doc, spells, ct);
     }
 }
-
-class_t *weaponmaster_get_class(int subclass)
+static status_display_t _status_display(void)
 {
-    static class_t me = {0};
-    static bool    init = FALSE;
-
-    /* static info never changes */
-    if (!init)
+    status_display_t d = {0};
+    switch (_get_toggle())
     {
-        me.name = "Weaponmaster";
-        me.desc = "The weaponmaster is great with a single class of weapons. "
+    case TOGGLE_SHOT_ON_THE_RUN:
+        d.name = "Shoot on Run"; d.abbrev = "Rn"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_RAPID_SHOT:
+        d.name = "Rapid Shot"; d.abbrev = "Rp"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_FLYING_DAGGER_STANCE:
+        d.name = "Flying Dagger"; d.abbrev = "FD"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_SHADOW_STANCE:
+        d.name = "Shadow"; d.abbrev = "Sw"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_FRENZY_STANCE:
+        d.name = "Frenzy"; d.abbrev = "Fz"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_COMBAT_EXPERTISE:
+        d.name = "Defensive Stance"; d.abbrev = "DS"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_TRADE_BLOWS:
+        d.name = "Trade Blows"; d.abbrev = "Tr"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_POWER_ATTACK:
+        d.name = "Power Attack"; d.abbrev = "Pw"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_BURNING_BLADE:
+        d.name = "Burning"; d.abbrev = "/Fi"; d.color = TERM_RED;
+        break;
+    case TOGGLE_ICE_BLADE:
+        d.name = "Ice"; d.abbrev = "/Co"; d.color = TERM_BLUE;
+        break;
+    case TOGGLE_THUNDER_BLADE:
+        d.name = "Thunder"; d.abbrev = "/El"; d.color = TERM_YELLOW;
+        break;
+    case TOGGLE_SHARD_BLADE:
+        d.name = "Shard"; d.abbrev = "/V"; d.color = TERM_L_UMBER;
+        break;
+    case TOGGLE_CHAOS_BLADE:
+        d.name = "Chaos"; d.abbrev = "/Ca"; d.color = TERM_VIOLET;
+        break;
+    case TOGGLE_DEATH_BLADE:
+        d.name = "Death"; d.abbrev = "/V"; d.color = TERM_L_DARK;
+        break;
+    case TOGGLE_DEMON_BLADE:
+        d.name = "Demon"; d.abbrev = "/A"; d.color = TERM_RED;
+        break;
+    case TOGGLE_PATTERN_BLADE:
+        d.name = "Pattern"; d.abbrev = "/*"; d.color = TERM_ORANGE;
+        break;
+    case TOGGLE_HOLY_BLADE:
+        d.name = "Holy"; d.abbrev = "/*"; d.color = TERM_WHITE;
+        break;
+    case TOGGLE_ARMAGEDDON_BLADE:
+        d.name = "Armageddon"; d.abbrev = "Am"; d.color = TERM_VIOLET;
+        break;
+    case TOGGLE_MANY_STRIKE:
+        d.name = "Many Strike"; d.abbrev = "MS"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_PIERCING_STRIKE:
+        d.name = "Piercing Strike"; d.abbrev = "PS"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_TRIP:
+        d.name = "Trip"; d.abbrev = "Trp"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_STRENGTH_OF_THE_UNDERTAKER:
+        d.name = "Undertaker"; d.abbrev = "Str"; d.color = TERM_UMBER;
+        break;
+    case TOGGLE_STOICISM:
+        d.name = "Stoicism"; d.abbrev = "Sc"; d.color = TERM_ORANGE;
+        break;
+    case TOGGLE_INDUSTRIOUS_MORTICIAN:
+        d.name = "Mortician"; d.abbrev = "At"; d.color = TERM_YELLOW;
+        break;
+    case TOGGLE_SHIELD_BASH:
+        d.name = "Shield Bash"; d.abbrev = "SB"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_BULWARK:
+        d.name = "Bulwark"; d.abbrev = "Bw"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_SHIELD_REVENGE:
+        /* already using T_REVENGE */
+        break;
+    case TOGGLE_READIED_SHOT:
+        d.name = "Ready"; d.abbrev = "RS"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_PIERCING_ARROW:
+        d.name = "Pierce"; d.abbrev = "PA"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_RAPID_RELOAD:
+        d.name = "Reload"; d.abbrev = "RR"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_EXPLODING_BOLT:
+        d.name = "Explode"; d.abbrev = "Ex"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_OVERDRAW:
+        d.name = "Overdraw"; d.abbrev = "OD"; d.color = TERM_L_BLUE;
+        break;
+    case TOGGLE_CAREFUL_AIM:
+        d.name = "Aim"; d.abbrev = "Aim"; d.color = TERM_L_BLUE;
+        break;
+    }
+    return d;
+}
+static void _prt_effects(doc_ptr doc)
+{
+    if (p_ptr->entrenched)
+        doc_insert(doc, "<color:u>Entrenched</color>\n");
+}
+
+plr_class_ptr weaponmaster_get_class(int subclass)
+{
+    static plr_class_ptr me = NULL;
+
+    if (!me)
+    {
+        me = plr_class_alloc(CLASS_WEAPONMASTER);
+        me->name = "Weaponmaster";
+        me->desc = "The weaponmaster is great with a single class of weapons. "
                   "The character gets combat bonuses and special powers "
                   "depending on the type of specialization. Alas, the "
                   "weaponmaster is truly lousy when using any weapon "
                   "outside their chosen specialty so focus is key.";
 
-        me.life = 109;
-        me.base_hp = 12;
-        me.exp = 135;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
+        me->life = 109;
+        me->base_hp = 12;
+        me->exp = 135;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.birth = _on_birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_stats = _calc_stats;
-        me.get_flags = _get_flags;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.calc_shooter_bonuses = _calc_shooter_bonuses;
-        me.move_player = _move_player;
-        me.move_monster = _move_monster;
-        me.process_player = _process_player;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.attack_init = _attack_init;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.birth = _on_birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_stats = _calc_stats;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.calc_shooter_bonuses = _calc_shooter_bonuses;
+        me->hooks.move_player = _move_player;
+        me->hooks.move_monster = _move_monster;
+        me->hooks.process_player = _process_player;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.status_display = _status_display;
+        me->hooks.prt_effects = _prt_effects;
+        me->hooks.register_timers = _register_timers;
     }
     {
-        me.stats[A_STR] =  1;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  1;
+        me->stats[A_STR] =  1;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] =  1;
     }
     if (0 <= subclass && subclass < WEAPONMASTER_MAX)
     {
@@ -3852,21 +4635,21 @@ class_t *weaponmaster_get_class(int subclass)
         int          i;
 
         for (i = 0; i < MAX_STATS; i++)
-            me.stats[i] += ptr->stats[i];
+            me->stats[i] += ptr->stats[i];
 
-        me.base_skills = ptr->base_skills;
-        me.extra_skills = ptr->extra_skills;
+        me->skills = ptr->base_skills;
+        me->extra_skills = ptr->extra_skills;
 
-        me.subname = ptr->name;
-        me.subdesc = ptr->help;
+        me->subname = ptr->name;
+        me->subdesc = ptr->help;
     }
     else
     {
-        me.subname = "";
-        me.subdesc = "";
+        me->subname = "";
+        me->subdesc = "";
     }
 
-    return &me;
+    return me;
 }
 
 int weaponmaster_wield_hack(object_type *o_ptr)
@@ -3894,8 +4677,8 @@ void weaponmaster_do_readied_shot(monster_type *m_ptr)
 {
     if (weaponmaster_get_toggle() == TOGGLE_READIED_SHOT)
     {
-        int tx = m_ptr->fx;
-        int ty = m_ptr->fy;
+        int tx = m_ptr->pos.x;
+        int ty = m_ptr->pos.y;
         obj_ptr bow = equip_obj(p_ptr->shooter_info.slot);
 
         if (bow)
@@ -3917,7 +4700,7 @@ void weaponmaster_do_readied_shot(monster_type *m_ptr)
                 return;
             }
             shoot_hack = SHOOT_RETALIATE;
-            do_cmd_fire_aux2(bow, ammo, px, py, tx, ty);
+            do_cmd_fire_aux2(bow, ammo, p_ptr->pos.x, p_ptr->pos.y, tx, ty);
             obj_release(ammo, 0);
             shoot_hack = SHOOT_NONE;
         }

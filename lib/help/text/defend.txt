@@ -125,9 +125,7 @@ Shield of Reflection but not Boots of Reflection; Boots of Speed but
 not Gloves of Speed; etc.
 
 A list of the ego types and their bonuses is considered a spoiler, so 
-won't be presented here. You can probably find out about them by asking 
-on forums, or by viewing character dumps on the wonderful Angband 
-ladder (angband.oook.cz). But keep in mind that this is one of my 
+won't be presented here. But keep in mind that this is one of my 
 favorite areas of the game to modify, so what was true last release 
 might be different now :)
 

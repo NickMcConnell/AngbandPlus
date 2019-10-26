@@ -1,0 +1,16 @@
+# This is a beginner world for learning the game, or for players who don't
+# want the normal wilderness play. Note that the town of Outpost does not
+# have a recall tile, so we use Morivant for the single town.
+T:WORLD:NORMAL
+L:#:MOUNTAIN_WALL(20)
+L:T:TREE(5)
+L:~:DEEP_WATER(10)
+L:^:MOUNTAIN(15)
+L:1:GRASS(TOWN|ROAD|MARK|GLOW, Morivant)
+L:a:TREE(DUNGEON, Angband)
+M:#####
+M:#T^^#
+M:#a1^#
+M:#T~~#
+M:#####
+# vim: filetype=q :

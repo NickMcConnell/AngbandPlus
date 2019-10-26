@@ -28,11 +28,20 @@
  * Note that food/potions/scrolls no longer use bit-flags for effects,
  * but instead use the "sval" (which is also used to sort the objects).
  */
+static void _restore_mana_aux(obj_ptr o)
+{
+    if (obj_is_device(o) && o->activation.type != EFFECT_RESTORE_MANA)
+    {
+        if (o->tval == TV_ROD)
+            device_regen_sp_aux(o, 500);
+        else
+            device_regen_sp_aux(o, 250);
+    }
+}
 
 bool restore_mana(void)
 {
-    bool   result = FALSE;
-    slot_t slot;
+    bool result = FALSE;
 
     if (p_ptr->pclass == CLASS_MAGIC_EATER)
     {
@@ -52,22 +61,9 @@ bool restore_mana(void)
         result = TRUE;
     }
 
-    for (slot = 1; slot <= pack_max(); slot++)
-    {
-        obj_ptr obj = pack_obj(slot);
+    pack_for_each(_restore_mana_aux);
+    quiver_for_each(_restore_mana_aux);
 
-        if (!obj) continue;
-        if (!object_is_device(obj)) continue;
-        if (obj->activation.type == EFFECT_RESTORE_MANA) continue;
-
-        if (obj->tval == TV_ROD)
-            device_regen_sp_aux(obj, 500);
-        else
-            device_regen_sp_aux(obj, 250);
-        result = TRUE;
-    }
-
-    msg_print("You feel your head clear.");
     return result;
 }
 
@@ -99,7 +95,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             {
                 if (!res_save_default(RES_POIS))
                 {
-                    if (set_poisoned(p_ptr->poisoned + randint0(10) + 10, FALSE))
+                    if (plr_tim_add(T_POISON, randint0(10) + 10))
                         ident = TRUE;
                 }
                 break;
@@ -109,7 +105,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             {
                 if (!res_save_default(RES_BLIND))
                 {
-                    if (set_blind(p_ptr->blind + randint0(25) + 25, FALSE))
+                    if (plr_tim_add(T_BLIND, randint0(25) + 25))
                         ident = TRUE;
                 }
                 break;
@@ -126,7 +122,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             {
                 if (!res_save_default(RES_CONF))
                 {
-                    if (set_confused(p_ptr->confused + randint0(10) + 10, FALSE))
+                    if (plr_tim_add(T_CONFUSED, randint0(10) + 10))
                         ident = TRUE;
                 }
                 break;
@@ -134,9 +130,9 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_HALLUCINATION:
             {
-                if (!res_save_default(RES_CHAOS))
+                if (!res_save_default(RES_CHAOS) && !mut_present(MUT_WEIRD_MIND))
                 {
-                    if (set_image(p_ptr->image + randint0(25) + 25, FALSE))
+                    if (plr_tim_add(T_HALLUCINATE, randint0(25) + 25))
                         ident = TRUE;
                 }
                 break;
@@ -145,7 +141,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             case SV_FOOD_PARALYSIS:
             {
                 if (!free_act_save_p(0))
-                    ident = set_paralyzed(randint1(4), FALSE);
+                    ident = plr_tim_add(T_PARALYZED, randint1(4));
                 break;
             }
 
@@ -199,13 +195,13 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_CURE_POISON:
             {
-                if (set_poisoned(0, TRUE)) ident = TRUE;
+                if (plr_tim_remove(T_POISON)) ident = TRUE;
                 break;
             }
 
             case SV_FOOD_CURE_BLINDNESS:
             {
-                if (set_blind(0, TRUE)) ident = TRUE;
+                if (plr_tim_remove(T_BLIND)) ident = TRUE;
                 break;
             }
 
@@ -221,14 +217,15 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_CURE_CONFUSION:
             {
-                if (set_confused(0, TRUE)) ident = TRUE;
+                if (plr_tim_remove(T_CONFUSED)) ident = TRUE;
                 break;
             }
 
             case SV_FOOD_CURE_SERIOUS:
             {
                 if (hp_player(damroll(6, 8))) ident = TRUE;
-                if (set_cut((p_ptr->cut / 2) - 50, TRUE)) ident = TRUE;
+                if (plr_tim_recover(T_CUT, 50, 0)) ident = TRUE;
+                plr_tim_subtract(T_CUT, 50);
                 break;
             }
 
@@ -266,7 +263,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             case SV_FOOD_AMBROSIA:
             {
                 msg_print("That tastes divine!");
-                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
+                plr_tim_recover(T_POISON, 80, 100);
                 hp_player(damroll(15, 15));
                 do_res_stat(A_STR);
                 do_res_stat(A_INT);
@@ -282,7 +279,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             case SV_FOOD_WAYBREAD:
             {
                 msg_print("That tastes good.");
-                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
+                plr_tim_recover(T_POISON, 80, 100);
                 hp_player(damroll(4, 8));
                 ident = TRUE;
                 break;
@@ -301,10 +298,10 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
     if (prace_is_(RACE_SNOTLING) && object_is_mushroom(obj))
     {
         int dur = lev + randint1(lev);
-        set_fast(p_ptr->fast + dur, FALSE);
-        set_shield(p_ptr->shield + dur, FALSE);
-        set_hero(p_ptr->hero + dur, FALSE);
-        set_tim_building_up(p_ptr->tim_building_up + dur, FALSE);
+        plr_tim_add(T_FAST, dur);
+        plr_tim_add(T_STONE_SKIN, dur);
+        plr_tim_add(T_HERO, dur);
+        plr_tim_add(T_GIANT_STRENGTH, dur);
     }
 
     if (!object_is_aware(obj))
@@ -330,7 +327,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
     /* Food can feed the player */
     if ( prace_is_(RACE_VAMPIRE)
-      || prace_is_(RACE_MON_VAMPIRE)
+      || p_ptr->prace == RACE_MON_VAMPIRE  /* Mimicking a wolf should now allow the vampire to feed! */
       || p_ptr->mimic_form == MIMIC_VAMPIRE )
     {
         /* Reduced nutritional benefit */
@@ -357,7 +354,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
              || prace_is_(RACE_SPECTRE)
              || prace_is_(RACE_MON_VORTEX)
              || elemental_is_(ELEMENTAL_AIR) )
-           && object_is_device(obj) )
+           && obj_is_device(obj) )
     {
         int amt = obj->activation.cost;
 
@@ -380,17 +377,30 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
         return;
     }
     else if ( (get_race()->flags & RACE_IS_DEMON)
-           && obj->tval == TV_CORPSE
-           && obj->sval == SV_CORPSE
+           && object_is_(obj, TV_CORPSE, SV_CORPSE)
            && my_strchr("pht", r_info[obj->pval].d_char) )
     {
         /* Drain vitality of humanoids */
-        char o_name[MAX_NLEN];
+        char         o_name[MAX_NLEN];
+        mon_race_ptr r = &r_info[obj->pval];
 
         object_desc(o_name, obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
         msg_format("%^s is burnt to ashes. You absorb its vitality!", o_name);
         set_food(PY_FOOD_MAX - 1);
+
+        if (r->flags1 & RF1_UNIQUE)
+        {
+            hp_player(damroll(15, 15));
+            do_res_stat(A_STR);
+            do_res_stat(A_INT);
+            do_res_stat(A_WIS);
+            do_res_stat(A_DEX);
+            do_res_stat(A_CON);
+            do_res_stat(A_CHR);
+            restore_level();
+        }
+        plr_tim_add(T_HERO, MAX(1, r->level));
     }
     else if (prace_is_(RACE_SKELETON))
     {
@@ -398,14 +408,14 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
               obj->sval < SV_FOOD_BISCUIT))
         {
             msg_print("The food falls through your jaws!");
-            drop_near(obj, -1, py, px);
+            drop_near(obj, p_ptr->pos, -1);
         }
         else
         {
             msg_print("The food falls through your jaws and vanishes!");
         }
     }
-    else if ((get_race()->flags & RACE_IS_NONLIVING) || prace_is_(RACE_ENT))
+    else if (((get_race()->flags & RACE_IS_NONLIVING) && p_ptr->prace != RACE_MON_POSSESSOR) || prace_is_(RACE_ENT))
     {
         msg_print("The food of mortals is poor sustenance for you.");
         set_food(p_ptr->food + obj->pval / 20);
@@ -454,7 +464,7 @@ static bool _can_eat(object_type *o_ptr)
         prace_is_(RACE_SPECTRE) ||
         elemental_is_(ELEMENTAL_AIR))
     {
-        if (object_is_device(o_ptr))
+        if (obj_is_device(o_ptr))
             return TRUE;
     }
     else if (get_race()->flags & RACE_IS_DEMON)
@@ -548,10 +558,10 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
     if (obj->tval == TV_POTION) /* Skip Flasks of Oil */
         device_use(obj, 0);
 
-    if (prace_is_(RACE_SKELETON) || (p_ptr->current_r_idx && r_info[p_ptr->current_r_idx].d_char == 's'))
+    if (prace_is_(RACE_SKELETON) || (p_ptr->current_r_idx && mon_race_lookup(p_ptr->current_r_idx)->d_char == 's'))
     {
         msg_print("Some of the fluid falls through your jaws!");
-        potion_smash_effect(0, py, px, obj->k_idx);
+        potion_smash_effect(0, p_ptr->pos.y, p_ptr->pos.x, obj->k_idx);
     }
 
     if (!object_is_aware(obj))
@@ -650,6 +660,7 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
 
         obj->number -= number;
         obj_release(obj, OBJ_RELEASE_DELAYED_MSG);
+        p_ptr->notice |= PN_OPTIMIZE_PACK;
     }
 }
 
@@ -723,13 +734,6 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
         }
     }
 
-    /* Hack: Block devices *after* consuming player energy */
-    if (p_ptr->tim_no_device)
-    {
-        msg_print("An evil power blocks your magic!");
-        return;
-    }
-
     if (world_player)
     {
         if (flush_failure) flush();
@@ -738,7 +742,7 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
         return;
     }
 
-    if (p_ptr->pclass == CLASS_BERSERKER || (get_race()->flags & RACE_IS_ILLITERATE))
+    if (get_race()->flags & RACE_IS_ILLITERATE)
     {
         msg_print("You cannot read.");
         return;
@@ -838,6 +842,7 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
         stats_on_use(o_ptr, number);
         o_ptr->number -= number;
         obj_release(o_ptr, OBJ_RELEASE_DELAYED_MSG);
+        p_ptr->notice |= PN_OPTIMIZE_PACK;
     }
 }
 
@@ -857,7 +862,7 @@ void do_cmd_read_scroll(void)
         set_action(ACTION_NONE);
 
     /* Check some conditions */
-    if (p_ptr->blind)
+    if (plr_tim_find(T_BLIND))
     {
         msg_print("You can't see anything.");
         return;
@@ -867,7 +872,7 @@ void do_cmd_read_scroll(void)
         msg_print("You have no light to read by.");
         return;
     }
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;
@@ -893,10 +898,8 @@ static void do_cmd_device_aux(obj_ptr obj)
     int  charges = 1;
     int  boost;
     bool is_devicemaster = FALSE;
-    u32b flgs[OF_ARRAY_SIZE];
 
     assert(obj->number == 1); /* Devices no longer stack */
-    obj_flags(obj, flgs);
 
     /* Devicemasters get extra power */
     is_devicemaster = devicemaster_is_speciality(obj);
@@ -914,14 +917,8 @@ static void do_cmd_device_aux(obj_ptr obj)
             energy_use -= delta;
     }
 
-    if (have_flag(flgs, OF_SPEED))
+    if (obj_has_flag(obj, OF_SPEED))
         energy_use -= energy_use * obj->pval / 10;
-
-    if (p_ptr->tim_no_device)
-    {
-        msg_print("An evil power blocks your magic!");
-        return;
-    }
 
     /* Devicemasters use devices even when afraid */
     if (!(is_devicemaster || fear_allow_device()))
@@ -958,17 +955,19 @@ static void do_cmd_device_aux(obj_ptr obj)
         return;
     }
 
+    #if 0
     if ((obj->curse_flags & OFC_CURSED) && one_in_(6))
     {
         msg_print("Oops! The device explodes!");
         project(
-            PROJECT_WHO_UNCTRL_POWER, 4, py, px,
+            PROJECT_WHO_UNCTRL_POWER, 4, p_ptr->pos.y, p_ptr->pos.x,
             device_sp(obj), GF_MANA,
             PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
         obj->number = 0;
         obj_release(obj, OBJ_RELEASE_QUIET);
         return;
     }
+    #endif
 
     if (device_sp(obj) < obj->activation.cost)
     {
@@ -999,10 +998,15 @@ static void do_cmd_device_aux(obj_ptr obj)
         charges = device_used_charges;
 
     object_tried(obj);
-    if (device_noticed && !object_is_known(obj))
+    if (device_noticed)
     {
-        identify_item(obj);
-        autopick_alter_obj(obj, destroy_identify);
+        if (obj_is_(obj, TV_HAFTED, SV_WIZSTAFF))
+            obj_learn_activation(obj);
+        else if (!obj_is_known(obj))
+        {
+            identify_item(obj);
+            autopick_alter_obj(obj, destroy_identify);
+        }
     }
     if ( device_lore
       && !obj_is_identified_fully(obj)
@@ -1018,7 +1022,8 @@ static void do_cmd_device_aux(obj_ptr obj)
 
     if (used)
     {
-        stats_on_use(obj, charges);
+        if (!obj_is_(obj, TV_HAFTED, SV_WIZSTAFF))
+            stats_on_use(obj, charges);
 
         /* Devicemasters can power the device with their mana once in a while */
         if ( is_devicemaster
@@ -1026,7 +1031,7 @@ static void do_cmd_device_aux(obj_ptr obj)
           && p_ptr->csp > obj->activation.cost
           && randint1(20 + obj->activation.difficulty) <= p_ptr->lev )
         {
-            msg_print("Your mental focus powers the device!");
+            msg_print("<color:B>Your mental focus powers the device!</color>");
             sp_player(-obj->activation.cost);
         }
         else
@@ -1096,8 +1101,9 @@ void do_cmd_aim_wand(void)
     prompt.prompt = "Aim which wand?";
     prompt.error = "You have no wand to aim.";
     prompt.filter = obj_is_wand;
-    prompt.where[0] = INV_PACK;
-    prompt.where[1] = INV_FLOOR;
+    prompt.where[0] = INV_QUIVER;
+    prompt.where[1] = INV_PACK;
+    prompt.where[2] = INV_FLOOR;
     prompt.flags = INV_SHOW_FAIL_RATES;
 
     obj_prompt(&prompt);
@@ -1122,8 +1128,9 @@ void do_cmd_zap_rod(void)
     prompt.prompt = "Zap which rod?";
     prompt.error = "You have no rod to zap.";
     prompt.filter = obj_is_rod;
-    prompt.where[0] = INV_PACK;
-    prompt.where[1] = INV_FLOOR;
+    prompt.where[0] = INV_QUIVER;
+    prompt.where[1] = INV_PACK;
+    prompt.where[2] = INV_FLOOR;
     prompt.flags = INV_SHOW_FAIL_RATES;
 
     obj_prompt(&prompt);
@@ -1252,15 +1259,18 @@ static void _do_capture_ball(object_type *o_ptr)
     else
     {
         bool success = FALSE;
+        point_t p;
         if (!get_rep_dir2(&dir)) return;
-        if (monster_can_enter(py + ddy[dir], px + ddx[dir], &r_info[o_ptr->pval], 0))
+        p = point_step(p_ptr->pos, dir);
+        if (monster_can_enter(p.y, p.x, &r_info[o_ptr->pval], 0))
         {
-            if (place_monster_aux(0, py + ddy[dir], px + ddx[dir], o_ptr->pval, (PM_FORCE_PET | PM_NO_KAGE)))
+            mon_ptr mon = place_monster_aux(0, p, o_ptr->pval, (PM_FORCE_PET | PM_NO_KAGE));
+            if (mon)
             {
-                if (o_ptr->xtra3) m_list[hack_m_idx_ii].mspeed = o_ptr->xtra3;
-                if (o_ptr->xtra5) m_list[hack_m_idx_ii].max_maxhp = o_ptr->xtra5;
-                if (o_ptr->xtra4) m_list[hack_m_idx_ii].hp = o_ptr->xtra4;
-                m_list[hack_m_idx_ii].maxhp = m_list[hack_m_idx_ii].max_maxhp;
+                if (o_ptr->xtra3) mon->mspeed = o_ptr->xtra3;
+                if (o_ptr->xtra5) mon->max_maxhp = o_ptr->xtra5;
+                if (o_ptr->xtra4) mon->hp = o_ptr->xtra4;
+                mon->maxhp = mon->max_maxhp;
                 if (o_ptr->inscription)
                 {
                     char buf[80];
@@ -1289,7 +1299,7 @@ static void _do_capture_ball(object_type *o_ptr)
                         if (quote && *(s-1) =='\'')
                             s--;
                         *s = '\0';
-                        m_list[hack_m_idx_ii].nickname = quark_add(buf);
+                        mon->nickname = quark_add(buf);
                         t = quark_str(o_ptr->inscription);
                         s = buf;
                         while(*t && (*t != '#'))
@@ -1327,11 +1337,8 @@ static void _do_capture_ball(object_type *o_ptr)
 static void do_cmd_activate_aux(obj_ptr obj)
 {
     cptr     msg;
-    effect_t effect;
+    effect_t effect = {0};
     int      boost = device_power(100) - 100;
-    u32b     flgs[OF_ARRAY_SIZE];
-
-    obj_flags_known(obj, flgs);
 
     /* Take a turn */
     energy_use = 100;
@@ -1371,7 +1378,7 @@ static void do_cmd_activate_aux(obj_ptr obj)
         _do_capture_ball(obj);
         return;
     }
-    device_known = have_flag(flgs, OF_ACTIVATE);
+    device_known = obj_has_known_flag(obj, OF_ACTIVATE);
     if (effect_use(&effect, boost))
     {
         if (device_noticed)
@@ -1402,6 +1409,9 @@ void do_cmd_activate(void)
 
     obj_prompt(&prompt);
     if (!prompt.obj) return;
-    do_cmd_activate_aux(prompt.obj);
+    if (obj_is_(prompt.obj, TV_HAFTED, SV_WIZSTAFF))
+        do_cmd_device_aux(prompt.obj);
+    else
+        do_cmd_activate_aux(prompt.obj);
 }
 

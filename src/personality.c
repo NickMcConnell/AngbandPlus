@@ -175,7 +175,7 @@ static personality_ptr _get_hasty_personality(void)
         me.skills.thb = -3;
 
         me.life = 100;
-        me.exp = 100;
+        me.exp = 90;
 
         me.calc_bonuses = _hasty_calc_bonuses;
         me.get_flags = _hasty_get_flags;
@@ -373,7 +373,7 @@ static personality_ptr _get_patient_personality(void)
         me.skills.thb = -3;
 
         me.life = 102;
-        me.exp = 100;
+        me.exp = 110;
 
         me.calc_bonuses = _patient_calc_bonuses;
 
@@ -432,7 +432,7 @@ static void _sexy_birth(void)
         object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
         if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
             rune_add(&forge, RUNE_ABSORPTION, FALSE);
-        py_birth_obj(&forge);
+        plr_birth_obj(&forge);
         skills_weapon_init(TV_HAFTED, SV_WHIP, WEAPON_EXP_BEGINNER);
     }
 }

@@ -41,12 +41,64 @@ static void _dragon_birth(void)
     forge.pval = 1;
     add_flag(forge.flags, OF_STR);
     add_flag(forge.flags, OF_DEX);
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
+/************************************************************************
+ * Private Timers
+ ************************************************************************/
+enum { _AURA_DOMINATION = T_CUSTOM };
+static bool _aura_domination_on(plr_tim_ptr timer)
+{
+    msg_print("Your presence becomes truly awe-inspiring!");
+    return TRUE;
+}
+static void _aura_domination_off(plr_tim_ptr timer)
+{
+    msg_print("Your presence returns to normal.");
+}
+static status_display_t _aura_domination_display(plr_tim_ptr timer)
+{
+    return status_display_create("Dominate", "Dm", TERM_RED);
+}
+static plr_tim_info_ptr _aura_domination(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_AURA_DOMINATION, "Aura of Domination");
+    info->desc = "Your protective aura of subjugation dominates all who dare attack you.";
+    info->on_f = _aura_domination_on;
+    info->off_f = _aura_domination_off;
+    info->status_display_f = _aura_domination_display;
+    return info;
+}
+static void _register_timers(void)
+{
+    plr_tim_register(_aura_domination());
+}
+/************************************************************************
+ * Melee Hooks
+ ************************************************************************/
+static void _after_hit(mon_attack_ptr context)
+{
+    if (context->stop) return;
+    if (!plr_tim_find(_AURA_DOMINATION)) return;
+    if (!(context->race->flagsr & RFR_RES_ALL))
+    {
+        int dam = (subjugation_power()+1)/2;
+        msg_format("%^s feels the force of your presence!", context->mon_name);
+        gf_affect_m(GF_WHO_PLAYER, context->mon, GF_SUBJUGATION, dam, GF_AFFECT_AURA);
+    }
+    else
+        mon_lore_r(context->mon, RFR_RES_ALL);
+}
+static void _mon_attack_init(mon_attack_ptr context)
+{
+    if (plr_tim_find(_AURA_DOMINATION))
+        context->after_hit_f = _after_hit;
+}
 /**********************************************************************
  * Dragon Breath
  **********************************************************************/
@@ -94,7 +146,7 @@ static int _random(int list[])
     return list[randint0(_count(list))];
 }
 
-static void _effect_menu_fn(int cmd, int which, vptr cookie, variant *res)
+static void _effect_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
 {
     int  idx = ((int*)cookie)[which];
 
@@ -263,7 +315,7 @@ static cptr _breath_desc(void)
     return 0;
 }
 
-static void _breathe_spell(int cmd, variant *res)
+static void _breathe_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -303,11 +355,24 @@ static void _breathe_spell(int cmd, variant *res)
 
 /**********************************************************************
  * Dragon Melee
- * cf design/dragons.ods
  **********************************************************************/
-static int _attack_level(void)
+int prorate(int amt, int l, int max, int w1, int w2, int w3)
 {
-    int l = p_ptr->lev * 2;
+    int result = 0;
+    int wt = w1 + w2 + w3;
+
+    if (l == max)
+        return amt;
+
+    result += amt * l * w1 / (max*wt);
+    result += amt * l * l * w2 / (max*max*wt);
+    result += (amt * l * l / max) * l * w3 / (max*max*wt);
+
+    return result;
+}
+static int _attack_level_aux(int l)
+{
+    l = prorate(100, l, 50, 1, 1, 1);
     switch (p_ptr->psubrace)
     {
     case DRAGON_STEEL:
@@ -341,70 +406,103 @@ static int _attack_level(void)
         l = MAX(1, l * 85 / 100);
         break;
     }
-
     l = MAX(1, l * _get_realm()->attack / 100);
     return l;
 }
-
-static void _calc_innate_attacks(void)
+static int _attack_level(void)
 {
-    int l = _attack_level();
-    int l2 = p_ptr->lev; /* Note: Using attack_level() for both dd and ds gives too much variation */
-    int to_d = 0;
-    int to_h = l2*3/5;
-
-    /* Claws */
+    return _attack_level_aux(p_ptr->lev);
+}
+static int _bite_max_blows(int l)
+{
+    int b;
+    b = 50 + prorate(150, l, 100, 1, 1, 1);
+    if (b < 100) b = 100;
+    if (b > 200) b = 200;
+    return b;
+}
+void dragon_calc_innate_bonuses(mon_blow_ptr blow, int attack_level)
+{
+    if (blow->method == RBM_CLAW)
+        plr_calc_blows_innate(blow, 400);
+    else if (blow->method == RBM_BITE)
+        plr_calc_blows_innate(blow, _bite_max_blows(attack_level));
+}
+static void _calc_innate_bonuses(mon_blow_ptr blow)
+{
+    dragon_calc_innate_bonuses(blow, _attack_level());
+}
+static dice_t _calc_dice(int dam, int pct_dice, bool claw)
+{
+    dice_t dice = {0};
+    int dice_dam = dam * pct_dice; /* scaled by 100 */
+    int x; /* scaled by sqrt(100) = 10 */
+    if (claw)
     {
-        innate_attack_t    a = {0};
-
-        a.dd = 1 + l / 15;
-        a.ds = 3 + l2 / 16; /* d6 max for everybody */
-        a.to_h += to_h;
-        a.to_d += to_d;
-
-        a.weight = 100 + l;
-        calc_innate_blows(&a, 400);
-        a.msg = "You claw.";
-        a.name = "Claw";
-
-        /*if (p_ptr->dragon_realm == DRAGON_REALM_ATTACK && p_ptr->lev >= 40)
-            a.flags |= INNATE_VORPAL;*/
-
-        if (p_ptr->dragon_realm == DRAGON_REALM_DEATH && p_ptr->lev >= 45)
-            a.effect[1] = GF_OLD_DRAIN;
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        x = mysqrt(4*dice_dam);
+        dice.dd = MAX(1, (x + 5)/10);
+        dice.ds = MAX(2, (x + 5)/17);
     }
-    /* Bite */
+    else
     {
-        innate_attack_t    a = {0};
+        x = mysqrt(6*dice_dam);
+        dice.dd = MAX(1, (x + 5)/30);
+        dice.ds = MAX(5, (x + 5)/10);
+    }
+    dice.base = MAX(0, dam - dice_avg_roll(dice));
+    return dice;
+}
+static void _spoiler_dump(doc_ptr doc)
+{
+    int cl;
+    for (cl = 1; cl <= 50; cl++)
+    {
+        int l = _attack_level_aux(cl);
+        int claw_dam = 5 + 45*l/100;
+        dice_t claw_dice = _calc_dice(claw_dam, 30, TRUE);
+        int claw_avg_dam = dice_avg_roll(claw_dice);
+        int bite_dam = 9 + 91*l/100;
+        dice_t bite_dice = _calc_dice(bite_dam, 50, FALSE);
+        int bite_avg_dam = dice_avg_roll(bite_dice);
+        int bite_blows = _bite_max_blows(l);
 
-        a.dd = 1 + l2 / 10; /* 6d max for everybody */
-        a.ds = 4 + l / 6;
-        a.to_h += to_h;
-        a.to_d += to_d;
-
-        a.weight = 200 + 2 * l;
-
-        if (p_ptr->lev >= 40)
-            calc_innate_blows(&a, 200);
-        else if (p_ptr->lev >= 35)
-            calc_innate_blows(&a, 150);
-        else
-            a.blows = 100;
-        a.msg = "You bite.";
-        a.name = "Bite";
-
-        /*if (p_ptr->dragon_realm == DRAGON_REALM_ATTACK && p_ptr->lev >= 40)
-            a.flags |= INNATE_VORPAL;*/
-
-        if (p_ptr->dragon_realm == DRAGON_REALM_DEATH && p_ptr->lev >= 45)
-            a.effect[1] = GF_OLD_DRAIN;
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        doc_printf(doc, "%2d %3d ", cl, l);
+        doc_printf(doc, "<color:%c>Claw(%dd%d+%d)=%d</color>",
+            claw_dam == claw_avg_dam ? 'w' : 'r',
+            claw_dice.dd, claw_dice.ds, claw_dice.base, claw_avg_dam);
+        doc_printf(doc, "<tab:25><color:%c>Bite(%dd%d+%d)=%d</color>",
+            bite_dam == bite_avg_dam ? 'w' : 'r',
+            bite_dice.dd, bite_dice.ds, bite_dice.base, bite_avg_dam);
+        doc_printf(doc, "<tab:45>Bite x%d.%02d   Dam %3d\n", bite_blows/100, bite_blows%100,
+            (400*claw_avg_dam + bite_blows*bite_avg_dam)/100);
     }
 }
+void dragon_calc_innate_attacks(int attack_level)
+{
+    mon_blow_ptr blow;
 
+    /* Claws */
+    blow = mon_blow_alloc(RBM_CLAW);
+    blow->power = 3*attack_level/4;
+    blow->weight = 100 + attack_level;
+    mon_blow_push_effect(blow, RBE_HURT, _calc_dice(5 + 45*attack_level/100, 30, TRUE)); 
+    _calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
+
+    /* Bite */
+    blow = mon_blow_alloc(RBM_BITE);
+    blow->power = 3*attack_level/4;
+    blow->weight = 200 + 2*attack_level;
+    mon_blow_push_effect(blow, RBE_HURT, _calc_dice(9 + 91*attack_level/100, 50, FALSE));
+    if (p_ptr->dragon_realm == DRAGON_REALM_DEATH && p_ptr->lev >= 45)
+        mon_blow_push_effect(blow, RBE_VAMP, _calc_dice(70*attack_level/100, 50, FALSE));
+    _calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
+}
+static void _calc_innate_attacks(void)
+{
+    dragon_calc_innate_attacks(_attack_level());
+}
 /**********************************************************************
  * Dragon Realms
  **********************************************************************/
@@ -492,8 +590,8 @@ static dragon_realm_t _realms[DRAGON_REALM_MAX] = {
     { DRAGON_REALM_DEATH, "Death", 
         "Death dragons are enemies of life itself, seeking to destroy all living creatures. With this "
         "realm, the dragon may bend their breath weapon to suit their necromantic desires, eventually "
-        "breathing mastery over both death and life. At high levels, the death dragon's melee attacks "
-        "gain a powerful draining effect against living creatures. This focus values strength above "
+        "breathing mastery over both death and life. At high levels, the death dragon's bite gains "
+        "a powerful draining effect against living creatures. This focus values strength above "
         "all else. This foul realm is only available to Shadow and Chaos dragons.",
     /*  S   I   W   D   C   C    Dsrm Dvce Save Stlh Srch Prcp Thn Thb  Life  Exp Attack Breath*/
       {+2, -2, -2,  0, -2, +1}, {  -5,  -3,  -3,   2,  -2,  -2,  5,  0},  95, 105,    90,    90, A_STR},
@@ -543,7 +641,7 @@ static spell_info _lore_spells[] = {
 };
 
 /* Breath */
-static void _bolt_spell(int cmd, variant *res)
+static void _bolt_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -584,7 +682,7 @@ static void _bolt_spell(int cmd, variant *res)
     }
 }
 
-static void _beam_spell(int cmd, variant *res)
+static void _beam_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -625,7 +723,7 @@ static void _beam_spell(int cmd, variant *res)
     }
 }
 
-static void _cone_spell(int cmd, variant *res)
+static void _cone_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -666,7 +764,7 @@ static void _cone_spell(int cmd, variant *res)
     }
 }
 
-static void _split_beam_spell(int cmd, variant *res)
+static void _split_beam_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -710,7 +808,7 @@ static void _split_beam_spell(int cmd, variant *res)
     }
 }
 
-static void _retreating_breath_spell(int cmd, variant *res)
+static void _retreating_breath_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -744,11 +842,10 @@ static void _retreating_breath_spell(int cmd, variant *res)
 
             if (get_rep_dir2(&dir) && dir != 5)
             {
-                int y, x;
-                y = py + ddy[dir];
-                x = px + ddx[dir];
-                if (player_can_enter(cave[y][x].feat, 0) && !is_trap(cave[y][x].feat) && !cave[y][x].m_idx)
-                    move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+                point_t pos = point_step(p_ptr->pos, dir);
+                cave_ptr grid = cave_at(pos);
+                if (player_can_enter(grid->feat, 0) && !is_trap(grid->feat) && !mon_at(pos))
+                    move_player_effect(pos, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
             }
 
             var_set_bool(res, TRUE);
@@ -761,7 +858,7 @@ static void _retreating_breath_spell(int cmd, variant *res)
     }
 }
 
-static void _deadly_breath_spell(int cmd, variant *res)
+static void _deadly_breath_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -799,7 +896,7 @@ static void _deadly_breath_spell(int cmd, variant *res)
     }
 }
 
-static void _star_ball_spell(int cmd, variant *res)
+static void _star_ball_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -812,32 +909,31 @@ static void _star_ball_spell(int cmd, variant *res)
     case SPELL_COST_EXTRA:
         var_set_int(res, _breath_cost());
         break;
-    case SPELL_CAST:
-    {
+    case SPELL_CAST: {
         int num = damroll(5, 3);
         int dam = MAX(1, _breath_amount()/3);
         int e = _breath_effect();
-        int y = py, x = px, i;
-        int attempts;
+        int i;
 
         var_set_bool(res, FALSE);
         if (e < 0) return;
 
         for (i = 0; i < num; i++)
         {
-            attempts = 1000;
+            int attempts = 1000;
+            point_t pos;
             while (attempts--)
             {
-                scatter(&y, &x, py, px, 4, 0);
-                if (!cave_have_flag_bold(y, x, FF_PROJECT)) continue;
-                if (!player_bold(y, x)) break;
+                pos = scatter(p_ptr->pos, 4);
+                if (!cave_have_flag_at(pos, FF_PROJECT)) continue;
+                if (!plr_at(pos)) break;
             }
-            project(0, 3, y, x, dam, e,
+            if (attempts < 0) continue;
+            project(0, 3, pos.y, pos.x, dam, e,
                 (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
         }
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -856,7 +952,7 @@ static spell_info _breath_spells[] = {
 };
 
 /* Craft */
-static void _detect_magic_spell(int cmd, variant *res)
+static void _detect_magic_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -884,7 +980,7 @@ static obj_ptr _get_reforge_src(int max_power)
     sprintf(buf, "Use what artifact for reforging (Max Power = %d)? ", max_power);
     prompt.prompt = buf;
     prompt.error = "You have no artifacts to reforge.";
-    prompt.filter = object_is_artifact;
+    prompt.filter = obj_is_art;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_FLOOR;
     prompt.flags = INV_SHOW_VALUE;
@@ -912,7 +1008,7 @@ static obj_ptr _get_reforge_dest(int max_power)
     return prompt.obj;
 }
 
-static void _reforging_spell(int cmd, variant *res)
+static void _reforging_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -934,7 +1030,7 @@ static void _reforging_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         src = _get_reforge_src(src_max_power);
         if (!src) return;
-        if (!object_is_artifact(src)) /* paranoia */
+        if (!obj_is_art(src)) /* paranoia */
         {
             msg_print("You must choose an artifact for reforging.");
             return;
@@ -964,13 +1060,13 @@ static void _reforging_spell(int cmd, variant *res)
             return;
         }
 
-        if (object_is_artifact(dest))
+        if (obj_is_art(dest))
         {
             msg_print("This item is already an artifact!");
             return;
         }
 
-        if (object_is_ego(dest))
+        if (obj_is_ego(dest))
         {
             msg_print("This item is already an ego item!");
             return;
@@ -988,7 +1084,7 @@ static void _reforging_spell(int cmd, variant *res)
             return;
         }
 
-        if (!reforge_artifact(src, dest, power))
+        if (!art_reforge(src, dest, power))
         {
             msg_print("The reforging failed!");
             return;
@@ -1027,7 +1123,7 @@ static spell_info _craft_spells[] = {
 };
 
 /* Attack */
-static void _war_cry_spell(int cmd, variant *res)
+static void _war_cry_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1039,7 +1135,7 @@ static void _war_cry_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         msg_print("You roar out!");
-        project_hack(GF_SOUND, randint1(p_ptr->lev));
+        project_los(GF_SOUND, randint1(p_ptr->lev));
         aggravate_monsters(0);
         var_set_bool(res, TRUE);
         break;
@@ -1049,7 +1145,22 @@ static void _war_cry_spell(int cmd, variant *res)
     }
 }
 
-static void _rend_spell(int cmd, variant *res)
+static bool _rend_begin(plr_attack_ptr context)
+{
+    if (!context->blow) return TRUE;
+    if (context->blow->method == RBM_CLAW || context->blow->method == RBM_BITE)
+        mon_blow_push_effect(context->blow, RBE_CUT, dice_create(0, 0, 0))->pct = 15 + p_ptr->lev/3;
+    /* Note: Dice don't matter. Checkout _innate_vorpal_pct in plr_attack.c
+       Slay: 1 + p(1 + 1/4 + ...) = 1 + p(4/3). So 40% gives a 1.53x multiplier! */
+    return TRUE;
+}
+static void _rend_end(plr_attack_ptr context)
+{
+    if (!context->blow) return;
+    if (context->blow->method == RBM_CLAW || context->blow->method == RBM_BITE)
+        mon_blow_pop_effect(context->blow);
+}
+static void _rend_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1060,35 +1171,25 @@ static void _rend_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with cutting blows.");
         break;
     case SPELL_CAST:
-        p_ptr->innate_attack_lock = TRUE;
-        p_ptr->innate_attacks[0].flags |= INNATE_VORPAL;
-        p_ptr->innate_attacks[1].flags |= INNATE_VORPAL;
-        var_set_bool(res, do_blow(DRAGON_REND));
-        p_ptr->innate_attack_lock = FALSE;
-        p_ptr->update |= PU_BONUS;
-        break;
-    case SPELL_ON_BROWSE:
-    {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        p_ptr->innate_attacks[0].flags |= INNATE_VORPAL;
-        p_ptr->innate_attacks[1].flags |= INNATE_VORPAL;
-        do_cmd_knowledge_weapon();
-        p_ptr->innate_attacks[0].flags &= ~INNATE_VORPAL;
-        p_ptr->innate_attacks[1].flags &= ~INNATE_VORPAL;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break;
-    }
+    case SPELL_ON_BROWSE: {
+        plr_attack_t context = {0};
+        context.hooks.begin_weapon_f = _rend_begin;
+        context.hooks.end_weapon_f = _rend_end;
+        if (cmd == SPELL_CAST)
+            var_set_bool(res, plr_attack_special_aux(&context, 1));
+        else
+        {
+            plr_attack_display_aux(&context);
+            var_set_bool(res, TRUE);
+        }
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _rage_spell(int cmd, variant *res)
+static void _rage_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1101,7 +1202,7 @@ static void _rage_spell(int cmd, variant *res)
     }
 }
 
-static void _three_way_attack_spell(int cmd, variant *res)
+static void _three_way_attack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1114,7 +1215,7 @@ static void _three_way_attack_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int cdir, dir;
-        int y, x;
+        point_t pos;
 
         var_set_bool(res, FALSE);
         if (!get_rep_dir2(&dir)) return;
@@ -1127,24 +1228,24 @@ static void _three_way_attack_spell(int cmd, variant *res)
 
         if (cdir == 8) return;
 
-        y = py + ddy_cdd[cdir];
-        x = px + ddx_cdd[cdir];
-        if (cave[y][x].m_idx)
-            py_attack(y, x, 0);
+        pos = point_step(p_ptr->pos, cdd[cdir]);
+        if (mon_at(pos))
+            plr_attack_normal(pos);
         else
             msg_print("You attack the empty air.");
-        y = py + ddy_cdd[(cdir + 7) % 8];
-        x = px + ddx_cdd[(cdir + 7) % 8];
-        if (cave[y][x].m_idx)
-            py_attack(y, x, 0);
+
+        pos = point_step(p_ptr->pos, cdd[(cdir + 7)%8]);
+        if (mon_at(pos))
+            plr_attack_normal(pos);
         else
             msg_print("You attack the empty air.");
-        y = py + ddy_cdd[(cdir + 1) % 8];
-        x = px + ddx_cdd[(cdir + 1) % 8];
-        if (cave[y][x].m_idx)
-            py_attack(y, x, 0);
+
+        pos = point_step(p_ptr->pos, cdd[(cdir + 1)%8]);
+        if (mon_at(pos))
+            plr_attack_normal(pos);
         else
             msg_print("You attack the empty air.");
+
         var_set_bool(res, TRUE);
         break;
     }
@@ -1154,7 +1255,23 @@ static void _three_way_attack_spell(int cmd, variant *res)
     }
 }
 
-static void _deadly_bite_spell(int cmd, variant *res)
+static bool _deadly_bite_begin(plr_attack_ptr context)
+{
+    if (!context->blow) return TRUE;
+    if (context->blow->method == RBM_BITE)
+    {
+        dice_t d = mon_blow_base_dice(context->blow);
+        mon_blow_push_effect(context->blow, _breath_effect(), dice_create(d.dd*5/2, d.ds, 0));
+    }
+    return TRUE;
+}
+static void _deadly_bite_end(plr_attack_ptr context)
+{
+    if (!context->blow) return;
+    if (context->blow->method == RBM_BITE)
+        mon_blow_pop_effect(context->blow);
+}
+static void _deadly_bite_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1165,32 +1282,38 @@ static void _deadly_bite_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent as usual, but augment your bite attacks with your breath element.");
         break;
     case SPELL_CAST:
-        p_ptr->innate_attack_lock = TRUE;
-        p_ptr->innate_attacks[1].effect[1] = _breath_effect();
-        var_set_bool(res, do_blow(DRAGON_DEADLY_BITE));
-        p_ptr->innate_attack_lock = FALSE;
-        p_ptr->update |= PU_BONUS;
-        break;
-    case SPELL_ON_BROWSE:
-    {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        p_ptr->innate_attacks[1].effect[1] = _breath_effect();
-        do_cmd_knowledge_weapon();
-        p_ptr->innate_attacks[1].effect[1] = 0;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break;
-    }
+    case SPELL_ON_BROWSE: {
+        plr_attack_t context = {0};
+        context.hooks.begin_weapon_f = _deadly_bite_begin;
+        context.hooks.end_weapon_f = _deadly_bite_end;
+        if (cmd == SPELL_CAST)
+            var_set_bool(res, plr_attack_special_aux(&context, 1));
+        else
+        {
+            plr_attack_display_aux(&context);
+            var_set_bool(res, TRUE);
+        }
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _snatch_spell(int cmd, variant *res)
+static bool _snatch_begin(plr_attack_ptr context)
+{
+    if (!context->blow) return FALSE;
+    if (context->blow->method != RBM_BITE) return FALSE;
+    return TRUE;
+}
+static void _snatch_after_hit(plr_attack_ptr context)
+{
+    if (context->stop) return;
+    msg_format("You grab %s in your jaws.", context->mon_name);
+    monster_toss(context->mon->id);
+    context->stop = STOP_PLR_SPECIAL;
+}
+static void _snatch_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1200,20 +1323,19 @@ static void _snatch_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attempt to snatch an adjacent opponent in your jaws. If successful, you may toss the monster away from you.");
         break;
-    case SPELL_CAST:
-        p_ptr->innate_attack_lock = TRUE;
-        p_ptr->innate_attacks[0].flags |= INNATE_SKIP;
-        var_set_bool(res, do_blow(DRAGON_SNATCH));
-        p_ptr->innate_attack_lock = FALSE;
-        p_ptr->update |= PU_BONUS;
-        break;
+    case SPELL_CAST: {
+        plr_attack_t context = {0};
+        context.hooks.begin_weapon_f = _snatch_begin;
+        context.hooks.after_hit_f = _snatch_after_hit;
+        var_set_bool(res, plr_attack_special_aux(&context, 1));
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _charge_spell(int cmd, variant *res)
+static void _charge_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1232,7 +1354,20 @@ static void _charge_spell(int cmd, variant *res)
     }
 }
 
-static void _rapid_strike_spell(int cmd, variant *res)
+static bool _rapid_strike_begin(plr_attack_ptr context)
+{
+    if (!context->blow) return TRUE;
+    if (context->blow->method == RBM_CLAW) context->blow->blows += 100;
+    if (context->blow->method == RBM_BITE) context->blow->blows += 25;
+    return TRUE;
+}
+static void _rapid_strike_end(plr_attack_ptr context)
+{
+    if (!context->blow) return;
+    if (context->blow->method == RBM_CLAW) context->blow->blows -= 100;
+    if (context->blow->method == RBM_BITE) context->blow->blows -= 25;
+}
+static void _rapid_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1243,35 +1378,44 @@ static void _rapid_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with extra blows.");
         break;
     case SPELL_CAST:
-        p_ptr->innate_attack_lock = TRUE;
-        p_ptr->innate_attacks[0].blows += 50;
-        p_ptr->innate_attacks[1].blows += 25;
-        var_set_bool(res, do_blow(DRAGON_RAPID_STRIKE));
-        p_ptr->innate_attack_lock = FALSE;
-        p_ptr->update |= PU_BONUS;
-        break;
-    case SPELL_ON_BROWSE:
-    {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        p_ptr->innate_attacks[0].blows += 50;
-        p_ptr->innate_attacks[1].blows += 25;
-        do_cmd_knowledge_weapon();
-        p_ptr->innate_attacks[0].blows -= 50;
-        p_ptr->innate_attacks[1].blows -= 25;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break;
-    }
+    case SPELL_ON_BROWSE: {
+        plr_attack_t context = {0};
+        context.hooks.begin_weapon_f = _rapid_strike_begin;
+        context.hooks.end_weapon_f = _rapid_strike_end;
+        if (cmd == SPELL_CAST)
+            var_set_bool(res, plr_attack_special_aux(&context, 1));
+        else
+        {
+            plr_attack_display_aux(&context);
+            var_set_bool(res, TRUE);
+        }
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _power_strike_spell(int cmd, variant *res)
+static bool _power_strike_begin(plr_attack_ptr context)
+{
+    if (!context->blow) return TRUE;
+    if (context->blow->method == RBM_CLAW || context->blow->method == RBM_BITE)
+    {
+        context->blow->weight += 200;
+        context->blow->effects[0].dice.dd += 2;
+    }
+    return TRUE;
+}
+static void _power_strike_end(plr_attack_ptr context)
+{
+    if (!context->blow) return;
+    if (context->blow->method == RBM_CLAW || context->blow->method == RBM_BITE)
+    {
+        context->blow->weight -= 200;
+        context->blow->effects[0].dice.dd -= 2;
+    }
+}
+static void _power_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1282,29 +1426,18 @@ static void _power_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with more powerful blows.");
         break;
     case SPELL_CAST:
-        p_ptr->innate_attack_lock = TRUE;
-        p_ptr->innate_attacks[0].dd += 2;
-        p_ptr->innate_attacks[1].dd += 2;
-        var_set_bool(res, do_blow(DRAGON_POWER_STRIKE));
-        p_ptr->innate_attack_lock = FALSE;
-        p_ptr->update |= PU_BONUS;
-        break;
-
-    case SPELL_ON_BROWSE:
-    {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        p_ptr->innate_attacks[0].dd += 2;
-        p_ptr->innate_attacks[1].dd += 2;
-        do_cmd_knowledge_weapon();
-        p_ptr->innate_attacks[0].dd -= 2;
-        p_ptr->innate_attacks[1].dd -= 2;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break;
-    }
+    case SPELL_ON_BROWSE: {
+        plr_attack_t context = {0};
+        context.hooks.begin_weapon_f = _power_strike_begin;
+        context.hooks.end_weapon_f = _power_strike_end;
+        if (cmd == SPELL_CAST)
+            var_set_bool(res, plr_attack_special_aux(&context, 1));
+        else
+        {
+            plr_attack_display_aux(&context);
+            var_set_bool(res, TRUE);
+        }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -1326,7 +1459,7 @@ static spell_info _attack_spells[] = {
 };
 
 /* Armor */
-static void _shard_skin_spell(int cmd, variant *res)
+static void _shard_skin_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1337,7 +1470,7 @@ static void _shard_skin_spell(int cmd, variant *res)
         var_set_string(res, "Temporarily gain an aura of shards which damages any monsters that strike you.");
         break;
     case SPELL_CAST:
-        set_tim_sh_shards(randint1(30) + 20, FALSE);
+        plr_tim_add(T_AURA_SHARDS, randint1(30) + 20);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1346,7 +1479,7 @@ static void _shard_skin_spell(int cmd, variant *res)
     }
 }
 
-static void _dragon_cloak_spell(int cmd, variant *res)
+static void _dragon_cloak_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1357,7 +1490,11 @@ static void _dragon_cloak_spell(int cmd, variant *res)
         var_set_string(res, "Temporarily gain protective elemental auras for a bit.");
         break;
     case SPELL_CAST:
-        set_tim_sh_elements(randint1(30) + 20, FALSE);
+        plr_tim_add(T_AURA_FIRE, randint1(30) + 20);
+        if (p_ptr->lev >= 25)
+            plr_tim_add(T_AURA_COLD, randint1(30) + 20);
+        if (p_ptr->lev >= 35)
+            plr_tim_add(T_AURA_ELEC, randint1(30) + 20);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1366,7 +1503,7 @@ static void _dragon_cloak_spell(int cmd, variant *res)
     }
 }
 
-static void _magic_resistance_spell(int cmd, variant *res)
+static void _magic_resistance_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1377,7 +1514,7 @@ static void _magic_resistance_spell(int cmd, variant *res)
         var_set_string(res, "Temporarily gain enhanced resistance to magic.");
         break;
     case SPELL_CAST:
-        set_resist_magic(randint1(30) + 20, FALSE);
+        plr_tim_add(T_RES_MAGIC, randint1(30) + 20);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1396,7 +1533,7 @@ static spell_info _armor_spells[] = {
 };
 
 /* Crusade */
-static void _breathe_spell_aux(int effect, int cmd, variant *res)
+static void _breathe_spell_aux(int effect, int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1427,7 +1564,7 @@ static void _breathe_spell_aux(int effect, int cmd, variant *res)
     }
 }
 
-static void _breathe_retribution_spell(int cmd, variant *res)
+static void _breathe_retribution_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1443,7 +1580,7 @@ static void _breathe_retribution_spell(int cmd, variant *res)
     }
 }
 
-static void _breathe_light_spell(int cmd, variant *res)
+static void _breathe_light_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1459,7 +1596,7 @@ static void _breathe_light_spell(int cmd, variant *res)
     }
 }
 
-static void _healing_spell(int cmd, variant *res)
+static void _healing_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1474,8 +1611,8 @@ static void _healing_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         hp_player(200);
-        set_stun(0, TRUE);
-        set_cut(0, TRUE);
+        plr_tim_remove(T_STUN);
+        plr_tim_remove(T_CUT);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1484,7 +1621,7 @@ static void _healing_spell(int cmd, variant *res)
     }
 }
 
-static void _breathe_holiness_spell(int cmd, variant *res)
+static void _breathe_holiness_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1500,7 +1637,16 @@ static void _breathe_holiness_spell(int cmd, variant *res)
     }
 }
 
-static void _smite_evil_spell(int cmd, variant *res)
+static bool _smite_evil_begin(plr_attack_ptr context)
+{
+    if (!context->blow) return TRUE;
+    if (context->blow->method == RBM_CLAW || context->blow->method == RBM_BITE)
+    {
+        add_flag(context->obj_flags, OF_SLAY_EVIL); /* flags are a copy */
+    }
+    return TRUE;
+}
+static void _smite_evil_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1511,13 +1657,17 @@ static void _smite_evil_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent evil opponent with holy fury!");
         break;
     case SPELL_CAST:
-        p_ptr->innate_attack_lock = TRUE;
-        p_ptr->innate_attacks[0].effect[1] = GF_HOLY_FIRE;
-        p_ptr->innate_attacks[1].effect[1] = GF_HOLY_FIRE;
-        var_set_bool(res, do_blow(DRAGON_SMITE_EVIL));
-        p_ptr->innate_attack_lock = FALSE;
-        p_ptr->update |= PU_BONUS;
-        break;
+    case SPELL_ON_BROWSE: {
+        plr_attack_t context = {0};
+        context.hooks.begin_weapon_f = _smite_evil_begin;
+        if (cmd == SPELL_CAST)
+            var_set_bool(res, plr_attack_special_aux(&context, 1));
+        else
+        {
+            plr_attack_display_aux(&context);
+            var_set_bool(res, TRUE);
+        }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -1541,7 +1691,7 @@ static spell_info _crusade_spells[] = {
 };
 
 /* Death */
-static void _breathe_poison_spell(int cmd, variant *res)
+static void _breathe_poison_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1557,7 +1707,7 @@ static void _breathe_poison_spell(int cmd, variant *res)
     }
 }
 
-static void _breathe_fear_spell(int cmd, variant *res)
+static void _breathe_fear_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1573,7 +1723,7 @@ static void _breathe_fear_spell(int cmd, variant *res)
     }
 }
 
-static void _breathe_dark_spell(int cmd, variant *res)
+static void _breathe_dark_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1589,7 +1739,7 @@ static void _breathe_dark_spell(int cmd, variant *res)
     }
 }
 
-static void _breathe_nether_spell(int cmd, variant *res)
+static void _breathe_nether_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1605,7 +1755,7 @@ static void _breathe_nether_spell(int cmd, variant *res)
     }
 }
 
-static void _breathe_reanimation_spell(int cmd, variant *res)
+static void _breathe_reanimation_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1626,7 +1776,7 @@ static void _breathe_reanimation_spell(int cmd, variant *res)
 int dragon_vamp_amt = 0;
 bool dragon_vamp_hack = FALSE;
 
-static void _breathe_vampirism_spell(int cmd, variant *res)
+static void _breathe_vampirism_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1650,7 +1800,7 @@ static void _breathe_vampirism_spell(int cmd, variant *res)
     }
 }
 
-static void _breathe_unholiness_spell(int cmd, variant *res)
+static void _breathe_unholiness_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1687,7 +1837,7 @@ static void _breathe_unholiness_spell(int cmd, variant *res)
     }
 }
 
-static void _breathe_genocide_spell(int cmd, variant *res)
+static void _breathe_genocide_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1723,7 +1873,7 @@ static spell_info _death_spells[] = {
 };
 
 /* Domination */
-static void _frightful_presence_spell(int cmd, variant *res)
+static void _frightful_presence_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1736,7 +1886,7 @@ static void _frightful_presence_spell(int cmd, variant *res)
     }
 }
 
-static void _detect_minions_spell(int cmd, variant *res)
+static void _detect_minions_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1749,7 +1899,7 @@ static void _detect_minions_spell(int cmd, variant *res)
     }
 }
 
-static void _baffling_presence_spell(int cmd, variant *res)
+static void _baffling_presence_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1762,7 +1912,7 @@ static void _baffling_presence_spell(int cmd, variant *res)
     }
 }
 
-static void _enslave_spell(int cmd, variant *res)
+static void _enslave_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1800,7 +1950,7 @@ int subjugation_power(void)
     return MAX(1, _plev() + adj_stat_save[p_ptr->stat_ind[A_CHR]]);
 }
 
-static void _breathe_subjugation_spell(int cmd, variant *res)
+static void _breathe_subjugation_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1837,7 +1987,7 @@ static void _breathe_subjugation_spell(int cmd, variant *res)
     }
 }
 
-static void _aura_of_domination_spell(int cmd, variant *res)
+static void _aura_of_domination_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1851,7 +2001,7 @@ static void _aura_of_domination_spell(int cmd, variant *res)
         var_set_string(res, info_duration(10, 20));
         break;
     case SPELL_CAST:
-        set_tim_sh_domination(randint1(20) + 10, FALSE);
+        plr_tim_add(_AURA_DOMINATION, randint1(20) + 10);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1860,7 +2010,14 @@ static void _aura_of_domination_spell(int cmd, variant *res)
     }
 }
 
-static void _banish_summons_spell(int cmd, variant *res)
+static bool _banish_p(mon_ptr mon)
+{
+    if (!mon->parent_m_idx) return FALSE;
+    if (!plr_project(mon->pos)) return FALSE;
+    if (is_pet(mon)) return FALSE;
+    return TRUE;
+}
+static void _banish_summons_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1870,24 +2027,18 @@ static void _banish_summons_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "All enemy summons in view are returned to where they came.");
         break;
-    case SPELL_CAST:
-    {
+    case SPELL_CAST: {
         int i;
+        vec_ptr v = dun_filter_mon(cave, _banish_p);
         msg_print("You shatter all oaths of allegiance!");
-        for (i = 1; i < m_max; i++)
+        for (i = 1; i < vec_length(v); i++)
         {
-            monster_type *m_ptr = &m_list[i];
-
-            if (!m_ptr->r_idx) continue;
-            if (!m_ptr->parent_m_idx) continue;
-            if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
-            if (is_pet(m_ptr)) continue;
-
-            delete_monster_idx(i);
+            mon_ptr mon = vec_get(v, i);
+            delete_monster(mon);
         }
+        vec_free(v);
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -1973,8 +2124,8 @@ static void _realm_calc_bonuses(void)
         {
             p_ptr->reflect = TRUE;
             p_ptr->no_stun = TRUE;
-        }         /* v---- This is a timer but is not following the naming convention! */
-        if (p_ptr->resist_magic && p_ptr->lev >= 30) 
+        }
+        if (plr_tim_find(T_RES_MAGIC) && p_ptr->lev >= 30) 
             p_ptr->magic_resistance = 5 + (p_ptr->lev - 30) / 2;
         break;
     case DRAGON_REALM_CRUSADE:
@@ -2028,7 +2179,7 @@ static void _realm_get_flags(u32b flgs[OF_ARRAY_SIZE])
             add_flag(flgs, OF_REFLECT);
             /*add_flag(flgs, TR_NO_STUN);*/
         }
-        if (p_ptr->resist_magic && p_ptr->lev >= 30) 
+        if (plr_tim_find(T_RES_MAGIC) && p_ptr->lev >= 30) 
             add_flag(flgs, OF_MAGIC_RESISTANCE); /* s/b a temp flag ... */
         break;
     case DRAGON_REALM_CRUSADE:
@@ -2084,7 +2235,13 @@ static void _dragon_get_flags(u32b flgs[OF_ARRAY_SIZE])
 /**********************************************************************
  * Dragon Powers (Common to all Types)
  **********************************************************************/
-static void _reach_spell(int cmd, variant *res)
+static bool _reach_begin(plr_attack_ptr context)
+{
+    if (!context->blow) return FALSE;
+    if (context->blow->method != RBM_BITE) return FALSE;
+    return TRUE;
+}
+static void _reach_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2097,66 +2254,19 @@ static void _reach_spell(int cmd, variant *res)
     case SPELL_INFO:
         var_set_string(res, info_range(2 + p_ptr->lev/40));
         break;
-    case SPELL_CAST:
-        {
-            int dir = 5;
-            var_set_bool(res, FALSE);
-            project_length = 2 + p_ptr->lev/40;
-            if (!get_fire_dir(&dir)) return;
-            p_ptr->innate_attacks[0].flags |= INNATE_SKIP;
-            project_hook(GF_ATTACK, dir, 0, PROJECT_STOP | PROJECT_KILL);
-            p_ptr->innate_attacks[0].flags &= ~INNATE_SKIP;
-            var_set_bool(res, TRUE);
-            break;
-        }
+    case SPELL_CAST: {
+        plr_attack_t context = {0};
+        context.flags = PAC_ONE_BLOW;
+        context.hooks.begin_weapon_f = _reach_begin;
+        var_set_bool(res, plr_attack_special_aux(&context, 2 + p_ptr->lev/40));
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _tail_sweep_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Tail Sweep");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Sweep your tail in a semicircle clockwise from chosen direction. Monsters, if hit, may be flung back a square or two.");
-        break;
-    case SPELL_CAST:
-        /* Hack: Replace normal tooth and claw attacks with a tail attack */
-        p_ptr->innate_attack_lock = TRUE;
-        p_ptr->innate_attack_ct = 0;
-        {
-            int             l = _attack_level();
-            innate_attack_t a = {0};
-
-            a.dd = 1 + l / 30;
-            a.ds = 3 + l / 10;
-            a.to_h += l / 2;
-
-            a.weight = 100 + l;
-            a.blows = 100;
-            a.msg = "You hit.";
-            a.name = "Tail";
-
-            p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-        }     
-        var_set_bool(res, do_blow(DRAGON_TAIL_SWEEP));
-        p_ptr->innate_attack_lock = FALSE;
-        /* Hack: Restore normal attacks */
-        p_ptr->innate_attack_ct = 0;
-        _calc_innate_attacks();
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-static void _wing_storm_spell(int cmd, variant *res)
+static void _wing_storm_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2168,7 +2278,7 @@ static void _wing_storm_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         msg_print("You bring your wings down powerfully!");
-        project(0, 5, py, px, randint1(p_ptr->lev * 3), GF_STORM, PROJECT_KILL | PROJECT_ITEM);
+        project(0, 5, p_ptr->pos.y, p_ptr->pos.x, randint1(p_ptr->lev * 3), GF_STORM, PROJECT_KILL | PROJECT_ITEM);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -2180,13 +2290,11 @@ static void _wing_storm_spell(int cmd, variant *res)
 static power_info _dragon_powers[] = {
     { A_CON, {  1,  0, 30, _breathe_spell}},
     { A_DEX, { 20,  7,  0, _reach_spell}},
-    { A_DEX, { 25, 10,  0, _tail_sweep_spell}},
     { A_DEX, { 30, 20,  0, _wing_storm_spell}},
     {    -1, { -1, -1, -1, NULL} }
 };
 static power_info _steel_powers[] = {
     { A_DEX, { 20,  7,  0, _reach_spell}},
-    { A_DEX, { 25, 10,  0, _tail_sweep_spell}},
     { A_DEX, { 30, 20,  0, _wing_storm_spell}},
     {    -1, { -1, -1, -1, NULL} }
 };
@@ -2248,7 +2356,7 @@ static _elemental_info_t _elemental_info[5] = { /* relies on #define DRAGON_RED 
 
 static void _elemental_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level(75);
+    int to_a = plr_prorata_level(75);
     int ac = 15 + (l/10)*5;
     int res = _elemental_info[p_ptr->psubrace].which_res;
 
@@ -2329,50 +2437,50 @@ static void _elemental_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_elemental_get_race_t(int subrace)
+static plr_race_ptr _elemental_get_race_t(int subrace)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
-    int           rank = 0;
+    static plr_race_ptr me = NULL;
+    int rank = 0;
 
     if (p_ptr->lev >= 10) rank++;
     if (p_ptr->lev >= 20) rank++;
     if (p_ptr->lev >= 30) rank++;
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  35,  38,   2,  25,  26,  70,  30};
     skills_t xs = {  8,   9,  10,   0,   0,   0,  20,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_DRAGON);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 250;
+        me->infra = 5;
+        me->exp = 250;
 
-        me.birth = _elemental_birth;
-        me.get_powers = _dragon_get_powers;
-        me.calc_bonuses = _elemental_calc_bonuses;
-        me.get_flags = _elemental_get_flags;
-        me.gain_level = _elemental_gain_level;
-        init = TRUE;
+        me->hooks.birth = _elemental_birth;
+        me->hooks.get_powers = _dragon_get_powers;
+        me->hooks.calc_bonuses = _elemental_calc_bonuses;
+        me->hooks.get_flags = _elemental_get_flags;
+        me->hooks.gain_level = _elemental_gain_level;
     }
 
+    me->subid = subrace;
     if (spoiler_hack || birth_hack)
-        me.subname = _elemental_info[subrace].name;
+        me->subname = _elemental_info[subrace].name;
     else
-        me.subname = _elemental_info[subrace].r_name[rank];
-    me.subdesc = _elemental_info[subrace].desc;
-    me.stats[A_STR] =  1 + rank;
-    me.stats[A_INT] = -1 + rank;
-    me.stats[A_WIS] = -2 + rank;
-    me.stats[A_DEX] = -2 + rank;
-    me.stats[A_CON] =  0 + rank;
-    me.stats[A_CHR] = -1 + rank;
-    me.life = 100 + 5*rank;
+        me->subname = _elemental_info[subrace].r_name[rank];
+    me->subdesc = _elemental_info[subrace].desc;
+    me->stats[A_STR] =  1 + rank;
+    me->stats[A_INT] = -1 + rank;
+    me->stats[A_WIS] = -2 + rank;
+    me->stats[A_DEX] = -2 + rank;
+    me->stats[A_CON] =  0 + rank;
+    me->stats[A_CHR] = -1 + rank;
+    me->life = 100 + 5*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -2380,7 +2488,7 @@ static race_t *_elemental_get_race_t(int subrace)
  **********************************************************************/
 static void _nether_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level(75);
+    int to_a = plr_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2449,54 +2557,53 @@ static void _nether_gain_level(int new_level) {
     }
 }
 
-static race_t *_nether_get_race_t(void)
+static plr_race_ptr _nether_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[3] =  {"Shadow Drake", "Death Drake", "Spectral Wyrm"};    
     int           rank = 0;
 
     if (p_ptr->lev >= 30) rank++;
     if (p_ptr->lev >= 45) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  35,  38,   4,  25,  26,  50,  30};
     skills_t xs = {  8,  10,  11,   0,   0,   0,  15,   7};
 
-        me.subdesc = "Shadow Drakes are bit more stealthy than your average dragon. They are creatures of nether "
+        me = plr_race_alloc_aux(RACE_MON_DRAGON, DRAGON_NETHER);
+        me->subdesc = "Shadow Drakes are bit more stealthy than your average dragon. They are creatures of nether "
             "and eventually evolve into Death Drakes. Their melee is the weakest among dragonkind and "
             "their breaths also are lacking, but they still make fearsome opponents. As they advance, "
             "these dragons eventually gain the ability to pass through walls and also become more and "
             "more resistant to nether.";
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 300;
+        me->infra = 5;
+        me->exp = 300;
 
-        me.birth = _nether_birth;
-        me.get_powers = _dragon_get_powers;
-        me.calc_bonuses = _nether_calc_bonuses;
-        me.get_flags = _nether_get_flags;
-        me.gain_level = _nether_gain_level;
-        init = TRUE;
+        me->hooks.birth = _nether_birth;
+        me->hooks.get_powers = _dragon_get_powers;
+        me->hooks.calc_bonuses = _nether_calc_bonuses;
+        me->hooks.get_flags = _nether_get_flags;
+        me->hooks.gain_level = _nether_gain_level;
     }
 
     if (spoiler_hack || birth_hack)
-        me.subname = "Shadow Drake";
+        me->subname = "Shadow Drake";
     else
-        me.subname = titles[rank];
-    me.stats[A_STR] =  0 + 2*rank;
-    me.stats[A_INT] = -1 + 2*rank;
-    me.stats[A_WIS] = -2 + rank;
-    me.stats[A_DEX] = -2 + rank;
-    me.stats[A_CON] = -1 + rank;
-    me.stats[A_CHR] = -1 + 3*rank;
-    me.life = 90 + 5*rank;
+        me->subname = titles[rank];
+    me->stats[A_STR] =  0 + 2*rank;
+    me->stats[A_INT] = -1 + 2*rank;
+    me->stats[A_WIS] = -2 + rank;
+    me->stats[A_DEX] = -2 + rank;
+    me->stats[A_CON] = -1 + rank;
+    me->stats[A_CHR] = -1 + 3*rank;
+    me->life = 90 + 5*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -2504,7 +2611,7 @@ static race_t *_nether_get_race_t(void)
  **********************************************************************/
 static void _law_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level(75);
+    int to_a = plr_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2547,54 +2654,53 @@ static void _law_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_law_get_race_t(void)
+static plr_race_ptr _law_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[2] =  {"Law Drake", "Great Wyrm of Law"};    
     int           rank = 0;
 
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  40,  40,   2,  25,  26,  55,  30};
     skills_t xs = {  8,  11,  11,   0,   0,   0,  15,   7};
 
-        me.subdesc = "Law Drakes are powerful dragons of order. They can breathe sound or shards and eventually "
+        me = plr_race_alloc_aux(RACE_MON_DRAGON, DRAGON_LAW);
+        me->subdesc = "Law Drakes are powerful dragons of order. They can breathe sound or shards and eventually "
                     "evolve into Great Wyrms of Law, though not so quickly as you might hope. Their breaths "
                     "are much weaker than those of the elemental dragons but very few monsters resist sound "
                     "or shards. Their melee is among the weakest of all dragonkind but they still fight rather "
                     "well ... What dragon doesn't?";
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 280;
+        me->infra = 5;
+        me->exp = 280;
 
-        me.birth = _law_birth;
-        me.get_powers = _dragon_get_powers;
-        me.calc_bonuses = _law_calc_bonuses;
-        me.get_flags = _law_get_flags;
-        me.gain_level = _law_gain_level;
-        init = TRUE;
+        me->hooks.birth = _law_birth;
+        me->hooks.get_powers = _dragon_get_powers;
+        me->hooks.calc_bonuses = _law_calc_bonuses;
+        me->hooks.get_flags = _law_get_flags;
+        me->hooks.gain_level = _law_gain_level;
     }
 
     if (spoiler_hack || birth_hack)
-        me.subname = "Law Drake";
+        me->subname = "Law Drake";
     else
-        me.subname = titles[rank];
+        me->subname = titles[rank];
 
-    me.stats[A_STR] =  0 + 5*rank;
-    me.stats[A_INT] = -1 + 5*rank;
-    me.stats[A_WIS] = -2 + 2*rank;
-    me.stats[A_DEX] = -2 + 3*rank;
-    me.stats[A_CON] = -1 + 4*rank;
-    me.stats[A_CHR] = -1 + 5*rank;
-    me.life = 100 + 10*rank;
+    me->stats[A_STR] =  0 + 5*rank;
+    me->stats[A_INT] = -1 + 5*rank;
+    me->stats[A_WIS] = -2 + 2*rank;
+    me->stats[A_DEX] = -2 + 3*rank;
+    me->stats[A_CON] = -1 + 4*rank;
+    me->stats[A_CHR] = -1 + 5*rank;
+    me->life = 100 + 10*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -2602,7 +2708,7 @@ static race_t *_law_get_race_t(void)
  **********************************************************************/
 static void _chaos_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level(75);
+    int to_a = plr_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2645,53 +2751,52 @@ static void _chaos_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_chaos_get_race_t(void)
+static plr_race_ptr _chaos_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[2] =  {"Chaos Drake", "Great Wyrm of Chaos"};    
     int           rank = 0;
 
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  40,  40,   2,  25,  26,  55,  30};
     skills_t xs = {  8,  11,  11,   0,   0,   0,  15,   7};
 
-        me.subdesc = "Chaos Drakes are powerful dragons of chaos. They can breathe chaos or disenchantment and eventually "
+        me = plr_race_alloc_aux(RACE_MON_DRAGON, DRAGON_CHAOS);
+        me->subdesc = "Chaos Drakes are powerful dragons of chaos. They can breathe chaos or disenchantment and eventually "
         "evolve into Great Wyrms of Chaos, though not so quickly as you might hope. Their breaths "
         "are much weaker than those of the elemental dragons but fewer monsters resist chaos "
         "or disenchantment. Their melee is among the weakest of all dragonkind but they still fight rather "
         "well ... What dragon doesn't?";
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 280;
+        me->infra = 5;
+        me->exp = 280;
 
-        me.birth = _chaos_birth;
-        me.get_powers = _dragon_get_powers;
-        me.calc_bonuses = _chaos_calc_bonuses;
-        me.get_flags = _chaos_get_flags;
-        me.gain_level = _chaos_gain_level;
-        init = TRUE;
+        me->hooks.birth = _chaos_birth;
+        me->hooks.get_powers = _dragon_get_powers;
+        me->hooks.calc_bonuses = _chaos_calc_bonuses;
+        me->hooks.get_flags = _chaos_get_flags;
+        me->hooks.gain_level = _chaos_gain_level;
     }
 
     if (spoiler_hack || birth_hack)
-        me.subname = "Chaos Drake";
+        me->subname = "Chaos Drake";
     else
-        me.subname = titles[rank];
-    me.stats[A_STR] =  0 + 5*rank;
-    me.stats[A_INT] = -1 + 5*rank;
-    me.stats[A_WIS] = -2 + 2*rank;
-    me.stats[A_DEX] = -2 + 3*rank;
-    me.stats[A_CON] = -1 + 4*rank;
-    me.stats[A_CHR] = -1 + 5*rank;
-    me.life = 100 + 10*rank;
+        me->subname = titles[rank];
+    me->stats[A_STR] =  0 + 5*rank;
+    me->stats[A_INT] = -1 + 5*rank;
+    me->stats[A_WIS] = -2 + 2*rank;
+    me->stats[A_DEX] = -2 + 3*rank;
+    me->stats[A_CON] = -1 + 4*rank;
+    me->stats[A_CHR] = -1 + 5*rank;
+    me->life = 100 + 10*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -2699,7 +2804,7 @@ static race_t *_chaos_get_race_t(void)
  **********************************************************************/
 static void _balance_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level(75);
+    int to_a = plr_prorata_level(75);
     int ac = 10 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2742,53 +2847,52 @@ static void _balance_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_balance_get_race_t(void)
+static plr_race_ptr _balance_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[2] =  {"Balance Drake", "Great Wyrm of Balance"};    
     int           rank = 0;
 
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  35,  35,   2,  25,  26,  50,  30};
     skills_t xs = {  8,  10,  10,   0,   0,   0,  15,   7};
 
-        me.subdesc = "Balance Drakes are a blend of Chaos and Law Drakes. They can breathe sound, shards, "
+        me = plr_race_alloc_aux(RACE_MON_DRAGON, DRAGON_BALANCE);
+        me->subdesc = "Balance Drakes are a blend of Chaos and Law Drakes. They can breathe sound, shards, "
         "chaos or disenchantment and eventually evolve into Great Wyrms of Balance, though not "
         "so quickly as you might hope. Their breaths are much weaker than those of the elemental "
         "dragons and they are weaker than either of Chaos or Law Drakes, though not by much.";
 
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 300;
+        me->infra = 5;
+        me->exp = 300;
 
-        me.birth = _balance_birth;
-        me.get_powers = _dragon_get_powers;
-        me.calc_bonuses = _balance_calc_bonuses;
-        me.get_flags = _balance_get_flags;
-        me.gain_level = _balance_gain_level;
-        init = TRUE;
+        me->hooks.birth = _balance_birth;
+        me->hooks.get_powers = _dragon_get_powers;
+        me->hooks.calc_bonuses = _balance_calc_bonuses;
+        me->hooks.get_flags = _balance_get_flags;
+        me->hooks.gain_level = _balance_gain_level;
     }
 
     if (spoiler_hack || birth_hack)
-        me.subname = "Balance Drake";
+        me->subname = "Balance Drake";
     else
-        me.subname = titles[rank];
-    me.stats[A_STR] =  0 + 4*rank;
-    me.stats[A_INT] = -1 + 4*rank;
-    me.stats[A_WIS] = -2 + 2*rank;
-    me.stats[A_DEX] = -2 + 3*rank;
-    me.stats[A_CON] = -1 + 3*rank;
-    me.stats[A_CHR] = -1 + 5*rank;
-    me.life = 95 + 10*rank;
+        me->subname = titles[rank];
+    me->stats[A_STR] =  0 + 4*rank;
+    me->stats[A_INT] = -1 + 4*rank;
+    me->stats[A_WIS] = -2 + 2*rank;
+    me->stats[A_DEX] = -2 + 3*rank;
+    me->stats[A_CON] = -1 + 3*rank;
+    me->stats[A_CHR] = -1 + 5*rank;
+    me->life = 95 + 10*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -2796,7 +2900,7 @@ static race_t *_balance_get_race_t(void)
  **********************************************************************/
 static void _ethereal_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level(75);
+    int to_a = plr_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2849,56 +2953,55 @@ static void _ethereal_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_ethereal_get_race_t(void)
+static plr_race_ptr _ethereal_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[3] =  {"Pseudo Dragon", "Ethereal Drake", "Ethereal Dragon"};    
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  35,  37,   4,  25,  26,  52,  30};
     skills_t xs = {  8,  10,  11,   0,   0,   0,  15,   7};
 
-        me.subdesc =
+        me = plr_race_alloc_aux(RACE_MON_DRAGON, DRAGON_ETHEREAL);
+        me->subdesc =
         "Ethereal Drakes are dragons of light and darkness. They actually begin life as Pseudo "
         "Dragons but quickly evolve into Ethereal Drakes and then Ethereal Dragons. As they "
         "mature, they gain the ability to pass through walls and become more and more resistant "
         "to light, darkness and confusion. They are fairly weak fighters and have the weakest "
         "breaths in all of dragonkind (except for Steel Dragons which cannot breathe at all).";
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 250;
+        me->infra = 5;
+        me->exp = 250;
 
-        me.birth = _ethereal_birth;
-        me.get_powers = _dragon_get_powers;
-        me.calc_bonuses = _ethereal_calc_bonuses;
-        me.get_flags = _ethereal_get_flags;
-        me.gain_level = _ethereal_gain_level;
-        init = TRUE;
+        me->hooks.birth = _ethereal_birth;
+        me->hooks.get_powers = _dragon_get_powers;
+        me->hooks.calc_bonuses = _ethereal_calc_bonuses;
+        me->hooks.get_flags = _ethereal_get_flags;
+        me->hooks.gain_level = _ethereal_gain_level;
     }
 
     if (spoiler_hack || birth_hack)
-        me.subname = "Ethereal Drake";
+        me->subname = "Ethereal Drake";
     else
-        me.subname = titles[rank];
+        me->subname = titles[rank];
 
-    me.stats[A_STR] =  0 + 2*rank;
-    me.stats[A_INT] = -1 + 2*rank;
-    me.stats[A_WIS] = -2 + rank;
-    me.stats[A_DEX] = -2 + 2*rank;
-    me.stats[A_CON] = -1 + 2*rank;
-    me.stats[A_CHR] = -1 + 2*rank;
-    me.life = 95 + 7*rank;
+    me->stats[A_STR] =  0 + 2*rank;
+    me->stats[A_INT] = -1 + 2*rank;
+    me->stats[A_WIS] = -2 + rank;
+    me->stats[A_DEX] = -2 + 2*rank;
+    me->stats[A_CON] = -1 + 2*rank;
+    me->stats[A_CHR] = -1 + 2*rank;
+    me->life = 95 + 7*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -2906,7 +3009,7 @@ static race_t *_ethereal_get_race_t(void)
  **********************************************************************/
 static void _crystal_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level_aux(125, 1, 2, 2);
+    int to_a = plr_prorata_level_aux(125, 1, 2, 2);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2962,53 +3065,52 @@ static void _crystal_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_crystal_get_race_t(void)
+static plr_race_ptr _crystal_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[2] =  {"Crystal Drake", "Great Crystal Drake"};    
     int           rank = 0;
 
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  35,  40,   1,  25,  26,  70,  30};
     skills_t xs = {  8,   7,  12,   0,   0,   0,  22,   7};
 
-        me.subdesc =
+        me = plr_race_alloc_aux(RACE_MON_DRAGON, DRAGON_CRYSTAL);
+        me->subdesc =
         "Crystal Drakes are dragons of a strange crystalline form. They breathe shards and melee "
         "powerfully with razor sharp claws and teeth. At high levels, they gain the power of "
         "reflection.";
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 275;
+        me->infra = 5;
+        me->exp = 275;
 
-        me.birth = _crystal_birth;
-        me.get_powers = _dragon_get_powers;
-        me.calc_bonuses = _crystal_calc_bonuses;
-        me.get_flags = _crystal_get_flags;
-        me.gain_level = _crystal_gain_level;
-        init = TRUE;
+        me->hooks.birth = _crystal_birth;
+        me->hooks.get_powers = _dragon_get_powers;
+        me->hooks.calc_bonuses = _crystal_calc_bonuses;
+        me->hooks.get_flags = _crystal_get_flags;
+        me->hooks.gain_level = _crystal_gain_level;
     }
 
     if (spoiler_hack || birth_hack)
-        me.subname = "Crystal Drake";
+        me->subname = "Crystal Drake";
     else
-        me.subname = titles[rank];
+        me->subname = titles[rank];
 
-    me.stats[A_STR] =  1 + 5*rank;
-    me.stats[A_INT] = -1 + 5*rank;
-    me.stats[A_WIS] = -2 + 2*rank;
-    me.stats[A_DEX] =  0 + 3*rank;
-    me.stats[A_CON] =  0 + 4*rank;
-    me.stats[A_CHR] =  0 + 3*rank;
-    me.life = 100 + 15*rank;
+    me->stats[A_STR] =  1 + 5*rank;
+    me->stats[A_INT] = -1 + 5*rank;
+    me->stats[A_WIS] = -2 + 2*rank;
+    me->stats[A_DEX] =  0 + 3*rank;
+    me->stats[A_CON] =  0 + 4*rank;
+    me->stats[A_CHR] =  0 + 3*rank;
+    me->life = 100 + 15*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -3016,7 +3118,7 @@ static race_t *_crystal_get_race_t(void)
  **********************************************************************/
 static void _bronze_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level(75);
+    int to_a = plr_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -3063,54 +3165,53 @@ static void _bronze_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_bronze_get_race_t(void)
+static plr_race_ptr _bronze_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[3] =  {"Young Bronze Dragon", "Mature Bronze Dragon", "Ancient Bronze Dragon"};    
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
     if (p_ptr->lev >= 30) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  35,  38,   3,  25,  26,  55,  30};
     skills_t xs = {  8,  10,  11,   0,   0,   0,  15,   7};
 
-        me.subdesc =
+        me = plr_race_alloc_aux(RACE_MON_DRAGON, DRAGON_BRONZE);
+        me->subdesc =
         "Bronze Dragons are wyrms of confusion. While they are not quite as strong as most other "
         "dragons, they eventually confuse monsters with their bite attack. Also, they become "
         "more and more resistant to confusion as they mature.";
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 250;
+        me->infra = 5;
+        me->exp = 250;
 
-        me.birth = _bronze_birth;
-        me.get_powers = _dragon_get_powers;
-        me.calc_bonuses = _bronze_calc_bonuses;
-        me.get_flags = _bronze_get_flags;
-        me.gain_level = _bronze_gain_level;
-        init = TRUE;
+        me->hooks.birth = _bronze_birth;
+        me->hooks.get_powers = _dragon_get_powers;
+        me->hooks.calc_bonuses = _bronze_calc_bonuses;
+        me->hooks.get_flags = _bronze_get_flags;
+        me->hooks.gain_level = _bronze_gain_level;
     }
 
     if (spoiler_hack || birth_hack)
-        me.subname = "Bronze Dragon";
+        me->subname = "Bronze Dragon";
     else
-        me.subname = titles[rank];
+        me->subname = titles[rank];
 
-    me.stats[A_STR] =  0 + 2*rank;
-    me.stats[A_INT] = -1 + 2*rank;
-    me.stats[A_WIS] = -2 + rank;
-    me.stats[A_DEX] = -2 + 2*rank;
-    me.stats[A_CON] = -1 + 2*rank;
-    me.stats[A_CHR] = -1 + 2*rank;
-    me.life = 100 + 5*rank;
+    me->stats[A_STR] =  0 + 2*rank;
+    me->stats[A_INT] = -1 + 2*rank;
+    me->stats[A_WIS] = -2 + rank;
+    me->stats[A_DEX] = -2 + 2*rank;
+    me->stats[A_CON] = -1 + 2*rank;
+    me->stats[A_CHR] = -1 + 2*rank;
+    me->life = 100 + 5*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -3118,7 +3219,7 @@ static race_t *_bronze_get_race_t(void)
  **********************************************************************/
 static void _gold_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level(75);
+    int to_a = plr_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -3166,54 +3267,53 @@ static void _gold_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_gold_get_race_t(void)
+static plr_race_ptr _gold_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[3] =  {"Young Gold Dragon", "Mature Gold Dragon", "Ancient Gold Dragon"};    
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
     if (p_ptr->lev >= 30) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  35,  38,   2,  25,  26,  55,  30};
     skills_t xs = {  8,   9,  11,   0,   0,   0,  20,   7};
 
-        me.subdesc =
+        me = plr_race_alloc_aux(RACE_MON_DRAGON, DRAGON_GOLD);
+        me->subdesc =
         "Gold Dragons are wyrms of sound. While they are not quite as strong as most other "
         "dragons, they are able to breathe sound on command, stunning their foes. Also, they become "
         "more and more resistant to sound as they mature.";
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 250;
+        me->infra = 5;
+        me->exp = 250;
 
-        me.birth = _gold_birth;
-        me.get_powers = _dragon_get_powers;
-        me.calc_bonuses = _gold_calc_bonuses;
-        me.get_flags = _gold_get_flags;
-        me.gain_level = _gold_gain_level;
-        init = TRUE;
+        me->hooks.birth = _gold_birth;
+        me->hooks.get_powers = _dragon_get_powers;
+        me->hooks.calc_bonuses = _gold_calc_bonuses;
+        me->hooks.get_flags = _gold_get_flags;
+        me->hooks.gain_level = _gold_gain_level;
     }
 
     if (spoiler_hack || birth_hack)
-        me.subname = "Gold Dragon";
+        me->subname = "Gold Dragon";
     else
-        me.subname = titles[rank];
+        me->subname = titles[rank];
 
-    me.stats[A_STR] =  0 + 2*rank;
-    me.stats[A_INT] = -1 + 2*rank;
-    me.stats[A_WIS] = -2 + rank;
-    me.stats[A_DEX] = -2 + 2*rank;
-    me.stats[A_CON] = -1 + 2*rank;
-    me.stats[A_CHR] = -1 + 2*rank;
-    me.life = 100 + 5*rank;
+    me->stats[A_STR] =  0 + 2*rank;
+    me->stats[A_INT] = -1 + 2*rank;
+    me->stats[A_WIS] = -2 + rank;
+    me->stats[A_DEX] = -2 + 2*rank;
+    me->stats[A_CON] = -1 + 2*rank;
+    me->stats[A_CHR] = -1 + 2*rank;
+    me->life = 100 + 5*rank;
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
@@ -3221,7 +3321,7 @@ static race_t *_gold_get_race_t(void)
  **********************************************************************/
 static void _steel_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level(150);
+    int to_a = plr_prorata_level(150);
     int ac = 15 + (l/10)*2;
 
     p_ptr->skill_dig += 100;
@@ -3277,21 +3377,21 @@ static void _steel_gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_steel_get_race_t(void)
+static plr_race_ptr _steel_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[2] =  {"Stone Dragon", "Steel Dragon"};    
     int           rank = 0;
 
     if (p_ptr->lev >= 40) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  18,  40,   0,  10,   7,  75,  30};
     skills_t xs = {  8,   7,  15,   0,   0,   0,  30,   7};
 
-        me.subdesc =
+        me = plr_race_alloc_aux(RACE_MON_DRAGON, DRAGON_STEEL);
+        me->subdesc =
         "Steel Dragons are magical dragons formed from rock. As they mature, their form hardens "
         "from stone into steel. Needless to say, their armor class is phenomenal, but their "
         "dexterity actually decreases with maturity. Steel dragons begin life being susceptible "
@@ -3300,42 +3400,41 @@ static race_t *_steel_get_race_t(void)
         "dragon breath! But their fighting is impossibly strong, putting all the other dragons "
         "to complete and utter shame. They also have the most hitpoints of all dragons.";
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 5;
-        me.exp = 250;
+        me->infra = 5;
+        me->exp = 250;
 
-        me.birth = _steel_birth;
-        me.calc_bonuses = _steel_calc_bonuses;
-        me.get_flags = _steel_get_flags;
-        me.get_powers = _dragon_get_powers;
-        me.gain_level = _steel_gain_level;
-        init = TRUE;
+        me->hooks.birth = _steel_birth;
+        me->hooks.calc_bonuses = _steel_calc_bonuses;
+        me->hooks.get_flags = _steel_get_flags;
+        me->hooks.get_powers = _dragon_get_powers;
+        me->hooks.gain_level = _steel_gain_level;
     }
 
     if (spoiler_hack || birth_hack)
-        me.subname = "Steel Dragon";
+        me->subname = "Steel Dragon";
     else
-        me.subname = titles[rank];
+        me->subname = titles[rank];
 
-    me.stats[A_STR] =  5 + (p_ptr->lev / 10);
-    me.stats[A_INT] = -6;
-    me.stats[A_WIS] = -6;
-    me.stats[A_DEX] =  0 - (p_ptr->lev / 10);
-    me.stats[A_CON] =  4 + (p_ptr->lev / 10);
-    me.stats[A_CHR] =  0 + (p_ptr->lev / 10);
-    me.life = 125 + 5*(p_ptr->lev / 10);
+    me->stats[A_STR] =  5 + (p_ptr->lev / 10);
+    me->stats[A_INT] = -6;
+    me->stats[A_WIS] = -6;
+    me->stats[A_DEX] =  0 - (p_ptr->lev / 10);
+    me->stats[A_CON] =  4 + (p_ptr->lev / 10);
+    me->stats[A_CHR] =  0 + (p_ptr->lev / 10);
+    me->life = 125 + 5*(p_ptr->lev / 10);
 
-    return &me;
+    return me;
 }
 
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_dragon_get_race(int psubrace)
+plr_race_ptr mon_dragon_get_race(int psubrace)
 {
-    race_t *result = NULL;
+    plr_race_ptr result = NULL;
 
     switch (psubrace)
     {
@@ -3385,19 +3484,23 @@ race_t *mon_dragon_get_race(int psubrace)
         for (i = 0; i < MAX_STATS; i++)
             result->stats[i] += realm->stats[i];
 
-        result->caster_info = _caster_info;
-        result->get_spells = _realm_get_spells;
+        result->hooks.caster_info = _caster_info;
+        result->hooks.get_spells = _realm_get_spells;
     }
     else
     {
-        result->caster_info = NULL;
-        result->get_spells = NULL;
+        result->hooks.caster_info = NULL;
+        result->hooks.get_spells = NULL;
     }
 
     result->name = "Dragon";
     result->desc = _desc;
     result->flags = RACE_IS_MONSTER;
-    result->calc_innate_attacks = _calc_innate_attacks;
+    result->hooks.character_dump = p_ptr->wizard ? _spoiler_dump : NULL;
+    result->hooks.calc_innate_attacks = _calc_innate_attacks;
+    result->hooks.calc_innate_bonuses = _calc_innate_bonuses;
+    result->hooks.register_timers = _register_timers;
+    result->hooks.mon_attack_init = _mon_attack_init;
     result->equip_template = mon_get_equip_template();
     result->base_hp = 40;
     result->pseudo_class_idx = CLASS_BEASTMASTER;

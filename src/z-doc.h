@@ -4,8 +4,8 @@
 #include "h-basic.h"
 #include "rect.h"
 
-#include "str-map.h"
-#include "int-map.h"
+#include "str_map.h"
+#include "int_map.h"
 #include "c-vec.h"
 #include "c-string.h"
 

@@ -197,11 +197,11 @@ void check_hex(void)
         if (p_ptr->spell_exp[spell] < SPELL_EXP_BEGINNER)
             p_ptr->spell_exp[spell] += 5;
         else if(p_ptr->spell_exp[spell] < SPELL_EXP_SKILLED)
-        { if (one_in_(2) && (dun_level > 4) && ((dun_level + 10) > p_ptr->lev)) p_ptr->spell_exp[spell] += 1; }
+        { if (one_in_(2) && (cave->dun_lvl > 4) && ((cave->dun_lvl + 10) > p_ptr->lev)) p_ptr->spell_exp[spell] += 1; }
         else if(p_ptr->spell_exp[spell] < SPELL_EXP_EXPERT)
-        { if (one_in_(5) && ((dun_level + 5) > p_ptr->lev) && ((dun_level + 5) > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
+        { if (one_in_(5) && ((cave->dun_lvl + 5) > p_ptr->lev) && ((cave->dun_lvl + 5) > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
         else if(p_ptr->spell_exp[spell] < SPELL_EXP_MASTER)
-        { if (one_in_(5) && ((dun_level + 5) > p_ptr->lev) && (dun_level > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
+        { if (one_in_(5) && ((cave->dun_lvl + 5) > p_ptr->lev) && (cave->dun_lvl > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
     }
 
     /* Do any effects of continual spells */
@@ -252,8 +252,8 @@ void revenge_store(int dam)
 
 bool teleport_barrier(int m_idx)
 {
-    monster_type *m_ptr = &m_list[m_idx];
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_type *m_ptr = dun_mon(cave, m_idx);
+    monster_race *r_ptr = mon_race(m_ptr);
 
     if (!hex_spelling(HEX_ANTI_TELE)) return FALSE;
     if ((p_ptr->lev * 3 / 2) < randint1(r_ptr->level)) return FALSE;
@@ -264,13 +264,13 @@ bool teleport_barrier(int m_idx)
 
 bool magic_barrier(int m_idx)
 {
-    monster_type *m_ptr = &m_list[m_idx];
+    monster_type *m_ptr = dun_mon(cave, m_idx);
     return magic_barrier_aux(m_ptr);
 }
 
 bool magic_barrier_aux(mon_ptr m_ptr)
 {
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_race *r_ptr = mon_race(m_ptr);
 
     if (!hex_spelling(HEX_ANTI_MAGIC)) return FALSE;
     if ((p_ptr->lev * 3 / 2) < randint1(r_ptr->level)) return FALSE;
@@ -281,8 +281,8 @@ bool magic_barrier_aux(mon_ptr m_ptr)
 
 bool multiply_barrier(int m_idx)
 {
-    monster_type *m_ptr = &m_list[m_idx];
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_type *m_ptr = dun_mon(cave, m_idx);
+    monster_race *r_ptr = mon_race(m_ptr);
 
     if (!hex_spelling(HEX_ANTI_MULTI)) return FALSE;
     if ((p_ptr->lev * 3 / 2) < randint1(r_ptr->level)) return FALSE;
@@ -290,7 +290,7 @@ bool multiply_barrier(int m_idx)
     return TRUE;
 }
 
-void hex_stop_spelling_spell(int cmd, variant *res)
+void hex_stop_spelling_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -309,5 +309,82 @@ void hex_stop_spelling_spell(int cmd, variant *res)
     default:
         default_spell(cmd, res);
         break;
+    }
+}
+static void _hex_ac(obj_ptr obj)
+{
+    if (obj_is_armor(obj) && obj_is_cursed(obj))
+    {
+        int ac = 5;
+        if (obj->curse_flags & OFC_HEAVY_CURSE) ac += 7;
+        if (obj->curse_flags & OFC_PERMA_CURSE) ac += 13;
+        p_ptr->to_a += ac;
+        p_ptr->dis_to_a += ac;
+    }
+}
+void hex_calc_bonuses(void)
+{
+    if (p_ptr->realm1 != REALM_HEX) return;
+    if (hex_spelling_any()) p_ptr->skills.stl -= (1 + p_ptr->magic_num2[0]);
+    if (hex_spelling(HEX_DETECT_EVIL)) p_ptr->esp_evil = TRUE;
+    if (hex_spelling(HEX_DEMON_AURA))
+    {
+        p_ptr->sh_fire = TRUE;
+        p_ptr->regen += 100;
+    }
+    if (hex_spelling(HEX_ICE_ARMOR))
+    {
+        p_ptr->sh_cold = TRUE;
+        p_ptr->to_a += 30;
+        p_ptr->dis_to_a += 30;
+    }
+    if (hex_spelling(HEX_SHOCK_CLOAK))
+    {
+        p_ptr->sh_elec = TRUE;
+        p_ptr->pspeed += 3;
+    }
+    equip_for_each(_hex_ac);
+    if (hex_spelling(HEX_RUNESWORD))
+        p_ptr->vorpal = TRUE;
+}
+void hex_calc_stats(s16b stats[MAX_STATS])
+{
+    if (hex_spelling(HEX_XTRA_MIGHT)) stats[A_STR] += 4;
+    if (hex_spelling(HEX_BUILDING))
+    {
+        stats[A_STR] += 4;
+        stats[A_DEX] += 4;
+        stats[A_CON] += 4;
+    }
+}
+void hex_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
+{
+    if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING))
+    {
+        info->blows_calc.wgt /= 2;
+        info->blows_calc.mult += 20;
+    }
+    if (obj_is_cursed(obj))
+    {
+        if (obj->curse_flags & OFC_CURSED) { info->to_h += 5; info->dis_to_h += 5; }
+        if (obj->curse_flags & OFC_HEAVY_CURSE) { info->to_h += 7; info->dis_to_h += 7; }
+        if (obj->curse_flags & OFC_PERMA_CURSE) { info->to_h += 13; info->dis_to_h += 13; }
+        if (obj->curse_flags & OFC_TY_CURSE) { info->to_h += 5; info->dis_to_h += 5; }
+        if (hex_spelling(HEX_RUNESWORD))
+        {
+            if (obj->curse_flags & OFC_CURSED) { info->to_d += 5; info->dis_to_d += 5; }
+            if (obj->curse_flags & OFC_HEAVY_CURSE) { info->to_d += 7; info->dis_to_d += 7; }
+            if (obj->curse_flags & OFC_PERMA_CURSE) { info->to_d += 13; info->dis_to_d += 13; }
+        }
+    }
+    if (hex_spelling(HEX_VAMP_BLADE))
+    {
+        add_flag(info->obj_flags, OF_BRAND_VAMP);
+        add_flag(info->obj_known_flags, OF_BRAND_VAMP);
+    }
+    if (hex_spelling(HEX_RUNESWORD))
+    {
+        add_flag(info->obj_flags, OF_SLAY_GOOD);
+        add_flag(info->obj_known_flags, OF_SLAY_GOOD);
     }
 }

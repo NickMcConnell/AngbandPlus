@@ -61,12 +61,14 @@ enum {
     ANNOY_TELE_TO,
     ANNOY_TRAPS,
     ANNOY_WORLD,
+    ANNOY_EGO_WHIP,
 };
 static _parse_t _annoy_tbl[] = {
     { "AMNESIA", { MST_ANNOY, ANNOY_AMNESIA },
         { "Amnesia", TERM_L_BLUE,
           "$CASTER tries to blank your mind.",
-          "$CASTER tries to blank your mind."}, MSF_TARGET},
+          "$CASTER tries to blank your mind.",
+          "$CASTER tries to blank $TARGET_POS mind."}, MSF_TARGET},
     { "ANIM_DEAD", { MST_ANNOY, ANNOY_ANIMATE_DEAD },
         { "Animate Dead", TERM_L_DARK,
           "$CASTER casts a spell to revive the dead.",
@@ -74,37 +76,45 @@ static _parse_t _annoy_tbl[] = {
     { "BLIND", { MST_ANNOY, ANNOY_BLIND },
         { "Blind", TERM_WHITE,
           "$CASTER casts a spell, burning your eyes!",
-          "$CASTER mumbles."}, MSF_TARGET},
+          "$CASTER mumbles.",
+          "$CASTER casts a spell, burning $TARGET_POS eyes!"}, MSF_TARGET},
     { "CONFUSE", { MST_ANNOY, ANNOY_CONFUSE },
         { "Confuse", TERM_L_UMBER,
           "$CASTER creates a mesmerizing illusion.",
-          "$CASTER mumbles, and you hear puzzling noises."}, MSF_TARGET},
+          "$CASTER mumbles, and you hear puzzling noises.",
+          "$CASTER creates a mesmerizing illusion at $TARGET."}, MSF_TARGET},
     { "DARKNESS", { MST_ANNOY, ANNOY_DARKNESS },
         { "Create Darkness", TERM_L_DARK }},
     { "PARALYZE", { MST_ANNOY, ANNOY_PARALYZE },
         { "Paralyze", TERM_RED,
           "$CASTER stares deep into your eyes!",
-          "$CASTER mumbles."}, MSF_TARGET},
+          "$CASTER mumbles.",
+          "$CASTER stares deep into $TARGET_POS eyes!"}, MSF_TARGET},
     { "SCARE", { MST_ANNOY, ANNOY_SCARE },
         { "Terrify", TERM_RED,
           "$CASTER casts a fearful illusion.",
-          "$CASTER mumbles, and you hear scary noises."}, MSF_TARGET},
+          "$CASTER mumbles, and you hear scary noises.",
+          "$CASTER casts a fearful illusion at $TARGET."}, MSF_TARGET},
     { "SLOW", { MST_ANNOY, ANNOY_SLOW },
         { "Slow", TERM_L_UMBER,
           "$CASTER drains power from your muscles!",
-          "$CASTER drains power from your muscles!"}, MSF_TARGET},
+          "$CASTER drains power from your muscles!",
+          "$CASTER drains power from $TARGET_POS muscles!"}, MSF_TARGET},
     { "SHRIEK", { MST_ANNOY, ANNOY_SHRIEK },
         { "Shriek", TERM_L_BLUE,
           "$CASTER makes a high pitched shriek.",
-          "$CASTER makes a high pitched shriek." }, MSF_INNATE },
+          "$CASTER makes a high pitched shriek.",
+          "$CASTER makes a high pitched shriek."}, MSF_INNATE },
     { "TELE_LEVEL", { MST_ANNOY, ANNOY_TELE_LEVEL },
         { "Teleport Level", TERM_WHITE,
           "$CASTER gestures at your feet.",
-          "$CASTER mumbles strangely."}, MSF_TARGET | MSF_DIRECT},
+          "$CASTER mumbles strangely.",
+          "$CASTER gestures at $TARGET_POS feet."}, MSF_TARGET | MSF_DIRECT},
     { "TELE_TO", { MST_ANNOY, ANNOY_TELE_TO },
         { "Teleport To", TERM_WHITE,
           "$CASTER commands you to return.",
-          "$CASTER mumbles." }, MSF_TARGET | MSF_DIRECT},
+          "$CASTER mumbles.",
+          "$CASTER commands $TARGET to return."}, MSF_TARGET | MSF_DIRECT},
     { "TRAPS", { MST_ANNOY, ANNOY_TRAPS },
         { "Create Traps", TERM_WHITE,
           "$CASTER casts a spell and cackles evilly.",
@@ -112,6 +122,12 @@ static _parse_t _annoy_tbl[] = {
           "You create a trap." }},
     { "WORLD", { MST_ANNOY, ANNOY_WORLD },
         { "Stop Time", TERM_L_BLUE}},
+    { "EGO_WHIP", { MST_ANNOY, ANNOY_EGO_WHIP },
+        { "Ego Whip", TERM_L_BLUE,
+          "$CASTER focuses on your mind!",
+          "$CASTER focuses on your mind!",
+          "$CASTER focuses on $TARGET_POS mind!",
+          "You focus on $TARGET_POS mind!"}, MSF_TARGET | MSF_DIRECT},
     {0}
 };
 
@@ -147,6 +163,7 @@ static _parse_t _biff_tbl[] = {
 enum {
     BUFF_HASTE,
     BUFF_INVULN,
+    BUFF_BERSERK,
 };
 static _parse_t _buff_tbl[] = {
     { "HASTE", { MST_BUFF, BUFF_HASTE },
@@ -161,6 +178,12 @@ static _parse_t _buff_tbl[] = {
           "$CASTER mumbles powerfully.",
           "$CASTER casts a <color:y>Globe of Invulnerability</color>.",
           "You cast a <color:y>Globe of Invulnerability</color>." }},
+    { "BERSERK", { MST_BUFF, BUFF_BERSERK },
+        { "Berserk", TERM_RED,
+          "$CASTER enters into a berserk frenzy.",
+          "$CASTER sounds furious!",
+          "$CASTER enters into a berserk frenzy.",
+          "You enter into a berserk frenzy."}, MSF_INNATE},
     {0}
 };
 
@@ -289,6 +312,18 @@ static _parse_t _beam_tbl[] = {
           "$CASTER mumbles.",
           "$CASTER throws a <color:y>Holy Lance</color> at $TARGET.",
           "You throw a <color:y>Holy Lance</color>." }, MSF_TARGET},
+    { "PLASMA_LANCE", { MST_BEAM, GF_PLASMA },
+        { "Plasma Lance", TERM_RED,
+          "$CASTER throws a <color:R>Plasma Lance</color>.",
+          "$CASTER mumbles.",
+          "$CASTER throws a <color:R>Plasma Lance</color> at $TARGET.",
+          "You throw a <color:R>Plasma Lance</color>." }, MSF_TARGET},
+    { "BLACK_LANCE", { MST_BEAM, GF_DARK },
+        { "Black Lance", TERM_RED,
+          "$CASTER throws a <color:D>Black Lance</color>.",
+          "$CASTER mumbles.",
+          "$CASTER throws a <color:D>Black Lance</color> at $TARGET.",
+          "You throw a <color:D>Black Lance</color>." }, MSF_TARGET},
     {0}
 };
 
@@ -392,7 +427,6 @@ enum {
      * implemented for monsters. */
     POS_BLESS,
     POS_HEROISM,
-    POS_BERSERK,
 };
 static _parse_t _pos_tbl[] = {
     { "DETECT_TRAPS", { MST_POSSESSOR, POS_DETECT_TRAPS },
@@ -423,12 +457,6 @@ static _parse_t _pos_tbl[] = {
           "$CASTER mumbles a petition.",
           "$CASTER prays for aid.",
           "You pray for aid."}},
-    { "BERSERK", { MST_POSSESSOR, POS_BERSERK },
-        { "Berserk", TERM_RED,
-          "$CASTER enters into a berserk frenzy.",
-          "$CASTER sounds furious!",
-          "$CASTER enters into a berserk frenzy.",
-          "You enter into a berserk frenzy."}, MSF_INNATE},
     {0}
 };
 
@@ -676,6 +704,9 @@ static mon_spell_parm_t _ball_parm(int which, int rlev)
     case GF_CHAOS:
         parm.v.dice = _dice(10, 10, rlev);
         break;
+    case GF_DISENCHANT:
+        parm.v.dice = _dice(10, 10, 3*rlev);
+        break;
     case GF_WATER:
         parm.v.dice = _dice(1, rlev, 50);
         break;
@@ -759,7 +790,11 @@ static mon_spell_parm_t _beam_parm(int which, int rlev)
         break;
     case GF_HELL_FIRE:
     case GF_HOLY_FIRE:
+    case GF_DARK:
         parm.v.dice = _dice(0, 0, 2*rlev);
+        break;
+    case GF_PLASMA:
+        parm.v.dice = _dice(0, 0, 3*rlev);
         break;
     default:
         assert(FALSE);
@@ -809,6 +844,18 @@ static mon_spell_parm_t _heal_parm(int which, int rlev)
     return parm;
 }
 
+static mon_spell_parm_t _annoy_parm(int which)
+{
+    mon_spell_parm_t parm = _empty();
+    switch (which)
+    {
+    case ANNOY_EGO_WHIP:
+        parm.tag = MSP_DICE;
+        parm.v.dice = _dice(1, 2, 2);
+        break;
+    }
+    return parm;
+}
 static mon_spell_parm_t _summon_parm(int which)
 {
     mon_spell_parm_t parm = _empty();
@@ -869,6 +916,8 @@ mon_spell_parm_t mon_spell_parm_default(mon_spell_id_t id, int rlev)
         return _summon_parm(id.effect);
     case MST_TACTIC:
         return _tactic_parm(id.effect, rlev);
+    case MST_ANNOY:
+        return _annoy_parm(id.effect);
     }
 
     return empty;
@@ -877,7 +926,7 @@ mon_spell_parm_t mon_spell_parm_default(mon_spell_id_t id, int rlev)
 errr mon_spell_parm_parse(mon_spell_parm_ptr parm, char *token)
 {
     char arg[100], sentinel = '~', check;
-    int  dd, ds, base, pct;
+    int  dd, ds, base, pct, wgt;
 
     sprintf(arg, "%s%c", token, sentinel);
 
@@ -893,6 +942,10 @@ errr mon_spell_parm_parse(mon_spell_parm_ptr parm, char *token)
             return PARSE_ERROR_GENERIC;
         }
         parm->v.hp_pct.pct = MAX(0, MIN(100, pct));
+    }
+    else if (2 == sscanf(arg, "x%d%c", &wgt, &check) && check == sentinel)
+    {
+        parm->wgt = MAX(0, MIN(100, wgt));
     }
     else if (4 == sscanf(arg, "%dd%d+%d%c", &dd, &ds, &base, &check) && check == sentinel)
     {
@@ -1307,7 +1360,7 @@ mon_spell_ptr mon_spells_random(mon_spells_ptr spells)
 /*************************************************************************
  * Cast
  ************************************************************************/
-mon_spell_cast_t _current = {0};
+static mon_spell_cast_t _current = {0};
 
 mon_spell_ptr mon_spell_current(void)
 {
@@ -1334,8 +1387,8 @@ static void _spell_cast_init(mon_spell_cast_ptr cast, mon_ptr mon)
     cast->mon = mon;
     cast->race = mon_race(mon);
     cast->spell = NULL;
-    cast->src = point(mon->fx, mon->fy);
-    cast->dest = point(px, py);
+    cast->src = mon->pos;
+    cast->dest = p_ptr->pos;
     _mon_desc(mon, cast->name, 'G'); 
     cast->flags = MSC_SRC_MONSTER | MSC_DEST_PLAYER;
 }
@@ -1344,7 +1397,7 @@ static void _spell_cast_init_mon(mon_spell_cast_ptr cast, mon_ptr mon)
     cast->mon = mon;
     cast->race = mon_race(mon);
     cast->spell = NULL;
-    cast->src = point(mon->fx, mon->fy);
+    cast->src = mon->pos;
     _mon_desc(mon, cast->name, 'G'); 
     cast->flags = MSC_SRC_MONSTER | MSC_DEST_MONSTER;
 }
@@ -1353,23 +1406,22 @@ static void _spell_cast_init_plr(mon_spell_cast_ptr cast, mon_race_ptr race)
     cast->mon = NULL;
     cast->race = race;
     cast->spell = NULL;
-    cast->src = point(px, py);
-    cast->dest = point(px, py);
+    cast->src = p_ptr->pos;
+    cast->dest = p_ptr->pos;
     cast->flags = MSC_SRC_PLAYER | MSC_DEST_MONSTER;
 }
 
 static bool _can_cast(mon_ptr mon)
 {
-    if (MON_CONFUSED(mon))
+    if (mon_tim_find(mon, T_CONFUSED))
     {
         reset_target(mon);
         return FALSE;
     }
     if (!is_hostile(mon)) return FALSE;
-    if (mon->mflag & MFLAG_NICE) return FALSE;
     if (!is_aware(mon)) return FALSE;
+    if (p_ptr->dun_id != cave->dun_id) return FALSE;
     if (!p_ptr->playing || p_ptr->is_dead) return FALSE;
-    if (p_ptr->leaving) return FALSE;
 
     return TRUE;
 }
@@ -1384,7 +1436,7 @@ bool mon_spell_cast(mon_ptr mon, mon_spell_ai ai)
     mon_spell_cast_t cast = {0};
 
     if (!_can_cast(mon)) return FALSE;
-    if (mon->cdis > MAX_RANGE && !mon->target_y) return FALSE;
+    if (mon->cdis > MAX_RANGE && !dun_pos_interior(cave, mon->target)) return FALSE;
 
     if (!ai)
     {
@@ -1399,13 +1451,15 @@ bool mon_spell_cast(mon_ptr mon, mon_spell_ai ai)
          * prior to choosing a spell inside the Anti-magic caves. The result is that certain
          * monsters get very very hard (e.g. Ghatanathoa). Instead, we'll now let the ai
          * pick spells using the normal frequencies, and then reject magical spells. */
-        if ( py_in_dungeon()
-          && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC)
+        if ( plr_in_dungeon()
+          && (cave->flags & DF_NO_MAGIC)
           && _not_innate_p(cast.spell) )
         {
             /* attack instead */
             return FALSE;
         }
+        if (mon_tim_find(mon, T_BERSERK) && _not_innate_p(cast.spell))
+            return FALSE;
 
         _current = cast;
         _spell_cast_aux();
@@ -1421,7 +1475,7 @@ bool mon_spell_cast_mon(mon_ptr mon, mon_spell_ai ai)
 
     /* XXX This causes problems inside_battle:
      * if (!_can_cast(mon)) return FALSE; */
-    if (MON_CONFUSED(mon))
+    if (mon_tim_find(mon, T_CONFUSED))
     {
         reset_target(mon);
         return FALSE;
@@ -1451,19 +1505,20 @@ static bool _spell_fail(void)
         return FALSE;
     if (_current.race->flags2 & RF2_STUPID)
         return FALSE;
-    if (py_in_dungeon() && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC))
+    if (plr_in_dungeon() && (cave->flags & DF_NO_MAGIC))
         return TRUE;
 
     fail = 25 - (_current.race->level + 3)/4;
     if (_current.flags & MSC_SRC_PLAYER)
     {
-        stun = p_ptr->stun;
+        stun = plr_tim_amount(T_STUN);
  
         /* Fail rates go down as player level exceeds base level.
          * For example, a Novice Mage has a ridiculously un-useful
          * Magic Missile (23% fail). But at CL15, this becomes just
          * 13% (which still sucks, but high Int can help here) */
-        fail -= (p_ptr->lev - _current.race->level);
+        if (p_ptr->lev > _current.race->level)
+            fail -= (p_ptr->lev - _current.race->level);
 
         /* XXX Possessors and mimics should not get a free ride wrt
          * spell casting stats, but the mechanics should not be too 
@@ -1487,8 +1542,7 @@ static bool _spell_fail(void)
             fail += 15;
         }
     }
-    else
-        stun = MON_STUNNED(_current.mon);
+    else stun = mon_tim_amount(_current.mon, T_STUN);
     if (stun > 0)
         fail += 50 * MIN(100, stun)/100;
 
@@ -1503,7 +1557,7 @@ static bool _spell_fail(void)
         }
         else if (mon_show_msg(_current.mon))
         {
-            if (_projectable(point(px, py), _current.src))
+            if (plr_project(_current.src))
                 mon_lore_aux_spell_turns(_current.race);
             msg_format("%s tries to cast a spell, but fails.", _current.name);
         }
@@ -1533,21 +1587,38 @@ static int _who(void)
     if (_current.flags & MSC_SRC_PLAYER) return PROJECT_WHO_PLAYER;
     return _current.mon->id;
 }
+static int _scale(int dam)
+{
+    if (_current.mon)
+        return MAX(1, dam * _current.mon->mpower / 1000);
+    else if (_current.flags & MSC_SRC_PLAYER)
+        return MAX(1, dam * p_ptr->clp / 1000);
+    return dam;
+}
+static int _breath_rad(mon_race_ptr r)
+{
+    int rad = r->level >= 50 ? 3 : 2;
+    if (r->d_char == 'D') rad = 3;
+    return rad;
+}
 static void _breath(void)
 {
     int dam;
     int pct = _current.spell->parm.v.hp_pct.pct;
     int max = _current.spell->parm.v.hp_pct.max;
     int flags = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-    int rad = _current.race->level >= 50 ? -3 : -2;
+    int rad = -_breath_rad(_current.race); /* project wants negative radii to indicate breath attacks */
 
     assert(_current.spell->parm.tag == MSP_HP_PCT);
-    if (_current.race->d_char == 'D') rad = -3;
     if (_current.flags & MSC_SRC_PLAYER)
     {
         int hp = _avg_hp(_current.race);
-        int chp = hp * p_ptr->chp / p_ptr->mhp;
+        int hp_pct = p_ptr->chp * 100 / p_ptr->mhp;
+        int chp = hp * hp_pct;
+        int mult = MIN(100, 65 + p_ptr->stat_ind[A_CON]);
         dam = chp * pct / 100;
+        dam = dam * mult / 100;
+        dam = (dam + 50) / 100;
     }
     else
     {
@@ -1557,7 +1628,7 @@ static void _breath(void)
     if (dam > max) dam = max;
 
     project(_who(), rad, _current.dest.y, _current.dest.x,
-        dam, _current.spell->id.effect, flags);
+        _scale(dam), _current.spell->id.effect, flags);
 }
 
 static int _roll(dice_t dice)
@@ -1566,12 +1637,6 @@ static int _roll(dice_t dice)
     if (dice.dd && dice.ds)
         roll += damroll(dice.dd, dice.ds);
     return roll;
-}
-static int _scale(int dam)
-{
-    if (_current.mon)
-        return MAX(1, dam * _current.mon->mpower / 1000);
-    return dam;
 }
 static int _avg_roll(dice_t dice)
 {
@@ -1671,7 +1736,7 @@ static int _curse_save_odds_aux(int rlev, int sav)
 }
 static int _curse_save_odds(void)
 {
-    return _curse_save_odds_aux(_current.race->level, duelist_skill_sav(_current.mon->id));
+    return _curse_save_odds_aux(_current.race->level, plr_skill_sav(_current.mon->id));
 }
 static bool _curse_save(void)
 {
@@ -1680,7 +1745,7 @@ static bool _curse_save(void)
 }
 static bool _m_resist_tele(mon_ptr mon, cptr name)
 {
-    mon_race_ptr race = &r_info[mon->r_idx];
+    mon_race_ptr race = mon_race(mon);
     if (race->flagsr & RFR_RES_TELE)
     {
         if ((race->flags1 & RF1_UNIQUE) || (race->flagsr & RFR_RES_ALL))
@@ -1744,7 +1809,7 @@ static void _annoy_m(void)
     case ANNOY_TELE_LEVEL: {
         mon_race_ptr race2;
         if (!_current.mon2) break; /* MSF_DIRECT */
-        race2 = &r_info[_current.mon2->r_idx];
+        race2 = mon_race(_current.mon2);
         if (race2->flagsr & (RFR_EFF_RES_NEXU_MASK | RFR_RES_TELE))
         {
             if (mon_show_msg(_current.mon2))
@@ -1762,7 +1827,7 @@ static void _annoy_m(void)
             if (who == p_ptr->riding) who = 0; /* player */
             teleport_level(who);
         }
-        set_monster_csleep(_current.mon2->id, 0);
+        mon_tim_delete(_current.mon2, MT_SLEEP);
         break; }
     case ANNOY_TELE_TO:
         if (!_current.mon2) break; /* MSF_DIRECT */
@@ -1774,7 +1839,7 @@ static void _annoy_m(void)
             else
                 teleport_monster_to(who, _current.src.y, _current.src.x, 100, TELEPORT_PASSIVE);
         }
-        set_monster_csleep(_current.mon2->id, 0);
+        mon_tim_delete(_current.mon2, MT_SLEEP);
         break;
     case ANNOY_TRAPS:
         if (_current.flags & MSC_SRC_PLAYER)
@@ -1785,6 +1850,9 @@ static void _annoy_m(void)
     case ANNOY_WORLD:
         if (_current.flags & MSC_SRC_PLAYER)
             cast_spell(stop_time_spell);
+        break;
+    case ANNOY_EGO_WHIP:
+        mon_tim_add_aux(_current.mon2, T_EGO_WHIP, _roll(_current.spell->parm.v.dice), _current.race->level);
         break;
     }
 }
@@ -1805,20 +1873,20 @@ static void _annoy_p(void)
         gf_affect_p(_current.mon->id, GF_OLD_CONF, 0, GF_AFFECT_SPELL);
         break;
     case ANNOY_DARKNESS:
-        if (p_ptr->blind)
+        if (plr_tim_find(T_BLIND))
             msg_format("%s mumbles.", _current.name);
 
         if ( p_ptr->pclass == CLASS_NINJA
           && !(_current.race->flags3 & (RF3_UNDEAD | RF3_HURT_LITE))
           && !(_current.race->flags7 & RF7_DARK_MASK) )
         {
-            if (!p_ptr->blind)
+            if (!plr_tim_find(T_BLIND))
                 msg_format("%s cast a spell to light up.", _current.name);
             lite_area(0, 3);
         }
         else
         {
-            if (!p_ptr->blind)
+            if (!plr_tim_find(T_BLIND))
                 msg_format("%s gestures in shadow.", _current.name);
             unlite_area(0, 3);
         }
@@ -1836,7 +1904,7 @@ static void _annoy_p(void)
         if (free_act_save_p(_current.race->level) || _curse_save())
             msg_print("You resist the effects!");
         else
-            set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
+            plr_tim_add(T_SLOW, randint0(4) + 4);
         update_smart_learn(_current.mon->id, SM_FREE_ACTION);
         break;
     case ANNOY_TELE_LEVEL:
@@ -1862,14 +1930,18 @@ static void _annoy_p(void)
         break;
     case ANNOY_WORLD: {
         int who = 0;
-        if (_current.mon->id == MON_DIO) who = 1; /* XXX Seriously?! */
-        else if (_current.mon->id == MON_WONG) who = 3;
+        if (_current.mon->r_idx == MON_DIO) who = 1; /* XXX Seriously?! */
+        else if (_current.mon->r_idx == MON_WONG) who = 3;
         process_the_world(randint1(2)+2, who, TRUE);
         break; }
+    /* mental attacks should be parameterized with the monster's level (e.g. _ego_whip_tick) */
+    case ANNOY_EGO_WHIP:
+        plr_tim_add_aux(T_EGO_WHIP, _roll(_current.spell->parm.v.dice), _current.race->level);
+        break;
     }
     /* XXX this sort of stuff needs to be a class hook ... */
-    if (p_ptr->tim_spell_reaction && !p_ptr->fast)
-        set_fast(4, FALSE);
+    if (p_ptr->pclass == CLASS_RAGE_MAGE)
+        rage_mage_spell_reaction(_current.mon);
 }
 static void _annoy(void)
 {
@@ -1886,15 +1958,15 @@ static void _biff_p(void)
     case BIFF_ANTI_MAGIC:
         if (_curse_save())
             msg_print("You resist the effects!");
-        else if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
+        else if (mut_present(MUT_ONE_WITH_MAGIC))
             msg_print("You resist the effects!");
         else if (psion_mental_fortress())
             msg_print("Your mental fortress is impenetrable!");
         else
-            set_tim_no_spells(p_ptr->tim_no_spells + 3 + randint1(3), FALSE);
+            plr_tim_add(T_NO_SPELLS, 3 + randint1(3));
         break;
     case BIFF_DISPEL_MAGIC:
-        if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
+        if (mut_present(MUT_ONE_WITH_MAGIC))
             msg_print("You resist the effects!");
         else if (psion_mental_fortress())
             msg_print("Your mental fortress is impenetrable!");
@@ -1939,15 +2011,13 @@ static void _m_buff(void)
     switch (_current.spell->id.effect)
     {
     case BUFF_HASTE:
-        if (set_monster_fast(_current.mon->id, MON_FAST(_current.mon) + 100))
-        {
-            if (mon_show_msg(_current.mon))
-                msg_format("%s starts moving faster.", _current.name);
-        }
+        mon_tim_add(_current.mon, T_FAST, 100);
         break;
     case BUFF_INVULN:
-        if (!MON_INVULNER(_current.mon))
-            set_monster_invulner(_current.mon->id, randint1(4) + 4, FALSE);
+        mon_tim_add(_current.mon, T_INVULN, randint1(4) + 4);
+        break;
+    case BUFF_BERSERK:
+        mon_tim_add(_current.mon, T_BERSERK, 10 + randint1(10));
         break;
     }
 }
@@ -1956,12 +2026,14 @@ static void _p_buff(void)
     switch (_current.spell->id.effect)
     {
     case BUFF_HASTE:
-        if (!p_ptr->fast) /* monsters won't cast if hasted ... */
-            set_fast(100, FALSE);
+        plr_tim_add(T_FAST, 100);
         break;
     case BUFF_INVULN:
-        if (!p_ptr->invuln)
-            set_invuln(randint1(4) + 4, FALSE);
+        if (!plr_tim_find(T_INVULN))
+            plr_tim_add(T_INVULN, randint1(7) + 7);
+        break;
+    case BUFF_BERSERK:
+        plr_tim_add(T_BERSERK, 10 + randint1(p_ptr->lev));
         break;
     }
 }
@@ -2024,7 +2096,7 @@ static void _escape(void)
                 else
                     teleport_away(who, MAX_SIGHT * 2 + 5, TELEPORT_PASSIVE);
             }
-            set_monster_csleep(_current.mon2->id, 0);
+            mon_tim_delete(_current.mon2, MT_SLEEP);
         }
         break;
     }
@@ -2038,7 +2110,7 @@ static void _m_tactic(void)
             msg_format("Magic barrier obstructs teleporting of %s.", _current.name);
         else
         {
-            if (!p_ptr->blind && _current.mon->ml)
+            if (!plr_tim_find(T_BLIND) && _current.mon->ml)
                 msg_format("%s blinks away.", _current.name);
             teleport_away(_current.mon->id, 10, 0);
             p_ptr->update |= PU_MONSTERS;
@@ -2064,7 +2136,7 @@ static void _m_tactic(void)
                 else
                     teleport_away(who, 10, 0);
             }
-            set_monster_csleep(_current.mon2->id, 0);
+            mon_tim_delete(_current.mon2, MT_SLEEP);
         }
         break;
     default: /* JMP_<type> */
@@ -2094,7 +2166,7 @@ static void _p_tactic(void)
             else
                 teleport_away(who, 10, 0);
         }
-        set_monster_csleep(_current.mon2->id, 0);
+        mon_tim_delete(_current.mon2, MT_SLEEP);
         break;
     default: /* JMP_<type> */
         assert(_current.spell->parm.tag == MSP_DICE);
@@ -2119,7 +2191,7 @@ static void hp_mon(mon_ptr mon, int amt) /* this should be public */
     if (mon->hp >= mon->maxhp)
     {
         mon->hp = mon->maxhp;
-        if (!p_ptr->blind)
+        if (!plr_tim_find(T_BLIND))
         {
             if (mon_show_msg(mon))
                 msg_format("%s looks completely healed!", _current.name); /* XXX */
@@ -2129,21 +2201,16 @@ static void hp_mon(mon_ptr mon, int amt) /* this should be public */
     }
     else
     {
-        if (!p_ptr->blind)
+        if (!plr_tim_find(T_BLIND))
         {
             if (mon_show_msg(mon))
-                msg_format("%s looks healther.", _current.name); /* XXX */
+                msg_format("%s looks healthier.", _current.name); /* XXX */
         }
         else if (mon_show_msg(mon))
             msg_format("%s looks sounds healthier.", _current.name); /* XXX */
     }
     check_mon_health_redraw(mon->id);
-    if (MON_MONFEAR(mon))
-    {
-        set_monster_monfear(mon->id, 0);
-        if (!p_ptr->blind && mon_show_msg(mon))
-            msg_format("%s recovers its courage.", _current.name); /* XXX */
-    }
+    mon_tim_remove(mon, T_FEAR);
 }
 static void _heal(void)
 {
@@ -2153,13 +2220,13 @@ static void _heal(void)
     if (_current.flags & MSC_SRC_PLAYER)
     {
         hp_player(amt);
-        set_stun(0, TRUE);
-        set_cut(0, TRUE);
+        plr_tim_remove(T_STUN);
+        plr_tim_remove(T_CUT);
     }
     else
         hp_mon(_current.mon, amt);
 }
-static void _summon_r_idx(int r_idx)
+static mon_ptr _summon_r_idx(int r_idx)
 {
     int who = SUMMON_WHO_NOBODY;
     int mode = PM_ALLOW_GROUP | PM_ALLOW_UNIQUE;
@@ -2175,7 +2242,7 @@ static void _summon_r_idx(int r_idx)
         if (_current.mon)
             who = _current.mon->id;
     }
-    summon_named_creature(who, where.y, where.x, r_idx, mode);
+    return summon_named_creature(who, where, r_idx, mode);
 }
 static void _summon_type(int type)
 {
@@ -2193,23 +2260,16 @@ static void _summon_type(int type)
         if (_current.mon)
             who = _current.mon->id;
     }
-    summon_specific(who, where.y, where.x, _current.race->level, type, mode);
+    summon_specific(who, where, _current.race->level, type, mode);
 }
 /* XXX Vanilla has a 'friends' concept ... perhaps we could do likewise? */
 static void _summon_special(void)
 {
     int num = randint1(4);
-    int r_idx = 0, r_idx2 = 0, i;
+    int r_idx = 0, r_idx2 = 0, i, ct = 0;
     switch (_current.race->id)
     {
-    case MON_SANTACLAUS:
-        if (_current.flags & MSC_SRC_PLAYER)
-            msg_print("You say 'Now Dasher! Now Dancer! Now, Prancer and Vixen! On, Comet! On, Cupid! On, Donner and Blitzen!'");
-        else
-            msg_format("%s says 'Now Dasher! Now Dancer! Now, Prancer and Vixen! On, Comet! On, Cupid! On, Donner and Blitzen!'", _current.name);
-        r_idx = MON_REINDEER;
-        break;
-     case MON_ZEUS:
+    case MON_ZEUS:
         if (_current.flags & MSC_SRC_PLAYER)
             msg_print("You summon Shamblers!");
         else
@@ -2239,7 +2299,7 @@ static void _summon_special(void)
             msg_print("You summon friends!");
         else
             msg_format("%s summons friends!", _current.name);
-        if (one_in_(3) && r_info[MON_ZEUS].max_num == 1)
+        if (one_in_(3) && !unique_is_dead(MON_ZEUS))
         {
             num = 1;
             r_idx = MON_ZEUS;
@@ -2264,7 +2324,7 @@ static void _summon_special(void)
             msg_print("You summon help!");
         else
             msg_format("%s summons help!", _current.name);
-        if (one_in_(3) && r_info[MON_ARTEMIS].max_num == 1)
+        if (one_in_(3) && !unique_is_dead(MON_ARTEMIS))
         {
             num = 1;
             r_idx = MON_ARTEMIS;
@@ -2285,12 +2345,12 @@ static void _summon_special(void)
             msg_print("You summon friends!");
         else
             msg_format("%s summons friends!", _current.name);
-        if (one_in_(3) && r_info[MON_ZEUS].max_num == 1)
+        if (one_in_(3) && !unique_is_dead(MON_ZEUS))
         {
             num = 1;
             r_idx = MON_ZEUS;
         }
-        else if (one_in_(3) && r_info[MON_HERA].max_num == 1)
+        else if (one_in_(3) && !unique_is_dead(MON_HERA))
         {
             num = 1;
             r_idx = MON_HERA;
@@ -2311,12 +2371,12 @@ static void _summon_special(void)
             msg_print("You summon aid!");
         else
             msg_format("%s summons aid!'", _current.name);
-        if (one_in_(3) && r_info[MON_ARES].max_num == 1)
+        if (one_in_(3) && !unique_is_dead(MON_ARES))
         {
             num = 1;
             r_idx = MON_ARES;
         }
-        else if (one_in_(3) && r_info[MON_HEPHAESTUS].max_num == 1)
+        else if (one_in_(3) && !unique_is_dead(MON_HEPHAESTUS))
         {
             num = 1;
             r_idx = MON_HEPHAESTUS;
@@ -2336,18 +2396,11 @@ static void _summon_special(void)
             msg_print("You throw some hand grenades.");
         else
         {
-            if (p_ptr->blind) msg_format("%s spreads something.", _current.name);
+            if (plr_tim_find(T_BLIND)) msg_format("%s spreads something.", _current.name);
             else msg_format("%s throws some hand grenades.", _current.name);
         }
         num = 1 + randint1(3);
         r_idx = MON_SHURYUUDAN;
-        break;
-    case MON_BULLGATES:
-        if (_current.flags & MSC_SRC_PLAYER)
-            msg_print("You summon your minions!");
-        else
-            msg_format("%s summons his minions.", _current.name);
-        r_idx = MON_IE;
         break;
     case MON_CALDARM:
         num = randint1(3);
@@ -2368,9 +2421,10 @@ static void _summon_special(void)
     }
     for (i = 0; i < num; i++)
     {
-        if (r_idx) _summon_r_idx(r_idx);
-        if (r_idx2) _summon_r_idx(r_idx2);
+        if (r_idx && _summon_r_idx(r_idx)) ct++;
+        if (r_idx2 && _summon_r_idx(r_idx2)) ct++;
     }
+    if (!ct) update_smart_learn(_current.mon->id, SM_NO_S_SPECIAL);
 }
 static void _summon(void)
 {
@@ -2421,7 +2475,7 @@ static void _weird_bird_p(void)
         if (get_damage > 0)
             weaponmaster_do_readied_shot(_current.mon);
 
-        if (IS_REVENGE() && get_damage > 0 && !p_ptr->is_dead)
+        if (plr_tim_find(T_REVENGE) && get_damage > 0 && !p_ptr->is_dead)
         {
             char m_name_self[80];
 
@@ -2429,15 +2483,14 @@ static void _weird_bird_p(void)
 
             msg_format("The attack of %s has wounded %s!", _current.name, m_name_self);
             project(0, 0, _current.src.y, _current.src.x, psion_backlash_dam(get_damage), GF_MISSILE, PROJECT_KILL);
-            if (p_ptr->tim_eyeeye)
-                set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
+            plr_tim_subtract(T_REVENGE, 5);
         }
 
         if (p_ptr->riding)
         {
             bool fear;
             mon_take_hit_mon(p_ptr->riding, dam, &fear,
-                extract_note_dies(real_r_ptr(&m_list[p_ptr->riding])), _current.mon->id);
+                extract_note_dies(real_r_ptr(dun_mon(cave, p_ptr->riding))), _current.mon->id);
         }
     }
 }
@@ -2452,7 +2505,7 @@ static void _weird_bird_m(void)
     }
     else if (_current.mon2) /* MSF_DIRECT */
     {
-        mon_race_ptr race2 = &r_info[_current.mon2->r_idx];
+        mon_race_ptr race2 = mon_race(_current.mon2);
         bool fear = FALSE;
         int dam = 0;
         if (_current.flags & MSC_SRC_PLAYER)
@@ -2489,7 +2542,7 @@ static void _weird_bird_m(void)
             get_damage = take_hit(DAMAGE_NOESCAPE, dam, _current.name);
             if (get_damage > 0)
                 weaponmaster_do_readied_shot(_current.mon);
-            if (IS_REVENGE() && get_damage > 0 && !p_ptr->is_dead)
+            if (plr_tim_find(T_REVENGE) && get_damage > 0 && !p_ptr->is_dead)
             {
                 char m_name_self[80];
 
@@ -2498,7 +2551,7 @@ static void _weird_bird_m(void)
 
                 msg_format("The attack of %s has wounded %s!", _current.name, m_name_self);
                 project(0, 0, _current.src.y, _current.src.x, psion_backlash_dam(get_damage), GF_MISSILE, PROJECT_KILL);
-                if (p_ptr->tim_eyeeye) set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
+                plr_tim_subtract(T_REVENGE, 5);
             }
         }
 
@@ -2506,6 +2559,7 @@ static void _weird_bird_m(void)
             extract_note_dies(real_r_ptr(_current.mon2)), _who());
     }
 }
+static bool _banor_or_rupart_p(mon_ptr mon) { return mon->r_idx == MON_BANOR || mon->r_idx == MON_LUPART; }
 static void _weird(void)
 {
     if (_current.spell->id.effect == WEIRD_BIRD)
@@ -2521,20 +2575,25 @@ static void _weird(void)
     case MON_BANORLUPART: {
         int hp = (_current.mon->hp + 1) / 2;
         int maxhp = _current.mon->maxhp/2;
+        mon_ptr mon;
 
-        if ( p_ptr->inside_arena
-          || p_ptr->inside_battle
-          || !summon_possible(_current.mon->fy, _current.mon->fx)) return;
+        if (!summon_possible(_current.mon->pos.y, _current.mon->pos.x)) return;
 
-        delete_monster_idx(_current.mon->id);
+        delete_monster(_current.mon);
         _current.mon = NULL;
-        summon_named_creature(0, _current.src.y, _current.src.x, MON_BANOR, 0);
-        m_list[hack_m_idx_ii].hp = hp;
-        m_list[hack_m_idx_ii].maxhp = maxhp;
+        mon = summon_named_creature(0, _current.src, MON_BANOR, 0);
+        if (mon)
+        {
+            mon->hp = hp;
+            mon->maxhp = maxhp;
+        }
 
-        summon_named_creature(0, _current.src.y, _current.src.x, MON_LUPART, 0);
-        m_list[hack_m_idx_ii].hp = hp;
-        m_list[hack_m_idx_ii].maxhp = maxhp;
+        mon = summon_named_creature(0, _current.src, MON_LUPART, 0);
+        if (mon)
+        {
+            mon->hp = hp;
+            mon->maxhp = maxhp;
+        }
 
         msg_print("Banor=Rupart splits in two!");
 
@@ -2542,29 +2601,32 @@ static void _weird(void)
 
     case MON_BANOR:
     case MON_LUPART: {
+        vec_ptr v;
         int k, hp = 0, maxhp = 0;
         point_t where;
 
-        if (!r_info[MON_BANOR].cur_num || !r_info[MON_LUPART].cur_num) return;
-        for (k = 1; k < m_max; k++)
+        if (unique_is_dead(MON_BANOR) || unique_is_dead(MON_LUPART)) return;
+
+        v = dun_filter_mon(cave, _banor_or_rupart_p);
+        for (k = 0; k < vec_length(v); k++)
         {
-            if (m_list[k].r_idx == MON_BANOR || m_list[k].r_idx == MON_LUPART)
-            {
-                mon_ptr mon = &m_list[k];
-                hp += mon->hp;
-                maxhp += mon->maxhp;
-                if (mon->r_idx != _current.race->id)
-                    where = point(mon->fx, mon->fy);
-                delete_monster_idx(mon->id);
-            }
+            mon_ptr mon = vec_get(v, k);
+            hp += mon->hp;
+            maxhp += mon->maxhp;
+            if (mon->r_idx != _current.race->id)
+                where = mon->pos;
+            delete_monster(mon);
         }
+        vec_free(v);
+
         _current.mon = NULL;
         _current.dest = where;
-        _summon_r_idx(MON_BANORLUPART);
-        _current.mon = &m_list[hack_m_idx_ii];
-        _current.mon->hp = hp;
-        _current.mon->maxhp = maxhp;
-
+        _current.mon = _summon_r_idx(MON_BANORLUPART);
+        if (_current.mon)
+        {
+            _current.mon->hp = hp;
+            _current.mon->maxhp = maxhp;
+        }
         msg_print("Banor and Rupart combine into one!");
 
         break; }
@@ -2585,7 +2647,7 @@ static void _spell_cast_aux(void)
          * Note: We only lore projectable monster moves, so we
          * really should only lore projectable monster spells as
          * well. In addition, include splashes against the player.*/
-        if ((_current.flags & MSC_DEST_PLAYER) || _projectable(point(px, py), _current.src))
+        if ((_current.flags & MSC_DEST_PLAYER) || plr_project(_current.src))
             mon_lore_spell(_current.mon, _current.spell);
     }
     else if (_spell_fail())
@@ -2642,11 +2704,6 @@ static _custom_msg_t _mon_msg_tbl[] = {
         "",
         "$CASTER throws a syuriken at $TARGET.",
         "You throw a syuriken." },
-    { MON_JAIAN, {MST_BREATH, GF_SOUND},
-        "'Booooeeeeee'",
-        "'Booooeeeeee'",
-        "'Booooeeeeee'",
-        "'Booooeeeeee'" },
     { MON_BOTEI, {MST_BREATH, GF_SHARDS},
         "'Botei-Build cutter!!!'",
         "'Botei-Build cutter!!!'",
@@ -2673,7 +2730,7 @@ static cptr _custom_msg(void)
             return msg->cast_plr_msg;
         else if (_current.flags & MSC_DEST_PLAYER)
         {
-            if (p_ptr->blind) return msg->blind_msg;
+            if (plr_tim_find(T_BLIND)) return msg->blind_msg;
             return msg->cast_msg;
         }
         else if (_current.flags & MSC_DEST_MONSTER)
@@ -2692,7 +2749,7 @@ static cptr _display_msg(void)
         return _current.spell->display->cast_plr_msg;
     else if (_current.flags & MSC_DEST_PLAYER)
     {
-        if (p_ptr->blind) return _current.spell->display->blind_msg;
+        if (plr_tim_find(T_BLIND)) return _current.spell->display->blind_msg;
         return _current.spell->display->cast_msg;
     }
     else if (_current.flags & MSC_DEST_MONSTER)
@@ -2716,7 +2773,7 @@ static cptr _breath_msg(void)
     }
     else if (_current.flags & MSC_DEST_PLAYER)
     {
-        if (p_ptr->blind) return "$CASTER roars.";
+        if (plr_tim_find(T_BLIND)) return "$CASTER roars.";
         sprintf(_msg, "$CASTER breathes <color:%c>%s</color>.",
             attr_to_attr_char(gf->color), gf->name);
         return _msg;
@@ -2749,7 +2806,7 @@ static cptr _ball_msg(void)
     }
     else if (_current.flags & MSC_DEST_PLAYER)
     {
-        if (p_ptr->blind) return "$CASTER mumbles.";
+        if (plr_tim_find(T_BLIND)) return "$CASTER mumbles.";
         sprintf(_msg, "$CASTER casts %s <color:%c>%s Ball</color>.",
             _a_an(gf->name), attr_to_attr_char(gf->color), gf->name);
         return _msg;
@@ -2777,7 +2834,7 @@ static cptr _bolt_msg(void)
     }
     else if (_current.flags & MSC_DEST_PLAYER)
     {
-        if (p_ptr->blind) return "$CASTER mumbles.";
+        if (plr_tim_find(T_BLIND)) return "$CASTER mumbles.";
         sprintf(_msg, "$CASTER casts %s <color:%c>%s Bolt</color>.",
             _a_an(gf->name), attr_to_attr_char(gf->color), gf->name);
         return _msg;
@@ -2807,7 +2864,7 @@ static cptr _summon_msg(void)
     }
     else if (_current.flags & MSC_DEST_PLAYER)
     {
-        if (p_ptr->blind) return "$CASTER mumbles.";
+        if (plr_tim_find(T_BLIND)) return "$CASTER mumbles.";
         sprintf(_msg, "$CASTER summons <color:%c>%s</color>.",
             attr_to_attr_char(p->color), p->name);
         return _msg;
@@ -2829,7 +2886,7 @@ static cptr _tactic_msg(void)
     {
         if (_current.flags & MSC_SRC_PLAYER)
             return "You jump away.";
-        else
+        else if (!(_current.flags & MSC_UNVIEW))
             return "$CASTER jumps away.";
     }
     return NULL;
@@ -2943,6 +3000,8 @@ static void _ai_init(mon_spells_ptr spells)
         {
             mon_spell_ptr spell = &group->spells[j];
             spell->prob = mp->prob;
+            if (spell->parm.wgt)
+                spell->prob *= spell->parm.wgt;
         }
     }
 }
@@ -3180,11 +3239,18 @@ static void _smart_remove(mon_spell_cast_ptr cast)
         _smart_remove_aux(spells->groups[MST_BOLT], flags);
     _smart_remove_aux(spells->groups[MST_BEAM], flags);
     _smart_remove_annoy(spells->groups[MST_ANNOY], flags);
+
+    if (_have_smart_flag(flags, SM_NO_S_SPECIAL))
+    {
+        mon_spell_ptr spell = mon_spells_find(spells, _id(MST_SUMMON, SUMMON_SPECIAL));
+        if (spell)
+            spell->prob /= 2;
+    }
 }
 
-static bool _clean_shot(point_t src, point_t dest)
+static bool _clean_shot(point_t src, point_t dest, bool is_pet)
 {
-    return clean_shot(src.y, src.x, dest.y, dest.x, FALSE);
+    return clean_shot(src.y, src.x, dest.y, dest.x, is_pet);
 }
 static bool _summon_possible(point_t where)
 {
@@ -3199,7 +3265,7 @@ static int _wall_ct(point_t pt)
         for (x = pt.x - 2; x <= pt.x + 2; x++)
         {
             if (!in_bounds(y, x)) continue;
-            if (_distance(pt, point(x,y)) > 2) continue;
+            if (_distance(pt, point_create(x,y)) > 2) continue;
             if (cave_have_flag_bold(y, x, FF_PERMANENT)) continue;
             if (cave_have_flag_bold(y, x, FF_HURT_DISI)) ct++;
         }
@@ -3249,12 +3315,116 @@ static void _ai_wounded(mon_spell_cast_ptr cast)
         }
     }
 }
+static int _antimagic_prob(void)
+{
+    if (p_ptr->anti_magic)
+        return 0;
+
+    if (plr_tim_find(T_NO_SPELLS))
+        return 0;
+
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_antimagic_prob();
+
+    switch (p_ptr->pclass)
+    {
+    case CLASS_WARRIOR:
+    case CLASS_WEAPONSMITH:
+    case CLASS_WEAPONMASTER:
+    case CLASS_ARCHER:
+    case CLASS_CAVALRY:
+    case CLASS_MAULER:
+    case CLASS_MAGIC_EATER:
+    case CLASS_DEVICEMASTER:
+    case CLASS_BLOOD_KNIGHT:
+    case CLASS_SAMURAI: /* XXX anti-magic probably should not block Kendo */
+    case CLASS_NINJA:   /* XXX nor ninjitsu */
+    case CLASS_SNIPER:
+    case CLASS_RUNE_KNIGHT:
+    case CLASS_RAGE_MAGE: /* XXX */
+    case CLASS_DUELIST:   /* XXX */
+        return 0;
+
+    case CLASS_ROGUE:
+    case CLASS_SCOUT:
+    case CLASS_RANGER:
+    case CLASS_PALADIN:
+    case CLASS_WARRIOR_MAGE:
+    case CLASS_CHAOS_WARRIOR:
+    case CLASS_MONK:
+    case CLASS_MYSTIC:
+    case CLASS_BEASTMASTER:
+    case CLASS_ARCHAEOLOGIST:
+        return 100;
+
+    case CLASS_MINDCRAFTER:
+    case CLASS_FORCETRAINER:
+    case CLASS_PSION:
+    case CLASS_RED_MAGE:
+    case CLASS_NECROMANCER:
+    case CLASS_PRIEST:
+    case CLASS_BARD:
+    case CLASS_TIME_LORD:
+    case CLASS_WARLOCK:
+    case CLASS_WILD_TALENT:
+        return 200;
+
+    case CLASS_MAGE:
+    case CLASS_YELLOW_MAGE:
+    case CLASS_GRAY_MAGE:
+    case CLASS_HIGH_MAGE:
+    case CLASS_MIRROR_MASTER:
+        return 300;
+
+    case CLASS_SORCERER:
+        return 400;
+
+    case CLASS_MONSTER:
+        switch (p_ptr->prace)
+        {
+        case RACE_MON_LICH:
+        case RACE_MON_BEHOLDER:
+        case RACE_MON_QUYLTHULG:
+        case RACE_MON_RING:
+            return 300;
+
+        case RACE_MON_POSSESSOR:
+        case RACE_MON_MIMIC:
+            return possessor_antimagic_prob();
+
+        case RACE_MON_DRAGON:
+        case RACE_MON_ANGEL:
+        case RACE_MON_DEMON:
+        case RACE_MON_LEPRECHAUN:
+        case RACE_MON_VAMPIRE:
+            return 100;
+
+        case RACE_MON_JELLY:
+        case RACE_MON_SPIDER:
+        case RACE_MON_XORN:
+        case RACE_MON_HOUND:
+        case RACE_MON_GIANT:
+        case RACE_MON_HYDRA:
+        case RACE_MON_TROLL:
+        case RACE_MON_ELEMENTAL:
+        case RACE_MON_SWORD:
+        case RACE_MON_GOLEM:
+        case RACE_MON_CENTIPEDE:
+        case RACE_MON_VORTEX:
+            return 0;
+        }
+    }
+
+    return 100;
+}
+
 static void _ai_direct(mon_spell_cast_ptr cast)
 {
     bool           stupid = BOOL(cast->race->flags2 & RF2_STUPID);
     bool           smart  = BOOL(cast->race->flags2 & RF2_SMART);
     mon_spells_ptr spells = cast->race->spells;
     mon_spell_ptr  spell;
+    int            dist = _distance(cast->src, cast->dest);
 
     cast->flags |= MSC_DIRECT;
 
@@ -3278,12 +3448,12 @@ static void _ai_direct(mon_spell_cast_ptr cast)
             spell->prob = dispel_check(cast->mon->id) ? 50 : 0;
         spell = mon_spells_find(spells, _id(MST_BIFF, BIFF_ANTI_MAGIC));
         if (spell)
-            spell->prob = anti_magic_check();
+            spell->prob = spell->prob * _antimagic_prob() / 100;
     }
     spell = mon_spells_find(spells, _id(MST_ANNOY, ANNOY_TELE_TO));
     if (spell && spell->prob) /* XXX _smart_remove may notice RES_TELEPORT! */
     {
-        if (_distance(cast->src, cast->dest) < 2)
+        if (dist < 2)
             spell->prob = 0;
         else
             spell->prob += cast->mon->anger;
@@ -3292,7 +3462,7 @@ static void _ai_direct(mon_spell_cast_ptr cast)
     {
         spell = mon_spells_find(spells, _id(MST_BALL, GF_BRAIN_SMASH));
         if (spell)
-            spell->prob += cast->mon->anger;
+            spell->prob += cast->mon->anger/2;
     }
 
     spell = mon_spells_find(spells, _id(MST_ANNOY, ANNOY_WORLD));
@@ -3300,17 +3470,25 @@ static void _ai_direct(mon_spell_cast_ptr cast)
         spell->prob = 0;
 
     /* XXX Currently, tactical spells involve making space for spellcasting monsters. */
-    if (spells->groups[MST_TACTIC] && _distance(cast->src, cast->dest) < 4 && _find_spell(spells, _blink_check_p) && !world_monster)
-        _adjust_group(spells->groups[MST_TACTIC], NULL, 700);
-
-    if (_distance(cast->src, cast->dest) > 5)
+    if (spells->groups[MST_TACTIC] && _find_spell(spells, _blink_check_p) && !world_monster)
+    {
+        if (dist < 4)
+            _adjust_group(spells->groups[MST_TACTIC], NULL, 700);
+        else if (dist > 5)
+        {
+            spell = mon_spells_find(spells, _id(MST_TACTIC, TACTIC_BLINK));
+            if (spell)
+                spell->prob = 0;
+        }
+    }
+    if (dist > 5)
         _remove_group(spells->groups[MST_TACTIC], _jump_p);
 
     /* beholders prefer to gaze, but won't do so if adjacent */
     spell = mon_spells_find(spells, _id(MST_BOLT, GF_ATTACK));
     if (spell)
     {
-        if (p_ptr->blind || _distance(cast->src, cast->dest) < 2)
+        if (plr_tim_find(T_BLIND) || _distance(cast->src, cast->dest) < 2)
             spell->prob = 0;
         else
             spell->prob *= 7;
@@ -3318,45 +3496,57 @@ static void _ai_direct(mon_spell_cast_ptr cast)
 
     /* Useless buffs? */
     spell = mon_spells_find(spells, _id(MST_BUFF, BUFF_INVULN));
-    if (spell && cast->mon->mtimed[MTIMED_INVULNER])
+    if (spell && mon_tim_find(cast->mon, T_INVULN))
         spell->prob = 0;
 
     spell = mon_spells_find(spells, _id(MST_BUFF, BUFF_HASTE));
-    if (spell && cast->mon->mtimed[MTIMED_FAST])
+    if (spell && mon_tim_find(cast->mon, T_FAST))
+        spell->prob = 0;
+
+    spell = mon_spells_find(spells, _id(MST_BUFF, BUFF_BERSERK));
+    if (spell && mon_tim_find(cast->mon, T_BERSERK))
         spell->prob = 0;
 
     /* Uselss annoys? */
     if (!p_ptr->csp)
         _remove_spell(spells, _id(MST_BALL, GF_DRAIN_MANA));
-    if (p_ptr->blind)
+    if (plr_tim_find(T_BLIND))
         _remove_spell(spells, _id(MST_ANNOY, ANNOY_BLIND));
-    if (p_ptr->slow)
+    if (plr_tim_find(T_SLOW))
         _remove_spell(spells, _id(MST_ANNOY, ANNOY_SLOW));
-    if (p_ptr->paralyzed)
+    if (plr_tim_find(T_PARALYZED))
         _remove_spell(spells, _id(MST_ANNOY, ANNOY_PARALYZE));
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
         _remove_spell(spells, _id(MST_ANNOY, ANNOY_CONFUSE));
 
     /* require a direct shot to player for bolts */
-    if (!_clean_shot(cast->src, cast->dest))
+    if (!_clean_shot(cast->src, cast->dest, FALSE))
     {
         _remove_group(spells->groups[MST_BOLT], NULL);
         _remove_spell(spells, _id(MST_BALL, GF_ROCKET));
     }
 
-    if (spells->groups[MST_SUMMON] && !_summon_possible(cast->dest))
+    if (spells->groups[MST_SUMMON])
     {
-        _remove_group(spells->groups[MST_SUMMON], NULL);
-        spell = mon_spells_find(spells, _id(MST_BREATH, GF_DISINTEGRATE));
-        if (spell && _wall_ct(point(px, py)) > 1)
-            spell->prob = 50;
+        if (!_summon_possible(cast->dest))
+        {
+            _remove_group(spells->groups[MST_SUMMON], NULL);
+            spell = mon_spells_find(spells, _id(MST_BREATH, GF_DISINTEGRATE));
+            if (spell && _wall_ct(p_ptr->pos) > 1)
+                spell->prob = 50;
+        }
+        else if (cave->dun_type_id != D_AMBER)
+        {
+            spell = mon_spells_find(spells, _id(MST_SUMMON, SUMMON_AMBERITE));
+            if (spell) spell->prob = 0;
+        }
     }
 
     spell = mon_spells_find(spells, _id(MST_ANNOY, ANNOY_ANIMATE_DEAD));
     if (spell && !raise_possible(cast->mon))
         spell->prob = 0;
 
-    if (p_ptr->invuln)
+    if (plr_tim_find(T_INVULN))
     {
         _remove_group(spells->groups[MST_BREATH], NULL);
         _remove_group(spells->groups[MST_BALL], NULL);
@@ -3424,7 +3614,7 @@ static bool _pt_is_valid(point_t pt)
 }
 bool mon_could_splash(mon_ptr mon, point_t tgt)
 {
-    point_t pt = _choose_splash_point(point(mon->fx, mon->fy), tgt, _projectable_splash);
+    point_t pt = _choose_splash_point(mon->pos, tgt, _projectable_splash);
     return _pt_is_valid(pt);
 }
 static void _ai_indirect(mon_spell_cast_ptr cast)
@@ -3526,10 +3716,6 @@ static void _ai_indirect(mon_spell_cast_ptr cast)
 }
 static void _ai_think(mon_spell_cast_ptr cast)
 {
-    /* Hack: Restrict for special dungeons or town buildings */
-    if (p_ptr->inside_arena || p_ptr->inside_battle)
-        _remove_group(cast->race->spells->groups[MST_SUMMON], NULL);
-
     /* Generally, we require direct los to spell against the player.
      * However, smart monsters might splash, summon, heal or escape.
      * Change _ai_indirect if you don't like this. */
@@ -3585,17 +3771,19 @@ static bool _default_ai(mon_spell_cast_ptr cast)
  ************************************************************************/
 static vec_ptr _enemies(mon_ptr mon)
 {
-    int i;
     vec_ptr v = vec_alloc(NULL);
-    for (i = 1; i < m_max; i++)
+    int_map_iter_ptr iter;
+    for (iter = int_map_iter_alloc(cave->mon);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
     {
-        mon_ptr tgt = &m_list[i];
+        mon_ptr tgt = int_map_iter_current(iter);
         if (tgt->id == mon->id) continue;
-        if (!tgt->r_idx) continue;
         if (!are_enemies(mon, tgt)) continue;
-        if (!_projectable(point(mon->fx, mon->fy), point(tgt->fx, tgt->fy))) continue;
+        if (!point_project(mon->pos, tgt->pos)) continue;
         vec_add(v, tgt);
     }
+    int_map_iter_free(iter);
     return v;
 }
 static bool _choose_target(mon_spell_cast_ptr cast)
@@ -3603,20 +3791,18 @@ static bool _choose_target(mon_spell_cast_ptr cast)
     mon_ptr mon2 = NULL;
     if (pet_t_m_idx && is_pet(cast->mon))
     {
-        mon2 = &m_list[pet_t_m_idx];
-        if (mon2->id == cast->mon->id || !_projectable(cast->src, point(mon2->fx, mon2->fy)))
+        mon2 = dun_mon(cave, pet_t_m_idx);
+        if (mon2 && (mon2->id == cast->mon->id || !point_project(cast->src, mon2->pos)))
             mon2 = NULL;
     }
-    if (!mon2 && cast->mon->target_y)
+    if (!mon2 && dun_pos_interior(cave, cast->mon->target))
     {
-        int t_idx = cave[cast->mon->target_y][cast->mon->target_x].m_idx;
-
-        if (t_idx)
+        mon2 = mon_at(cast->mon->target);
+        if (mon2)
         {
-            mon2 = &m_list[t_idx];
             if ( mon2->id == cast->mon->id
               || !are_enemies(cast->mon, mon2)
-              || !_projectable(cast->src, point(mon2->fx, mon2->fy)) )
+              || !point_project(cast->src, mon2->pos) )
             {
                 mon2 = NULL;
             }
@@ -3633,7 +3819,7 @@ static bool _choose_target(mon_spell_cast_ptr cast)
     {
         cast->mon2 = mon2;
         _mon_desc(mon2, cast->name2, 'o');
-        cast->dest = point(mon2->fx, mon2->fy);
+        cast->dest = mon2->pos;
         if (!mon_show_msg(cast->mon) && !mon_show_msg(cast->mon2))
             cast->flags |= MSC_UNVIEW;
         return TRUE;
@@ -3645,12 +3831,6 @@ static point_t _project_pt(point_t start, point_t stop, int flags)
     point_t pt = stop;
     get_project_point(start.y, start.x, &pt.y, &pt.x, flags);
     return pt;
-}
-static bool _small_ball_p(mon_spell_ptr spell)
-{
-    if (spell->id.type != MST_BALL) return FALSE;
-    if (spell->flags & MSF_BALL4) return FALSE;
-    return TRUE;
 }
 static void _ai_think_pet(mon_spell_cast_ptr cast)
 {
@@ -3693,19 +3873,25 @@ static void _ai_think_pet(mon_spell_cast_ptr cast)
         if (spells->groups[MST_BALL])
         {
             point_t explode = _project_pt(cast->src, cast->dest, 0);
-            point_t player = point(px, py);
 
-            if (_projectable(player, explode))
+            if (plr_project(explode))
             {
-                if (_distance(player, explode) <= 2)
-                    _remove_group(spells->groups[MST_BALL], _small_ball_p);
-                else
-                    _remove_group(spells->groups[MST_BALL], NULL);
+                int dis = plr_distance(explode), i;
+                mon_spell_group_ptr group = spells->groups[MST_BALL];
+                for (i = 0; i < group->count; i++)
+                {
+                    mon_spell_ptr spell = &group->spells[i];
+                    int           rad = 2;
+                    if (spell->flags & MSF_BALL0) rad = 0;
+                    else if (spell->flags & MSF_BALL4) rad = 4;
+                    if (rad >= dis)
+                        spell->prob = 0;
+                }
             }
             else /* Glass walls and such have LOS but not PROJECT */
             {
                 spell = mon_spells_find(spells, _id(MST_BALL, GF_LITE));
-                if (spell && _distance(player, explode) <= 4 && _los(player, explode))
+                if (spell && plr_distance(explode) <= 4 && plr_los(explode))
                     spell->prob = 0;
             }
         }
@@ -3715,8 +3901,7 @@ static void _ai_think_pet(mon_spell_cast_ptr cast)
         if (spell)
         {
             point_t explode = _project_pt(cast->src, cast->dest, PROJECT_STOP);
-            point_t player = point(px, py);
-            if (_projectable(player, explode) && _distance(player, explode) <= 2)
+            if (plr_project(explode) && plr_distance(explode) <= 2)
                 spell->prob = 0;
         }
 
@@ -3728,7 +3913,7 @@ static void _ai_think_pet(mon_spell_cast_ptr cast)
 
         if (spells->groups[MST_BREATH])
         {
-            int rad = cast->race->level >= 50 ? 3 : 2;
+            int rad = _breath_rad(cast->race);
 
             if (!breath_direct(cast->src.y, cast->src.x, cast->dest.y, cast->dest.x, rad, 0, TRUE))
                 _remove_group(spells->groups[MST_BREATH], NULL);
@@ -3776,7 +3961,10 @@ static void _ai_think_mon(mon_spell_cast_ptr cast)
     /* XXX not implemented ... yet */
     _remove_spell(spells, _id(MST_BALL, GF_DRAIN_MANA));
 
-    if (p_ptr->inside_arena || p_ptr->inside_battle)
+    /* Restrict summoning to require LoS on the player. Otherwise, 
+     * good vs evil monster battles can explode into infinite summoning
+     * nonsense. Note that Qlzzqlzuup is RF2_STUPID, so we need to check early. */
+    if (!plr_project(cast->src))
         _remove_group(spells->groups[MST_SUMMON], NULL);
 
     if (is_pet(cast->mon))
@@ -3787,7 +3975,7 @@ static void _ai_think_mon(mon_spell_cast_ptr cast)
         return;
 
     /* Anti-magic caves? Don't bother casting spells with 100% fail rates */
-    if (py_in_dungeon() && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC))
+    if (plr_in_dungeon() && (cave->flags & DF_NO_MAGIC))
         _remove_spells(spells, _not_innate_p);
 
     if (!(cast->flags & MSC_UNVIEW))
@@ -3802,23 +3990,27 @@ static void _ai_think_mon(mon_spell_cast_ptr cast)
 
     /* Useless buffs? */
     spell = mon_spells_find(spells, _id(MST_BUFF, BUFF_INVULN));
-    if (spell && cast->mon->mtimed[MTIMED_INVULNER])
+    if (spell && mon_tim_find(cast->mon, T_INVULN))
         spell->prob = 0;
 
     spell = mon_spells_find(spells, _id(MST_BUFF, BUFF_HASTE));
-    if (spell && cast->mon->mtimed[MTIMED_FAST])
+    if (spell && mon_tim_find(cast->mon, T_FAST))
+        spell->prob = 0;
+
+    spell = mon_spells_find(spells, _id(MST_BUFF, BUFF_BERSERK));
+    if (spell && mon_tim_find(cast->mon, T_BERSERK))
         spell->prob = 0;
 
     /* Useless biffs? */
     spell = mon_spells_find(spells, _id(MST_BIFF, BIFF_DISPEL_MAGIC));
-    if (spell && !(cast->mon2->mtimed[MTIMED_INVULNER] /*|| ...*/))
+    if (spell && !mon_tim_find(cast->mon2, T_INVULN)) /* XXX mon_tim_dispel_check */
         spell->prob = 0;
     spell = mon_spells_find(spells, _id(MST_BIFF, BIFF_ANTI_MAGIC));
     if (spell && cast->mon2->anti_magic_ct)
         spell->prob = 0;
 
     /* require a direct shot for bolts */
-    if (!_clean_shot(cast->src, cast->dest))
+    if (!_clean_shot(cast->src, cast->dest, is_pet(cast->mon)))
     {
         _remove_group(spells->groups[MST_BOLT], NULL);
         _remove_spell(spells, _id(MST_BALL, GF_ROCKET));
@@ -3830,11 +4022,6 @@ static void _ai_think_mon(mon_spell_cast_ptr cast)
         if (cast->race->id == MON_BANORLUPART)
             _remove_spell(spells, _id(MST_WEIRD, WEIRD_SPECIAL));
     }
-
-    /* Hack: No monster summoning unless the player is nearby.
-     * XXX: Or any player pets ... */
-    if (!_projectable(cast->src, point(px, py)))
-        _remove_group(spells->groups[MST_SUMMON], NULL);
 
     spell = mon_spells_find(spells, _id(MST_ANNOY, ANNOY_ANIMATE_DEAD));
     if (spell && !raise_possible(cast->mon))
@@ -3874,6 +4061,11 @@ static bool _is_gf_spell(mon_spell_ptr spell)
 static int _spell_res(mon_spell_ptr spell)
 {
     int res = 0;
+    if (spell->id.effect == GF_WATER || spell->id.effect == GF_WATER2)
+    {
+        if (prace_is_(RACE_WATER_ELF) || elemental_is_(ELEMENTAL_WATER))
+            res = 50;
+    }
     if (_is_gf_spell(spell))
     {
         gf_info_ptr gf = gf_lookup(spell->id.effect);
@@ -3942,7 +4134,7 @@ void mon_spell_wizard(mon_ptr mon, mon_spell_ai ai, doc_ptr doc)
         ai = _default_ai_mon;
         if (!ai(&cast)) return;
     }
-    doc_printf(doc, "%s: %d%%\n", cast.name, cast.race->spells->freq);
+    doc_printf(doc, "%s: %d%%\n", cast.name, cast.race->spells->freq + mon->anger);
     for (i = 0; i < MST_COUNT; i++)
     {
         mon_spell_group_ptr group = cast.race->spells->groups[i];
@@ -4062,6 +4254,11 @@ bool mon_race_has_spell_type(mon_race_ptr race, int type)
     if (!race->spells) return FALSE;
     return race->spells->groups[type] != NULL;
 }
+bool mon_race_has_spell(mon_race_ptr race, int type, int effect)
+{
+    if (!race->spells) return FALSE;
+    return mon_spells_find(race->spells, _id(type, effect)) != NULL;
+}
 bool mon_has_summon_spell(mon_ptr mon)
 {
     return mon_has_spell_type(mon, MST_SUMMON);
@@ -4069,6 +4266,15 @@ bool mon_has_summon_spell(mon_ptr mon)
 bool mon_race_has_summon_spell(mon_race_ptr race)
 {
     return mon_race_has_spell_type(race, MST_SUMMON);
+}
+bool mon_has_breath(mon_ptr mon, int gf)
+{
+    return mon_race_has_breath(mon_race(mon), gf);
+}
+bool mon_race_has_breath(mon_race_ptr race, int gf)
+{
+    if (!race->spells) return FALSE;
+    return mon_spells_find(race->spells, _id(MST_BREATH, gf)) != NULL;
 }
 bool mon_has_attack_spell(mon_ptr mon)
 {
@@ -4136,6 +4342,22 @@ bool mon_race_has_innate_spell(mon_race_ptr race)
         {
             mon_spell_ptr spell = &group->spells[j];
             if (spell->flags & MSF_INNATE) return TRUE;
+        }
+    }
+    return FALSE;
+}
+bool mon_race_has_noninnate_spell(mon_race_ptr race)
+{
+    int i, j;
+    if (!race->spells) return FALSE;
+    for (i = MST_BREATH; i < MST_COUNT; i++)
+    {
+        mon_spell_group_ptr group = race->spells->groups[i];
+        if (!group) continue;
+        for (j = 0; j < group->count; j++)
+        {
+            mon_spell_ptr spell = &group->spells[j];
+            if (!(spell->flags & MSF_INNATE)) return TRUE;
         }
     }
     return FALSE;
@@ -4209,19 +4431,16 @@ static void _possessor(void)
         map_area(DETECT_RAD_MAP);
         break;
     case POS_CLAIRVOYANCE:
-        wiz_lite(FALSE);
+        wiz_lite();
         break;
     case POS_MULTIPLY:
         _summon_r_idx(p_ptr->current_r_idx);
         break;
     case POS_BLESS:
-        set_blessed(randint1(12) + 12, FALSE);
+        plr_tim_add(T_BLESSED, randint1(12) + 12);
         break;
     case POS_HEROISM:
-        set_hero(randint1(25) + 25, FALSE);
-        break;
-    case POS_BERSERK:
-        set_shero(10 + randint1(p_ptr->lev), FALSE);
+        plr_tim_add(T_HERO, randint1(25) + 25);
         break;
     }
 }
@@ -4248,7 +4467,7 @@ static int _breath_cost_div(mon_race_ptr race)
     case 'R': return 12; /* Tarrasque, Godzilla */
     case 'P': return 10; /* Elder giants; Typhoeus */
     case 'A': return 12; /* Raphael, et. al. */
-    case 'J': return 12; /* Abhoth, Apophis, Serpent of Chaos! */
+    case 'J': return 12; /* Abhoth, Serpent of Chaos! */
     }
     return 7;
 }
@@ -4292,6 +4511,7 @@ static int _buff_cost(mon_spell_ptr spell)
     {
     case BUFF_HASTE: return 15;
     case BUFF_INVULN: return 60;
+    case BUFF_BERSERK: return 10;
     }
     return 0;
 }
@@ -4331,6 +4551,7 @@ static int _annoy_cost(mon_spell_ptr spell)
     case ANNOY_TELE_TO: return 15;
     case ANNOY_TRAPS: return 10;
     case ANNOY_WORLD: return 150;
+    case ANNOY_EGO_WHIP: return 20;
     }
     return 0;
 }
@@ -4373,7 +4594,6 @@ static int _possessor_cost(mon_spell_ptr spell, mon_race_ptr race)
     case POS_MULTIPLY: return 1 + race->level/2;
     case POS_BLESS: return 3;
     case POS_HEROISM: return 8;
-    case POS_BERSERK: return 10;
     }
     return 0;
 }
@@ -4408,7 +4628,7 @@ static int _spell_cost(mon_spell_ptr spell, mon_race_ptr race)
 {
     int cost = _spell_cost_aux(spell, race);
     if (p_ptr->dec_mana && cost > 0)
-        cost = MAX(1, cost * 3 / 4);
+        cost = MAX(1, (cost + 1) * dec_mana_cost(p_ptr->dec_mana) / 100);
     return cost;
 }
 static void _list_dice(doc_ptr doc, dice_t dice)
@@ -4428,8 +4648,12 @@ static void _list_spell_info(doc_ptr doc, mon_spell_ptr spell, mon_race_ptr race
         int pct = spell->parm.v.hp_pct.pct;
         int max = spell->parm.v.hp_pct.max;
         int hp = _avg_hp(race);
-        int chp = hp * p_ptr->chp / p_ptr->mhp;
-        int dam = MIN(max, chp * pct / 100);
+        int hp_pct = p_ptr->chp * 100 / p_ptr->mhp;
+        int chp = hp * hp_pct;
+        int mult = MIN(100, 65 + p_ptr->stat_ind[A_CON]);
+        int dam = chp * pct / 100;
+        dam = dam * mult / 100;
+        dam = MIN(max, (dam + 50) / 100);
         doc_printf(doc, " dam %d", dam);
         break; }
     case MST_BALL:
@@ -4448,7 +4672,7 @@ static void _list_spell_info(doc_ptr doc, mon_spell_ptr spell, mon_race_ptr race
 static bool _no_magic(void)
 {
     if (p_ptr->anti_magic) return TRUE;
-    if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC)) return TRUE;
+    if (cave->dun_type_id == D_SURFACE && (cave->flags & DF_NO_MAGIC)) return TRUE;
     return FALSE;
 }
 static int _cmp_spells(mon_spell_ptr left, mon_spell_ptr right)
@@ -4575,9 +4799,9 @@ static void _prompt_plr_aux(mon_spell_cast_ptr cast, vec_ptr spells)
 }
 static void _set_target(mon_spell_cast_ptr cast, int m_idx)
 {
-    cast->mon2 = &m_list[m_idx];
+    cast->mon2 = dun_mon(cave, m_idx);
     _mon_desc(cast->mon2, cast->name2, 'o');
-    cast->dest = point(cast->mon2->fx, cast->mon2->fy);
+    cast->dest = cast->mon2->pos;
 }
 static bool _spell_is_breath(mon_spell_ptr spell) { return spell->id.type == MST_BREATH; }
 static bool _spell_is_offense(mon_spell_ptr spell) { return _is_attack_spell(spell) && !_spell_is_breath(spell); }
@@ -4683,36 +4907,28 @@ static bool _prompt_plr(mon_spell_cast_ptr cast)
       && (cast->flags & MSC_SRC_PLAYER)
       && (cast->spell->flags & MSF_TARGET) )
     {
-        int dir, m_idx;
         if (cast->spell->flags & MSF_DIRECT)
         {
-            if (use_old_target && target_okay_aux(TARGET_KILL))
-            {
-            }
-            else if (!target_set(TARGET_KILL)) return FALSE;
-            m_idx = cave[target_row][target_col].m_idx;
-            if (!m_idx)
-            {
-                msg_print("You need to target a monster.");
-                return FALSE;
-            }
-            _set_target(cast, m_idx);
+            mon_ptr mon = plr_target_mon();
+            if (!mon) return FALSE;
+            _set_target(cast, mon->id);
         }
         else
         {
+            mon_ptr mon;
+            int dir;
             if (_spell_is_(cast->spell, MST_BREATH, GF_DISINTEGRATE))
             {
                 if (!get_fire_dir_aux(&dir, TARGET_DISI)) return FALSE;
             }
             else if (!get_fire_dir(&dir)) return FALSE;
-            cast->dest.x = px + 99*ddx[dir];
-            cast->dest.y = py + 99*ddy[dir];
+            cast->dest = point_jump(p_ptr->pos, dir, 99);
             if (dir == 5)
             {
                 cast->dest.x = target_col;
                 cast->dest.y = target_row;
-                m_idx = cave[target_row][target_col].m_idx;
-                if (m_idx) _set_target(cast, m_idx);
+                mon = mon_at(cast->dest);
+                if (mon) _set_target(cast, mon->id);
             }
         }
     }

@@ -37,16 +37,17 @@ static void _birth(void)
     forge.to_d = 2;
     forge.pval = 1;
     add_flag(forge.flags, OF_DEX);
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 static int _rank(void)
@@ -105,64 +106,37 @@ static void _gain_level(int new_level)
 /**********************************************************************
  * Attacks
  **********************************************************************/
+static void _calc_innate_bonuses(mon_blow_ptr blow)
+{
+    if (blow->method != RBM_CRAWL) return;
+    plr_calc_blows_innate(blow, 100 + 50*_rank());
+}
 static void _calc_innate_attacks(void)
 {
-    int r = _rank();
+    mon_blow_ptr blow;
+    int r = _rank(), x = 0;
 
     /* Bite */
-    {
-        innate_attack_t a = {0};
-
-        a.dd = 1;
-        a.ds = 3 + r;
-        a.to_h = p_ptr->lev/3;
-        a.to_d = 2*r;
-        a.weight = 70;
-        a.effect[0] = GF_MISSILE;
-        a.blows = 100;
-        a.msg = "You bite.";
-        a.name = "Bite";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
+    blow = mon_blow_alloc(RBM_BITE);
+    blow->power = p_ptr->lev;
+    mon_blow_push_effect(blow, RBE_HURT, dice_create(1, 3+r, 2*r));
+    vec_add(p_ptr->innate_blows, blow);
 
     /* Sting */
-    {
-        innate_attack_t a = {0};
-
-        a.dd = 1;
-        a.ds = 2 + r;
-        a.to_h = p_ptr->lev/3;
-        a.to_d = 2*r;
-        a.weight = 70;
-        a.effect[0] = GF_MISSILE;
-        if (r >= 5)
-            a.effect[1] = GF_POIS;
-        a.blows = 100;
-        a.msg = "You sting.";
-        a.name = "Sting";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
+    blow = mon_blow_alloc(RBM_STING);
+    blow->power = p_ptr->lev;
+    mon_blow_push_effect(blow, RBE_HURT, dice_create(1, 2+r, 2*r));
+    if (r >= 5)
+        mon_blow_push_effect(blow, GF_POIS, dice_create(1, 2+4, 0));
+    vec_add(p_ptr->innate_blows, blow);
 
     /* Crawl */
-    {
-        innate_attack_t a = {0};
-
-        a.dd = 1;
-        a.ds = 3 + r;
-        if (r >= 5)
-            a.ds += 7;
-        a.to_h = p_ptr->lev/3;
-        a.to_d = 2*r;
-        a.weight = 70;
-        a.effect[0] = GF_MISSILE;
-        calc_innate_blows(&a, 100 + 50*r);
-        a.msg = "You crawl.";
-        a.name = "Crawl";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
+    blow = mon_blow_alloc(RBM_CRAWL);
+    blow->power = p_ptr->lev;
+    if (r >= 5) x = 7;
+    mon_blow_push_effect(blow, RBE_HURT, dice_create(1, 3+r+x, 2*r));
+    _calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
 }
 
 /**********************************************************************
@@ -186,57 +160,56 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 /**********************************************************************
  * Public Methods
  **********************************************************************/
-race_t *mon_centipede_get_race(void)
+plr_race_ptr mon_centipede_get_race(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     int           r = _rank();
     static cptr   titles[6] =  {"Giant white centipede", "Metallic green centipede",
                                 "Metallic blue centipede", "Metallic red centipede",
                                 "Giant clear centipede", "The Multi-hued Centipede"};
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  21,  35,   5,  10,   7,  50,  10};
     skills_t xs = { 12,  10,  10,   0,   0,   0,  15,   2};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_CENTIPEDE);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.name = "Centipede";
-        me.desc = _desc;
+        me->name = "Centipede";
+        me->desc = _desc;
 
-        me.infra = 5;
-        me.exp = 100;
-        me.base_hp = 15;
-        me.shop_adjust = 120;
+        me->infra = 5;
+        me->exp = 100;
+        me->base_hp = 15;
+        me->shop_adjust = 120;
 
-        me.calc_innate_attacks = _calc_innate_attacks;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
-        me.birth = _birth;
+        me->hooks.calc_innate_attacks = _calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = _calc_innate_bonuses;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.birth = _birth;
 
-        me.flags = RACE_IS_MONSTER;
-        me.boss_r_idx = MON_CENTIPEDE_MULTIHUED;
-        me.pseudo_class_idx = CLASS_WARRIOR;
-
-        init = TRUE;
+        me->flags = RACE_IS_MONSTER;
+        me->boss_r_idx = MON_CENTIPEDE_MULTIHUED;
+        me->pseudo_class_idx = CLASS_WARRIOR;
     }
 
     if (!birth_hack && !spoiler_hack)
-        me.subname = titles[r];
+        me->subname = titles[r];
     else
-        me.subname = NULL;
-    me.stats[A_STR] = (r + 1)/3;
-    me.stats[A_INT] = -3;
-    me.stats[A_WIS] = -3;
-    me.stats[A_DEX] = r;
-    me.stats[A_CON] = (r + 1)/2;
-    me.stats[A_CHR] = -3;
-    me.life = 90 + 2*r;
-    me.equip_template = mon_get_equip_template();
+        me->subname = NULL;
+    me->stats[A_STR] = (r + 1)/3;
+    me->stats[A_INT] = -3;
+    me->stats[A_WIS] = -3;
+    me->stats[A_DEX] = r;
+    me->stats[A_CON] = (r + 1)/2;
+    me->stats[A_CHR] = -3;
+    me->life = 90 + 2*r;
+    me->equip_template = mon_get_equip_template();
 
-    return &me;
+    return me;
 }
 

@@ -1,9 +1,62 @@
 #include "angband.h"
 
-/* HACK: Repose of the dead paralyzes the player for a few turns.
-   When they wake up, they are restored. See set_paralyzed() for details.*/
-bool repose_of_the_dead = FALSE;
-
+/**********************************************************************
+ * Repose of The Dead ... Shared with RACE_MON_VAMPIRE
+ **********************************************************************/
+static bool _repose_of_the_dead = FALSE;
+void repose_of_the_dead_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Repose of the Dead");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Sleep the sleep of the dead for a few rounds, during which time nothing can awaken you, except perhaps death. When (if?) you wake up, you will be thoroughly refreshed!");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (!get_check("You will enter a deep slumber. Are you sure?")) return;
+        _repose_of_the_dead = TRUE;
+        plr_tim_add(T_PARALYZED, 4 + randint1(4));
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+void repose_timer_on(plr_tim_ptr timer)
+{
+    if (_repose_of_the_dead && timer->id == T_PARALYZED)
+    {
+        timer->flags |= TF_NO_MSG;
+        msg_print("You enter a deep sleep!");
+    }
+}
+void repose_timer_off(plr_tim_ptr timer)
+{
+    if (_repose_of_the_dead && timer->id == T_PARALYZED)
+    {
+        msg_print("You awake refreshed!");
+        restore_level();
+        plr_restore_life(1000);
+        plr_tim_remove(T_POISON);
+        plr_tim_remove(T_BLIND);
+        plr_tim_remove(T_CONFUSED);
+        plr_tim_remove(T_HALLUCINATE);
+        plr_tim_remove(T_STUN);
+        plr_tim_remove(T_CUT);
+        do_res_stat(A_STR);
+        do_res_stat(A_CON);
+        do_res_stat(A_DEX);
+        do_res_stat(A_WIS);
+        do_res_stat(A_INT);
+        do_res_stat(A_CHR);
+        plr_tim_remove(T_BERSERK);
+        _repose_of_the_dead = FALSE;
+    }
+}
 
 /**********************************************************************
  * Utilities
@@ -51,120 +104,37 @@ static int _necro_damroll(int dice, int sides, int base)
     return spell_power(damroll(dice, sides) + base);
 }
 
-void on_p_hit_m(int m_idx)
-{
-    if (p_ptr->special_attack & ATTACK_CONFUSE)
-    {
-        monster_type *m_ptr = &m_list[m_idx];
-        monster_race *r_ptr = &r_info[m_ptr->r_idx];
-        char          m_name[MAX_NLEN];
-
-        monster_desc(m_name, m_ptr, 0);
-
-        p_ptr->special_attack &= ~(ATTACK_CONFUSE);
-        msg_print("Your hands stop glowing.");
-        p_ptr->redraw |= (PR_STATUS);
-
-        if (r_ptr->flags3 & RF3_NO_CONF)
-        {
-            mon_lore_3(m_ptr, RF3_NO_CONF);
-            msg_format("%^s is unaffected.", m_name);
-        }
-        else if (randint0(100) < r_ptr->level)
-        {
-            msg_format("%^s is unaffected.", m_name);
-        }
-        else
-        {
-            msg_format("%^s appears confused.", m_name);
-            (void)set_monster_confused(m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
-        }
-    }
-}
-
 static bool _necro_do_touch(int type, int dice, int sides, int base)
 {
-    int x, y;
-    int dir = 0;
-    int m_idx = 0;
+    mon_ptr mon;
+    int dam;
 
     if (!_necro_check_touch()) return FALSE;
 
-    /* For ergonomics sake, use currently targeted monster. This allows
-       a macro of \e*tmaa or similar to pick an adjacent foe, while
-       \emaa*t won't work, since get_rep_dir2() won't allow a target. */
-    if (use_old_target && target_okay())
-    {
-        y = target_row;
-        x = target_col;
-        m_idx = cave[y][x].m_idx;
-        if (m_idx)
-        {
-            if (m_list[m_idx].cdis > 1)
-                m_idx = 0;
-            else
-                dir = 5; /* Hack so that fire_ball() works correctly */
-        }
-    }
+    mon = plr_target_adjacent_mon();
+    if (!mon) return FALSE;
 
-    if (!m_idx)
-    {
-        if (!get_rep_dir2(&dir)) return FALSE;
-        if (dir == 5) return FALSE;
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-        m_idx = cave[y][x].m_idx;
-
-        if (!m_idx)
-        {
-            msg_print("There is no monster there.");
-            return FALSE;
-        }
-
-    }
-
-    if (m_idx)
-    {
-        int dam;
-        monster_type *m_ptr = &m_list[m_idx];
-
-        if (!is_hostile(m_ptr) &&
-            !(p_ptr->stun || p_ptr->confused || p_ptr->image ||
-            IS_SHERO() || !m_ptr->ml))
-        {
-            if (!get_check("Really hit it? "))
-                return FALSE;
-        }
-
-        dam = _necro_damroll(dice, sides, base);
-        on_p_hit_m(m_idx);
-        touch_zap_player(m_idx);
-        if (fire_ball(type, dir, dam, 0))
-        {
-            if (type == GF_OLD_DRAIN)
-                hp_player(dam);
-        }
-    }
+    dam = _necro_damroll(dice, sides, base);
+    if (plr_touch_mon(mon, type, dam) && type == GF_OLD_DRAIN)
+        hp_player(dam);
     return TRUE;
 }
 
 static void _necro_do_summon(int what, int num, bool fail)
 {
-    int x = px;
-    int y = py;
+    point_t pos = p_ptr->pos;
 
     if (fail) /* Failing spells should not be insta-death ... */
         num = MAX(1, num/4);
     else
         num = spell_power(num);
 
-    if (!fail && use_old_target && target_okay() && los(py, px, target_row, target_col) && !one_in_(3))
+    if (!fail && use_old_target && target_okay() && los(p_ptr->pos.y, p_ptr->pos.x, target_row, target_col) && !one_in_(3))
     {
-        y = target_row;
-        x = target_col;
+        pos.y = target_row;
+        pos.x = target_col;
     }
-    if (trump_summoning(num, !fail, y, x, 0, what, PM_ALLOW_UNIQUE))
+    if (trump_summoning(num, !fail, pos, 0, what, PM_ALLOW_UNIQUE))
     {
         if (fail)
         {
@@ -235,7 +205,7 @@ cptr do_necromancy_spell(int spell, int mode)
     case 6:
         if (name) return "Eldritch Howl";
         if (desc) return "Emit a terrifying howl.";
-        if (cast) project_hack(GF_ELDRITCH_HOWL, spell_power(plev * 3));
+        if (cast) project_los(GF_ELDRITCH_HOWL, spell_power(plev * 3));
         break;
 
     case 7:
@@ -255,10 +225,7 @@ cptr do_necromancy_spell(int spell, int mode)
     case 9:
         if (name) return "Black Cloak";
         if (desc) return "You become shrouded in darkness.";
-        if (cast) 
-        {
-            set_tim_dark_stalker(spell_power(randint1(plev) + plev), FALSE);
-        }
+        if (cast) plr_tim_add(T_STEALTH, spell_power(randint1(plev) + plev));
         break;
 
     case 10:
@@ -271,6 +238,7 @@ cptr do_necromancy_spell(int spell, int mode)
             detect_traps(DETECT_RAD_DEFAULT, TRUE);
             detect_doors(DETECT_RAD_DEFAULT);
             detect_stairs(DETECT_RAD_DEFAULT);
+            detect_recall(DETECT_RAD_DEFAULT);
         }
         break;
 
@@ -286,16 +254,18 @@ cptr do_necromancy_spell(int spell, int mode)
     
         if (cast)
         {
-            int y, x, dir;
+            int dir;
+            point_t pos;
+            mon_ptr mon;
 
             if (!_necro_check_touch()) return NULL;
             if (!get_rep_dir2(&dir)) return NULL;
             if (dir == 5) return NULL;
 
-            y = py + ddy[dir];
-            x = px + ddx[dir];
+            pos = point_step(p_ptr->pos, dir);
+            mon = dun_mon_at(cave, pos);
 
-            if (!cave[y][x].m_idx)
+            if (!mon)
             {
                 msg_print("There is no monster.");
                 return NULL;
@@ -303,40 +273,28 @@ cptr do_necromancy_spell(int spell, int mode)
             else
             {
                 int i;
-                int ty = y, tx = x;
-                int oy = y, ox = x;
-                int m_idx = cave[y][x].m_idx;
-                monster_type *m_ptr = &m_list[m_idx];
-                char m_name[80];
-    
-                monster_desc(m_name, m_ptr, 0);
-                touch_zap_player(cave[y][x].m_idx);    
+                point_t old_pos = pos;
+                point_t tgt_pos = pos;
+
+                plr_on_touch_mon(mon);
     
                 for (i = 0; i < 10; i++)
                 {
-                    y += ddy[dir];
-                    x += ddx[dir];
-                    if (cave_empty_bold(y, x))
-                    {
-                        ty = y;
-                        tx = x;
-                    }
-                    else break;
+                    pos = point_step(pos, dir);
+                    if (!cave_empty_at(pos)) break;
+                    tgt_pos = pos;
                 }
-                if ((ty != oy) || (tx != ox))
+                if (!point_equals(tgt_pos, old_pos))
                 {
+                    char m_name[80];
+                    monster_desc(m_name, mon, 0);
                     msg_format("A foul wind blows %s away!", m_name);
-                    cave[oy][ox].m_idx = 0;
-                    cave[ty][tx].m_idx = m_idx;
-                    m_ptr->fy = ty;
-                    m_ptr->fx = tx;
+                    dun_move_mon(cave, mon, tgt_pos);
+                    lite_pos(old_pos);
+                    lite_pos(tgt_pos);
     
-                    update_mon(m_idx, TRUE);
-                    lite_spot(oy, ox);
-                    lite_spot(ty, tx);
-    
-                    if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
-                        p_ptr->update |= (PU_MON_LITE);
+                    if (mon_race(mon)->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+                        p_ptr->update |= PU_MON_LITE;
                 }
             }
         }
@@ -408,7 +366,7 @@ cptr do_necromancy_spell(int spell, int mode)
     case 22:
         if (name) return "Unholy Word";
         if (desc) return "Utter an unspeakable word. The morale of your visible evil pets is temporarily boosted and they will serve you with renewed enthusiasm.";
-        if (cast) project_hack(GF_UNHOLY_WORD, plev * 6);
+        if (cast) project_los(GF_UNHOLY_WORD, plev * 6);
         break;
 
     case 23:
@@ -439,10 +397,10 @@ cptr do_necromancy_spell(int spell, int mode)
         if (info) return info_duration(base, base);
         if (cast)
         {
-            set_tim_res_nether(randint1(base) + base, FALSE);
-            set_oppose_pois(randint1(base) + base, FALSE);
-            set_oppose_cold(randint1(base) + base, FALSE);
-            set_shield(randint1(base) + base, FALSE);
+            plr_tim_add(T_RES_NETHER, randint1(base) + base);
+            plr_tim_add(T_RES_POIS, randint1(base) + base);
+            plr_tim_add(T_RES_COLD, randint1(base) + base);
+            plr_tim_add(T_STONE_SKIN, randint1(base) + base);
         }
         break;
     }
@@ -456,12 +414,7 @@ cptr do_necromancy_spell(int spell, int mode)
     case 28:
         if (name) return "Repose of the Dead";
         if (desc) return "Sleep the sleep of the dead for a few rounds, during which time nothing can awaken you, except perhaps death. When (if?) you wake up, you will be thoroughly refreshed!";
-        if (cast)
-        {
-            if (!get_check("You will enter a deep slumber. Are you sure?")) return NULL;
-            repose_of_the_dead = TRUE;
-            set_paralyzed(4 + randint1(4), FALSE);
-        }
+        if (cast && !cast_spell(repose_of_the_dead_spell)) return NULL;
         break;
 
     case 29:
@@ -495,14 +448,13 @@ cptr do_necromancy_spell(int spell, int mode)
             for (i = 0; i < 18; i++)
             {
                 int attempt = 10;
-                int my, mx, what;
+                point_t mp;
+                int what;
 
                 while (attempt--)
                 {
-                    scatter(&my, &mx, py, px, 4, 0);
-
-                    /* Require empty grids */
-                    if (cave_empty_bold2(my, mx)) break;
+                    mp = scatter(p_ptr->pos, 4);
+                    if (cave_empty_at(mp)) break;
                 }
                 if (attempt < 0) continue;
                 switch (randint1(4))
@@ -513,9 +465,9 @@ cptr do_necromancy_spell(int spell, int mode)
                 case 4:
                 default: what = SUMMON_GHOST; break;
                 }
-                summon_specific(-1, my, mx, power, what, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
+                summon_specific(-1, mp, power, what, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
             }
-            set_fast(randint1(sp_sides) + sp_base, FALSE);
+            plr_tim_add(T_FAST, randint1(sp_sides) + sp_base);
         }
         break;
 
@@ -530,13 +482,14 @@ static void _calc_bonuses(void)
     p_ptr->spell_cap += 2;
 
     if (equip_find_art(ART_EYE_OF_VECNA))
-        p_ptr->dec_mana = TRUE;
+        p_ptr->dec_mana++;
     if (equip_find_art(ART_HAND_OF_VECNA))
-        p_ptr->easy_spell = TRUE;
+        p_ptr->easy_spell++;
 
     if (p_ptr->lev >= 5) res_add(RES_COLD);
     if (p_ptr->lev >= 15) p_ptr->see_inv++;
     if (p_ptr->lev >= 25) p_ptr->hold_life++;
+    if (p_ptr->lev >= 30) p_ptr->wizard_sight = TRUE;
     if (p_ptr->lev >= 35) res_add(RES_POIS);
     if (p_ptr->lev >= 45) p_ptr->hold_life++;
 }
@@ -580,6 +533,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 600;
         me.options = CASTER_GLOVE_ENCUMBRANCE;
+        me.realm1_choices = CH_NECROMANCY;
         init = TRUE;
     }
     return &me;
@@ -587,8 +541,8 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_ROBE, 1);
-    py_birth_spellbooks();
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_ROBE, 1);
+    plr_birth_spellbooks();
 }
 
 static bool _destroy_object(obj_ptr obj)
@@ -617,19 +571,41 @@ static bool _destroy_object(obj_ptr obj)
     }
     return FALSE;
 }
-
-class_t *necromancer_get_class(void)
+static void _kill_monster(mon_ptr mon)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    if (!a_info[ART_HAND_OF_VECNA].generated && mon->r_idx == MON_VECNA)
+    {
+        object_type forge;
+        if (art_create_std(&forge, ART_HAND_OF_VECNA, 0))
+        {
+            a_info[ART_HAND_OF_VECNA].generated = TRUE;
+            drop_near(&forge, p_ptr->pos, -1);
+        }
+    }
+    else if ( !a_info[ART_EYE_OF_VECNA].generated && mon_is_undead(mon) 
+           && (mon_is_unique(mon) || mon->r_idx == MON_NAZGUL) )
+    {
+        object_type forge;
+        mon_race_ptr race = mon_race(mon);
+        if (race->level >= 50 && randint0(200) < race->level && art_create_std(&forge, ART_EYE_OF_VECNA, 0))
+        {
+            a_info[ART_EYE_OF_VECNA].generated = TRUE;
+            drop_near(&forge, p_ptr->pos, -1);
+        }
+    }
+}
+plr_class_ptr necromancer_get_class(void)
+{
+    static plr_class_ptr me = NULL;
 
-    if (!init)
-    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  40,  38,   4,  16,  20,  34,  20};
-    skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
+    if (!me)
+    {               /* dis, dev, sav, stl, srh, fos, thn, thb */
+        skills_t bs = { 30,  40,  38,   4,  16,  20,  34,  20};
+        skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
 
-        me.name = "Necromancer";
-        me.desc = "A Necromancer attempts to gain both power and knowledge through "
+        me = plr_class_alloc(CLASS_NECROMANCER);
+        me->name = "Necromancer";
+        me->desc = "A Necromancer attempts to gain both power and knowledge through "
                   "communion with the dead. They use powerful necromancy magic to "
                   "summon aid from the dead, whether directly in terms of undead "
                   "servitude, or indirectly through other-worldly knowledge. Necromancy "
@@ -640,30 +616,32 @@ class_t *necromancer_get_class(void)
                   "In addition, they forever hunt for the legendary Eye and Hand of Vecna in "
                   "order to complete their power.",
         
-        me.stats[A_STR] = -2;
-        me.stats[A_INT] =  3;
-        me.stats[A_WIS] = -4;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] = -1;
-        me.stats[A_CHR] = -2;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 95;
-        me.base_hp = 2;
-        me.exp = 125;
-        me.pets = 10;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] = -2;
+        me->stats[A_INT] =  3;
+        me->stats[A_WIS] = -4;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] = -1;
+        me->stats[A_CHR] = -2;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 95;
+        me->base_hp = 2;
+        me->exp = 125;
+        me->pets = 10;
+        me->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG | CLASS_MAGE_BONUS;
 
-        me.birth = _birth;
-        me.caster_info = _caster_info;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.get_powers = _get_powers;
-        me.character_dump = spellbook_character_dump;
-        me.destroy_object = _destroy_object;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = spellbook_character_dump;
+        me->hooks.destroy_object = _destroy_object;
+        me->hooks.kill_monster = _kill_monster;
+        me->hooks.timer_on = repose_timer_on;
+        me->hooks.timer_off = repose_timer_off;
     }
 
-    return &me;
+    return me;
 }

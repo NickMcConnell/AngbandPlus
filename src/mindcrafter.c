@@ -1,6 +1,6 @@
 #include "angband.h"
 
-void _precognition_spell(int cmd, variant *res)
+void _precognition_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -37,7 +37,7 @@ void _precognition_spell(int cmd, variant *res)
         {
             virtue_add(VIRTUE_KNOWLEDGE, 1);
             virtue_add(VIRTUE_ENLIGHTENMENT, 1);
-            wiz_lite(p_ptr->tim_superstealth > 0);
+            wiz_lite();
         }
         else if (p_ptr->lev > 19)
             map_area(DETECT_RAD_MAP);
@@ -57,7 +57,7 @@ void _precognition_spell(int cmd, variant *res)
         }
 
         if ((p_ptr->lev > 24) && (p_ptr->lev < 40))
-            set_tim_esp(p_ptr->lev + randint1(p_ptr->lev), FALSE);
+            plr_tim_add(T_TELEPATHY, p_ptr->lev + randint1(p_ptr->lev));
 
         if (!b) msg_print("You feel safe.");
 
@@ -90,7 +90,7 @@ void _precognition_spell(int cmd, variant *res)
     }
 }
 
-void _neural_blast_spell(int cmd, variant *res)
+void _neural_blast_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -129,7 +129,7 @@ void _neural_blast_spell(int cmd, variant *res)
     }
 }
 
-void _minor_displacement_spell(int cmd, variant *res)
+void _minor_displacement_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -176,7 +176,7 @@ void _minor_displacement_spell(int cmd, variant *res)
     }
 }
 
-void _major_displacement_spell(int cmd, variant *res)
+void _major_displacement_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -201,7 +201,7 @@ void _major_displacement_spell(int cmd, variant *res)
     }
 }
 
-void _domination_spell(int cmd, variant *res)
+void _domination_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -237,7 +237,7 @@ void _domination_spell(int cmd, variant *res)
     }
 }
 
-void _pulverise_spell(int cmd, variant *res)
+void _pulverise_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -279,7 +279,7 @@ void _pulverise_spell(int cmd, variant *res)
     }
 }
 
-void _character_armor_spell(int cmd, variant *res)
+void _character_armor_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -296,12 +296,12 @@ void _character_armor_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int dur = spell_power(p_ptr->lev + randint1(p_ptr->lev));
-        set_shield(dur, FALSE);
-        if (p_ptr->lev > 14) set_oppose_acid(dur, FALSE);
-        if (p_ptr->lev > 19) set_oppose_fire(dur, FALSE);
-        if (p_ptr->lev > 24) set_oppose_cold(dur, FALSE);
-        if (p_ptr->lev > 29) set_oppose_elec(dur, FALSE);
-        if (p_ptr->lev > 34) set_oppose_pois(dur, FALSE);
+        plr_tim_add(T_STONE_SKIN, dur);
+        if (p_ptr->lev > 14) plr_tim_add(T_RES_ACID, dur);
+        if (p_ptr->lev > 19) plr_tim_add(T_RES_FIRE, dur);
+        if (p_ptr->lev > 24) plr_tim_add(T_RES_COLD, dur);
+        if (p_ptr->lev > 29) plr_tim_add(T_RES_ELEC, dur);
+        if (p_ptr->lev > 34) plr_tim_add(T_RES_POIS, dur);
         var_set_bool(res, TRUE);
         break;
     }
@@ -311,7 +311,7 @@ void _character_armor_spell(int cmd, variant *res)
     }
 }
 
-void _psychometry_spell(int cmd, variant *res)
+void _psychometry_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -338,7 +338,7 @@ void _psychometry_spell(int cmd, variant *res)
     }
 }
 
-void _mind_wave_spell(int cmd, variant *res)
+void _mind_wave_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -366,7 +366,7 @@ void _mind_wave_spell(int cmd, variant *res)
 
         if (p_ptr->lev < 25)
         {
-            project(0, 2 + p_ptr->lev / 10, py, px,
+            project(0, 2 + p_ptr->lev / 10, p_ptr->pos.y, p_ptr->pos.x,
                         spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell), GF_PSI, PROJECT_KILL);
         }
         else
@@ -383,7 +383,7 @@ void _mind_wave_spell(int cmd, variant *res)
     }
 }
 
-void _adrenaline_spell(int cmd, variant *res)
+void _adrenaline_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -400,12 +400,12 @@ void _adrenaline_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int dur = spell_power(15 + randint1(p_ptr->lev*3/2));
-        bool heal = !IS_FAST() || !IS_HERO(); /* Prevent spamming this as a weak healing spell */
+        bool heal = !plr_tim_find(T_FAST);
 
-        set_stun(0, TRUE);
+        plr_tim_remove(T_STUN);
 
-        set_hero(dur, FALSE);
-        set_fast(dur, FALSE);
+        plr_tim_add(T_HERO, dur);
+        plr_tim_add(T_FAST, dur);
 
         if (heal) /* Heal after granting Heroism to fill the +10 mhp */
             hp_player(p_ptr->lev);
@@ -419,7 +419,7 @@ void _adrenaline_spell(int cmd, variant *res)
     }
 }
 
-void _telekinesis_spell(int cmd, variant *res)
+void _telekinesis_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -448,7 +448,7 @@ void _telekinesis_spell(int cmd, variant *res)
     }
 }
 
-void _psychic_drain_spell(int cmd, variant *res)
+void _psychic_drain_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -485,7 +485,7 @@ void _psychic_drain_spell(int cmd, variant *res)
     }
 }
 
-void psycho_spear_spell(int cmd, variant *res)
+void psycho_spear_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -513,7 +513,7 @@ void psycho_spear_spell(int cmd, variant *res)
     }
 }
 
-void _psycho_storm_spell(int cmd, variant *res)
+void _psycho_storm_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -586,8 +586,8 @@ static void _calc_bonuses(void)
 {
     if (equip_find_art(ART_STONE_OF_MIND))
     {
-        p_ptr->dec_mana = TRUE;
-        p_ptr->easy_spell = TRUE;
+        p_ptr->dec_mana++;
+        p_ptr->easy_spell++;
     }
 
     if (p_ptr->lev >= 10) res_add(RES_FEAR);
@@ -595,7 +595,11 @@ static void _calc_bonuses(void)
     if (p_ptr->lev >= 20) p_ptr->sustain_wis = TRUE;
     if (p_ptr->lev >= 25) p_ptr->auto_id_sp = 12;
     if (p_ptr->lev >= 30) res_add(RES_CONF);
-    if (p_ptr->lev >= 40) p_ptr->telepathy = TRUE;
+    if (p_ptr->lev >= 40)
+    {
+        p_ptr->telepathy = TRUE;
+        p_ptr->wizard_sight = TRUE;
+    }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -621,25 +625,25 @@ static void _on_fail(const spell_info *spell)
             msg_print("Oh, no! Your mind has gone blank!");
             lose_all_info();
         }
-        else if (b < 15)
+        else if (b < 15 && !mut_present(MUT_WEIRD_MIND))
         {
             msg_print("Weird visions seem to dance before your eyes...");
-            set_image(p_ptr->image + 5 + randint1(10), FALSE);
+            plr_tim_add(T_HALLUCINATE, 5 + randint1(10));
         }
         else if (b < 45)
         {
             msg_print("Your brain is addled!");
-            set_confused(p_ptr->confused + randint1(8), FALSE);
+            plr_tim_add(T_CONFUSED, randint1(8));
         }
         else if (b < 90)
         {
-            set_stun(p_ptr->stun + randint1(8), FALSE);
+            if (!p_ptr->no_stun) plr_tim_add(T_STUN, randint1(8));
         }
         else
         {
             msg_print("Your mind unleashes its power in an uncontrollable storm!");
 
-            project(PROJECT_WHO_UNCTRL_POWER, 2 + p_ptr->lev / 10, py, px, p_ptr->lev * 2,
+            project(PROJECT_WHO_UNCTRL_POWER, 2 + p_ptr->lev / 10, p_ptr->pos.y, p_ptr->pos.x, p_ptr->lev * 2,
                 GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM);
             p_ptr->csp = MAX(0, p_ptr->csp - p_ptr->lev * MAX(1, p_ptr->lev / 10));
         }
@@ -668,29 +672,28 @@ static void _character_dump(doc_ptr doc)
     spell_info spells[MAX_SPELLS];
     int        ct = _get_spells(spells, MAX_SPELLS);
 
-    py_display_spells(doc, spells, ct);
+    plr_display_spells(doc, spells, ct);
 }
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_SMALL_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, rand_range(2, 5));
+    plr_birth_obj_aux(TV_HAFTED, SV_WAR_HAMMER, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_POTION, SV_POTION_SPEED, rand_range(2, 5));
 }
 
-class_t *mindcrafter_get_class(void)
+plr_class_ptr mindcrafter_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    /* static info never changes */
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  33,  38,   3,  22,  16,  50,  40 };
-    skills_t xs = { 10,  11,  10,   0,   0,   0,  14,  18 };
+    skills_t bs = { 30,  33,  38,   3,  22,  16,  50,  35 };
+    skills_t xs = { 10,  11,  10,   0,   0,   0,  14,  11 };
 
-        me.name = "Mindcrafter";
-        me.desc = "The Mindcrafter is a unique class that uses the powers of the mind "
+        me = plr_class_alloc(CLASS_MINDCRAFTER);
+        me->name = "Mindcrafter";
+        me->desc = "The Mindcrafter is a unique class that uses the powers of the mind "
                     "instead of magic. These powers are unique to Mindcrafters, and "
                     "vary from simple extrasensory powers to mental domination of "
                     "others. Since these powers are developed by the practice of "
@@ -702,30 +705,29 @@ class_t *mindcrafter_get_class(void)
                     "become stronger as they gain levels. They can use their power "
                     "even when blinded. They have a class power - 'Clear Mind' - which "
                     "allows them to rapidly regenerate their mana.";
-        me.stats[A_STR] = -1;
-        me.stats[A_INT] =  0;
-        me.stats[A_WIS] =  3;
-        me.stats[A_DEX] = -1;
-        me.stats[A_CON] = -1;
-        me.stats[A_CHR] =  2;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 100;
-        me.base_hp = 4;
-        me.exp = 125;
-        me.pets = 35;
-        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] = -1;
+        me->stats[A_INT] =  0;
+        me->stats[A_WIS] =  3;
+        me->stats[A_DEX] = -1;
+        me->stats[A_CON] = -1;
+        me->stats[A_CHR] =  2;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 100;
+        me->base_hp = 4;
+        me->exp = 125;
+        me->pets = 35;
+        me->flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.get_powers = _get_powers;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = _character_dump;
     }
 
-    return &me;
+    return me;
 }

@@ -27,7 +27,6 @@ enum
     SHOP_JEWELER,
 };
 
-extern shop_ptr shop_alloc(int which);
 extern shop_ptr shop_load(savefile_ptr file);
 extern void     shop_free(shop_ptr shop);
 
@@ -38,49 +37,90 @@ extern bool     shop_common_cmd_handler(int cmd); /* shared with home_ui */
 extern void     shop_display_inv(doc_ptr doc, inv_ptr inv, slot_t top, int page_size);
 extern void     shop_save(shop_ptr shop, savefile_ptr file);
 
+/************************************************************************
+ * Buildings
+ ***********************************************************************/
+struct bldg_s;
+typedef struct bldg_s bldg_t, *bldg_ptr;
+
+enum
+{
+    BLDG_NONE = 0,
+    BLDG_INN = 1,
+    BLDG_CASTLE,
+    BLDG_FIGHTERS_GUILD,
+    BLDG_ARCHERS_GUILD,
+    BLDG_THIEVES_GUILD,
+    BLDG_WIZARDS_GUILD,
+    BLDG_PRIESTS_GUILD,
+    BLDG_HUNTERS_OFFICE,
+};
+
+extern bldg_ptr bldg_load(savefile_ptr file);
+extern void     bldg_save(bldg_ptr bldg, savefile_ptr file);
+extern void     bldg_free(bldg_ptr bldg);
+extern void     bldg_ui(bldg_ptr bldg);
 
 /************************************************************************
  * Towns
  ***********************************************************************/
-struct town_s;
 typedef struct town_s town_t, *town_ptr;
+struct town_s
+{
+   int         id;
+   int         level;
+   char       *name;
+   char       *file;
+   int       (*mon_alloc_f)(mon_race_ptr race, int prob);
+   bool      (*owner_race_p)(int race_id);
+   void      (*kill_mon_f)(mon_ptr mon);
+   void      (*populate_f)(dun_ptr dun, rect_t rect);
+   point_t     world_pos;
+   int_map_ptr shops;
+   int_map_ptr bldgs;
+   u32b        flags;
+};
+#define TF_VISITED  0x0001
+#define TF_SECRET   0x0002
+#define TF_FRIENDLY 0x0004
+
+extern void town_reset(town_ptr town);
 
 enum
 {
-    TOWN_OUTPOST = 1,
-    TOWN_TELMORA,
-    TOWN_MORIVANT,
-    TOWN_ANGWIL,
-    TOWN_ZUL,
+    TOWN_NONE = 0,
     TOWN_RANDOM,
-    TOWN_MIN = TOWN_OUTPOST,
-    TOWN_MAX = TOWN_RANDOM,
-    TOWN_MAX_STD = TOWN_ANGWIL,
-    /* XXX This may get redone at some point. See the q_info.txt changes
-     * for my thoughts ... */
+    TOWN_RIVENDELL,
+    TOWN_BEORN,
+    TOWN_LAKETOWN,
+    TOWN_EDORAS,
+    TOWN_MINAS_TIRITH,
+    TOWN_OSGILIATH,
+    TOWN_MORANNON,
 };
 
-extern void     towns_init(void);
+extern void     towns_reset_world(void);
+
+extern int      towns_parse(cptr name);
+extern town_ptr towns_lookup(int which);
 
 extern town_ptr towns_current_town(void);
-extern town_ptr towns_get_town(int which);
+extern town_ptr towns_choose(bool wizard);
 extern void     towns_save(savefile_ptr file);
 extern void     towns_load(savefile_ptr file);
-extern void     towns_on_turn_overflow(int rollback_turns);
 
 extern void     towns_init_buildings(void);
-extern room_ptr towns_get_map(void);
-                /* Comment: atm, t_info.txt uses $TOWN to load the correct
-                 * file (p_ptr->town_num). This should change to town_get_map(town_ptr)
-                 * in my opinion. Also, atm, buildings are global and stored outside
-                 * of the town but are initialized when the appropriate t_*.txt file
-                 * is parsed. I think town_t should own buildings as well as shops (later) */
+extern room_ptr towns_get_map(int town_id);
+
+extern town_ptr town_alloc(int which, cptr name);
+extern void     town_free(town_ptr town);
 
 extern shop_ptr town_get_shop(town_ptr town, int which);
+extern bldg_ptr town_get_bldg(town_ptr town, int which);
 
 extern void     town_on_visit(int which);
-extern bool     town_visited(int which);
 extern cptr     town_name(int which);
+extern void     town_save(town_ptr town, savefile_ptr file);
+extern void     town_load(town_ptr town, savefile_ptr file);
 
-extern int      town_service_price(int price);
 #endif

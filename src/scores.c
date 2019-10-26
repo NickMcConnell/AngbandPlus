@@ -42,22 +42,6 @@ static char *_killer(void)
     return NULL;
 }
 
-static int _max_depth(void)
-{
-    int result = 0;
-    int i;
-
-    for(i = 1; i < max_d_idx; i++)
-    {
-        if (!d_info[i].maxdepth) continue;
-        if (d_info[i].flags1 & DF1_RANDOM) continue;
-        if (!max_dlv[i]) continue;
-        result = MAX(result, max_dlv[i]);
-    }
-
-    return result;
-}
-
 /************************************************************************
  * Score Entries
  ************************************************************************/
@@ -91,15 +75,15 @@ score_ptr score_current(void)
     score->personality = _str_copy(personality->name);
 
     score->gold = p_ptr->au;
-    score->turns = player_turn;
+    score->turns = p_ptr->turn;
     score->clvl = p_ptr->lev;
-    score->dlvl = dun_level;
+    score->dlvl = cave->dun_lvl;
     score->dungeon = _str_copy(map_name());
     score->killer = _killer();
     score->status = _status();
 
     score->exp = p_ptr->exp;
-    score->max_depth = _max_depth();
+    score->max_depth = plr_max_dun_lvl();
     score->fame = p_ptr->fame;
 
     return score;
@@ -270,8 +254,16 @@ static bool score_is_dead(score_ptr score)
 static FILE *_scores_fopen(cptr name, cptr mode)
 {
     char buf[1024];
-    path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, name);
+    path_build(buf, sizeof(buf), ANGBAND_DIR_SCORES, name);
     return my_fopen(buf, mode);
+}
+
+static FILE *_scores_html_fopen(cptr name, cptr mode)
+{
+    char buf1[1024], buf2[1024];
+    path_build(buf1, sizeof(buf1), ANGBAND_DIR_SCORES, "html");
+    path_build(buf2, sizeof(buf2), buf1, name);
+    return my_fopen(buf2, mode);
 }
 
 vec_ptr scores_load(score_p filter)
@@ -335,7 +327,7 @@ int scores_next_id(void)
         return 1;
     }
    
-    fscanf(fp, "%d", &next);
+    if (1 != fscanf(fp, "%d", &next)) next = 1;
     fclose(fp);
     fp = _scores_fopen("next", "w");
     fprintf(fp, "%d", next + 1);
@@ -370,7 +362,7 @@ void scores_update(void)
     if (fp)
     {
         doc_ptr doc = doc_alloc(80);
-        py_display_character_sheet(doc);
+        plr_display_character_sheet(doc);
         doc_write_file(doc, fp, DOC_FORMAT_DOC);
         doc_free(doc);
         fclose(fp);
@@ -395,7 +387,11 @@ static void _display(doc_ptr doc, vec_ptr scores, int top, int page_size)
     {
         score_ptr score;
         j = top + i;
-        if (j >= vec_length(scores)) break;
+        if (j >= vec_length(scores))
+        {
+            doc_newline(doc); /* for scrolling */
+            continue;
+        }
         score = vec_get(scores, j);
         if (score->id == p_ptr->id)
             doc_insert(doc, "<color:B>");
@@ -415,9 +411,9 @@ static void _display(doc_ptr doc, vec_ptr scores, int top, int page_size)
     }
     doc_insert(doc, "</style>");
     doc_insert(doc, "\n <color:U>Press corresponding letter to view last character sheet.</color>\n");
-    doc_insert(doc, " <color:U>Press <color:keypress>^N</color> to sort by Name, <color:keypress>^R</color> to sort by Race, etc.</color>\n");
+    doc_insert(doc, " <color:U>Press <color:keypress>|</color> to export to html. Press <color:keypress>^N</color> to sort by Name, etc.</color>\n");
     if (page_size < vec_length(scores))
-        doc_insert(doc, " <color:U>Use <color:keypress>PageUp</color> and <color:keypress>PageDown</color> to scroll.</color>\n");
+        doc_insert(doc, " <color:U>Press <color:keypress>PageUp</color>, <color:keypress>PageDown</color>, <color:keypress>Up</color> and <color:keypress>Down</color> to scroll.</color>\n");
     doc_sync_menu(doc);
 }
 /* Generating html dumps from the scores directory will omit the html header
@@ -480,6 +476,96 @@ static void _show_dump(score_ptr score)
         Term_clear();
     }
 }
+
+static void _export_dump(score_ptr score)
+{
+    char  name[30];
+    FILE *fp;
+
+    /* copy scores/dump<id>.doc to scores/html/dump<id>.html */
+    sprintf(name, "dump%d.doc", score->id);
+    fp = _scores_fopen(name, "r");
+    if (fp)
+    {
+        doc_ptr doc = doc_alloc(80);
+        doc_read_file(doc, fp);
+        fclose(fp);
+
+        _add_html_header(score, doc);
+        sprintf(name, "dump%d.html", score->id);
+        doc_change_name(doc, name);
+
+        fp = _scores_html_fopen(name, "w");
+        if (fp)
+        {
+            doc_write_file(doc, fp, DOC_FORMAT_HTML);
+            fclose(fp);
+        }
+
+        doc_free(doc);
+    }
+}
+
+static void _html_color(FILE *fp, byte a)
+{
+    fprintf(fp,
+        "<font color=\"#%02x%02x%02x\">",
+        angband_color_table[a][1],
+        angband_color_table[a][2],
+        angband_color_table[a][3]
+    );
+}
+static void _export(vec_ptr scores)
+{
+    int i;
+    FILE *fp = _scores_html_fopen("scores.html", "w");
+
+    if (!fp) return;
+    fprintf(fp, "<!DOCTYPE html>\n<html>\n");
+    fprintf(fp, "<body text=\"#ffffff\" bgcolor=\"#000000\"><pre>\n");
+    _html_color(fp, TERM_L_RED);
+    fprintf(fp, "%-32.32sHigh Score Listing</font>\n", "");
+    _html_color(fp, TERM_L_GREEN);
+    fprintf(fp, "    Name            CL Race         Class            Score Rank Date       Status</font>\n");
+
+    for (i = 0; i < vec_length(scores); i++)
+    {
+        score_ptr score = vec_get(scores, i);
+        _export_dump(score);
+
+        fprintf(fp, "    <a href=\"dump%d.html\">", score->id);
+        _html_color(fp, TERM_L_UMBER);
+        if (strlen(score->name) < 15)
+        {
+            int j, ct = 15 - strlen(score->name);
+            fprintf(fp, "%s</font></a>", score->name);
+            for (j = 0; j < ct; j++)
+                fputc(' ', fp);
+        }
+        else
+            fprintf(fp, "%-15.15s</font></a>", score->name);
+        fprintf(fp, " %2d %-12.12s %-13.13s", score->clvl, score->race, score->class_);
+        fprintf(fp, " %8d %4d", score->score, i + 1);
+        fprintf(fp, " %s", score->date);
+        if (score_is_winner(score))
+        {
+            _html_color(fp, TERM_VIOLET);
+            fprintf(fp, " Winner</font>");
+        }
+        else if (score_is_dead(score))
+        {
+            _html_color(fp, TERM_RED);
+            fprintf(fp, " Dead</font>");
+        }
+        else
+            fprintf(fp, " Alive");
+        fputc('\n', fp);
+    }
+
+    fprintf(fp, "</pre></body></html>\n");
+    fclose(fp);
+}
+
 void scores_display(vec_ptr scores)
 {
     doc_ptr   doc = doc_alloc(100);
@@ -509,6 +595,14 @@ void scores_display(vec_ptr scores)
             if (top >= page_size)
                 top -= page_size;
             break;
+        case SKEY_UP: case '8':
+            if (top > 0)
+                top--;
+            break;
+        case SKEY_DOWN: case '2':
+            if (top + 1 < vec_length(scores))
+                top++;
+            break;
         case KTRL('S'):
             vec_sort(scores, (vec_cmp_f)score_cmp_score);
             top = 0;
@@ -528,6 +622,9 @@ void scores_display(vec_ptr scores)
         case KTRL('N'):
             vec_sort(scores, (vec_cmp_f)score_cmp_name);
             top = 0;
+            break;
+        case '|':
+            _export(scores);
             break;
         default:
             if (islower(cmd))

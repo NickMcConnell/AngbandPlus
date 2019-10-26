@@ -39,8 +39,8 @@ static void _birth(void)
 
     p_ptr->au = 50000;
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 static int _get_toggle(void)
@@ -66,33 +66,28 @@ static int _set_toggle(s32b toggle)
 /**********************************************************************
  * Innate Attacks
  **********************************************************************/
+static void _calc_innate_bonuses(mon_blow_ptr blow)
+{
+    if (blow->method == RBM_TOUCH)
+        plr_calc_blows_innate(blow, 300);
+}
 static void _calc_innate_attacks(void)
 {
-    if (p_ptr->weapon_ct == 0 && equip_find_empty_hand())
-    {
-        innate_attack_t    a = {0};
-        int l = p_ptr->lev;
+    int l = p_ptr->lev;
+    mon_blow_ptr blow = mon_blow_alloc(RBM_TOUCH);
 
-        a.dd = 1;
-        a.ds = 3 + l / 15;
-        a.weight = 2;
-        a.to_h = p_ptr->lev/5;
-
-        a.effect[1] = GF_STEAL;
-
-        calc_innate_blows(&a, 300);
-
-        a.msg = "You pilfer.";
-        a.name = "Greedy Hands";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
+    blow->name = "Greedy Hands";
+    blow->msg = "You pilfer.";
+    blow->power = l;
+    mon_blow_push_effect(blow, RBE_EAT_ITEM, dice_create(1, 3 + l/15, 0));
+    _calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
 }
 
 /****************************************************************
  * Spells
  ****************************************************************/
-static void _toggle_spell(int which, int cmd, variant *res)
+static void _toggle_spell(int which, int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -116,7 +111,7 @@ static void _toggle_spell(int which, int cmd, variant *res)
     }
 }
 
-void blink_toggle_spell(int cmd, variant *res)
+void blink_toggle_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -132,7 +127,7 @@ void blink_toggle_spell(int cmd, variant *res)
     }
 }
 
-void _hoarding_toggle_spell(int cmd, variant *res)
+void _hoarding_toggle_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -151,7 +146,7 @@ void _hoarding_toggle_spell(int cmd, variant *res)
 /**********************************************************************
  * Leprechaun Spells and Abilities
  **********************************************************************/
-void _fanaticism_spell(int cmd, variant *res)
+void _fanaticism_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -171,7 +166,7 @@ void _fanaticism_spell(int cmd, variant *res)
         y = target_row;
 
         for (i = 0; i < 8; i++)
-            summon_named_creature(-1, y, x, MON_LEPRECHAUN_FANATIC, PM_FORCE_PET);
+            summon_named_creature(-1, point_create(x, y), MON_LEPRECHAUN_FANATIC, PM_FORCE_PET);
 
         var_set_bool(res, TRUE);
         break;
@@ -283,12 +278,12 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     }
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    info_ptr->xtra_blow += MIN(p_ptr->au / 100000, 100);
+    info->xtra_blow += MIN(p_ptr->au / 100000, 100);
 }
 
-static void _player_action(int energy_use)
+static void _player_action(void)
 {
     if (_get_toggle() == LEPRECHAUN_TOGGLE_BLINK)
         teleport_player(10, TELEPORT_LINE_OF_SIGHT);
@@ -327,31 +322,14 @@ int leprechaun_get_toggle(void)
 bool leprechaun_steal(int m_idx)
 {
     bool result = FALSE;
-    monster_type *m_ptr = &m_list[m_idx];
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_type *m_ptr = dun_mon(cave, m_idx);
 
     if ( !mon_save_p(m_ptr->r_idx, A_DEX)
-      || (MON_CSLEEP(m_ptr) && !mon_save_p(m_ptr->r_idx, A_DEX)))
+      || (mon_tim_find(m_ptr, MT_SLEEP) && !mon_save_p(m_ptr->r_idx, A_DEX)))
     {
-        object_type loot = {0};
+        obj_ptr loot = mon_pick_pocket(m_ptr);
 
-        if (m_ptr->hold_o_idx && one_in_(2))
-        {
-            object_copy(&loot, &o_list[m_ptr->hold_o_idx]);
-            delete_object_idx(m_ptr->hold_o_idx);
-            loot.held_m_idx = 0;
-        }
-        else if (m_ptr->drop_ct > m_ptr->stolen_ct)
-        {
-            if (get_monster_drop(m_idx, &loot))
-            {
-                m_ptr->stolen_ct++;
-                if (r_ptr->flags1 & RF1_UNIQUE)
-                    r_ptr->stolen_ct++;
-            }
-        }
-
-        if (!loot.k_idx)
+        if (!loot)
         {
             msg_print("There is nothing to steal!");
         }
@@ -360,27 +338,28 @@ bool leprechaun_steal(int m_idx)
             char o_name[MAX_NLEN];
 
             result = TRUE;
-            object_desc(o_name, &loot, 0);
+            object_desc(o_name, loot, 0);
             if (mon_save_p(m_ptr->r_idx, A_DEX))
             {
                 msg_format("Oops! You drop %s.", o_name);
-                drop_near(&loot, -1, py, px);
+                drop_near(loot, p_ptr->pos, -1);
             }
-            else if (loot.tval == TV_GOLD)
+            else if (loot->tval == TV_GOLD)
             {
-                msg_format("You steal %d gold pieces worth of %s.", (int)loot.pval, o_name);
+                msg_format("You steal %d gold pieces worth of %s.", (int)loot->pval, o_name);
                 sound(SOUND_SELL);
-                p_ptr->au += loot.pval;
-                stats_on_gold_find(loot.pval);
+                p_ptr->au += loot->pval;
+                stats_on_gold_find(loot->pval);
                 p_ptr->redraw |= (PR_GOLD);
-                if (prace_is_(RACE_MON_LEPRECHAUN))
+                if (prace_is_(RACE_MON_LEPRECHAUN)) /* possessors and mimics require this check */
                     p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
             }
             else
             {
-                pack_carry(&loot);
+                pack_carry(loot);
                 msg_format("You steal %s.", o_name);
             }
+            obj_free(loot);
         }
     }
     return result;
@@ -411,60 +390,60 @@ bool _destroy_object(object_type *o_ptr)
     return FALSE;
 }
 
-race_t *mon_leprechaun_get_race(void)
+plr_race_ptr mon_leprechaun_get_race(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[3] =  {"Cheerful Leprechaun", "Malicious Leprechaun", "Death Leprechaun"};
     int           rank = 0;
 
     if (p_ptr->lev >= 15) rank++;
     if (p_ptr->lev >= 30) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  45,  38,  10,  24,  16,  48,  50 };
     skills_t xs = { 12,  18,  11,   1,   0,   0,  13,  10 };
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_LEPRECHAUN);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.name = "Leprechaun";
-        me.desc = _desc;
+        me->name = "Leprechaun";
+        me->desc = _desc;
 
-        me.infra = 5;
-        me.exp = 150;
-        me.base_hp = 15;
-        me.shop_adjust = 85;
+        me->infra = 5;
+        me->exp = 150;
+        me->base_hp = 15;
+        me->shop_adjust = 85;
 
-        me.get_spells = _get_spells;
-        me.caster_info = _caster_info;
-        me.calc_innate_attacks = _calc_innate_attacks;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
-        me.birth = _birth;
-        me.player_action = _player_action;
-        me.destroy_object = _destroy_object;
-        me.pseudo_class_idx = CLASS_ROGUE;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.calc_innate_attacks = _calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = _calc_innate_bonuses;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.birth = _birth;
+        me->hooks.player_action = _player_action;
+        me->hooks.destroy_object = _destroy_object;
 
-        me.flags = RACE_IS_MONSTER;
-        init = TRUE;
+        me->pseudo_class_idx = CLASS_ROGUE;
+        me->flags = RACE_IS_MONSTER;
     }
 
-    me.life = 80;
+    me->life = 80;
     if (!spoiler_hack)
-        me.life += MIN(p_ptr->au / 500000, 20);
+        me->life += MIN(p_ptr->au / 500000, 20);
 
     if (!birth_hack && !spoiler_hack)
-        me.subname = titles[rank];
-    me.stats[A_STR] = -2 - 2*rank;
-    me.stats[A_INT] = 1;
-    me.stats[A_WIS] = 1;
-    me.stats[A_DEX] = 3 + 2*rank;
-    me.stats[A_CON] = -2;
-    me.stats[A_CHR] = -2;
+        me->subname = titles[rank];
+    me->stats[A_STR] = -2 - 2*rank;
+    me->stats[A_INT] = 1;
+    me->stats[A_WIS] = 1;
+    me->stats[A_DEX] = 3 + 2*rank;
+    me->stats[A_CON] = -2;
+    me->stats[A_CHR] = -2;
 
-    return &me;
+    return me;
 }

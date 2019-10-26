@@ -1,6 +1,247 @@
 #include "angband.h"
 
-void _blood_flow_spell(int cmd, variant *res)
+/************************************************************************
+ * Timers
+ ************************************************************************/
+enum {
+    _SIGHT = T_CUSTOM,
+    _SHIELD,
+    _SEEK,
+    _FEAST,
+    _REVENGE,
+};
+
+/* _SIGHT */
+static bool _sight_on(plr_tim_ptr timer)
+{
+    msg_print("You sense life!");
+    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    return TRUE;
+}
+static void _sight_off(plr_tim_ptr timer)
+{
+    msg_print("You no longer sense life.");
+    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+}
+static void _sight_bonus(plr_tim_ptr timer)
+{
+    p_ptr->esp_living = TRUE;
+}
+static void _sight_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
+{
+    /*add_flag(flgs, OF_ESP_LIVING);*/
+}
+static status_display_t _sight_display(plr_tim_ptr timer)
+{
+    return status_display_create("Sight", "Si", TERM_L_BLUE);
+}
+static plr_tim_info_ptr _sight_timer(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_SIGHT, "Blood Sight");
+    info->desc = "You sense the presence of living monsters around you.";
+    info->on_f = _sight_on;
+    info->off_f = _sight_off;
+    info->calc_bonuses_f = _sight_bonus;
+    info->flags_f = _sight_flags;
+    info->status_display_f = _sight_display;
+    return info;
+}
+
+/* _SHIELD */
+static bool _shield_on(plr_tim_ptr timer)
+{
+    msg_print("You are shielded in blood!");
+    p_ptr->update |= PU_BONUS;
+    return TRUE;
+}
+static void _shield_off(plr_tim_ptr timer)
+{
+    msg_print("Your blood shield vanishes.");
+    p_ptr->update |= PU_BONUS;
+}
+static void _shield_bonus(plr_tim_ptr timer)
+{
+    int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
+    plr_bonus_ac(amt);
+    if (amt > 60)
+        p_ptr->reflect = TRUE;
+}
+static void _shield_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
+{
+    int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
+    if (amt > 60)
+        add_flag(flgs, OF_REFLECT);
+}
+static status_display_t _shield_display(plr_tim_ptr timer)
+{
+    return status_display_create("Shield", "Sh", TERM_ORANGE);
+}
+static plr_tim_info_ptr _shield_timer(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_SHIELD, "Blood Shield");
+    info->desc = "You are protected by a blood shield.";
+    info->on_f = _shield_on;
+    info->off_f = _shield_off;
+    info->calc_bonuses_f = _shield_bonus;
+    info->flags_f = _shield_flags;
+    info->status_display_f = _shield_display;
+    info->dispel_prob = 100;
+    return info;
+}
+
+/* _SEEK */
+static bool _seek_on(plr_tim_ptr timer)
+{
+    msg_print("Your weapon thirsts for life!");
+    p_ptr->update |= PU_BONUS;
+    return TRUE;
+}
+static void _seek_off(plr_tim_ptr timer)
+{
+    msg_print("Your weapon no longer thirsts for life.");
+    p_ptr->update |= PU_BONUS;
+}
+static void _seek_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
+{
+    if (info->type != PAT_WEAPON) return;
+    add_flag(info->obj_flags, OF_SLAY_LIVING);
+    add_flag(info->obj_known_flags, OF_SLAY_LIVING);
+}
+static void _seek_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
+{
+    add_flag(flgs, OF_SLAY_LIVING);
+}
+static status_display_t _seek_display(plr_tim_ptr timer)
+{
+    return status_display_create("Seek", "Sk", TERM_YELLOW);
+}
+static plr_tim_info_ptr _seek_timer(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_SEEK, "Blood Seeking");
+    info->desc = "Your weapon thirsts for life.";
+    info->on_f = _seek_on;
+    info->off_f = _seek_off;
+    info->calc_weapon_bonuses_f = _seek_weapon_bonus;
+    info->flags_f = _seek_flags;
+    info->status_display_f = _seek_display;
+    return info;
+}
+
+/* _FEAST */
+static bool _feast_on(plr_tim_ptr timer)
+{
+    msg_print("You begin to feast on blood!");
+    p_ptr->update |= PU_BONUS;
+    return TRUE;
+}
+static void _feast_off(plr_tim_ptr timer)
+{
+    msg_print("You no longer feast on blood.");
+    p_ptr->update |= PU_BONUS;
+}
+static void _feast_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
+{
+    if (info->type != PAT_WEAPON) return;
+    info->to_d += 35;
+    info->dis_to_d += 35;
+}
+static status_display_t _feast_display(plr_tim_ptr timer)
+{
+    return status_display_create("Feast", "Fs", TERM_WHITE);
+}
+static plr_tim_info_ptr _feast_timer(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_FEAST, "Blood Feast");
+    info->desc = "Your weapon feasts on blood, granting extra damage but at a cost to your own health.";
+    info->on_f = _feast_on;
+    info->off_f = _feast_off;
+    info->calc_weapon_bonuses_f = _feast_weapon_bonus;
+    info->status_display_f = _feast_display;
+    info->dispel_prob = 100;
+    return info;
+}
+
+/* _REVENGE */
+static bool _revenge_on(plr_tim_ptr timer)
+{
+    msg_print("Its time for bloody revenge!");
+    return TRUE;
+}
+static void _revenge_off(plr_tim_ptr timer)
+{
+    msg_print("The time for bloody revenge has passed.");
+}
+static status_display_t _revenge_display(plr_tim_ptr timer)
+{
+    return status_display_create("Revenge", "Rv", TERM_RED);
+}
+static plr_tim_info_ptr _revenge_timer(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_REVENGE, "Bloody Revenge");
+    info->desc = "You exact retribution on those that dare attack you.";
+    info->on_f = _revenge_on;
+    info->off_f = _revenge_off;
+    info->status_display_f = _revenge_display;
+    info->dispel_prob = 100;
+    return info;
+}
+
+static void _register_timers(void)
+{
+    plr_tim_register(_sight_timer());
+    plr_tim_register(_shield_timer());
+    plr_tim_register(_seek_timer());
+    plr_tim_register(_feast_timer());
+    plr_tim_register(_revenge_timer());
+}
+
+/************************************************************************
+ * Melee
+ ************************************************************************/
+static void _feast_hit(plr_attack_ptr context)
+{
+    if (context->info.type != PAT_WEAPON) return;
+    take_hit(DAMAGE_ATTACK, 15, "blood feast");
+}
+static void _attack_init(plr_attack_ptr context)
+{
+    if (plr_tim_find(_FEAST))
+        context->hooks.after_hit_f = _feast_hit;
+}
+static void _revenge_hit(mon_attack_ptr context)
+{
+    int dam;
+    if (context->stop) return;
+    if (!mon_is_living(context->mon)) return;
+
+    /* Scale the damage based on cuts and monster deadliness */
+    dam = context->dam * plr_tim_amount(T_CUT) / CUT_SEVERE;
+
+    /* Balance out a weak melee attack */
+    if (dam < plr_tim_amount(T_CUT) / 10)
+        dam = plr_tim_amount(T_CUT) / 10;
+
+    /* Not too powerful */
+    if (dam > 50)
+        dam = 50;
+
+    dam = mon_damage_mod(context->mon, dam, FALSE);
+    if (dam > 0)
+    {
+        msg_format("%^s feels your bloody revenge!", context->mon_name);
+        if (mon_take_hit(context->mon->id, dam, &context->fear, " turns into a pool of blood."))
+            context->stop = STOP_MON_DEAD;
+    }
+}
+static void _mon_attack_init(mon_attack_ptr context)
+{
+    if (plr_tim_find(_REVENGE))
+        context->after_hit_f = _revenge_hit;
+}
+/************************************************************************
+ * Spells
+ ************************************************************************/
+static void _flow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -10,17 +251,14 @@ void _blood_flow_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Cuts yourself.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Gives player Light Cut (10) status, or increases current cut status by 20%, whichever is greater.");
-        break;
     case SPELL_CAST:
     {
-        int cut = p_ptr->cut;
+        int cut = plr_tim_amount(T_CUT);
         cut += cut/5;
         if (cut < CUT_LIGHT)
             cut = CUT_LIGHT;
 
-        set_cut(cut, FALSE);
+        plr_tim_add(T_CUT, cut);
         var_set_bool(res, TRUE);
         break;
     }
@@ -30,7 +268,7 @@ void _blood_flow_spell(int cmd, variant *res)
     }
 }
 
-void _blood_sight_spell(int cmd, variant *res)
+static void _sight_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -40,15 +278,12 @@ void _blood_sight_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Detects living creatures in the vicinity.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Detects living creatures in the vicinity. At L30, gives temporary ESP Living for 30+d30 rounds.");
-        break;
     case SPELL_CAST:
     {
         if (p_ptr->lev < 30)
             detect_monsters_living(DETECT_RAD_DEFAULT, "You sense potential blood!");
         else
-            set_tim_blood_sight(randint1(30) + 30, FALSE);
+            plr_tim_add(_SIGHT, randint1(30) + 30);
         var_set_bool(res, TRUE);
         break;
     }
@@ -58,7 +293,7 @@ void _blood_sight_spell(int cmd, variant *res)
     }
 }
 
-void _blood_spray_spell(int cmd, variant *res)
+static void _spray_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -67,9 +302,6 @@ void _blood_spray_spell(int cmd, variant *res)
         break;
     case SPELL_DESC:
         var_set_string(res, "Cuts yourself, splattering nearby enemies.");
-        break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Generates a radius 3 blood ball centered on the player for 2*(3d5+L+L/5) damage. Radius is increased to 4 at L30.");
         break;
     case SPELL_INFO:
         var_set_string(res, info_damage(3, 5, p_ptr->lev + p_ptr->lev/4));
@@ -81,7 +313,7 @@ void _blood_spray_spell(int cmd, variant *res)
         int rad = (p_ptr->lev < 30) ? 3 : 4;
         int base = p_ptr->lev + p_ptr->lev/4;
 
-        project(0, rad, py, px, 2*(damroll(dice, sides) + base), GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
+        project(0, rad, p_ptr->pos.y, p_ptr->pos.x, 2*(damroll(dice, sides) + base), GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
 
         var_set_bool(res, TRUE);
         break;
@@ -92,7 +324,7 @@ void _blood_spray_spell(int cmd, variant *res)
     }
 }
 
-void _blood_bath_spell(int cmd, variant *res)
+static void _bath_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -106,7 +338,7 @@ void _blood_bath_spell(int cmd, variant *res)
     {
         bool chg = FALSE;
         if (do_res_stat(A_CON)) chg = TRUE;
-        if (set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE)) chg = TRUE;
+        if (plr_tim_recover(T_POISON, 80, 100)) chg = TRUE;
         if (!chg) msg_print("You don't need a bath just yet.");
         var_set_bool(res, TRUE);
         break;
@@ -117,7 +349,7 @@ void _blood_bath_spell(int cmd, variant *res)
     }
 }
 
-void _blood_shield_spell(int cmd, variant *res)
+static void _shield_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -128,12 +360,9 @@ void _blood_shield_spell(int cmd, variant *res)
         var_set_string(res, "Gives bonus to AC depending on how wounded you are. Grants reflection if you are really hurting.");
         break;
 
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Player gains 100*(MHP-CHP)/MHP to AC. If more than 60% wounded, player also gains reflection.");
-        break;
     case SPELL_CAST:
     {
-        set_tim_blood_shield(randint1(20) + 30, FALSE);
+        plr_tim_add(_SHIELD, randint1(20) + 30);
         var_set_bool(res, TRUE);
         break;
     }
@@ -143,7 +372,7 @@ void _blood_shield_spell(int cmd, variant *res)
     }
 }
 
-void _blood_seeking_spell(int cmd, variant *res)
+static void _seeking_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -153,12 +382,9 @@ void _blood_seeking_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Gives slay living to your weapon.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "For 30+d30 rounds, the player's weapon will Slay Living (x2).");
-        break;
     case SPELL_CAST:
     {
-        set_tim_blood_seek(randint1(30) + 30, FALSE);
+        plr_tim_add(_SEEK, randint1(30) + 30);
         var_set_bool(res, TRUE);
         break;
     }
@@ -168,7 +394,7 @@ void _blood_seeking_spell(int cmd, variant *res)
     }
 }
 
-void _blood_rage_spell(int cmd, variant *res)
+static void _rage_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -178,14 +404,11 @@ void _blood_rage_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Enter a blood frenzy. Gives speed and big bonuses to hit and damage.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "For L/2+d(L/2) rounds, player is hasted and berserk.");
-        break;
     case SPELL_CAST:
     {
         int dur = randint1(p_ptr->lev/2) + p_ptr->lev/2;
-        set_fast(dur, FALSE);
-        set_shero(dur, FALSE);
+        plr_tim_add(T_FAST, dur);
+        plr_tim_add(T_BERSERK, dur);
         var_set_bool(res, TRUE);
         break;
     }
@@ -195,7 +418,7 @@ void _blood_rage_spell(int cmd, variant *res)
     }
 }
 
-void _blood_feast_spell(int cmd, variant *res)
+static void _feast_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -205,20 +428,17 @@ void _blood_feast_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "You begin to feast on your opponents blood, doing extra damage but at a cost to your own health.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "For 25+d25 rounds, each melee strike does +35 damage, but player takes 15 damage per strike.");
-        break;
     case SPELL_CAST:
     {
         var_set_bool(res, FALSE);
-        if (p_ptr->tim_blood_feast)
+        if (plr_tim_find(_FEAST))
         {
             if (!get_check("Cancel the Blood Feast? ")) return;
-            set_tim_blood_feast(0, TRUE);
+            plr_tim_remove(_FEAST);
         }
         else
         {
-            set_tim_blood_feast(randint1(25) + 25, FALSE);
+            plr_tim_add(_FEAST, randint1(25) + 25);
             var_set_bool(res, TRUE);
         }
         break;
@@ -229,7 +449,7 @@ void _blood_feast_spell(int cmd, variant *res)
     }
 }
 
-void _blood_revenge_spell(int cmd, variant *res)
+static void _revenge_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -239,15 +459,10 @@ void _blood_revenge_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Gives an aura of bloody revenge. Monsters take damaged based on your cut status.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "For 5+d5 rounds, any foe that does X melee damage to the player takes X*C/100 damage in revenge, where C is the player's current cut status. However, this retaliatory damage is bounded between C/10 and 50 per strike.");
-        break;
     case SPELL_CAST:
-    {
-        set_tim_blood_revenge(randint1(5) + 5, FALSE);
+        plr_tim_add(_REVENGE, randint1(5) + 5);
         var_set_bool(res, TRUE);
         break;
-    }
     default:
         default_spell(cmd, res);
         break;
@@ -259,7 +474,7 @@ static bool _is_blood_potion(obj_ptr obj)
 static int _count_blood_potions(void)
     { return pack_count(_is_blood_potion); }
 
-void _blood_pool_spell(int cmd, variant *res)
+static void _pool_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -268,11 +483,6 @@ void _blood_pool_spell(int cmd, variant *res)
         break;
     case SPELL_DESC:
         var_set_string(res, "Creates a macabre Potion of Healing made of your own blood.");
-        break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Create a potion of blood. Player is limited to 30 such potions, and may neither "
-                                "drop, throw nor sell them. Quaffing a potion of blood heals 100hp and cures "
-                                "blindness, confusion, poison and stuns.");
         break;
     case SPELL_CAST:
     {
@@ -300,7 +510,7 @@ void _blood_pool_spell(int cmd, variant *res)
     }
 }
 
-void _blood_explosion_spell(int cmd, variant *res)
+static void _explosion_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -309,9 +519,6 @@ void _blood_explosion_spell(int cmd, variant *res)
         break;
     case SPELL_DESC:
         var_set_string(res, "Damages all living creatures in sight at tremendous cost to your own health.");
-        break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "All living creatures in player's line of sight take 500 damage.");
         break;
     case SPELL_INFO:
         var_set_string(res, info_damage(0, 0, 500));
@@ -329,7 +536,7 @@ void _blood_explosion_spell(int cmd, variant *res)
     }
 }
 
-void _cauterize_wounds_spell(int cmd, variant *res)
+static void _cauterize_wounds_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -340,7 +547,7 @@ void _cauterize_wounds_spell(int cmd, variant *res)
         var_set_string(res, "Cures cuts");
         break;
     case SPELL_CAST:
-        set_cut(0, TRUE);
+        plr_tim_remove(T_CUT);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -349,6 +556,9 @@ void _cauterize_wounds_spell(int cmd, variant *res)
     }
 }
 
+/************************************************************************
+ * Class Hooks
+ ************************************************************************/
 static power_info _powers[] =
 {
     { A_CON, {30, 20, 50, _cauterize_wounds_spell} }, 
@@ -358,17 +568,17 @@ static power_info _powers[] =
 static spell_info _spells[] = 
 {
     /*lvl cst fail spell */
-    {  1,   1, 20, _blood_flow_spell },
-    {  5,  5,  30, _blood_sight_spell},
-    { 10, 10,  30, _blood_spray_spell},
-    { 15, 20,  30, _blood_bath_spell},
-    { 20, 30,  30, _blood_shield_spell},
-    { 25, 50,  40, _blood_seeking_spell},
-    { 30, 60,  40, _blood_rage_spell},
-    { 40, 60,  50, _blood_feast_spell},
-    { 42, 60,   0, _blood_revenge_spell},
-    { 45,200,   0, _blood_pool_spell},
-    { 50,500,  60, _blood_explosion_spell},
+    {  1,   1, 20, _flow_spell },
+    {  5,  5,  30, _sight_spell},
+    { 10, 10,  30, _spray_spell},
+    { 15, 20,  30, _bath_spell},
+    { 20, 30,  30, _shield_spell},
+    { 25, 50,  40, _seeking_spell},
+    { 30, 60,  40, _rage_spell},
+    { 40, 60,  50, _feast_spell},
+    { 42, 60,   0, _revenge_spell},
+    { 45,200,   0, _pool_spell},
+    { 50,500,  60, _explosion_spell},
     { -1, -1,  -1, NULL}
 }; 
 
@@ -387,93 +597,35 @@ static void _character_dump(doc_ptr doc)
     spell_info spells[MAX_SPELLS];
     int        ct = _get_spells(spells, MAX_SPELLS);
 
-    py_display_spells(doc, spells, ct);
+    plr_display_spells(doc, spells, ct);
 }
 
 static void _calc_bonuses(void)
 {
+    int cut = plr_tim_amount(T_CUT);
     p_ptr->regen += 100 + 2*p_ptr->lev;
     if (p_ptr->lev >= 30) res_add(RES_FEAR);
 
-    if (p_ptr->cut > 0)
+    if (cut > 0)
     {
-        int to_h = 0;
-        int to_d = 0;
         int to_stealth = 0;
-        if (p_ptr->cut >= CUT_MORTAL_WOUND)
-        {
-            to_h = 25;
-            to_d = 25;
+        if (cut >= CUT_MORTAL_WOUND)
             to_stealth = -10;
-        }
-        else if (p_ptr->cut >= CUT_DEEP_GASH)
-        {
-            to_h = 15;
-            to_d = 15;
+        else if (cut >= CUT_DEEP_GASH)
             to_stealth = -3;
-        }
-        else if (p_ptr->cut >= CUT_SEVERE)
-        {
-            to_h = 8;
-            to_d = 8;
+        else if (cut >= CUT_SEVERE)
             to_stealth = -2;
-        }
-        else if (p_ptr->cut >= CUT_NASTY)
-        {
-            to_h = 6;
-            to_d = 6;
+        else if (cut >= CUT_NASTY)
             to_stealth = -2;
-        }
-        else if (p_ptr->cut >= CUT_BAD)
-        {
-            to_h = 4;
-            to_d = 4;
+        else if (cut >= CUT_BAD)
             to_stealth = -1;
-        }
-        else if (p_ptr->cut >= CUT_LIGHT)
-        {
-            to_h = 2;
-            to_d = 2;
+        else if (cut >= CUT_LIGHT)
             to_stealth = -1;
-        }
         else
-        {
-            to_h = 1;
-            to_d = 1;
             to_stealth = -1;
-        }
-        p_ptr->weapon_info[0].to_h += to_h;
-        p_ptr->weapon_info[1].to_h += to_h;
-        p_ptr->to_h_m  += to_h;
-        p_ptr->weapon_info[0].dis_to_h += to_h;
-        p_ptr->weapon_info[1].dis_to_h += to_h;
-
-        p_ptr->weapon_info[0].to_d += to_d;
-        p_ptr->weapon_info[1].to_d += to_d;
-        p_ptr->to_d_m  += to_d;
-        p_ptr->weapon_info[0].dis_to_d += to_d;
-        p_ptr->weapon_info[1].dis_to_d += to_d;
-
         p_ptr->skills.stl += to_stealth;
     }
 
-    if (p_ptr->tim_blood_shield)
-    {
-        int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
-        p_ptr->to_a += amt;
-        p_ptr->dis_to_a += amt;    
-        if (amt > 60)
-            p_ptr->reflect = TRUE;
-    }
-
-    if (p_ptr->tim_blood_feast)
-    {
-        p_ptr->weapon_info[0].to_d += 35;
-        p_ptr->weapon_info[1].to_d += 35;
-        p_ptr->to_d_m  += 35; /* Tentacles, beak, etc. */
-        p_ptr->weapon_info[0].dis_to_d += 35;
-        p_ptr->weapon_info[1].dis_to_d += 35;
-    }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -481,24 +633,70 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_REGEN);
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(object_type *o_ptr, plr_attack_info_ptr info)
 {
+    int cut = plr_tim_amount(T_CUT);
     int frac = p_ptr->chp * 100 / p_ptr->mhp;
     if (frac < 20 && p_ptr->lev > 48)
-        info_ptr->xtra_blow += 900;
+        info->xtra_blow += 900;
     else if (frac < 40 && p_ptr->lev > 36)
-        info_ptr->xtra_blow += 600;
+        info->xtra_blow += 600;
     else if (frac < 60 &&  p_ptr->lev > 24)
-        info_ptr->xtra_blow += 400;
+        info->xtra_blow += 400;
     else if (frac < 80 && p_ptr->lev > 12)
-        info_ptr->xtra_blow += 200;
+        info->xtra_blow += 200;
     else if (p_ptr->chp < p_ptr->mhp) /* Hack: frac might be 100 if we are just slightly wounded */
-        info_ptr->xtra_blow += 100;
+        info->xtra_blow += 100;
+    if (cut > 0)
+    {
+        int to_h = 0;
+        int to_d = 0;
+        if (cut >= CUT_MORTAL_WOUND)
+        {
+            to_h = 25;
+            to_d = 25;
+        }
+        else if (cut >= CUT_DEEP_GASH)
+        {
+            to_h = 15;
+            to_d = 15;
+        }
+        else if (cut >= CUT_SEVERE)
+        {
+            to_h = 8;
+            to_d = 8;
+        }
+        else if (cut >= CUT_NASTY)
+        {
+            to_h = 6;
+            to_d = 6;
+        }
+        else if (cut >= CUT_BAD)
+        {
+            to_h = 4;
+            to_d = 4;
+        }
+        else if (cut >= CUT_LIGHT)
+        {
+            to_h = 2;
+            to_d = 2;
+        }
+        else
+        {
+            to_h = 1;
+            to_d = 1;
+        }
+        info->to_h += to_h;
+        info->dis_to_h += to_h;
+
+        info->to_d += to_d;
+        info->dis_to_d += to_d;
+    }
 }
 
 static void _on_cast(const spell_info *spell)
 {
-    set_cut(p_ptr->cut + spell->level, FALSE);
+    plr_tim_add(T_CUT, spell->level);
     p_ptr->update |= PU_BONUS;
 }
 
@@ -519,24 +717,26 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_BROAD_SWORD, 1);
-    py_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
-    py_birth_obj_aux(TV_POTION, SV_POTION_CURE_CRITICAL, rand_range(2, 5));
+    plr_birth_obj_aux(TV_SWORD, SV_BROAD_SWORD, 1);
+    plr_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
+    plr_birth_obj_aux(TV_POTION, SV_POTION_CURE_CRITICAL, rand_range(2, 5));
 }
 
-class_t *blood_knight_get_class(void)
+/************************************************************************
+ * Public
+ ************************************************************************/
+plr_class_ptr blood_knight_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    /* static info never changes */
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  32,   2,  16,   6,  70,  20};
     skills_t xs = { 12,   7,  10,   0,   0,   0,  23,  15};
 
-        me.name = "Blood-Knight";
-        me.desc = "A Blood-Knight is a fighter who has delved into the dark arts and can perform "
+        me = plr_class_alloc(CLASS_BLOOD_KNIGHT);
+        me->name = "Blood-Knight";
+        me->desc = "A Blood-Knight is a fighter who has delved into the dark arts and can perform "
                   "a limited number of offensive effects using his own health. In addition to the "
                   "HP cost, using an ability also causes bleeding/wounds, with an amount proportional "
                   "to the cost of the ability. Their primary stat for abilities is Con.\n \n"
@@ -549,33 +749,35 @@ class_t *blood_knight_get_class(void)
                   "Since the Blood-Knight relies on their own blood for their power, they are restricted "
                   "to only certain races. No non-living race may walk the red path.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] = -2;
-        me.stats[A_DEX] =  0;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  2;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] = -2;
+        me->stats[A_WIS] = -2;
+        me->stats[A_DEX] =  0;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] =  2;
         
-        me.base_skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
         
-        me.life = 120;
-        me.base_hp = 20;
-        me.exp = 150;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
+        me->life = 120;
+        me->base_hp = 20;
+        me->exp = 150;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.get_powers = _get_powers;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.attack_init = _attack_init;
+        me->hooks.mon_attack_init = _mon_attack_init;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.register_timers = _register_timers;
     }
 
-    return &me;
+    return me;
 }
 

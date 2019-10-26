@@ -1,6 +1,6 @@
 #include "angband.h"
 
-#include "str-map.h"
+#include "str_map.h"
 #include <assert.h>
 
 /***********************************************************************
@@ -143,7 +143,7 @@ void spell_stats_on_fail_old(int realm, int spell)
  * Spells copied from scrolls into "books" for spellcasters, etc.)
  ***********************************************************************/
 
-void default_spell(int cmd, variant *res) /* Base class */
+void default_spell(int cmd, var_ptr res) /* Base class */
 {
     switch (cmd)
     {
@@ -204,102 +204,93 @@ void default_spell(int cmd, variant *res) /* Base class */
 bool cast_spell(ang_spell spell)
 {
     bool b;
-    variant res;
-    var_init(&res);
+    var_t res = var_create();
     spell(SPELL_CAST, &res);
     b = var_get_bool(&res);
-    var_clear(&res);
+    var_destroy(&res);
     return b;
 }
 
 void fail_spell(ang_spell spell)
 {
-    variant res;
-    var_init(&res);
+    var_t res = var_create();
     spell(SPELL_FAIL, &res);
-    var_clear(&res);
+    var_destroy(&res);
 }
 
 int get_spell_energy(ang_spell spell)
 {
     int n;
-    variant res;
-    var_init(&res);
+    var_t res = var_create();
     spell(SPELL_ENERGY, &res);
     n = var_get_int(&res);
-    var_clear(&res);
+    var_destroy(&res);
     return n;
 }
 
 int get_spell_cost_extra(ang_spell spell)
 {
     int n;
-    variant res;
-    var_init(&res);
+    var_t res = var_create();
     spell(SPELL_COST_EXTRA, &res);
     n = var_get_int(&res);
-    var_clear(&res);
+    var_destroy(&res);
     return n;
 }
 
 int get_spell_fail_min(ang_spell spell)
 {
     int n;
-    variant res;
-    var_init(&res);
+    var_t res = var_create();
     spell(SPELL_FAIL_MIN, &res);
     n = var_get_int(&res);
-    var_clear(&res);
+    var_destroy(&res);
     return n;
 }
 
 cptr get_spell_name(ang_spell spell)
 {
     static char buf[255];
-    variant v;
-    var_init(&v);
+    var_t v = var_create();
     spell(SPELL_NAME, &v);
     sprintf(buf, "%s", var_get_string(&v));
-    var_clear(&v);
+    var_destroy(&v);
     return buf;
 }
 
 cptr get_spell_stat_name(ang_spell spell)
 {
     static char buf[255];
-    variant v;
-    var_init(&v);
+    var_t v = var_create();
     spell(SPELL_STAT_NAME, &v);
     if (var_is_null(&v)) /* cf default_spell above */
         spell(SPELL_NAME, &v);
     sprintf(buf, "%s", var_get_string(&v));
-    var_clear(&v);
+    var_destroy(&v);
     return buf;
 }
 
 cptr get_spell_desc(ang_spell spell)
 {
     static char buf[1024];
-    variant v;
-    var_init(&v);
+    var_t v = var_create();
     spell(SPELL_DESC, &v);
     sprintf(buf, "%s", var_get_string(&v));
-    var_clear(&v);
+    var_destroy(&v);
     return buf;
 }
 
 cptr get_spell_spoiler_name(ang_spell spell)
 {
     static char buf[255];
-    variant v;
-    var_init(&v);
+    var_t v = var_create();
     spell(SPELL_SPOIL_NAME, &v);
 
     if (var_is_null(&v))
         spell(SPELL_NAME, &v);
 
     sprintf(buf, "%s", var_get_string(&v));
-    var_clear(&v);
+    var_destroy(&v);
     return buf;
 }
 
@@ -330,11 +321,9 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
     rect_t display = ui_menu_rect();
     int  col_height = _col_height(ct);
     int  col_width;
-    variant name, info, color;
-
-    var_init(&name);
-    var_init(&info);
-    var_init(&color);
+    var_t name = var_create();
+    var_t info = var_create();
+    var_t color = var_create();
 
     Term_erase(display.x, display.y, display.cx);
     if (col_height == ct)
@@ -400,17 +389,15 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
         }
     }
     Term_erase(display.x, display.y + col_height + 1, display.cx);
-    var_clear(&name);
-    var_clear(&info);
-    var_clear(&color);
+    var_destroy(&name);
+    var_destroy(&info);
+    var_destroy(&color);
 }
 
 static bool _describe_spell(spell_info *spell, int col_height)
 {
     bool result = TRUE;
-    variant info;
-
-    var_init(&info);
+    var_t info = var_create();
 
     (spell->fn)(SPELL_ON_BROWSE, &info);
     if (!var_get_bool(&info))
@@ -438,7 +425,7 @@ static bool _describe_spell(spell_info *spell, int col_height)
         put_str(format("%^s", var_get_string(&info)), line, display.x + 2);
         result = FALSE;
     }
-    var_clear(&info);
+    var_destroy(&info);
     return result;
 }
 
@@ -447,10 +434,8 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
     int choice = -1;
     char prompt1[140];
     char prompt2[140];
-    variant name;
     bool describe = FALSE;
-
-    var_init(&name);
+    var_t name = var_create();
 
     for (;;)
     {
@@ -504,7 +489,7 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
         break;
     }
 
-    var_clear(&name);
+    var_destroy(&name);
     return choice;
 }
 
@@ -550,7 +535,7 @@ int calculate_cost(int cost)
     int result = cost;
 
     if (p_ptr->dec_mana && cost > 0)
-        result = MAX(1, result * 3 / 4);
+        result = MAX(1, (result + 1) * dec_mana_cost(p_ptr->dec_mana) / 100);
 
     return result;
 }
@@ -576,11 +561,7 @@ int calculate_fail_rate_aux(int caster_lvl, int spell_lvl, int base_fail, int st
     fail -= 3 * (adj_mag_stat[stat_idx] - 1);
     if (p_ptr->heavy_spell) fail += 20;
 
-    {
-        if (p_ptr->dec_mana && p_ptr->easy_spell) fail -= 4;
-        else if (p_ptr->easy_spell) fail -= 3;
-        else if (p_ptr->dec_mana) fail -= 2;
-    }
+    fail += dec_mana_fail1(p_ptr->dec_mana, p_ptr->easy_spell);
 
     /* Apply Min Fail Rate */
     min = adj_mag_fail[stat_idx];
@@ -599,15 +580,15 @@ int calculate_fail_rate_aux(int caster_lvl, int spell_lvl, int base_fail, int st
     }
 
     if (fail < min) fail = min;
-    if (p_ptr->stun)
-        fail += 50 * p_ptr->stun / 100;
+    if (plr_tim_find(T_STUN))
+        fail += 50 * plr_tim_amount(T_STUN) / 100;
 
     if (fail > 95) fail = 95;
 
     /* Some effects violate the Min/Max Fail Rates */
     if (p_ptr->heavy_spell) fail += 5; /* Fail could go to 100% */
 
-    if (p_ptr->dec_mana) fail--; /* 5% casters could get 4% fail rates */
+    fail += dec_mana_fail2(p_ptr->dec_mana, p_ptr->easy_spell);
 
     if (fail < 0) fail = 0;
     if (fail > 100) fail = 100;
@@ -658,10 +639,10 @@ static int _get_spell_table(spell_info* spells, int max)
     class_t *class_ptr = get_class();
     race_t  *race_ptr = get_race();
 
-    if (race_ptr->get_spells != NULL) /* Monster Races ... */
-        ct = (race_ptr->get_spells)(spells, max);
-    else if (class_ptr->get_spells != NULL)
-        ct = (class_ptr->get_spells)(spells, max);
+    if (race_ptr->hooks.get_spells != NULL) /* Monster Races ... */
+        ct = (race_ptr->hooks.get_spells)(spells, max);
+    else if (class_ptr->hooks.get_spells != NULL)
+        ct = (class_ptr->hooks.get_spells)(spells, max);
 
     _add_extra_costs(spells, ct);
     return ct;
@@ -695,7 +676,7 @@ void do_cmd_spell(void)
         return;
     }
 
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;
@@ -826,7 +807,7 @@ void do_cmd_power(void)
     race_t *race_ptr = get_race();
     class_t *class_ptr = get_class();
 
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;
@@ -838,17 +819,17 @@ void do_cmd_power(void)
        Also, add Mimic power back first so it always stays in the 'a' slot. */
     if (race_ptr->mimic && p_ptr->prace == RACE_DOPPELGANGER)
     {
-        ct += (get_true_race()->get_powers)(spells + ct, MAX_SPELLS - ct);
+        ct += (get_true_race()->hooks.get_powers)(spells + ct, MAX_SPELLS - ct);
     }
 
-    if (race_ptr->get_powers != NULL)
+    if (race_ptr->hooks.get_powers != NULL)
     {
-        ct += (race_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
+        ct += (race_ptr->hooks.get_powers)(spells + ct, MAX_SPELLS - ct);
     }
 
-    if (class_ptr != NULL && class_ptr->get_powers != NULL)
+    if (class_ptr != NULL && class_ptr->hooks.get_powers != NULL)
     {
-        ct += (class_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
+        ct += (class_ptr->hooks.get_powers)(spells + ct, MAX_SPELLS - ct);
     }
 
     ct += mut_get_powers(spells + ct, MAX_SPELLS - ct);
@@ -996,14 +977,14 @@ int spell_stats_fail(spell_stats_ptr stats)
 void dump_spells_aux(FILE *fff, spell_info *table, int ct)
 {
     int i;
-    variant vn, vd, vc, vfm;
+    var_t vn, vd, vc, vfm;
 
     if (!ct) return;
 
-    var_init(&vn);
-    var_init(&vd);
-    var_init(&vc);
-    var_init(&vfm);
+    vn = var_create();
+    vd = var_create();
+    vc = var_create();
+    vfm = var_create();
 
     if (character_dump_hack)
     {
@@ -1033,10 +1014,10 @@ void dump_spells_aux(FILE *fff, spell_info *table, int ct)
         );
     }
 
-    var_clear(&vn);
-    var_clear(&vd);
-    var_clear(&vc);
-    var_clear(&vfm);
+    var_destroy(&vn);
+    var_destroy(&vd);
+    var_destroy(&vc);
+    var_destroy(&vfm);
 }
 
 static void _dump_book(doc_ptr doc, int realm, int book)
@@ -1309,7 +1290,7 @@ void spellbook_destroy(obj_ptr obj)
     if (p_ptr->prace == RACE_ANDROID)
     {
     }
-    else if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_BERSERKER)
+    else if (p_ptr->pclass == CLASS_WARRIOR)
     {
         gain_expr = TRUE;
     }

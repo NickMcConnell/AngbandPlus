@@ -1,27 +1,37 @@
-<color:y>PosChengband <$:version></color>
-<style:screenshot>
-                                                                                
-You are aware of 40 monsters, 40 are awake:                         LEVEL <color:G>    50</color>
- . Time bomb (40 awake)                                             EXP <color:G>   23.0M</color>
-   <color:B>[Press ESC to exit. Press ? for help]</color>                 <color:D>xxxxxxxxxx</color> AU  <color:G>   5.97M</color>
-........#                                                 <color:D>xxxxxxxxx</color> <color:d>            </color>
-........###                                                <color:D>xxxxxxxx</color> STR!: <color:G>18/***</color>
-......##..#                                                <color:D>xxxxxxxx</color> INT!: <color:G>18/130</color>
-.......#..##                #####################%##%       <color:D>xxxxxxx</color> WIS!: <color:G>18/***</color>
-####....#..#                #...............<color:y>"</color>.......#        <color:D>xxxxxx</color> DEX!: <color:G>18/150</color>
-<color:D>xxx</color>######..#                #.#####################.%        <color:D>xxxxxx</color> CON!: <color:G>18/170</color>
-<color:D>xxxxxx</color>  #.##                #.#...................#.#        <color:D>xx</color>%### CHR!: <color:G>18/***</color>
-<color:D>xxxxx</color>   #..#                #.#...................#.####%%#   <color:D>x</color>#... AC     <color:G>  170</color>
-<color:D>xxxxx</color>   ##.####             #.#...................<color:U>+</color>.......####<color:D>x</color>%.%# HP <color:G>1068</color>/<color:G>1068</color>
-<color:D>xxxx</color>     #....#             #.#...................#.#####....#<color:D>x</color>%.#<color:D>x</color> SP <color:y> 364</color>/<color:G> 397</color>
-<color:D>xxx</color>      ####.######        #.#...................#.#   ##%%.% #.#<color:D>x</color>             
-<color:D>xx</color>          #......#        #.#####################.#      #.# #.%<color:D>x</color> @ <color:G>100%</color>      
-<color:D>x</color>           ######.##       #.......................#      #.# #.#<color:D>x</color> <color:W>?</color> <color:y> 91%</color>      
-                 #..#       #########################      #.<color:o>*</color> #.#<color:D>x</color> <color:U>,</color>  55%      
-#########        ##.###                                    #.# #.%<color:D>x</color>             
-........#         #...#                ###########         #.%##<color:U>'</color>#%             
-...######         ###.#         ########.........##        #......#             
-.### ####           #.#####    ##@..#....#######..#        #####%<color:U>'</color>% <color:G>Fast (+23)</color>  
-.#  ##..##          #.....###  #..#...####     ##.#        #....<color:U>'</color>.. <color:B>Study (1)</color>   
-<color:o>Angband: L90</color>                                                                    
-</style>
+<color:y>PosChengband <$:version></color><style:screenshot>
+<color:w>Name       : </color><color:B>Mudseeker                     </color><color:w>========== Stats ==========
+Sex        : </color><color:B>Male                                </color><color:w>STR! :    </color><color:G>18/***
+</color><color:w>Personality: </color><color:B>Nimble                              </color><color:w>INT! :    </color><color:G>18/170
+</color><color:w>Race       : </color><color:B>Elemental                           </color><color:w>WIS! :     </color><color:G>18/90
+</color><color:w>Subrace    : </color><color:B>Earth Elemental                     </color><color:w>Dex! :    </color><color:y>18/190
+</color><color:w>Class      : </color><color:B>Monster                             </color><color:w>CON! :    </color><color:G>18/***
+                                                 </color><color:w>CHR! :    </color><color:G>18/150
+                                        
+</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   :  </color><color:y>927/1124
+</color><color:w>Cur Exp    : </color><color:G>20870240                            </color><color:w>SP   :       </color><color:G>0/0
+</color><color:w>Max Exp    : </color><color:G>20870240                            </color><color:w>AC   :       </color><color:G>344
+</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:       </color><color:G>+31
+                                        
+                                           </color><color:w>========== Skills =========
+Gold       : </color><color:G>11655983                      </color><color:w>Melee      : </color><color:v>Amber[37]
+</color><color:w>Kills      :     </color><color:G>5994                      </color><color:w>Archery    : </color><color:v>Amber[22]
+</color><color:w>Uniques    :      </color><color:G>207                      </color><color:w>SavingThrow: </color><color:b>Heroic
+</color><color:w>Artifacts  :   </color><color:G>130+53                      </color><color:w>Stealth    : </color><color:g>Superb
+                                           </color><color:w>Perception : </color><color:G>Excellent
+</color><color:w>Game Day   :       </color><color:G>54                      </color><color:w>Searching  : </color><color:g>Superb
+</color><color:w>Game Time  :    </color><color:G>18:55                      </color><color:w>Disarming  : </color><color:g>Superb
+</color><color:w>Play Time  :    </color><color:G>13:40                      </color><color:w>Device     : </color><color:g>Superb
+                                        
+</color><color:w>a) The Morning Star of Rygar (8d9) (+12,+20) [+5] (+1)
+</color><color:w>b) </color><color:U>The Small Metal Shield of Thorin [5,+21] (+4) {Po}
+</color><color:w>c) </color><color:u>The Sling 'Bonebreaker' (x2) (+23,+25) (+4) {StDx;Di;Xs}
+</color><color:w>d) </color><color:U>a Quiver of Protection [1 of 120]
+</color><color:w>e) </color><color:r>The Ring of Power (The One Ring) (+5) {cursed, Bl;Lu}
+</color><color:w>f) </color><color:r>a Ring of Speed (+14) {</color><color:B>A:Speed</color><color:r>}
+</color><color:w>g) </color><color:o>The Dog Collar of Carcharoth (+3,+17) [+25]
+</color><color:w>h) </color><color:y>The Jewel of Judgement (+3) {!!}
+</color><color:w>i) </color><color:W>The Full Plate Armour of the Cyberdemon Lord (-5,+15) [50,+40] (+3)
+</color><color:w>j) </color><color:U>The Shadow Cloak of Jack of Shadows [6,+19] (+5)
+</color><color:w>k) </color><color:U>The Iron Helm 'Stone Mask' (+8,+8) [5,+12] (+3) {-Li}
+</color><color:w>l) </color><color:U>The Set of Cesti of Fingolfin (+10,+10) [5,+20] (+4) {Si}
+</color><color:w>m) </color><color:U>a Pair of Dragon Boots of Speed [5,+12] (+6) {DkSo}</style>

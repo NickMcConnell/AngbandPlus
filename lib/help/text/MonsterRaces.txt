@@ -480,7 +480,7 @@ Leprechaun
     Constitution  -2        Searching   Fair         
     Charisma      -2        Perception  Poor         
     Life Rating   80%       Melee       Fair         
-    Base HP       15        Bows        Superb       
+    Base HP       15        Bows        Fair         
     Experience   150%       Infravision 50'
     
   
@@ -497,7 +497,7 @@ Mimic/Possessor
     Intelligence  -5        Device      Fair         
     Wisdom        -5        Save        Excellent    
     Dexterity     +0        Stealth     Very Good    
-    Constitution  +1        Searching   Poor         
+    Constitution  +1        Searching   Fair         
     Charisma      +0        Perception  Bad          
     Life Rating   85%       Melee       Excellent    
     Base HP       30        Bows        Very Bad     
@@ -527,14 +527,14 @@ Mimic/Possessor
   and the magic command ('m') after assuming a new body.
   
     Stats                   Skills
-    Strength      +4        Disarming   Good         
-    Intelligence  -2        Device      Bad          
-    Wisdom        -2        Save        Fair         
+    Strength      +0        Disarming   Poor         
+    Intelligence  +1        Device      Good         
+    Wisdom        -1        Save        Fair         
     Dexterity     +2        Stealth     Fair         
-    Constitution  +2        Searching   Poor         
-    Charisma      +1        Perception  Poor         
-    Life Rating  115%       Melee       Superb       
-    Base HP       15        Bows        Superb       
+    Constitution  +0        Searching   Fair         
+    Charisma      -1        Perception  Poor         
+    Life Rating  108%       Melee       Very Good    
+    Base HP       15        Bows        Excellent    
     Experience   250%       Infravision 0'
     
   Possessor
@@ -562,14 +562,14 @@ Mimic/Possessor
   possessing a new body.
   
     Stats                   Skills
-    Strength      -3        Disarming   Bad          
-    Intelligence  +0        Device      Bad          
-    Wisdom        -3        Save        Poor         
-    Dexterity     +0        Stealth     Superb       
-    Constitution  -3        Searching   Poor         
-    Charisma      -7        Perception  Poor         
-    Life Rating   60%       Melee       Fair         
-    Base HP       15        Bows        Bad          
+    Strength      -3        Disarming   Fair         
+    Intelligence  +2        Device      Good         
+    Wisdom        -1        Save        Fair         
+    Dexterity     +2        Stealth     Heroic       
+    Constitution  -4        Searching   Fair         
+    Charisma      -3        Perception  Good         
+    Life Rating   64%       Melee       Good         
+    Base HP       15        Bows        Very Good    
     Experience   250%       Infravision 70'
     
   Ring
@@ -595,7 +595,7 @@ Mimic/Possessor
     Intelligence  +4        Device      Superb       
     Wisdom        +1        Save        Good         
     Dexterity     +0        Stealth     Excellent    
-    Constitution  -1        Searching   Poor         
+    Constitution  -1        Searching   Fair         
     Charisma      +3        Perception  Fair         
     Life Rating   85%       Melee       Very Bad     
     Base HP       10        Bows        Very Bad     
@@ -649,22 +649,21 @@ Orc/Troll/Giant
   
 Undead
   Lich
-  Liches are the undead forms of former sorcerers. Their magic is 
-  strong but their fighting is weak. As undead, they quickly gain 
-  resistance to cold, poison and nether, and these resistances increase 
-  as the lich evolves.
+  Liches are skeletal forms back from the dead to hunt the living. 
+  Their are several types of liches from the Archlich with powerful 
+  undead sorcery to the Monastic Lich who prefers martial arts combat, 
+  with a necromantic twist. The Iron Lich is a floating skull with a 
+  powerful arsenal of attack spells but severely limited equipment 
+  slots. Finally, the  Black Reaver is out to harvest the living, 
+  allowing nothing to stand in his way! Each form of lich will begin 
+  life as a normal Lich with some weak magic, and must evolve a bit 
+  before they gain their specific powers.
    
   Liches are monsters and cannot choose a normal class. Instead, they 
   are born with magical powers and gain additional powers as they 
-  advance. Of all the monster races, none can surpass the firepower of 
-  an Archlich, but managing to evolve that far can be a challenge. 
-  Intelligence is the primary spell stat.
-   
-  Liches are humanoid so use the standard set of equipment items. 
-  Should they forgo the use of a normal weapon, they may touch their 
-  opponents for various powerful effects. However, melee is not the 
-  strong suit of the Lich and even their deadly touch is often not 
-  enough.
+  advance. Intelligence is the primary spell stat. In their initial 
+  form, they gain the ability to touch opponents in melee for various 
+  foul effects should they forgo the use of a normal melee weapon.
   
     Stats                   Skills
     Strength      +0        Disarming   Fair         
@@ -756,8 +755,8 @@ Jelly         +1   -5   -5   +1   +1   -2   90%  +40  150%  125%
 Quylthulg     -5   -5   -5   -5   -5   +6   95%   +0  150%  120%
 Leprechaun    -2   +1   +1   +3   -2   -2   80%  +15  150%   85%
 Death-Sword   +1   -5   -5   +0   +1   +0   85%  +30  150%  110%
-Mimic         +4   -2   -2   +2   +2   +1  115%  +15  250%  110%
-Possessor     -3   +0   -3   +0   -3   -7   60%  +15  250%  110%
+Mimic         +0   +1   -1   +2   +0   -1  108%  +15  250%  110%
+Possessor     -3   +2   -1   +2   -4   -3   64%  +15  250%  110%
 Ring          -3   +4   +1   +0   -1   +3   85%  +10  150%  110%
 Giant         +6   -3   -3   -2   +3   +0  107%  +46  200%  130%
 Troll         +3   -5   -5   -2   +3   +0  100%  +50  150%  135%
@@ -783,8 +782,8 @@ Jelly        Good          Bad           Good          Superb
 Quylthulg    Fair          Superb        Excellent     Superb       
 Leprechaun   Very Good     Heroic        Good          Heroic       
 Death-Sword  Good          Fair          Excellent     Very Good    
-Mimic        Good          Bad           Fair          Fair         
-Possessor    Bad           Bad           Poor          Superb       
+Mimic        Poor          Good          Fair          Fair         
+Possessor    Fair          Good          Fair          Heroic       
 Ring         Fair          Superb        Good          Excellent    
 Giant        Fair          Bad           Fair          Poor         
 Troll        Poor          Bad           Fair          Fair         
@@ -808,11 +807,11 @@ Vortex       Bad           Bad           Superb        Very Bad         0'
 Golem        Bad           Bad           Superb        Bad             50'
 Jelly        Poor          Bad           Superb        Bad              0'
 Quylthulg    Fair          Good          Very Bad      Very Bad        50'
-Leprechaun   Fair          Poor          Fair          Superb          50'
-Death-Sword  Poor          Bad           Excellent     Very Bad        30'
-Mimic        Poor          Poor          Superb        Superb           0'
-Possessor    Poor          Poor          Fair          Bad             70'
-Ring         Poor          Fair          Very Bad      Very Bad        50'
+Leprechaun   Fair          Poor          Fair          Fair            50'
+Death-Sword  Fair          Bad           Excellent     Very Bad        30'
+Mimic        Fair          Poor          Very Good     Excellent        0'
+Possessor    Fair          Good          Good          Very Good       70'
+Ring         Fair          Fair          Very Bad      Very Bad        50'
 Giant        Poor          Bad           Heroic        Fair            50'
 Troll        Poor          Bad           Superb        Bad             50'
 Lich         Fair          Good          Very Bad      Very Bad        50'
@@ -822,5 +821,5 @@ Xorn         Poor          Bad           Excellent     Bad             50'
 
 
 
-Automatically generated for PosChengband 7.0.1.
+Automatically generated for PosChengband 7.1.0.
 

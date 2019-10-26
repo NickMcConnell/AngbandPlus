@@ -1,6 +1,8 @@
 #include "angband.h"
 
-void rodeo_spell(int cmd, variant *res)
+#include <assert.h>
+
+void rodeo_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -27,9 +29,12 @@ void rodeo_spell(int cmd, variant *res)
         if (!do_riding(TRUE)) return;
         
         var_set_bool(res, TRUE);
+        assert(p_ptr->riding);
 
-        m_ptr = &m_list[p_ptr->riding];
-        r_ptr = &r_info[m_ptr->r_idx];
+        m_ptr = plr_riding_mon();
+        assert(m_ptr);
+        r_ptr = mon_race(m_ptr);
+
         monster_desc(m_name, m_ptr, 0);
         cmsg_format(TERM_L_GREEN, "You ride on %s.", m_name);
         if (is_pet(m_ptr)) break;
@@ -37,12 +42,7 @@ void rodeo_spell(int cmd, variant *res)
         if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
         if (rlev > 60) rlev = 60+(rlev-60)/2;
 
-        if (p_ptr->inside_arena || p_ptr->inside_battle)
-        {
-            cmsg_format(TERM_RED, "You cannot tame anything in here!");
-            tame_success = FALSE;
-        }
-        else if ((r_ptr->flags7 & RF7_GUARDIAN) || (r_ptr->flagsx & RFX_QUESTOR))
+        if ((r_ptr->flags7 & RF7_GUARDIAN) || (r_ptr->flagsx & RFX_QUESTOR))
         {
             cmsg_format(TERM_RED, "It is impossible to tame %s!", m_name);
             tame_success = FALSE;
@@ -92,10 +92,6 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
-{
-}
-
 static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
     if (p_ptr->shooter_info.tval_ammo != TV_ARROW )
@@ -117,24 +113,24 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_POLEARM, SV_BROAD_SPEAR, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL, 1);
-    py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
-    py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(15, 25));
+    plr_birth_obj_aux(TV_POLEARM, SV_BROAD_SPEAR, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL, 1);
+    plr_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
+    plr_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(15, 25));
 }
 
-class_t *cavalry_get_class(void)
+plr_class_ptr cavalry_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  18,  32,   1,  16,  10,  60,  66};
     skills_t xs = { 10,   7,  10,   0,   0,   0,  22,  26};
 
-        me.name = "Cavalry";
-        me.desc = "Cavalry ride on horses into battle. Although they cannot cast "
+        me = plr_class_alloc(CLASS_CAVALRY);
+        me->name = "Cavalry";
+        me->desc = "Cavalry ride on horses into battle. Although they cannot cast "
                     "spells, they are proud of their overwhelming offensive strength on "
                     "horseback. They are good at shooting. At high levels, they learn "
                     "to forcibly saddle and tame wild monsters. Since they take pride "
@@ -143,28 +139,26 @@ class_t *cavalry_get_class(void)
                     "they are very good at riding, they have a class power - 'Rodeo' - "
                     "which allows them to forcibly saddle and tame wild monsters.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] = -2;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  1;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 111;
-        me.base_hp = 10;
-        me.exp = 120;
-        me.pets = 35;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] = -2;
+        me->stats[A_WIS] = -2;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  1;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 111;
+        me->base_hp = 10;
+        me->exp = 120;
+        me->pets = 35;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
         
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.calc_shooter_bonuses = _calc_shooter_bonuses;
-        me.get_powers = _get_powers;
-        me.get_flags = _get_flags;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_shooter_bonuses = _calc_shooter_bonuses;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.get_flags = _get_flags;
     }
 
-    return &me;
+    return me;
 }

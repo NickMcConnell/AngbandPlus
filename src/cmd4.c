@@ -12,7 +12,7 @@
 
 #include "angband.h"
 #include "equip.h"
-#include "int-map.h"
+#include "int_map.h"
 #include "z-doc.h"
 
 #include <assert.h>
@@ -390,8 +390,6 @@ void do_cmd_redraw(void)
     p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON |
         PW_MONSTER | PW_MONSTER_LIST | PW_OBJECT_LIST | PW_OBJECT);
 
-    update_playtime();
-
     /* Prevent spamming ^R to circumvent fuzzy detection */
     redraw_hack = TRUE;
     handle_stuff();
@@ -428,7 +426,7 @@ void do_cmd_messages(int old_now_turn)
 {
     int     i;
     doc_ptr doc;
-    int     current_turn = 0;
+    u32b    current_turn = 0;
     int     current_row = 0;
 
     doc = doc_alloc(80);
@@ -458,159 +456,6 @@ void do_cmd_messages(int old_now_turn)
     screen_load();
     doc_free(doc);
 }
-
-#ifdef ALLOW_WIZARD
-
-/*
- * Number of cheating options
- */
-#define CHEAT_MAX 6
-
-/*
- * Cheating options
- */
-static option_type cheat_info[CHEAT_MAX] =
-{
-    { &cheat_peek,        FALSE,    255,    0x01, 0x00,
-    "cheat_peek",        "Peek into object creation"
-    },
-
-    { &cheat_hear,        FALSE,    255,    0x02, 0x00,
-    "cheat_hear",        "Peek into monster creation"
-    },
-
-    { &cheat_room,        FALSE,    255,    0x04, 0x00,
-    "cheat_room",        "Peek into dungeon creation"
-    },
-
-    { &cheat_xtra,        FALSE,    255,    0x08, 0x00,
-    "cheat_xtra",        "Peek into something else"
-    },
-
-    { &cheat_live,        FALSE,    255,    0x20, 0x00,
-    "cheat_live",        "Allow player to avoid death"
-    },
-
-    { &cheat_save,        FALSE,    255,    0x40, 0x00,
-    "cheat_save",        "Ask for saving death"
-    }
-};
-
-/*
- * Interact with some options for cheating
- */
-static void do_cmd_options_cheat(cptr info)
-{
-    char    ch;
-
-    int        i, k = 0, n = CHEAT_MAX;
-
-    char    buf[80];
-
-
-    /* Clear screen */
-    Term_clear();
-
-    /* Interact with the player */
-    while (TRUE)
-    {
-        int dir;
-
-        /* Prompt XXX XXX XXX */
-        sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
-
-        prt(buf, 0, 0);
-
-        /* Display the options */
-        for (i = 0; i < n; i++)
-        {
-            byte a = TERM_WHITE;
-
-            /* Color current option */
-            if (i == k) a = TERM_L_BLUE;
-
-            /* Display the option text */
-            sprintf(buf, "%-48s: %s (%s)",
-                cheat_info[i].o_desc,
-                (*cheat_info[i].o_var ? "yes" : "no "),
-
-                cheat_info[i].o_text);
-            c_prt(a, buf, i + 2, 0);
-        }
-
-        /* Hilite current option */
-        move_cursor(k + 2, 50);
-
-        /* Get a key */
-        ch = inkey();
-
-        /*
-         * HACK - Try to translate the key into a direction
-         * to allow using the roguelike keys for navigation.
-         */
-        dir = get_keymap_dir(ch);
-        if ((dir == 2) || (dir == 4) || (dir == 6) || (dir == 8))
-            ch = I2D(dir);
-
-        /* Analyze */
-        switch (ch)
-        {
-            case ESCAPE:
-            {
-                return;
-            }
-
-            case '-':
-            case '8':
-            {
-                k = (n + k - 1) % n;
-                break;
-            }
-
-            case ' ':
-            case '\n':
-            case '\r':
-            case '2':
-            {
-                k = (k + 1) % n;
-                break;
-            }
-
-            case 'y':
-            case 'Y':
-            case '6':
-            {
-                p_ptr->noscore |= (cheat_info[k].o_set * 256 + cheat_info[k].o_bit);
-                (*cheat_info[k].o_var) = TRUE;
-                k = (k + 1) % n;
-                break;
-            }
-
-            case 'n':
-            case 'N':
-            case '4':
-            {
-                (*cheat_info[k].o_var) = FALSE;
-                k = (k + 1) % n;
-                break;
-            }
-
-            case '?':
-            {
-                doc_display_help("option.txt", cheat_info[k].o_text);
-                Term_clear();
-                break;
-            }
-
-            default:
-            {
-                bell();
-                break;
-            }
-        }
-    }
-}
-#endif
 
 static option_type autosave_info[2] =
 {
@@ -822,15 +667,6 @@ void do_cmd_options_aux(int page, cptr info)
                     strcat(buf, "no  ");
                 sprintf(buf + strlen(buf), "(%.19s)", option_info[opt[i]].o_text);
             }
-            else if (option_info[opt[i]].o_var == &reduce_uniques)
-            {
-                sprintf(buf, "%-48s: ", option_info[opt[i]].o_desc);
-                if (reduce_uniques)
-                    sprintf(buf + strlen(buf), "%d%% ", reduce_uniques_pct);
-                else
-                    strcat(buf, "no  ");
-                sprintf(buf + strlen(buf), "(%.19s)", option_info[opt[i]].o_text);
-            }
             else
             {
                 sprintf(buf, "%-48s: %s (%.19s)",
@@ -901,19 +737,6 @@ void do_cmd_options_aux(int page, cptr info)
                         if (random_artifact_pct > 100) random_artifacts = FALSE;
                     }
                 }
-                else if (option_info[opt[k]].o_var == &reduce_uniques)
-                {
-                    if (!reduce_uniques)
-                    {
-                        reduce_uniques = TRUE;
-                        reduce_uniques_pct = 10;
-                    }
-                    else
-                    {
-                        reduce_uniques_pct += 10;
-                        if (reduce_uniques_pct >= 100) reduce_uniques = FALSE;
-                    }
-                }
                 else
                 {
                     (*option_info[opt[k]].o_var) = TRUE;
@@ -938,23 +761,6 @@ void do_cmd_options_aux(int page, cptr info)
                     {
                         random_artifact_pct -= 10;
                         if (random_artifact_pct <= 0) random_artifacts = FALSE;
-                    }
-                }
-                else if (option_info[opt[k]].o_var == &reduce_uniques)
-                {
-                    if (!reduce_uniques)
-                    {
-                        reduce_uniques = TRUE;
-                        reduce_uniques_pct = 90;
-                    }
-                    else
-                    {
-                        reduce_uniques_pct -= 10;
-                        if (reduce_uniques_pct <= 0)
-                        {
-                            reduce_uniques = FALSE;
-                            reduce_uniques_pct = 100;
-                        }
                     }
                 }
                 else
@@ -1227,7 +1033,7 @@ void do_cmd_options(void)
         Term_clear();
 
         /* Why are we here */
-        prt("PosChengband Options", 1, 0);
+        prt("Game Options", 1, 0);
 
         while(1)
         {
@@ -1334,25 +1140,6 @@ void do_cmd_options(void)
                 break;
             }
 
-            /* Cheating Options */
-            case 'C':
-            {
-#ifdef ALLOW_WIZARD
-                if (!p_ptr->noscore && !allow_debug_opts)
-                {
-                    /* Cheat options are not permitted */
-                    bell();
-                    break;
-                }
-
-                /* Spawn */
-                do_cmd_options_cheat("Cheaters never win");
-#else
-                bell();
-#endif
-                break;
-            }
-
             case 'a':
             case 'A':
             {
@@ -1385,30 +1172,8 @@ void do_cmd_options(void)
             case 'D':
             case 'd':
             {
-                /* Prompt */
-                clear_from(18);
-                prt("Command: Base Delay Factor", 19, 0);
-
-                /* Get a new value */
-                while (1)
-                {
-                    int msec = delay_factor * delay_factor * delay_factor;
-                    prt(format("Current base delay factor: %d (%d msec)",
-                           delay_factor, msec), 22, 0);
-
-                    prt("Delay Factor (0-9 or ESC to accept): ", 20, 0);
-
-                    k = inkey();
-                    if (k == ESCAPE) break;
-                    else if (k == '?')
-                    {
-                        doc_display_help("option.txt", "BaseDelay");
-                        Term_clear();
-                    }
-                    else if (isdigit(k)) delay_factor = D2I(k);
-                    else bell();
-                }
-
+                msg_input_num("Animation Delay (ms)", &delay_animation, 0, 1000);
+                msg_input_num("Running Delay (ms)", &delay_run, 0, 1000);
                 break;
             }
 
@@ -3063,17 +2828,10 @@ string_ptr get_tiny_screenshot(int cx, int cy)
 {
     string_ptr s = string_alloc_size(cx * cy);
     bool       old_use_graphics = use_graphics;
-    int        y1, y2, x1, x2, y, x;
+    rect_t     r = rect_create(p_ptr->pos.x - cx/2, p_ptr->pos.y - cy/2, cx, cy);
+    point_t    p;
 
-    y1 = py - cy/2;
-    y2 = py + cy/2;
-    if (y1 < 0) y1 = 0;
-    if (y2 > cur_hgt) y2 = cur_hgt;
-
-    x1 = px - cx/2;
-    x2 = px + cx/2;
-    if (x1 < 0) x1 = 0;
-    if (x2 > cur_wid) x2 = cur_wid;
+    r = rect_intersect(cave->rect, r);
 
     if (old_use_graphics)
     {
@@ -3081,16 +2839,16 @@ string_ptr get_tiny_screenshot(int cx, int cy)
         reset_visuals();
     }
 
-    for (y = y1; y < y2; y++)
+    for (p.y = r.y; p.y < r.y + r.cy; p.y++)
     {
         int  current_a = -1;
-        for (x = x1; x < x2; x++)
+        for (p.x = r.x; p.x < r.x + r.cx; p.x++)
         {
             byte a, ta;
             char c, tc;
 
-            assert(in_bounds2(y, x));
-            map_info(y, x, &a, &c, &ta, &tc);
+            assert(dun_pos_valid(cave, p));
+            map_info(p, &a, &c, &ta, &tc);
 
             if (c == 127) /* Hack for special wall characters on Windows. See font-win.prf and main-win.c */
                 c = '#';
@@ -3218,13 +2976,15 @@ void do_cmd_version(void)
         if (VER_PATCH == 0) xtra = " (Alpha)";
         else xtra = " (Beta)";
     }
-    msg_format("You are playing <color:B>PosChengband</color> <color:r>%d.%d.%d%s</color>.",
-        VER_MAJOR, VER_MINOR, VER_PATCH, xtra);
+    msg_format("You are playing <color:B>%s</color> <color:r>%d.%d.%d%s</color>.",
+        VERSION_NAME, VER_MAJOR, VER_MINOR, VER_PATCH, xtra);
     if (1)
     {
         rect_t r = ui_map_rect();
         msg_format("Map display is %dx%d.", r.cx, r.cy);
     }
+    if (p_ptr->wizard)
+        msg_format("OF_COUNT=%d", OF_COUNT);
 }
 
 
@@ -3277,38 +3037,25 @@ void do_cmd_feeling(void)
 {
     /* No useful feeling in quests */
     if (!quests_allow_feeling())
-    {
         msg_print("Looks like a typical quest level.");
-    }
 
     /* No useful feeling in town */
-    else if (p_ptr->town_num && !dun_level)
-    {
-        if (!strcmp(town_name(p_ptr->town_num), "Wilderness"))
-        {
-            msg_print("Looks like a strange wilderness.");
-        }
-        else
-        {
-            msg_print("Looks like a typical town.");
-        }
-    }
+    else if (dun_world_town_id())
+        msg_print("Looks like a typical town.");
 
     /* No useful feeling in the wilderness */
-    else if (!dun_level)
-    {
+    else if (cave->dun_type_id == D_SURFACE)
         msg_print("Looks like a typical wilderness.");
-    }
 
     /* Display the feeling */
     else
     {
         _feeling_info_t feeling;
-        assert(/*0 <= p_ptr->feeling &&*/ p_ptr->feeling < 11);
+        assert(/*0 <= cave->feeling &&*/ cave->feeling < 11);
         if (p_ptr->good_luck || p_ptr->pclass == CLASS_ARCHAEOLOGIST)
-            feeling = _level_feelings_lucky[p_ptr->feeling];
+            feeling = _level_feelings_lucky[cave->feeling];
         else
-            feeling = _level_feelings[p_ptr->feeling];
+            feeling = _level_feelings[cave->feeling];
         cmsg_print(feeling.color, feeling.msg);
     }
 }
@@ -3508,41 +3255,32 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 
     if (grp_corpses)
     {
+        obj_ptr obj;
         available_corpses = int_map_alloc(NULL);
 
         /* In Pack */
         for (i = 1; i <= pack_max(); i++)
         {
-            object_type *o_ptr = pack_obj(i);
-            if (!o_ptr) continue;
-            if (!object_is_(o_ptr, TV_CORPSE, SV_CORPSE)) continue;
-            int_map_add(available_corpses, o_ptr->pval, NULL);
+            obj = pack_obj(i);
+            if (!obj) continue;
+            if (!object_is_(obj, TV_CORPSE, SV_CORPSE)) continue;
+            int_map_add(available_corpses, obj->pval, NULL);
         }
 
         /* At Home */
         for (i = 1; i <= home_max(); i++)
         {
-            object_type *o_ptr = home_obj(i);
-            if (!o_ptr) continue;
-            if (!object_is_(o_ptr, TV_CORPSE, SV_CORPSE)) continue;
-            int_map_add(available_corpses, o_ptr->pval, NULL);
+            obj = home_obj(i);
+            if (!obj) continue;
+            if (!object_is_(obj, TV_CORPSE, SV_CORPSE)) continue;
+            int_map_add(available_corpses, obj->pval, NULL);
         }
 
         /* Underfoot */
-        if (in_bounds2(py, px))
+        for (obj = obj_at(p_ptr->pos); obj; obj = obj->next)
         {
-            cave_type  *c_ptr = &cave[py][px];
-            s16b        o_idx = c_ptr->o_idx;
-
-            while (o_idx)
-            {
-                object_type *o_ptr = &o_list[o_idx];
-
-                if (object_is_(o_ptr, TV_CORPSE, SV_CORPSE))
-                    int_map_add(available_corpses, o_ptr->pval, NULL);
-
-                o_idx = o_ptr->next_o_idx;
-            }
+            if (!object_is_(obj, TV_CORPSE, SV_CORPSE)) continue;
+            int_map_add(available_corpses, obj->pval, NULL);
         }
 
         /* Current Form for Easier Comparisons */
@@ -3587,8 +3325,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
             int j;
             for (j = 0; j < MAX_KUBI; j++)
             {
-                if (kubi_r_idx[j] == i || kubi_r_idx[j] - 10000 == i ||
-                    (p_ptr->today_mon && p_ptr->today_mon == i))
+                if (kubi_r_idx[j] == i || (p_ptr->today_mon && p_ptr->today_mon == i))
                 {
                     wanted = TRUE;
                     break;
@@ -3968,18 +3705,18 @@ typedef struct {
 } _art_type_t;
 
 static _art_type_t _art_types[] = {
-    { object_is_melee_weapon, "Weapons" },
-    { object_is_shield, "Shield" },
-    { object_is_bow, "Bows" },
-    { object_is_ring, "Rings" },
-    { object_is_amulet, "Amulets" },
-    { object_is_lite, "Lights" },
-    { object_is_body_armour, "Body Armor" },
-    { object_is_cloak, "Cloaks" },
-    { object_is_helmet, "Helmets" },
-    { object_is_gloves, "Gloves" },
-    { object_is_boots, "Boots" },
-    { object_is_ammo, "Ammo" },
+    { obj_is_weapon, "Weapons" },
+    { obj_is_shield, "Shield" },
+    { obj_is_bow, "Bows" },
+    { obj_is_ring, "Rings" },
+    { obj_is_amulet, "Amulets" },
+    { obj_is_lite, "Lights" },
+    { obj_is_body_armor, "Body Armor" },
+    { obj_is_cloak, "Cloaks" },
+    { obj_is_helmet, "Helmets" },
+    { obj_is_gloves, "Gloves" },
+    { obj_is_boots, "Boots" },
+    { obj_is_ammo, "Ammo" },
     { NULL, NULL },
 };
 
@@ -4007,7 +3744,7 @@ static int _collect_arts(int grp_cur, int art_idx[], bool show_all)
             /*if (!a_ptr->generated) continue;*/
             if (!art_has_lore(a_ptr)) continue;
         }
-        if (!create_named_art_aux_aux(i, &forge)) continue;
+        if (!art_create_std(&forge, i, AM_DEBUG)) continue;
         if (!_art_types[grp_cur].filter(&forge)) continue;
 
         art_idx[cnt++] = i;
@@ -4161,7 +3898,7 @@ static void do_cmd_knowledge_artifacts(void)
             object_type forge;
             byte        attr = TERM_WHITE;
 
-            create_named_art_aux_aux(idx, &forge);
+            art_create_std(&forge, idx, AM_DEBUG);
             forge.ident = IDENT_KNOWN;
             object_desc(name, &forge, OD_OMIT_INSCRIPTION);
 
@@ -4170,7 +3907,7 @@ static void do_cmd_knowledge_artifacts(void)
             else if (!a_info[idx].found)
                 attr = TERM_L_DARK;
             else
-                attr = tval_to_attr[forge.tval % 128];
+                attr = tv_color(forge.tval);
 
             c_prt(attr, name, 6 + i, max + 3);
         }
@@ -4215,7 +3952,7 @@ static void do_cmd_knowledge_artifacts(void)
             {
                 int idx = art_idx[art_cur];
                 object_type forge;
-                create_named_art_aux_aux(idx, &forge);
+                art_create_std(&forge, idx, AM_DEBUG);
                 forge.ident = IDENT_KNOWN;
                 obj_display(&forge);
                 redraw = TRUE;
@@ -4378,50 +4115,15 @@ void do_cmd_knowledge_shooter(void)
 
 void do_cmd_knowledge_weapon(void)
 {
-    int i;
-    doc_ptr doc = doc_alloc(80);
-
-    for (i = 0; i < MAX_HANDS; i++)
-    {
-        if (p_ptr->weapon_info[i].wield_how == WIELD_NONE) continue;
-
-        if (p_ptr->weapon_info[i].bare_hands)
-            monk_display_attack_info(doc, i);
-        else
-            display_weapon_info(doc, i);
-    }
-
-    for (i = 0; i < p_ptr->innate_attack_ct; i++)
-    {
-        display_innate_attack_info(doc, i);
-    }
-
-    if (doc_line_count(doc))
-    {
-        screen_save();
-        doc_display(doc, "Melee", 0);
-        screen_load();
-    }
-    else
-        msg_print("You have no melee attacks.");
-
-    doc_free(doc);
+    plr_attack_display();
 }
 
 static void do_cmd_knowledge_extra(void)
 {
     doc_ptr  doc = doc_alloc(80);
-    class_t *class_ptr = get_class();
-    race_t  *race_ptr = get_race();
 
     doc_insert(doc, "<style:wide>");
-
-    if (race_ptr->character_dump)
-        race_ptr->character_dump(doc);
-
-    if (class_ptr->character_dump)
-        class_ptr->character_dump(doc);
-
+    plr_hook_character_dump(doc);
     doc_insert(doc, "</style>");
 
     doc_display(doc, "Race/Class Extra Information", 0);
@@ -4711,64 +4413,43 @@ void plural_aux(char *Name)
  */
 static void do_cmd_knowledge_pets(void)
 {
-    int             i;
-    FILE            *fff;
-    monster_type    *m_ptr;
-    monster_race    *r_ptr;
-    char            pet_name[80];
-    int             t_friends = 0;
-    int             show_upkeep = 0;
-    char            file_name[1024];
+    doc_ptr doc = doc_alloc(80);
+    vec_ptr pets = plr_pets();
+    int     ct = vec_length(pets);
+    int     i;
+    char    pet_name[MAX_NLEN_MON];
 
-
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff) {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
-
-    /* Process the monsters (backwards) */
-    for (i = m_max - 1; i >= 1; i--)
+    if (ct)
     {
-        /* Access the monster */
-        m_ptr = &m_list[i];
-        r_ptr = &r_info[m_ptr->r_idx];
-
-        /* Ignore "dead" monsters */
-        if (!m_ptr->r_idx) continue;
-
-        /* Calculate "upkeep" for pets */
-        if (is_pet(m_ptr))
+        doc_printf(doc, "  <color:G>Leading Pets</color>\n");
+        for (i = 0; i < ct; i++)
         {
-            t_friends++;
-            monster_desc(pet_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
-            fprintf(fff, "%s (", pet_name);
-            if (r_ptr->r_tkills)
-                fprintf(fff, "L%d, ", r_ptr->level);
-            fprintf(fff, "%s)\n", mon_health_desc(m_ptr));
+            mon_ptr pet = vec_get(pets, i);
+            monster_desc(pet_name, pet, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE | MD_NO_PET_ABBREV);
+            doc_printf(doc, "  <indent><style:indent>%s (L%d, %s)</style></indent>\n",
+                pet_name, mon_race(pet)->level, mon_health_desc(pet));
         }
+        doc_printf(doc, "  <color:R>Total :</color> %d pet%s.\n", ct, (ct == 1) ? "" : "s");
+        doc_printf(doc, "  <color:R>Upkeep:</color> %d%% mana.\n", calculate_upkeep());
     }
+    else
+        doc_insert(doc, "  <color:U>You have no pets.</color>\n");
 
-    show_upkeep = calculate_upkeep();
+    doc_printf(doc, "\n  <color:G>Options</color>\n");
+    doc_printf(doc, "  Pets open doors:                    %s\n", (p_ptr->pet_extra_flags & PF_OPEN_DOORS) ? "ON" : "OFF");
+    doc_printf(doc, "  Pets pick up items:                 %s\n", (p_ptr->pet_extra_flags & PF_PICKUP_ITEMS) ? "ON" : "OFF");
+    doc_printf(doc, "  Allow teleport:                     %s\n", (p_ptr->pet_extra_flags & PF_TELEPORT) ? "ON" : "OFF");
+    doc_printf(doc, "  Allow cast attack spell:            %s\n", (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
+    doc_printf(doc, "  Allow cast summon spell:            %s\n", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
+    doc_printf(doc, "  Allow involve player in area spell: %s\n", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
+    if (p_ptr->wizard)
+        doc_printf(doc, "  Riding Skill:                       %d\n", skills_riding_current());
 
-    fprintf(fff, "----------------------------------------------\n");
-    fprintf(fff, "   Total: %d pet%s.\n",
-        t_friends, (t_friends == 1 ? "" : "s"));
-    fprintf(fff, "   Upkeep: %d%% mana.\n", show_upkeep);
+    doc_newline(doc);
+    doc_display(doc, "Pets", 0);
 
-
-
-    /* Close the file */
-    my_fclose(fff);
-
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Current Pets", 0, 0);
-
-
-    /* Remove the file */
-    fd_kill(file_name);
+    vec_free(pets);
+    doc_free(doc);
 }
 
 
@@ -6855,9 +6536,10 @@ static void do_cmd_knowledge_kubi(void)
         for (i = 0; i < MAX_KUBI; i++)
         {
             int id = kubi_r_idx[i];
-            if (0 < id && id < 10000)
+            mon_race_ptr race = mon_race_lookup(id);
+            if (race && !(race->flagsx & RFX_BOUNTY))
             {
-                fprintf(fff,"%s\n", r_name + r_info[id].name);
+                fprintf(fff,"%s\n", r_name + race->name);
                 listed = TRUE;
             }
         }
@@ -6887,7 +6569,7 @@ static void do_cmd_knowledge_virtues(void)
 {
     doc_ptr doc = doc_alloc(80);
 
-    virtue_display(doc);
+    virtue_display(doc, FALSE);
     doc_display(doc, "Virtues", 0);
     doc_free(doc);
 }
@@ -6900,7 +6582,7 @@ static void do_cmd_knowledge_dungeon(void)
 {
     doc_ptr doc = doc_alloc(80);
 
-    py_display_dungeons(doc);
+    plr_display_dungeons(doc);
     doc_display(doc, "Dungeons", 0);
     doc_free(doc);
 }
@@ -6911,6 +6593,7 @@ static void do_cmd_knowledge_stat(void)
     race_t          *race_ptr = get_race();
     class_t         *class_ptr = get_class();
     personality_ptr  pers_ptr = get_personality();
+    dun_world_ptr    world = dun_worlds_current();
     int              i;
 
     if (p_ptr->knowledge & KNOW_HPRATE)
@@ -6928,6 +6611,24 @@ static void do_cmd_knowledge_stat(void)
             doc_printf(doc, "%s <color:y>\?\?\?</color>\n", stat_names[i]);
     }
     doc_insert(doc, "\n\n");
+
+    doc_printf(doc, "<color:r>World:</color> <color:B>%s</color>\n", world->name);
+    if (world->plr_flags & WFP_COMPLETED)
+    {
+        dun_type_ptr type = dun_types_lookup(world->final_dungeon);
+        if (world->next_world_id)
+        {
+            doc_printf(doc, "You have completed this world. A magical portal "
+                            "awaits you on level %d of <color:U>%s</color> when you are "
+                            "ready to continue your quest.\n\n", type->max_dun_lvl, type->name);
+        }
+        else
+        {
+            doc_insert(doc, "You have won the game! You may retire (commit suicide) when ready.\n\n");
+        }
+    }
+    else
+        doc_printf(doc, "%s\n\n", world->desc);
 
     doc_printf(doc, "<color:r>Race:</color> <color:B>%s</color>\n", race_ptr->name);
     doc_insert(doc, race_ptr->desc);
@@ -7068,27 +6769,28 @@ void do_cmd_knowledge(void)
         prt("(p) Pets", row++, col);
         row++;
 
-        row = 4;
-        col = 30;
-
         c_prt(TERM_RED, "Dungeon Knowledge", row++, col - 2);
         prt("(d) Dungeons", row++, col);
         prt("(q) Quests", row++, col);
         prt("(t) Terrain Symbols.", row++, col);
         row++;
 
+        row = 4;
+        col = 30;
+
         c_prt(TERM_RED, "Self Knowledge", row++, col - 2);
         prt("(@) About Yourself", row++, col);
         if (p_ptr->prace != RACE_MON_RING)
             prt("(W) Weapon Damage", row++, col);
-        if (equip_find_obj(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo != TV_NO_AMMO)
+        if (equip_find_obj(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo)
             prt("(S) Shooter Damage", row++, col);
         if (mut_count(NULL))
             prt("(M) Mutations", row++, col);
         prt("(v) Virtues", row++, col);
-        if (class_ptr->character_dump || race_ptr->character_dump)
+        if (class_ptr->hooks.character_dump || race_ptr->hooks.character_dump)
             prt("(x) Extra info", row++, col);
         prt("(H) High Score List", row++, col);
+        prt("(n) Change Player Name", row++, col);
         row++;
 
         c_prt(TERM_RED, "Skills", row++, col - 2);
@@ -7098,8 +6800,8 @@ void do_cmd_knowledge(void)
         row++;
 
         /* Prompt */
-        prt("ESC) Exit menu", 21, 1);
-        prt("Command: ", 20, 0);
+        prt("ESC) Exit menu", 23, 1);
+        prt("Command: ", 22, 0);
 
         /* Prompt */
         i = inkey();
@@ -7164,7 +6866,7 @@ void do_cmd_knowledge(void)
                 bell();
             break;
         case 'S':
-            if (equip_find_obj(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo != TV_NO_AMMO)
+            if (equip_find_obj(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo)
                 do_cmd_knowledge_shooter();
             else
                 bell();
@@ -7179,7 +6881,7 @@ void do_cmd_knowledge(void)
             do_cmd_knowledge_virtues();
             break;
         case 'x':
-            if (class_ptr->character_dump || race_ptr->character_dump)
+            if (class_ptr->hooks.character_dump || race_ptr->hooks.character_dump)
                 do_cmd_knowledge_extra();
             else
                 bell();
@@ -7192,6 +6894,11 @@ void do_cmd_knowledge(void)
             scores_display(scores);
             vec_free(scores);
             break; }
+
+        case 'n':
+            if (plr_get_name())
+                process_player_name(FALSE);
+            break;
 
         /* Skills */
         case 'P':
@@ -7251,7 +6958,7 @@ void do_cmd_time(void)
 
 
     /* Find the path */
-    if (!randint0(10) || p_ptr->image)
+    if (!randint0(10) || plr_tim_find(T_HALLUCINATE))
     {
         path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "timefun.txt");
 

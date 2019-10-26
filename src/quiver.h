@@ -21,6 +21,7 @@ extern void    quiver_carry(obj_ptr obj); /* combines quiver, then carries pack,
 extern void    quiver_remove(slot_t slot);
 extern void    quiver_remove_all(void); /* player lost quiver due to shapeshifting ... */
 extern void    quiver_drop(obj_ptr obj);
+extern bool    quiver_check_swap(obj_ptr obj);
 
 /* Accessing, Iterating, Searching */
 extern obj_ptr quiver_obj(slot_t slot);
@@ -34,6 +35,7 @@ extern slot_t  quiver_find_next(obj_p p, slot_t prev_match);
 extern slot_t  quiver_find_art(int which);
 extern slot_t  quiver_find_ego(int which);
 extern slot_t  quiver_find_obj(int tval, int sval);
+extern slot_t  quiver_find_device(int effect);
 extern slot_t  quiver_random_slot(obj_p p);
 
 /* The quiver will 'optimize' upon request, combining objects via

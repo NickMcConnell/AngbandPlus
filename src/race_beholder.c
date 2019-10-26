@@ -6,8 +6,8 @@ static void _birth(void)
     equip_on_change_race();
     skills_innate_init("Gaze", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 static int _rank(void)
@@ -23,69 +23,47 @@ static int _rank(void)
 /**********************************************************************
  * Innate Attacks
  **********************************************************************/
+static void _calc_innate_bonuses(mon_blow_ptr blow)
+{
+    int pow = p_ptr->lev + adj_dex_blow[p_ptr->stat_ind[A_INT]];
+    if (blow->method != RBM_GAZE) return;
+    blow->blows = 100 + MIN(300, 300 * pow / 60);
+}
 static void _calc_innate_attacks(void)
 {
-    if (!p_ptr->blind)
+    mon_blow_ptr blow = mon_blow_alloc(RBM_GAZE);
+    int l = p_ptr->lev;
+    int r = _rank();
+    int dd = 2 + r;
+    int ds = 3 + r;
+
+    /* Beholder melee is unusual as the attacks are not physical. So, Str and Dex
+       do not affect blows, accuracy or damage (cf calc_bonuses in xtra1.c). Rings
+       of Combat still work, though, as does Weaponmastery (if you can find it!) */
+    blow->power = p_ptr->lev*BTH_PLUS_ADJ;
+    mon_blow_push_effect(blow, GF_MISSILE, dice_create(dd, ds, p_ptr->lev/2));
+    mon_blow_push_effect(blow, GF_DRAIN_MANA, dice_create(dd, ds, 0))->pct = 50 + l;
+    mon_blow_push_effect(blow, GF_OLD_CONF, dice_create(0, 0, l*2))->pct = 40 + l;
+
+    if (p_ptr->lev >= 45)
+        mon_blow_push_effect(blow, GF_STASIS, dice_create(dd, ds, 0))->pct = 15 + (l - 45);
+    else
+        mon_blow_push_effect(blow, GF_OLD_SLEEP, dice_create(0, 0, l*2))->pct = 30 + l;
+
+    mon_blow_push_effect(blow, GF_TURN_ALL, dice_create(0, 0, l))->pct = 15 + l/2;
+
+    if (p_ptr->lev >= 35)
     {
-        innate_attack_t a = {0};
-        int l = p_ptr->lev;
-        int r = _rank();
-
-        /* Beholder melee is unusual as the attacks are not physical. So, Str and Dex
-           do not affect blows, accuracy or damage (cf calc_bonuses in xtra1.c). Rings
-           of Combat still work, though, as does Weaponmastery (if you can find it!) */
-
-        a.weight = 250; /* unused */
-        a.flags = INNATE_NO_CRIT; /* You are gazing at enemies, not bashing them with your eyeballs! */
-
-        a.dd = 2 + r;    /* Max: 6d7 (+50, +25) ... We miss out (+32, +20) from Str and Dex bonuses! */
-        a.ds = 3 + r;
-        a.to_h = p_ptr->lev;
-        a.to_d = p_ptr->lev/2;
-
-        a.effect[0] = GF_MISSILE;
-
-        a.effect[1] = GF_DRAIN_MANA;
-        a.effect_chance[1] = 50+l;
-
-        a.effect[2] = GF_OLD_CONF;
-        a.effect_chance[2] = 40+l;
-
-        if (p_ptr->lev >= 45)
-        {
-            a.effect[3] = GF_STASIS;
-            a.effect_chance[3] = 15 + l/2;
-        }
-        else
-        {
-            a.effect[3] = GF_OLD_SLEEP;
-            a.effect_chance[3] = 30+l;
-        }
-
-        a.effect[4] = GF_TURN_ALL;
-        a.effect_chance[4] = 15 + l/2;
-
-        if (p_ptr->lev >= 35)
-        {
-            a.effect[5] = GF_STUN;
-            a.effect_chance[5] = 15 + l/2;
-
-            a.effect[6] = GF_AMNESIA;
-            a.effect_chance[6] = 15 + l/2;
-        }
-
-        {
-            int pow = p_ptr->lev + adj_dex_blow[p_ptr->stat_ind[A_INT]];
-            a.blows = 100 + MIN(300, 300 * pow / 60);
-        }
-        a.msg = "You gaze.";
-        a.name = "Gaze";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        mon_blow_push_effect(blow, GF_STUN, dice_create(dd/2, ds, 0))->pct = 15 + (l - 35)/3;
+        /* XXX no longer works in new spell system
+         * mon_blow_push_effect(blow, GF_AMNESIA, dice_create(dd, ds, 0))->pct = 15 + l/2;*/
     }
+
+    _calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
 }
 
-static void _gaze_spell(int cmd, variant *res)
+static void _gaze_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -105,24 +83,25 @@ static void _gaze_spell(int cmd, variant *res)
         break;
     }
     case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        project_length = 6 + _rank();
-        if (get_fire_dir(&dir))
+    case SPELL_ON_BROWSE: {
+        plr_attack_t context = {0};
+        int rng = 6 + _rank();
+        context.attack_desc = "gaze at";
+        if (cmd == SPELL_CAST)
+            var_set_bool(res, plr_attack_special_aux(&context, rng));
+        else
         {
-            project_hook(GF_ATTACK, dir, BEHOLDER_GAZE, PROJECT_STOP | PROJECT_KILL);
+            plr_attack_display_aux(&context);
             var_set_bool(res, TRUE);
         }
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _vision_spell(int cmd, variant *res)
+static void _vision_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -177,7 +156,7 @@ static spell_info _ultimate_beholder_spells[] = {
     { -1, -1, -1, NULL}
 };
 static int _get_spells(spell_info* spells, int max) {
-    if (p_ptr->blind)
+    if (plr_tim_find(T_BLIND))
     {
         msg_print("You can't see!");
         return 0;
@@ -264,6 +243,8 @@ static void _calc_bonuses(void) {
     {
         res_add(RES_POIS);
     }
+    if (p_ptr->lev >= 25)
+        p_ptr->wizard_sight = TRUE;
 }
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_LEVITATION);
@@ -358,20 +339,20 @@ static caster_info * _caster_info(void)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_beholder_get_race(void)
+plr_race_ptr mon_beholder_get_race(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[5] =  {"Gazer", "Spectator", "Beholder", "Undead Beholder", "Ultimate Beholder"};
     int           rank = _rank();
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  50,  47,   7,  20,  20,  40,  20};
     skills_t xs = { 10,  20,  15,   1,  20,  20,  16,   7};
 
-        me.name = "Beholder";
-        me.desc = "Beholders are floating orbs of flesh with a single central eye surrounded by "
+        me = plr_race_alloc(RACE_MON_BEHOLDER);
+        me->name = "Beholder";
+        me->desc = "Beholders are floating orbs of flesh with a single central eye surrounded by "
                     "numerous smaller eyestalks. They attack with their gaze which often confuses or "
                     "even paralyzes their foes. They are unable to wield normal weapons or armor, but "
                     "may equip a single ring on each of their eyestalks, and the number of eyestalks "
@@ -390,41 +371,41 @@ race_t *mon_beholder_get_race(void)
                     "in order to attack with melee. They may gaze at distant monsters, though the range "
                     "of their gaze is somewhat restricted.";
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 8;
-        me.exp = 200;
-        me.base_hp = 20;
-        me.life = 100;
-        me.shop_adjust = 140;
+        me->infra = 8;
+        me->exp = 200;
+        me->base_hp = 20;
+        me->life = 100;
+        me->shop_adjust = 140;
 
-        me.birth = _birth;
-        me.calc_innate_attacks = _calc_innate_attacks;
-        me.get_spells = _get_spells;
-        me.get_powers = _get_powers;
-        me.caster_info = _caster_info;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
+        me->hooks.birth = _birth;
+        me->hooks.calc_innate_attacks = _calc_innate_attacks;
+        me->hooks.calc_innate_bonuses = _calc_innate_bonuses;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
 
-        me.flags = RACE_IS_MONSTER;
-        me.boss_r_idx = MON_OMARAX;
-        init = TRUE;
+        me->flags = RACE_IS_MONSTER;
+        me->boss_r_idx = MON_OMARAX;
     }
 
     if (!birth_hack && !spoiler_hack)
-        me.subname = titles[rank];
-    me.stats[A_STR] = -3;
-    me.stats[A_INT] =  4 + rank;
-    me.stats[A_WIS] =  0;
-    me.stats[A_DEX] =  1 + rank/2;
-    me.stats[A_CON] =  0;
-    me.stats[A_CHR] =  0 + rank/2;
+        me->subname = titles[rank];
+    me->stats[A_STR] = -3;
+    me->stats[A_INT] =  4 + rank;
+    me->stats[A_WIS] =  0;
+    me->stats[A_DEX] =  1 + rank/2;
+    me->stats[A_CON] =  0;
+    me->stats[A_CHR] =  0 + rank/2;
 
-    me.pseudo_class_idx = CLASS_MAGE;
+    me->pseudo_class_idx = CLASS_MAGE;
 
-    me.equip_template = mon_get_equip_template();
+    me->equip_template = mon_get_equip_template();
 
-    return &me;
+    return me;
 }

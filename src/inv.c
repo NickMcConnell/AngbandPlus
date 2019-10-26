@@ -113,44 +113,23 @@ inv_ptr inv_filter(inv_ptr src, obj_p p)
 
 /* floor objects form a linked list. There is no slot structure to
  * preserve. This 'fake inventory' is useful for obj_prompt */
-inv_ptr inv_filter_floor(point_t loc, obj_p p)
+inv_ptr inv_filter_floor(point_t pos, obj_p p)
 {
     inv_ptr    result = malloc(sizeof(inv_t));
-    cave_type *c_ptr = &cave[loc.y][loc.x];
-    int        this_o_idx, next_o_idx = 0;
+    obj_ptr    obj;
 
     result->name = "Floor";
     result->type = INV_FLOOR;
     result->max = 0;
     result->flags = _FILTER;
-    result->objects = vec_alloc(NULL); /* o_list owns the objects! */
+    result->objects = vec_alloc(NULL); /* cave owns the objects! */
 
     vec_add(result->objects, NULL); /* slot 0 is invalid */
 
-    if (0 && p_ptr->wizard) /* wizards have mighty magicks */
+    for (obj = obj_at(pos); obj; obj = obj->next)
     {
-        result->name = "*FLOOR*";
-        for (this_o_idx = 0; this_o_idx < max_o_idx; this_o_idx++)
-        {
-            obj_ptr obj = &o_list[this_o_idx];
-            assert(obj);
-            if (!obj->k_idx) continue;
-            if (_filter(obj, p))
-                vec_add(result->objects, obj);
-        }
-    }
-    else
-    {
-        for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-        {
-            obj_ptr obj = &o_list[this_o_idx];
-
-            assert(obj);
-            assert(obj->k_idx);
-            next_o_idx = obj->next_o_idx;
-            if (_filter(obj, p))
-                vec_add(result->objects, obj);
-        }
+        if (_filter(obj, p))
+            vec_add(result->objects, obj);
     }
     return result;
 }
@@ -183,7 +162,7 @@ static void _add_aux(inv_ptr inv, obj_ptr obj, slot_t slot)
     assert(!(inv->flags & _FILTER));
 
     loc.where = inv->type;
-    loc.slot = slot;
+    loc.v.slot = slot;
 
     copy = obj_copy(obj);
     copy->loc = loc;
@@ -237,7 +216,7 @@ slot_t inv_combine(inv_ptr inv, obj_ptr obj)
         obj_ptr dest = vec_get(inv->objects, slot);
         if (!dest) continue;
         if ( obj_can_combine(dest, obj, inv->type)
-          && dest->number + obj->number <= OBJ_STACK_MAX )
+          && dest->number + obj->number <= obj_stack_max(obj) )
         {
             obj_combine(dest, obj, inv->type);
             dest->marked |= OM_DELAYED_MSG;
@@ -265,7 +244,7 @@ bool inv_can_combine(inv_ptr inv, obj_ptr obj)
         obj_ptr dest = vec_get(inv->objects, slot);
         if (!dest) continue;
         if ( obj_can_combine(dest, obj, inv->type)
-          && dest->number + obj->number <= OBJ_STACK_MAX )
+          && dest->number + obj->number <= obj_stack_max(obj) )
         {
             return TRUE;
         }
@@ -372,8 +351,8 @@ bool inv_sort_aux(inv_ptr inv, obj_cmp_f f)
                 obj_ptr obj = vec_get(inv->objects, slot);
                 if (obj)
                 {
-                    obj->loc.slot = slot;
                     assert(obj->loc.where == inv->type);
+                    obj->loc.v.slot = slot;
                 }
             }
         }
@@ -392,9 +371,9 @@ void inv_swap(inv_ptr inv, slot_t left, slot_t right)
     vec_swap(inv->objects, left, right);
 
     obj = vec_get(inv->objects, left);
-    if (obj) obj->loc.slot = left;
+    if (obj) obj->loc.v.slot = left;
     obj = vec_get(inv->objects, right);
-    if (obj) obj->loc.slot = right;
+    if (obj) obj->loc.v.slot = right;
 }
 
 /* Iterating, Searching and Accessing Objects (Predicates are always optional) */

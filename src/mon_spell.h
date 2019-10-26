@@ -49,11 +49,6 @@ enum {
     MSP_DICE,     /* for damage or duration of timed effects */
     MSP_HP_PCT,   /* percentage of chp for damage up to a max */
 };
-typedef struct {  /* XdY+Z ... Note: Mana Bolt needs a very high ds */
-    s16b dd;
-    s16b ds;     
-    s16b base;
-} dice_t;
 typedef struct {  /* MIN(m->chp*pct/100, max) */
     byte pct;
     s16b max;
@@ -63,6 +58,7 @@ typedef struct {
         dice_t   dice;
         hp_pct_t hp_pct;
     } v;
+    byte wgt;  /* e.g. 'x3' gives 3 times the normal spell frequency */
     byte tag;
 } mon_spell_parm_t, *mon_spell_parm_ptr;
 
@@ -134,7 +130,7 @@ extern void           mon_spells_save(mon_spells_ptr spells, savefile_ptr file);
 /* Finally, it is time to cast a spell!
  * Note, this is slightly more complicated then I would like since monsters
  * may splash the player. We need not just a spell from the AI, but possibly
- * a target location as well. Also, monsters may cast spells at other monster
+ * a target location as well. Also, monsters may cast spells at other monsters
  * and certain players can use monster spells directly (e.g. Possessor).
  * We'll group everything we need to actually cast a spell into the following
  * complicated mon_spell_cast (MSC) struct: */
@@ -181,10 +177,14 @@ extern bool mon_has_worthy_attack_spell(mon_ptr mon);
 extern bool mon_race_has_worthy_attack_spell(mon_race_ptr race);
 extern bool mon_has_innate_spell(mon_ptr mon);
 extern bool mon_race_has_innate_spell(mon_race_ptr race);
+extern bool mon_race_has_noninnate_spell(mon_race_ptr race);
 extern bool mon_has_summon_spell(mon_ptr mon);
 extern bool mon_race_has_summon_spell(mon_race_ptr race);
+extern bool mon_has_breath(mon_ptr mon, int gf);
+extern bool mon_race_has_breath(mon_race_ptr race, int gf);
 extern bool mon_has_spell_type(mon_ptr mon, int type);
 extern bool mon_race_has_spell_type(mon_race_ptr race, int type);
+extern bool mon_race_has_spell(mon_race_ptr race, int type, int effect);
 extern int  mon_spell_freq(mon_ptr mon);
 extern int  mon_race_spell_freq(mon_race_ptr race);
 extern bool mon_race_has_invulnerability(mon_race_ptr race);

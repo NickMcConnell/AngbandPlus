@@ -14,7 +14,7 @@ extern int auto_more_state;
 struct msg_s
 {
     string_ptr msg;
-    int        turn;
+    u32b       turn;
     int        count;
     byte       color;
 };

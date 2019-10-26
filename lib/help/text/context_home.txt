@@ -20,8 +20,8 @@ item you wish to drop. Similarly, to get items from your home, you use
 the g command and then enter the label of the item you want. After a 
 bit of game play, your home might look like so:
 
-                                   Home                                         
-                                                                                
+                                   Home
+
     Item Description                                               Weight  Score
  a) 2 Soft Studded Leathers [5,+4]                                9.0 lbs    514
  b) Rhino Hide Armour (-1) [8,+1]                                11.0 lbs    384
@@ -37,10 +37,10 @@ bit of game play, your home might look like so:
  l) a Long Sword (2d5) (+0,+0)                                   13.0 lbs    171
  m) an Awl-Pike (1d8) (+0,+0)                                    16.0 lbs    175
  n) a Trident (1d8) (+0,+0)                                       7.0 lbs     81
-(Page 3 of 4)                                                                   
-g to get an item. d to drop an item. x to begin examining items.                
-r to begin removing (destroying) items.                                         
-Esc to exit. ? for help.                                                        
+(Page 3 of 4)
+g to get an item. d to drop an item. x to begin examining items.
+r to begin removing (destroying) items.
+Esc to exit. ? for help.
 
 Once there are more objects then can be displayed on your screen, the 
 inventory will be listed in pages. Use the Page Up and Page Down keys 

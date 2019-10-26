@@ -19,7 +19,7 @@ typedef struct {
     char *sex;
     char *personality;
     int   gold;
-    int   turns;
+    u32b  turns;
     int   clvl;
     int   dlvl;
     char *dungeon;

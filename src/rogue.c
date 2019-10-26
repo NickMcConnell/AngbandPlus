@@ -5,7 +5,7 @@
  ****************************************************************************/
 static cptr _rogue_pick_pocket(int power)
 {
-    int           y, x, m_idx, dir;
+    int           y, x, dir;
     monster_type *m_ptr;
     monster_race *r_ptr;
     char          m_name[MAX_NLEN];
@@ -17,20 +17,19 @@ static cptr _rogue_pick_pocket(int power)
     if (!get_rep_dir2(&dir)) return NULL;
     if (dir == 5) return NULL;
 
-    y = py + ddy[dir];
-    x = px + ddx[dir];
+    y = p_ptr->pos.y + ddy[dir];
+    x = p_ptr->pos.x + ddx[dir];
 
-    if (!cave[y][x].m_idx)
+    m_ptr = mon_at_xy(x, y);
+    if (!m_ptr)
     {
         msg_print("There is no monster.");
         return NULL;
     }
 
-    m_idx = cave[y][x].m_idx;
-    m_ptr = &m_list[m_idx];
-    r_ptr = &r_info[m_ptr->r_idx];
+    r_ptr = mon_race_lookup(m_ptr->r_idx);
 
-    if (!m_ptr->ml || p_ptr->image) /* Can't see it, so can't steal! */
+    if (!m_ptr->ml || plr_tim_find(T_HALLUCINATE)) /* Can't see it, so can't steal! */
     {
         msg_print("There is no monster.");
         return NULL;
@@ -39,67 +38,47 @@ static cptr _rogue_pick_pocket(int power)
     monster_desc(m_name, m_ptr, 0);
 
     if ( !mon_save_aux(m_ptr->r_idx, power)
-      || (MON_CSLEEP(m_ptr) && !mon_save_aux(m_ptr->r_idx, power)))
+      || (mon_tim_find(m_ptr, MT_SLEEP) && !mon_save_aux(m_ptr->r_idx, power)))
     {
-        object_type loot = {0};
-
-        if (m_ptr->hold_o_idx && one_in_(2))
-        {
-            object_copy(&loot, &o_list[m_ptr->hold_o_idx]);
-            delete_object_idx(m_ptr->hold_o_idx);
-            loot.held_m_idx = 0;
-        }
-        else if (m_ptr->drop_ct > m_ptr->stolen_ct)
-        {
-            if (get_monster_drop(m_idx, &loot))
-            {
-                m_ptr->stolen_ct++;
-                if (r_ptr->flags1 & RF1_UNIQUE)
-                    r_ptr->stolen_ct++;
-            }
-        }
-
-        if (!loot.k_idx)
+        obj_ptr loot = mon_pick_pocket(m_ptr);
+        if (!loot)
         {
             msg_print("There is nothing to steal!");
         }
         else
         {
-            object_desc(o_name, &loot, 0);
+            object_desc(o_name, loot, 0);
             if (mon_save_aux(m_ptr->r_idx, power))
             {
                 msg_format("Oops! You drop %s.", o_name);
-                drop_near(&loot, -1, y, x);
+                drop_near(loot, point_create(x, y), -1);
             }
-            else if (loot.tval == TV_GOLD)
+            else if (loot->tval == TV_GOLD)
             {
-                msg_format("You steal %d gold pieces worth of %s.", (int)loot.pval, o_name);
+                msg_format("You steal %d gold pieces worth of %s.", (int)loot->pval, o_name);
                 sound(SOUND_SELL);
-                p_ptr->au += loot.pval;
-                stats_on_gold_find(loot.pval);
-                p_ptr->redraw |= (PR_GOLD);
+                p_ptr->au += loot->pval;
+                stats_on_gold_find(loot->pval);
+                p_ptr->redraw |= PR_GOLD;
             }
             else
             {
-                pack_carry(&loot);
+                pack_carry(loot);
                 msg_format("You steal %s.", o_name);
             }
         }
 
         if ((r_ptr->flags1 & RF1_UNIQUE) || mon_save_aux(m_ptr->r_idx, power))
         {
-            set_monster_csleep(m_idx, 0);
+            mon_tim_remove(m_ptr, MT_SLEEP);
             if ( allow_ticked_off(r_ptr)
               && ((r_ptr->flags1 & RF1_UNIQUE) || mon_save_aux(m_ptr->r_idx, power)) )
             {
-                msg_format("%^s wakes up and looks very mad!", m_name);
                 mon_anger(m_ptr);
             }
-            else
-                msg_format("%^s wakes up.", m_name);
         }
 
-        if (loot.k_idx)
+        if (loot)
         {
             if (mon_save_aux(m_ptr->r_idx, power))
                 msg_print("You fail to run away!");
@@ -108,18 +87,15 @@ static cptr _rogue_pick_pocket(int power)
                 if (p_ptr->lev < 35 || get_check("Run away?"))
                     teleport_player(25 + p_ptr->lev/2, 0L);
             }
+            obj_free(loot);
         }
     }
-    else if (MON_CSLEEP(m_ptr))
+    else if (mon_tim_find(m_ptr, MT_SLEEP))
     {
-        set_monster_csleep(m_idx, 0);
+        msg_print("Failed!");
+        mon_tim_remove(m_ptr, MT_SLEEP);
         if (allow_ticked_off(r_ptr))
-        {
-            msg_format("Failed! %^s wakes up and looks very mad!", m_name);
             mon_anger(m_ptr);
-        }
-        else
-            msg_format("Failed! %^s wakes up.", m_name);
     }
     else if (allow_ticked_off(r_ptr))
     {
@@ -141,29 +117,15 @@ static cptr _rogue_pick_pocket(int power)
 
 static cptr _rogue_negotiate(void)
 {
-    int           m_idx = 0;
-    monster_type *m_ptr;
+    monster_type *m_ptr = plr_target_mon();
     monster_race *r_ptr;
     char          m_name[MAX_NLEN];
 
-    if (target_set(TARGET_MARK))
-    {
-        if (target_who > 0)
-            m_idx = target_who;
-        else
-            m_idx = cave[target_row][target_col].m_idx;
-    }
+    if (!m_ptr) return NULL;
 
-    if (!m_idx)
-    {
-        msg_print("There is no monster.");
-        return NULL;
-    }
+    r_ptr = mon_race_lookup(m_ptr->r_idx);
 
-    m_ptr = &m_list[m_idx];
-    r_ptr = &r_info[m_ptr->r_idx];
-
-    if (!m_ptr->ml || p_ptr->image)
+    if (!m_ptr->ml || plr_tim_find(T_HALLUCINATE))
     {
         msg_print("There is no monster.");
         return NULL;
@@ -177,7 +139,7 @@ static cptr _rogue_negotiate(void)
         return NULL;
     }
 
-    set_monster_csleep(m_idx, 0);
+    mon_tim_delete(m_ptr, MT_SLEEP);
 
     if (r_ptr->flags2 & RF2_THIEF)
         mon_lore_2(m_ptr, RF2_THIEF);
@@ -235,6 +197,38 @@ static cptr _rogue_negotiate(void)
         mon_anger(m_ptr);
     }
     return "";
+}
+
+static void _assassinate_check(plr_attack_ptr ctx)
+{
+    if (!mon_tim_find(ctx->mon, MT_SLEEP))
+    {
+        msg_print("This only works for sleeping monsters.");
+        ctx->stop = STOP_PLR_SPECIAL;
+        ctx->energy = 0;
+    }
+}
+static void _assassinate_mod_damage(plr_attack_ptr ctx)
+{
+    if (mon_is_unique(ctx->mon) || mon_save_p(ctx->race->id, A_DEX))
+    {
+        ctx->dam *= 5;
+        ctx->dam_drain *= 2;
+        msg_format("<color:R>You critically injured %s!</color>", ctx->mon_name_obj);
+    }
+    else
+    {
+        ctx->dam = ctx->mon->hp + 1;
+        msg_format("<color:v>You hit %s on a fatal spot!</color>", ctx->mon_name_obj);
+    }
+}
+static bool _assassinate(void)
+{
+    plr_attack_t ctx = {0};
+    ctx.flags = PAC_NO_INNATE | PAC_ONE_BLOW;
+    ctx.hooks.begin_f = _assassinate_check;
+    ctx.hooks.mod_damage_f = _assassinate_mod_damage;
+    return plr_attack_special_aux(&ctx, 1);
 }
 
 
@@ -307,7 +301,7 @@ cptr do_burglary_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-                set_tim_infra(base + randint1(base), FALSE);
+                plr_tim_add(T_INFRAVISION, base + randint1(base));
         }
         break;
 
@@ -318,8 +312,7 @@ cptr do_burglary_spell(int spell, int mode)
             int base = spell_power(50);
 
             if (info) return info_duration(base, base);
-            if (cast)
-                set_tim_dark_stalker(base + randint1(base), FALSE);
+            if (cast) plr_tim_add(T_STEALTH, base + randint1(base));
         }
         break;
 
@@ -346,7 +339,7 @@ cptr do_burglary_spell(int spell, int mode)
         if (desc) return "Sets a weak trap under you. This trap will have various weak effects on a passing monster.";
 
         if (cast)
-            set_trap(py, px, feat_rogue_trap1);
+            set_trap(p_ptr->pos.y, p_ptr->pos.x, feat_rogue_trap1);
         break;
 
     /* Thieving Ways */
@@ -394,13 +387,13 @@ cptr do_burglary_spell(int spell, int mode)
         if (name) return "Eye for Danger";
         if (desc) return "Gives telepathy for a while.";
         {
-            int base = 25;
-            int sides = 30;
+            int base = spell_power(25);
+            int sides = spell_power(30);
 
             if (info) return info_duration(base, sides);
 
             if (cast)
-                set_tim_esp(randint1(sides) + base, FALSE);
+                plr_tim_add(T_TELEPATHY, randint1(sides) + base);
         }
         break;
 
@@ -420,7 +413,7 @@ cptr do_burglary_spell(int spell, int mode)
         if (desc) return "Sets a trap under you. This trap will have various effects on a passing monster.";
 
         if (cast)
-            set_trap(py, px, feat_rogue_trap2);
+            set_trap(p_ptr->pos.y, p_ptr->pos.x, feat_rogue_trap2);
         break;
 
     case 15:
@@ -434,7 +427,7 @@ cptr do_burglary_spell(int spell, int mode)
             if (info) return info_duration(base, sides);
 
             if (cast)
-                set_fast(randint1(sides) + base, FALSE);
+                plr_tim_add(T_FAST, randint1(sides) + base);
         }
         break;
 
@@ -444,36 +437,13 @@ cptr do_burglary_spell(int spell, int mode)
         if (desc) return "Creates a flight of stairs underneath you.";
 
         if (cast)
-            stair_creation(FALSE);
+            dun_create_stairs(cave, FALSE);
         break;
 
     case 17:
         if (name) return "Panic Hit";
         if (desc) return "Attack an adjacent monster and attempt a getaway.";
-
-        if (cast)
-        {
-            int dir = 0;
-            int x, y;
-
-            if (!get_rep_dir2(&dir)) return NULL;
-            y = py + ddy[dir];
-            x = px + ddx[dir];
-            if (cave[y][x].m_idx)
-            {
-                py_attack(y, x, 0);
-                if (randint0(p_ptr->skills.dis) < 7)
-                    msg_print("You failed to teleport.");
-                else
-                    teleport_player(30, 0);
-            }
-            else
-            {
-                msg_print("You don't see any monster in this direction");
-                msg_print(NULL);
-                return NULL;
-            }
-        }
+        if (cast && !plr_attack_special(PLR_HIT_TELEPORT, 0)) return NULL;
         break;
 
     case 18:
@@ -496,7 +466,7 @@ cptr do_burglary_spell(int spell, int mode)
 
         if (cast)
         {
-            trump_summoning(damroll(2, 3), !fail, py, px, 0, SUMMON_THIEF, PM_ALLOW_GROUP);
+            trump_summoning(damroll(2, 3), !fail, p_ptr->pos, 0, SUMMON_THIEF, PM_ALLOW_GROUP);
 
             if (randint0(p_ptr->skills.dis) < 7)
                 msg_print("You failed to teleport.");
@@ -516,8 +486,8 @@ cptr do_burglary_spell(int spell, int mode)
 
             for (dir = 0; dir <= 8; dir++)
             {
-                y = py + ddy_ddd[dir];
-                x = px + ddx_ddd[dir];
+                y = p_ptr->pos.y + ddy_ddd[dir];
+                x = p_ptr->pos.x + ddx_ddd[dir];
 
                 set_trap(y, x, feat_rogue_trap1);
             }
@@ -543,7 +513,6 @@ cptr do_burglary_spell(int spell, int mode)
     case 22:
         if (name) return "New Beginnings";
         if (desc) return "Recreates current dungeon level after a short delay.";
-        if (info) return info_delay(15, 20);
 
         if (cast)
             alter_reality();
@@ -554,7 +523,7 @@ cptr do_burglary_spell(int spell, int mode)
         if (desc) return "Teleport long distance with very little energy use.";
 
         {
-            int range = plev * 5;
+            int range = spell_power(plev * 5);
 
             if (info) return info_range(range);
 
@@ -570,15 +539,11 @@ cptr do_burglary_spell(int spell, int mode)
     case 24:
         if (name) return "Protect Loot";
         if (desc) return "For a long time, items in your inventory will have a chance at resisting destruction.";
-
         {
             int base = spell_power(plev*2);
             int sides = spell_power(plev*2);
-
             if (info) return info_duration(base, sides);
-
-            if (cast)
-                set_tim_inven_prot(randint1(sides) + base, FALSE);
+            if (cast) plr_tim_add(T_INV_PROT, randint1(sides) + base);
         }
         break;
 
@@ -588,35 +553,30 @@ cptr do_burglary_spell(int spell, int mode)
 
         if (cast)
         {
-            monster_type *m_ptr;
-            monster_race *r_ptr;
-            char m_name[80];
+            mon_ptr      mon = plr_target_mon();
+            mon_race_ptr race;
+            char         m_name[80];
 
-            if (!target_set(TARGET_KILL)) return NULL;
-            if (!cave[target_row][target_col].m_idx) return NULL;
-            if (!player_has_los_bold(target_row, target_col)) return NULL;
-            if (!projectable(py, px, target_row, target_col)) return NULL;
-
-            m_ptr = &m_list[cave[target_row][target_col].m_idx];
-            r_ptr = &r_info[m_ptr->r_idx];
-            monster_desc(m_name, m_ptr, 0);
-            if (r_ptr->flagsr & RFR_RES_TELE)
+            if (!mon) return NULL;
+            race = mon_race(mon);
+            monster_desc(m_name, mon, 0);
+            if (race->flagsr & RFR_RES_TELE)
             {
-                if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flagsr & RFR_RES_ALL))
+                if ((race->flags1 & (RF1_UNIQUE)) || (race->flagsr & RFR_RES_ALL))
                 {
-                    mon_lore_r(m_ptr, RFR_RES_TELE);
+                    mon_lore_r(mon, RFR_RES_TELE);
                     msg_format("%s is unaffected!", m_name);
                     break;
                 }
-                else if (r_ptr->level > randint1(100))
+                else if (race->level > randint1(100))
                 {
-                    mon_lore_r(m_ptr, RFR_RES_TELE);
+                    mon_lore_r(mon, RFR_RES_TELE);
                     msg_format("%s resists!", m_name);
                     break;
                 }
             }
             msg_format("You command %s to return.", m_name);
-            teleport_monster_to(cave[target_row][target_col].m_idx, py, px, 100, TELEPORT_PASSIVE);
+            teleport_monster_to(mon->id, p_ptr->pos.y, p_ptr->pos.x, 100, TELEPORT_PASSIVE);
         }
         break;
 
@@ -625,7 +585,7 @@ cptr do_burglary_spell(int spell, int mode)
         if (desc) return "The ultimate in thievery. With a light touch, you attempt to relieve monsters of their goods.";
 
         if (cast)
-            return _rogue_pick_pocket(100);
+            return _rogue_pick_pocket(spell_power(100));
         break;
 
     case 27:
@@ -654,12 +614,12 @@ cptr do_burglary_spell(int spell, int mode)
             if (info) return info_duration(spell_power(d), spell_power(d));
             if (cast)
             {
-                if (p_ptr->tim_superstealth)
+                if (plr_tim_find(T_SUPERSTEALTH))
                 {
                     msg_print("You are already hiding in the shadows.");
                     return NULL;
                 }
-                set_tim_superstealth(spell_power(randint1(d) + d), FALSE);
+                plr_tim_add(T_SUPERSTEALTH, spell_power(randint1(d) + d));
             }
         }
         break;
@@ -673,17 +633,15 @@ cptr do_burglary_spell(int spell, int mode)
             for (i = 0; i < 12; i++)
             {
                 int attempt = 10;
-                int my = 0, mx = 0;
+                point_t pos;
 
                 while (attempt--)
                 {
-                    scatter(&my, &mx, py, px, 4, 0);
-
-                    /* Require empty grids */
-                    if (cave_empty_bold2(my, mx)) break;
+                    pos = scatter(p_ptr->pos, 4);
+                    if (cave_empty_at(pos)) break;
                 }
                 if (attempt < 0) continue;
-                summon_specific(-1, my, mx, plev*3/2, SUMMON_THIEF, PM_FORCE_PET | PM_HASTE);
+                summon_specific(-1, pos, plev*3/2, SUMMON_THIEF, PM_FORCE_PET | PM_HASTE);
             }
         }
         break;
@@ -693,41 +651,14 @@ cptr do_burglary_spell(int spell, int mode)
         if (desc) return "Sets an extremely powerful trap under you. This trap will have various strong effects on a passing monster.";
 
         if (cast)
-            set_trap(py, px, feat_rogue_trap3);
+            set_trap(p_ptr->pos.y, p_ptr->pos.x, feat_rogue_trap3);
         break;
 
     case 31:
         if (name) return "Assassinate";
         if (desc) return "Attempt to instantly kill a sleeping monster.";
-
-        if (cast)
-        {
-            int y, x, dir;
-            if (!get_rep_dir2(&dir)) return NULL;
-            if (dir == 5) return NULL;
-
-            y = py + ddy[dir];
-            x = px + ddx[dir];
-
-            if (cave[y][x].m_idx)
-            {
-                monster_type *m_ptr = &m_list[cave[y][x].m_idx];
-                if (MON_CSLEEP(m_ptr))
-                    py_attack(y, x, ROGUE_ASSASSINATE);
-                else
-                {
-                    msg_print("This only works for sleeping monsters.");
-                    return NULL;
-                }
-            }
-            else
-            {
-                msg_print("There is no monster.");
-                return NULL;
-            }
-        }
+        if (cast && !_assassinate()) return NULL;
         break;
-
     }
 
     return "";
@@ -742,8 +673,11 @@ static void _calc_bonuses(void)
     slot_t slot = equip_find_obj(TV_BOW, SV_SLING); /* fyi, shooter_info not set yet ... */
     if (slot) p_ptr->skills.thb += 20 + p_ptr->lev;
 
+    p_ptr->ambush = 300 + p_ptr->lev*4;
+    p_ptr->backstab = 150;
+
     if (p_ptr->realm1 == REALM_BURGLARY && equip_find_ego(EGO_GLOVES_THIEF))
-        p_ptr->dec_mana = TRUE;
+        p_ptr->dec_mana++;
 }
 
 static caster_info * _caster_info(void)
@@ -756,6 +690,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 400;
         me.encumbrance.weapon_pct = 33;
         me.encumbrance.enc_wgt = 1000;
+        me.realm1_choices = CH_SORCERY | CH_DEATH | CH_TRUMP | CH_ARCANE | CH_ENCHANT | CH_BURGLARY;
         me.options = CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
     }
@@ -776,10 +711,10 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_SCROLL, SV_SCROLL_TELEPORT, randint1(3));
-    py_birth_spellbooks();
+    plr_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_SCROLL, SV_SCROLL_TELEPORT, randint1(3));
+    plr_birth_spellbooks();
 
     p_ptr->au += 200;
 }
@@ -787,18 +722,18 @@ static void _birth(void)
 /****************************************************************************
  * Public
  ****************************************************************************/
-class_t *rogue_get_class(void)
+plr_class_ptr rogue_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 45,  37,  36,   5,  32,  24,  60,  60};
     skills_t xs = { 15,  12,  10,   0,   0,   0,  21,  14};
 
-        me.name = "Rogue";
-        me.desc = "A Rogue is a character that prefers to live by his cunning, but is "
+        me = plr_class_alloc(CLASS_ROGUE);
+        me->name = "Rogue";
+        me->desc = "A Rogue is a character that prefers to live by his cunning, but is "
                     "capable of fighting his way out of a tight spot. Rogues are good "
                     "at locating hidden traps and doors and are masters of "
                     "disarming traps and picking locks. A rogue has a high stealth "
@@ -818,29 +753,26 @@ class_t *rogue_get_class(void)
                     "the rogue uses INT as the spellcasting stat, and won't be able to "
                     "learn spells until level 5.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] =  1;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  3;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  1;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 110;
-        me.base_hp = 12;
-        me.exp = 125;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] =  1;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  3;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] =  1;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 110;
+        me->base_hp = 12;
+        me->exp = 125;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
+                    CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
         
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.caster_info = _caster_info;
-        /* TODO: This class uses spell books, so we are SOL
-        me.get_spells = _get_spells;*/
-        me.character_dump = spellbook_character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.character_dump = spellbook_character_dump;
     }
 
-    return &me;
+    return me;
 }

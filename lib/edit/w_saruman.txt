@@ -1,0 +1,41 @@
+# Saruman has allied himself with the forces of Mordor
+T:WORLD:NORMAL:NO_ROTATE
+L:#:MOUNTAIN_WALL(50)
+L:.:GRASS(30)
+L:,:DIRT(35)
+L:T:TREE(40)
+L:^:MOUNTAIN(50)
+L:~:TREE(RIVER, 30)
+L:+:MOUNTAIN(RIVER, 50)
+L:!:MOUNTAIN(RIVER|ROAD, 50)
+L:*:GRASS(ROAD, 30)
+L:$:TREE(ROAD, 30)
+L:%:MOUNTAIN(ROAD, 40)
+L:1:MOUNTAIN(TOWN|ROAD|MARK|GLOW, Edoras)
+L:b:MOUNTAIN(DUNGEON, Isengard)
+L:c:MOUNTAIN(DUNGEON, Moria)
+L:d:GRASS(DUNGEON|ROAD, Castle)
+L:e:MOUNTAIN(DUNGEON, Mountain)
+M:################################
+M:#*..,,,,......^^^...TTTTT~~~~~~#
+M:#*.,,,,,.......^++.TTTTT~~TTTTT#
+M:#*..,,,.......^^^+~.TTT~~TTTT^^#
+M:#*.,,,,,.....^^c..~~TT~~TTT.^^^#
+M:#*,,,,,....T..^^^..~~~~TTT...^^#
+M:#**......TT..^^^TT....~~TTT...^#
+M:#.*...TTTTTT^^TTTTT....~~TTT.^^#
+M:#.*.TTTTTTTTT^^TTTTT....~TTTT~+#
+M:#.**$$TTTTTT^^^TTTT.....~~~T~~.#
+M:#...T$$TTTT^^^TTTT........~~~..#
+M:#..TTT$TTT^^+^^^T.........~....#
+M:#.TTTT$TT^^b+^.^..........~~...#
+M:#..TTT$$T^^^+^.............~~..#
+M:#...TTT$%^^+~...............~..#
+M:#....TT^%%!!...............~~..#
+M:#....T^^^++**..............~...#
+M:#...^^^+++e^**.............~...#
+M:#...^^^^^^^^^**...........~~...#
+M:#....^^^^^^^^^1*..........~....#
+M:#......^^^^^^^^**********d~....#
+M:################################
+# vim: filetype=q :

@@ -320,7 +320,7 @@ Object List (]) instead:
 There are 7 wanted objects:                       ################# LEVEL      1
  ! 7 Potions of Cure Critical Wounds    S  1 E  1 ##..########.#### EXP       10
                                                   .........#.....#. AU       462
-   [Press ESC to exit. Press ? for help]          ................. | }    [    
+   [Press ESC to exit. Press ? for help]          ................. | }    [
 
 Bingo! You can even automatically travel to those delicious potions by 
 pressing ` inside the Object List. What could be easier? With features 

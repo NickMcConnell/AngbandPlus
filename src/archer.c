@@ -23,7 +23,7 @@ static bool _create_arrows(void)
 
     if (!prompt.obj) return FALSE;
 
-    object_prep(&forge, lookup_kind(TV_ARROW, SV_ARROW + m_bonus(3, p_ptr->lev)));
+    object_prep(&forge, lookup_kind(TV_ARROW, SV_ARROW + m_bonus(4, p_ptr->lev)));
     forge.number = rand_range(5, 10);
     apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
     obj_identify_fully(&forge);
@@ -73,32 +73,32 @@ static bool _create_bolts(void)
 
 static bool _create_shots(void)
 {
-    int         x, y, dir;
-    cave_type  *c_ptr;
-    object_type forge;
-    char        name[MAX_NLEN];
+    point_t       pos;
+    int           dir;
+    dun_grid_ex_t grid;
+    obj_t         forge;
+    char          name[MAX_NLEN];
 
     if (!get_rep_dir(&dir, FALSE)) 
         return FALSE;
 
-    y = py + ddy[dir];
-    x = px + ddx[dir];
-    c_ptr = &cave[y][x];
+    pos = point_step(p_ptr->pos, dir);
+    grid = dun_grid_ex_at(cave, pos);
 
-    if (!have_flag(f_info[get_feat_mimic(c_ptr)].flags, FF_CAN_DIG))
+    if (!have_flag(grid.feat_mimic->flags, FF_CAN_DIG))
     {
         msg_print("You need pile of rubble.");
         return FALSE;
     }
 
-    if (!cave_have_flag_grid(c_ptr, FF_CAN_DIG) || !cave_have_flag_grid(c_ptr, FF_HURT_ROCK))
+    if (!cave_have_flag_grid(grid.grid, FF_CAN_DIG) || !cave_have_flag_grid(grid.grid, FF_HURT_ROCK))
     {
         msg_print("You failed to make ammo.");
         return FALSE;
     }
 
     object_prep(&forge, lookup_kind(TV_SHOT, SV_PEBBLE + m_bonus(2, p_ptr->lev)));
-    forge.number = (byte)rand_range(15,30);
+    forge.number = rand_range(15,30);
     apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
     obj_identify_fully(&forge);
     forge.discount = 99;
@@ -107,7 +107,7 @@ static bool _create_shots(void)
     msg_format("You make %s.", name);
     pack_carry(&forge);
 
-    cave_alter_feat(y, x, FF_HURT_ROCK);
+    cave_alter_feat(pos.y, pos.x, FF_HURT_ROCK);
     p_ptr->update |= PU_FLOW;
     return TRUE;
 }
@@ -117,12 +117,12 @@ static bool _create_ammo(void)
     char com[256];
     int  cmd = '\0';
 
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return FALSE;
     }
-    if (p_ptr->blind)
+    if (plr_tim_find(T_BLIND))
     {
         msg_print("You can't see!");
         return FALSE;
@@ -175,7 +175,7 @@ static bool _create_ammo(void)
     }
 }
 
-void create_ammo_spell(int cmd, variant *res)
+void create_ammo_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -196,12 +196,8 @@ void create_ammo_spell(int cmd, variant *res)
 
 static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
-    if ( !p_ptr->shooter_info.heavy_shoot
-      && p_ptr->shooter_info.tval_ammo <= TV_BOLT
-      && p_ptr->shooter_info.tval_ammo >= TV_SHOT )
-    {
+    if (!p_ptr->shooter_info.heavy_shoot && p_ptr->shooter_info.tval_ammo)
         p_ptr->shooter_info.breakage -= 10;
-    }
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -219,24 +215,33 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL, 1);
-    py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
-    py_birth_obj_aux(TV_QUIVER, 0, 1);
-    py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(30, 50));
+    object_type forge;
+
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_ARCHERY;
+    forge.to_d = 5;
+    add_flag(forge.flags, OF_ARCHERY);
+
+    plr_birth_obj(&forge);
+    plr_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL, 1);
+    plr_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
+    plr_birth_obj_aux(TV_QUIVER, 0, 1);
+    plr_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(30, 50));
 }
 
-class_t *archer_get_class(void)
+plr_class_ptr archer_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
-    if (!init)
+    static plr_class_ptr me = NULL;
+
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 38,  24,  35,   4,  24,  16,  56,  82};
     skills_t xs = { 12,  10,  10,   0,   0,   0,  18,  36};
 
-        me.name = "Archer";
-        me.desc = "Archers are to bows what warriors are to melee. They are the best "
+        me = plr_class_alloc(CLASS_ARCHER);
+        me->name = "Archer";
+        me->desc = "Archers are to bows what warriors are to melee. They are the best "
                     "class around with any bow, crossbow, or sling. They need a lot of "
                     "ammunition, but will learn how to make it from junk found in the "
                     "dungeon. An archer is better than a warrior at stealth, "
@@ -245,24 +250,23 @@ class_t *archer_get_class(void)
                     "or shots from pile of rubble, and arrows and crossbow bolts from "
                     "bones.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  0;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 111;
-        me.base_hp = 12;
-        me.exp = 110;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] =  0;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 111;
+        me->base_hp = 12;
+        me->exp = 110;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
         
-        me.birth = _birth;
-        me.calc_shooter_bonuses = _calc_shooter_bonuses;
-        me.get_powers = _get_powers;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_shooter_bonuses = _calc_shooter_bonuses;
+        me->hooks.get_powers = _get_powers;
     }
-    return &me;
+    return me;
 }

@@ -106,32 +106,42 @@ void reset_visuals(void)
  */
 void weapon_flags(int hand, u32b flgs[OF_ARRAY_SIZE])
 {
-    object_type *o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
+    int i;
+    object_type *o_ptr = equip_obj(p_ptr->attack_info[hand].slot);
     if (o_ptr)
     {
-        int i;
         obj_flags(o_ptr, flgs);
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            flgs[i] |= p_ptr->weapon_info[hand].flags[i];
+            flgs[i] |= p_ptr->attack_info[hand].obj_flags[i];
+    }
+    else /* martial arts */
+    {
+        for (i = 0; i < OF_ARRAY_SIZE; i++)
+            flgs[i] = p_ptr->attack_info[hand].obj_flags[i];
     }
 }
 
 void weapon_flags_known(int hand, u32b flgs[OF_ARRAY_SIZE])
 {
-    object_type *o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
+    int i;
+    object_type *o_ptr = equip_obj(p_ptr->attack_info[hand].slot);
     if (o_ptr)
     {
-        int i;
         obj_flags_known(o_ptr, flgs);
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            flgs[i] |= p_ptr->weapon_info[hand].known_flags[i];
+            flgs[i] |= p_ptr->attack_info[hand].obj_known_flags[i];
+    }
+    else /* martial arts */
+    {
+        for (i = 0; i < OF_ARRAY_SIZE; i++)
+            flgs[i] = p_ptr->attack_info[hand].obj_known_flags[i];
     }
 }
 
 void missile_flags(object_type *arrow, u32b flgs[OF_ARRAY_SIZE])
 {
     int i;
-    int slot = equip_find_first(object_is_bow);
+    int slot = equip_find_first(obj_is_bow);
 
     obj_flags(arrow, flgs);
     for (i = 0; i < OF_ARRAY_SIZE; i++)
@@ -151,7 +161,7 @@ void missile_flags(object_type *arrow, u32b flgs[OF_ARRAY_SIZE])
 void missile_flags_known(object_type *arrow, u32b flgs[OF_ARRAY_SIZE])
 {
     int i;
-    int slot = equip_find_first(object_is_bow);
+    int slot = equip_find_first(obj_is_bow);
 
     obj_flags_known(arrow, flgs);
     for (i = 0; i < OF_ARRAY_SIZE; i++)
@@ -178,7 +188,7 @@ void obj_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
         flgs[i] = k_ptr->flags[i];
 
     /* Artifact */
-    if (object_is_fixed_artifact(o_ptr))
+    if (obj_is_std_art(o_ptr))
     {
         artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -187,7 +197,7 @@ void obj_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
     }
 
     /* Ego-item */
-    if (object_is_ego(o_ptr))
+    if (obj_is_ego(o_ptr))
     {
         ego_type *e_ptr = &e_info[o_ptr->name2];
         bool      skip = FALSE;
@@ -258,14 +268,14 @@ void obj_flags_known(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
     }
 
     /* Identified objects generally mark lore at the level of the flag itself */
-    if (object_is_fixed_artifact(o_ptr))
+    if (obj_is_std_art(o_ptr))
     {
         artifact_type *a_ptr = &a_info[o_ptr->name1];
 
         for (i = 0; i < OF_ARRAY_SIZE; i++)
             flgs[i] |= (a_ptr->flags[i] & a_ptr->known_flags[i]);
     }
-    else if (object_is_ego(o_ptr))
+    else if (obj_is_ego(o_ptr))
     {
         ego_type *e_ptr = &e_info[o_ptr->name2];
         bool      skip = FALSE;
@@ -397,7 +407,7 @@ static void _obj_identify_aux(object_type *o_ptr)
             add_flag(o_ptr->known_flags, OF_ACTIVATE);
 
         /* Automatically know previously learned random activations */
-        if (o_ptr->activation.type && !object_is_device(o_ptr) && effect_is_known(o_ptr->activation.type))
+        if (o_ptr->activation.type && !obj_is_device(o_ptr) && effect_is_known(o_ptr->activation.type))
             add_flag(o_ptr->known_flags, OF_ACTIVATE);
     }
 }
@@ -434,12 +444,12 @@ static void _obj_identify_fully_aux(object_type *o_ptr)
             /* Mark variable ego attributes as possibilities for future.
                Note: The next time an ego of this type spawns with a known
                possible flag, it will be learned on Identify. See above. */
-            if (object_is_cursed(o_ptr))
+            if (obj_is_cursed(o_ptr))
                 e_ptr->known_flags[i] |= (o_ptr->flags[i] & e_ptr->xtra_flags[i]);
             else
                 e_ptr->known_flags[i] |= o_ptr->flags[i];
         }
-        if (object_is_device(o_ptr))
+        if (obj_is_device(o_ptr))
             remove_flag(e_ptr->known_flags, OF_ACTIVATE);
     }
     else /* perhaps a rand-art? */
@@ -449,7 +459,7 @@ static void _obj_identify_fully_aux(object_type *o_ptr)
     }
 
     /* Learn random activations */
-    if (o_ptr->activation.type && !object_is_device(o_ptr))
+    if (o_ptr->activation.type && !obj_is_device(o_ptr))
     {
         add_flag(o_ptr->known_flags, OF_ACTIVATE);
         effect_learn(o_ptr->activation.type);
@@ -613,41 +623,29 @@ bool obj_learn_curse(object_type *o_ptr, int flag)
 
 void obj_learn_slay(object_type *o_ptr, int which, cptr msg)
 {
-    assert(o_ptr);
-    if (obj_learn_flag(o_ptr, which))
+    if (o_ptr && obj_learn_flag(o_ptr, which))
     {
         char buf[MAX_NLEN];
         object_desc(buf, o_ptr, OD_LORE);
         msg_format("<color:B>You learn that your %s %s.</color>", buf, msg);
     }
-    /* Gloves and rings may give additional slays ... */
-    equip_learn_slay(which, msg);
+    /* Gloves and rings may give additional slays ... which is why
+     * we now accept a NULL o_ptr. Equipment does not boost archery. */
+    if (!o_ptr || obj_is_weapon(o_ptr))
+        equip_learn_slay(which, msg);
 }
 
-const int _xtra_lore_flags[] = {
-    OF_LEVITATION, OF_REGEN, OF_EASY_SPELL, OF_DEC_MANA,
-    OF_AURA_FIRE, OF_AURA_ELEC, OF_AURA_COLD, OF_AURA_SHARDS,
-    OF_LITE, OF_DARKNESS, OF_SLOW_DIGEST,
-    OF_INVALID
-};
-
+static bool _of_lore(of_info_ptr info) { return BOOL(info->flags & OFT_LORE); }
 void obj_learn_equipped(object_type *o_ptr)
 {
-    bool learned = FALSE;
-    int  i;
+    bool    learned = FALSE;
+    vec_ptr v = of_lookup_filter(_of_lore);
+    int     i;
 
-    for (i = 0; ; i++)
+    for (i = 0; i < vec_length(v); i++)
     {
-        int flg = pval_flags[i];
-        if (flg == OF_INVALID) break;
-        if (obj_learn_flag(o_ptr, flg)) learned = TRUE;
-    }
-
-    for (i = 0; ; i++)
-    {
-        int flg = _xtra_lore_flags[i];
-        if (flg == OF_INVALID) break;
-        if (obj_learn_flag(o_ptr, flg)) learned = TRUE;
+        of_info_ptr info = vec_get(v, i);
+        if (obj_learn_flag(o_ptr, info->id)) learned = TRUE;
     }
 
     if (p_ptr->pclass == CLASS_PRIEST)
@@ -661,6 +659,7 @@ void obj_learn_equipped(object_type *o_ptr)
         object_desc(buf, o_ptr, OD_LORE);
         msg_format("<color:B>You learn more about your %s.</color>", buf);
     }
+    vec_free(v);
 }
 
 bool ego_has_lore(ego_type *e_ptr)

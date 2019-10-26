@@ -30,7 +30,7 @@ static cptr _desc =
   "into a Gelatinous Cube and then into an Acidic Cytoplasm. Jellies take one additional "
   "powerful evolutionary step late in life.";
 
-static void _divide_spell(int cmd, variant *res)
+static void _divide_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -42,7 +42,7 @@ static void _divide_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        summon_named_creature(-1, py, px, p_ptr->current_r_idx, PM_FORCE_PET);
+        summon_named_creature(-1, p_ptr->pos, p_ptr->current_r_idx, PM_FORCE_PET);
         var_set_bool(res, TRUE);
         break;
     }
@@ -58,26 +58,22 @@ static power_info _jelly_powers[] = {
 static int _jelly_get_powers(spell_info* spells, int max) {
     return get_powers_aux(spells, max, _jelly_powers);
 }
+static void _jelly_calc_innate_bonuses(mon_blow_ptr blow)
+{
+    if (blow->method != RBM_TOUCH) return;
+    plr_calc_blows_innate(blow, 600);
+}
 static void _jelly_calc_innate_attacks(void)
 {
-    if (equip_is_empty_hand(0))
-    {
-        innate_attack_t    a = {0};
-        int l = p_ptr->lev;
+    int l = p_ptr->lev;
+    mon_blow_ptr blow = mon_blow_alloc(RBM_TOUCH);
 
-        a.dd = 2 + l / 10;
-        a.ds = 6 + l / 12;
-        a.to_h += l/2;
-        a.to_d += l/5;
-        a.to_d += l*l/250;
-        a.weight = 100;
-        a.effect[0] = GF_ACID;
-        calc_innate_blows(&a, 600);
-        a.msg = "You shoot acid.";
-        a.name = "Pseudopod";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
+    blow->name = "Pseudopod";
+    blow->msg = "You shoot acid.";
+    blow->power = l*3/2;
+    mon_blow_push_effect(blow, GF_ACID, dice_create(2 + l/10, 6 + l/12, l/5 + l*l/250));
+    _jelly_calc_innate_bonuses(blow);
+    vec_add(p_ptr->innate_blows, blow);
 }
 
 static void _black_ooze_calc_bonuses(void)
@@ -95,36 +91,34 @@ static void _black_ooze_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_POIS);
     add_flag(flgs, OF_IM_BLIND);
 }
-race_t *_black_ooze_get_race_t(void)
+plr_race_ptr _black_ooze_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
-    if (!init)
+    static plr_race_ptr me = NULL;
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  37,   8,  14,   7,  70,  30};
     skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_JELLY);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.subname = "Black Ooze";
+        me->subname = "Black Ooze";
 
-        me.stats[A_STR] =  1;
-        me.stats[A_INT] = -5;
-        me.stats[A_WIS] = -5;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] = -2;
+        me->stats[A_STR] =  1;
+        me->stats[A_INT] = -5;
+        me->stats[A_WIS] = -5;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] = -2;
 
-        me.life = 90;
-        me.infra = 0;
+        me->life = 90;
+        me->infra = 0;
 
-        me.calc_bonuses = _black_ooze_calc_bonuses;
-        me.get_flags = _black_ooze_get_flags;
-
-        init = TRUE;
+        me->hooks.calc_bonuses = _black_ooze_calc_bonuses;
+        me->hooks.get_flags = _black_ooze_get_flags;
     }
-    return &me;
+    return me;
 }
 
 static void _gelatinous_cube_calc_bonuses(void)
@@ -145,36 +139,34 @@ static void _gelatinous_cube_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_ELEC);
     _black_ooze_get_flags(flgs);
 }
-race_t *_gelatinous_cube_get_race_t(void)
+plr_race_ptr _gelatinous_cube_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
-    if (!init)
+    static plr_race_ptr me = NULL;
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  37,   8,  14,   7,  70,  30};
     skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_JELLY);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.subname = "Gelatinous Cube";
+        me->subname = "Gelatinous Cube";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] = -10;
-        me.stats[A_WIS] = -10;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] = -2;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] = -10;
+        me->stats[A_WIS] = -10;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] = -2;
         
-        me.life = 100;
-        me.infra = 0;
+        me->life = 100;
+        me->infra = 0;
 
-        me.calc_bonuses = _gelatinous_cube_calc_bonuses;
-        me.get_flags = _gelatinous_cube_get_flags;
-
-        init = TRUE;
+        me->hooks.calc_bonuses = _gelatinous_cube_calc_bonuses;
+        me->hooks.get_flags = _gelatinous_cube_get_flags;
     }
-    return &me;
+    return me;
 }
 
 static void _acidic_cytoplasm_calc_bonuses(void)
@@ -187,9 +179,12 @@ static void _acidic_cytoplasm_calc_bonuses(void)
     res_add(RES_CONF);
     res_add_immune(RES_FEAR);
 
-    add_flag(p_ptr->weapon_info[0].flags, OF_BRAND_ACID);
-
     _gelatinous_cube_calc_bonuses();
+}
+static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
+{
+    add_flag(info->obj_flags, OF_BRAND_ACID);
+    add_flag(info->obj_known_flags, OF_BRAND_ACID);
 }
 static void _acidic_cytoplasm_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -204,36 +199,35 @@ static void _acidic_cytoplasm_get_flags(u32b flgs[OF_ARRAY_SIZE])
     _gelatinous_cube_get_flags(flgs);
 }
 
-race_t *_acidic_cytoplasm_get_race_t(void)
+plr_race_ptr _acidic_cytoplasm_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
-    if (!init)
+    static plr_race_ptr me = NULL;
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  37,   7,  14,   7,  70,  30};
     skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_JELLY);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.subname = "Acidic Cytoplasm";
+        me->subname = "Acidic Cytoplasm";
 
-        me.stats[A_STR] =  3;
-        me.stats[A_INT] = -7;
-        me.stats[A_WIS] = -7;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] = -1;
+        me->stats[A_STR] =  3;
+        me->stats[A_INT] = -7;
+        me->stats[A_WIS] = -7;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] = -1;
         
-        me.life = 105;
-        me.infra = 0;
+        me->life = 105;
+        me->infra = 0;
 
-        me.calc_bonuses = _acidic_cytoplasm_calc_bonuses;
-        me.get_flags = _acidic_cytoplasm_get_flags;
-
-        init = TRUE;
+        me->hooks.calc_bonuses = _acidic_cytoplasm_calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.get_flags = _acidic_cytoplasm_get_flags;
     }
-    return &me;
+    return me;
 }
 
 static void _shoggoth_calc_bonuses(void)
@@ -254,36 +248,35 @@ static void _shoggoth_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_REGEN);
     _acidic_cytoplasm_get_flags(flgs);
 }
-race_t *_shoggoth_get_race_t(void)
+plr_race_ptr _shoggoth_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
-    if (!init)
+    static plr_race_ptr me = NULL;
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  37,   2,  14,   7,  70,  30};
     skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_JELLY);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.subname = "Shoggoth";
+        me->subname = "Shoggoth";
 
-        me.stats[A_STR] =  5;
-        me.stats[A_INT] = -5;
-        me.stats[A_WIS] = -5;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  4;
-        me.stats[A_CHR] =  0;
+        me->stats[A_STR] =  5;
+        me->stats[A_INT] = -5;
+        me->stats[A_WIS] = -5;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  4;
+        me->stats[A_CHR] =  0;
         
-        me.life = 108;
-        me.infra = 0;
+        me->life = 108;
+        me->infra = 0;
 
-        me.calc_bonuses = _shoggoth_calc_bonuses;
-        me.get_flags = _shoggoth_get_flags;
-
-        init = TRUE;
+        me->hooks.calc_bonuses = _shoggoth_calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.get_flags = _shoggoth_get_flags;
     }
-    return &me;
+    return me;
 }
 
 static void _gain_level(int new_level) 
@@ -328,15 +321,16 @@ static void _birth(void)
     forge.pval = 1;
     forge.to_d = 3;
     add_flag(forge.flags, OF_STR);
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 }
 
-race_t *mon_jelly_get_race(void)
+plr_race_ptr mon_jelly_get_race(void)
 {
-    race_t *result = NULL;
+    plr_race_ptr result = NULL;
 
     switch (p_ptr->current_r_idx)
     {
@@ -359,18 +353,18 @@ race_t *mon_jelly_get_race(void)
     result->name = "Jelly";
     result->desc = _desc;
     result->exp = 150;
-    result->flags = RACE_IS_MONSTER /* | RACE_IS_ILLITERATE */;
-    result->gain_level = _gain_level;
-    result->get_powers = _jelly_get_powers;
-    result->calc_innate_attacks = _jelly_calc_innate_attacks;
-    result->birth = _birth;
     result->base_hp = 40;
+    result->shop_adjust = 125;
+    result->hooks.gain_level = _gain_level;
+    result->hooks.get_powers = _jelly_get_powers;
+    result->hooks.calc_innate_attacks = _jelly_calc_innate_attacks;
+    result->hooks.calc_innate_bonuses = _jelly_calc_innate_bonuses;
+    result->hooks.birth = _birth;
+    result->hooks.destroy_object = jelly_eat_object;
     result->equip_template = mon_get_equip_template();
     result->pseudo_class_idx = CLASS_WARRIOR;
-    result->shop_adjust = 125;
-    result->destroy_object = jelly_eat_object;
-
     result->boss_r_idx = MON_UBBO_SATHLA;
+    result->flags = RACE_IS_MONSTER /* | RACE_IS_ILLITERATE */;
 
     if (birth_hack || spoiler_hack)
     {

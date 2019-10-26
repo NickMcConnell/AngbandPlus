@@ -561,7 +561,7 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
         ADD_FLG(FLG_UNAWARE);
     }
     /* Not really identified */
-    else if (!object_is_known(o_ptr))
+    else if (!obj_is_known(o_ptr))
     {
         if (!(o_ptr->ident & IDENT_SENSE))
         {
@@ -627,7 +627,7 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
     else
     {
         /* Ego objects */
-        if (object_is_ego(o_ptr))
+        if (obj_is_ego(o_ptr))
         {
             if (object_is_weapon_armour_ammo(o_ptr))
             {
@@ -647,31 +647,31 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
                 if (!object_is_rare(o_ptr)) ADD_FLG(FLG_COMMON);
             }
 
-            if (!object_is_device(o_ptr))
+            if (!obj_is_device(o_ptr))
                 ADD_FLG(FLG_EGO);
         }
 
         /* Artifact */
-        else if (object_is_artifact(o_ptr))
+        else if (obj_is_art(o_ptr))
             ADD_FLG(FLG_ARTIFACT);
 
         /* Non-ego, non-artifact */
         else
         {
             /* Wearable nameless object */
-            if (object_is_ammo(o_ptr))
+            if (obj_is_ammo(o_ptr))
             {
                 if (o_ptr->to_h || o_ptr->to_d)
                     ADD_FLG(FLG_GOOD);
                 else
                     ADD_FLG(FLG_AVERAGE);
             }
-            else if (object_is_equipment(o_ptr))
+            else if (obj_is_equipment(o_ptr))
                 ADD_FLG(FLG_NAMELESS);
         }
 
         /*Devices work better if we just use the effect name */
-        if (object_is_device(o_ptr) && o_ptr->activation.type != EFFECT_NONE)
+        if (obj_is_device(o_ptr) && o_ptr->activation.type != EFFECT_NONE)
         {
             strcpy(name_str, do_device(o_ptr, SPELL_NAME, 0));
             strcat(name_str, "$");
@@ -680,7 +680,7 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
     }
 
     /* Melee weapon with boosted dice */
-    if (object_is_melee_weapon(o_ptr))
+    if (obj_is_weapon(o_ptr))
     {
         object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -696,12 +696,12 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
     }
 
     if ((o_ptr->tval == TV_CORPSE || o_ptr->tval == TV_STATUE)
-        && (r_info[o_ptr->pval].flags1 & RF1_UNIQUE))
+        && (mon_race_lookup(o_ptr->pval)->flags1 & RF1_UNIQUE))
     {
         ADD_FLG(FLG_UNIQUE);
     }
 
-    if (o_ptr->tval == TV_CORPSE && my_strchr("pht", r_info[o_ptr->pval].d_char))
+    if (o_ptr->tval == TV_CORPSE && my_strchr("pht", mon_race_lookup(o_ptr->pval)->d_char))
     {
         ADD_FLG(FLG_HUMAN);
     }
@@ -740,11 +740,11 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
 
     if (o_ptr->tval == TV_DIGGING)
         ADD_FLG(FLG_DIGGERS);
-    else if (object_is_melee_weapon(o_ptr))
+    else if (obj_is_weapon(o_ptr))
         ADD_FLG(FLG_WEAPONS);
     else if (o_ptr->tval == TV_BOW)
         ADD_FLG(FLG_SHOOTERS);
-    else if (object_is_ammo(o_ptr))
+    else if (obj_is_ammo(o_ptr))
         ADD_FLG(FLG_AMMO);
     else if (o_ptr->tval == TV_WAND)
         ADD_FLG(FLG_WANDS);
@@ -1247,20 +1247,20 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         return FALSE;
 
     /*** Unsensed items ***/
-    if (IS_FLG(FLG_UNSENSED) && (object_is_known(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
+    if (IS_FLG(FLG_UNSENSED) && (obj_is_known(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
         return FALSE;
 
     /*** Unidentified ***/
-    if (IS_FLG(FLG_UNIDENTIFIED) && object_is_known(o_ptr))
+    if (IS_FLG(FLG_UNIDENTIFIED) && obj_is_known(o_ptr))
         return FALSE;
 
     /*** Identified ***/
-    if (IS_FLG(FLG_IDENTIFIED) && !object_is_known(o_ptr))
+    if (IS_FLG(FLG_IDENTIFIED) && !obj_is_known(o_ptr))
         return FALSE;
 
     /*** *Identified* ***/
     if (IS_FLG(FLG_STAR_IDENTIFIED) &&
-        (!object_is_known(o_ptr) || !obj_is_identified_fully(o_ptr)))
+        (!obj_is_known(o_ptr) || !obj_is_identified_fully(o_ptr)))
         return FALSE;
 
     /*** Dice boosted (weapon of slaying) ***/
@@ -1268,14 +1268,14 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     {
         object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-        if (!object_is_known(o_ptr)) return FALSE;
+        if (!obj_is_known(o_ptr)) return FALSE;
 
-        if (object_is_bow(o_ptr))
+        if (obj_is_bow(o_ptr))
         {
             if (o_ptr->mult == k_ptr->mult)
                 return FALSE;
         }
-        else if (object_is_melee_weapon(o_ptr))
+        else if (obj_is_weapon(o_ptr))
         {
             if (o_ptr->dd == k_ptr->dd && o_ptr->ds == k_ptr->ds)
                 return FALSE;
@@ -1287,7 +1287,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Weapons which dd*ds is more than nn ***/
     if (IS_FLG(FLG_MORE_DICE))
     {
-        if (!object_is_known(o_ptr)) return FALSE;
+        if (!obj_is_known(o_ptr)) return FALSE;
         if (o_ptr->dd * o_ptr->ds <= entry->dice)
             return FALSE;
     }
@@ -1295,7 +1295,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Objects with pval is more than nn ***/
     if (IS_FLG(FLG_MORE_BONUS))
     {
-        if (!object_is_known(o_ptr)) return FALSE;
+        if (!obj_is_known(o_ptr)) return FALSE;
 
         if (o_ptr->to_h <= entry->bonus &&
             o_ptr->to_d <= entry->bonus &&
@@ -1312,12 +1312,12 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     {
         if (o_ptr->tval == TV_CORPSE)
         {
-            monster_race *r_ptr = &r_info[o_ptr->pval];
+            monster_race *r_ptr = mon_race_lookup(o_ptr->pval);
             if (r_ptr->level <= entry->level)
                 return FALSE;
         }
         /* ... but perhaps it might also be useful for other kinds of objects? */
-        else if (object_is_known(o_ptr) && object_is_device(o_ptr))
+        else if (obj_is_known(o_ptr) && obj_is_device(o_ptr))
         {             /* v--- This is leaking information, since normally, the object must be *Identified* first.*/
             int level = device_level(o_ptr);
             if (level <= entry->level)
@@ -1327,7 +1327,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         {
             int level = k_info[o_ptr->k_idx].level;
 
-            if (object_is_known(o_ptr) && o_ptr->name2 && e_info[o_ptr->name2].level > level)
+            if (obj_is_known(o_ptr) && o_ptr->name2 && e_info[o_ptr->name2].level > level)
                 level = e_info[o_ptr->name2].level;
 
             if (level <= entry->level)
@@ -1355,9 +1355,9 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Artifact object ***/
     if (IS_FLG(FLG_ARTIFACT))
     {
-        if (object_is_known(o_ptr))
+        if (obj_is_known(o_ptr))
         {
-            if (!object_is_artifact(o_ptr)) return FALSE;
+            if (!obj_is_art(o_ptr)) return FALSE;
         }
         else if (o_ptr->ident & IDENT_SENSE)
         {
@@ -1377,9 +1377,9 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Ego object ***/
     if (IS_FLG(FLG_EGO))
     {
-        if (object_is_known(o_ptr))
+        if (obj_is_known(o_ptr))
         {
-            if (!object_is_ego(o_ptr)) return FALSE;
+            if (!obj_is_ego(o_ptr)) return FALSE;
         }
         else if (o_ptr->ident & IDENT_SENSE)
         {
@@ -1404,7 +1404,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         {
             if (o_ptr->tval == TV_CORPSE &&
                 o_ptr->sval == SV_CORPSE &&
-                my_strchr("pht", r_info[o_ptr->pval].d_char))
+                my_strchr("pht", mon_race_lookup(o_ptr->pval)->d_char))
             {
                 is_special = TRUE;
             }
@@ -1421,7 +1421,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         {
             if ( o_ptr->tval == TV_LITE
               && (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->flags, OF_DARKNESS))
-              && object_is_known(o_ptr))
+              && obj_is_known(o_ptr))
             {
                 is_special = TRUE;
             }
@@ -1447,7 +1447,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 
     if (IS_FLG(FLG_UNUSABLE))
     {
-        if (!object_is_wearable(o_ptr))
+        if (!obj_is_wearable(o_ptr))
             return FALSE;
         if (equip_can_wield_kind(o_ptr->tval, o_ptr->sval))
             return FALSE;
@@ -1456,10 +1456,10 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Cursed ***/
     if (IS_FLG(FLG_CURSED))
     {
-        if (!object_is_equipment(o_ptr)) return FALSE;
-        if (object_is_known(o_ptr))
+        if (!obj_is_equipment(o_ptr)) return FALSE;
+        if (obj_is_known(o_ptr))
         {
-            if (!object_is_cursed(o_ptr)) return FALSE;
+            if (!obj_is_cursed(o_ptr)) return FALSE;
         }
         else if (o_ptr->ident & IDENT_SENSE)
         {
@@ -1482,10 +1482,10 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Good ***/
     if (IS_FLG(FLG_GOOD))
     {
-        if (!object_is_equipment(o_ptr)) return FALSE;
+        if (!obj_is_equipment(o_ptr)) return FALSE;
 
         /* Identified */
-        if (object_is_known(o_ptr))
+        if (obj_is_known(o_ptr))
         {
             /* Artifacts and Ego objects are not okay */
             if (!object_is_nameless(o_ptr))
@@ -1523,10 +1523,10 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Nameless ***/
     if (IS_FLG(FLG_NAMELESS))
     {
-        if (!object_is_equipment(o_ptr) && !object_is_device(o_ptr)) return FALSE;
+        if (!obj_is_equipment(o_ptr) && !obj_is_device(o_ptr)) return FALSE;
 
         /* Identified */
-        if (object_is_known(o_ptr))
+        if (obj_is_known(o_ptr))
         {
             /* Artifacts and Ego objects are not okay */
             if (!object_is_nameless(o_ptr))
@@ -1561,17 +1561,17 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Average ***/
     if (IS_FLG(FLG_AVERAGE))
     {
-        if (!object_is_equipment(o_ptr)) return FALSE;
+        if (!obj_is_equipment(o_ptr)) return FALSE;
 
         /* Identified */
-        if (object_is_known(o_ptr))
+        if (obj_is_known(o_ptr))
         {
             /* Artifacts and Ego objects are not okay */
             if (!object_is_nameless(o_ptr))
                 return FALSE;
 
             /* Cursed or broken objects are not okay */
-            if (object_is_cursed(o_ptr) || object_is_broken(o_ptr))
+            if (obj_is_cursed(o_ptr) || obj_is_broken(o_ptr))
                 return FALSE;
 
             /* Good are not okay */
@@ -1617,13 +1617,13 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Unique monster's corpse/skeletons/statues ***/
     if (IS_FLG(FLG_UNIQUE) &&
         ((o_ptr->tval != TV_CORPSE && o_ptr->tval != TV_STATUE) ||
-         !(r_info[o_ptr->pval].flags1 & RF1_UNIQUE)))
+         !(mon_race_lookup(o_ptr->pval)->flags1 & RF1_UNIQUE)))
         return FALSE;
 
     /*** Human corpse/skeletons (for Daemon magic) ***/
     if (IS_FLG(FLG_HUMAN) &&
         (o_ptr->tval != TV_CORPSE ||
-         !my_strchr("pht", r_info[o_ptr->pval].d_char)))
+         !my_strchr("pht", mon_race_lookup(o_ptr->pval)->d_char)))
         return FALSE;
 
     /*** Unreadable spellbooks ***/
@@ -1669,7 +1669,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Items ***/
     if (IS_FLG(FLG_WEAPONS))
     {
-        if (!object_is_melee_weapon(o_ptr))
+        if (!obj_is_weapon(o_ptr))
             return FALSE;
     }
     else if (IS_FLG(FLG_FAVORITE_WEAPONS))
@@ -1694,11 +1694,11 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     }
     else if (IS_FLG(FLG_AMMO))
     {
-        if (!object_is_ammo(o_ptr)) return FALSE;
+        if (!obj_is_ammo(o_ptr)) return FALSE;
     }
     else if (IS_FLG(FLG_ARMORS))
     {
-        if (!object_is_armour(o_ptr))
+        if (!obj_is_armor(o_ptr))
             return FALSE;
     }
     else if (IS_FLG(FLG_SHIELDS))
@@ -1809,17 +1809,17 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /* TRUE when it need not to be 'collecting' */
     if (!IS_FLG(FLG_COLLECTING)) return TRUE;
 
-    /* Check if there is a same item */
+    /* Check if there is a same item ... but not if existing pile is full. */
     for (j = 1; j <= pack_max(); j++)
     {
         obj_ptr obj = pack_obj(j);
-        if (obj && obj_can_combine(obj, o_ptr, 0))
+        if (obj && obj_can_combine(obj, o_ptr, 0) && obj->number < obj_stack_max(obj))
             return TRUE;
     }
     for (j = 1; j <= quiver_max(); j++)
     {
         obj_ptr obj = quiver_obj(j);
-        if (obj && obj_can_combine(obj, o_ptr, 0))
+        if (obj && obj_can_combine(obj, o_ptr, 0) && obj->number < obj_stack_max(obj))
             return TRUE;
     }
 
@@ -1897,7 +1897,7 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 
     if (leave_worth) /* leave worthy items ... worth could also stand for worthless, no? Sigh ... */
     {
-        if ( !object_is_known(o_ptr)
+        if ( !obj_is_known(o_ptr)
           && !object_is_rare(o_ptr)
           && (o_ptr->ident & IDENT_SENSE)
           && o_ptr->feeling == FEEL_BAD )
@@ -1934,7 +1934,7 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
         {
             if (o_ptr->tval == TV_CORPSE &&
                 o_ptr->sval == SV_CORPSE &&
-                my_strchr("pht", r_info[o_ptr->pval].d_char))
+                my_strchr("pht", mon_race_lookup(o_ptr->pval)->d_char))
                 return FALSE;
         }
         if (p_ptr->prace == RACE_MON_POSSESSOR && o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE)
@@ -1951,7 +1951,7 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
         {
             if ( o_ptr->tval == TV_LITE
               && (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->flags, OF_DARKNESS))
-              && object_is_known(o_ptr))
+              && obj_is_known(o_ptr))
             {
                 return FALSE;
             }
@@ -2118,20 +2118,20 @@ static bool _can_sense_object(object_type *o_ptr)
 
 static byte _get_object_feeling(object_type *o_ptr)
 {
-    if (object_is_artifact(o_ptr))
+    if (obj_is_art(o_ptr))
     {
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_TERRIBLE;
+        if (obj_is_cursed(o_ptr) || obj_is_broken(o_ptr)) return FEEL_TERRIBLE;
         return FEEL_SPECIAL;
     }
 
-    if (object_is_ego(o_ptr))
+    if (obj_is_ego(o_ptr))
     {
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_AWFUL;
+        if (obj_is_cursed(o_ptr) || obj_is_broken(o_ptr)) return FEEL_AWFUL;
         return FEEL_EXCELLENT;
     }
 
-    if (object_is_cursed(o_ptr)) return FEEL_BAD;
-    if (object_is_broken(o_ptr)) return FEEL_BROKEN;
+    if (obj_is_cursed(o_ptr)) return FEEL_BAD;
+    if (obj_is_broken(o_ptr)) return FEEL_BROKEN;
     if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) return FEEL_AVERAGE;
 
     if (o_ptr->to_a > 0) return FEEL_GOOD;
@@ -2143,7 +2143,7 @@ static byte _get_object_feeling(object_type *o_ptr)
 static void _sense_object_floor(object_type *o_ptr)
 {
     if (o_ptr->ident & IDENT_SENSE) return;
-    if (object_is_known(o_ptr)) return;
+    if (obj_is_known(o_ptr)) return;
     if (!_can_sense_object(o_ptr)) return;
 
     o_ptr->ident |= IDENT_SENSE;
@@ -2163,7 +2163,7 @@ bool autopick_auto_id(object_type *o_ptr)
     if (class_idx == CLASS_MONSTER)
         class_idx = race->pseudo_class_idx;
 
-    if (!object_is_known(o_ptr) && class_idx != CLASS_BERSERKER)
+    if (!obj_is_known(o_ptr))
     {
         slot_t slot;
 
@@ -2171,7 +2171,7 @@ bool autopick_auto_id(object_type *o_ptr)
             return TRUE;
 
         slot = pack_find_obj(TV_SCROLL, SV_SCROLL_IDENTIFY);
-        if (slot && !p_ptr->blind && !(race->flags & RACE_IS_ILLITERATE))
+        if (slot && !plr_tim_find(T_BLIND) && !(race->flags & RACE_IS_ILLITERATE))
         {
             obj_ptr scroll = pack_obj(slot);
             if (obj_is_known(scroll))
@@ -2188,6 +2188,16 @@ bool autopick_auto_id(object_type *o_ptr)
         if (slot)
         {
             obj_ptr device = pack_obj(slot);
+            identify_item(o_ptr);
+            stats_on_use(device, 1);
+            device_decrease_sp(device, device->activation.cost);
+            return TRUE;
+        }
+
+        slot = equip_find_device(EFFECT_IDENTIFY); /* wizardstaff {A:Identify} is quite useful! */
+        if (slot)
+        {
+            obj_ptr device = equip_obj(slot);
             identify_item(o_ptr);
             stats_on_use(device, 1);
             device_decrease_sp(device, device->activation.cost);
@@ -2292,7 +2302,7 @@ static void _get_obj(obj_ptr obj)
 
 void autopick_get_floor(void)
 {
-    inv_ptr floor = inv_filter_floor(point(px, py), NULL);
+    inv_ptr floor = inv_filter_floor(p_ptr->pos, NULL);
     inv_for_each(floor, _get_obj);
     inv_free(floor);
 }
@@ -2447,7 +2457,7 @@ bool autopick_autoregister(object_type *o_ptr)
     }
 
     /* Known to be an artifact? */
-    if ((object_is_known(o_ptr) && object_is_artifact(o_ptr)) ||
+    if ((obj_is_known(o_ptr) && obj_is_art(o_ptr)) ||
         ((o_ptr->ident & IDENT_SENSE) &&
          (o_ptr->feeling == FEEL_SPECIAL)))
     {
@@ -6191,7 +6201,7 @@ void do_cmd_edit_autopick(void)
     int i;
     int key = -1;
 
-    static s32b old_autosave_turn = 0L;
+    static u32b old_autosave_turn = 0L;
     byte quit = 0;
 
     tb->changed = FALSE;
@@ -6212,20 +6222,20 @@ void do_cmd_edit_autopick(void)
     tb->dirty_line = -1;
     tb->filename_mode = PT_WITH_PNAME;
 
-    if (game_turn < old_autosave_turn)
+    if (dun_mgr()->turn < old_autosave_turn)
     {
-        while (old_autosave_turn > game_turn) old_autosave_turn -= TURNS_PER_TICK * TOWN_DAWN;
+        while (old_autosave_turn > dun_mgr()->turn) old_autosave_turn -= TURNS_PER_TICK * TOWN_DAWN;
     }
 
     /* Autosave */
-    if (game_turn > old_autosave_turn + 100L)
+    if (dun_mgr()->turn > old_autosave_turn + 100L)
     {
         do_cmd_save_game(TRUE);
-        old_autosave_turn = game_turn;
+        old_autosave_turn = dun_mgr()->turn;
     }
 
-    /* HACK -- Reset start_time to stop counting playtime while edit */
-    update_playtime();
+    /* Don't accumulate playtime in the autopicker */
+    playtime_pause();
 
     /* Free old entries */
     init_autopick();
@@ -6360,8 +6370,8 @@ void do_cmd_edit_autopick(void)
     /* Reload autopick pref */
     process_autopick_file(buf);
 
-    /* HACK -- reset start_time so that playtime is not increase while edit */
-    start_time = time(NULL);
+    /* Don't accumulate playtime in the autopicker */
+    playtime_resume();
 
     /* Save cursor location */
     cx_save = tb->cx;

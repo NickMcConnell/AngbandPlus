@@ -1,4 +1,4 @@
 MKPATH=../mk/
 include $(MKPATH)buildsys.mk
 
-SUBDIRS = apex bone data edit file help pref save script user xtra info
+SUBDIRS = bone data edit file help pref save script scores user xtra info

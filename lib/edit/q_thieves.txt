@@ -86,7 +86,7 @@ R:OBJ(short bow)
 ?:[EQU $CLASS Weaponsmith]
 R:OBJ(broad axe)
 
-?:[EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage Yellow-Mage Gray-Mage]
+?:[EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Yellow-Mage Gray-Mage]
 R:OBJ(^ring$):EGO(protection)
 
 ?:[EQU $CLASS Ninja]

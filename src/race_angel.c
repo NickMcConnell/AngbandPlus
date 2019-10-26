@@ -20,23 +20,23 @@ static void _birth(void)
     p_ptr->current_r_idx = MON_ANGEL;
 
     object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_HEALING));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_MACE));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 /******************************************************************************
  *              10           20        30        40        45          50
  * Angel: Angel -> Archangel -> Cherub -> Seraph -> Archon -> Planetar -> Solar
  ******************************************************************************/
-static void _psycho_spear_spell(int cmd, variant *res)
+static void _psycho_spear_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -102,8 +102,8 @@ static void _calc_bonuses(void) {
 
     if (equip_find_art(ART_STONE_OF_CRUSADE))
     {
-        p_ptr->dec_mana = TRUE;
-        p_ptr->easy_spell = TRUE;
+        p_ptr->dec_mana++;
+        p_ptr->easy_spell++;
     }
 
     if (p_ptr->lev >= 10)
@@ -209,10 +209,9 @@ static void _gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-static race_t *_solar_get_race_t(void)
+static plr_race_ptr _solar_get_race_t(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
     static cptr   titles[7] =  {"Angel", "Archangel", "Cherub", "Seraph", "Archon", "Planetar", "Solar"};
     int           rank = 0;
 
@@ -223,35 +222,35 @@ static race_t *_solar_get_race_t(void)
     if (p_ptr->lev >= 45) rank++;
     if (p_ptr->lev >= 50) rank++;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  35,  40,   3,  18,  12,  48,  35};
     skills_t xs = {  7,  13,  15,   0,   0,   0,  18,  13};
 
-        me.skills = bs;
-        me.extra_skills = xs;
+        me = plr_race_alloc(RACE_MON_ANGEL);
+        me->skills = bs;
+        me->extra_skills = xs;
 
-        me.infra = 3;
-        me.exp = 325; /* 14.6 Mxp */
-        me.base_hp = 26;
+        me->infra = 3;
+        me->exp = 325; /* 14.6 Mxp */
+        me->base_hp = 26;
 
-        me.get_spells = _get_spells;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.gain_level = _gain_level;
-        init = TRUE;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.gain_level = _gain_level;
     }
 
-    me.subname = titles[rank];
-    me.stats[A_STR] =  1 + rank/2;
-    me.stats[A_INT] =  1 + rank/2;
-    me.stats[A_WIS] =  4 + rank/2;
-    me.stats[A_DEX] =  1 + rank/2;
-    me.stats[A_CON] =  1 + rank/2;
-    me.stats[A_CHR] =  1 + rank;
-    me.life = 90 + 3*rank;
+    me->subname = titles[rank];
+    me->stats[A_STR] =  1 + rank/2;
+    me->stats[A_INT] =  1 + rank/2;
+    me->stats[A_WIS] =  4 + rank/2;
+    me->stats[A_DEX] =  1 + rank/2;
+    me->stats[A_CON] =  1 + rank/2;
+    me->stats[A_CHR] =  1 + rank;
+    me->life = 90 + 3*rank;
 
-    return &me;
+    return me;
 }
 
 static caster_info * _caster_info(void)
@@ -273,9 +272,9 @@ static caster_info * _caster_info(void)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_angel_get_race(void)
+plr_race_ptr mon_angel_get_race(void)
 {
-    race_t *result = NULL;
+    plr_race_ptr result = NULL;
 
     switch (p_ptr->psubrace)
     {
@@ -287,8 +286,8 @@ race_t *mon_angel_get_race(void)
     result->name = "Angel";
     result->desc = _desc;
     result->flags = RACE_IS_MONSTER;
-    result->birth = _birth;
-    result->caster_info = _caster_info;
+    result->hooks.birth = _birth;
+    result->hooks.caster_info = _caster_info;
     result->pseudo_class_idx = CLASS_PRIEST;
     result->shop_adjust = 90;
 

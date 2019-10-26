@@ -1,0 +1,42 @@
+# This is the first world in the normal world sequence. You must slay Smaug
+# and conquer the Lonely Mountain to move on to the next world.
+T:WORLD:NORMAL:NO_ROTATE
+L:#:MOUNTAIN_WALL(30)
+L:.:GRASS(3)
+L:,:DIRT(25)
+L:T:TREE(25)
+L:F:TREE(5)
+L:_:DEEP_WATER(20)
+L:^:MOUNTAIN(30)
+L:$:SHALLOW_LAVA(30)
+L:=:SWAMP(10)
+L:~:TREE(RIVER, 10)
+L:-:DEEP_WATER(RIVER, 20)
+L:+:MOUNTAIN(RIVER, 30)
+L:!:SWAMP(RIVER, 10)
+L:':DIRT(RIVER, 25)
+L:*:TREE(ROAD, 1)
+L:%:MOUNTAIN(ROAD, 15)
+L:1:TREE(TOWN|ROAD|RIVER|MARK|GLOW, Rivendell)
+L:2:GRASS(TOWN|ROAD, Beorn)
+L:3:GRASS(TOWN, Laketown)
+L:a:TREE(DUNGEON, Stronghold)
+L:b:MOUNTAIN(DUNGEON, Orc Cave)
+L:d:SHALLOW_LAVA(DUNGEON, Lonely Mountain)
+L:e:TREE(DUNGEON, Forest)
+L:f:MOUNTAIN(DUNGEON, Camelot)
+L:g:SWAMP(DUNGEON, Icky Cave)
+M:########################################################
+M:#......^^^....TTTTTT~~TTTTTTTTTTTTTT...........,,,,,^,,#
+M:#.....FF^f^..TTTTTTTT~~~TTTTTTTTTTTT............,,,^d^,#
+M:#....F~~++^...TTTTTTTTT~~~~~~~~~~TTTT..........,,,,,+,,#
+M:#.F.F~~F^^^....FTTTTTTTTTTTTTTTT~~~TTTTTTT......,,,,',,#
+M:#FFF~~FFF^%%**2FTTTTTTTTTTTTTeTTTT~~~TT^^TT.........~~~#
+M:#F~~~F***%%b...FTTTTTTTTTT^^TTTTTTTT~~~~+~~..===.~~~~__#
+M:#~1****FFF^^^...FTTTTTTTTTT^^TTTTTTTTTTTTT~~~!!!!~..-_3#
+M:#a~~~FFF.^^^...F******TTTTTTTTTTTTTTTTTTTTTT..=g=...___#
+M:#FFF~~~~..^^^..FTTTTT*******TTTTTTTTTTT*****...===...-_#
+M:#FFFFFF~~+^^...TTTTTTTTTTTT*************TTTT.........+^#
+M:#FFFF...^^^.....TTTTTTTTTTTTTTTTTTTTTTTTTTTTT.......^++#
+M:########################################################
+# vim: filetype=q :

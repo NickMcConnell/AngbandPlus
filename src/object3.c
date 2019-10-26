@@ -374,24 +374,6 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr, int optio
         }
     }
 
-    if (o_ptr->tval != TV_LITE && !object_is_jewelry(o_ptr))
-    {
-        /* Do we know this is an artifact? */
-        if ( (known && object_is_artifact(o_ptr))
-          || (o_ptr->feeling & (FEEL_SPECIAL | FEEL_TERRIBLE)) )
-        {
-        }
-        else
-        {
-            p = (p + 1) * 3 / 4;
-            if (cost_calc_hook)
-            {
-                sprintf(dbg_msg, "  * Not Artifact: p = %d", p);
-                cost_calc_hook(dbg_msg);
-            }
-        }
-    }
-
     /* Negative values don't make much sense, and some code
        was using unsigned integers for values (e.g. Androids) */
     if (p <= 0)
@@ -422,7 +404,7 @@ s32b jewelry_cost(object_type *o_ptr, int options)
     else
         obj_flags_known(o_ptr, flgs);
 
-    if ((options & COST_REAL) || object_is_known(o_ptr))
+    if ((options & COST_REAL) || obj_is_known(o_ptr))
     {
         to_h = o_ptr->to_h;
         to_d = o_ptr->to_d;
@@ -616,17 +598,12 @@ s32b jewelry_cost(object_type *o_ptr, int options)
 
         p += 100 * to_h + 10 * x;
 
-        switch (o_ptr->name2)
-        {
-        case EGO_RING_WIZARDRY:
-        case EGO_AMULET_MAGI:
-        case EGO_RING_ARCHERY:
+        if (have_flag(flgs, OF_ARCHERY))
             p += 25 * y;
-            break;
-        default:
-            /*p += 100 * y;*/
+        else if (have_flag(flgs, OF_SPELL_DAM))
+            p += 25 * y;
+        else
             p += 100 * to_d + 25 * to_d * ABS(to_d) + 3 * to_d * to_d * to_d;
-        }
 
         if (cost_calc_hook)
         {
@@ -674,7 +651,7 @@ s32b lite_cost(object_type *o_ptr, int options)
     }
 
     /* These egos don't use flags for their effects ... sigh. */
-    if ((options & COST_REAL) || object_is_known(o_ptr))
+    if ((options & COST_REAL) || obj_is_known(o_ptr))
     {
         if (o_ptr->name2 == EGO_LITE_DURATION)
             j += 100;
@@ -785,8 +762,16 @@ s32b quiver_cost(object_type *o_ptr, int options)
 
     pval = o_ptr->pval;
 
-    j = MAX(0, o_ptr->xtra4 - 60);
-    j = 30 + j * j / 5;
+    if (o_ptr->sval == SV_QUIVER_MAGE)
+    {
+        j = MAX(0, o_ptr->xtra4 - 6);
+        j = 3000 + j * 100;
+    }
+    else
+    {
+        j = MAX(0, o_ptr->xtra4 - 60);
+        j = 30 + j * j / 5;
+    }
     if (cost_calc_hook)
     {
         sprintf(dbg_msg, "  * Base Cost: j = %d", j);
@@ -794,7 +779,7 @@ s32b quiver_cost(object_type *o_ptr, int options)
     }
 
     /* These egos don't use flags for their effects ... sigh. */
-    if ((options & COST_REAL) || object_is_known(o_ptr))
+    if ((options & COST_REAL) || obj_is_known(o_ptr))
     {
         switch (o_ptr->name2)
         {
@@ -803,6 +788,10 @@ s32b quiver_cost(object_type *o_ptr, int options)
             break;
         case EGO_QUIVER_PHASE:
             j += 5000;
+            break;
+        case EGO_QUIVER_REGEN:
+            j += 1000;
+            j += j * o_ptr->pval / 3;
             break;
         }
     }
@@ -908,7 +897,7 @@ s32b armor_cost(object_type *o_ptr, int options)
     else
         obj_flags_known(o_ptr, flgs);
 
-    if ((options & COST_REAL) || object_is_known(o_ptr))
+    if ((options & COST_REAL) || obj_is_known(o_ptr))
     {
         to_h = o_ptr->to_h - k_info[o_ptr->k_idx].to_h;
         to_d = o_ptr->to_d;
@@ -1052,7 +1041,7 @@ s32b armor_cost(object_type *o_ptr, int options)
         }
     }
 
-    if ((options & COST_REAL) || object_is_known(o_ptr))
+    if ((options & COST_REAL) || obj_is_known(o_ptr))
     {
         if (have_flag(flgs, OF_DUAL_WIELDING))
         {
@@ -1079,7 +1068,9 @@ s32b armor_cost(object_type *o_ptr, int options)
         }
         else
         {
-            if (o_ptr->name2 == EGO_CROWN_MAGI)
+            if (have_flag(flgs, OF_ARCHERY))
+                p += 25 * y;
+            else if (have_flag(flgs, OF_SPELL_DAM))
                 p += 25 * y;
             else /* Note: damage on armor should score fairly high ... e.g. Cambeleg's (+8,+8) */
                 p += 750 * to_d + 50 * y;
@@ -1116,15 +1107,13 @@ s32b weapon_cost(object_type *o_ptr, int options)
     /* Hacks for objects with "hidden" powers */
     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE)
         return 2500;
-    if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD)
-        return 1;
 
     if (options & COST_REAL)
         obj_flags(o_ptr, flgs);
     else
         obj_flags_known(o_ptr, flgs);
 
-    if ((options & COST_REAL) || object_is_known(o_ptr))
+    if ((options & COST_REAL) || obj_is_known(o_ptr))
     {
         to_h = o_ptr->to_h;
         to_d = o_ptr->to_d;
@@ -1147,7 +1136,7 @@ s32b weapon_cost(object_type *o_ptr, int options)
         double s = 1.0;
         int    ct = 0;
 
-        if (!object_is_known(o_ptr) && !(options & COST_REAL))
+        if (!obj_is_known(o_ptr) && !(options & COST_REAL))
             d = b;
 
         /* Figure average damage per strike. Not really because we are stacking slays
@@ -1167,11 +1156,6 @@ s32b weapon_cost(object_type *o_ptr, int options)
         else if (have_flag(flgs, OF_SLAY_DEMON)) s += _inc_slay(2.0 * .15, &ct);
 
         if (have_flag(flgs, OF_SLAY_LIVING)) s += _inc_slay(1.0 * 0.7, &ct);
-        if (have_flag(flgs, OF_SLAY_GOOD)) s += _inc_slay(1.0 * 0.1, &ct);
-        if (have_flag(flgs, OF_BRAND_ACID)) s += _inc_slay(1.5 * .15, &ct);
-        if (have_flag(flgs, OF_BRAND_ELEC)) s += _inc_slay(1.5 * .2, &ct);
-        if (have_flag(flgs, OF_BRAND_FIRE)) s += _inc_slay(1.5 * .1, &ct);
-        if (have_flag(flgs, OF_BRAND_COLD)) s += _inc_slay(1.5 * .1, &ct);
 
         if (have_flag(flgs, OF_KILL_DRAGON)) s += _inc_slay(4.0 * .1, &ct);
         else if (have_flag(flgs, OF_SLAY_DRAGON)) s += _inc_slay(2.0 * .1, &ct);
@@ -1182,7 +1166,7 @@ s32b weapon_cost(object_type *o_ptr, int options)
         if (have_flag(flgs, OF_KILL_GIANT)) s += _inc_slay(4.0 * .075, &ct);
         else if (have_flag(flgs, OF_SLAY_GIANT)) s += _inc_slay(2.0 * 0.075, &ct);
 
-        if (have_flag(flgs, OF_BRAND_POIS)) s += _inc_slay(1.5 * .075, &ct);
+        if (have_flag(flgs, OF_SLAY_GOOD)) s += _inc_slay(1.0 * 0.1, &ct);
 
         if (have_flag(flgs, OF_KILL_ORC)) s += _inc_slay(4.0 * .01, &ct);
         else if (have_flag(flgs, OF_SLAY_ORC)) s += _inc_slay(2.0 * .01, &ct);
@@ -1193,11 +1177,21 @@ s32b weapon_cost(object_type *o_ptr, int options)
         if (have_flag(flgs, OF_KILL_ANIMAL)) s += _inc_slay(3.0 * .2, &ct);
         else if (have_flag(flgs, OF_SLAY_ANIMAL)) s += _inc_slay(1.5 * .2, &ct);
 
-        /* the following stack, so should increment at full strength */
-        if (have_flag(flgs, OF_BRAND_CHAOS)) s += 0.2;
-        if (have_flag(flgs, OF_BRAND_VAMP)) s += 0.1; /* Not really a slay, but vamp works better on higher dice */
+        /* Brands now stack with slays */
+        ct = 0;
+        if (have_flag(flgs, OF_BRAND_TIME)) s += _inc_slay(1.0 * .7, &ct);
+        if (have_flag(flgs, OF_BRAND_LITE)) s += _inc_slay(1.0 * .3, &ct);
+        if (have_flag(flgs, OF_BRAND_PLASMA)) s += _inc_slay(1.0 * .3, &ct);
+        if (have_flag(flgs, OF_BRAND_DARK)) s += _inc_slay(1.0 * .2, &ct);
+        if (have_flag(flgs, OF_BRAND_ACID)) s += _inc_slay(1.5 * .15, &ct);
+        if (have_flag(flgs, OF_BRAND_ELEC)) s += _inc_slay(1.5 * .2, &ct);
+        if (have_flag(flgs, OF_BRAND_FIRE)) s += _inc_slay(1.5 * .1, &ct);
+        if (have_flag(flgs, OF_BRAND_COLD)) s += _inc_slay(1.5 * .1, &ct);
+        if (have_flag(flgs, OF_BRAND_POIS)) s += _inc_slay(1.5 * .075, &ct);
 
-        if (o_ptr->name1 == ART_ETERNAL_BLADE) s += (1.0 * 0.8); /* BR_TIME */
+        /* the following stack, so should increment at full strength */
+        if (have_flag(flgs, OF_BRAND_CHAOS)) s += 0.1;
+        if (have_flag(flgs, OF_BRAND_VAMP)) s += 0.1; /* Not really a slay, but vamp works better on higher dice */
 
         if (have_flag(flgs, OF_BRAND_MANA))
         {
@@ -1232,9 +1226,6 @@ s32b weapon_cost(object_type *o_ptr, int options)
 
         if (have_flag(flgs, OF_IMPACT))
             w += 250;
-
-        if (have_flag(flgs, OF_BRAND_WILD))
-            w += 10000;
 
         if (cost_calc_hook)
         {
@@ -1370,7 +1361,7 @@ s32b ammo_cost(object_type *o_ptr, int options)
        Also, some egos, like EGO_AMMO_RETURNING will not score properly */
     s32b result = weapon_cost(o_ptr, options);
     result /= 25;
-    if ((options & COST_REAL) || object_is_known(o_ptr))
+    if ((options & COST_REAL) || obj_is_known(o_ptr))
     {
         switch (o_ptr->name2)
         {
@@ -1395,13 +1386,13 @@ static s32b _avg_dam_bow(object_type *o_ptr, int options) /* scaled by 10 */
     s32b d = 0;
     s32b m = o_ptr->mult; /* scaled by 100 */
 
-    if (!object_is_known(o_ptr) && !(options & COST_REAL))
+    if (!obj_is_known(o_ptr) && !(options & COST_REAL))
         m = k_info[o_ptr->k_idx].mult;
 
     switch (o_ptr->sval)
     {
     case SV_SLING:
-        d = m*22 / 10; /* 5d3+12 */
+        d = m*20 / 10; /* 4d3+12 */
         break;
 
     case SV_SHORT_BOW:
@@ -1409,10 +1400,7 @@ static s32b _avg_dam_bow(object_type *o_ptr, int options) /* scaled by 10 */
         break;
 
     case SV_LONG_BOW:
-        d = m*27 / 10;
-        break;
-
-    case SV_NAMAKE_BOW:
+    case SV_GREAT_BOW:
         d = m*27 / 10;
         break;
 
@@ -1445,7 +1433,7 @@ s32b bow_cost(object_type *o_ptr, int options)
     else
         obj_flags_known(o_ptr, flgs);
 
-    if ((options & COST_REAL) || object_is_known(o_ptr))
+    if ((options & COST_REAL) || obj_is_known(o_ptr))
     {
         to_h = o_ptr->to_h;
         to_d = o_ptr->to_d;
@@ -1647,13 +1635,13 @@ s32b bow_cost(object_type *o_ptr, int options)
 
 s32b new_object_cost(object_type *o_ptr, int options)
 {
-    if (object_is_melee_weapon(o_ptr)) return weapon_cost(o_ptr, options);
+    if (obj_is_weapon(o_ptr)) return weapon_cost(o_ptr, options);
     else if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr, options);
-    else if (object_is_ammo(o_ptr)) return ammo_cost(o_ptr, options);
-    else if (object_is_armour(o_ptr) || object_is_shield(o_ptr)) return armor_cost(o_ptr, options);
-    else if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr))) return jewelry_cost(o_ptr, options);
+    else if (obj_is_ammo(o_ptr)) return ammo_cost(o_ptr, options);
+    else if (obj_is_armor(o_ptr)) return armor_cost(o_ptr, options);
+    else if (obj_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && obj_is_art(o_ptr))) return jewelry_cost(o_ptr, options);
     else if (o_ptr->tval == TV_LITE) return lite_cost(o_ptr, options);
     else if (o_ptr->tval == TV_QUIVER) return quiver_cost(o_ptr, options);
-    else if (object_is_device(o_ptr)) return device_value(o_ptr, options);
+    else if (obj_is_device(o_ptr)) return device_value(o_ptr, options);
     return 0;
 }

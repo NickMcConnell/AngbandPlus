@@ -611,7 +611,7 @@ In addition to Identifying objects, you also need to map the dungeon, detect tra
 </indent>
   <indent><color:B>Travel</color>
 
-Finally, you don't need to climb up and down the stairs all the time to return to town. There is a magic item called Word of Recall (scrolls) or just Recall (devices) that will take you back and forth between the town and your current dungeon level. And this is a good thing too since it would be rather onerous to walk up and down 100 flights of stairs in the end game!
+Finally, you don't need to climb up and down the stairs all the time to return to town. There is a magic tile called a <color:keyword>Wizard Tile</color> that is often generated on levels in a special room. Stepping on the tile will return you to the surface. Similar tiles exist in most of the surface towns allowing you to travel back to the depths to continue your quest. There is also a spell called <color:keyword>Word of Recall</color> that will have the same effect, except that you can cast it whenever you like without having to find the special <color:keyword>Wizard Tile</color>.
 </indent>
 <topic:OnWeapons><style:heading>On Weapons, Armor and Slays</style>
 

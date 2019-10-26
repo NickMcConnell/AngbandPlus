@@ -142,7 +142,7 @@ void cmsg_append(byte color, cptr str)
     }
 }
 
-void _cmsg_add_aux(byte color, cptr str, int turn, int count)
+void _cmsg_add_aux(byte color, cptr str, u32b turn, int count)
 {
     msg_ptr m;
 
@@ -182,13 +182,13 @@ void _cmsg_add_aux(byte color, cptr str, int turn, int count)
 
 void cmsg_add(byte color, cptr str)
 {
-    _cmsg_add_aux(color, str, player_turn, 1);
+    _cmsg_add_aux(color, str, p_ptr->turn, 1);
 }
 
 rect_t msg_line_rect(void)
 {
     assert(_msg_line_doc); /* call msg_on_startup()! */
-    return rect(
+    return rect_create(
         _msg_line_rect.x,
         _msg_line_rect.y,
         _msg_line_rect.cx,
@@ -232,7 +232,7 @@ bool msg_line_contains(int row, int col)
         col = r.x;
     if (row < 0)
         row = r.y;
-    return rect_contains_pt(r, col, row);
+    return rect_contains_xy(r, col, row);
 }
 
 bool msg_line_is_empty(void)

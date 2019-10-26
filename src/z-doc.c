@@ -709,8 +709,16 @@ cptr doc_lex(cptr pos, doc_token_ptr token)
         return pos;
     }
     if (*pos == '\r')
+    {
         pos++;
-
+        if (!*pos) /* expecting \r\n but don't count on it! */
+        {
+            token->type = DOC_TOKEN_EOF;
+            token->pos = pos;
+            token->size = 0;
+            return pos;
+        }
+    }
     if (*pos == '\n')
     {
         token->type = DOC_TOKEN_NEWLINE;
@@ -759,7 +767,7 @@ static void _doc_process_var(doc_ptr doc, cptr name)
     if (strcmp(name, "version") == 0)
     {
         string_ptr s = string_alloc_format("%d.%d.%d", VER_MAJOR, VER_MINOR, VER_PATCH);
-        if (VER_MINOR == 0) string_append_s(s, "<color:r> (Beta)</color>");
+        /*if (VER_MINOR == 0) string_append_s(s, "<color:r> (Beta)</color>");*/
         doc_insert(doc, string_buffer(s));
         string_free(s);
     }
@@ -969,7 +977,14 @@ doc_pos_t doc_insert(doc_ptr doc, cptr text)
 
         if (token.type == DOC_TOKEN_WHITESPACE)
         {
-            doc_insert_space(doc, token.size);
+            doc_style_ptr style = doc_current_style(doc);
+            if (style->options & DOC_STYLE_NO_WORDWRAP)
+            {
+                if (doc->cursor.x + token.size >= style->right)
+                    nowrap = TRUE;
+            }
+            if (!nowrap)
+                doc_insert_space(doc, token.size);
             continue;
         }
 
@@ -1247,6 +1262,21 @@ doc_pos_t doc_insert_cols(doc_ptr dest_doc, doc_ptr src_cols[], int col_count, i
                     src++;
                 }
             }
+            /* Case were right-most column is longer than left-most ... pad with spaces.
+             * This case would display fine within the game, but exporting embeds '\0'
+             * characters which cause display issues in other programs. */
+            else if (src_y > src_col->cursor.y && count > 0 && i < col_count - 1)
+            {
+                doc_char_ptr dest = doc_char(dest_doc, dest_pos);
+                int          j;
+
+                for (j = 0; j < count; j++)
+                {
+                    dest->a = TERM_WHITE;
+                    dest->c = ' ';
+                    dest++;
+                }
+            }
             dest_pos.x += count;
 
             if (i == col_count - 1)
@@ -1458,11 +1488,11 @@ static void _doc_write_html_file(doc_ptr doc, FILE *fp)
             cell++;
         }
         fputc('\n', fp);
-   }
-   fprintf(fp, "</font>");
-   fprintf(fp, "</pre></body></html>\n");
+    }
+    fprintf(fp, "</font>");
+    fprintf(fp, "</pre></body></html>\n");
 
-   vec_free(links);
+    vec_free(links);
 }
 
 static void _doc_write_doc_file(doc_ptr doc, FILE *fp)

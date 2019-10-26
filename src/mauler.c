@@ -1,6 +1,43 @@
 #include "angband.h"
 
 /****************************************************************
+ * Timers
+ ****************************************************************/
+enum { _KILLING_SPREE = T_CUSTOM };
+static bool _killing_spree_on(plr_tim_ptr timer)
+{
+    msg_print("You go on a killing spree!");
+    return TRUE;
+}
+static void _killing_spree_off(plr_tim_ptr timer)
+{
+    msg_print("You have seen enough blood and suffering for now.");
+}
+static status_display_t _killing_spree_display(plr_tim_ptr timer)
+{
+    return status_display_create("Spree", "Ks", TERM_VIOLET);
+}
+static plr_tim_info_ptr _killing_spree(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_KILLING_SPREE, "Killing Spree");
+    info->desc = "Killing monsters makes you faster.";
+    info->on_f = _killing_spree_on;
+    info->off_f = _killing_spree_off;
+    info->status_display_f = _killing_spree_display;
+    info->flags = TF_IGNORE;
+    return info;
+}
+static void _register_timers(void)
+{
+    plr_tim_register(_killing_spree());
+}
+static void _kill_monster(mon_ptr mon)
+{
+    if (plr_tim_find(_KILLING_SPREE))
+        plr_tim_augment(T_FAST, 10);
+}
+
+/****************************************************************
  * Helpers
  ****************************************************************/
 
@@ -10,14 +47,14 @@ static bool _weapon_check(void)
     int hand;
     for (hand = 0; hand < MAX_HANDS; hand++)
     {
-        if ( p_ptr->weapon_info[hand].wield_how != WIELD_NONE
-          && p_ptr->weapon_info[hand].wield_how != WIELD_TWO_HANDS )
+        if ( p_ptr->attack_info[hand].type == PAT_WEAPON
+          && !have_flag(p_ptr->attack_info[hand].paf_flags, PAF_TWO_HANDS) )
         {
             return FALSE;
         }
     }
     /* Fail if there is no wielded weapon */
-    return equip_find_first(object_is_melee_weapon);
+    return equip_find_first(obj_is_weapon);
 }
 
 static int _get_toggle(void)
@@ -51,99 +88,114 @@ int mauler_get_toggle(void)
     return result;
 }
 
-static void _blast_obj(obj_ptr obj)
+/****************************************************************
+ * Melee: We use global hooks for Splatter
+ ****************************************************************/
+enum {
+    _CRUSHING_BLOW = PLR_HIT_CUSTOM,
+    _SCATTER,
+    _MAUL,
+    _KNOCKBACK,
+};
+static bool _begin_weapon(plr_attack_ptr context)
 {
-    char o_name[MAX_NLEN];
-    object_desc(o_name, obj, OD_OMIT_PREFIX | OD_COLOR_CODED);
-    msg_format("A terrible black aura blasts your %s!", o_name);
-    blast_object(obj);
-    disturb(1, 0);
-}
-
-void process_maul_of_vice(void)
-{
-    int amt;
-    if (!p_ptr->maul_of_vice) return;
-    
-    amt = randint1(p_ptr->lev);
-    p_ptr->au -= amt;
-    stats_on_gold_stolen(amt);
-    p_ptr->redraw |= PR_GOLD;
-
-    if (p_ptr->au < 0)
+    if (context->info.type != PAT_WEAPON) return TRUE;
+    switch (context->mode)
     {
-        slot_t slot = pack_find_art(ART_MAUL_OF_VICE);
-
-        if (slot) _blast_obj(pack_obj(slot));
-        else
-        {
-            slot = equip_find_art(ART_MAUL_OF_VICE);
-            if (slot) _blast_obj(equip_obj(slot));
-        }
-        p_ptr->au = 0;
-        p_ptr->update |= PU_BONUS;
+    case PLR_HIT_CRIT:
+        p_ptr->crit_qual_add += 250*p_ptr->lev/50;
+        break;
     }
-    else if (p_ptr->au < 1000)
+    switch (_get_toggle())
     {
-        msg_print("***LOW GOLD WARNING!!!!***");
-        disturb(1, 0);
+    case MAULER_TOGGLE_DRAIN:
+        add_flag(context->obj_flags, OF_BRAND_VAMP);
+        break;
+    case MAULER_TOGGLE_SHATTER:
+        add_flag(context->obj_flags, OF_IMPACT);
+        break;
     }
-    else if (one_in_(111))
-    {
-        msg_print("You feel your wealth draining away!");
-    }
-}
-
-bool do_blow(int type)
-{
-    int x = 0, y = 0;
-    int dir;
-    int m_idx = 0;
-
-    /* For ergonomics sake, use currently targeted monster. This allows
-       a macro of \e*tmaa or similar to pick an adjacent foe, while
-       \emaa*t won't work, since get_rep_dir2() won't allow a target. */
-    if (use_old_target && target_okay())
-    {
-        y = target_row;
-        x = target_col;
-        m_idx = cave[y][x].m_idx;
-        if (m_idx)
-        {
-            if (m_list[m_idx].cdis > 1)
-                m_idx = 0;
-            else
-                dir = 5;
-        }
-    }
-
-    if (!m_idx)
-    {
-        if (!get_rep_dir2(&dir)) return FALSE;
-        if (dir == 5) return FALSE;
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-        m_idx = cave[y][x].m_idx;
-
-        if (!m_idx)
-        {
-            msg_print("There is no monster there.");
-            return FALSE;
-        }
-
-    }
-
-    if (m_idx)
-        py_attack(y, x, type);
-
     return TRUE;
+}
+static void _mod_blows(plr_attack_ptr context)
+{
+    if (context->info.type != PAT_WEAPON) return;
+    switch (context->mode)
+    {
+    case PLR_HIT_CRIT: {
+        int blows = NUM_BLOWS(context->info.which);
+        if (blows > 100)
+            blows = 100 + (blows - 100) / 2;
+        context->blow_ct = blows/100;
+        if (randint0(100) < blows%100) context->blow_ct++;
+        break; }
+    case _CRUSHING_BLOW:
+    case PLR_HIT_STUN:
+    case _KNOCKBACK:
+    case _SCATTER:
+        context->blow_ct = 1;
+        break;
+    }
+}
+static void _mod_damage(plr_attack_ptr context)
+{
+    if (context->info.type != PAT_WEAPON) return;
+    switch (context->mode)
+    {
+    case _CRUSHING_BLOW:
+        context->dam = context->dam * NUM_BLOWS(context->info.which) / 50;
+        context->dam_drain *= 2;
+        break;
+    }
+}
+static void _after_hit(plr_attack_ptr context)
+{
+    if (context->info.type != PAT_WEAPON) return;
+    if (_get_toggle() == MAULER_TOGGLE_SPLATTER && context->stop == STOP_MON_DEAD)
+    {
+        project(0, 2, context->mon_pos.y, context->mon_pos.x, context->dam,
+                GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_FULL_DAM);
+    }
+    switch (context->mode)
+    {
+    case _KNOCKBACK:
+        context->do_knockback = 8;
+        break;
+    case _SCATTER:
+        context->do_knockback = 3;
+        break;
+    }
+}
+static void _end_weapon(plr_attack_ptr context)
+{
+    if (context->info.type != PAT_WEAPON) return;
+    if (context->mode == PLR_HIT_CRIT)
+        p_ptr->crit_qual_add -= 250*p_ptr->lev/50;
+}
+static void _attack_init(plr_attack_ptr context)
+{
+    context->hooks.begin_weapon_f = _begin_weapon;
+    context->hooks.mod_blows_f = _mod_blows;
+    context->hooks.mod_damage_f = _mod_damage;
+    context->hooks.after_hit_f = _after_hit;
+    context->hooks.end_weapon_f = _end_weapon;
+}
+static void _blow_spell(int mode, int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(mode, PAC_NO_INNATE));
+        break;
+    default:
+        default_spell(cmd, res);
+    }
 }
 
 /****************************************************************
  * Spells
  ****************************************************************/
-static void _toggle_spell(int which, int cmd, variant *res)
+static void _toggle_spell(int which, int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -167,8 +219,7 @@ static void _toggle_spell(int which, int cmd, variant *res)
     }
 }
 
-
-static void _block_spell(int cmd, variant *res)
+static void _block_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -184,7 +235,7 @@ static void _block_spell(int cmd, variant *res)
     }
 }
 
-static void _close_in_spell(int cmd, variant *res)
+static void _close_in_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -207,7 +258,7 @@ static void _close_in_spell(int cmd, variant *res)
     }
 }
 
-static void _critical_blow_spell(int cmd, variant *res)
+static void _critical_blow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -215,31 +266,14 @@ static void _critical_blow_spell(int cmd, variant *res)
         var_set_string(res, "Critical Blow");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent with a single devastating blow.");
+        var_set_string(res, "Attack an adjacent opponent with a devastating blow.");
         break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MAULER_CRITICAL_BLOW));
-        break;
-    case SPELL_ON_BROWSE:
-    {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        display_weapon_mode = MAULER_CRITICAL_BLOW;
-        do_cmd_knowledge_weapon();
-        display_weapon_mode = 0;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blow_spell(PLR_HIT_CRIT, cmd, res);
     }
 }
 
-static void _crushing_blow_spell(int cmd, variant *res)
+static void _crushing_blow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -249,29 +283,12 @@ static void _crushing_blow_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attack an adjacent opponent with a single powerful blow.");
         break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MAULER_CRUSHING_BLOW));
-        break;
-    case SPELL_ON_BROWSE:
-    {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        display_weapon_mode = MAULER_CRUSHING_BLOW;
-        do_cmd_knowledge_weapon();
-        display_weapon_mode = 0;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blow_spell(_CRUSHING_BLOW, cmd, res);
     }
 }
 
-static void _detect_ferocity_spell(int cmd, variant *res)
+static void _detect_ferocity_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -291,7 +308,7 @@ static void _detect_ferocity_spell(int cmd, variant *res)
     }
 }
     
-static void _drain_spell(int cmd, variant *res)
+static void _drain_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -307,7 +324,7 @@ static void _drain_spell(int cmd, variant *res)
     }
 }
 
-static void _killing_spree_spell(int cmd, variant *res)
+static void _killing_spree_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -319,12 +336,12 @@ static void _killing_spree_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
-        if (p_ptr->tim_killing_spree)
+        if (plr_tim_find(_KILLING_SPREE))
         {
             msg_print("You are already on a Killing Spree. Show some mercy!");
             return;
         }
-        set_tim_killing_spree(44, FALSE);
+        plr_tim_add(_KILLING_SPREE, 44);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -333,7 +350,7 @@ static void _killing_spree_spell(int cmd, variant *res)
     }
 }
 
-static void _knockback_spell(int cmd, variant *res)
+static void _knockback_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -343,29 +360,12 @@ static void _knockback_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attack an adjacent opponent with a single blow. If landed, your foe will be knocked back away from you.");
         break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MAULER_KNOCKBACK));
-        break;
-    case SPELL_ON_BROWSE:
-    {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        display_weapon_mode = MAULER_KNOCKBACK;
-        do_cmd_knowledge_weapon();
-        display_weapon_mode = 0;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blow_spell(_KNOCKBACK, cmd, res);
     }
 }
 
-static void _maul_spell(int cmd, variant *res)
+static void _maul_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -381,7 +381,7 @@ static void _maul_spell(int cmd, variant *res)
     }
 }
 
-void _scatter_spell(int cmd, variant *res)
+void _scatter_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -393,20 +393,17 @@ void _scatter_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int              dir, x, y;
-        cave_type       *c_ptr;
-        monster_type    *m_ptr;
-
+        int dir;
         for (dir = 0; dir < 8; dir++)
         {
-            y = py + ddy_ddd[dir];
-            x = px + ddx_ddd[dir];
-            c_ptr = &cave[y][x];
-
-            m_ptr = &m_list[c_ptr->m_idx];
-
-            if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
-                py_attack(y, x, MAULER_SCATTER);
+            point_t pos = point_step(p_ptr->pos, ddd[dir]);
+            mon_ptr mon = mon_at(pos);
+            if (mon && (mon->ml || cave_have_flag_at(pos, FF_PROJECT)))
+            {
+                plr_attack_t context = {0};
+                context.mode = _SCATTER;
+                plr_attack(&context, pos);
+            }
         }
         var_set_bool(res, TRUE);
         break;
@@ -417,7 +414,7 @@ void _scatter_spell(int cmd, variant *res)
     }
 }
 
-static void _shatter_spell(int cmd, variant *res)
+static void _shatter_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -433,7 +430,7 @@ static void _shatter_spell(int cmd, variant *res)
     }
 }
 
-static void _smash_wall_spell(int cmd, variant *res)
+static void _smash_wall_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -451,8 +448,8 @@ static void _smash_wall_spell(int cmd, variant *res)
         if (!get_rep_dir2(&dir)) return;
         if (dir == 5) return;
 
-        y = py + ddy[dir];
-        x = px + ddx[dir];
+        y = p_ptr->pos.y + ddy[dir];
+        x = p_ptr->pos.x + ddx[dir];
         
         if (!in_bounds(y, x)) return;
 
@@ -479,7 +476,7 @@ static void _smash_wall_spell(int cmd, variant *res)
     }
 }
 
-static void _splatter_spell(int cmd, variant *res)
+static void _splatter_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -495,7 +492,7 @@ static void _splatter_spell(int cmd, variant *res)
     }
 }
 
-void stunning_blow_spell(int cmd, variant *res)
+void stunning_blow_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -505,29 +502,12 @@ void stunning_blow_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attack an adjacent opponent with a single blow aimed to stun.");
         break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MAULER_STUNNING_BLOW));
-        break;
-    case SPELL_ON_BROWSE:
-    {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        display_weapon_mode = MAULER_STUNNING_BLOW;
-        do_cmd_knowledge_weapon();
-        display_weapon_mode = 0;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blow_spell(PLR_HIT_STUN, cmd, res);
     }
 }
 
-static void _tunnel_spell(int cmd, variant *res)
+static void _tunnel_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -586,7 +566,7 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    int w = equip_weight(object_is_melee_weapon);
+    int w = equip_weight(obj_is_weapon);
     if (_weapon_check())
     {
         if (_get_toggle() == MAULER_TOGGLE_BLOCK)
@@ -608,7 +588,7 @@ static void _calc_bonuses(void)
     }
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(object_type *o_ptr, plr_attack_info_ptr info)
 {
     if (_weapon_check())
     {
@@ -618,15 +598,22 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
             int w = o_ptr->weight;
             int h = (w - 150)/20;
             int d = (w - 150)/10;
+            int crit_pct = MIN((w - 200)/20, 20);
 
             if (_get_toggle() != MAULER_TOGGLE_BLOCK)
             {
-                info_ptr->to_h += h;
-                info_ptr->dis_to_h += h;
+                info->to_h += h;
+                info->dis_to_h += h;
 
-                info_ptr->to_d += d;
-                info_ptr->dis_to_d += d;
+                info->to_d += d;
+                info->dis_to_d += d;
             }
+
+            /* Destroyer */
+            if (_get_toggle() == MAULER_TOGGLE_MAUL)
+                crit_pct += 10;
+            p_ptr->crit_freq_add += crit_pct * 10;
+            p_ptr->crit_qual_add += 650 * crit_pct / 100;
         }
         /* CL25: Impact 
             20lb +1d0
@@ -643,25 +630,23 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
             int w = o_ptr->weight;
 
             if (w >= 200)
-                info_ptr->to_dd++;
+                info->to_dd++;
             if (p_ptr->lev >= 30 && w >= 250)
-                info_ptr->to_ds++;
+                info->to_ds++;
             if (p_ptr->lev >= 35 && w >= 300)
-                info_ptr->to_dd++;
+                info->to_dd++;
             if (p_ptr->lev >= 40 && w >= 400)
-                info_ptr->to_ds++;
+                info->to_ds++;
             if (p_ptr->lev >= 45 && w >= 500)
-                info_ptr->to_dd++;
+                info->to_dd++;
             if (p_ptr->lev >= 50 && w >= 600)
-                info_ptr->to_ds++;
+                info->to_ds++;
         }
-
-        /* Destroyer is handled as a hack in cmd1.c critical_norm() and now scales with level */
 
         if (_get_toggle() == MAULER_TOGGLE_MAUL)
         {
-            info_ptr->to_dd += 1;
-            info_ptr->to_ds += 1;
+            info->to_dd += 1;
+            info->to_ds += 1;
         }
     }
 }
@@ -687,30 +672,55 @@ static void _character_dump(doc_ptr doc)
         spell_info spells[MAX_SPELLS];
         int        ct = _get_spells(spells, MAX_SPELLS);
 
-        py_display_spells(doc, spells, ct);
+        plr_display_spells(doc, spells, ct);
     }
+}
+static status_display_t _status_display(void)
+{
+    status_display_t d = {0};
+    switch (_get_toggle())
+    {
+    case MAULER_TOGGLE_BLOCK:
+        d.name = "Block"; d.abbrev = "Bl"; d.color = TERM_L_BLUE;
+        break;
+    case MAULER_TOGGLE_SHATTER:
+        d.name = "Quake"; d.abbrev = "Qk"; d.color = TERM_YELLOW;
+        break;
+    case MAULER_TOGGLE_TUNNEL:
+        d.name = "Tunnel"; d.abbrev = "Tn"; d.color = TERM_L_DARK;
+        break;
+    case MAULER_TOGGLE_DRAIN:
+        d.name = "Drain"; d.abbrev = "Dr"; d.color = TERM_RED;
+        break;
+    case MAULER_TOGGLE_MAUL:
+        d.name = "Maul"; d.abbrev = "Ml"; d.color = TERM_RED;
+        break;
+    case MAULER_TOGGLE_SPLATTER:
+        d.name = "Splatter"; d.abbrev = "*"; d.color = TERM_RED;
+        break;
+    }
+    return d;
 }
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_TWO_HANDED_SWORD, 1);
-    py_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
-    py_birth_obj_aux(TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS, 1);
+    plr_birth_obj_aux(TV_SWORD, SV_TWO_HANDED_SWORD, 1);
+    plr_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
+    plr_birth_obj_aux(TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS, 1);
 }
 
-class_t *mauler_get_class(void)
+plr_class_ptr mauler_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    /* static info never changes */
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  25,  35,   0,  14,   2,  70,  20 };
-    skills_t xs = { 12,   9,  12,   0,   0,   0,  30,   7 };
+    skills_t bs = { 20,  25,  35,   0,  14,   2,  70,  20 };
+    skills_t xs = {  7,   9,  12,   0,   0,   0,  30,   7 };
 
-        me.name = "Mauler";
-        me.desc = 
+        me = plr_class_alloc(CLASS_MAULER);
+        me->name = "Mauler";
+        me->desc = 
         "The Mauler favors extremely heavy weapons, and possesses powerful abilities whose "
             "effectiveness depends on the weight of the weapon. While they only gain a limited "
             "number of blows which can never be magically increased, they are capable of "
@@ -718,28 +728,31 @@ class_t *mauler_get_class(void)
             "required to use both hands on a single weapon when wielding if they wish their "
             "talents to function properly.",
 
-        me.stats[A_STR] =  5;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] = -2;
-        me.stats[A_DEX] = -1;
-        me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  2;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 111;
-        me.base_hp = 18;
-        me.exp = 120;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
+        me->stats[A_STR] =  5;
+        me->stats[A_INT] = -2;
+        me->stats[A_WIS] = -2;
+        me->stats[A_DEX] = -1;
+        me->stats[A_CON] =  3;
+        me->stats[A_CHR] =  2;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 111;
+        me->base_hp = 18;
+        me->exp = 120;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.attack_init = _attack_init;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.register_timers = _register_timers;
+        me->hooks.kill_monster = _kill_monster;
+        me->hooks.status_display = _status_display;
     }
 
-    return &me;
+    return me;
 }

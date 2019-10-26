@@ -2,10 +2,10 @@
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_BOW, SV_LIGHT_XBOW, 1);
-    py_birth_obj_aux(TV_BOLT, SV_BOLT, rand_range(20, 30));
+    plr_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_BOW, SV_LIGHT_XBOW, 1);
+    plr_birth_obj_aux(TV_BOLT, SV_BOLT, rand_range(20, 30));
 }
 
 /************************************************************************
@@ -35,6 +35,9 @@ void reset_concentration(bool msg)
     if (msg)
         msg_print("You stop concentrating.");
 
+    if (p_ptr->concent >= CONCENT_TELE_THRESHOLD)
+        plr_tim_unlock(T_TELEPATHY);
+
     p_ptr->concent = 0;
     reset_concent = FALSE;
     p_ptr->update |= PU_BONUS;
@@ -47,7 +50,7 @@ int boost_concentration_damage(int tdam)
     return tdam * (10 + p_ptr->concent) / 10;
 }
 
-static void _concentrate(int cmd, variant *res)
+static void _concentrate(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -71,6 +74,8 @@ static void _concentrate(int cmd, variant *res)
             msg_format("You concentrate deeply (<color:%c>%dx</color>).",
                 p_ptr->concent == max ? 'r' : 'B',
                 p_ptr->concent);
+            if (p_ptr->concent >= CONCENT_TELE_THRESHOLD)
+                plr_tim_lock(T_TELEPATHY);
             p_ptr->update |= PU_BONUS;
             p_ptr->redraw |= PR_STATUS;
             p_ptr->update |= PU_MONSTERS;
@@ -84,7 +89,18 @@ static void _concentrate(int cmd, variant *res)
         default_spell(cmd, res);
     }
 }
-
+static void _timer_on(plr_tim_ptr timer)
+{
+    switch (timer->id)
+    {
+    case T_PARALYZED:
+    case T_CONFUSED:
+    case T_HALLUCINATE:
+    case T_STUN:
+        if (p_ptr->concent) reset_concentration(TRUE);
+        break;
+    }
+}
 /************************************************************************
  * Snipe Techniques: Callbacks for do_cmd_fire based on shoot_hack
  ***********************************************************************/
@@ -95,7 +111,7 @@ int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
     u32b          flgs[OF_ARRAY_SIZE] = {0};
 
     if (m_ptr)
-        r_ptr = &r_info[m_ptr->r_idx];
+        r_ptr = mon_race(m_ptr);
     if (ammo)
         missile_flags(ammo, flgs);
 
@@ -109,9 +125,9 @@ int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
         }
         break;
     case SP_FIRE:
-        if (r_ptr && (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK))
+        if (r_ptr && (r_ptr->flagsr & RFR_EFF_RES_FIRE_MASK))
         {
-            mon_lore_r(m_ptr, RFR_EFF_IM_FIRE_MASK);
+            mon_lore_r(m_ptr, RFR_EFF_RES_FIRE_MASK);
         }
         else
         {
@@ -126,9 +142,9 @@ int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
         }
         break;
     case SP_COLD:
-        if (r_ptr && (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK))
+        if (r_ptr && (r_ptr->flagsr & RFR_EFF_RES_COLD_MASK))
         {
-            mon_lore_r(m_ptr, RFR_EFF_IM_COLD_MASK);
+            mon_lore_r(m_ptr, RFR_EFF_RES_COLD_MASK);
         }
         else
         {
@@ -143,9 +159,9 @@ int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
         }
         break;
     case SP_ELEC:
-        if (r_ptr && (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK))
+        if (r_ptr && (r_ptr->flagsr & RFR_EFF_RES_ELEC_MASK))
         {
-            mon_lore_r(m_ptr, RFR_EFF_IM_ELEC_MASK);
+            mon_lore_r(m_ptr, RFR_EFF_RES_ELEC_MASK);
         }
         else
         {
@@ -219,7 +235,7 @@ static char *_mult_info(int mult)
 {
     return format("%d.%dx", mult/10, mult%10);
 }
-static void _default(int which, int cmd, variant *res)
+static void _default(int which, int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -247,7 +263,7 @@ static void _default(int which, int cmd, variant *res)
         default_spell(cmd, res);
     }
 }
-static void _shining_arrow(int cmd, variant *res)
+static void _shining_arrow(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -264,7 +280,7 @@ static void _shining_arrow(int cmd, variant *res)
         _default(SP_LITE, cmd, res);
     }
 }
-static void _shoot_and_away(int cmd, variant *res)
+static void _shoot_and_away(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -278,7 +294,7 @@ static void _shoot_and_away(int cmd, variant *res)
         _default(SP_AWAY, cmd, res);
     }
 }
-static void _disarming_shot(int cmd, variant *res)
+static void _disarming_shot(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -292,7 +308,7 @@ static void _disarming_shot(int cmd, variant *res)
         _default(SP_KILL_TRAP, cmd, res);
     }
 }
-static void _burning_shot(int cmd, variant *res)
+static void _burning_shot(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -306,7 +322,7 @@ static void _burning_shot(int cmd, variant *res)
         _default(SP_FIRE, cmd, res);
     }
 }
-static void _shatter(int cmd, variant *res)
+static void _shatter(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -320,7 +336,7 @@ static void _shatter(int cmd, variant *res)
         _default(SP_KILL_WALL, cmd, res);
     }
 }
-static void _freezing_shot(int cmd, variant *res)
+static void _freezing_shot(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -334,7 +350,7 @@ static void _freezing_shot(int cmd, variant *res)
         _default(SP_COLD, cmd, res);
     }
 }
-static void _knockback(int cmd, variant *res)
+static void _knockback(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -348,7 +364,7 @@ static void _knockback(int cmd, variant *res)
         _default(SP_RUSH, cmd, res);
     }
 }
-static void _piercing_shot(int cmd, variant *res)
+static void _piercing_shot(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -362,7 +378,7 @@ static void _piercing_shot(int cmd, variant *res)
         _default(SP_RUSH, cmd, res);
     }
 }
-static void _evil_shot(int cmd, variant *res)
+static void _evil_shot(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -376,7 +392,7 @@ static void _evil_shot(int cmd, variant *res)
         _default(SP_EVILNESS, cmd, res);
     }
 }
-static void _holy_shot(int cmd, variant *res)
+static void _holy_shot(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -390,7 +406,7 @@ static void _holy_shot(int cmd, variant *res)
         _default(SP_HOLYNESS, cmd, res);
     }
 }
-static void _exploding_shot(int cmd, variant *res)
+static void _exploding_shot(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -404,7 +420,7 @@ static void _exploding_shot(int cmd, variant *res)
         _default(SP_EXPLODE, cmd, res);
     }
 }
-static void _double_shot(int cmd, variant *res)
+static void _double_shot(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -418,7 +434,7 @@ static void _double_shot(int cmd, variant *res)
         _default(SP_DOUBLE, cmd, res);
     }
 }
-static void _thunder_shot(int cmd, variant *res)
+static void _thunder_shot(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -432,7 +448,7 @@ static void _thunder_shot(int cmd, variant *res)
         _default(SP_ELEC, cmd, res);
     }
 }
-static void _needle_shot(int cmd, variant *res)
+static void _needle_shot(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -446,7 +462,7 @@ static void _needle_shot(int cmd, variant *res)
         _default(SP_NEEDLE, cmd, res);
     }
 }
-static void _saint_stars_arrow(int cmd, variant *res)
+static void _saint_stars_arrow(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -523,20 +539,20 @@ static void _character_dump(doc_ptr doc)
     spell_info spells[MAX_SPELLS];
     int        ct = _get_spells(spells, MAX_SPELLS);
 
-    py_display_spells(doc, spells, ct);
+    plr_display_spells(doc, spells, ct);
 }
-class_t *sniper_get_class(void)
+plr_class_ptr sniper_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  24,  28,   5,  32,  18,  35,  72};
     skills_t xs = { 12,  10,  10,   0,   0,   0,  12,  28};
 
-        me.name = "Sniper";
-        me.desc = "Snipers are specialists in marksmanship, but not like archers who "
+        me = plr_class_alloc(CLASS_SNIPER);
+        me->name = "Sniper";
+        me->desc = "Snipers are specialists in marksmanship, but not like archers who "
                     "fire off arrow after arrow in swift succession. They don't just "
                     "increase accuracy and power of shots by concentration, they can use "
                     "fearsome archery techniques.\n \n"
@@ -546,28 +562,28 @@ class_t *sniper_get_class(void)
                     "Snipers know their enemies well and can shoot them from the shadows. "
                     "They have no time for magic.";
 
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  0;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 100;
-        me.base_hp = 4;
-        me.exp = 110;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_STRONG;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] = -1;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] =  0;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 100;
+        me->base_hp = 4;
+        me->exp = 110;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_STRONG;
         
-        me.birth = _birth;
-        me.calc_shooter_bonuses = _calc_shooter_bonuses;
-        me.get_powers = _get_powers;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_shooter_bonuses = _calc_shooter_bonuses;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.timer_on = _timer_on;
     }
 
-    return &me;
+    return me;
 }

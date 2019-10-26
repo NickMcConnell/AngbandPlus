@@ -24,7 +24,7 @@ Humans
   
     Stats                   Skills
     Strength      +1        Disarming   Fair         
-    Intelligence  +2        Device      Good         
+    Intelligence  +2        Device      Fair         
     Wisdom        +2        Save        Fair         
     Dexterity     +2        Stealth     Fair         
     Constitution  +3        Searching   Fair         
@@ -79,7 +79,7 @@ Humans
   
     Stats                   Skills
     Strength      +1        Disarming   Fair         
-    Intelligence  +2        Device      Good         
+    Intelligence  +2        Device      Fair         
     Wisdom        +2        Save        Fair         
     Dexterity     +2        Stealth     Fair         
     Constitution  +3        Searching   Fair         
@@ -118,7 +118,7 @@ Elves
   
     Stats                   Skills
     Strength      -1        Disarming   Good         
-    Intelligence  +3        Device      Excellent    
+    Intelligence  +3        Device      Very Good    
     Wisdom        +2        Save        Excellent    
     Dexterity     +2        Stealth     Good         
     Constitution  -2        Searching   Excellent    
@@ -137,7 +137,7 @@ Elves
   
     Stats                   Skills
     Strength      +1        Disarming   Fair         
-    Intelligence  +3        Device      Superb       
+    Intelligence  +3        Device      Excellent    
     Wisdom        -1        Save        Excellent    
     Dexterity     +3        Stealth     Very Good    
     Constitution  +1        Searching   Fair         
@@ -145,6 +145,23 @@ Elves
     Life Rating   99%       Melee       Excellent    
     Base HP       19        Bows        Superb       
     Experience   190%       Infravision 40'
+    
+  Water-Elf
+  Water-Elves inhabit the lakes, rivers and seas of the world. They 
+  move quickly in their native element and can never drown. They also 
+  resist water based attacks. Like all elves, they excel with both 
+  archery and magical devices.
+  
+    Stats                   Skills
+    Strength      +0        Disarming   Good         
+    Intelligence  +1        Device      Fair         
+    Wisdom        +1        Save        Fair         
+    Dexterity     +2        Stealth     Good         
+    Constitution  -1        Searching   Excellent    
+    Charisma      +1        Perception  Superb       
+    Life Rating   98%       Melee       Poor         
+    Base HP       18        Bows        Superb       
+    Experience   125%       Infravision 30'
     
   Wood-Elf
   Wood-Elves are the most common of elves. They prefer the seclusion of 
@@ -154,7 +171,7 @@ Elves
   
     Stats                   Skills
     Strength      -1        Disarming   Good         
-    Intelligence  +1        Device      Good         
+    Intelligence  +1        Device      Fair         
     Wisdom        +2        Save        Fair         
     Dexterity     +1        Stealth     Good         
     Constitution  -1        Searching   Excellent    
@@ -175,7 +192,7 @@ Hobbits/Dwarves
   
     Stats                   Skills
     Strength      +2        Disarming   Fair         
-    Intelligence  -2        Device      Very Good    
+    Intelligence  -2        Device      Good         
     Wisdom        +2        Save        Good         
     Dexterity     -2        Stealth     Bad          
     Constitution  +2        Searching   Excellent    
@@ -196,7 +213,7 @@ Hobbits/Dwarves
   
     Stats                   Skills
     Strength      -1        Disarming   Excellent    
-    Intelligence  +2        Device      Very Good    
+    Intelligence  +2        Device      Good         
     Wisdom        -1        Save        Very Good    
     Dexterity     +2        Stealth     Good         
     Constitution  +1        Searching   Very Good    
@@ -215,7 +232,7 @@ Hobbits/Dwarves
   
     Stats                   Skills
     Strength      -2        Disarming   Superb       
-    Intelligence  +1        Device      Excellent    
+    Intelligence  +1        Device      Very Good    
     Wisdom        +1        Save        Excellent    
     Dexterity     +3        Stealth     Excellent    
     Constitution  +2        Searching   Superb       
@@ -232,7 +249,7 @@ Hobbits/Dwarves
   
     Stats                   Skills
     Strength      +1        Disarming   Fair         
-    Intelligence  -1        Device      Good         
+    Intelligence  -1        Device      Fair         
     Wisdom        +2        Save        Good         
     Dexterity     +0        Stealth     Fair         
     Constitution  +2        Searching   Good         
@@ -255,7 +272,7 @@ Fairies
   
     Stats                   Skills
     Strength      -2        Disarming   Very Good    
-    Intelligence  +2        Device      Very Good    
+    Intelligence  +2        Device      Good         
     Wisdom        +2        Save        Poor         
     Dexterity     +1        Stealth     Excellent    
     Constitution  -1        Searching   Superb       
@@ -275,7 +292,7 @@ Fairies
   
     Stats                   Skills
     Strength      -4        Disarming   Excellent    
-    Intelligence  +3        Device      Very Good    
+    Intelligence  +3        Device      Good         
     Wisdom        +3        Save        Good         
     Dexterity     +3        Stealth     Very Good    
     Constitution  -2        Searching   Superb       
@@ -296,7 +313,7 @@ Angels/Demons
   
     Stats                   Skills
     Strength      +2        Disarming   Poor         
-    Intelligence  +0        Device      Excellent    
+    Intelligence  +0        Device      Very Good    
     Wisdom        +4        Save        Very Good    
     Dexterity     +1        Stealth     Fair         
     Constitution  +2        Searching   Poor         
@@ -316,7 +333,7 @@ Angels/Demons
   
     Stats                   Skills
     Strength      +4        Disarming   Bad          
-    Intelligence  +2        Device      Excellent    
+    Intelligence  +2        Device      Very Good    
     Wisdom       -10        Save        Superb       
     Dexterity     +2        Stealth     Bad          
     Constitution  +3        Searching   Bad          
@@ -372,7 +389,7 @@ Orcs/Trolls/Giants
   
     Stats                   Skills
     Strength      +4        Disarming   Very Bad     
-    Intelligence  -2        Device      Very Bad     
+    Intelligence  -2        Device      Bad          
     Wisdom        -2        Save        Bad          
     Dexterity     -2        Stealth     Bad          
     Constitution  +3        Searching   Very Bad     
@@ -410,7 +427,7 @@ Orcs/Trolls/Giants
   
     Stats                   Skills
     Strength      +5        Disarming   Bad          
-    Intelligence  +1        Device      Good         
+    Intelligence  +1        Device      Fair         
     Wisdom        +2        Save        Fair         
     Dexterity     -2        Stealth     Bad          
     Constitution  +3        Searching   Bad          
@@ -512,7 +529,7 @@ The Undead
   
     Stats                   Skills
     Strength      -5        Disarming   Excellent    
-    Intelligence  +4        Device      Superb       
+    Intelligence  +4        Device      Excellent    
     Wisdom        +2        Save        Excellent    
     Dexterity     +2        Stealth     Excellent    
     Constitution  -2        Searching   Good         
@@ -534,7 +551,7 @@ The Undead
   
     Stats                   Skills
     Strength      +3        Disarming   Fair         
-    Intelligence  +3        Device      Very Good    
+    Intelligence  +3        Device      Good         
     Wisdom        -1        Save        Good         
     Dexterity     -1        Stealth     Very Good    
     Constitution  +1        Searching   Bad          
@@ -603,7 +620,7 @@ Other Races
   
     Stats                   Skills
     Strength      +2        Disarming   Bad          
-    Intelligence  -2        Device      Bad          
+    Intelligence  -2        Device      Poor         
     Wisdom        -1        Save        Poor         
     Dexterity     -1        Stealth     Bad          
     Constitution  +2        Searching   Very Bad     
@@ -746,7 +763,7 @@ Other Races
   
     Stats                   Skills
     Strength      +0        Disarming   Bad          
-    Intelligence  -1        Device      Good         
+    Intelligence  -1        Device      Fair         
     Wisdom        -1        Save        Good         
     Dexterity     +1        Stealth     Excellent    
     Constitution  +2        Searching   Very Bad     
@@ -766,7 +783,7 @@ Other Races
   
     Stats                   Skills
     Strength      -3        Disarming   Excellent    
-    Intelligence  +4        Device      Superb       
+    Intelligence  +4        Device      Excellent    
     Wisdom        +4        Save        Excellent    
     Dexterity     +0        Stealth     Fair         
     Constitution  -2        Searching   Good         
@@ -774,27 +791,6 @@ Other Races
     Life Rating   97%       Melee       Very Bad     
     Base HP       18        Bows        Poor         
     Experience   150%       Infravision 40'
-    
-  Tonberry
-  Tonberries are lizard-like creatures who possess enormous strength 
-  and have a preference for cleavers and large knives. They are, 
-  however, sluggish in their movements and reactions; young and 
-  inexperienced tonberries are often preyed on by the other races. They 
-  possess human-like intelligence, but rarely become mages due to their 
-  culture and physiology. Tonberries attack very powerfully in melee, 
-  albeit with fewer attacks than normal. They are also easily confused 
-  and move with reduced speed.
-  
-    Stats                   Skills
-    Strength      +4        Disarming   Bad          
-    Intelligence  +0        Device      Bad          
-    Wisdom        -2        Save        Fair         
-    Dexterity     -4        Stealth     Fair         
-    Constitution  +5        Searching   Very Bad     
-    Charisma      +0        Perception  Good         
-    Life Rating  108%       Melee       Superb       
-    Base HP       26        Bows        Bad          
-    Experience   175%       Infravision 20'
     
   Yeek
   Yeeks are among the most pathetic creatures. Fortunately, their 
@@ -825,6 +821,7 @@ Dunadan       +1   +2   +2   +2   +3   +0  100%  +20  160%  100%
 Human         +0   +0   +0   +0   +0   +0  100%  +20  100%  100%
 Dark-Elf      -1   +3   +2   +2   -2   +3   97%  +18  155%  120%
 High-Elf      +1   +3   -1   +3   +1   +1   99%  +19  190%   90%
+Water-Elf     +0   +1   +1   +2   -1   +1   98%  +18  125%   95%
 Wood-Elf      -1   +1   +2   +1   -1   +1   97%  +16  125%   95%
 Dwarf         +2   -2   +2   -2   +2   +1  103%  +22  135%  115%
 Gnome         -1   +2   -1   +2   +1   -1   95%  +16  115%  115%
@@ -856,52 +853,51 @@ Golem         +4   -5   -5   -2   +4   +0  105%  +23  185%  120%
 Klackon       +2   -1   -1   +1   +2   +1  105%  +23  170%  115%
 Kutar         +0   -1   -1   +1   +2   +2  102%  +21  175%   95%
 Mindflayer    -3   +4   +4   +0   -2   -1   97%  +18  150%  115%
-Tonberry      +4   +0   -2   -4   +5   +0  108%  +26  175%  115%
 Yeek          -2   +1   -2   +1   -2   -4   92%  +14   70%  105%
 
 
 Table 2 - Race Skill Bonus Table I
 
              Disarming     Device        Save          Stealth      
-Amberite     Fair          Good          Fair          Fair         
+Amberite     Fair          Fair          Fair          Fair         
 Barbarian    Bad           Very Bad      Fair          Bad          
 Demigod      Fair          Fair          Fair          Bad          
-Dunadan      Fair          Good          Fair          Fair         
+Dunadan      Fair          Fair          Fair          Fair         
 Human        Poor          Poor          Poor          Poor         
-Dark-Elf     Good          Excellent     Excellent     Good         
-High-Elf     Fair          Superb        Excellent     Very Good    
-Wood-Elf     Good          Good          Fair          Good         
-Dwarf        Fair          Very Good     Good          Bad          
-Gnome        Excellent     Very Good     Very Good     Good         
-Hobbit       Superb        Excellent     Excellent     Excellent    
-Nibelung     Fair          Good          Good          Fair         
-Shadow-Fairy Very Good     Very Good     Poor          Excellent    
-Sprite       Excellent     Very Good     Good          Very Good    
-Archon       Poor          Excellent     Very Good     Fair         
-Balrog       Bad           Excellent     Superb        Bad          
+Dark-Elf     Good          Very Good     Excellent     Good         
+High-Elf     Fair          Excellent     Excellent     Very Good    
+Water-Elf    Good          Fair          Fair          Good         
+Wood-Elf     Good          Fair          Fair          Good         
+Dwarf        Fair          Good          Good          Bad          
+Gnome        Excellent     Good          Very Good     Good         
+Hobbit       Superb        Very Good     Excellent     Excellent    
+Nibelung     Fair          Fair          Good          Fair         
+Shadow-Fairy Very Good     Good          Poor          Excellent    
+Sprite       Excellent     Good          Good          Very Good    
+Archon       Poor          Very Good     Very Good     Fair         
+Balrog       Bad           Very Good     Superb        Bad          
 Imp          Bad           Fair          Poor          Fair         
 Cyclops      Bad           Bad           Bad           Bad          
-Half-Giant   Very Bad      Very Bad      Bad           Bad          
+Half-Giant   Very Bad      Bad           Bad           Bad          
 Half-Ogre    Bad           Bad           Bad           Bad          
-Half-Titan   Bad           Good          Fair          Bad          
+Half-Titan   Bad           Fair          Fair          Bad          
 Half-Troll   Bad           Very Bad      Bad           Bad          
 Kobold       Bad           Bad           Poor          Bad          
 Snotling     Bad           Bad           Bad           Fair         
 Skeleton     Bad           Poor          Fair          Bad          
-Spectre      Excellent     Superb        Excellent     Excellent    
-Vampire      Fair          Very Good     Good          Very Good    
+Spectre      Excellent     Excellent     Excellent     Excellent    
+Vampire      Fair          Good          Good          Very Good    
 Zombie       Bad           Bad           Good          Bad          
 Android      Poor          Bad           Poor          Bad          
-Beastman     Bad           Bad           Poor          Bad          
+Beastman     Bad           Poor          Poor          Bad          
 Centaur      Poor          Bad           Fair          Fair         
 Draconian    Bad           Poor          Fair          Bad          
 Doppelganger Very Bad      Very Bad      Very Bad      Excellent    
 Ent          Bad           Fair          Good          Bad          
 Golem        Bad           Bad           Good          Bad          
 Klackon      Excellent     Bad           Fair          Poor         
-Kutar        Bad           Good          Good          Excellent    
-Mindflayer   Excellent     Superb        Excellent     Fair         
-Tonberry     Bad           Bad           Fair          Fair         
+Kutar        Bad           Fair          Good          Excellent    
+Mindflayer   Excellent     Excellent     Excellent     Fair         
 Yeek         Fair          Fair          Good          Good         
 
 
@@ -915,6 +911,7 @@ Dunadan      Fair          Superb        Superb        Excellent        0'
 Human        Bad           Superb        Poor          Fair             0'
 Dark-Elf     Excellent     Superb        Bad           Excellent       50'
 High-Elf     Fair          Heroic        Excellent     Superb          40'
+Water-Elf    Excellent     Superb        Poor          Superb          30'
 Wood-Elf     Excellent     Superb        Bad           Superb          30'
 Dwarf        Excellent     Superb        Superb        Fair            50'
 Gnome        Very Good     Superb        Very Bad      Excellent       40'
@@ -946,11 +943,10 @@ Golem        Very Bad      Excellent     Superb        Fair            40'
 Klackon      Very Bad      Superb        Good          Very Good       20'
 Kutar        Very Bad      Very Good     Poor          Fair             0'
 Mindflayer   Good          Superb        Very Bad      Poor            40'
-Tonberry     Very Bad      Good          Superb        Bad             20'
 Yeek         Good          Heroic        Bad           Fair            20'
 
 
 
 
-Automatically generated for PosChengband 7.0.1.
+Automatically generated for PosChengband 7.1.0.
 

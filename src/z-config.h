@@ -213,14 +213,6 @@
 
 
 /*
- * OPTION: Allow parsing of the ascii template files in "init.c".
- * This must be defined if you do not have valid binary image files.
- * It should be usually be defined anyway to allow easy "updating".
- */
-#define ALLOW_TEMPLATES
-
-
-/*
  * OPTION: Handle signals
  */
 #define HANDLE_SIGNALS
@@ -419,7 +411,6 @@
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_WIZARD
 # undef ALLOW_SPOILERS
-# undef ALLOW_TEMPLATES
 # undef DELAY_LOAD_R_TEXT
 # define DELAY_LOAD_R_TEXT
 #endif
@@ -469,12 +460,5 @@
 
 
 #ifndef HAVE_CONFIG_H
-
-#ifndef MSDOS
-/*
- * Use world score server
- */
-/*#define WORLD_SCORE*/
-#endif
 
 #endif /* HAVE_CONFIG_H */

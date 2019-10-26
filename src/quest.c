@@ -1,5 +1,5 @@
 #include "angband.h"
-
+#include "dun.h"
 #include <assert.h>
 
 doc_ptr trace_doc = NULL;
@@ -66,8 +66,6 @@ void quest_complete(quest_ptr q, point_t p)
 
     virtue_add(VIRTUE_VALOUR, 2);
     p_ptr->fame += randint1(2);
-    if (q->id == QUEST_OBERON || q->id == QUEST_SERPENT)
-        p_ptr->fame += 50;
 
     if (!(q->flags & QF_NO_MSG))
         cmsg_print(TERM_L_BLUE, "You just completed your quest!");
@@ -75,35 +73,19 @@ void quest_complete(quest_ptr q, point_t p)
 
     /* create stairs before the reward */
     if (q->dungeon)
-    {
-        int x = p.x;
-        int y = p.y;
-        int nx,ny;
+        dun_quest_stairs(cave, p_ptr->pos, q->level + 1);
 
-        while (cave_perma_bold(y, x) || cave[y][x].o_idx || (cave[y][x].info & CAVE_OBJECT) )
-        {
-            scatter(&ny, &nx, y, x, 1, 0);
-            y = ny; x = nx;
-        }
-
-        cmsg_print(TERM_L_BLUE, "A magical staircase appears...");
-        cave_set_feat(y, x, feat_down_stair);
-        p_ptr->update |= PU_FLOW;
-    }
     if (!(q->flags & QF_TOWN)) /* non-town quest get rewarded immediately */
     {
         int i, ct = q->level/25 + 1;
         for (i = 0; i < ct; i++)
         {
             obj_t forge = {0};
-            if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
-                drop_near(&forge, -1, p.y, p.x);
+            if (make_object(&forge, q->level, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+                drop_near(&forge, p, -1);
             else
                 msg_print("Software Bug ... you missed out on your reward!");
         }
-        if (no_wilderness)
-            gain_chosen_stat();
-
         q->status = QS_FINISHED;
     }
     p_ptr->redraw |= PR_DEPTH;
@@ -174,7 +156,7 @@ string_ptr quest_get_description(quest_ptr q)
     return s;
 }
 
-static room_grid_ptr _temp_reward;
+static obj_drop_ptr _temp_reward;
 static errr _parse_reward(char *line, int options)
 {
     if (line[0] == 'R' && line[1] == ':')
@@ -182,8 +164,8 @@ static errr _parse_reward(char *line, int options)
         /* It is common to set a default reward, and then
          * to over-write it later for class specific rewards.
          * The last reward line wins. */
-        memset(_temp_reward, 0, sizeof(room_grid_t));
-        return parse_room_grid(line + 2, _temp_reward, options);
+        memset(_temp_reward, 0, sizeof(obj_drop_t));
+        return obj_drop_parse(line + 2, _temp_reward, options);
     }
     return 0;
 }
@@ -192,17 +174,15 @@ obj_ptr quest_get_reward(quest_ptr q)
     obj_ptr reward = NULL;
     if (q->file)
     {
-        room_grid_ptr letter = malloc(sizeof(room_grid_t));
-        memset(letter, 0, sizeof(room_grid_t));
-        _temp_reward = letter;
+        obj_drop_ptr info = malloc(sizeof(obj_drop_t));
+        memset(info, 0, sizeof(obj_drop_t));
+        _temp_reward = info;
         if (parse_edit_file(q->file, _parse_reward, 0) == ERROR_SUCCESS)
         {
-            if (!letter->object_level)
-                letter->object_level = 1; /* Hack: force at least AM_GOOD */
-            reward = room_grid_make_obj(letter, q->level);
+            reward = obj_drop_make(info, q->level, AM_QUEST | AM_GOOD);
         }
         _temp_reward = NULL;
-        free(letter);
+        free(info);
     }
     return reward;
 }
@@ -234,108 +214,95 @@ room_ptr quest_get_map(quest_ptr q)
 /************************************************************************
  * Quest Levels
  ***********************************************************************/
-static void _generate(room_ptr room)
+static void _remove_questors(quest_ptr q)
 {
-    transform_ptr xform = transform_alloc_room(room, size(MAX_WID, MAX_HGT));
-    int           panels_x, panels_y, x, y;
-
-    /* figure out the dungeon size ... not sure if we need the panels crap */
-    panels_y = xform->dest.cy / SCREEN_HGT;
-    if (xform->dest.cy % SCREEN_HGT) panels_y++;
-    cur_hgt = panels_y * SCREEN_HGT;
-
-    panels_x = (xform->dest.cx / SCREEN_WID);
-    if (xform->dest.cx % SCREEN_WID) panels_x++;
-    cur_wid = panels_x * SCREEN_WID;
-
-    /* Start with perm walls */
-    for (y = 0; y < cur_hgt; y++)
+    int_map_iter_ptr iter;
+    for (iter = int_map_iter_alloc(cave->mon);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
     {
-        for (x = 0; x < cur_wid; x++)
-            cave[y][x].feat = feat_permanent;
+        mon_ptr mon = int_map_iter_current(iter);
+        mon->mflag2 &= ~MFLAG2_QUESTOR;
     }
-
-    /* generate the level */
-    get_mon_num_prep(get_monster_hook(), NULL);
-    build_room_template_aux(room, xform, NULL);
-    transform_free(xform);
+    int_map_iter_free(iter);
 }
-void quest_generate(quest_ptr q)
+static int _restore_questors(quest_ptr q)
 {
-    room_ptr room;
-    assert(q);
-    assert(q->flags & QF_GENERATE);
-    room = quest_get_map(q);
-    assert(room);
-    assert(vec_length(room->map));
-
-    base_level = q->level;
-    dun_level = base_level;
-    object_level = base_level;
-    monster_level = base_level;
-
-    _generate(room);
-    room_free(room);
+    int ct = 0;
+    int ct_remaining = q->goal_count - q->goal_current;
+    int_map_iter_ptr iter;
+    for (iter = int_map_iter_alloc(cave->mon);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
+    {
+        mon_ptr mon = int_map_iter_current(iter);
+        if (mon->r_idx == q->goal_idx && ct < ct_remaining)
+        {
+            mon->mflag2 |= MFLAG2_QUESTOR;
+            ct++;
+        }
+    }
+    int_map_iter_free(iter);
+    return ct;
 }
-
-bool quest_post_generate(quest_ptr q)
+static void _place_questors(quest_ptr q)
 {
-    assert(q);
-    assert(q->status == QS_IN_PROGRESS);
     if (q->goal == QG_KILL_MON)
     {
-        monster_race *r_ptr = &r_info[q->goal_idx];
-        int           mode = PM_NO_KAGE | PM_NO_PET | PM_QUESTOR, i, j, k;
+        monster_race *r_ptr = mon_race_lookup(q->goal_idx);
+        int           mode = PM_NO_KAGE | PM_NO_PET | PM_QUESTOR, i, j;
         int           ct = q->goal_count - q->goal_current;
 
         if ( !r_ptr->name  /* temp ... remove monsters without breaking savefiles */
           || ((r_ptr->flags1 & RF1_UNIQUE) && r_ptr->max_num == 0) )
         {
-            msg_print("It seems that this level was protected by someone before...");
+            msg_print("It seems this level was guarded by someone before.");
             q->status = QS_FINISHED;
-            return TRUE;
+            return;
         }
 
         if (!(r_ptr->flags1 & RF1_FRIENDS))
             mode |= PM_ALLOW_GROUP; /* allow escorts but not friends */
-
-        for (i = 0; i < ct; i++)
+        
+        for (i = _restore_questors(q); i < ct; i++)
         {
             for (j = 1000; j > 0; j--)
             {
-                int x = 0, y = 0;
+                point_t pos = dun_random_mon_pos(cave, r_ptr);
+                mon_ptr mon;
 
-                /* Find an empty grid */
-                for (k = 1000; k > 0; k--)
+                if (!dun_pos_interior(cave, pos)) continue;
+
+                /* Handle already allocated uniques by teleporting them to this level */
+                if ((r_ptr->flags1 & RF1_UNIQUE) && r_ptr->cur_num)
                 {
-                    cave_type    *c_ptr;
-                    feature_type *f_ptr;
-
-                    y = randint0(cur_hgt);
-                    x = randint0(cur_wid);
-
-                    c_ptr = &cave[y][x];
-                    f_ptr = &f_info[c_ptr->feat];
-
-                    if (!have_flag(f_ptr->flags, FF_MOVE) && !have_flag(f_ptr->flags, FF_CAN_FLY)) continue;
-                    if (!monster_can_enter(y, x, r_ptr, 0)) continue;
-                    if (distance(y, x, py, px) < 10) continue;
-                    if (c_ptr->info & CAVE_ICKY) continue;
-                    else break;
+                    mon = dun_mgr_relocate_unique(r_ptr->id, cave, pos);
+                    if (!mon) /* paranoia */
+                    {
+                        msg_print("It seems this level was guarded by someone before.");
+                        q->status = QS_FINISHED;
+                        return;
+                    }
+                    mon->mflag2 |= MFLAG2_QUESTOR;
+                    break;
                 }
 
-                /* No empty grids */
-                if (!k) return FALSE;
-
-                if (place_monster_aux(0, y, x, q->goal_idx, mode))
+                /* Handle normal allocation */
+                mon = place_monster_aux(0, pos, q->goal_idx, mode);
+                if (mon)
                 {
-                    m_list[hack_m_idx_ii].mflag2 |= MFLAG2_QUESTOR;
+                    mon->mflag2 |= MFLAG2_QUESTOR;
                     break;
                 }
             }
 
             /* Failed to place */
-            if (!j) return FALSE;
+            if (!j)
+            {
+                msg_print("It seems this level was guarded by someone before.");
+                q->status = QS_FINISHED;
+                return;
+            }
         }
         if (ct == 1)
             cmsg_format(TERM_VIOLET, "Beware, this level is protected by %s!", r_name + r_ptr->name);
@@ -347,7 +314,6 @@ bool quest_post_generate(quest_ptr q)
             cmsg_format(TERM_VIOLET, "Be warned, this level is guarded by %d %s!", ct, name);
         }
     }
-    return TRUE;
 }
 
 /************************************************************************
@@ -449,10 +415,10 @@ static errr _parse_q_info(char *line, int options)
     /* W:Stronghold */
     else if (line[0] == 'W' && line[1] == ':')
     {
-        quest->dungeon = parse_lookup_dungeon(line + 2, options);
+        quest->dungeon = dun_types_parse(line + 2);
         if (!quest->dungeon)
         {
-            msg_format("Error: Unkown dungeon %s. Consult d_info.txt.", line + 2);
+            msg_format("Error: Unkown dungeon %s.", line + 2);
             return PARSE_ERROR_INVALID_FLAG;
         }
     }
@@ -482,6 +448,7 @@ void quests_cleanup(void)
     int     i;
 
     assert(_quests);
+    _current = 0; /* XXX died in a quest */
 
     /* remove RFX_QUESTOR from previously assigned random quests
      * This is no longer necessary for normal games, as player_wipe
@@ -492,7 +459,7 @@ void quests_cleanup(void)
     {
         quest_ptr q = vec_get(v, i);
         if (q->goal == QG_KILL_MON && q->goal_idx)
-            r_info[q->goal_idx].flagsx &= ~RFX_QUESTOR;
+            mon_race_lookup(q->goal_idx)->flagsx &= ~RFX_QUESTOR;
     }
     vec_free(v);
 
@@ -510,6 +477,21 @@ quest_ptr quests_get_current(void)
 quest_ptr quests_get(int id)
 {
     return int_map_find(_quests, id);
+}
+
+quest_ptr quests_parse(cptr name)
+{
+    quest_ptr result = NULL;
+    int_map_iter_ptr iter;
+    for (iter = int_map_iter_alloc(_quests);
+            int_map_iter_is_valid(iter) && !result;
+            int_map_iter_next(iter))
+    {
+        quest_ptr quest = int_map_iter_current(iter);
+        if (strcmp(name, quest->name) == 0) result = quest;
+    }
+    int_map_iter_free(iter);
+    return result;
 }
 
 cptr quests_get_name(int id)
@@ -567,52 +549,48 @@ typedef vec_ptr (*quests_get_f)(void);
 /************************************************************************
  * Quests: Randomize on Birth (from birth.c with slight mods)
  ***********************************************************************/
-static bool _r_can_quest(int r_idx)
+static bool _r_can_quest(mon_race_ptr race)
 {
-    monster_race *r_ptr = &r_info[r_idx];
-    if (r_ptr->flags8 & RF8_WILD_ONLY) return FALSE;
-    if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
-    if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
-    if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
+    if (race->flags8 & RF8_WILD_ONLY) return FALSE;
+    if (race->flags7 & RF7_AQUATIC) return FALSE;
+    if (race->flags2 & RF2_MULTIPLY) return FALSE;
+    if (race->flags7 & RF7_FRIENDLY) return FALSE;
     return TRUE;
 }
 
-static bool _r_is_unique(int r_idx) { return BOOL(r_info[r_idx].flags1 & RF1_UNIQUE); }
-static bool _r_is_nonunique(int r_idx)
+static bool _r_is_unique(mon_race_ptr race) { return BOOL(race->flags1 & RF1_UNIQUE); }
+static bool _r_is_nonunique(mon_race_ptr race)
 {
-    monster_race *r_ptr = &r_info[r_idx];
-    if (r_ptr->flags1 & RF1_UNIQUE) return FALSE;
-    if (r_ptr->flags7 & RF7_UNIQUE2) return FALSE;
-    if (r_ptr->flags7 & RF7_NAZGUL) return FALSE;
+    if (race->flags1 & RF1_UNIQUE) return FALSE;
+    if (race->flags7 & RF7_UNIQUE2) return FALSE;
+    if (race->flags7 & RF7_NAZGUL) return FALSE;
     return TRUE;
 }
 static void _get_questor(quest_ptr q)
 {
-    int           r_idx = 0;
-    monster_race *r_ptr;
-    int           attempt;
-    bool          force_unique = FALSE;
-    bool          prevent_unique = FALSE;
+    int  attempt;
 
     /* High Level quests are stacked with uniques. Everything else
        is stacked the other way. So lets make some attempt at balance.
        Of course, users can force all quests to be for uniques, in
        true Hengband spirit. */
+    mon_alloc_clear_filters();
     if (quest_unique || one_in_(3))
     {
-        get_mon_num_prep(_r_can_quest, _r_is_unique);
-        force_unique = TRUE;
+        mon_alloc_push_filter(_r_can_quest);
+        mon_alloc_push_filter(_r_is_unique);
     }
     else if (one_in_(2))
     {
-        get_mon_num_prep(_r_can_quest, _r_is_nonunique);
-        prevent_unique = TRUE;
+        mon_alloc_push_filter(_r_can_quest);
+        mon_alloc_push_filter(_r_is_nonunique);
     }
     else
-        get_mon_num_prep(_r_can_quest, NULL);
+        mon_alloc_push_filter(_r_can_quest);
 
-    for(attempt = 0;; attempt++)
+    for (attempt = 0;; attempt++)
     {
+        mon_race_ptr race;
         int min_lev = q->level + 1;
         int max_lev = q->level + 9;
         int mon_lev;
@@ -627,31 +605,21 @@ static void _get_questor(quest_ptr q)
         mon_lev = (min_lev + max_lev + 1) / 2;
         mon_lev += randint0(max_lev - mon_lev + 1);
 
-        unique_count = 0; /* Hack: get_mon_num assume level generation and restricts uniques per level */
-        r_idx = get_mon_num(mon_lev);
-        r_ptr = &r_info[r_idx];
+        race = mon_alloc_choose_aux2(mon_alloc_tbl, mon_lev, min_lev, GMN_QUESTOR);
 
-        /* Try to enforce preferences, but its virtually impossible to prevent
-           high level quests for uniques */
-        if (attempt < 4000)
+        if (race->flagsx & RFX_QUESTOR) continue;
+        if (race->flags1 & RF1_NO_QUEST) continue;
+        if (race->rarity > 100) continue;
+        if (race->flags7 & RF7_FRIENDLY) continue;
+        if (race->flags7 & RF7_AQUATIC) continue;
+        if (race->flags8 & RF8_WILD_ONLY) continue;
+        if (race->level > max_lev) continue;
+        if (race->level > min_lev || attempt > 5000)
         {
-            if (prevent_unique && (r_ptr->flags1 & RF1_UNIQUE)) continue;
-            if (force_unique && !(r_ptr->flags1 & RF1_UNIQUE)) continue;
-        }
-
-        if (r_ptr->flagsx & RFX_QUESTOR) continue;
-        if (r_ptr->flags1 & RF1_NO_QUEST) continue;
-        if (r_ptr->rarity > 100) continue;
-        if (r_ptr->flags7 & RF7_FRIENDLY) continue;
-        if (r_ptr->flags7 & RF7_AQUATIC) continue;
-        if (r_ptr->flags8 & RF8_WILD_ONLY) continue;
-        if (r_ptr->level > max_lev) continue;
-        if (r_ptr->level > min_lev || attempt > 5000)
-        {
-            q->goal_idx = r_idx;
-            if (r_ptr->flags1 & RF1_UNIQUE)
+            q->goal_idx = race->id;
+            if (race->flags1 & RF1_UNIQUE)
             {
-                r_ptr->flagsx |= RFX_QUESTOR;
+                race->flagsx |= RFX_QUESTOR;
                 q->goal_count = 1;
             }
             else
@@ -660,6 +628,7 @@ static void _get_questor(quest_ptr q)
             break;
         }
     }
+    mon_alloc_clear_filters();
 }
 
 void quests_on_birth(void)
@@ -690,43 +659,28 @@ void quests_on_birth(void)
 
         if (q->goal == QG_KILL_MON)
         {
-            if (q->goal_idx) r_info[q->goal_idx].flagsx &= ~RFX_QUESTOR;
+            if (q->goal_idx)
+                mon_race_lookup(q->goal_idx)->flagsx &= ~RFX_QUESTOR;
             _get_questor(q);
         }
     }
     vec_free(v);
-
-    /* take the standard fixed quests */
-    quests_get(QUEST_OBERON)->status = QS_TAKEN;
-    r_info[MON_OBERON].flagsx |= RFX_QUESTOR;
-
-    quests_get(QUEST_SERPENT)->status = QS_TAKEN;
-    r_info[MON_SERPENT].flagsx |= RFX_QUESTOR;
 }
 
 /************************************************************************
  * Quests: Hooks
  ***********************************************************************/
-static int _quest_dungeon(quest_ptr q)
-{
-    int d = q->dungeon;
-    /* move wargs quest from 'Stronghold' to 'Angband' */
-    if (d && no_wilderness)
-        d = DUNGEON_ANGBAND;
-    return d;
-}
-
 static bool _find_quest_p(quest_ptr q) { return q->dungeon && q->status < QS_COMPLETED; }
-static quest_ptr _find_quest(int dungeon, int level)
+quest_ptr quests_find_quest(int dungeon, int level)
 {
-    int     i;
-    vec_ptr v = _quests_get(_find_quest_p);
+    int       i;
+    vec_ptr   v = _quests_get(_find_quest_p);
     quest_ptr result = NULL;
 
     for (i = 0; i < vec_length(v); i++)
     {
         quest_ptr q = vec_get(v, i);
-        int       d = _quest_dungeon(q);
+        int       d = q->dungeon;
 
         if (d != dungeon) continue;
         if (q->level != level) continue;
@@ -739,39 +693,25 @@ static quest_ptr _find_quest(int dungeon, int level)
     return result;
 }
 
-void quests_on_generate(int dungeon, int level)
+void quests_on_enter(int dungeon, int level)
 {
-    quest_ptr q = _find_quest(dungeon, level);
-    /* N.B. level_gen() might fail for some reason, resulting in multiple
-     * consecutive calls here. We can either add another hook to notice the
-     * failed level_gen(), or try to detect this (unusual) error */
-    assert(!_current || (q && q->id == _current && q->status == QS_IN_PROGRESS));
-    if (q)
+    quest_ptr q = quests_find_quest(dungeon, level);
+    if (!q) return;
+    if (q->status == QS_UNTAKEN && q->flags & QF_RANDOM) q->status = QS_TAKEN;
+    if (q->status == QS_TAKEN)
     {
         _current = q->id;
         q->status = QS_IN_PROGRESS;
+        _place_questors(q);
     }
 }
-
-void quests_generate(int id)
+void quests_on_enter_fixed(int quest_id)
 {
-    quest_ptr q = quests_get(id);
-    _current = id;
-    q->status = QS_IN_PROGRESS;
-    quest_generate(q);
+    quest_ptr quest = quests_get(quest_id);
+    assert(quest->status == QS_TAKEN);
+    _current = quest->id;
+    quest->status = QS_IN_PROGRESS;
 }
-
-void quests_on_restore_floor(int dungeon, int level)
-{
-    quest_ptr q = _find_quest(dungeon, level);
-    if (q)
-    {
-        _current = q->id;
-        q->status = QS_IN_PROGRESS;
-        quest_post_generate(q); /* replace quest monsters */
-    }
-}
-
 void quests_on_kill_mon(mon_ptr mon)
 {
     quest_ptr q;
@@ -786,22 +726,24 @@ void quests_on_kill_mon(mon_ptr mon)
     {
         q->goal_current++;
         if (q->goal_current >= q->goal_count)
-            quest_complete(q, point(mon->fx, mon->fy));
+            quest_complete(q, mon->pos);
     }
     else if (q->goal == QG_CLEAR_LEVEL)
     {
-        int i;
+        int_map_iter_ptr iter;
         bool done = TRUE;
         if (!is_hostile(mon)) return;
-        for (i = 1; i < max_m_idx && done; i++)
+        for (iter = int_map_iter_alloc(cave->mon);
+                int_map_iter_is_valid(iter) && done;
+                int_map_iter_next(iter))
         {
-            mon_ptr m = &m_list[i];
-            if (!m->r_idx) continue;
+            mon_ptr m = int_map_iter_current(iter);
             if (m == mon) continue;
             if (is_hostile(m)) done = FALSE;
         }
+        int_map_iter_free(iter);
         if (done)
-            quest_complete(q, point(mon->fx, mon->fy));
+            quest_complete(q, mon->pos);
     }
 }
 
@@ -816,7 +758,7 @@ void quests_on_get_obj(obj_ptr obj)
       && (obj->name1 == q->goal_idx || obj->name3 == q->goal_idx)
       && q->status == QS_IN_PROGRESS )
     {
-        quest_complete(q, point(px, py));
+        quest_complete(q, p_ptr->pos);
     }
 }
 
@@ -835,7 +777,7 @@ bool quests_check_leave(void)
 
             string_append_s(s, "<color:r>Warning,</color> you are about to leave the quest: <color:R>");
             if ((q->flags & QF_RANDOM) && q->goal == QG_KILL_MON)
-                string_printf(s, "Kill %s", r_name + r_info[q->goal_idx].name);
+                string_printf(s, "Kill %s", r_name + mon_race_lookup(q->goal_idx)->name);
             else
                 string_append_s(s, q->name);
             string_append_s(s, "</color>. You may return to this quest later though. "
@@ -851,7 +793,7 @@ bool quests_check_leave(void)
 
             string_append_s(s, "<color:r>Warning,</color> you are about to leave the quest: <color:R>");
             if ((q->flags & QF_RANDOM) && q->goal == QG_KILL_MON)
-                string_printf(s, "Kill %s", r_name + r_info[q->goal_idx].name);
+                string_printf(s, "Kill %s", r_name + mon_race_lookup(q->goal_idx)->name);
             else
                 string_append_s(s, q->name);
             string_append_s(s, "</color>. <color:v>You will fail this quest if you leave!</color> "
@@ -863,58 +805,6 @@ bool quests_check_leave(void)
     }
     return TRUE;
 }
-
-static void _remove_questors(void)
-{
-    quest_ptr q;
-    if (!_current) return;
-    q = quests_get(_current);
-    assert(q);
-    /* Remove non-unique quests for QF_RETAKE quests. Why?
-     * Imagine fleeing an incomplete quest. You might then
-     * take the same stairs back to that level, in which case
-     * it seems we should have left the questors in place. But,
-     * you might take a *different* staircase to q->level in
-     * q->dungeon. Then, we get a new level, but it is still
-     * the quest level, and we need to place an appropriate
-     * number of new quest monsters on the level. Kill some more,
-     * flee the level, backtrack to the original staircase, and
-     * re-enter the first instance of the quest level. Had we
-     * left 'em around, there would now be too many. Perhaps
-     * the quest is even completed now? Better to remove and
-     * replace as needed. (This was never explained before ... I
-     * had to guess the code's purpose and I'd like to save you
-     * the trouble. It's not obvious.)
-     * BTW, if you flee a non-QF_RETAKE quest, then you cannot
-     * return to that level. The stairs are blocked by CFM_NO_RETURN.
-     * In this case, there is no need to remove the questors. */
-    if (q->goal == QG_KILL_MON)
-    {
-        int i;
-        for (i = 1; i < m_max; i++)
-        {
-            monster_race *r_ptr;
-            monster_type *m_ptr = &m_list[i];
-
-            if (!m_ptr->r_idx) continue;
-            if (q->goal_idx != m_ptr->r_idx) continue;
-
-            r_ptr = real_r_ptr(m_ptr); /* XXX */
-
-            /* Ignore unique monsters ... If you leave the Oberon
-             * quest, for example, and then return, he will remain
-             * in the same spot. If you take different stairs to
-             * DL99 and kill him, then backtrack to the original,
-             * he will be gone. floors.c has logic to prevent duplicate
-             * uniques (and artifacts, too). */
-            if ((r_ptr->flags1 & RF1_UNIQUE) ||
-                (r_ptr->flags7 & RF7_NAZGUL)) continue;
-
-            delete_monster_idx(i);
-        }
-    }
-}
-
 void quests_on_leave(void)
 {
     quest_ptr q;
@@ -941,18 +831,14 @@ void quests_on_leave(void)
         {
             quest_fail(q);
             if (q->goal == QG_KILL_MON)
-                r_info[q->goal_idx].flagsx &= ~RFX_QUESTOR;
-            prepare_change_floor_mode(CFM_NO_RETURN);
+                mon_race_lookup(q->goal_idx)->flagsx &= ~RFX_QUESTOR;
         }
         else
         {
             q->status = QS_TAKEN;
-            _remove_questors();
+            _remove_questors(q);
         }
     }
-    /* Hack: Return to surface */
-    if ((q->flags & QF_GENERATE) && !q->dungeon)
-        dun_level = 0;
     _current = 0;
 }
 
@@ -965,7 +851,7 @@ bool quests_allow_downshaft(void)
 {
     quest_ptr q;
     if (_current) return FALSE;
-    q = _find_quest(dungeon_type, dun_level + 1);
+    q = quests_find_quest(cave->dun_type_id, cave->dun_lvl + 1);
     if (q) return FALSE;
     return TRUE;
 }
@@ -993,10 +879,31 @@ bool quests_allow_feeling(void)
  ***********************************************************************/
 void quests_display(void)
 {
-    doc_ptr doc = doc_alloc(80);
-    vec_ptr v = quests_get_active();
-    int     i;
+    doc_ptr       doc = doc_alloc(80);
+    vec_ptr       v = quests_get_active();
+    dun_world_ptr world = dun_worlds_current();
+    int           i;
 
+    if (world->final_guardian)
+    {
+        doc_printf(doc, "  <color:R>%s</color>\n", world->name);
+        if (world->plr_flags & WFP_COMPLETED)
+        {
+            dun_type_ptr type = dun_types_lookup(world->final_dungeon);
+            if (world->next_world_id)
+            {
+                doc_printf(doc, "    <indent>You have completed this world. A magical portal "
+                                "awaits you on level %d of <color:U>%s</color> when you are "
+                                "ready to continue your quest.</indent>\n\n", type->max_dun_lvl, type->name);
+            }
+            else
+            {
+                doc_insert(doc, "    <indent>You have won the game! You may retire (commit suicide) when ready.</indent>\n\n");
+            }
+        }
+        else
+            doc_printf(doc, "    <indent>%s</indent>\n\n", world->desc);
+    }
     if (vec_length(v))
     {
         doc_printf(doc, "  <color:B>Current Quests</color>\n");
@@ -1015,7 +922,7 @@ void quests_display(void)
             {
                 if (q->goal == QG_KILL_MON)
                 {
-                    monster_race *r_ptr = &r_info[q->goal_idx];
+                    monster_race *r_ptr = mon_race_lookup(q->goal_idx);
                     if (q->goal_count > 1)
                     {
                         char name[MAX_NLEN];
@@ -1050,8 +957,8 @@ void quests_display(void)
 
 static cptr _safe_r_name(int id)
 {
-    mon_race_ptr r = &r_info[id];
-    if (!r->name)
+    mon_race_ptr r = mon_race_lookup(id);
+    if (!r || !r->name)
         return "Monster Removed";
     return r_name + r->name;
 }
@@ -1059,11 +966,12 @@ static void quest_doc(quest_ptr q, doc_ptr doc)
 {
     if (q->flags & QF_RANDOM)
     {
+        doc_insert(doc, "<color:U>");
         if (q->goal == QG_KILL_MON)
         {
             if (q->completed_lev == 0)
             {
-                doc_printf(doc, "  Kill %s <tab:60>DL%3d <color:B>Cancelled</color>\n",
+                doc_printf(doc, "  Kill %s <tab:60>DL%3d <color:B>Cancelled</color>",
                     _safe_r_name(q->goal_idx), q->level);
             }
             else if (q->goal_count > 1)
@@ -1071,15 +979,16 @@ static void quest_doc(quest_ptr q, doc_ptr doc)
                 char name[MAX_NLEN];
                 strcpy(name, _safe_r_name(q->goal_idx));
                 plural_aux(name);
-                doc_printf(doc, "  Kill %d %s (%d killed) <tab:60>DL%3d CL%2d\n",
+                doc_printf(doc, "  Kill %d %s (%d killed) <tab:60>DL%3d CL%2d",
                     q->goal_count, name, q->goal_current, q->level, q->completed_lev);
             }
             else
             {
-                doc_printf(doc, "  Kill %s <tab:60>DL%3d CL%2d\n",
+                doc_printf(doc, "  Kill %s <tab:60>DL%3d CL%2d",
                     _safe_r_name(q->goal_idx), q->level, q->completed_lev);
             }
         }
+        doc_insert(doc, "</color>\n");
     }
     else
     {
@@ -1104,12 +1013,11 @@ void quests_doc(doc_ptr doc)
         }
     }
     vec_free(v);
-    doc_newline(doc);
 
     v = quests_get_failed();
     if (vec_length(v))
     {
-        doc_printf(doc, "  <color:r>Failed Quests</color>\n");
+        doc_printf(doc, "\n  <color:r>Failed Quests</color>\n");
         for (i = 0; i < vec_length(v); i++)
         {
             quest_ptr quest = vec_get(v, i);
@@ -1149,6 +1057,8 @@ void quests_load(savefile_ptr file)
             a_info[q->goal_idx].gen_flags |= OFG_QUESTITEM;
     }
     _current = savefile_read_s16b(file);
+    if (p_ptr->is_dead)
+        _current = 0;
 }
 
 void quests_save(savefile_ptr file)
@@ -1232,6 +1142,7 @@ void quests_wizard(void)
         case 'c': _status_cmd(&context, QS_COMPLETED); break;
         case 'f': _status_cmd(&context, QS_FAILED); break;
         case 'u': _status_cmd(&context, QS_UNTAKEN); break;
+        case 't': _status_cmd(&context, QS_TAKEN); break;
         case '$': _reward_cmd(&context); break;
         case '?': _analyze_cmd(&context); break;
         case 'R':
@@ -1270,7 +1181,7 @@ void quests_wizard(void)
             context.top = 0;
             break;
         case KTRL('P'):
-            do_cmd_messages(game_turn);
+            do_cmd_messages(dun_mgr()->turn);
             break;
         case SKEY_PGDOWN: case '3':
             if (context.top + context.page_size - 1 < max)
@@ -1303,6 +1214,9 @@ void quests_wizard(void)
 
     vec_free(context.quests);
     doc_free(context.doc);
+
+    if (plr_in_town())
+        dun_regen_town(cave); /* XXX we could track when this is required */
 }
 
 static cptr _status_name(int status)
@@ -1359,7 +1273,7 @@ static void _display_menu(_ui_context_ptr context)
                 if (quest->goal_count > 1)
                     string_printf(s, " (%d)", quest->goal_count);
                 else
-                    string_printf(s, " (L%d)", r_info[quest->goal_idx].level);
+                    string_printf(s, " (L%d)", mon_race_lookup(quest->goal_idx)->level);
                 doc_printf(doc, "%-40.40s ", string_buffer(s));
                 string_free(s);
             }
@@ -1448,9 +1362,9 @@ static void _display_map(room_ptr room)
         transform_ptr xform;
 
         if (random)
-            xform = transform_alloc_room(room, size(MAX_WID, MAX_HGT));
+            xform = transform_alloc_room(room, size_create(MAX_WID, MAX_HGT));
         else
-            xform = transform_alloc(which, rect(0, 0, room->width, room->height));
+            xform = transform_alloc(which, rect_create(0, 0, room->width, room->height));
 
         if (xform->dest.cx < Term->wid)
             xform->dest = rect_translate(xform->dest, (Term->wid - xform->dest.cx)/2, 0);
@@ -1465,7 +1379,7 @@ static void _display_map(room_ptr room)
             for (x = 0; x < room->width; x++)
             {
                 char letter = line[x];
-                point_t p = transform_point(xform, point(x,y));
+                point_t p = transform_point(xform, point_create(x,y));
                 if (0 <= p.x && p.x < Term->wid && 0 <= p.y && p.y < Term->hgt)
                 {
                     room_grid_ptr grid = int_map_find(room->letters, letter);
@@ -1484,17 +1398,16 @@ static void _display_map(room_ptr room)
                             r_idx = grid->monster;
                         }
                     }
-                    if (grid && grid->object)
+                    if (grid && grid->object.object)
                     {
-                        if (!(grid->flags & (ROOM_GRID_OBJ_TYPE |
-                                ROOM_GRID_OBJ_ARTIFACT | ROOM_GRID_OBJ_RANDOM)))
+                        if (!(grid->object.flags & (OBJ_DROP_TYPE | OBJ_DROP_STD_ART | OBJ_DROP_RANDOM)))
                         {
-                            k_idx = grid->object;
+                            k_idx = grid->object.object;
                         }
                     }
                     if (r_idx)
                     {
-                        monster_race *r_ptr = &r_info[r_idx];
+                        monster_race *r_ptr = mon_race_lookup(r_idx);
                         a = r_ptr->x_attr;
                         c = r_ptr->x_char;
                     }
@@ -1569,11 +1482,10 @@ static void _reward_cmd(_ui_context_ptr context)
             if (!(quest->flags & QF_TOWN))
             {
                 int i, ct = quest->level/25 + 1;
-                object_level = quest->level;
                 for (i = 0; i < ct; i++)
                 {
                     obj_t forge = {0};
-                    if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+                    if (make_object(&forge, quest->level, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
                     {
                         char name[MAX_NLEN];
                         obj_identify_fully(&forge);
@@ -1582,7 +1494,6 @@ static void _reward_cmd(_ui_context_ptr context)
                         msg_format("%s", name);
                     }
                 }
-                object_level = base_level;
             }
             else
             {
@@ -1634,8 +1545,8 @@ static void _analyze_cmd(_ui_context_ptr context)
             }
             /* very hackish ... but very useful */
             _temp_room = room_alloc(quest->name);
-            _temp_reward = malloc(sizeof(room_grid_t));
-            memset(_temp_reward, 0, sizeof(room_grid_t));
+            _temp_reward = malloc(sizeof(obj_drop_t));
+            memset(_temp_reward, 0, sizeof(obj_drop_t));
             trace_doc = context->doc;
             doc_clear(context->doc);
             parse_edit_file(quest->file, _parse_debug, INIT_DEBUG);

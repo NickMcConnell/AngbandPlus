@@ -59,10 +59,6 @@ A character must wield a torch or lamp in order to supply his own light. A torch
 
 The dungeons are full of objects just waiting to be picked up and used. How did they get there? Well, the main sources for useful items are all the foolish adventurers that proceeded into the dungeon before you. They get killed, and the helpful creatures scatter the various treasure throughout the dungeon. Most cursed items are placed there by the joyful evil sorcerers, who enjoy a good joke when it gets you killed.
 
-One item in particular will be discussed here. The scroll of "Word of Recall" can be found within the dungeon, or bought at the temple in town. It acts in two manners, depending upon your current location. If read within the dungeon, it will teleport you back to town. If read in town, it will teleport you back down to the deepest level of the dungeon which your character has previously been on. This makes the scroll very useful for getting back to the deeper levels. Once the scroll has been read it takes a while for the spell to act, so don't expect it to save you in a crisis. Reading a second scroll before the first has had a chance to take effect will cancel both scrolls.
-
-Since an accidental dive to a new depth (via a trapdoor, for example), may result in the Word of Recall dungeon depth being 'broken', so to speak (meaning that the next Word of Recall in town will take you back deeper than you would like to), there is a new feature which allows you to read a scroll of Word of Recall on a different level and 'reset' the recall depth to that level (instead of the deepest level).
-
 A more complete description of objects is found elsewhere in the documentation (see <link:objects.txt>).
 
 <topic:Mining><style:heading>Mining</style>

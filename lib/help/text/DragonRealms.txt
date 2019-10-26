@@ -167,7 +167,7 @@ Death
 Death dragons are enemies of life itself, seeking to destroy all living 
 creatures. With this realm, the dragon may bend their breath weapon to 
 suit their necromantic desires, eventually breathing mastery over both 
-death and life. At high levels, the death dragon's melee attacks gain a 
+death and life. At high levels, the death dragon's bite gains a 
 powerful draining effect against living creatures. This focus values 
 strength above all else. This foul realm is only available to Shadow 
 and Chaos dragons.
@@ -225,5 +225,5 @@ Death          Very Bad      Very Bad      Excellent     Good
 
 
 
-Automatically generated for PosChengband 7.0.1.
+Automatically generated for PosChengband 7.1.0.
 

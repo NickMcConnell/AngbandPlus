@@ -1559,7 +1559,7 @@ static void AcceptChanges(sdl_Button *sender)
 
     if (do_update)
     {
-        if (character_dungeon) do_cmd_redraw();
+        if (cave && (cave->flags & DF_GENERATED)) do_cmd_redraw();
     }
 
     if (do_video_reset)
@@ -1897,7 +1897,7 @@ static void ResizeWin(term_window* win, int w, int h)
     StatusBar.need_update = TRUE;
 
     /* HACK - Redraw all windows */
-    if (character_dungeon) do_cmd_redraw();
+    if (cave && (cave->flags & DF_GENERATED)) do_cmd_redraw();
 }
 
 
@@ -3720,7 +3720,7 @@ static errr load_gfx(void)
     ANGBAND_GRAF = GfxDesc[(int)use_graphics].pref;
 
     /* Reset the graphics mapping for this tileset */
-    if (character_dungeon) reset_visuals();
+    if (cave && (cave->flags & DF_GENERATED)) reset_visuals();
 
     /* All good */
     return (0);

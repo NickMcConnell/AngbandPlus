@@ -37,22 +37,11 @@ s16b ddy_ddd[9] =
 { 1, -1, 0, 0, 1, 1, -1, -1, 0 };
 
 
-/*
- * Circular keypad direction array
- */
-s16b cdd[8] =
-{ 2, 3, 6, 9, 8, 7, 4, 1 };
-
-/*
- * Global arrays for optimizing "ddx[cdd[i]]" and "ddy[cdd[i]]"
- */
-s16b ddx_cdd[8] =
-{ 0, 1, 1, 1, 0, -1, -1, -1 };
-
-s16b ddy_cdd[8] =
-{ 1, 1, 0, -1, -1, -1, 0, 1 };
-
-
+/* Circular keypad direction array and global arrays for optimizing 
+ * "ddx[cdd[i]]" and "ddy[cdd[i]]" */
+s16b cdd[8] =     { 2, 3, 6,  9,  8,  7,  4,  1 };
+s16b ddx_cdd[8] = { 0, 1, 1,  1,  0, -1, -1, -1 };
+s16b ddy_cdd[8] = { 1, 1, 0, -1, -1, -1,  0,  1 };
 
 /*
  * Global array for converting numbers to uppercase hecidecimal digit
@@ -1313,52 +1302,6 @@ byte adj_chr_chm[] =
     85      /* 18/220+ */
 };
 
-/* For devices, the sval is actually the effect you want, and it needs
- * to be present in the corresponding device effect table in devices.c */
-arena_type arena_info[MAX_ARENA_MONS + 2] =
-{
-    { MON_NOBORTA,       0,         0                             },
-    { MON_MORI_TROLL,    0,         0                             },
-    { MON_TIGER,         0,         0                             },
-    { MON_DRUID,         0,         0                             },
-    { MON_HILL_GIANT,    TV_POTION, SV_POTION_SPEED               },
-    { MON_WERERAT,       0,         0                             },
-    { MON_ORC_CAPTAIN,   0,         0                             },
-    { MON_BERSERKER,     TV_ROD,    EFFECT_DETECT_TRAPS           },
-    { MON_STONE_GIANT,   0,         0                             },
-    { MON_D_ELF_LORD,    TV_POTION, SV_POTION_HEALING             },
-    { MON_IRON_GOLEM,    0,         0                             },
-    { MON_C_CRAWLER,     0,         0                             },
-    { MON_XICLOTLAN,     0,         0                             },
-    { MON_TROLL_PRIEST,  0,         0                             },
-    { MON_ANGEL,         TV_ROD,    EFFECT_DETECT_MONSTERS        },
-    { MON_SPIRIT_NAGA,   0,         0                             },
-    { MON_BASILISK,      0,         0                             },
-    { MON_MITHRIL_GOLEM, TV_WAND,   EFFECT_BALL_ACID              },
-    { MON_SHADOW_DRAKE,  0,         0                             },
-    { MON_OGRE_SHAMAN,   TV_SCROLL, SV_SCROLL_ACQUIREMENT         },
-    { MON_BICLOPS,       TV_POTION, SV_POTION_SELF_KNOWLEDGE      },
-    { MON_ETHER_DRAKE,   TV_SCROLL, SV_SCROLL_RUNE_OF_PROTECTION  },
-    { MON_HALFLING_S,    0,         0                             },
-    { MON_ELDER_THING,   TV_WAND,   EFFECT_DRAIN_LIFE             },
-    { MON_M_MH_DRAGON,   0,         0                             },
-    { MON_ETTIN,         TV_SCROLL, SV_SCROLL_STAR_ENCHANT_WEAPON },
-    { MON_VAMPIRE_LORD,  TV_ROD,    EFFECT_DETECT_ALL             },
-    { MON_BARNEY,        TV_SCROLL, SV_SCROLL_GENOCIDE            },
-    { MON_GROO,          TV_SCROLL, SV_SCROLL_MUNDANITY           },
-    { MON_D_ELF_SORC,    TV_WAND,   EFFECT_METEOR                 },
-    { MON_IRON_LICH,     TV_POTION, SV_POTION_NEW_LIFE            },
-    { MON_G_TITAN,       TV_POTION, SV_POTION_STAR_ENLIGHTENMENT  },
-    { MON_G_BALROG,      TV_ROD,    EFFECT_ENLIGHTENMENT          },
-    { MON_NIGHTWALKER,   TV_ROD,    EFFECT_BEAM_DISINTEGRATE      },
-    { MON_SHAMBLER,      TV_POTION, SV_POTION_STAR_HEALING        },
-    { MON_BLACK_REAVER,  TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT    },
-    { MON_FENGHUANG,     TV_STAFF,  EFFECT_STARBURST              },
-    { MON_WYRM_POWER,    TV_ROD,    EFFECT_HEAL_CURING_HERO       },
-    { 0,                 0,         0                             }, /* Victory prizing */
-    { MON_HAGURE,        TV_SCROLL, SV_SCROLL_ARTIFACT            },
-};
-
 /*
  * This table allows quick conversion from "speed" to "energy"
  * The basic function WAS ((S>=110) ? (S-110) : (100 / (120-S)))
@@ -1665,143 +1608,6 @@ u32b fake_spell_flags[4]=
 };
 
 
-s32b realm_choices1[MAX_CLASS] =
-{
-    (CH_NONE),                /* Warrior */
-    (CH_LIFE | CH_SORCERY | CH_NATURE |
-     CH_CHAOS | CH_DEATH | CH_TRUMP |
-     CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-     CH_CRUSADE | CH_ARMAGEDDON),  /* Mage */
-    (CH_LIFE | CH_DEATH | CH_DAEMON |
-     CH_CRUSADE),                           /* Priest */
-    (CH_SORCERY | CH_DEATH | CH_TRUMP |
-     CH_ARCANE | CH_ENCHANT | CH_BURGLARY),               /* Rogue */
-    (CH_NATURE),                            /* Ranger */
-    (CH_CRUSADE | CH_DEATH | CH_LIFE | CH_DAEMON),/* Paladin */
-    (CH_ARCANE),                            /* Warrior-Mage */
-    (CH_CHAOS | CH_DAEMON),                 /* Chaos-Warrior */
-    (CH_LIFE | CH_NATURE | CH_DEATH |
-     CH_ENCHANT | CH_TRUMP),                /* Monk */
-    (CH_NONE),                              /* Mindcrafter */
-    (CH_LIFE | CH_SORCERY | CH_NATURE |
-     CH_CHAOS | CH_DEATH | CH_TRUMP |
-     CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-     CH_CRUSADE | CH_HEX | CH_ARMAGEDDON),  /* High-Mage */
-    (CH_ARCANE),                            /* Tourist */
-    (CH_NONE),                              /* Imitator */
-    (CH_TRUMP),                             /* Beastmaster */
-    (CH_NONE),                              /* Sorcerer */
-    (CH_NONE),                              /* Archer */
-    (CH_NONE),                              /* Magic eater */
-    (CH_MUSIC),                             /* Bard */
-    (CH_NONE),                              /* Red Mage */
-    (CH_HISSATSU),                          /* Samurai */
-    (CH_LIFE | CH_NATURE | CH_DEATH |
-     CH_ENCHANT | CH_CRUSADE),                 /* ForceTrainer */
-    (CH_NONE),                              /* Blue Mage */
-    (CH_NONE),                /* Cavalry */
-    (CH_NONE),                /* Berserker */
-    (CH_NONE),                /* Weaponsmith */
-    (CH_NONE),                /* Mirror-master */
-    (CH_NONE),                /* Ninja */
-    (CH_NONE),                /* Sniper */
-    (CH_NONE),                /* Time Lord */
-    (CH_NONE),                /* Blood Knight */
-    (CH_NONE),                /* Warlock */
-    (CH_NONE),                /* Archaeologist */
-    (CH_NONE),                /* Duelist */
-    (CH_NONE),                /* Wild-Talent */
-    (CH_NONE),                /* Rune-Knight */
-    (CH_NONE),                /* Weaponmaster */
-    (CH_SORCERY | CH_NATURE |
-     CH_CHAOS | CH_DEATH | CH_TRUMP |
-     CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-     CH_CRUSADE | CH_ARMAGEDDON), /* Blood-Mage */
-    CH_NECROMANCY,            /* Necromancer */
-    CH_NONE,                /* Psion */
-    CH_RAGE,                /* Rage-Mage */
-    CH_NONE,                /* Scout */
-    CH_NONE,                /* Mauler */
-    CH_NONE,                /* Monster */
-    CH_NONE,                /* Mystic */
-    CH_NONE,                /* Devicemaster */
-    (CH_LIFE | CH_SORCERY | CH_NATURE |
-     CH_CHAOS | CH_DEATH | CH_TRUMP |
-     CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-     CH_CRUSADE | CH_ARMAGEDDON),  /* Yellow-Mage */
-    CH_NONE,                /* Gray-Mage */
-};
-
-
-s32b realm_choices2[MAX_CLASS] =
-{
-    (CH_NONE),                              /* Warrior */
-    (CH_LIFE | CH_SORCERY | CH_NATURE |
-     CH_CHAOS | CH_DEATH | CH_TRUMP |
-     CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-     CH_CRUSADE | CH_ARMAGEDDON),           /* Mage */
-    (CH_LIFE | CH_SORCERY | CH_NATURE |
-     CH_CHAOS | CH_DEATH | CH_TRUMP |
-     CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-     CH_CRUSADE | CH_ARMAGEDDON),           /* Priest */
-    (CH_NONE),                              /* Rogue */
-    (CH_SORCERY | CH_CHAOS | CH_DEATH |
-     CH_TRUMP | CH_ARCANE | CH_DAEMON),     /* Ranger */
-    (CH_NONE),                              /* Paladin */
-    (CH_LIFE | CH_NATURE | CH_CHAOS |
-     CH_DEATH | CH_TRUMP | CH_ARCANE |
-     CH_SORCERY | CH_ENCHANT | CH_DAEMON |
-     CH_CRUSADE | CH_ARMAGEDDON),           /* Warrior-Mage */
-    (CH_NONE),                              /* Chaos-Warrior */
-    (CH_NONE),                              /* Monk */
-    (CH_NONE),                              /* Mindcrafter */
-    (CH_NONE),                              /* High-Mage */
-    (CH_NONE),                              /* Tourist */
-    (CH_NONE),                              /* Imitator */
-    (CH_NONE),                              /* Beastmanster */
-    (CH_NONE),                              /* Sorcerer */
-    (CH_NONE),                              /* Archer */
-    (CH_NONE),                              /* Magic eater */
-    (CH_NONE),                              /* Bard */
-    (CH_NONE),                              /* Red Mage */
-    (CH_NONE),                              /* Samurai */
-    (CH_NONE),                              /* ForceTrainer */
-    (CH_NONE),                              /* Blue Mage */
-    (CH_NONE),                /* Cavalry */
-    (CH_NONE),                /* Berserker */
-    (CH_NONE),                /* Weaponsmith */
-    (CH_NONE),                /* Mirror-master */
-    (CH_NONE),                /* Ninja */
-    (CH_NONE),                /* Sniper */
-    (CH_NONE),                /* Time Lord */
-    (CH_NONE),                /* Blood Knight */
-    (CH_NONE),                /* Warlock */
-    (CH_NONE),                /* Archaeologist */
-    (CH_NONE),                /* Duelist */
-    (CH_NONE),                /* Wild-Talent */
-    (CH_NONE),                /* Rune-Knight */
-    (CH_NONE),                /* Weaponmaster */
-    (CH_SORCERY | CH_NATURE |
-     CH_CHAOS | CH_DEATH | CH_TRUMP |
-     CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-     CH_CRUSADE | CH_ARMAGEDDON), /* Blood-Mage */
-    CH_NONE,                /* Necromancer */
-    CH_NONE,                /* Psion */
-    CH_NONE,                /* Rage-Mage */
-    CH_NONE,                /* Scout */
-    CH_NONE,                /* Mauler */
-    CH_NONE,                /* Monster */
-    CH_NONE,                /* Mystic */
-    CH_NONE,                /* Devicemaster */
-    (CH_LIFE | CH_SORCERY | CH_NATURE |
-     CH_CHAOS | CH_DEATH | CH_TRUMP |
-     CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-     CH_CRUSADE | CH_ARMAGEDDON),  /* Yellow-Mage */
-    CH_NONE,                /* Gray-Mage */
-};
-
-
-
 cptr realm_names[]
 = {
     "none",
@@ -2081,9 +1887,6 @@ option_type option_info[] =
     { &auto_detect_traps,           FALSE, OPT_PAGE_INPUT, 6, 9,
     "auto_detect_traps",            "Automatically detect traps while running" },
 
-    { &auto_map_area,               FALSE, OPT_PAGE_INPUT, 6, 10,
-    "auto_map_area",                "Automatically map area while running" },
-
     { &numpad_as_cursorkey,         TRUE, OPT_PAGE_INPUT, 2, 31,
     "numpad_as_cursorkey",          "Use numpad keys as cursor keys in editor mode" },
 
@@ -2168,9 +1971,6 @@ option_type option_info[] =
     { &display_food_bar,            FALSE,  OPT_PAGE_TEXT, 1, 13,
     "display_food_bar",             "Display detailed food status" },
 
-    { &display_percentages,         FALSE,  OPT_PAGE_TEXT, 1, 10,
-    "display_percentages",          "Display percentages rather than status bars" },
-
     { &compress_savefile,           FALSE, OPT_PAGE_TEXT, 1, 26,
     "compress_savefile",            "Compress messages in savefiles" },
 
@@ -2202,9 +2002,6 @@ option_type option_info[] =
 
     { &expand_list,                 TRUE,  OPT_PAGE_GAMEPLAY, 1, 5,
     "expand_list",                  "Expand the power of the list commands" },
-
-    { &empty_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 31,
-    "empty_levels",                 "Allow empty 'arena' levels" },
 
     { &bound_walls_perm,            FALSE, OPT_PAGE_GAMEPLAY, 2, 1,
     "bound_walls_perm",             "Boundary walls become 'permanent wall'" },
@@ -2278,24 +2075,6 @@ option_type option_info[] =
     { &smart_cheat,                 FALSE, OPT_PAGE_BIRTH, 1, 15,
     "smart_cheat",                  "Monsters exploit players weaknesses (*)" },
 
-    { &no_wilderness,               FALSE, OPT_PAGE_BIRTH, 6, 1,
-    "no_wilderness",                "Play without a wilderness" },
-
-    { &ironman_shops,               FALSE, OPT_PAGE_BIRTH, 6, 2,
-    "ironman_shops",                "Stores are permanently closed (*)" },
-
-    { &ironman_downward,            FALSE, OPT_PAGE_BIRTH, 6, 4,
-    "ironman_downward",             "Disable recall and use of up stairs (*)" },
-
-    { &ironman_empty_levels,        FALSE, OPT_PAGE_BIRTH, 6, 8,
-    "ironman_empty_levels",         "Always create empty 'arena' levels (*)" },
-
-    { &ironman_nightmare,           FALSE, OPT_PAGE_BIRTH, 6, 18,
-    "ironman_nightmare",            "Nightmare mode(it isn't even remotely fair!)(*)" },
-
-    { &preserve_mode,               TRUE,  OPT_PAGE_BIRTH, 6, 14,
-    "preserve_mode",                "Preserve artifacts (*)" },
-
     { &allow_friendly_monster,      TRUE, OPT_PAGE_BIRTH, 6, 17,
     "allow_friendly_monster",       "Allow monsters friendly to player" },
 
@@ -2313,12 +2092,6 @@ option_type option_info[] =
 
     { &no_artifacts,                FALSE, OPT_PAGE_BIRTH, 6, 24,
     "no_artifacts",                 "Never create artifacts" },
-
-    { &no_egos,                     FALSE, OPT_PAGE_BIRTH, 6, 25,
-    "no_egos",                      "Never create non-jewelry ego items" },
-
-    { &reduce_uniques,              FALSE, OPT_PAGE_BIRTH, 6, 26,
-    "reduce_uniques",               "Reduce the number of uniques (randomly)" },
 
     /*** Easy Object Auto-Destroyer ***/
 
@@ -2383,27 +2156,6 @@ cptr chaos_patrons[MAX_PATRON] =
     "Tzeentch",
 
     "Khaine"
-};
-
-martial_arts ma_blows[MAX_MA] =
-{
-    { "Punch",         "You punch.",                                 1, 0, 1, 4, 0 },
-    { "Kick",          "You kick.",                                  2, 0, 1, 6, 0 },
-    { "Strike",        "You strike.",                                3, 0, 1, 7, 0 },
-    { "Knee",          "You knee.",                                  5, 5, 2, 3, MA_KNEE },
-    { "Elbow",         "You elbow.",                                 7, 5, 1, 8, 0 },
-    { "Butt",          "You <color:U>butt</color>.",                 9, 10, 2, 5, 0 },
-    { "Kick",          "You <color:U>kick</color>.",                 11, 10, 3, 4, MA_SLOW },
-    { "Uppercut",      "You <color:U>uppercut</color>.",             13, 12, 4, 4, 6 },
-    { "Double Kick",   "You <color:y>double-kick</color>.",          16, 15, 5, 4, 8 },
-    { "Cat's Claw",    "You land a <color:y>Cat's Claw</color>.",     20, 20, 5, 5, 0 },
-    { "Jump Kick",     "You <color:y>jump kick</color>.",            25, 25, 5, 6, 10 },
-    { "Eagle's Claw",  "You land an <color:o>Eagle's Claw</color>.", 29, 25, 6, 6, 0 },
-    { "Circle Kick",   "You <color:o>circle kick</color>.",          33, 30, 6, 8, 10 },
-    { "Iron Fist",     "You land an <color:R>Iron Fist</color>.",    37, 35, 8, 8, 10 },
-    { "Flying Kick",   "You land a <color:R>flying kick</color>.",   41, 35, 8, 10, 12 },
-    { "Dragon Fist",   "You land a <color:r>Dragon Fist</color>.",   45, 35, 10, 10, 16 },
-    { "Crushing Blow", "You land a <color:v>Crushing Blow</color>.", 48, 35, 10, 12, 18 },
 };
 
 /*

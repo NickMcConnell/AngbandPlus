@@ -1,12 +1,167 @@
 #include "angband.h"
 
+#include <assert.h>
+
 static bool _unclear_mind = TRUE;
 
+/****************************************************************
+ * Timers
+ ****************************************************************/
+enum { _ESP_MAGICAL = T_CUSTOM,
+       _SPELL_REACTION,
+       _RESIST_CURSES,
+       _ARMOR_OF_FURY,
+       _SPELL_TURNING };
+/* _ESP_MAGICAL */
+static bool _esp_magical_on(plr_tim_ptr timer)
+{
+    msg_print("You feel conscious of magical foes.");
+    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    return TRUE;
+}
+static void _esp_magical_off(plr_tim_ptr timer)
+{
+    msg_print("You are no longer conscious of magical foes.");
+    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+}
+static void _esp_magical_calc_bonuses(plr_tim_ptr timer)
+{
+    p_ptr->esp_magical = TRUE;
+}
+static status_display_t _esp_magical_display(plr_tim_ptr timer)
+{
+    return status_display_create("Magic", "Mg", TERM_L_BLUE);
+}
+static plr_tim_info_ptr _esp_magical(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_ESP_MAGICAL, "Detect Magical Foes");
+    info->desc = "You sense nearby magical foes.";
+    info->on_f = _esp_magical_on;
+    info->off_f = _esp_magical_off;
+    info->calc_bonuses_f = _esp_magical_calc_bonuses;
+    info->status_display_f = _esp_magical_display;
+    return info;
+}
+/* _SPELL_REACTION */
+static bool _spell_reaction_on(plr_tim_ptr timer)
+{
+    msg_print("You feel ready for magical attacks.");
+    return TRUE;
+}
+static void _spell_reaction_off(plr_tim_ptr timer)
+{
+    msg_print("You are no longer ready for magical attacks.");
+}
+static status_display_t _spell_reaction_display(plr_tim_ptr timer)
+{
+    return status_display_create("Reaction", "Rct", TERM_L_BLUE);
+}
+static plr_tim_info_ptr _spell_reaction(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_SPELL_REACTION, "Spell Reaction");
+    info->desc = "Magical attacks make you faster.";
+    info->on_f = _spell_reaction_on;
+    info->off_f = _spell_reaction_off;
+    info->status_display_f = _spell_reaction_display;
+    return info;
+}
+/* _RESIST_CURSES */
+static bool _resist_curses_on(plr_tim_ptr timer)
+{
+    msg_print("You feel resistant to curses.");
+    p_ptr->update |= PU_BONUS;
+    return TRUE;
+}
+static void _resist_curses_off(plr_tim_ptr timer)
+{
+    msg_print("You are no longer resistant to curses.");
+    p_ptr->update |= PU_BONUS;
+}
+static void _resist_curses_calc_bonuses(plr_tim_ptr timer)
+{
+    p_ptr->skills.sav += 20;
+    if (plr_tim_find(T_BERSERK))
+        p_ptr->skills.sav += 20;
+}
+static status_display_t _resist_curses_display(plr_tim_ptr timer)
+{
+    return status_display_create("Curses", "RC", TERM_YELLOW);
+}
+static plr_tim_info_ptr _resist_curses(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_RESIST_CURSES, "Resist Curses");
+    info->desc = "You have enhanced magic resistance.";
+    info->on_f = _resist_curses_on;
+    info->off_f = _resist_curses_off;
+    info->calc_bonuses_f = _resist_curses_calc_bonuses;
+    info->status_display_f = _resist_curses_display;
+    return info;
+}
+/* _ARMOR_OF_FURY */
+static bool _armor_of_fury_on(plr_tim_ptr timer)
+{
+    msg_print("You feel cloaked in rage.");
+    return TRUE;
+}
+static void _armor_of_fury_off(plr_tim_ptr timer)
+{
+    msg_print("You are no longer cloaked in rage.");
+}
+static status_display_t _armor_of_fury_display(plr_tim_ptr timer)
+{
+    return status_display_create("Fury", "Fy", TERM_RED);
+}
+static plr_tim_info_ptr _armor_of_fury(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_ARMOR_OF_FURY, "Armor of Fury");
+    info->desc = "Spellcasting monsters are slowed and stunned by your fury.";
+    info->on_f = _armor_of_fury_on;
+    info->off_f = _armor_of_fury_off;
+    info->status_display_f = _armor_of_fury_display;
+    return info;
+}
+/* _SPELL_TURNING */
+static bool _spell_turning_on(plr_tim_ptr timer)
+{
+    msg_print("You begin to turn magical attacks.");
+    return TRUE;
+}
+static void _spell_turning_off(plr_tim_ptr timer)
+{
+    msg_print("You are no longer turn magical attacks.");
+}
+static status_display_t _spell_turning_display(plr_tim_ptr timer)
+{
+    return status_display_create("Turning", "Tn", TERM_GREEN);
+}
+static plr_tim_info_ptr _spell_turning(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_SPELL_TURNING, "Spell Turning");
+    info->desc = "You turn magical attacks back on the casting monster.";
+    info->on_f = _spell_turning_on;
+    info->off_f = _spell_turning_off;
+    info->status_display_f = _spell_turning_display;
+    return info;
+}
+static void _register_timers(void)
+{
+    plr_tim_register(_esp_magical());
+    plr_tim_register(_spell_reaction());
+    plr_tim_register(_resist_curses());
+    plr_tim_register(_armor_of_fury());
+    plr_tim_register(_spell_turning());
+}
+
+/****************************************************************
+ * Helpers
+ ****************************************************************/
 void rage_mage_rage_fueled(int dam)
 {
     int x = dam;
     int y = p_ptr->chp;
     int sp = x*(p_ptr->mhp*3/2 - y)/p_ptr->mhp;
+
+    if (p_ptr->pclass != CLASS_RAGE_MAGE) return;
 
     if (sp < 1)
         sp = 1;
@@ -21,11 +176,13 @@ void rage_mage_rage_fueled(int dam)
 
     /*_unclear_mind = FALSE;*/
 }
-
 void rage_mage_blood_lust(int dam)
 {
     int sp;
-    if (p_ptr->shero)
+
+    if (p_ptr->pclass != CLASS_RAGE_MAGE) return;
+
+    if (plr_tim_find(T_BERSERK))
         sp = dam/8;
     else
         sp = dam/12;
@@ -43,8 +200,62 @@ void rage_mage_blood_lust(int dam)
 
     _unclear_mind = FALSE;
 }
+void rage_mage_armor_of_fury(mon_ptr mon, int dam)
+{
+    char name[MAX_NLEN_MON];
 
-static void _anti_magic_ray_spell(int cmd, variant *res)
+    if (p_ptr->pclass != CLASS_RAGE_MAGE) return;
+    if (!plr_tim_find(_ARMOR_OF_FURY)) return;
+
+    assert(mon);
+    monster_desc(name, mon, 0);
+    msg_format("%^s is hit by your fury!", name);
+
+    if ( mon_save_p(mon->r_idx, A_STR)
+      && (!plr_tim_find(T_BERSERK) || mon_save_p(mon->r_idx, A_STR)) )
+    {
+        msg_format("%^s resists!", name);
+    }
+    else
+    {
+        int dur = 1;
+        if (plr_tim_find(T_BERSERK)) dur = 3;
+        mon_tim_add(mon, T_SLOW, dur);
+        mon_stun(mon, mon_stun_amount(dur*dam));
+    }
+}
+void rage_mage_spell_reaction(mon_ptr mon)
+{
+    if (p_ptr->pclass != CLASS_RAGE_MAGE) return;
+    if (!plr_tim_find(_SPELL_REACTION)) return;
+    plr_tim_augment(T_FAST, 4);
+}
+bool rage_mage_spell_turning(mon_ptr mon)
+{
+    bool turn = FALSE;
+
+    if (p_ptr->pclass != CLASS_RAGE_MAGE) return FALSE;
+    if (!plr_tim_find(_SPELL_TURNING)) return FALSE;
+
+    if (plr_tim_find(T_BERSERK))
+        turn = randint1(100) <= p_ptr->lev;
+    else
+        turn = randint1(200) <= 20 + p_ptr->lev;
+
+    if (turn)
+    {
+        msg_print("You turn the magic on the caster!");
+        disturb(1, 0);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+/****************************************************************
+ * Spells
+ ****************************************************************/
+static void _anti_magic_ray_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -69,7 +280,7 @@ static void _anti_magic_ray_spell(int cmd, variant *res)
     }
 }
 
-static void _armor_of_fury_spell(int cmd, variant *res)
+static void _armor_of_fury_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -80,7 +291,7 @@ static void _armor_of_fury_spell(int cmd, variant *res)
         var_set_string(res, "Whenever a monster attacks you with magic, they may become slowed and stunned.");
         break;
     case SPELL_CAST:
-        set_tim_armor_of_fury(25 + randint1(25), FALSE);
+        plr_tim_add(_ARMOR_OF_FURY, 25 + randint1(25));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -89,7 +300,7 @@ static void _armor_of_fury_spell(int cmd, variant *res)
     }
 }
 
-static void _barbarian_lore_spell(int cmd, variant *res)
+static void _barbarian_lore_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -102,7 +313,7 @@ static void _barbarian_lore_spell(int cmd, variant *res)
     }
 }
 
-static void _barbaric_resistance_spell(int cmd, variant *res)
+static void _barbaric_resistance_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -116,14 +327,14 @@ static void _barbaric_resistance_spell(int cmd, variant *res)
     {
         int base = 10;
 
-        if (p_ptr->shero)
+        if (plr_tim_find(T_BERSERK))
             base = 20;
 
-        set_oppose_acid(randint1(base) + base, FALSE);
-        set_oppose_elec(randint1(base) + base, FALSE);
-        set_oppose_fire(randint1(base) + base, FALSE);
-        set_oppose_cold(randint1(base) + base, FALSE);
-        set_oppose_pois(randint1(base) + base, FALSE);
+        plr_tim_add(T_RES_ACID, randint1(base) + base);
+        plr_tim_add(T_RES_ELEC, randint1(base) + base);
+        plr_tim_add(T_RES_FIRE, randint1(base) + base);
+        plr_tim_add(T_RES_COLD, randint1(base) + base);
+        plr_tim_add(T_RES_POIS, randint1(base) + base);
 
         var_set_bool(res, TRUE);
         break;
@@ -134,7 +345,7 @@ static void _barbaric_resistance_spell(int cmd, variant *res)
     }
 }
 
-static void _crude_mapping_spell(int cmd, variant *res)
+static void _crude_mapping_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -154,44 +365,26 @@ static void _crude_mapping_spell(int cmd, variant *res)
     }
 }
 
-static bool _detect_objects_ego(int range)
+static bool _detect = FALSE;
+static void _detect_obj(point_t pos, obj_ptr obj)
 {
-    int i, y, x;
-
-    bool detect = FALSE;
-
-    if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
-
-    /* Scan all objects */
-    for (i = 1; i < o_max; i++)
+    int rng = DETECT_RAD_ALL;
+    if (distance(p_ptr->pos.y, p_ptr->pos.x, pos.y, pos.x) > rng) return;
+    if (obj_is_art(obj) || obj_is_ego(obj))
     {
-        object_type *o_ptr = &o_list[i];
-
-        if (!o_ptr->k_idx) continue;
-        if (o_ptr->held_m_idx) continue;
-
-        y = o_ptr->loc.y;
-        x = o_ptr->loc.x;
-
-        if (distance(py, px, y, x) > range) continue;
-
-        if (object_is_artifact(o_ptr) ||
-            object_is_ego(o_ptr) )
-        {
-            o_ptr->marked |= OM_FOUND;
-            p_ptr->window |= PW_OBJECT_LIST;
-            lite_spot(y, x);
-            detect = TRUE;
-        }
+        obj->marked |= OM_FOUND;
+        p_ptr->window |= PW_OBJECT_LIST;
+        lite_pos(pos);
+        _detect = TRUE;
     }
-
-    if (detect)
-        msg_print("You sense the presence of magic objects!");
-
-    return detect;
 }
-
-static void _detect_magic_spell(int cmd, variant *res)
+static void _detect_pile(point_t pos, obj_ptr pile)
+{
+    obj_ptr obj;
+    for (obj = pile; obj; obj = obj->next)
+        _detect_obj(pos, obj);
+}
+static void _detect_magic_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -203,7 +396,9 @@ static void _detect_magic_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         detect_monsters_magical(DETECT_RAD_DEFAULT);
-        _detect_objects_ego(DETECT_RAD_DEFAULT);
+        _detect = FALSE;
+        dun_iter_floor_obj(cave, _detect_pile);
+        if (_detect) msg_print("You sense the presence of magic objects!");
         var_set_bool(res, TRUE);
         break;
     default:
@@ -212,7 +407,7 @@ static void _detect_magic_spell(int cmd, variant *res)
     }
 }
 
-static void _detect_magical_foes_spell(int cmd, variant *res)
+static void _detect_magical_foes_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -224,8 +419,8 @@ static void _detect_magical_foes_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         detect_monsters_magical(DETECT_RAD_DEFAULT);
-        if (p_ptr->shero)
-            set_tim_esp_magical(20 + randint1(20), FALSE);
+        if (plr_tim_find(T_BERSERK))
+            plr_tim_add(_ESP_MAGICAL, 20 + randint1(20));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -234,7 +429,7 @@ static void _detect_magical_foes_spell(int cmd, variant *res)
     }
 }
 
-static void _evasive_leap_spell(int cmd, variant *res)
+static void _evasive_leap_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -242,7 +437,7 @@ static void _evasive_leap_spell(int cmd, variant *res)
         var_set_string(res, "Evasive Leap");
         break;
     case SPELL_ENERGY:
-        if (p_ptr->shero)
+        if (plr_tim_find(T_BERSERK))
         {
             var_set_int(res, 30);
             break;
@@ -253,7 +448,7 @@ static void _evasive_leap_spell(int cmd, variant *res)
     }
 }
 
-static void _focus_rage_spell(int cmd, variant *res)
+static void _focus_rage_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -296,7 +491,7 @@ static void _focus_rage_spell(int cmd, variant *res)
     }
 }
 
-static void _force_brand_spell(int cmd, variant *res)
+static void _force_brand_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -309,9 +504,9 @@ static void _force_brand_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int base = 4;
-        if (p_ptr->shero)
+        if (plr_tim_find(T_BERSERK))
             base = 10;
-        set_tim_force(base + randint1(base), FALSE);
+        plr_tim_add(T_BRAND_MANA, base + randint1(base));
         var_set_bool(res, TRUE);
         break;
     }
@@ -321,7 +516,7 @@ static void _force_brand_spell(int cmd, variant *res)
     }
 }
 
-static void _greater_focus_rage_spell(int cmd, variant *res)
+static void _greater_focus_rage_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -332,7 +527,7 @@ static void _greater_focus_rage_spell(int cmd, variant *res)
         var_set_string(res, "Damage yourself and regain spell points.");
         break;
     case SPELL_INFO:
-        if (p_ptr->shero)
+        if (plr_tim_find(T_BERSERK))
             var_set_string(res, info_damage(0, 0, 2 * p_ptr->lev));
         else
             var_set_string(res, info_damage(0, 0, 10 + p_ptr->lev));
@@ -340,7 +535,7 @@ static void _greater_focus_rage_spell(int cmd, variant *res)
     case SPELL_FAIL:
     {
         int hp = 10 + p_ptr->lev;
-        if (p_ptr->shero)
+        if (plr_tim_find(T_BERSERK))
             hp = 2 * p_ptr->lev;
         take_hit(DAMAGE_NOESCAPE, hp, "Rage");
         break;
@@ -351,7 +546,7 @@ static void _greater_focus_rage_spell(int cmd, variant *res)
 
         var_set_bool(res, FALSE);
 
-        if (p_ptr->shero)
+        if (plr_tim_find(T_BERSERK))
             hp = 2 * p_ptr->lev;
 
         if (p_ptr->chp < hp)
@@ -372,7 +567,14 @@ static void _greater_focus_rage_spell(int cmd, variant *res)
     }
 }
 
-static void _greater_shout_spell(int cmd, variant *res)
+static int _greater_shout_dam(void)
+{
+    int dam = 50 + plr_prorata_level(130);
+    if (plr_tim_find(T_BERSERK))
+        dam = dam * 4 / 3;
+    return dam;
+}
+static void _greater_shout_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -383,24 +585,27 @@ static void _greater_shout_spell(int cmd, variant *res)
         var_set_string(res, "Projects a cone of sound at a chosen foe.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(p_ptr->lev - 10, 8, 0));
+        var_set_string(res, info_damage(0, 0, _greater_shout_dam()));
         break;
     case SPELL_CAST:
     {
         int dir;
         var_set_bool(res, FALSE);
         if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_SOUND, dir, damroll(p_ptr->lev - 10, 8), -3);
+        fire_ball(GF_SOUND, dir, _greater_shout_dam(), -3);
         var_set_bool(res, TRUE);
         break;
     }
+    case SPELL_COST_EXTRA:
+        var_set_int(res, _greater_shout_dam()/10);
+        break;
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _mana_clash_spell(int cmd, variant *res)
+static void _mana_clash_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -432,7 +637,7 @@ static int _rage_strike_dam(void)
     return 1200*z/(1000+z);
 }
 
-static void _rage_strike_spell(int cmd, variant *res)
+static void _rage_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -462,8 +667,8 @@ static void _rage_strike_spell(int cmd, variant *res)
 
         fire_ball(GF_MISSILE, dir, _rage_strike_dam(), 0);
         take_hit(DAMAGE_NOESCAPE, 100, "Rage");
-        if (!p_ptr->shero)
-            set_stun(99, FALSE); /* 100 is Knocked Out */
+        if (!plr_tim_find(T_BERSERK))
+            plr_tim_add(T_STUN, STUN_KNOCKED_OUT - 1); /* XXX bypass p_ptr->no_stun */
 
         sp_player(-p_ptr->csp); /* Don't use SPELL_COST_EXTRA since we pay mana up front these days! */
         var_set_bool(res, TRUE);
@@ -475,7 +680,7 @@ static void _rage_strike_spell(int cmd, variant *res)
     }
 }
 
-static void _rage_sustenance_spell(int cmd, variant *res)
+static void _rage_sustenance_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -488,7 +693,7 @@ static void _rage_sustenance_spell(int cmd, variant *res)
     }
 }
 
-static void _resist_curses_spell(int cmd, variant *res)
+static void _resist_curses_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -499,7 +704,7 @@ static void _resist_curses_spell(int cmd, variant *res)
         var_set_string(res, "Grants temporary magical resistance.");
         break;
     case SPELL_CAST:
-        set_tim_resist_curses(20 + randint1(20), FALSE);
+        plr_tim_add(_RESIST_CURSES, 20 + randint1(20));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -508,7 +713,7 @@ static void _resist_curses_spell(int cmd, variant *res)
     }
 }
 
-static void _resist_disenchantment_spell(int cmd, variant *res)
+static void _resist_disenchantment_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -519,7 +724,7 @@ static void _resist_disenchantment_spell(int cmd, variant *res)
         var_set_string(res, "Grants temporary resistance to disenchantment.");
         break;
     case SPELL_CAST:
-        set_tim_res_disenchantment(10 + randint1(10), FALSE);
+        plr_tim_add(T_RES_DISEN, 10 + randint1(10));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -630,7 +835,7 @@ static int _object_dam_type(object_type *o_ptr)
     return GF_MANA;
 }
 
-static void _shatter_device_spell(int cmd, variant *res)
+static void _shatter_device_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -648,7 +853,7 @@ static void _shatter_device_spell(int cmd, variant *res)
 
         prompt.prompt = "Shatter which device?";
         prompt.error = "You have nothing to shatter.";
-        prompt.filter = object_is_device;
+        prompt.filter = obj_is_device;
         prompt.where[0] = INV_PACK;
         prompt.where[1] = INV_FLOOR;
 
@@ -663,7 +868,7 @@ static void _shatter_device_spell(int cmd, variant *res)
         }
         else if (prompt.obj->activation.type == EFFECT_DESTRUCTION)
         {
-            if (destroy_area(py, px, 15 + p_ptr->lev + randint0(11), 4 * p_ptr->lev))
+            if (destroy_area(p_ptr->pos.y, p_ptr->pos.x, 15 + p_ptr->lev + randint0(11), 4 * p_ptr->lev))
                 msg_print("The dungeon collapses...");
             else
                 msg_print("The dungeon trembles.");
@@ -674,19 +879,19 @@ static void _shatter_device_spell(int cmd, variant *res)
         {
             msg_print("You feel life flow through your body!");
             restore_level();
-            lp_player(1000);
-            (void)set_poisoned(0, TRUE);
-            (void)set_blind(0, TRUE);
-            (void)set_confused(0, TRUE);
-            (void)set_image(0, TRUE);
-            (void)set_stun(0, TRUE);
-            (void)set_cut(0, TRUE);
-            (void)do_res_stat(A_STR);
-            (void)do_res_stat(A_CON);
-            (void)do_res_stat(A_DEX);
-            (void)do_res_stat(A_WIS);
-            (void)do_res_stat(A_INT);
-            (void)do_res_stat(A_CHR);
+            plr_restore_life(1000);
+            plr_tim_remove(T_POISON);
+            plr_tim_remove(T_BLIND);
+            plr_tim_remove(T_CONFUSED);
+            plr_tim_remove(T_HALLUCINATE);
+            plr_tim_remove(T_STUN);
+            plr_tim_remove(T_CUT);
+            do_res_stat(A_STR);
+            do_res_stat(A_CON);
+            do_res_stat(A_DEX);
+            do_res_stat(A_WIS);
+            do_res_stat(A_INT);
+            do_res_stat(A_CHR);
             update_stuff(); /* hp may change if Con was drained ... */
             hp_player(5000);
         }
@@ -698,7 +903,7 @@ static void _shatter_device_spell(int cmd, variant *res)
         }
         else
         {
-            project(0, 5, py, px,
+            project(0, 5, p_ptr->pos.y, p_ptr->pos.x,
                 prompt.obj->activation.difficulty * 16,
                 _object_dam_type(prompt.obj),
                 PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
@@ -713,7 +918,7 @@ static void _shatter_device_spell(int cmd, variant *res)
     }
 }
 
-static void _shout_spell(int cmd, variant *res)
+static void _shout_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -741,7 +946,7 @@ static void _shout_spell(int cmd, variant *res)
     }
 }
 
-static void _smash_spell(int cmd, variant *res)
+static void _smash_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -759,8 +964,8 @@ static void _smash_spell(int cmd, variant *res)
         if (!get_rep_dir2(&dir)) return;
         if (dir == 5) return;
 
-        y = py + ddy[dir];
-        x = px + ddx[dir];
+        y = p_ptr->pos.y + ddy[dir];
+        x = p_ptr->pos.x + ddx[dir];
 
         if (!in_bounds(y, x)) return;
 
@@ -783,7 +988,7 @@ static void _smash_spell(int cmd, variant *res)
     }
 }
 
-static void _spell_reaction_spell(int cmd, variant *res)
+static void _spell_reaction_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -794,7 +999,7 @@ static void _spell_reaction_spell(int cmd, variant *res)
         var_set_string(res, "Grants temporary speed whenever you are targetted by a magical attack.");
         break;
     case SPELL_CAST:
-        set_tim_spell_reaction(30 + randint1(30), FALSE);
+        plr_tim_add(_SPELL_REACTION, 30 + randint1(30));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -803,7 +1008,7 @@ static void _spell_reaction_spell(int cmd, variant *res)
     }
 }
 
-static void _spell_turning_spell(int cmd, variant *res)
+static void _spell_turning_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -814,7 +1019,7 @@ static void _spell_turning_spell(int cmd, variant *res)
         var_set_string(res, "Whenever you are the target of magic there is a chance of returning the spell to the caster.");
         break;
     case SPELL_CAST:
-        set_tim_spell_turning(20 + randint1(20), FALSE);
+        plr_tim_add(_SPELL_TURNING, 20 + randint1(20));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -823,7 +1028,7 @@ static void _spell_turning_spell(int cmd, variant *res)
     }
 }
 
-static void _summon_commando_team_spell(int cmd, variant *res)
+static void _summon_commando_team_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -841,7 +1046,7 @@ static void _summon_commando_team_spell(int cmd, variant *res)
 
         var_set_bool(res, FALSE);
 
-        if (p_ptr->shero)
+        if (plr_tim_find(T_BERSERK))
             mode |= PM_HASTE;
 
         if (!target_set(TARGET_KILL)) return;
@@ -850,7 +1055,7 @@ static void _summon_commando_team_spell(int cmd, variant *res)
 
         for (i = 0; i < num; i++)
         {
-            summon_named_creature(-1, y, x, MON_G_MASTER_MYS, mode);
+            summon_named_creature(-1, point_create(x, y), MON_G_MASTER_MYS, mode);
         }
         var_set_bool(res, TRUE);
         break;
@@ -861,7 +1066,7 @@ static void _summon_commando_team_spell(int cmd, variant *res)
     }
 }
 
-static void _summon_horde_spell(int cmd, variant *res)
+static void _summon_horde_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -877,12 +1082,12 @@ static void _summon_horde_spell(int cmd, variant *res)
         int mode = PM_FORCE_PET;
         int i;
 
-        if (p_ptr->shero)
+        if (plr_tim_find(T_BERSERK))
             mode |= PM_HASTE;
 
         for (i = 0; i < num; i++)
         {
-            summon_named_creature(-1, py, px, MON_DAWN, mode);
+            summon_named_creature(-1, p_ptr->pos, MON_DAWN, mode);
         }
         var_set_bool(res, TRUE);
         break;
@@ -893,7 +1098,7 @@ static void _summon_horde_spell(int cmd, variant *res)
     }
 }
 
-static void _veterans_blessing_spell(int cmd, variant *res)
+static void _veterans_blessing_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -906,7 +1111,7 @@ static void _veterans_blessing_spell(int cmd, variant *res)
     }
 }
 
-static void _whirlwind_attack_spell(int cmd, variant *res)
+static void _whirlwind_attack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -919,6 +1124,9 @@ static void _whirlwind_attack_spell(int cmd, variant *res)
     }
 }
 
+/****************************************************************
+ * The Rage Realm and Spellcasting
+ ****************************************************************/
 /* The Rage Mage uses spellbooks to learn spells
    like other magic classes. However, learning a
    spell destroys the book, and casting a spell
@@ -948,7 +1156,7 @@ static book_t _books[4] = {
          {18, 18, 50, _resist_disenchantment_spell},
          {20, 30, 55, awesome_blow_spell},
          {22, 15, 60, _spell_reaction_spell},
-         {23, 21, 60, _greater_shout_spell},
+         {23,  5, 60, _greater_shout_spell},
          {25, 18, 60, _whirlwind_attack_spell},
          {27, 20, 55, _resist_curses_spell},
          {28, 23, 70, _detect_magic_spell}}
@@ -1067,12 +1275,12 @@ void rage_mage_gain_spell(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (p_ptr->blind || no_lite())
+    if (plr_tim_find(T_BLIND) || no_lite())
     {
         msg_print("You cannot see!");
         return;
     }
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         return;
@@ -1123,12 +1331,16 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 1000;
         me.encumbrance.weapon_pct = 20;
         me.encumbrance.enc_wgt = 1200;
+        me.realm1_choices = CH_RAGE;
         init = TRUE;
     }
     return &me;
 }
 
-static void _player_action(int energy_use)
+/****************************************************************
+ * Hooks
+ ****************************************************************/
+static void _player_action(void)
 {
     /* Unclear Mind */
     if (_unclear_mind)    /* Hack for Focus Rage spell to bypass sp loss for one action */
@@ -1151,19 +1363,13 @@ static void _player_action(int energy_use)
 
 static void _calc_bonuses(void)
 {
-    int squish = 5 + py_prorata_level(55);
+    int squish = 5 + plr_prorata_level(55);
     p_ptr->spell_cap += 3;
 
     /* Squishy */
     p_ptr->to_a -= squish;
     p_ptr->dis_to_a -= squish;
 
-    if (p_ptr->tim_resist_curses)
-    {
-        p_ptr->skills.sav += 20;
-        if (p_ptr->shero)
-            p_ptr->skills.sav += 20;
-    }
 }
 
 static int _get_spells_imp(spell_info* spells, int max, int book)
@@ -1192,7 +1398,7 @@ static int _get_spells_imp(spell_info* spells, int max, int book)
     return ct;
 }
 
-static void _book_menu_fn(int cmd, int which, vptr cookie, variant *res)
+static void _book_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
 {
     switch (cmd)
     {
@@ -1228,29 +1434,29 @@ static void _character_dump(doc_ptr doc)
     for (i = 0; i < 4; i++)
         ct += _get_spells_imp(spells + ct, MAX_SPELLS - ct, i);
 
-    py_display_spells(doc, spells, ct);
+    plr_display_spells(doc, spells, ct);
 }
 
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_BROAD_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_spellbooks();
+    plr_birth_obj_aux(TV_SWORD, SV_BROAD_SWORD, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_spellbooks();
 }
 
-class_t *rage_mage_get_class(void)
+plr_class_ptr rage_mage_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  20,  40,  -1,  12,   2,  50,  30 };
     skills_t xs = {  7,   8,  15,   0,   0,   0,  15,  15 };
 
-        me.name = "Rage-Mage";
-        me.desc = "The Rage Mage is part of a secret sect descending from the Barbarians "
+        me = plr_class_alloc(CLASS_RAGE_MAGE);
+        me->name = "Rage-Mage";
+        me->desc = "The Rage Mage is part of a secret sect descending from the Barbarians "
                     "in response to their natural foes, the mages. As time passed, other "
                     "races have also begun to learn their arts. The powers of the Rage Mage "
                     "are spells learned from books, but they don't work the way normal spells do. "
@@ -1266,28 +1472,28 @@ class_t *rage_mage_get_class(void)
                     "mana whenever he is the target of a magical spell. Indeed, magic makes the "
                     "Rage Mage very angry! The Rage Mage can also fuel their mana by hurting "
                     "those around them. This can be quite effective in crowded situations.";
-        me.stats[A_STR] =  3;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] = -2;
-        me.stats[A_DEX] = -2;
-        me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  1;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 106;
-        me.base_hp = 6;
-        me.exp = 150;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
+        me->stats[A_STR] =  3;
+        me->stats[A_INT] = -2;
+        me->stats[A_WIS] = -2;
+        me->stats[A_DEX] = -2;
+        me->stats[A_CON] =  2;
+        me->stats[A_CHR] =  1;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 106;
+        me->base_hp = 6;
+        me->exp = 150;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_spells = _get_spells;
-        me.caster_info = _caster_info;
-        me.player_action = _player_action;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.player_action = _player_action;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.register_timers = _register_timers;
     }
 
-    return &me;
+    return me;
 }

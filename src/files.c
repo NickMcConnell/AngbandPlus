@@ -13,6 +13,7 @@
 #include "angband.h"
 #include "equip.h"
 #include "z-doc.h"
+#include <assert.h>
 
 #ifdef SIGSTOP
 
@@ -156,7 +157,8 @@ s16b tokenize(char *buf, s16b num, char **tokens, int mode)
         for (t = s; *t; t++)
         {
             /* Found a delimiter */
-            if ((*t == ':') || (*t == '/')) break;
+            if (*t == ':') break;
+            if (!(mode & TOKENIZE_NO_SLASH) && *t == '/') break;
 
             /* Handle single quotes */
             if ((mode & TOKENIZE_CHECKQUOTE) && (*t == '\''))
@@ -164,7 +166,7 @@ s16b tokenize(char *buf, s16b num, char **tokens, int mode)
                 /* Advance */
                 t++;
 
-                /* Handle backslash */
+                /* Handle backslash ... even if NO_ESCAPE */
                 if (*t == '\\') t++;
 
                 /* Require a character */
@@ -178,7 +180,7 @@ s16b tokenize(char *buf, s16b num, char **tokens, int mode)
             }
 
             /* Handle back-slash */
-            if (*t == '\\') t++;
+            if (!(mode & TOKENIZE_NO_ESCAPE) && *t == '\\') t++;
         }
 
         /* Nothing left */
@@ -508,7 +510,11 @@ errr process_pref_file_command(char *buf)
         {
             j = (byte)strtol(zz[0], NULL, 0) % 128;
             n1 = strtol(zz[1], NULL, 0);
-            if (n1) tval_to_attr[j] = n1;
+            if (n1)
+            {
+                tv_info_ptr info = tv_lookup(j);
+                if (info) info->color = n1;
+            }
             return 0;
         }
         break;
@@ -939,6 +945,10 @@ cptr process_pref_file_expr(char **sp, char *fp)
                     v = get_race()->name;
                 else
                     v = get_true_race()->name;
+            }
+            else if (streq(b+1, "SUBRACE"))
+            {
+                v = get_true_race()->subname;
             }
 
             /* Class */
@@ -1438,11 +1448,11 @@ void player_flags(u32b flgs[OF_ARRAY_SIZE])
     for (i = 0; i < OF_ARRAY_SIZE; i++)
         flgs[i] = 0L;
 
-    if (class_ptr->get_flags)
-        class_ptr->get_flags(flgs);
+    if (class_ptr->hooks.get_flags)
+        class_ptr->hooks.get_flags(flgs);
 
-    if (race_ptr->get_flags)
-        race_ptr->get_flags(flgs);
+    if (race_ptr->hooks.get_flags)
+        race_ptr->hooks.get_flags(flgs);
 
     if (pers_ptr->get_flags)
         pers_ptr->get_flags(flgs);
@@ -1453,157 +1463,9 @@ void player_flags(u32b flgs[OF_ARRAY_SIZE])
     mut_get_flags(flgs);
 }
 
+#if 0
 void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    int i;
-
-    /* Clear */
-    for (i = 0; i < OF_ARRAY_SIZE; i++)
-        flgs[i] = 0L;
-
-    if (IS_HERO())
-        add_flag(flgs, OF_RES_FEAR);
-    if (IS_SHERO())
-        add_flag(flgs, OF_IM_FEAR);
-    if (IS_INVULN())
-        add_flag(flgs, OF_IM_FEAR);
-    if (p_ptr->tim_invis)
-        add_flag(flgs, OF_SEE_INVIS);
-    if (p_ptr->tim_infra)
-        add_flag(flgs, OF_INFRA);
-    if (p_ptr->tim_regen)
-        add_flag(flgs, OF_REGEN);
-    if (IS_TIM_ESP())
-        add_flag(flgs, OF_TELEPATHY);
-    if (IS_FAST() || p_ptr->slow)
-        add_flag(flgs, OF_SPEED);
-
-    if (IS_OPPOSE_ACID() && !(p_ptr->special_defense & DEFENSE_ACID) && !(prace_is_(RACE_YEEK) && (p_ptr->lev > 19)))
-        add_flag(flgs, OF_RES_ACID);
-    if (IS_OPPOSE_ELEC() && !(p_ptr->special_defense & DEFENSE_ELEC))
-        add_flag(flgs, OF_RES_ELEC);
-    if (IS_OPPOSE_FIRE() && !(p_ptr->special_defense & DEFENSE_FIRE))
-        add_flag(flgs, OF_RES_FIRE);
-    if (IS_OPPOSE_COLD() && !(p_ptr->special_defense & DEFENSE_COLD))
-        add_flag(flgs, OF_RES_COLD);
-    if (IS_OPPOSE_POIS())
-        add_flag(flgs, OF_RES_POIS);
-
-    if (p_ptr->tim_sustain_str) add_flag(flgs, OF_SUST_STR);
-    if (p_ptr->tim_sustain_int) add_flag(flgs, OF_SUST_INT);
-    if (p_ptr->tim_sustain_wis) add_flag(flgs, OF_SUST_WIS);
-    if (p_ptr->tim_sustain_dex) add_flag(flgs, OF_SUST_DEX);
-    if (p_ptr->tim_sustain_con) add_flag(flgs, OF_SUST_CON);
-    if (p_ptr->tim_sustain_chr) add_flag(flgs, OF_SUST_CHR);
-    if (p_ptr->tim_hold_life) add_flag(flgs, OF_HOLD_LIFE);
-    if (p_ptr->tim_dark_stalker) add_flag(flgs, OF_STEALTH);
-    if (p_ptr->tim_levitation) add_flag(flgs, OF_LEVITATION);
-
-    if (p_ptr->special_attack & ATTACK_ACID)
-        add_flag(flgs, OF_BRAND_ACID);
-    if (p_ptr->special_attack & ATTACK_ELEC)
-        add_flag(flgs, OF_BRAND_ELEC);
-    if (p_ptr->special_attack & ATTACK_FIRE)
-        add_flag(flgs, OF_BRAND_FIRE);
-    if (p_ptr->special_attack & ATTACK_COLD)
-        add_flag(flgs, OF_BRAND_COLD);
-    if (p_ptr->special_attack & ATTACK_POIS)
-        add_flag(flgs, OF_BRAND_POIS);
-    if (p_ptr->special_defense & DEFENSE_ACID)
-        add_flag(flgs, OF_IM_ACID);
-    if (p_ptr->special_defense & DEFENSE_ELEC)
-        add_flag(flgs, OF_IM_ELEC);
-    if (p_ptr->special_defense & DEFENSE_FIRE)
-        add_flag(flgs, OF_IM_FIRE);
-    if (p_ptr->special_defense & DEFENSE_COLD)
-        add_flag(flgs, OF_IM_COLD);
-
-    if (IS_WRAITH())
-    {
-        add_flag(flgs, OF_REFLECT);
-        add_flag(flgs, OF_IM_DARK);
-        add_flag(flgs, OF_VULN_LITE);
-    }
-    /* by henkma */
-    if (p_ptr->tim_reflect)
-        add_flag(flgs, OF_REFLECT);
-
-    if (p_ptr->tim_blood_shield)
-    {
-        int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp;
-        if (amt > 60)
-            add_flag(flgs, OF_REFLECT);
-    }
-
-    if (p_ptr->tim_blood_seek)
-        add_flag(flgs, OF_SLAY_LIVING);
-
-    if (p_ptr->magicdef)
-    {
-        add_flag(flgs, OF_RES_BLIND);
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_REFLECT);
-        add_flag(flgs, OF_FREE_ACT);
-        add_flag(flgs, OF_LEVITATION);
-    }
-    if (p_ptr->tim_res_nether)
-    {
-        add_flag(flgs, OF_RES_NETHER);
-    }
-    if (p_ptr->tim_res_disenchantment)
-    {
-        add_flag(flgs, OF_RES_DISEN);
-    }
-    if (p_ptr->tim_sh_fire)
-    {
-        add_flag(flgs, OF_AURA_FIRE);
-    }
-    if (p_ptr->tim_sh_shards)
-    {
-        add_flag(flgs, OF_AURA_SHARDS);
-    }
-    if (p_ptr->tim_sh_elements)
-    {
-        add_flag(flgs, OF_AURA_FIRE);
-        if (p_ptr->lev >= 25)
-            add_flag(flgs, OF_AURA_COLD);
-        if (p_ptr->lev >= 35)
-            add_flag(flgs, OF_AURA_ELEC);
-    }
-    if (p_ptr->ult_res)
-    {
-        add_flag(flgs, OF_RES_FEAR);
-        add_flag(flgs, OF_RES_LITE);
-        add_flag(flgs, OF_RES_DARK);
-        add_flag(flgs, OF_RES_BLIND);
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_SOUND);
-        add_flag(flgs, OF_RES_SHARDS);
-        add_flag(flgs, OF_RES_NETHER);
-        add_flag(flgs, OF_RES_NEXUS);
-        add_flag(flgs, OF_RES_CHAOS);
-        add_flag(flgs, OF_RES_DISEN);
-        add_flag(flgs, OF_RES_TIME);
-        add_flag(flgs, OF_REFLECT);
-        add_flag(flgs, OF_HOLD_LIFE);
-        add_flag(flgs, OF_FREE_ACT);
-        add_flag(flgs, OF_AURA_FIRE);
-        add_flag(flgs, OF_AURA_ELEC);
-        add_flag(flgs, OF_AURA_COLD);
-        add_flag(flgs, OF_LEVITATION);
-        add_flag(flgs, OF_LITE);
-        add_flag(flgs, OF_SEE_INVIS);
-        add_flag(flgs, OF_TELEPATHY);
-        add_flag(flgs, OF_SLOW_DIGEST);
-        add_flag(flgs, OF_REGEN);
-        add_flag(flgs, OF_SUST_STR);
-        add_flag(flgs, OF_SUST_INT);
-        add_flag(flgs, OF_SUST_WIS);
-        add_flag(flgs, OF_SUST_DEX);
-        add_flag(flgs, OF_SUST_CON);
-        add_flag(flgs, OF_SUST_CHR);
-    }
-
     /* Hex bonuses */
     if (p_ptr->realm1 == REALM_HEX)
     {
@@ -1617,32 +1479,7 @@ void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
     }
 }
 
-void tim_player_stats(s16b stats[MAX_STATS])
-{
-    if (p_ptr->tsuyoshi)
-    {
-        stats[A_STR] += 4;
-        stats[A_CON] += 4;
-    }
-    if (p_ptr->tim_building_up)
-    {
-        int amt = 4 * p_ptr->lev / 50; /* 13, 25, 38, 50 */
-        stats[A_STR] += amt;
-        stats[A_DEX] += amt;
-        stats[A_CON] += amt;
-    }
-    if (p_ptr->realm1 == REALM_HEX)
-    {
-        if (hex_spelling(HEX_XTRA_MIGHT)) stats[A_STR] += 4;
-        if (hex_spelling(HEX_BUILDING))
-        {
-            stats[A_STR] += 4;
-            stats[A_DEX] += 4;
-            stats[A_CON] += 4;
-        }
-    }
-}
-
+#endif
 int ct_kills(void)
 {
     int i;
@@ -1728,16 +1565,10 @@ cptr map_name(void)
     quest_ptr q = quests_get_current();
     if (q && (q->flags & QF_GENERATE))
         return "Quest";
-    else if (p_ptr->wild_mode)
-        return "Surface";
-    else if (p_ptr->inside_arena)
-        return "Arena";
-    else if (p_ptr->inside_battle)
-        return "Monster Arena";
-    else if (!dun_level && p_ptr->town_num)
-        return town_name(p_ptr->town_num);
+    else if (dun_world_town_id())
+        return town_name(dun_world_town_id());
     else
-        return d_name+d_info[dungeon_type].name;
+        return dun_type()->name;
 }
 
 /*
@@ -1803,7 +1634,7 @@ static errr file_character(cptr name)
         else if (cb > 4 && strcmp(name + cb - 4, ".htm") == 0)
             format = DOC_FORMAT_HTML;
 
-        py_display_character_sheet(doc);
+        plr_display_character_sheet(doc);
         doc_write_file(doc, fff, format);
         doc_free(doc);
     }
@@ -2268,8 +2099,8 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
         if (show_version)
         {
             prt(format(
-                "[PosChengband %d.%d.%d, %s, Line %d/%d]",
-               VER_MAJOR, VER_MINOR, VER_PATCH,
+                "[%s %d.%d.%d, %s, Line %d/%d]",
+               VERSION_NAME, VER_MAJOR, VER_MINOR, VER_PATCH,
                caption, line, size), 0, 0);
         }
         else
@@ -2526,9 +2357,11 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
  */
 void do_cmd_help(void)
 {
+    playtime_pause();
     screen_save();
     doc_display_help("start.txt", NULL);
     screen_load();
+    playtime_resume();
 }
 
 
@@ -2682,7 +2515,7 @@ void process_player_name(bool sf)
 }
 
 
-bool py_get_name(void)
+bool plr_get_name(void)
 {
     bool result = FALSE;
     char tmp[64];
@@ -2850,57 +2683,6 @@ void do_cmd_save_and_exit(void)
     p_ptr->leaving = TRUE;
 }
 
-
-/*
- * Hack -- Calculates the total number of points earned        -JWT-
- */
-long total_points(void)
-{
-    int i, mult = 100;
-    s16b max_dl = 0;
-    u32b point, point_h, point_l;
-    int arena_win = MIN(p_ptr->arena_number, MAX_ARENA_MONS);
-
-    if (!preserve_mode) mult += 10;
-    if (!smart_learn) mult -= 20;
-    if (smart_cheat) mult += 30;
-    if (ironman_shops) mult += 50;
-    if (ironman_empty_levels) mult += 20;
-    if (ironman_nightmare) mult += 100;
-
-    if (mult < 5) mult = 5;
-
-    for (i = 0; i < max_d_idx; i++)
-        if(max_dlv[i] > max_dl)
-            max_dl = max_dlv[i];
-
-    point_l = (p_ptr->max_max_exp + (100 * max_dl));
-    point_h = point_l / 0x10000L;
-    point_l = point_l % 0x10000L;
-    point_h *= mult;
-    point_l *= mult;
-    point_h += point_l / 0x10000L;
-    point_l %= 0x10000L;
-
-    point_l += ((point_h % 100) << 16);
-    point_h /= 100;
-    point_l /= 100;
-
-    point = (point_h << 16) + (point_l);
-    if (p_ptr->arena_number >= 0)
-        point += (arena_win * arena_win * (arena_win > 29 ? 1000 : 100));
-
-    if (ironman_downward) point *= 2;
-    if (p_ptr->pclass == CLASS_BERSERKER)
-    {
-        if ( p_ptr->prace == RACE_SPECTRE )
-            point = point / 5;
-    }
-
-    return point;
-}
-
-
 #define GRAVE_LINE_WIDTH 31
 
 /*
@@ -2919,75 +2701,6 @@ static void center_string(char *buf, cptr str)
     /* Mega-Hack */
     (void)sprintf(buf, "%*s%s%*s", j, "", str, GRAVE_LINE_WIDTH - i - j, "");
 }
-
-
-#if 0
-/*
- * Save a "bones" file for a dead character
- *
- * Note that we will not use these files until Angband 2.8.0, and
- * then we will only use the name and level on which death occured.
- *
- * Should probably attempt some form of locking...
- */
-static void make_bones(void)
-{
-    FILE                *fp;
-
-    char                str[1024];
-
-
-    /* Ignore wizards and borgs */
-    if (!(p_ptr->noscore & 0x00FF))
-    {
-        /* Ignore people who die in town */
-        if (dun_level)
-        {
-            char tmp[128];
-
-            /* XXX XXX XXX "Bones" name */
-            sprintf(tmp, "bone.%03d", dun_level);
-
-            /* Build the filename */
-            path_build(str, sizeof(str), ANGBAND_DIR_BONE, tmp);
-
-            /* Attempt to open the bones file */
-            fp = my_fopen(str, "r");
-
-            /* Close it right away */
-            if (fp) my_fclose(fp);
-
-            /* Do not over-write a previous ghost */
-            if (fp) return;
-
-            /* File type is "TEXT" */
-            FILE_TYPE(FILE_TYPE_TEXT);
-
-            /* Grab permissions */
-            safe_setuid_grab();
-
-            /* Try to write a new "Bones File" */
-            fp = my_fopen(str, "w");
-
-            /* Drop permissions */
-            safe_setuid_drop();
-
-            /* Not allowed to write it?  Weird. */
-            if (!fp) return;
-
-            /* Save the info */
-            fprintf(fp, "%s\n", player_name);
-            fprintf(fp, "%d\n", p_ptr->mhp);
-            fprintf(fp, "%d\n", p_ptr->prace);
-            fprintf(fp, "%d\n", p_ptr->pclass);
-
-            /* Close and save the Bones file */
-            my_fclose(fp);
-        }
-    }
-}
-#endif
-
 
 /*
  * Redefinable "print_tombstone" action
@@ -3081,7 +2794,7 @@ static void print_tomb(void)
         center_string(buf, tmp);
         put_str(buf, 13, 11);
 
-        (void)sprintf(tmp, "Killed on Level %d", dun_level);
+        (void)sprintf(tmp, "Killed on Level %d", cave->dun_lvl);
         center_string(buf, tmp);
         put_str(buf, 14, 11);
 
@@ -3169,10 +2882,8 @@ static void show_info(void)
         screen_load();
     }
 
-    update_playtime();
-
     /* Display player */
-    py_display();
+    plr_display();
 }
 
 
@@ -3245,9 +2956,6 @@ void kingly(void)
     int cx, cy;
     bool seppuku = streq(p_ptr->died_from, "Seppuku");
 
-    /* Hack -- retire in town */
-    dun_level = 0;
-
     /* Fake death */
     if (!seppuku)
         (void)strcpy(p_ptr->died_from, "Ripe Old Age");
@@ -3303,7 +3011,6 @@ void kingly(void)
  */
 void close_game(void)
 {
-
     /* Handle stuff */
     handle_stuff();
 
@@ -3329,10 +3036,7 @@ void close_game(void)
         if (p_ptr->total_winner) kingly();
 
         /* Save memories */
-        if (!cheat_save || get_check("Save death? "))
-        {
-            if (!save_player()) msg_print("death save failed!");
-        }
+        if (!save_player()) msg_print("death save failed!");
 
         /* You are dead */
         print_tomb();
@@ -3344,11 +3048,6 @@ void close_game(void)
 
         /* Clear screen */
         Term_clear();
-
-#if 0
-        /* Dump bones file */
-        make_bones();
-#endif
     }
 
     /* Still alive */
@@ -3361,8 +3060,8 @@ void close_game(void)
     if (check_score())
         scores_update();
 
-    /* Kill all temporal files */
-    clear_saved_floor_files();
+    monk_attack_shutdown();
+    plr_shutdown();
 
     /* Allow suspending now */
     signals_handle_tstp();

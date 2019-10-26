@@ -1,13 +1,51 @@
 MKPATH=../../mk/
 include $(MKPATH)buildsys.mk
 
-CONFIG = colors.prf font-x11.prf graf.prf pref-ami.prf pref-x11.prf \
-font-ami.prf font-xxx.prf graf-win.prf pref-emx.prf proxy.prf \
-font-dos.prf graf-ami.prf graf-x11.prf pref-gcu.prf spell-xx.prf \
-font-ibm.prf graf-dos.prf graf-xaw.prf pref-key.prf user.prf graf-sdl.prf \
-font-mac.prf graf-gcu.prf graf-xxx.prf pref-mac.prf user-win.prf \
-font-mon.prf graf-ibm.prf pickpref.prf pref-opt.prf xtra-gcu.prf \
-font.prf graf-mac.prf picktype.prf pref.prf xtra-new.prf font-sdl.prf \
-font-win.prf graf-new.prf pref-acn.prf pref-win.prf xtra-xxx.prf
+CONFIG = \
+	colors.prf \
+	font-ami.prf \
+	font-dos.prf \
+	font-ibm.prf \
+	font-mac.prf \
+	font-mon.prf \
+	font.prf \
+	font-sdl.prf \
+	font-win.prf \
+	font-x11.prf \
+	font-xxx.prf \
+	graf-ami.prf \
+	graf-dos.prf \
+	graf-gcu.prf \
+	graf-ibm.prf \
+	graf-mac.prf \
+	graf-new.prf \
+	graf.prf \
+	graf-sdl.prf \
+	graf-win.prf \
+	graf-x11.prf \
+	graf-xaw.prf \
+	graf-xxx.prf \
+	pickpref.prf \
+	pickpref-stats.prf \
+	picktype.prf \
+	pref-acn.prf \
+	pref-ami.prf \
+	pref-emx.prf \
+	pref-gcu.prf \
+	pref-key.prf \
+	pref-mac.prf \
+	pref-opt.prf \
+	pref.prf \
+	pref-sdl.prf \
+	pref-win.prf \
+	pref-x11.prf \
+	proxy.prf \
+	spell-xx.prf \
+	user.prf \
+	user-win.prf \
+	xtra-gcu.prf \
+	xtra-new.prf \
+	xtra-xxx.prf
+
 PACKAGE = pref
 

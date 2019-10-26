@@ -1,27 +1,35 @@
-<color:y>PosChengband <$:version></color>
-<style:screenshot>
-<color:U>You attack the Demonite:</color> You hit. You hit. It was a <color:R>great</color> hit! The                
-Demonite shouts, 'AAAARRRGGGHHH!!!' <color:R>You have destroyed the Demonite.</color>  LEVEL <color:G>    37</color>
-<color:U>You attack the Arch-vile:</color> You miss. You hit. You miss. You hit. <color:R>You </color>  EXP <color:G>   30.1k</color>
-<color:R>have destroyed the Arch-vile.</color> <color:U>You attack Father Dagon:</color> You miss. <color:G>You </color> AU  <color:G>   1.06M</color>
-<color:G>backstab him!</color> <color:G>You backstab him!</color> <color:G>You backstab him!</color> <color:G>You backstab him!</color>   <color:d>            </color>
-Father Dagon shouts, 'AAAARRRGGGHHH!!!' <color:R>You have destroyed Father </color>    STR!: <color:G>18/160</color>
-<color:R>Dagon.</color> <color:U>You attack the Arch-vile:</color> You hit. You hit. You hit. <color:R>You have </color> INT : <color:G>18/190</color>
-<color:R>destroyed the Arch-vile.</color> <color:B>You are getting more proficient with </color>        Wis : <color:y> 18/51</color>
-<color:R>Whirlwind Attack</color><color:B>.</color>                                                     DEX : <color:G>18/***</color>
-<color:D>xxxxxx</color>%     <color:s>%</color>%%                                               <color:D>xxxxxxx</color> CON : <color:G>18/116</color>
-<color:D>xxxxxxx</color>       #%                                              <color:D>xxxxxxx</color> CHR : <color:G> 18/95</color>
-<color:D>xxxxxx</color>        <color:W>|</color>%%%%#%##########<color:s>%</color>##<color:s>%</color>#<color:s>%</color>##<color:s>%%</color>##%#<color:s>%</color>##################<color:D>xxxxx</color> AC     <color:G>  183</color>
-<color:D>xxxxxx</color>     <color:u>,</color>           :                      <color:g>^</color>                <color:D>xxxxxx</color> HP <color:y> 617</color>/<color:G> 618</color>
-<color:D>xxxxxx</color>         %################%###<color:s>%</color>#<color:s>%</color>###%<color:s>%</color>###    #############<color:D>xxxxx</color> SP <color:y> 131</color>/<color:G> 280</color>
-<color:D>xxxxx</color>         ##                #     <color:U>'</color> <color:G>$</color>..<color:u>$</color># # #  #            <color:D>xxxxx</color>             
-<color:D>xxxx</color><color:s>%</color>         #                 #  {  # .<color:G>]</color><color:D>~</color>@# % #  #            <color:D>xxxxx</color> @ <color:y> 99%</color>      
-<color:D>xxxx</color>##       #%#%######         # <color:b>(</color> #<color:s>%%</color>##.<color:g>!</color>.##% #  #            <color:D>xxxxx</color> <color:y>?</color> <color:y> 46%</color>      
-<color:D>xxxx</color>###               ####<color:s>%%</color>####<color:s>%</color>  <color:W>|</color>#   #...%#  ####            <color:D>xxxxx</color> <color:U>,</color> <color:G>147%</color>      
-<color:D>xxxxx</color>        #<color:o>*</color>%#             <color:U>+</color> <color:U>+'</color>##<color:s>%</color>   ###<color:U>'</color>%#  #               <color:D>xxxxx</color>             
-<color:D>xxxx</color>###      #  ##########<color:s>%</color>###<color:s>%</color><color:D>~</color>#   #   #   ##  #               <color:D>xxxxx</color>             
-<color:D>xxxx</color>  %#    ##               #?<color:U>}</color><color:s>?</color><color:y>!</color>  <color:s>%</color>####      :%                <color:D>xxxx</color>             
-<color:D>xxxx</color>   %#  %#                <color:s>%%%</color>#     #  D  #%% #                <color:D>xxxx</color> <color:y>Fast (+23)</color>  
-<color:D>xxxx</color>    #% %                    #     <color:U>+</color>     # # %                <color:D>xxxx</color> <color:G>Full</color>        
-<color:s>Angband: L47</color>                 StnSkn <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color> Hero                 
-</style>
+<color:y>PosChengband <$:version></color><style:screenshot>
+<color:w>Name       : </color><color:B>Ommmmmm                       </color><color:w>========== Stats ==========
+Sex        : </color><color:B>Male                                </color><color:w>STR! :    </color><color:G>18/180
+</color><color:w>Personality: </color><color:B>Mighty                              </color><color:w>Int  :        </color><color:y>18
+</color><color:w>Race       : </color><color:B>Barbarian                           </color><color:w>WIS  :     </color><color:G>18/39
+</color><color:w>Subrace    : </color><color:B>None                                </color><color:w>DEX  :    </color><color:G>18/135
+</color><color:w>Class      : </color><color:B>Mystic                              </color><color:w>CON  :    </color><color:G>18/214
+                                                 </color><color:w>CHR  :    </color><color:G>18/212
+                                        
+</color><color:w>Level      :       </color><color:G>43                            </color><color:w>HP   :   </color><color:r>-95/754
+</color><color:w>Cur Exp    :  </color><color:G>3499564                            </color><color:w>SP   :     </color><color:y>84/85
+</color><color:w>Max Exp    :  </color><color:G>3499564                            </color><color:w>AC   :       </color><color:G>111
+</color><color:w>Adv Exp    :  </color><color:G>3675000                            </color><color:w>Speed:    </color><color:y>+13+10
+                                        
+                                           </color><color:w>========== Skills =========
+Gold       :  </color><color:G>1352744                      </color><color:w>Melee      : </color><color:v>Amber[10]
+</color><color:w>Kills      :     </color><color:G>4723                      </color><color:w>Archery    : </color><color:b>Heroic
+</color><color:w>Uniques    :      </color><color:G>113                      </color><color:w>SavingThrow: </color><color:g>Superb
+</color><color:w>Artifacts  :    </color><color:G>43+28                      </color><color:w>Stealth    : </color><color:g>Superb
+                                           </color><color:w>Perception : </color><color:G>Excellent
+</color><color:w>Game Day   :       </color><color:G>63                      </color><color:w>Searching  : </color><color:G>Excellent
+</color><color:w>Game Time  :    </color><color:G>19:00                      </color><color:w>Disarming  : </color><color:g>Superb
+</color><color:w>Play Time  :    </color><color:G>12:04                      </color><color:w>Device     : </color><color:g>Superb
+                                        
+</color><color:w>c) </color><color:u>The Long Bow of Heracles (x3) (+12,+22) (+2)
+</color><color:w>d) </color><color:U>a Quiver of Protection [83 of 150]
+</color><color:w>e) </color><color:r>a Ring of Combat (+5,+15) (+2) {StCn(Cn </color><color:B>A:Heroism</color><color:r>}
+</color><color:w>f) </color><color:r>a Ring of Speed (+8)
+</color><color:w>g) </color><color:o>an Amulet of Trickery (+4) {SlSr;PoCf}
+</color><color:w>h) </color><color:y>The Feanorian Lamp 'Planaria' (+3) {Ch;ElSo}
+</color><color:w>i) </color><color:W>The Soft Leather Armour 'Hithlomir' [4,+20] (+4) {Sh}
+</color><color:w>j) </color><color:U>The Fur Cloak of Mook [3,+20]
+</color><color:w>k) </color><color:U>a Golden Crown of Telepathy [0,+10] {cursed, ~Tele~DLZ}
+</color><color:w>l) </color><color:U>The Set of Leather Gloves 'Cammithrim' [1,+11]
+</color><color:w>m) </color><color:U>The Pair of Hard Leather Boots 'Springsleeper' [3,+20] (+4) {Cn;ElFiCo;FaLv}</style>

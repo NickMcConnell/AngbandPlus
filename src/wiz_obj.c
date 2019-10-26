@@ -20,6 +20,179 @@ void wiz_obj_create(void)
 }
 
 /***********************************************************************
+ * Object Statistics
+ **********************************************************************/
+static char      _score_color(int score);
+
+wiz_obj_stat_ptr wiz_obj_stats(void)
+{
+    static wiz_obj_stat_ptr _stats = NULL;
+    if (!_stats)
+    {
+        _stats = malloc(sizeof(wiz_obj_stat_t));
+        memset(_stats, 0, sizeof(wiz_obj_stat_t));
+        _stats->objects = inv_alloc("Stats", INV_PACK, 0);
+    }
+    return _stats;
+}
+
+void wiz_obj_stat_reset(void)
+{
+    wiz_obj_stat_ptr stats = wiz_obj_stats();
+    int           i;
+
+    inv_clear(stats->objects);
+    for (i = 0; i < OF_COUNT; i++)
+        stats->flag_cts[i] = 0;
+    memset(&stats->scores, 0, sizeof(int_stat_t));
+}
+
+void wiz_obj_stat_add(obj_ptr obj)
+{
+    wiz_obj_stat_ptr stats = wiz_obj_stats();
+    int              i;
+    int              ct = obj->number;
+    u32b             flgs[OF_ARRAY_SIZE];
+
+    obj_flags(obj, flgs);
+    for (i = 0; i < OF_COUNT; i++)
+    {
+        if (have_flag(flgs, i))
+            stats->flag_cts[i] += ct;
+    }
+    inv_add(stats->objects, obj);
+    obj->number = ct; /* Hack: Put it back for wizard reporting */
+}
+
+void wiz_obj_stat_calc(void)
+{
+    wiz_obj_stat_ptr stats = wiz_obj_stats();
+    vec_ptr          v = vec_alloc(NULL);
+    int              i;
+
+    for (i = 1; i <= inv_max(stats->objects); i++)
+    {
+        obj_ptr obj = inv_obj(stats->objects, i);
+
+        if (!obj) continue;
+        vec_add_int(v, obj_value_real(obj));
+    }
+    stats->scores = int_calc_stats(v);
+    vec_free(v);
+}
+
+static void _report_aux(doc_ptr doc, vec_ptr flags, cptr heading)
+{
+    wiz_obj_stat_ptr stats = wiz_obj_stats();
+    int           i, total;
+    bool          any = FALSE;
+
+    for (i = 0; i < vec_length(flags); i++)
+    {
+        of_info_ptr flag = vec_get(flags, i);
+        if (stats->flag_cts[flag->id])
+        {
+            any = TRUE;
+            break;
+        }
+    }
+    if (!any) return;
+
+    total = inv_count(stats->objects, NULL); /* XXX Cache this! */
+    doc_printf(doc, "<color:u>%-18.18s  Ct   Pct</color>\n", heading);
+    for (i = 0; i < vec_length(flags); i++)
+    {
+        of_info_ptr flag = vec_get(flags, i);
+        int         ct = stats->flag_cts[flag->id];
+        if (ct > 0)
+        {
+            double pct = (double)ct / total * 100.; 
+            doc_printf(doc, "<color:%c>%-18.18s</color> %3d  %4.1f%%\n", 
+                attr_to_attr_char(flag->color), flag->name, stats->flag_cts[flag->id], pct);
+        }
+    }
+    doc_newline(doc);
+}
+
+void wiz_obj_stat_report(doc_ptr doc, bool show_objects)
+{
+    wiz_obj_stat_ptr stats = wiz_obj_stats();
+    vec_ptr          v;
+    int              i;
+    doc_ptr          cols[2];
+
+    if (show_objects)
+        inv_optimize(stats->objects);
+
+    doc_insert(doc, "<topic:Statistics><style:heading>Statistics</style>\n");
+    doc_printf(doc, "<color:U>Level :</color> %d\n", cave->dun_lvl);
+    doc_printf(doc, "<color:U>Count :</color> %d\n", inv_count(stats->objects, NULL));
+    doc_printf(doc, "<color:U>Scores:</color> %0.0f +/- %0.0f\n\n", stats->scores.mean, stats->scores.sigma);
+
+    cols[0] = doc_alloc(39);
+    cols[1] = doc_alloc(39);
+
+    v = of_lookup_stat();
+    _report_aux(cols[0], v, "Stats");
+    vec_free(v);
+
+    v = of_lookup_resist();
+    _report_aux(cols[0], v, "Resists");
+    vec_free(v);
+
+    v = of_lookup_other();
+    _report_aux(cols[0], v, "Other");
+    vec_free(v);
+
+    v = of_lookup_curse();
+    _report_aux(cols[0], v, "Curses");
+    vec_free(v);
+
+    v = of_lookup_slay();
+    _report_aux(cols[1], v, "Slays");
+    vec_free(v);
+
+    v = of_lookup_brand();
+    _report_aux(cols[1], v, "Brands");
+    vec_free(v);
+
+    v = of_lookup_bonus();
+    _report_aux(cols[1], v, "Bonuses");
+    vec_free(v);
+
+    v = of_lookup_ability();
+    _report_aux(cols[1], v, "Abilities");
+    vec_free(v);
+
+    v = of_lookup_esp();
+    _report_aux(cols[1], v, "ESP");
+    vec_free(v);
+
+    doc_insert_cols(doc, cols, 2, 1);
+    doc_free(cols[0]);
+    doc_free(cols[1]);
+
+    if (show_objects)
+    {
+        doc_insert(doc, "<topic:Objects><style:heading>Objects</style>\n<style:table>");
+        for (i = 1; i <= inv_max(stats->objects); i++)
+        {
+            obj_ptr obj = inv_obj(stats->objects, i);
+            int     score;
+            char    name[MAX_NLEN];
+
+            if (!obj) continue;
+            score = obj_value_real(obj);
+            object_desc(name, obj, OD_COLOR_CODED);
+
+            doc_printf(doc, "%3d <color:%c>%5d</color>) <indent><style:indent>%s</style></indent>\n",
+                i, _score_color(score), score, name);
+        }
+        doc_insert(doc, "</style>");
+    }
+}
+
+/***********************************************************************
  * Object Modification (Smithing)
  **********************************************************************/
 
@@ -32,9 +205,10 @@ typedef struct {
 
 static void _toggle(object_type *o_ptr, int flag)
 {
+    of_info_ptr info = of_lookup(flag);
     if (have_flag(o_ptr->flags, flag)) remove_flag(o_ptr->flags, flag);
     else add_flag(o_ptr->flags, flag);
-    if (is_pval_flag(flag) && have_flag(o_ptr->flags, flag) && o_ptr->pval == 0)
+    if ((info->flags & OFT_PVAL) && have_flag(o_ptr->flags, flag) && o_ptr->pval == 0)
         o_ptr->pval = 1;
     obj_identify_fully(o_ptr);
 }
@@ -52,7 +226,7 @@ static int _smith_plusses(object_type *o_ptr)
         doc_clear(_doc);
         obj_display_smith(&copy, _doc);
 
-        if (object_is_melee_weapon(o_ptr) || object_is_ammo(o_ptr))
+        if (obj_is_weapon(o_ptr) || obj_is_ammo(o_ptr))
         {
             doc_insert(_doc, " <color:y>x</color>/<color:y>X</color>) Adjust damage dice\n");
             doc_insert(_doc, " <color:y>y</color>/<color:y>Y</color>) Adjust damage sides\n");
@@ -61,7 +235,7 @@ static int _smith_plusses(object_type *o_ptr)
             doc_insert(_doc, " <color:y>x</color>/<color:y>X</color>) Adjust multiplier\n");
         else
             doc_insert(_doc, " <color:y>x</color>/<color:y>X</color>) Adjust base AC\n");
-        if (!object_is_ammo(o_ptr))
+        if (!obj_is_ammo(o_ptr))
             doc_insert(_doc, " <color:y>a</color>/<color:y>A</color>) Adjust AC bonus\n");
         doc_insert(_doc, " <color:y>h</color>/<color:y>H</color>) Adjust melee accuracy\n");
         doc_insert(_doc, " <color:y>d</color>/<color:y>D</color>) Adjust melee damage\n");
@@ -82,7 +256,7 @@ static int _smith_plusses(object_type *o_ptr)
             return _OK;
         case ESCAPE: return _CANCEL;
         case 'x':
-            if (object_is_melee_weapon(&copy) || object_is_ammo(o_ptr))
+            if (obj_is_weapon(&copy) || obj_is_ammo(o_ptr))
             {
                 if (copy.dd > 0) copy.dd--;
                 else copy.dd = 99;
@@ -99,7 +273,7 @@ static int _smith_plusses(object_type *o_ptr)
             }
             break;
         case 'X':
-            if (object_is_melee_weapon(&copy) || object_is_ammo(o_ptr))
+            if (obj_is_weapon(&copy) || obj_is_ammo(o_ptr))
             {
                 if (copy.dd < 99) copy.dd++;
                 else copy.dd = 0;
@@ -116,14 +290,14 @@ static int _smith_plusses(object_type *o_ptr)
             }
             break;
         case 'y':
-            if (object_is_melee_weapon(&copy) || object_is_ammo(o_ptr))
+            if (obj_is_weapon(&copy) || obj_is_ammo(o_ptr))
             {
                 if (copy.ds > 0) copy.ds--;
                 else copy.ds = 99;
             }
             break;
         case 'Y':
-            if (object_is_melee_weapon(&copy) || object_is_ammo(o_ptr))
+            if (obj_is_weapon(&copy) || obj_is_ammo(o_ptr))
             {
                 if (copy.ds < 99) copy.ds++;
                 else copy.ds = 0;
@@ -146,14 +320,14 @@ static int _smith_plusses(object_type *o_ptr)
             else copy.to_d = -50;
             break;
         case 'a':
-            if (!object_is_ammo(o_ptr))
+            if (!obj_is_ammo(o_ptr))
             {
                 if (copy.to_a > -50) copy.to_a--;
                 else copy.to_a = 50;
             }
             break;
         case 'A':
-            if (!object_is_ammo(o_ptr))
+            if (!obj_is_ammo(o_ptr))
             {
                 if (copy.to_a < 50) copy.to_a++;
                 else copy.to_a = -50;
@@ -203,10 +377,10 @@ static int _smith_stats(object_type *o_ptr)
         case ESCAPE: return _CANCEL;
         case 'p':
             if (copy.pval > 0) copy.pval--;
-            else copy.pval = 15;
+            else copy.pval = 20;
             break;
         case 'P':
-            if (copy.pval < 15) copy.pval++;
+            if (copy.pval < 20) copy.pval++;
             else copy.pval = 0;
             break;
         }
@@ -246,20 +420,20 @@ static int _smith_stats(object_type *o_ptr)
 
 static bool _blows_p(object_type *o_ptr)
 {
-    return object_is_wearable(o_ptr)
+    return obj_is_wearable(o_ptr)
         && o_ptr->tval != TV_BOW;
 }
 
 static bool _shots_p(object_type *o_ptr)
 {
-    return object_is_wearable(o_ptr)
-        && !object_is_melee_weapon(o_ptr);
+    return obj_is_wearable(o_ptr)
+        && !obj_is_weapon(o_ptr);
 }
 
 static bool _weaponmastery_p(object_type *o_ptr)
 {
-    return object_is_wearable(o_ptr)
-        && !object_is_melee_weapon(o_ptr)
+    return obj_is_wearable(o_ptr)
+        && !obj_is_weapon(o_ptr)
         && o_ptr->tval != TV_BOW;
 }
 
@@ -465,7 +639,7 @@ static _flag_info_t _ability_flags[] = {
     { OF_HOLD_LIFE, "Hold Life" },
     { OF_SLOW_DIGEST, "Slow Digestion" },
     { OF_REGEN, "Regeneration" },
-    { OF_DUAL_WIELDING, "Dual Wielding", object_is_gloves },
+    { OF_DUAL_WIELDING, "Dual Wielding", obj_is_gloves },
     { OF_NO_MAGIC, "Antimagic" },
     { OF_WARNING, "Warning" },
     { OF_LEVITATION, "Levitation" },
@@ -508,8 +682,8 @@ static int _smith_telepathies(object_type *o_ptr)
 
 static _flag_info_t _slay_flags[] = {
     { OF_SLAY_EVIL,   "Slay Evil" },
-    { OF_SLAY_GOOD,   "Slay Good", object_is_melee_weapon },
-    { OF_SLAY_LIVING, "Slay Living", object_is_melee_weapon },
+    { OF_SLAY_GOOD,   "Slay Good", obj_is_weapon },
+    { OF_SLAY_LIVING, "Slay Living", obj_is_weapon },
     { OF_SLAY_UNDEAD, "Slay Undead" },
     { OF_SLAY_DEMON,  "Slay Demon" },
     { OF_SLAY_DRAGON, "Slay Dragon" },
@@ -541,13 +715,13 @@ static _flag_info_t _brand_flags[] = {
     { OF_BRAND_FIRE,    "Brand Fire" },
     { OF_BRAND_COLD,    "Brand Cold" },
     { OF_BRAND_POIS,    "Brand Poison" },
-    { OF_BRAND_MANA,    "Brand Mana", object_is_melee_weapon },
-    { OF_BRAND_CHAOS,   "Chaotic", object_is_melee_weapon },
+    { OF_BRAND_MANA,    "Brand Mana", obj_is_weapon },
+    { OF_BRAND_CHAOS,   "Chaotic", obj_is_weapon },
     { OF_BRAND_VAMP,    "Vampiric" },
-    { OF_IMPACT,        "Impact", object_is_melee_weapon },
-    { OF_STUN,          "Stun", object_is_melee_weapon },
-    { OF_VORPAL,        "Vorpal", object_is_melee_weapon },
-    { OF_VORPAL2,       "*Vorpal*", object_is_melee_weapon },
+    { OF_IMPACT,        "Impact", obj_is_weapon },
+    { OF_STUN,          "Stun", obj_is_weapon },
+    { OF_VORPAL,        "Vorpal", obj_is_weapon },
+    { OF_VORPAL2,       "*Vorpal*", obj_is_weapon },
     { OF_INVALID }
 };
 
@@ -565,7 +739,7 @@ static void _reroll_aux(object_type *o_ptr, int flags, int min)
     for (i = 0; i < attempts; i++)
     {
         object_prep(&forge, o_ptr->k_idx);
-        apply_magic(&forge, dun_level, AM_NO_FIXED_ART | flags);
+        apply_magic(&forge, cave->dun_lvl, AM_NO_FIXED_ART | flags);
         obj_identify_fully(&forge);
 
         score = obj_value_real(&forge);
@@ -575,7 +749,7 @@ static void _reroll_aux(object_type *o_ptr, int flags, int min)
             *o_ptr = forge;
             return;
         }
-        else if (object_is_melee_weapon(o_ptr))
+        else if (obj_is_weapon(o_ptr))
         {
             if (forge.dd * forge.ds > best_score)
             {
@@ -618,9 +792,9 @@ static char _score_color(int score)  /* XXX duplicated in wizard2.c */
 void wiz_create_objects(obj_create_f creator, u32b mode)
 {
     doc_ptr doc = doc_alloc(120);
-    inv_ptr inv = inv_alloc("Temp", INV_PACK, 0);
     int     i;
 
+    wiz_obj_stat_reset();
     statistics_hack = TRUE;
     for (i = 1; i < 1000;)
     {
@@ -628,38 +802,25 @@ void wiz_create_objects(obj_create_f creator, u32b mode)
         if (creator(&forge, mode))
         {
             obj_identify_fully(&forge);
-            inv_add(inv, &forge);
+            wiz_obj_stat_add(&forge);
             i++;
         }
     }
-    inv_optimize(inv);
-    doc_insert(doc, "<style:table>");
-    for (i = 1; i <= inv_max(inv); i++)
-    {
-        obj_ptr obj = inv_obj(inv, i);
-        int     score;
-        char    name[MAX_NLEN];
-
-        if (!obj) continue;
-        score = obj_value_real(obj);
-        object_desc(name, obj, OD_COLOR_CODED);
-
-        doc_printf(doc, "%3d <color:%c>%5d</color>) <indent><style:indent>%s</style></indent>\n",
-            i, _score_color(score), score, name);
-    }
-    doc_insert(doc, "</style>");
+    wiz_obj_stat_calc();
+    wiz_obj_stat_report(doc, TRUE);
     statistics_hack = FALSE;
 
     doc_display(doc, "Objects", 0);
-    inv_free(inv);
+
     doc_free(doc);
+    wiz_obj_stat_reset();
 }
 
 static obj_ptr _reroll_obj = NULL;
 static bool _reroll_creator(obj_ptr obj, u32b mode)
 {
     object_prep(obj, _reroll_obj->k_idx);
-    return apply_magic(obj, dun_level, mode);
+    return apply_magic(obj, cave->dun_lvl, mode);
 }
 static void _reroll_stats_aux(object_type *o_ptr, int flags)
 {
@@ -734,7 +895,7 @@ static int _smith_reroll(object_type *o_ptr)
         case 'X': {
             int which = o_ptr->name1;
             if (!which) which = o_ptr->name3;
-            create_replacement_art(which, &copy);
+            art_create_replacement(&copy, which);
             obj_identify_fully(&copy);
             break;}
         }
@@ -849,7 +1010,7 @@ static device_effect_info_ptr _device_find_effect(device_effect_info_ptr tbl, in
 
 static device_effect_info_ptr _device_effect_tbl(object_type *o_ptr)
 {
-    assert(object_is_device(o_ptr));
+    assert(obj_is_device(o_ptr));
     switch (o_ptr->tval)
     {
     case TV_WAND: return wand_effect_table;
@@ -1108,30 +1269,30 @@ typedef struct {
 
 static bool _slays_p(object_type *o_ptr)
 {
-    return object_is_melee_weapon(o_ptr)
-        || object_is_ammo(o_ptr);
+    return obj_is_weapon(o_ptr)
+        || obj_is_ammo(o_ptr);
 }
 
 static bool _brands_p(object_type *o_ptr)
 {
-    return object_is_melee_weapon(o_ptr)
-        || object_is_ammo(o_ptr)
-        || object_is_bow(o_ptr)
+    return obj_is_weapon(o_ptr)
+        || obj_is_ammo(o_ptr)
+        || obj_is_bow(o_ptr)
         || o_ptr->tval == TV_RING;
 }
 
 static _command_t _commands[] = {
     { 'p', "Plusses", _smith_plusses, object_is_weapon_armour_ammo },
-    { 's', "Stats", _smith_stats, object_is_wearable },
-    { 'b', "Bonuses", _smith_bonuses, object_is_wearable },
-    { 'r', "Resistances", _smith_resistances, object_is_wearable },
-    { 'a', "Abilities", _smith_abilities, object_is_wearable },
-    { 't', "Telepathies", _smith_telepathies, object_is_wearable },
+    { 's', "Stats", _smith_stats, obj_is_wearable },
+    { 'b', "Bonuses", _smith_bonuses, obj_is_wearable },
+    { 'r', "Resistances", _smith_resistances, obj_is_wearable },
+    { 'a', "Abilities", _smith_abilities, obj_is_wearable },
+    { 't', "Telepathies", _smith_telepathies, obj_is_wearable },
     { 'S', "Slays", _smith_slays, _slays_p },
     { 'B', "Brands", _smith_brands, _brands_p },
-/*  { 'A', "Activation", _smith_activation, object_is_wearable },*/
-    { 'e', "Effects", _smith_device_effect, object_is_device },
-    { 'b', "Bonuses", _smith_device_bonus, object_is_device },
+/*  { 'A', "Activation", _smith_activation, obj_is_wearable },*/
+    { 'e', "Effects", _smith_device_effect, obj_is_device },
+    { 'b', "Bonuses", _smith_device_bonus, obj_is_device },
     { 'R', "Re-roll", _smith_reroll },
 /*  { 'i', "Ignore", _smith_ignore },*/
     { 0 }
@@ -1213,9 +1374,9 @@ static int _smith_object(object_type *o_ptr)
 
 static bool _smith_p(object_type *o_ptr)
 {
-    if (object_is_wearable(o_ptr)) return TRUE;
-    if (object_is_ammo(o_ptr)) return TRUE;
-    if (object_is_device(o_ptr)) return TRUE;
+    if (obj_is_wearable(o_ptr)) return TRUE;
+    if (obj_is_ammo(o_ptr)) return TRUE;
+    if (obj_is_device(o_ptr)) return TRUE;
     return FALSE;
 }
 

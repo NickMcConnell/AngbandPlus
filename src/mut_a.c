@@ -13,7 +13,7 @@
 #include "angband.h"
 
 /*
-void foo_mut(int cmd, variant *res)
+void foo_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -39,7 +39,7 @@ void foo_mut(int cmd, variant *res)
 */
 
 
-void albino_mut(int cmd, variant *res)
+void albino_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -62,7 +62,7 @@ void albino_mut(int cmd, variant *res)
     }
 }
 
-void alcohol_mut(int cmd, variant *res)
+void alcohol_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -89,7 +89,7 @@ void alcohol_mut(int cmd, variant *res)
             }
 
             if (!res_save_default(RES_CONF))
-                set_confused(p_ptr->confused + randint0(20) + 15, FALSE);
+                plr_tim_add(T_CONFUSED, randint0(20) + 15);
 
             if (!res_save_default(RES_CHAOS))
             {
@@ -103,10 +103,10 @@ void alcohol_mut(int cmd, variant *res)
                     msg_print("You wake up somewhere with a sore head...");
                     msg_print("You can't remember a thing, or how you got here!");
                 }
-                else if (one_in_(3))
+                else if (one_in_(3) && !mut_present(MUT_WEIRD_MIND))
                 {
                     msg_print("Thishcischs GooDSChtuff!");
-                    set_image(p_ptr->image + randint0(15) + 15, FALSE);
+                    plr_tim_add(T_HALLUCINATE, randint0(15) + 15);
                 }
             }
         }
@@ -117,7 +117,7 @@ void alcohol_mut(int cmd, variant *res)
     }
 }
 
-void ambidexterity_mut(int cmd, variant *res)
+void ambidexterity_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -142,7 +142,7 @@ void ambidexterity_mut(int cmd, variant *res)
     }
 }
 
-void arcane_mastery_mut(int cmd, variant *res)
+void arcane_mastery_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -167,7 +167,7 @@ void arcane_mastery_mut(int cmd, variant *res)
     }
 }
 
-void arthritis_mut(int cmd, variant *res)
+void arthritis_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -190,7 +190,7 @@ void arthritis_mut(int cmd, variant *res)
     }
 }
 
-void astral_guide_mut(int cmd, variant *res)
+void astral_guide_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -215,7 +215,7 @@ void astral_guide_mut(int cmd, variant *res)
     }
 }
 
-void attract_animal_mut(int cmd, variant *res)
+void attract_animal_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -240,7 +240,7 @@ void attract_animal_mut(int cmd, variant *res)
             if (pet) mode |= PM_FORCE_PET;
             else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-            if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL, mode))
+            if (summon_specific((pet ? -1 : 0), p_ptr->pos, cave->difficulty, SUMMON_ANIMAL, mode))
             {
                 msg_print("You have attracted an animal!");
                 disturb(0, 0);
@@ -253,7 +253,7 @@ void attract_animal_mut(int cmd, variant *res)
     }
 }
 
-void attract_demon_mut(int cmd, variant *res)
+void attract_demon_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -278,8 +278,8 @@ void attract_demon_mut(int cmd, variant *res)
             if (pet) mode |= PM_FORCE_PET;
             else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-            if (summon_specific((pet ? -1 : 0), py, px,
-                        dun_level, SUMMON_DEMON, mode))
+            if (summon_specific((pet ? -1 : 0), p_ptr->pos,
+                        cave->difficulty, SUMMON_DEMON, mode))
             {
                 msg_print("You have attracted a demon!");
                 disturb(0, 0);
@@ -292,7 +292,7 @@ void attract_demon_mut(int cmd, variant *res)
     }
 }
 
-void attract_dragon_mut(int cmd, variant *res)
+void attract_dragon_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -317,7 +317,7 @@ void attract_dragon_mut(int cmd, variant *res)
             if (pet) mode |= PM_FORCE_PET;
             else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-            if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON, mode))
+            if (summon_specific((pet ? -1 : 0), p_ptr->pos, cave->difficulty, SUMMON_DRAGON, mode))
             {
                 msg_print("You have attracted a dragon!");
                 disturb(0, 0);
@@ -330,7 +330,7 @@ void attract_dragon_mut(int cmd, variant *res)
     }
 }
 
-void black_marketeer_mut(int cmd, variant *res)
+void black_marketeer_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -355,7 +355,7 @@ void black_marketeer_mut(int cmd, variant *res)
     }
 }
 
-void blank_face_mut(int cmd, variant *res)
+void blank_face_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -377,7 +377,7 @@ void blank_face_mut(int cmd, variant *res)
     }
 }
 
-void bad_luck_mut(int cmd, variant *res)
+void bad_luck_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -400,7 +400,7 @@ void bad_luck_mut(int cmd, variant *res)
     }
 }
 
-void beak_mut(int cmd, variant *res)
+void beak_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -410,23 +410,21 @@ void beak_mut(int cmd, variant *res)
     case SPELL_GAIN_MUT:
         msg_print("Your mouth turns into a sharp, powerful beak!");
         mut_lose(MUT_TRUNK);
+        p_ptr->update |= PU_INNATE;
         break;
     case SPELL_LOSE_MUT:
         msg_print("Your mouth reverts to normal!");
+        p_ptr->update |= PU_INNATE;
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You have a beak.");
         break;
-    case SPELL_CALC_BONUS:
+    case SPELL_CALC_INNATE:
     {
-        innate_attack_t    a = {0};
-        a.dd = 2;
-        a.ds = 4;
-        a.weight = 30;
-        a.blows = 100;
-        a.msg = "You peck.";
-        a.name = "Beak";
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        mon_blow_ptr blow = mon_blow_alloc(RBM_PECK);
+        blow->name = "Beak";
+        mon_blow_push_effect(blow, RBE_HURT, dice_create(2, 4, 0));
+        vec_add(p_ptr->innate_blows, blow);
         break;
     }
     default:
@@ -435,7 +433,7 @@ void beak_mut(int cmd, variant *res)
     }
 }
 
-void berserk_rage_mut(int cmd, variant *res)
+void berserk_rage_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -452,7 +450,7 @@ void berserk_rage_mut(int cmd, variant *res)
         var_set_string(res, "You are subject to berserker fits.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->shero && one_in_(3000))
+        if (!plr_tim_find(T_BERSERK) && one_in_(3000))
         {
             disturb(0, 0);
             cast_berserk();
@@ -464,7 +462,7 @@ void berserk_rage_mut(int cmd, variant *res)
     }
 }
 
-void chaos_deity_mut(int cmd, variant *res)
+void chaos_deity_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -487,7 +485,7 @@ void chaos_deity_mut(int cmd, variant *res)
     }
 }
 
-void cowardice_mut(int cmd, variant *res)
+void cowardice_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -518,7 +516,7 @@ void cowardice_mut(int cmd, variant *res)
     }
 }
 
-void cult_of_personality_mut(int cmd, variant *res)
+void cult_of_personality_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -546,7 +544,7 @@ void cult_of_personality_mut(int cmd, variant *res)
     }
 }
 
-void demonic_grasp_mut(int cmd, variant *res)
+void demonic_grasp_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -571,7 +569,7 @@ void demonic_grasp_mut(int cmd, variant *res)
     }
 }
 
-void draconian_breath_mut(int cmd, variant *res)
+void draconian_breath_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -590,7 +588,7 @@ void draconian_breath_mut(int cmd, variant *res)
     }
 }
 
-void draconian_kin_mut(int cmd, variant *res)
+void draconian_kin_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -606,7 +604,7 @@ void draconian_kin_mut(int cmd, variant *res)
     }
 }
 
-void draconian_lore_mut(int cmd, variant *res)
+void draconian_lore_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -628,7 +626,7 @@ void draconian_lore_mut(int cmd, variant *res)
     }
 }
 
-void draconian_magic_resistance_mut(int cmd, variant *res)
+void draconian_magic_resistance_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -650,7 +648,7 @@ void draconian_magic_resistance_mut(int cmd, variant *res)
     }
 }
 
-void draconian_metamorphosis_mut(int cmd, variant *res)
+void draconian_metamorphosis_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -672,7 +670,7 @@ void draconian_metamorphosis_mut(int cmd, variant *res)
     }
 }
 
-void draconian_regen_mut(int cmd, variant *res)
+void draconian_regen_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -694,7 +692,7 @@ void draconian_regen_mut(int cmd, variant *res)
     }
 }
 
-void draconian_resistance_mut(int cmd, variant *res)
+void draconian_resistance_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -774,7 +772,7 @@ void draconian_resistance_mut(int cmd, variant *res)
     }
 }
 
-void draconian_shield_mut(int cmd, variant *res)
+void draconian_shield_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -835,7 +833,7 @@ void draconian_shield_mut(int cmd, variant *res)
     }
 }
 
-void draconian_strike_mut(int cmd, variant *res)
+void draconian_strike_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -883,17 +881,17 @@ void draconian_strike_mut(int cmd, variant *res)
         int mode = 0;
         switch (p_ptr->psubrace)
         {
-        case DRACONIAN_RED: mode = DRACONIAN_STRIKE_FIRE; break;
-        case DRACONIAN_WHITE: mode = DRACONIAN_STRIKE_COLD; break;
-        case DRACONIAN_BLUE: mode = DRACONIAN_STRIKE_ELEC; break;
-        case DRACONIAN_BLACK: mode = DRACONIAN_STRIKE_ACID; break;
-        case DRACONIAN_GREEN: mode = DRACONIAN_STRIKE_POIS; break;
-        case DRACONIAN_GOLD: mode = DRACONIAN_STRIKE_STUN; break;
-        case DRACONIAN_BRONZE: mode = DRACONIAN_STRIKE_CONF; break;
-        case DRACONIAN_CRYSTAL: mode = PY_ATTACK_VORPAL; break;
-        case DRACONIAN_SHADOW: mode = PY_ATTACK_VAMP; break;
+        case DRACONIAN_RED: mode = PLR_HIT_FIRE; break;
+        case DRACONIAN_WHITE: mode = PLR_HIT_COLD; break;
+        case DRACONIAN_BLUE: mode = PLR_HIT_ELEC; break;
+        case DRACONIAN_BLACK: mode = PLR_HIT_ACID; break;
+        case DRACONIAN_GREEN: mode = PLR_HIT_POISON; break;
+        case DRACONIAN_GOLD: mode = PLR_HIT_STUN; break;
+        case DRACONIAN_BRONZE: mode = PLR_HIT_CONFUSE; break;
+        case DRACONIAN_CRYSTAL: mode = PLR_HIT_VORPAL; break;
+        case DRACONIAN_SHADOW: mode = PLR_HIT_VAMP; break;
         }
-        var_set_bool(res, do_blow(mode));
+        var_set_bool(res, plr_attack_special(mode, 0));
         break;
     }
     case SPELL_COST_EXTRA:
@@ -924,7 +922,7 @@ void draconian_strike_mut(int cmd, variant *res)
     }
 }
 
-void eat_light_mut(int cmd, variant *res)
+void eat_light_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -948,7 +946,7 @@ void eat_light_mut(int cmd, variant *res)
             msg_print("A shadow passes over you.");
             msg_print(NULL);
 
-            if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
+            if ((cave_at(p_ptr->pos)->info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
             {
                 hp_player(10);
             }
@@ -956,7 +954,7 @@ void eat_light_mut(int cmd, variant *res)
             if (slot)
             {
                 object_type *o_ptr = equip_obj(slot);
-                if (!object_is_fixed_artifact(o_ptr) && (o_ptr->xtra4 > 0))
+                if (!obj_is_std_art(o_ptr) && (o_ptr->xtra4 > 0))
                 {
                     hp_player(o_ptr->xtra4 / 20);
                     o_ptr->xtra4 /= 2;
@@ -974,7 +972,7 @@ void eat_light_mut(int cmd, variant *res)
     }
 }
 
-void einstein_mut(int cmd, variant *res)
+void einstein_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -997,7 +995,7 @@ void einstein_mut(int cmd, variant *res)
     }
 }
 
-void elec_aura_mut(int cmd, variant *res)
+void elec_aura_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1022,7 +1020,7 @@ void elec_aura_mut(int cmd, variant *res)
     }
 }
 
-void evasion_mut(int cmd, variant *res)
+void evasion_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1047,7 +1045,7 @@ void evasion_mut(int cmd, variant *res)
     }
 }
 
-void extra_eyes_mut(int cmd, variant *res)
+void extra_eyes_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1073,7 +1071,7 @@ void extra_eyes_mut(int cmd, variant *res)
     }
 }
 
-void extra_legs_mut(int cmd, variant *res)
+void extra_legs_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1098,7 +1096,7 @@ void extra_legs_mut(int cmd, variant *res)
     }
 }
 
-void extra_noise_mut(int cmd, variant *res)
+void extra_noise_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1123,7 +1121,7 @@ void extra_noise_mut(int cmd, variant *res)
     }
 }
 
-void fantastic_frenzy_mut(int cmd, variant *res)
+void fantastic_frenzy_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1148,7 +1146,7 @@ void fantastic_frenzy_mut(int cmd, variant *res)
     }
 }
 
-void fast_learner_mut(int cmd, variant *res)
+void fast_learner_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1173,7 +1171,7 @@ void fast_learner_mut(int cmd, variant *res)
     }
 }
 
-void fat_mut(int cmd, variant *res)
+void fat_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1198,7 +1196,7 @@ void fat_mut(int cmd, variant *res)
     }
 }
 
-void fearless_mut(int cmd, variant *res)
+void fearless_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1224,7 +1222,7 @@ void fearless_mut(int cmd, variant *res)
     }
 }
 
-void fell_sorcery_mut(int cmd, variant *res)
+void fell_sorcery_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1252,7 +1250,7 @@ void fell_sorcery_mut(int cmd, variant *res)
     }
 }
 
-void fire_aura_mut(int cmd, variant *res)
+void fire_aura_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1278,7 +1276,7 @@ void fire_aura_mut(int cmd, variant *res)
     }
 }
 
-void flatulence_mut(int cmd, variant *res)
+void flatulence_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1310,7 +1308,7 @@ void flatulence_mut(int cmd, variant *res)
     }
 }
 
-void fleet_of_foot_mut(int cmd, variant *res)
+void fleet_of_foot_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1335,7 +1333,7 @@ void fleet_of_foot_mut(int cmd, variant *res)
     }
 }
 
-void fumbling_mut(int cmd, variant *res)
+void fumbling_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1354,7 +1352,7 @@ void fumbling_mut(int cmd, variant *res)
     case SPELL_PROCESS:
         if (one_in_(10000))
         {
-            int slot = equip_random_slot(object_is_melee_weapon);
+            int slot = equip_random_slot(obj_is_weapon);
 
             disturb(0, 0);
             msg_print("You trip over your own feet!");
@@ -1386,7 +1384,7 @@ void fumbling_mut(int cmd, variant *res)
     }
 }
 
-void good_luck_mut(int cmd, variant *res)
+void good_luck_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1409,7 +1407,7 @@ void good_luck_mut(int cmd, variant *res)
     }
 }
 
-void hallucination_mut(int cmd, variant *res)
+void hallucination_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1426,11 +1424,11 @@ void hallucination_mut(int cmd, variant *res)
         var_set_string(res, "You have a hallucinatory insanity.");
         break;
     case SPELL_PROCESS:
-        if (!res_save_default(RES_CHAOS) && randint1(6400) == 42 && !res_save_default(RES_CHAOS))
+        if (!res_save_default(RES_CHAOS) && !mut_present(MUT_WEIRD_MIND) && randint1(6400) == 42)
         {
             disturb(0, 0);
             p_ptr->redraw |= PR_EXTRA;
-            set_image(p_ptr->image + randint0(50) + 20, FALSE);
+            plr_tim_add(T_HALLUCINATE, randint0(50) + 20);
         }
         break;
     default:
@@ -1439,7 +1437,7 @@ void hallucination_mut(int cmd, variant *res)
     }
 }
 
-void he_man_mut(int cmd, variant *res)
+void he_man_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1462,7 +1460,7 @@ void he_man_mut(int cmd, variant *res)
     }
 }
 
-void horns_mut(int cmd, variant *res)
+void horns_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1471,23 +1469,21 @@ void horns_mut(int cmd, variant *res)
         break;
     case SPELL_GAIN_MUT:
         msg_print("Horns pop forth into your forehead!");
+        p_ptr->update |= PU_INNATE;
         break;
     case SPELL_LOSE_MUT:
         msg_print("Your horns vanish from your forehead!");
+        p_ptr->update |= PU_INNATE;
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You have horns.");
         break;
-    case SPELL_CALC_BONUS:
+    case SPELL_CALC_INNATE:
     {
-        innate_attack_t    a = {0};
-        a.dd = 2;
-        a.ds = 6;
-        a.weight = 150;
-        a.blows = 100;
-        a.msg = "You impale.";
-        a.name = "Horns";
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        mon_blow_ptr blow = mon_blow_alloc(RBM_BUTT);
+        blow->name = "Horns";
+        mon_blow_push_effect(blow, RBE_HURT, dice_create(2, 6, 0));
+        vec_add(p_ptr->innate_blows, blow);
         break;
     }
     default:
@@ -1496,7 +1492,7 @@ void horns_mut(int cmd, variant *res)
     }
 }
 
-void illusion_normal_mut(int cmd, variant *res)
+void illusion_normal_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1518,7 +1514,7 @@ void illusion_normal_mut(int cmd, variant *res)
     }
 }
 
-void infernal_deal_mut(int cmd, variant *res)
+void infernal_deal_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1544,7 +1540,7 @@ void infernal_deal_mut(int cmd, variant *res)
     }
 }
 
-void infravision_mut(int cmd, variant *res)
+void infravision_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1569,7 +1565,7 @@ void infravision_mut(int cmd, variant *res)
     }
 }
 
-void invulnerability_mut(int cmd, variant *res)
+void invulnerability_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1590,9 +1586,8 @@ void invulnerability_mut(int cmd, variant *res)
         {
             disturb(0, 0);
             msg_print("You feel invincible!");
-
             msg_print(NULL);
-            set_invuln(randint1(8) + 8, FALSE);
+            plr_tim_add(T_INVULN, randint1(8) + 8);
         }
         break;
     default:
@@ -1601,7 +1596,7 @@ void invulnerability_mut(int cmd, variant *res)
     }
 }
 
-void limber_mut(int cmd, variant *res)
+void limber_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1624,7 +1619,7 @@ void limber_mut(int cmd, variant *res)
     }
 }
 
-void loremaster_mut(int cmd, variant *res)
+void loremaster_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1652,7 +1647,7 @@ void loremaster_mut(int cmd, variant *res)
     }
 }
 
-void magic_resistance_mut(int cmd, variant *res)
+void magic_resistance_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1677,7 +1672,7 @@ void magic_resistance_mut(int cmd, variant *res)
     }
 }
 
-void merchants_friend_mut(int cmd, variant *res)
+void merchants_friend_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1702,7 +1697,7 @@ void merchants_friend_mut(int cmd, variant *res)
     }
 }
 
-void moron_mut(int cmd, variant *res)
+void moron_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1725,7 +1720,7 @@ void moron_mut(int cmd, variant *res)
     }
 }
 
-void motion_mut(int cmd, variant *res)
+void motion_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1751,7 +1746,7 @@ void motion_mut(int cmd, variant *res)
     }
 }
 
-void nausea_mut(int cmd, variant *res)
+void nausea_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1788,7 +1783,7 @@ void nausea_mut(int cmd, variant *res)
     }
 }
 
-void normality_mut(int cmd, variant *res)
+void normality_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1817,7 +1812,7 @@ void normality_mut(int cmd, variant *res)
     }
 }
 
-void one_with_magic_mut(int cmd, variant *res)
+void one_with_magic_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1831,10 +1826,10 @@ void one_with_magic_mut(int cmd, variant *res)
         msg_print("You no longer feel one with magic.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You have a chance of resisting Dispel Magic and Antimagic.");
+        var_set_string(res, "You resist Dispel Magic and Antimagic.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will have a chance of resisting Dispel Magic.");
+        var_set_string(res, "You resist Dispel Magic.");
         break;
     default:
         default_spell(cmd, res);
@@ -1842,7 +1837,7 @@ void one_with_magic_mut(int cmd, variant *res)
     }
 }
 
-void peerless_sniper_mut(int cmd, variant *res)
+void peerless_sniper_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1861,13 +1856,16 @@ void peerless_sniper_mut(int cmd, variant *res)
     case SPELL_HELP_DESC:
         var_set_string(res, "Damaging a monster with a missile weapon no longer provokes a retaliation.");
         break;
+    case SPELL_CALC_BONUS:
+        p_ptr->stealthy_snipe = TRUE;
+        break;
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-void peerless_tracker_mut(int cmd, variant *res)
+void peerless_tracker_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1897,6 +1895,7 @@ void peerless_tracker_mut(int cmd, variant *res)
         detect_traps(rad2, TRUE);
         detect_doors(rad2);
         detect_stairs(rad2);
+        detect_recall(rad2);
         detect_monsters_normal(rad2);
         var_set_bool(res, TRUE);
         break;
@@ -1907,7 +1906,7 @@ void peerless_tracker_mut(int cmd, variant *res)
     }
 }
 
-void polymorph_wounds_mut(int cmd, variant *res)
+void polymorph_wounds_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1933,7 +1932,7 @@ void polymorph_wounds_mut(int cmd, variant *res)
     }
 }
 
-void potion_chugger_mut(int cmd, variant *res)
+void potion_chugger_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1958,7 +1957,7 @@ void potion_chugger_mut(int cmd, variant *res)
     }
 }
 
-void produce_mana_mut(int cmd, variant *res)
+void produce_mana_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1992,7 +1991,7 @@ void produce_mana_mut(int cmd, variant *res)
     }
 }
 
-void puny_mut(int cmd, variant *res)
+void puny_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2015,7 +2014,7 @@ void puny_mut(int cmd, variant *res)
     }
 }
 
-void random_banish_mut(int cmd, variant *res)
+void random_banish_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2046,7 +2045,7 @@ void random_banish_mut(int cmd, variant *res)
     }
 }
 
-void random_teleport_mut(int cmd, variant *res)
+void random_teleport_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2078,7 +2077,7 @@ void random_teleport_mut(int cmd, variant *res)
     }
 }
 
-void raw_chaos_mut(int cmd, variant *res)
+void raw_chaos_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2109,7 +2108,7 @@ void raw_chaos_mut(int cmd, variant *res)
     }
 }
 
-void regeneration_mut(int cmd, variant *res)
+void regeneration_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2135,7 +2134,7 @@ void regeneration_mut(int cmd, variant *res)
     }
 }
 
-void resilient_mut(int cmd, variant *res)
+void resilient_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2158,7 +2157,7 @@ void resilient_mut(int cmd, variant *res)
     }
 }
 
-void rotting_flesh_mut(int cmd, variant *res)
+void rotting_flesh_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2185,7 +2184,7 @@ void rotting_flesh_mut(int cmd, variant *res)
     }
 }
 
-void sacred_vitality_mut(int cmd, variant *res)
+void sacred_vitality_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2210,7 +2209,7 @@ void sacred_vitality_mut(int cmd, variant *res)
     }
 }
 
-void scales_mut(int cmd, variant *res)
+void scales_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2237,7 +2236,7 @@ void scales_mut(int cmd, variant *res)
     }
 }
 
-void scorpion_tail_mut(int cmd, variant *res)
+void scorpion_tail_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2246,24 +2245,22 @@ void scorpion_tail_mut(int cmd, variant *res)
         break;
     case SPELL_GAIN_MUT:
         msg_print("You grow a scorpion tail!");
+        p_ptr->update |= PU_INNATE;
         break;
     case SPELL_LOSE_MUT:
         msg_print("You lose your scorpion tail!");
+        p_ptr->update |= PU_INNATE;
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You have a scorpion tail.");
         break;
-    case SPELL_CALC_BONUS:
+    case SPELL_CALC_INNATE:
     {
-        innate_attack_t    a = {0};
-        a.dd = 3;
-        a.ds = 7;
-        a.weight = 50;
-        a.blows = 100;
-        a.effect[0] = GF_POIS;
-        a.msg = "You lash.";
-        a.name = "Tail";
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        mon_blow_ptr blow = mon_blow_alloc(RBM_STING);
+        blow->name = "Tail";
+        mon_blow_push_effect(blow, RBE_HURT, dice_create(2, 7, 0));
+        mon_blow_push_effect(blow,  GF_POIS, dice_create(1, 7, 0));
+        vec_add(p_ptr->innate_blows, blow);
         break;
     }
     default:
@@ -2272,7 +2269,7 @@ void scorpion_tail_mut(int cmd, variant *res)
     }
 }
 
-void shadow_walk_mut(int cmd, variant *res)
+void shadow_walk_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2289,7 +2286,7 @@ void shadow_walk_mut(int cmd, variant *res)
         var_set_string(res, "You occasionally stumble into other shadows.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && one_in_(12000) && !p_ptr->inside_arena)
+        if (!p_ptr->anti_magic && one_in_(12000))
             alter_reality();
         break;
     default:
@@ -2298,7 +2295,7 @@ void shadow_walk_mut(int cmd, variant *res)
     }
 }
 
-void short_legs_mut(int cmd, variant *res)
+void short_legs_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2323,7 +2320,7 @@ void short_legs_mut(int cmd, variant *res)
     }
 }
 
-void silly_voice_mut(int cmd, variant *res)
+void silly_voice_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2346,7 +2343,7 @@ void silly_voice_mut(int cmd, variant *res)
 }
 
 
-void speed_flux_mut(int cmd, variant *res)
+void speed_flux_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2369,18 +2366,14 @@ void speed_flux_mut(int cmd, variant *res)
             if (one_in_(2))
             {
                 msg_print("You feel less energetic.");
-                if (p_ptr->fast > 0)
-                    set_fast(0, TRUE);
-                else
-                    set_slow(randint1(30) + 10, FALSE);
+                plr_tim_remove(T_FAST);
+                plr_tim_add(T_SLOW, randint1(30) + 10);
             }
             else
             {
                 msg_print("You feel more energetic.");
-                if (p_ptr->slow > 0)
-                    set_slow(0, TRUE);
-                else
-                    set_fast(randint1(30) + 10, FALSE);
+                plr_tim_remove(T_SLOW);
+                plr_tim_add(T_FAST, randint1(30) + 10);
             }
             msg_print(NULL);
         }
@@ -2391,7 +2384,7 @@ void speed_flux_mut(int cmd, variant *res)
     }
 }
 
-void speed_reader_mut(int cmd, variant *res)
+void speed_reader_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2416,7 +2409,7 @@ void speed_reader_mut(int cmd, variant *res)
     }
 }
 
-void steel_skin_mut(int cmd, variant *res)
+void steel_skin_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2445,7 +2438,7 @@ void steel_skin_mut(int cmd, variant *res)
     }
 }
 
-void subtle_casting_mut(int cmd, variant *res)
+void subtle_casting_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2470,7 +2463,7 @@ void subtle_casting_mut(int cmd, variant *res)
     }
 }
 
-void telepathy_mut(int cmd, variant *res)
+void telepathy_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2495,7 +2488,7 @@ void telepathy_mut(int cmd, variant *res)
     }
 }
 
-void tentacles_mut(int cmd, variant *res)
+void tentacles_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2504,23 +2497,22 @@ void tentacles_mut(int cmd, variant *res)
         break;
     case SPELL_GAIN_MUT:
         msg_print("Evil-looking tentacles sprout from your sides.");
+        p_ptr->update |= PU_INNATE;
         break;
     case SPELL_LOSE_MUT:
         msg_print("Your tentacles vanish from your sides.");
+        p_ptr->update |= PU_INNATE;
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You have evil looking tentacles.");
         break;
-    case SPELL_CALC_BONUS:
+    case SPELL_CALC_INNATE:
     {
-        innate_attack_t    a = {0};
-        a.dd = 2;
-        a.ds = 5;
-        a.weight = 50;
-        a.blows = 100;
-        a.msg = "You hit with your tentacles.";
-        a.name = "Tentacles";
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        mon_blow_ptr blow = mon_blow_alloc(RBM_HIT);
+        blow->name = "Tentacles";
+        blow->flags &= ~MBF_MASK_HAND;
+        mon_blow_push_effect(blow, RBE_HURT, dice_create(2, 5, 0));
+        vec_add(p_ptr->innate_blows, blow);
         break;
     }
     default:
@@ -2529,7 +2521,7 @@ void tentacles_mut(int cmd, variant *res)
     }
 }
 
-void tread_softly_mut(int cmd, variant *res)
+void tread_softly_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2557,7 +2549,7 @@ void tread_softly_mut(int cmd, variant *res)
     }
 }
 
-void trunk_mut(int cmd, variant *res)
+void trunk_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2567,23 +2559,22 @@ void trunk_mut(int cmd, variant *res)
     case SPELL_GAIN_MUT:
         msg_print("Your nose grows into an elephant-like trunk.");
         mut_lose(MUT_BEAK);
+        p_ptr->update |= PU_INNATE;
         break;
     case SPELL_LOSE_MUT:
         msg_print("Your nose returns to a normal length.");
+        p_ptr->update |= PU_INNATE;
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You have an elephantine trunk.");
         break;
-    case SPELL_CALC_BONUS:
+    case SPELL_CALC_INNATE:
     {
-        innate_attack_t    a = {0};
-        a.dd = 1;
-        a.ds = 4;
-        a.weight = 200;
-        a.blows = 100;
-        a.msg = "You hit with your trunk.";
-        a.name = "Trunk";
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        mon_blow_ptr blow = mon_blow_alloc(RBM_HIT);
+        blow->name = "Trunk";
+        blow->flags &= ~MBF_MASK_HAND;
+        mon_blow_push_effect(blow, RBE_HURT, dice_create(1, 4, 0));
+        vec_add(p_ptr->innate_blows, blow);
         break;
     }
     default:
@@ -2592,7 +2583,7 @@ void trunk_mut(int cmd, variant *res)
     }
 }
 
-void untouchable_mut(int cmd, variant *res)
+void untouchable_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2621,7 +2612,7 @@ void untouchable_mut(int cmd, variant *res)
     }
 }
 
-void unyielding_mut(int cmd, variant *res)
+void unyielding_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2646,7 +2637,7 @@ void unyielding_mut(int cmd, variant *res)
     }
 }
 
-void vulnerability_mut(int cmd, variant *res)
+void vulnerability_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2668,7 +2659,7 @@ void vulnerability_mut(int cmd, variant *res)
     }
 }
 
-void warning_mut(int cmd, variant *res)
+void warning_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2688,21 +2679,17 @@ void warning_mut(int cmd, variant *res)
         if (one_in_(1000))
         {
             int danger_amount = 0;
-            int monster;
-
-            for (monster = 0; monster < m_max; monster++)
+            int_map_iter_ptr iter;
+            for (iter = int_map_iter_alloc(cave->mon);
+                    int_map_iter_is_valid(iter);
+                    int_map_iter_next(iter))
             {
-                monster_type    *m_ptr = &m_list[monster];
-                monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-
-                /* Skip dead monsters */
-                if (!m_ptr->r_idx) continue;
-
-                if (r_ptr->level >= p_ptr->lev)
-                {
-                    danger_amount += r_ptr->level - p_ptr->lev + 1;
-                }
+                mon_ptr mon = int_map_iter_current(iter);
+                mon_race_ptr race = mon_race(mon);
+                if (race->level >= p_ptr->lev)
+                    danger_amount += race->level - p_ptr->lev + 1;
             }
+            int_map_iter_free(iter);
 
             if (danger_amount > 100)
                 msg_print("You feel utterly terrified!");
@@ -2729,7 +2716,7 @@ void warning_mut(int cmd, variant *res)
     }
 }
 
-void warts_mut(int cmd, variant *res)
+void warts_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2756,7 +2743,7 @@ void warts_mut(int cmd, variant *res)
     }
 }
 
-void wasting_mut(int cmd, variant *res)
+void wasting_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2819,7 +2806,7 @@ void wasting_mut(int cmd, variant *res)
     }
 }
 
-void weapon_skills_mut(int cmd, variant *res)
+void weapon_skills_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2844,7 +2831,7 @@ void weapon_skills_mut(int cmd, variant *res)
     }
 }
 
-void random_telepathy_mut(int cmd, variant *res)
+void random_telepathy_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2863,15 +2850,15 @@ void random_telepathy_mut(int cmd, variant *res)
     case SPELL_PROCESS:
         if (!p_ptr->anti_magic && one_in_(3000))
         {
-            if (p_ptr->tim_esp > 0)
+            if (plr_tim_find(T_TELEPATHY))
             {
                 msg_print("Your mind feels cloudy!");
-                set_tim_esp(0, TRUE);
+                plr_tim_remove(T_TELEPATHY);
             }
             else
             {
                 msg_print("Your mind expands!");
-                set_tim_esp(p_ptr->lev, FALSE);
+                plr_tim_add(T_TELEPATHY, p_ptr->lev);
             }
         }
         break;
@@ -2881,7 +2868,7 @@ void random_telepathy_mut(int cmd, variant *res)
     }
 }
 
-void weird_mind_mut(int cmd, variant *res)
+void weird_mind_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2909,7 +2896,7 @@ void weird_mind_mut(int cmd, variant *res)
     }
 }
 
-void wings_mut(int cmd, variant *res)
+void wings_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2934,7 +2921,7 @@ void wings_mut(int cmd, variant *res)
     }
 }
 
-void wraith_mut(int cmd, variant *res)
+void wraith_mut(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -2956,7 +2943,7 @@ void wraith_mut(int cmd, variant *res)
             disturb(0, 0);
             msg_print("You feel insubstantial!");
             msg_print(NULL);
-            set_wraith_form(randint1(p_ptr->lev / 2) + (p_ptr->lev / 2), FALSE);
+            plr_tim_add(T_WRAITH, randint1(p_ptr->lev / 2) + (p_ptr->lev / 2));
         }
         break;
     default:

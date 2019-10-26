@@ -242,7 +242,7 @@ static void _list(_choice_array_t *choices)
         {
             char          buf[255];
             byte          attr = TERM_WHITE;
-            monster_race *r_ptr = &r_info[choice->r_idx];
+            monster_race *r_ptr = mon_race_lookup(choice->r_idx);
 
             /* Name */
             if (i == choices->current)
@@ -390,9 +390,9 @@ static bool _confirm(_choice_array_t *choices, int which)
         if (_forms[choice->slot])
         {
             int           r_idx1 = choices->choices[0].r_idx; /* Hack: We just know this is correct :) */
-            monster_race *r_ptr1 = &r_info[r_idx1];
+            monster_race *r_ptr1 = mon_race_lookup(r_idx1);
             int           r_idx2 = _forms[choice->slot];
-            monster_race *r_ptr2 = &r_info[r_idx2];
+            monster_race *r_ptr2 = mon_race_lookup(r_idx2);
             char          prompt[512];
 
             sprintf(prompt, "Really replace %s with %s? ", r_name + r_ptr2->name, r_name + r_ptr1->name);
@@ -456,7 +456,7 @@ static bool _choose(_choice_array_t *choices)
                 int y = Term->scr->cy;
 
                 screen_load();
-                mon_display(&r_info[r_idx]);
+                mon_display(mon_race_lookup(r_idx));
                 screen_save();
 
                 Term_gotoxy(x, y);
@@ -559,7 +559,7 @@ static void _add_visible_form(_choice_array_t *choices, int r_idx)
             break;
 
         /* Sort in order of decreasing power */
-        if (dest->type == _TYPE_VISIBLE && r_info[dest->r_idx].level < r_info[src.r_idx].level)
+        if (dest->type == _TYPE_VISIBLE && mon_race_lookup(dest->r_idx)->level < mon_race_lookup(src.r_idx)->level)
         {
             /* Swap */
             _choice_t tmp = *dest;
@@ -599,19 +599,22 @@ static int _choose_mimic_form(bool browse)
     }
 
     /* List Visible Forms */
-    for (i = 1; i < m_max; i++)
+   {point_map_iter_ptr iter;
+    for (iter = point_map_iter_alloc(cave->mon_pos);
+            point_map_iter_is_valid(iter);
+            point_map_iter_next(iter))
     {
-        monster_type *m_ptr = &m_list[i];
+        mon_ptr mon = point_map_iter_current(iter);
 
-        if (!m_ptr->r_idx) continue;
-        if (!m_ptr->ml) continue;
-        if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
-        if (!r_info[m_ptr->r_idx].body.life) continue; /* Form not implemented yet ... */
-        if (m_ptr->r_idx == MON_TANUKI) continue; /* XXX This reveals the Tanuki! */
-        if (m_ptr->ap_r_idx == MON_KAGE) continue; /* Shadower */
+        if (!mon->ml) continue;
+        if (!plr_project(mon->pos)) continue;
+        if (!mon_race(mon)->body.life) continue; /* Form not implemented yet ... */
+        if (mon->r_idx == MON_TANUKI) continue; /* XXX This reveals the Tanuki! */
+        if (mon->ap_r_idx == MON_KAGE) continue; /* Shadower */
 
-        _add_visible_form(&choices, m_ptr->r_idx);
+        _add_visible_form(&choices, mon->r_idx);
     }
+    point_map_iter_free(iter);}
 
     /* Assign menu keys at the end due to insertion sort */
     for (i = 0; i < choices.size; i++)
@@ -677,7 +680,7 @@ static int _choose_new_slot(int new_r_idx)
 static bool _memorize_form(int r_idx)
 {
     int           i;
-    monster_race *r_ptr = &r_info[r_idx];
+    monster_race *r_ptr = mon_race_lookup(r_idx);
 
     if (_is_memorized(r_idx))
     {
@@ -768,7 +771,7 @@ int mimic_max_lvl(void)
  * any particular form ... This enhances replayability. */
 static int _learn_chance(int r_idx)
 {
-    mon_race_ptr race = &r_info[r_idx];
+    mon_race_ptr race = mon_race_lookup(r_idx);
     int          pct = 0;
     int          max = _max_level[p_ptr->lev];
 
@@ -784,7 +787,7 @@ static int _learn_chance(int r_idx)
 
 static int _mimic_chance(int r_idx)
 {
-    mon_race_ptr race = &r_info[r_idx];
+    mon_race_ptr race = mon_race_lookup(r_idx);
     int          pct = 0;
 
     if (race->level <= p_ptr->lev)
@@ -806,21 +809,19 @@ static int _mimic_chance(int r_idx)
 
 static void _dismiss_pets(void)
 {
-    int i, ct = 0;
-    for (i = m_max - 1; i >= 1; i--)
+    vec_ptr pets = plr_pets();
+    int i, ct = vec_length(pets);
+    for (i = 0; i < ct; i++)
     {
-        mon_ptr mon = &m_list[i];
-        if (is_pet(mon))
-        {
-            char name[MAX_NLEN];
-            monster_desc(name, mon, MD_ASSUME_VISIBLE);
-            msg_format("%s disappears.", name);
-            delete_monster_idx(i);
-            ct++;
-        }
+        mon_ptr mon = vec_get(pets, i);
+        char name[MAX_NLEN];
+        monster_desc(name, mon, MD_ASSUME_VISIBLE);
+        msg_format("%s disappears.", name);
+        delete_monster(mon);
+        ct++;
     }
-    if (ct)
-        calculate_upkeep();
+    vec_free(pets);
+    if (ct) calculate_upkeep();
 }
 
 static void _set_current_r_idx(int r_idx)
@@ -831,13 +832,13 @@ static void _set_current_r_idx(int r_idx)
     disturb(1, 0);
     if (r_idx == MON_MIMIC && p_ptr->current_r_idx)
     {
-        msg_format("You stop mimicking %s.", r_name + r_info[p_ptr->current_r_idx].name);
-        set_invuln(0, TRUE); /* XXX dispel_player? */
+        msg_format("You stop mimicking %s.", r_name + mon_race_lookup(p_ptr->current_r_idx)->name);
+        plr_tim_remove(T_INVULN); /* XXX dispel_player? what is this here for?? */
         _dismiss_pets(); /* They no longer recognize you as their leader! */
     }
     possessor_set_current_r_idx(r_idx);
     if (r_idx != MON_MIMIC)
-        msg_format("You start mimicking %s.", r_name + r_info[p_ptr->current_r_idx].name);
+        msg_format("You start mimicking %s.", r_name + mon_race_lookup(p_ptr->current_r_idx)->name);
     /* Mimics shift forms often enough to be annoying if shapes
        have dramatically different body types (e.g. dragons vs humanoids).
        Inscribe gear with @mimic to autoequip on shifing. */
@@ -862,42 +863,33 @@ static void _birth(void)
     equip_on_change_race();
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
-    py_birth_obj(&forge);
+    plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 3;
-    py_birth_obj(&forge);
+    add_flag(forge.flags, OF_MELEE);
+    plr_birth_obj(&forge);
 
-    py_birth_food();
-    py_birth_light();
+    plr_birth_food();
+    plr_birth_light();
 }
 
 static bool _is_visible(int r_idx)
 {
-    int i;
-    for (i = 1; i < m_max; i++)
-    {
-        monster_type *m_ptr = &m_list[i];
-
-        if (m_ptr->r_idx != r_idx) continue;
-        if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
-        return TRUE;
-    }
-    return FALSE;
+    vec_ptr v = dun_filter_mon(cave, plr_project_mon);
+    bool b = vec_length(v) > 0;
+    vec_free(v);
+    return b;
 }
 
-static void _player_action(int energy_use)
+static void _player_action(void)
 {
     if (possessor_get_toggle() == LEPRECHAUN_TOGGLE_BLINK)
         teleport_player(10, TELEPORT_LINE_OF_SIGHT);
-
-    /* In wilderness travel mode, there is no place for dropped objects to go! */
-    if (p_ptr->wild_mode)
-        return;
 
     /* Maintain current form. Non-memorized forms require los of target race */
     if ( p_ptr->current_r_idx != MON_MIMIC
@@ -905,11 +897,11 @@ static void _player_action(int energy_use)
     {
         cptr msg = NULL;
 
-        if (p_ptr->confused)
+        if (plr_tim_find(T_CONFUSED))
             msg = "You are too confused to maintain your current form.";
-        else if (p_ptr->image)
+        else if (plr_tim_find(T_HALLUCINATE))
             msg = "Groovy! I think I'll mimic that guy instead!!";
-        else if (one_in_(100) && (p_ptr->blind || !_is_visible(p_ptr->current_r_idx)))
+        else if (one_in_(100) && (plr_tim_find(T_BLIND) || !_is_visible(p_ptr->current_r_idx)))
             msg = "You can no longer see the source of your current form.";
 
         if (msg)
@@ -923,7 +915,7 @@ static void _player_action(int energy_use)
 /**********************************************************************
  * Powers
  **********************************************************************/
-static void _browse_spell(int cmd, variant *res)
+static void _browse_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -946,7 +938,7 @@ static void _browse_spell(int cmd, variant *res)
     }
 }
 
-static void _mimic_spell(int cmd, variant *res)
+static void _mimic_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -955,6 +947,9 @@ static void _mimic_spell(int cmd, variant *res)
             var_set_string(res, "Mimic");
         else
             var_set_string(res, "Stop Mimicry");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, format("Max L%d", mimic_max_lvl()));
         break;
     case SPELL_DESC:
         if (p_ptr->current_r_idx == MON_MIMIC)
@@ -969,10 +964,8 @@ static void _mimic_spell(int cmd, variant *res)
         else
             var_set_string(res, "Return to your native form.");
         break;
-    case SPELL_CAST:
-    {
+    case SPELL_CAST: {
         var_set_bool(res, FALSE);
-
         if (p_ptr->current_r_idx == MON_MIMIC)
         {
             int           r_idx = _choose_mimic_form(FALSE);
@@ -981,7 +974,7 @@ static void _mimic_spell(int cmd, variant *res)
 
             if (r_idx <= 0 || r_idx > max_r_idx) return;
 
-            r_ptr = &r_info[r_idx];
+            r_ptr = mon_race_lookup(r_idx);
             pct = _mimic_chance(r_idx);
             if (pct <= 0)
                 msg_format("You are not powerful enough to mimic this form (%s: Lvl %d).", r_name + r_ptr->name, r_ptr->level);
@@ -996,10 +989,8 @@ static void _mimic_spell(int cmd, variant *res)
         }
         else
             _set_current_r_idx(MON_MIMIC);
-
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -1042,7 +1033,7 @@ void _character_dump(doc_ptr doc)
                 doc_printf(doc, "<topic:LearnedForms>================================ <color:keypress>L</color>earned Forms ================================\n\n");
                 first = FALSE;
             }
-            doc_printf(doc, " %s\n", r_name + r_info[_forms[i]].name);
+            doc_printf(doc, " %s\n", r_name + mon_race_lookup(_forms[i])->name);
         }
     }
     doc_newline(doc);
@@ -1052,15 +1043,15 @@ void _character_dump(doc_ptr doc)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_mimic_get_race(void)
+plr_race_ptr mon_mimic_get_race(void)
 {
-    static race_t me = {0};
-    static bool   init = FALSE;
+    static plr_race_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Mimic";
-        me.desc = "Mimics are similar to possessors but instead of controlling the corpses of the "
+        me = plr_race_alloc(RACE_MON_MIMIC);
+        me->name = "Mimic";
+        me->desc = "Mimics are similar to possessors but instead of controlling the corpses of the "
                     "vanquished, the mimic imitates those about them. This allows the mimic to assume "
                     "the forms of foes they have yet to conquer and is quite useful. However, there is "
                     "a small catch: The mimic can only copy what they see! This limitation forces the "
@@ -1077,28 +1068,24 @@ race_t *mon_mimic_get_race(void)
                     "of magical powers (e.g. mana storms and frost bolts). Be sure to check both the racial power "
                     "command ('U') and the magic command ('m') after assuming a new body.";
 
-        me.exp = 250;
-        me.shop_adjust = 110; /* Really should depend on current form */
+        me->exp = 250;
+        me->shop_adjust = 110; /* Really should depend on current form */
 
-        me.birth = _birth;
+        me->hooks.birth = _birth;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.calc_innate_attacks = possessor_calc_innate_attacks;
+        me->hooks.calc_bonuses = possessor_calc_bonuses;
+        me->hooks.get_flags = possessor_get_flags;
+        me->hooks.player_action = _player_action;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.load_player = _load;
+        me->hooks.save_player = _save;
 
-        me.get_powers = _get_powers;
-
-        me.calc_bonuses = possessor_calc_bonuses;
-        me.get_flags = possessor_get_flags;
-        me.player_action = _player_action;
-        me.character_dump = _character_dump;
-
-        me.load_player = _load;
-        me.save_player = _save;
-
-        me.flags = RACE_IS_MONSTER;
-        me.boss_r_idx = MON_CHAMELEON_K;
-
-        init = TRUE;
+        me->flags = RACE_IS_MONSTER;
+        me->boss_r_idx = MON_CHAMELEON_K;
     }
-    possessor_init_race_t(&me, MON_MIMIC);
-    return &me;
+    possessor_init_race_t(me, MON_MIMIC);
+    return me;
 }
 
 void mimic_dispel_player(void)

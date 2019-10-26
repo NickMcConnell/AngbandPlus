@@ -15,11 +15,12 @@ int spell_power_aux(int pow, int bonus)
 int spell_power(int pow)
 {
     int tmp = p_ptr->spell_power;
-    if (p_ptr->tim_blood_rite)
-        tmp += 7;
 /*  if (_current_realm_hack && _current_realm_hack == p_ptr->easy_realm1)
         tmp += 2; */
-    return spell_power_aux(pow, tmp);
+    pow = spell_power_aux(pow, tmp);
+    if (p_ptr->clp > 1000)
+        pow = pow * p_ptr->clp / 1000;
+    return pow;
 }
 
 int device_power_aux(int pow, int bonus)
@@ -93,8 +94,7 @@ cptr info_range(int range)
  */
 cptr info_heal(int dice, int sides, int base)
 {
-    if ( p_ptr->pclass == CLASS_BLOOD_MAGE
-      || p_ptr->pclass == CLASS_BLOOD_KNIGHT )
+    if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
     {
         sides /= 2;
         base /= 2;
@@ -143,7 +143,7 @@ cptr info_power(int power)
 /*
  * Generate power info string such as "power 1d100"
  */
-static cptr info_power_dice(int dice, int sides)
+cptr info_power_dice(int dice, int sides)
 {
     return format("power %dd%d", dice, sides);
 }
@@ -172,7 +172,7 @@ cptr info_weight(int weight)
  */
 int beam_chance(void)
 {
-    if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE || p_ptr->pclass == CLASS_NECROMANCER || p_ptr->pclass == CLASS_YELLOW_MAGE || p_ptr->pclass == CLASS_GRAY_MAGE)
+    if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_NECROMANCER || p_ptr->pclass == CLASS_YELLOW_MAGE || p_ptr->pclass == CLASS_GRAY_MAGE)
         return p_ptr->lev;
     if (p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER)
         return p_ptr->lev + 10;
@@ -184,7 +184,7 @@ int beam_chance(void)
 /*
  * Handle summoning and failure of trump spells
  */
-bool trump_summoning(int num, bool pet, int y, int x, int lev, int type, u32b mode)
+bool trump_summoning(int num, bool pet, point_t pos, int lev, int type, u32b mode)
 {
     int plev = p_ptr->lev;
 
@@ -222,7 +222,7 @@ bool trump_summoning(int num, bool pet, int y, int x, int lev, int type, u32b mo
 
     for (i = 0; i < num; i++)
     {
-        if (summon_specific(who, y, x, lev, type, mode))
+        if (summon_specific(who, pos, lev, type, mode))
             success = TRUE;
     }
 
@@ -301,11 +301,11 @@ void cast_wonder(int dir)
     else if (die < 101) drain_life(dir, 100 + plev + p_ptr->to_d_spell);
     else if (die < 104)
     {
-        earthquake(py, px, 12);
+        earthquake(p_ptr->pos, 12);
     }
     else if (die < 106)
     {
-        (void)destroy_area(py, px, 13 + randint0(5), 2 * p_ptr->lev);
+        (void)destroy_area(p_ptr->pos.y, p_ptr->pos.x, 13 + randint0(5), 2 * p_ptr->lev);
     }
     else if (die < 108)
     {
@@ -352,7 +352,7 @@ static void cast_invoke_spirits(int dir)
     {
         msg_print("Oh no! Mouldering forms rise from the earth around you!");
 
-        (void)summon_specific(0, py, px, dun_level, SUMMON_UNDEAD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
+        (void)summon_specific(0, p_ptr->pos, cave->dun_lvl, SUMMON_UNDEAD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
         virtue_add(VIRTUE_UNLIFE, 1);
     }
     else if (die < 14)
@@ -365,7 +365,7 @@ static void cast_invoke_spirits(int dir)
     {
         msg_print("Your head is invaded by a horde of gibbering spectral voices...");
 
-        set_confused(p_ptr->confused + randint1(4) + 4, FALSE);
+        plr_tim_add(T_CONFUSED, randint1(4) + 4);
     }
     else if (die < 31)
     {
@@ -434,11 +434,11 @@ static void cast_invoke_spirits(int dir)
     }
     else if (die < 104)
     {
-        earthquake(py, px, 12);
+        earthquake(p_ptr->pos, 12);
     }
     else if (die < 106)
     {
-        (void)destroy_area(py, px, 13 + randint0(5), 2 * p_ptr->lev);
+        (void)destroy_area(p_ptr->pos.y, p_ptr->pos.x, 13 + randint0(5), 2 * p_ptr->lev);
     }
     else if (die < 108)
     {
@@ -507,7 +507,7 @@ static void wild_magic(int spell)
         break;
     case 19:
     case 20:
-        trap_creation(py, px);
+        trap_creation(p_ptr->pos.y, p_ptr->pos.x);
         break;
     case 21:
     case 22:
@@ -519,7 +519,7 @@ static void wild_magic(int spell)
         aggravate_monsters(0);
         break;
     case 26:
-        earthquake(py, px, 5);
+        earthquake(p_ptr->pos, 5);
         break;
     case 27:
     case 28:
@@ -542,15 +542,15 @@ static void wild_magic(int spell)
     case 35:
         while (counter++ < 8)
         {
-            (void)summon_specific(0, py, px, (dun_level * 3) / 2, type, (PM_ALLOW_GROUP | PM_NO_PET));
+            (void)summon_specific(0, p_ptr->pos, (cave->dun_lvl * 3) / 2, type, (PM_ALLOW_GROUP | PM_NO_PET));
         }
         break;
     case 36:
     case 37:
-        activate_hi_summon(py, px, FALSE);
+        activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
         break;
     case 38:
-        (void)summon_cyber(-1, py, px);
+        (void)summon_cyber(-1, p_ptr->pos.y, p_ptr->pos.x);
         break;
     default:
         {
@@ -598,13 +598,13 @@ static void cast_shuffle(void)
         msg_print("Oh no! It's Death!");
 
         for (i = 0; i < randint1(3); i++)
-            activate_hi_summon(py, px, FALSE);
+            activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
     }
     else if (die < 14)
     {
         msg_print("Oh no! It's the Devil!");
 
-        summon_specific(0, py, px, dun_level, SUMMON_DEMON, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
+        summon_specific(0, p_ptr->pos, cave->dun_lvl, SUMMON_DEMON, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
     }
     else if (die < 18)
     {
@@ -630,7 +630,7 @@ static void cast_shuffle(void)
     {
         msg_print("It's the picture of a strange monster.");
 
-        trump_summoning(1, FALSE, py, px, (dun_level * 3 / 2), (32 + randint1(6)), PM_ALLOW_GROUP | PM_ALLOW_UNIQUE);
+        trump_summoning(1, FALSE, p_ptr->pos, (cave->dun_lvl * 3 / 2), (32 + randint1(6)), PM_ALLOW_GROUP | PM_ALLOW_UNIQUE);
     }
     else if (die < 33)
     {
@@ -654,7 +654,7 @@ static void cast_shuffle(void)
     {
         msg_print("It's Justice.");
 
-        set_blessed(p_ptr->lev, FALSE);
+        plr_tim_add(T_BLESSED, p_ptr->lev);
     }
     else if (die < 47)
     {
@@ -684,31 +684,31 @@ static void cast_shuffle(void)
     {
         msg_print("It's the Tower.");
 
-        earthquake(py, px, 5);
+        earthquake(p_ptr->pos, 5);
     }
     else if (die < 82)
     {
         msg_print("It's the picture of a friendly monster.");
 
-        trump_summoning(1, TRUE, py, px, (dun_level * 3 / 2), SUMMON_BIZARRE1, 0L);
+        trump_summoning(1, TRUE, p_ptr->pos, (cave->dun_lvl * 3 / 2), SUMMON_BIZARRE1, 0L);
     }
     else if (die < 84)
     {
         msg_print("It's the picture of a friendly monster.");
 
-        trump_summoning(1, TRUE, py, px, (dun_level * 3 / 2), SUMMON_BIZARRE2, 0L);
+        trump_summoning(1, TRUE, p_ptr->pos, (cave->dun_lvl * 3 / 2), SUMMON_BIZARRE2, 0L);
     }
     else if (die < 86)
     {
         msg_print("It's the picture of a friendly monster.");
 
-        trump_summoning(1, TRUE, py, px, (dun_level * 3 / 2), SUMMON_BIZARRE4, 0L);
+        trump_summoning(1, TRUE, p_ptr->pos, (cave->dun_lvl * 3 / 2), SUMMON_BIZARRE4, 0L);
     }
     else if (die < 88)
     {
         msg_print("It's the picture of a friendly monster.");
 
-        trump_summoning(1, TRUE, py, px, (dun_level * 3 / 2), SUMMON_BIZARRE5, 0L);
+        trump_summoning(1, TRUE, p_ptr->pos, (cave->dun_lvl * 3 / 2), SUMMON_BIZARRE5, 0L);
     }
     else if (die < 96)
     {
@@ -736,7 +736,7 @@ static void cast_shuffle(void)
 
         virtue_add(VIRTUE_KNOWLEDGE, 1);
         virtue_add(VIRTUE_ENLIGHTENMENT, 1);
-        wiz_lite(p_ptr->tim_superstealth > 0);
+        wiz_lite();
     }
     else
     {
@@ -771,18 +771,18 @@ static void cast_meteor(int dam, int rad)
         {
             int dy, dx, d;
 
-            x = px - 8 + randint0(17);
-            y = py - 8 + randint0(17);
+            x = p_ptr->pos.x - 8 + randint0(17);
+            y = p_ptr->pos.y - 8 + randint0(17);
 
-            dx = (px > x) ? (px - x) : (x - px);
-            dy = (py > y) ? (py - y) : (y - py);
+            dx = (p_ptr->pos.x > x) ? (p_ptr->pos.x - x) : (x - p_ptr->pos.x);
+            dy = (p_ptr->pos.y > y) ? (p_ptr->pos.y - y) : (y - p_ptr->pos.y);
 
             /* Approximate distance */
             d = (dy > dx) ? (dy + (dx >> 1)) : (dx + (dy >> 1));
 
             if (d >= 9) continue;
 
-            if (!in_bounds(y, x) || !projectable(py, px, y, x)
+            if (!in_bounds(y, x) || !projectable(p_ptr->pos.y, p_ptr->pos.x, y, x)
                 || !cave_have_flag_bold(y, x, FF_PROJECT)) continue;
 
             /* Valid position */
@@ -809,8 +809,8 @@ bool cast_wrath_of_the_god(int dam, int rad)
     if (!get_fire_dir(&dir)) return FALSE;
 
     /* Use the given direction */
-    tx = px + 99 * ddx[dir];
-    ty = py + 99 * ddy[dir];
+    tx = p_ptr->pos.x + 99 * ddx[dir];
+    ty = p_ptr->pos.y + 99 * ddy[dir];
 
     /* Hack -- Use an actual "target" */
     if ((dir == 5) && target_okay())
@@ -819,8 +819,8 @@ bool cast_wrath_of_the_god(int dam, int rad)
         ty = target_row;
     }
 
-    x = px;
-    y = py;
+    x = p_ptr->pos.x;
+    y = p_ptr->pos.y;
 
     while (1)
     {
@@ -829,16 +829,16 @@ bool cast_wrath_of_the_god(int dam, int rad)
 
         ny = y;
         nx = x;
-        mmove2(&ny, &nx, py, px, ty, tx);
+        mmove2(&ny, &nx, p_ptr->pos.y, p_ptr->pos.x, ty, tx);
 
         /* Stop at maximum range */
-        if (MAX_RANGE <= distance(py, px, ny, nx)) break;
+        if (MAX_RANGE <= distance(p_ptr->pos.y, p_ptr->pos.x, ny, nx)) break;
 
         /* Stopped by walls/doors */
         if (!cave_have_flag_bold(ny, nx, FF_PROJECT)) break;
 
         /* Stopped by monsters */
-        if ((dir != 5) && cave[ny][nx].m_idx != 0) break;
+        if ((dir != 5) && mon_at_xy(nx, ny)) break;
 
         /* Save the new location */
         x = nx;
@@ -871,7 +871,7 @@ bool cast_wrath_of_the_god(int dam, int rad)
 
         /* Cannot penetrate perm walls */
         if (!in_bounds(y,x) ||
-            cave_stop_disintegration(y,x) ||
+            cave_stop_disintegration(point_create(x, y)) ||
             !in_disintegration_range(ty, tx, y, x))
             continue;
 
@@ -919,7 +919,7 @@ bool cast_summon_greater_demon(void)
 
     summon_lev = plev * 2 / 3 + r_info[prompt.obj->pval].level;
 
-    if (summon_specific(-1, py, px, summon_lev, SUMMON_HI_DEMON, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+    if (summon_specific(-1, p_ptr->pos, summon_lev, SUMMON_HI_DEMON, (PM_ALLOW_GROUP | PM_FORCE_PET)))
     {
         msg_print("The area fills with a stench of sulphur and brimstone.");
         msg_print("'What is thy bidding... Master?'");
@@ -962,7 +962,7 @@ static cptr do_life_spell(int spell, int mode)
             if (cast)
             {
                 hp_player(spell_power(damroll(dice, sides)));
-                set_cut(p_ptr->cut - 10, TRUE);
+                plr_tim_subtract(T_CUT, 10);
             }
         }
         break;
@@ -978,7 +978,7 @@ static cptr do_life_spell(int spell, int mode)
 
             if (cast)
             {
-                set_blessed(randint1(base) + base, FALSE);
+                plr_tim_add(T_BLESSED, randint1(base) + base);
             }
         }
         break;
@@ -993,9 +993,7 @@ static cptr do_life_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_tim_regen(base + randint1(base), FALSE);
-            }
+                plr_tim_add(T_REGEN, base + randint1(base));
         }
         break;
 
@@ -1031,6 +1029,7 @@ static cptr do_life_spell(int spell, int mode)
                 detect_traps(rad, TRUE);
                 detect_doors(rad);
                 detect_stairs(rad);
+                detect_recall(rad);
             }
         }
         break;
@@ -1048,7 +1047,8 @@ static cptr do_life_spell(int spell, int mode)
             if (cast)
             {
                 hp_player(spell_power(damroll(dice, sides)));
-                set_cut((p_ptr->cut / 2) - 20, TRUE);
+                plr_tim_recover(T_CUT, 50, 0);
+                plr_tim_subtract(T_CUT, 20);
             }
         }
         break;
@@ -1056,7 +1056,7 @@ static cptr do_life_spell(int spell, int mode)
         if (name) return "Cure Poison";
         if (desc) return "Cure poison status.";
         if (cast)
-            set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
+            plr_tim_recover(T_POISON, 80, 100);
         break;
     case 7:
         if (name) return "Satisfy Hunger";
@@ -1093,7 +1093,7 @@ static cptr do_life_spell(int spell, int mode)
             }
             msg_print("You begin to fast.");
             set_food(p_ptr->food/2);
-            p_ptr->redraw |= PR_STATUS;
+            p_ptr->redraw |= PR_EFFECTS;
             p_ptr->fasting = TRUE;
         }
         break;
@@ -1111,8 +1111,8 @@ static cptr do_life_spell(int spell, int mode)
             if (cast)
             {
                 hp_player(spell_power(damroll(dice, sides)));
-                set_stun(0, TRUE);
-                set_cut(0, TRUE);
+                plr_tim_remove(T_STUN);
+                plr_tim_remove(T_CUT);
             }
         }
         break;
@@ -1128,8 +1128,8 @@ static cptr do_life_spell(int spell, int mode)
 
             if (cast)
             {
-                set_oppose_cold(randint1(base) + base, FALSE);
-                set_oppose_fire(randint1(base) + base, FALSE);
+                plr_tim_add(T_RES_FIRE, randint1(base) + base);
+                plr_tim_add(T_RES_COLD, randint1(base) + base);
             }
         }
         break;
@@ -1174,8 +1174,8 @@ static cptr do_life_spell(int spell, int mode)
             if (cast)
             {
                 hp_player(heal);
-                set_stun(0, TRUE);
-                set_cut(0, TRUE);
+                plr_tim_remove(T_STUN);
+                plr_tim_remove(T_CUT);
             }
         }
         break;
@@ -1236,55 +1236,11 @@ static cptr do_life_spell(int spell, int mode)
 
     case 19:
         if (name) return "Sustaining";
-        if (desc) return "Grants temporary stat sustains, depending on your level.";
-        if (spoil) return "Player gains up to L/7 stat sustains for L turns.";
-
+        if (desc) return "Temporarily sustains your stats and life force.";
         {
             int dur = spell_power(plev);
-
             if (info) return info_duration(dur, 0);
-
-            if (cast)
-            {
-                int num = plev / 7;
-
-                if (randint0(7) < num)
-                {
-                    set_tim_hold_life(dur, FALSE);
-                    num--;
-                }
-                if (randint0(6) < num)
-                {
-                    set_tim_sustain_con(dur, FALSE);
-                    num--;
-                }
-                if (randint0(5) < num)
-                {
-                    set_tim_sustain_str(dur, FALSE);
-                    num--;
-                }
-                if (randint0(4) < num)
-                {
-                    set_tim_sustain_int(dur, FALSE);
-                    num--;
-                }
-                if (randint0(3) < num)
-                {
-                    set_tim_sustain_dex(dur, FALSE);
-                    num--;
-                }
-                if (randint0(2) < num)
-                {
-                    set_tim_sustain_wis(dur, FALSE);
-                    num--;
-                }
-                if (num)
-                {
-                    set_tim_sustain_chr(dur, FALSE);
-                    num--;
-                }
-
-            }
+            if (cast) plr_tim_add(T_SUSTAIN, dur);
         }
         break;
 
@@ -1306,30 +1262,23 @@ static cptr do_life_spell(int spell, int mode)
         if (name) return "Word of Recall";
         if (desc) return "Recalls player from dungeon to town, or from town to the deepest level of dungeon.";
 
+        if (cast)
         {
-            int base = 15;
-            int sides = 20;
-
-            if (info) return info_delay(base, sides);
-
-            if (cast)
-            {
-                if (!word_of_recall()) return NULL;
-            }
+            if (!dun_mgr_recall_plr()) return NULL;
         }
         break;
 
     case 22:
-        if (name) return "Transcendence";
-        if (desc) return "For a short while, any damage you receive will be absorbed by your spell points.";
+        if (name) return "*Regeneration*";
+        if (desc) return "For a short while you will regain health before every action.";
 
         {
-            int dur = spell_power(plev/10);
+            int d = spell_power(10);
 
-            if (info) return format("dur %d", dur);
+            if (info) return info_duration(d, d);
 
             if (cast)
-                set_tim_transcendence(dur, FALSE);
+                plr_tim_add_aux(T_STAR_REGEN, d + randint1(d), 25);
         }
         break;
 
@@ -1353,13 +1302,7 @@ static cptr do_life_spell(int spell, int mode)
     case 24:
         if (name) return "Sterilization";
         if (desc) return "Prevents any breeders on current level from breeding.";
-
-        {
-            if (cast)
-            {
-                num_repro += MAX_REPRO;
-            }
-        }
+        if (cast) cave->breed_ct += MAX_REPRO;
         break;
 
     case 25:
@@ -1401,7 +1344,7 @@ static cptr do_life_spell(int spell, int mode)
         {
             if (cast)
             {
-                wiz_lite(p_ptr->tim_superstealth > 0);
+                wiz_lite();
             }
         }
         break;
@@ -1420,7 +1363,7 @@ static cptr do_life_spell(int spell, int mode)
                 do_res_stat(A_CON);
                 do_res_stat(A_CHR);
                 restore_level();
-                lp_player(1000);
+                plr_restore_life(1000);
             }
         }
         break;
@@ -1438,8 +1381,8 @@ static cptr do_life_spell(int spell, int mode)
             if (cast)
             {
                 hp_player(heal);
-                set_stun(0, TRUE);
-                set_cut(0, TRUE);
+                plr_tim_remove(T_STUN);
+                plr_tim_remove(T_CUT);
             }
         }
         break;
@@ -1458,8 +1401,7 @@ static cptr do_life_spell(int spell, int mode)
 
     case 31:
         if (name) return "Ultimate Resistance";
-        if (desc) return "Gives ultimate resistance, bonus to AC and speed.";
-        if (spoil) return "Player gains all resistances, auras, sustains, FA, SI, slow digestion, regeneration, levitation and reflection as well as double base resistance, haste, and +100AC for X+dX rounds where X=L/2.";
+        if (desc) return "Gives resistance to almost everything as well enhanced armor class.";
 
         {
             int base = spell_power(plev / 2);
@@ -1469,13 +1411,7 @@ static cptr do_life_spell(int spell, int mode)
             if (cast)
             {
                 int v = randint1(base) + base;
-                set_fast(v, FALSE);
-                set_oppose_acid(v, FALSE);
-                set_oppose_elec(v, FALSE);
-                set_oppose_fire(v, FALSE);
-                set_oppose_cold(v, FALSE);
-                set_oppose_pois(v, FALSE);
-                set_ultimate_res(v, FALSE);
+                plr_tim_add(T_ULT_RES, v);
             }
         }
         break;
@@ -1545,6 +1481,7 @@ static cptr do_sorcery_spell(int spell, int mode)
                 detect_traps(rad, TRUE);
                 detect_doors(rad);
                 detect_stairs(rad);
+                detect_recall(rad);
             }
         }
         break;
@@ -1625,10 +1562,7 @@ static cptr do_sorcery_spell(int spell, int mode)
         if (name) return "Recharging";
         if (desc)
         {
-            if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-                return "It attempts to recharge a device using your blood for power.";
-            else
-                return "It attempts to recharge a device using your mana for power.";
+            return "It attempts to recharge a device using your mana for power.";
         }
 
         {
@@ -1696,29 +1630,13 @@ static cptr do_sorcery_spell(int spell, int mode)
         break;
 
     case 11:
-        if (plev < 35)
-        {
-            if (name) return "Mass Sleep";
-            if (desc) return "Attempts to sleep all monsters in sight.";
-        }
-        else
-        {
-            if (name) return "Mass Stasis";
-            if (desc) return "Attempts to suspend all monsters in sight.";
-        }
+        if (name) return "Mass Sleep";
+        if (desc) return "Attempts to sleep all monsters in sight.";
 
         {
             int power = spell_power(plev * 4);
-
             if (info) return info_power(power);
-
-            if (cast)
-            {
-                if (plev < 35)
-                    sleep_monsters(power);
-                else
-                    stasis_monsters(power);
-            }
+            if (cast) sleep_monsters(power);
         }
         break;
 
@@ -1751,9 +1669,7 @@ static cptr do_sorcery_spell(int spell, int mode)
             if (info) return info_duration(base, sides);
 
             if (cast)
-            {
-                set_fast(randint1(sides) + base, FALSE);
-            }
+                plr_tim_add(T_FAST, randint1(sides) + base);
         }
         break;
 
@@ -1788,14 +1704,10 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 16:
         if (name) return "Inventory Protection";
         if (desc) return "For a short while, items in your pack have a chance to resist destruction.";
-
         {
             int base = spell_power(30);
-
             if (info) return info_duration(30, base);
-
-            if (cast)
-                set_tim_inven_prot(base + randint1(base), FALSE);
+            if (cast) plr_tim_add(T_INV_PROT, base + randint1(base));
         }
         break;
 
@@ -1804,7 +1716,7 @@ static cptr do_sorcery_spell(int spell, int mode)
         if (desc) return "Creates a stair which goes down or up.";
 
         if (cast)
-            stair_creation(FALSE);
+            dun_create_stairs(cave, FALSE);
         break;
 
     case 18:
@@ -1818,34 +1730,20 @@ static cptr do_sorcery_spell(int spell, int mode)
             if (info) return info_duration(base, sides);
 
             if (cast)
-            {
-                set_tim_esp(randint1(sides) + base, FALSE);
-            }
+                plr_tim_add(T_TELEPATHY, randint1(sides) + base);
         }
         break;
 
     case 19:
-        if (name) return "Teleport to town";
-        if (desc) return "Teleport to a town which you choose in a moment. Can only be used outdoors.";
-
-        {
-            if (cast)
-            {
-                if (!tele_town()) return NULL;
-            }
-        }
+        if (name) return "Teleport to Town";
+        if (desc) return "Teleport instantaneously to selected town.";
+        if (cast && !dun_mgr_teleport_town()) return NULL;
         break;
 
     case 20:
         if (name) return "Self Knowledge";
         if (desc) return "Gives you useful info regarding your current resistances, the powers of your weapon and maximum limits of your stats.";
-
-        {
-            if (cast)
-            {
-                self_knowledge();
-            }
-        }
+        if (cast) self_knowledge();
         break;
 
     case 21:
@@ -1865,16 +1763,9 @@ static cptr do_sorcery_spell(int spell, int mode)
         if (name) return "Word of Recall";
         if (desc) return "Recalls player from dungeon to town, or from town to the deepest level of dungeon.";
 
+        if (cast)
         {
-            int base = 15;
-            int sides = 20;
-
-            if (info) return info_delay(base, sides);
-
-            if (cast)
-            {
-                if (!word_of_recall()) return NULL;
-            }
+            if (!dun_mgr_recall_plr()) return NULL;
         }
         break;
 
@@ -1914,7 +1805,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 
         if (cast)
         {
-            project(0, 1, py, px, 0, GF_MAKE_DOOR, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE);
+            project(0, 1, p_ptr->pos.y, p_ptr->pos.x, 0, GF_MAKE_DOOR, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE);
             p_ptr->update |= (PU_FLOW);
             p_ptr->redraw |= (PR_MAP);
         }
@@ -1953,12 +1844,8 @@ static cptr do_sorcery_spell(int spell, int mode)
                 virtue_add(VIRTUE_KNOWLEDGE, 1);
                 virtue_add(VIRTUE_ENLIGHTENMENT, 1);
 
-                wiz_lite(p_ptr->tim_superstealth > 0);
-
-                if (!p_ptr->telepathy)
-                {
-                    set_tim_esp(randint1(sides) + base, FALSE);
-                }
+                wiz_lite();
+                plr_tim_add(T_TELEPATHY, randint1(sides) + base);
             }
         }
         break;
@@ -1966,14 +1853,10 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 28:
         if (name) return "Device Mastery";
         if (desc) return "For a very short time, your magical devices are more powerful.";
-
         {
             int base = spell_power(plev/10);
-
             if (info) return info_duration(base, base);
-
-            if (cast)
-                set_tim_device_power(base + randint1(base), FALSE);
+            if (cast) plr_tim_add(T_DEVICE_POWER, base + randint1(base));
         }
         break;
 
@@ -2010,14 +1893,12 @@ static cptr do_sorcery_spell(int spell, int mode)
         if (desc) return "Generates barrier which completely protect you from almost all damages. Takes a few your turns when the barrier breaks or duration time is exceeded.";
 
         {
-            int base = 4;
+            int base = 7;
 
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_invuln(spell_power(randint1(base) + base), FALSE);
-            }
+                plr_tim_add(T_INVULN, spell_power(randint1(base) + base));
         }
         break;
     }
@@ -2090,6 +1971,7 @@ static cptr do_nature_spell(int spell, int mode)
                 detect_traps(rad, TRUE);
                 detect_doors(rad);
                 detect_stairs(rad);
+                detect_recall(rad);
             }
         }
         break;
@@ -2109,7 +1991,7 @@ static cptr do_nature_spell(int spell, int mode)
                 object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 
                 /* Drop the object from heaven */
-                drop_near(q_ptr, -1, py, px);
+                drop_near(q_ptr, p_ptr->pos, -1);
             }
         }
         break;
@@ -2149,7 +2031,7 @@ static cptr do_nature_spell(int spell, int mode)
             if (info) return info_duration(dur, dur);
 
             if (cast)
-                set_tim_levitation(randint1(dur) + dur, FALSE);
+                plr_tim_add(T_LEVITATION, randint1(dur) + dur);
         }
         break;
 
@@ -2164,9 +2046,9 @@ static cptr do_nature_spell(int spell, int mode)
 
             if (cast)
             {
-                set_oppose_cold(randint1(base) + base, FALSE);
-                set_oppose_fire(randint1(base) + base, FALSE);
-                set_oppose_elec(randint1(base) + base, FALSE);
+                plr_tim_add(T_RES_COLD, randint1(base) + base);
+                plr_tim_add(T_RES_FIRE, randint1(base) + base);
+                plr_tim_add(T_RES_ELEC, randint1(base) + base);
             }
         }
         break;
@@ -2183,10 +2065,9 @@ static cptr do_nature_spell(int spell, int mode)
 
             if (cast)
             {
-                if (p_ptr->pclass != CLASS_BLOOD_MAGE)
-                    hp_player(damroll(dice, sides));
-                set_cut(0, TRUE);
-                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
+                hp_player(damroll(dice, sides));
+                plr_tim_remove(T_CUT);
+                plr_tim_recover(T_POISON, 80, 100);
             }
         }
         break;
@@ -2250,6 +2131,7 @@ static cptr do_nature_spell(int spell, int mode)
                 detect_traps(rad2, TRUE);
                 detect_doors(rad2);
                 detect_stairs(rad2);
+                detect_recall(rad2);
                 detect_monsters_normal(rad2);
             }
         }
@@ -2327,26 +2209,26 @@ static cptr do_nature_spell(int spell, int mode)
         {
             bool success = FALSE;
             if (plev < 30)
-                success = trump_summoning(1, TRUE, py, px, 0, SUMMON_ANIMAL_RANGER, PM_ALLOW_GROUP);
+                success = trump_summoning(1, TRUE, p_ptr->pos, 0, SUMMON_ANIMAL_RANGER, PM_ALLOW_GROUP);
             else if (plev < 47)
             {
                 switch (randint1(3))
                 {
                 case 1:
-                    success = trump_summoning(1, TRUE, py, px, 0, SUMMON_HOUND, PM_ALLOW_GROUP);
+                    success = trump_summoning(1, TRUE, p_ptr->pos, 0, SUMMON_HOUND, PM_ALLOW_GROUP);
                     break;
                 case 2:
-                    success = trump_summoning(1, TRUE, py, px, 0, SUMMON_HYDRA, PM_ALLOW_GROUP);
+                    success = trump_summoning(1, TRUE, p_ptr->pos, 0, SUMMON_HYDRA, PM_ALLOW_GROUP);
                     break;
                 case 3:
-                    success = trump_summoning((1 + (plev - 15)/ 10), TRUE, py, px, 0, SUMMON_ANIMAL_RANGER, PM_ALLOW_GROUP);
+                    success = trump_summoning((1 + (plev - 15)/ 10), TRUE, p_ptr->pos, 0, SUMMON_ANIMAL_RANGER, PM_ALLOW_GROUP);
                     break;
                 }
             }
             else
             {
                 if (one_in_(5))
-                    success = trump_summoning(1, TRUE, py, px, 0, SUMMON_ENT, PM_ALLOW_GROUP);
+                    success = trump_summoning(1, TRUE, p_ptr->pos, 0, SUMMON_ENT, PM_ALLOW_GROUP);
             }
             if (!success)
                 msg_print("No help arrives.");
@@ -2365,9 +2247,9 @@ static cptr do_nature_spell(int spell, int mode)
             if (cast)
             {
                 hp_player(heal);
-                set_stun(0, TRUE);
-                set_cut(0, TRUE);
-                set_poisoned(p_ptr->poisoned - MAX(300, p_ptr->poisoned / 2), TRUE);
+                plr_tim_remove(T_STUN);
+                plr_tim_remove(T_CUT);
+                plr_tim_recover(T_POISON, 50, 300);
             }
         }
         break;
@@ -2379,7 +2261,7 @@ static cptr do_nature_spell(int spell, int mode)
         {
             if (cast)
             {
-                stair_creation(FALSE);
+                dun_create_stairs(cave, FALSE);
             }
         }
         break;
@@ -2395,9 +2277,7 @@ static cptr do_nature_spell(int spell, int mode)
             if (info) return info_duration(base, sides);
 
             if (cast)
-            {
-                set_shield(randint1(sides) + base, FALSE);
-            }
+                plr_tim_add(T_STONE_SKIN, randint1(sides) + base);
         }
         break;
 
@@ -2412,11 +2292,11 @@ static cptr do_nature_spell(int spell, int mode)
 
             if (cast)
             {
-                set_oppose_acid(randint1(base) + base, FALSE);
-                set_oppose_elec(randint1(base) + base, FALSE);
-                set_oppose_fire(randint1(base) + base, FALSE);
-                set_oppose_cold(randint1(base) + base, FALSE);
-                set_oppose_pois(randint1(base) + base, FALSE);
+                plr_tim_add(T_RES_ACID, randint1(base) + base);
+                plr_tim_add(T_RES_ELEC, randint1(base) + base);
+                plr_tim_add(T_RES_FIRE, randint1(base) + base);
+                plr_tim_add(T_RES_COLD, randint1(base) + base);
+                plr_tim_add(T_RES_POIS, randint1(base) + base);
             }
         }
         break;
@@ -2484,7 +2364,7 @@ static cptr do_nature_spell(int spell, int mode)
                 fire_ball(GF_LITE, 0, dam, rad);
                 virtue_add(VIRTUE_KNOWLEDGE, 1);
                 virtue_add(VIRTUE_ENLIGHTENMENT, 1);
-                wiz_lite(FALSE);
+                wiz_lite();
 
                 if ( (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_MON_VAMPIRE) || p_ptr->mimic_form == MIMIC_VAMPIRE)
                   && !res_save_default(RES_LITE) )
@@ -2507,7 +2387,7 @@ static cptr do_nature_spell(int spell, int mode)
 
             if (cast)
             {
-                earthquake(py, px, rad);
+                earthquake(p_ptr->pos, rad);
             }
         }
         break;
@@ -2587,33 +2467,29 @@ static cptr do_nature_spell(int spell, int mode)
         break;
 
     case 29:
-        if (name) return "Ice Bolt";
-        if (desc) return "Fires a bolt of ice.";
+        if (name) return "Meteor";
+        if (desc) return "Fires a meteor.";
 
         {
-            int dice = 5 + 15*plev/50;
-            int sides = 15;
+            int dam = spell_power(150 + plev * 2 + p_ptr->to_d_spell);
+            int rad = 2;
 
-            if (info) return info_damage(spell_power(dice), sides, p_ptr->to_d_spell);
+            if (info) return info_damage(0, 0, dam);
 
             if (cast)
             {
                 if (!get_fire_dir(&dir)) return NULL;
-                fire_bolt(
-                    GF_ICE,
-                    dir,
-                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
-                );
+                fire_ball(GF_METEOR, dir, dam, rad);
             }
         }
         break;
 
     case 30:
-        if (name) return "Gravity Storm";
-        if (desc) return "Fires a huge ball of gravity.";
+        if (name) return "Hurricane";
+        if (desc) return "Summons a hurricane at chosen location with gale force winds.";
 
         {
-            int dam = spell_power(70 + plev * 2 + p_ptr->to_d_spell);
+            int dam = spell_power(125 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
 
             if (info) return info_damage(0, 0, dam);
@@ -2621,7 +2497,7 @@ static cptr do_nature_spell(int spell, int mode)
             if (cast)
             {
                 if (!get_fire_dir(&dir)) return NULL;
-                fire_ball(GF_GRAVITY, dir, dam, rad);
+                fire_ball(GF_STORM, dir, dam, rad);
             }
         }
         break;
@@ -2638,12 +2514,12 @@ static cptr do_nature_spell(int spell, int mode)
             case 1: /* The original effect: Line of Sight damage, earthquake, disintegration ball */
                 msg_print("Nature's Fury is unleashed!");
                 dispel_monsters(spell_power(4 * plev + p_ptr->to_d_spell));
-                earthquake(py, px, spell_power(20 + plev / 2));
+                earthquake(p_ptr->pos, spell_power(20 + plev / 2));
                 project(
                     0,
                     spell_power(1 + plev / 12),
-                    py,
-                    px,
+                    p_ptr->pos.y,
+                    p_ptr->pos.x,
                     spell_power((100 + plev + p_ptr->to_d_spell) * 2),
                     GF_DISINTEGRATE,
                     PROJECT_KILL | PROJECT_ITEM
@@ -2662,12 +2538,12 @@ static cptr do_nature_spell(int spell, int mode)
 
             case 3: /* Immense thunderclap */
                 msg_print("There is a large thunderclap!");
-                project_hack(GF_SOUND, spell_power(plev * 5 + p_ptr->to_d_spell));
+                project_los(GF_SOUND, spell_power(plev * 5 + p_ptr->to_d_spell));
                 break;
 
             case 4: /* Gravitational Wave */
                 msg_print("Space warps around you!");
-                project_hack(GF_GRAVITY, spell_power(plev * 4 + p_ptr->to_d_spell));
+                project_los(GF_GRAVITY, spell_power(plev * 4 + p_ptr->to_d_spell));
                 break;
 
             case 5: /* Elemental Storm */
@@ -2675,8 +2551,8 @@ static cptr do_nature_spell(int spell, int mode)
                 project(
                     0,
                     spell_power(1 + plev / 12),
-                    py,
-                    px,
+                    p_ptr->pos.y,
+                    p_ptr->pos.x,
                     spell_power((120 + plev + p_ptr->to_d_spell) * 2),
                     GF_FIRE,
                     PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL
@@ -2684,8 +2560,8 @@ static cptr do_nature_spell(int spell, int mode)
                 project(
                     0,
                     spell_power(1 + plev / 12),
-                    py,
-                    px,
+                    p_ptr->pos.y,
+                    p_ptr->pos.x,
                     spell_power((120 + plev + p_ptr->to_d_spell) * 2),
                     GF_COLD,
                     PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL
@@ -2693,8 +2569,8 @@ static cptr do_nature_spell(int spell, int mode)
                 project(
                     0,
                     spell_power(1 + plev / 12),
-                    py,
-                    px,
+                    p_ptr->pos.y,
+                    p_ptr->pos.x,
                     spell_power((120 + plev + p_ptr->to_d_spell) * 2),
                     GF_ELEC,
                     PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL
@@ -2818,7 +2694,6 @@ static cptr do_chaos_spell(int spell, int mode)
             int base;
 
             if (p_ptr->pclass == CLASS_MAGE ||
-                p_ptr->pclass == CLASS_BLOOD_MAGE ||
                 p_ptr->pclass == CLASS_HIGH_MAGE ||
                 p_ptr->pclass == CLASS_SORCERER ||
                 p_ptr->pclass == CLASS_YELLOW_MAGE ||
@@ -2965,7 +2840,7 @@ static cptr do_chaos_spell(int spell, int mode)
             if (cast)
             {
                 msg_print("BOOM! Shake the room!");
-                project(0, rad, py, px, dam*2, GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
+                project(0, rad, p_ptr->pos.y, p_ptr->pos.x, dam*2, GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
             }
         }
         break;
@@ -3037,10 +2912,11 @@ static cptr do_chaos_spell(int spell, int mode)
         {
             int base = 12;
             int sides = 4;
+            if (info) return info_power(spell_power(4*plev));
 
             if (cast)
             {
-                destroy_area(py, px, base + randint1(sides), spell_power(4 * plev));
+                destroy_area(p_ptr->pos.y, p_ptr->pos.x, base + randint1(sides), spell_power(4*plev));
             }
         }
         break;
@@ -3145,17 +3021,8 @@ static cptr do_chaos_spell(int spell, int mode)
         if (name) return "Alter Reality";
         if (desc) return "Recreates current dungeon level.";
 
-        {
-            int base = 15;
-            int sides = 20;
-
-            if (info) return info_delay(base, sides);
-
-            if (cast)
-            {
-                alter_reality();
-            }
-        }
+        if (cast)
+            alter_reality();
         break;
 
     case 21:
@@ -3203,7 +3070,7 @@ static cptr do_chaos_spell(int spell, int mode)
                 else mode |= PM_NO_PET;
                 if (!(pet && (plev < 50))) mode |= PM_ALLOW_GROUP;
 
-                if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_DEMON, mode))
+                if (summon_specific((pet ? -1 : 0), p_ptr->pos, (plev * 3) / 2, SUMMON_DEMON, mode))
                 {
                     msg_print("The area fills with a stench of sulphur and brimstone.");
 
@@ -3300,21 +3167,7 @@ static cptr do_chaos_spell(int spell, int mode)
             {
             case 1: which = one_in_(10) ? MIMIC_DEMON_LORD : MIMIC_DEMON; break;
             case 2: which = MIMIC_VAMPIRE; break;
-            default:
-                for (;;)
-                {
-                    which = randint0(MAX_RACES);
-                    if ( which != RACE_HUMAN
-                      && which != RACE_DEMIGOD
-                      && which != RACE_DRACONIAN
-                      && which != RACE_ANDROID
-                      && which != RACE_DOPPELGANGER
-                      && p_ptr->prace != which
-                      && !(get_race_aux(which, 0)->flags & RACE_IS_MONSTER) )
-                    {
-                        break;
-                    }
-                }
+            default: which = plr_race_polymorph();
             }
             set_mimic(50 + randint1(50), which, FALSE);
         }
@@ -3508,8 +3361,8 @@ static cptr do_death_spell(int spell, int mode)
 
             if (cast)
             {
-                set_oppose_cold(randint1(base) + base, FALSE);
-                set_oppose_pois(randint1(base) + base, FALSE);
+                plr_tim_add(T_RES_COLD, randint1(base) + base);
+                plr_tim_add(T_RES_POIS, randint1(base) + base);
             }
         }
         break;
@@ -3562,7 +3415,6 @@ static cptr do_death_spell(int spell, int mode)
             int base;
 
             if (p_ptr->pclass == CLASS_MAGE ||
-                p_ptr->pclass == CLASS_BLOOD_MAGE ||
                 p_ptr->pclass == CLASS_HIGH_MAGE ||
                 p_ptr->pclass == CLASS_SORCERER ||
                 p_ptr->pclass == CLASS_YELLOW_MAGE ||
@@ -3593,7 +3445,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Fires a bolt or beam of nether.";
 
         {
-            int dice = 8 + (plev - 5) / 4;
+            int dice = 5 + (plev - 5) / 4;
             int sides = 8;
 
             if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
@@ -3624,7 +3476,7 @@ static cptr do_death_spell(int spell, int mode)
 
             if (cast)
             {
-                project(0, rad, py, px, dam, GF_POIS, PROJECT_GRID | PROJECT_KILL | PROJECT_ITEM);
+                project(0, rad, p_ptr->pos.y, p_ptr->pos.x, dam, GF_POIS, PROJECT_GRID | PROJECT_KILL | PROJECT_ITEM);
             }
         }
         break;
@@ -3678,12 +3530,6 @@ static cptr do_death_spell(int spell, int mode)
 
                 if (drain_life(dir, dam))
                 {
-                    if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-                    {
-                        msg_print("You are unaffected.");
-                        break;
-                    }
-
                     virtue_add(VIRTUE_SACRIFICE, -1);
                     virtue_add(VIRTUE_VITALITY, -1);
 
@@ -3717,7 +3563,7 @@ static cptr do_death_spell(int spell, int mode)
         {
             if (cast)
             {
-                animate_dead(0, py, px);
+                animate_dead(0, p_ptr->pos.y, p_ptr->pos.x);
             }
         }
         break;
@@ -3749,7 +3595,7 @@ static cptr do_death_spell(int spell, int mode)
 
             if (cast)
             {
-                set_shero(randint1(base) + base, FALSE);
+                plr_tim_add(T_BERSERK, randint1(base) + base);
                 hp_player(30);
             }
         }
@@ -3808,9 +3654,9 @@ static cptr do_death_spell(int spell, int mode)
 
             if (cast)
             {
-                set_hero(randint1(b_base) + b_base, FALSE);
-                set_blessed(randint1(b_base) + b_base, FALSE);
-                set_fast(randint1(sp_sides) + sp_base, FALSE);
+                plr_tim_add(T_HERO, randint1(b_base) + b_base);
+                plr_tim_add(T_BLESSED, randint1(b_base) + b_base);
+                plr_tim_add(T_FAST, randint1(sp_sides) + sp_base);
             }
         }
         break;
@@ -3847,7 +3693,7 @@ static cptr do_death_spell(int spell, int mode)
 
                 for (i = 0; i < 3; i++)
                 {
-                    if (drain_life(dir, dam) && p_ptr->pclass != CLASS_BLOOD_MAGE)
+                    if (drain_life(dir, dam))
                         vamp_player(dam);
                 }
             }
@@ -3875,7 +3721,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of darkness.";
 
         {
-            int dam = 100 + py_prorata_level_aux(200, 1, 1, 2);
+            int dam = 100 + plr_prorata_level_aux(200, 1, 1, 2);
             int rad = spell_power(4);
 
             dam = spell_power(dam + p_ptr->to_d_spell);
@@ -3924,7 +3770,7 @@ static cptr do_death_spell(int spell, int mode)
                 if (pet) mode |= PM_FORCE_PET;
                 else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-                if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, mode))
+                if (summon_specific((pet ? -1 : 0), p_ptr->pos, (plev * 3) / 2, type, mode))
                 {
                     msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 
@@ -3987,7 +3833,7 @@ static cptr do_death_spell(int spell, int mode)
             if (cast)
             {
                 restore_level();
-                lp_player(1000);
+                plr_restore_life(1000);
             }
         }
         break;
@@ -4013,7 +3859,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Generate a huge ball of nether.";
 
         {
-            int dam = spell_power(plev * 15 + p_ptr->to_d_spell);
+            int dam = spell_power(plev * 10 + p_ptr->to_d_spell);
             int rad = spell_power(plev / 5);
 
             if (info) return info_damage(0, 0, dam);
@@ -4037,9 +3883,7 @@ static cptr do_death_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_wraith_form(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_WRAITH, randint1(base) + base);
         }
         break;
     }
@@ -4059,13 +3903,12 @@ static cptr do_trump_spell(int spell, int mode)
 
     int dir;
     int plev = p_ptr->lev;
-    int x = px;
-    int y = py;
+    point_t summon_pos = p_ptr->pos;
 
-    if (!fail && use_old_target && target_okay() && los(py, px, target_row, target_col) && !one_in_(3))
+    if (!fail && use_old_target && target_okay() && los(p_ptr->pos.y, p_ptr->pos.x, target_row, target_col) && !one_in_(3))
     {
-        y = target_row;
-        x = target_col;
+        summon_pos.y = target_row;
+        summon_pos.x = target_col;
     }
 
     switch (spell)
@@ -4097,7 +3940,7 @@ static cptr do_trump_spell(int spell, int mode)
             {
                 msg_print("You concentrate on the trump of an spider...");
 
-                if (trump_summoning(1, !fail, y, x, 0, SUMMON_SPIDER, PM_ALLOW_GROUP))
+                if (trump_summoning(1, !fail, summon_pos, 0, SUMMON_SPIDER, PM_ALLOW_GROUP))
                 {
                     if (fail)
                     {
@@ -4117,7 +3960,7 @@ static cptr do_trump_spell(int spell, int mode)
 
             if (cast)
             {
-                if (TRUE || get_check("Are you sure you wish to shuffle?"))
+                if (0 || get_check("Are you sure you wish to shuffle?"))
                     cast_shuffle();
                 else
                     return NULL;
@@ -4166,9 +4009,7 @@ static cptr do_trump_spell(int spell, int mode)
             if (info) return info_duration(base, sides);
 
             if (cast)
-            {
-                set_tim_esp(randint1(sides) + base, FALSE);
-            }
+                plr_tim_add(T_TELEPATHY, randint1(sides) + base);
         }
         break;
 
@@ -4201,7 +4042,7 @@ static cptr do_trump_spell(int spell, int mode)
 
                 msg_print("You concentrate on the trump of an animal...");
 
-                if (trump_summoning(1, !fail, y, x, 0, type, 0L))
+                if (trump_summoning(1, !fail, summon_pos, 0, type, 0L))
                 {
                     if (fail)
                     {
@@ -4249,8 +4090,8 @@ static cptr do_trump_spell(int spell, int mode)
                 else
                 {
                     /* Summons near player when failed */
-                    x = px;
-                    y = py;
+                    x = p_ptr->pos.x;
+                    y = p_ptr->pos.y;
                 }
 
                 if (p_ptr->pclass == CLASS_BEASTMASTER)
@@ -4260,7 +4101,7 @@ static cptr do_trump_spell(int spell, int mode)
 
                 msg_print("You concentrate on several trumps at once...");
 
-                if (trump_summoning(2 + randint0(plev / 7), !fail, y, x, 0, type, 0L))
+                if (trump_summoning(2 + randint0(plev / 7), !fail, point_create(x, y), 0, type, 0L))
                 {
                     if (fail)
                     {
@@ -4281,7 +4122,7 @@ static cptr do_trump_spell(int spell, int mode)
             {
                 int summon_lev = plev * 2 / 3 + randint1(plev / 2);
 
-                if (trump_summoning(1, !fail, y, x, (summon_lev * 3 / 2), SUMMON_PHANTOM, 0L))
+                if (trump_summoning(1, !fail, summon_pos, (summon_lev * 3 / 2), SUMMON_PHANTOM, 0L))
                 {
                     msg_print("'Your wish, master?'");
                 }
@@ -4349,15 +4190,11 @@ static cptr do_trump_spell(int spell, int mode)
         if (name) return "Word of Recall";
         if (desc) return "Recalls player from dungeon to town, or from town to the deepest level of dungeon.";
 
+        if (cast)
         {
-            int base = 15;
-            int sides = 20;
-
-            if (info) return info_delay(base, sides);
-
-            if (cast)
+            if (0 || get_check("Are you sure you wish to recall?"))
             {
-                if (!word_of_recall()) return NULL;
+                if (!dun_mgr_recall_plr()) return NULL;
             }
         }
         break;
@@ -4411,7 +4248,7 @@ static cptr do_trump_spell(int spell, int mode)
             {
                 msg_print("You concentrate on the trump of an undead creature...");
 
-                if (trump_summoning(1, !fail, y, x, 0, SUMMON_UNDEAD, 0L))
+                if (trump_summoning(1, !fail, summon_pos, 0, SUMMON_UNDEAD, 0L))
                 {
                     if (fail)
                     {
@@ -4431,7 +4268,7 @@ static cptr do_trump_spell(int spell, int mode)
             {
                 msg_print("You concentrate on the trump of a reptile...");
 
-                if (trump_summoning(1, !fail, y, x, 0, SUMMON_HYDRA, 0L))
+                if (trump_summoning(1, !fail, summon_pos, 0, SUMMON_HYDRA, 0L))
                 {
                     if (fail)
                     {
@@ -4458,7 +4295,7 @@ static cptr do_trump_spell(int spell, int mode)
                 else
                     type = 0;
 
-                if (trump_summoning((1 + (plev - 15)/ 10), !fail, y, x, 0, type, 0L))
+                if (trump_summoning((1 + (plev - 15)/ 10), !fail, summon_pos, 0, type, 0L))
                 {
                     if (fail)
                     {
@@ -4479,7 +4316,7 @@ static cptr do_trump_spell(int spell, int mode)
             {
                 msg_print("You concentrate on the trump of a hound...");
 
-                if (trump_summoning(1, !fail, y, x, 0, SUMMON_HOUND, PM_ALLOW_GROUP))
+                if (trump_summoning(1, !fail, summon_pos, 0, SUMMON_HOUND, PM_ALLOW_GROUP))
                 {
                     if (fail)
                     {
@@ -4536,7 +4373,7 @@ static cptr do_trump_spell(int spell, int mode)
             {
                 msg_print("You concentrate on the trump of a Cyberdemon...");
 
-                if (trump_summoning(1, !fail, y, x, 0, SUMMON_CYBER, 0L))
+                if (trump_summoning(1, !fail, summon_pos, 0, SUMMON_CYBER, 0L))
                 {
                     if (fail)
                     {
@@ -4613,7 +4450,7 @@ static cptr do_trump_spell(int spell, int mode)
             {
                 msg_print("You concentrate on the trump of a dragon...");
 
-                if (trump_summoning(1, !fail, y, x, 0, SUMMON_DRAGON, 0L))
+                if (trump_summoning(1, !fail, summon_pos, 0, SUMMON_DRAGON, 0L))
                 {
                     if (fail)
                     {
@@ -4650,7 +4487,7 @@ static cptr do_trump_spell(int spell, int mode)
             {
                 msg_print("You concentrate on the trump of a demon...");
 
-                if (trump_summoning(1, !fail, y, x, 0, SUMMON_DEMON, 0L))
+                if (trump_summoning(1, !fail, summon_pos, 0, SUMMON_DEMON, 0L))
                 {
                     if (fail)
                     {
@@ -4670,7 +4507,7 @@ static cptr do_trump_spell(int spell, int mode)
             {
                 msg_print("You concentrate on the trump of a greater undead being...");
                 /* May allow unique depend on level and dice roll */
-                if (trump_summoning(1, !fail, y, x, 0, SUMMON_HI_UNDEAD, PM_ALLOW_UNIQUE))
+                if (trump_summoning(1, !fail, summon_pos, 0, SUMMON_HI_UNDEAD, PM_ALLOW_UNIQUE))
                 {
                     if (fail)
                     {
@@ -4698,7 +4535,7 @@ static cptr do_trump_spell(int spell, int mode)
                 msg_print("You concentrate on the trump of an ancient dragon...");
 
                 /* May allow unique depend on level and dice roll */
-                if (trump_summoning(1, !fail, y, x, 0, type, PM_ALLOW_UNIQUE))
+                if (trump_summoning(1, !fail, summon_pos, 0, type, PM_ALLOW_UNIQUE))
                 {
                     if (fail)
                     {
@@ -4859,7 +4696,7 @@ static cptr do_arcane_spell(int spell, int mode)
             if (cast)
             {
                 hp_player(damroll(dice, sides));
-                set_cut(p_ptr->cut - 10, TRUE);
+                plr_tim_subtract(T_CUT, 10);
             }
         }
         break;
@@ -4878,6 +4715,7 @@ static cptr do_arcane_spell(int spell, int mode)
                 detect_traps(rad, TRUE);
                 detect_doors(rad);
                 detect_stairs(rad);
+                detect_recall(rad);
             }
         }
         break;
@@ -4946,13 +4784,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 13:
         if (name) return "Cure Poison";
         if (desc) return "Cures poison status.";
-
-        {
-            if (cast)
-            {
-                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
-            }
-        }
+        if (cast) plr_tim_recover(T_POISON, 80, 100);
         break;
 
     case 14:
@@ -4965,9 +4797,7 @@ static cptr do_arcane_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_cold(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_COLD, randint1(base) + base);
         }
         break;
 
@@ -4981,9 +4811,7 @@ static cptr do_arcane_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_fire(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_FIRE, randint1(base) + base);
         }
         break;
 
@@ -4997,9 +4825,7 @@ static cptr do_arcane_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_elec(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_ELEC, randint1(base) + base);
         }
         break;
 
@@ -5013,9 +4839,7 @@ static cptr do_arcane_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_acid(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_ACID, randint1(base) + base);
         }
         break;
 
@@ -5032,7 +4856,8 @@ static cptr do_arcane_spell(int spell, int mode)
             if (cast)
             {
                 hp_player(damroll(dice, sides));
-                set_cut((p_ptr->cut / 2) - 50, TRUE);
+                plr_tim_recover(T_CUT, 50, 0);
+                plr_tim_subtract(T_CUT, 50);
             }
         }
         break;
@@ -5130,9 +4955,7 @@ static cptr do_arcane_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_tim_invis(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_SEE_INVIS, randint1(base) + base);
         }
         break;
 
@@ -5146,9 +4969,7 @@ static cptr do_arcane_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_pois(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_POIS, randint1(base) + base);
         }
         break;
 
@@ -5187,10 +5008,7 @@ static cptr do_arcane_spell(int spell, int mode)
         if (name) return "Recharging";
         if (desc)
         {
-            if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-                return "It attempts to recharge a device using your blood for power.";
-            else
-                return "It attempts to recharge a device using your mana for power.";
+            return "It attempts to recharge a device using your mana for power.";
         }
 
         {
@@ -5225,16 +5043,9 @@ static cptr do_arcane_spell(int spell, int mode)
         if (name) return "Word of Recall";
         if (desc) return "Recalls player from dungeon to town, or from town to the deepest level of dungeon.";
 
+        if (cast)
         {
-            int base = 15;
-            int sides = 20;
-
-            if (info) return info_delay(base, sides);
-
-            if (cast)
-            {
-                if (!word_of_recall()) return NULL;
-            }
+            if (!dun_mgr_recall_plr()) return NULL;
         }
         break;
 
@@ -5253,12 +5064,8 @@ static cptr do_arcane_spell(int spell, int mode)
                 virtue_add(VIRTUE_KNOWLEDGE, 1);
                 virtue_add(VIRTUE_ENLIGHTENMENT, 1);
 
-                wiz_lite(p_ptr->tim_superstealth > 0);
-
-                if (!p_ptr->telepathy)
-                {
-                    set_tim_esp(randint1(sides) + base, FALSE);
-                }
+                wiz_lite();
+                plr_tim_add(T_TELEPATHY, randint1(sides) + base);
             }
         }
         break;
@@ -5276,7 +5083,6 @@ bool craft_enchant(int max, int inc)
     obj_prompt_t prompt = {0};
     char         o_name[MAX_NLEN];
     bool         improved = FALSE;
-    u32b         flgs[OF_ARRAY_SIZE];
 
     prompt.prompt = "Enchant which item?";
     prompt.error = "You have nothing to enchant.";
@@ -5292,14 +5098,13 @@ bool craft_enchant(int max, int inc)
     object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
     /* Some objects cannot be enchanted */
-    obj_flags(prompt.obj, flgs);
-    if (have_flag(flgs, OF_NO_ENCHANT))
+    if (obj_has_flag(prompt.obj, OF_NO_ENCHANT))
         return FALSE;
 
     /* Enchanting is now automatic ... It was always possible to max
      * out enchanting quickly with skilled macro usage, but other players
      * are inviting carpal tunnel issues to no purpose. */
-    if (object_is_weapon_ammo(prompt.obj))
+    if (obj_is_weapon_ammo(prompt.obj) || obj_is_bow(prompt.obj))
     {
         if (prompt.obj->to_h < max)
         {
@@ -5381,9 +5186,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_tim_regen(base + randint1(base), FALSE);
-            }
+                plr_tim_add(T_REGEN, base + randint1(base));
         }
         break;
 
@@ -5409,9 +5212,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_cold(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_COLD, randint1(base) + base);
         }
         break;
 
@@ -5425,9 +5226,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_fire(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_FIRE, randint1(base) + base);
         }
         break;
 
@@ -5442,7 +5241,7 @@ static cptr do_craft_spell(int spell, int mode)
 
             if (cast)
             {
-                set_hero(randint1(base) + base, FALSE);
+                plr_tim_add(T_HERO, randint1(base) + base);
             }
         }
         break;
@@ -5457,9 +5256,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_elec(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_ELEC, randint1(base) + base);
         }
         break;
 
@@ -5473,9 +5270,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_acid(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_ACID, randint1(base) + base);
         }
         break;
 
@@ -5489,9 +5284,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_tim_invis(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_SEE_INVIS, randint1(base) + base);
         }
         break;
 
@@ -5516,9 +5309,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_pois(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_POIS, randint1(base) + base);
         }
         break;
 
@@ -5533,7 +5324,7 @@ static cptr do_craft_spell(int spell, int mode)
 
             if (cast)
             {
-                set_shero(randint1(base) + base, FALSE);
+                plr_tim_add(T_BERSERK, randint1(base) + base);
                 hp_player(30);
             }
         }
@@ -5570,10 +5361,10 @@ static cptr do_craft_spell(int spell, int mode)
             if (cast)
             {
                 fear_clear_p();
-                set_poisoned(p_ptr->poisoned - MAX(150, p_ptr->poisoned / 3), TRUE);
-                set_stun(0, TRUE);
-                set_cut(0, TRUE);
-                set_image(0, TRUE);
+                plr_tim_recover(T_POISON, 65, 150);
+                plr_tim_remove(T_STUN);
+                plr_tim_remove(T_CUT);
+                plr_tim_remove(T_HALLUCINATE);
             }
         }
         break;
@@ -5605,9 +5396,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, sides);
 
             if (cast)
-            {
-                set_tim_esp(randint1(sides) + base, FALSE);
-            }
+                plr_tim_add(T_TELEPATHY, randint1(sides) + base);
         }
         break;
 
@@ -5622,9 +5411,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, sides);
 
             if (cast)
-            {
-                set_shield(randint1(sides) + base, FALSE);
-            }
+                plr_tim_add(T_STONE_SKIN, randint1(sides) + base);
         }
         break;
 
@@ -5639,11 +5426,11 @@ static cptr do_craft_spell(int spell, int mode)
 
             if (cast)
             {
-                set_oppose_acid(randint1(base) + base, FALSE);
-                set_oppose_elec(randint1(base) + base, FALSE);
-                set_oppose_fire(randint1(base) + base, FALSE);
-                set_oppose_cold(randint1(base) + base, FALSE);
-                set_oppose_pois(randint1(base) + base, FALSE);
+                plr_tim_add(T_RES_ACID, randint1(base) + base);
+                plr_tim_add(T_RES_ELEC, randint1(base) + base);
+                plr_tim_add(T_RES_FIRE, randint1(base) + base);
+                plr_tim_add(T_RES_COLD, randint1(base) + base);
+                plr_tim_add(T_RES_POIS, randint1(base) + base);
             }
         }
         break;
@@ -5659,33 +5446,22 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, sides);
 
             if (cast)
-            {
-                set_fast(randint1(sides) + base, FALSE);
-            }
+                plr_tim_add(T_FAST, randint1(sides) + base);
         }
         break;
 
     case 20:
         if (name) return "Whirlwind Attack";
         if (desc) return "Attacks all adjacent monsters.";
-
+        if (cast)
         {
-            if (cast)
+            int dir;
+            for (dir = 0; dir < 8; dir++)
             {
-                int              y = 0, x = 0;
-                cave_type       *c_ptr;
-                monster_type    *m_ptr;
-                int              dir;
-
-                for (dir = 0; dir < 8; dir++)
-                {
-                    y = py + ddy_ddd[dir];
-                    x = px + ddx_ddd[dir];
-                    c_ptr = &cave[y][x];
-                    m_ptr = &m_list[c_ptr->m_idx];
-                    if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
-                        py_attack(y, x, 0);
-                }
+                point_t pos = point_step(p_ptr->pos, ddd[dir]);
+                mon_ptr mon = mon_at(pos);
+                if (mon && (mon->ml || cave_have_flag_at(pos, FF_PROJECT)))
+                    plr_attack_normal(pos);
             }
         }
         break;
@@ -5708,7 +5484,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-                set_tim_weaponmastery(randint1(base) + base, FALSE);
+                plr_tim_add(T_WEAPONMASTERY, randint1(base) + base);
         }
         break;
 
@@ -5722,9 +5498,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_magicdef(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_MAGICAL_ARMOR, randint1(base) + base);
         }
         break;
 
@@ -5753,9 +5527,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_kabenuke(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_PASSWALL, randint1(base) + base);
         }
         break;
 
@@ -5801,7 +5573,8 @@ static cptr do_craft_spell(int spell, int mode)
         {
             int mutation;
 
-            if (one_in_(7) || dun_level == 0)
+            if (!get_check("Are you sure? (Living Trump)")) return NULL;
+            if (one_in_(7) || cave->dun_lvl == 0)
                 mutation = MUT_TELEPORT;
             else
                 mutation = MUT_TELEPORT_RND;
@@ -5836,9 +5609,7 @@ static cptr do_craft_spell(int spell, int mode)
 
             if (info) return info_duration(base, base);
             if (cast)
-            {
-                set_tim_force(base + randint1(base), FALSE);
-            }
+                plr_tim_add(T_BRAND_MANA, base + randint1(base));
         }
         break;
     }
@@ -5912,7 +5683,7 @@ static cptr do_daemon_spell(int spell, int mode)
 
             if (cast)
             {
-                set_blessed(randint1(base) + base, FALSE);
+                plr_tim_add(T_BLESSED, randint1(base) + base);
             }
         }
         break;
@@ -5927,9 +5698,7 @@ static cptr do_daemon_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_oppose_fire(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_FIRE, randint1(base) + base);
         }
         break;
 
@@ -5957,7 +5726,7 @@ static cptr do_daemon_spell(int spell, int mode)
         if (desc) return "Fires a bolt or beam of nether.";
 
         {
-            int dice = 6 + (plev - 5) / 4;
+            int dice = 5 + (plev - 5) / 4;
             int sides = 8;
 
             if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
@@ -5983,7 +5752,7 @@ static cptr do_daemon_spell(int spell, int mode)
         {
             if (cast)
             {
-                if (!summon_specific(-1, py, px, spell_power(plev * 3 / 2), SUMMON_MANES, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+                if (!summon_specific(-1, p_ptr->pos, spell_power(plev * 3 / 2), SUMMON_MANES, (PM_ALLOW_GROUP | PM_FORCE_PET)))
                 {
                     msg_print("No Manes arrive.");
                 }
@@ -6002,7 +5771,6 @@ static cptr do_daemon_spell(int spell, int mode)
             int base;
 
             if (p_ptr->pclass == CLASS_MAGE ||
-                p_ptr->pclass == CLASS_BLOOD_MAGE ||
                 p_ptr->pclass == CLASS_HIGH_MAGE ||
                 p_ptr->pclass == CLASS_SORCERER ||
                 p_ptr->pclass == CLASS_YELLOW_MAGE ||
@@ -6072,9 +5840,7 @@ static cptr do_daemon_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_tim_res_nether(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_RES_NETHER, randint1(base) + base);
         }
         break;
 
@@ -6138,7 +5904,7 @@ static cptr do_daemon_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of nether.";
 
         {
-            int dam = spell_power(plev * 3 / 2 + 100 + p_ptr->to_d_spell);
+            int dam = spell_power(plev * 3 / 2 + 75 + p_ptr->to_d_spell);
             int rad = spell_power(plev / 20 + 2);
 
             if (info) return info_damage(0, 0, dam);
@@ -6166,7 +5932,7 @@ static cptr do_daemon_spell(int spell, int mode)
                 else mode |= PM_NO_PET;
                 if (!(pet && (plev < 50))) mode |= PM_ALLOW_GROUP;
 
-                if (summon_specific((pet ? -1 : 0), py, px, spell_power(plev*2/3+randint1(plev/2)), SUMMON_DEMON, mode))
+                if (summon_specific((pet ? -1 : 0), p_ptr->pos, spell_power(plev*2/3+randint1(plev/2)), SUMMON_DEMON, mode))
                 {
                     msg_print("The area fills with a stench of sulphur and brimstone.");
 
@@ -6200,9 +5966,7 @@ static cptr do_daemon_spell(int spell, int mode)
             if (info) return info_duration(base, sides);
 
             if (cast)
-            {
-                set_tim_esp(randint1(base) + sides, FALSE);
-            }
+                plr_tim_add(T_TELEPATHY, randint1(base) + sides);
         }
         break;
 
@@ -6219,10 +5983,10 @@ static cptr do_daemon_spell(int spell, int mode)
             {
                 int dur = randint1(base) + base;
 
-                set_oppose_fire(dur, FALSE);
-                set_oppose_acid(dur, FALSE);
-                set_oppose_pois(dur, FALSE);
-                set_tim_sh_fire(dur, FALSE);
+                plr_tim_add(T_RES_FIRE, dur);
+                plr_tim_add(T_RES_ACID, dur);
+                plr_tim_add(T_RES_POIS, dur);
+                plr_tim_add(T_AURA_FIRE, dur);
                 break;
             }
         }
@@ -6340,7 +6104,7 @@ static cptr do_daemon_spell(int spell, int mode)
 
             if (cast)
             {
-                set_hero(randint1(base) + base, FALSE);
+                plr_tim_add(T_HERO, randint1(base) + base);
             }
         }
         break;
@@ -6355,9 +6119,7 @@ static cptr do_daemon_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_tim_res_time(randint1(base)+base, FALSE);
-            }
+                plr_tim_add(T_RES_TIME, randint1(base)+base);
         }
         break;
 
@@ -6601,9 +6363,9 @@ static cptr do_crusade_spell(int spell, int mode)
         {
             if (cast)
             {
-                set_cut(0, TRUE);
-                set_poisoned(p_ptr->poisoned - MAX(50, p_ptr->poisoned / 5), TRUE);
-                set_stun(0, TRUE);
+                plr_tim_remove(T_CUT);
+                plr_tim_recover(T_POISON, 80, 50);
+                plr_tim_remove(T_STUN);
             }
         }
         break;
@@ -6701,9 +6463,7 @@ static cptr do_crusade_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_tim_invis(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_SEE_INVIS, randint1(base) + base);
         }
         break;
 
@@ -6718,9 +6478,7 @@ static cptr do_crusade_spell(int spell, int mode)
             if (info) return info_duration(base, sides);
 
             if (cast)
-            {
-                set_protevil(randint1(sides) + sides, FALSE);
-            }
+                plr_tim_add(T_PROT_EVIL, randint1(sides) + sides);
         }
         break;
 
@@ -6754,10 +6512,9 @@ static cptr do_crusade_spell(int spell, int mode)
             if (cast)
             {
                 dispel_evil(spell_power(randint1(dam_sides) + p_ptr->to_d_spell));
-                if (p_ptr->pclass != CLASS_BLOOD_MAGE)
-                    hp_player(heal);
-                set_stun(0, TRUE);
-                set_cut(0, TRUE);
+                hp_player(heal);
+                plr_tim_remove(T_STUN);
+                plr_tim_remove(T_CUT);
             }
         }
         break;
@@ -6804,10 +6561,10 @@ static cptr do_crusade_spell(int spell, int mode)
 
             if (cast)
             {
-                set_oppose_acid(randint1(base) + base, FALSE);
-                set_oppose_cold(randint1(base) + base, FALSE);
-                set_oppose_elec(randint1(base) + base, FALSE);
-                set_tim_sh_holy(randint1(base) + base, FALSE);
+                plr_tim_add(T_RES_ACID, randint1(base) + base);
+                plr_tim_add(T_RES_COLD, randint1(base) + base);
+                plr_tim_add(T_RES_ELEC, randint1(base) + base);
+                plr_tim_add(T_AURA_HOLY, randint1(base) + base);
             }
         }
         break;
@@ -6862,7 +6619,7 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of powerful light.";
 
         {
-            int dam = 100 + py_prorata_level_aux(200, 1, 1, 2);
+            int dam = 100 + plr_prorata_level_aux(200, 1, 1, 2);
             int rad = spell_power(4);
 
             dam = spell_power(dam + p_ptr->to_d_spell);
@@ -6892,7 +6649,7 @@ static cptr do_crusade_spell(int spell, int mode)
                 else mode |= PM_NO_PET;
                 if (!(pet && (plev < 50))) mode |= PM_ALLOW_GROUP;
 
-                if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_ANGEL, mode))
+                if (summon_specific((pet ? -1 : 0), p_ptr->pos, (plev * 3) / 2, SUMMON_ANGEL, mode))
                 {
                     if (pet)
                     {
@@ -6918,7 +6675,7 @@ static cptr do_crusade_spell(int spell, int mode)
 
             if (cast)
             {
-                set_hero(randint1(base) + base, FALSE);
+                plr_tim_add(T_HERO, randint1(base) + base);
                 hp_player(10);
             }
         }
@@ -6969,7 +6726,7 @@ static cptr do_crusade_spell(int spell, int mode)
 
             if (cast)
             {
-                destroy_area(py, px, base + randint1(sides), spell_power(4 * plev));
+                destroy_area(p_ptr->pos.y, p_ptr->pos.x, base + randint1(sides), spell_power(4 * plev));
             }
         }
         break;
@@ -6984,9 +6741,7 @@ static cptr do_crusade_spell(int spell, int mode)
             if (info) return info_duration(base, base);
 
             if (cast)
-            {
-                set_tim_eyeeye(randint1(base) + base, FALSE);
-            }
+                plr_tim_add(T_REVENGE, randint1(base) + base);
         }
         break;
 
@@ -7021,15 +6776,14 @@ static cptr do_crusade_spell(int spell, int mode)
 
             if (cast)
             {
-                project(0, 1, py, px, b_dam, GF_HOLY_FIRE, PROJECT_KILL);
+                project(0, 1, p_ptr->pos.y, p_ptr->pos.x, b_dam, GF_HOLY_FIRE, PROJECT_KILL);
                 dispel_monsters(d_dam);
                 slow_monsters(power);
                 stun_monsters(5 + plev/5);
                 confuse_monsters(power);
                 turn_monsters(power);
                 stasis_monsters(power/3);
-                if (p_ptr->pclass != CLASS_BLOOD_MAGE)
-                    hp_player(heal);
+                hp_player(heal);
             }
         }
         break;
@@ -7045,923 +6799,6 @@ static cptr do_crusade_spell(int spell, int mode)
 }
 
 
-static cptr do_music_spell(int spell, int mode)
-{
-    bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
-    bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
-    bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
-    bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
-    bool cont = (mode == SPELL_CONT) ? TRUE : FALSE;
-    bool stop = (mode == SPELL_STOP) ? TRUE : FALSE;
-
-    int dir;
-    int plev = p_ptr->lev;
-
-    switch (spell)
-    {
-    case 0:
-        if (name) return "Song of Holding";
-        if (desc) return "Attempts to slow all monsters in sight.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You start humming a slow, steady melody...");
-            bard_start_singing(spell, MUSIC_SLOW);
-        }
-
-        {
-            int power = plev;
-
-            if (info) return info_power(power);
-
-            if (cont)
-            {
-                slow_monsters(power);
-            }
-        }
-        break;
-
-    case 1:
-        if (name) return "Song of Blessing";
-        if (desc) return "Gives bonus to hit and AC for a few turns.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("The holy power of the Music of the Ainur enters you...");
-            bard_start_singing(spell, MUSIC_BLESS);
-        }
-
-        if (stop)
-        {
-            if (!p_ptr->blessed)
-            {
-                msg_print("The prayer has expired.");
-            }
-        }
-
-        break;
-
-    case 2:
-        if (name) return "Wrecking Note";
-        if (desc) return "Fires a bolt of sound.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        {
-            int dice = 4 + (plev - 1) / 5;
-            int sides = 4;
-
-            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
-
-            if (cast)
-            {
-                if (!get_fire_dir(&dir)) return NULL;
-
-                fire_bolt(
-                    GF_SOUND,
-                    dir,
-                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
-                );
-            }
-        }
-        break;
-
-    case 3:
-        if (name) return "Stun Pattern";
-        if (desc) return "Attempts to stun all monsters in sight.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You weave a pattern of sounds to bewilder and daze...");
-            bard_start_singing(spell, MUSIC_STUN);
-        }
-
-        {
-            int dice = spell_power(plev / 10);
-            int sides = 2;
-
-            if (info) return info_power_dice(dice, sides);
-
-            if (cont)
-            {
-                stun_monsters(damroll(dice, sides));
-            }
-        }
-
-        break;
-
-    case 4:
-        if (name) return "Flow of Life";
-        if (desc) return "Heals HP a little.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("Life flows through you as you sing a song of healing...");
-            bard_start_singing(spell, MUSIC_L_LIFE);
-        }
-
-        {
-            int dice = 2;
-            int sides = spell_power(6);
-
-            if (info) return info_heal(dice, sides, 0);
-
-            if (cont)
-            {
-                hp_player(damroll(dice, sides));
-            }
-        }
-
-        break;
-
-    case 5:
-        if (name) return "Song of the Sun";
-        if (desc) return "Lights up nearby area and the inside of a room permanently.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        {
-            int dice = 2;
-            int sides = plev / 2;
-            int rad = plev / 10 + 1;
-
-            if (info) return info_damage(dice, sides, 0);
-
-            if (cast)
-            {
-                msg_print("Your uplifting song brings brightness to dark places...");
-
-                lite_area(damroll(dice, sides), rad);
-            }
-        }
-        break;
-
-    case 6:
-        if (name) return "Song of Fear";
-        if (desc) return "Attempts to scare all monsters in sight.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You start weaving a fearful pattern...");
-            bard_start_singing(spell, MUSIC_FEAR);
-        }
-
-        {
-            int power = spell_power(plev);
-
-            if (info) return info_power(power);
-
-            if (cont)
-            {
-                project_hack(GF_TURN_ALL, power);
-            }
-        }
-
-        break;
-
-    case 7:
-        if (name) return "Heroic Ballad";
-        if (desc) return "Removes fear, and gives bonus to hit and 10 more HP for a while.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You start singing a song of intense fighting...");
-
-            (void)hp_player(10);
-            fear_clear_p();
-
-            /* Recalculate hitpoints */
-            p_ptr->update |= (PU_HP);
-
-            bard_start_singing(spell, MUSIC_HERO);
-        }
-
-        if (stop)
-        {
-            if (!p_ptr->hero)
-            {
-                msg_print("The heroism wears off.");
-                /* Recalculate hitpoints */
-                p_ptr->update |= (PU_HP);
-            }
-        }
-
-        break;
-
-    case 8:
-        if (name) return "Clairaudience";
-        if (desc) return "Detects traps, doors and stairs in your vicinity. And detects all monsters at level 15, treasures and items at level 20. Maps nearby area at level 25. Lights and know the whole level at level 40. These effects occurs by turns while this song continues.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("Your quiet music sharpens your sense of hearing...");
-
-            /* Hack -- Initialize the turn count */
-            p_ptr->magic_num1[2] = 0;
-
-            bard_start_singing(spell, MUSIC_DETECT);
-        }
-
-        {
-            int rad = DETECT_RAD_DEFAULT;
-
-            if (info) return info_radius(rad);
-
-            if (cont)
-            {
-                int count = p_ptr->magic_num1[2];
-
-                if (count >= 19) wiz_lite(FALSE);
-                if (count >= 11)
-                {
-                    map_area(rad);
-                    if (plev > 39 && count < 19)
-                        p_ptr->magic_num1[2] = count + 1;
-                }
-                if (count >= 6)
-                {
-                    /* There are too many hidden treasure. So... */
-                    /* detect_treasure(rad); */
-                    detect_objects_gold(rad);
-                    detect_objects_normal(rad);
-
-                    if (plev > 24 && count < 11)
-                        p_ptr->magic_num1[2] = count + 1;
-                }
-                if (count >= 3)
-                {
-                    detect_monsters_invis(rad);
-                    detect_monsters_normal(rad);
-
-                    if (plev > 19 && count < 6)
-                        p_ptr->magic_num1[2] = count + 1;
-                }
-                detect_traps(rad, TRUE);
-                detect_doors(rad);
-                detect_stairs(rad);
-
-                if (plev > 14 && count < 3)
-                    p_ptr->magic_num1[2] = count + 1;
-            }
-        }
-
-        break;
-
-    case 9:
-        if (name) return "Soul Shriek";
-        if (desc) return "Damages all monsters in sight with PSI damages.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You start singing a song of soul in pain...");
-            bard_start_singing(spell, MUSIC_PSI);
-        }
-
-        {
-            int dice = 1;
-            int sides = plev * 3 / 2;
-
-            if (info) return info_damage(dice, spell_power(sides), spell_power(p_ptr->to_d_spell));
-
-            if (cont)
-            {
-                project_hack(
-                    GF_PSI,
-                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
-                );
-            }
-        }
-
-        break;
-
-    case 10:
-        if (name) return "Song of Lore";
-        if (desc) return "Identifies all items which are in the adjacent squares.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You recall the rich lore of the world...");
-            bard_start_singing(spell, MUSIC_ID);
-        }
-
-        {
-            int rad = 1;
-
-            if (info) return info_radius(rad);
-
-            if (cont || cast)
-            {
-                project(0, rad, py, px, 0, GF_IDENTIFY, PROJECT_ITEM);
-            }
-        }
-
-        break;
-
-    case 11:
-        if (name) return "Hiding Tune";
-        if (desc) return "Gives improved stealth.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("Your song carries you beyond the sight of mortal eyes...");
-            bard_start_singing(spell, MUSIC_STEALTH);
-        }
-
-        if (stop)
-        {
-            if (!p_ptr->tim_stealth)
-            {
-                msg_print("You are no longer hided.");
-            }
-        }
-
-        break;
-
-    case 12:
-        if (name) return "Illusion Pattern";
-        if (desc) return "Attempts to confuse all monsters in sight.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You weave a pattern of sounds to beguile and confuse...");
-            bard_start_singing(spell, MUSIC_CONF);
-        }
-
-        {
-            int power = plev * 2;
-
-            if (info) return info_power(power);
-
-            if (cont)
-            {
-                confuse_monsters(power);
-            }
-        }
-
-        break;
-
-    case 13:
-        if (name) return "Doomcall";
-        if (desc) return "Damages all monsters in sight with booming sound.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("The fury of the Downfall of Numenor lashes out...");
-            bard_start_singing(spell, MUSIC_SOUND);
-        }
-
-        {
-            int dice = 10 + plev / 5;
-            int sides = 7;
-
-            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
-
-            if (cont)
-            {
-                project_hack(
-                    GF_SOUND,
-                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
-                );
-            }
-        }
-
-        break;
-
-    case 14:
-        if (name) return "Firiel's Song";
-        if (desc) return "Resurrects nearby corpse and skeletons. And makes these your pets.";
-
-        {
-            /* Stop singing before start another */
-            if (cast || fail) bard_stop_singing();
-
-            if (cast)
-            {
-                msg_print("The themes of life and revival are woven into your song...");
-
-                animate_dead(0, py, px);
-            }
-        }
-        break;
-
-    case 15:
-        if (name) return "Fellowship Chant";
-        if (desc) return "Attempts to charm all monsters in sight.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You weave a slow, soothing melody of imploration...");
-            bard_start_singing(spell, MUSIC_CHARM);
-        }
-
-        {
-            int dice = spell_power(10 + plev / 15);
-            int sides = 6;
-
-            if (info) return info_power_dice(dice, sides);
-
-            if (cont)
-            {
-                charm_monsters(damroll(dice, sides));
-            }
-        }
-
-        break;
-
-    case 16:
-        if (name) return "Sound of disintegration";
-        if (desc) return "Makes you be able to burrow into walls. Objects under your feet evaporate.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You weave a violent pattern of sounds to break wall.");
-            bard_start_singing(spell, MUSIC_WALL);
-        }
-
-        {
-            if (cont || cast)
-            {
-                project(0, 0, py, px,
-                    0, GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM | PROJECT_HIDE);
-            }
-        }
-        break;
-
-    case 17:
-        if (name) return "Finrod's Resistance";
-        if (desc) return "Gives resistance to fire, cold, electricity, acid and poison.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You sing a song of perseverance against powers...");
-            bard_start_singing(spell, MUSIC_RESIST);
-        }
-
-        if (stop)
-        {
-            if (!p_ptr->oppose_acid)
-            {
-                msg_print("You feel less resistant to acid.");
-            }
-
-            if (!p_ptr->oppose_elec)
-            {
-                msg_print("You feel less resistant to elec.");
-            }
-
-            if (!p_ptr->oppose_fire)
-            {
-                msg_print("You feel less resistant to fire.");
-            }
-
-            if (!p_ptr->oppose_cold)
-            {
-                msg_print("You feel less resistant to cold.");
-            }
-
-            if (!p_ptr->oppose_pois)
-            {
-                msg_print("You feel less resistant to pois.");
-            }
-        }
-
-        break;
-
-    case 18:
-        if (name) return "Hobbit Melodies";
-        if (desc) return "Hastes you.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You start singing joyful pop song...");
-            bard_start_singing(spell, MUSIC_SPEED);
-        }
-
-        if (stop)
-        {
-            if (!p_ptr->fast)
-            {
-                msg_print("You feel yourself slow down.");
-            }
-        }
-
-        break;
-
-    case 19:
-        if (name) return "World Contortion";
-        if (desc) return "Teleports all nearby monsters away unless resisted.";
-
-        {
-            int rad = spell_power(plev / 15 + 1);
-            int power = spell_power(plev * 3 + 1);
-
-            if (info) return info_radius(rad);
-
-            /* Stop singing before start another */
-            if (cast || fail) bard_stop_singing();
-
-            if (cast)
-            {
-                msg_print("Reality whirls wildly as you sing a dizzying melody...");
-
-                project(0, rad, py, px, power, GF_AWAY_ALL, PROJECT_KILL);
-            }
-        }
-        break;
-
-    case 20:
-        if (name) return "Dispelling chant";
-        if (desc) return "Damages all monsters in sight. Hurts evil monsters greatly.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You cry out in an ear-wracking voice...");
-            bard_start_singing(spell, MUSIC_DISPEL);
-        }
-
-        {
-            int m_sides = plev * 3;
-            int e_sides = plev * 3;
-
-            if (info) return info_damage(1, spell_power(m_sides), spell_power(p_ptr->to_d_spell));
-
-            if (cont)
-            {
-                dispel_monsters(spell_power(randint1(m_sides) + p_ptr->to_d_spell));
-                dispel_evil(spell_power(randint1(e_sides) + p_ptr->to_d_spell));
-            }
-        }
-        break;
-
-    case 21:
-        if (name) return "The Voice of Saruman";
-        if (desc) return "Attempts to slow and sleep all monsters in sight.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You start humming a gentle and attractive song...");
-            bard_start_singing(spell, MUSIC_SARUMAN);
-        }
-
-        {
-            int power = spell_power(plev);
-
-            if (info) return info_power(power);
-
-            if (cont)
-            {
-                slow_monsters(power);
-                sleep_monsters(power);
-            }
-        }
-
-        break;
-
-    case 22:
-        if (name) return "Song of the Tempest";
-        if (desc) return "Fires a beam of sound.";
-
-        {
-            int dice = 15 + (plev - 1) / 2;
-            int sides = 10;
-
-            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
-
-            /* Stop singing before start another */
-            if (cast || fail) bard_stop_singing();
-
-            if (cast)
-            {
-                if (!get_fire_dir(&dir)) return NULL;
-
-                fire_beam(
-                    GF_SOUND,
-                    dir,
-                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
-                );
-            }
-        }
-        break;
-
-    case 23:
-        if (name) return "Ambarkanta";
-        if (desc) return "Recreates current dungeon level.";
-
-        {
-            int base = 15;
-            int sides = 20;
-
-            if (info) return info_delay(base, sides);
-
-            /* Stop singing before start another */
-            if (cast || fail) bard_stop_singing();
-
-            if (cast)
-            {
-                msg_print("You sing of the primeval shaping of Middle-earth...");
-
-                alter_reality();
-            }
-        }
-        break;
-
-    case 24:
-        if (name) return "Wrecking Pattern";
-        if (desc) return "Shakes dungeon structure, and results in random swapping of floors and walls.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You weave a pattern of sounds to contort and shatter...");
-            bard_start_singing(spell, MUSIC_QUAKE);
-        }
-
-        {
-            int rad = 10;
-
-            if (info) return info_radius(rad);
-
-            if (cont)
-            {
-                earthquake(py, px, 10);
-            }
-        }
-
-        break;
-
-
-    case 25:
-        if (name) return "Stationary Shriek";
-        if (desc) return "Attempts to freeze all monsters in sight.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You weave a very slow pattern which is almost likely to stop...");
-            bard_start_singing(spell, MUSIC_STASIS);
-        }
-
-        {
-            int power = spell_power(plev * 4);
-
-            if (info) return info_power(power);
-
-            if (cont)
-            {
-                stasis_monsters(power);
-            }
-        }
-
-        break;
-
-    case 26:
-        if (name) return "Endurance";
-        if (desc) return "Sets a glyph on the floor beneath you. Monsters cannot attack you if you are on a glyph, but can try to break glyph.";
-
-        {
-            /* Stop singing before start another */
-            if (cast || fail) bard_stop_singing();
-
-            if (cast)
-            {
-                msg_print("The holy power of the Music is creating sacred field...");
-
-                warding_glyph();
-            }
-        }
-        break;
-
-    case 27:
-        if (name) return "The Hero's Poem";
-        if (desc) return "Hastes you. Gives heroism. Damages all monsters in sight.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("You chant a powerful, heroic call to arms...");
-            (void)hp_player(10);
-
-            /* Recalculate hitpoints */
-            p_ptr->update |= (PU_HP);
-
-            bard_start_singing(spell, MUSIC_SHERO);
-        }
-
-        if (stop)
-        {
-            if (!p_ptr->hero)
-            {
-                msg_print("The heroism wears off.");
-                /* Recalculate hitpoints */
-                p_ptr->update |= (PU_HP);
-            }
-
-            if (!p_ptr->fast)
-            {
-                msg_print("You feel yourself slow down.");
-            }
-        }
-
-        {
-            int dice = 1;
-            int sides = plev * 3;
-
-            if (info) return info_damage(dice, sides, spell_power(p_ptr->to_d_spell));
-
-            if (cont)
-            {
-                dispel_monsters(spell_power(damroll(dice, sides) + p_ptr->to_d_spell));
-            }
-        }
-        break;
-
-    case 28:
-        if (name) return "Relief of Yavanna";
-        if (desc) return "Powerful healing song. Also heals cut and stun completely.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-            msg_print("Life flows through you as you sing the song...");
-            bard_start_singing(spell, MUSIC_H_LIFE);
-        }
-
-        {
-            int dice = spell_power(15);
-            int sides = 10;
-
-            if (info) return info_heal(dice, sides, 0);
-
-            if (cont)
-            {
-                hp_player(damroll(dice, sides));
-                set_stun(0, TRUE);
-                set_cut(0, TRUE);
-            }
-        }
-
-        break;
-
-    case 29:
-        if (name) return "Goddess' rebirth";
-        if (desc) return "Restores all stats and experience.";
-
-        {
-            /* Stop singing before start another */
-            if (cast || fail) bard_stop_singing();
-
-            if (cast)
-            {
-                msg_print("You strewed light and beauty in the dark as you sing. You feel refreshed.");
-                (void)do_res_stat(A_STR);
-                (void)do_res_stat(A_INT);
-                (void)do_res_stat(A_WIS);
-                (void)do_res_stat(A_DEX);
-                (void)do_res_stat(A_CON);
-                (void)do_res_stat(A_CHR);
-                (void)restore_level();
-                lp_player(1000);
-            }
-        }
-        break;
-
-    case 30:
-        if (name) return "Wizardry of Sauron";
-        if (desc) return "Fires an extremely powerful tiny ball of sound.";
-
-        {
-            int dice = 50 + plev;
-            int sides = 10;
-            int rad = 0;
-
-            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
-
-            /* Stop singing before start another */
-            if (cast || fail) bard_stop_singing();
-
-            if (cast)
-            {
-                if (!get_fire_dir(&dir)) return NULL;
-
-                fire_ball(
-                    GF_SOUND,
-                    dir,
-                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell),
-                    rad
-                );
-            }
-        }
-        break;
-
-    case 31:
-        if (name) return "Fingolfin's Challenge";
-        if (desc) return "Generates barrier which completely protect you from almost all damages. Takes a few your turns when the barrier breaks.";
-
-        /* Stop singing before start another */
-        if (cast || fail) bard_stop_singing();
-
-        if (cast)
-        {
-                msg_print("You recall the valor of Fingolfin's challenge to the Dark Lord...");
-
-                /* Redraw map */
-                p_ptr->redraw |= (PR_MAP);
-
-                /* Update monsters */
-                p_ptr->update |= (PU_MONSTERS);
-
-                /* Window stuff */
-                p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-                bard_start_singing(spell, MUSIC_INVULN);
-        }
-
-        if (stop)
-        {
-            if (!p_ptr->invuln)
-            {
-                msg_print("The invulnerability wears off.");
-                /* Redraw map */
-                p_ptr->redraw |= (PR_MAP);
-
-                /* Update monsters */
-                p_ptr->update |= (PU_MONSTERS);
-
-                /* Window stuff */
-                p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-            }
-        }
-
-        break;
-    }
-
-    return "";
-}
 
 
 
@@ -8002,20 +6839,8 @@ static cptr do_hex_spell(int spell, int mode)
     case 0:
         if (name) return "Evily blessing";
         if (desc) return "Attempts to increase +to_hit of a weapon and AC";
-        if (cast)
-        {
-            if (!p_ptr->blessed)
-            {
-                msg_print("You feel righteous!");
-            }
-        }
-        if (stop)
-        {
-            if (!p_ptr->blessed)
-            {
-                msg_print("The prayer has expired.");
-            }
-        }
+        if (cast) plr_tim_lock(T_BLESSED);
+        if (stop) plr_tim_unlock(T_BLESSED);
         break;
 
     case 1:
@@ -8029,7 +6854,7 @@ static cptr do_hex_spell(int spell, int mode)
         if (cast || cont)
         {
             hp_player(damroll(1, 10));
-            set_cut(p_ptr->cut - 10, TRUE);
+            plr_tim_subtract(T_CUT, 10);
         }
         break;
 
@@ -8053,7 +6878,7 @@ static cptr do_hex_spell(int spell, int mode)
         if (info) return info_damage(1, power, 0);
         if (cast || cont)
         {
-            project_hack(GF_POIS, randint1(power));
+            project_los(GF_POIS, randint1(power));
         }
         break;
 
@@ -8073,7 +6898,6 @@ static cptr do_hex_spell(int spell, int mode)
         {
             obj_prompt_t prompt = {0};
             char o_name[MAX_NLEN];
-            u32b f[OF_ARRAY_SIZE];
 
             prompt.prompt = "Which weapon do you curse?";
             prompt.error = "You wield no weapons.";
@@ -8084,12 +6908,11 @@ static cptr do_hex_spell(int spell, int mode)
             if (!prompt.obj) return FALSE;
 
             object_desc(o_name, prompt.obj, OD_NAME_ONLY);
-            obj_flags(prompt.obj, f);
 
             if (!get_check(format("Do you curse %s, really?", o_name))) return FALSE;
 
             if (!one_in_(3) &&
-                (object_is_artifact(prompt.obj) || have_flag(f, OF_BLESSED)))
+                (obj_is_art(prompt.obj) || obj_has_flag(prompt.obj, OF_BLESSED)))
             {
                 msg_format("%s resists the effect.", o_name);
                 if (one_in_(3))
@@ -8118,7 +6941,7 @@ static cptr do_hex_spell(int spell, int mode)
                 msg_format("A terrible black aura blasts your %s!", o_name);
                 prompt.obj->curse_flags |= (OFC_CURSED);
 
-                if (object_is_artifact(prompt.obj) || object_is_ego(prompt.obj))
+                if (obj_is_art(prompt.obj) || obj_is_ego(prompt.obj))
                 {
 
                     if (one_in_(3)) prompt.obj->curse_flags |= (OFC_HEAVY_CURSE);
@@ -8186,7 +7009,7 @@ static cptr do_hex_spell(int spell, int mode)
                 msg_print("Time for end of patience!");
                 if (power)
                 {
-                    project(0, rad, py, px, power, GF_HELL_FIRE,
+                    project(0, rad, p_ptr->pos.y, p_ptr->pos.x, power, GF_HELL_FIRE,
                         (PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
                 }
                 if (p_ptr->wizard)
@@ -8227,7 +7050,8 @@ static cptr do_hex_spell(int spell, int mode)
         if (cast || cont)
         {
             hp_player(damroll(2, 10));
-            set_cut((p_ptr->cut / 2) - 10, TRUE);
+            plr_tim_recover(T_CUT, 50, 0);
+            plr_tim_subtract(T_CUT, 10);
         }
         break;
 
@@ -8250,7 +7074,7 @@ static cptr do_hex_spell(int spell, int mode)
         if (info) return info_damage(1, power, 0);
         if (cast || cont)
         {
-            project_hack(GF_OLD_DRAIN, randint1(power));
+            project_los(GF_OLD_DRAIN, randint1(power));
         }
         break;
 
@@ -8326,8 +7150,8 @@ static cptr do_hex_spell(int spell, int mode)
         if (cast || cont)
         {
             hp_player(damroll(4, 10));
-            set_stun(0, TRUE);
-            set_cut(0, TRUE);
+            plr_tim_remove(T_STUN);
+            plr_tim_remove(T_CUT);
         }
         break;
 
@@ -8335,10 +7159,7 @@ static cptr do_hex_spell(int spell, int mode)
         if (name) return "Recharging";
         if (desc)
         {
-            if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-                return "It attempts to recharge a device using your blood for power.";
-            else
-                return "It attempts to recharge a device using your mana for power.";
+            return "It attempts to recharge a device using your mana for power.";
         }
 
         power = plev * 2;
@@ -8359,7 +7180,7 @@ static cptr do_hex_spell(int spell, int mode)
         }
         if (cast || cont)
         {
-            animate_dead(0, py, px);
+            animate_dead(0, p_ptr->pos.y, p_ptr->pos.x);
         }
         break;
 
@@ -8370,23 +7191,21 @@ static cptr do_hex_spell(int spell, int mode)
         {
             obj_prompt_t prompt = {0};
             char o_name[MAX_NLEN];
-            u32b f[OF_ARRAY_SIZE];
 
             prompt.prompt = "Which piece of armour do you curse?";
             prompt.error = "You wield no piece of armours.";
-            prompt.filter = object_is_armour;
+            prompt.filter = obj_is_armor;
             prompt.where[0] = INV_EQUIP;
 
             obj_prompt(&prompt);
             if (!prompt.obj) return FALSE;
 
             object_desc(o_name, prompt.obj, OD_NAME_ONLY);
-            obj_flags(prompt.obj, f);
 
             if (!get_check(format("Do you curse %s, really?", o_name))) return FALSE;
 
             if (!one_in_(3) &&
-                (object_is_artifact(prompt.obj) || have_flag(f, OF_BLESSED)))
+                (obj_is_art(prompt.obj) || obj_has_flag(prompt.obj, OF_BLESSED)))
             {
                 msg_format("%s resists the effect.", o_name);
                 if (one_in_(3))
@@ -8415,7 +7234,7 @@ static cptr do_hex_spell(int spell, int mode)
                 msg_format("A terrible black aura blasts your %s!", o_name);
                 prompt.obj->curse_flags |= (OFC_CURSED);
 
-                if (object_is_artifact(prompt.obj) || object_is_ego(prompt.obj))
+                if (obj_is_art(prompt.obj) || obj_is_ego(prompt.obj))
                 {
 
                     if (one_in_(3)) prompt.obj->curse_flags |= (OFC_HEAVY_CURSE);
@@ -8446,7 +7265,7 @@ static cptr do_hex_spell(int spell, int mode)
         if (desc) return "Gives aura of shadow.";
         if (cast)
         {
-            int slot = equip_find_first(object_is_cloak);
+            int slot = equip_find_first(obj_is_cloak);
             object_type *o_ptr = NULL;
 
             if (!slot)
@@ -8455,7 +7274,7 @@ static cptr do_hex_spell(int spell, int mode)
                 return NULL;
             }
             o_ptr = equip_obj(slot);
-            if (!object_is_cursed(o_ptr))
+            if (!obj_is_cursed(o_ptr))
             {
                 msg_print("Your cloak is not cursed.");
                 return NULL;
@@ -8467,8 +7286,8 @@ static cptr do_hex_spell(int spell, int mode)
         }
         if (cont)
         {
-            int slot = equip_find_first(object_is_cloak);
-            if (!slot || !object_is_cursed(equip_obj(slot)))
+            int slot = equip_find_first(obj_is_cloak);
+            if (!slot || !obj_is_cursed(equip_obj(slot)))
             {
                 do_spell(REALM_HEX, spell, SPELL_STOP);
                 p_ptr->magic_num1[0] &= ~(1L << spell);
@@ -8489,7 +7308,7 @@ static cptr do_hex_spell(int spell, int mode)
         if (info) return info_damage(1, power, 0);
         if (cast || cont)
         {
-            project_hack(GF_PSI_DRAIN, randint1(power));
+            project_los(GF_PSI_DRAIN, randint1(power));
         }
         break;
 
@@ -8499,7 +7318,9 @@ static cptr do_hex_spell(int spell, int mode)
         if (cast)
         {
             msg_print("You wish strongly you want to revenge anything.");
+            plr_tim_lock(T_REVENGE);
         }
+        if (stop) plr_tim_unlock(T_REVENGE);
         break;
 
     /*** 4th book (24-31) ***/
@@ -8579,20 +7400,17 @@ static cptr do_hex_spell(int spell, int mode)
         if (cast)
         {
             obj_prompt_t prompt = {0};
-            u32b f[OF_ARRAY_SIZE];
 
             prompt.prompt = "Which cursed equipment do you drain mana from?";
             prompt.error = "You have no cursed equipment.";
-            prompt.filter = object_is_cursed;
+            prompt.filter = obj_is_cursed;
             prompt.where[0] = INV_EQUIP;
 
             obj_prompt(&prompt);
             if (!prompt.obj) return FALSE;
 
-            obj_flags(prompt.obj, f);
-
             p_ptr->csp += (plev / 5) + randint1(plev / 5);
-            if (have_flag(f, OF_TY_CURSE) || (prompt.obj->curse_flags & OFC_TY_CURSE)) p_ptr->csp += randint1(5);
+            if (obj_has_flag(prompt.obj, OF_TY_CURSE) || (prompt.obj->curse_flags & OFC_TY_CURSE)) p_ptr->csp += randint1(5);
             if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
 
             if (prompt.obj->curse_flags & OFC_PERMA_CURSE)
@@ -8659,11 +7477,11 @@ static cptr do_hex_spell(int spell, int mode)
                     int dy = y + ddy_ddd[dir];
                     int dx = x + ddx_ddd[dir];
                     if (dir == 5) continue;
-                    if(cave[dy][dx].m_idx) flag = TRUE;
+                    if(mon_at_xy(dx, dy)) flag = TRUE;
                 }
 
-                if (!cave_empty_bold(y, x) || (cave[y][x].info & CAVE_ICKY) ||
-                    (distance(y, x, py, px) > plev + 2))
+                if (!cave_empty_bold(y, x) || (cave_at_xy(x, y)->info & CAVE_ICKY) ||
+                    (distance(y, x, p_ptr->pos.y, p_ptr->pos.x) > plev + 2))
                 {
                     msg_print("Can not teleport to there.");
                     continue;
@@ -9042,7 +7860,7 @@ static cptr do_armageddon_spell(int spell, int mode)
             if (cast)
             {
                 msg_print("BOOM!");
-                project(0, rad, py, px, dam, GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
+                project(0, rad, p_ptr->pos.y, p_ptr->pos.x, dam, GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
             }
         }
         break;
@@ -9209,7 +8027,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of plasma at chosen target.";
 
         {
-            int dam = spell_power(11*plev/2 + p_ptr->to_d_spell);
+            int dam = spell_power(9*plev/2 + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9389,6 +8207,7 @@ static cptr do_armageddon_spell(int spell, int mode)
 cptr do_spell(int realm, int spell, int mode)
 {
     cptr result = NULL;
+    if (mode == SPELL_ON_BROWSE && realm != REALM_HISSATSU) return NULL;
 
     _current_realm_hack = realm;
 

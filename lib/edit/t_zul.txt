@@ -5,50 +5,22 @@ L:y:MOUNTAIN
 L:x:TREE
 L:A:JEWELER
 
-#################### Quest 10 - Node of Sorcery ####################
-?:[EQU $QUEST10 Taken]
-L:z:QUEST_ENTER(10)
-?:[EQU $QUEST10 Untaken Taken Completed Failed]
-L:i:BUILDING_8(10)
-?:[EQU $QUEST10 Finished FailedDone]
-L:i:BUILDING_8(0)
-?:1
-#################### Quest 11 - Node of Chaos ####################
-?:[EQU $QUEST11 Taken]
-L:y:QUEST_ENTER(11)
-?:[EQU $QUEST11 Untaken Taken Completed Failed]
-L:o:BUILDING_14(11)
-?:[EQU $QUEST11 Finished FailedDone]
-L:o:BUILDING_14(0)
-?:1
-#################### Quest 12 - Node of Nature ####################
-?:[EQU $QUEST12 Taken]
-L:x:QUEST_ENTER(12)
-?:[EQU $QUEST12 Untaken Taken Completed Failed]
-L:p:BUILDING_15(12)
-?:[EQU $QUEST12 Finished FailedDone]
-L:p:BUILDING_15(0)
-?:1
-
 #################### Buildings ####################
 
 B:8:N:Tower of Sorcery:Tanistil:Elf
 B:8:A:0:Identify possessions:100:800:i:26:0
-B:8:A:1:Request quest:0:0:q:6:1
 B:8:M:*:None
 B:8:M:Sorcery:Owner
 
 B:14:N:Chaos Tower:Xeno:Beastman
-B:14:A:0:Request quest:0:0:q:6:1
-B:14:A:1:Cure mutation:1000:5000:m:35:0
+B:14:A:0:Cure mutation:1000:5000:m:35:0
 B:14:R:*:None
 B:14:R:Beastman:Member
 B:14:M:*:None
 B:14:M:Chaos:Owner
 
 B:15:N:Nature Tower:Josh:Elf
-B:15:A:0:Request quest:0:0:q:6:1
-B:15:A:1:Ritual of balance:2000:10000:n:41:0
+B:15:A:0:Ritual of balance:2000:10000:n:41:0
 B:15:M:*:None
 B:15:M:Nature:Owner
 

@@ -1,6 +1,80 @@
 #include "angband.h"
 
-static void _cavern_creation_spell(int cmd, variant *res)
+/****************************************************************
+ * Timers
+ ****************************************************************/
+enum { _STEALTHY_SNIPE = T_CUSTOM,
+       _NIMBLE_DODGE };
+/* _STEALTHY_SNIPE */
+static bool _stealthy_snipe_on(plr_tim_ptr timer)
+{
+    msg_print("You are a stealthy sniper.");
+    p_ptr->update |= PU_BONUS;
+    return TRUE;
+}
+static void _stealthy_snipe_off(plr_tim_ptr timer)
+{
+    msg_print("You are no longer a stealthy sniper.");
+    p_ptr->update |= PU_BONUS;
+}
+static void _stealthy_snipe_bonus(plr_tim_ptr timer)
+{
+    p_ptr->stealthy_snipe = TRUE;
+}
+static status_display_t _stealthy_snipe_display(plr_tim_ptr timer)
+{
+    return status_display_create("Snipe", "Ss", TERM_UMBER);
+}
+static plr_tim_info_ptr _stealthy_snipe(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_STEALTHY_SNIPE, "Stealthy Sniper");
+    info->desc = "Your archery no longer provokes monsters to retaliation.";
+    info->on_f = _stealthy_snipe_on;
+    info->off_f = _stealthy_snipe_off;
+    info->calc_bonuses_f = _stealthy_snipe_bonus;
+    info->status_display_f = _stealthy_snipe_display;
+    return info;
+}
+/* _NIMBLE_DODGE */
+static bool _nimble_dodge_on(plr_tim_ptr timer)
+{
+    msg_print("You begin to dodge enemy breaths.");
+    p_ptr->update |= PU_BONUS;
+    return TRUE;
+}
+static void _nimble_dodge_off(plr_tim_ptr timer)
+{
+    msg_print("You no longer dodge enemy breaths.");
+    p_ptr->update |= PU_BONUS;
+}
+static void _nimble_dodge_bonus(plr_tim_ptr timer)
+{
+    p_ptr->nimble_dodge = TRUE;
+}
+static status_display_t _nimble_dodge_display(plr_tim_ptr timer)
+{
+    return status_display_create("Dodge", "Dg", TERM_L_BLUE);
+}
+static plr_tim_info_ptr _nimble_dodge(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_NIMBLE_DODGE, "Nimble Dodge");
+    info->desc = "You dodge enemy breath attacks.";
+    info->on_f = _nimble_dodge_on;
+    info->off_f = _nimble_dodge_off;
+    info->calc_bonuses_f = _nimble_dodge_bonus;
+    info->status_display_f = _nimble_dodge_display;
+    return info;
+}
+
+static void _register_timers(void)
+{
+    plr_tim_register(_stealthy_snipe());
+    plr_tim_register(_nimble_dodge());
+}
+/****************************************************************
+ * Spells
+ ****************************************************************/
+static void _cavern_creation_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -10,32 +84,27 @@ static void _cavern_creation_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Stone to Mud all surrounding walls.");
         break;
-    case SPELL_CAST:
-    {
-        int dir, x, y, ct = 0;
+    case SPELL_CAST: {
+        int dir, ct = 0;
         for (dir = 0; dir < 8; dir++)
         {
-            y = py + ddy_ddd[dir];
-            x = px + ddx_ddd[dir];
+            point_t p = point_step(p_ptr->pos, ddd[dir]);
 
-            if (!in_bounds(y, x)) continue;
-            if (!cave_have_flag_bold(y, x, FF_HURT_ROCK))  continue;
-            cave_alter_feat(y, x, FF_HURT_ROCK);
+            if (!dun_pos_interior(cave, p)) continue;
+            if (!cave_have_flag_at(p, FF_HURT_ROCK))  continue;
+            cave_alter_feat(p.y, p.x, FF_HURT_ROCK);
             ct++;
         }
-        if (ct)
-            p_ptr->update |= (PU_FLOW | PU_BONUS);
-
+        if (ct) p_ptr->update |= (PU_FLOW | PU_BONUS);
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _dark_stalker_spell(int cmd, variant *res)
+static void _dark_stalker_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -49,7 +118,7 @@ static void _dark_stalker_spell(int cmd, variant *res)
         var_set_string(res, info_duration(50, 50));
         break;
     case SPELL_CAST:
-        set_tim_dark_stalker(50 + randint1(50), FALSE);
+        plr_tim_add(T_STEALTH, 50 + randint1(50));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -58,7 +127,7 @@ static void _dark_stalker_spell(int cmd, variant *res)
     }
 }
 
-static void _greater_mapping_spell(int cmd, variant *res)
+static void _greater_mapping_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -71,7 +140,7 @@ static void _greater_mapping_spell(int cmd, variant *res)
     }
 }
 
-static void _greater_whirlwind_attack_spell(int cmd, variant *res)
+static void _greater_whirlwind_attack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -84,7 +153,6 @@ static void _greater_whirlwind_attack_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int              i, x, y;
-        cave_type       *c_ptr;
         monster_type    *m_ptr;
 
 /*       cba
@@ -123,38 +191,34 @@ static void _greater_whirlwind_attack_spell(int cmd, variant *res)
             _offset offset = offsets[i];
             if (offset.dx == 0 && offset.dy == 0) break;
 
-            y = py + offset.dy;
-            x = px + offset.dx;
+            y = p_ptr->pos.y + offset.dy;
+            x = p_ptr->pos.x + offset.dx;
 
             if (!in_bounds(y, x)) continue;
-            if (!projectable(py, px, y, x)) continue;
+            if (!projectable(p_ptr->pos.y, p_ptr->pos.x, y, x)) continue;
 
-            c_ptr = &cave[y][x];
+            m_ptr = mon_at_xy(x, y);
 
-            if (!c_ptr->m_idx) continue;
-
-            m_ptr = &m_list[c_ptr->m_idx];
+            if (!m_ptr) continue;
 
             if (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT))
             {
-                int msec = delay_factor * delay_factor * delay_factor;
-
                 if (panel_contains(y, x) && player_can_see_bold(y, x))
                 {
-                    char c = 0x30;
+                    char c = '*';
                     byte a = TERM_WHITE;
 
                     print_rel(c, a, y, x);
-                    move_cursor_relative(y, x);
+                    move_cursor_relative(point_create(x, y));
                     Term_fresh();
-                    Term_xtra(TERM_XTRA_DELAY, msec);
+                    Term_xtra(TERM_XTRA_DELAY, delay_animation);
                     lite_spot(y, x);
                     Term_fresh();
                 }
                 else
-                    Term_xtra(TERM_XTRA_DELAY, msec);
+                    Term_xtra(TERM_XTRA_DELAY, delay_animation);
 
-                py_attack(y, x, 0);
+                plr_attack_normal(point_create(x, y));
             }
         }
         var_set_bool(res, TRUE);
@@ -166,7 +230,7 @@ static void _greater_whirlwind_attack_spell(int cmd, variant *res)
     }
 }
 
-static void _lookout_spell(int cmd, variant *res)
+static void _lookout_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -179,7 +243,7 @@ static void _lookout_spell(int cmd, variant *res)
     }
 }
 
-static void _mapping_spell(int cmd, variant *res)
+static void _mapping_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -192,7 +256,7 @@ static void _mapping_spell(int cmd, variant *res)
     }
 }
 
-static void _nimble_dodge_spell(int cmd, variant *res)
+static void _nimble_dodge_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -206,7 +270,7 @@ static void _nimble_dodge_spell(int cmd, variant *res)
         var_set_string(res, info_duration(20, 20));
         break;
     case SPELL_CAST:
-        set_tim_nimble_dodge(20 + randint1(20), FALSE);
+        plr_tim_add(_NIMBLE_DODGE, 20 + randint1(20));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -215,7 +279,7 @@ static void _nimble_dodge_spell(int cmd, variant *res)
     }
 }
 
-static void _reconnaissance_spell(int cmd, variant *res)
+static void _reconnaissance_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -236,7 +300,7 @@ static void _reconnaissance_spell(int cmd, variant *res)
     }
 }
 
-static void _retreat_spell(int cmd, variant *res)
+static void _retreat_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -249,7 +313,7 @@ static void _retreat_spell(int cmd, variant *res)
     }
 }
 
-static void _sniping_spell(int cmd, variant *res)
+static void _sniping_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -277,7 +341,7 @@ static void _sniping_spell(int cmd, variant *res)
     }
 }
 
-static void _spying_spell(int cmd, variant *res)
+static void _spying_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -290,7 +354,7 @@ static void _spying_spell(int cmd, variant *res)
     }
 }
 
-static void _stealthy_snipe_spell(int cmd, variant *res)
+static void _stealthy_snipe_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -304,7 +368,7 @@ static void _stealthy_snipe_spell(int cmd, variant *res)
         var_set_string(res, info_duration(6, 6));
         break;
     case SPELL_CAST:
-        set_tim_stealthy_snipe(6 + randint1(6), FALSE);
+        plr_tim_add(_STEALTHY_SNIPE, 6 + randint1(6));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -313,7 +377,7 @@ static void _stealthy_snipe_spell(int cmd, variant *res)
     }
 }
 
-static void _whirlwind_attack_spell(int cmd, variant *res)
+static void _whirlwind_attack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -370,36 +434,33 @@ static int _get_spells(spell_info* spells, int max)
     return ct;
 }
 
-static bool _cave_is_open(int y, int x)
+static bool _cave_is_open(point_t pos)
 {
-    if (cave_have_flag_bold(y, x, FF_HURT_ROCK)) return FALSE;
-    if (cave[y][x].feat == feat_permanent) return FALSE;
-    if (cave[y][x].feat == feat_permanent_glass_wall) return FALSE;
-    if (cave[y][x].feat == feat_mountain) return FALSE;
+    cave_ptr grid;
+    if (cave_have_flag_at(pos, FF_HURT_ROCK)) return FALSE;
+    grid = cave_at(pos);
+    if (grid->feat == feat_permanent) return FALSE;
+    if (grid->feat == feat_permanent_glass_wall) return FALSE;
+    if (grid->feat == feat_mountain) return FALSE;
     return TRUE;
 }
 
 static int _count_open_terrain(void)
 {
-    int dir, x, y;
+    int dir;
     int count = 0;
     for (dir = 0; dir < 8; dir++)
     {
-        y = py + ddy_ddd[dir];
-        x = px + ddx_ddd[dir];
+        point_t p = point_step(p_ptr->pos, ddd[dir]);
 
-        if (!in_bounds(y, x))
+        if (!dun_pos_interior(cave, p))
         {
             /* Count the edge of wilderness maps as open.
                Count the edge of dungeon maps as permanent walls. */
-            if (dun_level == 0)
-                count++;
-
+            if (cave->dun_type_id == D_SURFACE) count++;
             continue;
         }
-
-        if (_cave_is_open(y, x))
-            count++;
+        if (_cave_is_open(p)) count++;
     }
     return count;
 }
@@ -452,7 +513,7 @@ static void _calc_bonuses(void)
     }
 
     if (!disrupt && p_ptr->lev >= 20)
-        p_ptr->ambush = TRUE;
+        p_ptr->ambush = 300 + p_ptr->lev*4;
 
     if (!disrupt && p_ptr->lev >= 50)
         p_ptr->peerless_stealth = TRUE;
@@ -471,7 +532,7 @@ static void _character_dump(doc_ptr doc)
         spell_info spells[MAX_SPELLS];
         int        ct = _get_spells(spells, MAX_SPELLS);
 
-        py_display_spells(doc, spells, ct);
+        plr_display_spells(doc, spells, ct);
     }
 
     doc_printf(doc, "<topic:Abilities>================================== <color:keypress>A</color>bilities ==================================\n\n");
@@ -545,56 +606,54 @@ static void _move_player(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
-    py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(20, 30));
+    plr_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
+    plr_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(20, 30));
 }
 
-class_t *scout_get_class(void)
+plr_class_ptr scout_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    /* static info never changes */
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  33,  34,   6,  50,  24,  50,  65 };
     skills_t xs = { 15,  11,  10,   0,   0,   0,  20,  25 };
 
-        me.name = "Scout";
-        me.desc = "The scout is the vanguard of any attack, and excels at stealth and observation "
+        me = plr_class_alloc(CLASS_SCOUT);
+        me->name = "Scout";
+        me->desc = "The scout is the vanguard of any attack, and excels at stealth and observation "
                     "skills. The scout is not the best at one-on-one combat, but is unparalleled at "
                     "ambush techniques to destroy groups of weak sentries. The scout is lightly "
                     "armored, and heavy armors disrupt their abilities. Furthermore, the scout "
                     "can only effectively dodge in open areas, being confined severely hampers "
                     "the scout's defensive abilities.";
 
-        me.stats[A_STR] =  1;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] =  2;
-        me.stats[A_DEX] =  3;
-        me.stats[A_CON] =  0;
-        me.stats[A_CHR] =  0;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 104;
-        me.base_hp = 8;
-        me.exp = 130;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] =  1;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] =  2;
+        me->stats[A_DEX] =  3;
+        me->stats[A_CON] =  0;
+        me->stats[A_CHR] =  0;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 104;
+        me->base_hp = 8;
+        me->exp = 130;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
+                    CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.move_player = _move_player;
-        me.character_dump = _character_dump;
-
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.move_player = _move_player;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.register_timers = _register_timers;
     }
 
-    return &me;
+    return me;
 }

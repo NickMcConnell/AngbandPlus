@@ -221,7 +221,6 @@
 L:*:TRAP(*, 25%):OBJ(*, DEPTH+1)
 L:^:TRAP(*)
 L:&:MON(*, DEPTH+5)
-L:,:MON(*, DEPTH+3 | 50%):OBJ(*, DEPTH+7 | 50%)
 L:1:MON(*, DEPTH+3)
 L:2:MON(*, DEPTH+5)
 L:3:MON(*, DEPTH+9)

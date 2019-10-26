@@ -11,6 +11,32 @@
  * as they are maintained. In addition, the warlock might pay
  * upkeep to maintain the 'toggle'.
  ****************************************************************/
+static void _toggle_on(int toggle)
+{
+    switch(toggle)
+    {
+    case WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE:
+        plr_tim_lock(T_HERO);
+        break;
+    case WARLOCK_DRAGON_TOGGLE_BLESS:
+        plr_tim_lock(T_BLESSED);
+        break;
+    }
+}
+
+static void _toggle_off(int toggle)
+{
+    switch(toggle)
+    {
+    case WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE:
+        plr_tim_unlock(T_HERO);
+        break;
+    case WARLOCK_DRAGON_TOGGLE_BLESS:
+        plr_tim_unlock(T_BLESSED);
+        break;
+    }
+}
+
 static int _get_toggle(void)
 {
     return p_ptr->magic_num1[0];
@@ -22,7 +48,9 @@ static int _set_toggle(s32b toggle)
 
     if (toggle == result) return result;
 
+    _toggle_off(result);
     p_ptr->magic_num1[0] = toggle;
+    _toggle_on(toggle);
 
     p_ptr->redraw |= PR_STATUS;
     p_ptr->update |= PU_BONUS;
@@ -115,7 +143,7 @@ static int _blast_ds(void)
     return _table[p_ptr->stat_ind[A_CHR]];
 }
 
-static void _basic_blast(int cmd, variant *res)
+static void _basic_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -154,7 +182,7 @@ static void _basic_blast(int cmd, variant *res)
     }
 }
 
-static void _extended_blast(int cmd, variant *res)
+static void _extended_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -190,7 +218,7 @@ static void _extended_blast(int cmd, variant *res)
     }
 }
 
-static void _spear_blast(int cmd, variant *res)
+static void _spear_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -222,7 +250,7 @@ static void _spear_blast(int cmd, variant *res)
     }
 }
 
-static void _burst_blast(int cmd, variant *res)
+static void _burst_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -258,7 +286,7 @@ static void _burst_blast(int cmd, variant *res)
     }
 }
 
-static void _stunning_blast(int cmd, variant *res)
+static void _stunning_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -291,7 +319,7 @@ static void _stunning_blast(int cmd, variant *res)
     }
 }
 
-static void _empowered_blast(int cmd, variant *res)
+static void _empowered_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -317,7 +345,7 @@ static void _empowered_blast(int cmd, variant *res)
                   dir,
                   spell_power(damroll(_blast_dd(), _blast_ds())*7/4 + p_ptr->to_d_spell),
                   0);
-        set_tim_no_spells(p_ptr->tim_no_spells + 1 + 1, FALSE);
+        plr_tim_add(T_NO_SPELLS, 2);
         var_set_bool(res, TRUE);
         break;
     }
@@ -336,11 +364,12 @@ typedef struct {
     cptr name;
     cptr desc;
     cptr alliance;
-    calc_bonuses_fn calc_bonuses;
-    calc_weapon_bonuses_fn calc_weapon_bonuses;
-    stats_fn calc_stats;
-    flags_fn get_flags;
-    process_player_fn process_player;
+    calc_bonuses_f calc_bonuses;
+    calc_weapon_bonuses_f calc_weapon_bonuses;
+    stats_f calc_stats;
+    flags_f get_flags;
+    process_player_f process_player;
+    status_display_f status_display;
     int stats[MAX_STATS];
     skills_t base_skills;
     skills_t extra_skills;
@@ -373,8 +402,8 @@ static void _undead_calc_bonuses(void)
 
     if (equip_find_art(ART_STONE_OF_DEATH))
     {
-        p_ptr->dec_mana = TRUE;
-        p_ptr->easy_spell = TRUE;
+        p_ptr->dec_mana++;
+        p_ptr->easy_spell++;
     }
 }
 
@@ -401,7 +430,7 @@ static void _undead_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_RES_DARK);
 }
 
-static void _draining_blast(int cmd, variant *res)
+static void _draining_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -450,6 +479,7 @@ static _pact_t _undead_pact = {
   _undead_calc_stats,
   _undead_get_flags,
   NULL,
+  NULL,
 /*  S   I   W   D   C   C */
   {-1,  2, -3,  0,  2,  4},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
@@ -486,7 +516,7 @@ static monster_type *_get_mount(void)
 {
     monster_type *result = NULL;
     if (p_ptr->riding)
-        result = &m_list[p_ptr->riding];
+        result = dun_mon(cave, p_ptr->riding);
     return result;
 }
 
@@ -503,13 +533,34 @@ static void _dragon_calc_bonuses(void)
         p_ptr->sustain_str = TRUE;
 }
 
-static void _dragon_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static status_display_t _dragon_status_display(void)
+{
+    status_display_t result = {0};
+    switch (_get_toggle())
+    {
+    case WARLOCK_DRAGON_TOGGLE_CANTER:
+        result.name = "Canter"; result.abbrev = "Ctr", result.color = TERM_L_BLUE;
+        break;
+    case WARLOCK_DRAGON_TOGGLE_GALLOP:
+        result.name = "Gallop"; result.abbrev = "Glp", result.color = TERM_RED;
+        break;
+    case WARLOCK_DRAGON_TOGGLE_HEALING:
+        result.name = "Healing"; result.abbrev = "Hl", result.color = TERM_YELLOW;
+        break;
+    case WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE:
+        result.name = "Heroic Charge"; result.abbrev = "Chg", result.color = TERM_VIOLET;
+        break;
+    }
+    return result;
+}
+
+static void _dragon_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
     if ( _get_toggle() == WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE
       && p_ptr->riding
-      && _is_lance(o_ptr) )
+      && _is_lance(obj) )
     {
-        info_ptr->to_dd += 2;
+        info->to_dd += 2;
     }
 }
 
@@ -525,7 +576,7 @@ static void _dragon_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_SUST_STR);
 }
 
-static void _dragon_blast(int cmd, variant *res)
+static void _dragon_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -557,7 +608,7 @@ static void _dragon_blast(int cmd, variant *res)
 }
 
 /* Dragon Spells */
-static void _dragon_lore_spell(int cmd, variant *res)
+static void _dragon_lore_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -570,7 +621,7 @@ static void _dragon_lore_spell(int cmd, variant *res)
     }
 }
 
-static void _dragon_eye_spell(int cmd, variant *res)
+static void _dragon_eye_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -583,7 +634,7 @@ static void _dragon_eye_spell(int cmd, variant *res)
     }
 }
 
-static void _understanding_spell(int cmd, variant *res)
+static void _understanding_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -596,7 +647,7 @@ static void _understanding_spell(int cmd, variant *res)
     }
 }
 
-static void _word_of_command_spell(int cmd, variant *res)
+static void _word_of_command_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -607,7 +658,7 @@ static void _word_of_command_spell(int cmd, variant *res)
         var_set_string(res, "By uttering a word of obediance, the true dragon rider can bend the will of all but the mightiest serpents.");
         break;
     case SPELL_CAST:                        /*v-- This is meaningless, but set high enough so that the project code actually works */
-        project_hack(GF_CONTROL_PACT_MONSTER, 100);
+        project_los(GF_CONTROL_PACT_MONSTER, 100);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -669,28 +720,14 @@ static void _dragon_upkeep_song(void)
         }
         else if (_get_toggle() == WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE)
         {
-            char m_name[MAX_NLEN];
-            monster_desc(m_name, mount, 0);
-            if (MON_STUNNED(mount))
-            {
-                msg_format("%^s is no longer stunned.", m_name);
-                set_monster_stunned(p_ptr->riding, 0);
-            }
-            if (MON_CONFUSED(mount))
-            {
-                msg_format("%^s is no longer confused.", m_name);
-                set_monster_confused(p_ptr->riding, 0);
-            }
-            if (MON_MONFEAR(mount))
-            {
-                msg_format("%^s is not longer afraid.", m_name);
-                set_monster_monfear(p_ptr->riding, 0);
-            }
+            mon_tim_remove(mount, T_STUN);
+            mon_tim_remove(mount, T_CONFUSED);
+            mon_tim_remove(mount, T_FEAR);
         }
     }
 }
 
-static void _dragon_song(int which, cptr desc, int cmd, variant *res)
+static void _dragon_song(int which, cptr desc, int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -726,7 +763,7 @@ static void _dragon_song(int which, cptr desc, int cmd, variant *res)
 }
 
 
-static void _bless_song(int cmd, variant *res)
+static void _bless_song(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -742,7 +779,7 @@ static void _bless_song(int cmd, variant *res)
     }
 }
 
-static void _canter_song(int cmd, variant *res)
+static void _canter_song(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -758,7 +795,7 @@ static void _canter_song(int cmd, variant *res)
     }
 }
 
-static void _gallop_song(int cmd, variant *res)
+static void _gallop_song(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -774,7 +811,7 @@ static void _gallop_song(int cmd, variant *res)
     }
 }
 
-static void _healing_song(int cmd, variant *res)
+static void _healing_song(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -790,7 +827,7 @@ static void _healing_song(int cmd, variant *res)
     }
 }
 
-static void _heroic_charge_song(int cmd, variant *res)
+static void _heroic_charge_song(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -809,7 +846,7 @@ static void _heroic_charge_song(int cmd, variant *res)
 }
 
 /* Riding Techniques */
-static void _mount_jump_spell(int cmd, variant *res)
+static void _mount_jump_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -829,7 +866,7 @@ static void _mount_jump_spell(int cmd, variant *res)
     }
 }
 
-static void _mount_attack_spell(int cmd, variant *res)
+static void _mount_attack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -839,12 +876,9 @@ static void _mount_attack_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Guide your dragon to attack a chosen foe.");
         break;
-    case SPELL_CAST:
-    {
-        monster_type *mount = _get_mount();
-        int x = 0, y = 0;
-        int dir;
-        int m_idx = 0;
+    case SPELL_CAST: {
+        mon_ptr mount = plr_riding_mon();
+        mon_ptr foe;
 
         var_set_bool(res, FALSE);
         if (!mount)
@@ -852,6 +886,8 @@ static void _mount_attack_spell(int cmd, variant *res)
             msg_print("This is a riding technique. Where is your dragon?");
             return;
         }
+        foe = plr_target_adjacent_mon();
+        if (!foe) return;
 
         if (mount->energy_need > 300)
         {
@@ -859,44 +895,10 @@ static void _mount_attack_spell(int cmd, variant *res)
             return;
         }
 
-        if (use_old_target && target_okay())
-        {
-            y = target_row;
-            x = target_col;
-            m_idx = cave[y][x].m_idx;
-            if (m_idx)
-            {
-                if (m_list[m_idx].cdis > 1)
-                    m_idx = 0;
-                else
-                    dir = 5;
-            }
-        }
-
-        if (!m_idx)
-        {
-            if (!get_rep_dir2(&dir)) return;
-            if (dir == 5) return;
-
-            y = py + ddy[dir];
-            x = px + ddx[dir];
-            m_idx = cave[y][x].m_idx;
-
-            if (!m_idx)
-            {
-                msg_print("There is no monster there.");
-                return;
-            }
-        }
-
-        if (m_idx)
-        {
-            mon_attack_mon(p_ptr->riding, m_idx);
-            mount->energy_need += ENERGY_NEED();
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
+        mon_attack(mount, foe->pos);
+        mount->energy_need += ENERGY_NEED();
+        var_set_bool(res, TRUE);
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -915,11 +917,11 @@ static bool _dragonrider_ai(mon_spell_cast_ptr cast)
 
     if (_hack_dir == 5)
     {
-        cast->dest = point(target_col, target_row);
+        cast->dest = point_create(target_col, target_row);
         if (target_who > 0)
         {
             char tmp[MAX_NLEN];
-            cast->mon2 = &m_list[target_who];
+            cast->mon2 = dun_mon(cave, target_who);
             monster_desc(tmp, cast->mon2, 0);
             tmp[0] = toupper(tmp[0]);
             sprintf(cast->name2, "<color:o>%s</color>", tmp);
@@ -927,8 +929,8 @@ static bool _dragonrider_ai(mon_spell_cast_ptr cast)
     }
     else
     {
-        cast->dest.x = px + 99 * ddx[_hack_dir];
-        cast->dest.y = py + 99 * ddy[_hack_dir];
+        cast->dest.x = p_ptr->pos.x + 99 * ddx[_hack_dir];
+        cast->dest.y = p_ptr->pos.y + 99 * ddy[_hack_dir];
     }
 
     if (!cast->mon2)
@@ -939,7 +941,7 @@ static bool _dragonrider_ai(mon_spell_cast_ptr cast)
     return TRUE;
 }
 
-static void _mount_breathe_spell(int cmd, variant *res)
+static void _mount_breathe_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -980,7 +982,7 @@ static void _mount_breathe_spell(int cmd, variant *res)
     }
 }
 
-static void _pets_breathe_spell(int cmd, variant *res)
+static void _pets_breathe_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -990,10 +992,10 @@ static void _pets_breathe_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Guide all of your pet dragon's to breathe at a chosen target.");
         break;
-    case SPELL_CAST:
-    {
-        monster_type *mount = _get_mount();
-        int i;
+    case SPELL_CAST: {
+        mon_ptr mount = _get_mount();
+        vec_ptr pets;
+        int     i;
 
         var_set_bool(res, FALSE);
         if (!mount)
@@ -1010,6 +1012,7 @@ static void _pets_breathe_spell(int cmd, variant *res)
 
         if (!get_fire_dir(&_hack_dir)) return;
 
+        pets = plr_pets();
         msg_print("<color:v>Dragons: As One!!</color>");
         msg_boundary();
 
@@ -1019,37 +1022,33 @@ static void _pets_breathe_spell(int cmd, variant *res)
             msg_boundary();
         }
 
-        for (i = m_max - 1; i >= 1; i--)
+        for (i = 0; i < vec_length(pets); i++)
         {
-            monster_type *m_ptr = &m_list[i];
-            monster_race *r_ptr;
+            mon_ptr pet = vec_get(pets, i);
 
-            if (!m_ptr->r_idx) continue;
-            if (!is_pet(m_ptr)) continue;
-            if (i == p_ptr->riding) continue;
+            if (mon_is_dead(pet)) continue;
+            if (pet == mount) continue;
+            if (!(mon_race(pet)->flags3 & RF3_DRAGON)) continue;
 
-            r_ptr = &r_info[m_ptr->r_idx];
-            if (!(r_ptr->flags3 & RF3_DRAGON)) continue;
-
-            if (mon_spell_cast_mon(m_ptr, _dragonrider_ai))
+            if (mon_spell_cast_mon(pet, _dragonrider_ai))
             {
-                m_ptr->energy_need += ENERGY_NEED();
+                pet->energy_need += ENERGY_NEED();
                 if (one_in_(2))
                 {
-                    if (mon_show_msg(m_ptr))
+                    if (mon_show_msg(pet))
                     {
                         char m_name[MAX_NLEN];
-                        monster_desc(m_name, m_ptr, 0);
+                        monster_desc(m_name, pet, 0);
                         msg_format("%^s disappears!", m_name);
                     }
-                    delete_monster_idx(i);
+                    delete_monster(pet);
                 }
                 msg_boundary();
             }
         }
+        vec_free(pets);
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -1072,6 +1071,7 @@ static _pact_t _dragons_pact = {
   _dragon_calc_stats,
   _dragon_get_flags,
   _dragon_upkeep_song,
+  _dragon_status_display,
 /*  S   I   W   D   C   C */
   { 2,  0,  0, -1,  1,  3},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
@@ -1115,8 +1115,8 @@ static void _angel_calc_bonuses(void)
 
     if (equip_find_art(ART_STONE_OF_CRUSADE) || equip_find_art(ART_STONE_OF_LIFE))
     {
-        p_ptr->dec_mana = TRUE;
-        p_ptr->easy_spell = TRUE;
+        p_ptr->dec_mana++;
+        p_ptr->easy_spell++;
     }
 }
 
@@ -1134,7 +1134,7 @@ static void _angel_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_REFLECT);
 }
 
-static void _dispelling_blast(int cmd, variant *res)
+static void _dispelling_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1180,6 +1180,7 @@ static _pact_t _angels_pact = {
   _angel_calc_stats,
   _angel_get_flags,
   NULL,
+  NULL,
 /*  S   I   W   D   C   C */
   { 1,  1,  2,  1,  1,  3},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
@@ -1212,8 +1213,7 @@ static _pact_t _angels_pact = {
 static void _demon_calc_bonuses(void)
 {
     res_add(RES_FIRE);
-    p_ptr->skills.dev += 50 * p_ptr->lev/50;
-    p_ptr->device_power += 5 * p_ptr->lev/50;
+    p_ptr->device_power += 3 * p_ptr->lev/50;
     if (p_ptr->lev >= 15)
         p_ptr->hold_life++;
     if (p_ptr->lev >= 30)
@@ -1227,8 +1227,8 @@ static void _demon_calc_bonuses(void)
 
     if (equip_find_art(ART_STONE_OF_DAEMON))
     {
-        p_ptr->dec_mana = TRUE;
-        p_ptr->easy_spell = TRUE;
+        p_ptr->dec_mana++;
+        p_ptr->easy_spell++;
     }
 }
 
@@ -1245,7 +1245,7 @@ static void _demon_get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (p_ptr->lev >= 50) add_flag(flgs, OF_IM_FIRE);
 }
 
-static void _vengeful_blast(int cmd, variant *res)
+static void _vengeful_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1294,6 +1294,7 @@ static _pact_t _demons_pact = {
   NULL,
   _demon_calc_stats,
   _demon_get_flags,
+  NULL,
   NULL,
 /*  S   I   W   D   C   C */
   { 3,  1,-10,  1,  1,  3},
@@ -1360,7 +1361,7 @@ static void _hound_get_flags(u32b flgs[OF_ARRAY_SIZE])
 }
 
 #define _AETHER_EFFECT_CT 15
-static void _aether_blast(int cmd, variant *res)
+static void _aether_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1417,7 +1418,7 @@ static void _aether_blast(int cmd, variant *res)
     }
 }
 
-static void _dog_whistle_spell(int cmd, variant *res)
+static void _dog_whistle_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1428,7 +1429,7 @@ static void _dog_whistle_spell(int cmd, variant *res)
         var_set_string(res, "By emitting a shrill whistle, unaudible to most, you attempt to control nearby canines.");
         break;
     case SPELL_CAST:
-        project(0, 18, py, px, 1000, GF_CONTROL_PACT_MONSTER, PROJECT_KILL | PROJECT_HIDE);
+        project(0, 18, p_ptr->pos.y, p_ptr->pos.x, 1000, GF_CONTROL_PACT_MONSTER, PROJECT_KILL | PROJECT_HIDE);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1437,7 +1438,7 @@ static void _dog_whistle_spell(int cmd, variant *res)
     }
 }
 
-static void _aether_shield_spell(int cmd, variant *res)
+static void _aether_shield_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1448,7 +1449,11 @@ static void _aether_shield_spell(int cmd, variant *res)
         var_set_string(res, "Much like the dreaded Aether hound, you will gain protective elemental auras for a bit.");
         break;
     case SPELL_CAST:
-        set_tim_sh_elements(randint1(30) + 20, FALSE);
+        plr_tim_add(T_AURA_FIRE, randint1(30) + 20);
+        if (p_ptr->lev >= 25)
+            plr_tim_add(T_AURA_COLD, randint1(30) + 20);
+        if (p_ptr->lev >= 35)
+            plr_tim_add(T_AURA_ELEC, randint1(30) + 20);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1470,6 +1475,7 @@ static _pact_t _hounds_pact = {
   NULL,
   _hound_calc_stats,
   _hound_get_flags,
+  NULL,
   NULL,
 /*  S   I   W   D   C   C */
   { 0, -2, -2,  2,  2,  2},
@@ -1521,7 +1527,7 @@ static void _spider_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_RES_NEXUS);
 }
 
-static void _phase_blast(int cmd, variant *res)
+static void _phase_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1555,7 +1561,7 @@ static void _phase_blast(int cmd, variant *res)
     }
 }
 
-static void _nexus_ball_spell(int cmd, variant *res)
+static void _nexus_ball_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1592,7 +1598,7 @@ static void _nexus_ball_spell(int cmd, variant *res)
 static int _jump_rad(void) { return 2 + p_ptr->lev/10; }
 
 static int _poison_jump_dam(void) { return spell_power(p_ptr->lev + p_ptr->to_d_spell); }
-static void _poison_jump_spell(int cmd, variant *res)
+static void _poison_jump_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1617,7 +1623,7 @@ static void _poison_jump_spell(int cmd, variant *res)
 }
 
 static int _nexus_jump_dam(void) { return spell_power(p_ptr->lev + 5 + p_ptr->to_d_spell); }
-static void _nexus_jump_spell(int cmd, variant *res)
+static void _nexus_jump_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1641,8 +1647,8 @@ static void _nexus_jump_spell(int cmd, variant *res)
     }
 }
 
-static int _greater_nexus_jump_dam(void) { return spell_power(py_prorata_level_aux(200, 0, 0, 1) + p_ptr->to_d_spell); }
-static void _greater_nexus_jump_spell(int cmd, variant *res)
+static int _greater_nexus_jump_dam(void) { return spell_power(plr_prorata_level_aux(200, 0, 0, 1) + p_ptr->to_d_spell); }
+static void _greater_nexus_jump_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1682,6 +1688,7 @@ static _pact_t _spiders_pact = {
   _spider_calc_stats,
   _spider_get_flags,
   NULL,
+  NULL,
 /*  S   I   W   D   C   C */
   {-1,  0, -2,  2,  0,  2},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
@@ -1720,18 +1727,18 @@ static void _giant_calc_bonuses(void)
     p_ptr->skill_tht += 2*p_ptr->lev;
 }
 
-static void _giant_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _giant_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    if (o_ptr->weight >= 200)
+    if (obj->weight >= 200)
     {
         int to_h = 10 * p_ptr->lev / 50;
         int to_d = 10 * p_ptr->lev / 50;
 
-        info_ptr->to_h += to_h;
-        info_ptr->dis_to_h += to_h;
+        info->to_h += to_h;
+        info->dis_to_h += to_h;
 
-        info_ptr->to_d += to_d;
-        info_ptr->dis_to_d += to_d;
+        info->to_d += to_d;
+        info->dis_to_d += to_d;
     }
 }
 
@@ -1751,7 +1758,7 @@ static void _giant_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_RES_CHAOS);
 }
 
-static void _confusing_blast(int cmd, variant *res)
+static void _confusing_blast(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1784,7 +1791,7 @@ static void _confusing_blast(int cmd, variant *res)
     }
 }
 
-static void _giant_healing_spell(int cmd, variant *res)
+static void _giant_healing_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -1821,6 +1828,7 @@ static _pact_t _giants_pact = {
   _giant_calc_weapon_bonuses,
   _giant_calc_stats,
   _giant_get_flags,
+  NULL,
   NULL,
 /*  S   I   W   D   C   C */
   { 2, -4, -4, -3,  2,  2},
@@ -1893,9 +1901,9 @@ static int _get_powers(spell_info* spells, int max)
 
     /* This is debatable. Empowered blast is supposed to block your powers
        for one turn. They used to be spells, but now they are actually class
-       powers, so won't be blocked by tim_no_spells ... Unless we do the
+       powers, so won't be blocked by T_NO_SPELLS ... Unless we do the
        following. Note, this now blocks all pact spells as well! */
-    if (p_ptr->tim_no_spells)
+    if (plr_tim_find(T_NO_SPELLS))
         return 0;
 
     for (i = 0; i < MAX_WARLOCK_BLASTS; i++)
@@ -1949,7 +1957,7 @@ static void _character_dump(doc_ptr doc)
     spell_info spells[MAX_SPELLS];
     int        ct = _get_spells(spells, MAX_SPELLS);
 
-    py_display_spells(doc, spells, ct);
+    plr_display_spells(doc, spells, ct);
 }
 
 static caster_info * _caster_info(void)
@@ -1978,12 +1986,12 @@ static void _birth(void)
     if (p_ptr->psubclass == WARLOCK_GIANTS)
     {
         skills_weapon_init(TV_SWORD, SV_CLAYMORE, WEAPON_EXP_BEGINNER);
-        py_birth_obj_aux(TV_SWORD, SV_CLAYMORE, 1);
+        plr_birth_obj_aux(TV_SWORD, SV_CLAYMORE, 1);
     }
     else
-        py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
+        plr_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 }
 
 /****************************************************************
@@ -2032,16 +2040,15 @@ bool warlock_is_pact_monster(monster_race *r_ptr)
     return FALSE;
 }
 
-class_t *warlock_get_class(int psubclass)
+plr_class_ptr warlock_get_class(int psubclass)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    /* static info never changes */
-    if (!init)
+    if (!me)
     {
-        me.name = "Warlock";
-        me.desc =
+        me = plr_class_alloc(CLASS_WARLOCK);
+        me->name = "Warlock";
+        me->desc =
         "A Warlock is a magical class but, unlike normal spellcasters, they derive their powers, "
         "stats, skills and bonuses by making a pact with a given class of monsters. "
         "This pact is irrevocable and is made "
@@ -2059,56 +2066,56 @@ class_t *warlock_get_class(int psubclass)
         "with their chosen kin, and these monsters tend to have a strong will of their own, resisting "
         "the binding forces which the warlock imposes to gain both mastery and power.";
 
-        me.birth = _birth;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.get_powers = _get_powers;
-        me.character_dump = _character_dump;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
+        me->hooks.birth = _birth;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = _character_dump;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
-        me.pets = 15;
-        init = TRUE;
+        me->pets = 15;
     }
 
-    me.stats[A_STR] = 0;
-    me.stats[A_INT] = 0;
-    me.stats[A_WIS] = 0;
-    me.stats[A_DEX] = 0;
-    me.stats[A_CON] = 0;
-    me.stats[A_CHR] = 0;
-    me.life = 100;
-    me.base_hp = 0;
-    me.exp = 100;
+    me->stats[A_STR] = 0;
+    me->stats[A_INT] = 0;
+    me->stats[A_WIS] = 0;
+    me->stats[A_DEX] = 0;
+    me->stats[A_CON] = 0;
+    me->stats[A_CHR] = 0;
+    me->life = 100;
+    me->base_hp = 0;
+    me->exp = 100;
 
-    me.subname = "";
-    me.subdesc = "";
+    me->subname = "";
+    me->subdesc = "";
 
     if (0 <= psubclass && psubclass < WARLOCK_MAX)
     {
         int       i;
         _pact_ptr pact = _get_pact(psubclass);
 
-        me.subname = pact->name;
-        me.subdesc = pact->desc;
+        me->subname = pact->name;
+        me->subdesc = pact->desc;
 
         for (i = 0; i < MAX_STATS; i++)
-            me.stats[i] += pact->stats[i];
+            me->stats[i] += pact->stats[i];
 
-        me.base_skills = pact->base_skills;
-        me.extra_skills = pact->extra_skills;
+        me->skills = pact->base_skills;
+        me->extra_skills = pact->extra_skills;
 
-        me.life = pact->life;
-        me.base_hp = pact->base_hp;
-        me.exp = pact->exp;
+        me->life = pact->life;
+        me->base_hp = pact->base_hp;
+        me->exp = pact->exp;
 
-        me.calc_bonuses = pact->calc_bonuses;
-        me.calc_weapon_bonuses = pact->calc_weapon_bonuses;
-        me.calc_stats = pact->calc_stats;
-        me.get_flags = pact->get_flags;
-        me.process_player = pact->process_player;
+        me->hooks.calc_bonuses = pact->calc_bonuses;
+        me->hooks.calc_weapon_bonuses = pact->calc_weapon_bonuses;
+        me->hooks.status_display = pact->status_display;
+        me->hooks.calc_stats = pact->calc_stats;
+        me->hooks.get_flags = pact->get_flags;
+        me->hooks.process_player = pact->process_player;
     }
 
-    return &me;
+    return me;
 }
 

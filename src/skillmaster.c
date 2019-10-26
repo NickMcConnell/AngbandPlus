@@ -42,13 +42,16 @@ enum {
     _THROWING,
     _DUAL_WIELDING,
     _RIDING,
-    _DEVICES,
+    _DEVICE_SKILL,
     _STEALTH,
     _SPEED,
     _AWARENESS,
     _HEALTH,
     _AGILITY,
     _MAGIC_RESISTANCE,
+    _SPELL_CAPACITY,
+    _SPELL_POWER,
+    _DEVICE_POWER,
     _SKILL_STOP
 };
 
@@ -67,6 +70,7 @@ enum {
     _STONE_SKIN,
     _CREATE_AMMO,
     _RODEO,
+    _RUSH_ATTACK,
     _ABILITY_STOP
 };
 
@@ -146,6 +150,7 @@ static _group_t _groups[] = {
          { _TYPE_PRAYER, REALM_DAEMON, "Daemon", 5, 0 },
          { _TYPE_PRAYER, REALM_DEATH, "Death", 5, 0 },
          { _TYPE_PRAYER, REALM_LIFE, "Life", 5, 0 },
+         { _TYPE_PRAYER, REALM_NATURE, "Nature", 5, 0 },
          { 0 }}},
     { _TYPE_SKILLS, "Skills",
         "There are various <color:B>Skills</color> important for every player, including "
@@ -156,10 +161,13 @@ static _group_t _groups[] = {
         "(e.g. Agility improves DEX while Health improve CON).",
         {{ _TYPE_SKILLS, _AGILITY, "Agility", 3, 0 },
          { _TYPE_SKILLS, _AWARENESS, "Awareness", 3, 0 },
-         { _TYPE_SKILLS, _DEVICES, "Devices", 3, 0 },
+         { _TYPE_SKILLS, _DEVICE_SKILL, "Device Skill", 3, 0 },
+         { _TYPE_SKILLS, _DEVICE_POWER, "Device Power", 3, 0 },
          { _TYPE_SKILLS, _HEALTH, "Health", 3, 0 },
          { _TYPE_SKILLS, _MAGIC_RESISTANCE, "Magic Resistance", 3, 0 },
          { _TYPE_SKILLS, _SPEED, "Speed", 3, 0 },
+         { _TYPE_SKILLS, _SPELL_CAPACITY, "Spell Capacity", 3, 0 },
+         { _TYPE_SKILLS, _SPELL_POWER, "Spell Power", 3, 0 },
          { _TYPE_SKILLS, _STEALTH, "Stealth", 3, 0 },
          { 0 }}},
     { _TYPE_TECHNIQUE, "Techniques",
@@ -190,6 +198,7 @@ static _group_t _groups[] = {
          { _TYPE_ABILITY, _REGENERATION, "Regeneration", 1, 0 },
          { _TYPE_ABILITY, _RESISTANCE, "Resistance", 1, 0 },
          { _TYPE_ABILITY, _RODEO, "Rodeo", 1, 0 },
+         { _TYPE_ABILITY, _RUSH_ATTACK, "Rush Attack", 1, 0 },
          { _TYPE_ABILITY, _STONE_SKIN, "Stone Skin", 1 , 0 },
          { 0 }}},
     { 0 }
@@ -392,9 +401,9 @@ static void _melee_init_class(class_t *class_ptr)
     };
     int pts = MIN(10, _get_group_pts(_TYPE_MELEE));
     _melee_skill_t row = _tbl[pts];
-    class_ptr->base_skills.thn += row.base_thn;
+    class_ptr->skills.thn += row.base_thn;
     class_ptr->extra_skills.thn += row.xtra_thn;
-    class_ptr->base_skills.dev += row.dev;
+    class_ptr->skills.dev += row.dev;
     class_ptr->stats[A_STR] += row.str;
     class_ptr->stats[A_DEX] += row.dex;
     class_ptr->stats[A_INT] += row.int_;
@@ -413,36 +422,34 @@ static _melee_info_t _melee_info[6] = {
     {  0,  0, 8000, 600, 60, 100 }
 };
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    int           pts = _get_skill_pts(_TYPE_MELEE, o_ptr->tval);
+    int           pts = _get_skill_pts(_TYPE_MELEE, obj->tval);
     int           magic_pts = _get_group_pts(_TYPE_MAGIC);
-    _melee_info_t info;
+    _melee_info_t melee;
 
     assert(0 <= pts && pts <= 5);
-    info = _melee_info[pts];
+    melee = _melee_info[pts];
 
     /* Blows Calculation */
-    info_ptr->blows_calc.max = info.blows_max - 5*magic_pts;
-    info_ptr->blows_calc.wgt = 70;
-    info_ptr->blows_calc.mult = info.blows_mult;
+    info->blows_calc.max = melee.blows_max - 5*magic_pts;
+    info->blows_calc.wgt = 70;
+    info->blows_calc.mult = melee.blows_mult;
     if (p_ptr->riding)
     {
-        u32b flgs[OF_ARRAY_SIZE];
-        obj_flags(o_ptr, flgs);
-        if (have_flag(flgs, OF_RIDING))
+        if (obj_has_flag(obj, OF_RIDING))
         {
             pts = _get_skill_pts(_TYPE_TECHNIQUE, _RIDING);
-            info_ptr->blows_calc.mult += 5 * pts;
+            info->blows_calc.mult += 5 * pts;
         }
     }
 
     /* Combat Bonuses */
-    info_ptr->to_h += info.to_h;
-    info_ptr->dis_to_h += info.to_h;
+    info->to_h += melee.to_h;
+    info->dis_to_h += melee.to_h;
 
-    info_ptr->to_d += info.to_d;
-    info_ptr->dis_to_d += info.to_d;
+    info->to_d += melee.to_d;
+    info->dis_to_d += melee.to_d;
 }
 
 int skillmaster_weapon_prof(int tval)
@@ -454,6 +461,8 @@ int skillmaster_weapon_prof(int tval)
 
 bool skillmaster_weapon_is_icky(int tval)
 {
+    if (tval == TV_BOW) /* XXX "favorite" keyword in autopicker ends up here ... */
+        return !_get_skill_pts(_TYPE_SHOOT, _ARCHERY);
     if (_get_skill_pts(_TYPE_MELEE, tval) || _get_skill_pts(_TYPE_SHOOT, _THROWING))
         return FALSE;
     return TRUE;
@@ -473,7 +482,7 @@ static void _melee_calc_bonuses(void)
     int pts = _get_skill_pts(_TYPE_MELEE, _MARTIAL_ARTS);
     assert(0 <= pts && pts <= 5);
     p_ptr->monk_lvl = (p_ptr->lev * _melee_info[pts].ma_wgt + 50) / 100;
-    if (!equip_find_first(object_is_melee_weapon) && p_ptr->monk_lvl && !heavy_armor())
+    if (!equip_find_first(obj_is_weapon) && p_ptr->monk_lvl && !heavy_armor())
     {
         monk_ac_bonus();
         if (pts >= 5)
@@ -487,8 +496,8 @@ static void _melee_calc_bonuses(void)
     pts = _get_skill_pts(_TYPE_TECHNIQUE, _DUAL_WIELDING);
     if (pts >= 5)
     {
-        p_ptr->weapon_info[0].genji = TRUE;
-        p_ptr->weapon_info[1].genji = TRUE;
+        add_flag(p_ptr->attack_info[0].paf_flags, PAF_GENJI);
+        add_flag(p_ptr->attack_info[1].paf_flags, PAF_GENJI);
     }
 }
 
@@ -519,14 +528,14 @@ static void _shoot_init_class(class_t *class_ptr)
      * player can just choose _THROWING to gain both benefits! */
     int pts = MIN(5, _get_skill_pts(_TYPE_SHOOT, _ARCHERY));
     _shoot_info_t row = _shoot_info[pts];
-    class_ptr->base_skills.thb += row.base_thb;
+    class_ptr->skills.thb += row.base_thb;
     class_ptr->extra_skills.thb += row.xtra_thb;
 
     pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
     class_ptr->stats[A_DEX] += (pts + 1) / 2;
 
     pts = _get_skill_pts(_TYPE_SHOOT, _ARCHERY);
-    class_ptr->base_skills.stl += (pts + 1) / 2;
+    class_ptr->skills.stl += (pts + 1) / 2;
 }
 
 int skillmaster_bow_prof(void)
@@ -558,7 +567,7 @@ static void _shoot_calc_bonuses(void)
     p_ptr->skill_tht += _throw_info[pts].skill;
 }
 
-static void _throw_weapon_spell(int cmd, variant *res)
+static void _throw_weapon_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -569,13 +578,13 @@ static void _throw_weapon_spell(int cmd, variant *res)
         var_set_string(res, "Throws your weapon, which might return to you.");
         break;
     case SPELL_CAST: {
-        py_throw_t context = {0};
-        int        pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
+        plr_throw_t context = {0};
+        int         pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
 
         context.type = THROW_BOOMERANG;
         context.mult = _throw_info[pts].mult;
         context.back_chance = _throw_info[pts].back;
-        var_set_bool(res, py_throw(&context));
+        var_set_bool(res, plr_throw(&context));
         break; }
     case SPELL_ENERGY: {
         int pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
@@ -599,24 +608,24 @@ static void _magic_init_class(class_t *class_ptr)
         { 25,  9, 1,  0,  0 },
         { 27,  9, 1,  0,  0 },
         { 29,  9, 2,  0,  0 },
-        { 31,  9, 2,  0,  0 },
-        { 33,  9, 3, -1,  0 },
+        { 31,  9, 2,  0, -1 },
+        { 33,  9, 3, -1, -1 },
 
         { 33, 10, 3, -1, -1 },
         { 35, 10, 3, -2, -1 },
-        { 37, 10, 3, -2, -1 },
-        { 39, 10, 3, -2, -1 },
-        { 40, 11, 4, -3, -2 },
+        { 37, 10, 3, -2, -2 },
+        { 39, 10, 3, -2, -2 },
+        { 41, 11, 4, -3, -2 },
 
-        { 41, 11, 5, -3, -2 },
-        { 42, 11, 5, -4, -2 },
-        { 43, 11, 5, -4, -3 },
-        { 44, 11, 6, -4, -3 },
-        { 45, 12, 7, -5, -3 }
+        { 43, 11, 5, -3, -3 },
+        { 45, 11, 5, -4, -3 },
+        { 47, 11, 5, -4, -3 },
+        { 50, 11, 6, -4, -3 },
+        { 55, 12, 7, -5, -3 }
     };
     int pts = _get_group_pts(_TYPE_MAGIC);
     _magic_skill_t row = _tbl[MIN(15, pts)];
-    class_ptr->base_skills.dev += row.base_dev;
+    class_ptr->skills.dev += row.base_dev;
     class_ptr->extra_skills.dev += row.xtra_dev;
     class_ptr->stats[A_INT] += row.int_;
     class_ptr->stats[A_STR] += row.str;
@@ -628,11 +637,11 @@ static void _magic_init_class(class_t *class_ptr)
     class_ptr->stats[A_CHR] += (pts + 1) / 2;
 
     pts = _get_skill_pts(_TYPE_MAGIC, REALM_SORCERY);
-    class_ptr->base_skills.dev += pts;
+    class_ptr->skills.dev += pts;
 
     pts = _get_skill_pts(_TYPE_MAGIC, REALM_CRAFT);
-    class_ptr->base_skills.thn += 3*pts;
-    class_ptr->base_skills.thb += 2*pts;
+    class_ptr->skills.thn += 3*pts;
+    class_ptr->skills.thb += 2*pts;
 }
 
 static void _prayer_init_class(class_t *class_ptr)
@@ -655,10 +664,10 @@ static void _prayer_init_class(class_t *class_ptr)
     };
     int pts = _get_group_pts(_TYPE_PRAYER);
     _prayer_skill_t row = _tbl[MIN(10, pts)];
-    class_ptr->base_skills.sav += row.base_sav;
+    class_ptr->skills.sav += row.base_sav;
     class_ptr->extra_skills.sav += row.xtra_sav;
     class_ptr->stats[A_WIS] += row.wis;
-    class_ptr->base_skills.dev += (pts + 1) / 2;
+    class_ptr->skills.dev += (pts + 1) / 2;
 }
 
 typedef struct { int lvl_mult; int cost_mult; int fail_adj; int fail_min; } _realm_skill_t;
@@ -681,10 +690,10 @@ static encumbrance_info _encumbrance_tbl[11] = {
     { 450,  70,  800 },
 
     { 440,  90,  700 },
-    { 430, 100,  600 },
-    { 420, 100,  600 },
-    { 410, 100,  600 },
-    { 400, 100,  600 }
+    { 430, 110,  600 },
+    { 420, 140,  600 },
+    { 410, 170,  600 },
+    { 400, 200,  600 }
 };
 
 caster_info *_caster_info(void)
@@ -692,10 +701,19 @@ caster_info *_caster_info(void)
     static caster_info info = {0};
     int magic_pts = _get_group_pts(_TYPE_MAGIC);
     int prayer_pts = _get_group_pts(_TYPE_PRAYER);
+    int melee_pts = _get_group_pts(_TYPE_MELEE);
     int enc_pts = magic_pts + (prayer_pts + 1) / 2;
 
     info.options = 0;
     info.encumbrance = _encumbrance_tbl[MIN(10, enc_pts)];
+
+    /* XXX use skill points appropriate to current melee weapon */
+    info.encumbrance.weapon_pct -= 7 * melee_pts;
+    if (info.encumbrance.weapon_pct < 0)
+        info.encumbrance.weapon_pct = 0;
+    if (info.encumbrance.weapon_pct > 100)
+        info.encumbrance.weapon_pct = 100;
+
     /* Experimental: Learning Kendo let's you focus
      * to supercharge mana, no matter what other realms you
      * know. This is powerful, so we preclude access
@@ -763,6 +781,19 @@ static bool _has_magic(void)
     return TRUE;
 }
 
+int skillmaster_antimagic_prob(void)
+{
+    int pts = _get_group_pts(_TYPE_MAGIC);
+    if (pts)
+        return 100 + pts*pts*10;
+
+    pts = _get_group_pts(_TYPE_PRAYER);
+    if (pts)
+        return 100 + pts*20;
+
+    return 0;
+}
+
 static bool _can_cast(void)
 {
     if (!_has_magic())
@@ -771,13 +802,13 @@ static bool _can_cast(void)
         flush();
         return FALSE;
     }
-    if (p_ptr->blind || no_lite())
+    if (plr_tim_find(T_BLIND) || no_lite())
     {
         msg_print("You cannot see!");
         flush();
         return FALSE;
     }
-    if (p_ptr->confused)
+    if (plr_tim_find(T_CONFUSED))
     {
         msg_print("You are too confused!");
         flush();
@@ -824,7 +855,7 @@ static int _get_realm_stat(int realm)
 
 static bool _spellbook_hook(obj_ptr obj)
 {
-    if (obj_is_book(obj))
+    if (obj_is_spellbook(obj))
     {
         int realm = tval2realm(obj->tval);
         int pts = _get_realm_pts(realm);
@@ -889,16 +920,16 @@ static vec_ptr _get_spell_list(object_type *spellbook)
     {
         _spell_info_ptr spell = _get_spell(realm, i, pts);
 
-        if (spell->cost && is_magic(realm))
-        {
-            if (p_ptr->easy_realm1 == realm || (p_ptr->dec_mana && pts >= 4))
-                spell->cost = MAX(1, spell->cost * 3 / 4);
-        }
         if (realm != REALM_HISSATSU)
         {
             int old_dec_mana = p_ptr->dec_mana;
-            if (p_ptr->easy_realm1 == realm) /* Hack: spells.c is not prepared for book based casting */
-                p_ptr->dec_mana = TRUE;
+            if (p_ptr->easy_realm1 == realm) /* XXX calculate_fail_rate_aux needs a refactor */
+                p_ptr->dec_mana++;
+            if (spell->cost && is_magic(realm))
+            {
+                if (p_ptr->easy_realm1 == realm || (p_ptr->dec_mana && pts >= 4))
+                    spell->cost = MAX(1, (spell->cost + 1) * dec_mana_cost(p_ptr->dec_mana) / 100);
+            }
             spell->fail = virtue_mod_spell_fail(realm, spell->fail); /* Ditto with virtues */
             spell->fail = calculate_fail_rate(spell->level, spell->fail, stat);
             p_ptr->dec_mana = old_dec_mana;
@@ -1125,7 +1156,7 @@ void skillmaster_cast(void)
         
         if (!spellbook)
             return;
-        if (spellbook->tval == TV_HISSATSU_BOOK && !equip_find_first(object_is_melee_weapon))
+        if (spellbook->tval == TV_HISSATSU_BOOK && !equip_find_first(obj_is_weapon))
         {
             if (flush_failure) flush();
             msg_print("You need to wield a weapon!");
@@ -1151,8 +1182,7 @@ void skillmaster_browse(void)
 
 static bool _is_spellbook(int tval)
 {
-    if (tval < TV_BOOK_BEGIN || tval > TV_BOOK_END) return FALSE;
-    return TRUE;
+    return tv_is_spellbook(tval);
 }
 
 bool skillmaster_is_allowed_book(int tval, int sval) /* For autopick.c */
@@ -1170,12 +1200,12 @@ static void _skills_init_class(class_t *class_ptr)
 
     pts = _get_skill_pts(_TYPE_SKILLS, _AGILITY);
     class_ptr->stats[A_DEX] += pts;
-    class_ptr->base_skills.dis += 25 + 7*pts;
+    class_ptr->skills.dis += 25 + 7*pts;
     class_ptr->extra_skills.dis += 7 + 2*pts;
 
     pts = _get_skill_pts(_TYPE_SKILLS, _AWARENESS);
-    class_ptr->base_skills.srh += 12 + 15*pts;
-    class_ptr->base_skills.fos += 6 + 15*pts;
+    class_ptr->skills.srh += 12 + 15*pts;
+    class_ptr->skills.fos += 6 + 15*pts;
     if (!pts)
         class_ptr->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK;
     else
@@ -1183,9 +1213,11 @@ static void _skills_init_class(class_t *class_ptr)
         class_ptr->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
                            CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
     }
+    pts = _get_skill_pts(_TYPE_MELEE, _MARTIAL_ARTS);
+    if (pts) class_ptr->flags |= CLASS_MARTIAL_ARTS;
 
-    pts = _get_skill_pts(_TYPE_SKILLS, _DEVICES);
-    class_ptr->base_skills.dev += 10*pts;
+    pts = _get_skill_pts(_TYPE_SKILLS, _DEVICE_SKILL);
+    class_ptr->skills.dev += 10*pts;
 
     pts = _get_skill_pts(_TYPE_SKILLS, _HEALTH);
     class_ptr->stats[A_CON] += pts;
@@ -1193,10 +1225,10 @@ static void _skills_init_class(class_t *class_ptr)
     class_ptr->base_hp += 7*pts;
 
     pts = _get_skill_pts(_TYPE_SKILLS, _MAGIC_RESISTANCE);
-    class_ptr->base_skills.sav += 15*pts;
+    class_ptr->skills.sav += 15*pts;
 
     pts = _get_skill_pts(_TYPE_SKILLS, _STEALTH);
-    class_ptr->base_skills.stl += 3*pts;
+    class_ptr->skills.stl += 3*pts;
 }
 
 static void _skills_calc_bonuses(void)
@@ -1216,6 +1248,16 @@ static void _skills_calc_bonuses(void)
     pts = _get_skill_pts(_TYPE_SKILLS, _STEALTH);
     if (pts >= 3)
         p_ptr->ambush = TRUE;
+
+    pts = _get_skill_pts(_TYPE_SKILLS, _DEVICE_POWER);
+    p_ptr->device_power += pts;
+
+    pts = _get_skill_pts(_TYPE_SKILLS, _SPELL_CAPACITY);
+    p_ptr->spell_cap += 2*pts;
+
+    pts = _get_skill_pts(_TYPE_SKILLS, _SPELL_POWER);
+    p_ptr->spell_power += pts;
+
 }
 
 void _skills_get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -1232,6 +1274,18 @@ void _skills_get_flags(u32b flgs[OF_ARRAY_SIZE])
     pts = _get_skill_pts(_TYPE_SKILLS, _SPEED);
     if (pts > 0)
         add_flag(flgs, OF_SPEED);
+
+    pts = _get_skill_pts(_TYPE_SKILLS, _DEVICE_POWER);
+    if (pts > 0)
+        add_flag(flgs, OF_DEVICE_POWER);
+
+    pts = _get_skill_pts(_TYPE_SKILLS, _SPELL_CAPACITY);
+    if (pts > 0)
+        add_flag(flgs, OF_SPELL_CAP);
+
+    pts = _get_skill_pts(_TYPE_SKILLS, _SPELL_POWER);
+    if (pts > 0)
+        add_flag(flgs, OF_SPELL_POWER);
 }
 
 /************************************************************************
@@ -1242,8 +1296,8 @@ void _tech_init_class(class_t *class_ptr)
     int pts;
 
     pts = _get_skill_pts(_TYPE_TECHNIQUE, REALM_BURGLARY);
-    class_ptr->base_skills.stl += (pts + 1) / 2;
-    class_ptr->base_skills.dis += 5*pts;
+    class_ptr->skills.stl += (pts + 1) / 2;
+    class_ptr->skills.dis += 5*pts;
 
     pts = _get_skill_pts(_TYPE_TECHNIQUE, REALM_HISSATSU);
     if (pts)
@@ -1600,6 +1654,8 @@ static int _get_powers(spell_info* spells, int max)
         _add_power(&spells[ct++], create_ammo_spell);
     if (ct < max && _get_skill_pts(_TYPE_ABILITY, _RODEO) > 0)
         _add_power(&spells[ct++], rodeo_spell);
+    if (ct < max && _get_skill_pts(_TYPE_ABILITY, _RUSH_ATTACK) > 0)
+        _add_power(&spells[ct++], rush_attack_spell);
 
     return ct;
 }
@@ -1672,8 +1728,8 @@ static void _character_dump(doc_ptr doc)
     int i;
     if (_get_skill_pts(_TYPE_SHOOT, _THROWING))
     {
-        py_throw_t context = {0};
-        int        pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
+        plr_throw_t context = {0};
+        int         pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
 
         context.type = THROW_BOOMERANG | THROW_DISPLAY;
         context.mult = _throw_info[pts].mult;
@@ -1683,9 +1739,9 @@ static void _character_dump(doc_ptr doc)
         doc_insert(doc, "<topic:Throwing>=================================== <color:keypress>T</color>hrowing ==================================\n\n");
         for (i = 0; i < MAX_HANDS; i++)
         {
-            if (p_ptr->weapon_info[i].wield_how == WIELD_NONE) continue;
-            context.obj = equip_obj(p_ptr->weapon_info[i].slot);
-            py_throw_doc(&context, doc);
+            if (p_ptr->attack_info[i].type != PAT_WEAPON) continue;
+            context.obj = equip_obj(p_ptr->attack_info[i].slot);
+            plr_throw_doc(&context, doc);
         }
     }
     doc_printf(doc, "<topic:Skills>==================================== <color:keypress>S</color>kills ===================================\n\n");
@@ -1714,29 +1770,32 @@ static void _character_dump(doc_ptr doc)
  * less advantageous than proper mages. */
 int skillmaster_calc_xtra_hp(int amt)
 {
-    int w1 = 5, w2 = 5, w3 = 5;
+    int w1 = 0, w2 = 0, w3 = 0;
 
     w1 += _get_group_pts(_TYPE_MELEE);
-    w1 += 5 * _get_skill_pts(_TYPE_SKILLS, _HEALTH);
+    w1 += 2 * _get_skill_pts(_TYPE_SKILLS, _HEALTH);
 
     w2 += _get_group_pts(_TYPE_SHOOT);
     w2 += _get_group_pts(_TYPE_PRAYER);
 
     w3 += _get_group_pts(_TYPE_MAGIC);
 
-    return py_prorata_level_aux(amt, w1, w2, w3);
+    if (w1 + w2 + w3 == 0)
+        return plr_prorata_level_aux(amt, 1, 1, 1);
+
+    return plr_prorata_level_aux(amt, w1, w2, w3);
 }
 
-class_t *skillmaster_get_class(void)
+plr_class_ptr skillmaster_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
     int i;
 
-    if (!init)
+    if (!me)
     {
-        me.name = "Skillmaster";
-        me.desc = "The Skillmaster is not your ordinary class. Instead, you "
+        me = plr_class_alloc(CLASS_SKILLMASTER);
+        me->name = "Skillmaster";
+        me->desc = "The Skillmaster is not your ordinary class. Instead, you "
                   "may design your own class, on the fly, using a point based "
                   "skill system. Upon birth, you will get 5 points to spend "
                   "and you should use these wisely to set the basic direction "
@@ -1754,45 +1813,44 @@ class_t *skillmaster_get_class(void)
                   "beginning or immediate players. You only have a limited "
                   "amount of points to spend, and your choices are irreversible.";
 
-        me.exp = 130;
+        me->exp = 130;
 
-        me.birth = _birth;
-        me.character_dump = _character_dump;
-        me.caster_info = _caster_info;
-        me.gain_level = _gain_level;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.get_powers = _get_powers;
-        me.get_flags = _get_flags;
-        me.load_player = _load_player;
-        me.save_player = _save_player;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.gain_level = _gain_level;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.load_player = _load_player;
+        me->hooks.save_player = _save_player;
     }
     /* Reset Stats and Skills on Each Call. Having these things
      * calculated here, rather than in calc_bonuses, enhances the
      * flavor of "building your own class" */
     for (i = 0; i < MAX_STATS; i++)
-        me.stats[i] = 0;
+        me->stats[i] = 0;
 
-    skills_init(&me.base_skills);
-    skills_init(&me.extra_skills);
+    skills_init(&me->skills);
+    skills_init(&me->extra_skills);
 
-    me.life = 100;
-    me.base_hp = 10;
-    me.pets = 40;
-    me.flags = 0;
+    me->life = 100;
+    me->base_hp = 10;
+    me->pets = 40;
+    me->flags = 0;
 
     /* Rebuild the class_t, using the current skill allocation */
     if (!spoiler_hack && !birth_hack)
     {
-        _melee_init_class(&me);
-        _shoot_init_class(&me);
-        _magic_init_class(&me);
-        _prayer_init_class(&me);
-        _skills_init_class(&me);
-        _tech_init_class(&me);
+        _melee_init_class(me);
+        _shoot_init_class(me);
+        _magic_init_class(me);
+        _prayer_init_class(me);
+        _skills_init_class(me);
+        _tech_init_class(me);
     }
 
-    return &me;
+    return me;
 }
 

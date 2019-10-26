@@ -137,17 +137,13 @@ static void k_info_reset(void)
 
 /*
  * Clear all the global "character" data
+ * XXX Only used by player_birth() 
  */
 static void player_wipe(void)
 {
     int i;
 
-    /* Hack -- free the "last message" string */
-    if (p_ptr->last_message) z_string_free(p_ptr->last_message);
-
-    /* Hack -- zero the struct */
-    (void)WIPE(p_ptr, player_type);
-    p_ptr->mimic_form = MIMIC_NONE;
+    plr_wipe();
 
     /* Start with no artifacts made yet */
     for (i = 0; i < max_a_idx; i++)
@@ -171,7 +167,7 @@ static void player_wipe(void)
         r_ptr->cur_num = 0;
 
         /* Hack -- Reset the max counter */
-        r_ptr->max_num = 100;
+        r_ptr->max_num = 30000;
         r_ptr->flagsx = 0;
 
         /* Hack -- Reset the max counter */
@@ -198,166 +194,23 @@ static void player_wipe(void)
         r_ptr->r_flagsr &= ~(RFR_PACT_MONSTER);
     }
 
-
-    /* Hack -- Well fed player */
-    p_ptr->food = PY_FOOD_FULL - 1;
-
-
-    /* Wipe the spells */
-    if (p_ptr->pclass == CLASS_SORCERER)
-    {
-        p_ptr->spell_learned1 = p_ptr->spell_learned2 = 0xffffffffL;
-        p_ptr->spell_worked1 = p_ptr->spell_worked2 = 0xffffffffL;
-    }
-    else
-    {
-        p_ptr->spell_learned1 = p_ptr->spell_learned2 = 0L;
-        p_ptr->spell_worked1 = p_ptr->spell_worked2 = 0L;
-    }
-    p_ptr->spell_forgotten1 = p_ptr->spell_forgotten2 = 0L;
-    for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
-    p_ptr->learned_spells = 0;
-    p_ptr->add_spells = 0;
-    p_ptr->knowledge = 0;
-
     /* Clean the mutation count */
     mutant_regenerate_mod = 100;
 
-    /* Clear "cheat" options */
-    cheat_peek = FALSE;
-    cheat_hear = FALSE;
-    cheat_room = FALSE;
-    cheat_xtra = FALSE;
-    cheat_live = FALSE;
-    cheat_save = FALSE;
-
-    /* Assume no winning game */
-    p_ptr->total_winner = FALSE;
-
     world_player = FALSE;
-
-    /* Assume no panic save */
-    p_ptr->panic_save = 0;
-
-    /* Assume no cheating */
-    p_ptr->noscore = 0;
-    p_ptr->wizard = FALSE;
-
-    /* Not waiting to report score */
-    p_ptr->wait_report_score = FALSE;
-
-    /* Default pet command settings */
-    p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
-    p_ptr->pet_extra_flags = (PF_TELEPORT | PF_ATTACK_SPELL | PF_SUMMON_SPELL);
-
-    /* Wipe the recall depths */
-    for (i = 0; i < max_d_idx; i++)
-    {
-        max_dlv[i] = 0;
-        dungeon_flags[i] = 0;
-    }
-
-    p_ptr->wild_mode = FALSE;
-
-    for (i = 0; i < MAX_MAGIC_NUM; i++)
-    {
-        p_ptr->magic_num1[i] = 0;
-        p_ptr->magic_num2[i] = 0;
-    }
-
-    /* Level one */
-    p_ptr->max_plv = p_ptr->lev = 1;
-    p_ptr->clp = 1000;
-
-    /* Initialize arena and rewards information -KMW- */
-    p_ptr->arena_number = 0;
-    p_ptr->inside_arena = FALSE;
-    for (i = 0; i < MAX_MANE; i++)
-    {
-        p_ptr->mane_spell[i] = -1;
-        p_ptr->mane_dam[i] = 0;
-    }
-    p_ptr->mane_num = 0;
-    p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
-
-    /* Bounty */
-    p_ptr->today_mon = 0;
-
-    /* Reset monster arena */
-    battle_monsters();
-
-    /* Reset mutations */
-    for (i = 0; i < MUT_FLAG_SIZE; ++i)
-    {
-        p_ptr->muta[i] = 0;
-        p_ptr->muta_lock[i] = 0;
-    }
-
-    for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
-        p_ptr->demigod_power[i] = -1;
-
-    p_ptr->draconian_power = -1;
-
-    p_ptr->duelist_target_idx = 0;
-
-    /* Reset virtues*/
-    for (i = 0; i < 8; i++) p_ptr->virtues[i]=0;
-
-    /* Set the recall dungeon accordingly */
-    if (no_wilderness)
-    {
-        dungeon_type = 0;
-        p_ptr->recall_dungeon = DUNGEON_ANGBAND;
-    }
-    else
-    {
-        dungeon_type = 0;
-        p_ptr->recall_dungeon = DUNGEON_STRONGHOLD;
-    }
 }
 
 /*
  * Reset turn
  */
-static void init_turn(void)
-{
-    if ( p_ptr->prace == RACE_VAMPIRE
-      || p_ptr->prace == RACE_MON_VAMPIRE
-      || p_ptr->prace == RACE_SKELETON
-      || p_ptr->prace == RACE_ZOMBIE
-      || p_ptr->prace == RACE_SPECTRE )
-    {
-        /* Undead start just after midnight */
-        game_turn = (TURNS_PER_TICK*3 * TOWN_DAWN) / 4 + 1;
-        game_turn_limit = TURNS_PER_TICK * TOWN_DAWN * MAX_DAYS + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
-    }
-    else
-    {
-        game_turn = 1;
-        game_turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
-    }
-
-    dungeon_turn = 1;
-    dungeon_turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
-}
-
 /*
  * Hook function for human corpses
  */
-bool monster_hook_human(int r_idx)
+bool monster_hook_human(mon_race_ptr r_ptr)
 {
-    monster_race *r_ptr = &r_info[r_idx];
-
     if (r_ptr->flags1 & (RF1_UNIQUE)) return FALSE;
-
     if (my_strchr("pht", r_ptr->d_char)) return TRUE;
-
     return FALSE;
-}
-
-cptr birth_get_realm_desc(int i)
-{
-    return realm_jouhou[i-1];
 }
 
 /*
@@ -372,18 +225,11 @@ void player_birth(void)
     birth_hack = TRUE;
     playtime = 0;
 
-    wipe_m_list();
     player_wipe();
 
     /* Create a new character */
-    if (py_birth() != UI_OK)
+    if (plr_birth() != UI_OK)
         quit(NULL);
-
-    /* Here's a bunch of crap that py_birth() shouldn't need to know */
-    init_turn();
-
-    /* Generate the random seeds for the wilderness */
-    seed_wilderness();
 
     birth_hack = FALSE;
 }

@@ -2,7 +2,63 @@
 
 static int _force_boost(void) { return p_ptr->magic_num1[0]; }
 
-static void _small_force_ball_spell(int cmd, variant *res)
+/************************************************************************
+ * Timers
+ ************************************************************************/
+enum { _SH_FORCE = T_CUSTOM };
+static bool _sh_force_on(plr_tim_ptr timer)
+{
+    msg_print("You are enveloped by an aura of the Force!");
+    return TRUE;
+}
+static void _sh_force_off(plr_tim_ptr timer)
+{
+    msg_print("The aura of the Force disappeared.");
+}
+static status_display_t _sh_force_display(plr_tim_ptr timer)
+{
+    return status_display_create("Force", "Fo", TERM_WHITE);
+}
+static plr_tim_info_ptr _sh_force(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(_SH_FORCE, "Aura of Force");
+    info->desc = "You are shielded by an aura of the force.";
+    info->on_f = _sh_force_on;
+    info->off_f = _sh_force_off;
+    info->status_display_f = _sh_force_display;
+    return info;
+}
+static void _register_timers(void) { plr_tim_register(_sh_force()); }
+/************************************************************************
+ * Attack
+ ************************************************************************/
+static void _after_hit(mon_attack_ptr context)
+{
+    if (plr_tim_find(_SH_FORCE)) /* paranoia */
+    {
+        if (!(context->race->flagsr & RFR_RES_ALL))
+        {
+            int dam = 2 + damroll(1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10));
+
+            dam = mon_damage_mod(context->mon, dam, FALSE);
+            msg_format("%^s is injured by the <color:B>Force</color>.", context->mon_name);
+
+            if (mon_take_hit(context->mon->id, dam, &context->fear, " is destroyed."))
+                context->stop = STOP_MON_DEAD;
+        }
+        else
+            mon_lore_r(context->mon, RFR_RES_ALL);
+    }
+}
+static void _mon_attack_init(mon_attack_ptr context)
+{
+    if (plr_tim_find(_SH_FORCE))
+        context->after_hit_f = _after_hit;
+}
+/************************************************************************
+ * Spells
+ ************************************************************************/
+static void _small_force_ball_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -45,7 +101,7 @@ static void _small_force_ball_spell(int cmd, variant *res)
     }
 }
 
-static void _flying_technique_spell(int cmd, variant *res)
+static void _flying_technique_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -57,7 +113,7 @@ static void _flying_technique_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        set_tim_levitation(spell_power(randint1(30) + 30 + _force_boost() / 5), FALSE);
+        plr_tim_add(T_LEVITATION, spell_power(randint1(30) + 30 + _force_boost() / 5));
         var_set_bool(res, TRUE);
         break;
     }
@@ -67,7 +123,7 @@ static void _flying_technique_spell(int cmd, variant *res)
     }
 }
 
-static void _kamehameha_spell(int cmd, variant *res)
+static void _kamehameha_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -108,7 +164,7 @@ static void _kamehameha_spell(int cmd, variant *res)
     }
 }
 
-static void _magic_resistance_spell(int cmd, variant *res)
+static void _magic_resistance_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -121,7 +177,7 @@ static void _magic_resistance_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int dur = randint1(20) + 20 + _force_boost() / 5;
-        set_resist_magic(spell_power(dur), FALSE);
+        plr_tim_add(T_RES_MAGIC, spell_power(dur));
         var_set_bool(res, TRUE);
         break;
     }
@@ -131,7 +187,7 @@ static void _magic_resistance_spell(int cmd, variant *res)
     }
 }
 
-static void _improve_force_spell(int cmd, variant *res)
+static void _improve_force_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -143,16 +199,21 @@ static void _improve_force_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
+        int oops = 4*p_ptr->lev + 120;
         msg_print("You improved the Force.");
         p_ptr->magic_num1[0] += (70 + p_ptr->lev);
-        p_ptr->update |= (PU_BONUS);
-        if (randint1(p_ptr->magic_num1[0]) > (p_ptr->lev * 4 + 120))
+        p_ptr->update |= PU_BONUS;
+        p_ptr->redraw |= PR_EFFECTS;
+        if (randint1(p_ptr->magic_num1[0]) > oops)
         {
-            msg_print("The Force exploded!");
+            int prob = (p_ptr->magic_num1[0] - oops) * 100 / p_ptr->magic_num1[0];
+            /* XXX shouldn't show the odds ... right? */
+            msg_format("<color:r>The Force exploded!</color> <color:B>(%d%%)</color>", prob);
             fire_ball(GF_MANA, 0, p_ptr->magic_num1[0] / 2, 10);
             take_hit(DAMAGE_LOSELIFE, p_ptr->magic_num1[0] / 2, "Explosion of the Force");
             p_ptr->magic_num1[0] = 0;
-            p_ptr->update |= (PU_BONUS);
+            p_ptr->update |= PU_BONUS;
+            p_ptr->redraw |= PR_EFFECTS;
             var_set_bool(res, FALSE); /* no energy consumed?? */
         }
         else var_set_bool(res, TRUE);
@@ -174,7 +235,7 @@ static void _improve_force_spell(int cmd, variant *res)
     }
 }
 
-static void _aura_of_force_spell(int cmd, variant *res)
+static void _aura_of_force_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -186,7 +247,7 @@ static void _aura_of_force_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        set_tim_sh_touki(spell_power(randint1(p_ptr->lev / 2) + 15 + _force_boost() / 7), FALSE);
+        plr_tim_add(_SH_FORCE, spell_power(randint1(p_ptr->lev / 2) + 15 + _force_boost() / 7));
         var_set_bool(res, TRUE);
         break;
     }
@@ -196,7 +257,7 @@ static void _aura_of_force_spell(int cmd, variant *res)
     }
 }
 
-static void _shock_power_spell(int cmd, variant *res)
+static void _shock_power_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -216,6 +277,7 @@ static void _shock_power_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int y, x, dam, dir;
+        mon_ptr mon;
         project_length = 1;
         /*if (!get_fire_dir(&dir)) XXX blow away won't work if a target is chosen ... dir == 5 */
         if (!get_rep_dir2(&dir))
@@ -224,23 +286,21 @@ static void _shock_power_spell(int cmd, variant *res)
             return;
         }
 
-        y = py + ddy[dir];
-        x = px + ddx[dir];
+        y = p_ptr->pos.y + ddy[dir];
+        x = p_ptr->pos.x + ddx[dir];
         dam = spell_power(damroll(8 + ((p_ptr->lev - 5) / 4) + _force_boost() / 12, 8) + p_ptr->to_d_spell);
         fire_beam(GF_MISSILE, dir, dam);
-        if (cave[y][x].m_idx)
+        mon = mon_at_xy(x, y);
+        if (mon)
         {
             int i;
             int ty = y, tx = x;
             int oy = y, ox = x;
-            int m_idx = cave[y][x].m_idx;
-            monster_type *m_ptr = &m_list[m_idx];
-            monster_race *r_ptr = &r_info[m_ptr->r_idx];
+            mon_race_ptr race = mon_race(mon);
             char m_name[80];
 
-            monster_desc(m_name, m_ptr, 0);
-
-            if (randint1(r_ptr->level * 3 / 2) > randint0(dam / 2) + dam/2)
+            monster_desc(m_name, mon, 0);
+            if (randint1(race->level * 3 / 2) > randint0(dam / 2) + dam/2)
             {
                 msg_format("%^s was not blown away.", m_name);
             }
@@ -257,21 +317,14 @@ static void _shock_power_spell(int cmd, variant *res)
                     }
                     else break;
                 }
-                if ((ty != oy) || (tx != ox))
+                if (ty != oy || tx != ox)
                 {
                     msg_format("You blow %s away!", m_name);
 
-                    cave[oy][ox].m_idx = 0;
-                    cave[ty][tx].m_idx = m_idx;
-                    m_ptr->fy = ty;
-                    m_ptr->fx = tx;
+                    dun_move_mon(cave, mon, point_create(tx, ty));
 
-                    update_mon(m_idx, TRUE);
-                    lite_spot(oy, ox);
-                    lite_spot(ty, tx);
-
-                    if (r_ptr->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
-                        p_ptr->update |= (PU_MON_LITE);
+                    if (race->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+                        p_ptr->update |= PU_MON_LITE;
                 }
             }
         }
@@ -284,7 +337,7 @@ static void _shock_power_spell(int cmd, variant *res)
     }
 }
 
-static void _large_force_ball_spell(int cmd, variant *res)
+static void _large_force_ball_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -324,7 +377,7 @@ static void _large_force_ball_spell(int cmd, variant *res)
     }
 }
 
-static void _summon_ghost_spell(int cmd, variant *res)
+static void _summon_ghost_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -340,7 +393,7 @@ static void _summon_ghost_spell(int cmd, variant *res)
         bool success = FALSE;
 
         for (i = 0; i < 1 + _force_boost()/100; i++)
-            if (summon_specific(-1, py, px, p_ptr->lev, SUMMON_PHANTOM, PM_FORCE_PET))
+            if (summon_specific(-1, p_ptr->pos, p_ptr->lev, SUMMON_PHANTOM, PM_FORCE_PET))
                 success = TRUE;
         if (success)
             msg_print("'Your wish, master?'");
@@ -355,7 +408,7 @@ static void _summon_ghost_spell(int cmd, variant *res)
     }
 }
 
-static void _exploding_flame_spell(int cmd, variant *res)
+static void _exploding_flame_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -385,7 +438,7 @@ static void _exploding_flame_spell(int cmd, variant *res)
     }
 }
 
-static void _super_kamehameha_spell(int cmd, variant *res)
+static void _super_kamehameha_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -425,7 +478,7 @@ static void _super_kamehameha_spell(int cmd, variant *res)
     }
 }
 
-static void _light_speed_spell(int cmd, variant *res)
+static void _light_speed_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -437,7 +490,7 @@ static void _light_speed_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        set_lightspeed(spell_power(randint1(16) + 16 + _force_boost() / 20), FALSE);
+        plr_tim_add(T_LIGHT_SPEED, spell_power(randint1(16) + 16 + _force_boost() / 20));
         var_set_bool(res, TRUE);
         break;
     }
@@ -490,13 +543,12 @@ static int _get_spells(spell_info* spells, int max)
     }
     for (hand = 0; hand < MAX_HANDS; hand++)
     {
-        if (p_ptr->weapon_info[hand].icky_wield) 
+        if (have_flag(p_ptr->attack_info[hand].paf_flags, PAF_ICKY))
         {
             penalty1 += 20;
             penalty2 += 5;
         }
-        else if ( p_ptr->weapon_info[hand].wield_how != WIELD_NONE
-              && !p_ptr->weapon_info[hand].bare_hands )
+        else if (p_ptr->attack_info[hand].type == PAT_WEAPON)
         {
             penalty1 += 10;
         }
@@ -540,7 +592,14 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    p_ptr->monk_lvl = (p_ptr->lev * 94 + 50) / 100;
+    if (p_ptr->lev <= 30)
+        p_ptr->monk_lvl = p_ptr->lev;
+    else
+    {
+        int l = p_ptr->lev - 30;
+        p_ptr->monk_lvl = 30 + l * 17 / 20;
+    }
+        
     if (p_ptr->lev >= 15) 
         p_ptr->clear_mind = TRUE;
 
@@ -574,7 +633,8 @@ static void _on_fail(const spell_info *spell)
     {
         msg_print("Your improved Force has gone away...");
         p_ptr->magic_num1[0] = 0;
-        p_ptr->update |= (PU_BONUS);
+        p_ptr->update |= PU_BONUS;
+        p_ptr->redraw |= PR_EFFECTS;
     }
 }
 
@@ -584,7 +644,8 @@ static void _on_cast(const spell_info *spell)
     if (spell->fn != _improve_force_spell && p_ptr->magic_num1[0])
     {
         p_ptr->magic_num1[0] = 0;
-        p_ptr->update |= (PU_BONUS);
+        p_ptr->update |= PU_BONUS;
+        p_ptr->redraw |= PR_EFFECTS;
     }
 }
 
@@ -601,6 +662,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.enc_wgt = 800;
         me.on_fail = _on_fail;
         me.on_cast = _on_cast;
+        me.realm1_choices = CH_LIFE | CH_NATURE | CH_DEATH | CH_ENCHANT | CH_CRUSADE;
         init = TRUE;
     }
     return &me;
@@ -608,9 +670,9 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_POTION, SV_POTION_CLARITY, rand_range(5, 10));
-    py_birth_spellbooks();
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_POTION, SV_POTION_CLARITY, rand_range(5, 10));
+    plr_birth_spellbooks();
 }
 
 static void _character_dump(doc_ptr doc)
@@ -619,33 +681,45 @@ static void _character_dump(doc_ptr doc)
     int        ct = _get_spells(spells, MAX_SPELLS);
 
     spellbook_character_dump(doc);
-
-    doc_insert(doc, "<color:r>Realm:</color> <color:B>Force</color>\n");
-    py_display_spells_aux(doc, spells, ct);
+    plr_display_spells_aux(doc, spells, ct, "<color:B>Force</color>");
 }
 
-class_t *force_trainer_get_class(void)
+static void _prt_effects(doc_ptr doc)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    if (p_ptr->magic_num1[0])
+    {
+        int color;
+        int force = p_ptr->magic_num1[0];
 
-    /* static info never changes */
-    if (!init)
+        if (force > 400) color = TERM_VIOLET;
+        else if (force > 300) color = TERM_RED;
+        else if (force > 200) color = TERM_L_RED;
+        else if (force > 100) color = TERM_YELLOW;
+        else color = TERM_L_UMBER;
+
+        doc_printf(doc, "<color:B>Force:</color><color:%c>%d</color>\n", attr_to_attr_char(color), force);
+    }
+}
+
+plr_class_ptr force_trainer_get_class(void)
+{
+    static plr_class_ptr me = NULL;
+
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  34,  38,   4,  32,  24,  50,  40 };
     skills_t xs = { 10,  11,  11,   0,   0,   0,  14,  15 };
 
-        me.name = "Force-Trainer";
-        me.desc = "A ForceTrainer is a master of the spiritual Force. They prefer "
+        me = plr_class_alloc(CLASS_FORCETRAINER);
+        me->name = "Force-Trainer";
+        me->desc = "A ForceTrainer is a master of the spiritual Force. They prefer "
                     "fighting with neither weapon nor armor. They are not as good "
                     "fighters as are Monks, but they can use both magic and the "
                     "spiritual Force. Wielding weapons or wearing heavy armor disturbs "
                     "use of the Force. Wisdom is a ForceTrainer's primary stat.\n \n"
                     "ForceTrainers use both spellbook magic and the special spiritual "
                     "power called the Force. They can select a realm from Life, "
-                    "Nature, Craft, Death, and Crusade. To use The Force, you select "
-                    "it just as if it were spellbook 'w'; which means you need to press "
-                    "'m' and then 'w' to select the Force. The most important spell of "
+                    "Nature, Craft, Death, and Crusade. The most important spell of "
                     "the Force is 'Improve Force'; each time a ForceTrainer activates "
                     "it, their Force power becomes more powerful, and their attack "
                     "power in bare-handed melee fighting is increased temporarily. The "
@@ -654,30 +728,32 @@ class_t *force_trainer_get_class(void)
                     "spell. They have a class power - 'Clear Mind' - which allows them "
                     "to rapidly regenerate their mana.";
         
-        me.stats[A_STR] =  0;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] =  3;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  0;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 100;
-        me.base_hp = 4;
-        me.exp = 135;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] =  0;
+        me->stats[A_INT] = -1;
+        me->stats[A_WIS] =  3;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  1;
+        me->stats[A_CHR] =  0;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 100;
+        me->base_hp = 4;
+        me->exp = 135;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG | CLASS_MARTIAL_ARTS;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.get_powers = _get_powers;
-        me.character_dump = _character_dump;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.register_timers = _register_timers;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.get_powers = _get_powers;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.mon_attack_init = _mon_attack_init;
+        me->hooks.prt_effects = _prt_effects;
     }
 
-    return &me;
+    return me;
 }

@@ -13,6 +13,12 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
+void _calc_bonuses(void)
+{
+    if (p_ptr->lev >= 30)
+        p_ptr->wizard_sight = TRUE;
+}
+
 static caster_info * _caster_info(void)
 {
     static caster_info me = {0};
@@ -25,6 +31,9 @@ static caster_info * _caster_info(void)
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 600;
         me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
+        me.realm1_choices = CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS | CH_DEATH | CH_TRUMP |
+            CH_ARCANE | CH_ENCHANT | CH_DAEMON | CH_CRUSADE | CH_ARMAGEDDON;
+        me.realm2_choices = me.realm1_choices;
         init = TRUE;
     }
     return &me;
@@ -32,23 +41,23 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_ROBE, 1);
-    py_birth_spellbooks();
+    plr_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_ROBE, 1);
+    plr_birth_spellbooks();
 }
 
-class_t *mage_get_class(void)
+plr_class_ptr mage_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  40,  38,   3,  16,  20,  34,  20};
     skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
 
-        me.name = "Mage";
-        me.desc = "A Mage is a spell caster that must live by his wits as he cannot "
+        me = plr_class_alloc(CLASS_MAGE);
+        me->name = "Mage";
+        me->desc = "A Mage is a spell caster that must live by his wits as he cannot "
                     "hope to simply hack his way through the dungeon like a warrior. "
                     "In addition to his spellbooks, a Mage should carry a range of "
                     "magical devices to help him in his endeavors which he can master "
@@ -65,29 +74,27 @@ class_t *mage_get_class(void)
                     "realm. They have a class power - 'Eat Magic' - which absorbs mana "
                     "from wands, staves or rods.";
 
-        me.stats[A_STR] = -4;
-        me.stats[A_INT] =  3;
-        me.stats[A_WIS] =  0;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] = -2;
-        me.stats[A_CHR] = -2;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 95;
-        me.base_hp = 0;
-        me.exp = 130;
-        me.pets = 30;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
+        me->stats[A_STR] = -4;
+        me->stats[A_INT] =  3;
+        me->stats[A_WIS] =  0;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] = -2;
+        me->stats[A_CHR] = -2;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 95;
+        me->base_hp = 0;
+        me->exp = 130;
+        me->pets = 30;
+        me->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                    CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG | CLASS_MAGE_BONUS;
         
-        me.birth = _birth;
-        me.caster_info = _caster_info;
-        /* TODO: This class uses spell books, so we are SOL
-        me.get_spells = _get_spells;*/
-        me.character_dump = spellbook_character_dump;
-        me.get_powers = _get_powers;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.character_dump = spellbook_character_dump;
+        me->hooks.get_powers = _get_powers;
     }
 
-    return &me;
+    return me;
 }

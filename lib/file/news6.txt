@@ -1,27 +1,34 @@
-<color:y>PosChengband <$:version></color>
-<style:screenshot>
-<color:s>The Sexy Swimsuit of the Valkyrie [0,+13]</color>                                       
-  <color:G>+3</color> to STR, DEX, CON                                               LEVEL <color:G>    50</color>
-  Resist <color:G>Poison</color>, <color:D>Dark</color>, <color:R>Confusion</color>, <color:R>Fear</color>                              EXP <color:G>   15.1M</color>
-  <color:B>See Invisible</color>                                                     AU  <color:G>   4.96M</color>
-                                                                    <color:d>            </color>
-  <color:U>Activation:</color> <color:B>Stone Skin</color>                                            STR!: <color:G>18/210</color>
-  <color:U>Info:</color>       Dur d20 + 20                                          INT!: <color:G> 18/90</color>
-  <color:U>Fail:</color>       1.6%                                                  WIS!: <color:G>18/200</color>
-  <color:U>Timeout:</color>    150                                                   DEX!: <color:G>18/160</color>
-                                                                    CON!: <color:G>18/210</color>
-  <color:r>Aggravates</color>                                                        CHR!: <color:G>18/150</color>
-  <color:B>It cannot be harmed by the elements.</color>                              AC     <color:G>  239</color>
-  <color:B>Score:</color> <color:u>28.7k</color> (L52)                                                HP <color:G>1148</color>/<color:G>1148</color>
-                                                                    SP <color:y> 225</color>/<color:G> 409</color>
-                                                                                
-<color:B>[Press </color><color:y>Any Key</color><color:B> to Continue]</color>                                         @ <color:G>100%</color>      
-                                                                    <color:W>?</color> <color:y> 55%</color>      
-                                                                    <color:U>,</color> <color:G>143%</color>      
-                                                                                
-...####....##########.#              #######...#               #.<color:s>%</color>              
-...#  ####...<color:y>"</color>#...<color:D>^</color>...#                    ###.#               #.#              
-...#     ####...###...#                      #<color:U>'</color>#               #.#  <color:y>Fast (+29)</color>  
-####   #######........#                     ##.#               <color:s>%</color>.<color:s>%</color>  <color:G>Full</color>        
-<color:B>Angband: L73</color>                  <color:y>Ultima</color> <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>                   
-</style>
+<color:y>PosChengband <$:version></color><style:screenshot>
+<color:w>Name       : </color><color:B>Shadowclaw                    </color><color:w>========== Stats ==========
+Sex        : </color><color:B>Female                              </color><color:w>STR! :    </color><color:G>18/***
+</color><color:w>Personality: </color><color:B>Ordinary                            </color><color:w>INT! :    </color><color:G>18/140
+</color><color:w>Race       : </color><color:B>Draconian                           </color><color:w>WIS! :    </color><color:G>18/170
+</color><color:w>Subrace    : </color><color:B>White                               </color><color:w>DEX! :    </color><color:G>18/200
+</color><color:w>Class      : </color><color:B>Ninja                               </color><color:w>Con! :    </color><color:y>18/***
+                                                 </color><color:w>Chr! :    </color><color:y>18/185
+                                        
+</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   :  </color><color:y>832/1015
+</color><color:w>Cur Exp    : </color><color:G>16377845                            </color><color:w>SP   :       </color><color:G>0/0
+</color><color:w>Max Exp    : </color><color:G>16377845                            </color><color:w>AC   :       </color><color:G>234
+</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:    </color><color:y>+37+10
+                                        
+                                           </color><color:w>========== Skills =========
+Gold       : </color><color:G>12149684                      </color><color:w>Melee      : </color><color:v>Amber[27]
+</color><color:w>Kills      :     </color><color:G>5192                      </color><color:w>Archery    : </color><color:G>Excellent
+</color><color:w>Uniques    :      </color><color:G>214                      </color><color:w>SavingThrow: </color><color:b>Heroic
+</color><color:w>Artifacts  :   </color><color:G>108+62                      </color><color:w>Stealth    : </color><color:b>Heroic
+                                           </color><color:w>Perception : </color><color:g>Superb
+</color><color:w>Game Day   :       </color><color:G>72                      </color><color:w>Searching  : </color><color:g>Superb
+</color><color:w>Game Time  :    </color><color:G>18:39                      </color><color:w>Disarming  : </color><color:b>Heroic
+</color><color:w>Play Time  :    </color><color:G>16:46                      </color><color:w>Device     : </color><color:b>Heroic
+                                        
+</color><color:w>a) </color><color:r>The Ring of Power (Narya) (+1)
+</color><color:w>b) </color><color:r>The Ring of Power (Nenya) (+2)
+</color><color:w>c) </color><color:r>The Ring of Power (Vilya) (+3)
+</color><color:w>d) </color><color:r>a Ring of Protection [+19] {NtNx;FaSi}
+</color><color:w>e) </color><color:r>a Ring (Defender) [+10] {CaDiFe;FaSi(St </color><color:B>A:Resist Poison</color><color:r>}
+</color><color:w>f) </color><color:r>a Ring of Speed (+21)
+</color><color:w>g) </color><color:o>an Amulet of Devotion (+2) {Wi;ShCa;FaSiHl </color><color:B>A:Remove Curse</color><color:o>}
+</color><color:w>h) </color><color:y>The Feanorian Lamp & Stone of Craft (+3) {StCn;So;Ds}
+</color><color:w>i) </color><color:U>a Shadow Cloak of Aman [6,+23] (+2) {Bl}
+</color><color:w>j) </color><color:U>The Golden Crown of Moire, Queen of Rebma [0,+15] (+2)</style>

@@ -1,6 +1,6 @@
 #include "angband.h"
 
-void heroism_spell(int cmd, variant *res)
+void heroism_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -11,7 +11,7 @@ void heroism_spell(int cmd, variant *res)
         var_set_string(res, "Temporarily grants increased combat prowess and great bravery.");
         break;
     case SPELL_CAST:
-        set_hero(randint1(25) + 25, FALSE);
+        plr_tim_add(T_HERO, randint1(25) + 25);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -21,7 +21,7 @@ void heroism_spell(int cmd, variant *res)
 }
 bool cast_heroism(void) { return cast_spell(heroism_spell); }
 
-void hide_in_mud_spell(int cmd, variant *res)
+void hide_in_mud_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -32,8 +32,8 @@ void hide_in_mud_spell(int cmd, variant *res)
         var_set_string(res, "Gain the ability to pass into walls temporarily, as well as extra resistance to acid.");
         break;
     case SPELL_CAST:
-        set_kabenuke(randint1(p_ptr->lev/2) + p_ptr->lev/2, FALSE);
-        set_oppose_acid(p_ptr->lev, FALSE);
+        plr_tim_add(T_PASSWALL, randint1(p_ptr->lev/2) + p_ptr->lev/2);
+        plr_tim_add(T_RES_ACID, p_ptr->lev);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -42,7 +42,7 @@ void hide_in_mud_spell(int cmd, variant *res)
     }
 }
 
-void ice_bolt_spell(int cmd, variant *res)
+void ice_bolt_spell(int cmd, var_ptr res)
 {
     int dd = 5 + p_ptr->lev / 4;
     int ds = 15;
@@ -77,7 +77,7 @@ void ice_bolt_spell(int cmd, variant *res)
     }
 }
 
-void identify_spell(int cmd, variant *res)
+void identify_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -97,7 +97,7 @@ void identify_spell(int cmd, variant *res)
 }
 bool cast_identify(void) { return cast_spell(identify_spell); }
 
-void identify_fully_spell(int cmd, variant *res)
+void identify_fully_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -117,7 +117,7 @@ void identify_fully_spell(int cmd, variant *res)
 }
 bool cast_identify_fully(void) { return cast_spell(identify_fully_spell); }
 
-void hand_of_doom_spell(int cmd, variant *res)
+void hand_of_doom_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -143,7 +143,7 @@ void hand_of_doom_spell(int cmd, variant *res)
     }
 }
 
-void haste_self_spell(int cmd, variant *res)
+void haste_self_spell(int cmd, var_ptr res)
 {
     int base = spell_power(p_ptr->lev);
     int sides = spell_power(20 + p_ptr->lev);
@@ -159,7 +159,7 @@ void haste_self_spell(int cmd, variant *res)
         var_set_string(res, info_duration(base, sides));
         break;
     case SPELL_CAST:
-        set_fast(base + randint1(sides), FALSE);
+        plr_tim_add(T_FAST, base + randint1(sides));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -168,7 +168,7 @@ void haste_self_spell(int cmd, variant *res)
     }
 }
 
-void healing_I_spell(int cmd, variant *res)
+void healing_I_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -183,8 +183,8 @@ void healing_I_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         hp_player(spell_power(300));
-        set_stun(0, TRUE);
-        set_cut(0, TRUE);
+        plr_tim_remove(T_STUN);
+        plr_tim_remove(T_CUT);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -193,7 +193,7 @@ void healing_I_spell(int cmd, variant *res)
     }
 }
 
-void healing_II_spell(int cmd, variant *res)
+void healing_II_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -208,8 +208,8 @@ void healing_II_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         hp_player(spell_power(500));
-        set_stun(0, TRUE);
-        set_cut(0, TRUE);
+        plr_tim_remove(T_STUN);
+        plr_tim_remove(T_CUT);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -218,7 +218,7 @@ void healing_II_spell(int cmd, variant *res)
     }
 }
 
-void hellfire_spell(int cmd, variant *res)
+void hellfire_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -250,7 +250,7 @@ void hellfire_spell(int cmd, variant *res)
     }
 }
 
-void hell_lance_spell(int cmd, variant *res)
+void hell_lance_spell(int cmd, var_ptr res)
 {
     int dam = spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell);
     switch (cmd)
@@ -282,7 +282,7 @@ void hell_lance_spell(int cmd, variant *res)
 }
 bool cast_hell_lance(void) { return cast_spell(hell_lance_spell); }
 
-void holy_lance_spell(int cmd, variant *res)
+void holy_lance_spell(int cmd, var_ptr res)
 {
     int dam = spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell);
     switch (cmd)
@@ -314,7 +314,7 @@ void holy_lance_spell(int cmd, variant *res)
 }
 bool cast_holy_lance(void) { return cast_spell(holy_lance_spell); }
 
-void hp_to_sp_spell(int cmd, variant *res)
+void hp_to_sp_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -379,7 +379,7 @@ void hp_to_sp_spell(int cmd, variant *res)
     }
 }
 
-void hypnotic_gaze_spell(int cmd, variant *res)
+void hypnotic_gaze_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -422,7 +422,7 @@ void hypnotic_gaze_spell(int cmd, variant *res)
 }
 bool cast_hypnotic_gaze(void) { return cast_spell(hypnotic_gaze_spell); }
 
-void imp_fire_spell(int cmd, variant *res)
+void imp_fire_spell(int cmd, var_ptr res)
 {
     const int ball_lev = 30;
     switch (cmd)
@@ -475,7 +475,7 @@ void imp_fire_spell(int cmd, variant *res)
     }
 }
 
-void invoke_logrus_spell(int cmd, variant *res)
+void invoke_logrus_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -503,7 +503,7 @@ void invoke_logrus_spell(int cmd, variant *res)
     }
 }
 
-void invulnerability_spell(int cmd, variant *res)
+void invulnerability_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -514,11 +514,11 @@ void invulnerability_spell(int cmd, variant *res)
         var_set_string(res, "Generates barrier which completely protect you from almost all damages. Takes a few your turns when the barrier breaks or duration time is exceeded.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_duration(4, 4));
+        var_set_string(res, info_duration(7, 7));
         break;
     case SPELL_CAST:
         msg_print("You cast a Globe of Invulnerability.");
-        set_invuln(spell_power(randint1(4) + 4), FALSE);
+        plr_tim_add(T_INVULN, spell_power(randint1(7) + 7));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -527,7 +527,7 @@ void invulnerability_spell(int cmd, variant *res)
     }
 }
 
-void kiss_of_succubus_spell(int cmd, variant *res)
+void kiss_of_succubus_spell(int cmd, var_ptr res)
 {
     int dam = spell_power(100 + p_ptr->lev * 2 + p_ptr->to_d_spell);
     switch (cmd)
@@ -556,27 +556,7 @@ void kiss_of_succubus_spell(int cmd, variant *res)
     }
 }
 
-void kutar_expand_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Expand Horizontally");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Expand like a cat, gaining +50 AC but becoming more susceptible to magical attacks.");
-        break;
-    case SPELL_CAST:
-        set_tsubureru(randint1(20) + 30, FALSE);
-        var_set_bool(res, TRUE);
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-void laser_eye_spell(int cmd, variant *res)
+void laser_eye_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -616,7 +596,7 @@ void laser_eye_spell(int cmd, variant *res)
 }
 bool cast_laser_eye(void) { return cast_spell(laser_eye_spell); }
 
-void light_area_spell(int cmd, variant *res)
+void light_area_spell(int cmd, var_ptr res)
 {
     int dice = 2;
     int sides = p_ptr->lev / 2;
@@ -650,7 +630,7 @@ void light_area_spell(int cmd, variant *res)
 }
 bool cast_light_area(void) { return cast_spell(light_area_spell); }
 
-void lightning_ball_spell(int cmd, variant *res)
+void lightning_ball_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -678,7 +658,7 @@ void lightning_ball_spell(int cmd, variant *res)
     }
 }
 
-void lightning_bolt_spell(int cmd, variant *res)
+void lightning_bolt_spell(int cmd, var_ptr res)
 {
     int dd = 3 + p_ptr->lev / 4;
     int ds = 8;
@@ -714,7 +694,7 @@ void lightning_bolt_spell(int cmd, variant *res)
     }
 }
 
-void living_trump_spell(int cmd, variant *res)
+void living_trump_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {

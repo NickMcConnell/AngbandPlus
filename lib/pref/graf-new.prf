@@ -1817,9 +1817,6 @@ K:11:0:0xB4/0xAB
 # Death Scythe
 K:22:50:0x8B/0x97
 
-# a Sky Blue Potion
-K:75:64:0x85/0x8D
-
 # Card
 K:50:0:0x0D/0x7E
 
@@ -1828,9 +1825,6 @@ K:70:43:0x83/0x9C
 
 # a Scroll titled "he proktab"
 K:70:6:0x83/0x9D
-
-# a Silver Potion
-K:75:65:0x85/0x80
 
 # Handbook for Pupils
 K:97:0:0x0B/0x3F
@@ -1999,9 +1993,6 @@ K:100:2:0x08/0x3F
 
 # Necromatic Tome
 K:100:3:0x08/0x3F
-
-# Rune Sword
-K:23:34:0x08/0x7C
 
 # Anger Management
 K:108:0:0x0A/0x3F
@@ -4317,12 +4308,6 @@ R:730:0xA0/0x90
 # Hell knight
 R:731:0xAD/0xA2
 
-# Bull Gates
-R:732:0xB3/0x87
-
-# Santa Claus
-R:733:0xB3/0x88
-
 # Eihort, the Thing in the Labyrinth
 R:734:0xAE/0xAA
 
@@ -5123,12 +5108,6 @@ R:999:0x0B/0x42
 
 # Bahamut, Celestial Dragon of Good
 R:1000:0x01/0x44
-
-# Suke-san, the Mitsukuni's Warder
-R:1001:0x02/0x70
-
-# Kaku-san, the Mitsukuni's Warder
-R:1002:0x02/0x70
 
 # The Ghost 'Q'
 R:1003:0x8A/0xA0

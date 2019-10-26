@@ -165,9 +165,7 @@ learn which egos are potentially good (and some are potentially very
 good) as well as which ego types are "junk".
 
 A list of the ego types and their bonuses is considered a spoiler, so 
-won't be presented here. You can probably find out about them by asking 
-on forums, or by viewing character dumps on the wonderful Angband 
-ladder (angband.oook.cz). But keep in mind that this is one of my 
+won't be presented here. But keep in mind that this is one of my 
 favorite areas of the game to modify, so what was true last release 
 might be different now :)
 

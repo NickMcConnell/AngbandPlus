@@ -15,13 +15,11 @@ static bool _whip_check(void)
 
     for (i = 0; i < MAX_HANDS; i++)
     {
-        object_type *o = NULL;
-        if (p_ptr->weapon_info[i].wield_how != WIELD_NONE)
-            o = equip_obj(p_ptr->weapon_info[i].slot);
-        if (o)
+        if (p_ptr->attack_info[i].type == PAT_WEAPON)
         {
-            if (object_is_(o, TV_HAFTED, SV_WHIP))
-                result = TRUE; /* Found a whip weapon */
+            obj_ptr obj = equip_obj(p_ptr->attack_info[i].slot);
+            if (obj_is_(obj, TV_HAFTED, SV_WHIP))
+                result = TRUE; /* Found a whip weapon ... keep looking */
             else
                 return FALSE; /* Found a non-whip weapon */
         }
@@ -32,27 +30,21 @@ static bool _whip_check(void)
 /* A special fetch(), that places item in player's inventory */
 static bool _whip_fetch(int dir, int rng)
 {
-    int             ty, tx;
-    cave_type      *c_ptr;
-    object_type    *o_ptr;
-    char            o_name[MAX_NLEN];
+    point_t tgt;
+    obj_ptr obj;
+    char    o_name[MAX_NLEN];
 
     /* Use a target */
     if (dir == 5 && target_okay())
     {
-        tx = target_col;
-        ty = target_row;
+        tgt = point_create(target_col, target_row);
 
-        if (distance(py, px, ty, tx) > rng)
+        if (point_distance(p_ptr->pos, tgt) > MAX_RANGE)
         {
             msg_print("You can't fetch something that far away!");
             return FALSE;
         }
-
-        c_ptr = &cave[ty][tx];
-
-        /* We need an item to fetch */
-        if (!c_ptr->o_idx)
+        if (!obj_at(tgt))
         {
             msg_print("There is no object at this place.");
             return TRUE;  /* didn't work, but charge the player energy anyway */
@@ -60,13 +52,12 @@ static bool _whip_fetch(int dir, int rng)
 
         /* Fetching from a vault is OK */
 
-        /* Line of sight is required */
-        if (!player_has_los_bold(ty, tx))
+        if (!plr_los(tgt))
         {
             msg_print("You have no direct line of sight to that location.");
             return FALSE;
         }
-        else if (!projectable(py, px, ty, tx))
+        else if (!point_project(p_ptr->pos, tgt))
         {
             msg_print("You have no direct line of sight to that location.");
             return FALSE;
@@ -74,95 +65,65 @@ static bool _whip_fetch(int dir, int rng)
     }
     else
     {
-        /* Use a direction */
-        ty = py; /* Where to drop the item */
-        tx = px;
-
+        tgt = p_ptr->pos;
         do
         {
-            ty += ddy[dir];
-            tx += ddx[dir];
-            c_ptr = &cave[ty][tx];
-
-            if ((distance(py, px, ty, tx) > rng) ||
-                !in_bounds(ty, tx) ||
-                !cave_have_flag_bold(ty, tx, FF_PROJECT))
-            {
-                return TRUE; /* didn't work, but charge the player energy anyway */
-            }
+            tgt = point_step(tgt, dir);
+            if (!dun_pos_interior(cave, tgt)) return TRUE;
+            if (point_distance(p_ptr->pos, tgt) > MAX_RANGE || !cave_have_flag_at(tgt, FF_PROJECT)) return TRUE;
         }
-        while (!c_ptr->o_idx);
+        while (!obj_at(tgt));
     }
 
-    o_ptr = &o_list[c_ptr->o_idx];
-
-    if (o_ptr->weight > p_ptr->lev * 15)
+    obj = obj_at(tgt);
+    if (obj->weight > p_ptr->lev * 15)
     {
         msg_print("The object is too heavy.");
         return TRUE; /* didn't work, but charge the player energy anyway */
     }
 
-    object_desc(o_name, o_ptr, OD_NAME_ONLY);
+    object_desc(o_name, obj, OD_NAME_ONLY);
 
     /* Get the object */
     msg_format("You skillfully crack your whip and fetch %^s.", o_name);
-    pack_carry(o_ptr);
-    obj_release(o_ptr, OBJ_RELEASE_QUIET);
+    pack_carry(obj);
+    obj_release(obj, OBJ_RELEASE_QUIET);
 
     return TRUE;
 }
 
-static bool _sense_great_discovery(int range)
+static bool _detect = FALSE;
+static bool _detect_range;
+static void _sense_aux(point_t pos, obj_ptr pile)
 {
-    int i, y, x;
-    int range2 = range;
-
-    bool detect = FALSE;
-
-    if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range2 /= 3;
-
-    /* Scan objects */
-    for (i = 1; i < o_max; i++)
+    obj_ptr obj;
+    if (point_distance(p_ptr->pos, pos) > _detect_range) return;
+    for (obj = pile; obj; obj = obj->next)
     {
-        object_type *o_ptr = &o_list[i];
-
-        /* Skip dead objects */
-        if (!o_ptr->k_idx) continue;
-
-        /* Skip held objects */
-        if (o_ptr->held_m_idx) continue;
-
         /* Only alert to great discoveries */
-        if (!object_is_artifact(o_ptr)) continue;
+        if (!obj_is_art(obj)) continue;
 
         /* Only alert to new discoveries */
-        if (object_is_known(o_ptr)) continue;
+        if (obj_is_known(obj)) continue;
 
-        /* Location */
-        y = o_ptr->loc.y;
-        x = o_ptr->loc.x;
-
-        /* Only detect nearby objects */
-        if (distance(py, px, y, x) > range2) continue;
-
-        /* Hack -- memorize it */
-        o_ptr->marked |= OM_FOUND;
+        obj->marked |= OM_FOUND;
         p_ptr->window |= PW_OBJECT_LIST;
-
-        /* Redraw */
-        lite_spot(y, x);
-
-        /* Detect */
-        detect = TRUE;
+        lite_pos(pos);
+        _detect = TRUE;
     }
-
-    return (detect);
+}
+static bool _sense_great_discovery(int range)
+{
+    _detect = FALSE;
+    _detect_range = range;
+    dun_iter_floor_obj(cave, _sense_aux);
+    return _detect;
 }
 
 /****************************************************************
  * Private Spells
  ****************************************************************/
-static void _ancient_protection_spell(int cmd, variant *res)
+static void _ancient_protection_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -182,7 +143,7 @@ static void _ancient_protection_spell(int cmd, variant *res)
     }
 }
 
-static void _double_crack_spell(int cmd, variant *res)
+static void _double_crack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -192,84 +153,41 @@ static void _double_crack_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Attack a monster normally with your whip, and then randomly attack an adjacent monster.");
         break;
-    case SPELL_CAST:
-        if (_whip_check())
-        {
-            int dir = 5;
-            bool b = FALSE;
+    case SPELL_CAST: {
+        mon_ptr mon;
+        int i;
 
-            if ( get_rep_dir2(&dir)
-              && dir != 5 )
-            {
-                int x, y;
-                int num = 1;
-                int attempts = 0;
-
-                /* First we attack where the player selected */
-                y = py + ddy[dir];
-                x = px + ddx[dir];
-                if (in_bounds(y, x) && cave[y][x].m_idx)
-                    py_attack(y, x, 0);
-                else
-                    msg_print("Your whip cracks in empty air.");
-
-                /* Now the whip cracks randomly!
-                   Note that we favor fighting in hallways, or
-                   with ones back up against the wall. */
-                while (num > 0)
-                {
-                    if (attempts > 3 * num)
-                    {
-                        while (num > 0)
-                        {
-                            msg_print("Your whip cracks in empty air.");
-                            num--;
-                        }
-                        break;
-                    }
-
-                    /* random direction, but we don't penalize for choosing the player (5) */
-                    dir = randint0(9);
-                    if (dir == 5) continue;
-
-                    attempts++;
-                    y = py + ddy[dir];
-                    x = px + ddx[dir];
-
-                    if ( !in_bounds(y, x)
-                      || cave_have_flag_bold(y, x, FF_WALL)
-                      || cave_have_flag_bold(y, x, FF_TREE)
-                      || cave_have_flag_bold(y, x, FF_CAN_DIG) )
-                    {
-                        continue;
-                    }
-
-
-                    if (cave[y][x].m_idx)
-                        py_attack(y, x, 0);
-                    else
-                        msg_print("Your whip cracks in empty air.");
-
-                    num--;
-                }
-
-                b = TRUE;
-            }
-            var_set_bool(res, b);
-        }
-        else
+        var_set_bool(res, FALSE);
+        if (!_whip_check())
         {
             msg_print("Whip techniques can only be used if you are fighting with whips.");
-            var_set_bool(res, FALSE);
+            break;
         }
-        break;
+        mon = plr_target_adjacent_mon();
+        if (!mon) break;
+
+        /* normal attack plus 3 tries at a random adjacent monster */
+        plr_attack_normal(mon->pos);
+        for (i = 0; i < 3; i++)
+        {
+            point_t p = point_random_step(p_ptr->pos);
+            mon = mon_at(p);
+            if (mon)
+            {
+                plr_attack_normal(mon->pos);
+                break;
+            }
+            if (i == 2) msg_print("Your whip cracks in empty air!");
+        }
+        var_set_bool(res, TRUE);
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _evacuation_spell(int cmd, variant *res)
+static void _evacuation_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -293,7 +211,7 @@ static void _evacuation_spell(int cmd, variant *res)
     }
 }
 
-static void _excavation_spell(int cmd, variant *res)
+static void _excavation_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -303,58 +221,42 @@ static void _excavation_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "You break walls on your quest for treasure!  This takes a bit more time, though.");
         break;
-    case SPELL_ENERGY:
+    case SPELL_ENERGY: {
+        int n = 200;
+        if (equip_find_obj(TV_DIGGING, SV_ANY))
+            n -= 120 * p_ptr->lev / 50;
+        else
+            n -= 80 * p_ptr->lev / 50;
+        var_set_int(res, n);
+        break; }
+    case SPELL_CAST: {
+        int dir = 5;
+        var_set_bool(res, FALSE);
+        if (get_rep_dir2(&dir) && dir != 5)
         {
-            int n = 200;
+            point_t pos = point_step(p_ptr->pos, dir);
 
-            if (equip_find_obj(TV_DIGGING, SV_ANY))
-                n -= 120 * p_ptr->lev / 50;
-            else
-                n -= 80 * p_ptr->lev / 50;
-
-            var_set_int(res, n);
-        }
-        break;
-    case SPELL_CAST:
-        {
-            int dir = 5;
-            bool b = FALSE;
-
-            if ( get_rep_dir2(&dir)
-              && dir != 5 )
+            if (!dun_pos_interior(cave, pos))
+                msg_print("You may excavate no further.");
+            else if ( cave_have_flag_at(pos, FF_WALL)
+                   || cave_have_flag_at(pos, FF_TREE)
+                   || cave_have_flag_at(pos, FF_CAN_DIG) )
             {
-                int x, y;
-                y = py + ddy[dir];
-                x = px + ddx[dir];
-
-                if (!in_bounds(y, x))
-                {
-                    msg_print("You may excavate no further.");
-                }
-                else if ( cave_have_flag_bold(y, x, FF_WALL)
-                       || cave_have_flag_bold(y, x, FF_TREE)
-                       || cave_have_flag_bold(y, x, FF_CAN_DIG) )
-                {
-                    msg_print("You dig your way to treasure!");
-                    cave_alter_feat(y, x, FF_TUNNEL);
-                    move_player_effect(y, x, 0);
-                    b = TRUE;
-                }
-                else
-                {
-                    msg_print("There is nothing to excavate.");
-                }
+                msg_print("You dig your way to treasure!");
+                cave_alter_feat(pos.y, pos.x, FF_TUNNEL);
+                move_player_effect(pos, 0);
+                var_set_bool(res, TRUE);
             }
-            var_set_bool(res, b);
+            else msg_print("There is nothing to excavate.");
         }
-        break;
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
-static void _extended_whip_spell(int cmd, variant *res)
+static void _extended_whip_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -366,18 +268,7 @@ static void _extended_whip_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         if (_whip_check())
-        {
-            int dir = 5;
-            bool b = FALSE;
-
-            project_length = 2;
-            if (get_fire_dir(&dir))
-            {
-                project_hook(GF_ATTACK, dir, HISSATSU_2, PROJECT_STOP | PROJECT_KILL);
-                b = TRUE;
-            }
-            var_set_bool(res, b);
-        }
+            var_set_bool(res, plr_attack_ranged(PLR_HIT_NORMAL, PAC_NO_INNATE, 2));
         else
         {
             msg_print("Whip techniques can only be used if you are fighting with whips.");
@@ -390,7 +281,7 @@ static void _extended_whip_spell(int cmd, variant *res)
     }
 }
 
-static void _fetch_spell(int cmd, variant *res)
+static void _fetch_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -426,7 +317,7 @@ static void _fetch_spell(int cmd, variant *res)
     }
 }
 
-static void _first_aid_spell(int cmd, variant *res)
+static void _first_aid_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -459,16 +350,16 @@ static void _first_aid_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         hp_player(spell_power(p_ptr->lev));
-        set_stun(0, TRUE);
+        plr_tim_remove(T_STUN);
 
         if (p_ptr->lev >= 8)
-            set_cut(0, TRUE);
+            plr_tim_remove(T_CUT);
         if (p_ptr->lev >= 12 && p_ptr->lev < 16)
-            set_poisoned(p_ptr->poisoned - MAX(25, p_ptr->poisoned / 10), TRUE);
+            plr_tim_recover(T_POISON, 90, 25);
         if (p_ptr->lev >= 16)
-            set_poisoned(p_ptr->poisoned - MAX(50, p_ptr->poisoned / 5), TRUE);
+            plr_tim_recover(T_POISON, 80, 50);
         if (p_ptr->lev >= 20)
-            set_blind(0, TRUE);
+            plr_tim_remove(T_BLIND);
         if (p_ptr->lev >= 30)
             do_res_stat(A_CON);
         if (p_ptr->lev >= 40)
@@ -487,7 +378,7 @@ static void _first_aid_spell(int cmd, variant *res)
     }
 }
 
-static void _identify_spell(int cmd, variant *res)
+static void _identify_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -519,7 +410,7 @@ static void _identify_spell(int cmd, variant *res)
     }
 }
 
-static void _magic_blueprint_spell(int cmd, variant *res)
+static void _magic_blueprint_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -560,7 +451,7 @@ static void _magic_blueprint_spell(int cmd, variant *res)
                 detect_objects_normal(rad);
 
             if (p_ptr->lev >= 35)
-                wiz_lite(p_ptr->tim_superstealth > 0);    /* somewhat redundant, but I want level wide trap detection! */
+                wiz_lite();    /* somewhat redundant, but I want level wide trap detection! */
 
             var_set_bool(res, TRUE);
         }
@@ -571,7 +462,7 @@ static void _magic_blueprint_spell(int cmd, variant *res)
     }
 }
 
-static void _pharaohs_curse_spell(int cmd, variant *res)
+static void _pharaohs_curse_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -584,7 +475,7 @@ static void _pharaohs_curse_spell(int cmd, variant *res)
     case SPELL_CAST:
         {
             int power = spell_power(p_ptr->lev * 4);
-            project_hack(GF_PHARAOHS_CURSE, p_ptr->lev + randint1(p_ptr->lev));
+            project_los(GF_PHARAOHS_CURSE, p_ptr->lev + randint1(p_ptr->lev));
             if (p_ptr->lev >= 46)
                 confuse_monsters(power);
             if (p_ptr->lev >= 47)
@@ -598,7 +489,7 @@ static void _pharaohs_curse_spell(int cmd, variant *res)
                 int mode = 0;
                 if (one_in_(2))
                     mode = PM_FORCE_PET;
-                if (summon_named_creature(0, py, px, MON_GREATER_MUMMY, mode))
+                if (summon_named_creature(0, p_ptr->pos, MON_GREATER_MUMMY, mode))
                 {
                     msg_print("You have disturbed the rest of an ancient pharaoh!");
                 }
@@ -613,7 +504,7 @@ static void _pharaohs_curse_spell(int cmd, variant *res)
     }
 }
 
-static void _remove_curse_spell(int cmd, variant *res)
+static void _remove_curse_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -648,7 +539,7 @@ static void _remove_curse_spell(int cmd, variant *res)
     }
 }
 
-static void _remove_obstacles_spell(int cmd, variant *res)
+static void _remove_obstacles_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -664,7 +555,7 @@ static void _remove_obstacles_spell(int cmd, variant *res)
             int dir = 5;
             if (get_aim_dir(&dir))
             {
-                project(0, 1, py, px, 0, GF_REMOVE_OBSTACLE, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE);
+                project(0, 1, p_ptr->pos.y, p_ptr->pos.x, 0, GF_REMOVE_OBSTACLE, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE);
                 project_hook(GF_REMOVE_OBSTACLE, dir, 0, PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM);
                 b = TRUE;
             }
@@ -786,19 +677,19 @@ static void _character_dump(doc_ptr doc)
     spell_info spells[MAX_SPELLS];
     int        ct = _get_spells(spells, MAX_SPELLS);
 
-    py_display_spells(doc, spells, ct);
+    plr_display_spells(doc, spells, ct);
 }
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_HAFTED, SV_WHIP, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_SCROLL, SV_SCROLL_MAPPING, rand_range(5, 10));
+    plr_birth_obj_aux(TV_HAFTED, SV_WHIP, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_SCROLL, SV_SCROLL_MAPPING, rand_range(5, 10));
 }
 
 void _get_object(obj_ptr obj)
 {
-    if (object_is_artifact(obj) && !object_is_known(obj))
+    if (obj_is_art(obj) && !obj_is_known(obj))
     {
         /* Suppress you are leaving something special behind message ... */
         if (p_ptr->sense_artifact)
@@ -820,50 +711,48 @@ void _get_object(obj_ptr obj)
     }
 }
 
-class_t *archaeologist_get_class(void)
+plr_class_ptr archaeologist_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 45,  40,  36,   4,  50,  32,  56,  35};
     skills_t xs = { 15,  12,  10,   0,   0,   0,  18,  11};
 
-        me.name = "Archaeologist";
-        me.desc = "The Archaeologist is an erudite treasure hunter, seeking out the most valuable "
+        me = plr_class_alloc(CLASS_ARCHAEOLOGIST);
+        me->name = "Archaeologist";
+        me->desc = "The Archaeologist is an erudite treasure hunter, seeking out the most valuable "
                   "prizes that the dungeon has to offer. At home in subterranean caverns and vaults, "
                   "he is rarely lost or snared in traps. His powers of perception and detection are "
                   "very great, as is his skill with arcane devices. At high levels he can use the "
                   "dark magic of the entombed Pharaohs. The powers of the Archaeologist are enhanced "
                   "by Wisdom.";
 
-        me.stats[A_STR] = -1;
-        me.stats[A_INT] =  1;
-        me.stats[A_WIS] =  2;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] = -1;
-        me.stats[A_CHR] =  0;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 106;
-        me.base_hp = 8;
-        me.exp = 120;
-        me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
+        me->stats[A_STR] = -1;
+        me->stats[A_INT] =  1;
+        me->stats[A_WIS] =  2;
+        me->stats[A_DEX] =  1;
+        me->stats[A_CON] = -1;
+        me->stats[A_CHR] =  0;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 106;
+        me->base_hp = 8;
+        me->exp = 120;
+        me->pets = 40;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
                    CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.process_player = _process_player;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        me.character_dump = _character_dump;
-        me.get_object = _get_object;
-
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.get_flags = _get_flags;
+        me->hooks.process_player = _process_player;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.character_dump = _character_dump;
+        me->hooks.get_object = _get_object;
     }
 
-    return &me;
+    return me;
 }

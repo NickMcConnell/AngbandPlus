@@ -11,6 +11,7 @@
 /* Purpose: Movement commands (part 2) */
 
 #include "angband.h"
+#include "dun.h"
 
 #include <assert.h>
 
@@ -21,94 +22,74 @@ static bool do_cmd_bash_aux(int y, int x, int dir);
  */
 void do_cmd_go_up(void)
 {
-    /* Player grid */
-    cave_type *c_ptr = &cave[py][px];
+    cave_type *c_ptr = cave_at(p_ptr->pos);
     feature_type *f_ptr = &f_info[c_ptr->feat];
 
-    int up_num = 0;
-
     if (p_ptr->special_defense & KATA_MUSOU)
-    {
         set_action(ACTION_NONE);
-    }
 
     /* Verify stairs */
     if (!have_flag(f_ptr->flags, FF_LESS))
     {
         msg_print("I see no up staircase here.");
-
         return;
     }
 
     if (!quests_check_leave()) return;
-
-    /* Hack -- take a turn */
     energy_use = 100;
 
-    if (autosave_l) do_cmd_save_game(TRUE);
-
-    quests_on_leave();
-    if (dun_level)
-    {
-        /* New depth */
-        if (have_flag(f_ptr->flags, FF_SHAFT))
-        {
-            /* Create a way back */
-            prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP | CFM_SHAFT);
-            up_num = 2;
-        }
-        else
-        {
-            /* Create a way back */
-            prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP);
-
-            up_num = 1;
-        }
-
-        /* Get out from current dungeon */
-        if (dun_level - up_num < d_info[dungeon_type].mindepth)
-            up_num = dun_level;
-
-        if (d_info[dungeon_type].flags1 & DF1_RANDOM)
-        {
-            up_num = dun_level;
-            prepare_change_floor_mode(CFM_NO_RETURN);
-        }
-    }
-
-    /* Success */
-    if (up_num == dun_level)
-        msg_print("You go back to the surface.");
-    else
-        msg_print("You enter a maze of up staircases.");
-
-    /* Leaving */
-    p_ptr->leaving = TRUE;
+    if (!dun_take_stairs_plr(cave))
+        msg_print("The stairs are blocked!");
 }
 
+/*
+ * Enter quest level
+ */
+void do_cmd_quest(void)
+{
+    energy_use = 100;
+
+    if (!cave_have_flag_at(p_ptr->pos, FF_QUEST_ENTER))
+    {
+        msg_print("You see no quest level here.");
+        return;
+    }
+    else
+    {
+        int quest_id = cave_at(p_ptr->pos)->special;
+        quest_ptr quest = quests_get(quest_id);
+
+        if (quest->status != QS_TAKEN) /* paranoia */
+        {
+            msg_print("The entrance is blocked!");
+            return;
+        }
+
+        msg_format("This is the entrance to the quest: <color:B>%s</color>.",
+            quests_get_name(quest_id));
+        if (!get_check("Do you enter? ")) return;
+
+        dun_take_stairs_plr(cave);
+    }
+}
 
 /*
  * Go down one level
  */
 void do_cmd_go_down(void)
 {
-    /* Player grid */
-    cave_type *c_ptr = &cave[py][px];
+    cave_type *c_ptr = cave_at(p_ptr->pos);
     feature_type *f_ptr = &f_info[c_ptr->feat];
 
     bool fall_trap = FALSE;
-    int down_num = 0;
 
     if (p_ptr->special_defense & KATA_MUSOU)
-    {
         set_action(ACTION_NONE);
-    }
 
     /* Verify stairs */
     if (!have_flag(f_ptr->flags, FF_MORE))
     {
         msg_print("I see no down staircase here.");
-
         return;
     }
 
@@ -116,115 +97,45 @@ void do_cmd_go_down(void)
 
     /* Quest entrance */
     if (have_flag(f_ptr->flags, FF_QUEST_ENTER))
-    {
         do_cmd_quest();
-    }
 
     else
     {
         int target_dungeon = 0;
-
-        if (!dun_level)
+        if (cave->dun_type_id == D_SURFACE)
         {
-            target_dungeon = have_flag(f_ptr->flags, FF_ENTRANCE) ? c_ptr->special : DUNGEON_ANGBAND;
-
-            if (ironman_downward && (target_dungeon != DUNGEON_ANGBAND))
+            dun_type_ptr dun_type;
+            assert(have_flag(f_ptr->flags, FF_ENTRANCE));
+            target_dungeon = c_ptr->special;
+            dun_type = dun_types_lookup(target_dungeon);
+            if (!dun_type->plr_max_lvl)
             {
-                msg_print("The entrance of this dungeon is closed!");
-                return;
-            }
-            if (!max_dlv[target_dungeon])
-            {
-                if (d_info[target_dungeon].flags1 & DF1_RANDOM)
-                    msg_format("This is the entrance of %s (Danger level: ?)", d_name+d_info[target_dungeon].name);
+                if (dun_type->flags & DF_RANDOM)
+                    msg_format("This is the entrance of %s (Danger level: ?)", dun_type->name);
                 else
-                    msg_format("This is the entrance of %s (Danger level: %d)", d_name+d_info[target_dungeon].name, d_info[target_dungeon].mindepth);
+                    msg_format("This is the entrance of %s (Danger level: %d)", dun_type->name, dun_type->min_dun_lvl);
                 if (!get_check("Do you really go into this dungeon? ")) return;
             }
-
-            /* Save old player position */
-            p_ptr->oldpx = px;
-            p_ptr->oldpy = py;
-            dungeon_type = (byte)target_dungeon;
-
-            /*
-             * Clear all saved floors
-             * and create a first saved floor
-             */
-            prepare_change_floor_mode(CFM_FIRST_FLOOR);
+            p_ptr->old_pos = p_ptr->pos; /* remember for return recall */
         }
 
-        /* Hack -- take a turn */
         energy_use = 100;
-
-        if (autosave_l) do_cmd_save_game(TRUE);
-
-        quests_on_leave(); /* QS_COMPLETED and taking the victory stairs? */
-
-        /* Go down */
-        if (have_flag(f_ptr->flags, FF_SHAFT) && quests_allow_downshaft()) down_num += 2;
-        else down_num += 1;
-
-        if (!dun_level)
-        {
-            /* Enter the dungeon just now */
-            p_ptr->enter_dungeon = TRUE;
-            down_num = d_info[dungeon_type].mindepth;
-        }
 
         if (fall_trap)
         {
             msg_print("You deliberately jump through the trap door.");
+            dun_trap_door_plr(cave);
         }
-        else
+        else if (dun_take_stairs_plr(cave))
         {
-            /* Success */
             if (target_dungeon)
             {
-                msg_format("You entered %s.", d_text + d_info[dungeon_type].text);
-            }
-            else
-            {
-                msg_print("You enter a maze of down staircases.");
+                dun_type_ptr type = dun_type();
+                if (type->enter_f) type->enter_f(type);
+                else msg_format("You entered %s.", dun_type()->desc);
             }
         }
-
-
-        /* Leaving */
-        p_ptr->leaving = TRUE;
-
-        if (fall_trap)
-        {
-            prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
-        }
-        else
-        {
-            /* XXX It is CFM_SHAFT, not down_num, that determines that we descend by 2 */
-            if (have_flag(f_ptr->flags, FF_SHAFT) && quests_allow_downshaft())
-            {
-                /* Create a way back */
-                prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_SHAFT);
-            }
-            else
-            {
-                /* Create a way back ... maybe */
-                if ( p_ptr->enter_dungeon
-                  && down_num >= 20
-                  && !(d_info[dungeon_type].flags1 & DF1_RANDOM)
-                  && !(d_info[dungeon_type].initial_guardian && !(dungeon_flags[dungeon_type] & DUNGEON_NO_GUARDIAN))
-                  && one_in_(14) )
-                {
-                    /* Hack:  No stair scum */
-                    msg_print("The stairs collapse behind you! You are trapped!!");
-                    dungeon_flags[target_dungeon] |= DUNGEON_NO_ENTRANCE;
-                    prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE);
-                }
-                else
-                {
-                    prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN);
-                }
-            }
-        }
+        else msg_print("The stairs are blocked!");
     }
 }
 
@@ -259,35 +170,13 @@ void do_cmd_search(void)
 /*
  * Determine if a grid contains a chest
  */
-static s16b chest_check(int y, int x)
+static obj_ptr chest_check(int y, int x)
 {
-    cave_type *c_ptr = &cave[y][x];
-
-    s16b this_o_idx, next_o_idx = 0;
-
-
-    /* Scan all objects in the grid */
-    for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-    {
-        object_type *o_ptr;
-
-        /* Acquire object */
-        o_ptr = &o_list[this_o_idx];
-
-        /* Acquire next object */
-        next_o_idx = o_ptr->next_o_idx;
-
-        /* Skip unknown chests XXX XXX */
-        /* if (!(o_ptr->marked & OM_FOUND)) continue; */
-
-        /* Check for chest */
-        if (o_ptr->tval == TV_CHEST) return (this_o_idx);
-    }
-
-    /* No chest */
-    return (0);
+    obj_ptr obj;
+    for (obj = obj_at_xy(x, y); obj; obj = obj->next)
+        if (obj->tval == TV_CHEST) return obj;
+    return NULL;
 }
-
 
 /*
  * Allocates objects upon opening a chest    -BEN-
@@ -299,41 +188,41 @@ static s16b chest_check(int y, int x)
  */
 static bool _chest_scatter(object_type *o_ptr)
 {
+    rect_t r = rect_interior(cave->rect);
     int i;
     for (i = 0; i < 200; i++)
     {
-        int y = randint0(MAX_HGT);
-        int x = randint0(MAX_WID);
-
-        if (!cave_empty_bold(y, x)) continue;
-        drop_near(o_ptr, -1, y, x);
+        point_t p = rect_random_point(r);
+        if (!cave_empty_at(p)) continue;
+        drop_near(o_ptr, p, -1);
         return TRUE;
     }
     return FALSE;
 }
-static void chest_death(bool scatter, int y, int x, s16b o_idx)
+static void chest_death(bool scatter, int y, int x, obj_ptr chest_ptr)
 {
-    int         ct_objects = 0, ct_gold = 0;
-    int         i;
-    u32b        mode = AM_GOOD;
-    object_type *chest_ptr = &o_list[o_idx];
+    point_t pos = point_create(x, y);
+    int     ct_objects = 0, ct_gold = 0;
+    int     i;
+    int     lvl = cave->difficulty;
+    u32b    mode = AM_GOOD;
 
     if (chest_ptr->sval == SV_CHEST_KANDUME) /* Can of Toys */
     {
         ct_objects = 5;
         ct_gold = 0;
         mode |= AM_GREAT;
-        object_level = chest_ptr->xtra3;
+        lvl = chest_ptr->xtra3;
     }
     else
     {        /* v~~~~~~~~~ You'll need to look a k_info.txt to understand this ... */
         int num = chest_ptr->sval % SV_CHEST_MIN_LARGE;
 
-        /* object_level = ABS(chest_ptr->pval) + 10;
+        /* lvl = ABS(chest_ptr->pval) + 10;
          * i.e., 1dL+10. Finding an OL99 chest and getting L22 objects is just
          * plain insulting. Chests should be like ?Acquirement, only AM_GOOD rather
          * than AM_GREAT. */
-        object_level = chest_ptr->xtra3;
+        lvl = chest_ptr->xtra3;
         if (chest_ptr->sval < SV_CHEST_MIN_LARGE)
         {
             ct_gold = damroll(2, num);
@@ -359,21 +248,18 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
     for (i = 0; i < ct_objects; i++)
     {
         object_type forge = {0};
-        if (!make_object(&forge, mode)) continue;
+        if (!make_object(&forge, lvl, mode)) continue;
         if (scatter) _chest_scatter(&forge);
-        else drop_near(&forge, -1, y, x);
+        else drop_near(&forge, pos, -1);
     }
 
     for (i = 0; i < ct_gold; i++)
     {
         object_type forge = {0};
-        if (!make_gold(&forge, TRUE)) continue;
+        if (!make_gold(&forge, lvl)) continue;
         if (scatter) _chest_scatter(&forge);
-        else drop_near(&forge, -1, y, x);
+        else drop_near(&forge, pos, -1);
     }
-
-    /* Reset the object level */
-    object_level = base_level;
 
     /* No longer opening a chest */
     opening_chest = FALSE;
@@ -392,19 +278,17 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
  * Exploding chest destroys contents (and traps).
  * Note that the chest itself is never destroyed.
  */
-static void chest_trap(int y, int x, s16b o_idx)
+static void chest_trap(int y, int x, obj_ptr obj)
 {
+    point_t pos = point_create(x, y);
     int  i, trap;
-
-    object_type *o_ptr = &o_list[o_idx];
-
-    int mon_level = o_ptr->xtra3;
+    int mon_level = obj->xtra3;
 
     /* Ignore disarmed chests */
-    if (o_ptr->pval <= 0) return;
+    if (obj->pval <= 0) return;
 
     /* Obtain the traps */
-    trap = chest_traps[o_ptr->pval];
+    trap = chest_traps[obj->pval];
 
     /* Lose strength */
     if (trap & (CHEST_LOSE_STR))
@@ -429,7 +313,7 @@ static void chest_trap(int y, int x, s16b o_idx)
     {
         msg_print("A puff of green gas surrounds you!");
         if (!res_save_default(RES_POIS))
-            (void)set_poisoned(p_ptr->poisoned + 10 + randint1(20), FALSE);
+            plr_tim_add(T_POISON, 10 + randint1(20));
     }
 
     /* Paralyze */
@@ -437,7 +321,7 @@ static void chest_trap(int y, int x, s16b o_idx)
     {
         msg_print("A puff of yellow gas surrounds you!");
         if (!free_act_save_p(0))
-            set_paralyzed(randint1(4), FALSE);
+            plr_tim_add(T_PARALYZED, randint1(4));
     }
 
     /* Summon monsters */
@@ -449,10 +333,10 @@ static void chest_trap(int y, int x, s16b o_idx)
 
         for (i = 0; i < num; i++)
         {
-            if (randint1(100)<dun_level)
-                activate_hi_summon(py, px, FALSE);
+            if (randint1(100)<cave->dun_lvl)
+                activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
             else
-                (void)summon_specific(0, y, x, mon_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
+                summon_specific(0, pos, mon_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
         }
     }
 
@@ -461,9 +345,7 @@ static void chest_trap(int y, int x, s16b o_idx)
     {
         msg_print("Elemental beings appear to protect their treasures!");
         for (i = 0; i < randint1(3) + 5; i++)
-        {
-            (void)summon_specific(0, y, x, mon_level, SUMMON_ELEMENTAL, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
-        }
+            summon_specific(0, pos, mon_level, SUMMON_ELEMENTAL, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
     }
 
     /* Force clouds, then summon birds. */
@@ -472,12 +354,10 @@ static void chest_trap(int y, int x, s16b o_idx)
         msg_print("A storm of birds swirls around you!");
 
         for (i = 0; i < randint1(3) + 3; i++)
-            (void)fire_meteor(-1, GF_FORCE, y, x, o_ptr->pval / 5, 7);
+            fire_meteor(-1, GF_FORCE, y, x, obj->pval / 5, 7);
 
-        for (i = 0; i < randint1(5) + o_ptr->pval / 5; i++)
-        {
-            (void)summon_specific(0, y, x, mon_level, SUMMON_BIRD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
-        }
+        for (i = 0; i < randint1(5) + obj->pval / 5; i++)
+            summon_specific(0, pos, mon_level, SUMMON_BIRD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
     }
 
     /* Various colorful summonings. */
@@ -487,11 +367,10 @@ static void chest_trap(int y, int x, s16b o_idx)
         if (one_in_(4))
         {
             msg_print("Demons materialize in clouds of fire and brimstone!");
-
             for (i = 0; i < randint1(3) + 2; i++)
             {
-                (void)fire_meteor(-1, GF_FIRE, y, x, 10, 5);
-                (void)summon_specific(0, y, x, mon_level, SUMMON_DEMON, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
+                fire_meteor(-1, GF_FIRE, y, x, 10, 5);
+                summon_specific(0, pos, mon_level, SUMMON_DEMON, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
             }
         }
 
@@ -499,38 +378,29 @@ static void chest_trap(int y, int x, s16b o_idx)
         else if (one_in_(3))
         {
             msg_print("Draconic forms loom out of the darkness!");
-
             for (i = 0; i < randint1(3) + 2; i++)
-            {
-                (void)summon_specific(0, y, x, mon_level, SUMMON_DRAGON, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
-            }
+                summon_specific(0, pos, mon_level, SUMMON_DRAGON, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
         }
 
         /* Summon hybrids. */
         else if (one_in_(2))
         {
             msg_print("Creatures strange and twisted assault you!");
-
             for (i = 0; i < randint1(5) + 3; i++)
-            {
-                (void)summon_specific(0, y, x, mon_level, SUMMON_HYBRID, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
-            }
+                summon_specific(0, pos, mon_level, SUMMON_HYBRID, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
         }
 
         /* Summon vortices (scattered) */
         else
         {
             msg_print("Vortices coalesce and wreak destruction!");
-
             for (i = 0; i < randint1(3) + 2; i++)
-            {
-                (void)summon_specific(0, y, x, mon_level, SUMMON_VORTEX, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
-            }
+                summon_specific(0, pos, mon_level, SUMMON_VORTEX, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
         }
     }
 
     /* Dispel player. */
-    if ((trap & (CHEST_RUNES_OF_EVIL)) && o_ptr->k_idx)
+    if ((trap & (CHEST_RUNES_OF_EVIL)) && obj->k_idx)
     {
         /* Determine how many nasty tricks can be played. */
         int nasty_tricks_count = 4 + randint0(3);
@@ -542,16 +412,20 @@ static void chest_trap(int y, int x, s16b o_idx)
         for (; nasty_tricks_count > 0; nasty_tricks_count--)
         {
             /* ...but a high saving throw does help a little. */
-            if (randint1(100+o_ptr->pval*2) > p_ptr->skills.sav)
+            if (randint1(100+obj->pval*2) > p_ptr->skills.sav)
             {
                 if (one_in_(6)) take_hit(DAMAGE_NOESCAPE, damroll(5, 20), "a chest dispel-player trap");
-                else if (one_in_(5)) (void)set_cut(p_ptr->cut + 200, FALSE);
+                else if (one_in_(5))
+                {
+                    if (!p_ptr->no_cut)
+                        plr_tim_add(T_CUT, 200);
+                }
                 else if (one_in_(4))
                 {
                     if (!free_act_save_p(0))
-                        set_paralyzed(randint1(4), FALSE);
-                    else
-                        set_stun(p_ptr->stun + 10 + randint0(100), FALSE);
+                        plr_tim_add(T_PARALYZED, randint1(4));
+                    else if (!p_ptr->no_stun)
+                        plr_tim_add(T_STUN, 10 + randint0(100));
                 }
                 else if (one_in_(3)) apply_disenchant(0);
                 else if (one_in_(2))
@@ -576,22 +450,22 @@ static void chest_trap(int y, int x, s16b o_idx)
     }
 
     /* Explode */
-    if ((trap & (CHEST_EXPLODE)) && o_ptr->k_idx)
+    if ((trap & (CHEST_EXPLODE)) && obj->k_idx)
     {
         msg_print("There is a sudden explosion!");
         msg_print("Everything inside the chest is destroyed!");
 
-        o_ptr->pval = 0;
+        obj->pval = 0;
         sound(SOUND_EXPLODE);
         take_hit(DAMAGE_ATTACK, damroll(5, 8), "an exploding chest");
 
     }
     /* Scatter contents. */
-    if ((trap & (CHEST_SCATTER)) && o_ptr->k_idx)
+    if ((trap & (CHEST_SCATTER)) && obj->k_idx)
     {
         msg_print("The contents of the chest scatter all over the dungeon!");
-        chest_death(TRUE, y, x, o_idx);
-        o_ptr->pval = 0;
+        chest_death(TRUE, y, x, obj);
+        obj->pval = 0;
     }
 }
 
@@ -603,7 +477,7 @@ static void chest_trap(int y, int x, s16b o_idx)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_open_chest(int y, int x, s16b o_idx)
+static bool do_cmd_open_chest(int y, int x, obj_ptr obj)
 {
     int i, j;
 
@@ -611,14 +485,12 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
     bool more = FALSE;
 
-    object_type *o_ptr = &o_list[o_idx];
-
 
     /* Take a turn */
     energy_use = 100;
 
     /* Attempt to unlock it */
-    if (o_ptr->pval > 0)
+    if (obj->pval > 0)
     {
         /* Assume locked, and thus not open */
         flag = FALSE;
@@ -627,11 +499,11 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
         i = p_ptr->skills.dis;
 
         /* Penalize some conditions */
-        if (p_ptr->blind || no_lite()) i = i / 10;
-        if (p_ptr->confused || p_ptr->image) i = i / 10;
+        if (plr_tim_find(T_BLIND) || no_lite()) i = i / 10;
+        if (plr_tim_find(T_CONFUSED) || plr_tim_find(T_HALLUCINATE)) i = i / 10;
 
         /* Extract the difficulty */
-        j = i - o_ptr->pval;
+        j = i - obj->pval;
 
         /* Always have a small chance of success */
         if (j < 2) j = 2;
@@ -660,10 +532,10 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
     if (flag)
     {
         /* Apply chest traps, if any */
-        chest_trap(y, x, o_idx);
+        chest_trap(y, x, obj);
 
         /* Let the Chest drop items */
-        chest_death(FALSE, y, x, o_idx);
+        chest_death(FALSE, y, x, obj);
     }
 
     /* Result */
@@ -703,11 +575,11 @@ static int count_dt(int *y, int *x, bool (*test)(int feat), bool under)
         if ((d == 8) && !under) continue;
 
         /* Extract adjacent (legal) location */
-        yy = py + ddy_ddd[d];
-        xx = px + ddx_ddd[d];
+        yy = p_ptr->pos.y + ddy_ddd[d];
+        xx = p_ptr->pos.x + ddx_ddd[d];
 
         /* Get the cave */
-        c_ptr = &cave[yy][xx];
+        c_ptr = cave_at_xy(xx, yy);
 
         /* Must have knowledge */
         if (!(c_ptr->info & (CAVE_MARK))) continue;
@@ -737,7 +609,7 @@ static int count_dt(int *y, int *x, bool (*test)(int feat), bool under)
  */
 static int count_chests(int *y, int *x, bool trapped)
 {
-    int d, count, o_idx;
+    int d, count;
 
     object_type *o_ptr;
 
@@ -748,21 +620,20 @@ static int count_chests(int *y, int *x, bool trapped)
     for (d = 0; d < 9; d++)
     {
         /* Extract adjacent (legal) location */
-        int yy = py + ddy_ddd[d];
-        int xx = px + ddx_ddd[d];
+        int yy = p_ptr->pos.y + ddy_ddd[d];
+        int xx = p_ptr->pos.x + ddx_ddd[d];
+
+        o_ptr = chest_check(yy, xx);
 
         /* No (visible) chest is there */
-        if ((o_idx = chest_check(yy, xx)) == 0) continue;
-
-        /* Grab the object */
-        o_ptr = &o_list[o_idx];
+        if (!o_ptr) continue;
 
         /* Already open */
         if (o_ptr->pval == 0) continue;
 
         /* No (known) traps here
            CTK: pval is negative if chest is disarmed. Don't read out of bounds!! */
-        if (trapped && (!object_is_known(o_ptr) || o_ptr->pval < 0 ||
+        if (trapped && (!obj_is_known(o_ptr) || o_ptr->pval < 0 ||
             !chest_traps[o_ptr->pval])) continue;
 
         /* OK */
@@ -786,8 +657,8 @@ static int coords_to_dir(int y, int x)
     int d[3][3] = { {7, 4, 1}, {8, 5, 2}, {9, 6, 3} };
     int dy, dx;
 
-    dy = y - py;
-    dx = x - px;
+    dy = y - p_ptr->pos.y;
+    dx = x - p_ptr->pos.x;
 
     /* Paranoia */
     if (ABS(dx) > 1 || ABS(dy) > 1) return (0);
@@ -812,7 +683,7 @@ static bool do_cmd_open_aux(int y, int x)
     int i, j;
 
     /* Get requested grid */
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = cave_at_xy(x, y);
 
     feature_type *f_ptr = &f_info[c_ptr->feat];
 
@@ -839,8 +710,8 @@ static bool do_cmd_open_aux(int y, int x)
         i = p_ptr->skills.dis;
 
         /* Penalize some conditions */
-        if (p_ptr->blind || no_lite()) i = i / 10;
-        if (p_ptr->confused || p_ptr->image) i = i / 10;
+        if (plr_tim_find(T_BLIND) || no_lite()) i = i / 10;
+        if (plr_tim_find(T_CONFUSED) || plr_tim_find(T_HALLUCINATE)) i = i / 10;
 
         /* Extract the lock power */
         j = f_ptr->power;
@@ -907,8 +778,6 @@ void do_cmd_open(void)
 {
     int y, x, dir;
 
-    s16b o_idx;
-
     bool more = FALSE;
 
     if (p_ptr->special_defense & KATA_MUSOU)
@@ -958,22 +827,25 @@ void do_cmd_open(void)
     {
         s16b feat;
         cave_type *c_ptr;
+        mon_ptr mon;
+        obj_ptr obj;
 
         /* Get requested location */
-        y = py + ddy[dir];
-        x = px + ddx[dir];
+        y = p_ptr->pos.y + ddy[dir];
+        x = p_ptr->pos.x + ddx[dir];
 
         /* Get requested grid */
-        c_ptr = &cave[y][x];
+        c_ptr = cave_at_xy(x, y);
 
         /* Feature code (applying "mimic" field) */
         feat = get_feat_mimic(c_ptr);
 
         /* Check for chest */
-        o_idx = chest_check(y, x);
+        obj = chest_check(y, x);
+        mon = mon_at_xy(x, y);
 
         /* Nothing useful */
-        if (!have_flag(f_info[feat].flags, FF_OPEN) && !o_idx)
+        if (!have_flag(f_info[feat].flags, FF_OPEN) && !obj)
         {
             /* Message */
             msg_print("You see nothing there to open.");
@@ -981,7 +853,7 @@ void do_cmd_open(void)
         }
 
         /* Monster in the way */
-        else if (c_ptr->m_idx && p_ptr->riding != c_ptr->m_idx)
+        else if (mon && mon->id != p_ptr->riding)
         {
             /* Take a turn */
             energy_use = 100;
@@ -989,16 +861,15 @@ void do_cmd_open(void)
             /* Message */
             msg_print("There is a monster in the way!");
 
-
             /* Attack */
-            py_attack(y, x, 0);
+            plr_attack_normal(point_create(x, y));
         }
 
         /* Handle chests */
-        else if (o_idx)
+        else if (obj)
         {
             /* Open the chest */
-            more = do_cmd_open_chest(y, x, o_idx);
+            more = do_cmd_open_chest(y, x, obj);
         }
 
         /* Handle doors */
@@ -1030,7 +901,7 @@ void do_cmd_open(void)
 static bool do_cmd_close_aux(int y, int x)
 {
     /* Get grid and contents */
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = cave_at_xy(x, y);
     s16b      old_feat = c_ptr->feat;
     bool      more = FALSE;
 
@@ -1045,7 +916,7 @@ static bool do_cmd_close_aux(int y, int x)
         s16b closed_feat = feat_state(old_feat, FF_CLOSE);
 
         /* Hack -- object in the way */
-        if ((c_ptr->o_idx || (c_ptr->info & CAVE_OBJECT)) &&
+        if ((obj_at_xy(x, y) || (c_ptr->info & CAVE_OBJECT)) &&
             (closed_feat != old_feat) && !have_flag(f_info[closed_feat].flags, FF_DROP))
         {
             /* Message */
@@ -1119,44 +990,26 @@ void do_cmd_close(void)
     /* Get a "repeated" direction */
     if (get_rep_dir(&dir,FALSE))
     {
-        cave_type *c_ptr;
-        s16b feat;
-
-        /* Get requested location */
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-
-        /* Get grid and contents */
-        c_ptr = &cave[y][x];
-
-        /* Feature code (applying "mimic" field) */
-        feat = get_feat_mimic(c_ptr);
+        point_t pos = point_step(p_ptr->pos, dir);
+        dun_grid_ex_t grid = dun_grid_ex_at(cave, pos);
 
         /* Require open/broken door */
-        if (!have_flag(f_info[feat].flags, FF_CLOSE))
-        {
-            /* Message */
+        if (!have_flag(grid.feat_mimic->flags, FF_CLOSE))
             msg_print("You see nothing there to close.");
-        }
 
         /* Monster in the way */
-        else if (c_ptr->m_idx)
+        else if (grid.mon)
         {
-            /* Take a turn */
             energy_use = 100;
-
-            /* Message */
             msg_print("There is a monster in the way!");
-
-            /* Attack */
-            py_attack(y, x, 0);
+            plr_attack_normal(pos);
         }
 
         /* Close the door */
         else
         {
             /* Close the door */
-            more = do_cmd_close_aux(y, x);
+            more = do_cmd_close_aux(pos.y, pos.x);
         }
     }
 
@@ -1170,7 +1023,7 @@ void do_cmd_close(void)
  */
 static bool do_cmd_tunnel_test(int y, int x)
 {
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = cave_at_xy(x, y);
 
     /* Must have knowledge */
     if (!(c_ptr->info & CAVE_MARK))
@@ -1221,7 +1074,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
     energy_use = 100;
 
     /* Get grid */
-    c_ptr = &cave[y][x];
+    c_ptr = cave_at_xy(x, y);
     f_ptr = &f_info[c_ptr->feat];
     power = f_ptr->power;
 
@@ -1338,18 +1191,11 @@ static bool do_cmd_tunnel_aux(int y, int x)
  */
 void do_cmd_tunnel(void)
 {
-    int            y, x, dir;
-
-    cave_type    *c_ptr;
-    s16b feat;
-
-    bool        more = FALSE;
-
+    int  dir;
+    bool more = FALSE;
 
     if (p_ptr->special_defense & KATA_MUSOU)
-    {
         set_action(ACTION_NONE);
-    }
 
     /* Allow repeated command */
     if (command_arg)
@@ -1367,48 +1213,28 @@ void do_cmd_tunnel(void)
     /* Get a direction to tunnel, or Abort */
     if (get_rep_dir(&dir,FALSE))
     {
-        /* Get location */
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-
-        /* Get grid */
-        c_ptr = &cave[y][x];
-
-        /* Feature code (applying "mimic" field) */
-        feat = get_feat_mimic(c_ptr);
+        point_t pos = point_step(p_ptr->pos, dir);
+        dun_grid_ex_t grid = dun_grid_ex_at(cave, pos);
 
         /* No tunnelling through doors */
-        if (have_flag(f_info[feat].flags, FF_DOOR))
-        {
-            /* Message */
+        if (have_flag(grid.feat_mimic->flags, FF_DOOR))
             msg_print("You cannot tunnel through doors.");
-        }
 
         /* No tunnelling through most features */
-        else if (!have_flag(f_info[feat].flags, FF_TUNNEL))
-        {
+        else if (!have_flag(grid.feat_mimic->flags, FF_TUNNEL))
             msg_print("You can't tunnel through that.");
-        }
 
         /* A monster is in the way */
-        else if (c_ptr->m_idx)
+        else if (grid.mon)
         {
-            /* Take a turn */
             energy_use = 100;
-
-            /* Message */
             msg_print("There is a monster in the way!");
-
-            /* Attack */
-            py_attack(y, x, 0);
+            plr_attack_normal(pos);
         }
 
         /* Try digging */
         else
-        {
-            /* Tunnel through walls */
-            more = do_cmd_tunnel_aux(y, x);
-        }
+            more = do_cmd_tunnel_aux(pos.y, pos.x);
     }
 
     /* Cancel repetition unless we can continue */
@@ -1432,7 +1258,7 @@ bool easy_open_door(int y, int x, int dir)
 {
     int i, j;
 
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = cave_at_xy(x, y);
     feature_type *f_ptr = &f_info[c_ptr->feat];
 
     /* Must be a closed door */
@@ -1461,8 +1287,8 @@ bool easy_open_door(int y, int x, int dir)
         i = p_ptr->skills.dis;
 
         /* Penalize some conditions */
-        if (p_ptr->blind || no_lite()) i = i / 10;
-        if (p_ptr->confused || p_ptr->image) i = i / 10;
+        if (plr_tim_find(T_BLIND) || no_lite()) i = i / 10;
+        if (plr_tim_find(T_CONFUSED) || plr_tim_find(T_HALLUCINATE)) i = i / 10;
 
         /* Extract the lock power */
         j = f_ptr->power;
@@ -1527,13 +1353,11 @@ bool easy_open_door(int y, int x, int dir)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
+static bool do_cmd_disarm_chest(int y, int x, obj_ptr obj)
 {
     int i, j;
 
     bool more = FALSE;
-
-    object_type *o_ptr = &o_list[o_idx];
 
 
     /* Take a turn */
@@ -1543,31 +1367,31 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
     i = p_ptr->skills.dis;
 
     /* Penalize some conditions */
-    if (p_ptr->blind || no_lite()) i = i / 10;
-    if (p_ptr->confused || p_ptr->image) i = i / 10;
+    if (plr_tim_find(T_BLIND) || no_lite()) i = i / 10;
+    if (plr_tim_find(T_CONFUSED) || plr_tim_find(T_HALLUCINATE)) i = i / 10;
 
     /* Extract the difficulty */
-    j = i - o_ptr->pval;
+    j = i - obj->pval;
 
     /* Always have a small chance of success */
     if (j < 2) j = 2;
 
     /* Must find the trap first. */
-    if (!object_is_known(o_ptr))
+    if (!obj_is_known(obj))
     {
         msg_print("I don't see any traps.");
 
     }
 
     /* Already disarmed/unlocked */
-    else if (o_ptr->pval <= 0)
+    else if (obj->pval <= 0)
     {
         msg_print("The chest is not trapped.");
 
     }
 
     /* No traps to find. */
-    else if (!chest_traps[o_ptr->pval])
+    else if (!chest_traps[obj->pval])
     {
         msg_print("The chest is not trapped.");
 
@@ -1578,8 +1402,8 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
     {
         msg_print("You have disarmed the chest.");
 
-        gain_exp(o_ptr->pval);
-        o_ptr->pval = (0 - o_ptr->pval);
+        gain_exp(obj->pval);
+        obj->pval = (0 - obj->pval);
     }
 
     /* Failure -- Keep trying */
@@ -1598,7 +1422,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
         msg_print("You set off a trap!");
 
         sound(SOUND_FAIL);
-        chest_trap(y, x, o_idx);
+        chest_trap(y, x, obj);
     }
 
     /* Result */
@@ -1626,7 +1450,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 #endif /* ALLOW_EASY_DISARM -- TNB */
 {
     /* Get grid and contents */
-    cave_type *c_ptr = &cave[y][x];
+    cave_type *c_ptr = cave_at_xy(x, y);
 
     /* Get feature */
     feature_type *f_ptr = &f_info[c_ptr->feat];
@@ -1648,8 +1472,8 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
     energy_use = 100;
 
     /* Penalize some conditions */
-    if (p_ptr->blind || no_lite()) i = i / 10;
-    if (p_ptr->confused || p_ptr->image) i = i / 10;
+    if (plr_tim_find(T_BLIND) || no_lite()) i = i / 10;
+    if (plr_tim_find(T_CONFUSED) || plr_tim_find(T_HALLUCINATE)) i = i / 10;
 
     /* Extract the difficulty */
     j = i - power;
@@ -1726,8 +1550,6 @@ void do_cmd_disarm(void)
 {
     int y, x, dir;
 
-    s16b o_idx;
-
     bool more = FALSE;
 
     if (p_ptr->special_defense & KATA_MUSOU)
@@ -1777,44 +1599,40 @@ void do_cmd_disarm(void)
     {
         cave_type *c_ptr;
         s16b feat;
+        obj_ptr obj;
+        mon_ptr mon;
 
         /* Get location */
-        y = py + ddy[dir];
-        x = px + ddx[dir];
+        y = p_ptr->pos.y + ddy[dir];
+        x = p_ptr->pos.x + ddx[dir];
 
         /* Get grid and contents */
-        c_ptr = &cave[y][x];
+        c_ptr = cave_at_xy(x, y);
 
         /* Feature code (applying "mimic" field) */
         feat = get_feat_mimic(c_ptr);
 
         /* Check for chests */
-        o_idx = chest_check(y, x);
+        obj = chest_check(y, x);
+        mon = mon_at_xy(x, y);
 
         /* Disarm a trap */
-        if (!is_trap(feat) && !o_idx)
+        if (!is_trap(feat) && !obj)
         {
-            /* Message */
             msg_print("You see nothing there to disarm.");
-
         }
 
         /* Monster in the way */
-        else if (c_ptr->m_idx && p_ptr->riding != c_ptr->m_idx)
+        else if (mon && mon->id != p_ptr->riding)
         {
-            /* Message */
             msg_print("There is a monster in the way!");
-
-
-            /* Attack */
-            py_attack(y, x, 0);
+            plr_attack_normal(point_create(x, y));
         }
 
         /* Disarm chest */
-        else if (o_idx)
+        else if (obj)
         {
-            /* Disarm the chest */
-            more = do_cmd_disarm_chest(y, x, o_idx);
+            more = do_cmd_disarm_chest(y, x, obj);
         }
 
         /* Disarm trap */
@@ -1842,7 +1660,7 @@ void do_cmd_disarm(void)
 static bool do_cmd_bash_aux(int y, int x, int dir)
 {
     /* Get grid */
-    cave_type    *c_ptr = &cave[y][x];
+    cave_type    *c_ptr = cave_at_xy(x, y);
 
     /* Get feature */
     feature_type *f_ptr = &f_info[c_ptr->feat];
@@ -1867,7 +1685,6 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
     /* Compare bash power to door power XXX XXX XXX */
     temp = (bash - (temp * 10));
 
-    if (p_ptr->pclass == CLASS_BERSERKER) temp *= 2;
     if (p_ptr->prace == RACE_MON_VORTEX) temp = 100;
 
     /* Hack -- always have a chance */
@@ -1918,7 +1735,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 
 
         /* Hack -- Lose balance ala paralysis */
-        (void)set_paralyzed(randint1(4), FALSE);
+        plr_tim_add(T_PARALYZED, randint1(4));
     }
 
     /* Result */
@@ -1942,17 +1759,11 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
  */
 void do_cmd_bash(void)
 {
-    int            y, x, dir;
-
-    cave_type    *c_ptr;
-
-    bool        more = FALSE;
-
+    int  dir;
+    bool more = FALSE;
 
     if (p_ptr->special_defense & KATA_MUSOU)
-    {
         set_action(ACTION_NONE);
-    }
 
     /* Allow repeated command */
     if (command_arg)
@@ -1970,46 +1781,24 @@ void do_cmd_bash(void)
     /* Get a "repeated" direction */
     if (get_rep_dir(&dir,FALSE))
     {
-        s16b feat;
-
-        /* Bash location */
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-
-        /* Get grid */
-        c_ptr = &cave[y][x];
-
-        /* Feature code (applying "mimic" field) */
-        feat = get_feat_mimic(c_ptr);
+        point_t pos = point_step(p_ptr->pos, dir);
+        dun_grid_ex_t grid = dun_grid_ex_at(cave, pos);
 
         /* Nothing useful */
-        if (!have_flag(f_info[feat].flags, FF_BASH))
-        {
-            /* Message */
+        if (!have_flag(grid.feat_mimic->flags, FF_BASH))
             msg_print("You see nothing there to bash.");
 
-        }
-
         /* Monster in the way */
-        else if (c_ptr->m_idx)
+        else if (grid.mon)
         {
-            /* Take a turn */
             energy_use = 100;
-
-            /* Message */
             msg_print("There is a monster in the way!");
-
-
-            /* Attack */
-            py_attack(y, x, 0);
+            plr_attack_normal(pos);
         }
 
         /* Bash a closed door */
         else
-        {
-            /* Bash the door */
-            more = do_cmd_bash_aux(y, x, dir);
-        }
+            more = do_cmd_bash_aux(pos.y, pos.x, dir);
     }
 
     /* Unless valid action taken, cancel bash */
@@ -2029,17 +1818,11 @@ void do_cmd_bash(void)
  */
 void do_cmd_alter(void)
 {
-    int            y, x, dir;
-
-    cave_type    *c_ptr;
-
-    bool        more = FALSE;
-
+    int  dir;
+    bool more = FALSE;
 
     if (p_ptr->special_defense & KATA_MUSOU)
-    {
         set_action(ACTION_NONE);
-    }
 
     /* Allow repeated command */
     if (command_arg)
@@ -2057,67 +1840,39 @@ void do_cmd_alter(void)
     /* Get a direction */
     if (get_rep_dir(&dir,TRUE))
     {
-        s16b feat;
-        feature_type *f_ptr;
-
-        /* Get location */
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-
-        /* Get grid */
-        c_ptr = &cave[y][x];
-
-        /* Feature code (applying "mimic" field) */
-        feat = get_feat_mimic(c_ptr);
-        f_ptr = &f_info[feat];
+        point_t pos = point_step(p_ptr->pos, dir);
+        dun_grid_ex_t grid = dun_grid_ex_at(cave, pos);
 
         /* Take a turn */
         energy_use = 100;
 
         /* Attack monsters */
-        if (c_ptr->m_idx)
-        {
-            /* Attack */
-            py_attack(y, x, 0);
-        }
+        if (grid.mon)
+            plr_attack_normal(pos);
 
         /* Locked doors */
-        else if (have_flag(f_ptr->flags, FF_OPEN))
-        {
-            more = do_cmd_open_aux(y, x);
-        }
+        else if (have_flag(grid.feat_mimic->flags, FF_OPEN))
+            more = do_cmd_open_aux(pos.y, pos.x);
 
         /* Bash jammed doors */
-        else if (have_flag(f_ptr->flags, FF_BASH))
-        {
-            more = do_cmd_bash_aux(y, x, dir);
-        }
+        else if (have_flag(grid.feat_mimic->flags, FF_BASH))
+            more = do_cmd_bash_aux(pos.y, pos.x, dir);
 
         /* Tunnel through walls */
-        else if (have_flag(f_ptr->flags, FF_TUNNEL))
-        {
-            more = do_cmd_tunnel_aux(y, x);
-        }
+        else if (have_flag(grid.feat_mimic->flags, FF_TUNNEL))
+            more = do_cmd_tunnel_aux(pos.y, pos.x);
 
         /* Close open doors */
-        else if (have_flag(f_ptr->flags, FF_CLOSE))
-        {
-            more = do_cmd_close_aux(y, x);
-        }
+        else if (have_flag(grid.feat_mimic->flags, FF_CLOSE))
+            more = do_cmd_close_aux(pos.y, pos.x);
 
         /* Disarm traps */
-        else if (have_flag(f_ptr->flags, FF_DISARM))
-        {
-            more = do_cmd_disarm_aux(y, x, dir);
-        }
+        else if (have_flag(grid.feat_mimic->flags, FF_DISARM))
+            more = do_cmd_disarm_aux(pos.y, pos.x, dir);
 
         /* Oops */
         else
-        {
-            /* Oops */
             msg_print("You attack the empty air.");
-
-        }
     }
 
     /* Cancel repetition unless we can continue */
@@ -2135,45 +1890,24 @@ void do_cmd_spike(void)
     int dir;
 
     if (p_ptr->special_defense & KATA_MUSOU)
-    {
         set_action(ACTION_NONE);
-    }
 
     /* Get a "repeated" direction */
     if (get_rep_dir(&dir,FALSE))
     {
-        int y, x;
-        cave_type *c_ptr;
-        s16b feat;
-
-        /* Get location */
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-
-        /* Get grid and contents */
-        c_ptr = &cave[y][x];
-
-        /* Feature code (applying "mimic" field) */
-        feat = get_feat_mimic(c_ptr);
+        point_t pos = point_step(p_ptr->pos, dir);
+        dun_grid_ex_t grid = dun_grid_ex_at(cave, pos);
 
         /* Require closed door */
-        if (!have_flag(f_info[feat].flags, FF_SPIKE))
-        {
-            /* Message */
+        if (!have_flag(grid.feat_mimic->flags, FF_SPIKE))
             msg_print("You see nothing there to spike.");
 
-        }
         /* Is a monster in the way? */
-        else if (c_ptr->m_idx)
+        else if (grid.mon)
         {
-            /* Take a turn */
             energy_use = 100;
-
-            /* Message */
             msg_print("There is a monster in the way!");
-
-            /* Attack */
-            py_attack(y, x, 0);
+            plr_attack_normal(pos);
         }
 
         /* Go for it */
@@ -2191,9 +1925,9 @@ void do_cmd_spike(void)
             energy_use = 100;
 
             /* Successful jamming */
-            msg_format("You jam the %s with a spike.", f_name + f_info[feat].name);
+            msg_format("You jam the %s with a spike.", f_name + grid.feat_mimic->name);
 
-            cave_alter_feat(y, x, FF_SPIKE);
+            cave_alter_feat(pos.y, pos.x, FF_SPIKE);
 
             spike = pack_obj(slot);
             spike->number--;
@@ -2216,9 +1950,6 @@ static void do_cmd_walk_aux(int dir, bool pickup)
     {
         set_action(ACTION_NONE);
     }
-
-    /* Hack -- In small scale wilderness it takes MUCH more time to move */
-    if (p_ptr->wild_mode) energy_use *= ((MAX_HGT + MAX_WID) / 2);
 
     if (p_ptr->action == ACTION_QUICK_WALK) energy_use = energy_use * (45-(p_ptr->lev/2)) / 100;
     if (p_ptr->action == ACTION_STALK) energy_use = energy_use * (150 - p_ptr->lev) / 100;
@@ -2261,37 +1992,6 @@ void do_cmd_walk(bool pickup)
         more = TRUE;
     }
 
-    /* Hack again -- Is there a special encounter ??? */
-    if (p_ptr->wild_mode && !cave_have_flag_bold(py, px, FF_TOWN))
-    {
-        int lvl = wilderness_level(px, py);
-        int tmp = MAX(1, 120 + p_ptr->lev*10 - lvl + 5);
-
-        if (wilderness[py][px].road)
-            tmp *= 3;
-
-        if (!is_daytime())
-            tmp /= 2;
-
-        if ( lvl + 5 > p_ptr->lev / 2
-          && randint0(tmp) < 21 - p_ptr->skills.stl )
-        {
-            /* Inform the player of his horrible fate :=) */
-            msg_print("You are ambushed!");
-
-            /* Go into large wilderness view */
-            p_ptr->oldpy = rand_range(15, MAX_HGT - 15);
-            p_ptr->oldpx = rand_range(15, MAX_WID - 15);
-            change_wild_mode();
-
-            /* Give first move to monsters */
-            energy_use = 100;
-
-            /* Hack -- set the encouter flag for the wilderness generation */
-            generate_encounter = TRUE;
-        }
-    }
-
     /* Cancel repeat unless we may continue */
     if (!more) disturb(0, 0);
 }
@@ -2311,7 +2011,7 @@ void do_cmd_run(void)
     switch (get_rep_dir(&dir,FALSE))
     {
     case GET_DIR_OK:
-        running = (command_arg ? command_arg : 1000);
+        running = (command_arg ? command_arg : 5000);
         run_step(dir);
         break;
     case GET_DIR_RANDOM:
@@ -2347,67 +2047,76 @@ void do_cmd_stay(bool pickup)
     energy_use = 100;
 
     if (pickup) mpe_mode |= MPE_DO_PICKUP;
-    (void)move_player_effect(py, px, mpe_mode);
+    move_player_effect(p_ptr->pos, mpe_mode);
 }
 
 /* Get Object(s).
  * Historically, 'g' was 'stay still (flip pickup)' which makes little sense */
 static bool _travel_next_obj(int mode)
 {
-    int i, best_idx = -1, best_dist = 0;
-    for (i = 0; i < max_o_idx; i++)
+    point_map_iter_ptr iter;
+    int best_idx = -1, best_dist = 0, dist;
+    point_t best_pos = {0};
+
+    for (iter = point_map_iter_alloc(cave->obj_pos);
+            point_map_iter_is_valid(iter);
+            point_map_iter_next(iter))
     {
-        object_type *o_ptr = &o_list[i];
-        int          dist = 0;
-
-        if (!o_ptr->k_idx) continue;
-        if (!(o_ptr->marked & OM_FOUND)) continue;
-        if (mode == TRAVEL_MODE_AMMO)
+        obj_ptr pile = point_map_iter_current(iter);
+        point_t pos = point_map_iter_current_key(iter);
+        obj_ptr obj;
+        for (obj = pile; obj; obj = obj->next)
         {
-            if (!o_ptr->inscription) continue;
-            if (!strstr(quark_str(o_ptr->inscription), "=g")) continue;
-            if (o_ptr->loc.x == px && o_ptr->loc.y == py)
+            if (!(obj->marked & OM_FOUND)) continue;
+            if (mode == TRAVEL_MODE_AMMO)
             {
-                /* Full pack aborts the travel sequence */
-                return FALSE;
-            }
-        }
-        else if (mode == TRAVEL_MODE_AUTOPICK && o_ptr->tval != TV_GOLD)
-        {
-            int j = is_autopick(o_ptr);
-
-            if (j < 0) continue;
-            if (!(autopick_list[j].action & (DO_AUTODESTROY | DO_AUTOPICK))) continue;
-            if (o_ptr->loc.x == px && o_ptr->loc.y == py)
-            {
-                /* Full pack aborts the travel sequence */
-                if (autopick_list[j].action & DO_AUTOPICK)
+                if (!obj->inscription) continue;
+                if (!strstr(quark_str(obj->inscription), "=g")) continue;
+                if (point_equals(p_ptr->pos, pos))
+                {
+                    /* Full pack aborts the travel sequence */
                     return FALSE;
-                continue; /* paranoia ... we should have destroyed this object */
+                }
             }
-        }
+            else if (mode == TRAVEL_MODE_AUTOPICK && obj->tval != TV_GOLD)
+            {
+                int j = is_autopick(obj);
 
-        dist = distance(py, px, o_ptr->loc.y, o_ptr->loc.x);
-        if (!projectable(py, px, o_ptr->loc.y, o_ptr->loc.x))
-        {
-            if (mode == TRAVEL_MODE_AUTOPICK) continue;
-            else if (dist > 18) continue;
-        }
+                if (j < 0) continue;
+                if (!(autopick_list[j].action & (DO_AUTODESTROY | DO_AUTOPICK))) continue;
+                if (point_equals(p_ptr->pos, pos))
+                {
+                    /* Full pack aborts the travel sequence */
+                    if (autopick_list[j].action & DO_AUTOPICK)
+                        return FALSE;
+                    continue; /* paranoia ... we should have destroyed this object */
+                }
+            }
 
-        if (best_idx == -1 || dist < best_dist)
-        {
-            best_idx = i;
-            best_dist = dist;
+            dist = point_distance(p_ptr->pos, pos);
+            if (!projectable(p_ptr->pos.y, p_ptr->pos.x, pos.y, pos.x))
+            {
+                if (mode == TRAVEL_MODE_AUTOPICK) continue;
+                else if (dist > 18) continue;
+            }
+
+            if (best_idx == -1 || dist < best_dist)
+            {
+                best_idx = obj->loc.v.floor.obj_id;
+                best_dist = dist;
+                best_pos = pos;
+            }
         }
     }
+    point_map_iter_free(iter);
     if (best_idx == -1)
         return FALSE;
-    travel_begin(mode, o_list[best_idx].loc.x, o_list[best_idx].loc.y);
+    travel_begin(mode, best_pos);
     return TRUE;
 }
 void do_cmd_get(void)
 {
-    if (!cave[py][px].o_idx)
+    if (!obj_at(p_ptr->pos))
         msg_print("You see no objects here. Try <color:keypress>^G</color> to auto-get nearby objects.");
     if (pack_get_floor())
         energy_use = 100;
@@ -2417,7 +2126,7 @@ void do_cmd_autoget(void)
     /* Get any objects under foot first ... this is the old
      * 'g' behavior sans interaction with features (e.g. re-
      * enter a shop) */
-    if (cave[py][px].o_idx || p_ptr->wizard)
+    if (obj_at(p_ptr->pos))
     {
         if (pack_get_floor())
             energy_use = 100;
@@ -2514,17 +2223,15 @@ void do_cmd_rest(void)
         bool clear = TRUE;
         if (command_arg == -2)
         {
-            if (p_ptr->blind ||
-                p_ptr->confused ||
-                p_ptr->poisoned ||
+            if (plr_tim_find(T_BLIND) ||
+                plr_tim_find(T_CONFUSED) ||
+                plr_tim_find(T_POISON) ||
                 p_ptr->afraid ||
-                p_ptr->stun ||
-                p_ptr->cut ||
-                p_ptr->slow ||
-                p_ptr->paralyzed ||
-                p_ptr->image ||
-                p_ptr->word_recall ||
-                p_ptr->alter_reality)
+                plr_tim_find(T_STUN) ||
+                plr_tim_find(T_CUT) ||
+                plr_tim_find(T_SLOW) ||
+                plr_tim_find(T_PARALYZED) ||
+                plr_tim_find(T_HALLUCINATE))
             {
                 clear = FALSE;
             }
@@ -2547,12 +2254,11 @@ void do_cmd_rest(void)
     /* Why are you sleeping when there's no need?  WAKE UP!*/
     if ((p_ptr->chp == p_ptr->mhp) &&
         (p_ptr->csp == p_ptr->msp) &&
-        !p_ptr->blind && !p_ptr->confused &&
-        !p_ptr->poisoned && !p_ptr->afraid &&
-        !p_ptr->stun && !p_ptr->cut &&
-        !p_ptr->slow && !p_ptr->paralyzed &&
-        !p_ptr->image && !p_ptr->word_recall &&
-        !p_ptr->alter_reality &&
+        !plr_tim_find(T_BLIND) && !plr_tim_find(T_CONFUSED) &&
+        !plr_tim_find(T_POISON) && !p_ptr->afraid &&
+        !plr_tim_find(T_STUN) && !plr_tim_find(T_CUT) &&
+        !plr_tim_find(T_SLOW) && !plr_tim_find(T_PARALYZED) &&
+        !plr_tim_find(T_HALLUCINATE) &&
         !magic_eater_can_regen())
     {
         virtue_add(VIRTUE_DILIGENCE, -1);
@@ -2633,10 +2339,18 @@ int breakage_chance(object_type *o_ptr)
 }
 
 
+static void _shot_learn_slay(obj_ptr ammo, int which, cptr msg)
+{
+    slot_t slot = equip_find_first(obj_is_bow);
+    if (slot)
+        obj_learn_slay(equip_obj(slot), which, msg);
+    obj_learn_slay(ammo, which, msg); 
+}
+
 static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
     int mult = 100;
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    monster_race *r_ptr = mon_race(m_ptr);
 
     u32b flgs[OF_ARRAY_SIZE];
 
@@ -2652,7 +2366,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
         {
             if (monster_living(r_ptr) && have_flag(flgs, OF_SLAY_LIVING))
             {
-                obj_learn_slay(o_ptr, OF_SLAY_LIVING, "slays <color:o>Living</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_LIVING, "slays <color:o>Living</color>");
                 if (mult < 143) mult = 143;
             }
 
@@ -2661,7 +2375,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_ANIMAL))
             {
                 mon_lore_3(m_ptr, RF3_ANIMAL);
-                obj_learn_slay(o_ptr, OF_SLAY_ANIMAL, "slays <color:g>Animals</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_ANIMAL, "slays <color:g>Animals</color>");
                 if (mult < 162) mult = 162;
             }
 
@@ -2670,7 +2384,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_ANIMAL))
             {
                 mon_lore_3(m_ptr, RF3_ANIMAL);
-                obj_learn_slay(o_ptr, OF_KILL_ANIMAL, "slays <color:g>*Animals*</color>");
+                _shot_learn_slay(o_ptr, OF_KILL_ANIMAL, "slays <color:g>*Animals*</color>");
                 if (mult < 224) mult = 224;
             }
 
@@ -2679,7 +2393,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_EVIL))
             {
                 mon_lore_3(m_ptr, RF3_EVIL);
-                obj_learn_slay(o_ptr, OF_SLAY_EVIL, "slays <color:y>Evil</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_EVIL, "slays <color:y>Evil</color>");
                 if (mult < 143) mult = 143;
             }
 
@@ -2688,7 +2402,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_EVIL))
             {
                 mon_lore_3(m_ptr, RF3_EVIL);
-                obj_learn_slay(o_ptr, OF_KILL_EVIL, "slays <color:y>*Evil*</color>");
+                _shot_learn_slay(o_ptr, OF_KILL_EVIL, "slays <color:y>*Evil*</color>");
                 if (mult < 186) mult = 186;
             }
 
@@ -2697,7 +2411,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_GOOD))
             {
                 mon_lore_3(m_ptr, RF3_GOOD);
-                obj_learn_slay(o_ptr, OF_SLAY_GOOD, "slays <color:W>Good</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_GOOD, "slays <color:W>Good</color>");
                 if (mult < 143) mult = 143;
             }
 
@@ -2706,7 +2420,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags2 & RF2_HUMAN))
             {
                 mon_lore_2(m_ptr, RF2_HUMAN);
-                obj_learn_slay(o_ptr, OF_SLAY_HUMAN, "slays <color:s>Humans</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_HUMAN, "slays <color:s>Humans</color>");
                 if (mult < 162) mult = 162;
             }
 
@@ -2715,7 +2429,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags2 & RF2_HUMAN))
             {
                 mon_lore_2(m_ptr, RF2_HUMAN);
-                obj_learn_slay(o_ptr, OF_KILL_HUMAN, "slays <color:s>*Humans*</color>");
+                _shot_learn_slay(o_ptr, OF_KILL_HUMAN, "slays <color:s>*Humans*</color>");
                 if (mult < 234) mult = 234;
             }
 
@@ -2724,7 +2438,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_UNDEAD))
             {
                 mon_lore_3(m_ptr, RF3_UNDEAD);
-                obj_learn_slay(o_ptr, OF_SLAY_UNDEAD, "slays <color:D>Undead</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_UNDEAD, "slays <color:D>Undead</color>");
                 if (mult < 190) mult = 190;
             }
 
@@ -2733,7 +2447,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_UNDEAD))
             {
                 mon_lore_3(m_ptr, RF3_UNDEAD);
-                obj_learn_slay(o_ptr, OF_KILL_UNDEAD, "slays <color:D>*Undead*</color>");
+                _shot_learn_slay(o_ptr, OF_KILL_UNDEAD, "slays <color:D>*Undead*</color>");
                 if (mult < 280) mult = 280;
             }
 
@@ -2742,7 +2456,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_DEMON))
             {
                 mon_lore_3(m_ptr, RF3_DEMON);
-                obj_learn_slay(o_ptr, OF_SLAY_DEMON, "slays <color:R>Demons</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_DEMON, "slays <color:R>Demons</color>");
                 if (mult < 190) mult = 190;
             }
 
@@ -2751,7 +2465,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_DEMON))
             {
                 mon_lore_3(m_ptr, RF3_DEMON);
-                obj_learn_slay(o_ptr, OF_KILL_DEMON, "slays <color:R>*Demons*</color>");
+                _shot_learn_slay(o_ptr, OF_KILL_DEMON, "slays <color:R>*Demons*</color>");
                 if (mult < 280) mult = 280;
             }
 
@@ -2760,7 +2474,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_ORC))
             {
                 mon_lore_3(m_ptr, RF3_ORC);
-                obj_learn_slay(o_ptr, OF_SLAY_ORC, "slays <color:U>Orcs</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_ORC, "slays <color:U>Orcs</color>");
                 if (mult < 190) mult = 190;
             }
 
@@ -2769,7 +2483,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_ORC))
             {
                 mon_lore_3(m_ptr, RF3_ORC);
-                obj_learn_slay(o_ptr, OF_KILL_ORC, "slays <color:U>*Orcs*</color>");
+                _shot_learn_slay(o_ptr, OF_KILL_ORC, "slays <color:U>*Orcs*</color>");
                 if (mult < 280) mult = 280;
             }
 
@@ -2778,7 +2492,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_TROLL))
             {
                 mon_lore_3(m_ptr, RF3_TROLL);
-                obj_learn_slay(o_ptr, OF_SLAY_TROLL, "slays <color:g>Trolls</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_TROLL, "slays <color:g>Trolls</color>");
                 if (mult < 190) mult = 190;
             }
 
@@ -2787,7 +2501,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_TROLL))
             {
                 mon_lore_3(m_ptr, RF3_TROLL);
-                obj_learn_slay(o_ptr, OF_KILL_TROLL, "slays <color:g>*Trolls*</color>");
+                _shot_learn_slay(o_ptr, OF_KILL_TROLL, "slays <color:g>*Trolls*</color>");
                 if (mult < 280) mult = 280;
             }
 
@@ -2796,7 +2510,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_GIANT))
             {
                 mon_lore_3(m_ptr, RF3_GIANT);
-                obj_learn_slay(o_ptr, OF_SLAY_GIANT, "slays <color:u>Giants</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_GIANT, "slays <color:u>Giants</color>");
                 if (mult < 190) mult = 190;
             }
 
@@ -2805,7 +2519,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_GIANT))
             {
                 mon_lore_3(m_ptr, RF3_GIANT);
-                obj_learn_slay(o_ptr, OF_KILL_GIANT, "slays <color:u>*Giants*</color>");
+                _shot_learn_slay(o_ptr, OF_KILL_GIANT, "slays <color:u>*Giants*</color>");
                 if (mult < 280) mult = 280;
             }
 
@@ -2814,7 +2528,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_DRAGON))
             {
                 mon_lore_3(m_ptr, RF3_DRAGON);
-                obj_learn_slay(o_ptr, OF_SLAY_DRAGON, "slays <color:r>Dragons</color>");
+                _shot_learn_slay(o_ptr, OF_SLAY_DRAGON, "slays <color:r>Dragons</color>");
                 if (mult < 190) mult = 190;
             }
 
@@ -2823,7 +2537,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 (r_ptr->flags3 & RF3_DRAGON))
             {
                 mon_lore_3(m_ptr, RF3_DRAGON);
-                obj_learn_slay(o_ptr, OF_KILL_DRAGON, "slays <color:r>*Dragons*</color>");
+                _shot_learn_slay(o_ptr, OF_KILL_DRAGON, "slays <color:r>*Dragons*</color>");
                 if (mult < 280) mult = 280;
 
                 if ( o_ptr->name1 == ART_BARD_ARROW
@@ -2837,13 +2551,13 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
             /* Brand (Acid) */
             if (have_flag(flgs, OF_BRAND_ACID))
             {
-                if (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK)
+                if (r_ptr->flagsr & RFR_EFF_RES_ACID_MASK)
                 {
-                    mon_lore_r(m_ptr, RFR_EFF_IM_ACID_MASK);
+                    mon_lore_r(m_ptr, RFR_EFF_RES_ACID_MASK);
                 }
                 else
                 {
-                    obj_learn_slay(o_ptr, OF_BRAND_ACID, "is <color:g>Acid Branded</color>");
+                    _shot_learn_slay(o_ptr, OF_BRAND_ACID, "is <color:g>Acid Branded</color>");
                     if (mult < 162) mult = 162;
                 }
             }
@@ -2851,13 +2565,13 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
             /* Brand (Elec) */
             if (have_flag(flgs, OF_BRAND_ELEC))
             {
-                if (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)
+                if (r_ptr->flagsr & RFR_EFF_RES_ELEC_MASK)
                 {
-                    mon_lore_r(m_ptr, RFR_EFF_IM_ELEC_MASK);
+                    mon_lore_r(m_ptr, RFR_EFF_RES_ELEC_MASK);
                 }
                 else
                 {
-                    obj_learn_slay(o_ptr, OF_BRAND_ELEC, "is <color:b>Lightning Branded</color>");
+                    _shot_learn_slay(o_ptr, OF_BRAND_ELEC, "is <color:b>Lightning Branded</color>");
                     if (mult < 162) mult = 162;
                 }
             }
@@ -2865,13 +2579,13 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
             /* Brand (Fire) */
             if (have_flag(flgs, OF_BRAND_FIRE))
             {
-                if (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)
+                if (r_ptr->flagsr & RFR_EFF_RES_FIRE_MASK)
                 {
-                    mon_lore_r(m_ptr, RFR_EFF_IM_FIRE_MASK);
+                    mon_lore_r(m_ptr, RFR_EFF_RES_FIRE_MASK);
                 }
                 else
                 {
-                    obj_learn_slay(o_ptr, OF_BRAND_FIRE, "has <color:r>Flame Tongue</color>");
+                    _shot_learn_slay(o_ptr, OF_BRAND_FIRE, "has <color:r>Flame Tongue</color>");
                     if (r_ptr->flags3 & RF3_HURT_FIRE)
                     {
                         mon_lore_3(m_ptr, RF3_HURT_FIRE);
@@ -2884,13 +2598,13 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
             /* Brand (Cold) */
             if (have_flag(flgs, OF_BRAND_COLD))
             {
-                if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
+                if (r_ptr->flagsr & RFR_EFF_RES_COLD_MASK)
                 {
-                    mon_lore_r(m_ptr, RFR_EFF_IM_COLD_MASK);
+                    mon_lore_r(m_ptr, RFR_EFF_RES_COLD_MASK);
                 }
                 else
                 {
-                    obj_learn_slay(o_ptr, OF_BRAND_COLD, "is <color:W>Frost Branded</color>");
+                    _shot_learn_slay(o_ptr, OF_BRAND_COLD, "is <color:W>Frost Branded</color>");
                     if (r_ptr->flags3 & RF3_HURT_COLD)
                     {
                         if (mult < 234) mult = 234;
@@ -2903,25 +2617,25 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
             /* Brand (Poison) */
             if (have_flag(flgs, OF_BRAND_POIS))
             {
-                if (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK)
+                if (r_ptr->flagsr & RFR_EFF_RES_POIS_MASK)
                 {
-                    mon_lore_r(m_ptr, RFR_EFF_IM_POIS_MASK);
+                    mon_lore_r(m_ptr, RFR_EFF_RES_POIS_MASK);
                 }
                 else
                 {
-                    obj_learn_slay(o_ptr, OF_BRAND_POIS, "has <color:G>Viper's Fang</color>");
+                    _shot_learn_slay(o_ptr, OF_BRAND_POIS, "has <color:G>Viper's Fang</color>");
                     if (mult < 162) mult = 162;
                 }
             }
 
-            if (have_flag(flgs, OF_BRAND_MANA) || p_ptr->tim_force)
+            if (have_flag(flgs, OF_BRAND_MANA))
             {
                 int cost = 1 + o_ptr->dd * o_ptr->ds / 2;
                 if (cost <= p_ptr->csp)
                 {
                     sp_player(-cost);
-                    mult += 5;
-                    obj_learn_slay(o_ptr, OF_BRAND_MANA, "is <color:B>Mana Branded</color>");
+                    mult += 50;
+                    _shot_learn_slay(o_ptr, OF_BRAND_MANA, "is <color:B>Mana Branded</color>");
                 }
             }
 
@@ -2984,8 +2698,8 @@ bool do_cmd_fire_aux1(obj_ptr bow, obj_ptr arrows)
         {
             if (target_who > 0)
             {
-                tx = m_list[target_who].fx;
-                ty = m_list[target_who].fy;
+                tx = dun_mon(cave, target_who)->pos.x;
+                ty = dun_mon(cave, target_who)->pos.y;
             }
             else
             {
@@ -3009,8 +2723,8 @@ bool do_cmd_fire_aux1(obj_ptr bow, obj_ptr arrows)
         }
 
         /* Predict the "target" location */
-        tx = px + 99 * ddx[dir];
-        ty = py + 99 * ddy[dir];
+        tx = p_ptr->pos.x + 99 * ddx[dir];
+        ty = p_ptr->pos.y + 99 * ddy[dir];
 
         /* Check for "target request" */
         if ((dir == 5) && target_okay())
@@ -3021,7 +2735,7 @@ bool do_cmd_fire_aux1(obj_ptr bow, obj_ptr arrows)
     }
 
     /* Don't shoot at my feet */
-    if (tx == px && ty == py)
+    if (tx == p_ptr->pos.x && ty == p_ptr->pos.y)
     {
         energy_use = 0;
         /* project_length is already reset to 0 */
@@ -3036,7 +2750,7 @@ bool do_cmd_fire_aux1(obj_ptr bow, obj_ptr arrows)
         return FALSE;
     }
 
-    do_cmd_fire_aux2(bow, arrows, px, py, tx, ty);
+    do_cmd_fire_aux2(bow, arrows, p_ptr->pos.x, p_ptr->pos.y, tx, ty);
     obj_release(arrows, OBJ_RELEASE_QUIET);
     return TRUE;
 }
@@ -3051,9 +2765,8 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
     bool hit_body = FALSE;
     bool return_ammo = FALSE;
     char o_name[MAX_NLEN];
-    u16b path_g[512];
-    int  flgs = PROJECT_PATH | PROJECT_THRU;
-    int  msec = delay_factor * delay_factor * delay_factor;
+    point_t path[MAX_SIGHT];
+    int  flgs = /*PROJECT_PATH |*/ PROJECT_THRU;
     bool stick_to = FALSE;
 
     /* Sniper - Cannot shoot a single arrow twice */
@@ -3135,8 +2848,8 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
     chance = p_ptr->skills.thb + bonus * BTH_PLUS_ADJ;
     chance += skills_bow_calc_bonus(bow->sval) * BTH_PLUS_ADJ;
 
-    if (p_ptr->stun)
-        chance -= chance * MIN(100, p_ptr->stun) / 150;
+    if (plr_tim_find(T_STUN))
+        chance -= chance * MIN(100, plr_tim_amount(T_STUN)) / 150;
 
     /* Calculate the Multiplier */
     tmul = bow_mult(bow);
@@ -3149,7 +2862,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
     if (shoot_hack == SHOOT_DISINTEGRATE)
         flgs |= PROJECT_DISI;
 
-    tdis = project_path(path_g, project_length, py, px, ty, tx, flgs) - 1;
+    tdis = project_path(path, project_length, p_ptr->pos, point_create(tx, ty), flgs) - 1;
 
     project_length = 0; /* reset to default */
 
@@ -3206,27 +2919,24 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
         /* Travel until stopped */
         for (cur_dis = 0; cur_dis <= tdis; )
         {
-            cave_type *c_ptr;
+            cave_ptr c_ptr;
+            mon_ptr mon;
 
             if (weaponmaster_get_toggle() != TOGGLE_PIERCING_ARROW && shoot_hack != SHOOT_PIERCE)
             {
                 /* Hack -- Stop at the target */
                 if ((y == ty) && (x == tx)) break;
             }
+            nx = path[cur_dis].x;
+            ny = path[cur_dis].y;
 
-            /* Calculate the new location (see "project()") */
-            ny = y;
-            nx = x;
-            /* Why, after having calculated a projection path, do we not use it?????
-            mmove2(&ny, &nx, sy, sx, ty, tx);*/
-            ny = GRID_Y(path_g[cur_dis]);
-            nx = GRID_X(path_g[cur_dis]);
+            c_ptr = cave_at_xy(nx, ny);
+            mon = mon_at_xy(nx, ny);
 
             /* Shatter Arrow */
             if (shoot_hack == SP_KILL_WALL)
             {
-                c_ptr = &cave[ny][nx];
-                if (cave_have_flag_grid(c_ptr, FF_HURT_ROCK) && !c_ptr->m_idx)
+                if (cave_have_flag_grid(c_ptr, FF_HURT_ROCK) && !mon)
                 {
                     if (c_ptr->info & (CAVE_MARK)) msg_print("Wall rocks were shattered.");
                     c_ptr->info &= ~(CAVE_MARK);
@@ -3239,8 +2949,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
 
             if (shoot_hack == SHOOT_DISINTEGRATE)
             {
-                c_ptr = &cave[ny][nx];
-                if (cave_have_flag_grid(c_ptr, FF_HURT_ROCK) && !c_ptr->m_idx)
+                if (cave_have_flag_grid(c_ptr, FF_HURT_ROCK) && !mon)
                 {
                     c_ptr->info &= ~(CAVE_MARK);
                     p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
@@ -3249,7 +2958,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
             }
 
             /* Stopped by walls/doors */
-            if (!cave_have_flag_bold(ny, nx, FF_PROJECT) && !cave[ny][nx].m_idx) break;
+            if (!cave_have_flag_grid(c_ptr, FF_PROJECT) && !mon) break;
 
             /* Advance the distance */
             cur_dis++;
@@ -3257,7 +2966,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
             /* Sniper */
             if (shoot_hack == SP_LITE)
             {
-                cave[ny][nx].info |= (CAVE_GLOW);
+                c_ptr->info |= (CAVE_GLOW);
                 note_spot(ny, nx);
                 lite_spot(ny, nx);
             }
@@ -3270,9 +2979,9 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
 
                 /* Draw, Hilite, Fresh, Pause, Erase */
                 print_rel(c, a, ny, nx);
-                move_cursor_relative(ny, nx);
+                move_cursor_relative(point_create(nx, ny));
                 Term_fresh();
-                Term_xtra(TERM_XTRA_DELAY, msec);
+                Term_xtra(TERM_XTRA_DELAY, delay_animation);
                 lite_spot(ny, nx);
                 Term_fresh();
             }
@@ -3280,7 +2989,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
             else
             {
                 /* Pause anyway, for consistancy */
-                Term_xtra(TERM_XTRA_DELAY, msec);
+                Term_xtra(TERM_XTRA_DELAY, delay_animation);
             }
 
             /* Sniper */
@@ -3291,7 +3000,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
             }
             if (shoot_hack == SP_EVILNESS)
             {
-                cave[ny][nx].info &= ~(CAVE_GLOW | CAVE_MARK);
+                c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
                 note_spot(ny, nx);
                 lite_spot(ny, nx);
             }
@@ -3309,22 +3018,19 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
             if (shoot_hack == SHOOT_VOLLEY && (x != tx || y != ty)) continue;
 
             /* Monster here, Try to hit it */
-            if (cave[y][x].m_idx)
+            if (mon)
             {
                 int armour;
                 bool hit = FALSE;
-                cave_type *c_ptr = &cave[y][x];
-
-                monster_type *m_ptr = &m_list[c_ptr->m_idx];
-                monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race *r_ptr = mon_race(mon);
 
                 /* Check the visibility */
-                visible = m_ptr->ml;
+                visible = mon->ml;
 
                 /* Note the collision */
                 hit_body = TRUE;
 
-                if (MON_CSLEEP(m_ptr))
+                if (mon_tim_find(mon, MT_SLEEP))
                 {
                     if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_COMPASSION, -1);
                     if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_HONOUR, -1);
@@ -3334,7 +3040,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                 if (p_ptr->riding)
                     skills_riding_gain_archery(r_ptr);
 
-                armour = mon_ac(m_ptr);
+                armour = mon_ac(mon);
                 if (p_ptr->concent)
                 {
                     armour *= (10 - p_ptr->concent);
@@ -3342,7 +3048,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                 }
 
                 if ( p_ptr->painted_target
-                  && p_ptr->painted_target_idx == c_ptr->m_idx
+                  && p_ptr->painted_target_idx == mon->id
                   && p_ptr->painted_target_ct >= 3)
                 {
                     if (randint1(100) <= 95)
@@ -3359,7 +3065,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                     if (weaponmaster_is_(WEAPONMASTER_BOWS) && p_ptr->lev >= 15)
                         chance2 += 2*(bow_range(bow) - cur_dis);
 
-                    hit = test_hit_fire(chance2 - cur_dis, armour, m_ptr->ml);
+                    hit = test_hit_fire(chance2 - cur_dis, armour, mon->ml);
                 }
 
                 if (p_ptr->painted_target)
@@ -3374,13 +3080,13 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                         p_ptr->painted_target_idx = 0;
                         p_ptr->painted_target_ct = 0;
                     }
-                    else if (p_ptr->painted_target_idx == c_ptr->m_idx)
+                    else if (p_ptr->painted_target_idx == mon->id)
                     {
                         p_ptr->painted_target_ct++;
                     }
                     else
                     {
-                        p_ptr->painted_target_idx = c_ptr->m_idx;
+                        p_ptr->painted_target_idx = mon->id;
                         p_ptr->painted_target_ct = 1;
                     }
                 }
@@ -3391,7 +3097,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                     int  tdam;
                     bool ambush = FALSE;
 
-                    if (MON_CSLEEP(m_ptr) && m_ptr->ml && !p_ptr->confused && !p_ptr->image && !p_ptr->stun)
+                    if (mon_tim_find(mon, MT_SLEEP) && mon->ml && !plr_tim_find(T_CONFUSED) && !plr_tim_find(T_HALLUCINATE) && !plr_tim_find(T_STUN))
                     {
                         if (shoot_hack == SHOOT_SNIPING || (p_ptr->pclass == CLASS_SKILLMASTER && p_ptr->ambush))
                         {
@@ -3407,26 +3113,26 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                     else
                     {
                         char m_name[80];
-                        monster_desc(m_name, m_ptr, 0);
+                        monster_desc(m_name, mon, 0);
                         if (ambush)
                             cmsg_format(TERM_VIOLET, "You cruelly shoot %s!", m_name);
                         else
                             msg_format("The %s hits %s.", o_name, m_name);
 
-                        if (m_ptr->ml)
+                        if (mon->ml)
                         {
-                            if (!p_ptr->image) mon_track(m_ptr);
-                            health_track(c_ptr->m_idx);
+                            if (!plr_tim_find(T_HALLUCINATE)) mon_track(mon);
+                            health_track(mon->id);
                         }
                     }
 
                     if (shoot_hack == SHOOT_NEEDLE)
                     {
-                        if ((randint1(randint1(r_ptr->level/7)+5) == 1) && (!(r_ptr->flags1 & RF1_UNIQUE) || m_ptr->r_idx == MON_HAGURE2) && !(r_ptr->flags7 & RF7_UNIQUE2))
+                        if ((randint1(randint1(r_ptr->level/7)+5) == 1) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
                         {
                             char m_name[80];
-                            monster_desc(m_name, m_ptr, 0);
-                            tdam = m_ptr->hp + 1;
+                            monster_desc(m_name, mon, 0);
+                            tdam = mon->hp + 1;
                             msg_format("Your shot hit a fatal spot of %s!", m_name);
                         }
                         else
@@ -3438,8 +3144,8 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                             && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
                         {
                             char m_name[MAX_NLEN];
-                            monster_desc(m_name, m_ptr, 0);
-                            tdam = m_ptr->hp + 1;
+                            monster_desc(m_name, mon, 0);
+                            tdam = mon->hp + 1;
                             msg_format("Your shot hit a fatal spot of %s!", m_name);
                         }
                         else
@@ -3456,7 +3162,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                             tdam += 1 + p_ptr->lev/10;
 
                         if (shoot_hack != SHOOT_SHATTER && shoot_hack != SHOOT_ELEMENTAL)
-                            tdam = tot_dam_aux_shot(&arrow, tdam, m_ptr);
+                            tdam = tot_dam_aux_shot(&arrow, tdam, mon);
                         if (ambush) tdam *= 2;
                         crit = critical_shot(arrow.weight, arrow.to_h);
                         if (crit.desc)
@@ -3480,13 +3186,13 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
 
                             if (p_ptr->lev >= 45)
                             {
-                                int mult = 100 + (m_ptr->maxhp - m_ptr->hp)*100/(2*m_ptr->maxhp);
+                                int mult = 100 + (mon->maxhp - mon->hp)*100/(2*mon->maxhp);
                                 tdam = tdam * mult / 100;
                             }
                         }
                         if (0) msg_format("<color:B>%d damage</color>", tdam);
                         if (tdam < 0) tdam = 0;
-                        tdam = mon_damage_mod(m_ptr, tdam, FALSE);
+                        tdam = mon_damage_mod(mon, tdam, FALSE);
                     }
 
                     if (shoot_hack == SP_EXPLODE)
@@ -3535,13 +3241,13 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                     }
                     if (shoot_hack == SP_HOLYNESS)
                     {
-                        cave[ny][nx].info |= (CAVE_GLOW);
+                        cave_at_xy(nx, ny)->info |= (CAVE_GLOW);
                         note_spot(ny, nx);
                         lite_spot(ny, nx);
                     }
-                    if (p_ptr->stun)
-                        tdam -= tdam * MIN(100, p_ptr->stun) / 150;
-                    if (mon_take_hit(c_ptr->m_idx, tdam, &fear, NULL))
+                    if (plr_tim_find(T_STUN))
+                        tdam -= tdam * MIN(100, plr_tim_amount(T_STUN)) / 150;
+                    if (mon_take_hit(mon->id, tdam, &fear, NULL))
                     {
                         /* Dead monster ... abort firing additional shots */
                         i = num_shots;
@@ -3553,46 +3259,43 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                     {
                         bool anger = TRUE;
 
-                        message_pain(c_ptr->m_idx, tdam);
+                        message_pain(mon->id, tdam);
 
                         if (shoot_hack == SHOOT_TRANQUILIZE)
                         {
-                            if (MON_CSLEEP(m_ptr))
+                            if (mon_tim_find(mon, MT_SLEEP))
                             {
                                 if (!one_in_(5))
                                     anger = FALSE;
                             }
                             else if (one_in_(3))
                             {
-                                char m_name[80];
-                                monster_desc(m_name, m_ptr, 0);
-                                msg_format("%^s is put to sleep!", m_name);
-                                set_monster_csleep(c_ptr->m_idx, 500);
+                                mon_tim_add(mon, MT_SLEEP, 500);
                                 anger = FALSE;
                             }
 
                             /* mon_take_hit() in xtra2.c hacked to not auto wakeup for SHOOT_TRANQUILIZE */
                             if (anger)
-                                (void)set_monster_csleep(c_ptr->m_idx, 0);
+                                mon_tim_delete(mon, MT_SLEEP);
                         }
 
-                        if (anger && tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
+                        if (anger && tdam > 0 && mon->cdis > 1 && allow_ticked_off(r_ptr))
                         {
-                            if (!mut_present(MUT_PEERLESS_SNIPER) && !p_ptr->tim_stealthy_snipe)
-                                mon_anger_shoot(m_ptr, tdam);
+                            if (!p_ptr->stealthy_snipe)
+                                mon_anger_shoot(mon, tdam);
                         }
 
                         if (anger && tdam > 0)
-                            anger_monster(m_ptr);
+                            anger_monster(mon);
 
                         /* Artifact arrows stick to target. Note, we now do this
                            after hurting/angering the monster since Cupid's Arrow
                            might charm the target, while anger_monster() would set
                            it back to being hostile. */
-                        if (object_is_fixed_artifact(&arrow))
+                        if (obj_is_std_art(&arrow))
                         {
                             char m_name[80];
-                            monster_desc(m_name, m_ptr, 0);
+                            monster_desc(m_name, mon, 0);
 
                             stick_to = one_in_(2);
 
@@ -3602,26 +3305,26 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                                are carrying. */
                             if (arrow.name1 == ART_CUPIDS_ARROW && !(r_ptr->flags1 & RF1_UNIQUE))
                             {
-                                if (!mon_save_p(m_ptr->r_idx, A_CHR))
+                                if (!mon_save_p(mon->r_idx, A_CHR))
                                 {
-                                    if (!mon_save_p(m_ptr->r_idx, A_CHR))
+                                    if (!mon_save_p(mon->r_idx, A_CHR))
                                     {
-                                        if (!is_pet(m_ptr))
+                                        if (!is_pet(mon))
                                         {
-                                            set_pet(m_ptr);
+                                            set_pet(mon);
                                             msg_format("%^s is charmed!", m_name);
                                             stick_to = FALSE;
                                         }
-                                        else if (!is_friendly(m_ptr))
+                                        else if (!is_friendly(mon))
                                         {
-                                            set_friendly(m_ptr);
+                                            set_friendly(mon);
                                             msg_format("%^s suddenly becomes friendly.", m_name);
                                             stick_to = FALSE;
                                         }
                                     }
-                                    else if (!is_pet(m_ptr) && !is_friendly(m_ptr))
+                                    else if (!is_pet(mon) && !is_friendly(mon))
                                     {
-                                        set_friendly(m_ptr);
+                                        set_friendly(mon);
                                         msg_format("%^s suddenly becomes friendly.", m_name);
                                         stick_to = FALSE;
                                     }
@@ -3632,20 +3335,19 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                                 msg_format("%^s have stuck into %s!",o_name, m_name);
                         }
 
-                        if (fear && m_ptr->ml)
+                        if (fear && mon->ml)
                         {
                             char m_name[80];
                             sound(SOUND_FLEE);
-                            monster_desc(m_name, m_ptr, 0);
+                            monster_desc(m_name, mon, 0);
                             msg_format("%^s flees in terror!", m_name);
                         }
 
-                        set_target(m_ptr, py, px);
+                        set_target(mon, p_ptr->pos);
 
                         if (shoot_hack == SP_RUSH || shoot_hack == SHOOT_KNOCKBACK)
                         {
                             int n = randint1(5) + 3;
-                            int m_idx = c_ptr->m_idx;
 
                             for ( ; cur_dis <= tdis; )
                             {
@@ -3661,25 +3363,18 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                                 if (!in_bounds2(ny, nx)) break;
 
                                 /* Stopped by walls/doors */
-                                if (!player_can_enter(cave[ny][nx].feat, 0)) break;
+                                if (!monster_can_cross_terrain(cave_at_xy(nx, ny)->feat, r_ptr, 0)) break;
 
                                 /* Stopped by monsters */
                                 if (!cave_empty_bold(ny, nx)) break;
 
-                                cave[ny][nx].m_idx = m_idx;
-                                cave[oy][ox].m_idx = 0;
-
-                                m_ptr->fx = nx;
-                                m_ptr->fy = ny;
-
-                                /* Update the monster (new location) */
-                                update_mon(c_ptr->m_idx, TRUE);
+                                dun_move_mon(cave, mon, point_create(nx, ny));
 
                                 lite_spot(ny, nx);
                                 lite_spot(oy, ox);
 
                                 Term_fresh();
-                                Term_xtra(TERM_XTRA_DELAY, msec);
+                                Term_xtra(TERM_XTRA_DELAY, delay_animation);
 
                                 x = nx;
                                 y = ny;
@@ -3692,7 +3387,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                 else
                 {
                     char m_name[80];
-                    monster_desc(m_name, m_ptr, 0);
+                    monster_desc(m_name, mon, 0);
                     msg_format("The %s misses %s.", o_name, m_name);
                 }
 
@@ -3755,41 +3450,18 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
         }
         else if (stick_to)
         {
-            int m_idx = cave[y][x].m_idx;
-            monster_type *m_ptr = &m_list[m_idx];
-            int o_idx = o_pop();
-            obj_ptr o_ptr;
-
-            if (!o_idx)
-            {
-                msg_format("The %s has gone somewhere else.", o_name);
-                if (object_is_fixed_artifact(&arrow))
-                    a_info[arrow.name1].generated = FALSE;
-                if (random_artifacts && arrow.name3)
-                    a_info[arrow.name3].generated = FALSE;
-                return;
-            }
-
-            o_ptr = &o_list[o_idx];
-            *o_ptr = arrow;
-
-            o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EFFECT_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);
-            o_ptr->loc.where = INV_FLOOR;
-            o_ptr->loc.y = o_ptr->loc.x = 0;
-            o_ptr->loc.slot = o_idx;
-            o_ptr->held_m_idx = m_idx;
-            o_ptr->next_o_idx = m_ptr->hold_o_idx;
-            m_ptr->hold_o_idx = o_idx;
+            mon_ptr mon = dun_mon_at(cave, point_create(x, y));
+            dun_mon_steal_plr(cave, mon, &arrow); 
         }
         else if (cave_have_flag_bold(y, x, FF_PROJECT))
         {
             /* Drop (or break) near that location */
-            drop_near(&arrow, break_chance, y, x);
+            drop_near(&arrow, point_create(x, y), break_chance);
         }
         else
         {
             /* Drop (or break) near that location */
-            drop_near(&arrow, break_chance, prev_y, prev_x);
+            drop_near(&arrow, point_create(prev_x, prev_y), break_chance);
         }
 
     /* Sniper - Repeat shooting when double shots */
@@ -3804,7 +3476,7 @@ bool do_cmd_fire(void)
 {
     bool         result = FALSE;
     obj_prompt_t prompt = {0};
-    int          slot = equip_find_first(object_is_bow);
+    int          slot = equip_find_first(obj_is_bow);
     obj_ptr      bow = NULL;
 
     if (!slot)
@@ -3858,8 +3530,8 @@ bool do_cmd_fire(void)
         if (shoot_hack == SP_FINAL)
         {
             msg_print("You experience a powerful recoil!");
-            set_slow(p_ptr->slow + randint0(7) + 7, FALSE);
-            set_stun(p_ptr->stun + randint1(25), FALSE);
+            plr_tim_add(T_SLOW, randint0(7) + 7);
+            if (!p_ptr->no_stun) plr_tim_add(T_STUN, randint1(25));
         }
     }
 
@@ -3868,204 +3540,127 @@ bool do_cmd_fire(void)
 
 
 /*
- * Hack: travel command
+ * Player Travel to Fixed Location
  */
-#define TRAVEL_UNABLE 9999
-
-static int flow_head = 0;
-static int flow_tail = 0;
-static s16b temp2_x[MAX_SHORT];
-static s16b temp2_y[MAX_SHORT];
-
-/* Hack: forget the "flow" information */
-void forget_travel_flow(void)
+static bool _travel_flow_p(point_t pos, dun_grid_ptr grid)
 {
-    int x, y;
+    dun_feat_ptr feat;
 
-    /* Check the entire dungeon */
-    for (y = 0; y < cur_hgt; y++)
+    if (!(grid->info & CAVE_AWARE)) return FALSE; /* non-spoiling */
+    if (is_known_trap(grid)) return FALSE;      /* avoid unnecessary risks */
+    /* XXX if (is_jammed_door(grid->feat)) return FALSE; */
+
+    feat = dun_grid_feat_mimic(grid); /* non-spoiling */
+    if (have_flag(feat->flags, FF_WALL) || have_flag(feat->flags, FF_CAN_DIG)) return FALSE;
+    if (!have_flag(feat->flags, FF_MOVE) && have_flag(feat->flags, FF_CAN_FLY) && !p_ptr->levitation)
+        return FALSE;
+    /*if (have_flag(feat->flags, FF_LAVA) && !elemental_is_(ELEMENTAL_FIRE) && res_pct(RES_FIRE) < 100)
+        return FALSE;*/
+    return TRUE;
+}
+static bool _travel_begin_direct(point_t pos)
+{
+    if (!travel.path) travel.path = point_vec_alloc();
+    else point_vec_clear(travel.path);
+    travel.path_idx = 0;
+
+    if (point_fast_distance(p_ptr->pos, pos) <= MAX_SIGHT)
     {
-        for (x = 0; x < cur_wid; x++)
+        point_t path[MAX_SIGHT];
+        int     ct = project_path(path, MAX_SIGHT, p_ptr->pos, pos, 0), i;
+
+        if (ct > 0 && point_equals(path[ct - 1], pos))
         {
-            /* Forget the old data */
-            travel.cost[y][x] = TRAVEL_UNABLE;
+            /* A projection path never includes the start position. We'll include it
+             * in our travel path for more robust error checking. travel.path[.path_idx]
+             * should always be the the plr's position, and .path[.path_idx+1] is the 
+             * next position in the travel. */
+            assert(!point_equals(p_ptr->pos, path[0]));
+            point_vec_add(travel.path, p_ptr->pos);
+
+            for (i = 0; i < ct; i++)
+            {
+                point_t p = path[i];
+                dun_grid_ptr g = dun_grid_at(cave, p);
+                if (!_travel_flow_p(p, g))
+                {
+                    point_vec_clear(travel.path);
+                    return FALSE;
+                }
+                point_vec_add(travel.path, p);
+            }
+            return TRUE;
         }
     }
+    return FALSE;
 }
-
-static bool travel_flow_aux(int y, int x, int n, bool wall)
+void travel_begin(int mode, point_t pos)
 {
-    cave_type *c_ptr = &cave[y][x];
-    feature_type *f_ptr = &f_info[c_ptr->feat];
-    int old_head = flow_head;
+    assert(dun_pos_interior(cave, pos));
 
-    n = n % TRAVEL_UNABLE;
+    if (point_equals(pos, p_ptr->pos))
+        return;
 
-    /* Ignore out of bounds or undiscovered terrain */
-    if (!in_bounds(y, x)) return wall;
-    if (!(c_ptr->info & CAVE_AWARE)) return wall;
-
-    /* Don't travel thru traps ... code will attempt a disarm, but this
-     * can be dangerous for some players. Often, there is an alternate
-     * route around the trap anyway ... */
-    if (is_known_trap(c_ptr)) return wall;
-
-    /* Ignore "pre-stamped" entries */
-    if (travel.cost[y][x] != TRAVEL_UNABLE) return wall;
-
-    /* Ignore "walls" and "rubble" (include "secret doors") */
-    if (have_flag(f_ptr->flags, FF_WALL) ||
-        have_flag(f_ptr->flags, FF_CAN_DIG) ||
-        (have_flag(f_ptr->flags, FF_DOOR) && cave[y][x].mimic) ||
-        (!have_flag(f_ptr->flags, FF_MOVE) && have_flag(f_ptr->flags, FF_CAN_FLY) && !p_ptr->levitation))
+    if (_travel_begin_direct(pos))
     {
-        if (!wall) return wall;
+        assert(travel.path);
+        assert(point_vec_length(travel.path));
+
+        if (travel.flow) dun_flow_free(travel.flow);
+        travel.flow = NULL;
+
+        travel.mode = mode;
+        travel.pos = pos;
+        travel.run = 255;
+        travel.dir = 0;
+        travel.path_idx = 0;
     }
     else
     {
-        wall = FALSE;
-    }
-
-    /* Save the flow cost */
-    travel.cost[y][x] = n;
-    if (wall) travel.cost[y][x] += TRAVEL_UNABLE;
-
-    /* Enqueue that entry */
-    temp2_y[flow_head] = y;
-    temp2_x[flow_head] = x;
-
-    /* Advance the queue */
-    if (++flow_head == MAX_SHORT) flow_head = 0;
-
-    /* Hack -- notice overflow by forgetting new entry */
-    if (flow_head == flow_tail) flow_head = old_head;
-
-    return wall;
-}
+        int i;
+        int dx, dy, sx, sy;
+        dun_grid_ptr grid;
+        dun_feat_ptr feat;
+        int rng = plr_on_surface() ? MAX(50, point_fast_distance(p_ptr->pos, pos)) : 200;
+        rect_t rect;
 
 
-static void travel_flow(int ty, int tx)
-{
-    int x, y, d;
-    bool wall = FALSE;
-    feature_type *f_ptr = &f_info[cave[ty][tx].feat];
-
-    /* Reset the "queue" */
-    flow_head = flow_tail = 0;
-
-    if (!have_flag(f_ptr->flags, FF_MOVE)) wall = TRUE;
-
-    /* Add the target destination grid to the queue */
-    wall = travel_flow_aux(ty, tx, 0, wall);
-
-    /* Now process the queue */
-    while (flow_head != flow_tail)
-    {
-        /* Extract the next entry */
-        y = temp2_y[flow_tail];
-        x = temp2_x[flow_tail];
-
-        /* Forget that entry */
-        if (++flow_tail == MAX_SHORT) flow_tail = 0;
-
-        /* Add the "children" */
-        for (d = 0; d < 8; d++)
+        rect = rect_create_centered(pos, rng, rng);
+        if (!rect_contains_point(rect, p_ptr->pos))
         {
-            /* Add that child if "legal" */
-            wall = travel_flow_aux(y + ddy_ddd[d], x + ddx_ddd[d], travel.cost[y][x] + 1, wall);
+            msg_print("That location is too far away.");
+            return;
         }
-    }
 
-    /* Forget the flow info */
-    flow_head = flow_tail = 0;
-}
+        grid = dun_grid_at(cave, pos);
+        feat = dun_grid_feat_mimic(grid);
+        if ( (grid->info & CAVE_MARK)
+          && (have_flag(feat->flags, FF_WALL) || have_flag(feat->flags, FF_CAN_DIG)) )
+        {
+            msg_print("You cannot travel there!");
+            return;
+        }
 
-void travel_begin(int mode, int x, int y)
-{
-    int i;
-    int dx, dy, sx, sy;
-    feature_type *f_ptr;
+        if (travel.flow) dun_flow_free(travel.flow);
+        travel.flow = NULL;
 
-    travel.mode = mode;
-    travel.run = 0;
+        travel.mode = mode;
+        travel.run = 0;
+        travel.pos = pos;
+        travel.flow = dun_flow_calc(cave, pos, rng, _travel_flow_p);
+        travel.run = 255;
+        travel.dir = 0;
 
-    assert(in_bounds2(y, x)); /* Old bug with traveling in a scrollable wilderness */
+        /* Decides first direction */
+        dx = abs(p_ptr->pos.x - pos.x);
+        dy = abs(p_ptr->pos.y - pos.y);
+        sx = ((pos.x == p_ptr->pos.x) || (dx < dy)) ? 0 : ((pos.x > p_ptr->pos.x) ? 1 : -1);
+        sy = ((pos.y == p_ptr->pos.y) || (dy < dx)) ? 0 : ((pos.y > p_ptr->pos.y) ? 1 : -1);
 
-    if (x == px && y == py)
-    {
-        /* Shut up already ... perhaps we are being called from wilderness_move_player, rather
-        than from the top level. It turns out that the Museum in Outpost is located on a scroll
-        boundary, and the scroll fires on the last move of the travel flow, but is processed
-        before travel_step checks that we are finished.
-        msg_print("You are already there!!"); */
-        travel_cancel();
-        return;
-    }
-
-    f_ptr = &f_info[cave[y][x].feat];
-
-    if ((cave[y][x].info & CAVE_MARK) &&
-        (have_flag(f_ptr->flags, FF_WALL) ||
-            have_flag(f_ptr->flags, FF_CAN_DIG) ||
-            (have_flag(f_ptr->flags, FF_DOOR) && cave[y][x].mimic)))
-    {
-        msg_print("You cannot travel there!");
-        travel_cancel();
-        return;
-    }
-
-    travel.x = x;
-    travel.y = y;
-
-    forget_travel_flow();
-    travel_flow(y, x);
-
-    /* Travel till 255 steps */
-    travel.run = 255;
-
-    /* Paranoia */
-    travel.dir = 0;
-
-    /* Decides first direction */
-    dx = abs(px - x);
-    dy = abs(py - y);
-    sx = ((x == px) || (dx < dy)) ? 0 : ((x > px) ? 1 : -1);
-    sy = ((y == py) || (dy < dx)) ? 0 : ((y > py) ? 1 : -1);
-
-    for (i = 1; i <= 9; i++)
-    {
-        if ((sx == ddx[i]) && (sy == ddy[i])) travel.dir = i;
-    }
-}
-
-void travel_wilderness_scroll(int new_x, int new_y)
-{
-    if (new_x == px && new_y == py)
-    {
-        /* Don't begin a new travel if we are just going
-         * to end it. Call stack is something like:
-         *   travel_wilderness_scroll
-         *   wilderness_move_player
-         *   move_player_effect
-         *   travel_step
-         * When we return to travel_step, it will call
-         * travel_end for us. If we call travel_end, then
-         * we (might) begin a new travel command, and unwinding
-         * to travel_step erroneously (but harmlessly)
-         * marks a step as taken on the new route. */
-        travel.x = px;
-        travel.y = py;
-    }
-    /* Careful: Travel might cause a scroll that sends the destination
-     * out of bounds. For example: Telmora and The Sand Pits quest. Travel
-     * from the Manor square to the quest entrance to reproduce. */
-    else if (in_bounds2(new_y, new_x))
-        travel_begin(travel.mode, new_x, new_y);
-    else
-    {
-        travel_cancel();
-        forget_travel_flow();
-        msg_print("<color:v>Oops!</color> The location you were travelling towards has scrolled off the screen.");
+        for (i = 1; i <= 9; i++)
+        {
+            if ((sx == ddx[i]) && (sy == ddy[i])) travel.dir = i;
+        }
     }
 }
 
@@ -4094,7 +3689,7 @@ void travel_end(void)
     if (travel.mode != TRAVEL_MODE_NORMAL && _travel_next_obj(travel.mode))
     {
         /* paranoia ... but don't get stuck */
-        if (travel.x == px && travel.y == py)
+        if (point_equals(travel.pos, p_ptr->pos))
             travel_cancel();
     }
     else
@@ -4108,7 +3703,7 @@ void do_cmd_travel(void)
 {
     int x, y;
     if (!tgt_pt(&x, &y, -1)) return;
-    travel_begin(TRAVEL_MODE_NORMAL, x, y);
+    travel_begin(TRAVEL_MODE_NORMAL, point_create(x, y));
 }
 
 

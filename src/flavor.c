@@ -569,7 +569,11 @@ static flag_insc_table flag_insc_brand[] =
     { "F", OF_BRAND_FIRE, -1 },
     { "Co", OF_BRAND_COLD, -1 },
     { "P", OF_BRAND_POIS, -1 },
+    { "L", OF_BRAND_LITE, -1 },
+    { "D", OF_BRAND_DARK, -1 },
+    { "P", OF_BRAND_PLASMA, -1 },
     { "Ca", OF_BRAND_CHAOS, -1 },
+    { "Ti", OF_BRAND_TIME, -1 },
     { "V", OF_BRAND_VAMP, -1 },
     { "Q", OF_IMPACT, -1 },
     { "St", OF_STUN, -1 },
@@ -684,7 +688,7 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
     char *prev_ptr = ptr;
     u32b flgs[OF_ARRAY_SIZE];
 
-    if (object_is_device(o_ptr))
+    if (obj_is_device(o_ptr))
         return ptr;
 
     /* Extract the flags */
@@ -700,7 +704,7 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
         for (j = 0; j < OF_ARRAY_SIZE; j++)
             flgs[j] &= ~k_ptr->flags[j];
 
-        if (object_is_fixed_artifact(o_ptr))
+        if (obj_is_std_art(o_ptr))
         {
             artifact_type *a_ptr = &a_info[o_ptr->name1];
                     
@@ -708,7 +712,7 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
                 flgs[j] &= ~a_ptr->flags[j];
         }
 
-        if (object_is_ego(o_ptr))
+        if (obj_is_ego(o_ptr))
         {
             ego_type *e_ptr = &e_info[o_ptr->name2];
                     
@@ -818,13 +822,21 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
 
     /* Is there more to learn about this object? Perhaps, but don't leak quality info! */
     if ( obj_is_identified(o_ptr)
-      && (object_is_wearable(o_ptr) || object_is_ammo(o_ptr))
-      && (object_is_artifact(o_ptr) || object_is_ego(o_ptr))
+      && (obj_is_wearable(o_ptr) || obj_is_ammo(o_ptr))
+      && (obj_is_art(o_ptr) || obj_is_ego(o_ptr))
       && !obj_is_identified_fully(o_ptr)
       && !(o_ptr->ident & IDENT_STORE) )
     {
         ADD_INSC("?");
     }
+    
+    #if 0
+    if (statistics_hack && o_ptr->art_name)
+    {
+        int ct = art_name_count(quark_str(o_ptr->art_name));
+        ADD_INSC(format(" %d", ct));
+    }
+    #endif
 
     *ptr = '\0';
 
@@ -901,7 +913,7 @@ char attr_to_attr_char(byte a)
 
 char tval_to_attr_char(int tval)
 {
-    return attr_to_attr_char(tval_to_attr[tval % 128]);
+    return attr_to_attr_char(tv_color(tval));
 }
 
 /*
@@ -998,7 +1010,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     /* See if the object is "aware" */
     if (object_is_aware(o_ptr)) aware = TRUE;
     /* Devices no longer use flavor system ... k_info[].aware is meaningless! */
-    if (object_is_device(o_ptr) && object_is_known(o_ptr)) aware = TRUE;
+    if (obj_is_device(o_ptr) && obj_is_known(o_ptr)) aware = TRUE;
 
     /* Hack object_is_aware() is wrong in this case.
        Anybody know how k_info[].aware gets set?  Perhaps flavor_init? */
@@ -1006,7 +1018,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         aware = FALSE;
 
     /* See if the object is "known" */
-    if (object_is_known(o_ptr)) known = TRUE;
+    if (obj_is_known(o_ptr)) known = TRUE;
 
     /* Allow flavors to be hidden when aware */
     if (aware && ((mode & OD_NO_FLAVOR) || plain_descriptions)) flavor = FALSE;
@@ -1138,12 +1150,17 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             break;
 
         /* Armour */
+        case TV_SHIELD:
+            if (have_flag(flgs, OF_FAKE) && weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
+            {
+                show_weapon = TRUE;
+                break;
+            }
         case TV_BOOTS:
         case TV_GLOVES:
         case TV_CLOAK:
         case TV_CROWN:
         case TV_HELM:
-        case TV_SHIELD:
         case TV_SOFT_ARMOR:
         case TV_HARD_ARMOR:
         case TV_DRAG_ARMOR:
@@ -1438,7 +1455,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
 
         /* Hack -- The only one of its kind */
-        else if ((known && object_is_artifact(o_ptr)) ||
+        else if ((known && obj_is_art(o_ptr)) ||
                  ((o_ptr->tval == TV_CORPSE) &&
                   (r_info[o_ptr->pval].flags1 & RF1_UNIQUE)))
         {
@@ -1496,7 +1513,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
 
         /* Hack -- The only one of its kind */
-        else if (known && object_is_artifact(o_ptr))
+        else if (known && obj_is_art(o_ptr))
         {
             t = object_desc_str(t, "The ");
         }
@@ -1568,11 +1585,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     *t = '\0';
 
 
-    if (object_is_smith(o_ptr))
-    {
-        t = object_desc_str(t,format(" of %s the Smith",player_name));
-    }
-
     /* Hack -- Append "Artifact" or "Special" names */
     if (known && !have_flag(flgs, OF_FULL_NAME))
     {
@@ -1584,7 +1596,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
 
         /* Grab any artifact name */
-        else if (object_is_fixed_artifact(o_ptr))
+        else if (obj_is_std_art(o_ptr))
         {
             artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -1595,7 +1607,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         /* Grab any ego-item name */
         else
         {
-            if (object_is_ego(o_ptr))
+            if (obj_is_ego(o_ptr))
             {
                 ego_type *e_ptr = &e_info[o_ptr->name2];
 
@@ -1615,7 +1627,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
     }
 
-    if (known && object_is_device(o_ptr))
+    if (known && obj_is_device(o_ptr))
     {
         if (o_ptr->activation.type)
         {
@@ -1744,6 +1756,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     switch (o_ptr->tval)
     {
     /* Missiles and Weapons */
+    case TV_SHIELD:
+        if (weaponmaster_get_toggle() != TOGGLE_SHIELD_BASH || !have_flag(flgs, OF_FAKE))
+            break;
     case TV_SHOT:
     case TV_BOLT:
     case TV_ARROW:
@@ -1762,10 +1777,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
             if (hand >= 0 && hand < MAX_HANDS && !(mode & OD_THROWING))
             {
-                dd += p_ptr->weapon_info[hand].to_dd;
-                ds += p_ptr->weapon_info[hand].to_ds;
+                dd += p_ptr->attack_info[hand].to_dd;
+                ds += p_ptr->attack_info[hand].to_ds;
             }
-
             /* Append a "damage" string */
             t = object_desc_chr(t, ' ');
             t = object_desc_chr(t, p1);
@@ -1882,7 +1896,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             int ac = o_ptr->ac;
             int to_a = o_ptr->to_a;
 
-            if (prace_is_(RACE_CENTAUR) && object_is_body_armour(o_ptr))
+            if (prace_is_(RACE_CENTAUR) && obj_is_body_armor(o_ptr))
             {
                 ac -= ac / 3;
                 if (to_a > 0)
@@ -1932,7 +1946,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
     if (known)
     {
-        if (object_is_device(o_ptr))
+        if (obj_is_device(o_ptr))
         {
             if (o_ptr->activation.cost)
             {
@@ -1962,7 +1976,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             }
         }
         /* TODO: Devices need fixing, so we'll require Id for now */
-        if (object_is_device(o_ptr) && o_ptr->pval)
+        if (obj_is_device(o_ptr) && o_ptr->pval)
         {
             if (o_ptr->name2 == EGO_DEVICE_POWER)
             {
@@ -1978,7 +1992,15 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     /* Learning about a pval flag on an unidentified object *should* display the pval!*/
-    if (have_pval_flag(known_flgs) && !object_is_device(o_ptr) && o_ptr->pval)
+    if (of_has_pval(known_flgs) && !obj_is_device(o_ptr) && o_ptr->pval)
+    {
+        t = object_desc_chr(t, ' ');
+        t = object_desc_chr(t, p1);
+        t = object_desc_int(t, o_ptr->pval);
+        t = object_desc_chr(t, p2);
+    }
+    /* XXX Hack for Mage Quiver of Regeneration. */
+    else if (object_is_(o_ptr, TV_QUIVER, SV_QUIVER_MAGE) && o_ptr->name2 == EGO_QUIVER_REGEN)
     {
         t = object_desc_chr(t, ' ');
         t = object_desc_chr(t, p1);
@@ -2022,6 +2044,14 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     {
         int pct = spell_cap_aux(100, -o_ptr->pval) - 100;
         t = object_desc_str(t, format(" [%d%%]", pct));
+    }
+
+    if (object_is_smith(o_ptr))
+    {
+        if (mode & OD_COLOR_CODED)
+            t = object_desc_str(t, " [<color:B>Smith</color>]");
+        else
+            t = object_desc_str(t, " [Smith]");
     }
 
     if (known)
@@ -2082,7 +2112,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         strcat(tmp_val2, buf);
     }
 
-    if (object_is_device(o_ptr) && obj_is_identified_fully(o_ptr))
+    if (obj_is_device(o_ptr) && obj_is_identified_fully(o_ptr))
     {
         int  fail = device_calc_fail_rate(o_ptr);
         strcat(tmp_val2, format("%d%%", (fail + 5)/10));
@@ -2106,7 +2136,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
     }
 
-    if (o_ptr->name3 && object_is_known(o_ptr) && abbrev_all)
+    if (o_ptr->name3 && obj_is_known(o_ptr) && abbrev_all)
     {
         cptr  t = a_name + a_info[o_ptr->name3].name;
 
@@ -2170,9 +2200,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     /* Note "cursed" if the item is known to be cursed */
-    else if (object_is_cursed(o_ptr) && (known || (o_ptr->ident & IDENT_SENSE)))
+    else if (obj_is_cursed(o_ptr) && (known || (o_ptr->ident & IDENT_SENSE)))
     {
-        if (object_is_device(o_ptr) && !obj_is_identified_fully(o_ptr))
+        if (obj_is_device(o_ptr) && !obj_is_identified_fully(o_ptr))
         {
             /* Hide cursed status of devices until *Identified* */
         }
@@ -2195,7 +2225,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     /* Note "tried" if the object has been tested unsuccessfully */
-    else if (!known && object_is_device(o_ptr) && object_is_tried(o_ptr))
+    else if (!known && obj_is_device(o_ptr) && object_is_tried(o_ptr))
     {
         strcpy(fake_insc_buf, "tried");
     }

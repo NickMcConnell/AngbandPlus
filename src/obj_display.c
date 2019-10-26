@@ -100,7 +100,7 @@ static void _display_name(object_type *o_ptr, doc_ptr doc)
 static void _display_desc(object_type *o_ptr, doc_ptr doc)
 {
     cptr text;
-    if (o_ptr->name1 && object_is_known(o_ptr))
+    if (o_ptr->name1 && obj_is_known(o_ptr))
         text = a_text + a_info[o_ptr->name1].text;
     else
         text = k_text + k_info[o_ptr->k_idx].text;
@@ -340,10 +340,18 @@ static void _display_brands(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
         vec_add(v, string_copy_s("<color:b>Lightning Brand</color>"));
     if (have_flag(flgs, OF_BRAND_FIRE))
         vec_add(v, string_copy_s("<color:r>Flame Tongue</color>"));
+    if (have_flag(flgs, OF_BRAND_PLASMA))
+        vec_add(v, string_copy_s("<color:R>Plasma Brand</color>"));
     if (have_flag(flgs, OF_BRAND_COLD))
         vec_add(v, string_copy_s("<color:W>Frost Brand</color>"));
     if (have_flag(flgs, OF_BRAND_POIS))
         vec_add(v, string_copy_s("<color:G>Viper's Fang</color>"));
+    if (have_flag(flgs, OF_BRAND_LITE))
+        vec_add(v, string_copy_s("<color:y>Light Brand</color>"));
+    if (have_flag(flgs, OF_BRAND_DARK))
+        vec_add(v, string_copy_s("<color:D>Dark Brand</color>"));
+    if (have_flag(flgs, OF_BRAND_TIME))
+        vec_add(v, string_copy_s("<color:B>Time Brand</color>"));
     if (have_flag(flgs, OF_BRAND_CHAOS))
         vec_add(v, string_copy_s("<color:v>Mark of Chaos</color>"));
     if (have_flag(flgs, OF_BRAND_VAMP))
@@ -356,10 +364,6 @@ static void _display_brands(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
         vec_add(v, string_copy_s("<color:R>Sharpness</color>"));
     if (have_flag(flgs, OF_STUN))
         vec_add(v, string_copy_s("<color:o>Stuns</color>"));
-    if (have_flag(flgs, OF_BRAND_ORDER))
-        vec_add(v, string_copy_s("<color:W>Weapon of Order</color>"));
-    if (have_flag(flgs, OF_BRAND_WILD))
-        vec_add(v, string_copy_s("<color:o>Wild Weapon</color>"));
     if (have_flag(flgs, OF_BRAND_MANA))
         vec_add(v, string_copy_s("<color:B>Mana Brand</color>"));
 
@@ -585,12 +589,12 @@ static void _display_auras(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     vec_ptr v = vec_alloc((vec_free_f)string_free);
 
+    if (have_flag(flgs, OF_AURA_ELEC))
+        vec_add(v, _get_res_name(RES_ELEC));
     if (have_flag(flgs, OF_AURA_FIRE))
         vec_add(v, _get_res_name(RES_FIRE));
     if (have_flag(flgs, OF_AURA_COLD))
         vec_add(v, _get_res_name(RES_COLD));
-    if (have_flag(flgs, OF_AURA_ELEC))
-        vec_add(v, _get_res_name(RES_ELEC));
     if (have_flag(flgs, OF_AURA_SHARDS))
         vec_add(v, string_copy_s("<color:U>Shards</color>"));
     if (have_flag(flgs, OF_AURA_REVENGE))
@@ -632,11 +636,22 @@ static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr
     if (have_flag(flgs, OF_EASY_SPELL))
         doc_insert(doc, "It affects your ability to cast spells.\n");
 
+    if (have_flag(flgs, OF_MELEE))
+        doc_insert(doc, "It affects your accuracy and damage in hand-to-hand combat.\n");
+
+    if (have_flag(flgs, OF_ARCHERY))
+        doc_insert(doc, "It affects your accuracy and damage in archery.\n");
+
+    if (have_flag(flgs, OF_SPELL_DAM))
+        doc_insert(doc, "It affects the damage of your spells.\n");
+
     if (have_flag(flgs, OF_DEC_MANA))
     {
         caster_info *caster_ptr = get_caster_info();
         if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
             doc_insert(doc, "It decreases your mana consumption.\n");
+        else
+            doc_insert(doc, "It decreases mana consumption, but not for you!\n");
     }
 
     net = _calc_net_bonus(o_ptr->pval, flgs, OF_WEAPONMASTERY, OF_INVALID);
@@ -651,6 +666,12 @@ static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr
     {
         doc_printf(doc, "It %s the multiplier of your bow.\n",
             (net > 0) ? "increases" : "<color:R>decreases</color>");
+    }
+
+    if (object_is_(o_ptr, TV_QUIVER, SV_QUIVER_MAGE) && o_ptr->name2 == EGO_QUIVER_REGEN)
+    {
+        doc_printf(doc, "Devices gain <color:G>%+d%%</color> regeneration in this quiver.\n",
+            o_ptr->pval * 10);
     }
 
     switch (o_ptr->name1)
@@ -701,9 +722,7 @@ static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr
 
     if (o_ptr->tval == TV_STATUE)
     {
-        if (o_ptr->pval == MON_BULLGATES)
-            doc_insert(doc, "It is shameful.\n");
-        else if (r_info[o_ptr->pval].flags2 & RF2_ELDRITCH_HORROR)
+        if (mon_race_lookup(o_ptr->pval)->flags2 & RF2_ELDRITCH_HORROR)
             doc_insert(doc, "It is fearful.\n");
         else
             doc_insert(doc, "It is cheerful.\n");
@@ -742,7 +761,7 @@ static void _display_curses(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_pt
 {
     vec_ptr v;
 
-    if (object_is_device(o_ptr)) return;
+    if (obj_is_device(o_ptr)) return;
     if (!(o_ptr->ident & (IDENT_KNOWN | IDENT_SENSE))) return;
 
     v = vec_alloc((vec_free_f)string_free);
@@ -808,6 +827,57 @@ static void _display_curses(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_pt
     vec_free(v);
 }
 
+void _wizstaff_activation(obj_ptr obj, doc_ptr doc)
+{
+    doc_insert(doc, "\n<color:U>This device has the following magical strength:</color>\n");
+    if (obj_is_identified_fully(obj) || (obj->known_xtra & OFL_DEVICE_POWER))
+        doc_printf(doc, "Power  : <color:G>%d</color>\n", device_level(obj));
+    else
+        doc_insert(doc, "Power  : <color:G>?</color>\n");
+    if (obj_is_identified_fully(obj))
+    {
+        int sp = device_sp(obj);
+        int max_sp = device_max_sp(obj);
+
+        doc_printf(doc, "Mana   : <color:%c>%d</color>/<color:G>%d</color>\n",
+                    (sp < max_sp) ? 'y' : 'G', sp, max_sp);
+    }
+    else
+    {
+        doc_insert(doc, "Mana   : <color:G>?</color>/<color:G>?</color>\n");
+    }
+
+    if (obj->activation.type != EFFECT_NONE)
+    {
+        doc_insert(doc, "\n<color:U>This device is loaded with a spell:</color>\n");
+        doc_printf(doc, "Spell  : <color:B>%s</color>\n", do_device(obj, SPELL_NAME, 0));
+        if (obj_is_identified_fully(obj) || (obj->known_xtra & OFL_DEVICE_POWER))
+        {
+            cptr desc;
+            desc = do_device(obj, SPELL_INFO, 0);
+            if (desc && strlen(desc))
+                doc_printf(doc, "Info   : <color:w>%s</color>\n", desc);
+        }
+        if (obj_is_identified_fully(obj) || (obj->known_xtra & OFL_DEVICE_FAIL))
+            doc_printf(doc, "Level  : <color:G>%d</color>\n", obj->activation.difficulty);
+
+        if (obj_is_identified_fully(obj))
+        {
+            int  charges = device_sp(obj) / obj->activation.cost;
+            int  max_charges = device_max_sp(obj) / obj->activation.cost;
+            doc_printf(doc, "Cost   : <color:G>%d</color>\n", obj->activation.cost);
+            doc_printf(doc, "Charges: <color:%c>%d</color>/<color:G>%d</color>\n",
+                        (charges < max_charges) ? 'y' : 'G', charges, max_charges);
+        }
+        if (obj_is_identified_fully(obj) || (obj->known_xtra & OFL_DEVICE_FAIL))
+        {
+            int  fail = device_calc_fail_rate(obj);
+            doc_printf(doc, "Fail   : <color:G>%d.%d%%</color>\n", fail/10, fail%10);
+        }
+        doc_printf(doc, "Desc   : <indent>%s</indent>\n\n", do_device(obj, SPELL_DESC, 0));
+    }
+}
+
 static void _display_activation_aux(effect_t *effect, bool full_info, doc_ptr doc)
 {
     cptr res = do_effect(effect, SPELL_NAME, 0);
@@ -835,8 +905,13 @@ static void _display_activation(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], do
     {
         if (have_flag(flgs, OF_ACTIVATE))
         {
-            effect_t e = obj_get_effect(o_ptr);
-            _display_activation_aux(&e, obj_is_identified_fully(o_ptr), doc);
+            if (obj_is_(o_ptr, TV_HAFTED, SV_WIZSTAFF))
+                _wizstaff_activation(o_ptr, doc);
+            else
+            {
+                effect_t e = obj_get_effect(o_ptr);
+                _display_activation_aux(&e, obj_is_identified_fully(o_ptr), doc);
+            }
             doc_newline(doc);
         }
         else
@@ -955,15 +1030,18 @@ static void _display_score(object_type *o_ptr, doc_ptr doc)
             doc_printf(doc, "<color:B>Const:</color> <color:%c>%s</color>\n", _score_color(score), buf);
     }
 
+    if (p_ptr->wizard || 0)
+    {
+        object_kind *k_ptr = &k_info[o_ptr->k_idx];
+        doc_printf(doc, "<color:B>Found:</color> %d of %d\n", k_ptr->counts.found, k_ptr->counts.generated);
+    }
 #endif
 }
 
 static void _lite_display_doc(object_type *o_ptr, doc_ptr doc)
 {
-    u32b flgs[OF_ARRAY_SIZE];
     if (o_ptr->tval != TV_LITE) return;
-    obj_flags_known(o_ptr, flgs);
-    if (have_flag(flgs, OF_DARKNESS))
+    if (obj_has_known_flag(o_ptr, OF_DARKNESS))
     {
         doc_insert(doc, "It provides no light.\n");
 
@@ -1041,7 +1119,7 @@ void obj_display_doc(object_type *o_ptr, doc_ptr doc)
     /* Devices need special handling. For one thing, they cannot be equipped, so
        that most flags are not used, and those that are generally mean something
        different (e.g. TR_HOLD_LIFE means no charge draining). */
-    if (object_is_device(o_ptr) || o_ptr->tval == TV_POTION || o_ptr->tval == TV_SCROLL)
+    if (obj_is_device(o_ptr) || o_ptr->tval == TV_POTION || o_ptr->tval == TV_SCROLL)
     {
         device_display_doc(o_ptr, doc);
         return;
@@ -1071,14 +1149,14 @@ void obj_display_doc(object_type *o_ptr, doc_ptr doc)
     _display_ignore(flgs, doc);
     _display_score(o_ptr, doc);
 
-    if (object_is_wearable(o_ptr))
+    if (obj_is_wearable(o_ptr))
     {
         doc_newline(doc);
         if (obj_is_identified(o_ptr))
         {
             if (!obj_is_identified_fully(o_ptr))
             {
-                if (object_is_artifact(o_ptr))
+                if (obj_is_art(o_ptr))
                     doc_printf(doc, "This object is an artifact, a unique object whose powers you must either learn by direct experience or by *identifying* or selling this object.\n");
                 else
                     doc_printf(doc, "This object may have additional powers which you may learn either by experience or by *identifying* or selling this object.\n");
@@ -1090,6 +1168,13 @@ void obj_display_doc(object_type *o_ptr, doc_ptr doc)
         }
     }
     _display_autopick(o_ptr, doc);
+    #if 0
+    if (o_ptr->art_name)
+    {
+        int ct = art_name_count(quark_str(o_ptr->art_name));
+        doc_printf(doc, "This name has been used %d times.", ct);
+    }
+    #endif
 
     doc_insert(doc, "</style></indent>\n");
 }
@@ -1098,7 +1183,7 @@ void obj_display_smith(object_type *o_ptr, doc_ptr doc)
 {
     u32b flgs[OF_ARRAY_SIZE];
 
-    if (object_is_device(o_ptr))
+    if (obj_is_device(o_ptr))
     {
         device_display_smith(o_ptr, doc);
         return;
@@ -1109,7 +1194,7 @@ void obj_display_smith(object_type *o_ptr, doc_ptr doc)
     _display_name(o_ptr, doc);
     doc_insert(doc, "  <indent><style:indent>");
 
-    if (!object_is_known(o_ptr) && (o_ptr->ident & IDENT_SENSE))
+    if (!obj_is_known(o_ptr) && (o_ptr->ident & IDENT_SENSE))
     {
         switch (o_ptr->feeling)
         {
@@ -1184,7 +1269,7 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
         return;
     }
 
-    if (!object_is_device(o_ptr) || !object_is_known(o_ptr))
+    if (!obj_is_device(o_ptr) || !obj_is_known(o_ptr))
     {
         _display_autopick(o_ptr, doc);
         doc_insert(doc, "</indent>\n");
@@ -1317,7 +1402,7 @@ void device_display_smith(object_type *o_ptr, doc_ptr doc)
     int     boost = 0;
     vec_ptr v = NULL;
 
-    assert(object_is_device(o_ptr));
+    assert(obj_is_device(o_ptr));
     assert(obj_is_identified_fully(o_ptr));
 
     _display_name(o_ptr, doc);

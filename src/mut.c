@@ -48,17 +48,17 @@ static mutation_info _mutations[MAX_MUTATIONS] =
     {MUT_RATING_BAD,        MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, alcohol_mut}},
     {MUT_RATING_BAD,        MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, hallucination_mut}},
     {MUT_RATING_AVERAGE,    MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, flatulence_mut}},
-    {MUT_RATING_GOOD,        MUT_TYPE_BONUS,             0, 4, {0,  0,   0, scorpion_tail_mut}},
-    {MUT_RATING_GOOD,        MUT_TYPE_BONUS,             0, 4, {0,  0,   0, horns_mut}},
-    {MUT_RATING_GOOD,        MUT_TYPE_BONUS,             0, 4, {0,  0,   0, beak_mut}},
+    {MUT_RATING_GOOD,        MUT_TYPE_INNATE,        0, 4, {0,  0,   0, scorpion_tail_mut}},
+    {MUT_RATING_GOOD,        MUT_TYPE_INNATE,        0, 4, {0,  0,   0, horns_mut}},
+    {MUT_RATING_GOOD,        MUT_TYPE_INNATE,        0, 4, {0,  0,   0, beak_mut}},
     {MUT_RATING_BAD,        MUT_TYPE_EFFECT,         0, 4, {0,  0,   0, attract_demon_mut}},
     {MUT_RATING_AVERAGE,    MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, produce_mana_mut}},
     {MUT_RATING_BAD,        MUT_TYPE_EFFECT,         0, 4, {0,  0,   0, speed_flux_mut}},
     {MUT_RATING_AVERAGE,    MUT_TYPE_EFFECT,         0, 4, {0,  0,   0, random_banish_mut}},
     {MUT_RATING_AVERAGE,    MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, eat_light_mut}},
-    {MUT_RATING_GOOD,        MUT_TYPE_BONUS,             0, 4, {0,  0,   0, trunk_mut}},
+    {MUT_RATING_GOOD,        MUT_TYPE_INNATE,        0, 4, {0,  0,   0, trunk_mut}},
     {MUT_RATING_BAD,        MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, attract_animal_mut}},
-    {MUT_RATING_GOOD,        MUT_TYPE_BONUS,             0, 2, {0,  0,   0, tentacles_mut}},
+    {MUT_RATING_GOOD,        MUT_TYPE_INNATE,        0, 2, {0,  0,   0, tentacles_mut}},
     {MUT_RATING_AVERAGE,    MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, raw_chaos_mut}},
     {MUT_RATING_BAD,        MUT_TYPE_EFFECT,         0, 6, {0,  0,   0, normality_mut}},
     {MUT_RATING_GOOD,        MUT_TYPE_EFFECT,         0, 2, {0,  0,   0, wraith_mut}},
@@ -109,7 +109,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
     {MUT_RATING_GREAT,                     0,             0, 0, {0,  0,   0, fast_learner_mut}},
     {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, weapon_skills_mut}},
     {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, subtle_casting_mut}},
-    {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, peerless_sniper_mut}},
+    {MUT_RATING_GOOD,        MUT_TYPE_BONUS,             0, 0, {0,  0,   0, peerless_sniper_mut}},
     {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, unyielding_mut}},
     {MUT_RATING_GREAT,                     0,             0, 0, {0,  0,   0, ambidexterity_mut}},
     {MUT_RATING_GOOD,        MUT_TYPE_BONUS,             0, 0, {0,  0,   0, untouchable_mut}},
@@ -151,9 +151,6 @@ int _mut_prob_gain(int i)
     const int racial_odds = 50;
 
     if (result == 0)
-        return 0;
-
-    if (p_ptr->pclass == CLASS_BERSERKER && mut_type(i) & MUT_TYPE_ACTIVATION)
         return 0;
 
     switch (i)
@@ -257,11 +254,26 @@ void _mut_refresh(void)
     handle_stuff();
 }
 
+void mut_calc_innate_attacks(void)
+{
+    int i;
+    var_t v = var_create();
+
+    for (i = 0; i < MAX_MUTATIONS; i++)
+    {
+        if ( mut_present(i)
+          && (_mutations[i].type & MUT_TYPE_INNATE) )
+        {
+            (_mutations[i].spell.fn)(SPELL_CALC_INNATE, &v);
+        }
+    }
+
+    var_destroy(&v);
+}
 void mut_calc_bonuses(void)
 {
     int i;
-    variant v;
-    var_init(&v);
+    var_t v = var_create();
 
     for (i = 0; i < MAX_MUTATIONS; i++)
     {
@@ -272,7 +284,7 @@ void mut_calc_bonuses(void)
         }
     }
 
-    var_clear(&v);
+    var_destroy(&v);
 }
 
 void mut_get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -315,7 +327,13 @@ void mut_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_TELEPATHY);
 
     if (mut_present(MUT_MOTION))
+    {
         add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_STEALTH);
+    }
+
+    if (mut_present(MUT_INFRAVISION))
+        add_flag(flgs, OF_INFRA);
 
     if (mut_present(MUT_TREAD_SOFTLY))
         add_flag(flgs, OF_STEALTH);
@@ -437,8 +455,7 @@ void mut_do_cmd_knowledge(void)
 void mut_display(doc_ptr doc)
 {
     int i;
-    variant desc;
-    var_init(&desc);
+    var_t desc = var_create();
     for (i = 0; i < MAX_MUTATIONS; ++i)
     {
         if (mut_present(i))
@@ -447,26 +464,26 @@ void mut_display(doc_ptr doc)
             doc_printf(doc, "%s\n", var_get_string(&desc));
         }
     }
-    var_clear(&desc);
+    var_destroy(&desc);
 }
 
 bool mut_gain(int mut_idx)
 {
-    variant v;
+    var_t v;
 
     if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return FALSE;
     if (mut_present(mut_idx)) return FALSE;
     
-    var_init(&v);
+    v = var_create();
     add_flag(p_ptr->muta, mut_idx);
     (_mutations[mut_idx].spell.fn)(SPELL_GAIN_MUT, &v);
-    var_clear(&v);
+    var_destroy(&v);
 
     _mut_refresh();
     return TRUE;
 }
 
-static void _mut_menu_fn(int cmd, int which, vptr cookie, variant *res)
+static void _mut_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
 {
     int idx = ((int*)cookie)[which];
     switch (cmd)
@@ -678,16 +695,13 @@ bool mut_demigod_pred(int mut_idx)
     case MUT_FELL_SORCERY:
     case MUT_TREAD_SOFTLY:
         return TRUE;
-        break;
 
     case MUT_INFERNAL_DEAL:
-        if (p_ptr->pclass != CLASS_BLOOD_MAGE) return TRUE;
-        break;
+        return TRUE;
 
     case MUT_ASTRAL_GUIDE:
     case MUT_FANTASTIC_FRENZY:
-        if (p_ptr->pclass != CLASS_BERSERKER) return TRUE;
-        break;
+        return TRUE;
     }
     return FALSE;
 }
@@ -750,15 +764,15 @@ bool mut_locked(int mut_idx)
 
 bool mut_lose(int mut_idx)
 {
-    variant v;
+    var_t v;
     if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return FALSE;
     if (!mut_present(mut_idx)) return FALSE;
     if (mut_locked(mut_idx)) return FALSE;
     
-    var_init(&v);
+    v = var_create();
     remove_flag(p_ptr->muta, mut_idx);
     (_mutations[mut_idx].spell.fn)(SPELL_LOSE_MUT, &v);
-    var_clear(&v);
+    var_destroy(&v);
 
     _mut_refresh();
     return TRUE;
@@ -826,8 +840,7 @@ bool mut_lose_random(mut_pred pred)
 
 void mut_name(int i, char* buf)
 {
-    variant v;
-    var_init(&v);
+    var_t v = var_create();
 
     if (i >= 0 && i < MAX_MUTATIONS)
         (_mutations[i].spell.fn)(SPELL_NAME, &v);
@@ -835,13 +848,12 @@ void mut_name(int i, char* buf)
         var_set_string(&v, "None");
 
     sprintf(buf, "%s", var_get_string(&v));
-    var_clear(&v);
+    var_destroy(&v);
 }
 
 void mut_help_desc(int i, char* buf)
 {
-    variant v;
-    var_init(&v);
+    var_t v = var_create();
 
     if (i >= 0 && i < MAX_MUTATIONS)
     {
@@ -853,7 +865,7 @@ void mut_help_desc(int i, char* buf)
         var_set_string(&v, "");
 
     sprintf(buf, "%s", var_get_string(&v));
-    var_clear(&v);
+    var_destroy(&v);
 }
 
 bool mut_present(int mut_idx)
@@ -865,15 +877,9 @@ bool mut_present(int mut_idx)
 void mut_process(void)
 {
     int i;
-    variant v;
+    var_t v;
 
-    /* No effect on monster arena */
-    if (p_ptr->inside_battle) return;
-
-    /* No effect on the global map */
-    if (p_ptr->wild_mode) return;
-
-    var_init(&v);
+    v = var_create();
 
     for (i = 0; i < MAX_MUTATIONS; i++)
     {
@@ -884,7 +890,7 @@ void mut_process(void)
         }
     }
 
-    var_clear(&v);
+    var_destroy(&v);
 }
 
 int mut_rating(int mut_idx)

@@ -15,107 +15,34 @@
 #include "angband.h"
 
 
-/* Monster saving throws versus player attacks.
-
-I changed this to competing dice rolls. Evaluating this
-change is best done in a spread sheet, but here is a sample
-assuming end game max player power (CL50 + max save stat):
-
-ML    New    Old
-10    6.1%     0%
-20   11.7%     0%
-30   17.2%     0%
-40   22.8%     0%
-50   28.3%    10%
-60   33.9%    20%
-70   39.4%    30%
-80   45.0%    40%
-90   50.6%    50%
-100  55.5%    60%
-110  59.5%    70%
-120  62.9%    80%
-130  65.8%    90%
-140  68.2%   100%
-150  70.3%   100%
-
-The player is now slightly less overwhelming vs. weaker monsters
-while end game uniques keep their nearly 60% fail (Serpent goes from
-power 100 to 127 with this change so his save goes from 60% to 65%).
-*/
-
-int mon_save_r_level(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-    int           ml = r_ptr->level;
-
-    if (r_ptr->flags1 & RF1_UNIQUE)
-        ml += ml/5;
-
-    if (ml < 1)
-        ml = 1;
-
-    return ml;
-}
-
-bool mon_save_aux(int r_idx, int power)
-{
-    int  ml = mon_save_r_level(r_idx);
-    bool result = FALSE;
-
-    if (power < 1)
-        power = 1;
-
-    /*if (p_ptr->wizard)
-        msg_format("mon_save_aux: 1d%d <= 1d%d", power, ml);*/
-    if (randint1(power) <= randint1(ml))
-        result = TRUE;
-
-    return result;
-}
-
-bool mon_save_p(int r_idx, int stat)
-{
-    int pl = p_ptr->lev;
-
-    if (stat >= 0 && stat < 6)
-        pl += adj_stat_save[p_ptr->stat_ind[stat]];
-
-    return mon_save_aux(r_idx, pl);
-}
-
-bool mon_save_m(int r_idx, int src_r_idx)
-{
-    return mon_save_aux(r_idx, mon_save_r_level(src_r_idx));
-}
-
 void mon_lore_1(monster_type *m_ptr, u32b mask)
 {
     if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_1(&r_info[m_ptr->r_idx], mask);
+        mon_lore_aux_1(mon_race(m_ptr), mask);
 }
 
 void mon_lore_2(monster_type *m_ptr, u32b mask)
 {
     if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_2(&r_info[m_ptr->r_idx], mask);
+        mon_lore_aux_2(mon_race(m_ptr), mask);
 }
 
 void mon_lore_3(monster_type *m_ptr, u32b mask)
 {
     if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_3(&r_info[m_ptr->r_idx], mask);
+        mon_lore_aux_3(mon_race(m_ptr), mask);
 }
 
 void mon_lore_r(monster_type *m_ptr, u32b mask)
 {
     if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_r(&r_info[m_ptr->r_idx], mask);
+        mon_lore_aux_r(mon_race(m_ptr), mask);
 }
 
 void mon_lore_blow(monster_type *m_ptr, mon_blow_ptr blow, int options)
 {
     if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_blow(&r_info[m_ptr->r_idx], blow, options);
+        mon_lore_aux_blow(mon_race(m_ptr), blow, options);
 }
 
 void mon_lore_aux_blow(monster_race *r_ptr, mon_blow_ptr blow, int options)
@@ -139,7 +66,7 @@ void mon_lore_aux_blow(monster_race *r_ptr, mon_blow_ptr blow, int options)
 void mon_lore_effect(monster_type *m_ptr, mon_effect_ptr effect)
 {
     if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_effect(&r_info[m_ptr->r_idx], effect);
+        mon_lore_aux_effect(mon_race(m_ptr), effect);
 }
 
 void mon_lore_aux_effect(monster_race *r_ptr, mon_effect_ptr effect)
@@ -155,7 +82,7 @@ void mon_lore_aux_effect(monster_race *r_ptr, mon_effect_ptr effect)
 void mon_lore_spell(mon_ptr mon, mon_spell_ptr spell)
 {
     if (is_original_ap_and_seen(mon))
-        mon_lore_aux_spell(&r_info[mon->r_idx], spell);
+        mon_lore_aux_spell(mon_race(mon), spell);
 }
 
 void mon_lore_aux_spell(mon_race_ptr race, mon_spell_ptr spell)
@@ -220,7 +147,7 @@ static void _mon_lore_aux_move(monster_race *r_ptr)
 void mon_lore_move(monster_type *m_ptr)
 {
     if (is_original_ap_and_seen(m_ptr))
-        _mon_lore_aux_move(&r_info[m_ptr->r_idx]);
+        _mon_lore_aux_move(mon_race(m_ptr));
 }
 
 void mon_lore_aux_r(monster_race *r_ptr, u32b mask)
@@ -237,7 +164,7 @@ void mon_lore_aux_r(monster_race *r_ptr, u32b mask)
  */
 void roff_top(int r_idx)
 {
-    monster_race    *r_ptr = &r_info[r_idx];
+    monster_race    *r_ptr = mon_race_lookup(r_idx);
 
     byte        a1, a2;
     char        c1, c2;
@@ -290,245 +217,20 @@ void roff_top(int r_idx)
     }
 }
 
-
 bool mon_hook_dungeon(int r_idx)
 {
-    monster_race *r_ptr = &r_info[r_idx];
+    monster_race *r_ptr = mon_race_lookup(r_idx);
 
+    if (cave->dun_type_id == D_SURFACE) return TRUE; /* XXX ignore hook on surface for S_EAGLE */
     if (r_ptr->flags8 & RF8_WILD_ONLY)
     {
-        dungeon_info_type *d_ptr = &d_info[dungeon_type];
-        if (no_wilderness && (r_ptr->flags1 & RF1_UNIQUE)) return TRUE;
-        if ((d_ptr->mflags8 & RF8_WILD_MOUNTAIN) && (r_ptr->flags8 & RF8_WILD_MOUNTAIN)) return TRUE;
+        /* XXX s/b using mon_alloc_dungeon() instead of mon_hook_dungeon() */
+        if (cave->dun_type_id == D_MOUNTAIN && (r_ptr->flags8 & RF8_WILD_MOUNTAIN)) return TRUE;
         return FALSE;
     }
     else
         return TRUE;
 }
-
-static bool _mon_hook_wild_daytime_check(int r_idx)
-{
-    bool result = TRUE;
-    if (is_daytime())
-    {
-        monster_race *r_ptr = &r_info[r_idx];
-        if (r_ptr->flags3 & RF3_HURT_LITE)
-            return FALSE;
-    }
-    return result;
-}
-
-static bool mon_hook_ocean(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (r_ptr->flags8 & RF8_WILD_OCEAN)
-        return _mon_hook_wild_daytime_check(r_idx);
-    else
-        return FALSE;
-}
-
-
-static bool mon_hook_shore(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (r_ptr->flags8 & RF8_WILD_SHORE)
-        return _mon_hook_wild_daytime_check(r_idx);
-    else
-        return FALSE;
-}
-
-
-static bool mon_hook_waste(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (r_ptr->flags8 & (RF8_WILD_WASTE | RF8_WILD_ALL))
-        return _mon_hook_wild_daytime_check(r_idx);
-    else
-        return FALSE;
-}
-
-
-static bool mon_hook_town(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (r_ptr->flags8 & (RF8_WILD_TOWN | RF8_WILD_ALL))
-        return _mon_hook_wild_daytime_check(r_idx);
-    else
-        return FALSE;
-}
-
-
-static bool mon_hook_wood(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (r_ptr->flags8 & (RF8_WILD_WOOD | RF8_WILD_ALL))
-        return _mon_hook_wild_daytime_check(r_idx);
-    else
-        return FALSE;
-}
-
-
-static bool mon_hook_volcano(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (r_ptr->flags8 & RF8_WILD_VOLCANO)
-        return _mon_hook_wild_daytime_check(r_idx);
-    else
-        return FALSE;
-}
-
-
-static bool mon_hook_mountain(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (r_ptr->flags8 & RF8_WILD_MOUNTAIN)
-        return _mon_hook_wild_daytime_check(r_idx);
-    else
-        return FALSE;
-}
-
-
-static bool mon_hook_grass(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (r_ptr->flags8 & (RF8_WILD_GRASS | RF8_WILD_ALL))
-        return _mon_hook_wild_daytime_check(r_idx);
-    else
-        return FALSE;
-}
-
-
-static bool mon_hook_deep_water(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (!mon_hook_dungeon(r_idx)) return FALSE;
-
-    if (r_ptr->flags7 & RF7_AQUATIC)
-        return _mon_hook_wild_daytime_check(r_idx);
-    else
-        return FALSE;
-}
-
-
-static bool mon_hook_shallow_water(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (!mon_hook_dungeon(r_idx)) return FALSE;
-
-    if (r_ptr->flags2 & RF2_AURA_FIRE)
-        return FALSE;
-    else
-        return _mon_hook_wild_daytime_check(r_idx);
-}
-
-
-static bool mon_hook_lava(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (!mon_hook_dungeon(r_idx)) return FALSE;
-
-    if (((r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK) ||
-         (r_ptr->flags7 & RF7_CAN_FLY)) &&
-        !(r_ptr->flags3 & RF3_AURA_COLD))
-        return _mon_hook_wild_daytime_check(r_idx);
-    else
-        return FALSE;
-}
-
-
-static bool mon_hook_floor(int r_idx)
-{
-    monster_race *r_ptr = &r_info[r_idx];
-
-    if (!(r_ptr->flags7 & RF7_AQUATIC) ||
-        (r_ptr->flags7 & RF7_CAN_FLY))
-        return TRUE;
-    else
-        return FALSE;
-}
-
-monster_hook_type get_wilderness_monster_hook(int x, int y)
-{
-    if (wilderness[y][x].town)
-        return mon_hook_town;
-
-    switch (wilderness[y][x].terrain)
-    {
-    case TERRAIN_TOWN: /* Probably no longer used ... ? */
-        return mon_hook_town;
-    case TERRAIN_DEEP_WATER:
-        return mon_hook_ocean;
-    case TERRAIN_SHALLOW_WATER:
-    case TERRAIN_SWAMP:
-        return mon_hook_shore;
-    case TERRAIN_DIRT:
-    case TERRAIN_DESERT:
-        return mon_hook_waste;
-    case TERRAIN_GRASS:
-        return mon_hook_grass;
-    case TERRAIN_TREES:
-        return mon_hook_wood;
-    case TERRAIN_SHALLOW_LAVA:
-    case TERRAIN_DEEP_LAVA:
-        return mon_hook_volcano;
-    case TERRAIN_MOUNTAIN:
-        return mon_hook_mountain;
-    default:
-        return mon_hook_dungeon;
-    }
-}
-
-monster_hook_type get_monster_hook(void)
-{
-    if (py_on_surface())
-        return get_wilderness_monster_hook(p_ptr->wilderness_x, p_ptr->wilderness_y);
-    else
-        return (monster_hook_type)mon_hook_dungeon;
-}
-
-
-monster_hook_type get_monster_hook2(int y, int x)
-{
-    feature_type *f_ptr = &f_info[cave[y][x].feat];
-
-    /* Set the monster list */
-
-    /* Water */
-    if (have_flag(f_ptr->flags, FF_WATER))
-    {
-        /* Deep water */
-        if (have_flag(f_ptr->flags, FF_DEEP))
-        {
-            return (monster_hook_type)mon_hook_deep_water;
-        }
-
-        /* Shallow water */
-        else
-        {
-            return (monster_hook_type)mon_hook_shallow_water;
-        }
-    }
-
-    /* Lava */
-    else if (have_flag(f_ptr->flags, FF_LAVA))
-    {
-        return (monster_hook_type)mon_hook_lava;
-    }
-
-    else return (monster_hook_type)mon_hook_floor;
-}
-
 
 void set_friendly(monster_type *m_ptr)
 {
@@ -542,7 +244,7 @@ void set_pet(monster_type *m_ptr)
     quests_on_kill_mon(m_ptr);
 
     m_ptr->smart |= (1U << SM_PET);
-    if (!(r_info[m_ptr->r_idx].flags3 & (RF3_EVIL | RF3_GOOD)))
+    if (!(mon_race(m_ptr)->flags3 & (RF3_EVIL | RF3_GOOD)))
         m_ptr->sub_align = SUB_ALIGN_NEUTRAL;
 }
 
@@ -551,8 +253,6 @@ void set_pet(monster_type *m_ptr)
  */
 void set_hostile(monster_type *m_ptr)
 {
-    if (p_ptr->inside_battle) return;
-
     if (is_pet(m_ptr)) check_pets_num_and_align(m_ptr, FALSE);
 
     m_ptr->smart &= ~(1U << SM_PET);
@@ -565,7 +265,6 @@ void set_hostile(monster_type *m_ptr)
  */
 void anger_monster(monster_type *m_ptr)
 {
-    if (p_ptr->inside_battle) return;
     if (is_friendly(m_ptr))
     {
         char m_name[80];
@@ -632,7 +331,7 @@ bool monster_can_cross_terrain(s16b feat, monster_race *r_ptr, u16b mode)
             if (have_flag(f_ptr->flags, FF_DEEP)) return FALSE;
 
             /* Shallow water */
-            else if (r_ptr->flags2 & RF2_AURA_FIRE) return FALSE;
+            else if (mon_auras_find(r_ptr, GF_FIRE)) return FALSE;
         }
     }
 
@@ -654,13 +353,10 @@ bool monster_can_cross_terrain(s16b feat, monster_race *r_ptr, u16b mode)
  */
 bool monster_can_enter(int y, int x, monster_race *r_ptr, u16b mode)
 {
-    cave_type *c_ptr = &cave[y][x];
-
-    /* Player or other monster */
-    if (player_bold(y, x)) return FALSE;
-    if (c_ptr->m_idx) return FALSE;
-
-    return monster_can_cross_terrain(c_ptr->feat, r_ptr, mode);
+    point_t pos = point_create(x, y);
+    if (plr_at(pos)) return FALSE;
+    if (mon_at(pos)) return FALSE;
+    return monster_can_cross_terrain(cave_at(pos)->feat, r_ptr, mode);
 }
 
 
@@ -686,14 +382,8 @@ static bool check_hostile_align(byte sub_align1, byte sub_align2)
  */
 bool are_enemies(monster_type *m_ptr, monster_type *n_ptr)
 {
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
-    monster_race *s_ptr = &r_info[n_ptr->r_idx];
-
-    if (p_ptr->inside_battle)
-    {
-        if (is_pet(m_ptr) || is_pet(n_ptr)) return FALSE;
-        return TRUE;
-    }
+    monster_race *r_ptr = mon_race(m_ptr);
+    monster_race *s_ptr = mon_race(n_ptr);
 
     if ((r_ptr->flags8 & (RF8_WILD_TOWN | RF8_WILD_ALL))
         && (s_ptr->flags8 & (RF8_WILD_TOWN | RF8_WILD_ALL)))
@@ -768,7 +458,7 @@ bool monster_living(monster_race *r_ptr)
 
 bool monster_magical(monster_race *r_ptr)
 {
-    if (r_ptr->freq_spell >= 16)
+    if (r_ptr->spells && r_ptr->spells->freq >= 16)
         return TRUE;
     else
         return FALSE;

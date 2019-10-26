@@ -15,8 +15,8 @@ Your First Shopping Spree
 When you enter a shop, you will see a screen describing the shop's 
 owner and the items available for purchase:
 
-    Selaxis (Zombie)                                            Armory (10000)  
-                                                                                
+    Selaxis (Zombie)                                            Armory (10000)
+
     Item Description                                               Weight  Price
  a) Metal Scale Mail (-2) [13,+2]                                25.0 lbs   1860
  b) a Robe [2,+4]                                                 2.0 lbs    592
@@ -30,12 +30,12 @@ owner and the items available for purchase:
  j) a Leather Jacket of Elemental Protection (-1) [12,+10] {El   13.0 lbs   8730
  k) a Small Metal Shield [5,+2]                                   6.5 lbs    381
  l) a Small Metal Shield [5,+0]                                   6.5 lbs    131
-(Page 1 of 2)                                                                   
-Gold Remaining: 1.41k                                                           
-                                                                                
-b to buy. s to sell. x to begin examining items.                                
-B to buyout inventory.                                                          
-Esc to exit. ? for help.                                                        
+(Page 1 of 2)
+Gold Remaining: 1.41k
+
+b to buy. s to sell. x to begin examining items.
+B to buyout inventory.
+Esc to exit. ? for help.
 
 A quick list of available commands is displayed on the bottom of the 
 screen. Simply choose the appropriate command and follow the 

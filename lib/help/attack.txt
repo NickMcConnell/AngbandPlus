@@ -57,7 +57,7 @@ In general, artifacts and ego weapons may boost one or more of your primary stat
 
 There are many different types of ego weapons. Some, like weapons of slay orc, will have obvious bonuses that your player automatically knows about. Others, like (Trump) weapons, must be learned as you play. You will need to *Identify* an object of the given type to learn the base ego bonuses. After this, the next time you find a (Trump) weapon, for instance, your player will be <style:keyword>aware</style> of its base ego attributes. But keep in mind that many ego types grant additional random powers above and beyond their base bonuses, so *Identification* is usually a good idea if you are dealing with a strong ego type. Over time, you will learn which egos are potentially good (and some are potentially very good) as well as which ego types are "junk".
 
-A list of the ego types and their bonuses is considered a spoiler, so won't be presented here. You can probably find out about them by asking on forums, or by viewing character dumps on the wonderful Angband ladder (<color:B>angband.oook.cz</style>). But keep in mind that this is one of my favorite areas of the game to modify, so what was true last release might be different now :)
+A list of the ego types and their bonuses is considered a spoiler, so won't be presented here. But keep in mind that this is one of my favorite areas of the game to modify, so what was true last release might be different now :)
 
 <topic:MagicalAids><style:heading>Magical Aids to Physical Combat</style>
 

@@ -7,7 +7,7 @@
    keep the user up to date as to why their powers don't work. */
 cptr _equip_error(void)
 {
-    int wgt = equip_weight(object_is_armour);
+    int wgt = equip_weight(obj_is_armor);
 
     if (wgt > (100 + (p_ptr->lev * 4)))
         return "The weight of your equipment is disrupting your talents.";
@@ -26,19 +26,43 @@ cptr _equip_error(void)
 
     return NULL;
 }
+cptr _equip_short_error(void)
+{
+    int wgt = equip_weight(obj_is_armor);
 
+    if (wgt > (100 + (p_ptr->lev * 4)))
+        return "<color:r>Heavy Armor</color>";
+
+    if (equip_find_obj(TV_SHIELD, SV_ANY) || equip_find_obj(TV_CAPTURE, SV_ANY))
+        return "<color:g>Icky Shield</color>";
+
+    if (p_ptr->weapon_ct > 1)
+        return "<color:r>Duel Wield</color>";
+
+    if (equip_find_obj(TV_SWORD, SV_POISON_NEEDLE))
+        return "<color:g>Icky Weapon</color>";
+
+    if (p_ptr->anti_magic)
+        return "<color:r>Anti-magic</color>";
+
+    return NULL;
+}
+
+/************************************************************************
+ * Current Challenge
+ ************************************************************************/
 cptr duelist_current_challenge(void)
 {
     static char current_challenge[200];
 
     /* paranoia ... this only seems to happen with wizard mode summoned monsters
        after a save and restore, so probably the wizard 'n' command is broken */
-    if (p_ptr->duelist_target_idx && !m_list[p_ptr->duelist_target_idx].r_idx)
+    if (p_ptr->duelist_target_idx && !dun_mon(cave, p_ptr->duelist_target_idx)->r_idx)
         p_ptr->duelist_target_idx = 0;
 
     if (p_ptr->duelist_target_idx)
     {
-        monster_desc(current_challenge, &m_list[p_ptr->duelist_target_idx], MD_ASSUME_VISIBLE);
+        monster_desc(current_challenge, dun_mon(cave, p_ptr->duelist_target_idx), MD_ASSUME_VISIBLE);
         return current_challenge;
     }
     if (_equip_error())
@@ -47,31 +71,19 @@ cptr duelist_current_challenge(void)
     return "No Current Challenge";
 }
 
-int duelist_skill_sav(int m_idx)
+static bool _challenge_p(mon_ptr mon)
 {
-    int result = p_ptr->skills.sav;
-    if ( p_ptr->pclass == CLASS_DUELIST
-      && m_idx > 0
-      && p_ptr->duelist_target_idx == m_idx )
-    {
-        result = result + 15 + p_ptr->lev;
-    }
-    return result;
+    if (is_pet(mon)) return FALSE;
+    if (!mon->ml) return FALSE;
+    if (mon->cdis > MAX_RANGE) return FALSE;
+    return TRUE;
 }
-
 bool duelist_can_challenge(void)
 {
-    int i;
-    for (i = 1; i < max_m_idx; i++)
-    {
-        mon_ptr mon = & m_list[i];
-        if (!mon->r_idx) continue;
-        if (is_pet(mon)) continue;
-        if (!mon->ml) continue;
-        if (mon->cdis > MAX_RANGE) continue; /* wizard mode */
-        return TRUE;
-    }
-    return FALSE;
+    vec_ptr v = dun_filter_mon(cave, _challenge_p);
+    bool    b = vec_length(v) > 0;
+    vec_free(v);
+    return b;
 }
 
 bool duelist_issue_challenge(void)
@@ -84,7 +96,10 @@ bool duelist_issue_challenge(void)
         if (target_who > 0)
             m_idx = target_who;
         else
-            m_idx = cave[target_row][target_col].m_idx;
+        {
+            mon_ptr mon = mon_at_xy(target_col, target_row);
+            if (mon) m_idx = mon->id;
+        }
     }
 
     if (m_idx)
@@ -93,12 +108,13 @@ bool duelist_issue_challenge(void)
             msg_format("%^s has already been challenged.", duelist_current_challenge());
         else
         {
+            mon_ptr mon = dun_mon(cave, m_idx);
             /* of course, we must first set the target index before duelist_current_challenge()
                will return the correct text */
             p_ptr->duelist_target_idx = m_idx;
             msg_format("You challenge %s to a duel!", duelist_current_challenge());
-            set_monster_csleep(m_idx, 0);
-            set_hostile(&m_list[m_idx]);
+            mon_tim_remove(mon, MT_SLEEP);
+            set_hostile(mon);
             result = TRUE;
         }
     }
@@ -108,15 +124,93 @@ bool duelist_issue_challenge(void)
         msg_print("You cancel your current challenge!");
     }
 
-    p_ptr->redraw |= PR_STATUS;
+    p_ptr->redraw |= PR_HEALTH_BARS;
     return result;
 }
 
+/************************************************************************
+ * Melee
+ ************************************************************************/
+static bool _begin_weapon(plr_attack_ptr context)
+{
+    if (context->flags & PAC_DISPLAY) return TRUE;
+    if (context->info.type != PAT_WEAPON) return TRUE;
+    if (context->mon->id != p_ptr->duelist_target_idx) return TRUE;
+    context->skill *= 2;
+    context->cookie = context; /* bool */
+    return TRUE;
+}
+static void _mod_damage(plr_attack_ptr context)
+{
+    int dam = context->dam;
+    if (context->flags & PAC_DISPLAY) return;
+    if (context->info.type != PAT_WEAPON) return;
+    if (context->mon->id != p_ptr->duelist_target_idx) return;
+    if (!context->dam) return;  /* MON_INVULNER() */
+                
+    if (p_ptr->lev >= 10) /* Careful Aim */
+    {
+        context->dam *= 2;
+    }
+    if ( p_ptr->lev >= 15    /* Hamstring */
+        && !(context->race->flags1 & (RF1_UNIQUE))
+        && !mon_save_p(context->race->id, A_DEX) )
+    {
+        msg_format("You <color:y>hamstring</color> %s.", context->mon_name_obj);
+        mon_tim_add(context->mon, T_SLOW, 50);
+    }
+    if ( p_ptr->lev >= 25    /* Stunning Blow */
+        && !(context->race->flags3 & (RF3_NO_STUN))
+        && !mon_save_p(context->race->id, A_DEX) )
+    {
+        msg_format("%^s is dealt a <color:B>stunning</color> blow.", context->mon_name);
+        mon_stun(context->mon, mon_stun_amount(context->dam));
+    }
+    if ( p_ptr->lev >= 20    /* Wounding Strike */
+      && !mon_save_p(context->race->id, A_DEX) )
+    {
+        msg_format("%^s is dealt a <color:r>wounding</color> strike.", context->mon_name);
+        context->dam += MIN(context->mon->hp / 5, randint1(3) * dam);
+    }
+    if ( p_ptr->lev >= 40    /* Greater Wounding Strike */
+      && !mon_save_p(context->race->id, A_DEX) )
+    {
+        msg_format("%^s is dealt a <color:v>*WOUNDING*</color> strike.", context->mon_name);
+        context->dam += MIN(context->mon->hp * 2 / 5, rand_range(2, 10) * dam);
+    }
+    context->dam_drain = context->dam;
+}
+static void _end(plr_attack_ptr context)
+{
+    if (context->flags & PAC_DISPLAY) return;
+    if (context->stop != STOP_MON_DEAD) return;
+    if (!context->cookie) return;
 
-/*
- * I spiked the Ninja/Samurai rush_attack() ... it was not quite what I need.
- */
+    p_ptr->duelist_target_idx = 0;
+    p_ptr->redraw |= PR_HEALTH_BARS;
 
+    if (p_ptr->lev >= 35 && duelist_can_challenge())    /* Endless Duel */
+    {
+        /* Hacks so that get_fire_dir() actually allows user to select a new target */
+        target_who = 0;
+        command_dir = 0;
+        msg_print("Your chosen target is vanquished!  Select another.");
+        msg_print(NULL);
+        duelist_issue_challenge();
+    }
+    else
+        msg_print("Your chosen target is vanquished!");
+}
+static void _attack_init(plr_attack_ptr context)
+{
+    context->hooks.begin_weapon_f = _begin_weapon;
+    context->hooks.mod_damage_f = _mod_damage;
+    context->hooks.end_f = _end;
+}
+
+/************************************************************************
+ * Rush Attack (cf rush_attack)
+ ************************************************************************/
 typedef enum { 
     _rush_cancelled,  /* Don't charge player energy ... they made a dumb request */
     _rush_failed,     /* Rush to foe was blocked by another monster, or foe out of range */
@@ -132,9 +226,10 @@ typedef enum {
 _rush_result _rush_attack(int rng, _rush_type type)
 {
     _rush_result result = _rush_cancelled;
-    int tx, ty;
-    int tm_idx = 0;
-    u16b path_g[32];
+    mon_ptr mon;
+    int tm_idx;
+    point_t tgt, cur, next;
+    point_t path[32];
     int path_n, i;
     bool moved = FALSE;
     int flg = 0;
@@ -152,17 +247,15 @@ _rush_result _rush_attack(int rng, _rush_type type)
         msg_print("You need to select a foe first (Mark Target).");
         return result;
     }
-
     tm_idx = p_ptr->duelist_target_idx;
-    tx = m_list[tm_idx].fx;
-    ty = m_list[tm_idx].fy;
 
-    dis = distance(ty, tx, py, px);
+    mon = dun_mon(cave, tm_idx);
+    tgt = mon->pos;
+    dis = point_distance(tgt, p_ptr->pos);
 
     /* Foe must be visible. For all charges except the phase charge, the
        foe must also be in your line of sight */
-    if (!m_list[p_ptr->duelist_target_idx].ml ||
-        (type != _rush_phase && !los(ty, tx, py, px)))
+    if (!mon->ml || (type != _rush_phase && !los(tgt.y, tgt.x, p_ptr->pos.y, p_ptr->pos.x)))
     {
         msg_format("%^s is not in your line of sight.", duelist_current_challenge());
         return result;
@@ -175,110 +268,94 @@ _rush_result _rush_attack(int rng, _rush_type type)
     }
 
     project_length = rng;
-    path_n = project_path(path_g, project_length, py, px, ty, tx, flg);
+    path_n = project_path(path, rng, p_ptr->pos, tgt, flg);
     project_length = 0;
 
     if (!path_n) return result;
 
     result = _rush_failed;
 
-    /* Use ty and tx as to-move point */
-    ty = py;
-    tx = px;
-
-    /* Scrolling the cave would invalidate our path! */
-    if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
-        wilderness_scroll_lock = TRUE;
+    cur = p_ptr->pos;
 
     /* Project along the path */
     for (i = 0; i < path_n; i++)
     {
-        monster_type *m_ptr;
+        mon_ptr mon;
         cave_type *c_ptr;
         bool can_enter = FALSE;
         bool old_pass_wall = p_ptr->pass_wall;
 
-        int ny = GRID_Y(path_g[i]);
-        int nx = GRID_X(path_g[i]);
-        c_ptr = &cave[ny][nx];
+        next = path[i];
+        c_ptr = cave_at(next);
+        mon = mon_at(next);
 
         switch (type)
         {
         case _rush_normal:
-            can_enter = cave_empty_bold(ny, nx) && player_can_enter(c_ptr->feat, 0);
+            can_enter = cave_empty_at(next) && player_can_enter(c_ptr->feat, 0);
             break;
 
         case _rush_acrobatic:
-            can_enter = !c_ptr->m_idx && player_can_enter(c_ptr->feat, 0);
+            can_enter = !mon && player_can_enter(c_ptr->feat, 0);
             break;
         
         case _rush_phase:
             p_ptr->pass_wall = TRUE;
-            can_enter = !c_ptr->m_idx && player_can_enter(c_ptr->feat, 0);
+            can_enter = !mon && player_can_enter(c_ptr->feat, 0);
             p_ptr->pass_wall = old_pass_wall;
             break;
         }
 
         if (can_enter)
         {
-            ty = ny;
-            tx = nx;
+            cur = next;
             continue;
         }
 
-        if (!c_ptr->m_idx)
+        if (!mon)
         {
             msg_print("Failed!");
             break;
         }
 
         /* Move player before updating the monster */
-        if (!player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+        if (!plr_at(cur)) move_player_effect(cur, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
         moved = TRUE;
 
         /* Update the monster */
-        update_mon(c_ptr->m_idx, TRUE);
-
-        /* Found a monster */
-        m_ptr = &m_list[c_ptr->m_idx];
+        update_mon(mon, TRUE);
 
         /* But it is not the monster we seek! */
-        if (tm_idx != c_ptr->m_idx)
+        if (tm_idx != mon->id)
         {
             /* Acrobatic Charge attempts to displace monsters on route */
             if (type == _rush_acrobatic)
             {
                 /* Swap position of player and monster */
-                set_monster_csleep(c_ptr->m_idx, 0);
-                move_player_effect(ny, nx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
-                ty = ny;
-                tx = nx;
+                mon_tim_remove(mon, MT_SLEEP);
+                move_player_effect(next, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+                cur = next;
                 continue;
             }
             /* Normal Charge just attacks first monster on route */
             else
-                msg_format("There is %s in the way!", m_ptr->ml ? (tm_idx ? "another monster" : "a monster") : "someone");
+                msg_format("There is %s in the way!", mon->ml ? (tm_idx ? "another monster" : "a monster") : "someone");
         }
 
         /* Attack the monster */
         if (tm_idx == p_ptr->duelist_target_idx) result = _rush_succeeded;
-        py_attack(ny, nx, 0);
+        plr_attack_normal(next);
         break;
     }
 
-    if (!moved && !player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
-    if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
-    {
-        wilderness_scroll_lock = FALSE;
-        wilderness_move_player(px, py);
-    }
+    if (!moved && !plr_at(cur)) move_player_effect(cur, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
     return result;
 }
 
 /****************************************************************
  * Private Spells
  ****************************************************************/
-static void _acrobatic_charge_spell(int cmd, variant *res)
+static void _acrobatic_charge_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -297,7 +374,7 @@ static void _acrobatic_charge_spell(int cmd, variant *res)
     }
 }
 
-static void _charge_target_spell(int cmd, variant *res)
+static void _charge_target_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -316,7 +393,7 @@ static void _charge_target_spell(int cmd, variant *res)
     }
 }
 
-static void _darting_duel_spell(int cmd, variant *res)
+static void _darting_duel_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -337,7 +414,7 @@ static void _darting_duel_spell(int cmd, variant *res)
                 var_set_bool(res, TRUE);
                 if (r == _rush_succeeded && tmp == p_ptr->duelist_target_idx)
                 {
-                    monster_type *m_ptr = &m_list[p_ptr->duelist_target_idx];
+                    monster_type *m_ptr = dun_mon(cave, p_ptr->duelist_target_idx);
                     mon_anger(m_ptr);
                     teleport_player(10, TELEPORT_LINE_OF_SIGHT);
                 }
@@ -350,7 +427,7 @@ static void _darting_duel_spell(int cmd, variant *res)
     }
 }
 
-static void _disengage_spell(int cmd, variant *res)
+static void _disengage_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -366,7 +443,7 @@ static void _disengage_spell(int cmd, variant *res)
             msg_print("You need to mark your target first.");
             var_set_bool(res, FALSE);
         }
-        else if (!m_list[p_ptr->duelist_target_idx].ml)
+        else if (!dun_mon(cave, p_ptr->duelist_target_idx)->ml)
         {
             msg_print("You may not disengage unless your foe is visible.");
             var_set_bool(res, FALSE);
@@ -376,7 +453,7 @@ static void _disengage_spell(int cmd, variant *res)
             teleport_player(100, TELEPORT_DISENGAGE);
             p_ptr->duelist_target_idx = 0;
             msg_print("You disengage from your current challenge.");
-            p_ptr->redraw |= PR_STATUS;
+            p_ptr->redraw |= PR_HEALTH_BARS;
         
             var_set_bool(res, TRUE);
         }
@@ -387,7 +464,7 @@ static void _disengage_spell(int cmd, variant *res)
     }
 }
 
-static void _isolation_spell(int cmd, variant *res)
+static void _isolation_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -405,7 +482,7 @@ static void _isolation_spell(int cmd, variant *res)
         }
         else
         {
-            project_hack(GF_ISOLATION, p_ptr->lev * 4);
+            project_los(GF_ISOLATION, p_ptr->lev * 4);
             var_set_bool(res, TRUE);
         }
         break;
@@ -415,7 +492,7 @@ static void _isolation_spell(int cmd, variant *res)
     }
 }
 
-static void _mark_target_spell(int cmd, variant *res)
+static void _mark_target_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -439,7 +516,7 @@ static void _mark_target_spell(int cmd, variant *res)
     }
 }
 
-static void _phase_charge_spell(int cmd, variant *res)
+static void _phase_charge_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -458,7 +535,7 @@ static void _phase_charge_spell(int cmd, variant *res)
     }
 }
 
-void strafing_spell(int cmd, variant *res)
+void strafing_spell(int cmd, var_ptr res)
 {
     switch (cmd)
     {
@@ -555,6 +632,7 @@ static void _calc_bonuses(void)
     if (msg != last_msg)
     {
         last_msg = msg;
+        p_ptr->redraw |= PR_EFFECTS;
         if (msg)
         {
             msg_print(msg);
@@ -562,32 +640,40 @@ static void _calc_bonuses(void)
             {
                 msg_format("%^s is no longer your target.", duelist_current_challenge());
                 p_ptr->duelist_target_idx = 0;
-                p_ptr->redraw |= PR_STATUS;
+                p_ptr->redraw |= PR_HEALTH_BARS;
             }
         }
         else
             msg_print("You regain your talents.");
     }
 
-    p_ptr->redraw |= PR_STATUS;
+}
+static void _prt_effects(doc_ptr doc)
+{
+    cptr msg = _equip_short_error();
+    if (msg)
+    {
+        doc_insert(doc, msg);
+        doc_newline(doc);
+    }
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+static void _calc_weapon_bonuses(object_type *o_ptr, plr_attack_info_ptr info)
 {
     int to_d = (p_ptr->stat_ind[A_DEX] + 3 - 10) + p_ptr->lev/2 - o_ptr->weight/10;
 
     if (!_equip_error())
     {
-        info_ptr->to_d += to_d;
-        info_ptr->dis_to_d += to_d;
+        info->to_d += to_d;
+        info->dis_to_d += to_d;
 
         /* Blows should always be 1 ... even with Quickthorn and Shiva's Jacket! 
            But, don't make Tonberry gloves a gimme. Negative attacks now are 0 attacks!
         */
-        if (info_ptr->base_blow + info_ptr->xtra_blow > 100)
+        if (info->base_blow + info->xtra_blow > 100)
         {
-            info_ptr->base_blow = 100;
-            info_ptr->xtra_blow = 0;
+            info->base_blow = 100;
+            info->xtra_blow = 0;
         }
     }
 }
@@ -608,24 +694,23 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_RAPIER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
+    plr_birth_obj_aux(TV_SWORD, SV_RAPIER, 1);
+    plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    plr_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 }
 
-class_t *duelist_get_class(void)
+plr_class_ptr duelist_get_class(void)
 {
-    static class_t me = {0};
-    static bool init = FALSE;
+    static plr_class_ptr me = NULL;
 
-    /* static info never changes */
-    if (!init)
+    if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  24,  23,   3,  22,  16,  50,   0};
     skills_t xs = { 10,  10,  10,   0,   0,   0,  14,   0};
 
-        me.name = "Duelist";
-        me.desc = "The duelist is the ultimate one-on-one fighter, but finds himself at a severe "
+        me = plr_class_alloc(CLASS_DUELIST);
+        me->name = "Duelist";
+        me->desc = "The duelist is the ultimate one-on-one fighter, but finds himself at a severe "
                   "disadvantage when facing numerous strong foes. When facing an enemy, the duelist "
                   "first issues a challenge, marking that foe for a one on one duel. Of course, this "
                   "wakes the monster up (There is no honor in dueling a sleeping enemy). And while "
@@ -641,28 +726,29 @@ class_t *duelist_get_class(void)
                   "hamstring their foes, the prowess of the duelist in a one on one encounter is legendary!\n \n"
                   "Duelists favor light armors and cannot equip a shield. They gain no extra bonus when "
                   "wielding a weapon with both hands. For their techniques the duelist relies on dexterity.";
-        me.stats[A_STR] =  2;
-        me.stats[A_INT] =  1;
-        me.stats[A_WIS] = -2;
-        me.stats[A_DEX] =  2;
-        me.stats[A_CON] = -3;
-        me.stats[A_CHR] =  2;
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        me.life = 100;
-        me.base_hp = 4;
-        me.exp = 150;
-        me.pets = 35;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
+        me->stats[A_STR] =  2;
+        me->stats[A_INT] =  1;
+        me->stats[A_WIS] = -2;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] = -3;
+        me->stats[A_CHR] =  2;
+        me->skills = bs;
+        me->extra_skills = xs;
+        me->life = 100;
+        me->base_hp = 4;
+        me->exp = 150;
+        me->pets = 35;
+        me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
-        me.birth = _birth;
-        me.calc_bonuses = _calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.caster_info = _caster_info;
-        me.get_spells = _get_spells;
-        init = TRUE;
+        me->hooks.birth = _birth;
+        me->hooks.calc_bonuses = _calc_bonuses;
+        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.caster_info = _caster_info;
+        me->hooks.get_spells = _get_spells;
+        me->hooks.attack_init = _attack_init;
+        me->hooks.prt_effects = _prt_effects;
     }
 
-    return &me;
+    return me;
 }
 
