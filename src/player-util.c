@@ -40,6 +40,7 @@
 #include "store.h"
 #include "target.h"
 #include "trap.h"
+#include "ui-input.h"
 
 /**
  * Increment to the next or decrement to the preceeding level
@@ -97,7 +98,8 @@ bool player_get_recall_depth(struct player *p)
 	int new = 0;
 
 	while (!level_ok) {
-		char *prompt = "Which level do you wish to return to (0 to cancel)? ";
+		const char *prompt =
+			"Which level do you wish to return to (0 to cancel)? ";
 		int i;
 
 		/* Choose the level */
@@ -178,8 +180,8 @@ void take_hit(struct player *p, int dam, const char *kb_str)
 	 * Unenviable task of separating what should and should not cause rage
 	 * If we eliminate the most exploitable cases it should be fine.
 	 * All traps and lava currently give mana, which could be exploited  */
-	if (player_has(p, PF_COMBAT_REGEN)  && strcmp(kb_str, "poison")
-		&& strcmp(kb_str, "a fatal wound") && strcmp(kb_str, "starvation")) {
+	if (player_has(p, PF_COMBAT_REGEN)  && !streq(kb_str, "poison")
+		&& !streq(kb_str, "a fatal wound") && !streq(kb_str, "starvation")) {
 		/* lose X% of hitpoints get X% of spell points */
 		s32b sp_gain = (MAX((s32b)p->msp, 10) << 16) / (s32b)p->mhp * dam;
 		player_adjust_mana_precise(p, sp_gain);
@@ -355,7 +357,7 @@ void player_regen_hp(struct player *p)
 		percent *= 2;
 
 	/* Some things slow it down */
-	if (player_of_has(p, OF_IMPAIR_HP) || player_has(p, PF_COMBAT_REGEN))
+	if (player_of_has(p, OF_IMPAIR_HP))
 		percent /= 2;
 
 	/* Various things interfere with physical healing */
@@ -605,8 +607,8 @@ void player_update_light(struct player *p)
  */
 struct object *player_best_digger(struct player *p, bool forbid_stack)
 {
-	int weapon_slot = slot_by_name(player, "weapon");
-	struct object *current_weapon = slot_object(player, weapon_slot);
+	int weapon_slot = slot_by_name(p, "weapon");
+	struct object *current_weapon = slot_object(p, weapon_slot);
 	struct object *obj, *best = NULL;
 	/* Prefer any melee weapon over unarmed digging, i.e. best == NULL. */
 	int best_score = -1;
@@ -616,6 +618,8 @@ struct object *player_best_digger(struct player *p, bool forbid_stack)
 		int score, old_number;
 		if (!tval_is_melee_weapon(obj)) continue;
 		if (obj->number < 1 || (forbid_stack && obj->number > 1)) continue;
+		/* Don't use it if it has a sticky curse. */
+		if (!obj_can_takeoff(obj)) continue;
 
 		/* Swap temporarily for the calc_bonuses() computation. */
 		old_number = obj->number;
@@ -636,7 +640,7 @@ struct object *player_best_digger(struct player *p, bool forbid_stack)
 		/* Swap back. */
 		if (obj != current_weapon) {
 			obj->number = old_number;
-			player->body.slots[weapon_slot].obj = current_weapon;
+			p->body.slots[weapon_slot].obj = current_weapon;
 		}
 
 		if (score > best_score) {
@@ -660,7 +664,7 @@ bool player_attack_random_monster(struct player *p)
 
 	/* Look for a monster, attack */
 	for (i = 0; i < 8; i++, dir++) {
-		struct loc grid = loc_sum(player->grid, ddgrid_ddd[dir % 8]);
+		struct loc grid = loc_sum(p->grid, ddgrid_ddd[dir % 8]);
 		if (square_monster(cave, grid)) {
 			p->upkeep->energy_use = z_info->move_energy;
 			msg("You angrily lash out at a nearby foe!");
@@ -788,10 +792,10 @@ void player_take_terrain_damage(struct player *p, struct loc grid)
 	}
 
 	/* Damage the player and inventory */
-	take_hit(player, dam_taken, square_feat(cave, grid)->die_msg);
+	take_hit(p, dam_taken, square_feat(cave, grid)->die_msg);
 	if (square_isfiery(cave, grid)) {
 		msg(square_feat(cave, grid)->hurt_msg);
-		inven_damage(player, PROJ_FIRE, dam_taken);
+		inven_damage(p, PROJ_FIRE, dam_taken);
 	}
 }
 
@@ -841,6 +845,38 @@ struct player_shape *player_shape_by_idx(int index)
 }
 
 /**
+ * Give shapechanged players a choice of returning to normal shape and
+ * performing a command, just returning to normal shape without acting, or
+ * canceling.
+ *
+ * \param p the player
+ * \param cmd the command being performed
+ * \return true if the player wants to proceed with their command
+ */
+bool player_get_resume_normal_shape(struct player *p, struct command *cmd)
+{
+	if (player_is_shapechanged(p)) {
+		msg("You cannot do this while in %s form.", p->shape->name);
+		char prompt[100];
+		strnfmt(prompt, sizeof(prompt),
+		        "Change back and %s (y/n) or (r)eturn to normal? ",
+		        cmd_verb(cmd->code));
+		char answer = get_char(prompt, "yrn", 3, 'n');
+
+		// Change back to normal shape
+		if (answer == 'y' || answer == 'r') {
+			player_resume_normal_shape(p);
+		}
+
+		// Players may only act if they return to normal shape
+		return answer == 'y';
+	}
+
+	// Normal shape players can proceed as usual
+	return true;
+}
+
+/**
  * Revert to normal shape
  */
 void player_resume_normal_shape(struct player *p)
@@ -852,9 +888,9 @@ void player_resume_normal_shape(struct player *p)
 	(void) player_clear_timed(p, TMD_ATT_VAMP, true);
 
 	/* Update */
-	player->upkeep->update |= (PU_BONUS);
-	player->upkeep->redraw |= (PR_TITLE | PR_MISC);
-	handle_stuff(player);
+	p->upkeep->update |= (PU_BONUS);
+	p->upkeep->redraw |= (PR_TITLE | PR_MISC);
+	handle_stuff(p);
 }
 
 /**
@@ -891,7 +927,7 @@ bool player_can_cast(struct player *p, bool show_msg)
 		return false;
 	}
 
-	if (p->timed[TMD_BLIND] || no_light()) {
+	if (p->timed[TMD_BLIND] || no_light(p)) {
 		if (show_msg) {
 			msg("You cannot see!");
 		}
@@ -970,7 +1006,7 @@ bool player_can_read(struct player *p, bool show_msg)
 		return false;
 	}
 
-	if (no_light()) {
+	if (no_light(p)) {
 		if (show_msg)
 			msg("You have no light to read by.");
 
@@ -1038,7 +1074,8 @@ bool player_can_refuel(struct player *p, bool show_msg)
 }
 
 /**
- * Prerequiste function for command. See struct cmd_info in cmd-process.c.
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
  */
 bool player_can_cast_prereq(void)
 {
@@ -1046,7 +1083,8 @@ bool player_can_cast_prereq(void)
 }
 
 /**
- * Prerequiste function for command. See struct cmd_info in cmd-process.c.
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
  */
 bool player_can_study_prereq(void)
 {
@@ -1054,7 +1092,8 @@ bool player_can_study_prereq(void)
 }
 
 /**
- * Prerequiste function for command. See struct cmd_info in cmd-process.c.
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
  */
 bool player_can_read_prereq(void)
 {
@@ -1062,7 +1101,8 @@ bool player_can_read_prereq(void)
 }
 
 /**
- * Prerequiste function for command. See struct cmd_info in cmd-process.c.
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
  */
 bool player_can_fire_prereq(void)
 {
@@ -1070,12 +1110,31 @@ bool player_can_fire_prereq(void)
 }
 
 /**
- * Prerequiste function for command. See struct cmd_info in cmd-process.c.
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
  */
 bool player_can_refuel_prereq(void)
 {
 	return player_can_refuel(player, true);
 }
+
+/**
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
+ */
+bool player_can_debug_prereq(void)
+{
+	if (player->noscore & NOSCORE_DEBUG) {
+		return true;
+	}
+	if (confirm_debug()) {
+		/* Mark savefile */
+		player->noscore |= NOSCORE_DEBUG;
+		return true;
+	}
+	return false;
+}
+
 
 /**
  * Return true if the player has access to a book that has unlearned spells.
@@ -1404,7 +1463,7 @@ void search(struct player *p)
 	struct loc grid;
 
 	/* Various conditions mean no searching */
-	if (p->timed[TMD_BLIND] || no_light() ||
+	if (p->timed[TMD_BLIND] || no_light(p) ||
 		p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE])
 		return;
 

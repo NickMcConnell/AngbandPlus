@@ -49,10 +49,11 @@
  * ------------------------------------------------------------------------ */
 /**
  * Chooses a room template of a particular kind at random.
- * \param typ template room type - currently unused
+ * \param typ template room type to select
+ * \param rating template room rating to select
  * \return a pointer to the room template
  */
-struct room_template *random_room_template(int typ, int rating)
+static struct room_template *random_room_template(int typ, int rating)
 {
 	struct room_template *t = room_templates;
 	struct room_template *r = NULL;
@@ -90,6 +91,46 @@ struct vault *random_vault(int depth, const char *typ)
 }
 
 
+
+/**
+ * ------------------------------------------------------------------------
+ * Helper functions to fill in information in the global dun (see also
+ * find_space(), room_build(), and build_staircase() which set cent_n and
+ * cent in that structure)
+ * ------------------------------------------------------------------------
+ */
+/**
+ * Append a grid to the marked entrances for a room in the global dun.
+ * \param grid Is the location for the entrance
+ * Only call after the centre has been set and cent_n incremented.
+ */
+static void append_entrance(struct loc grid)
+{
+	int ridx;
+
+	if (dun->cent_n <= 0 || dun->cent_n > z_info->level_room_max) return;
+	ridx = dun->cent_n - 1;
+	/* Expand allocated space if needed. */
+	assert(dun->ent_n[ridx] >= 0);
+	if (!dun->ent[ridx] ||
+			loc_eq(dun->ent[ridx][dun->ent_n[ridx]], loc(-1, -1))) {
+		int alloc_n = (dun->ent_n[ridx] > 0) ?
+			2 * dun->ent_n[ridx] : 8;
+		int i;
+
+		dun->ent[ridx] = mem_realloc(dun->ent[ridx],
+			alloc_n * sizeof(*dun->ent[ridx]));
+		for (i = dun->ent_n[ridx] + 1; i < alloc_n - 1; ++i) {
+			dun->ent[ridx][i] = loc(0, 0);
+		}
+		/* Add sentinel to track allocated size. */
+		dun->ent[ridx][alloc_n - 1] = loc(-1, -1);
+	}
+	/* Record the entrance */
+	dun->ent[ridx][dun->ent_n[ridx]] = grid;
+	++dun->ent_n[ridx];
+	dun->ent2room[grid.y][grid.x] = ridx;
+}
 
 /**
  * ------------------------------------------------------------------------
@@ -164,23 +205,33 @@ void fill_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat,
  * \param x2 inclusive room boundaries
  * \param feat the terrain feature
  * \param flag the SQUARE_* flag we are marking with
+ * \param overwrite_perm whether to overwrite features already marked as
+ * permanent
  */
 void draw_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat,
-					int flag)
+					int flag, bool overwrite_perm)
 {
 	int y, x;
 
 	for (y = y1; y <= y2; y++) {
-		square_set_feat(c, loc(x1, y), feat);
-		square_set_feat(c, loc(x2, y), feat);
+		if (overwrite_perm || !square_isperm(c, loc(x1, y))) {
+			square_set_feat(c, loc(x1, y), feat);
+		}
+		if (overwrite_perm || !square_isperm(c, loc(x2, y))) {
+			square_set_feat(c, loc(x2, y), feat);
+		}
 	}
 	if (flag) {
 		generate_mark(c, y1, x1, y2, x1, flag);
 		generate_mark(c, y1, x2, y2, x2, flag);
 	}
 	for (x = x1; x <= x2; x++) {
-		square_set_feat(c, loc(x, y1), feat);
-		square_set_feat(c, loc(x, y2), feat);
+		if (overwrite_perm || !square_isperm(c, loc(x, y1))) {
+			square_set_feat(c, loc(x, y1), feat);
+		}
+		if (overwrite_perm || !square_isperm(c, loc(x, y2))) {
+			square_set_feat(c, loc(x, y2), feat);
+		}
 	}
 	if (flag) {
 		generate_mark(c, y1, x1, y1, x2, flag);
@@ -361,6 +412,104 @@ void set_marked_granite(struct chunk *c, struct loc grid, int flag)
 {
 	square_set_feat(c, grid, FEAT_GRANITE);
 	if (flag) generate_mark(c, grid.y, grid.x, grid.y, grid.x, flag);
+}
+
+/**
+ * Given a room (with all grids converted to floors), convert floors on the
+ * edges to outer walls so no floor will be adjacent to a grid that is not a
+ * floor or outer wall.
+ * \param c the current chunk
+ * \param y1 lower y bound for room's bounding box
+ * \param x1 lower x bound for room's bounding box
+ * \param y2 upper y bound for rooms' bounding box
+ * \param x2 upper x bound for rooms' bounding box
+ * Will not properly handle cases where rooms are close enough that their
+ * minimal bounding boxes overlap.
+ */
+static void set_bordering_walls(struct chunk *c, int y1, int x1, int y2, int x2)
+{
+	int nx;
+	struct loc grid;
+	bool *walls;
+
+	assert(x2 >= x1 && y2 >= y1);
+
+	/* Set up storage to track which grids to convert. */
+	nx = x2 - x1 + 1;
+	walls = mem_zalloc((x2 - x1 + 1) * (y2 - y1 + 1) * sizeof(*walls));
+
+	/* Find the grids to convert. */
+	y1 = MAX(0, y1);
+	y2 = MIN(c->height - 1, y2);
+	x1 = MAX(0, x1);
+	x2 = MIN(c->width - 1, x2);
+	for (grid.y = y1; grid.y <= y2; grid.y++) {
+		int adjy1 = MAX(0, grid.y - 1);
+		int adjy2 = MIN(c->height - 1, grid.y + 1);
+
+		for (grid.x = x1; grid.x <= x2; grid.x++) {
+			if (square_isfloor(c, grid)) {
+				int adjx1 = MAX(0, grid.x - 1);
+				int adjx2 = MIN(c->width - 1, grid.x + 1);
+				assert(square_isroom(c, grid));
+
+				if (adjy2 - adjy1 != 2 || adjx2 - adjx1 != 2) {
+					/*
+					 * Adjacent grids are out of bounds.
+					 * Make it an outer wall.
+					 */
+					walls[grid.x - x1 + nx *
+						(grid.y - y1)] = true;
+				} else {
+					int nfloor = 0;
+					struct loc adj;
+
+					for (adj.y = adjy1;
+							adj.y <= adjy2;
+							adj.y++) {
+						for (adj.x = adjx1;
+								adj.x <= adjx2;
+								adj.x++) {
+							bool floor =
+								square_isfloor(
+								c, adj);
+
+							assert(floor ==
+								square_isroom(
+								c, adj));
+							if (floor) {
+								++nfloor;
+							}
+						}
+					}
+					if (nfloor != 9) {
+						/*
+						 * At least one neighbor is not
+						 * in the room.  Make it an
+						 * outer wall.
+						 */
+						walls[grid.x - x1 + nx *
+							(grid.y - y1)] = true;
+					}
+				}
+			} else {
+				assert(!square_isroom(c, grid));
+			}
+		}
+	}
+
+	/* Perform the floor to wall conversions. */
+	for (grid.y = y1; grid.y <= y2; grid.y++) {
+		for (grid.x = x1; grid.x <= x2; grid.x++) {
+			if (walls[grid.x - x1 + nx * (grid.y - y1)]) {
+				assert(square_isfloor(c, grid) &&
+					square_isroom(c, grid));
+				set_marked_granite(c, grid, SQUARE_WALL_OUTER);
+			}
+		}
+	}
+
+	mem_free(walls);
 }
 
 /**
@@ -830,6 +979,50 @@ void set_pit_type(int depth, int type)
 }
 
 /**
+ * Check that a rectangular range has not been reserved in the block map.
+ * \param by1 Is the y block coordinate for the top left corner of the range.
+ * \param bx1 Is the x block coordinate for the top left corner of the range.
+ * \param by2 Is the y block coordinate for the bottom right corner.
+ * \param bx2 Is the x block coordinate for the bottom right corner.
+ * \return Return true if the complete range has not been reserved and falls
+ * within the bounds of the map.  Otherwise, return false.
+ */
+static bool check_for_unreserved_blocks(int by1, int bx1, int by2, int bx2)
+{
+	int by, bx;
+
+	/* Never run off the screen */
+	if (by1 < 0 || by2 >= dun->row_blocks) return false;
+	if (bx1 < 0 || bx2 >= dun->col_blocks) return false;
+
+	/* Verify open space */
+	for (by = by1; by <= by2; by++) {
+		for (bx = bx1; bx <= bx2; bx++) {
+			if (dun->room_map[by][bx]) return false;
+		}
+	}
+	return true;
+}
+
+/**
+ * Reserve a rectangular range in the block map.
+ * \param by1 Is the y block coordinate for the top left corner of the range.
+ * \param bx1 Is the x block coordinate for the top left corner of the range.
+ * \param by2 Is the y block coordinate for the bottom right corner.
+ * \param bx2 Is the x block coordinate for the bottom right corner.
+ */
+static void reserve_blocks(int by1, int bx1, int by2, int bx2)
+{
+	int by, bx;
+
+	for (by = by1; by <= by2; by++) {
+		for (bx = bx1; bx <= bx2; bx++) {
+			dun->room_map[by][bx] = true;
+		}
+	}
+}
+
+/**
  * Find a good spot for the next room.
  *
  * \param y centre of the room
@@ -851,55 +1044,14 @@ void set_pit_type(int depth, int type)
 static bool find_space(struct loc *centre, int height, int width)
 {
 	int i;
-	int by, bx, by1, bx1, by2, bx2;
-
-	bool filled;
+	int by1, bx1, by2, bx2;
 
 	/* Find out how many blocks we need. */
 	int blocks_high = 1 + ((height - 1) / dun->block_hgt);
 	int blocks_wide = 1 + ((width - 1) / dun->block_wid);
 
-	/* Deal with staircase "rooms" */
-	if (OPT(player, birth_levels_persist) && (height * width == 1)) {
-		struct connector *join = dun->join;
-		bool found = false;
-
-		/* Acquire the location of the room */
-		int n = dun->cent_n;
-
-		while (n) {
-			join = join->next;
-			n--;
-		}
-		if (join) {
-			*centre = join->grid;
-			found = true;
-		}
-
-		/* Check we have found one */
-		if (found) {
-			/* Get the blocks */
-			by = (centre->y + 1) / dun->block_hgt;
-			bx = (centre->x + 1) / dun->block_wid;
-
-			/* Save the room location */
-			if (dun->cent_n < z_info->level_room_max) {
-				dun->cent[dun->cent_n] = *centre;
-				dun->cent_n++;
-			}
-
-			/* Reserve a block, marked with the room index */
-			dun->room_map[by][bx] = dun->cent_n;
-
-			/* Success. */
-			return (true);
-		}
-	}
-
 	/* We'll allow twenty-five guesses. */
 	for (i = 0; i < 25; i++) {
-		filled = false;
-
 		/* Pick a top left block at random */
 		by1 = randint0(dun->row_blocks);
 		bx1 = randint0(dun->col_blocks);
@@ -908,20 +1060,7 @@ static bool find_space(struct loc *centre, int height, int width)
 		by2 = by1 + blocks_high - 1;
 		bx2 = bx1 + blocks_wide - 1;
 
-		/* Never run off the screen */
-		if (by1 < 0 || by2 >= dun->row_blocks) continue;
-		if (bx1 < 0 || bx2 >= dun->col_blocks) continue;
-
-		/* Verify open space */
-		for (by = by1; by <= by2; by++) {
-			for (bx = bx1; bx <= bx2; bx++) {
-				if (dun->room_map[by][bx])
-					filled = true;
-			}
-		}
-
-		/* If space filled, try again. */
-		if (filled)	continue;
+		if (!check_for_unreserved_blocks(by1, bx1, by2, bx2)) continue;
 
 		/* Get the location of the room */
 		centre->y = ((by1 + by2 + 1) * dun->block_hgt) / 2;
@@ -933,12 +1072,7 @@ static bool find_space(struct loc *centre, int height, int width)
 			dun->cent_n++;
 		}
 
-		/* Reserve some blocks */
-		for (by = by1; by <= by2; by++) {
-			for (bx = bx1; bx <= bx2; bx++) {
-				dun->room_map[by][bx] = true;
-			}
-		}
+		reserve_blocks(by1, bx1, by2, bx2);
 
 		/* Success. */
 		return (true);
@@ -951,21 +1085,24 @@ static bool find_space(struct loc *centre, int height, int width)
 /**
  * Build a room template from its string representation.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
  * \param ymax the room dimensions
  * \param xmax the room dimensions
  * \param doors the door position
  * \param data the room template text description
  * \param tval the object type for any included objects
+ * \param flags the flags for the room
  * \return success
  */
 static bool build_room_template(struct chunk *c, struct loc centre, int ymax,
-								int xmax, int doors, const char *data, int tval)
+	int xmax, int doors, const char *data, int tval,
+	const bitflag flags[ROOMF_SIZE])
 {
 	int dx, dy, rnddoors, doorpos;
 	const char *t;
 	bool rndwalls, light;
-	
+	int rotate, txmax, tymax;
+	bool reflect;
 
 	assert(c);
 
@@ -981,16 +1118,34 @@ static bool build_room_template(struct chunk *c, struct loc centre, int ymax,
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if ((centre.y >= c->height) || (centre.x >= c->width)) {
-		if (!find_space(&centre, ymax + 2, xmax + 2))
+		get_random_symmetry_transform(ymax, xmax, SYMTR_FLAG_NONE,
+			calc_default_transpose_weight(ymax, xmax),
+			&rotate, &reflect, &tymax, &txmax);
+		event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE,
+			tymax + 2, txmax + 2);
+		if (!find_space(&centre, tymax + 2, txmax + 2))
 			return (false);
+	} else {
+		/* Given the preset centre, don't allow transposition. */
+		get_random_symmetry_transform(ymax, xmax, SYMTR_FLAG_NONE, 0,
+			&rotate, &reflect, &tymax, &txmax);
+		event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE,
+			tymax + 2, txmax + 2);
+		assert(tymax == ymax && txmax == xmax);
 	}
 
-	/* Place dungeon features and objects */
+	/* Convert centre to translation for the symmetry transformation. */
+	centre.x -= txmax / 2;
+	centre.y -= tymax / 2;
+
+	/* Place dungeon features, objects, and monsters for specific grids. */
 	for (t = data, dy = 0; dy < ymax && *t; dy++) {
 		for (dx = 0; dx < xmax && *t; dx++, t++) {
 			/* Extract the location */
-			struct loc grid = loc(centre.x - (xmax / 2) + dx,
-								  centre.y - (ymax / 2) + dy);
+			struct loc grid = loc(dx, dy);
+
+			symmetry_transform(&grid, centre.y, centre.x,
+				ymax, xmax, rotate, reflect);
 
 			/* Skip non-grids */
 			if (*t == ' ') continue;
@@ -1003,7 +1158,13 @@ static bool build_room_template(struct chunk *c, struct loc centre, int ymax,
 
 			/* Analyze the grid */
 			switch (*t) {
-			case '%': set_marked_granite(c, grid, SQUARE_WALL_OUTER); break;
+			case '%': {
+				set_marked_granite(c, grid, SQUARE_WALL_OUTER);
+				if (roomf_has(flags, ROOMF_FEW_ENTRANCES)) {
+					append_entrance(grid);
+				}
+				break;
+			}
 			case '#': set_marked_granite(c, grid, SQUARE_WALL_SOLID); break;
 			case '+': place_closed_door(c, grid); break;
 			case '^': if (one_in_(4)) place_trap(c, grid, -1, c->depth); break;
@@ -1030,42 +1191,20 @@ static bool build_room_template(struct chunk *c, struct loc centre, int ymax,
 				break;
 			}
 			case '8': {
-
 				/* Put something nice in this square
 				 * Object (80%) or Stairs (20%) */
-				if ((randint0(100) < 80) || OPT(player, birth_levels_persist))
+				if (randint0(100) < 80 || dun->persist) {
 					place_object(c, grid, c->depth, false, false,
 								 ORIGIN_SPECIAL, 0);
-				else
+				} else {
 					place_random_stairs(c, grid);
-
-				/* Some monsters to guard it */
-				vault_monsters(c, grid, c->depth + 2, randint0(2) + 3);
-
+				}
+				/* Place nearby guards in second pass. */
 				break;
 			}
 			case '9': {
-				/* Create some interesting stuff nearby */
-				struct loc off2 = loc(2, -2);
-				struct loc off3 = loc(3, 3);
-
-				/* A few monsters */
-				vault_monsters(c, loc_diff(grid, off3), c->depth + randint0(2),
-							   randint1(2));
-				vault_monsters(c, loc_sum(grid, off3), c->depth + randint0(2),
-							   randint1(2));
-
-				/* And maybe a bit of treasure */
-				if (one_in_(2))
-					vault_objects(c, loc_sum(grid, off2), c->depth,
-								  1 + randint0(2));
-
-				if (one_in_(2))
-					vault_objects(c, loc_diff(grid, off2), c->depth,
-								  1 + randint0(2));
-
+				/* Everything is handled in the second pass. */
 				break;
-
 			}
 			case '[': {
 				
@@ -1098,6 +1237,83 @@ static bool build_room_template(struct chunk *c, struct loc centre, int ymax,
 				sqinfo_on(square(c, grid)->info, SQUARE_GLOW);
 		}
 	}
+	/*
+	 * Perform second pass for placement of monsters and objects at
+	 * unspecified locations after all the features are in place.
+	 */
+	for (t = data, dy = 0; dy < ymax && *t; dy++) {
+		for (dx = 0; dx < xmax && *t; dx++, t++) {
+			/* Extract the location */
+			struct loc grid = loc(dx, dy);
+
+			symmetry_transform(&grid, centre.y, centre.x,
+				ymax, xmax, rotate, reflect);
+
+			/* Analyze the grid. */
+			switch (*t) {
+			case '#':
+				/* Check consistency with first pass. */
+				assert(square_isroom(c, grid) &&
+					square_isgranite(c, grid) &&
+					sqinfo_has(square(c, grid)->info,
+					SQUARE_WALL_SOLID));
+				/*
+				 * Convert to SQUARE_WALL_INNER if it does not
+				 * touch the outside of the room.
+				 */
+				if (count_neighbors(NULL, c, grid,
+						square_isroom, false) == 8) {
+					sqinfo_off(square(c, grid)->info,
+						SQUARE_WALL_SOLID);
+					sqinfo_on(square(c, grid)->info,
+						SQUARE_WALL_INNER);
+				}
+				break;
+
+			case '8':
+				/* Check consistency with first pass. */
+				assert(square_isroom(c, grid) &&
+					(square_isfloor(c, grid) ||
+					square_isstairs(c, grid)));
+
+				/* Add some monsters to guard it. */
+				vault_monsters(c, grid, c->depth + 2,
+					randint0(2) + 3);
+				break;
+
+			case '9': {
+				/* Create some interesting stuff nearby. */
+				struct loc off2 = loc(2, -2);
+				struct loc off3 = loc(3, 3);
+
+				/* Check consistency with first pass. */
+				assert(square_isroom(c, grid) &&
+					square_isfloor(c, grid));
+
+				/* Add a few monsters. */
+				vault_monsters(c, loc_diff(grid, off3),
+					c->depth + randint0(2), randint1(2));
+				vault_monsters(c, loc_sum(grid, off3),
+					c->depth + randint0(2), randint1(2));
+
+				/* And maybe a bit of treasure. */
+				if (one_in_(2)) {
+					vault_objects(c, loc_sum(grid, off2),
+						c->depth, 1 + randint0(2));
+				}
+				if (one_in_(2)) {
+					vault_objects(c, loc_diff(grid, off2),
+						c->depth, 1 + randint0(2));
+				}
+				break;
+			}
+
+			default:
+				/* Everything was handled in the first pass. */
+				break;
+			}
+		}
+	}
 
 	return true;
 }
@@ -1105,8 +1321,9 @@ static bool build_room_template(struct chunk *c, struct loc centre, int ymax,
 /**
  * Helper function for building room templates.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
- * \param typ the room template type (currently unused)
+ * \param centre the room centre; out of chunk centre invokes find_space()
+ * \param typ template room type to select
+ * \param rating template room rating to select
  * \return success
  */
 static bool build_room_template_type(struct chunk *c, struct loc centre,
@@ -1118,8 +1335,9 @@ static bool build_room_template_type(struct chunk *c, struct loc centre,
 		return false;
 
 	/* Build the room */
+	event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, room->name);
 	if (!build_room_template(c, centre, room->hgt, room->wid, room->dor,
-							 room->text, room->tval))
+			room->text, room->tval, room->flags))
 		return false;
 
 	ROOM_LOG("Room template (%s)", room->name);
@@ -1130,7 +1348,7 @@ static bool build_room_template_type(struct chunk *c, struct loc centre,
 /**
  * Build a vault from its string representation.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
  * \param v pointer to the vault template
  * \return success
  */
@@ -1142,28 +1360,53 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 	const char *t;
 	char racial_symbol[30] = "";
 	bool icky;
+	int rotate, thgt, twid;
+	bool reflect;
 
 	assert(c);
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
+	event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, v->name);
 	if ((centre.y >= c->height) || (centre.x >= c->width)) {
-		if (!find_space(&centre, v->hgt + 2, v->wid + 2))
+		get_random_symmetry_transform(v->hgt, v->wid, SYMTR_FLAG_NONE,
+			calc_default_transpose_weight(v->hgt, v->wid),
+			&rotate, &reflect, &thgt, &twid);
+		event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE,
+			thgt + 2, twid + 2);
+		if (!find_space(&centre, thgt + 2, twid + 2))
 			return (false);
+	} else {
+		/* Given the preset centre, don't allow transposition. */
+		get_random_symmetry_transform(v->hgt, v->wid, SYMTR_FLAG_NONE,
+			0, &rotate, &reflect, &thgt, &twid);
+		assert(v->hgt == thgt && v->wid == twid);
+		event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE,
+			thgt + 2, twid + 2);
 	}
 
+	/* Convert centre to translation for the symmetry transformation. */
+	centre.x -= twid / 2;
+	centre.y -= thgt / 2;
+
 	/* Get the room corners */
-	y1 = centre.y - (v->hgt / 2);
-	x1 = centre.x - (v->wid / 2);
-	y2 = y1 + v->hgt - 1;
-	x2 = x1 + v->wid - 1;
+	y1 = centre.y;
+	x1 = centre.x;
+	y2 = y1 + thgt - 1;
+	x2 = x1 + twid - 1;
 
 	/* No random monsters in vaults. */
 	generate_mark(c, y1, x1, y2, x2, SQUARE_MON_RESTRICT);
 
 	/* Place dungeon features and objects */
-	for (t = data, y = y1; y <= y2 && *t; y++) {
-		for (x = x1; x <= x2 && *t; x++, t++) {
+	for (t = data, y = 0; y < v->hgt && *t; y++) {
+		for (x = 0; x < v->wid && *t; x++, t++) {
 			struct loc grid = loc(x, y);
+
+			symmetry_transform(&grid, centre.y, centre.x, v->hgt,
+				v->wid, rotate, reflect);
+			assert(grid.x >= x1 && grid.x <= x2 &&
+				grid.y >= y1 && grid.y <= y2);
+
 			/* Skip non-grids */
 			if (*t == ' ') continue;
 
@@ -1179,16 +1422,20 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 			/* Analyze the grid */
 			switch (*t) {
 			case '%': {
-				/* In this case, the square isn't really part of the
-				 * vault, but rather is part of the "door step" to the
-				 * vault. We don't mark it icky so that the tunneling
-				 * code knows its allowed to remove this wall. */
+				/* In this case, the square isn't really part
+				 * of the vault, but rather is part of the
+				 * "door step" to the vault. We don't mark it
+				 * icky so that the tunneling code knows it's
+				 * allowed to remove this wall. */
 				set_marked_granite(c, grid, SQUARE_WALL_OUTER);
+				if (roomf_has(v->flags, ROOMF_FEW_ENTRANCES)) {
+					append_entrance(grid);
+				}
 				icky = false;
 				break;
 			}
-				/* Inner granite wall */
-			case '#': set_marked_granite(c, grid, SQUARE_WALL_INNER); break;
+				/* Inner or non-tunnelable outside granite wall */
+			case '#': set_marked_granite(c, grid, SQUARE_WALL_SOLID); break;
 				/* Permanent wall */
 			case '@': square_set_feat(c, grid, FEAT_PERM); break;
 				/* Gold seam */
@@ -1219,11 +1466,11 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 			}
 				/* Stairs */
 			case '<': {
-				if (OPT(player, birth_levels_persist)) break;
+				if (dun->persist) break;
 				square_set_feat(c, grid, FEAT_LESS); break;
 			}
 			case '>': {
-				if (OPT(player, birth_levels_persist)) break;
+				if (dun->persist) break;
 				/* No down stairs at bottom or on quests */
 				if (is_quest(c->depth) || c->depth >= z_info->max_depth - 1)
 					square_set_feat(c, grid, FEAT_LESS);
@@ -1245,10 +1492,16 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 	}
 
 
-	/* Place regular dungeon monsters and objects */
-	for (t = data, y = y1; y <= y2 && *t; y++) {
-		for (x = x1; x <= x2 && *t; x++, t++) {
+	/* Place regular dungeon monsters and objects, convert inner walls */
+	for (t = data, y = 0; y < v->hgt && *t; y++) {
+		for (x = 0; x < v->wid && *t; x++, t++) {
 			struct loc grid = loc(x, y);
+
+			symmetry_transform(&grid, centre.y, centre.x, v->hgt,
+				v->wid, rotate, reflect);
+			assert(grid.x >= x1 && grid.x <= x2 &&
+				grid.y >= y1 && grid.y <= y2);
+
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
 
@@ -1385,6 +1638,44 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 					/* Food or mushroom. */
 				case ',': place_object(c, grid, c->depth + 3, one_in_(4), false,
 									   ORIGIN_VAULT, TV_FOOD); break;
+					/* Inner or non-tunnelable outside granite wall */
+				case '#': {
+					/* Check consistency with first pass. */
+					assert(square_isroom(c, grid) &&
+						square_isvault(c, grid) &&
+						square_isgranite(c, grid) &&
+						sqinfo_has(square(c, grid)->info, SQUARE_WALL_SOLID));
+					/*
+					 * Convert to SQUARE_WALL_INNER if it
+					 * does not touch the outside of the
+					 * vault.
+					 */
+					if (count_neighbors(NULL, c, grid,
+							square_isroom, false) == 8) {
+						sqinfo_off(square(c, grid)->info,
+							SQUARE_WALL_SOLID);
+						sqinfo_on(square(c, grid)->info,
+							SQUARE_WALL_INNER);
+					}
+					break;
+				}
+					/* Permanent wall */
+				case '@': {
+					/* Check consistency with first pass. */
+					assert(square_isroom(c, grid) &&
+						square_isvault(c, grid) &&
+						square_isperm(c, grid));
+					/*
+					 * Mark as SQUARE_WALL_INNER if it does
+					 * not touch the outside of the vault.
+					 */
+					if (count_neighbors(NULL, c, grid,
+							square_isroom, false) == 8) {
+						sqinfo_on(square(c, grid)->info,
+							SQUARE_WALL_INNER);
+					}
+					break;
+				}
 				}
 		}
 	}
@@ -1398,7 +1689,7 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 /**
  * Helper function for building vaults.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
  * \param typ the vault type
  * \param label name of the vault type (eg "Greater vault")
  * \return success
@@ -1575,29 +1866,70 @@ static void hollow_out_room(struct chunk *c, struct loc grid)
  */
 bool build_staircase(struct chunk *c, struct loc centre, int rating)
 {
-	struct connector *join = dun->join;
+	struct connector *join = dun->curr_join;
 
-	/* Find and reserve one grid in the dungeon */
-	if (!find_space(&centre, 1, 1))
+	if (!join) {
+		quit_fmt("build_staircase() called without dun->curr_join set");
+	}
+
+	if (centre.y >= c->height || centre.x >= c->width) {
+		/*
+		 * Verify that there's space for the 1 x 1 room at the
+		 * staircase location (3 x 3 including the walls; if not at
+		 * an edge also want a one grid buffer around the walls so
+		 * the wall piercings for tunneling will work).
+		 */
+		struct loc tl, br;
+		int by1, bx1, by2, bx2;
+
+		centre = join->grid;
+		if (centre.y < 1 || centre.y > c->height - 2 || centre.x < 1 ||
+			centre.x > c->width - 2) return false;
+		tl = loc(centre.x - ((centre.x > 1) ? 2 : 1),
+			centre.y - ((centre.y > 1) ? 2 : 1));
+		br = loc(centre.x + ((centre.x < c->width - 2) ? 2 : 1),
+			centre.y + ((centre.y < c->height - 2) ? 2 : 1));
+		event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE,
+			br.y - tl.y + 1, br.x - tl.x + 1);
+		by1 = tl.y / dun->block_hgt;
+		bx1 = tl.x / dun->block_wid;
+		by2 = br.y / dun->block_hgt;
+		bx2 = br.x / dun->block_wid;
+		/*
+		 * If the block size is greater than one, look for room flags
+		 * rather than check the block map.  It's less efficient, but
+		 * gives a better chance of success since multiple staircase
+		 * rooms could be placed in a block if they're far enough apart.
+		 */
+		if (dun->block_hgt > 1 || dun->block_wid > 1) {
+			struct loc rg;
+
+			if (cave_find_in_range(c, &rg, tl, br, square_isroom))
+				return false;
+		} else if (!check_for_unreserved_blocks(by1, bx1, by2, bx2)) {
+			return false;
+		}
+
+		reserve_blocks(by1, bx1, by2, bx2);
+
+		/* Save the room location */
+		if (dun->cent_n < z_info->level_room_max) {
+			dun->cent[dun->cent_n] = centre;
+			dun->cent_n++;
+		}
+	} else {
+		/* Never works for the caller to set the location. */
 		return false;
+	}
 
 	/* Generate new room and outer walls */
 	generate_room(c, centre.y - 1, centre.x - 1, centre.y + 1, centre.x + 1,
 				  false);
 	draw_rectangle(c, centre.y - 1, centre.x - 1, centre.y + 1, centre.x + 1,
-				   FEAT_GRANITE, SQUARE_WALL_OUTER);
+		FEAT_GRANITE, SQUARE_WALL_OUTER, false);
 
 	/* Place the correct stair */
-	while (join) {
-		if (loc_eq(join->grid, centre)) {
-			square_set_feat(c, join->grid, join->feat);
-			break;
-		}
-		join = join->next;
-	}
-	if (!join) {
-		quit_fmt("Stair connect mismatch y=%d x=%d!", centre.y, centre.x);
-	}
+	square_set_feat(c, centre, join->feat);
 
 	/* Success */
 	return true;
@@ -1606,7 +1938,7 @@ bool build_staircase(struct chunk *c, struct loc centre, int rating)
 /**
  * Build a circular room (interior radius 4-7).
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
  * \return success
  */
 bool build_circular(struct chunk *c, struct loc centre, int rating)
@@ -1618,26 +1950,34 @@ bool build_circular(struct chunk *c, struct loc centre, int rating)
 	bool light = c->depth <= randint1(25) ? true : false;
 
 	/* Find and reserve lots of space in the dungeon.  Get center of room. */
+	event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE,
+		2 * radius + 10, 2 * radius + 10);
 	if ((centre.y >= c->height) || (centre.x >= c->width)) {
 		if (!find_space(&centre, 2 * radius + 10, 2 * radius + 10))
 			return (false);
 	}
 
-	/* Generate outer walls and inner floors */
-	fill_circle(c, centre.y, centre.x, radius + 1, 1, FEAT_GRANITE,
-				SQUARE_WALL_OUTER, light);
-	fill_circle(c, centre.y, centre.x, radius, 0, FEAT_FLOOR,
-				SQUARE_NONE, light);
+	/* Mark as a room. */
+	fill_circle(c, centre.y, centre.x, radius + 1, 0, FEAT_FLOOR,
+		SQUARE_NONE, light);
+
+	/* Convert some floors to be the outer walls. */
+	set_bordering_walls(c, centre.y - radius - 2, centre.x - radius - 2,
+		centre.y + radius + 2, centre.x + radius + 2);
 
 	/* Especially large circular rooms will have a middle chamber */
 	if (radius - 4 > 0 && randint0(4) < radius - 4) {
-		/* choose a random direction */
 		struct loc offset;
+
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE,
+			"middle chamber");
+
+		/* choose a random direction */
 		rand_dir(&offset);
 
 		/* draw a room with a closed door on a random side */
 		draw_rectangle(c, centre.y - 2, centre.x - 2, centre.y + 2,
-					   centre.x + 2, FEAT_GRANITE, SQUARE_WALL_INNER);
+			centre.x + 2, FEAT_GRANITE, SQUARE_WALL_INNER, false);
 		place_closed_door(c, loc(centre.x + offset.x * 2,
 								 centre.y + offset.y * 2));
 
@@ -1655,7 +1995,7 @@ bool build_circular(struct chunk *c, struct loc centre, int rating)
 /**
  * Builds a normal rectangular room.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
  * \return success
  */
 bool build_simple(struct chunk *c, struct loc centre, int rating)
@@ -1668,12 +2008,13 @@ bool build_simple(struct chunk *c, struct loc centre, int rating)
 	int width = 1 + randint1(11) + randint1(11);
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
+	event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE, height + 2, width + 2);
 	if ((centre.y >= c->height) || (centre.x >= c->width)) {
 		if (!find_space(&centre, height + 2, width + 2))
 			return (false);
 	}
 
-	/* Pick a room size */
+	/* Set bounds */
 	y1 = centre.y - height / 2;
 	x1 = centre.x - width / 2;
 	y2 = y1 + height - 1;
@@ -1686,23 +2027,73 @@ bool build_simple(struct chunk *c, struct loc centre, int rating)
 	generate_room(c, y1-1, x1-1, y2+1, x2+1, light);
 
 	/* Generate outer walls and inner floors */
-	draw_rectangle(c, y1-1, x1-1, y2+1, x2+1, FEAT_GRANITE, SQUARE_WALL_OUTER);
+	draw_rectangle(c, y1-1, x1-1, y2+1, x2+1, FEAT_GRANITE,
+		SQUARE_WALL_OUTER, false);
 	fill_rectangle(c, y1, x1, y2, x2, FEAT_FLOOR, SQUARE_NONE);
 
 	if (one_in_(20)) {
-		/* Sometimes make a pillar room */
-		for (y = y1; y <= y2; y += 2)
-			for (x = x1; x <= x2; x += 2)
-				set_marked_granite(c, loc(x, y), SQUARE_WALL_INNER);
+		/*
+		 * Sometimes make a pillar room.
+		 * If a dimension is even, don't always put a pillar in the
+		 * upper left corner.
+		 */
+		int offx = ((x2 - x1) % 2 == 0) ? 0 : randint0(2);
+		int offy = ((y2 - y1) % 2 == 0) ? 0 : randint0(2);
 
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, "pillared");
+
+		for (y = y1 + offy; y <= y2; y += 2)
+			for (x = x1 + offx; x <= x2; x += 2)
+				set_marked_granite(c, loc(x, y), SQUARE_WALL_INNER);
+		/*
+		 * Drop room/outer wall flags on corners if not adjacent to a
+		 * floor.  Lets tunnels enter those grids.
+		 */
+		if (!offy) {
+			if (!offx) {
+				sqinfo_off(square(c, loc(x1 - 1, y1 - 1))->info,
+					SQUARE_ROOM);
+				sqinfo_off(square(c, loc(x1 - 1, y1 - 1))->info,
+					SQUARE_WALL_OUTER);
+			}
+			if ((x2 - x1 - offx) % 2 == 0) {
+				sqinfo_off(square(c, loc(x2 + 1, y1 - 1))->info,
+					SQUARE_ROOM);
+				sqinfo_off(square(c, loc(x2 + 1, y1 - 1))->info,
+					SQUARE_WALL_OUTER);
+			}
+		}
+		if ((y2 - y1 - offy) % 2 == 0) {
+			if (!offx) {
+				sqinfo_off(square(c, loc(x1 - 1, y2 + 1))->info,
+					SQUARE_ROOM);
+				sqinfo_off(square(c, loc(x1 - 1, y2 + 1))->info,
+					SQUARE_WALL_OUTER);
+			}
+			if ((x2 - x1 - offx) % 2 == 0) {
+				sqinfo_off(square(c, loc(x2 + 1, y2 + 1))->info,
+					SQUARE_ROOM);
+				sqinfo_off(square(c, loc(x2 + 1, y2 + 1))->info,
+					SQUARE_WALL_OUTER);
+			}
+		}
 	} else if (one_in_(50)) {
-		/* Sometimes make a ragged-edge room */
-		for (y = y1 + 2; y <= y2 - 2; y += 2) {
+		/*
+		 * Sometimes make a ragged-edge room.
+		 * If a dimension is even, don't always put the first
+		 * indentations at (x1, y1 + 2) and (x1 + 2, y1).
+		 */
+		int offx = ((x2 - x1) % 2 == 0) ? 0 : randint0(2);
+		int offy = ((y2 - y1) % 2 == 0) ? 0 : randint0(2);
+
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, "ragged");
+
+		for (y = y1 + 2 + offy; y <= y2 - 2; y += 2) {
 			set_marked_granite(c, loc(x1, y), SQUARE_WALL_INNER);
 			set_marked_granite(c, loc(x2, y), SQUARE_WALL_INNER);
 		}
 
-		for (x = x1 + 2; x <= x2 - 2; x += 2) {
+		for (x = x1 + 2 + offx; x <= x2 - 2; x += 2) {
 			set_marked_granite(c, loc(x, y1), SQUARE_WALL_INNER);
 			set_marked_granite(c, loc(x, y2), SQUARE_WALL_INNER);
 		}
@@ -1714,7 +2105,7 @@ bool build_simple(struct chunk *c, struct loc centre, int rating)
 /**
  * Builds an overlapping rectangular room.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
  * \return success
  */
 bool build_overlap(struct chunk *c, struct loc centre, int rating)
@@ -1745,6 +2136,7 @@ bool build_overlap(struct chunk *c, struct loc centre, int rating)
 	width = 2 * MAX(MAX(x1a, x2a), MAX(x1b, x2b)) + 1;
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
+	event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE, height + 2, width + 2);
 	if ((centre.y >= c->height) || (centre.x >= c->width)) {
 		if (!find_space(&centre, height + 2, width + 2))
 			return (false);
@@ -1770,11 +2162,11 @@ bool build_overlap(struct chunk *c, struct loc centre, int rating)
 
 	/* Generate outer walls (a) */
 	draw_rectangle(c, y1a-1, x1a-1, y2a+1, x2a+1, 
-				   FEAT_GRANITE, SQUARE_WALL_OUTER);
+		FEAT_GRANITE, SQUARE_WALL_OUTER, false);
 
 	/* Generate outer walls (b) */
 	draw_rectangle(c, y1b-1, x1b-1, y2b+1, x2b+1, 
-				   FEAT_GRANITE, SQUARE_WALL_OUTER);
+		FEAT_GRANITE, SQUARE_WALL_OUTER, false);
 
 	/* Generate inner floors (a) */
 	fill_rectangle(c, y1a, x1a, y2a, x2a, FEAT_FLOOR, SQUARE_NONE);
@@ -1789,7 +2181,7 @@ bool build_overlap(struct chunk *c, struct loc centre, int rating)
 /**
  * Builds a cross-shaped room.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
  * \return success
  *
  * Room "a" runs north/south, and Room "b" runs east/east 
@@ -1839,7 +2231,8 @@ bool build_crossed(struct chunk *c, struct loc centre, int rating)
 	width = MAX(x1a + x2a + 1, x1b + x2b + 1);
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
-	if ((centre.y >= c->height) || (centre.x >= c->width)) {
+	event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE, height + 2, width + 2);
+	if (centre.y >= c->height || centre.x >= c->width) {
 		if (!find_space(&centre, height + 2, width + 2))
 			return (false);
 	}
@@ -1864,11 +2257,11 @@ bool build_crossed(struct chunk *c, struct loc centre, int rating)
 
 	/* Generate outer walls (a) */
 	draw_rectangle(c, y1a - 1, x1a - 1, y2a + 1, x2a + 1, 
-				   FEAT_GRANITE, SQUARE_WALL_OUTER);
+		FEAT_GRANITE, SQUARE_WALL_OUTER, false);
 
 	/* Generate outer walls (b) */
 	draw_rectangle(c, y1b - 1, x1b - 1, y2b + 1, x2b + 1, 
-				   FEAT_GRANITE, SQUARE_WALL_OUTER);
+		FEAT_GRANITE, SQUARE_WALL_OUTER, false);
 
 	/* Generate inner floors (a) */
 	fill_rectangle(c, y1a, x1a, y2a, x2a, FEAT_FLOOR, SQUARE_NONE);
@@ -1883,6 +2276,8 @@ bool build_crossed(struct chunk *c, struct loc centre, int rating)
 
 		/* Large solid middle pillar */
 	case 2: {
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE,
+			"solid middle");
 		fill_rectangle(c, y1b, x1a, y2b, x2a, FEAT_GRANITE, SQUARE_WALL_INNER);
 		break;
 	}
@@ -1890,7 +2285,10 @@ bool build_crossed(struct chunk *c, struct loc centre, int rating)
 		/* Inner treasure vault */
 	case 3: {
 		/* Generate a small inner vault */
-		draw_rectangle(c, y1b, x1a, y2b, x2a, FEAT_GRANITE, SQUARE_WALL_INNER);
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE,
+			"inner vault");
+		draw_rectangle(c, y1b, x1a, y2b, x2a, FEAT_GRANITE,
+			SQUARE_WALL_INNER, false);
 
 		/* Open the inner vault with a secret door */
 		generate_hole(c, y1b, x1a, y2b, x2a, FEAT_SECRET);
@@ -1911,6 +2309,8 @@ bool build_crossed(struct chunk *c, struct loc centre, int rating)
 	case 4: {
 		if (one_in_(3)) {
 			/* Occasionally pinch the center shut */
+			event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE,
+				"pinched");
 
 			/* Pinch the east/west sides */
 			for (y = y1b; y <= y2b; y++) {
@@ -1933,11 +2333,15 @@ bool build_crossed(struct chunk *c, struct loc centre, int rating)
 
 		} else if (one_in_(3)) {
 			/* Occasionally put a "plus" in the center */
+			event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE,
+				"plus");
 			generate_plus(c, y1b, x1a, y2b, x2a, 
 						  FEAT_GRANITE, SQUARE_WALL_INNER);
 
 		} else if (one_in_(3)) {
 			/* Occasionally put a "pillar" in the center */
+			event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE,
+				"pillar");
 			set_marked_granite(c, centre, SQUARE_WALL_INNER);
 		}
 
@@ -1952,7 +2356,7 @@ bool build_crossed(struct chunk *c, struct loc centre, int rating)
 /**
  * Build a large room with an inner room.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
  * \return success
  *
  * Possible sub-types:
@@ -1974,6 +2378,7 @@ bool build_large(struct chunk *c, struct loc centre, int rating)
 	if (c->depth <= randint1(25)) light = true;
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
+	event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE, height + 2, width + 2);
 	if ((centre.y >= c->height) || (centre.x >= c->width)) {
 		if (!find_space(&centre, height + 2, width + 2))
 			return (false);
@@ -1990,7 +2395,7 @@ bool build_large(struct chunk *c, struct loc centre, int rating)
 
 	/* Generate outer walls */
 	draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_GRANITE,
-				   SQUARE_WALL_OUTER);
+		SQUARE_WALL_OUTER, false);
 
 	/* Generate inner floors */
 	fill_rectangle(c, y1, x1, y2, x2, FEAT_FLOOR, SQUARE_NONE);
@@ -2003,13 +2408,14 @@ bool build_large(struct chunk *c, struct loc centre, int rating)
 
 	/* Generate inner walls */
 	draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_GRANITE,
-				   SQUARE_WALL_INNER);
+		SQUARE_WALL_INNER, false);
 
 	/* Inner room variations */
 	switch (randint1(5)) {
 		/* An inner room */
 	case 1: {
 		/* Open the inner room with a door and place a monster */
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, "plain");
 		generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 		vault_monsters(c, centre, c->depth + 2, 1);
 		break;
@@ -2018,12 +2424,14 @@ bool build_large(struct chunk *c, struct loc centre, int rating)
 
 		/* An inner room with a small inner room */
 	case 2: {
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, "nested");
+
 		/* Open the inner room with a door */
 		generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
 		/* Place another inner room */
 		draw_rectangle(c, centre.y - 1, centre.x - 1, centre.y + 1,
-					   centre.x + 1, FEAT_GRANITE, SQUARE_WALL_INNER);
+			centre.x + 1, FEAT_GRANITE, SQUARE_WALL_INNER, false);
 
 		/* Open the inner room with a locked door */
 		generate_hole(c, centre.y - 1, centre.x - 1, centre.y + 1, centre.x + 1,
@@ -2041,10 +2449,11 @@ bool build_large(struct chunk *c, struct loc centre, int rating)
 		vault_monsters(c, centre, c->depth + 2, randint1(3) + 2);
 
 		/* Object (80%) or Stairs (20%) */
-		if ((randint0(100) < 80) || OPT(player, birth_levels_persist))
+		if (randint0(100) < 80 || dun->persist) {
 			place_object(c, centre, c->depth, false, false, ORIGIN_SPECIAL, 0);
-		else
+		} else {
 			place_random_stairs(c, centre);
+		}
 
 		/* Traps to protect the treasure */
 		vault_traps(c, centre, 4, 10, 2 + randint1(3));
@@ -2055,6 +2464,8 @@ bool build_large(struct chunk *c, struct loc centre, int rating)
 
 		/* An inner room with an inner pillar or pillars */
 	case 3: {
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, "pillar");
+
 		/* Open the inner room with a secret door */
 		generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
@@ -2081,7 +2492,8 @@ bool build_large(struct chunk *c, struct loc centre, int rating)
 		if (one_in_(3)) {
 			/* Inner rectangle */
 			draw_rectangle(c, centre.y - 1, centre.x - 5, centre.y + 1,
-						   centre.x + 5, FEAT_GRANITE, SQUARE_WALL_INNER);
+				centre.x + 5, FEAT_GRANITE,
+				SQUARE_WALL_INNER, false);
 
 			/* Secret doors (random top/bottom) */
 			place_secret_door(c, loc(centre.x - 3,
@@ -2110,6 +2522,9 @@ bool build_large(struct chunk *c, struct loc centre, int rating)
 
 		/* An inner room with a checkerboard */
 	case 4: {
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE,
+			"checkerboard");
+
 		/* Open the inner room with a secret door */
 		generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
@@ -2138,6 +2553,9 @@ bool build_large(struct chunk *c, struct loc centre, int rating)
 
 		/* Four small rooms. */
 	case 5: {
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE,
+			"compartments");
+
 		/* Inner "cross" */
 		generate_plus(c, y1, x1, y2, x2, FEAT_GRANITE, SQUARE_WALL_INNER);
 
@@ -2180,7 +2598,7 @@ bool build_large(struct chunk *c, struct loc centre, int rating)
 /**
  * Build a monster nest
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
  * \return success
  *
  * A monster nest consists of a rectangular moat around a room containing
@@ -2215,6 +2633,7 @@ bool build_nest(struct chunk *c, struct loc centre, int rating)
 	struct monster_group_info info = {0, 0};
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
+	event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE, height + 2, width + 2);
 	if ((centre.y >= c->height) || (centre.x >= c->width)) {
 		if (!find_space(&centre, height + 2, width + 2))
 			return (false);
@@ -2231,7 +2650,7 @@ bool build_nest(struct chunk *c, struct loc centre, int rating)
 
 	/* Generate outer walls */
 	draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_GRANITE,
-				   SQUARE_WALL_OUTER);
+		SQUARE_WALL_OUTER, false);
 
 	/* Generate inner floors */
 	fill_rectangle(c, y1, x1, y2, x2, FEAT_FLOOR, SQUARE_NONE);
@@ -2242,15 +2661,14 @@ bool build_nest(struct chunk *c, struct loc centre, int rating)
 	x1 = x1 + 2;
 	x2 = x2 - 2;
 
-	/* Generate inner walls */
+	/* Generate inner walls; add one door as entrance */
 	draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_GRANITE,
-				   SQUARE_WALL_INNER);
-
-	/* Open the inner room with a secret door */
+		SQUARE_WALL_INNER, false);
 	generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
 	/* Decide on the pit type */
 	set_pit_type(c->depth, 2);
+	event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, dun->pit_type->name);
 
 	/* Chance of objects on the floor */
 	alloc_obj = dun->pit_type->obj_rarity;
@@ -2261,7 +2679,7 @@ bool build_nest(struct chunk *c, struct loc centre, int rating)
 	/* Pick some monster types */
 	for (i = 0; i < 64; i++) {
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(c->depth + 10);
+		what[i] = get_mon_num(c->depth + 10, c->depth);
 
 		/* Notice failure */
 		if (!what[i]) empty = true;
@@ -2300,7 +2718,8 @@ bool build_nest(struct chunk *c, struct loc centre, int rating)
 /**
  * Build a monster pit
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
+ * \param rating is not used for this room type
  * \return success
  *
  * Monster pits are laid-out similarly to monster nests.
@@ -2344,6 +2763,7 @@ bool build_pit(struct chunk *c, struct loc centre, int rating)
 	struct monster_group_info info = {0, 0};
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
+	event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE, height + 2, width + 2);
 	if ((centre.y >= c->height) || (centre.x >= c->width)) {
 		if (!find_space(&centre, height + 2, width + 2))
 			return (false);
@@ -2358,7 +2778,7 @@ bool build_pit(struct chunk *c, struct loc centre, int rating)
 	/* Generate new room, outer walls and inner floor */
 	generate_room(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, light);
 	draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_GRANITE,
-				   SQUARE_WALL_OUTER);
+		SQUARE_WALL_OUTER, false);
 	fill_rectangle(c, y1, x1, y2, x2, FEAT_FLOOR, SQUARE_NONE);
 
 	/* Advance to the center room */
@@ -2367,13 +2787,14 @@ bool build_pit(struct chunk *c, struct loc centre, int rating)
 	x1 = x1 + 2;
 	x2 = x2 - 2;
 
-	/* Generate inner walls, and open with a secret door */
+	/* Generate inner walls; add one door as entrance */
 	draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_GRANITE,
-				   SQUARE_WALL_INNER);
+		SQUARE_WALL_INNER, false);
 	generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
 	/* Decide on the pit type */
 	set_pit_type(c->depth, 1);
+	event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, dun->pit_type->name);
 
 	/* Chance of objects on the floor */
 	alloc_obj = dun->pit_type->obj_rarity;
@@ -2384,7 +2805,7 @@ bool build_pit(struct chunk *c, struct loc centre, int rating)
 	/* Pick some monster types */
 	for (i = 0; i < 16; i++) {
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(c->depth + 10);
+		what[i] = get_mon_num(c->depth + 10, c->depth);
 
 		/* Notice failure */
 		if (!what[i]) empty = true;
@@ -2524,7 +2945,8 @@ bool build_pit(struct chunk *c, struct loc centre, int rating)
 /**
  * Build a template room
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
+ * \param rating template room rating to select
  * \return success
 */
 bool build_template(struct chunk *c, struct loc centre, int rating)
@@ -2539,7 +2961,8 @@ bool build_template(struct chunk *c, struct loc centre, int rating)
 /**
  * Build an interesting room.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
+ * \param rating is not used for this room type
  * \return success
  */
 bool build_interesting(struct chunk *c, struct loc centre, int rating)
@@ -2551,7 +2974,8 @@ bool build_interesting(struct chunk *c, struct loc centre, int rating)
 /**
  * Build a lesser vault.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
+ * \param rating is not used for this room type
  * \return success
  */
 bool build_lesser_vault(struct chunk *c, struct loc centre, int rating)
@@ -2565,7 +2989,8 @@ bool build_lesser_vault(struct chunk *c, struct loc centre, int rating)
 /**
  * Build a medium vault.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
+ * \param rating is not used for this room type
  * \return success
  */
 bool build_medium_vault(struct chunk *c, struct loc centre, int rating)
@@ -2579,7 +3004,8 @@ bool build_medium_vault(struct chunk *c, struct loc centre, int rating)
 /**
  * Build a greater vaults.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
+ * \param rating is not used for this room type
  * \return success
  *
  * Classic profile:
@@ -2609,8 +3035,12 @@ bool build_greater_vault(struct chunk *c, struct loc centre, int rating)
 	int numerator   = 1;
 	int denominator = 3;
 	
-	/* Only try to build a GV as the first room. */
-	if (dun->cent_n > 0) return false;
+	/*
+	 * Only try to build a GV as the first non-staircase room.  If not
+	 * finding space, cent_n has already been incremented.
+	 */
+	if (dun->cent_n - dun->nstair_room > ((centre.y >= c->height ||
+		centre.x >= c->width) ? 0 : 1)) return false;
 
 	/* Level 90+ has a 1/3 chance, level 80-89 has 2/9, ... */
 	for (i = 90; i > c->depth; i -= 10) {
@@ -2634,7 +3064,8 @@ bool build_greater_vault(struct chunk *c, struct loc centre, int rating)
 /**
  * Moria room (from Oangband).  Uses the "starburst room" code.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
+ * \param rating is not used for this room type
  * \return success
  */
 bool build_moria(struct chunk *c, struct loc centre, int rating)
@@ -2670,9 +3101,19 @@ bool build_moria(struct chunk *c, struct loc centre, int rating)
 		if ((centre.y >= c->height) || (centre.x >= c->width)) {
 			if (!find_space(&centre, height, width)) {
 				if (i == 0) continue;  /* Failed first attempt */
+				event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE,
+					height, width);
 				if (i == 1) return (false);  /* Failed second attempt */
-			} else break;  /* Success */
-		} else break;   /* Not finding space */
+			} else {
+				event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE,
+					height, width);
+				break;  /* Success */
+			}
+		} else {
+			event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE,
+				height, width);
+			break;   /* Not finding space */
+		}
 	}
 
 	/* Locate the room */
@@ -2688,12 +3129,14 @@ bool build_moria(struct chunk *c, struct loc centre, int rating)
 	}
 
 	/* Sometimes, the room may have rubble in it. */
-	if (one_in_(10))
+	if (one_in_(10)) {
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, "rubble");
 		(void) generate_starburst_room(c, y1 + randint0(height / 4),
 									   x1 + randint0(width / 4),
 									   y2 - randint0(height / 4),
 									   x2 - randint0(width / 4), false,
 									   FEAT_PASS_RUBBLE, false);
+	}
 
 	/* Success */
 	return (true);
@@ -2702,7 +3145,8 @@ bool build_moria(struct chunk *c, struct loc centre, int rating)
 /**
  * Rooms of chambers
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
+ * \param rating is not used for this room type
  * \return success
  *
  * Build a room, varying in size between 22x22 and 44x66, consisting of
@@ -2743,6 +3187,7 @@ bool build_room_of_chambers(struct chunk *c, struct loc centre, int rating)
 	width = 20 + randint1(20) + m_bonus(20, c->depth);
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
+	event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE, height, width);
 	if ((centre.y >= c->height) || (centre.x >= c->width)) {
 		if (!find_space(&centre, height, width))
 			return (false);
@@ -3010,7 +3455,8 @@ bool build_room_of_chambers(struct chunk *c, struct loc centre, int rating)
  * even divided with irregularly-shaped fields of rubble. No special
  * monsters.  Appears deeper than level 40.
  * \param c the chunk the room is being built in
- *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \param centre the room centre; out of chunk centre invokes find_space()
+ * \param rating is not used for this room type
  * \return success
  *
  * These are the largest, most difficult to position, and thus highest-
@@ -3019,6 +3465,7 @@ bool build_room_of_chambers(struct chunk *c, struct loc centre, int rating)
  */
 bool build_huge(struct chunk *c, struct loc centre, int rating)
 {
+	bool finding_space = centre.y >= c->height || centre.x >= c->width;
 	bool light;
 
 	int i, count;
@@ -3030,8 +3477,12 @@ bool build_huge(struct chunk *c, struct loc centre, int rating)
 	int height = 30 + randint0(10);
 	int width = 45 + randint0(50);
 
-	/* Only try to build a huge room as the first room. */
-	if (dun->cent_n > 0) return false;
+	/*
+	 * Only try to build a huge room as the first non-staircase room.  If
+	 * not finding space, cent_n has already been increment.
+	 */
+	if (dun->cent_n - dun->nstair_room > ((finding_space) ? 0 : 1))
+		return false;
 
 	/* Flat 5% chance */
 	if (!one_in_(20)) return false;
@@ -3040,7 +3491,8 @@ bool build_huge(struct chunk *c, struct loc centre, int rating)
 	light = !one_in_(3);
 
 	/* Find and reserve some space.  Get center of room. */
-	if ((centre.y >= c->height) || (centre.x >= c->width)) {
+	event_signal_size(EVENT_GEN_ROOM_CHOOSE_SIZE, height, width);
+	if (finding_space) {
 		if (!find_space(&centre, height, width))
 			return (false);
 	}
@@ -3057,6 +3509,8 @@ bool build_huge(struct chunk *c, struct loc centre, int rating)
 
 	/* Often, add rubble to break things up a bit. */
 	if (randint1(5) > 2) {
+		event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, "rubble");
+
 		/* Determine how many rubble fields to add (between 1 and 6). */
 		count = height * width * randint1(2) / 1100;
 
@@ -3111,13 +3565,19 @@ bool room_build(struct chunk *c, int by0, int bx0, struct room_profile profile,
 	int bx2 = bx0 + profile.width / dun->block_wid;
 
 	struct loc centre;
-	int by, bx;
 
+	event_signal_string(EVENT_GEN_ROOM_START, profile.name);
 	/* Enforce the room profile's minimum depth */
-	if (c->depth < profile.level) return false;
+	if (c->depth < profile.level) {
+		event_signal_flag(EVENT_GEN_ROOM_END, false);
+		return false;
+	}
 
 	/* Only allow at most two pit/nests room per level */
-	if ((dun->pit_num >= z_info->level_pit_max) && (profile.pit)) return false;
+	if ((dun->pit_num >= z_info->level_pit_max) && (profile.pit)) {
+		event_signal_flag(EVENT_GEN_ROOM_END, false);
+		return false;
+	}
 
 	/* Expand the number of blocks if we might overflow */
 	if (profile.height % dun->block_hgt) by2++;
@@ -3126,45 +3586,42 @@ bool room_build(struct chunk *c, int by0, int bx0, struct room_profile profile,
 	/* Does the profile allocate space, or the room find it? */
 	if (finds_own_space) {
 		/* Try to build a room, pass silly place so room finds its own */
-		if (!profile.builder(c, loc(c->width, c->height), profile.rating))
+		if (!profile.builder(c, loc(c->width, c->height),
+				profile.rating)) {
+			event_signal_flag(EVENT_GEN_ROOM_END, false);
 			return false;
+		}
 	} else {
-		/* Never run off the screen */
-		if (by1 < 0 || by2 >= dun->row_blocks) return false;
-		if (bx1 < 0 || bx2 >= dun->col_blocks) return false;
-
-		/* Verify open space */
-		for (by = by1; by <= by2; by++) {
-			for (bx = bx1; bx <= bx2; bx++) {
-				/* previous rooms prevent new ones */
-				if (dun->room_map[by][bx]) return false;
-			}
+		if (!check_for_unreserved_blocks(by1, bx1, by2, bx2)) {
+			event_signal_flag(EVENT_GEN_ROOM_END, false);
+			return false;
 		}
 
 		/* Get the location of the room */
 		centre = loc(((bx1 + bx2 + 1) * dun->block_wid) / 2,
 					 ((by1 + by2 + 1) * dun->block_hgt) / 2);
 
-		/* Try to build a room */
-		if (!profile.builder(c, centre, profile.rating)) return false;
-
-		/* Save the room location */
+		/* Save the room location (must be before builder call to
+		 * properly store entrance information). */
 		if (dun->cent_n < z_info->level_room_max) {
 			dun->cent[dun->cent_n] = centre;
 			dun->cent_n++;
 		}
 
-		/* Reserve some blocks */
-		for (by = by1; by < by2; by++) {
-			for (bx = bx1; bx < bx2; bx++) {
-				dun->room_map[by][bx] = true;
-			}
+		/* Try to build a room */
+		if (!profile.builder(c, centre, profile.rating)) {
+			--dun->cent_n;
+			event_signal_flag(EVENT_GEN_ROOM_END, false);
+			return false;
 		}
+
+		reserve_blocks(by1, bx1, by2, bx2);
 	}
 
 	/* Count pit/nests rooms */
 	if (profile.pit) dun->pit_num++;
 
 	/* Success */
+	event_signal_flag(EVENT_GEN_ROOM_END, true);
 	return true;
 }

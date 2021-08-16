@@ -100,7 +100,7 @@ static struct level_data {
 	struct wearables_data *wearables[ORIGIN_STATS];
 } level_data[LEVEL_MAX];
 
-static void create_indices()
+static void create_indices(void)
 {
 	int i;
 
@@ -123,7 +123,7 @@ static void create_indices()
 	}
 }
 
-static void alloc_memory()
+static void alloc_memory(void)
 {
 	int i, j, k, l;
 
@@ -177,8 +177,11 @@ static void free_stats_memory(void)
 }
 
 /* Copied from birth.c:generate_player() */
-static void generate_player_for_stats()
+static void generate_player_for_stats(void)
 {
+	char buf[80];
+	int i;
+
 	OPT(player, birth_randarts) = randarts;
 	OPT(player, birth_no_selling) = no_selling;
 	OPT(player, birth_stacking) = true;
@@ -188,6 +191,21 @@ static void generate_player_for_stats()
 
 	player->race = races;  /* Human   */
 	player->class = classes; /* Warrior */
+
+	/* Needs a body; duplicates logic from the private player_embody(). */
+	memcpy(&player->body, &bodies[player->race->body],
+		sizeof(player->body));
+	my_strcpy(buf, bodies[player->race->body].name, sizeof(buf));
+	player->body.name = string_make(buf);
+	player->body.slots = mem_zalloc(player->body.count *
+		sizeof(*(player->body.slots)));
+	for (i = 0; i < player->body.count; ++i) {
+		player->body.slots[i].type =
+			bodies[player->race->body].slots[i].type;
+		my_strcpy(buf, bodies[player->race->body].slots[i].name,
+			sizeof(buf));
+		player->body.slots[i].name = string_make(buf);
+	}
 
 	/* Level 1 */
 	player->max_lev = player->lev = 1;
@@ -250,9 +268,12 @@ static void kill_all_monsters(int level)
 	for (i = cave_monster_max(cave) - 1; i >= 1; i--) {
 		struct monster *mon = cave_monster(cave, i);
 
+		/* Skip the ones that are already dead. */
+		if (!mon->race) continue;
+
 		level_data[level].monsters[mon->race->ridx]++;
 
-		monster_death(mon, true);
+		monster_death(mon, player, true);
 
 		if (rf_has(mon->race->flags, RF_UNIQUE))
 			mon->race->max_num = 0;
@@ -297,12 +318,39 @@ static void log_all_objects(int level)
 	for (y = 1; y < cave->height - 1; y++) {
 		for (x = 1; x < cave->width - 1; x++) {
 			struct loc grid = loc(x, y);
-			struct object *obj;
+			struct monster *mon = square_monster(cave, grid);
+			struct object *obj = square_object(cave, grid);
 
-			for (obj = square_object(cave, grid); obj; obj = obj->next) {
+			while (1) {
 				/*	u32b o_power = 0; */
 
+				if (!obj) {
+					/*
+					 * Look at the objects from the monster
+					 * as well.
+					 */
+					if (!mon) {
+						break;
+					}
+					obj = mon->held_obj;
+					if (!obj) {
+						break;
+					}
+					mon = NULL;
+				}
+
 /*				o_power = object_power(obj, false, NULL, true); */
+
+				/*
+				 * Skip those we're not tracking (since monsters
+				 * aren't killed before collecting item
+				 * statistics, mimicked objects are one that
+				 * that'll be skipped.
+				 */
+				if (obj->origin >= ORIGIN_STATS) {
+					obj = obj->next;
+					continue;
+				}
 
 				/* Capture gold amounts */
 				if (tval_is_money(obj))
@@ -335,8 +383,11 @@ static void log_all_objects(int level)
 						int p = obj->modifiers[i];
 						w->modifiers[MIN(MAX(p, 0), TOP_MOD - 1)][i]++;
 					}
-				} else
+				} else {
 					level_data[level].consumables[obj->origin][consumables_index[obj->kind->kidx]]++;
+				}
+
+				obj = obj->next;
 			}
 		}
 	}
@@ -371,8 +422,9 @@ static void descend_dungeon(void)
 		level_data[level].obj_feelings[MIN(obj_f, OBJ_FEEL_MAX - 1)]++;
 		level_data[level].mon_feelings[MIN(mon_f, MON_FEEL_MAX - 1)]++;
 
-		kill_all_monsters(level);
 		log_all_objects(level);
+		/* Besides killing, also gathers counts. */
+		kill_all_monsters(level);
 	}
 }
 
@@ -730,7 +782,6 @@ static int stats_dump_monsters(void)
 static int stats_dump_lists(void)
 {
 	int err, idx;
-	char sql_buf[256];
 	sqlite3_stmt *sql_stmt;
 
 	/* Note: these lists are sometimes different from the ones the core
@@ -740,14 +791,14 @@ static int stats_dump_lists(void)
 	{
 		{ EF_NONE, false, NULL },
 		#define F(x) effect_handler_##x
-		#define EFFECT(x, a, b, c, d, e)    { EF_##x, a, #x },
+		#define EFFECT(x, a, b, c, d, e, f)    { EF_##x, a, #x },
 		#include "list-effects.h"
 		#undef EFFECT
 		#undef F
 		{ EF_MAX, false, NULL }
 	};
 
-	char *r_info_flags[] =
+	const char *r_info_flags[] =
 	{
 		#define RF(a, b, c) #a,
 		#include "list-mon-race-flags.h"
@@ -757,15 +808,15 @@ static int stats_dump_lists(void)
 
 	/** Really want elements (at least) here - NRM **/
 
-	char *object_flag_names[] =
+	const char *object_flag_names[] =
 	{
 		"NONE",
-		#define OF(a) #a,
+		#define OF(a, b) #a,
 		#include "list-object-flags.h"
 		#undef OF
 	};
 
-	char *object_mods[] =
+	const char *object_mods[] =
 	{
 		#define STAT(a) #a,
         #include "list-stats.h"
@@ -773,6 +824,13 @@ static int stats_dump_lists(void)
         #define OBJ_MOD(a) #a,
         #include "list-object-modifiers.h"
         #undef OBJ_MOD
+		NULL
+	};
+
+	const char *origin_names[] = {
+		#define ORIGIN(a, b, c) #a,
+		#include "list-origins.h"
+		#undef ORIGIN
 		NULL
 	};
 
@@ -814,7 +872,7 @@ static int stats_dump_lists(void)
 	if (err) return err;
 
 	for (idx = 0; idx < OF_MAX; idx++) {
-		err = stats_db_bind_ints(sql_stmt, 1, idx);
+		err = sqlite3_bind_int(sql_stmt, 1, idx);
 		if (err) return err;
 		err = sqlite3_bind_text(sql_stmt, 2, object_flag_names[idx],
 			strlen(object_flag_names[idx]), SQLITE_STATIC);
@@ -829,7 +887,7 @@ static int stats_dump_lists(void)
 	if (err) return err;
 
 	for (idx = 0; object_mods[idx] != NULL; idx++) {
-		err = stats_db_bind_ints(sql_stmt, 1, idx);
+		err = sqlite3_bind_int(sql_stmt, 1, idx);
 		if (err) return err;
 		err = sqlite3_bind_text(sql_stmt, 2, object_mods[idx],
 			strlen(object_mods[idx]), SQLITE_STATIC);
@@ -839,27 +897,20 @@ static int stats_dump_lists(void)
 
 	STATS_DB_FINALIZE(sql_stmt)
 
-	/* Hack, until we refactor origin kinds into a header */
-	#define STATS_ORIGIN(idx,name) \
-		strnfmt(sql_buf, 256, "INSERT INTO origin_flags_list VALUES(%d,'%s');", idx, #name); \
-		err = stats_db_exec(sql_buf);\
-		if (err) return err;
+	err = stats_db_stmt_prep(&sql_stmt,
+		"INSERT INTO origin_flags_list VALUES(?,?);");
+	if (err) return err;
 
-	STATS_ORIGIN(0,NONE)
-	STATS_ORIGIN(1,FLOOR)
-	STATS_ORIGIN(2,DROP)
-	STATS_ORIGIN(3,CHEST)
-	STATS_ORIGIN(4,DROP_SPECIAL)
-	STATS_ORIGIN(5,DROP_PIT)
-	STATS_ORIGIN(6,DROP_VAULT)
-	STATS_ORIGIN(7,SPECIAL)
-	STATS_ORIGIN(8,PIT)
-	STATS_ORIGIN(9,VAULT)
-	STATS_ORIGIN(10,LABYRINTH)
-	STATS_ORIGIN(11,CAVERN)
-	STATS_ORIGIN(12,RUBBLE)
-	STATS_ORIGIN(13,MIXED)
-	#undef STATS_ORIGIN
+	for (idx = 0; idx < ORIGIN_STATS && origin_names[idx]; idx++) {
+		err = sqlite3_bind_int(sql_stmt, 1, idx);
+		if (err) return err;
+		err = sqlite3_bind_text(sql_stmt, 2, origin_names[idx],
+			strlen(origin_names[idx]), SQLITE_STATIC);
+		if (err) return err;
+		STATS_DB_STEP_RESET(sql_stmt)
+	}
+
+	STATS_DB_FINALIZE(sql_stmt)
 
 	return SQLITE_OK;
 }
@@ -1027,10 +1078,10 @@ static bool stats_prep_db(void)
 	err = stats_db_exec("CREATE TABLE monster_spell_flags_list(idx INT PRIMARY KEY, cap INT, div INT, name TEXT);");
 	if (err) return false;
 
-	err = stats_db_exec("CREATE TABLE object_flags_list(idx INT PRIMARY KEY, type INT, power INT, name TEXT);");
+	err = stats_db_exec("CREATE TABLE object_flags_list(idx INT PRIMARY KEY, name TEXT);");
 	if (err) return false;
 
-	err = stats_db_exec("CREATE TABLE object_mods_list(idx INT PRIMARY KEY, type INT, power INT, mod_mult INT, name TEXT);");
+	err = stats_db_exec("CREATE TABLE object_mods_list(idx INT PRIMARY KEY, name TEXT);");
 	if (err) return false;
 
 	err = stats_db_exec("CREATE TABLE origin_flags_list(idx INT PRIMARY KEY, name TEXT);");
@@ -1426,7 +1477,7 @@ static int stats_write_db(u32b run)
 
 #define STATS_PROGRESS_BAR_LEN 30
 
-void progress_bar(u32b run, time_t start) {
+static void progress_bar(u32b run, time_t start) {
 	u32b i;
 	u32b n = (run * STATS_PROGRESS_BAR_LEN) / num_runs;
 	u32b p10 = ((long long)run * 1000) / num_runs;
@@ -1456,7 +1507,20 @@ void progress_bar(u32b run, time_t start) {
 
 static void stats_cleanup_angband_run(void)
 {
-	if (player->history) mem_free(player->history);
+	if (character_dungeon) {
+		wipe_mon_list(cave, player);
+		if (player->cave) {
+			cave_free(player->cave);
+			player->cave = NULL;
+		}
+		if (cave) {
+			cave_free(cave);
+			cave = NULL;
+		}
+		character_dungeon = false;
+	}
+	mem_free(player->history);
+	player->history = NULL;
 }
 
 static errr run_stats(void)

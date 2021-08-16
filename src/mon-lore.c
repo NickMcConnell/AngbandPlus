@@ -20,6 +20,7 @@
 #include "effects.h"
 #include "game-world.h"
 #include "init.h"
+#include "mon-attack.h"
 #include "mon-blows.h"
 #include "mon-init.h"
 #include "mon-lore.h"
@@ -174,7 +175,7 @@ static int spell_color(struct player *p, const struct monster_race *race,
  * dangerous the attack is to the player given current state. Blows may be
  * colored green (least dangerous), yellow, orange, or red (most dangerous).
  */
-int blow_color(struct player *p, int blow_idx)
+static int blow_color(struct player *p, int blow_idx)
 {
 	const struct blow_effect *blow = &blow_effects[blow_idx];
 
@@ -491,11 +492,12 @@ bool lore_is_fully_known(const struct monster_race *race)
  * about the treasure (even when the monster is killed for the first
  * time, such as uniques, and the treasure has not been examined yet).
  *
- * This "indirect" method is used to prevent the player from learning
+ * This "indirect" method was used to prevent the player from learning
  * exactly how much treasure a monster can drop from observing only
  * a single example of a drop.  This method actually observes how much
  * gold and items are dropped, and remembers that information to be
- * described later by the monster recall code.
+ * described later by the monster recall code.  It gives the player a chance
+ * to learn if a monster drops only objects or only gold.
  */
 void lore_treasure(struct monster *mon, int num_item, int num_gold)
 {
@@ -505,18 +507,29 @@ void lore_treasure(struct monster *mon, int num_item, int num_gold)
 	assert(num_gold >= 0);
 
 	/* Note the number of things dropped */
-	if (num_item > lore->drop_item)
+	if (num_item > lore->drop_item) {
 		lore->drop_item = num_item;
-	if (num_gold > lore->drop_gold)
+	}
+	if (num_gold > lore->drop_gold) {
 		lore->drop_gold = num_gold;
+	}
 
 	/* Learn about drop quality */
 	rf_on(lore->flags, RF_DROP_GOOD);
 	rf_on(lore->flags, RF_DROP_GREAT);
 
+	/* Have a chance to learn ONLY_ITEM and ONLY_GOLD */
+	if (num_item && (lore->drop_gold == 0) && one_in_(4)) {
+		rf_on(lore->flags, RF_ONLY_ITEM);
+	}
+	if (num_gold && (lore->drop_item == 0) && one_in_(4)) {
+		rf_on(lore->flags, RF_ONLY_GOLD);
+	}
+
 	/* Update monster recall window */
-	if (player->upkeep->monster_race == mon->race)
+	if (player->upkeep->monster_race == mon->race) {
 		player->upkeep->redraw |= (PR_MONSTER);
+	}
 }
 
 /**
@@ -620,7 +633,7 @@ static const char *lore_describe_speed(byte speed)
  * \param tb is the textblock we are adding to.
  * \param race is the monster race we are describing.
  */
-void lore_adjective_speed(textblock *tb, const struct monster_race *race)
+static void lore_adjective_speed(textblock *tb, const struct monster_race *race)
 {
 	/* "at" is separate from the normal speed description in order to use the
 	 * normal text colour */
@@ -636,7 +649,7 @@ void lore_adjective_speed(textblock *tb, const struct monster_race *race)
  * \param tb is the textblock we are adding to.
  * \param race is the monster race we are describing.
  */
-void lore_multiplier_speed(textblock *tb, const struct monster_race *race)
+static void lore_multiplier_speed(textblock *tb, const struct monster_race *race)
 {
 	// moves at 2.3x normal speed (0.9x your current speed)
 	textblock_append(tb, "at ");
@@ -1046,7 +1059,6 @@ void lore_append_toughness(textblock *tb, const struct monster_race *race,
 						   bitflag known_flags[RF_SIZE])
 {
 	monster_sex_t msex = MON_SEX_NEUTER;
-	long chance = 0, chance2 = 0;
 	struct object *weapon = equipped_item_by_slot_name(player, "weapon");
 
 	assert(tb && race && lore);
@@ -1056,39 +1068,30 @@ void lore_append_toughness(textblock *tb, const struct monster_race *race,
 
 	/* Describe monster "toughness" */
 	if (lore->armour_known) {
-		/* Armor */
-		textblock_append(tb, "%s has an armor rating of ",
-						 lore_pronoun_nominative(msex, true));
-		textblock_append_c(tb, COLOUR_L_BLUE, "%d", race->ac);
-
 		/* Hitpoints */
-		textblock_append(tb, ", and a");
+		textblock_append(tb, "%s has a", lore_pronoun_nominative(msex, true));
 
 		if (!rf_has(known_flags, RF_UNIQUE))
 			textblock_append(tb, "n average");
 
 		textblock_append(tb, " life rating of ");
 		textblock_append_c(tb, COLOUR_L_BLUE, "%d", race->avg_hp);
+
+		/* Armor */
+		textblock_append(tb, ", and an armor rating of ");
+		textblock_append_c(tb, COLOUR_L_BLUE, "%d", race->ac);
 		textblock_append(tb, ".  ");
 
 		/* Player's base chance to hit */
-		chance = chance_of_melee_hit(player, weapon);
-
-		/* The following calculations are based on test_hit();
-		 * make sure to keep it in sync */
-		if (chance < 9) {
-			chance = 9;
-		}
-		chance2 = 12 + (100 - 12 - 5) * (chance - (race->ac * 2 / 3)) / chance;
-		if (chance2 < 12) {
-			chance2 = 12;
-		}
+		random_chance c;
+		hit_chance(&c, chance_of_melee_hit_base(player, weapon), race->ac);
+		int percent = random_chance_scaled(c, 100);
 
 		textblock_append(tb, "You have a");
-		if ((chance2 == 8) || ((chance2 / 10) == 8))
+		if (percent == 8 || percent / 10 == 8)
 			textblock_append(tb, "n");
-		textblock_append_c(tb, COLOUR_L_BLUE, " %d", chance2);
-		textblock_append(tb, " percent chance to hit such a creature in melee (if you can see it).  ");
+		textblock_append_c(tb, COLOUR_L_BLUE, " %d", percent);
+		textblock_append(tb, "%% chance to hit such a creature in melee (if you can see it).  ");
 	}
 }
 
@@ -1139,7 +1142,8 @@ void lore_append_exp(textblock *tb, const struct monster_race *race,
 
 	/* Mention the experience */
 	textblock_append(tb, " is worth ");
-	textblock_append_c(tb, COLOUR_BLUE, format("%s point%s", buf, PLURAL((exp_integer == 1) && (exp_fraction == 0))));
+	textblock_append_c(tb, COLOUR_BLUE, "%s point%s", buf,
+		PLURAL((exp_integer == 1) && (exp_fraction == 0)));
 
 	/* Take account of annoying English */
 	ordinal = "th";
@@ -1174,7 +1178,7 @@ void lore_append_drop(textblock *tb, const struct monster_race *race,
 					  const struct monster_lore *lore,
 					  bitflag known_flags[RF_SIZE])
 {
-	int n = 0;
+	int n = 0, nspec = 0;
 	monster_sex_t msex = MON_SEX_NEUTER;
 
 	assert(tb && race && lore);
@@ -1184,42 +1188,74 @@ void lore_append_drop(textblock *tb, const struct monster_race *race,
 	msex = lore_monster_sex(race);
 
 	/* Count maximum drop */
-	n = mon_create_drop_count(race, true);
+	n = mon_create_drop_count(race, true, false, &nspec);
 
 	/* Drops gold and/or items */
-	if (n > 0) {
-		bool only_item = rf_has(known_flags, RF_ONLY_ITEM);
-		bool only_gold = rf_has(known_flags, RF_ONLY_GOLD);
-
+	if (n > 0 || nspec > 0) {
 		textblock_append(tb, "%s may carry",
-						 lore_pronoun_nominative(msex, true));
+			lore_pronoun_nominative(msex, true));
 
-		/* Count drops */
-		if (n == 1)
-			textblock_append_c(tb, COLOUR_BLUE, " a single ");
-		else if (n == 2)
-			textblock_append_c(tb, COLOUR_BLUE, " one or two ");
-		else {
-			textblock_append(tb, " up to ");
-			textblock_append_c(tb, COLOUR_BLUE, format("%d ", n));
+		/* Report general drops */
+		if (n > 0) {
+			bool only_item = rf_has(known_flags, RF_ONLY_ITEM);
+			bool only_gold = rf_has(known_flags, RF_ONLY_GOLD);
+
+			if (n == 1) {
+				textblock_append_c(tb, COLOUR_BLUE,
+					" a single ");
+			} else if (n == 2) {
+				textblock_append_c(tb, COLOUR_BLUE,
+					" one or two ");
+			} else {
+				textblock_append(tb, " up to ");
+				textblock_append_c(tb, COLOUR_BLUE,
+					format("%d ", n));
+			}
+
+			/* Quality */
+			if (rf_has(known_flags, RF_DROP_GREAT)) {
+				textblock_append_c(tb, COLOUR_BLUE,
+					"exceptional ");
+			} else if (rf_has(known_flags, RF_DROP_GOOD)) {
+				textblock_append_c(tb, COLOUR_BLUE, "good ");
+			}
+
+			/* Objects or treasures */
+			if (only_item && only_gold) {
+				textblock_append_c(tb, COLOUR_BLUE,
+					"error%s", PLURAL(n));
+			} else if (only_item && !only_gold) {
+				textblock_append_c(tb, COLOUR_BLUE,
+					"object%s", PLURAL(n));
+			} else if (!only_item && only_gold) {
+				textblock_append_c(tb, COLOUR_BLUE,
+					"treasure%s", PLURAL(n));
+			} else if (!only_item && !only_gold) {
+				textblock_append_c(tb, COLOUR_BLUE,
+					"object%s or treasure%s",
+					PLURAL(n), PLURAL(n));
+			}
 		}
 
-		/* Quality */
-		if (rf_has(known_flags, RF_DROP_GREAT))
-			textblock_append_c(tb, COLOUR_BLUE, "exceptional ");
-		else if (rf_has(known_flags, RF_DROP_GOOD))
-			textblock_append_c(tb, COLOUR_BLUE, "good ");
-
-		/* Objects or treasures */
-		if (only_item && only_gold)
-			textblock_append_c(tb, COLOUR_BLUE, "error%s", PLURAL(n));
-		else if (only_item && !only_gold)
-			textblock_append_c(tb, COLOUR_BLUE, "object%s", PLURAL(n));
-		else if (!only_item && only_gold)
-			textblock_append_c(tb, COLOUR_BLUE, "treasure%s", PLURAL(n));
-		else if (!only_item && !only_gold)
-			textblock_append_c(tb, COLOUR_BLUE, "object%s or treasure%s",
-							   PLURAL(n), PLURAL(n));
+		/*
+		 * Report specific drops (just maximum number, no types,
+		 * does not include quest artifacts).
+		 */
+		if (nspec > 0) {
+			if (n > 0) {
+				textblock_append(tb, " and");
+			}
+			if (nspec == 1) {
+				textblock_append(tb, " a single");
+			} else if (nspec == 2) {
+				textblock_append(tb, " one or two");
+			} else {
+				textblock_append(tb, " up to");
+				textblock_append_c(tb, COLOUR_BLUE,
+					format(" %d", nspec));
+			}
+			textblock_append(tb, " specific items");
+		}
 
 		textblock_append(tb, ".  ");
 	}
@@ -1664,21 +1700,14 @@ void lore_append_attack(textblock *tb, const struct monster_race *race,
 			}
 
 			/* Describe hit chances */
-			long chance = 0, chance2 = 0;
-			// These calculations are based on check_hit() and test_hit();
-			// make sure to keep it in sync
-			chance = (race->blow[i].effect->power + (race->level * 3));
-			if (chance < 9) {
-				chance = 9;
-			}
-			chance2 = 12 + (100 - 12 - 5) * (chance - ((player->state.ac + player->state.to_a) * 2 / 3)) / chance;
-			if (chance2 < 12) {
-				chance2 = 12;
-			}
-			textblock_append_c(tb, COLOUR_L_BLUE, "%d", chance2);
+			random_chance c;
+			hit_chance(&c, chance_of_monster_hit_base(race, race->blow[i].effect),
+				player->state.ac + player->state.to_a);
+			int percent = random_chance_scaled(c, 100);
+			textblock_append_c(tb, COLOUR_L_BLUE, "%d", percent);
 			textblock_append(tb, "%%)");
 
-			total_centidamage += (chance2 * randcalc(dice, 0, AVERAGE));
+			total_centidamage += (percent * randcalc(dice, 0, AVERAGE));
 		}
 
 		described_count++;
@@ -1706,7 +1735,7 @@ struct monster_lore *get_lore(const struct monster_race *race)
 /**
  * Write the monster lore
  */
-void write_lore_entries(ang_file *fff)
+static void write_lore_entries(ang_file *fff)
 {
 	int i, n;
 

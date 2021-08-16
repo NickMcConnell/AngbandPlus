@@ -20,6 +20,7 @@
 #include "cave.h"
 #include "cmd-core.h"
 #include "game-input.h"
+#include "init.h"
 #include "mon-desc.h"
 #include "mon-util.h"
 #include "monster.h"
@@ -422,16 +423,30 @@ bool target_sighted(void)
 #define TS_INITIAL_SIZE	20
 
 /**
- * Return a target set of target_able monsters.
+ * Return a target set of interesting locations including monsters, objects,
+ * traps, and features.
+ *
+ * \mode If mode includes TARGET_KILL, only target_able monsters matching pred
+ *       are included
+ * \pred The monster predicate used to filter monsters (optional)
+ * \restrict_to_panel Restricts the interesting points to the current panel
  */
-struct point_set *target_get_monsters(int mode, monster_predicate pred)
+struct point_set *target_get_monsters(int mode, monster_predicate pred,
+		bool restrict_to_panel)
 {
 	int y, x;
 	int min_y, min_x, max_y, max_x;
 	struct point_set *targets = point_set_new(TS_INITIAL_SIZE);
 
-	/* Get the current panel */
-	get_panel(&min_y, &min_x, &max_y, &max_x);
+	if (restrict_to_panel) {
+		/* Get the current panel */
+		get_panel(&min_y, &min_x, &max_y, &max_x);
+	} else {
+		min_y = player->grid.y - z_info->max_range;
+		max_y = player->grid.y + z_info->max_range + 1;
+		min_x = player->grid.x - z_info->max_range;
+		max_x = player->grid.x + z_info->max_range + 1;
+	}
 
 	/* Scan for targets */
 	for (y = min_y; y < max_y; y++) {
@@ -482,7 +497,7 @@ bool target_set_closest(int mode, monster_predicate pred)
 	target_set_monster(NULL);
 
 	/* Get ready to do targetting */
-	targets = target_get_monsters(mode, pred);
+	targets = target_get_monsters(mode, pred, false);
 
 	/* If nothing was prepared, then return */
 	if (point_set_size(targets) < 1) {

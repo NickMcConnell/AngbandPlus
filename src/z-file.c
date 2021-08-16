@@ -48,7 +48,7 @@
 
 #if defined (WINDOWS) && !defined (CYGWIN)
 # define my_mkdir(path, perms) mkdir(path)
-#elif defined(HAVE_MKDIR) || defined(MACH_O_CARBON) || defined (CYGWIN)
+#elif defined(HAVE_MKDIR) || defined(MACH_O_CARBON) || defined (CYGWIN) || defined(NDS)
 # define my_mkdir(path, perms) mkdir(path, perms)
 #else
 # define my_mkdir(path, perms) false
@@ -325,7 +325,7 @@ bool file_exists(const char *fname)
 	DWORD attrib;
 
 	/* API says we mustn't pass anything larger than MAX_PATH */
-	my_strcpy(path, s, sizeof(path));
+	my_strcpy(path, fname, sizeof(path));
 
 	attrib = GetFileAttributes(path);
 	if (attrib == INVALID_FILE_NAME) return false;
@@ -765,6 +765,7 @@ bool my_dread(ang_dir *dir, char *fname, size_t len)
 		/* Copy the string across, then free it */
 		my_strcpy(fname, dir->first_file, len);
 		mem_free(dir->first_file);
+		dir->first_file = NULL;
 
 		/* Wild success */
 		return true;
@@ -777,8 +778,7 @@ bool my_dread(ang_dir *dir, char *fname, size_t len)
 
 		/* Skip directories */
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ||
-		    strcmp(fd.cFileName, ".") == 0 ||
-		    strcmp(fd.cFileName, "..") == 0)
+		    streq(fd.cFileName, ".") || streq(fd.cFileName, ".."))
 			continue;
 
 		/* Take this one */

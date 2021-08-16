@@ -48,7 +48,7 @@ Equipment list (``e``)
   For the standard body these are WEAPON (weapon), BOW (missile launcher),
   RING (ring) (two of these), AMULET (amulet), LIGHT (light source),
   BODY_ARMOR (armor), CLOAK (cloak), SHIELD (shield), HAT (helmet),
-  GLOVES (gloves), BOOTS (boots).   You must be wielding/wearing certain
+  GLOVES (gloves), BOOTS (boots). You must be wielding/wearing certain
   objects to take advantage of their special powers.
 
 Quiver list (``|``)
@@ -238,7 +238,7 @@ Gain new spells (``G``)
   only cast from two or three of these.  Higher level books are normally found
   only in the dungeon. This command takes some energy.
 
-Cast a spell (``m`` and ``p`` in both keysets)
+Cast a spell (``m`` in both keysets)
   To cast a spell, you must have previously learned the spell and must have
   in your inventory a book from which the spell can be read. Each spell has
   a chance of failure which starts out fairly large but decreases as you
@@ -562,7 +562,7 @@ Help (``?``)
   just text files in a particular format, and that other help files may be
   available on the Net. In particular, there are a variety of spoiler files
   which do not come with the standard distribution. Check the place you got
-  Angband from or ask on the angband forums angband.oook.cz about them.
+  Angband from or ask on the Angband forums, angband.oook.cz , about them.
 
 Identify Symbol (``/``)
   Use this command to find out what a character stands for. For instance,
@@ -621,7 +621,7 @@ control keys, and often, you can disable their special effects.
 
 If you are playing on a UNIX or similar system, then Ctrl-C will interrupt
 Angband. The second and third interrupt will induce a warning bell, and the
-fourth will induce both a warning bell and a special message, ince the
+fourth will induce both a warning bell and a special message, since the
 fifth will quit the game, after killing your character. Also, 'Ctrl-Z'
 will suspend the game, and return you to the original command shell, until
 you resume the game with the 'fg' command. There is now a compilation

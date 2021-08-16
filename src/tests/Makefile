@@ -21,15 +21,16 @@ run : build
 	@./run-tests
 
 %.o : %.c
-	@$(CC) $(CFLAGS) -c -o $@ $^
+	@$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $^
 
 bin/% : %.o ../angband.o test-utils.o unit-test.o
 	@mkdir -p $(shell echo "$$(dirname $@)")
-	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDADD) $(LIBS)
+	@$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $^ $(LDFLAGS) $(LDADD) $(LIBS)
 	@echo "  CC $@"
 
 clean :
-	$(RM) bin/*/* $(TESTOBJS)
+	$(RM) $(TESTOBJS)
+	$(RM) -rf bin
 
 .PHONY : all clean
 .PRECIOUS : %.o

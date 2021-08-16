@@ -73,17 +73,22 @@ static const struct sound_module sound_modules[] =
 static u16b next_sound_id;
 static struct sound_data *sounds;
 
+#ifdef SOUND
 #define SOUND_DATA_ARRAY_INC	10
+#endif
 
 /* These are the hooks installed by the platform sound module */
 static struct sound_hooks hooks;
 
+#ifdef SOUND
 /*
  * If preload_sounds is true, sounds are loaded immediately when assigned to
  * a message. Otherwise, each sound is only loaded when first played.
  */
 static bool preload_sounds = false;
+#endif
 
+#ifdef SOUND
 static struct sound_data *grow_sound_list(void)
 {
 	int new_size;
@@ -104,6 +109,7 @@ static struct sound_data *grow_sound_list(void)
 
 	return sounds;
 }
+#endif
 
 /**
  * Iterate through all the sound types supporting by the platform's sound
@@ -153,6 +159,7 @@ static void load_sound(struct sound_data *sound_data)
 	}
 }
 
+#ifdef SOUND
 /**
  * Parse a string of sound names provided by the preferences parser and:
  *  - Allocate a unique 'sound id' to any new sounds and add them to the
@@ -160,7 +167,7 @@ static void load_sound(struct sound_data *sound_data)
  *  - Add each sound assigned to a message type to that message types
  *    'sound map
  */
-void message_sound_define(u16b message_id, const char *sounds_str)
+static void message_sound_define(u16b message_id, const char *sounds_str)
 {
 	char *search;
 	char *str;
@@ -201,7 +208,7 @@ void message_sound_define(u16b message_id, const char *sounds_str)
 
 		while ((!found) && (i < next_sound_id)) {
 			if (sounds[i].hash == hash) {
-				if (!strcmp(sounds[i].name, cur_token)) {
+				if (streq(sounds[i].name, cur_token)) {
 					found = true;
 					sound_id = i;
 				}
@@ -251,8 +258,10 @@ void message_sound_define(u16b message_id, const char *sounds_str)
 
 	string_free(str);
 }
+#endif
 
-enum parser_error parse_prefs_sound(struct parser *p)
+#ifdef SOUND
+static enum parser_error parse_prefs_sound(struct parser *p)
 {
 	int msg_index;
 	const char *type;
@@ -274,6 +283,7 @@ enum parser_error parse_prefs_sound(struct parser *p)
 
 	return PARSE_ERROR_NONE;
 }
+#endif
 
 errr register_sound_pref_parser(struct parser *p)
 {
@@ -314,33 +324,6 @@ static void play_sound(game_event_type type, game_event_data *data, void *user)
 	}
 }
 
-/*
- * Shut down the sound system and free resources.
- */
-static void close_audio(void)
-{
-	int i;
-
-	if (0 == next_sound_id)
-		return;	/* Never opened */
-
-	/*
-	 * Ask the platforms sound module to free resources for each
-	 * sound
-	 */
-	if (hooks.unload_sound_hook)
-		for (i = 0; i < next_sound_id; i++) {
-			hooks.unload_sound_hook(&sounds[i]);
-			string_free(sounds[i].name);
-		}
-
-	mem_free(sounds);
-
-	/* Close the platform's sound module */
-	if (hooks.close_audio_hook)
-		hooks.close_audio_hook();
-}
-
 
 /**
  * Init the sound "module".
@@ -349,6 +332,9 @@ errr init_sound(const char *soundstr, int argc, char **argv)
 {
 	int i = 0;
 	bool done = false;
+
+	/* Release resources previously allocated if called multiple times. */
+	close_sound();
 
 	/* Try the modules in the order specified by sound_modules[] */
 	while (sound_modules[i].init && !done) {
@@ -371,10 +357,39 @@ errr init_sound(const char *soundstr, int argc, char **argv)
 
 	/* Enable sound */
 	event_add_handler(EVENT_SOUND, play_sound, NULL);
-	atexit(close_audio);
 
 	/* Success */
 	return (0);
+}
+
+/**
+ * Shut down the sound "module".
+ */
+void close_sound(void)
+{
+	if (0 == next_sound_id) return;	/* Never opened */
+
+	/*
+	 * Ask the platforms sound module to free resources for each
+	 * sound
+	 */
+	if (hooks.unload_sound_hook) {
+		int i;
+
+		for (i = 0; i < next_sound_id; i++) {
+			hooks.unload_sound_hook(&sounds[i]);
+			string_free(sounds[i].name);
+		}
+	}
+
+	mem_free(sounds);
+	sounds = NULL;
+	next_sound_id = 0;
+
+	/* Close the platform's sound module */
+	if (hooks.close_audio_hook) {
+		hooks.close_audio_hook();
+	}
 }
 
 /**

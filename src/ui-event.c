@@ -165,6 +165,7 @@ void keypress_from_text(struct keypress *buf, size_t len, const char *str)
 				case '\\': STORE(buf, cur++, mods, '\\'); break;
 				case '^': STORE(buf, cur++, mods, '^'); break;
 				case '[': STORE(buf, cur++, mods, '['); break;
+				case '{': STORE(buf, cur++, mods, '{'); break;
 				default: STORE(buf, cur++, mods, *str); break;
 			}
 
@@ -276,6 +277,7 @@ void keypress_to_text(char *buf, size_t len, const struct keypress *src,
 				}
 				case '^': strnfcat(buf, len, &end, "\\^"); break;
 				case '[': strnfcat(buf, len, &end, "\\["); break;
+				case '{': strnfcat(buf, len, &end, "\\{"); break;
 				default: {
 					if (i < 127)
 						strnfcat(buf, len, &end, "%c", i);
@@ -349,4 +351,29 @@ bool char_matches_key(wchar_t c, keycode_t key)
 	k[0] = (char)key;
 	text_mbstowcs(keychar, k, 1);
 	return (c == keychar[0]);
+}
+
+/**
+ * Check if a UI event matches a certain keycode ('a', 'b', etc)
+ */
+bool event_is_key(ui_event e, keycode_t key)
+{
+	return e.type == EVT_KBRD && e.key.code == key;
+}
+
+/**
+ * Check if a UI event matches a certain mouse button (1, 2, 3)
+ */
+bool event_is_mouse(ui_event e, byte button)
+{
+	return e.type == EVT_MOUSE && e.mouse.button == button;
+}
+
+/**
+ * Check if a UI event matches a certain mouse button (1, 2, 3) and has
+ * specific modifiers (KC_MOD_*)
+ */
+bool event_is_mouse_m(ui_event e, byte button, byte mods)
+{
+	return e.type == EVT_MOUSE && e.mouse.button == button && (e.mouse.mods & mods);
 }

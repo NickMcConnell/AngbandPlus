@@ -174,7 +174,7 @@ static void release_char_sheet_config(void)
 static bool check_for_two_categories(const struct ui_entry* entry,
 	void *closure)
 {
-	char **categories = closure;
+	const char **categories = closure;
 
 	return ui_entry_has_category(entry, categories[0]) &&
 		ui_entry_has_category(entry, categories[1]);
@@ -183,13 +183,13 @@ static bool check_for_two_categories(const struct ui_entry* entry,
 
 static void configure_char_sheet(void)
 {
-	char* region_categories[] = {
+	const char* region_categories[] = {
 		"resistances",
 		"abilities",
 		"hindrances",
 		"modifiers"
 	};
-	char* test_categories[2];
+	const char* test_categories[2];
 	struct ui_entry_iterator* ui_iter;
 	int i, n;
 
@@ -1068,7 +1068,7 @@ void write_character_dump(ang_file *fff)
 		if (!obj) continue;
 
 		object_desc(o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
-		file_putf(fff, "%c) %s\n", gear_to_label(obj), o_name);
+		file_putf(fff, "%c) %s\n", gear_to_label(player, obj), o_name);
 		object_info_chardump(fff, obj, 5, 72);
 	}
 	file_putf(fff, "\n\n");
@@ -1080,7 +1080,7 @@ void write_character_dump(ang_file *fff)
 		if (!obj) break;
 
 		object_desc(o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
-		file_putf(fff, "%c) %s\n", gear_to_label(obj), o_name);
+		file_putf(fff, "%c) %s\n", gear_to_label(player, obj), o_name);
 		object_info_chardump(fff, obj, 5, 72);
 	}
 	file_putf(fff, "\n\n");
@@ -1092,7 +1092,7 @@ void write_character_dump(ang_file *fff)
 		if (!obj) continue;
 
 		object_desc(o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
-		file_putf(fff, "%c) %s\n", gear_to_label(obj), o_name);
+		file_putf(fff, "%c) %s\n", gear_to_label(player, obj), o_name);
 		object_info_chardump(fff, obj, 5, 72);
 	}
 	file_putf(fff, "\n\n");

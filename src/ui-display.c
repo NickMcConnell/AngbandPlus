@@ -550,6 +550,22 @@ static void prt_race(int row, int col) {
 		prt_field(player->race->name, row, col);
 	}
 }
+
+static int prt_race_class_short(int row, int col)
+{
+	char buf[512] = "";
+
+	if (player_is_shapechanged(player)) return 0;
+
+	strnfmt(buf, sizeof(buf), "%s %s",
+		player->race->name,
+		player->class->title[(player->lev - 1) / 5]);
+
+	c_put_str(COLOUR_L_GREEN, buf, row, col);
+
+	return strlen(buf)+1;
+}
+
 static void prt_class(int row, int col) {
 	if (player_is_shapechanged(player)) {
 		prt_field("", row, col);
@@ -759,6 +775,8 @@ static void update_topbar(game_event_type type, game_event_data *data,
 	col += prt_ac_short(row, col);
 
 	col += prt_gold_short(row, col);
+
+	col += prt_race_class_short(row, col);
 
 	++row;
 	col = 0;
@@ -1137,7 +1155,7 @@ static size_t prt_moves(int row, int col)
 /**
  * Get the longest relevant terrain or trap name for prt_terrain()
  */
-int longest_terrain_name(void)
+static int longest_terrain_name(void)
 {
 	size_t i, max = 0;
 	for (i = 0; i < z_info->trap_max; i++) {
@@ -1272,13 +1290,8 @@ static status_f *status_handlers[] =
   prt_descent, prt_state, prt_study, prt_tmd, prt_dtrap, prt_terrain };
 
 
-/**
- * Print the status line.
- */
-static void update_statusline(game_event_type type, game_event_data *data, void *user)
+static void update_statusline_aux(int row, int col)
 {
-	int row = Term->hgt - 1;
-	int col = COL_MAP;
 	size_t i;
 
 	/* Clear the remainder of the line */
@@ -1287,6 +1300,24 @@ static void update_statusline(game_event_type type, game_event_data *data, void 
 	/* Display those which need redrawing */
 	for (i = 0; i < N_ELEMENTS(status_handlers); i++)
 		col += status_handlers[i](row, col);
+}
+
+/**
+ * Print the status line.
+ */
+static void update_statusline(game_event_type type, game_event_data *data, void *user)
+{
+	int row = Term->hgt - 1;
+
+	if (Term->sidebar_mode == SIDEBAR_NONE) {
+		return;
+	}
+
+	if (Term->sidebar_mode == SIDEBAR_TOP) {
+		row = 3;
+	}
+
+	update_statusline_aux(row, COL_MAP);
 }
 
 
@@ -1325,6 +1356,7 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
 
 		int ky, kx;
 		int vy, vx;
+		int clipy;
 
 		/* Location relative to panel */
 		ky = data->point.y - t->offset_y;
@@ -1338,6 +1370,9 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
 			/* Location in window */
 			vy = tile_height * ky + ROW_MAP;
 			vx = tile_width * kx + COL_MAP;
+
+			/* Protect the status line against modification. */
+			clipy = ROW_MAP + SCREEN_ROWS;
 		} else {
 			/* Verify location */
 			if ((ky < 0) || (ky >= t->hgt / tile_height)) return;
@@ -1346,6 +1381,9 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
 			/* Location in window */
 			vy = tile_height * ky;
 			vx = tile_width * kx;
+
+			/* All the rows may be used for the map. */
+			clipy = t->hgt;
 		}
 
 
@@ -1359,7 +1397,7 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
 #endif
 
 		if ((tile_width > 1) || (tile_height > 1))
-			Term_big_queue_char(t, vx, vy, a, c, COLOUR_WHITE, L' ');
+			Term_big_queue_char(t, vx, vy, clipy, a, c, COLOUR_WHITE, L' ');
 	}
 
 	/* Refresh the main screen unless the map needs to center */
@@ -1909,7 +1947,7 @@ static void update_minimap_subwindow(game_event_type type,
 		Term_activate(t);
 
 		/* If whole-map redraw, clear window first. */
-		if (flags->needs_redraw	|| tile_width > 1 || tile_height > 1)
+		if (flags->needs_redraw)
 			Term_clear();
 
 		/* Redraw map */
@@ -1984,10 +2022,15 @@ static void update_topbar_subwindow(game_event_type type,
 	term *old = Term;
 	term *inv_term = user;
 
+	/* Check sanity */
+	if (!(player && player->race && player->class && cave)) return;
+
 	/* Activate */
 	Term_activate(inv_term);
 
 	update_topbar(type, data, user, 0);
+
+	update_statusline_aux(2, 0);
 
 	Term_fresh();
 	
@@ -2175,10 +2218,18 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 
 		case PW_PLAYER_3:
 		{
+			/* Topbar */
 			set_register_or_deregister(player_events, 
 						   N_ELEMENTS(player_events),						 
 						   update_topbar_subwindow,
 						   angband_term[win_idx]);
+
+			/* Also update status */
+			set_register_or_deregister(statusline_events,
+						   N_ELEMENTS(statusline_events),
+						   update_topbar_subwindow,
+						   angband_term[win_idx]);
+
 			break;
 		}
 
@@ -2510,7 +2561,7 @@ static void see_floor_items(game_event_type type, game_event_data *data,
 	int floor_max = z_info->floor_size;
 	struct object **floor_list = mem_zalloc(floor_max * sizeof(*floor_list));
 	int floor_num = 0;
-	bool blind = ((player->timed[TMD_BLIND]) || (no_light()));
+	bool blind = ((player->timed[TMD_BLIND]) || (no_light(player)));
 
 	const char *p = "see";
 	bool can_pickup = false;

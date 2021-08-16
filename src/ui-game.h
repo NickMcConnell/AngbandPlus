@@ -25,11 +25,13 @@
 
 extern bool arg_wizard;
 extern char savefile[1024];
+extern void (*reinit_hook)(void);
 
 void cmd_init(void);
 unsigned char cmd_lookup_key(cmd_code lookup_cmd, int mode);
 unsigned char cmd_lookup_key_unktrl(cmd_code lookup_cmd, int mode);
 cmd_code cmd_lookup(unsigned char key, int mode);
+size_t cmd_list_lookup_by_name(const char *name);
 void textui_process_command(void);
 errr textui_get_cmd(cmd_context context);
 void check_for_player_interrupt(game_event_type type, game_event_data *data,

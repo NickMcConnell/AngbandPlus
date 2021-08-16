@@ -46,7 +46,6 @@
 #include "ui-player.h"
 #include "ui-prefs.h"
 #include "ui-target.h"
-#include "wizard.h"
 
 
 
@@ -169,30 +168,6 @@ void do_cmd_version(void)
 }
 
 /**
- * Verify use of "debug" mode
- */
-void textui_cmd_debug(void)
-{
-	/* Ask first time */
-	if (!(player->noscore & NOSCORE_DEBUG)) {
-		/* Mention effects */
-		msg("You are about to use the dangerous, unsupported, debug commands!");
-		msg("Your machine may crash, and your savefile may become corrupted!");
-		event_signal(EVENT_MESSAGE_FLUSH);
-
-		/* Verify request */
-		if (!get_check("Are you sure you want to use the debug commands? "))
-			return;
-
-		/* Mark savefile */
-		player->noscore |= NOSCORE_DEBUG;
-	}
-
-	/* Okay */
-	get_debug_command();
-}
-
-/**
  * Verify the suicide command
  */
 void textui_cmd_suicide(void)
@@ -304,7 +279,7 @@ static void write_html_escape_char(ang_file *fp, char *mbbuf, wchar_t c)
 
 static void screenshot_term_query(int wid, int hgt, int x, int y, int *a, wchar_t *c)
 {
-	if (y < ROW_MAP || y == hgt - 1 || x < COL_MAP) {
+	if (y < ROW_MAP || y >= hgt - ROW_BOTTOM_MAP || x < COL_MAP) {
 		/* Record everything outside the map. */
 		(void) Term_what(x, y, a, c);
 	} else {
@@ -315,7 +290,7 @@ static void screenshot_term_query(int wid, int hgt, int x, int y, int *a, wchar_
 		int srcx = (x - COL_MAP) * tile_width + COL_MAP;
 		int srcy = (y - ROW_MAP) * tile_height + ROW_MAP;
 
-		if (srcx < wid && srcy < hgt - 1) {
+		if (srcx < wid && srcy < hgt - ROW_BOTTOM_MAP) {
 			(void) Term_what(srcx, srcy, a, c);
 		} else {
 			*a = Term->attr_blank;
@@ -345,7 +320,7 @@ void html_screenshot(const char *path, int mode)
 	const char *change_color_fmt = (mode == 0) ?
 					"</font><font color=\"#%02X%02X%02X\" style=\"background-color: #%02X%02X%02X\">"
 					: "[/COLOR][COLOR=\"#%02X%02X%02X\"]";
-	const char *close_color_fmt = mode ==  0 ? "</font>" : "[/COLOR]";
+	const char *close_color_str = mode ==  0 ? "</font>" : "[/COLOR]";
 
 	char *mbbuf;
 	ang_file *fp;
@@ -411,7 +386,7 @@ void html_screenshot(const char *path, int mode)
 				} else if (fg_colour == COLOUR_WHITE &&
 						   bg_colour == COLOUR_DARK) {
 					/* From another color to the default white */
-					file_putf(fp, close_color_fmt);
+					file_putf(fp, "%s", close_color_str);
 				} else {
 					/* Change colors */
 					file_putf(fp, change_color_fmt,
@@ -447,7 +422,7 @@ void html_screenshot(const char *path, int mode)
 	}
 
 	/* Close the last font-color tag if necessary */
-	if (oa != COLOUR_WHITE) file_putf(fp, close_color_fmt);
+	if (oa != COLOUR_WHITE) file_putf(fp, "%s", close_color_str);
 
 	if (mode == 0) {
 		file_putf(fp, "</pre>\n");

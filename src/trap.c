@@ -20,6 +20,7 @@
 #include "cave.h"
 #include "effects.h"
 #include "init.h"
+#include "mon-attack.h"
 #include "mon-util.h"
 #include "obj-knowledge.h"
 #include "player-attack.h"
@@ -470,17 +471,6 @@ void square_memorize_traps(struct chunk *c, struct loc grid)
 }
 
 /**
- * Determine if a trap affects the player.
- * Always miss 5% of the time, Always hit 5% of the time.
- * Otherwise, match trap power against player armor.
- */
-bool trap_check_hit(int power)
-{
-	return test_hit(power, player->state.ac + player->state.to_a, true);
-}
-
-
-/**
  * Hit a trap. 
  */
 extern void hit_trap(struct loc grid, int delayed)
@@ -516,7 +506,7 @@ extern void hit_trap(struct loc grid, int delayed)
 
 		/* Give a message */
 		if (trap->kind->msg)
-			msg(trap->kind->msg);
+			msg("%s", trap->kind->msg);
 
 		/* Test for save due to flag */
 		for (flag = of_next(trap->kind->save_flags, FLAG_START);
@@ -528,7 +518,8 @@ extern void hit_trap(struct loc grid, int delayed)
 			}
 
 		/* Test for save due to armor */
-		if (trf_has(trap->kind->flags, TRF_SAVE_ARMOR) && !trap_check_hit(125))
+		if (trf_has(trap->kind->flags, TRF_SAVE_ARMOR)
+			&& !check_hit(player, 125))
 			saved = true;
 
 		/* Test for save due to saving throw */
@@ -539,10 +530,10 @@ extern void hit_trap(struct loc grid, int delayed)
 		/* Save, or fire off the trap */
 		if (saved) {
 			if (trap->kind->msg_good)
-				msg(trap->kind->msg_good);
+				msg("%s", trap->kind->msg_good);
 		} else {
 			if (trap->kind->msg_bad)
-				msg(trap->kind->msg_bad);
+				msg("%s", trap->kind->msg_bad);
 			effect = trap->kind->effect;
 			effect_do(effect, source_trap(trap), NULL, &ident, false, 0, 0, 0, NULL);
 
@@ -552,7 +543,7 @@ extern void hit_trap(struct loc grid, int delayed)
 			/* Do any extra effects */
 			if (trap->kind->effect_xtra && one_in_(2)) {
 				if (trap->kind->msg_xtra)
-					msg(trap->kind->msg_xtra);
+					msg("%s", trap->kind->msg_xtra);
 				effect = trap->kind->effect_xtra;
 				effect_do(effect, source_trap(trap), NULL, &ident, false,
 						  0, 0, 0, NULL);
@@ -582,11 +573,17 @@ extern void hit_trap(struct loc grid, int delayed)
 
 		/* Trap becomes visible (always XXX) */
 		trf_on(trap->flags, TRF_VISIBLE);
-		square_memorize(cave, grid);
 	}
 
     /* Verify traps (remove marker if appropriate) */
-    (void)square_verify_trap(cave, grid, 0);
+    if (square_verify_trap(cave, grid, 0)) {
+	/* At least one trap left.  Memorize the visible ones and the grid. */
+	square_memorize_traps(cave, grid);
+	square_memorize(cave, grid);
+    }
+    if (square_isseen(cave, grid)) {
+	square_light_spot(cave, grid);
+    }
 }
 
 /**

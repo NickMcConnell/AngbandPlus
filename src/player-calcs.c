@@ -30,6 +30,7 @@
 #include "obj-gear.h"
 #include "obj-ignore.h"
 #include "obj-knowledge.h"
+#include "obj-pile.h"
 #include "obj-power.h"
 #include "obj-tval.h"
 #include "obj-util.h"
@@ -1024,6 +1025,8 @@ void calc_inventory(struct player_upkeep *upkeep, struct object *gear,
 {
 	int i;
 	int old_inven_cnt = upkeep->inven_cnt;
+	int n_stack_split = 0;
+	int n_pack_remaining = z_info->pack_size - pack_slots_used(player);
 	struct object **old_quiver = mem_zalloc(z_info->quiver_size *
 												sizeof(struct object *));
 	struct object **old_pack = mem_zalloc(z_info->pack_size *
@@ -1048,29 +1051,59 @@ void calc_inventory(struct player_upkeep *upkeep, struct object *gear,
 
 		/* Find the first quiver object with the correct label */
 		for (current = gear; current; current = current->next) {
-			bool throwing = of_has(current->flags, OF_THROWING);
-
-			/* Only allow ammo and throwing weapons */
-			if (!(tval_is_ammo(current) || throwing)) continue;
-
 			/* Allocate inscribed objects if it's the right slot */
-			if (current->note) {
-				const char *s = strchr(quark_str(current->note), '@');
-				if (s && (s[1] == 'f' || s[1] == 'v')) {
-					int choice = s[2] - '0';
+			if (preferred_quiver_slot(current) == i) {
+				int mult = tval_is_ammo(current) ?
+					1 : z_info->thrown_quiver_mult;
+				struct object *to_quiver;
 
-					/* Correct slot, fill it straight away */
-					if (choice == i) {
-						int mult = tval_is_ammo(current) ? 1 : 5;
-						upkeep->quiver[i] = current;
-						upkeep->quiver_cnt += current->number * mult;
+				/*
+				 * Split the stack if necessary.  Don't allow
+				 * splitting if it could result in overfilling
+				 * the pack by more than one slot.
+				 */
+				if (current->number * mult <=
+						z_info->quiver_slot_size) {
+					to_quiver = current;
+				} else {
+					int nsplit = z_info->quiver_slot_size /
+						mult;
 
-						/* In the quiver counts as worn */
-						object_learn_on_wield(player, current);
-
-						/* Done with this slot */
-						break;
+					assert(nsplit < current->number);
+					if (nsplit > 0 && n_stack_split <=
+							n_pack_remaining) {
+						/*
+						 * Split off the portion that
+						 * go to the pack.  Since the
+						 * stack in the quiver is
+						 * earlier in the gear list
+						 * it will prefer to remain
+						 * in the quiver in future
+						 * calls to calc_inventory()
+						 * and will be the preferential
+						 * destination for merges in
+						 * combine_pack().
+						 */
+						to_quiver = current;
+						gear_insert_end(object_split(
+							current, current->number
+							- nsplit));
+						++n_stack_split;
+					} else {
+						to_quiver = NULL;
 					}
+				}
+
+				if (to_quiver) {
+					upkeep->quiver[i] = to_quiver;
+					upkeep->quiver_cnt +=
+						to_quiver->number * mult;
+
+					/* In the quiver counts as worn */
+					object_learn_on_wield(player, to_quiver);
+
+					/* Done with this slot */
+					break;
 				}
 			}
 		}
@@ -1078,7 +1111,7 @@ void calc_inventory(struct player_upkeep *upkeep, struct object *gear,
 
 	/* Now fill the rest of the slots in order */
 	for (i = 0; i < z_info->quiver_size; i++) {
-		struct object *current, *first = NULL;
+		struct object *current, *to_quiver, *first = NULL;
 		int j;
 
 		/* If the slot is full, move on */
@@ -1106,12 +1139,30 @@ void calc_inventory(struct player_upkeep *upkeep, struct object *gear,
 		/* Stop looking if there's nothing left */
 		if (!first) break;
 
-		/* If we have an item, slot it */
-		upkeep->quiver[i] = first;
-		upkeep->quiver_cnt += first->number;
+		/* If we have an item, slot it, splitting if needed, to fit. */
+		if (first->number <= z_info->quiver_slot_size) {
+			to_quiver = first;
+		} else if (z_info->quiver_slot_size > 0 &&
+				n_stack_split <= n_pack_remaining) {
+			/*
+			 * As above, split off the portion that goes to the
+			 * pack.
+			 */
+			to_quiver = first;
+			gear_insert_end(object_split(first,
+				first->number - z_info->quiver_slot_size));
+			++n_stack_split;
+		} else {
+			to_quiver = NULL;
+		}
 
-		/* In the quiver counts as worn */
-		object_learn_on_wield(player, first);
+		if (to_quiver) {
+			upkeep->quiver[i] = to_quiver;
+			upkeep->quiver_cnt += to_quiver->number;
+
+			/* In the quiver counts as worn */
+			object_learn_on_wield(player, to_quiver);
+		}
 	}
 
 	/* Note reordering */
@@ -1452,11 +1503,11 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
 		struct object *obj_local = slot_object(p, i);
 
 		/* Ignore non-armor */
-		if (slot_type_is(i, EQUIP_WEAPON)) continue;
-		if (slot_type_is(i, EQUIP_BOW)) continue;
-		if (slot_type_is(i, EQUIP_RING)) continue;
-		if (slot_type_is(i, EQUIP_AMULET)) continue;
-		if (slot_type_is(i, EQUIP_LIGHT)) continue;
+		if (slot_type_is(p, i, EQUIP_WEAPON)) continue;
+		if (slot_type_is(p, i, EQUIP_BOW)) continue;
+		if (slot_type_is(p, i, EQUIP_RING)) continue;
+		if (slot_type_is(p, i, EQUIP_AMULET)) continue;
+		if (slot_type_is(p, i, EQUIP_LIGHT)) continue;
 
 		/* Add weight */
 		if (obj_local)
@@ -1685,6 +1736,32 @@ int weight_remaining(struct player *p)
 
 
 /**
+ * Adjust a value by a relative factor of the absolute value.  Mimics the
+ * inline calculations of value = (value * (den + num)) / num when value is
+ * positive.
+ * \param v Is a pointer to the value to adjust.
+ * \param num Is the numerator of the relative factor.  Use a negative value
+ * for a decrease in the value, and a positive value for an increase.
+ * \param den Is the denominator for the relative factor.  Must be positive.
+ * \param minv Is the minimum absolute value of v to use when computing the
+ * adjustment; use zero for this to get a pure relative adjustment.  Must be
+ * be non-negative.
+ */
+static void adjust_skill_scale(int *v, int num, int den, int minv)
+{
+	if (num >= 0) {
+		*v += (MAX(minv, ABS(*v)) * num) / den;
+	} else {
+		/*
+		 * To mimic what (value * (den * num)) / num would give for
+		 * positive value, need to round up the adjustment.
+		 */
+		*v -= (MAX(minv, ABS(*v)) * -num + den - 1) / den;
+	}
+}
+
+
+/**
  * Calculate the effect of a shapechange on player state
  */
 static void calc_shapechange(struct player_state *state,
@@ -1896,7 +1973,8 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 			state->ac += obj->ac;
 			if (!known_only || obj->known->to_a)
 				state->to_a += obj->to_a;
-			if (!slot_type_is(i, EQUIP_WEAPON) && !slot_type_is(i, EQUIP_BOW)) {
+			if (!slot_type_is(p, i, EQUIP_WEAPON)
+					&& !slot_type_is(p, i, EQUIP_BOW)) {
 				if (!known_only || obj->known->to_h) {
 					state->to_h += obj->to_h;
 				}
@@ -1948,11 +2026,6 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	if (player_has(p, PF_EVIL) && character_dungeon) {
 		state->el_info[ELEM_NETHER].res_level = 1;
 		state->el_info[ELEM_HOLY_ORB].res_level = -1;
-	}
-
-	/* Combat Regeneration */
-	if (player_has(p, PF_COMBAT_REGEN) && character_dungeon) {
-		of_on(state->flags, OF_IMPAIR_HP);
 	}
 
 	/* Calculate the various stat values */
@@ -2011,18 +2084,18 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 			state->to_h -= lack;
 			state->to_d -= lack;
 			if ((lack > 10) && (lack <= 15)) {
-				state->skills[SKILL_DEVICE] *= 9;
-				state->skills[SKILL_DEVICE] /= 10;
+				adjust_skill_scale(&state->skills[SKILL_DEVICE],
+					-1, 10, 0);
 			} else if ((lack > 15) && (lack <= 18)) {
-				state->skills[SKILL_DEVICE] *= 8;
-				state->skills[SKILL_DEVICE] /= 10;
+				adjust_skill_scale(&state->skills[SKILL_DEVICE],
+					-1, 5, 0);
 				state->skills[SKILL_DISARM_PHYS] *= 9;
 				state->skills[SKILL_DISARM_PHYS] /= 10;
 				state->skills[SKILL_DISARM_MAGIC] *= 9;
 				state->skills[SKILL_DISARM_MAGIC] /= 10;
 			} else if (lack > 18) {
-				state->skills[SKILL_DEVICE] *= 7;
-				state->skills[SKILL_DEVICE] /= 10;
+				adjust_skill_scale(&state->skills[SKILL_DEVICE],
+					-3, 10, 0);
 				state->skills[SKILL_DISARM_PHYS] *= 8;
 				state->skills[SKILL_DISARM_PHYS] /= 10;
 				state->skills[SKILL_DISARM_MAGIC] *= 8;
@@ -2041,14 +2114,14 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	if (player_timed_grade_eq(p, TMD_STUN, "Heavy Stun")) {
 		state->to_h -= 20;
 		state->to_d -= 20;
-		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 8 / 10;
+		adjust_skill_scale(&state->skills[SKILL_DEVICE], -1, 5, 0);
 		if (update) {
 			p->timed[TMD_FASTCAST] = 0;
 		}
 	} else if (player_timed_grade_eq(p, TMD_STUN, "Stun")) {
 		state->to_h -= 5;
 		state->to_d -= 5;
-		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 9 / 10;
+		adjust_skill_scale(&state->skills[SKILL_DEVICE], -1, 10, 0);
 		if (update) {
 			p->timed[TMD_FASTCAST] = 0;
 		}
@@ -2059,7 +2132,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	if (p->timed[TMD_BLESSED]) {
 		state->to_a += 5;
 		state->to_h += 10;
-		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 105 / 100;
+		adjust_skill_scale(&state->skills[SKILL_DEVICE], 1, 20, 0);
 	}
 	if (p->timed[TMD_SHIELD]) {
 		state->to_a += 50;
@@ -2070,12 +2143,12 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	}
 	if (p->timed[TMD_HERO]) {
 		state->to_h += 12;
-		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 105 / 100;
+		adjust_skill_scale(&state->skills[SKILL_DEVICE], 1, 20, 0);
 	}
 	if (p->timed[TMD_SHERO]) {
 		state->skills[SKILL_TO_HIT_MELEE] += 75;
 		state->to_a -= 10;
-		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 9 / 10;
+		adjust_skill_scale(&state->skills[SKILL_DEVICE], -1, 10, 0);
 	}
 	if (p->timed[TMD_FAST] || p->timed[TMD_SPRINT]) {
 		state->speed += 10;
@@ -2105,16 +2178,16 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 			state->el_info[ELEM_POIS].res_level++;
 	}
 	if (p->timed[TMD_CONFUSED]) {
-		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 75 / 100;
+		adjust_skill_scale(&state->skills[SKILL_DEVICE], -1, 4, 0);
 	}
 	if (p->timed[TMD_AMNESIA]) {
-		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 8 / 10;
+		adjust_skill_scale(&state->skills[SKILL_DEVICE], -1, 5, 0);
 	}
 	if (p->timed[TMD_POISONED]) {
-		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 95 / 100;
+		adjust_skill_scale(&state->skills[SKILL_DEVICE], -1, 20, 0);
 	}
 	if (p->timed[TMD_IMAGE]) {
-		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 8 / 10;
+		adjust_skill_scale(&state->skills[SKILL_DEVICE], -1, 5, 0);
 	}
 	if (p->timed[TMD_BLOODLUST]) {
 		state->to_d += p->timed[TMD_BLOODLUST] / 2;
@@ -2128,7 +2201,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	if (of_has(state->flags, OF_AFRAID)) {
 		state->to_h -= 20;
 		state->to_a += 8;
-		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 95 / 100;
+		adjust_skill_scale(&state->skills[SKILL_DEVICE], -1, 20, 0);
 	}
 
 	/* Analyze weight */
@@ -2188,7 +2261,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		if (!state->heavy_shoot) {
 			state->num_shots += extra_shots;
 			state->ammo_mult += extra_might;
-			if (player_has(p, PF_FAST_SHOT) && (state->ammo_tval == TV_ARROW)) {
+			if (player_has(p, PF_FAST_SHOT)) {
 				state->num_shots += p->lev / 3;
 			}
 		}
@@ -2308,6 +2381,11 @@ static void update_bonuses(struct player *p)
 	if (p->state.cur_light != state.cur_light) {
 		/* Update the visuals */
 		p->upkeep->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+	}
+
+	/* Notice changes to the weight limit. */
+	if (weight_limit(&p->state) != weight_limit(&state)) {
+		p->upkeep->redraw |= (PR_INVEN);
 	}
 
 	/* Hack -- handle partial mode */

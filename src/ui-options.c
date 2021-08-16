@@ -28,7 +28,6 @@
 #include "object.h"
 #include "player-calcs.h"
 #include "ui-display.h"
-#include "ui-help.h"
 #include "ui-input.h"
 #include "ui-keymap.h"
 #include "ui-knowledge.h"
@@ -171,10 +170,6 @@ static bool option_toggle_handle(struct menu *m, const ui_event *event,
 				m->flags == MN_DBL_TAP) {
 			options_reset_birth(&player->opts);
 			menu_refresh(m, false);
-		} else if (event->key.code == '?') {
-			screen_save();
-			show_file(format("option.txt#%s", option_name(oid)), NULL, 0, 0);
-			screen_load();
 		} else {
 			return false;
 		}
@@ -212,19 +207,19 @@ static void option_toggle_menu(const char *name, int page)
 	struct menu *m = menu_new(MN_SKIN_SCROLL, &option_toggle_iter);
 
 	/* for all menus */
-	m->prompt = "Set option (y/n/t), '?' for information";
-	m->cmd_keys = "?YyNnTt";
+	m->prompt = "Set option (y/n/t), select with movement keys or index";
+	m->cmd_keys = "YyNnTt";
 	m->selections = "abcdefghijklmopqrsuvwxz";
 	m->flags = MN_DBL_TAP;
 
 	/* We add 10 onto the page amount to indicate we're at birth */
 	if (page == OPT_PAGE_BIRTH) {
-		m->prompt = "You can only modify these options at character birth. '?' for information";
-		m->cmd_keys = "?";
+		m->prompt = "You can only modify these options at character birth.";
+		m->cmd_keys = "";
 		m->flags = MN_NO_TAGS;
 	} else if (page == OPT_PAGE_BIRTH + 10) {
-		m->prompt = "Set option (y/n/t), 's' to save, 'r' to restore, 'm' to reset, '?' for help";
-		m->cmd_keys = "?YyNnTtSsRrMm";
+		m->prompt = "Set option (y/n/t), 's' to save, 'r' to restore, 'm' to reset";
+		m->cmd_keys = "YyNnTtSsRrMm";
 		page -= 10;
 	}
 
@@ -1382,7 +1377,7 @@ static int cmp_ignore(const void *a, const void *b)
 /**
  * Determine if an item is a valid choice
  */
-int quality_validity(struct menu *menu, int oid)
+static int quality_validity(struct menu *menu, int oid)
 {
 	return oid ? 1 : 0;
 }
@@ -1469,7 +1464,7 @@ static bool quality_action(struct menu *m, const ui_event *event, int oid)
 /**
  * Display quality ignore menu.
  */
-static void quality_menu(void *unused, const char *also_unused)
+static void quality_menu(const char *unused, int also_unused)
 {
 	struct menu menu;
 	menu_iter menu_f = { NULL, quality_validity, quality_display,
@@ -1748,7 +1743,7 @@ static struct
 {
 	char tag;
 	const char *name;
-	void (*action)(); /* this is a nasty hack */
+	void (*action)(const char*, int);
 } extra_item_options[] = {
 	{ 'Q', "Quality ignoring options", quality_menu },
 	{ 'E', "Ego ignoring options", ego_menu},
@@ -1824,7 +1819,7 @@ static bool handle_options_item(struct menu *menu, const ui_event *event,
 		} else {
 			oid = oid - (int)N_ELEMENTS(sval_dependent) - 1;
 			assert((size_t) oid < N_ELEMENTS(extra_item_options));
-			extra_item_options[oid].action();
+			extra_item_options[oid].action(NULL, 0);
 		}
 
 		return true;

@@ -9,8 +9,9 @@
 #include "init.h" /* init_angband */
 #include "message.h" /* msg */
 #include "grafmode.h"
+#include "player.h"
+#include "player-birth.h"
 #include "ui-prefs.h"
-#include "cmd-core.h"
 
 #include "mon-util.h" /* lookup_monster_base */
 #include "obj-tval.h" /* tval_find_idx */
@@ -25,6 +26,8 @@ int setup_tests(void **state) {
 
 int teardown_tests(void *state) {
 	textui_prefs_free();
+	close_graphics_modes();
+	cleanup_angband();
 	return 0;
 }
 
@@ -35,14 +38,13 @@ static void getmsg(game_event_type type, game_event_data *data, void *user) {
 	*error = true;
 }
 
-int test_prefs(void *state) {
+static int test_prefs(void *state) {
 	bool error = false;
 	graphics_mode *mode;
 
 	/* This is a bit of a hack to ensure we have a player struct set up */
 	/* Otherwise race/class dependent graphics will crash */
-	cmdq_push(CMD_BIRTH_RESET);
-	cmdq_execute(CTX_BIRTH);
+	eq(player_make_simple(NULL, NULL, NULL), true);
 
 	event_add_handler(EVENT_MESSAGE, getmsg, &error);
 
@@ -62,7 +64,7 @@ int test_prefs(void *state) {
 	ok;
 }
 
-int test_defaults(void *state) {
+static int test_defaults(void *state) {
 	size_t i;
 	struct monster_base *mb = lookup_monster_base("giant");
 	int tval = tval_find_idx("sword");

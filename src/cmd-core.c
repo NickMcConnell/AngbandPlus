@@ -20,6 +20,7 @@
 #include "angband.h"
 #include "cmds.h"
 #include "cmd-core.h"
+#include "effects-info.h"
 #include "game-input.h"
 #include "obj-chest.h"
 #include "obj-desc.h"
@@ -112,6 +113,59 @@ static const struct command_info game_cmds[] =
 	{ CMD_REPEAT, "repeat", NULL, false, 0 },
 
 	{ CMD_COMMAND_MONSTER, "make a monster act", do_cmd_mon_command, false, 0 },
+
+	{ CMD_SPOIL_ARTIFACT, "generate spoiler file for artifacts", do_cmd_spoil_artifact, false, 0 },
+	{ CMD_SPOIL_MON, "generate spoiler file for monsters", do_cmd_spoil_monster, false, 0 },
+	{ CMD_SPOIL_MON_BRIEF, "generate brief spoiler file for monsters", do_cmd_spoil_monster_brief, false, 0 },
+	{ CMD_SPOIL_OBJ, "generate spoiler file for objects", do_cmd_spoil_obj, false, 0 },
+
+	{ CMD_WIZ_ACQUIRE, "acquire objects", do_cmd_wiz_acquire, false, 0 },
+	{ CMD_WIZ_ADVANCE, "make character powerful", do_cmd_wiz_advance, false, 0 },
+	{ CMD_WIZ_BANISH, "banish nearby monsters", do_cmd_wiz_banish, false, 0 },
+	{ CMD_WIZ_CHANGE_ITEM_QUANTITY, "change number of an item", do_cmd_wiz_change_item_quantity, false, 0 },
+	{ CMD_WIZ_COLLECT_DISCONNECT_STATS, "collect statistics about disconnected levels", do_cmd_wiz_collect_disconnect_stats, false, 0 },
+	{ CMD_WIZ_COLLECT_OBJ_MON_STATS, "collect object/monster statistics", do_cmd_wiz_collect_obj_mon_stats, false, 0 },
+	{ CMD_WIZ_COLLECT_PIT_STATS, "collect pit statistics", do_cmd_wiz_collect_pit_stats, false, 0 },
+	{ CMD_WIZ_CREATE_ALL_ARTIFACT, "create all artifacts", do_cmd_wiz_create_all_artifact, false, 0 },
+	{ CMD_WIZ_CREATE_ALL_ARTIFACT_FROM_TVAL, "create all artifacts of a tval", do_cmd_wiz_create_all_artifact_from_tval, false, 0 },
+	{ CMD_WIZ_CREATE_ALL_OBJ, "create all objects", do_cmd_wiz_create_all_obj, false, 0 },
+	{ CMD_WIZ_CREATE_ALL_OBJ_FROM_TVAL, "create all objects of a tval", do_cmd_wiz_create_all_obj_from_tval, false, 0 },
+	{ CMD_WIZ_CREATE_ARTIFACT, "create artifact", do_cmd_wiz_create_artifact, false, 0 },
+	{ CMD_WIZ_CREATE_OBJ, "create object", do_cmd_wiz_create_obj, false, 0 },
+	{ CMD_WIZ_CREATE_TRAP, "create trap", do_cmd_wiz_create_trap, false, 0 },
+	{ CMD_WIZ_CURE_ALL, "cure everything", do_cmd_wiz_cure_all, false, 0 },
+	{ CMD_WIZ_CURSE_ITEM, "change a curse on an item", do_cmd_wiz_curse_item, false, 0 },
+	{ CMD_WIZ_DETECT_ALL_LOCAL, "detect everything nearby", do_cmd_wiz_detect_all_local, false, 0 },
+	{ CMD_WIZ_DETECT_ALL_MONSTERS, "detect all monsters", do_cmd_wiz_detect_all_monsters, false, 0 },
+	{ CMD_WIZ_DISPLAY_KEYLOG, "display keystroke log", do_cmd_wiz_display_keylog, false, 0 },
+	{ CMD_WIZ_DUMP_LEVEL_MAP, "write map of level", do_cmd_wiz_dump_level_map, false, 0 },
+	{ CMD_WIZ_EDIT_PLAYER_EXP, "change the player's experience", do_cmd_wiz_edit_player_exp, false, 0 },
+	{ CMD_WIZ_EDIT_PLAYER_GOLD, "change the player's gold", do_cmd_wiz_edit_player_gold, false, 0 },
+	{ CMD_WIZ_EDIT_PLAYER_START, "start editing the player", do_cmd_wiz_edit_player_start, false, 0 },
+	{ CMD_WIZ_EDIT_PLAYER_STAT, "edit one of the player's stats", do_cmd_wiz_edit_player_stat, false, 0 },
+	{ CMD_WIZ_HIT_ALL_LOS, "hit all monsters in LOS", do_cmd_wiz_hit_all_los, false, 0 },
+	{ CMD_WIZ_INCREASE_EXP, "increase experience", do_cmd_wiz_increase_exp, false, 0 },
+	{ CMD_WIZ_JUMP_LEVEL, "jump to a level", do_cmd_wiz_jump_level, false, 0 },
+	{ CMD_WIZ_LEARN_OBJECT_KINDS, "learn about kinds of objects", do_cmd_wiz_learn_object_kinds, false, 0 },
+	{ CMD_WIZ_MAGIC_MAP, "map local area", do_cmd_wiz_magic_map, false, 0 },
+	{ CMD_WIZ_PEEK_NOISE_SCENT, "peek at noise and scent", do_cmd_wiz_peek_noise_scent, false, 0 },
+	{ CMD_WIZ_PERFORM_EFFECT, "perform an effect", do_cmd_wiz_perform_effect, false, 0 },
+	{ CMD_WIZ_PLAY_ITEM, "play with item", do_cmd_wiz_play_item, false, 0 },
+	{ CMD_WIZ_PUSH_OBJECT, "push objects from square", do_cmd_wiz_push_object, false, 0 },
+	{ CMD_WIZ_QUERY_FEATURE, "highlight specific feature", do_cmd_wiz_query_feature, false, 0 },
+	{ CMD_WIZ_QUERY_SQUARE_FLAG, "query square flag", do_cmd_wiz_query_square_flag, false, 0 },
+	{ CMD_WIZ_QUIT_NO_SAVE, "quit without saving", do_cmd_wiz_quit_no_save, false, 0 },
+	{ CMD_WIZ_RECALL_MONSTER, "recall monster", do_cmd_wiz_recall_monster, false, 0 },
+	{ CMD_WIZ_RERATE, "rerate hitpoints", do_cmd_wiz_rerate, false, 0 },
+	{ CMD_WIZ_REROLL_ITEM, "reroll an item", do_cmd_wiz_reroll_item, false, 0 },
+	{ CMD_WIZ_STAT_ITEM, "get statistics for an item", do_cmd_wiz_stat_item, false, 0 },
+	{ CMD_WIZ_SUMMON_NAMED, "summon specific monster", do_cmd_wiz_summon_named, false, 0 },
+	{ CMD_WIZ_SUMMON_RANDOM, "summon random monsters", do_cmd_wiz_summon_random, false, 0 },
+	{ CMD_WIZ_TELEPORT_RANDOM, "teleport", do_cmd_wiz_teleport_random, false, 0 },
+	{ CMD_WIZ_TELEPORT_TO, "teleport to location", do_cmd_wiz_teleport_to, false, 0 },
+	{ CMD_WIZ_TWEAK_ITEM, "modify item attributes", do_cmd_wiz_tweak_item, false, 0 },
+	{ CMD_WIZ_WIPE_RECALL, "erase monster recall", do_cmd_wiz_wipe_recall, false, 0 },
+	{ CMD_WIZ_WIZARD_LIGHT, "wizard light the level", do_cmd_wiz_wizard_light, false, 0 },
 };
 
 const char *cmd_verb(cmd_code cmd)
@@ -196,15 +250,12 @@ errr cmdq_push_copy(struct command *cmd)
  * Process a game command from the UI or the command queue and carry out
  * whatever actions go along with it.
  */
-void process_command(cmd_context ctx, struct command *cmd)
+static void process_command(cmd_context ctx, struct command *cmd)
 {
 	int oldrepeats = cmd->nrepeats;
-	int idx = cmd_idx(cmd->code);
-
 	/* Hack - command a monster */
-	if (player->timed[TMD_COMMAND]) {
-		idx = (int) N_ELEMENTS(game_cmds) - 1;
-	}
+	int idx = cmd_idx(player->timed[TMD_COMMAND] ?
+		CMD_COMMAND_MONSTER : cmd->code);
 
 	/* Reset so that when selecting items, we look in the default location */
 	player->upkeep->command_wrk = 0;
@@ -463,6 +514,11 @@ static int cmd_get_arg(struct command *cmd, const char *arg,
  * - birth choices
  * - store items
  * - spells
+ * - selecting an effect for an item that activates for an EF_SELECT effect
+ *   (dragon's breath wands or potions, dragon armor that has multiple breath
+ *   types)
+ * - several debugging commands for integer or boolean arguments that did not
+ *   seem to be a good match for 'number' arguments
  *
  * Each of these should have its own type, which will allow for proper
  * validity checking of data.
@@ -520,6 +576,57 @@ int cmd_get_spell(struct command *cmd, const char *arg, int *spell,
 		return CMD_OK;
 	}
 
+	return CMD_ARG_ABORTED;
+}
+
+/**
+ * Choose an effect from a list, first try the command but then prompt
+ * \param cmd is the command to use.
+ * \param arg is the name of the argument to consult in the command
+ * \param choice When the return value is CMD_OK, *choice will be set to the
+ * index in the list for the selected effect or to -2 if the user selected the
+ * random option enabled by allow_random.
+ * \param prompt Is the text for the prompt displayed when querying the user.
+ * May be NULL to use a default prompt.
+ * \param effect points to the first effect in the linked list of effects.
+ * \param count is the number of effects from which to choose.  If count is -1,
+ * all the effects in the list will be used.
+ * \param allow_random when true, present the user an additional option which
+ * will choose one of the effects at random; when false, only present the
+ * options that correspond to the effects in the list.
+ * \return CMD_OK if *choice was updated with a valid selection; otherwise
+ * return CMD_ARG_ABORTED.
+ */
+int cmd_get_effect_from_list(struct command *cmd, const char *arg, int *choice,
+	const char *prompt, struct effect *effect, int count,
+	bool allow_random)
+{
+	int selection;
+
+	if (count == -1) {
+		struct effect *cursor = effect;
+
+		count = 0;
+		while (cursor) {
+			++count;
+			cursor = effect_next(cursor);
+		}
+	}
+
+	if (cmd_get_arg_choice(cmd, arg, &selection) != CMD_OK ||
+			((selection != -2 || !allow_random) &&
+			(selection < 0 || selection >= count))) {
+		/* It isn't in the command or is invalid; prompt. */
+		selection = get_effect_from_list(prompt, effect, count,
+			allow_random);
+	}
+	if ((selection == -2 && allow_random) ||
+			(selection >= 0 && selection < count)) {
+		/* Record the selection in the command. */
+		cmd_set_arg_choice(cmd, arg, selection);
+		*choice = selection;
+		return CMD_OK;
+	}
 	return CMD_ARG_ABORTED;
 }
 
@@ -688,7 +795,7 @@ int cmd_get_target(struct command *cmd, const char *arg, int *target)
 
 /**
  * ------------------------------------------------------------------------
- * Points (presently unused)
+ * Points
  * ------------------------------------------------------------------------ */
 
 /**

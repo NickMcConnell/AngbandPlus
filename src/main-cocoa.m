@@ -94,16 +94,16 @@ enum
 @end
 
 /* Delay handling of pre-emptive "quit" event */
-static BOOL quit_when_ready = FALSE;
+static BOOL quit_when_ready = NO;
 
 /* Set to indicate the game is over and we can quit without delay */
-static Boolean game_is_finished = FALSE;
+static BOOL game_is_finished = NO;
 
 /* Our frames per second (e.g. 60). A value of 0 means unthrottled. */
 static int frames_per_second;
 
 /* Force a new game or not? */
-static bool new_game = FALSE;
+static bool new_game = false;
 
 @class AngbandView;
 
@@ -212,7 +212,7 @@ static bool new_game = FALSE;
 		char *search;
 		char *cur_token;
 		char *next_token;
-		int event;
+		int lookup_result;
 
 		/* Skip anything not beginning with an alphabetic character */
 		if (!buffer[0] || !isalpha((unsigned char)buffer[0])) continue;
@@ -228,8 +228,8 @@ static bool new_game = FALSE;
 		search[0] = '\0';
 
 		/* Make sure this is a valid event name */
-		event = message_lookup_by_sound_name(msg_name);
-		if (event < 0) continue;
+		lookup_result = message_lookup_by_sound_name(msg_name);
+		if (lookup_result < 0) continue;
 
 		/*
 		 * Advance the sample list pointer so it's at the beginning of
@@ -254,12 +254,12 @@ static bool new_game = FALSE;
 		while (cur_token) {
 		    NSMutableArray *soundSamples =
 			[self->soundArraysByEvent
-			     objectForKey:[NSNumber numberWithInteger:event]];
+			     objectForKey:[NSNumber numberWithInteger:lookup_result]];
 		    if (soundSamples == nil) {
 			soundSamples = [[NSMutableArray alloc] init];
 			[self->soundArraysByEvent
 			     setObject:soundSamples
-			     forKey:[NSNumber numberWithInteger:event]];
+			     forKey:[NSNumber numberWithInteger:lookup_result]];
 		    }
 		    int num = (int) soundSamples.count;
 
@@ -1191,6 +1191,7 @@ static int hasSameBackground(const struct TerminalCell* c)
 
 - (void)assertInvariants
 {
+#ifndef NDEBUG
     const struct TerminalCell *cellsRow = self->cells;
 
     /*
@@ -1339,6 +1340,7 @@ static int hasSameBackground(const struct TerminalCell* c)
 	}
 	cellsRow += self.columnCount;
     }
+#endif
 }
 
 + (wchar_t)getBlankChar
@@ -1852,6 +1854,13 @@ static void draw_image_tile(
  */
 @property TerminalChanges *changes;
 
+/*
+ * Record first possible row and column for tiles for double-height tile
+ * handling.
+ */
+@property int firstTileRow;
+@property int firstTileCol;
+
 @property (nonatomic, assign) BOOL hasSubwindowFlags;
 @property (nonatomic, assign) BOOL windowVisibilityChecked;
 
@@ -1940,7 +1949,7 @@ static void draw_image_tile(
  * for future changes to the set of flags without needed to update it here
  * (unless the underlying types change).
  */
-u32b AngbandMaskForValidSubwindowFlags(void)
+static u32b AngbandMaskForValidSubwindowFlags(void)
 {
     int windowFlagBits = sizeof(*(window_flag)) * CHAR_BIT;
     int maxBits = MIN( PW_MAX_FLAGS, windowFlagBits );
@@ -1969,6 +1978,7 @@ static void AngbandUpdateWindowVisibility(void)
      * It doesn't change between calls, as the flags themselves are hardcoded
      */
     static u32b validWindowFlagsMask = 0;
+    BOOL anyChanged = NO;
 
     if( validWindowFlagsMask == 0 )
     {
@@ -2004,11 +2014,13 @@ static void AngbandUpdateWindowVisibility(void)
             {
                 [angbandContext.primaryWindow orderFront: nil];
                 angbandContext.windowVisibilityChecked = YES;
+                anyChanged = YES;
             }
-            else
+            else if ([angbandContext.primaryWindow isVisible])
             {
                 [angbandContext.primaryWindow close];
                 angbandContext.windowVisibilityChecked = NO;
+                anyChanged = YES;
             }
         }
         else
@@ -2020,20 +2032,24 @@ static void AngbandUpdateWindowVisibility(void)
                 [angbandContext.primaryWindow close];
                 angbandContext.hasSubwindowFlags = NO;
                 [angbandContext saveWindowVisibleToDefaults: NO];
+                anyChanged = YES;
             }
             else if( !angbandContext.hasSubwindowFlags && termHasSubwindowFlags )
             {
                 [angbandContext.primaryWindow orderFront: nil];
                 angbandContext.hasSubwindowFlags = YES;
                 [angbandContext saveWindowVisibleToDefaults: YES];
+                anyChanged = YES;
             }
         }
     }
 
     /* Make the main window key so that user events go to the right spot */
-    AngbandContext *mainWindow =
-	(__bridge AngbandContext*) (angband_term[0]->data);
-    [mainWindow.primaryWindow makeKeyAndOrderFront: nil];
+    if (anyChanged) {
+        AngbandContext *mainWindow =
+	    (__bridge AngbandContext*) (angband_term[0]->data);
+        [mainWindow.primaryWindow makeKeyAndOrderFront: nil];
+    }
 }
 
 /**
@@ -2090,7 +2106,7 @@ static BOOL graphics_will_be_enabled(void)
 /**
  * Hack -- game in progress
  */
-static Boolean game_in_progress = FALSE;
+static BOOL game_in_progress = NO;
 
 
 #pragma mark Prototypes
@@ -2104,7 +2120,6 @@ static NSString* AngbandCorrectedDirectoryPath(NSString *originalPath);
 static void prepare_paths_and_directories(void);
 static void load_prefs(void);
 static void init_windows(void);
-static void handle_open_when_ready(void);
 static void play_sound(game_event_type unused, game_event_data *data, void *user);
 static BOOL check_events(int wait);
 static void cocoa_file_open_hook(const char *path, file_type ftype);
@@ -2124,7 +2139,7 @@ static void record_current_savefile(void);
 /**
  * Note when "open"/"new" become valid
  */
-static bool initialized = FALSE;
+static BOOL initialized = NO;
 
 /* Methods for getting the appropriate NSUserDefaults */
 @interface NSUserDefaults (AngbandDefaults)
@@ -2315,10 +2330,15 @@ static int compare_advances(const void *ap, const void *bp)
     }
 
     /*
-     * Record the tile size.  Round both values up to have tile boundaries
-     * match pixel boundaries.
+     * Record the tile size.  Round the values (height rounded up; width to
+     * nearest unless that would be zero) to have tile boundaries match pixel
+     * boundaries.
      */
-    self->_tileSize.width = ceil(medianAdvance);
+    if (medianAdvance < 1.0) {
+	self->_tileSize.width = 1.0;
+    } else {
+	self->_tileSize.width = floor(medianAdvance + 0.5);
+    }
     self->_tileSize.height = ceil(self.fontAscender - self.fontDescender);
 
     /*
@@ -2562,7 +2582,9 @@ static int compare_advances(const void *ap, const void *bp)
 	self->lastRefreshTime = CFAbsoluteTimeGetCurrent();
 	self->inFullscreenTransition = NO;
 
-        self->_windowVisibilityChecked = NO;
+	self->_firstTileRow = 0;
+	self->_firstTileCol = 0;
+	self->_windowVisibilityChecked = NO;
     }
     return self;
 }
@@ -3028,10 +3050,12 @@ static int compare_nsrect_yorigin_greater(const void *ap, const void *bp)
 			   pcell->voff_n / (1.0 * pcell->voff_d)),
 	    graf_width * pcell->hscl / (1.0 * pcell->hoff_d),
 	    graf_height * pcell->vscl / (1.0 * pcell->voff_d));
-	int dbl_height_bck = overdraw_row && (irow > 2) &&
+	int dbl_height_bck = overdraw_row &&
+	    irow >= self.firstTileRow + pcell->hoff_d &&
 	    (pcell->v.ti.bckRow >= overdraw_row &&
 	     pcell->v.ti.bckRow <= overdraw_max);
-	int dbl_height_fgd = overdraw_row && (irow > 2) &&
+	int dbl_height_fgd = overdraw_row &&
+	    irow >= self.firstTileRow + pcell->hoff_d &&
 	    (pcell->v.ti.fgdRow >= overdraw_row) &&
 	    (pcell->v.ti.fgdRow <= overdraw_max);
 	int aligned_row = 0, aligned_col = 0;
@@ -3039,14 +3063,10 @@ static int compare_nsrect_yorigin_greater(const void *ap, const void *bp)
 
 	/* Initialize stuff for handling a double-height tile. */
 	if (dbl_height_bck || dbl_height_fgd) {
-	    if (self->terminal == angband_term[0]) {
-		aligned_col = ((icol0 - COL_MAP) / pcell->hoff_d) *
-		    pcell->hoff_d + COL_MAP;
-	    } else {
-		aligned_col = (icol0 / pcell->hoff_d) * pcell->hoff_d;
-	    }
-	    aligned_row = ((irow - ROW_MAP) / pcell->voff_d) *
-		pcell->voff_d + ROW_MAP;
+	    aligned_col = ((icol0 - self.firstTileCol) / pcell->hoff_d) *
+		    pcell->hoff_d + self.firstTileCol;
+	    aligned_row = ((irow - self.firstTileRow) / pcell->voff_d) *
+		pcell->voff_d + self.firstTileRow;
 
 	    /*
 	     * If the lower half has been broken into multiple pieces, only
@@ -3601,8 +3621,7 @@ static int compare_nsrect_yorigin_greater(const void *ap, const void *bp)
 				 * necessary.  Don't redraw them.
 				 */
 				if (pcell->v.ch.glyph != blank) {
-				    int a = pcell->v.ch.attr % MAX_COLORS;
-
+				    a = pcell->v.ch.attr % MAX_COLORS;
 				    if (alast != a) {
 					alast = a;
 					set_color_for_index(a);
@@ -4058,11 +4077,6 @@ static int compare_nsrect_yorigin_greater(const void *ap, const void *bp)
 
 @end
 
-/**
- * Delay handling of double-clicked savefiles
- */
-Boolean open_when_ready = FALSE;
-
 
 
 /**
@@ -4156,7 +4170,7 @@ static void Term_init_cocoa(term *t)
 
 	/* Handle graphics */
 	t->higher_pict = !! use_graphics;
-	t->always_pict = FALSE;
+	t->always_pict = false;
 
 	NSDisableScreenUpdates();
 
@@ -4289,13 +4303,6 @@ static void Term_init_cocoa(term *t)
 
 	    if( termIdx == 0 )
 	    {
-		/*
-		 * The height and width adjustments were determined
-		 * experimentally, so that the rest of the windows line up
-		 * nicely without overlapping.
-		 */
-		windowFrame.size.width += 7.0;
-		windowFrame.size.height += 9.0;
 		windowFrame.origin.x = NSMinX( overallBoundingRect );
 		windowFrame.origin.y =
 		    NSMaxY( overallBoundingRect ) - NSHeight( windowFrame );
@@ -4528,10 +4535,15 @@ static errr Term_xtra_cocoa_react(void)
 	    use_graphics = new_mode ? new_mode->grafID : 0;
 	    current_graphics_mode = new_mode;
 
-	    /* Enable or disable higher picts.  */
+	    /*
+	     * Enable or disable higher picts.  Also set double-height handling.
+	     */
 	    for (int iterm = 0; iterm < ANGBAND_TERM_MAX; ++iterm) {
 		if (angband_term[iterm]) {
 		    angband_term[iterm]->higher_pict = !! use_graphics;
+		    angband_term[iterm]->dblh_hook = (current_graphics_mode &&
+			current_graphics_mode->overdrawRow) ?
+			is_dh_tile : NULL;
 		}
 	    }
 
@@ -4555,14 +4567,14 @@ static errr Term_xtra_cocoa_react(void)
 	    /* Reset visuals */
 	    if (! tile_multipliers_changed)
 	    {
-		reset_visuals(TRUE);
+		reset_visuals(true);
 	    }
 	}
 
 	if (tile_multipliers_changed)
 	{
 	    /* Reset visuals */
-	    reset_visuals(TRUE);
+	    reset_visuals(true);
 
 	    if (character_dungeon) {
 		/*
@@ -4769,10 +4781,20 @@ static errr Term_pict_cocoa(int x, int y, int n, const int *ap,
 	overdraw_max = current_graphics_mode->overdrawMax;
 	alphablend = (ainfo & (kCGImageAlphaPremultipliedFirst |
 			       kCGImageAlphaPremultipliedLast)) ? 1 : 0;
+	if (overdraw_row) {
+	    angbandContext.firstTileRow = Term_get_first_tile_row(Term);
+	    angbandContext.firstTileCol = (Term == angband_term[0]) ?
+		COL_MAP : 0;
+	} else {
+	    angbandContext.firstTileRow = 0;
+	    angbandContext.firstTileCol = 0;
+	}
     } else {
 	overdraw_row = 0;
 	overdraw_max = 0;
 	alphablend = 0;
+	angbandContext.firstTileRow = 0;
+	angbandContext.firstTileCol = 0;
     }
 
     for (int i = x; i < x + n * tile_width; i += tile_width) {
@@ -4808,23 +4830,13 @@ static errr Term_pict_cocoa(int x, int y, int n, const int *ap,
 			   backgroundRow:bckRow
 			   tileWidth:tile_width
 			   tileHeight:tile_height];
-	    if (overdraw_row && y > 2 &&
+	    if (overdraw_row &&
+		y > angbandContext.firstTileRow + tile_height - 1 &&
 		((bckRow >= overdraw_row && bckRow <= overdraw_max) ||
 		 (fgdRow >= overdraw_row && fgdRow <= overdraw_max))) {
 		[angbandContext.changes markChangedBlockAtColumn:i
 			       row:(y - tile_height) width:tile_width
 			       height:(tile_height + tile_height)];
-		/*
-		 * Either the foreground or the background is a double-height
-		 * tile.  Need to tell the core to redraw the upper half in
-		 * the next update since what's displayed there no longer
-		 * corresponds to what the core thinks is there.  Also tell
-		 * the core to redraw the lower half in the next update
-		 * because, if it remains a double-height tile, that is
-		 * necessary to trigger the drawing of the upper half.
-		 */
-		Term_mark(i, y - tile_height);
-		Term_mark(i, y);
 	    } else {
 		[angbandContext.changes markChangedBlockAtColumn:i row:y
 			       width:tile_width height:tile_height];
@@ -5067,26 +5079,6 @@ static void wakeup_event_loop(void)
 
 
 /**
- * Handle the "open_when_ready" flag
- */
-static void handle_open_when_ready(void)
-{
-    /* Check the flag XXX XXX XXX make a function for this */
-    if (open_when_ready && initialized && !game_in_progress)
-    {
-        /* Forget */
-        open_when_ready = FALSE;
-        
-        /* Game is in progress */
-        game_in_progress = TRUE;
-        
-        /* Wait for a keypress */
-        pause_line(Term);
-    }
-}
-
-
-/**
  * Handle quit_when_ready, by Peter Ammon,
  * slightly modified to check inkey_flag.
  */
@@ -5099,8 +5091,8 @@ static void quit_calmly(void)
     if (inkey_flag)
     {
         /* Hack -- Forget messages and term */
-        msg_flag = FALSE;
-        Term->mapped_flag = FALSE;
+        msg_flag = false;
+        Term->mapped_flag = false;
 
         /* Save the game */
         record_current_savefile();
@@ -5138,7 +5130,8 @@ static void AngbandHandleEventMouseDown( NSEvent *event )
 	AngbandContext *mainAngbandContext =
 	    (__bridge AngbandContext*) (angband_term[0]->data);
 
-	if (mainAngbandContext.primaryWindow &&
+	if ([[event window] isKeyWindow] &&
+	    mainAngbandContext.primaryWindow &&
 	    [[event window] windowNumber] ==
 	    [mainAngbandContext.primaryWindow windowNumber])
 	{
@@ -5158,11 +5151,7 @@ static void AngbandHandleEventMouseDown( NSEvent *event )
 		x = floor( p.x / tileSize.width );
 		y = floor( p.y / tileSize.height );
 
-		/*
-		 * Being safe about this, since xcode doesn't seem to like the
-		 * bool_hack stuff
-		 */
-		BOOL displayingMapInterface = ((int)inkey_flag != 0);
+		BOOL displayingMapInterface = (inkey_flag) ? YES : NO;
 
 		/* Sidebar plus border == thirteen characters; top row is reserved. */
 		/* Coordinates run from (0,0) to (cols-1, rows-1). */
@@ -5313,7 +5302,7 @@ static BOOL send_event(NSEvent *event)
                 case kVK_Escape: ch = ESCAPE; break;
                 case kVK_Tab: ch = KC_TAB; break;
                 case kVK_Delete: ch = KC_BACKSPACE; break;
-                case kVK_ANSI_KeypadEnter: ch = KC_ENTER; kp = TRUE; break;
+                case kVK_ANSI_KeypadEnter: ch = KC_ENTER; kp = 1; break;
             }
 
             /* Hide the mouse pointer */
@@ -5362,7 +5351,7 @@ static BOOL send_event(NSEvent *event)
 }
 
 /**
- * Check for Events, return TRUE if we process any
+ * Check for Events, return YES if we process any
  */
 static BOOL check_events(int wait)
 {
@@ -5537,16 +5526,16 @@ static term *term_data_link(int i)
     term_init(newterm, columns, rows, 256 /* keypresses, for some reason? */);
 
     /* Use a "software" cursor */
-    newterm->soft_cursor = TRUE;
+    newterm->soft_cursor = true;
 
     /* Disable the per-row flush notifications since they are not used. */
-    newterm->never_frosh = TRUE;
+    newterm->never_frosh = true;
 
     /*
      * Differentiate between BS/^h, Tab/^i, ... so ^h and ^j work under the
      * roguelike command set.
      */
-    newterm->complex_input = TRUE;
+    newterm->complex_input = true;
 
     /* Prepare the init/nuke hooks */
     newterm->init_hook = Term_init_cocoa;
@@ -5559,6 +5548,7 @@ static term *term_data_link(int i)
     newterm->bigcurs_hook = Term_bigcurs_cocoa;
     newterm->text_hook = Term_text_cocoa;
     newterm->pict_hook = Term_pict_cocoa;
+    newterm->dblh_hook = NULL;
 
     /* Global pointer */
     angband_term[i] = newterm;
@@ -5589,28 +5579,28 @@ static void load_prefs(void)
 
 	switch (i) {
 	case 0:
-	    columns = 129;
-	    rows = 32;
+	    columns = 100;
+	    rows = 30;
 	    break;
 	case 1:
-	    columns = 84;
-	    rows = 20;
+	    columns = 66;
+	    rows = 10;
 	    break;
 	case 2:
-	    columns = 42;
+	    columns = 38;
 	    rows = 24;
 	    break;
 	case 3:
-	    columns = 42;
-	    rows = 20;
+	    columns = 38;
+	    rows = 10;
 	    break;
 	case 4:
-	    columns = 42;
-	    rows = 16;
+	    columns = 38;
+	    rows = 15;
 	    break;
 	case 5:
-	    columns = 84;
-	    rows = 20;
+	    columns = 66;
+	    rows = 10;
 	    break;
 	default:
 	    columns = 80;
@@ -5728,7 +5718,7 @@ static void cocoa_file_open_hook(const char *path, file_type ftype)
  */
 static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
 {
-    bool result = FALSE;
+    bool result = false;
     @autoreleasepool {
 	NSSavePanel *panel = [NSSavePanel savePanel];
 	NSURL *directoryURL = [NSURL URLWithString:[NSString stringWithCString:ANGBAND_DIR_USER encoding:NSASCIIStringEncoding]];
@@ -5738,11 +5728,21 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
 	if ([panel runModal] == NSOKButton) {
 	    const char *p = [[[panel URL] path] UTF8String];
 	    my_strcpy(path, p, len);
-	    result = TRUE;
+	    result = true;
 	}
     }
 
     return result;
+}
+
+/**
+ * Perform (as ui-game.c's reinit_hook) platform-specific actions necessary
+ * when restarting without exiting.  Also called directly at startup.
+ */
+static void cocoa_reinit(void)
+{
+    /* Register the sound hook */
+    event_add_handler(EVENT_SOUND, play_sound, NULL);
 }
 
 /**
@@ -5758,8 +5758,8 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
 - (IBAction)newGame:sender
 {
     /* Game is in progress */
-    game_in_progress = TRUE;
-    new_game = TRUE;
+    game_in_progress = YES;
+    new_game = true;
 }
 
 - (IBAction)editFont:sender
@@ -5883,7 +5883,7 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
 	    record_current_savefile();
 
 	    /* Game is in progress */
-	    game_in_progress = TRUE;
+	    game_in_progress = YES;
 	}
     }
 }
@@ -5891,7 +5891,7 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
 - (IBAction)saveGame:sender
 {
     /* Hack -- Forget messages */
-    msg_flag = FALSE;
+    msg_flag = false;
     
     /* Save the game */
     save_game();
@@ -5964,7 +5964,7 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
 	ANGBAND_SYS = "mac";
 
 	/* Load possible graphics modes */
-	init_graphics_modes("graphics.txt");
+	init_graphics_modes();
 
 	/* Load preferences */
 	load_prefs();
@@ -5983,17 +5983,18 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
 	init_angband();
 	textui_init();
 
-	/* Register the sound hook */
-	event_add_handler(EVENT_SOUND, play_sound, (__bridge void*) self);
+	/*
+	 * Set action that needs to be done if restarting without exiting.
+	 * Also need to do it now.
+	 */
+	reinit_hook = cocoa_reinit;
+	cocoa_reinit();
 
 	/* Initialize some save file stuff */
 	player_egid = getegid();
 
 	/* We are now initialized */
-	initialized = TRUE;
-
-	/* Handle "open_when_ready" */
-	handle_open_when_ready();
+	initialized = YES;
 
 	/* Handle pending events (most notably update) and flush input */
 	Term_flush();
@@ -6371,15 +6372,15 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
      * Once beginGame finished, the game is over - that's how Angband works,
      * and we should quit
      */
-    game_is_finished = TRUE;
+    game_is_finished = YES;
     [NSApp terminate:self];
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
 {
-    if (player->upkeep->playing == FALSE || game_is_finished == TRUE)
+    if (!player->upkeep->playing || game_is_finished)
     {
-        quit_when_ready = true;
+        quit_when_ready = YES;
         return NSTerminateNow;
     }
     else if (! inkey_flag)
@@ -6390,14 +6391,14 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
     else
     {
         /* Stop playing */
-        player->upkeep->playing = FALSE;
+        player->upkeep->playing = false;
 
         /*
          * Post an escape event so that we can return from our get-key-event
          * function
          */
         wakeup_event_loop();
-        quit_when_ready = true;
+        quit_when_ready = YES;
         /*
          * Must return Cancel, not Later, because we need to get out of the
          * run loop and back to Angband's loop
@@ -6477,7 +6478,7 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
 	return;
     }
 
-    game_in_progress = TRUE;
+    game_in_progress = YES;
 
     /*
      * Wake us up in case this arrives while we're sitting at the Welcome

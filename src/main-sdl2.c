@@ -24,6 +24,7 @@
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 
+#include "main.h"
 #include "init.h"
 #include "ui-term.h"
 #include "buildid.h"
@@ -96,7 +97,6 @@
 	(DEFAULT_BORDER * 2)
 #define DEFAULT_VISIBLE_BORDER 2
 
-#define DEFAULT_FONT_SIZE 0
 /* XXX hack: the widest character present in a font
  * for determining font advance (width) */
 #define GLYPH_FOR_ADVANCE 'W'
@@ -107,8 +107,6 @@
 #define DEFAULT_FONT_H 20
 
 #define DEFAULT_STATUS_BAR_FONT "8x13x.fon"
-#define DEFAULT_STATUS_BAR_FONT_W 8
-#define DEFAULT_STATUS_BAR_FONT_H 13
 
 #define MAX_VECTOR_FONT_SIZE 24
 #define MIN_VECTOR_FONT_SIZE 4
@@ -564,7 +562,7 @@ static SDL_Color g_colors[MAX_COLORS];
 static struct font_info g_font_info[MAX_FONTS];
 /* True if KC_MOD_KEYPAD will be sent for numeric keypad keys at the expense
  * of not handling some keyboard layouts properly. */
-static int g_kp_as_mod = 0;
+static int g_kp_as_mod = 1;
 
 /* Forward declarations */
 
@@ -995,7 +993,7 @@ static void render_tile_rect_scaled(const struct subwindow *subwindow,
 }
 
 static void render_tile_font_scaled(const struct subwindow *subwindow,
-		int col, int row, int a, int c, bool fill)
+		int col, int row, int a, int c, bool fill, int dhrclip)
 {
 	struct graphics *graphics = &subwindow->window->graphics;
 
@@ -1021,7 +1019,7 @@ static void render_tile_font_scaled(const struct subwindow *subwindow,
 	src.y = src_row * src.h;
 
 	if (graphics->overdraw_row != 0
-			&& row > 2
+			&& row > dhrclip
 			&& src_row >= graphics->overdraw_row
 			&& src_row <= graphics->overdraw_max)
 	{
@@ -1032,9 +1030,6 @@ static void render_tile_font_scaled(const struct subwindow *subwindow,
 
 		SDL_RenderCopy(subwindow->window->renderer,
 				graphics->texture, &src, &dst);
-
-		Term_mark(col, row - tile_height);
-		Term_mark(col, row);
 	} else {
 		SDL_RenderCopy(subwindow->window->renderer,
 				graphics->texture, &src, &dst);
@@ -1101,13 +1096,13 @@ static SDL_Texture *make_subwindow_texture(const struct window *window, int w, i
 	SDL_Texture *texture = SDL_CreateTexture(window->renderer,
 			window->pixelformat, SDL_TEXTUREACCESS_TARGET, w, h);
 	if (texture == NULL) {
-		quit_fmt("cant create texture for subwindow in window %u: %s",
+		quit_fmt("cannot create texture for subwindow in window %u: %s",
 				window->index, SDL_GetError());
 	}
 
 	if (SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND) != 0) {
 		SDL_DestroyTexture(texture);
-		quit_fmt("cant set blend mode for texture in window %u: %s",
+		quit_fmt("cannot set blend mode for texture in window %u: %s",
 				window->index, SDL_GetError());
 	}
 
@@ -2071,6 +2066,7 @@ static void handle_menu_tile_sets(struct window *window,
 	}
 
 	size_t num_elems = 0;
+	struct menu_elem *elems;
 
 	graphics_mode *mode = graphics_modes;
 	while (mode != NULL) {
@@ -2078,7 +2074,7 @@ static void handle_menu_tile_sets(struct window *window,
 		mode = mode->pNext;
 	}
 
-	struct menu_elem elems[num_elems];
+	elems = mem_alloc(num_elems * sizeof(*elems));
 
 	mode = graphics_modes;
 	for (size_t i = 0; i < num_elems; i++) {
@@ -2092,6 +2088,8 @@ static void handle_menu_tile_sets(struct window *window,
 	}
 
 	load_next_menu_panel(window, menu_panel, button, num_elems, elems);
+
+	mem_free(elems);
 }
 
 static void handle_menu_tiles(struct window *window,
@@ -3870,21 +3868,32 @@ static errr term_text_hook(int col, int row, int n, int a, const wchar_t *s)
 }
 
 static errr term_pict_hook(int col, int row, int n,
-		const int *ap, const wchar_t *cp, const int *tap, const int *tcp)
+		const int *ap, const wchar_t *cp, const int *tap, const wchar_t *tcp)
 {
+	int dhrclip;
 	struct subwindow *subwindow = Term->data;
 	assert(subwindow != NULL);
 
 	assert(subwindow->window->graphics.texture != NULL);
 
+	if (subwindow->window->graphics.overdraw_row) {
+		dhrclip = Term_get_first_tile_row(Term) + tile_height - 1;
+	} else {
+		/*
+		 * There's no double-height tiles so the value does not
+		 * matter.
+		 */
+		dhrclip = 0;
+	}
+
 	for (int i = 0; i < n; i++) {
-		render_tile_font_scaled(subwindow, col + i, row, tap[i], tcp[i], true);
+		render_tile_font_scaled(subwindow, col + i, row, tap[i], tcp[i], true, dhrclip);
 
 		if (tap[i] == ap[i] && tcp[i] == cp[i]) {
 			continue;
 		}
 
-		render_tile_font_scaled(subwindow, col + i, row, ap[i], cp[i], false);
+		render_tile_font_scaled(subwindow, col + i, row, ap[i], cp[i], false, dhrclip);
 	}
 
 	subwindow->window->dirty = true;
@@ -4021,9 +4030,9 @@ static void term_view_map_text(struct subwindow *subwindow)
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 }
 
-static void term_view_map_hook(term *term)
+static void term_view_map_hook(term *terminal)
 {
-	struct subwindow *subwindow = term->data;
+	struct subwindow *subwindow = terminal->data;
 	if (subwindow->window->graphics.id == GRAPHICS_NONE) {
 		term_view_map_text(subwindow);
 	} else {
@@ -4035,11 +4044,11 @@ static SDL_Texture *load_image(const struct window *window, const char *path)
 {
 	SDL_Surface *surface = IMG_Load(path);
 	if (surface == NULL) {
-		quit_fmt("cant load image '%s': %s", path, IMG_GetError());
+		quit_fmt("cannot load image '%s': %s", path, IMG_GetError());
 	}
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(window->renderer, surface);
 	if (texture == NULL) {
-		quit_fmt("cant create texture from image '%s': %s", path, SDL_GetError());
+		quit_fmt("cannot create texture from image '%s': %s", path, SDL_GetError());
 	}
 	SDL_FreeSurface(surface);
 
@@ -4129,10 +4138,11 @@ static void load_graphics(struct window *window, graphics_mode *mode)
 		tile_width = 1;
 		tile_height = 1;
 	} else {
+		size_t i;
 		char path[4096];
 		path_build(path, sizeof(path), mode->path, mode->file);
 		if (!file_exists(path)) {
-			quit_fmt("cant load graphcis: file '%s' doesnt exist", path);
+			quit_fmt("cannot load graphics: file '%s' doesnt exist", path);
 		}
 
 		window->graphics.texture = load_image(window, path);
@@ -4143,6 +4153,15 @@ static void load_graphics(struct window *window, graphics_mode *mode)
 
 		window->graphics.overdraw_row = mode->overdrawRow;
 		window->graphics.overdraw_max = mode->overdrawMax;
+
+		for (i = 0; i < N_ELEMENTS(window->subwindows); i++) {
+			if (window->subwindows[i] &&
+					window->subwindows[i]->term) {
+				window->subwindows[i]->term->dblh_hook =
+					(window->graphics.overdraw_row) ?
+					is_dh_tile : NULL;
+			}
+		}
 	}
 
 	if (character_dungeon) {
@@ -4202,13 +4221,13 @@ static void make_font_cache(const struct window *window, struct font *font)
 		SDL_Surface *surface = TTF_RenderGlyph_Blended(font->ttf.handle,
 				(Uint16) g_ascii_codepoints_for_cache[i], white);
 		if (surface == NULL) {
-			quit_fmt("cant render surface for cache in font '%s': %s",
+			quit_fmt("cannot render surface for cache in font '%s': %s",
 					font->name, TTF_GetError());
 		}
 
 		SDL_Texture *texture = SDL_CreateTextureFromSurface(window->renderer, surface);
 		if (texture == NULL) {
-			quit_fmt("cant create texture for cache in font '%s': %s",
+			quit_fmt("cannot create texture for cache in font '%s': %s",
 					font->name, SDL_GetError());
 		}
 
@@ -4294,7 +4313,7 @@ static void load_font(struct font *font)
 
 	font->ttf.handle = TTF_OpenFont(font->path, font->size);
 	if (font->ttf.handle == NULL) {
-		quit_fmt("cant open font '%s': %s", font->path, TTF_GetError());
+		quit_fmt("cannot open font '%s': %s", font->path, TTF_GetError());
 	}
 
 	font->ttf.glyph.h = TTF_FontHeight(font->ttf.handle);
@@ -4302,7 +4321,7 @@ static void load_font(struct font *font)
 	if (TTF_GlyphMetrics(font->ttf.handle, GLYPH_FOR_ADVANCE,
 				NULL, NULL, NULL, NULL, &font->ttf.glyph.w) != 0)
 	{
-		quit_fmt("cant query glyph metrics for font '%s': %s",
+		quit_fmt("cannot query glyph metrics for font '%s': %s",
 				font->path, TTF_GetError());
 	}
 
@@ -4688,17 +4707,17 @@ static void load_status_bar(struct window *window)
 	if (SDL_SetRenderDrawColor(window->renderer,
 				window->status_bar.color.r, window->status_bar.color.g,
 				window->status_bar.color.b, window->status_bar.color.a) != 0) {
-		quit_fmt("cant set render color for status bar in window %u: %s",
+		quit_fmt("cannot set render color for status bar in window %u: %s",
 				window->index, SDL_GetError());
 	}
 	/* well, renderer seems to work */
 	if (SDL_SetRenderTarget(window->renderer, window->status_bar.texture) != 0) {
-		quit_fmt("cant set status bar texture as target in window %u: %s",
+		quit_fmt("cannot set status bar texture as target in window %u: %s",
 				window->index, SDL_GetError());
 	}
 	/* does it render? */
 	if (SDL_RenderClear(window->renderer) != 0) {
-		quit_fmt("cant clear status bar texture in window %u: %s",
+		quit_fmt("cannot clear status bar texture in window %u: %s",
 				window->index, SDL_GetError());
 	}
 
@@ -4766,13 +4785,13 @@ static void set_window_delay(struct window *window)
 
 	int display = SDL_GetWindowDisplayIndex(window->window);
 	if (display < 0) {
-		quit_fmt("cant get display of window %u: %s",
+		quit_fmt("cannot get display of window %u: %s",
 				window->index, SDL_GetError());
 	}
 
 	SDL_DisplayMode mode;
-	if (SDL_GetCurrentDisplayMode(display, &mode) != 0)
-	{
+	if (SDL_GetCurrentDisplayMode(display, &mode) != 0 ||
+			mode.refresh_rate <= 0) {
 		/* lets just guess; 60 fps is standard */
 		mode.refresh_rate = 60;
 	}
@@ -4852,17 +4871,17 @@ static void start_window(struct window *window)
 				-1, window->config->renderer_flags);
 	}
 	if (window->renderer == NULL) {
-		quit_fmt("cant create renderer for window %u: %s",
+		quit_fmt("cannot create renderer for window %u: %s",
 				window->index, SDL_GetError());
 	}
 
 	SDL_RendererInfo info;
 	if (SDL_GetRendererInfo(window->renderer, &info) != 0) {
-		quit_fmt("cant query renderer in window %u", window->index);
+		quit_fmt("cannot query renderer in window %u", window->index);
 	}
 
 	if (!choose_pixelformat(window, &info)) {
-		quit_fmt("cant choose pixelformat for window %u", window->index);
+		quit_fmt("cannot choose pixelformat for window %u", window->index);
 	}
 
 	load_window(window);
@@ -4891,7 +4910,7 @@ static void wipe_window_aux_config(struct window *window)
 
 	SDL_RendererInfo rinfo;
 	if (SDL_GetRendererInfo(main_window->renderer, &rinfo) != 0) {
-		quit_fmt("cant get renderer info for main window: %s", SDL_GetError());
+		quit_fmt("cannot get renderer info for main window: %s", SDL_GetError());
 	}
 	window->config->renderer_flags = rinfo.flags;
 	window->config->renderer_index = -1;
@@ -4911,7 +4930,7 @@ static void wipe_window_aux_config(struct window *window)
 
 	int display = SDL_GetWindowDisplayIndex(main_window->window);
 	if (display < 0) {
-		quit_fmt("cant get display from main window: %s", SDL_GetError());
+		quit_fmt("cannot get display from main window: %s", SDL_GetError());
 	}
 
 	/* center it on the screen */
@@ -4940,7 +4959,7 @@ static void wipe_window(struct window *window, int display)
 
 	SDL_DisplayMode mode;
 	if (SDL_GetCurrentDisplayMode(display, &mode) != 0) {
-		quit_fmt("cant get display mode for window %u: %s",
+		quit_fmt("cannot get display mode for window %u: %s",
 				window->index, SDL_GetError());
 	}
 
@@ -5131,7 +5150,7 @@ static void load_subwindow(struct window *window, struct subwindow *subwindow)
 		assert(subwindow->font != NULL);
 	}
 	if (!adjust_subwindow_geometry(window, subwindow)) {
-		quit_fmt("cant adjust geometry of subwindow %u in window %u",
+		quit_fmt("cannot adjust geometry of subwindow %u in window %u",
 				subwindow->index, window->index);
 	}
 	subwindow->texture = make_subwindow_texture(window,
@@ -5147,15 +5166,15 @@ static void load_subwindow(struct window *window, struct subwindow *subwindow)
 				subwindow->color.r, subwindow->color.g,
 				subwindow->color.b, subwindow->color.a) != 0)
 	{
-		quit_fmt("cant set draw color for subwindow %u window %u: %s",
+		quit_fmt("cannot set draw color for subwindow %u window %u: %s",
 				subwindow->index, window->index, SDL_GetError());
 	}
 	if (SDL_SetRenderTarget(window->renderer, subwindow->texture) != 0) {
-		quit_fmt("cant set subwindow %u as render target in window %u: %s",
+		quit_fmt("cannot set subwindow %u as render target in window %u: %s",
 				subwindow->index, window->index, SDL_GetError());
 	}
 	if (SDL_RenderClear(window->renderer) != 0) {
-		quit_fmt("cant clear texture in subwindow %u window %u: %s",
+		quit_fmt("cannot clear texture in subwindow %u window %u: %s",
 				subwindow->index, window->index, SDL_GetError());
 	}
 
@@ -5214,6 +5233,11 @@ static void link_term(struct subwindow *subwindow)
 	subwindow->term->text_hook = term_text_hook;
 	subwindow->term->pict_hook = term_pict_hook;
 	subwindow->term->view_map_hook = term_view_map_hook;
+	if (subwindow->window->graphics.overdraw_row) {
+		subwindow->term->dblh_hook = is_dh_tile;
+	} else {
+		subwindow->term->dblh_hook = NULL;
+	}
 
 	subwindow->term->data = subwindow;
 	angband_term[subwindow->index] = subwindow->term;
@@ -5280,7 +5304,7 @@ static void get_string_metrics(struct font *font, const char *str, int *w, int *
 	assert(font->ttf.handle != NULL);
 
 	if (TTF_SizeUTF8(font->ttf.handle, str, w, h) != 0) {
-		quit_fmt("cant get string metrics for string '%s': %s", str, TTF_GetError());
+		quit_fmt("cannot get string metrics for string '%s': %s", str, TTF_GetError());
 	}
 }
 
@@ -5594,7 +5618,7 @@ static void init_systems(void)
 	SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 }
 
-int init_sdl2(int argc, char **argv)
+errr init_sdl2(int argc, char **argv)
 {
 	init_systems();
 	init_globals();

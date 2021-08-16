@@ -37,9 +37,12 @@
 /**
  * Helper function -- return a "nearby" race for polymorphing
  *
+ * \param race is the current race of the monster to be polymorphed.
+ * \param current_level is the level that monster is on.
  * Note that this function is one of the more "dangerous" ones...
  */
-static struct monster_race *poly_race(struct monster_race *race)
+static struct monster_race *poly_race(struct monster_race *race,
+		int current_level)
 {
 	int i, minlvl, maxlvl, goal;
 
@@ -49,7 +52,7 @@ static struct monster_race *poly_race(struct monster_race *race)
 	if (rf_has(race->flags, RF_UNIQUE)) return race;
 
 	/* Allowable range of "levels" for resulting monster */
-	goal = (player->depth + race->level) / 2 + 5;
+	goal = (current_level + race->level) / 2 + 5;
 	minlvl = MIN(race->level - 10, (race->level * 3) / 4);
 	maxlvl = MAX(race->level + 10, (race->level * 5) / 4);
 
@@ -58,14 +61,14 @@ static struct monster_race *poly_race(struct monster_race *race)
 
 	/* Try to pick a new, non-unique race within our level range */
 	for (i = 0; i < 1000; i++) {
-		struct monster_race *new_race = get_mon_num(goal);
+		struct monster_race *new_race = get_mon_num(goal, current_level);
 
 		if (!new_race || new_race == race) continue;
 		if (rf_has(new_race->flags, RF_UNIQUE)) continue;
 		if (new_race->level < minlvl || new_race->level > maxlvl) continue;
 
 		/* Avoid force-depth monsters, since it might cause a crash in project_m() */
-		if (rf_has(new_race->flags, RF_FORCE_DEPTH) && player->depth < new_race->level) continue;
+		if (rf_has(new_race->flags, RF_FORCE_DEPTH) && current_level < new_race->level) continue;
 
 		return new_race;
 	}
@@ -884,7 +887,7 @@ static void project_monster_handler_MON_CLONE(project_monster_handler_context_t 
 	mon_inc_timed(context->mon, MON_TMD_FAST, 50, MON_TMD_FLG_NOTIFY);
 
 	/* Attempt to clone. */
-	if (multiply_monster(cave, context->mon))
+	if (multiply_monster(context->mon) && context->seen)
 		context->hurt_msg = MON_MSG_SPAWN;
 
 	/* No "real" damage */
@@ -1055,7 +1058,7 @@ static bool project_m_monster_attack(project_monster_handler_context_t *context,
 		add_monster_message(mon, die_msg, false);
 
 		/* Generate treasure, etc */
-		monster_death(mon, false);
+		monster_death(mon, player, false);
 
 		/* Delete the monster */
 		delete_monster_idx(m_idx);
@@ -1108,7 +1111,7 @@ static bool project_m_player_attack(project_monster_handler_context_t *context)
 	/* No damage is now going to mean the monster is not hit - and hence
 	 * is not woken or released from holding */
 	if (dam) {
-		mon_died = mon_take_hit(mon, dam, &fear, "");
+		mon_died = mon_take_hit(mon, player, dam, &fear, "");
 	}
 
 	/* If the monster didn't die, provide additional messages about how it was
@@ -1156,9 +1159,10 @@ static void project_m_apply_side_effects(project_monster_handler_context_t *cont
 		struct monster_race *old;
 		struct monster_race *new;
 
-		/* Uniques cannot be polymorphed */
-		if (rf_has(mon->race->flags, RF_UNIQUE)) {
-			add_monster_message(mon, hurt_msg, false);
+		/* Uniques cannot be polymorphed; nor can an arena monster */
+		if (rf_has(mon->race->flags, RF_UNIQUE)
+				|| player->upkeep->arena_level) {
+			if (context->seen) add_monster_message(mon, hurt_msg, false);
 			return;
 		}
 
@@ -1171,12 +1175,12 @@ static void project_m_apply_side_effects(project_monster_handler_context_t *cont
 			savelvl = randint1(90);
 		if (mon->race->level > savelvl) {
 			if (typ == PROJ_MON_POLY) hurt_msg = MON_MSG_MAINTAIN_SHAPE;
-			add_monster_message(mon, hurt_msg, false);
+			if (context->seen) add_monster_message(mon, hurt_msg, false);
 			return;
 		}
 
 		old = mon->race;
-		new = poly_race(old);
+		new = poly_race(old, player->depth);
 
 		/* Handle polymorph */
 		if (new != old) {
@@ -1184,14 +1188,23 @@ static void project_m_apply_side_effects(project_monster_handler_context_t *cont
 
 			/* Report the polymorph before changing the monster */
 			hurt_msg = MON_MSG_CHANGE;
-			add_monster_message(mon, hurt_msg, false);
+			if (context->seen) add_monster_message(mon, hurt_msg, false);
 
 			/* Delete the old monster, and return a new one */
 			delete_monster_idx(m_idx);
 			place_new_monster(cave, grid, new, false, false, info,
 							  ORIGIN_DROP_POLY);
 			context->mon = square_monster(cave, grid);
-		} else {
+			/*
+			 * Note the appearance of the new one if it is visible
+			 * but the old one wasn't.
+			 */
+			if (!context->seen && context->mon
+					&& monster_is_visible(context->mon)) {
+				add_monster_message(context->mon,
+					MON_MSG_APPEAR, false);
+			}
+		} else if (context->seen) {
 			add_monster_message(mon, hurt_msg, false);
 		}
 	} else if (context->teleport_distance > 0) {
@@ -1337,7 +1350,12 @@ void project_m(struct source origin, int r, struct loc grid, int dam, int typ,
 	context.lore = lore;
 
 	/* See visible monsters */
-	if (monster_is_visible(mon)) {
+	if (monster_is_mimicking(mon)) {
+		if (monster_is_in_view(mon)) {
+			seen = true;
+			context.seen = true;
+		}
+	} else if (monster_is_visible(mon)) {
 		seen = true;
 		context.seen = seen;
 	}
@@ -1356,6 +1374,17 @@ void project_m(struct source origin, int r, struct loc grid, int dam, int typ,
 	/* Some monsters get "destroyed" */
 	if (monster_is_destroyed(mon))
 		context.die_msg = MON_MSG_DESTROYED;
+
+	/* Reveal a camouflaged monster if in view and it stopped an effect. */
+	if ((flg & PROJECT_STOP) && monster_is_camouflaged(mon)
+			&& monster_is_in_view(mon)) {
+		become_aware(cave, mon, player);
+		/* Reevaluate whether it's seen. */
+		if (monster_is_visible(mon)) {
+			seen = true;
+			context.seen = true;
+		}
+	}
 
 	/* Force obviousness for certain types if seen. */
 	if (projections[typ].obvious && context.seen)

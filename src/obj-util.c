@@ -117,7 +117,7 @@ static void flavor_assign_random(byte tval)
  * Mainly useful for randarts so that fixed flavors for standards aren't
  * predictable. The One Ring is kept as fixed, since it lives through randarts.
  */
-void flavor_reset_fixed(void)
+static void flavor_reset_fixed(void)
 {
 	struct flavor *f;
 
@@ -554,9 +554,10 @@ static int compare_types(const struct object *o1, const struct object *o2)
 int compare_items(const struct object *o1, const struct object *o2)
 {
 	/* unknown objects go at the end, order doesn't matter */
-	if (is_unknown(o1) || is_unknown(o2)) {
-		if (!is_unknown(o1)) return -1;
-		return 1;
+	if (is_unknown(o1)) {
+		return (is_unknown(o2)) ? 0 : 1;
+	} else if (is_unknown(o2)) {
+		return -1;
 	}
 
 	/* known artifacts will sort first */
@@ -655,7 +656,7 @@ bool obj_kind_can_browse(const struct object_kind *kind)
 
 	for (i = 0; i < player->class->magic.num_books; i++) {
 		struct class_book book = player->class->magic.books[i];
-		if (kind == lookup_kind(book.tval, book.sval))
+		if (kind->tval == book.tval && kind->sval == book.sval)
 			return true;
 	}
 
@@ -800,19 +801,17 @@ bool obj_can_fail(const struct object *o)
 
 
 /**
- * Returns the number of times in 1000 that @ will FAIL
- * - thanks to Ed Graham for the formula
+ * Failure rate for magic devices.
+ * This has been rewritten for 4.2.3 following the discussions in the thread
+ * http://angband.oook.cz/forum/showthread.php?t=10594
+ * It uses a scaled, shifted version of the sigmoid function x/(1+|x|), namely
+ * 380 - 370(x/(10+|x|)), where x is 2 * (device skill - device level) + 1,
+ * to give fail rates out of 1000.
  */
 int get_use_device_chance(const struct object *obj)
 {
-	int lev, fail, numerator, denominator;
-
+	int lev, fail, x;
 	int skill = player->state.skills[SKILL_DEVICE];
-
-	int skill_min = 10;
-	int skill_max = 141;
-	int diff_min  = 1;
-	int diff_max  = 100;
 
 	/* Extract the item level, which is the difficulty rating */
 	if (obj->artifact)
@@ -820,18 +819,13 @@ int get_use_device_chance(const struct object *obj)
 	else
 		lev = obj->kind->level;
 
-	/* TODO: maybe use something a little less convoluted? */
-	numerator   = (skill - lev) - (skill_max - diff_min);
-	denominator = (lev - skill) - (diff_max - skill_min);
+	/* Calculate x */
+	x = 2 * (skill - lev) + 1;
 
-	/* Make sure that we don't divide by zero */
-	if (denominator == 0) denominator = numerator > 0 ? 1 : -1;
-
-	fail = (100 * numerator) / denominator;
-
-	/* Ensure failure rate is between 1% and 75% */
-	if (fail > 750) fail = 750;
-	if (fail < 10) fail = 10;
+	/* Now calculate the failure rate */
+	fail = -370 * x;
+	fail /= (10 + ABS(x));
+	fail += 380;
 
 	return fail;
 }
@@ -938,7 +932,7 @@ bool recharge_timeout(struct object *obj)
  *
  * The item can be negative to mean "item on floor".
  */
-bool verify_object(const char *prompt, struct object *obj)
+bool verify_object(const char *prompt, const struct object *obj)
 {
 	char o_name[80];
 

@@ -34,6 +34,9 @@ int (*get_spell_hook)(const char *verb, item_tester book_filter, cmd_code cmd,
 bool (*get_item_hook)(struct object **choice, const char *pmt, const char *str,
 					  cmd_code cmd, item_tester tester, int mode);
 bool (*get_curse_hook)(int *choice, struct object *obj, char *dice_string);
+int (*get_effect_from_list_hook)(const char* prompt,
+	struct effect *effect, int count, bool allow_random);
+bool (*confirm_debug_hook)(void);
 void (*get_panel_hook)(int *min_y, int *min_x, int *max_y, int *max_x);
 bool (*panel_contains_hook)(unsigned int y, unsigned int x);
 bool (*map_is_visible_hook)(void);
@@ -199,6 +202,54 @@ bool get_curse(int *choice, struct object *obj, char *dice_string)
 		return get_curse_hook(choice, obj, dice_string);
 	else
 		return false;
+}
+
+/**
+ * Select an effect from a list.
+ * \param prompt is the prompt to present to the user.  May be NULL to use
+ * a default prompt.
+ * \param effect is the pointer to the first effect in the linked list.
+ * \param count is the number of effects in the list.  If count is -1, use
+ * all of the effects in the list.
+ * \param allow_random if true, present an additional option which will
+ * select a random effect from the list.  If false, only present the options
+ * corresponding to the effects in the list.
+ * \return the index of the selected item in the list, -2 if the user selected
+ * the random option enabled by allow_random, or -1 to indicate a canceled or
+ * invalid selection
+ */
+int get_effect_from_list(const char *prompt, struct effect *effect, int count,
+	bool allow_random)
+{
+	/* Ask the UI for it */
+	if (get_effect_from_list_hook) {
+		return get_effect_from_list_hook(prompt, effect, count,
+			allow_random);
+	}
+	/*
+	 * If there's no UI implementation but a random selection is allowed,
+	 * use that.
+	 */
+	return (allow_random) ? -2 : -1;
+}
+
+/**
+ * Confirm whether to enable the debugging commands.
+ */
+bool confirm_debug(void)
+{
+	/* Use a UI-specific method. */
+	if (confirm_debug_hook) {
+		return confirm_debug_hook();
+	}
+
+	/* Otherwise, use a generic procedure.  First, mention effects. */
+	msg("You are about to use the dangerous, unsupported, debug commands!");
+	msg("Your machine may crash, and your savefile may become corrupted!");
+	event_signal(EVENT_MESSAGE_FLUSH);
+
+	/* Then verify. */
+	return get_check("Are you sure you want to use the debug commands? ");
 }
 
 /**

@@ -18,6 +18,7 @@
  */
 
 #include "angband.h"
+#include "player-properties.h"
 #include "ui-input.h"
 #include "ui-menu.h"
 
@@ -78,8 +79,8 @@ static char view_ability_tag(struct menu *menu, int oid)
 /**
  * Display an entry on the gain ability menu
  */
-void view_ability_display(struct menu *menu, int oid, bool cursor, int row,
-					   int col, int width)
+static void view_ability_display(struct menu *menu, int oid, bool cursor,
+	int row, int col, int width)
 {
 	char buf[80];
 	byte color;
@@ -88,25 +89,28 @@ void view_ability_display(struct menu *menu, int oid, bool cursor, int row,
 	switch (choices[oid].group) {
 	case PLAYER_FLAG_SPECIAL:
 		{
-			sprintf(buf, "Specialty Ability: %s", choices[oid].name);
+			strnfmt(buf, sizeof(buf), "Specialty Ability: %s",
+				choices[oid].name);
 			color = COLOUR_GREEN;
 			break;
 		}
 	case PLAYER_FLAG_CLASS:
 		{
-			sprintf(buf, "Class: %s", choices[oid].name);
+			strnfmt(buf, sizeof(buf), "Class: %s",
+				choices[oid].name);
 			color = COLOUR_UMBER;
 			break;
 		}
 	case PLAYER_FLAG_RACE:
 		{
-			sprintf(buf, "Racial: %s", choices[oid].name);
+			strnfmt(buf, sizeof(buf), "Racial: %s",
+				choices[oid].name);
 			color = COLOUR_ORANGE;
 			break;
 		}
 	default:
 		{
-			sprintf(buf, "Mysterious");
+			my_strcpy(buf, "Mysterious", sizeof(buf));
 			color = COLOUR_PURPLE;
 		}
 	}
@@ -143,7 +147,7 @@ static void view_ability_menu_browser(int oid, void *data, const region *loc)
 /**
  * Display list available specialties.
  */
-void view_ability_menu(void)
+static void view_ability_menu(void)
 {
 	struct menu menu;
 	menu_iter menu_f = { view_ability_tag, 0, view_ability_display, 0, 0 };
@@ -154,7 +158,7 @@ void view_ability_menu(void)
 	screen_save();
 
 	/* Prompt choices */
-	sprintf(buf,
+	strnfmt(buf, sizeof(buf),
 			"Race and class abilities (%c-%c, ESC=exit): ",
 			I2A(0), I2A(num_abilities - 1));
 

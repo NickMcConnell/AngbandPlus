@@ -55,7 +55,7 @@ static const char *mon_race_flags[] =
 
 static const char *obj_flags[] = {
 	"NONE",
-	#define OF(a) #a,
+	#define OF(a, b) #a,
 	#include "list-object-flags.h"
 	#undef OF
 	NULL
@@ -366,7 +366,7 @@ static enum parser_error parse_projection_color(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_projection(void) {
+static struct parser *init_parse_projection(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "code str code", parse_projection_code);
@@ -741,7 +741,7 @@ static enum parser_error parse_slay_range_verb(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_slay(void) {
+static struct parser *init_parse_slay(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "code str code", parse_slay_code);
@@ -906,7 +906,7 @@ static enum parser_error parse_brand_vuln_flag(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_brand(void) {
+static struct parser *init_parse_brand(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "code str code", parse_brand_code);
@@ -1233,7 +1233,7 @@ static enum parser_error parse_curse_conflict_flags(struct parser *p) {
 	return t ? PARSE_ERROR_INVALID_FLAG : PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_curse(void) {
+static struct parser *init_parse_curse(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "name str name", parse_curse_name);
@@ -1474,7 +1474,7 @@ static enum parser_error parse_act_desc(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_act(void) {
+static struct parser *init_parse_act(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "name str name", parse_act_name);
@@ -2057,6 +2057,11 @@ static enum parser_error parse_ego_name(struct parser *p) {
 	e->next = h;
 	parser_setpriv(p, e);
 	e->name = string_make(name);
+
+	/* Set all min-combat values to no minimum */
+	e->min_to_h = NO_MINIMUM;
+	e->min_to_d = NO_MINIMUM;
+	e->min_to_a = NO_MINIMUM;
 	return PARSE_ERROR_NONE;
 }
 
@@ -3141,7 +3146,7 @@ static enum parser_error parse_object_property_bindui(struct parser* p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_object_property(void) {
+static struct parser *init_parse_object_property(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "name str name", parse_object_property_name);

@@ -21,21 +21,12 @@
 
 #else
 
-/* Necessary? */
-#ifdef NDS
-# include <fat.h>
-# include <unistd.h>
-# include <reent.h>
-# include <sys/iosupport.h>
-# include <errno.h>
-#endif
-
 /**
  * Using C99, assume we have stdint and stdbool
  */
 # if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) \
   || (defined(_MSC_VER) && _MSC_VER >= 1600L)
-#  define HAVE_STDINT_H
+#  define HAVE_STDINT_H 1
 # endif
 
 # if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
@@ -70,14 +61,15 @@
 # ifndef HAVE_DIRENT_H
 #  define HAVE_DIRENT_H
 # endif
-#endif
 
 /**
- * Define SETGID if we are running as a central install on a multiuser
- * system that has setgid support.
+ * May need to be tightened:  without autoconf.h assume all Unixes have mkdir().
  */
-/* #define SETGID */
+# if !defined(HAVE_MKDIR) && !defined(HAVE_CONFIG_H)
+#   define HAVE_MKDIR
+# endif
 
+#endif
 
 /**
  * Every system seems to use its own symbol as a path separator.

@@ -26,9 +26,9 @@
 #          sustain, for instance).  The second is the value to pass.  That can
 #          be an integer or "special" where the latter indicates that the
 #          value passed will be determined internally.  bindui currently only
-#          affects parts of the second character screen.  It can appear
-#          multiple times for the same entry to bind it to multiple user
-#          interface elements.
+#          affects parts of the second character screen and the equippable
+#          comparison.  It can appear multiple times for the same entry to
+#          bind it to multiple user interface elements.
 # name - the name of the property
 # desc - the description of the property
 # value - value for elements; -1 (vulnerability), 1 (resistance) or 3 (immunity)
@@ -128,11 +128,11 @@ code:COMBAT_REGEN
 bindui:imphp_ui_compact_0:0:1
 name:Combat Regeneration
 desc:You draw power from the thrill of combat, represented by
-desc: Spell Points (SP). You gain SP when damaged by an enemy or
-desc: when you attack in melee. As your blood cools your power fades;
+desc: Spell Points (SP).  You gain SP when damaged by an enemy or
+desc: when you attack in melee.  As your blood cools your power fades;
 desc: you lose SP at half the rate other classes gain them.
-desc: When you spend SP by casting a spell you regain some health, and
-desc: fading SP replenish your health more efficiently. The more damaged
+desc:  When you spend SP by casting a spell you regain some health, and
+desc: fading SP replenish your health more efficiently.  The more damaged
 desc: you are, the bigger these health gains will be.
 
 

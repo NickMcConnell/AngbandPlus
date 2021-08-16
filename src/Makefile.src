@@ -6,7 +6,7 @@
 #
 
 NAME = Angband
-VERSION = 4.2.2
+VERSION = 4.2.3
 COPYRIGHT = (c) 1995-2021 Angband contributors
 PROGNAME = angband
 
@@ -90,6 +90,8 @@ ANGFILES = \
 	cmd-misc.o \
 	cmd-obj.o \
 	cmd-pickup.o \
+	cmd-spoil.o \
+	cmd-wizard.o \
 	datafile.o \
 	debug.o \
 	effects.o \
@@ -176,6 +178,7 @@ ANGFILES = \
 	ui-curse.o \
 	ui-death.o \
 	ui-display.o \
+	ui-effect.o \
 	ui-entry.o \
 	ui-entry-combiner.o \
 	ui-entry-renderers.o \
@@ -201,16 +204,20 @@ ANGFILES = \
 	ui-score.o \
 	ui-signals.o \
 	ui-spell.o \
+	ui-spoil.o \
 	ui-store.o \
 	ui-target.o \
 	ui-term.o \
 	ui-visuals.o \
+	ui-wizard.o \
 	wiz-debug.o \
 	wiz-spoil.o \
 	wiz-stats.o \
 
 STATSMAINFILES = main-stats.o \
         stats/db.o
+
+SPOILMAINFILES = main-spoil.o
 
 buildid.o: $(ANGFILES)
 ANGFILES += buildid.o

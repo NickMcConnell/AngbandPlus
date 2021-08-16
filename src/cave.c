@@ -382,17 +382,26 @@ struct chunk *cave_new(int height, int width) {
 }
 
 /**
+ * Free a linked list of cave connections.
+ */
+void cave_connectors_free(struct connector *join)
+{
+	while (join) {
+		struct connector *current = join;
+
+		join = current->next;
+		mem_free(current->info);
+		mem_free(current);
+	}
+}
+
+/**
  * Free a chunk
  */
 void cave_free(struct chunk *c) {
 	int y, x, i;
 
-	while (c->join) {
-		struct connector *current = c->join;
-		mem_free(current->info);
-		c->join = current->next;
-		mem_free(current);
-	}
+	cave_connectors_free(c->join);
 
 	/* Look for orphaned objects and delete them. */
 	for (i = 1; i < c->obj_max; i++) {
@@ -593,7 +602,11 @@ int cave_monster_count(struct chunk *c) {
 }
 
 /**
- * Return the number of doors/traps around (or under) the character.
+ * Return the number of matching grids around (or under) the character.
+ * \param grid If not NULL, *grid is set to the location of the last match.
+ * \param test Is the predicate to use when testing for a match.
+ * \param under If true, the character's grid is tested as well.
+ * Only tests grids that are known and fully in bounds.
  */
 int count_feats(struct loc *grid,
 				bool (*test)(struct chunk *c, struct loc grid), bool under)
@@ -622,9 +635,47 @@ int count_feats(struct loc *grid,
 		/* Count it */
 		++count;
 
-		/* Remember the location of the last door found */
+		/* Remember the location of the last match */
 		if (grid) {
 			*grid = grid1;
+		}
+	}
+
+	/* All done */
+	return count;
+}
+
+/**
+ * Return the number of matching grids around a location.
+ * \param match If not NULL, *match is set to the location of the last match.
+ * \param c Is the chunk to use.
+ * \param grid Is the location whose neighbors will be tested.
+ * \param test Is the predicate to use when testing for a match.
+ * \param under If true, grid is tested as well.
+ */
+int count_neighbors(struct loc *match, struct chunk *c, struct loc grid,
+	bool (*test)(struct chunk *c, struct loc grid), bool under)
+{
+	int dlim = (under) ? 9 : 8;
+	int count = 0; /* Count how many matches */
+	int d;
+	struct loc grid1;
+
+	/* Check the grid's neighbors and, if under is true, grid */
+	for (d = 0; d < dlim; d++) {
+		/* Extract adjacent (legal) location */
+		grid1 = loc_sum(grid, ddgrid_ddd[d]);
+		if (!square_in_bounds(c, grid1)) continue;
+
+		/* Reject those that don't match */
+		if (!((*test)(c, grid1))) continue;
+
+		/* Count it */
+		++count;
+
+		/* Remember the location of the last match */
+		if (match) {
+			*match = grid1;
 		}
 	}
 

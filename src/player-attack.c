@@ -78,26 +78,48 @@ int breakage_chance(const struct object *obj, bool hit_target) {
 }
 
 /**
- * Return the player's chance to hit with a particular weapon.
+ * Calculate the player's base melee to-hit value without regard to a specific
+ * monster.
+ * See also: chance_of_missile_hit_base
+ *
+ * \param p The player
+ * \param weapon The player's weapon
  */
-int chance_of_melee_hit(const struct player *p, const struct object *weapon)
+int chance_of_melee_hit_base(const struct player *p,
+		const struct object *weapon)
 {
-	int chance, bonus = p->state.to_h;
-
-	if (weapon)
-		bonus += weapon->to_h;
-	chance = p->state.skills[SKILL_TO_HIT_MELEE] + bonus * BTH_PLUS_ADJ;
-	return chance;
+	int bonus = p->state.to_h + (weapon ? weapon->to_h : 0);
+	return p->state.skills[SKILL_TO_HIT_MELEE] + bonus * BTH_PLUS_ADJ;
 }
 
 /**
- * Return the player's chance to hit with a particular missile and
- * (optionally) launcher.
+ * Calculate the player's melee to-hit value against a specific monster.
+ * See also: chance_of_missile_hit
+ *
+ * \param p The player
+ * \param weapon The player's weapon
+ * \param mon The monster
  */
-static int chance_of_missile_hit(const struct player *p,
+static int chance_of_melee_hit(const struct player *p,
+		const struct object *weapon, const struct monster *mon)
+{
+	int chance = chance_of_melee_hit_base(p, weapon);
+	/* Non-visible targets have a to-hit penalty of 50% */
+	return monster_is_visible(mon) ? chance : chance / 2;
+}
+
+/**
+ * Calculate the player's base missile to-hit value without regard to a specific
+ * monster.
+ * See also: chance_of_melee_hit_base
+ *
+ * \param p The player
+ * \param missile The missile to launch
+ * \param launcher The launcher to use (optional)
+ */
+static int chance_of_missile_hit_base(const struct player *p,
 								 const struct object *missile,
-								 const struct object *launcher,
-								 struct loc grid)
+								 const struct object *launcher)
 {
 	int bonus = missile->to_h;
 	int chance;
@@ -118,30 +140,83 @@ static int chance_of_missile_hit(const struct player *p,
 		chance = p->state.skills[SKILL_TO_HIT_BOW] + bonus * BTH_PLUS_ADJ;
 	}
 
-	return chance - distance(p->grid, grid);
+	return chance;
 }
 
 /**
- * Determine if the player "hits" a monster.
+ * Calculate the player's missile to-hit value against a specific monster.
+ * See also: chance_of_melee_hit
+ *
+ * \param p The player
+ * \param missile The missile to launch
+ * \param launcher Optional launcher to use (thrown weapons use no launcher)
+ * \param mon The monster
  */
-bool test_hit(int chance, int ac, int vis) {
-	int k = randint0(100);
-
-	/* There is an automatic 12% chance to hit,
-	 * and 5% chance to miss.
-	 */
-	if (k < 17) return k < 12;
-
-	/* Penalize invisible targets */
-	if (!vis) chance /= 2;
-
-	/* Starting a bit higher up on the scale */
-	if (chance < 9) chance = 9;
-
-	/* Power competes against armor */
-	return randint0(chance) >= (ac * 2 / 3);
+static int chance_of_missile_hit(const struct player *p,
+	const struct object *missile, const struct object *launcher,
+	const struct monster *mon)
+{
+	int chance = chance_of_missile_hit_base(p, missile, launcher);
+	/* Penalize for distance */
+	chance -= distance(p->grid, mon->grid);
+	/* Non-visible targets have a to-hit penalty of 50% */
+	return monster_is_obvious(mon) ? chance : chance / 2;
 }
 
+/**
+ * Determine if a hit roll is successful against the target AC.
+ * See also: hit_chance
+ *
+ * \param to_hit To total to-hit value to use
+ * \param ac The AC to roll against
+ */
+bool test_hit(int to_hit, int ac)
+{
+	random_chance c;
+	hit_chance(&c, to_hit, ac);
+	return random_chance_check(c);
+}
+
+/**
+ * Return a random_chance by reference, which represents the likelihood of a
+ * hit roll succeeding for the given to_hit and ac values. The hit calculation
+ * will:
+ *
+ * Always hit 12% of the time
+ * Always miss 5% of the time
+ * Put a floor of 9 on the to-hit value
+ * Roll between 0 and the to-hit value
+ * The outcome must be >= AC*2/3 to be considered a hit
+ *
+ * \param chance The random_chance to return-by-reference
+ * \param to_hit The to-hit value to use
+ * \param ac The AC to roll against
+ */
+void hit_chance(random_chance *chance, int to_hit, int ac)
+{
+	/* Percentages scaled to 10,000 to avoid rounding error */
+	const int HUNDRED_PCT = 10000;
+	const int ALWAYS_HIT = 1200;
+	const int ALWAYS_MISS = 500;
+
+	/* Put a floor on the to_hit */
+	to_hit = MAX(9, to_hit);
+
+	/* Calculate the hit percentage */
+	chance->numerator = MAX(0, to_hit - ac * 2 / 3);
+	chance->denominator = to_hit;
+
+	/* Convert the ratio to a scaled percentage */
+	chance->numerator = HUNDRED_PCT * chance->numerator / chance->denominator;
+	chance->denominator = HUNDRED_PCT;
+
+	/* The calculated rate only applies when the guaranteed hit/miss don't */
+	chance->numerator = chance->numerator *
+			(HUNDRED_PCT - ALWAYS_MISS - ALWAYS_HIT) / HUNDRED_PCT;
+
+	/* Add in the guaranteed hit */
+	chance->numerator += ALWAYS_HIT;
+}
 
 /**
  * ------------------------------------------------------------------------
@@ -265,7 +340,7 @@ static int o_critical_shot(const struct player *p,
 						   u32b *msg_type)
 {
 	int debuff_to_hit = is_debuffed(monster) ? DEBUFF_CRITICAL_HIT : 0;
-	int power = chance_of_missile_hit(p, missile, launcher, monster->grid)
+	int power = chance_of_missile_hit_base(p, missile, launcher)
 		+ debuff_to_hit;
 	int add_dice = 0;
 
@@ -342,7 +417,7 @@ static int o_critical_melee(const struct player *p,
 							const struct object *obj, u32b *msg_type)
 {
 	int debuff_to_hit = is_debuffed(monster) ? DEBUFF_CRITICAL_HIT : 0;
-	int power = (chance_of_melee_hit(p, obj) + debuff_to_hit) / 3;
+	int power = (chance_of_melee_hit_base(p, obj) + debuff_to_hit) / 3;
 	int add_dice = 0;
 
 	/* Test for critical hit - chance power / (power + 240) */
@@ -623,7 +698,6 @@ bool py_attack_real(struct player *p, struct loc grid, bool *fear)
 	struct object *obj = equipped_item_by_slot_name(p, "weapon");
 
 	/* Information about the attack */
-	int chance = chance_of_melee_hit(p, obj);
 	int drain = 0;
 	int splash = 0;
 	bool do_quake = false;
@@ -658,7 +732,7 @@ bool py_attack_real(struct player *p, struct loc grid, bool *fear)
 	mon_clear_timed(mon, MON_TMD_HOLD, MON_TMD_FLG_NOTIFY);
 
 	/* See if the player hit */
-	success = test_hit(chance, mon->race->ac, monster_is_visible(mon));
+	success = test_hit(chance_of_melee_hit(p, obj, mon), mon->race->ac);
 
 	/* If a miss, skip this hit */
 	if (!success) {
@@ -754,7 +828,7 @@ bool py_attack_real(struct player *p, struct loc grid, bool *fear)
 
 	/* Damage, check for hp drain, fear and death */
 	drain = MIN(mon->hp, dmg);
-	stop = mon_take_hit(mon, dmg, fear, NULL);
+	stop = mon_take_hit(mon, p, dmg, fear, NULL);
 
 	/* Small chance of bloodlust side-effects */
 	if (p->timed[TMD_BLOODLUST] && one_in_(50)) {
@@ -783,7 +857,7 @@ bool py_attack_real(struct player *p, struct loc grid, bool *fear)
 /**
  * Attempt a shield bash; return true if the monster dies
  */
-bool attempt_shield_bash(struct player *p, struct monster *mon, bool *fear)
+static bool attempt_shield_bash(struct player *p, struct monster *mon, bool *fear)
 {
 	struct object *weapon = slot_object(p, slot_by_name(p, "weapon"));
 	struct object *shield = slot_object(p, slot_by_name(p, "arm"));
@@ -842,7 +916,7 @@ bool attempt_shield_bash(struct player *p, struct monster *mon, bool *fear)
 	}
 
 	/* Damage, check for fear and death. */
-	if (mon_take_hit(mon, bash_dam, fear, NULL)) return true;
+	if (mon_take_hit(mon, p, bash_dam, fear, NULL)) return true;
 
 	/* Stunning. */
 	if (bash_quality + p->lev > randint1(200 + mon->race->level * 8)) {
@@ -980,11 +1054,11 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 	p->upkeep->energy_use = (z_info->move_energy * 10 / shots);
 
 	/* Calculate the path */
-	path_n = project_path(path_g, range, grid, target, 0);
+	path_n = project_path(cave, path_g, range, grid, target, 0);
 
 	/* Calculate potenital piercing */
-	if (player->timed[TMD_POWERSHOT] && tval_is_sharp_missile(obj)) {
-		pierce = player->state.ammo_mult;
+	if (p->timed[TMD_POWERSHOT] && tval_is_sharp_missile(obj)) {
+		pierce = p->state.ammo_mult;
 	}
 
 	/* Hack -- Handle stuff */
@@ -1009,7 +1083,7 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 		/* Try the attack on the monster at (x, y) if any */
 		mon = square_monster(cave, path_g[i]);
 		if (mon) {
-			int visible = monster_is_visible(mon);
+			int visible = monster_is_obvious(mon);
 
 			bool fear = false;
 			const char *note_dies = monster_is_destroyed(mon) ? 
@@ -1065,16 +1139,16 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 					}
 
 					/* Track this monster */
-					if (monster_is_visible(mon)) {
+					if (monster_is_obvious(mon)) {
 						monster_race_track(p->upkeep, mon->race);
 						health_track(p->upkeep, mon);
 					}
 				}
 
 				/* Hit the monster, check for death */
-				if (!mon_take_hit(mon, dmg, &fear, note_dies)) {
+				if (!mon_take_hit(mon, p, dmg, &fear, note_dies)) {
 					message_pain(mon, dmg);
-					if (fear && monster_is_visible(mon)) {
+					if (fear && monster_is_obvious(mon)) {
 						add_monster_message(mon, MON_MSG_FLEE_IN_TERROR, true);
 					}
 				}
@@ -1116,13 +1190,12 @@ static struct attack_result make_ranged_shot(struct player *p,
 	struct attack_result result = {false, 0, 0, hit_verb};
 	struct object *bow = equipped_item_by_slot_name(p, "shooting");
 	struct monster *mon = square_monster(cave, grid);
-	int chance = chance_of_missile_hit(p, ammo, bow, grid);
 	int b = 0, s = 0;
 
 	my_strcpy(hit_verb, "hits", 20);
 
-	/* Did we hit it (penalize distance travelled) */
-	if (!test_hit(chance, mon->race->ac, monster_is_visible(mon)))
+	/* Did we hit it */
+	if (!test_hit(chance_of_missile_hit(p, ammo, bow, mon), mon->race->ac))
 		return result;
 
 	result.success = true;
@@ -1153,13 +1226,12 @@ static struct attack_result make_ranged_throw(struct player *p,
 	char *hit_verb = mem_alloc(20 * sizeof(char));
 	struct attack_result result = {false, 0, 0, hit_verb};
 	struct monster *mon = square_monster(cave, grid);
-	int chance = chance_of_missile_hit(p, obj, NULL, grid);
 	int b = 0, s = 0;
 
 	my_strcpy(hit_verb, "hits", 20);
 
 	/* If we missed then we're done */
-	if (!test_hit(chance, mon->race->ac, monster_is_visible(mon)))
+	if (!test_hit(chance_of_missile_hit(p, obj, NULL, mon), mon->race->ac))
 		return result;
 
 	result.success = true;
@@ -1183,6 +1255,16 @@ static struct attack_result make_ranged_throw(struct player *p,
 
 
 /**
+ * Help do_cmd_throw():  restrict which equipment can be thrown.
+ */
+static bool restrict_for_throwing(const struct object *obj)
+{
+	return !object_is_equipped(player->body, obj) ||
+			(tval_is_melee_weapon(obj) && obj_can_takeoff(obj));
+}
+
+
+/**
  * Fire an object from the quiver, pack or floor at a target.
  */
 void do_cmd_fire(struct command *cmd) {
@@ -1195,13 +1277,8 @@ void do_cmd_fire(struct command *cmd) {
 	struct object *bow = equipped_item_by_slot_name(player, "shooting");
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
+	if (!player_get_resume_normal_shape(player, cmd)) {
+		return;
 	}
 
 	/* Get arguments */
@@ -1242,7 +1319,8 @@ void do_cmd_fire(struct command *cmd) {
 
 
 /**
- * Throw an object from the quiver, pack or floor.
+ * Throw an object from the quiver, pack, floor, or, in limited circumstances,
+ * the equipment.
  */
 void do_cmd_throw(struct command *cmd) {
 	int dir;
@@ -1254,21 +1332,22 @@ void do_cmd_throw(struct command *cmd) {
 	int range;
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
+	if (!player_get_resume_normal_shape(player, cmd)) {
+		return;
 	}
 
-	/* Get arguments */
+	/*
+	 * Get arguments.  Never default to showing the equipment as the first
+	 * list (since throwing the equipped weapon leaves that slot empty will
+	 * have to choose another source anyways).
+	 */
+	if (player->upkeep->command_wrk == USE_EQUIP)
+		player->upkeep->command_wrk = USE_INVEN;
 	if (cmd_get_item(cmd, "item", &obj,
 			/* Prompt */ "Throw which item?",
 			/* Error  */ "You have nothing to throw.",
-			/* Filter */ NULL,
-			/* Choice */ USE_QUIVER | USE_INVEN | USE_FLOOR | SHOW_THROWING)
+			/* Filter */ restrict_for_throwing,
+			/* Choice */ USE_EQUIP | USE_QUIVER | USE_INVEN | USE_FLOOR | SHOW_THROWING)
 		!= CMD_OK)
 		return;
 
@@ -1277,15 +1356,13 @@ void do_cmd_throw(struct command *cmd) {
 	else
 		return;
 
+	if (object_is_equipped(player->body, obj)) {
+		assert(obj_can_takeoff(obj) && tval_is_melee_weapon(obj));
+		inven_takeoff(obj);
+	}
 
 	weight = MAX(obj->weight, 10);
 	range = MIN(((str + 20) * 10) / weight, 10);
-
-	/* Make sure the player isn't throwing wielded items */
-	if (object_is_equipped(player->body, obj)) {
-		msg("You cannot throw wielded items.");
-		return;
-	}
 
 	ranged_helper(player, obj, dir, range, shots, attack, ranged_hit_types,
 				  (int) N_ELEMENTS(ranged_hit_types));

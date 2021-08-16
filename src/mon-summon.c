@@ -141,7 +141,7 @@ static enum parser_error parse_summon_desc(struct parser *p) {
 
 
 
-struct parser *init_parse_summon(void) {
+static struct parser *init_parse_summon(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 
@@ -400,7 +400,7 @@ static int call_monster(struct loc grid)
 int summon_specific(struct loc grid, int lev, int type, bool delay, bool call)
 {
 	int i;
-	struct loc near;
+	struct loc near = grid;
 	struct monster *mon;
 	struct monster_race *race;
 	struct monster_group_info info = { 0, 0 };
@@ -441,7 +441,7 @@ int summon_specific(struct loc grid, int lev, int type, bool delay, bool call)
 	get_mon_num_prep(summon_specific_okay);
 
 	/* Pick a monster, using the level calculation */
-	race = get_mon_num((player->depth + lev) / 2 + 5);
+	race = get_mon_num((player->depth + lev) / 2 + 5, player->depth);
 
 	/* Prepare allocation table */
 	get_mon_num_prep(NULL);
@@ -493,7 +493,7 @@ struct monster_race *select_shape(struct monster *mon, int type)
 	get_mon_num_prep(summon_specific_okay);
 
 	/* Pick a monster */
-	race = get_mon_num(player->depth + 5);
+	race = get_mon_num(player->depth + 5, player->depth);
 
 	/* Prepare allocation table */
 	get_mon_num_prep(NULL);

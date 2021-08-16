@@ -65,7 +65,7 @@ struct hint *hints;
 
 static const char *obj_flags[] = {
 	"NONE",
-	#define OF(a) #a,
+	#define OF(a, b) #a,
 	#include "list-object-flags.h"
 	#undef OF
 	NULL
@@ -96,7 +96,7 @@ static struct store *store_new(int idx) {
 /**
  * Get rid of stores at cleanup. Gets rid of everything.
  */
-void cleanup_stores(void)
+static void cleanup_stores(void)
 {
 	struct owner *o, *o_next;
 	struct object_buy *buy, *buy_next;
@@ -424,7 +424,18 @@ static bool store_can_carry(struct store *store, struct object_kind *kind) {
 	return store_is_staple(store, kind);
 }
 
-
+/**
+ * Check if an object is such that selling it should reduce the stock.
+ */
+static bool store_sale_should_reduce_stock(struct store *store,
+		struct object *obj)
+{
+	if (obj->artifact || obj->ego) return true;
+	if (tval_is_weapon(obj) && (obj->to_h || obj->to_d))
+		return true;
+	if (tval_is_armor(obj) && obj->to_a) return true;
+	return !store_is_staple(store, obj->kind);
+}
 
 
 /**
@@ -562,7 +573,7 @@ static bool store_will_buy(struct store *store, const struct object *obj)
 
 		/* OK if the object is known to have the flag */
 		if (of_has(obj->flags, buy->flag) &&
-			object_flag_is_known(obj, buy->flag))
+			object_flag_is_known(player, obj, buy->flag))
 			return true;
 	}
 
@@ -988,7 +999,7 @@ struct object *store_carry(struct store *store, struct object *obj)
 }
 
 
-void store_delete(struct store *s, struct object *obj, int amt)
+static void store_delete(struct store *s, struct object *obj, int amt)
 {
 	struct object *known_obj = obj->known;
 
@@ -1007,9 +1018,11 @@ void store_delete(struct store *s, struct object *obj, int amt)
 
 
 /**
- * Find a given object kind in the store.
+ * Find a given object kind in the store.  If fexclude is not NULL, exclude
+ * any object, o, for which (*fexclude)(s, o) is true.
  */
-static struct object *store_find_kind(struct store *s, struct object_kind *k) {
+static struct object *store_find_kind(struct store *s, struct object_kind *k,
+		bool (*fexclude)(struct store *, struct object *)) {
 	struct object *obj;
 
 	assert(s);
@@ -1017,8 +1030,8 @@ static struct object *store_find_kind(struct store *s, struct object_kind *k) {
 
 	/* Check if it's already in stock */
 	for (obj = s->stock; obj; obj = obj->next) {
-		if (obj->kind == k && !obj->ego)
-			return obj;
+		if (obj->kind == k && (fexclude == NULL ||
+			!((*fexclude)(s, obj)))) return obj;
 	}
 
 	return NULL;
@@ -1213,7 +1226,7 @@ static bool store_create_random(struct store *store)
 
 		/* Know everything the player knows, no origin yet */
 		obj->known->notice |= OBJ_NOTICE_ASSESSED;
-		object_set_base_known(obj);
+		object_set_base_known(player, obj);
 		obj->known->notice |= OBJ_NOTICE_ASSESSED;
 		player_know_object(player, obj);
 		obj->origin = ORIGIN_NONE;
@@ -1269,7 +1282,7 @@ static struct object *store_create_item(struct store *store,
 	/* Know everything the player knows, no origin yet */
 	obj->known = known_obj;
 	obj->known->notice |= OBJ_NOTICE_ASSESSED;
-	object_set_base_known(obj);
+	object_set_base_known(player, obj);
 	obj->known->notice |= OBJ_NOTICE_ASSESSED;
 	player_know_object(player, obj);
 	obj->origin = ORIGIN_NONE;
@@ -1354,7 +1367,8 @@ static void store_maint(struct store *s)
 		size_t i;
 		for (i = 0; i < s->always_num; i++) {
 			struct object_kind *kind = s->always_table[i];
-			struct object *obj = store_find_kind(s, kind);
+			struct object *obj = store_find_kind(s, kind,
+				store_sale_should_reduce_stock);
 
 			/* Create the item if it doesn't exist */
 			if (!obj)
@@ -1652,7 +1666,7 @@ void do_cmd_buy(struct command *cmd)
 	object_copy_amt(bought, obj, amt);
 
 	/* Ensure we have room */
-	if (bought->number > inven_carry_num(bought, false)) {
+	if (bought->number > inven_carry_num(bought)) {
 		msg("You cannot carry that many items.");
 		object_delete(&bought);
 		return;
@@ -1716,8 +1730,9 @@ void do_cmd_buy(struct command *cmd)
 	/* Handle stuff */
 	handle_stuff(player);
 
-	/* Remove the bought objects from the store if it's not a staple */
-	if (!store_is_staple(store, obj->kind)) {
+	/* Remove the bought objects from the store if it's not a readily
+	 * replaced staple item */
+	if (store_sale_should_reduce_stock(store, obj)) {
 		/* Reduce or remove the item */
 		store_delete(store, obj, amt);
 
@@ -1779,7 +1794,7 @@ void do_cmd_retrieve(struct command *cmd)
 	object_copy_amt(picked_item, obj, amt);
 
 	/* Ensure we have room */
-	if (picked_item->number > inven_carry_num(picked_item, false)) {
+	if (picked_item->number > inven_carry_num(picked_item)) {
 		msg("You cannot carry that many items.");
 		object_delete(&picked_item);
 		return;
@@ -1871,7 +1886,7 @@ void do_cmd_sell(struct command *cmd)
 	}
 
 	/* Get the label */
-	label = gear_to_label(obj);
+	label = gear_to_label(player, obj);
 
 	price = price_item(store, &dummy_item, true, amt);
 
@@ -2003,7 +2018,7 @@ void do_cmd_stash(struct command *cmd)
 	}
 
 	/* Get where the object is now */
-	label = gear_to_label(obj);
+	label = gear_to_label(player, obj);
 
 	/* Now get the real item */
 	dropped = gear_object_for_use(obj, amt, false, &none_left);

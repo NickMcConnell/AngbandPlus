@@ -84,6 +84,12 @@
     <ClCompile Include="src\cmd-pickup.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\cmd-spoil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cmd-wizard.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\datafile.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -339,6 +345,9 @@
     <ClCompile Include="src\ui-display.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui-effect.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\ui-event.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -402,6 +411,9 @@
     <ClCompile Include="src\ui-spell.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui-spoil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\ui-store.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -409,6 +421,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui-term.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui-wizard.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\wiz-debug.c">
@@ -626,6 +641,9 @@
     <ClInclude Include="src\list-rooms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\list-room-flags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\list-square-flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -839,6 +857,9 @@
     <ClInclude Include="src\ui-display.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ui-effect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\ui-event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -902,6 +923,9 @@
     <ClInclude Include="src\ui-spell.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ui-spoil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\ui-store.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -912,6 +936,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ui-visuals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui-wizard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\wizard.h">

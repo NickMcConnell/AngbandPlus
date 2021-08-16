@@ -155,6 +155,8 @@ struct term_win
  *	- Hook for drawing a string of chars using an attr
  *
  *	- Hook for drawing a sequence of special attr/char pairs
+ *
+ *      - Hook to test if an attr/char pair is a double-height tile
  */
 
 typedef struct term term;
@@ -234,6 +236,8 @@ struct term
 
 	void (*view_map_hook)(term *t);
 
+        int (*dblh_hook)(int a, wchar_t c);
+
 };
 
 
@@ -255,16 +259,18 @@ struct term
 #define SIDEBAR_NONE 2
 #define SIDEBAR_MAX  (SIDEBAR_NONE+1)
 
-extern int row_map[SIDEBAR_MAX];
+extern int row_top_map[SIDEBAR_MAX];
+extern int row_bottom_map[SIDEBAR_MAX];
 extern int col_map[SIDEBAR_MAX];
 
-#define ROW_MAP	(row_map[Term->sidebar_mode])
+#define ROW_MAP	(row_top_map[Term->sidebar_mode])
+#define ROW_BOTTOM_MAP (row_bottom_map[Term->sidebar_mode])
 #define COL_MAP	(col_map[Term->sidebar_mode])
 
 /**
  * Number of text rows in each map screen, regardless of tile size
  */
-#define SCREEN_ROWS	(Term->hgt - ROW_MAP - 1) 
+#define SCREEN_ROWS	(Term->hgt - ROW_MAP - ROW_BOTTOM_MAP)
 
 /**
  * Number of grids in each screen (vertically)
@@ -366,7 +372,8 @@ extern u32b window_flag[ANGBAND_TERM_MAX];
 extern errr Term_xtra(int n, int v);
 
 extern void Term_queue_char(term *t, int x, int y, int a, wchar_t c, int ta, wchar_t tc);
-extern void Term_big_queue_char(term *t, int x, int y, int a, wchar_t c, int a1, wchar_t c1);
+extern void Term_big_queue_char(term *t, int x, int y, int clipy,
+	int a, wchar_t c, int a1, wchar_t c1);
 extern void Term_queue_chars(int x, int y, int n, int a, const wchar_t *s);
 
 extern errr Term_fresh(void);
@@ -407,5 +414,7 @@ extern errr term_nuke(term *t);
 extern errr term_init(term *t, int w, int h, int k);
 
 extern int big_pad(int col, int row, byte a, wchar_t c);
+
+extern int Term_get_first_tile_row(term *t);
 
 #endif /* INCLUDED_Z_TERM_H */

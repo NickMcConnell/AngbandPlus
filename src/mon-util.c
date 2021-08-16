@@ -217,8 +217,8 @@ static void path_analyse(struct chunk *c, struct loc grid)
 	}
 
 	/* Plot the path. */
-	path_n = project_path(path_g, z_info->max_range, player->grid, grid,
-						  PROJECT_NONE);
+	path_n = project_path(cave, path_g, z_info->max_range, player->grid,
+		grid, PROJECT_NONE);
 
 	/* Project along the path */
 	for (i = 0; i < path_n - 1; ++i) {
@@ -590,7 +590,7 @@ void monster_swap(struct loc grid1, struct loc grid2)
 			if (monster_is_in_view(mon) ||
 				(m2 >= 0 && los(cave, pgrid, grid2)) ||
 				(m2 < 0 && los(cave, grid1, grid2))) {
-				become_aware(mon);
+				become_aware(cave, mon, player);
 			} else {
 				move_mimicked_object(cave, mon, grid1, grid2);
 				player->upkeep->redraw |= (PR_ITEMLIST);
@@ -601,7 +601,7 @@ void monster_swap(struct loc grid1, struct loc grid2)
 
 		/* Affect light? */
 		if (mon->race->light != 0)
-			player->upkeep->update |= PU_UPDATE_VIEW;
+			player->upkeep->update |= PU_UPDATE_VIEW | PU_MONSTERS;
 
 		/* Redraw monster list */
 		player->upkeep->redraw |= (PR_MONLIST);
@@ -639,7 +639,7 @@ void monster_swap(struct loc grid1, struct loc grid2)
 			if (monster_is_in_view(mon) ||
 				(m1 >= 0 && los(cave, pgrid, grid1)) ||
 				(m1 < 0 && los(cave, grid2, grid1))) {
-				become_aware(mon);
+				become_aware(cave, mon, player);
 			} else {
 				move_mimicked_object(cave, mon, grid2, grid1);
 				player->upkeep->redraw |= (PR_ITEMLIST);
@@ -650,7 +650,7 @@ void monster_swap(struct loc grid1, struct loc grid2)
 
 		/* Affect light? */
 		if (mon->race->light != 0)
-			player->upkeep->update |= PU_UPDATE_VIEW;
+			player->upkeep->update |= PU_UPDATE_VIEW | PU_MONSTERS;
 
 		/* Redraw monster list */
 		player->upkeep->redraw |= (PR_MONLIST);
@@ -706,10 +706,13 @@ bool monster_can_see(struct chunk *c, struct monster *mon, struct loc grid)
 /**
  * Make player fully aware of the given mimic.
  *
+ * \param c Is the chunk with the monster.
+ * \param mon Is the monster.
+ * \param p Is the player that becomes aware of the mimic.
  * When a player becomes aware of a mimic, we update the monster memory
  * and delete the "fake item" that the monster was mimicking.
  */
-void become_aware(struct monster *mon)
+void become_aware(struct chunk *c, struct monster *mon, struct player *p)
 {
 	struct monster_lore *lore = get_lore(mon->race);
 
@@ -727,7 +730,7 @@ void become_aware(struct monster *mon)
 			object_desc(o_name, sizeof(o_name), obj, ODESC_BASE);
 
 			/* Print a message */
-			if (square_isseen(cave, obj->grid))
+			if (square_isseen(c, obj->grid))
 				msg("The %s was really a monster!", o_name);
 
 			/* Clear the mimicry */
@@ -749,7 +752,7 @@ void become_aware(struct monster *mon)
 					given->known->oidx = 0;
 					given->known->grid = loc(0, 0);
 				}
-				if (! monster_carry(cave, mon, given)) {
+				if (! monster_carry(c, mon, given)) {
 					if (given->known) {
 						object_delete(&given->known);
 					}
@@ -761,16 +764,21 @@ void become_aware(struct monster *mon)
 			 * Delete the mimicked object; noting and lighting
 			 * done below outside of the if block.
 			 */
-			square_delete_object(cave, obj->grid, obj, false, false);
+			square_delete_object(c, obj->grid, obj, false, false);
+
+			/* Since mimicry affects visibility, update that. */
+			update_mon(mon, c, false);
 		}
 
 		/* Update monster and item lists */
-		player->upkeep->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-		player->upkeep->redraw |= (PR_MONLIST | PR_ITEMLIST);
+		if (mon->race->light != 0) {
+			p->upkeep->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		}
+		p->upkeep->redraw |= (PR_MONLIST | PR_ITEMLIST);
 	}
 
-	square_note_spot(cave, mon->grid);
-	square_light_spot(cave, mon->grid);
+	square_note_spot(c, mon->grid);
+	square_light_spot(c, mon->grid);
 }
 
 /**
@@ -941,7 +949,7 @@ struct monster *choose_nearby_injured_kin(struct chunk *c,
  * If `stats` is true, then we skip updating the monster memory. This is
  * used by stats-generation code, for efficiency.
  */
-void monster_death(struct monster *mon, bool stats)
+void monster_death(struct monster *mon, struct player *p, bool stats)
 {
 	int dump_item = 0;
 	int dump_gold = 0;
@@ -994,20 +1002,17 @@ void monster_death(struct monster *mon, bool stats)
 		lore_treasure(mon, dump_item, dump_gold);
 
 	/* Update monster list window */
-	player->upkeep->redraw |= PR_MONLIST;
-
-	/* Affect light? */
-	if (mon->race->light != 0)
-		player->upkeep->update |= PU_UPDATE_VIEW;
+	p->upkeep->redraw |= PR_MONLIST;
 
 	/* Check if we finished a quest */
-	quest_check(mon);
+	quest_check(p, mon);
 }
 
 /**
  * Handle the consequences of the killing of a monster by the player
  */
-static void player_kill_monster(struct monster *mon, const char *note)
+static void player_kill_monster(struct monster *mon, struct player *p,
+		const char *note)
 {
 	s32b div, new_exp, new_exp_frac;
 	struct monster_lore *lore = get_lore(mon->race);
@@ -1044,14 +1049,14 @@ static void player_kill_monster(struct monster *mon, const char *note)
 			my_strcap(str);
 
 			/* Make sure to flush any monster messages first */
-			notice_stuff(player);
+			notice_stuff(p);
 
 			/* Death by Missile attack */
 			msgt(soundfx, "%s", str);
 		}
 	} else {
 		/* Make sure to flush any monster messages first */
-		notice_stuff(player);
+		notice_stuff(p);
 
 		if (!monster_is_visible(mon))
 			/* Death by physical attack -- invisible monster */
@@ -1065,21 +1070,21 @@ static void player_kill_monster(struct monster *mon, const char *note)
 	}
 
 	/* Player level */
-	div = player->lev;
+	div = p->lev;
 
 	/* Give some experience for the kill */
 	new_exp = ((long)mon->race->mexp * mon->race->level) / div;
 
 	/* Handle fractional experience */
 	new_exp_frac = ((((long)mon->race->mexp * mon->race->level) % div)
-					* 0x10000L / div) + player->exp_frac;
+					* 0x10000L / div) + p->exp_frac;
 
 	/* Keep track of experience */
 	if (new_exp_frac >= 0x10000L) {
 		new_exp++;
-		player->exp_frac = (u16b)(new_exp_frac - 0x10000L);
+		p->exp_frac = (u16b)(new_exp_frac - 0x10000L);
 	} else {
-		player->exp_frac = (u16b)new_exp_frac;
+		p->exp_frac = (u16b)new_exp_frac;
 	}
 
 	/* When the player kills a Unique, it stays dead */
@@ -1097,20 +1102,20 @@ static void player_kill_monster(struct monster *mon, const char *note)
 
 		/* Log the slaying of a unique */
 		strnfmt(buf, sizeof(buf), "Killed %s", unique_name);
-		history_add(player, buf, HIST_SLAY_UNIQUE);
+		history_add(p, buf, HIST_SLAY_UNIQUE);
 	}
 
 	/* Gain experience */
-	player_exp_gain(player, new_exp);
+	player_exp_gain(p, new_exp);
 
 	/* Generate treasure */
-	monster_death(mon, false);
+	monster_death(mon, p, false);
 
 	/* Bloodlust bonus */
-	if (player->timed[TMD_BLOODLUST]) {
-		player_inc_timed(player, TMD_BLOODLUST, 10, false, false);
-		player_over_exert(player, PY_EXERT_CONF, 5, 3);
-		player_over_exert(player, PY_EXERT_HALLU, 5, 10);
+	if (p->timed[TMD_BLOODLUST]) {
+		player_inc_timed(p, TMD_BLOODLUST, 10, false, false);
+		player_over_exert(p, PY_EXERT_CONF, 5, 3);
+		player_over_exert(p, PY_EXERT_HALLU, 5, 10);
 	}
 
 	/* Recall even invisible uniques or winners */
@@ -1123,7 +1128,7 @@ static void player_kill_monster(struct monster *mon, const char *note)
 
 		/* Update lore and tracking */
 		lore_update(mon->race, lore);
-		monster_race_track(player->upkeep, mon->race);
+		monster_race_track(p->upkeep, mon->race);
 	}
 
 	/* Delete the monster */
@@ -1193,8 +1198,9 @@ bool mon_take_nonplayer_hit(int dam, struct monster *t_mon,
 {
 	assert(t_mon);
 
-	/* "Unique" monsters can only be "killed" by the player */
-	if (rf_has(t_mon->race->flags, RF_UNIQUE)) {
+	/* "Unique" or arena monsters can only be "killed" by the player */
+	if (rf_has(t_mon->race->flags, RF_UNIQUE)
+			|| player->upkeep->arena_level) {
 		/* Reduce monster hp to zero, but don't kill it. */
 		if (dam > t_mon->hp) dam = t_mon->hp;
 	}
@@ -1215,7 +1221,7 @@ bool mon_take_nonplayer_hit(int dam, struct monster *t_mon,
 		add_monster_message(t_mon, die_msg, false);
 
 		/* Generate treasure, etc */
-		monster_death(t_mon, false);
+		monster_death(t_mon, player, false);
 
 		/* Delete the monster */
 		delete_monster_idx(t_mon->midx);
@@ -1253,39 +1259,42 @@ bool mon_take_nonplayer_hit(int dam, struct monster *t_mon,
  * worth more than subsequent monsters.  This would also need to
  * induce changes in the monster recall code.  XXX XXX XXX
  **/
-bool mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note)
+bool mon_take_hit(struct monster *mon, struct player *p, int dam, bool *fear,
+		const char *note)
 {
 	/* Redraw (later) if needed */
-	if (player->upkeep->health_who == mon)
-		player->upkeep->redraw |= (PR_HEALTH);
+	if (p->upkeep->health_who == mon)
+		p->upkeep->redraw |= (PR_HEALTH);
 
-	/* Wake it up, make it aware of the player */
-	monster_wake(mon, false, 100);
-	mon_clear_timed(mon, MON_TMD_HOLD, MON_TMD_FLG_NOTIFY);
+	/* If the hit doesn't kill, wake it up, make it aware of the player */
+	if (dam <= mon->hp) {
+		monster_wake(mon, false, 100);
+		mon_clear_timed(mon, MON_TMD_HOLD, MON_TMD_FLG_NOTIFY);
+	}
 
 	/* Become aware of its presence */
 	if (monster_is_camouflaged(mon))
-		become_aware(mon);
+		become_aware(cave, mon, p);
 
 	/* No damage, we're done */
 	if (dam == 0) return false;
 
 	/* Covering tracks is no longer possible */
-	player->timed[TMD_COVERTRACKS] = 0;
+	p->timed[TMD_COVERTRACKS] = 0;
 
 	/* Hurt it */
 	mon->hp -= dam;
 	if (mon->hp < 0) {
 		/* Deal with arena monsters */
-		if (player->upkeep->arena_level) {
-			player->upkeep->generate_level = true;
-			player->upkeep->health_who = mon;
+		if (p->upkeep->arena_level) {
+			p->upkeep->generate_level = true;
+			p->upkeep->health_who = mon;
 			(*fear) = false;
 			return true;
 		}
 
 		/* It is dead now */
-		player_kill_monster(mon, note);
+		player_kill_monster(mon, p, note);
 
 		/* Not afraid */
 		(*fear) = false;
@@ -1307,7 +1316,7 @@ void kill_arena_monster(struct monster *mon)
 	assert(old_mon);
 	update_mon(old_mon, cave, true);
 	old_mon->hp = -1;
-	player_kill_monster(old_mon, " is defeated!");
+	player_kill_monster(old_mon, player, " is defeated!");
 }
 
 /**
@@ -1333,10 +1342,10 @@ void monster_take_terrain_damage(struct monster *mon)
 /**
  * Terrain is currently damaging monster
  */
-bool monster_taking_terrain_damage(struct monster *mon)
+bool monster_taking_terrain_damage(struct chunk *c, struct monster *mon)
 {
-	if (square_isdamaging(cave, mon->grid) &&
-		!rf_has(mon->race->flags, square_feat(cave, mon->grid)->resist_flag)) {
+	if (square_isdamaging(c, mon->grid) &&
+		!rf_has(mon->race->flags, square_feat(c, mon->grid)->resist_flag)) {
 		return true;
 	}
 
@@ -1597,7 +1606,7 @@ bool monster_change_shape(struct monster *mon)
 			get_mon_num_prep(monster_base_shape_okay);
 
 			/* Pick a random race */
-			race = get_mon_num(player->depth + 5);
+			race = get_mon_num(player->depth + 5, player->depth);
 
 			/* Reset allocation table */
 			get_mon_num_prep(NULL);

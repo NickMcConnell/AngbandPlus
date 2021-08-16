@@ -33,6 +33,7 @@
 #include "ui-context.h"
 #include "ui-curse.h"
 #include "ui-display.h"
+#include "ui-effect.h"
 #include "ui-help.h"
 #include "ui-keymap.h"
 #include "ui-knowledge.h"
@@ -409,7 +410,6 @@ void display_message(game_event_type unused, game_event_data *data, void *user)
 	const char *msg;
 
 	if (!data) return;
-	if (OPT(player, auto_more) || keymap_auto_more) return;
 
 	type = data->message.type;
 	msg = data->message.msg;
@@ -859,7 +859,7 @@ bool get_character_name(char *buf, size_t buflen)
  * See "askfor_aux" for some notes about "buf" and "len", and about
  * the return value of this function.
  */
-bool textui_get_string(const char *prompt, char *buf, size_t len)
+static bool textui_get_string(const char *prompt, char *buf, size_t len)
 {
 	bool res;
 
@@ -884,7 +884,7 @@ bool textui_get_string(const char *prompt, char *buf, size_t len)
 /**
  * Request a "quantity" from the user
  */
-int textui_get_quantity(const char *prompt, int max)
+static int textui_get_quantity(const char *prompt, int max)
 {
 	int amt = 1;
 
@@ -933,7 +933,7 @@ int textui_get_quantity(const char *prompt, int max)
  *
  * Note that "[y/n]" is appended to the prompt.
  */
-bool textui_get_check(const char *prompt)
+static bool textui_get_check(const char *prompt)
 {
 	ui_event ke;
 
@@ -1024,7 +1024,7 @@ static bool get_file_text(const char *suggested_name, char *path, size_t len)
 			/* Make sure it's actually a filename */
 			if (buf[0] == '\0' || buf[0] == ' ') return false;
 	} else {
-		int len;
+		int old_len;
 		time_t ltime;
 		struct tm *today;
 
@@ -1036,8 +1036,8 @@ static bool get_file_text(const char *suggested_name, char *path, size_t len)
 
 		/* Overwrite the ".txt" that was added */
 		assert(strlen(buf) >= 4);
-		len = strlen(buf) - 4;
-		strftime(buf + len, sizeof(buf) - len, "-%Y-%m-%d-%H-%M.txt", today);
+		old_len = strlen(buf) - 4;
+		strftime(buf + old_len, sizeof(buf) - len, "-%Y-%m-%d-%H-%M.txt", today);
 
 		/* Prompt the user to confirm or cancel the file dump */
 		if (!get_check(format("Confirm writing to %s? ", buf))) return false;
@@ -1082,7 +1082,7 @@ bool (*get_file)(const char *suggested_name, char *path, size_t len) = get_file_
  * -------
  * Returns true unless the character is "Escape"
  */
-bool textui_get_com(const char *prompt, char *command)
+static bool textui_get_com(const char *prompt, char *command)
 {
 	ui_event ke;
 	bool result;
@@ -1127,12 +1127,12 @@ bool get_com_ex(const char *prompt, ui_event *command)
  *
  * This function is stupid.  XXX XXX XXX
  */
-void pause_line(struct term *term)
+void pause_line(struct term *tm)
 {
-	prt("", term->hgt - 1, 0);
-	put_str("[Press any key to continue]", term->hgt - 1, (Term->wid - 27) / 2);
+	prt("", tm->hgt - 1, 0);
+	put_str("[Press any key to continue]", tm->hgt - 1, (tm->wid - 27) / 2);
 	(void)anykey();
-	prt("", term->hgt - 1, 0);
+	prt("", tm->hgt - 1, 0);
 }
 
 static int dir_transitions[10][10] =
@@ -1164,7 +1164,7 @@ static int dir_transitions[10][10] =
  * This function tracks and uses the "global direction", and uses
  * that as the "desired direction", if it is set.
  */
-bool textui_get_rep_dir(int *dp, bool allow_5)
+static bool textui_get_rep_dir(int *dp, bool allow_5)
 {
 	int dir = 0;
 
@@ -1270,7 +1270,7 @@ bool textui_get_rep_dir(int *dp, bool allow_5)
  * Note that "Force Target", if set, will pre-empt user interaction,
  * if there is a usable target already set.
  */
-bool textui_get_aim_dir(int *dp)
+static bool textui_get_aim_dir(int *dp)
 {
 	/* Global direction */
 	int dir = 0;
@@ -1371,6 +1371,7 @@ void textui_input_init(void)
 	get_aim_dir_hook = textui_get_aim_dir;
 	get_spell_from_book_hook = textui_get_spell_from_book;
 	get_spell_hook = textui_get_spell;
+	get_effect_from_list_hook = textui_get_effect_from_list;
 	get_item_hook = textui_get_item;
 	get_curse_hook = textui_get_curse;
 	get_panel_hook = textui_get_panel;

@@ -437,10 +437,6 @@ void screen_load(void)
 	event_signal(EVENT_MESSAGE_FLUSH);
 	Term_load();
 	screen_save_depth--;
-
-	/* Redraw big graphics */
-	if (screen_save_depth == 0 && (tile_width > 1 || tile_height > 1))
-		Term_redraw();
 }
 
 bool textui_map_is_visible(void)
@@ -488,8 +484,10 @@ bool panel_should_modify(term *t, int wy, int wx)
 {
 	int dungeon_hgt = cave->height;
 	int dungeon_wid = cave->width;
-	int screen_hgt = (t == angband_term[0]) ? SCREEN_HGT : t->hgt;
-	int screen_wid = (t == angband_term[0]) ? SCREEN_WID : t->wid;
+	int screen_hgt = (t == angband_term[0]) ?
+		SCREEN_HGT : t->hgt / tile_height;
+	int screen_wid = (t == angband_term[0]) ?
+		SCREEN_WID : t->wid / tile_width;
 
 	/* Verify wy, adjust if needed */
 	if (wy > dungeon_hgt - screen_hgt) wy = dungeon_hgt - screen_hgt;
@@ -518,8 +516,10 @@ bool modify_panel(term *t, int wy, int wx)
 {
 	int dungeon_hgt = cave->height;
 	int dungeon_wid = cave->width;
-	int screen_hgt = (t == angband_term[0]) ? SCREEN_HGT : t->hgt;
-	int screen_wid = (t == angband_term[0]) ? SCREEN_WID : t->wid;
+	int screen_hgt = (t == angband_term[0]) ?
+		SCREEN_HGT : t->hgt / tile_height;
+	int screen_wid = (t == angband_term[0]) ?
+		SCREEN_WID : t->wid / tile_width;
 
 	/* Verify wy, adjust if needed */
 	if (wy > dungeon_hgt - screen_hgt) wy = dungeon_hgt - screen_hgt;
@@ -537,9 +537,6 @@ bool modify_panel(term *t, int wy, int wx)
 
 		/* Redraw map */
 		player->upkeep->redraw |= (PR_MAP);
-
-		/* Redraw for big graphics */
-		if ((tile_width > 1) || (tile_height > 1)) redraw_stuff(player);
 
 		/* Changed */
 		return (true);
@@ -569,7 +566,7 @@ static void verify_panel_int(bool centered)
 		if (!t) continue;
 
 		/* No relevant flags */
-		if ((j > 0) && !(window_flag[j] & (PW_MAPS))) continue;
+		if ((j > 0) && !(window_flag[j] & (PW_OVERHEAD))) continue;
 
 		wy = t->offset_y;
 		wx = t->offset_x;
@@ -625,7 +622,7 @@ bool change_panel(int dir)
 		if (!t) continue;
 
 		/* No relevant flags */
-		if ((j > 0) && !(window_flag[j] & PW_MAPS)) continue;
+		if ((j > 0) && !(window_flag[j] & PW_OVERHEAD)) continue;
 
 		screen_hgt = (j == 0) ? SCREEN_HGT : t->hgt / tile_height;
 		screen_wid = (j == 0) ? SCREEN_WID : t->wid / tile_width;
@@ -681,7 +678,12 @@ bool textui_panel_contains(unsigned int y, unsigned int x)
 	unsigned int wid;
 	if (!Term)
 		return true;
-	hgt = SCREEN_HGT;
-	wid = SCREEN_WID;
+	if (Term == term_screen) {
+		hgt = SCREEN_HGT;
+		wid = SCREEN_WID;
+	} else {
+		hgt = Term->hgt / tile_height;
+		wid = Term->wid / tile_width;
+	}
 	return (y - Term->offset_y) < hgt && (x - Term->offset_x) < wid;
 }

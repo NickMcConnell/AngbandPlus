@@ -975,9 +975,13 @@ int rd_misc(void)
 
 	/* Handle randart file parsing */
 	if (OPT(player, birth_randarts)) {
-		cleanup_parser(&artifact_parser);
-		activate_randart_file();
-		run_parser(&randart_parser);
+		if (randart_file_exists()) {
+			cleanup_parser(&artifact_parser);
+			activate_randart_file();
+			run_parser(&randart_parser);
+		} else {
+			do_randart(seed_randart, true);
+		}
 		deactivate_randart_file();
 	}
 
@@ -1340,7 +1344,6 @@ static int rd_dungeon_aux(struct chunk **c)
 	if (OPT(player, birth_levels_persist)) {
 		rd_byte(&tmp8u);
 		while (tmp8u != 0xff) {
-			size_t n;
 			struct connector *current = mem_zalloc(sizeof *current);
 			current->info = mem_zalloc(square_size * sizeof(bitflag));
 			current->grid.x = tmp8u;
@@ -1631,6 +1634,7 @@ int rd_chunks(void)
 			u16b tmp16u;
 
 			rd_string(buf, sizeof(buf));
+			string_free(c->name);
 			c->name = string_make(buf);
 			rd_s32b(&c->turn);
 			rd_u16b(&tmp16u);
@@ -1648,6 +1652,21 @@ int rd_chunks(void)
 			for (i = 0; i < z_info->f_max + 1; i++) {
 				rd_u16b(&tmp16u);
 				c->feat_count[i] = tmp16u;
+			}
+		} else if (c->name) {
+			struct level *lev = level_by_name(c->name);
+
+			if (lev) {
+				c->depth = lev->depth;
+			} else if (suffix(c->name, " known")) {
+				size_t offset = strlen(c->name) -
+					strlen(" known");
+				c->name[offset] = '\0';
+				lev = level_by_name(c->name);
+				if (lev) {
+					c->depth = lev->depth;
+				}
+				c->name[offset] = ' ';
 			}
 		}
 

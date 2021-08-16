@@ -77,10 +77,10 @@ static void alloc_init_objects(void) {
 	int k_max = z_info->k_max;
 
 	/* Allocate */
-	obj_alloc = mem_alloc((z_info->max_obj_depth + 1) * (k_max + 1) * sizeof(*obj_alloc));
-	obj_alloc_great = mem_alloc((z_info->max_obj_depth + 1) * (k_max + 1) * sizeof(*obj_alloc_great));
-	obj_total_tval = mem_zalloc((z_info->max_obj_depth + 1) * TV_MAX * sizeof(*obj_total_tval));
-	obj_total_tval_great = mem_zalloc((z_info->max_obj_depth + 1) * TV_MAX * sizeof(*obj_total_tval));
+	obj_alloc = mem_alloc_alt((z_info->max_obj_depth + 1) * (k_max + 1) * sizeof(*obj_alloc));
+	obj_alloc_great = mem_alloc_alt((z_info->max_obj_depth + 1) * (k_max + 1) * sizeof(*obj_alloc_great));
+	obj_total_tval = mem_zalloc_alt((z_info->max_obj_depth + 1) * TV_MAX * sizeof(*obj_total_tval));
+	obj_total_tval_great = mem_zalloc_alt((z_info->max_obj_depth + 1) * TV_MAX * sizeof(*obj_total_tval));
 
 	/* The cumulative chance starts at zero for each level. */
 	for (lev = 0; lev <= z_info->max_obj_depth; lev++) {
@@ -216,10 +216,10 @@ static void cleanup_obj_make(void) {
 	}
 	mem_free(money_type);
 	mem_free(alloc_ego_table);
-	mem_free(obj_total_tval_great);
-	mem_free(obj_total_tval);
-	mem_free(obj_alloc_great);
-	mem_free(obj_alloc);
+	mem_free_alt(obj_total_tval_great);
+	mem_free_alt(obj_total_tval);
+	mem_free_alt(obj_alloc_great);
+	mem_free_alt(obj_alloc);
 }
 
 /*** Make an ego item ***/
@@ -1286,7 +1286,7 @@ struct object_kind *money_kind(const char *name, int value)
  * \param coin_type the name of the type of money object to make
  * \return a pointer to the newly minted cash (cannot fail)
  */
-struct object *make_gold(int lev, char *coin_type)
+struct object *make_gold(int lev, const char *coin_type)
 {
 	/* This average is 16 at dlev0, 80 at dlev40, 176 at dlev100. */
 	int avg = (16 * lev)/10 + 16;

@@ -1382,7 +1382,7 @@ static bool describe_combat(textblock *tb, const struct object *obj)
 
 	if (ammo) {
 		textblock_append(tb, "When fired, hits targets up to ");
-		textblock_append_c(tb, COLOUR_L_GREEN, format("%d", range));
+		textblock_append_c(tb, COLOUR_L_GREEN, "%d", range);
 		textblock_append(tb, " feet away.\n");
 	}
 
@@ -1418,8 +1418,8 @@ static bool obj_known_digging(struct object *obj, int deciturns[])
 	struct player_state state;
 	int i;
 	int chances[DIGGING_MAX];
-	int slot = wield_slot(obj);
-	struct object *current = slot_object(player, slot);
+	int slot;
+	struct object *current;
 
 	/* Doesn't remotely resemble a digger */
 	if (!tval_is_wearable(obj) ||
@@ -1431,6 +1431,8 @@ static bool obj_known_digging(struct object *obj, int deciturns[])
 		return false;
 
 	/* Pretend we're wielding the object */
+	slot = wield_slot(obj);
+	current = slot_object(player, slot);
 	player->body.slots[slot].obj = obj;
 
 	/* Calculate the player's hypothetical state */
@@ -1566,7 +1568,7 @@ static bool describe_light(textblock *tb, const struct object *obj,
 
 	if (tval_is_light(obj)) {
 		textblock_append(tb, "Intensity ");
-		textblock_append_c(tb, COLOUR_L_GREEN, format("%d", intensity));
+		textblock_append_c(tb, COLOUR_L_GREEN, "%d", intensity);
 		textblock_append(tb, " light.");
 
 		if (!obj->artifact && !uses_fuel)
@@ -1703,7 +1705,9 @@ static bool describe_effect(textblock *tb, const struct object *obj,
 		const char *prefix;
 		textblock *tbe;
 
-		if (aimed)
+		if (obj->activation)
+			prefix = "When activated, it ";
+		else if (aimed)
 			prefix = "When aimed, it ";
 		else if (tval_is_edible(obj))
 			prefix = "When eaten, it ";
@@ -1807,7 +1811,7 @@ static bool describe_origin(textblock *tb, const struct object *obj, bool terse)
 	switch (origins[origin].args)
 	{
 		case -1: return false;
-		case 0: textblock_append(tb, origins[origin].desc); break;
+		case 0: textblock_append(tb, "%s", origins[origin].desc); break;
 		case 1: textblock_append(tb, origins[origin].desc, loot_spot);
 				break;
 		case 2:

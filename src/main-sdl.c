@@ -1925,6 +1925,7 @@ static errr load_prefs(void)
 		} else if (strstr(buf, "Keys")) {
 			win->keys = atoi(s);
 		} else if (strstr(buf, "Font")) {
+			string_free(win->req_font);
 			win->req_font = string_make(s);
 		}
 	}
@@ -2771,9 +2772,10 @@ static errr Term_xtra_sdl(int n, int v)
 	return (1);
 }
 
-
-
-static errr Term_wipe_sdl(int col, int row, int n)
+/**
+ * Erase a nc x nr block of characters whose upper left corner is at (col, row).
+ */
+static errr Term_wipe_sdl_helper(int col, int row, int nc, int nr)
 {
 	term_window *win = (term_window*)(Term->data);
 
@@ -2782,8 +2784,8 @@ static errr Term_wipe_sdl(int col, int row, int n)
 	/* Build the area to black out */
 	rc.x = col * win->tile_wid;
 	rc.y = row * win->tile_hgt;
-	rc.w = win->tile_wid * n;
-	rc.h = win->tile_hgt;
+	rc.w = win->tile_wid * nc;
+	rc.h = win->tile_hgt * nr;
 
 	/* Translate it */
 	rc.x += win->border;
@@ -2796,6 +2798,11 @@ static errr Term_wipe_sdl(int col, int row, int n)
 	set_update_rect(win, &rc);
 
 	return (0);
+}
+
+static errr Term_wipe_sdl(int col, int row, int n)
+{
+	return Term_wipe_sdl_helper(col, row, n, 1);
 }
 
 /**
@@ -2820,7 +2827,7 @@ static errr Term_text_sdl(int col, int row, int n, int a, const wchar_t *s)
 	if (!win->visible) return (0);
 
 	/* Clear the way */
-	Term_wipe_sdl(col, row, n);
+	Term_wipe_sdl_helper(col, row, n, 1);
 
 	/* Take a copy of the incoming string, but truncate it at n chars */
 	wcsncpy(src, s, n);
@@ -3035,15 +3042,29 @@ static errr Term_pict_sdl(int col, int row, int n, const int *ap,
 	/* Get the right window */
 	term_window *win = (term_window*)(Term->data);
 
-	SDL_Rect rc, src;
+	SDL_Rect rc, src, ur;
 	int i, j;
-	char mbforeground[MB_LEN_MAX * 255];
-	char mbterrain[MB_LEN_MAX * 255];
+	bool haddbl = false;
+	int dhrclip;
 
 	/* First time a pict is requested we load the tileset in */
 	if (!win->tiles) {
 		sdl_BuildTileset(win);
 		if (!win->tiles) return (1);
+	}
+
+	/*
+	 * Set exclusive lower bound in y for rendering upper halves of
+	 * double-height tiles.
+	 */
+	if (overdraw) {
+		dhrclip = Term_get_first_tile_row(Term) + tile_height - 1;
+	} else {
+		/*
+		 * There's no double-height tiles so the value does not
+		 * matter.
+		 */
+		dhrclip = 0;
 	}
 
 	/* Make the destination rectangle */
@@ -3062,13 +3083,12 @@ static errr Term_pict_sdl(int col, int row, int n, const int *ap,
 	src.w = rc.w;
 	src.h = rc.h;
 
-	/* Clear the way */
-	for (i = 0; i < tile_width; i++)
-		for (j = 0; j < tile_height; j++)
-			Term_wipe_sdl(col + i, row + j, n);
+	/* Set up the bounds for what will be updated. */
+	ur = rc;
+	ur.w *= n;
 
-	wcstombs(mbforeground, cp, n * MB_LEN_MAX);
-	wcstombs(mbterrain, tcp, n * MB_LEN_MAX);
+	/* Clear the way */
+	Term_wipe_sdl_helper(col, row, n * tile_width, tile_height);
 
 	/* Blit 'em! (it) */
 	for (i = 0; i < n; i++) {
@@ -3078,7 +3098,8 @@ static errr Term_pict_sdl(int col, int row, int n, const int *ap,
 		src.y = j * src.h;
 		
 		/* if we are using overdraw, draw the top rectangle */
-		if (overdraw && (row > 2) && (j >= overdraw) && (j <= overdraw_max)) {
+		if (overdraw && row > dhrclip &&
+				 j >= overdraw && j <= overdraw_max) {
 			src.y -= rc.h;
 			rc.y -= rc.h;
 			rc.h = (rc.h << 1); /* double the height */
@@ -3086,8 +3107,7 @@ static errr Term_pict_sdl(int col, int row, int n, const int *ap,
 			SDL_BlitSurface(win->tiles, &src, win->surface, &rc);
 			rc.h = (rc.h >> 1); /* halve the height */
 			rc.y += rc.h;
-			Term_mark(col, row-tile_height);
-			Term_mark(col, row);
+			haddbl = true;
 		} else
 			SDL_BlitSurface(win->tiles, &src, win->surface, &rc);
 		
@@ -3100,7 +3120,8 @@ static errr Term_pict_sdl(int col, int row, int n, const int *ap,
 		src.y = j * src.h;
 		
 		/* if we are using overdraw, draw the top rectangle */
-		if (overdraw && (row > 2) && (j >= overdraw) && (j <= overdraw_max)) {
+		if (overdraw && row > dhrclip &&
+				j >= overdraw && j <= overdraw_max) {
 			src.y -= rc.h;
 			rc.y -= rc.h;
 			rc.h = (rc.h << 1); /* double the height */
@@ -3108,14 +3129,17 @@ static errr Term_pict_sdl(int col, int row, int n, const int *ap,
 			SDL_BlitSurface(win->tiles, &src, win->surface, &rc);
 			rc.h = (rc.h >> 1); /* halve the height */
 			rc.y += rc.h;
-			Term_mark(col, row-tile_height);
-			Term_mark(col, row);
+			haddbl = true;
 		} else
 			SDL_BlitSurface(win->tiles, &src, win->surface, &rc);
 	}
 
 	/* Update area */
-	set_update_rect(win, &rc);
+	if (haddbl) {
+		ur.y -= ur.h;
+		ur.h *= 2;
+	}
+	set_update_rect(win, &ur);
 
 	return (0);
 }
@@ -3197,6 +3221,7 @@ static void term_data_link_sdl(term_window *win)
 	t->text_hook = Term_text_sdl;
 	t->pict_hook = Term_pict_sdl;
 	t->view_map_hook = Term_view_map_sdl;
+	t->dblh_hook = (use_graphics && overdraw) ? is_dh_tile : NULL;
 
 	/* Remember where we came from */
 	t->data = win;
@@ -3307,6 +3332,7 @@ static errr load_gfx(void)
 	char buf[1024];
 	const char *filename;
 	SDL_Surface *temp;
+	int i;
 
 	if (current_graphics_mode && GfxSurface
 		&& (use_graphics == current_graphics_mode->grafID)) {
@@ -3337,6 +3363,14 @@ static errr load_gfx(void)
 	/* Make sure we know what pref file to use */
 	overdraw = current_graphics_mode->overdrawRow;
 	overdraw_max = current_graphics_mode->overdrawMax;
+
+	/* Set double-height tile handling for terminals. */
+	for (i = 0; i < ANGBAND_TERM_MAX; i++) {
+		if (angband_term[i]) {
+			angband_term[i]->dblh_hook = (overdraw) ?
+				is_dh_tile : NULL;
+		}
+	}
 
 	/* Reset the graphics mapping for this tileset */
 	if (character_dungeon) reset_visuals(true);

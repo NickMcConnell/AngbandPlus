@@ -162,6 +162,11 @@ bool tval_is_sharp_missile(const struct object *obj)
 	}
 }
 
+bool tval_is_bolt(const struct object *obj)
+{
+	return obj->tval == TV_BOLT;
+}
+
 bool tval_is_launcher(const struct object *obj)
 {
 	return obj->tval == TV_BOW;
@@ -363,7 +368,7 @@ static const grouper tval_names[] =
 /**
  * Small hack to allow both spellings of armer
  */
-char *de_armour(const char *name)
+static char *de_armour(const char *name)
 {
 	char newname[40];
 	char *armour;

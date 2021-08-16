@@ -1,7 +1,7 @@
 # File: room_template.txt
 
 
-# This file is used to initialize the "room template" information 
+# This file is used to initialize the "room template" information
 # for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
@@ -18,14 +18,28 @@
 # columns:number of columns
 # doors:number of possible door positions
 # tval:tval of treasure to place
+# flags:flag | ...
 # D:lines giving full layout of room using symbols below
 
-# Type and rating are not currently used.
-# Where doors is set to n, the generator will pick a number between 
-# 1 and n and place doors at squares marked with that number.  
-# Squares marked with other numbers will be generated as walls.  If 
-# the 1 to n range encompasses numbers not included in the D lines, 
-# there is a chance that no doors will be generated.
+# The value set on 'type' lines should be one.  You could use another
+# value as a way of disabling a template without commenting it out or
+# deleting it.  Making the 'type' lines more useful than that will
+# require changes to the source code:  the hard-coding of one is in
+# src/gen-room.c's build_template() and other changes, presumably in
+# src/generate.c to allow passing of the desired type through the
+# dungeon profiles, would be needed.
+#
+# The value set on the 'rating' line allows for selection of a subset
+# of the room templates by a dungeon profile in dungeon_profile.txt.
+# The current profiles use values of 1, 2, or 3 for the rating.
+#
+# Where doors is set to n, the generator will pick a number between
+# 1 and n and place secret doors at squares marked with that number.
+# Squares marked with other numbers will be generated as walls.  If
+# n is greater than 6 or the 1 to n range encompasses numbers not
+# included in the D lines, there is a chance that no doors will be
+# generated.
+
 # tval is used to make sure that the items in the room corresponding
 # to '[' are only of the given type.
 
@@ -35,16 +49,23 @@
 
 #    % - outside of the room, where corridors may be connected
 #    # - granite
-#    ^ - trap
+#    ^ - trap (generated 25% of the time)
 #    + - fixed position door (always generated)
-#    1,2,3,4,5,6 - potential positions for random doors
+#    1,2,3,4,5,6 - potential positions for random secret doors; will be
+#        walls if not a secret door
 #    x - optional wall (generated 50% of the time)
-#    ( - optional door (generated if optional walls are generated)
-#    ) - optional door (generated if optional walls are NOT generated, 
+#    ( - optional secret door (generated if optional walls are generated)
+#    ) - optional secret door (generated if optional walls are NOT generated,
 #        otherwise rock)
-#    8 - a treasure or stairs, with guardian monsters
+#    8 - a treasure (80%) or stairs (20%) and will always be treasure if
+#        using persistent levels, with guardian monsters
 #    9 - place some monsters and treasures nearby
-#	[ - a treasure of the specified tval
+#    [ - a treasure of the specified tval
+
+# 'flags' lines are optional and list the flags, from src/list-room-flags.h,
+# that should be applied to the room.  As many flags: lines may be used as
+# are needed to specify all the flags, and flags are separated by the '|'
+# symbol.
 
 # Use this to measure columns      
 #          1         2         3   
@@ -208,6 +229,7 @@ rows:10
 columns:11
 doors:6
 tval:0
+flags:FEW_ENTRANCES
 D:%%#######%%
 D:%.1.(.(.6.%
 D:%.2.x.x.5.%
@@ -350,6 +372,7 @@ rows:11
 columns:15
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%#%#%%%%%%
 D:%.....(.(.....%
 D:#######.#######
@@ -369,6 +392,7 @@ rows:11
 columns:15
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%%%%%%%%%%
 D:%.............%
 D:###1#####1###.%
@@ -426,6 +450,7 @@ rows:9
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:#%#####%#%#####%#
 D:%.......#.......%
 D:#.#2###1#1###2#.#
@@ -443,6 +468,7 @@ rows:9
 columns:17
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:%%#############%%
 D:%.#..#..#..#..#.%
 D:%.2..3..2..3..2.%
@@ -460,6 +486,7 @@ rows:10
 columns:17
 doors:6
 tval:0
+flags:FEW_ENTRANCES
 D:%%#############%%
 D:%.1.....3.....5.%
 D:%.5.....6.....2.%
@@ -478,6 +505,7 @@ rows:10
 columns:17
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:#################
 D:#.x.#9x.#.x9#.x.#
 D:#...#...#...#...#
@@ -648,6 +676,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:###%%%%#%#%%%%###
 D:%.+....(.(....+.%
 D:###....xxx....###
@@ -748,6 +777,7 @@ rows:11
 columns:19
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:########%#%########
 D:#.9......2........#
 D:#........1........#
@@ -873,6 +903,7 @@ rows:10
 columns:23
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:%%###################%%
 D:%.1.....2.....1.....2.%
 D:%.#.....3.....4.....#.%
@@ -929,6 +960,7 @@ rows:11
 columns:24
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%%%# #%%%%%%%#     
 D:%.......# #.......%     
 D:%.......# #.......%     
@@ -948,6 +980,7 @@ rows:11
 columns:24
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:     %%%%%%%%# #%%%%%%%%
 D:     %.......# #.......%
 D:     %.......# #.......%
@@ -1096,6 +1129,7 @@ rows:7
 columns:27
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:  #%%%%%# #%%%%%# #%%%%%#  
 D:  #.....# #.....# #.....#  
 D:#%#..x..###..x..###..x..#%#
@@ -1149,6 +1183,7 @@ rows:7
 columns:28
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:####%%#######%%#######%%####
 D:#........#........#........#
 D:%..xxxx..#..xxxx..#..xxxx..%
@@ -1181,6 +1216,7 @@ rows:11
 columns:29
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:#########%#########%#########
 D:#...#...#.#...#...#.#...#...#
 D:#...#...2.2...#...2.2...#...#
@@ -1200,6 +1236,7 @@ rows:11
 columns:29
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#########%#########%#########
 D:#.......#.#.......#.#.......#
 D:#xxx(xxx#.#xxx(xxx#.#xxx(xxx#
@@ -1340,6 +1377,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%%%#       #%%%%%%%%        
 D:%x.x.x.x#       #x.x.x.x#        
 D:%.x.x.x.#       #.x.x.x.#        
@@ -1470,6 +1508,7 @@ rows:11
 columns:13
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:######%######
 D:#...##.##...#
 D:#..2#...#2..#
@@ -1584,6 +1623,7 @@ rows:11
 columns:15
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:#%###%#%#%###%#
 D:%.....#.#.....%
 D:#.###.#.#.###.#
@@ -1622,6 +1662,7 @@ rows:11
 columns:15
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%#%#%#%#%#%#
 D:%.............%
 D:#.#.#.#.#.#.#.#
@@ -1711,6 +1752,7 @@ rows:9
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%#############%#
 D:%...............%
 D:#.#############.#
@@ -1780,6 +1822,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:##%##%##%##%##%##
 D:##.##.##.##.##.##
 D:%.#..#..#..#..#.%
@@ -1837,6 +1880,7 @@ rows:11
 columns:17
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:#########%%%%%%%#
 D:#.#.#.#.+.......%
 D:##9#.#.##.......%
@@ -1894,6 +1938,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%#%#%#%#%#%#%#
 D:%.#.#.#.#.#.#.#.%
 D:%.#.#.#.#.#.#.#.%
@@ -1970,6 +2015,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%#%#%#%#%#%#%#
 D:%.#.#.#.#.#.#.#.%
 D:##.#.#.#.#.#.#.##
@@ -2103,6 +2149,7 @@ rows:11
 columns:17
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:%%##%##%#%##%##%%
 D:%.#..#..1..#..#.%
 D:##..#..###..#..##
@@ -2122,6 +2169,7 @@ rows:11
 columns:17
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:%%##%##%#%##%##%%
 D:%..#..#.1.#..#..%
 D:##..#..###..#..##
@@ -2141,6 +2189,7 @@ rows:10
 columns:18
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%##%%##%%##%%##%#
 D:%.##..##..##..##.%
 D:##..##..##..##..##
@@ -2178,6 +2227,7 @@ rows:11
 columns:18
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%##%##%##%##%##%#
 D:#.##.##.##.##.##.#
 D:%................%
@@ -2197,6 +2247,7 @@ rows:11
 columns:18
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%##%####%#%#%#%%#
 D:%..#......#...#..%
 D:##.#.####.#.#.#.##
@@ -2216,6 +2267,7 @@ rows:11
 columns:18
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%####%#%#%#%#%#
 D:%.#........#.#...%
 D:#.#.####.#.#...#.#
@@ -2235,6 +2287,7 @@ rows:11
 columns:18
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%###%###%###%##%#
 D:%..#...#...#...#.%
 D:#.#.#.#.#.#.#.#.##
@@ -2311,6 +2364,7 @@ rows:9
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%####%#%#%#%####%#
 D:%......#.(.#......%
 D:#.####(#.#.#(####.#
@@ -2328,6 +2382,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:###%###%###%###%###
 D:%.................%
 D:#.###.###.###.###.#
@@ -2574,6 +2629,7 @@ rows:11
 columns:24
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%#########%%#########%#
 D:#.#########..#########.#
 D:%x.........xx.........x%
@@ -2777,6 +2833,7 @@ rows:11
 columns:27
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%###%###%###%###%###%###%#
 D:%..#...#...#...#...#...#..%
 D:#.#.#.#.#.#.#.#.#.#.#.#.#.#
@@ -2940,6 +2997,7 @@ rows:10
 columns:30
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%##%%##%%##%%##%%##%%##%%##%#
 D:%.##..##..##..##..##..##..##.%
 D:##..##..##..##..##..##..##..##
@@ -3090,6 +3148,7 @@ rows:11
 columns:33
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:#########%%%%%%%#########%%%%%%%#
 D:#.#.#.#.2.......1.#.#.#.2.......%
 D:##.#9#.##.......##.#9#.##.......%
@@ -3128,6 +3187,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%#%###%#%##%#%#%#%####%#%#%#%#
 D:%...#.....#....#...#......#...#.%
 D:###.#.###.#.##.#.###.####.#.#.#.#
@@ -3147,6 +3207,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:##%%%##%%%##%%%##%%%##%%%##%%%###
 D:#....#....#....#....#....#....#.%
 D:%...#....#....#....#....#....#..%
@@ -3166,6 +3227,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:###%%%##%%%##%%%##%%%##%%%##%%%##
 D:%.#....#....#....#....#....#....#
 D:%..#....#....#....#....#....#...%
@@ -3189,6 +3251,7 @@ rows:11
 columns:9
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:  #%%%#  
 D: ##...## 
 D:##.....##
@@ -3208,6 +3271,7 @@ rows:8
 columns:13
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%##   
 D: #%#.....#%# 
 D:##...#2#...##
@@ -3224,6 +3288,7 @@ rows:8
 columns:13
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%##   
 D: #%#.....#%# 
 D:##...x(x...##
@@ -3240,6 +3305,7 @@ rows:9
 columns:13
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%##   
 D: #%#.....#%# 
 D:##...#.#...##
@@ -3257,6 +3323,7 @@ rows:10
 columns:16
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%##%%#    
 D:  #%#..##..###  
 D:  %..##..##..#  
@@ -3275,6 +3342,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##...#.#.#...## 
@@ -3294,6 +3362,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##..#3#(#4#..## 
@@ -3313,6 +3382,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  #%#...)...#%#  
 D: ##...#####...## 
@@ -3332,6 +3402,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D: ##%%%%####      
 D:##......x.###    
 D:%.......x...###  
@@ -3351,6 +3422,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      ###%%%%%## 
 D:    ###.x......##
 D:  ###...x.......%
@@ -3370,6 +3442,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##...##2##...## 
@@ -3389,6 +3462,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%###%%#    
 D:  #%#..1.1..#%#  
 D: ##.#.##.##.#.## 
@@ -3408,6 +3482,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  #%#...#...#%#  
 D: ##.+...+...+.## 
@@ -3427,6 +3502,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##........xx.## 
@@ -3446,6 +3522,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##.xx........## 
@@ -3465,6 +3542,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  #%#...2...#%#  
 D: ##.....#.....## 
@@ -3484,6 +3562,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  #%#...2...#%#  
 D: ##.....#.....## 
@@ -3503,6 +3582,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##...#####...## 
@@ -3522,6 +3602,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%##%%#%#    
 D:  #%#.##....#%#  
 D: ##....##.#...## 
@@ -3541,6 +3622,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%##%##%#    
 D:  #%#.##.##.#%#  
 D: ##..#..#..#..## 
@@ -3560,6 +3642,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  #%#...2...#%#  
 D: ##.2...#...2.## 
@@ -3579,6 +3662,7 @@ rows:11
 columns:17
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##...32#23...## 
@@ -3598,6 +3682,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##...#.#.#...## 
@@ -3617,6 +3702,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%#%#%%#    
 D:  #%#..1.2..#%#  
 D: ##....###....## 
@@ -3636,6 +3722,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##...##2##...## 
@@ -3655,6 +3742,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##...x#3#x...## 
@@ -3674,6 +3762,7 @@ rows:11
 columns:17
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##...#####...## 
@@ -3693,6 +3782,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##....#2#....## 
@@ -3712,6 +3802,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##...##1##...## 
@@ -3731,6 +3822,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##.....x.....## 
@@ -3750,6 +3842,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%#%%%#%#    
 D:  #%#.#...#.#%#  
 D: ##...........## 
@@ -3769,6 +3862,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##..###+###..## 
@@ -3788,6 +3882,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  #%#...#...#%#  
 D: ##.#...+...#.## 
@@ -3807,6 +3902,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  #%#...#...#%#  
 D: ##.....#.....## 
@@ -3826,6 +3922,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  #%#...#...#%#  
 D: ##...#(#(#...## 
@@ -3845,6 +3942,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  #%#.......#%#  
 D: ##...........## 
@@ -3864,6 +3962,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  #%#...1...#%#  
 D: ##.....2.....## 
@@ -3883,6 +3982,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  #%#...x...#%#  
 D: ##...........## 
@@ -3902,6 +4002,7 @@ rows:11
 columns:19
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%##         
 D: #%#.....#%#       
 D:##.........##      
@@ -3921,6 +4022,7 @@ rows:11
 columns:19
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:         ##%%%##   
 D:       #%#.....#%# 
 D:      ##.........##
@@ -3940,6 +4042,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:     #%%%%%%%#     
 D:  #%%#.......#%%#  
 D: ##..##.....##..## 
@@ -3959,6 +4062,7 @@ rows:7
 columns:21
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%%%%%#      
 D:  #####.......#####  
 D:%##......xxx......##%
@@ -3974,6 +4078,7 @@ rows:10
 columns:21
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%%%%%#      
 D:   #%%#.......#%%#   
 D: #%#.............#%# 
@@ -3992,6 +4097,7 @@ rows:11
 columns:21
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%#%%%#      
 D:  #####...x...#####  
 D:%##.......x.......##%
@@ -4011,6 +4117,7 @@ rows:11
 columns:22
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%%%%%%#    
 D:  #%#............#%#  
 D: ##...#1#...xxxx...## 
@@ -4030,6 +4137,7 @@ rows:11
 columns:23
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:     #%#%#%#%#%#%#     
 D:  #%##.#.#.#.#.#.##%#  
 D: ##.#.#.#.#.#.#.#.#.## 
@@ -4049,6 +4157,7 @@ rows:11
 columns:24
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%#%%%%%%%%%#    
 D:  ###....(.........###  
 D: ##....#####.........## 
@@ -4068,6 +4177,7 @@ rows:11
 columns:24
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%%%#%%%%#    
 D:  ###.........(....###  
 D: ##.........#####....## 
@@ -4087,6 +4197,7 @@ rows:11
 columns:25
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%%%%%%%%%#      
 D:   #%%#...........#%%#   
 D: #%#....#.#.#.#.#....#%# 
@@ -4106,6 +4217,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%##     ##%%%##   
 D: #%#.....#%# #%#.....#%# 
 D:##.........###.........##
@@ -4125,6 +4237,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%##     ##%%%##   
 D: #%#.....#%# #%#.....#%# 
 D:##.........###.........##
@@ -4144,6 +4257,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:         ##%%%##         
 D:       #%#.....#%#       
 D:      ##.........##      
@@ -4163,6 +4277,7 @@ rows:11
 columns:25
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:     #%%%%%%%%%%%%%#     
 D:  #%%#.............#%%#  
 D:#%#....#####1#####....#%#
@@ -4182,6 +4297,7 @@ rows:11
 columns:25
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:               ##%%%##   
 D:             ###.....#%# 
 D:            ##...xxx...##
@@ -4201,6 +4317,7 @@ rows:11
 columns:25
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%##               
 D: #%#.....#%#             
 D:##...xxx...##            
@@ -4220,6 +4337,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%%%#%%%%##      
 D:   #%%#.....1.....#%%#   
 D: #%#..#1....#....#1..#%# 
@@ -4239,6 +4357,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%%%%%%%%%#      
 D:   #%%#...........#%%#   
 D: #%#.....xxxxxxx.....#%# 
@@ -4258,6 +4377,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%%%%%%%%%#      
 D:   #%%#...........#%%#   
 D: #%#.......xxx.......#%# 
@@ -4277,6 +4397,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%##%%%##%%#      
 D:   #%##...#...#...##%#   
 D: #%#.1.#...#.#...#.1.#%# 
@@ -4296,6 +4417,7 @@ rows:11
 columns:25
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:      #%#%#%#%#%#%#      
 D:   #%##.#...#...#.##%#   
 D: #%#.#....#...#....#.#%# 
@@ -4315,6 +4437,7 @@ rows:11
 columns:25
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%%%%%%%%%#      
 D:   #%%#...........#%%#   
 D: #%#....#.#.#.#.#....#%# 
@@ -4334,6 +4457,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%%%#%%%%%#      
 D:   #%%#.....1.....#%%#   
 D: #%#..x.....#.....x..#%# 
@@ -4353,6 +4477,7 @@ rows:11
 columns:25
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:     #%%%%%%%%%%%%%#     
 D:  #%%#.............#%%#  
 D:#%#....#3##4#4##3#....#%#
@@ -4372,6 +4497,7 @@ rows:11
 columns:26
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      #%#%%#%%#%%#%#      
 D:    %%#.#..#..#..#.#%%    
 D: #%##.##.##.##.##.##.##%# 
@@ -4391,6 +4517,7 @@ rows:11
 columns:27
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       ##%%##%##%%##       
 D:    #%##...#...#...##%#    
 D:  #%#.#.#.#.#.#.#.#.#.#%#  
@@ -4425,6 +4552,7 @@ rows:7
 columns:28
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D: ###%%### ###%%### ###%%### 
 D:##......###......###......##
 D:%..xxxx..#..xxxx..#..xxxx..%
@@ -4440,6 +4568,7 @@ rows:11
 columns:30
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    #%%%%%%%#    
 D:  #%#.......#%##%#.......#%#  
 D: ##...##2##...##...##1##...## 
@@ -4459,6 +4588,7 @@ rows:11
 columns:32
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%#     #%%%#     #%%%# 
 D:     ##...##   ##...##   ##...##
 D:     #..#..#   #..#..#   #..#..%
@@ -4478,6 +4608,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:            #%%#%#%%#            
 D:          ###..x.x..###          
 D:   ##%## ##....(.(....## ##%##   
@@ -4497,6 +4628,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:             #%%#%%#             
 D:           #%#..(..#%#           
 D:          ##....x....##          
@@ -4516,6 +4648,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   #%%#%%#             #%%#%%#   
 D: #%#..(..#%#         ###..(..#%# 
 D:##....x....##       ##....x....##
@@ -4558,6 +4691,7 @@ rows:7
 columns:11
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    %%%    
 D:   ##.##   
 D:  ##...##  
@@ -4573,6 +4707,7 @@ rows:7
 columns:11
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%%%%%%
 D:%.........%
 D:%#..xxx..#%
@@ -4664,6 +4799,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       %%%       
 D:      ##.##      
 D:     ##...##     
@@ -4682,6 +4818,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%#       #%%%%
 D:%...#%#   #%#...%
 D:##....#%%%#....##
@@ -4700,6 +4837,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       %%%       
 D:      ##+##      
 D:     ##.#.##     
@@ -4718,6 +4856,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%#%#%#%#%#%#%#
 D:%.#.+.#.#.#.+.#.%
 D:##+.#.+.#.+.#.+##
@@ -4736,6 +4875,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       %%%       
 D:      ##.##      
 D:     ##...##     
@@ -4754,6 +4894,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%%%%%%%%%%%%
 D:%...............%
 D:%#..####+####..#%
@@ -4772,6 +4913,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       %%%       
 D:      ##.##      
 D:     ##...##     
@@ -4790,6 +4932,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%%%%%%%%%%%%
 D:%...............%
 D:%#..#.#.#.#.#..#%
@@ -4808,6 +4951,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       %%%       
 D:      ##.##      
 D:     ##...##     
@@ -4826,6 +4970,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%#####%%%%%#####%
 D:%...xx.....xx...%
 D:%#...xx...xx...#%
@@ -4844,6 +4989,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       %%%       
 D:      ##.##      
 D:     ##.#.##     
@@ -4862,6 +5008,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%#%#%#%#%#%#%#
 D:%.#.#.#.#.#.#.#.%
 D:##.#.#.#.#.#.#.##
@@ -4880,6 +5027,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       %%%       
 D:      ##.##      
 D:     ##.x.##     
@@ -4898,6 +5046,7 @@ rows:10
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%%%#%%%%%%%%
 D:%.......(.......%
 D:%#.###########.#%
@@ -4916,6 +5065,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       #%#       
 D:     #%#.#%#     
 D:   #%#.#.#.#%#   
@@ -4935,6 +5085,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       #%#       
 D:     #%#.#%#     
 D:   #%#.##..#%#   
@@ -4954,6 +5105,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       #%#       
 D:     #%#.#%#     
 D:   #%#.....#%#   
@@ -4973,6 +5125,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       #%#       
 D:     #%#.#%#     
 D:   #%#..##.#%#   
@@ -4992,6 +5145,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       #%#       
 D:     #%#.#%#     
 D:   #%#.....#%#   
@@ -5011,6 +5165,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:      #%#%#      
 D:    ###.1.###    
 D:  ###...2...###  
@@ -5030,6 +5185,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       %%%       
 D:      ##.##      
 D:     ##.#.##     
@@ -5048,6 +5204,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%#           #%%
 D:%.##         ##.%
 D:%#.###########.#%
@@ -5066,6 +5223,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%         
 D:   ##..%         
 D:  ##...#         
@@ -5085,6 +5243,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:         %%%#    
 D:         %..##   
 D:         #...##  
@@ -5104,6 +5263,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:            %%%%%
 D:         ####...%
 D:      ####......%
@@ -5123,6 +5283,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%            
 D:%...####         
 D:%......####      
@@ -5142,6 +5303,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#        
 D:      #%#.#%#      
 D:    #%#.....#%#    
@@ -5161,6 +5323,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#        
 D:      #%#.#%#      
 D:    #%#.....#%#    
@@ -5180,6 +5343,7 @@ rows:11
 columns:19
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#        
 D:      #%#.#%#      
 D:    #%#..x..#%#    
@@ -5199,6 +5363,7 @@ rows:11
 columns:19
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#        
 D:      #%#.#%#      
 D:    #%#.....#%#    
@@ -5218,6 +5383,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#        
 D:      #%#.#%#      
 D:    #%#.#+#.#%#    
@@ -5237,6 +5403,7 @@ rows:11
 columns:19
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#        
 D:      #%#.#%#      
 D:    #%#.(.(.#%#    
@@ -5256,6 +5423,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#        
 D:      #%#.#%#      
 D:    #%#.#+#.#%#    
@@ -5275,6 +5443,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#        
 D:      #%#.#%#      
 D:    #%#..x..#%#    
@@ -5294,6 +5463,7 @@ rows:11
 columns:19
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#        
 D:      #%#.#%#      
 D:    #%#.....#%#    
@@ -5313,6 +5483,7 @@ rows:11
 columns:19
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#        
 D:      #%#.#%#      
 D:    #%#.....#%#    
@@ -5408,6 +5579,7 @@ rows:9
 columns:21
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%%%%%#%%%%%##%#     
 D:%.....x.....+#.##    
 D:##...x.x...##...##   
@@ -5424,6 +5596,7 @@ rows:9
 columns:21
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:     #%##%%%%%#%%%%%#
 D:    ##.#+.....x.....%
 D:   ##...##...x.x...##
@@ -5440,6 +5613,7 @@ rows:11
 columns:23
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:        #%%%%%#        
 D:      #%#.....#%#      
 D:    #%#...#1#...#%#    
@@ -5459,6 +5633,7 @@ rows:11
 columns:27
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:          #%#%#%#          
 D:       #%##.#.#.##%#       
 D:    #%##.#.#.#.#.#.##%#    
@@ -5478,6 +5653,7 @@ rows:9
 columns:29
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:     %%##%%%%%#%%%%%##%%     
 D:    ##.#1.....x.....1#.##    
 D:   ##...##...x.x...##...##   
@@ -5494,6 +5670,7 @@ rows:9
 columns:29
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%#%%%%%##%##%%%%%#%%%%%%
 D:%.....x.....2#.#2.....x.....%
 D:##...x.x...##...##...x.x...##
@@ -5510,6 +5687,7 @@ rows:11
 columns:29
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:           #%%%%%#           
 D:        #%%#.....#%%#        
 D:     #%%#.....#.....#%%#     
@@ -5529,6 +5707,7 @@ rows:5
 columns:31
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:  %%#   #%#   #%#   #%#   #%%  
 D: ##.## ##.## ##.## ##.## ##.## 
 D:%#...###.9.###...###.9.###...#%
@@ -5542,6 +5721,7 @@ rows:11
 columns:31
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:            #%%#%%#            
 D:         #%%#..x..#%%#         
 D:      #%%#.....x.....#%%#      
@@ -5561,6 +5741,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:        #%#           #%#        
 D:      #%#.#%#       #%#.#%#      
 D:    #%#.....#%#   #%#.....#%#    
@@ -5584,6 +5765,7 @@ rows:11
 columns:9
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%%%%%%%#
 D:%.......%
 D:%.##x##.%
@@ -5641,6 +5823,7 @@ rows:7
 columns:11
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:  #%%%%%#  
 D: ##.....## 
 D:%#..x(x..#%
@@ -5745,6 +5928,7 @@ rows:10
 columns:13
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:     %%%     
 D:    ##.##    
 D:   ##.x.##   
@@ -5763,6 +5947,7 @@ rows:11
 columns:13
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:#%%%%%#%%%%%#
 D:%.....).....%
 D:##...1#2...##
@@ -5782,6 +5967,7 @@ rows:11
 columns:13
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:     %%%     
 D:    ##.##    
 D:   ##...##   
@@ -5801,6 +5987,7 @@ rows:11
 columns:13
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%##   
 D: ###.....### 
 D:##.........##
@@ -5858,6 +6045,7 @@ rows:11
 columns:14
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%#%#     
 D:%.....(.##    
 D:%.....x..##   
@@ -5877,6 +6065,7 @@ rows:11
 columns:14
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:     #%#%%%%%%
 D:    ##.(.....%
 D:   ##..x.....%
@@ -5896,6 +6085,7 @@ rows:11
 columns:15
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:        #%%%%%%
 D:      #%#.....%
 D:    #%#.....#%%
@@ -5915,6 +6105,7 @@ rows:11
 columns:15
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%#        
 D:%.....#%#      
 D:%%#.....#%#    
@@ -5934,6 +6125,7 @@ rows:11
 columns:15
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D: #%%#%%#%%#%%# 
 D:##..#..#..#..##
 D:%.............%
@@ -6010,6 +6202,7 @@ rows:9
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%#       #%%%%
 D:%...###   ###...%
 D:###...#####...###
@@ -6044,6 +6237,7 @@ rows:9
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%%%%%##   
 D:  ##.........##  
 D: ##...xx(xx...## 
@@ -6061,6 +6255,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:   #%%%%#%%%%#   
 D:  ##....(....##  
 D: ##.#########.## 
@@ -6080,6 +6275,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%%%%%##   
 D:  ###.......###  
 D: ##.#2.....2#.## 
@@ -6099,6 +6295,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   #%%%%%%%%%#   
 D:  ##.........##  
 D: ##...........## 
@@ -6184,6 +6381,7 @@ rows:10
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      %%%%%%%      
 D:      #.....#      
 D:      #..x..#      
@@ -6202,6 +6400,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%##%###%###%##%%%
 D:%..##..xx.xx..##..%
 D:%...##..x(x..##...%
@@ -6221,6 +6420,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:     ##%%%%%##     
 D:    ##.......##    
 D:   ##.x.....x.##   
@@ -6240,6 +6440,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      ##%#%##      
 D:      ##.#.##      
 D:      #.#.#.#      
@@ -6259,6 +6460,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%#%#%#%#%#    
 D:   ##.#.#.#.#.##   
 D:  ##.#.#.#.#.#.##  
@@ -6278,6 +6480,7 @@ rows:11
 columns:19
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%%%#    
 D:   ##.........##   
 D:  ##..##.#.##..##  
@@ -6297,6 +6500,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:#%%%%%%%#%%%%%%%#
 D:%.......#.......%
 D:%.#####...#####.%
@@ -6316,6 +6520,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%#           #%%%
 D:%..##         ##..%
 D:%...##       ##...%
@@ -6335,6 +6540,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:     #%%%#%%%#     
 D:    ##...x...##    
 D:   ##....(....##   
@@ -6420,6 +6626,7 @@ rows:11
 columns:21
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:   #%%%%%%#%%%%%%#   
 D:  ##......(......##  
 D: ##.......x.......## 
@@ -6439,6 +6646,7 @@ rows:11
 columns:21
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%%%%%#    
 D:   ##...........##   
 D:  ##..####.####..##  
@@ -6458,6 +6666,7 @@ rows:11
 columns:21
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%%%%%#    
 D:   ##...........##   
 D:  ##..####(####..##  
@@ -6477,6 +6686,7 @@ rows:11
 columns:22
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%#     #%%%# 
 D:     ##...##   ##...##
 D: #%%%#..x..#%%%#..x..%
@@ -6496,6 +6706,7 @@ rows:11
 columns:22
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D: #%%%#     #%%%#      
 D:##...##   ##...##     
 D:%..x..#%%%#..x..#%%%# 
@@ -6515,6 +6726,7 @@ rows:11
 columns:23
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%#                
 D:%.....#%#              
 D:#%#.....#%#            
@@ -6534,6 +6746,7 @@ rows:11
 columns:23
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:                #%%%%%%
 D:              #%#.....%
 D:            #%#.....#%#
@@ -6553,6 +6766,7 @@ rows:11
 columns:23
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%#         #%%%%%%
 D:%.....###     ###.....%
 D:###.....### ###.....###
@@ -6615,6 +6829,7 @@ rows:10
 columns:27
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:  #%%%%%#         #%%%%%#  
 D: ##.....##       ##.....## 
 D:%#...x...##     ##...x...#%
@@ -6633,6 +6848,7 @@ rows:10
 columns:27
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:          #%%%%%#          
 D:         ##.....##         
 D:        ##...x...##        
@@ -6651,6 +6867,7 @@ rows:7
 columns:30
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%##%%##%%##%%##%%##%%##%%#  
 D:%..##..##..##..##..##..##..%  
 D:%..##..##..##..##..##..##..###
@@ -6666,6 +6883,7 @@ rows:7
 columns:30
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:  #%%##%%##%%##%%##%%##%%##%%%
 D:  %..##..##..##..##..##..##..%
 D:###..##..##..##..##..##..##..%
@@ -6681,6 +6899,7 @@ rows:7
 columns:31
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:  #%%#%%#   #%%#%%#   #%%#%%#  
 D: ##..x..## ##..x..## ##..x..## 
 D:%#...x...###...x...###...x...#%
@@ -6808,6 +7027,7 @@ rows:9
 columns:13
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%# #%# #%%%
 D:%..###.###..%
 D:##..##.##..##
@@ -6825,6 +7045,7 @@ rows:11
 columns:13
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%%%%%%%%%%%#
 D:%...........%
 D:%...9...9...%
@@ -6844,6 +7065,7 @@ rows:11
 columns:14
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   #%%%%%%#   
 D:   %......%   
 D:   ##+##+##   
@@ -6881,6 +7103,7 @@ rows:11
 columns:15
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%     
 D:  ###....%     
 D: ##....###     
@@ -6900,6 +7123,7 @@ rows:11
 columns:15
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:     %%%%%#    
 D:     %....###  
 D:     ###....## 
@@ -6919,6 +7143,7 @@ rows:11
 columns:15
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:#%%%##%%%##%%%#
 D:%...##.9.##...#
 D:##...#1#2#...##
@@ -6938,6 +7163,7 @@ rows:11
 columns:15
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D: %%%%%#    #%%%
 D: %....##  ##..%
 D: ##....# ##...%
@@ -6957,6 +7183,7 @@ rows:11
 columns:15
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%#    #%%%%% 
 D:%..##  ##....% 
 D:%...## #....## 
@@ -6976,6 +7203,7 @@ rows:11
 columns:15
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%%%%%%%%%%
 D:%.............%
 D:%.............%
@@ -6995,6 +7223,7 @@ rows:11
 columns:16
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:         #%%%#  
 D: #%%%#   #...## 
 D:##...#######..% 
@@ -7014,6 +7243,7 @@ rows:11
 columns:17
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%%%%%%%%%%%%
 D:%...............%
 D:%#.###1#2#1###.#%
@@ -7033,6 +7263,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%%   %%%%%%%
 D:%.....%   %.....%
 D:####.##   ##.####
@@ -7071,6 +7302,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%        
 D:  #%#...%        
 D: ##.....#        
@@ -7090,6 +7322,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:        %%%%#    
 D:        %...#%#  
 D:        #.....## 
@@ -7126,6 +7359,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%           %%%
 D:%.%#         #%.%
 D:%%.##       ##.%%
@@ -7145,6 +7379,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:      ##%%%##      
 D:     ##.....##     
 D:     %..xxx..%     
@@ -7183,6 +7418,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   #%%%%# #%%%%#   
 D: ###....###....### 
 D:##.......#.......##
@@ -7202,6 +7438,7 @@ rows:10
 columns:21
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:  ##%%## #%# ##%%##  
 D:%##....###.###....##%
 D:%...xx...#+#...xx...%
@@ -7220,6 +7457,7 @@ rows:11
 columns:21
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   #%%%# #%# #%%%#   
 D: ###...# #.# #...### 
 D: #....## #.# ##....# 
@@ -7239,6 +7477,7 @@ rows:11
 columns:23
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%#   #%#   #%#    
 D:   ##.## ##.## ##.##   
 D:  ##...###...###...##  
@@ -7258,6 +7497,7 @@ rows:7
 columns:25
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:     #%%%#     #%%%#     
 D:    ##...##   ##...##    
 D:   ##.....## ##.....##   
@@ -7273,6 +7513,7 @@ rows:7
 columns:25
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%##     #%%%#     ##%%%
 D:%...##   ##...##   ##...%
 D:%%#..## ##.....## ##..#%%
@@ -7288,6 +7529,7 @@ rows:11
 columns:25
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:%%%%%%###%%%%%%%###%%%%%%
 D:%.....##.........##.....%
 D:##..9#3...........3#9..##
@@ -7307,6 +7549,7 @@ rows:7
 columns:27
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%#     ##%%%%%##     #%%%
 D:%..##   ##.......##   ##..%
 D:%...##%##.........##%##...%
@@ -7322,6 +7565,7 @@ rows:8
 columns:27
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D: ##%%%%%%%##   ##%%%%%%%## 
 D:##.........#%%%#.........##
 D:%..#####.#+#...#+#.#####..%
@@ -7338,6 +7582,7 @@ rows:8
 columns:27
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:     ##%####%%%####%##     
 D:  ####..1##.....##1..####  
 D:###....##...#2#...##....###
@@ -7354,6 +7599,7 @@ rows:7
 columns:28
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%####%%#%%####%%#%%####%%%
 D:%...##...+...##..9+...##...%
 D:%##....#####....#####....##%
@@ -7369,6 +7615,7 @@ rows:11
 columns:28
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%%%%#         #%%%%%%%#    
 D:%....#       ###.......###  
 D:%....#      ##...........## 
@@ -7388,6 +7635,7 @@ rows:11
 columns:28
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#         #%%%%#
 D:  ###.......###       #....%
 D: ##...........##      #....%
@@ -7407,6 +7655,7 @@ rows:8
 columns:29
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%#     #%#%#     #%#    
 D:  ###.###  ##.#.##  ###.###  
 D: ##.....####.....####.....## 
@@ -7423,6 +7672,7 @@ rows:9
 columns:29
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   #%%%#             #%%%#   
 D:####...##           ##...####
 D:%.......#############.......%
@@ -7458,6 +7708,7 @@ rows:11
 columns:29
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:         #%%%%##             
 D:        ##....#         #%%%#
 D:    ######1##2###     ###...%
@@ -7477,6 +7728,7 @@ rows:11
 columns:29
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%           %%%%#    
 D:  ###...%           %...###  
 D: ##....##           ##....## 
@@ -7496,6 +7748,7 @@ rows:11
 columns:29
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%#%%%%%%%%%#%%%%#    
 D:  ###....+.........+....###  
 D: ##....###3##...##3###....## 
@@ -7515,6 +7768,7 @@ rows:11
 columns:29
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:%%%     #%%%%%%%%%%%#     %%%
 D:%.%#   ##...........##   #%.%
 D:%%.## ##.#####(#####.## ##.%%
@@ -7551,6 +7805,7 @@ rows:11
 columns:31
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%%#                       #%%#
 D:%..####                 ####..%
 D:%...x.####           ####.x...%
@@ -7570,6 +7825,7 @@ rows:11
 columns:31
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:           ##%%%%%##           
 D:         ###.......###         
 D:        ##...........##        
@@ -7589,6 +7845,7 @@ rows:11
 columns:33
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:#%%#  #%%%%%#%%%%%%%#%%%%%#  #%%#
 D:%..#  #.....2.......2.....#  #..%
 D:%..## ###.#2#14#9#41#2#.### ##..%
@@ -7627,6 +7884,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%%                 %%%          
 D:%.%#               #%.%#         
 D:%%.##             ##.#.##        
@@ -7646,6 +7904,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:          %%%                 %%%
 D:         #%.%#               #%.%
 D:        ##.#.##             ##.%%
@@ -7665,6 +7924,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:       %%%                    #%%
 D:      ##.##                  ##.%
 D:     ##.#.####################.#%
@@ -7683,6 +7943,7 @@ rows:11
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:%%#                    %%%       
 D:%.##                  ##.##      
 D:%#.####################.#.##     
@@ -7705,6 +7966,7 @@ rows:7
 columns:11
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%#%#%#%#
 D:%.+.+^+.+.%
 D:#+#+#+#+#+#
@@ -7720,6 +7982,7 @@ rows:11
 columns:14
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%############
 D:%.#........(.#
 D:%.#(########.#
@@ -7739,6 +8002,7 @@ rows:11
 columns:14
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%############
 D:%.(..........#
 D:%.##########(#
@@ -7758,6 +8022,7 @@ rows:11
 columns:14
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:############%#
 D:#.(........#.%
 D:#.########(#.%
@@ -7777,6 +8042,7 @@ rows:11
 columns:14
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:############%#
 D:#..........(.%
 D:#(##########.%
@@ -7796,6 +8062,7 @@ rows:8
 columns:15
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:     #%#%#     
 D:    ##.2.##    
 D:   ##..1..##   
@@ -7812,6 +8079,7 @@ rows:8
 columns:15
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:#%%%#%%#%%#%%%#
 D:%...2.^.^.2...%
 D:##..1.#+#.1..##
@@ -7999,6 +8267,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:   ##%%%%%%%##   
 D:  ##.........##  
 D: ##..###1###..## 
@@ -8037,6 +8306,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:######%%%%%######
 D:#....#.....#....#
 D:#.xx.###+###.xx.#
@@ -8075,6 +8345,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   ###########   
 D:  ##.........##  
 D: ##..#######..## 
@@ -8094,6 +8365,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:   ###########   
 D:  ##.........##  
 D: ##..#######..## 
@@ -8113,6 +8385,7 @@ rows:11
 columns:17
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  ###.......###  
 D: ##...#+#+#...## 
@@ -8132,6 +8405,7 @@ rows:11
 columns:17
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%#%#%%#    
 D:  ###..(.(..###  
 D: ##...##(##...## 
@@ -8151,6 +8425,7 @@ rows:11
 columns:18
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%#%##%#%#%#%#%#
 D:%...#..#.#...#...%
 D:#.####.#...#^#.#.%
@@ -8170,6 +8445,7 @@ rows:11
 columns:19
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%%%#    
 D:   ##.........##   
 D:  ##..###1###..##  
@@ -8189,6 +8465,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    ########%%#    
 D:   ##......##.##   
 D:  ##.######.##.##  
@@ -8208,6 +8485,7 @@ rows:11
 columns:19
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%######    
 D:   ##.........##   
 D:  ##.#########.##  
@@ -8246,6 +8524,7 @@ rows:11
 columns:19
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:  ####%#%%%#%####  
 D: ##....#...#....## 
 D:##...#+##+##+#...##
@@ -8265,6 +8544,7 @@ rows:11
 columns:19
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D: ######%%#%%###### 
 D:##...##.^.^.##...##
 D:#..x..###+###..x..#
@@ -8322,6 +8602,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%%%# #%%%%%#    
 D:  #%#.......###.....#%#  
 D: ##........^^.###.....## 
@@ -8341,6 +8622,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%%%# #%%%%%%%#    
 D:  #%#.....###.......#%#  
 D: ##.....###.^^........## 
@@ -8360,6 +8642,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D: #%# #%# #%# #%# #%# #%# 
 D:##.###.###.###.###.###.##
 D:%...+...+...+...+...+...#
@@ -8379,6 +8662,7 @@ rows:11
 columns:25
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D: #%%%%%#   #%#   #%%%%%# 
 D:##.....##  #.#  ##.....##
 D:%..#+#..## #.# ##..#+#..%
@@ -8454,6 +8738,7 @@ rows:11
 columns:25
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%#####%%%#      
 D:   #%%#...1...1...#%%#   
 D: #%#..#2#1#.9.#1#2#..#%# 
@@ -8511,6 +8796,7 @@ rows:11
 columns:27
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%#%%#     #%%#%%#    
 D:  ###..2..#######..2..###  
 D: ##....3..+^(.(^+..#....## 
@@ -8587,6 +8873,7 @@ rows:11
 columns:27
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:           #%%%#           
 D:#%%%%%%%%###...###%%%%%%%%#
 D:%.........##...##.........%
@@ -8606,6 +8893,7 @@ rows:8
 columns:28
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:                   ##%%%##  
 D:                 ###.....###
 D:%%################...#2#...%
@@ -8622,6 +8910,7 @@ rows:11
 columns:29
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:        #%%%%%#%%%%%#        
 D:      ###.....(.....###      
 D:    ###.....#####.....###    
@@ -8641,6 +8930,7 @@ rows:10
 columns:31
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:              #%#              
 D:            ###^###            
 D:          ###.x(x.###          
@@ -8659,6 +8949,7 @@ rows:11
 columns:31
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:            #%%#%%#            
 D:         #%##..)..##%#         
 D:      #%%#.+...#...+.#%%#      
@@ -8678,6 +8969,7 @@ rows:11
 columns:31
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D: ##%%%##  ###########  ##%%%## 
 D:##.....####.........####.....##
 D:%..###..##..###.###..##..###..%
@@ -8697,6 +8989,7 @@ rows:11
 columns:31
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D: #%%%%%#             ##%%%#    
 D:##.....###          ##....###  
 D:%..9.....#          #..9.#..## 
@@ -8716,6 +9009,7 @@ rows:11
 columns:31
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:    #%%%##             #%%%%%# 
 D:  ###....##          ###.....##
 D: ##..#.9..#          #.....9..%
@@ -8735,6 +9029,7 @@ rows:7
 columns:33
 doors:1
 tval:0
+flags:FEW_ENTRANCES
 D:#%%#   #%%#    ###    #%%#   #%%#
 D:%..### #..### ##.## ###..# ###..%
 D:%....###....###...###....###....%
@@ -8750,6 +9045,7 @@ rows:11
 columns:33
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:%%#############%%%#############%%
 D:%.#.....2.....+...+.....2.....#.%
 D:%.2.....1....#######....1.....2.%
@@ -8769,6 +9065,7 @@ rows:11
 columns:33
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%#%#%#################%#%#%#%#
 D:%.#.#.#.2.+.+^+.x.+^+.+.2.#.#.#.%
 D:##.#.#.####1#2#...#2#1####.#.#.##
@@ -8788,6 +9085,7 @@ rows:11
 columns:33
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:       #%%%%#########%%%%#       
 D:    ####....1..^.^..2....####    
 D:  ###..##...####+####...##..###  
@@ -8807,6 +9105,7 @@ rows:11
 columns:33
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:          #############          
 D:        ###...1.8.3...###        
 D:      ###.^#####2#####^.###      
@@ -8826,6 +9125,7 @@ rows:11
 columns:33
 doors:2
 tval:0
+flags:FEW_ENTRANCES
 D:      #%%%#   #####   #%%%#      
 D:  #%%##...#####...#####...##%%#  
 D:  %..###+###.^2.#.2^.###+###..%  
@@ -8845,6 +9145,7 @@ rows:11
 columns:33
 doors:4
 tval:0
+flags:FEW_ENTRANCES
 D:#%#%##%#%#%#%#####%#%###%##%#%#%#
 D:%.#....#...#.......#........#...%
 D:#.#.##.#.#.#.#####.#####.##.#.#.#
@@ -8864,6 +9165,7 @@ rows:11
 columns:33
 doors:3
 tval:0
+flags:FEW_ENTRANCES
 D:       #%#     ###     #%#       
 D:      ##.##   ##.##   ##.##      
 D:     ##...## ##...## ##...##     
@@ -8903,6 +9205,7 @@ rows:7
 columns:11
 doors:3
 tval:arrow
+flags:FEW_ENTRANCES
 D:###########
 D:#..1[[[2..#
 D:#..##3##..#
@@ -8918,6 +9221,7 @@ rows:7
 columns:11
 doors:3
 tval:bolt
+flags:FEW_ENTRANCES
 D:###########
 D:#..1[[[2..#
 D:#..##3##..#
@@ -8933,6 +9237,7 @@ rows:7
 columns:11
 doors:3
 tval:shot
+flags:FEW_ENTRANCES
 D:###########
 D:#..1[[[2..#
 D:#..##3##..#
@@ -8963,6 +9268,7 @@ rows:9
 columns:11
 doors:1
 tval:potion
+flags:FEW_ENTRANCES
 D:###########
 D:##[[.#.[[##
 D:####+#+####
@@ -8999,6 +9305,7 @@ rows:7
 columns:12
 doors:1
 tval:magic book
+flags:FEW_ENTRANCES
 D:#####%%#####
 D:#...^..^...#
 D:%..x####x..%
@@ -9014,6 +9321,7 @@ rows:7
 columns:12
 doors:1
 tval:prayer book
+flags:FEW_ENTRANCES
 D:#%##########
 D:%.#.#.#..^.#
 D:%.#.#.#..#[#
@@ -9029,6 +9337,7 @@ rows:9
 columns:13
 doors:4
 tval:light
+flags:FEW_ENTRANCES
 D:   #%%#%%#   
 D: ###..+..### 
 D:##.x^^#^^x.##
@@ -9082,6 +9391,7 @@ rows:11
 columns:17
 doors:4
 tval:amulet
+flags:FEW_ENTRANCES
 D:    #%%%%%%%#    
 D:  ###.......###  
 D: ##...#.x.#....# 
@@ -9101,6 +9411,7 @@ rows:11
 columns:17
 doors:2
 tval:ring
+flags:FEW_ENTRANCES
 D:    #%%%#%%%#    
 D:  ###...x...###  
 D: ##..##...##..## 
@@ -9137,6 +9448,7 @@ rows:11
 columns:19
 doors:4
 tval:potion
+flags:FEW_ENTRANCES
 D:    #%%%%%%%%%#    
 D:  ###.........###  
 D: ##...#######...## 
@@ -9156,6 +9468,7 @@ rows:9
 columns:23
 doors:2
 tval:staff
+flags:FEW_ENTRANCES
 D:%%%%%#############%%%%%
 D:%....#....+.+....#....%
 D:%....#....#^#....#....%
@@ -9173,6 +9486,7 @@ rows:11
 columns:27
 doors:2
 tval:wand
+flags:FEW_ENTRANCES
 D: #%%%%%#############%%%%%# 
 D:##.....+...........+.....##
 D:%..xx..######1######..xx..%
@@ -9192,6 +9506,7 @@ rows:11
 columns:31
 doors:2
 tval:chest
+flags:FEW_ENTRANCES
 D:############%%%%%%%############
 D:#...(.(...1^.......^2...(.(...#
 D:#...#+#...#2#######1#...#+#...#
@@ -9211,6 +9526,7 @@ rows:11
 columns:32
 doors:1
 tval:rod
+flags:FEW_ENTRANCES
 D:   ##########     ##%%%%%%%##   
 D:  ##........##   ##.........##  
 D: ##..#####...## ##..#######..## 

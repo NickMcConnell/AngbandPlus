@@ -257,7 +257,7 @@ extern u16b chunk_list_max;
 int distance(struct loc grid1, struct loc grid2);
 bool los(struct chunk *c, struct loc grid1, struct loc grid2);
 void update_view(struct chunk *c, struct player *p);
-bool no_light(void);
+bool no_light(struct player *p);
 
 /* cave-map.c */
 void map_info(struct loc grid, struct grid_data *g);
@@ -267,6 +267,7 @@ void light_room(struct loc grid, bool light);
 void wiz_light(struct chunk *c, struct player *p, bool full);
 void wiz_dark(struct chunk *c, struct player *p, bool full);
 void cave_illuminate(struct chunk *c, bool daytime);
+void expose_to_sun(struct chunk *c, struct loc grid, bool daytime);
 void cave_update_flow(struct chunk *c);
 void cave_forget_flow(struct chunk *c);
 
@@ -360,7 +361,6 @@ bool square_isstrongwall(struct chunk *c, struct loc grid);
 bool square_isbright(struct chunk *c, struct loc grid);
 bool square_isfiery(struct chunk *c, struct loc grid);
 bool square_islit(struct chunk *c, struct loc grid);
-bool square_islitwall(struct chunk *c, struct loc grid);
 bool square_isdamaging(struct chunk *c, struct loc grid);
 bool square_isnoflow(struct chunk *c, struct loc grid);
 bool square_isnoscent(struct chunk *c, struct loc grid);
@@ -447,6 +447,7 @@ struct loc next_grid(struct loc grid, int dir);
 int lookup_feat(const char *name);
 void set_terrain(void);
 struct chunk *cave_new(int height, int width);
+void cave_connectors_free(struct connector *join);
 void cave_free(struct chunk *c);
 void list_object(struct chunk *c, struct object *obj);
 void delist_object(struct chunk *c, struct object *obj);
@@ -460,6 +461,8 @@ int cave_monster_count(struct chunk *c);
 
 int count_feats(struct loc *grid,
 				bool (*test)(struct chunk *c, struct loc grid), bool under);
+int count_neighbors(struct loc *match, struct chunk *c, struct loc grid,
+	bool (*test)(struct chunk *c, struct loc grid), bool under);
 struct loc cave_find_decoy(struct chunk *c);
 void prepare_next_level(struct chunk **c, struct player *p);
 bool is_quest(int level);

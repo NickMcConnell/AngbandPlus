@@ -11,7 +11,8 @@
 # Format:
 # name:class number:class name
 # stats:str:int:wis:dex:con
-# skill-disarm:base:increment
+# skill-disarm-phys:base:increment
+# skill-disarm-magic:base:increment
 # skill-device:base:increment
 # skill-save:base:increment
 # skill-stealth:base:increment
@@ -20,17 +21,22 @@
 # skill-shoot:base:increment
 # skill-throw:base:increment
 # skill-dig:base:increment
-# info:mhp:exp
-# attack:max_attacks:min_weight:att_multiply
+# hitdie:increment
+# exp:percent
+# max-attacks:count
+# min-weight:weight in tenths of pounds
+# strength-multiplier:multiplicative factor
 # title:title
-# equip:tval:sval:min:max
-# player-flags:class flags
+# equip:tval:sval:min:max:eopts
+# obj-flags:object property flags
+# player-flags:player property flags
 # magic:spell_first:spell_weight:num_books
 # book:tval:quality:name:spells:realm
 # book-graphics:symbol:color
 # book-properties:cost:commonness:min to max
 # spell:name:level:mana:fail:exp
 # effect:effect:subtype (if needed):radius (if needed):parameter (if needed)
+# effect-yx:yrange:xrange
 # dice:dice string
 # expr:dice expression
 # effect-msg:message
@@ -49,17 +55,32 @@
 # character's skills at birth, the increments are added to the base skill
 # every ten levels.
 
-# 'info' is for extra info - max. hitpoints gained per level, experience
-# factor in percent.
+# 'hitdie' sets the class's contribution to the maximum hitpoints gained per
+# level
 
-# 'attack' is for attack info - maximum possible number of attacks, minimum
-# weapon weight for calculating the number of attacks, multiplier for
-# attack calculations.
+# 'exp' sets the classes additive contribution, in percent, to the experience
+# point penalty.  The current classes don't set this and get the default of
+# no experience point penalty.
+
+# 'max-attacks' sets the maximum possible number of blows per round.
+
+# 'min-weight' is the minimum, in tenths of pounds, imposed on a weapon's weight
+# when computing the number of blows per round.
+
+# 'strength-multiplier' is the multiplier for strength's contribution to the
+# number of blows per round; a bigger value grants more blows.
 
 # 'equip' is for starting equipment - tval of the item, sval of the item,
-# minimum amount, maximum amount.
+# minimum amount, maximum amount, names of birth options separated by spaces
+# or | (or none for no exclusion rules) which will exclude the item if set
+# (or, if the name of the option is preceded by NOT-, will exclude the item if
+# not set).
 
-# 'flags' is for class flags.
+# 'obj-flags' is for object properties (from object_property.txt) that the
+# class has.
+
+# 'player-flags' is for player properties (from player_property.txt) that the
+# class has.
 
 # 'title' is for class titles.
 
@@ -88,6 +109,10 @@
 # 'effect' defines the spell effect (as listed in src/list-effects.h),
 # and optionally parameters for effect subtype, effect radius and
 # an extra parameter for various things
+
+# 'effect-yx' sets the y (i.e. vertical) range and x (i.e. horizontal) range
+# about the effect's centre.  Only some effects (often detections) use those
+# ranges.
 
 # 'dice' provides a random value to be used by an effect (for damage,
 # healing, etc).  As well as the normal random value fields described above,
@@ -124,12 +149,12 @@ hitdie:9
 max-attacks:6
 min-weight:30
 strength-multiplier:5
-equip:food:Ration of Food:1:3
-equip:light:Wooden Torch:1:3
-equip:potion:Berserk Strength:1:1
-equip:sword:Dagger:1:1
-equip:soft armour:Soft Leather Armour:1:1
-equip:scroll:Word of Recall:1:1
+equip:food:Ration of Food:1:3:none
+equip:light:Wooden Torch:1:3:none
+equip:potion:Berserk Strength:1:1:none
+equip:sword:Dagger:1:1:none
+equip:soft armour:Soft Leather Armour:1:1:none
+equip:scroll:Word of Recall:1:1:birth_no_recall
 player-flags:BRAVERY_30 | NO_MANA | SHIELD_BASH
 title:Rookie
 title:Soldier
@@ -160,10 +185,10 @@ hitdie:0
 max-attacks:4
 min-weight:40
 strength-multiplier:2
-equip:food:Ration of Food:1:3
-equip:light:Wooden Torch:1:3
-equip:sword:Rapier:1:1
-equip:scroll:Word of Recall:1:1
+equip:food:Ration of Food:1:3:none
+equip:light:Wooden Torch:1:3:none
+equip:sword:Rapier:1:1:none
+equip:scroll:Word of Recall:1:1:birth_no_recall
 player-flags:ZERO_FAIL | BEAM | CHOOSE_SPELLS
 title:Novice
 title:Apprentice
@@ -181,7 +206,7 @@ magic:1:300:5
 book:magic book:town:[First Spells]:7:arcane
 book-graphics:?:R
 book-properties:25:40:1 to 100
-equip:magic book:[First Spells]:1:1
+equip:magic book:[First Spells]:1:1:none
 
 spell:Magic Missile:1:1:22:4
 effect:BOLT_OR_BEAM:MISSILE:0:-10
@@ -301,23 +326,20 @@ effect:BOLT_STATUS:AWAY_ALL
 dice:$B
 expr:B:PLAYER_LEVEL:* 3
 desc:Produces a bolt that teleports away the first monster in its path.
-desc: Distance teleported increases with player level.
+desc:  Distance teleported increases with player level.
 
 spell:Resistance:20:20:65:20
+effect:SET_VALUE
+dice:20+d20
 effect:TIMED_INC:OPP_ACID
-dice:20+d20
 effect:TIMED_INC:OPP_ELEC
-dice:20+d20
 effect:TIMED_INC:OPP_COLD
-dice:20+d20
 effect:TIMED_INC:OPP_FIRE
-dice:20+d20
+effect:CLEAR_VALUE
 desc:Grants you resistance to acid, cold, fire and lightning for 20+1d20 turns.
 
 spell:Tap Magical Energy:22:2:30:12
 effect:TAP_DEVICE
-effect:TIMED_INC:STUN
-dice:1d2
 desc:Turns wand or staff energy into mana; tapping stuns the player briefly.
 
 spell:Mana Channel:25:10:50:20
@@ -364,7 +386,8 @@ effect:DETECT_INVISIBLE_MONSTERS
 effect-yx:22:40
 effect:DETECT_VISIBLE_MONSTERS
 effect-yx:22:40
-desc:Detects all treasure, objects and monsters in the immediate area.
+desc:Detects all traps, doors, stairs, treasure, objects and monsters in the
+desc: immediate area.
 
 spell:Dimension Door:35:30:80:40
 effect:TELEPORT_TO
@@ -435,10 +458,10 @@ hitdie:2
 max-attacks:4
 min-weight:35
 strength-multiplier:3
-equip:food:Ration of Food:1:3
-equip:hafted:Whip:1:1
-equip:light:Wooden Torch:1:3
-equip:scroll:Word of Recall:1:1
+equip:food:Ration of Food:1:3:none
+equip:hafted:Whip:1:1:none
+equip:light:Wooden Torch:1:3:none
+equip:scroll:Word of Recall:1:1:birth_no_recall
 player-flags:ZERO_FAIL | CHOOSE_SPELLS | CHARM
 title:Wanderer
 title:Tamer
@@ -456,7 +479,7 @@ magic:1:350:5
 book:nature book:town:[Lesser Charms]:6:nature
 book-graphics:?:y
 book-properties:25:40:1 to 100
-equip:nature book:[Lesser Charms]:1:1
+equip:nature book:[Lesser Charms]:1:1:none
 
 spell:Detect Life:1:1:23:2
 effect:DETECT_LIVING_MONSTERS
@@ -534,7 +557,7 @@ effect:SHORT_BEAM:SHARD:4:5
 dice:$Dd6
 expr:D:PLAYER_LEVEL:/ 3 + 2
 desc:Causes shards to explode in a line out of the earth, striking objects and
-desc: monsters. Length of the line increases with player level.
+desc: monsters.  Length of the line increases with player level.
 
 book:nature book:dungeon:[Creature Dominion]:5:nature
 book-graphics:?:o
@@ -605,7 +628,10 @@ effect:CURE:CUT
 effect:CURE:POISONED
 effect:CURE:STUN
 effect:CURE:BLACKBREATH
-desc:Cures all cuts, poison, stunning and black breath.
+effect:NOURISH:INC_TO
+dice:80
+desc:Cures all cuts, poison, stunning and black breath, and leaves you
+desc: well-nourished.
 
 book:nature book:dungeon:[Wild Forces]:5:nature
 book-graphics:?:o
@@ -670,11 +696,11 @@ hitdie:2
 max-attacks:4
 min-weight:35
 strength-multiplier:3
-equip:food:Ration of Food:1:3
-equip:light:Wooden Torch:1:3
-equip:hafted:Mace:1:1
-equip:potion:Cure Serious Wounds:2:2
-equip:scroll:Word of Recall:1:1
+equip:food:Ration of Food:1:3:none
+equip:light:Wooden Torch:1:3:none
+equip:hafted:Mace:1:1:none
+equip:potion:Cure Serious Wounds:2:2:none
+equip:scroll:Word of Recall:1:1:birth_no_recall
 player-flags:BLESS_WEAPON | ZERO_FAIL
 title:Believer
 title:Acolyte
@@ -692,7 +718,7 @@ magic:1:350:5
 book:prayer book:town:[Novice's Handbook]:6:divine
 book-graphics:?:G
 book-properties:25:40:1 to 100
-equip:prayer book:[Novice's Handbook]:1:1
+equip:prayer book:[Novice's Handbook]:1:1:none
 
 spell:Call Light:1:1:10:2
 effect:LIGHT_AREA
@@ -756,7 +782,6 @@ expr:B:PLAYER_LEVEL:* 3 / 2
 desc:Shoots a radius-2 or radius-3 ball that does unresistable
 desc: damage to each monster in its area of effect.
 desc:  Evil monsters take double damage.
-desc:  All cursed items in the area of effect are destroyed.
 desc:  The bigger area of effect is attained at character level 30.
 
 spell:Spear of Light:7:6:30:5
@@ -939,9 +964,9 @@ hitdie:2
 max-attacks:4
 min-weight:35
 strength-multiplier:3
-equip:food:Ration of Food:1:3
-equip:sword:Main Gauche:1:1
-equip:scroll:Word of Recall:1:1
+equip:food:Ration of Food:1:3:none
+equip:sword:Main Gauche:1:1:none
+equip:scroll:Word of Recall:1:1:birth_no_recall
 player-flags:ZERO_FAIL | CHOOSE_SPELLS | UNLIGHT | EVIL
 title:Acolyte
 title:Curser
@@ -959,7 +984,7 @@ magic:1:300:5
 book:shadow book:town:[Into the Shadows]:5:shadow
 book-graphics:?:P
 book-properties:25:40:1 to 100
-equip:shadow book:[Into the Shadows]:1:1
+equip:shadow book:[Into the Shadows]:1:1:none
 
 spell:Nether Bolt:1:1:22:2
 effect:BOLT:NETHER
@@ -1005,15 +1030,16 @@ dice:$Dd6
 expr:D:PLAYER_LEVEL:/ 4 + 2
 desc:Targets the nearest undead monster and damages it to gain player mana.
 
-spell:Miasma:10:4:40:5
-effect:SPOT:CHAOS:4
+spell:Crush:10:6:40:5
+effect:PROJECT_LOS:MON_CRUSH
 dice:$B
-expr:B:PLAYER_LEVEL:* 3
-#effect:TIMED_INC:IMAGE
-#dice:$B
-#expr:B:PLAYER_LEVEL:/ 4
-desc:Produces a cloud of hallucinogenic gas affecting the player and monsters
-desc: within radius 4.
+expr:B:PLAYER_LEVEL:* 4
+effect:DAMAGE
+dice:d$S
+expr:S:PLAYER_LEVEL:* 2
+desc:Instantly kill any monster in line-of-sight with less than four times the
+desc: player's level in hitpoints, also hurting the player.  Other monsters are
+desc: unharmed.
 
 spell:Sleep Evil:12:5:50:5
 effect:PROJECT_LOS:SLEEP_EVIL
@@ -1143,19 +1169,19 @@ effect:RESTORE_MANA
 dice:50
 desc:Exchanges 50 hitpoints for 50 mana.
 
-spell:Crush:32:30:60:130
-effect:PROJECT_LOS:MON_CRUSH
+spell:Zone of Unmagic:32:16:60:110
+effect:SPOT:DISEN:4
 dice:$B
-expr:B:PLAYER_LEVEL:* 4
-desc:Instantly kill any monster in line-of-sight with less than four times the
-desc: player's level in hitpoints.  Other monsters are unharmed.
+expr:B:PLAYER_LEVEL:* 3
+desc:Produces a zone of diesenchantment affecting the player and monsters
+desc: within radius 4.
 
 spell:Vampire Form:37:20:60:140
 effect:SHAPECHANGE:vampire
 effect:JUMP_AND_BITE
 dice:$B
 expr:B:PLAYER_LEVEL:+ 0
-desc:Allows you to assume the form of a vampire at the cost of half your 
+desc:Allows you to assume the form of a vampire at the cost of half your
 desc: current hitpoints, than teleports you to the nearest living monster
 desc: and drains a level-dependent number of hitpoints, healing and nourishing
 desc: you.  When first transformed you will temporarily be able
@@ -1176,6 +1202,7 @@ spell:Command:45:40:60:250
 effect:COMMAND
 dice:5+1d10
 desc:Allows you to take control of a monster, and move it instead of yourself.
+desc:  Possible actions are move, stand still, 'd'rop, 'm'agic, or 'r'elease.
 
 ############### PALADIN ###############
 name:Paladin
@@ -1194,12 +1221,12 @@ hitdie:6
 max-attacks:5
 min-weight:30
 strength-multiplier:5
-equip:food:Ration of Food:1:3
-equip:light:Wooden Torch:1:3
-equip:sword:Main Gauche:1:1
-equip:scroll:Protection from Evil:1:1
-equip:scroll:Word of Recall:1:1
-equip:prayer book:[Novice's Handbook]:1:1
+equip:food:Ration of Food:1:3:none
+equip:light:Wooden Torch:1:3:none
+equip:sword:Main Gauche:1:1:none
+equip:scroll:Protection from Evil:1:1:none
+equip:scroll:Word of Recall:1:1:birth_no_recall
+equip:prayer book:[Novice's Handbook]:1:1:none
 player-flags:BLESS_WEAPON | SHIELD_BASH
 title:Gallant
 title:Keeper
@@ -1355,12 +1382,12 @@ hitdie:4
 max-attacks:5
 min-weight:20
 strength-multiplier:4
-equip:food:Ration of Food:1:3
-equip:light:Wooden Torch:1:3
-equip:sword:Dagger:1:1
-equip:soft armour:Soft Leather Armour:1:1
-equip:scroll:Word of Recall:1:1
-equip:magic book:[First Spells]:1:1
+equip:food:Ration of Food:1:3:none
+equip:light:Wooden Torch:1:3:none
+equip:sword:Dagger:1:1:none
+equip:soft armour:Soft Leather Armour:1:1:none
+equip:scroll:Word of Recall:1:1:birth_no_recall
+equip:magic book:[First Spells]:1:1:none
 player-flags:CHOOSE_SPELLS | STEAL
 title:Vagabond
 title:Cutpurse
@@ -1434,7 +1461,7 @@ effect:BOLT_STATUS:AWAY_ALL
 dice:$B
 expr:B:PLAYER_LEVEL:* 3
 desc:Produces a bolt that teleports away the first monster in its path.
-desc: Distance teleported increases with player level.
+desc:  Distance teleported increases with player level.
 
 spell:Teleport Level:35:17:65:80
 effect:TELEPORT_LEVEL
@@ -1459,13 +1486,13 @@ hitdie:5
 max-attacks:5
 min-weight:35
 strength-multiplier:4
-equip:food:Ration of Food:1:3
-equip:light:Wooden Torch:1:3
-equip:sword:Main Gauche:1:1
-equip:bow:Short Bow:1:1
-equip:arrow:Arrow:15:20
-equip:scroll:Word of Recall:1:1
-equip:nature book:[Lesser Charms]:1:1
+equip:food:Ration of Food:1:3:none
+equip:light:Wooden Torch:1:3:none
+equip:sword:Main Gauche:1:1:none
+equip:bow:Short Bow:1:1:none
+equip:arrow:Arrow:15:20:none
+equip:scroll:Word of Recall:1:1:birth_no_recall
+equip:nature book:[Lesser Charms]:1:1:none
 player-flags:FAST_SHOT | CHOOSE_SPELLS
 title:Runner
 title:Strider
@@ -1492,9 +1519,12 @@ effect:DETECT_LIVING_MONSTERS
 effect-yx:22:40
 desc:Detects all living monsters in the immediate area, for one turn only.
 
-spell:Cure Poison:9:4:30:4
+spell:Herbal Curing:9:6:30:4
+effect:CURE:CUT
 effect:CURE:POISONED
-desc:Neutralizes poison.
+effect:CURE:STUN
+effect:CURE:BLACKBREATH
+desc:Cures all cuts, poison, stunning and black breath.
 
 spell:Resist Poison:12:10:32:5
 effect:TIMED_INC:OPP_POIS
@@ -1540,12 +1570,13 @@ spell:Decoy:30:30:40:60
 effect:GLYPH:DECOY
 desc:Leaves a magical decoy that looks and sounds like the player.
 
-spell:Herbal Curing:40:20:90:200
-effect:CURE:CUT
-effect:CURE:POISONED
-effect:CURE:STUN
-effect:CURE:BLACKBREATH
-desc:Cures all cuts, poison, stunning and black breath.
+spell:Brand Ammunition:40:60:95:120
+effect:BRAND_AMMO
+desc:Brands one stack of ammunition with fire, cold, or poison
+desc: (selected at random) and at the same time attempts to improve
+desc: the to-hit bonus and the to-dam bonus of the same ammunition.
+desc:  The spell has no effect if the ammunition is already branded, has a
+desc: slay, is broken, or is cursed.
 
 
 ############### BLACKGUARD ###############
@@ -1565,13 +1596,13 @@ hitdie:8
 max-attacks:5
 min-weight:100
 strength-multiplier:5
-equip:shadow book:[Into the Shadows]:1:1
-equip:food:Ration of Food:1:3
-equip:light:Wooden Torch:1:3
-equip:sword:Tulwar:1:1
-equip:shield:Leather Shield:1:1
-equip:scroll:Word of Recall:1:1
-equip:potion:Cure Light Wounds:1:1
+equip:shadow book:[Into the Shadows]:1:1:none
+equip:food:Ration of Food:1:3:none
+equip:light:Wooden Torch:1:3:none
+equip:sword:Tulwar:1:1:none
+equip:shield:Leather Shield:1:1:none
+equip:scroll:Word of Recall:1:1:birth_no_recall
+equip:potion:Cure Light Wounds:1:1:none
 obj-flags:IMPAIR_HP
 player-flags:CHOOSE_SPELLS | SHIELD_BASH | COMBAT_REGEN
 title:Rat
@@ -1628,10 +1659,11 @@ desc: melee blow.  You gain an additional blow at levels 25 and 40.  If you
 desc: moved, the number of blows is reduced by 25% for each space, then rounded.
 
 spell:Grim Purpose:13:8:30:12
+effect:SET_VALUE
+dice:12+d12
 effect:TIMED_INC:OPP_CONF
-dice:12+d12
 effect:TIMED_INC:FREE_ACT
-dice:12+d12
+effect:CLEAR_VALUE
 desc:Your mind becomes too focused to be slowed, paralyzed or confused
 desc: for 12+d12 turns.
 
@@ -1667,7 +1699,7 @@ desc:Coats all your melee weapons with poison for 18+d18 turns.
 spell:Werewolf Form:32:30:40:100
 effect:SHAPECHANGE:werewolf
 desc:With a blood-curdling cry you change into a half-man half-wolf!
-desc: In this form you move, attack, and heal faster.
+desc:  In this form you move, attack, and heal faster.
 
 book:shadow book:dungeon:[Deadly Powers]:4:shadow
 
@@ -1675,7 +1707,7 @@ spell:Bloodlust:30:25:37:80
 effect:TIMED_INC:BLOODLUST:0:-1
 dice:10
 desc:Gives you a powerful desire to kill, increased every time you satisfy it.
-desc: Gives you extra melee damage and extra blows, but comes
+desc:  Gives you extra melee damage and extra blows, but comes
 desc: with dangerous side-effects.
 
 spell:Unholy Reprieve:34:45:60:120

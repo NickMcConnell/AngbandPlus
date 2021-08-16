@@ -137,9 +137,7 @@ static void spell_message(struct monster *mon,
 
 				case SPELL_TAG_TARGET: {
 					char m_name[80];
-					struct monster *t_mon;
 					if (mon->target.midx > 0) {
-						t_mon = cave_monster(cave, mon->target.midx);
 						monster_desc(m_name, sizeof(m_name), t_mon, MDESC_TARG);
 						strnfcat(buf, sizeof(buf), &end, m_name);
 					} else {
@@ -216,6 +214,38 @@ static void spell_check_for_fail_rune(const struct monster_spell *spell)
 }
 
 /**
+ * Calculate the base to-hit value for a monster spell based on race only
+ * See also: chance_of_monster_hit_base
+ *
+ * \param race The monster race
+ * \param spell The spell
+ */
+static int chance_of_spell_hit_base(const struct monster_race *race,
+	const struct monster_spell *spell)
+{
+	return MAX(race->level, 1) * 3 + spell->hit;
+}
+
+/**
+ * Calculate the to-hit value of a monster spell for a specific monster
+ *
+ * \param mon The monster
+ * \param spell The spell
+ */
+static int chance_of_spell_hit(const struct monster *mon,
+	const struct monster_spell *spell)
+{
+	int to_hit = chance_of_spell_hit_base(mon->race, spell);
+
+	/* Apply confusion hit reduction for each level of confusion */
+	for (int i = 0; i < monster_effect_level(mon, MON_TMD_CONF); i++) {
+		to_hit = to_hit * (100 - CONF_HIT_REDUCTION) / 100;
+	}
+
+	return to_hit;
+}
+
+/**
  * Process a monster spell 
  *
  * \param index is the monster spell flag (RSF_FOO)
@@ -228,7 +258,7 @@ void do_mon_spell(int index, struct monster *mon, bool seen)
 
 	bool ident = false;
 	bool hits;
-	int target_mon = mon->target.midx;
+	int target_midx = mon->target.midx;
 
 	/* See if it hits */
 	if (spell->hit == 100) {
@@ -236,19 +266,11 @@ void do_mon_spell(int index, struct monster *mon, bool seen)
 	} else if (spell->hit == 0) {
 		hits = false;
 	} else {
-		int rlev = MAX(mon->race->level, 1);
-		int conf_level = monster_effect_level(mon, MON_TMD_CONF);
-		int accuracy = 100;
-		while (conf_level) {
-			accuracy *= (100 - CONF_HIT_REDUCTION);
-			accuracy /= 100;
-			conf_level--;
-		}
-		if (target_mon > 0) {
-			hits = check_hit_monster(cave_monster(cave, target_mon),
-									 spell->hit, rlev, accuracy);
+		if (target_midx > 0) {
+			hits = test_hit(chance_of_spell_hit(mon, spell),
+				cave_monster(cave, target_midx)->race->ac);
 		} else {
-			hits = check_hit(player, spell->hit, rlev, accuracy);
+			hits = check_hit(player, chance_of_spell_hit(mon, spell));
 		}
 	}
 
@@ -265,7 +287,7 @@ void do_mon_spell(int index, struct monster *mon, bool seen)
 		}
 
 		/* Try a saving throw if available */
-		if (level->save_message && (target_mon <= 0) &&
+		if (level->save_message && (target_midx <= 0) &&
 				randint0(100) < player->state.skills[SKILL_SAVE]) {
 			msg("%s", level->save_message);
 			spell_check_for_fail_rune(spell);

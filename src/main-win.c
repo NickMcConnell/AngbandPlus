@@ -1458,6 +1458,11 @@ static void term_change_font(term_data *td)
 
 	/* Force choice if legal */
 	if (GetOpenFileName(&ofn)) {
+		/* Remember if tile size matched the font size. */
+		bool tile_match_size = !use_graphics_nice
+			&& td->tile_wid == td->font_wid
+			&& td->tile_hgt == td->font_hgt;
+
 		/* Force the font */
 		if (term_force_font(td, tmp)) {
 			/* Access the standard font file */
@@ -1474,8 +1479,11 @@ static void term_change_font(term_data *td)
 		/* HACK - Assume bizarre */
 		td->bizarre = true;
 
-		/* Reset the tile info */
-		if (!td->tile_wid || !td->tile_hgt) {
+		/*
+		 * Reset the tile info (if not already set or if matching
+		 * the font size.
+		 */
+		if (!td->tile_wid || !td->tile_hgt || tile_match_size) {
 			td->tile_wid = td->font_wid;
 			td->tile_hgt = td->font_hgt;
 		}
@@ -1656,6 +1664,7 @@ static errr Term_xtra_win_react(void)
 				td->t.pict_hook = Term_pict_win;
 			}
 		}
+		td->t.dblh_hook = (overdraw) ? is_dh_tile : NULL;
 
 		/* make sure the current graphics mode is set */
 		current_graphics_mode = get_graphics_mode(arg_graphics);
@@ -1954,11 +1963,11 @@ static errr Term_bigcurs_win(int x, int y)
 
 
 /**
- * Low level graphics (Assumes valid input).
- *
- * Erase a "block" of "n" characters starting at (x,y).
+ * Help Term_wipe_win(), Term_pict_win(), and Term_pict_win_alpha():
+ * erase a nc x nr block of characters where the upper left corner
+ * of the block is at (x,y).
  */
-static errr Term_wipe_win(int x, int y, int n)
+static errr Term_wipe_win_helper(int x, int y, int nc, int nr)
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -1967,9 +1976,9 @@ static errr Term_wipe_win(int x, int y, int n)
 
 	/* Rectangle to erase in client coords */
 	rc.left = x * td->tile_wid + td->size_ow1;
-	rc.right = rc.left + n * td->tile_wid;
+	rc.right = rc.left + nc * td->tile_wid;
 	rc.top = y * td->tile_hgt + td->size_oh1;
-	rc.bottom = rc.top + td->tile_hgt;
+	rc.bottom = rc.top + nr * td->tile_hgt;
 
 	hdc = GetDC(td->w);
 	SetBkColor(hdc, RGB(0, 0, 0));
@@ -1979,6 +1988,17 @@ static errr Term_wipe_win(int x, int y, int n)
 
 	/* Success */
 	return 0;
+}
+
+
+/**
+ * Low level graphics (Assumes valid input).
+ *
+ * Erase a "block" of "n" characters starting at (x,y).
+ */
+static errr Term_wipe_win(int x, int y, int n)
+{
+	return Term_wipe_win_helper(x, y, n, 1);
 }
 
 
@@ -2100,6 +2120,7 @@ static errr Term_pict_win(int x, int y, int n,
 	term_data *td = (term_data*)(Term->data);
 
 	int i;
+	int mw, mh;
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2, tw2, th2;
 	int x3, y3;
@@ -2109,9 +2130,6 @@ static errr Term_pict_win(int x, int y, int n,
 	HDC hdcSrc;
 	HBITMAP hbmSrcOld;
 
-	/* Erase the grids */
-	Term_wipe_win(x, y, n);
-
 	/* Size of bitmap cell */
 	w1 = infGraph.CellWidth;
 	h1 = infGraph.CellHeight;
@@ -2120,16 +2138,21 @@ static errr Term_pict_win(int x, int y, int n,
 	if (td->map_active) {
 		w2 = td->map_tile_wid;
 		h2 = td->map_tile_hgt;
-		tw2 = w2;
-		th2 = h2;
+		mw = 1;
+		mh = 1;
 	} else {
 		w2 = td->tile_wid;
 		h2 = td->tile_hgt;
 
 		/* Large tile mode */
-		th2 = tile_height * h2;
-		tw2 = tile_width * w2;
+		mw = tile_width;
+		mh = tile_height;
 	}
+	tw2 = mw * w2;
+	th2 = mh * h2;
+
+	/* Erase the grids */
+	Term_wipe_win_helper(x, y, n * mw, mh);
 
 	/* Location of window cell */
 	x2 = x * w2 + td->size_ow1;
@@ -2339,8 +2362,10 @@ static errr Term_pict_win_alpha(int x, int y, int n,
 								const int *tap, const wchar_t *tcp)
 {
 	term_data *td = (term_data*)(Term->data);
-
+	int dhrclip = (overdraw) ?
+		Term_get_first_tile_row(Term) + tile_height - 1 : 0;
 	int i;
+	int mw, mh;
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2, tw2, th2;
 	int x3, y3;
@@ -2348,9 +2373,6 @@ static errr Term_pict_win_alpha(int x, int y, int n,
 	HDC hdc;
 	HDC hdcSrc;
 	HBITMAP hbmSrcOld;
-
-	/* Erase the grids */
-	Term_wipe_win(x, y, n);
 
 	/* Size of bitmap cell */
 	w1 = infGraph.CellWidth;
@@ -2360,16 +2382,21 @@ static errr Term_pict_win_alpha(int x, int y, int n,
 	if (td->map_active) {
 		w2 = td->map_tile_wid;
 		h2 = td->map_tile_hgt;
-		tw2 = w2;
-		th2 = h2;
+		mw = 1;
+		mh = 1;
 	} else {
 		w2 = td->tile_wid;
 		h2 = td->tile_hgt;
 
 		/* Large tile mode */
-		th2 = tile_height * h2;
-		tw2 = tile_width * w2;
+		mw = tile_width;
+		mh = tile_height;
 	}
+	tw2 = mw * w2;
+	th2 = mh * h2;
+
+	/* Erase the grids */
+	Term_wipe_win_helper(x, y, n * mw, mh);
 
 	/* Location of window cell */
 	x2 = x * w2 + td->size_ow1;
@@ -2411,29 +2438,20 @@ static errr Term_pict_win_alpha(int x, int y, int n,
 			StretchBlt(hdc, x2, y2, tw2, th2, hdcSrc, x3, y3, w1, h1, SRCCOPY);
 		}
 
-		if (overdraw && (trow >= overdraw) && (y > 2) &&
-			(trow <= overdrawmax)) {
+		if (overdraw && trow >= overdraw && y > dhrclip &&
+				trow <= overdrawmax) {
 			AlphaBlend(hdc, x2, y2-th2, tw2, th2, hdcSrc, x3, y3-h1, w1, h1,
 					   blendfn);
-			/* Tell the core that the top tile is not what it thinks */
-			Term_mark(x, y-tile_height);
-			Term_mark(x, y); /* This tile is drawn every frame */
 		}
 
 		/* Only draw if terrain and overlay are different */
 		if ((x1 != x3) || (y1 != y3))
 		{
 			/* Copy the picture from the bitmap to the window */
-			if (overdraw && (row >= overdraw) && (y > 2) &&
-				(row <= overdrawmax)) {
+			if (overdraw && row >= overdraw && y > dhrclip &&
+					row <= overdrawmax) {
 				AlphaBlend(hdc, x2, y2-th2, tw2, th2*2, hdcSrc, x1, y1-h1, w1,
 						   h1*2, blendfn);
-				/* Tell the core that the top tile is not what it thinks */
-				Term_mark(x, y-tile_height);
-				/* This tile is drawn every frame but it is needed, otherwise
-				 * the top does not get drawn again when the user of this tile
-				 * does not move, but something else does */
-				Term_mark(x, y); 
 			} else {
 				AlphaBlend(hdc, x2, y2, tw2, th2, hdcSrc, x1, y1, w1, h1,
 						   blendfn);
@@ -2571,6 +2589,7 @@ static void term_data_link(term_data *td)
 	t->wipe_hook = Term_wipe_win;
 	t->text_hook = Term_text_win;
 	t->pict_hook = Term_pict_win;
+	t->dblh_hook = NULL;
 
 	/* Remember where we came from */
 	t->data = td;
@@ -4891,6 +4910,7 @@ static void hook_quit(const char *str)
 #ifdef HAS_CLEANUP
 	textui_cleanup();
 	cleanup_angband();
+	close_sound();
 #endif /* HAS_CLEANUP */
 
 	exit(0);
@@ -4997,6 +5017,17 @@ static void init_stuff(void)
 
 	/* Validate the "sound" directory */
 	validate_dir(ANGBAND_DIR_SOUNDS);
+}
+
+
+/**
+ * Perform (as ui-game.c's reinit_hook) platform-specific actions necessary
+ * when restarting without exiting.  Also called directly at startup.
+ */
+static void win_reinit(void)
+{
+	/* Initialise sound. */
+	init_sound("win", 0, NULL);
 }
 
 
@@ -5152,8 +5183,12 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Set command hook */
 	cmd_get_hook = textui_get_cmd;
 
-	/* Initialise sound */
-	init_sound("win", 0, NULL);
+	/*
+	 * Set action that needs to be done if restarting without exiting.
+	 * Also need to do it now.
+	 */
+	reinit_hook = win_reinit;
+	win_reinit();
 
 	/* Set up the display handlers and things. */
 	init_display();

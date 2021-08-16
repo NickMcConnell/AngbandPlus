@@ -53,11 +53,12 @@
  *    be used to indicate field-of-view, such as through the 
  *    OPT(player, view_bright_light) option.
  *  - g->lighting is set to indicate the lighting level for the grid:
- *    LIGHTING_DARK for unlit grids, LIGHTING_LIT for inherently light
- *    grids (lit rooms, etc), LIGHTING_TORCH for grids lit by the player's
- *    light source, and LIGHTING_LOS for grids in the player's line of sight.
- *    Note that lighting is always LIGHTING_LIT for known "interesting" grids
- *    like walls.
+ *    LIGHTING_LIT by default, LIGHTING_DARK for unlit but seen grids within the
+ *    detection radius of a player with the UNLIGHT ability and a light source
+ *    with an intensity of one or less, LIGHTING_TORCH for seen and lit grids
+ *    within the radius of the player's light source when the view_yellow_light
+ *    option is on, and LIGHTING_LOS for seen and lit grids that don't qualify
+ *    for LIGHTING_TORCH.
  *  - g->is_player is true if the player is on the given grid.
  *  - g->hallucinate is true if the player is hallucinating something "strange"
  *    for this grid - this should pick a random monster to show if the m_idx
@@ -72,10 +73,11 @@
  * doors out of the player's view still change from closed to open and so on.
  *
  * TODO:
- * Hallucination is currently disabled (it was a display-level hack before,
- * and we need it to be a knowledge-level hack).  The idea is that objects
- * may turn into different objects, monsters into different monsters, and
- * terrain may be objects, monsters, or stay the same.
+ * Hallucination is a display-level hack (mostly in ui-map.c's
+ * grid_data_as_text(); some here) and we need it to be a knowledge-level
+ * hack.  The idea is that objects may turn into different objects, monsters
+ * into different monsters, and terrain may be objects, monsters, or stay the
+ * same.
  */
 void map_info(struct loc grid, struct grid_data *g)
 {
@@ -103,31 +105,19 @@ void map_info(struct loc grid, struct grid_data *g)
 	g->hallucinate = player->timed[TMD_IMAGE] ? true : false;
 
 	if (g->in_view) {
-		g->lighting = LIGHTING_LOS;
+		bool lit = square_islit(cave, grid);
 
-		/* Darkness or torchlight */
-		if (!square_isglow(cave, grid)) {
-			if (player_has(player, PF_UNLIGHT) && !square_islit(cave, grid)) {
-				g->lighting = LIGHTING_DARK;
-			} else if (OPT(player, view_yellow_light)) {
-				g->lighting = LIGHTING_TORCH;
+		if (sqinfo_has(square(cave, grid)->info, SQUARE_CLOSE_PLAYER)) {
+			if (player_has(player, PF_UNLIGHT) &&
+					player->state.cur_light <= 1) {
+				g->lighting = (lit) ?
+					LIGHTING_LOS : LIGHTING_DARK;
+			} else if (lit) {
+				g->lighting = (OPT(player, view_yellow_light)) ?
+					LIGHTING_TORCH : LIGHTING_LOS;
 			}
-		} else if (square_iswall(cave, grid)) {
-			/* Lit walls only show as lit if we are looking from the room
-			 * that's lighting them */
-			if (!square_islitwall(cave, grid)) {
-				if (square_islit(cave, grid)) {
-					if (OPT(player, view_yellow_light)) {
-						g->lighting = LIGHTING_TORCH;
-					} else if (player_has(player, PF_UNLIGHT)) {
-						g->lighting = LIGHTING_DARK;
-					} else {
-						g->lighting = LIGHTING_LOS;
-					}
-				} else {
-					g->lighting = LIGHTING_LIT;
-				}
-			}
+		} else if (lit) {
+			g->lighting = LIGHTING_LOS;
 		}
 
 		/* Remember seen feature */
@@ -610,6 +600,21 @@ void cave_illuminate(struct chunk *c, bool daytime)
 
 	/* Redraw map, monster list */
 	player->upkeep->redraw |= (PR_MAP | PR_MONLIST | PR_ITEMLIST);
+}
+
+/**
+ * Expose one grid on the surface to the sun.
+ *
+ * Update the SQUARE_GLOW flag for one grid as cave_illuminate() would do based
+ * on the new terrain in the grid.
+ */
+void expose_to_sun(struct chunk *c, struct loc grid, bool daytime)
+{
+	if (daytime || !square_isfloor(c, grid)) {
+		sqinfo_on(square(c, grid)->info, SQUARE_GLOW);
+	} else if (!square_isbright(c, grid)) {
+		sqinfo_off(square(c, grid)->info, SQUARE_GLOW);
+	}
 }
 
 /**

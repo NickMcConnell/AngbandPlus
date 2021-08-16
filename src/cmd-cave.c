@@ -22,6 +22,7 @@
 #include "cmds.h"
 #include "game-event.h"
 #include "game-input.h"
+#include "game-world.h"
 #include "generate.h"
 #include "init.h"
 #include "mon-attack.h"
@@ -112,7 +113,7 @@ void do_cmd_go_down(struct command *cmd)
 	if (OPT(player, birth_force_descend)) {
 		descend_to = dungeon_get_next_level(player->max_depth, 1);
 		if (is_quest(descend_to) &&
-			!get_check("Are you sure you want to descend?"))
+			!get_check("Are you sure you want to descend? "))
 			return;
 	}
 
@@ -174,7 +175,7 @@ static bool do_cmd_open_aux(struct loc grid)
 		i = player->state.skills[SKILL_DISARM_PHYS];
 
 		/* Penalize some conditions */
-		if (player->timed[TMD_BLIND] || no_light())
+		if (player->timed[TMD_BLIND] || no_light(player))
 			i = i / 10;
 		if (player->timed[TMD_CONFUSED] || player->timed[TMD_IMAGE])
 			i = i / 10;
@@ -289,7 +290,7 @@ void do_cmd_open(struct command *cmd)
 	if (mon) {
 		/* Mimics surprise the player */
 		if (monster_is_mimicking(mon)) {
-			become_aware(mon);
+			become_aware(cave, mon, player);
 
 			/* Mimic wakes up and becomes aware*/
 			monster_wake(mon, false, 100);
@@ -517,7 +518,8 @@ static bool do_cmd_tunnel_aux(struct loc grid)
 
 	/* Find what we're digging with and our chance of success */
 	best_digger = player_best_digger(player, false);
-	if (best_digger != current_weapon) {
+	if (best_digger != current_weapon &&
+			(!current_weapon || obj_can_takeoff(current_weapon))) {
 		/* Use only one without the overhead of gear_obj_for_use(). */
 		if (best_digger) {
 			oldn = best_digger->number;
@@ -568,6 +570,12 @@ static bool do_cmd_tunnel_aux(struct loc grid)
 		} else {
 			msg("You have finished the tunnel.");
 		}
+		/* On the surface, new terrain may be exposed to the sun. */
+		if (cave->depth == 0) expose_to_sun(cave, grid, is_daytime());
+		/* Update the visuals. */
+		square_memorize(cave, grid);
+		square_light_spot(cave, grid);
+		player->upkeep->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 	} else if (chance > 0) {
 		/* Failure, continue digging */
 		if (rubble)
@@ -684,7 +692,7 @@ static bool do_cmd_lock_door(struct loc grid)
 	i = player->state.skills[SKILL_DISARM_PHYS];
 
 	/* Penalize some conditions */
-	if (player->timed[TMD_BLIND] || no_light())
+	if (player->timed[TMD_BLIND] || no_light(player))
 		i = i / 10;
 	if (player->timed[TMD_CONFUSED] || player->timed[TMD_IMAGE])
 		i = i / 10;
@@ -754,7 +762,7 @@ static bool do_cmd_disarm_aux(struct loc grid)
 
 	/* Penalize some conditions */
 	if (player->timed[TMD_BLIND] ||
-			no_light() ||
+			no_light(player) ||
 			player->timed[TMD_CONFUSED] ||
 			player->timed[TMD_IMAGE])
 		skill = skill / 10;
@@ -880,7 +888,7 @@ void do_cmd_disarm(struct command *cmd)
  * The "semantics" of this command must be chosen before the player
  * is confused, and it must be verified against the new grid.
  */
-void do_cmd_alter_aux(int dir)
+static void do_cmd_alter_aux(int dir)
 {
 	struct loc grid;
 	bool more = false;
@@ -946,7 +954,7 @@ void do_cmd_alter(struct command *cmd)
 	do_cmd_alter_aux(dir);
 }
 
-void do_cmd_steal_aux(int dir)
+static void do_cmd_steal_aux(int dir)
 {
 	/* Get location */
 	struct loc grid = loc_sum(player->grid, ddgrid[dir]);
@@ -1002,7 +1010,7 @@ void move_player(int dir, bool disarm)
 	if (m_idx > 0) {
 		/* Attack monsters */
 		if (monster_is_mimicking(mon)) {
-			become_aware(mon);
+			become_aware(cave, mon, player);
 
 			/* Mimic wakes up and becomes aware*/
 			monster_wake(mon, false, 100);
@@ -1547,7 +1555,6 @@ void do_cmd_feeling(void)
  */
 void do_cmd_mon_command(struct command *cmd)
 {
-	int dir;
 	struct monster *mon = get_commanded_monster();
 	struct monster_lore *lore = NULL;
 	char m_name[80];
@@ -1630,6 +1637,7 @@ void do_cmd_mon_command(struct command *cmd)
 			break;
 		}
 		case CMD_WALK: {
+			int dir;
 			struct loc grid;
 			bool can_move = false;
 			bool has_hit = false;

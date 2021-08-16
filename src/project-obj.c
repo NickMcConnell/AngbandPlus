@@ -27,6 +27,7 @@
 #include "obj-tval.h"
 #include "obj-util.h"
 #include "player-calcs.h"
+#include "project.h"
 #include "source.h"
 
 
@@ -137,7 +138,7 @@ int inven_damage(struct player *p, int type, int cperc)
 				           ((obj->number > 1) ?
 				            ((amt == obj->number) ? "All of y" :
 				             (amt > 1 ? "Some of y" : "One of y")) : "Y"),
-				           o_name, gear_to_label(obj),
+				           o_name, gear_to_label(p, obj),
 				           ((amt > 1) ? "were" : "was"),
 					   (damage ? "damaged" : "destroyed"));
 
@@ -322,7 +323,7 @@ static void project_object_handler_MANA(project_object_handler_context_t *contex
 	context->note_kill = VERB_AGREEMENT(context->obj->number, "is destroyed", "are destroyed");
 }
 
-/* Holy Orb -- destroys cursed non-artifacts */
+/* Holy Orb  */
 static void project_object_handler_HOLY_ORB(project_object_handler_context_t *context)
 {
 }
@@ -554,7 +555,9 @@ bool project_o(struct source origin, int r, struct loc grid, int dam, int typ,
 			} else if (obj->mimicking_m_idx) {
 				/* Reveal mimics */
 				if (obvious)
-					become_aware(cave_monster(cave, obj->mimicking_m_idx));
+					become_aware(cave, cave_monster(
+						cave, obj->mimicking_m_idx),
+						player);
 			} else {
 				/* Describe if needed */
 				if (obvious && obj->known && note_kill && !ignore_item_ok(obj))
