@@ -109,6 +109,8 @@ public:
     bool win_maximized;
     QRect win_geometry;
 
+    byte sound_volume;
+
     // Scaled tiles
     QHash<QString,QPixmap> tiles;
 
@@ -230,6 +232,7 @@ private slots:
     void hp_warning_dialog();
     void delay_anim_factor_dialog();
     void delay_run_factor_dialog();
+    void sound_volume_dialog();
     void toggle_show_targeting();
     void toggle_show_hotkey_toolbar();
     void object_squelch_menu();
@@ -284,6 +287,9 @@ private slots:
     void single_click_events();
     void set_input_key(int this_key);
     void target_choice();
+
+    void all_extra_windows_open(void);
+    void all_extra_windows_close(void);
 
 private:
 
@@ -362,6 +368,7 @@ private:
     QPointer<QAction> hitpoint_warning_act;
     QPointer<QAction> delay_anim_factor_act;
     QPointer<QAction> delay_run_factor_act;
+    QPointer<QAction> sound_volume_act;
 
 
     //Commmands for the knowledge menu
@@ -399,6 +406,9 @@ private:
     QPointer<QAction> win_char_inventory_act;
     QPointer<QAction> win_dun_map_act;
     QPointer<QAction> win_overhead_map_act;
+    QPointer<QAction> win_open_all_act;
+    QPointer<QAction> win_close_all_act;
+
 
     // Holds the actual commands for the help menu.
     QPointer<QAction> help_about;

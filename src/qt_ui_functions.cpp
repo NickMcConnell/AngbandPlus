@@ -745,3 +745,8 @@ void ui_update_hotkey_toolbar()
 {
     main_window->update_hotkey_toolbar();
 }
+
+byte ui_get_sound_volume()
+{
+    return (main_window->sound_volume);
+}

@@ -3013,7 +3013,7 @@ static void add_feature(artifact_type *a_ptr)
  * abilities and attempting to add each in turn.  An artifact only gets one
  * chance at each of these up front (if applicable).
  */
-static void try_supercharge(artifact_type *a_ptr, int final_power)
+static void try_supercharge(artifact_type *a_ptr, int final_power, bool tailored)
 {
     bool did_supercharge = FALSE;
 
@@ -3071,7 +3071,7 @@ static void try_supercharge(artifact_type *a_ptr, int final_power)
         did_supercharge = TRUE;
     }
     /* Aggravation */
-    if (did_supercharge)
+    if (did_supercharge  && !tailored)
     {
         switch (a_ptr->tval)
         {
@@ -3283,7 +3283,7 @@ static void scramble_artifact(int a_idx)
     *a_old = *a_ptr;
 
     /* Give this artifact a shot at being supercharged */
-    try_supercharge(a_ptr, power);
+    try_supercharge(a_ptr, power, FALSE);
     ap = artifact_power(a_idx);
     if (ap > (power * 21) / 20 + 1)
     {
@@ -3703,7 +3703,7 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
     *a_old = *a_ptr;
 
     /* Give this artifact a shot at being supercharged */
-    try_supercharge(a_ptr, art_power);
+    try_supercharge(a_ptr, art_power, tailored);
     ap = artifact_power(a_idx);
     if (ap >= (art_power * 21 / 20)+ 1)
     {

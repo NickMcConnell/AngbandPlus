@@ -137,6 +137,7 @@ void MainWindow::win_char_info_basic_update()
 {
     if (!character_generated) return;
     if (!char_info_basic_settings.win_show) return;
+    if (!char_info_basic_settings.main_vlay->count()) return;
 
     update_char_screen(char_info_basic_settings.main_widget, char_info_basic_settings.win_font);
 }

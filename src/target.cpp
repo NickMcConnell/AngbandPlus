@@ -1148,8 +1148,8 @@ bool get_aim_dir(int *dp, bool target_trap)
 
     int mode = TARGET_QUIET;
 
-    if (target_trap) mode |= TARGET_KILL;
-    else mode |= TARGET_TRAP;
+    if (target_trap) mode |= TARGET_TRAP;
+    else mode |= TARGET_KILL;
 
     if (*dp == DIR_CLOSEST)
     {
@@ -1194,8 +1194,7 @@ bool get_aim_dir(int *dp, bool target_trap)
         if (input.mode == INPUT_MODE_MOUSE_DOUBLE_CLICK)
         {
             if (set_selected_target(mode, input.y, input.x)) dir = DIR_TARGET;
-            else set_selected_target(TARGET_GRID, input.y, input.x);
-            dir = DIR_TARGET;
+            else if (set_selected_target(TARGET_GRID, input.y, input.x)) dir = DIR_TARGET;
             continue;
         }
 

@@ -54,6 +54,7 @@ void MainWindow::win_char_info_equip_update()
 {
     if (!character_generated) return;
     if (!char_info_equip_settings.win_show) return;
+    if (!char_info_equip_settings.main_vlay->count()) return;
 
     update_equip_flags(list_resist_equippy, list_resist_flags, list_resist_labels);
     update_equip_flags(list_ability_equippy, list_ability_flags, list_ability_labels);

@@ -122,6 +122,7 @@ void MainWindow::win_obj_list_update()
 {
     if (!character_generated) return;
     if (!win_obj_list_settings.win_show) return;
+    if (!win_obj_list_settings.main_vlay->count()) return;
 
     win_obj_list_wipe();
 
@@ -306,7 +307,7 @@ void MainWindow::win_obj_list_update()
             obj_ltr->setIcon(pix);
         }
 
-        obj_ltr->setData(Qt::ForegroundRole, k_ptr->d_color);
+        obj_ltr->setData(Qt::ForegroundRole, k_ptr->get_color());
         obj_ltr->setTextAlignment(Qt::AlignCenter);
         obj_ltr->setFont(win_obj_list_settings.win_font);
         obj_list_area->setItem(row, col++, obj_ltr);

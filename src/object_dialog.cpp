@@ -419,6 +419,12 @@ void do_buttons(QGridLayout *lay, object_type *o_ptr, s16b item_slot, s16b row, 
     add_examine(lay, item_slot, row, col++);
     if (!p_ptr->is_dead)
     {
+        if (should_add_throw(o_ptr, item_slot))  add_throw(lay, item_slot, row, col++);
+        if (should_add_drop(o_ptr, item_slot))  add_drop(lay, item_slot, row, col++);
+        if (should_add_pickup(o_ptr, item_slot))  add_pickup(lay, item_slot, row, col++);
+        add_inscribe(lay, item_slot, row, col++);
+        if (should_add_uninscribe(o_ptr, item_slot))  add_uninscribe(lay, item_slot, row, col++);
+        if (should_add_destroy(o_ptr, item_slot))  add_destroy(lay, item_slot, row, col++);
         if (should_add_takeoff(o_ptr, item_slot)) add_takeoff (lay, item_slot, row, col++);
         if (should_add_wield(o_ptr, item_slot)) add_wield(lay, item_slot, row, col++);
         if (should_add_swap(o_ptr, item_slot))  add_swap(lay, item_slot, row, col++);
@@ -426,16 +432,10 @@ void do_buttons(QGridLayout *lay, object_type *o_ptr, s16b item_slot, s16b row, 
         if (should_add_refill(o_ptr, item_slot))  add_refill(lay, item_slot, row, col++);
         if (should_add_fire(o_ptr, item_slot))  add_fire(lay, item_slot, row, col++);
         if (should_add_fire_near(o_ptr, item_slot))  add_fire_near(lay, item_slot, row, col++);
-        if (should_add_drop(o_ptr, item_slot))  add_drop(lay, item_slot, row, col++);
-        if (should_add_pickup(o_ptr, item_slot))  add_pickup(lay, item_slot, row, col++);
         if (should_add_browse(o_ptr, item_slot))  add_browse(lay, item_slot, row, col++);
         if (should_add_study(o_ptr, item_slot))  add_study(lay, item_slot, row, col++);
         if (should_add_cast(o_ptr, item_slot))  add_cast(lay, item_slot, row, col++);
-        if (should_add_destroy(o_ptr, item_slot))  add_destroy(lay, item_slot, row, col++);
-        add_inscribe(lay, item_slot, row, col++);
-        if (should_add_uninscribe(o_ptr, item_slot))  add_uninscribe(lay, item_slot, row, col++);
         if (should_add_activate(o_ptr, item_slot))  add_activate(lay, item_slot, row, col++);
-        if (should_add_throw(o_ptr, item_slot))  add_throw(lay, item_slot, row, col++);
     }
 }
 

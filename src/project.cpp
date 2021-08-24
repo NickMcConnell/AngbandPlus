@@ -3665,7 +3665,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
             else
             {
                 /* Describe if needed */
-                if (o_ptr->marked && !note_kill.isEmpty())
+                if (o_ptr->marked && !note_kill.isEmpty() && (k_ptr->squelch != SQUELCH_ALWAYS))
                 {
                     color_message(QString("The %1%2") .arg(o_name) .arg(note_kill), TERM_L_RED);
                 }

@@ -1931,7 +1931,7 @@ static void run_hotkey_step(int step)
 
                 command_args.direction = extract_hotkey_dir(arg_ptr->direction, trap_obj);
 
-                if (arg_ptr->direction == DIR_UNKNOWN) return;
+                if (command_args.direction == DIR_UNKNOWN) return;
             }
 
             command_args.verify = TRUE;
@@ -1974,7 +1974,7 @@ static void run_hotkey_step(int step)
         {
             command_args.direction = extract_hotkey_dir(arg_ptr->direction, FALSE);
 
-            if (arg_ptr->direction == DIR_UNKNOWN) return;
+            if (command_args.direction == DIR_UNKNOWN) return;
         }
 
         if (command == HK_FIRE_AMMO) command_fire(command_args);

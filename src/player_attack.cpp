@@ -524,7 +524,7 @@ int critical_hit_check(object_type *o_ptr, int *dd, int *plus)
 
     else
     {
-        sound(MSG_HIT);
+        sound(SOUND_HIT);
         return (1);
     }
 

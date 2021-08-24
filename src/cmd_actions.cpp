@@ -442,11 +442,14 @@ static bool command_open_aux(int y, int x)
 
 /*
  * Determine if a grid contains a chest
+ * Either return the idx of the first check, if return_count = FALSE,
+ * or return the count of chests on that square if return count is true;
  */
-static s16b chest_check(int y, int x, bool check_locked)
+static s16b chest_check(int y, int x, bool check_locked, bool return_count)
 {
     s16b this_o_idx, next_o_idx = 0;
 
+    s16b count = 0;
 
     /* Scan all objects in the grid */
     for (this_o_idx = dungeon_info[y][x].object_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -474,11 +477,12 @@ static s16b chest_check(int y, int x, bool check_locked)
         }
 
         /*Success*/
-        return (this_o_idx);
+        if (!return_count) return (this_o_idx);
+        count++;
     }
 
-    /* No chest */
-    return (0);
+    /* Return the count of chests */
+    return (count);
 }
 
 /*
@@ -502,7 +506,8 @@ int count_chests(int *y, int *x, bool trapped)
         int xx = p_ptr->px + ddx_ddd[d];
 
         /* No (visible) chest is there */
-        if ((o_idx = chest_check(yy, xx, trapped)) == 0) continue;
+        if (!chest_check(yy, xx, trapped, TRUE)) continue;
+        o_idx = chest_check(yy, xx, trapped, FALSE);
 
         /* Grab the object */
         o_ptr = &o_list[o_idx];
@@ -866,8 +871,8 @@ void command_open(cmd_arg args)
     cx = x = p_ptr->px + ddx[dir];
 
     /* Check for chests */
-    num_chests = count_chests(&y, &x, FALSE);
-    o_idx = chest_check(y, x, FALSE);
+    num_chests = chest_check(y, x, FALSE, TRUE);
+    o_idx = chest_check(y, x, FALSE, FALSE);
 
     /* Verify legality */
     if (!o_idx && !do_cmd_test(y, x, FS_OPEN, TRUE)) return;
@@ -880,8 +885,8 @@ void command_open(cmd_arg args)
         cy = x = p_ptr->px + ddx[dir];
 
         /* Check for chest */
-        num_chests = count_chests(&y, &x, FALSE);
-        o_idx = chest_check(y, x, FALSE);
+        num_chests = chest_check(y, x, FALSE, TRUE);
+        o_idx = chest_check(y, x, FALSE, FALSE);
     }
 
 
@@ -912,47 +917,29 @@ void command_open(cmd_arg args)
     /* Chest */
     else if (num_chests)
     {
-        /* Get top chest */
-        o_idx = chest_check(y, x, FALSE);
-
         /* Open the chest if confused, or only one */
         if ((p_ptr->timed[TMD_CONFUSED]) || (num_chests == 1))  more = do_cmd_open_chest(y, x, o_idx);
 
         /* More than one */
         else
         {
-            bool do_open = FALSE;
-            // See if we have already selected the chest
-            if (p_ptr->command_current == CMD_OPEN)
-            {
-                o_idx = p_ptr->player_args.item;
-                do_open = TRUE;
-            }
+            QString q, s;
+
+            o_idx = 0;
+
+            /* Get an item */
+            q = "Open which chest? ";
+            s = "There are no chests in that direction!";
+
+            /*clear the restriction*/
+            item_tester_hook = obj_is_chest;
+
+            /*player chose escape*/
+            if (!get_item_beside(&o_idx, q, s, cy, cx)) more = 0;
             else
             {
-
-                QString q, s;
-
-                o_idx = 0;
-
-                /* Get an item */
-                q = "Open which chest? ";
-                s = "There are no chests in that direction!";
-
-                /*clear the restriction*/
-                item_tester_hook = obj_is_chest;
-
-                /*player chose escape*/
-                if (!get_item_beside(&o_idx, q, s, cy, cx)) more = 0;
-                else
-                {
-                    do_open = TRUE;
-                    p_ptr->player_args.item = o_idx;
-                }
+                more = do_cmd_open_chest(cy, cx, -o_idx);
             }
-
-            /* Open the chest */
-            if (do_open) more = do_cmd_open_chest(cy, cx, -o_idx);
         }
     }
 
@@ -1260,7 +1247,7 @@ void command_disarm(cmd_arg args)
     num_chests = count_chests(&chest_y, &chest_x, TRUE);
 
     /* Check for trapped chests */
-    o_idx = chest_check(chest_y, chest_x, TRUE);
+    o_idx = chest_check(chest_y, chest_x, TRUE, FALSE);
 
     /* Verify legality */
     if (!num_traps && !num_chests) return;
@@ -1276,7 +1263,7 @@ void command_disarm(cmd_arg args)
         num_traps = count_traps(&trap_y, &trap_x, TRUE);
 
         num_chests= count_chests(&chest_y, &chest_x, TRUE);
-        o_idx = chest_check(chest_y, chest_x, TRUE);
+        o_idx = chest_check(chest_y, chest_x, TRUE, FALSE);
 
         /* Verify legality */
         if (!num_traps && !num_chests)

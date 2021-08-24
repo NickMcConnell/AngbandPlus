@@ -39,7 +39,7 @@ static QString output_list(QVector<QString> list, bool use_or)
 }
 
 
-static QString output_desc_list(QString intro, QVector<QString> list, bool use_or)
+QString output_desc_list(QString intro, QVector<QString> list, bool use_or, bool end_punctuation)
 {
     QString output;
 
@@ -54,7 +54,7 @@ static QString output_desc_list(QString intro, QVector<QString> list, bool use_o
         output.append(output_list(list, use_or));
 
         /* Output end */
-        output.append(".  ");
+        if (end_punctuation) output.append(".  ");
     }
 
     return (output);
@@ -259,7 +259,7 @@ static QString describe_brand(object_type *o_ptr, u32b f1)
     for (int i = 0; i < descs.size(); i++)  descs[i] = color_string(descs[i], TERM_GREEN);
 
     /* Describe brands */
-    output.append(output_desc_list("It is branded with ", descs, FALSE));
+    output.append(output_desc_list("It is branded with ", descs, FALSE, TRUE));
 
     /* We are done here */
     return (output);
@@ -292,7 +292,7 @@ static QString describe_immune(object_type *o_ptr, u32b f2)
     for (int i = 0; i < descs.size(); i++)  descs[i] = color_string(descs[i], TERM_BLUE);
 
     /* Describe immunities */
-    output.append(output_desc_list("It provides immunity to ", descs, FALSE));
+    output.append(output_desc_list("It provides immunity to ", descs, FALSE, TRUE));
 
     /* We are done here */
     return (output);
@@ -343,7 +343,7 @@ static QString describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
     for (int i = 0; i < vp.size(); i++)  vp[i] = color_string(vp[i], TERM_PURPLE);
 
     /* Describe resistances */
-    output.append(output_desc_list("It provides resistance to ", vp, FALSE));
+    output.append(output_desc_list("It provides resistance to ", vp, FALSE, TRUE));
 
     /* We are done here */
     return (output);
@@ -1033,7 +1033,7 @@ static QString describe_ignores(object_type *o_ptr, u32b f3)
     if (list.size())
         output.append("It cannot be harmed by the elements.  ");
     else
-        output.append(output_desc_list("It cannot be harmed by ", list, TRUE));
+        output.append(output_desc_list("It cannot be harmed by ", list, TRUE, TRUE));
 
     return (output);
 }
@@ -1066,7 +1066,7 @@ static QString describe_sustains(object_type *o_ptr, u32b f2)
 
     /* Describe sustains */
     if (list.size() == A_MAX) output.append("It sustains all your stats.  ");
-    else output.append(output_desc_list("It sustains your ", list, FALSE));
+    else output.append(output_desc_list("It sustains your ", list, FALSE, TRUE));
 
     /* We are done here */
     return (output);
@@ -1107,7 +1107,7 @@ static QString describe_misc_magic(object_type *o_ptr, u32b f3)
     if (f3 & (TR3_REGEN))       good.append(color_string("speeds your regeneration", TERM_GREEN));
 
     /* Describe */
-    output.append(output_desc_list("It ", good, FALSE));
+    output.append(output_desc_list("It ", good, FALSE, TRUE));
 
     /* Collect granted powers */
     good.clear();
@@ -1443,7 +1443,7 @@ static QString describe_nativity(object_type *o_ptr, u32b fn)
     if (!vp.size()) return (output);
 
     /* Describe nativities */
-    output.append(output_desc_list("It makes you native to terrains made of ", vp, FALSE));
+    output.append(output_desc_list("It makes you native to terrains made of ", vp, FALSE, TRUE));
 
     /* We are done here */
     return (output);

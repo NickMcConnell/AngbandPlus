@@ -882,7 +882,7 @@ static void map_objects (s16b y, s16b x)
         {
             int i = image_object();
 
-            dun_ptr->object_color = k_info[i].d_color;
+            dun_ptr->object_color = k_info[i].get_color();
             dun_ptr->object_char =  k_info[i].d_char;
             dun_ptr->object_tile = k_info[i].get_tile_id();
 
@@ -927,7 +927,7 @@ static void map_objects (s16b y, s16b x)
                 dun_ptr->object_tile.clear();
             }
             dun_ptr->object_char = k_info[0].d_char;
-            dun_ptr->object_color = k_info[0].d_color;
+            dun_ptr->object_color = k_info[0].get_color();
 
             // We are done
             return;

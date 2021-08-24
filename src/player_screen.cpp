@@ -236,7 +236,7 @@ static void update_equippy_labels(QList<QLabel *> this_list)
             }
 
             object_kind *k_ptr = &k_info[o_ptr->k_idx];
-            this_lbl->setText(QString("<b>%1</b>") .arg(color_string(k_ptr->d_char, k_ptr->color_num)));
+            this_lbl->setText(QString("<b>%1</b>") .arg(color_string(k_ptr->d_char, k_ptr->get_color())));
             QString obj_text = QString("%1: ") .arg(mention_use(this_num));
             obj_text.append(object_desc(o_ptr, ODESC_PREFIX | ODESC_FULL));
             this_lbl->setToolTip(obj_text);

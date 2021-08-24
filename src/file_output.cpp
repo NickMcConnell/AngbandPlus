@@ -145,6 +145,10 @@ void save_screenshot(byte do_png)
     out << (QString("  <meta name='max_depth' value='%1'>") .arg(p_ptr->max_depth));
     out << (QString("  <meta name='score' value='%1'>") .arg(p_ptr->current_score));
     out << (QString("  <meta name='fame' value='%1'>") .arg(p_ptr->q_fame));
+    if (p_ptr->total_winner)    out << (QString(" <meta name='status' value= 'Winner'>"));
+    else if (p_ptr->is_dead)    out << (QString(" <meta name='status' value= 'Dead'>"));
+    else                        out << (QString(" <meta name='status' value= 'Alive'>"));
+
     out << QString("</head><br><br>");
     out << QString("<body style='color: #fff; background: #000;'><br>");
     out << QString("<pre><br>");
@@ -419,8 +423,8 @@ static QString make_equippy(bool do_player, bool do_temp, bool modifiers)
 
         object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-        if (modifiers) equippy.append(QString("  %1 ") .arg(color_char(k_ptr->d_char, k_ptr->d_color)));
-        else equippy.append(color_char(k_ptr->d_char, k_ptr->d_color));
+        if (modifiers) equippy.append(QString("  %1 ") .arg(color_char(k_ptr->d_char, k_ptr->get_color())));
+        else equippy.append(color_char(k_ptr->d_char, k_ptr->get_color()));
     }
 
     if (do_player)
@@ -536,6 +540,9 @@ void save_character_file(void)
     out << (QString("  <meta name='max_depth' value='%1'>") .arg(p_ptr->max_depth));
     out << (QString("  <meta name='score' value='%1'>") .arg(p_ptr->current_score));
     out << (QString("  <meta name='fame' value='%1'>") .arg(p_ptr->q_fame));
+    if (p_ptr->total_winner)    out << (QString(" <meta name='status' value= 'Winner'>"));
+    else if (p_ptr->is_dead)    out << (QString(" <meta name='status' value= 'Dead'>"));
+    else                        out << (QString(" <meta name='status' value= 'Alive'>"));
     out << QString("</head>");
     out << QString("<body style='color: #fff; background: #000;'>");
     out << QString("<pre>");
@@ -711,6 +718,8 @@ void save_character_file(void)
             game_info_label.clear();
             game_info_info.clear();
         }
+
+
         if (i < COMBAT_INFO_NUM)
         {
             combat_info_label = combat_info_labels[i];
@@ -744,6 +753,14 @@ void save_character_file(void)
             if (strings_match(this_name, combat_info_label))combat_info_label = this_text;
             if (strings_match(this_name, combat_info_info)) combat_info_info = this_text;
         }
+
+        // We are at the max level.
+        if (game_info_label.contains("ADVANCE_LABEL"))
+        {
+            game_info_label.clear();
+            game_info_info.clear();
+        }
+
 
         out << combine_strings(game_info_label, game_info_info, 25);
         out << combine_strings(combat_info_label, combat_info_info, 40);
@@ -1082,7 +1099,7 @@ void save_character_file(void)
                     inven_chars[x] = "   .";
                 }
 
-                QString test_string = (QString("obj_mod_info_%1") .arg(row));
+                QString test_string = (QString("obj_mod_info_%1_") .arg(row));
 
                 //Find the values
                 for (int x = 0; x < lbl_list.size(); x++)

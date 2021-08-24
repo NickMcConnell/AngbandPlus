@@ -1634,7 +1634,7 @@ void apply_ego_item_magic(object_type *o_ptr, int lev)
             flag = 0x00000001L << rand_int(size);
 
             /* Duplicated flag? */
-            if (o_ptr->xtra2 & flag)	continue;
+            if (o_ptr->xtra2 & flag)   continue;
 
             /* Assign the flag */
             o_ptr->xtra2 |= flag;

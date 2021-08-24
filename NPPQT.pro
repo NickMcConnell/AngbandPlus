@@ -10,6 +10,8 @@ QT += widgets
 
 QT += testlib
 
+QT += multimedia
+
 TARGET = NPPGAMES
 
 

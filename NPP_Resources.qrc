@@ -131,4 +131,5 @@
         <file>lib/icons/key_f2_shift.png</file>
         <file>lib/icons/key_f1_shift.png</file>
     </qresource>
+    <qresource prefix="/sounds"/>
 </RCC>

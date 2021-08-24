@@ -1270,8 +1270,8 @@ static QString describe_monster_kills(int r_idx, const monster_lore *l_ptr)
     else if (l_ptr->deaths)
     {
         QString remains;
-        if (l_ptr->deaths > 1) remains = "remain";
-        else remains = "remains";
+        if (l_ptr->deaths > 1) remains = "have";
+        else remains = "had";
 
         /* Dead ancestors */
         output.append(QString("%1 of your ancestors %2 been killed by this creature, ")

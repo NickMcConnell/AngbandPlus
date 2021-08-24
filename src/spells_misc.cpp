@@ -1275,7 +1275,11 @@ void BanishSelectDialog::add_monster_types(QGridLayout *return_layout)
         QString mon_name = (QString("%1 - %2") .arg(banish_ptr->mon_symbol) .arg(banish_ptr->mon_race));
 
         QPointer<QRadioButton> this_radiobutton = new QRadioButton(mon_name);
-        if (!i) this_radiobutton->setChecked(TRUE);
+        if (!i)
+        {
+            this_radiobutton->setChecked(TRUE);
+            chosen_type = i;
+        }
         banish_choice_group->addButton(this_radiobutton, i);
         return_layout->addWidget(this_radiobutton, row++, col, Qt::AlignLeft);
 
@@ -3672,8 +3676,7 @@ DisplaySelfKnowledge::DisplaySelfKnowledge()
     for (int x = 0; x < info.size(); x++)
     {
         message_area->moveCursor(QTextCursor::End);
-        message_area->setTextColor(defined_colors[TERM_WHITE]);
-        message_area->insertPlainText(QString("%1<br>") .arg(info.at(x)));
+        message_area->insertHtml(color_string(QString("%1<br>") .arg(info.at(x)), TERM_WHITE));
     }
 
     QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Close);

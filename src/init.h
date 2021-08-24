@@ -104,5 +104,6 @@ extern QDir npp_dir_icon;
 extern QDir npp_dir_save;
 extern QDir npp_dir_user;
 extern QDir npp_dir_graf;
+extern QDir npp_dir_sound;
 
 #endif // INIT_H

@@ -2033,7 +2033,6 @@ static bool monster_vault_okay(int r_idx)
  */
 void build_vault(int y0, int x0, const vault_type *v_ptr)
 {
-    int dx, dy, x, y;
     int ax, ay;
     bool flip_v = FALSE;
     bool flip_h = FALSE;
@@ -2044,6 +2043,7 @@ void build_vault(int y0, int x0, const vault_type *v_ptr)
     byte quest_artifact_spots = 0;
 
     int t = 0;
+
     int quest_type = quest_check(p_ptr->depth);
     bool quest_greater_vault = FALSE;
     bool quest_special_vault = FALSE;
@@ -2065,24 +2065,23 @@ void build_vault(int y0, int x0, const vault_type *v_ptr)
     if (one_in_(2)) flip_v = TRUE;
     if (one_in_(2)) flip_h = TRUE;
 
-    // Avoid annoying compiler warning
-    x = y = 0;
-
     /* Place dungeon features and objects */
-    for (dy = 0; dy < ymax; dy++)
+    for (int dy = 0; dy < ymax; dy++)
     {
         if (flip_v) ay = ymax - 1 - dy;
         else ay = dy;
 
-        for (dx = 0; dx < xmax; dx++, t++)
+        for (int dx = 0; dx < xmax; dx++, t++)
         {
             QChar symbol = data[t];
             if (flip_h) ax = xmax - 1 - dx;
             else ax = dx;
 
             /* Extract the location */
-            x = x0 - (xmax / 2) + ax;
-            y = y0 - (ymax / 2) + ay;
+            int x = x0 - (xmax / 2) + ax;
+            int y = y0 - (ymax / 2) + ay;
+
+            dungeon_type *d_ptr = &dungeon_info[y][x];
 
             /* Hack -- skip "non-grids" */
             if (symbol == ' ') continue;
@@ -2091,7 +2090,7 @@ void build_vault(int y0, int x0, const vault_type *v_ptr)
             cave_set_feat(y, x, FEAT_FLOOR);
 
             /* Part of a vault */
-            dungeon_info[y][x].cave_info |= (CAVE_ROOM | CAVE_ICKY);
+            d_ptr->cave_info |= (CAVE_ROOM | CAVE_ICKY);
 
             /* Analyze the grid */
             /* Granite wall (outer) */
@@ -2144,13 +2143,7 @@ void build_vault(int y0, int x0, const vault_type *v_ptr)
     }
 
     /*Count the 'Q's for a quest vault*/
-    for (t = 0; t < ymax * xmax; t++)
-    {
-        QChar symbol = data[t];
-
-        /* Hack -- count the quest spots */
-        if (symbol == 'Q') quest_artifact_spots++;
-    }
+    quest_artifact_spots = data.count(QChar('Q'));
 
     /*get the hook*/
     get_mon_num_hook = monster_vault_okay;
@@ -2158,13 +2151,16 @@ void build_vault(int y0, int x0, const vault_type *v_ptr)
     /* Prepare allocation table */
     get_mon_num_prep();
 
+    // Reset the counter;
+    t = 0;
+
     /* Place dungeon monsters and objects */
-    for (t = 0, dy = 0; dy < ymax; dy++)
+    for (int dy = 0; dy < ymax; dy++)
     {
         if (flip_v) ay = ymax - 1 - dy;
         else ay = dy;
 
-        for (dx = 0; dx < xmax; dx++, t++)
+        for (int dx = 0; dx < xmax; dx++, t++)
         {
             QChar symbol = data[t];
 
@@ -2172,8 +2168,10 @@ void build_vault(int y0, int x0, const vault_type *v_ptr)
             else ax = dx;
 
             /* Extract the grid */
-            x = x0 - (xmax/2) + ax;
-            y = y0 - (ymax/2) + ay;
+            int x = x0 - (xmax/2) + ax;
+            int y = y0 - (ymax/2) + ay;
+
+            dungeon_type *d_ptr = &dungeon_info[y][x];
 
             /* Hack -- skip "non-grids" */
             if (symbol == ' ') continue;
@@ -2271,36 +2269,36 @@ void build_vault(int y0, int x0, const vault_type *v_ptr)
                     object_level = p_ptr->depth;
                 }
             }
-        }
 
-        /*mark it as a quest monster*/
-        if ((dungeon_info[y][x].monster_idx > 0) && (quest_greater_vault || quest_special_vault))
-        {
-            monster_type *m_ptr = &mon_list[dungeon_info[y][x].monster_idx];
-
-            m_ptr->mflag |= (MFLAG_QUEST);
-        }
-
-        /*
-         * Make the monsters carry the objects instead of just stand on them.
-         */
-        if ((dungeon_info[y][x].monster_idx > 0) && (dungeon_info[y][x].object_idx > 0))
-        {
-
-            /* Get the object */
-            object_type *o_ptr = &o_list[dungeon_info[y][x].object_idx];
-
-            /*but don't do gold*/
-            if (o_ptr->tval != TV_GOLD)
+            /*mark it as a quest monster*/
+            if ((d_ptr->monster_idx > 0) && (quest_greater_vault || quest_special_vault))
             {
-                /*Don't let the player see what the object it*/
-                o_ptr->ident |= (IDENT_HIDE_CARRY);
+                monster_type *m_ptr = &mon_list[d_ptr->monster_idx];
 
-                (void)monster_carry(dungeon_info[y][x].monster_idx, o_ptr);
+                m_ptr->mflag |= (MFLAG_QUEST);
+            }
 
-                /*remove the item from the floor*/
-                floor_item_increase(dungeon_info[y][x].object_idx, -1);
-                floor_item_optimize(dungeon_info[y][x].object_idx);
+
+            /*
+             * Make the monsters carry the objects instead of just stand on them.
+             */
+            if ((d_ptr->monster_idx > 0) && (d_ptr->object_idx > 0))
+            {
+                /* Get the object */
+                object_type *o_ptr = &o_list[d_ptr->object_idx];
+
+                /*but don't do gold*/
+                if (o_ptr->tval != TV_GOLD)
+                {
+                    /*Don't let the player see what the object it*/
+                    o_ptr->ident |= (IDENT_HIDE_CARRY);
+
+                    (void)monster_carry(dungeon_info[y][x].monster_idx, o_ptr);
+
+                    /*remove the item from the floor*/
+                    floor_item_increase(dungeon_info[y][x].object_idx, -1);
+                    floor_item_optimize(dungeon_info[y][x].object_idx);
+                }
             }
         }
     }

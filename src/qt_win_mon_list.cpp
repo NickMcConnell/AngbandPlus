@@ -158,6 +158,7 @@ void MainWindow::win_mon_list_update()
 {
     if (!character_generated) return;
     if (!win_mon_list_settings.win_show) return;
+    if (!win_mon_list_settings.main_vlay->count()) return;
 
     win_mon_list_wipe();
 

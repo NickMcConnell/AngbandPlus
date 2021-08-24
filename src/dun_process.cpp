@@ -1796,6 +1796,9 @@ static void process_game_turns(void)
         /* Redraw stuff */
         redraw_stuff();
 
+        if (p_ptr->is_dead) return;
+        if (p_ptr->leaving_level) change_player_level();
+
         /* Handle reasons to break the loop */
         if (p_ptr->player_turn &&
             !(p_ptr->timed[TMD_PARALYZED] ||
@@ -1803,9 +1806,6 @@ static void process_game_turns(void)
         {
                 return;
         }
-
-        if (p_ptr->is_dead) return;
-        if (p_ptr->leaving_level) change_player_level();
     }
 }
 

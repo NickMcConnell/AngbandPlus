@@ -192,6 +192,120 @@ static QString obj_desc_get_basename(object_type *o_ptr, bool aware, bool plural
     return "(nothing)";
 }
 
+QString desc_ego_name(object_type *o_ptr)
+{
+    // Paranoia
+    if (!o_ptr->ego_num) return (NULL);
+
+    // Handle the low resists
+    if (o_ptr->xtra1 == OBJECT_XTRA_TYPE_LOW_RESIST)
+    {
+        QString output = QString(" of Resist ");
+
+        QVector<QString> low_resists;
+        low_resists.clear();
+        /* Collect resistances */
+        if ((o_ptr->known_obj_flags_2 & (TR2_RES_ACID))) low_resists.append("Acid");
+        if ((o_ptr->known_obj_flags_2 & (TR2_RES_FIRE))) low_resists.append("Fire");
+        if ((o_ptr->known_obj_flags_2 & (TR2_RES_COLD))) low_resists.append("Cold");
+        if ((o_ptr->known_obj_flags_2 & (TR2_RES_ELEC))) low_resists.append("Lightning");
+
+        return(output_desc_list(output, low_resists, FALSE, FALSE));
+    }
+
+    // Handle *slays*
+    if (o_ptr->xtra1 == OBJECT_XTRA_TYPE_KILL)
+    {
+        QString output = QString(" of *Slay* ");
+
+        QVector<QString> slays;
+        slays.clear();
+        /* Collect *slays* */
+        if ((o_ptr->known_obj_flags_1 & (TR1_KILL_DRAGON))) slays.append("Dragon");
+        if ((o_ptr->known_obj_flags_1 & (TR1_KILL_DEMON))) slays.append("Demon");
+        if ((o_ptr->known_obj_flags_1 & (TR1_KILL_UNDEAD))) slays.append("Undead");
+
+        return(output_desc_list(output, slays, FALSE, FALSE));
+    }
+
+    if (o_ptr->xtra1 == OBJECT_XTRA_TYPE_SLAY)
+    {
+        QString output = QString(" of Slay ");
+
+        QVector<QString> slays;
+        slays.clear();
+        /* Collect slays */
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_ANIMAL))) slays.append("Animal");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_ORC))) slays.append("Orc");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_TROLL))) slays.append("Troll");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_GIANT))) slays.append("Giant");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_DRAGON))) slays.append("Dragon");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_DEMON))) slays.append("Demons");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_UNDEAD))) slays.append("Undead");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_EVIL))) slays.append("Evil");
+
+        return(output_desc_list(output, slays, FALSE, FALSE));
+    }
+
+    if (o_ptr->xtra1 == OBJECT_XTRA_TYPE_SLAY)
+    {
+        QString output = QString(" of Slay ");
+
+        QVector<QString> slays;
+        slays.clear();
+        /* Collect slays */
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_ANIMAL))) slays.append("Animal");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_ORC))) slays.append("Orc");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_TROLL))) slays.append("Troll");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_GIANT))) slays.append("Giant");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_DRAGON))) slays.append("Dragon");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_DEMON))) slays.append("Demon");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_UNDEAD))) slays.append("Undead");
+        if ((o_ptr->known_obj_flags_1 & (TR1_SLAY_EVIL))) slays.append("Evil");
+
+        return(output_desc_list(output, slays, FALSE, FALSE));
+    }
+
+    if (o_ptr->xtra1 == OBJECT_XTRA_TYPE_BRAND)
+    {
+        QString output = QString(" of ");
+
+        QVector<QString> brands;
+        brands.clear();
+        /* Collect brands */
+        if ((o_ptr->known_obj_flags_1 & (TR1_BRAND_ACID))) brands.append("Acid");
+        if ((o_ptr->known_obj_flags_1 & (TR1_BRAND_ELEC))) brands.append("Lightning");
+        if ((o_ptr->known_obj_flags_1 & (TR1_BRAND_FIRE))) brands.append("Flame");
+        if ((o_ptr->known_obj_flags_1 & (TR1_BRAND_COLD))) brands.append("Frost");
+        if ((o_ptr->known_obj_flags_1 & (TR1_BRAND_POIS))) brands.append("Venom");
+
+        return(output_desc_list(output, brands, FALSE, FALSE));
+    }
+
+    if (o_ptr->xtra1 == OBJECT_XTRA_TYPE_NATIVE)
+    {
+        QString output = QString(" of Nativity to ");
+
+        QVector<QString> nativity;
+        nativity.clear();
+        /* Collect brands */
+        if ((o_ptr->known_obj_flags_native & (TN1_NATIVE_LAVA))) nativity.append("Lava");
+        if ((o_ptr->known_obj_flags_native & (TN1_NATIVE_ICE))) nativity.append("Ice");
+        if ((o_ptr->known_obj_flags_native & (TN1_NATIVE_OIL))) nativity.append("Oil");
+        if ((o_ptr->known_obj_flags_native & (TN1_NATIVE_FIRE))) nativity.append("Fire");
+        if ((o_ptr->known_obj_flags_native & (TN1_NATIVE_SAND))) nativity.append("Sand");
+        if ((o_ptr->known_obj_flags_native & (TN1_NATIVE_FOREST))) nativity.append("Forest");
+        if ((o_ptr->known_obj_flags_native & (TN1_NATIVE_WATER))) nativity.append("Water");
+        if ((o_ptr->known_obj_flags_native & (TN1_NATIVE_ACID))) nativity.append("Acid");
+        if ((o_ptr->known_obj_flags_native & (TN1_NATIVE_MUD))) nativity.append("Mud");
+
+        return(output_desc_list(output, nativity, FALSE, FALSE));
+    }
+
+    // Handle the regular ego items
+    return (QString(" %1") .arg(e_info[o_ptr->ego_num].e_name));
+}
+
 
 
 /*
@@ -336,7 +450,7 @@ static QString obj_desc_name(object_type *o_ptr, bool prefix, byte mode, bool sp
 
     else if ((o_ptr->ego_num) && (known || spoil))
     {
-        buf.append(QString(" %1") .arg(e_info[o_ptr->ego_num].e_name));
+        buf.append(desc_ego_name(o_ptr));
     }
 
     else if (aware && (!o_ptr->is_artifact()) && (k_ptr->flavor || k_ptr->tval == TV_SCROLL))

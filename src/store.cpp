@@ -691,7 +691,7 @@ bool do_service_make_randart(byte choice, u32b price)
     if (!get_check(prompt)) return (FALSE);
 
     /*extra power bonus for expensive items and high player fame*/
-    s32b art_value = p_ptr->q_fame / 20 + MAX((k_ptr->cost / 2000), p_ptr->q_fame / 50);
+    s32b art_value = p_ptr->q_fame / 15 + MAX((k_ptr->cost / 2000), p_ptr->q_fame / 50);
 
     /*Hack - add in any to-hit and to-value, since they will be erased*/
     art_value += (o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) / 2;

@@ -58,6 +58,7 @@ QDir npp_dir_icon;
 QDir npp_dir_save;
 QDir npp_dir_user;
 QDir npp_dir_graf;
+QDir npp_dir_sound;
 
 
 /*
@@ -165,6 +166,7 @@ void create_directories()
     npp_dir_save.setPath(QString(npp_dir_lib.path() .append("/save/")));
     npp_dir_user.setPath(QString(npp_dir_lib.path() .append("/user/")));
     npp_dir_graf.setPath(QString(npp_dir_lib.path() .append("/graf/")));
+    npp_dir_sound.setPath(QString(npp_dir_lib.path() .append("/sound/")));
 
     /*
      * Make sure the bone, save and user directories exist.
