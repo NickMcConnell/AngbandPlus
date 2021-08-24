@@ -665,6 +665,7 @@ extern bool ui_use_25d_graphics(void);
 extern bool ui_using_tiles(void);
 extern bool ui_using_monster_tiles(void);
 extern void ui_redraw_grid(int y, int x);
+extern void ui_handle_grid_wheelevent(bool wheelscroll_increase);
 extern void ui_redraw_all();
 extern void ui_ensure(int y, int x);
 extern bool ui_modify_panel(int y, int x);
@@ -676,6 +677,7 @@ extern QSize ui_grid_size();
 extern void ui_png_screenshot(void);
 extern void ui_update_message_label(QString message);
 extern void ui_clear_message_label(void);
+extern void ui_update_hotkey_toolbar();
 
 
 /* randart.c */
@@ -898,11 +900,11 @@ extern const mon_susceptibility_struct mon_suscept[4];
 extern const colors_preset preset_colors[MAX_COLORS];
 
 /* target.cpp */
-extern bool target_able(int m_idx);
+extern bool target_able(int m_idx, bool probing);
 extern bool monster_target_exists(void);
 extern bool target_okay(void);
 extern bool target_set_interactive(int mode, int x, int y);
-extern void target_set_monster(int m_idx);
+extern void target_set_monster(int m_idx, bool probing);
 extern void target_set_location(int y, int x);
 extern int target_dir(UserInput input);
 extern bool get_aim_dir(int *dp, bool target_trap);
@@ -935,6 +937,7 @@ extern void pop_up_message_box(QString message, QMessageBox::Icon the_icon = QMe
 extern void pop_up_message_box(QString message, QPixmap into_icon);
 extern bool get_check(QString question);
 extern QString get_string(QString question, QString description, QString answer);
+extern s16b get_quantity_slider(QString prompt, QString unit, int min, int max, int value);
 extern s16b get_quantity(QString prompt, int max, int amt, bool allow_zero);
 extern QColor add_preset_color(int which_color);
 extern QString html_string_to_plain_text(QString text);

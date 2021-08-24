@@ -49,7 +49,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"8.0.1"
+#define VERSION_STRING	"8.0.2"
 
 
 /*
@@ -57,7 +57,7 @@
  */
 #define VERSION_MAJOR	8
 #define VERSION_MINOR	0
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 #define VERSION_EXTRA	0
 
 
@@ -115,9 +115,6 @@ enum
 #define     FALSE   false
 #endif // FALSE
 
-
-
-#define SIDEBAR_MONSTER_MAX	15
 
 /*
  * There is a 1/160 chance per round of creating a new monster

@@ -168,8 +168,10 @@ public:
 
     u32b r_l_native;			/* Observed Nativity Flags*/
 
-    // Wipe a monster_lore entry.  All variabled above need to be cleared.
+    // Wipe a monster_lore entry.  All variables above should be kept current with these 3 functions.
     void monster_lore_wipe();
+    void monster_lore_copy(monster_lore *ml_ptr);
+    bool monster_lore_compare(monster_lore *ml_ptr);
 };
 
 

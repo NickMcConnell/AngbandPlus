@@ -738,44 +738,6 @@ bool dtrap_edge(int y, int x)
     return FALSE;
 }
 
-// Is there a wall above?
-static bool is_wall_below(int y, int x)
-{
-    if (!ui_use_25d_graphics()) return (FALSE);
-
-    if (!in_bounds(y+1, x)) return (FALSE);
-
-    dungeon_type *d_ptr = &dungeon_info[y+1][x];
-
-    return (d_ptr->is_wall(TRUE));
-}
-
-// Is there a wall to the right?
-static bool is_wall_right(int y, int x)
-{
-    if (!ui_use_25d_graphics()) return (FALSE);
-
-    if (!in_bounds(y, x+1)) return (FALSE);
-
-    dungeon_type *d_ptr = &dungeon_info[y][x+1];
-
-    return (d_ptr->is_wall(TRUE));
-}
-
-// Is there a wall (above or below depends on bool above)?
-static bool is_wall_southeast(int y, int x)
-{
-    if (!ui_use_25d_graphics()) return (FALSE);
-
-    if (!in_bounds(y+1, x+1)) return (FALSE);
-
-    dungeon_type *d_ptr = &dungeon_info[y+1][x+1];
-
-    return (d_ptr->is_wall(TRUE));
-}
-
-
-
 static void map_terrain(s16b y, s16b x)
 {
     dungeon_type *dun_ptr = &dungeon_info[y][x];
@@ -785,9 +747,6 @@ static void map_terrain(s16b y, s16b x)
     feature_type *f_ptr;
     bool do_dtrap = FALSE;
     dun_ptr->dtrap = FALSE;
-    dun_ptr->wall_below = FALSE;
-    dun_ptr->wall_right = FALSE;
-    dun_ptr->wall_southeast = FALSE;
 
     //Assume som things normal;
     dun_ptr->special_lighting = FLOOR_LIGHT_NORMAL;   
@@ -814,10 +773,6 @@ static void map_terrain(s16b y, s16b x)
             dun_ptr->dun_char = f_ptr->d_char;
             dun_ptr->dun_color = f_ptr->d_color;
             dun_ptr->dun_tile = f_ptr->tile_id;
-
-            if (is_wall_right(y, x)) dun_ptr->wall_right = TRUE;
-            if (is_wall_below(y, x)) dun_ptr->wall_below = TRUE;
-            if (is_wall_southeast(y, x)) dun_ptr->wall_southeast = TRUE;
 
             /* Special lighting effects */
             if (view_special_light)
@@ -854,10 +809,6 @@ static void map_terrain(s16b y, s16b x)
 
             /* We have seen the feature */
             f_ptr->f_everseen = TRUE;
-
-            if (is_wall_right(y, x)) dun_ptr->wall_right = TRUE;
-            if (is_wall_below(y, x)) dun_ptr->wall_below = TRUE;
-            if (is_wall_southeast(y, x)) dun_ptr->wall_southeast = TRUE;
 
             /* Special lighting effects (walls only) */
             if (view_granite_light)
@@ -1401,19 +1352,16 @@ void light_spot(int y, int x)
     map_info(y, x);
 
     // Possibly draw the square above it
-    if (redraw_above || d_ptr->double_height_monster || d_ptr->is_wall(TRUE))
+    if (redraw_above || d_ptr->double_height_monster)
     {
         if (in_bounds(y-1, x)) map_info(y-1, x);
     }
-    if (d_ptr->wall_below) map_terrain(y+1, x);
-    if (d_ptr->wall_right) map_terrain(y, x+1);
-    if (d_ptr->wall_southeast) map_terrain(y+1, x+1);
 
     // print the square onscreen
     ui_redraw_grid(y, x);
 
     // Possibly draw the square above it
-    if (redraw_above || d_ptr->double_height_monster || d_ptr->is_wall(TRUE))
+    if (redraw_above || d_ptr->double_height_monster)
     {
         if (in_bounds(y-1, x)) redraw_coords.append(make_coords(y-1, x));
     }
@@ -1427,8 +1375,6 @@ static bool coords_sort(coord first, coord second)
     // Y coords are equal
     if (first.x > second.x) return (TRUE);
     return (FALSE);
-
-
 }
 
 coord make_coords(int y, int x)
@@ -3883,14 +3829,6 @@ static void cave_set_feat_aux(int y, int x, u16b feat)
     /* This is a generated dungeon*/
     if (character_dungeon)
     {
-        /* Hack -- Forget most of the new features */
-        /*
-        if (!_feat_ff1_match(f2_ptr, FF1_DOOR))
-        {
-            dungeon_info[y][x].cave_info &= ~(CAVE_MARK);
-            }
-        */
-
         /* Notice */
         note_spot(y, x);
 
@@ -4593,7 +4531,7 @@ int project_path(u16b *path_g, u16b *path_gx, int range,
             if (require_strict_lof)
             {
                 /* This grid does not qualify; it will be skipped */
-                if (!(dungeon_info[y][x].cave_info & (CAVE_FIRE)))
+                if (!dungeon_info[y][x].projectable())
                 {
                     blockage[i] += PATH_G_NONE;
                 }
@@ -4770,14 +4708,14 @@ byte projectable(int y1, int x1, int y2, int x2, u32b flg)
         if ((y1 == py) && (x1 == px))
         {
             /* Require that destination be in line of fire */
-            if (!(dungeon_info[y2][x2].cave_info & (CAVE_FIRE))) return (PROJECT_NO);
+            if (!dungeon_info[y2][x2].projectable()) return (PROJECT_NO);
         }
 
         /* The character is the target of the projection */
         else if ((y2 == py) && (x2 == px))
         {
             /* Require that source be in line of fire */
-            if (!(dungeon_info[y1][x1].cave_info & (CAVE_FIRE))) return (PROJECT_NO);
+            if (!dungeon_info[y1][x1].projectable()) return (PROJECT_NO);
         }
     }
 

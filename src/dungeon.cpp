@@ -186,5 +186,5 @@ void launch_game()
     ui_update_statusbar();
     ui_update_titlebar();
     ui_update_messages();
-
+    ui_update_hotkey_toolbar();
 }

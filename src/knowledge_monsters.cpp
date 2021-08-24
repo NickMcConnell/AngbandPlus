@@ -210,13 +210,12 @@ void DisplayMonsterKnowledge::filter_rows(int row, int col, int old_row, int old
 
 
 // Set up the monster knowledge table
-
 DisplayMonsterKnowledge::DisplayMonsterKnowledge(void)
 {
     monster_proxy_model = new QSortFilterProxyModel;
     monster_proxy_model->setSortCaseSensitivity(Qt::CaseSensitive);
-    QVBoxLayout *main_layout = new QVBoxLayout;
-    QHBoxLayout *mon_knowledge_hlay = new QHBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
+    QPointer<QHBoxLayout> mon_knowledge_hlay = new QHBoxLayout;
     main_layout->addLayout(mon_knowledge_hlay);
 
     // To track the monster race info button
@@ -336,7 +335,7 @@ DisplayMonsterKnowledge::DisplayMonsterKnowledge(void)
         monster_table->setItem(row, col++, total_kills);
 
         // Mon info
-        QPushButton *new_button = new QPushButton();
+        QPointer<QPushButton> new_button = new QPushButton();
         qpushbutton_dark_background(new_button);
         new_button->setIcon(QIcon(":/icons/lib/icons/help_dark.png"));
         monster_table->setCellWidget(row, col++, new_button);
@@ -360,12 +359,6 @@ DisplayMonsterKnowledge::DisplayMonsterKnowledge(void)
     connect(mon_button_group, SIGNAL(buttonClicked(int)), this, SLOT(button_press(int)));
 
     row = col = 0;
-
-    if (!monster_table->columnCount())
-    {
-        pop_up_message_box("You are not yet aware of any creatures");
-        return;
-    }
 
     //Now populate the monster_group table
     for (int i = 0; i < monster_group_info.size(); i++)
@@ -419,7 +412,16 @@ DisplayMonsterKnowledge::DisplayMonsterKnowledge(void)
     setLayout(main_layout);
     setWindowTitle(tr("Monster Knowledge"));
 
-    this->exec();
+    /*
+     * We make this check here after the dialog box is fully
+     * created to avoid any potential memory leaks.
+     */
+    if (!monster_table->columnCount())
+    {
+        pop_up_message_box("You are not yet aware of any creatures");
+        return;
+    }
+    else this->exec();
 }
 
 void display_monster_knowledge(void)

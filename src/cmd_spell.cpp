@@ -167,9 +167,6 @@ QString SpellSelectDialog::get_spell_comment(int spell)
 
 void SpellSelectDialog::build_spellbook_dialog(int mode)
 {
-    spell_select_group = new QButtonGroup(this);
-    spell_help_group = new QButtonGroup(this);
-
     for (int i = 0; i < max_spellbooks; i++)
     {
         // Track to which line we are adding widgets
@@ -185,16 +182,16 @@ void SpellSelectDialog::build_spellbook_dialog(int mode)
         book_name.remove("[");
         book_name.remove("]");
 
-        spell_tab = new QWidget;
+        QPointer<QWidget> spell_tab = new QWidget;
 
-        QVBoxLayout *vlay = new QVBoxLayout;
+        QPointer<QVBoxLayout> vlay = new QVBoxLayout;
 
-        QWidget *aux = new QWidget;
+        QPointer<QWidget> aux = new QWidget;
         vlay->addWidget(aux);
 
         vlay->addStretch(1);
 
-        QGridLayout *spell_layout = new QGridLayout;
+        QPointer<QGridLayout> spell_layout = new QGridLayout;
         aux->setLayout(spell_layout);
 
         // Add a button to select the spellbook
@@ -202,19 +199,19 @@ void SpellSelectDialog::build_spellbook_dialog(int mode)
         {
             QString noun = cast_spell(MODE_SPELL_NOUN, cp_ptr->spell_book, 1, 0);
             QString button_text = (QString("a) Learn a %1 from %2") .arg(noun) .arg(book_name));
-            QPushButton *button = new QPushButton(button_text);
+            QPointer<QPushButton> button = new QPushButton(button_text);
             spell_layout->addWidget(button, row_num, COL_SPELL_TITLE, Qt::AlignLeft);
             spell_select_group->addButton(button, i);
             row_num++;
         }
 
         // Give each one titles
-        QLabel *spell_title_header = new QLabel("Spell Name");
-        QLabel *level_header = new QLabel("  Level  ");
-        QLabel *mana_header = new QLabel("  Mana  ");
-        QLabel *fail_header = new QLabel("  % Fail  ");
-        QLabel *info_header = new QLabel(" Info");
-        QLabel *help_header = new QLabel("  Help  ");
+        QPointer<QLabel> spell_title_header = new QLabel("Spell Name");
+        QPointer<QLabel> level_header = new QLabel("  Level  ");
+        QPointer<QLabel> mana_header = new QLabel("  Mana  ");
+        QPointer<QLabel> fail_header = new QLabel("  % Fail  ");
+        QPointer<QLabel> info_header = new QLabel(" Info");
+        QPointer< QLabel> help_header = new QLabel("  Help  ");
 
         // Add the headers
         spell_layout->addWidget(spell_title_header, row_num, COL_SPELL_TITLE, Qt::AlignLeft);
@@ -254,7 +251,7 @@ void SpellSelectDialog::build_spellbook_dialog(int mode)
             // Either do a pushbutton or a text label
             if (do_text)
             {
-                QLabel *spell_label = new QLabel(spell_name);
+                QPointer<QLabel> spell_label = new QLabel(spell_name);
                 spell_label->setAlignment(Qt::AlignLeft);
                 spell_label->setToolTip(cast_spell(MODE_SPELL_DESC, cp_ptr->spell_book, spell, 0));
                 spell_layout->addWidget(spell_label, row_num, COL_SPELL_TITLE);
@@ -262,7 +259,7 @@ void SpellSelectDialog::build_spellbook_dialog(int mode)
             // Create a push button and link it
             else
             {
-                QPushButton *button = new QPushButton(text_num);
+                QPointer<QPushButton> button = new QPushButton(text_num);
                 button->setText(spell_name);
                 button->setStyleSheet("Text-align:left");
                 button->setToolTip(cast_spell(MODE_SPELL_DESC, cp_ptr->spell_book, spell, 0));
@@ -271,20 +268,20 @@ void SpellSelectDialog::build_spellbook_dialog(int mode)
             }
 
             // Add level info
-            QLabel *level_value = new QLabel(QString("%1") .arg(s_ptr->slevel));
+            QPointer<QLabel> level_value = new QLabel(QString("%1") .arg(s_ptr->slevel));
             spell_layout->addWidget(level_value, row_num, COL_LEVEL, Qt::AlignCenter);
             // Add mana info
-            QLabel *mana_value = new QLabel(QString("%1") .arg(s_ptr->smana));
+            QPointer<QLabel> mana_value = new QLabel(QString("%1") .arg(s_ptr->smana));
             spell_layout->addWidget(mana_value, row_num, COL_MANA, Qt::AlignCenter);
             // Add spell % info
-            QLabel *spell_value = new QLabel(QString("%1%") .arg(spell_chance(spell)));
+            QPointer<QLabel> spell_value = new QLabel(QString("%1%") .arg(spell_chance(spell)));
             spell_layout->addWidget(spell_value, row_num, COL_FAIL_PCT, Qt::AlignCenter);
             // Add spell_desc info
-            QLabel *info_desc = new QLabel(QString("%1") .arg(spell_comment));
+            QPointer<QLabel> info_desc = new QLabel(QString("%1") .arg(spell_comment));
             spell_layout->addWidget(info_desc, row_num, COL_INFO, Qt::AlignLeft);
 
             // Add a help button to put up a detailed spell description.
-            QPushButton *help_button = new QPushButton();
+            QPointer<QPushButton> help_button = new QPushButton();
             help_button->setIcon(QIcon(":/icons/lib/icons/help.png"));
             spell_help_group->addButton(help_button, spell);
             spell_layout->addWidget(help_button, row_num, COL_HELP);
@@ -305,19 +302,12 @@ void SpellSelectDialog::build_spellbook_dialog(int mode)
 
     connect(spell_select_group, SIGNAL(buttonClicked(int)), this, SLOT(button_press(int)));
     connect(spell_help_group, SIGNAL(buttonClicked(int)), this, SLOT(help_press(int)));
-
-
 }
 
 
 // This assumes the check that the player can cast has already been done.
 SpellSelectDialog::SpellSelectDialog(int *spell, int start_sval, QString prompt, int mode, bool *cannot, bool *cancelled)
 {
-    spell_dialog = new QTabWidget;
-
-    main_prompt = new QLabel(QString("<b><big>%1</big></b>") .arg(prompt));
-    main_prompt->setAlignment(Qt::AlignCenter);
-
     // Start with a clean slate
     usable_spells = FALSE;
     max_spellbooks = (game_mode == GAME_NPPANGBAND ? BOOKS_PER_REALM_ANGBAND : BOOKS_PER_REALM_MORIA);
@@ -347,6 +337,11 @@ SpellSelectDialog::SpellSelectDialog(int *spell, int start_sval, QString prompt,
          return;
     }
 
+    spell_dialog = new QTabWidget(this);
+
+    QPointer<QLabel> main_prompt = new QLabel(QString("<b><big>%1</big></b>") .arg(prompt), this);
+    main_prompt->setAlignment(Qt::AlignCenter);
+
     // Passed all the pre-dialog checks.
     *cannot = FALSE;
 
@@ -359,13 +354,13 @@ SpellSelectDialog::SpellSelectDialog(int *spell, int start_sval, QString prompt,
 
     build_spellbook_dialog(mode);
 
-    QDialogButtonBox *buttons = new QDialogButtonBox();
-    QPushButton *button_left = new QPushButton();
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox();
+    QPointer<QPushButton> button_left = new QPushButton();
     button_left->setText("<");
     button_left->setToolTip("Pressing '<' also moves the active tab to the left.");
     connect(button_left, SIGNAL(clicked()), this, SLOT(move_left()));
     buttons->addButton(button_left, QDialogButtonBox::ActionRole);
-    QPushButton *button_right = new QPushButton();
+    QPointer<QPushButton> button_right = new QPushButton();
     button_right->setText(">");
     button_right->setToolTip("Pressing '>' also moves the active tab to the right.");
     connect(button_right, SIGNAL(clicked()), this, SLOT(move_right()));
@@ -378,7 +373,7 @@ SpellSelectDialog::SpellSelectDialog(int *spell, int start_sval, QString prompt,
     else buttons->addButton(QDialogButtonBox::Cancel);
     connect(buttons, SIGNAL(rejected()), this, SLOT(close()));
 
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
 
     main_layout->addWidget(main_prompt);
     main_layout->addWidget(spell_dialog);

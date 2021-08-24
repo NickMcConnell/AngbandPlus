@@ -25,8 +25,8 @@ QString current_append;
 
 DisplayMessages::DisplayMessages(void)
 {
-    QVBoxLayout *main_layout = new QVBoxLayout;
-    QTextEdit *message_area = new QTextEdit;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
+    QPointer<QTextEdit> message_area = new QTextEdit;
 
     main_layout->addWidget(message_area);
 

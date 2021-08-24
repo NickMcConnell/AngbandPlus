@@ -5,6 +5,7 @@
 #include <src/npp.h>
 #include <QLabel>
 #include <src/nppdialog.h>
+#include <QPointer>
 
 enum
 {
@@ -37,7 +38,7 @@ public slots:
 
 private:
     void name_change_pushbutton(QGridLayout *return_layout);
-    QWidget *central;
+    QPointer<QWidget> central;
 
 };
 

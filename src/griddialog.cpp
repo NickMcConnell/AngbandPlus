@@ -11,20 +11,20 @@ GridDialog::GridDialog(int _y, int _x): NPPDialog()
 {
     y = _y;
     x = _x;
-    d_ptr = &dungeon_info[y][x];
+    dungeon_type *d_ptr = &dungeon_info[y][x];
 
     int n = 0;
 
     bool drugged = (p_ptr->timed[TMD_IMAGE] > 0);
 
     central = new QWidget;
-    QVBoxLayout *lay1 = new QVBoxLayout;
+    QPointer<QVBoxLayout> lay1 = new QVBoxLayout;
     central->setLayout(lay1);
     this->setClient(central);   // Do this after setting layout
 
-    QWidget *area2 = new QWidget;
+    QPointer<QWidget> area2 = new QWidget;
     lay1->addWidget(area2);
-    QGridLayout *lay2 = new QGridLayout;
+    QPointer<QGridLayout> lay2 = new QGridLayout;
     lay2->setContentsMargins(0, 0, 0, 0);
     area2->setLayout(lay2);
 
@@ -42,13 +42,13 @@ GridDialog::GridDialog(int _y, int _x): NPPDialog()
         monster_type *m_ptr = mon_list + m_idx;
         monster_race *r_ptr = r_info + m_ptr->r_idx;
 
-        QLabel *lb = new QLabel(QString(" %1 ").arg(r_ptr->d_char));
+        QPointer<QLabel> lb = new QLabel(QString(" %1 ").arg(r_ptr->d_char));
         lb->setStyleSheet(QString("background-color: black; color: %1;").arg(r_ptr->d_color.name()));
         lb->setFont(font);
         lay2->addWidget(lb, row, col++);
 
         QPixmap pix = ui_get_tile(r_ptr->tile_id, TRUE);
-        QLabel *lb2 = new QLabel;
+        QPointer<QLabel> lb2 = new QLabel;
         lb2->setPixmap(pix);
         lay2->addWidget(lb2, row, col++);
 
@@ -61,7 +61,7 @@ GridDialog::GridDialog(int _y, int _x): NPPDialog()
                         .arg(gain_m).arg(gain_p).arg(m_ptr->hp));
         }
         msg = capitalize_first(msg);
-        QPushButton *btn1 = new QPushButton(msg);
+        QPointer<QPushButton> btn1 = new QPushButton(msg);
         QString item_id = QString("m%1").arg(m_idx);
         btn1->setObjectName(item_id);
         btn1->setStyleSheet("text-align: left;");
@@ -101,19 +101,19 @@ GridDialog::GridDialog(int _y, int _x): NPPDialog()
         QColor color = k_ptr->get_color();
         QString tile = k_ptr->get_tile_id();
 
-        QLabel *lb = new QLabel(QString(" %1 ").arg(chr));
+        QPointer<QLabel> lb = new QLabel(QString(" %1 ").arg(chr));
         lb->setStyleSheet(QString("background-color: black; color: %1;").arg(color.name()));
         lb->setFont(font);
         lay2->addWidget(lb, row, col++);
 
         QPixmap pix = ui_get_tile(tile, TRUE);
-        QLabel *lb2 = new QLabel;
+        QPointer<QLabel> lb2 = new QLabel;
         lb2->setPixmap(pix);
         lay2->addWidget(lb2, row, col++);
 
         QString name = object_desc(o_ptr, ODESC_FULL | ODESC_PREFIX);
         name = capitalize_first(name);
-        QPushButton *btn1 = new QPushButton(name);
+        QPointer<QPushButton> btn1 = new QPushButton(name);
         QString item_id = QString("o%1").arg(cur_o_idx);
         btn1->setObjectName(item_id);
         btn1->setStyleSheet("text-align: left;");
@@ -133,19 +133,19 @@ GridDialog::GridDialog(int _y, int _x): NPPDialog()
         feat = f_info[feat].f_mimic;
         feature_type *f_ptr = f_info + feat;
 
-        QLabel *lb = new QLabel(QString(" %1 ").arg(f_ptr->d_char));
+        QPointer<QLabel> lb = new QLabel(QString(" %1 ").arg(f_ptr->d_char));
         lb->setStyleSheet(QString("background-color: black; color: %1;").arg(f_ptr->d_color.name()));
         lb->setFont(font);
         lay2->addWidget(lb, row, col++);
 
         QPixmap pix = ui_get_tile(f_ptr->tile_id, TRUE);
-        QLabel *lb2 = new QLabel;
+        QPointer<QLabel> lb2 = new QLabel;
         lb2->setPixmap(pix);
         lay2->addWidget(lb2, row, col++);
 
         QString name = feature_desc(feat, true, false);
         name = capitalize_first(name);
-        QPushButton *btn1 = new QPushButton(name);
+        QPointer<QPushButton> btn1 = new QPushButton(name);
         QString item_id = QString("f%1").arg(feat);
         btn1->setObjectName(item_id);
         btn1->setStyleSheet("text-align: left;");
@@ -172,19 +172,19 @@ GridDialog::GridDialog(int _y, int _x): NPPDialog()
 
         col = 0;
 
-        QLabel *lb = new QLabel(QString(" %1 ").arg(f_ptr->d_char));
+        QPointer<QLabel> lb = new QLabel(QString(" %1 ").arg(f_ptr->d_char));
         lb->setStyleSheet(QString("background-color: black; color: %1;").arg(f_ptr->d_color.name()));
         lb->setFont(font);
         lay2->addWidget(lb, row, col++);
 
         QPixmap pix = ui_get_tile(f_ptr->tile_id, TRUE);
-        QLabel *lb2 = new QLabel;
+        QPointer<QLabel> lb2 = new QLabel;
         lb2->setPixmap(pix);
         lay2->addWidget(lb2, row, col++);
 
         QString name = feature_desc(feat, true, false);
         name = capitalize_first(name);
-        QPushButton *btn1 = new QPushButton(name);
+        QPointer<QPushButton> btn1 = new QPushButton(name);
         QString item_id = QString("f%1").arg(feat);
         btn1->setObjectName(item_id);
         btn1->setStyleSheet("text-align: left;");
@@ -199,16 +199,16 @@ GridDialog::GridDialog(int _y, int _x): NPPDialog()
     lay2->addItem(spacer, row, 0);
     ++row;
 
-    QWidget *area3 = new QWidget;
+    QPointer<QWidget> area3 = new QWidget;
     lay1->addWidget(area3);
-    QHBoxLayout *lay3 = new QHBoxLayout;
+    QPointer<QHBoxLayout> lay3 = new QHBoxLayout;
     lay3->setContentsMargins(0, 0, 0, 0);
     area3->setLayout(lay3);
 
-    spacer = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Fixed);
-    lay3->addItem(spacer);
+    QSpacerItem *spacer2 = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Fixed);
+    lay3->addItem(spacer2);
 
-    QPushButton *btn_close = new QPushButton("Ok");
+    QPointer<QPushButton> btn_close = new QPushButton("Ok");
     lay3->addWidget(btn_close);
     connect(btn_close, SIGNAL(clicked()), this, SLOT(reject()));
 

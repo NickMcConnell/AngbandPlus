@@ -8,6 +8,8 @@ QT       += core gui
 
 QT += widgets
 
+QT += testlib
+
 TARGET = NPPGAMES
 
 
@@ -27,6 +29,7 @@ SOURCES +=  src/qt_main.cpp \
             src/qt_win_mon_recall.cpp \
             src/qt_win_obj_list.cpp \
             src/qt_win_obj_recall.cpp \
+            src/qt_hotkey_toolbar.cpp \
             src/qt_sidebar.cpp \
             src/qt_statusbar.cpp \
             src/qt_targeting.cpp \

@@ -9,6 +9,7 @@
 #include "src/utilities.h"
 #include "store.h"
 #include "src/messages.h"
+#include <QPointer>
 
 enum
 {
@@ -51,24 +52,24 @@ private:
 public:
     int store_idx;
     int mode;
-    QWidget *central;
-    QTabWidget *char_tabs;
-    QWidget *inven_tab;
-    QWidget *equip_tab;
-    QLabel *message_area;
-    QWidget *store_area;
-    QWidget *quest_area;
-    QLabel  *quest_status;
-    QLabel  *quest_picture;
+    QPointer<QWidget> central;
+    QPointer<QTabWidget> char_tabs;
+    QPointer<QWidget> inven_tab;
+    QPointer<QWidget> equip_tab;
+    QPointer<QLabel> message_area;
+    QPointer<QWidget> store_area;
+    QPointer<QWidget> quest_area;
+    QPointer<QLabel> quest_status;
+    QPointer<QLabel> quest_picture;
 
-    QLabel *header_weight1;
-    QLabel *header_weight2;
+    QPointer<QLabel> header_weight1;
+    QPointer<QLabel> header_weight2;
 
 
     bool home;
     bool guild;
 
-    QLabel *mode_label;
+    QPointer<QLabel> mode_label;
 
     StoreDialog(int _store, QWidget *parent = 0);
 
@@ -116,9 +117,9 @@ class QuantityDialog: public QDialog
 {
     Q_OBJECT
 public:
-    QLabel *question;
-    QSpinBox *amt_spin;
-    QLabel *total_label;
+    QPointer<QLabel> question;
+    QPointer<QSpinBox> amt_spin;
+    QPointer<QLabel> total_label;
     object_type *o_ptr;
     bool buying;
     int amt;
@@ -143,8 +144,8 @@ public:
     explicit StatDialog(int service, byte *stat_selected);
 
 private:
-    QLabel *main_prompt;
-    QDialogButtonBox *buttons;
+    QPointer<QLabel> main_prompt;
+    QPointer<QDialogButtonBox> buttons;
 
     byte selected_stat;
 

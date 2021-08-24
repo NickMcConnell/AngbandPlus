@@ -174,15 +174,22 @@ void MainWindow::destroy_tiles()
 
 QPixmap MainWindow::get_tile(QString tile_id, int tile_hgt, int tile_wid)
 {
-    if (tiles.contains(tile_id)) return tiles.value(tile_id);
-
     if (!current_tiles) return ui_make_blank();
 
     QPixmap pix;
 
-    if (tile_id.startsWith("flav_")) pix = current_flav_tiles->get_tile(tile_id);
-    else if (tile_id.startsWith("feat_")) pix = current_feat_tiles->get_tile(tile_id);
-    else pix = current_tiles->get_tile(tile_id);
+    if (tiles.contains(tile_id))
+    {
+        pix = tiles.value(tile_id);
+    }
+    else
+    {
+        if (tile_id.startsWith("flav_")) pix = current_flav_tiles->get_tile(tile_id);
+        else if (tile_id.startsWith("feat_")) pix = current_feat_tiles->get_tile(tile_id);
+        else pix = current_tiles->get_tile(tile_id);
+
+        tiles.insert(tile_id, pix);
+    }
 
     if (pix.width() == 1) return pix;
 
@@ -190,8 +197,6 @@ QPixmap MainWindow::get_tile(QString tile_id, int tile_hgt, int tile_wid)
     {
         pix = pix.scaled(tile_wid, tile_hgt);
     }
-
-    tiles.insert(tile_id, pix);
 
     return pix;
 }
@@ -320,7 +325,12 @@ void MainWindow::toggle_searching()
 {
     if (!character_dungeon) return;
     if (executing_command) return;
+    executing_command = TRUE;
     do_cmd_toggle_search();
+    notice_stuff();
+    handle_stuff();
+    clear_message_label();
+    executing_command = FALSE;
 }
 
 void MainWindow::update_message_label(QString message)
@@ -340,8 +350,12 @@ void MainWindow::click_study()
 {
     if (!character_dungeon) return;
     if (executing_command) return;
+    executing_command = TRUE;
     do_cmd_study(-1);
-
+    notice_stuff();
+    handle_stuff();
+    clear_message_label();
+    executing_command = FALSE;
 }
 
 void MainWindow::init_scene()
@@ -502,7 +516,8 @@ MainWindow::MainWindow()
     targeting_mode = MODE_NO_TARGETING;
 
     cursor = new DungeonCursor(this);
-    show_targeting_buttons = do_25d_graphics = do_pseudo_ascii = do_wall_block = false;
+    show_targeting_buttons = show_hotkey_toolbar = TRUE;
+    do_25d_graphics = do_pseudo_ascii = do_wall_block = FALSE;
 
     overhead_map_multiplier = dun_map_multiplier = main_multiplier = "1:1";
 
@@ -626,7 +641,7 @@ void MainWindow::start_game_nppmoria()
 void MainWindow::open_current_savefile()
 {
     // Let the user select the savefile
-    QString file_name = QFileDialog::getOpenFileName(this, tr("Select a savefile"), npp_dir_save.path(), tr("NPP (*.npp)"));
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Select a savefile to open"), npp_dir_save.path(), tr("NPP (*.npp)"));
     if (file_name.isEmpty()) return;
 
     load_file(file_name);
@@ -649,7 +664,7 @@ void MainWindow::save_character_as()
     default_file.append("/");
     default_file.append(default_name);
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Select a savefile"), default_file, tr("NPP (*.npp)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File As"), default_file, tr("NPP (*.npp)"));
 
     if (fileName.isEmpty())
         return;
@@ -727,36 +742,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-void MainWindow::wheelEvent(QWheelEvent* event)
+// Use the wheelscroll to increase the tile mltiplier
+void MainWindow::handle_grid_wheelevent(bool wheelscroll_increase)
 {
-    if (!character_dungeon) return;
-    if (p_ptr->in_store) return;
-    if (anim_depth > 0) return;
-
-  // Go to special key handling
-    if (targeting_mode)
-    {
-        // Temporary until the wheel mode can be figured out.
-        return;
-
-        if (event->delta() > 0) input.key = Qt::Key_Plus;
-        else                    input.key = Qt::Key_Minus;
-        input.text.clear();
-        input.mode = INPUT_MODE_MOUSE_WHEEL;
-        ev_loop.quit();
-        return;
-    }
-
-    /*
-     * This code works, but scrolling the graphicsview gets in the way.
-     * Unable to disable scroll bar
-     *
-    if (executing_command) return;
-
-    // Increase or decrease the size of the tile multiplier
-    executing_command = TRUE;
-
-
     // Go through and find the active multiplier
     QString active_multiplier;
     active_multiplier.clear();
@@ -787,7 +775,7 @@ void MainWindow::wheelEvent(QWheelEvent* event)
         // Do nothing
     }
     // Increasing wheel click
-    else if (event->delta() > 0)
+    else if (wheelscroll_increase)
     {
         if (mult_list[current_slot+1].length())
         {
@@ -812,14 +800,9 @@ void MainWindow::wheelEvent(QWheelEvent* event)
         list_multipliers.at(x)->trigger();
         break;
     }
-
-    handle_stuff();
-    clear_message_label();
-    executing_command = FALSE;
-
-    * End of disabled code
-    */
 }
+
+
 
 void MainWindow::keyPressEvent(QKeyEvent* which_key)
 {
@@ -874,8 +857,6 @@ void MainWindow::keyPressEvent(QKeyEvent* which_key)
     // However the keys below can only be pressed on the keypad if the shift key is pressed.
     if (keypad_used && numlock_on && !shift_key)
     {
-
-
         switch (key_pressed)
         {
             case Qt::Key_End:
@@ -1020,21 +1001,62 @@ void MainWindow::options_dialog()
     handle_stuff();
 }
 
+void MainWindow::hp_warning_dialog()
+{
+    QString prompt = "Please select a hit point warning threshold:";
+
+    op_ptr->hitpoint_warn = (byte)get_quantity_slider(prompt, QString("Percent"), 0, 99, op_ptr->hitpoint_warn);
+}
+
+void MainWindow::delay_anim_factor_dialog()
+{
+    QString prompt = "Please select an animation delay adjustment factor:";
+
+    op_ptr->delay_anim_factor = get_quantity_slider(prompt, QString(" Percent"), 25, 200, op_ptr->delay_anim_factor);
+}
+
+void MainWindow::delay_run_factor_dialog()
+{
+    QString prompt = "Please select a run delay factor:";
+
+    op_ptr->delay_run_factor = get_quantity_slider(prompt, QString("msec"), 0, 250, op_ptr->delay_run_factor);
+}
+
+
 void MainWindow::toggle_show_targeting()
 {
     if (show_targeting_buttons)
     {
+        show_targeting_buttons = FALSE;
         show_targeting_act->setText("Show Targeting Buttons");
         show_targeting_act->setStatusTip(tr("Display the targeting buttons in the sidebar when sleecting a target."));
     }
     else
     {
+        show_targeting_buttons = TRUE;
         show_targeting_act->setText("Hide Targeting Button");
         show_targeting_act->setStatusTip(tr("Do not display the targeting buttons in the sidebar when sleecting a target."));
     }
 
-    show_targeting_buttons = !show_targeting_buttons;
     if (targeting_mode)show_targeting_sidebar();
+}
+
+void MainWindow::toggle_show_hotkey_toolbar()
+{
+    if (show_hotkey_toolbar)
+    {
+        show_hotkey_toolbar = FALSE;
+        show_hotkey_toolbar_act->setText("Show Hotkey Toolbar");
+        show_hotkey_toolbar_act->setStatusTip(tr("Display a toolbar with buttons for each hotkey."));
+        hotkey_toolbar_hide();
+    }
+    else
+    {
+        show_hotkey_toolbar = TRUE;
+        show_hotkey_toolbar_act->setText("Hide Hotkey Toolbar");
+        show_hotkey_toolbar_act->setStatusTip(tr("Hide the Hotkey Toolbar."));
+        hotkey_toolbar_show();
+    }
 }
 
 void MainWindow::font_dialog_main_window()
@@ -1153,6 +1175,9 @@ void MainWindow::update_file_menu_game_active()
     }
 
     options_act->setEnabled(TRUE);
+    hitpoint_warning_act->setEnabled(TRUE);
+    delay_anim_factor_act->setEnabled(TRUE);
+    delay_run_factor_act->setEnabled(TRUE);
     view_monster_knowledge->setEnabled(TRUE);
     view_object_knowledge->setEnabled(TRUE);
     view_ego_item_knowledge->setEnabled(TRUE);
@@ -1190,6 +1215,9 @@ void MainWindow::update_file_menu_game_inactive()
     }
 
     options_act->setEnabled(FALSE);
+    hitpoint_warning_act->setEnabled(FALSE);
+    delay_anim_factor_act->setEnabled(FALSE);
+    delay_run_factor_act->setEnabled(FALSE);
     view_monster_knowledge->setEnabled(FALSE);
     view_object_knowledge->setEnabled(FALSE);
     view_ego_item_knowledge->setEnabled(FALSE);
@@ -1207,6 +1235,7 @@ void MainWindow::update_file_menu_game_inactive()
 
     hide_sidebar();
     hide_statusbar();
+    hotkey_toolbar_hide();
 
 }
 
@@ -1266,7 +1295,6 @@ void MainWindow::create_actions()
     exit_npp->setStatusTip(tr("Exit the application.  Save any open character."));
     connect(exit_npp, SIGNAL(triggered()), this, SLOT(close()));
 
-
     for (int i = 0; i < MAX_RECENT_SAVEFILES; ++i)
     {
         recent_savefile_actions[i] = new QAction(this);
@@ -1281,9 +1309,25 @@ void MainWindow::create_actions()
     options_act->setIcon(QIcon(":/icons/lib/icons/options.png"));
     connect(options_act, SIGNAL(triggered()), this, SLOT(options_dialog()));
 
+    hitpoint_warning_act = new QAction(tr("Set Hitpoint Warning"), this);
+    hitpoint_warning_act->setStatusTip(tr("Give the player a warning when the player's current hitpoints drop below a certain percentage of maximum hitpoints."));
+    connect(hitpoint_warning_act, SIGNAL(triggered()), this, SLOT(hp_warning_dialog()));
+
+    delay_anim_factor_act = new QAction(tr("Set Animation Delay Factor"), this);
+    delay_anim_factor_act->setStatusTip(tr("Set the adjustment factor for game animations."));
+    connect(delay_anim_factor_act, SIGNAL(triggered()), this, SLOT(delay_anim_factor_dialog()));
+
+    delay_run_factor_act = new QAction(tr("Set Run Delay Factor"), this);
+    delay_run_factor_act->setStatusTip(tr("Set the minimum increment between run steps."));
+    connect(delay_run_factor_act, SIGNAL(triggered()), this, SLOT(delay_run_factor_dialog()));
+
     show_targeting_act = new QAction(tr("Hide Targeting Buttons"), this);
     show_targeting_act->setStatusTip(tr("Do not display the targeting buttons in the sidebar when sleecting a target."));
     connect(show_targeting_act, SIGNAL(triggered()), this, SLOT(toggle_show_targeting()));
+
+    show_hotkey_toolbar_act = new QAction(tr("Hide Hotkey Toolbar"), this);
+    show_hotkey_toolbar_act->setStatusTip(tr("Hide the Hotkey Toolbar."));
+    connect(show_hotkey_toolbar_act, SIGNAL(triggered()), this, SLOT(toggle_show_hotkey_toolbar()));
 
     keymap_new = new QAction(tr("Simplified Command Set"), this);
     keymap_new->setStatusTip(tr("Use simplified keyset to enter commands (recommended for players new to Angband and variants"));
@@ -1626,6 +1670,9 @@ void MainWindow::create_menus()
     settings->addAction(options_act);
 
     settings->addAction(show_targeting_act);
+    settings->addAction(show_hotkey_toolbar_act);
+
+    separator_act = settings->addSeparator();
 
     QMenu *choose_keymap = settings->addMenu("Choose Keyset");
     choose_keymap->addAction(keymap_new);
@@ -1641,12 +1688,18 @@ void MainWindow::create_menus()
     keymap_rogue->setCheckable(TRUE);
     keymap_new->setChecked(TRUE);
 
-    menuBar()->addSeparator();
+    separator_act = settings->addSeparator();
 
     QMenu *hotkey_choices = settings->addMenu("Hotkey Settings");
     hotkey_choices->addAction(hotkey_manage);
     hotkey_choices->addAction(hotkey_export);
     hotkey_choices->addAction(hotkey_import);
+
+    separator_act = settings->addSeparator();
+
+    settings->addAction(hitpoint_warning_act);
+    settings->addAction(delay_anim_factor_act);
+    settings->addAction(delay_run_factor_act);
 
     // Knowledge section of top menu.
     knowledge = menuBar()->addMenu(tr("&Knowledge"));
@@ -1687,7 +1740,7 @@ void MainWindow::create_menus()
     dvg_mode_act->setCheckable(TRUE);
     old_tiles_act->setCheckable(TRUE);
 
-    QMenu *submenu = display->addMenu(tr("Tile multiplier"));
+    QPointer<QMenu> submenu = display->addMenu(tr("Tile multiplier"));
     multipliers = new QActionGroup(this);
 
     for (int i = 0; !mult_list[i].isEmpty(); i++)
@@ -1701,7 +1754,7 @@ void MainWindow::create_menus()
     connect(multipliers, SIGNAL(triggered(QAction*)), this, SLOT(slot_multiplier_clicked(QAction*)));
 
 
-    QAction *act = display->addAction(tr("Create tile package"));
+    QPointer<QAction> act = display->addAction(tr("Create tile package"));
     connect(act, SIGNAL(triggered()), this, SLOT(do_create_package()));
 
     act = display->addAction(tr("Extract tiles from package"));
@@ -1749,6 +1802,7 @@ void MainWindow::create_toolbars()
     file_toolbar->addAction(exit_npp);
 
     create_statusbar();
+    create_hotkey_toolbar();
 }
 
 // Just find an initial font to start the game
@@ -1810,7 +1864,18 @@ void MainWindow::read_settings()
     restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
     recent_savefiles = settings.value("recentFiles").toStringList();
     show_targeting_buttons = settings.value("target_buttons", false).toBool();
-    if (!show_targeting_buttons) toggle_show_targeting();
+    if (!show_targeting_buttons)
+    {   // First set it to true to it toggles correctly.
+        show_targeting_buttons = TRUE;
+        toggle_show_targeting();
+    }
+    show_hotkey_toolbar = settings.value("hotkey_toolbar", false).toBool();
+    if (!show_hotkey_toolbar)
+    {
+        // First set it to true to it toggles correctly.
+        show_hotkey_toolbar = TRUE;
+        toggle_show_hotkey_toolbar();
+    }
     do_25d_graphics = settings.value("graphics_25d", false).toBool();
     graphics_25d_act->setChecked(do_25d_graphics);
     do_pseudo_ascii = settings.value("pseudo_ascii", false).toBool();
@@ -1876,6 +1941,7 @@ void MainWindow::read_settings()
         window_obj_list->restoreGeometry(settings.value("winObjListGeometry").toByteArray());
         window_obj_list->show();
     }
+
     show_mon_recall = settings.value("show_mon_recall_window", false).toBool();
     if (show_mon_recall)
     {
@@ -1884,6 +1950,7 @@ void MainWindow::read_settings()
         window_mon_recall->restoreGeometry(settings.value("winMonRecallGeometry").toByteArray());
         window_mon_recall->show();
     }
+
     show_obj_recall = settings.value("show_obj_recall_window", false).toBool();
     if (show_obj_recall)
     {
@@ -1892,6 +1959,7 @@ void MainWindow::read_settings()
         window_obj_recall->restoreGeometry(settings.value("winObjRecallGeometry").toByteArray());
         window_obj_recall->show();
     }
+
     show_feat_recall = settings.value("show_feat_recall_window", false).toBool();
     if (show_feat_recall)
     {
@@ -1900,6 +1968,7 @@ void MainWindow::read_settings()
         window_feat_recall->restoreGeometry(settings.value("winFeatRecallGeometry").toByteArray());
         window_feat_recall->show();
     }
+
     show_messages_win = settings.value("show_messages_window", false).toBool();
     if (show_messages_win)
     {
@@ -1908,6 +1977,7 @@ void MainWindow::read_settings()
         window_messages->restoreGeometry(settings.value("winMessagesGeometry").toByteArray());
         window_messages->show();
     }
+
     show_char_info_basic = settings.value("show_char_basic_window", false).toBool();
     if (show_char_info_basic)
     {
@@ -1916,6 +1986,7 @@ void MainWindow::read_settings()
         window_char_info_basic->restoreGeometry(settings.value("winCharBasicGeometry").toByteArray());
         window_char_info_basic->show();
     }
+
     show_char_info_equip = settings.value("show_char_equip_info_window", false).toBool();
     if (show_char_info_equip)
     {
@@ -1924,30 +1995,32 @@ void MainWindow::read_settings()
         window_char_info_equip->restoreGeometry(settings.value("winCharEquipGeometry").toByteArray());
         window_char_info_equip->show();
     }
+
     show_char_equipment = settings.value("show_char_equipment_window", false).toBool();
+    equip_show_buttons = settings.value("show_equip_window_buttons", false).toBool();
     if (show_char_equipment)
     {
         show_char_equipment = FALSE; //hack - so it gets toggled to true
         toggle_win_char_equipment_frame();
         window_char_equipment->restoreGeometry(settings.value("winCharEquipmentGeometry").toByteArray());
         window_char_equipment->show();
-        equip_show_buttons = settings.value("show_equip_window_buttons", false).toBool();
     }
+
     show_char_inventory = settings.value("show_char_inventory_window", false).toBool();
+    inven_show_buttons = settings.value("show_inven_window_buttons", false).toBool();
     if (show_char_inventory)
     {
         show_char_inventory = FALSE; //hack - so it gets toggled to true
         toggle_win_char_inventory_frame();
         window_char_inventory->restoreGeometry(settings.value("winCharInventoryGeometry").toByteArray());
         window_char_inventory->show();
-        inven_show_buttons = settings.value("show_inven_window_buttons", false).toBool();
     }
 
     show_win_dun_map = settings.value("show_dun_map_window", false).toBool();
+    dun_map_use_graphics = settings.value("graphics_dun_map", false).toBool();
+    dun_map_multiplier = settings.value("dun_map_tile_multiplier", "1:1").toString();
     if (show_win_dun_map)
     {
-        dun_map_use_graphics = settings.value("graphics_dun_map", false).toBool();
-        dun_map_multiplier = settings.value("dun_map_tile_multiplier", "1:1").toString();
         show_win_dun_map = FALSE; //hack - so it gets toggled to true
         toggle_win_dun_map_frame();
         window_dun_map->restoreGeometry(settings.value("winDunMapGeometry").toByteArray());
@@ -1955,10 +2028,10 @@ void MainWindow::read_settings()
     }
 
     show_win_overhead_map = settings.value("show_dun_overhead_window", false).toBool();
+    overhead_map_use_graphics = settings.value("graphics_overhead_map", false).toBool();
+    overhead_map_multiplier = settings.value("dun_overhead_tile_multiplier", "1:1").toString();
     if (show_win_overhead_map)
     {
-        overhead_map_use_graphics = settings.value("graphics_overhead_map", false).toBool();
-        overhead_map_multiplier = settings.value("dun_overhead_tile_multiplier", "1:1").toString();
         show_win_overhead_map = FALSE; //hack - so it gets toggled to true
         toggle_win_overhead_map_frame();
         window_overhead_map->restoreGeometry(settings.value("winOverheadMapGeometry").toByteArray());
@@ -1976,6 +2049,7 @@ void MainWindow::write_settings()
     settings.setValue("mainWindowGeometry", saveGeometry());
     settings.setValue("recentFiles", recent_savefiles);
     settings.setValue("target_buttons", show_targeting_buttons);
+    settings.setValue("hotkey_toolbar", show_hotkey_toolbar);
     settings.setValue("graphics_25d", do_25d_graphics);
     settings.setValue("pseudo_ascii", do_pseudo_ascii);
     settings.setValue("solid_block", do_wall_block);
@@ -1998,74 +2072,87 @@ void MainWindow::write_settings()
     settings.setValue("font_dun_map", font_dun_map.toString());
     settings.setValue("font_overhead_map", font_overhead_map.toString());
     settings.setValue("window_state", saveState());
+
     settings.setValue("show_mon_list_window", show_mon_list);
     if (show_mon_list)
     {
         settings.setValue("winMonListGeometry", window_mon_list->saveGeometry());
     }
+
     settings.setValue("show_obj_list_window", show_obj_list);
     if (show_obj_list)
     {
         settings.setValue("winObjListGeometry", window_obj_list->saveGeometry());
     }
+
     settings.setValue("show_mon_recall_window", show_mon_recall);
     if (show_mon_recall)
     {
         settings.setValue("winMonRecallGeometry", window_mon_recall->saveGeometry());
     }
+
     settings.setValue("show_obj_recall_window", show_obj_recall);
     if (show_obj_recall)
     {
         settings.setValue("winObjRecallGeometry", window_obj_recall->saveGeometry());
     }
+
     settings.setValue("show_feat_recall_window", show_feat_recall);
     if (show_feat_recall)
     {
         settings.setValue("winFeatRecallGeometry", window_feat_recall->saveGeometry());
     }
+
     settings.setValue("show_messages_window", show_messages_win);
     if (show_messages_win)
     {
         settings.setValue("winMessagesGeometry", window_messages->saveGeometry());
     }
+
     settings.setValue("show_char_basic_window", show_char_info_basic);
     if (show_char_info_basic)
     {
         settings.setValue("winCharBasicGeometry", window_char_info_basic->saveGeometry());
     }
+
     settings.setValue("show_char_equip_info_window", show_char_info_equip);
     if (show_char_info_equip)
     {
         settings.setValue("winCharEquipGeometry", window_char_info_equip->saveGeometry());
     }
+
     settings.setValue("show_char_equipment_window", show_char_equipment);
     if (show_char_equipment)
     {
         settings.setValue("winCharEquipmentGeometry", window_char_equipment->saveGeometry());
-        settings.setValue("show_equip_window_buttons", equip_show_buttons);
     }
+    settings.setValue("show_equip_window_buttons", equip_show_buttons);
+
     settings.setValue("show_char_inventory_window", show_char_inventory);
     if (show_char_inventory)
     {
         settings.setValue("winCharInventoryGeometry", window_char_inventory->saveGeometry());
-        settings.setValue("show_inven_window_buttons", inven_show_buttons);
     }
+    settings.setValue("show_inven_window_buttons", inven_show_buttons);
+
     settings.setValue("show_dun_map_window", show_win_dun_map);
 
     if (show_win_dun_map)
     {
-        settings.setValue("graphics_dun_map", dun_map_use_graphics);
-        settings.setValue("dun_map_tile_multiplier", dun_map_multiplier);
         settings.setValue("winDunMapGeometry", window_dun_map->saveGeometry());
-
     }
+    settings.setValue("graphics_dun_map", dun_map_use_graphics);
+    settings.setValue("dun_map_tile_multiplier", dun_map_multiplier);
+
     settings.setValue("show_dun_overhead_window", show_win_overhead_map);
     if (show_win_overhead_map)
     {
-        settings.setValue("graphics_overhead_map", overhead_map_use_graphics);
+
         settings.setValue("winOverheadMapGeometry", window_overhead_map->saveGeometry());
-        settings.setValue("dun_overhead_tile_multiplier", overhead_map_multiplier);
+
     }
+    settings.setValue("graphics_overhead_map", overhead_map_use_graphics);
+    settings.setValue("dun_overhead_tile_multiplier", overhead_map_multiplier);
 }
 
 
@@ -2248,7 +2335,7 @@ void MainWindow::save_png_screenshot(void)
     default_file.append(default_name);
     default_file.append("_npp_scr");
 
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Select a savefile"), default_file, tr("PNG (*.png)"));
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save PNG Screenshot As"), default_file, tr("PNG (*.png)"));
 
     if (file_name.isEmpty())
         return;

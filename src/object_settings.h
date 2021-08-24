@@ -8,6 +8,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <src/object_classes.h>
+#include <QPointer>
 
 enum
 {
@@ -34,26 +35,26 @@ public:
     void add_quality_buttons(QVBoxLayout *quality_buttons);
     void add_ego_buttons(QVBoxLayout *ego_buttons);
 
-    QButtonGroup *squelch_group;
-    QRadioButton *squelch_never;
-    QRadioButton *squelch_pickup_no;
-    QRadioButton *squelch_pickup_yes;
-    QRadioButton *squelch_always;
+    QPointer<QButtonGroup> squelch_group;
+    QPointer<QRadioButton> squelch_never;
+    QPointer<QRadioButton> squelch_pickup_no;
+    QPointer<QRadioButton> squelch_pickup_yes;
+    QPointer<QRadioButton> squelch_always;
 
     object_kind *k_ptr;
     object_type *o_ptr;
 
-    QButtonGroup *quality_group;
-    QRadioButton *quality_none;
-    QRadioButton *quality_cursed;
-    QRadioButton *quality_average;
-    QRadioButton *quality_good_strong;
-    QRadioButton *quality_good_weak;
-    QRadioButton *quality_all_but_artifact;
+    QPointer<QButtonGroup> quality_group;
+    QPointer<QRadioButton> quality_none;
+    QPointer<QRadioButton> quality_cursed;
+    QPointer<QRadioButton> quality_average;
+    QPointer<QRadioButton> quality_good_strong;
+    QPointer<QRadioButton> quality_good_weak;
+    QPointer<QRadioButton> quality_all_but_artifact;
 
-    QButtonGroup *ego_group;
-    QRadioButton *ego_no;
-    QRadioButton *ego_yes;
+    QPointer<QButtonGroup> ego_group;
+    QPointer<QRadioButton> ego_no;
+    QPointer<QRadioButton> ego_yes;
 
     byte squelch_type;
 
@@ -80,11 +81,11 @@ public:
 private:
 
 
-    QVBoxLayout *object_type_ver;
-    QButtonGroup *object_type_group;
+    QPointer<QVBoxLayout> object_type_ver;
+    QPointer<QButtonGroup> object_type_group;
 
-    QVBoxLayout *object_kind_ver;
-    QButtonGroup *object_kind_group;
+    QPointer<QVBoxLayout> object_kind_ver;
+    QPointer<QButtonGroup> object_kind_group;
 
     bool do_object_type;
     bool do_object_kind;

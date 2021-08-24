@@ -5,6 +5,7 @@
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QButtonGroup>
+#include <QPointer>
 
 
 typedef struct monster_banish_choices monster_banish_choices;
@@ -33,8 +34,8 @@ private slots:
 
 private:
     int chosen_type;
-    QDialogButtonBox *button_boxes;
-    QButtonGroup *banish_choice_group;
+    QPointer<QDialogButtonBox> button_boxes;
+    QPointer<QButtonGroup>  banish_choice_group;
 };
 
 class DisplaySelfKnowledge : public QDialog

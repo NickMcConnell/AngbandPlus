@@ -17,13 +17,14 @@
 /* Maximum number of delayed effect bursts */
 #define MAX_BURST 100
 
+
+// The game assumes these two vectors are the same size
 /* Coordinates of burst effects */
-static byte burst_y[MAX_BURST];
-static byte burst_x[MAX_BURST];
+static QVector<coord> effect_bursts;
+
 /* Spell types of burst effects */
-static byte burst_gf[MAX_BURST];
-/* Count of burst effects */
-static int n_burst = 0;
+static QVector<byte> effect_burst_gf;
+
 
 
 /*
@@ -942,21 +943,14 @@ static bool effect_burst(const effect_type *x_ptr)
     if (CHECK_DISTURB(FALSE)) flg |= (PROJECT_HIDE);
 
     /* Leave graphics for later in empty grids */
-    else if ((op_ptr->delay_factor > 0) && !dungeon_info[y][x].has_effect() && player_has_los_bold(y, x) && panel_contains(y, x))
+    else if (player_has_los_bold(y, x) && panel_contains(y, x))
     {
         /* Don't display anything now */
         flg |= (PROJECT_HIDE);
 
-        /* Remember effect */
-        if (n_burst < MAX_BURST)
-        {
-            burst_y[n_burst] = y;
-            burst_x[n_burst] = x;
-            burst_gf[n_burst] = f_ptr->x_gf_type;
-
-            /* One more burst effect */
-            ++n_burst;
-        }
+        // It is important both of these vectors are added together.
+        effect_bursts.append(make_coords(y, x));
+        effect_burst_gf.append(f_ptr->x_gf_type);
     }
 
     /* Make a effect 1 square */
@@ -1262,34 +1256,25 @@ static void process_effect(int x_idx)
 static void show_burst_effects(void)
 {
     /* We need something to show */
-    if ((n_burst > 0) && op_ptr->delay_factor && player_can_observe())
+    if (effect_bursts.size() && player_can_observe())
     {
-        int i;
-
         /* Show the burst effects */
-        for (i = 0; i < n_burst; i++)
+        for (int i = 0; i < effect_bursts.size(); i++)
         {
+            //Paranoia
+            if (i >= effect_burst_gf.size()) break;
+
             /* Get coordinates */
-            int y = burst_y[i];
-            int x = burst_x[i];
+            int y = effect_bursts.at(i).y;
+            int x = effect_bursts.at(i).x;
 
-            ui_animate_ball(y, x, 1, burst_gf[i], 0L);
-        }
-
-        /* Clear the burst effects and restore old graphics */
-        for (i = 0; i < n_burst; i++)
-        {
-            /* Get coordinates */
-            int y = burst_y[i];
-            int x = burst_x[i];
-
-            /* Restore */
-            light_spot(y, x);
+            ui_animate_ball(y, x, 1, effect_burst_gf.at(i), 0L);
         }
     }
 
-    /* Reset the count of burst effects */
-    n_burst = 0;
+    /* Reset the vectors */
+    effect_bursts.clear();
+    effect_burst_gf.clear();
 }
 
 

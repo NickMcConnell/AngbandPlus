@@ -38,6 +38,7 @@ static struct command_desc list_commands_targeting[] =
     {"Select Previous Target", "'-'"},
     {"See Information on Current Square", "'!' or 'l'"},
     {"Use Direction Keys to Move To Next Possible Target In That General Direction", NULL},
+    {"Use the Mouse Wheel to Target the Next or Previous Target", NULL},
     {" ", NULL},
     {"<h3>Manual Targeting Mode</h3>", NULL},
     {"Select Next Target", "'+' or <space>"},
@@ -305,14 +306,14 @@ void KeyboardCommandList::add_keyboard_commands(QGridLayout *return_layout)
         // Null pointer means we are done
         if (!cmd_ptr->command_title.length()) break;
 
-        QLabel *this_title = new QLabel();
+        QPointer<QLabel> this_title = new QLabel();
         make_standard_label(this_title, QString(cmd_ptr->command_title), TERM_BLUE);
         return_layout->addWidget(this_title, row, col++, Qt::AlignLeft);
 
-        QLabel *dummy = new QLabel("  ");
+        QPointer<QLabel> dummy = new QLabel("  ");
         return_layout->addWidget(dummy, row, col++);
 
-        QLabel *this_key = new QLabel();
+        QPointer<QLabel> this_key = new QLabel();
         make_standard_label(this_key, QString(cmd_ptr->command_key), TERM_BLUE);
 
         // HTML throws off the display of this character
@@ -325,14 +326,14 @@ void KeyboardCommandList::add_keyboard_commands(QGridLayout *return_layout)
 
         if (col_count < 2)
         {
-            QLabel *dummy = new QLabel("    ");
+            QPointer<QLabel> dummy = new QLabel("    ");
             return_layout->addWidget(dummy, row, col);
         }
 
         row++;
     }
 
-    QLabel *dummy = new QLabel("   ");
+    QPointer<QLabel> dummy = new QLabel("   ");
     return_layout->addWidget(dummy, row, 0);
 }
 
@@ -392,25 +393,25 @@ void KeyboardCommandList::add_dir_commands(QGridLayout *return_layout)
         // Null pointer means we are done
         if (!cmd_ptr->command_title.length()) break;
 
-        QLabel *this_title = new QLabel();
+        QPointer<QLabel> this_title = new QLabel();
         make_standard_label(this_title, QString(cmd_ptr->command_title), TERM_BLUE);
         return_layout->addWidget(this_title, x, col++, Qt::AlignLeft);
 
-        QLabel *dummy = new QLabel("   ");
+        QPointer<QLabel> dummy = new QLabel("   ");
         return_layout->addWidget(dummy, x, col++);
 
-        QLabel *this_key = new QLabel();
+        QPointer<QLabel> this_key = new QLabel();
         make_standard_label(this_key, QString(cmd_ptr->command_key), TERM_BLUE);
         return_layout->addWidget(this_key, x++, col++, Qt::AlignLeft);
     }
 
-    QLabel *dummy = new QLabel("   ");
+    QPointer<QLabel> dummy = new QLabel("   ");
     return_layout->addWidget(dummy, x, 0);
 }
 
 void KeyboardCommandList::add_dir_keyboard(QVBoxLayout *return_layout, bool keyboard)
 {
-    QLabel *top_label = new QLabel;
+    QPointer<QLabel> top_label = new QLabel;
 
     QString this_title  = "Keypad Dirs";
     if (keyboard) this_title = "Keyboard Dirs";
@@ -424,7 +425,7 @@ void KeyboardCommandList::add_dir_keyboard(QVBoxLayout *return_layout, bool keyb
         else letters = "tyughjvbn";
     }
 
-    QGridLayout *dir_keyboard = new QGridLayout;
+    QPointer<QGridLayout> dir_keyboard = new QGridLayout;
     return_layout->addLayout(dir_keyboard);
 
     int which_char = 0;
@@ -433,7 +434,7 @@ void KeyboardCommandList::add_dir_keyboard(QVBoxLayout *return_layout, bool keyb
     {
         for (int j = 0; j < 3; j++)
         {
-            QLabel *this_label = new QLabel();
+            QPointer<QLabel> this_label = new QLabel();
             make_standard_label(this_label, QString(letters[which_char++]), TERM_BLUE);
             dir_keyboard->addWidget(this_label, j, i, Qt::AlignCenter);
         }
@@ -447,44 +448,44 @@ void KeyboardCommandList::add_dir_keyboard(QVBoxLayout *return_layout, bool keyb
 KeyboardCommandList::KeyboardCommandList(void): NPPDialog()
 {
     central = new QWidget;
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
     central->setLayout(main_layout);
     main_layout->setSpacing(10);
     // IMPORTANT: it must be called AFTER setting the layout
     this->setClient(central);
 
-    QLabel *main_prompt = new QLabel(QString("<h2>Directional Commands</h2>"));
+    QPointer<QLabel> main_prompt = new QLabel(QString("<h2>Directional Commands</h2>"));
     main_layout->addWidget(main_prompt, Qt::AlignCenter);
 
-    QHBoxLayout *top_across = new QHBoxLayout;
+    QPointer<QHBoxLayout> top_across = new QHBoxLayout;
     main_layout->addLayout(top_across);
 
-    QVBoxLayout *vlay_key_dirs = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_key_dirs = new QVBoxLayout;
     add_dir_keyboard(vlay_key_dirs, TRUE);
     top_across->addLayout(vlay_key_dirs);
 
     if (which_keyset != KEYSET_ROGUE)
     {
         top_across->addStretch(1);
-        QVBoxLayout *vlay_pad_dirs = new QVBoxLayout;
+        QPointer<QVBoxLayout> vlay_pad_dirs = new QVBoxLayout;
         add_dir_keyboard(vlay_pad_dirs, FALSE);
         top_across->addLayout(vlay_pad_dirs);
     }
 
     top_across->addStretch(1);
 
-    QVBoxLayout *vlay_dir_commands = new QVBoxLayout;
-    QGridLayout *glay_dir_commands = new QGridLayout;
+    QPointer<QVBoxLayout> vlay_dir_commands = new QVBoxLayout;
+    QPointer<QGridLayout> glay_dir_commands = new QGridLayout;
     vlay_dir_commands->addLayout(glay_dir_commands);
     add_dir_commands(glay_dir_commands);
     vlay_dir_commands->addStretch(1);
     top_across->addLayout(vlay_dir_commands);
     top_across->addStretch(1);
 
-    QLabel *keyboard_prompt = new QLabel(QString("<h2>Keyboard Commands</h2>"));
+    QPointer<QLabel> keyboard_prompt = new QLabel(QString("<h2>Keyboard Commands</h2>"));
     main_layout->addWidget(keyboard_prompt, Qt::AlignCenter);
 
-    QGridLayout *glay_key_commands = new QGridLayout;
+    QPointer<QGridLayout> glay_key_commands = new QGridLayout;
     add_keyboard_commands(glay_key_commands);
     main_layout->addLayout(glay_key_commands);
 
@@ -493,7 +494,6 @@ KeyboardCommandList::KeyboardCommandList(void): NPPDialog()
     connect(&buttons, SIGNAL(accepted()), this, SLOT(close()));
     main_layout->addWidget(&buttons);
 
-    setLayout(main_layout);
     setWindowTitle(tr("Command List"));
 
     this->clientSizeUpdated();
@@ -503,16 +503,30 @@ KeyboardCommandList::KeyboardCommandList(void): NPPDialog()
 
 static struct command_desc list_commands_mouse[] =
 {
-    {"<h3>Single Clicks</h3>", NULL},
+    {"<h3>Single Clicks on dungeon square (other than player square)</h3>", NULL},
     {"Left Click on a known dungeon square to run to that spot.", NULL},
-    {"Middle Click on any unknown dungeon square to walk one square in that direction.", NULL},
+    {"Middle Click on any dungeon square to walk one square in that direction.", NULL},
     {"Right Click on a dungeon square to learn about the contents of that square", NULL},
+    {"Click Extra Button 1 - TBD", NULL},
+    {"Click Extra Button 2 - TBD", NULL},
+    {" ", NULL},
+    {"<h3>Single Clicks on player</h3>", NULL},
+    {"Use Magic (Cast, Pray, Chant)", NULL},
+    {"Use an Item", NULL},
+    {"Fire Ammunition", NULL},
     {"Click Extra Button 1 to bring up the object handling dialog", NULL},
     {"Click Extra Button 2 to bring up the character screen dialog", NULL},
     {" ", NULL},
     {"<h3>Double Clicks</h3>", NULL},
-    {"TBD", NULL},
-
+    {"Left Double-Click on any dungeon square to run in that direction.", NULL},
+    {"Middle Double-Click on any dungeon square to alter the square in that direction.", NULL},
+    {"Right Double-Click to target that square.", NULL},
+    {"Double-Click Extra Button 1 - TBD", NULL},
+    {"Double-Click Extra Button 2 - TBD", NULL},
+    {" ", NULL},
+    {"<h3>Mouse Wheel</h3>", NULL},
+    {"Increase or decrease the tile multiplier", NULL},
+    {"Use the mouse wheel over the scrollbars to look around the dungeon.", NULL},
     // The null entry at the end is essential for initializing the table of groups.
     {NULL, NULL},
 };
@@ -529,27 +543,27 @@ void MouseCommandList::add_mouse_commands(QVBoxLayout *return_layout)
         // Null pointer means we are done
         if (!cmd_ptr->command_title.length()) break;
 
-        QLabel *this_title = new QLabel();
+        QPointer<QLabel> this_title = new QLabel();
         make_standard_label(this_title, QString(cmd_ptr->command_title), TERM_BLUE);
         return_layout->addWidget(this_title, Qt::AlignLeft);
     }
 
-    QLabel *dummy = new QLabel("   ");
+    QPointer<QLabel> dummy = new QLabel("   ");
     return_layout->addWidget(dummy, x, 0);
 }
 
 MouseCommandList::MouseCommandList(void): NPPDialog()
 {
     central = new QWidget;
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
     central->setLayout(main_layout);
     main_layout->setSpacing(10);
     this->setClient(central);  // IMPORTANT: it must be called AFTER setting the layout
 
-    QLabel *mouse_prompt = new QLabel(QString("<h2>Mouse Commands</h2>"));
+    QPointer<QLabel> mouse_prompt = new QLabel(QString("<h2>Mouse Commands</h2>"));
     main_layout->addWidget(mouse_prompt, Qt::AlignCenter);
 
-    QVBoxLayout *vlay_mouse_commands = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_mouse_commands = new QVBoxLayout;
     add_mouse_commands(vlay_mouse_commands);
     main_layout->addLayout(vlay_mouse_commands);
 
@@ -560,7 +574,6 @@ MouseCommandList::MouseCommandList(void): NPPDialog()
 
     main_layout->addStretch(1);
 
-    setLayout(main_layout);
     setWindowTitle(tr("Mouse Command List"));
 
     this->clientSizeUpdated();
@@ -570,7 +583,7 @@ MouseCommandList::MouseCommandList(void): NPPDialog()
 
 void TargetCommandList::add_dir_targeting(QVBoxLayout *return_layout, bool keyboard)
 {
-    QLabel *top_label = new QLabel;
+    QPointer<QLabel> top_label = new QLabel;
 
     QString this_title  = "Keypad Dirs";
     if (keyboard) this_title = "Keyboard Dirs";
@@ -580,7 +593,7 @@ void TargetCommandList::add_dir_targeting(QVBoxLayout *return_layout, bool keybo
     QString letters = "7894 6123";
     if (keyboard) letters = "tyug jvbn";
 
-    QGridLayout *dir_keyboard = new QGridLayout;
+    QPointer<QGridLayout> dir_keyboard = new QGridLayout;
     return_layout->addLayout(dir_keyboard);
 
     int which_char = 0;
@@ -589,7 +602,7 @@ void TargetCommandList::add_dir_targeting(QVBoxLayout *return_layout, bool keybo
     {
         for (int j = 0; j < 3; j++)
         {
-            QLabel *this_label = new QLabel();
+            QPointer<QLabel> this_label = new QLabel();
             make_standard_label(this_label, QString(letters[which_char++]), TERM_BLUE);
             dir_keyboard->addWidget(this_label, j, i, Qt::AlignCenter);
         }
@@ -612,16 +625,16 @@ void TargetCommandList::add_targeting_commands(QGridLayout *return_layout)
         // Null pointer means we are done
         if (!cmd_ptr->command_title.length()) break;
 
-        QLabel *this_title = new QLabel();
+        QPointer<QLabel> this_title = new QLabel();
         make_standard_label(this_title, QString(cmd_ptr->command_title), TERM_BLUE);
         return_layout->addWidget(this_title, x, col++, Qt::AlignLeft);
 
         if (!cmd_ptr->command_key.length()) continue;
 
-        QLabel *dummy = new QLabel("   ");
+        QPointer<QLabel> dummy = new QLabel("   ");
         return_layout->addWidget(dummy, x, col++);
 
-        QLabel *this_key = new QLabel();
+        QPointer<QLabel> this_key = new QLabel();
         make_standard_label(this_key, QString(cmd_ptr->command_key), TERM_BLUE);
         return_layout->addWidget(this_key, x, col++, Qt::AlignLeft);
     }
@@ -630,29 +643,29 @@ void TargetCommandList::add_targeting_commands(QGridLayout *return_layout)
 TargetCommandList::TargetCommandList(void): NPPDialog()
 {
     central = new QWidget;
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
     central->setLayout(main_layout);
     main_layout->setSpacing(10);
     this->setClient(central);  // IMPORTANT: it must be called AFTER setting the layout
 
-    QLabel *targeting_prompt = new QLabel(color_string(QString("<h2>Targeting Commands</h2>"), TERM_BLUE));
+    QPointer<QLabel> targeting_prompt = new QLabel(color_string(QString("<h2>Targeting Commands</h2>"), TERM_BLUE));
     main_layout->addWidget(targeting_prompt, Qt::AlignCenter);
 
-    QHBoxLayout *top_across = new QHBoxLayout;
+    QPointer<QHBoxLayout> top_across = new QHBoxLayout;
     main_layout->addLayout(top_across);
 
-    QVBoxLayout *vlay_key_dirs = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_key_dirs = new QVBoxLayout;
     add_dir_targeting(vlay_key_dirs, TRUE);
     top_across->addLayout(vlay_key_dirs);
 
     top_across->addStretch(1);
-    QVBoxLayout *vlay_pad_dirs = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_pad_dirs = new QVBoxLayout;
     add_dir_targeting(vlay_pad_dirs, FALSE);
     top_across->addLayout(vlay_pad_dirs);
 
     top_across->addStretch(1);
 
-    QGridLayout *glay_target_commands = new QGridLayout;
+    QPointer<QGridLayout> glay_target_commands = new QGridLayout;
     add_targeting_commands(glay_target_commands);
     main_layout->addLayout(glay_target_commands);
 
@@ -812,7 +825,7 @@ void commands_new_keyset(int key_press, bool shift_key, bool alt_key, bool ctrl_
         }
         case Qt::Key_E:
         {
-            if (alt_key)           ui_redraw_all();
+            if (alt_key)            ui_redraw_all();
             else if (shift_key)     do_cmd_all_objects(TAB_EQUIP);
             else if (!using_mods)   do_cmd_use_item();
             break;

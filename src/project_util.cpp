@@ -572,17 +572,8 @@ bool beam_burst(int y, int x, int typ, int num, int dam)
 
     bool notice = FALSE;
 
-    int old_delay = op_ptr->delay_factor;
-
     /* Require legal centerpoint */
     if (!in_bounds_fully(y, x)) return (FALSE);
-
-
-    /* Hack -- lower delay factor */
-    if (op_ptr->delay_factor)
-    {
-        op_ptr->delay_factor = (op_ptr->delay_factor + 1) / 2;
-    }
 
     /* Fire beams in all directions */
     for (i = 0; i < num; i++)
@@ -595,9 +586,6 @@ bool beam_burst(int y, int x, int typ, int num, int dam)
         if (project(-1, 0, y, x, yy, xx, dam, typ,
             PROJECT_BEAM | PROJECT_KILL | PROJECT_EFCT, 0, 0)) notice = TRUE;
     }
-
-    /* Restore standard delay */
-    op_ptr->delay_factor = old_delay;
 
     /* Return "anything noticed" */
     return (notice);

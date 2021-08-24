@@ -308,7 +308,7 @@ QPixmap ui_get_tile(QString tile_id, bool allow_double_height)
 
 void ui_animate_ball(int y, int x, int radius, int type, u32b flg)
 {
-    BallAnimation *ball = new BallAnimation(QPointF(x, y), radius, type, flg);
+    QPointer<BallAnimation> ball = new BallAnimation(QPointF(x, y), radius, type, flg);
     main_window->dungeon_scene->addItem(ball);
     main_window->wait_animation();
     ball->start();
@@ -317,7 +317,7 @@ void ui_animate_ball(int y, int x, int radius, int type, u32b flg)
 
 void ui_animate_arc(int y0, int x0, int y1, int x1, int type, int radius, int degrees, u32b flg)
 {
-    ArcAnimation *arc = new ArcAnimation(QPointF(x0, y0), QPointF(x1, y1), degrees, type, radius, flg);
+    QPointer<ArcAnimation> arc = new ArcAnimation(QPointF(x0, y0), QPointF(x1, y1), degrees, type, radius, flg);
     main_window->dungeon_scene->addItem(arc);
     main_window->wait_animation();
     arc->start();
@@ -326,7 +326,7 @@ void ui_animate_arc(int y0, int x0, int y1, int x1, int type, int radius, int de
 
 void ui_animate_beam(int y0, int x0, int y1, int x1, int type)
 {
-    BeamAnimation *beam = new BeamAnimation(QPointF(x0, y0), QPointF(x1, y1), type);
+    QPointer<BeamAnimation> beam = new BeamAnimation(QPointF(x0, y0), QPointF(x1, y1), type);
     main_window->dungeon_scene->addItem(beam);
     main_window->wait_animation();
     beam->start();
@@ -335,7 +335,7 @@ void ui_animate_beam(int y0, int x0, int y1, int x1, int type)
 
 void ui_animate_bolt(int y0, int x0, int y1, int x1, int type, u32b flg)
 {
-    BoltAnimation *bolt = new BoltAnimation(QPointF(x0, y0), QPointF(x1, y1), type, flg);
+    QPointer<BoltAnimation> bolt = new BoltAnimation(QPointF(x0, y0), QPointF(x1, y1), type, flg);
     main_window->dungeon_scene->addItem(bolt);
     main_window->wait_animation();
     bolt->start();
@@ -344,7 +344,7 @@ void ui_animate_bolt(int y0, int x0, int y1, int x1, int type, u32b flg)
 
 void ui_animate_throw(int y0, int x0, int y1, int x1, object_type *o_ptr)
 {
-    BoltAnimation *bolt = new BoltAnimation(QPointF(x0, y0), QPointF(x1, y1), 0, 0, o_ptr);
+    QPointer<BoltAnimation> bolt = new BoltAnimation(QPointF(x0, y0), QPointF(x1, y1), 0, 0, o_ptr);
     main_window->dungeon_scene->addItem(bolt);
     main_window->wait_animation();
     bolt->start();
@@ -353,7 +353,7 @@ void ui_animate_throw(int y0, int x0, int y1, int x1, object_type *o_ptr)
 
 void ui_animate_star(int y, int x, int radius, int type, int gy[], int gx[], int grids)
 {
-    StarAnimation *star = new StarAnimation(QPointF(x, y), radius, type, gy, gx, grids);
+    QPointer<StarAnimation> star = new StarAnimation(QPointF(x, y), radius, type, gy, gx, grids);
     main_window->dungeon_scene->addItem(star);
     main_window->wait_animation();
     star->start();
@@ -372,11 +372,11 @@ void ui_animate_accomplishment(int y, int x, int gf_type)
 {
     u32b flg = PROJECT_PASS;
 
-    BallAnimation *b1 = new BallAnimation(QPointF(x, y), 3, gf_type, flg);
+    QPointer<BallAnimation> b1 = new BallAnimation(QPointF(x, y), 3, gf_type, flg);
     main_window->dungeon_scene->addItem(b1);
     b1->setZValue(1000);
 
-    HaloAnimation *h1 = new HaloAnimation(y, x);
+    QPointer<HaloAnimation> h1 = new HaloAnimation(y, x);
     main_window->dungeon_scene->addItem(h1);
     h1->setZValue(900);
     main_window->wait_animation(2);
@@ -417,6 +417,7 @@ void ui_update_sidebar_player()
 void ui_update_sidebar_mon()
 {
     if (!p_ptr->player_turn) return;
+    if (character_xtra) return;
     main_window->update_sidebar_mon();
     p_ptr->redraw &= ~(PR_SIDEBAR_MON);
 }
@@ -449,6 +450,7 @@ void ui_update_monlist()
     if (!p_ptr->player_turn) return;
     if (p_ptr->is_running()) return;
     if (p_ptr->is_resting()) return;
+    if (character_xtra) return;
     main_window->win_mon_list_update();
     p_ptr->redraw &= ~(PR_WIN_MONLIST);
 }
@@ -458,21 +460,32 @@ void ui_update_objlist()
     if (!p_ptr->player_turn) return;
     if (p_ptr->is_running()) return;
     if (p_ptr->is_resting()) return;
+    if (character_xtra) return;
     main_window->win_obj_list_update();
     p_ptr->redraw &= ~(PR_WIN_OBJLIST);
 }
 
+// If something has changed, update the monster recall window
 void ui_update_mon_recall()
 {
     if (p_ptr->is_running()) return;
     if (p_ptr->is_resting()) return;
-    main_window->win_mon_recall_update();
+    if (character_xtra) return;
     p_ptr->redraw &= ~(PR_WIN_MON_RECALL);
+
+    p_ptr->monster_race_idx_old = p_ptr->monster_race_idx;
+    if (p_ptr->monster_race_idx)
+    {
+        p_ptr->mon_race_idx_lore.monster_lore_copy(&l_list[p_ptr->monster_race_idx]);
+    }
+    else p_ptr->mon_race_idx_lore.monster_lore_wipe();
+    main_window->win_mon_recall_update();
 }
 
 void ui_update_obj_recall()
 {
     if (p_ptr->is_running()) return;
+    if (character_xtra) return;
     main_window->win_obj_recall_update();
     p_ptr->redraw &= ~(PR_WIN_OBJ_RECALL);
 }
@@ -481,6 +494,7 @@ void ui_update_feat_recall()
 {
     if (p_ptr->is_running()) return;
     if (p_ptr->is_resting()) return;
+    if (character_xtra) return;
     main_window->win_feat_recall_update();
     p_ptr->redraw &= ~(PR_WIN_FEAT_RECALL);
 }
@@ -648,6 +662,10 @@ bool ui_using_monster_tiles()
     return (ui_using_tiles());
 }
 
+void ui_handle_grid_wheelevent(bool wheelscroll_increase)
+{
+    main_window->handle_grid_wheelevent(wheelscroll_increase);
+}
 
 void ui_redraw_grid(int y, int x)
 {
@@ -662,8 +680,9 @@ void ui_redraw_grid(int y, int x)
 void ui_redraw_all()
 {
     p_ptr->redraw &= ~(PR_MAP | PR_DRAW);
-    main_window->redraw_all();
     redraw_coords.clear();
+    main_window->redraw_all();
+
 }
 
 void player_death_close_game(void)
@@ -678,7 +697,6 @@ void ui_animate_detection(int y, int x, int rad)
     main_window->dungeon_scene->addItem(anim);
     main_window->wait_animation();
     anim->start();
-
 }
 
 void ui_show_cursor(int y, int x)
@@ -721,4 +739,9 @@ void ui_update_message_label(QString message)
 void ui_clear_message_label()
 {
     main_window->clear_message_label();
+}
+
+void ui_update_hotkey_toolbar()
+{
+    main_window->update_hotkey_toolbar();
 }

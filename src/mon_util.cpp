@@ -9,6 +9,7 @@
  */
 
 #include "src/npp.h"
+#include <QtCore/qmath.h>
 
 
 
@@ -156,7 +157,7 @@ void delete_monster_idx(int i)
     r_ptr->cur_num--;
 
     /* Hack -- remove target monster */
-    if (p_ptr->target_who == i) target_set_monster(0);
+    if (p_ptr->target_who == i) target_set_monster(0, FALSE);
 
     /* Hack -- remove tracked monster */
     if (p_ptr->health_who == i) health_track(0);
@@ -452,7 +453,7 @@ void wipe_mon_list(void)
     mon_cnt = 0;
 
     /* Hack -- no more target */
-    target_set_monster(0);
+    target_set_monster(0, FALSE);
 
     /* Hack -- no more tracking */
     health_track(0);
@@ -1183,12 +1184,7 @@ void lore_do_probe_monster(int m_idx)
     /*increase the information*/
     lore_probe_monster_aux(m_ptr->r_idx);
 
-    /* Update monster recall window */
-    if (p_ptr->monster_race_idx == m_ptr->r_idx)
-    {
-        /* Window stuff */
-        p_ptr->redraw |= (PR_WIN_MON_RECALL);
-    }
+    monster_race_track(m_ptr->r_idx);
 }
 
 
@@ -1283,27 +1279,18 @@ void update_mon(int m_idx, bool full)
     /* Compute distance and projection status */
     if (full)
     {
-        /* Distance components */
-        int dy = (py > fy) ? (py - fy) : (fy - py);
-        int dx = (px > fx) ? (px - fx) : (fx - px);
-
-        /* Approximate distance */
-        d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+        // Pythagorean's theorum
+        qreal distance = qSqrt(qPow((py - fy), 2) + qPow((px - fx), 2));
 
         /* Restrict distance */
-        if (d > 255) d = 255;
+        if (distance > 255) distance = 255;
 
         /* Save the distance */
-        m_ptr->cdis = d;
-
+        m_ptr->cdis = (byte)distance;
     }
 
     /* Extract distance */
-    else
-    {
-        /* Extract the distance */
-        d = m_ptr->cdis;
-    }
+    d = m_ptr->cdis;
 
     /* Detected */
     if (m_ptr->mflag & (MFLAG_MARK)) is_visible = TRUE;

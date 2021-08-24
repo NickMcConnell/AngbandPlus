@@ -2126,19 +2126,9 @@ bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear, bool must_use_t
      */
     if (r_ptr->flags1 & (RF1_NEVER_MOVE))
     {
-        /* Hack -- memorize lack of moves after a while. */
-        if (!(l_ptr->r_l_flags1 & (RF1_NEVER_MOVE)))
-        {
-            if ((m_ptr->ml) && (one_in_(20)))
-            {
-                l_ptr->r_l_flags1 |= (RF1_NEVER_MOVE);
-            }
-        }
-
         /* Is character in range? */
         if (m_ptr->cdis <= 1)
         {
-
             /* Monster can't melee either (pathetic little creature) */
             if (r_ptr->flags1 & (RF1_NEVER_BLOW))
             {

@@ -132,6 +132,7 @@ class object_type
     void mark_aware();
     void mark_tried();
     bool is_known();
+    bool is_known_fully();
     bool is_aware();
     bool is_tried();
     void has_been_seen();

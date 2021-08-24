@@ -11,6 +11,7 @@
 #include <QHash>
 #include <QTimer>
 #include <QEventLoop>
+#include <QPointer>
 
 class NPPAnimation: public QObject
 {
@@ -18,8 +19,8 @@ class NPPAnimation: public QObject
 public:
     NPPAnimation();
 
-    QPropertyAnimation *anim;
-    NPPAnimation *next;
+    QPointer<QPropertyAnimation> anim;
+    QPointer<NPPAnimation> next;
     QEventLoop this_loop;
 
     virtual ~NPPAnimation();

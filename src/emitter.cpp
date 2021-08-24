@@ -8,8 +8,12 @@
 #include <QHash>
 #include "tilebag.h"
 
-qreal delay = 1.4; // delay per pixel
+qreal delay = 1.6; // delay per pixel
 
+static int animation_time_adjust(int time_interval)
+{
+    return (time_interval * op_ptr->delay_anim_factor / 100);
+}
 
 static QPixmap colorize_pix2(QPixmap src, QColor color)
 {
@@ -120,9 +124,9 @@ BeamAnimation::BeamAnimation(QPointF from, QPointF to, int new_gf_type)
 
     anim = new QPropertyAnimation(this, "length");
     qreal l = QLineF(p1, p2).length();
-    int dur = l * delay;
+    int dur = l * delay * .9;
     if (dur < 250) dur = 250;
-    anim->setDuration(dur);
+    anim->setDuration(animation_time_adjust(dur));
     anim->setStartValue(0);
     anim->setEndValue(50);
     connect(anim, SIGNAL(finished()), this, SLOT(deleteLater()));
@@ -381,10 +385,10 @@ BoltAnimation::BoltAnimation(QPointF from, QPointF to, int new_gf_type, u32b new
     anim = new QPropertyAnimation(this, "pos");   
 
     int d = QLineF(from, to).length();
-    int dur = d * 0.8;
+    int dur = d * delay / 2;
     if (dur < 120) dur = 120;  // minimum
 
-    anim->setDuration(dur);    
+    anim->setDuration(animation_time_adjust(dur));
 
     QPointF adj = QPointF(pix.width() / 2, pix.height() / 2);
     anim->setStartValue(from - adj);
@@ -465,7 +469,7 @@ BallAnimation::BallAnimation(QPointF where, int newRadius, int newGFType, u32b f
     position = center - pos();
 
     anim = new QPropertyAnimation(this, "length");
-    anim->setDuration(500);
+    anim->setDuration(animation_time_adjust(500));
     anim->setStartValue(0);
     maxLength = ((newRadius * 2 + 1) * main_window->main_cell_hgt) * 0.5;
     anim->setEndValue(maxLength);
@@ -623,7 +627,7 @@ ArcAnimation::ArcAnimation(QPointF from, QPointF to, int newDegrees, int type, i
     setZValue(300);
     setVisible(false);
 
-    timer.setInterval(delay * 20);
+    timer.setInterval(animation_time_adjust(delay * 15));
     connect(&timer, SIGNAL(timeout()), this, SLOT(do_timeout()));
 }
 
@@ -781,7 +785,7 @@ StarAnimation::StarAnimation(QPointF newCenter, int radius, int newGFType, int g
 
     maxLength = main_window->main_cell_hgt * (radius + 0.5);
 
-    timer.setInterval(40);
+    timer.setInterval(animation_time_adjust(40));
     connect(&timer, SIGNAL(timeout()), this, SLOT(do_timeout()));    
 }
 
@@ -846,7 +850,8 @@ void StarAnimation::do_timeout()
 
     this->setVisible(true);
 
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 15; i++)
+    {
         BallParticle *p = new BallParticle;
         p->currentLength = 0;
         p->type = 0;
@@ -854,12 +859,15 @@ void StarAnimation::do_timeout()
         particles.append(p);
     }
 
-    for (int i = 0; i < particles.size(); i++) {
+    for (int i = 0; i < particles.size(); i++)
+    {
         BallParticle *p = particles.at(i);
-        if (p->currentLength > 0) {
+        if (p->currentLength > 0)
+        {
             p->currentLength += 10;
         }
-        else {
+        else
+        {
             p->currentLength = 4 + rand_int(8);
         }
     }
@@ -884,7 +892,7 @@ HaloAnimation::HaloAnimation(int y, int x)
     c_y = adj.y();
     c_x = adj.x();
 
-    timer.setInterval(70);
+    timer.setInterval(animation_time_adjust(70));
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(do_timeout()));    
 
@@ -965,7 +973,7 @@ DetectionAnimation::DetectionAnimation(int y, int x, int rad)
     c_y = adj.y();
     c_x = adj.x();
 
-    timer.setInterval(60);
+    timer.setInterval(animation_time_adjust(60));
 
     steps = 0;
 

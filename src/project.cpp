@@ -1196,7 +1196,7 @@ void take_hit(int dam, QString kb_str)
 
     int old_chp = p_ptr->chp;
 
-    int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
+    int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 100);
 
     /* Paranoia */
     if (p_ptr->is_dead) return;
@@ -5063,9 +5063,6 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
     /* Get the actual monster name */
     m_name = monster_desc(m_ptr, 0);
 
-    // Update the monster race window if needed.
-    if (p_ptr->monster_race_idx == m_ptr->r_idx) p_ptr->redraw |= (PR_WIN_MON_RECALL);
-
     /* Check for death */
     if (damage > m_ptr->hp)
     {
@@ -5406,13 +5403,6 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 
     /* Redraw the monster grid */
     light_spot(y, x);
-
-    /* Update monster recall window */
-    if (p_ptr->monster_race_idx == m_ptr->r_idx)
-    {
-        /* Window stuff */
-        p_ptr->redraw |= (PR_WIN_MON_RECALL);
-    }
 
     /* Track it */
     project_m_n++;
@@ -7251,7 +7241,8 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
         else if (flg & PROJECT_STAR) {
             ui_animate_star(y0, x0, rad, typ, gy, gx, grids);
         }
-        else if (flg & PROJECT_BOOM) {
+        else if (flg & PROJECT_BOOM)
+        {
             ui_animate_ball(y2, x2, rad, typ, flg);
         }
     }

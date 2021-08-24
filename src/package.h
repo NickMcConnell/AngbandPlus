@@ -3,6 +3,7 @@
 
 #include <QtCore>
 #include <QList>
+#include <QPointer>
 
 class PackageItem
 {
@@ -14,7 +15,7 @@ public:
 class Package
 {
 public:
-    QFile *fp;
+    QPointer<QFile> fp;
     QString path;
     qint64 data_pos;
     QList<PackageItem> items;

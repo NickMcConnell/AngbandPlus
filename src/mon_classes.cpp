@@ -39,14 +39,6 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
     if (r_ptr->flags1 & (RF1_DROP_CHEST)) l_ptr->r_l_flags1 |= (RF1_DROP_CHEST);
     if (r_ptr->flags1 & (RF1_DROP_GOOD)) l_ptr->r_l_flags1 |= (RF1_DROP_GOOD);
     if (r_ptr->flags1 & (RF1_DROP_GREAT)) l_ptr->r_l_flags1 |= (RF1_DROP_GREAT);
-
-
-    /* Update monster recall window */
-    if (p_ptr->monster_race_idx == m_ptr->r_idx)
-    {
-        /* Window stuff */
-        p_ptr->redraw |= (PR_WIN_MON_RECALL);
-    }
 }
 
 
@@ -123,7 +115,59 @@ void monster_lore::monster_lore_wipe()
     r_l_flags5 = r_l_flags6 = r_l_flags7 = r_l_native = 0;
 }
 
+void monster_lore::monster_lore_copy(monster_lore *ml_ptr)
+{
+    sights = ml_ptr->sights;
+    deaths = ml_ptr->deaths;
+    pkills = ml_ptr->pkills;
+    tkills = ml_ptr->tkills;
+    wake   = ml_ptr->wake;
+    ignore = ml_ptr->ignore;
+    xtra1  = ml_ptr->xtra1;
+    xtra2 =  ml_ptr->xtra2;
+    drop_gold = ml_ptr->drop_item;
+    ranged = ml_ptr->ranged;
+    for (int i = 0; i < MONSTER_BLOW_MAX; i++)
+    {
+        blows[i] = ml_ptr->blows[i];
+    }
+    r_l_flags1 = ml_ptr->r_l_flags1;
+    r_l_flags2 = ml_ptr->r_l_flags2;
+    r_l_flags3 = ml_ptr->r_l_flags3;
+    r_l_flags4 = ml_ptr->r_l_flags4;
+    r_l_flags5 = ml_ptr->r_l_flags5;
+    r_l_flags6 = ml_ptr->r_l_flags6;
+    r_l_flags7 = ml_ptr->r_l_flags7;
+    r_l_native = ml_ptr->r_l_native;
+}
 
+bool monster_lore::monster_lore_compare(monster_lore *ml_ptr)
+{
+    if (sights != ml_ptr->sights) return (FALSE);
+    if (deaths != ml_ptr->deaths) return (FALSE);
+    if (pkills != ml_ptr->pkills) return (FALSE);
+    if (tkills != ml_ptr->tkills) return (FALSE);
+    if (wake   != ml_ptr->wake) return (FALSE);
+    if (ignore != ml_ptr->ignore) return (FALSE);
+    if (xtra1  != ml_ptr->xtra1) return (FALSE);
+    if (xtra2 !=  ml_ptr->xtra2) return (FALSE);
+    if (drop_gold != ml_ptr->drop_item) return (FALSE);
+    if (ranged != ml_ptr->ranged) return (FALSE);
+    for (int i = 0; i < MONSTER_BLOW_MAX; i++)
+    {
+        if (blows[i] != ml_ptr->blows[i]) return (FALSE);
+    }
+    if (r_l_flags1 != ml_ptr->r_l_flags1) return (FALSE);
+    if (r_l_flags2 != ml_ptr->r_l_flags2) return (FALSE);
+    if (r_l_flags3 != ml_ptr->r_l_flags3) return (FALSE);
+    if (r_l_flags4 != ml_ptr->r_l_flags4) return (FALSE);
+    if (r_l_flags5 != ml_ptr->r_l_flags5) return (FALSE);
+    if (r_l_flags6 != ml_ptr->r_l_flags6) return (FALSE);
+    if (r_l_flags7 != ml_ptr->r_l_flags7) return (FALSE);
+    if (r_l_native != ml_ptr->r_l_native) return (FALSE);
+    // Exact match
+    return (TRUE);
+}
 
 monster_race::monster_race()
 {

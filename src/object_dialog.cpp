@@ -177,7 +177,7 @@ bool should_add_throw(object_type *o_ptr, s16b item_slot)
 void add_settings(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_SETTINGS) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/settings.png"));
     new_button->setObjectName(id);
     new_button->setToolTip("Object Settings");
@@ -187,7 +187,7 @@ void add_settings(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_examine(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_EXAMINE) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/look.png"));
     new_button->setObjectName(id);
     new_button->setToolTip("Examine");
@@ -197,7 +197,7 @@ void add_examine(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_takeoff(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_TAKEOFF) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/takeoff.png"));
     new_button->setObjectName(id);
     new_button->setToolTip("Take Off");
@@ -208,7 +208,7 @@ void add_takeoff(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_wield(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_WIELD) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/wield.png"));
     new_button->setToolTip("Wield");
     new_button->setObjectName(id);
@@ -220,7 +220,7 @@ void add_use(QGridLayout *lay, s16b item_slot, int row, int col)
     object_type *o_ptr = object_from_item_idx(item_slot);
 
     QString id = (QString("%1_%2") .arg(CMD_ITEM_USE) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     if (o_ptr->tval == TV_SCROLL)
     {
         new_button->setIcon(QIcon(":/icons/lib/icons/scroll.png"));
@@ -274,7 +274,7 @@ void add_use(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_swap(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_SWAP) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/swap.png"));
     new_button->setToolTip("Swap");
     new_button->setObjectName(id);
@@ -284,7 +284,7 @@ void add_swap(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_refill(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_REFUEL) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/refill.png"));
     new_button->setToolTip("Refill");
     new_button->setObjectName(id);
@@ -294,7 +294,7 @@ void add_refill(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_fire(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_FIRE) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/fire.png"));
     new_button->setToolTip("Fire");
     new_button->setObjectName(id);
@@ -304,7 +304,7 @@ void add_fire(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_fire_near(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_FIRE_NEAR) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/fire_near.png"));
     new_button->setToolTip("Fire At Closest Target");
     new_button->setObjectName(id);
@@ -314,7 +314,7 @@ void add_fire_near(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_drop(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_DROP) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/drop.png"));
     new_button->setToolTip("Drop");
     new_button->setObjectName(id);
@@ -324,7 +324,7 @@ void add_drop(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_pickup(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_PICKUP) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/pickup.png"));
     new_button->setToolTip("Pick Up");
     new_button->setObjectName(id);
@@ -334,7 +334,7 @@ void add_pickup(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_browse(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_BROWSE) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/browse.png"));
     new_button->setToolTip("Browse");
     new_button->setObjectName(id);
@@ -344,7 +344,7 @@ void add_browse(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_study(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_STUDY) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/study.png"));
     new_button->setToolTip("Study");
     new_button->setObjectName(id);
@@ -354,7 +354,7 @@ void add_study(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_cast(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_CAST) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/cast.png"));
     QString noun = cast_spell(MODE_SPELL_NOUN, cp_ptr->spell_book, 1, 0);
     QString verb = cast_spell(MODE_SPELL_VERB, cp_ptr->spell_book, 1, 0);
@@ -366,7 +366,7 @@ void add_cast(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_destroy(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_DESTROY) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/destroy.png"));
     new_button->setToolTip("Destroy");
     new_button->setObjectName(id);
@@ -376,7 +376,7 @@ void add_destroy(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_inscribe(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_INSCRIBE) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/inscribe.png"));
     new_button->setToolTip("Inscribe");
     new_button->setObjectName(id);
@@ -386,7 +386,7 @@ void add_inscribe(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_uninscribe(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_UNINSCRIBE) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/uninscribe.png"));
     new_button->setToolTip("Uninscribe");
     new_button->setObjectName(id);
@@ -396,7 +396,7 @@ void add_uninscribe(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_activate(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_ACTIVATE) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/activate.png"));
     new_button->setToolTip("Activate");
     new_button->setObjectName(id);
@@ -406,7 +406,7 @@ void add_activate(QGridLayout *lay, s16b item_slot, int row, int col)
 void add_throw(QGridLayout *lay, s16b item_slot, int row, int col)
 {
     QString id = (QString("%1_%2") .arg(CMD_THROW) .arg(item_slot));
-    QPushButton *new_button = new QPushButton;
+    QPointer<QPushButton> new_button = new QPushButton;
     new_button->setIcon(QIcon(":/icons/lib/icons/throw.png"));
     new_button->setToolTip("Throw");
     new_button->setObjectName(id);
@@ -445,7 +445,7 @@ void do_buttons(QGridLayout *lay, object_type *o_ptr, s16b item_slot, s16b row, 
 
 void add_plain_label(QGridLayout *lay, QString label, int row, int col)
 {
-    QLabel *lb = new QLabel(label);
+    QPointer<QLabel> lb = new QLabel(label);
     lb->setAlignment(Qt::AlignLeft);
     lay->addWidget(lb, row, col);
 }
@@ -455,7 +455,7 @@ void add_letter_label(QGridLayout *lay, QChar location, int label_num, int row, 
 {
     QString id = (QString("%1%2") .arg(location) .arg(label_num));
 
-    QLabel *lb = new QLabel(QString("%1)").arg(number_to_letter(label_num)));
+    QPointer<QLabel> lb = new QLabel(QString("%1)").arg(number_to_letter(label_num)));
     lb->setProperty("item_id", QVariant(id));
     lay->addWidget(lb, row, col);
 }
@@ -467,7 +467,7 @@ void add_object_label(QGridLayout *lay, object_type *o_ptr, QChar location, s16b
     style.append(QString("text-align: left; font-weight: bold;"));
 
     QString id = (QString("%1%2") .arg(location) .arg(item_slot));
-    QLabel *object_label = new QLabel(desc);
+    QPointer<QLabel> object_label = new QLabel(desc);
     object_label->setStyleSheet(style);
     object_label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     lay->addWidget(object_label, row, col);
@@ -478,7 +478,7 @@ void add_weight_label(QGridLayout *lay, object_type *o_ptr, int row, int col)
     // Add the weight
     QString weight_printout = (formatted_weight_string(o_ptr->weight * o_ptr->number));
     weight_printout.append(" lbs");
-    QLabel *weight = new QLabel(weight_printout);
+    QPointer<QLabel> weight = new QLabel(weight_printout);
     weight->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     lay->addWidget(weight, row, col);
 }
@@ -576,7 +576,7 @@ void update_equip_list(QGridLayout *lay, bool label, bool buttons)
         }
         else
         {
-            QLabel *nothing_label = new QLabel("(nothing)");
+            QPointer<QLabel> nothing_label = new QLabel("(nothing)");
             lay->addWidget(nothing_label, row, col++, Qt::AlignLeft);
         }
 

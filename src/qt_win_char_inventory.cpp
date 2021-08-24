@@ -142,7 +142,7 @@ void MainWindow::create_win_char_inventory()
     if (!show_char_inventory) return;
 
     // Add the inventory
-    QLabel *header_inven = new QLabel(QString("<b><h1>Inventory</b></h1>"));
+    QPointer<QLabel> header_inven = new QLabel(QString("<b><h1>Inventory</b></h1>"));
     main_vlay_inventory->addWidget(header_inven, Qt::AlignCenter);
     inven_list = new QGridLayout;
     main_vlay_inventory->addLayout(inven_list);

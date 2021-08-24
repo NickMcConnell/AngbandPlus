@@ -133,13 +133,13 @@ void MainWindow::create_win_char_equip_info()
     if (!show_char_info_equip) return;
 
     // Object Info
-    QGridLayout *equip_info = new QGridLayout;
+    QPointer<QGridLayout> equip_info = new QGridLayout;
     main_vlay_char_equip_info->addLayout(equip_info);
 
-    QVBoxLayout *resist_vlay = new QVBoxLayout;
-    QVBoxLayout *ability_vlay = new QVBoxLayout;
-    QVBoxLayout *equip_vlay = new QVBoxLayout;
-    QVBoxLayout *nativity_vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> resist_vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> ability_vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> equip_vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> nativity_vlay = new QVBoxLayout;
     resist_flags = new QGridLayout;
     ability_flags = new QGridLayout;
     equip_mods = new QGridLayout;
@@ -161,20 +161,20 @@ void MainWindow::create_win_char_equip_info()
     equip_vlay->addStretch(1);
     nativity_vlay->addStretch(1);
 
-    QLabel *resist_label = new QLabel("<h3>Resistance Information</h3>");
+    QPointer<QLabel> resist_label = new QLabel("<h3>Resistance Information</h3>");
     resist_label->setToolTip(QString("Blue represents elemental immunity, green represents resistance, and purple represents double resistance."));
     equip_info->addWidget(resist_label, 0, 0, Qt::AlignCenter);
     equip_info->addLayout(resist_vlay, 1, 0);
 
-    QLabel *ability_label = new QLabel("<h3>Ability Information</h3>");
+    QPointer<QLabel> ability_label = new QLabel("<h3>Ability Information</h3>");
     equip_info->addWidget(ability_label, 0, 1, Qt::AlignCenter);
     equip_info->addLayout(ability_vlay,  1, 1);
 
-    QLabel *nativity_label = new QLabel("<h3>Nativity Information</h3>");
+    QPointer<QLabel> nativity_label = new QLabel("<h3>Nativity Information</h3>");
     equip_info->addWidget(nativity_label, 0, 2, Qt::AlignCenter);
     equip_info->addLayout(nativity_vlay, 1, 2);
 
-    QLabel *modifier_label = new QLabel("<h3>Equipment Modifiers</h3>");
+    QPointer<QLabel> modifier_label = new QLabel("<h3>Equipment Modifiers</h3>");
     equip_info->addWidget(modifier_label, 0, 3, Qt::AlignCenter);
     equip_info->addLayout(equip_vlay, 1, 3);
 

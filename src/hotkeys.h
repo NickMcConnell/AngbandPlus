@@ -10,6 +10,7 @@
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <QButtonGroup>
+#include <QPointer>
 
 
 #define NUM_HOTKEYS 24
@@ -114,18 +115,18 @@ public:
     single_hotkey dialog_hotkey;
 
 private:
-    QWidget *top_widget;
-    QVBoxLayout *top_layout;
-    QVBoxLayout *main_layout;
-    QVBoxLayout *vlay_hotkey_steps;
-    QScrollArea *scroll_box;
-    QLineEdit *hotkey_name;
+    QPointer<QWidget> top_widget;
+    QPointer<QVBoxLayout> top_layout;
+    QPointer<QVBoxLayout> main_layout;
+    QPointer<QVBoxLayout> vlay_hotkey_steps;
+    QPointer<QScrollArea> scroll_box;
+    QPointer<QLineEdit> hotkey_name;
 
     QVector<int> spell_list;
 
     void add_hotkeys_header();
-    QComboBox *current_hotkey_name;
-    QLineEdit *current_name;
+    QPointer<QComboBox> current_hotkey_name;
+    QPointer<QLineEdit> current_name;
 
     void create_one_hotkey_step(QHBoxLayout *this_layout, int step);
     void display_hotkey_steps();
@@ -148,10 +149,10 @@ private:
     object_type find_selected_activation(int choice, int step);
     object_type find_inscribed_object(QString inscription);
     object_type create_selected_object(cmd_arg args);
-    QButtonGroup *group_directions;
-    QButtonGroup *group_target_choices;
-    QButtonGroup *group_specific_object;
-    QButtonGroup *group_resting_choices;
+    QPointer<QButtonGroup> group_directions;
+    QPointer<QButtonGroup> group_target_choices;
+    QPointer<QButtonGroup> group_specific_object;
+    QPointer<QButtonGroup> group_resting_choices;
 
     int current_hotkey_int;
 
@@ -181,5 +182,6 @@ extern void do_hotkey_manage();
 
 extern single_hotkey running_hotkey;
 extern single_hotkey player_hotkeys[NUM_HOTKEYS];
+extern hotkey_list list_hotkeys[NUM_HOTKEYS];
 
 #endif // HOTKEYS_H

@@ -29,12 +29,12 @@ void launch_store(int store_idx)
     /* Check if we can enter the store */
     if (birth_no_stores)
     {
+
         pop_up_message_box("The doors are locked.");
-        return;
     }
 
     /* See if we are holding a quest item */
-    if (store_idx == STORE_GUILD)
+    else if (store_idx == STORE_GUILD)
     {
         /* Check for outstanding rewards */
         quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
@@ -51,9 +51,13 @@ void launch_store(int store_idx)
         }
     }
 
-    StoreDialog *dlg = new StoreDialog(store_idx);
-    dlg->exec_saved("StoreDialog");
-    delete dlg;
+    if (!birth_no_stores)
+    {
+        QPointer<StoreDialog> dlg = new StoreDialog(store_idx);
+        dlg->exec_saved("StoreDialog");
+        delete dlg;
+    }
+
     p_ptr->in_store = FALSE;
     p_ptr->message_append_stop();
     process_player_energy(BASE_ENERGY_MOVE);
@@ -64,14 +68,14 @@ void StoreDialog::add_weight_label(QGridLayout *lay, object_type *o_ptr, int row
     // Add the weight
     QString weight_printout = (formatted_weight_string(o_ptr->weight));
     weight_printout.append(" lbs");
-    QLabel *weight = new QLabel(weight_printout);
+    QPointer<QLabel> weight = new QLabel(weight_printout);
     weight->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     lay->addWidget(weight, row, col);
 }
 
 void StoreDialog::add_help_label(QGridLayout *lay, QString id, int row, int col)
 {
-    QPushButton *help_button = new QPushButton;
+    QPointer<QPushButton> help_button = new QPushButton;
     help_button->setIcon(QIcon(":/icons/lib/icons/help.png"));
     help_button->setObjectName(id);
     connect(help_button, SIGNAL(clicked()), this, SLOT(help_click()));
@@ -108,7 +112,7 @@ StoreDialog::StoreDialog(int _store, QWidget *parent): NPPDialog(parent)
     guild = (store_idx == STORE_GUILD);
 
     central = new QWidget;
-    QVBoxLayout *lay1 = new QVBoxLayout;
+    QPointer<QVBoxLayout> lay1 = new QVBoxLayout;
     central->setLayout(lay1);
     lay1->setSpacing(10);
     this->setClient(central);  // IMPORTANT: it must be called AFTER setting the layout
@@ -123,18 +127,18 @@ StoreDialog::StoreDialog(int _store, QWidget *parent): NPPDialog(parent)
     message_area->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     update_message_area(message_area, 3);
 
-    QWidget *area1 = new QWidget;
+    QPointer<QWidget> area1 = new QWidget;
     lay1->addWidget(area1);
-    QHBoxLayout *lay3 = new QHBoxLayout;
+    QPointer<QHBoxLayout> lay3 = new QHBoxLayout;
     area1->setLayout(lay3);
     lay3->setContentsMargins(0, 0, 0, 0);
 
     if (guild)
     {
         QString title = QString("<b>The Adventurer's Guild</b>   - ");
-        setWindowTitle(title);
+        setWindowTitle("The Adventurer's Guild");
         title.append(get_rep_guild());
-        QLabel *guild_intro = new QLabel(title);
+        QPointer<QLabel> guild_intro = new QLabel(title);
         lay3->addWidget(guild_intro);
     }
     else if (!home)
@@ -145,11 +149,12 @@ StoreDialog::StoreDialog(int _store, QWidget *parent): NPPDialog(parent)
         setWindowTitle(shop_name);
         QString msg = QString("<b>%1</b> - %2 (%3)").arg(shop_name).arg(ot_ptr->owner_name)
                 .arg(ot_ptr->max_cost);
-        QLabel *store_info = new QLabel(msg);
+        QPointer<QLabel> store_info = new QLabel(msg);
         lay3->addWidget(store_info);
     }
     else
     {
+        setWindowTitle("Your Home");
         lay3->addWidget(new QLabel("<b>Your home</b>"));
     }
     lay3->addStretch(1);
@@ -161,21 +166,21 @@ StoreDialog::StoreDialog(int _store, QWidget *parent): NPPDialog(parent)
 
     lay3->addStretch(1);
 
-    QPushButton *btn_buy = new QPushButton(home ? "Retrieve/Stash (F2)": "Buy/Sell (F2)");
+    QPointer<QPushButton> btn_buy = new QPushButton(home ? "Retrieve/Stash (F2)": "Buy/Sell (F2)");
     lay3->addWidget(btn_buy);
     connect(btn_buy, SIGNAL(clicked()), this, SLOT(buy_sell_click()));
 
-    QPushButton *btn_toggle = new QPushButton("Toggle inven/equip (F4)");
+    QPointer<QPushButton> btn_toggle = new QPushButton("Toggle inven/equip (F4)");
     lay3->addWidget(btn_toggle);
     connect(btn_toggle, SIGNAL(clicked()), this, SLOT(toggle_inven()));
 
-    QWidget *area4 = new QWidget;
-    QHBoxLayout *lay6 = new QHBoxLayout;
+    QPointer<QWidget> area4 = new QWidget;
+    QPointer<QHBoxLayout> lay6 = new QHBoxLayout;
     area4->setLayout(lay6);
     lay6->setContentsMargins(0, 0, 0, 0);
     lay1->addWidget(area4);
 
-    QLabel *gold_label = new QLabel();
+    QPointer<QLabel> gold_label = new QLabel();
     gold_label->setObjectName("gold_label");
     gold_label->setStyleSheet("font-weight: bold;");
     lay6->addWidget(gold_label);
@@ -193,18 +198,18 @@ StoreDialog::StoreDialog(int _store, QWidget *parent): NPPDialog(parent)
 
     lay6->addStretch(1);
 
-    QPushButton *btn_wield = new QPushButton("Wield (F6)");
+    QPointer<QPushButton> btn_wield = new QPushButton("Wield (F6)");
     lay6->addWidget(btn_wield);
     connect(btn_wield, SIGNAL(clicked()), this, SLOT(wield_click()));
 
-    QPushButton *btn_takeoff = new QPushButton("Take off (F7)");
+    QPointer<QPushButton> btn_takeoff = new QPushButton("Take off (F7)");
     lay6->addWidget(btn_takeoff);
     connect(btn_takeoff, SIGNAL(clicked()), this, SLOT(takeoff_click()));
 
     if (guild || (!home && one_in_(3)))
     {
-        QWidget *area_greeting = new QWidget;
-        QHBoxLayout *lay_greeting = new QHBoxLayout;
+        QPointer<QWidget> area_greeting = new QWidget;
+        QPointer<QHBoxLayout> lay_greeting = new QHBoxLayout;
         area_greeting->setLayout(lay_greeting);
         lay_greeting->setContentsMargins(0, 0, 0, 0);
         lay1->addWidget(area_greeting);
@@ -214,21 +219,21 @@ StoreDialog::StoreDialog(int _store, QWidget *parent): NPPDialog(parent)
         else greeting = store_welcome(store_idx);
 
         QString msg = (QString("<big>%1</big>").arg(greeting));
-        QLabel *store_greeting = new QLabel(msg);
+        QPointer<QLabel> store_greeting = new QLabel(msg);
         lay_greeting->addWidget(store_greeting);
     }
 
-    QWidget *area2 = new QWidget;
-    QHBoxLayout *lay2 = new QHBoxLayout;
+    QPointer<QWidget> area2 = new QWidget;
+    QPointer<QHBoxLayout> lay2 = new QHBoxLayout;
     area2->setLayout(lay2);
     lay2->setContentsMargins(0, 0, 0, 0);
     lay1->addWidget(area2);
 
-    QGroupBox *box1 = new QGroupBox(home ? "Home items":
+    QPointer<QGroupBox> box1 = new QGroupBox(home ? "Home items":
             (guild ? "Guild Services and Available Quests" : "Store Inventory and Services"));
     box1->setStyleSheet("font-weight: bold;");
     lay2->addWidget(box1);
-    QVBoxLayout *lay4 = new QVBoxLayout;
+    QPointer<QVBoxLayout> lay4 = new QVBoxLayout;
     box1->setLayout(lay4);
 
     store_area = new QWidget;
@@ -252,11 +257,11 @@ StoreDialog::StoreDialog(int _store, QWidget *parent): NPPDialog(parent)
 
     // Do a quest status for the guild.
     quest_area = new QWidget;
-    QGridLayout *quest_layout = new QGridLayout;
+    QPointer<QGridLayout> quest_layout = new QGridLayout;
     quest_area->setLayout(quest_layout);
     quest_layout->setContentsMargins(0, 0, 0, 0);
     lay1->addWidget(quest_area);
-    QLabel *quest_header = new QLabel("<b><big>Your Current Quest:</big></b>");
+    QPointer<QLabel> quest_header = new QLabel("<b><big>Your Current Quest:</big></b>");
     quest_header->setAlignment(Qt::AlignLeft);
     quest_status = new QLabel("Quest Desc");
     quest_picture = new QLabel("Quest Picture");
@@ -269,15 +274,15 @@ StoreDialog::StoreDialog(int _store, QWidget *parent): NPPDialog(parent)
 
     this->reset_quest_status();
 
-    QWidget *area3 = new QWidget;
-    QHBoxLayout *lay5 = new QHBoxLayout;
+    QPointer<QWidget> area3 = new QWidget;
+    QPointer<QHBoxLayout> lay5 = new QHBoxLayout;
     area3->setLayout(lay5);
     lay5->setContentsMargins(0, 0, 0, 0);
     lay1->addWidget(area3);
 
     lay5->addStretch(1);
 
-    QPushButton *btn_close = new QPushButton("Close");
+    QPointer<QPushButton> btn_close = new QPushButton("Close");
     lay5->addWidget(btn_close);
     connect(btn_close, SIGNAL(clicked()), this, SLOT(reject()));
 
@@ -287,12 +292,14 @@ StoreDialog::StoreDialog(int _store, QWidget *parent): NPPDialog(parent)
 void StoreDialog::wield_click()
 {
     do_cmd_wield();
+    notice_stuff();
     reset_all();
 }
 
 void StoreDialog::takeoff_click()
 {
     do_cmd_takeoff();
+    notice_stuff();
     reset_all();
 }
 
@@ -497,7 +504,7 @@ void StoreDialog::reset_store()
     int col = 2;
 
     // Add weight label
-    QLabel *weight_label = new QLabel("Weight");
+    QPointer<QLabel> weight_label = new QLabel("Weight");
     weight_label->setText("Weight");
     weight_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     lay->addWidget(weight_label, row, col++);
@@ -505,7 +512,7 @@ void StoreDialog::reset_store()
     //Add price label
     if (!home)
     {
-        QLabel *price_label = new QLabel("Price");
+        QPointer<QLabel> price_label = new QLabel("Price");
         price_label->setText("Price");
         price_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         lay->addWidget(price_label, row, col);
@@ -534,7 +541,7 @@ void StoreDialog::reset_store()
         // Make an id for the service
         QString id = QString("s%1").arg(i);
 
-        QLabel *lb = new QLabel(QString("%1)").arg(k++));
+        QPointer<QLabel> lb = new QLabel(QString("%1)").arg(k++));
         lb->setProperty("item_id", QVariant(id));
         lay->addWidget(lb, row, col++);
 
@@ -547,7 +554,7 @@ void StoreDialog::reset_store()
 
         if (price <= p_ptr->au)
         {
-            QPushButton *btn = new QPushButton(desc);
+            QPointer<QPushButton> btn = new QPushButton(desc);
             btn->setProperty("item_id", QVariant(id));
 
             btn->setStyleSheet(style);
@@ -557,7 +564,7 @@ void StoreDialog::reset_store()
         }
         else
         {
-            QLabel *lb2 = new QLabel(desc);
+            QPointer<QLabel> lb2 = new QLabel(desc);
             lb2->setStyleSheet(style);
             lay->addWidget(lb2, row, col++);
         }
@@ -568,7 +575,7 @@ void StoreDialog::reset_store()
         QString price_text = number_to_formatted_string(price);
         price_text = price_text.rightJustified(15, ' ');
 
-        QLabel *l = new QLabel("price");
+        QPointer<QLabel> l = new QLabel("price");
         l->setText(price_text);
         l->setAlignment(Qt::AlignRight);
         lay->addWidget(l, row, col++);
@@ -588,7 +595,7 @@ void StoreDialog::reset_store()
         // Make an id for the quest
         QString id = QString("q%1").arg(i);
 
-        QLabel *lb = new QLabel(QString("%1)").arg(k++));
+        QPointer<QLabel> lb = new QLabel(QString("%1)").arg(k++));
         lb->setProperty("item_id", QVariant(id));
         lay->addWidget(lb, row, col++);
 
@@ -598,7 +605,7 @@ void StoreDialog::reset_store()
         QString style = "text-align: left; font-weight: bold;";
         style += s;
 
-        QPushButton *btn = new QPushButton(desc);
+        QPointer<QPushButton> btn = new QPushButton(desc);
         btn->setProperty("item_id", QVariant(id));
 
         btn->setStyleSheet(style);
@@ -626,7 +633,7 @@ void StoreDialog::reset_store()
         // Make an id for the item
         QString id = QString("p%1").arg(i);
 
-        QLabel *lb = new QLabel(QString("%1)").arg(number_to_letter(i)));
+        QPointer<QLabel> lb = new QLabel(QString("%1)").arg(number_to_letter(i)));
         lb->setProperty("item_id", QVariant(id));
         lay->addWidget(lb, row, col++);
 
@@ -638,7 +645,7 @@ void StoreDialog::reset_store()
 
         if (home || (guild) || price <= p_ptr->au)
         {
-            QPushButton *btn = new QPushButton(desc);
+            QPointer<QPushButton> btn = new QPushButton(desc);
             btn->setProperty("item_id", QVariant(id));
 
             btn->setStyleSheet(style);
@@ -648,7 +655,7 @@ void StoreDialog::reset_store()
         }
         else
         {
-            QLabel *lb2 = new QLabel(desc);
+            QPointer<QLabel> lb2 = new QLabel(desc);
             lb2->setStyleSheet(style);
             lay->addWidget(lb2, row, col++);
         }
@@ -662,7 +669,7 @@ void StoreDialog::reset_store()
             s32b price = price_item(store_idx, o_ptr, FALSE);
             QString price_text = number_to_formatted_string(price);
             price_text = price_text.rightJustified(16, ' ');
-            QLabel *price_out = new QLabel("Price");
+            QPointer<QLabel> price_out = new QLabel("Price");
             price_out->setText(price_text);
             price_out->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
             lay->addWidget(price_out, row, col);
@@ -726,7 +733,7 @@ void StoreDialog::set_mode(int _mode)
 
 void StoreDialog::reset_inventory()
 {
-    QWidget *tab = inven_tab;
+    QPointer<QWidget> tab = inven_tab;
     QGridLayout *lay = dynamic_cast<QGridLayout *>(tab->layout());
     if (lay == 0) {
         lay = new QGridLayout;
@@ -739,7 +746,7 @@ void StoreDialog::reset_inventory()
     lay->addWidget(new QLabel("Weight"), row, 2);
     if (!home)
     {
-        QLabel *price_label = new QLabel("Price");
+        QPointer<QLabel> price_label = new QLabel("Price");
         price_label->setText("price");
         price_label->setAlignment(Qt::AlignRight);
         lay->addWidget(price_label, row, 3);
@@ -756,7 +763,7 @@ void StoreDialog::reset_inventory()
         // Make an id for the item
         QString id = QString("i%1").arg(i);
 
-        QLabel *lb = new QLabel(QString("%1)").arg(number_to_letter(i).toUpper()));
+        QPointer<QLabel> lb = new QLabel(QString("%1)").arg(number_to_letter(i).toUpper()));
         lb->setProperty("item_id", QVariant(id));
         lay->addWidget(lb, row, 0);
 
@@ -767,7 +774,7 @@ void StoreDialog::reset_inventory()
 
         if (home || store_will_buy(store_idx, o_ptr))
         {
-            QPushButton *btn = new QPushButton(desc);
+            QPointer<QPushButton> btn = new QPushButton(desc);
             btn->setProperty("item_id", QVariant(id));
 
             btn->setStyleSheet(style);
@@ -777,7 +784,7 @@ void StoreDialog::reset_inventory()
         }
         else
         {
-            QLabel *lb2 = new QLabel(desc);
+            QPointer<QLabel> lb2 = new QLabel(desc);
             lb2->setStyleSheet(style);
             lay->addWidget(lb2, row, 1);
         }
@@ -790,7 +797,7 @@ void StoreDialog::reset_inventory()
             s32b price = price_item(store_idx, o_ptr, true);
             QString price_text = number_to_formatted_string(price);
             price_text = price_text.rightJustified(16, ' ');
-            QLabel *price_out = new QLabel("Price");
+            QPointer<QLabel> price_out = new QLabel("Price");
             price_out->setText(price_text);
             price_out->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
             lay->addWidget(price_out, row, 3);
@@ -806,7 +813,7 @@ void StoreDialog::reset_inventory()
 
 void StoreDialog::reset_equip()
 {
-    QWidget *tab = equip_tab;
+    QPointer<QWidget> tab = equip_tab;
     QGridLayout *lay = dynamic_cast<QGridLayout *>(tab->layout());
     if (lay == 0) {
         lay = new QGridLayout;
@@ -821,7 +828,7 @@ void StoreDialog::reset_equip()
     lay->addWidget(new QLabel("Weight"), row, 2);
     if (!home)
     {
-        QLabel *price_label = new QLabel("Price");
+        QPointer<QLabel> price_label = new QLabel("Price");
         price_label->setText("price");
         price_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         lay->addWidget(price_label, row, 3);
@@ -845,7 +852,7 @@ void StoreDialog::reset_equip()
         // Make an id for the item
         QString id = QString("e%1").arg(i);
 
-        QLabel *lb = new QLabel(QString("%1)").arg(number_to_letter(n++).toUpper()));
+        QPointer<QLabel> lb = new QLabel(QString("%1)").arg(number_to_letter(n++).toUpper()));
         lb->setProperty("item_id", QVariant(id));
         lay->addWidget(lb, row, 0);
 
@@ -857,7 +864,7 @@ void StoreDialog::reset_equip()
 
         if (home || store_will_buy(store_idx, o_ptr))
         {
-            QPushButton *btn = new QPushButton(desc);
+            QPointer<QPushButton> btn = new QPushButton(desc);
             btn->setProperty("item_id", QVariant(id));
 
             btn->setStyleSheet(style);
@@ -867,7 +874,7 @@ void StoreDialog::reset_equip()
         }
         else
         {
-            QLabel *lb2 = new QLabel(desc);
+            QPointer<QLabel> lb2 = new QLabel(desc);
             lb2->setStyleSheet(style);
             lay->addWidget(lb2, row, 1);
         }
@@ -880,7 +887,7 @@ void StoreDialog::reset_equip()
             s32b price = price_item(store_idx, o_ptr, true);
             QString price_text = number_to_formatted_string(price);
             price_text = price_text.rightJustified(16, ' ');
-            QLabel *price_out = new QLabel("Price");
+            QPointer<QLabel> price_out = new QLabel("Price");
             price_out->setText(price_text);
             price_out->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
             lay->addWidget(price_out, row, 3);
@@ -931,7 +938,7 @@ void StoreDialog::keyPressEvent(QKeyEvent *event)
                 QString letter = event->text().at(0);
 
                 letter.append(")");
-                QWidget *container = char_tabs->currentWidget();
+                QPointer<QWidget> container = char_tabs->currentWidget();
                 if (letter.at(0).isLower() || letter.at(0).isDigit())
                 {
                     container = store_area;
@@ -1097,6 +1104,7 @@ bool StoreDialog::do_buy(object_type *o_ptr, int item)
     else if (guild) do_cmd_reward(store_idx, args);
     else            do_cmd_buy(store_idx, args);
 
+    notice_stuff();
     reset_all();
 
     return true;
@@ -1122,6 +1130,7 @@ void StoreDialog::reset_all()
     reset_gold();
     update_message_area(message_area, 3);
     update_header();
+    handle_stuff();
 
     ui_request_size_update(inven_tab);
     ui_request_size_update(equip_tab);
@@ -1154,6 +1163,7 @@ bool StoreDialog::do_sell(object_type *o_ptr, int item)
     if (home)   do_cmd_stash(store_idx, args);
     else        do_cmd_sell(store_idx, args);
 
+    notice_stuff();
     reset_all();
 
     return true;
@@ -1199,7 +1209,7 @@ QuantityDialog::QuantityDialog(object_type *op, bool buy)
     }
     else max = o_ptr->number;
 
-    QVBoxLayout *lay1 = new QVBoxLayout;
+    QPointer<QVBoxLayout> lay1 = new QVBoxLayout;
     this->setLayout(lay1);
 
     QString verb = tr("sell");
@@ -1230,20 +1240,20 @@ QuantityDialog::QuantityDialog(object_type *op, bool buy)
 
     connect(amt_spin, SIGNAL(valueChanged(int)), this, SLOT(update_totals(int)));
 
-    QHBoxLayout *lay2 = new QHBoxLayout;
+    QPointer<QHBoxLayout> lay2 = new QHBoxLayout;
     lay2->setContentsMargins(0, 0, 0, 0);
     lay1->addLayout(lay2);
 
     lay2->addStretch(1);
 
     // Add buttons for min value, max value, OK, and cancel
-    QDialogButtonBox *buttons = new QDialogButtonBox();
-    QPushButton *min_button = new QPushButton();
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox();
+    QPointer<QPushButton> min_button = new QPushButton();
     min_button->setText(QString("Min - %1") .arg(amt_spin->minimum()));
     min_button->setToolTip("Use the minimum possible value");
     connect(min_button, SIGNAL(clicked()), this, SLOT(min_number_button()));
     buttons->addButton(min_button, QDialogButtonBox::ActionRole);
-    QPushButton *max_button = new QPushButton();
+    QPointer<QPushButton> max_button = new QPushButton();
     max_button->setText(QString("Max - %1") .arg(max));
     max_button->setToolTip("Use the maximum possible value");
     connect(max_button, SIGNAL(clicked()), this, SLOT(max_number_button()));
@@ -1370,23 +1380,23 @@ StatDialog::StatDialog(int service, byte *stat_selected)
     main_prompt = new QLabel(prompt);
     main_prompt->setAlignment(Qt::AlignCenter);
 
-    QVBoxLayout *vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay = new QVBoxLayout;
 
     vlay->addWidget(main_prompt);
 
     // Add the stats
-    QGridLayout *stat_layout = new QGridLayout;
+    QPointer<QGridLayout> stat_layout = new QGridLayout;
 
     // add the headers
     byte row = 0;
     byte col = 0;
-    QLabel *stat_header = new QLabel("Stat");
-    QLabel *self_header = new QLabel("Self");
-    QLabel *race_adj_header = new QLabel("Race Adj.");
-    QLabel *class_adj_header = new QLabel("Class Adj");
-    QLabel *equip_adj_header = new QLabel("Equip Adj");
-    QLabel *reward_adj_header = new QLabel("Reward_Adj");
-    QLabel *total_stat_header = new QLabel("Total Stat");
+    QPointer<QLabel> stat_header = new QLabel("Stat");
+    QPointer<QLabel> self_header = new QLabel("Self");
+    QPointer<QLabel> race_adj_header = new QLabel("Race Adj.");
+    QPointer<QLabel> class_adj_header = new QLabel("Class Adj");
+    QPointer<QLabel> equip_adj_header = new QLabel("Equip Adj");
+    QPointer<QLabel> reward_adj_header = new QLabel("Reward_Adj");
+    QPointer<QLabel> total_stat_header = new QLabel("Total Stat");
     stat_header->setAlignment(Qt::AlignLeft);
     self_header->setAlignment(Qt::AlignLeft);
     race_adj_header->setAlignment(Qt::AlignCenter);
@@ -1410,7 +1420,7 @@ StatDialog::StatDialog(int service, byte *stat_selected)
         // Do a button if we can select this stat
         if (stats[i])
         {
-            QPushButton *stat_name_button = new QPushButton();
+            QPointer<QPushButton> stat_name_button = new QPushButton();
             stat_name_button->setText(stat_names[i]);
             stat_layout->addWidget(stat_name_button, row, col++);
             if (i == 0)connect(stat_name_button, SIGNAL(clicked()), this, SLOT(select_str()));
@@ -1423,37 +1433,37 @@ StatDialog::StatDialog(int service, byte *stat_selected)
         // or make a label
         else
         {
-            QLabel *self_label = new QLabel(stat_names[i]);
+            QPointer<QLabel> self_label = new QLabel(stat_names[i]);
             stat_layout->addWidget(self_label, row, col++);
         }
 
-        QLabel *stat_player = new QLabel(cnv_stat(p_ptr->stat_base_max[i]));
+        QPointer<QLabel> stat_player = new QLabel(cnv_stat(p_ptr->stat_base_max[i]));
         stat_player->setAlignment(Qt::AlignCenter);
         stat_layout->addWidget(stat_player, row, col++);
 
         if (birth_maximize)
         {
-            QLabel *race_adj = new QLabel(QString("%1") .arg(rp_ptr->r_adj[i]));
+            QPointer<QLabel> race_adj = new QLabel(QString("%1") .arg(rp_ptr->r_adj[i]));
             race_adj->setAlignment(Qt::AlignCenter);
             stat_layout->addWidget(race_adj, row, col++);
 
-            QLabel *class_adj = new QLabel(QString("%1") .arg(cp_ptr->c_adj[i]));
+            QPointer<QLabel> class_adj = new QLabel(QString("%1") .arg(cp_ptr->c_adj[i]));
             class_adj->setAlignment(Qt::AlignCenter);
             stat_layout->addWidget(class_adj, row, col++);
         }
 
-        QLabel *equip_adj = new QLabel(QString("%1") .arg(p_ptr->state.stat_equip[i]));
+        QPointer<QLabel> equip_adj = new QLabel(QString("%1") .arg(p_ptr->state.stat_equip[i]));
         equip_adj->setAlignment(Qt::AlignCenter);
         stat_layout->addWidget(equip_adj, row, col++);
 
         if (!birth_no_quests)
         {
-            QLabel *quest_adj = new QLabel(QString("%1") .arg(p_ptr->stat_quest_add[i]));
+            QPointer<QLabel> quest_adj = new QLabel(QString("%1") .arg(p_ptr->stat_quest_add[i]));
             quest_adj->setAlignment(Qt::AlignCenter);
             stat_layout->addWidget(quest_adj, row, col++);
         }
 
-        QLabel *stat_total = new QLabel(cnv_stat(p_ptr->state.stat_loaded_max[i]));
+        QPointer<QLabel> stat_total = new QLabel(cnv_stat(p_ptr->state.stat_loaded_max[i]));
         stat_total->setAlignment(Qt::AlignLeft);
         stat_layout->addWidget(stat_total, row, col++);
 
@@ -1462,7 +1472,7 @@ StatDialog::StatDialog(int service, byte *stat_selected)
         {
             QString lower_stat = cnv_stat(p_ptr->state.stat_loaded_cur[i]);
             lower_stat = color_string(lower_stat, TERM_PINK);
-            QLabel *stat_reduce = new QLabel(lower_stat);
+            QPointer<QLabel> stat_reduce = new QLabel(lower_stat);
             stat_reduce->setAlignment(Qt::AlignLeft);
             stat_layout->addWidget(stat_reduce, row, col++);
         }

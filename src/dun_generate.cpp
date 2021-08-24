@@ -10461,9 +10461,7 @@ static bool build_arena_level(void)
  */
 static bool player_place_greater_vault_level(void)
 {
-    u16b empty_squares_y[250];
-    u16b empty_squares_x[250];
-    int empty_squares = 0;
+    QVector<coord> empty_squares;
     int slot, y, x;
 
     /*
@@ -10474,12 +10472,10 @@ static bool player_place_greater_vault_level(void)
     {
         for (x = 0; x < p_ptr->cur_map_wid; x++)
         {
-            if (empty_squares == 250) continue;
-
             if (!in_bounds_fully(y, x)) continue;
 
             /* Not part of the vault */
-            if (!(dungeon_info[y][x].cave_info & (CAVE_ICKY))) continue;
+            if (dungeon_info[y][x].cave_info & (CAVE_ICKY)) continue;
 
             /* We want to be next to a wall */
             if (!next_to_walls(y, x)) continue;
@@ -10487,45 +10483,39 @@ static bool player_place_greater_vault_level(void)
             /* New, and open square */
             if (cave_naked_bold(y, x))
             {
-                empty_squares_y[empty_squares] = y;
-                empty_squares_x[empty_squares] = x;
-                empty_squares++;
+                empty_squares.append(make_coords(y, x));
             }
         }
     }
 
     /* Paranoia - shouldn't happen */
-    if (empty_squares < 3) return (FALSE);
+    if (empty_squares.size() < 3) return (FALSE);
 
     /* Pick a square at random */
-    slot = 0;
+    slot = randint0(empty_squares.size());
 
     /* Hack - escape stairs */
     p_ptr->create_stair = FEAT_STAIRS_UP;
 
-    if (!player_place(empty_squares_y[slot], empty_squares_x[slot])) return (FALSE);
+    if (!player_place(empty_squares.at(slot).y, empty_squares.at(slot).x)) return (FALSE);
 
     /* Select a new location for down stairs */
-    empty_squares--;
-    empty_squares_y[slot] = empty_squares_y[empty_squares];
-    empty_squares_x[slot] = empty_squares_x[empty_squares];
+    empty_squares.removeAt(slot);
 
     /* Pick a square at random */
-    slot = randint0(empty_squares);
+    slot = randint0(empty_squares.size());
 
     /* Now place one up stair */
-    cave_set_feat(empty_squares_y[slot], empty_squares_x[slot], FEAT_STAIRS_UP);
+    cave_set_feat(empty_squares.at(slot).y, empty_squares.at(slot).x, FEAT_STAIRS_UP);
 
     /* Select a new location for down stairs */
-    empty_squares--;
-    empty_squares_y[slot] = empty_squares_y[empty_squares];
-    empty_squares_x[slot] = empty_squares_x[empty_squares];
+    empty_squares.removeAt(slot);
 
     /* Pick a square at random */
-    slot = randint0(empty_squares);
+    slot = randint0(empty_squares.size());
 
     /* Now place one down stair */
-    cave_set_feat(empty_squares_y[slot], empty_squares_x[slot], FEAT_STAIRS_DOWN);
+    cave_set_feat(empty_squares.at(slot).y, empty_squares.at(slot).x, FEAT_STAIRS_DOWN);
 
     return (TRUE);
 }

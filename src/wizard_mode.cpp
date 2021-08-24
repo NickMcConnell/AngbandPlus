@@ -46,9 +46,7 @@ static bool wiz_alloc_artifact(object_type *o_ptr, int art_num)
 
 EditObjectDialog::EditObjectDialog(void)
 {
-    QVBoxLayout *vlay = new QVBoxLayout;
 
-    QGridLayout *edit_info = new QGridLayout;
 
     object_type *o_ptr;
     int item;
@@ -73,66 +71,80 @@ EditObjectDialog::EditObjectDialog(void)
         o_ptr = &o_list[0 - item];
     }
 
-    QLabel *obj_label = new QLabel(QString("<b><big>Editing %1</big></b>") .arg(object_desc(o_ptr, ODESC_PREFIX | ODESC_FULL)));
+    QPointer<QVBoxLayout> vlay = new QVBoxLayout;
+
+    QPointer<QGridLayout> edit_info = new QGridLayout;
+
+    QPointer<QLabel>  obj_label = new QLabel(QString("<b><big>Editing %1</big></b>") .arg(object_desc(o_ptr, ODESC_PREFIX | ODESC_FULL)));
     obj_label->setAlignment(Qt::AlignCenter);
 
     vlay->addWidget(obj_label);
 
     // Edit quantity
-    QLabel *quant_label = new QLabel("Edit quantity");
-    QSpinBox *quant_spinner = new QSpinBox;
+    QPointer<QLabel>  quant_label = new QLabel("Edit quantity");
+    QPointer<QSpinBox> quant_spinner = new QSpinBox;
     quant_spinner->setRange(1,MAX_STACK_SIZE);
     quant_spinner->setValue(o_ptr->number);
     edit_info->addWidget(quant_label, 1, 0);
     edit_info->addWidget(quant_spinner, 1, 1);
 
     // Pval
-    QLabel *pval_label = new QLabel("Edit pval");
-    QSpinBox *pval_spinner = new QSpinBox;
+    QPointer<QLabel>  pval_label = new QLabel("Edit pval");
+    QPointer<QSpinBox> pval_spinner = new QSpinBox;
     pval_spinner->setRange(-99,99);
     pval_spinner->setValue(o_ptr->pval);
-    if (o_ptr->is_wieldable())
+    edit_info->addWidget(pval_label, 2, 0);
+    edit_info->addWidget(pval_spinner, 2, 1);
+    if (!o_ptr->is_wieldable())
     {
-        edit_info->addWidget(pval_label, 2, 0);
-        edit_info->addWidget(pval_spinner, 2, 1);
+        pval_label->hide();
+        pval_spinner->hide();
     }
 
     // To-hit
-    QLabel *to_h_label = new QLabel("Edit To-Hit");
-    QSpinBox *to_h_spinner = new QSpinBox;
+    QPointer<QLabel>  to_h_label = new QLabel("Edit To-Hit");
+    QPointer<QSpinBox> to_h_spinner = new QSpinBox;
     to_h_spinner->setRange(-99,99);
     to_h_spinner->setValue(o_ptr->to_h);
+    edit_info->addWidget(to_h_label, 3, 0);
+    edit_info->addWidget(to_h_spinner, 3, 1);
 
-    if (o_ptr->is_wieldable() || o_ptr->is_ammo())
+    if (!o_ptr->is_wieldable() && !o_ptr->is_ammo())
     {
-        edit_info->addWidget(to_h_label, 3, 0);
-        edit_info->addWidget(to_h_spinner, 3, 1);
+        to_h_label->hide();
+        to_h_spinner->hide();
     }
 
     // To-damage
-    QLabel *to_d_label = new QLabel("Edit To-Dam");
-    QSpinBox *to_d_spinner = new QSpinBox;
+    QPointer<QLabel>  to_d_label = new QLabel("Edit To-Dam");
+    QPointer<QSpinBox> to_d_spinner = new QSpinBox;
     to_d_spinner->setRange(-99,99);
     to_d_spinner->setValue(o_ptr->to_d);
-    if (o_ptr->is_wieldable() || o_ptr->is_ammo())
+    edit_info->addWidget(to_d_label, 4, 0);
+    edit_info->addWidget(to_d_spinner, 4, 1);
+    if (!o_ptr->is_wieldable() && !o_ptr->is_ammo())
     {
-        edit_info->addWidget(to_d_label, 4, 0);
-        edit_info->addWidget(to_d_spinner, 4, 1);
+        to_h_label->hide();
+        to_h_spinner->hide();
+        to_d_label->hide();
+        to_d_spinner->hide();
     }
 
     // Armor Class
-    QLabel *to_ac_label = new QLabel("Edit Armor Class");
-    QSpinBox *to_ac_spinner = new QSpinBox;
+    QPointer<QLabel>  to_ac_label = new QLabel("Edit Armor Class");
+    QPointer<QSpinBox> to_ac_spinner = new QSpinBox;
     to_ac_spinner->setRange(-99,99);
     to_ac_spinner->setValue(o_ptr->to_d);
-    if (o_ptr->is_wieldable())
+    edit_info->addWidget(to_ac_label, 5, 0);
+    edit_info->addWidget(to_ac_spinner, 5, 1);
+    if (!o_ptr->is_wieldable())
     {
-        edit_info->addWidget(to_ac_label, 5, 0);
-        edit_info->addWidget(to_ac_spinner, 5, 1);
+        to_ac_label->hide();
+        to_ac_spinner->hide();
     }
 
 
-    QPushButton *close_button = new QPushButton(tr("&Close"));
+    QPointer<QPushButton> close_button = new QPushButton(tr("&Close"));
     connect(close_button, SIGNAL(clicked()), this, SLOT(close()));
 
 
@@ -162,61 +174,61 @@ EditObjectDialog::EditObjectDialog(void)
 
 EditCharacterDialog::EditCharacterDialog(void)
 {
-    QGridLayout *edit_info = new QGridLayout;
-    QVBoxLayout *vlay = new QVBoxLayout;
+    QPointer<QGridLayout> edit_info = new QGridLayout;
+    QPointer<QVBoxLayout> vlay = new QVBoxLayout;
 
     // First allow the 6 stats to be edited
     // Strength
-    QLabel *str_label = new QLabel("Strength");
-    QSpinBox *str_spinner = new QSpinBox;
+    QPointer<QLabel>  str_label = new QLabel("Strength");
+    QPointer<QSpinBox> str_spinner = new QSpinBox;
     str_spinner->setRange(3,118);
     str_spinner->setValue(p_ptr->stat_base_cur[A_STR]);
     edit_info->addWidget(str_label, 1, 0);
     edit_info->addWidget(str_spinner, 1, 1);
 
     // Intelligence
-    QLabel *int_label = new QLabel("Intelligence");
-    QSpinBox *int_spinner = new QSpinBox;
+    QPointer<QLabel>  int_label = new QLabel("Intelligence");
+    QPointer<QSpinBox> int_spinner = new QSpinBox;
     int_spinner->setRange(3,118);
     int_spinner->setValue(p_ptr->stat_base_cur[A_INT]);
     edit_info->addWidget(int_label, 2, 0);
     edit_info->addWidget(int_spinner, 2, 1);
 
     // Wisdom
-    QLabel *wis_label = new QLabel("Wisdom");
-    QSpinBox *wis_spinner = new QSpinBox;
+    QPointer<QLabel>  wis_label = new QLabel("Wisdom");
+    QPointer<QSpinBox> wis_spinner = new QSpinBox;
     wis_spinner->setRange(3,118);
     wis_spinner->setValue(p_ptr->stat_base_cur[A_WIS]);
     edit_info->addWidget(wis_label, 3, 0);
     edit_info->addWidget(wis_spinner, 3, 1);
 
     // Dexterity
-    QLabel *dex_label = new QLabel("Dexterity");
-    QSpinBox *dex_spinner = new QSpinBox;
+    QPointer<QLabel>  dex_label = new QLabel("Dexterity");
+    QPointer<QSpinBox> dex_spinner = new QSpinBox;
     dex_spinner->setRange(3,118);
     dex_spinner->setValue(p_ptr->stat_base_cur[A_DEX]);
     edit_info->addWidget(dex_label, 4, 0);
     edit_info->addWidget(dex_spinner, 4, 1);
 
     // Constitution
-    QLabel *con_label = new QLabel("Constitution");
-    QSpinBox *con_spinner = new QSpinBox;
+    QPointer<QLabel>  con_label = new QLabel("Constitution");
+    QPointer<QSpinBox> con_spinner = new QSpinBox;
     con_spinner->setRange(3,118);
     con_spinner->setValue(p_ptr->stat_base_cur[A_CON]);
     edit_info->addWidget(con_label, 5, 0);
     edit_info->addWidget(con_spinner, 5, 1);
 
     // Charisma
-    QLabel *chr_label = new QLabel("Charisma");
-    QSpinBox *chr_spinner = new QSpinBox;
+    QPointer<QLabel>  chr_label = new QLabel("Charisma");
+    QPointer<QSpinBox> chr_spinner = new QSpinBox;
     chr_spinner->setRange(3,118);
     chr_spinner->setValue(p_ptr->stat_base_cur[A_CHR]);
     edit_info->addWidget(chr_label, 6, 0);
     edit_info->addWidget(chr_spinner, 6, 1);
 
     // Gold
-    QLabel *gold_label = new QLabel("Gold");
-    QSpinBox *gold_spinner = new QSpinBox;
+    QPointer<QLabel>  gold_label = new QLabel("Gold");
+    QPointer<QSpinBox> gold_spinner = new QSpinBox;
     gold_spinner->setRange(0,500000000);
     gold_spinner->setValue(p_ptr->au);
     gold_spinner->setSingleStep(1000000);
@@ -224,8 +236,8 @@ EditCharacterDialog::EditCharacterDialog(void)
     edit_info->addWidget(gold_spinner, 7, 1);
 
     // Experience
-    QLabel *exp_label = new QLabel("Experience");
-    QSpinBox *exp_spinner = new QSpinBox;
+    QPointer<QLabel>  exp_label = new QLabel("Experience");
+    QPointer<QSpinBox> exp_spinner = new QSpinBox;
     exp_spinner->setRange(0,10000000);
     exp_spinner->setValue(p_ptr->max_exp);
     exp_spinner->setSingleStep(10000);
@@ -233,15 +245,15 @@ EditCharacterDialog::EditCharacterDialog(void)
     edit_info->addWidget(exp_spinner, 8, 1);
 
         // Experience
-    QLabel *fame_label = new QLabel("Fame");
-    QSpinBox *fame_spinner = new QSpinBox;
+    QPointer<QLabel>  fame_label = new QLabel("Fame");
+    QPointer<QSpinBox> fame_spinner = new QSpinBox;
     fame_spinner->setRange(0,5000);
     fame_spinner->setValue(p_ptr->q_fame);
     fame_spinner->setSingleStep(100);
     edit_info->addWidget(fame_label, 9, 0);
     edit_info->addWidget(fame_spinner, 9, 1);
 
-    QPushButton *close_button = new QPushButton(tr("&Close"));
+    QPointer<QPushButton> close_button = new QPushButton(tr("&Close"));
     connect(close_button, SIGNAL(clicked()), this, SLOT(close()));
 
     vlay->addLayout(edit_info);
@@ -307,13 +319,13 @@ void MakeArtifactDialog::update_art_choice(int choice)
 MakeArtifactDialog::MakeArtifactDialog(void)
 {
     int i;
-    QVBoxLayout *vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay = new QVBoxLayout;
     art_choice = new QComboBox;
     object_type object_type_body;
     object_type *i_ptr = &object_type_body;
 
 
-    QLabel *obj_label = new QLabel(QString("<b><big>Please select an artifact:</big></b>"));
+    QPointer<QLabel>  obj_label = new QLabel(QString("<b><big>Please select an artifact:</big></b>"));
     obj_label->setAlignment(Qt::AlignCenter);
 
     vlay->addWidget(obj_label);
@@ -321,7 +333,7 @@ MakeArtifactDialog::MakeArtifactDialog(void)
 
     connect(art_choice, SIGNAL(currentIndexChanged(int)), this, SLOT(update_art_choice(int)));
 
-    QPushButton *close_button = new QPushButton(tr("&Close"));
+    QPointer<QPushButton> close_button = new QPushButton(tr("&Close"));
     connect(close_button, SIGNAL(clicked()), this, SLOT(close()));
 
     int count = 0;
@@ -410,13 +422,13 @@ void MakeObjectDialog::update_obj_choice(int choice)
 MakeObjectDialog::MakeObjectDialog(void)
 {
     int i;
-    QVBoxLayout *vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay = new QVBoxLayout;
     obj_choice = new QComboBox;
     object_type object_type_body;
     object_type *i_ptr = &object_type_body;
 
 
-    QLabel *obj_label = new QLabel(QString("<b><big>Please select an object:</big></b>"));
+    QPointer<QLabel>  obj_label = new QLabel(QString("<b><big>Please select an object:</big></b>"));
     obj_label->setAlignment(Qt::AlignCenter);
 
     vlay->addWidget(obj_label);
@@ -424,7 +436,7 @@ MakeObjectDialog::MakeObjectDialog(void)
 
     connect(obj_choice, SIGNAL(currentIndexChanged(int)), this, SLOT(update_obj_choice(int)));
 
-    QPushButton *close_button = new QPushButton(tr("&Close"));
+    QPointer<QPushButton> close_button = new QPushButton(tr("&Close"));
     connect(close_button, SIGNAL(clicked()), this, SLOT(close()));
 
     int count = 0;
@@ -504,11 +516,11 @@ void MakeMonsterDialog::update_mon_choice(int choice)
 MakeMonsterDialog::MakeMonsterDialog(void)
 {
     int i;
-    QVBoxLayout *vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay = new QVBoxLayout;
     mon_choice = new QComboBox;
     int y, x;
 
-    QLabel *mon_label = new QLabel(QString("<b><big>Please select a monster:</big></b>"));
+    QPointer<QLabel>  mon_label = new QLabel(QString("<b><big>Please select a monster:</big></b>"));
     mon_label->setAlignment(Qt::AlignCenter);
 
     vlay->addWidget(mon_label);
@@ -516,7 +528,7 @@ MakeMonsterDialog::MakeMonsterDialog(void)
 
     connect(mon_choice, SIGNAL(currentIndexChanged(int)), this, SLOT(update_mon_choice(int)));
 
-    QPushButton *close_button = new QPushButton(tr("&Close"));
+    QPointer<QPushButton> close_button = new QPushButton(tr("&Close"));
     connect(close_button, SIGNAL(clicked()), this, SLOT(close()));
 
     int count = 0;
@@ -593,10 +605,10 @@ void MakeFeatureDialog::update_feat_choice(int choice)
 MakeFeatureDialog::MakeFeatureDialog(void)
 {
     int i;
-    QVBoxLayout *vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay = new QVBoxLayout;
     feat_choice = new QComboBox;
 
-    QLabel *feat_label = new QLabel(QString("<b><big>Please select a feature:</big></b>"));
+    QPointer<QLabel>  feat_label = new QLabel(QString("<b><big>Please select a feature:</big></b>"));
     feat_label->setAlignment(Qt::AlignCenter);
 
     vlay->addWidget(feat_label);
@@ -604,7 +616,7 @@ MakeFeatureDialog::MakeFeatureDialog(void)
 
     connect(feat_choice, SIGNAL(currentIndexChanged(int)), this, SLOT(update_feat_choice(int)));
 
-    QPushButton *close_button = new QPushButton(tr("&Close"));
+    QPointer<QPushButton> close_button = new QPushButton(tr("&Close"));
     connect(close_button, SIGNAL(clicked()), this, SLOT(close()));
 
     int count = 0;
@@ -1354,12 +1366,12 @@ WizardModeDialog::WizardModeDialog(void)
     main_prompt = new QLabel(QString("<b><big>Please select a command</big></b><br>"));
     main_prompt->setAlignment(Qt::AlignCenter);
 
-    QVBoxLayout *vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay = new QVBoxLayout;
 
     vlay->addWidget(main_prompt);
 
     // Add the player related commands
-    QGridLayout *wizard_layout = new QGridLayout;
+    QPointer<QGridLayout> wizard_layout = new QGridLayout;
 
     player_section = new QLabel("<b>Player commands</b>");
     player_section->setAlignment(Qt::AlignCenter);
@@ -1368,19 +1380,19 @@ WizardModeDialog::WizardModeDialog(void)
     row++;
 
     // Add the "cure all" button
-    QPushButton *heal_button = new QPushButton("Heal Player");
+    QPointer<QPushButton> heal_button = new QPushButton("Heal Player");
     heal_button->setToolTip("Completely heal and restore the player.");
     connect(heal_button, SIGNAL(clicked()), this, SLOT(wiz_cure_all()));
     wizard_layout->addWidget(heal_button, row, 0);
 
     // Add the "know all" button
-    QPushButton *know_button = new QPushButton("Know All");
+    QPointer<QPushButton> know_button = new QPushButton("Know All");
     know_button->setToolTip("Know everything about every feature, object, and monster in the game.");
     connect(know_button, SIGNAL(clicked()), this, SLOT(wiz_know_all()));
     wizard_layout->addWidget(know_button, row, 1);
 
     // Add the "jump" button
-    QPushButton *jump_button = new QPushButton("Jump To New Level");
+    QPointer<QPushButton> jump_button = new QPushButton("Jump To New Level");
     jump_button->setToolTip("Allow the player to instantly jump to any level in the dungeon.");
     connect(jump_button, SIGNAL(clicked()), this, SLOT(wiz_jump()));
     wizard_layout->addWidget(jump_button, row, 2);
@@ -1388,19 +1400,19 @@ WizardModeDialog::WizardModeDialog(void)
     row++;
 
     // Add the "teleport_to_target" button
-    QPushButton *teleport_target_button = new QPushButton("Teleport To Targeted Spot");
+    QPointer<QPushButton> teleport_target_button = new QPushButton("Teleport To Targeted Spot");
     teleport_target_button->setToolTip("Teleports the player to a specified spot on the dungeon level.");
     connect(teleport_target_button, SIGNAL(clicked()), this, SLOT(wiz_teleport_to_target()));
     wizard_layout->addWidget(teleport_target_button, row, 0);
 
     // Add the "phase door" button
-    QPushButton *phase_door = new QPushButton("Phase Door");
+    QPointer<QPushButton> phase_door = new QPushButton("Phase Door");
     phase_door->setToolTip("Teleports the player to a random spot up to 10 squares away.");
     connect(phase_door, SIGNAL(clicked()), this, SLOT(wiz_phase_door()));
     wizard_layout->addWidget(phase_door, row, 1);
 
     // Add the "teleport" button
-    QPushButton *teleport = new QPushButton("Teleport");
+    QPointer<QPushButton> teleport = new QPushButton("Teleport");
     teleport->setToolTip("Teleports the player to a random spot up to 100 squares away.");
     connect(teleport, SIGNAL(clicked()), this, SLOT(wiz_teleport()));
     wizard_layout->addWidget(teleport, row, 2);
@@ -1408,13 +1420,13 @@ WizardModeDialog::WizardModeDialog(void)
     row++;
 
     // Add the "edit character" button
-    QPushButton *edit_character = new QPushButton("Edit Character");
+    QPointer<QPushButton> edit_character = new QPushButton("Edit Character");
     edit_character->setToolTip("Edit character statistics, experience, gold, and fame.");
     connect(edit_character, SIGNAL(clicked()), this, SLOT(wiz_edit_character()));
     wizard_layout->addWidget(edit_character, row, 0);
 
     // Add the "know all" button
-    QPushButton *spoil_button = new QPushButton("Print Spoilers");
+    QPointer<QPushButton> spoil_button = new QPushButton("Print Spoilers");
     spoil_button->setToolTip("Print out Spoilers for all Monsters, objects, artifacts, and terrain.");
     connect(spoil_button, SIGNAL(clicked()), this, SLOT(wiz_print_spoilers()));
     wizard_layout->addWidget(spoil_button, row, 1);
@@ -1429,19 +1441,19 @@ WizardModeDialog::WizardModeDialog(void)
     row++;
 
     // Add the "summon" button
-    QPushButton *summon_button = new QPushButton("Summon Monster");
+    QPointer<QPushButton> summon_button = new QPushButton("Summon Monster");
     summon_button->setToolTip("Summon one random monster.");
     connect(summon_button, SIGNAL(clicked()), this, SLOT(wiz_summon()));
     wizard_layout->addWidget(summon_button, row, 0);
 
     // Add the "banish" button
-    QPushButton *banish_button = new QPushButton("Banish Monsters");
+    QPointer<QPushButton> banish_button = new QPushButton("Banish Monsters");
     banish_button->setToolTip("Erase all monsters within 30 squares of player, except for uniques and quest monsters.");
     connect(banish_button, SIGNAL(clicked()), this, SLOT(wiz_banish()));
     wizard_layout->addWidget(banish_button, row, 1);
 
     // Add the "detect all monsters" button
-    QPushButton *display_mon_button = new QPushButton("Detect All Monsters");
+    QPointer<QPushButton> display_mon_button = new QPushButton("Detect All Monsters");
     display_mon_button->setToolTip("Detect all monsters on the level.");
     connect(display_mon_button, SIGNAL(clicked()), this, SLOT(wiz_detect_all_monsters()));
     wizard_layout->addWidget(display_mon_button, row, 2);
@@ -1449,19 +1461,19 @@ WizardModeDialog::WizardModeDialog(void)
     row++;
 
     // Add the "detection" button
-    QPushButton *detection = new QPushButton("Detection");
+    QPointer<QPushButton> detection = new QPushButton("Detection");
     detection->setToolTip("Cast the 'Detection' spell");
     connect(detection, SIGNAL(clicked()), this, SLOT(wiz_detection()));
     wizard_layout->addWidget(detection, row, 0);
 
     // Add the "magic mapping" button
-    QPushButton *magic_mapping = new QPushButton("Magic Mapping");
+    QPointer<QPushButton> magic_mapping = new QPushButton("Magic Mapping");
     magic_mapping->setToolTip("Cast the 'Magic Mapping' spell.");
     connect(magic_mapping, SIGNAL(clicked()), this, SLOT(wiz_magic_mapping()));
     wizard_layout->addWidget(magic_mapping, row, 1);
 
     // Add the "light dungeon" button
-    QPushButton *dungeon_light = new QPushButton("Light Dungeon");
+    QPointer<QPushButton> dungeon_light = new QPushButton("Light Dungeon");
     dungeon_light->setToolTip("Illuminate the entire dungeon level.");
     connect(dungeon_light, SIGNAL(clicked()), this, SLOT(wiz_level_light()));
     wizard_layout->addWidget(dungeon_light, row, 2);
@@ -1469,19 +1481,19 @@ WizardModeDialog::WizardModeDialog(void)
     row++;
 
     // Add the "redraw dungeon" button
-    QPushButton *redraw_dungeon = new QPushButton("Redraw Dungeon");
+    QPointer<QPushButton> redraw_dungeon = new QPushButton("Redraw Dungeon");
     redraw_dungeon->setToolTip("Redraw a new dungeon level at the current depth.");
     connect(redraw_dungeon, SIGNAL(clicked()), this, SLOT(wiz_redraw_dungeon()));
     wizard_layout->addWidget(redraw_dungeon, row, 0);
 
     // Add the "make monster" button
-    QPushButton *make_monster = new QPushButton("Make Monster");
+    QPointer<QPushButton> make_monster = new QPushButton("Make Monster");
     make_monster->setToolTip("Attempt to make a monster of a specified monster race.");
     connect(make_monster, SIGNAL(clicked()), this, SLOT(wiz_create_monster()));
     wizard_layout->addWidget(make_monster, row, 1);
 
     // Add the "make feature" button
-    QPushButton *make_feature = new QPushButton("Make Feature");
+    QPointer<QPushButton> make_feature = new QPushButton("Make Feature");
     make_feature->setToolTip("Attempt to make a specified feature type.");
     connect(make_feature, SIGNAL(clicked()), this, SLOT(wiz_create_feature()));
     wizard_layout->addWidget(make_feature, row, 2);
@@ -1496,19 +1508,19 @@ WizardModeDialog::WizardModeDialog(void)
     row++;
 
     // Add the "mass create items" button
-    QPushButton *mass_create_items_button = new QPushButton("Create 25 Random Items");
+    QPointer<QPushButton> mass_create_items_button = new QPushButton("Create 25 Random Items");
     mass_create_items_button->setToolTip("Drop 25 randomly generated objects around the player.");
     connect(mass_create_items_button , SIGNAL(clicked()), this, SLOT(wiz_mass_create_items()));
     wizard_layout->addWidget(mass_create_items_button, row, 0);
 
     // Add the "create 1 random good item" button
-    QPushButton *create_good_item = new QPushButton("Create 1 Random Good Item");
+    QPointer<QPushButton> create_good_item = new QPushButton("Create 1 Random Good Item");
     create_good_item->setToolTip("Drop one randomly created guaranteed good item by the player.");
     connect(create_good_item , SIGNAL(clicked()), this, SLOT(wiz_create_good_item()));
     wizard_layout->addWidget(create_good_item, row, 1);
 
     // Add the "create 1 random great item" button
-    QPushButton *create_great_item = new QPushButton("Create 1 Random Great Item");
+    QPointer<QPushButton> create_great_item = new QPushButton("Create 1 Random Great Item");
     create_great_item->setToolTip("Drop one randomly created guaranteed great item by the player.");
     connect(create_great_item , SIGNAL(clicked()), this, SLOT(wiz_create_great_item()));
     wizard_layout->addWidget(create_great_item, row, 2);
@@ -1516,19 +1528,19 @@ WizardModeDialog::WizardModeDialog(void)
     row++;
 
     // Add the "mass identify" button
-    QPushButton *mass_identify = new QPushButton("Mass Identify");
+    QPointer<QPushButton> mass_identify = new QPushButton("Mass Identify");
     mass_identify->setToolTip("Identify all objects the player has, as well as all objects within 5 squares.");
     connect(mass_identify, SIGNAL(clicked()), this, SLOT(wiz_mass_identify_items()));
     wizard_layout->addWidget(mass_identify, row, 0);
 
     // Add the "winner's kit" button
-    QPushButton *winners_kit = new QPushButton("Winner's kit");
+    QPointer<QPushButton> winners_kit = new QPushButton("Winner's kit");
     winners_kit->setToolTip("Create a set of artifacts suitable for winning the game.");
     connect(winners_kit, SIGNAL(clicked()), this, SLOT(wiz_winners_kit()));
     wizard_layout->addWidget(winners_kit, row, 1);
 
     // Add the "edit object" button
-    QPushButton *edit_object = new QPushButton("Edit Object");
+    QPointer<QPushButton> edit_object = new QPushButton("Edit Object");
     edit_object->setToolTip("Edit a non-artifact object.");
     connect(edit_object, SIGNAL(clicked()), this, SLOT(wiz_edit_object()));
     wizard_layout->addWidget(edit_object, row, 2);
@@ -1536,13 +1548,13 @@ WizardModeDialog::WizardModeDialog(void)
     row++;
 
     // Add the "make artifact" button
-    QPushButton *create_artifact = new QPushButton("Create artifact");
+    QPointer<QPushButton> create_artifact = new QPushButton("Create artifact");
     create_artifact->setToolTip("Create an artifact.");
     connect(create_artifact, SIGNAL(clicked()), this, SLOT(wiz_create_artifact()));
     wizard_layout->addWidget(create_artifact, row, 0);
 
     // Add the "make objecct" button
-    QPushButton *create_object = new QPushButton("Create object");
+    QPointer<QPushButton> create_object = new QPushButton("Create object");
     create_object->setToolTip("Create a normal object.");
     connect(create_object, SIGNAL(clicked()), this, SLOT(wiz_create_object()));
     wizard_layout->addWidget(create_object, row, 1);

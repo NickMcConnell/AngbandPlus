@@ -3,6 +3,7 @@
 
 #include <src/player.h>
 #include <src/object_classes.h>
+#include <src/mon_classes.h>
 #include <QString>
 
 class magic_type
@@ -317,7 +318,8 @@ public:
 
     byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
-    byte delay_factor;		/* Delay factor (0 to 9) */
+    byte delay_anim_factor;		/* Delay factor (25 to 200) */
+    byte delay_run_factor;      // Delay between run steps, if needed
 
     // All variables above need to be re-set in player_set_wipe.
     void player_other_wipe();
@@ -427,6 +429,7 @@ public:
     /*** Temporary fields ***/
 
     bool playing;			/* True if player is playing */
+    bool in_death_menu;        // An exception to p_ptr->playing if player is in death menu.
     bool in_store;          // Player is inside a store
     bool message_append;    /* Messages should be appended onscreen */
 
@@ -456,6 +459,8 @@ public:
     s16b health_who;		/* Health bar trackee */
 
     s16b monster_race_idx;	/* Monster race trackee */
+    s16b monster_race_idx_old;  // Track if monster race changed
+    monster_lore mon_race_idx_lore;
 
     s16b object_idx;    /* Object trackee */
     s16b object_kind_idx;	/* Object kind trackee */

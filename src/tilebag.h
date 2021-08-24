@@ -5,6 +5,7 @@
 #include <QHash>
 #include <QPixmap>
 #include <QDialog>
+#include <QPointer>
 #include "nppdialog.h"
 
 class Package;
@@ -31,8 +32,8 @@ class PackageDialog: public QDialog
 {
     Q_OBJECT
 public:
-    QLineEdit *pak_path;
-    QLineEdit *folder_path;
+    QPointer<QLineEdit> pak_path;
+    QPointer<QLineEdit> folder_path;
     QString mode;
 
     PackageDialog(QString _mode);

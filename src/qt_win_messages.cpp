@@ -65,7 +65,7 @@ void MainWindow::win_messages_create()
     win_messages_area = new QTextEdit;
     win_messages_area->setReadOnly(TRUE);
     win_messages_area->setStyleSheet("background-color: black;");
-    win_messages_area->setTextInteractionFlags(Qt::NoTextInteraction);
+    win_messages_area->setTextInteractionFlags(Qt::TextSelectableByMouse);
     win_messages_vlay->addWidget(win_messages_area);
     win_messages_menubar = new QMenuBar;
     win_messages_vlay->setMenuBar(win_messages_menubar);

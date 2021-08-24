@@ -61,9 +61,6 @@ public:
     QString monster_tile;
 
     bool double_height_monster;
-    bool wall_right;
-    bool wall_below;
-    bool wall_southeast;
 
     u16b ui_flags;
 
@@ -76,6 +73,7 @@ public:
     bool has_effect();
     bool has_monster();
 
+    bool has_visible_terrain();
     bool has_visible_object();
     bool has_visible_effect();
     bool has_visible_monster();
@@ -93,6 +91,7 @@ public:
     bool is_jammed_door(void);
     bool is_wall(void);
     bool is_stairs(void);
+    bool projectable();
 
 
     // All variables above should be included in this method.

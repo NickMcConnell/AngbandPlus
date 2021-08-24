@@ -134,7 +134,7 @@ void MainWindow::hide_targeting_sidebar()
 
     for (int i = 0; i < pushbuttons.size(); i++)
     {
-        QPushButton *this_pushbutton = pushbuttons.at(i);
+        QPointer<QPushButton> this_pushbutton = pushbuttons.at(i);
 
         QString this_text = this_pushbutton->objectName();
         if (!this_text.length()) continue;
@@ -491,124 +491,123 @@ void MainWindow::show_targeting_sidebar()
 
 void MainWindow::create_targeting_sidebar()
 {
-    QPushButton *north_west = new QPushButton;
+    QPointer<QPushButton> north_west = new QPushButton;
     north_west->setIcon(QIcon(":/icons/lib/icons/arrow-northwest.png"));
-
     north_west->setObjectName("NorthWest");
     connect(north_west, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(north_west, 0, 0);
 
-    QPushButton *north = new QPushButton;
+    QPointer<QPushButton> north = new QPushButton;
     north->setIcon(QIcon(":/icons/lib/icons/arrow-north.png"));
     north->setObjectName("North");
     connect(north, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(north, 0, 1);
 
-    QPushButton *north_east = new QPushButton;
+    QPointer<QPushButton> north_east = new QPushButton;
     north_east->setIcon(QIcon(":/icons/lib/icons/arrow-northeast.png"));
     north_east->setToolTip("Target Direction NorthEast");
     north_east->setObjectName("NorthEast");
     connect(north_east, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(north_east, 0, 2);
 
-    QPushButton *west = new QPushButton;
+    QPointer<QPushButton> west = new QPushButton;
     west->setIcon(QIcon(":/icons/lib/icons/arrow-west.png"));
     west->setToolTip("Target Direction West");
     west->setObjectName("West");
     connect(west, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(west, 1, 0);
 
-    QPushButton *target_player = new QPushButton;
+    QPointer<QPushButton> target_player = new QPushButton;
     target_player->setIcon(QIcon(":/icons/lib/icons/target-player.png"));
     target_player->setToolTip("Target Player");
     target_player->setObjectName("TargetPlayer");
     connect(target_player, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(target_player, 1, 1);
 
-    QPushButton *east = new QPushButton;
+    QPointer<QPushButton> east = new QPushButton;
     east->setIcon(QIcon(":/icons/lib/icons/arrow-east.png"));
     east->setToolTip("Target Direction East");
     east->setObjectName("East");
     connect(east, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(east, 1, 2);
 
-    QPushButton *south_west = new QPushButton;
+    QPointer<QPushButton> south_west = new QPushButton;
     south_west->setIcon(QIcon(":/icons/lib/icons/arrow-southwest.png"));
     south_west->setToolTip("Target Direction SouthWest");
     south_west->setObjectName("SouthWest");
     connect(south_west, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(south_west, 2, 0);
 
-    QPushButton *south = new QPushButton;
+    QPointer<QPushButton> south = new QPushButton;
     south->setIcon(QIcon(":/icons/lib/icons/arrow-south.png"));
     south->setToolTip("Target Direction South");
     south->setObjectName("South");
     connect(south, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(south, 2, 1);
 
-    QPushButton *south_east = new QPushButton;
+    QPointer<QPushButton> south_east = new QPushButton;
     south_east->setIcon(QIcon(":/icons/lib/icons/arrow-southeast.png"));
     south_east->setToolTip("Target Direction SouthEast");
     south_east->setObjectName("SouthEast");
     connect(south_east, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(south_east, 2, 2);
 
-    QPushButton *target_closest = new QPushButton;
+    QPointer<QPushButton> target_closest = new QPushButton;
     target_closest->setIcon(QIcon(":/icons/lib/icons/target-closest.png"));
     target_closest->setToolTip("Target Closest");
     target_closest->setObjectName("TargetClosest");
     connect(target_closest, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(target_closest, 3, 0);
 
-    QPushButton *target_toggle = new QPushButton;
+    QPointer<QPushButton> target_toggle = new QPushButton;
     target_toggle->setIcon(QIcon(":/icons/lib/icons/target-interactive.png"));
     target_toggle->setObjectName("TargetToggle");
     connect(target_toggle, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(target_toggle, 3, 1);
 
-    QPushButton *target_grid_info = new QPushButton;
+    QPointer<QPushButton> target_grid_info = new QPushButton;
     target_grid_info->setIcon(QIcon(":/icons/lib/icons/target-information.png"));
     target_grid_info->setObjectName("TargetGridInfo");
     target_grid_info->setToolTip("Display Information on Current Targeted Grid");
     connect(target_grid_info, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(target_grid_info, 3, 2);
 
-    QPushButton *target_cancel = new QPushButton;
+    QPointer<QPushButton> target_cancel = new QPushButton;
     target_cancel->setIcon(QIcon(":/icons/lib/icons/target-cancel.png"));
     target_cancel->setToolTip("Cancel Targeting");
     target_cancel->setObjectName("TargetCancel");
     connect(target_cancel, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(target_cancel, 4, 0);
 
-    QPushButton *target_select = new QPushButton;
+    QPointer<QPushButton> target_select = new QPushButton;
     target_select->setIcon(QIcon(":/icons/lib/icons/select.png"));
     target_select->setToolTip("Select Current Target");
     target_select->setObjectName("TargetSelect");
     connect(target_select, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(target_select, 4, 1);
 
-    QPushButton *target_help = new QPushButton;
+    QPointer<QPushButton> target_help = new QPushButton;
     target_help->setIcon(QIcon(":/icons/lib/icons/target-help.png"));
     target_help->setToolTip("View Targeting Help");
     target_help->setObjectName("TargetHelp");
     connect(target_help, SIGNAL(pressed()), this, SLOT(command_list_targeting()));
     targeting_glay->addWidget(target_help, 4, 2);
 
-    QPushButton *target_prev = new QPushButton;
+    QPointer<QPushButton> target_prev = new QPushButton;
     target_prev->setIcon(QIcon(":/icons/lib/icons/arrow-left-double.png"));
     target_prev->setToolTip("Select next target");
     target_prev->setObjectName("TargetPrev");
     connect(target_prev, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(target_prev, 5, 0);
 
-    QPushButton *target_next = new QPushButton;
+    QPointer<QPushButton> target_next = new QPushButton;
     target_next->setIcon(QIcon(":/icons/lib/icons/arrow-right-double.png"));
     target_next->setToolTip("Select the next target.");
     target_next->setObjectName("TargetNext");
     connect(target_next, SIGNAL(pressed()), this, SLOT(target_choice()));
     targeting_glay->addWidget(target_next, 5, 1);
 
-    QPushButton *target_info = new QPushButton;
+    QPointer<QPushButton> target_info = new QPushButton;
     target_info->setIcon(QIcon(":/icons/lib/icons/target-information.png"));
     target_info->setToolTip("Receive information on the selected square.");
     target_info->setObjectName("TargetInfo");

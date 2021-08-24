@@ -5,6 +5,7 @@
 #include <QDialog>
 #include <QTextEdit>
 #include <QLabel>
+#include <QPointer>
 
 typedef struct message_type message_type;
 

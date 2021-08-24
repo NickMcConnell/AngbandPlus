@@ -16,50 +16,42 @@
 
 
 
-static QString output_list(QString list[], int n)
+static QString output_list(QVector<QString> list, bool use_or)
 {
     QString output;
-
-    int i;
 
     output.clear();
 
     QString conjunction = "and ";
-    if (n < 0)
-    {
-        n = -n;
-        conjunction = "or ";
-    }
+    if (use_or) conjunction = "or ";
 
-
-    for (i = 0; i < n; i++)
+    for (int i = 0; i < list.size(); i++)
     {
         if (i != 0)
-
         {
-            output.append((i == 1 && i == n - 1) ? " " : ", ");
-            if (i == n - 1)	output.append(conjunction);
+            output.append((i == 1 && i == list.size() - 1) ? " " : ", ");
+            if (i == list.size() - 1)	output.append(conjunction);
 
         }
-        output.append(list[i]);
+        output.append(list.at(i));
     }
     return (output);
 }
 
 
-static QString output_desc_list(QString intro, QString list[], int n)
+static QString output_desc_list(QString intro, QVector<QString> list, bool use_or)
 {
     QString output;
 
     output.clear();
 
-    if (n != 0)
+    if (list.size())
     {
         /* Output intro */
         output = (intro);
 
         /* Output list */
-        output.append(output_list(list, n));
+        output.append(output_list(list, use_or));
 
         /* Output end */
         output.append(".  ");
@@ -78,26 +70,26 @@ static QString describe_stats(object_type *o_ptr, u32b f1)
 
     output.clear();
 
-    QString descs[A_MAX];
-    int cnt = 0;
+    QVector<QString> descs;
+    descs.clear();
     int pval = (o_ptr->pval > 0 ? o_ptr->pval : -o_ptr->pval);
 
     /* Abort if the pval is zero */
     if (!pval) return (output);
 
     /* Collect stat bonuses */
-    if (f1 & (TR1_STR)) descs[cnt++] = color_string(stat_names_full[A_STR], pval > 0 ? TERM_GREEN : TERM_RED);
-    if (f1 & (TR1_INT)) descs[cnt++] = color_string(stat_names_full[A_INT], pval > 0 ? TERM_GREEN : TERM_RED);
-    if (f1 & (TR1_WIS)) descs[cnt++] = color_string(stat_names_full[A_WIS], pval > 0 ? TERM_GREEN : TERM_RED);
-    if (f1 & (TR1_DEX)) descs[cnt++] = color_string(stat_names_full[A_DEX], pval > 0 ? TERM_GREEN : TERM_RED);
-    if (f1 & (TR1_CON)) descs[cnt++] = color_string(stat_names_full[A_CON], pval > 0 ? TERM_GREEN : TERM_RED);
-    if (f1 & (TR1_CHR)) descs[cnt++] = color_string(stat_names_full[A_CHR], pval > 0 ? TERM_GREEN : TERM_RED);
+    if (f1 & (TR1_STR)) descs.append(color_string(stat_names_full[A_STR], pval > 0 ? TERM_GREEN : TERM_RED));
+    if (f1 & (TR1_INT)) descs.append(color_string(stat_names_full[A_INT], pval > 0 ? TERM_GREEN : TERM_RED));
+    if (f1 & (TR1_WIS)) descs.append(color_string(stat_names_full[A_WIS], pval > 0 ? TERM_GREEN : TERM_RED));
+    if (f1 & (TR1_DEX)) descs.append(color_string(stat_names_full[A_DEX], pval > 0 ? TERM_GREEN : TERM_RED));
+    if (f1 & (TR1_CON)) descs.append(color_string(stat_names_full[A_CON], pval > 0 ? TERM_GREEN : TERM_RED));
+    if (f1 & (TR1_CHR)) descs.append(color_string(stat_names_full[A_CHR], pval > 0 ? TERM_GREEN : TERM_RED));
 
     /* Skip */
-    if (cnt == 0) return (output);
+    if (!descs.size()) return (output);
 
     /* Shorten to "all stats", if appropriate. */
-    if (cnt == A_MAX)
+    if (descs.size() == A_MAX)
     {
         if (pval > 0) output.append(color_string("It increases all your stats", TERM_GREEN));
         else output.append(color_string("It decreases all your stats", TERM_RED));
@@ -108,7 +100,7 @@ static QString describe_stats(object_type *o_ptr, u32b f1)
         else output.append("It decreases your ");
 
         /* Output list */
-        output.append(output_list(descs, cnt));
+        output.append(output_list(descs, FALSE));
     }
 
     /* Output end */
@@ -127,35 +119,35 @@ static QString describe_secondary(object_type *o_ptr, u32b f1)
 
     output.clear();
 
-    QString descs[8];
-    int cnt = 0;
+    QVector<QString> descs;
+    descs.clear();
     int pval = (o_ptr->pval > 0 ? o_ptr->pval : -o_ptr->pval);
 
     /* Collect */
-    if (f1 & (TR1_STEALTH)) descs[cnt++] = "stealth";
-    if (f1 & (TR1_SEARCH))  descs[cnt++] = "searching";
-    if (f1 & (TR1_INFRA))   descs[cnt++] = "infravision";
-    if (f1 & (TR1_TUNNEL))  descs[cnt++] = "tunneling";
-    if (f1 & (TR1_SPEED))   descs[cnt++] = "speed";
-    if (f1 & (TR1_BLOWS))   descs[cnt++] = "attack speed";
-    if (f1 & (TR1_SHOTS))   descs[cnt++] = "shooting speed";
-    if (f1 & (TR1_MIGHT))   descs[cnt++] = "shooting power";
+    if (f1 & (TR1_STEALTH)) descs.append("stealth");
+    if (f1 & (TR1_SEARCH))  descs.append("searching");
+    if (f1 & (TR1_INFRA))   descs.append("infravision");
+    if (f1 & (TR1_TUNNEL))  descs.append("tunneling");
+    if (f1 & (TR1_SPEED))   descs.append("speed");
+    if (f1 & (TR1_BLOWS))   descs.append("attack speed");
+    if (f1 & (TR1_SHOTS))   descs.append("shooting speed");
+    if (f1 & (TR1_MIGHT))   descs.append("shooting power");
 
     /* Skip */
-    if (!cnt) return (output);
+    if (!descs.size()) return (output);
 
     /* Start */
     output.append(QString("It %1 your ") .arg(o_ptr->pval > 0 ? "increases" : "decreases"));
 
     int attr = (pval > 0 ? TERM_GREEN : TERM_RED);
 
-    for (int i = 0; i < cnt; i++)
+    for (int i = 0; i < descs.size(); i++)
     {
         descs[i] = color_string(descs[i], attr);
     }
 
     /* Output list */
-    output.append(output_list(descs, cnt));
+    output.append(output_list(descs, FALSE));
 
     /* Output end */
     output.append(QString(" by %1.  ") .arg(pval));
@@ -172,63 +164,65 @@ static QString describe_slay(object_type *o_ptr, u32b f1)
     QString output;
     output.clear();
 
-    QString slays[8], execs[3];
-    int slcnt = 0, excnt = 0;
+    QVector<QString> slays;
+    QVector<QString> execs;
+    slays.clear();
+    execs.clear();
 
     /* Unused parameter */
     (void)o_ptr;
 
     /* Collect brands */
-    if (f1 & (TR1_SLAY_ANIMAL)) slays[slcnt++] = "animals";
-    if (f1 & (TR1_SLAY_ORC))    slays[slcnt++] = "orcs";
-    if (f1 & (TR1_SLAY_TROLL))  slays[slcnt++] = "trolls";
-    if (f1 & (TR1_SLAY_GIANT))  slays[slcnt++] = "giants";
+    if (f1 & (TR1_SLAY_ANIMAL)) slays.append("animals");
+    if (f1 & (TR1_SLAY_ORC))    slays.append("orcs");
+    if (f1 & (TR1_SLAY_TROLL))  slays.append("trolls");
+    if (f1 & (TR1_SLAY_GIANT))  slays.append("giants");
 
     /* Dragon slay/execute */
     if (f1 & TR1_KILL_DRAGON)
-        execs[excnt++] = "dragons";
+        execs.append("dragons");
     else if (f1 & TR1_SLAY_DRAGON)
-        slays[slcnt++] = "dragons";
+        slays.append("dragons");
 
     /* Demon slay/execute */
     if (f1 & TR1_KILL_DEMON)
-        execs[excnt++] = "demons";
+        execs.append("demons");
     else if (f1 & TR1_SLAY_DEMON)
-        slays[slcnt++] = "demons";
+        slays.append("demons");
 
     /* Undead slay/execute */
     if (f1 & TR1_KILL_UNDEAD)
-        execs[excnt++] = "undead";
+        execs.append("undead");
     else if (f1 & TR1_SLAY_UNDEAD)
-        slays[slcnt++] = "undead";
+        slays.append("undead");
 
-    if (f1 & (TR1_SLAY_EVIL)) slays[slcnt++] = "all evil creatures";
+    if (f1 & (TR1_SLAY_EVIL)) slays.append("all evil creatures");
 
     /* Describe */
-    if (slcnt)
+    if (slays.size())
     {
-        for (int i = 0; i < slcnt; i++)  slays[i] = color_string(slays[i], TERM_ORANGE_PEEL);
+        for (int i = 0; i < slays.size(); i++)  slays[i] = color_string(slays[i], TERM_ORANGE_PEEL);
 
         /* Output intro */
         output.append("It slays ");
 
         /* Output list */
-        output.append(output_list(slays, slcnt));
+        output.append(output_list(slays, FALSE));
 
         /* Output end (if needed) */
-        if (!excnt) output.append(".  ");
+        if (!execs.size()) output.append(".  ");
     }
 
-    if (excnt)
+    if (execs.size())
     {
-        for (int i = 0; i < excnt; i++)  execs[i] = color_string(execs[i], TERM_BLUE);
+        for (int i = 0; i < execs.size(); i++)  execs[i] = color_string(execs[i], TERM_BLUE);
 
         /* Output intro */
-        if (slcnt) output.append(", and it is especially deadly against ");
+        if (slays.size()) output.append(", and it is especially deadly against ");
         else output.append("It is especially deadly against ");
 
         /* Output list */
-        output.append(output_list(execs, excnt));
+        output.append(output_list(execs, FALSE));
 
         /* Output end */
         output.append(".  ");
@@ -247,23 +241,25 @@ static QString describe_brand(object_type *o_ptr, u32b f1)
     QString output;
     output.clear();
 
-    QString descs[5];
-    int cnt = 0;
+    QVector<QString> descs;
+    descs.clear();
 
     /* Unused parameter */
     (void)o_ptr;
 
     /* Collect brands */
-    if (f1 & (TR1_BRAND_ACID)) descs[cnt++] = "acid";
-    if (f1 & (TR1_BRAND_ELEC)) descs[cnt++] = "electricity";
-    if (f1 & (TR1_BRAND_FIRE)) descs[cnt++] = "fire";
-    if (f1 & (TR1_BRAND_COLD)) descs[cnt++] = "frost";
-    if (f1 & (TR1_BRAND_POIS)) descs[cnt++] = "poison";
+    if (f1 & (TR1_BRAND_ACID)) descs.append("acid");
+    if (f1 & (TR1_BRAND_ELEC)) descs.append("electricity");
+    if (f1 & (TR1_BRAND_FIRE)) descs.append("fire");
+    if (f1 & (TR1_BRAND_COLD)) descs.append("frost");
+    if (f1 & (TR1_BRAND_POIS)) descs.append("poison");
 
-    for (int i = 0; i < cnt; i++)  descs[i] = color_string(descs[i], TERM_GREEN);
+    if (!descs.size()) return (output);
+
+    for (int i = 0; i < descs.size(); i++)  descs[i] = color_string(descs[i], TERM_GREEN);
 
     /* Describe brands */
-    output.append(output_desc_list("It is branded with ", descs, cnt));
+    output.append(output_desc_list("It is branded with ", descs, FALSE));
 
     /* We are done here */
     return (output);
@@ -278,23 +274,25 @@ static QString describe_immune(object_type *o_ptr, u32b f2)
     QString output;
     output.clear();
 
-    QString descs[5];
-    int cnt = 0;
+    QVector<QString> descs;
+    descs.clear();
 
     /* Unused parameter */
     (void)o_ptr;
 
     /* Collect immunities */
-    if (f2 & (TR2_IM_ACID)) descs[cnt++] = "acid";
-    if (f2 & (TR2_IM_ELEC)) descs[cnt++] = "lightning";
-    if (f2 & (TR2_IM_FIRE)) descs[cnt++] = "fire";
-    if (f2 & (TR2_IM_COLD)) descs[cnt++] = "cold";
-    if (f2 & (TR2_IM_POIS)) descs[cnt++] = "poison";
+    if (f2 & (TR2_IM_ACID)) descs.append("acid");
+    if (f2 & (TR2_IM_ELEC)) descs.append("lightning");
+    if (f2 & (TR2_IM_FIRE)) descs.append("fire");
+    if (f2 & (TR2_IM_COLD)) descs.append("cold");
+    if (f2 & (TR2_IM_POIS)) descs.append("poison");
 
-    for (int i = 0; i < cnt; i++)  descs[i] = color_string(descs[i], TERM_BLUE);
+    if (!descs.size()) return (output);
+
+    for (int i = 0; i < descs.size(); i++)  descs[i] = color_string(descs[i], TERM_BLUE);
 
     /* Describe immunities */
-    output.append(output_desc_list("It provides immunity to ", descs, cnt));
+    output.append(output_desc_list("It provides immunity to ", descs, FALSE));
 
     /* We are done here */
     return (output);
@@ -308,41 +306,44 @@ static QString describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
     QString output;
     output.clear();
 
-    QString vp[17];
-    int vn = 0;
+    QVector<QString> vp;
+    vp.clear();
 
     /* Unused parameter */
     (void)o_ptr;
 
     /* Collect resistances */
     if ((f2 & (TR2_RES_ACID)) && !(f2 & (TR2_IM_ACID)))
-        vp[vn++] = "acid";
+        vp.append("acid");
     if ((f2 & (TR2_RES_ELEC)) && !(f2 & (TR2_IM_ELEC)))
-        vp[vn++] = "lightning";
+        vp.append("lightning");
     if ((f2 & (TR2_RES_FIRE)) && !(f2 & (TR2_IM_FIRE)))
-        vp[vn++] = "fire";
+        vp.append("fire");
     if ((f2 & (TR2_RES_COLD)) && !(f2 & (TR2_IM_COLD)))
-        vp[vn++] = "cold";
+        vp.append("cold");
     if ((f2 & (TR2_RES_POIS)) && !(f2 & (TR2_IM_POIS)))
-        vp[vn++] = "poison";
+        vp.append("poison");
 
-    if (f2 & (TR2_RES_FEAR))  vp[vn++] = "fear";
-    if (f2 & (TR2_RES_LIGHT))  vp[vn++] = "light";
-    if (f2 & (TR2_RES_DARK))  vp[vn++] = "dark";
-    if (f2 & (TR2_RES_BLIND)) vp[vn++] = "blindness";
-    if (f2 & (TR2_RES_CONFU)) vp[vn++] = "confusion";
-    if (f2 & (TR2_RES_SOUND)) vp[vn++] = "sound";
-    if (f2 & (TR2_RES_SHARD)) vp[vn++] = "shards";
-    if (f2 & (TR2_RES_NEXUS)) vp[vn++] = "nexus" ;
-    if (f2 & (TR2_RES_NETHR)) vp[vn++] = "nether";
-    if (f2 & (TR2_RES_CHAOS)) vp[vn++] = "chaos";
-    if (f2 & (TR2_RES_DISEN)) vp[vn++] = "disenchantment";
-    if (f3 & (TR3_HOLD_LIFE)) vp[vn++] = "life draining";
+    if (f2 & (TR2_RES_FEAR))  vp.append("fear");
+    if (f2 & (TR2_RES_LIGHT))  vp.append("light");
+    if (f2 & (TR2_RES_DARK))  vp.append("dark");
+    if (f2 & (TR2_RES_BLIND)) vp.append("blindness");
+    if (f2 & (TR2_RES_CONFU)) vp.append("confusion");
+    if (f2 & (TR2_RES_SOUND)) vp.append("sound");
+    if (f2 & (TR2_RES_SHARD)) vp.append("shards");
+    if (f2 & (TR2_RES_NEXUS)) vp.append("nexus");
+    if (f2 & (TR2_RES_NETHR)) vp.append("nether");
+    if (f2 & (TR2_RES_CHAOS)) vp.append("chaos");
+    if (f2 & (TR2_RES_DISEN)) vp.append("disenchantment");
+    if (f3 & (TR3_HOLD_LIFE)) vp.append("life draining");
 
-    for (int i = 0; i < vn; i++)  vp[i] = color_string(vp[i], TERM_PURPLE);
+    // Nothing to report
+    if (!vp.size()) return (output);
+
+    for (int i = 0; i < vp.size(); i++)  vp[i] = color_string(vp[i], TERM_PURPLE);
 
     /* Describe resistances */
-    output.append(output_desc_list("It provides resistance to ", vp, vn));
+    output.append(output_desc_list("It provides resistance to ", vp, FALSE));
 
     /* We are done here */
     return (output);
@@ -425,7 +426,7 @@ static QString describe_weapon(object_type *o_ptr, u32b f1, bool extra_info, boo
     }
     plus = object_state.known_to_d + (o_ptr->is_known() ? o_ptr->to_d : 0);
     crit_hit_percent = critical_hit_chance(o_ptr, object_state, TRUE) / (CRIT_HIT_CHANCE / 100);
-    average = (dd * ds) / 2 + plus;
+    average = ((ds + 1) / 2) * dd + plus;
 
     output.append("<br>");
 
@@ -451,7 +452,7 @@ static QString describe_weapon(object_type *o_ptr, u32b f1, bool extra_info, boo
         {
             int new_dd = dd * si->multiplier;
 
-            average = (new_dd * ds) / 2 + plus;
+            average = ((ds + 1) / 2) * new_dd + plus;
 
             output.append(QString("   This weapon does %1d%2%3%4 damage (%5 avg) against %6 each hit.<br>")
                           .arg(new_dd)  .arg(ds) .arg(plus_minus) .arg(plus) .arg(average) .arg(si->slay_race));
@@ -473,7 +474,7 @@ static QString describe_weapon(object_type *o_ptr, u32b f1, bool extra_info, boo
             {
                 int new_dd = dd * si->multiplier;
 
-                average = (new_dd * ds) / 2 + plus;
+                average = ((ds + 1) / 2) * new_dd+ plus;
 
                 output.append(QString("   This weapon does %1d%2%3%4 damage (%5 avg) against creatures who %6 each hit.<br>")
                               .arg(new_dd)  .arg(ds) .arg(plus_minus) .arg(plus) .arg(average) .arg(si->slay_race));
@@ -496,7 +497,7 @@ static QString describe_weapon(object_type *o_ptr, u32b f1, bool extra_info, boo
         {
             int new_dd = dd * bi->multiplier;
 
-            average = (new_dd * ds) / 2 + plus;
+            average = ((ds + 1) / 2) * new_dd + plus;
 
             output.append(QString("   This weapon does %1d%2%3%4 damage (%5 avg) against creatures who do not %6.<br>")
                           .arg(new_dd)  .arg(ds) .arg(plus_minus) .arg(plus) .arg(average) .arg(bi->brand_resist));
@@ -509,7 +510,7 @@ static QString describe_weapon(object_type *o_ptr, u32b f1, bool extra_info, boo
         const mon_susceptibility_struct *ms = &mon_suscept[i];
         if (f1 & (ms->brand_flag))
         {
-            average = (dd * ds) / 2;
+            average = ((ds + 1) / 2) * dd;
 
             output.append(QString("   This weapon does an additional %1d%2 (%3 avg) damage against creatures who are susceptible to %4.<br>")
                           .arg(dd)  .arg(ds) .arg(average)  .arg(ms->brand_susceptibility));
@@ -653,7 +654,7 @@ static QString describe_bow_slot(object_type *o_ptr, u32b f3, bool extra_info)
 
     if (plus < 0) plus = 0;
 
-    average = (dd * ds) / 2 + plus;
+    average = ((ds + 1) / 2) * dd + plus;
 
     /* Now calculate and print out average damage */
     output.append(QString("   Firing %1 from this %2 does %3d%4%5%6 damage (%7 avg), with a critical hit chance of %8 percent.<br>")
@@ -755,7 +756,7 @@ static QString describe_ammo(object_type *o_ptr, u32b f1, u32b f3, bool extra_in
 
     if (plus < 0) plus = 0;
 
-    average = (dd * ds) / 2 + plus;
+    average = ((ds + 1) / 2) * dd + plus;
 
     /* Now calculate and print out average damage */
     output.append(QString("   Firing this ammunition from %1 does %2d%3%4%5 damage (%6 avg), with a critical hit chance of %7 percent.<br>")
@@ -777,7 +778,7 @@ static QString describe_ammo(object_type *o_ptr, u32b f1, u32b f3, bool extra_in
         {
             int new_dd = dd * si->multiplier;
 
-            average = (new_dd * ds) / 2 + plus;
+            average = ((ds + 1) / 2) * new_dd + plus;
 
             output.append(QString("   This ammunition does %1d%2%3%4 damage (%5 avg) against %6 each hit.<br>")
                           .arg(new_dd) .arg(ds) .arg(plus_minus) .arg(plus) .arg(average) .arg(si->slay_race));
@@ -799,7 +800,7 @@ static QString describe_ammo(object_type *o_ptr, u32b f1, u32b f3, bool extra_in
             {
                 int new_dd = dd * si->multiplier;
 
-                average = (new_dd * ds) / 2 + plus;
+                average = ((ds + 1) / 2) * new_dd + plus;
 
                 output.append(QString("   This ammunition does %1d%2%3%4 damage (%5 avg) against creatures who %6 each hit.<br>")
                               .arg(new_dd) .arg(ds) .arg(plus_minus) .arg(plus) .arg(average) .arg(si->slay_race));
@@ -823,7 +824,7 @@ static QString describe_ammo(object_type *o_ptr, u32b f1, u32b f3, bool extra_in
         {
             int new_dd = dd * bi->multiplier;
 
-            average = (new_dd * ds) / 2 + plus;
+            average = ((ds + 1) / 2) * new_dd + plus;
 
             output.append(QString("   This ammunition does %1d%2%3%4 damage (%5 avg) against creatures who do not %6.<br>")
                           .arg(new_dd) .arg(ds) .arg(plus_minus) .arg(plus) .arg(average) .arg(bi->brand_resist));
@@ -836,7 +837,7 @@ static QString describe_ammo(object_type *o_ptr, u32b f1, u32b f3, bool extra_in
         const mon_susceptibility_struct *ms = &mon_suscept[i];
         if (f1 & (ms->brand_flag))
         {
-            average = (dd * ds) / 2;
+            average = ((ds + 1) / 2) * dd;
 
             output.append(QString("   This ammunition does an additional %1d%2 damage (%3 avg) against creatures who are susceptible to %4.<br>")
                           .arg(dd) .arg(ds) .arg(average) .arg(ms->brand_susceptibility));
@@ -911,7 +912,7 @@ static QString describe_throwing_weapon(object_type *o_ptr, u32b f1, u32b f3, bo
         plus *= -1;
     }
 
-    average = (dd * ds) / 2 + plus;
+    average = ((ds + 1) / 2) * dd + plus;
 
     /* Now calculate and print out average damage */
     output.append(QString("   Throwing this weapon does %1d%2%3%4 damage (%5 avg), with a critical hit chance of %6 percent.<br>")
@@ -934,7 +935,7 @@ static QString describe_throwing_weapon(object_type *o_ptr, u32b f1, u32b f3, bo
         {
             int new_dd = dd * si->multiplier;
 
-            average = (new_dd * ds) / 2 + plus;
+            average = ((ds + 1) / 2) * new_dd + plus;
 
             output.append(QString("   Throwing this weapon does %1d%2%3%4 damage (%5 avg) against %6 each hit.<br>")
                           .arg(new_dd) .arg(ds) .arg(plus_minus) .arg(plus) .arg(average) .arg(si->slay_race));
@@ -956,7 +957,7 @@ static QString describe_throwing_weapon(object_type *o_ptr, u32b f1, u32b f3, bo
             {
                 int new_dd = dd * si->multiplier;
 
-                average = (new_dd * ds) / 2 + plus;
+                average = ((ds + 1) / 2) * new_dd + plus;
 
                 output.append(QString("   Throwing this weapon does %1d%2%3%4 damage (%5 avg) against creatures who %6 each hit.<br>")
                               .arg(new_dd) .arg(ds) .arg(plus_minus) .arg(plus) .arg(average) .arg(si->slay_race));
@@ -980,7 +981,7 @@ static QString describe_throwing_weapon(object_type *o_ptr, u32b f1, u32b f3, bo
         {
             int new_dd = dd * bi->multiplier;
 
-            average = (new_dd * ds) / 2 + plus;
+            average = ((ds + 1) / 2) * new_dd + plus;
 
             output.append(QString("   Throwing this weapon does %1d%2%3%4 damage (%5 avg) against creatures who do not %6.<br>")
                             .arg(new_dd) .arg(ds) .arg(plus_minus) .arg(plus) .arg(average) .arg(bi->brand_resist));
@@ -993,7 +994,7 @@ static QString describe_throwing_weapon(object_type *o_ptr, u32b f1, u32b f3, bo
         const mon_susceptibility_struct *ms = &mon_suscept[i];
         if (f1 & (ms->brand_flag))
         {
-            average = (dd * ds) / 2;
+            average = ((ds + 1) / 2) * dd;
 
             output.append(QString("   Throwing this weapon does an additional %1d%2 damage (%3 avg) against creatures who are susceptible to %4.<br>")
                             .arg(dd) .arg(ds) .arg(average) .arg(ms->brand_susceptibility));
@@ -1013,23 +1014,26 @@ static QString describe_ignores(object_type *o_ptr, u32b f3)
     QString output;
     output.clear();
 
-    QString list[4];
-    int n = 0;
+    QVector<QString> list;
+    list.clear();
 
     /* Unused parameter */
     (void)o_ptr;
 
     /* Collect the ignores */
-    if (f3 & (TR3_IGNORE_ACID)) list[n++] = "acid";
-    if (f3 & (TR3_IGNORE_ELEC)) list[n++] = "electricity";
-    if (f3 & (TR3_IGNORE_FIRE)) list[n++] = "fire";
-    if (f3 & (TR3_IGNORE_COLD)) list[n++] = "cold";
+    if (f3 & (TR3_IGNORE_ACID)) list.append("acid");
+    if (f3 & (TR3_IGNORE_ELEC)) list.append("electricity");
+    if (f3 & (TR3_IGNORE_FIRE)) list.append("fire");
+    if (f3 & (TR3_IGNORE_COLD)) list.append("cold");
+
+    // Nothing to report
+    if (!list.size()) return (output);
 
     /* Describe ignores */
-    if (n == 4)
+    if (list.size())
         output.append("It cannot be harmed by the elements.  ");
     else
-        output.append(output_desc_list("It cannot be harmed by ", list, - n));
+        output.append(output_desc_list("It cannot be harmed by ", list, TRUE));
 
     return (output);
 }
@@ -1043,25 +1047,26 @@ static QString describe_sustains(object_type *o_ptr, u32b f2)
     QString output;
     output.clear();
 
-    QString list[A_MAX];
-    int n = 0;
+    QVector<QString> list;
+    list.clear();
 
     /* Unused parameter */
     (void)o_ptr;
 
     /* Collect the sustains */
-    if (f2 & (TR2_SUST_STR)) list[n++] = stat_names_full[A_STR];
-    if (f2 & (TR2_SUST_INT)) list[n++] = stat_names_full[A_INT];
-    if (f2 & (TR2_SUST_WIS)) list[n++] = stat_names_full[A_WIS];
-    if (f2 & (TR2_SUST_DEX)) list[n++] = stat_names_full[A_DEX];
-    if (f2 & (TR2_SUST_CON)) list[n++] = stat_names_full[A_CON];
-    if (f2 & (TR2_SUST_CHR)) list[n++] = stat_names_full[A_CHR];
+    if (f2 & (TR2_SUST_STR)) list.append(stat_names_full[A_STR]);
+    if (f2 & (TR2_SUST_INT)) list.append(stat_names_full[A_INT]);
+    if (f2 & (TR2_SUST_WIS)) list.append(stat_names_full[A_WIS]);
+    if (f2 & (TR2_SUST_DEX)) list.append(stat_names_full[A_DEX]);
+    if (f2 & (TR2_SUST_CON)) list.append(stat_names_full[A_CON]);
+    if (f2 & (TR2_SUST_CHR)) list.append(stat_names_full[A_CHR]);
 
-    /* Describe immunities */
-    if (n == A_MAX)
-        output.append("It sustains all your stats.  ");
-    else
-        output.append(output_desc_list("It sustains your ", list, n));
+    // Nothing to report
+    if (!list.size()) return (output);
+
+    /* Describe sustains */
+    if (list.size() == A_MAX) output.append("It sustains all your stats.  ");
+    else output.append(output_desc_list("It sustains your ", list, FALSE));
 
     /* We are done here */
     return (output);
@@ -1077,71 +1082,73 @@ static QString describe_misc_magic(object_type *o_ptr, u32b f3)
     QString output;
     output.clear();
 
-    QString good[7], bad[4];
-    int gc = 0, bc = 0;
+    QVector<QString> good;
+    QVector<QString> bad;
+    good.clear();
+    bad.clear();
 
     /* Throwing weapons. */
     if (f3 & (TR3_THROWING))
     {
         if (o_ptr->ident & IDENT_PERFECT_BALANCE)
         {
-            good[gc++] = color_string("can be thrown hard and fast", TERM_GREEN);
+            good.append(color_string("can be thrown hard and fast", TERM_GREEN));
         }
-        else good[gc++] = color_string("can be thrown effectively", TERM_GREEN);
+        else good.append(color_string("can be thrown effectively", TERM_GREEN));
     }
 
     /* Collect stuff which can't be categorized */
-    if (f3 & (TR3_BLESSED))     good[gc++] = color_string("is blessed by the gods", TERM_GREEN);
-    if (f3 & (TR3_IMPACT))      good[gc++] = color_string("creates earthquakes on impact", TERM_GREEN);
-    if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = color_string("slows your metabolism", TERM_GREEN);
-    if (f3 & (TR3_FEATHER))     good[gc++] = color_string("makes you fall like a feather", TERM_GREEN);
+    if (f3 & (TR3_BLESSED))     good.append(color_string("is blessed by the gods", TERM_GREEN));
+    if (f3 & (TR3_IMPACT))      good.append(color_string("creates earthquakes on impact", TERM_GREEN));
+    if (f3 & (TR3_SLOW_DIGEST)) good.append(color_string("slows your metabolism", TERM_GREEN));
+    if (f3 & (TR3_FEATHER))     good.append(color_string("makes you fall like a feather", TERM_GREEN));
     if (((o_ptr->tval == TV_LIGHT) && o_ptr->is_artifact()) || (f3 & (TR3_LIGHT)))
-        good[gc++] = color_string("lights the dungeon around you", TERM_GREEN);
-    if (f3 & (TR3_REGEN))       good[gc++] = color_string("speeds your regeneration", TERM_GREEN);
+        good.append(color_string("lights the dungeon around you", TERM_GREEN));
+    if (f3 & (TR3_REGEN))       good.append(color_string("speeds your regeneration", TERM_GREEN));
 
     /* Describe */
-    output.append(output_desc_list("It ", good, gc));
+    output.append(output_desc_list("It ", good, FALSE));
 
     /* Collect granted powers */
-    gc = 0;
-    if (f3 & (TR3_FREE_ACT))  good[gc++] = color_string("immunity to paralysis", TERM_GREEN);
-    if (f3 & (TR3_TELEPATHY)) good[gc++] = color_string("the power of telepathy", TERM_GREEN);
-    if (f3 & (TR3_SEE_INVIS)) good[gc++] = color_string("the ability to see invisible things", TERM_GREEN);
+    good.clear();
+    if (f3 & (TR3_FREE_ACT))  good.append(color_string("immunity to paralysis", TERM_GREEN));
+    if (f3 & (TR3_TELEPATHY)) good.append(color_string("the power of telepathy", TERM_GREEN));
+    if (f3 & (TR3_SEE_INVIS)) good.append(color_string("the ability to see invisible things", TERM_GREEN));
 
     /* Collect penalties */
-    if (f3 & (TR3_AGGRAVATE)) bad[bc++] = color_string("aggravates creatures around you", TERM_L_RED);
-    if (f3 & (TR3_DRAIN_EXP)) bad[bc++] = color_string("drains experience", TERM_L_RED);
-    if (f3 & (TR3_TELEPORT))  bad[bc++] = color_string("induces random teleportation", TERM_L_RED);
+    if (f3 & (TR3_AGGRAVATE)) bad.append(color_string("aggravates creatures around you", TERM_L_RED));
+    if (f3 & (TR3_DRAIN_EXP)) bad.append(color_string("drains experience", TERM_L_RED));
+    if (f3 & (TR3_TELEPORT))  bad.append(color_string("induces random teleportation", TERM_L_RED));
 
     /* Deal with cursed stuff */
     if (o_ptr->is_cursed())
     {
-        if (f3 & (TR3_PERMA_CURSE)) bad[bc++] = color_string("is permanently cursed", TERM_L_RED);
-        else if (f3 & (TR3_HEAVY_CURSE)) bad[bc++] = color_string("is heavily cursed", TERM_L_RED);
-        else if (o_ptr->is_known()) bad[bc++] = color_string("is cursed", TERM_L_RED);
+        if (f3 & (TR3_PERMA_CURSE)) bad.append(color_string("is permanently cursed", TERM_L_RED));
+        else if (f3 & (TR3_HEAVY_CURSE)) bad.append(color_string("is heavily cursed", TERM_L_RED));
+        else if (o_ptr->is_known()) bad.append(color_string("is cursed", TERM_L_RED));
     }
 
     /* Describe */
-    if (gc)
+    if (good.size())
     {
         /* Output intro */
         output.append("It grants you ");
 
         /* Output list */
-        output.append(output_list(good, gc));
+        output.append(output_list(good, FALSE));
 
         /* Output end (if needed) */
-        if (!bc) output.append(".  ");
+        if (!bad.size()) output.append(".  ");
     }
 
-    if (bc)
+    if (bad.size())
     {
         /* Output intro */
-        if (gc) output.append(", but it also ");
+        if (good.size()) output.append(", but it also ");
         else output.append("It ");
 
         /* Output list */
-        output.append(output_list(bad, bc));
+        output.append(output_list(bad, FALSE));
 
         /* Output end */
         output.append(".  ");
@@ -1416,24 +1423,27 @@ static QString describe_nativity(object_type *o_ptr, u32b fn)
     QString output;
     output.clear();
 
-    QString vp[NUM_NATIVE];
-    int vn = 0;
+    QVector<QString> vp;
+    vp.clear();
 
     /* Unused parameter */
     (void)o_ptr;
 
-    if (fn & (TN1_NATIVE_LAVA))  vp[vn++] = "lava";
-    if (fn & (TN1_NATIVE_ICE))  vp[vn++] = "ice";
-    if (fn & (TN1_NATIVE_OIL))  vp[vn++] = "oil";
-    if (fn & (TN1_NATIVE_FIRE)) vp[vn++] = "fire";
-    if (fn & (TN1_NATIVE_SAND)) vp[vn++] = "sand";
-    if (fn & (TN1_NATIVE_FOREST)) vp[vn++] = "forest";
-    if (fn & (TN1_NATIVE_WATER)) vp[vn++] = "water";
-    if (fn & (TN1_NATIVE_ACID)) vp[vn++] = "acid" ;
-    if (fn & (TN1_NATIVE_MUD)) vp[vn++] = "mud";
+    if (fn & (TN1_NATIVE_LAVA))  vp.append("lava");
+    if (fn & (TN1_NATIVE_ICE))  vp.append("ice");
+    if (fn & (TN1_NATIVE_OIL))  vp.append("oil");
+    if (fn & (TN1_NATIVE_FIRE)) vp.append("fire");
+    if (fn & (TN1_NATIVE_SAND)) vp.append("sand");
+    if (fn & (TN1_NATIVE_FOREST)) vp.append("forest");
+    if (fn & (TN1_NATIVE_WATER)) vp.append("water");
+    if (fn & (TN1_NATIVE_ACID)) vp.append("acid");
+    if (fn & (TN1_NATIVE_MUD)) vp.append("mud");
+
+    // Nothing to report
+    if (!vp.size()) return (output);
 
     /* Describe nativities */
-    output.append(output_desc_list("It makes you native to terrains made of ", vp, vn));
+    output.append(output_desc_list("It makes you native to terrains made of ", vp, FALSE));
 
     /* We are done here */
     return (output);

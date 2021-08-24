@@ -21,7 +21,8 @@ single_hotkey player_hotkeys[NUM_HOTKEYS];
 
 #define STEP_MULT   1000
 
-static hotkey_list list_hotkeys[NUM_HOTKEYS] =
+// The order of this list is assumed in qu_hotkey_toolbar.cpp
+hotkey_list list_hotkeys[NUM_HOTKEYS] =
 {
     {"F1", FALSE, Qt::Key_F1},
     {"F2", FALSE, Qt::Key_F2},
@@ -232,7 +233,7 @@ int HotKeyDialog::get_current_step(QString item_id)
 
 void HotKeyDialog::add_hotkeys_header()
 {
-    QHBoxLayout *hlay_header = new QHBoxLayout;
+    QPointer<QHBoxLayout> hlay_header = new QHBoxLayout;
     main_layout->addLayout(hlay_header);
     current_hotkey_name = new QComboBox;
     for (int i = 0; i < NUM_HOTKEYS; i++)
@@ -399,26 +400,26 @@ void HotKeyDialog::create_targeting_choices(QHBoxLayout *this_layout, int step)
 {
     hotkey_step *hks_ptr = &dialog_hotkey.hotkey_steps[step];
 
-    QVBoxLayout *vlay_targets = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_targets = new QVBoxLayout();
     vlay_targets->setObjectName(QString("vlay_targeting_step_%1") .arg(step));
     this_layout->addLayout(vlay_targets);
 
-    QLabel *header_targets = new QLabel("<b>Select Targeting Method</b>");
+    QPointer<QLabel> header_targets = new QLabel("<b>Select Targeting Method</b>");
     vlay_targets->addWidget(header_targets);
 
-    QRadioButton *radio_closest = new QRadioButton("Target Closest");
+    QPointer<QRadioButton> radio_closest = new QRadioButton("Target Closest");
     radio_closest->setObjectName(QString("targeting_step_%1") .arg(step));
     radio_closest->setChecked(FALSE);
     vlay_targets->addWidget(radio_closest);
     group_target_choices->addButton(radio_closest, (step * STEP_MULT + DIR_CLOSEST));
 
-    QRadioButton *radio_current = new QRadioButton("Use Current Target");
+    QPointer<QRadioButton> radio_current = new QRadioButton("Use Current Target");
     radio_current->setObjectName(QString("targeting_step_%1") .arg(step));
     radio_current->setChecked(FALSE);
     vlay_targets->addWidget(radio_current);
     group_target_choices->addButton(radio_current, (step * STEP_MULT + DIR_TARGET));
 
-    QRadioButton *radio_specify_use = new QRadioButton("Specify During Use");
+    QPointer<QRadioButton> radio_specify_use = new QRadioButton("Specify During Use");
     radio_specify_use->setObjectName(QString("targeting_step_%1") .arg(step));
     radio_specify_use->setChecked(FALSE);
     vlay_targets->addWidget(radio_specify_use);
@@ -435,11 +436,11 @@ void HotKeyDialog::create_spell_choice_dropbox(QHBoxLayout *this_layout, int ste
 {
     hotkey_step *hks_ptr = &dialog_hotkey.hotkey_steps[step];
 
-    QVBoxLayout *vlay_spellbox = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_spellbox = new QVBoxLayout;
     this_layout->addLayout(vlay_spellbox);
 
     //Create the combobox
-    QComboBox *combobox_spell_choice = new QComboBox;
+    QPointer<QComboBox> combobox_spell_choice = new QComboBox;
     int max_spellbooks = (game_mode == GAME_NPPANGBAND ? BOOKS_PER_REALM_ANGBAND : BOOKS_PER_REALM_MORIA);
 
     spell_list.clear();
@@ -474,7 +475,7 @@ void HotKeyDialog::create_spell_choice_dropbox(QHBoxLayout *this_layout, int ste
     QString label_text = (QString("<b>Select a %1 to %2</b>") .arg(noun) .arg(verb));
 
     // Add a header
-    QLabel *header_dir = new QLabel(label_text);
+    QPointer<QLabel> header_dir = new QLabel(label_text);
     vlay_spellbox->addWidget(header_dir);
     if (!spell_list.size())
     {
@@ -608,12 +609,12 @@ void HotKeyDialog::create_object_kind_dropbox(QHBoxLayout *this_layout, int this
 
     int this_tval = hotkey_actions[hks_ptr->step_commmand].tval;
 
-    QVBoxLayout *vlay_obj_kind = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_obj_kind = new QVBoxLayout;
     vlay_obj_kind->setObjectName(QString("vlay_obj_kind_step_%1") .arg(this_step));
     this_layout->addLayout(vlay_obj_kind);
 
     //Create the combobox
-    QComboBox *this_combobox = new QComboBox;
+    QPointer<QComboBox> this_combobox = new QComboBox;
     this_combobox->setObjectName(QString("obj_kind_combo_step_%1") .arg(this_step));
     int current_index = 0;
     int count = 0;
@@ -633,7 +634,7 @@ void HotKeyDialog::create_object_kind_dropbox(QHBoxLayout *this_layout, int this
     }
 
     // Add a header
-    QLabel *header_dir = new QLabel(get_object_label_text(this_tval));
+    QPointer<QLabel> header_dir = new QLabel(get_object_label_text(this_tval));
     vlay_obj_kind->addWidget(header_dir);
     if (!count)
     {
@@ -768,29 +769,29 @@ void HotKeyDialog::create_specific_object_choices(QHBoxLayout *this_layout, int 
 {
     hotkey_step *hks_ptr = &dialog_hotkey.hotkey_steps[this_step];
 
-    QVBoxLayout *vlay_obj_choose = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_obj_choose = new QVBoxLayout;
     vlay_obj_choose->setObjectName(QString("vlay_specific_obj_step_%1") .arg(this_step));
     this_layout->addLayout(vlay_obj_choose);
 
     // Add a header
-    QLabel *header_dir = new QLabel("<b>Select Object Choice Method:</b>");
+    QPointer<QLabel> header_dir = new QLabel("<b>Select Object Choice Method:</b>");
     vlay_obj_choose->addWidget(header_dir);
 
     // Add the buttons and string box
-    QRadioButton *radio_specify_use = new QRadioButton("Specify During Use");
+    QPointer<QRadioButton> radio_specify_use = new QRadioButton("Specify During Use");
     radio_specify_use->setObjectName(QString("specify_obj_step_%1") .arg(this_step));
     radio_specify_use->setChecked(FALSE);
     vlay_obj_choose->addWidget(radio_specify_use);
     group_specific_object->addButton(radio_specify_use, (this_step * STEP_MULT + OS_SELECT_DURING_USE));
 
-    QRadioButton *radio_specify_inscription = new QRadioButton("Use Object Inscribed With:");
+    QPointer<QRadioButton> radio_specify_inscription = new QRadioButton("Use Object Inscribed With:");
     radio_specify_inscription->setObjectName(QString("specify_obj_step_%1") .arg(this_step));
     radio_specify_inscription->setToolTip("During hotkey execution, the first found object with this inscription will be used");
     radio_specify_inscription->setChecked(FALSE);
     vlay_obj_choose->addWidget(radio_specify_inscription);
     group_specific_object->addButton(radio_specify_inscription, (this_step * STEP_MULT + OS_FIND_SPECIFIC_INSCRIPTION));
 
-    QLineEdit *search_inscription = new QLineEdit();
+    QPointer<QLineEdit> search_inscription = new QLineEdit();
     search_inscription->setText(hks_ptr->step_args.string2);
     search_inscription->setObjectName(QString("specify_obj_step_%1") .arg(this_step));
     search_inscription->setPlaceholderText("Enter Inscription Here");
@@ -932,51 +933,51 @@ void HotKeyDialog::create_resting_choices(QHBoxLayout *this_layout, int this_ste
 {
     hotkey_step *hks_ptr = &dialog_hotkey.hotkey_steps[this_step];
 
-    QVBoxLayout *vlay_resting_choose = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_resting_choose = new QVBoxLayout;
     vlay_resting_choose->setObjectName(QString("vlay_resting_step_%1") .arg(this_step));
     this_layout->addLayout(vlay_resting_choose);
 
     // Add a header
-    QLabel *header_dir = new QLabel("<b>Select Rest Duration:</b>");
+    QPointer<QLabel> header_dir = new QLabel("<b>Select Rest Duration:</b>");
     vlay_resting_choose->addWidget(header_dir);
 
     // Add the buttons and string box
-    QRadioButton *radio_rest_complete = new QRadioButton("Rest Complete");
+    QPointer<QRadioButton> radio_rest_complete = new QRadioButton("Rest Complete");
     radio_rest_complete->setObjectName(QString("specify_rest_step_%1") .arg(this_step));
     radio_rest_complete->setToolTip("Rest until the player is fully recovered.");
     radio_rest_complete->setChecked(FALSE);
     vlay_resting_choose->addWidget(radio_rest_complete);
     group_resting_choices->addButton(radio_rest_complete, (this_step * STEP_MULT + REST_COMPLETE));
 
-    QRadioButton *radio_rest_hp_sp = new QRadioButton("Rest Both HP and SP");
+    QPointer<QRadioButton> radio_rest_hp_sp = new QRadioButton("Rest Both HP and SP");
     radio_rest_hp_sp->setObjectName(QString("specify_rest_step_%1") .arg(this_step));
     radio_rest_hp_sp->setToolTip("Rest until all mana and hit points are fully recovered.");
     radio_rest_hp_sp->setChecked(FALSE);
     vlay_resting_choose->addWidget(radio_rest_hp_sp);
     group_resting_choices->addButton(radio_rest_hp_sp, (this_step * STEP_MULT + REST_BOTH_SP_HP));
 
-    QRadioButton *radio_rest_hitpoints = new QRadioButton("Rest Hit Points");
+    QPointer<QRadioButton> radio_rest_hitpoints = new QRadioButton("Rest Hit Points");
     radio_rest_hitpoints->setObjectName(QString("specify_rest_step_%1") .arg(this_step));
     radio_rest_hitpoints->setToolTip("Rest until all hit points are fully recovered.");
     radio_rest_hitpoints->setChecked(FALSE);
     vlay_resting_choose->addWidget(radio_rest_hitpoints);
     group_resting_choices->addButton(radio_rest_hitpoints, (this_step * STEP_MULT + REST_HP));
 
-    QRadioButton *radio_rest_spellpoints = new QRadioButton("Rest Spell Points");
+    QPointer<QRadioButton> radio_rest_spellpoints = new QRadioButton("Rest Spell Points");
     radio_rest_spellpoints->setObjectName(QString("specify_rest_step_%1") .arg(this_step));
     radio_rest_spellpoints->setToolTip("Rest until all mana is fully recovered.");
     radio_rest_spellpoints->setChecked(FALSE);
     vlay_resting_choose->addWidget(radio_rest_spellpoints);
     group_resting_choices->addButton(radio_rest_spellpoints, (this_step * STEP_MULT + REST_SP));
 
-    QRadioButton *radio_rest_turncount = new QRadioButton("Rest Turncount:");
+    QPointer<QRadioButton> radio_rest_turncount = new QRadioButton("Rest Turncount:");
     radio_rest_turncount->setObjectName(QString("specify_rest_step_%1") .arg(this_step));
     radio_rest_turncount->setToolTip("Rest a specified number of turns.");
     radio_rest_turncount->setChecked(FALSE);
     vlay_resting_choose->addWidget(radio_rest_turncount);
     group_resting_choices->addButton(radio_rest_turncount, (this_step * STEP_MULT + REST_TURNCOUNT));
 
-    QSpinBox *spin_rest_turncount = new QSpinBox();
+    QPointer<QSpinBox> spin_rest_turncount = new QSpinBox();
     spin_rest_turncount->setRange(0, 9999);
     spin_rest_turncount->setValue(hks_ptr->step_args.number);
     spin_rest_turncount->setObjectName(QString("specify_rest_step_%1") .arg(this_step));
@@ -1117,12 +1118,12 @@ void HotKeyDialog::create_activation_dropbox(QHBoxLayout *this_layout, int this_
 
     hotkey_step *hks_ptr = &dialog_hotkey.hotkey_steps[this_step];
 
-    QVBoxLayout *vlay_obj_kind = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_obj_kind = new QVBoxLayout;
     vlay_obj_kind->setObjectName(QString("vlay_activation_step_%1") .arg(this_step));
     this_layout->addLayout(vlay_obj_kind);
 
     //Create the combobox
-    QComboBox *this_combobox = new QComboBox;
+    QPointer<QComboBox> this_combobox = new QComboBox;
     this_combobox->setObjectName(QString("activation_combo_step_%1") .arg(this_step));
     int current_index = -1;
     int count = 0;
@@ -1162,7 +1163,7 @@ void HotKeyDialog::create_activation_dropbox(QHBoxLayout *this_layout, int this_
     }
 
     // Add a header
-    QLabel *header_dir = new QLabel("<b>Select Activatable Object</b>");
+    QPointer<QLabel> header_dir = new QLabel("<b>Select Activatable Object</b>");
     vlay_obj_kind->addWidget(header_dir);
     if (!count)
     {
@@ -1286,20 +1287,30 @@ void HotKeyDialog::create_direction_pad(QHBoxLayout *this_layout, int step)
 {
     hotkey_step *hks_ptr = &dialog_hotkey.hotkey_steps[step];
 
-    QVBoxLayout *vlay_direction = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_direction = new QVBoxLayout;
     this_layout->addLayout(vlay_direction);
     vlay_direction->setObjectName(QString("vlay_direction_step_%1") .arg(step));
 
     // Add a header
-    QLabel *header_dir = new QLabel("<b>Direction:</b>");
+    QPointer<QLabel> header_dir = new QLabel("<b>Direction:</b>");
     vlay_direction->addWidget(header_dir);
-    QGridLayout *gridlay_direction = new QGridLayout;
+
+    //  Not all classes can set traps
+    if (hks_ptr->step_commmand == HK_TYPE_MAKE_TRAP)
+    {
+        if (!(cp_ptr->flags & (CF_SET_TRAPS)))
+        {
+            header_dir->setText("<b>You cannot set traps!</b>");
+            vlay_direction->addStretch(1);
+            return;
+        }
+    }
+
+    QPointer<QGridLayout> gridlay_direction = new QGridLayout;
     vlay_direction->addLayout(gridlay_direction);
 
-
-
     // Add all the buttons
-    QRadioButton *north_west = new QRadioButton;
+    QPointer<QRadioButton> north_west = new QRadioButton;
     group_directions->addButton(north_west, step * STEP_MULT + DIR_NORTHWEST);
     north_west->setToolTip("NorthWest");
     north_west->setIcon(QIcon(":/icons/lib/icons/arrow-northwest.png"));
@@ -1308,7 +1319,7 @@ void HotKeyDialog::create_direction_pad(QHBoxLayout *this_layout, int step)
     else north_west->setChecked(FALSE);
     north_west->setObjectName(QString("direction_step_%1") .arg(step));
 
-    QRadioButton *north = new QRadioButton;
+    QPointer<QRadioButton> north = new QRadioButton;
     group_directions->addButton(north, step * STEP_MULT + DIR_NORTH);
     north->setToolTip("North");
     north->setIcon(QIcon(":/icons/lib/icons/arrow-north.png"));
@@ -1317,7 +1328,7 @@ void HotKeyDialog::create_direction_pad(QHBoxLayout *this_layout, int step)
     else north->setChecked(FALSE);
     north->setObjectName(QString("direction_step_%1") .arg(step));
 
-    QRadioButton *north_east = new QRadioButton;
+    QPointer<QRadioButton> north_east = new QRadioButton;
     group_directions->addButton(north_east, step * STEP_MULT + DIR_NORTHEAST);
     north_east->setToolTip("NorthEast");
     north_east->setIcon(QIcon(":/icons/lib/icons/arrow-northeast.png"));
@@ -1326,7 +1337,7 @@ void HotKeyDialog::create_direction_pad(QHBoxLayout *this_layout, int step)
     else north_east->setChecked(FALSE);
     north_east->setObjectName(QString("direction_step_%1") .arg(step));
 
-    QRadioButton *west = new QRadioButton;
+    QPointer<QRadioButton> west = new QRadioButton;
     group_directions->addButton(west, step * STEP_MULT + DIR_WEST);
     west->setToolTip("West");
     west->setIcon(QIcon(":/icons/lib/icons/arrow-west.png"));
@@ -1335,7 +1346,7 @@ void HotKeyDialog::create_direction_pad(QHBoxLayout *this_layout, int step)
     else west->setChecked(FALSE);
     west->setObjectName(QString("direction_step_%1") .arg(step));
 
-    QRadioButton *dir_none = new QRadioButton;
+    QPointer<QRadioButton> dir_none = new QRadioButton;
     group_directions->addButton(dir_none, step * STEP_MULT + DIR_UNKNOWN);
     dir_none->setToolTip("Specify Direction during command execution");
     dir_none->setIcon(QIcon(":/icons/lib/icons/target-cancel.png"));
@@ -1344,7 +1355,7 @@ void HotKeyDialog::create_direction_pad(QHBoxLayout *this_layout, int step)
     else dir_none->setChecked(FALSE);
     dir_none->setObjectName(QString("direction_step_%1") .arg(step));
 
-    QRadioButton *east = new QRadioButton;
+    QPointer<QRadioButton> east = new QRadioButton;
     group_directions->addButton(east, step * STEP_MULT + DIR_EAST);
     east->setToolTip("East");
     east->setIcon(QIcon(":/icons/lib/icons/arrow-east.png"));
@@ -1353,7 +1364,7 @@ void HotKeyDialog::create_direction_pad(QHBoxLayout *this_layout, int step)
     else east->setChecked(FALSE);
     east->setObjectName(QString("direction_step_%1") .arg(step));
 
-    QRadioButton *south_west = new QRadioButton;
+    QPointer<QRadioButton> south_west = new QRadioButton;
     group_directions->addButton(south_west, step * STEP_MULT + DIR_SOUTHWEST);
     south_west->setToolTip("SouthWest");
     south_west->setIcon(QIcon(":/icons/lib/icons/arrow-southwest.png"));
@@ -1362,7 +1373,7 @@ void HotKeyDialog::create_direction_pad(QHBoxLayout *this_layout, int step)
     else south_west->setChecked(FALSE);
     south_west->setObjectName(QString("direction_step_%1") .arg(step));
 
-    QRadioButton *south = new QRadioButton;
+    QPointer<QRadioButton> south = new QRadioButton;
     group_directions->addButton(south, step * STEP_MULT + DIR_SOUTH);
     south->setToolTip("South");
     south->setIcon(QIcon(":/icons/lib/icons/arrow-south.png"));
@@ -1371,7 +1382,7 @@ void HotKeyDialog::create_direction_pad(QHBoxLayout *this_layout, int step)
     else south->setChecked(FALSE);
     south->setObjectName(QString("direction_step_%1") .arg(step));
 
-    QRadioButton *south_east = new QRadioButton;
+    QPointer<QRadioButton> south_east = new QRadioButton;
     group_directions->addButton(south_east, step * STEP_MULT + DIR_SOUTHEAST);
     south_east->setToolTip("SouthEast");
     south_east->setIcon(QIcon(":/icons/lib/icons/arrow-southeast.png"));
@@ -1380,17 +1391,17 @@ void HotKeyDialog::create_direction_pad(QHBoxLayout *this_layout, int step)
     else south_east->setChecked(FALSE);
     south_east->setObjectName(QString("direction_step_%1") .arg(step));
 
-
+    vlay_direction->addStretch(1);
 }
 
 // Add buttons for inserting and deleting steps
 void HotKeyDialog::create_step_buttons(QHBoxLayout *this_layout, int step)
 {
-    QVBoxLayout *vlay_direction = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_direction = new QVBoxLayout;
     this_layout->addLayout(vlay_direction);
     vlay_direction->setObjectName(QString("vlay_buttons_step_%1") .arg(step));
 
-    QPushButton *insert_step_button = new QPushButton;
+    QPointer<QPushButton> insert_step_button = new QPushButton;
     insert_step_button->setIcon(QIcon(":/icons/lib/icons/arrow-up-double.png"));
     insert_step_button->setToolTip("Insert a new hotkey step before this step.");
     insert_step_button->setObjectName(QString("Step_Command_%1") .arg(step));
@@ -1398,14 +1409,14 @@ void HotKeyDialog::create_step_buttons(QHBoxLayout *this_layout, int step)
     vlay_direction->addWidget(insert_step_button);
 
     // Add an "delete step" button for all steps
-    QPushButton *delete_step_button = new QPushButton;
+    QPointer<QPushButton> delete_step_button = new QPushButton;
     delete_step_button->setIcon(QIcon(":/icons/lib/icons/destroy.png"));
     delete_step_button->setToolTip("Delete this hotkey step.");
     delete_step_button->setObjectName(QString("Step_Command_%1") .arg(step));
     vlay_direction->addWidget(delete_step_button);
     connect(delete_step_button, SIGNAL(pressed()), this, SLOT(delete_step()));
 
-    QPushButton *add_step_button = new QPushButton;
+    QPointer<QPushButton> add_step_button = new QPushButton;
     add_step_button->setIcon(QIcon(":/icons/lib/icons/arrow-down-double.png"));
     add_step_button->setToolTip("Add a new hotkey step after this step.");
     add_step_button->setObjectName(QString("Step_Command_%1") .arg(step));
@@ -1552,18 +1563,18 @@ void HotKeyDialog::display_hotkey_steps()
 
     for (int i = 0; i < dialog_hotkey.hotkey_steps.size(); i++)
     {
-        QHBoxLayout *hlay_header = new QHBoxLayout;
+        QPointer<QHBoxLayout> hlay_header = new QHBoxLayout;
         vlay_hotkey_steps->addLayout(hlay_header);
 
         create_step_buttons(hlay_header, i);
 
-        QVBoxLayout *this_vlayout = new QVBoxLayout;
+        QPointer<QVBoxLayout> this_vlayout = new QVBoxLayout;
         hlay_header->addLayout(this_vlayout);
-        QLabel *header_step = new QLabel(QString("<b>Step %1:  </b>") .arg(i + 1));
+        QPointer<QLabel> header_step = new QLabel(QString("<b>Step %1:  </b>") .arg(i + 1));
         this_vlayout->addWidget(header_step);
         this_vlayout->addStretch(1);
 
-        QComboBox *this_combo_box = new QComboBox;
+        QPointer<QComboBox> this_combo_box = new QComboBox;
         this_combo_box->setObjectName(QString("Step_Command_%1") .arg(i));
         for (int x = 0; x < HK_TYPE_END; x++)
         {
@@ -1585,12 +1596,12 @@ void HotKeyDialog::display_hotkey_steps()
         }
         this_combo_box->setCurrentIndex(dialog_hotkey.hotkey_steps[i].step_commmand);
         connect(this_combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(active_hotkey_command_changed(int)));
-        QVBoxLayout *combo_vlayout = new QVBoxLayout;
+        QPointer<QVBoxLayout> combo_vlayout = new QVBoxLayout;
         hlay_header->addLayout(combo_vlayout);
         combo_vlayout->addWidget(this_combo_box);
         combo_vlayout->addStretch(1);
 
-        QHBoxLayout *this_layout = new QHBoxLayout;
+        QPointer<QHBoxLayout> this_layout = new QHBoxLayout;
         this_layout->setObjectName(QString("hlay_step_%1") .arg(i));
         create_one_hotkey_step(this_layout, i);
         hlay_header->addLayout(this_layout);
@@ -1630,7 +1641,7 @@ HotKeyDialog::HotKeyDialog(void)
     top_layout->addWidget(scroll_box);
 
     //Build the header
-    QLabel *header_main = new QLabel("<b><h2>Hotkey Menu</b></h2>");
+    QPointer<QLabel> header_main = new QLabel("<b><h2>Hotkey Menu</b></h2>");
     main_layout->addWidget(header_main);
 
     add_hotkeys_header();
@@ -1641,7 +1652,7 @@ HotKeyDialog::HotKeyDialog(void)
     display_hotkey_steps();
     vlay_hotkey_steps->addStretch(1);
 
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok);
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Ok);
     connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
     top_layout->addWidget(buttons);
 
@@ -1660,6 +1671,8 @@ HotKeyDialog::HotKeyDialog(void)
 void do_hotkey_manage()
 {
     HotKeyDialog();
+
+    ui_update_hotkey_toolbar();
 }
 
 // Find an item to use

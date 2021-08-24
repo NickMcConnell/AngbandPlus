@@ -12,6 +12,7 @@
 #include <QSplitter>
 #include "src/npp.h"
 #include <src/nppdialog.h>
+#include <QPointer>
 
 enum
 {
@@ -47,11 +48,11 @@ public:
     DisplayMonsterKnowledge(void);
 
 private:
-    QSortFilterProxyModel *monster_proxy_model;
-    QTableWidget *monster_table;
-    QTableWidget *mon_group_table;
+    QPointer<QSortFilterProxyModel> monster_proxy_model;
+    QPointer<QTableWidget> monster_table;
+    QPointer<QTableWidget> mon_group_table;
     QVector<bool> monster_group_info;
-    QButtonGroup *mon_button_group;
+    QPointer<QButtonGroup> mon_button_group;
 
 private slots:
     // Receives the number of the button pressed.
@@ -68,12 +69,12 @@ public:
     DisplayObjectKnowledge(void);
 
 private:
-    QSortFilterProxyModel *object_proxy_model;
-    QTableWidget *object_table;
-    QTableWidget *object_group_table;
+    QPointer<QSortFilterProxyModel>object_proxy_model;
+    QPointer<QTableWidget>object_table;
+    QPointer<QTableWidget>object_group_table;
     QVector<bool> object_group_info;
-    QButtonGroup *object_button_group;
-    QButtonGroup *object_settings_group;
+    QPointer<QButtonGroup>object_button_group;
+    QPointer<QButtonGroup>object_settings_group;
 
     bool do_spoiler;
 
@@ -93,12 +94,12 @@ public:
     DisplayEgoItemKnowledge(void);
 
 private:
-    QSortFilterProxyModel *ego_item_proxy_model;
-    QTableWidget *ego_item_table;
-    QTableWidget *ego_item_group_table;
+    QPointer<QSortFilterProxyModel> ego_item_proxy_model;
+    QPointer<QTableWidget> ego_item_table;
+    QPointer<QTableWidget> ego_item_group_table;
     QVector<bool> ego_item_group_info;
-    QButtonGroup *ego_item_button_group;
-    QButtonGroup *ego_item_squelch_toggle;
+    QPointer<QButtonGroup> ego_item_button_group;
+    QPointer<QButtonGroup> ego_item_squelch_toggle;
 
     bool do_spoiler;
 
@@ -118,12 +119,12 @@ public:
     DisplayArtifactKnowledge(void);
 
 private:
-    QSortFilterProxyModel *artifact_proxy_model;
-    QTableWidget *artifact_table;
-    QTableWidget *artifact_group_table;
+    QPointer<QSortFilterProxyModel> artifact_proxy_model;
+    QPointer<QTableWidget> artifact_table;
+    QPointer<QTableWidget> artifact_group_table;
     QVector<bool> artifact_group_info;
-    QButtonGroup *artifact_button_group;
-    QButtonGroup *artifact_settings_group;
+    QPointer<QButtonGroup> artifact_button_group;
+    QPointer<QButtonGroup> artifact_settings_group;
 
     bool do_spoiler;
 
@@ -143,11 +144,11 @@ public:
     DisplayTerrainKnowledge(void);
 
 private:
-    QSortFilterProxyModel *terrain_proxy_model;
-    QTableWidget *terrain_table;
-    QTableWidget *terrain_group_table;
+    QPointer<QSortFilterProxyModel> terrain_proxy_model;
+    QPointer<QTableWidget> terrain_table;
+    QPointer<QTableWidget> terrain_group_table;
     QVector<bool> terrain_group_info;
-    QButtonGroup *terrain_button_group;
+    QPointer<QButtonGroup> terrain_button_group;
 
     bool do_spoiler;
 
@@ -164,7 +165,7 @@ class DisplayNotesFile : public NPPDialog
 
 public:
     explicit DisplayNotesFile(void);
-    QWidget *central;
+    QPointer<QWidget> central;
 };
 
 // Used for DisplayMonKillCount
@@ -181,7 +182,7 @@ class DisplayHomeInven : public NPPDialog
 
 public:
     explicit DisplayHomeInven(void);
-    QWidget *central;
+    QPointer<QWidget> central;
 };
 
 class DisplayScores : public NPPDialog
@@ -192,9 +193,9 @@ public:
     DisplayScores();
 
 private:
-    QTableWidget *scores_table;
-    QSortFilterProxyModel *scores_proxy_model;
-    QWidget *central;
+    QPointer<QTableWidget> scores_table;
+    QPointer<QSortFilterProxyModel> scores_proxy_model;
+    QPointer<QWidget> central;
 };
 
 
@@ -206,7 +207,7 @@ public:
     explicit DisplayMonKillCount(void);
 
 private:
-    QTableWidget *kill_count_table;
+    QPointer<QTableWidget> kill_count_table;
 
 };
 

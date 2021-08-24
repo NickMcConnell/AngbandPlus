@@ -39,6 +39,7 @@ struct high_score
 
 extern QVector<high_score> player_scores_list;
 
+extern bool scores_sort(high_score first, high_score second);
 extern high_score build_score(QString date_death);
 extern void enter_score(QString date_death);
 extern void update_player_score(void);

@@ -14,6 +14,10 @@
 #include "storedialog.h"
 #include "src/cmds.h"
 #include <QPushButton>
+#include <QTest>
+#include <QTimer>
+
+static QTimer run_timer;
 
 /*
  * Check if action permissible here.
@@ -1147,7 +1151,7 @@ static bool command_disarm_aux(int y, int x, bool disarm)
             message(QString("You have desanctified the %1.").arg(name));
 
         /* Normal message otherwise */
-        else ui_update_message_label(color_string((QString("You have %1ed the %2.").arg(act).arg(name)), TERM_ORANGE));
+        else message(color_string((QString("You have %1ed the %2.").arg(act).arg(name)), TERM_ORANGE));
 
         /* If a Rogue's monster trap, decrement the trap count. */
         if (feat_ff2_match(feat, FF2_TRAP_MON)) num_trap_on_level--;
@@ -1172,7 +1176,7 @@ static bool command_disarm_aux(int y, int x, bool disarm)
     {
 
         /* Message */
-        message(QString("You failed to %1 the %2.").arg(act).arg(name));
+        ui_update_message_label(QString("You failed to %1 the %2.").arg(act).arg(name));
 
         /* We may keep trying */
         more = TRUE;
@@ -2291,11 +2295,11 @@ RestDialog::RestDialog(int *_choice)
 {
     choice = *_choice = 0;
 
-    QVBoxLayout *lay1 = new QVBoxLayout;
+    QPointer<QVBoxLayout> lay1 = new QVBoxLayout;
     this->setLayout(lay1);
     //lay1->setContentsMargins(0, 0, 0, 0);
 
-    QLabel *lb = new QLabel("Pick the rest type");
+    QPointer<QLabel> lb = new QLabel("Pick the rest type");
     lb->setStyleSheet("font-weight: bold;");
     lay1->addWidget(lb);
 
@@ -2317,7 +2321,7 @@ RestDialog::RestDialog(int *_choice)
         QString lb = number_to_letter(i);
         lb += ") ";
         lb += choices[i].name;
-        QPushButton *btn = new QPushButton(lb);
+        QPointer<QPushButton> btn = new QPushButton(lb);
         btn->setProperty("choice", choices[i].value);
         btn->setStyleSheet("text-align: left");
         connect(btn, SIGNAL(clicked()), this, SLOT(on_clicked()));
@@ -2325,7 +2329,7 @@ RestDialog::RestDialog(int *_choice)
         lay1->addWidget(btn);
     }
 
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);
     connect(buttons, SIGNAL(rejected()), this, SLOT(close()));
     lay1->addWidget(buttons);
 
@@ -2433,7 +2437,15 @@ void command_run(cmd_arg args)
     int dir = 0;
     if (args.verify) dir = args.direction;
 
+    // Ensure there is a minimum time between runs.
+    int delay_left = run_timer.remainingTime();
+    if (delay_left > 0) QTest::qWait(delay_left);
+
     int energy = run_step(dir);
+
+    // Set up a timer to ensure a minimum time between runs.
+    run_timer.setSingleShot(TRUE);
+    run_timer.start(op_ptr->delay_run_factor);
 
     ui_update_message_label(color_string("Running", TERM_GREEN));
 

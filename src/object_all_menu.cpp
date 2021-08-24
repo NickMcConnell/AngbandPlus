@@ -290,7 +290,7 @@ void AllObjectsDialog::link_pushbuttons()
 
     for (int i = 0; i < pushbutton_list.size(); i++)
     {
-        QPushButton *this_button = pushbutton_list.at(i);
+        QPointer<QPushButton> this_button = pushbutton_list.at(i);
 
         // Just the objects
         if (!this_button->objectName().length()) continue;
@@ -366,7 +366,7 @@ AllObjectsDialog::AllObjectsDialog(bool do_buttons, int start_screen): NPPDialog
 
     // Set up a scrollable box.  Add widgets to "main_layout"
     central = new QWidget;
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
     central->setLayout(main_layout);
     main_layout->setSpacing(10);
     // IMPORTANT: it must be called AFTER setting the layout
@@ -391,7 +391,7 @@ AllObjectsDialog::AllObjectsDialog(bool do_buttons, int start_screen): NPPDialog
     main_layout->addWidget(message_area);
     update_message_area(message_area, 3);
 
-    QHBoxLayout *radio_across = new QHBoxLayout;
+    QPointer<QHBoxLayout> radio_across = new QHBoxLayout;
     main_layout->addLayout(radio_across);
     floor_items = new QRadioButton("Floor Items");
     object_selection->addButton(floor_items, TAB_FLOOR);
@@ -419,13 +419,13 @@ AllObjectsDialog::AllObjectsDialog(bool do_buttons, int start_screen): NPPDialog
     quiver_list = new QGridLayout;
     main_layout->addLayout(quiver_list);
 
-    QDialogButtonBox *buttons = new QDialogButtonBox();
-    QPushButton *button_left = new QPushButton();
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox();
+    QPointer<QPushButton> button_left = new QPushButton();
     button_left->setText("<");
     button_left->setToolTip("Pressing '<' also moves the active tab to the left.");
     connect(button_left, SIGNAL(clicked()), this, SLOT(move_left()));
     buttons->addButton(button_left, QDialogButtonBox::ActionRole);
-    QPushButton *button_right = new QPushButton();
+    QPointer<QPushButton> button_right = new QPushButton();
     button_right->setText(">");
     button_right->setToolTip("Pressing '>' also moves the active tab to the right.");
     connect(button_right, SIGNAL(clicked()), this, SLOT(move_right()));

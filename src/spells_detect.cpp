@@ -546,16 +546,7 @@ bool detect(int dist, u16b detect_checks)
     if ((!detect_type_found) && (!refresh)) return (FALSE);
 
     handle_stuff();
-
-    /* Re-draw the map */
-    for (y = 0; y < p_ptr->cur_map_hgt; y++)
-    {
-        for (x = 0; x < p_ptr->cur_map_wid; x++)
-        {
-            if (panel_contains(y, x)) light_spot(y, x);
-            else map_info(y, x);
-        }
-    }
+    ui_redraw_all();
 
     /* Print out the messages */
     for (i = 0; i < N_ELEMENTS(detect_handlers); i++)

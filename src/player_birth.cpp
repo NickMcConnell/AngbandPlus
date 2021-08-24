@@ -199,7 +199,7 @@ void PlayerBirth::update_stats_info()
 
     for (int x = 0; x < spin_list.size(); x++)
     {
-        QSpinBox *this_spinner = spin_list.at(x);
+        QPointer<QSpinBox> this_spinner = spin_list.at(x);
 
         QString this_name = this_spinner->objectName();
 
@@ -228,7 +228,7 @@ void PlayerBirth::stat_spin_changed(int new_value)
 
     for (int x = 0; x < spin_list.size(); x++)
     {
-        QSpinBox *this_spinner = spin_list.at(x);
+        QPointer<QSpinBox> this_spinner = spin_list.at(x);
 
         QString this_name = this_spinner->objectName();
 
@@ -266,28 +266,28 @@ void PlayerBirth::stat_spin_changed(int new_value)
 // The layout here needs to be consistent with update_vlay_stats_info above
 void PlayerBirth::add_stat_boxes(QVBoxLayout *return_layout)
 {
-    QLabel *stat_box_label = new QLabel("<h2>Stat Adjustments</h2>");
+    QPointer<QLabel> stat_box_label = new QLabel("<h2>Stat Adjustments</h2>");
     //stat_box_label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     return_layout->addWidget(stat_box_label, 0, Qt::AlignCenter);
 
-    QGridLayout *grid_stat_modifiers = new QGridLayout;
+    QPointer<QGridLayout> grid_stat_modifiers = new QGridLayout;
     return_layout->addLayout(grid_stat_modifiers);
 
     int row = 0;
     int col = 0;
 
-    QLabel *stat_header = new QLabel;
+    QPointer<QLabel> stat_header = new QLabel;
     make_standard_label(stat_header, "STAT   ", TERM_DARK);
     grid_stat_modifiers->addWidget(stat_header, row, col++, Qt::AlignLeft);
-    QLabel *race_adj_header = new QLabel;
+    QPointer<QLabel> race_adj_header = new QLabel;
     make_standard_label(race_adj_header, "   RA ", TERM_DARK);
     race_adj_header->setToolTip("Adjustments due to player race");
     grid_stat_modifiers->addWidget(race_adj_header, row, col++, Qt::AlignRight);
-    QLabel *class_adj_header = new QLabel;
+    QPointer<QLabel> class_adj_header = new QLabel;
     make_standard_label(class_adj_header, "   CA ", TERM_DARK);
     class_adj_header->setToolTip("Adjustments due to player class");
     grid_stat_modifiers->addWidget(class_adj_header, row, col++, Qt::AlignRight);
-    QLabel *all_adj_header = new QLabel;
+    QPointer<QLabel> all_adj_header = new QLabel;
     make_standard_label(all_adj_header, "   TA ", TERM_DARK);
     all_adj_header->setToolTip("Total Adjustments");
     grid_stat_modifiers->addWidget(all_adj_header, row, col++, Qt::AlignRight);
@@ -299,7 +299,7 @@ void PlayerBirth::add_stat_boxes(QVBoxLayout *return_layout)
         col = 0;
 
         // Stat label
-        QLabel *stat_label = new QLabel();
+        QPointer<QLabel> stat_label = new QLabel();
         make_standard_label(stat_label, stat_names[i], TERM_DARK);
         stat_label->setToolTip(stat_entry(i));
         grid_stat_modifiers->addWidget(stat_label, row, col++, Qt::AlignLeft);
@@ -308,18 +308,18 @@ void PlayerBirth::add_stat_boxes(QVBoxLayout *return_layout)
         int c = cp_ptr->c_adj[i];
         int rc = r + c;
 
-        QLabel *race_adj = new QLabel();
+        QPointer<QLabel> race_adj = new QLabel();
         make_standard_label(race_adj, (QString("   %1 ") .arg(format_stat(r))), (r < 0 ? TERM_RED : TERM_BLUE));
         race_adj->setObjectName(QString("race_%1") .arg(i));
         grid_stat_modifiers->addWidget(race_adj, row, col++, Qt::AlignRight);
 
 
-        QLabel *class_adj = new QLabel();
+        QPointer<QLabel> class_adj = new QLabel();
         make_standard_label(class_adj, (QString("   %1 ") .arg(format_stat(c))), (c < 0 ? TERM_RED : TERM_BLUE));
         class_adj->setObjectName(QString("class_%1") .arg(i));
         grid_stat_modifiers->addWidget(class_adj, row, col++, Qt::AlignRight);
 
-        QLabel *combined_adj = new QLabel();
+        QPointer<QLabel> combined_adj = new QLabel();
         make_standard_label(combined_adj, (QString("   %1 ") .arg(format_stat(rc))), (rc < 0 ? TERM_RED : TERM_BLUE));
         combined_adj->setObjectName(QString("combined_%1") .arg(i));
         grid_stat_modifiers->addWidget(combined_adj, row++, col, Qt::AlignRight);
@@ -327,15 +327,15 @@ void PlayerBirth::add_stat_boxes(QVBoxLayout *return_layout)
 
 
     // Add a little space
-    QLabel *dummy_label = new QLabel(" ");
+    QPointer<QLabel> dummy_label = new QLabel(" ");
     grid_stat_modifiers->addWidget(dummy_label, row++, 0, Qt::AlignLeft);
-    QLabel *dummy_label2 = new QLabel(" ");
+    QPointer<QLabel> dummy_label2 = new QLabel(" ");
     grid_stat_modifiers->addWidget(dummy_label2, row++, 0, Qt::AlignLeft);
 
     col = 0;
 
     // Display character hit dice
-    QLabel *hit_die_label = new QLabel();
+    QPointer<QLabel> hit_die_label = new QLabel();
     make_standard_label(hit_die_label, "Hit Die:", TERM_DARK);
     hit_die_label->setToolTip(get_help_topic("character_info", "Hit Die"));
     grid_stat_modifiers->addWidget(hit_die_label, row, col++, Qt::AlignLeft);
@@ -352,19 +352,19 @@ void PlayerBirth::add_stat_boxes(QVBoxLayout *return_layout)
     this_both.append(" ");
 
     // HD Race
-    QLabel *hit_die_race = new QLabel();
+    QPointer<QLabel> hit_die_race = new QLabel();
     make_standard_label(hit_die_race, this_race, TERM_BLUE);
     hit_die_race->setObjectName("HD_Race");
     grid_stat_modifiers->addWidget(hit_die_race, row, col++, Qt::AlignRight);
 
     // HD class
-    QLabel *hit_die_class = new QLabel;
+    QPointer<QLabel> hit_die_class = new QLabel;
     make_standard_label(hit_die_class, this_class, TERM_BLUE);
     hit_die_class->setObjectName("HD_Class");
     grid_stat_modifiers->addWidget(hit_die_class, row, col++, Qt::AlignRight);
 
     // HD combined
-    QLabel *hit_die_both = new QLabel;
+    QPointer<QLabel> hit_die_both = new QLabel;
     make_standard_label(hit_die_both, this_both, TERM_BLUE);
     hit_die_both->setObjectName("HD_Both");
     grid_stat_modifiers->addWidget(hit_die_both, row, col++, Qt::AlignRight);
@@ -373,7 +373,7 @@ void PlayerBirth::add_stat_boxes(QVBoxLayout *return_layout)
     row++;
 
     // Display experience percent
-    QLabel *exp_pct_label = new QLabel();
+    QPointer<QLabel> exp_pct_label = new QLabel();
     make_standard_label(exp_pct_label, "Experience:", TERM_DARK);
     exp_pct_label->setToolTip(get_help_topic("character_info", "Experience Factor"));
     grid_stat_modifiers->addWidget(exp_pct_label, row, col++, Qt::AlignLeft);
@@ -383,51 +383,27 @@ void PlayerBirth::add_stat_boxes(QVBoxLayout *return_layout)
     this_both = (QString(" %1%") .arg(rp_ptr->r_exp + cp_ptr->c_exp));
 
     // HD Race
-    QLabel *exp_pct_race = new QLabel();
+    QPointer<QLabel> exp_pct_race = new QLabel();
     make_standard_label(exp_pct_race, this_race, TERM_BLUE);
     exp_pct_race->setObjectName("XP_Race");
     grid_stat_modifiers->addWidget(exp_pct_race, row, col++, Qt::AlignRight);
 
     // HD class
-    QLabel *exp_pct_class = new QLabel;
+    QPointer<QLabel> exp_pct_class = new QLabel;
     make_standard_label(exp_pct_class, this_class, TERM_BLUE);
     exp_pct_class->setObjectName("XP_Class");
     grid_stat_modifiers->addWidget(exp_pct_class, row, col++, Qt::AlignRight);
 
     // HD combined
-    QLabel *exp_pct_both = new QLabel;
+    QPointer<QLabel> exp_pct_both = new QLabel;
     make_standard_label(exp_pct_both, this_both, TERM_BLUE);
     exp_pct_both->setObjectName("XP_Both");
     grid_stat_modifiers->addWidget(exp_pct_both, row, col++, Qt::AlignRight);
 }
 
-// Note this really only works because we know there is only
-// one layout inside the stat box.  A working universal function
-// would use recursion to delete all widgets inside all layouts.
 void PlayerBirth::redo_stat_box(void)
 {
-    QLayoutItem *child;
-    while ((child = vlay_stats_current->takeAt(0)) != 0)
-    {
-        if(child->layout() != 0)
-        {
-            //Assumes only widgets inside second layout
-            QLayoutItem *child2;
-            while ((child2 = child->layout()->takeAt(0)) != 0)
-            {
-                child2->widget()->hide();
-                delete child2->widget();
-
-                delete child2;
-            }
-        }
-        else if(child->widget() != 0)
-        {
-            child->widget()->hide();
-            delete child->widget();
-        }
-        delete child;
-    }
+    clear_layout (vlay_stats_current);
 
     grid_stat_results = NULL;
 
@@ -437,7 +413,7 @@ void PlayerBirth::redo_stat_box(void)
 // The layout here needs to be consistent with update_vlay_stats_info above
 void PlayerBirth::add_stat_results(void)
 {
-    QLabel *stat_box_label = new QLabel("<h2>Current Stats</h2>");
+    QPointer<QLabel> stat_box_label = new QLabel("<h2>Current Stats</h2>");
     //stat_box_label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     vlay_stats_current->addWidget(stat_box_label, 0, Qt::AlignCenter);
 
@@ -447,27 +423,27 @@ void PlayerBirth::add_stat_results(void)
     int row = 0;
     int col = 0;
 
-    QLabel *stat_header = new QLabel;
+    QPointer<QLabel> stat_header = new QLabel;
     make_standard_label(stat_header, "STAT   ", TERM_DARK);
     grid_stat_results->addWidget(stat_header, row, col++, Qt::AlignLeft);
 
-    QLabel *base_header = new QLabel;
+    QPointer<QLabel> base_header = new QLabel;
     make_standard_label(base_header, " BASE ", TERM_DARK);
     base_header->setToolTip("Base stat before all adjustments");
     grid_stat_results->addWidget(base_header, row, col++, Qt::AlignRight);
 
     if (birth_maximize)
     {
-        QLabel *race_adj_header = new QLabel;
+        QPointer<QLabel> race_adj_header = new QLabel;
         make_standard_label(race_adj_header, "   RA ", TERM_DARK);
         race_adj_header->setToolTip("Adjustments due to player race");
         grid_stat_results->addWidget(race_adj_header, row, col++, Qt::AlignRight);
-        QLabel *class_adj_header = new QLabel;
+        QPointer<QLabel> class_adj_header = new QLabel;
         make_standard_label(class_adj_header, " CA ", TERM_DARK);
         class_adj_header->setToolTip("Adjustments due to player class");
         grid_stat_results->addWidget(class_adj_header, row, col++, Qt::AlignRight);
     }
-    QLabel *all_adj_header = new QLabel;
+    QPointer<QLabel> all_adj_header = new QLabel;
     make_standard_label(all_adj_header, " FINAL ", TERM_DARK);
     all_adj_header->setToolTip("Final stat after all adjustments");
     grid_stat_results->addWidget(all_adj_header, row, col++, Qt::AlignRight);
@@ -479,7 +455,7 @@ void PlayerBirth::add_stat_results(void)
         col = 0;
 
         // Stat label
-        QLabel *stat_label = new QLabel();
+        QPointer<QLabel> stat_label = new QLabel();
         make_standard_label(stat_label, stat_names[i], TERM_DARK);
         stat_label->setToolTip(stat_entry(i));
         grid_stat_results->addWidget(stat_label, row, col++, Qt::AlignLeft);
@@ -489,7 +465,7 @@ void PlayerBirth::add_stat_results(void)
 
         if (birth_point_based)
         {
-            QSpinBox *this_spinner = new QSpinBox;
+            QPointer<QSpinBox> this_spinner = new QSpinBox;
             int max_value = (birth_maximize ? 18 : 17);
             this_spinner->setRange(10, max_value);
             this_spinner->setValue(stats[i]);
@@ -499,7 +475,7 @@ void PlayerBirth::add_stat_results(void)
         }
         else
         {
-            QLabel *base_stat = new QLabel();
+            QPointer<QLabel> base_stat = new QLabel();
             make_standard_label(base_stat, (QString("<b>   %1 </b>") .arg(cnv_stat(stats[i]))), TERM_BLUE);
             base_stat->setObjectName(QString("base_%1") .arg(i));
             grid_stat_results->addWidget(base_stat, row, col++, Qt::AlignRight);
@@ -507,18 +483,18 @@ void PlayerBirth::add_stat_results(void)
 
         if (birth_maximize)
         {
-            QLabel *race_adj = new QLabel();
+            QPointer<QLabel> race_adj = new QLabel();
             make_standard_label(race_adj, (QString("   %1 ") .arg(format_stat(r))), (r < 0 ? TERM_RED : TERM_BLUE));
             race_adj->setObjectName(QString("race_%1") .arg(i));
             grid_stat_results->addWidget(race_adj, row, col++, Qt::AlignRight);
 
-            QLabel *class_adj = new QLabel();
+            QPointer<QLabel> class_adj = new QLabel();
             make_standard_label(class_adj, (QString("   %1 ") .arg(format_stat(c))), (c < 0 ? TERM_RED : TERM_BLUE));
             class_adj->setObjectName(QString("class_%1") .arg(i));
             grid_stat_results->addWidget(class_adj, row, col++, Qt::AlignRight);
         }
 
-        QLabel *stat_max = new QLabel();
+        QPointer<QLabel> stat_max = new QLabel();
         make_standard_label(stat_max, (QString("   %1 ") .arg(cnv_stat(p_ptr->state.stat_loaded_max[i]))), TERM_BLUE);
         stat_max->setObjectName(QString("final_%1") .arg(i));
         grid_stat_results->addWidget(stat_max, row++, col, Qt::AlignRight);
@@ -571,7 +547,10 @@ void PlayerBirth::option_changed(int index)
 
 void PlayerBirth::call_options_dialog()
 {
-    OptionsDialog *dlg = new OptionsDialog;
+    bool old_birth_money = birth_money;
+    bool old_birth_maximize = birth_maximize;
+
+    QPointer<OptionsDialog> dlg = new OptionsDialog;
     dlg->exec();
     delete dlg;
 
@@ -584,6 +563,30 @@ void PlayerBirth::call_options_dialog()
         int id = group_options->id(chk);
         chk->setChecked(op_ptr->opt[id]);
     }
+
+    if (old_birth_maximize != birth_maximize)
+    {
+        if (birth_point_based)
+        {
+            //hack - pretend point based is being selected
+            birth_point_based = FALSE;
+            QRadioButton *btn = this->findChild<QRadioButton *>("point_radio");
+            btn->click();
+        }
+        else
+        {
+            // hack - pretend random roller is being selected
+            birth_point_based = TRUE;
+            QRadioButton *btn = this->findChild<QRadioButton *>("roller_radio");
+            btn->click();
+        }
+    }
+
+    if (old_birth_money != birth_money)
+    {
+        get_money();
+        update_screen();
+    }
 }
 
 
@@ -593,7 +596,7 @@ void PlayerBirth::add_option_boxes(QVBoxLayout *return_layout)
     group_options = new QButtonGroup(this);
     group_options->setExclusive(FALSE);
 
-    QLabel *options_label = new QLabel("<h2>Birth Options</h2>");
+    QPointer<QLabel> options_label = new QLabel("<h2>Birth Options</h2>");
     options_label->setToolTip("Birth Options must be changed before completing character<br>in order to apply to the current game.");
     //options_label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     return_layout->addWidget(options_label, 0, Qt::AlignCenter);
@@ -680,10 +683,10 @@ void PlayerBirth::add_stat_choices(QVBoxLayout *return_layout)
     group_stat_choice = new QButtonGroup(this);
     group_stat_choice->setExclusive(TRUE);
 
-    QLabel *stat_choice_label = new QLabel("<h2>Stat Gen Method</h2>");
+    QPointer<QLabel> stat_choice_label = new QLabel("<h2>Stat Gen Method</h2>");
     return_layout->addWidget(stat_choice_label, Qt::AlignLeft);
 
-    QRadioButton *point_radiobutton = new QRadioButton("Point Based");
+    QPointer<QRadioButton> point_radiobutton = new QRadioButton("Point Based");
     if (birth_point_based) point_radiobutton->setChecked(TRUE);
     else point_radiobutton->setChecked(FALSE);
     point_radiobutton->setObjectName("point_radio");
@@ -691,7 +694,7 @@ void PlayerBirth::add_stat_choices(QVBoxLayout *return_layout)
     return_layout->addWidget(point_radiobutton, Qt::AlignLeft);
     connect(point_radiobutton, SIGNAL(clicked()), this, SLOT(point_button_chosen()));
 
-    QRadioButton *roller_radiobutton = new QRadioButton("Random Roller");
+    QPointer<QRadioButton> roller_radiobutton = new QRadioButton("Random Roller");
     if (birth_point_based) roller_radiobutton->setChecked(FALSE);
     else roller_radiobutton->setChecked(TRUE);
     roller_radiobutton->setObjectName("roller_radio");
@@ -701,21 +704,21 @@ void PlayerBirth::add_stat_choices(QVBoxLayout *return_layout)
 
     return_layout->addStretch(1);
 
-    QLabel *lab_points_spent = new QLabel;
+    QPointer<QLabel> lab_points_spent = new QLabel;
     make_standard_label(lab_points_spent, (QString("Points Spent: %1/24") .arg(points_spent)), TERM_BLUE);
     lab_points_spent->setObjectName("points_spent");
     lab_points_spent->setToolTip("Increasing a stat by 1 between 10 and 16 costs 1 point.<br>Increasing a stat from 16 to 17 costs 2 points.4<br>Increasing a stat from 17 to 18 costs 4 points.");
     return_layout->addWidget(lab_points_spent, Qt::AlignLeft);
     if (!birth_point_based) lab_points_spent->hide();
 
-    QLabel *points_left = new QLabel;
+    QPointer<QLabel> points_left = new QLabel;
     make_standard_label(points_left, (QString("Points Left:  %1/24") .arg(POINTS_LEFT)), TERM_BLUE);
     points_left->setObjectName("points_left");
     points_left->setToolTip("The player receives an extra 50 gold pieces at startup for each unused point.");
     return_layout->addWidget(points_left, Qt::AlignLeft);
     if (birth_point_based) points_left->hide();
 
-    QPushButton *roll_char = new QPushButton("Roll Character");
+    QPointer<QPushButton> roll_char = new QPushButton("Roll Character");
     roll_char->setObjectName("roll_char");
     roll_char->setToolTip("Press to roll your player characteristics.");
     connect(roll_char, SIGNAL(clicked()), this, SLOT(random_roll()));
@@ -736,13 +739,13 @@ void PlayerBirth::add_classes(QVBoxLayout *return_layout)
     group_class = new QButtonGroup(this);
     group_class->setExclusive(TRUE);
 
-    QLabel *class_label = new QLabel("<h2>Player Class</h2>");
+    QPointer<QLabel> class_label = new QLabel("<h2>Player Class</h2>");
     class_label->setToolTip(get_help_topic("race_class_info", "Classes"));
     return_layout->addWidget(class_label, 0, Qt::AlignCenter);
 
     for (int i = 0; i < z_info->c_max; i++)
     {
-        QRadioButton *this_radiobutton = new QRadioButton(c_info[i].cl_name);
+        QPointer<QRadioButton> this_radiobutton = new QRadioButton(c_info[i].cl_name);
         if (i == cur_class) this_radiobutton->setChecked(TRUE);
         else this_radiobutton->setChecked(FALSE);
         group_class->addButton(this_radiobutton, i);
@@ -766,13 +769,13 @@ void PlayerBirth::add_races(QVBoxLayout *return_layout)
     group_race = new QButtonGroup(this);
     group_race->setExclusive(TRUE);
 
-    QLabel *race_label = new QLabel("<h2>Player Race</h2>");
+    QPointer<QLabel> race_label = new QLabel("<h2>Player Race</h2>");
     race_label->setToolTip(get_help_topic("race_class_info", "races"));
     return_layout->addWidget(race_label, 0, Qt::AlignCenter);
 
     for (int i = 0; i < z_info->p_max; i++)
     {
-        QRadioButton *this_radiobutton = new QRadioButton(p_info[i].pr_name);
+        QPointer<QRadioButton> this_radiobutton = new QRadioButton(p_info[i].pr_name);
         if (i == cur_race) this_radiobutton->setChecked(TRUE);
         else this_radiobutton->setChecked(FALSE);
         group_race->addButton(this_radiobutton, i);
@@ -842,7 +845,7 @@ void PlayerBirth::random_all(void)
 
 void PlayerBirth::char_name_label(QGridLayout *return_layout)
 {
-    QLabel *player_name = new QLabel;
+    QPointer<QLabel> player_name = new QLabel;
     make_standard_label(player_name, "NAME:", TERM_DARK);
     return_layout->addWidget(player_name, 0, 0, Qt::AlignLeft);
 }
@@ -850,7 +853,7 @@ void PlayerBirth::char_name_label(QGridLayout *return_layout)
 // Add player names, buttons, and gender
 void PlayerBirth::add_genders(QVBoxLayout *return_layout)
 {
-    QLabel *name_label = new QLabel("<h2>Charater Name</h2>");
+    QPointer<QLabel> name_label = new QLabel("<h2>Charater Name</h2>");
     return_layout->addWidget(name_label, 0, Qt::AlignCenter);
 
     if (op_ptr->full_name.length()) cur_name = op_ptr->full_name;
@@ -863,12 +866,12 @@ void PlayerBirth::add_genders(QVBoxLayout *return_layout)
     group_gender = new QButtonGroup(this);
     group_gender->setExclusive(TRUE);
 
-    QLabel *gender_label = new QLabel("<h2>Player Gender</h2>");
+    QPointer<QLabel> gender_label = new QLabel("<h2>Player Gender</h2>");
     return_layout->addWidget(gender_label, 0, Qt::AlignCenter);
 
     for (int i = 0; i < MAX_SEXES; i++)
     {
-        QRadioButton *this_radiobutton = new QRadioButton(sex_info[i].title);
+        QPointer<QRadioButton> this_radiobutton = new QRadioButton(sex_info[i].title);
         if (i == cur_gender) this_radiobutton->setChecked(TRUE);
         else this_radiobutton->setChecked(FALSE);
         group_gender->addButton(this_radiobutton, i);
@@ -877,33 +880,33 @@ void PlayerBirth::add_genders(QVBoxLayout *return_layout)
 
     connect(group_gender, SIGNAL(buttonClicked(int)), this, SLOT(gender_changed(int)));
 
-    QLabel *gender_expl = new QLabel(color_string(QString("<b>Gender does not have any significant gameplay effects.</b>"), TERM_BLUE));
+    QPointer<QLabel> gender_expl = new QLabel(color_string(QString("<b>Gender does not have any significant gameplay effects.</b>"), TERM_BLUE));
     gender_expl->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
     gender_expl->setWordWrap(TRUE);
     return_layout->addWidget(gender_expl);
 
-    QPushButton *rand_name = new QPushButton("Random Name");
+    QPointer<QPushButton> rand_name = new QPushButton("Random Name");
     return_layout->addWidget(rand_name, 0, Qt::AlignLeft);
     connect(rand_name, SIGNAL(clicked()), this, SLOT(random_name()));
 
-    QPushButton *rand_gender = new QPushButton("Random Gender");
+    QPointer<QPushButton> rand_gender = new QPushButton("Random Gender");
     return_layout->addWidget(rand_gender, 0, Qt::AlignLeft);
     connect(rand_gender, SIGNAL(clicked()), this, SLOT(random_gender()));
 
-    QPushButton *rand_race = new QPushButton("Random Race");
+    QPointer<QPushButton> rand_race = new QPushButton("Random Race");
     return_layout->addWidget(rand_race, 0, Qt::AlignLeft);
     connect(rand_race, SIGNAL(clicked()), this, SLOT(random_race()));
 
-    QPushButton *rand_class = new QPushButton("Random Class");
+    QPointer<QPushButton> rand_class = new QPushButton("Random Class");
     return_layout->addWidget(rand_class, 0, Qt::AlignLeft);
     connect(rand_class, SIGNAL(clicked()), this, SLOT(random_class()));
 
-    QPushButton *rand_all = new QPushButton("Random Character");
+    QPointer<QPushButton> rand_all = new QPushButton("Random Character");
     rand_all->setToolTip("Randomly select the character's name, gender, race, and class.");
     return_layout->addWidget(rand_all, 0, Qt::AlignLeft);
     connect(rand_all, SIGNAL(clicked()), this, SLOT(random_all()));
 
-    QPushButton *all_options = new QPushButton("All Options");
+    QPointer<QPushButton> all_options = new QPushButton("All Options");
     return_layout->addWidget(all_options, 0, Qt::AlignLeft);
     connect(all_options, SIGNAL(clicked()), this, SLOT(call_options_dialog()));
 }
@@ -995,7 +998,7 @@ PlayerBirth::PlayerBirth(bool quickstart): NPPDialog()
     hold_update = FALSE;
 
     central = new QWidget;
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
     central->setLayout(main_layout);
     main_layout->setSpacing(10);
     // IMPORTANT: it must be called AFTER setting the layout
@@ -1005,51 +1008,51 @@ PlayerBirth::PlayerBirth(bool quickstart): NPPDialog()
     setup_character();
 
     // Title Box
-    QLabel *main_prompt = new QLabel(QString("<h2>Character Creation %1 %2 </h2>") .arg(VERSION_MODE_NAME) .arg(VERSION_STRING));
+    QPointer<QLabel> main_prompt = new QLabel(QString("<h2>Character Creation %1 %2 </h2>") .arg(VERSION_MODE_NAME) .arg(VERSION_STRING));
     main_layout->addWidget(main_prompt, 0, Qt::AlignCenter);
-    QHBoxLayout *hlay_choices = new QHBoxLayout;
+    QPointer<QHBoxLayout> hlay_choices = new QHBoxLayout;
     main_layout->addLayout(hlay_choices);
 
     // Add a box for options
-    QVBoxLayout *vlay_options = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_options = new QVBoxLayout;
     hlay_choices->addLayout(vlay_options);
     add_option_boxes(vlay_options);
     vlay_options->addStretch(1);
 
     // Add gender column and buttons
-    QVBoxLayout *vlay_gender = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_gender = new QVBoxLayout;
     hlay_choices->addLayout(vlay_gender);
     add_genders(vlay_gender);
     vlay_gender->addStretch(1);
 
     // Add race column
-    QVBoxLayout *vlay_race  = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_race  = new QVBoxLayout;
     hlay_choices->addLayout(vlay_race);
     add_races(vlay_race);
     vlay_race->addStretch(1);
 
     //Add class column
-    QVBoxLayout *vlay_class  = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_class  = new QVBoxLayout;
     hlay_choices->addLayout(vlay_class);
     add_classes(vlay_class);
     vlay_class->addStretch(1);
 
-    QVBoxLayout *vlay_help_area = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_help_area = new QVBoxLayout;
     hlay_choices->addLayout(vlay_help_area, 1);
     add_info_boxes(vlay_help_area);
     vlay_help_area->addStretch(1);
 
-    QVBoxLayout *vlay_stats_info_area = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_stats_info_area = new QVBoxLayout;
     hlay_choices->addLayout(vlay_stats_info_area);
     add_stat_boxes(vlay_stats_info_area);
     vlay_stats_info_area->addStretch(1);
 
 
 
-    QHBoxLayout *hlay_info = new QHBoxLayout;
+    QPointer<QHBoxLayout> hlay_info = new QHBoxLayout;
     main_layout->addLayout(hlay_info);
 
-    QVBoxLayout *vlay_char_basic = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_char_basic = new QVBoxLayout;
     glay_char_basic = new QGridLayout;
     char_name_label(glay_char_basic);
     char_basic_info(glay_char_basic);
@@ -1058,7 +1061,7 @@ PlayerBirth::PlayerBirth(bool quickstart): NPPDialog()
     hlay_info->addLayout(vlay_char_basic);
     hlay_info->addStretch(1);
 
-    QVBoxLayout *vlay_char_data = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_char_data = new QVBoxLayout;
     glay_char_data = new QGridLayout;
     char_basic_data(glay_char_data);
     vlay_char_data->addLayout(glay_char_data);
@@ -1066,7 +1069,7 @@ PlayerBirth::PlayerBirth(bool quickstart): NPPDialog()
     hlay_info->addLayout(vlay_char_data);
     hlay_info->addStretch(1);
 
-    QVBoxLayout *vlay_ability_info = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_ability_info = new QVBoxLayout;
     glay_ability_info = new QGridLayout;
     char_ability_info(glay_ability_info);
     vlay_ability_info->addLayout(glay_ability_info);
@@ -1074,7 +1077,7 @@ PlayerBirth::PlayerBirth(bool quickstart): NPPDialog()
     hlay_info->addLayout(vlay_ability_info);
     hlay_info->addStretch(1);
 
-    QVBoxLayout *vlay_stat_choice = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_stat_choice = new QVBoxLayout;
     add_stat_choices(vlay_stat_choice);
     vlay_stat_choice->addStretch(1);
     hlay_info->addLayout(vlay_stat_choice);
@@ -1085,10 +1088,10 @@ PlayerBirth::PlayerBirth(bool quickstart): NPPDialog()
     add_stat_results();
 
     // Add player history
-    QVBoxLayout *history_box = new QVBoxLayout;
+    QPointer<QVBoxLayout> history_box = new QVBoxLayout;
     main_layout->addStretch(1);
     main_layout->addLayout(history_box);
-    QLabel *history = new QLabel();
+    QPointer<QLabel> history = new QLabel();
     make_standard_label(history, (QString("<b>%1</b>") .arg(p_ptr->history)), TERM_BLUE);
     history->setObjectName("PLYR_Hist");
     history_box->addWidget(history);
@@ -1097,7 +1100,7 @@ PlayerBirth::PlayerBirth(bool quickstart): NPPDialog()
     update_char_screen(central, ui_message_window_font());
 
     //Add a close button on the right side
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttons, SIGNAL(rejected()), this, SLOT(reject_char()));
     connect(buttons, SIGNAL(accepted()), this, SLOT(accept_char()));
     main_layout->addWidget(buttons);

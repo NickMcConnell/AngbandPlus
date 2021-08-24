@@ -510,7 +510,7 @@ void check_experience(void)
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
         /* Redraw some stuff */
-        p_ptr->redraw |= (PR_TITLEBAR | PR_WIN_MON_RECALL);
+        p_ptr->redraw |= (PR_WIN_MON_RECALL);
     }
 
     /* Gain levels while possible */
@@ -1206,7 +1206,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, QString note, int who, bool do
 
     /* Redraw (later) if needed */
     if (m_ptr->sidebar) p_ptr->redraw |= (PR_SIDEBAR_MON);
-    if (p_ptr->monster_race_idx == m_ptr->r_idx) p_ptr->redraw |= (PR_WIN_MON_RECALL);
 
     if (!dam) return(FALSE);
 

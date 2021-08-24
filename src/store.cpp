@@ -2639,9 +2639,6 @@ void do_cmd_buy(int this_store, cmd_arg args)
         o_ptr->pval -= i_ptr->pval;
     }
 
-    /* Handle stuff */
-    handle_stuff();
-
     /* Remove the bought objects from the store */
     store_item_increase(this_store, item, -amt);
     store_item_optimize(this_store, item);
@@ -2810,9 +2807,6 @@ void do_cmd_reward(int this_store, cmd_arg args)
         }
     }
 
-    /* Handle stuff */
-    handle_stuff();
-
     /* Remove the item from the guild before we wipe everything */
     store_item_increase(STORE_GUILD, item, -amt);
     store_item_optimize(STORE_GUILD, item);
@@ -2877,13 +2871,9 @@ void do_cmd_retrieve(int this_store, cmd_arg args)
     /* Message */
     message(QString("You have %1 (%2).") .arg(o_name) .arg(index_to_label(item_new)));
 
-    /* Handle stuff */
-    handle_stuff();
-
     /* Remove the items from the home */
     store_item_increase(STORE_HOME, item, -amt);
     store_item_optimize(STORE_HOME, item);
-
 }
 
 
@@ -2977,12 +2967,8 @@ void do_cmd_sell(int this_store, cmd_arg args)
     inven_item_increase(item, -amt);
     inven_item_optimize(item);
 
-    /* Handle stuff */
-    handle_stuff();
-
     /* The store gets that (known) object */
     store_carry(this_store, &sold_item);
-
 }
 
 /*
@@ -3032,12 +3018,8 @@ void do_cmd_stash(int this_store, cmd_arg args)
     inven_item_increase(item, -amt);
     inven_item_optimize(item);
 
-    /* Handle stuff */
-    handle_stuff();
-
     /* Let the home carry it */
     home_carry(&dropped_item);
-
 }
 
 /*
@@ -3095,9 +3077,6 @@ bool store_overflow(int this_store)
         inven_item_increase(item, -255);
         inven_item_describe(item);
         inven_item_optimize(item);
-
-        /* Handle stuff */
-        handle_stuff();
 
         /* Let the home carry it */
         home_carry(i_ptr);

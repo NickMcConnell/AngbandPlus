@@ -156,7 +156,7 @@ void ObjectSelectDialog::add_object_button(object_type *o_ptr, s16b item_slot, Q
     QString style = QString("color: %1;").arg(get_object_color(o_ptr).name());
     style.append(QString("text-align: left; font-weight: bold;"));
 
-    QPushButton *object_button = new QPushButton(desc);
+    QPointer<QPushButton> object_button = new QPushButton(desc);
     object_button->setStyleSheet(style);
     object_button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     object_button->setObjectName(QString("%1") .arg(item_slot));
@@ -214,21 +214,21 @@ void ObjectSelectDialog::floor_items_count(int mode, int sq_y, int sq_x)
 // Make the tab for the widget
 void ObjectSelectDialog::build_floor_tab()
 {
-    QVBoxLayout *vlay_floor = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_floor = new QVBoxLayout;
     floor_tab = new QWidget;
     scroll_floor = new QScrollArea;
     floor_tab->setLayout(vlay_floor);
     scroll_floor->setWidget(floor_tab);
     scroll_floor->setWidgetResizable(TRUE);
 
-    QGridLayout *object_layout = new QGridLayout;
+    QPointer<QGridLayout> object_layout = new QGridLayout;
     vlay_floor->addLayout(object_layout);
     vlay_floor->addStretch(1);
 
     // Give each one titles
-    QLabel *object_header = new QLabel("<b><big>Floor Items</big></b>");
-    QLabel *weight_header = new QLabel("<b><big>Weight</big></b>");
-    QLabel *help_header = new QLabel("<b><big>Info</big></b>");
+    QPointer<QLabel> object_header = new QLabel("<b><big>Floor Items</big></b>");
+    QPointer<QLabel> weight_header = new QLabel("<b><big>Weight</big></b>");
+    QPointer<QLabel> help_header = new QLabel("<b><big>Info</big></b>");
     object_header->setAlignment(Qt::AlignLeft);
     weight_header->setAlignment(Qt::AlignRight);
     help_header->setAlignment(Qt::AlignHCenter);
@@ -286,21 +286,21 @@ void ObjectSelectDialog::inven_items_count(int mode)
 
 void ObjectSelectDialog::build_inven_tab()
 {
-    QVBoxLayout *vlay_inven = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_inven = new QVBoxLayout;
     inven_tab = new QWidget;
     scroll_inven = new QScrollArea;
     inven_tab->setLayout(vlay_inven);
     scroll_inven->setWidget(inven_tab);
     scroll_inven->setWidgetResizable(TRUE);
 
-    QGridLayout *object_layout = new QGridLayout;
+    QPointer<QGridLayout> object_layout = new QGridLayout;
     vlay_inven->addLayout(object_layout);
     vlay_inven->addStretch(1);
 
     // Give each one titles
-    QLabel *object_header = new QLabel("<b><big>Inventory Items</big></b>");
-    QLabel *weight_header = new QLabel("<b><big>Weight</big></b>");
-    QLabel *help_header = new QLabel("<b><big>Info</big></b>");
+    QPointer<QLabel> object_header = new QLabel("<b><big>Inventory Items</big></b>");
+    QPointer<QLabel> weight_header = new QLabel("<b><big>Weight</big></b>");
+    QPointer<QLabel> help_header = new QLabel("<b><big>Info</big></b>");
     object_header->setAlignment(Qt::AlignLeft);
     weight_header->setAlignment(Qt::AlignRight);
     help_header->setAlignment(Qt::AlignHCenter);
@@ -358,21 +358,21 @@ void ObjectSelectDialog::equip_items_count(int mode)
 
 void ObjectSelectDialog::build_equip_tab()
 {
-    QVBoxLayout *vlay_equip = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_equip = new QVBoxLayout;
     equip_tab = new QWidget;
     scroll_equip = new QScrollArea;
     equip_tab->setLayout(vlay_equip);
     scroll_equip->setWidget(equip_tab);
     scroll_equip->setWidgetResizable(TRUE);
 
-    QGridLayout *object_layout = new QGridLayout;
+    QPointer<QGridLayout> object_layout = new QGridLayout;
     vlay_equip->addLayout(object_layout);
     vlay_equip->addStretch(1);
 
     // Give each one titles
-    QLabel *object_header = new QLabel("<b><big>Equipment Items</big></b>");
-    QLabel *weight_header = new QLabel("<b><big>Weight</big></b>");
-    QLabel *help_header = new QLabel("<b><big>Info</big></b>");
+    QPointer<QLabel> object_header = new QLabel("<b><big>Equipment Items</big></b>");
+    QPointer<QLabel> weight_header = new QLabel("<b><big>Weight</big></b>");
+    QPointer<QLabel> help_header = new QLabel("<b><big>Info</big></b>");
     object_header->setAlignment(Qt::AlignLeft);
     weight_header->setAlignment(Qt::AlignRight);
     help_header->setAlignment(Qt::AlignHCenter);
@@ -432,21 +432,21 @@ void ObjectSelectDialog::quiver_items_count(int mode)
 
 void ObjectSelectDialog::build_quiver_tab()
 {
-    QVBoxLayout *vlay_quiver = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_quiver = new QVBoxLayout;
     quiver_tab = new QWidget;
     scroll_quiver = new QScrollArea;
     quiver_tab->setLayout(vlay_quiver);
     scroll_quiver->setWidget(quiver_tab);
     scroll_quiver->setWidgetResizable(TRUE);
 
-    QGridLayout *object_layout = new QGridLayout;
+    QPointer<QGridLayout> object_layout = new QGridLayout;
     vlay_quiver->addLayout(object_layout);
     vlay_quiver->addStretch(1);
 
     // Give each one titles
-    QLabel *object_header = new QLabel("<b><big>Quiver Items</big></b>");
-    QLabel *weight_header = new QLabel("<b><big>Weight</big></b>");
-    QLabel *help_header = new QLabel("<b><big>Info</big></b>");
+    QPointer<QLabel> object_header = new QLabel("<b><big>Quiver Items</big></b>");
+    QPointer<QLabel> weight_header = new QLabel("<b><big>Weight</big></b>");
+    QPointer<QLabel> help_header = new QLabel("<b><big>Info</big></b>");
     object_header->setAlignment(Qt::AlignLeft);
     weight_header->setAlignment(Qt::AlignRight);
     help_header->setAlignment(Qt::AlignHCenter);
@@ -533,16 +533,8 @@ byte ObjectSelectDialog::find_starting_tab(int mode)
 }
 
 
-ObjectSelectDialog::ObjectSelectDialog(int *item, QString prompt, int mode, bool *success, bool *cancelled, int sq_y, int sq_x)
+ObjectSelectDialog::ObjectSelectDialog(int *item, QString prompt, QString failure_message, int mode, bool *success, int sq_y, int sq_x)
 {
-    object_tabs = new QTabWidget;
-
-    main_prompt = new QLabel(QString("<b><big>%1</big></b>") .arg(prompt));
-    main_prompt->setAlignment(Qt::AlignCenter);
-
-    // Start with a clean slate
-    tab_order.clear();
-
     // First, find the eligible objects
     floor_items_count(mode, sq_y, sq_x);
     inven_items_count(mode);
@@ -558,9 +550,19 @@ ObjectSelectDialog::ObjectSelectDialog(int *item, QString prompt, int mode, bool
         /* Report failure */
         *success = FALSE;
 
+        pop_up_message_box(failure_message);
+
         /* Done here */
         return;
     }
+
+    object_tabs = new QTabWidget;
+
+    main_prompt = new QLabel(QString("<b><big>%1</big></b>") .arg(prompt));
+    main_prompt->setAlignment(Qt::AlignCenter);
+
+    // Start with a clean slate
+    tab_order.clear();
 
     // Build, then add the tabs as necessary
     if (allow_floor)
@@ -588,13 +590,13 @@ ObjectSelectDialog::ObjectSelectDialog(int *item, QString prompt, int mode, bool
         tab_order.append(TAB_QUIVER);
     }
 
-    QDialogButtonBox *buttons = new QDialogButtonBox();
-    QPushButton *button_left = new QPushButton();
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox();
+    QPointer<QPushButton> button_left = new QPushButton();
     button_left->setText("<");
     button_left->setToolTip("Pressing '<' also moves the active tab to the left.");
     connect(button_left, SIGNAL(clicked()), this, SLOT(move_left()));
     buttons->addButton(button_left, QDialogButtonBox::ActionRole);
-    QPushButton *button_right = new QPushButton();
+    QPointer<QPushButton> button_right = new QPushButton();
     button_right->setText(">");
     button_right->setToolTip("Pressing '>' also moves the active tab to the right.");
     connect(button_right, SIGNAL(clicked()), this, SLOT(move_right()));
@@ -606,7 +608,7 @@ ObjectSelectDialog::ObjectSelectDialog(int *item, QString prompt, int mode, bool
     byte tab_idx = find_starting_tab(mode);
     object_tabs->setCurrentIndex(tab_idx);
 
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
 
     main_layout->addWidget(main_prompt);
     main_layout->addWidget(object_tabs);
@@ -622,14 +624,12 @@ ObjectSelectDialog::ObjectSelectDialog(int *item, QString prompt, int mode, bool
 
     if (!this->exec())
     {
-        *cancelled = TRUE;
         *success = FALSE;
     }
     else
     {
         *item = selected_item;
         *success = TRUE;
-        *cancelled = FALSE;
     }
 }
 
@@ -692,13 +692,12 @@ ObjectSelectDialog::ObjectSelectDialog(int *item, QString prompt, int mode, bool
 bool get_item(int *cp, QString pmt, QString str, int mode)
 {
     bool success = FALSE;
-    bool cancelled = FALSE;
 
     /* No item selected */
     *cp = 0;
 
     /* Go to menu */
-    ObjectSelectDialog(cp, pmt, mode, &success, &cancelled, p_ptr->py, p_ptr->px);
+    ObjectSelectDialog(cp, pmt, str, mode, &success, p_ptr->py, p_ptr->px);
 
     /* Hack -- Cancel "display" */
     p_ptr->command_see = FALSE;
@@ -715,9 +714,6 @@ bool get_item(int *cp, QString pmt, QString str, int mode)
     /* Make sure the equipment/inventory windows are up to date */
     p_ptr->redraw |= (PR_WIN_INVENTORY | PR_WIN_EQUIPMENT);
 
-    /* Warning if needed */
-    if (!success && !cancelled && !str.isEmpty()) message(str);
-
     /* Result */
     return (success);
 }
@@ -730,7 +726,6 @@ bool get_item(int *cp, QString pmt, QString str, int mode)
 bool get_item_beside(int *cp, QString pmt, QString str, int sq_y, int sq_x)
 {
     bool success = FALSE;
-    bool cancelled = FALSE;
 
     /* No item selected */
     *cp = 0;
@@ -739,7 +734,7 @@ bool get_item_beside(int *cp, QString pmt, QString str, int sq_y, int sq_x)
     if (!in_bounds_fully(sq_y, sq_x)) success = FALSE;
 
     /* Go to menu */
-    ObjectSelectDialog(cp, pmt, (USE_FLOOR), &success, &cancelled, sq_y, sq_x);
+    ObjectSelectDialog(cp, pmt, str, (USE_FLOOR), &success, sq_y, sq_x);
 
     /* Hack -- Cancel "display" */
     p_ptr->command_see = FALSE;
@@ -752,9 +747,6 @@ bool get_item_beside(int *cp, QString pmt, QString str, int sq_y, int sq_x)
 
     /* Forget the item_tester_hook restriction */
     item_tester_hook = NULL;
-
-    /* Warning if needed */
-    if (!success && !cancelled && !str.isEmpty()) message(str);
 
     /* Result */
     return (success);

@@ -60,36 +60,36 @@ private:
     // try not to update the character more than once each action
     bool hold_update;
 
-    QWidget *central;
-    QGridLayout *glay_char_basic;
-    QGridLayout *glay_char_data;
-    QGridLayout *glay_ability_info;
+    QPointer<QWidget> central;
+    QPointer<QGridLayout> glay_char_basic;
+    QPointer<QGridLayout> glay_char_data;
+    QPointer<QGridLayout> glay_ability_info;
 
 
     //Option checkboxes
-    QButtonGroup *group_options;
+    QPointer<QButtonGroup> group_options;
     void add_option_boxes(QVBoxLayout *return_layout);
 
     //Gender and buttons
-    QButtonGroup *group_gender;
-    QLineEdit *player_name;
+    QPointer<QButtonGroup> group_gender;
+    QPointer<QLineEdit> player_name;
     QString cur_name;
     int cur_gender;
     void add_genders(QVBoxLayout *return_layout);
 
     //Race
-    QButtonGroup *group_race;
+    QPointer<QButtonGroup> group_race;
     int cur_race;
     void add_races(QVBoxLayout *return_layout);
 
     //Class
-    QButtonGroup *group_class;
+    QPointer<QButtonGroup> group_class;
     int cur_class;
     void add_classes(QVBoxLayout *return_layout);
 
     //help boxes
-    QLabel *race_info;
-    QLabel *class_info;
+    QPointer<QLabel> race_info;
+    QPointer<QLabel> class_info;
     void add_info_boxes(QVBoxLayout *return_layout);
 
     //stats
@@ -98,9 +98,9 @@ private:
     void update_stats_info();
 
     //Statroll options
-    QVBoxLayout *vlay_stats_current;
-    QGridLayout *grid_stat_results;
-    QButtonGroup *group_stat_choice;
+    QPointer<QVBoxLayout> vlay_stats_current;
+    QPointer<QGridLayout> grid_stat_results;
+    QPointer<QButtonGroup> group_stat_choice;
     void add_stat_choices(QVBoxLayout *return_layout);
 
     void update_screen(void);

@@ -62,8 +62,8 @@ class MainWindow : public QMainWindow
 
 public:
     // The editable part of the main window.
-    QGraphicsView *graphics_view;
-    QGraphicsScene *dungeon_scene;
+    QPointer<QGraphicsView> graphics_view;
+    QPointer<QGraphicsScene> dungeon_scene;
 
     int targeting_mode;
     UserInput input;
@@ -85,6 +85,7 @@ public:
     bool do_pseudo_ascii;
     bool do_wall_block;
     bool show_targeting_buttons;
+    bool show_hotkey_toolbar;
     bool executing_command;
 
     // Scaled tiles
@@ -97,27 +98,36 @@ public:
 
     DungeonCursor *cursor;
 
-    QWidget *main_widget;
-    QHBoxLayout *main_widget_hlay;
+    QPointer<QWidget> main_widget;
+    QPointer<QHBoxLayout> main_widget_hlay;
     // The vlay goes inside the hlay
-    QVBoxLayout *main_sidebar_vlay;
-    QVBoxLayout *main_widget_vlay;
+    QPointer<QVBoxLayout> main_sidebar_vlay;
+    QPointer<QVBoxLayout> main_widget_vlay;
 
 
-    QHBoxLayout *message_area_hlay;
-    QLabel *message_area;
-    QLabel *message_label;
+    QPointer<QHBoxLayout> message_area_hlay;
+    QPointer<QLabel> message_area;
+    QPointer<QLabel> message_label;
 
-    QToolBar *status_bar;
+    QPointer<QToolBar> status_bar;
+    QPointer<QToolBar> hotkey_toolbar;
 
-    QWidget *sidebar_widget;
-    QVBoxLayout *sidebar_vlay;
+    QPointer<QWidget> sidebar_widget;
+    QPointer<QVBoxLayout> sidebar_vlay;
     QScrollArea *sidebar_scroll;
 
-    QVBoxLayout *player_info_labels;
-    QVBoxLayout *player_info_data;
-    QVBoxLayout *player_info_vlay;
-    QVBoxLayout *mon_health_vlay;
+    QList<QLabel *> list_sidebar_labels;
+    QList<QLabel *> list_sidebar_mon_direction;
+    QList<QLabel *> list_sidebar_mon_pics;
+    QList<QLabel *> list_sidebar_mon_name;
+    QList<QLabel *> list_sidebar_mon_health;
+
+    QList<QAction *> list_hotkey_toolbar_qactions;
+
+    QPointer<QVBoxLayout> player_info_labels;
+    QPointer<QVBoxLayout> player_info_data;
+    QPointer<QVBoxLayout> player_info_vlay;
+    QPointer<QVBoxLayout> mon_health_vlay;
     QGridLayout *targeting_glay;
 
     MainWindow();
@@ -149,7 +159,7 @@ public:
     void update_sidebar_font();
     void update_sidebar_player();
     void update_sidebar_mon();
-    void sidebar_display_mon(int m_idx);
+    void sidebar_display_mon(int index);
     QString return_sidebar_text(bool label, int row);
     void update_sidebar_all() {update_sidebar_mon(); update_sidebar_player();}
     void hide_sidebar();
@@ -161,15 +171,20 @@ public:
     void update_statusbar();
     void hide_statusbar();
     void show_statusbar();
+    void create_hotkey_toolbar();
+    void update_hotkey_toolbar();
+    void hotkey_toolbar_hide();
+    void hotkey_toolbar_show();
     void create_targeting_sidebar();
     void hide_targeting_sidebar();
     void show_targeting_sidebar();
     void save_png_screenshot(void);
 
+    void handle_grid_wheelevent(bool wheelscroll_increase);
+
 
 protected:
     void closeEvent(QCloseEvent *event);
-    void wheelEvent(QWheelEvent* event);
     void keyPressEvent(QKeyEvent* which_key);
     bool eventFilter(QObject *obj, QEvent *event);
     void hideEvent(QHideEvent *event);
@@ -191,7 +206,11 @@ private slots:
     void command_list_mouse();
     void command_list_targeting();
     void options_dialog();
+    void hp_warning_dialog();
+    void delay_anim_factor_dialog();
+    void delay_run_factor_dialog();
     void toggle_show_targeting();
+    void toggle_show_hotkey_toolbar();
     void font_dialog_main_window();
     void font_dialog_message_window();
     void font_dialog_sidebar_window();
@@ -210,6 +229,7 @@ private slots:
     void slot_angband_keyset() {set_keymap_mode(KEYSET_ANGBAND);}
     void slot_rogue_keyset() {set_keymap_mode(KEYSET_ROGUE);}
     void slot_multiplier_clicked(QAction *);
+    void hotkey_toolbar_clicked(QAction *);
 
     // Functions to make sure the available menu commands are appropriate to the situation.
     //  For example, make the save game command unanavailable when no savefile is open.
@@ -262,10 +282,10 @@ private:
     void write_settings();
 
     // Handle timed events
-    QTimer *event_timer;
+    QPointer<QTimer> event_timer;
 public:
 // To distinguish single clicks from double clicks
-    QTimer *single_click_timer;
+    QPointer<QTimer> single_click_timer;
     mouse_click_info single_mouseclick_info;
 
 
@@ -279,149 +299,155 @@ private:
     void update_recent_savefiles();
     QString stripped_name(const QString &full_file_name);
     QStringList recent_savefiles;
-    QAction *recent_savefile_actions[MAX_RECENT_SAVEFILES];
+    QPointer<QAction> recent_savefile_actions[MAX_RECENT_SAVEFILES];
 
     //  Holds the actual commands for the file menu and toolbar.
-    QMenu *file_menu;
-    QMenu *recent_files_menu;
-    QMenu *settings;
-    QMenu *knowledge;
-    QMenu *display;
-    QMenu *win_menu;
-    QMenu *help_menu;
-    QToolBar *file_toolbar;
-    QAction *new_game_nppangband;
-    QAction *new_game_nppmoria;
-    QAction *open_savefile;
-    QAction *save_cur_char;
-    QAction *save_cur_char_as;
-    QAction *close_cur_char;
-    QAction *exit_npp;
+    QPointer<QMenu> file_menu;
+    QPointer<QMenu> recent_files_menu;
+    QPointer<QMenu> settings;
+    QPointer<QMenu> knowledge;
+    QPointer<QMenu> display;
+    QPointer<QMenu> win_menu;
+    QPointer<QMenu> help_menu;
+    QPointer<QToolBar> file_toolbar;
+    QPointer<QAction> new_game_nppangband;
+    QPointer<QAction> new_game_nppmoria;
+    QPointer<QAction> open_savefile;
+    QPointer<QAction> save_cur_char;
+    QPointer<QAction> save_cur_char_as;
+    QPointer<QAction> close_cur_char;
+    QPointer<QAction> exit_npp;
 
     //Command for the settings menu
-    QAction *options_act;
-    QAction *font_main_select_act;
-    QAction *font_messages_select_act;
-    QAction *font_sidebar_select_act;
-    QActionGroup *keymap_choice;
-    QAction *keymap_new;
-    QAction *keymap_angband;
-    QAction *keymap_rogue;
-    QAction *hotkey_manage;
-    QAction *hotkey_export;
-    QAction *hotkey_import;
-    QAction *show_targeting_act;
+    QPointer<QAction> options_act;
+    QPointer<QAction> font_main_select_act;
+    QPointer<QAction> font_messages_select_act;
+    QPointer<QAction> font_sidebar_select_act;
+    QPointer<QActionGroup> keymap_choice;
+    QPointer<QAction> keymap_new;
+    QPointer<QAction> keymap_angband;
+    QPointer<QAction> keymap_rogue;
+    QPointer<QAction> hotkey_manage;
+    QPointer<QAction> hotkey_export;
+    QPointer<QAction> hotkey_import;
+    QPointer<QAction> show_targeting_act;
+    QPointer<QAction> show_hotkey_toolbar_act;
+    QPointer<QAction> hitpoint_warning_act;
+    QPointer<QAction> delay_anim_factor_act;
+    QPointer<QAction> delay_run_factor_act;
 
 
     //Commmands for the knowledge menu
-    QAction *view_monster_knowledge;
-    QAction *view_object_knowledge;
-    QAction *view_ego_item_knowledge;
-    QAction *view_artifact_knowledge;
-    QAction *view_terrain_knowledge;
-    QAction *view_notes;
-    QAction *view_messages;
-    QAction *view_home_inven;
-    QAction *view_scores;
-    QAction *view_kill_count;
+    QPointer<QAction> view_monster_knowledge;
+    QPointer<QAction> view_object_knowledge;
+    QPointer<QAction> view_ego_item_knowledge;
+    QPointer<QAction> view_artifact_knowledge;
+    QPointer<QAction> view_terrain_knowledge;
+    QPointer<QAction> view_notes;
+    QPointer<QAction> view_messages;
+    QPointer<QAction> view_home_inven;
+    QPointer<QAction> view_scores;
+    QPointer<QAction> view_kill_count;
 
     // Commands for the display menu
-    QActionGroup *tiles_choice;
-    QAction *ascii_mode_act;
-    QAction *reg_mode_act;
-    QAction *dvg_mode_act;
-    QAction *old_tiles_act;
-    QAction *graphics_25d_act;
-    QAction *pseudo_ascii_act;
-    QAction *wall_block_act;
+    QPointer<QActionGroup> tiles_choice;
+    QPointer<QAction> ascii_mode_act;
+    QPointer<QAction> reg_mode_act;
+    QPointer<QAction> dvg_mode_act;
+    QPointer<QAction> old_tiles_act;
+    QPointer<QAction> graphics_25d_act;
+    QPointer<QAction> pseudo_ascii_act;
+    QPointer<QAction> wall_block_act;
 
     // Commands for the additional windows
-    QAction *win_mon_list;
-    QAction *win_obj_list;
-    QAction *win_mon_recall;
-    QAction *win_obj_recall;
-    QAction *win_feat_recall;
-    QAction *win_messages;
-    QAction *win_char_basic;
-    QAction *win_char_equip_info;
-    QAction *win_char_equipment;
-    QAction *win_char_inventory;
-    QAction *win_dun_map;
-    QAction *win_overhead_map;
+    QPointer<QAction> win_mon_list;
+    QPointer<QAction> win_obj_list;
+    QPointer<QAction> win_mon_recall;
+    QPointer<QAction> win_obj_recall;
+    QPointer<QAction> win_feat_recall;
+    QPointer<QAction> win_messages;
+    QPointer<QAction> win_char_basic;
+    QPointer<QAction> win_char_equip_info;
+    QPointer<QAction> win_char_equipment;
+    QPointer<QAction> win_char_inventory;
+    QPointer<QAction> win_dun_map;
+    QPointer<QAction> win_overhead_map;
 
     // Holds the actual commands for the help menu.
-    QAction *help_about;
-    QAction *help_about_Qt;
-    QAction *help_command_list;
-    QAction *help_mouse_list;
-    QAction *help_targeting_list;
-    QAction *separator_act;
+    QPointer<QAction> help_about;
+    QPointer<QAction> help_about_Qt;
+    QPointer<QAction> help_command_list;
+    QPointer<QAction> help_mouse_list;
+    QPointer<QAction> help_targeting_list;
+    QPointer<QAction> separator_act;
 
 
     // information about the main window
     QFontDatabase font_database;
 
-    QActionGroup *multipliers;
+    QPointer<QActionGroup> multipliers;
+    QPointer<QActionGroup> hotkey_toolbar_actions;
 
     // Actions for the statusbar
     // buttons for status bar
-    QAction *recall;
-    QAction *searching;
-    QAction *status_cut;
-    QAction *status_stun;
-    QAction *status_hunger;
-    QAction *study;
+    QPointer<QAction> recall;
+    QPointer<QAction> searching;
+    QPointer<QAction> status_cut;
+    QPointer<QAction> status_stun;
+    QPointer<QAction> status_hunger;
+    QPointer<QAction> study;
 
-    QAction *blind;
-    QAction *paralyzed;
-    QAction *confused;
-    QAction *afraid;
-    QAction *hallucination;
-    QAction *poisoned;
-    QAction *protect_evil;
-    QAction *invulnerability;
-    QAction *hero;
-    QAction *berzerk;
-    QAction *shield;
-    QAction *blessed;
-    QAction *see_invisible;
-    QAction *infravision;
+    QPointer<QAction> blind;
+    QPointer<QAction> paralyzed;
+    QPointer<QAction> confused;
+    QPointer<QAction> afraid;
+    QPointer<QAction> hallucination;
+    QPointer<QAction> poisoned;
+    QPointer<QAction> protect_evil;
+    QPointer<QAction> invulnerability;
+    QPointer<QAction> hero;
+    QPointer<QAction> berzerk;
+    QPointer<QAction> shield;
+    QPointer<QAction> blessed;
+    QPointer<QAction> see_invisible;
+    QPointer<QAction> infravision;
 
-    QAction *resist_acid;
-    QAction *resist_cold;
-    QAction *resist_fire;
-    QAction *resist_lightning;
-    QAction *resist_poison;
+    QPointer<QAction> resist_acid;
+    QPointer<QAction> resist_cold;
+    QPointer<QAction> resist_fire;
+    QPointer<QAction> resist_lightning;
+    QPointer<QAction> resist_poison;
 
-    QAction *flying;
+    QPointer<QAction> flying;
 
-    QAction *native_lava;
+    QPointer<QAction> native_lava;
 
-    QAction *native_oil;
-    QAction *native_sand;
-    QAction *native_tree;
-    QAction *native_water;
-    QAction *native_mud;
+    QPointer<QAction> native_oil;
+    QPointer<QAction> native_sand;
+    QPointer<QAction> native_tree;
+    QPointer<QAction> native_water;
+    QPointer<QAction> native_mud;
 
-    QAction *status_speed;
+    QPointer<QAction> status_speed;
 
-    QAction *elemental_weapon;
-    QAction *call_hourns;
+    QPointer<QAction> elemental_weapon;
+    QPointer<QAction> call_hourns;
 
-    QAction *nativity;
-    QAction *status_trap_detect;
+    QPointer<QAction> nativity;
+    QPointer<QAction> status_trap_detect;
+
 
 
 // Monster list window
 private:
     bool show_mon_list;
-    QWidget *window_mon_list;
-    QVBoxLayout *mon_list_vlay;
+    QPointer<QWidget> window_mon_list;
+    QPointer<QVBoxLayout> mon_list_vlay;
     QTableWidget *mon_list_area;
     QMenuBar *mon_list_menubar;
-    QAction *mon_list_set_font;
+    QPointer<QAction> mon_list_set_font;
     QFont font_win_mon_list;
-    QMenu *mon_win_settings;
+    QPointer<QMenu> mon_win_settings;
     void win_mon_list_create();
     void win_mon_list_destroy();
     void win_mon_list_wipe();
@@ -438,13 +464,13 @@ private slots:
 // Object list window
 private:
     bool show_obj_list;
-    QWidget *window_obj_list;
-    QVBoxLayout *obj_list_vlay;
+    QPointer<QWidget> window_obj_list;
+    QPointer<QVBoxLayout> obj_list_vlay;
     QTableWidget *obj_list_area;
     QMenuBar *obj_list_menubar;
-    QAction *obj_list_set_font;
+    QPointer<QAction> obj_list_set_font;
     QFont font_win_obj_list;
-    QMenu *obj_win_settings;
+    QPointer<QMenu> obj_win_settings;
     void win_obj_list_create();
     void win_obj_list_destroy();
     void win_obj_list_wipe();
@@ -461,13 +487,13 @@ private slots:
 // Monster Recall window
 private:
     bool show_mon_recall;
-    QWidget *window_mon_recall;
-    QVBoxLayout *mon_recall_vlay;
+    QPointer<QWidget> window_mon_recall;
+    QPointer<QVBoxLayout> mon_recall_vlay;
     QTextEdit *mon_recall_area;
     QMenuBar *mon_recall_menubar;
-    QAction *mon_recall_set_font;
+    QPointer<QAction> mon_recall_set_font;
     QFont font_win_mon_recall;
-    QMenu *mon_recall_win_settings;
+    QPointer<QMenu> mon_recall_win_settings;
     void win_mon_recall_create();
     void win_mon_recall_destroy();
     void win_mon_recall_wipe();
@@ -485,13 +511,13 @@ private slots:
 // Object Recall window
 private:
     bool show_obj_recall;
-    QWidget *window_obj_recall;
-    QVBoxLayout *obj_recall_vlay;
+    QPointer<QWidget> window_obj_recall;
+    QPointer<QVBoxLayout> obj_recall_vlay;
     QTextEdit *obj_recall_area;
     QMenuBar *obj_recall_menubar;
-    QAction *obj_recall_set_font;
+    QPointer<QAction> obj_recall_set_font;
     QFont font_win_obj_recall;
-    QMenu *obj_recall_win_settings;
+    QPointer<QMenu> obj_recall_win_settings;
     void win_obj_recall_create();
     void win_obj_recall_destroy();
     void win_obj_recall_wipe();
@@ -508,13 +534,13 @@ private slots:
 // Feature Recall window
 private:
     bool show_feat_recall;
-    QWidget *window_feat_recall;
-    QVBoxLayout *feat_recall_vlay;
+    QPointer<QWidget> window_feat_recall;
+    QPointer<QVBoxLayout> feat_recall_vlay;
     QTextEdit *feat_recall_area;
     QMenuBar *feat_recall_menubar;
-    QAction *feat_recall_set_font;
+    QPointer<QAction> feat_recall_set_font;
     QFont font_win_feat_recall;
-    QMenu *feat_recall_win_settings;
+    QPointer<QMenu> feat_recall_win_settings;
     void win_feat_recall_create();
     void win_feat_recall_destroy();
     void win_feat_recall_wipe();
@@ -531,13 +557,13 @@ private slots:
 // Messages window
 private:
     bool show_messages_win;
-    QWidget *window_messages;
-    QVBoxLayout *win_messages_vlay;
+    QPointer<QWidget> window_messages;
+    QPointer<QVBoxLayout> win_messages_vlay;
     QTextEdit *win_messages_area;
     QMenuBar *win_messages_menubar;
-    QAction *win_messages_set_font;
+    QPointer<QAction> win_messages_set_font;
     QFont font_win_messages;
-    QMenu *messages_win_settings;
+    QPointer<QMenu> messages_win_settings;
     void win_messages_create();
     void win_messages_destroy();
     void win_messages_wipe();
@@ -556,12 +582,12 @@ private slots:
 // Character Information window
 private:
     bool show_char_info_basic;
-    QWidget *window_char_info_basic;
-    QVBoxLayout *main_vlay_char_basic;
+    QPointer<QWidget> window_char_info_basic;
+    QPointer<QVBoxLayout> main_vlay_char_basic;
     QMenuBar *char_info_basic_menubar;
-    QAction *char_info_basic_font;
+    QPointer<QAction> char_info_basic_font;
     QFont font_char_basic_info;
-    QMenu *char_info_basic_settings;
+    QPointer<QMenu> char_info_basic_settings;
     void win_char_info_basic_create();
     void win_char_info_basic_destroy();
     void win_char_info_basic_wipe();
@@ -584,22 +610,22 @@ private slots:
 // Character Equipment Information window
 private:
     bool show_char_info_equip;
-    QWidget *window_char_info_equip;
-    QVBoxLayout *main_vlay_char_equip_info;
+    QPointer<QWidget> window_char_info_equip;
+    QPointer<QVBoxLayout> main_vlay_char_equip_info;
     QMenuBar *char_info_equip_menubar;
-    QAction *char_info_equip_font;
+    QPointer<QAction> char_info_equip_font;
     QFont font_char_equip_info;
-    QMenu *char_info_equip_settings;
+    QPointer<QMenu> char_info_equip_settings;
     void win_char_info_equip_create();
     void win_char_info_equip_destroy();
     void win_char_info_equip_wipe();
     void update_label_equip_info_font();
     void set_font_char_info_equip(QFont newFont);
     void create_win_char_equip_info();
-    QWidget *resist_widget;
-    QWidget *ability_widget;
-    QWidget *equip_widget;
-    QWidget *nativity_widget;
+    QPointer<QWidget> resist_widget;
+    QPointer<QWidget> ability_widget;
+    QPointer<QWidget> equip_widget;
+    QPointer<QWidget> nativity_widget;
     QGridLayout *resist_flags;
     QGridLayout *ability_flags;
     QGridLayout *equip_mods;
@@ -630,13 +656,13 @@ private slots:
 // Character Equipment window
 private:
     bool show_char_equipment;
-    QWidget *window_char_equipment;
-    QVBoxLayout *main_vlay_equipment;
+    QPointer<QWidget> window_char_equipment;
+    QPointer<QVBoxLayout> main_vlay_equipment;
     QMenuBar *char_equipment_menubar;
-    QAction *char_equipment_font;
-    QAction *char_equipment_buttons;
+    QPointer<QAction> char_equipment_font;
+    QPointer<QAction> char_equipment_buttons;
     QFont font_char_equipment;
-    QMenu *char_equipment_settings;
+    QPointer<QMenu> char_equipment_settings;
     void win_char_equipment_create();
     void win_char_equipment_destroy();
     void win_char_equipment_wipe();
@@ -662,13 +688,13 @@ private slots:
 // Character Inventory window
 private:
     bool show_char_inventory;
-    QWidget *window_char_inventory;
-    QVBoxLayout *main_vlay_inventory;
+    QPointer<QWidget> window_char_inventory;
+    QPointer<QVBoxLayout> main_vlay_inventory;
     QMenuBar *char_inventory_menubar;
-    QAction *char_inventory_font;
-    QAction *char_inventory_buttons;
+    QPointer<QAction> char_inventory_font;
+    QPointer<QAction> char_inventory_buttons;
     QFont font_char_inventory;
-    QMenu *char_inventory_settings;
+    QPointer<QMenu> char_inventory_settings;
     void win_char_inventory_create();
     void win_char_inventory_destroy();
     void win_char_inventory_wipe();
@@ -692,21 +718,21 @@ private slots:
 
     // Small map window
 private:
-    QWidget *window_dun_map;
-    QVBoxLayout *main_vlay_dun_map;
-    QGraphicsScene *dun_map_scene;
-    QGraphicsView *dun_map_view;
+    QPointer<QWidget> window_dun_map;
+    QPointer<QVBoxLayout> main_vlay_dun_map;
+    QPointer<QGraphicsScene> dun_map_scene;
+    QPointer<QGraphicsView> dun_map_view;
     QMenuBar *win_dun_map_menubar;
-    QAction *dun_map_font;
-    QAction *dun_map_graphics;
-    QMenu *win_dun_map_settings;
+    QPointer<QAction> dun_map_font;
+    QPointer<QAction> dun_map_graphics;
+    QPointer<QMenu> win_dun_map_settings;
     void win_dun_map_create();
     void win_dun_map_destroy();
     void win_dun_map_wipe();
     void create_win_dun_map();
     DunMapGrid *dun_map_grids[MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
     void dun_map_calc_cell_size();
-    QActionGroup *dun_map_multipliers;
+    QPointer<QActionGroup> dun_map_multipliers;
     QString dun_map_multiplier;
     void set_dun_map_font(QFont newFont);
 
@@ -733,21 +759,21 @@ private slots:
 
     // Overhead window
 private:
-    QWidget *window_overhead_map;
-    QVBoxLayout *main_vlay_overhead_map;
-    QGraphicsScene *overhead_map_scene;
-    QGraphicsView *overhead_map_view;
+    QPointer<QWidget> window_overhead_map;
+    QPointer<QVBoxLayout> main_vlay_overhead_map;
+    QPointer<QGraphicsScene> overhead_map_scene;
+    QPointer<QGraphicsView> overhead_map_view;
     QMenuBar *win_overhead_map_menubar;
-    QAction *overhead_map_font;
-    QAction *overhead_map_graphics;
-    QMenu *win_overhead_map_settings;
+    QPointer<QAction> overhead_map_font;
+    QPointer<QAction> overhead_map_graphics;
+    QPointer<QMenu> win_overhead_map_settings;
     void win_overhead_map_create();
     void win_overhead_map_destroy();
     void win_overhead_map_wipe();
     void create_win_overhead_map();
     DunOverheadGrid *overhead_map_grids[MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
     void overhead_map_calc_cell_size();
-    QActionGroup *overhead_map_multipliers;
+    QPointer<QActionGroup> overhead_map_multipliers;
     QString overhead_map_multiplier;
     void set_overhead_map_font(QFont newFont);
 

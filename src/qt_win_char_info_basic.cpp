@@ -29,11 +29,13 @@ void MainWindow::name_change(void)
     op_ptr->full_name = new_name;
     win_char_info_basic_update();
 
+    p_ptr->redraw |= (PR_TITLEBAR);
+
 }
 
 void MainWindow::name_change_pushbutton(QGridLayout *return_layout)
 {
-    QPushButton *label_player_name = new QPushButton("NAME:");
+    QPointer<QPushButton> label_player_name = new QPushButton("NAME:");
     QPalette pushbutton_palette;
     pushbutton_palette.setColor(QPalette::ButtonText, defined_colors[TERM_DARK]);
     label_player_name->setPalette(pushbutton_palette);
@@ -143,7 +145,7 @@ void MainWindow::create_win_char_info()
     if (!character_generated) return;
     if (!show_char_info_basic) return;
 
-    QHBoxLayout *char_info_basic_hlay = new QHBoxLayout;
+    QPointer<QHBoxLayout> char_info_basic_hlay = new QHBoxLayout;
 
     main_vlay_char_basic->addLayout(char_info_basic_hlay);
 
@@ -155,14 +157,14 @@ void MainWindow::create_win_char_info()
     vlay_basic->addLayout(basic_info);
     vlay_basic->addStretch(1);
 
-    QVBoxLayout *vlay_data = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_data = new QVBoxLayout;
     char_info_basic_hlay->addLayout(vlay_data);
     QGridLayout *basic_data = new QGridLayout;
     char_basic_data(basic_data);
     vlay_data->addLayout(basic_data);
     vlay_data->addStretch(1);
 
-    QVBoxLayout *vlay_game_info = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_game_info = new QVBoxLayout;
     char_info_basic_hlay->addLayout(vlay_game_info);
     QGridLayout *game_info = new QGridLayout;
     char_game_info(game_info);
@@ -172,29 +174,29 @@ void MainWindow::create_win_char_info()
     // Add player history
     // Title Box
     main_vlay_char_basic->addStretch(1);
-    QLabel *history = new QLabel();
+    QPointer<QLabel> history = new QLabel();
     make_standard_label(history, p_ptr->history, TERM_BLUE);
     main_vlay_char_basic->addWidget(history);
     main_vlay_char_basic->addStretch(1);
 
-    QHBoxLayout *char_info_other_hlay = new QHBoxLayout;
+    QPointer<QHBoxLayout> char_info_other_hlay = new QHBoxLayout;
     main_vlay_char_basic->addLayout(char_info_other_hlay);
 
-    QVBoxLayout *vlay_combat_info = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_combat_info = new QVBoxLayout;
     char_info_other_hlay->addLayout(vlay_combat_info);
     QGridLayout *combat_info = new QGridLayout;
     char_combat_info(combat_info);
     vlay_combat_info->addLayout(combat_info);
     vlay_combat_info->addStretch(1);
 
-    QVBoxLayout *vlay_ability_info = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_ability_info = new QVBoxLayout;
     char_info_other_hlay->addLayout(vlay_ability_info);
     QGridLayout *ability_info = new QGridLayout;
     char_ability_info(ability_info);
     vlay_ability_info->addLayout(ability_info);
     vlay_ability_info->addStretch(1);
 
-    QVBoxLayout *vlay_stat_info = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay_stat_info = new QVBoxLayout;
     char_info_other_hlay->addLayout(vlay_stat_info);
     QGridLayout *stat_info = new QGridLayout;
     char_stat_info(stat_info);

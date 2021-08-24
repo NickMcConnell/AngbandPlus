@@ -143,23 +143,23 @@ void MainWindow::create_win_char_equipment()
     if (!show_char_equipment) return;
 
     // Add the equipment
-    QVBoxLayout *equip_vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> equip_vlay = new QVBoxLayout;
     main_vlay_equipment->addLayout(equip_vlay);
-    QLabel *header_equip = new QLabel(QString("<b><h1>Equipment</b></h1>"));
+    QPointer<QLabel> header_equip = new QLabel(QString("<b><h1>Equipment</b></h1>"));
     equip_vlay->addWidget(header_equip, Qt::AlignCenter);
     equip_list = new QGridLayout;
 
     equip_vlay->addLayout(equip_list);
 
     // Add a space
-    QLabel *empty_space = new QLabel;
+    QPointer<QLabel> empty_space = new QLabel;
     empty_space->setText(" ");
     main_vlay_equipment->addWidget(empty_space);
 
     // Add the quiver
-    QVBoxLayout *quiver_vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> quiver_vlay = new QVBoxLayout;
     main_vlay_equipment->addLayout(quiver_vlay);
-    QLabel *header_quiver = new QLabel(QString("<b><h1>Quiver</b></h1>"));
+    QPointer<QLabel> header_quiver = new QLabel(QString("<b><h1>Quiver</b></h1>"));
     quiver_vlay->addWidget(header_quiver, Qt::AlignCenter);
     quiver_list = new QGridLayout;
     quiver_vlay->addLayout(quiver_list);

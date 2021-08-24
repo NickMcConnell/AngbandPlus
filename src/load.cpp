@@ -884,8 +884,6 @@ static void rd_options(void)
 
     byte b;
 
-    u16b tmp16u;
-
     u32b flag[8];
     u32b mask[8];
 
@@ -897,16 +895,25 @@ static void rd_options(void)
 
     /*** Special info */
 
-    /* Read "delay_factor" */
+    /* Read "animation_factor" */
     rd_byte(&b);
-    op_ptr->delay_factor = b;
+    // Hack - "Fix" animation delay factor
+    if ((b < 25) || (b > 200))
+    {
+        b = 100;
+    }
+    op_ptr->delay_anim_factor = b;
 
     /* Read "hitpoint_warn" */
     rd_byte(&b);
     op_ptr->hitpoint_warn = b;
 
+    /* Read "run delay" */
+    rd_byte(&b);
+    op_ptr->delay_run_factor = b;
+
     /* Old cheating options */
-    rd_u16b(&tmp16u);
+    strip_bytes(1);
 
 
     /*** Normal Options ***/
@@ -1625,7 +1632,6 @@ static int rd_dungeon(void)
 
     byte count;
     byte tmp8u;
-    u16b tmp16u;
 
     u16b limit;
 
@@ -1646,8 +1652,7 @@ static int rd_dungeon(void)
     /* Paranoia */
     allow_altered_inventory = FALSE;
 
-    rd_u16b(&tmp16u);
-
+    rd_s16b(&p_ptr->create_stair);
 
     /* Ignore illegal dungeons */
     if ((depth < 0) || (depth >= MAX_DEPTH))

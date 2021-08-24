@@ -301,7 +301,7 @@ void extract_tiles(void)
     {
         feature_type *f_ptr = &f_info[i];
         if (f_ptr->f_name.isEmpty()) continue;
-        QString feat_name = feature_desc(i, FALSE, FALSE);
+        QString feat_name = feature_desc(i, FALSE, TRUE);
         f_ptr->tile_id = tile_feat_name_convert(feat_name);
     }
     for (i = 0; i < z_info->flavor_max; i++)
@@ -330,18 +330,18 @@ PackageDialog::PackageDialog(QString _mode)
 {
     mode = _mode;
 
-    QVBoxLayout *lay1 = new QVBoxLayout;
+    QPointer<QVBoxLayout> lay1 = new QVBoxLayout;
 
-    QWidget *area2 = new QWidget;
+    QPointer<QWidget> area2 = new QWidget;
     lay1->addWidget(area2);
-    QGridLayout *lay2 = new QGridLayout;
+    QPointer<QGridLayout> lay2 = new QGridLayout;
     lay2->setContentsMargins(0, 0, 0, 0);
     lay2->setColumnStretch(1, 1);
     area2->setLayout(lay2);
 
     int row = 0;
 
-    QLabel *lb = new QLabel;
+    QPointer<QLabel> lb = new QLabel;
     if (mode == "create")
     {
         lb->setText("Create a tile package");
@@ -361,7 +361,7 @@ PackageDialog::PackageDialog(QString _mode)
     pak_path->setReadOnly(true);
     lay2->addWidget(pak_path, row, 1);
 
-    QToolButton *btn2 = new QToolButton();
+    QPointer<QToolButton> btn2 = new QToolButton();
     btn2->setText("...");
     //btn2->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     lay2->addWidget(btn2, row, 2);
@@ -375,7 +375,7 @@ PackageDialog::PackageDialog(QString _mode)
     folder_path->setReadOnly(true);
     lay2->addWidget(folder_path, row, 1);
 
-    QToolButton *btn3 = new QToolButton();
+    QPointer<QToolButton> btn3 = new QToolButton();
     btn3->setText("...");
     //btn3->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     lay2->addWidget(btn3, row, 2);
@@ -386,20 +386,20 @@ PackageDialog::PackageDialog(QString _mode)
     QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
     lay2->addItem(spacer, row, 0);
 
-    QWidget *area3 = new QWidget;
+    QPointer<QWidget> area3 = new QWidget;
     lay1->addWidget(area3);
-    QHBoxLayout *lay3 = new QHBoxLayout;
+    QPointer<QHBoxLayout> lay3 = new QHBoxLayout;
     area3->setLayout(lay3);
     lay3->setContentsMargins(0, 0, 0, 0);
 
     spacer = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Fixed);
     lay3->addItem(spacer);
 
-    QPushButton *btn1 = new QPushButton(tr("Go!"));
+    QPointer<QPushButton> btn1 = new QPushButton(tr("Go!"));
     lay3->addWidget(btn1);
     connect(btn1, SIGNAL(clicked()), this, SLOT(do_accept()));
 
-    QPushButton *btn4 = new QPushButton(tr("Close"));
+    QPointer<QPushButton> btn4 = new QPushButton(tr("Close"));
     lay3->addWidget(btn4);
     connect(btn4, SIGNAL(clicked()), this, SLOT(reject()));
 

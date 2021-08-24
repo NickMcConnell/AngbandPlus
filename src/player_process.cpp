@@ -53,87 +53,6 @@ void process_player_terrain_damage(void)
     }
 }
 
-/*
- * Hack -- helper function for "process_player()"
- *
- * Check for changes in the "monster memory"
- */
-static void process_player_aux(void)
-{
-    int i;
-    bool changed = FALSE;
-
-    static int old_monster_race_idx = 0;
-
-    static u32b	old_flags1 = 0L;
-    static u32b	old_flags2 = 0L;
-    static u32b	old_flags3 = 0L;
-    static u32b	old_flags4 = 0L;
-    static u32b	old_flags5 = 0L;
-    static u32b	old_flags6 = 0L;
-    static u32b	old_flags7 = 0L;
-
-    static byte old_blows[MONSTER_BLOW_MAX];
-
-    static byte	old_ranged = 0;
-
-
-    /* Tracking a monster */
-    if (p_ptr->monster_race_idx)
-    {
-        /* Get the monster lore */
-        monster_lore *l_ptr = &l_list[p_ptr->monster_race_idx];
-
-        for (i = 0; i < MONSTER_BLOW_MAX; i++)
-        {
-            if (old_blows[i] != l_ptr->blows[i])
-            {
-                changed = TRUE;
-                break;
-            }
-        }
-
-        /* Check for change of any kind */
-        if (changed ||
-            (old_monster_race_idx != p_ptr->monster_race_idx) ||
-            (old_flags1 != l_ptr->r_l_flags1) ||
-            (old_flags2 != l_ptr->r_l_flags2) ||
-            (old_flags3 != l_ptr->r_l_flags3) ||
-            (old_flags4 != l_ptr->r_l_flags4) ||
-            (old_flags5 != l_ptr->r_l_flags5) ||
-            (old_flags6 != l_ptr->r_l_flags6) ||
-            (old_flags7 != l_ptr->r_l_flags7) ||
-            (old_ranged != l_ptr->ranged))
-
-        {
-            /* Memorize old race */
-            old_monster_race_idx = p_ptr->monster_race_idx;
-
-            /* Memorize flags */
-            old_flags1 = l_ptr->r_l_flags1;
-            old_flags2 = l_ptr->r_l_flags2;
-            old_flags3 = l_ptr->r_l_flags3;
-            old_flags4 = l_ptr->r_l_flags4;
-            old_flags5 = l_ptr->r_l_flags5;
-            old_flags6 = l_ptr->r_l_flags6;
-            old_flags7 = l_ptr->r_l_flags7;
-
-            /* Memorize blows */
-            for (i = 0; i < MONSTER_BLOW_MAX; i++)
-                old_blows[i] = l_ptr->blows[i];
-
-            /* Memorize castings */
-            old_ranged = l_ptr->ranged;
-
-            /* Window stuff */
-            p_ptr->redraw |= (PR_WIN_MON_RECALL);
-
-            /* Window stuff */
-            handle_stuff();
-        }
-    }
-}
-
 
 /*
  * Process the player
@@ -191,11 +110,15 @@ void process_player(void)
     /* Normal command */
     else
     {
-        /* Check monster recall */
-        process_player_aux();
-
         py_pickup_gold();
     }
+
+    if (p_ptr->monster_race_idx != p_ptr->monster_race_idx_old) p_ptr->redraw |= (PR_WIN_MON_RECALL);
+    else if (p_ptr->monster_race_idx)
+    {
+        if (!p_ptr->mon_race_idx_lore.monster_lore_compare(&l_list[p_ptr->monster_race_idx])) p_ptr->redraw |= (PR_WIN_MON_RECALL);
+    }
+
 
     p_ptr->redraw |= (PR_TURNCOUNT);
 

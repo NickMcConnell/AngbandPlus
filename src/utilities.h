@@ -7,6 +7,8 @@
 #include <QColor>
 #include <QSpinBox>
 #include <QDialog>
+#include <QPointer>
+#include <QSlider>
 
 typedef struct letters_and_numbers letters_and_numbers;
 
@@ -45,7 +47,24 @@ private slots:
 
 private:
 
-    QSpinBox *this_quantity;
+    QPointer<QSpinBox> this_quantity;
+};
+
+class GetQuantitySlider : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit GetQuantitySlider(QString prompt, QString unit, int min, int max, int value);
+
+    s16b current_quantity;
+
+private slots:
+    void update_quantity(int new_value);
+
+private:
+    QPointer<QSpinBox>  spin_quantity;
+    QPointer<QSlider>   slider_quantity;
 };
 
 

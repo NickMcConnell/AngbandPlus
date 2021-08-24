@@ -445,12 +445,14 @@ static void wr_options(void)
     /*** Special Options ***/
 
     /* Write "delay_factor" */
-    wr_byte(op_ptr->delay_factor);
+    wr_byte(op_ptr->delay_anim_factor);
 
     /* Write "hitpoint_warn" */
     wr_byte(op_ptr->hitpoint_warn);
 
-    wr_u16b(0);	/* oops */
+    wr_byte(op_ptr->delay_run_factor);
+
+    wr_byte(0);	/* oops */
 
 
     /*** Normal options ***/

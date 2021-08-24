@@ -46,7 +46,7 @@ static bool target_able_trap(int y, int x)
  * Future versions may restrict the ability to target "trappers"
  * and "mimics", but the semantics is a little bit weird.
  */
-bool target_able(int m_idx)
+bool target_able(int m_idx, bool probing)
 {
 
     monster_type *m_ptr;
@@ -63,8 +63,11 @@ bool target_able(int m_idx)
     /* Monster must be visible */
     if (!m_ptr->ml) return (FALSE);
 
-    /* Monster must be projectable */
-    if (!m_ptr->project) return (FALSE);
+    /* Monster must be projectable, except when probing */
+    if (!probing)
+    {
+        if (!m_ptr->project) return (FALSE);
+    }
 
     /* Walls protect monsters */
     if (!cave_project_bold(m_ptr->fy, m_ptr->fx) &&
@@ -94,7 +97,7 @@ bool monster_target_exists()
         /* Don't bother with empty slots */
         if (!m_ptr->r_idx) continue;
 
-        if (target_able(i)) return (TRUE);
+        if (target_able(i, FALSE)) return (TRUE);
     }
 
     return (FALSE);
@@ -120,8 +123,17 @@ static bool coords_sort_distance(coord c1, coord c2)
 /*
  * Hack -- determine if a given location is "interesting"
  */
-static bool target_set_interactive_accept(int y, int x)
+static bool target_set_interactive_accept(int mode, int y, int x)
 {
+    if (mode & (TARGET_TRAP))
+    {
+        if (!cave_player_trap_bold(y, x)) return (FALSE);
+        u16b x_idx = dungeon_info[y][x].effect_idx;
+        effect_type *x_ptr = &x_list[x_idx];
+        if (x_ptr->x_flags & (EF1_HIDDEN)) return (FALSE);
+        return (TRUE);
+    }
+
     object_type *o_ptr;
 
     /* Player grids are always interesting */
@@ -211,7 +223,7 @@ static void target_set_interactive_prepare(int mode)
             if (!player_has_los_bold(y, x) && (!expand_look)) continue;
 
             /* Require "interesting" contents */
-            if (!target_set_interactive_accept(y, x)) continue;
+            if (!target_set_interactive_accept(mode, y, x)) continue;
 
             /* Special mode */
             if (mode & (TARGET_KILL))
@@ -220,7 +232,7 @@ static void target_set_interactive_prepare(int mode)
                 if (!dungeon_info[y][x].has_monster()) do_continue = TRUE;
 
                 /* Must be a targetable monster */
-                if (!target_able(dungeon_info[y][x].monster_idx)) do_continue = TRUE;
+                if (!target_able(dungeon_info[y][x].monster_idx, FALSE)) do_continue = TRUE;
             }
 
             /* Don't continue on the trap exception, or if probing. */
@@ -370,6 +382,46 @@ static void describe_grid_brief(int y, int x)
 }
 
 
+// Try to pick the most sensible target mode based on the mode
+static bool set_selected_target(int mode, int y, int x)
+{
+    int m_idx = dungeon_info[y][x].monster_idx;
+
+    if (mode & (TARGET_KILL | TARGET_PROBE))
+    {
+        bool probing = (mode & (TARGET_PROBE));
+
+        if ((m_idx > 0) && target_able(m_idx, probing))
+        {
+            health_track(m_idx);
+            target_set_monster(m_idx, probing);
+
+        }
+        else target_set_location(y, x);
+        return (TRUE);
+    }
+
+    if ((mode & (TARGET_TRAP)) && target_able_trap(y, x))
+    {
+        target_set_location(y, x);
+        return (TRUE);
+    }
+
+    // Always set location for target grid
+    if (mode & (TARGET_GRID))
+    {
+        target_set_location(y, x);
+        return (TRUE);
+    }
+    if (!(mode & (TARGET_QUIET)))
+    {
+        message(QString("Illegal target!"));
+    }
+
+    return (FALSE);
+}
+
+
 /*
  * Handle "target" and "look".
  *
@@ -431,7 +483,7 @@ bool target_set_interactive(int mode, int x, int y)
     u16b path_gx[PATH_SIZE];
 
     /* Cancel target */
-    target_set_monster(0);
+    target_set_monster(0, FALSE);
 
       /* All grids are selectable */
     if (mode & (TARGET_GRID))
@@ -499,7 +551,7 @@ bool target_set_interactive(int mode, int x, int y)
             path_n = project_path(path_g, path_gx, MAX_RANGE, py, px, &yy, &xx, PROJECT_THRU);
 
             /* Draw the path in "target" mode. If there is one */
-            if ((mode & (TARGET_KILL)) && (dungeon_info[y][x].cave_info & (CAVE_FIRE)))
+            if ((mode & (TARGET_KILL)) && (dungeon_info[y][x].projectable()))
             {
                 path_drawn = ui_draw_path(path_n, path_g, y, x);
             }
@@ -536,9 +588,14 @@ bool target_set_interactive(int mode, int x, int y)
             // double-click - automatically target if appropriate
             if (input.mode == INPUT_MODE_MOUSE_DOUBLE_CLICK)
             {
-                target_set_location(y, x);
+                if (!set_selected_target(mode, y, x))
+                {
+                    target_set_location(y, x);
+                }
+
                 done = TRUE;
                 continue;
+
             }
 
             /*
@@ -551,8 +608,7 @@ bool target_set_interactive(int mode, int x, int y)
                 // If clicking twice on the same square, accept
                 if (input.x == x && input.y == y)
                 {
-                    target_set_location(y, x);
-                    done = TRUE;
+                    if (set_selected_target(mode, y, x)) done = TRUE;
                     continue;
                 }
 
@@ -616,28 +672,7 @@ bool target_set_interactive(int mode, int x, int y)
                 case Qt::Key_Period:
                 case Qt::Key_Clear:
                 {
-                    int m_idx = dungeon_info[y][x].monster_idx;
-
-                    if ((m_idx > 0) && target_able(m_idx))
-                    {
-                        health_track(m_idx);
-                        target_set_monster(m_idx);
-                        done = TRUE;
-                    }
-                    else if ((mode & (TARGET_TRAP)) && target_able_trap(y, x))
-                    {
-                        target_set_location(y, x);
-                        done = TRUE;
-                    }
-                    else if (mode & (TARGET_PROBE))
-                    {
-                        target_set_location(y, x);
-                        done = TRUE;
-                    }
-                    else
-                    {
-                        message(QString("Illegal target!"));
-                    }
+                    if (set_selected_target(mode, y, x)) done = TRUE;
                     break;
                 }
 
@@ -706,7 +741,7 @@ bool target_set_interactive(int mode, int x, int y)
             path_n = project_path(path_g, path_gx, MAX_RANGE, py, px, &yy, &xx, PROJECT_THRU);
 
             /* Draw the path in "target" mode. If there is one */
-            if ((mode & (TARGET_KILL)) && (dungeon_info[y][x].cave_info & (CAVE_FIRE)))
+            if ((mode & (TARGET_KILL)) && (dungeon_info[y][x].projectable()))
             {
                 /* Save target info */
                 path_drawn = ui_draw_path(path_n, path_g, y, x);
@@ -731,9 +766,13 @@ bool target_set_interactive(int mode, int x, int y)
             // double-click - automatically target if appropriate
             if (input.mode == INPUT_MODE_MOUSE_DOUBLE_CLICK)
             {
-                target_set_location(y, x);
-                done = TRUE;
-                continue;
+
+                if (set_selected_target(mode, y, x)) done = TRUE;
+                else
+                {
+                    message(QString("Illegal target!"));
+                }
+                break;
             }
 
             if (input.mode == INPUT_MODE_MOUSE_SINGLE_CLICK)
@@ -875,10 +914,10 @@ bool target_set_interactive(int mode, int x, int y)
 /*
  * Set the target to a monster (or nobody)
  */
-void target_set_monster(int m_idx)
+void target_set_monster(int m_idx, bool probing)
 {
     /* Acceptable target */
-    if ((m_idx > 0) && target_able(m_idx))
+    if ((m_idx > 0) && target_able(m_idx, probing))
     {
         monster_type *m_ptr = &mon_list[m_idx];
 
@@ -922,7 +961,7 @@ bool target_okay(void)
         int m_idx = p_ptr->target_who;
 
         /* Accept reasonable targets */
-        if (target_able(m_idx))
+        if (target_able(m_idx, FALSE))
         {
             monster_type *m_ptr = &mon_list[m_idx];
 
@@ -1107,13 +1146,13 @@ bool get_aim_dir(int *dp, bool target_trap)
 
     bool done = FALSE;
 
+    int mode = TARGET_QUIET;
+
+    if (target_trap) mode |= TARGET_KILL;
+    else mode |= TARGET_TRAP;
+
     if (*dp == DIR_CLOSEST)
     {
-        int mode = TARGET_QUIET;
-
-        if (target_trap) mode |= TARGET_KILL;
-        else mode |= TARGET_TRAP;
-
         if (target_set_closest(mode))
         {
             return(TRUE);
@@ -1154,7 +1193,8 @@ bool get_aim_dir(int *dp, bool target_trap)
         // Skip interactive mode and directly choose target.
         if (input.mode == INPUT_MODE_MOUSE_DOUBLE_CLICK)
         {
-            target_set_location(input.y, input.x);
+            if (set_selected_target(mode, input.y, input.x)) dir = DIR_TARGET;
+            else set_selected_target(TARGET_GRID, input.y, input.x);
             dir = DIR_TARGET;
             continue;
         }
@@ -1162,7 +1202,7 @@ bool get_aim_dir(int *dp, bool target_trap)
         if (input.mode == INPUT_MODE_MOUSE_SINGLE_CLICK)
         {
             /* Calculate approximate angle */
-            if (target_set_interactive(TARGET_KILL, input.x, input.y)) dir = DIR_TARGET;
+            if (target_set_interactive(mode, input.x, input.y)) dir = DIR_TARGET;
             else done = TRUE;
             continue;
         }
@@ -1176,7 +1216,7 @@ bool get_aim_dir(int *dp, bool target_trap)
                 /* Set new target, use target if legal */
                 int mode = TARGET_KILL;
                 if (target_trap) mode |= TARGET_TRAP;
-                if (target_set_interactive(mode, -1, -1)) dir = DIR_CLOSEST;
+                if (target_set_interactive(mode, -1, -1)) dir = DIR_TARGET;
                 else done = TRUE;
                 continue;
             }
@@ -1253,56 +1293,92 @@ bool get_aim_dir(int *dp, bool target_trap)
 
 bool target_set_closest(int mode)
 {
-    int y, x, m_idx;
-    monster_type *m_ptr;
-    QString m_name;
-
     /* Cancel old target */
-    target_set_monster(0);
+    target_set_monster(0, FALSE);
 
-    /* Get ready to do targeting */
-    target_set_interactive_prepare(mode);
+    target_grids.clear();
 
-    /* If nothing was prepared, then return */
-    if (!target_grids.size())
+    //
+    if (mode & (TARGET_KILL | TARGET_PROBE))
     {
-        if (!(mode & TARGET_QUIET)) message(QString("No Available Target."));
-        return FALSE;
-    }
+        monster_type *m_ptr;
+        int m_idx;
 
-    if (mode & (TARGET_KILL))
-    {
-        /* Find the first monster in the queue */
-        y = target_grids[0].y;
-        x = target_grids[0].x;
-        m_idx = dungeon_info[y][x].monster_idx;
+        bool probing = (mode & (TARGET_PROBE));
 
-        /* Target the monster, if possible */
-        if ((m_idx <= 0) || !target_able(m_idx))
+        for (int i = 1; i < mon_max; i++)
+        {
+            if (!target_able(i, probing)) continue;
+            m_ptr = &mon_list[i];
+            target_grids.append(make_coords(m_ptr->fy, m_ptr->fx));
+        }
+
+        if (!target_grids.size())
         {
             if (!(mode & TARGET_QUIET)) message(QString("No Available Target."));
             return FALSE;
         }
 
+        // Sort by distance
+        qSort(target_grids.begin(), target_grids.end(), coords_sort_distance);
+
+
+        /* Find the first monster in the queue */
+        int y = target_grids.at(0).y;
+        int x = target_grids.at(0).x;
+        m_idx = dungeon_info[y][x].monster_idx;
+
         /* Target the monster */
         m_ptr = &mon_list[m_idx];
-        m_name = monster_desc(m_ptr, 0x00);
+
         if (!(mode & TARGET_QUIET))
+        {
+            QString m_name = monster_desc(m_ptr, 0x00);
             message(QString("%1 is targeted.").arg(capitalize_first(m_name)));
+        }
 
-        /* Set up target inQStringion */
+        /* Set up target  */
         monster_race_track(m_ptr->r_idx);
-        // TODO health_track(cave_m_idx[y][x]);
-        target_set_monster(m_idx);
+        health_track(m_idx);
+        target_set_monster(m_idx, probing);
+        return (TRUE);
     }
-    else
+    else if (mode & (TARGET_TRAP))
     {
-        target_set_location(target_grids[0].y, target_grids[0].x);
+        // GO through all effects
+        for (int i = x_max - 1; i >= 1; i--)
+        {
+            effect_type *x_ptr = &x_list[i];
+
+            /* Skip dead effects */
+            if (!x_ptr->x_type) continue;
+
+            // Use only the targetable traps
+            if (!target_able_trap(x_ptr->x_cur_y, x_ptr->x_cur_x)) continue;
+
+            target_grids.append(make_coords(x_ptr->x_cur_y, x_ptr->x_cur_x));
+        }
+
+        // Sort by distance
+        qSort(target_grids.begin(), target_grids.end(), coords_sort_distance);
+
+        if (!target_grids.size())
+        {
+            if (!(mode & TARGET_QUIET)) message(QString("No Available Target."));
+            return FALSE;
+        }
+
+        /* Find the first monster in the queue */
+        int y = target_grids.at(0).y;
+        int x = target_grids.at(0).x;
+        {
+            // Use this location
+            target_set_location(y, x);
+            return (TRUE);
+        }
     }
 
-
-
-    return TRUE;
+    return (TRUE);
 }
 
 /*

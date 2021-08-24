@@ -136,7 +136,6 @@ bool make_attack_normal(monster_type *m_ptr)
 
     s32b gold;
 
-
     object_type *o_ptr;
 
     QString o_name;

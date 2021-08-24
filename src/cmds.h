@@ -7,6 +7,7 @@
 #include "src/player.h"
 #include <QKeyEvent>
 #include <QTabWidget>
+#include <QPointer>
 
 enum
 {
@@ -44,12 +45,10 @@ private slots:
 
 private:
 
-    QTabWidget *spell_dialog;
-    QWidget *spell_tab;
-    QLabel *main_prompt;
+    QPointer<QTabWidget> spell_dialog;
 
-    QButtonGroup *spell_select_group;
-    QButtonGroup *spell_help_group;
+    QPointer<QButtonGroup> spell_select_group;
+    QPointer<QButtonGroup> spell_help_group;
 
 
     // Functions to build the actual tabs
@@ -142,7 +141,6 @@ extern void do_cmd_findpath(int y, int x);
 // cmd_traps.cpp
 extern bool make_monster_trap(void);
 extern void py_set_trap(int y, int x);
-extern bool py_modify_trap(int y, int x);
 extern void command_make_trap(cmd_arg args);
 extern void do_cmd_make_trap(int dir);
 

@@ -115,7 +115,7 @@ void player_other::player_other_wipe()
 {            
     full_name.clear();
     for (int i = 0; i < OPT_MAX; i++) op_ptr->opt[i] = options[i].normal;
-    hitpoint_warn = delay_factor = 0;
+    hitpoint_warn = delay_anim_factor = delay_run_factor = 0;
 }
 
 void player_type::player_command_wipe()
@@ -268,11 +268,13 @@ void player_type::player_type_wipe()
     history.clear();
     total_winner = panic_save = 0;
     is_dead = terminated = player_turn = is_wizard = FALSE;
-    playing =  in_store = message_append = leaving_level = autosave = FALSE;
+    playing = in_death_menu = in_store = message_append = leaving_level = autosave = FALSE;
     create_stair = cur_map_hgt = cur_map_wid = FALSE;
     total_weight = 0;
     inven_cnt = equip_cnt = pack_size_reduce = quiver_remainder = quiver_slots = 0;
-    target_set = target_who = target_row = target_col = health_who = monster_race_idx = 0;
+    target_set = target_who = target_row = target_col = health_who = 0;
+    monster_race_idx = monster_race_idx_old = 0;
+    mon_race_idx_lore.monster_lore_wipe();
     object_idx = object_kind_idx = feature_kind_idx = 0;
     running_withpathfind = FALSE;
     run_cur_dir = run_old_dir = 0;

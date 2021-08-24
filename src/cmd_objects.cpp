@@ -441,7 +441,7 @@ void command_examine(cmd_arg args)
 void do_cmd_examine(void)
 {
     // Paranoia
-    if (!p_ptr->playing) return;
+    if (!p_ptr->playing && !p_ptr->in_death_menu) return;
 
     select_item(ACTION_EXAMINE);
 }
@@ -1098,13 +1098,13 @@ void do_cmd_swap_weapon()
 
 ObjectDestroyDialog::ObjectDestroyDialog(s16b o_idx)
 {
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
 
     o_ptr = object_from_item_idx(o_idx);
     k_ptr = &k_info[o_ptr->k_idx];
     squelch_type = squelch_type_of(o_ptr);
 
-    QLabel *header_main = new QLabel("<b><h2>Confirm Object Destruction</b></h2>");
+    QPointer<QLabel> header_main = new QLabel("<b><h2>Confirm Object Destruction</b></h2>");
     header_main->setAlignment(Qt::AlignCenter);
     main_layout->addWidget(header_main);
 
@@ -1116,27 +1116,27 @@ ObjectDestroyDialog::ObjectDestroyDialog(s16b o_idx)
     // Add squelch settings, except for the instant artifacts
     if (!o_ptr->art_num)
     {
-        QVBoxLayout *squelch_buttons = new QVBoxLayout;
+        QPointer<QVBoxLayout> squelch_buttons = new QVBoxLayout;
         main_layout->addLayout(squelch_buttons);
         add_squelch_buttons(squelch_buttons);
 
-        QVBoxLayout *quality_buttons = new QVBoxLayout;
+        QPointer<QVBoxLayout> quality_buttons = new QVBoxLayout;
         main_layout->addLayout(quality_buttons);
         add_quality_buttons(quality_buttons);
 
-        QVBoxLayout *ego_buttons = new QVBoxLayout;
+        QPointer<QVBoxLayout> ego_buttons = new QVBoxLayout;
         main_layout->addLayout(ego_buttons);
         add_ego_buttons(ego_buttons);
     }
 
-    QLabel *object_name = new QLabel(QString("<br><h2>Really destroy %1?</h2><br>") .arg(object_desc(o_ptr, ODESC_FULL)));
+    QPointer<QLabel> object_name = new QLabel(QString("<br><h2>Really destroy %1?</h2><br>") .arg(object_desc(o_ptr, ODESC_FULL)));
     object_name->setAlignment(Qt::AlignCenter);
     main_layout->addWidget(object_name);
 
     main_layout->addStretch(1);
 
     //Add a close buttons
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttons, SIGNAL(rejected()), this, SLOT(close()));
     connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
     main_layout->addWidget(buttons);

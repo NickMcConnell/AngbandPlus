@@ -5,6 +5,7 @@
 #include <QDate>
 #include "src/npp.h"
 #include "src/store.h"
+#include <QPointer>
 
 
 
@@ -16,7 +17,8 @@ public:
     explicit PlayerDeathDialog(void);
 
 private slots:
-    void death_info(void);
+    void death_player_info(void);
+    void death_inven_info(void);
     void death_home_inven(void);
     void death_messages(void);
     void death_file_dump(void);

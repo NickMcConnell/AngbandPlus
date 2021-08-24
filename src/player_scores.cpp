@@ -11,6 +11,12 @@
 #include <src/player_scores.h>
 #include <src/npp.h>
 
+bool scores_sort(high_score first, high_score second)
+{
+    if (first.score >= second.score) return (TRUE);
+
+    return (FALSE);
+}
 
 
 /*
@@ -141,19 +147,9 @@ void enter_score(QString date_death)
 
     player_scores_list.append(entry);
 
-    // Do a bubble sort based on score
-    for (int i = 0; i < player_scores_list.size(); i++)
-    {
-        for (int j = i+1; j < player_scores_list.size(); j++)
-        {
-            if (player_scores_list[i].score >= player_scores_list[j].score) continue;
+    // Sort the scores
+    qSort(player_scores_list.begin(), player_scores_list.end(), scores_sort);
 
-            high_score temp = player_scores_list[j];
-            player_scores_list[j] = player_scores_list[i];
-            player_scores_list[i] = temp;
-
-        }
-    }
 }
 
 /*

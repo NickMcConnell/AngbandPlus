@@ -118,7 +118,7 @@ void save_screenshot(byte do_png)
     default_file.append(default_name);
     default_file.append("_npp_scr");
 
-    QString file_name = QFileDialog::getSaveFileName(0, "Select a savefile", default_file, "HTML (*.html)");
+    QString file_name = QFileDialog::getSaveFileName(0, "Save HTML Screenshot As", default_file, "HTML (*.html)");
 
     if (file_name.isEmpty())
         return;
@@ -505,7 +505,7 @@ void save_character_file(void)
     QString dark_text = "<font color='#000000'>";
     QString white_text = "<font color='#ffffff'>";
 
-    QString file_name = QFileDialog::getSaveFileName(0, "Select a savefile", default_file, "HTML (*.html)");
+    QString file_name = QFileDialog::getSaveFileName(0, "Save Character File As", default_file, "HTML (*.html)");
 
     if (file_name.isEmpty())
         return;
@@ -1277,6 +1277,8 @@ void save_character_file(void)
     char_info_file.open(QIODevice::WriteOnly);
     out << file_text;
     char_info_file.close();
+
+    dlg.deleteLater();
 }
 
 #ifdef USEFUL_UNUSED_CODE
@@ -1296,7 +1298,7 @@ void MainWindow::save_screenshot(void)
     default_file.append(default_name);
     default_file.append("_npp_scr");
 
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Select a savefile"), default_file, tr("PNG (*.png)"));
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save Screenshot As"), default_file, tr("PNG (*.png)"));
 
     if (file_name.isEmpty())
         return;

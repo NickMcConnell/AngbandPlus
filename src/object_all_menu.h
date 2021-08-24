@@ -10,7 +10,7 @@
 #include <QTabWidget>
 #include <QRadioButton>
 #include <src/nppdialog.h>
-
+#include <QPointer>
 
 
 // The tab order
@@ -30,15 +30,15 @@ private:
     void update_header();
 
     // Header area
-    QLabel *header_main;
-    QLabel *header_weight1;
-    QLabel *header_weight2;
-    QLabel *header_objects;
+    QPointer<QLabel> header_main;
+    QPointer<QLabel> header_weight1;
+    QPointer<QLabel> header_weight2;
+    QPointer<QLabel> header_objects;
 
     // Message area
-    QLabel *message_area;
+    QPointer<QLabel> message_area;
 
-    QWidget *central;
+    QPointer<QWidget> central;
 
     bool allow_floor;
     bool allow_inven;
@@ -52,15 +52,15 @@ private:
     int current_list;
 
     // Layouts and labels
-    QRadioButton *floor_items;
-    QRadioButton *inven_items;
-    QRadioButton *equip_items;
-    QButtonGroup *object_selection;
+    QPointer<QRadioButton> floor_items;
+    QPointer<QRadioButton> inven_items;
+    QPointer<QRadioButton> equip_items;
+    QPointer<QButtonGroup> object_selection;
 
     QGridLayout *object_list;
     QGridLayout *quiver_list;
 
-    QLabel *quiver_header;
+    QPointer<QLabel> quiver_header;
 
 
 private slots:

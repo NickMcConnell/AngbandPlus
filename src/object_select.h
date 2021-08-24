@@ -9,6 +9,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <QScrollArea>
+#include <QPOinter>
 
 
 // The numbered order of the tabs
@@ -29,7 +30,7 @@ class ObjectSelectDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ObjectSelectDialog(int *item, QString prompt, int mode, bool *success, bool *cancelled, int sq_y, int sq_x);
+    explicit ObjectSelectDialog(int *item, QString prompt, QString failure_message, int mode, bool *success, int sq_y, int sq_x);
 
 
 protected:
@@ -45,17 +46,17 @@ private slots:
 
 private:
 
-    QTabWidget *object_tabs;
-    QWidget *floor_tab;
-    QWidget *inven_tab;
-    QWidget *equip_tab;
-    QWidget *quiver_tab;
-    QLabel *main_prompt;
+    QPointer<QTabWidget> object_tabs;
+    QPointer<QWidget> floor_tab;
+    QPointer<QWidget> inven_tab;
+    QPointer<QWidget> equip_tab;
+    QPointer<QWidget> quiver_tab;
+    QPointer<QLabel> main_prompt;
 
-    QScrollArea *scroll_floor;
-    QScrollArea *scroll_inven;
-    QScrollArea *scroll_equip;
-    QScrollArea *scroll_quiver;
+    QPointer<QScrollArea> scroll_floor;
+    QPointer<QScrollArea> scroll_inven;
+    QPointer<QScrollArea> scroll_equip;
+    QPointer<QScrollArea> scroll_quiver;
 
     // Functions to build the actual tabs
     void build_floor_tab();

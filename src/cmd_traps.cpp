@@ -44,17 +44,17 @@ TrapSelectDialog::TrapSelectDialog(void)
 
     trap_choice = -1;
 
-    QLabel *main_prompt = new QLabel(QString("<b><big>Please select an advanced trap</big></b><br>"));
+    QPointer<QLabel> main_prompt = new QLabel(QString("<b><big>Please select an advanced trap</big></b><br>"));
     main_prompt->setAlignment(Qt::AlignCenter);
 
-    QVBoxLayout *vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay = new QVBoxLayout;
 
     vlay->addWidget(main_prompt);
 
     vlay->addStretch(1);
 
     // Add the "Sturdy Trap" button
-    QPushButton *sturdy_button = new QPushButton("&Resilient Trap");
+    QPointer<QPushButton> sturdy_button = new QPushButton("&Resilient Trap");
     sturdy_button->setToolTip(apply_monster_trap(FEAT_MTRAP_STURDY, 0, 0, MODE_DESCRIBE));
     connect(sturdy_button, SIGNAL(clicked()), this, SLOT(trap_choice_sturdy()));
     vlay->addWidget(sturdy_button);
@@ -62,7 +62,7 @@ TrapSelectDialog::TrapSelectDialog(void)
     if (num > 1)
     {
         // Add the "Slowing Trap" button
-        QPushButton *slowing_button = new QPushButton("&Slowing Trap");
+        QPointer<QPushButton> slowing_button = new QPushButton("&Slowing Trap");
         slowing_button->setToolTip(apply_monster_trap(FEAT_MTRAP_SLOWING, 0, 0, MODE_DESCRIBE));
         connect(slowing_button, SIGNAL(clicked()), this, SLOT(trap_choice_slowing()));
         vlay->addWidget(slowing_button);
@@ -71,7 +71,7 @@ TrapSelectDialog::TrapSelectDialog(void)
     if (num > 2)
     {
         // Add the "Confusion Trap" button
-        QPushButton *cofusion_button = new QPushButton("&Confusion Trap");
+        QPointer<QPushButton> cofusion_button = new QPushButton("&Confusion Trap");
         cofusion_button->setToolTip(apply_monster_trap(FEAT_MTRAP_CONFUSION, 0, 0, MODE_DESCRIBE));
         connect(cofusion_button, SIGNAL(clicked()), this, SLOT(trap_choice_confusion()));
         vlay->addWidget(cofusion_button);
@@ -80,7 +80,7 @@ TrapSelectDialog::TrapSelectDialog(void)
     if (num > 3)
     {
         // Add the "Poison Trap" button
-        QPushButton *poison_button = new QPushButton("&Poison Trap");
+        QPointer<QPushButton> poison_button = new QPushButton("&Poison Trap");
         poison_button->setToolTip(apply_monster_trap(FEAT_MTRAP_POISON_GAS, 0, 0, MODE_DESCRIBE));
         connect(poison_button, SIGNAL(clicked()), this, SLOT(trap_choice_poison()));
         vlay->addWidget(poison_button);
@@ -89,7 +89,7 @@ TrapSelectDialog::TrapSelectDialog(void)
     if (num > 4)
     {
         // Add the "Life Draining Trap" button
-        QPushButton *life_drain_button = new QPushButton("&Drain Life Trap");
+        QPointer<QPushButton> life_drain_button = new QPushButton("&Drain Life Trap");
         life_drain_button->setToolTip(apply_monster_trap(FEAT_MTRAP_DRAIN_LIFE, 0, 0, MODE_DESCRIBE));
         connect(life_drain_button, SIGNAL(clicked()), this, SLOT(trap_choice_life_drain()));
         vlay->addWidget(life_drain_button);
@@ -98,7 +98,7 @@ TrapSelectDialog::TrapSelectDialog(void)
     if (num > 5)
     {
         // Add the "Lightning Trap" button
-        QPushButton *lightning_button = new QPushButton("&Lightning Ball Trap");
+        QPointer<QPushButton> lightning_button = new QPushButton("&Lightning Ball Trap");
         lightning_button->setToolTip(apply_monster_trap(FEAT_MTRAP_LIGHTNING, 0, 0, MODE_DESCRIBE));
         connect(lightning_button, SIGNAL(clicked()), this, SLOT(trap_choice_lightning()));
         vlay->addWidget(lightning_button);
@@ -107,7 +107,7 @@ TrapSelectDialog::TrapSelectDialog(void)
     if (num > 6)
     {
         // Add the "Explosive Trap" button
-        QPushButton *explosive_button = new QPushButton("&Explosive Trap");
+        QPointer<QPushButton> explosive_button = new QPushButton("&Explosive Trap");
         explosive_button->setToolTip(apply_monster_trap(FEAT_MTRAP_EXPLOSIVE, 0, 0, MODE_DESCRIBE));
         connect(explosive_button, SIGNAL(clicked()), this, SLOT(trap_choice_explosive()));
         vlay->addWidget(explosive_button);
@@ -116,7 +116,7 @@ TrapSelectDialog::TrapSelectDialog(void)
     if (num > 7)
     {
         // Add the "Portal Trap" button
-        QPushButton *portal_button = new QPushButton("&Teleport Trap");
+        QPointer<QPushButton> portal_button = new QPushButton("&Teleport Trap");
         portal_button->setToolTip(apply_monster_trap(FEAT_MTRAP_PORTAL, 0, 0, MODE_DESCRIBE));
         connect(portal_button, SIGNAL(clicked()), this, SLOT(trap_choice_portal()));
         vlay->addWidget(portal_button);
@@ -125,7 +125,7 @@ TrapSelectDialog::TrapSelectDialog(void)
      if (num > 8)
     {
         // Add the "Dispel Monster Trap" button
-        QPushButton *dispel_button = new QPushButton("&Monster Dispelling Trap");
+        QPointer<QPushButton> dispel_button = new QPushButton("&Monster Dispelling Trap");
         dispel_button->setToolTip(apply_monster_trap(FEAT_MTRAP_DISPEL_MONSTERS, 0, 0, MODE_DESCRIBE));
         connect(dispel_button, SIGNAL(clicked()), this, SLOT(trap_choice_dispell()));
         vlay->addWidget(dispel_button);
@@ -134,7 +134,7 @@ TrapSelectDialog::TrapSelectDialog(void)
 
     vlay->addStretch(1);
 
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);
     connect(buttons, SIGNAL(clicked(QAbstractButton*)), this,
             SLOT(on_dialog_buttons_pressed(QAbstractButton*)));
     vlay->addWidget(buttons);
@@ -145,7 +145,7 @@ TrapSelectDialog::TrapSelectDialog(void)
     this->exec();
 }
 
-int return_trap_choice(void)
+static int return_trap_choice(void)
 {
     TrapSelectDialog dlg;
     return (dlg.trap_choice);
@@ -231,7 +231,7 @@ void py_set_trap(int y, int x)
 /*
  * Turn a basic monster trap into an advanced one -BR-
  */
-bool py_modify_trap(int y, int x)
+static bool py_modify_trap(int y, int x)
 {
     if (p_ptr->timed[TMD_BLIND] || no_light())
     {
@@ -338,11 +338,17 @@ void do_cmd_make_trap(int dir)
 {
     if (!character_dungeon) return;
 
+    /* Oops */
+    if (!(cp_ptr->flags & CF_SET_TRAPS))
+    {
+        message(QString("You don't have the ability to set traps!"));
+        return;
+    }
+
     if (dir == DIR_UNKNOWN)
     {
         if (!get_rep_dir(&dir)) return;
     }
-
 
     cmd_arg args;
     args.wipe();

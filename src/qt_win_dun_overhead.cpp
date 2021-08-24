@@ -92,6 +92,8 @@ void DunOverheadGrid::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
         key2 = d_ptr->object_tile;
     }
 
+    if (empty && !d_ptr->has_visible_terrain()) return;
+
     bool done_bg = false;
     bool done_fg = false;
 
@@ -422,7 +424,7 @@ void MainWindow::win_overhead_map_create()
 
     for (int i = 0; !oh_mult[i].isEmpty(); i++)
     {
-        QAction *act = overhead_map_submenu->addAction(oh_mult[i]);
+        QPointer<QAction> act = overhead_map_submenu->addAction(oh_mult[i]);
         act->setObjectName(oh_mult[i]);
         act->setCheckable(true);
         overhead_map_multipliers->addAction(act);

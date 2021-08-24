@@ -18,6 +18,7 @@
 #include <QDialogButtonBox>
 #include <QHeaderView>
 
+
 void qtablewidget_add_palette(QTableWidget *this_tablewidget)
 {
     QPalette this_palette;
@@ -38,13 +39,13 @@ void qpushbutton_dark_background(QPushButton *this_pushbutton)
 DisplayNotesFile::DisplayNotesFile(void): NPPDialog()
 {
     central = new QWidget;
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
     central->setLayout(main_layout);
     main_layout->setSpacing(10);
     // IMPORTANT: it must be called AFTER setting the layout
     this->setClient(central);
 
-    QGridLayout *notes_info = new QGridLayout;
+    QPointer<QGridLayout> notes_info = new QGridLayout;
 
     main_layout->addLayout(notes_info);
 
@@ -58,10 +59,10 @@ DisplayNotesFile::DisplayNotesFile(void): NPPDialog()
     int row = 0;
     int col = 0;
 
-    QLabel *header_turn = new QLabel("<b><u>GAME TURN</u>  </b>");
-    QLabel *header_depth = new QLabel("<b>  <u>DUNGEON DEPTH</u>  </b>");
-    QLabel *header_level = new QLabel("<b>  <u>PLAYER LEVEL</u>  </b>");
-    QLabel *header_event = new QLabel("<b>  <u>EVENT</u>  </b>");
+    QPointer<QLabel> header_turn = new QLabel("<b><u>GAME TURN</u>  </b>");
+    QPointer<QLabel> header_depth = new QLabel("<b>  <u>DUNGEON DEPTH</u>  </b>");
+    QPointer<QLabel> header_level = new QLabel("<b>  <u>PLAYER LEVEL</u>  </b>");
+    QPointer<QLabel> header_event = new QLabel("<b>  <u>EVENT</u>  </b>");
     notes_info->addWidget(header_turn, row, col++, Qt::AlignRight);
     notes_info->addWidget(header_depth, row, col++, Qt::AlignRight);
     notes_info->addWidget(header_level, row, col++, Qt::AlignRight);
@@ -74,7 +75,7 @@ DisplayNotesFile::DisplayNotesFile(void): NPPDialog()
         row++;
         col = 0;
         notes_type *notes_ptr = &notes_log[i];
-        QLabel *game_turn = new QLabel(number_to_formatted_string(notes_ptr->game_turn));
+        QPointer<QLabel> game_turn = new QLabel(number_to_formatted_string(notes_ptr->game_turn));
         notes_info->addWidget(game_turn, row, col++, Qt::AlignRight | Qt::AlignTop);
         // Format the depth, handle objects from chests and quest rewards.
         if (notes_ptr->dun_depth)
@@ -83,11 +84,11 @@ DisplayNotesFile::DisplayNotesFile(void): NPPDialog()
             else if (notes_ptr->dun_depth == QUEST_LEVEL) depth_note = "Quest";
             else depth_note = number_to_formatted_string(notes_ptr->dun_depth * 50);
         }
-        QLabel *game_depth = new QLabel(depth_note);
+        QPointer<QLabel> game_depth = new QLabel(depth_note);
         notes_info->addWidget(game_depth, row, col++, Qt::AlignRight | Qt::AlignTop);
-        QLabel *player_level = new QLabel(QString("%1 ") .arg(notes_ptr->player_level));
+        QPointer<QLabel> player_level = new QLabel(QString("%1 ") .arg(notes_ptr->player_level));
         notes_info->addWidget(player_level, row, col++, Qt::AlignRight | Qt::AlignTop);
-        QLabel *game_event = new QLabel(notes_ptr->recorded_note);
+        QPointer<QLabel> game_event = new QLabel(notes_ptr->recorded_note);
         game_event->setWordWrap(TRUE);
         game_event->setMinimumWidth(this_size.width() * 2);
         notes_info->addWidget(game_event, row, col++, Qt::AlignLeft | Qt::AlignTop);
@@ -96,11 +97,10 @@ DisplayNotesFile::DisplayNotesFile(void): NPPDialog()
 
     main_layout->addStretch(1);
 
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Close);
     connect(buttons, SIGNAL(rejected()), this, SLOT(close()));
     main_layout->addWidget(buttons);
 
-    setLayout(main_layout);
     setWindowTitle(tr("Notes and Accomplishments"));
 
     this->clientSizeUpdated();
@@ -111,7 +111,7 @@ DisplayNotesFile::DisplayNotesFile(void): NPPDialog()
 void display_notes_file(void)
 {
     // Paranoia
-    if (!p_ptr->playing) return;
+    if (!p_ptr->playing && !p_ptr->in_death_menu) return;
 
     DisplayNotesFile();
 }
@@ -127,7 +127,7 @@ DisplayHomeInven::DisplayHomeInven(void): NPPDialog()
     }
 
     central = new QWidget;
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
     central->setLayout(main_layout);
     main_layout->setSpacing(10);
     // IMPORTANT: it must be called AFTER setting the layout
@@ -142,8 +142,8 @@ DisplayHomeInven::DisplayHomeInven(void): NPPDialog()
         QString o_name = object_desc(o_ptr, ODESC_PREFIX | ODESC_FULL);
         QString o_desc = identify_random_gen(o_ptr);
 
-        QLabel *name_label = new QLabel(QString("<h3>%1) %2</h3>%4") .arg(prefix) .arg(o_name) .arg(o_desc));
-        //QLabel *desc_label = new QLabel(o_desc);
+        QPointer<QLabel> name_label = new QLabel(QString("<h3>%1) %2</h3>%4") .arg(prefix) .arg(o_name) .arg(o_desc));
+        //QPointer<QLabel> desc_label = new QLabel(o_desc);
         name_label->setWordWrap(TRUE);
         name_label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -151,10 +151,9 @@ DisplayHomeInven::DisplayHomeInven(void): NPPDialog()
     }
 
     //Add a close button on the right side
-    QDialogButtonBox buttons;
-    buttons.setStandardButtons(QDialogButtonBox::Close);
-    connect(&buttons, SIGNAL(rejected()), this, SLOT(close()));
-    main_layout->addWidget(&buttons);
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(buttons, SIGNAL(rejected()), this, SLOT(close()));
+    main_layout->addWidget(buttons);
 
     setWindowTitle(tr("Home Inventory"));
 
@@ -166,7 +165,7 @@ DisplayHomeInven::DisplayHomeInven(void): NPPDialog()
 void display_home_inventory(void)
 {
     // Paranoia
-    if (!p_ptr->playing) return;
+    if (!p_ptr->playing && !p_ptr->in_death_menu) return;
 
     DisplayHomeInven();
 }
@@ -175,17 +174,6 @@ void display_home_inventory(void)
 
 DisplayScores::DisplayScores(void): NPPDialog()
 {
-
-    central = new QWidget;
-    QVBoxLayout *main_layout = new QVBoxLayout;
-    central->setLayout(main_layout);
-    main_layout->setSpacing(10);
-    // IMPORTANT: it must be called AFTER setting the layout
-    this->setClient(central);
-
-    scores_proxy_model = new QSortFilterProxyModel;
-    scores_proxy_model->setSortCaseSensitivity(Qt::CaseSensitive);
-
     //Copy the vector, add the player and sort it.
     QVector<high_score> score_list;
     for (int i = 0; i < player_scores_list.size(); i++)
@@ -200,21 +188,22 @@ DisplayScores::DisplayScores(void): NPPDialog()
     }
     if (!score_list.size())
     {
-        pop_up_message_box("There are no player scores yet.");
+        pop_up_message_box("There are no player scores to display.");
         return;
     }
-    for (int i = 0; i < score_list.size(); i++)
-    {
-        for (int j = i+1; j < score_list.size(); j++)
-        {
-            if (score_list[i].score >= score_list[j].score) continue;
 
-            high_score temp = score_list[j];
-            score_list[j] = score_list[i];
-            score_list[i] = temp;
+    central = new QWidget;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
+    central->setLayout(main_layout);
+    main_layout->setSpacing(10);
+    // IMPORTANT: it must be called AFTER setting the layout
+    this->setClient(central);
 
-        }
-    }
+    scores_proxy_model = new QSortFilterProxyModel;
+    scores_proxy_model->setSortCaseSensitivity(Qt::CaseSensitive);
+
+    // Sort the scores
+    qSort(player_scores_list.begin(), player_scores_list.end(), scores_sort);
 
     int col = 0;
 
@@ -321,17 +310,15 @@ DisplayScores::DisplayScores(void): NPPDialog()
     scores_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     //Add a close button on the right side
-    QDialogButtonBox buttons;
-    buttons.setStandardButtons(QDialogButtonBox::Close);
-    connect(&buttons, SIGNAL(rejected()), this, SLOT(close()));
-    main_layout->addWidget(&buttons);
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(buttons, SIGNAL(rejected()), this, SLOT(close()));
+    main_layout->addWidget(buttons);
 
     QSize this_size = QSize(width()* 2, height() * 2);
 
     resize(ui_max_widget_size(this_size));
     updateGeometry();
 
-    setLayout(main_layout);
     setWindowTitle("Player Scores");
 
     this->exec();
@@ -340,7 +327,7 @@ DisplayScores::DisplayScores(void): NPPDialog()
 void display_player_scores(void)
 {
     // Paranoia
-    if (!p_ptr->playing) return;
+    if (!p_ptr->playing && !p_ptr->in_death_menu) return;
 
     DisplayScores();
 }
@@ -395,7 +382,7 @@ DisplayMonKillCount::DisplayMonKillCount(void)
     // Sort the listTab
     qSort(mon_kill_list.begin(), mon_kill_list.end(), kill_list_sort);
 
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
 
     int col = 0;
 
@@ -467,10 +454,9 @@ DisplayMonKillCount::DisplayMonKillCount(void)
 
 
     //Add a close button on the right side
-    QDialogButtonBox buttons;
-    buttons.setStandardButtons(QDialogButtonBox::Close);
-    connect(&buttons, SIGNAL(rejected()), this, SLOT(close()));
-    main_layout->addWidget(&buttons);
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(buttons, SIGNAL(rejected()), this, SLOT(close()));
+    main_layout->addWidget(buttons);
 
     QSize this_size = QSize(width()* 10 / 9, height() * 2);
 

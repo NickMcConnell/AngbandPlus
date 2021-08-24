@@ -2,6 +2,7 @@
 #define NPPDIALOG_H
 
 #include <QDialog>
+#include <QPointer>
 
 class QScrollArea;
 class QLineEdit;
@@ -15,7 +16,7 @@ public:
     int padding;
     qreal max_ratio;
     QScrollArea *scrollArea;
-    QWidget *client;
+    QPointer<QWidget> client;
 
     virtual QSize sizeHint() const;
 

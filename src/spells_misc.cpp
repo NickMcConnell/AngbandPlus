@@ -312,7 +312,7 @@ bool create_glacier(void)
     }
 
     /* Reset the target info */
-    target_set_monster(0);
+    target_set_monster(0, FALSE);
 
     return (status);
 }
@@ -1274,7 +1274,7 @@ void BanishSelectDialog::add_monster_types(QGridLayout *return_layout)
 
         QString mon_name = (QString("%1 - %2") .arg(banish_ptr->mon_symbol) .arg(banish_ptr->mon_race));
 
-        QRadioButton *this_radiobutton = new QRadioButton(mon_name);
+        QPointer<QRadioButton> this_radiobutton = new QRadioButton(mon_name);
         if (!i) this_radiobutton->setChecked(TRUE);
         banish_choice_group->addButton(this_radiobutton, i);
         return_layout->addWidget(this_radiobutton, row++, col, Qt::AlignLeft);
@@ -1301,14 +1301,14 @@ BanishSelectDialog::BanishSelectDialog(void)
 
     monster_banish_choices *banish_ptr;
 
-    QVBoxLayout *vlay = new QVBoxLayout;
+    QPointer<QVBoxLayout> vlay = new QVBoxLayout;
 
-    QLabel *obj_label = new QLabel(QString("<b><big>Please select a monster type to banish:</big></b>"));
+    QPointer<QLabel> obj_label = new QLabel(QString("<b><big>Please select a monster type to banish:</big></b>"));
     obj_label->setAlignment(Qt::AlignCenter);
     vlay->addWidget(obj_label);
     vlay->addStretch();
 
-    QGridLayout *banish_choices = new QGridLayout;
+    QPointer<QGridLayout> banish_choices = new QGridLayout;
     vlay->addLayout(banish_choices);
     add_monster_types(banish_choices);
 
@@ -2476,7 +2476,7 @@ static bool item_tester_unknown(object_type *o_ptr)
 
 static bool item_tester_unknown_star(object_type *o_ptr)
 {
-    if (o_ptr->ident & IDENT_MENTAL)
+    if (o_ptr->is_known_fully())
         return FALSE;
     else
         return TRUE;
@@ -2628,7 +2628,7 @@ void recharge_staff_wand(object_type *o_ptr, int percent)
     o_ptr->pval += recharge_amount;
 
     /* *Identified* items keep the knowledge about the charges */
-    if (!(o_ptr->ident & IDENT_MENTAL))
+    if (!o_ptr->is_known_fully())
     {
         /* We no longer "know" the item */
         o_ptr->ident &= ~(IDENT_KNOWN);
@@ -3120,13 +3120,15 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 DisplaySelfKnowledge::DisplaySelfKnowledge()
 {
-    int i = 0, k;
+    int k;
 
     u32b f1 = 0L, f2 = 0L, f3 = 0L, fn = 0L;
 
     object_type *o_ptr;
 
-    QString info[135];
+    QVector<QString> info;
+
+    info.clear();
 
     /* Get item flags from equipment */
     for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
@@ -3149,418 +3151,418 @@ DisplaySelfKnowledge::DisplaySelfKnowledge()
 
     if (cp_ptr->flags & CF_BLESS_WEAPON)
     {
-        info[i++] = "You are only comfortable wielding blunt weapons or blessed weapons.";
+        info.append("You are only comfortable wielding blunt weapons or blessed weapons.");
     }
 
     if (cp_ptr->flags & CF_CUMBER_GLOVE)
     {
-        info[i++] = "You are only comfortable wearing gloves that aid your ability to move freely or increase your dexterity.";
+        info.append("You are only comfortable wearing gloves that aid your ability to move freely or increase your dexterity.");
     }
 
     if (cp_ptr->flags & CF_ROGUE_COMBAT)
     {
-        info[i++] = "You can sometimes steal objects and gold from monsters.";
-        info[i++] = "You are extraordinally precise with throwing weapons.";
-        info[i++] = "You do an extraordinary amount of damage when attacking sleeping monsters.";
-        info[i++] = "You are extraordinally precise and deadly when using a sling.";
+        info.append("You can sometimes steal objects and gold from monsters.");
+        info.append("You are extraordinally precise with throwing weapons.");
+        info.append("You do an extraordinary amount of damage when attacking sleeping monsters.");
+        info.append("You are extraordinally precise and deadly when using a sling.");
     }
 
     if (cp_ptr->flags & CF_SET_TRAPS)
     {
-        info[i++] = "You can set traps.";
+        info.append("You can set traps.");
     }
 
     if (cp_ptr->flags & CF_EXTRA_ATTACK)
     {
-        if (p_ptr->lev >= LEV_EXTRA_COMBAT) info[i++] = "Your attacking speed is naturally increased.";
-        else info[i++] = "After you gain more experience, your attacking speed will be naturally increased.";
+        if (p_ptr->lev >= LEV_EXTRA_COMBAT) info.append("Your attacking speed is naturally increased.");
+        else info.append("After you gain more experience, your attacking speed will be naturally increased.");
     }
 
     if (cp_ptr->flags & CF_EXTRA_SHOT)
     {
-        if (p_ptr->lev >= LEV_EXTRA_COMBAT) info[i++] = "Your shooting speed is increased when using a sling.";
-        else info[i++] = "After you gain more experience, your shooting speed will be increased when using a sling.";
+        if (p_ptr->lev >= LEV_EXTRA_COMBAT) info.append("Your shooting speed is increased when using a sling.");
+        else info.append("After you gain more experience, your shooting speed will be increased when using a sling.");
     }
 
     if (cp_ptr->flags & CF_EXTRA_ARROW)
     {
-        if (p_ptr->lev >= LEV_EXTRA_COMBAT) info[i++] = "Your shooting speed is increased when using a bow.";
-        else info[i++] = "After you gain more experience, your shooting speed will be increased when using a bow.";
+        if (p_ptr->lev >= LEV_EXTRA_COMBAT) info.append("Your shooting speed is increased when using a bow.");
+        else info.append("After you gain more experience, your shooting speed will be increased when using a bow.");
     }
 
     if (cp_ptr->flags & CF_BRAVERY_30)
     {
-        if (p_ptr->lev >= LEV_BRAVERY) info[i++] = "You are naturally resistant to fear.";
-        else info[i++] = "After you gain more experience, you will be naturally resistant to fear.";
+        if (p_ptr->lev >= LEV_BRAVERY) info.append("You are naturally resistant to fear.");
+        else info.append("After you gain more experience, you will be naturally resistant to fear.");
     }
 
     if (cp_ptr->flags & CF_BRIGAND_COMBAT)
     {
-        if (p_ptr->lev >= LEV_RES_POIS) info[i++] = "You are naturally resistant to poison.";
-        else info[i++] = "After you gain more experience, you will be naturally resistant to poison.";
+        if (p_ptr->lev >= LEV_RES_POIS) info.append("You are naturally resistant to poison.");
+        else info.append("After you gain more experience, you will be naturally resistant to poison.");
     }
 
     if (p_ptr->timed[TMD_BLIND])
     {
-        info[i++] = "You cannot see.";
+        info.append("You cannot see.");
     }
     if (p_ptr->timed[TMD_CONFUSED])
     {
-        info[i++] = "You are confused.";
+        info.append("You are confused.");
     }
     if (p_ptr->timed[TMD_AFRAID])
     {
-        info[i++] = "You are terrified.";
+        info.append("You are terrified.");
     }
     if (p_ptr->timed[TMD_CUT])
     {
-        info[i++] = "You are bleeding.";
+        info.append("You are bleeding.");
     }
     if (p_ptr->timed[TMD_STUN])
     {
-        info[i++] = "You are stunned.";
+        info.append("You are stunned.");
     }
     if (p_ptr->timed[TMD_POISONED])
     {
-        info[i++] = "You are poisoned.";
+        info.append("You are poisoned.");
     }
     if (p_ptr->timed[TMD_IMAGE])
     {
-        info[i++] = "You are hallucinating.";
+        info.append("You are hallucinating.");
     }
 
     if (p_ptr->state.aggravate)
     {
-        info[i++] = "You aggravate monsters.";
+        info.append("You aggravate monsters.");
     }
     if (p_ptr->state.teleport)
     {
-        info[i++] = "Your position is very uncertain.";
+        info.append("Your position is very uncertain.");
     }
 
     if (p_ptr->timed[TMD_BLESSED])
     {
-        info[i++] = "You feel righteous.";
+        info.append("You feel righteous.");
     }
     if (p_ptr->timed[TMD_HERO])
     {
-        info[i++] = "You feel heroic.";
+        info.append("You feel heroic.");
     }
     if (p_ptr->timed[TMD_BERSERK])
     {
-        info[i++] = "You are in a battle rage.";
+        info.append("You are in a battle rage.");
     }
     if (p_ptr->timed[TMD_PROTEVIL])
     {
-        info[i++] = "You are protected from evil.";
+        info.append("You are protected from evil.");
     }
     if (p_ptr->timed[TMD_SHIELD])
     {
-        info[i++] = "You are protected by a mystic shield.";
+        info.append("You are protected by a mystic shield.");
     }
     if (p_ptr->timed[TMD_INVULN])
     {
-        info[i++] = "You are temporarily invulnerable.";
+        info.append("You are temporarily invulnerable.");
     }
     if (p_ptr->confusing)
     {
-        info[i++] = "Your hands are glowing dull red.";
+        info.append("Your hands are glowing dull red.");
     }
     if (p_ptr->searching)
     {
-        info[i++] = "You are looking around very carefully.";
+        info.append("You are looking around very carefully.");
     }
     if (p_ptr->new_spells)
     {
-        info[i++] = "You can learn some spells/prayers.";
+        info.append("You can learn some spells/prayers.");
     }
     if (p_ptr->word_recall)
     {
-        info[i++] = "You will soon be recalled.";
+        info.append("You will soon be recalled.");
     }
     if (p_ptr->state.see_infra)
     {
-        info[i++] = "Your eyes are sensitive to infrared light.";
+        info.append("Your eyes are sensitive to infrared light.");
     }
 
     if (p_ptr->state.slow_digest)
     {
-        info[i++] = "Your appetite is small.";
+        info.append("Your appetite is small.");
     }
     if (p_ptr->state.ffall)
     {
-        info[i++] = "You land gently.";
+        info.append("You land gently.");
     }
     if (p_ptr->timed[TMD_FLYING])
     {
-        info[i++] = "You are flying.";
+        info.append("You are flying.");
     }
     if (p_ptr->state.light)
     {
-        info[i++] = "You are glowing with light.";
+        info.append("You are glowing with light.");
     }
     if (p_ptr->state.regenerate)
     {
-        info[i++] = "You regenerate quickly.";
+        info.append("You regenerate quickly.");
     }
     if (p_ptr->state.telepathy)
     {
-        info[i++] = "You have ESP.";
+        info.append("You have ESP.");
     }
     if (p_ptr->state.see_inv)
     {
-        info[i++] = "You can see invisible creatures.";
+        info.append("You can see invisible creatures.");
     }
     if (p_ptr->state.free_act)
     {
-        info[i++] = "You have free action.";
+        info.append("You have free action.");
     }
     if (p_ptr->state.hold_life)
     {
-        info[i++] = "You have a firm hold on your life force.";
+        info.append("You have a firm hold on your life force.");
     }
 
     if (p_ptr->state.immune_acid)
     {
-        info[i++] = "You are completely immune to acid.";
+        info.append("You are completely immune to acid.");
     }
     else if ((p_ptr->state.resist_acid) && (p_ptr->timed[TMD_OPP_ACID]))
     {
-        info[i++] = "You resist acid exceptionally well.";
+        info.append("You resist acid exceptionally well.");
     }
     else if ((p_ptr->state.resist_acid) || (p_ptr->timed[TMD_OPP_ACID]))
     {
-        info[i++] = "You are resistant to acid.";
+        info.append("You are resistant to acid.");
     }
 
     if (p_ptr->state.immune_elec)
     {
-        info[i++] = "You are completely immune to lightning.";
+        info.append("You are completely immune to lightning.");
     }
     else if ((p_ptr->state.resist_elec) && (p_ptr->timed[TMD_OPP_ELEC]))
     {
-        info[i++] = "You resist lightning exceptionally well.";
+        info.append("You resist lightning exceptionally well.");
     }
     else if ((p_ptr->state.resist_elec) || (p_ptr->timed[TMD_OPP_ELEC]))
     {
-        info[i++] = "You are resistant to lightning.";
+        info.append("You are resistant to lightning.");
     }
 
     if (p_ptr->state.immune_fire)
     {
-        info[i++] = "You are completely immune to fire.";
+        info.append("You are completely immune to fire.");
     }
     else if ((p_ptr->state.resist_fire) && (p_ptr->timed[TMD_OPP_FIRE]))
     {
-        info[i++] = "You resist fire exceptionally well.";
+        info.append("You resist fire exceptionally well.");
     }
     else if ((p_ptr->state.resist_fire) || (p_ptr->timed[TMD_OPP_FIRE]))
     {
-        info[i++] = "You are resistant to fire.";
+        info.append("You are resistant to fire.");
     }
 
     if (p_ptr->state.immune_cold)
     {
-        info[i++] = "You are completely immune to cold.";
+        info.append("You are completely immune to cold.");
     }
     else if ((p_ptr->state.resist_cold) && (p_ptr->timed[TMD_OPP_COLD]))
     {
-        info[i++] = "You resist cold exceptionally well.";
+        info.append("You resist cold exceptionally well.");
     }
     else if ((p_ptr->state.resist_cold) || (p_ptr->timed[TMD_OPP_COLD]))
     {
-        info[i++] = "You are resistant to cold.";
+        info.append("You are resistant to cold.");
     }
 
     if (p_ptr->state.immune_pois)
     {
-        info[i++] = "You are completely immune to poison.";
+        info.append("You are completely immune to poison.");
     }
     else if ((p_ptr->state.resist_pois) && (p_ptr->timed[TMD_OPP_POIS]))
     {
-        info[i++] = "You resist poison exceptionally well.";
+        info.append("You resist poison exceptionally well.");
     }
     else if ((p_ptr->state.resist_pois) || (p_ptr->timed[TMD_OPP_POIS]))
     {
-        info[i++] = "You are resistant to poison.";
+        info.append("You are resistant to poison.");
     }
 
 
     if (p_ptr->state.resist_fear)
     {
-        info[i++] = "You are completely fearless.";
+        info.append("You are completely fearless.");
     }
 
     if (p_ptr->state.resist_light)
     {
-        info[i++] = "You are resistant to bright light.";
+        info.append("You are resistant to bright light.");
     }
     if (p_ptr->state.resist_dark)
     {
-        info[i++] = "You are resistant to darkness.";
+        info.append("You are resistant to darkness.");
     }
     if (p_ptr->state.resist_blind)
     {
-        info[i++] = "Your eyes are resistant to blindness.";
+        info.append("Your eyes are resistant to blindness.");
     }
     if (p_ptr->state.resist_confu)
     {
-        info[i++] = "You are resistant to confusion attacks.";
+        info.append("You are resistant to confusion attacks.");
     }
     if (p_ptr->state.resist_sound)
     {
-        info[i++] = "You are resistant to sonic attacks.";
+        info.append("You are resistant to sonic attacks.");
     }
     if (p_ptr->state.resist_shard)
     {
-        info[i++] = "You are resistant to blasts of shards.";
+        info.append("You are resistant to blasts of shards.");
     }
     if (p_ptr->state.resist_nexus)
     {
-        info[i++] = "You are resistant to nexus attacks.";
+        info.append("You are resistant to nexus attacks.");
     }
     if (p_ptr->state.resist_nethr)
     {
-        info[i++] = "You are resistant to nether forces.";
+        info.append("You are resistant to nether forces.");
     }
     if (p_ptr->state.resist_chaos)
     {
-        info[i++] = "You are resistant to chaos.";
+        info.append("You are resistant to chaos.");
     }
     if (((p_ptr->state.resist_confu) && (!p_ptr->state.resist_chaos)) ||
         ((!p_ptr->state.resist_confu) && (p_ptr->state.resist_chaos)))
     {
-        info[i++] = "You are resistant to being confused.";
+        info.append("You are resistant to being confused.");
     }
     if (p_ptr->state.resist_disen)
     {
-        info[i++] = "You are resistant to disenchantment.";
+        info.append("You are resistant to disenchantment.");
     }
     if (p_ptr->state.native_lava)
     {
-        info[i++] = "You are native to lava.";
+        info.append("You are native to lava.");
     }
     if (p_ptr->state.native_ice)
     {
-        info[i++] = "You are native to ice.";
+        info.append("You are native to ice.");
     }
     if (p_ptr->state.native_oil)
     {
-        info[i++] = "You are native to oil.";
+        info.append("You are native to oil.");
     }
     if (p_ptr->state.native_fire)
     {
-        info[i++] = "You are native to fire.";
+        info.append("You are native to fire.");
     }
     if (p_ptr->state.native_sand)
     {
-        info[i++] = "You are native to sand.";
+        info.append("You are native to sand.");
     }
     if (p_ptr->state.native_forest)
     {
-        info[i++] = "You are native to forests.";
+        info.append("You are native to forests.");
     }
     if (p_ptr->state.native_water)
     {
-        info[i++] = "You are native to water.";
+        info.append("You are native to water.");
     }
     if (p_ptr->state.native_acid)
     {
-        info[i++] = "You are native to acid.";
+        info.append("You are native to acid.");
     }
     if (p_ptr->state.native_mud)
     {
-        info[i++] = "You are native to mud.";
+        info.append("You are native to mud.");
     }
     if (p_ptr->state.native_boiling_water)
     {
-        info[i++] = "You are native to boiling water.";
+        info.append("You are native to boiling water.");
     }
     if (p_ptr->state.native_boiling_mud)
     {
-        info[i++] = "You are native to boiling mud.";
+        info.append("You are native to boiling mud.");
     }
     if (p_ptr->state.sustain_str)
     {
-        info[i++] = "Your strength is sustained.";
+        info.append("Your strength is sustained.");
     }
     if (p_ptr->state.sustain_int)
     {
-        info[i++] = "Your intelligence is sustained.";
+        info.append("Your intelligence is sustained.");
     }
     if (p_ptr->state.sustain_wis)
     {
-        info[i++] = "Your wisdom is sustained.";
+        info.append("Your wisdom is sustained.");
     }
     if (p_ptr->state.sustain_con)
     {
-        info[i++] = "Your constitution is sustained.";
+        info.append("Your constitution is sustained.");
     }
     if (p_ptr->state.sustain_dex)
     {
-        info[i++] = "Your dexterity is sustained.";
+        info.append("Your dexterity is sustained.");
     }
     if (p_ptr->state.sustain_chr)
     {
-        info[i++] = "Your charisma is sustained.";
+        info.append("Your charisma is sustained.");
     }
 
     if (f1 & (TR1_STR))
     {
-        info[i++] = "Your strength is affected by your equipment.";
+        info.append("Your strength is affected by your equipment.");
     }
     if (f1 & (TR1_INT))
     {
-        info[i++] = "Your intelligence is affected by your equipment.";
+        info.append("Your intelligence is affected by your equipment.");
     }
     if (f1 & (TR1_WIS))
     {
-        info[i++] = "Your wisdom is affected by your equipment.";
+        info.append("Your wisdom is affected by your equipment.");
     }
     if (f1 & (TR1_DEX))
     {
-        info[i++] = "Your dexterity is affected by your equipment.";
+        info.append("Your dexterity is affected by your equipment.");
     }
     if (f1 & (TR1_CON))
     {
-        info[i++] = "Your constitution is affected by your equipment.";
+        info.append("Your constitution is affected by your equipment.");
     }
     if (f1 & (TR1_CHR))
     {
-        info[i++] = "Your charisma is affected by your equipment.";
+        info.append("Your charisma is affected by your equipment.");
     }
 
     if (f1 & (TR1_STEALTH))
     {
-        info[i++] = "Your stealth is affected by your equipment.";
+        info.append("Your stealth is affected by your equipment.");
     }
     if (f1 & (TR1_SEARCH))
     {
-        info[i++] = "Your searching ability is affected by your equipment.";
+        info.append("Your searching ability is affected by your equipment.");
     }
     if (f1 & (TR1_INFRA))
     {
-        info[i++] = "Your infravision is affected by your equipment.";
+        info.append("Your infravision is affected by your equipment.");
     }
     if (f1 & (TR1_TUNNEL))
     {
-        info[i++] = "Your digging ability is affected by your equipment.";
+        info.append("Your digging ability is affected by your equipment.");
     }
     if (f1 & (TR1_SPEED))
     {
-        info[i++] = "Your speed is affected by your equipment.";
+        info.append("Your speed is affected by your equipment.");
     }
     if (f1 & (TR1_BLOWS))
     {
-        info[i++] = "Your attack speed is affected by your equipment.";
+        info.append("Your attack speed is affected by your equipment.");
     }
     if (f1 & (TR1_SHOTS))
     {
-        info[i++] = "Your shooting speed is affected by your equipment.";
+        info.append("Your shooting speed is affected by your equipment.");
     }
     if (f1 & (TR1_MIGHT))
     {
-        info[i++] = "Your shooting might is affected by your equipment.";
+        info.append("Your shooting might is affected by your equipment.");
     }
 
     /* Get the current weapon */
@@ -3572,91 +3574,91 @@ DisplaySelfKnowledge::DisplaySelfKnowledge()
         /* Special "Attack Bonuses" */
         if (f1 & (TR1_BRAND_ACID))
         {
-            info[i++] = "Your weapon melts your foes.";
+            info.append("Your weapon melts your foes.");
         }
         if (f1 & (TR1_BRAND_ELEC))
         {
-            info[i++] = "Your weapon shocks your foes.";
+            info.append("Your weapon shocks your foes.");
         }
         if (f1 & (TR1_BRAND_FIRE))
         {
-            info[i++] = "Your weapon burns your foes.";
+            info.append("Your weapon burns your foes.");
         }
         if (f1 & (TR1_BRAND_COLD))
         {
-            info[i++] = "Your weapon freezes your foes.";
+            info.append("Your weapon freezes your foes.");
         }
         if (f1 & (TR1_BRAND_POIS))
         {
-            info[i++] = "Your weapon poisons your foes.";
+            info.append("Your weapon poisons your foes.");
         }
 
         /* Special "slay" flags */
         if (f1 & (TR1_SLAY_ANIMAL))
         {
-            info[i++] = "Your weapon strikes at animals with extra force.";
+            info.append("Your weapon strikes at animals with extra force.");
         }
         if (f1 & (TR1_SLAY_EVIL))
         {
-            info[i++] = "Your weapon strikes at evil with extra force.";
+            info.append("Your weapon strikes at evil with extra force.");
         }
         if (f1 & (TR1_SLAY_UNDEAD))
         {
-            info[i++] = "Your weapon strikes at undead with holy wrath.";
+            info.append("Your weapon strikes at undead with holy wrath.");
         }
         if (f1 & (TR1_SLAY_DEMON))
         {
-            info[i++] = "Your weapon strikes at demons with holy wrath.";
+            info.append("Your weapon strikes at demons with holy wrath.");
         }
         if (f1 & (TR1_SLAY_ORC))
         {
-            info[i++] = "Your weapon is especially deadly against orcs.";
+            info.append("Your weapon is especially deadly against orcs.");
         }
         if (f1 & (TR1_SLAY_TROLL))
         {
-            info[i++] = "Your weapon is especially deadly against trolls.";
+            info.append("Your weapon is especially deadly against trolls.");
         }
         if (f1 & (TR1_SLAY_GIANT))
         {
-            info[i++] = "Your weapon is especially deadly against giants.";
+            info.append("Your weapon is especially deadly against giants.");
         }
         if (f1 & (TR1_SLAY_DRAGON))
         {
-            info[i++] = "Your weapon is especially deadly against dragons.";
+            info.append("Your weapon is especially deadly against dragons.");
         }
 
         /* Special "kill" flags */
         if (f1 & (TR1_KILL_DRAGON))
         {
-            info[i++] = "Your weapon is a great bane of dragons.";
+            info.append("Your weapon is a great bane of dragons.");
         }
         if (f1 & (TR1_KILL_DEMON))
         {
-            info[i++] = "Your weapon is a great bane of demons.";
+            info.append("Your weapon is a great bane of demons.");
         }
         if (f1 & (TR1_KILL_UNDEAD))
         {
-            info[i++] = "Your weapon is a great bane of undead.";
+            info.append("Your weapon is a great bane of undead.");
         }
 
 
         /* Indicate Blessing */
         if (f3 & (TR3_BLESSED))
         {
-            info[i++] = "Your weapon has been blessed by the gods.";
+            info.append("Your weapon has been blessed by the gods.");
         }
 
         /* Hack */
         if (f3 & (TR3_IMPACT))
         {
-            info[i++] = "Your weapon can induce earthquakes.";
+            info.append("Your weapon can induce earthquakes.");
         }
     }
 
 
     // Display the info
-    QVBoxLayout *main_layout = new QVBoxLayout;
-    QTextEdit *message_area = new QTextEdit;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
+    QPointer<QTextEdit> message_area = new QTextEdit;
 
     main_layout->addWidget(message_area);
     message_area->setReadOnly(true);
@@ -3665,14 +3667,14 @@ DisplaySelfKnowledge::DisplaySelfKnowledge()
 
     message_area->clear();
 
-    for (int x = 0; x < i; x++)
+    for (int x = 0; x < info.size(); x++)
     {
         message_area->moveCursor(QTextCursor::End);
         message_area->setTextColor(defined_colors[TERM_WHITE]);
-        message_area->insertPlainText(QString("%1<br>") .arg(info[x]));
+        message_area->insertPlainText(QString("%1<br>") .arg(info.at(x)));
     }
 
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Close);
     connect(buttons, SIGNAL(rejected()), this, SLOT(close()));
     main_layout->addWidget(buttons);
 

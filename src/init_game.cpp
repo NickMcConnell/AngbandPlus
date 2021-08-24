@@ -50,6 +50,7 @@ int cur_equip;
 
 // The file directories
 QDir npp_dir_base;
+QDir npp_dir_lib;
 QDir npp_dir_bone;
 QDir npp_dir_edit;
 QDir npp_dir_help;
@@ -138,25 +139,39 @@ void create_directories()
 {
 
     npp_dir_base.setPath(QDir::currentPath());
+    npp_dir_lib.setPath(QString(npp_dir_base.path() .append("/lib/")));
 
-    // OSX currentPath() currently isn't working properly.  Fix the path
-    QString test_string = npp_dir_base.path();
-    if (test_string.length() < 3)
+    //Things are arranged a little differently on OSX
+#ifdef Q_OS_OSX
     {
-        QString this_path = (QApplication::applicationFilePath());
+        // Use this when creating a distribution bundle
+        QString this_path = (QApplication::applicationDirPath());
+        int cut_index = this_path.indexOf(QString("/MacOS"), 1, Qt::CaseSensitive);
+        if (cut_index >=0) this_path.resize(cut_index);
+        npp_dir_lib.setPath(QString(this_path .append("/Resources/lib/")));
+
+        /* Use this on OSX when just coding and using the source downloaded from Github
         int cut_index = this_path.indexOf(QString("/NPPG"), 1, Qt::CaseSensitive);
         if (cut_index >=0) this_path.resize(cut_index);
         npp_dir_base.setPath(this_path);
+        */
     }
+#endif // Q_OS_OSX
 
-    npp_dir_bone.setPath(QString(npp_dir_base.path() .append("/lib/bone/")));
-    npp_dir_edit.setPath(QString(npp_dir_base.path() .append("/lib/edit/")));
-    npp_dir_help.setPath(QString(npp_dir_base.path() .append("/lib/help/")));
-    npp_dir_icon.setPath(QString(npp_dir_base.path() .append("/lib/icons/")));
-    npp_dir_save.setPath(QString(npp_dir_base.path() .append("/lib/save/")));
-    npp_dir_user.setPath(QString(npp_dir_base.path() .append("/lib/user/")));
-    npp_dir_graf.setPath(QString(npp_dir_base.path() .append("/lib/graf/")));
+    npp_dir_bone.setPath(QString(npp_dir_lib.path() .append("/bone/")));
+    npp_dir_edit.setPath(QString(npp_dir_lib.path() .append("/edit/")));
+    npp_dir_help.setPath(QString(npp_dir_lib.path() .append("/help/")));
+    npp_dir_icon.setPath(QString(npp_dir_lib.path() .append("/icons/")));
+    npp_dir_save.setPath(QString(npp_dir_lib.path() .append("/save/")));
+    npp_dir_user.setPath(QString(npp_dir_lib.path() .append("/user/")));
+    npp_dir_graf.setPath(QString(npp_dir_lib.path() .append("/graf/")));
 
+    /*
+     * Make sure the save and user directories exist.
+     * mkdir does nothing and returns FALSE if the directories already exist.
+     */
+    (void)npp_dir_save.mkdir(npp_dir_save.path());
+    (void)npp_dir_user.mkdir(npp_dir_user.path());
 }
 
 
@@ -720,6 +735,7 @@ static int init_other(void)
 
     p_ptr->player_type_wipe();
     op_ptr->player_other_wipe();
+    op_ptr->delay_anim_factor = 100;
 
     /*Clear the update flags*/
     p_ptr->notice = 0L;

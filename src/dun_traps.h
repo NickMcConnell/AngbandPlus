@@ -4,7 +4,7 @@
 #include <QSignalMapper>
 #include <QDialogButtonBox>
 #include <QDialog>
-
+#include <QPointer>
 
 
 class TrapSelectDialog : public QDialog
@@ -30,18 +30,6 @@ private slots:
 
 
 
-private:
-
-    // Keeps track of which button goes with which object.
-    // Is sent by a signal to the button_press function.
-    QSignalMapper* button_values;
-
-    QDialogButtonBox *buttons;
-
-
-
 };
-
-extern int return_trap_choice(void);
 
 #endif // DUN_TRAPS_H

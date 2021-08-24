@@ -71,7 +71,7 @@ void ObjectSettingsDialog::add_kind_checkbox(byte which_ver)
 {
     verify_data *v_ptr = &verification_data[which_ver];
 
-    QCheckBox *this_checkbox = new QCheckBox(v_ptr->box_label);
+    QPointer<QCheckBox> this_checkbox = new QCheckBox(v_ptr->box_label);
     this_checkbox->setToolTip(v_ptr->box_tooltip);
     if (k_ptr->use_verify[which_ver]) this_checkbox->setChecked(TRUE);
     else this_checkbox->setChecked(FALSE);
@@ -85,7 +85,7 @@ void ObjectSettingsDialog::add_type_checkbox(byte which_ver)
 
     if (do_object_type)
     {
-        QCheckBox *this_checkbox = new QCheckBox(v_ptr->box_label);
+        QPointer<QCheckBox> this_checkbox = new QCheckBox(v_ptr->box_label);
         this_checkbox->setToolTip(v_ptr->box_tooltip);
         if (o_ptr->use_verify[which_ver]) this_checkbox->setChecked(TRUE);
         else this_checkbox->setChecked(FALSE);
@@ -107,7 +107,7 @@ void ObjectSettingsDialog::add_object_verifications(byte settings_mode)
     {
         object_type_group = new QButtonGroup(this);
         object_type_group->setExclusive(FALSE);
-        QLabel *object_type_label = new QLabel(QString("<b><big>   Object Settings   </big></b>"));
+        QPointer<QLabel> object_type_label = new QLabel(QString("<b><big>   Object Settings   </big></b>"));
         object_type_label->setAlignment(Qt::AlignCenter);
         object_type_label->setToolTip("Check boxes below to enable these options for this patticular object.");
         object_type_ver->addWidget(object_type_label);
@@ -117,7 +117,7 @@ void ObjectSettingsDialog::add_object_verifications(byte settings_mode)
     {
         object_kind_group = new QButtonGroup(this);
         object_kind_group->setExclusive(FALSE);
-        QLabel *object_kind_label = new QLabel(QString("<b><big>   Object Template Settings   </big></b>"));
+        QPointer<QLabel> object_kind_label = new QLabel(QString("<b><big>   Object Template Settings   </big></b>"));
         object_kind_label->setAlignment(Qt::AlignCenter);
         object_kind_label->setToolTip("Check boxes below to enable these options for ALL objects of this type.");
         object_kind_ver->addWidget(object_kind_label);
@@ -186,10 +186,10 @@ void ObjectSettingsAux::add_ego_buttons(QVBoxLayout *ego_buttons)
 
     ego_group = new QButtonGroup(this);
 
-    QLabel *ego_label = new QLabel(QString("<b><big>   Ego Item Settings   </big></b>"));
+    QPointer<QLabel> ego_label = new QLabel(QString("<b><big>   Ego Item Settings   </big></b>"));
     ego_label->setAlignment(Qt::AlignCenter);
     ego_label->setToolTip("The settings below allow the player to specify if this type of ego-item should be automatically destroyed upon identification.");
-    QLabel *ego_name = new QLabel(QString("<b>%1</b>") .arg(get_ego_name(o_ptr)));
+    QPointer<QLabel> ego_name = new QLabel(QString("<b>%1</b>") .arg(get_ego_name(o_ptr)));
     ego_name->setAlignment(Qt::AlignCenter);
     ego_buttons->addWidget(ego_label);
     ego_buttons->addWidget(ego_name);
@@ -228,10 +228,10 @@ void ObjectSettingsAux::add_quality_buttons(QVBoxLayout *quality_buttons)
     if (squelch_type == PS_TYPE_AMULET) limited_types = TRUE;
     else if (squelch_type == PS_TYPE_RING) limited_types = TRUE;
     quality_group = new QButtonGroup(this);
-    QLabel *quality_label = new QLabel(QString("<b><big>   Quality Squelch Settings   </big></b>"));
+    QPointer<QLabel> quality_label = new QLabel(QString("<b><big>   Quality Squelch Settings   </big></b>"));
     quality_label->setAlignment(Qt::AlignCenter);
     quality_label->setToolTip("The settings below allow the player to automatically destroy an item on identification, or pseudo-id, based on the quality of that item.");
-    QLabel *quality_name = new QLabel(QString("<b>%1</b>") .arg(quality_squelch_type_label(o_ptr)));
+    QPointer<QLabel> quality_name = new QLabel(QString("<b>%1</b>") .arg(quality_squelch_type_label(o_ptr)));
     quality_name->setAlignment(Qt::AlignCenter);
     quality_buttons->addWidget(quality_label);
     quality_buttons->addWidget(quality_name);
@@ -288,7 +288,7 @@ void ObjectSettingsAux::update_squelch_setting(int id)
 void ObjectSettingsAux::add_squelch_buttons(QVBoxLayout *squelch_buttons)
 {
     squelch_group = new QButtonGroup(this);
-    QLabel *squelch_label = new QLabel(QString("<b><big>   Object Squelch Settings   </big></b>"));
+    QPointer<QLabel> squelch_label = new QLabel(QString("<b><big>   Object Squelch Settings   </big></b>"));
     squelch_label->setAlignment(Qt::AlignCenter);
     squelch_label->setToolTip("The settings below allow the player to specify if they want to automatically destroy, pickup, or ignore an item when the player walks over it.");
     squelch_buttons->addWidget(squelch_label);
@@ -351,19 +351,19 @@ ObjectSettingsDialog::ObjectSettingsDialog(s16b o_idx, byte settings_mode)
 
     squelch_type = squelch_type_of(o_ptr);
 
-    QVBoxLayout *main_layout = new QVBoxLayout;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
 
-    QLabel *header_main = new QLabel("<b><h2>Object Settings Menu</b></h2>");
+    QPointer<QLabel> header_main = new QLabel("<b><h2>Object Settings Menu</b></h2>");
     header_main->setAlignment(Qt::AlignCenter);
     main_layout->addWidget(header_main);
 
     QString title = (QString("<big>%1</big>") .arg(object_desc(o_ptr, ODESC_FULL | ODESC_SINGULAR)));
-    QLabel *object_name = new QLabel(title);
+    QPointer<QLabel> object_name = new QLabel(title);
     object_name->setAlignment(Qt::AlignCenter);
     main_layout->addWidget(object_name);
 
-    QHBoxLayout *main_across = new QHBoxLayout;
-    QVBoxLayout *squelch_vlay = new QVBoxLayout;
+    QPointer<QHBoxLayout> main_across = new QHBoxLayout;
+    QPointer<QVBoxLayout> squelch_vlay = new QVBoxLayout;
     object_type_ver = new QVBoxLayout;
     object_kind_ver = new QVBoxLayout;
     main_layout->addLayout(main_across);
@@ -380,11 +380,11 @@ ObjectSettingsDialog::ObjectSettingsDialog(s16b o_idx, byte settings_mode)
         // Add regular and quality squelch buttons
         if (settings_mode != SETTINGS_ARTIFACT)
         {
-            QVBoxLayout *squelch_buttons = new QVBoxLayout;
+            QPointer<QVBoxLayout> squelch_buttons = new QVBoxLayout;
             squelch_vlay->addLayout(squelch_buttons);
             add_squelch_buttons(squelch_buttons);
 
-            QVBoxLayout *quality_buttons = new QVBoxLayout;
+            QPointer<QVBoxLayout> quality_buttons = new QVBoxLayout;
             squelch_vlay->addLayout(quality_buttons);
             add_quality_buttons(quality_buttons);
         }
@@ -392,7 +392,7 @@ ObjectSettingsDialog::ObjectSettingsDialog(s16b o_idx, byte settings_mode)
         // Add ego item items if appropriate
         if (settings_mode == SETTINGS_FULL_OBJECT)
         {
-            QVBoxLayout *ego_buttons = new QVBoxLayout;
+            QPointer<QVBoxLayout> ego_buttons = new QVBoxLayout;
             squelch_vlay->addLayout(ego_buttons);
             add_ego_buttons(ego_buttons);
         }
