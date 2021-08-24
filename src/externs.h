@@ -106,6 +106,9 @@ extern cptr exp_level_str[5];
 extern cptr silly_attacks[MAX_SILLY_ATTACK];
 extern cptr ident_info[];
 extern byte feature_action_flags[FF_FLAG_MAX];
+extern monster_power monster_powers[MAX_MONSPELLS];
+extern cptr monster_powers_short[MAX_MONSPELLS];
+extern cptr PROFICIENCIES[MAX_PROFICIENCIES];
 
 /* variable.c */
 extern int game_mode;
@@ -114,7 +117,7 @@ extern byte sf_extra;
 extern u32b sf_system;
 extern byte z_major;
 extern byte z_minor;
-extern char z_patch[16];
+extern byte z_patch;
 extern u32b sf_when;
 extern u16b sf_lives;
 extern u16b sf_saves;
@@ -135,7 +138,6 @@ extern bool character_xtra;
 extern bool creating_savefile;
 extern u32b seed_flavor;
 extern u32b seed_town;
-extern u32b chaotic_py_seed;
 extern s16b command_cmd;
 extern s16b command_arg;
 extern s16b command_rep;
@@ -338,10 +340,7 @@ extern bool alert_poison;       /* Alert on poisoning */
 
 extern bool coffee_break;   /* Coffeebreak mode */
 extern bool easy_id;        /* Easy Identify */
-extern bool easy_lore;      /* Easy Monster Lore */
-extern bool empty_lore;     /* Always start with empty item lore */
 extern bool easy_damage;    /* Peek into damage and monster health */
-extern bool allow_spoilers;
 extern bool power_tele;     /* Use old-style, non-fuzzy telepathy */
 extern bool smart_learn;    /* Monsters learn from their mistakes (*) */
 extern bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
@@ -350,10 +349,6 @@ extern bool ironman_shops;    /* Stores are permanently closed (*) */
 extern bool ironman_downward;    /* Disable recall and use of up stairs (*) */
 extern bool ironman_empty_levels;    /* Always create empty 'arena' levels (*) */
 extern bool ironman_nightmare;    /* Nightmare mode(it isn't even remotely fair!)(*) */
-extern bool preserve_mode;    /* Preserve artifacts (*) */
-extern bool allow_friendly_monster; /* Allow monsters friendly to player */
-extern bool allow_hostile_monster; /* Allow monsters hostile to each other */
-extern bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
 extern bool quest_unique; /* Random quests for unique monsters only */
 extern bool random_artifacts;
 extern byte random_artifact_pct;
@@ -365,7 +360,7 @@ extern bool no_selling;
 extern bool enable_virtues;
 extern bool easy_thalos;
 extern bool never_forget;
-extern bool no_chris;
+extern bool no_nexus_warp;
 extern bool no_scrambling;
 extern bool comp_mode;
 extern bool reduce_uniques;
@@ -643,6 +638,7 @@ extern s32b now_turn;
 extern bool use_menu;
 
 /* autopick.c */
+extern bool_hack simple_item_check(object_type *o_ptr);
 extern void autopick_load_pref(bool disp_mes);
 extern errr process_autopick_file_command(char *buf);
 #define AUTOPICK_COLOR_CODED 0x01
@@ -659,7 +655,6 @@ extern bool birth_hack;
 extern void add_history_from_pref_line(cptr t);
 extern cptr birth_get_class_desc(int i);
 extern cptr birth_get_realm_desc(int i);
-extern void empty_lore_wipe(void);
 extern void player_birth(void);
 extern void get_max_stats(void);
 extern int calc_exp_factor(void);
@@ -840,7 +835,6 @@ extern void msg_add_tiny_screenshot(int cx, int cy);
 extern cptr spell_category_name(int tval);
 extern cptr spell_category_verb(int tval);
 extern void do_cmd_browse(void);
-extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
 extern bool rakuba(int dam, bool force);
 extern bool do_riding(bool force);
@@ -860,7 +854,6 @@ extern void do_cmd_use_staff(void);
 extern void do_cmd_zap_rod(void);
 extern void do_cmd_activate(void);
 extern void do_cmd_rerate_aux(void);
-extern int  life_rating(void);
 extern void do_cmd_rerate(bool display);
 extern void ring_of_power(int dir);
 extern bool restore_mana(void);
@@ -878,7 +871,7 @@ extern void cornucopia_init(void);
 extern void cornucopia_save(savefile_ptr file);
 extern void cornucopia_load(savefile_ptr file);
 extern int  cornucopia_item_policy(object_type *o_ptr);
-extern void cornucopia_item_disenchanted(object_type *o_ptr, int new_to_a, int new_to_h, int new_to_d, int new_pval);
+extern void cornucopia_item_disenchanted(object_type *o_ptr, int new_to_a, int new_to_h, int new_pval);
 extern void cornucopia_print_stats(doc_ptr doc);
 
 /* devices.c */
@@ -1090,6 +1083,7 @@ extern cptr err_str[PARSE_ERROR_MAX];
 extern errr init_buildings(void);
 extern s16b f_tag_to_index_in_init(cptr str);
 extern void init_angband(void);
+extern void display_news_win(int n);
 extern void display_news(void);
 
 /* load.c */
@@ -1422,7 +1416,6 @@ extern bool save_player(void);
 extern bool load_player(void);
 extern void remove_loc(void);
 extern bool save_floor(saved_floor_type *sf_ptr, u32b mode);
-extern byte versio_sovitus(void);
 
 /* spells1.c */
 extern bool allow_ticked_off(monster_race *r_ptr);
@@ -1587,7 +1580,7 @@ extern bool remove_all_curse(void);
 extern bool alchemy(void);
 extern void break_curse(object_type *o_ptr);
 extern bool enchant(object_type *o_ptr, int n, int eflag);
-extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
+extern bool enchant_spell(int num_hit, int num_ac);
 extern bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr);
 extern bool artifact_scroll(void);
 extern bool ident_spell(object_p p);
@@ -1599,7 +1592,6 @@ extern bool recharge_from_device(int power);
 extern bool bless_weapon(void);
 extern bool polish_shield(void);
 extern bool potion_smash_effect(int who, int y, int x, int k_idx);
-extern s16b experience_of_spell(int spell, int realm);
 extern int mod_need_mana(int need_mana, int spell, int realm);
 extern int mod_spell_chance_1(int chance, int realm);
 extern int mod_spell_chance_2(int chance, int realm);
@@ -1892,6 +1884,7 @@ extern bool set_tim_esp(int v, bool do_dec);
 extern bool set_tim_esp_magical(int v, bool do_dec);
 extern bool set_superstealth(bool set);
 extern bool set_sanctuary(bool set);
+extern void do_energise(void);
 
 /* xtra2.c */
 extern void check_experience(void);
@@ -1998,7 +1991,6 @@ extern s16b gain_energy(void);
 extern cptr your_alignment(void);
 extern int weapon_exp_level(int weapon_exp);
 extern int riding_exp_level(int riding_exp);
-extern int spell_exp_level(int spell_exp);
 
 /* mspells1.c */
 extern bool clean_shot(int y1, int x1, int y2, int x2, bool friend);
@@ -2012,6 +2004,14 @@ extern int  anti_magic_check(void);
 extern bool direct_beam(int y1, int x1, int y2, int x2, monster_type *m_ptr);
 extern bool breath_direct(int y1, int x1, int y2, int x2, int rad, int typ, bool friend);
 extern void get_project_point(int sy, int sx, int *ty, int *tx, int flg);
+
+/* blue_mage.c */
+extern byte blue_mage_mask[MS_MAX];
+
+/* mspells3.c */
+extern bool do_cmd_cast_learned(void);
+extern int get_monspell(byte type, s16b effect);
+extern void learn_monster_spell(int monspell);
 
 /* artifact.c */
 extern int original_score;
@@ -2066,12 +2066,6 @@ extern errr predict_score(void);
 extern void race_legends(void);
 extern void race_score(int race_num);
 extern void show_highclass(void);
-
-/* hissatsu.c */
-extern void hissatsu_info(char *p, int power);
-extern void do_cmd_hissatsu(void);
-extern void do_cmd_hissatsu_browse(void);
-extern void do_cmd_gain_hissatsu(void);
 
 /* lawyer.c */
 extern byte lawyer_hack(magic_type *s_ptr, int tyyppi);
@@ -2505,6 +2499,9 @@ extern int      alchemist_infusion_energy_use(void);
 extern void     alchemist_super_potion_effect(int sval);
 extern void     alchemist_set_hero(bool *notice, int uus_arvo, bool normal_hero);
 
+/* chaos_mage.c */
+extern class_t *chaos_mage_get_class(void);
+
 /* disciple.c */
 extern class_t *disciple_get_class(int psubclass);
 extern class_t *karrot_get_class(void);
@@ -2533,6 +2530,7 @@ extern void     troika_punish_quest_fail(void);
 extern bool     troika_allow_equip_item(object_type *o_ptr);
 extern bool     troika_allow_use_device(object_type *o_ptr);
 extern void     troika_bonus_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
+extern void nonlethal_ty_substitute(bool do_dec);
 
 /* duelist.c */
 extern cptr duelist_current_challenge(void);
@@ -2543,6 +2541,9 @@ extern int duelist_skill_sav(int m_idx);
 extern void strafing_spell(int cmd, variant *res);
 extern bool nemesis_hack;    /* Actually, it's in melee1.c */
 extern cptr duelist_equip_error(void);
+
+/* hexblade.c */
+extern class_t *hexblade_get_class(void);
 
 /* magic_eater.c */
 extern class_t *magic_eater_get_class(void);
@@ -2613,8 +2614,6 @@ extern class_t *cavalry_get_class(void);
 extern void     rodeo_spell(int cmd, variant *res);
 
 extern class_t *chaos_warrior_get_class(void);
-extern void     chaos_warrior_reward(void);
-extern void     nonlethal_ty_substitute(bool do_dec);
 
 extern class_t *devicemaster_get_class(int psubclass);
 extern bool     devicemaster_desperation;
@@ -2705,6 +2704,7 @@ extern void     rune_calc_stats(object_type *o_ptr, s16b stats[MAX_STATS]);
 extern class_t *rune_knight_get_class(void);
 extern int      rune_knight_absorption(int m_idx, int type, int dam);
 
+/* samurai.c */
 extern void     samurai_concentration_spell(int cmd, variant *res);
 extern void     cast_concentration(void);
 extern bool     samurai_can_concentrate(void);
@@ -2774,7 +2774,6 @@ extern void     dungeon_statup_load(savefile_ptr file);
 extern void     dungeon_statup_save(savefile_ptr file);
 
 /* skills.c */
-extern skill_table *s_info; /* deprecated ... in process of removing naked table reads*/
 extern void skills_add(skills_t *dest, skills_t *src);
 extern void skills_scale(skills_t *dest, int num, int denom);
 extern void skills_init(skills_t *dest);
@@ -2786,25 +2785,20 @@ extern void skills_desc_race(race_t *race_ptr, skills_desc_t *skills);
 extern void skills_desc_pers(personality_t *pers_ptr, skills_desc_t *skills);
 extern void skills_desc_realm(dragon_realm_ptr realm_ptr, skills_desc_t *skills);
 extern void skills_desc_aux(skills_t *base, skills_t *xtra, skills_desc_t *skills);
+extern void monster_proficiencies(void);
 
 extern int skills_bow_current(int sval);
 extern int skills_bow_max(int sval);
-extern void skills_bow_gain(int sval, int rlvl);
 extern int skills_bow_calc_bonus(int sval);
 extern cptr skills_bow_describe_current(int sval);
 
-extern int skills_weapon_current(int tval, int sval);
-extern int skills_weapon_max(int tval, int sval);
-extern void skills_weapon_gain(int tval, int sval, int rlvl);
-extern void skills_weapon_init(int tval, int sval, int skill);
+extern int skills_weapon_current(int prof);
+extern int skills_weapon_max(int prof);
+extern void skills_weapon_gain(int proficiency, int rlvl);
 extern bool skills_weapon_is_icky(int tval, int sval);
-extern int skills_weapon_calc_bonus(int tval, int sval);
-extern cptr skills_weapon_describe_current(int tval, int sval);
+extern int skills_weapon_calc_bonus(int prof);
+extern cptr skills_weapon_describe_current(int prof);
 
-extern void skills_shield_init(int sval, int current, int max);
-extern int skills_shield_current(int sval);
-extern int skills_shield_max(int sval);
-extern void skills_shield_gain(int sval, int rlvl);
 extern int skills_shield_calc_bonus(int sval);
 extern cptr skills_shield_describe_current(int sval);
 
@@ -2831,9 +2825,8 @@ extern cptr skills_innate_calc_name(innate_attack_ptr attack); /* Note: Uses a s
 extern cptr skills_innate_describe_current(cptr name);
 
 extern void skills_on_birth(void);
-extern void skills_on_load(savefile_ptr file);
-extern void skills_on_save(savefile_ptr file);
 
+extern int tsvals_to_proficiency(int tval, int sval);
 
 /* time_lord.c */
 extern class_t *time_lord_get_class(void);
@@ -2846,7 +2839,6 @@ extern void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb);
 extern class_t *weaponmaster_get_class(int subclass);
 extern int weaponmaster_get_toggle(void);
 extern void weaponmaster_set_toggle(int toggle);
-extern void weaponmaster_adjust_skills(void);
 extern bool weaponmaster_is_favorite(object_type *o_ptr);
 extern int weaponmaster_wield_hack(object_type *o_ptr);
 extern void weaponmaster_do_wild_blade(void);
@@ -2872,3 +2864,12 @@ extern void wild_reset_counters(void);
 extern void wild_dispel_player(void);
 extern bool wild_has_power(int power);
 extern void wild_reset_counter(int power);
+
+/* spells_c.c*/
+extern void change_realm_power(void);
+
+/* chaos_patron.c */
+extern void     chaos_choose_effect(int);
+extern bool		worships_chaos();
+extern cptr     chaos_patron_name(int);
+extern void chaos_patron_reward(int category);

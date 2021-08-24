@@ -1,3 +1,31 @@
+Changes in <color:keyword>Oposband 0.1.0</color>:
+-Forked from FrogComposband 7.1.Chocolate
+-Changed variant name to Oposband and version to 0.1.0
+-Removed many unnessary if_savefile_older_than calls as we won't be converting those
+-Removed 18/* notation for stats. Old 18/10 is now just 19, 18/100 is 28, 18/*** is 40, etc
+-Adjust many Charisma values to pre-PosChengband values.
+-Fear saves now work off of best of Strength and Charisma, to make strong but poor CHR monsters like zombies and balrogs better at fear.
+-Identify acts as *Identify* and the latter is being phased out
+-Psuedo-ID items on walkover, and Average/Good items IDed on walkover.
+-Sorceror reverted to using INT for casting. CHR was thrown in because DND sorceror's are CHR-casters, but they are a completely different creature from the Zangband sorceror, who is just an uber-mage. Sorceror INT now +6 and CHR now -2
+-Added Hexblade and Chaos Mage from Composbad
+-Removed Chaotic personality, chaos patrons are reserved for the two chaos classes.
+-Many monsters are more affected by doors than before: felines, dragon flies, canines, snakes, and ants
+-Reversed pack AI settings for animals and sentient beings, so the latter will try to lure healthy players into rooms while the latter will hunt you down. Idea from Sil
+-Player now receives full HP and SP restore when levelling up
+-Objects now have a single attack plus instead of split to-hit and to-dam values. Generally to_h was always much less important than to_d to players and having them different (and randomly rolled) just made stacking ammo, etc harder.  Scrolls of enchant to-hit and enchant to-dam have been replaced with a single Enchant Weapon scroll.
+-Somewhat streamlined character creation by removing the first screen. Removed beginner mode and moved normal/monster mode selection to the race/class UI, so you can easily switch between them. 
+-Prayer class group had a single class, Priest, and even when the alternative priest class, Disciple, was added it wasn't put there. So Priest has been moved to the Magic class group and Prayer group has been removed.
+-Orc shamans now have SP like other casters. I see no reason for them to use HP to cast.
+-Needless opaque and polemical no_chris option renamed no_nexus_warp
+-Removed some unneeded options 
+	preserve_artifacts - Artifacts always give a special feeling in FrogComposband, removing main advantage of no_preserve.
+	empty_lore - just use a new savefile. With full monster knowledge no downside other than quickstart.
+	allow_friendly_mons - minor feature that does not need to be allowed. Just attack friendly monsters to make them hostile.
+	allow_hostile_monst - integral feature that does not need to be toggled
+	allow_pets - Integral feature that does not need to be toggled
+	allow_spoilers - moved to debug command z.  
+	
 Changes in <color:keyword>FrogComposband 7.1.chocolate</color>:
 
 * Added a new player class (Disciples; which are essentially three classes rolled in one, because the three subclasses don't have much in common)

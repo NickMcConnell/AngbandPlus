@@ -298,11 +298,7 @@ static errr path_temp(char *buf, int max)
     if (!s) return (-1);
 
     /* Format to length */
-#ifndef WIN32
     (void)strnfmt(buf, max, "%s", s);
-#else
-    (void)strnfmt(buf, max, ".%s", s);
-#endif
 
     /* Success */
     return (0);
@@ -3380,6 +3376,7 @@ typedef struct
 special_menu_naiyou special_menu_info[] =
 {
     {"MindCraft/Special", 0, 0, MENU_CLASS, CLASS_MINDCRAFTER},
+	{ "Imitation/Special", 0, 0, MENU_CLASS, CLASS_IMITATOR },
     {"Song/Special", 0, 0, MENU_CLASS, CLASS_BARD},
     {"Technique/Special", 0, 0, MENU_CLASS, CLASS_SAMURAI},
     {"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_FORCETRAINER},

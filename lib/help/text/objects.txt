@@ -84,7 +84,7 @@ rich indeed!
 So shopping is the first place you will find new stuff. But you are on 
 a quest, after all, and it is time to begin your adventures. And it is 
 in the various dungeons of the world that the best treasures can be 
-found (Where do you think the Black Market gets all its stuff, after 
+found (where do you think the Black Market gets all its stuff, after 
 all?). If you are lucky, or stealthy, you can find quite a few objects 
 just laying on the ground in the various dungeon levels you explore. 
 How did they get there? Perhaps they were dropped by other adventurers 
@@ -92,8 +92,8 @@ who no longer found them useful? Or perhaps, noticing the various
 skeletons lying about, you realize they once belonged to other 
 adventurers like yourself? At any rate, there are not that many objects 
 just laying about anyways, and truly good objects won't be left lying 
-around for long. For, players are not the only creatures with a lust 
-for treasure, and monsters too, have a taste for gold.
+around for long. For players are not the only creatures with a lust for 
+treasure; monsters, too, have a taste for gold.
 
 Many monsters you meet will be carrying one or more items about their 
 person which you may retrieve from their corpse should you be skillful 
@@ -115,13 +115,13 @@ well guarded, both with traps and with monsters. The better the
 treasure, the more difficult it will be for you to defeat the guardian 
 monsters, and many a brave adventurer learned too late that bravery, if 
 foolish, can be deadly as well. (Of course, vaults can be burgled as 
-well, as any hobbit can tell you).
+well, as any hobbit can tell you...)
 
 OK, I Found Something. What Does It Do?
 
 When you find an object, you won't know much about it. For example, you 
-might find a "long sword (2d5)" (see the section on weapons below for 
-an explanation of the 2d5). Here, you know the type of object, that it 
+might find a "long sword (2d6)" (see the section on weapons below for 
+an explanation of the 2d6). Here, you know the type of object, that it 
 is a weapon, and that tells you that you can wield it, if so inclined. 
 And since you've seen long swords before (they are quite common), you 
 know roughly how deadly the average long sword is. But, is this one any 
@@ -185,7 +185,7 @@ Of course, if you make a mistake with this method and sell something
 truly useful, you'll need to buy the item back. Make sure you have some 
 gold!
 
-Object Knowledge and Object Quality are related concepts (You gain 
+Object Knowledge and Object Quality are related concepts (you gain 
 kowledge about an object's quality). We've been discussing knowledge, 
 so now it is time to turn our attention to quality.
 
@@ -204,33 +204,33 @@ the following:
 
    Item Description                                         Weight      Price
    ...
-c) | a Cutlass (1d7) (+0,+0)                                  11.0        228  
-d) | a Tulwar (2d4) (+0,+0)                                   10.0        250  
-e) | a Broad Sword (2d5) (+0,+0)                              15.0        351  
-f) | a Scimitar (2d5) (+0,+0)                                 13.0        330  
-g) | a Katana (3d4) (+0,+0)                                   12.0        427  
-h) | a Bastard Sword (3d4) (+0,+0)                            14.0        448  
-i) / a Spear (1d6) (+0,+0)                                     5.0        154  
-j) / a Beaked Axe (2d6) (+0,+0)                               12.0        386  
-k) / a Lucerne Hammer (2d5) (+0,+0)                           12.0        320  
-l) / a Glaive (2d6) (+0,+0)                                   19.0        461  
+c) | a Cutlass (1d9) (+0,+0)                                  11.0        228  
+d) | a Tulwar (2d5) (+0,+0)                                   10.0        250  
+e) | a Broad Sword (2d6) (+0,+0)                              15.0        351  
+f) | a Scimitar (2d6) (+0,+0)                                 13.0        330  
+g) | a Katana (3d5) (+0,+0)                                   12.0        427  
+h) | a Bastard Sword (3d5) (+0,+0)                            14.0        448  
+i) / a Spear (1d8) (+0,+0)                                     5.0        154  
+j) / a Beaked Axe (2d7) (+0,+0)                               12.0        386  
+k) / a Lucerne Hammer (2d6) (+0,+0)                           12.0        320  
+l) / a Glaive (2d7) (+0,+0)                                   19.0        461  
 m) } 3 Slings (x2) (+0,+0)                                     0.5         34
-n) } a Short Bow (x3) (+3,+6)                                  3.0       1540  
-o) } 3 Short Bows (x3) (+0,+0)                                 3.0         76
-p) } 3 Light Crossbows (x4) (+0,+0)                           11.0        305  
+n) } a Short Bow (x2.50) (+3,+6)                               3.0       1540  
+o) } 3 Short Bows (x2.50) (+0,+0)                              3.0         76
+p) } 3 Light Crossbows (x3.50) (+0,+0)                        11.0        305  
 q) { 3 Rounded Pebbles (1d2) (+5,+6) {90% off}                 0.4          8
 r) { 49 Rounded Pebbles (1d2) (+0,+0)                          0.4          1
 
 Here, we see a bunch of different types of weapons, each of which is 
-fully *Identified* (Objects in the town shops are always automatically 
+fully *Identified* (objects in the town shops are always automatically 
 *Identified*). But, they don't look very impressive! First of all, you 
 can notice that each type of weapon has different damage dice, which 
-means nothing more than that, for example, a 3d4 Bastard Sword is more 
-deadly than a 1d7 Cutlass, since 3d4 (which means roll three four-sided 
-dice) will give an average of 7.5 damage per strike, while 1d7 (which 
-means roll a single seven-sided die, if such a thing could be 
-imagined!) gives an average of 4 damage per strike. Each class of 
-weapon has its own damage dice.
+means nothing more than that, for example, a 3d5 Bastard Sword is more 
+deadly than a 1d9 Cutlass, since 3d5 (which means roll three five-sided 
+dice) will give an average of 9 damage per strike, while 1d9 (which 
+means roll a single nine-sided die, if such a thing could be imagined!) 
+gives an average of 5 damage per strike. Each class of weapon has its 
+own damage dice.
 
 Next, you may notice that (+0,+0) is repeated over and over again. 
 That's because all of these objects are average. Hey, the Weapon Smith 
@@ -245,14 +245,14 @@ dice, should you actually land a blow with that weapon.
 Objects can be magically enhanced, at which point they become good 
 objects. This means nothing more than that (+0,+0) becomes something 
 non-zero, giving you bonuses either to hit, or to damage, or both. For 
-example, you might have noticed that Short Bow (x3) (+3,+6). The (x3) 
-is part of every average bow, and is called the damage multiplier. 
-We'll discuss its meaning later when we discuss archery. But bows too 
-have combat bonuses just like melee weapons, and they mean the same 
-thing. Here, the bow gives +3 to hit (making you more skilled with 
-archery), and +6 to damage (making you more deadly as well). That would 
-be a nice starting bow to have, but, alas, it costs 1540 gp which is 
-more than I have.
+example, you might have noticed that Short Bow (x2.50) (+3,+6). The 
+(x2.50) is part of every average bow, and is called the damage 
+multiplier. We'll discuss its meaning later when we discuss archery. 
+But bows too have combat bonuses just like melee weapons, and they mean 
+the same thing. Here, the bow gives +3 to hit (making you more skilled 
+with archery), and +6 to damage (making you more deadly as well). That 
+would be a nice starting bow to have, but, alas, it costs 1540 gp which 
+is more than I have.
 
 So, we've discussed average and good objects. What about excellent 
 objects? And special objects? Excellent objects are called ego items, a 
@@ -262,9 +262,9 @@ class. For example, I'll break my normal rules about spoilers, and say
 that there exists an ego class of weapons of Slay Orc. They aren't 
 particularly good ego items, so I haven't completely ruined the game by 
 mentioning them (I hope). They are simply more deadly against orcs. For 
-example, our 3d4 Bastard Sword, were it a weapon of slay orc, would do 
+example, our 3d5 Bastard Sword, were it a weapon of slay orc, would do 
 three times as much damage from the base damage roll against orcs. In 
-other words, roll a four-sided die three times, add up the result, and 
+other words, roll a five-sided die three times, add up the result, and 
 multiply by three if the monster is an orc. Then add in the bonus to 
 damage. This illustrates that ego weapons often give targetted slays 
 that make the weapon more deadly against a certain class of monsters. 
@@ -335,17 +335,17 @@ one game, you'd know it for all time, and where would the fun be in
 that?
 
 Currently, the only flavored objects are mushrooms, potions and scrolls 
-(We used to have more, including rings, amulets, wands, rods and 
-staves, but I've waged a sort of mini-crusade against flavors for a 
-number of reasons which I won't discuss). Each instance of a flavor is 
-exactly like every other instance of the flavor, and typically, you 
-only need Identify to learn the flavor (though you can also try to use 
-the object to learn what it is ... This can be risky!). You won't find 
-good or excellent or special objects here. Each instance of a flavor is 
-exactly like every other instance. The early game is heavily dominated 
-by learning many, many different flavors of marginally useful or even 
-downright useless objects. This is one reason for junk management tools 
-like The Mogaminator.
+(we used to have more, including rings, amulets, wands, rods and 
+staves, but Chris waged a sort of mini-crusade against flavors). Each 
+instance of a flavor is exactly like every other instance of the 
+flavor, and typically, you only need Identify to learn the flavor 
+(though you can also try to use the object to learn what it is... if 
+you feel particularly brave!) You won't find good or excellent or 
+special objects here. Each instance of a flavor is exactly like every 
+other instance. The early game is heavily dominated by learning many, 
+many different flavors of marginally useful or even downright useless 
+objects. This is one reason for junk management tools like The 
+Mogaminator.
 
 Jewelry
 
@@ -361,13 +361,6 @@ each piece of jewelry is almost entirely random, generated with one or
 more attributes from the allowed set. This means the quality of the 
 item is highly variable, and generally increases the deeper you 
 descend.
-
-Another difference with jewelry is that you won't find random 
-artifacts. Instead, there are a small number of fixed standard 
-artifacts available. However, the various ego types can become 
-amazingly powerful so you don't really need artifacts here. And given 
-the themed nature of the egos, they are really behaving like 
-mini-rand-arts anyway.
 
 Object Lore
 
@@ -468,14 +461,10 @@ savefile for each game you play.
 
 Devices
 
-Magical devices include wands, staves and rods. I highly recommend you 
-head on over to the Magic Store and examine a few to get a feel for how 
-devices work, as this area of the game has been extensively modified 
-for the current release (4.0).
-
-Since these are available in town, I'll talk you through one example in 
-detail without much of a guilty conscience over spoilers. For example, 
-I examined the following wand:
+Magical devices include wands, staves and rods. Since these are 
+available in town, I'll talk you through one example in detail without 
+much of a guilty conscience over spoilers. For example, I examined the 
+following wand:
 
 a Wand: Stinking Cloud
   This device has the following magical strength:
@@ -530,7 +519,7 @@ the device is to use. Only the truly magical will be able to master the
 most powerful devices.
 
 We had previously been discussing object quality (egos and such), so it 
-is worth mentioning that excellent devices do exist (And who knows? 
+is worth mentioning that excellent devices do exist (and who knows? 
 Perhaps even special ones as well by the time you are reading this!). 
 I'm not sure about cursed devices, though. None of my spies have 
 reported back to me on this matter, which is a little bit puzzling 
@@ -545,7 +534,7 @@ with regard to spellbooks! See [d] for more on the magic system.
 
 Object Inscriptions
 
-This is an advanced topic which may want to skip for now. However, 
+This is an advanced topic which you may want to skip for now. However, 
 inscriptions are very powerful and useful, so you should come back to 
 this topic eventually.
 
@@ -554,15 +543,17 @@ individual objects. The game uses inscriptions on an object to
 communicate information to you, and you can use inscriptions to either 
 communicate back to the game (more on this in a minute), or to simply 
 take notes about an object for your own future reference. For example, 
-some players like to document where they found a given object, or who 
-dropped it. You are free to type any information you like inside an 
+some players like to copy interesting objects' discovery details to 
+inscriptions. You are free to type any information you like inside an 
 object inscription.
 
 To add an inscription, use the { command, then type whatever you like. 
-If you later decide to remove that inscription, use the }. Note that 
+If you later decide to remove that inscription, use }. Note that 
 inscriptions are displayed to you inside curly braces as {my 
 inscription}, so the inscription commands themselves should be easy to 
-remember.
+remember. The Z key is functionally identical with {, and can be used 
+as a convenient substitute if { is hard to access on your system or 
+keyboard.
 
 Adding your own inscription on an object can override some of the fake 
 inscriptions added by the game to communicate information to you, such 
@@ -577,7 +568,7 @@ to say about this object.
   pseudo-id as an ability to discover the general quality of an object. 
   This information is displayed to the player in the object's 
   inscription. For example, you might get a message like "You have a 
-  Long Sword (5d5) {special}" where the inscription is displayed 
+  Long Sword (5d6) {special}" where the inscription is displayed 
   between curly braces, and gives the pseudo-identification of this 
   object as being an artifact. We say these inscriptions are "fake" 
   because they are automatically added by the game and not typed in by 
@@ -589,7 +580,7 @@ to say about this object.
                    once the player identifies the object.
   Discount         If an item is purchased at a discount, this fake 
                    inscription displays that discount. If you find this 
-                   annoying (as I do), you can turn it off with the [e] 
+                   annoying, you can turn it off with the [e] 
                    show_discounts option.
   Abbreviations    If you enable the [f] abbrev_all or [g] abbrev_extra 
                    options, or if you inscribe {%all} or {%} 
@@ -604,10 +595,10 @@ to say about this object.
   
   Player inscriptions are those you type in yourself, using the { 
   command to inscribe an object. These inscriptions can be any text you 
-  like, perhaps just a note to yourself to remind you where you found a 
-  given object. Alternatively, you may type in one of several useful 
-  forms to communicate your preferences to the game. Let's call these 
-  useful inscriptions.
+  like, perhaps just a note to yourself "this potion is probably Speed" 
+  before you have officially identified it. Alternatively, you may type 
+  in one of several useful forms to communicate your preferences to the 
+  game. Let's call these useful inscriptions.
   
   By far, the most useful use of the useful inscriptions (sorry :) is 
   to control object selection when entering a given command. For 
@@ -654,18 +645,17 @@ to say about this object.
   
   (Inven: a-c,'(',')', ESC) Use which book?
    b) ? a Chaos Spellbook [Chaos Mastery] {Master of @mb Chaos}
-    ) ? a Sorcery Spellbook [Beginner's Handbook]
+   a) ? a Sorcery Spellbook [Beginner's Handbook]
    c) ? a Sorcery Spellbook [Master Sorcerer's Handbook]
   
-  See? It worked! Well, not quite, since I have another spellbook in my 
-  inventory that is currently occupying the b) slot: my [Beginner's 
-  Handbook]. And now, it looks like I cannot use that book at all! This 
-  illustrates an important principle with regard to spellbooks: If you 
-  use inscriptions for one spellbook, you should use them for all 
-  spellbooks. Most players use @ma through @md for their first realm of 
-  magic (each realm has four spellbooks) and @me through @mh for their 
-  second realm. Other players use @m1 through @m8 instead. Let's follow 
-  the first of these guidelines:
+  See? It worked! Well, not quite, since my copy of [Beginner's 
+  Handbook] has unexpectedly moved to the a) slot, which will likely 
+  also throw me off! This illustrates an important principle with 
+  regard to spellbooks: If you use inscriptions for one spellbook, you 
+  should use them for all spellbooks. Most players use @ma through @md 
+  for their first realm of magic (each realm has four spellbooks) and 
+  @me through @mh for their second realm. Other players use @m1 through 
+  @m8 instead. Let's follow the first of these guidelines:
   
   (Inven: a-c,'(',')', ESC) Use which book?
    b) ? a Chaos Spellbook [Chaos Mastery] {Master of @mb Chaos}
@@ -742,32 +732,43 @@ to say about this object.
   
   Inscription  Meaning
       !!       Disturb the player when the inscribed object (typically 
-               a magical device), is fully recharged. This means you 
-               can issue a long rest command like R777\r to rest for 
-               777 turns, and the game will interrupt your dozing once 
-               your device is ready for use again (unless it still 
-               hasn't finished recharging, which is a real possibility 
-               I guess).
+               a magical device, but this also works for equipment 
+               activations) is fully recharged. This means you can 
+               issue a long rest command like R777\r to rest for 777 
+               turns, and the game will interrupt your dozing once your 
+               device is ready for use again (unless it still hasn't 
+               finished recharging, which is a real possibility I 
+               guess).
+      !1       Disturb the player when the inscribed device has 
+               recharged enough to have 1 charge again.
       =g       Automatically pick this object up. Use this on your 
                arrows and such, and you can quickly regather discharged 
                ammunition after a lengthy shooting battle.
       .        Suppress the prompt for random teleportation on objects 
                with this attribute.
-      $        Suppress the warning prompt for items than warn you 
+      $        Suppress the warning prompt for items that warn you 
                before taking dangerous actions. Of course, this defeats 
                the warning altogether, but sometimes you are confident 
-               enough in your own decision making to forgo this second 
+               enough in your own decision-making to forgo this second 
                guessing by pretentious jewelry you might be wearing.
+      !?       Request confirmation of melee attacks, a handy 
+               inscription if you are so weak in physical combat that 
+               any melee you might engage in would likely be 
+               accidental. The inscription can be combined with a 
+               monster level, e.g. !?40, to only request confirmation 
+               for attacks against monsters of (in this example) level 
+               40 or above.
      %all      Automatically add a fake inscription revealing all of 
-               this objects known resistances, bonuses, abilities and 
-               slays. If you like this, don't use the inscription 
-               approach, but simply enable the [i] abbrev_all option.
+               this object's known resistances, bonuses, abilities and 
+               slays. (If you like this, don't use the inscription 
+               approach, but simply enable the [i] abbrev_all option.)
       %        Automatically add a fake inscription revealing all of 
-               this objects extra known resistances, bonuses, abilities 
-               and slays. If you like this, don't use the inscription 
-               approach, but simply enable the [j] abbrev_extra option.
+               this object's extra known resistances, bonuses, 
+               abilities and slays. (If you like this, don't use the 
+               inscription approach, but simply enable the [j] 
+               abbrev_extra option.)
   
-  Finally, there is also an special inscription form ^Command-Letter. 
+  Finally, there is also a special inscription form ^Command-Letter. 
   Adding this form to a worn piece of equipment causes the game to 
   prompt for verification every time you attempt the indicated command, 
   even if the command is one not involving the object in question. This 
@@ -821,18 +822,19 @@ Equipment
 The number and kinds of equipment you may wear will depend on your 
 racial body type. The usual body type is humanoid:
 
- a) | Right Hand: a Dagger (1d4) (+0,+0)
+ a) | Right Hand: a Dagger (1d5) (+0,+0)
  b) ) Left Hand : a Small Leather Shield [3,+0]
- c) } Shooting  : a Short Bow (x3) (+3,+6)
- d) = Right Ring: a Ring of Combat (+5,+0) {Fe A:Earthquake}
- e) = Left Ring : a Ring of Protection [+1] {Wr~L(Wi}
- f) " Neck      : an Amulet
- g) ~ Light     : a Wooden Torch (with 1999 turns of light)
- h) ( Body      : Soft Leather Armour [4,+0]
- i) ( Cloak     : a Cloak [1,+3]
- j) ] Head      : an Iron Helm [5,+5]
- k) ] Hands     : a Set of Leather Gloves [1,+5]
- l) ] Feet      : a Pair of Soft Leather Boots [2,+3]
+ c) } Shooting  : a Short Bow (x2.50) (+3,+6)
+ d) ~ Quiver    : a Quiver [0 of 80]
+ e) = Right Ring: a Ring of Combat (+5,+0) {Fe A:Earthquake}
+ f) = Left Ring : a Ring of Protection [+1] {Wr~L(Wi}
+ g) " Neck      : an Amulet
+ h) ~ Light     : a Wooden Torch (with 1999 turns of light)
+ i) ( Body      : Soft Leather Armour [4,+0]
+ j) ( Cloak     : a Cloak [1,+3]
+ k) ] Head      : an Iron Helm [5,+5]
+ l) ] Hands     : a Set of Leather Gloves [1,+5]
+ m) ] Feet      : a Pair of Soft Leather Boots [2,+3]
 
 If you are playing in Monster mode, then your body type may be 
 different. For example, a spider has the following body type:
@@ -876,7 +878,7 @@ automatic sensing is always strong regardless of class. So pseudo-id is
 really only relevant in the early to mid-game.
 
 Pseudo-id communicates the quality of an object via a fake inscription 
-on that object. For example, you might have a Long Sword (2d5) 
+on that object. For example, you might have a Long Sword (2d6) 
 {excellent} or Hard Studded Leather [7] {terrible}. The meaning of 
 these adjectives depends on whether the sensing is strong or weak, and 
 is given in the following two tables.
@@ -927,26 +929,28 @@ Inscriptions: List of Abbreviations
   *Fi: immune to fire                 Fe : resistance to fear
   *Co: immune to cold
 
-  Es : easy spell                     (F : fiery sheath
-  Dm : decreases mana consumption     (E : electric sheath
-  Th : suitable for throwing          (C : cold sheath
-  Rf : reflection                     (Sh: aura of shards
-  Fa : free action                    (At: aura of retaliation
-  Si : see invisible                  (M : anti-magic shell
-  Hl : hold life                      (T : prevent teleportation
-  Sd : slow digestion                 (Mr: magic resistance
-  Rg : regeneration                   |A : brand acid
-  Lv : levitation                     |E : brand electricity
-  Lu : extra light                    |F : brand fire
-  Wr : provides warning               |Co: brand cold
-  Xm : xtra might when shooting       |P : brand pois
-  Xs : xtra number of shots           |Ca: chaotic effects
+  Es : easy spell                     [F : fiery sheath
+  Dm : decreases mana consumption     [E : electric sheath
+  Th : suitable for throwing          [C : cold sheath
+  Rf : reflection                     [Sh: aura of shards
+  Fa : free action                    [At: aura of retaliation
+  Si : see invisible                  [M : anti-magic shell
+  Hl : hold life                      [T : prevents teleportation
+  Sd : slow digestion                 [Mr: magic resistance
+  Id : loremastery (auto-identify)    [Sm: anti-summoning shell
+  Rg : regeneration                   |A : acid brand
+  Lv : levitation                     |E : electricity brand
+  Lu : extra light                    |F : fire brand
+  Wr : provides warning               |Co: cold brand
+  Xm : xtra might when shooting       |P : poison brand
+  Xs : xtra number of shots           |Dk: darkness brand
   Te : random teleportaion            |V : vampiric weapon
   Ag : aggravate monsters             |Q : impact weapon
-  Bs : blessed weapon                 |S : sharp weapon
-  Ty : ancient-foul curse             |M : mana branded
-  Ds : darkness
-  Wm : weaponmastery
+  Bs : blessed                        |S : sharp weapon
+  Ty : ancient foul curse             |SS: really sharp weapon
+  Ds : darkness                       |M : mana brand
+  Nv : night vision                   |Ca: mark of chaos
+  Wm : weaponmastery (extra dice)     |St: hits to stun
 
   /* : slay evil                      /X* : *slay* evil
   /p : slay human                     /Xp : *slay* human
@@ -964,8 +968,9 @@ Inscriptions: List of Abbreviations
   ~Evil : ESP evil                    (In : sustain intelligence
   ~Good : ESP good                    (Wi : sustain wisdom
   ~Nolv : ESP non-living              (Dx : sustain dexterity
-  ~p : ESP human                      (Cn : sustain constitution
-  ~D : ESP dragon                     (Ch : sustain charisma
+  ~Lvng : ESP living                  (Cn : sustain constitution
+  ~p : ESP human                      (Cn : sustain charisma
+  ~D : ESP dragon
   ~o : ESP orc
   ~T : ESP troll
   ~P : ESP giant
@@ -1001,9 +1006,13 @@ Inscription Form     Meaning
 !!                   Disturb the player whenever the inscribed object 
                      is fully recharged.
 
+!1                   Disturb the player whenever the inscribed object 
+                     has recharged enough to have 1 charge.
+
 =g                   Automatically pickup the inscribed object.
 .                    Disable prompt for random teleportation.
 $                    Disable warning prompt.
+!?                   Request confirmation for melee attacks.
 
 %all                 Automatically list all of the inscribed object's 
                      resistances, bonuses, abilities and slays in its 
@@ -1025,5 +1034,6 @@ Updated    : (??)
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.3.0
 Updated    : PosChengband 4.0.0
+Updated    : FrogComposband 7.1.chocolate
 
 

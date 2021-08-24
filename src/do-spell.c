@@ -5298,7 +5298,7 @@ static cptr do_arcane_spell(int spell, int mode)
 }
 
 static bool _can_enchant(obj_ptr obj) {
-    if (object_is_(obj, TV_SWORD, SV_POISON_NEEDLE)) return FALSE;
+    if (object_is_(obj, TV_DAGGER, SV_POISON_NEEDLE)) return FALSE;
     return object_is_weapon_armour_ammo(obj);
 }
 bool craft_enchant(int max, int inc)
@@ -5335,13 +5335,6 @@ bool craft_enchant(int max, int inc)
         {
             prompt.obj->to_h = MIN(max, prompt.obj->to_h + inc);
             if (prompt.obj->to_h >= 0)
-                break_curse(prompt.obj);
-            improved = TRUE;
-        }
-        if (prompt.obj->to_d < max)
-        {
-            prompt.obj->to_d = MIN(max, prompt.obj->to_d + inc);
-            if (prompt.obj->to_d >= 0)
                 break_curse(prompt.obj);
             improved = TRUE;
         }
@@ -8005,6 +7998,9 @@ static bool item_tester_hook_weapon_except_bow(object_type *o_ptr)
         case TV_SWORD:
         case TV_HAFTED:
         case TV_POLEARM:
+        case TV_DAGGER:
+        case TV_AXE:
+        case TV_STAVES:
         case TV_DIGGING:
         {
             return (TRUE);
@@ -8126,11 +8122,6 @@ static cptr do_hex_spell(int spell, int mode)
                 msg_format("%s resists the effect.", o_name);
                 if (one_in_(3))
                 {
-                    if (prompt.obj->to_d > 0)
-                    {
-                        prompt.obj->to_d -= randint1(3) % 2;
-                        if (prompt.obj->to_d < 0) prompt.obj->to_d = 0;
-                    }
                     if (prompt.obj->to_h > 0)
                     {
                         prompt.obj->to_h -= randint1(3) % 2;
@@ -8423,11 +8414,6 @@ static cptr do_hex_spell(int spell, int mode)
                 msg_format("%s resists the effect.", o_name);
                 if (one_in_(3))
                 {
-                    if (prompt.obj->to_d > 0)
-                    {
-                        prompt.obj->to_d -= randint1(3) % 2;
-                        if (prompt.obj->to_d < 0) prompt.obj->to_d = 0;
-                    }
                     if (prompt.obj->to_h > 0)
                     {
                         prompt.obj->to_h -= randint1(3) % 2;
@@ -8574,14 +8560,8 @@ static cptr do_hex_spell(int spell, int mode)
             {
                 if (p_ptr->stat_cur[i] < p_ptr->stat_max[i])
                 {
-                    if (p_ptr->stat_cur[i] < 18)
-                        p_ptr->stat_cur[i]++;
-                    else
-                        p_ptr->stat_cur[i] += 10;
-
-                    if (p_ptr->stat_cur[i] > p_ptr->stat_max[i])
-                        p_ptr->stat_cur[i] = p_ptr->stat_max[i];
-
+                    p_ptr->stat_cur[i]++;
+                    
                     /* Recalculate bonuses */
                     p_ptr->update |= (PU_BONUS);
 

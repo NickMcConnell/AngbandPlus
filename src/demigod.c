@@ -268,6 +268,18 @@ static void _ares_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SUST_STR);
 }
+static void _ares_birth(void)
+{
+    py_birth_food();
+    py_birth_light();
+
+    for (int i = PROF_DIGGER; i <= PROF_SLING; i++)
+    {
+        p_ptr->proficiency[i] = WEAPON_EXP_BEGINNER;
+        if (p_ptr->proficiency_cap[i] < WEAPON_EXP_SKILLED)
+            p_ptr->proficiency_cap[i] = WEAPON_EXP_SKILLED;
+    }
+}
 
 /****************************************************************
  * Artemis
@@ -288,6 +300,13 @@ static void _artemis_birth(void)
     py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(15, 20));
     py_birth_food();
     py_birth_light();
+
+    for (int i = PROF_BOW; i <= PROF_SLING; i++)
+    {
+        p_ptr->proficiency[i] = WEAPON_EXP_BEGINNER;
+        if (p_ptr->proficiency_cap[i] < WEAPON_EXP_SKILLED)
+            p_ptr->proficiency_cap[i] = WEAPON_EXP_SKILLED;
+    }
 }
 
 /****************************************************************
@@ -400,7 +419,10 @@ static void _hermes_get_flags(u32b flgs[OF_ARRAY_SIZE])
 static void _poseidon_birth(void)
 {
     py_birth_obj_aux(TV_POLEARM, SV_TRIDENT, 1);
-    skills_weapon_init(TV_POLEARM, SV_TRIDENT, WEAPON_EXP_BEGINNER);
+    p_ptr->proficiency[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_MASTER;
+
+
     py_birth_food();
     py_birth_light();
 }

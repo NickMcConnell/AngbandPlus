@@ -72,7 +72,7 @@ static void _load(savefile_ptr file)
             _effects[j] += n;
     }
     ini_statup_list();
-    if (!savefile_is_older_than(file, 7,1,0,1)) dungeon_statup_load(file);
+    dungeon_statup_load(file);
 }
 
 static void _save(savefile_ptr file)

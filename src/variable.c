@@ -57,7 +57,7 @@ byte sf_extra;        /* Savefile's encoding key */
 
 byte z_major;           /* Savefile version for Hengband */
 byte z_minor;
-char z_patch[16];
+byte z_patch;
 
 /*
  * Savefile information
@@ -94,7 +94,6 @@ bool creating_savefile;        /* New savefile is currently created */
 
 u32b seed_flavor;        /* Hack -- consistent object colors */
 u32b seed_town;            /* Hack -- consistent town layout */
-u32b chaotic_py_seed;    /* Seed for chaotic personality's random stats */
 
 s16b command_cmd;        /* Current "Angband Command" */
 
@@ -320,10 +319,7 @@ bool alert_poison;   /* Alert on high poisoning */
 
 bool coffee_break;   /* Coffee-break mode */
 bool easy_id;        /* Easy Identify */
-bool easy_lore;      /* Easy Monster Lore */
-bool empty_lore;     /* Always start with empty item lore */
 bool easy_damage;    /* Access wizard info about damage and monster health */
-bool allow_spoilers;
 bool power_tele;     /* Use old-style, non-fuzzy telepathy */
 bool smart_learn;    /* Monsters learn from their mistakes (*) */
 bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
@@ -332,10 +328,6 @@ bool ironman_shops;    /* Stores are permanently closed (*) */
 bool ironman_downward;    /* Disable recall and use of up stairs (*) */
 bool ironman_empty_levels;    /* Always create empty 'arena' levels (*) */
 bool ironman_nightmare;    /* Nightmare mode(it isn't even remotely fair!)(*) */
-bool preserve_mode;    /* Preserve artifacts (*) */
-bool allow_friendly_monster; /* Allow monsters friendly to player */
-bool allow_hostile_monster; /* Allow monsters hostile to each other */
-bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
 bool quest_unique; /* Random quests for unique monsters only */
 bool random_artifacts;
 byte random_artifact_pct = 100;
@@ -347,7 +339,7 @@ bool no_selling;
 bool enable_virtues;
 bool easy_thalos;
 bool never_forget;
-bool no_chris;
+bool no_nexus_warp;
 bool no_scrambling;
 bool comp_mode;
 bool reduce_uniques;

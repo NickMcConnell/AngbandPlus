@@ -155,12 +155,20 @@ void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
     case CLASS_NECROMANCER:
     case CLASS_BLOOD_MAGE:
     case CLASS_HIGH_MAGE:
+	case CLASS_BLUE_MAGE:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
+	case CLASS_CHAOS_MAGE:
         info_ptr->blows_calc.max = 400;
         info_ptr->blows_calc.wgt = 100;
         info_ptr->blows_calc.mult = 20;
         break;
+
+	case CLASS_IMITATOR:
+		info_ptr->blows_calc.max = 550;
+		info_ptr->blows_calc.wgt =  70;
+		info_ptr->blows_calc.mult = 40;
+		break;
 
     case CLASS_WARLOCK:
         info_ptr->blows_calc.max = 400;
@@ -263,6 +271,7 @@ void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
 
     case CLASS_WARRIOR_MAGE:
     case CLASS_RED_MAGE:
+	case CLASS_HEXBLADE:
         info_ptr->blows_calc.max = 525; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 30; break;
 
     case CLASS_CHAOS_WARRIOR:
@@ -421,29 +430,29 @@ static _range_t _blows_range[] =
     { 110, 300}       /* 15 */,
     { 120, 350}       /* 16 */,
     { 130, 400}       /* 17 */,
-    { 140, 450}       /* 18/00-18/09 */,
-    { 150, 460}       /* 18/10-18/19 */,
-    { 160, 470}       /* 18/20-18/29 */,
-    { 170, 480}       /* 18/30-18/39 */,
-    { 180, 490}       /* 18/40-18/49 */,
-    { 190, 500}       /* 18/50-18/59 */,
-    { 200, 520}       /* 18/60-18/69 */,
-    { 210, 540}       /* 18/70-18/79 */,
-    { 220, 560}       /* 18/80-18/89 */,
-    { 230, 580}       /* 18/90-18/99 */,
-    { 240, 600}       /* 18/100-18/109 */,
-    { 250, 610}       /* 18/110-18/119 */,
-    { 260, 620}       /* 18/120-18/129 */,
-    { 280, 630}       /* 18/130-18/139 */,
-    { 300, 640}       /* 18/140-18/149 */,
-    { 320, 650}       /* 18/150-18/159 */,
-    { 340, 660}       /* 18/160-18/169 */,
-    { 350, 670}       /* 18/170-18/179 */,
-    { 360, 680}       /* 18/180-18/189 */,
-    { 370, 690}       /* 18/190-18/199 */,
-    { 380, 700}       /* 18/200-18/209 */,
-    { 390, 725}       /* 18/210-18/219 */,
-    { 400, 750}       /* 18/220+ */
+    { 140, 450}       /* 18 */,
+    { 150, 460}       /* 19 */,
+    { 160, 470}       /* 20 */,
+    { 170, 480}       /* 21 */,
+    { 180, 490}       /* 22 */,
+    { 190, 500}       /* 23 */,
+    { 200, 520}       /* 24 */,
+    { 210, 540}       /* 25 */,
+    { 220, 560}       /* 26 */,
+    { 230, 580}       /* 27 */,
+    { 240, 600}       /* 28 */,
+    { 250, 610}       /* 29 */,
+    { 260, 620}       /* 30 */,
+    { 280, 630}       /* 31 */,
+    { 300, 640}       /* 32 */,
+    { 320, 650}       /* 33 */,
+    { 340, 660}       /* 34 */,
+    { 350, 670}       /* 35 */,
+    { 360, 680}       /* 36 */,
+    { 370, 690}       /* 37 */,
+    { 380, 700}       /* 38 */,
+    { 390, 725}       /* 39 */,
+    { 400, 750}       /* 40+ */
 };
 
 int calculate_base_blows(int hand, int str_idx, int dex_idx)
@@ -605,7 +614,7 @@ void display_weapon_info(doc_ptr doc, int hand)
     ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
     if (object_is_known(o_ptr))
     {
-        to_d = o_ptr->to_d;
+        to_d = o_ptr->to_h;
         to_h = o_ptr->to_h;
     }
 
@@ -658,7 +667,7 @@ void display_weapon_info(doc_ptr doc, int hand)
             to_h = o_ptr->to_a;
             to_d = o_ptr->to_a;
             to_h += 2*o_ptr->to_h;
-            to_d += 2*o_ptr->to_d;
+            to_d += 2*o_ptr->to_h;
         }
     }
 
@@ -713,7 +722,7 @@ void display_weapon_info(doc_ptr doc, int hand)
 
     doc_printf(cols[0], " %-7.7s: %d.%d lbs\n", "Weight", o_ptr->weight/10, o_ptr->weight%10);
 
-    if (object_is_(o_ptr, TV_SWORD, SV_POISON_NEEDLE)) /* special case */
+    if (object_is_(o_ptr, TV_DAGGER, SV_POISON_NEEDLE)) /* special case */
     {
         doc_insert(cols[0], " Blows  : 1.00\n");
         doc_insert(cols[0], " Damage : 1\n");
@@ -725,21 +734,23 @@ void display_weapon_info(doc_ptr doc, int hand)
         return;
     }
 
+    int proficiency = tsvals_to_proficiency(o_ptr->tval, o_ptr->sval);
+
     if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
     {
         assert(o_ptr->tval == TV_SHIELD);
         doc_printf(cols[0], " %-7.7s: %dd%d (%+d,%+d)\n", "Bash", dd, ds, to_h, to_d);
         doc_printf(cols[0], " %-7.7s: %s (%+d To Hit)\n",
                     "Profic",
-                    skills_shield_describe_current(o_ptr->sval),
-                    skills_shield_calc_bonus(o_ptr->sval));
+            skills_weapon_describe_current(proficiency),
+            skills_weapon_calc_bonus(proficiency));
     }
     else
     {
         doc_printf(cols[0], " %-7.7s: %s (%+d To Hit)\n",
                     "Profic",
-                    skills_weapon_describe_current(o_ptr->tval, o_ptr->sval),
-                    skills_weapon_calc_bonus(o_ptr->tval, o_ptr->sval));
+                    skills_weapon_describe_current(proficiency),
+                    skills_weapon_calc_bonus(proficiency));
     }
     doc_printf(cols[0], " %-7.7s: %d + %d = %d\n", "To Hit", to_h, p_ptr->weapon_info[hand].to_h, to_h + p_ptr->weapon_info[hand].to_h);
     doc_printf(cols[0], " %-7.7s: %d + %d = %d\n", "To Dam", to_d, p_ptr->weapon_info[hand].to_d, to_d + p_ptr->weapon_info[hand].to_d);
@@ -1213,14 +1224,13 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
     if (object_is_known(bow))
     {
         to_h_bow = bow->to_h;
-        to_d_bow = bow->to_d;
+        to_d_bow = bow->to_h;
     }
     to_h_bow += skills_bow_calc_bonus(bow->sval);
 
     if (object_is_known(arrow))
     {
-        to_h = arrow->to_h;
-        to_d = arrow->to_d;
+        to_h = to_d = arrow->to_h;
     }
 
     if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS) && p_ptr->lev >= 15)
@@ -1437,8 +1447,7 @@ void display_shooter_info(doc_ptr doc)
 
     if (object_is_known(bow_ptr))
     {
-        to_h = bow_ptr->to_h;
-        to_d = bow_ptr->to_d;
+        to_d = to_h = bow_ptr->to_h;
     }
     to_h += skills_bow_calc_bonus(bow_ptr->sval);
 

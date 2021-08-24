@@ -232,7 +232,8 @@ bool _init_context(py_throw_ptr context)
     if (player_is_ninja)
     {
         if ( context->obj->tval == TV_SPIKE
-          || (context->obj->tval == TV_SWORD && have_flag(context->flags, OF_THROWING)) )
+          || (context->obj->tval == TV_SWORD && have_flag(context->flags, OF_THROWING))
+          || (context->obj->tval == TV_DAGGER && have_flag(context->flags, OF_THROWING)) )
         {
             context->skill *= 2; /* wow! */
             context->to_d += ((p_ptr->lev+30)*(p_ptr->lev+30)-900)/55; /* +100 at CL50 */
@@ -314,7 +315,7 @@ bool _hit_mon(py_throw_ptr context, int m_idx)
                 msg_print(crit.desc);
             }
         }
-        tdam += context->obj->to_d;
+        tdam += context->obj->to_h;
         tdam = tdam * context->mult / 100;
         if (ambush)
             tdam *= 2;
@@ -547,7 +548,7 @@ void py_throw_doc(py_throw_ptr context, doc_ptr doc)
 
     if (object_is_known(context->obj))
     {
-        to_d = context->obj->to_d;
+        to_d = context->obj->to_h;
         to_h = context->obj->to_h;
     }
 

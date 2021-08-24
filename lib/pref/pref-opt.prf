@@ -98,16 +98,13 @@ Y:alert_trap_detect
 ##### Birth Options #####
 
 X:easy_id
-X:easy_lore
-X:allow_spoilers
-Y:smart_learn
+X:smart_learn
 X:smart_cheat
 X:no_wilderness
 X:ironman_shops
 X:ironman_downward
 X:ironman_empty_levels
 X:ironman_nightmare
-Y:preserve_mode
 
 ##### Easy Object Auto-Destroyer #####
 

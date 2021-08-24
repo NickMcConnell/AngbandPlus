@@ -1,26 +1,24 @@
 <style:title>Creating a Character</style>
 
-FrogComposband is a role playing game, in which you, the player, control a character in a dangerous world of myth and magic. The most important decision you make on your quest to the kill the <color:keyword>Serpent of Chaos</color> is what kind of character to play: Spell-wielding magician or sword-waving warrior? Stealthy rogue or musical bard? Holy priest or evil spawn of chaos? The choices are myriad and the process of generating a new character is described in this help file, which will also serve to introduce you to many of the core concepts of the game.
+Oposband is a role playing game, in which you, the player, control a character in a dangerous world of myth and magic. The most important decision you make on your quest to the kill the <color:keyword>Serpent of Chaos</color> is what kind of character to play: Spell-wielding magician or sword-waving warrior? Stealthy rogue or musical bard? Holy priest or evil spawn of chaos? The choices are myriad and the process of generating a new character is described in this help file, which will also serve to introduce you to many of the core concepts of the game.
 
 Character creation, or birth, is controlled through a variety of choices. You must choose your character's race (<color:keyword>Human</color>, <color:keyword>Elf</color>, <color:keyword>Hobbit</color>, <color:keyword>Orc</color>, <color:keyword>Undead</color>, <color:keyword>Demon</color>, etc), your character's class (<color:keyword>Warrior</color>, <color:keyword>Mage</color>, <color:keyword>Priest</color>, <color:keyword>Rogue</color>, etc) and you character's personality (<color:keyword>Mighty</color>, <color:keyword>Shrewd</color>, <color:keyword>Patient</color>, etc). Each of these choices are described in the help files (see <link:raceclass_contents.txt>).
 
-There are three main screens for the birth process. The first is a brief welcome screen in which you select the type of game to play (the <color:keyword>Game Mode</color>). The next screen allows you to select or change your race, class, gender, personality and character's name. The final screen allows you to enter your starting stats. We will describe each of these screens in detail, explaining things as we go. Ready?
+There are t main screens for the birth process. The first is a brief welcome screen in which you can create a new character, view high scores or recreate the last character slain in the savefile you loaded. The next screen allows you to select or change your race, class, gender, personality and character's name. The final screen allows you to enter your starting stats. We will describe each of these screens in detail, explaining things as we go. Ready?
 
 <topic:Welcome><style:heading>The Welcome Screen</style>
 The first screen is the Welcome Screen. It simply introduces you to the game and allows you to choose one of several options that will control the birth process. It looks someting like this:
 <style:screenshot>  <indent>
-Welcome to <color:R>FrogComposband</color>, a dungeon exploration role playing game. Your          
+Welcome to <color:R>Oposband</color>, a dungeon exploration role playing game. Your          
 goal is to defeat the dreaded <color:R>Serpent of Chaos</color>, but before you can face         
 it, you must battle many foes. Your first step is to create a character         
 for this quest. The following screens will guide you through this               
 process so that you may quickly begin playing. You can get general help         
 at any time by pressing <color:o>?</color>.                                                      
                                                                                 
-First, you must decide what type of game to play. If you are new, it is         
-recommended you play in <color:R>Beginner Mode</color>.                                          
+"First, you must create a characer, so press <color:y>n</color> to begin.                                        
                                                                                 
 <color:G>Choose the Type of Game to Play</color>                                                 
-  <color:y>b</color>) Beginner                                                                   
   <color:y>n</color>) Normal                                                                     
   <color:y>m</color>) Monster                                                                    
                                                                                 
@@ -30,11 +28,9 @@ recommended you play in <color:R>Beginner Mode</color>.
 <color:y>ESC</color>) <color:v>Quit</color>                                                                       
                                                                                 
 <color:G>Tip:</color> You can often get specific help by entering the uppercase letter           
-     for a command. For example, type <color:o>B</color> on this screen to receive help          
-     on Beginner Mode.                                                          
+     for a command. For example, type <color:o>N</color> on this screen to receive help          
+     on Normal Mode.                                                          
 </indent></style>
-
-If you are new to the game then it is highly recommended you choose the <color:keyword>Beginner</color> option. With this option, you won't be so overwhelmed with choices as is normally the case, allowing you to breeze through the birth process and quickly begin playing (and enjoying) this game. Once you have played a few times and wish to experience more that the game has to offer, including a vast wilderness with many diverse dungeons to explore, then you should choose the <color:keyword>Normal</color> option.
 
 If you are truly bold, you can experiment with the <color:keyword>Monster</color> option which allows you to play as one of many different types of monster. Monsters don't have a class, but instead evolve into more powerful forms as they gain experience. They also tend to have variable body types, making the equipment sub-game both more fun and more challenging.
 
@@ -252,7 +248,7 @@ To search is to actively look for secret doors, floor traps, and traps on chests
 Infra-vision is the ability to see heat sources. Since most of the dungeon is cool or cold, infra-vision will not allow the player to see walls and objects. Infra-vision will allow a character to see any warm-blooded creatures up to a certain distance. This ability works equally well with or with out a light source. The majority of monsters are cold-blooded, and will not be detected unless lit up by a light source. Most non-human races have innate infra-vision ability. Humans can gain infra-vision only if it is magically enhanced.</indent>
 
 <topic:Proficiency><style:heading>Proficiency Levels</style>
-In FrogComposband, characters possess different proficiency levels or experiences for each weapon type, spells, and a few other skills. The starting proficiency levels and the maximum proficiency levels of a character are based upon class. Each proficiency level may increase when you practice with it, and can be checked by the 'Check various information' command (~).
+In Oposband, characters possess different proficiency levels or experiences for each weapon type, spells, and a few other skills. The starting proficiency levels and the maximum proficiency levels of a character are based upon class. Each proficiency level may increase when you practice with it, and can be checked by the 'Check various information' command (~).
 
 For weapon proficiency, you need to hit monsters many times with a weapon of that type to practice. And your to-hit bonus of the weapon will increases with the proficiency level of it. The rate of increase is dependent upon the level of the character and the level of the opponents.
 
@@ -263,13 +259,11 @@ The effect of the proficiency level of the Dual Wielding and the Martial Arts is
 For the proficiency level of the Riding, you need to attack in melee or shoot with missile weapon when riding. And your speed increases up to the mount's speed when the proficiency level increases. (see <link:monster.txt#Pets>)
 
 <topic:BirthOptions><style:heading>Birth Options</style>
-During character generation you may press '=' at any time to access the birth options. A more detailed description of the various birth options can be found in the section on the Options Page (see <link:option.txt#Birth>). Feel free to ignore these options if you are new to the game. In fact, if you chose the <color:keyword>Beginner</color> startup option as suggested, then the birth options won't even be displayed to you (i.e., you will play with the default options).
+During character generation you may press '=' at any time to access the birth options. A more detailed description of the various birth options can be found in the section on the Options Page (see <link:option.txt#Birth>). Feel free to ignore these options if you are new to the game. 
 
 Perhaps one of the most important features of the birth options is the ability to decide what type of town level you want. The various town options are discussed on the Town page (see <link:town.txt#TownLevel>).
 
 <topic:Reference><style:heading>Reference</style>
-
-<topic:BeginnerMode><style:keyword>Beginner Mode</style>  <indent>Designed for new players, this mode greatly restricts the races and classes available to the player. In addition, it removes <color:keyword>Personality</color> from the birth process, forcing the player to play with the Ordinary personality (which has absolutely no gameplay effects). Also, the player is unable to enter birth options (<color:keypress>=</color>) and must play with the default options (too much to confuse new players otherwise). The <color:keyword>effective_speed</color> display option ("Show speeds as energy multipliers") is turned on by default in Beginner Mode, as it makes the meanings of speed values clearer to new players. Finally, this option forces the player to play in <color:keyword>coffee-break mode</color>, which accelerates the game, eliminates the wilderness and uses the special Light Town. Since up staircases don't generate in coffee-break mode, beginners start with extra scrolls of Word of Recall so they (hopefully) won't get stuck in the dungeon.</indent>
 
 <topic:NormalMode><style:keyword>Normal Mode</style>    <indent>This is the standard way to play: the Full Monty, so to speak. All races and classes are available to choose from, even ones that might be under development and not yet fully tested. The player has access to both the Birth Options and the Personality subsystem. By using the Birth Options to turn off the no_wilderness option, the player may play with a vast surface wilderness, complete with numerous dungeons to explore.</indent>
 
@@ -287,4 +281,5 @@ Updated  : Hengband 1.5.2
 Updated  : PosChengband 1.0.0
 Updated  : PosChengband 4.0.0
 Updated  : PosChengband 5.0.3
+Updated  : Oposband 0.1.0
 </color>

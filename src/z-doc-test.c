@@ -7,7 +7,7 @@ void test(int width)
     doc_ptr doc = doc_alloc(width);
 
     doc_read_file(doc, stdin);
-    doc_write_file(doc, stdout);
+    doc_write_file(doc, stdout, DOC_FORMAT_TEXT);
 
     doc_free(doc);
 }

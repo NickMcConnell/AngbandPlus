@@ -35,13 +35,9 @@ those sections of the helpfiles that discuss the wilderness and various
 dungeons (other than Angband).
 
 The game also offers a few different ways to play. First, there is a 
-Beginner Mode that limits the number of races and classes available and 
-turns off the wilderness. Playing in beginner mode is designed to 
-simplify the birth process and get you playing as soon as possible so 
-that you may more quickly learn the game. Eventually, you will want to 
-upgrade to Normal Mode, the usual and expected way to play. This mode 
-has a wilderness by default (though you may still turn it off with a 
-birth option) and also offers the full repertoire of racial and class 
+Normal Mode, the usual and expected way to play. This mode has a 
+wilderness by default (though you may still turn it off with a birth 
+option) and also offers the full repertoire of racial and class 
 choices. Prepare to be overwhelmed! Also, as you read the help files, 
 you will find that most of the documentation is written for this mode. 
 Finally, you may decide you are tired of playing the game as a normal 
@@ -252,6 +248,7 @@ Updated    : Zangband DevTeam
 Updated    : Hengband 1.5.4
 Updated    : PosChengband 4.0.0
 Updated    : FrogComposband 7.0.nougat
+Updated    : Oposband 0.1.0
 
   
 

@@ -181,8 +181,6 @@ static bool _absorb(object_type *o_ptr)
         result = TRUE;
     if (_add_essence(_ESSENCE_TO_HIT, o_ptr->to_h*mult/div))
         result = TRUE;
-    if (_add_essence(_ESSENCE_TO_DAM, o_ptr->to_d*mult/div))
-        result = TRUE;
 
     if (result)
     {
@@ -823,8 +821,7 @@ static void _birth(void)
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_BROKEN_SWORD));
     add_flag(forge.flags, OF_NO_REMOVE);
-    forge.to_h =  1;
-    forge.to_d =  3;
+    forge.to_h =  3;
     py_birth_obj(&forge);
 
     py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
@@ -840,8 +837,7 @@ static void _upgrade_weapon(int tval, int sval)
     object_type *o_ptr = _weapon();
 
     object_prep(o_ptr, lookup_kind(tval, sval));
-    o_ptr->to_h = p_ptr->lev / 5;
-    o_ptr->to_d = p_ptr->lev / 3;
+    o_ptr->to_h = p_ptr->lev / 3;
 
     add_flag(o_ptr->flags, OF_NO_REMOVE);
     obj_identify_fully(o_ptr);
@@ -864,7 +860,7 @@ static void _gain_level(int new_level)
     {
         p_ptr->current_r_idx = MON_POLEAXE_OF_ANIMATED_ATTACK;
         equip_on_change_race();
-        _upgrade_weapon(TV_POLEARM, SV_BATTLE_AXE);
+        _upgrade_weapon(TV_AXE, SV_BATTLE_AXE);
         msg_print("You have evolved into a Poleaxe of Animated Attack.");
         p_ptr->redraw |= PR_MAP;
     }
@@ -894,15 +890,10 @@ static void _gain_level(int new_level)
             o_ptr->dd++;
             msg_print("You grow sharper!");
         }
-        else if (one_in_(2) || (new_level % 7) == 0)
-        {
-            o_ptr->to_d++;
-            msg_print("You grow more deadly!");
-        }
         else
         {
             o_ptr->to_h++;
-            msg_print("You grow more accurate!");
+            msg_print("You grow more deadly!");
         }
     }
 }

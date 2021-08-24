@@ -35,6 +35,9 @@
  *
  ************************************************************************/
 
+static bool maneable;
+static bool learnable;
+
 /* Spells: We use a series of parse tables to handle overrides, as
  * discussed above. Each MST_* code gets its own table to preserve
  * my sanity. Note: We store spell lore by the numeric code, so
@@ -1822,6 +1825,7 @@ static void _annoy_p(void)
         gf_affect_p(_current.mon->id, GF_AMNESIA, 0, GF_AFFECT_SPELL);
         break;
     case ANNOY_ANIMATE_DEAD:
+		learnable = FALSE;
         animate_dead(_current.mon->id, _current.src.y, _current.src.x);
         break;
     case ANNOY_BLIND:
@@ -1831,7 +1835,7 @@ static void _annoy_p(void)
         gf_affect_p(_current.mon->id, GF_OLD_CONF, 0, GF_AFFECT_SPELL);
         break;
     case ANNOY_DARKNESS:
-        if (p_ptr->blind)
+		if (p_ptr->blind)
             msg_format("%s mumbles.", _current.name);
 
         if ( (player_is_ninja)
@@ -1864,7 +1868,7 @@ static void _annoy_p(void)
         else
             set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
         update_smart_learn(_current.mon->id, SM_FREE_ACTION);
-        break;
+		break;
     case ANNOY_TELE_LEVEL:
         if (res_save_default(RES_NEXUS) || _curse_save())
             msg_print("You resist the effects!");
@@ -1884,9 +1888,10 @@ static void _annoy_p(void)
         update_smart_learn(_current.mon->id, RES_TELEPORT);
         break;
     case ANNOY_TRAPS:
-        trap_creation(_current.dest.y, _current.dest.x);
+		trap_creation(_current.dest.y, _current.dest.x);
         break;
     case ANNOY_WORLD: {
+		learnable = FALSE;
         int who = 0;
         if (_current.mon->id == MON_DIO) who = 1; /* XXX Seriously?! */
         else if (_current.mon->id == MON_WONG) who = 3;
@@ -2770,19 +2775,27 @@ static void _spell_msg(void);
 static void _possessor(void);
 static void _spell_cast_aux(void)
 {
-    if (_current.flags & MSC_SRC_MONSTER)
-    {
-        assert(_current.mon);
-        if (_current.flags & MSC_DEST_PLAYER)
-            disturb(1, 0);
-        reset_target(_current.mon);
-        if (_spell_fail() || _spell_blocked()) return;
-        /* Do lore now since Banor=Rupart may disappear ...
-         * Note: We only lore projectable monster moves, so we
-         * really should only lore projectable monster spells as
-         * well. In addition, include splashes against the player.*/
-        if ((_current.flags & MSC_DEST_PLAYER) || _projectable(point(px, py), _current.src))
-            mon_lore_spell(_current.mon, _current.spell);
+	maneable = FALSE;
+	learnable = FALSE;
+
+	if (_current.flags & MSC_SRC_MONSTER)
+	{
+		assert(_current.mon);
+		if (_current.flags & MSC_DEST_PLAYER)
+			disturb(1, 0);
+		reset_target(_current.mon);
+		if (_spell_fail() || _spell_blocked()) return;
+		/* Do lore now since Banor=Rupart may disappear ...
+		 * Note: We only lore projectable monster moves, so we
+		 * really should only lore projectable monster spells as
+		 * well. In addition, include splashes against the player.*/
+		if ((_current.flags & MSC_DEST_PLAYER) || _projectable(point(px, py), _current.src))
+		{
+			/* Must be able to see the cast to imitate or learn */
+			maneable = TRUE;
+			learnable = TRUE;
+			mon_lore_spell(_current.mon, _current.spell);
+		}
     }
     else if (_spell_fail())
         return;
@@ -2805,6 +2818,40 @@ static void _spell_cast_aux(void)
     case MST_WEIRD:   _weird();   break;
     case MST_POSSESSOR: _possessor(); break;
     }
+
+	int spell = get_monspell(_current.spell->id.type, _current.spell->id.effect);
+
+	/* Learn it! */
+	if (learnable && p_ptr->pclass == CLASS_BLUE_MAGE && p_ptr->action == ACTION_LEARN)
+	{
+		int spell = -1;
+		learn_monster_spell(spell);
+	}
+
+	if (maneable && p_ptr->pclass == CLASS_IMITATOR && !world_monster)
+	{
+		if (p_ptr->mane_num == MAX_MANE)
+		{
+			int i;
+			p_ptr->mane_num--;
+			for (i = 0; i < p_ptr->mane_num; i++)
+			{
+				p_ptr->mane_spell[i] = p_ptr->mane_spell[i + 1];
+				p_ptr->mane_dam[i] = p_ptr->mane_dam[i + 1];
+			}
+		}
+
+		p_ptr->mane_spell[p_ptr->mane_num] = spell;
+
+		if (_current.spell->parm.v.dice.dd > 0)
+			p_ptr->mane_dam[p_ptr->mane_num] = _current.spell->parm.v.dice.dd * (1 + _current.spell->parm.v.dice.ds / 2);
+		else
+			p_ptr->mane_dam[p_ptr->mane_num] = _current.spell->parm.v.dice.ds;
+		p_ptr->mane_num++;
+		new_mane = TRUE;
+
+		p_ptr->redraw |= PR_EFFECTS;
+	}
 }
 
 /*************************************************************************

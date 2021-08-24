@@ -17,14 +17,14 @@ are quick learners and gain maturity much more rapidly than the rest of
 their kind.
 
   Stats                   Skills
-  Strength      -1        Disarming   Very Good    
+  Strength      -1        Disarming   Good         
   Intelligence  +3        Device      Superb       
-  Wisdom        +0        Save        Excellent    
+  Wisdom        +0        Save        Good         
   Dexterity     -1        Stealth     Fair         
-  Constitution  -1        Searching   Good         
-  Charisma      +0        Perception  Good         
+  Constitution  -1        Searching   Fair         
+  Charisma      +0        Perception  Fair         
   Life Rating  100%       Melee       Bad          
-  Experience    80%       Bows        Good         
+  Experience    80%       Bows        Fair         
   Attack       100%
   Breath       100%
   
@@ -38,14 +38,14 @@ they mature. This focus requires great fortitude to master and somewhat
 diminishes the dragon's defenses and melee.
 
   Stats                   Skills
-  Strength      +0        Disarming   Good         
-  Intelligence  -1        Device      Good         
-  Wisdom        -1        Save        Excellent    
-  Dexterity     +0        Stealth     Fair         
+  Strength      +0        Disarming   Fair         
+  Intelligence  -1        Device      Fair         
+  Wisdom        -1        Save        Very Good    
+  Dexterity     +0        Stealth     Poor         
   Constitution  +3        Searching   Bad          
   Charisma      +1        Perception  Bad          
-  Life Rating  103%       Melee       Good         
-  Experience   105%       Bows        Good         
+  Life Rating  103%       Melee       Fair         
+  Experience   105%       Bows        Fair         
   Attack        90%
   Breath       115%
   
@@ -64,11 +64,11 @@ focus values strength above all else.
   Strength      +3        Disarming   Poor         
   Intelligence  -2        Device      Bad          
   Wisdom        -2        Save        Poor         
-  Dexterity     +1        Stealth     Fair         
+  Dexterity     +1        Stealth     Poor         
   Constitution  -1        Searching   Very Bad     
   Charisma      +0        Perception  Very Bad     
   Life Rating   97%       Melee       Superb       
-  Experience   105%       Bows        Good         
+  Experience   105%       Bows        Fair         
   Attack       115%
   Breath        80%
   
@@ -81,14 +81,14 @@ prowess for magical understanding. This focus requires great wisdom to
 master.
 
   Stats                   Skills
-  Strength      -1        Disarming   Very Good    
+  Strength      -1        Disarming   Good         
   Intelligence  -1        Device      Amber[7]     
-  Wisdom        +3        Save        Excellent    
+  Wisdom        +3        Save        Very Good    
   Dexterity     -1        Stealth     Fair         
   Constitution  -1        Searching   Bad          
   Charisma      -1        Perception  Bad          
   Life Rating  100%       Melee       Poor         
-  Experience    95%       Bows        Good         
+  Experience    95%       Bows        Fair         
   Attack       100%
   Breath       100%
   
@@ -106,11 +106,11 @@ Unlike their kin, dragons of this order prize agility above all else.
   Strength      -1        Disarming   Fair         
   Intelligence  -1        Device      Poor         
   Wisdom        -1        Save        Superb       
-  Dexterity     +3        Stealth     Good         
+  Dexterity     +3        Stealth     Fair         
   Constitution  +1        Searching   Bad          
   Charisma      +1        Perception  Bad          
   Life Rating  102%       Melee       Bad          
-  Experience   105%       Bows        Good         
+  Experience   105%       Bows        Fair         
   Attack        90%
   Breath        90%
   
@@ -130,12 +130,12 @@ else.
   Stats                   Skills
   Strength      -1        Disarming   Fair         
   Intelligence  -1        Device      Poor         
-  Wisdom        -1        Save        Fair         
+  Wisdom        -1        Save        Poor         
   Dexterity     -1        Stealth     Fair         
   Constitution  -1        Searching   Bad          
   Charisma      +3        Perception  Bad          
   Life Rating   95%       Melee       Bad          
-  Experience   105%       Bows        Good         
+  Experience   105%       Bows        Fair         
   Attack        95%
   Breath        90%
   
@@ -153,13 +153,13 @@ this order may summon like minded kin for the final battles.
 
   Stats                   Skills
   Strength      +1        Disarming   Poor         
-  Intelligence  -1        Device      Good         
-  Wisdom        -1        Save        Fair         
+  Intelligence  -1        Device      Fair         
+  Wisdom        -1        Save        Poor         
   Dexterity     +1        Stealth     Fair         
   Constitution  -1        Searching   Very Bad     
   Charisma      +2        Perception  Very Bad     
-  Life Rating   95%       Melee       Excellent    
-  Experience   107%       Bows        Good         
+  Life Rating   95%       Melee       Very Good    
+  Experience   107%       Bows        Fair         
   Attack        90%
   Breath        90%
   
@@ -176,11 +176,11 @@ and Chaos dragons.
   Strength      +2        Disarming   Poor         
   Intelligence  -2        Device      Poor         
   Wisdom        -2        Save        Poor         
-  Dexterity     +0        Stealth     Very Good    
+  Dexterity     +0        Stealth     Good         
   Constitution  -2        Searching   Very Bad     
   Charisma      +1        Perception  Very Bad     
-  Life Rating   95%       Melee       Excellent    
-  Experience   105%       Bows        Good         
+  Life Rating   95%       Melee       Good         
+  Experience   105%       Bows        Fair         
   Attack        90%
   Breath        90%
   
@@ -200,30 +200,30 @@ Death           +2   -2   -2   +0   -2   +1   95%  105%    90%     90%
 Table 2 - Dragon Realm Skill Bonus Table I
 
                Disarming     Device        Save          Stealth      
-Lore           Very Good     Superb        Excellent     Fair         
-Breath         Good          Good          Excellent     Fair         
-Attack         Poor          Bad           Poor          Fair         
-Craft          Very Good     Amber[7]      Excellent     Fair         
-Armor          Fair          Poor          Superb        Good         
-Domination     Fair          Poor          Fair          Fair         
-Crusade        Poor          Good          Fair          Fair         
-Death          Poor          Poor          Poor          Very Good    
+Lore           Good          Superb        Good          Fair         
+Breath         Fair          Fair          Very Good     Poor         
+Attack         Poor          Bad           Poor          Poor         
+Craft          Good          Amber[7]      Very Good     Fair         
+Armor          Fair          Poor          Superb        Fair         
+Domination     Fair          Poor          Poor          Fair         
+Crusade        Poor          Fair          Poor          Fair         
+Death          Poor          Poor          Poor          Good         
 
 
 Table 3 - Dragon Realm Skill Bonus Table II
 
                Searching     Perception    Melee         Bows         
-Lore           Good          Good          Bad           Good         
-Breath         Bad           Bad           Good          Good         
-Attack         Very Bad      Very Bad      Superb        Good         
-Craft          Bad           Bad           Poor          Good         
-Armor          Bad           Bad           Bad           Good         
-Domination     Bad           Bad           Bad           Good         
-Crusade        Very Bad      Very Bad      Excellent     Good         
-Death          Very Bad      Very Bad      Excellent     Good         
+Lore           Fair          Fair          Bad           Fair         
+Breath         Bad           Bad           Fair          Fair         
+Attack         Very Bad      Very Bad      Superb        Fair         
+Craft          Bad           Bad           Poor          Fair         
+Armor          Bad           Bad           Bad           Fair         
+Domination     Bad           Bad           Bad           Fair         
+Crusade        Very Bad      Very Bad      Very Good     Fair         
+Death          Very Bad      Very Bad      Good          Fair         
 
 
 
 
-Automatically generated for FrogComposband 7.0.strawberry.
+Automatically generated for Oposband 0.2.0.
 

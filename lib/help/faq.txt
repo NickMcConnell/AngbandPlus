@@ -1,8 +1,8 @@
-<style:title>FrogComposband FAQ</style>
+<style:title>Oposband FAQ</style>
 
 <color:G>Q:</color> I'd like to move one square at a time, but every time I press a key my character moves halfway across the screen. Help!
 
-<color:R>A:</color> You are somehow triggering the Run command instead of the Walk command. In addition to normal running (with the '.' command), FrogComposband uses preference files to support shiftrunning (running by using the Shift key), which is preferred by some players. This mechanic sometimes leads to unwanted running, especially on the angband.live online server which has some very odd default settings. If you are playing there, see if toggling Num Lock helps you stop running, turn on the online_macros option in the Input Options menu (the '=' key), or else request help in the server chat.
+<color:R>A:</color> You are somehow triggering the Run command instead of the Walk command. In addition to normal running (with the '.' command), Oposband uses preference files to support shiftrunning (running by using the Shift key), which is preferred by some players. This mechanic sometimes leads to unwanted running, especially on the angband.live online server which has some very odd default settings. If you are playing there, see if toggling Num Lock helps you stop running, turn on the online_macros option in the Input Options menu (the '=' key), or else request help in the server chat.
 
 
 <color:G>Q:</color> All right, I have a character up and walking. What should I do?
@@ -25,9 +25,6 @@ A small number of quests are offered by towns but appear in dungeons. The first 
 <color:G>Q:</color> What is "coffee-break mode"? How does it differ from normal play?
 
 <color:R>A:</color> Coffee-break mode is a quicker, simpler and more streamlined version of the game. There is no wilderness, only one town (the "Light Town" version of Outpost) and only one dungeon (Angband). Experience gain (and many forms of proficiency gain) are greatly accelerated, monster drops are improved, and the player receives bonus fame for reforging purposes. All stairs in the dungeon are two-level shafts, and forced descent is turned on. Small levels generate more often in the early part of the game, but become rarer (and less small) towards the endgame. Unlike normal forced-descent play, the player is allowed to recall back to town, as well as to skip random dungeon quests by recalling (although recalling out of a quest incurs a large fame penalty).
-
-Coffee-break mode is a birth option; it is automatically turned on for players who select the 'Beginner' option at character creation, but can also be selected the normal way by non-beginners. Coffee-break mode is not an easy-mode; it is activated for beginners because it is simpler and allows faster progress, not because it is easy.
-
 
 <color:G>Q:</color> I can't find any up staircases, only down staircases! Is there any way I can get back to town?
 
@@ -122,7 +119,7 @@ Note that the armor you wear will always be susceptible to damage from acid atta
 
 <color:G>Q:</color> I'm at normal speed (+0). But normal speed monsters sometimes double-move me!
 
-<color:R>A:</color> In FrogComposband, the amount of energy needed for a move is somewhat randomized (though less so than in its predecessor PosChengband). This method of speed system is an important feature of FrogComposband and simulates real fighting. Usually a monster with the same speed as you will only get one move in, but always prepare for the possibility that they might get two moves! Don't fight when your HP is low unless you have a death wish.
+<color:R>A:</color> In Oposband, the amount of energy needed for a move is somewhat randomized (though less so than in its predecessor PosChengband). This method of speed system is an important feature of Oposband and simulates real fighting. Usually a monster with the same speed as you will only get one move in, but always prepare for the possibility that they might get two moves! Don't fight when your HP is low unless you have a death wish.
 
 Also, monsters don't always move at their listed speed; watch out in particular for hasted monsters, who receive a temporary +10 speed bonus. Non-unique monsters are born with somewhat random speeds, and might be faster or slower than the average monster of their race. (Probing such a monster will reveal its individual speed.)
 
@@ -147,13 +144,13 @@ Also, monsters don't always move at their listed speed; watch out in particular 
 <color:R>A:</color> Melee rings, like Rings of Combat, only affect the weapon in the corresponding hand; so a Ring of Combat worn on your right hand only affects the weapon in your right hand (if any), and a Ring of Combat worn on your left hand only affects the weapon in your left hand. (If you wield a single weapon with both hands, both rings will apply to it.)
 
 
-<color:G>Q:</color> How does Free Action work in FrogComposband?
+<color:G>Q:</color> How does Free Action work in Oposband?
 
 <color:R>A:</color> Free Action provides protection from paralysis, a potentially lethal condition. One level of Free Action provides partial protection and helps recover faster if you do get paralyzed; two levels of Free Action provide complete protection against low-level monsters and very good protection against high-level monsters; three levels of Free Action provide complete protection against paralysis, except in the special case of the Ancient Foul Curse.
 
 How good "imperfect" Free Action (one level of protection in the early game, or one or two levels in the late game) is depends on the level of the attacking monster, and also on your saving throw. The better your saving throw is, the less of a risk you're taking by not having three levels of Free Action.
 
-In many other Angband variants one source of Free Action is enough to give complete paralysis immunity; if you've played such variants, be careful not to rely too much on a single Free Action source in FrogComposband.
+In many other Angband variants one source of Free Action is enough to give complete paralysis immunity; if you've played such variants, be careful not to rely too much on a single Free Action source in Oposband.
 
 
 <color:G>Q:</color> Is there any way to gain paralysis immunity even against the Ancient Foul Curse?
@@ -161,7 +158,7 @@ In many other Angband variants one source of Free Action is enough to give compl
 <color:R>A:</color> A good saving throw improves your chances of not being paralyzed by the curse. With a sufficiently good saving throw the chances of being paralyzed by the curse become zero. Anti-Magic items push your saving throw up to this level, but can be inconvenient for characters that rely heavily on magic.
 
 
-<color:G>Q:</color> How does See Invisible work in FrogComposband?
+<color:G>Q:</color> How does See Invisible work in Oposband?
 
 <color:R>A:</color> Every level of See Invisible improves your chances of noticing an invisible creature. How good those chances become depends on the level of the monster (high-level monsters are harder to see) and on your Searching skill. Sometimes an invisible creature flickers in and out of sight - now you make the sight roll, the next turn you don't. If you have several sources of See Invisible and still have trouble seeing invisible creatures, you may need either Telepathy or an item that improves your Searching skill.
 
@@ -393,17 +390,17 @@ Other characters do not receive any special benefits from swimsuits, but may sti
 <color:R>A:</color> Use an HTML dump.
 
 
-<color:G>Q:</color> What is the genesis of FrogComposband?
+<color:G>Q:</color> What is the genesis of Oposband?
 
-<color:R>A:</color> FrogComposband is a fork of ComPosband, a fork of PosChengband, which was based on Chengband, which was based on Hengband, which was based on Japanese ZAngband, which was based on regular ZAngband, a fork of Angband, which was based on Moria and Umoria. (Whew!)
+<color:R>A:</color> Oposband is a fork of FrogComposband, a fork of ComPosband, a fork of PosChengband, which was based on Chengband, which was based on Hengband, which was based on Japanese ZAngband, which was based on regular ZAngband, a fork of Angband, which was based on Moria and Umoria. (Whew!)
 
-In addition to these direct ancestors, FrogComposband and its "family" have been strongly influenced by a number of other Angband variants, like KAngband, Posband, ToME and OAngband. FrogComposband specifically has also inherited quite a bit of content - starting with its name - from Frogspawn, an unpublished fork of vanilla Angband.
+In addition to these direct ancestors, Oposband and its "family" have been strongly influenced by a number of other Angband variants, like KAngband, Posband, ToME and OAngband. Oposband
 
 
-<color:G>Q:</color> What is the design philosophy of FrogComposband?
+<color:G>Q:</color> What is the design philosophy of Oposband?
 
-<color:R>A:</color> Above all else, FrogComposband aims to be 1) fun and 2) challenging. (It also aims to sneakily bring about Armageddon and the ascendancy of hyperintelligent robots.)
-
+<color:R>A:</color> Above all else, Oposband aims to be 1) fun and 2) challenging. (It also aims to sneakily bring about Armageddon and the ascendancy of hyperintelligent robots.)
+[TODO: Update for Oposband]
 The pursuit of a fun game involves quite a few things. The game tries to be fair to the player - unavoidable deaths out of nowhere should be unknown or at least extremely rare, and non-lethal attacks should add to the challenge and atmosphere but not spoil the fun. (Some unpopular effects can be turned off in the birth options.) Normal play should always keep the player on his toes, offering new situations to tackle and new decisions to make. FrogComposband also has much humorous content to lighten the mood, some of it hidden to be discovered when least expected.
 
 You decide what's fun and what isn't! The game allows many different playstyles, from speed-diving to a slow, methodical grind, without trying to enforce any one of them on the player. It is also designed to be highly customizable, with about 100 options and a number of other ways to modify things. I don't try to make the decisions for you, beyond providing generally popular default settings; every player wants different things.
@@ -441,4 +438,5 @@ Updated    : FrogComposband 7.0.peppermint
 Updated    : FrogComposband 7.0.nougat
 Updated    : FrogComposband 7.1.toffee
 Updated    : FrogComposband 7.1.chocolate
+Updated    : Oposband 0.1.0
 </color>

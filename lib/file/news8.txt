@@ -1,16 +1,16 @@
-<color:y>FrogComposband <$:version></color>
+<color:y>Oposband <$:version></color>
 <style:screenshot>
 The Mithril Bolt (Elemental) (5d5) (+14,+15) hits Gothmog, the                  
 High Captain of Balrogs. Gothmog, the High Captain of Balrogs       LEVEL <color:G>    50</color>
 roars with pain. Gothmog, the High Captain of Balrogs flees in      EXP <color:G>   22.8M</color>
 terror! Gothmog, the High Captain of Balrogs is scared stiff!       AU  <color:G>   5.95M</color>
       #########....#...#    ##<color:U>+</color>....##......<color:U>~</color>{<color:r>~</color>{<color:U>~</color>......#       <color:D>xxxxx</color> <color:d>            </color>
-        #.............##    #.#....##....<color:U>~~</color>{<color:r>~</color><color:U>~~</color>.......#        <color:D>xxxx</color> STR!: <color:G>18/***</color>
-      ###............## #####.<color:U>'</color>....% <color:B>{</color><color:U>~~</color>{<color:U>~</color><color:r>~~</color>{<color:U>~</color>....<color:g>^</color>...#        <color:D>xxxx</color> INT!: <color:G>18/130</color>
-      #..............####.....#.....<color:U>~</color><color:R>U</color><color:U>~</color>{{<color:r>~</color>{{<color:U>~</color>...<color:r>^</color>.....<color:s>%</color>        <color:D>xxxx</color> WIS!: <color:G>18/***</color>
-      #................<color:D>~</color>#.#%#%####..<color:U>~~</color>{<color:r>~</color>{{<color:U>~</color>...........<color:s>%</color>       <color:D>xxxxx</color> DEX!: <color:G>18/150</color>
-      #.....#............<color:D>~</color>#   ##%%%..<color:U>~</color>{<color:U>~~</color>....<color:s>%</color>........#       <color:D>xxxxx</color> CON!: <color:G>18/170</color>
-      #.....#........####.#   %..............#........#       <color:D>xxxxx</color> CHR!: <color:G>18/***</color>
+        #.............##    #.#....##....<color:U>~~</color>{<color:r>~</color><color:U>~~</color>.......#        <color:D>xxxx</color> STR!: <color:G>    40</color>
+      ###............## #####.<color:U>'</color>....% <color:B>{</color><color:U>~~</color>{<color:U>~</color><color:r>~~</color>{<color:U>~</color>....<color:g>^</color>...#        <color:D>xxxx</color> INT!: <color:G>    31</color>
+      #..............####.....#.....<color:U>~</color><color:R>U</color><color:U>~</color>{{<color:r>~</color>{{<color:U>~</color>...<color:r>^</color>.....<color:s>%</color>        <color:D>xxxx</color> WIS!: <color:G>    40</color>
+      #................<color:D>~</color>#.#%#%####..<color:U>~~</color>{<color:r>~</color>{{<color:U>~</color>...........<color:s>%</color>       <color:D>xxxxx</color> DEX!: <color:G>    33</color>
+      #.....#............<color:D>~</color>#   ##%%%..<color:U>~</color>{<color:U>~~</color>....<color:s>%</color>........#       <color:D>xxxxx</color> CON!: <color:G>    35</color>
+      #.....#........####.#   %..............#........#       <color:D>xxxxx</color> CHR!: <color:G>    40</color>
       #.....#......#.#<color:U>+</color>#..%   %.....#..............#<color:s>%</color>#<color:s>%</color>       <color:D>xxxxx</color> AC     <color:G>  270</color>
       #.................#%%   #..@.<color:D>^</color>...............<color:s>%</color>          <color:D>xxxxx</color> HP <color:y> 923</color>/<color:G>1068</color>
       #...#....###......#     #...................###         <color:D>xxxxx</color> SP <color:y>  59</color>/<color:G> 397</color>

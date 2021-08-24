@@ -254,6 +254,7 @@ void virtue_init(void)
         p_ptr->vir_types[i++] = VIRTUE_VALOUR;
         break;
     case CLASS_CHAOS_WARRIOR:
+	case CLASS_CHAOS_MAGE:
         p_ptr->vir_types[i++] = VIRTUE_CHANCE;
         p_ptr->vir_types[i++] = VIRTUE_INDIVIDUALISM;
         break;
@@ -286,16 +287,22 @@ void virtue_init(void)
         p_ptr->vir_types[i++] = VIRTUE_ENLIGHTENMENT;
         p_ptr->vir_types[i++] = VIRTUE_CHANCE;
         break;
+	case CLASS_DISCIPLE:
+	case CLASS_IMITATOR:
     case CLASS_WILD_TALENT:
-    case CLASS_DISCIPLE:
         p_ptr->vir_types[i++] = VIRTUE_CHANCE;
         break;
+	case CLASS_BLUE_MAGE:
+		p_ptr->vir_types[i++] = VIRTUE_CHANCE;
+		p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
+		break;
     case CLASS_BEASTMASTER:
         p_ptr->vir_types[i++] = VIRTUE_NATURE;
         p_ptr->vir_types[i++] = VIRTUE_CHANCE;
         p_ptr->vir_types[i++] = VIRTUE_VITALITY;
         break;
     case CLASS_MAGIC_EATER:
+	case CLASS_HEXBLADE:
         p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
         p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         break;

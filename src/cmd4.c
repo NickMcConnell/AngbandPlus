@@ -1365,7 +1365,7 @@ void do_cmd_options(void)
         Term_clear();
 
         /* Why are we here */
-        prt("FrogComposband Options", 1, 0);
+        prt("Oposband Options", 1, 0);
 
         while(1)
         {
@@ -3355,10 +3355,10 @@ void do_cmd_version(void)
     cptr xtra = "";
     if (VER_MINOR == 0)
     {
-/*        if (VER_PATCH == 0) xtra = " (Alpha)"; */
-        if (VER_MAJOR != 7) xtra = " (Beta)";
+        if (VER_PATCH == 0) xtra = " (Alpha)";
+		else xtra = " (Beta)";
     }
-    msg_format("You are playing <color:B>FrogComposband</color> <color:r>%d.%d.%s%s</color>.",
+    msg_format("You are playing <color:B>Oposband</color> <color:r>%d.%d.%d%s</color>.",
         VER_MAJOR, VER_MINOR, VER_PATCH, xtra);
     if (1)
     {
@@ -3705,9 +3705,6 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
         if (!r_ptr->name) continue;
         if (!p_ptr->wizard && (r_ptr->flagsx & RFX_SUPPRESS)) continue;
 
-        /* Require known monsters */
-        if (!(mode & 0x02) && !easy_lore && !r_ptr->r_sights) continue;
-
         if (grp_corpses)
         {
             if (!int_map_contains(available_corpses, i))
@@ -3836,7 +3833,7 @@ static cptr object_group_text[] =
     NULL
 };
 
-
+/*INVESTIGATE*/
 /*
  * TVALs of items in each group
  */
@@ -3865,8 +3862,11 @@ static byte object_group_tval[] =
     TV_SKELETON,
     TV_CORPSE, */
     TV_SWORD,
+    TV_DAGGER,
     TV_HAFTED,
+    TV_STAVES,
     TV_POLEARM,
+    TV_AXE,
     TV_DIGGING,
     TV_BOW,
     TV_SHOT,
@@ -4428,9 +4428,6 @@ static void do_cmd_knowledge_uniques(void)
         if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
         if (r_ptr->flagsx & RFX_SUPPRESS) continue;
 
-        /* Only display "known" uniques */
-		if (!easy_lore && !r_ptr->r_sights) continue;
-
         /* Only print rarity <= 100 uniques */
         if (!r_ptr->rarity || ((r_ptr->rarity > 100) && !(r_ptr->flagsx & RFX_QUESTOR))) continue;
 
@@ -4612,34 +4609,37 @@ static cptr _prof_weapon_heading(int tval)
 {
     switch (tval)
     {
-    case TV_SWORD: return "Swords";
+    case TV_SWORD: return "Long Blades";
     case TV_POLEARM: return "Polearms";
     case TV_HAFTED: return "Hafted";
     case TV_DIGGING: return "Diggers";
     case TV_BOW: return "Bows";
+    case TV_DAGGER: return "Short Blades";
+    case TV_STAVES: return "Staves";
+    case TV_AXE: return "Axes";
     }
     return "";
 }
 
 static void _prof_weapon_doc(doc_ptr doc, int tval, int mode)
 {
-    vec_ptr v = _prof_weapon_alloc(tval);
     int     i;
 
     doc_insert_text(doc, TERM_RED, _prof_weapon_heading(tval));
     doc_newline(doc);
 
-    for (i = 0; i < vec_length(v); i++)
+    for (i = 0; i < MAX_PROFICIENCIES; i++)
     {
-        object_kind *k_ptr = vec_get(v, i);
-        int          exp = skills_weapon_current(k_ptr->tval, k_ptr->sval);
-        int          max = skills_weapon_max(k_ptr->tval, k_ptr->sval);
-        int          max_lvl = weapon_exp_level(max);
-        int          exp_lvl = weapon_exp_level(exp);
-        char         name[MAX_NLEN];
+        int  exp = p_ptr->proficiency[i];
+        int  max = p_ptr->proficiency_cap[i];
+        int  max_lvl = weapon_exp_level(max);
+        int  exp_lvl = weapon_exp_level(exp);
+        
+        if (i < PROF_MARTIAL_ARTS)
+            doc_printf(doc, "<color:%c>%-15s</color> ", equip_find_obj(TV_DIGGING + i, SV_ANY) ? 'B' : 'w', PROFICIENCIES[i]);
+        else
+            doc_printf(doc, "<color:%c>%-15s</color> ", 'w', PROFICIENCIES[i]);
 
-        strip_name(name, k_ptr->idx);
-        doc_printf(doc, "<color:%c>%-19s</color> ", equip_find_obj(k_ptr->tval, k_ptr->sval) ? 'B' : 'w', name);
         switch (mode)
         {
             case 1:
@@ -4668,7 +4668,6 @@ static void _prof_weapon_doc(doc_ptr doc, int tval, int mode)
         doc_newline(doc);
     }
     doc_newline(doc);
-    vec_free(v);
 }
 
 static void _prof_skill_aux(doc_ptr doc, int skill, int mode)
@@ -4751,10 +4750,14 @@ static int _do_cmd_knowledge_weapon_exp_aux(int mode, int *huippu)
     for (i = 0; i < 3; i++)
         cols[i] = doc_alloc(26);
 
+    /* REWRITE */
     _prof_weapon_doc(cols[0], TV_SWORD, mode);
+    _prof_weapon_doc(cols[0], TV_DAGGER, mode);
     _prof_weapon_doc(cols[1], TV_POLEARM, mode);
+    _prof_weapon_doc(cols[1], TV_AXE, mode);
     _prof_weapon_doc(cols[1], TV_BOW, mode);
     _prof_weapon_doc(cols[2], TV_HAFTED, mode);
+    _prof_weapon_doc(cols[2], TV_STAVES, mode);
     _prof_weapon_doc(cols[2], TV_DIGGING, mode);
     _prof_skill_doc(cols[2], mode);
 
@@ -7144,7 +7147,7 @@ static void do_cmd_knowledge_stat(void)
     int              i;
 
     if (p_ptr->knowledge & KNOW_HPRATE)
-        doc_printf(doc, "Your current Life Rating is <color:G>%d%%</color>.\n\n", life_rating());
+        doc_printf(doc, "Your current Life Rating is <color:G>%d%%</color>.\n\n", p_ptr->life_rating);
     else
         doc_insert(doc, "Your current Life Rating is <color:y>\?\?\?%</color>.\n\n");
 
@@ -7153,7 +7156,7 @@ static void do_cmd_knowledge_stat(void)
     for (i = 0; i < MAX_STATS; i++)
     {
         if ((p_ptr->knowledge & KNOW_STAT) || p_ptr->stat_max[i] == p_ptr->stat_max_max[i])
-            doc_printf(doc, "%s <color:G>18/%d</color>\n", stat_names[i], p_ptr->stat_max_max[i]-18);
+            doc_printf(doc, "%s <color:G>%d</color>\n", stat_names[i], p_ptr->stat_max_max[i]);
         else
             doc_printf(doc, "%s <color:y>\?\?\?</color>\n", stat_names[i]);
     }

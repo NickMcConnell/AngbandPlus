@@ -146,7 +146,6 @@ struct object_kind
     s16b pval;            /* Object extra info */
 
     s16b to_h;            /* Bonus to hit */
-    s16b to_d;            /* Bonus to damage */
     s16b to_a;            /* Bonus to armor */
 
     s16b ac;            /* Base armor */
@@ -214,8 +213,7 @@ struct artifact_type
 
     s16b pval;            /* Artifact extra info */
 
-    s16b to_h;            /* Bonus to hit */
-    s16b to_d;            /* Bonus to damage */
+    s16b to_h;            /* Bonus to hit/damage */
     s16b to_a;            /* Bonus to armor */
 
     s16b ac;            /* Base armor */
@@ -267,7 +265,6 @@ struct ego_type
     byte max_level;       /* Maximum level. 0 => No restriction */
 
     s16b max_to_h;        /* Maximum to-hit bonus */
-    s16b max_to_d;        /* Maximum to-dam bonus */
     s16b max_to_a;        /* Maximum to-ac bonus */
 
     byte max_pval;        /* Maximum pval */
@@ -345,8 +342,7 @@ struct object_type
     s16b xtra4;            /* Extra info: Lights, Capture, Quiver Capacity, Device MaxSP. */
     s32b xtra5;            /* Extra info: Device CSP */
 
-    s16b to_h;            /* Plusses to hit */
-    s16b to_d;            /* Plusses to damage */
+    s16b to_h;            /* Plusses to hit & damage */
     s16b to_a;            /* Plusses to AC */
 
     s16b ac;            /* Normal AC */
@@ -1006,7 +1002,7 @@ struct player_type
     byte psex;            /* Sex index */
     byte prace;            /* Race index */
     byte pclass;        /* Class index */
-    byte personality;        /* Seikaku index */
+    byte personality;        /* Personality index */
     byte realm1;        /* First magic realm */
     byte realm2;        /* Second magic realm */
     byte dragon_realm;
@@ -1251,17 +1247,21 @@ struct player_type
     u32b special_defense;      /* Special block capacity -LM- */
     byte action;          /* Current action */
 
-    u32b spell_learned1;      /* bit mask of spells learned */
-    u32b spell_learned2;      /* bit mask of spells learned */
-    u32b spell_worked1;      /* bit mask of spells tried and worked */
-    u32b spell_worked2;      /* bit mask of spells tried and worked */
-    u32b spell_forgotten1;      /* bit mask of spells learned but forgotten */
-    u32b spell_forgotten2;      /* bit mask of spells learned but forgotten */
+    u32b rage_spells_learned;      /* bit mask of spells learned */
+
     byte spell_order[64];      /* order spells learned/remembered/forgotten */
 
-    s16b spell_exp[64];       /* Proficiency of spells */
-    s16b weapon_exp[5][64];   /* Proficiency of weapons */
-    s16b skill_exp[10];       /* Proficiency of misc. skill */
+    /*********************************************/
+    /* Changed how weapon proficiencies are used */
+    /* Now proficiency is for an entire class of weapons, and there are only nine */
+    /* Short blades (daggermaster weapons) and Long blades (Other swords / Swordmaster weapons) */
+    /* Axes (Axemaster polearms) and Polearms (Non-axe polearms) */
+    /* Staves (Quarterstaff and such / Staffmaster) and Blunts (non-stave hafted weapons) */
+    /* Last but not least, bows, crossbows, and slings */
+    /* New Proficiency code */
+    s16b proficiency[MAX_PROFICIENCIES];
+    s16b proficiency_cap[MAX_PROFICIENCIES];
+    /*********************************************/
     s16b spells_per_round;    /* 175 = 1.75 spells per round, etc. Calculated in calc_bonuses(). Only works for book casters (do_cmd_cast) at the moment. */
 
     s32b magic_num1[MAX_MAGIC_NUM];     /* Array for non-spellbook type magic */
@@ -1273,7 +1273,7 @@ struct player_type
 
     s16b concent;      /* Sniper's concentration level */
 
-    s16b player_hp[PY_MAX_LEVEL];
+    s16b life_rating;	/* Replace old player_hp array with a flat multiplier to the average */
     char died_from[80];         /* What killed the player */
     cptr last_message;        /* Last message on death or retirement */
 
@@ -1512,7 +1512,7 @@ struct birther
     byte psubrace;
     byte pclass;       /* Class index */
     byte psubclass;       /* Subclass index */
-    byte personality;     /* Seikaku index */
+    byte personality;     /* Personality index */
     byte realm1;       /* First magic realm */
     byte realm2;       /* Second magic realm */
     byte dragon_realm;
@@ -1526,8 +1526,8 @@ s16b sc;
 
     s16b stat_max[6];        /* Current "maximal" stat values */
 s16b stat_max_max[6];    /* Maximal "maximal" stat values */
-s16b player_hp[PY_MAX_LEVEL]; /* Map (L-1)->Cumulative Percentage of Base HD */
-                              /* See calc_hitpoints() in xtra1.c for details */
+s16b life_rating;		/* Multiplier Percentage of Base HD */
+                        /* See calc_hitpoints() in xtra1.c for details */
 s16b chaos_patron;
 int  mutation;
 
@@ -1700,7 +1700,7 @@ struct high_score
     char sex[2];        /* Player Sex (string) */
     char p_r[3];        /* Player Race (number) */
     char p_c[3];        /* Player Class (number) */
-    char p_a[3];        /* Player Seikaku (number) */
+    char p_a[3];        /* Player Personality (number) */
 
     char cur_lev[4];        /* Current Player Level (number) */
     char cur_dun[4];        /* Current Dungeon Level (number) */
@@ -1962,6 +1962,7 @@ typedef void(*stats_fn)(s16b stats[MAX_STATS]);
 typedef void(*load_fn)(savefile_ptr file);
 typedef void(*save_fn)(savefile_ptr file);
 typedef int(*birth_ui_fn)(doc_ptr doc);
+typedef void(*proficiency_fn)(void);
 
 typedef struct {
     int                     id;
@@ -2002,6 +2003,7 @@ typedef struct {
     obj_p                   destroy_object;
     obj_f                   get_object;
     inv_ptr                 bonus_pack;
+    proficiency_fn          set_proficiencies;
 } class_t, *class_ptr;
 
 struct equip_template_s;
@@ -2122,3 +2124,9 @@ struct pantheon_type
     char short_name[5];
     char plural[20];
 };
+
+
+typedef struct {
+	cptr name;
+	spell_info spells[_SPELLS_PER_BOOK];
+} book_t;

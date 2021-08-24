@@ -27,7 +27,7 @@ static void _help_file(cptr name, _file_fn fn)
     }
 
     fn(fp);
-    fprintf(fp, "\n\n<color:s>Automatically generated for FrogComposband %d.%d.%s.</color>\n",
+    fprintf(fp, "\n\n<color:s>Automatically generated for Oposband %d.%d.%d.</color>\n",
             VER_MAJOR, VER_MINOR, VER_PATCH);
 
     my_fclose(fp);
@@ -1118,7 +1118,7 @@ static void _class_help(FILE *fp, int idx)
 }
 
 #define _MAX_CLASSES_PER_GROUP 20
-#define _MAX_CLASS_GROUPS      11
+#define _MAX_CLASS_GROUPS      10
 typedef struct _class_group_s {
     cptr name;
     int ids[_MAX_CLASSES_PER_GROUP];
@@ -1129,17 +1129,16 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
                     CLASS_WEAPONSMITH, -1} },
     { "Archery", {CLASS_ARCHER, CLASS_SNIPER, -1} },
     { "Martial Arts", {CLASS_FORCETRAINER, CLASS_MONK, CLASS_MYSTIC, -1} },
-    { "Magic", {CLASS_BLOOD_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
-                    CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, -1} },
+    { "Magic", {CLASS_BLOOD_MAGE, CLASS_BLUE_MAGE, CLASS_CHAOS_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE,
+		CLASS_MAGE, CLASS_PRIEST, CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, -1} },
     { "Devices", {CLASS_ALCHEMIST, CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
-    { "Prayer", {CLASS_PRIEST, -1} },
     { "Stealth", {CLASS_NINJA, CLASS_ROGUE, CLASS_SCOUT, -1} },
-    { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_DISCIPLE, CLASS_NINJA_LAWYER, CLASS_PALADIN,
+    { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_DISCIPLE, CLASS_HEXBLADE, CLASS_NINJA_LAWYER, CLASS_PALADIN,
                     CLASS_RANGER, CLASS_RED_MAGE, CLASS_WARRIOR_MAGE,  -1} },
     { "Riding", {CLASS_BEASTMASTER, CLASS_CAVALRY, -1} },
     { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION,
                     CLASS_TIME_LORD, CLASS_WARLOCK, -1} },
-    { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_LAWYER, CLASS_POLITICIAN,
+    { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_IMITATOR, CLASS_LAWYER, CLASS_POLITICIAN,
                     CLASS_RAGE_MAGE, CLASS_SKILLMASTER, CLASS_TOURIST, CLASS_WILD_TALENT, -1} },
 };
 
@@ -1657,9 +1656,7 @@ static void _skills_class_table(FILE* fp)
     {
         int max_j = 1;
 
-        if (i == CLASS_MONSTER || i == CLASS_XXX12 || i == CLASS_XXX21)
-            continue;
-        else if (i == CLASS_WEAPONMASTER)
+        if (i == CLASS_WEAPONMASTER)
             max_j = WEAPONMASTER_MAX;
         else if (i == CLASS_WARLOCK)
             max_j = WARLOCK_MAX;
@@ -1673,22 +1670,25 @@ static void _skills_class_table(FILE* fp)
             else
                 fprintf(fp, "\"%s\",", class_ptr->name);
             fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d+%d,%d+%d,%d+%d,%d+%d,%d+%d,%d,%d,%d,%d\n",
-                class_ptr->base_skills.dis + 5*class_ptr->extra_skills.dis,
-                class_ptr->base_skills.dev + 5*class_ptr->extra_skills.dev,
-                class_ptr->base_skills.sav + 5*class_ptr->extra_skills.sav,
-                class_ptr->base_skills.stl + 5*class_ptr->extra_skills.stl,
+                class_ptr->base_skills.dis + 5 * class_ptr->extra_skills.dis,
+                class_ptr->base_skills.dev + 5 * class_ptr->extra_skills.dev,
+                class_ptr->base_skills.sav + 5 * class_ptr->extra_skills.sav,
+                class_ptr->base_skills.stl + 5 * class_ptr->extra_skills.stl,
                 class_ptr->base_skills.srh,
                 class_ptr->base_skills.fos,
-                class_ptr->base_skills.thn + 5*class_ptr->extra_skills.thn,
-                class_ptr->base_skills.thb + 5*class_ptr->extra_skills.thb,
+                class_ptr->base_skills.thn + 5 * class_ptr->extra_skills.thn,
+                class_ptr->base_skills.thb + 5 * class_ptr->extra_skills.thb,
                 class_ptr->base_skills.dis, class_ptr->extra_skills.dis,
                 class_ptr->base_skills.dev, class_ptr->extra_skills.dev,
                 class_ptr->base_skills.sav, class_ptr->extra_skills.sav,
                 class_ptr->base_skills.thn, class_ptr->extra_skills.thn,
                 class_ptr->base_skills.thb, class_ptr->extra_skills.thb,
                 class_ptr->life, class_ptr->base_hp,
-                s_info[i].s_max[SKILL_RIDING],
-                s_info[i].s_max[SKILL_DUAL_WIELDING]
+                '100',
+                '100'
+                /* TODO: How to display this? Maybe create a table in tables.c with this info, then load it in the class functions. Bleh
+                p_ptr->proficiency_cap[PROF_RIDING],
+                p_ptr->proficiency_cap[PROF_DUAL_WIELDING]*/
             );
         }
     }
@@ -1702,7 +1702,6 @@ static void _spells_table(FILE* fp) /*m_info.txt*/
     {
         class_t      *class_ptr;
         player_magic *magic_ptr;
-        if (class_idx == CLASS_XXX12 || class_idx == CLASS_XXX21) continue;
         class_ptr = get_class_aux(class_idx, 0);
         magic_ptr = &m_info[class_idx];
         for (realm_idx = REALM_LIFE; realm_idx <= MAX_MAGIC; realm_idx++)

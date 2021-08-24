@@ -284,8 +284,6 @@ int anti_magic_check(void)
         return 0;
 
     case CLASS_TOURIST:
-        return 10;
-
     case CLASS_DUELIST:
         return 10;
 
@@ -295,6 +293,7 @@ int anti_magic_check(void)
     case CLASS_PALADIN:
     case CLASS_WARRIOR_MAGE:
     case CLASS_CHAOS_WARRIOR:
+	case CLASS_CHAOS_MAGE:
     case CLASS_MONK:
     case CLASS_MYSTIC:
     case CLASS_BEASTMASTER:
@@ -304,6 +303,7 @@ int anti_magic_check(void)
         return 20;
 
     case CLASS_MINDCRAFTER:
+	case CLASS_IMITATOR:
     case CLASS_FORCETRAINER:
     case CLASS_PSION:
         return 30;

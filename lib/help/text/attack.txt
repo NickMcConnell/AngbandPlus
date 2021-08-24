@@ -66,18 +66,17 @@ weapon before it can be used in a fight. A secondary weapon can be kept
 by keeping it in the backpack, and switching it with the primary weapon 
 when needed.
 
-Weapons have two main magical characteristics, their enchanted ability 
-to hit and their enchanted ability to do damage, expressed as, say, 
-(+3,+4). A normal weapon would be (+0,+0). Many weapons in 
-FrogComposband have bonuses to hit and/or to damage. Some weapons are 
-cursed, and have penalties that hurt the player. Cursed weapons cannot 
-be unwielded until the curse is lifted. Identifying a weapon will 
-inform you of the magical bonuses and penalties and whether or not it 
-is cursed.
+Weapons have a main magical characteristic, their enchanted ability to 
+hit and do damage, expressed as, say, (+3). A normal weapon would be 
+(+0). Many weapons in Oposband have bonuses to hit and/or to damage. 
+Some weapons are cursed, and have penalties that hurt the player. 
+Cursed weapons cannot be unwielded until the curse is lifted. 
+Identifying a weapon will inform you of the magical bonuses and 
+penalties and whether or not it is cursed.
 
-FrogComposband assumes that your youth in the rough environment near 
-the dungeons has taught you the relative merits of different weapons, 
-and displays as part of their description the damage dice which define 
+Oposband assumes that your youth in the rough environment near the 
+dungeons has taught you the relative merits of different weapons, and 
+displays as part of their description the damage dice which define 
 their capabilities. Any damage enchantment is added to the dice roll 
 for that weapon. The dice used for a given weapon is displayed as XdY. 
 The first number, X, indicates how many dice to roll, and the second, 
@@ -247,5 +246,6 @@ Updated    : Zangband DevTeam
 Updated    : Hengband 1.5.2
 Updated    : PosChengband 1.0.0
 Updated    : PosChengband 4.0.0
+Updated    : Oposband 0.1.0
 
 

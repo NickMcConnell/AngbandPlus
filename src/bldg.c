@@ -2971,7 +2971,7 @@ static bool _reforge_artifact(void)
             adjustment -= MAX(0, ((nval / 2) - ABS(min_power - nval)) / 720);
         }
 
-        if (object_is_(dest, TV_HAFTED, SV_WIZSTAFF))
+        if (object_is_(dest, TV_STAVES, SV_WIZSTAFF))
         {
             int muutos = ((8500 - ABS(min_power - 14000)) / 100);
             if (muutos < 0) muutos /= 4;
@@ -3259,7 +3259,6 @@ static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_
             choices[i].amt = i+1;
 
             if (to_hit && copy.to_h < maxenchant) {copy.to_h++; ok = TRUE; v = MAX(v, copy.to_h);}
-            if (to_dam && copy.to_d < maxenchant) {copy.to_d++; ok = TRUE; v = MAX(v, copy.to_d);}
             if (to_ac && copy.to_a < maxenchant) {copy.to_a++; ok = TRUE; v = MAX(v, copy.to_a);}
 
             if (v > 10)
@@ -3340,16 +3339,6 @@ static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_
         if (prompt.obj->to_h < maxenchant)
         {
             if (enchant(prompt.obj, 1, (ENCH_TOHIT | ENCH_FORCE)))
-                okay = TRUE;
-        }
-    }
-
-    /* Enchant to damage */
-    for (i = 0; i < to_dam; i++)
-    {
-        if (prompt.obj->to_d < maxenchant)
-        {
-            if (enchant(prompt.obj, 1, (ENCH_TODAM | ENCH_FORCE)))
                 okay = TRUE;
         }
     }
@@ -3924,7 +3913,7 @@ static void bldg_process_command(building_type *bldg, int i)
         paid = ident_spell(NULL);
         break;
     case BACT_LEARN:
-        do_cmd_study();
+		msg_print("You don't have to learn spells!");
         break;
     case BACT_HEALING: /* needs work */
         hp_player(200);

@@ -1302,7 +1302,7 @@ int get_powers_aux(spell_info* spells, int max, power_info* table)
         if (ct >= max) break;
         if (!base->spell.fn) break;
 
-        if (base->spell.level <= p_ptr->lev)
+        /*if (base->spell.level <= p_ptr->lev)*/
         {
             spell_info* current = &spells[ct];
             current->fn = base->spell.fn;
@@ -1424,9 +1424,11 @@ static void _dump_book(doc_ptr doc, int realm, int book)
     else
     {
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
-            doc_printf(doc, "<color:G>    %-23.23s Profic Lvl  HP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
+			doc_printf(doc, "<color:G>    %-23.23s   Lvl  HP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
+			/*doc_printf(doc, "<color:G>    %-23.23s        Lvl  HP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");*/
         else
-            doc_printf(doc, "<color:G>    %-23.23s Profic Lvl  SP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
+			doc_printf(doc, "<color:G>    %-23.23s   Lvl  SP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
+			/*doc_printf(doc, "<color:G>    %-23.23s        Lvl  SP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");*/
     }
 
     for (i = 0; i < 8; i++)
@@ -1435,8 +1437,6 @@ static void _dump_book(doc_ptr doc, int realm, int book)
         magic_type *s_ptr;
         int	    vaikeustaso;
         int         cost;
-        bool        max = FALSE;
-        char        proficiency[10];
         char        info[80];
         cptr        comment;
         char        line[160];
@@ -1454,99 +1454,41 @@ static void _dump_book(doc_ptr doc, int realm, int book)
             cost = s_ptr->smana;
         else
         {
-            s16b exp = experience_of_spell(s_idx, realm);
-            int  exp_level = spell_exp_level(exp);
-
-            cost = mod_need_mana(lawyer_hack(s_ptr, LAWYER_HACK_MANA), s_idx, realm);
-
-            max = FALSE;
-            if (!increment && (exp_level == EXP_LEVEL_MASTER)) max = TRUE;
-            else if ((increment == 32) && (exp_level >= EXP_LEVEL_EXPERT)) max = TRUE;
-            else if ((p_ptr->pclass == CLASS_RED_MAGE) && (exp_level >= EXP_LEVEL_SKILLED)) max = TRUE;
-
-            strncpy(proficiency, exp_level_str[exp_level], 4);
-            proficiency[3] = ']';
-            proficiency[4] = '\0';
+			cost = mod_need_mana(lawyer_hack(s_ptr, LAWYER_HACK_MANA), s_idx, realm);
         }
 
         strcpy(info, do_spell(realm, s_idx, SPELL_INFO));
         comment = info;
 
-        if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_RED_MAGE)
-        {
-            if (vaikeustaso > p_ptr->max_plv)
-            {
-                comment = "unknown";
-                color = 'D';
-            }
-            else if (vaikeustaso > p_ptr->lev)
-            {
-                comment = "forgotten";
-                color = 'y';
-            }
-        }
-        else if ((realm == p_ptr->realm1) ?
-            ((p_ptr->spell_forgotten1 & (1L << s_idx))) :
-            ((p_ptr->spell_forgotten2 & (1L << s_idx))))
-        {
-            comment = "forgotten";
-            color = 'y';
-        }
-        else if (!((realm == p_ptr->realm1) ?
-            (p_ptr->spell_learned1 & (1L << s_idx)) :
-            (p_ptr->spell_learned2 & (1L << s_idx))))
-        {
-            comment = "unknown";
-            if (vaikeustaso > p_ptr->lev)
-                color = 'D';
-            else
-                color = 'B';
-        }
-        else if (!((realm == p_ptr->realm1) ?
-            (p_ptr->spell_worked1 & (1L << s_idx)) :
-            (p_ptr->spell_worked2 & (1L << s_idx))))
-        {
-            comment = "untried";
-        }
+		if (vaikeustaso > p_ptr->max_plv)
+		{
+			comment = "unknown";
+			color = 'D';
+		}
+		else if (vaikeustaso > p_ptr->lev)
+		{
+			comment = "forgotten";
+			color = 'y';
+		}
 
         sprintf(line, " %c) ", I2A(i));
-        if (realm == REALM_HISSATSU)
-        {
-            spell_stats_ptr stats = spell_stats_old(realm, s_idx);
-            strcat(
-                line,
-                format(
-                    "<color:%c>%-25s %3d %3d %-15.15s %5d</color>",
-                    color,
-                    do_spell(realm, s_idx, SPELL_NAME),
-                    vaikeustaso,
-                    cost,
-                    comment,
-                    stats->ct_cast
-                )
-            );
-        }
-        else
-        {
-            spell_stats_ptr stats = spell_stats_old(realm, s_idx);
-            strcat(
-                line,
-                format(
-                    "<color:%c>%-25s%c%-4s %3d %3d %3d%% %-15.15s %5d %4d %3d%%</color>",
-                    color,
-                    do_spell(realm, s_idx, SPELL_NAME),
-                    (max ? '!' : ' '),
-                    proficiency,
-                    vaikeustaso,
-                    cost,
-                    spell_chance(s_idx, realm),
-                    comment,
-                    stats->ct_cast,
-                    stats->ct_fail,
-                    spell_stats_fail(stats)
-                )
-            );
-        }
+
+		spell_stats_ptr stats = spell_stats_old(realm, s_idx);
+        strcat(
+            line,
+            format(
+                "<color:%c>%-25s %3d %3d %3d%% %-15.15s %5d %4d %3d%%</color>",
+                color,
+                do_spell(realm, s_idx, SPELL_NAME),
+                vaikeustaso,
+                cost,
+                spell_chance(s_idx, realm),
+                comment,
+                stats->ct_cast,
+                stats->ct_fail,
+                spell_stats_fail(stats)
+            )
+        );
 
         doc_printf(doc, "%s\n", line);
     }
@@ -1570,23 +1512,9 @@ static bool _has_spells(int realm, int book)
         vaikeustaso = lawyer_hack(s_ptr, LAWYER_HACK_LEVEL);
         if (vaikeustaso >= 99) continue;
 
-        if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_RED_MAGE)
-        {
-            if (vaikeustaso > p_ptr->max_plv) continue;
-            else if (vaikeustaso > p_ptr->lev) return TRUE;
-        }
-        else if ((realm == p_ptr->realm1) ?
-            ((p_ptr->spell_forgotten1 & (1L << s_idx))) :
-            ((p_ptr->spell_forgotten2 & (1L << s_idx))))
-        {
-            return TRUE;
-        }
-        else if (realm == p_ptr->realm1 ?
-                    (p_ptr->spell_learned1 & (1L << s_idx)) :
-                    (p_ptr->spell_learned2 & (1L << s_idx)))
-        {
-            return TRUE;
-        }
+        if (vaikeustaso > p_ptr->max_plv) continue;
+        else if (vaikeustaso > p_ptr->lev) return TRUE;
+
     }
     return FALSE;
 }

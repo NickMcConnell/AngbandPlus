@@ -38,7 +38,7 @@ Melee
     Wisdom       -20        Save        Very Bad     
     Dexterity     +4        Stealth     Very Bad     
     Constitution  +4        Searching   Very Bad     
-    Charisma      +4        Perception  Very Bad     
+    Charisma      -5        Perception  Very Bad     
     Life Rating  200%       Melee       Amber[20]    
     Base HP       22        Bows        Very Bad     
     Experience   160%
@@ -64,13 +64,13 @@ Melee
   walk the red path.
   
     Stats                   Skills
-    Strength      +2        Disarming   Good         
+    Strength      +2        Disarming   Fair         
     Intelligence  -2        Device      Bad          
-    Wisdom        -2        Save        Fair         
+    Wisdom        -2        Save        Poor         
     Dexterity     +0        Stealth     Fair         
     Constitution  +3        Searching   Poor         
-    Charisma      +2        Perception  Bad          
-    Life Rating  120%       Melee       Superb       
+    Charisma      -2        Perception  Bad          
+    Life Rating  120%       Melee       Excellent    
     Base HP       20        Bows        Poor         
     Experience   150%
     
@@ -99,11 +99,11 @@ Melee
   techniques the duelist relies on dexterity.
   
     Stats                   Skills
-    Strength      +2        Disarming   Good         
-    Intelligence  +1        Device      Fair         
+    Strength      +2        Disarming   Fair         
+    Intelligence  +1        Device      Poor         
     Wisdom        -2        Save        Bad          
-    Dexterity     +2        Stealth     Good         
-    Constitution  -3        Searching   Fair         
+    Dexterity     +2        Stealth     Fair         
+    Constitution  -3        Searching   Poor         
     Charisma      +2        Perception  Poor         
     Life Rating  100%       Melee       Fair         
     Base HP        4        Bows        Very Bad     
@@ -119,12 +119,12 @@ Melee
   function properly.
   
     Stats                   Skills
-    Strength      +5        Disarming   Good         
-    Intelligence  -2        Device      Fair         
-    Wisdom        -2        Save        Very Good    
+    Strength      +5        Disarming   Fair         
+    Intelligence  -2        Device      Poor         
+    Wisdom        -2        Save        Good         
     Dexterity     -1        Stealth     Poor         
     Constitution  +3        Searching   Poor         
-    Charisma      +2        Perception  Bad          
+    Charisma      -1        Perception  Bad          
     Life Rating  110%       Melee       Superb       
     Base HP       18        Bows        Very Bad     
     Experience   120%
@@ -157,14 +157,14 @@ Melee
   See [d] for more details on rune knights.
   
     Stats                   Skills
-    Strength      +2        Disarming   Fair         
-    Intelligence  +1        Device      Good         
+    Strength      +2        Disarming   Poor         
+    Intelligence  +1        Device      Poor         
     Wisdom        -1        Save        Fair         
     Dexterity     +1        Stealth     Fair         
-    Constitution  +0        Searching   Fair         
+    Constitution  +0        Searching   Poor         
     Charisma      +1        Perception  Poor         
-    Life Rating  102%       Melee       Fair         
-    Base HP        6        Bows        Poor         
+    Life Rating  101%       Melee       Fair         
+    Base HP        7        Bows        Poor         
     Experience   150%
     
   Samurai
@@ -188,14 +188,14 @@ Melee
   posture in different situations.
   
     Stats                   Skills
-    Strength      +3        Disarming   Good         
+    Strength      +3        Disarming   Fair         
     Intelligence  -2        Device      Bad          
-    Wisdom        +1        Save        Fair         
+    Wisdom        +1        Save        Poor         
     Dexterity     +2        Stealth     Fair         
     Constitution  +1        Searching   Poor         
-    Charisma      +1        Perception  Bad          
-    Life Rating  109%       Melee       Superb       
-    Base HP       12        Bows        Good         
+    Charisma      +0        Perception  Bad          
+    Life Rating  109%       Melee       Excellent    
+    Base HP       12        Bows        Fair         
     Experience   130%
     
   Warrior
@@ -210,12 +210,12 @@ Melee
   in six random directions.
   
     Stats                   Skills
-    Strength      +4        Disarming   Good         
+    Strength      +4        Disarming   Fair         
     Intelligence  -2        Device      Bad          
-    Wisdom        -2        Save        Fair         
-    Dexterity     +2        Stealth     Fair         
+    Wisdom        -2        Save        Poor         
+    Dexterity     +2        Stealth     Poor         
     Constitution  +2        Searching   Poor         
-    Charisma      +1        Perception  Bad          
+    Charisma      -1        Perception  Bad          
     Life Rating  115%       Melee       Superb       
     Base HP       18        Bows        Superb       
     Experience   100%
@@ -229,12 +229,12 @@ Melee
   See [e] for more details on weaponmasters.
   
     Stats                   Skills
-    Strength      +4        Disarming   Fair         
+    Strength      +4        Disarming   Poor         
     Intelligence  -3        Device      Bad          
-    Wisdom        -2        Save        Fair         
-    Dexterity     -1        Stealth     Fair         
+    Wisdom        -2        Save        Poor         
+    Dexterity     -1        Stealth     Poor         
     Constitution  +2        Searching   Poor         
-    Charisma      +1        Perception  Bad          
+    Charisma      -1        Perception  Bad          
     Life Rating  107%       Melee       Superb       
     Base HP       12        Bows        Bad          
     Experience   135%
@@ -255,13 +255,13 @@ Melee
   commands.
   
     Stats                   Skills
-    Strength      +3        Disarming   Good         
-    Intelligence  -1        Device      Fair         
+    Strength      +3        Disarming   Fair         
+    Intelligence  -1        Device      Poor         
     Wisdom        -1        Save        Bad          
-    Dexterity     +1        Stealth     Fair         
+    Dexterity     +1        Stealth     Poor         
     Constitution  +0        Searching   Poor         
     Charisma      -1        Perception  Bad          
-    Life Rating  106%       Melee       Excellent    
+    Life Rating  106%       Melee       Good         
     Base HP       12        Bows        Fair         
     Experience   130%
     
@@ -278,13 +278,13 @@ Archery
   shots from pile of rubble, and arrows and crossbow bolts from bones.
   
     Stats                   Skills
-    Strength      +2        Disarming   Excellent    
+    Strength      +2        Disarming   Good         
     Intelligence  -1        Device      Fair         
     Wisdom        -1        Save        Fair         
-    Dexterity     +2        Stealth     Very Good    
+    Dexterity     +2        Stealth     Good         
     Constitution  +1        Searching   Fair         
     Charisma      +0        Perception  Poor         
-    Life Rating  111%       Melee       Very Good    
+    Life Rating  111%       Melee       Good         
     Base HP       12        Bows        Heroic       
     Experience   110%
     
@@ -302,12 +302,12 @@ Archery
   They have no time for magic.
   
     Stats                   Skills
-    Strength      +2        Disarming   Good         
+    Strength      +2        Disarming   Fair         
     Intelligence  -1        Device      Fair         
     Wisdom        -1        Save        Poor         
-    Dexterity     +2        Stealth     Excellent    
-    Constitution  +1        Searching   Good         
-    Charisma      +0        Perception  Fair         
+    Dexterity     +2        Stealth     Good         
+    Constitution  +1        Searching   Fair         
+    Charisma      +0        Perception  Poor         
     Life Rating  100%       Melee       Poor         
     Base HP        4        Bows        Superb       
     Experience   110%
@@ -315,31 +315,31 @@ Archery
   
 Martial Arts
   Force-Trainer
-  A ForceTrainer is a master of the spiritual Force. They prefer 
+  A Force-Trainer is a master of the spiritual Force. They prefer 
   fighting with neither weapon nor armor. They are not as good fighters 
   as are Monks, but they can use both magic and the spiritual Force. 
   Wielding weapons or wearing heavy armor disturbs use of the Force. 
-  Wisdom is a ForceTrainer's primary stat.
+  Wisdom is a Force-Trainer's primary stat.
    
-  ForceTrainers use both spellbook magic and the special spiritual 
+  Force-Trainers use both spellbook magic and the special spiritual 
   power called the Force. They can select a realm from Life, Nature, 
   Craft, Death, and Crusade. To use The Force, you select it just as if 
-  it were spellbook 'w'; which means you need to press 'm' and then 'w' 
+  it were spellbook 'F'; which means you need to press 'm' and then 'F' 
   to select the Force. The most important spell of the Force is 
-  'Improve Force'; each time a ForceTrainer activates it, their Force 
+  'Improve Force'; each time a Force-Trainer activates it, their Force 
   power becomes more powerful, and their attack power in bare-handed 
   melee fighting is increased temporarily. The strengthened Force can 
-  be released at one stroke when a ForceTrainer activates some other 
+  be released at one stroke when a Force-Trainer activates some other 
   Force spell, typically an attack spell. They have a class power - 
   'Clear Mind' - which allows them to rapidly regenerate their mana.
   
     Stats                   Skills
-    Strength      +0        Disarming   Good         
-    Intelligence  -1        Device      Very Good    
-    Wisdom        +3        Save        Good         
-    Dexterity     +2        Stealth     Very Good    
-    Constitution  +1        Searching   Good         
-    Charisma      +0        Perception  Fair         
+    Strength      +0        Disarming   Fair         
+    Intelligence  -1        Device      Good         
+    Wisdom        +3        Save        Fair         
+    Dexterity     +2        Stealth     Good         
+    Constitution  +1        Searching   Fair         
+    Charisma      +1        Perception  Fair         
     Life Rating  100%       Melee       Fair         
     Base HP        4        Bows        Fair         
     Experience   135%
@@ -363,14 +363,14 @@ Martial Arts
   and use powerful combinations of attacks for the finishing blow.
   
     Stats                   Skills
-    Strength      +2        Disarming   Superb       
-    Intelligence  -1        Device      Good         
+    Strength      +2        Disarming   Excellent    
+    Intelligence  -1        Device      Fair         
     Wisdom        +1        Save        Fair         
-    Dexterity     +3        Stealth     Excellent    
-    Constitution  +2        Searching   Good         
+    Dexterity     +3        Stealth     Good         
+    Constitution  +2        Searching   Fair         
     Charisma      +1        Perception  Fair         
-    Life Rating  102%       Melee       Excellent    
-    Base HP       12        Bows        Excellent    
+    Life Rating  102%       Melee       Good         
+    Base HP       12        Bows        Good         
     Experience   130%
     
   Mystic
@@ -389,14 +389,14 @@ Martial Arts
   this knowledge with novices.
   
     Stats                   Skills
-    Strength      +2        Disarming   Superb       
-    Intelligence  -1        Device      Very Good    
+    Strength      +2        Disarming   Excellent    
+    Intelligence  -1        Device      Good         
     Wisdom        -2        Save        Fair         
-    Dexterity     +3        Stealth     Excellent    
-    Constitution  +1        Searching   Good         
-    Charisma      +2        Perception  Fair         
-    Life Rating  100%       Melee       Excellent    
-    Base HP        4        Bows        Excellent    
+    Dexterity     +3        Stealth     Good         
+    Constitution  +1        Searching   Fair         
+    Charisma      +1        Perception  Fair         
+    Life Rating  100%       Melee       Good         
+    Base HP        4        Bows        Good         
     Experience   130%
     
   
@@ -412,14 +412,71 @@ Magic
   is sacred.
   
     Stats                   Skills
-    Strength      -4        Disarming   Fair         
-    Intelligence  +3        Device      Superb       
-    Wisdom        -2        Save        Good         
-    Dexterity     +1        Stealth     Good         
+    Strength      -4        Disarming   Poor         
+    Intelligence  +3        Device      Excellent    
+    Wisdom        -2        Save        Fair         
+    Dexterity     +1        Stealth     Fair         
     Constitution  +2        Searching   Poor         
-    Charisma      -2        Perception  Fair         
+    Charisma      -2        Perception  Poor         
     Life Rating  108%       Melee       Very Bad     
     Base HP       10        Bows        Very Bad     
+    Experience   135%
+    
+  Blue-Mage
+  A Blue-Mage is a spell caster that must live by his wits, as he 
+  cannot hope to simply hack his way through the dungeon like a 
+  warrior. A major difference between the Mage and the Blue-Mage is the 
+  method of learning spells: Blue-Mages may learn spells from monsters. 
+  A Blue-Mage's prime statistic is Intelligence as this determines his 
+  spell casting ability.
+   
+  A Blue-Mage can learn and cast monster ranged attacks, spells, or 
+  summons as their own spells; this technique is called Blue magic. 
+  Unlike Imitators, Blue-Mages remember their spells permanently, but 
+  they must get hit by a monster's spell while their class power 
+  'Learning' is active to learn spells. Because of this requirement, 
+  they do not learn spells, like healing, that affect the monster 
+  itself.
+  
+    Stats                   Skills
+    Strength      -4        Disarming   Poor         
+    Intelligence  +4        Device      Excellent    
+    Wisdom        -1        Save        Fair         
+    Dexterity     +1        Stealth     Fair         
+    Constitution  -2        Searching   Poor         
+    Charisma      -2        Perception  Poor         
+    Life Rating  100%       Melee       Bad          
+    Base HP        4        Bows        Bad          
+    Experience   130%
+    
+  Chaos-Mage
+  Chaos Mages are the arcane students of the terrible Demon Lords of 
+  Chaos. Every Chaos Mage has a Patron Demon and, when gaining a level, 
+  may receive a reward from his Patron. He might be healed or 
+  polymorphed, his stats could be increased, or he might be rewarded 
+  with an awesome weapon. On the other hand, the Patrons might surround 
+  him with monsters, drain his stats or wreck his equipment or they 
+  might simply ignore him. The Demon Lords of Chaos are chaotic and 
+  unpredictable indeed. The exact type of reward depends on both the 
+  Patron Demon (different Demons give different rewards) and chance.
+   
+  Chaos Mages can select a realm from Chaos and Daemon, and one other 
+  realm excluding Life and Crusade. A  Chaos Mage's prime statistic is 
+  Intelligence as this determines his spell casting ability.
+   
+  Chaos Mages are a little hardier than ordinary mages but less 
+  perceptive. They have a class power - 'Eat Magic' - which absorbs 
+  mana from wands, staves or rods.
+  
+    Stats                   Skills
+    Strength      -3        Disarming   Poor         
+    Intelligence  +3        Device      Excellent    
+    Wisdom        -1        Save        Fair         
+    Dexterity     +0        Stealth     Fair         
+    Constitution  -1        Searching   Poor         
+    Charisma      -2        Perception  Poor         
+    Life Rating   95%       Melee       Very Bad     
+    Base HP        0        Bows        Very Bad     
     Experience   135%
     
   Gray-Mage
@@ -441,37 +498,37 @@ Magic
   to choose. Like the Mage, Intelligence is the key stat.
   
     Stats                   Skills
-    Strength      -4        Disarming   Fair         
-    Intelligence  +3        Device      Superb       
-    Wisdom        +0        Save        Good         
-    Dexterity     +1        Stealth     Good         
+    Strength      -4        Disarming   Poor         
+    Intelligence  +3        Device      Excellent    
+    Wisdom        +0        Save        Fair         
+    Dexterity     +1        Stealth     Fair         
     Constitution  -2        Searching   Poor         
-    Charisma      -2        Perception  Fair         
+    Charisma      -2        Perception  Poor         
     Life Rating   95%       Melee       Very Bad     
     Base HP        0        Bows        Very Bad     
     Experience   130%
     
   High-Mage
-  High-mages are mages who specialize in one particular field of magic 
-  and learn it very well - much better than the ordinary mage. A high 
-  mage's prime statistic is intelligence as this determines his spell 
-  casting ability.
+  High-Mages are mages who specialize in one particular field of magic 
+  and learn it very well - much better than the ordinary mage. A 
+  High-Mage's prime statistic is intelligence as this determines his 
+  spell casting ability.
    
-  For the price of giving up a second realm of magic, High-mages gain 
+  For the price of giving up a second realm of magic, High-Mages gain 
   substantial benefits in the mana costs, power, minimum levels, and 
-  failure rates of the spells in their speciality realm. They have a 
-  class power - 'Eat Magic' - which absorbs mana from wands, staves, or 
-  rods.
-   
-  And then, only High-Mages are able to cast Hex spells.
+  failure rates of the spells in their speciality realm. They are also 
+  the only class able to cast Hex spells. High-Mages have a class power 
+  - 'Eat Magic' - which absorbs mana from wands, staves, or rods; 
+  although this power is not available to those who choose the Hex 
+  realm.
   
     Stats                   Skills
-    Strength      -4        Disarming   Fair         
-    Intelligence  +4        Device      Superb       
-    Wisdom        +0        Save        Good         
-    Dexterity     +0        Stealth     Good         
+    Strength      -4        Disarming   Poor         
+    Intelligence  +4        Device      Excellent    
+    Wisdom        +0        Save        Fair         
+    Dexterity     +0        Stealth     Fair         
     Constitution  -2        Searching   Poor         
-    Charisma      -2        Perception  Fair         
+    Charisma      +1        Perception  Poor         
     Life Rating   94%       Melee       Very Bad     
     Base HP        0        Bows        Very Bad     
     Experience   130%
@@ -495,175 +552,16 @@ Magic
   power - 'Eat Magic' - which absorbs mana from wands, staves or rods.
   
     Stats                   Skills
-    Strength      -4        Disarming   Fair         
-    Intelligence  +3        Device      Superb       
-    Wisdom        +0        Save        Good         
-    Dexterity     +1        Stealth     Good         
+    Strength      -4        Disarming   Poor         
+    Intelligence  +3        Device      Excellent    
+    Wisdom        +0        Save        Fair         
+    Dexterity     +1        Stealth     Fair         
     Constitution  -2        Searching   Poor         
-    Charisma      -2        Perception  Fair         
+    Charisma      +1        Perception  Poor         
     Life Rating   95%       Melee       Very Bad     
     Base HP        0        Bows        Very Bad     
     Experience   130%
     
-  Necromancer
-  A Necromancer attempts to gain both power and knowledge through 
-  communion with the dead. They use powerful necromancy magic to summon 
-  aid from the dead, whether directly in terms of undead servitude, or 
-  indirectly through other-worldly knowledge. Necromancy also offers 
-  myriad foul offensive spells, but all of these require the 
-  Necromancer to physically touch his foe. To do so, the Necromancer 
-  may wield neither weapon, nor gloves. But a powerful necromancer is 
-  truly awe inspiring, and may even kill foes with a single deadly 
-  touch! In addition, they forever hunt for the legendary Eye and Hand 
-  of Vecna in order to complete their power.
-  
-    Stats                   Skills
-    Strength      -2        Disarming   Fair         
-    Intelligence  +3        Device      Superb       
-    Wisdom        -4        Save        Good         
-    Dexterity     +1        Stealth     Very Good    
-    Constitution  -1        Searching   Poor         
-    Charisma      -2        Perception  Fair         
-    Life Rating   95%       Melee       Very Bad     
-    Base HP        2        Bows        Very Bad     
-    Experience   125%
-    
-  Sorcerer
-  Sorcerers are the all-around best magicians, being able to cast any 
-  spell from most magic realms without having to learn it. On the 
-  downside, they are the worst fighters in the dungeon, being unable to 
-  use any weapon but a Wizardstaff.
-   
-  Sorcerers can cast any spell from any spellbooks of all magic realms 
-  with 'Master' proficiency level without having to learn it. They have 
-  a class power - 'Eat Magic' - which absorbs mana from wands, staves 
-  or rods.
-  
-    Stats                   Skills
-    Strength      -5        Disarming   Fair         
-    Intelligence  +0        Device      Heroic       
-    Wisdom        -2        Save        Heroic       
-    Dexterity     +2        Stealth     Fair         
-    Constitution  +0        Searching   Poor         
-    Charisma      +6        Perception  Fair         
-    Life Rating   65%       Melee       Very Bad     
-    Base HP        0        Bows        Very Bad     
-    Experience   160%
-    
-  Yellow-Mage
-  A Yellow Mage is a type of Mage who focuses on rapid spell casting. 
-  Much as the Warrior gets multiple attacks per round, the Yellow Mage 
-  may cast multiple spells per round. Their spell speed increases with 
-  level. In addition, they may also cast low level spells more quickly 
-  as they gain in experience (For example, a CL50 Yellow Mage casting a 
-  L35 spell only requires 85% of the normal time, and this bonus 
-  applies before their spells per round bonus).
-   
-  In all other respects, the Yellow Mage is similar to the Mage. They 
-  may learn spells from two spell realms and use Intelligence as their 
-  primary spell statistic. However, due to their focus upon hasty 
-  casting, they are unable to learn the mightiest of spells in most 
-  realms, especially as regards powerful offensive spells like Mana 
-  Storm.
-  
-    Stats                   Skills
-    Strength      -4        Disarming   Fair         
-    Intelligence  +3        Device      Superb       
-    Wisdom        +0        Save        Good         
-    Dexterity     +1        Stealth     Good         
-    Constitution  -2        Searching   Poor         
-    Charisma      -2        Perception  Fair         
-    Life Rating   95%       Melee       Very Bad     
-    Base HP        0        Bows        Very Bad     
-    Experience   130%
-    
-  
-Devices
-  Alchemist
-  Alchemists are masters of tinctures, concoctions and infusions. They 
-  can prepare themselves set infusions from potions that replicate the 
-  effect - without consuming inventory space or being in danger of 
-  shattering. They are reasonably good at melee, especially with the 
-  right potions, though they cannot rival melee specialists. Even bad 
-  potions are useful in their hands, as weapons or ingredients. Their 
-  other abilities include creating copies of potions and turning items 
-  to gold. They require intelligence for some of their abilities.
-  
-  
-    Stats                   Skills
-    Strength      +0        Disarming   Excellent    
-    Intelligence  +2        Device      Fair         
-    Wisdom        -1        Save        Fair         
-    Dexterity     +2        Stealth     Excellent    
-    Constitution  +0        Searching   Excellent    
-    Charisma      -2        Perception  Fair         
-    Life Rating  101%       Melee       Good         
-    Base HP       12        Bows        Very Good    
-    Experience   135%
-    
-  Devicemaster
-  Devicemasters are excellent with magical devices, but poor in most 
-  other skills. They may shoot or use melee in a pinch, but this will 
-  never be their forte. Instead, they must rely on their arsenal of 
-  magical devices in order to survive.
-   
-  The Devicemaster chooses to specialize in a particular class of 
-  devices and they gain extra bonuses when using devices from their 
-  speciality. These bonuses include increased damage, increased speed 
-  of activation, extra resistance to charge draining, and even the 
-  ability to occasionally power these devices without consuming 
-  charges. Each of these abilities becomes greater with experience. In 
-  addition, they gain enhanced device skill with speciality devices.
-   
-  Devicemasters have a few magical abilities to enhance their utility 
-  with devices. As expected, they gain a powerful talent of Recharging 
-  very early on. Also, they may detect magical devices from a distance. 
-  At higher levels, they gain the powerful ability to move effects from 
-  one device to another (wand/rod/staff) or to move essence from one 
-  potion/scroll to a lower level potion/scroll. As a final ability, the 
-  Devicemaster may use multiple charges at once from a given device in 
-  an act of desperation. This greatly increases the power of the 
-  effect, but may destroy the device in the process.
-  
-    Stats                   Skills
-    Strength      -1        Disarming   Poor         
-    Intelligence  +2        Device      Superb       
-    Wisdom        +1        Save        Fair         
-    Dexterity     +2        Stealth     Fair         
-    Constitution  -2        Searching   Fair         
-    Charisma      -2        Perception  Poor         
-    Life Rating  101%       Melee       Fair         
-    Base HP        6        Bows        Poor         
-    Experience   130%
-    
-  Magic-Eater
-  The Magic-Eater can absorb magical devices. Once absorbed, these 
-  devices will function like normal objects and can be used whenever 
-  charges are available. In effect, it is as if the Magic-Eater had 
-  extra inventory slots for devices. However, absorbed magic can not be 
-  drained the way normal devices can, nor can these objects be 
-  destroyed. There are fixed number of slots for each kind of device, 
-  and the Magic-Eater will need to choose which object to replace once 
-  the slots are all used. Absorbed magic can not be recharged the way 
-  normal devices can. Instead, the Magic-Eater must rest to regain 
-  charges the way a normal spellcaster must rest to regain mana. 
-  Similarly, the Magic-Eater may quaff a potion to restore mana to 
-  speed this process, though this will not necessarily restore all of 
-  their absorbed magic.
-  
-    Stats                   Skills
-    Strength      -1        Disarming   Poor         
-    Intelligence  +2        Device      Superb       
-    Wisdom        +1        Save        Fair         
-    Dexterity     +2        Stealth     Fair         
-    Constitution  -2        Searching   Fair         
-    Charisma      -2        Perception  Poor         
-    Life Rating  103%       Melee       Fair         
-    Base HP        6        Bows        Poor         
-    Experience   130%
-    
-  
-Prayer
   Priest
   A Priest is a character devoted to serving a higher power. They 
   explore the dungeon in the service of their God. They are fairly 
@@ -692,14 +590,171 @@ Prayer
   
     Stats                   Skills
     Strength      -1        Disarming   Poor         
-    Intelligence  -3        Device      Good         
-    Wisdom        +3        Save        Excellent    
+    Intelligence  -3        Device      Fair         
+    Wisdom        +3        Save        Good         
     Dexterity     -1        Stealth     Fair         
     Constitution  +0        Searching   Poor         
     Charisma      +2        Perception  Bad          
-    Life Rating  100%       Melee       Fair         
+    Life Rating  100%       Melee       Poor         
     Base HP        4        Bows        Poor         
     Experience   120%
+    
+  Necromancer
+  A Necromancer attempts to gain both power and knowledge through 
+  communion with the dead. They use powerful necromancy magic to summon 
+  aid from the dead, whether directly in terms of undead servitude, or 
+  indirectly through other-worldly knowledge. Necromancy also offers 
+  myriad foul offensive spells, but all of these require the 
+  Necromancer to physically touch his foe. To do so, the Necromancer 
+  may wield neither weapon, nor gloves. But a powerful necromancer is 
+  truly awe inspiring, and may even kill foes with a single deadly 
+  touch! In addition, they forever hunt for the legendary Eye and Hand 
+  of Vecna in order to complete their power.
+  
+    Stats                   Skills
+    Strength      -2        Disarming   Poor         
+    Intelligence  +3        Device      Excellent    
+    Wisdom        -4        Save        Fair         
+    Dexterity     +1        Stealth     Good         
+    Constitution  -1        Searching   Poor         
+    Charisma      -2        Perception  Poor         
+    Life Rating   95%       Melee       Very Bad     
+    Base HP        2        Bows        Very Bad     
+    Experience   125%
+    
+  Sorcerer
+  Sorcerers are the all-around best magicians, being able to cast any 
+  spell from most magic realms without having to learn it. On the 
+  downside, they are the worst fighters in the dungeon, being unable to 
+  use any weapon but a Wizardstaff.
+   
+  Sorcerers can cast any spell from any spellbooks of all magic realms 
+  with 'Master' proficiency level without having to learn it. They have 
+  a class power - 'Eat Magic' - which absorbs mana from wands, staves 
+  or rods.
+  
+    Stats                   Skills
+    Strength      -5        Disarming   Poor         
+    Intelligence  +6        Device      Heroic       
+    Wisdom        -2        Save        Heroic       
+    Dexterity     +2        Stealth     Fair         
+    Constitution  +0        Searching   Poor         
+    Charisma      -2        Perception  Poor         
+    Life Rating   65%       Melee       Very Bad     
+    Base HP        0        Bows        Very Bad     
+    Experience   160%
+    
+  Yellow-Mage
+  A Yellow Mage is a type of Mage who focuses on rapid spell casting. 
+  Much as the Warrior gets multiple attacks per round, the Yellow Mage 
+  may cast multiple spells per round. Their spell speed increases with 
+  level. In addition, they may also cast low level spells more quickly 
+  as they gain in experience (For example, a CL50 Yellow Mage casting a 
+  L35 spell only requires 85% of the normal time, and this bonus 
+  applies before their spells per round bonus).
+   
+  In all other respects, the Yellow Mage is similar to the Mage. They 
+  may learn spells from two spell realms and use Intelligence as their 
+  primary spell statistic. However, due to their focus upon hasty 
+  casting, they are unable to learn the mightiest of spells in most 
+  realms, especially as regards powerful offensive spells like Mana 
+  Storm.
+  
+    Stats                   Skills
+    Strength      -4        Disarming   Poor         
+    Intelligence  +3        Device      Excellent    
+    Wisdom        +0        Save        Fair         
+    Dexterity     +1        Stealth     Fair         
+    Constitution  -2        Searching   Poor         
+    Charisma      -2        Perception  Poor         
+    Life Rating   95%       Melee       Very Bad     
+    Base HP        0        Bows        Very Bad     
+    Experience   130%
+    
+  
+Devices
+  Alchemist
+  Alchemists are masters of tinctures, concoctions and infusions. They 
+  can prepare themselves set infusions from potions that replicate the 
+  effect - without consuming inventory space or being in danger of 
+  shattering. They are reasonably good at melee, especially with the 
+  right potions, though they cannot rival melee specialists. Even bad 
+  potions are useful in their hands, as weapons or ingredients. Their 
+  other abilities include creating copies of potions and turning items 
+  to gold. They require intelligence for some of their abilities.
+  
+  
+    Stats                   Skills
+    Strength      +0        Disarming   Very Good    
+    Intelligence  +2        Device      Fair         
+    Wisdom        -1        Save        Poor         
+    Dexterity     +2        Stealth     Very Good    
+    Constitution  +0        Searching   Very Good    
+    Charisma      -2        Perception  Fair         
+    Life Rating  101%       Melee       Fair         
+    Base HP       12        Bows        Good         
+    Experience   135%
+    
+  Devicemaster
+  Devicemasters are excellent with magical devices, but poor in most 
+  other skills. They may shoot or use melee in a pinch, but this will 
+  never be their forte. Instead, they must rely on their arsenal of 
+  magical devices in order to survive.
+   
+  The Devicemaster chooses to specialize in a particular class of 
+  devices and they gain extra bonuses when using devices from their 
+  speciality. These bonuses include increased damage, increased speed 
+  of activation, extra resistance to charge draining, and even the 
+  ability to occasionally power these devices without consuming 
+  charges. Each of these abilities becomes greater with experience. In 
+  addition, they gain enhanced device skill with speciality devices.
+   
+  Devicemasters have a few magical abilities to enhance their utility 
+  with devices. As expected, they gain a powerful talent of Recharging 
+  very early on. Also, they may detect magical devices from a distance. 
+  At higher levels, they gain the powerful ability to move effects from 
+  one device to another (wand/rod/staff) or to move essence from one 
+  potion/scroll to a lower level potion/scroll. As a final ability, the 
+  Devicemaster may use multiple charges at once from a given device in 
+  an act of desperation. This greatly increases the power of the 
+  effect, but may destroy the device in the process.
+  
+    Stats                   Skills
+    Strength      -1        Disarming   Poor         
+    Intelligence  +2        Device      Excellent    
+    Wisdom        +1        Save        Fair         
+    Dexterity     +2        Stealth     Fair         
+    Constitution  -2        Searching   Poor         
+    Charisma      -2        Perception  Poor         
+    Life Rating  101%       Melee       Poor         
+    Base HP        6        Bows        Poor         
+    Experience   130%
+    
+  Magic-Eater
+  The Magic-Eater can absorb magical devices. Once absorbed, these 
+  devices will function like normal objects and can be used whenever 
+  charges are available. In effect, it is as if the Magic-Eater had 
+  extra inventory slots for devices. However, absorbed magic can not be 
+  drained the way normal devices can, nor can these objects be 
+  destroyed. There are fixed number of slots for each kind of device, 
+  and the Magic-Eater will need to choose which object to replace once 
+  the slots are all used. Absorbed magic can not be recharged the way 
+  normal devices can. Instead, the Magic-Eater must rest to regain 
+  charges the way a normal spellcaster must rest to regain mana. 
+  Similarly, the Magic-Eater may quaff a potion to restore mana to 
+  speed this process, though this will not necessarily restore all of 
+  their absorbed magic.
+  
+    Stats                   Skills
+    Strength      -1        Disarming   Poor         
+    Intelligence  +2        Device      Superb       
+    Wisdom        +1        Save        Fair         
+    Dexterity     +2        Stealth     Fair         
+    Constitution  -2        Searching   Poor         
+    Charisma      +1        Perception  Poor         
+    Life Rating  103%       Melee       Poor         
+    Base HP        6        Bows        Poor         
+    Experience   130%
     
   
 Stealth
@@ -719,13 +774,13 @@ Stealth
   - 'Quick Walk' - which makes their walking speed extremely fast.
   
     Stats                   Skills
-    Strength      +0        Disarming   Superb       
+    Strength      +0        Disarming   Excellent    
     Intelligence  -1        Device      Fair         
     Wisdom        -1        Save        Fair         
-    Dexterity     +3        Stealth     Superb       
-    Constitution  +2        Searching   Excellent    
-    Charisma      +2        Perception  Good         
-    Life Rating  100%       Melee       Superb       
+    Dexterity     +3        Stealth     Excellent    
+    Constitution  +2        Searching   Very Good    
+    Charisma      -1        Perception  Fair         
+    Life Rating  100%       Melee       Excellent    
     Base HP        4        Bows        Poor         
     Experience   120%
     
@@ -751,14 +806,14 @@ Stealth
   and won't be able to learn spells until level 5.
   
     Stats                   Skills
-    Strength      +2        Disarming   Superb       
-    Intelligence  +1        Device      Excellent    
+    Strength      +2        Disarming   Excellent    
+    Intelligence  +1        Device      Good         
     Wisdom        -1        Save        Fair         
-    Dexterity     +3        Stealth     Excellent    
-    Constitution  +1        Searching   Good         
-    Charisma      +1        Perception  Fair         
-    Life Rating  100%       Melee       Excellent    
-    Base HP       12        Bows        Good         
+    Dexterity     +3        Stealth     Good         
+    Constitution  +1        Searching   Fair         
+    Charisma      -1        Perception  Fair         
+    Life Rating  100%       Melee       Good         
+    Base HP       12        Bows        Fair         
     Experience   125%
     
   Scout
@@ -771,14 +826,14 @@ Stealth
   abilities.
   
     Stats                   Skills
-    Strength      +1        Disarming   Excellent    
-    Intelligence  -1        Device      Very Good    
-    Wisdom        +2        Save        Fair         
-    Dexterity     +3        Stealth     Excellent    
-    Constitution  +0        Searching   Excellent    
+    Strength      +1        Disarming   Very Good    
+    Intelligence  -1        Device      Good         
+    Wisdom        +2        Save        Poor         
+    Dexterity     +3        Stealth     Very Good    
+    Constitution  +0        Searching   Very Good    
     Charisma      +0        Perception  Fair         
-    Life Rating  104%       Melee       Very Good    
-    Base HP        8        Bows        Superb       
+    Life Rating  104%       Melee       Good         
+    Base HP        8        Bows        Excellent    
     Experience   130%
     
   
@@ -801,14 +856,51 @@ Hybrid
   
     Stats                   Skills
     Strength      +2        Disarming   Bad          
+    Intelligence  +1        Device      Fair         
+    Wisdom        -1        Save        Poor         
+    Dexterity     +0        Stealth     Poor         
+    Constitution  +2        Searching   Poor         
+    Charisma      +1        Perception  Poor         
+    Life Rating  111%       Melee       Good         
+    Base HP       12        Bows        Fair         
+    Experience   125%
+    
+  Disciple
+  Trusted followers of mysterious ancient spirits known as the 
+  'Purples', the Disciples roam the world running errands for their 
+  masters, learning mighty spells and receiving rare items as rewards 
+  for their work. There are three main flavors of Purple Disciples - 
+  disciples of Karrot, disciples of Yeqrezh, and disciples of a group 
+  of Purples known as the Troika. Each of the Purples expects different 
+  things of their Disciples, and each helps them achieve their ends in 
+  very different ways.
+  
+  See [f] for more details on disciples.
+  
+    Stats                   Skills
+    Strength      -1        Disarming   Poor         
     Intelligence  +1        Device      Good         
     Wisdom        -1        Save        Fair         
     Dexterity     +0        Stealth     Fair         
-    Constitution  +2        Searching   Poor         
+    Constitution  -1        Searching   Fair         
     Charisma      +1        Perception  Poor         
-    Life Rating  111%       Melee       Excellent    
-    Base HP       12        Bows        Good         
+    Life Rating   95%       Melee       Fair         
+    Base HP       14        Bows        Fair         
     Experience   125%
+    
+  Hexblade
+  A Hexblade is an evil fighter who employs hex magic.
+  
+    Stats                   Skills
+    Strength      +2        Disarming   Poor         
+    Intelligence  +1        Device      Fair         
+    Wisdom        +0        Save        Fair         
+    Dexterity     +1        Stealth     Fair         
+    Constitution  +0        Searching   Poor         
+    Charisma      +2        Perception  Poor         
+    Life Rating  106%       Melee       Fair         
+    Base HP        8        Bows        Fair         
+    Experience   140%
     
   Ninja-Lawyer
   The Ninja-Lawyer moves silently in the night, combining the stealth, 
@@ -820,13 +912,13 @@ Hybrid
   ninjutsu.
   
     Stats                   Skills
-    Strength      -1        Disarming   Superb       
-    Intelligence  +0        Device      Good         
+    Strength      -1        Disarming   Excellent    
+    Intelligence  +0        Device      Fair         
     Wisdom        +0        Save        Fair         
-    Dexterity     +2        Stealth     Superb       
-    Constitution  +0        Searching   Excellent    
-    Charisma      +2        Perception  Fair         
-    Life Rating   99%       Melee       Excellent    
+    Dexterity     +2        Stealth     Excellent    
+    Constitution  +0        Searching   Good         
+    Charisma      +0        Perception  Fair         
+    Life Rating   99%       Melee       Very Good    
     Base HP        8        Bows        Poor         
     Experience   115%
     
@@ -852,11 +944,11 @@ Hybrid
     Strength      +3        Disarming   Bad          
     Intelligence  -3        Device      Fair         
     Wisdom        +1        Save        Fair         
-    Dexterity     +0        Stealth     Fair         
+    Dexterity     +0        Stealth     Poor         
     Constitution  +2        Searching   Poor         
     Charisma      +2        Perception  Bad          
-    Life Rating  111%       Melee       Excellent    
-    Base HP       12        Bows        Good         
+    Life Rating  111%       Melee       Very Good    
+    Base HP       12        Bows        Fair         
     Experience   135%
     
   Ranger
@@ -876,14 +968,14 @@ Hybrid
   to know a monster's HP, speed, and experience required to evolve.
   
     Stats                   Skills
-    Strength      +2        Disarming   Fair         
-    Intelligence  +0        Device      Excellent    
+    Strength      +2        Disarming   Poor         
+    Intelligence  +0        Device      Good         
     Wisdom        +2        Save        Fair         
-    Dexterity     +1        Stealth     Good         
+    Dexterity     +1        Stealth     Fair         
     Constitution  +1        Searching   Fair         
-    Charisma      +0        Perception  Poor         
-    Life Rating  106%       Melee       Very Good    
-    Base HP        8        Bows        Good         
+    Charisma      +1        Perception  Poor         
+    Life Rating  106%       Melee       Good         
+    Base HP        8        Bows        Fair         
     Experience   140%
     
   Red-Mage
@@ -905,12 +997,12 @@ Hybrid
   
     Stats                   Skills
     Strength      +2        Disarming   Bad          
-    Intelligence  +2        Device      Very Good    
+    Intelligence  +2        Device      Good         
     Wisdom        -1        Save        Fair         
-    Dexterity     +1        Stealth     Fair         
+    Dexterity     +1        Stealth     Poor         
     Constitution  +0        Searching   Poor         
     Charisma      -1        Perception  Bad          
-    Life Rating  106%       Melee       Very Good    
+    Life Rating  106%       Melee       Good         
     Base HP        8        Bows        Bad          
     Experience   140%
     
@@ -931,14 +1023,14 @@ Hybrid
   mana or gain mana using HP.
   
     Stats                   Skills
-    Strength      +2        Disarming   Fair         
-    Intelligence  +2        Device      Excellent    
+    Strength      +2        Disarming   Poor         
+    Intelligence  +2        Device      Good         
     Wisdom        +0        Save        Fair         
     Dexterity     +1        Stealth     Fair         
-    Constitution  +0        Searching   Fair         
-    Charisma      +1        Perception  Poor         
-    Life Rating  106%       Melee       Very Good    
-    Base HP        8        Bows        Good         
+    Constitution  +0        Searching   Poor         
+    Charisma      +0        Perception  Poor         
+    Life Rating  106%       Melee       Good         
+    Base HP        8        Bows        Fair         
     Experience   140%
     
   
@@ -960,12 +1052,12 @@ Riding
     Stats                   Skills
     Strength      +1        Disarming   Bad          
     Intelligence  -1        Device      Fair         
-    Wisdom        -1        Save        Fair         
+    Wisdom        -1        Save        Poor         
     Dexterity     +1        Stealth     Fair         
-    Constitution  +0        Searching   Fair         
+    Constitution  +0        Searching   Poor         
     Charisma      +2        Perception  Poor         
     Life Rating  103%       Melee       Fair         
-    Base HP        6        Bows        Superb       
+    Base HP        6        Bows        Excellent    
     Experience   120%
     
   Cavalry
@@ -980,13 +1072,13 @@ Riding
   allows them to forcibly saddle and tame wild monsters.
   
     Stats                   Skills
-    Strength      +2        Disarming   Fair         
+    Strength      +2        Disarming   Poor         
     Intelligence  -2        Device      Bad          
-    Wisdom        -2        Save        Fair         
-    Dexterity     +2        Stealth     Fair         
+    Wisdom        -2        Save        Poor         
+    Dexterity     +2        Stealth     Poor         
     Constitution  +2        Searching   Poor         
-    Charisma      +1        Perception  Bad          
-    Life Rating  111%       Melee       Excellent    
+    Charisma      +0        Perception  Bad          
+    Life Rating  111%       Melee       Very Good    
     Base HP       10        Bows        Superb       
     Experience   120%
     
@@ -1007,14 +1099,14 @@ Mind
   them to rapidly regenerate their mana.
   
     Stats                   Skills
-    Strength      -1        Disarming   Good         
-    Intelligence  +0        Device      Very Good    
+    Strength      -1        Disarming   Fair         
+    Intelligence  +0        Device      Good         
     Wisdom        +3        Save        Fair         
-    Dexterity     -1        Stealth     Good         
-    Constitution  -1        Searching   Fair         
+    Dexterity     -1        Stealth     Fair         
+    Constitution  -1        Searching   Poor         
     Charisma      +2        Perception  Poor         
-    Life Rating   99%       Melee       Fair         
-    Base HP        4        Bows        Good         
+    Life Rating   99%       Melee       Poor         
+    Base HP        4        Bows        Fair         
     Experience   125%
     
   Mirror-Master
@@ -1037,12 +1129,12 @@ Mind
   regenerate their mana on a mirror.
   
     Stats                   Skills
-    Strength      -2        Disarming   Good         
-    Intelligence  +3        Device      Very Good    
-    Wisdom        +1        Save        Excellent    
-    Dexterity     -1        Stealth     Good         
+    Strength      -2        Disarming   Fair         
+    Intelligence  +3        Device      Good         
+    Wisdom        +1        Save        Good         
+    Dexterity     -1        Stealth     Fair         
     Constitution  -2        Searching   Poor         
-    Charisma      -2        Perception  Poor         
+    Charisma      +1        Perception  Poor         
     Life Rating  100%       Melee       Very Bad     
     Base HP        4        Bows        Bad          
     Experience   130%
@@ -1061,12 +1153,12 @@ Mind
   
     Stats                   Skills
     Strength      -1        Disarming   Poor         
-    Intelligence  +2        Device      Very Good    
-    Wisdom        +2        Save        Excellent    
+    Intelligence  +2        Device      Good         
+    Wisdom        +2        Save        Good         
     Dexterity     -1        Stealth     Fair         
     Constitution  -1        Searching   Poor         
     Charisma      +2        Perception  Bad          
-    Life Rating   96%       Melee       Fair         
+    Life Rating   96%       Melee       Poor         
     Base HP        4        Bows        Poor         
     Experience   150%
     
@@ -1091,12 +1183,12 @@ Mind
   
     Stats                   Skills
     Strength      -1        Disarming   Poor         
-    Intelligence  +0        Device      Very Good    
+    Intelligence  +0        Device      Good         
     Wisdom        +3        Save        Fair         
     Dexterity     -1        Stealth     Fair         
     Constitution  -1        Searching   Poor         
-    Charisma      +0        Perception  Bad          
-    Life Rating   96%       Melee       Fair         
+    Charisma      +1        Perception  Bad          
+    Life Rating   96%       Melee       Poor         
     Base HP        0        Bows        Poor         
     Experience   125%
     
@@ -1124,16 +1216,16 @@ Mind
   the binding forces which the warlock imposes to gain both mastery and 
   power.
   
-  See [f] for more details on warlock pacts.
+  See [g] for more details on warlock pacts.
   
     Stats                   Skills
     Strength      -1        Disarming   Poor         
-    Intelligence  +2        Device      Superb       
-    Wisdom        -3        Save        Excellent    
-    Dexterity     +0        Stealth     Very Good    
+    Intelligence  +2        Device      Excellent    
+    Wisdom        -3        Save        Good         
+    Dexterity     +0        Stealth     Good         
     Constitution  +2        Searching   Poor         
-    Charisma      +4        Perception  Fair         
-    Life Rating  107%       Melee       Fair         
+    Charisma      +4        Perception  Poor         
+    Life Rating  107%       Melee       Poor         
     Base HP       15        Bows        Poor         
     Experience   135%
     
@@ -1149,13 +1241,13 @@ Other
   enhanced by Wisdom.
   
     Stats                   Skills
-    Strength      -1        Disarming   Superb       
-    Intelligence  +1        Device      Excellent    
+    Strength      -1        Disarming   Excellent    
+    Intelligence  +1        Device      Very Good    
     Wisdom        +2        Save        Fair         
-    Dexterity     +1        Stealth     Very Good    
-    Constitution  -1        Searching   Excellent    
-    Charisma      +0        Perception  Good         
-    Life Rating  106%       Melee       Very Good    
+    Dexterity     +1        Stealth     Good         
+    Constitution  -1        Searching   Very Good    
+    Charisma      +0        Perception  Fair         
+    Life Rating  106%       Melee       Good         
     Base HP        8        Bows        Poor         
     Experience   120%
     
@@ -1174,14 +1266,43 @@ Other
   
     Stats                   Skills
     Strength      -2        Disarming   Poor         
-    Intelligence  +1        Device      Excellent    
+    Intelligence  +1        Device      Very Good    
     Wisdom        +2        Save        Fair         
     Dexterity     -1        Stealth     Very Bad     
     Constitution  -2        Searching   Poor         
-    Charisma      +4        Perception  Fair         
+    Charisma      +4        Perception  Poor         
     Life Rating  100%       Melee       Bad          
     Base HP        4        Bows        Bad          
     Experience   140%
+    
+  Imitator
+  Imitators have enough fighting skills to survive, but rely on their 
+  unique technique - 'Imitation' - which imitates monster 
+  spells/techniques including their damage and duration. Dexterity 
+  determines general imitation ability, but a stat related to the 
+  specific action is often also taken into account.
+   
+  To use imitation, Imitators must see monster's spell at first. When a 
+  viewable monsters uses a spell, it is added to a temporary spell list 
+  which the imitator can choose from. Spells should be imitated 
+  quickly, because timing and situation are everything. An imitator can 
+  only repeat a spell once each time he observes it. They only have a 
+  small long-term memory for spells, which ranges from one to three, 
+  depending on their level. When they memorize more spells than this, 
+  they will forget the oldest spell in the list. They have a class 
+  power - 'Double Revenge' - which allows them to imitate spells at 
+  double damage or duration.
+  
+    Stats                   Skills
+    Strength      +0        Disarming   Poor         
+    Intelligence  +1        Device      Fair         
+    Wisdom        -1        Save        Fair         
+    Dexterity     +2        Stealth     Fair         
+    Constitution  +0        Searching   Poor         
+    Charisma      -1        Perception  Poor         
+    Life Rating  108%       Melee       Good         
+    Base HP       10        Bows        Good         
+    Experience   110%
     
   Lawyer
   Known for his unsurpassed expertise in the mysterious realm of Law, 
@@ -1193,14 +1314,14 @@ Other
   in the past, the lawyer uses WIS as his spellcasting stat.
   
     Stats                   Skills
-    Strength      -3        Disarming   Superb       
-    Intelligence  +2        Device      Very Good    
-    Wisdom        +0        Save        Good         
-    Dexterity     +0        Stealth     Good         
-    Constitution  -1        Searching   Excellent    
-    Charisma      +1        Perception  Good         
-    Life Rating  102%       Melee       Good         
-    Base HP       12        Bows        Fair         
+    Strength      -3        Disarming   Excellent    
+    Intelligence  +2        Device      Good         
+    Wisdom        +0        Save        Fair         
+    Dexterity     +0        Stealth     Fair         
+    Constitution  -1        Searching   Good         
+    Charisma      +1        Perception  Fair         
+    Life Rating  102%       Melee       Fair         
+    Base HP       12        Bows        Poor         
     Experience   115%
     
   Politician
@@ -1214,11 +1335,11 @@ Other
   levels. Charisma is a key stat for Politicians.
   
     Stats                   Skills
-    Strength      -2        Disarming   Superb       
-    Intelligence  +1        Device      Fair         
-    Wisdom        +0        Save        Good         
-    Dexterity     -2        Stealth     Superb       
-    Constitution  +0        Searching   Excellent    
+    Strength      -2        Disarming   Excellent    
+    Intelligence  +1        Device      Poor         
+    Wisdom        +0        Save        Fair         
+    Dexterity     -2        Stealth     Excellent    
+    Constitution  +0        Searching   Good         
     Charisma      +2        Perception  Fair         
     Life Rating  100%       Melee       Very Bad     
     Base HP        9        Bows        Bad          
@@ -1248,12 +1369,12 @@ Other
     Stats                   Skills
     Strength      +3        Disarming   Bad          
     Intelligence  -2        Device      Bad          
-    Wisdom        -2        Save        Superb       
+    Wisdom        -2        Save        Excellent    
     Dexterity     -2        Stealth     Bad          
     Constitution  +2        Searching   Poor         
-    Charisma      +1        Perception  Bad          
+    Charisma      -1        Perception  Bad          
     Life Rating  106%       Melee       Fair         
-    Base HP        6        Bows        Fair         
+    Base HP        6        Bows        Poor         
     Experience   150%
     
   Skillmaster
@@ -1274,7 +1395,7 @@ Other
   immediate players. You only have a limited amount of points to spend, 
   and your choices are irreversible.
   
-  See [g] for more details on skillmasters.
+  See [h] for more details on skillmasters.
   
     Stats                   Skills
     Strength      +0        Disarming   Very Bad     
@@ -1303,10 +1424,10 @@ Other
     Strength      -2        Disarming   Bad          
     Intelligence  -1        Device      Very Bad     
     Wisdom        -1        Save        Bad          
-    Dexterity     -1        Stealth     Fair         
+    Dexterity     -1        Stealth     Poor         
     Constitution  -2        Searching   Poor         
     Charisma      -3        Perception  Bad          
-    Life Rating   94%       Melee       Fair         
+    Life Rating   94%       Melee       Poor         
     Base HP        0        Bows        Bad          
     Experience    70%
     
@@ -1324,66 +1445,71 @@ Other
   particular stat and is simply determined by experience.
   
     Stats                   Skills
-    Strength      -1        Disarming   Fair         
-    Intelligence  +1        Device      Good         
-    Wisdom        +1        Save        Fair         
+    Strength      -1        Disarming   Poor         
+    Intelligence  +1        Device      Fair         
+    Wisdom        +1        Save        Poor         
     Dexterity     +1        Stealth     Fair         
     Constitution  -2        Searching   Fair         
     Charisma      +1        Perception  Poor         
-    Life Rating  100%       Melee       Very Good    
-    Base HP        4        Bows        Very Good    
+    Life Rating  100%       Melee       Good         
+    Base HP        4        Bows        Good         
     Experience   110%
     
   
 Table 1 - Class Statistic Bonus Table
 
               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-Berserker      +8  -20  -20   +4   +4   +4  200%  +22  160%
-Blood-Knight   +2   -2   -2   +0   +3   +2  120%  +20  150%
+Berserker      +8  -20  -20   +4   +4   -5  200%  +22  160%
+Blood-Knight   +2   -2   -2   +0   +3   -2  120%  +20  150%
 Duelist        +2   +1   -2   +2   -3   +2  100%   +4  150%
-Mauler         +5   -2   -2   -1   +3   +2  110%  +18  120%
-Rune-Knight    +2   +1   -1   +1   +0   +1  102%   +6  150%
-Samurai        +3   -2   +1   +2   +1   +1  109%  +12  130%
-Warrior        +4   -2   -2   +2   +2   +1  115%  +18  100%
-Weaponmaster   +4   -3   -2   -1   +2   +1  107%  +12  135%
+Mauler         +5   -2   -2   -1   +3   -1  110%  +18  120%
+Rune-Knight    +2   +1   -1   +1   +0   +1  101%   +7  150%
+Samurai        +3   -2   +1   +2   +1   +0  109%  +12  130%
+Warrior        +4   -2   -2   +2   +2   -1  115%  +18  100%
+Weaponmaster   +4   -3   -2   -1   +2   -1  107%  +12  135%
 Weaponsmith    +3   -1   -1   +1   +0   -1  106%  +12  130%
 Archer         +2   -1   -1   +2   +1   +0  111%  +12  110%
 Sniper         +2   -1   -1   +2   +1   +0  100%   +4  110%
-Force-Trainer  +0   -1   +3   +2   +1   +0  100%   +4  135%
+Force-Trainer  +0   -1   +3   +2   +1   +1  100%   +4  135%
 Monk           +2   -1   +1   +3   +2   +1  102%  +12  130%
-Mystic         +2   -1   -2   +3   +1   +2  100%   +4  130%
+Mystic         +2   -1   -2   +3   +1   +1  100%   +4  130%
 Blood-Mage     -4   +3   -2   +1   +2   -2  108%  +10  135%
+Blue-Mage      -4   +4   -1   +1   -2   -2  100%   +4  130%
+Chaos-Mage     -3   +3   -1   +0   -1   -2   95%   +0  135%
 Gray-Mage      -4   +3   +0   +1   -2   -2   95%   +0  130%
-High-Mage      -4   +4   +0   +0   -2   -2   94%   +0  130%
-Mage           -4   +3   +0   +1   -2   -2   95%   +0  130%
+High-Mage      -4   +4   +0   +0   -2   +1   94%   +0  130%
+Mage           -4   +3   +0   +1   -2   +1   95%   +0  130%
+Priest         -1   -3   +3   -1   +0   +2  100%   +4  120%
 Necromancer    -2   +3   -4   +1   -1   -2   95%   +2  125%
-Sorcerer       -5   +0   -2   +2   +0   +6   65%   +0  160%
+Sorcerer       -5   +6   -2   +2   +0   -2   65%   +0  160%
 Yellow-Mage    -4   +3   +0   +1   -2   -2   95%   +0  130%
 Alchemist      +0   +2   -1   +2   +0   -2  101%  +12  135%
 Devicemaster   -1   +2   +1   +2   -2   -2  101%   +6  130%
-Magic-Eater    -1   +2   +1   +2   -2   -2  103%   +6  130%
-Priest         -1   -3   +3   -1   +0   +2  100%   +4  120%
-Ninja          +0   -1   -1   +3   +2   +2  100%   +4  120%
-Rogue          +2   +1   -1   +3   +1   +1  100%  +12  125%
+Magic-Eater    -1   +2   +1   +2   -2   +1  103%   +6  130%
+Ninja          +0   -1   -1   +3   +2   -1  100%   +4  120%
+Rogue          +2   +1   -1   +3   +1   -1  100%  +12  125%
 Scout          +1   -1   +2   +3   +0   +0  104%   +8  130%
 Chaos-Warrior  +2   +1   -1   +0   +2   +1  111%  +12  125%
-Ninja-Lawyer   -1   +0   +0   +2   +0   +2   99%   +8  115%
+Disciple       -1   +1   -1   +0   -1   +1   95%  +14  125%
+Hexblade       +2   +1   +0   +1   +0   +2  106%   +8  140%
+Ninja-Lawyer   -1   +0   +0   +2   +0   +0   99%   +8  115%
 Paladin        +3   -3   +1   +0   +2   +2  111%  +12  135%
-Ranger         +2   +0   +2   +1   +1   +0  106%   +8  140%
+Ranger         +2   +0   +2   +1   +1   +1  106%   +8  140%
 Red-Mage       +2   +2   -1   +1   +0   -1  106%   +8  140%
-Warrior-Mage   +2   +2   +0   +1   +0   +1  106%   +8  140%
+Warrior-Mage   +2   +2   +0   +1   +0   +0  106%   +8  140%
 Beastmaster    +1   -1   -1   +1   +0   +2  103%   +6  120%
-Cavalry        +2   -2   -2   +2   +2   +1  111%  +10  120%
+Cavalry        +2   -2   -2   +2   +2   +0  111%  +10  120%
 Mindcrafter    -1   +0   +3   -1   -1   +2   99%   +4  125%
-Mirror-Master  -2   +3   +1   -1   -2   -2  100%   +4  130%
+Mirror-Master  -2   +3   +1   -1   -2   +1  100%   +4  130%
 Psion          -1   +2   +2   -1   -1   +2   96%   +4  150%
-Time-Lord      -1   +0   +3   -1   -1   +0   96%   +0  125%
+Time-Lord      -1   +0   +3   -1   -1   +1   96%   +0  125%
 Warlock        -1   +2   -3   +0   +2   +4  107%  +15  135%
 Archaeologist  -1   +1   +2   +1   -1   +0  106%   +8  120%
 Bard           -2   +1   +2   -1   -2   +4  100%   +4  140%
+Imitator       +0   +1   -1   +2   +0   -1  108%  +10  110%
 Lawyer         -3   +2   +0   +0   -1   +1  102%  +12  115%
 Politician     -2   +1   +0   -2   +0   +2  100%   +9  130%
-Rage-Mage      +3   -2   -2   -2   +2   +1  106%   +6  150%
+Rage-Mage      +3   -2   -2   -2   +2   -1  106%   +6  150%
 Skillmaster    +0   +0   +0   +0   +0   +0  100%  +10  130%
 Tourist        -2   -1   -1   -1   -2   -3   94%   +0   70%
 Wild-Talent    -1   +1   +1   +1   -2   +1  100%   +4  110%
@@ -1393,111 +1519,121 @@ Table 2 - Class Skill Bonus Table I
 
               Disarming     Device        Save          Stealth      
 Berserker     Very Bad      Very Bad      Very Bad      Very Bad     
-Blood-Knight  Good          Bad           Fair          Fair         
-Duelist       Good          Fair          Bad           Good         
-Mauler        Good          Fair          Very Good     Poor         
-Rune-Knight   Fair          Good          Fair          Fair         
-Samurai       Good          Bad           Fair          Fair         
-Warrior       Good          Bad           Fair          Fair         
-Weaponmaster  Fair          Bad           Fair          Fair         
-Weaponsmith   Good          Fair          Bad           Fair         
-Archer        Excellent     Fair          Fair          Very Good    
-Sniper        Good          Fair          Poor          Excellent    
-Force-Trainer Good          Very Good     Good          Very Good    
-Monk          Superb        Good          Fair          Excellent    
-Mystic        Superb        Very Good     Fair          Excellent    
-Blood-Mage    Fair          Superb        Good          Good         
-Gray-Mage     Fair          Superb        Good          Good         
-High-Mage     Fair          Superb        Good          Good         
-Mage          Fair          Superb        Good          Good         
-Necromancer   Fair          Superb        Good          Very Good    
-Sorcerer      Fair          Heroic        Heroic        Fair         
-Yellow-Mage   Fair          Superb        Good          Good         
-Alchemist     Excellent     Fair          Fair          Excellent    
-Devicemaster  Poor          Superb        Fair          Fair         
+Blood-Knight  Fair          Bad           Poor          Fair         
+Duelist       Fair          Poor          Bad           Fair         
+Mauler        Fair          Poor          Good          Poor         
+Rune-Knight   Poor          Poor          Fair          Fair         
+Samurai       Fair          Bad           Poor          Fair         
+Warrior       Fair          Bad           Poor          Poor         
+Weaponmaster  Poor          Bad           Poor          Poor         
+Weaponsmith   Fair          Poor          Bad           Poor         
+Archer        Good          Fair          Fair          Good         
+Sniper        Fair          Fair          Poor          Good         
+Force-Trainer Fair          Good          Fair          Good         
+Monk          Excellent     Fair          Fair          Good         
+Mystic        Excellent     Good          Fair          Good         
+Blood-Mage    Poor          Excellent     Fair          Fair         
+Blue-Mage     Poor          Excellent     Fair          Fair         
+Chaos-Mage    Poor          Excellent     Fair          Fair         
+Gray-Mage     Poor          Excellent     Fair          Fair         
+High-Mage     Poor          Excellent     Fair          Fair         
+Mage          Poor          Excellent     Fair          Fair         
+Priest        Poor          Fair          Good          Fair         
+Necromancer   Poor          Excellent     Fair          Good         
+Sorcerer      Poor          Heroic        Heroic        Fair         
+Yellow-Mage   Poor          Excellent     Fair          Fair         
+Alchemist     Very Good     Fair          Poor          Very Good    
+Devicemaster  Poor          Excellent     Fair          Fair         
 Magic-Eater   Poor          Superb        Fair          Fair         
-Priest        Poor          Good          Excellent     Fair         
-Ninja         Superb        Fair          Fair          Superb       
-Rogue         Superb        Excellent     Fair          Excellent    
-Scout         Excellent     Very Good     Fair          Excellent    
-Chaos-Warrior Bad           Good          Fair          Fair         
-Ninja-Lawyer  Superb        Good          Fair          Superb       
-Paladin       Bad           Fair          Fair          Fair         
-Ranger        Fair          Excellent     Fair          Good         
-Red-Mage      Bad           Very Good     Fair          Fair         
-Warrior-Mage  Fair          Excellent     Fair          Fair         
-Beastmaster   Bad           Fair          Fair          Fair         
-Cavalry       Fair          Bad           Fair          Fair         
-Mindcrafter   Good          Very Good     Fair          Good         
-Mirror-Master Good          Very Good     Excellent     Good         
-Psion         Poor          Very Good     Excellent     Fair         
-Time-Lord     Poor          Very Good     Fair          Fair         
-Warlock       Poor          Superb        Excellent     Very Good    
-Archaeologist Superb        Excellent     Fair          Very Good    
-Bard          Poor          Excellent     Fair          Very Bad     
-Lawyer        Superb        Very Good     Good          Good         
-Politician    Superb        Fair          Good          Superb       
-Rage-Mage     Bad           Bad           Superb        Bad          
+Ninja         Excellent     Fair          Fair          Excellent    
+Rogue         Excellent     Good          Fair          Good         
+Scout         Very Good     Good          Poor          Very Good    
+Chaos-Warrior Bad           Fair          Poor          Poor         
+Disciple      Poor          Good          Fair          Fair         
+Hexblade      Poor          Fair          Fair          Fair         
+Ninja-Lawyer  Excellent     Fair          Fair          Excellent    
+Paladin       Bad           Fair          Fair          Poor         
+Ranger        Poor          Good          Fair          Fair         
+Red-Mage      Bad           Good          Fair          Poor         
+Warrior-Mage  Poor          Good          Fair          Fair         
+Beastmaster   Bad           Fair          Poor          Fair         
+Cavalry       Poor          Bad           Poor          Poor         
+Mindcrafter   Fair          Good          Fair          Fair         
+Mirror-Master Fair          Good          Good          Fair         
+Psion         Poor          Good          Good          Fair         
+Time-Lord     Poor          Good          Fair          Fair         
+Warlock       Poor          Excellent     Good          Good         
+Archaeologist Excellent     Very Good     Fair          Good         
+Bard          Poor          Very Good     Fair          Very Bad     
+Imitator      Poor          Fair          Fair          Fair         
+Lawyer        Excellent     Good          Fair          Fair         
+Politician    Excellent     Poor          Fair          Excellent    
+Rage-Mage     Bad           Bad           Excellent     Bad          
 Skillmaster   Very Bad      Very Bad      Very Bad      Poor         
-Tourist       Bad           Very Bad      Bad           Fair         
-Wild-Talent   Fair          Good          Fair          Fair         
+Tourist       Bad           Very Bad      Bad           Poor         
+Wild-Talent   Poor          Fair          Poor          Fair         
 
 
 Table 3 - Class Skill Bonus Table II
 
               Searching     Perception    Melee         Bows         
 Berserker     Very Bad      Very Bad      Amber[20]     Very Bad     
-Blood-Knight  Poor          Bad           Superb        Poor         
-Duelist       Fair          Poor          Fair          Very Bad     
+Blood-Knight  Poor          Bad           Excellent     Poor         
+Duelist       Poor          Poor          Fair          Very Bad     
 Mauler        Poor          Bad           Superb        Very Bad     
-Rune-Knight   Fair          Poor          Fair          Poor         
-Samurai       Poor          Bad           Superb        Good         
+Rune-Knight   Poor          Poor          Fair          Poor         
+Samurai       Poor          Bad           Excellent     Fair         
 Warrior       Poor          Bad           Superb        Superb       
 Weaponmaster  Poor          Bad           Superb        Bad          
-Weaponsmith   Poor          Bad           Excellent     Fair         
-Archer        Fair          Poor          Very Good     Heroic       
-Sniper        Good          Fair          Poor          Superb       
-Force-Trainer Good          Fair          Fair          Fair         
-Monk          Good          Fair          Excellent     Excellent    
-Mystic        Good          Fair          Excellent     Excellent    
-Blood-Mage    Poor          Fair          Very Bad      Very Bad     
-Gray-Mage     Poor          Fair          Very Bad      Very Bad     
-High-Mage     Poor          Fair          Very Bad      Very Bad     
-Mage          Poor          Fair          Very Bad      Very Bad     
-Necromancer   Poor          Fair          Very Bad      Very Bad     
-Sorcerer      Poor          Fair          Very Bad      Very Bad     
-Yellow-Mage   Poor          Fair          Very Bad      Very Bad     
-Alchemist     Excellent     Fair          Good          Very Good    
-Devicemaster  Fair          Poor          Fair          Poor         
-Magic-Eater   Fair          Poor          Fair          Poor         
-Priest        Poor          Bad           Fair          Poor         
-Ninja         Excellent     Good          Superb        Poor         
-Rogue         Good          Fair          Excellent     Good         
-Scout         Excellent     Fair          Very Good     Superb       
-Chaos-Warrior Poor          Poor          Excellent     Good         
-Ninja-Lawyer  Excellent     Fair          Excellent     Poor         
-Paladin       Poor          Bad           Excellent     Good         
-Ranger        Fair          Poor          Very Good     Good         
-Red-Mage      Poor          Bad           Very Good     Bad          
-Warrior-Mage  Fair          Poor          Very Good     Good         
-Beastmaster   Fair          Poor          Fair          Superb       
-Cavalry       Poor          Bad           Excellent     Superb       
-Mindcrafter   Fair          Poor          Fair          Good         
+Weaponsmith   Poor          Bad           Good          Fair         
+Archer        Fair          Poor          Good          Heroic       
+Sniper        Fair          Poor          Poor          Superb       
+Force-Trainer Fair          Fair          Fair          Fair         
+Monk          Fair          Fair          Good          Good         
+Mystic        Fair          Fair          Good          Good         
+Blood-Mage    Poor          Poor          Very Bad      Very Bad     
+Blue-Mage     Poor          Poor          Bad           Bad          
+Chaos-Mage    Poor          Poor          Very Bad      Very Bad     
+Gray-Mage     Poor          Poor          Very Bad      Very Bad     
+High-Mage     Poor          Poor          Very Bad      Very Bad     
+Mage          Poor          Poor          Very Bad      Very Bad     
+Priest        Poor          Bad           Poor          Poor         
+Necromancer   Poor          Poor          Very Bad      Very Bad     
+Sorcerer      Poor          Poor          Very Bad      Very Bad     
+Yellow-Mage   Poor          Poor          Very Bad      Very Bad     
+Alchemist     Very Good     Fair          Fair          Good         
+Devicemaster  Poor          Poor          Poor          Poor         
+Magic-Eater   Poor          Poor          Poor          Poor         
+Ninja         Very Good     Fair          Excellent     Poor         
+Rogue         Fair          Fair          Good          Fair         
+Scout         Very Good     Fair          Good          Excellent    
+Chaos-Warrior Poor          Poor          Good          Fair         
+Disciple      Fair          Poor          Fair          Fair         
+Hexblade      Poor          Poor          Fair          Fair         
+Ninja-Lawyer  Good          Fair          Very Good     Poor         
+Paladin       Poor          Bad           Very Good     Fair         
+Ranger        Fair          Poor          Good          Fair         
+Red-Mage      Poor          Bad           Good          Bad          
+Warrior-Mage  Poor          Poor          Good          Fair         
+Beastmaster   Poor          Poor          Fair          Excellent    
+Cavalry       Poor          Bad           Very Good     Superb       
+Mindcrafter   Poor          Poor          Poor          Fair         
 Mirror-Master Poor          Poor          Very Bad      Bad          
-Psion         Poor          Bad           Fair          Poor         
-Time-Lord     Poor          Bad           Fair          Poor         
-Warlock       Poor          Fair          Fair          Poor         
-Archaeologist Excellent     Good          Very Good     Poor         
-Bard          Poor          Fair          Bad           Bad          
-Lawyer        Excellent     Good          Good          Fair         
-Politician    Excellent     Fair          Very Bad      Bad          
-Rage-Mage     Poor          Bad           Fair          Fair         
+Psion         Poor          Bad           Poor          Poor         
+Time-Lord     Poor          Bad           Poor          Poor         
+Warlock       Poor          Poor          Poor          Poor         
+Archaeologist Very Good     Fair          Good          Poor         
+Bard          Poor          Poor          Bad           Bad          
+Imitator      Poor          Poor          Good          Good         
+Lawyer        Good          Fair          Fair          Poor         
+Politician    Good          Fair          Very Bad      Bad          
+Rage-Mage     Poor          Bad           Fair          Poor         
 Skillmaster   Bad           Bad           Very Bad      Very Bad     
-Tourist       Poor          Bad           Fair          Bad          
-Wild-Talent   Fair          Poor          Very Good     Very Good    
+Tourist       Poor          Bad           Poor          Bad          
+Wild-Talent   Fair          Poor          Good          Good         
 
 
 
 
-Automatically generated for FrogComposband 7.0.cloudberry.
+Automatically generated for Oposband 0.2.0.
 

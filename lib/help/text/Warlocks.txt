@@ -38,12 +38,12 @@ ability to fight these creatures.
 
   Stats                   Skills
   Strength      -1        Disarming   Poor         
-  Intelligence  +2        Device      Superb       
-  Wisdom        -3        Save        Excellent    
-  Dexterity     +0        Stealth     Very Good    
+  Intelligence  +2        Device      Excellent    
+  Wisdom        -3        Save        Good         
+  Dexterity     +0        Stealth     Good         
   Constitution  +2        Searching   Poor         
-  Charisma      +4        Perception  Fair         
-  Life Rating  107%       Melee       Fair         
+  Charisma      +4        Perception  Poor         
+  Life Rating  107%       Melee       Poor         
   Base HP       15        Bows        Poor         
   Experience   135%
   
@@ -62,9 +62,9 @@ lance above all other weapons and seek continuously for the lengendary
 
   Stats                   Skills
   Strength      +2        Disarming   Bad          
-  Intelligence  +0        Device      Good         
-  Wisdom        +0        Save        Fair         
-  Dexterity     -1        Stealth     Fair         
+  Intelligence  +0        Device      Fair         
+  Wisdom        +0        Save        Poor         
+  Dexterity     -1        Stealth     Poor         
   Constitution  +1        Searching   Poor         
   Charisma      +3        Perception  Poor         
   Life Rating  102%       Melee       Fair         
@@ -81,12 +81,12 @@ done to all good monsters by a substantial amount.
 
   Stats                   Skills
   Strength      +1        Disarming   Bad          
-  Intelligence  +1        Device      Very Good    
-  Wisdom        +2        Save        Superb       
-  Dexterity     +1        Stealth     Fair         
+  Intelligence  +1        Device      Good         
+  Wisdom        +2        Save        Excellent    
+  Dexterity     +1        Stealth     Poor         
   Constitution  +1        Searching   Poor         
   Charisma      +3        Perception  Bad          
-  Life Rating   98%       Melee       Fair         
+  Life Rating   98%       Melee       Poor         
   Base HP        4        Bows        Poor         
   Experience   150%
   
@@ -101,12 +101,12 @@ all demons by a substantial amount.
 
   Stats                   Skills
   Strength      +3        Disarming   Bad          
-  Intelligence  +1        Device      Superb       
-  Wisdom       -10        Save        Excellent    
+  Intelligence  +1        Device      Excellent    
+  Wisdom       -10        Save        Good         
   Dexterity     +1        Stealth     Poor         
   Constitution  +1        Searching   Poor         
   Charisma      +3        Perception  Bad          
-  Life Rating  100%       Melee       Excellent    
+  Life Rating  100%       Melee       Good         
   Base HP       15        Bows        Poor         
   Experience   150%
   
@@ -123,11 +123,11 @@ be annoying as well, so perhaps an alliance is in order?
   Stats                   Skills
   Strength      +0        Disarming   Bad          
   Intelligence  -2        Device      Fair         
-  Wisdom        -2        Save        Fair         
-  Dexterity     +2        Stealth     Excellent    
-  Constitution  +2        Searching   Fair         
+  Wisdom        -2        Save        Poor         
+  Dexterity     +2        Stealth     Good         
+  Constitution  +2        Searching   Poor         
   Charisma      +2        Perception  Poor         
-  Life Rating  102%       Melee       Excellent    
+  Life Rating  102%       Melee       Good         
   Base HP       12        Bows        Bad          
   Experience   110%
   
@@ -144,13 +144,13 @@ the squishy side. That is, if you can manage to catch one!
 
   Stats                   Skills
   Strength      -1        Disarming   Bad          
-  Intelligence  +0        Device      Excellent    
-  Wisdom        -2        Save        Fair         
-  Dexterity     +2        Stealth     Superb       
+  Intelligence  +0        Device      Good         
+  Wisdom        -2        Save        Poor         
+  Dexterity     +2        Stealth     Excellent    
   Constitution  +0        Searching   Poor         
   Charisma      +2        Perception  Bad          
-  Life Rating   97%       Melee       Fair         
-  Base HP        1        Bows        Very Good    
+  Life Rating   97%       Melee       Poor         
+  Base HP        1        Bows        Good         
   Experience   120%
   
 Giants
@@ -167,12 +167,12 @@ nearly indistiguishable in skill from Warriors!
   Stats                   Skills
   Strength      +2        Disarming   Bad          
   Intelligence  -4        Device      Bad          
-  Wisdom        -4        Save        Fair         
+  Wisdom        -4        Save        Poor         
   Dexterity     -3        Stealth     Poor         
   Constitution  +2        Searching   Poor         
   Charisma      +2        Perception  Bad          
   Life Rating  112%       Melee       Superb       
-  Base HP       25        Bows        Fair         
+  Base HP       25        Bows        Poor         
   Experience   140%
   
 Table 1 - Warlock Statistic Bonus Table
@@ -190,28 +190,28 @@ Giants             +2   -4   -4   -3   +2   +2  112%  +25  140%
 Table 2 - Warlock Skill Bonus Table I
 
                   Disarming     Device        Save          Stealth      
-Undead            Poor          Superb        Excellent     Very Good    
-Dragons           Bad           Good          Fair          Fair         
-Angels            Bad           Very Good     Superb        Fair         
-Demons            Bad           Superb        Excellent     Poor         
-Hounds            Bad           Fair          Fair          Excellent    
-Spiders           Bad           Excellent     Fair          Superb       
-Giants            Bad           Bad           Fair          Poor         
+Undead            Poor          Excellent     Good          Good         
+Dragons           Bad           Fair          Poor          Poor         
+Angels            Bad           Good          Excellent     Poor         
+Demons            Bad           Excellent     Good          Poor         
+Hounds            Bad           Fair          Poor          Good         
+Spiders           Bad           Good          Poor          Excellent    
+Giants            Bad           Bad           Poor          Poor         
 
 
 Table 3 - Warlock Skill Bonus Table II
 
                   Searching     Perception    Melee         Bows         
-Undead            Poor          Fair          Fair          Poor         
+Undead            Poor          Poor          Poor          Poor         
 Dragons           Poor          Poor          Fair          Poor         
-Angels            Poor          Bad           Fair          Poor         
-Demons            Poor          Bad           Excellent     Poor         
-Hounds            Fair          Poor          Excellent     Bad          
-Spiders           Poor          Bad           Fair          Very Good    
-Giants            Poor          Bad           Superb        Fair         
+Angels            Poor          Bad           Poor          Poor         
+Demons            Poor          Bad           Good          Poor         
+Hounds            Poor          Poor          Good          Bad          
+Spiders           Poor          Bad           Poor          Good         
+Giants            Poor          Bad           Superb        Poor         
 
 
 
 
-Automatically generated for FrogComposband 7.0.strawberry.
+Automatically generated for Oposband 0.2.0.
 

@@ -180,12 +180,12 @@ int _mut_prob_gain(int i)
     {
     case MUT_CHAOS_GIFT:
         /* TODO: Birth Chaos Warriors with this mutation */
-        if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->personality == PERS_CHAOTIC) || (mut_present(MUT_PURPLE_GIFT)))
+		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->pclass == CLASS_CHAOS_MAGE) || (mut_present(MUT_PURPLE_GIFT)))
             return 0;
         break;
 
     case MUT_PURPLE_GIFT:
-        if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (mut_present(MUT_CHAOS_GIFT)))
+        if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->pclass == CLASS_CHAOS_MAGE) || (mut_present(MUT_CHAOS_GIFT)))
             return 0;
         break;
 

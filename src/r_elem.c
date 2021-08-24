@@ -201,7 +201,7 @@ static void _earth_birth(void)
     
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
-    forge.to_d = 6;
+    forge.to_h = 6;
     forge.pval = 3;
     add_flag(forge.flags, OF_STR);
     py_birth_obj(&forge);
@@ -775,7 +775,7 @@ void water_mana_action(byte check_hurt_mode, int mana)
             object_desc(o_name, o_ptr, OD_NAME_ONLY | OD_OMIT_PREFIX | OD_OMIT_INSCRIPTION | OD_COLOR_CODED);
             o_ptr->marked |= OM_SLIPPING;
             msg_format("You flow too fast! Your %s is caught in the flow and slips off!", o_name);
-            if ((object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI)) && (p_ptr->personality == PERS_SEXY))
+            if ((object_is_(o_ptr, TV_SOFT_ARMOR, SV_SWIMSUIT)) && (p_ptr->personality == PERS_SEXY))
             {
                 msg_print("You roar!");
                 p_ptr->csp = 1000;
@@ -803,7 +803,7 @@ static void _water_birth(void)
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
-    forge.to_d = 5;
+    forge.to_h = 5;
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_POLEARM, SV_TRIDENT));
@@ -1086,8 +1086,7 @@ static caster_info * _water_caster_info(void)
 
 static void _water_load_player(savefile_ptr file)
 {
-    if (savefile_is_older_than(file, 7, 0, 9, 3)) _toistot = 0;
-    else _toistot = savefile_read_byte(file);
+    _toistot = savefile_read_byte(file);
 }
 
 static void _water_save_player(savefile_ptr file)

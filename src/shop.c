@@ -630,10 +630,13 @@ static bool _weapon_will_buy(obj_ptr obj)
     case TV_DIGGING:
     case TV_POLEARM:
     case TV_SWORD:
+    case TV_DAGGER:
+    case TV_HAFTED:
+    case TV_AXE:
     case TV_HISSATSU_BOOK:
     case TV_RAGE_BOOK:
         break;
-    case TV_HAFTED:
+    case TV_STAVES:
         if(obj->sval == SV_WIZSTAFF) return FALSE;
         break;
     default:
@@ -651,6 +654,8 @@ static bool _weapon_stock_p(int k_idx)
     {
     case TV_POLEARM:
     case TV_SWORD:
+    case TV_DAGGER:
+    case TV_AXE:
         return TRUE;
     }
     return FALSE;
@@ -709,10 +714,9 @@ static bool _weapon_create(obj_ptr obj, u32b mode)
     if (!_create(obj, k_idx, l2, mode)) return FALSE;
     if ((object_is_ammo(obj)) && (p_ptr->lev < 12))
     {
-        if ((obj->to_d > 0) && (!obj->name2) && (!one_in_(3)))
+        if ((obj->to_h > 1) && (!obj->name2) && (!one_in_(3)))
         {
-            obj->to_h = 0;
-            obj->to_d = 0;
+            obj->to_h = 1;
         }
         obj->number -= (obj->number / 3);
     }
@@ -721,7 +725,6 @@ static bool _weapon_create(obj_ptr obj, u32b mode)
 		if (object_is_ammo(obj) && (!obj->name2))
 		{
 			obj->to_h = 0;
-			obj->to_d = 0;
 			obj->curse_flags = 0;
 			obj->known_curse_flags = 0;
 			return TRUE;
@@ -743,6 +746,7 @@ static bool _temple_will_buy(obj_ptr obj)
     case TV_SCROLL:
     case TV_POTION:
     case TV_HAFTED:
+    case TV_STAVES:
         break;
     case TV_FIGURINE:
     case TV_STATUE: {
@@ -757,6 +761,8 @@ static bool _temple_will_buy(obj_ptr obj)
         return FALSE; }
     case TV_POLEARM:
     case TV_SWORD:
+    case TV_AXE:
+    case TV_DAGGER:
         if (obj_is_blessed(obj)) break;
         return FALSE;
     default:
@@ -777,6 +783,7 @@ static bool _temple_stock_p(int k_idx)
         return TRUE;
 
     case TV_HAFTED:
+    case TV_STAVES:
         return TRUE;
 
     /* Scrolls and Potions are also stocked by the Alchemist */
@@ -911,7 +918,7 @@ static bool _magic_will_buy(obj_ptr obj)
     case TV_POTION:
     case TV_FIGURINE:
         break;
-    case TV_HAFTED:
+    case TV_STAVES:
         if(obj->sval == SV_WIZSTAFF) break;
         else return FALSE;
     case TV_LITE:
@@ -1030,7 +1037,7 @@ static bool _black_market_create(obj_ptr obj, u32b mode)
     if (obj_value(obj) < 10) return FALSE;
     if (object_is_nameless(obj) && !object_is_rare(obj) && object_is_wearable(obj))
     {
-        if (obj->to_a <= 0 && obj->to_h <= 0 && obj->to_d <= 0)
+        if (obj->to_a <= 0 && obj->to_h <= 0)
             return FALSE;
     }
     return TRUE;
@@ -2409,7 +2416,7 @@ void shop_display_inv(doc_ptr doc, inv_ptr inv, slot_t top, int page_size)
 /************************************************************************
  * Town
  ***********************************************************************/
-static cptr _names[] = { "Wilderness", "Outpost", "Telmora", "Morivant", "Angwil", "Anambar", "Thalos", "Zul", "Dungeon" };
+static cptr _names[] = { "Wilderness", "Rampart", "Telmora", "Morivant", "Angwil", "Anambar", "Thalos", "Zul", "Dungeon" };
 
 struct town_s
 {

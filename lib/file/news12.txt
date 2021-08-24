@@ -1,16 +1,16 @@
-<color:y>FrogComposband <$:version></color>
+<color:y>Oposband <$:version></color>
 <style:screenshot>
 The Mithril Bolt of Slaying (5d5) (+12,+12) hits Kronos, Lord of                
 the Titans. Kronos, Lord of the Titans cries out in pain. Kronos,   LEVEL <color:G>    50</color>
 Lord of the Titans flees in terror!                                 EXP <color:G>   25.9M</color>
 %.%##..%.%<color:s>%</color>...%%...%#%%....%#                             #.###.### AU  <color:G>   6.57M</color>
 .<color:s>%</color>.%%<color:s>%</color>...<color:s>%</color>%..##%#.%<color:s>%%%</color>.#..<color:s>%</color>.#                            ##........ <color:d>            </color>
-.%<color:s>%</color>......%...#%<color:s>%</color>.%....<color:s>%</color>%%%<color:s>%</color>.#                          ###<color:U>'</color>.###.### STR!: <color:G>18/***</color>
-......%..%%.<color:s>%</color>%..%#.<color:s>%%</color>.%.%...#                          #..#...#.#.. INT!: <color:G>18/130</color>
-%.%%#.<color:s>%</color>.<color:s>%</color>.%..%%..%.%%.#%<color:s>%</color>.%.#                          #..<color:u>'</color>##.#.#.# WIS!: <color:G>18/***</color>
-..%...%<color:s>%</color>%.%..<color:s>%</color>%....%..<color:s>%</color>.....#                     ######.####.....# DEX!: <color:G>18/150</color>
-.%<color:s>%</color>%%%<color:s>%</color>...<color:s>%%</color>..<color:s>%</color>##.<color:s>%%</color>.##..<color:s>%</color>###                     #..##..#  ####### CON!: <color:G>18/170</color>
-....<color:s>%</color>%...%#.%<color:s>%</color>..%<color:s>%</color>.<color:s>%%</color>%#%.# ######               ###.....##          CHR!: <color:G>18/***</color>
+.%<color:s>%</color>......%...#%<color:s>%</color>.%....<color:s>%</color>%%%<color:s>%</color>.#                          ###<color:U>'</color>.###.### STR!: <color:G>    40</color>
+......%..%%.<color:s>%</color>%..%#.<color:s>%%</color>.%.%...#                          #..#...#.#.. INT!: <color:G>    31</color>
+%.%%#.<color:s>%</color>.<color:s>%</color>.%..%%..%.%%.#%<color:s>%</color>.%.#                          #..<color:u>'</color>##.#.#.# WIS!: <color:G>    40</color>
+..%...%<color:s>%</color>%.%..<color:s>%</color>%....%..<color:s>%</color>.....#                     ######.####.....# DEX!: <color:G>    33</color>
+.%<color:s>%</color>%%%<color:s>%</color>...<color:s>%%</color>..<color:s>%</color>##.<color:s>%%</color>.##..<color:s>%</color>###                     #..##..#  ####### CON!: <color:G>    35</color>
+....<color:s>%</color>%...%#.%<color:s>%</color>..%<color:s>%</color>.<color:s>%%</color>%#%.# ######               ###.....##          CHR!: <color:G>    40</color>
 %.<color:s>%%%</color>%...#.%.....%...#..%###....#################...######          AC     <color:G>  256</color>
 %<color:s>%</color>..#.<color:U>></color>%.<color:s>%</color>.#%#...%..<color:s>%</color>.%%##...##.#@..<color:v>P</color><color:B>{{{{{{{</color><color:r>{{{{</color><color:U>'</color><color:r>{</color>.......#          HP <color:G>1068</color>/<color:G>1068</color>
 %<color:s>%%</color>.%<color:s>%</color>%%.%.....%%%..%......####.##.#####################.#          SP <color:y> 272</color>/<color:G> 437</color>

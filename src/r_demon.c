@@ -54,7 +54,7 @@ static void _khorne_birth(void)
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
-    forge.to_d = 6;
+    forge.to_h = 6;
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
@@ -64,7 +64,6 @@ static void _khorne_birth(void)
     forge.name2 = EGO_WEAPON_SHARPNESS;
     forge.pval = 1;
     forge.to_h = 0;
-    forge.to_d = 0;
     forge.ds = 6;
     forge.weight = 220;
     add_flag(forge.flags, OF_VORPAL);
@@ -289,7 +288,6 @@ static void _khorne_gain_level(int new_level)
         forge.ds = 1;
         forge.weight = 500;
         forge.to_h = 15;
-        forge.to_d = 15;
 
         /* Poor man's py_birth_obj() - we can't call the actual py_birth_obj()
          * because we need a different origin, which we cannot specify later */
@@ -393,15 +391,14 @@ static void _marilith_birth(void) {
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
-    forge.to_d = 3;
+    forge.to_h = 3;
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
-    forge.to_h = 1;
-    forge.to_d = 2;
+    forge.to_h = 2;
     py_birth_obj(&forge);
 
     _demon_birth();
@@ -635,7 +632,7 @@ static void _balrog_birth(void)
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
-    forge.to_d = 5;
+    forge.to_h = 5;
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
@@ -647,7 +644,6 @@ static void _balrog_birth(void)
     forge.dd = 2;
     forge.ds = 6;
     forge.to_h = 5;
-    forge.to_d = 5;
     py_birth_obj(&forge);
 
     _demon_birth();
@@ -816,7 +812,7 @@ static void _cyber_birth(void)
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
-    forge.to_d = 10;
+    forge.to_h = 10;
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));

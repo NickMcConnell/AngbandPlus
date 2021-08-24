@@ -237,7 +237,7 @@ static void rd_options(savefile_ptr file)
     mana_warn = savefile_read_byte(file);
     random_artifact_pct = savefile_read_byte(file);
     reduce_uniques_pct = savefile_read_byte(file);
-    small_level_type = savefile_is_older_than(file, 7,1,0,11) ? 0 : savefile_read_byte(file);
+    small_level_type = savefile_read_byte(file);
 
     /*** Cheating options ***/
     c = savefile_read_u16b(file);
@@ -279,14 +279,6 @@ static void rd_options(savefile_ptr file)
     /* Extract the options */
     extract_option_vars();
 
-    /* Display_percentages is now the easy_damage birth option, and the
-     * former slot of display_percentages is now occupied by list_stairs */
-    if ((savefile_is_older_than(file, 7, 0, 5, 4)) && (list_stairs))
-    {
-        easy_damage = TRUE;
-        list_stairs = FALSE;
-    }
-
     /*** Window Options ***/
     for (n = 0; n < 8; n++) flag[n] = savefile_read_u32b(file);
     for (n = 0; n < 8; n++) mask[n] = savefile_read_u32b(file);
@@ -324,6 +316,7 @@ static void rd_quick_start(savefile_ptr file)
     previous_char.realm2 = savefile_read_byte(file);
     previous_char.dragon_realm = savefile_read_byte(file);
     previous_char.au = savefile_read_s32b(file);
+    previous_char.chaos_patron = savefile_read_s16b(file);
 
     for (i = 0; i < 6; i++)
         previous_char.stat_max[i] = savefile_read_s16b(file);
@@ -332,13 +325,10 @@ static void rd_quick_start(savefile_ptr file)
 
 static void rd_extra(savefile_ptr file)
 {
-    int i,j;
+    int i;
     char buf[1024];
 
-    if (savefile_is_older_than(file, 7, 0, 0, 4))
-        p_ptr->id = scores_next_id();
-    else
-        p_ptr->id = savefile_read_s32b(file);
+    p_ptr->id = savefile_read_s32b(file);
     savefile_read_cptr(file, player_name, sizeof(player_name));
     savefile_read_cptr(file, p_ptr->died_from, sizeof(p_ptr->died_from));
 
@@ -348,8 +338,7 @@ static void rd_extra(savefile_ptr file)
     rd_quick_start(file);
 
     game_mode = savefile_read_s32b(file);
-    if (savefile_is_older_than(file, 7,0,6,4)) game_pantheon = 0;
-    else game_pantheon = savefile_read_byte(file);
+    game_pantheon = savefile_read_byte(file);
 
     p_ptr->prace = savefile_read_byte(file);
     p_ptr->pclass = savefile_read_byte(file);
@@ -374,21 +363,19 @@ static void rd_extra(savefile_ptr file)
     p_ptr->exp = savefile_read_s32b(file);
     p_ptr->exp_frac = savefile_read_u32b(file);
     p_ptr->lev = savefile_read_s16b(file);
-    if (savefile_is_older_than(file, 7,1,0,8)) p_ptr->quest_seed = 0;
-    else p_ptr->quest_seed = savefile_read_u32b(file);
+    p_ptr->quest_seed = savefile_read_u32b(file);
 
-    for (i = 0; i < 64; i++) p_ptr->spell_exp[i] = savefile_read_s16b(file);
-    for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) p_ptr->weapon_exp[i][j] = savefile_read_s16b(file);
-    for (i = 0; i < 10; i++) p_ptr->skill_exp[i] = savefile_read_s16b(file);
+    for (i = PROF_DIGGER; i < MAX_PROFICIENCIES; i++) p_ptr->proficiency[i] = savefile_read_s16b(file);
+    for (i = PROF_DIGGER; i < MAX_PROFICIENCIES; i++) p_ptr->proficiency_cap[i] = savefile_read_s16b(file);
     for (i = 0; i < MAX_MAGIC_NUM; i++) p_ptr->magic_num1[i] = savefile_read_s32b(file);
     for (i = 0; i < MAX_MAGIC_NUM; i++) p_ptr->magic_num2[i] = savefile_read_byte(file);
     if (music_singing_any()) p_ptr->action = ACTION_SING;
 
     p_ptr->start_race = savefile_read_byte(file);
-    p_ptr->start_sex = savefile_is_older_than(file, 7,1,0,12) ? p_ptr->psex : savefile_read_byte(file);
+    p_ptr->start_sex = savefile_read_byte(file);
     p_ptr->old_race1 = savefile_read_s32b(file);
     p_ptr->old_race2 = savefile_read_s32b(file);
-    p_ptr->old_race3 = savefile_is_older_than(file, 7,1,0,10) ? 0 : savefile_read_s32b(file);
+    p_ptr->old_race3 = savefile_read_s32b(file);
     p_ptr->old_realm = savefile_read_s16b(file);
 
     for (i = 0; i < MAX_MANE; i++)
@@ -410,12 +397,6 @@ static void rd_extra(savefile_ptr file)
     p_ptr->town_num = savefile_read_s16b(file);
 
     p_ptr->arena_number = savefile_read_s16b(file);
-    if (savefile_is_older_than(file, 7,1,0,2) && (p_ptr->arena_number > 32))
-    {
-        p_ptr->arena_number++;
-        if (p_ptr->arena_number > 34) p_ptr->arena_number++;
-        if (p_ptr->arena_number > 38) p_ptr->arena_number++;
-    }
     p_ptr->inside_arena = BOOL(savefile_read_s16b(file));
     p_ptr->inside_battle = BOOL(savefile_read_s16b(file));
     p_ptr->exit_bldg = savefile_read_byte(file);
@@ -457,22 +438,10 @@ static void rd_extra(savefile_ptr file)
     p_ptr->energy_need = savefile_read_s16b(file);
     p_ptr->fast = savefile_read_s16b(file);
     p_ptr->slow = savefile_read_s16b(file);
-    if (!savefile_is_older_than(file, 7,0,6,3))
-    {
-        p_ptr->minislow = savefile_read_byte(file);
-        p_ptr->mini_energy = savefile_read_u16b(file);
-    }
-    else /* paranoia */
-    {
-        p_ptr->minislow = 0;
-        p_ptr->mini_energy = 0;
-    } 
-    if (!savefile_is_older_than(file, 7,0,6,5))
-    {
-       p_ptr->unwell = savefile_read_byte(file);
-    }
-    else p_ptr->unwell = 0;
+    p_ptr->minislow = savefile_read_byte(file);
+    p_ptr->mini_energy = savefile_read_u16b(file);
 
+    p_ptr->unwell = savefile_read_byte(file);
     p_ptr->afraid = savefile_read_s16b(file);
     p_ptr->cut = savefile_read_s16b(file);
     p_ptr->stun = savefile_read_s16b(file);
@@ -535,7 +504,7 @@ static void rd_extra(savefile_ptr file)
     p_ptr->tim_building_up = savefile_read_s16b(file);
     p_ptr->tim_vicious_strike = savefile_read_s16b(file);
     p_ptr->tim_enlarge_weapon = savefile_read_s16b(file);
-    p_ptr->tim_field = ((savefile_is_older_than(file, 7,1,0,7)) ? 0 : savefile_read_s16b(file));
+    p_ptr->tim_field = savefile_read_s16b(file);
     p_ptr->tim_spell_reaction = savefile_read_s16b(file);
     p_ptr->tim_resist_curses = savefile_read_s16b(file);
     p_ptr->tim_armor_of_fury = savefile_read_s16b(file);
@@ -601,8 +570,7 @@ static void rd_extra(savefile_ptr file)
     p_ptr->tim_transcendence = savefile_read_s16b(file);
     p_ptr->tim_quick_walk = savefile_read_s16b(file);
     p_ptr->tim_inven_prot = savefile_read_s16b(file);
-    if (!savefile_is_older_than(file, 7,0,6,6)) p_ptr->tim_inven_prot2 = savefile_read_s16b(file);
-    else p_ptr->tim_inven_prot2 = 0;
+    p_ptr->tim_inven_prot2 = savefile_read_s16b(file);
     p_ptr->tim_device_power = savefile_read_s16b(file);
     p_ptr->tim_sh_time = savefile_read_s16b(file);
     p_ptr->free_turns = savefile_read_s16b(file);
@@ -639,12 +607,10 @@ static void rd_extra(savefile_ptr file)
 
     p_ptr->autopick_autoregister = savefile_read_byte(file) ? TRUE: FALSE;
     p_ptr->action = savefile_read_byte(file);
-    preserve_mode = savefile_read_byte(file);
     p_ptr->wait_report_score = savefile_read_byte(file);
 
     seed_flavor = savefile_read_u32b(file);
     seed_town = savefile_read_u32b(file);
-    if (p_ptr->personality == PERS_CHAOTIC) chaotic_py_seed = savefile_read_u32b(file);
     p_ptr->panic_save = savefile_read_u16b(file);
     p_ptr->total_winner = savefile_read_u16b(file);
     p_ptr->noscore = savefile_read_u16b(file);
@@ -681,24 +647,17 @@ static void rd_extra(savefile_ptr file)
     playtime = savefile_read_u32b(file);
     p_ptr->count = savefile_read_u32b(file);
     p_ptr->upkeep_warning = FALSE;
-    if (savefile_is_older_than(file, 7, 0, 6, 1)) p_ptr->coffee_lv_revisits = 0;
-    else p_ptr->coffee_lv_revisits = savefile_read_byte(file);
-    if (savefile_is_older_than(file, 7, 0, 6, 2)) p_ptr->filibuster = FALSE;
-    else p_ptr->filibuster = savefile_read_byte(file) ? TRUE : FALSE;
-    if (savefile_is_older_than(file, 7, 0, 9, 1)) p_ptr->upset_okay = FALSE;
-    else p_ptr->upset_okay = savefile_read_byte(file) ? TRUE : FALSE;
-    if (savefile_is_older_than(file, 7, 0, 9, 2)) p_ptr->py_summon_kills = 0;
-    else p_ptr->py_summon_kills = savefile_read_byte(file);
+    p_ptr->coffee_lv_revisits = savefile_read_byte(file);
+    p_ptr->filibuster = savefile_read_byte(file) ? TRUE : FALSE;
+    p_ptr->upset_okay = savefile_read_byte(file) ? TRUE : FALSE;
+    p_ptr->py_summon_kills = savefile_read_byte(file);
     for (i = 0; i < 16; i++) (void)savefile_read_s32b(file);
     wipe_labels();
-    if (!savefile_is_older_than(file, 7, 1, 0, 4))
+    for (i = 0; i < MAX_POWER_LABEL; i++)
     {
-        for (i = 0; i < MAX_POWER_LABEL; i++)
-        {
-            int merkki = savefile_read_byte(file);
-            if (merkki > MAX_POWER_LABEL) continue;
-            savefile_read_cptr(file, power_labels[i], 15);
-        }
+        int merkki = savefile_read_byte(file);
+        if (merkki > MAX_POWER_LABEL) continue;
+        savefile_read_cptr(file, power_labels[i], 15);
     }
 
     {
@@ -1076,7 +1035,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
 
     /* Mention the savefile version */
     note(format(
-             "Loading a %d.%d.%s savefile...",
+             "Loading a %d.%d.%d savefile...",
              (z_major > 9) ? z_major - 10 : z_major, z_minor, z_patch));
 
     /* Savefiles break iff VER_MAJOR bumps */
@@ -1131,10 +1090,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         byte header = savefile_read_byte(file);
 
         race->max_num = savefile_read_byte(file);
-        if (!savefile_is_older_than(file, 7, 0, 5, 1))
-        {
-            race->ball_num = savefile_read_byte(file);
-        }
+        race->ball_num = savefile_read_byte(file);
         race->floor_id = savefile_read_s16b(file);
         race->stolen_ct = savefile_read_byte(file);
         if (header & 0x01)
@@ -1270,15 +1226,8 @@ static errr rd_savefile_new_aux(savefile_ptr file)
 
     if (arg_fiddle) note("Loaded extra information");
 
-    /* Read the player_hp array */
-    tmp16u = savefile_read_u16b(file);
-    if (tmp16u > PY_MAX_LEVEL)
-    {
-        note(format("Too many (%u) hitpoint entries!", tmp16u));
-        return (25);
-    }
-    for (i = 0; i < tmp16u; i++)
-        p_ptr->player_hp[i] = savefile_read_s16b(file);
+    /* Player life rating */
+	p_ptr->life_rating = savefile_read_s16b(file);
 
     /* Important -- Initialize stuff */
     mp_ptr = &m_info[p_ptr->pclass];
@@ -1293,12 +1242,6 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     }
 
     /* Read spell info */
-    p_ptr->spell_learned1 = savefile_read_u32b(file);
-    p_ptr->spell_learned2 = savefile_read_u32b(file);
-    p_ptr->spell_worked1 = savefile_read_u32b(file);
-    p_ptr->spell_worked2 = savefile_read_u32b(file);
-    p_ptr->spell_forgotten1 = savefile_read_u32b(file);
-    p_ptr->spell_forgotten2 = savefile_read_u32b(file);
     p_ptr->learned_spells = savefile_read_s16b(file);
     p_ptr->add_spells = savefile_read_s16b(file);
     if (p_ptr->pclass == CLASS_MINDCRAFTER) p_ptr->add_spells = 0;
@@ -1332,7 +1275,6 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     }
 
     spell_stats_on_load(file);
-    skills_on_load(file);
     stats_on_load(file);
 
     /* I'm not dead yet... */

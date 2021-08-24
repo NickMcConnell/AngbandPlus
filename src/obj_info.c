@@ -1061,7 +1061,7 @@ static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr
         break;
     }
 
-    if (object_is_(o_ptr, TV_SWORD, SV_POISON_NEEDLE))
+    if (object_is_(o_ptr, TV_DAGGER, SV_POISON_NEEDLE))
         doc_insert(doc, "It will attempt to kill a monster instantly.\n");
 
     if (object_is_(o_ptr, TV_POLEARM, SV_DEATH_SCYTHE))

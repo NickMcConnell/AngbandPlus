@@ -296,10 +296,9 @@ static bool _allow_disen_insurance(object_type *o_ptr)
     if (o_ptr->number != 1) return FALSE;
     if (obj_value(o_ptr) < 20) return FALSE;
     if (o_ptr->to_a > _limit) return TRUE;
-    if (o_ptr->to_d > _limit) return TRUE;
     if (o_ptr->to_h > _limit) return TRUE;
     if (object_is_weapon(o_ptr)) return ((o_ptr->to_a > 0) || (o_ptr->pval > 1));
-    if (object_is_armour(o_ptr)) return ((o_ptr->to_h > 0) || (o_ptr->to_d > 0) || (o_ptr->pval > 1));
+    if (object_is_armour(o_ptr)) return ((o_ptr->to_h > 0) || (o_ptr->pval > 1));
     return FALSE;
 }
 
@@ -327,8 +326,7 @@ static int _item_disenchantment_value(object_type *o_ptr, int tyyppi, int muutos
     {
         int lahto_arvo = o_ptr->to_a;
         int uusi_arvo;
-        if (tyyppi == _DISEN_TO_H) lahto_arvo = o_ptr->to_h;
-        if (tyyppi == _DISEN_TO_D) lahto_arvo = o_ptr->to_d;
+        if (tyyppi == _DISEN_TO_D || tyyppi == _DISEN_TO_H) lahto_arvo = o_ptr->to_h;
         if (was_applied) lahto_arvo += muutos; /* The disenchantment was already applied to the item - we want the situation before */
         uusi_arvo = MAX(lahto_arvo - muutos, _allow_disen_limit());
         muutos = MAX(0, lahto_arvo - uusi_arvo);
@@ -341,15 +339,14 @@ static int _item_disenchantment_value_aux(object_type *o_ptr, int tyyppi, int ar
     if (arvo < 1) return 0;
     switch (tyyppi)
     {
-        case _DISEN_TO_H: return ((o_ptr->to_d > 0) ? _item_disenchantment_value(o_ptr, tyyppi, 1, arvo, TRUE, FALSE) : 0);
-        case _DISEN_TO_D: return ((o_ptr->to_d > 0) ? _item_disenchantment_value(o_ptr, tyyppi, 1, arvo, TRUE, FALSE) : 0);
+        case _DISEN_TO_H: return ((o_ptr->to_h > 0) ? _item_disenchantment_value(o_ptr, tyyppi, 1, arvo, TRUE, FALSE) : 0);
         case _DISEN_PVAL: return ((o_ptr->pval > 1) ? _item_disenchantment_value(o_ptr, tyyppi, 1, arvo, TRUE, FALSE) : 0);
         default: return ((o_ptr->to_a > 0) ? _item_disenchantment_value(o_ptr, _DISEN_TO_A, 1, arvo, TRUE, FALSE) : 0);
     }
     return 0; /* keep dumb compilers happy */
 }
 
-void cornucopia_item_disenchanted(object_type *o_ptr, int old_to_a, int old_to_h, int old_to_d, int old_pval)
+void cornucopia_item_disenchanted(object_type *o_ptr, int old_to_a, int old_to_h, int old_pval)
 {
     int policy;
     if (!o_ptr->insured) return;
@@ -359,7 +356,6 @@ void cornucopia_item_disenchanted(object_type *o_ptr, int old_to_a, int old_to_h
     if ((_my_policies[policy].o_ptr) && (_my_policies[policy].o_ptr->k_idx) && (_my_policies[policy].o_ptr->k_idx != o_ptr->k_idx)) return; /* paranoia */
     _my_policies[policy].compensation += _item_disenchantment_value(o_ptr, _DISEN_TO_A, old_to_a - o_ptr->to_a, _my_policies[policy].disen_value, TRUE, TRUE);
     _my_policies[policy].compensation += _item_disenchantment_value(o_ptr, _DISEN_TO_H, old_to_h - o_ptr->to_h, _my_policies[policy].disen_value, TRUE, TRUE);
-    _my_policies[policy].compensation += _item_disenchantment_value(o_ptr, _DISEN_TO_D, old_to_d - o_ptr->to_d, _my_policies[policy].disen_value, TRUE, TRUE);
     _my_policies[policy].compensation += _item_disenchantment_value(o_ptr, _DISEN_PVAL, old_pval - o_ptr->pval, _my_policies[policy].disen_value, TRUE, TRUE);
 
     /* Keep track of changes to item */
@@ -367,7 +363,6 @@ void cornucopia_item_disenchanted(object_type *o_ptr, int old_to_a, int old_to_h
     {
         _my_policies[policy].o_ptr->to_a = o_ptr->to_a;
         _my_policies[policy].o_ptr->to_h = o_ptr->to_h;
-        _my_policies[policy].o_ptr->to_d = o_ptr->to_d;
         _my_policies[policy].o_ptr->pval = o_ptr->pval;
     }
 }
@@ -1611,11 +1606,6 @@ void cornucopia_save(savefile_ptr file)
 void cornucopia_load(savefile_ptr file)
 {
     int i, old_policies;
-    if (savefile_is_older_than(file, 7,0,9,4))
-    {
-        cornucopia_init();
-        return;
-    }
     _deposit = savefile_read_u32b(file);
     _received = savefile_read_u32b(file);
     _paid = savefile_read_u32b(file);

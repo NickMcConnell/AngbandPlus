@@ -120,7 +120,7 @@ static void _build_general1(doc_ptr doc)
         else
             doc_printf(doc, " Realm      : <color:B>%s</color>\n", realm_names[p_ptr->realm1]);
     }
-    else if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
+    else if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->pclass == CLASS_CHAOS_MAGE) || mut_present(MUT_CHAOS_GIFT))
     {
         doc_printf(doc, " Patron     : <color:B>%s</color>\n", chaos_patrons[p_ptr->chaos_patron]);
         patron_listed = TRUE;
@@ -128,7 +128,7 @@ static void _build_general1(doc_ptr doc)
     else
         doc_newline(doc);
 
-    if (((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT)) && (!patron_listed))
+    if (((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->pclass == CLASS_CHAOS_MAGE) || mut_present(MUT_CHAOS_GIFT)) && (!patron_listed))
         doc_printf(doc, " Patron     : <color:B>%s</color>\n", chaos_patrons[p_ptr->chaos_patron]);
     else
         doc_newline(doc);
@@ -228,7 +228,15 @@ static void _build_general2(doc_ptr doc)
                         p_ptr->csp > (p_ptr->msp * mana_warn) / 10 ? 'y' : 'r',
                     string_buffer(s));
 
-    doc_printf(doc, "<tab:9>AC   : <color:G>%9d</color>\n", p_ptr->dis_ac + p_ptr->dis_to_a);
+	int ac = p_ptr->dis_ac + p_ptr->dis_to_a;
+	int ac_percentage = 100 - ac_melee_pct(ac);
+	if (ac_percentage >= 10)
+		doc_printf(doc, "<tab:9>AC   : %3d <color:G>(%2d%c)</color>\n", ac, ac_percentage, '%');
+	else
+		doc_printf(doc, "<tab:9>AC   : %3d  <color:G>(%d%c)</color>\n", ac, ac_percentage, '%');
+
+/*	doc_printf(doc, "<tab:9>AC   : %3d<color:G>(%2d%c)</color>\n", ac, ac_percentage, '%');*/
+	/*doc_printf(doc, "<tab:9>AC   : <color:G>%9d</color>\n", p_ptr->dis_ac + p_ptr->dis_to_a);*/
 
     /* Dump speed ... What a monster! */
     {
@@ -1026,11 +1034,13 @@ static void _build_equipment(doc_ptr doc)
 /****************************** Combat ************************************/
 static void _build_melee(doc_ptr doc)
 {
+    doc_insert(doc, "<topic:Melee>==================================== <color:keypress>M</color>elee ====================================\n\n");
+
     if (p_ptr->prace == RACE_MON_RING) return;
     if (possessor_can_attack() && !p_ptr->weapon_ct && !p_ptr->innate_attack_ct) return;
     {
         int i;
-        doc_insert(doc, "<topic:Melee>==================================== <color:keypress>M</color>elee ====================================\n\n");
+        
         for (i = 0; i < MAX_HANDS; i++)
         {
             if (p_ptr->weapon_info[i].wield_how == WIELD_NONE) continue;
@@ -2306,7 +2316,7 @@ static void _build_statistics(doc_ptr doc)
 
     if ((p_ptr->is_dead) || (p_ptr->knowledge & KNOW_HPRATE))
     {
-        doc_printf(doc, "  <color:G>Life Rating</color>:  %d%%\n\n", life_rating());
+        doc_printf(doc, "  <color:G>Life Rating</color>:  %d%%\n\n", p_ptr->life_rating);
     }
 }
 
@@ -2470,8 +2480,6 @@ static void _build_options(doc_ptr doc)
     if (thrall_mode)
         doc_printf(doc, " Thrall Mode:        On\n");
 
-    doc_printf(doc, " Preserve Mode:      %s\n", preserve_mode ? "On" : "Off");
-
     if (small_level_type <= SMALL_LVL_MAX)
          doc_printf(doc, " Level Size:         %s\n", lv_size_options[small_level_type]);
 
@@ -2480,9 +2488,6 @@ static void _build_options(doc_ptr doc)
 
 	if (easy_id)
 		doc_printf(doc, " Easy Identify:      On\n");
-	
-	if (easy_lore)
-		doc_printf(doc, " Easy Lore:          On\n");
 
     if (no_wilderness)
         doc_printf(doc, " Wilderness:         Off\n");
@@ -2617,7 +2622,7 @@ static void _add_html_header(doc_ptr doc)
     string_append_s(header, "<head>\n");
     string_append_s(header, " <meta name='filetype' value='character dump'>\n");
     string_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME);
-    string_printf(header,  " <meta name='variant_version' value='%d.%d.%s%s'>\n", VER_MAJOR, VER_MINOR, VER_PATCH, version_modifier());
+    string_printf(header,  " <meta name='variant_version' value='%d.%d.%d%s'>\n", VER_MAJOR, VER_MINOR, VER_PATCH, version_modifier());
     string_printf(header,  " <meta name=\"character_name\" value=\"%s\">\n", player_name);
     string_printf(header,  " <meta name='race' value='%s'>\n", get_true_race()->name);
     string_printf(header,  " <meta name='class' value='%s'>\n", get_class()->name);
@@ -2652,7 +2657,7 @@ void py_display_character_sheet(doc_ptr doc)
 {
     _add_html_header(doc);
 
-    doc_insert(doc, "<style:wide>  [FrogComposband <$:version> Character Dump]\n");
+    doc_insert(doc, "<style:wide>  [Oposband <$:version> Character Dump]\n");
     if (p_ptr->total_winner)
         doc_insert(doc, "              <color:B>***WINNER***</color>\n");
     else if (p_ptr->is_dead)

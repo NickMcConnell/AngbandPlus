@@ -1,16 +1,16 @@
-<color:y>FrogComposband <$:version></color>
+<color:y>Oposband <$:version></color>
 <style:screenshot>
 The Bolt of Wilhelm Tell (6d5) (+20,+16) hits Eric the Usurper. <color:v>Eric </color>             
 <color:v>the Usurper puts a terrible blood curse on you!</color> There is a malignant  LEVEL <color:G>    50</color>
 black aura surrounding Metal Scale Mail of Julian... The ground       EXP <color:G>   23.2M</color>
 trembles... A portal opens to a plane of raw mana! You feel a surge   AU  <color:G>   6.13M</color>
 of energy! The granite wall turns into mud! The granite wall turns    <color:d>            </color>
-into mud! The granite wall turns into mud! The granite wall turns     STR!: <color:G>18/***</color>
-into mud! The granite wall turns into mud! The granite wall turns     INT!: <color:G>18/130</color>
-into mud! The granite wall turns into mud! The quartz vein turns      WIS!: <color:G>18/***</color>
-into mud! The magma vein turns into mud! The granite wall turns into  DEX!: <color:G>18/150</color>
-mud! The granite wall turns into mud! The quartz vein turns into      CON!: <color:G>18/170</color>
-mud!<color:B>-more-</color>                                                            CHR!: <color:G>18/***</color>
+into mud! The granite wall turns into mud! The granite wall turns     STR!: <color:G>    40</color>
+into mud! The granite wall turns into mud! The granite wall turns     INT!: <color:G>    31</color>
+into mud! The granite wall turns into mud! The quartz vein turns      WIS!: <color:G>    40</color>
+into mud! The magma vein turns into mud! The granite wall turns into  DEX!: <color:G>    33</color>
+mud! The granite wall turns into mud! The quartz vein turns into      CON!: <color:G>    35</color>
+mud!<color:B>-more-</color>                                                            CHR!: <color:G>    40</color>
      ### #....#...###....##.######             ## #                   AC     <color:G>  270</color>
      #>###.######## #####...##                 # ##                   HP <color:y>1007</color>/<color:G>1068</color>
   ####....:#            ###..#                 ## #                   SP <color:y> 369</color>/<color:G> 397</color>

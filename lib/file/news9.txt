@@ -1,16 +1,16 @@
-<color:y>FrogComposband <$:version></color>
+<color:y>Oposband <$:version></color>
 <style:screenshot>
                                                                                 
 You are aware of 40 monsters, 40 are awake:                         LEVEL <color:G>    50</color>
  . Time bomb (40 awake)                                             EXP <color:G>   23.0M</color>
    <color:B>[Press ESC to exit. Press ? for help]</color>                 <color:D>xxxxxxxxxx</color> AU  <color:G>   5.97M</color>
 ........#                                                 <color:D>xxxxxxxxx</color> <color:d>            </color>
-........###                                                <color:D>xxxxxxxx</color> STR!: <color:G>18/***</color>
-......##..#                                                <color:D>xxxxxxxx</color> INT!: <color:G>18/130</color>
-.......#..##                #####################%##%       <color:D>xxxxxxx</color> WIS!: <color:G>18/***</color>
-####....#..#                #...............<color:y>"</color>.......#        <color:D>xxxxxx</color> DEX!: <color:G>18/150</color>
-<color:D>xxx</color>######..#                #.#####################.%        <color:D>xxxxxx</color> CON!: <color:G>18/170</color>
-<color:D>xxxxxx</color>  #.##                #.#...................#.#        <color:D>xx</color>%### CHR!: <color:G>18/***</color>
+........###                                                <color:D>xxxxxxxx</color> STR!: <color:G>    40</color>
+......##..#                                                <color:D>xxxxxxxx</color> INT!: <color:G>    31</color>
+.......#..##                #####################%##%       <color:D>xxxxxxx</color> WIS!: <color:G>    40</color>
+####....#..#                #...............<color:y>"</color>.......#        <color:D>xxxxxx</color> DEX!: <color:G>    33</color>
+<color:D>xxx</color>######..#                #.#####################.%        <color:D>xxxxxx</color> CON!: <color:G>    35</color>
+<color:D>xxxxxx</color>  #.##                #.#...................#.#        <color:D>xx</color>%### CHR!: <color:G>    40</color>
 <color:D>xxxxx</color>   #..#                #.#...................#.####%%#   <color:D>x</color>#... AC     <color:G>  170</color>
 <color:D>xxxxx</color>   ##.####             #.#...................<color:U>+</color>.......####<color:D>x</color>%.%# HP <color:G>1068</color>/<color:G>1068</color>
 <color:D>xxxx</color>     #....#             #.#...................#.#####....#<color:D>x</color>%.#<color:D>x</color> SP <color:y> 364</color>/<color:G> 397</color>

@@ -26,7 +26,7 @@ char *_timestamp(void)
 char *_version(void)
 {
     char buf[32];
-    sprintf(buf, "%d.%d.%s%s", VER_MAJOR, VER_MINOR, VER_PATCH, version_modifier());
+    sprintf(buf, "%d.%d.%d%s", VER_MAJOR, VER_MINOR, VER_PATCH, version_modifier());
     return _str_copy(buf);
 }
 static char *_status(void)

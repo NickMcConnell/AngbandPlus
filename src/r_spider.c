@@ -596,7 +596,6 @@ static void _birth(void)
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_h = 7;
-    forge.to_d = 2;
     forge.pval = 1;
     add_flag(forge.flags, OF_DEX);
     py_birth_obj(&forge);

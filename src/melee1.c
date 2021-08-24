@@ -1160,7 +1160,7 @@ bool make_attack_normal(int m_idx)
                             {
                                 int dd = o_ptr->dd + p_ptr->weapon_info[hand].to_dd;
                                 int ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
-                                dam = dd * (ds + 1) / 2 + o_ptr->to_d + p_ptr->weapon_info[hand].to_d;
+                                dam = dd * (ds + 1) / 2 + o_ptr->to_h + p_ptr->weapon_info[hand].to_d;
                                 break;
                             }
                         }

@@ -259,6 +259,10 @@ void check_experience(void)
 
             p_ptr->max_plv = p_ptr->lev;
 
+			/* Oposband: FUll heal / recharge */
+			hp_player(p_ptr->mhp * 2); /* x2 so halving from blood knight/mage won't prevent it */
+			sp_player(p_ptr->msp);
+
             sound(SOUND_LEVEL);
             cmsg_format(TERM_L_GREEN, "Welcome to level %d.", p_ptr->lev);
 
@@ -267,8 +271,7 @@ void check_experience(void)
 
             level_inc_stat = TRUE;
 
-            if (mut_present(MUT_CHAOS_GIFT))
-                chaos_warrior_reward();
+			if (worships_chaos()) chaos_choose_effect(PATRON_LEVEL_UP);
 
             /* N.B. The class hook or the Chaos Gift mutation may result in a race
                change (stupid Chaos-Warriors), so we better always requery the player's
@@ -2071,8 +2074,6 @@ void monster_death(int m_idx, bool drop_item)
                     /* Hack -- Memorize location of artifact in saved floors */
                     if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
                 }
-                else if (!preserve_mode)
-                    a_ptr->generated = TRUE;
             }
         }
     }
@@ -5629,15 +5630,14 @@ cptr your_alignment(void)
 /*
  * Return proficiency level of weapons and misc. skills (except riding)
  */
-int weapon_exp_level(int weapon_exp)
+int weapon_exp_level(int weapon_xp)
 {
-    if (weapon_exp < WEAPON_EXP_BEGINNER) return EXP_LEVEL_UNSKILLED;
-    else if (weapon_exp < WEAPON_EXP_SKILLED) return EXP_LEVEL_BEGINNER;
-    else if (weapon_exp < WEAPON_EXP_EXPERT) return EXP_LEVEL_SKILLED;
-    else if (weapon_exp < WEAPON_EXP_MASTER) return EXP_LEVEL_EXPERT;
+    if (weapon_xp < WEAPON_EXP_BEGINNER) return EXP_LEVEL_UNSKILLED;
+    else if (weapon_xp < WEAPON_EXP_SKILLED) return EXP_LEVEL_BEGINNER;
+    else if (weapon_xp < WEAPON_EXP_EXPERT) return EXP_LEVEL_SKILLED;
+    else if (weapon_xp < WEAPON_EXP_MASTER) return EXP_LEVEL_EXPERT;
     else return EXP_LEVEL_MASTER;
 }
-
 
 /*
  * Return proficiency level of riding
@@ -5648,18 +5648,5 @@ int riding_exp_level(int riding_exp)
     else if (riding_exp < RIDING_EXP_SKILLED) return EXP_LEVEL_BEGINNER;
     else if (riding_exp < RIDING_EXP_EXPERT) return EXP_LEVEL_SKILLED;
     else if (riding_exp < RIDING_EXP_MASTER) return EXP_LEVEL_EXPERT;
-    else return EXP_LEVEL_MASTER;
-}
-
-
-/*
- * Return proficiency level of spells
- */
-int spell_exp_level(int spell_exp)
-{
-    if (spell_exp < SPELL_EXP_BEGINNER) return EXP_LEVEL_UNSKILLED;
-    else if (spell_exp < SPELL_EXP_SKILLED) return EXP_LEVEL_BEGINNER;
-    else if (spell_exp < SPELL_EXP_EXPERT) return EXP_LEVEL_SKILLED;
-    else if (spell_exp < SPELL_EXP_MASTER) return EXP_LEVEL_EXPERT;
     else return EXP_LEVEL_MASTER;
 }

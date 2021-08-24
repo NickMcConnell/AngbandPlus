@@ -300,7 +300,7 @@ static void _crusaders_strike_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Crusaders Strike");
+        var_set_string(res, "Vitality Strike");
         break;
     case SPELL_DESC:
         var_set_string(res, "Attack an adjacent opponent with a single blow. You regain hp.");
@@ -552,7 +552,7 @@ static int _smash_ground_dam(void)
             ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
 
             damage = dd * (ds + 1) * 50;
-            damage += o_ptr->to_d * 100;
+            damage += o_ptr->to_h * 100;
             damage *= NUM_BLOWS(hand)/100;
             result += damage / 100;
         }
@@ -1398,18 +1398,17 @@ static void _desperation_spell(int cmd, variant *res)
             return;
         }
         o_ptr = equip_obj(slot);
-        ds = o_ptr->to_h + o_ptr->to_d;
+        ds = o_ptr->to_h;
         object_desc(o_name, o_ptr, OD_NAME_ONLY | OD_OMIT_PREFIX);
 
         if (ds > 0)
         {
-            hp = damroll(7, ds);
+            hp = damroll(7, 2 * ds);
             hp_player(hp);
 
             if (!object_is_artifact(o_ptr) || one_in_(2))
             {
                 if (o_ptr->to_h > 0) o_ptr->to_h--;
-                if (o_ptr->to_d > 0) o_ptr->to_d--;
                 msg_format("Your %s is disenchanted.", o_name);
             }
             else
@@ -1729,7 +1728,7 @@ bool _design_monkey_clone(void)
             ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
 
             tdam += NUM_BLOWS(hand) *
-                (dd * (ds + 1)/2 + p_ptr->weapon_info[hand].to_d + o_ptr->to_d)/100;
+                (dd * (ds + 1)/2 + p_ptr->weapon_info[hand].to_d + o_ptr->to_h)/100;
 
             blows += NUM_BLOWS(hand)/100;
             acc = hit_chance(hand, o_ptr->to_h, 150);
@@ -2262,12 +2261,12 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  25,  20,  31,   1,  14,   2, 70, 25},
       {   9,   7,  10,   0,   0,   0, 30, 11},
-      { { TV_POLEARM, SV_HATCHET },
-        { TV_POLEARM, SV_BATTLE_AXE },
-        { TV_POLEARM, SV_BEAKED_AXE },
-        { TV_POLEARM, SV_BROAD_AXE },
-        { TV_POLEARM, SV_LOCHABER_AXE },
-        { TV_POLEARM, SV_GREAT_AXE },
+      { { TV_AXE, SV_HATCHET },
+        { TV_AXE, SV_BATTLE_AXE },
+        { TV_AXE, SV_BEAKED_AXE },
+        { TV_AXE, SV_BROAD_AXE },
+        { TV_AXE, SV_LOCHABER_AXE },
+        { TV_AXE, SV_GREAT_AXE },
         { 0, 0 },
       },
       { { 10,   0,  0, _power_attack_spell },
@@ -2278,7 +2277,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
         { 40,  25,  0, _vicious_strike_spell },
         { -1,   0,  0, NULL },
       },
-      { TV_POLEARM, SV_BROAD_AXE },
+      { TV_AXE, SV_BROAD_AXE },
     },
     { "Bows",
       "You will shoot to kill! The bowmaster gains techniques to enhance shooting, "
@@ -2384,16 +2383,16 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  30,  29,  31,   5,  30,  20, 60, 66},
       {  12,   9,  10,   0,   0,   0, 18, 20},
-      { { TV_SWORD, SV_BASILLARD },
-        { TV_SWORD, SV_BROKEN_DAGGER },
-        { TV_SWORD, SV_DAGGER },
-        { TV_SWORD, SV_FALCON_SWORD },
-        { TV_SWORD, SV_MAIN_GAUCHE },
-        { TV_SWORD, SV_NINJATO },
-        { TV_SWORD, SV_RAPIER },
-        { TV_SWORD, SV_SABRE },
-        { TV_SWORD, SV_TANTO },
-        { TV_SWORD, SV_DRAGON_FANG },
+      { { TV_DAGGER, SV_BASILLARD },
+        { TV_DAGGER, SV_BROKEN_DAGGER },
+        { TV_DAGGER, SV_DAGGER },
+        { TV_DAGGER, SV_FALCON_SWORD },
+        { TV_DAGGER, SV_MAIN_GAUCHE },
+        { TV_DAGGER, SV_NINJATO },
+        { TV_DAGGER, SV_RAPIER },
+        { TV_DAGGER, SV_SABRE },
+        { TV_DAGGER, SV_TANTO },
+        { TV_DAGGER, SV_DRAGON_FANG },
         { 0, 0 },
       },
       {
@@ -2406,7 +2405,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
         { 45,   0,  0, _frenzy_spell },
         { -1,   0,  0, NULL },
       },
-      { TV_SWORD, SV_DAGGER },
+      { TV_DAGGER, SV_DAGGER },
     },
     { "Polearms",
       "You don a grim face before setting out to reap your harvest of death. You will swing "
@@ -2518,11 +2517,11 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       {  25,  24,  31,   2,  14,   4, 63, 25},
       {  10,   9,  10,   0,   0,   0, 26, 11},
       {
-        { TV_HAFTED, SV_BO_STAFF },
-        { TV_HAFTED, SV_JO_STAFF },
-        { TV_HAFTED, SV_QUARTERSTAFF },
-        { TV_HAFTED, SV_WIZSTAFF },
-        { TV_HAFTED, SV_THREE_PIECE_ROD },
+        { TV_STAVES, SV_BO_STAFF },
+        { TV_STAVES, SV_JO_STAFF },
+        { TV_STAVES, SV_QUARTERSTAFF },
+        { TV_STAVES, SV_WIZSTAFF },
+        { TV_STAVES, SV_THREE_PIECE_ROD },
         { 0, 0 },
       },
       {
@@ -2533,7 +2532,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
         { 45, 80, 0, _flurry_of_blows_spell },
         { -1,  0, 0, NULL },
       },
-      { TV_HAFTED, SV_QUARTERSTAFF },
+      { TV_STAVES, SV_QUARTERSTAFF },
     },
     { "Swords",
       "You will become a true swordmaster! Mastery of the blade will augment "
@@ -2740,12 +2739,77 @@ void _on_birth(void)
 {
     object_type forge;
     _object_kind kind;
-    int i;
 
-    if (p_ptr->psubclass == WEAPONMASTER_SHIELDS)
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_SKILLED;
+
+    switch (p_ptr->psubclass)
     {
+    case WEAPONMASTER_AXES:
+        p_ptr->proficiency[PROF_AXE] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_MASTER;
+        break;
+    case WEAPONMASTER_BOWS:
+        p_ptr->proficiency[PROF_BOW] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_MASTER;
+        break;
+    case WEAPONMASTER_CLUBS:
+        p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_MASTER;
+        break;
+    case WEAPONMASTER_CROSSBOWS:
+        p_ptr->proficiency[PROF_CROSSBOW] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_MASTER;
+        break;
+    case WEAPONMASTER_DAGGERS:
+        p_ptr->proficiency[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_MASTER;
+        break;
+    case WEAPONMASTER_POLEARMS:
+        p_ptr->proficiency[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_MASTER;
+        break;
+    case WEAPONMASTER_SHIELDS:
+        /* Shield bash is treated as an innate attack */
+        p_ptr->proficiency[PROF_INNATE_ATTACKS] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_INNATE_ATTACKS] = WEAPON_EXP_MASTER;
+        
+        /*Fight weapon + shield without penalty */
+        p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
         object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
         py_birth_obj(&forge);
+        break;
+    case WEAPONMASTER_SLINGS:
+        p_ptr->proficiency[PROF_SLING] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_MASTER;
+        break;
+    case WEAPONMASTER_STAVES:
+        p_ptr->proficiency[PROF_STAVE] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_MASTER;
+        break;
+    case WEAPONMASTER_SWORDS:
+        p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_MASTER;
+        break;
+    case WEAPONMASTER_DIGGERS:
+        p_ptr->proficiency[PROF_DIGGER] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_MASTER;
+        break;
     }
 
     /* Give the player a starting weapon from this group */
@@ -2755,6 +2819,9 @@ void _on_birth(void)
 
     if (kind.tval == TV_BOW)
     {
+        p_ptr->proficiency[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+
         switch (kind.sval)
         {
         case SV_SLING:
@@ -2775,85 +2842,11 @@ void _on_birth(void)
             py_birth_obj(&forge);
             break;
         }
-        object_prep(&forge, lookup_kind(TV_SWORD, SV_DAGGER));
+        object_prep(&forge, lookup_kind(TV_DAGGER, SV_DAGGER));
         py_birth_obj(&forge);
     }
-
-    for (i = 0; i < _MAX_OBJECTS_PER_SPECIALITY; i++)
-    {
-        kind = _specialities[p_ptr->psubclass].objects[i];
-        if (kind.tval == 0) break;
-
-        if (kind.tval != TV_SHIELD)
-            p_ptr->weapon_exp[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_BEGINNER;
-    }
-
-    if (p_ptr->psubclass == WEAPONMASTER_SHIELDS)
-    {
-        skills_shield_init(SV_SMALL_LEATHER_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
-        skills_shield_init(SV_SMALL_METAL_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
-        skills_shield_init(SV_LARGE_LEATHER_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
-        skills_shield_init(SV_LARGE_METAL_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
-        skills_shield_init(SV_MITHRIL_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
-        skills_shield_init(SV_MIRROR_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
-        skills_shield_init(SV_DRAGON_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
-        skills_shield_init(SV_KNIGHT_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
-    }
-    weaponmaster_adjust_skills();
-
+    
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_JACK, 1);
-}
-
-static void _set_max_skill(int tval, int skill)
-{
-    int j;
-    for (j = 0; j < 64; j++)
-        s_info[p_ptr->pclass].w_max[tval - TV_WEAPON_BEGIN][j] = skill;
-}
-
-void weaponmaster_adjust_skills(void)
-{
-    int i, j;
-    _object_kind kind;
-
-    /* Fix up skills for Speciality. This needs to be called every time the game is loaded! */
-    /* Bang everything in class (melee, bows, shields) down to unskilled max */
-    switch (_specialities[p_ptr->psubclass].kind)
-    {
-    case _WEAPONMASTER_MELEE:
-        _set_max_skill(TV_DIGGING, WEAPON_EXP_UNSKILLED);
-        _set_max_skill(TV_HAFTED, WEAPON_EXP_UNSKILLED);
-        _set_max_skill(TV_POLEARM, WEAPON_EXP_UNSKILLED);
-        _set_max_skill(TV_SWORD, WEAPON_EXP_UNSKILLED);
-        break;
-
-    case _WEAPONMASTER_BOWS:
-        _set_max_skill(TV_BOW, WEAPON_EXP_UNSKILLED);
-        break;
-
-    case _WEAPONMASTER_SHIELDS:
-        /* This only needs to be done once, in _birth. */
-        break;
-    }
-
-    /* Now make favored weapons "masterable" */
-    for (i = 0; i < _MAX_OBJECTS_PER_SPECIALITY; i++)
-    {
-        kind = _specialities[p_ptr->psubclass].objects[i];
-        if (kind.tval == 0 || kind.tval == TV_SHIELD) break;
-
-        s_info[p_ptr->pclass].w_max[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_MASTER;
-    }
-
-    /* Patch up current skills since we keep changing the allowed maximums */
-    for (i = 0; i < 5; i++)
-    {
-        for (j = 0; j < 64; j++)
-        {
-            if (p_ptr->weapon_exp[i][j] > s_info[p_ptr->pclass].w_max[i][j])
-                p_ptr->weapon_exp[i][j] = s_info[p_ptr->pclass].w_max[i][j];
-        }
-    }
 }
 
 static int _max_pval(void)
@@ -3866,7 +3859,7 @@ class_t *weaponmaster_get_class(int subclass)
         me.stats[A_WIS] = -1;
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  1;
+        me.stats[A_CHR] = -1;
     }
     if (0 <= subclass && subclass < WEAPONMASTER_MAX)
     {

@@ -17,6 +17,23 @@ void disciple_birth(void)
     mut_lose(MUT_CHAOS_GIFT);
     mut_gain(MUT_PURPLE_GIFT);
     mut_lock(MUT_PURPLE_GIFT);
+
+    /* Disciple proficiencies */
+    p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_UNSKILLED;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_EXPERT;
 }
 
 /* Basically, this is the level the player would be if he were a Dunadan */
@@ -122,3 +139,12 @@ class_t *disciple_get_class(int psubclass)
     return result;
 }
 
+/* Bad things, but not ty_curse bad (or at least not ty_curse insta-deadly) */
+void nonlethal_ty_substitute(bool do_dec)
+{
+	bool old_nos = no_scrambling;
+	no_scrambling = TRUE;
+	mutate_player();
+	no_scrambling = old_nos;
+	if (do_dec) dec_stat(randint0(MAX_STATS), 12 + randint1(6), TRUE);
+}

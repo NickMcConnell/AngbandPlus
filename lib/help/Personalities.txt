@@ -12,8 +12,8 @@ Strength      +0        Disarming   <color:R>Poor         </color>
 Intelligence  +0        Device      <color:R>Poor         </color>
 Wisdom        +0        Save        <color:R>Poor         </color>
 Dexterity     +0        Stealth     <color:R>Poor         </color>
-Constitution  +0        Searching   <color:o>Fair         </color>
-Charisma      +0        Perception  <color:o>Fair         </color>
+Constitution  +0        Searching   <color:R>Poor         </color>
+Charisma      +0        Perception  <color:R>Poor         </color>
 Life Rating  100%       Melee       <color:R>Poor         </color>
 Experience   100%       Bows        <color:o>Fair         </color>
 </style></indent>
@@ -34,12 +34,12 @@ Experience   100%       Bows        <color:o>Fair         </color>
 Shrewd reduces your physical stats, and raises your intelligence and magical skills. It makes your stats suitable for a mage. Also it directly influences your hit-points and spell fail rate.
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength      -2        Disarming   <color:y>Good         </color>
-Intelligence  +2        Device      <color:g>Superb       </color>
+Strength      -2        Disarming   <color:o>Fair         </color>
+Intelligence  +2        Device      <color:G>Excellent    </color>
 Wisdom        +0        Save        <color:o>Fair         </color>
 Dexterity     +1        Stealth     <color:R>Poor         </color>
 Constitution  -1        Searching   <color:r>Bad          </color>
-Charisma      -1        Perception  <color:G>Excellent    </color>
+Charisma      -1        Perception  <color:y>Very Good    </color>
 Life Rating   97%       Melee       <color:D>Very Bad     </color>
 Experience   100%       Bows        <color:r>Bad          </color>
 </style></indent>
@@ -48,11 +48,11 @@ Pious deepens your faith in your God. It makes your physical ability average, an
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +0        Disarming   <color:D>Very Bad     </color>
-Intelligence  -1        Device      <color:o>Fair         </color>
-Wisdom        +2        Save        <color:y>Very Good    </color>
+Intelligence  -1        Device      <color:R>Poor         </color>
+Wisdom        +2        Save        <color:y>Good         </color>
 Dexterity     -1        Stealth     <color:r>Bad          </color>
-Constitution  +0        Searching   <color:y>Very Good    </color>
-Charisma      +0        Perception  <color:r>Bad          </color>
+Constitution  +0        Searching   <color:y>Good         </color>
+Charisma      +1        Perception  <color:r>Bad          </color>
 Life Rating  100%       Melee       <color:D>Very Bad     </color>
 Experience   100%       Bows        <color:r>Bad          </color>
 </style></indent>
@@ -60,12 +60,12 @@ Experience   100%       Bows        <color:r>Bad          </color>
 Nimble renders you highly skilled comparatively well, but reduces your physical ability.
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength      -1        Disarming   <color:g>Superb       </color>
+Strength      -1        Disarming   <color:G>Excellent    </color>
 Intelligence  +1        Device      <color:o>Fair         </color>
 Wisdom        -1        Save        <color:r>Bad          </color>
-Dexterity     +2        Stealth     <color:o>Fair         </color>
-Constitution  -1        Searching   <color:G>Excellent    </color>
-Charisma      +0        Perception  <color:G>Excellent    </color>
+Dexterity     +2        Stealth     <color:R>Poor         </color>
+Constitution  -1        Searching   <color:y>Very Good    </color>
+Charisma      +0        Perception  <color:y>Very Good    </color>
 Life Rating   99%       Melee       <color:R>Poor         </color>
 Experience   100%       Bows        <color:g>Superb       </color>
 </style></indent>
@@ -74,12 +74,12 @@ Fearless raises your melee skills and force of personality. Stats such as magic 
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +1        Disarming   <color:D>Very Bad     </color>
-Intelligence  +0        Device      <color:o>Fair         </color>
+Intelligence  +0        Device      <color:R>Poor         </color>
 Wisdom        +0        Save        <color:r>Bad          </color>
 Dexterity     -1        Stealth     <color:R>Poor         </color>
-Constitution  -1        Searching   <color:y>Good         </color>
+Constitution  -1        Searching   <color:o>Fair         </color>
 Charisma      +1        Perception  <color:r>Bad          </color>
-Life Rating   98%       Melee       <color:G>Excellent    </color>
+Life Rating   98%       Melee       <color:y>Good         </color>
 Experience   100%       Bows        <color:o>Fair         </color>
 </style></indent>
 <topic:Combat><color:o>Combat</color>
@@ -91,20 +91,20 @@ Intelligence  -1        Device      <color:r>Bad          </color>
 Wisdom        -1        Save        <color:D>Very Bad     </color>
 Dexterity     +1        Stealth     <color:R>Poor         </color>
 Constitution  +0        Searching   <color:R>Poor         </color>
-Charisma      +0        Perception  <color:y>Good         </color>
-Life Rating  100%       Melee       <color:G>Excellent    </color>
-Experience   100%       Bows        <color:G>Excellent    </color>
+Charisma      +0        Perception  <color:o>Fair         </color>
+Life Rating  100%       Melee       <color:y>Good         </color>
+Experience   100%       Bows        <color:y>Good         </color>
 </style></indent>
 <topic:Sexy><color:o>Sexy</color>
 Sexy increases all of your stats and skills, but your haughty attitude will aggravate all monsters.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +1        Disarming   <color:g>Superb       </color>
-Intelligence  +1        Device      <color:G>Excellent    </color>
-Wisdom        +1        Save        <color:y>Good         </color>
+Intelligence  +1        Device      <color:y>Good         </color>
+Wisdom        +1        Save        <color:o>Fair         </color>
 Dexterity     +1        Stealth     <color:R>Poor         </color>
-Constitution  +1        Searching   <color:G>Excellent    </color>
-Charisma      +1        Perception  <color:y>Good         </color>
+Constitution  +1        Searching   <color:y>Good         </color>
+Charisma      +3        Perception  <color:o>Fair         </color>
 Life Rating  100%       Melee       <color:g>Superb       </color>
 Experience   100%       Bows        <color:g>Superb       </color>
 </style></indent>
@@ -113,8 +113,8 @@ A Lucky person has poor stats but, surprisingly, can do all things well. For som
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      -2        Disarming   <color:g>Superb       </color>
-Intelligence  -2        Device      <color:G>Excellent    </color>
-Wisdom        -2        Save        <color:y>Good         </color>
+Intelligence  -2        Device      <color:y>Very Good    </color>
+Wisdom        -2        Save        <color:o>Fair         </color>
 Dexterity     -2        Stealth     <color:o>Fair         </color>
 Constitution  -2        Searching   <color:g>Superb       </color>
 Charisma      -2        Perception  <color:g>Superb       </color>
@@ -127,9 +127,9 @@ A Patient person does things carefully. Patient people have high constitution, a
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      -1        Disarming   <color:D>Very Bad     </color>
 Intelligence  -1        Device      <color:r>Bad          </color>
-Wisdom        +1        Save        <color:y>Good         </color>
-Dexterity     -2        Stealth     <color:o>Fair         </color>
-Constitution  +2        Searching   <color:o>Fair         </color>
+Wisdom        +1        Save        <color:o>Fair         </color>
+Dexterity     -2        Stealth     <color:R>Poor         </color>
+Constitution  +2        Searching   <color:R>Poor         </color>
 Charisma      +0        Perception  <color:r>Bad          </color>
 Life Rating  102%       Melee       <color:D>Very Bad     </color>
 Experience   100%       Bows        <color:r>Bad          </color>
@@ -138,12 +138,12 @@ Experience   100%       Bows        <color:r>Bad          </color>
 A Craven person is a coward, preferring to avoid a fight at any cost. Craven adventurers shoot and use devices well, their stealth is impressive, and they can move fast when not fighting; but their stats and other skills are somewhat wanting.
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength      -1        Disarming   <color:G>Excellent    </color>
-Intelligence  +1        Device      <color:G>Excellent    </color>
+Strength      -1        Disarming   <color:y>Good         </color>
+Intelligence  +1        Device      <color:y>Good         </color>
 Wisdom        +1        Save        <color:r>Bad          </color>
-Dexterity     -1        Stealth     <color:y>Good         </color>
-Constitution  -1        Searching   <color:o>Fair         </color>
-Charisma      -2        Perception  <color:o>Fair         </color>
+Dexterity     -1        Stealth     <color:o>Fair         </color>
+Constitution  -1        Searching   <color:R>Poor         </color>
+Charisma      -2        Perception  <color:R>Poor         </color>
 Life Rating   99%       Melee       <color:D>Very Bad     </color>
 Experience   100%       Bows        <color:g>Superb       </color>
 </style></indent>
@@ -178,26 +178,13 @@ An Unlucky adventurer looks impressive on paper and should, by rights, have an e
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +2        Disarming   <color:D>Very Bad     </color>
-Intelligence  +2        Device      <color:y>Good         </color>
+Intelligence  +2        Device      <color:o>Fair         </color>
 Wisdom        +2        Save        <color:D>Very Bad     </color>
 Dexterity     +2        Stealth     <color:R>Poor         </color>
-Constitution  +2        Searching   <color:o>Fair         </color>
-Charisma      +2        Perception  <color:G>Excellent    </color>
+Constitution  +2        Searching   <color:R>Poor         </color>
+Charisma      +2        Perception  <color:y>Good         </color>
 Life Rating  104%       Melee       <color:r>Bad          </color>
 Experience   100%       Bows        <color:R>Poor         </color>
-</style></indent>
-<topic:Chaotic><color:o>Chaotic</color>
-Chaotic adventurers are servants of the Demon Lords of Chaos, and often receive a reward - or punishment - from their patrons when they gain a level. Their strengths and weaknesses are unpredictable; even their stat bonuses are subject to change.
-
-  <indent><style:table><color:G>Stats                   Skills</color>
-Strength      +0        Disarming   <color:R>Poor         </color>
-Intelligence  +0        Device      <color:R>Poor         </color>
-Wisdom        +0        Save        <color:R>Poor         </color>
-Dexterity     +0        Stealth     <color:R>Poor         </color>
-Constitution  +0        Searching   <color:o>Fair         </color>
-Charisma      +0        Perception  <color:o>Fair         </color>
-Life Rating   99%       Melee       <color:R>Poor         </color>
-Experience   100%       Bows        <color:o>Fair         </color>
 </style></indent>
 <topic:Mundane><color:o>Mundane</color>
 Mundane adventurers have few talents to speak of, and are incapable of using spells and not very good with magical devices; but their anti-magic allows them to resist the effects of many dangerous magical attacks.
@@ -207,8 +194,8 @@ Strength      -1        Disarming   <color:R>Poor         </color>
 Intelligence  -1        Device      <color:D>Very Bad     </color>
 Wisdom        -1        Save        <color:g>Superb       </color>
 Dexterity     -1        Stealth     <color:R>Poor         </color>
-Constitution  -1        Searching   <color:o>Fair         </color>
-Charisma      -1        Perception  <color:o>Fair         </color>
+Constitution  -1        Searching   <color:R>Poor         </color>
+Charisma      -1        Perception  <color:R>Poor         </color>
 Life Rating   97%       Melee       <color:R>Poor         </color>
 Experience   100%       Bows        <color:o>Fair         </color>
 </style></indent>
@@ -219,11 +206,50 @@ The Munchkin personality is for players who love being overpowered. It raises al
 Strength      +3        Disarming   <color:g>Superb       </color>
 Intelligence  +3        Device      <color:v>Amber[12]    </color>
 Wisdom        +3        Save        <color:b>Heroic       </color>
-Dexterity     +3        Stealth     <color:G>Excellent    </color>
+Dexterity     +3        Stealth     <color:y>Good         </color>
 Constitution  +3        Searching   <color:v>Amber[15]    </color>
 Charisma      +3        Perception  <color:v>Amber[15]    </color>
 Life Rating  150%       Melee       <color:v>Amber[62]    </color>
 Experience    50%       Bows        <color:v>Amber[27]    </color>
+</style></indent>
+<topic:Fragile><color:o>Fragile</color>
+As a Fragile adventurer, you lack both self-confidence and physical toughness. Due to your incredibly low stamina, you are quickly exhausted by melee, or ranged combat, or magical combat, or any other strenuous activity. (Maybe you should just stay at home, quietly reading some book that isn't too heavy.)
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength      -3        Disarming   <color:R>Poor         </color>
+Intelligence  +0        Device      <color:R>Poor         </color>
+Wisdom        +1        Save        <color:D>Very Bad     </color>
+Dexterity     -1        Stealth     <color:r>Bad          </color>
+Constitution  -3        Searching   <color:o>Fair         </color>
+Charisma      -2        Perception  <color:o>Fair         </color>
+Life Rating   91%       Melee       <color:D>Very Bad     </color>
+Experience   100%       Bows        <color:r>Bad          </color>
+</style></indent>
+<topic:Sneaky><color:o>Sneaky</color>
+Sneaky adventurers are stealthy and at home with light stabbing weapons; but face-to-face combat with heavier weapons plays against their strengths.
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength      -3        Disarming   <color:y>Good         </color>
+Intelligence  +1        Device      <color:R>Poor         </color>
+Wisdom        +1        Save        <color:R>Poor         </color>
+Dexterity     +2        Stealth     <color:o>Fair         </color>
+Constitution  -1        Searching   <color:y>Good         </color>
+Charisma      -1        Perception  <color:R>Poor         </color>
+Life Rating   97%       Melee       <color:R>Poor         </color>
+Experience   100%       Bows        <color:o>Fair         </color>
+</style></indent>
+<topic:Noble><color:o>Noble</color>
+As a Noble person, you have the benefits of an upper-class upbringing (at least, you consider them benefits). You start with extra money, and seem to have a relatively easy time acquiring even more money; but whether other aspects of the adventuring life will come to you as naturally remains to be seen.
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength      +0        Disarming   <color:r>Bad          </color>
+Intelligence  +0        Device      <color:o>Fair         </color>
+Wisdom        +0        Save        <color:o>Fair         </color>
+Dexterity     -2        Stealth     <color:R>Poor         </color>
+Constitution  -1        Searching   <color:R>Poor         </color>
+Charisma      +2        Perception  <color:R>Poor         </color>
+Life Rating   99%       Melee       <color:o>Fair         </color>
+Experience   110%       Bows        <color:r>Bad          </color>
 </style></indent>
 <topic:Tables><style:heading>Table 1 - Personality Statistic Bonus Table</style>
 
@@ -231,20 +257,22 @@ Experience    50%       Bows        <color:v>Amber[27]    </color>
 Ordinary        +0   +0   +0   +0   +0   +0  100%  100%
 Mighty          +2   -2   -2   +0   +1   +1  102%  100%
 Shrewd          -2   +2   +0   +1   -1   -1   97%  100%
-Pious           +0   -1   +2   -1   +0   +0  100%  100%
+Pious           +0   -1   +2   -1   +0   +1  100%  100%
 Nimble          -1   +1   -1   +2   -1   +0   99%  100%
 Fearless        +1   +0   +0   -1   -1   +1   98%  100%
 Combat          +1   -1   -1   +1   +0   +0  100%  100%
-Sexy            +1   +1   +1   +1   +1   +1  100%  100%
+Sexy            +1   +1   +1   +1   +1   +3  100%  100%
 Lucky           -2   -2   -2   -2   -2   -2   98%  100%
 Patient         -1   -1   +1   -2   +2   +0  102%  100%
 Craven          -1   +1   +1   -1   -1   -2   99%  100%
 Hasty           +0   -1   -2   +2   -1   +0  100%  100%
 Lazy            -2   -2   -2   -2   -2   -2   95%  100%
 Unlucky         +2   +2   +2   +2   +2   +2  104%  100%
-Chaotic         +0   +0   +0   +0   +0   +0   99%  100%
 Mundane         -1   -1   -1   -1   -1   -1   97%  100%
 Munchkin        +3   +3   +3   +3   +3   +3  150%   50%
+Fragile         -3   +0   +1   -1   -3   -2   91%  100%
+Sneaky          -3   +1   +1   +2   -1   -1   97%  100%
+Noble           +0   +0   +0   -2   -1   +2   99%  110%
 
 </style>
 <topic:Skills1><style:heading>Table 2 - Personality Skill Bonus Table I</style>
@@ -252,45 +280,49 @@ Munchkin        +3   +3   +3   +3   +3   +3  150%   50%
              <color:w>Disarming     Device        Save          Stealth      </color>
 Ordinary     <color:R>Poor         </color> <color:R>Poor         </color> <color:R>Poor         </color> <color:R>Poor         </color>
 Mighty       <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
-Shrewd       <color:y>Good         </color> <color:g>Superb       </color> <color:o>Fair         </color> <color:R>Poor         </color>
-Pious        <color:D>Very Bad     </color> <color:o>Fair         </color> <color:y>Very Good    </color> <color:r>Bad          </color>
-Nimble       <color:g>Superb       </color> <color:o>Fair         </color> <color:r>Bad          </color> <color:o>Fair         </color>
-Fearless     <color:D>Very Bad     </color> <color:o>Fair         </color> <color:r>Bad          </color> <color:R>Poor         </color>
+Shrewd       <color:o>Fair         </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:R>Poor         </color>
+Pious        <color:D>Very Bad     </color> <color:R>Poor         </color> <color:y>Good         </color> <color:r>Bad          </color>
+Nimble       <color:G>Excellent    </color> <color:o>Fair         </color> <color:r>Bad          </color> <color:R>Poor         </color>
+Fearless     <color:D>Very Bad     </color> <color:R>Poor         </color> <color:r>Bad          </color> <color:R>Poor         </color>
 Combat       <color:r>Bad          </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:R>Poor         </color>
-Sexy         <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Good         </color> <color:R>Poor         </color>
-Lucky        <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Good         </color> <color:o>Fair         </color>
-Patient      <color:D>Very Bad     </color> <color:r>Bad          </color> <color:y>Good         </color> <color:o>Fair         </color>
-Craven       <color:G>Excellent    </color> <color:G>Excellent    </color> <color:r>Bad          </color> <color:y>Good         </color>
+Sexy         <color:g>Superb       </color> <color:y>Good         </color> <color:o>Fair         </color> <color:R>Poor         </color>
+Lucky        <color:g>Superb       </color> <color:y>Very Good    </color> <color:o>Fair         </color> <color:o>Fair         </color>
+Patient      <color:D>Very Bad     </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color>
+Craven       <color:y>Good         </color> <color:y>Good         </color> <color:r>Bad          </color> <color:o>Fair         </color>
 Hasty        <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
 Lazy         <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
-Unlucky      <color:D>Very Bad     </color> <color:y>Good         </color> <color:D>Very Bad     </color> <color:R>Poor         </color>
-Chaotic      <color:R>Poor         </color> <color:R>Poor         </color> <color:R>Poor         </color> <color:R>Poor         </color>
+Unlucky      <color:D>Very Bad     </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:R>Poor         </color>
 Mundane      <color:R>Poor         </color> <color:D>Very Bad     </color> <color:g>Superb       </color> <color:R>Poor         </color>
-Munchkin     <color:g>Superb       </color> <color:v>Amber[12]    </color> <color:b>Heroic       </color> <color:G>Excellent    </color>
+Munchkin     <color:g>Superb       </color> <color:v>Amber[12]    </color> <color:b>Heroic       </color> <color:y>Good         </color>
+Fragile      <color:R>Poor         </color> <color:R>Poor         </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
+Sneaky       <color:y>Good         </color> <color:R>Poor         </color> <color:R>Poor         </color> <color:o>Fair         </color>
+Noble        <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 
 </style>
 <topic:Skills2><style:heading>Table 3 - Personality Skill Bonus Table II</style>
 <style:table>
              <color:w>Searching     Perception    Melee         Bows         </color>
-Ordinary     <color:o>Fair         </color> <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color>
+Ordinary     <color:R>Poor         </color> <color:R>Poor         </color> <color:R>Poor         </color> <color:o>Fair         </color>
 Mighty       <color:r>Bad          </color> <color:r>Bad          </color> <color:b>Heroic       </color> <color:o>Fair         </color>
-Shrewd       <color:r>Bad          </color> <color:G>Excellent    </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
-Pious        <color:y>Very Good    </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
-Nimble       <color:G>Excellent    </color> <color:G>Excellent    </color> <color:R>Poor         </color> <color:g>Superb       </color>
-Fearless     <color:y>Good         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:o>Fair         </color>
-Combat       <color:R>Poor         </color> <color:y>Good         </color> <color:G>Excellent    </color> <color:G>Excellent    </color>
-Sexy         <color:G>Excellent    </color> <color:y>Good         </color> <color:g>Superb       </color> <color:g>Superb       </color>
+Shrewd       <color:r>Bad          </color> <color:y>Very Good    </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
+Pious        <color:y>Good         </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
+Nimble       <color:y>Very Good    </color> <color:y>Very Good    </color> <color:R>Poor         </color> <color:g>Superb       </color>
+Fearless     <color:o>Fair         </color> <color:r>Bad          </color> <color:y>Good         </color> <color:o>Fair         </color>
+Combat       <color:R>Poor         </color> <color:o>Fair         </color> <color:y>Good         </color> <color:y>Good         </color>
+Sexy         <color:y>Good         </color> <color:o>Fair         </color> <color:g>Superb       </color> <color:g>Superb       </color>
 Lucky        <color:g>Superb       </color> <color:g>Superb       </color> <color:b>Heroic       </color> <color:g>Superb       </color>
-Patient      <color:o>Fair         </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
-Craven       <color:o>Fair         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:g>Superb       </color>
+Patient      <color:R>Poor         </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
+Craven       <color:R>Poor         </color> <color:R>Poor         </color> <color:D>Very Bad     </color> <color:g>Superb       </color>
 Hasty        <color:D>Very Bad     </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
 Lazy         <color:D>Very Bad     </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
-Unlucky      <color:o>Fair         </color> <color:G>Excellent    </color> <color:r>Bad          </color> <color:R>Poor         </color>
-Chaotic      <color:o>Fair         </color> <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color>
-Mundane      <color:o>Fair         </color> <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color>
+Unlucky      <color:R>Poor         </color> <color:y>Good         </color> <color:r>Bad          </color> <color:R>Poor         </color>
+Mundane      <color:R>Poor         </color> <color:R>Poor         </color> <color:R>Poor         </color> <color:o>Fair         </color>
 Munchkin     <color:v>Amber[15]    </color> <color:v>Amber[15]    </color> <color:v>Amber[62]    </color> <color:v>Amber[27]    </color>
+Fragile      <color:o>Fair         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
+Sneaky       <color:y>Good         </color> <color:R>Poor         </color> <color:R>Poor         </color> <color:o>Fair         </color>
+Noble        <color:R>Poor         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:r>Bad          </color>
 
 </style>
 
 
-<color:s>Automatically generated for FrogComposband 7.0.cloudberry.</color>
+<color:s>Automatically generated for Oposband 0.2.0.</color>

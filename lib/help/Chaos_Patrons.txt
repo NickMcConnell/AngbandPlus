@@ -1,0 +1,121 @@
+<style:title>Chaos Patrons</style>
+
+Certain classes may choose to devote themselves to a demonic entity, placing their soul in the hands of a powerful malevolent being in return for the gifts and blessings that may be earned in service of their designs.
+
+Once this pact has been made, an adventurer will find themselves being noticed by their patron, whereupon they may be rewarded, chastised, punished or simply toyed with. The particulars of these rewards can vary according to which patron is chosen, as well as their sensitivity to different events and the attitudes they hold toward followers behaviour. However some general patterns can be observed. Killing weak creatures who pose no threat, while seldom noticed can occassionally be met with scorn, while killing unique opponents or performing acts of chance and villainy are often met with amusement. While the killing of demons leads to no positive or negative bias different from any other worthy foe, it is more likely to draw a patron's attention and once having done so is for better or for worse more likely to provoke a strong reaction. Acts met with near universal approval amongst the chaos patrons include the vanquishing of famous opponents, the murder of the pure hearted, and attainment of new character levels. Some acts are considered to be villanous or chanceworthy by patrons, in practice this refers in the former case to teleporting monsters away or assaulting friendly creatures, and in the latter case to using items and magic which produce random effects. A follower taking a particularly nasty hit may also arouse the interest of their patron.
+
+Different patrons may reward their followers in different ways. Lesser rewards common to all patrons include temporary magical boosts, blasting nearby monsters with chaos energy, and bored or annoyed patrons may induce afflictions such as confusion, hallucination, curses and mana drain. Punishment of followers has been known to be quite severe, the unhappy victims being blasted with magical energy and even having priceless artifacts obliterated by an angry patron. 
+
+Complete information of the results of angering each patron is available only through experience, as few have lived to tell the tale. However a scholarly effort to record the habits of these entities has resulted in the following compendium of 'gifts' offered by each patron.
+
+<topic:Slortar><color:u>Slortar</color>
+Eldest among the lords of chaos, Slortar wields great power and his servants are well rewarded. He is however somewhat difficult to impress, and less inclined to take notice when a follower is in peril.
+
+May polymorph followers or their wounds, grant increased abilities and experience.
+
+Gifts weapons, equipment, devices, and augmented abilities.
+
+<topic:Mabelode><color:s>Mabelode</color>
+Another of the elder lords, Mabelode actively makes his power known by being particularly responsive to the killing of ordinary opponents.
+
+May summon opponents, polymorph followers or their wounds, heal all wounds, grant increased abilities and undead servants.
+
+Gifts weapons, equipment and devices.
+
+<topic:Chardros><color:s>Chardros</color>
+Last of the three elders, Chardros welcomes the killing of even the weak and insignificant, replacing the scorn shown by most patrons with ambivalence. He takes less interest than most in the killing of demons, being less likely to overreact.
+
+May summon opponents, destruct the follower's surroundings, grant undead servants, genocide opponents, mass genocide opponents, damage opponents and gift equipment.
+
+Gifts weapons, equipment, devices and augmented abilities.
+
+<topic:Hionhurn><color:r>Hionhurn</color>
+The Executioner's love of killing leads him to forgo the scorn for the massacre of weaklings that most patrons share. He is particularly attentive toward the killing of unique opponents.
+
+May grant undead servants, destruct the follower's surroundings, genocide opponents, mass genocide opponents, heal all wounds, increase abilities.
+
+Gifts weapons, equipment, devices and augmented abilities.
+
+<topic:Xiombarg><color:v>Xiombarg</color>
+The Queen of the Swords is particularly likely to take notice of followers engaged in close combat. She is less amused by acts of cowardice and villainy than other patrons, taking a more ambivalent attitude. 
+
+May polymorph followers or their wounds, genocide opponents, damage opponents, gift equipment, grant servants.
+
+Gifts weapons, equipment, devices, increased abilities and experience and augmented abilities.
+
+<topic:Pyaray><color:B>Pyaray</color>
+An eldritch abomination and keeper of forbidden lore, Pyaray tends to have stronger feelings than most when noticing his followers using magic, replacing their ambivalence with an interest more likely to provoke stronger reactions. However he feels more positively than the other patrons about killing demons, which he finds amusing.
+
+May polymorph followers or their wounds, grant demonic servants, heal all wounds, increase abilities.
+
+Gifts weapons, equipment, devices and storms of chaotic energy.
+
+<topic:Balaan><color:s>Balaan</color>
+Mysterious among the lords of chaos, Balaan cares little for the killing of weaklings and as such is less likely to make known his scorn for the activity. Instead his interest in the affairs of demons is more pronounced, and is more likely to make his feelings known when his followers dispatch them.
+
+May summon hostile opponents, drain experience, polymorph followers or their wounds,grant undead servants, heal all wounds, increase experience.
+
+Gifts weapons, equipment, devices, and augmented abilities.
+
+<topic:Arioch><color:r>Arioch</color>
+Cunning and manipulative, Arioch is more likely to take notice of followers who commit acts of cowardice and villainy than most patrons, acts he views with the amusement typical of a chaos lord. He takes an interest in his follower's suffering and is more likely to react strongly when he notices his followers being hurt.
+
+May polymorph followers, mass genocide opponents, grant demonic servants, heal all wounds, gift weapons.
+
+Gifts weapons, equipment, devices, increased experience and augmented abilities.
+
+<topic:Eequor><color:b>Eequor</color>
+Capricious and malevolent, Eequor takes particular interest in both the killing of ordinary opponents and her follower's suffering, handing out fabulous gifts and terrible punishments in response to these events more frequently than other patrons.
+
+May polymorph followers or their wounds, gift equipment, grant servants, heal all wounds and increase experience.
+
+Gifts weapons, equipment, devices, increased abilities and augmented abilities.
+
+<topic:Narjhan><color:o>Narjhan</color>
+The Lord of Beggars offers his followers fantastic abilities but visits his scorn on those who waste their time in trivial battles more frequently than other patrons. He also takes an interest in the killing of ordinary foes, his reactions to such being more likely to be outright gifts or punishments.
+
+May polymorph followers or their wounds, heal all wounds, increase experience and augment abilities.
+
+Gifts weapons, equipment and devices.
+
+<topic:Balo><color:y>Balo</color>
+The Jester finds particular amusement in the killing of demons, and is more likely to notice his followers performing acts of chance.
+
+May increase or decrease abilities, polymorph followers or their wounds, destruct the follower's surroundings, mass genocide opponents, gift weapons and equipment, blast the follower with magical energies.
+
+Gifts augmented abilities, ruined abilities, strong hostile opponents, equipment and devices.
+
+<topic:Khorne><color:r>Khorne</color>
+The Blood God delights in battle and favours warriors as his followers. He has a special scorn for spellcasters and will never react favourably to noticing a follower casting a spell. He is amused when his followers engage in close combat with their opponents, and his reactions are usually favourable. He frequently takes notice when his followers kill unique opponents.
+
+May grant servants or demonic servants, polymorph followers or their wounds, heal all wounds, gift equipment.
+
+Gifts weapons and equipment.
+
+<topic:Slaanesh><color:v>Slaanesh</color>
+The Prince of Pleasure is a sadistic god who takes delight in the suffering of innocents. The scorn shown by most patrons for killing weaklings is replaced with interest in his case, and he is particularly inclined to notice the killing of the pure of heart, for which he shares the approval of other patrons.
+
+May drain experience, polymorph followers or their wounds, grant demonic servants, heal all wounds, gift equipment, increase experience.
+
+Gifts weapons, equipment, devices, increased experience and augmented abilities.
+
+<topic:Nurgle><color:g>Nurgle</color>
+The Plague Lord delights in his followers suffering and will usually react favourably to a follower who is gravely injured. He is ambivalent to acts of villainy and less likely than most patrons to react strongly when his followers engage in these.
+
+May drain experience, polymorph followers or their wounds, heal all wounds, gift equipment, increase abilities.
+
+Gifts increased abilities, undead servants, weapons, equipment, devices, and augmented abilities.
+
+<topic:Tzeentch><color:y>Tzeentch</color>
+Of all the patrons, The Changer of Ways is the most inclined to reward his followers for the use of magic, being amused by the simple act of spellcasting. He pays more attention than other patrons to followers who engage in chance acts. Followers of Tzeentch should expect to be changed frequently by his power, as he polymorphs his followers more frequently than any other patron.
+
+May drain experience, polymorph followers or their wounds, heal all wounds, gift equipment.
+
+Gifts devices, increased abilities and experience and augmented abilities.
+
+<topic:Khaine><color:r>Khaine</color>
+The Bloody Handed God of war and murder has no scorn for killing opponents that other chaos patrons would deem unworthy. He makes constant war on the other powers of chaos and is typically amused when his followers kill their demonic servants.
+
+May damage enemies, summon storms of chaotic energy, polymorph followers, increase abilities and experience.
+
+Gifts servants, weapons, equipment, devices.

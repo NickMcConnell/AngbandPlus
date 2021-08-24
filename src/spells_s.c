@@ -151,7 +151,7 @@ void shoot_arrow_spell(int cmd, variant *res)
         if (slot)
         {
             object_type *o_ptr = equip_obj(slot);
-            var_set_string(res, info_damage(o_ptr->dd, o_ptr->ds, o_ptr->to_d));
+            var_set_string(res, info_damage(o_ptr->dd, o_ptr->ds, o_ptr->to_h));
         }
         else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
         {
@@ -186,7 +186,7 @@ void shoot_arrow_spell(int cmd, variant *res)
         if (slot)
         {
             object_type *o_ptr = equip_obj(slot);
-            dam = damroll(o_ptr->dd, o_ptr->ds)+ o_ptr->to_d;
+            dam = damroll(o_ptr->dd, o_ptr->ds)+ o_ptr->to_h;
             if (dam < 1) dam = 1;
         }
         else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)

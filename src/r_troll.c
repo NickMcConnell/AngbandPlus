@@ -171,14 +171,14 @@ static void _birth(void)
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
-    forge.to_d = 7;
+    forge.to_h = 7;
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_CLUB));
     forge.weight = 100;
     forge.dd = 3;
     forge.ds = 4;
-    forge.to_d = 7;
+    forge.to_h = 7;
     py_birth_obj(&forge);
 
     py_birth_food();

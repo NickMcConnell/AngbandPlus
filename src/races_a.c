@@ -43,7 +43,7 @@ race_t *amberite_get_race(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] =  2;
         me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  0;
+        me.stats[A_CHR] =  2;
 
         me.skills.dis =  4;
         me.skills.dev =  3;
@@ -91,7 +91,7 @@ int android_obj_exp(object_type *o_ptr)
 
     value = _obj_value(o_ptr);
     if (value <= 0) return 0;
-    if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI) && p_ptr->personality != PERS_SEXY
+    if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_SWIMSUIT) && p_ptr->personality != PERS_SEXY
         && p_ptr->pclass != CLASS_POLITICIAN) value /= 32;
     if (value > 5000000) value = 5000000;
 
@@ -266,7 +266,7 @@ race_t *android_get_race(void)
         me.stats[A_WIS] = -5;
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  0;
+        me.stats[A_CHR] =  -2;
 
         me.skills.dis =  0;
         me.skills.dev = -3;
@@ -416,7 +416,7 @@ race_t *balrog_get_race(void)
         me.stats[A_WIS] =-10;
         me.stats[A_DEX] =  2;
         me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  2;
+        me.stats[A_CHR] = -5;
 
         me.skills.dis = -3;
         me.skills.dev =  8;
@@ -500,7 +500,7 @@ race_t *barbarian_get_race(void)
         me.stats[A_WIS] = -1;
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  2;
+        me.stats[A_CHR] =  0;
 
         me.skills.dis = -2;
         me.skills.dev = -7;
@@ -576,7 +576,7 @@ race_t *beastman_get_race(void)
         me.stats[A_WIS] = -1;
         me.stats[A_DEX] = -1;
         me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  1;
+        me.stats[A_CHR] = -2;
 
         me.skills.dis = -5;
         me.skills.dev = -1;
@@ -834,7 +834,7 @@ race_t *centaur_get_race(void)
         me.stats[A_WIS] =  1;
         me.stats[A_DEX] =  2;
         me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  0;
+        me.stats[A_CHR] =  1;
 
         me.skills.dis =  0;
         me.skills.dev = -3;
@@ -903,7 +903,7 @@ race_t *cyclops_get_race(void)
         me.stats[A_WIS] = -2;
         me.stats[A_DEX] = -3;
         me.stats[A_CON] =  4;
-        me.stats[A_CHR] = -1;
+        me.stats[A_CHR] = -3;
 
         me.skills.dis = -4;
         me.skills.dev = -3;
@@ -973,7 +973,7 @@ race_t *dark_elf_get_race(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] =  2;
         me.stats[A_CON] = -2;
-        me.stats[A_CHR] =  3;
+        me.stats[A_CHR] =  1;
 
         me.skills.dis = 5;
         me.skills.dev = 7;
@@ -1269,6 +1269,7 @@ static int _draconian_attack_level(void)
         l = MAX(1, l * 110 / 100);
         break;
     case CLASS_RED_MAGE:
+	case CLASS_IMITATOR:
     case CLASS_WEAPONSMITH:
     case CLASS_ROGUE:
     case CLASS_ALCHEMIST:
@@ -1289,6 +1290,7 @@ static int _draconian_attack_level(void)
         /*l = MAX(1, l * 100 / 100);*/
         break;
     case CLASS_BARD:
+	case CLASS_BLUE_MAGE:
     case CLASS_TIME_LORD:
     case CLASS_WARLOCK:
     case CLASS_POLITICIAN:
@@ -1454,7 +1456,7 @@ race_t *draconian_get_race(int psubrace)
         me.stats[A_WIS] =  1;
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  2;
+        me.stats[A_CHR] =  -1;
 
         me.skills.dis = -2;
         me.skills.dev = 1;
@@ -1657,7 +1659,7 @@ race_t *dunadan_get_race(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] =  2;
         me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  0;
+        me.stats[A_CHR] =  1;
 
         me.skills.dis =  4;
         me.skills.dev =  3;
@@ -1725,7 +1727,7 @@ race_t *dwarf_get_race(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] = -2;
         me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  1;
+        me.stats[A_CHR] = -1;
 
         me.skills.dis = 2;
         me.skills.dev = 5;
@@ -2062,7 +2064,7 @@ race_t *golem_get_race(void)
         me.stats[A_WIS] = -5;
         me.stats[A_DEX] = -2;
         me.stats[A_CON] =  4;
-        me.stats[A_CHR] =  0;
+        me.stats[A_CHR] =  -2;
 
         me.skills.dis = -5;
         me.skills.dev = -5;
@@ -2130,7 +2132,7 @@ race_t *half_giant_get_race(void)
         me.stats[A_WIS] = -2;
         me.stats[A_DEX] = -2;
         me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  0;
+        me.stats[A_CHR] = -2;
 
         me.skills.dis = -6;
         me.skills.dev = -5;
@@ -2195,7 +2197,7 @@ race_t *half_ogre_get_race(void)
         me.stats[A_WIS] = -1;
         me.stats[A_DEX] = -1;
         me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  0;
+        me.stats[A_CHR] = -2;
 
         me.skills.dis = -3;
         me.skills.dev = -3;
@@ -2271,7 +2273,7 @@ race_t *half_orc_get_race(void)
 		me.stats[A_WIS] = 0;
 		me.stats[A_DEX] = 0;
 		me.stats[A_CON] = 1;
-		me.stats[A_CHR] = -1;
+		me.stats[A_CHR] = -2;
 
 		me.skills.dis = -3;
 		me.skills.dev = -3;
@@ -2337,7 +2339,7 @@ race_t *half_titan_get_race(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] = -2;
         me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  3;
+        me.stats[A_CHR] =  1;
 
         me.skills.dis = -5;
         me.skills.dev =  3;
@@ -2404,7 +2406,7 @@ race_t *half_troll_get_race(void)
         me.stats[A_WIS] = -1;
         me.stats[A_DEX] = -3;
         me.stats[A_CON] =  3;
-        me.stats[A_CHR] = -2;
+        me.stats[A_CHR] = -3;
 
         me.skills.dis = -5;
         me.skills.dev = -6;
@@ -2463,7 +2465,7 @@ race_t *high_elf_get_race(void)
         me.stats[A_WIS] = -1;
         me.stats[A_DEX] =  3;
         me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  1;
+        me.stats[A_CHR] =  3;
 
         me.skills.dis =  4;
         me.skills.dev =  9;

@@ -10,7 +10,7 @@ D:rest.
 
 ?:[AND [EQU $QUEST28 Completed] [EQU $WILDERNESS NORMAL] ]
 D:How can I ever thank you? Let the people rejoice - a hero
-D:of legend walks this day in Outpost. My treasurer tells me
+D:of legend walks this day in Rampart. My treasurer tells me
 D:a number of rather valuable heirlooms seem to be missing
 D:from the crypt - how about I turn a blind eye and we call
 D:it quits? Oh wait a moment ... Now where did I put that?
@@ -29,7 +29,7 @@ D:rest.
 
 ?:[AND [EQU $QUEST28 Completed] [EQU $WILDERNESS NONE] ]
 D:How can we ever thank you? Let the people rejoice - a hero
-D:of legend walks this day in Outpost. This land will forever
+D:of legend walks this day in Rampart. This land will forever
 D:remain in your debt.
 ?:1
 

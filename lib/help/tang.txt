@@ -1,16 +1,14 @@
 <style:title>The Newbie Guide</style>
 
-Welcome to <color:keyword>FrogComposband</color>! This guide will attempt to give you a quick overview of the game and get you started on your path to slay the dreaded Serpent of Chaos.
+Welcome to <color:keyword>Oposband</color>! This guide will attempt to give you a quick overview of the game and get you started on your path to slay the dreaded Serpent of Chaos.
 
 <topic:Overview><style:heading>Overview</style>
 
-FrogComposband is a single player role playing game where you, the brave adventurer, attempt to save the world by defeating evil monsters including, eventually, the <color:keyword>Serpent of Chaos</color>. The road is long, and the path is treacherous. Many have tried and failed, and the dungeons are littered with the bones of would be heroes. Do you have what it takes to succeed where so many others have failed? If so, read on.
+Oposband is a single player role playing game where you, the brave adventurer, attempt to save the world by defeating evil monsters including, eventually, the <color:keyword>Serpent of Chaos</color>. The road is long, and the path is treacherous. Many have tried and failed, and the dungeons are littered with the bones of would be heroes. Do you have what it takes to succeed where so many others have failed? If so, read on.
 
 <topic:CreatingACharacter><style:heading>Creating a Character</style>
 
-Your first step will be to create your character. Since you are new to the game, I suggest you choose <color:keyword>Beginner Mode</color> at the initial prompt. This will greatly limit the complexity of the character creation process and also activate "coffee-break mode", a faster-paced version of the game with accelerated leveling-up and no wilderness. After playing a few characters to get an idea of how to play, you can start a new character in <color:keyword>Normal Mode</color> to view all the options as well as enable the wilderness. Hey, it's not like your first character is going to win anyway!
-
-After choosing Beginner Mode, the game is going to walk you through creating your character. You can refer to <link:birth.txt> for more detailed info, but the basics are that you will choose a sex, a race and a class and then roll for stats. While your sex is not important (to the game), your race and class are key to everything that follows. Normally, the game has a vast (overwhelming?) array of choices that offer myriad, diverse playstyles, and it can take a while to even learn what is available. For now, we'll consider a few basic playstyles in order to get you going.
+Your first step will be to create your character. You can refer to <link:birth.txt> for more detailed info, but the basics are that you will choose a sex, a race and a class and then roll for stats. While your sex is not important (to the game), your race and class are key to everything that follows. Normally, the game has a vast (overwhelming?) array of choices that offer myriad, diverse playstyles, and it can take a while to even learn what is available. For now, we'll consider a few basic playstyles in order to get you going.
 
 The easiest style is 'Hack and Slash' and it is the essence of the warrior. Almost any race will make a good one, but you might consider trying a High-Elf or a Hobbit. Both are stealthy and have good magic skills that will assist the warriors weak points. But if you really want to turn on the melee power, nothing beats a Half-Troll. Be warned: Trolls are ugly and stupid, not to mention widely hated. Shopkeepers are loath to sell to one as ugly as you so you'll have a harder time shopping. You can compensate by going on a killing rampage, which is more fun anyway. As a warrior, there isn't much strategy: simply find monsters and kill them! Look for better armor and weapons. Perhaps you can shoot a crossbow for a little bit of distance damage but your mainstay will be hand to hand combat. For stats, you'll want to start with 17 in both Strength and Dexterity and can ignore everything else.
 
@@ -71,16 +69,16 @@ Next, you should shop for gear. I recommend buying some means of escape, such as
 
    Item Description                                         Weight      Price
 a) <color:o>?</color> <color:u>2 Books of Kendo [Yagyuu Bugeichou]</color>                       3.0  <color:D>     1510  </color>
-b) <color:W>|</color> a Dagger (1d4) (+1,+2)                                    1.2        230
-c) <color:W>|</color> a Bastard Sword (3d4) (+0,+0)                            14.0  <color:D>      720  </color>
-d) <color:y>/</color> a Trident (1d8) (+0,+0)                                   7.0  <color:D>      267  </color>
-e) / a Broad Spear (1d9) (+3,+2)                              10.0  <color:D>      926  </color>
-f) <color:u>}</color> <color:u>a Sling (x2) (+0,+0)</color>                                      0.5         54
-g) <color:U>}</color> <color:u>a Short Bow (x3) (+0,+0)</color>                                  3.0        122
-h) <color:s>}</color> <color:u>2 Light Crossbows (x4) (+0,+0)</color>                           11.0  <color:D>      489  </color>
-i) <color:s>{</color> <color:U>26 Bolts (1d5) (+0,+0)</color>                                    0.3          3
-j) <color:s>{</color> <color:U>36 Rounded Pebbles (1d2) (+0,+0)</color>                          0.4          2
-k) <color:s>{</color> <color:U>17 Iron Shots (1d3) (+0,+0)</color>                               0.5          3
+b) <color:W>|</color> a Dagger (1d4) (+2)                                       1.2        230
+c) <color:W>|</color> a Bastard Sword (3d4) (+0)                               14.0  <color:D>      720  </color>
+d) <color:y>/</color> a Trident (1d8) (+0)                                7.0  <color:D>      267  </color>
+e) / a Broad Spear (1d9) (+2)                                 10.0  <color:D>      926  </color>
+f) <color:u>}</color> <color:u>a Sling (x2) (+0)</color>                                         0.5         54
+g) <color:U>}</color> <color:u>a Short Bow (x3) (+0)</color>                                     3.0        122
+h) <color:s>}</color> <color:u>2 Light Crossbows (x4) (+0)</color>                              11.0  <color:D>      489  </color>
+i) <color:s>{</color> <color:U>26 Bolts (1d5) (+0)</color>                                       0.3          3
+j) <color:s>{</color> <color:U>36 Rounded Pebbles (1d2) (+0)</color>                             0.4          2
+k) <color:s>{</color> <color:U>17 Iron Shots (1d3) (+0)</color>                                  0.5          3
 
 
 
@@ -125,9 +123,9 @@ HP <color:G>  43</color>/<color:G>  43</color> .................................
 In my case, I bought a sling and some ammo (Each type of missile weapon uses a corresponding type of ammo. Obviously, arrows are for bows and bolts are for crossbows, so they wouldn't work with my sling!). Now the sling is doing me no good in my pack: I need to equip it first in order to use it in combat, and I do this with the <color:keypress>w</color> command, after which is it visible in the equipment list which can be viewed with the <color:keypress>e</color> command.
 <style:screenshot>
 Equipment: carrying 39.2 pounds (30% of capacity). Command:
-LEVEL <color:G>  </color>  a) <color:W>|</color> Right Hand: a Dagger (1d4) (+0,+0)                        1.2 lb
+LEVEL <color:G>  </color>  a) <color:W>|</color> Right Hand: a Dagger (1d4) (+0)                           1.2 lb
 EXP <color:G>    </color>  b)   Left Hand :
-AU  <color:G>    </color>  c) <color:u>}</color> Shooting  : <color:u>a Sling (x2) (+0,+0)</color>                          0.5 lb
+AU  <color:G>    </color>  c) <color:u>}</color> Shooting  : <color:u>a Sling (x2) (+0)</color>                             0.5 lb
 <color:d>        </color>  d)   Right Ring:
 STR : <color:G> 1</color>  e)   Left Ring :
 INT : <color:G> 1</color>  f)   Neck      :
@@ -196,39 +194,25 @@ Hopefully, you managed all of this without too much trouble from the locals (<co
 
 <topic:MyFirstTripDown><style:heading>My First Trip Down</style>
 
-Since this is the 'Beginner' mode, there is only one dungeon to enter. The <color:v>></color> character represents the entrance to a dungeon. >, in general refers to stairs down, but dungeon entrances <color:v>></color> and quest entrances <color:y>></color> are color coded to stand out. Similarly, < refers to stairs up. By some cosmic accident, these are also the keys you press to take the stairs: <color:keypress>></color> to go down and <color:keypress><</color> to go up. What could be easier to remember? So move to the stairs down to <color:keyword>Angband</color> and enter the dungeon!
+The Warrens dungeon, a good place to start, is just east (to the right) of the city gates. The <color:v>></color> character represents the entrance to a dungeon. >, in general refers to stairs down, but dungeon entrances <color:v>></color> and quest entrances <color:y>></color> are color coded to stand out. Similarly, < refers to stairs up. By some cosmic accident, these are also the keys you press to take the stairs: <color:keypress>></color> to go down and <color:keypress><</color> to go up. What could be easier to remember? So move to the stairs down to <color:keyword>the Warrens</color> and enter the dungeon!
 
 As you walk about, beware of monsters and use the look command (<color:keypress>l</color>) together with the recall option (<color:keypress>r</color>) to get a verbose monster description. For example:
 <style:screenshot>
-The Soldier ant ('<color:u>a</color>')/('<color:u>a</color>'):  [r,q,t,p,o,+,-,?,<dir>]
-Your ancestors have killed at least 1 of these creatures.
-A large ant with powerful mandibles.
-It is normally found on dungeon level 1, won't be found deeper than dungeon
-level 10, and moves at normal speed.  A kill of this<color:G> natural</color> creature is worth
-about 1.50 points for a 2nd level character.  Nothing is known about its
-attack.
-
-DEX : <color:G> 18/50</color>
-CON : <color:G>    11</color>
-CHR : <color:G>    12</color>
-AC     <color:G>    7</color>
-HP <color:G>  47</color>/<color:G>  47</color>
-
-
-@[<color:G>*********</color>]
-<color:U>,</color>[*********]     #######<color:U>+</color>##<color:U>+</color>######<color:U>+</color>##.####
-<color:u>a</color>[<color:b>*********</color>]     #................<color:U>R</color>......#
-                 #.......................#
-                 #.......................#
-                 #.............<color:u>a</color>.........#
-                 #.......................#
-                 #............@..........#
-                 #.......................#
-                 #.......................#
-                 #########################
-                                                                    <color:s>Angband: L1</color>
+Name    : Giant white ant (a)                                                 LEVEL      4
+Level   : 3 to 30   Speed: +0                                                 EXP       15
+AC      : 16        Alert: Inattentive (80')                                  AU       483
+HP      : 3d6       Type : Natural                                            | }     [   
+                                                                              STR :     25
+Attacks : Type    Effects                                                     INT :      7
+          Bite    Hurt (1d7)                                                  WIS :      5
+                                                                              DEX :     15
+Info    : Weird Mind                                                          CON :     20
+                                                                              CHR :      6
+Kills   : 0                                                                   AC        15
+Exp     : 4 at CL4                                                            HP  109/ 109
+                                                                                          
+It is about two feet long and has sharp pincers.                                          
 </style>
-In this case, a previous character had encountered and slain a soldier ant, so I have some basic knowledge of this type of monster. This illustrates what the game calls <color:keyword>Monster Memory</color>. As you battle monsters, you learn more about them, and the game tracks your knowledge for you. All of the memory is retained in your savefile so that future characters may benefit. After killing a foe, you can recall details of your glory with the <color:keypress>/</color> command, followed by the letter representing the monster (<color:u>a</color> in this case) and then follow the prompts to choose the recall option. Notice that the description updates.
 
 At this point, you basically explore the current level. You can walk back to town at any time by going back up those stairs you just descended. You can also find new stairs down to deeper depths. Basically, the deeper you go, the more difficult things become, so you'll want to take it easy on the stairs at first.
 
@@ -673,11 +657,8 @@ In the unpleasant event of your character's death, you can create a new characte
 </indent>
   <indent><color:B>On Death</color>
 
-Death in FrogComposband is permanent. Saving is meant only to let you pick up where you left off; if you die, your savefile is marked. The next time you try to use the savefile, you will get the new character dialogue. Ancestors of dead characters will retain their monster memory and preferences. Many people here have characters like "Yuppy XIV"; people die very often and death is common, so don't get discouraged. In general, you will kill monsters more often than they kill you!
+Death in Oposband is permanent. Saving is meant only to let you pick up where you left off; if you die, your savefile is marked. The next time you try to use the savefile, you will get the new character dialogue. Ancestors of dead characters will retain their preferences. Many people here have characters like "Yuppy XIV"; people die very often and death is common, so don't get discouraged. In general, you will kill monsters more often than they kill you!
 </indent>
-<topic:OnBigBoyPants><style:heading>On Big Boy Pants</style>
-
-When you are ready to move past Beginner Mode, the game will open up a huge variety of race and class options for you as well as giving you a full wilderness to explore. All of this is discussed in the remainder of the help system, so when you are ready to move on, be sure to check out the rest of the documentation. Pay special attention to sections on the wilderness as well as the various gameplay options. And when you're ready for a real treat, fire up a game in Monster Mode and play as a Cyberdemon!
 
 <color:v>Have Fun! :)</color>
 
@@ -688,4 +669,5 @@ Updated    : Hengband 1.0.11
 Updated    : PosChengband 1.0.0
 Updated    : PosChengband 4.0.0
 Updated    : FrogComposband 7.0.strawberry
+Updated    : Oposband 1.0.0
 </color>

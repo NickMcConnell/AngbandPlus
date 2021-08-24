@@ -75,7 +75,7 @@ void get_max_stats(void)
     /* Acquire the stats */
     for (i = 0; i < 6; i++)
     {
-        j = 18 + 60 + dice[i]*10;
+        j = 24 + dice[i];
 
         /* Save that value */
         p_ptr->stat_max_max[i] = j;
@@ -160,13 +160,6 @@ static void a_info_reset(bool empty)
     }
 }
 
-void empty_lore_wipe(void)
-{
-    e_info_reset(TRUE);
-    k_info_reset(TRUE);
-    a_info_reset(TRUE);
-}
-
 /*
  * Clear all the global "character" data
  */
@@ -229,20 +222,7 @@ static void player_wipe(void)
     /* Hack -- Well fed player */
     p_ptr->food = PY_FOOD_FULL - 1;
 
-
-    /* Wipe the spells */
-    if (p_ptr->pclass == CLASS_SORCERER)
-    {
-        p_ptr->spell_learned1 = p_ptr->spell_learned2 = 0xffffffffL;
-        p_ptr->spell_worked1 = p_ptr->spell_worked2 = 0xffffffffL;
-    }
-    else
-    {
-        p_ptr->spell_learned1 = p_ptr->spell_learned2 = 0L;
-        p_ptr->spell_worked1 = p_ptr->spell_worked2 = 0L;
-    }
-    p_ptr->spell_forgotten1 = p_ptr->spell_forgotten2 = 0L;
-    for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
+	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
     p_ptr->learned_spells = 0;
     p_ptr->add_spells = 0;
     p_ptr->knowledge = 0;

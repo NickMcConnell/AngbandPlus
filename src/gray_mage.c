@@ -246,7 +246,7 @@ static void _birth(void)
     object_type forge;
     int i;
 
-    object_prep(&forge, lookup_kind(TV_SWORD, SV_DAGGER));
+    object_prep(&forge, lookup_kind(TV_DAGGER, SV_DAGGER));
     py_birth_obj(&forge);
 
     if (p_ptr->psubclass == GRAY_MAGE_GOOD)
@@ -280,6 +280,23 @@ static void _birth(void)
         _spells[i].realm = REALM_NONE;
         _spells[i].spell = 0;
     }
+
+    p_ptr->proficiency[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_SLING] = WEAPON_EXP_BEGINNER;
+
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_UNSKILLED;
+    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_UNSKILLED;
 }
 
 /**********************************************************************
@@ -619,7 +636,7 @@ void gray_mage_gain_spell(void)
     }
 
     /* Learn the spell: Note, we don't bother with spell_learned# and spell_order[], since
-       these are hard coded for 2 spell realms. Hopefully, ticking up learned_spells is enough? */
+       these are hard coded for 2 spell realms. Hopefully, ticking up	`learned_spells is enough? */
     p_ptr->learned_spells++;
     slot_ptr->realm = tval2realm(prompt.obj->tval);
     slot_ptr->spell = spell_idx;

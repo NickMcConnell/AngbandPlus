@@ -51,7 +51,7 @@ void self_knowledge(void)
     p_ptr->knowledge |= (KNOW_STAT | KNOW_HPRATE);
 
     strcpy(Dummy, "");
-    sprintf(Dummy, "Your current Life Rating is %d/100.", life_rating());
+    sprintf(Dummy, "Your current Life Rating is %d/100.", p_ptr->life_rating);
 
     strcpy(buf[0], Dummy);
     info[i++] = buf[0];
@@ -83,7 +83,7 @@ void self_knowledge(void)
     {
         char stat_desc[80];
 
-        sprintf(stat_desc, "%s 18/%d", stat_names[v_nr], p_ptr->stat_max_max[v_nr]-18);
+        sprintf(stat_desc, "%s %d", stat_names[v_nr], p_ptr->stat_max_max[v_nr]);
 
         strcpy(s_string[v_nr], stat_desc);
 
@@ -1227,7 +1227,7 @@ bool detect_objects_magic(int range)
             (tv == TV_MUSIC_BOOK) ||
             (tv == TV_HISSATSU_BOOK) ||
             (tv == TV_HEX_BOOK) ||
-            ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
+            ((o_ptr->to_a > 0) || (o_ptr->to_h > 0)))
         {
             /* Memorize the item */
             o_ptr->marked |= OM_FOUND;
@@ -2414,50 +2414,47 @@ bool destroy_area(int y1, int x1, int r, int power)
             }
 
             /* During generation, destroyed artifacts are "preserved" */
-            if (preserve_mode || in_generate)
+            s16b this_o_idx, next_o_idx = 0;
+
+            /* Scan all objects in the grid */
+            for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
             {
-                s16b this_o_idx, next_o_idx = 0;
+                object_type *o_ptr;
 
-                /* Scan all objects in the grid */
-                for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+                /* Acquire object */
+                o_ptr = &o_list[this_o_idx];
+
+                /* Acquire next object */
+                next_o_idx = o_ptr->next_o_idx;
+
+                /* Hack -- Preserve unknown artifacts */
+                if (object_is_fixed_artifact(o_ptr) && (!object_is_known(o_ptr) || in_generate))
                 {
-                    object_type *o_ptr;
+                    /* Mega-Hack -- Preserve the artifact */
+                    a_info[o_ptr->name1].generated = FALSE;
 
-                    /* Acquire object */
-                    o_ptr = &o_list[this_o_idx];
-
-                    /* Acquire next object */
-                    next_o_idx = o_ptr->next_o_idx;
-
-                    /* Hack -- Preserve unknown artifacts */
-                    if (object_is_fixed_artifact(o_ptr) && (!object_is_known(o_ptr) || in_generate))
+                    if (in_generate && cheat_peek)
                     {
-                        /* Mega-Hack -- Preserve the artifact */
-                        a_info[o_ptr->name1].generated = FALSE;
+                        char o_name[MAX_NLEN];
+                        object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
+                        msg_format("Artifact (%s) was *destroyed* during generation.", o_name);
+                    }
+                }
+                else if (random_artifacts && o_ptr->name3 && (!object_is_known(o_ptr) || in_generate))
+                {
+                    /* Mega-Hack -- Preserve the artifact */
+                    a_info[o_ptr->name3].generated = FALSE;
 
-                        if (in_generate && cheat_peek)
-                        {
-                            char o_name[MAX_NLEN];
-                            object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
-                            msg_format("Artifact (%s) was *destroyed* during generation.", o_name);
-                        }
-                    }
-                    else if (random_artifacts && o_ptr->name3 && (!object_is_known(o_ptr) || in_generate))
+                    if (in_generate && cheat_peek)
                     {
-                        /* Mega-Hack -- Preserve the artifact */
-                        a_info[o_ptr->name3].generated = FALSE;
-
-                        if (in_generate && cheat_peek)
-                        {
-                            char o_name[MAX_NLEN];
-                            object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
-                            msg_format("Artifact (%s) was *destroyed* during generation.", o_name);
-                        }
+                        char o_name[MAX_NLEN];
+                        object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
+                        msg_format("Artifact (%s) was *destroyed* during generation.", o_name);
                     }
-                    else if (in_generate && cheat_peek && o_ptr->art_name)
-                    {
-                        msg_print("One of the random artifacts was *destroyed* during generation.");
-                    }
+                }
+                else if (in_generate && cheat_peek && o_ptr->art_name)
+                {
+                    msg_print("One of the random artifacts was *destroyed* during generation.");
                 }
             }
 

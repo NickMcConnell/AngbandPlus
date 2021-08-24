@@ -3,133 +3,6 @@
 #include <assert.h>
 
 /****************************************************************
- * Chaotic
- ****************************************************************/
-static const u32b _chaotic_seed_modifier[50] =
-{
-    684200517, /* 1 */
-    225834954, /* 2 */
-    3944202616, /* 3 */
-    1943705505, /* 4 */
-    138240376, /* 5 */
-    3180517412, /* 6 */
-    2871820153, /* 7 */
-    605895243, /* 8 */ 
-    597708903, /* 9 */
-    3525434408, /* 10 */
-    2948019236, /* 11 */
-    2464136970, /* 12 */
-    3773069027, /* 13 */
-    466681736, /* 14 */
-    1157404760, /* 15 */
-    1930359308, /* 16 */
-    1662126757, /* 17 */
-    2730261851, /* 18 */
-    2445628689, /* 19 */
-    2557120090, /* 20 */
-    1930283532, /* 21 */
-    798086206, /* 22 */
-    3794835879, /* 23 */
-    3596314354, /* 24 */
-    1482845135, /* 25 */
-    3828841330, /* 26 */
-    2739341129, /* 27 */
-    2541552072, /* 28 */
-    1901688662, /* 29 */
-    2939571038, /* 30 */
-    3237359151, /* 31 */
-    1638698171, /* 32 */
-    1525083078, /* 33 */
-    4293987205, /* 34 */
-    1979345876, /* 35 */
-    4064464759, /* 36 */
-    2079693315, /* 37 */
-    127725156, /* 38 */
-    3795227652, /* 39 */
-    2179975309, /* 40 */
-    1409032665, /* 41 */
-    4228529657, /* 42 */
-    3275436188, /* 43 */
-    263708400, /* 44 */
-    3237472283, /* 45 */
-    1488557381, /* 46 */
-    1536964663, /* 47 */
-    2135793317, /* 48 */
-    3698024470, /* 49 */
-    4193053798 /* 50 */
-};
-
-static void _chaotic_birth(void)
-{
-    chaotic_py_seed = randint0(0x10000000);
-    mut_gain(MUT_CHAOS_GIFT);
-    mut_lock(MUT_CHAOS_GIFT);
-}
-
-static int _chaotic_calc_stats(int *modifiers, int level)
-{
-    u32b working_seed = (chaotic_py_seed ^ _chaotic_seed_modifier[level - 1]);
-    int paikka = ((chaotic_py_seed + (level * 7)) % 50);
-    int i, summa = 0;
-    for (i = 0; i < MAX_STATS; i++)
-    {
-        int uusipaikka = ((i << 2) + paikka) % 24;
-        int temp_seed = ((uusipaikka > 0) ? (working_seed >> uusipaikka) : working_seed) % 16;
-        if (temp_seed < 4) { modifiers[i] = 2; summa += 2; continue; }
-        else if (temp_seed < 8) { modifiers[i] = -2; summa -= 2; continue; }
-        else if (temp_seed < 11) { modifiers[i] = 1; summa += 1; continue; }
-        else if (temp_seed < 14) { modifiers[i] = -1; summa -= 1; continue; }
-        else modifiers[i] = 0;
-    }
-    return summa;
-}
-
-static void _chaotic_calc_things(personality_ptr pers_ptr)
-{
-    int i, summa, stat_modifiers[MAX_STATS] = {0};
-    if ((p_ptr->lev < 1) && (p_ptr->lev > 50)) return;   
-    summa = _chaotic_calc_stats(stat_modifiers, p_ptr->lev);
-    if (p_ptr->lev == 50) /* try to force balanced final stats to avoid huge life rating bonus/malus */
-    {
-        int koitto = 1;
-        while (((summa * summa) > 5) && (koitto < 51))
-        {
-            summa = _chaotic_calc_stats(stat_modifiers, koitto);
-            koitto++;
-        }
-    }
-    for (i = 0; i < MAX_STATS; i++) 
-    { 
-        pers_ptr->stats[i] = stat_modifiers[i];
-    }
-    pers_ptr->life = 99 - summa;
-}
-
-static personality_ptr _get_chaotic_personality(void)
-{
-    static personality_t me = {0};
-    static bool init = FALSE;
-
-    if (!init)
-    {
-        me.name = "Chaotic";
-        me.desc = "Chaotic adventurers are servants of the Demon Lords of Chaos, and "
-                    "often receive a reward - or punishment - from their patrons when "
-                    "they gain a level. Their strengths and weaknesses are "
-                    "unpredictable; even their stat bonuses are subject to change.";	
-
-        me.life = 99;
-        me.exp = 100;
-
-        me.birth = _chaotic_birth;
-
-        init = TRUE;
-    }
-    if (!spoiler_hack && !birth_hack) _chaotic_calc_things(&me);
-    return &me;
-}
-
-/****************************************************************
  * Combat
  ****************************************************************/
 static personality_ptr _get_combat_personality(void)
@@ -812,7 +685,7 @@ static personality_ptr _get_pious_personality(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] = -1;
         me.stats[A_CON] =  0;
-        me.stats[A_CHR] =  0;
+        me.stats[A_CHR] =  1;
 
         me.skills.dis = -5;
         me.skills.dev =  1;
@@ -845,7 +718,9 @@ static void _sexy_birth(void)
         if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
             rune_add(&forge, RUNE_ABSORPTION, FALSE);
         py_birth_obj(&forge);
-        skills_weapon_init(TV_HAFTED, SV_WHIP, WEAPON_EXP_BEGINNER);
+        p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
+        if (p_ptr->proficiency_cap[PROF_BLUNT] < WEAPON_EXP_EXPERT)
+            p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_EXPERT;
     }
 }
 static void _sexy_calc_bonuses(void)
@@ -872,7 +747,7 @@ static personality_ptr _get_sexy_personality(void)
         me.stats[A_WIS] = 1;
         me.stats[A_DEX] = 1;
         me.stats[A_CON] = 1;
-        me.stats[A_CHR] = 1;
+        me.stats[A_CHR] = 3;
 
         me.skills.dis = 10;
         me.skills.dev =  5;
@@ -970,7 +845,7 @@ static personality_ptr _get_sneaky_personality(void)
         me.stats[A_WIS] =  1;
         me.stats[A_DEX] =  2;
         me.stats[A_CON] = -1;
-        me.stats[A_CHR] =  1;
+        me.stats[A_CHR] = -1;
 
         me.skills.dis =  5;
         me.skills.dev =  0;
@@ -1046,9 +921,6 @@ personality_ptr get_personality_aux(int index)
     personality_ptr result = NULL;
     switch (index)
     {
-    case PERS_CHAOTIC:
-        result = _get_chaotic_personality();
-        break;
     case PERS_COMBAT:
         result = _get_combat_personality();
         break;

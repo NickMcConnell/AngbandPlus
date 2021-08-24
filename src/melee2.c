@@ -3907,7 +3907,7 @@ void process_monsters(void)
         {
             char m_name[80];
             monster_desc(m_name, m_ptr, 0);
-            msg_format("%^s gets back up and looks mad as hell.", m_name);
+            msg_format("%^s gets back up and looks angry.", m_name);
             m_ptr->mflag2 &= ~MFLAG2_TRIPPED;
             mon_anger(m_ptr);
             continue;

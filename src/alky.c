@@ -149,6 +149,24 @@ static void _birth(void)
 	py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
 	py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
 	py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
+
+	p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+	p_ptr->proficiency[PROF_BOW] = WEAPON_EXP_BEGINNER;
+	p_ptr->proficiency[PROF_SLING] = WEAPON_EXP_BEGINNER;
+
+	p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_EXPERT;
+	p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_SKILLED;
+	p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_SKILLED;
+	p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_SKILLED;
+	p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_SKILLED;
+	p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_SKILLED;
+	p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_MASTER;
+	p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_EXPERT;
+	p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_EXPERT;
+	p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_MASTER;
+	p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_BEGINNER;
+	p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_SKILLED;
+	p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_EXPERT;
 }
 
 static object_type *_which_obj(int tval, int slot)
@@ -457,7 +475,7 @@ void alchemist_cast(int tval)
 static bool create_infusion(void)
 {
 	int infct = 1;
-	object_type *dest_ptr;
+	object_type *dest_ptr = NULL;
 	char o_name[MAX_NLEN];
 	bool already_slotted;
 	obj_prompt_t prompt = {0};
@@ -1042,7 +1060,6 @@ static void _load_list(savefile_ptr file)
 	for (i = 0; i < _CTIER_MAX; i++){
 		_CHEM[i] = savefile_read_s32b(file);
 	}
-	if (savefile_is_older_than(file, 7, 0, 9, 0)) return;
 	_alchemist_hero = savefile_read_u16b(file);
 	_alchemist_shero = savefile_read_u16b(file);
 }

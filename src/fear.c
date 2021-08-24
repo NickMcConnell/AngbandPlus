@@ -253,7 +253,7 @@ bool fear_save_p(int ml)
     /* Immunity to Fear?*/
     if (res_pct(RES_FEAR) >= 100) return TRUE;
 
-    pl = _plev() + adj_stat_save_fear[p_ptr->stat_ind[A_CHR]];
+    pl = _plev() + adj_stat_save_fear[MAX(p_ptr->stat_ind[A_CHR], p_ptr->stat_ind[A_STR])];
     if (pl < 1) pl = 1;
 
     rolls = 1 + p_ptr->resist[RES_FEAR];
@@ -283,7 +283,7 @@ bool life_save_p(int ml)
     int rolls;
     int i;
 
-    pl = _plev() + adj_stat_save[p_ptr->stat_ind[A_CHR]];
+    pl = _plev() + adj_stat_save[MAX(p_ptr->stat_ind[A_CHR], p_ptr->stat_ind[A_STR])];
     if (pl < 1) pl = 1;
 
     rolls = p_ptr->hold_life;
@@ -309,7 +309,7 @@ bool fear_save_m(monster_type *m_ptr)
 
     /* Player may not exert their force of will out of sight! */
     if (projectable(py, px, m_ptr->fy, m_ptr->fx))
-        pl += adj_stat_save[p_ptr->stat_ind[A_CHR]];
+        pl += adj_stat_save[MAX(p_ptr->stat_ind[A_CHR], p_ptr->stat_ind[A_STR])];
 
     if (pl <= 1) return TRUE;
 
@@ -442,7 +442,7 @@ bool fear_p_hurt_m(int m_idx, int dam)
         int percentage = (100 * m_ptr->hp) / m_ptr->maxhp;
         int n = 10;
 
-        n = n * adj_fear_m[p_ptr->stat_ind[A_CHR]] / 100;
+        n = n * adj_fear_m[MAX(p_ptr->stat_ind[A_CHR], p_ptr->stat_ind[A_STR])] / 100;
 
         if ((n >= percentage) || (dam >= m_ptr->hp && randint0(100) < 80))
         {

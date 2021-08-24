@@ -140,39 +140,10 @@ void strip_name(char *buf, int k_idx)
     strip_name_aux(buf, k_name + k_info[k_idx].name);
 }
 
-int _life_rating_aux(int lvl)
-{
-    return (p_ptr->player_hp[lvl-1]-100) * 100 / (50*(lvl-1));
-}
-
-int life_rating(void)
-{
-    return _life_rating_aux(PY_MAX_LEVEL);
-}
-
 void do_cmd_rerate_aux(void)
 {
-    for(;;)
-    {
-        int i, pct;
-        p_ptr->player_hp[0] = 100;
-
-        for (i = 1; i < PY_MAX_LEVEL; i++)
-            p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + randint1(100);
-
-        /* These extra early checks give a slight boost to average life ratings (~102%) */
-        pct = _life_rating_aux(5);
-        if (pct < 87) continue;
-
-        pct = _life_rating_aux(10);
-        if (pct < 87) continue;
-
-        pct = _life_rating_aux(25);
-        if (pct < 87) continue;
-
-        pct = life_rating();
-        if (87 <= pct && pct <= 117) break;
-    }
+	/*Min 87%, max 117%*/
+	p_ptr->life_rating = 87 + randint0(117 +1);
 }
 
 void do_cmd_rerate(bool display)
@@ -185,7 +156,7 @@ void do_cmd_rerate(bool display)
 
     if (display)
     {
-        msg_format("Your life rate is %d/100 now.", life_rating());
+        msg_format("Your life rate is %d/100 now.", p_ptr->life_rating);
         p_ptr->knowledge |= KNOW_HPRATE;
     }
     else
@@ -305,29 +276,19 @@ static void do_cmd_wiz_change_aux(void)
     if (tmp_s16b < WEAPON_EXP_UNSKILLED) tmp_s16b = WEAPON_EXP_UNSKILLED;
     if (tmp_s16b > WEAPON_EXP_MASTER) tmp_s16b = WEAPON_EXP_MASTER;
 
-    for (j = 0; j <= TV_WEAPON_END - TV_WEAPON_BEGIN; j++)
-    {
-        for (i = 0;i < 64;i++)
-        {
-            int max = skills_weapon_max(TV_WEAPON_BEGIN + j, i);
-            p_ptr->weapon_exp[j][i] = tmp_s16b;
-            if (p_ptr->weapon_exp[j][i] > max) p_ptr->weapon_exp[j][i] = max;
-        }
-    }
+    /* Max out player weapon proficiencies */
+    for (j = PROF_DIGGER; j <= PROF_DAGGER; j++)
+        p_ptr->proficiency[j] = MIN(tmp_s16b, skills_weapon_max(j));
+    
+    p_ptr->proficiency[PROF_BOW] = MIN(tmp_s16b, skills_bow_max(SV_SHORT_BOW));
+    p_ptr->proficiency[PROF_CROSSBOW] = MIN(tmp_s16b, skills_bow_max(SV_LIGHT_XBOW));
+    p_ptr->proficiency[PROF_SLING] = MIN(tmp_s16b, skills_bow_max(SV_SLING));
 
-    for (j = 0; j < 10; j++)
-    {
-        p_ptr->skill_exp[j] = tmp_s16b;
-        if (p_ptr->skill_exp[j] > s_info[p_ptr->pclass].s_max[j]) p_ptr->skill_exp[j] = s_info[p_ptr->pclass].s_max[j];
-    }
+    p_ptr->proficiency[PROF_MARTIAL_ARTS] = MIN(tmp_s16b, skills_martial_arts_max());
+    p_ptr->proficiency[PROF_DUAL_WIELDING] = MIN(tmp_s16b, skills_dual_wielding_max());
+    p_ptr->proficiency[PROF_RIDING] = MIN(tmp_s16b, skills_riding_max());
 
-    /* Hack for WARLOCK_DRAGONS. Of course, reading skill tables directly is forbidden, so this code is inherently wrong! */
-    p_ptr->skill_exp[SKILL_RIDING] = MIN(skills_riding_max(), tmp_s16b);
-
-    for (j = 0; j < 32; j++)
-        p_ptr->spell_exp[j] = (tmp_s16b > SPELL_EXP_MASTER ? SPELL_EXP_MASTER : tmp_s16b);
-    for (; j < 64; j++)
-        p_ptr->spell_exp[j] = (tmp_s16b > SPELL_EXP_EXPERT ? SPELL_EXP_EXPERT : tmp_s16b);
+    p_ptr->proficiency[PROF_INNATE_ATTACKS] = MIN(tmp_s16b, skills_weapon_max(PROF_INNATE_ATTACKS));
 
     /* Default */
     sprintf(tmp_val, "%d", p_ptr->au);
@@ -404,6 +365,9 @@ static tval_desc tvals[] =
     { TV_SWORD,             "Sword"                },
     { TV_POLEARM,           "Polearm"              },
     { TV_HAFTED,            "Hafted Weapon"        },
+    { TV_DAGGER,            "Dagger"               },
+    { TV_AXE,               "Axe"                  },
+    { TV_STAVES,            "Staff Weapon"         },
     { TV_BOW,               "Bow"                  },
     { TV_ARROW,             "Arrows"               },
     { TV_BOLT,              "Bolts"                },
@@ -1480,6 +1444,19 @@ static void _wiz_stats_gather(int which_dungeon, int level, int reps)
     }
 }
 
+/* debug command for blue mage */
+static void do_cmd_wiz_blue_mage(void)
+{
+
+	int                i = 0;
+	int                j = 0;
+
+	for (int i = 0; i < MS_MAX; i++)
+	{
+		p_ptr->magic_num2[i] = 1;
+	}
+}
+
 /*************************************************************************
  * Handle the ^A wizard commands. Perhaps there should be a UI for this?
  ************************************************************************/
@@ -1511,7 +1488,7 @@ void do_cmd_debug(void)
 
     /* Hack -- Generate Spoilers */
     case '"':
-        do_cmd_spoilers();
+	    do_cmd_spoilers();
         break;
 
 #endif /* ALLOW_SPOILERS */
@@ -1573,6 +1550,14 @@ void do_cmd_debug(void)
         do_cmd_wiz_change();
         break;
 
+	/* Blue Mage Only */
+	case 'E':
+		if (p_ptr->pclass == CLASS_BLUE_MAGE)
+		{
+			do_cmd_wiz_blue_mage();
+		}
+		break;
+
     /* View item info */
     case 'f':
         identify_fully(NULL);
@@ -1612,7 +1597,7 @@ void do_cmd_debug(void)
         for (i = 0; i < 100; i++)
         {
             do_cmd_rerate_aux();
-            r = life_rating();
+            r = p_ptr->life_rating;
             tot += r;
             if (!min) min = r;
             else min = MIN(min, r);
@@ -1953,5 +1938,3 @@ static int i = 0;
 #endif
 
 #endif
-
-

@@ -34,37 +34,10 @@ static bool ang_sort_comp_pet(vptr u, vptr v, int a, int b)
 
 bool class_uses_spell_scrolls(int mika)
 {
-    if (mika == CLASS_WARRIOR ||
-      mika == CLASS_MINDCRAFTER ||
-      mika == CLASS_PSION ||
-      mika == CLASS_SORCERER ||
-      mika == CLASS_ARCHER ||
-      mika == CLASS_MAGIC_EATER ||
-      mika == CLASS_DEVICEMASTER ||
-      mika == CLASS_RED_MAGE ||
-      mika == CLASS_SAMURAI ||
-      mika == CLASS_CAVALRY ||
-      mika == CLASS_BERSERKER ||
-      mika == CLASS_WEAPONSMITH ||
-      mika == CLASS_MIRROR_MASTER ||
-      mika == CLASS_TIME_LORD ||
-      mika == CLASS_BLOOD_KNIGHT ||
-      mika == CLASS_WARLOCK ||
-      mika == CLASS_ARCHAEOLOGIST ||
-      mika == CLASS_DUELIST ||
-      mika == CLASS_RUNE_KNIGHT ||
-      mika == CLASS_WILD_TALENT ||
-      mika == CLASS_NINJA ||
-      mika == CLASS_NINJA_LAWYER ||
-      mika == CLASS_SCOUT ||
-      mika == CLASS_MYSTIC ||
-      mika == CLASS_MAULER ||
-      mika == CLASS_POLITICIAN ||
-      mika == CLASS_ALCHEMIST ||
-      mika == CLASS_DISCIPLE ||
-      mika == CLASS_SKILLMASTER )
-        return FALSE;
-    return TRUE;
+	if (mika == CLASS_GRAY_MAGE || mika == CLASS_RAGE_MAGE)
+		return TRUE;
+	
+	return FALSE;
 }
 
 /* Devices: We are following the do_spell() pattern which is quick and dirty,
@@ -1357,42 +1330,34 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_ENCHANT_ARMOR:
-        if (desc) return "It increases an armour's to-AC when you read it.";
+        if (desc) return "It increases an armour's to-AC by 1 when you read it.";
         if (cast)
         {
-            if (!enchant_spell(0, 0, 1)) return NULL;
+            if (!enchant_spell(0, 1)) return NULL;
             device_noticed = TRUE;
         }
         break;
-    case SV_SCROLL_ENCHANT_WEAPON_TO_HIT:
-        if (desc) return "It increases a weapon's to-hit when you read it.";
+    case SV_SCROLL_ENCHANT_WEAPON:
+        if (desc) return "It increases a weapon's attack bonus by 1 when you read it.";
         if (cast)
         {
-            if (!enchant_spell(1, 0, 0)) return NULL;
-            device_noticed = TRUE;
-        }
-        break;
-    case SV_SCROLL_ENCHANT_WEAPON_TO_DAM:
-        if (desc) return "It increases a weapon's to-dam when you read it.";
-        if (cast)
-        {
-            if (!enchant_spell(0, 1, 0)) return NULL;
+            if (!enchant_spell(1, 0)) return NULL;
             device_noticed = TRUE;
         }
         break;
     case SV_SCROLL_STAR_ENCHANT_ARMOR:
-        if (desc) return "It increases an armour's to-ac powerfully when you read it.";
+        if (desc) return "It increases an armour's to-ac by 3-6 when you read it.";
         if (cast)
         {
-            if (!enchant_spell(0, 0, randint1(3) + 3)) return NULL;
+            if (!enchant_spell(0, randint1(3) + 3)) return NULL;
             device_noticed = TRUE;
         }
         break;
     case SV_SCROLL_STAR_ENCHANT_WEAPON:
-        if (desc) return "It increases a weapon's to-hit and to-dam powerfully when you read it.";
+        if (desc) return "It increases a weapon's attack bonus by 3-6 when you read it.";
         if (cast)
         {
-            if (!enchant_spell(randint1(3) + 3, randint1(3) + 3, 0)) return NULL;
+            if (!enchant_spell(randint1(3) + 3, 0)) return NULL;
             device_noticed = TRUE;
         }
         break;
@@ -2679,8 +2644,8 @@ static void _device_pick_effect(object_type *o_ptr, device_effect_info_ptr table
         if ((mode & AM_GOOD) && !(entry->flags & _DROP_GOOD)) continue;
         if ((mode & AM_GREAT) && !(entry->flags & _DROP_GREAT)) continue;
         if ((mode & AM_STOCK_TOWN) && !(entry->flags & _STOCK_TOWN)) continue;
-		if (easy_id && entry->type == EFFECT_IDENTIFY_FULL) continue;
-		if (easy_lore && entry->type == EFFECT_PROBING) continue;
+		if (entry->type == EFFECT_IDENTIFY_FULL) continue;
+		if (entry->type == EFFECT_PROBING) continue;
 
         entry->prob = 64 / rarity;
         tot += entry->prob;

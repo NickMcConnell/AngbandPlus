@@ -100,7 +100,7 @@ race_t *colossus_get_race(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] = -4;
         me.stats[A_CON] =  7;
-        me.stats[A_CHR] =  4;
+        me.stats[A_CHR] =  2;
         
         me.skills.dis =  0;
         me.skills.dev =  0;
@@ -175,7 +175,7 @@ race_t *demon_get_race(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] =  3;
         me.stats[A_CON] =  4;
-        me.stats[A_CHR] =  3;
+        me.stats[A_CHR] =  -3;
         
         me.skills.dis = -5;
         me.skills.dev = 18;
@@ -275,7 +275,7 @@ race_t *demon_lord_get_race(void)
         me.stats[A_WIS] = 10;
         me.stats[A_DEX] = 10;
         me.stats[A_CON] = 10;
-        me.stats[A_CHR] = 10;
+        me.stats[A_CHR] = -5;
         
         me.skills.dis = 20;
         me.skills.dev = 20;
@@ -382,7 +382,7 @@ race_t *mangy_leper_get_race(void)
         me.stats[A_WIS] =  0;
         me.stats[A_DEX] = -1;
         me.stats[A_CON] = -3;
-        me.stats[A_CHR] = -3;
+        me.stats[A_CHR] = -5;
         
         me.skills.dis = 0;
         me.skills.dev = 0;
@@ -444,7 +444,7 @@ race_t *mithril_golem_get_race(void)
         me.stats[A_WIS] =  1;
         me.stats[A_DEX] = -3;
         me.stats[A_CON] =  5;
-        me.stats[A_CHR] =  2;
+        me.stats[A_CHR] =  1;
         
         me.skills.dis =  0;
         me.skills.dev =  0;
@@ -578,7 +578,7 @@ race_t *vampire_lord_get_race(void)
         me.stats[A_WIS] =  1;
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  3;
+        me.stats[A_CHR] =  2;
         
         me.skills.dis = 6;
         me.skills.dev = 12;

@@ -4,9 +4,9 @@ ANGBAND MENU
 {
     POPUP "&File"
     {
-        MENUITEM "&New", 100
+/*        MENUITEM "&New", 100
         MENUITEM "&Open...", 101
-        MENUITEM SEPARATOR
+        MENUITEM SEPARATOR*/
         MENUITEM "&Save", 110
         MENUITEM SEPARATOR
         MENUITEM "E&xit", 130
@@ -116,7 +116,7 @@ ANGBAND MENU
     {
         POPUP "&Graphics"
         {
-            MENUITEM "&None (recommended)", 400
+            MENUITEM "&None", 400
             MENUITEM "&Old tiles", 401
             MENUITEM "&Adam Bolt's tiles", 402
             MENUITEM "&Bigtile mode", 409

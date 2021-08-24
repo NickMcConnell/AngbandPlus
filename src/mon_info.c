@@ -52,84 +52,6 @@ static string_ptr _get_res_name(int res)
     );
 }
 
-static bool _easy_lore(monster_race *r_ptr)
-{
-	if (easy_lore) return TRUE;
-    if (p_ptr->wizard) return TRUE;
-    if (spoiler_hack) return TRUE;
-    if (r_ptr->r_xtra1 & MR1_LORE) return TRUE; /* Probing */
-    return FALSE;
-}
-
-static bool _know_armor_hp(monster_race *r_ptr)
-{
-    int level = r_ptr->level;
-    int kills = r_ptr->r_tkills;
-
-    if (_easy_lore(r_ptr)) return TRUE;
-
-    if (kills > 304 / (4 + level)) return TRUE;
-    else if ((r_ptr->flags1 & RF1_UNIQUE) && kills > 304 / (38 + (5 * level) / 4)) return TRUE;
-
-    return FALSE;
-}
-
-/* XXX The following calculations are slightly tweaked from very
- * old original code (was using 80). Spreadsheeting things up showed
- * spell damage not quite right (divisor is a hack) and what I would
- * guess to be the effect of melee damage inflation over the years.
- * I'm not sure what the following is going for, or what advantage it
- * has over say, just requiring 30 sightings to know stuff. */
-static bool _know_damage_need(int dam, int lvl, bool unique)
-{
-    int need = 50*dam/MAX(1, lvl); /* was 80 */
-    if (unique) need /= 5;
-    need = MIN(100, MAX(5, need));
-    return need;
-}
-
-static bool _know_damage_aux(int ct, int dam, int lvl, bool unique)
-{
-    int need = _know_damage_need(dam, lvl, unique);
-    return ct >= need;
-}
-
-static bool _know_melee_damage(mon_race_ptr race, mon_effect_ptr effect)
-{
-    if (_easy_lore(race)) return TRUE;
-    return _know_damage_aux(effect->lore, effect->dd*effect->ds,
-        race->level + 4, BOOL(race->flags1 & RF1_UNIQUE));
-}
-
-static bool _know_spell_damage(mon_race_ptr race, mon_spell_ptr spell)
-{
-    if (_easy_lore(race)) return TRUE;
-    return _know_damage_aux(
-        spell->lore, MIN(500, mon_spell_avg_dam(spell, race, FALSE))/10,
-        race->level + 4, BOOL(race->flags1 & RF1_UNIQUE));
-}
-
-static bool _know_aura_damage(mon_race_ptr race, mon_effect_ptr effect)
-{
-    if (_easy_lore(race)) return TRUE;
-    return _know_damage_aux(effect->lore, effect->dd*effect->ds*5,
-        race->level + 4, BOOL(race->flags1 & RF1_UNIQUE));
-}
-
-static bool _know_alertness(monster_race *r_ptr)
-{
-    int wake = r_ptr->r_wake;
-    int sleep = r_ptr->sleep;
-    int ignore = r_ptr->r_ignore;
-
-    if (_easy_lore(r_ptr)) return TRUE;
-    if (wake * wake > sleep) return TRUE;
-    if (ignore == MAX_UCHAR) return TRUE;
-    if (!sleep && r_ptr->r_tkills >= 10) return TRUE;
-
-    return FALSE;
-}
-
 /**************************************************************************
  * Basic Info
  **************************************************************************/
@@ -148,15 +70,13 @@ static void _display_level(monster_race *r_ptr, doc_ptr doc)
     doc_insert(doc, "Level   : ");
     if (r_ptr->level == 0)
         doc_insert(doc, "<color:G>Town</color>");
-    else if (_easy_lore(r_ptr) || r_ptr->r_tkills > 0)
+    else
     {
         if (r_ptr->max_level != 999)
             doc_printf(doc, "<color:G>%d to %d</color>", r_ptr->level, r_ptr->max_level);
         else
             doc_printf(doc, "<color:G>%d</color>", r_ptr->level);
     }
-    else
-        doc_insert(doc, "<color:y>?</color>");
     doc_newline(doc);
     if (spoiler_hack)
         doc_printf(doc, "Rarity  : <color:G>%d</color>\n", r_ptr->rarity);
@@ -164,29 +84,23 @@ static void _display_level(monster_race *r_ptr, doc_ptr doc)
 static void _display_ac(monster_race *r_ptr, doc_ptr doc)
 {
     doc_insert(doc, "AC      : ");
-    if (_know_armor_hp(r_ptr))
-        doc_printf(doc, "<color:G>%d</color>", r_ptr->ac);
-    else
-        doc_insert(doc, "<color:y>?</color>");
+    doc_printf(doc, "<color:G>%d</color>", r_ptr->ac);
     doc_newline(doc);
 }
 static void _display_hp(monster_race *r_ptr, doc_ptr doc)
 {
     doc_insert(doc, "HP      : ");
-    if (_know_armor_hp(r_ptr))
+
+    if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || r_ptr->hside == 1)
     {
-        if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || r_ptr->hside == 1)
-        {
-            int hp = r_ptr->hdice * r_ptr->hside;
-            doc_printf(doc, "<color:G>%d</color>", hp);
-        }
-        else
-        {
-            doc_printf(doc, "<color:G>%dd%d</color>", r_ptr->hdice, r_ptr->hside);
-        }
+        int hp = r_ptr->hdice * r_ptr->hside;
+        doc_printf(doc, "<color:G>%d</color>", hp);
     }
     else
-        doc_insert(doc, "<color:y>?</color>");
+    {
+        doc_printf(doc, "<color:G>%dd%d</color>", r_ptr->hdice, r_ptr->hside);
+    }
+    
     doc_newline(doc);
 }
 static void _display_speed(monster_race *r_ptr, doc_ptr doc)
@@ -208,33 +122,30 @@ static void _display_speed(monster_race *r_ptr, doc_ptr doc)
 }
 static void _display_alertness(monster_race *r_ptr, doc_ptr doc)
 {
-    if (_know_alertness(r_ptr))
-    {
-        doc_insert(doc, "Alert: ");
-        if (r_ptr->sleep > 200)
-            doc_insert(doc, "<color:D>Ignores Intruders</color>");
-        else if (r_ptr->sleep > 95)
-            doc_insert(doc, "<color:w>Very Inattentive</color>");
-        else if (r_ptr->sleep > 75)
-            doc_insert(doc, "<color:W>Inattentive</color>");
-        else if (r_ptr->sleep > 45)
-            doc_insert(doc, "<color:U>Overlooks</color>");
-        else if (r_ptr->sleep > 25)
-            doc_insert(doc, "<color:y>Unseeing</color>");
-        else if (r_ptr->sleep > 10)
-            doc_insert(doc, "<color:y>Fairly Unseeing</color>");
-        else if (r_ptr->sleep > 5)
-            doc_insert(doc, "<color:o>Fairly Observant</color>");
-        else if (r_ptr->sleep > 3)
-            doc_insert(doc, "<color:R>Observant</color>");
-        else if (r_ptr->sleep > 1)
-            doc_insert(doc, "<color:r>Very Observant</color>");
-        else if (r_ptr->sleep > 0)
-            doc_insert(doc, "<color:r>Vigilant</color>");
-        else
-            doc_insert(doc, "<color:v>Ever Vigilant</color>");
-        doc_printf(doc, " <color:G>(%d')</color>\n", 10 * r_ptr->aaf);
-    }
+    doc_insert(doc, "Alert: ");
+    if (r_ptr->sleep > 200)
+        doc_insert(doc, "<color:D>Ignores Intruders</color>");
+    else if (r_ptr->sleep > 95)
+        doc_insert(doc, "<color:w>Very Inattentive</color>");
+    else if (r_ptr->sleep > 75)
+        doc_insert(doc, "<color:W>Inattentive</color>");
+    else if (r_ptr->sleep > 45)
+        doc_insert(doc, "<color:U>Overlooks</color>");
+    else if (r_ptr->sleep > 25)
+        doc_insert(doc, "<color:y>Unseeing</color>");
+    else if (r_ptr->sleep > 10)
+        doc_insert(doc, "<color:y>Fairly Unseeing</color>");
+    else if (r_ptr->sleep > 5)
+        doc_insert(doc, "<color:o>Fairly Observant</color>");
+    else if (r_ptr->sleep > 3)
+        doc_insert(doc, "<color:R>Observant</color>");
+    else if (r_ptr->sleep > 1)
+        doc_insert(doc, "<color:r>Very Observant</color>");
+    else if (r_ptr->sleep > 0)
+        doc_insert(doc, "<color:r>Vigilant</color>");
+    else
+        doc_insert(doc, "<color:v>Ever Vigilant</color>");
+    doc_printf(doc, " <color:G>(%d')</color>\n", 10 * r_ptr->aaf);
 }
 static void _display_type(monster_race *r_ptr, doc_ptr doc)
 {
@@ -420,17 +331,8 @@ static void _display_frequency(monster_race *r_ptr, doc_ptr doc)
 {
     int pct = 0;
     assert(r_ptr->spells);
-    if ( spoiler_hack
-	  || easy_lore
-      || (!r_ptr->r_spell_turns && (r_ptr->r_xtra1 & MR1_LORE)) ) /* probing */
-    {
-        pct = r_ptr->spells->freq * 100;
-    }
-    else if (r_ptr->r_spell_turns)
-    {
-        int total = r_ptr->r_spell_turns + r_ptr->r_move_turns;
-        pct = r_ptr->r_spell_turns * 10000 / total;
-    }
+    pct = r_ptr->spells->freq * 100;
+    
     if (pct)
     {
         vec_ptr v = vec_alloc((vec_free_f)string_free);
@@ -467,35 +369,28 @@ static void _display_spell_group(mon_race_ptr r_ptr, mon_spell_group_ptr group, 
     for (i = 0; i < group->count; i++)
     {
         mon_spell_ptr spell = &group->spells[i];
-        if (_easy_lore(r_ptr) || spell->lore)
+        string_ptr s = string_alloc();
+        mon_spell_display(spell, s);
+
+        if (spell->parm.tag && spell->id.type != MST_SUMMON)
         {
-            string_ptr s = string_alloc();
-            mon_spell_display(spell, s);
-            if (_know_spell_damage(r_ptr, spell))
+            string_append_c(s, ' ');
+            string_append_c(s, '(');
+            if (spoiler_hack || !_is_attack_spell(spell))
             {
-                if (spell->parm.tag && spell->id.type != MST_SUMMON)
-                {
-                    string_append_c(s, ' ');
-                    string_append_c(s, '(');
-                    if (spoiler_hack || !_is_attack_spell(spell))
-                    {
-                        mon_spell_parm_print(&spell->parm, s, r_ptr);
-                        if (spell->id.type == MST_CURSE && spell->id.effect == GF_HAND_DOOM)
-                            string_append_c(s, '%');
-                    }
-                    else
-                        string_printf(s, "%d", mon_spell_avg_dam(spell, r_ptr, !_possessor_hack));
-                    if (!spoiler_hack && !_possessor_hack && spell->lore) /* XXX stop repeating yourself! */
-                        string_printf(s, ", %dx", spell->lore);
-                    string_append_c(s, ')');
-                }
-                else if (!spoiler_hack && !_possessor_hack && spell->lore) /* XXX stop repeating yourself! */
-                    string_printf(s, " (%dx)", spell->lore);
+                mon_spell_parm_print(&spell->parm, s, r_ptr);
+                if (spell->id.type == MST_CURSE && spell->id.effect == GF_HAND_DOOM)
+                    string_append_c(s, '%');
             }
-            else if (!spoiler_hack && !_possessor_hack && spell->lore) /* XXX stop repeating yourself! */
-                string_printf(s, " (%dx)", spell->lore);
-            vec_add(v, s);
+            else
+                string_printf(s, "%d", mon_spell_avg_dam(spell, r_ptr, !_possessor_hack));
+            if (!spoiler_hack && !_possessor_hack && spell->lore) /* XXX stop repeating yourself! */
+                string_printf(s, ", %dx", spell->lore);
+            string_append_c(s, ')');
         }
+        else if (!spoiler_hack && !_possessor_hack && spell->lore) /* XXX stop repeating yourself! */
+            string_printf(s, " (%dx)", spell->lore);
+        vec_add(v, s);
     }
 }
 static void _display_spells(monster_race *r_ptr, doc_ptr doc)
@@ -504,70 +399,74 @@ static void _display_spells(monster_race *r_ptr, doc_ptr doc)
     vec_ptr        v = vec_alloc((vec_free_f)string_free);
     mon_spells_ptr spells = r_ptr->spells;
 
-    assert(spells);
-    if (!_possessor_hack) _display_frequency(r_ptr, doc);
+	if (spells)
+	{
+		assert(spells);
+		if (!_possessor_hack) _display_frequency(r_ptr, doc);
 
-    /* Breaths */
-    _display_spell_group(r_ptr, spells->groups[MST_BREATH], v);
-    if (vec_length(v))
-    {
-        doc_insert(doc, "Breathe : <indent><style:indent>");
-        _print_list(v, doc, ',', '\0');
-        doc_insert(doc, "</style></indent>\n");
-        ct += vec_length(v);
-    }
+		/* Breaths */
+		_display_spell_group(r_ptr, spells->groups[MST_BREATH], v);
+		if (vec_length(v))
+		{
+			doc_insert(doc, "Breathe : <indent><style:indent>");
+			_print_list(v, doc, ',', '\0');
+			doc_insert(doc, "</style></indent>\n");
+			ct += vec_length(v);
+		}
 
-    /* Offense */
-    vec_clear(v);
-    _display_spell_group(r_ptr, spells->groups[MST_BALL], v);
-    _display_spell_group(r_ptr, spells->groups[MST_BOLT], v);
-    _display_spell_group(r_ptr, spells->groups[MST_BEAM], v);
-    _display_spell_group(r_ptr, spells->groups[MST_CURSE], v);
-    if (vec_length(v))
-    {
-        doc_insert(doc, "Offense : <indent><style:indent>");
-        _print_list(v, doc, ',', '\0');
-        doc_insert(doc, "</style></indent>\n");
-        ct += vec_length(v);
-    }
+		/* Offense */
+		vec_clear(v);
+		_display_spell_group(r_ptr, spells->groups[MST_BALL], v);
+		_display_spell_group(r_ptr, spells->groups[MST_BOLT], v);
+		_display_spell_group(r_ptr, spells->groups[MST_BEAM], v);
+		_display_spell_group(r_ptr, spells->groups[MST_CURSE], v);
+		if (vec_length(v))
+		{
+			doc_insert(doc, "Offense : <indent><style:indent>");
+			_print_list(v, doc, ',', '\0');
+			doc_insert(doc, "</style></indent>\n");
+			ct += vec_length(v);
+		}
 
-    /* Annoy */
-    vec_clear(v);
-    _display_spell_group(r_ptr, spells->groups[MST_ANNOY], v);
-    if (vec_length(v))
-    {
-        doc_insert(doc, "Annoy   : <indent><style:indent>");
-        _print_list(v, doc, ',', '\0');
-        doc_insert(doc, "</style></indent>\n");
-        ct += vec_length(v);
-    }
+		/* Annoy */
+		vec_clear(v);
+		_display_spell_group(r_ptr, spells->groups[MST_ANNOY], v);
+		if (vec_length(v))
+		{
+			doc_insert(doc, "Annoy   : <indent><style:indent>");
+			_print_list(v, doc, ',', '\0');
+			doc_insert(doc, "</style></indent>\n");
+			ct += vec_length(v);
+		}
 
-    /* Defense */
-    vec_clear(v);
-    _display_spell_group(r_ptr, spells->groups[MST_BUFF], v);
-    _display_spell_group(r_ptr, spells->groups[MST_BIFF], v);
-    _display_spell_group(r_ptr, spells->groups[MST_HEAL], v);
-    _display_spell_group(r_ptr, spells->groups[MST_ESCAPE], v);
-    _display_spell_group(r_ptr, spells->groups[MST_TACTIC], v);
-    _display_spell_group(r_ptr, spells->groups[MST_WEIRD], v);
-    if (vec_length(v))
-    {
-        doc_insert(doc, "Defense : <indent><style:indent>");
-        _print_list(v, doc, ',', '\0');
-        doc_insert(doc, "</style></indent>\n");
-        ct += vec_length(v);
-    }
+		/* Defense */
+		vec_clear(v);
+		_display_spell_group(r_ptr, spells->groups[MST_BUFF], v);
+		_display_spell_group(r_ptr, spells->groups[MST_BIFF], v);
+		_display_spell_group(r_ptr, spells->groups[MST_HEAL], v);
+		_display_spell_group(r_ptr, spells->groups[MST_ESCAPE], v);
+		_display_spell_group(r_ptr, spells->groups[MST_TACTIC], v);
+		_display_spell_group(r_ptr, spells->groups[MST_WEIRD], v);
+		if (vec_length(v))
+		{
+			doc_insert(doc, "Defense : <indent><style:indent>");
+			_print_list(v, doc, ',', '\0');
+			doc_insert(doc, "</style></indent>\n");
+			ct += vec_length(v);
+		}
 
-    /* Summoning */
-    vec_clear(v);
-    _display_spell_group(r_ptr, spells->groups[MST_SUMMON], v);
-    if (vec_length(v))
-    {
-        doc_insert(doc, "Summon  : <indent><style:indent>");
-        _print_list(v, doc, ',', '\0');
-        doc_insert(doc, "</style></indent>\n");
-        ct += vec_length(v);
-    }
+		/* Summoning */
+		vec_clear(v);
+		_display_spell_group(r_ptr, spells->groups[MST_SUMMON], v);
+		if (vec_length(v))
+		{
+			doc_insert(doc, "Summon  : <indent><style:indent>");
+			_print_list(v, doc, ',', '\0');
+			doc_insert(doc, "</style></indent>\n");
+			ct += vec_length(v);
+		}
+
+	}
 
     if (ct) doc_newline(doc);
     vec_free(v);
@@ -635,16 +534,14 @@ static string_ptr _effect_desc(mon_race_ptr race, mon_effect_ptr effect)
     default:              s = string_copy_s(gf_name(effect->effect));
     }
     assert(s);
-    if (_know_melee_damage(race, effect))
-    {
-        if (effect->pct && effect->dd && effect->ds)
-            string_printf(s, " (%dd%d,%d%%)", effect->dd, effect->ds, effect->pct);
-        else if (effect->dd && effect->ds)
-            string_printf(s, " (%dd%d)", effect->dd, effect->ds);
-        else if (effect->pct)
-            string_printf(s, " (%d%%)", effect->pct);
-    }
-    return s;
+    if (effect->pct && effect->dd && effect->ds)
+        string_printf(s, " (%dd%d,%d%%)", effect->dd, effect->ds, effect->pct);
+    else if (effect->dd && effect->ds)
+        string_printf(s, " (%dd%d)", effect->dd, effect->ds);
+    else if (effect->pct)
+        string_printf(s, " (%d%%)", effect->pct);
+
+	return s;
 }
 static int _ct_known_attacks(monster_race *r_ptr)
 {
@@ -654,7 +551,7 @@ static int _ct_known_attacks(monster_race *r_ptr)
     {
         mon_blow_ptr blow = &r_ptr->blows[i];
         if (!blow->method) continue;
-        if (blow->lore || _easy_lore(r_ptr)) ct++;
+        ct++;
     }
     return ct;
 }
@@ -673,14 +570,12 @@ static void _display_attacks(monster_race *r_ptr, doc_ptr doc)
             vec_ptr      v;
 
             if (!blow->method) continue;
-            if (!_easy_lore(r_ptr) && !blow->lore) continue;
 
             v = vec_alloc((vec_free_f)string_free);
             for (j = 0; j < MAX_MON_BLOW_EFFECTS; j++)
             {
                 mon_effect_ptr effect = &blow->effects[j];
                 if (!effect->effect) continue;
-                if (!_easy_lore(r_ptr) && !effect->lore) continue;
                 vec_add(v, _effect_desc(r_ptr, effect));
             }
             doc_printf(doc, "          %-7.7s",  _method_desc(blow->method));
@@ -777,13 +672,11 @@ static void _display_other(monster_race *r_ptr, doc_ptr doc)
         mon_effect_ptr aura = &r_ptr->auras[i];
         gf_info_ptr    gf;
         if (!aura->effect) continue;
-        if (!_easy_lore(r_ptr) && !aura->lore) continue;
         gf = gf_lookup(aura->effect);
         if (gf)
         {
             string_ptr s = string_alloc_format("<color:%c>%s</color>", attr_to_attr_char(gf->color), gf->name);
-            if (_know_aura_damage(r_ptr, aura))
-                string_printf(s, " (%dd%d)", aura->dd, aura->ds);
+            string_printf(s, " (%dd%d)", aura->dd, aura->ds);
             vec_add(v, s);
         }
     }
@@ -808,27 +701,19 @@ static void _display_drops(monster_race *r_ptr, doc_ptr doc)
     int ct_gold = 0;
     int ct_obj = 0;
 
-    if (_easy_lore(r_ptr))
-    {
-        if (r_ptr->flags1 & RF1_DROP_4D2) ct_gold += 8;
-        if (r_ptr->flags1 & RF1_DROP_3D2) ct_gold += 6;
-        if (r_ptr->flags1 & RF1_DROP_2D2) ct_gold += 4;
-        if (r_ptr->flags1 & RF1_DROP_1D2) ct_gold += 2;
-        if (r_ptr->flags1 & RF1_DROP_90) ct_gold += 1;
-        if (r_ptr->flags1 & RF1_DROP_60) ct_gold += 1;
+    if (r_ptr->flags1 & RF1_DROP_4D2) ct_gold += 8;
+    if (r_ptr->flags1 & RF1_DROP_3D2) ct_gold += 6;
+    if (r_ptr->flags1 & RF1_DROP_2D2) ct_gold += 4;
+    if (r_ptr->flags1 & RF1_DROP_1D2) ct_gold += 2;
+    if (r_ptr->flags1 & RF1_DROP_90) ct_gold += 1;
+    if (r_ptr->flags1 & RF1_DROP_60) ct_gold += 1;
 
-        ct_obj = ct_gold;
+    ct_obj = ct_gold;
 
-        /* Hack -- but only "valid" drops */
-        if (r_ptr->flags1 & RF1_ONLY_GOLD) ct_obj = 0;
-        if (r_ptr->flags1 & RF1_ONLY_ITEM) ct_gold = 0;
-    }
-    else
-    {
-        ct_gold = r_ptr->r_drop_gold;
-        ct_obj = r_ptr->r_drop_item;
-    }
-
+    /* Hack -- but only "valid" drops */
+    if (r_ptr->flags1 & RF1_ONLY_GOLD) ct_obj = 0;
+    if (r_ptr->flags1 & RF1_ONLY_ITEM) ct_gold = 0;
+    
     if (ct_gold || ct_obj)
     {
         int ct = MAX(ct_gold, ct_obj);
@@ -882,22 +767,19 @@ static void _display_kills(monster_race *r_ptr, doc_ptr doc)
         doc_printf(doc, "Kills   : <color:G>%d</color>\n", r_ptr->r_pkills);
     }
 
-    if (_easy_lore(r_ptr) || r_ptr->r_tkills)
+    int plev = spoiler_hack ? 50 : p_ptr->max_plv;
+    int xp = r_ptr->mexp * r_ptr->level / (plev + 2);
+    char buf[10];
+
+    if (r_ptr->r_akills > (coffee_break ? 49 : 99))
     {
-        int plev = spoiler_hack ? 50 : p_ptr->max_plv;
-        int xp = r_ptr->mexp * r_ptr->level / (plev + 2);
-        char buf[10];
-
-        if (r_ptr->r_akills > (coffee_break ? 49 : 99))
-        {
-            xp *= 2;
-            xp /= divide_exp_by(r_ptr->r_akills);
-        }
-
-        big_num_display(xp, buf);
-        doc_printf(doc, "Exp     : <color:G>%s</color> at CL%d\n", buf, plev);
+        xp *= 2;
+        xp /= divide_exp_by(r_ptr->r_akills);
     }
 
+    big_num_display(xp, buf);
+    doc_printf(doc, "Exp     : <color:G>%s</color> at CL%d\n", buf, plev);
+    
     _display_drops(r_ptr, doc);
     doc_newline(doc);
 }
@@ -944,60 +826,14 @@ void mon_display_rect(monster_race *r_ptr, rect_t display)
 }
 void mon_display_doc(monster_race *r_ptr, doc_ptr doc)
 {
-    /* XXX Struct copy is a bad idea ... for example, mon_race->spells is
-     * not copied, but the pointer is. Try to see why we need to copy
-     * to correctly display lore. I mean, can't the other code just use
-     * the r_flags instead of the flags? */
-    monster_race copy = *r_ptr;
-    if (!_easy_lore(r_ptr))
-    {
-        /* Wipe flags to their 'known' values */
-        copy.flags1 &= copy.r_flags1;
-        copy.flags2 &= copy.r_flags2;
-        copy.flags3 &= copy.r_flags3;
-        copy.flagsr &= copy.r_flagsr;
+    _display_basic(r_ptr, doc);
+    _display_resists(r_ptr, doc);
+    _display_spells(r_ptr, doc);
+    _display_attacks(r_ptr, doc);
+    _display_other(r_ptr, doc);
+    if (!_possessor_hack) _display_kills(r_ptr, doc);
 
-        /* Assume some "obvious" flags */
-        if (r_ptr->flags1 & RF1_UNIQUE)  copy.flags1 |= RF1_UNIQUE;
-        if (r_ptr->flags1 & RF1_MALE)    copy.flags1 |= RF1_MALE;
-        if (r_ptr->flags1 & RF1_FEMALE)  copy.flags1 |= RF1_FEMALE;
-
-        /* Assume some "creation" flags */
-        if (r_ptr->flags1 & RF1_FRIENDS) copy.flags1 |= RF1_FRIENDS;
-        if (r_ptr->flags1 & RF1_ESCORT)  copy.flags1 |= RF1_ESCORT;
-
-        /* Killing a monster reveals some properties */
-        if (r_ptr->r_tkills)
-        {
-            /* Know "race" flags */
-            if (r_ptr->flags3 & RF3_ORC)      copy.flags3 |= RF3_ORC;
-            if (r_ptr->flags3 & RF3_TROLL)    copy.flags3 |= RF3_TROLL;
-            if (r_ptr->flags3 & RF3_GIANT)    copy.flags3 |= RF3_GIANT;
-            if (r_ptr->flags3 & RF3_DRAGON)   copy.flags3 |= RF3_DRAGON;
-            if (r_ptr->flags3 & RF3_DEMON)    copy.flags3 |= RF3_DEMON;
-            if (r_ptr->flags3 & RF3_UNDEAD)   copy.flags3 |= RF3_UNDEAD;
-            if (r_ptr->flags3 & RF3_EVIL)     copy.flags3 |= RF3_EVIL;
-            if (r_ptr->flags3 & RF3_GOOD)     copy.flags3 |= RF3_GOOD;
-            if (r_ptr->flags3 & RF3_ANIMAL)   copy.flags3 |= RF3_ANIMAL;
-            if (r_ptr->flags3 & RF3_AMBERITE) copy.flags3 |= RF3_AMBERITE;
-            if (r_ptr->flags2 & RF2_HUMAN)    copy.flags2 |= RF2_HUMAN;
-            if (r_ptr->flags2 & RF2_QUANTUM)  copy.flags2 |= RF2_QUANTUM;
-
-            /* Know "forced" flags */
-            if (r_ptr->flags1 & RF1_FORCE_DEPTH) copy.flags1 |= RF1_FORCE_DEPTH;
-            if (r_ptr->flags1 & RF1_FORCE_MAXHP) copy.flags1 |= RF1_FORCE_MAXHP;
-        }
-
-    }
-
-    _display_basic(&copy, doc);
-    _display_resists(&copy, doc);
-    if (copy.spells && copy.spells->freq) _display_spells(&copy, doc);
-    _display_attacks(&copy, doc);
-    _display_other(&copy, doc);
-    if (!_possessor_hack) _display_kills(&copy, doc);
-
-    _display_desc(&copy, doc);
+    _display_desc(r_ptr, doc);
 }
 
 void mon_display_possessor(monster_race *r_ptr, doc_ptr doc)

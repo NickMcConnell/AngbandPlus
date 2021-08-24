@@ -1,16 +1,16 @@
-<color:y>FrogComposband <$:version></color>
+<color:y>Oposband <$:version></color>
 <style:screenshot>
 <color:U>You attack Kaschei the Immortal:</color> You miss. You hit. You hit. <color:D>You </color>                 
 <color:D>feel your life draining away!</color> <color:R>He grows more powerful!</color> You hit. You    LEVEL <color:G>    50</color>
 miss. You hit.                                                        EXP <color:G>   24.0M</color>
 <color:G>Kaschei the Immortal</color> gazes deep into your eyes. You resist the        AU  <color:G>   6.21M</color>
 effects!                                                              <color:d>            </color>
-                    #####                             #.............. STR!: <color:G>18/***</color>
-                                                      #############.# INT!: <color:G>18/130</color>
-                                                                  #.# WIS!: <color:G>18/***</color>
-                             ###                                  #.# DEX!: <color:G>18/150</color>
-                             #.##                            ######.# CON!: <color:G>18/170</color>
-                             ##@#                            #..##... CHR!: <color:G>18/***</color>
+                    #####                             #.............. STR!: <color:G>    40</color>
+                                                      #############.# INT!: <color:G>    31</color>
+                                                                  #.# WIS!: <color:G>    40</color>
+                             ###                                  #.# DEX!: <color:G>    33</color>
+                             #.##                            ######.# CON!: <color:G>    35</color>
+                             ##@#                            #..##... CHR!: <color:G>    40</color>
                              #<color:v>L</color>##                           ##..##### AC     <color:G>  170</color>
                              ## #             #########   ###......## HP <color:y> 979</color>/<color:G>1078</color>
                              # ##            ## # # #.#####........#  SP <color:y> 248</color>/<color:G> 397</color>

@@ -34,41 +34,35 @@ static void _birth(void)
  **********************************************************************/
 static bool _weapon_is_small(int tval, int sval)
 {
+    if (tval == TV_DAGGER)
+        return TRUE;
     if (tval == TV_SWORD)
     {
         switch (sval)
         {
-        case SV_BROKEN_DAGGER:
         case SV_BROKEN_SWORD:
-        case SV_DAGGER:
-        case SV_MAIN_GAUCHE:
-        case SV_TANTO:
-        case SV_RAPIER:
         case SV_SMALL_SWORD:
-        case SV_BASILLARD:
         case SV_SHORT_SWORD:
-        case SV_SABRE:
-        case SV_DOKUBARI:
-        case SV_HAYABUSA:
-        case SV_DRAGON_FANG:
             return TRUE;
         }
     }
+    if (tval == TV_AXE && sval == SV_HATCHET)
+        return TRUE;
     if (tval == TV_POLEARM)
     {
         switch (sval)
         {
-        case SV_HATCHET:
         case SV_SICKLE:
         case SV_TSURIZAO:
             return TRUE;
         }
     }
-    if (tval == TV_HAFTED)
+    if (tval == TV_HAFTED && sval == SV_WHIP)
+        return TRUE;
+    if (tval == TV_STAVES)
     {
         switch (sval)
         {
-        case SV_WHIP:
         case SV_NUNCHAKU:
         case SV_JO_STAFF:
         case SV_THREE_PIECE_ROD:
@@ -101,14 +95,21 @@ static bool _weapon_is_giant(int tval, int sval)
             return TRUE;
         }
     }
+    if (tval == TV_AXE)
+    {
+        switch (sval)
+        {
+        case SV_GREAT_AXE:
+        case SV_LOCHABER_AXE:
+            return TRUE;
+        }
+    }
     if (tval == TV_POLEARM)
     {
         switch (sval)
         {
         case SV_LANCE:
-        case SV_GREAT_AXE:
         case SV_TRIFURCATE_SPEAR:
-        case SV_LOCHABER_AXE:
         case SV_HEAVY_LANCE:
         case SV_SCYTHE_OF_SLICING:
         case SV_DEATH_SCYTHE:
@@ -575,7 +576,7 @@ static race_t *_hru_get_race_t(void)
     me.stats[A_WIS] = -5;
     me.stats[A_DEX] = -3;
     me.stats[A_CON] =  4 + rank;
-    me.stats[A_CHR] =  0 + rank/2;
+    me.stats[A_CHR] =  -2 + rank/2;
     me.life = 110 + 5*rank;
     me.boss_r_idx = MON_ATLAS;
 
@@ -716,7 +717,7 @@ static race_t *_fire_get_race_t(void)
     me.stats[A_WIS] = -3;
     me.stats[A_DEX] = -2;
     me.stats[A_CON] =  3 + rank;
-    me.stats[A_CHR] =  0 + rank/2;
+    me.stats[A_CHR] =  -2 + rank/2;
     me.life = 107 + 5*rank;
     me.boss_r_idx = MON_SURTUR;
 
@@ -850,7 +851,7 @@ static race_t *_frost_get_race_t(void)
     me.stats[A_WIS] = -3;
     me.stats[A_DEX] = -2;
     me.stats[A_CON] =  3 + rank;
-    me.stats[A_CHR] =  0 + rank/2;
+    me.stats[A_CHR] =  -2 + rank/2;
     me.life = 107 + 5*rank;
     me.boss_r_idx = MON_YMIR;
 
@@ -1027,7 +1028,7 @@ static race_t *_storm_get_race_t(void)
     me.stats[A_WIS] = -3;
     me.stats[A_DEX] = -2;
     me.stats[A_CON] =  3 + (rank + 1)/2;
-    me.stats[A_CHR] =  0 + rank/2;
+    me.stats[A_CHR] =  -2 + rank/2;
     me.life = 105 + 3*rank;
     me.boss_r_idx = MON_TYPHOEUS;
 
@@ -1126,7 +1127,7 @@ static race_t *_titan_get_race_t(void)
     me.stats[A_WIS] =  0 + rank;
     me.stats[A_DEX] = -2;
     me.stats[A_CON] =  3 + rank;
-    me.stats[A_CHR] =  3 + rank;
+    me.stats[A_CHR] =  1 + rank;
     me.life = 102 + 5*rank;
     me.boss_r_idx = MON_KRONOS;
 

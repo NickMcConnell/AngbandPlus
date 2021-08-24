@@ -134,6 +134,23 @@ off after the creation is finished!
   various situations. Furthermore, at 12:00 every night, you will have 
   a real nightmare. You need to be crazy to turn this option on!
   
+  Thrall mode (start in extreme danger) (thrall_mode)
+  With this option enabled, you start the game on level 90 of R'lyeh 
+  (or level 90 of Angband in no-wilderness mode) as a runaway slave of 
+  the dungeon's demonic masters. With extreme care, you have managed to 
+  steal a few useful items that might help you in your escape. But now 
+  you've been noticed, everyone's on alert, and it is up to you to die, 
+  escape - or fight your way through...
+  
+  Always generate very unusual rooms (wacky_rooms)
+  If this option is enabled, every room becomes a vault (except in a 
+  few dungeons with special generation rules), vaults are allowed to 
+  generate extremely out-of-depth monsters and floor items, and 
+  extremely small levels are made slightly larger (to accommodate the 
+  vaults). This option is purposely game-unbalancing, and is intended 
+  for experienced players who have found they actually like the game 
+  unbalanced now and then.
+  
   Enable virtues (enable_virtues)
   Turns on the virtue system. Virtues can help or hinder the player; 
   among other things, they affect spell fail rates, the strength of 
@@ -176,6 +193,25 @@ off after the creation is finished!
   pantheon remains can be either specified by the player or left to a 
   random decision.
   
+  Level size (always_small_levels)
+  This option allows you to select from a variety of different 
+  level-size selection methods. See [d] for more details.
+  
+  Increase monster density on small levels (increase_density)
+  This option switches to the old PosChengband 6.1.0 monster density 
+  formula for small levels, increasing the number of monsters generated 
+  on newly entered small levels.
+  
+  Allow small levels in all dungeons except Arena (no_big_dungeons)
+  If this option is enabled, small levels can generate even in dungeons 
+  that normally always generate maximum-sized levels. The exception is 
+  Arena, which will still always generate large levels.
+  
+  Sometimes reshape very flat "pipe" levels (even_proportions)
+  If this option is turned on, levels with a very high (6-to-1 or 
+  higher) width-to-height ratio are sometimes re-shaped to have the 
+  same total area but different proportions.
+  
   Nexus attacks never teleport to another dungeon (no_chris)
   Turning on this option disables the "Chris effect" (a nexus attack 
   effect that teleports the player to another dungeon, potentially one 
@@ -209,7 +245,7 @@ Input Options
   
   Rogue-like commands (rogue_like_commands)
   Selects the roguelike command set which is an alternative way of 
-  mapping keystrokes to underlying game commands. (see [d] for info).
+  mapping keystrokes to underlying game commands. (see [e] for info).
   
   Pick things up by default (always_pickup)
   Tells the game that walking onto an item should attempt to pick it 
@@ -263,7 +299,7 @@ Input Options
   Repeat obvious commands (always_repeat)
   Tells the game that when you attempt to open a door or chest, bash a 
   door, tunnel through walls, or disarm traps or chests, that you wish 
-  to repeat the command 99 times (see [e]).
+  to repeat the command 99 times (see [f]).
   
   Prompt for destruction of known worthless items (confirm_destroy)
   Normally, no confirmation will be asked if you attempt to destroy an 
@@ -506,6 +542,10 @@ Text Display Options
   discount. Rather, this information will no longer be displayed to the 
   player.
   
+  Show device power in object listings (if known) (show_power)
+  Displays details about an object's power (like dam 158 or heal 250) 
+  in inventories, allowing you to compare items at a glance.
+  
   Show items graphics (show_item_graph)
   Displays small icons of the items in your inventory list, equipment 
   list and stores.
@@ -546,7 +586,7 @@ Text Display Options
   Fire is not an EXTRA resistance.
   
   The list of abbreviations for each resistances and abilities are 
-  described in [f].
+  described in [g].
   
   Describe obj's all resistances by abbreviation (abbrev_all)
   When an *identified* equipment is displayed, an abbreviation string 
@@ -554,7 +594,7 @@ Text Display Options
   inscriptions of the object.
   
   The list of abbreviations for each resistances and abilities are 
-  described in [g].
+  described in [h].
   
   Show the experience needed for the next level (exp_need)
   Setting this option to yes alters the display of experience on the 
@@ -616,6 +656,17 @@ Text Display Options
   Superb may become Superb (82), for example. This format is familiar 
   to players of Composband, where the numerical display is always on.
   
+  Show statistics before proceeding with a reforge (reforge_details)
+  This option shows statistics about how good a reforge result is 
+  likely to be (and why), gives warnings in case of reforges that look 
+  particularly misguided, and allows you to cancel the reforge if the 
+  statistics are not to your liking.
+  
+  Automatically make all power labels sticky (auto_sticky_labels)
+  With this option on, all powers used through the 'U' key ('O' in the 
+  roguelike keyset) will be assigned a permanent and unchanging letter 
+  slot, allowing reliable macros and keymaps (and finger memory).
+  
   
 Game Play Options
   
@@ -670,6 +721,9 @@ Disturbance Options
   
   Run through open doors (find_ignore_doors)
   Ignore open doors when running.
+  
+  Run past buried treasure (find_ignore_veins)
+  Ignore treasure veins when running.
   
   Run past known corners (find_cut)
   Cut sharply around known corners when running. This will result in 
@@ -740,9 +794,13 @@ Disturbance Options
   changes, including changes in hunger, resistance, confusion, etc.
   
   Disturb whenever boring things happen (disturb_minor)
-  This option causes you to be disturbed by various bring things, 
+  This option causes you to be disturbed by various boring things, 
   including monsters bashing down doors, inventory feelings, and 
   beginning to run out of fuel.
+  
+  Never disturb when a town monster moves (town_no_disturb)
+  With this option on, non-attacking moves by monsters native to towns 
+  (mercenaries, drunks, street urchins etc.) will never disturb you.
   
   Audible bell (on errors, etc) (ring_bell)
   Attempt to make a bell noise when various errors occur.
@@ -752,8 +810,28 @@ Disturbance Options
   of trap-detected area.
   
   Alert when leaving trap detected area (alert_trap_detect)
-  This option alerts you with message when the player is moving out of 
-  the trap-detected area.
+  This option alerts you with a message when the player is moving out 
+  of the trap-detected area.
+  
+  Alert when carried device is destroyed or stolen (alert_device_gone)
+  This option forces a -more- prompt whenever any wand, rod or staff in 
+  your inventory is destroyed or stolen.
+  
+  Alert when inscribed item is destroyed or stolen (alert_insc_gone)
+  This option forces a -more- prompt whenever any inscribed item in 
+  your inventory is destroyed or stolen.
+  
+  Alert on killing wanted uniques (alert_wanted_kill)
+  This option forces a -more- prompt when a unique with a price on its 
+  head is killed.
+  
+  Alert on dangerously high poison counter (alert_poison)
+  This option alerts you with a message before your move if your poison 
+  counter exceeds your current HP, 80% of your maximum HP, or 499 
+  points, whichever is lowest. (Subsequent warnings for the same 
+  instance of poisoning will be displayed only if you are at immediate 
+  risk of dying from poison.)
+  
   
 Easy Auto-Destroyer Options
   
@@ -764,7 +842,7 @@ Easy Auto-Destroyer Options
   
     Note: The Easy Auto-Destroyer is a simpler to use 
     version of the full featured Mogaminator discussed in 
-    [h]. It is designed for those who feel the full version 
+    [i]. It is designed for those who feel the full version 
     is too complicated to use. However, you really should 
     only use one or the other. So if you are using the full 
     version, then you should not also enable the easy 
@@ -803,6 +881,12 @@ Easy Auto-Destroyer Options
   Never apply the Mogaminator (no_mogaminator)
   This option deactivates the Mogaminator. (It is redundant if the 
   Mogaminator was never activated in the first place.)
+  
+  Allow manual pickup before applying auto-pickup (delay_autopick)
+  With this option on, any command that allows you to pick up items 
+  manually will give the manual pickup priority over auto-pickup. (With 
+  the option off, this only happens if you are picking up items from 
+  the square you were already on.)
   
   Auto-destroyer leaves known worthy items (leave_worth)
   This option protects known objects that can be sold in stores from 
@@ -975,5 +1059,6 @@ Updated    : Zangband DevTeam
 Updated    : Hengband 1.5.2
 Updated    : PosChengband 4.0.0
 Updated    : FrogComposband 7.0.nougat
+Updated    : FrogComposband 7.1.chocolate
 
 

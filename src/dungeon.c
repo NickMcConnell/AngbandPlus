@@ -46,10 +46,12 @@ byte value_check_aux1(object_type *o_ptr)
     if (object_is_cursed(o_ptr)) return FEEL_BAD;
     if (object_is_broken(o_ptr)) return FEEL_BROKEN;
     if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) return FEEL_AVERAGE;
+	
+	if (simple_item_check(o_ptr)) return FEEL_NONE;
 
     if (o_ptr->to_a > 0) return FEEL_GOOD;
     if (o_ptr->tval == TV_GLOVES || o_ptr->tval == TV_BOOTS) return FEEL_AVERAGE;
-    if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
+    if (o_ptr->to_h > 0) return FEEL_GOOD;
 
     return FEEL_AVERAGE;
 }
@@ -77,6 +79,9 @@ static byte value_check_aux2(object_type *o_ptr)
     /* Ego-Items -- except cursed/broken ones */
     if (object_is_ego(o_ptr)) return FEEL_ENCHANTED;
 
+	/*ID and go home*/
+	if (simple_item_check(o_ptr)) return FEEL_NONE;
+
     /* Good armor bonus */
     if (o_ptr->to_a > 0) return FEEL_ENCHANTED;
 
@@ -84,7 +89,7 @@ static byte value_check_aux2(object_type *o_ptr)
     if (o_ptr->tval == TV_GLOVES || o_ptr->tval == TV_BOOTS) return FEEL_AVERAGE;
 
     /* Good weapon bonuses */
-    if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_ENCHANTED;
+    if (o_ptr->to_h) return FEEL_ENCHANTED;
 
     return FEEL_AVERAGE;
 }
@@ -934,8 +939,11 @@ bool psychometry(void)
     case TV_BOW:
     case TV_DIGGING:
     case TV_HAFTED:
+    case TV_STAVES:
     case TV_POLEARM:
+    case TV_AXE:
     case TV_SWORD:
+    case TV_DAGGER:
     case TV_BOOTS:
     case TV_GLOVES:
     case TV_HELM:
@@ -1294,7 +1302,7 @@ static void process_world_aux_hp_and_sp(void)
         if (!IS_INVULN() && !IS_WRAITH())
         {
             int dam;
-            cptr dam_desc;
+			cptr dam_desc = NULL;
 
             dam = 1 + p_ptr->lev/5;
             /* Passwall now takes more energy ...
@@ -2616,8 +2624,7 @@ static byte get_dungeon_feeling(void)
         if (object_is_artifact(o_ptr))
             return 1;
 
-        if ( object_is_artifact(o_ptr)
-          || object_is_ego(o_ptr)
+        if ( object_is_ego(o_ptr)
           || o_ptr->tval == TV_DRAG_ARMOR
           || object_is_dragon_armor(o_ptr) )
         {
@@ -2627,9 +2634,6 @@ static byte get_dungeon_feeling(void)
             if (cost > 10000L) delta += 10 * base;
             if (cost > 50000L) delta += 10 * base;
             if (cost > 100000L) delta += 10 * base;
-
-            if (!preserve_mode && object_is_artifact(o_ptr))
-                return 1;
         }
 
         /* Out-of-depth objects */
@@ -3272,15 +3276,6 @@ static void _dispatch_command(int old_now_turn)
         }
 
 #endif /* ALLOW_WIZARD */
-
-
-#ifdef ALLOW_SPOILERS
-		case KTRL('Z'):
-			/*  v~~~ ^Z(d|D) is useful info for game design ... */
-			if (0 || allow_spoilers)
-				do_cmd_spoilers();
-			break;
-#endif /* ALLOW_SPOILERS */
 		
         /*** Inventory Commands ***/
 
@@ -3541,12 +3536,8 @@ static void _dispatch_command(int old_now_turn)
         /* Gain new spells/prayers */
         case 'G':
         {
-            if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_RED_MAGE)
-                msg_print("You don't have to learn spells!");
-            else if (p_ptr->pclass == CLASS_SKILLMASTER)
+            if (p_ptr->pclass == CLASS_SKILLMASTER)
                 skillmaster_gain_skill();
-            else if (p_ptr->pclass == CLASS_SAMURAI)
-                do_cmd_gain_hissatsu();
             else if (p_ptr->pclass == CLASS_RAGE_MAGE)
                 rage_mage_gain_spell();
             else if (p_ptr->pclass == CLASS_MAGIC_EATER)
@@ -3558,7 +3549,7 @@ static void _dispatch_command(int old_now_turn)
                 msg_print("You can only gain spells at certain levels.");
             }
             else
-                do_cmd_study();
+				msg_print("You don't have to learn spells!");
             break;
         }
 
@@ -3569,8 +3560,8 @@ static void _dispatch_command(int old_now_turn)
                 ring_browse();
             else if (p_ptr->pclass == CLASS_MAGIC_EATER)
                 magic_eater_browse();
-            else if (p_ptr->pclass == CLASS_RAGE_MAGE)
-                rage_mage_browse_spell();
+			else if (p_ptr->pclass == CLASS_RAGE_MAGE)
+				rage_mage_browse_spell();
             else if (p_ptr->pclass == CLASS_SKILLMASTER)
                 skillmaster_browse();
             else if (p_ptr->pclass == CLASS_ALCHEMIST)
@@ -3653,6 +3644,8 @@ static void _dispatch_command(int old_now_turn)
                     which_power = "psionic powers";
                 else if (p_ptr->pclass == CLASS_SAMURAI)
                     which_power = "hissatsu";
+				else if (p_ptr->pclass == CLASS_IMITATOR)
+					which_power = "imitation";
                 else if (p_ptr->pclass == CLASS_LAWYER || p_ptr->pclass == CLASS_NINJA_LAWYER)
                     which_power = "legal trickery";
                 else if (p_ptr->pclass == CLASS_MIRROR_MASTER)
@@ -3681,12 +3674,14 @@ static void _dispatch_command(int old_now_turn)
                     ring_cast();
                 else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
                     possessor_cast();
+				else if (p_ptr->pclass == CLASS_IMITATOR)
+					imitator_cast(FALSE);
                 else if (p_ptr->pclass == CLASS_MAGIC_EATER)
                     magic_eater_cast(0);
                 else if (p_ptr->pclass == CLASS_SKILLMASTER)
                     skillmaster_cast();
-                else if (p_ptr->pclass == CLASS_SAMURAI)
-                    do_cmd_hissatsu();
+				else if (p_ptr->pclass == CLASS_BLUE_MAGE)
+					do_cmd_cast_learned();
                 else if (p_ptr->pclass == CLASS_GRAY_MAGE)
                     gray_mage_cast_spell();
                 else if (p_ptr->pclass == CLASS_ALCHEMIST)
@@ -3712,7 +3707,7 @@ static void _dispatch_command(int old_now_turn)
                             p_ptr->pclass == CLASS_PSION ||
                             p_ptr->pclass == CLASS_SNIPER ||
                             p_ptr->pclass == CLASS_DISCIPLE ||
-                            p_ptr->pclass == CLASS_TIME_LORD )
+                            p_ptr->pclass == CLASS_TIME_LORD)
                 {
                     /* This is the preferred entrypoint for spells ...
                         I'm still working on coverting everything else */
@@ -4859,6 +4854,20 @@ static void process_player(void)
                     }
                 }
             }
+			if (p_ptr->pclass == CLASS_IMITATOR)
+			{
+				if (p_ptr->mane_num > (p_ptr->lev > 44 ? 3 : p_ptr->lev > 29 ? 2 : 1))
+				{
+					p_ptr->mane_num--;
+					for (i = 0; i < p_ptr->mane_num; i++)
+					{
+						p_ptr->mane_spell[i] = p_ptr->mane_spell[i + 1];
+						p_ptr->mane_dam[i] = p_ptr->mane_dam[i + 1];
+					}
+				}
+				new_mane = FALSE;
+				p_ptr->redraw |= PR_EFFECTS;
+			}
             if (p_ptr->action == ACTION_LEARN)
             {
                 new_mane = FALSE;
@@ -5502,9 +5511,6 @@ void play_game(bool new_game)
     /* Suppress extra pantheons */
     if (single_pantheon) _suppress_extra_pantheons();
 
-    /* Empty lore */
-    if ((new_game) && (empty_lore)) empty_lore_wipe();
-
     creating_savefile = FALSE;
 
     p_ptr->teleport_town = FALSE;
@@ -5512,11 +5518,6 @@ void play_game(bool new_game)
     world_monster = FALSE;
     now_turn = game_turn;
     start_time = time(NULL);
-
-    /* TODO: py_skills_init() or some such ... w_max needs to be reset each time you play, 
-     * not just on player birth */
-    if (p_ptr->pclass == CLASS_WEAPONMASTER && !new_game)
-        weaponmaster_adjust_skills();
 
     /* Fill the arrays of floors and walls in the good proportions */
     set_floor_and_wall(dungeon_type);
@@ -5668,7 +5669,21 @@ void play_game(bool new_game)
             py_birth_food();
             py_birth_light();
         }
-        if ((coffee_break) && (!thrall_mode) && (p_ptr->pclass != CLASS_BERSERKER)) py_birth_obj_aux(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, (game_mode == GAME_MODE_BEGINNER) ? 10 : 1);
+
+        /* TODO Where should this go? */
+        if (p_ptr->pclass == CLASS_MONSTER)
+        {
+            monster_proficiencies();
+        }
+
+        /* TODO Hack: This should be put in personality birth but can't until we can move it after the race/class birth functions for weapon proficiencies */
+        if (p_ptr->personality == PERS_SEXY)
+        {
+            p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
+            p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_MASTER;
+        }
+
+        if ((coffee_break) && (!thrall_mode) && (p_ptr->pclass != CLASS_BERSERKER)) py_birth_obj_aux(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, 1);
         if (thrall_mode)
         {
             if (p_ptr->pclass == CLASS_BERSERKER)

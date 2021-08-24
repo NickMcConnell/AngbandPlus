@@ -84,7 +84,6 @@ static void _load_player(savefile_ptr file)
     u32b old_max_race;
     unsigned int i;
     _ini_photo_list();
-    if (savefile_is_older_than(file, 7, 0, 5, 2)) return;
     old_max_race = savefile_read_u32b(file);
     for (i = 0; i < old_max_race; i++)
     {
@@ -116,6 +115,22 @@ static void _birth(void)
     py_birth_obj_aux(TV_SHOT, SV_PEBBLE, rand_range(20, 40));
     p_ptr->au += 2000;
     _ini_photo_list();
+
+    p_ptr->proficiency[PROF_SLING] = WEAPON_EXP_BEGINNER;
+
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_EXPERT;
 }
 
 int tourist_sell_photo_aux(object_type *o_ptr, int amount, bool merkitse)

@@ -13,18 +13,18 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "FrogComposband"
+#define VERSION_NAME "Oposband"
 
 
-#define VER_MAJOR 7
-#define VER_MINOR 1
-#define VER_PATCH "chocolate"
-#define VER_EXTRA 1
+#define VER_MAJOR 0
+#define VER_MINOR 2
+#define VER_PATCH 0
+#define VER_EXTRA 0
 #define VERSION_IS_DEVELOPMENT (FALSE)
 
-#define GAME_MODE_BEGINNER  0
+#define GAME_MODE_XXX  0	/* No more beginner mode */
 #define GAME_MODE_NORMAL    1
-#define GAME_MODE_XXX       2
+/*#define GAME_MODE_XXX       2*/
 #define GAME_MODE_MONSTER   3
 #define GAME_MODE_MAX       4
 
@@ -809,7 +809,7 @@ enum _mimic_types {
 #define CLASS_MINDCRAFTER        9
 #define CLASS_HIGH_MAGE         10
 #define CLASS_TOURIST           11
-#define CLASS_XXX12             12
+#define CLASS_IMITATOR          12
 #define CLASS_BEASTMASTER       13
 #define CLASS_SORCERER          14
 #define CLASS_ARCHER            15
@@ -818,7 +818,7 @@ enum _mimic_types {
 #define CLASS_RED_MAGE          18
 #define CLASS_SAMURAI           19
 #define CLASS_FORCETRAINER      20
-#define CLASS_XXX21             21
+#define CLASS_BLUE_MAGE         21
 #define CLASS_CAVALRY           22
 #define CLASS_BERSERKER         23
 #define CLASS_WEAPONSMITH       24
@@ -850,7 +850,9 @@ enum _mimic_types {
 #define CLASS_ALCHEMIST         50
 #define CLASS_POLITICIAN        51
 #define CLASS_DISCIPLE          52
-#define MAX_CLASS               53
+#define CLASS_HEXBLADE          53
+#define CLASS_CHAOS_MAGE        54
+#define MAX_CLASS               55
 
 /*
 #define CLASS_LOGRUS_MASTER     47
@@ -913,7 +915,6 @@ enum {
     PERS_HASTY,
     PERS_LAZY,
     PERS_UNLUCKY,
-    PERS_CHAOTIC,
     PERS_MUNDANE,
     PERS_MUNCHKIN,
     PERS_FRAGILE,
@@ -1576,9 +1577,14 @@ enum {
 #define TV_BOLT         18
 #define TV_BOW          19
 #define TV_DIGGING      20
-#define TV_HAFTED       21      /* Priest Weapons */
-#define TV_POLEARM      22      /* Axes and Pikes */
-#define TV_SWORD        23      /* Edged Weapons */
+#define TV_HAFTED       21      /* Blunt Weapons */
+#define TV_POLEARM      22      /* Spears and such */
+#define TV_SWORD        23      /* Long blades */
+/* New weapon TVAL types because there are increasingly more kinds of weapons (weapon masters, etc) */
+#define TV_STAVES       24      /* QUarterstaff, Bo Stsff, Wizardstaff */
+#define TV_AXE         25      /* Proper Axes */
+#define TV_DAGGER       26      /* Daggers and other light stabbing blades */
+
 #define TV_BOOTS        30
 #define TV_GLOVES       31
 #define TV_HELM         32
@@ -1629,7 +1635,7 @@ enum {
 #define TV_WEARABLE_BEGIN TV_BOW
 #define TV_WEARABLE_END   TV_CARD
 #define TV_WEAPON_BEGIN   TV_BOW
-#define TV_WEAPON_END     TV_SWORD
+#define TV_WEAPON_END     TV_DAGGER
 #define TV_ARMOR_BEGIN    TV_BOOTS
 #define TV_ARMOR_END      TV_DRAG_ARMOR
 #define TV_BOOK_BEGIN     TV_LIFE_BOOK
@@ -1706,28 +1712,30 @@ enum {
 /* The "sval" values for TV_HAFTED */
 #define SV_CLUB                          1    /* 1d4  */
 #define SV_WHIP                          2    /* 1d6  */
-#define SV_QUARTERSTAFF                  3    /* 1d9  */
-#define SV_NUNCHAKU                      4    /* 2d3  */
 #define SV_MACE                          5    /* 2d4  */
 #define SV_BALL_AND_CHAIN                6    /* 2d4  */
-#define SV_JO_STAFF                      7    /* 1d7  */
 #define SV_WAR_HAMMER                    8    /* 3d3  */
-#define SV_THREE_PIECE_ROD              11    /* 3d3  */
 #define SV_MORNING_STAR                 12    /* 2d6  */
 #define SV_FLAIL                        13    /* 2d6  */
-#define SV_BO_STAFF                     14    /* 1d11 */
 #define SV_LEAD_FILLED_MACE             15    /* 3d4  */
 #define SV_TETSUBO                      16    /* 2d7  */
 #define SV_TWO_HANDED_FLAIL             18    /* 3d6  */
 #define SV_GREAT_HAMMER                 19    /* 4d6  */
 #define SV_MACE_OF_DISRUPTION           20    /* 5d8  */
-#define SV_WIZSTAFF                     21    /* 1d2  */
 #define SV_GROND                        50    /* 3d9  */
 #define SV_BASEBALL_BAT                 51    /* 1d4  */
 #define SV_NAMAKE_HAMMER                63    /* 1d77 */
 
+/* The "sval" values for TV_STAVES */
+#define SV_QUARTERSTAFF                  3    /* 1d9  */
+#define SV_NUNCHAKU                      4    /* 2d3  */
+#define SV_JO_STAFF                      7    /* 1d7  */
+#define SV_THREE_PIECE_ROD              11    /* 3d3  */
+#define SV_BO_STAFF                     14    /* 1d11 */
+#define SV_WIZSTAFF                     21    /* 1d2  */
+
+
 /* The "sval" values for TV_POLEARM */
-#define SV_HATCHET                       1    /* 1d5 */
 #define SV_SPEAR                         2    /* 1d6 */
 #define SV_SICKLE                        3    /* 2d3 */
 #define SV_AWL_PIKE                      4    /* 1d8 */
@@ -1736,8 +1744,6 @@ enum {
 #define SV_BROAD_SPEAR                   7    /* 1d9 */
 #define SV_PIKE                          8    /* 2d5 */
 #define SV_NAGINATA                      9  /* 2d6 */
-#define SV_BEAKED_AXE                   10    /* 2d6 */
-#define SV_BROAD_AXE                    11    /* 2d6 */
 #define SV_LUCERNE_HAMMER               12    /* 2d5  */
 #define SV_GLAIVE                       13    /* 2d6 */
 #define SV_LAJATANG                     14    /* 2d7 */
@@ -1745,28 +1751,25 @@ enum {
 #define SV_GUISARME                     16  /* 2d5 */
 #define SV_SCYTHE                       17    /* 5d3 */
 #define SV_LANCE                        20    /* 2d8 */
-#define SV_BATTLE_AXE                   22    /* 2d8 */
-#define SV_GREAT_AXE                    25    /* 4d4 */
 #define SV_TRIFURCATE_SPEAR             26    /* 2d9 */
-#define SV_LOCHABER_AXE                 28    /* 3d8 */
 #define SV_HEAVY_LANCE                  29  /* 4d8 */
 #define SV_SCYTHE_OF_SLICING            30    /* 8d4 */
 #define SV_TSURIZAO                     40    /* 1d1 */
 #define SV_DEATH_SCYTHE                 50    /* 10d10 */
 #define SV_DEATH_SCYTHE_HACK            51    /* 10d10 */
 
+/* The "sval" codes for TV_AXE */
+#define SV_HATCHET                       1    /* 1d5 */
+#define SV_BEAKED_AXE                   10    /* 2d6 */
+#define SV_BROAD_AXE                    11    /* 2d6 */
+#define SV_BATTLE_AXE                   22    /* 2d8 */
+#define SV_GREAT_AXE                    25    /* 4d4 */
+#define SV_LOCHABER_AXE                 28    /* 3d8 */
 
 /* The "sval" codes for TV_SWORD */
-#define SV_BROKEN_DAGGER                 1  /* 1d1 */
 #define SV_BROKEN_SWORD                  2  /* 1d2 */
-#define SV_DAGGER                        4  /* 1d4 */
-#define SV_MAIN_GAUCHE                   5  /* 1d5 */
-#define SV_TANTO                         6  /* 1d5 */
-#define SV_RAPIER                        7  /* 1d6 */
 #define SV_SMALL_SWORD                   8  /* 1d6 */
-#define SV_BASILLARD                     9  /* 1d8 */
 #define SV_SHORT_SWORD                  10  /* 1d7 */
-#define SV_SABRE                        11  /* 1d7 */
 #define SV_CUTLASS                      12  /* 1d7 */
 #define SV_WAKIZASHI                    13  /* 2d4 */
 #define SV_KHOPESH                      14  /* 2d4 */
@@ -1774,7 +1777,6 @@ enum {
 #define SV_BROAD_SWORD                  16  /* 2d5 */
 #define SV_LONG_SWORD                   17  /* 2d5 */
 #define SV_SCIMITAR                     18  /* 2d5 */
-#define SV_NINJATO                      19  /* 1d9 */
 #define SV_KATANA                       20  /* 3d4 */
 #define SV_BASTARD_SWORD                21  /* 3d4 */
 #define SV_GREAT_SCIMITAR               22  /* 4d5 */
@@ -1787,13 +1789,21 @@ enum {
 #define SV_ZWEIHANDER                   29  /* 4d6 */
 #define SV_BLADE_OF_CHAOS               30  /* 6d5 */
 #define SV_DIAMOND_EDGE                 31  /* 7d5 */
-#define SV_DOKUBARI                     32  /* 1d1 */
-#define SV_HAYABUSA                     33  /* 1d6 */
 #define SV_RUNESWORD                    34  /* 0d0 */
+
+/* The "sval" codes for TV_DAGGER */
+#define SV_BROKEN_DAGGER                 1  /* 1d1 */
+#define SV_DAGGER                        4  /* 1d4 */
+#define SV_MAIN_GAUCHE                   5  /* 1d5 */
+#define SV_TANTO                         6  /* 1d5 */
+#define SV_RAPIER                        7  /* 1d6 */
+#define SV_BASILLARD                     9  /* 1d8 */
+#define SV_SABRE                        11  /* 1d7 */
+#define SV_NINJATO                      19  /* 1d9 */
+#define SV_POISON_NEEDLE                32  /* 1d1 */
+#define SV_FALCON_SWORD                 33  /* 1d6 */
 #define SV_DRAGON_FANG                  35  /* 1d8 */
 
-#define SV_FALCON_SWORD                    33
-#define SV_POISON_NEEDLE                32
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD          2
@@ -1861,10 +1871,10 @@ enum {
 #define SV_PADDED_ARMOR                 10  /*  4 */
 #define SV_LEATHER_SCALE_MAIL           11
 #define SV_LEATHER_JACK                 12
-#define SV_KUROSHOUZOKU                 13  /* Black Clothes */
+#define SV_BLACK_CLOTHES                 13  /* Black Clothes */
 #define SV_BLACK_CLOTHES                13
 #define SV_STONE_AND_HIDE_ARMOR         15  /* 15 */
-#define SV_ABUNAI_MIZUGI                50  /* Swimsuit */
+#define SV_SWIMSUIT                50  /* Swimsuit */
 #define SV_YOIYAMI_ROBE                 60  /* Robe of Twilight */
 #define SV_NAMAKE_ARMOR                 63
 
@@ -1955,8 +1965,8 @@ enum {
 #define SV_SCROLL_REMOVE_CURSE          14
 #define SV_SCROLL_STAR_REMOVE_CURSE     15
 #define SV_SCROLL_ENCHANT_ARMOR         16
-#define SV_SCROLL_ENCHANT_WEAPON_TO_HIT 17
-#define SV_SCROLL_ENCHANT_WEAPON_TO_DAM 18
+#define SV_SCROLL_ENCHANT_WEAPON 17
+/*#define SV_SCROLL_ENCHANT_WEAPON_TO_DAM 18*/
 /* xxx enchant missile? */
 #define SV_SCROLL_STAR_ENCHANT_ARMOR    20
 #define SV_SCROLL_STAR_ENCHANT_WEAPON   21
@@ -4242,7 +4252,7 @@ extern int PlayerUID;
 #define MS_S_AMBERITE     94
 #define MS_S_UNIQUE       95
 #define MS_THROW          96
-
+#define MS_MAX			  97
 
 #define MON_BEGGAR              12
 #define MON_LEPER               13
@@ -5983,6 +5993,40 @@ enum {
 #define LAWYER_HACK_MANA 2
 #define LAWYER_HACK_FAILRATE 3
 
+/* Chaos Patrons from Composband */
+/* patron interaction triggers */
+#define PATRON_HIT 0
+#define PATRON_KILL_WEAK 1
+#define PATRON_KILL 2
+#define PATRON_KILL_UNIQUE 3
+#define PATRON_KILL_FAMOUS 4
+#define PATRON_KILL_GOOD 5
+#define PATRON_KILL_DEMON 6
+#define PATRON_CAST 7
+#define PATRON_VILLIANY 8
+#define PATRON_CHANCE 9
+#define PATRON_TAKE_HIT 10
+#define PATRON_LEVEL_UP 11
+#define PATRON_EFFECT_MAX 12
+
+/* patrons by name */
+#define PATRON_SLORTAR 0
+#define PATRON_MABELODE 1
+#define PATRON_CHARDROS 2
+#define PATRON_HIONHURN 3
+#define PATRON_XIOMBARG 4
+#define PATRON_PYARAY 5
+#define PATRON_BALAAN 6
+#define PATRON_ARIOCH 7
+#define PATRON_EEQUOR 8
+#define PATRON_NARJHAN 9
+#define PATRON_BALO 10
+#define PATRON_KHORNE 11
+#define PATRON_SLAANESH 12
+#define PATRON_NURGLE 13
+#define PATRON_TZEENTCH 14
+#define PATRON_KHAINE 15
+
 enum dragon_realm_e
 {
     DRAGON_REALM_NONE, /* Steel dragons and upgrading old savefiles */
@@ -6101,3 +6145,22 @@ enum
 #define SMALL_LVL_HUGE 11
 #define SMALL_LVL_RESPECTFUL_HUGE 12
 #define SMALL_LVL_MAX 12
+
+#define _SPELLS_PER_BOOK 8
+
+/* New Proficiency code */
+#define PROF_DIGGER         0
+#define PROF_BLUNT          1
+#define PROF_POLEARM        2
+#define PROF_SWORD          3
+#define PROF_STAVE          4
+#define PROF_AXE            5
+#define PROF_DAGGER         6
+#define PROF_BOW            7
+#define PROF_CROSSBOW       8
+#define PROF_SLING          9
+#define PROF_MARTIAL_ARTS   10
+#define PROF_DUAL_WIELDING  11
+#define PROF_RIDING         12
+#define PROF_INNATE_ATTACKS 13
+#define MAX_PROFICIENCIES   14

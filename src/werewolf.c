@@ -559,7 +559,7 @@ race_t *werewolf_get_race(void)
             me.stats[A_WIS] =  -1;
             me.stats[A_DEX] =  0;
             me.stats[A_CON] =  2;
-            me.stats[A_CHR] =  -1;
+            me.stats[A_CHR] =  -2;
             me.shop_adjust = 120;
 
             me.life = 105;

@@ -342,7 +342,7 @@ race_t *mon_hydra_get_race(void)
     me.stats[A_WIS] = -2;
     me.stats[A_DEX] = (rank + 1)/2;
     me.stats[A_CON] = rank;
-    me.stats[A_CHR] =  0;
+    me.stats[A_CHR] =  -2;
     me.life = 100 + 3*rank;
     me.equip_template = mon_get_equip_template();
 

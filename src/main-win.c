@@ -4613,9 +4613,60 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
     check_for_save_file(lpCmdLine);
 
     Term_flush();
-    display_news();
-    c_prt(TERM_YELLOW, "                 [Choose 'New' or 'Open' from the 'File' menu]", Term->hgt - 1, 0);
-    Term_fresh();
+
+	const int max_n = 19;
+	srand(time(NULL));
+	int n = (rand() % max_n) + 1;
+
+	bool loop = TRUE;
+	while (loop)
+	{
+		display_news_win(n);
+		c_prt(TERM_YELLOW, "         [Choose 'N'ew character, 'O'pen' savefile, High 'S'cores, '?' Help or 'Q'uit]", Term->hgt - 1, 0);
+		Term_fresh();
+
+		int cmd = inkey_special(TRUE);
+
+		switch (cmd)
+		{
+			/* New Game*/
+		case 'n':
+		case 'N':
+			loop = FALSE;
+			process_menus(IDM_FILE_NEW);
+			break;
+
+			/* Load saved game*/
+		case 'o':
+		case 'O':
+			process_menus(IDM_FILE_OPEN);
+			if (game_in_progress) loop = FALSE;
+			break;
+			
+			/* View high scores*/
+		case 's':
+		case 'S':
+			vec_ptr scores = scores_load(NULL);
+			scores_display(scores);
+			vec_free(scores);
+
+			display_news_win(n);
+			break;
+			
+			/* Help */
+		case '?':
+			doc_display_help("birth.txt", NULL);
+			break;
+
+			/* Quit */
+		case ESCAPE:
+		case 'q':
+		case 'Q':
+			loop = FALSE;
+			quit(NULL);
+			break;
+		}
+	}
 
     /* Process messages forever */
     while (GetMessage(&msg, NULL, 0, 0))

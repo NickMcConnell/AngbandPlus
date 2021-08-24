@@ -25,7 +25,7 @@ D:the vampires, you will be well rewarded.
 
 ?:[AND [EQU $QUEST69 Completed] [EQU $WILDERNESS NONE] ]
 D:Thank you for your help. Here's your reward, let's hope the innocent
-D:children of Outpost will never be attacked again.
+D:children of Thalos will never be attacked again.
 ?:1
 
 ?:[EQU $QUEST69 Failed]

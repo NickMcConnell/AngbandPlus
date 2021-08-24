@@ -501,6 +501,7 @@ static void wr_quick_start(savefile_ptr file)
     savefile_write_byte(file, previous_char.realm2);
     savefile_write_byte(file, previous_char.dragon_realm);
     savefile_write_s32b(file, previous_char.au);
+    savefile_write_s16b(file, previous_char.chaos_patron);
 
     for (i = 0; i < 6; i++)
         savefile_write_s16b(file, previous_char.stat_max[i]);
@@ -510,7 +511,7 @@ static void wr_quick_start(savefile_ptr file)
 
 static void wr_extra(savefile_ptr file)
 {
-    int i,j;
+    int i;
     byte tmp8u;
 
     savefile_write_s32b(file, p_ptr->id);
@@ -546,9 +547,8 @@ static void wr_extra(savefile_ptr file)
     savefile_write_s16b(file, p_ptr->lev);
     savefile_write_u32b(file, p_ptr->quest_seed);
 
-    for (i = 0; i < 64; i++) savefile_write_s16b(file, p_ptr->spell_exp[i]);
-    for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) savefile_write_s16b(file, p_ptr->weapon_exp[i][j]);
-    for (i = 0; i < 10; i++) savefile_write_s16b(file, p_ptr->skill_exp[i]);
+    for (i = PROF_DIGGER; i < MAX_PROFICIENCIES; i++) savefile_write_s16b(file, p_ptr->proficiency[i]);
+    for (i = PROF_DIGGER; i < MAX_PROFICIENCIES; i++) savefile_write_s16b(file, p_ptr->proficiency_cap[i]);
     for (i = 0; i < MAX_MAGIC_NUM; i++) savefile_write_s32b(file, p_ptr->magic_num1[i]);
     for (i = 0; i < MAX_MAGIC_NUM; i++) savefile_write_byte(file, p_ptr->magic_num2[i]);
 
@@ -772,11 +772,9 @@ static void wr_extra(savefile_ptr file)
     savefile_write_byte(file, p_ptr->knowledge);
     savefile_write_byte(file, p_ptr->autopick_autoregister);
     savefile_write_byte(file, p_ptr->action);
-    savefile_write_byte(file, preserve_mode);
     savefile_write_byte(file, p_ptr->wait_report_score);
     savefile_write_u32b(file, seed_flavor);
     savefile_write_u32b(file, seed_town);
-    if (p_ptr->personality == PERS_CHAOTIC) savefile_write_u32b(file, chaotic_py_seed);
     savefile_write_u16b(file, p_ptr->panic_save);
     savefile_write_u16b(file, p_ptr->total_winner);
     savefile_write_u16b(file, p_ptr->noscore);
@@ -1240,17 +1238,8 @@ static bool wr_savefile_new(savefile_ptr file)
 
     wr_extra(file);
 
-    tmp16u = PY_MAX_LEVEL;
-    savefile_write_u16b(file, tmp16u);
-    for (i = 0; i < tmp16u; i++)
-        savefile_write_s16b(file, p_ptr->player_hp[i]);
+    savefile_write_s16b(file, p_ptr->life_rating);
 
-    savefile_write_u32b(file, p_ptr->spell_learned1);
-    savefile_write_u32b(file, p_ptr->spell_learned2);
-    savefile_write_u32b(file, p_ptr->spell_worked1);
-    savefile_write_u32b(file, p_ptr->spell_worked2);
-    savefile_write_u32b(file, p_ptr->spell_forgotten1);
-    savefile_write_u32b(file, p_ptr->spell_forgotten2);
     savefile_write_s16b(file, p_ptr->learned_spells);
     savefile_write_s16b(file, p_ptr->add_spells);
 
@@ -1273,7 +1262,6 @@ static bool wr_savefile_new(savefile_ptr file)
         savefile_write_cptr(file, "");
 
     spell_stats_on_save(file);
-    skills_on_save(file);
     stats_on_save(file);
 
     if (!p_ptr->is_dead)
@@ -1443,53 +1431,6 @@ bool save_player(void)
     return (result);
 }
 
-static char *versio_nimi(int tavu, int keski)
-{
-	switch (keski)
-	{
-		case 0: {
-			switch (tavu)
-			{
-				case 0: return "toffee";
-				case 1: return "chocolate";
-				case 2: return "liquorice";
-				case 3: return "salmiak";
-				case 4: return "strawberry";
-				case 5: return "peppermint";
-				case 6: return "mango";
-				case 7: return "nougat";
-				case 8: return "raspberry";
-				default: return "cloudberry";
-			}
-		}
-		default: {
-			switch (tavu)
-			{
-				case 0: return "toffee";
-				case 1: return "chocolate";
-				case 2: return "liquorice";
-				case 3: return "salmiak";
-				case 4: return "raspberry";
-				case 5: return "spearmint";
-				case 6: return "peach";
-				case 7: return "apricot";
-				case 8: return "blueberry";
-				default: return "cloudberry";
-			}
-		}
-	}
-}
-
-extern byte versio_sovitus(void)
-{
-	int i;
-	for (i = 0; i < 10; i++)
-	{
-		if (streq(VER_PATCH, versio_nimi(i, VER_MINOR))) return i;
-	}
-	return 4;
-}
-
 /*
  * Attempt to Load a "savefile"
  *
@@ -1644,7 +1585,7 @@ bool load_player(void)
         /* Extract version */
         z_major = vvv[0];
         z_minor = vvv[1];
-        strcpy(z_patch, versio_nimi(vvv[2], z_minor));
+		z_patch = vvv[2];
         sf_extra = vvv[3];
 
 
@@ -1695,9 +1636,9 @@ bool load_player(void)
         /* Give a conversion warning */
         if ((VER_MAJOR != z_major) ||
             (VER_MINOR != z_minor) ||
-            (!streq(VER_PATCH, z_patch)))
+			(VER_PATCH != z_patch))
         {
-            msg_format("Converted a %d.%d.%s savefile.",
+            msg_format("Converted a %d.%d.%d savefile.",
                 (z_major > 9) ? z_major-10 : z_major , z_minor, z_patch);
             msg_print(NULL);
         }
@@ -1761,7 +1702,7 @@ bool load_player(void)
 
 
     /* Message */
-    msg_format("Error (%s) reading %d.%d.%s savefile.",
+    msg_format("Error (%s) reading %d.%d.%d savefile.",
            what, (z_major>9) ? z_major - 10 : z_major, z_minor, z_patch);
     msg_print(NULL);
 

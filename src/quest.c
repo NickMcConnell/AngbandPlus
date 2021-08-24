@@ -202,7 +202,7 @@ void quest_complete(quest_ptr q, point_t p)
         p_ptr->total_winner = TRUE;
 
         /* Redraw the "title" */
-        if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
+        if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->pclass == CLASS_CHAOS_MAGE) || mut_present(MUT_CHAOS_GIFT))
         {
             msg_format("The voice of %s booms out:", chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Thou art donst well, mortal!'");
@@ -1232,8 +1232,6 @@ void _dungeon_boss_death(mon_ptr mon)
                     /* Hack -- Memorize location of artifact in saved floors */
                     if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
                 }
-                else if (!preserve_mode)
-                    a_ptr->generated = TRUE;
 
                 /* Prevent rewarding both artifact and "default" object */
                 if (!d_info[dungeon_type].final_object) k_idx = 0;
@@ -1803,8 +1801,7 @@ void quests_load(savefile_ptr file)
         assert(q);
         q->status = savefile_read_byte(file);
         q->completed_lev = savefile_read_byte(file);
-        if (savefile_is_older_than(file, 7,0,6,7)) q->completed_turn = 0;
-        else q->completed_turn = savefile_read_u32b(file);
+        q->completed_turn = savefile_read_u32b(file);
         q->goal_current = savefile_read_s16b(file);
         q->seed  = savefile_read_u32b(file);
         if ((q->flags & QF_RANDOM) || (q->flags & QF_PURPLE))
@@ -1819,16 +1816,6 @@ void quests_load(savefile_ptr file)
             a_info[q->goal_idx].gen_flags |= OFG_QUESTITEM;
     }
     _current = savefile_read_s16b(file);
-    if ((savefile_is_older_than(file, 7, 1, 1, 1)) && (!no_wilderness) && (r_info[MON_METATRON].max_num == 1))
-    {
-        quest_ptr q = quests_get(QUEST_METATRON);
-        assert(q);
-        if (q->status == QS_UNTAKEN)
-        {
-            q->status = QS_TAKEN;
-            r_info[MON_METATRON].flagsx |= RFX_QUESTOR;
-        }
-    }
 }
 
 void quests_save(savefile_ptr file)

@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{7A222EC0-B492-4E61-B899-34DA54A27B52}</ProjectGuid>
+    <RootNamespace>Oposband</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;WINDOWS;WIN32;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>WINDOWS;_CRT_NONSTDC_NO_DEPRECATE;WIN32;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;WINDOWS;WIN32;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\frogcomposband.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\angband.h" />
+    <ClInclude Include="src\c-string.h" />
+    <ClInclude Include="src\c-vec.h" />
+    <ClInclude Include="src\classes.h" />
+    <ClInclude Include="src\defines.h" />
+    <ClInclude Include="src\equip.h" />
+    <ClInclude Include="src\externs.h" />
+    <ClInclude Include="src\fear.h" />
+    <ClInclude Include="src\generate.h" />
+    <ClInclude Include="src\gf.h" />
+    <ClInclude Include="src\grid.h" />
+    <ClInclude Include="src\h-basic.h" />
+    <ClInclude Include="src\h-config.h" />
+    <ClInclude Include="src\h-define.h" />
+    <ClInclude Include="src\h-system.h" />
+    <ClInclude Include="src\h-type.h" />
+    <ClInclude Include="src\home.h" />
+    <ClInclude Include="src\init.h" />
+    <ClInclude Include="src\int-map.h" />
+    <ClInclude Include="src\inv.h" />
+    <ClInclude Include="src\menu.h" />
+    <ClInclude Include="src\message.h" />
+    <ClInclude Include="src\mon.h" />
+    <ClInclude Include="src\monspell.h" />
+    <ClInclude Include="src\msvc_warnings.h" />
+    <ClInclude Include="src\mut.h" />
+    <ClInclude Include="src\obj.h" />
+    <ClInclude Include="src\obj_prompt.h" />
+    <ClInclude Include="src\pack.h" />
+    <ClInclude Include="src\py_throw.h" />
+    <ClInclude Include="src\quest.h" />
+    <ClInclude Include="src\quiver.h" />
+    <ClInclude Include="src\randname.h" />
+    <ClInclude Include="src\readdib.h" />
+    <ClInclude Include="src\rect.h" />
+    <ClInclude Include="src\resist.h" />
+    <ClInclude Include="src\resource.h" />
+    <ClInclude Include="src\rooms.h" />
+    <ClInclude Include="src\savefile.h" />
+    <ClInclude Include="src\scores.h" />
+    <ClInclude Include="src\shop.h" />
+    <ClInclude Include="src\spells.h" />
+    <ClInclude Include="src\streams.h" />
+    <ClInclude Include="src\types.h" />
+    <ClInclude Include="src\variant.h" />
+    <ClInclude Include="src\z-config.h" />
+    <ClInclude Include="src\z-doc.h" />
+    <ClInclude Include="src\z-form.h" />
+    <ClInclude Include="src\z-rand.h" />
+    <ClInclude Include="src\z-term.h" />
+    <ClInclude Include="src\z-util.h" />
+    <ClInclude Include="src\z-virt.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\alky.c" />
+    <ClCompile Include="src\angband.c" />
+    <ClCompile Include="src\archaeologist.c" />
+    <ClCompile Include="src\archer.c" />
+    <ClCompile Include="src\artifact.c" />
+    <ClCompile Include="src\autopick.c" />
+    <ClCompile Include="src\bard.c" />
+    <ClCompile Include="src\beastmaster.c" />
+    <ClCompile Include="src\beorning.c" />
+    <ClCompile Include="src\berserker.c" />
+    <ClCompile Include="src\birth.c" />
+    <ClCompile Include="src\bldg.c" />
+    <ClCompile Include="src\blood_knight.c" />
+    <ClCompile Include="src\blood_mage.c" />
+    <ClCompile Include="src\blue_mage.c" />
+    <ClCompile Include="src\c-string.c" />
+    <ClCompile Include="src\c-vec.c" />
+    <ClCompile Include="src\cavalry.c" />
+    <ClCompile Include="src\cave.c" />
+    <ClCompile Include="src\chaos_mage.c" />
+    <ClCompile Include="src\chaos_patron.c" />
+    <ClCompile Include="src\chaos_warrior.c" />
+    <ClCompile Include="src\classes.c" />
+    <ClCompile Include="src\cmd1.c" />
+    <ClCompile Include="src\cmd2.c" />
+    <ClCompile Include="src\cmd3.c" />
+    <ClCompile Include="src\cmd4.c" />
+    <ClCompile Include="src\cmd5.c" />
+    <ClCompile Include="src\cmd6.c" />
+    <ClCompile Include="src\combat.c" />
+    <ClCompile Include="src\corny.c" />
+    <ClCompile Include="src\demigod.c" />
+    <ClCompile Include="src\devicemaster.c" />
+    <ClCompile Include="src\devices.c" />
+    <ClCompile Include="src\disciple.c" />
+    <ClCompile Include="src\do-spell.c" />
+    <ClCompile Include="src\doppelganger.c" />
+    <ClCompile Include="src\duelist.c" />
+    <ClCompile Include="src\dungeon.c" />
+    <ClCompile Include="src\effects.c" />
+    <ClCompile Include="src\ego.c" />
+    <ClCompile Include="src\equip.c" />
+    <ClCompile Include="src\fear.c" />
+    <ClCompile Include="src\files.c" />
+    <ClCompile Include="src\flavor.c" />
+    <ClCompile Include="src\floors.c" />
+    <ClCompile Include="src\force_trainer.c" />
+    <ClCompile Include="src\generate.c" />
+    <ClCompile Include="src\gf.c" />
+    <ClCompile Include="src\gray_mage.c" />
+    <ClCompile Include="src\grid.c" />
+    <ClCompile Include="src\hex.c" />
+    <ClCompile Include="src\hexblade.c" />
+    <ClCompile Include="src\hex_mage.c" />
+    <ClCompile Include="src\high_mage.c" />
+    <ClCompile Include="src\home.c" />
+    <ClCompile Include="src\imitator.c" />
+    <ClCompile Include="src\init1.c" />
+    <ClCompile Include="src\init2.c" />
+    <ClCompile Include="src\int-map.c" />
+    <ClCompile Include="src\inv.c" />
+    <ClCompile Include="src\karrot.c" />
+    <ClCompile Include="src\lawyer.c" />
+    <ClCompile Include="src\load.c" />
+    <ClCompile Include="src\mage.c" />
+    <ClCompile Include="src\magic_eater.c" />
+    <ClCompile Include="src\main-win.c" />
+    <ClCompile Include="src\mauler.c" />
+    <ClCompile Include="src\melee1.c" />
+    <ClCompile Include="src\melee2.c" />
+    <ClCompile Include="src\menu.c" />
+    <ClCompile Include="src\message.c" />
+    <ClCompile Include="src\mindcrafter.c" />
+    <ClCompile Include="src\mirror_master.c" />
+    <ClCompile Include="src\mon.c" />
+    <ClCompile Include="src\monk.c" />
+    <ClCompile Include="src\monspell.c" />
+    <ClCompile Include="src\monster.c" />
+    <ClCompile Include="src\monster1.c" />
+    <ClCompile Include="src\monster2.c" />
+    <ClCompile Include="src\mon_info.c" />
+    <ClCompile Include="src\mspells1.c" />
+    <ClCompile Include="src\mspells2.c" />
+    <ClCompile Include="src\mspells3.c" />
+    <ClCompile Include="src\mut.c" />
+    <ClCompile Include="src\mut_a.c" />
+    <ClCompile Include="src\mystic.c" />
+    <ClCompile Include="src\necromancer.c" />
+    <ClCompile Include="src\ninja.c" />
+    <ClCompile Include="src\ninjalaw.c" />
+    <ClCompile Include="src\obj.c" />
+    <ClCompile Include="src\object1.c" />
+    <ClCompile Include="src\object2.c" />
+    <ClCompile Include="src\object3.c" />
+    <ClCompile Include="src\obj_info.c" />
+    <ClCompile Include="src\obj_kind.c" />
+    <ClCompile Include="src\obj_prompt.c" />
+    <ClCompile Include="src\pack.c" />
+    <ClCompile Include="src\paladin.c" />
+    <ClCompile Include="src\personality.c" />
+    <ClCompile Include="src\polly.c" />
+    <ClCompile Include="src\priest.c" />
+    <ClCompile Include="src\psion.c" />
+    <ClCompile Include="src\py_birth.c" />
+    <ClCompile Include="src\py_info.c" />
+    <ClCompile Include="src\py_throw.c" />
+    <ClCompile Include="src\quest.c" />
+    <ClCompile Include="src\quiver.c" />
+    <ClCompile Include="src\races.c" />
+    <ClCompile Include="src\races_a.c" />
+    <ClCompile Include="src\races_k.c" />
+    <ClCompile Include="src\races_mimic.c" />
+    <ClCompile Include="src\racial.c" />
+    <ClCompile Include="src\rage-mage.c" />
+    <ClCompile Include="src\randname.c" />
+    <ClCompile Include="src\ranger.c" />
+    <ClCompile Include="src\readdib.c" />
+    <ClCompile Include="src\rect.c" />
+    <ClCompile Include="src\red_mage.c" />
+    <ClCompile Include="src\resist.c" />
+    <ClCompile Include="src\rogue.c" />
+    <ClCompile Include="src\rooms.c" />
+    <ClCompile Include="src\rune_knight.c" />
+    <ClCompile Include="src\r_angel.c" />
+    <ClCompile Include="src\r_centip.c" />
+    <ClCompile Include="src\r_demon.c" />
+    <ClCompile Include="src\r_dragon.c" />
+    <ClCompile Include="src\r_elem.c" />
+    <ClCompile Include="src\r_eye.c" />
+    <ClCompile Include="src\r_ghost.c" />
+    <ClCompile Include="src\r_giant.c" />
+    <ClCompile Include="src\r_golem.c" />
+    <ClCompile Include="src\r_hound.c" />
+    <ClCompile Include="src\r_hydra.c" />
+    <ClCompile Include="src\r_jelly.c" />
+    <ClCompile Include="src\r_leprec.c" />
+    <ClCompile Include="src\r_lich.c" />
+    <ClCompile Include="src\r_mimic.c" />
+    <ClCompile Include="src\r_orc.c" />
+    <ClCompile Include="src\r_poss.c" />
+    <ClCompile Include="src\r_pump.c" />
+    <ClCompile Include="src\r_quyl.c" />
+    <ClCompile Include="src\r_rag.c" />
+    <ClCompile Include="src\r_ring.c" />
+    <ClCompile Include="src\r_spider.c" />
+    <ClCompile Include="src\r_sword.c" />
+    <ClCompile Include="src\r_troll.c" />
+    <ClCompile Include="src\r_vamp.c" />
+    <ClCompile Include="src\r_vortex.c" />
+    <ClCompile Include="src\r_xorn.c" />
+    <ClCompile Include="src\r_zombie.c" />
+    <ClCompile Include="src\samurai.c" />
+    <ClCompile Include="src\save.c" />
+    <ClCompile Include="src\savefile.c" />
+    <ClCompile Include="src\scores.c" />
+    <ClCompile Include="src\scout.c" />
+    <ClCompile Include="src\shop.c" />
+    <ClCompile Include="src\skillmaster.c" />
+    <ClCompile Include="src\skills.c" />
+    <ClCompile Include="src\sniper.c" />
+    <ClCompile Include="src\sorcerer.c" />
+    <ClCompile Include="src\spells.c" />
+    <ClCompile Include="src\spells1.c" />
+    <ClCompile Include="src\spells2.c" />
+    <ClCompile Include="src\spells3.c" />
+    <ClCompile Include="src\spells_a.c" />
+    <ClCompile Include="src\spells_c.c" />
+    <ClCompile Include="src\spells_h.c" />
+    <ClCompile Include="src\spells_m.c" />
+    <ClCompile Include="src\spells_s.c" />
+    <ClCompile Include="src\spoilers.c" />
+    <ClCompile Include="src\str-map.c" />
+    <ClCompile Include="src\streams.c" />
+    <ClCompile Include="src\tables.c" />
+    <ClCompile Include="src\time_lord.c" />
+    <ClCompile Include="src\tourist.c" />
+    <ClCompile Include="src\troika.c" />
+    <ClCompile Include="src\util.c" />
+    <ClCompile Include="src\variable.c" />
+    <ClCompile Include="src\variant.c" />
+    <ClCompile Include="src\virtue.c" />
+    <ClCompile Include="src\warlock.c" />
+    <ClCompile Include="src\warrior.c" />
+    <ClCompile Include="src\warrior_mage.c" />
+    <ClCompile Include="src\weaponmaster.c" />
+    <ClCompile Include="src\weaponsmith.c" />
+    <ClCompile Include="src\werewolf.c" />
+    <ClCompile Include="src\wild.c" />
+    <ClCompile Include="src\wild_realm.c" />
+    <ClCompile Include="src\wild_talent.c" />
+    <ClCompile Include="src\wizard1.c" />
+    <ClCompile Include="src\wizard2.c" />
+    <ClCompile Include="src\wiz_obj.c" />
+    <ClCompile Include="src\xtra1.c" />
+    <ClCompile Include="src\xtra2.c" />
+    <ClCompile Include="src\yellow_mage.c" />
+    <ClCompile Include="src\yeqrezh.c" />
+    <ClCompile Include="src\z-doc-test.c" />
+    <ClCompile Include="src\z-doc.c" />
+    <ClCompile Include="src\z-form.c" />
+    <ClCompile Include="src\z-rand.c" />
+    <ClCompile Include="src\z-term.c" />
+    <ClCompile Include="src\z-util.c" />
+    <ClCompile Include="src\z-virt.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\angband.ico" />
+    <Image Include="src\wall.bmp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

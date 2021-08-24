@@ -1,5 +1,6 @@
 #include "angband.h"
 
+
 static int _get_powers(spell_info* spells, int max)
 {
     int ct = 0;
@@ -9,9 +10,10 @@ static int _get_powers(spell_info* spells, int max)
     spell->cost = 1;
     spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_INT]);
     spell->fn = eat_magic_spell;
-
+	/* TODO: add change_realm_spell to this list */
     return ct;
 }
+
 
 static caster_info * _caster_info(void)
 {
@@ -32,9 +34,26 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    py_birth_obj_aux(TV_DAGGER, SV_DAGGER, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_ROBE, 1);
     py_birth_spellbooks();
+
+    p_ptr->proficiency[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_SLING] = WEAPON_EXP_BEGINNER;
+
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_UNSKILLED;
+    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_UNSKILLED;
 }
 
 class_t *mage_get_class(void)
@@ -70,7 +89,7 @@ class_t *mage_get_class(void)
         me.stats[A_WIS] =  0;
         me.stats[A_DEX] =  1;
         me.stats[A_CON] = -2;
-        me.stats[A_CHR] = -2;
+        me.stats[A_CHR] = 1;
         me.base_skills = bs;
         me.extra_skills = xs;
         me.life = 95;

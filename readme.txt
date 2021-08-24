@@ -1,12 +1,12 @@
   This file was last updated for PosChengband. Most of the advice here
-  applies to FrogComposband, too; substitute FrogComposband for
+  applies to Oposband, too; substitute Oposband for
   PosChengband where appropriate.
 
 ----- How to install -----
 
 --- LINUX
   Download and unpack the source archive, or clone the git repository:
-    $ git clone https://github.com/poschengband/poschengband.git
+    $ git clone https://github.com/EpicMan/Oposchengband.git
 
   Make sure you have the appropriate development packages installed.
   For example, you might run (Ubuntu or Mint):

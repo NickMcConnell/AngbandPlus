@@ -59,6 +59,9 @@ static grouper group_item[] =
     { TV_POLEARM,       NULL },
     { TV_HAFTED,        NULL },
     { TV_SWORD,         NULL },
+    { TV_AXE,           NULL },
+    { TV_STAVES,        NULL },
+    { TV_DAGGER,        NULL },
 
     { TV_SOFT_ARMOR,    "Armour (Body)" },
 
@@ -148,7 +151,6 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
     q_ptr->pval = 0;
     q_ptr->to_a = 0;
     q_ptr->to_h = 0;
-    q_ptr->to_d = 0;
 
 
     /* Level */
@@ -191,6 +193,9 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
         case TV_HAFTED:
         case TV_POLEARM:
         case TV_SWORD:
+        case TV_AXE:
+        case TV_DAGGER:
+        case TV_STAVES:
         case TV_DIGGING:
         {
             sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
@@ -252,7 +257,7 @@ static void spoil_obj_desc(cptr fname)
 
 
     /* Header */
-    fprintf(fff, "Spoiler File -- Basic Items (FrogComposband %d.%d.%s)\n\n\n",
+    fprintf(fff, "Spoiler File -- Basic Items (Oposband %d.%d.%d)\n\n\n",
         VER_MAJOR, VER_MINOR, VER_PATCH);
 
     /* More Header */
@@ -363,9 +368,12 @@ static void spoil_obj_desc(cptr fname)
  */
 static grouper group_artifact[] =
 {
-    { TV_SWORD,             "Edged-Weapons" },
+    { TV_SWORD,             "Swords" },
     { TV_POLEARM,           "Polearms" },
     { TV_HAFTED,            "Hafted-Weapons" },
+    { TV_DAGGER,            "Stabbing Weapons" },
+    { TV_AXE,               "Axes" },
+    { TV_STAVES,            "Staves" },
     { TV_DIGGING,           "Diggers" },
     { TV_BOW,               "Bows" },
     { TV_ARROW,             "Ammo" },
@@ -423,7 +431,6 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
     o_ptr->mult = a_ptr->mult;
     o_ptr->to_a = a_ptr->to_a;
     o_ptr->to_h = a_ptr->to_h;
-    o_ptr->to_d = a_ptr->to_d;
     o_ptr->weight = a_ptr->weight;
 
     /* Success */
@@ -577,7 +584,6 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
                     if (object_is_weapon_ammo(&forge))
                     {
                         forge.to_h = MAX(10, forge.to_h);
-                        forge.to_d = MAX(10, forge.to_d);
                     }
                     if (object_is_armour(&forge))
                     {
@@ -835,7 +841,7 @@ static void spoil_mon_desc(void)
     doc_ptr doc = doc_alloc(80);
 
     doc_change_name(doc, "mon-desc.html");
-    doc_printf(doc, "<color:heading>Monster Tables for FrogComposband Version %d.%d.%s</color>\n\n",
+    doc_printf(doc, "<color:heading>Monster Tables for Oposband Version %d.%d.%d</color>\n\n",
                      VER_MAJOR, VER_MINOR, VER_PATCH);
     doc_insert(doc, "<style:table>");
 
@@ -1525,7 +1531,7 @@ static void spoil_mon_spell_dam(void)
     _spoil_mon_spell_dam_aux(doc, v);
 
     doc_insert(doc, "</style>");
-    doc_printf(doc, "\n<color:D>Generated for FrogComposband Version %d.%d.%s</color>\n\n",
+    doc_printf(doc, "\n<color:D>Generated for Oposband Version %d.%d.%d</color>\n\n",
                      VER_MAJOR, VER_MINOR, VER_PATCH);
     doc_display(doc, "Monster Tables", 0);
     doc_free(doc);
@@ -1543,7 +1549,7 @@ static void spoil_mon_melee_dam(void)
     _spoil_mon_melee_dam_aux(doc, v);
 
     doc_insert(doc, "</style>");
-    doc_printf(doc, "\n<color:D>Generated for FrogComposband Version %d.%d.%s</color>\n\n",
+    doc_printf(doc, "\n<color:D>Generated for Oposband Version %d.%d.%d</color>\n\n",
                      VER_MAJOR, VER_MINOR, VER_PATCH);
     doc_display(doc, "Monster Tables", 0);
     doc_free(doc);
@@ -1622,7 +1628,7 @@ static void spoil_mon_resist(void)
     _spoil_mon_resist_aux(doc, v);
 
     doc_insert(doc, "</style>");
-    doc_printf(doc, "\n<color:D>Generated for FrogComposband Version %d.%d.%s</color>\n\n",
+    doc_printf(doc, "\n<color:D>Generated for Oposband Version %d.%d.%d</color>\n\n",
                      VER_MAJOR, VER_MINOR, VER_PATCH);
     doc_display(doc, "Monster Tables", 0);
     doc_free(doc);
@@ -1813,7 +1819,7 @@ static void spoil_device_fail()
         doc_newline(doc);
     }
     doc_insert(doc, "</style>");
-    doc_printf(doc, "\n<color:D>Generated for FrogComposband %d.%d.%s</color>\n",
+    doc_printf(doc, "\n<color:D>Generated for Oposband %d.%d.%d</color>\n",
                      VER_MAJOR, VER_MINOR, VER_PATCH);
     doc_display(doc, "Device Faile Rates", 0);
     doc_free(doc);
@@ -1831,7 +1837,8 @@ static char _effect_color(int which)
 static void _display_device_power(doc_ptr doc, effect_t *effect)
 {
     cptr s = do_effect(effect, SPELL_INFO, 0);
-    int  dd, ds, base, amt;
+    int  dd, ds, base, amt = 0;
+
 
     if (!s || !strlen(s))
     {
@@ -1895,7 +1902,7 @@ static void spoil_device_tables()
     _spoil_device_table_aux(doc, rod_effect_table, "Rods");
 
     doc_insert(doc, "</style>");
-    doc_printf(doc, "\n<color:D>Generated for FrogComposband %d.%d.%s</color>\n",
+    doc_printf(doc, "\n<color:D>Generated for Oposband %d.%d.%d</color>\n",
                      VER_MAJOR, VER_MINOR, VER_PATCH);
     doc_display(doc, "Device Faile Rates", 0);
     doc_free(doc);
@@ -1988,7 +1995,7 @@ static void spoil_mon_evol(void)
     doc_ptr doc = doc_alloc(80);
 
     doc_change_name(doc, "mon-evol.html");
-    doc_printf(doc, "<color:heading>Monster Evolution for FrogComposband Version %d.%d.%s</color>\n",
+    doc_printf(doc, "<color:heading>Monster Evolution for Oposband Version %d.%d.%d</color>\n",
                      VER_MAJOR, VER_MINOR, VER_PATCH);
     doc_insert(doc, "<style:table>");
 
@@ -2124,7 +2131,7 @@ static void spoil_skills()
     vec_free(v);
 
     doc_insert(doc, "</style>");
-    doc_printf(doc, "\n<color:D>Generated for FrogComposband %d.%d.%s</color>\n",
+    doc_printf(doc, "\n<color:D>Generated for Oposband %d.%d.%d</color>\n",
                      VER_MAJOR, VER_MINOR, VER_PATCH);
     doc_display(doc, "Skills", 0);
     doc_free(doc);
@@ -2197,7 +2204,6 @@ static void spoil_spells_by_class(void)
 
     for (i = 0; i < MAX_CLASS; i++)
     {
-        if (i == CLASS_XXX12 || i == CLASS_XXX21) continue;
         vec_add_int(vec, i);
     }
 
@@ -2297,7 +2303,6 @@ static void _spoil_spells_by_realm_aux2(int realm_idx, int class1_idx)
 
     for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
     {
-        if (class_idx == CLASS_XXX12 || class_idx == CLASS_XXX21) continue;
         if (_check_realm(class_idx, realm_idx))
             vec_add_int(vec, class_idx);
     }
@@ -2345,7 +2350,6 @@ static void _spoil_spells_by_realm_aux1(int realm_idx)
 
     for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
     {
-        if (class_idx == CLASS_XXX12 || class_idx == CLASS_XXX21) continue;
         if (_check_realm(class_idx, realm_idx))
             vec_add_int(vec, class_idx);
     }

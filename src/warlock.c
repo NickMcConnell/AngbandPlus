@@ -88,29 +88,29 @@ static int _blast_ds(void)
         7    /* 15 */,
         7    /* 16 */,
         7    /* 17 */,
-        8    /* 18/00-18/09 */,
-        8    /* 18/10-18/19 */,
-        8    /* 18/20-18/29 */,
-        8    /* 18/30-18/39 */,
-        8    /* 18/40-18/49 */,
-        9    /* 18/50-18/59 */,
-        9    /* 18/60-18/69 */,
-        10    /* 18/70-18/79 */,
-        10    /* 18/80-18/89 */,
-        11    /* 18/90-18/99 */,
-        11    /* 18/100-18/109 */,
-        12    /* 18/110-18/119 */,
-        12    /* 18/120-18/129 */,
-        13    /* 18/130-18/139 */,
-        13    /* 18/140-18/149 */,
-        14    /* 18/150-18/159 */,
-        14    /* 18/160-18/169 */,
-        15    /* 18/170-18/179 */,
-        16    /* 18/180-18/189 */,
-        17    /* 18/190-18/199 */,
-        18    /* 18/200-18/209 */,
-        19    /* 18/210-18/219 */,
-        20    /* 18/220+ */
+        8    /* 18 */,
+        8    /* 19 */,
+        8    /* 20 */,
+        8    /* 21 */,
+        8    /* 22 */,
+        9    /* 23 */,
+        9    /* 24 */,
+        10    /* 25 */,
+        10    /* 26 */,
+        11    /* 27 */,
+        11    /* 28 */,
+        12    /* 29 */,
+        12    /* 30 */,
+        13    /* 31 */,
+        13    /* 32 */,
+        14    /* 33 */,
+        14    /* 34 */,
+        15    /* 35 */,
+        16    /* 36 */,
+        17    /* 37 */,
+        18    /* 38 */,
+        19    /* 39 */,
+        20    /* 40+ */
     };
     return _table[p_ptr->stat_ind[A_CHR]];
 }
@@ -1958,13 +1958,44 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_BEGINNER;
+
     if (p_ptr->psubclass == WARLOCK_GIANTS)
     {
-        skills_weapon_init(TV_SWORD, SV_CLAYMORE, WEAPON_EXP_BEGINNER);
+        p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
         py_birth_obj_aux(TV_SWORD, SV_CLAYMORE, 1);
+
+        p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_MASTER;
+        p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_MASTER;
+        p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_MASTER;
+
+        p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_BEGINNER;
+    }
+    else if (p_ptr->psubclass == WARLOCK_DRAGONS)
+    {
+        py_birth_obj_aux(TV_POLEARM, SV_SPEAR, 1);
+        p_ptr->proficiency[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
+        p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_MASTER;
     }
     else
+    {
         py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+        p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+    }
+        
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
     py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 }

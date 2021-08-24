@@ -97,6 +97,9 @@ static _group_t _groups[] = {
         {{ _TYPE_MELEE, TV_SWORD, "Swords", 5, 0 },
          { _TYPE_MELEE, TV_POLEARM, "Polearms", 5, 0 },
          { _TYPE_MELEE, TV_HAFTED, "Hafted", 5, 0 },
+         { _TYPE_MELEE, TV_DAGGER, "Daggers", 5, 0 },
+         { _TYPE_MELEE, TV_STAVES, "Staves", 5, 0 },
+         { _TYPE_MELEE, TV_AXE, "Axes", 5, 0 },
          { _TYPE_MELEE, TV_DIGGING, "Diggers", 5, 0 },
          { _TYPE_MELEE, _MARTIAL_ARTS, "Martial Arts", 5, 0 },
          { 0 }}},
@@ -445,9 +448,9 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     info_ptr->dis_to_d += info.to_d;
 }
 
-int skillmaster_weapon_prof(int tval)
+int skillmaster_weapon_prof(int prof)
 {
-    int pts = _get_skill_pts(_TYPE_MELEE, tval);
+    int pts = _get_skill_pts(_TYPE_MELEE, prof + TV_WEAPON_BEGIN);
     assert(0 <= pts && pts <= 5);
     return _melee_info[pts].prof;
 }
@@ -539,10 +542,10 @@ typedef struct { int skill; int back; int mult; int energy; } _throw_info_t;
 static _throw_info_t _throw_info[6] = {
     {   0, 15, 100, 100 },
     {  12, 18, 100, 100 },
-    {  28, 21, 150,  90 }, /* 18/220 Dex for 1% fail */
-    {  48, 24, 200,  80 }, /* 18/180 Dex for 1% fail */
-    {  72, 27, 300,  60 }, /* 18/150 Dex for 1% fail */
-    { 100, 30, 400,  50 }, /* 18/110 Dex for 1% fail */
+    {  28, 21, 150,  90 }, /* 40 Dex for 1% fail */
+    {  48, 24, 200,  80 }, /* 36 Dex for 1% fail */
+    {  72, 27, 300,  60 }, /* 33 Dex for 1% fail */
+    { 100, 30, 400,  50 }, /* 29 Dex for 1% fail */
 };
 
 static void _shoot_calc_bonuses(void)

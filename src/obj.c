@@ -264,6 +264,9 @@ bool obj_can_sense1(obj_ptr obj)
     case TV_HAFTED:
     case TV_POLEARM:
     case TV_SWORD:
+    case TV_DAGGER:
+    case TV_AXE:
+    case TV_STAVES:
     case TV_BOOTS:
     case TV_GLOVES:
     case TV_HELM:
@@ -468,8 +471,8 @@ int obj_cmp(obj_ptr left, obj_ptr right)
     case TV_SHOT:
     case TV_ARROW:
     case TV_BOLT:
-        if (left->to_h + left->to_d < right->to_h + right->to_d) return -1;
-        if (left->to_h + left->to_d > right->to_h + right->to_d) return 1;
+        if (left->to_h < right->to_h) return -1;
+        if (left->to_h > right->to_h) return 1;
         break;
 
     case TV_ROD:
@@ -617,6 +620,9 @@ bool obj_can_combine(obj_ptr dest, obj_ptr obj, int loc)
     case TV_HAFTED:
     case TV_POLEARM:
     case TV_SWORD:
+    case TV_STAVES:
+    case TV_AXE:
+    case TV_DAGGER:
     case TV_BOOTS:
     case TV_GLOVES:
     case TV_HELM:
@@ -650,7 +656,6 @@ bool obj_can_combine(obj_ptr dest, obj_ptr obj, int loc)
 
         /* Require identical bonuses */
         if (dest->to_h != obj->to_h) return FALSE;
-        if (dest->to_d != obj->to_d) return FALSE;
         if (dest->to_a != obj->to_a) return FALSE;
         if (dest->pval != obj->pval) return FALSE;
 
@@ -1224,7 +1229,7 @@ static void _destroy(obj_ptr obj)
 
     if (high_level_book(obj))
         spellbook_destroy(obj);
-    if (obj->to_a || obj->to_h || obj->to_d)
+    if (obj->to_a || obj->to_h)
         virtue_add(VIRTUE_ENCHANTMENT, -1);
 
     if (obj_value_real(obj) > 30000)
@@ -1233,7 +1238,7 @@ static void _destroy(obj_ptr obj)
     else if (obj_value_real(obj) > 10000)
         virtue_add(VIRTUE_SACRIFICE, 1);
 
-    if (obj->to_a != 0 || obj->to_d != 0 || obj->to_h != 0)
+    if (obj->to_a != 0 || obj->to_h != 0)
         virtue_add(VIRTUE_HARMONY, 1);
 }
 
@@ -1399,7 +1404,6 @@ void obj_load(obj_ptr obj, savefile_ptr file)
             break;
         case OBJ_SAVE_COMBAT:
             obj->to_h = savefile_read_s16b(file);
-            obj->to_d = savefile_read_s16b(file);
             break;
         case OBJ_SAVE_ARMOR:
             obj->to_a = savefile_read_s16b(file);
@@ -1575,11 +1579,10 @@ void obj_save(obj_ptr obj, savefile_ptr file)
         savefile_write_byte(file, OBJ_SAVE_TIMEOUT);
         savefile_write_s16b(file, obj->timeout);
     }
-    if (obj->to_h || obj->to_d)
+    if (obj->to_h)
     {
         savefile_write_byte(file, OBJ_SAVE_COMBAT);
         savefile_write_s16b(file, obj->to_h);
-        savefile_write_s16b(file, obj->to_d);
     }
     if (obj->to_a || obj->ac)
     {

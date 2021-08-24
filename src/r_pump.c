@@ -33,7 +33,7 @@ static void _birth(void)
     skills_innate_init("Squash", WEAPON_EXP_BEGINNER, WEAPON_EXP_SKILLED);
     skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
-    object_prep(&forge, lookup_kind(TV_SWORD, SV_DAGGER));
+    object_prep(&forge, lookup_kind(TV_DAGGER, SV_DAGGER));
     py_birth_obj(&forge);
     object_prep(&forge, lookup_kind(TV_CLOAK, SV_CLOAK));
     py_birth_obj(&forge);

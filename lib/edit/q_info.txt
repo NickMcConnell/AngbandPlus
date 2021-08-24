@@ -16,12 +16,12 @@
 # Use lower case for all string lookups
 ########################################################################
 
-N:1:5:The Thieves' Hideout (Outpost)
+N:1:5:The Thieves' Hideout (Rampart)
 T:TOWN | GENERATE
 F:q_thieves.txt
 
 # Hardcoded as quest 2 in defines.h
-N:2:15:The Sewer (Outpost)
+N:2:15:The Sewer (Rampart)
 T:TOWN | GENERATE | SUBSTITUTE_87
 F:q_sewer.txt
 
@@ -86,7 +86,7 @@ N:19:24:Doom Quest I (Angwil)
 T:TOWN | GENERATE
 F:q_doom1.txt
 
-N:20:25:Vapor Quest (Outpost)
+N:20:25:Vapor Quest (Rampart)
 T:TOWN | GENERATE
 #F:q_vapor.txt
 F:q_vapor2.txt
@@ -108,7 +108,7 @@ T:TOWN | GENERATE | SUBSTITUTE_86
 G:KILL(bull gates)
 F:q_microsoft.txt
 
-N:25:45:The Haunted House (Outpost)
+N:25:45:The Haunted House (Rampart)
 T:TOWN | GENERATE
 F:q_haunted_house.txt
 
@@ -117,11 +117,11 @@ T:TOWN | GENERATE
 G:KILL(maulotaur)
 F:q_killing_fields.txt
 
-N:27:50:The Old Castle (Outpost)
+N:27:50:The Old Castle (Rampart)
 T:TOWN | GENERATE
 F:q_old_castle.txt
 
-N:28:70:The Royal Crypt (Outpost)
+N:28:70:The Royal Crypt (Rampart)
 T:TOWN | GENERATE
 G:KILL(archlich, 5)
 F:q_crypt.txt
@@ -134,7 +134,7 @@ N:30:25:The Mimic's Treasure (Morivant)
 T:TOWN | GENERATE
 F:q_mimics_treasure.txt
 
-N:31:22:Old Man Willow Quest (Outpost)
+N:31:22:Old Man Willow Quest (Rampart)
 T:TOWN | GENERATE
 G:KILL(old man willow)
 F:q_old_man_willow.txt
@@ -216,7 +216,7 @@ G:KILL(*)
 # New Quests adapted from Kangband (and new FrogComposband quests)
 #####################################################################
 
-N:50:5:Trouble at Home (Outpost)
+N:50:5:Trouble at Home (Rampart)
 T:TOWN | GENERATE
 F:q_inntrouble.txt
 G:KILL(mean looking mercenary, 5)
@@ -251,7 +251,7 @@ N:61:50:Clear the Wreckage (Thalos)
 T:TOWN | GENERATE
 F:q_shipwreck.txt
 
-N:62:15:Crow's Nest (Outpost)
+N:62:15:Crow's Nest (Rampart)
 T:TOWN | GENERATE | SUBSTITUTE_84
 F:q_birds.txt
 
@@ -387,7 +387,7 @@ N:83:50:The Treachery of Lord Bovin (Anambar)
 T:TOWN | GENERATE | DANGER_LEVEL_55
 F:q_htower.txt
 
-N:84:15:Bear Problem (Outpost)
+N:84:15:Bear Problem (Rampart)
 T:TOWN | GENERATE | DANGER_LEVEL_18
 F:q_bears.txt
 
@@ -400,7 +400,7 @@ T:TOWN | GENERATE | DANGER_LEVEL_55
 G:KILL(gospel of mug)
 F:q_mug.txt
 
-N:87:15:The Compost Heap (Outpost)
+N:87:15:The Compost Heap (Rampart)
 T:TOWN | GENERATE
 F:q_cheap.txt
 

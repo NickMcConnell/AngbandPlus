@@ -612,7 +612,7 @@ race_t *mon_golem_get_race(int psubrace)
     me.stats[A_WIS] = -2 - (rank+1)/2;
     me.stats[A_DEX] = -1 - (rank+1)/2;
     me.stats[A_CON] =  1 + rank;
-    me.stats[A_CHR] =  0 + (rank+1)/2;
+    me.stats[A_CHR] =  -2 + (rank+1)/2;
 
     switch (psubrace)
     {

@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html>
 <body text="#ffffff" bgcolor="#000000"><pre>
-<font color="#00ffff">FrogComposband FAQ
+<font color="#00ffff">Oposband FAQ
 
 </font><font color="#00ff00">Q: </font><font color="#ffffff">I'd like to move one square at a time, but every time I press a key 
 my character moves halfway across the screen. Help!
 
 </font><font color="#ff0000">A: </font><font color="#ffffff">You are somehow triggering the Run command instead of the Walk 
-command. In addition to normal running (with the '.' command), 
-FrogComposband uses preference files to support shiftrunning (running 
-by using the Shift key), which is preferred by some players. This 
-mechanic sometimes leads to unwanted running, especially on the 
-angband.live online server which has some very odd default settings. If 
-you are playing there, see if toggling Num Lock helps you stop running, 
-turn on the online_macros option in the Input Options menu (the '=' 
-key), or else request help in the server chat.
+command. In addition to normal running (with the '.' command), Oposband 
+uses preference files to support shiftrunning (running by using the 
+Shift key), which is preferred by some players. This mechanic sometimes 
+leads to unwanted running, especially on the angband.live online server 
+which has some very odd default settings. If you are playing there, see 
+if toggling Num Lock helps you stop running, turn on the online_macros 
+option in the Input Options menu (the '=' key), or else request help in 
+the server chat.
 
 
 </font><font color="#00ff00">Q: </font><font color="#ffffff">All right, I have a character up and walking. What should I do?
@@ -71,13 +71,6 @@ recall back to town, as well as to skip random dungeon quests by
 recalling (although recalling out of a quest incurs a large fame 
 penalty).
 
-Coffee-break mode is a birth option; it is automatically turned on for 
-players who select the 'Beginner' option at character creation, but can 
-also be selected the normal way by non-beginners. Coffee-break mode is 
-not an easy-mode; it is activated for beginners because it is simpler 
-and allows faster progress, not because it is easy.
-
-
 </font><font color="#00ff00">Q: </font><font color="#ffffff">I can't find any up staircases, only down staircases! Is there any 
 way I can get back to town?
 
@@ -109,9 +102,9 @@ you will fail at the wrong time eventually. Try to avoid situations
 where you are one fail away from death.
    
 At the same time, it is much better to have an item that saves you 97% 
-of the time than to not have that item! In particular, Staffs of 
+of the time than to not have that item! In particular, Staves of 
 Teleport are a key helper that will often get you out of a tough spot; 
-unlike scrolls of teleportation, staffs can be used while confused, 
+unlike scrolls of teleportation, staves can be used while confused, 
 which is often critical in the early midgame before the player acquires 
 resistance to confusion.
 
@@ -143,6 +136,12 @@ At the opposite end, yeek tourists and snotling tourists are extremely
 weak combinations, used by players looking for the ultimate challenge.
 
 
+</font><font color="#00ff00">Q: </font><font color="#ffffff">How do I put arrows (or other projectiles) in my quiver?
+
+</font><font color="#ff0000">A: </font><font color="#ffffff">First press 'w' (the "wear"/"wield" command) to equip the quiver, 
+then press 'w' again to put the arrows in the quiver.
+
+
 </font><font color="#00ff00">Q: </font><font color="#ffffff">The game is offering me a stat-up. What should I invest in?
 
 </font><font color="#ff0000">A: </font><font color="#ffffff">Choose a statistic your character needs; for example, on a melee 
@@ -158,9 +157,9 @@ smaller again as a statistic approaches its cap level.
 
 </font><font color="#ff0000">A: </font><font color="#ffffff">It depends on what your character needs; take your time to read the 
 descriptions of all the powers to see which one suits you best. 
-Generally, though, Unyielding and Fleet of Foot are both very strong 
-options and are good "default" picks if you don't feel comfortable 
-selecting something more exotic.
+Generally, though, Evasion, Unyielding and Fleet of Foot are all very 
+strong options and are good "default" picks if you don't feel 
+comfortable selecting something more exotic.
 
 
 </font><font color="#00ff00">Q: </font><font color="#ffffff">I have found lots of cool items, but the monsters I meet keep 
@@ -229,11 +228,15 @@ map I can't see a dungeon entrance anywhere. What's wrong?
 
 </font><font color="#ff0000">A: </font><font color="#ffffff">Dungeon entrances in the wilderness can sometimes be tricky to 
 locate because one square on the overworld map corresponds to a fairly 
-large area on the normal map. First, press ] or Ctrl+O (the object list 
-commands) to confirm there is indeed no entrance in sight. If the lack 
-of an entrance is confirmed by the object list, explore the nearby area 
-until you find the dungeon; most commonly you'll have to travel further 
-in the same direction you last moved in on the overworld map. If you 
+large area on the normal map. If you exit the overworld map in the 
+right square but the entrance is still far enough away to be out of 
+sight, the game will tell you which direction it's in (e.g. "The 
+Angband entrance doesn't appear to be within sight. Perhaps it's a bit 
+further to the east?"). If no such hint appears, the entrance is within 
+sight, you've just missed it; press ] or O (the object list commands) 
+to see where it is. If such a hint does appear, explore the nearby area 
+in the direction indicated, pressing ] or O occasionally to make sure 
+you don't miss the entrance. If you feel you've walked a long way and 
 still can't find the entrance, check the overworld map to confirm you 
 haven't moved out of the right area, and then try again.
 
@@ -277,16 +280,19 @@ useful for a ninja.)
 </font><font color="#00ff00">Q: </font><font color="#ffffff">I'm at normal speed (+0). But normal speed monsters sometimes 
 double-move me!
 
-</font><font color="#ff0000">A: </font><font color="#ffffff">In FrogComposband, the amount of energy needed for a move is 
-somewhat randomized (though less so than in its predecessor 
-PosChengband). This method of speed system is an important feature of 
-FrogComposband and simulates real fighting. Usually a monster with the 
-same speed as you will only get one move in, but always prepare for the 
-possibility that they might get two moves! Don't fight when your HP is 
-low unless you have a death wish.
+</font><font color="#ff0000">A: </font><font color="#ffffff">In Oposband, the amount of energy needed for a move is somewhat 
+randomized (though less so than in its predecessor PosChengband). This 
+method of speed system is an important feature of Oposband and 
+simulates real fighting. Usually a monster with the same speed as you 
+will only get one move in, but always prepare for the possibility that 
+they might get two moves! Don't fight when your HP is low unless you 
+have a death wish.
 
-Also, monsters don't always move at their listed speed; watch out for 
-hasted monsters.
+Also, monsters don't always move at their listed speed; watch out in 
+particular for hasted monsters, who receive a temporary +10 speed 
+bonus. Non-unique monsters are born with somewhat random speeds, and 
+might be faster or slower than the average monster of their race. 
+(Probing such a monster will reveal its individual speed.)
 
 
 </font><font color="#00ff00">Q: </font><font color="#ffffff">How important is my speed, anyway?
@@ -297,8 +303,8 @@ speed does everything twice as fast as a character with +0 speed. If
 you survive to the late game, however, you may eventually start hitting 
 diminishing returns for speed; the difference between +30 speed and +40 
 speed is only ten percent. Potions of Speed, and in the late game 
-Staves of Speed, are extremely useful items you should ideally always 
-have.
+Staves of Speed and Rods of Heroic Speed, are extremely useful items 
+you should ideally always have.
 
 
 </font><font color="#00ff00">Q: </font><font color="#ffffff">I've reached the town of Anambar, and can't find a home there. Do I 
@@ -327,7 +333,7 @@ you wield a single weapon with both hands, both rings will apply to
 it.)
 
 
-</font><font color="#00ff00">Q: </font><font color="#ffffff">How does Free Action work in FrogComposband?
+</font><font color="#00ff00">Q: </font><font color="#ffffff">How does Free Action work in Oposband?
 
 </font><font color="#ff0000">A: </font><font color="#ffffff">Free Action provides protection from paralysis, a potentially lethal 
 condition. One level of Free Action provides partial protection and 
@@ -346,7 +352,7 @@ levels of Free Action.
 In many other Angband variants one source of Free Action is enough to 
 give complete paralysis immunity; if you've played such variants, be 
 careful not to rely too much on a single Free Action source in 
-FrogComposband.
+Oposband.
 
 
 </font><font color="#00ff00">Q: </font><font color="#ffffff">Is there any way to gain paralysis immunity even against the Ancient 
@@ -359,7 +365,7 @@ throw up to this level, but can be inconvenient for characters that
 rely heavily on magic.
 
 
-</font><font color="#00ff00">Q: </font><font color="#ffffff">How does See Invisible work in FrogComposband?
+</font><font color="#00ff00">Q: </font><font color="#ffffff">How does See Invisible work in Oposband?
 
 </font><font color="#ff0000">A: </font><font color="#ffffff">Every level of See Invisible improves your chances of noticing an 
 invisible creature. How good those chances become depends on the level 
@@ -371,15 +377,50 @@ invisible creatures, you may need either Telepathy or an item that
 improves your Searching skill.
 
 
-</font><font color="#00ff00">Q: </font><font color="#ffffff">I tried to dual wield two weapons.  But I couldn't hit anything!
+</font><font color="#00ff00">Q: </font><font color="#ffffff">I tried to dual wield two weapons. But I couldn't hit anything!
 
-</font><font color="#ff0000">A: </font><font color="#ffffff">You need to practice your dual wielding skill (proficiency level) 
+</font><font color="#ff0000">A: </font><font color="#ffffff">You need to practice your dual-wielding skill (proficiency level) 
 and your weapon skills.  Hitting high level monsters many times will 
 improve your skills.  Note that the information command '~' reveals 
 your proficiency levels.  Some classes are very bad at dual-wielding, 
 while others are much more adept at it or can become so with enough 
 training. If you try to dual-wield on a sniper and it doesn't work out, 
 don't let that discourage you from dual-wielding on a ninja.
+
+Wearing gloves of Genji or gaining the Ambidexterity demigod talent 
+will give you bonuses to dual-wielding (though these bonuses will not 
+stack with each other). Sword-speciality Weaponmasters will also 
+receive a dual-wielding bonus once they reach level 45.
+
+Dual-wielding works best with relatively light weapons. Even fully 
+proficient dual-wielders will struggle to hit high-AC monsters with a 
+heavy weapon such as a Lance. Of course, even if a weapon's damage 
+output is limited, it could still be worth wielding for the resists and 
+bonuses on it!
+
+
+</font><font color="#00ff00">Q: </font><font color="#ffffff">What about wielding one weapon with both hands? Is that a good idea?
+
+</font><font color="#ff0000">A: </font><font color="#ffffff">From a purely melee-damage point of view, it is usually your best 
+option: wielding a single weapon with both hands improves your damage 
+and accuracy, and unless your blows per round are maxed out anyway you 
+will also receive more blows. The downside is that you effectively have 
+one fewer equipment slot, and miss out on the AC, stat bonuses, resists 
+etc. that a shield or second weapon in that slot would give. Whether 
+this is a good trade depends on your character, how much you gain, and 
+how much you give up. A fairly typical approach is to wield your weapon 
+with both hands until you find a good shield somewhere in the dungeon, 
+and then stop.
+
+Many light weapons (specifically, those that weigh less than 10 pounds 
+and are not polearms) cannot be wielded two-handed, and should always 
+be used together with either a shield or a second weapon. On the other 
+hand, very heavy weapons (compared to your strength) can only be 
+wielded properly with two hands.
+
+Wearing Gloves of the Giant will give you more blows with a two-handed 
+weapon, though if your blows per round are maxed out in any case this 
+bonus has no effect.
 
 
 </font><font color="#00ff00">Q: </font><font color="#ffffff">How do skills (proficiency levels) work?
@@ -422,8 +463,8 @@ determine how good a weapon is - it's no use having a weapon that
 technically does lots of damage if you can't hit anything with it! Also 
 remember, though, that your to-hit percentages will improve rapidly as 
 your proficiency with a weapon increases. Don't worry too much about 
-starting with a -20 proficiency - unless that's your proficiency cap 
-for the weapon, or if the weapon is an icky wield.
+starting with an Unskilled proficiency - unless that's your proficiency 
+cap for the weapon, or if the weapon is an icky wield.
 
 As you start finding {excellent} weapons and artifacts, you may well 
 want to wield a particular weapon for the resists, bonuses or abilities 
@@ -440,6 +481,15 @@ general rule you should always assume that an icky weapon will be worse
 than a non-icky one, at least from a melee perspective. In the specific 
 case of Priests, however, the melee penalty is relatively small and the 
 main drawback of an icky weapon is its effect on prayer fail rates.
+
+
+</font><font color="#00ff00">Q: </font><font color="#ffffff">What exactly does the "Weapon Versatility" demigod talent do? Does 
+it allow me to use icky weapons?
+
+</font><font color="#ff0000">A: </font><font color="#ffffff">It allows you to reach Master proficiency with all weapons, 
+including icky ones. However, the icky weapons will still be considered 
+icky and incur the same icky-wield penalties.
+
 
 
 </font><font color="#00ff00">Q: </font><font color="#ffffff">Some weapons have slays (like Slay Orc) or brands (like Viper's 
@@ -531,6 +581,36 @@ is never really absolutely needed. Early on, it's particularly useful
 in the Camelot dungeon, which has many dangerous bolt casters.
 
 
+</font><font color="#00ff00">Q: </font><font color="#ffffff">Some elements don't just deal damage, but also cause status effects 
+like confusion or blindness. How much resistance do I need to be safe 
+from status effects?
+
+</font><font color="#ff0000">A: </font><font color="#ffffff">Most status effects compare your resistance to a 33-sided die (or a 
+55-sided die in the case of base elements). Accordingly, 30% confusion 
+resistance gives you a 30 in 33 (about 91%) chance of resisting that 
+status effect, and 40% confusion resistance will provide immunity.
+
+In some very unusual cases your resistance may not be checked at all, 
+or a special calculation may be used. (For example, a backfiring Invoke 
+Spirits spell can completely bypass your confusion resistance.)
+
+
+</font><font color="#00ff00">Q: </font><font color="#ffffff">Can I ever resist exotic attacks/elements like Water, Ice, Gravity, 
+Rockets or Toxic Waste that aren't listed on my character sheet?
+
+</font><font color="#ff0000">A: </font><font color="#ffffff">In most cases, you cannot resist the raw damage from such exotic 
+elements. (There are a few exceptions - Toxic Waste can be resisted 
+through poison resistance; Rockets have shard-based damage; and Bombs 
+are combined sound and shards and can be resisted accordingly.)
+
+However, many side-effects of exotic elements can be blocked or 
+mitigated by resisting appropriate normal elements. For example, Shard 
+resistance works against the cuts from Ice and Rocks, Sound resistance 
+works against most elemental stunning effects as well as potion 
+destruction from Water, and Cold resistance works against potion 
+destruction from Ice.
+
+
 </font><font color="#00ff00">Q: </font><font color="#ffffff">What do monsters' vampiric attacks do?
 
 </font><font color="#ff0000">A: </font><font color="#ffffff">They drain life from you, thereby healing the monster, increasing 
@@ -571,8 +651,8 @@ Since life points only account for half of your max HP, your max HP
 will never hit zero; accordingly, it is possible to run out of life 
 points without being killed outright. If this happens, you will be 
 permanently transformed into an undead - either a skeleton, a vampire, 
-a zombie or a spectre - and regain full life points (or "unlife 
-points") since the undead are immune to loss of life.
+a zombie, an einheri or a spectre - and regain full life points (or 
+"unlife points") since the undead are immune to loss of life.
 
 
 </font><font color="#00ff00">Q: </font><font color="#ffffff">My current HP is lower than my max HP - but it's still shown in 
@@ -588,7 +668,97 @@ displayed maximum HP because you've lost life points.
 </font><font color="#ff0000">A: </font><font color="#ffffff">Life points can be regained either through any type of vampiric 
 attack, or by using a potion, device or activation. Potions of Restore 
 Life Levels are a common way to regain life points, though they only 
-restore up to 15 percentage points at a time.
+restore up to 15 percentage points at a time. The Restoration service, 
+available in most towns, also restores life points.
+
+
+</font><font color="#00ff00">Q: </font><font color="#ffffff">I also have a "life rating", unrelated to my life points. Actually, 
+I seem to have several life ratings! Just how is my max HP calculated?
+
+</font><font color="#ff0000">A: </font><font color="#ffffff">Every character has a random "life rating" between 87% and 117%. 
+This rating (the life rating proper) corresponds to the overall result 
+of 49 randomly rolled HP gains (one for every character level after the 
+first); the HP gains (and thus, your life rating) can be re-rolled 
+during the game in several ways, most commonly by drinking a Potion of 
+New Life. You are born with no knowledge of how good your life rating 
+is, but drinking a Potion of Self Knowledge (or *Enlightenment*) will 
+enlighten you. This is the only life rating you can affect in any way 
+during play, and is the one displayed on your character sheet, if 
+known.
+
+The random life rating only accounts for about half of the HP you get 
+per level; the other half is non-random. The non-random gains always 
+total exactly 300 points, but how that total is distributed across the 
+49 level-ups depends on your class. In general, the distribution is 
+very late-game-heavy on mage-type classes (who will struggle with HP 
+for much of the early game as a result, even if they have a good life 
+rating and high CON), while fighter classes like warriors get a more 
+even distribution.
+
+These two main contributions to your max HP are added together and 
+multiplied by four non-random modifiers; the first three are the life 
+rating multipliers of your race, your class and your personality. 
+(These are prominently displayed at character generation, and new 
+players are frequently confused by their relationship to the randomly 
+generated life rating proper.) The fourth multiplier is based on your 
+CON and any +Life or -Life items equipped.
+
+Finally, after the multipliers, some lump sums are added (your class 
+base HP, race base HP, and any HP from active buffs like heroism); and 
+your effective maximum HP is adjusted to account for any reduction in 
+your life points. It's a complicated system, but during the game you 
+only need to worry about your random life rating and your CON!
+
+
+</font><font color="#00ff00">Q: </font><font color="#ffffff">When should I reroll my life rating with a Potion of New Life?
+
+</font><font color="#ff0000">A: </font><font color="#ffffff">In general, you should never reroll unless you know what your life 
+rating is, or have a very good reason to suspect that it's atrociously 
+low. The average life rating is 102% (not 100%), so that's the 
+theoretical break-even point for a single Potion of New Life; but in 
+practice, if you're already doing well, the risks of rolling a really 
+bad life may outweigh the potential benefits of rolling a great one. So 
+unless your life rating is really bad, it's worth having one or more 
+backup potions in case the first New Life just makes things worse. The 
+larger your backup pile, the further you can push the envelope - but 
+there's always the risk of a long streak of unlucky lives...
+
+Potions of New Life also remove all your mutations, and reroll all your 
+internal stat caps. If you are very happy with either your mutations or 
+your stat caps, that should make you more reluctant to drink a potion 
+of New Life; though in general, your life rating is more important than 
+your stat caps. Note that if you have already maxed out your stats, 
+some of them are likely to be reduced by a Potion of New Life as new, 
+potentially lower internal stat caps are applied.
+
+
+</font><font color="#00ff00">Q: </font><font color="#ffffff">I drank a potion of New Life and my max HP went down, yet Self 
+Knowledge says my life rating is higher than before! What gives?
+
+</font><font color="#ff0000">A: </font><font color="#ffffff">Since your life rating is based on 49 random rolls, one for each 
+character level, the life with the better end result at CL 50 is not 
+necessarily better all the way through. Your old life might have had 
+high rolls early on and lower rolls for the late levels, and your new 
+life might be the opposite.
+
+The other possible explanation is that you rolled a lower CON stat cap 
+and your constitution went down as a result.
+
+
+</font><font color="#00ff00">Q: </font><font color="#ffffff">How do internal stat caps (for STR, INT, WIS etc.) work?
+
+</font><font color="#ff0000">A: </font><font color="#ffffff">They are randomly generated, no lower than 18/70 and no higher than 
+18/130; the average across the six stats is always 18/100, but it's 
+much more fun to have high caps in your key stats and low caps in stats 
+you don't really need than the opposite! The stat caps determine how 
+high the stat can go before modifiers from race, class, personality, 
+equipment, mutations etc. are applied.
+
+The stat caps are much lower than the highest value a statistic can 
+take after modifiers: 18/220, displayed as 18/***. By the endgame you 
+will likely be getting large bonuses from your equipment; an extremely 
+powerful character might even have all six stats maxed out at 18/220, 
+regardless of the caps.
 
 
 </font><font color="#00ff00">Q: </font><font color="#ffffff">There's a building in Morivant that offers artifact reforging. What 
@@ -641,7 +811,9 @@ like, or a diamond edge with sharpness and high base damage - but not
 one that's already good in some way you don't need, since that would be 
 lost value. Don't use a destination item that's too powerful compared 
 to the source item, since the reforge would be left without much room 
-for improvements.
+for improvements. (If you're fortunate enough to have a Scroll of 
+Artifact Creation or a Scroll of Crafting, consider using one of those 
+on the already-powerful item instead.)
 
 Reforge from strong slots to strong slots, weak slots to weak slots, 
 and - if necessary - strong slots to weak slots; but never reforge from 
@@ -687,6 +859,20 @@ hit chance, unless the player is dual-wielding, in which case they have
 a 50% hit chance.
 
 
+</font><font color="#00ff00">Q: </font><font color="#ffffff">Are Sexy Swimsuits just a useless joke item, or can they be actually 
+good?
+
+</font><font color="#ff0000">A: </font><font color="#ffffff">Sexy Swimsuits generate with special bonuses for characters with the 
+Sexy personality, as well as Aphrodite demigods. In addition, wearing a 
+Sexy Swimsuit makes Politicians' charming spells work better.
+
+Other characters do not receive any special benefits from swimsuits, 
+but may still want to hold onto them as reforge targets should they 
+find any. Reforging a high-value artifact onto a Sexy Swimsuit can 
+produce exceptionally good results because the aggravation on the 
+swimsuit keeps its nominal value down.
+
+
 </font><font color="#00ff00">Q: </font><font color="#ffffff">How do I create a character dump?
 
 </font><font color="#ff0000">A: </font><font color="#ffffff">If your character is still alive, press Shift+C for the character 
@@ -709,26 +895,25 @@ Should I use a TXT dump or an HTML dump?
 </font><font color="#ff0000">A: </font><font color="#ffffff">Use an HTML dump.
 
 
-</font><font color="#00ff00">Q: </font><font color="#ffffff">What is the genesis of FrogComposband?
+</font><font color="#00ff00">Q: </font><font color="#ffffff">What is the genesis of Oposband?
 
-</font><font color="#ff0000">A: </font><font color="#ffffff">FrogComposband is a fork of ComPosband, a fork of PosChengband, 
-which was based on Chengband, which was based on Hengband, which was 
-based on Japanese ZAngband, which was based on regular ZAngband, a fork 
-of Angband, which was based on Moria and Umoria. (Whew!)
+</font><font color="#ff0000">A: </font><font color="#ffffff">Oposband is a fork of FrogComposband, a fork of ComPosband, a fork 
+of PosChengband, which was based on Chengband, which was based on 
+Hengband, which was based on Japanese ZAngband, which was based on 
+regular ZAngband, a fork of Angband, which was based on Moria and 
+Umoria. (Whew!)
 
-In addition to these direct ancestors, FrogComposband and its "family" 
-have been strongly influenced by a number of other Angband variants, 
-like KAngband, Posband, ToME and OAngband. FrogComposband specifically 
-has also inherited quite a bit of content - starting with its name - 
-from Frogspawn, an unpublished fork of vanilla Angband.
+In addition to these direct ancestors, Oposband and its "family" have 
+been strongly influenced by a number of other Angband variants, like 
+KAngband, Posband, ToME and OAngband. Oposband
 
 
-</font><font color="#00ff00">Q: </font><font color="#ffffff">What is the design philosophy of FrogComposband?
+</font><font color="#00ff00">Q: </font><font color="#ffffff">What is the design philosophy of Oposband?
 
-</font><font color="#ff0000">A: </font><font color="#ffffff">Above all else, FrogComposband aims to be 1) fun and 2) challenging. 
-(It also aims to sneakily bring about Armageddon and the ascendancy of 
+</font><font color="#ff0000">A: </font><font color="#ffffff">Above all else, Oposband aims to be 1) fun and 2) challenging. (It 
+also aims to sneakily bring about Armageddon and the ascendancy of 
 hyperintelligent robots.)
-
+[TODO: Update for Oposband]
 The pursuit of a fun game involves quite a few things. The game tries 
 to be fair to the player - unavoidable deaths out of nowhere should be 
 unknown or at least extremely rare, and non-lethal attacks should add 
@@ -793,13 +978,16 @@ using the online help to read this file, look at the other sections,
 which offer more detailed advice.
 
 
-</font><font color="#707070">--
+</font><font color="#404040">--
 Original   : Hengband FAQ written by Mogami
 Updated    : Hengband 1.5.4
 Updated    : PosChengband 1.0.0
 Updated    : FrogComposband 7.0.strawberry
 Updated    : FrogComposband 7.0.peppermint
 Updated    : FrogComposband 7.0.nougat
+Updated    : FrogComposband 7.1.toffee
+Updated    : FrogComposband 7.1.chocolate
+Updated    : Oposband 0.1.0
 
 
 </font></pre></body></html>

@@ -9,14 +9,14 @@ Minor-God
 Fathered by a minor god, you gain no starting powers.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
-  Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Fair         
+  Strength      +1        Disarming   Poor         
+  Intelligence  +1        Device      Poor         
+  Wisdom        +1        Save        Poor         
   Dexterity     +1        Stealth     Bad          
   Constitution  +1        Searching   Bad          
-  Charisma      +1        Perception  Excellent    
-  Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Very Good    
+  Charisma      +1        Perception  Good         
+  Life Rating  100%       Melee       Good         
+  Base HP       20        Bows        Good         
   Experience   180%       Infravision 0'
   
 Zeus
@@ -27,13 +27,13 @@ also resist lightning.
 
   Stats                   Skills
   Strength      +2        Disarming   Fair         
-  Intelligence  +2        Device      Good         
-  Wisdom        +2        Save        Good         
+  Intelligence  +2        Device      Fair         
+  Wisdom        +2        Save        Fair         
   Dexterity     +2        Stealth     Bad          
   Constitution  +2        Searching   Bad          
-  Charisma      +2        Perception  Excellent    
+  Charisma      +2        Perception  Good         
   Life Rating  100%       Melee       Superb       
-  Base HP       20        Bows        Excellent    
+  Base HP       20        Bows        Good         
   Experience   250%       Infravision 0'
   
 Poseidon
@@ -42,14 +42,14 @@ elemental protection and corrosive attacks that melt the armor of your
 foes.
 
   Stats                   Skills
-  Strength      +2        Disarming   Fair         
-  Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Fair         
+  Strength      +2        Disarming   Poor         
+  Intelligence  +1        Device      Poor         
+  Wisdom        +1        Save        Poor         
   Dexterity     +2        Stealth     Bad          
   Constitution  +1        Searching   Bad          
-  Charisma      +1        Perception  Excellent    
+  Charisma      +1        Perception  Good         
   Life Rating  100%       Melee       Superb       
-  Base HP       20        Bows        Very Good    
+  Base HP       20        Bows        Good         
   Experience   240%       Infravision 0'
   
 Hades
@@ -57,14 +57,14 @@ Hades is Ruler of the Underworld. You gain resistance to nether forces,
 increased fortitude and have a firm grasp on your life and health.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
-  Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Excellent    
+  Strength      +1        Disarming   Poor         
+  Intelligence  +1        Device      Poor         
+  Wisdom        +1        Save        Very Good    
   Dexterity     +1        Stealth     Poor         
   Constitution  +3        Searching   Bad          
-  Charisma      +1        Perception  Excellent    
-  Life Rating  107%       Melee       Superb       
-  Base HP       20        Bows        Very Good    
+  Charisma      +1        Perception  Good         
+  Life Rating  107%       Melee       Excellent    
+  Base HP       20        Bows        Good         
   Experience   240%       Infravision 0'
   
 Athena
@@ -77,14 +77,14 @@ cost rather than the full amount. You also have a firm grip on your
 mental prowess.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
-  Intelligence  +3        Device      Excellent    
+  Strength      +1        Disarming   Poor         
+  Intelligence  +3        Device      Good         
   Wisdom        +1        Save        Fair         
   Dexterity     +1        Stealth     Bad          
   Constitution  +1        Searching   Bad          
-  Charisma      +1        Perception  Excellent    
-  Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Very Good    
+  Charisma      +1        Perception  Good         
+  Life Rating  100%       Melee       Good         
+  Base HP       20        Bows        Good         
   Experience   240%       Infravision 0'
   
 Ares
@@ -98,14 +98,14 @@ your stealth as you call out challenges to all that you meet. And your
 resistance to magic is suspect as well.
 
   Stats                   Skills
-  Strength      +3        Disarming   Fair         
+  Strength      +3        Disarming   Poor         
   Intelligence  +1        Device      Poor         
   Wisdom        +1        Save        Bad          
   Dexterity     +1        Stealth     Bad          
   Constitution  +1        Searching   Bad          
-  Charisma      +1        Perception  Excellent    
+  Charisma      +1        Perception  Good         
   Life Rating  100%       Melee       Heroic       
-  Base HP       20        Bows        Very Good    
+  Base HP       20        Bows        Good         
   Experience   240%       Infravision 0'
   
 Hermes
@@ -117,14 +117,14 @@ Your stealth is better than your brethren and your speed will increase
 with experience.
 
   Stats                   Skills
-  Strength      +1        Disarming   Excellent    
-  Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Fair         
+  Strength      +1        Disarming   Very Good    
+  Intelligence  +1        Device      Poor         
+  Wisdom        +1        Save        Poor         
   Dexterity     +1        Stealth     Fair         
-  Constitution  +1        Searching   Good         
+  Constitution  +1        Searching   Fair         
   Charisma      +1        Perception  Superb       
-  Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Very Good    
+  Life Rating  100%       Melee       Good         
+  Base HP       20        Bows        Good         
   Experience   240%       Infravision 0'
   
 Apollo
@@ -134,14 +134,14 @@ archery, and more. You inherit powers of illumination and are
 completely immune to light based attacks. You are seldom blinded.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
+  Strength      +1        Disarming   Poor         
   Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Fair         
+  Wisdom        +1        Save        Poor         
   Dexterity     +1        Stealth     Bad          
   Constitution  +1        Searching   Bad          
-  Charisma      +1        Perception  Excellent    
-  Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Very Good    
+  Charisma      +1        Perception  Good         
+  Life Rating  100%       Melee       Good         
+  Base HP       20        Bows        Good         
   Experience   230%       Infravision 0'
   
 Artemis
@@ -154,13 +154,13 @@ nimble. Your skills with the bow are unmatched and you shoot arrows
 with increased range and deadliness.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
-  Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Fair         
+  Strength      +1        Disarming   Poor         
+  Intelligence  +1        Device      Poor         
+  Wisdom        +1        Save        Poor         
   Dexterity     +3        Stealth     Bad          
   Constitution  +1        Searching   Bad          
-  Charisma      +1        Perception  Excellent    
-  Life Rating  100%       Melee       Excellent    
+  Charisma      +1        Perception  Good         
+  Life Rating  100%       Melee       Good         
   Base HP       20        Bows        Superb       
   Experience   230%       Infravision 0'
   
@@ -173,14 +173,14 @@ the gods. You inherit powers of enchantment and protection. Your
 equipment will not suffer diminution by corrosion or magical attack.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
-  Intelligence  +1        Device      Fair         
+  Strength      +1        Disarming   Poor         
+  Intelligence  +1        Device      Poor         
   Wisdom        +1        Save        Fair         
   Dexterity     +1        Stealth     Bad          
   Constitution  +1        Searching   Bad          
-  Charisma      +1        Perception  Excellent    
+  Charisma      +1        Perception  Good         
   Life Rating  100%       Melee       Superb       
-  Base HP       20        Bows        Very Good    
+  Base HP       20        Bows        Good         
   Experience   230%       Infravision 0'
   
 Hera
@@ -190,14 +190,14 @@ mind and capacity for magic. You are very wise and have a firm grasp on
 your magical energy, which is even augmented.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
-  Intelligence  +1        Device      Good         
-  Wisdom        +3        Save        Good         
+  Strength      +1        Disarming   Poor         
+  Intelligence  +1        Device      Fair         
+  Wisdom        +3        Save        Fair         
   Dexterity     +1        Stealth     Bad          
   Constitution  +1        Searching   Bad          
-  Charisma      +1        Perception  Excellent    
-  Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Very Good    
+  Charisma      +1        Perception  Good         
+  Life Rating  100%       Melee       Good         
+  Base HP       20        Bows        Good         
   Experience   220%       Infravision 0'
   
 Demeter
@@ -207,14 +207,14 @@ regeneration, healing, and temperance. Eventually, you will become
 resistant to the ravages of time.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
-  Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Good         
+  Strength      +1        Disarming   Poor         
+  Intelligence  +1        Device      Poor         
+  Wisdom        +1        Save        Fair         
   Dexterity     +1        Stealth     Bad          
   Constitution  +1        Searching   Bad          
-  Charisma      +1        Perception  Excellent    
-  Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Very Good    
+  Charisma      +1        Perception  Good         
+  Life Rating  100%       Melee       Good         
+  Base HP       20        Bows        Good         
   Experience   220%       Infravision 0'
   
 Aphrodite
@@ -225,14 +225,14 @@ You may kiss monsters and they might even decide to follow you with
 slavish devotion, though sometimes this just angers them.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
+  Strength      +1        Disarming   Poor         
   Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Fair         
+  Wisdom        +1        Save        Poor         
   Dexterity     +1        Stealth     Bad          
   Constitution  +1        Searching   Bad          
-  Charisma      +3        Perception  Excellent    
-  Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Very Good    
+  Charisma      +3        Perception  Good         
+  Life Rating  100%       Melee       Good         
+  Base HP       20        Bows        Good         
   Experience   220%       Infravision 0'
   
 Table 1 - Demigod Statistic Bonus Table
@@ -256,37 +256,37 @@ Aphrodite       +1   +1   +1   +1   +1   +3  100%  220%   70%
 Table 2 - Demigod Skill Bonus Table I
 
              Disarming     Device        Save          Stealth      
-Minor-God    Fair          Fair          Fair          Bad          
-Zeus         Fair          Good          Good          Bad          
-Poseidon     Fair          Fair          Fair          Bad          
-Hades        Fair          Fair          Excellent     Poor         
-Athena       Fair          Excellent     Fair          Bad          
-Ares         Fair          Poor          Bad           Bad          
-Hermes       Excellent     Fair          Fair          Fair         
-Apollo       Fair          Fair          Fair          Bad          
-Artemis      Fair          Fair          Fair          Bad          
-Hephaestus   Fair          Fair          Fair          Bad          
-Hera         Fair          Good          Good          Bad          
-Demeter      Fair          Fair          Good          Bad          
-Aphrodite    Fair          Fair          Fair          Bad          
+Minor-God    Poor          Poor          Poor          Bad          
+Zeus         Fair          Fair          Fair          Bad          
+Poseidon     Poor          Poor          Poor          Bad          
+Hades        Poor          Poor          Very Good     Poor         
+Athena       Poor          Good          Fair          Bad          
+Ares         Poor          Poor          Bad           Bad          
+Hermes       Very Good     Poor          Poor          Fair         
+Apollo       Poor          Fair          Poor          Bad          
+Artemis      Poor          Poor          Poor          Bad          
+Hephaestus   Poor          Poor          Fair          Bad          
+Hera         Poor          Fair          Fair          Bad          
+Demeter      Poor          Poor          Fair          Bad          
+Aphrodite    Poor          Fair          Poor          Bad          
 
 
 Table 3 - Demigod Skill Bonus Table II
 
              Searching     Perception    Melee         Bows          Infra
-Minor-God    Bad           Excellent     Excellent     Very Good        0'
-Zeus         Bad           Excellent     Superb        Excellent        0'
-Poseidon     Bad           Excellent     Superb        Very Good        0'
-Hades        Bad           Excellent     Superb        Very Good        0'
-Athena       Bad           Excellent     Excellent     Very Good        0'
-Ares         Bad           Excellent     Heroic        Very Good        0'
-Hermes       Good          Superb        Excellent     Very Good        0'
-Apollo       Bad           Excellent     Excellent     Very Good        0'
-Artemis      Bad           Excellent     Excellent     Superb           0'
-Hephaestus   Bad           Excellent     Superb        Very Good        0'
-Hera         Bad           Excellent     Excellent     Very Good        0'
-Demeter      Bad           Excellent     Excellent     Very Good        0'
-Aphrodite    Bad           Excellent     Excellent     Very Good        0'
+Minor-God    Bad           Good          Good          Good             0'
+Zeus         Bad           Good          Superb        Good             0'
+Poseidon     Bad           Good          Superb        Good             0'
+Hades        Bad           Good          Excellent     Good             0'
+Athena       Bad           Good          Good          Good             0'
+Ares         Bad           Good          Heroic        Good             0'
+Hermes       Fair          Superb        Good          Good             0'
+Apollo       Bad           Good          Good          Good             0'
+Artemis      Bad           Good          Good          Superb           0'
+Hephaestus   Bad           Good          Superb        Good             0'
+Hera         Bad           Good          Good          Good             0'
+Demeter      Bad           Good          Good          Good             0'
+Aphrodite    Bad           Good          Good          Good             0'
 
 
 Table 4 - Demigod Special Powers
@@ -339,8 +339,8 @@ you will choose for your character.
   Walking costs 40% less energy.
 
   Infernal Deal
-  You will regain 10 HP and 5 SP whenever a nearby enemy monster is 
-  slain.
+  You will regain HP whenever a nearby enemy monster is slain, the 
+  amount equalling two-thirds of the monster's native level.
 
   Inspired Smithing
   You will receive better results from item reforging (10% average 
@@ -370,6 +370,9 @@ you will choose for your character.
   Speed Reader
   Allows you to read scrolls twice as fast.
 
+  Strong Mind
+  Makes you immune to mana draining.
+
   Subtle Casting
   Damaging a monster with distance magic no longer provokes a 
   retaliation.
@@ -393,5 +396,5 @@ you will choose for your character.
 
 
 
-Automatically generated for FrogComposband 7.0.nougat.
+Automatically generated for Oposband 0.2.0.
 

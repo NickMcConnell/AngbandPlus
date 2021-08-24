@@ -42,7 +42,7 @@ static void _load(savefile_ptr file)
                 _essences[k][j] += n;
         }
     }
-//    if ((p_ptr->personality == PERS_SEXY) && (equip_obj(equip_find_first(object_is_body_armour)).sval == SV_ABUNAI_MIZUGI)) _sup_triggered = TRUE;
+//    if ((p_ptr->personality == PERS_SEXY) && (equip_obj(equip_find_first(object_is_body_armour)).sval == SV_SWIMSUIT)) _sup_triggered = TRUE;
 }
 
 static void _save(savefile_ptr file)
@@ -196,8 +196,6 @@ static bool _absorb(object_type *o_ptr)
     if (_add_essence(target_slot, _ESSENCE_AC, (o_ptr->to_a - MAX(0, k_ptr->to_a))*mult/div))
         result = TRUE;
     if (_add_essence(target_slot, _ESSENCE_TO_HIT, (o_ptr->to_h - MAX(0, k_ptr->to_h))*mult/div))
-        result = TRUE;
-    if (_add_essence(target_slot, _ESSENCE_TO_DAM, (o_ptr->to_d - MAX(0, k_ptr->to_d))*mult/div))
         result = TRUE;
 
     if (result)
@@ -621,12 +619,12 @@ void armor_calc_obj_bonuses(object_type *o_ptr, bool get_flags)
     if (slot != _GLOVE_SLOT)
     {
         p_ptr->to_h_m += o_ptr->to_h;
-        p_ptr->to_d_m += o_ptr->to_d;
+        p_ptr->to_d_m += o_ptr->to_h;
 
         p_ptr->weapon_info[0].to_h += o_ptr->to_h;
-        p_ptr->weapon_info[0].to_d += o_ptr->to_d;
+        p_ptr->weapon_info[0].to_d += o_ptr->to_h;
         p_ptr->weapon_info[0].dis_to_h += o_ptr->to_h;
-        p_ptr->weapon_info[0].dis_to_d += o_ptr->to_d;
+        p_ptr->weapon_info[0].dis_to_d += o_ptr->to_h;
     }
 }
 
@@ -652,14 +650,13 @@ static void _update_object(int slot)
     add_flag(o_ptr->flags, OF_NO_REMOVE);
     add_flag(o_ptr->flags, OF_NO_ENCHANT);
     add_flag(o_ptr->flags, OF_IGNORE_ACID);
-    if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI))
+    if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_SWIMSUIT))
         add_flag(o_ptr->flags, OF_AGGRAVATE);
 
     /* Calculate new essences */
     o_ptr->to_a = rag_effect_pval(o_ptr, slot, _ESSENCE_AC, FALSE);
     if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_FILTHY_RAG)) o_ptr->to_a--; /* -1 base to-AC */
     o_ptr->to_h = rag_effect_pval(o_ptr, slot, _ESSENCE_TO_HIT, FALSE);
-    o_ptr->to_d = rag_effect_pval(o_ptr, slot, _ESSENCE_TO_DAM, FALSE);
 
     if (slot == _GLOVE_SLOT)
     {
@@ -866,6 +863,14 @@ static void _birth(void)
     py_birth_obj(&forge);
 
     py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
+
+    for (i = 0; i < MAX_PROFICIENCIES; i++)
+    {
+        if (i == PROF_INNATE_ATTACKS)
+            p_ptr->proficiency_cap[i] = WEAPON_EXP_BEGINNER;
+        else
+            p_ptr->proficiency_cap[i] = WEAPON_EXP_UNSKILLED;
+    }
 }
 
 static void _gain_level(int new_level) 
@@ -878,8 +883,8 @@ static void _gain_level(int new_level)
         object_type *o_ptr = equip_obj(equip_find_first(object_is_body_armour));
         msg_print("You have evolved into a Sexy Swimsuit.");
         p_ptr->current_r_idx = MON_SEXY_SWIMSUIT;
-        o_ptr->k_idx = lookup_kind(TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI);
-        o_ptr->sval = SV_ABUNAI_MIZUGI;
+        o_ptr->k_idx = lookup_kind(TV_SOFT_ARMOR, SV_SWIMSUIT);
+        o_ptr->sval = SV_SWIMSUIT;
         o_ptr->weight = 2;
         o_ptr->ac = 0;
         o_ptr->to_a += 1;

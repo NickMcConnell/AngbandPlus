@@ -85,9 +85,9 @@ static bool _object_is_allowed(object_type *o_ptr, int flags)
 
     switch (o_ptr->tval)
     {
-    case TV_SWORD: return (flags & _ALLOW_SWORD) ? TRUE : FALSE;
-    case TV_POLEARM: return (flags & _ALLOW_POLEARM) ? TRUE : FALSE;
-    case TV_HAFTED: return (flags & _ALLOW_HAFTED) ? TRUE : FALSE;
+    case TV_DAGGER: case TV_SWORD: return (flags & _ALLOW_SWORD) ? TRUE : FALSE;
+    case TV_AXE: case TV_POLEARM: return (flags & _ALLOW_POLEARM) ? TRUE : FALSE;
+    case TV_STAVES: case TV_HAFTED: return (flags & _ALLOW_HAFTED) ? TRUE : FALSE;
     case TV_DIGGING: return (flags & _ALLOW_DIGGER) ? TRUE : FALSE;
     case TV_BOW: return (flags & _ALLOW_BOW) ? TRUE : FALSE;
     }
@@ -524,15 +524,11 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
     {
         if (old_obj.to_h > new_obj.to_h)
             absorb_f(_find_essence_info(_ESSENCE_TO_HIT), (old_obj.to_h - new_obj.to_h)*10*mult/div);
-        if (old_obj.to_d > new_obj.to_d)
-            absorb_f(_find_essence_info(_ESSENCE_TO_DAM), (old_obj.to_d - new_obj.to_d)*10*mult/div);
     }
     else if (object_is_armour(&old_obj))
     {
         if (old_obj.to_h > new_obj.to_h)
             absorb_f(_find_essence_info(_ESSENCE_TO_HIT_A), (old_obj.to_h - new_obj.to_h)*10*mult/div);
-        if (old_obj.to_d > new_obj.to_d)
-            absorb_f(_find_essence_info(_ESSENCE_TO_DAM_A), (old_obj.to_d - new_obj.to_d)*10*mult/div);
     }
 
     /* Extra Boosts */
@@ -551,9 +547,7 @@ static void _remove(object_type *o_ptr)
         if (o_ptr->xtra1 == _SPECIAL_SLAYING )
         {
             int kind_h = k_info[o_ptr->k_idx].to_h;
-            int kind_d = k_info[o_ptr->k_idx].to_d;
             o_ptr->to_h -= (o_ptr->xtra4>>8);
-            o_ptr->to_d -= (o_ptr->xtra4 & 0x000f);
             o_ptr->xtra4 = 0;
             /* Disenchanted after smithing? As opposed to a Cloak of the Bat, etc. 
              * This isn't perfect since some egos have random to-hit/to-dam bonuses
@@ -566,16 +560,6 @@ static void _remove(object_type *o_ptr)
                     int ego_h = e_ptr->max_to_h;
                     if (kind_h + ego_h >= 0) o_ptr->to_h = MAX(o_ptr->to_h, (ego_h == 0) ? kind_h : 0);
                     else if (ego_h == 0) o_ptr->to_h = MAX(o_ptr->to_h, kind_h);
-                }
-            }
-            if (o_ptr->to_d < MAX(0, kind_d))
-            {
-                if (!o_ptr->name2) o_ptr->to_d = MAX(o_ptr->to_d, kind_d);
-                else {
-                    ego_type *e_ptr = &e_info[o_ptr->name2];
-                    int ego_d = e_ptr->max_to_d;
-                    if (kind_d + ego_d >= 0) o_ptr->to_d = MAX(o_ptr->to_d, (ego_d == 0) ? kind_d : 0);
-                    else if (ego_d == 0) o_ptr->to_d = MAX(o_ptr->to_d, kind_d);
                 }
             }
         }
@@ -1016,32 +1000,13 @@ static int _calc_enchant_to_h(object_type *o_ptr, int to_h)
 
     return cost;
 }
-static int _calc_enchant_to_d(object_type *o_ptr, int to_d)
-{
-    int    mult = o_ptr->number;
-    int    div = 1;
-    int    cost;
 
-    if (object_is_ammo(o_ptr))
-        div = _AMMO_DIV;
-
-    if (object_is_artifact(o_ptr))
-        mult *= _ART_ENCH_MULT;
-
-    cost  = _calc_enchant_cost(to_d, _COST_TO_DAM);
-    cost -= _calc_enchant_cost(o_ptr->to_d, _COST_TO_DAM);
-    cost = cost * mult / div;
-
-    return cost;
-}
 static int _smith_enchant_weapon(object_type *o_ptr)
 {
     rect_t r = ui_map_rect();
     int    max = _enchant_limit();
     int    to_h = o_ptr->to_h;
-    int    to_d = o_ptr->to_d;
     int    avail_h = _get_essence(_ESSENCE_TO_HIT);
-    int    avail_d = _get_essence(_ESSENCE_TO_DAM);
     int    cost_h = 0, cost_d = 0;
 
     if (to_h < max)
@@ -1054,16 +1019,6 @@ static int _smith_enchant_weapon(object_type *o_ptr)
             cost_h = _calc_enchant_to_h(o_ptr, to_h);
         }
     }
-    if (to_d < max)
-    {
-        to_d = max;
-        cost_d = _calc_enchant_to_d(o_ptr, to_d);
-        while (to_d > o_ptr->to_d && cost_d > avail_d)
-        {
-            to_d--;
-            cost_d = _calc_enchant_to_d(o_ptr, to_d);
-        }
-    }
 
     for (;;)
     {
@@ -1071,36 +1026,23 @@ static int _smith_enchant_weapon(object_type *o_ptr)
         char color;
 
         cost_h = _calc_enchant_to_h(o_ptr, to_h);
-        cost_d = _calc_enchant_to_d(o_ptr, to_d);
 
         doc_clear(_doc);
         obj_display_smith(o_ptr, _doc);
 
-        doc_printf(_doc, " <color:%c>  E</color>) Enchant to ",
-            (cost_h > avail_h || cost_d > avail_d) ? 'D' : 'y');
+        doc_printf(_doc, " <color:%c>  E</color>) Enchant to ", (cost_h > avail_h) ? 'D' : 'y');
 
         if (to_h == o_ptr->to_h) color = 'w';
         else if (to_h == max) color = 'r';
         else color = 'R';
         doc_printf(_doc, "(<color:%c>%+d</color>", color, to_h);
 
-        if (to_d == o_ptr->to_d) color = 'w';
-        else if (to_d == max) color = 'r';
-        else color = 'R';
-        doc_printf(_doc, ",<color:%c>%+d</color>)\n", color, to_d);
-
         doc_insert(_doc, "      Use h/H to adjust the amount of accuracy to add.\n");
-        doc_insert(_doc, "      Use d/D to adjust the amount of damage to add.\n");
 
         if (cost_h > avail_h) color = 'r';
         else color = 'G';
         doc_printf(_doc, "      This will cost <color:%c>%d</color> out of %d essences of <color:B>Weapon Accuracy</color>.\n",
             color, cost_h, avail_h);
-
-        if (cost_d > avail_d) color = 'r';
-        else color = 'G';
-        doc_printf(_doc, "      This will cost <color:%c>%d</color> out of %d essences of <color:B>Weapon Damage</color>.\n",
-            color, cost_d, avail_d);
 
         doc_newline(_doc);
         doc_insert(_doc, " <color:y>ESC</color>) Return to main menu\n");
@@ -1125,19 +1067,10 @@ static int _smith_enchant_weapon(object_type *o_ptr)
             if (to_h < max)
                 to_h++;
             break;
-        case 'd':
-            if (to_d > o_ptr->to_d)
-                to_d--;
-            break;
-        case 'D':
-            if (to_d < max)
-                to_d++;
-            break;
         case 'E': case 'e':
-            if (cost_h > avail_h || cost_d > avail_d)
+            if (cost_h > avail_h)
                 break;
             o_ptr->to_h = to_h;
-            o_ptr->to_d = to_d;
             _add_essence(_ESSENCE_TO_HIT, -cost_h);
             _add_essence(_ESSENCE_TO_DAM, -cost_d);
             return _OK;
@@ -1219,8 +1152,7 @@ static int _smith_add_slaying(object_type *o_ptr)
         else color = 'R';
         doc_printf(_doc, ",<color:%c>%+d</color>)\n", color, to_d);
 
-        doc_insert(_doc, "      Use h/H to adjust the amount of accuracy to add.\n");
-        doc_insert(_doc, "      Use d/D to adjust the amount of damage to add.\n");
+        doc_insert(_doc, "      Use h/H to adjust the amount of bonus accuracy/damage to add.\n");
 
         if (cost_h > avail_h) color = 'r';
         else color = 'G';
@@ -1255,21 +1187,12 @@ static int _smith_add_slaying(object_type *o_ptr)
             if (to_h < max)
                 to_h++;
             break;
-        case 'd':
-            if (to_d > 0)
-                to_d--;
-            break;
-        case 'D':
-            if (to_d < max)
-                to_d++;
-            break;
         case 'S': case 's':
             if (cost_h > avail_h || cost_d > avail_d)
                 break;
             if (cost_h == 0 && cost_d == 0)
                 break;
             o_ptr->to_h += to_h;
-            o_ptr->to_d += to_d;
             o_ptr->xtra3 = _ESSENCE_SPECIAL;
             o_ptr->xtra1 = _SPECIAL_SLAYING;
             o_ptr->xtra4 = (to_h<<8) + to_d;
@@ -2609,10 +2532,29 @@ static void _character_dump(doc_ptr doc)
 static void _birth(void)
 {
     _clear_essences();
-    py_birth_obj_aux(TV_POLEARM, SV_BROAD_AXE, 1);
+    py_birth_obj_aux(TV_AXE, SV_BROAD_AXE, 1);
     py_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
     py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
     py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(15, 25));
+
+    p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_AXE] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_BOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_CROSSBOW] = WEAPON_EXP_BEGINNER;
+
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_SKILLED;
 }
 
 /**********************************************************************

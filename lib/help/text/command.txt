@@ -48,7 +48,7 @@ Original Keyset
    e  Equipment list                       E  Eat some food
    f  Fire an arrow etc.                   F  Fuel your lantern/torch
    g  Get Objects                          G  Gain new spells/prayers
-   h  (unused)                             H  (unused)
+   h  (unused)                             H  Travel to interesting item
    i  Inventory list                       I  Inspect an item
    j  Jam a door                           J  Resume travelling
    k  Destroy an item                      K  (unused)
@@ -63,7 +63,7 @@ Original Keyset
    t  Take off equipment                   T  Dig a tunnel
    u  Use a staff                          U  Use Racial Power
    v  Throw an item                        V  Version info
-   w  Wear/wield equipment                 W  (unused)
+   w  Wear/wield equipment                 W  Switch ring fingers
    x  (unused)                             X  (unused)
    y  (unused)                             Y  Display monster list
    z  Zap a rod                            Z  Inscribe an object
@@ -135,7 +135,7 @@ Roguelike Keyset
    @  Interact with macros                ^B  (tunnel - south west)
    #  Toggle search mode                  ^C  (special - break)
    $  Reload Auto-picker pref             ^D  Destroy item
-   %  Interact with visuals               ^E  (unused)
+   %  Interact with visuals               ^E  Travel to interesting item
    ^  (special - control key)             ^F  Repeat level feeling
    &  Interact with colors                ^G  Auto-Get nearby objects
    *  Target monster or location          ^H  (tunnel - west)

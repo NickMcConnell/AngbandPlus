@@ -207,77 +207,18 @@ static int calc_adj_dex_ta(void)
  */
 void cnv_stat(int val, char *out_val)
 {
-    /* Above 18 */
-    if (val > 18)
-    {
-        int bonus = (val - 18);
-
-        if (bonus >= 220)
-        {
-            sprintf(out_val, "18/%3s", "***");
-        }
-        else if (bonus >= 100)
-        {
-            sprintf(out_val, "18/%03d", bonus);
-        }
-        else
-        {
-            sprintf(out_val, " 18/%02d", bonus);
-        }
-    }
-
-    /* From 3 to 18 */
-    else
-    {
-        sprintf(out_val, "    %2d", val);
-    }
+    sprintf(out_val, "    %2d", val);
 }
 
 
 
 /*
  * Modify a stat value by a "modifier", return new value
- *
- * Stats go up: 3,4,...,17,18,18/10,18/20,...,18/220
- * Or even: 18/13, 18/23, 18/33, ..., 18/220
- *
- * Stats go down: 18/220, 18/210,..., 18/10, 18, 17, ..., 3
- * Or even: 18/13, 18/03, 18, 17, ..., 3
  */
 s16b modify_stat_value(int value, int amount)
 {
-    int    i;
-
-    /* Reward */
-    if (amount > 0)
-    {
-        /* Apply each point */
-        for (i = 0; i < amount; i++)
-        {
-            /* One point at a time */
-            if (value < 18) value++;
-
-            /* Ten "points" at a time */
-            else value += 10;
-        }
-    }
-
-    /* Penalty */
-    else if (amount < 0)
-    {
-        /* Apply each point */
-        for (i = 0; i < (0 - amount); i++)
-        {
-            /* Ten points at a time */
-            if (value >= 18+10) value -= 10;
-
-            /* Hack -- prevent weirdness */
-            else if (value > 18) value = 18;
-
-            /* One point at a time */
-            else if (value > 3) value--;
-        }
-    }
+	value += amount;
+	if (value < 3) value = 3;
 
     /* Return new value */
     return (value);
@@ -1756,7 +1697,7 @@ static void prt_state(void)
             }
             case ACTION_LEARN:
             {
-                strcpy(text, "Lear");
+                strcpy(text, "Learn");
                 if (new_mane) attr = TERM_L_RED;
                 break;
             }
@@ -2073,6 +2014,8 @@ static void prt_effects(void)
         sprintf(tmp, "Study (%d)", p_ptr->new_spells);
         c_put_str(TERM_L_BLUE, tmp, row++, col);
     }
+	else if (p_ptr->pclass == CLASS_IMITATOR && p_ptr->mane_num)
+		c_put_str(TERM_L_BLUE, "Imitate", row++, col);
 }
 
 /*****************************************************************************
@@ -2727,12 +2670,10 @@ static void fix_object(void)
  */
 static void calc_spells(void)
 {
-    int            i, j, k, levels;
+    int            j, k, levels;
     int            num_allowed;
-    int                     num_boukyaku = 0;
 
     magic_type        *s_ptr;
-    int which;
     int bonus = 0;
 
 
@@ -2770,243 +2711,22 @@ static void calc_spells(void)
     {
         bonus = 4;
     }
-    if (p_ptr->pclass == CLASS_SAMURAI || p_ptr->pclass == CLASS_RAGE_MAGE)
+    if (p_ptr->pclass == CLASS_RAGE_MAGE)
     {
         num_allowed = 32;
     }
-    else if ( p_ptr->pclass == CLASS_MAGE
-           || p_ptr->pclass == CLASS_BLOOD_MAGE
-           || p_ptr->pclass == CLASS_PRIEST
-           || p_ptr->pclass == CLASS_YELLOW_MAGE
-           || p_ptr->pclass == CLASS_GRAY_MAGE )
+    else if ( p_ptr->pclass == CLASS_GRAY_MAGE )
     {
         if (num_allowed>(96+bonus)) num_allowed = 96+bonus;
     }
-    else if (p_ptr->realm2 == REALM_NONE)
-    {
-        num_allowed = (num_allowed+1)/2;
-        if (num_allowed>(32+bonus)) num_allowed = 32+bonus;
-    }
     else
     {
-        if (num_allowed>(80+bonus)) num_allowed = 80+bonus;
-    }
-
-    /* Count the number of spells we know */
-    for (j = 0; j < 64; j++)
-    {
-        /* Count known spells */
-        if ((j < 32) ?
-            (p_ptr->spell_forgotten1 & (1L << j)) :
-            (p_ptr->spell_forgotten2 & (1L << (j - 32))))
-        {
-            num_boukyaku++;
-        }
+        num_allowed = 0;
+		return;
     }
 
     /* See how many spells we must forget or may learn */
-    p_ptr->new_spells = num_allowed + p_ptr->add_spells + num_boukyaku - p_ptr->learned_spells;
-
-    /* Forget spells which are too hard */
-    for (i = 63; i >= 0; i--)
-    {
-        /* Efficiency -- all done */
-        if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
-        if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
-        if (p_ptr->pclass == CLASS_GRAY_MAGE) break;
-
-        /* Access the spell */
-        j = p_ptr->spell_order[i];
-
-        /* Skip non-spells */
-        if (j >= 99) continue;
-
-
-        /* Get the spell */
-        if (!is_magic((j < 32) ? p_ptr->realm1 : p_ptr->realm2))
-        {
-            if (j < 32)
-                s_ptr = &technic_info[p_ptr->realm1 - MIN_TECHNIC][j];
-            else
-                s_ptr = &technic_info[p_ptr->realm2 - MIN_TECHNIC][j%32];
-        }
-        else if (j < 32)
-            s_ptr = &mp_ptr->info[p_ptr->realm1-1][j];
-        else
-            s_ptr = &mp_ptr->info[p_ptr->realm2-1][j%32];
-
-        /* Skip spells we are allowed to know */
-        if (lawyer_hack(s_ptr, LAWYER_HACK_LEVEL) <= p_ptr->lev) continue;
-
-        /* Is it known? */
-        if ((j < 32) ?
-            (p_ptr->spell_learned1 & (1L << j)) :
-            (p_ptr->spell_learned2 & (1L << (j - 32))))
-        {
-            /* Mark as forgotten */
-            if (j < 32)
-            {
-                p_ptr->spell_forgotten1 |= (1L << j);
-                which = p_ptr->realm1;
-            }
-            else
-            {
-                p_ptr->spell_forgotten2 |= (1L << (j - 32));
-                which = p_ptr->realm2;
-            }
-
-            /* No longer known */
-            if (j < 32)
-            {
-                p_ptr->spell_learned1 &= ~(1L << j);
-                which = p_ptr->realm1;
-            }
-            else
-            {
-                p_ptr->spell_learned2 &= ~(1L << (j - 32));
-                which = p_ptr->realm2;
-            }
-
-            /* Message */
-            msg_format("You have forgotten the %s of %s.", p,
-            do_spell(which, j%32, SPELL_NAME));
-
-
-            /* One more can be learned */
-            p_ptr->new_spells++;
-        }
-    }
-
-
-    /* Forget spells if we know too many spells */
-    for (i = 63; i >= 0; i--)
-    {
-        /* Stop when possible */
-        if (p_ptr->new_spells >= 0) break;
-
-        if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
-        if (p_ptr->pclass == CLASS_GRAY_MAGE) break;
-
-        /* Efficiency -- all done */
-        if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
-
-        /* Get the (i+1)th spell learned */
-        j = p_ptr->spell_order[i];
-
-        /* Skip unknown spells */
-        if (j >= 99) continue;
-
-        /* Forget it (if learned) */
-        if ((j < 32) ?
-            (p_ptr->spell_learned1 & (1L << j)) :
-            (p_ptr->spell_learned2 & (1L << (j - 32))))
-        {
-            /* Mark as forgotten */
-            if (j < 32)
-            {
-                p_ptr->spell_forgotten1 |= (1L << j);
-                which = p_ptr->realm1;
-            }
-            else
-            {
-                p_ptr->spell_forgotten2 |= (1L << (j - 32));
-                which = p_ptr->realm2;
-            }
-
-            /* No longer known */
-            if (j < 32)
-            {
-                p_ptr->spell_learned1 &= ~(1L << j);
-                which = p_ptr->realm1;
-            }
-            else
-            {
-                p_ptr->spell_learned2 &= ~(1L << (j - 32));
-                which = p_ptr->realm2;
-            }
-
-            /* Message */
-            msg_format("You have forgotten the %s of %s.", p,
-                   do_spell(which, j%32, SPELL_NAME));
-
-
-            /* One more can be learned */
-            p_ptr->new_spells++;
-        }
-    }
-
-
-    /* Check for spells to remember */
-    for (i = 0; i < 64; i++)
-    {
-        /* None left to remember */
-        if (p_ptr->new_spells <= 0) break;
-        if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
-        if (p_ptr->pclass == CLASS_GRAY_MAGE) break;
-
-        /* Efficiency -- all done */
-        if (!p_ptr->spell_forgotten1 && !p_ptr->spell_forgotten2) break;
-
-        /* Get the next spell we learned */
-        j = p_ptr->spell_order[i];
-
-        /* Skip unknown spells */
-        if (j >= 99) break;
-
-        /* Access the spell */
-        if (!is_magic((j < 32) ? p_ptr->realm1 : p_ptr->realm2))
-        {
-            if (j < 32)
-                s_ptr = &technic_info[p_ptr->realm1 - MIN_TECHNIC][j];
-            else
-                s_ptr = &technic_info[p_ptr->realm2 - MIN_TECHNIC][j%32];
-        }
-        else if (j<32)
-            s_ptr = &mp_ptr->info[p_ptr->realm1-1][j];
-        else
-            s_ptr = &mp_ptr->info[p_ptr->realm2-1][j%32];
-
-        /* Skip spells we cannot remember */
-        if (lawyer_hack(s_ptr, LAWYER_HACK_LEVEL) > p_ptr->lev) continue;
-
-        /* First set of spells */
-        if ((j < 32) ?
-            (p_ptr->spell_forgotten1 & (1L << j)) :
-            (p_ptr->spell_forgotten2 & (1L << (j - 32))))
-        {
-            /* No longer forgotten */
-            if (j < 32)
-            {
-                p_ptr->spell_forgotten1 &= ~(1L << j);
-                which = p_ptr->realm1;
-            }
-            else
-            {
-                p_ptr->spell_forgotten2 &= ~(1L << (j - 32));
-                which = p_ptr->realm2;
-            }
-
-            /* Known once more */
-            if (j < 32)
-            {
-                p_ptr->spell_learned1 |= (1L << j);
-                which = p_ptr->realm1;
-            }
-            else
-            {
-                p_ptr->spell_learned2 |= (1L << (j - 32));
-                which = p_ptr->realm2;
-            }
-
-            /* Message */
-            msg_format("You have remembered the %s of %s.",
-                   p, do_spell(which, j%32, SPELL_NAME));
-
-
-            /* One less can be learned */
-            p_ptr->new_spells--;
-        }
-    }
+    p_ptr->new_spells = num_allowed + p_ptr->add_spells - p_ptr->learned_spells;
 
     k = 0;
 
@@ -3022,7 +2742,7 @@ static void calc_spells(void)
             if (lawyer_hack(s_ptr, LAWYER_HACK_LEVEL) > p_ptr->lev) continue;
 
             /* Skip spells we already know */
-            if (p_ptr->spell_learned1 & (1L << j))
+            if (p_ptr->max_plv >= s_ptr->slevel)
             {
                 continue;
             }
@@ -3033,7 +2753,6 @@ static void calc_spells(void)
         if (k>32) k = 32;
         if ( p_ptr->new_spells > k
           && (mp_ptr->spell_book == TV_LIFE_BOOK
-           || mp_ptr->spell_book == TV_HISSATSU_BOOK
            || mp_ptr->spell_book == TV_RAGE_BOOK))
         {
             p_ptr->new_spells = k;
@@ -3362,6 +3081,7 @@ static int _calc_xtra_hp(int amt)
     case CLASS_ARCHER:
     case CLASS_WEAPONSMITH:
     case CLASS_RAGE_MAGE:
+	case CLASS_HEXBLADE:
         w1 = 2; w2 = 1; w3 = 0;
         break;
 
@@ -3382,6 +3102,7 @@ static int _calc_xtra_hp(int amt)
 
     case CLASS_ROGUE:
     case CLASS_MONK:
+	case CLASS_IMITATOR:
     case CLASS_NINJA:
     case CLASS_RUNE_KNIGHT:
     case CLASS_ALCHEMIST:
@@ -3390,6 +3111,7 @@ static int _calc_xtra_hp(int amt)
 
     case CLASS_LAWYER:
     case CLASS_RED_MAGE:
+	case CLASS_BLUE_MAGE:
     case CLASS_MIRROR_MASTER:
     case CLASS_TIME_LORD:
     case CLASS_BLOOD_MAGE:
@@ -3403,6 +3125,7 @@ static int _calc_xtra_hp(int amt)
     case CLASS_SORCERER:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
+	case CLASS_CHAOS_MAGE:
         w1 = 0; w2 = 0; w3 = 1;
         break;
 
@@ -3462,7 +3185,7 @@ static void calc_hitpoints(void)
     class_t *class_ptr = get_class();
     personality_ptr pers_ptr = get_personality();
 
-    mmhp = p_ptr->player_hp[p_ptr->lev - 1] * 10 / 100; /* 255 hp total */
+    mmhp = 5 * (p_ptr->lev + 1) * p_ptr->life_rating / 100; /* 255 hp total */
     mmhp += _calc_xtra_hp(300);
 
     mmhp = mmhp * (IS_WRAITH() ? MIN(race_ptr->life, 90) : race_ptr->life) / 100;
@@ -3896,8 +3619,7 @@ void calc_bonuses(void)
 
     if (easy_id)
         p_ptr->auto_id = TRUE;
-    else if ((p_ptr->lev >= 20) || (coffee_break))
-        p_ptr->auto_pseudo_id = TRUE;
+    else p_ptr->auto_pseudo_id = TRUE;
 
     if (p_ptr->tim_sustain_str) p_ptr->sustain_str = TRUE;
     if (p_ptr->tim_sustain_int) p_ptr->sustain_int = TRUE;
@@ -4387,9 +4109,10 @@ void calc_bonuses(void)
         use = modify_stat_value(p_ptr->stat_cur[i], p_ptr->stat_add[i]);
         if (i == A_CHR && mut_present(MUT_ILL_NORM))
         {
-            /* 10 to 18/90 charisma, guaranteed, based on level */
-            if (use < 8 + 2 * p_ptr->lev)
-                use = 8 + 2 * p_ptr->lev;
+            /* 10 to 27 charisma, guaranteed, based on level */
+			int chr_illusion = 10 + p_ptr->lev / 5 + p_ptr->lev / 10 + p_ptr->lev / 25;
+            if (use < chr_illusion)
+                use = chr_illusion;
         }
         if (p_ptr->stat_use[i] != use)
         {
@@ -4397,14 +4120,9 @@ void calc_bonuses(void)
             p_ptr->redraw |= (PR_STATS);
         }
 
-        /* Values: 3, 4, ..., 17 */
-        if (use <= 18) ind = (use - 3);
-
-        /* Ranges: 18/00-18/09, ..., 18/210-18/219 */
-        else if (use <= 18+219) ind = (15 + (use - 18) / 10);
-
-        /* Range: 18/220+ */
-        else ind = (37);
+        /* Stat index modifier */
+        ind = (use - 3);
+		if (ind > 37) ind = 37;
 
         if (p_ptr->stat_ind[i] != ind)
         {
@@ -4503,8 +4221,8 @@ void calc_bonuses(void)
             if (p_ptr->easy_2weapon)
                 pct += 100;
 
-            if ( lobj->tval == TV_SWORD
-              && (lobj->sval == SV_MAIN_GAUCHE || lobj->sval == SV_WAKIZASHI) )
+            if ((lobj->tval == TV_DAGGER && lobj->sval == SV_MAIN_GAUCHE) ||
+                (lobj->tval == TV_SWORD && lobj->sval == SV_WAKIZASHI))
             {
                 pct += 50;
             }
@@ -4516,6 +4234,12 @@ void calc_bonuses(void)
                 p_ptr->weapon_info[rhand].dual_wield_pct -= 50;
 
             if (lobj->tval == TV_POLEARM && lobj->weight > 100)
+                p_ptr->weapon_info[lhand].dual_wield_pct -= 50;
+
+            if (robj->tval == TV_AXE && robj->weight > 100)
+                p_ptr->weapon_info[rhand].dual_wield_pct -= 50;
+
+            if (lobj->tval == TV_AXE && lobj->weight > 100)
                 p_ptr->weapon_info[lhand].dual_wield_pct -= 50;
 
             if (robj->name1 == ART_MUSASI_KATANA && lobj->name1 == ART_MUSASI_WAKIZASI)
@@ -4798,8 +4522,8 @@ void calc_bonuses(void)
 
         if ( i % 2 == 1
           && p_ptr->weapon_info[i-1].wield_how != WIELD_NONE
-          && o_ptr->tval == TV_SWORD
-          && (o_ptr->sval == SV_MAIN_GAUCHE || o_ptr->sval == SV_WAKIZASHI) )
+          && ((o_ptr->tval == TV_SWORD && o_ptr->sval == SV_WAKIZASHI) || 
+            (o_ptr->tval == TV_DAGGER && o_ptr->sval == SV_MAIN_GAUCHE)))
         {
             p_ptr->to_a += 5;
             p_ptr->dis_to_a += 5;
@@ -4820,7 +4544,7 @@ void calc_bonuses(void)
             race_ptr->calc_weapon_bonuses(o_ptr, info_ptr);
 
         /* Hacks */
-        if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE)
+        if (o_ptr->tval == TV_DAGGER && o_ptr->sval == SV_POISON_NEEDLE)
             info_ptr->blows_calc.max = 100;
         if (arm > 0)
             info_ptr->blows_calc.max = MAX(100, info_ptr->blows_calc.max - 100);
@@ -4837,7 +4561,7 @@ void calc_bonuses(void)
 
             if (p_ptr->special_defense & KATA_FUUJIN) info_ptr->xtra_blow -= 100;
 
-            if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE)
+            if (o_ptr->tval == TV_DAGGER && o_ptr->sval == SV_POISON_NEEDLE)
             {
                 info_ptr->base_blow = 100;
                 info_ptr->xtra_blow = 0;
@@ -5040,7 +4764,7 @@ void calc_bonuses(void)
             else if (p_ptr->prace == RACE_MON_ARMOR) {} /* no bonus */
             else
             {
-                int bonus = skills_weapon_calc_bonus(obj->tval, obj->sval);
+                int bonus = skills_weapon_calc_bonus(tsvals_to_proficiency(obj->tval, obj->sval));
                 p_ptr->weapon_info[i].to_h += bonus;
                 p_ptr->weapon_info[i].dis_to_h += bonus;
                 if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER || p_ptr->pclass == CLASS_MYSTIC)

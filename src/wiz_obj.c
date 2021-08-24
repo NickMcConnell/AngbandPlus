@@ -71,8 +71,7 @@ static int _smith_plusses(object_type *o_ptr)
             doc_insert(_doc, " <color:y>x</color>/<color:y>X</color>) Adjust base AC\n");
         if (!object_is_ammo(o_ptr))
             doc_insert(_doc, " <color:y>a</color>/<color:y>A</color>) Adjust AC bonus\n");
-        doc_insert(_doc, " <color:y>h</color>/<color:y>H</color>) Adjust melee accuracy\n");
-        doc_insert(_doc, " <color:y>d</color>/<color:y>D</color>) Adjust melee damage\n");
+        doc_insert(_doc, " <color:y>h</color>/<color:y>H</color>) Adjust melee bonus\n");
 
         doc_newline(_doc);
         doc_insert(_doc, " <color:y>RET</color>) Accept changes\n");
@@ -144,14 +143,6 @@ static int _smith_plusses(object_type *o_ptr)
         case 'H':
             if (copy.to_h < 50) copy.to_h++;
             else copy.to_h = -50;
-            break;
-        case 'd':
-            if (copy.to_d > -50) copy.to_d--;
-            else copy.to_d = 50;
-            break;
-        case 'D':
-            if (copy.to_d < 50) copy.to_d++;
-            else copy.to_d = -50;
             break;
         case 'a':
             if (!object_is_ammo(o_ptr))

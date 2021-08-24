@@ -37,6 +37,17 @@ M:#####################
 
 R:OBJ(long sword)
 
+?:[AND [EQU $RACE Elemental] [EQU $SUBRACE Water-Spirit] ]
+R:OBJ(trident)
+
+?:[AND [EQU $RACE Elemental] [EQU $SUBRACE Earth-Spirit] ]
+R:OBJ(^club$)
+
+#Air spirits use swords
+
+?:[AND [EQU $RACE Elemental] [EQU $SUBRACE Fire-Spirit] ]
+R:OBJ(^whip$)
+
 ?:[EQU $RACE Beholder Spider Ring]
 R:OBJ(^ring$):EGO(protection)
 

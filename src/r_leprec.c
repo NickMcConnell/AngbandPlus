@@ -465,7 +465,7 @@ race_t *mon_leprechaun_get_race(void)
     me.stats[A_WIS] = 1;
     me.stats[A_DEX] = 3 + 2*rank;
     me.stats[A_CON] = -2;
-    me.stats[A_CHR] = -2;
+    me.stats[A_CHR] = -3;
 
     return &me;
 }

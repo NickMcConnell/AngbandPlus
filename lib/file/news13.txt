@@ -1,16 +1,17 @@
-<color:y>FrogComposband <$:version></color>
+
+<color:y>Oposband <$:version></color>
 <style:screenshot>
 The Mithril Bolt (Elemental) (5d5) (+14,+15) hits Sekhmet the                   
 Mistress of Fury. It was a <color:v>*GREAT*</color> shot! Sekhmet the Mistress of    LEVEL <color:G>    50</color>
 Fury shouts, 'AAAARRRGGGHHH!!!' <color:R>You have slain Sekhmet the </color>         EXP <color:G>   26.9M</color>
 <color:R>Mistress of Fury.</color>                                                   AU  <color:G>   6.72M</color>
 ...%        #.#                                     #......<color:g>^</color>#       <color:d>            </color>
-##<color:s>%%%</color>%###<color:s>%</color>  #.#                                     #########       STR!: <color:G>18/***</color>
-#>#...%..<color:s>%</color>  #.<color:s>%</color>                                                     INT!: <color:G>18/130</color>
-<color:U>'</color>...<color:s>%</color>....#  #.#                                                     WIS!: <color:G>18/***</color>
-%#%#<color:s>%</color>#%.###<color:s>%</color>#<color:U>'</color>##<color:s>%</color>                    #######                        DEX!: <color:G>18/150</color>
-#%#.....<color:U>'</color>.......<color:s>%</color>               ###%%%.....##                       CON!: <color:G>18/170</color>
-.....##%#.......#       ##%#    %..##.......##                      CHR!: <color:G>18/***</color>
+##<color:s>%%%</color>%###<color:s>%</color>  #.#                                     #########       STR!: <color:G>    40</color>
+#>#...%..<color:s>%</color>  #.<color:s>%</color>                                                     INT!: <color:G>    31</color>
+<color:U>'</color>...<color:s>%</color>....#  #.#                                                     WIS!: <color:G>    40</color>
+%#%#<color:s>%</color>#%.###<color:s>%</color>#<color:U>'</color>##<color:s>%</color>                    #######                        DEX!: <color:G>    33</color>
+#%#.....<color:U>'</color>.......<color:s>%</color>               ###%%%.....##                       CON!: <color:G>    35</color>
+.....##%#.......#       ##%#    %..##.......##                      CHR!: <color:G>    40</color>
 .<color:r>!</color>..%%%<color:s>%%</color>.......<color:s>%</color>## ####%?<color:s>(</color>#####%.#<color:U>'</color>.........##                     AC     <color:G>  262</color>
 <color:g>!</color>........#......#.##<color:s>%</color>.<color:B>{{</color><color:s>/</color><color:U>)</color><color:s>/</color><color:W>(</color><color:y>(</color><color:G>$</color>...@%...........#                     HP <color:G>1068</color>/<color:G>1068</color>
 .<color:D>~</color><color:g>,</color><color:o>{</color>#%....#......<color:r>^</color>.#<color:s>%</color>.#.<color:s>)</color>{###<color:o>*</color>#%#.#..........##                     SP <color:y> 423</color>/<color:G> 437</color>

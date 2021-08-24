@@ -660,7 +660,7 @@ void pack_choose_ai(int m_idx)
             switch(randint1(10))
             {
             case 1: case 2: case 3:
-                pack_ptr->ai = AI_SEEK;
+                pack_ptr->ai = AI_LURE;
                 break;
             case 4:
                 if ((r_ptr->spells) && (r_ptr->spells->freq))
@@ -669,7 +669,7 @@ void pack_choose_ai(int m_idx)
                     pack_ptr->ai = AI_LURE;
                 break;
             default:
-                pack_ptr->ai = AI_LURE;
+                pack_ptr->ai = AI_SEEK;
                 break;
             }
         }
@@ -677,11 +677,11 @@ void pack_choose_ai(int m_idx)
         {
             switch(randint1(10))
             {
-            case 1: case 2: case 3: case 4: case 5: case 6:
-                pack_ptr->ai = AI_SEEK;
-                break;
-            case 7: case 8:
+            case 1: case 2: case 3: case 4: case 5:
                 pack_ptr->ai = AI_LURE;
+                break;
+			case 6: case 7: case 8:
+                pack_ptr->ai = AI_SEEK;
                 break;
             case 9:
                 if (pack_ptr->leader_idx)
@@ -1249,7 +1249,7 @@ static bool restrict_monster_to_dungeon(int r_idx)
         if (r_idx != MON_CHAMELEON && !mon_race_has_innate_spell(r_ptr))
             return FALSE;
     }                                                              /* v--- ...but prevent the Summon Mold exploit. Sigh ... */
-    if (d_ptr->flags1 & DF1_NO_MELEE && (summon_specific_who != -1 || !allow_pets))
+    if (d_ptr->flags1 & DF1_NO_MELEE && (summon_specific_who != -1))
     {                                 /* ^---- Block players spamming the anti-melee cave for better summons... */
         if (r_idx == MON_CHAMELEON) return TRUE;
         if (!mon_race_has_attack_spell(r_ptr)) return FALSE;
@@ -3566,36 +3566,36 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
     else if ((r_ptr->flags7 & RF7_FRIENDLY) ||
          (mode & PM_FORCE_FRIENDLY) || is_friendly_idx(who))
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) set_friendly(m_ptr);
+        if (!monster_has_hostile_align(NULL, 0, -1, r_ptr)) set_friendly(m_ptr);
     }
     else if ( (r_ptr->flags3 & RF3_ANIMAL)
            && randint0(1000) < virtue_current(VIRTUE_NATURE) )
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
+        if (!monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
     else if ( (r_ptr->flags2 & RF2_KNIGHT)
            && randint0(1000) < virtue_current(VIRTUE_HONOUR) )
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
+        if (!monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
     else if ( r_ptr->d_char == 'A'
            && randint0(1000) < virtue_current(VIRTUE_FAITH) )
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
+        if (!monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
     else if ( (r_ptr->flags3 & RF3_DEMON)
            && randint0(1000) < -virtue_current(VIRTUE_FAITH) )
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
+        if (!monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
     else if ( (r_ptr->flags3 & RF3_UNDEAD)
            && randint0(1000) < virtue_current(VIRTUE_UNLIFE) )
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
+        if (!monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
     m_ptr->mflag &= ~(MFLAG_BORN2);
@@ -4026,7 +4026,7 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
     if (!(mode & PM_NO_KAGE) && one_in_(333))
         mode |= PM_KAGE;
 
-    if ((mode & PM_FORCE_PET) && (!allow_pets || p_ptr->pclass == CLASS_PSION))
+    if ((mode & PM_FORCE_PET) && (p_ptr->pclass == CLASS_PSION))
         mode &= (~PM_FORCE_PET);
 
     /* Place one monster, or fail */

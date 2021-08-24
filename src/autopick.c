@@ -215,6 +215,18 @@ static char KEY_SKELETONS[] = "skeletons";
 #define ADD_FLG_NOUN(FLG) (ADD_FLG(FLG), prev_flg = FLG)
 #define IS_FLG(FLG) (entry->flag[FLG / 32] & (1L << (FLG % 32)))
 
+/* Always fully know basic items */
+bool_hack simple_item_check(object_type *o_ptr)
+{
+	/* Only for weapons, armor, lites and ammo */
+	if (o_ptr->tval >= TV_SHOT && o_ptr->tval <= TV_LITE)
+	{
+		identify_item(o_ptr);
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 /*
  * A function to create new entry
@@ -710,7 +722,7 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
             /* Wearable nameless object */
             if (object_is_ammo(o_ptr))
             {
-                if (o_ptr->to_h || o_ptr->to_d)
+                if (o_ptr->to_h)
                     ADD_FLG(FLG_GOOD);
                 else
                     ADD_FLG(FLG_AVERAGE);
@@ -1373,7 +1385,6 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         if (!object_is_known(o_ptr)) return FALSE;
 
         if (o_ptr->to_h <= entry->bonus &&
-            o_ptr->to_d <= entry->bonus &&
             o_ptr->to_a <= entry->bonus &&
             o_ptr->pval <= entry->bonus)
         {
@@ -1581,7 +1592,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
                 return FALSE;
 
             /* Average are not okay */
-            if (o_ptr->to_a <= 0 && (o_ptr->to_h + o_ptr->to_d) <= 0)
+            if (o_ptr->to_a <= 0 && (o_ptr->to_h) <= 0)
                 return FALSE;
         }
 
@@ -1664,7 +1675,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
                 return FALSE;
 
             /* Good are not okay */
-            if (o_ptr->to_a > 0 || (o_ptr->to_h + o_ptr->to_d) > 0)
+            if (o_ptr->to_a > 0 || (o_ptr->to_h) > 0)
                 return FALSE;
         }
 

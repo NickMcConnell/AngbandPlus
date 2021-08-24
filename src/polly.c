@@ -771,7 +771,7 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 
 static void _calc_bonuses(void)
 {
-    if ((!p_ptr->realm1) && (equip_find_obj(TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI))) p_ptr->uimapuku = TRUE;
+    if ((!p_ptr->realm1) && (equip_find_obj(TV_SOFT_ARMOR, SV_SWIMSUIT))) p_ptr->uimapuku = TRUE;
     if (p_ptr->realm1)
     {
         p_ptr->skills.stl = MIN(p_ptr->skills.stl, 1);
@@ -899,7 +899,7 @@ static void _save_player(savefile_ptr file)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_RAPIER, 1);
+    py_birth_obj_aux(TV_DAGGER, SV_RAPIER, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_ROBE, 1);
     py_birth_obj_aux(TV_POTION, SV_POTION_CURE_LIGHT, 3 + randint1(3));
     py_birth_obj_aux(TV_SCROLL, SV_SCROLL_PHASE_DOOR, 3 + randint1(3));
@@ -912,6 +912,26 @@ static void _birth(void)
     _ini_friend_list();
     ini_statup_list();
     _politician_check_magic(TRUE);
+
+    p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_STAVE] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_UNSKILLED;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_SKILLED;
+
 }
 
 class_t *politician_get_class(void)

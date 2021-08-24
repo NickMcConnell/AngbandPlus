@@ -237,6 +237,8 @@ static void _birth(void)
     _troika_ini_quests();
     _troika_ini_spells();
     troika_wipe_timeouts();
+
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_MASTER;
 }
 
 static void _make_troika_weapon(int sval)
@@ -392,7 +394,7 @@ static void _troika_event(int effect)
                     dummy2 = SV_ZWEIHANDER;
                     break;
                 case 38:
-                    dummy2 = SV_HAYABUSA;
+                    dummy2 = SV_FALCON_SWORD;
                     break;
                 case 39:
                     dummy2 = SV_BLADE_OF_CHAOS;

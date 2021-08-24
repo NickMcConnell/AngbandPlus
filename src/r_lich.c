@@ -255,7 +255,7 @@ static race_t *_archlich_get_race_t(void)
     me.stats[A_WIS] = -3 - rank;
     me.stats[A_DEX] =  1 + rank;
     me.stats[A_CON] =  0 - (rank+1)/2;
-    me.stats[A_CHR] =  0 + rank;
+    me.stats[A_CHR] = -2 + rank;
     me.life = 100 - 2*rank;
 
     return &me;

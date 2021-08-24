@@ -911,12 +911,6 @@ static void _whirlwind_attack_spell(int cmd, variant *res)
    does not require the book (cf The Samurai).
    Rage is a class specific realm.
 */
-#define _SPELLS_PER_BOOK 8
-
-typedef struct {
-    cptr name;
-    spell_info spells[_SPELLS_PER_BOOK];
-} book_t;
 
 static book_t _books[4] = {
     { "Anger Management",
@@ -969,7 +963,7 @@ static int _spell_index(int book, int spell)
 static bool _is_spell_known(int book, int spell)
 {
     int idx = _spell_index(book, spell);
-    if (p_ptr->spell_learned1 & (1L << idx)) return TRUE;
+    if (p_ptr->rage_spells_learned & (1L << idx)) return TRUE;
     return FALSE;
 }
 
@@ -978,7 +972,7 @@ static void _learn_spell(int book, int spell)
     int idx = _spell_index(book, spell);
     int i;
 
-    p_ptr->spell_learned1 |= (1L << idx);
+    p_ptr->rage_spells_learned |= (1L << idx);
 
     /* Find the next open entry in "p_ptr->spell_order[]" */
     for (i = 0; i < 64; i++)
@@ -1232,6 +1226,26 @@ static void _birth(void)
     py_birth_obj_aux(TV_SWORD, SV_BROAD_SWORD, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
     py_birth_spellbooks();
+
+    p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+    
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_RIDING] = WEAPON_EXP_SKILLED;
+
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_SKILLED;
 }
 
 class_t *rage_mage_get_class(void)
@@ -1266,7 +1280,7 @@ class_t *rage_mage_get_class(void)
         me.stats[A_WIS] = -2;
         me.stats[A_DEX] = -2;
         me.stats[A_CON] =  2;
-        me.stats[A_CHR] =  1;
+        me.stats[A_CHR] = -1;
         me.base_skills = bs;
         me.extra_skills = xs;
         me.life = 106;
