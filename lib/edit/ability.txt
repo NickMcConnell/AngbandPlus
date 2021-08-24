@@ -28,7 +28,7 @@
 
 # Version stamp (required)
 
-V:1.3.3
+V:1.4.0
 
 # Melee ---------------------------------------------
 
@@ -145,7 +145,7 @@ T:23:0:99  # Swords
 
 N:12:Whirlwind Attack
 I:0:12:13
-P:0/5
+P:0/3:0/5
 D:Allows you to attack all adjacent enemies. If you miss an enemy you attack
 D: the next and so on until you damage one or have attacked all of them.
 D: Half the time you do damage you continue your attack.
@@ -335,8 +335,17 @@ T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:63:Opportunist
+N:63:Exchange Places
 I:3:3:6
+P:3/0:2/3
+D:Allows you to use the 'X' command to exchange places with
+D: an adjacent enemy (who gets a free attack on you as you pass).
+T:30:0:99  # Boots
+T:36:0:99  # Soft Armour
+T:40:0:99  # Amulet
+
+N:64:Opportunist
+I:3:4:7
 P:3/1:0/5
 D:You get a free attack whenever an adjacent opponent
 D: moves away from you.
@@ -344,15 +353,6 @@ T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
-
-N:64:Exchange Places
-I:3:4:7
-P:3/0:2/3
-D:Allows you to use the 'X' command to exchange places with
-D: an adjacent enemy (who gets a free attack on you as you pass).
-T:30:0:99  # Boots
-T:36:0:99  # Soft Armour
-T:40:0:99  # Amulet
 
 N:65:Vanish
 I:3:5:8
@@ -364,16 +364,17 @@ T:36:0:99  # Soft Armour
 T:45:0:99  # Ring
 
 N:66:Dexterity
+P:3/0:3/1
 I:3:6:11
+D:You gain a point of dexterity.
 
 # Perception ---------------------------------------------
 
-N:80:Eye for Detail
+N:80:Quick Study
 I:4:0:1
-D:Gives you a bonus of +5 for finding traps and secret doors.
-T:32:0:99  # Helm
+D:Allows you to take advanced abilities when you don't have the
+D: prerequisite abilities.
 T:33:0:99  # Crown
-T:39:0:99  # Light Source
 T:40:0:99  # Amulet
 
 N:81:Focused attack
@@ -420,9 +421,9 @@ D: you kill more.
 
 N:86:Forewarned
 I:4:6:7
-D:You have full knowledge of all your opponents and can tell when an item
-D: is cursed.  If your base Perception exceeds your Evasion, you gain a
+D:If your base Perception exceeds your Evasion, you gain a
 D: bonus to your Evasion of one third your Perception score.
+D: You can also determine when an item is cursed.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 T:39:0:99  # Light Source
@@ -674,16 +675,16 @@ T:33:0:99  # Crown
 T:40:0:99  # Amulet
 T:35:0:99  # Cloak
 
-N:149:Song of Fierce Blows
+N:149:Song of Overwhelming
 I:7:9:10
 P:7/1:7/6
-D:Your strikes may stun opponents depending on their Will and
-D: your Song score. Stunned opponents are reduced to rolling
-D: half of their damage dice while the song is in effect.
+D:Strikes may stun opponents depending on their Will and
+D: your Song score. Stunned opponents roll only half of
+D: their damage dice while the song is in effect.
 D: Heavy and blunt weapons stun opponents for longer.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
-T:23:0:99  # Swords
+T:23:7:99  # Swords (not daggers)
 T:34:0:99  # Shields
 
 N:150:Song of Mastery

@@ -291,7 +291,7 @@
 
 # Version stamp (required)
 
-V:1.3.3
+V:1.4.0
 
 
 ##### Non-race (contains the player picture) #####
@@ -654,7 +654,7 @@ G:o:y
 I:2:13d4:0
 A:15:5:1:6
 P:[+6,3d4]
-B:HIT:HURT:(+12,1d15)
+B:HIT:HURT:(+11,1d16)
 F:UNIQUE | MALE | ESCORTS
 F:NO_FEAR
 F:OPEN_DOOR | BASH_DOOR | UNLOCK_DOOR | ORC | SMART

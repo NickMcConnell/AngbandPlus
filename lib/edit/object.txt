@@ -65,7 +65,7 @@
 
 # Version stamp (required)
 
-V:1.3.3
+V:1.4.0
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -441,7 +441,7 @@ N:72:& Great Spear~
 G:/:u
 I:22:2:0
 W:4:0:60:36
-P:-1:1d13:1:0d0
+P:1:1d13:1:0d0
 A:4/2:12/4
 F:TWO_HANDED | POLEARM
 
@@ -450,7 +450,7 @@ N:74:& Glaive~
 G:/:s
 I:22:4:0
 W:8:0:70:363
-P:-2:2d9:1:0d0
+P:-1:2d9:1:0d0
 A:8/2:16/2
 F:TWO_HANDED | POLEARM
 
@@ -644,9 +644,9 @@ A:1/2:11/2
 N:111:& Longbow~
 G:}:U
 I:19:13:0
-W:3:0:30:120
+W:4:0:30:120
 P:0:2d5:0:0d0
-A:3/2:13/2
+A:4/2:14/2
 
 
 # Modelled on Earendil's bow
@@ -785,7 +785,7 @@ G:":d
 I:40:0:0
 W:7:0:1:20
 P:0:0d0:0:0d0
-A:6/8
+A:12/40
 F:CHEAT_DEATH | EASY_KNOW
 
 
@@ -794,7 +794,7 @@ G:":d
 I:40:1:0
 W:8:0:1:500
 P:0:0d0:0:0d0
-A:8/3
+A:8/5
 F:CON | SUST_CON
 
 
@@ -803,7 +803,7 @@ G:":d
 I:40:2:0
 W:10:0:1:500
 P:0:0d0:0:0d0
-A:10/3
+A:10/5
 F:GRA | SUST_GRA
 
 
@@ -812,7 +812,7 @@ G:":d
 I:40:3:0
 W:12:0:1:600
 P:0:0d0:0:0d0
-A:12/3
+A:8/3
 F:REGEN | EASY_KNOW
 
 
@@ -821,7 +821,7 @@ G:":d
 I:40:4:0
 W:14:0:1:20000
 P:0:0d0:0:0d0
-A:14/3
+A:6/3
 F:SUST_CON
 F:SUST_GRA | SLOW_DIGEST | IGNORE_ALL
 F:EASY_KNOW
@@ -851,7 +851,7 @@ G:":d
 I:40:7:0
 W:4:0:1:0
 P:0:0d0:0:0d0
-A:4/8
+A:10/20
 F:PERCEPTION | RES_HALLU
 B:4/2
 
@@ -872,7 +872,7 @@ G:=:d
 I:45:1:0
 W:7:0:1:150
 P:0:0d0:0:0d0
-A:4/8
+A:8/80
 F:WILL | RES_FEAR | RES_CONFU
 
 
@@ -899,7 +899,7 @@ G:=:d
 I:45:4:0
 W:9:0:1:500
 P:0:0d0:0:0d0
-A:9/3
+A:9/5
 F:STR | SUST_STR
 
 
@@ -908,7 +908,7 @@ G:=:d
 I:45:5:0
 W:10:0:1:500
 P:0:0d0:0:0d0
-A:10/3
+A:10/5
 F:DEX | SUST_DEX
 
 
@@ -1007,7 +1007,7 @@ G:_:d
 I:55:1:0
 W:6:0:50:400
 P:0:0d0:0:0d0
-A:6/3
+A:5/3
 D:It may shut and lock all doors in line of sight.
 
 
@@ -1101,7 +1101,7 @@ G:_:d
 I:55:12:0
 W:7:0:50:400
 P:0:0d0:0:0d0
-A:4/1
+A:2/3
 D:It lets you know all of your abilities.
 
 
@@ -1139,17 +1139,18 @@ G:_:d
 I:55:17:0
 W:7:0:50:0
 P:0:0d0:0:0d0
-A:7/6
+A:3/3
 D:It summons monsters to the stairs on the current level. 
 
 
-N:211:Entrapment
+N:211:Shadows
 G:_:d
 I:55:18:0
 W:9:0:50:0
 P:0:0d0:0:0d0
-A:9/6
-D:It produces new traps on the current level. 
+A:3/3
+D:It darkens an area with a radius of 7 squares, plus the entire room
+D: if you are currently in one.
 
 
 ##### Horns #####
@@ -1232,12 +1233,22 @@ D:It banishes all fear, cures a quarter of your health, and stuns you
 D: (for 2d4 turns).
 
 
+N:316:Esgalduin
+G:!:d
+I:75:3:100
+W:4:0:5:200
+P:0:0d0:0:0d0
+A:4/3:12/6
+D:It grants a bonus of +10 to perception for 20d4 turns, and
+D: restores a quarter of your voice.
+
+
 N:317:Clarity
 G:!:d
 I:75:4:100
 W:6:0:5:100
 P:0:0d0:0:0d0
-A:6/2:13/1
+A:3/1:13/1
 F:EASY_KNOW
 D:It cures stunning, confusion, and hallucination; and ends
 D: your rage. 
@@ -1347,7 +1358,6 @@ A:9/2:15/2
 F:EASY_KNOW
 D:It grants a bonus of +3 to grace for 20d4 turns,
 D: restoring grace in the process.
-
 
 ##
 
@@ -1500,7 +1510,7 @@ G:,:d
 I:80:1:0
 W:5:0:1:50
 P:0:0d0:0:0d0
-A:5/2:15/1
+A:3/2:13/1
 F:EASY_KNOW
 D:It provides nourishment for about 2000 turns
 D: under normal conditions. 

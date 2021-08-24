@@ -450,12 +450,6 @@ void do_cmd_search(void)
  */
 void do_cmd_toggle_stealth(void)
 {
-    if (p_ptr->climbing)
-    {
-        msg_print("You cannot use stealth mode while climbing.");
-        return;
-    }
-        
 	/* Stop stealth mode */
 	if (p_ptr->stealth_mode)
 	{
@@ -862,6 +856,7 @@ static bool generate_poor_quality_object(object_type *o_ptr)
 	if (object_roll == 1)
 	{
 		object_prep(o_ptr, lookup_kind(TV_ARROW, SV_NORMAL_ARROW));
+		object_known(o_ptr);
 	}
 	else if (object_roll == 2)
 	{
@@ -3492,14 +3487,17 @@ void attacks_of_opportunity(int neutralized_y, int neutralized_x)
             if ((m_ptr->alertness >= ALERTNESS_ALERT) && !m_ptr->confused && (m_ptr->stance != STANCE_FLEEING) && !(r_ptr->flags2 & (RF2_MINDLESS))
                 && !m_ptr->skip_next_turn && !m_ptr->skip_this_turn)
             {
-                opportunity_attacks++;
+		int evn = p_ptr->skill_use[S_EVN];
+		opportunity_attacks++;
+
+		if (opportunity_attacks == 1)
+		{
+			msg_print("You provoke attacks of opportunity from adjacent enemies!");
+		}
                 
-                if (opportunity_attacks == 1)
-                {
-                    msg_print("You provoke attacks of opportunity from adjacent enemies!");
-                }
-                
-                make_attack_normal(m_ptr);
+		p_ptr->skill_use[S_EVN] = evn / 2;
+		make_attack_normal(m_ptr);
+		p_ptr->skill_use[S_EVN] = evn;
             }
         }
     }
@@ -3798,8 +3796,8 @@ void do_cmd_fire(int quiver)
 			}
 			
 			/* If the bow has 'radiance', then light the square being passed over */
-			noticed_radiance = do_radiance(y, x, j_ptr);
-			
+			noticed_radiance = do_radiance(y, x, j_ptr) | noticed_radiance;
+
 			/* Only do visuals if the player can "see" the missile */
 			if (panel_contains(y, x) && player_can_see_bold(y, x))
 			{
@@ -4020,6 +4018,21 @@ void do_cmd_fire(int quiver)
 						if (net_dam == 0)
 						{
 							make_alert(m_ptr);
+						}
+
+						if (((j_ptr->name1 && (a_info[j_ptr->name1].flags2 & (TR2_RADIANCE))) ||
+						     (j_ptr->name2 && (e_info[j_ptr->name2].flags2 & (TR2_RADIANCE)))) &&
+						      r_ptr->flags3 & RF3_HURT_LITE &&
+						      net_dam > 5 &&
+						      one_in_(monster_skill(m_ptr, S_WIL)))
+						{
+							bool known_radiance = object_known_p(j_ptr) || noticed_radiance;
+							if (m_ptr->ml && known_radiance)
+							{
+								msg_format("%^s contorts as the shining arrow strikes it!", m_name);
+							}
+
+							stun_monster(m_ptr, net_dam);
 						}
 						
 						// Morgoth drops his iron crown if he is hit for 10 or more net damage twice

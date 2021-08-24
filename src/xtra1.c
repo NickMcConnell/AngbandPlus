@@ -813,12 +813,6 @@ static void prt_state(void)
 		my_strcpy(text, "Stealth   ", sizeof (text));
 	}
 
-	/* Climbing */
-	//else if (p_ptr->climbing)
-	//{
-	//	my_strcpy(text, "Climbing  ", sizeof (text));
-	//}
-    
 	/* Nothing interesting */
 	else
 	{
@@ -1926,7 +1920,7 @@ int ability_bonus(int skilltype, int abilitynum)
 				bonus = skill;
 				break;
 			}
-			case SNG_FIERCE_BLOWS:
+			case SNG_OVERWHELMING:
 			{
 				bonus = skill;
 				break;
@@ -2175,8 +2169,6 @@ static void calc_bonuses(void)
 	p_ptr->resist_stun = 0;
 	p_ptr->resist_hallu = 0;
     
-    p_ptr->climbing = FALSE;
-
 	/* Clear the item granted abilities */
 	for (i = 0; i < S_MAX; i++)
 	{
@@ -2492,13 +2484,6 @@ static void calc_bonuses(void)
 	/* Apply "encumbrance" from weight */
 	if (j > i) p_ptr->pspeed -= 1;
 
-    // climbing slows the player down (and is incompatible with stealth)
-    if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_CHASM) && !p_ptr->leaping)
-    {
-        p_ptr->climbing = TRUE;
-        p_ptr->pspeed -= 1;
-    }
-    
 	/* Stealth slows the player down (unless they are passing) */
 	if (p_ptr->stealth_mode)
 	{
@@ -2506,8 +2491,8 @@ static void calc_bonuses(void)
  	    p_ptr->skill_misc_mod[S_STL] += STEALTH_MODE_BONUS;
 	}
 
-    // sprinting speed the player up
-	if (sprinting() && !p_ptr->climbing)
+	// sprinting speed the player up
+	if (sprinting())
 	{
 		p_ptr->pspeed += 1;
 	}
@@ -2549,7 +2534,7 @@ static void calc_bonuses(void)
 				case SNG_LORIEN:	song_noise += 4; break;
 				case SNG_THRESHOLDS:	song_noise += 4; break;
 				case SNG_DELVINGS:	song_noise += 4; break;
-				case SNG_FIERCE_BLOWS:	song_noise += 12; break;
+				case SNG_OVERWHELMING:	song_noise += 12; break;
 				case SNG_MASTERY:	song_noise += 8; break;
 			}		
 		}
@@ -2617,6 +2602,11 @@ static void calc_bonuses(void)
 			p_ptr->skill_misc_mod[S_EVN] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 3;
 			p_ptr->skill_misc_mod[S_MEL] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 3;
 		}
+	}
+
+	if (p_ptr->tmp_per)
+	{
+		p_ptr->skill_misc_mod[S_PER] += 10;
 	}
 
 	/*** Finalise all skills other than combat skills  (as bows/weapons must be analysed first) ***/

@@ -419,9 +419,12 @@ bool prereqs(int skilltype, int abilitynum)
 	
 	b_ptr = &b_info[ability_index(skilltype,abilitynum)];
 	
-	if (p_ptr->skill_base[skilltype] < b_ptr->level) return (FALSE);
+	if (p_ptr->skill_base[skilltype] < b_ptr->level)
+	{
+		return (FALSE);
+	}
 	
-	if (b_ptr->prereqs > 0)
+	if (b_ptr->prereqs > 0 && !(p_ptr->active_ability[S_PER][PER_QUICK_STUDY]))
 	{
 		for (i = 0; i < b_ptr->prereqs; i++)
 		{
@@ -1157,29 +1160,38 @@ int abilities_menu2(int skilltype, int *highlight)
 					strnfmt(buf, 80, "%d skill points", b_ptr->level);
 					Term_putstr(COL_DESCRIPTION + 2, 12, -1, TERM_SLATE, buf);
 				}
-				for (j = 0; j < b_ptr->prereqs; j++)
+
+				if (!p_ptr->active_ability[S_PER][PER_QUICK_STUDY])
 				{
-					if (j == 0)
+					for (j = 0; j < b_ptr->prereqs; j++)
 					{
-						strnfmt(buf, 80, "%s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
-					}
-					else
-					{
-						strnfmt(buf, 80, "or %s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
-					}
-					Term_putstr(COL_DESCRIPTION + 2, 13 + j, -1, TERM_L_DARK, buf);
-					if (p_ptr->innate_ability[b_ptr->prereq_skilltype[j]][b_ptr->prereq_abilitynum[j]])
-					{
-						strnfmt(buf, 80, "%s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
 						if (j == 0)
 						{
-							Term_putstr(COL_DESCRIPTION + 2, 13 + j, -1, TERM_SLATE, buf);
+							strnfmt(buf, 80, "%s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
 						}
 						else
 						{
-							Term_putstr(COL_DESCRIPTION + 5, 13 + j, -1, TERM_SLATE, buf);
+							strnfmt(buf, 80, "or %s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
+						}
+						Term_putstr(COL_DESCRIPTION + 2, 13 + j, -1, TERM_L_DARK, buf);
+						if (p_ptr->innate_ability[b_ptr->prereq_skilltype[j]][b_ptr->prereq_abilitynum[j]])
+						{
+							strnfmt(buf, 80, "%s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
+							if (j == 0)
+							{
+								Term_putstr(COL_DESCRIPTION + 2, 13 + j, -1, TERM_SLATE, buf);
+							}
+							else
+							{
+								Term_putstr(COL_DESCRIPTION + 5, 13 + j, -1, TERM_SLATE, buf);
+							}
 						}
 					}
+				}
+				else if (b_ptr->prereqs > 0)
+				{
+					strnfmt(buf, 80, "Quick Study");
+					Term_putstr(COL_DESCRIPTION + 2, 13, -1, TERM_GREEN, buf);
 				}
 
 				if (prereqs(skilltype, b_ptr->abilitynum))
@@ -2637,7 +2649,10 @@ int object_difficulty(object_type *o_ptr)
 		weight_factor = 100 * k_ptr->weight / o_ptr->weight;
 		low_weight_adjust = (weight_factor - 100) * (o_ptr->ds / 4);
 
-		if (o_ptr->weight < 150) weight_factor = weight_factor + low_weight_adjust;
+		if (o_ptr->weight < 15)
+		{
+			weight_factor = weight_factor + low_weight_adjust;
+		}
 	}
 
 	dif_inc += (weight_factor - 100) / 10;
@@ -2752,7 +2767,7 @@ int object_difficulty(object_type *o_ptr)
 	
 	// Abilities
 	if (f2 & TR2_SLOW_DIGEST) 	{	dif_inc += 2; }
-	if (f2 & TR2_RADIANCE) 		{	dif_inc += 8;	smithing_cost.gra += 1;	}
+	if (f2 & TR2_RADIANCE) 		{	dif_inc += 9;	smithing_cost.gra += 1;	}
 	if (f2 & TR2_LIGHT)		{	dif_inc += 8;	smithing_cost.gra += 1;	}
 	if (f2 & TR2_REGEN) 		{	dif_inc += 8;	}
 	if (f2 & TR2_SEE_INVIS) 	{	dif_inc += 7;	}
@@ -2810,7 +2825,7 @@ int object_difficulty(object_type *o_ptr)
 	switch (wield_slot(o_ptr))
 	{
 		//case INVEN_WIELD:
-		//case INVEN_BOW:
+		case INVEN_BOW:
 		case INVEN_LEFT:
 		case INVEN_RIGHT:
 		//case INVEN_NECK:
@@ -6055,7 +6070,6 @@ extern void do_cmd_options_aux(int page, cptr info)
 		}
 	}
 
-
 	/* Clear screen */
 	Term_clear();
 
@@ -6222,6 +6236,41 @@ extern void do_cmd_options_aux(int page, cptr info)
 				bell("Illegal command for normal options!");
 				break;
 			}
+		}
+
+		if (birth_fixed_exp && playerturn == 0)
+		{
+			int total_exp = PY_FIXED_EXP;
+			p_ptr->new_exp = total_exp;
+			p_ptr->exp = total_exp;
+			check_experience();
+		}
+		else if (!birth_fixed_exp && playerturn == 0 && p_ptr->exp >= PY_FIXED_EXP)
+		{
+			int i, j;
+			int total_exp = PY_START_EXP;
+			p_ptr->new_exp = total_exp;
+			p_ptr->exp = total_exp;
+			check_experience();
+
+			/* Clear the base values of the skills */
+			for (i = 0; i < A_MAX; i++) p_ptr->skill_base[i] = 0;
+
+			/* Clear the abilities */
+			for (i = 0; i < S_MAX; i++)
+			{
+				for (j = 0; j < ABILITIES_MAX; j++)
+				{
+					p_ptr->innate_ability[i][j] = FALSE;
+					p_ptr->active_ability[i][j] = FALSE;
+				}
+			}
+
+			/* Calculate the bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Set the redraw flag for everything */
+			p_ptr->redraw |= (PR_EXP | PR_BASIC);
 		}
 	}
 }
@@ -9659,7 +9708,7 @@ static int collect_monsters(int grp_cur, monster_list_entry *mon_idx, int mode)
 		if (grp_unique && !(unique)) continue;
 
 		/* Require known monsters */
-		if (!(mode & 0x02) && (!cheat_know) && (!p_ptr->active_ability[S_PER][PER_FOREWARNED]) && (!(l_ptr->tsights))) continue;
+		if (!(mode & 0x02) && (!cheat_know) && (!know_monster_info) && (!(l_ptr->tsights))) continue;
 
 		// Ignore monsters that can't be generated
 		if (r_ptr->level > 25) continue;
@@ -9721,7 +9770,7 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 			}
 			
 			// increase the uniques count anyway for forewarned or cheaters
-			else if (p_ptr->active_ability[S_PER][PER_FOREWARNED] || cheat_know)
+			else if (know_monster_info || cheat_know)
 			{
 				known_uniques++;
 			}

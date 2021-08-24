@@ -4983,7 +4983,7 @@ void change_song(int song)
 			}
 			break;
 		}
-		case SNG_FIERCE_BLOWS:
+		case SNG_OVERWHELMING:
 		{
 			if (song_to_change == 1)
 			{
@@ -5101,7 +5101,8 @@ void sing_song_of_delvings(int score)
 
 	int px = p_ptr->px;
 	int py = p_ptr->py;
-	int range = score;
+
+	int range = score + 10;
 
 	min_y = MAX(1, py - range);
 	max_y = MIN(MAX_DUNGEON_HGT, py + range + 1);
@@ -5125,7 +5126,7 @@ void sing_song_of_delvings(int score)
 			{
 				for (xx = x - 1; xx <= x + 1; ++xx)
 				{
-					int chance = damroll(2, 6);
+					int chance = damroll(1, 6);
 					if (known_to_delvings(yy, xx) && chance < adjusted_score)
 						neighbour_known = TRUE;
 				}
@@ -5355,19 +5356,19 @@ void sing(void)
 			}
 			case SNG_THRESHOLDS:
 			{
-				cost += 1;
+				if ((p_ptr->song_duration % 2) == type - 1) cost += 1;
 
 				break;
 			}
 			case SNG_DELVINGS:
 			{
-				if ((p_ptr->song_duration % 3) == type - 1) cost += 1;
+				if ((p_ptr->song_duration % 4) == type - 1) cost += 1;
 
 				sing_song_of_delvings(score);
 
 				break;
 			}
-			case SNG_FIERCE_BLOWS:
+			case SNG_OVERWHELMING:
 			{
 				cost += 1;
 

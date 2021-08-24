@@ -158,7 +158,7 @@
 
 # Version stamp (required)
 
-V:1.3.3
+V:1.4.0
 
 #################################################################
 # Here is the list of 'Special' artefacts. 
@@ -635,6 +635,20 @@ D: this dagger slices through metal as easily as flesh, earning its
 D: name: 'Iron Cleaver'.
 
 
+#
+# The Curved Sword 'Nakh'
+# - added since there were no artefact curved blades
+#
+N:55:'Nakh'
+I:23:7:2
+W:4:10:60:30000
+P:-1:2d5:1:0d0
+F:STR | NEG_GRA | SLAY_MAN_OR_ELF | AGGRAVATE
+D:A dread black blade greatly famed among the orcs. Its cruel
+D: edge was forged in Orodruth long ere the Noldor came
+D: to Beleriand.
+
+
 ## The Shortsword of Amrod
 ## 1st age namesake
 
@@ -807,6 +821,20 @@ D: unwillingly to meet it of old; his lame foot will remind him of its
 D: might should he face it again.
 
 
+##
+## The Mithril Greatsword 'Ungoliant's Lament' 
+## - added because we lacked any artefact mithril greatswords
+##
+N:83:'Ungoliant's Lament'
+I:23:30:0
+W:8:20:40:30000
+P:0:3d6:2:0d0
+F:SLAY_SPIDER | LIGHT | FREE_ACT
+D:A long and dimly glowing blade with a handle clad in red leather.
+D: Many spiders of the Ered Gorgoroth were slain by it in the days following
+D: the arrival of the Noldor in Beleriand.
+
+
 ##### Polearms #####
 
 ##
@@ -816,7 +844,7 @@ D: might should he face it again.
 N:85:'Dugrakh'
 I:22:1:-1
 W:6:10:25:50000
-P:0:1d10:0:0d0
+P:1:1d11:0:0d0
 F:SLAY_RAUKO | SLAY_MAN_OR_ELF | SEE_INVIS | FREE_ACT
 F:GRA | AGGRAVATE | THROWING
 D:A weapon forged after the Dagor Bragollach by Sauron,
@@ -832,7 +860,7 @@ N:86:of Boldog
 G:/:s
 I:22:1:0
 W:8:1:50:30000
-P:0:1d10:0:0d0
+P:0:1d12:0:0d0
 F:RES_FEAR | SLAY_WOLF
 F:THROWING
 F:INSTA_ART
@@ -857,8 +885,8 @@ D: Elves.
 
 N:89:of Ogbar
 I:22:2:0
-W:10:30:60:60000
-P:1:1d13:1:0d0
+W:12:20:50:60000
+P:2:1d14:2:0d0
 F:SHARPNESS | SLAY_SPIDER
 D:A long spear, with a point like a sharp thorn of steel.
 
@@ -870,7 +898,7 @@ N:90:of Melkor
 G:/:D
 I:22:2:-1
 W:15:20:80:100000
-P:-1:1d15:1:0d0
+P:1:1d15:1:0d0
 F:GRA | BRAND_POIS
 F:FREE_ACT | VUL_POIS | LIGHT_CURSE 
 D:A mighty black spear, once wielded by the Lord of Darkness
@@ -929,7 +957,7 @@ D: fight some of Morgoth's foulest servants.
 N:99:of Gaurin
 I:22:4:3
 W:12:30:80:50000
-P:-2:2d9:1:0d0
+P:-1:2d9:1:0d0
 F:TUNNEL | SHARPNESS
 D:'...the glaive of Gaurin whose gleaming stroke
 D: did rive the rocks of Rodrim's hall.'
@@ -943,7 +971,7 @@ D: did rive the rocks of Rodrim's hall.'
 N:100:of the Sirion
 I:22:4:3
 W:10:20:70:50000
-P:-1:2d10:1:0d0
+P:0:2d10:1:0d0
 B:0/6:3/3
 D:Like the waters of its namesake river, this fine blade
 D: is ever in motion. In combat, it seems to flow into
@@ -955,8 +983,8 @@ D: every opening, no matter how brief.
 
 N:101:'Celebrist'
 I:22:4:1
-W:6:20:50:22000
-P:-1:2d9:2:0d0
+W:8:12:50:22000
+P:0:2d10:2:0d0
 F:DEX | FREE_ACT | NEG_CON
 D:A beautiful blade on a long shaft of dark wood. It feels lively
 D: in your hands, its point guiding itself to where it is needed.

@@ -50,15 +50,15 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.3.3"
+#define VERSION_STRING	"1.4.0"
 
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	1
-#define VERSION_MINOR	3
-#define VERSION_PATCH	3
+#define VERSION_MINOR	4
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 
@@ -67,7 +67,7 @@
  */
 #define OLD_VERSION_MAJOR	1
 #define OLD_VERSION_MINOR	3
-#define OLD_VERSION_PATCH	2
+#define OLD_VERSION_PATCH	3
 
 
 /*
@@ -410,6 +410,7 @@
  * Player constants
  */
 #define PY_START_EXP	5000	/* Starting exp */
+#define PY_FIXED_EXP	50000	/* Starting exp */
 #define PY_MAX_EXP	99999999L	/* Maximum exp */
 #define PY_MAX_LEVEL	50		/* Maximum level */
 
@@ -499,15 +500,15 @@
 #define	STL_DISGUISE				 0
 #define	STL_ASSASSINATION			 1
 #define	STL_CRUEL_BLOW				 2
-#define	STL_OPPORTUNIST				 3
-#define	STL_EXCHANGE_PLACES			 4
+#define	STL_EXCHANGE_PLACES			 3
+#define	STL_OPPORTUNIST				 4
 #define	STL_VANISH					 5
 #define	STL_DEX						 6
 
 /* 
  * Perception abilities 
  */
-#define	PER_EYE_FOR_DETAIL			 0
+#define	PER_QUICK_STUDY				 0
 #define	PER_FOCUSED_ATTACK			 1
 #define	PER_KEEN_SENSES				 2
 #define	PER_CONCENTRATION			 3
@@ -557,7 +558,7 @@
 #define	SNG_STAYING					6
 #define	SNG_LORIEN					7
 #define	SNG_THRESHOLDS					8
-#define	SNG_FIERCE_BLOWS				9
+#define	SNG_OVERWHELMING				9
 #define	SNG_MASTERY					10
 #define	SNG_WOVEN_THEMES			11
 #define	SNG_GRA						12
@@ -1238,7 +1239,7 @@
 #define SV_STAFF_EARTHQUAKES	14
 #define SV_STAFF_RECHARGING		16
 #define SV_STAFF_SUMMONING		17
-#define SV_STAFF_ENTRAPMENT		18
+#define SV_STAFF_SHADOWS		18
 
 
 /* The "sval" codes for TV_HORN */
@@ -1252,6 +1253,7 @@
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_MIRUVOR			0
 #define SV_POTION_ORCISH_LIQUOR		2
+#define SV_POTION_ESGALDUIN			3
 #define SV_POTION_CLARITY			4
 #define SV_POTION_HEALING			5
 #define SV_POTION_VOICE				6
@@ -2618,7 +2620,7 @@
 #define OPT_run_avoid_center		69
 // xxx scroll_target
 #define OPT_auto_more				71
-// xxx toggle_xp
+#define OPT_know_monster_info			72
 #define OPT_auto_display_lists		73
 #define OPT_easy_main_menu			74
 // xxx verify_leave_quest
@@ -2636,15 +2638,7 @@
 #define OPT_birth_ironman			(OPT_BIRTH+4)
 // xxx birth_no_stores
 #define OPT_birth_no_artefacts		(OPT_BIRTH+6)
-// xxx birth_rand_artefacts
-// xxx birth_no_stacking
-// xxx birth_take_notes	
-// xxx birth_force_small_lev
-// xxx birth_retain_squelch
-// xxx birth_no_quests
-// xxx birth_no_player_ghosts
-// xxx birth_no_store_services
-// xxx birth_no_xtra_artefacts
+#define OPT_birth_fixed_exp		(OPT_BIRTH+7)
 
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
@@ -2763,7 +2757,7 @@
 #define run_avoid_center		op_ptr->opt[OPT_run_avoid_center]
 // xxx scroll_target
 #define auto_more				op_ptr->opt[OPT_auto_more]
-// xxx toggle_xp
+#define know_monster_info		op_ptr->opt[OPT_know_monster_info]
 #define auto_display_lists		op_ptr->opt[OPT_auto_display_lists]
 #define easy_main_menu			op_ptr->opt[OPT_easy_main_menu]
 #define display_hits			op_ptr->opt[OPT_display_hits]
@@ -2780,11 +2774,7 @@
 #define birth_ironman			op_ptr->opt[OPT_birth_ironman]
 // xxx birth_no_stores
 #define birth_no_artefacts		op_ptr->opt[OPT_birth_no_artefacts]
-// xxx birth_rand_artefacts
-
-// xxx birth_no_stacking
-// xxx birth_take_notes
-// xxx birth_force_small_lev
+#define birth_fixed_exp			op_ptr->opt[OPT_birth_fixed_exp]
 // xxx birth_retain_squelch
 // xxx birth_no_quests
 // xxx birth_no_player ghosts

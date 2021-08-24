@@ -708,8 +708,8 @@ int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 			/* Impassible except for monsters that move through walls */
 			if ((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL))) return (move_chance);
             
-            // alert monsters can slowly tunnel through walls
-            else if ((r_ptr->flags2 & (RF2_TUNNEL_WALL)) && (m_ptr->alertness >= ALERTNESS_ALERT)) return (move_chance);
+            // alert unafraid monsters can slowly tunnel through walls
+            else if ((r_ptr->flags2 & (RF2_TUNNEL_WALL)) && (m_ptr->alertness >= ALERTNESS_ALERT) && (m_ptr->stance != STANCE_FLEEING)) return (move_chance);
             
 			else return (0);
 		}
@@ -4782,7 +4782,7 @@ static void process_monster(monster_type *m_ptr)
 		if ((chance) && (m_ptr->stunned)) chance /= 2;
 
 		/* Smitten monsters get no ranged attacks. */
-		if (singing(SNG_FIERCE_BLOWS) && m_ptr->stunned) chance = 0;
+		if (singing(SNG_OVERWHELMING) && m_ptr->stunned) chance = 0;
 
 		/* Monster can use ranged attacks */
 		if ((chance) && percent_chance(chance))
