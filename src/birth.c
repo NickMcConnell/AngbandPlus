@@ -115,6 +115,11 @@ int calc_exp_factor(void)
         exp = exp * realm->exp / 100;
     }
 
+    if (coffee_break == SPEED_INSTA_COFFEE) /* Does not really lend itself to extreme XP mods - flatten the scale a bit */
+    {
+        exp = ((exp + 50) * 2 / 3);
+    }
+
     return exp;
 }
 
@@ -288,7 +293,7 @@ static void player_wipe(void)
 
     /* Default pet command settings */
     p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
-    p_ptr->pet_extra_flags = (PF_TELEPORT | PF_ATTACK_SPELL | PF_SUMMON_SPELL);
+    p_ptr->pet_extra_flags = (PF_TELEPORT | PF_ATTACK_SPELL | PF_SUMMON_SPELL | PF_HILITE_LISTS);
 
     /* Wipe the recall depths */
     for (i = 0; i < max_d_idx; i++)

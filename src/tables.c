@@ -1335,7 +1335,7 @@ arena_type arena_info[MAX_ARENA_MONS + 2] =
     { MON_SPIRIT_NAGA,   0,         0                             },
     { MON_BASILISK,      0,         0                             },
     { MON_MITHRIL_GOLEM, TV_WAND,   EFFECT_BALL_ACID              },
-    { MON_SHADOW_DRAKE,  0,         0                             },
+    { MON_SHADOW_DRAKE,  TV_WAND,   EFFECT_CONFUSE_MONSTER        },
     { MON_OGRE_SHAMAN,   TV_SCROLL, SV_SCROLL_ACQUIREMENT         },
     { MON_BICLOPS,       TV_POTION, SV_POTION_SELF_KNOWLEDGE      },
     { MON_ETHER_DRAKE,   TV_SCROLL, SV_SCROLL_RUNE_OF_PROTECTION  },
@@ -2043,11 +2043,11 @@ cptr window_flag_desc[32] =
     "Display monster list",
     "Display messages",
 
-    "Display overhead view (*SLOW*)",
+    "Display overhead view",
 
     "Display monster recall",
 
-    "Display object recall",
+    "Display spell recall",
 
     "Display dungeon view",
 
@@ -2055,9 +2055,10 @@ cptr window_flag_desc[32] =
 
     NULL,
     NULL,
-    "Display borg messages",
-
-    "Display borg status",
+//    "Display borg messages",
+//    "Display borg status",
+    NULL,
+    NULL,
 
     NULL,
     NULL,
@@ -2081,6 +2082,7 @@ cptr window_flag_desc[32] =
 /*
  * Available Options
  *
+ * 0,* and 1,* space are now fully occupied
  */
 option_type option_info[] =
 {
@@ -2129,30 +2131,30 @@ option_type option_info[] =
     "easy_disarm",                  "Automatically disarm traps" },
 #endif /* ALLOW_EASY_DISARM */
 
-    { &auto_get_ammo,               FALSE, OPT_PAGE_INPUT, 6, 5,
-    "auto_get_ammo",                "Automatically get nearby ammo with get cmd" },
-
-    { &auto_get_objects,            FALSE, OPT_PAGE_INPUT, 6, 7,
-    "auto_get_objects",             "Automatically get autopick objects with get cmd" },
-
     { &auto_detect_traps,           FALSE, OPT_PAGE_INPUT, 6, 9,
     "auto_detect_traps",            "Automatically detect traps while running" },
 
     { &auto_map_area,               FALSE, OPT_PAGE_INPUT, 6, 10,
     "auto_map_area",                "Automatically map area while running" },
 
+    { &auto_get_ammo,               FALSE, OPT_PAGE_INPUT, 6, 5,
+    "auto_get_ammo",                "Ctrl-G automatically gets nearby ammo" },
+
+    { &auto_get_objects,            FALSE, OPT_PAGE_INPUT, 6, 7,
+    "auto_get_objects",             "Ctrl-G automatically gets nearby wanted objects" },
+
     { &numpad_as_cursorkey,         TRUE, OPT_PAGE_INPUT, 2, 31,
     "numpad_as_cursorkey",          "Use numpad keys as cursor keys in editor mode" },
 
     { &use_pack_slots,              TRUE,  OPT_PAGE_INPUT, 0, 3,
-    "use_pack_slots",               "Use/Display slots in your inventory" },
+    "use_pack_slots",               "Retain backpack slot labels in other inventories" },
     /*** Map Screen Options ***/
 
     { &center_player,               FALSE, OPT_PAGE_MAPSCREEN, 5, 11,
-    "center_player",                "Center map while walking (*slow*)" },
+    "center_player",                "Center map on player while walking"},
 
     { &center_running,              TRUE,  OPT_PAGE_MAPSCREEN, 5, 12,
-    "center_running",               "Centering even while running" },
+    "center_running",               "Center map even while running" },
 
     { &view_yellow_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 28,
     "view_yellow_lite",             "Use special colors for torch-lit grids" },
@@ -2176,13 +2178,13 @@ option_type option_info[] =
     "view_unsafe_grids",            "Map marked by detect traps" },
 
     { &fresh_before,                TRUE,  OPT_PAGE_MAPSCREEN, 1, 23,
-    "fresh_before",                 "Flush output while continuous command" },
+    "fresh_before",                 "Fresh screen before automated input" },
 
     { &fresh_after,                 FALSE, OPT_PAGE_MAPSCREEN, 1, 24,
-    "fresh_after",                  "Flush output after monster's move" },
+    "fresh_after",                  "Fresh screen after processing monsters" },
 
     { &fresh_message,               FALSE, OPT_PAGE_MAPSCREEN, 1, 25,
-    "fresh_message",                "Flush output after every message" },
+    "fresh_message",                "Fresh screen after every message" },
 
     { &hilite_player,               FALSE, OPT_PAGE_MAPSCREEN, 1, 27,
     "hilite_player",                "Hilite the player with the cursor" },
@@ -2199,7 +2201,7 @@ option_type option_info[] =
     "plain_descriptions",           "Plain object descriptions" },
 
     { &always_show_list,            TRUE,  OPT_PAGE_TEXT, 4, 0,
-    "always_show_list",             "Always show list when choosing items" },
+    "always_show_list",             "Always show list when choosing spells" },
 
     { &depth_in_feet,               FALSE, OPT_PAGE_TEXT, 0, 7,
     "depth_in_feet",                "Show dungeon level in feet" },
@@ -2207,8 +2209,8 @@ option_type option_info[] =
     { &effective_speed,             FALSE, OPT_PAGE_TEXT, 0, 29,
     "effective_speed",              "Show speeds as energy multipliers" },
 
-    { &show_labels,                 TRUE,  OPT_PAGE_TEXT, 0, 10,
-    "show_labels",                  "Show labels in object listings" },
+    { &describe_slots,              TRUE,  OPT_PAGE_TEXT, 0, 10,
+    "describe_slots",               "Show equipment slot descriptions" },
 
     { &show_weights,                TRUE,  OPT_PAGE_TEXT, 0, 11,
     "show_weights",                 "Show weights in object listings" },
@@ -2234,6 +2236,12 @@ option_type option_info[] =
     { &display_food_bar,            FALSE,  OPT_PAGE_TEXT, 1, 13,
     "display_food_bar",             "Display detailed food status" },
 
+    { &decimal_stats,               FALSE,  OPT_PAGE_TEXT, 2, 25,
+    "decimal_stats",                "Display stats as decimals" },
+
+    { &show_rogue_keys,		    FALSE, OPT_PAGE_TEXT, 6, 3,
+    "show_rogue_keys",		    "Display roguelike movement keys as reminder" },
+
 //    { &display_percentages,         FALSE,  OPT_PAGE_TEXT, 1, 10,
 //    "display_percentages",          "Display percentages rather than status bars" },
 
@@ -2241,10 +2249,10 @@ option_type option_info[] =
     "compress_savefile",            "Compress messages in savefiles" },
 
     { &abbrev_extra,                FALSE, OPT_PAGE_TEXT, 2, 10,
-    "abbrev_extra",                 "Describe obj's extra resistances by abbreviation" },
+    "abbrev_extra",                 "Describe extra object attributes by abbreviation" },
 
     { &abbrev_all,                  FALSE, OPT_PAGE_TEXT, 2, 11,
-    "abbrev_all",                   "Describe obj's all resistances by abbreviation" },
+    "abbrev_all",                   "Describe all object attributes by abbreviation" },
 
     { &exp_need,                    FALSE, OPT_PAGE_TEXT, 2, 12,
     "exp_need",                     "Show the experience needed for next level" },
@@ -2276,6 +2284,12 @@ option_type option_info[] =
     { &list_stairs,                  FALSE,  OPT_PAGE_TEXT, 1, 10,
     "list_stairs",                  "Display stairs in the object list" },
 
+    { &show_future_powers,           TRUE,  OPT_PAGE_TEXT, 1, 0,
+    "show_future_powers",           "Include known future race/class powers in lists" },
+
+    { &show_future_spells,           FALSE,  OPT_PAGE_TEXT, 2, 20,
+    "show_future_spells",           "Include known future class spells in lists" },
+
     { &display_skill_num,            FALSE,  OPT_PAGE_TEXT, 2, 22,
     "display_skill_num",            "Display skills as numbers in character sheet" },
 
@@ -2295,13 +2309,13 @@ option_type option_info[] =
     "stack_force_costs",            "Merge discounts when stacking" },
 
     { &expand_list,                 TRUE,  OPT_PAGE_GAMEPLAY, 1, 5,
-    "expand_list",                  "Expand the power of the list commands" },
+    "expand_list",                  "Allow query option lists to loop to beginning" },
 
     { &empty_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 31,
     "empty_levels",                 "Allow empty 'arena' levels" },
 
     { &bound_walls_perm,            FALSE, OPT_PAGE_GAMEPLAY, 2, 1,
-    "bound_walls_perm",             "Boundary walls become 'permanent wall'" },
+    "bound_walls_perm",             "Display dungeon boundaries as permanent walls" },
 
     { &last_words,                  TRUE,  OPT_PAGE_GAMEPLAY, 0, 28,
     "last_words",                   "Leave last words when your character dies" },
@@ -2325,8 +2339,11 @@ option_type option_info[] =
     { &find_cut,                    FALSE, OPT_PAGE_DISTURBANCE, 0, 18,
     "find_cut",                     "Run past known corners" },
 
+    { &travel_ignore_items,         TRUE, OPT_PAGE_DISTURBANCE, 2, 30,
+    "travel_ignore_items",          "Ignore identified items while travelling" },
+
     { &check_abort,                 TRUE,  OPT_PAGE_DISTURBANCE, 1, 18,
-    "check_abort",                  "Check for user abort while continuous command" },
+    "check_abort",                  "Check for user abort of automated input" },
 
     { &flush_failure,               TRUE,  OPT_PAGE_DISTURBANCE, 1, 20,
     "flush_failure",                "Flush input on various failures" },
@@ -2362,13 +2379,13 @@ option_type option_info[] =
     "town_no_disturb",              "Never disturb when a town monster moves" },
 
     { &ring_bell,                   FALSE, OPT_PAGE_DISTURBANCE, 0, 14,
-    "ring_bell",                    "Audible bell (on errors, etc)" },
+    "ring_bell",                    "Audible bell (on errors, etc.)" },
 
     { &disturb_trap_detect,         TRUE,  OPT_PAGE_DISTURBANCE, 0, 27,
-    "disturb_trap_detect",          "Disturb when leaving trap detected area" },
+    "disturb_trap_detect",          "Disturb when leaving trap-detected area" },
 
     { &alert_trap_detect,           FALSE, OPT_PAGE_DISTURBANCE, 0, 25,
-    "alert_trap_detect",            "Alert when leaving trap detected area" },
+    "alert_trap_detect",            "Alert when leaving trap-detected area" },
 
     { &alert_device_gone,           TRUE,  OPT_PAGE_DISTURBANCE, 0, 13,
     "alert_device_gone",            "Alert when carried device is destroyed or stolen" },
@@ -2384,8 +2401,8 @@ option_type option_info[] =
 
     /*** Birth Options ***/
 
-	{ &coffee_break,		FALSE, OPT_PAGE_BIRTH, 6, 3,
-	"coffee_break",			"Coffee-break mode (accelerated game) (*)" },
+//	{ &coffee_break,		FALSE, OPT_PAGE_BIRTH, 6, 3,
+//	"coffee_break",			"Coffee-break mode (accelerated game) (*)" },
 
 	{ &easy_id,			FALSE, OPT_PAGE_BIRTH, 6, 31,
 	"easy_id",			"Easy Identify" },
@@ -2438,8 +2455,17 @@ option_type option_info[] =
     { &wacky_rooms,                 FALSE, OPT_PAGE_BIRTH, 1, 22,
     "wacky_rooms",                  "Always generate very unusual rooms (*)" },
 
+    { &melee_challenge,             FALSE, OPT_PAGE_BIRTH, 2, 21,
+    "melee_challenge",              "Monsters can only be damaged in melee (*)" },
+
+    { &no_melee_challenge,          FALSE, OPT_PAGE_BIRTH, 2, 23,
+    "no_melee_challenge",           "Monsters cannot be damaged in melee (*)" },
+
     { &enable_virtues,              FALSE, OPT_PAGE_BIRTH, 6, 13,
     "enable_virtues",               "Enable the virtue system" },
+
+    { &no_wanted_points,            TRUE, OPT_PAGE_BIRTH, 2, 24,
+    "no_wanted_points",             "Deeper wanted uniques give better rewards" },
 
     { &preserve_mode,               TRUE,  OPT_PAGE_BIRTH, 6, 14,
     "preserve_mode",                "Preserve artifacts (*)" },
@@ -2457,7 +2483,7 @@ option_type option_info[] =
     "quest_unique",                 "Random quests for unique monsters only" },
 
     { &random_artifacts,            FALSE, OPT_PAGE_BIRTH, 6, 23,
-    "random_artifacts",             "Randomize Standard Artifacts" },
+    "random_artifacts",             "Randomize standard artifacts" },
 
     { &no_artifacts,                FALSE, OPT_PAGE_BIRTH, 6, 24,
     "no_artifacts",                 "Never create artifacts" },
@@ -2511,6 +2537,9 @@ option_type option_info[] =
 
     { &no_mogaminator,              FALSE, OPT_PAGE_AUTODESTROY, 7, 11,
     "no_mogaminator",               "Never apply the Mogaminator" },
+
+    { &leave_mogaminator,           FALSE, OPT_PAGE_AUTODESTROY, 7, 12,
+    "leave_mogaminator",            "Leave items the Mogaminator wants to destroy" },
 
     { &delay_autopick,              FALSE, OPT_PAGE_AUTODESTROY, 1, 9,
     "delay_autopick",               "Allow manual pickup before applying auto-pickup" },

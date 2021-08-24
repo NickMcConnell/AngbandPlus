@@ -3,27 +3,25 @@
 static cptr _desc = 
     "Elementals are mindless creatures animated from a single "
     "elemental form. As a species, elementals can never be cut, "
-    "and they are immune to the eldritch horror (being virtually mindless). "
-    "They rarely feel fear and are resistant to confusion and poison. In addition, they "
+    "and being virtually mindless they are immune to sanity blasting. "
+    "They rarely feel fear, and are resistant to confusion and poison. In addition, they "
     "gain specific powers and abilities depending on their form.\n \n"
-    "For example, Earth Elementals are slow but gain bonuses to AC due "
-    "to their tough skins. They are resistant to shards and may even turn "
-    "their skins to stone. At home in elemental earth, they may travel "
-    "freely through rocky confines. However, being made of earth, their "
-    "potions frequently turn to mud!\n \n"
+    "Earth Elementals are slow, but gain AC bonuses due to their tough bodies. "
+    "They are resistant to shards, and may even turn their skins to stone. "
+    "At home in elemental earth, they may travel freely through rocky confines. "
+    "Unfortunately, as they are made of earth, their magic potions frequently turn to mud!\n \n"
     "Air Elementals are shockingly fast, but perhaps that is just the "
-    "crackle of their electrified bodies? They may hurl bolts and balls "
-    "electricity at their enemies and may even imbue their weapons with "
+    "crackle of their electrified bodies? They may hurl bolts and balls of "
+    "electricity at their enemies, and may even imbue their weapons with "
     "deadly lightning. However, being surrounded by lightning, rings, "
     "amulets, wands and rods are quickly destroyed!\n \n"
-    "Fire Elementals are somewhat fast (They definitely run circles around "
-    "their earthen brethren) and are cloaked in fire. Of course, they may attack "
-    "with hell's fury but need to be on the lookout for cold wielding foes. "
-    "However, being surrounded by fire, scrolls and staves are rapidly burned "
-    "to ash!\n \n"
+    "Fire Elementals are somewhat fast (enough to run circles around "
+    "their earthen brethren) and are cloaked in flames. They may attack "
+    "with hell's fury, but need to be on the lookout for cold-wielding foes. "
+    "Being surrounded by fire, they rapidly burn scrolls and staves to ash!\n \n"
     "Finally, there are the Water Elementals, creatures able to conjure deadly "
-    "water bolts. They are immune to stunning. Their attacks can be quite corrosive, "
-    "but, alas, sometimes their armor corrodes as well! They also have a unique "
+    "water bolts. They are immune to stunning. Their attacks can be quite corrosive; "
+    "but alas, sometimes their own armor corrodes as well. Water Elementals also have a unique "
     "energy system based on the speed of their internal water flow; fighting and "
     "the use of elemental powers excite them and turn them into a raging torrent, "
     "while resting or aimlessly splashing about slows them down again. High flow "
@@ -775,7 +773,7 @@ void water_mana_action(byte check_hurt_mode, int mana)
             object_desc(o_name, o_ptr, OD_NAME_ONLY | OD_OMIT_PREFIX | OD_OMIT_INSCRIPTION | OD_COLOR_CODED);
             o_ptr->marked |= OM_SLIPPING;
             msg_format("You flow too fast! Your %s is caught in the flow and slips off!", o_name);
-            if ((object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI)) && (p_ptr->personality == PERS_SEXY))
+            if ((object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI)) && (personality_is_(PERS_SEXY)))
             {
                 msg_print("You roar!");
                 p_ptr->csp = 1000;

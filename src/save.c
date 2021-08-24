@@ -491,6 +491,7 @@ static void wr_quick_start(savefile_ptr file)
     int i;
 
     savefile_write_byte(file, previous_char.game_mode);
+    savefile_write_byte(file, previous_char.coffee_break);
     savefile_write_byte(file, previous_char.psex);
     savefile_write_byte(file, previous_char.prace);
     savefile_write_byte(file, previous_char.psubrace);
@@ -520,6 +521,7 @@ static void wr_extra(savefile_ptr file)
     wr_quick_start(file);
 
     savefile_write_s32b(file, game_mode);
+    savefile_write_byte(file, coffee_break);
     savefile_write_byte(file, game_pantheon);
     savefile_write_byte(file, p_ptr->prace);
     savefile_write_byte(file, p_ptr->pclass);
@@ -776,7 +778,12 @@ static void wr_extra(savefile_ptr file)
     savefile_write_byte(file, p_ptr->wait_report_score);
     savefile_write_u32b(file, seed_flavor);
     savefile_write_u32b(file, seed_town);
-    if (p_ptr->personality == PERS_CHAOTIC) savefile_write_u32b(file, chaotic_py_seed);
+
+    /* Careful - we need to tell the savefile whether personality includes
+     * Chaotic BEFORE adding the Chaotic-exclusive content... */
+    if (p_ptr->personality == PERS_SPLIT) split_save(file);
+    if (personality_includes_(PERS_CHAOTIC)) savefile_write_u32b(file, chaotic_py_seed);
+
     savefile_write_u16b(file, p_ptr->panic_save);
     savefile_write_u16b(file, p_ptr->total_winner);
     savefile_write_u16b(file, p_ptr->noscore);
@@ -798,6 +805,8 @@ static void wr_extra(savefile_ptr file)
     savefile_write_byte(file, p_ptr->filibuster);
     savefile_write_byte(file, p_ptr->upset_okay);
     savefile_write_byte(file, p_ptr->py_summon_kills);
+    savefile_write_s16b(file, p_ptr->lv_kills);
+    savefile_write_s16b(file, p_ptr->pet_lv_kills);
     for (i = 0; i < 16; i++)
         savefile_write_s32b(file, 0); /* Future use */
 

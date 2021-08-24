@@ -14046,22 +14046,19 @@ D:This ancient shadow of death wilts any living thing it passes.
 N:805:Omarax the Eye Tyrant
 G:e:y
 I:130:65d100:30:80:10:100
-W:73:4:999:16000:0:0
-B:GAZE:DAM(2d6):DRAIN_EXP(40d6)
-B:GAZE:DAM(2d6):DRAIN_CHARGES
-B:GAZE:DAM(2d6):LOSE_INT
-B:GAZE:DRAIN_MANA(7d10)
+W:73:4:999:29282:0:0
+B:GAZE:BRAIN_SMASH(7d6):DRAIN_MANA(9d9):CONFUSE:DRAIN_EXP(40d6)
+B:GAZE:BRAIN_SMASH(7d6):TERRIFY:PARALYZE:CONFUSE
+B:GAZE:BRAIN_SMASH(7d6):DRAIN_CHARGES:AMNESIA(25%):LOSE_INT
+B:GAZE:DAM(6d9):DISENCHANT:STUN(2d3):LOSE_WIS(50%)
 F:UNIQUE | MALE | CAN_SPEAK | RES_TELE
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:SMART | BASH_DOOR |
-F:EVIL | RES_POIS |
-F:NO_CONF | NO_SLEEP
+F:EVIL | RES_POIS | NO_CONF | NO_SLEEP
 F:POS_TELEPATHY | POS_GAIN_AC
 P:Copy:High-Elf:Warrior-Mage
 P:Body:Eye8
-S:1_IN_2 |
-S:BLIND | SLOW | CONFUSE | SCARE | DRAIN_MANA | MIND_BLAST | AMNESIA |
-S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD | S_KIN
+S:FREQ_40 | GAZE | BRAIN_SMASH(150) | S_KIN | BO_MANA | BA_DARK | DISPEL_MAGIC
 D:A disembodied eye, floating in the air. His gaze seems to shred your
 D:soul and his spells crush your will. He is ancient, his history steeped
 D:in forgotten evils, his atrocities numerous and sickening.
@@ -14333,7 +14330,7 @@ F:RES_POIS | RES_FIRE | FORCE_SLEEP | FORCE_MAXHP | NONLIVING
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Balrog:Mauler
 S:FREQ_15 | ROCKET(600)
-D:Reverbrant metal steps announce the arrival of this huge creature,
+D:Reverberant metal steps announce the arrival of this huge creature,
 D:half demon half machine. It has an unsurpassable firepower.
 
 N:817:Hela, Queen of the Dead
@@ -14916,7 +14913,7 @@ B:BITE:HURT(8d12):POISON(4d12)
 F:UNIQUE | MALE | CAN_SPEAK | ANIMAL | EVIL |
 F:FORCE_SLEEP | FORCE_MAXHP | ESCORT
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RAND_25 |
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | NO_CONF |
 F:RES_POIS
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Barbarian:Mauler
@@ -17939,7 +17936,7 @@ F:RAND_50 | RAND_25 |
 F:FORCE_MAXHP | CAN_SPEAK |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | RES_NETH
-F:UNDEAD | NO_SLEEP
+F:UNDEAD | NO_SLEEP | NO_QUEST
 F:POS_SEE_INVIS | POS_HOLD_LIFE
 P:Copy:Hobbit:Warrior
 D:He has only three hair. He is careless, but kind, and always a bit hungry.
@@ -19516,9 +19513,9 @@ G:H:R
 I:110:60d10:20:80:0:170
 W:127:255:999:500:0:0
 B:HIT:HURT(1d1)
-F:MALE | FORCE_MAXHP | HAS_LITE_2 | HUMAN |
+F:FORCE_MAXHP | HAS_LITE_2 | HUMAN |
 F:OPEN_DOOR | BASH_DOOR | NO_FEAR | UNIQUE2
-D:He looks just like you!
+D:It looks just like you!
 
 N:1096:Zeus, King of the Olympians
 G:P:v
@@ -20219,7 +20216,7 @@ N:1129:Soul
 G:G:B
 I:110:1d1:4:1:40:60
 W:50:0:0:0:0:0
-F:PASS_WALL | INVISIBLE | COLD_BLOOD
+F:PASS_WALL | INVISIBLE | COLD_BLOOD | CAN_FLY
 D:A naked spirit of a great sage, who had left his own body forever
 D: to seek and dominate the bodies of others. It looks like a small
 D: cloud of glowing white mist. In this form it is harmless, but
@@ -22397,7 +22394,7 @@ B:BITE:ACID(13d13):VAMP(7d7):UNLIFE(4d4, 40%)
 F:FORCE_SLEEP | SMART | KILL_WALL | CAN_SWIM | BASH_DOOR | FORCE_MAXHP
 F:ONLY_ITEM | DROP_3D2 | DROP_2D2 | DROP_GOOD | COLD_BLOOD | OPEN_DOOR |
 F:EVIL | UNDEAD | RES_FIRE | RES_COLD | IM_POIS | RES_DARK | RES_TELE |
-F:HURT_LITE | RES_NETH | NO_CONF | NO_SLEEP | UNIQUE | NO_FEAR
+F:HURT_LITE | RES_NETH | NO_CONF | NO_SLEEP | UNIQUE | NO_FEAR | RES_ACID
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Mauler
 P:Body:Giant Worm
@@ -22853,7 +22850,7 @@ P:Stats:0:0:0:0:3:2
 P:Life:105
 S:1_IN_3 |
 S:HEAL | BR_NETHER | BA_NETHER(10d10+230) | S_HI_UNDEAD | BO_MANA | BA_DARK |
-S:BA_MANA | HAND_DOOM | S_SPECIAL | S_MONSTER | BR_FORCE | BR_NEXUS |
+S:MANA_STORM | HAND_DOOM | S_SPECIAL | S_MONSTER | BR_FORCE | BR_NEXUS |
 S:BA_NEXUS(10d10+138) | HASTE | ANIM_DEAD | PSY_SPEAR(1d184+160) | CAUSE_4 |
 D:The divine king of Egypt, Osiris was murdered and usurped by his brother
 D:Seth, and resurrected by his wife Isis and posthumous son Horus. He is now
@@ -23099,9 +23096,10 @@ B:BUTT:HURT(8d14):STUN(6d6)
 B:BUTT:HURT(4d7):STUN(3d3)
 F:BASH_DOOR | ANIMAL | RES_WALL | REFLECTING | RIDING |
 F:RES_POIS | RES_CHAO | DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | IM_ELEC |
-F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_STUN | RES_FIRE | RES_ELEC |
+F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_STUN | RES_FIRE |
 F:EVIL | MOVE_BODY | RES_ACID | RES_DARK | RES_NETH | EGYPTIAN | EGYPTIAN2
 P:Copy:Half-Titan:Warrior-Mage
+P:Body:Hound
 S:1_IN_8 |
 S:DRAIN_MANA | BR_FORCE
 D:A large, lean, bizarre creature associated with the god Seth, it seems
@@ -23143,6 +23141,7 @@ F:NO_CONF | NO_SLEEP | NO_STUN | RES_SOUN | IM_POIS | REFLECTING | DROP_4D2
 F:RES_WATE | RES_LITE | RES_DARK | RES_PLAS | RES_SHAR | BASH_DOOR | CAN_FLY
 F:POS_GAIN_AC
 P:Copy:Golem:Warrior
+P:Body:Fishrooster
 S:FREQ_27 | BR_SOUND | BR_STORM | SHRIEK | S_MONSTER
 D:A bizarre, majestic, awe-inspiring monstrosity, large enough to swallow
 D:dozens of people at once. You have never seen anything else like it, and
@@ -23438,6 +23437,9 @@ F:RES_ELEC | RES_FIRE | RES_COLD | RES_TIME | IM_ACID | NO_CONF | NO_SLEEP
 F:EVIL | DROP_CORPSE | POS_GAIN_AC
 S:1_IN_2 |
 S:TELE_TO | BA_WATER(1d124+62) | BR_ACID | BR_ELEC | BR_NEXUS
+P:Copy:Dunadan:Chaos-Warrior
+P:Body:Octopus
+P:Speed:+12
 D:Since the dawn of time has Iku-Turso lurked in the oceans: the gigantic
 D:terror of the open seas, umpteen-headed, umpteen-horned, his slimy tentacles
 D:reaching out to catch his prey; as if every other sea monster had been
@@ -23475,6 +23477,7 @@ F:DEMON | NONLIVING | FORCE_SLEEP | RES_PLAS | EVIL | ONLY_ITEM | STUPID |
 F:DROP_60 | DROP_CORPSE | POS_SEE_INVIS | FRIENDS(1d3, 25%) | NO_CONF
 F:RES_NETH | IM_POIS |
 P:Copy:Dunadan:Paladin
+P:Body:Spider
 S:FREQ_95 |
 S:BO_PLASMA(4d4+32)
 D:This monstrous demonic spider-golem seems to be all legs and oversized
@@ -23623,6 +23626,7 @@ S:1_IN_5 |
 S:HEAL | BLINK | SHRIEK | DARKNESS | MISSILE | CONFUSE
 P:Copy:Yeek:Mage
 P:Speed:+7
+P:Body:Puppy
 D:A great purple rat with sharp teeth and sorcerous powers.
 
 N:1300:Death pumpkin
@@ -23692,7 +23696,7 @@ W:100:2:999:121000:0:0
 A:ELEC(8d8)
 F:FORCE_SLEEP | FORCE_MAXHP | FIXED_UNIQUE | RES_TELE | NEVER_BLOW |
 F:KILL_WALL | UNIQUE | COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR |
-F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_ACID | IM_POIS |
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_ACID | IM_POIS | STUPID |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | RES_LITE | RES_DARK | RES_NETH |
 F:RES_SHAR | RES_SOUN | RES_CHAO | RES_DISE | RES_TIME |
 F:DROP_3D2 | DROP_4D2 | DROP_GREAT |

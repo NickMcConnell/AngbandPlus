@@ -50,7 +50,6 @@ CONFIG = a_info.txt \
 	q_info.txt \
 	q_inntrouble.txt \
 	q_killing_fields.txt \
-	q_laboratory.txt \
 	q_lights.txt \
 	q_logrus_master.txt \
 	q_meta.txt \
@@ -77,6 +76,7 @@ CONFIG = a_info.txt \
 	q_sorcery.txt \
 	q_spawning_pits.txt \
 	q_spider.txt \
+	q_stable.txt \
 	q_staff.txt \
 	q_tengu_death_swords.txt \
 	q_thieves.txt \
@@ -84,7 +84,7 @@ CONFIG = a_info.txt \
 	q_troll2.txt \
 	q_trollslayer.txt \
 	q_tunnels.txt \
-	q_undeground.txt \
+	q_underground.txt \
 	q_vapor2.txt \
 	q_vapor.txt \
 	q_vault.txt \
@@ -95,7 +95,7 @@ CONFIG = a_info.txt \
 	q_wtower.txt \
 	r_info.txt \
 	s_info.txt \
-	t_anambar.txt \
+	t_ana.txt \
 	t_angwil.txt \
 	t_basic.txt \
 	t_info.txt \
@@ -105,6 +105,7 @@ CONFIG = a_info.txt \
 	t_pref.txt \
 	t_telmo.txt \
 	t_thalos.txt \
+	t_ulite.txt \
 	t_zul.txt \
 	v_info.txt \
 	vaults.txt \

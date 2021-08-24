@@ -33,7 +33,7 @@ static bool _necro_check_touch(void)
 
 static cptr _necro_info_damage(int dice, int sides, int base)
 {
-    if (equip_find_art(ART_HAND_OF_VECNA))
+    if ((equip_find_art(ART_HAND_OF_VECNA)) || ((prace_is_(RACE_IGOR)) && (igor_find_art(ART_HAND_OF_VECNA))))
     {
         dice *= 2;
         base *= 2;
@@ -43,7 +43,7 @@ static cptr _necro_info_damage(int dice, int sides, int base)
 
 static int _necro_damroll(int dice, int sides, int base)
 {
-    if (equip_find_art(ART_HAND_OF_VECNA))
+    if ((equip_find_art(ART_HAND_OF_VECNA)) || ((prace_is_(RACE_IGOR)) && (igor_find_art(ART_HAND_OF_VECNA))))
     {
         dice *= 2;
         base *= 2;
@@ -53,7 +53,7 @@ static int _necro_damroll(int dice, int sides, int base)
 
 void on_p_hit_m(int m_idx)
 {
-    if (p_ptr->special_attack & ATTACK_CONFUSE)
+    if ((p_ptr->special_attack & ATTACK_CONFUSE) || (hex_spelling(HEX_CONFUSION)))
     {
         monster_type *m_ptr = &m_list[m_idx];
         monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -61,9 +61,12 @@ void on_p_hit_m(int m_idx)
 
         monster_desc(m_name, m_ptr, 0);
 
-        p_ptr->special_attack &= ~(ATTACK_CONFUSE);
-        msg_print("Your hands stop glowing.");
-        p_ptr->redraw |= (PR_STATUS);
+        if (p_ptr->special_attack & ATTACK_CONFUSE)
+        {
+            p_ptr->special_attack &= ~(ATTACK_CONFUSE);
+            msg_print("Your hands stop glowing.");
+            p_ptr->redraw |= (PR_STATUS);
+        }
 
         if (r_ptr->flags3 & RF3_NO_CONF)
         {
@@ -625,15 +628,15 @@ class_t *necromancer_get_class(void)
 
         me.name = "Necromancer";
         me.desc = "A Necromancer attempts to gain both power and knowledge through "
-                  "communion with the dead. They use powerful necromancy magic to "
+                  "communion with the dead. They rely on the special realm of Necromancy to "
                   "summon aid from the dead, whether directly in terms of undead "
-                  "servitude, or indirectly through other-worldly knowledge. Necromancy "
-                  "also offers myriad foul offensive spells, but all of these require "
-                  "the Necromancer to physically touch his foe. To do so, the Necromancer "
-                  "may wield neither weapon, nor gloves. But a powerful necromancer is truly "
-                  "awe inspiring, and may even kill foes with a single deadly touch! "
-                  "In addition, they forever hunt for the legendary Eye and Hand of Vecna in "
-                  "order to complete their power.",
+                  "servitude, or indirectly through otherworldly knowledge. Necromancy "
+                  "also offers many foul offensive spells; but all of these require direct "
+                  "physical contact, and so need an empty, gloveless hand to work. "
+                  "Yet this handicap is a cheap price to pay for the ability to kill a foe with "
+                  "one deadly touch!\n\n"
+                  "Necromancers forever hunt for the legendary Eye and Hand of Vecna "
+                  "to complete their power.",
         
         me.stats[A_STR] = -2;
         me.stats[A_INT] =  3;

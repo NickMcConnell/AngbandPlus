@@ -1,18 +1,17 @@
 #include "angband.h"
 
 static cptr _desc = 
-    "Liches are the undead forms of former sorcerers. Their magic is strong "
-    "but their fighting is weak. As undead, they quickly gain resistance to "
+    "Liches are the undead forms of former sorcerers. Their magic is strong, "
+    "but their fighting skills weak. As undead, they quickly gain resistance to "
     "cold, poison and nether, and these resistances increase as the lich "
     "evolves.\n \n"
-    "Liches are monsters and cannot choose a normal class. Instead, they are born "
-    "with magical powers and gain additional powers as they advance. Of all the "
+    "Liches are born with magical powers, and gain additional powers as they advance; of all the "
     "monster races, none can surpass the firepower of an Archlich, but managing "
     "to evolve that far can be a challenge. Intelligence is the primary spell stat.\n \n"
-    "Liches are humanoid so use the standard set of equipment items. Should they "
+    "Liches are humanoid, and so use the standard set of equipment items; but should they "
     "forgo the use of a normal weapon, they may touch their opponents for "
-    "various powerful effects. However, melee is not the strong suit of the "
-    "Lich and even their deadly touch is often not enough.";
+    "various powerful effects. Even with this deadly touch, though, melee will "
+    "never be their strong suit.";
 
 static void _birth(void) 
 { 

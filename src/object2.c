@@ -691,7 +691,8 @@ s16b get_obj_num(int level)
         k_ptr = &k_info[k_idx];
         if (k_ptr->tval == TV_FOOD && k_ptr->sval == SV_FOOD_AMBROSIA && dungeon_type != DUNGEON_OLYMPUS) continue;
 	if (easy_id && k_ptr->tval == TV_SCROLL && k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) continue;
-        if (ironman_downward && k_ptr->tval == TV_SCROLL && k_ptr->sval == SV_SCROLL_RESET_RECALL) continue;
+                if (ironman_downward && k_ptr->tval == TV_SCROLL && k_ptr->sval == SV_SCROLL_RESET_RECALL) continue;
+        if ((coffee_break == SPEED_INSTA_COFFEE) && (k_ptr->tval == TV_POTION) && ((k_ptr->sval == SV_POTION_HEALING) || (k_ptr->sval == SV_POTION_STAR_HEALING) || (k_ptr->sval == SV_POTION_LIFE))) continue;
         /* Hack -- prevent embedded chests */
         if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
 
@@ -1188,7 +1189,7 @@ s32b obj_value_real(object_type *o_ptr)
     if (o_ptr->tval == TV_LITE) return lite_cost(o_ptr, COST_REAL);
     if (o_ptr->tval == TV_QUIVER) return quiver_cost(o_ptr, COST_REAL);
     if (object_is_device(o_ptr)) return device_value(o_ptr, COST_REAL);
-
+    if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval >= SV_BODY_HEAD)) return igor_cost(o_ptr, COST_REAL);
 
     /* Hack -- "worthless" items */
     if (!k_info[o_ptr->k_idx].cost) return (0L);
@@ -2091,8 +2092,8 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     }
     if (coffee_break)
     {
-        f1 += 3;
-        f2 += 3;
+        f1 += (5 * coffee_break) - 2;
+        f2 += (5 * coffee_break) - 2;
     }
 
     f1 += virtue_current(VIRTUE_CHANCE) / 50;
@@ -2373,7 +2374,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
 
     if ((o_ptr->tval == TV_SOFT_ARMOR) &&
         (o_ptr->sval == SV_ABUNAI_MIZUGI) &&
-        (p_ptr->personality == PERS_SEXY || demigod_is_(DEMIGOD_APHRODITE)))
+        (personality_includes_(PERS_SEXY) || demigod_is_(DEMIGOD_APHRODITE)))
     {
         o_ptr->pval = 3;
         add_flag(o_ptr->flags, OF_STR);
@@ -3727,6 +3728,10 @@ static bool _make_object_aux(object_type *j_ptr, u32b mode)
     if (!apply_magic(j_ptr, object_level, mode))
         return FALSE;
 
+    /* Hack - check for unsuitable ego, e.g. gloves of protection on a mage */
+    if ((_drop_tailored) && (object_is_icky(j_ptr, TRUE)))
+        return FALSE;
+
     /* Note: It is important to do this *after* apply_magic rather than in, say,
        object_prep() since artifacts should never spawn multiple copies. Ego ammo
        should, but other egos (e.g. lights) should not. */
@@ -3948,7 +3953,8 @@ bool make_gold(object_type *j_ptr, bool do_boost)
         int kerroin = interpolate(dun_level, skaala, 5);
         au = au * kerroin / 100;
     }
-    if (p_ptr->personality == PERS_NOBLE) au += (au / 4);
+    if (personality_is_(PERS_NOBLE)) au += (au / 4);
+    if (coffee_break == SPEED_INSTA_COFFEE) au += (au * 2 / 3);
     if (au > MAX_SHORT)
         au = MAX_SHORT - randint0(1000);
     j_ptr->pval = au;

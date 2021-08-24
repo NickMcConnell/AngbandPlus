@@ -2,14 +2,14 @@
 
 static cptr _desc =
     "Giants are humanoids of immense stature. There are several types of giants. "
-    "Fire, Frost and Storm giants are elemental giants and gain extra resistance, "
-    "elementals slays and even elemental attacks of their respective element. Titans "
-    "are powerful immortal beings of legend. Their attacks often confuse their foes and they "
-    "rarely fight alone.\n \n"
-    "Giants are monsters so cannot choose a normal class. Instead, they must rely on their "
-    "superior physical stature to pummel their opponents with mighty blows. Against a distant "
-    "foe, giants are capable of hurling large boulders with devastating effect.\n \n"
-    "Giants use the same equipment slots as normal player races and have no innate attacks.";
+    "Fire, Frost and Storm giants are elemental giants, and gain elemental resistances, "
+    "slays and even attacks appropriate for their type. Titans are powerful immortal beings of legend; "
+    "their attacks often confuse their foes, and they rarely fight alone. Finally, there are the mighty "
+    "Hrus; they are so strong they can eventually crush the walls in their path, but their magical "
+    "powers are fairly limited.\n \n"
+    "Giants rely on their superior physical stature to pummel their opponents with mighty blows. Against a distant "
+    "foe, giants are capable of hurling large boulders with devastating effect. "
+    "Giants use the same equipment slots as most normal player races, and have no innate attacks.";
 
 static void _birth(void)
 {
@@ -353,7 +353,7 @@ static void _monster_toss_imp(_monster_toss_info *info)
                 if (dam < 0) dam = 0;
                 dam = mon_damage_mod(m_ptr, dam, FALSE);
 
-                if (mon_take_hit(c_ptr->m_idx, dam, &fear, extract_note_dies(real_r_ptr(m_ptr2))))
+                if (mon_take_hit(c_ptr->m_idx, dam, DAM_TYPE_ARCHERY, &fear, extract_note_dies(real_r_ptr(m_ptr2))))
                 {
                     /* Dead monster */
                     x = nx;
@@ -408,10 +408,10 @@ static void _monster_toss_imp(_monster_toss_info *info)
         cave[m_ptr->fy][m_ptr->fx].m_idx = info->m_idx;
         lite_spot(m_ptr->fy, m_ptr->fx);
     }
-    if (dam)
+    if ((dam) && (!no_melee_challenge))
     {
         bool fear = FALSE;
-        if (mon_take_hit(info->m_idx, dam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
+        if (mon_take_hit(info->m_idx, dam, DAM_TYPE_MELEE, &fear, extract_note_dies(real_r_ptr(m_ptr))))
         {
             /* Dead monster */
         }
@@ -1135,17 +1135,17 @@ static race_t *_titan_get_race_t(void)
 
 static name_desc_t _info[GIANT_MAX] = {
     { "Fire Giant", "Fire Giants are massive giants of flame. At high levels they become "
-                        "wreathed in flames and even their weapons will burn their foes. Like "
+                        "wreathed in flames, and even their weapons will burn their foes. Like "
                         "all giants, they may toss loose rubble at their foes. In addition, "
-                        "they have a few fire based distance attacks up their sleeves." },
+                        "they have a few fire-based distance attacks up their sleeves." },
     { "Frost Giant", "Frost Giants are massive giants of ice. At high levels they become "
-                        "wreathed in cold and even their weapons will freeze their foes. Like "
+                        "wreathed in cold, and even their weapons will freeze their foes. Like "
                         "all giants, they may toss loose rubble at their foes. In addition, "
-                        "they have a few cold based distance attacks up their sleeves." },
+                        "they have a few cold-based distance attacks up their sleeves." },
     { "Storm Giant", "Storm Giants are massive giants of lightning. At high levels they become "
-                        "wreathed in electricity and even their weapons will shock their foes. Like "
+                        "wreathed in electricity, and even their weapons will shock their foes. Like "
                         "all giants, they may toss loose rubble at their foes. In addition, "
-                        "they have a few lightning based distance attacks up their sleeves." },
+                        "they have a few lightning-based distance attacks up their sleeves." },
     { "Titan", "Titans are huge immortal beings of incredible strength and awesome power. "
                 "Descended from Gaia and Uranus, they ruled during the legendary Golden Age, "
                 "but were overthrown by the Olympians during the War of the Titans." },

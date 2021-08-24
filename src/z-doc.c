@@ -745,7 +745,8 @@ static void _doc_process_var(doc_ptr doc, cptr name)
     if (strcmp(name, "version") == 0)
     {
         string_ptr s = string_alloc_format("%d.%d.%s", VER_MAJOR, VER_MINOR, VER_PATCH);
-        if (coffee_break) string_append_s(s, "<color:U> (Coffee)</color>");
+        if (coffee_break == SPEED_COFFEE) string_append_s(s, "<color:U> (Coffee)</color>");
+        if (coffee_break == SPEED_INSTA_COFFEE) string_append_s(s, "<color:U> (Instant Coffee)</color>");
         if (thrall_mode) string_append_s(s, "<color:R> (Thrall)</color>");
         if (wacky_rooms) string_append_s(s, "<color:v> (Wacky)</color>");
         if (VERSION_IS_DEVELOPMENT)
@@ -1727,10 +1728,19 @@ int doc_display_aux(doc_ptr doc, cptr caption, int top, rect_t display)
                     done = TRUE;
             }
             break;
+        case '!':
+            if (!strstr(caption, "start.txt"))
+            {
+                rc = doc_display_help_aux("start.txt", NULL, display);
+                if (rc == _UNWIND)
+                    done = TRUE;
+            }
+            break;
         case ESCAPE:
             done = TRUE;
             break;
         case 'q':
+        case 'Q':
             done = TRUE;
             rc = _UNWIND;
             break;

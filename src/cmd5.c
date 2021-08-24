@@ -371,7 +371,7 @@ static void change_realm2(int next_realm)
     handle_stuff();
 
     /* Load an autopick preference file */
-    autopick_load_pref(FALSE);
+    autopick_load_pref(0);
 }
 
 
@@ -817,6 +817,13 @@ void do_cmd_cast(void)
         return;
     }
 
+    if ((p_ptr->pclass == CLASS_BLOOD_MAGE) && ((get_race()->flags & RACE_IS_NONLIVING) || (p_ptr->no_cut)))
+    {
+        if (get_true_race()->flags & RACE_IS_NONLIVING) msg_print("You can no longer use blood magic!");
+        else msg_print("You cannot use blood magic while transformed into a nonliving creature.");
+        return;
+    }
+
 
     /* Require lite */
     if (p_ptr->blind || no_lite())
@@ -1024,6 +1031,7 @@ void do_cmd_cast(void)
     /* Process spell */
     else
     {
+        attack_spell_hack = ASH_UNKNOWN;
         /* Canceled spells cost neither a turn nor mana */
         if (!do_spell(use_realm, spell, SPELL_CAST))
         {
@@ -1032,6 +1040,7 @@ void do_cmd_cast(void)
                 p_ptr->csp += take_mana;
             energy_use = 0;
             p_ptr->redraw |= PR_MANA;
+            attack_spell_hack = ASH_USELESS_ATTACK;
             return;
         }
 
@@ -1119,7 +1128,18 @@ void do_cmd_cast(void)
 
         virtue_on_cast_spell(use_realm, need_mana, chance);
 
-        if (mp_ptr->spell_xtra & MAGIC_GAIN_EXP)
+        switch (attack_spell_hack)
+        {
+            case ASH_NONE:
+            case ASH_UNKNOWN: attack_spell_hack = ASH_NOT_ATTACK; break;
+            case ASH_NOT_ATTACK: break;
+            case ASH_USEFUL_ATTACK: break;
+            case ASH_UNASSESSED_1:
+            case ASH_UNASSESSED_2: attack_spell_hack = ASH_USELESS_ATTACK; break;
+            default: break;
+        }
+
+        if ((mp_ptr->spell_xtra & MAGIC_GAIN_EXP) && (attack_spell_hack != ASH_USELESS_ATTACK))
         {
             int  index = (increment ? 32 : 0)+spell;
             s16b cur_exp = p_ptr->spell_exp[index];
@@ -1167,6 +1187,11 @@ void do_cmd_cast(void)
                         "(Current: <color:R>%d</color>).</color> <color:D>%d</color>",
                         vaikeustaso, dlvl, max_exp, cur_exp, ratio);
                 }
+                if (exp_gain)
+                {
+                    if (attack_spell_hack == ASH_NOT_ATTACK) exp_gain += ((coffee_break > 0) ? (exp_gain / 2) : (exp_gain * 2));
+                    if ((cur_exp + exp_gain) > max_exp) exp_gain = MAX(0, max_exp - cur_exp);
+                }
             }
 
             if (exp_gain)
@@ -1199,6 +1224,7 @@ void do_cmd_cast(void)
                 }
             }
         }
+        attack_spell_hack = ASH_USELESS_ATTACK;
     }
 
     /* In general, we already charged the players sp. However, in the event the
@@ -1884,6 +1910,12 @@ bool do_riding(bool force)
 
         if (!pattern_seq(py, px, y, x)) return FALSE;
 
+        if (m_ptr->parent_m_idx > 0)
+        {
+            msg_print("That monster has divided loyalties, and would not be a trustworthy mount!");
+            return FALSE;
+        }
+
         if (!player_can_ride_aux(c_ptr, TRUE))
         {
             /* Feature code (applying "mimic" field) */
@@ -2169,14 +2201,24 @@ void do_cmd_pet(void)
     {
         if (p_ptr->pet_extra_flags & PF_HILITE)
         {
-            power_desc[num] = "highlight pets (now On)";
+            power_desc[num] = "highlight pets on map (now On)";
         }
         else
         {
-            power_desc[num] = "highlight pets (now Off)";
+            power_desc[num] = "highlight pets on map (now Off)";
         }
         powers[num++] = PET_HILITE;
     }
+
+    if (p_ptr->pet_extra_flags & PF_HILITE_LISTS)
+    {
+        power_desc[num] = "highlight pets in lists (now On)";
+    }
+    else
+    {
+        power_desc[num] = "highlight pets in lists (now Off)";
+    }
+    powers[num++] = PET_HILITE_LISTS;
 
 #ifdef ALLOW_REPEAT
     if (!(repeat_pull(&i) && (i >= 0) && (i < num)))
@@ -2507,6 +2549,13 @@ void do_cmd_pet(void)
             if (p_ptr->pet_extra_flags & PF_HILITE) p_ptr->pet_extra_flags &= ~(PF_HILITE);
             else p_ptr->pet_extra_flags |= PF_HILITE;
             p_ptr->redraw |= PR_MAP;
+            break;
+        }
+        case PET_HILITE_LISTS:
+        {
+            if (p_ptr->pet_extra_flags & PF_HILITE_LISTS) p_ptr->pet_extra_flags &= ~(PF_HILITE_LISTS);
+            else p_ptr->pet_extra_flags |= PF_HILITE_LISTS;
+            p_ptr->window |= PW_MONSTER_LIST;
             break;
         }
     }

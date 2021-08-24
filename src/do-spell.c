@@ -174,6 +174,15 @@ cptr info_weight(int weight)
     return format("max wgt %d", weight/10);
 }
 
+/*
+ * Generate distance info string such as "dist 100"
+ */
+
+cptr info_dist(int dist)
+{
+    return format("dist %d", dist);
+}
+
 
 /*
  * Prepare standard probability to become beam for fire_bolt_or_beam()
@@ -1753,7 +1762,7 @@ static cptr do_sorcery_spell(int spell, int mode)
         {
             int power = spell_power(plev * 2);
 
-            if (info) return info_power(power);
+            if (info) return info_dist(power);
 
             if (cast)
             {
@@ -3043,7 +3052,7 @@ static cptr do_chaos_spell(int spell, int mode)
         {
             int power = spell_power(plev*2);
 
-            if (info) return info_power(power);
+            if (info) return info_dist(power);
 
             if (cast)
             {
@@ -4211,7 +4220,7 @@ static cptr do_trump_spell(int spell, int mode)
         {
             int power = spell_power(plev*2);
 
-            if (info) return info_power(power);
+            if (info) return info_dist(power);
 
             if (cast)
             {
@@ -5202,7 +5211,7 @@ static cptr do_arcane_spell(int spell, int mode)
         {
             int power = spell_power(plev);
 
-            if (info) return info_power(power);
+            if (info) return info_dist(power);
 
             if (cast)
             {
@@ -6643,7 +6652,7 @@ static cptr do_crusade_spell(int spell, int mode)
         {
             int power = MAX_SIGHT * 5;
 
-            if (info) return info_power(power);
+            if (info) return info_dist(power);
 
             if (cast)
             {
@@ -8556,6 +8565,7 @@ static cptr do_hex_spell(int spell, int mode)
             bool flag = FALSE;
             int d = (p_ptr->max_exp - p_ptr->exp);
             int r = (p_ptr->exp / 20);
+            int l = (1000 - p_ptr->clp);
             int i;
 
             if (d > 0)
@@ -8568,6 +8578,11 @@ static cptr do_hex_spell(int spell, int mode)
                 /* Check the experience */
                 check_experience();
 
+                flag = TRUE;
+            }
+            if (l > 0)
+            {
+                lp_player(MIN(l, 15));
                 flag = TRUE;
             }
             for (i = A_STR; i < 6; i ++)
@@ -8741,7 +8756,7 @@ static cptr do_hex_spell(int spell, int mode)
         {
             int r;
             int a = 3 - (p_ptr->pspeed - 100) / 10;
-            r = 1 + randint1(2) + MAX(0, MIN(3, a));
+            r = 3 + randint1(2) + MAX(0, MIN(3, a));
 
             if (p_ptr->magic_num2[2] > 0)
             {
@@ -8751,7 +8766,7 @@ static cptr do_hex_spell(int spell, int mode)
 
             p_ptr->magic_num2[1] = 2;
             p_ptr->magic_num2[2] = r;
-            msg_format("You pronounce your revenge. %d turns left.", r);
+            msg_format("You pronounce your revenge. %d turns left.", r - 1);
             add = FALSE;
         }
         if (cont)

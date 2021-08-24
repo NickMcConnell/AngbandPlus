@@ -1781,6 +1781,28 @@ void limber_mut(int cmd, variant *res)
     }
 }
 
+void limp_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Limp");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start limping.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer walk with a limp.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You walk with a limp (-10% walking speed).");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void loremaster_mut(int cmd, variant *res)
 {
     switch (cmd)
@@ -1897,7 +1919,7 @@ void motion_mut(int cmd, variant *res)
         msg_print("You move with less assurance.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your movements are precise and forceful (+1 STL).");
+        var_set_string(res, "Your movements are precise and forceful (FA; +1 STL).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->free_act++;
@@ -3204,7 +3226,7 @@ void weapon_skills_mut(int cmd, variant *res)
         var_set_string(res, "You may master any weapon.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "Allows you to reach full proficiency with any weapon.");
+        var_set_string(res, "Allows you to reach full proficiency with any weapon (but does not make icky weapons non-icky).");
         break;
     default:
         default_spell(cmd, res);

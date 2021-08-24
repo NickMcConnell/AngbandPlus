@@ -265,7 +265,7 @@ bool psion_process_monster(int m_idx)
         else
         {
             msg_format("Your ego whip lashes %s!", m_name);
-            result = mon_take_hit(m_idx, spell_power(30*m_ptr->ego_whip_pow), &fear, NULL);
+            result = mon_take_hit(m_idx, spell_power(30*m_ptr->ego_whip_pow), DAM_TYPE_SPELL, &fear, NULL);
             m_ptr->ego_whip_ct--;
             if (!projectable(py, px, m_ptr->fy, m_ptr->fx))
                 mon_anger(m_ptr);
@@ -304,7 +304,7 @@ static void _archery_transformation_spell(int power, int cmd, variant *res)
         var_set_string(res, "For a short while, you focus your mental powers on effective shooting.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("Shots: +%d.%02d", power*25/100, (power*25)%100));
+        var_set_string(res, format("+%d Archery skill", power*20));
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
@@ -1339,8 +1339,8 @@ static void _psionic_travel_spell(int power, int cmd, variant *res)
     case SPELL_DESC:
     {
         const cptr _descriptions[_MAX_POWER] = {
-            "Short Range Teleport", "Medium Range Teleport", "Long Range Teleport", 
-            "Teleport to specified location", "Teleport to specified location"};
+            "Short-range teleport.", "Medium-range teleport.", "Long-range teleport.",
+            "Teleport to specified location.", "Teleport to specified location."};
         var_set_string(res, _descriptions[power-1]);
         break;
     }
@@ -1355,7 +1355,7 @@ static void _psionic_travel_spell(int power, int cmd, variant *res)
             var_set_string(res, info_range(15*(power - 3)));
         break;
     case SPELL_CAST:
-        var_set_bool(res, FALSE);
+        var_set_bool(res, TRUE);
 
         if (power == 1)
             teleport_player(10, 0L);
@@ -1364,9 +1364,8 @@ static void _psionic_travel_spell(int power, int cmd, variant *res)
         else if (power == 3)
             teleport_player(p_ptr->lev * 4, 0L);
         else
-            dimension_door(15*(power-3));
+            var_set_bool(res, dimension_door(15*(power-3)));
 
-        var_set_bool(res, TRUE);
         break;
     case SPELL_ENERGY:
         if (mut_present(MUT_ASTRAL_GUIDE))
@@ -1472,8 +1471,9 @@ static _spell_t __spells[] =
         "Mana Thrust grants you an offensive ranged attack. "
           "With this power, you will have good early offense as well as the "
           "ability to scale the damage of the mana thrust quite considerably. "
-          "No monster can resist the Mana Thrust but this attack only effects "
-          "a single monster at a time and some monsters might reflect the spell."
+          "No monster can resist the Mana Thrust; but unlike Energy Blast this "
+          "attack is a bolt, so it only affects a single monster at a time and "
+          "some monsters might reflect the spell back."
     },
     { "Energy Blast", _PSION_ENERGY_BLAST, 1, {  
         {  1,  20, _energy_blast1_spell },
@@ -1486,8 +1486,9 @@ static _spell_t __spells[] =
           "ability to scale the damage of the blast quite considerably. "
           "The blast will produce an elemental ball whose type is of your "
           "choosing, although the range of choices will depend on how "
-          "much focus you invest in the blast. This is also an area based "
-          "attack so you may damage multiple monsters at a time."
+          "much focus you invest in the blast. Unlike most ball spells, "
+          "this spell deals full damage to all monsters in its area of effect "
+          "unless resisted, without any reduction away from the epicenter."
     },
     { "Psionic Seeing", _PSION_SEEING, 1, {  
         {  1,  20, _psionic_seeing1_spell },
@@ -1497,8 +1498,8 @@ static _spell_t __spells[] =
         { 50, 180, _psionic_seeing5_spell }},
         "Psionic Seeing grants you considerable powers of detection. "
           "Depending on how hard you focus, you may detect monsters, traps, "
-          "doors, stairs, and objects. Concentrate even more and you can "
-          "map your surroundings, gain temporary powers of telepathy or even "
+          "doors, stairs, and objects; with enough concentration you can "
+          "map your surroundings, gain temporary powers of telepathy, or even "
           "map the entire level!"
     },
     { "Graft Weapon", _PSION_GRAFT_WEAPON, 1, {  
@@ -1508,7 +1509,7 @@ static _spell_t __spells[] =
         { 50, 155, _graft_weapon4_spell },
         { 75, 180, _graft_weapon5_spell }},
         "Weapon Grafting is a power unique to the psion. Invoking this power "
-        "fuses your current weapon to your arm for a limited time. In a sense, "
+        "fuses your current weapon to your arm for a limited time; in a sense, "
         "your weapon becomes an extension of you and may be wielded much more "
         "effectively. However, while this spell is active, you will not be "
         "able to remove your weapon."
@@ -1521,9 +1522,9 @@ static _spell_t __spells[] =
         { 90, 200, _psionic_clarity5_spell }},
         "Psionic Clarity focuses the mind of the psion. While only active for "
         "a short while, this power lowers the casting costs of all other psionic "
-        "powers and can be quite useful. However, the utility of Psionic Clarity "
-        "may only become manifest late in the game, so it is not recommended as "
-        "an early choice."
+        "powers, which can be quite useful later in the game; take it as an early "
+        "option if you already have an eye on the endgame and have no need for more "
+        "immediate returns."
     },
     { "Psionic Blending", _PSION_BLENDING, 10, {  
         {  4,  40, _psionic_blending1_spell },
@@ -1543,9 +1544,9 @@ static _spell_t __spells[] =
         { 70, 100, _psionic_shielding4_spell },
         {105, 125, _psionic_shielding5_spell }},
         "Psionic Shielding is a defensive power. While active you will gain Free Action "
-          "as well as increased Armor Class. With the former, you will be immune to deadly "
-          "paralyzation attacks from your enemies. With the latter, monsters will have "
-          "a much harder time hitting you."
+          "as well as increased Armor Class; Free Action provides resistance to deadly "
+          "paralysation attacks, while Armor Class makes monster melee attacks much "
+          "more likely to miss and also reduces damage from some melee attack hits."
     },
     { "Psionic Travel", _PSION_TRAVEL, 10, {  
         {  2,  25, _psionic_travel1_spell },
@@ -1553,8 +1554,8 @@ static _spell_t __spells[] =
         { 10,  50, _psionic_travel3_spell },
         { 42, 128, _psionic_travel4_spell },
         { 54, 170, _psionic_travel5_spell }},
-        "Psionic Travel grants a wide array of teleportation powers. From inexpensive short "
-          "ranged 'blinking' to long ranged escapes, you will have it all. Indeed, with great "
+        "Psionic Travel grants a wide array of teleportation powers. From inexpensive short-range "
+          "'blinking' to long-range escapes, you will have it all. Indeed, with great "
           "focus you will even be able to control your teleportation and choose where you land!"
     },
     { "Psionic Protection", _PSION_PROTECTION, 20, {  
@@ -1564,8 +1565,8 @@ static _spell_t __spells[] =
         { 30,  75, _psionic_protection4_spell },
         { 70, 125, _psionic_protection5_spell }},
         "Psionic Protection is a defensive power. While active you will gain resistance to "
-          "elemental attacks (Fire, Cold, Lightning, Acid and Poison). The more you mental "
-          "focus you devote to this power, the more of the elements you will resist."
+          "the elements (Fire, Cold, Lightning, Acid and Poison). The more of your mental "
+          "focus you devote to this power, the more of these elements you will resist."
     },
     { "Combat Transformation", _PSION_COMBAT_TRANSFORMATION, 20, {  
         { 13,  50, _combat_transformation1_spell },
@@ -1574,10 +1575,10 @@ static _spell_t __spells[] =
         {130,  95, _combat_transformation4_spell },
         {195, 110, _combat_transformation5_spell }},
         "Combat Transformation is an offensive power, channelling your mental focus into "
-          "enhanced melee fighting. While active, your skills in combat will improve affecting "
-          "the accuracy of your blows. Also, your reflexes will quicken in line with your mental "
-          "accuity affecting the speed of your attacks. This power requires your constant "
-          "focus and as a result, increases the casting costs of all other psionic powers."
+          "enhanced melee fighting. While active, your skills in combat will improve, affecting "
+          "the accuracy of your blows; also, your reflexes will quicken in line with your mental "
+          "acuity, affecting the speed of your attacks. This power requires your constant "
+          "focus, and so increases the casting costs of all other psionic powers."
     },
     { "Archery Transformation", _PSION_ARCHERY_TRANSFORMATION, 20, {  
         { 13,  50, _archery_transformation1_spell },
@@ -1586,10 +1587,10 @@ static _spell_t __spells[] =
         {130,  95, _archery_transformation4_spell },
         {195, 110, _archery_transformation5_spell }},
         "Archery Transformation is an offensive power, channelling your mental focus into "
-          "enhanced shooting. While active, your skills with all missile weapons will improve "
-          "affecting the accuracy of your shots. Also, you will shoot with increased speed. "
-          "This power requires your constant focus and as a result, increases the casting "
-          "costs of all other psionic powers."
+          "enhanced shooting. While active, your skills with all missile weapons will improve, "
+          "affecting the accuracy of your shots; sufficient skill also allows you to shoot "
+          "with increased speed. This power requires your constant focus, and thus "
+          "increases the casting costs of all other psionic powers."
     },
     { "Ego Whip", _PSION_EGO_WHIP, 20, {  
         {  6,  40, _ego_whip1_spell },
@@ -1598,7 +1599,7 @@ static _spell_t __spells[] =
         { 60,  95, _ego_whip4_spell },
         { 90, 110, _ego_whip5_spell }},
         "Ego Whip is an offensive power which lashes a targetted monster repeatedly with your "
-          "psychic energy. The effect lasts for multiple rounds during which time you may "
+          "psychic energy; the effect lasts for multiple rounds, during which time you may "
           "perform other separate actions. However, monsters do get a saving throw against "
           "the ego whip every turn, and if they make a save, they are able to shake off the "
           "whip completely."
@@ -1610,7 +1611,7 @@ static _spell_t __spells[] =
         { 60,  95, _psionic_speed4_spell },
         { 90, 110, _psionic_speed5_spell }},
         "Psionic Speed channels your mental energy into speed of motion, granting great "
-          "powers of haste. With increased focus come increased speed, and the total "
+          "powers of haste. With increased focus comes increased speed, and the total "
           "amount of haste can greatly exceed what is possible for other classes."
     },
     { "Psionic Healing", _PSION_HEALING, 30, {  
@@ -1620,7 +1621,7 @@ static _spell_t __spells[] =
         { 69, 100, _psionic_healing4_spell }, /* 430hp */
         {102, 125, _psionic_healing5_spell }},/* 550hp */
         "Psionic Healing is a recovery spell. By focusing your mind, you will be able "
-          "to heal your wounds. In addition, cuts, stuns and poison will be cured. With "
+          "to heal your wounds, cuts, stunning and poisoning; with "
           "total focus, you can even restore your stats."
     },
     { "Brain Smash", _PSION_BRAIN_SMASH, 30, {  
@@ -1638,8 +1639,11 @@ static _spell_t __spells[] =
         { 40,  90, _psionic_wave3_spell }, /* 126hp */
         { 70, 105, _psionic_wave4_spell }, /* 168hp */
         {100, 125, _psionic_wave5_spell }},/* 210hp */
-        "Mind Wave unleashes the effects of your mental focus on all visible monsters. The damage is not "
-        "as great as Psionic Storm but the ability to affect many monsters at once compensates for this."
+        "Mind Wave unleashes the effects of your mental focus on all visible monsters as psionic energy, "
+        "dealing unresistable raw damage and potentially stunning, confusing, frightening and paralysing "
+        "monsters; as the attack operates directly against monsters' minds, these side effects can sometimes bypass "
+        "normal resistances, but mindless monsters are not affected at all. This spell does not pack quite as "
+        "much raw power as Psionic Storm, but the lower cost and ability to affect more monsters compensate for this."
     },
     { "Psionic Crafting", _PSION_CRAFTING, 40, {  
         { 10,  50, _psionic_crafting1_spell },
@@ -1656,7 +1660,10 @@ static _spell_t __spells[] =
         { 65,  80, _psionic_storm3_spell }, /* 292hp */
         {100,  95, _psionic_storm4_spell }, /* 388hp */
         {135, 110, _psionic_storm5_spell }},/* 484hp */
-        "Psionic Storm unleashes your mental focus in a large, powerful ball of mana."
+        "Psionic Storm unleashes your mental focus in a large, powerful ball of energy; "
+        "this psionic energy not only deals unresistable damage, but can stun, confuse, "
+        "frighten and even paralyze monsters, with a chance to bypass normal resistances. "
+        "Mindless monsters are not affected."
     },
     { "Psionic Backlash", _PSION_BACKLASH, 40, {  
         { 24,  50, _psionic_backlash1_spell },
@@ -1665,7 +1672,7 @@ static _spell_t __spells[] =
         { 90,  95, _psionic_backlash4_spell },
         {130, 110, _psionic_backlash5_spell }},
         "Psionic Backlash is a defensive spell. While active, any enemy that damages you will "
-          "take a proportional amount of damage in retaliation. The greater your focus, the "
+          "take a proportional amount of damage in retaliation; the greater your focus, the "
           "greater the retaliatory damage."
     },
     { "Psychic Drain", _PSION_DRAIN, 40, {  
@@ -1684,9 +1691,9 @@ static _spell_t __spells[] =
         {240,  70, _psionic_disruption3_spell },
         {400,  85, _psionic_disruption4_spell },
         {600, 100, _psionic_disruption5_spell }},
-        "Psionic Disruption allows you to block the minds of others hindering their ability "
-        "to cast spells. But be warned: innate monster attacks (breaths and rockets) will not "
-        "be affected!"
+        "Psionic Disruption allows you to block the minds of others, hindering their ability "
+        "to cast spells. But be warned: innate monster attacks (such as breaths, rockets and "
+        "boulder throws) will not be affected!"
     },
     { "Mental Fortress", _PSION_FORTRESS, 50, {  
         { 40,  40, _mental_fortress1_spell },
@@ -1694,7 +1701,7 @@ static _spell_t __spells[] =
         {240,  70, _mental_fortress3_spell },
         {400,  85, _mental_fortress4_spell },
         {600, 100, _mental_fortress5_spell }},
-        "Mental Fortress grants immunity to Dispel Magic and Anti-magic. In addition, it "
+        "Mental Fortress grants immunity to Dispel Magic and Anti-Magic. In addition, it "
           "increases the power of your spells."
     },
     { "Mindspring", _PSION_MINDSPRING, 50, {  
@@ -2074,6 +2081,7 @@ static void _decrement_counter(int which, cptr off)
         {
             p_ptr->magic_num2[which] = 0;
             msg_print(off);
+            if (disturb_state) disturb(0, 0);
             p_ptr->update |= PU_BONUS;
             p_ptr->redraw |= PR_STATUS;
         }
@@ -2229,16 +2237,17 @@ class_t *psion_get_class(void)
     skills_t xs = {  7,  11,  12,   0,   0,   0,  13,  11};
 
         me.name = "Psion";
-        me.desc = "The Psion is like a Mindcrafter, and uses innate mental powers. "
-                    "Unlike the Mindcrafter, however, Psions have the freedom to learn "
-                    "powers that enforce their own styles. They learn very few powers, "
-                    "but they can scale their powers to determine the SP cost and the "
-                    "powers' potency. Psionic powers require great concentration, however, "
-                    "and psions do not have the mind to spare to care for others. "
-                    "The Psion gains powers at the following levels: 1, 10, 15, 20, 30, 35, 40 and 50. "
-                    "The Psion uses Intelligence, Wisdom or Charisma as their primary "
-                    "spell stat, which ever is currently highest. In this respect, Psions "
-                    "are truly unique!";
+        me.desc = "Psions, like Mindcrafters, rely on their innate mental powers; indeed, some of these "
+                    "powers resemble those of Mindcrafters. Unlike Mindcrafters, though, Psions can "
+                    "select which powers they wish to learn; together with their natural aptitude "
+                    "in a fairly broad range of skills, this makes Psions one of the most versatile "
+                    "classes. Most psionic powers are extremely strong, but the number of powers a "
+                    "Psion can learn is very limited: one each at levels 1, 10, 15, 20, 30, 35, 40 and 50.\n\n"
+                    "The potency of psionic powers can be scaled up or down as needed, within limits; "
+                    "the more mana is spent, the more powerful the effect. All psionic powers require "
+                    "great concentration, leaving the Psion little time for pets. "
+                    "Psions do not have one fixed spell stat; they can use either Intelligence, Wisdom "
+                    "or Charisma, whichever is the highest. In this respect they are truly unique!";
 
         me.stats[A_STR] = -1;
         me.stats[A_INT] =  2;

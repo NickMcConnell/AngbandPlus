@@ -1242,6 +1242,8 @@ struct player_type
     byte minislow;
     u16b mini_energy;
     byte py_summon_kills;
+    s16b lv_kills;
+    s16b pet_lv_kills;
 
     s16b energy_need;      /* Energy needed for next move */
 
@@ -1507,6 +1509,7 @@ typedef struct birther birther;
 struct birther
 {
     byte game_mode;
+    byte coffee_break;
     byte psex;         /* Sex index */
     byte prace;        /* Race index */
     byte psubrace;
@@ -1777,10 +1780,12 @@ struct dungeon_info_type {
 /*
  *  A structure type for entry of auto-picker/destroyer
  */
+#define AUTOPICK_FLAG_SIZE 2
+
 typedef struct {
     cptr name;          /* Items which have 'name' as part of its name match */
     cptr insc;          /* Items will be auto-inscribed as 'insc' */
-    u32b flag[2];       /* Misc. keyword to be matched */
+    u32b flag[AUTOPICK_FLAG_SIZE]; /* Misc. keyword to be matched */
     byte action;        /* Auto-pickup or Destroy or Leave items */
     byte dice;          /* Weapons which have more than 'dice' dice match */
     byte bonus;         /* Items which have more than 'bonus' magical bonus match */
@@ -2048,6 +2053,7 @@ typedef struct {
     s16b                    pseudo_class_idx; /* For the "Monster" class ... */
     s16b                    shop_adjust;
     inv_ptr                 bonus_pack;
+    inv_ptr                 bonus_pack2;
 } race_t, *race_ptr;
 
 typedef struct {

@@ -782,6 +782,7 @@ static vec_ptr _mon_table(_mon_pred p)
         if (!r_ptr->name) continue;
         if (r_ptr->id == MON_MONKEY_CLONE) continue;
         if (r_ptr->id == MON_KAGE) continue;
+        if (r_ptr->flags9 & RF9_DEPRECATED) continue;
         if (p && !p(r_ptr)) continue;
 
         vec_add(monsters, r_ptr);
@@ -1897,7 +1898,7 @@ static void spoil_device_tables()
     doc_insert(doc, "</style>");
     doc_printf(doc, "\n<color:D>Generated for FrogComposband %d.%d.%s</color>\n",
                      VER_MAJOR, VER_MINOR, VER_PATCH);
-    doc_display(doc, "Device Faile Rates", 0);
+    doc_display(doc, "Device Fail Rates", 0);
     doc_free(doc);
 }
 /************************************************************************
@@ -1917,6 +1918,7 @@ static void spoil_mon_info(void)
         if (!r_ptr->name) continue;
         if (r_ptr->id == MON_MONKEY_CLONE) continue;
         if (r_ptr->id == MON_KAGE) continue;
+        if (r_ptr->flags9 & RF9_DEPRECATED) continue;
         vec_add(v, r_ptr);
     }
     vec_sort(v, (vec_cmp_f)_compare_r_level_desc);
@@ -2197,7 +2199,7 @@ static void spoil_spells_by_class(void)
 
     for (i = 0; i < MAX_CLASS; i++)
     {
-        if (i == CLASS_XXX12 || i == CLASS_XXX21) continue;
+        if (class_is_deprecated(i)) continue;
         vec_add_int(vec, i);
     }
 
@@ -2297,7 +2299,7 @@ static void _spoil_spells_by_realm_aux2(int realm_idx, int class1_idx)
 
     for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
     {
-        if (class_idx == CLASS_XXX12 || class_idx == CLASS_XXX21) continue;
+        if (class_is_deprecated(class_idx)) continue;
         if (_check_realm(class_idx, realm_idx))
             vec_add_int(vec, class_idx);
     }
@@ -2345,7 +2347,7 @@ static void _spoil_spells_by_realm_aux1(int realm_idx)
 
     for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
     {
-        if (class_idx == CLASS_XXX12 || class_idx == CLASS_XXX21) continue;
+        if (class_is_deprecated(class_idx)) continue;
         if (_check_realm(class_idx, realm_idx))
             vec_add_int(vec, class_idx);
     }

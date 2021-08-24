@@ -21,7 +21,7 @@ int game_mode = GAME_MODE_NORMAL;
  */
 cptr copyright[5] =
 {
-    "Copyright (c) 1989 James E. Wilson, Robert A. Keoneke",
+    "Copyright (c) 1989 James E. Wilson, Robert A. Koeneke",
     "",
     "This software may be copied and distributed for educational, research,",
     "and not for profit purposes provided that this copyright and statement",
@@ -168,7 +168,9 @@ s16b hack_m_idx_ii = 0;
 int  hack_max_m_dam = 0;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 s16b warning_hack_hp = 0;
+s16b shuffling_hack_hp = 0;
 byte poison_warning_hack = 0;
+bool spawn_hack = FALSE;
 
 int total_friends = 0;
 s32b friend_align = 0;
@@ -177,13 +179,20 @@ bool reinit_wilderness = FALSE;
 bool quest_reward_drop_hack = FALSE;
 bool very_nice_summon_hack = FALSE;
 bool predictable_energy_hack = FALSE;
-bool delay_autopick_hack = FALSE;
+byte delay_autopick_hack = 0;
+bool obj_list_autopick_hack = FALSE;
 bool monsters_damaged_hack = FALSE;
 bool shop_exit_hack = FALSE;
 bool no_karrot_hack = FALSE;
+bool allow_special3_hack = FALSE;
+bool temporary_name_hack = FALSE;
+bool online_macro_hack = FALSE;
+byte attack_spell_hack = ASH_USELESS_ATTACK;
 byte troika_spell_hack = 0;
+s16b vampirism_hack = 1000;
 byte spell_problem = 0;
 s16b run_count = 0;
+byte autopick_inkey_hack = 0;
 
 int current_flow_depth = 0;
 
@@ -248,7 +257,7 @@ bool plain_descriptions;    /* Plain object descriptions */
 bool always_show_list;    /* Always show list when choosing items */
 bool depth_in_feet;    /* Show dungeon level in feet */
 bool effective_speed;  /* Use Ighalli's speed display */
-bool show_labels;    /* Show labels in object listings */
+bool describe_slots;    /* Show equipment slot descriptions */
 bool show_weights;    /* Show weights in object listings */
 bool show_discounts;
 bool show_item_graph;    /* Show items graphics */
@@ -269,10 +278,14 @@ bool show_discovery; /* Show time of discovery in object description */
 bool final_dump_origins; /* Show equipment origins in final dumps */
 bool always_dump_origins; /* Show equipment origins in all dumps */
 bool list_stairs;  /* Display stairs in object list */
+bool show_future_powers; /* Include future powers in lists */
+bool show_future_spells; /* Include future spells in lists */
 bool display_skill_num; /* Give skills numerically in char sheet */
 bool reforge_details; /* Show statistics before proceeding with reforge */
 bool auto_sticky_labels; /* Automatically make power labels sticky */
 bool show_power; /* Display device powers in inventory */
+bool show_rogue_keys; /* Display roguelike keys if possible */
+bool decimal_stats; /* Decimalized stat display */
 
 /*** Game-Play Options ***/
 
@@ -297,6 +310,7 @@ bool find_ignore_stairs;    /* Run past stairs */
 bool find_ignore_doors;    /* Run through open doors */
 bool find_ignore_veins;  /* Run past gold veins */
 bool find_cut;    /* Run past known corners */
+bool travel_ignore_items;  /* Ignore identified items while travelling */
 bool check_abort;    /* Check for user abort while continuous command */
 bool flush_failure;    /* Flush input on various failures */
 bool flush_disturb;    /* Flush input whenever disturbed */
@@ -318,7 +332,7 @@ bool alert_poison;   /* Alert on high poisoning */
 
 /*** Birth Options ***/
 
-bool coffee_break;   /* Coffee-break mode */
+byte coffee_break;   /* Coffee-break mode */
 bool easy_id;        /* Easy Identify */
 bool easy_lore;      /* Easy Monster Lore */
 bool empty_lore;     /* Always start with empty item lore */
@@ -359,6 +373,9 @@ bool even_proportions;
 bool no_big_dungeons;
 bool thrall_mode;
 bool wacky_rooms;
+bool melee_challenge;
+bool no_melee_challenge;
+bool no_wanted_points;
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -373,6 +390,7 @@ bool leave_wanted;    /* Auto-destroyer leaves wanted corpses */
 bool leave_corpse;    /* Auto-destroyer leaves corpses and skeletons */
 bool leave_junk;    /* Auto-destroyer leaves junk */
 bool leave_special;    /* Auto-destroyer leaves items your race/class needs */
+bool leave_mogaminator; /* Mogaminator reads "destroy" as "leave" */
 bool no_mogaminator;   /* Deactivate the Mogaminator */
 
 
@@ -441,6 +459,10 @@ char player_name[32];
  */
 char player_base[32];
 
+/*
+ * Default pref file save name (except for the Mogaminator)
+ */
+char pref_save_base[32] = "";
 
 /*
  * Buffer to hold the current savefile name

@@ -6,16 +6,15 @@ static const char * _desc =
     "One of the mightier undead creatures, the Vampire is an awe-inspiring sight. Yet this "
     "dread creature has a serious weakness: the bright rays of sun are its bane, and it "
     "will need to flee the surface to the deep recesses of earth until the sun finally "
-    "sets. Darkness, on the other hand, (eventually) only makes the Vampire stronger. "
-    "As undead, the Vampire has a firm hold on its life force, and resists nether attacks. "
-    "The Vampire also resists cold and poison based attacks. It is, however, susceptible to its "
-    "perpetual hunger for fresh blood, which can only be satiated by sucking the blood "
+    "sets. Being undead, Vampires resist nether and have a firm hold on their life force; "
+    "vampires also resists cold and poison, and darkness only makes them feel at home. "
+    "Vampires are, however, susceptible to their "
+    "perpetual hunger for fresh blood, which can only be satiated by sucking blood "
     "from a nearby monster.\n \n"
-    "The Vampire is a monster race and cannot choose a normal class. Instead, the vampire gains "
-    "access to various dark powers as they evolve. Of course, they gain a vampiric bite at a "
+    "Vampires gain access to various dark powers as they evolve. Of course, they gain a vampiric bite at a "
     "very early stage, as they must use this power to feed on the living. Killing humans with this "
-    "power also is a means of perpetuating the vampire species, and many are the servants of "
-    "true prince of darkness! Vampires are also rumored to have limited shapeshifting abilities "
+    "power is also a means of perpetuating the vampire species, and many are the servants of "
+    "true prince of darkness! Vampires are rumored to have limited shapeshifting abilities "
     "and a powerful, hypnotic gaze.";
 
 bool vampiric_drain_hack = FALSE;
@@ -211,6 +210,7 @@ void _grasp_spell(int cmd, variant *res)
         if (!cave[target_row][target_col].m_idx) break;
         if (!player_has_los_bold(target_row, target_col)) break;
         if (!projectable(py, px, target_row, target_col)) break;
+        
 
         var_set_bool(res, TRUE);
 
@@ -235,7 +235,7 @@ void _grasp_spell(int cmd, variant *res)
         }
         msg_format("You grasp %s.", m_name);
         teleport_monster_to(m_idx, py, px, 100, TELEPORT_PASSIVE);
-        mon_take_hit(m_idx, damroll(10, 10), &fear, extract_note_dies(real_r_ptr(m_ptr)));
+        mon_take_hit(m_idx, damroll(10, 10), DAM_TYPE_MELEE, &fear, extract_note_dies(real_r_ptr(m_ptr)));
         break;
     }
     default:

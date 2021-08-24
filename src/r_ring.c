@@ -235,6 +235,8 @@ static bool _add_essence(int which, int amount)
     return FALSE;
 }
 
+static bool _is_ring_effect(int effect);
+
 static bool _absorb(object_type *o_ptr)
 {
     bool result = FALSE;
@@ -288,7 +290,7 @@ static bool _absorb(object_type *o_ptr)
     if (obj_has_effect(o_ptr))
     {
         effect_t e = obj_get_effect(o_ptr);
-        if (!_effects[e.type])
+        if ((!_effects[e.type]) && (_is_ring_effect(e.type)))
         {
             msg_format("You have gained the power of '%s'.", do_effect(&e, SPELL_NAME, 0));
         }
@@ -1132,6 +1134,13 @@ static vec_ptr _missing_effects(void)
     return v;
 }
 
+static bool _is_ring_effect(int effect)
+{
+    _spell_ptr l = _find_spell(effect);
+    if ((!l) || (l->effect == EFFECT_NONE)) return FALSE;
+    return TRUE;
+}
+
 /* Menu Code 1: Choose which group of magic to use */
 static cptr _group_choice = NULL;
 
@@ -1321,6 +1330,7 @@ void ring_cast(void)
             energy_use = 0;
         }
     }
+    if (energy_use == 100) p_inc_fatigue(MUT_EASY_TIRING2, 50 + MIN(50, spell.cost / 2));
     p_ptr->redraw |= PR_MANA;
     p_ptr->redraw |= PR_HP;
     p_ptr->window |= PW_SPELL;
@@ -1496,6 +1506,8 @@ static void _calc_bonuses(void)
         p_ptr->sh_elec++;
     if (_essences[OF_AURA_COLD] >= 7)
         p_ptr->sh_cold++;
+    if (_essences[OF_AURA_SHARDS] >= 7)
+        p_ptr->sh_cold++;
 }
 
 static void _calc_stats(s16b stats[MAX_STATS])
@@ -1602,6 +1614,8 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_AURA_ELEC);
     if (_essences[OF_AURA_COLD] >= 7)
         add_flag(flgs, OF_AURA_COLD);
+    if (_essences[OF_AURA_SHARDS] >= 7)
+        p_ptr->sh_shards++;
 
     if (_essences[OF_IM_ACID] >= 2)
         add_flag(flgs, OF_IM_ACID);
@@ -1765,6 +1779,7 @@ static void _character_dump(doc_ptr doc)
     _dump_ability_flag(doc, OF_AURA_FIRE, 7, "Aura Fire");
     _dump_ability_flag(doc, OF_AURA_ELEC, 7, "Aura Elec");
     _dump_ability_flag(doc, OF_AURA_COLD, 7, "Aura Cold");
+    _dump_ability_flag(doc, OF_AURA_SHARDS, 7, "Aura Shards");
     for (i = 0; i < 6; i++) /* Assume in order */
         _dump_ability_flag(doc, OF_SUST_STR + i, 5, format("Sustain %s", stat_name_true[A_STR + i]));
 
@@ -1808,15 +1823,15 @@ race_t *mon_ring_get_race(void)
 
         me.name = "Ring";
         me.desc = "Rings are sentient creatures animated by magical means.\n \n"
-                    "Rings cannot wear normal equipment. Rather, they simply are a ring, "
-                    "magically enchanted. They gain resistances, attributes and spells "
-                    "by absorbing the magic from jewelry they find (rings or amulets).\n \n"
-                    "Rings also have a small arsenal of innate spells. Since the ring "
-                    "is unable to move on its own it will need to lure a nearby monster "
+                    "Rings cannot wear normal equipment; rather, they simply are a ring, "
+                    "magically enchanted. Rings have a small arsenal of innate powers. Since the ring "
+                    "is unable to move on its own, it will need to lure a nearby monster "
                     "into wearing it. Magic rings tend to corrupt their owners, and over time, "
                     "the ring-bearer will find that his will is not his own!\n \n"
-                    "Rings have no physical attacks. Instead, they may blast enemies with mighty "
-                    "spells (once learned, of course). Or, they may simply lie back and let their "
+                    "Rings can absorb magic from the jewelry (rings or amulets) that they find, "
+                    "and gain resistances, attributes and additional spells this way. "
+                    "Rings have no physical attacks; instead, they may blast enemies with mighty "
+                    "spells (once absorbed, of course), or they may simply lie back and let their "
                     "current bearer do the fighting for them.";
 
         me.stats[A_STR] = -3;
@@ -1936,6 +1951,11 @@ bool ring_dominate_m(int m_idx)
         {
             msg_format("%^s sees you for what you truly are!", m_name);
             m_ptr->mflag2 |= MFLAG2_AWARE;
+        }
+        else if (m_ptr->parent_m_idx)
+        {
+            msg_format("%^s glances down at you, but seems to have doubts.", m_name);
+            return TRUE; /* partial success */
         }
         else
         {

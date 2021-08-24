@@ -99,6 +99,22 @@ void quest_take(quest_ptr q)
     string_free(s);
 }
 
+int quest_get_rnd_num(int *num)
+{
+    quest_ptr q;
+    int tulos = 0;
+    if (!_current) return 0;
+    q = quests_get_current();
+    if ((!q) || (!q->name)) return 0;
+    if (!(q->flags & QF_RANDOM)) return 0;
+    if (sscanf(q->name, "Random %d", &tulos) == 1)
+    {
+        if (num != NULL) *num = tulos;
+        return tulos;
+    }
+    return 0;
+}
+
 void quest_complete(quest_ptr q, point_t p)
 {
     assert(q);
@@ -134,7 +150,7 @@ void quest_complete(quest_ptr q, point_t p)
     q->completed_turn = game_turn;
 
     virtue_add(VIRTUE_VALOUR, 2);
-    p_ptr->fame += randint1(2);
+    gain_fame(randint1(2));
     if (q->id == QUEST_OBERON || q->id == QUEST_SERPENT)
         p_ptr->fame += 50;
 
@@ -170,6 +186,7 @@ void quest_complete(quest_ptr q, point_t p)
     {
         int i, ct = (q->level/(coffee_break ? 13 : 25)) + 1;
         if ((q->level > 14) && (q->level < 25) && (one_in_(5))) ct++;
+        if (coffee_break == SPEED_INSTA_COFFEE) ct++;
         for (i = 0; i < ct; i++)
         {
             obj_t forge = {0};
@@ -178,6 +195,34 @@ void quest_complete(quest_ptr q, point_t p)
             else
                 msg_print("Software Bug ... you missed out on your reward!");
         }
+        if ((coffee_break == SPEED_INSTA_COFFEE) && ((q->flags & QF_RANDOM) || (q->id == QUEST_OBERON)))
+        {
+            int num = 0;
+            if (q->id == QUEST_OBERON) num = 11;
+            if ((num) || (quest_get_rnd_num(&num)))
+            {
+                obj_t forge = {0};
+                object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_HEALING));
+
+                object_origins(&forge, ORIGIN_ANGBAND_REWARD);
+
+                forge.number = num;
+
+                drop_near(&forge, -1, p.y, p.x);
+            }
+            if (num > 6)
+            {
+                obj_t forge = {0};
+                object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_STAR_HEALING));
+
+                object_origins(&forge, ORIGIN_ANGBAND_REWARD);
+
+                forge.number = 1 + (num / 10);
+
+                drop_near(&forge, -1, p.y, p.x);
+            }
+        }
+
         if (no_wilderness)
             gain_chosen_stat();
 
@@ -199,7 +244,7 @@ void quest_complete(quest_ptr q, point_t p)
         }
 
         /* Total winner */
-        p_ptr->total_winner = TRUE;
+        if (!p_ptr->noscore) p_ptr->total_winner = TRUE;
 
         /* Redraw the "title" */
         if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
@@ -913,6 +958,7 @@ static void _get_questor(quest_ptr q)
             if (force_unique && !(r_ptr->flags1 & RF1_UNIQUE)) continue;
         }
 
+        if (r_idx == MON_UTGARD_LOKE) continue; /* Hack - avoid use of the NO_QUEST flag to allow summons */
         if (r_ptr->flagsx & RFX_QUESTOR) continue;
         if (r_ptr->flags1 & RF1_NO_QUEST) continue;
         if (r_ptr->rarity > 100) continue;
@@ -1079,6 +1125,8 @@ void quests_on_birth(void)
     quests_get(QUEST_SERPENT)->status = QS_TAKEN;
     r_info[MON_SERPENT].flagsx |= RFX_QUESTOR;
 
+    if (coffee_break == SPEED_INSTA_COFFEE) quests_get(QUEST_WARG)->status = QS_TAKEN;
+
     if (!no_wilderness)
     {
         quests_get(QUEST_METATRON)->status = QS_TAKEN;
@@ -1215,7 +1263,7 @@ void _dungeon_boss_death(mon_ptr mon)
         object_type forge, *q_ptr;
 
         gain_chosen_stat();
-        p_ptr->fame += randint1(3);
+        gain_fame(randint1(3));
 
         if (d_info[dungeon_type].final_artifact)
         {
@@ -1343,6 +1391,7 @@ void quests_on_kill_mon(mon_ptr mon)
             mon_ptr m = &m_list[i];
             if (!m->r_idx) continue;
             if (m == mon) continue;
+            if (m->hp < 0) continue; /* mon is dead but somehow has not been removed yet */
             if (is_hostile(m)) done = FALSE;
         }
         if (done)

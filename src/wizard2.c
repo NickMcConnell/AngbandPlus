@@ -387,6 +387,14 @@ static void do_cmd_wiz_change(void)
     do_cmd_redraw();
 }
 
+/* Blue-Mage - learn spells for free */
+static void do_cmd_wiz_blue_mage(void)
+{
+    int n = get_quantity("Which type? ", MST_COUNT - 1);
+    int e = get_quantity("Which effect? ", 200);
+    blue_mage_learn_spell_aux(n, e, 0, 0, TRUE);
+}
+
 /*
  * A structure to hold a tval and its description
  */
@@ -659,7 +667,10 @@ static void wiz_create_item(void)
     /* Apply magic */
     apply_magic(q_ptr, dun_level, AM_NO_FIXED_ART);
     if (k_info[k_idx].tval == TV_CORPSE)
-        q_ptr->pval = n;
+    {
+        if ((k_info[k_idx].sval >= SV_BODY_HEAD) && (k_info[k_idx].sval < SV_BODY_EARS)) q_ptr->xtra4 = n;
+        else q_ptr->pval = n;
+    }
     else
         q_ptr->number = n;
 
@@ -919,7 +930,7 @@ static void do_cmd_wiz_zap(void)
         if (m_ptr->cdis <= MAX_SIGHT)
         {
             bool fear = FALSE;
-            mon_take_hit(i, m_ptr->hp + 1, &fear, NULL);
+            mon_take_hit(i, m_ptr->hp + 1, DAM_TYPE_WIZARD, &fear, NULL);
             /*delete_monster_idx(i);*/
         }
     }
@@ -1215,7 +1226,7 @@ static void _wiz_stats_kill(int level)
 
         r_ptr->r_sights++;
         _stats_note_monster_level(level, r_ptr->level);
-        mon_take_hit(i, m_ptr->hp + 1, &fear, NULL);
+        mon_take_hit(i, m_ptr->hp + 1, DAM_TYPE_WIZARD, &fear, NULL);
         if (slot) rune_sword_kill(equip_obj(slot), r_ptr);
     }
 }
@@ -1573,6 +1584,11 @@ void do_cmd_debug(void)
         do_cmd_wiz_change();
         break;
 
+    /* Blue-Mage spells */
+    case 'E':
+        if (p_ptr->pclass == CLASS_BLUE_MAGE) do_cmd_wiz_blue_mage();
+        break;
+
     /* View item info */
     case 'f':
         identify_fully(NULL);
@@ -1815,6 +1831,35 @@ void do_cmd_debug(void)
     case 'x':
         gain_exp(command_arg ? command_arg : (p_ptr->exp + 1));
         break;
+
+    case 'X':
+    {
+        char tmp_val[80];
+        long tmp_long;
+
+        sprintf(tmp_val, "%d", p_ptr->exp);
+        /* Query */
+        if (!get_string("Experience: ", tmp_val, 9)) break;
+
+        /* Extract */
+        tmp_long = atol(tmp_val);
+
+        /* Verify */
+        if (tmp_long < 0) tmp_long = 0L;
+        if (tmp_long > 99999999L) tmp_long = 99999999L;
+        if (p_ptr->prace != RACE_ANDROID)
+        {
+            /* Save */
+            p_ptr->max_exp = tmp_long;
+            p_ptr->exp = tmp_long;
+
+            /* Update */
+            check_experience();
+            p_ptr->max_plv = p_ptr->lev;
+            do_cmd_redraw();
+        }
+        break;
+    }
 
     /* Zap Monsters (Genocide) */
     case 'z':

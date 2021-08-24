@@ -764,6 +764,11 @@ bool are_enemies(monster_type *m_ptr, monster_type *n_ptr)
         return TRUE;
     }
 
+    if (melee_challenge)
+    {
+        if (!(is_pet(m_ptr) != is_pet(n_ptr))) return FALSE;
+    }
+
     if ((r_ptr->flags8 & (RF8_WILD_TOWN | RF8_WILD_ALL))
         && (s_ptr->flags8 & (RF8_WILD_TOWN | RF8_WILD_ALL)))
     {

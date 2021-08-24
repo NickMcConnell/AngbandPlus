@@ -241,7 +241,7 @@ void do_cmd_refill(void)
 void do_cmd_target(void)
 {
     /* Target set */
-    if (target_set(TARGET_KILL))
+    if (target_set(TARGET_KILL | TARGET_TRVL))
     {
         if (target_who > 0)
         {
@@ -258,7 +258,7 @@ void do_cmd_target(void)
     }
 
     /* Target aborted */
-    else
+    else if (!travel.run)
     {
         msg_print("Target Aborted.");
 
@@ -753,6 +753,7 @@ struct _mon_list_info_s
     int ct_los;
     int dx, dy;
     int dis;
+    int status; /* 0 = hostile, 1 = friendly, 2 = pet */
     bool target; /* Current target is in this group, in which case, m_idx is the target.
                     Otherwise, m_idx is the monster in this group that is closest to
                     the player. */
@@ -843,6 +844,7 @@ static _mon_list_ptr _create_monster_list(int mode)
         int                 key;
         bool                los;
         int                 r_idx = m_ptr->ap_r_idx;
+        int                 status = 0;
         _mon_list_info_ptr  info_ptr;
 
         if (!r_idx) continue;
@@ -872,6 +874,14 @@ static _mon_list_ptr _create_monster_list(int mode)
         else
             key = los ? -r_idx : r_idx;
 
+        if (p_ptr->pet_extra_flags & PF_HILITE_LISTS)
+        {
+            if (is_pet(m_ptr)) status = 2;
+            else if (is_friendly(m_ptr)) status = 1;
+            if (key < 0) key -= (status * max_r_idx);
+            else key += (status * max_r_idx);
+        }
+
         info_ptr = int_map_find(map, key);
         if (!info_ptr)
         {
@@ -887,6 +897,7 @@ static _mon_list_ptr _create_monster_list(int mode)
             info_ptr->dy = m_ptr->fy - py;
             info_ptr->dx = m_ptr->fx - px;
             info_ptr->dis = m_ptr->cdis;
+            info_ptr->status = status;
 
             int_map_add(map, key, info_ptr);
         }
@@ -1070,6 +1081,15 @@ static int _draw_monster_list(_mon_list_ptr list, int top, rect_t rect, int mode
                 attr = TERM_VIOLET;
             else if (!info_ptr->ct_awake)
                 attr = TERM_L_DARK;
+
+            if (info_ptr->status == 1)
+            {
+                attr = (!info_ptr->ct_awake) ? TERM_GREEN : TERM_L_GREEN;
+            }
+            else if (info_ptr->status == 2)
+            {
+                attr = (!info_ptr->ct_awake) ? TERM_ORANGE : TERM_YELLOW;
+            }
 
             if (info_ptr->ct_total == 1)
             {
@@ -1298,6 +1318,12 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
         else
             cmd = inkey_special(TRUE);
 
+        if (rogue_like_commands)
+        {
+            if (cmd == 'j') cmd = SKEY_DOWN;
+            else if (cmd == 'k') cmd = SKEY_UP;
+        }
+
         switch (cmd)
         {
         /* Monster Recall */
@@ -1440,6 +1466,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
         }
         /* Travel to Location */
         case 'J':
+        case '(':
         case '`':
         {
             int idx = top + pos;
@@ -1577,7 +1604,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
             }
         }
 
-        /* Exit on unkown key? */
+        /* Exit on unknown key? */
         if (!handled && quick_messages && mode != MON_LIST_PROBING) /* Hey, it cost mana to get here! */
             done = TRUE;
     }
@@ -1785,7 +1812,9 @@ static _obj_list_ptr _create_obj_list(void)
         info->score = obj_value(o_ptr);
         info->count = o_ptr->number;
 
+        obj_list_autopick_hack = TRUE;
         auto_pick_idx = is_autopick(o_ptr);
+        obj_list_autopick_hack = FALSE;
         if ( auto_pick_idx >= 0
           && (autopick_list[auto_pick_idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK)) )
         {
@@ -1984,6 +2013,13 @@ void do_cmd_list_objects(void)
             Term_gotoxy(display_rect.x, display_rect.y + pos);
 
             cmd = inkey_special(TRUE);
+
+            if (rogue_like_commands)
+            {
+                if (cmd == 'j') cmd = SKEY_DOWN;
+                else if (cmd == 'k') cmd = SKEY_UP;
+            }
+
             switch (cmd)
             {
             case '?':
@@ -2036,6 +2072,7 @@ void do_cmd_list_objects(void)
                 break;
             }
             case 'J':
+            case '(':
             case '`':
             {
                 int idx = top + pos;

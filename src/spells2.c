@@ -83,7 +83,8 @@ void self_knowledge(void)
     {
         char stat_desc[80];
 
-        sprintf(stat_desc, "%s 18/%d", stat_names[v_nr], p_ptr->stat_max_max[v_nr]-18);
+        if (decimal_stats) sprintf(stat_desc, "%s %d", stat_names[v_nr], (p_ptr->stat_max_max[v_nr]-18)/10+18);
+        else sprintf(stat_desc, "%s 18/%d", stat_names[v_nr], p_ptr->stat_max_max[v_nr]-18);
 
         strcpy(s_string[v_nr], stat_desc);
 
@@ -2142,7 +2143,7 @@ bool symbol_genocide(int power, bool player_cast)
     /* Mega-Hack -- Get a monster symbol */
     while (!okay)
     {
-        if (!get_com("Choose a monster race (by symbol) to genocide: ", &typ, FALSE))
+        if (!get_com("Choose a monster species (by symbol; '?' for help) to genocide: ", &typ, FALSE))
             return FALSE;
         if (typ == 'n') /* naga hack */
         {
@@ -2152,6 +2153,13 @@ bool symbol_genocide(int power, bool player_cast)
         {
             if (msg_prompt("Really genocide Xorns? <color:y>[Y/N]</color>", "NY", PROMPT_DEFAULT) != 'Y') continue;
         }
+        else if (typ == '?')
+        {
+            screen_save();
+            doc_display_help("monster.txt#Genocide", NULL);
+            screen_load();
+            continue;
+        } 
         else if (!isalpha(typ))
         {
             if (msg_prompt("Confirm genocide? <color:y>[Y/N]</color>", "NY", PROMPT_DEFAULT) != 'Y') continue;
@@ -3550,7 +3558,7 @@ bool lite_area(int dam, int rad)
 
     if (d_info[dungeon_type].flags1 & DF1_DARKNESS)
     {
-        msg_print("The darkness of this dungeon absorb your light.");
+        msg_print("The darkness of this dungeon absorbs your light.");
         return FALSE;
     }
 
@@ -3925,6 +3933,7 @@ bool lite_line(int dir)
 bool drain_life(int dir, int dam)
 {
     int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
+    if (melee_challenge) return FALSE;
     return (project_hook(GF_OLD_DRAIN, dir, dam, flg));
 }
 

@@ -1275,7 +1275,7 @@ void apply_nexus(monster_type *m_ptr)
                 msg_print("Your body starts to scramble...");
                 wild_talent_scramble();
             }
-            else if (no_wilderness || no_chris || quest_id_current())
+            else if (no_wilderness || no_chris || ironman_downward || quest_id_current())
             {
                 if (!no_scrambling) msg_print("Your body starts to scramble...");
                 mutate_player();
@@ -2374,7 +2374,7 @@ bool artifact_scroll(void)
     {
         if (prompt.obj->number > 1)
         {
-            msg_print("Not enough enough energy to enchant more than one object!");
+            msg_print("Not enough energy to enchant more than one object!");
             msg_format("%d of your %s %s destroyed!",(prompt.obj->number)-1, o_name, (prompt.obj->number>2?"were":"was"));
             prompt.obj->number = 1;
         }
@@ -2399,7 +2399,7 @@ bool artifact_scroll(void)
         /* Message */
         msg_print("The enchantment failed.");
 
-        if (one_in_(3)) virtue_add(VIRTUE_ENCHANTMENT, -1);
+        return (FALSE);
     }
     else
     {
@@ -4041,7 +4041,7 @@ bool rustproof(void)
 }
 
 /*
- * Helper for Cursing Equipment (?Curse Armor and ?Curse Weapn)
+ * Helper for Cursing Equipment (?Curse Armor and ?Curse Weapon)
  * Also used when sacrificing a worn piece of equipment.
  */
 
@@ -4057,9 +4057,9 @@ void blast_object(object_type *o_ptr)
     o_ptr->name1 = 0;
     o_ptr->name2 = EGO_SPECIAL_BLASTED;
     o_ptr->name3 = 0;
-    o_ptr->to_a = 0;
-    o_ptr->to_h = 0;
-    o_ptr->to_d = 0;
+    o_ptr->to_a = MIN(o_ptr->to_a, 0);
+    o_ptr->to_h = MIN(o_ptr->to_h, 0);
+    o_ptr->to_d = MIN(o_ptr->to_d, 0);
     o_ptr->ac = 0;
     o_ptr->dd = 0;
     o_ptr->ds = 0;
@@ -4072,6 +4072,10 @@ void blast_object(object_type *o_ptr)
         o_ptr->to_h -= randint1(5) + randint1(5);
         o_ptr->to_d -= randint1(5) + randint1(5);
     }
+
+    if (o_ptr->to_a < -66) o_ptr->to_a = -66;
+    if (o_ptr->to_h < -66) o_ptr->to_h = -66;
+    if (o_ptr->to_d < -66) o_ptr->to_d = -66;
 
     for (i = 0; i < OF_ARRAY_SIZE; i++)
         o_ptr->flags[i] = 0;
@@ -4361,6 +4365,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
             case RACE_DEMIGOD:
             case RACE_EINHERI:
             case RACE_BEORNING:
+            case RACE_IGOR:
                 summon_kin_type = 'p';
                 break;
             case RACE_TONBERRY:

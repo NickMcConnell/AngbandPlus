@@ -1019,6 +1019,12 @@ cptr process_pref_file_expr(char **sp, char *fp)
                 sprintf(tmp, "%09d", p_ptr->au);
                 v = tmp;
             }
+            /* Money */
+            else if (streq(b+1, "SELLING"))
+            {
+                sprintf(tmp, no_selling ? "Off" : "On");
+                v = tmp;
+            }
         }
 
         /* Constant */
@@ -2731,10 +2737,13 @@ void process_player_name(bool sf)
     }
 
     /* Load an autopick preference file */
-    if (character_generated)
+    if ((character_generated) && (!temporary_name_hack))
     {
-        if (!streq(old_player_base, player_base)) autopick_load_pref(FALSE);
+        if (!streq(old_player_base, player_base)) autopick_load_pref(0);
     }
+
+    /* Paranoia - create a default pref save base */
+    if (!strlen(pref_save_base)) strcpy(pref_save_base, player_base);
 }
 
 
@@ -2925,6 +2934,9 @@ long total_points(void)
     if (ironman_nightmare) mult += 100;
     if (wacky_rooms) mult += 10;
     if (thrall_mode) mult += (p_ptr->personality == PERS_SEXY) ? 50 : 10;
+    if ((melee_challenge) && (p_ptr->pclass != CLASS_BERSERKER)) mult += 30;
+    if ((no_melee_challenge) && (p_ptr->pclass != CLASS_SORCERER) && (!prace_is_(RACE_MON_QUYLTHULG))
+        && (!prace_is_(RACE_MON_RING))) mult += 40;
     if (easy_damage) mult /= 2;
     if (coffee_break)
     {

@@ -207,6 +207,29 @@ static int calc_adj_dex_ta(void)
  */
 void cnv_stat(int val, char *out_val)
 {
+    if (decimal_stats)
+    {
+        if (val < 18)
+        {
+            sprintf(out_val, "    %2d", val);
+            return;
+        }
+        else
+        {
+            int bonus = (val - 18);
+
+            if (bonus >= 220)
+            {
+                sprintf(out_val, "  %4s", "****");
+                return;
+            }
+            else
+            {
+                sprintf(out_val, "  %2d.%01d", (bonus / 10) + 18, (bonus % 10));
+                return;
+            }
+        }
+    }
     /* Above 18 */
     if (val > 18)
     {
@@ -1848,6 +1871,7 @@ static bool prt_speed(int row, int col)
         else if ((is_fast && !hitaus) || IS_LIGHT_SPEED() || psion_speed()) attr = TERM_YELLOW;
         else if (hitaus && !is_fast) attr = TERM_VIOLET;
         else if ((is_fast) && (hitaus) && (hitaus != 10)) attr = ((hitaus > 10) ? TERM_VIOLET : TERM_YELLOW);
+        else if ((is_fast) && (hitaus) && (hitaus == 10)) attr = TERM_L_RED;
         else if (p_ptr->filibuster) attr = TERM_ORANGE;
         else attr = TERM_L_GREEN;
         if (effective_speed) sprintf(buf, "Fast (%d.%dx)", SPEED_TO_ENERGY(i) / 10, SPEED_TO_ENERGY(i) % 10);
@@ -2072,6 +2096,34 @@ static void prt_effects(void)
         char tmp[20];
         sprintf(tmp, "Study (%d)", p_ptr->new_spells);
         c_put_str(TERM_L_BLUE, tmp, row++, col);
+    }
+    if ((rogue_like_commands) && (show_rogue_keys) && (row < Term->hgt - 3))
+    {
+        if (row < Term->hgt - 5)
+        {
+            Term_erase(col, row++, r.cx);
+        }
+        c_put_str(TERM_YELLOW, "  y  k  u   ", row++, col);
+        c_put_str(TERM_YELLOW, "  h  5  l   ", row++, col);
+        c_put_str(TERM_YELLOW, "  b  j  n   ", row++, col);
+        p_ptr->redraw |= PR_ROGUE_KEYS;
+    }
+    else if (p_ptr->redraw & (PR_ROGUE_KEYS))
+    {
+        for (i = row + 1; i < Term->hgt - 1; i++)
+        {
+            Term_erase(col, i, r.cx);
+        }
+        if (!show_rogue_keys) p_ptr->redraw &= ~PR_ROGUE_KEYS;
+    }
+    if ((game_mode == GAME_MODE_BEGINNER) && (row < Term->hgt - 1))
+    {
+        if (row < Term->hgt - 2)
+        {
+            Term_erase(col, row++, r.cx);
+        }
+        c_put_str(TERM_ORANGE, "?", row, col);
+        c_put_str(TERM_L_GREEN, " for help  ", row++, col + 1);
     }
 }
 
@@ -3338,7 +3390,7 @@ int py_prorata_level_aux(int amt, int w1, int w2, int w3)
 
 /* Experimental: Adjust the non-linearity of extra hp distribution based on class.
    It's probably best to have all this in one place. See also the hp.ods design doc. */
-static int _calc_xtra_hp(int amt)
+static int _calc_xtra_hp_aux(int amt)
 {
     int w1 = 1, w2 = 1, w3 = 1;
     int class_idx = get_class_idx();
@@ -3392,6 +3444,7 @@ static int _calc_xtra_hp(int amt)
     case CLASS_RED_MAGE:
     case CLASS_MIRROR_MASTER:
     case CLASS_TIME_LORD:
+    case CLASS_BLUE_MAGE:
     case CLASS_BLOOD_MAGE:
     case CLASS_NECROMANCER:
     case CLASS_POLITICIAN:
@@ -3449,6 +3502,27 @@ static int _calc_xtra_hp(int amt)
     }
 
     return py_prorata_level_aux(amt, w1, w2, w3);
+}
+
+int calc_xtra_hp_fake(int lev)
+{
+    int real_lev = p_ptr->lev;
+    int _hp;
+    p_ptr->lev = lev;
+    _hp = _calc_xtra_hp_aux(304);
+    p_ptr->lev = real_lev;
+    return _hp;
+}
+
+static int _calc_xtra_hp(int amt)
+{
+    int tulos = _calc_xtra_hp_aux(amt);
+    if ((coffee_break == SPEED_INSTA_COFFEE) && (tulos < p_ptr->lev * amt / 50))
+    {
+        tulos -= (tulos / 3);
+        tulos += (p_ptr->lev * amt / 150);
+    }
+    return tulos;
 }
 
 /*
@@ -3694,6 +3768,7 @@ void calc_bonuses(void)
     bool old_esp_unique = p_ptr->esp_unique;
     bool old_esp_magical = p_ptr->esp_magical;
     s16b old_see_inv = p_ptr->see_inv;
+    bool icky_lock = FALSE;
 
     /* Save the old armor class */
     s16b old_dis_ac = p_ptr->dis_ac;
@@ -4054,7 +4129,7 @@ void calc_bonuses(void)
         p_ptr->dis_to_a += 100;
     }
     /* Temporary shield */
-    else if (p_ptr->tsubureru || IS_STONE_SKIN() || p_ptr->magicdef)
+    else if (IS_STONE_SKIN() || p_ptr->magicdef)
     {
         int bonus = 10 + 40*p_ptr->lev/50;
         if (!(p_ptr->special_defense & KATA_MUSOU))
@@ -4062,6 +4137,12 @@ void calc_bonuses(void)
             p_ptr->to_a += bonus;
             p_ptr->dis_to_a += bonus;
         }
+    }
+
+    if (p_ptr->tsubureru)
+    {
+        p_ptr->to_a += 35;
+        p_ptr->dis_to_a += 35;
     }
 
     if (IS_OPPOSE_ACID()) res_add(RES_ACID);
@@ -4142,7 +4223,9 @@ void calc_bonuses(void)
     if (class_ptr->calc_stats)
         class_ptr->calc_stats(stats); /* after equip_calc_bonuses, which might dismiss the current posture */
 
-    if (race_ptr->calc_stats)
+    /* Hack - Igors calculate their body stats elsewhere, but have calc_stats
+     * for py_info to call */
+    if ((race_ptr->calc_stats) && (!prace_is_(RACE_IGOR)))
         race_ptr->calc_stats(stats);
 
     for (i = 0; i < MAX_STATS; i++)
@@ -5233,14 +5316,22 @@ void calc_bonuses(void)
 
         if (p_ptr->old_icky_wield[i] != p_ptr->weapon_info[i].icky_wield)
         {
-            if (p_ptr->weapon_info[i].icky_wield)
+            if (p_ptr->pclass == CLASS_WEAPONMASTER) /* Special messages elsewhere */
             {
-                msg_print("You do not feel comfortable with your weapon.");
+                icky_lock = TRUE;
+            }
+            else if (p_ptr->weapon_info[i].icky_wield)
+            {
+                if (!icky_lock) msg_print("You do not feel comfortable with your weapon.");
+                icky_lock = TRUE;
                 if (hack_mind)
                     virtue_add(VIRTUE_FAITH, -1);
             }
             else if (p_ptr->weapon_info[i].wield_how != WIELD_NONE)
-                msg_print("You feel comfortable with your weapon.");
+            {
+                if (!icky_lock) msg_print("You feel comfortable with your weapon.");
+                icky_lock = TRUE;
+            }
             else
                 msg_print("You feel more comfortable after removing your weapon.");
 
@@ -5591,6 +5682,10 @@ void redraw_stuff(void)
     if (p_ptr->redraw & (PR_EFFECTS))
     {
         p_ptr->redraw &= ~PR_EFFECTS;
+        prt_effects();
+    }
+    else if (((bool)(p_ptr->redraw & (PR_ROGUE_KEYS))) != show_rogue_keys) /* Hack */
+    {
         prt_effects();
     }
 

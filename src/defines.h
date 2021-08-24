@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 7
 #define VER_MINOR 1
-#define VER_PATCH "chocolate"
-#define VER_EXTRA 1
+#define VER_PATCH "liquorice"
+#define VER_EXTRA 2
 #define VERSION_IS_DEVELOPMENT (FALSE)
 
 #define GAME_MODE_BEGINNER  0
@@ -27,6 +27,11 @@
 #define GAME_MODE_XXX       2
 #define GAME_MODE_MONSTER   3
 #define GAME_MODE_MAX       4
+
+#define SPEED_NORMAL        0
+#define SPEED_COFFEE        1
+#define SPEED_INSTA_COFFEE  2
+#define GAME_SPEED_MAX      3
 
 /*
  * Number of grids in each block (vertically)
@@ -251,10 +256,9 @@
 
 /*
  * OPTION: Maximum number of "quarks" (see "io.c")
- * Default: assume at most 512 different inscriptions are used
+ * Default: assume at most 2048 different inscriptions/randart names are used
  */
-#define QUARK_MAX       1024
-/* Was 512... 256 quarks added for random artifacts */
+#define QUARK_MAX       2048
 
 /*
  * OPTION: Maximum number of messages to remember (see "io.c")
@@ -348,6 +352,7 @@
 #define PET_RYOUTE              16
 #define PET_NO_BREEDING         17
 #define PET_HILITE              18
+#define PET_HILITE_LISTS        19
 
 /*
  * Follow distances
@@ -368,6 +373,7 @@
 #define PF_RYOUTE       0x0040
 #define PF_NO_BREEDING  0x0080
 #define PF_HILITE       0x0100
+#define PF_HILITE_LISTS 0x0200
 
 
 #define CAN_TWO_HANDS_WIELDING() (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE))
@@ -646,7 +652,8 @@
 #define RACE_BEORNING           69
 #define RACE_TOMTE              70
 #define RACE_MON_PUMPKIN        71
-#define MAX_RACES               72
+#define RACE_IGOR               72
+#define MAX_RACES               73
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -737,6 +744,7 @@
 #define RACE_IS_MONSTER      0x0008
 #define RACE_IS_ILLITERATE   0x0010
 #define RACE_NO_POLY         0x0020
+#define RACE_DEMI_TALENT     0x0040
 
 /* Pseudo-ID: Sense1 is the traditional equipable item sensing.
  * Sense2 is jewelry, lights and magical devices (mage like sensing). */
@@ -818,7 +826,7 @@ enum _mimic_types {
 #define CLASS_RED_MAGE          18
 #define CLASS_SAMURAI           19
 #define CLASS_FORCETRAINER      20
-#define CLASS_XXX21             21
+#define CLASS_BLUE_MAGE         21
 #define CLASS_CAVALRY           22
 #define CLASS_BERSERKER         23
 #define CLASS_WEAPONSMITH       24
@@ -919,6 +927,7 @@ enum {
     PERS_FRAGILE,
     PERS_SNEAKY,
     PERS_NOBLE,
+    PERS_SPLIT,
     MAX_PERSONALITIES,
 };
 
@@ -1210,6 +1219,7 @@ enum {
 #define ART_PALANTIR             15
 #define ART_STONE_LORE           17
 #define ART_FLY_STONE            147
+#define ART_HYPNO                365
 
 /* Amulets */
 #define ART_CARLAMMAS            4
@@ -1659,6 +1669,13 @@ enum {
 /* The "sval" codes for TV_CORPSE */
 #define SV_SKELETON             0
 #define SV_CORPSE            1
+#define SV_BODY_HEAD         2
+#define SV_BODY_EYES         3
+#define SV_BODY_STOMACH      4
+#define SV_BODY_HEART        5
+#define SV_BODY_HANDS        6
+#define SV_BODY_LEGS         7
+#define SV_BODY_EARS         8
 
 /* TV_ARROW */
 #define SV_ARROW         1
@@ -2258,6 +2275,7 @@ enum {
  *            Don't restrict selection to LoS.
  *      DISI: Hack for The Bowmaster's Disintegration Arrow. Similar
  *            to MARK but also shows the path.
+ *      TRVL: Instantly start travel to target if 'j' is pressed.
  */
 #define TARGET_KILL        0x01
 #define TARGET_LOOK        0x02
@@ -2265,6 +2283,7 @@ enum {
 #define TARGET_GRID        0x08
 #define TARGET_MARK        0x10
 #define TARGET_DISI        0x20
+#define TARGET_TRVL        0x40
 
 
 /*
@@ -2346,6 +2365,7 @@ enum {
 #define PR_WIPE             0x00010000     /* Hack -- Total Redraw */
 #define PR_MSG_LINE         0x00020000
 #define PR_POOL             0x00040000     /* Display Pool */
+#define PR_ROGUE_KEYS       0x00080000     /* Display Rogue Keys */
 
 /* xxx */
 /* xxx */
@@ -2392,6 +2412,7 @@ enum {
 #define PM_QUESTOR        0x00004000
 #define PM_NO_SUMMONERS   0x00008000
 #define PM_ALLOW_DEAD     0x00010000
+#define PM_NATIVE         0x00020000
 
 /* Bit flags for monster_desc() */
 #define MD_OBJECTIVE      0x00000001 /* Objective (or Reflexive) */
@@ -2719,6 +2740,8 @@ enum summon_specific_e {
 #define MFLAG2_MON_HIT_OKAY     0x00080000
 #define MFLAG2_WASPET           0x00100000   /* Monster is or was a pet */
 #define MFLAG2_DIRECT_PY_SUMMON 0x00200000   /* Monster was summoned by the player */
+#define MFLAG2_SPAWN            0x00400000   /* Monster was randomly spawned mid-level */
+#define MFLAG2_NATIVE           0x00800000   /* Monster is a quest native */
 
 /*
  * Object Flags (OF_*)
@@ -2973,6 +2996,9 @@ enum obj_flags_e {
     /* A few places loop from 0 <= i < OF_COUNT ... (init1, race_sword and race_ring) */
     OF_COUNT, /* currently 179 */
 };
+#define OF_RES_START OF_RES_ACID
+#define OF_RES_END OF_RES_FEAR
+
 #define OF_ARRAY_SIZE          6
 /* u32b flgs[OF_ARRAY_SIZE];
    assert((OF_COUNT + 31)/32 == OF_ARRAY_SIZE); is checked during initialization */
@@ -4380,6 +4406,7 @@ extern int PlayerUID;
 #define MON_SPECTATOR 488
 #define MON_BICLOPS       490
 #define MON_IVORY_MONK    492
+#define MON_CAVE_TROLL    496
 #define MON_ANTI_PALADIN 497
 #define MON_LOGRUS_MASTER    498
 #define MON_CHAOS_DRAKE           501
@@ -4476,6 +4503,7 @@ extern int PlayerUID;
 #define MON_ETHEREAL_DRAGON     676
 #define MON_QUAKER              679
 #define MON_LLOIGOR             682
+#define MON_UTGARD_LOKE         683
 #define MON_SHOGGOTH            685
 #define MON_ARIEL               687
 #define MON_ELEVEN_HEADED_HYDRA 688
@@ -4726,6 +4754,7 @@ extern int PlayerUID;
 #define MON_MARILITH            1130
 #define MON_MIMIC               1131
 #define MON_MULTIHUED_CENTIPEDE 1132
+#define MON_DONKEY              1145
 #define MON_PUMPKIN_MAN         1146
 #define MON_AUDE		1148
 #define MON_HELGA		1149
@@ -5092,7 +5121,7 @@ enum mon_save_fields_e {
 #define IS_RESIST_MAGIC() (p_ptr->resist_magic || wild_has_power(WILD_MAGIC_RESIST))
 #define IS_STONE_SKIN() (p_ptr->shield || wild_has_power(WILD_STONE_SKIN))
 #define IS_PASSWALL() (p_ptr->kabenuke || wild_has_power(WILD_PASSWALL))
-#define IS_REVENGE() (p_ptr->tim_eyeeye || hex_spelling(HEX_EYE_FOR_EYE) || wild_has_power(WILD_REVENGE) || weaponmaster_get_toggle() == TOGGLE_SHIELD_REVENGE || psion_backlash())
+#define IS_REVENGE() ((!melee_challenge) && (p_ptr->tim_eyeeye || hex_spelling(HEX_EYE_FOR_EYE) || wild_has_power(WILD_REVENGE) || weaponmaster_get_toggle() == TOGGLE_SHIELD_REVENGE || psion_backlash()))
 #define IS_WRAITH() (p_ptr->wraith_form || wild_has_power(WILD_WRAITH))
 
 /* Multishadow effects is determined by turn */
@@ -6072,9 +6101,6 @@ enum
 
 #define MAX_POWER_LABEL 62 /* uppercase, lowercase, and numbers */
 
-#define PURPLE_QUEST 82
-#define SEWER_QUEST 2
-
 #define TROIKA_HIT 1
 #define TROIKA_KILL_WEAK 2
 #define TROIKA_KILL 3
@@ -6101,3 +6127,9 @@ enum
 #define SMALL_LVL_HUGE 11
 #define SMALL_LVL_RESPECTFUL_HUGE 12
 #define SMALL_LVL_MAX 12
+
+#define DAM_TYPE_MELEE 0
+#define DAM_TYPE_ARCHERY 1
+#define DAM_TYPE_SPELL 2
+#define DAM_TYPE_WIZARD 3
+#define DAM_TYPE_AURA 4

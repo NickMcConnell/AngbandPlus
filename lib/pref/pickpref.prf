@@ -59,6 +59,20 @@ scrolls:banish
 #!identified rings
 #!identified amulets
 
+?:[AND [EQU $SELLING Off] [EQU $CLASS Berserker]]
+!nameless shooters
+!scrolls
+!ammo
+!quiver
+?:1
+
+?:[AND [EQU $SELLING Off] [EQU $CLASS Berserker] [NOT [EQU $RACE Skeleton Golem Zombie Spectre]] ]
+!rods
+!wands
+!staves
+?:1
+
+?:[NOT [EQU $CLASS Berserker]]
 rods:angelic healing#@zh!sdk
 rods:heroic speed#@zs!sdk
 ?staves:healing#@uh!sdk
@@ -67,8 +81,9 @@ rods:heroic speed#@zs!sdk
 ?staves:confusing lights#@uz!sdk
 ?wands:rocket#@ar!sdk
 ?wands:disintegrate#@ad!sdk
+?:1
 
-?:[LEQ $LEVEL 45]
+?:[AND [LEQ $LEVEL 45] [NOT [EQU $CLASS Berserker]] ]
 ?staves:cure wounds#@uu!sdk
 ?:1
 
@@ -86,6 +101,10 @@ wizardstaff
 
 ?unidentified artifact items
 ?unidentified ego items
+
+?:[AND [EQU $SELLING Off] [EQU $CLASS Weaponmaster] ]
+!nameless icky weapons
+?:1
 
 #########################################
 # Armor
@@ -146,7 +165,7 @@ weapons more weight than 39
 ?unidentified ammo:bolt
 ?:1
 
-~gun
+~^gun
 
 #########################################
 # Corpses
@@ -166,9 +185,19 @@ wanted corpses#Wanted!kkk
 wanted skeletons#Wanted!kkk
 ?:1
 
+?:[EQU $RACE Igor]
+wanted ear#Wanted!kkk
+wanted head#Wanted!kkk
+corpses
+?:1
+
 #########################################
 # Spellbooks
 #########################################
+
+?:[AND [EQU $SELLING Off] [NOT [EQU $CLASS Skillmaster]]]
+!unreadable spellbooks
+?:1
 
 ?:[EQU $CLASS Sorcerer]
 fourth spellbooks#!sdk
@@ -245,6 +274,10 @@ Iron Spike#@vz
 
 ?:[EQU $CLASS Tourist]
 ~photograph
+?:1
+
+?:[EQU $SELLING Off]
+!statue of
 ?:1
 
 ~special items

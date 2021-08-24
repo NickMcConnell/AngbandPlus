@@ -64,7 +64,7 @@ N:2:of Elendil
 I:39:5:1
 W:50:25:5:32500
 P:0:1d1:0:0:0
-F:SEE_INVIS | HOLD_LIFE | INSTA_ART | SPEED
+F:SEE_INVIS | HOLD_LIFE | INSTA_ART | SPEED | CON | CHR | REGEN
 E:LITE_MAP_AREA:30:25
 E:The star shines brightly...
 D:The shining Star of the West, a famed heirloom of Elendil's house.
@@ -1636,7 +1636,7 @@ F:KILL_DRAGON | ESP_DRAGON | IM_FIRE | XTRA_RES_OR_POWER
 D:At the Nirnaeth the Dwarves stayed the onslaught of Glaurung, and
 D:Azaghal their lord drove this short blade into the drake's belly before
 D:he was trampled underfoot. The black blood of the Father of Dragons
-D:now serves as a rememberance for all dragons that come near it.
+D:now serves as a remembrance for all dragons that come near it.
 
 N:136:'Mjollnir'
 I:21:8:4
@@ -2103,6 +2103,7 @@ P:0:6d6:16:16:0
 F:BRAND_VAMP | STR | CON | FREE_ACT | HOLD_LIFE | RES_NETHER | RES_CONF |
 F:RES_CHAOS | QUESTITEM
 F:SLAY_HUMAN | SLAY_GOOD
+D:Death is all. Beware, cursed is the wielder.
 
 N:191:'Narsil'
 I:23:2:3
@@ -2694,8 +2695,8 @@ D:without your trying.
 N:254:'Big Punch'
 I:21:15:0
 W:50:50:800:150000
-P:0:8d6:1:3:-6
-F:HIDE_TYPE | SHOW_MODS |
+P:0:8d5:1:3:-6
+F:HIDE_TYPE | SHOW_MODS | RES_SOUND
 D:This gigantic, dull-gray mace was rumored to be a gift
 D:from an ancient dwarven king to an adventurer for saving
 D:his people from a fearsome demon.

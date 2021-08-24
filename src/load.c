@@ -287,6 +287,18 @@ static void rd_options(savefile_ptr file)
         list_stairs = FALSE;
     }
 
+    /* Former slot of coffee_break mode option is now occupied by show_rogue_keys */
+    if (savefile_is_older_than(file, 7, 1, 2, 1))
+    {
+        if (show_rogue_keys)
+        {
+            coffee_break = SPEED_COFFEE;
+            previous_char.coffee_break = SPEED_COFFEE;
+            show_rogue_keys = (game_mode == GAME_MODE_BEGINNER);
+        }
+        else coffee_break = 0;
+    }
+
     /*** Window Options ***/
     for (n = 0; n < 8; n++) flag[n] = savefile_read_u32b(file);
     for (n = 0; n < 8; n++) mask[n] = savefile_read_u32b(file);
@@ -314,6 +326,7 @@ static void rd_quick_start(savefile_ptr file)
     int i;
 
     previous_char.game_mode = savefile_read_byte(file);
+    previous_char.coffee_break = (savefile_is_older_than(file, 7, 1, 2, 1)) ? 0 : savefile_read_byte(file);
     previous_char.psex = savefile_read_byte(file);
     previous_char.prace = savefile_read_byte(file);
     previous_char.psubrace = savefile_read_byte(file);
@@ -348,6 +361,7 @@ static void rd_extra(savefile_ptr file)
     rd_quick_start(file);
 
     game_mode = savefile_read_s32b(file);
+    if (!savefile_is_older_than(file, 7,1,2,1)) coffee_break = savefile_read_byte(file);
     if (savefile_is_older_than(file, 7,0,6,4)) game_pantheon = 0;
     else game_pantheon = savefile_read_byte(file);
 
@@ -644,7 +658,8 @@ static void rd_extra(savefile_ptr file)
 
     seed_flavor = savefile_read_u32b(file);
     seed_town = savefile_read_u32b(file);
-    if (p_ptr->personality == PERS_CHAOTIC) chaotic_py_seed = savefile_read_u32b(file);
+    if (p_ptr->personality == PERS_SPLIT) split_load(file);
+    if (personality_includes_(PERS_CHAOTIC)) chaotic_py_seed = savefile_read_u32b(file);
     p_ptr->panic_save = savefile_read_u16b(file);
     p_ptr->total_winner = savefile_read_u16b(file);
     p_ptr->noscore = savefile_read_u16b(file);
@@ -689,6 +704,10 @@ static void rd_extra(savefile_ptr file)
     else p_ptr->upset_okay = savefile_read_byte(file) ? TRUE : FALSE;
     if (savefile_is_older_than(file, 7, 0, 9, 2)) p_ptr->py_summon_kills = 0;
     else p_ptr->py_summon_kills = savefile_read_byte(file);
+    if (savefile_is_older_than(file, 7, 1, 2, 1)) p_ptr->lv_kills = 0;
+    else p_ptr->lv_kills = savefile_read_s16b(file);
+    if (savefile_is_older_than(file, 7, 1, 2, 2)) p_ptr->pet_lv_kills = 0;
+    else p_ptr->pet_lv_kills = savefile_read_s16b(file);
     for (i = 0; i < 16; i++) (void)savefile_read_s32b(file);
     wipe_labels();
     if (!savefile_is_older_than(file, 7, 1, 0, 4))
@@ -1283,7 +1302,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     /* Important -- Initialize stuff */
     mp_ptr = &m_info[p_ptr->pclass];
     /* Hack ... external files always make easy stuff hard ... Burglary is natural for rogues!!!*/
-    /* Note: Class and Realm are read in in rd_extra a few lines back */
+    /* Note: Class and Realm are read in rd_extra a few lines back */
     if (p_ptr->pclass == CLASS_ROGUE)
     {
         if (p_ptr->realm1 == REALM_BURGLARY)

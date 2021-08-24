@@ -42,6 +42,8 @@ of Amras
 of Amrod
 of Agincourt
 of the Dryad
+of Elgebur
+of Nimrod
 'Second String'
 'Silkstring'
 'Tigerbow'
@@ -58,6 +60,7 @@ of Lamorkand
 of Blitzen
 of Corpsing
 of Gragomani
+of Eeyore
 'Cubragol'
 'Armor Piercer'
 'Lemon Juice'

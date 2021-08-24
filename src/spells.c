@@ -442,7 +442,7 @@ static void _list_spells(spell_info* spells, int ct, int max_cost, char *labels,
             if (col_height == ct) strcat(temp, "  ");
         }
 
-        if (col_height == ct)
+        if ((col_height == ct) && (spell->level <= p_ptr->lev))
             strcat(temp, format(" %s", var_get_string(&info)));
 
         if (spell->fail == 100)
@@ -499,8 +499,11 @@ static bool _describe_spell(spell_info *spell, int col_height)
             line++;
         }
 
-        (spell->fn)(SPELL_INFO, &info);
-        put_str(format("%^s", var_get_string(&info)), line, display.x + 2);
+        if (spell->level <= p_ptr->lev)
+        {
+            (spell->fn)(SPELL_INFO, &info);
+            put_str(format("%^s", var_get_string(&info)), line, display.x + 2);
+        }
         result = FALSE;
     }
     var_clear(&info);
@@ -992,6 +995,13 @@ void do_cmd_spell(void)
         return;
     }
 
+    if ((p_ptr->pclass == CLASS_BLOOD_KNIGHT) && ((get_race()->flags & RACE_IS_NONLIVING) || (p_ptr->no_cut)))
+    {
+        if (get_true_race()->flags & RACE_IS_NONLIVING) msg_print("You can no longer use bloodcraft!");
+        else msg_print("You cannot use bloodcraft while transformed into a nonliving creature.");
+        return;
+    }
+
     hp_caster = ((caster->options & CASTER_USE_HP) || (p_ptr->pclass == CLASS_NINJA_LAWYER));
     if (poli) hp_caster = (politician_get_toggle() == POLLY_TOGGLE_HPCAST);
 
@@ -1302,7 +1312,7 @@ int get_powers_aux(spell_info* spells, int max, power_info* table)
         if (ct >= max) break;
         if (!base->spell.fn) break;
 
-        if (base->spell.level <= p_ptr->lev)
+        if ((base->spell.level <= p_ptr->lev) || (show_future_powers))
         {
             spell_info* current = &spells[ct];
             current->fn = base->spell.fn;
@@ -1333,7 +1343,7 @@ int get_spells_aux(spell_info* spells, int max, spell_info* table)
         if (ct >= max) break;
         if (!base->fn) break;
 
-        if (base->level <= p_ptr->lev)
+        if ((base->level <= p_ptr->lev) || (show_future_spells))
         {
             spell_info* current = &spells[ct];
             current->fn = base->fn;

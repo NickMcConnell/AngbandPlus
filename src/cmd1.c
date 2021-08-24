@@ -376,7 +376,7 @@ void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 }
 
 /*
- * Determine if the player "hits" a monster (normal combat).
+ * Determine if the player "hits" a monster (ranged combat).
  * Note -- Always miss 5%, always hit 5%, otherwise random.
  */
 bool test_hit_fire(int chance, int ac, int vis)
@@ -385,6 +385,7 @@ bool test_hit_fire(int chance, int ac, int vis)
 
     /* Never hit */
     if (chance <= 0) return (FALSE);
+    if (melee_challenge) return (FALSE);
 
     /* Invisible monsters are harder to hit */
     if (!vis) chance = (chance + 1) / 2;
@@ -396,7 +397,7 @@ bool test_hit_fire(int chance, int ac, int vis)
     if (k < 10) return (k < 5);
 
     /* Punish lazy characters */
-    if ((p_ptr->personality == PERS_LAZY) && (one_in_(20))) return (FALSE);
+    if ((personality_is_(PERS_LAZY)) && (one_in_(20))) return (FALSE);
 
     /* Power competes against armor */
     if (randint0(chance) < (ac * 3 / 4)) return (FALSE);
@@ -429,7 +430,7 @@ bool test_hit_norm(int chance, int ac, int vis)
     if (k < 10) return (k < 5);
 
     /* Punish lazy characters */
-    if ((p_ptr->personality == PERS_LAZY) && (one_in_(20))) return (FALSE);
+    if ((personality_is_(PERS_LAZY)) && (one_in_(20))) return (FALSE);
 
     /* Power must defeat armor */
     if (randint0(chance) < (ac * 3 / 4)) return (FALSE);
@@ -1666,7 +1667,7 @@ static int _check_hit(int power)
     if (k < 10) return (k < 5);
 
     /* Punish lazy characters */
-    if ((p_ptr->personality == PERS_LAZY) && (one_in_(20))) return (TRUE);
+    if ((personality_is_(PERS_LAZY)) && (one_in_(20))) return (TRUE);
 
     /* Paranoia -- No power */
     if (power <= 0) return (FALSE);
@@ -2387,7 +2388,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
 
             p_inc_fatigue(MUT_EASY_TIRING, 50);
 
-            if ((fuiuchi) || ((sleep_hit) && (j == 0) && (p_ptr->personality == PERS_SNEAKY)) || (test_hit_norm(chance, ac, m_ptr->ml)))
+            if ((fuiuchi) || ((sleep_hit) && (j == 0) && (personality_is_(PERS_SNEAKY))) || (test_hit_norm(chance, ac, m_ptr->ml)))
             {
                 int dd = a->dd + p_ptr->innate_attack_info.to_dd;
 
@@ -2646,10 +2647,10 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     switch (e)
                     {
                     case GF_MISSILE:
-                        *mdeath = mon_take_hit(m_idx, dam, fear, NULL);
+                        *mdeath = mon_take_hit(m_idx, dam, DAM_TYPE_MELEE, fear, NULL);
                         break;
                     case GF_DISENCHANT:
-                        *mdeath = mon_take_hit(m_idx, dam, fear, NULL);
+                        *mdeath = mon_take_hit(m_idx, dam, DAM_TYPE_MELEE, fear, NULL);
                         if (!(*mdeath) && one_in_(7))
                             dispel_monster_status(m_idx);
                         break;
@@ -2691,6 +2692,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                             else
                             {
                                 msg_format("You <color:D>drain life</color> from %s!", m_name_object);
+                                vampirism_hack = m_ptr->hp;
                                 vamp_player(amt);
                             }
                             drain_amt += amt;
@@ -2881,6 +2883,8 @@ static cptr py_attack_desc(int mode)
     return "";
 }
 
+static int _many_strike_mon = 0;
+
 static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int mode)
 {
     int             num = 0, k, k2 = 0, dam_tot = 0, bonus, chance;
@@ -2920,6 +2924,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     bool            hit_ct = 0;
     bool            poison_needle = FALSE;
     bool            insta_kill = FALSE;
+    static bool     _reaper_lock = FALSE;
+    static int      _reaper_bonus = 0;
 
     if (!c_ptr->m_idx)
     {
@@ -2936,7 +2942,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     weapon_flags(hand, flgs);
     if (o_ptr)
     {
-        object_desc(o_name, o_ptr, OD_NAME_ONLY);
+        object_desc(o_name, o_ptr, OD_NAME_ONLY | OD_OMIT_PREFIX);
         if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
         {
             assert(o_ptr->tval == TV_SHIELD);
@@ -2986,7 +2992,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         p_ptr->painted_target_ct = 0;
     }
 
-    if ((p_ptr->personality == PERS_SNEAKY) && (MON_CSLEEP(m_ptr)) && (m_ptr->ml))
+    if ((personality_is_(PERS_SNEAKY)) && (MON_CSLEEP(m_ptr)) && (m_ptr->ml))
         sleep_hit = TRUE;
 
 	switch (p_ptr->pclass)
@@ -3093,7 +3099,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     /* Calculate the "attack quality" */
     bonus = p_ptr->weapon_info[hand].to_h + to_h;
     if (mode == WEAPONMASTER_KNOCK_BACK) bonus -= 20;
-    if (mode == WEAPONMASTER_REAPING) bonus -= 40;
+    if (mode == WEAPONMASTER_REAPING) bonus -= 20;
     if (mode == WEAPONMASTER_CUNNING_STRIKE) bonus += 20;
     if (mode == WEAPONMASTER_SMITE_EVIL && hand == 0 && (r_ptr->flags3 & RF3_EVIL)) bonus += 200;
     if (duelist_attack) bonus += p_ptr->lev;
@@ -3120,6 +3126,15 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     {
         poison_needle = TRUE;
         num_blow = 1;
+    }
+
+    /* Hack - message for new monster */
+    if ((mode == WEAPONMASTER_MANY_STRIKE) && (c_ptr->m_idx != _many_strike_mon))
+    {
+        char m_name_norm[MAX_NLEN];
+        monster_desc(m_name_norm, m_ptr, 0);
+        cmsg_format(TERM_L_UMBER, "You attack %s:", m_name_norm);
+        _many_strike_mon = c_ptr->m_idx;
     }
 
     /* Attack once for each legal blow */
@@ -3254,6 +3269,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
               || chaos_effect == 1
               || mode == HISSATSU_DRAIN
               || mode == PY_ATTACK_VAMP
+              || mode == WEAPONMASTER_REAPING
               || hex_spelling(HEX_VAMP_BLADE)
               || weaponmaster_get_toggle() == TOGGLE_BLOOD_BLADE
               || mauler_get_toggle() == MAULER_TOGGLE_DRAIN )
@@ -3413,7 +3429,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     k = (dd + p_ptr->weapon_info[hand].to_dd) * (ds + p_ptr->weapon_info[hand].to_ds);
                 else
                     k = damroll(dd + p_ptr->weapon_info[hand].to_dd, ds + p_ptr->weapon_info[hand].to_ds);
-                k = tot_dam_aux(o_ptr, k, m_ptr, hand, mode, FALSE);                
+                k = tot_dam_aux(o_ptr, k, m_ptr, hand, mode, FALSE);
 
                 if (backstab)
                 {
@@ -3711,6 +3727,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 if (mode == WEAPONMASTER_VICIOUS_STRIKE)
                     k *= 2;
 
+                if (mode == WEAPONMASTER_REAPING)
+                {
+                    k += (int)(((s32b)k) * (NUM_BLOWS(hand) + 200L) / 300L);
+                    if (!_reaper_lock) k += (k / 4);
+                    else k += (k * _reaper_bonus / 100);
+                }
+                    
                 switch(weaponmaster_get_toggle())
                 {
                 case TOGGLE_SHIELD_BASH:
@@ -3844,55 +3867,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             dam_tot += k;
 
-            if (mode == WEAPONMASTER_REAPING)
-            {
-                int              start_dir, x2, y2;
-                int                 dir;
-                cave_type       *c_ptr2;
-                monster_type    *m_ptr2;
-                bool             fear2 = FALSE;
-                int                 ct = 0;
-
-                k *= 1 + (num_blow + 2)/3;
-
-                /* First hit the chosen target */
-                if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
-                {
-                    *mdeath = TRUE;
-                    ct += 20;
-                }
-
-                msg_format("Your swing your %s about, reaping a harvest of death!", o_name);
-
-                /* Next hit all adjacent targets in a swinging circular arc */
-                start_dir = calculate_dir(px, py, x, y);
-                dir = start_dir;
-
-                for (;;)
-                {
-                    dir = get_next_dir(dir);
-                    if (dir == start_dir || dir == 5) break;
-
-                    x2 = px + ddx[dir];
-                    y2 = py + ddy[dir];
-                    c_ptr2 = &cave[y2][x2];
-                    m_ptr2 = &m_list[c_ptr2->m_idx];
-
-                    if (c_ptr2->m_idx && (m_ptr2->ml || cave_have_flag_bold(y2, x2, FF_PROJECT)))
-                    {
-                        if (mon_take_hit(c_ptr2->m_idx, k, &fear2, NULL))
-                            ct += 10;
-                    }
-                }
-
-                /* Finally, gain Wraithform */
-                set_wraith_form(p_ptr->wraith_form + ct/2, FALSE);
-
-                if (p_ptr->wizard)
-                    msg_print("****END REAPING****");
-            }
             /* Damage, check for fear and death */
-            else if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
+            if (mon_take_hit(c_ptr->m_idx, k, DAM_TYPE_MELEE, fear, NULL))
             {
                 *mdeath = TRUE;
 
@@ -3936,6 +3912,11 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     if (hand) /* hand is 0, 1, ... so hand is the number of successful rounds of attacks so far */
                         energy_use += hand * frac;
                     energy_use += num * frac / num_blow;
+                }
+                if (mode == WEAPONMASTER_REAPING)
+                {
+                    _reaper_bonus += 15;
+                    goto weaponmaster_reap;
                 }
                 if (o_ptr && o_ptr->name1 == ART_ZANTETSU && is_lowlevel)
                     msg_print("Sigh... Another trifling thing I've cut....");
@@ -4017,7 +3998,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                                     dam = 25;
                                 }
                                 msg_format("%^s is wounded.", m_name_subject);
-                                mon_take_hit(m_idx, dam * (max - ct), fear, NULL);
+                                mon_take_hit(m_idx, dam * (max - ct), DAM_TYPE_MELEE, fear, NULL);
                                 break;
                             }
                             else
@@ -4179,6 +4160,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         if (hex_spelling(HEX_VAMP_BLADE)) drain_heal *= 2;
                         if (prace_is_(RACE_MON_VAMPIRE)) drain_heal *= 2;
 
+                        if (mode == WEAPONMASTER_REAPING) drain_heal = (_reaper_lock ? 8 : 16);
+
                         if (drain_left)
                         {
                             if (drain_heal < drain_left)
@@ -4198,6 +4181,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                                 drain_msg = FALSE;
                             }
                             drain_heal = (drain_heal * mutant_regenerate_mod) / 100;
+                            vampirism_hack = m_ptr->hp;
                             vamp_player(drain_heal);
                             obj_learn_slay(o_ptr, OF_BRAND_VAMP, "is <color:D>Vampiric</color>");
                         }
@@ -4305,14 +4289,14 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 if (m_ptr->hold_o_idx)
                 {
                     object_type *q_ptr = &o_list[m_ptr->hold_o_idx];
-                    char o_name[MAX_NLEN];
+                    char stolen_name[MAX_NLEN];
 
-                    object_desc(o_name, q_ptr, OD_NAME_ONLY);
+                    object_desc(stolen_name, q_ptr, OD_NAME_ONLY);
                     q_ptr->held_m_idx = 0;
                     q_ptr->marked = OM_TOUCHED;
                     m_ptr->hold_o_idx = q_ptr->next_o_idx;
                     q_ptr->next_o_idx = 0;
-                    msg_format("You snatched %s.", o_name);
+                    msg_format("You snatched %s.", stolen_name);
                     pack_carry(q_ptr);
                     obj_release(q_ptr, OBJ_RELEASE_QUIET);
                 }
@@ -4356,9 +4340,15 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         backstab = FALSE;
         fuiuchi = FALSE;
 
+weaponmaster_reap:
+        if (mode == WEAPONMASTER_REAPING)
+        {
+            do_whirlwind = TRUE;
+        }
+
         /* Hack: Whirlwind first attacks chosen monster, than attempts to strike
            all other monsters adjacent.*/
-        if (do_whirlwind)
+        if ((do_whirlwind) && (!_reaper_lock))
         {
             int              start_dir, x2, y2;
             int                 dir;
@@ -4366,11 +4356,18 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             monster_type    *m_ptr2;
             bool            fear2 = FALSE;
             bool            mdeath2 = FALSE;
+            int             _laskuri = 0;
 
-            msg_format("Your swing your %s about, striking all nearby foes.", o_name);
+            /* Message order */
+            if (weak && !(*mdeath))
+            {
+                msg_format("%^s seems weakened.", m_name_subject);
+                weak = FALSE;
+            }            
 
             start_dir = calculate_dir(px, py, x, y);
             dir = start_dir;
+            _reaper_lock = TRUE; /* Prevent this whirlwind from triggering further whirlwinds... */
 
             for (;;)
             {
@@ -4383,11 +4380,27 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 m_ptr2 = &m_list[c_ptr2->m_idx];
 
                 if (c_ptr2->m_idx && (m_ptr2->ml || cave_have_flag_bold(y2, x2, FF_PROJECT)))
-                    py_attack_aux(y2, x2, &fear2, &mdeath2, hand, WEAPONMASTER_WHIRLWIND);
+                {
+                    char m_name2[MAX_NLEN];
+                    monster_desc(m_name2, m_ptr2, 0);
+                    if (!_laskuri)
+                    {
+                        if (mode == WEAPONMASTER_REAPING)
+                        {
+                            cmsg_format(TERM_RED, "You swing your %s about, reaping a harvest of death!", o_name);
+                        }
+                        else cmsg_format(TERM_BLUE, "You swing your %s about, striking all nearby foes.", o_name);
+                    }
+                    _laskuri++;
+                    cmsg_format(TERM_L_UMBER, "You attack %s:", m_name2);
+                    py_attack_aux(y2, x2, &fear2, &mdeath2, hand, (mode == WEAPONMASTER_REAPING) ? mode : WEAPONMASTER_WHIRLWIND);
+                }
             }
 
             if (p_ptr->wizard)
                 msg_print("****END WHIRLWIND****");
+            _reaper_lock = FALSE;
+            _reaper_bonus = 0;
         }
 
         if (mode == WEAPONMASTER_RETALIATION) break;
@@ -4442,7 +4455,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     if (knock_out && !(*mdeath))
         set_monster_csleep(c_ptr->m_idx, MON_CSLEEP(m_ptr) + 500);
 
-    if (weaponmaster_get_toggle() == TOGGLE_TRIP && mode == 0 && !(*mdeath) && !fear_stop)
+    if (success_hit && weaponmaster_get_toggle() == TOGGLE_TRIP && mode == 0 && !(*mdeath) && !fear_stop)
     {
         if (test_hit_norm(chance, mon_ac(m_ptr), m_ptr->ml))
         {
@@ -4458,7 +4471,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 msg_format("%^s nimbly dodges your attempt to trip.", m_name_subject);
         }
         else
-            msg_format("You attempt to trip %^s but miss.", m_name_object);
+            msg_format("You attempt to trip %s, but miss.", m_name_object);
     }
 
     if (weak && !(*mdeath))
@@ -4596,6 +4609,13 @@ bool _py_attack_exit(void)
     return FALSE;
 }
 
+bool no_melee_check(void)
+{
+    if (!no_melee_challenge) return FALSE;
+    msg_print("You would never hit anybody!");
+    return TRUE;
+}
+
 bool py_attack(int y, int x, int mode)
 {
     bool            fear = FALSE;
@@ -4610,6 +4630,13 @@ bool py_attack(int y, int x, int mode)
     disturb(0, 0);
 
     energy_use = 100;
+
+    if (no_melee_check())
+    {
+        energy_use = 0;
+        if (!m_ptr->ml) energy_use = 50; /* bumping into an invisible monster shouldn't give a free turn */
+        return _py_attack_exit();
+    }
 
     if (!p_ptr->weapon_ct && !p_ptr->innate_attack_ct && !possessor_can_attack())
     {
@@ -4727,6 +4754,8 @@ bool py_attack(int y, int x, int mode)
         bool stop = FALSE;
         int msec = delay_time();
 
+        _many_strike_mon = c_ptr->m_idx;
+
         for (i = 0; i < MAX_HANDS && !stop; i++)
         {
             drain_left = _max_vampiric_drain();
@@ -4766,6 +4795,7 @@ bool py_attack(int y, int x, int mode)
                 }
             }
         }
+        _many_strike_mon = 0;
     }
     else if (weaponmaster_get_toggle() == TOGGLE_PIERCING_STRIKE && mode == 0)
     {
@@ -5064,7 +5094,8 @@ bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
     }
     else if ((pattern_type_new == PATTERN_TILE_OLD) ||
          (pattern_type_new == PATTERN_TILE_END) ||
-         (pattern_type_new == PATTERN_TILE_WRECKED))
+         (pattern_type_new == PATTERN_TILE_WRECKED) ||
+         ((pattern_type_new == PATTERN_TILE_TELEPORT) && (!py_in_dungeon())))
     {
         if (is_pattern_tile_cur)
         {
@@ -5487,7 +5518,10 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
         {
             char name[MAX_NLEN];
             int  this_o_idx, next_o_idx = 0;
-            autopick_get_floor();
+            if ((!travel_ignore_items) || (!travel.run) || (travel.mode != TRAVEL_MODE_NORMAL) ||
+                ((travel.x == nx) && (travel.y == ny)))
+            autopick_get_floor(TRUE);
+            else autopick_get_floor(FALSE);
             for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
             {
                 obj_ptr obj = &o_list[this_o_idx];
@@ -5878,6 +5912,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
     {
         /* FYI: Either the player was blocked from movement -OR- the player attacked
            because a monster was in the way.*/
+        if ((!energy_use) && (travel.mode != TRAVEL_MODE_NORMAL)) travel_cancel_fully(); /* disturb doesn't cancel autoget */
     }
     /*
      * Player can move through trees and
@@ -6803,13 +6838,12 @@ static bool run_test(void)
     return (FALSE);
 }
 
-
-
 /*
  * Take one step along the current "run" path
  */
 void run_step(int dir)
 {
+    bool ongelma = FALSE;
     /* Start running */
     if (dir)
     {
@@ -6845,6 +6879,21 @@ void run_step(int dir)
             /* Done */
             return;
         }
+        else if ((p_ptr->confused) && (randint0(4)))
+        {
+            int uus_dir = ddd[randint0(8)];
+            if (uus_dir != find_current)
+            {
+                find_current = uus_dir;
+                ongelma = TRUE;
+                if (see_wall(uus_dir, py, px))
+                {
+                    msg_print("You are confused.");
+                    disturb(0, 0);
+                    return;
+                }
+            }
+        }
     }
 
     /* Decrease the run counter */
@@ -6864,6 +6913,12 @@ void run_step(int dir)
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
+    if (ongelma)
+    {
+        msg_print("You are confused.");
+        disturb(0, 0);
+        return;
+    }
     if (player_bold(p_ptr->run_py, p_ptr->run_px))
     {
         p_ptr->run_py = 0;
@@ -7014,7 +7069,13 @@ void travel_step(void)
     }
 
     command_dir = dir;
-    if (get_rep_dir(&dir, FALSE) == GET_DIR_RANDOM)
+    if ((p_ptr->confused) && (randint0(4))) /* paranoia - get_rep_dir() doesn't handle this situation well */
+    {
+        command_dir = ddd[randint0(8)];
+        dir = command_dir;
+        ongelma = TRUE;
+    }
+    else if (get_rep_dir(&dir, FALSE) == GET_DIR_RANDOM)
     {
         ongelma = TRUE;
     }

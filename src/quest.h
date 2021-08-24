@@ -1,15 +1,18 @@
 #ifndef INCLUDED_QUEST_H
 #define INCLUDED_QUEST_H
 
-/* Poschengband Quests
+/* FrogComposband Quests
  * [1] Specified in q_info.txt
  * [2] Defined in lib/edit/<quest_file>.txt (q.file)
  * [3] Sequenced in town files
  * [4] Rewards now specified in q_*.txt file rather than town file */
 
 enum {
+    SEWER_QUEST = 2,
     QUEST_OBERON = 8,
     QUEST_SERPENT = 9,
+    QUEST_WARG = 14,
+    PURPLE_QUEST = 82,
     QUEST_METATRON = 97
 };
 
@@ -88,6 +91,7 @@ extern void       quests_cleanup(void);
 
 extern quest_ptr  quests_get_current(void);
 extern int        quest_id_current(void);
+extern int        quest_get_rnd_num(int *num);
 extern quest_ptr  quests_get(int id);
 extern cptr       quests_get_name(int id);
 extern int        quests_get_level(int id);

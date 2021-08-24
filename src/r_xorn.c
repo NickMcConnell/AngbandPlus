@@ -124,15 +124,15 @@ race_t *mon_xorn_get_race(void)
         me.extra_skills = xs;
 
         me.name = "Xorn";
-        me.desc = "Xorn are huge creatures of the element earth. They begin life as an Umber Hulk which is a bizarre "
-                    "creature with glaring eyes capable of confusing their foes, and large mandibles capable of slicing "
-                    "through rock. At this stage in their evolution, their body is vaguely humanoid allowing them to "
-                    "wear a helmet, an amulet, a cloak and even a pair of boots. However, once the Umber Hulk evolves "
-                    "it can no longer wear these items. Instead, it can use its four massive arms for weapons, shields, rings "
-                    "and gloves. At this stage, the Xorn can pass effortlessly through rock.\n \n"
-                    "Xorns are monsters so cannot choose a normal class. They have no active powers but instead rely on "
-                    "their ability to hide in rocks combined with their ability to attack with up to four weapons. They "
-                    "play like warriors and are strong as such.";
+        me.desc = "Xorns are massive creatures of earth. They begin life as an Umber Hulk, a bizarre "
+                    "creature with large mandibles capable of slicing through rock and glaring eyes capable of confusing foes. "
+                    "At this stage in their evolution their body is vaguely humanoid, allowing them to "
+                    "wear a helmet, an amulet, a cloak and even a pair of boots; once the Umber Hulk evolves further, however, "
+                    "it can no longer wear these items. Instead, a grown Xorn can use its four massive arms for weapons, shields, rings "
+                    "and gloves; mature Xorns can also pass effortlessly through rock.\n \n"
+                    "Xorns have no active magical powers, but instead rely on their ability to hide in rocks and the advantage that their "
+                    "extra arms provide them in melee. Xorns, like most warrior characters, are very effective at killing monsters "
+                    "but have problems with advanced magic devices.";
 
         me.infra = 5;
         me.exp = 150;

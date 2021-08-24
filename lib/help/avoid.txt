@@ -24,6 +24,8 @@ The number of possible mistakes and bad ideas in the game is essentially unlimit
 
 <color:r>Do not</color> fight monsters in melee if they have highly dangerous (or annoying) melee attacks but no way to hurt you from range.
 
+<color:y>Try to</color> reach new towns and dungeons in the safest way possible - stick to roads, minimize the time spent in dangerous areas, and travel through the overworld rather than the raw wilderness. Not only are you less likely to get lost on the overworld map, but travelling there is safer too - though you should still prepare for ambushes!
+
 
 <topic:Middle-Game Mistakes><style:heading>Middle-Game Mistakes and Needs</style>
 

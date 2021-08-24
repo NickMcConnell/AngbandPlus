@@ -54,6 +54,7 @@ bool class_uses_spell_scrolls(int mika)
       mika == CLASS_DUELIST ||
       mika == CLASS_RUNE_KNIGHT ||
       mika == CLASS_WILD_TALENT ||
+      mika == CLASS_BLUE_MAGE ||
       mika == CLASS_NINJA ||
       mika == CLASS_NINJA_LAWYER ||
       mika == CLASS_SCOUT ||
@@ -199,7 +200,7 @@ int device_calc_fail_rate(object_type *o_ptr)
     return fail;
 }
 
-/* Hack: When using an unkown rod we force the user to target. Also
+/* Hack: When using an unknown rod we force the user to target. Also
    Trap Location should not spoil with the view_unsafe_grids option. */
 bool device_known = FALSE;
 
@@ -208,7 +209,7 @@ bool device_known = FALSE;
  * but that is handled elsewhere. We deal solely with OFL_DEVICE_POWER. */
 bool device_lore = FALSE;
 
-/* Hack: When using an unkown device, was there an observable effect?
+/* Hack: When using an unknown device, was there an observable effect?
    If so, identify the device. */
 bool device_noticed = FALSE;
 
@@ -222,13 +223,14 @@ int  device_extra_power = 0;
 int  device_available_charges = 0; /* How many can we do? */
 int  device_used_charges = 0;      /* How many did we do? */
 static bool _use_charges = FALSE;
+static bool _multi_charge_lock = FALSE;
 
 static void _do_identify_aux(obj_ptr obj)
 {
     char name[MAX_NLEN];
     bool old_known;
 
-    if (_use_charges && device_used_charges >= device_available_charges) return;
+    if ((_use_charges) && (device_used_charges >= device_available_charges)) return;
 
     old_known = identify_item(obj);
     object_desc(name, obj, OD_COLOR_CODED);
@@ -263,10 +265,12 @@ void mass_identify(bool use_charges) /* shared with Sorcery spell */
     inv_ptr floor = inv_filter_floor(point(px, py), obj_exists);
 
     _use_charges = use_charges;
+    _multi_charge_lock = TRUE;
     pack_for_each_that(_do_identify_aux, obj_is_unknown);
     equip_for_each_that(_do_identify_aux, obj_is_unknown);
     quiver_for_each_that(_do_identify_aux, obj_is_unknown);
     inv_for_each_that(floor, _do_identify_aux, obj_is_unknown);
+    _multi_charge_lock = FALSE;
 
     inv_free(floor);
 }
@@ -1211,7 +1215,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_CURSE_WEAPON:
-        if (desc) return "It makes your wielding weapon (Shattered) when you read it.";
+        if (desc) return "It blasts your current melee weapon when you read it.";
         if (cast)
         {
             int slot = equip_random_slot(object_is_melee_weapon);
@@ -1561,7 +1565,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_SPELL:
-        if (desc) return "It increases the number you can study spells when you read. If you are the class can't study or don't need to study, it has no effect.";
+        if (desc) return "Increases the number of spells you can study. Only has an effect for classes who study spells.";
         if (cast)
         {
             if (!class_uses_spell_scrolls(p_ptr->pclass))
@@ -1597,7 +1601,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_ACQUIREMENT:
-        if (desc) return "It creates one great item when you read it.";
+        if (desc) return "It creates one great item when you read it. Gives better results on deep levels.";
         if (cast)
         {
             acquirement(py, px, 1, TRUE, FALSE, ORIGIN_ACQUIRE);
@@ -1605,7 +1609,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_STAR_ACQUIREMENT:
-        if (desc) return "It creates some great items when you read it.";
+        if (desc) return "It creates some great items when you read it. Gives better results on deep levels.";
         if (cast)
         {
             acquirement(py, px, _scroll_power(randint1(2) + 1), TRUE, FALSE, ORIGIN_ACQUIRE);
@@ -1659,13 +1663,13 @@ static cptr _do_scroll(int sval, int mode)
             }
 
             if (err) strcpy(Rumor, "Some rumors are wrong.");
-            msg_format("<color:B>There is message on the scroll. It says:</color> %s", Rumor);
+            msg_format("<color:B>There is a message on the scroll. It says:</color> %s", Rumor);
             msg_print("The scroll disappears in a puff of smoke!");
             device_noticed = TRUE;
         }
         break;
     case SV_SCROLL_ARTIFACT:
-        if (desc) return "It creates an artifact from a nameless weapon or armour when you read it. Don't be greedy - you will get only one artifact.";
+        if (desc) return "It creates an artifact from a nameless weapon or armour when you read it. Gives better results on deeper levels. Don't be greedy - you will get only one artifact.";
         if (cast)
         {
             device_noticed = TRUE;
@@ -1827,7 +1831,7 @@ cptr do_device(object_type *o_ptr, int mode, int boost)
     cptr result = NULL;
 
     device_noticed = FALSE;
-    device_used_charges = 0;
+    if (!_multi_charge_lock) device_used_charges = 0;
     device_lore = FALSE;
 
     if (o_ptr->activation.type)
@@ -1855,7 +1859,7 @@ cptr do_device(object_type *o_ptr, int mode, int boost)
     }
     device_known = FALSE;
     device_extra_power = 0;
-    device_available_charges = 0;
+    if (!_multi_charge_lock) device_available_charges = 0;
     return result;
 }
 
@@ -6829,9 +6833,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     case EFFECT_HEAL_MONSTER:
+    {
+        int dd = _extra(effect, 10 + effect->power / 10);
         if (name) return "Heal Monster";
         if (desc) return "It heals a monster when you use it.";
-        if (value) return format("%d", 5);
+        if (info) return format("heal %dd10", dd);
+        if (value) return format("%d", dd / 2);
         if (cast)
         {
             bool old_target_pet = target_pet;
@@ -6842,10 +6849,11 @@ cptr do_effect(effect_t *effect, int mode, int boost)
                 return NULL;
             }
             target_pet = old_target_pet;
-            if (heal_monster(dir, _BOOST(damroll(10, 10))))
+            if (heal_monster(dir, _BOOST(damroll(dd, 10))))
                 device_noticed = TRUE;
         }
         break;
+    }
     case EFFECT_HASTE_MONSTER:
         if (name) return "Haste Monster";
         if (desc) return "It hastes a monster when you use it.";

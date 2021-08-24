@@ -52,7 +52,7 @@ void set_action(int typ)
             resting = 0;
             break;
         case ACTION_LEARN:
-            msg_print("You stop Learning");
+            msg_print("You stop learning spells.");
             new_mane = FALSE;
             break;
         case ACTION_KAMAE:
@@ -91,7 +91,7 @@ void set_action(int typ)
         p_ptr->redraw |= PR_EFFECTS;
         break;
     case ACTION_LEARN:
-        msg_print("You begin Learning");
+        msg_print("You begin to learn spells.");
         break;
     case ACTION_FISH:
         msg_print("You begin fishing...");
@@ -265,6 +265,7 @@ bool p_inc_minislow(int lisays)
     bool tulos;
 
     if (p_ptr->is_dead) return FALSE; /* paranoia */
+    if (p_ptr->no_slow) return FALSE;
 
     p_ptr->minislow = _inc_minislow(p_ptr->minislow, lisays);
     tulos = (p_ptr->minislow != vanha);
@@ -5567,6 +5568,8 @@ bool lp_player(int num)
  * and then, if any is left over, to recovering hit points */
 bool vamp_player(int num)
 {
+    if (num > vampirism_hack) num = vampirism_hack;
+    vampirism_hack = 1000;
     if (p_ptr->clp + num <= 1000)
         return lp_player(num);
     else if (p_ptr->clp < 1000)
@@ -5931,14 +5934,15 @@ void change_race(int new_race, cptr effect_msg)
     /* The experience level may be modified */
     check_experience();
 
-    if (p_ptr->prace == RACE_HUMAN || p_ptr->prace == RACE_DEMIGOD || p_ptr->prace == RACE_DRACONIAN ||
-        p_ptr->prace == RACE_BARBARIAN || p_ptr->prace == RACE_DUNADAN || p_ptr->prace == RACE_HALF_ORC ||
-        p_ptr->prace == RACE_EINHERI)
+    if (get_true_race()->flags & RACE_DEMI_TALENT)
     {
         race_t *race_ptr = get_true_race();
         if (race_ptr != NULL && race_ptr->gain_level != NULL)
             race_ptr->gain_level(p_ptr->lev);    /* This is OK ... Just make sure we get to choose racial powers on poly */
     }
+
+    /* Check changes to body template (e.g. Centaurs) */
+    equip_on_change_race();
 
     p_ptr->redraw |= (PR_BASIC);
 
@@ -5947,7 +5951,7 @@ void change_race(int new_race, cptr effect_msg)
     handle_stuff();
 
     /* Load an autopick preference file */
-    if (old_race != p_ptr->prace) autopick_load_pref(FALSE);
+    if (old_race != p_ptr->prace) autopick_load_pref(0);
 
     /* Player's graphic tile may change */
     lite_spot(py, px);
@@ -6014,8 +6018,8 @@ void do_poly_self(void)
             if (effect_msg[0])
             {
                 char tmp_msg[10];
-                sprintf(tmp_msg,"%s ",effect_msg);
-                sprintf(effect_msg,"deformed %s ",tmp_msg);
+                sprintf(tmp_msg,"%s",effect_msg);
+                sprintf(effect_msg,"deformed %s",tmp_msg);
 
             }
             else
@@ -6357,6 +6361,14 @@ int take_hit(int damage_type, int damage, cptr hit_from)
 
         /* Dead */
         return damage;
+    }
+
+    if ((p_ptr->personality == PERS_SPLIT) && (shuffling_hack_hp > 0) && (p_ptr->chp <= (p_ptr->mhp / 4)) &&
+        (p_ptr->chp < (shuffling_hack_hp / 2)) && ((shuffling_hack_hp - p_ptr->chp) >= (p_ptr->mhp / 5)) &&
+        (randint0(p_ptr->mhp / 3) >= p_ptr->chp))
+    {
+        split_shuffle(FALSE);
+        shuffling_hack_hp = 0;
     }
 
     /* Hitpoint warning */
