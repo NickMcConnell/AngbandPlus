@@ -376,7 +376,8 @@ extern bool do_cmd_open_aux(int y, int x);
 extern void do_cmd_open(void);
 extern void do_cmd_close(void);
 extern void do_cmd_exchange(void);
-extern void do_cmd_running_shot(void);
+extern void do_cmd_fletchery(void);
+extern void finish_fletching(int);
 extern void do_cmd_tunnel(void);
 extern bool break_free_of_web(void);
 extern void do_cmd_disarm(void);
@@ -394,7 +395,7 @@ extern void do_cmd_rest(void);
 extern int archery_range(const object_type *j_ptr);
 extern int throwing_range(const object_type *i_ptr);
 extern void attacks_of_opportunity(int neutralized_y, int neutralized_x);
-extern void do_cmd_fire(int quiver, bool running_shot);
+extern void do_cmd_fire(int quiver);
 extern void do_cmd_throw(bool automatic);
 
 /* cmd3.c */
@@ -824,6 +825,7 @@ extern bool curse_armor(void);
 extern bool curse_weapon(void);
 extern bool item_tester_hook_ided_ammo(const object_type *o_ptr);
 extern bool item_tester_hook_ammo(const object_type *o_ptr);
+extern bool item_tester_hook_ordinary_ammo(const object_type *o_ptr);
 extern void identify_and_squelch_pack(void);
 extern bool mass_identify(int rad);
 

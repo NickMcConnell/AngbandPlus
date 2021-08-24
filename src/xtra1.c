@@ -744,6 +744,11 @@ static void prt_state(void)
 		my_strcpy(text, "Smithing  ", sizeof (text));
 	}
 	
+	if (p_ptr->fletching)
+	{
+		my_strcpy(text, "Fletching ", sizeof (text));
+	}
+
 	/* Resting */
 	else if (p_ptr->resting)
 	{
@@ -1805,6 +1810,15 @@ void calc_torch(void)
 		p_ptr->cur_light += ability_bonus(S_SNG, SNG_TREES);
 	}
 		
+	// Blessing of Orome
+	if (p_ptr->active_ability[S_ARC][ARC_BLESSING_OF_OROME])
+	{
+		for (i = 0; i < 5; ++i)
+		{
+			if (p_ptr->previous_action[i] == ACTION_ARCHERY) p_ptr->cur_light++;
+		}
+	}
+
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW);
 	p_ptr->update |= (PU_MONSTERS);
@@ -2371,9 +2385,9 @@ static void calc_bonuses(void)
 		// if <= 25% health, give an extra bonus
 		if (health_level(p_ptr->chp, p_ptr->mhp) <= HEALTH_ALMOST_DEAD)
 		{
-			p_ptr->stat_misc_mod[A_STR]++;
-			p_ptr->stat_misc_mod[A_DEX]++;
-			p_ptr->stat_misc_mod[A_GRA]++;
+			p_ptr->stat_misc_mod[A_STR] += 2;
+			p_ptr->stat_misc_mod[A_DEX] += 2;
+			p_ptr->stat_misc_mod[A_GRA] += 2;
 		}
 	}
 
@@ -2675,16 +2689,6 @@ static void calc_bonuses(void)
 	if (p_ptr->active_ability[S_PER][PER_FOREWARNED] && (p_ptr->skill_base[S_PER] > p_ptr->skill_base[S_EVN]))
 	{
 		p_ptr->skill_misc_mod[S_EVN] += p_ptr->skill_use[S_PER] / 3;
-	}
-
-	if (p_ptr->active_ability[S_ARC][ARC_STEADY_HANDS])
-	{
-		int difference = p_ptr->stat_use[A_STR] * 10 - (inventory[INVEN_BOW]).weight;
-		if (difference > 0)
-		{
-			difference += 5;
-			p_ptr->skill_misc_mod[S_ARC] += difference / 10;
-		}
 	}
 
 	/* generate the melee dice/sides from weapon, to_mdd, to_mds and strength */

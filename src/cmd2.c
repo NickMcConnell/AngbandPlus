@@ -94,6 +94,8 @@ bool trapped_stairs(void)
 	chance = p_ptr->staircasiness / 100;
 	chance = chance * chance * chance;	
 	chance = chance / 10000;
+
+	if (p_ptr->on_the_run) chance = 0;
 	
 	//msg_debug("%d, %d", p_ptr->staircasiness, chance);
 	
@@ -563,44 +565,7 @@ static void chest_death(int y, int x, s16b o_idx)
 
 	if (o_ptr->sval == SV_CHEST_PRESENT)
 	{
-		time_t c = time((time_t *)0);
-		struct tm *tp = localtime(&c);
-		int day = tp->tm_mday;
-
-		int artefacts[] = 
-		{
-			53, 20, 156, 150, 104, 3,
-			163, 42, 58, 28, 101, 125,
-			76, 64, 122, 95, 167, 90, 114, 
-			45, 26, 143, 118, 54, 
-			108, 166, 155, 40, 120, 41, 134
-		};
-
-		int a_idx = artefacts[day - 1];
-
-		artefact_type *a_ptr = &a_info[a_idx];
-
-		/* Ignore "empty" artefacts */
-		if (a_ptr->tval + a_ptr->sval == 0) return;
-
-		create_chosen_artefact(a_idx, p_ptr->py, p_ptr->px, FALSE);
-
-		/* Reset the object level */
-		object_level = original_object_level;
-
-		/* No longer opening a chest */
-		object_generation_mode = OB_GEN_MODE_NORMAL;
-
-		/* Empty */
-		o_ptr->pval = 0;
-
-		/*Paranoia, delete chest theme*/
-		o_ptr->xtra1 = 0;
-
-		/* Known */
-		object_known(o_ptr);
-
-		return;
+		number = 1;
 	}
 	
 	/* Drop some objects (non-chests) */
@@ -625,6 +590,10 @@ static void chest_death(int y, int x, s16b o_idx)
 		if ((o_ptr->sval == SV_CHEST_SMALL_JEWELLED) || (o_ptr->sval == SV_CHEST_LARGE_JEWELLED))
 		{
 			quality += 10;
+		}
+		if (o_ptr->sval == SV_CHEST_PRESENT)
+		{
+			quality += 20;
 		}
 		
 		/* Regular objects in chests will become quite
@@ -1854,56 +1823,84 @@ void do_cmd_exchange(void)
 		
 }
 
-void do_cmd_running_shot()
+void do_cmd_fletchery(void)
 {
-	int i;
-	int dir = 5;
+	int item;
+	object_type *o_ptr;
+	cptr q, s;
 
-	if (!p_ptr->active_ability[S_ARC][ARC_RUNNING_SHOT])
+	if (!p_ptr->active_ability[S_ARC][ARC_FLETCHERY])
 	{
-		msg_print("You need the ability 'running shot' to use this command.");
+		msg_print("You need the ability 'fletchery' to use this command.");
 		return;
 	}
 
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
+	/* Restrict the choices */
+	item_tester_hook = item_tester_hook_ordinary_ammo;
 
-	for (i = 0; i < ACTION_MAX; i++)
-	{
-		if ((p_ptr->previous_action[i] >= 1) && (p_ptr->previous_action[i] <= 9) && (p_ptr->previous_action[i] != 5))
-		{
-			dir = p_ptr->previous_action[i];
-			break;
-		}
-	}
+	/* Get an item */
+	q = "Improve which arrows?";
+	s = "You need ordinary arrows to do that.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
 
-	if (dir == 5) return;
-
-	/* Get location */
-	int y = p_ptr->py + ddy[dir];
-	int x = p_ptr->px + ddx[dir];
-
-	/* Verify legality */
-	if (!do_cmd_walk_test(y, x)) return;
+	o_ptr = &inventory[item];
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	move_player(dir);
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
 
-	/* Player square can end up still black if we miss this. */
-	update_view();
+	msg_print("You begin straightening and adjusting the feathering of the arrows.");
 
-	for (i = ACTION_MAX - 1; i > 0; i--)
+	p_ptr->fletch_item = item;
+	p_ptr->fletching = o_ptr->number;
+}
+
+void finish_fletching(int turns_left)
+{
+	object_type *o_ptr = &inventory[p_ptr->fletch_item];
+	int count = o_ptr->number - turns_left;
+
+	/* Unstack if necessary */
+	if (count > 0)
 	{
-		p_ptr->previous_action[i] = p_ptr->previous_action[i-1];
+		/* Message */
+		msg_format("You improve %d arrows.", count);
+
+		object_type *i_ptr;
+		object_type object_type_body;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Obtain a local object */
+		object_copy(i_ptr, o_ptr);
+
+		/* Modify quantity */
+		i_ptr->number = count;
+		i_ptr->att = 3;
+
+		/* Reduce original pile */
+		inven_item_increase(p_ptr->fletch_item, -count);
+		inven_item_optimize(p_ptr->fletch_item);
+
+		/* Add new arrows */
+		inven_carry(i_ptr);
+	}
+	else
+	{
+		msg_print("You did not manage to improve any arrows.");
 	}
 
-	p_ptr->previous_action[0] = dir;
-	do_cmd_fire(1, TRUE);
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
 }
 
 
@@ -3555,10 +3552,13 @@ void attacks_of_opportunity(int neutralized_y, int neutralized_x)
  *
  * Objects are more likely to break if they "attempt" to hit a monster.
  *
+ * The "extra shot" code works by decreasing the amount of energy
+ * required to make each shot, spreading the shots out over time.
+ *
  * Note that when firing missiles, the launcher multiplier is applied
  * after all the bonuses are added in, making multipliers very useful.
  */
-void do_cmd_fire(int quiver, bool running_shot)
+void do_cmd_fire(int quiver)
 {
 	int dir, item;
 	int i, y, x, ty, tx;
@@ -3650,24 +3650,7 @@ void do_cmd_fire(int quiver, bool running_shot)
 	}
 	
 	/* Get a direction (or cancel) */
-	if (running_shot)
-	{
-		if (target_okay(tdis))
-		{
-			dir = 5;
-		}
-		else
-		{
-			/* Prepare the "temp" array */
-			get_sorted_target_list(TARGET_KILL, tdis);
-
-			/* If there are no visible monsters return */
-			if (!temp_n) return;
-			/* otherwise get a new target */
-			else if (!get_aim_dir(&dir, tdis)) return;
-		}
-	}
-	else if (!get_aim_dir(&dir, tdis)) return;
+	if (!get_aim_dir(&dir, tdis)) return;
 
 	/* Start at the player */
 	y = p_ptr->py;
@@ -3900,17 +3883,12 @@ void do_cmd_fire(int quiver, bool running_shot)
 					/* Hack -- Target this monster */
 					if (m_ptr->ml) target_set_monster(cave_m_idx[y][x]);
 				}
-
-				if (running_shot)
-				{
-					total_attack_mod /= 2;
-				}
 				
 				// Aim improved if monster is fleeing. If firing into several fleeing monsters,
 				// the chance of hitting one is high.
 				if (p_ptr->active_ability[S_ARC][ARC_ROUT] && m_ptr->stance == STANCE_FLEEING)
 				{
-					total_attack_mod += 4;
+					total_attack_mod += 3;
 				}
 
 				// Determine the monster's evasion after all modifiers

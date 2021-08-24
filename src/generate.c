@@ -80,7 +80,6 @@
  * Hack -- Dungeon allocation "types"
  */
 #define ALLOC_TYP_RUBBLE	1	/* Rubble */
-#define ALLOC_TYP_TRAP		3	/* Trap */
 #define ALLOC_TYP_OBJECT	5	/* Object */
 
 
@@ -174,7 +173,7 @@ int cave_corridor2[MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
 
 /* determines whether the player can pass through a given feature */
 /* icky locations (inside vaults) are all considered passable.    */
-bool player_passable(int y, int x, bool ignore_rubble)
+bool player_passable(int y, int x, bool ignore_rubble_and_chasms)
 {
 	byte feature = cave_feat[y][x];
 	bool icky_interior = (cave_info[y][x] & (CAVE_ICKY)) &&
@@ -183,37 +182,43 @@ bool player_passable(int y, int x, bool ignore_rubble)
 						 (cave_info[y-1][x] & (CAVE_ICKY)) &&
 						 (cave_info[y+1][x] & (CAVE_ICKY));
 
-	bool passable = ((feature < FEAT_WALL_HEAD) || (feature > FEAT_WALL_TAIL) || (feature == FEAT_SECRET) || 
-	                 ((feature == FEAT_RUBBLE) && ignore_rubble) || icky_interior);
-					 
-	return (passable);
+	if ((feature < FEAT_WALL_HEAD) || (feature > FEAT_WALL_TAIL))
+	{
+		return !((feature == FEAT_CHASM) && !ignore_rubble_and_chasms);
+	}
+	else
+	{
+		return (feature == FEAT_SECRET) ||
+			((feature == FEAT_RUBBLE) && ignore_rubble_and_chasms) ||
+			icky_interior;
+	}
 }
 
 
 /* floodfills access through the dungeon, marking all accessible squares with TRUE */
-void flood_access(int y, int x, int access_array[MAX_DUNGEON_HGT][MAX_DUNGEON_WID], bool ignore_rubble)
+void flood_access(int y, int x, int access_array[MAX_DUNGEON_HGT][MAX_DUNGEON_WID], bool ignore_rubble_and_chasms)
 {
 	/* first check the map bounds */
 	if ((y < 0) || (y > p_ptr->cur_map_hgt) || (x < 0) || (x > p_ptr->cur_map_wid))
 		return;
 	
 	access_array[y][x] = TRUE;
-	if (player_passable(y-1, x-1, ignore_rubble) && (access_array[y-1][x-1] == FALSE))
-		flood_access(y-1, x-1, access_array, ignore_rubble);
-	if (player_passable(y-1, x, ignore_rubble) && (access_array[y-1][x] == FALSE))
-		flood_access(y-1, x, access_array, ignore_rubble);
-	if (player_passable(y-1, x+1, ignore_rubble) && (access_array[y-1][x+1] == FALSE))
-		flood_access(y-1, x+1, access_array, ignore_rubble);
-	if (player_passable(y, x-1, ignore_rubble) && (access_array[y][x-1] == FALSE))
-		flood_access(y, x-1, access_array, ignore_rubble);
-	if (player_passable(y, x+1, ignore_rubble) && (access_array[y][x+1] == FALSE))
-		flood_access(y, x+1, access_array, ignore_rubble);
-	if (player_passable(y+1, x-1, ignore_rubble) && (access_array[y+1][x-1] == FALSE))
-		flood_access(y+1, x-1, access_array, ignore_rubble);
-	if (player_passable(y+1, x, ignore_rubble) && (access_array[y+1][x] == FALSE))
-		flood_access(y+1, x, access_array, ignore_rubble);
-	if (player_passable(y+1, x+1, ignore_rubble) && (access_array[y+1][x+1] == FALSE))
-		flood_access(y+1, x+1, access_array, ignore_rubble);
+	if (player_passable(y-1, x-1, ignore_rubble_and_chasms) && (access_array[y-1][x-1] == FALSE))
+		flood_access(y-1, x-1, access_array, ignore_rubble_and_chasms);
+	if (player_passable(y-1, x, ignore_rubble_and_chasms) && (access_array[y-1][x] == FALSE))
+		flood_access(y-1, x, access_array, ignore_rubble_and_chasms);
+	if (player_passable(y-1, x+1, ignore_rubble_and_chasms) && (access_array[y-1][x+1] == FALSE))
+		flood_access(y-1, x+1, access_array, ignore_rubble_and_chasms);
+	if (player_passable(y, x-1, ignore_rubble_and_chasms) && (access_array[y][x-1] == FALSE))
+		flood_access(y, x-1, access_array, ignore_rubble_and_chasms);
+	if (player_passable(y, x+1, ignore_rubble_and_chasms) && (access_array[y][x+1] == FALSE))
+		flood_access(y, x+1, access_array, ignore_rubble_and_chasms);
+	if (player_passable(y+1, x-1, ignore_rubble_and_chasms) && (access_array[y+1][x-1] == FALSE))
+		flood_access(y+1, x-1, access_array, ignore_rubble_and_chasms);
+	if (player_passable(y+1, x, ignore_rubble_and_chasms) && (access_array[y+1][x] == FALSE))
+		flood_access(y+1, x, access_array, ignore_rubble_and_chasms);
+	if (player_passable(y+1, x+1, ignore_rubble_and_chasms) && (access_array[y+1][x+1] == FALSE))
+		flood_access(y+1, x+1, access_array, ignore_rubble_and_chasms);
 	return;
 }
 
@@ -294,7 +299,7 @@ int dungeon_pieces(void)
 static void place_rubble(int y, int x)
 {
 	/* Create rubble */
-	if (p_ptr->depth >= 4) cave_set_feat(y, x, FEAT_RUBBLE);
+	if (p_ptr->depth >= 4 && cave_feat[y][x] != FEAT_MORE && cave_feat[y][x] != FEAT_LESS) cave_set_feat(y, x, FEAT_RUBBLE);
 }
 
 
@@ -472,12 +477,6 @@ static void alloc_object(int set, int typ, int num, bool out_of_sight)
 			case ALLOC_TYP_RUBBLE:
 			{
 				place_rubble(y, x);
-				break;
-			}
-
-			case ALLOC_TYP_TRAP:
-			{
-				place_trap(y, x);
 				break;
 			}
 
@@ -722,6 +721,8 @@ static void build_chasms(void)
             chasms += damroll(1, panels / 3);
         }
     }
+
+    if (chasms > 12) chasms = 12;
     
     // build them
     for (i = 0; i < chasms; i++)
@@ -1625,7 +1626,6 @@ static bool place_rubble_player(void)
 				if (!stairs_within_los(y, x) || (p_ptr->create_stair == FALSE))
 				{
 					player_place(y, x);
-					
 					break;
 				}
 			}
@@ -1651,7 +1651,7 @@ bool check_connectivity(void)
 		for (x = 0; x < p_ptr->cur_map_wid; x++)
 			cave_access[y][x] = FALSE;
 	
-	// Make sure entire dungeon is connected (ignoring rubble)
+	// Make sure entire dungeon is connected (ignoring rubble and chasms)
 	flood_access(p_ptr->py, p_ptr->px, cave_access, TRUE);
 	for (y = 0; y < p_ptr->cur_map_hgt; y++)	
 		for (x = 0; x < p_ptr->cur_map_wid; x++)
@@ -1665,15 +1665,23 @@ bool check_connectivity(void)
 		for (x = 0; x < p_ptr->cur_map_wid; x++)
 			cave_access[y][x] = FALSE;
 	
-	// Make sure player can reach stairs without going through rubble
+	if (p_ptr->create_stair == FEAT_MORE || p_ptr->create_stair == FEAT_MORE_SHAFT)
+	{
+		return (TRUE);
+	}
+
+	// Make sure player can reach down stairs without going through rubble and chasms
 	flood_access(p_ptr->py, p_ptr->px, cave_access, FALSE);
 	for (y = 0; y < p_ptr->cur_map_hgt; y++)	
 		for (x = 0; x < p_ptr->cur_map_wid; x++)
-			if ((cave_access[y][x] == TRUE) && cave_stair_bold(y,x))
+		{
+			if (((cave_feat[y][x] == FEAT_MORE) && (cave_access[y][x] == TRUE)) || 
+			    ((cave_feat[y][x] == FEAT_MORE_SHAFT) && (cave_access[y][x] == TRUE)))
 			{
 				return (TRUE);
 			}
-	
+		}
+
 	return (FALSE);
 }
 
@@ -2344,10 +2352,17 @@ static bool build_vault(int y0, int x0, vault_type *v_ptr, bool flip_d)
 					break;
 				}
 
-                /* Chasm */
+				/* Chasm */
 				case '7':
 				{
 					cave_set_feat(y, x, FEAT_CHASM);
+					break;
+				}
+
+				/* Sunlight */
+				case ',':
+				{
+					cave_set_feat(y, x, FEAT_SUNLIGHT);
 					break;
 				}
                 
@@ -2714,23 +2729,26 @@ static bool build_vault(int y0, int x0, vault_type *v_ptr, bool flip_d)
             
             // another chance to place traps, with 4 times the normal chance
             // so traps in interesting rooms and vaults are a total of 5 times more likely
-            if (dieroll(1000) <= trap_placement_chance(y, x) * (multiplier-1))
+            // webbed vaults also have a large chance of receiving webs
+            if ((v_ptr->flags & (VLT_WEBS)))
+            {
+ 		if (cave_naked_bold(y,x) && one_in_(20))
+                {
+			/* Place a web trap */
+			cave_set_feat(y, x, FEAT_TRAP_WEB);
+
+			// Hide it half the time
+			if (one_in_(2))
+			{
+			    cave_info[y][x] |= (CAVE_HIDDEN);
+			}
+            	}
+            }
+            else if (dieroll(1000) <= trap_placement_chance(y, x) * (multiplier-1))
             {
                 place_trap(y,x);
             }
             
-            // webbed vaults also have a large chance of receiving webs
-            else if ((v_ptr->flags & (VLT_WEBS)) && cave_naked_bold(y,x) && one_in_(20))
-            {
-                /* Place a web trap */
-                cave_set_feat(y, x, FEAT_TRAP_WEB);
-                
-                // Hide it half the time
-                if (one_in_(2))
-                {
-                    cave_info[y][x] |= (CAVE_HIDDEN);
-                }
-            }
         }
     }
 
@@ -2811,6 +2829,7 @@ static bool build_type6(int y0, int x0, bool force_forge)
 	/* Pick an interesting room */
 	while (TRUE)
 	{
+		unsigned long long rarity = 0;
 		tries++;
 
 		/* Get a random vault record */
@@ -2822,8 +2841,12 @@ static bool build_type6(int y0, int x0, bool force_forge)
         // unless forcing a forge, try additional times to place any vault marked TEST
         if ((tries < 1000) && !(v_ptr->flags & (VLT_TEST)) && !p_ptr->force_forge) continue;
 
+		rarity = v_ptr->rarity;
+		/* Surface rooms get very much rarer at depth */
+		if (v_ptr->flags & (VLT_SURFACE)) rarity <<= (v_ptr->depth * 2);
+
         /* Accept the first interesting room */
-		if ((v_ptr->typ == 6) && (v_ptr->depth <= p_ptr->depth) && (one_in_(v_ptr->rarity))) break;
+		if ((v_ptr->typ == 6) && (v_ptr->depth <= p_ptr->depth) && (one_in_(rarity))) break;
 		
 		if (tries > 20000)
 		{
@@ -3197,14 +3220,14 @@ void make_patch_of_sunlight(int y, int x)
 		}
 		if (floor > 6)
 		{
-			cave_set_feat(y, x, FEAT_RUBBLE);
+			if (cave_feat[y][x] == FEAT_FLOOR) cave_set_feat(y, x, FEAT_RUBBLE);
 			for (n = (y - 1); n <= (y + 1); n++)
 			{
 				for (m = (x - 1); m <= (x + 1); m++)
 				{
 					if ((cave_info[n][m] & CAVE_GLOW) && cave_feat[n][m] == FEAT_FLOOR && one_in_(4))
 					{
-						cave_set_feat(n, m, FEAT_SUNLIGHT);
+						if (cave_feat[n][m] == FEAT_FLOOR) cave_set_feat(n, m, FEAT_SUNLIGHT);
 					}
 				}
 			}
@@ -3379,7 +3402,20 @@ static bool cave_gen(void)
 					place_random_door(y, x);
 			}
 		}
-	
+		
+	if (p_ptr->depth == 1)
+	{
+		// smaller number of monsters at 50ft
+		mon_gen = dun->cent_n / 2;
+		// game start
+		if (p_ptr->stairs_taken == 0) make_patches_of_sunlight();
+	}
+	else
+	{
+		// pick some number of monsters (between 0.5 per room and 1 per room)
+		mon_gen = (dun->cent_n + dieroll(dun->cent_n)) / 2;
+	}
+
 	/* place the stairs, traps, rubble, secret doors */
 	if (!place_rubble_player())
 	{
@@ -3394,19 +3430,6 @@ static bool cave_gen(void)
 		if (cheat_room) msg_format("Failed connectivity.");
 		if (p_ptr->force_forge) p_ptr->fixed_forge_count--;
 		return (FALSE);
-	}
-	
-	if (p_ptr->depth == 1)
-	{
-		// smaller number of monsters at 50ft
-		mon_gen = dun->cent_n / 2;
-		// game start
-		if (p_ptr->stairs_taken == 0) make_patches_of_sunlight();
-	}
-	else
-	{
-		// pick some number of monsters (between 0.5 per room and 1 per room)
-		mon_gen = (dun->cent_n + dieroll(dun->cent_n)) / 2;
 	}
 
 	/* Put some objects in rooms */
@@ -3432,8 +3455,16 @@ static bool cave_gen(void)
 		/* simple way to place Morgoth */
 		for (i = 0; i <= 100; i++)
 		{
+			int danger_factor = 6 - silmarils_possessed();
+
 			y = rand_int(p_ptr->cur_map_hgt);
 			x = rand_int(p_ptr->cur_map_wid);
+
+			// pull Morgoth's start toward the player more based on the silmarils the player has
+			if (p_ptr->px < x) x -= 2 * ((x - p_ptr->px) / danger_factor);
+			if (p_ptr->px > x) x += 2 * ((p_ptr->px - x) / danger_factor);
+			if (p_ptr->py < y) y -= 2 * ((y - p_ptr->py) / danger_factor);
+			if (p_ptr->py > y) y += 2 * ((p_ptr->py - y) / danger_factor);
 			
 			if (cave_naked_bold(y, x) && !los(p_ptr->py, p_ptr->px, y, x) && !(cave_info[y][x] & (CAVE_ICKY)))
 			{

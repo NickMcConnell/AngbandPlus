@@ -94,7 +94,7 @@
 #     * Maeglin	        (galvorn armour - hunger, channelling, res poison)
 # - Finarfin
 #   * Finrod		(boots - good evasion, free action)
-#   * Angrod		(helm - res stun, res fear, regen, sust con, sust str)
+#   * Angrod		(helm - res cold, res fear, regen)
 #     * Orodreth	(greaves - dex, res fire)
 #   * Aegnor		(armour - concentration)
 #   * Galadriel
@@ -159,7 +159,7 @@
 
 # Version stamp (required)
 
-V:1.4.0
+V:1.4.1
 
 #################################################################
 # Here is the list of 'Special' artefacts. 
@@ -383,14 +383,14 @@ D: the heart in the dark places of the world.
 
 ## The Studded Leather of Aegnor
 ## 1st age namesake
-## (ability 4/4 is Concentration)
+## (ability 4/3 is Concentration)
 
 N:29:of Aegnor
 I:36:7:1
 W:4:10:100:35000
 P:1:0d0:-2:1d6
 F:WILL
-B:4/4
+B:4/3
 D:Crafted for Aegnor, a Noldorin prince who loved a mortal.
 D: It lends its wearer determination and sureness of heart.
 
@@ -537,6 +537,22 @@ D: He was ever at the front of battle, leading
 D: elves to take swift vengeance upon their foes.
 
 
+## The Round Shield 'Thandrach'
+## Sindarin "shield-curse"
+## (ability 5/2 is Curse Breaking)
+
+N:44:'Thandrach'
+I:34:3:2
+W:3:20:40:15000
+P:1:0d0:0:1d3
+F:WILL
+B:5/2
+D:A small iron shield covered with many dense runes
+D: spiralling in from the outer edge into the centre.
+D: In the very middle of the shield is set a spike
+D: with a wicked point.
+
+
 ## The Kite Shield of Hador
 ## 1st age namesake
 
@@ -649,6 +665,17 @@ D:A dread black blade greatly famed among the orcs. Its cruel
 D: edge was forged in Orodruth long ere the Noldor came
 D: to Beleriand.
 
+#
+# The Curved Sword 'Agarlhang'
+# - Sindarin "blood-cutlass"
+#
+N:56:'Agarlhang'
+I:23:7:-2
+W:8:10:60:30000
+P:-1:2d5:1:0d0
+F:VAMPIRIC | LIGHT_CURSE | WILL | PERCEPTION | NEG_CON | HUNGER
+D:A blood-red blade, slick to the touch. Gripping its haft dulls the
+D: wielder's senses and causes strange hungers to waken in them.
 
 ## The Shortsword of Amrod
 ## 1st age namesake
@@ -1088,7 +1115,7 @@ N:117:of Angrod
 I:32:5:0
 W:5:10:45:4500
 P:0:0d0:0:1d3
-F:REGEN | SUST_CON | SUST_STR | RES_STUN | RES_FEAR
+F:RES_COLD | RES_FEAR | REGEN
 D:The helm of Angrod, son of Finarfin, who perished in
 D: the Dagor Bragollach.
 
@@ -1302,7 +1329,7 @@ D: let you pass as a messenger journeying to Morgoth?
 N:142:of Celegorm
 I:19:12:-1
 W:7:10:20:9000
-P:1:1d8:0:0d0
+P:1:1d9:0:0d0
 F:GRA
 B:4/8
 D:The bow of Celegorm the great huntsman, third son of Feanor,
@@ -1311,13 +1338,13 @@ D: who in days of old hunted with Orome himself.
 
 ## The Shortbow 'Death's Sting'
 ## Original to Sil
-## (ability 1/5 is Crippling Shot)
+## (ability 1/6 is Crippling Shot)
 
 N:143:'Death's Sting'
 I:19:12:0
 W:10:15:10:9000
-P:1:1d7:0:0d0
-B:1/5
+P:1:1d8:0:0d0
+B:1/6
 D:An unassuming if well-fashioned bow, but when you take
 D: aim with it you find your eye drawn particularly to
 D: vulnerable places in your foe's armour.
@@ -1352,12 +1379,14 @@ D: to the touch and easy on the draw.
 ## The Dragon-horn Bow of Avernien
 ## 1st age
 ## Avernien was where Earendil was equipped (after the events of Sil)
+## (ability 1/1 is Blessing of Orome)
 
 N:148:of Avernien
 I:19:14:0
-W:20:3:20:35000
-P:1:1d10:0:0d0
+W:20:5:20:35000
+P:1:1d12:0:0d0
 F:RADIANCE | RES_FEAR | RES_CONFU | RES_STUN | RES_HALLU
+B:1/1
 D:A large exquisite bow fashioned from a single horn of a slain
 D: dragon. Many are the blessings of the Eldar laid over it.
 

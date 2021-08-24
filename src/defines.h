@@ -50,7 +50,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.4.0"
+#define VERSION_STRING	"1.4.1"
 
 
 /*
@@ -58,7 +58,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	4
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -66,8 +66,8 @@
  * Oldest version number that can still be imported
  */
 #define OLD_VERSION_MAJOR	1
-#define OLD_VERSION_MINOR	3
-#define OLD_VERSION_PATCH	3
+#define OLD_VERSION_MINOR	4
+#define OLD_VERSION_PATCH	0
 
 
 /*
@@ -465,13 +465,13 @@
 /* 
  * Archery abilities 
  */
-#define	ARC_STEADY_HANDS				0
-#define	ARC_ROUT					1
-#define	ARC_DEDICATION				 	2
+#define	ARC_ROUT					0
+#define	ARC_BLESSING_OF_OROME				1
+#define	ARC_FLETCHERY					2
 #define	ARC_POINT_BLANK				 	3
-#define	ARC_VERSATILITY				 	4
-#define	ARC_CRIPPLING				 	5
-#define	ARC_RUNNING_SHOT				6
+#define	ARC_DEDICATION				 	4
+#define	ARC_VERSATILITY				 	5
+#define	ARC_CRIPPLING				 	6
 #define	ARC_DEADLY_HAIL				 	7
 #define	ARC_DEX						8
 
@@ -2093,7 +2093,7 @@
 #define VLT_TRAPS               0x00000004L /* Vault has more traps than usual */
 #define VLT_WEBS                0x00000008L /* Vault has spider webs */
 #define VLT_LIGHT               0x00000010L /* Vault is always generated with light */
-#define VLT_VLTXXXX6			0x00000020L
+#define VLT_SURFACE			0x00000020L
 #define VLT_VLTXXXX7            0x00000040L
 #define VLT_VLTXXXX8			0x00000080L
 #define VLT_VLTXXXX9            0x00000100L

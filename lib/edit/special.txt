@@ -52,7 +52,7 @@
 
 # Version stamp (required)
 
-V:1.4.0
+V:1.4.1
 
 
 
@@ -115,14 +115,15 @@ F:SUST_STR | SUST_DEX | SUST_CON | SUST_GRA
 F:IGNORE_ALL
 
 
-# robes only
-# (ability 5/9 is Majesty)
+# Shields and heavy armour
 
-N:7:of Majesty
-W:10:1:0:3000
+N:7:of the Iron Hills
+W:0:8:0:3000
 C:0:0:0:0:0:0:0
-T:36:2:2
-B:5/9
+T:34:0:99
+T:37:0:99
+F:RES_STUN | RES_FEAR
+F:IGNORE_ALL
 
 
 ###
@@ -154,6 +155,7 @@ W:10:1:0:1000
 C:0:0:0:0:0:0:0
 T:34:0:99
 F:RES_FIRE
+F:IGNORE_ALL
 
 
 ###
@@ -509,41 +511,46 @@ F:VUL_COLD
 
 ##### Bows #####
 
+N:90:of Lammoth
+W:2:8:0:1000
+C:0:0:0:0:0:0:0
+T:19:12:12
+F:RES_POIS | DANGER | AGGRAVATE
 
-N:91:of Lindon
-W:0:2:0:3000
-C:0:0:0:0:0:0:2
+
+N:91:of Thargelion
+W:2:2:0:3000
+C:0:0:0:0:0:0:1
 T:19:0:99
-F:STEALTH
+F:DEX | NEG_STR
 
 
 N:92:of Dorthonion
-W:0:2:0:3000
-C:1:0:0:0:0:0:2
+W:2:2:0:3000
+C:0:0:0:0:0:0:1
 T:19:0:99
-F:PERCEPTION
+F:STR | NEG_DEX
 
 
 N:93:of Radiance
-W:2:4:0:1000
+W:6:4:0:1000
 C:0:0:0:0:0:0:0
 T:19:0:99
 F:RADIANCE
 
 
 N:94:of the Marchwardens
-W:2:4:0:1000
+W:6:4:0:1000
 C:0:0:0:0:0:0:0
 T:19:0:99
 F:SEE_INVIS | RES_FEAR
 
 
-# (ability 1/2 is Dedication)
 N:95:of Falas
-W:2:4:0:3000
-C:1:0:0:0:0:0:0
+W:8:6:0:3000
+C:0:0:0:0:0:0:3
 T:19:0:99
-B:1/2
+F:RES_COLD | PERCEPTION
 
 
 ###

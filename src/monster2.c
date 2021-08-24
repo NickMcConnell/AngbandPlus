@@ -1350,8 +1350,11 @@ void update_mon(int m_idx, bool full)
 	/* Seen by vision */
 	bool easy = FALSE;
     
-    /* Known because immobile */
-    bool immobile_seen = FALSE;
+	/* Known because immobile */
+	bool immobile_seen = FALSE;
+
+	u16b tmp_rand_place;
+	u32b tmp_rand_state[RAND_DEG];
 
     // unmoving mindless monsters (i.e. molds) can be seen once encountered
     if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) && (r_ptr->flags2 & (RF2_MINDLESS)) && m_ptr->encountered)
@@ -1562,9 +1565,25 @@ void update_mon(int m_idx, bool full)
 		}
 	}
 	
-	// Sil-x: calling this here seems to cause randseed issues on reloading games
-	//        i.e. saving then loading will 'hear' different monsters
+	// Because invoking this repeatedly without the turn updating will
+	// re-randomise, we temporarily set the randseed to be based on the
+	// current turn and then restore it.
+	tmp_rand_place = Rand_place;
+
+	for (int i = 0; i < RAND_DEG; i++)
+	{
+		tmp_rand_state[i] = Rand_state[i];
+		Rand_state[i] = playerturn * i * 15485863; // large prime
+	}
+
 	listen(m_ptr);
+
+	Rand_place = tmp_rand_place;
+
+	for (int i = 0; i < RAND_DEG; i++)
+	{
+		Rand_state[i] = tmp_rand_state[i];
+	}
 
 	// Check ecounters with monsters (must be visible and in line of sight)
 	if (m_ptr->ml && !m_ptr->encountered && player_has_los_bold(m_ptr->fy,m_ptr->fx) && (l_ptr->psights < MAX_SHORT)) 
@@ -1809,7 +1828,8 @@ void describe_floor_object(void)
              ((wield_slot(o_ptr) >= INVEN_BODY)  && (wield_slot(o_ptr) <= INVEN_FEET)))
     {
         int wgt = o_ptr->weight * o_ptr->number;
-        msg_format("You see %s %d.%1d lb.", o_name, wgt / 10, wgt % 10);
+	if (!p_ptr->blind) msg_format("You see %s %d.%1d lb.", o_name, wgt / 10, wgt % 10);
+	else msg_format("Your feet strike against %s.", o_name);
         
         /* Disturb */
         disturb(0,0);
@@ -1818,7 +1838,8 @@ void describe_floor_object(void)
     // other things just show description
     else
     {
-        msg_format("You see %s.", o_name);
+        if (!p_ptr->blind) msg_format("You see %s.", o_name);
+	else msg_format("Your feet strike against %s.", o_name);
 
         /* Disturb */
         disturb(0,0);
@@ -2061,6 +2082,7 @@ s16b player_place(int y, int x)
 
 	/* Mark cave grid */
 	cave_m_idx[y][x] = -1;
+	if (cave_feat[y][x] == FEAT_RUBBLE) cave_feat[y][x] = FEAT_FLOOR;
 
 	/* Success */
 	return (-1);

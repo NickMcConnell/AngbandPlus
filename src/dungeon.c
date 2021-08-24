@@ -1106,14 +1106,13 @@ static void process_command(void)
 			do_cmd_exchange();
 			break;
 		}
-
-		/* Running shot */
+			
 		case '-':
 		{
-			do_cmd_running_shot();
+			do_cmd_fletchery();
 			break;
 		}
-
+			
 		/*** Use various objects ***/
 
 		/* Inscribe an object */
@@ -1137,17 +1136,17 @@ static void process_command(void)
 			break;
 		}
 
-		/* Fire an arrow from the 1st quiver and prompt for target */
+		/* Fire an arrow from the 1st quiver */
 		case 'f':
 		{
-			do_cmd_fire(1, FALSE);
+			do_cmd_fire(1);
 			break;
 		}
 
-		/* Fire an arrow from the 2nd quiver and prompt for target */
+		/* Fire an arrow from the 2nd quiver */
 		case 'F':
 		{
-			do_cmd_fire(2, FALSE);
+			do_cmd_fire(2);
 			break;
 		}
 			
@@ -1684,6 +1683,7 @@ static void process_player(void)
 
 		/* Check for "player abort" */
 		if (p_ptr->running ||
+			p_ptr->fletching ||
 			p_ptr->smithing ||
 			p_ptr->command_rep ||
 			(p_ptr->resting && !(turn & 0x7F)))
@@ -1905,7 +1905,31 @@ static void process_player(void)
 			/* Redraw the state */
 			p_ptr->redraw |= (PR_STATE);
 		}
-		
+
+		/* Fletching */
+		else if (p_ptr->fletching)
+		{
+			if (p_ptr->fletching == 1)
+			{
+				// Display a message
+				msg_print("You complete your work.");
+
+				finish_fletching(0);
+			}
+
+			/* Reduce fletching count */
+			p_ptr->fletching--;
+
+			/* Take a turn */
+			p_ptr->energy_use = 100;
+
+			// store the action type
+			p_ptr->previous_action[0] = ACTION_MISC;
+
+			/* Redraw the state */
+			p_ptr->redraw |= (PR_STATE);
+		}
+
 		/* Resting */
 		else if (p_ptr->resting)
 		{
