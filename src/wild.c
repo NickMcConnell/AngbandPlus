@@ -27,6 +27,7 @@ monster_hook_type wilderness_mon_hook = NULL;
    Let's prevent any encounters when the player leaves wild mode (excepting ambushes,
    of course). To get encounters, the player must seek them by traveling about. */
 bool no_encounters_hack = FALSE;
+bool locate_entrance_hack = FALSE;
 
 /* Scratch buffer for wilderness terrain creation */
 s16b *_cave[MAX_HGT];
@@ -483,7 +484,8 @@ void wilderness_move_player(int old_x, int old_y)
        And thus, we gosh darn better update the travel flow before disturb() sets
        travel.run to 0 (prior to travel_step restoring it after we return!)
        In other words: Here is a cryptic sequencing issue with global variables! Do not move this!! */
-    if (travel.run)
+
+    if ((travel.run) || ((travel.x) && (travel.y) && (in_bounds(travel.y, travel.x))))
         travel_wilderness_scroll(travel.x - dx*WILD_SCROLL_CX, travel.y - dy*WILD_SCROLL_CY);
 
     if (do_disturb) disturb(0, 0);
@@ -1576,6 +1578,37 @@ void wilderness_gen(void)
        placed in a boundary "quadrant" */
     viewport_verify_aux(VIEWPORT_FORCE_CENTER);
     wilderness_move_player(p_ptr->oldpx, p_ptr->oldpy);
+    if ((locate_entrance_hack) && (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].entrance > 0)
+    && (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].entrance < max_d_idx)
+    && (!p_ptr->town_num))
+    {
+        /* Locate entrance - mimic _generate_entrance() code */
+        int ent_cx = 0, ent_cy = 0;
+        int y2, x2;
+
+        /* Hack -- Use the "simple" RNG */
+        Rand_quick = TRUE;
+
+        /* Hack -- Induce consistant town layout */
+        Rand_value = wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].seed;
+
+        y2 = rand_range(13, cur_hgt - 13);
+        x2 = rand_range(13, cur_wid - 13);
+        ent_cx = (x2 / WILD_SCROLL_CX) - 1;
+        ent_cy = (y2 / WILD_SCROLL_CY) - 1;
+
+        if (((ent_cx - p_ptr->wilderness_dx) * (ent_cx - p_ptr->wilderness_dx) > 1) ||
+            ((ent_cy - p_ptr->wilderness_dy) * (ent_cy - p_ptr->wilderness_dy) > 1))
+        {
+            msg_format("The %s entrance doesn't appear to be within sight. Perhaps it's a bit further %s%s?",
+            d_name + d_info[wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].entrance].name,
+            ((ent_cy - p_ptr->wilderness_dy == -2) ? "north" : (ent_cy - p_ptr->wilderness_dy == 2) ? "south" : ""),
+            (((ent_cx - p_ptr->wilderness_dx == -2) || (x2 - (p_ptr->wilderness_dx * WILD_SCROLL_CX + px) <= -44)) ? "west" : ((ent_cx - p_ptr->wilderness_dx == 2) || (x2 - (p_ptr->wilderness_dx * WILD_SCROLL_CX + px) >= 44)) ? "east" : ""));
+        }
+
+        Rand_quick = FALSE;
+    }
+    locate_entrance_hack = FALSE;
 }
 
 
@@ -2007,6 +2040,7 @@ bool change_wild_mode(void)
         p_ptr->leaving = TRUE;
 
         no_encounters_hack = TRUE;
+        locate_entrance_hack = TRUE;
 
         /* Succeed */
         return TRUE;

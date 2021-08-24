@@ -24,6 +24,7 @@ extern bool fear_allow_device(void);
 extern bool fear_allow_magic(void);
 extern bool fear_allow_melee(int m_idx);
 extern bool fear_allow_shoot(void);
+extern bool pelko(void);
 
 /* Some monsters inspire fear (RF2_AURA_FEAR) */
 extern void fear_p_touch_m(monster_type *m_ptr);

@@ -939,6 +939,14 @@ cptr process_pref_file_expr(char **sp, char *fp)
                     v = get_race()->name;
                 else
                     v = get_true_race()->name;
+                while (1)
+                {
+                    unsigned int paikka = strpos(" ", v);
+                    if (!paikka) break;
+                    sprintf(tmp, v);
+                    tmp[paikka - 1] = '-';
+                    v = tmp;
+                }
             }
 
             /* Class */
@@ -2723,7 +2731,7 @@ bool py_get_name(void)
     /* Check to see if this is for server play. If so, lock the player name. (--phantom) */
     if(!arg_lock_name)
     {
-        if (get_string("Enter a name for your character: ", tmp, 15))
+        if (get_string("Enter a name for your character: ", tmp, PY_NAME_LEN))
         {
             /* Use the name */
             strcpy(player_name, tmp);

@@ -9,6 +9,7 @@ void default_menu(int cmd, int which, vptr cookie, variant *res)
 static void _describe(menu_ptr menu, int which)
 {
     variant v;
+    int pohja = (menu->col_entries > 0) ? MIN(menu->col_entries, menu->count) : menu->count;
 
     var_init(&v);
     menu->fn(MENU_HELP, which, menu->cookie, &v);
@@ -18,11 +19,11 @@ static void _describe(menu_ptr menu, int which)
         int i, line;
 
         for (i = 0; i < 2+10; i++)
-            Term_erase(13, menu->count + i + 1 + (menu->heading ? 1 : 0), 255);
+            Term_erase(13, pohja + i + 1 + (menu->heading ? 1 : 0), 255);
 
         roff_to_buf(var_get_string(&v), 80-15, tmp, sizeof(tmp));
 
-        for(i = 0, line = menu->count + 2 + (menu->heading ? 1 : 0); tmp[i]; i += 1+strlen(&tmp[i]))
+        for(i = 0, line = pohja + 2 + (menu->heading ? 1 : 0); tmp[i]; i += 1+strlen(&tmp[i]))
         {
             prt(&tmp[i], line, 15);
             line++;
@@ -46,11 +47,12 @@ static void _list(menu_ptr menu, char *keys)
     for (i = 0; i < menu->count; i++)
     {
         byte attr = TERM_WHITE;
-        variant key, text, color;
+        variant key, text, color, paikka;
 
         var_init(&key);
         var_init(&text);
         var_init(&color);
+        var_init(&paikka);
 
         menu->fn(MENU_KEY, i, menu->cookie, &key);
         if (var_is_null(&key))
@@ -69,15 +71,20 @@ static void _list(menu_ptr menu, char *keys)
         if (!var_is_null(&color))
             attr = var_get_int(&color);
 
+        menu->fn(MENU_COLUMN, i, menu->cookie, &paikka);
+        if (var_is_null(&paikka))
+            var_set_int(&paikka, x);
+
         if (attr == TERM_DARK)
             keys[i] = '\0';
 
         sprintf(temp, "  %c) %s", keys[i], var_get_string(&text));
-        c_prt(attr, temp, y + i, x);
+        c_prt(attr, temp, y + ((menu->col_entries > 0) ? (i % menu->col_entries) : i), var_get_int(&paikka));
 
         var_clear(&key);
         var_clear(&text);
         var_clear(&color);
+        var_clear(&paikka);
     }
     Term_erase(x, y + menu->count, 255);
 }

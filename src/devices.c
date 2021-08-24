@@ -127,7 +127,7 @@ static int effect_calc_fail_rate_aux(effect_t *effect, int skill_boost)
     if (p_ptr->confused) skill = 3 * skill / 4;
 
     fail = device_calc_fail_rate_aux(skill, effect->difficulty);
-    if (p_ptr->stun)
+    if ((p_ptr->stun) && (fail < 950))
     {
         fail += 500 * p_ptr->stun / 100;
         if (fail > 950) fail = 950;
@@ -187,7 +187,7 @@ int device_calc_fail_rate(object_type *o_ptr)
     else
         fail = (USE_DEVICE-1)*1000/chance;
 
-    if (p_ptr->stun)
+    if ((p_ptr->stun) && (fail < 950))
     {
         fail += 500 * p_ptr->stun / 100;
         if (fail > 950) fail = 950;
@@ -394,6 +394,7 @@ static cptr _do_potion(int sval, int mode)
                 msg_print("The potion makes you vomit!");
                 set_food(PY_FOOD_STARVE - 1);
                 set_paralyzed(randint1(4), FALSE);
+                set_poisoned(0, TRUE);
                 device_noticed = TRUE;
             }
         }
@@ -802,7 +803,7 @@ static cptr _do_potion(int sval, int mode)
         {
             int amt = _potion_power(damroll(3, 6) + 3);
 
-            if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+            if ((p_ptr->pclass == CLASS_RUNE_KNIGHT) || (p_ptr->pclass == CLASS_RAGE_MAGE))
                 msg_print("You are unaffected.");
             else if (sp_player(amt))
             {
@@ -819,7 +820,7 @@ static cptr _do_potion(int sval, int mode)
         {
             int amt = _potion_power(damroll(10, 10) + 15);
 
-            if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+            if ((p_ptr->pclass == CLASS_RUNE_KNIGHT) || (p_ptr->pclass == CLASS_RAGE_MAGE))
                 msg_print("You are unaffected.");
             else if (sp_player(amt))
             {
@@ -1034,7 +1035,7 @@ static cptr _do_potion(int sval, int mode)
         }
         break;
     case SV_POTION_CURING: {
-        if (desc) return "It cures blindness, poison, confusion, stunning, cuts and hallucination when you quaff it.";
+        if (desc) return "It cures blindness, confusion, stunning, cuts and hallucination and reduces poisoning when you quaff it.";
         if (cast)
         {
             if (set_blind(0, TRUE)) device_noticed = TRUE;
@@ -1537,7 +1538,7 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It destroys everything nearby you when you read it.";
         if (cast)
         {
-            if (((!py_in_dungeon()) || (!quests_allow_all_spells()))
+            if (((!py_in_dungeon()) || (!quests_allow_all_spells()) || (dungeon_type == DUNGEON_WOOD))
                && (!_scroll_check_no_effect(sval))) return NULL;
             if (destroy_area(py, px, 13 + randint0(5), _scroll_power(2000)))
                 device_noticed = TRUE;
@@ -2231,6 +2232,7 @@ static _effect_info_t _effect_info[] =
     {"GONG",            EFFECT_GONG,                 0,   0,  0, 0},
     {"MURAMASA",        EFFECT_MURAMASA,             0,   0,  0, 0},
     {"EXPERTSEXCHANGE", EFFECT_EXPERTSEXCHANGE,      0,   0,  0, 0},
+    {"EYE_HYPNO",       EFFECT_EYE_HYPNO,            0,   0,  0, 0},
 
     {0}
 };
@@ -3064,10 +3066,10 @@ int device_value(object_type *o_ptr, int options)
         result += result * 10 * pval / 100;
 
     if (have_flag(flgs, OF_DEVICE_POWER))
-        result += result * 25 * pval / 100;
+        result += result * 20 * pval / 100;
 
     if (have_flag(flgs, OF_HOLD_LIFE))
-        result += result * 30 / 100;
+        result += result * 40 / 100;
 
     if (have_flag(flgs, OF_SPEED))
         result += result * 25 * pval / 100;
@@ -3514,6 +3516,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     case EFFECT_TELEPORT_AWAY:
         if (name) return "Teleport Other";
         if (desc) return "It fires a beam that teleports all affected monsters away.";
+        if (info) return format("dist %d", MAX_SIGHT * 5);
         if (value) return format("%d", 1500);
         if (cast)
         {
@@ -3612,7 +3615,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (name) return "Destruction";
         if (desc) return "It destroys everything nearby.";
         if (info) return format("Power %d", _BOOST(power));
-        if (value) return format("%d", power*20);
+        if (value) return format("%d", power * 8 + ((100 - (MIN(100, 8000 / power))) * 125));
         if (color) return format("%d", TERM_RED);
         if (cost) return format("%d", power/15);
         if (cast)
@@ -3853,7 +3856,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         int power = _extra(effect, 100);
         if (name) return "Banish Evil";
         if (desc) return "It attempts to teleport all visible evil monsters away.";
-        if (info) return info_power(_BOOST(power));
+        if (info) return format("dist %d", _BOOST(power));
         if (value) return format("%d", 50*power);
         if (color) return format("%d", TERM_L_DARK);
         if (cast)
@@ -3871,7 +3874,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         int power = _extra(effect, 150);
         if (name) return "Banish";
         if (desc) return "It teleports all monsters in sight away unless resisted.";
-        if (info) return info_power(_BOOST(power));
+        if (info) return format("dist %d", _BOOST(power));
         if (value) return format("%d", 70*power);
         if (color) return format("%d", TERM_L_BLUE);
         if (cast)
@@ -4687,7 +4690,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     case EFFECT_CURING:
     {
         if (name) return "Curing";
-        if (desc) return "It cures blindness, poison, confusion, stunning, cuts and hallucination.";
+        if (desc) return "It cures blindness, confusion, stunning, cuts and hallucination and reduces poisoning.";
         if (value) return format("%d", 1000);
         if (color) return format("%d", TERM_L_GREEN);
         if (cast)
@@ -4717,7 +4720,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             if (desc) return "It heals your hitpoints and cures your ailments.";
         }
         if (info) return info_heal(0, 0, _BOOST(amt));
-        if (value) return format("%d", 500 + 15*amt);
+        if (value) return format("%d", ((amt > 100) ? 5000 : 1000) + 23*amt);
         if (color) return format("%d", TERM_YELLOW);
         if (cost) return format("%d", amt/10);
         if (cast)
@@ -4777,12 +4780,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         break;
     case EFFECT_CURE_POIS:
         if (name) return "Cure Poison";
-        if (desc) return "It cures poison.";
+        if (desc) return "It reduces poisoning.";
         if (value) return format("%d", 500);
         if (color) return format("%d", res_color(RES_POIS));
         if (cast)
         {
-            if (set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE))
+            if (set_poisoned(p_ptr->poisoned - MAX(300, p_ptr->poisoned / 2), TRUE))
                 device_noticed = TRUE;
         }
         break;
@@ -4802,12 +4805,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         break;
     case EFFECT_CURE_FEAR_POIS:
         if (name) return "Cure Fear and Poison";
-        if (desc) return "It cures poison and restores your courage in battle.";
+        if (desc) return "It reduces poisoning and restores your courage in battle.";
         if (value) return format("%d", 1250);
         if (color) return format("%d", res_color(RES_FEAR));
         if (cast)
         {
-            if (set_poisoned(p_ptr->poisoned - MAX(10, p_ptr->poisoned / 10), TRUE))
+            if (set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE))
                 device_noticed = TRUE;
             if (p_ptr->afraid)
             {
@@ -4854,7 +4857,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_L_BLUE);
         if (cast)
         {
-            if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+            if ((p_ptr->pclass == CLASS_RUNE_KNIGHT) || (p_ptr->pclass == CLASS_RAGE_MAGE))
                 msg_print("You are unaffected.");
             else if (sp_player(_BOOST(amt)))
             {
@@ -4874,7 +4877,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_L_BLUE);
         if (cast)
         {
-            if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+            if ((p_ptr->pclass == CLASS_RUNE_KNIGHT) || (p_ptr->pclass == CLASS_RAGE_MAGE))
                 msg_print("You are unaffected.");
             else if (sp_player(_BOOST(amt)))
             {
@@ -6557,6 +6560,22 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     }
+    case EFFECT_EYE_HYPNO:
+    {
+        int pow = _extra(effect, effect->power*2);
+        if (name) return "Hypnotize";
+        if (desc) return "It attempts to freeze and charm all nearby visible monsters.";
+        if (info) return format("Power %d", pow);
+        if (value) return format("%d", 125*pow);
+        if (color) return format("%d", TERM_L_GREEN);
+        if (cast)
+        {
+            (void)stasis_monsters(_BOOST(pow));
+            (void)charm_monsters(MIN(56, _BOOST(pow) / 2));
+            device_noticed = TRUE;
+        }
+        break;
+    }
     case EFFECT_CONFUSE_MONSTERS:
     {
         int pow = _extra(effect, effect->power*3);
@@ -6646,7 +6665,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             obj_t forge = {0};
             int   tval = p_ptr->shooter_info.tval_ammo;
 
-            if (!tval) tval = TV_ARROW;
+            if ((!tval) || (tval == TV_NO_AMMO)) tval = TV_ARROW;
 
             object_prep(&forge, lookup_kind(tval, SV_ARROW)); /* Hack: SV_ARROW == SV_BOLT == SV_PEBBLE */
             forge.number = MAX(0, MIN(50, quiver_capacity() - quiver_count(NULL)));

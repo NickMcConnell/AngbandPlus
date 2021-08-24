@@ -433,6 +433,13 @@ void alchemist_cast(int tval)
 {
 	object_type *o_ptr;
 
+	if (!fear_allow_magic())
+	{
+		msg_print("You are too scared!");
+		energy_use = alchemist_infusion_energy_use();
+		return;
+	}
+
 	if (!tval)
 		tval = TV_POTION;
 
@@ -530,7 +537,7 @@ static bool create_infusion(void)
 		obj_identify_fully(dest_ptr);
 		stats_on_identify(dest_ptr);
 	}
-	prompt.obj->number -= infct;
+	obj_dec_number(prompt.obj, infct, TRUE);
 	obj_release(prompt.obj, 0);
 	return TRUE;
 }
@@ -797,7 +804,7 @@ static bool break_down_potion(void){
 	success = alchemist_break_down_aux(prompt.obj, ct);
 	
 	if (success) {
-		prompt.obj->number -= ct;
+		obj_dec_number(prompt.obj, ct, TRUE);
 		obj_release(prompt.obj, 0);
 	}
 	return TRUE;

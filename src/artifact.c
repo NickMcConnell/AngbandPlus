@@ -56,7 +56,7 @@ static bool _add_bad_flag(object_type *o_ptr, int bad_flag, int good_flag)
     return FALSE;
 }
 
-static int _trim(int start_val, int hi_val, int very_hi_val, int item_lv)
+int trim(int start_val, int hi_val, int very_hi_val, int item_lv)
 {
     int vahennys = 0, i, koitto;
     if (very_hi_val < hi_val) hi_val = very_hi_val;
@@ -67,7 +67,7 @@ static int _trim(int start_val, int hi_val, int very_hi_val, int item_lv)
         if (one_in_(2)) vahennys++;
         else if (randint0(100 + item_lv) < 80) vahennys++;
     }
-    koitto = start_val - very_hi_val;
+    koitto = (start_val - vahennys) - very_hi_val;
     for (i = 0; i < koitto; i++)
     {
         if (!one_in_(4)) vahennys++;
@@ -2259,6 +2259,12 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             add_flag(o_ptr->flags, OF_FREE_ACT);
         if (one_in_(2))
             add_flag(o_ptr->flags, OF_SEE_INVIS);
+        if ((randint1(150) < powers))
+        {
+            add_flag(o_ptr->flags, OF_LIFE);
+            has_pval = TRUE;
+            powers--;
+        }
         break;
 
     case TV_AMULET:
@@ -2756,6 +2762,36 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         }
     };
 
+    /* Sometimes create rings as mixed blessings */
+    if ((o_ptr->tval == TV_RING) && (one_in_(15)))
+    {
+        bool jatka = TRUE;
+        if (one_in_(2))
+        {
+            if (o_ptr->to_h > 0) o_ptr->to_h = 0 - o_ptr->to_h;
+            else if (one_in_(4))
+            {
+                o_ptr->to_h = 0 - randint1(10);
+                o_ptr->to_d = (one_in_(2)) ? 0 - randint1(10) : randint1(7);
+                jatka = FALSE;
+            }
+        }
+        if ((jatka) && (one_in_(2)))
+        {
+            if (o_ptr->to_d > 0) o_ptr->to_d = 0 - o_ptr->to_d;
+            else if (one_in_(6))
+            {
+                o_ptr->to_d = 0 - randint1(10);
+                o_ptr->to_h = (one_in_(2)) ? 0 - randint1(10) : randint1(7);
+            }
+        }
+    }
+    if ((o_ptr->tval == TV_RING) && (one_in_(30)))
+    {
+        if (o_ptr->to_a > 0) o_ptr->to_a = 0 - o_ptr->to_a;
+        else if (one_in_(2)) o_ptr->to_a = 0 - randint1(12);
+    }
+
     if (has_pval)
     {
         if (have_flag(o_ptr->flags, OF_BLOWS))
@@ -2800,6 +2836,12 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             o_ptr->pval = 6;
     }
 
+    if (have_flag(o_ptr->flags, OF_LIFE) && o_ptr->pval > 2)
+    {
+        o_ptr->pval = randint1(2);
+        if (one_in_(WEIRD_LUCK)) o_ptr->pval++;
+    }
+
     if (have_flag(o_ptr->flags, OF_WEAPONMASTERY) && o_ptr->pval > 2)
     {
         if (one_in_(6))
@@ -2823,7 +2865,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         int max = 20;
         if (object_is_body_armour(o_ptr)) max += 5;
         o_ptr->to_a += a;
-        if (o_ptr->to_a > max - 5) o_ptr->to_a = _trim(o_ptr->to_a, max - 5, max, lev);
+        if (o_ptr->to_a > max - 5) o_ptr->to_a = trim(o_ptr->to_a, max - 5, max, lev);
     }
     else if (object_is_weapon_ammo(o_ptr))
     {
@@ -2831,8 +2873,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         int d = randint1(5) + m_bonus(5, lev) + m_bonus(10, lev);
         o_ptr->to_h += h;
         o_ptr->to_d += d;
-        if (o_ptr->to_h > 22) o_ptr->to_h = _trim(o_ptr->to_h, 20, 25, lev);
-        if (o_ptr->to_d > 20) o_ptr->to_d = _trim(o_ptr->to_h, 20, 25, lev);
+        if (o_ptr->to_h > 22) o_ptr->to_h = trim(o_ptr->to_h, 20, 25, lev);
+        if (o_ptr->to_d > 20) o_ptr->to_d = trim(o_ptr->to_h, 20, 25, lev);
 
         if ((have_flag(o_ptr->flags, OF_WIS)) && (o_ptr->pval > 0)) add_flag(o_ptr->flags, OF_BLESSED);
     }
@@ -3255,14 +3297,6 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
         get_bloody_moon_flags(o_ptr);
     }
 
-    if (o_ptr->name1 == ART_HEAVENLY_MAIDEN)
-    {
-        if (p_ptr->psex != SEX_FEMALE)
-        {
-            add_flag(o_ptr->flags, OF_AGGRAVATE);
-        }
-    }
-
     if (a_ptr->gen_flags & (OFG_XTRA_POWER)) give_power = TRUE;
     if (a_ptr->gen_flags & (OFG_XTRA_H_RES)) give_resistance = TRUE;
     if (a_ptr->gen_flags & (OFG_XTRA_RES_OR_POWER))
@@ -3283,46 +3317,65 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
     }
 }
 
+void get_reforge_powers(bool do_minmax, object_type *src, object_type *dest, int *swgt, int *dwgt, int *min_p, int *max_p, int *avg_bp, int fame)
+{
+    int base_power = obj_value_real(src);
+    int min_bp, max_bp;
+    *swgt = get_slot_weight(src);
+    *dwgt = get_dest_weight(dest);
+
+    if ((*swgt) > (*dwgt))
+        base_power = base_power * (*dwgt) / (*swgt);
+
+    /* Power sanity check */
+    base_power = MIN(base_power, 1125L * (*dwgt));
+
+    *avg_bp = base_power * 3/4 + ((base_power*MIN(255, fame) + 1) / 3000);
+
+    /* Pay a Power Tax! */
+    if (do_minmax)
+    {
+        min_bp = base_power*3/4 + 1;
+        max_bp = base_power*3/4 + (base_power*MIN(255, fame) / 1500);
+        if (min_bp < 1000) *min_p = 1;
+        else *min_p = 3 * min_bp / 4;
+        if (max_bp < 1000) *max_p = max_bp + 5000;
+        else *max_p = MAX(6000, 5 * max_bp / 4);
+    }
+    else
+    {
+        base_power = base_power*3/4 + randint1(base_power*MIN(255, fame)/1500);
+        /* Setup thresholds. For weak objects, it's better to use a generous range ... */
+        if (base_power < 1000)
+        {
+            *min_p = 1;
+            *max_p = base_power + 5000;
+        }
+        else
+        {
+            *min_p = 3 * base_power / 4;
+            *max_p = MAX(6000, 5 * base_power / 4);
+        }
+    }
+
+    if (mut_present(MUT_INSPIRED_SMITHING))
+    {
+        *min_p += ((*min_p) / 8);
+        *max_p += ((*max_p) / 12);
+    }
+}
+
 bool reforge_artifact(object_type *src, object_type *dest, int fame)
 {
     bool        result = FALSE;
     object_type forge = {0};
     object_type best = {0}, worst = {0};
-    int         base_power, best_power = -10000000, power = 0, worst_power = 10000000;
+    int         best_power = -10000000, power = 0, worst_power = 10000000;
     int         min_power, max_power;
     int         old_level, i;
-    int         src_weight = get_slot_weight(src);
-    int         dest_weight = get_dest_weight(dest);
+    int         src_weight, dest_weight, avg_bp;
 
-    /* Score the Original */
-    base_power = obj_value_real(src);
-
-    if (src_weight > dest_weight)
-        base_power = base_power * dest_weight / src_weight;
-
-    /* Power sanity check */
-    base_power = MIN(base_power, 1125L * dest_weight);
-
-    /* Pay a Power Tax! */
-    base_power = base_power*3/4 + randint1(base_power*MIN(255, fame)/1500);
-
-    /* Setup thresholds. For weak objects, it's better to use a generous range ... */
-    if (base_power < 1000)
-    {
-        min_power = 0;
-        max_power = base_power + 5000;
-    }
-    else
-    {
-        min_power = 3 * base_power / 4;
-        max_power = MAX(6000, 5 * base_power / 4);
-    }
-
-    if (mut_present(MUT_INSPIRED_SMITHING))
-    {
-        min_power += (min_power / 8);
-        max_power += (max_power / 12);
-    }
+    get_reforge_powers(FALSE, src, dest, &src_weight, &dest_weight, &min_power, &max_power, &avg_bp, fame);
 
     /* Better Fame means better results! */
     old_level = object_level;
@@ -3373,9 +3426,16 @@ bool reforge_artifact(object_type *src, object_type *dest, int fame)
         {
             char buf[255], minibuf[2] = "\'";
             cptr oldname = a_name + a_info[src->name1].name;
-            sprintf(buf, minibuf);
-            strcat(buf, ((oldname[0] == '&') && (strlen(oldname) > 2)) ? oldname + 2 : oldname);
-            strcat(buf, minibuf);
+            if (strpos(" '", oldname)) /* The Pendant 'Efki', etc. */
+            {
+                sprintf(buf, oldname + strpos(" '", oldname));
+            }
+            else
+            {
+                sprintf(buf, minibuf);
+                strcat(buf, ((oldname[0] == '&') && (strlen(oldname) > 2)) ? oldname + 2 : oldname);
+                strcat(buf, minibuf);
+            }
             dest->art_name = quark_add(buf);
         }
         else dest->art_name = quark_add(a_name + a_info[src->name1].name);

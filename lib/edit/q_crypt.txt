@@ -71,6 +71,7 @@ L:r:FLOOR(ICKY):MON(skull druj)
 L:s:MON(shadowlord)
 L:t:MON(archlich)
 L:u:MON(^black reaver$)
+L:v:MON(mummy king)
 L:$:FLOOR(ICKY):OBJ(DRAG_ARMOR, DEPTH+10):ART(*)
 L:&:FLOOR(ICKY):OBJ(RING, DEPTH+10):ART(*)
 L:*:FLOOR(ICKY):OBJ(AMULET, DEPTH+10):ART(*)
@@ -94,7 +95,7 @@ M:#~..##.dd.###%#############.....##...##W##################W%#...##....#
 M:###..##...#e#e#e#e#e#^^^^^###+###.%+%.##WWWWWWWWWWWWWWWWWW##.%+%.######
 M:#b%%..#####+#+#+#+#+#^...^#n+.+n#.%s%.#####################..%s%..#^^^#
 M:#bb%#...............#^...^###.###.%%%.+^^^^^^^^^^^^^^^^^^^+..%%%..%^~^#
-M:#bbb#~#~#~#~#~#~#~#~#^^^^^%n+.+n#.....#c#c#c#c#c#c#c#c#c#c#......~#^^^#
+M:#bbb#~#~#~#~#~#~#~#~#^^^^^%n+.+n#.....#v#c#c#c#c#c#c#c#c#c#......~#^^^#
 M:#######################################################################
 R:ART(bilbo)
 

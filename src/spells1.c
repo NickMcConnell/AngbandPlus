@@ -150,6 +150,7 @@ static byte spell_color(int type)
             case GF_ICE:            return (0x01);
             case GF_ROCKET:         return (0x0F);
             case GF_DEATH_RAY:      return (0x07);
+            case GF_CHICKEN:        return (0x0B);
             case GF_NUKE:           return (mh_attr(2));
             case GF_DISINTEGRATE:   return (0x05);
             case GF_PSI:
@@ -906,7 +907,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
             message = "is washed away.";
             break;
         case GF_GRAVITY:
-            message = "disappears";
+            message = "disappears.";
             break;
         }
         if (message)
@@ -1405,6 +1406,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
         case GF_SHARDS:
         case GF_ROCK:
         case GF_ROCKET:
+        case GF_CHICKEN:
+        case GF_BOMB:
         {
             if (is_mirror_grid(c_ptr))
             {
@@ -1621,6 +1624,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
         case GF_ROCK:
         case GF_FORCE:
         case GF_SOUND:
+        case GF_BOMB:
             if (hates_cold(o_ptr))
             {
                 note_kill = (plural ? " shatter!" : " shatters!");
@@ -1832,7 +1836,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
     if (!m_idx) return FALSE;
 
     /* Reduce damage by distance */
-    if (!(flg & PROJECT_FULL_DAM))
+    if ((!(flg & PROJECT_FULL_DAM)) && (typ != GF_BOMB))
         dam = (dam + r) / (r + 1);
 
     /* Do it ... shared with other non-projection damage like melee attacks and auras */
@@ -1994,8 +1998,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
         }
     }
 
-    /* Reduce damage by distance */
-    dam = _reduce_dam(dam, r);
+    /* Reduce damage by distance (bombs have special code for this) */
+    if (typ != GF_BOMB) dam = _reduce_dam(dam, r);
 
     if (mon_spell_current())
     {
@@ -2035,7 +2039,9 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
     if (psion_drain())
         dam = psion_do_drain(dam);
 
+    gf_distance_hack = r;
     get_damage = gf_affect_p(who, typ, dam, GF_AFFECT_SPELL);
+    gf_distance_hack = 1;
 
     /* Hex - revenge damage stored */
     revenge_store(get_damage);
@@ -2598,7 +2604,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
     int y_saver, x_saver; /* For reflecting monsters */
 
-    int msec = delay_factor * delay_factor * delay_factor;
+    int msec = delay_time();
 
     /* Assume the player sees nothing */
     bool notice = FALSE;

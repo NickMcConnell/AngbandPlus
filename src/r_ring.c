@@ -71,6 +71,8 @@ static void _load(savefile_ptr file)
         if (0 <= j && j < EFFECT_MAX)
             _effects[j] += n;
     }
+    ini_statup_list();
+    if (!savefile_is_older_than(file, 7,1,0,1)) dungeon_statup_load(file);
 }
 
 static void _save(savefile_ptr file)
@@ -113,6 +115,7 @@ static void _save(savefile_ptr file)
             savefile_write_s16b(file, _effects[i]);
         }
     }
+    dungeon_statup_save(file);
 }
 
 static bool _skip_flag(int which)
@@ -306,7 +309,13 @@ static bool _absorb_object(object_type *o_ptr)
     if (object_is_jewelry(o_ptr))
     {
         char o_name[MAX_NLEN];
-        object_desc(o_name, o_ptr, OD_NAME_ONLY);
+        bool tunnettu = (((obj_is_identified(o_ptr)) || (o_ptr->feeling == FEEL_AVERAGE)) && (obj_is_identified_fully(o_ptr)));
+        if (!tunnettu)
+        {
+            obj_identify_fully(o_ptr);
+            object_desc(o_name, o_ptr, OD_COLOR_CODED);
+        }
+        else object_desc(o_name, o_ptr, OD_NAME_ONLY | OD_COLOR_CODED);
         msg_format("You attempt to drain power from %s.", o_name);
         _absorb(o_ptr);
         return TRUE;
@@ -457,6 +466,8 @@ static void _birth(void)
     for (i = 0; i < EFFECT_MAX; i++)
         _effects[i] = 0;
 
+    ini_statup_list();
+
     p_ptr->current_r_idx = MON_RING_MIMIC;
     equip_on_change_race();
 
@@ -582,6 +593,7 @@ static void _absorb_spell(int cmd, variant *res)
     {
         obj_prompt_t prompt = {0};
         char o_name[MAX_NLEN];
+        bool tunnettu;
 
         var_set_bool(res, FALSE);
         prompt.prompt = "Absorb which item?";
@@ -593,6 +605,8 @@ static void _absorb_spell(int cmd, variant *res)
         obj_prompt(&prompt);
         if (!prompt.obj) return;
 
+        tunnettu = (((obj_is_identified(prompt.obj)) || (prompt.obj->feeling == FEEL_AVERAGE)) && (obj_is_identified_fully(prompt.obj)));
+        if (!tunnettu) obj_identify_fully(prompt.obj);
         object_desc(o_name, prompt.obj, OD_NAME_ONLY);
         msg_format("You absorb the power of %s!", o_name);
         _absorb(prompt.obj);
@@ -1146,7 +1160,7 @@ static _group_ptr _prompt_group(void)
 {
     int        idx = -1;
     menu_t     menu = { "Use which type of spell?", NULL, NULL,
-                        _group_menu_fn, NULL, _groups_count()};
+                        _group_menu_fn, NULL, _groups_count(), 0};
 
     idx = menu_choose(&menu);
     if (idx < 0) return NULL;
@@ -1229,7 +1243,7 @@ static _spell_t _prompt_spell(_spell_ptr spells)
         int    idx = -1;
         char   heading[255], prompt1[255], prompt2[255];
         menu_t menu = { prompt1, prompt2, heading,
-                        _spell_menu_fn, choices, ct_avail};
+                        _spell_menu_fn, choices, ct_avail, 0};
 
         sprintf(prompt1, "Use which type of %s?", _group_choice);
         sprintf(prompt2, "Browse which type of %s?", _group_choice);
@@ -1269,6 +1283,8 @@ void ring_cast(void)
         return;
     }
 
+    if (pelko()) return;
+
     spell = _prompt();
     if (spell.effect == EFFECT_NONE)
         return;
@@ -1283,6 +1299,8 @@ void ring_cast(void)
         msg_print("You do not have enough mana to use this power.");
         return;
     }
+
+    energy_use = 100;
 
     p_ptr->csp -= spell.cost;
 
@@ -1300,9 +1318,9 @@ void ring_cast(void)
         if (!effect_use(&effect, _boost(spell.effect)))
         {
             p_ptr->csp += spell.cost;
+            energy_use = 0;
         }
     }
-    energy_use = 100;
     p_ptr->redraw |= PR_MANA;
     p_ptr->redraw |= PR_HP;
     p_ptr->window |= PW_SPELL;
@@ -1473,11 +1491,11 @@ static void _calc_bonuses(void)
         p_ptr->reflect = TRUE;
 
     if (_essences[OF_AURA_FIRE] >= 7)
-        p_ptr->sh_fire = TRUE;
+        p_ptr->sh_fire++;
     if (_essences[OF_AURA_ELEC] >= 7)
-        p_ptr->sh_elec = TRUE;
+        p_ptr->sh_elec++;
     if (_essences[OF_AURA_COLD] >= 7)
-        p_ptr->sh_cold = TRUE;
+        p_ptr->sh_cold++;
 }
 
 static void _calc_stats(s16b stats[MAX_STATS])

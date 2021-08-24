@@ -23,6 +23,7 @@ static void _display_resists(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_abilities(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_auras(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_insurance(object_type *o_ptr, doc_ptr doc);
 static void _display_curses(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_activation(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_activation_aux(effect_t *effect, bool full_info, doc_ptr doc, bool cb_hack);
@@ -186,7 +187,8 @@ bool display_origin(object_type *o_ptr, doc_ptr doc)
     if ((origin == ORIGIN_NONE) || (origin == ORIGIN_MIXED)) return FALSE;
     if ((!show_discovery) && (o_ptr->mitze_type & MITZE_MIXED)) return FALSE;
     if ((origin != ORIGIN_CHEAT) && (origin != ORIGIN_PLAYER_MADE) && (origin != ORIGIN_GAMBLE) && (origin != ORIGIN_ENDLESS)
-     && (origin != ORIGIN_REFORGE) && (origin != ORIGIN_BIRTH) && (origin != ORIGIN_ARENA_REWARD) && (origin != ORIGIN_WANTED))
+     && (origin != ORIGIN_REFORGE) && (origin != ORIGIN_BIRTH) && (origin != ORIGIN_ARENA_REWARD) && (origin != ORIGIN_WANTED)
+     && (origin != ORIGIN_CORNUCOPIA))
     {
         _selita_paikka(paikka_text, paikka, taso, origin);
     }
@@ -262,7 +264,8 @@ bool display_origin(object_type *o_ptr, doc_ptr doc)
         }
         case ORIGIN_BIRTH:
         {
-            if (!object_plural(o_ptr)) doc_printf(doc, "You can't remember ever not having it.");
+            if ((p_ptr->pclass == CLASS_MONSTER) && (have_flag(o_ptr->flags, OF_NO_REMOVE))) return FALSE; /* Hack - Death-Swords, Rings, Filthy Rags */
+            else if (!object_plural(o_ptr)) doc_printf(doc, "You can't remember ever not having it.");
             else doc_printf(doc, "You can't remember ever not having them.");
             break;
         }
@@ -368,6 +371,21 @@ bool display_origin(object_type *o_ptr, doc_ptr doc)
                 doc_printf(doc, "Resulted from %s going sour %s.", object_plural(o_ptr) ? "Potions of Blood" : "a Potion of Blood", paikka_text);
             break;
         }
+        case ORIGIN_CORNUCOPIA:
+        {
+            doc_printf(doc, "Received from Cornucopia of Anambar as a replacement item.");
+            break;
+        }
+        case ORIGIN_CRAFTING:
+        {
+            doc_printf(doc, "Crafted %s.", paikka_text);
+            break;
+        }
+        case ORIGIN_MUNDANITY:
+        {
+            doc_printf(doc, "Mundanized %s.", paikka_text);
+            break;
+        }
     }
     if ((show_discovery) && (o_ptr->mitze_type) && (o_ptr->mitze_turn) && (origin != ORIGIN_BIRTH))
     {
@@ -390,6 +408,7 @@ bool display_origin(object_type *o_ptr, doc_ptr doc)
 static void _display_desc(object_type *o_ptr, doc_ptr doc)
 {
     cptr text;
+
     if (o_ptr->name1 && object_is_known(o_ptr))
         text = a_text + a_info[o_ptr->name1].text;
     else
@@ -879,6 +898,8 @@ static void _display_abilities(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
         vec_add(v, string_copy_s("<color:D>Permanent Darkness</color>"));
     else if (have_flag(flgs, OF_LITE))
         vec_add(v, string_copy_s("<color:y>Permanent Light</color>"));
+    if (have_flag(flgs, OF_NIGHT_VISION))
+        vec_add(v, string_copy_s("<color:D>Night Vision</color>"));
     if (vec_length(v))
     {
         _print_list(v, doc, ';', '\0');
@@ -977,9 +998,7 @@ static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr
 
     if (have_flag(flgs, OF_DEC_MANA))
     {
-        caster_info *caster_ptr = get_caster_info();
-        if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
-            doc_insert(doc, "It decreases your mana consumption.\n");
+        doc_insert(doc, "It decreases your mana consumption.\n");
     }
 
     net = _calc_net_bonus(o_ptr->pval, flgs, OF_WEAPONMASTERY, OF_INVALID);
@@ -1039,6 +1058,9 @@ static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr
     if (object_is_(o_ptr, TV_POLEARM, SV_DEATH_SCYTHE))
         doc_insert(doc, "It causes you to strike yourself sometimes.\nIt always penetrates invulnerability barriers.\n");
 
+    if (have_flag(flgs, OF_IGNORE_INVULN))
+        doc_insert(doc, "It negates invulnerability spheres.\n");
+
     if (have_flag(flgs, OF_DUAL_WIELDING))
         doc_insert(doc, "It affects your ability to hit when you are wielding two weapons.\n");
 
@@ -1059,6 +1081,16 @@ static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr
     {
         cptr nimi = a_name + a_info[o_ptr->name3].name;
         doc_printf(doc, "It reminds you of the artifact <color:R>%s</color>.\n", ((nimi[0] == '&') && (strlen(nimi) > 2)) ? nimi + 2 : nimi);
+    }
+}
+
+static void _display_insurance(object_type *o_ptr, doc_ptr doc)
+{
+    if (cornucopia_item_policy(o_ptr) >= 0)
+    {
+        int vakuutettu = (o_ptr->insured % 100);
+        if (o_ptr->number == vakuutettu) doc_printf(doc, "\nYou have insured %s.\n", (vakuutettu == 1) ? "it" : "them");
+        else if (vakuutettu) doc_printf(doc, "\n%d of the items in this pile %s insured.\n", vakuutettu, (vakuutettu == 1) ? "is": "are");
     }
 }
 
@@ -1323,12 +1355,13 @@ static void _lite_display_doc(object_type *o_ptr, doc_ptr doc)
         else
             doc_insert(doc, "It decreases radius of light source by 3.\n");
     }
+    else if (have_flag(flgs, OF_NIGHT_VISION))
+    {
+        doc_insert(doc, "It allows you to see in the dark.\n");
+    }
     else if (o_ptr->name1 || o_ptr->art_name)
     {
-        if (o_ptr->name1 == ART_EYE_OF_VECNA)
-            doc_insert(doc, "It allows you to see in the dark.\n");
-        else
-            doc_insert(doc, "It provides light (radius 3) forever.\n");
+        doc_insert(doc, "It provides light (radius 3) forever.\n");
     }
     else if (o_ptr->name2 == EGO_LITE_EXTRA_LIGHT)
     {
@@ -1396,7 +1429,7 @@ void obj_display_doc(object_type *o_ptr, doc_ptr doc)
         return;
     }
 
-    obj_flags_known(o_ptr, flgs);
+    obj_flags_display(o_ptr, flgs);
 
     _display_name(o_ptr, doc);
     doc_insert(doc, "  <indent>");
@@ -1420,6 +1453,7 @@ void obj_display_doc(object_type *o_ptr, doc_ptr doc)
     _display_abilities(flgs, doc);
     _display_auras(flgs, doc);
     _display_extra(o_ptr, flgs, doc);
+    _display_insurance(o_ptr, doc);
     _display_activation(o_ptr, flgs, doc);
     _display_curses(o_ptr, flgs, doc);
     _display_ignore(flgs, doc);
@@ -1458,7 +1492,7 @@ void obj_display_smith(object_type *o_ptr, doc_ptr doc)
         return;
     }
 
-    obj_flags_known(o_ptr, flgs);
+    obj_flags_display(o_ptr, flgs);
 
     _display_name(o_ptr, doc);
     doc_insert(doc, "  <indent><style:indent>");
@@ -1526,7 +1560,8 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
 
     if (o_ptr->tval == TV_SCROLL || o_ptr->tval == TV_POTION)
     {
-        doc_printf(doc, "%s\n\n", do_device(o_ptr, SPELL_DESC, 0));
+        if (!object_is_known(o_ptr)) doc_printf(doc, "You have no special knowledge about this item.\n\n");
+        else doc_printf(doc, "%s\n\n", do_device(o_ptr, SPELL_DESC, 0));
         if (obj_is_identified_fully(o_ptr))
         {
             cptr info = do_device(o_ptr, SPELL_INFO, 0);
@@ -1538,6 +1573,7 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
                 doc_printf(doc, "<color:U>Fail: </color>%d.%d%%\n", fail/10, fail%10);
             }
         }
+        _display_insurance(o_ptr, doc);
         _display_autopick(o_ptr, doc);
         doc_insert(doc, "</indent>\n");
         return;
@@ -1545,6 +1581,7 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
 
     if (!object_is_device(o_ptr) || !object_is_known(o_ptr))
     {
+        _display_insurance(o_ptr, doc);
         _display_autopick(o_ptr, doc);
         doc_insert(doc, "</indent>\n");
         return;
@@ -1656,6 +1693,8 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
         doc_printf(doc, "Desc   : <indent>%s</indent>\n\n", do_device(o_ptr, SPELL_DESC, boost));
     }
 
+    _display_insurance(o_ptr, doc);
+        
     doc_insert(doc, "<style:indent>"); /* Indent a bit when word wrapping long lines */
     _display_score(o_ptr, doc);
 

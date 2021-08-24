@@ -352,7 +352,7 @@ race_t *mon_jelly_get_race(void)
         result = _shoggoth_get_race_t();
         break;
     default: /* Birth code? Startup? Restart from Old Savefile? */
-        result = _black_ooze_get_race_t();
+        result = (spoiler_hack ? _acidic_cytoplasm_get_race_t() : _black_ooze_get_race_t());
     }
 
     result->name = "Jelly";

@@ -1349,12 +1349,15 @@ arena_type arena_info[MAX_ARENA_MONS + 2] =
     { MON_D_ELF_SORC,    TV_WAND,   EFFECT_METEOR                 },
     { MON_IRON_LICH,     TV_POTION, SV_POTION_NEW_LIFE            },
     { MON_G_TITAN,       TV_POTION, SV_POTION_STAR_ENLIGHTENMENT  },
-    { MON_G_BALROG,      TV_ROD,    EFFECT_ENLIGHTENMENT          },
-    { MON_NIGHTWALKER,   TV_ROD,    EFFECT_BEAM_DISINTEGRATE      },
-    { MON_SHAMBLER,      TV_POTION, SV_POTION_STAR_HEALING        },
-    { MON_BLACK_REAVER,  TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT    },
+    { MON_SPEC_TYRANNO,  TV_ROD,    EFFECT_ENLIGHTENMENT          },
+    { MON_MUMMY_KING,    TV_ROD,    EFFECT_BEAM_DISINTEGRATE      },
+    { MON_NIGHTWALKER,   TV_STAFF,  EFFECT_SPEED                  },
+    { MON_GREAT_UNCLE,   TV_POTION, SV_POTION_STAR_HEALING        },
+    { MON_SHAMBLER,      TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT    },
+    { MON_BLACK_REAVER,  TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION    },
     { MON_FENGHUANG,     TV_STAFF,  EFFECT_STARBURST              },
-    { MON_WYRM_POWER,    TV_ROD,    EFFECT_HEAL_CURING_HERO       },
+    { MON_G_BALROG,      TV_ROD,    EFFECT_HEAL_CURING_HERO       },
+    { MON_WYRM_POWER,    TV_STAFF,  EFFECT_GENOCIDE               },
     { 0,                 0,         0                             }, /* Victory prizing */
     { MON_HAGURE,        TV_SCROLL, SV_SCROLL_ARTIFACT            },
 };
@@ -2185,6 +2188,9 @@ option_type option_info[] =
     { &display_path,                FALSE, OPT_PAGE_MAPSCREEN, 2, 8,
     "display_path",                 "Display actual path before shooting" },
 
+    { &square_delays,               FALSE, OPT_PAGE_MAPSCREEN, 5, 23,
+    "square_delays",                "Use square-based delay factors" },
+
     /*** Text Display Options ***/
 
     { &plain_descriptions,          TRUE,  OPT_PAGE_TEXT, 5, 1,
@@ -2267,6 +2273,13 @@ option_type option_info[] =
 
     { &display_skill_num,            FALSE,  OPT_PAGE_TEXT, 2, 22,
     "display_skill_num",            "Display skills as numbers in character sheet" },
+
+    { &reforge_details,              TRUE,  OPT_PAGE_TEXT, 2, 16,
+    "reforge_details",              "Show statistics before proceeding with a reforge" },
+
+    { &auto_sticky_labels,           TRUE,  OPT_PAGE_TEXT, 2, 17,
+    "auto_sticky_labels",           "Automatically make all power labels sticky" },
+
 
     /*** Game-Play ***/
 
@@ -2521,7 +2534,8 @@ cptr chaos_patrons[MAX_PATRON] =
     "Nurgle",
     "Tzeentch",
 
-    "Khaine"
+    "Khaine",
+    "Random"
 };
 
 martial_arts ma_blows[MAX_MA] =
@@ -2699,7 +2713,7 @@ cptr ident_info[] =
     "c:Centipede",
     "d:Dragon",
     "e:Floating Eye",
-    "f:Feline",
+    "f:Feline/Fox",
     "g:Golem",
     "h:Hobbit/Elf/Dwarf",
     "i:Icky Thing",

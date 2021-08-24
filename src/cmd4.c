@@ -362,6 +362,16 @@ void toggle_easy_mimics(bool kayta)
 }
 
 /*
+ * Calculate delay length
+ */
+int delay_time(void)
+{
+    if (square_delays) return (delay_factor * delay_factor * 2);
+    else return (delay_factor * delay_factor * delay_factor);
+}
+
+
+/*
  * Hack -- redraw the screen
  *
  * This command performs various low level updates, clears all the "extra"
@@ -792,15 +802,18 @@ void do_cmd_options_aux(int page, cptr info)
 {
     char    ch;
     int     i, k = 0, n = 0, l;
-    int     opt[32];
+    int     opt[40];
     char    buf[80];
     bool    browse_only = (page == OPT_PAGE_BIRTH) && character_generated &&
                           (!p_ptr->wizard || !allow_debug_opts);
+    bool    scroll_mode;
+    byte    option_offset = 0;
+    byte    bottom_opt = Term->hgt - ((page == OPT_PAGE_AUTODESTROY) ? 5 : 2);
 
 /*    browse_only = FALSE; */
 
     /* Lookup the options */
-    for (i = 0; i < 32; i++) opt[i] = 0;
+    for (i = 0; i < 40; i++) opt[i] = 0;
 
     /* Scan the options */
     for (i = 0; option_info[i].o_desc; i++)
@@ -809,6 +822,7 @@ void do_cmd_options_aux(int page, cptr info)
         if (option_info[i].o_page == page) opt[n++] = i;
     }
 
+    scroll_mode = (n > bottom_opt);
 
     /* Clear screen */
     Term_clear();
@@ -828,8 +842,9 @@ void do_cmd_options_aux(int page, cptr info)
         if (page == OPT_PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 9, 3);
 
         /* Display the options */
-        for (i = 0; i < n; i++)
+        for (i = option_offset; i < n; i++)
         {
+            int rivi;
             byte a = TERM_WHITE;
 
             /* Color current option */
@@ -872,15 +887,18 @@ void do_cmd_options_aux(int page, cptr info)
                     (*option_info[opt[i]].o_var ? "yes" : "no "),
                     option_info[opt[i]].o_text);
             }
-            if ((page == OPT_PAGE_AUTODESTROY) && i > 5) c_prt(a, buf, i + 5, 0);
-            else c_prt(a, buf, i + 2, 0);
+            if ((page == OPT_PAGE_AUTODESTROY) && i > 5) rivi = i + 5 - option_offset;
+            else rivi = i + 2 - option_offset;
+            if ((scroll_mode) && (rivi == Term->hgt - 1) && (i < n - 1)) c_prt(TERM_YELLOW, " (scroll down for more options)", rivi, 0);
+            else if ((scroll_mode) && (rivi == 2) && (i > 0)) c_prt(TERM_YELLOW, " (scroll up for more options)", rivi, 0);
+            else if (((rivi >= 2) && (rivi < Term->hgt - 1)) || ((rivi == Term->hgt - 1) && ((i == n - 1) || (!scroll_mode)))) c_prt(a, buf, rivi, 0);
         }
 
-        if ((page == OPT_PAGE_AUTODESTROY) && (k > 5)) l = 5;
+        if ((page == OPT_PAGE_AUTODESTROY) && (k > 5)) l = 3;
         else l = 0;
 
         /* Hilite current option */
-        move_cursor(k + 2 + l, 50);
+        move_cursor(k + 2 + l - option_offset, 50);
 
         /* Get a key */
         ch = inkey();
@@ -905,6 +923,11 @@ void do_cmd_options_aux(int page, cptr info)
             case '8':
             {
                 k = (n + k - 1) % n;
+                if (scroll_mode)
+                {
+                    if (k > bottom_opt - 1 + option_offset) option_offset = k - bottom_opt + 1; /* ((k == n - 1) ? 1 : 2); */
+                    else if ((k < option_offset) || ((k > 0) && (k == option_offset))) option_offset = MAX(0, k - 3);
+                }
                 break;
             }
 
@@ -914,6 +937,11 @@ void do_cmd_options_aux(int page, cptr info)
             case '2':
             {
                 k = (k + 1) % n;
+                if (scroll_mode)
+                {
+                    if (k > bottom_opt - 2 + option_offset) option_offset = k - bottom_opt + ((k == n - 1) ? 1 : 2);
+                    else if ((k < option_offset) || ((k > 0) && (k == option_offset))) option_offset = MAX(0, k - 3);
+                }
                 break;
             }
 
@@ -965,6 +993,11 @@ void do_cmd_options_aux(int page, cptr info)
                 {
                     (*option_info[opt[k]].o_var) = TRUE;
                     k = (k + 1) % n;
+                    if (scroll_mode)
+                    {
+                        if (k > bottom_opt - 2 + option_offset) option_offset = k - bottom_opt + ((k == n - 1) ? 1 : 2);
+                        else if ((k < option_offset) || ((k > 0) && (k == option_offset))) option_offset = MAX(0, k - 3);
+                    }
                 }
                 break;
             }
@@ -1025,6 +1058,11 @@ void do_cmd_options_aux(int page, cptr info)
                 {
                     (*option_info[opt[k]].o_var) = FALSE;
                     k = (k + 1) % n;
+                    if (scroll_mode)
+                    {
+                        if (k > bottom_opt - 2 + option_offset) option_offset = k - bottom_opt + ((k == n - 1) ? 1 : 2);
+                        else if ((k < option_offset) || ((k > 0) && (k == option_offset))) option_offset = MAX(0, k - 3);
+                    }
                 }
                 break;
             }
@@ -1457,7 +1495,7 @@ void do_cmd_options(void)
                 /* Get a new value */
                 while (1)
                 {
-                    int msec = delay_factor * delay_factor * delay_factor;
+                    int msec = delay_time();
                     prt(format("Current base delay factor: %d (%d msec)",
                            delay_factor, msec), 22, 0);
 
@@ -3399,7 +3437,7 @@ static cptr monster_group_text[] =
     "Centipede",
     "Dragon",
     "Floating Eye",
-    "Feline",
+    "Feline/Fox",
     "Golem",
     "Hobbit/Elf/Dwarf",
     "Icky Thing",
@@ -4242,8 +4280,10 @@ static void do_cmd_knowledge_artifacts(void)
 
             if (i + art_top == art_cur)
                 attr = TERM_L_BLUE;
-            else if (!a_info[idx].found)
+            else if ((p_ptr->wizard) &&(!a_info[idx].generated))
                 attr = TERM_L_DARK;
+            else if (!a_info[idx].found)
+                attr = (p_ptr->wizard) ? TERM_GREEN : TERM_L_DARK;
             else
                 attr = tval_to_attr[forge.tval % 128];
 

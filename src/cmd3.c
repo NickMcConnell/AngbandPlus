@@ -1961,6 +1961,10 @@ void do_cmd_list_objects(void)
                 list_stairs = !list_stairs;
                 _obj_list_free(list);
                 list = _create_obj_list();
+                if (list->ct_total + list->ct_feature) ct_types = vec_length(list->list);
+                page_size = display_rect.cy;
+                if (page_size > ct_types) page_size = ct_types;
+                if (pos >= page_size) pos = page_size - 1;
                 screen_load();
                 screen_save();
                 redraw = TRUE;

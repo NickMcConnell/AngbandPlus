@@ -12,7 +12,7 @@ static void _birth(void)
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
-    forge.to_d = 5;
+    forge.to_d = 3;
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS));
@@ -43,7 +43,7 @@ static void _calc_innate_attacks(void)
 
 static void _calc_bonuses(void) {
     int to_a = py_prorata_level(75);
-    int ac = 10;
+    int ac = (p_ptr->lev < 20) ? 5 : 10;
 
     p_ptr->ac += ac;
     p_ptr->dis_ac += ac;
@@ -117,8 +117,8 @@ race_t *mon_xorn_get_race(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  20,  31,   2,  14,   5,  56,  30};
-    skills_t xs = { 12,   8,  10,   0,   0,   0,  20,   7};
+    skills_t bs = { 25,  20,  31,   2,  14,   5,  51,  30};
+    skills_t xs = { 12,   8,  10,   0,   0,   0,  21,   7};
 
         me.skills = bs;
         me.extra_skills = xs;
@@ -136,7 +136,7 @@ race_t *mon_xorn_get_race(void)
 
         me.infra = 5;
         me.exp = 150;
-        me.base_hp = 30;
+        me.base_hp = 25;
         me.shop_adjust = 120;
 
         me.calc_innate_attacks = _calc_innate_attacks;
@@ -156,9 +156,9 @@ race_t *mon_xorn_get_race(void)
     me.stats[A_INT] = -4;
     me.stats[A_WIS] = -2;
     me.stats[A_DEX] = -3 + rank;
-    me.stats[A_CON] =  1 + rank;
+    me.stats[A_CON] =  rank;
     me.stats[A_CHR] = -1;
-    me.life = 100 + 4*rank;
+    me.life = (rank > 0) ? (96 + 4 * rank) : 92;
 
     me.equip_template = mon_get_equip_template();
 

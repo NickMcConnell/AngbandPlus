@@ -2040,7 +2040,7 @@ void aggravate_monsters(int who)
  */
 bool genocide_aux(int m_idx, int power, bool player_cast, int dam_side, cptr spell_name)
 {
-    int          msec = delay_factor * delay_factor * delay_factor;
+    int          msec = delay_time();
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
     bool         resist = FALSE;
@@ -2288,7 +2288,7 @@ bool destroy_area(int y1, int x1, int r, int power)
         in_generate = TRUE;
 
     /* Prevent destruction of quest levels and town */
-    if (!py_in_dungeon() || !quests_allow_all_spells())
+    if (!py_in_dungeon() || !quests_allow_all_spells() || dungeon_type == DUNGEON_WOOD)
     {
         return (FALSE);
     }
@@ -2838,7 +2838,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
                 monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
                 /* Quest monsters */
-                if (m_ptr->mflag2 & MFLAG2_QUESTOR)
+                if ((m_ptr->mflag2 & MFLAG2_QUESTOR) || ((r_ptr->flags3 & RF3_AMBERITE) && (m_ptr->hp < 0)))
                 {
                     /* No wall on quest monsters */
                     map[16+yy-cy][16+xx-cx] = FALSE;
@@ -3632,6 +3632,7 @@ bool fire_ball_aux(int typ, int dir, int dam, int rad, int xtra_flgs)
         tx = target_col;
         ty = target_row;
     }
+    else if (rad < 0) flg &= ~(PROJECT_STOP); /* Breath attack */
 
     /* Analyze the "dir" and the "target". Hurt items on floor. */
     return (project(0, rad, ty, tx, dam, typ, flg));
@@ -3958,14 +3959,14 @@ bool disarm_trap(int dir)
 
 bool heal_monster(int dir, int dam)
 {
-    int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
+    int flg = PROJECT_STOP | PROJECT_KILL;
     return (project_hook(GF_OLD_HEAL, dir, dam, flg));
 }
 
 
 bool speed_monster(int dir)
 {
-    int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
+    int flg = PROJECT_STOP | PROJECT_KILL;
     return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, flg));
 }
 
@@ -4588,7 +4589,7 @@ bool kawarimi(bool success)
     y = py;
     x = px;
 
-    teleport_player(10 + randint1(90), 0L);
+    teleport_player(5 + randint0(4) + 10 * randint0(8), 0L);
 
     if (p_ptr->pclass == CLASS_NINJA)
     {

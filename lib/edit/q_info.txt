@@ -99,7 +99,7 @@ T:TOWN | GENERATE
 F:q_orcs.txt
 
 N:23:65:The Spawning Pits (Angwil)
-T:TOWN | GENERATE
+T:TOWN | GENERATE | DANGER_LEVEL_80
 F:q_spawning_pits.txt
 
 N:24:50:The Rise and Fall of Micro$oft (Angwil)

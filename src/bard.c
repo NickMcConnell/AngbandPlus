@@ -113,6 +113,9 @@ static void _stop_singing_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "");
         break;
+    case SPELL_FLAGS:
+        var_set_int(res, PWR_AFRAID | PWR_CONFUSED);
+        break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
         if (!p_ptr->magic_num1[0] && !p_ptr->magic_num1[1]) return;
@@ -159,11 +162,6 @@ static caster_info * _caster_info(void)
 static void _calc_bonuses(void)
 {
     res_add(RES_SOUND);
-    if (equip_find_art(ART_DAERON) || equip_find_art(ART_MAGLOR))
-    {
-        p_ptr->dec_mana = TRUE;
-        p_ptr->easy_spell = TRUE;
-    }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])

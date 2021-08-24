@@ -100,7 +100,7 @@ void _blood_bath_spell(int cmd, variant *res)
         var_set_string(res, "Blood Bath");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Restores constitution and cures poison.");
+        var_set_string(res, "Restores constitution and reduces poisoning.");
         break;
     case SPELL_CAST:
     {
@@ -486,16 +486,8 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     int frac = p_ptr->chp * 100 / p_ptr->mhp;
-    if (frac < 20 && p_ptr->lev > 48)
-        info_ptr->xtra_blow += 900;
-    else if (frac < 40 && p_ptr->lev > 36)
-        info_ptr->xtra_blow += 600;
-    else if (frac < 60 &&  p_ptr->lev > 24)
-        info_ptr->xtra_blow += 400;
-    else if (frac < 80 && p_ptr->lev > 12)
-        info_ptr->xtra_blow += 200;
-    else if (p_ptr->chp < p_ptr->mhp) /* Hack: frac might be 100 if we are just slightly wounded */
-        info_ptr->xtra_blow += 100;
+    static point_t taulukko[7] = { {0, 0}, {1, 50}, {20, 128}, {40, 242}, {60, 440}, {80, 666}, {100, 1000} };
+    if (p_ptr->chp < p_ptr->mhp) info_ptr->xtra_blow += interpolate(MIN(100 - frac, (p_ptr->lev * 5 / 3) + MAX(5, p_ptr->lev / 2 - 8)), taulukko, 7);
 }
 
 static void _on_cast(const spell_info *spell)

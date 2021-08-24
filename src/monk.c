@@ -190,6 +190,9 @@ void monk_display_attack_info(doc_ptr doc, int hand)
         to_d -= to_d * MIN(100, p_ptr->stun)/150;
     }
 
+    tot_dam = (tot_dam * (class_melee_mult() * race_melee_mult(FALSE) / 100) + 50) / 100;
+    to_d = (to_d * (class_melee_mult() * race_melee_mult(FALSE) / 100) + 50) / 100;
+
     doc_printf(cols[0], "<tab:8>%20s %3d.%1d +%3d\n", "One Strike:", tot_dam/10, tot_dam%10, to_d/10);
 
     /* Second Column */
@@ -563,9 +566,9 @@ void monk_posture_calc_bonuses(void)
             res_add(RES_ELEC);
             res_add(RES_COLD);
             res_add(RES_POIS);
-            p_ptr->sh_fire = TRUE;
-            p_ptr->sh_elec = TRUE;
-            p_ptr->sh_cold = TRUE;
+            p_ptr->sh_fire++;
+            p_ptr->sh_elec++;
+            p_ptr->sh_cold++;
             p_ptr->levitation = TRUE;
         }
         else if (p_ptr->special_defense & KAMAE_GENBU)

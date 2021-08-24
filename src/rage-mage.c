@@ -703,7 +703,7 @@ static void _shatter_device_spell(int cmd, variant *res)
                 _object_dam_type(prompt.obj),
                 PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
         }
-        prompt.obj->number--;
+        obj_zero(prompt.obj);
         obj_release(prompt.obj, 0);
         break;
     }
@@ -823,38 +823,24 @@ static void _spell_turning_spell(int cmd, variant *res)
     }
 }
 
-static void _summon_commando_team_spell(int cmd, variant *res)
+static void _dispel_curse_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Summon Commando Team");
+        var_set_string(res, "Dispel Curses");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Summons Grand Master Mystics for assistance.");
+        var_set_string(res, "Dispels any weak curses placed on your equipment, with a chance to dispel strong curses.");
+        break;
+    case SPELL_SPOIL_DESC:
+        var_set_string(res, "Dispels all weak curses placed on your equipment, with a 1 in 3 chance to dispel heavy curses as well.");
         break;
     case SPELL_CAST:
-    {
-        int num = 1 + randint1(2);
-        int mode = PM_FORCE_PET;
-        int i, x, y;
-
-        var_set_bool(res, FALSE);
-
-        if (p_ptr->shero)
-            mode |= PM_HASTE;
-
-        if (!target_set(TARGET_KILL)) return;
-        x = target_col;
-        y = target_row;
-
-        for (i = 0; i < num; i++)
-        {
-            summon_named_creature(-1, y, x, MON_G_MASTER_MYS, mode);
-        }
+        if (one_in_(3) ? remove_all_curse() : remove_curse()) msg_print("You dispel the evil magic!");
+        else msg_print("Nothing happens.");
         var_set_bool(res, TRUE);
         break;
-    }
     default:
         default_spell(cmd, res);
         break;
@@ -969,7 +955,7 @@ static book_t _books[4] = {
          {35,  0, 90, _greater_focus_rage_spell},
          {38, 60, 95, _spell_turning_spell},
          {40, 55, 80, _shatter_device_spell},
-         {42, 40, 50, _summon_commando_team_spell},
+         {42, 50, 75, _dispel_curse_spell},
          {43, 70, 80, _anti_magic_ray_spell},
          {47,  0, 80, _rage_strike_spell}}
     },
@@ -1051,7 +1037,7 @@ static bool _gain_spell(int book)
         return FALSE;
     }
 
-    which = choose_spell(spells, ct, "rage", 1000);
+    which = choose_spell(spells, ct, "rage", 1000, FALSE);
     if (which >= 0 && which < ct)
     {
         _learn_spell(book, indices[which]);
@@ -1096,9 +1082,9 @@ void rage_mage_gain_spell(void)
     {
         char o_name[MAX_NLEN];
 
-        object_desc(o_name, prompt.obj, OD_COLOR_CODED | OD_SINGULAR);
+        object_desc(o_name, prompt.obj, OD_SINGULAR);
 
-        msg_format("%^s is destroyed.", o_name);
+        msg_format("<color:%c>%^s</color> is destroyed.", tval_to_attr_char(prompt.obj->tval), o_name);
         prompt.obj->number--;
         obj_release(prompt.obj, 0);
 
@@ -1166,9 +1152,9 @@ static void _calc_bonuses(void)
     }
 }
 
-static int _get_spells_imp(spell_info* spells, int max, int book)
+static int _get_spells_imp(spell_info* spells, int max, int book, bool total_skip)
 {
-    int ct = 0, i;
+    int ct = 0, skip = 0, i;
     for (i = 0; i < _SPELLS_PER_BOOK; i++)
     {
         spell_info *src, *dest;
@@ -1176,20 +1162,21 @@ static int _get_spells_imp(spell_info* spells, int max, int book)
         if (ct >= max) break;
         src = &_books[book].spells[i];
 
-        if (_is_spell_known(book, i))
+        if ((!total_skip) || (_is_spell_known(book, i)))
         {
             dest = &spells[ct++];
             dest->level = src->level;
             dest->cost = src->cost;
-            dest->fail = calculate_fail_rate(
-                src->level,
-                src->fail,
-                p_ptr->stat_ind[A_STR]
-            );
+            dest->fail = calculate_fail_rate(src->level, src->fail, p_ptr->stat_ind[A_STR]);
             dest->fn = src->fn;
+            if (!_is_spell_known(book, i)) 
+            {
+                dest->level = 99;
+                skip++;
+            }
         }
     }
-    return ct;
+    return (ct - skip);
 }
 
 static void _book_menu_fn(int cmd, int which, vptr cookie, variant *res)
@@ -1209,15 +1196,23 @@ static int _get_spells(spell_info* spells, int max)
     int idx = -1;
     int ct = 0;
     menu_t menu = { "Use which group?", NULL, NULL,
-                    _book_menu_fn, _books, 4 };
+                    _book_menu_fn, _books, 4, 0 };
 
     idx = menu_choose(&menu);
     if (idx < 0) return 0;
 
-    ct = _get_spells_imp(spells, max, idx);
+    ct = _get_spells_imp(spells, max, idx, FALSE);
     if (ct == 0)
+    {
         msg_print("You don't know any of those techniques yet!");
-    return ct;
+        return 0;
+    }
+    return 8;
+}
+
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
+{
+    add_flag(flgs, OF_SPELL_CAP);
 }
 
 static void _character_dump(doc_ptr doc)
@@ -1226,7 +1221,7 @@ static void _character_dump(doc_ptr doc)
     int        ct = 0, i;
 
     for (i = 0; i < 4; i++)
-        ct += _get_spells_imp(spells + ct, MAX_SPELLS - ct, i);
+        ct += _get_spells_imp(spells + ct, MAX_SPELLS - ct, i, TRUE);
 
     py_display_spells(doc, spells, ct);
 }
@@ -1283,6 +1278,7 @@ class_t *rage_mage_get_class(void)
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.get_spells = _get_spells;
+        me.get_flags = _get_flags;
         me.caster_info = _caster_info;
         me.player_action = _player_action;
         me.character_dump = _character_dump;

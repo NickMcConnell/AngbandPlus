@@ -285,6 +285,7 @@ void death_scythe_miss(object_type *o_ptr, int hand, int mode)
             switch (p_ptr->prace)
             {
                 case RACE_YEEK:
+                case RACE_BOIT:
                 case RACE_KLACKON:
                 case RACE_HUMAN:
                 case RACE_AMBERITE:
@@ -807,6 +808,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
         case TV_POLEARM:
         case TV_SWORD:
         case TV_DIGGING:
+        case TV_GLOVES:
         {
             int hissatsu_brand = 0;
             char m_name_subject[MAX_NLEN];
@@ -2776,7 +2778,7 @@ static void do_monster_knockback(int x, int y, int dist)
     if (dir != 5)
     {
         int i;
-        int msec = delay_factor * delay_factor * delay_factor;
+        int msec = delay_time();
 
         for (i = 0; i < dist; i++)
         {
@@ -2864,6 +2866,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     int             dd, ds, old_hp;
     bool            hit_ct = 0;
     bool            poison_needle = FALSE;
+    bool            insta_kill = FALSE;
 
     if (!c_ptr->m_idx)
     {
@@ -2891,6 +2894,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             to_h += 2*o_ptr->to_h;
             to_d += 2*o_ptr->to_d;
+        }
+        else if (p_ptr->prace == RACE_MON_ARMOR)
+        {
+            dd = 0;
+            ds = 0;
+            to_d = o_ptr->to_d;
+            to_h = o_ptr->to_h;
         }
         else
         {
@@ -3350,7 +3360,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     k = (dd + p_ptr->weapon_info[hand].to_dd) * (ds + p_ptr->weapon_info[hand].to_ds);
                 else
                     k = damroll(dd + p_ptr->weapon_info[hand].to_dd, ds + p_ptr->weapon_info[hand].to_ds);
-                k = tot_dam_aux(o_ptr, k, m_ptr, hand, mode, FALSE);
+                k = tot_dam_aux(o_ptr, k, m_ptr, hand, mode, FALSE);                
 
                 if (backstab)
                 {
@@ -3555,7 +3565,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                   && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
                     msg_format("%^s is dealt a <color:r>wounding</color> strike.", m_name_subject);
-                    k += MIN(m_ptr->hp / 5, randint1(3) * d);
+                    k += pienempi(m_ptr->hp / 5, randint1(3) * d);
                     drain_result = k;
                 }
                 if ( p_ptr->lev >= 40    /* Greater Wounding Strike */
@@ -3578,6 +3588,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 {
                     k = m_ptr->hp + 1;
                     msg_format("You hit %s on a fatal spot!", m_name_object);
+                    insta_kill = TRUE;
                 }
                 else k = 1;
             }
@@ -3610,6 +3621,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     {
                         k = m_ptr->hp + 1;
                         msg_format("You hit %s on a fatal spot!", m_name_object);
+                        insta_kill = TRUE;
                     }
                 }
             }
@@ -3637,6 +3649,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 {
                     k = m_ptr->hp + 1;
                     msg_format("You hit %s on a fatal spot!", m_name_object);
+                    insta_kill = TRUE;
                 }
             }
 
@@ -3773,7 +3786,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             if (mode == WEAPONMASTER_CRUSADERS_STRIKE)
                 k = k * 3 / 2;
 
-            if (p_ptr->stun)
+            if ((p_ptr->stun) && (!insta_kill))
                 k -= k * MIN(100, p_ptr->stun) / 150;
 
             dam_tot += k;
@@ -4518,6 +4531,12 @@ bool _melee_attack_not_confirmed(monster_type *m_ptr)
     return FALSE;
 }
 
+bool _py_attack_exit(void)
+{
+    if (travel.mode != TRAVEL_MODE_NORMAL) travel_cancel_fully();
+    return FALSE;
+}
+
 bool py_attack(int y, int x, int mode)
 {
     bool            fear = FALSE;
@@ -4537,20 +4556,16 @@ bool py_attack(int y, int x, int mode)
     {
         msg_print("You have no melee attacks.");
         energy_use = 0;
-        if (travel.mode != TRAVEL_MODE_NORMAL)
-        {
-            travel.run = 0;
-            travel.mode = TRAVEL_MODE_NORMAL;
-        }
         if (!m_ptr->ml) energy_use = 50; /* bumping into an invisible monster shouldn't give a free turn */
-        return FALSE;
+        return _py_attack_exit();
     }
 
     if (prace_is_(MIMIC_MIST))
     {
         msg_print("You cannot attack while incorporeal.");
         energy_use = 0;
-        return FALSE;
+        if (!m_ptr->ml) energy_use = 50; /* bumping into an invisible monster shouldn't give a free turn */
+        return _py_attack_exit();
     }
 
     monster_desc(m_name, m_ptr, 0);
@@ -4565,19 +4580,19 @@ bool py_attack(int y, int x, int mode)
       && equip_find_art(ART_ZANTETSU))
     {
         msg_print("I can not attack women!");
-        return FALSE;
+        return _py_attack_exit();
     }
 
     if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
     {
-        msg_print("Something prevents you from attacking.");
-        return FALSE;
+        msg_print("Something prevents you from attacking!");
+        return _py_attack_exit();
     }
 
     if (_melee_attack_not_confirmed(m_ptr))
     {
         energy_use = 0;
-        return FALSE;
+        return _py_attack_exit();
     }
 
     else if ( !is_hostile(m_ptr)
@@ -4603,7 +4618,7 @@ bool py_attack(int y, int x, int mode)
             else
             {
                 msg_format("You stop to avoid hitting %s.", m_name);
-                return FALSE;
+                return _py_attack_exit();
             }
         }
     }
@@ -4650,7 +4665,7 @@ bool py_attack(int y, int x, int mode)
     {
         int i, j;
         bool stop = FALSE;
-        int msec = delay_factor * delay_factor * delay_factor;
+        int msec = delay_time();
 
         for (i = 0; i < MAX_HANDS && !stop; i++)
         {
@@ -4696,7 +4711,7 @@ bool py_attack(int y, int x, int mode)
     {
     u16b    path[512];
     int        ct = project_path(path, 3, py, px, y, x, PROJECT_PATH | PROJECT_THRU);
-    int        msec = delay_factor * delay_factor * delay_factor;
+    int        msec = delay_time();
 
         int i, j, k;
 
@@ -4727,7 +4742,7 @@ bool py_attack(int y, int x, int mode)
                         {
                             char c = object_char(o_ptr);
                             byte a = object_attr(o_ptr);
-                            int msec = delay_factor * delay_factor * delay_factor;
+                            int msec = delay_time();
 
                             print_rel(c, a, ny, nx);
                             move_cursor_relative(ny, nx);
@@ -4901,7 +4916,7 @@ bool py_attack(int y, int x, int mode)
             {
                 int           ct = 3 + p_ptr->lev / 25;
                 int           x2, y2, dir, start_dir;
-                int           msec = delay_factor * delay_factor * delay_factor;
+                int           msec = delay_time();
 
                 start_dir = calculate_dir(px, py, x, y);
                 dir = start_dir;
@@ -6922,7 +6937,7 @@ void travel_step(void)
 
     travel.dir = dir;
     move_player(dir, always_pickup, easy_disarm);
-    Term_xtra(TERM_XTRA_DELAY, delay_factor * delay_factor * delay_factor);
+    Term_xtra(TERM_XTRA_DELAY, delay_time());
     Term_fresh();
     travel.run = old_run;
 

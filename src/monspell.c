@@ -243,6 +243,12 @@ static _parse_t _ball_tbl[] = {
           "$CASTER shouts, 'Haaa!!'.",
           "$CASTER throws a large rock at $TARGET.", 
           "You throw a large rock." }, MSF_INNATE | MSF_BALL0 | MSF_TARGET},
+    { "CHICKEN", { MST_BALL, GF_CHICKEN },
+        { "Chicken", TERM_YELLOW,
+          "$CASTER fires a <color:y>Chicken</color>.",
+          "$CASTER shoots something.",
+          "$CASTER fires a <color:y>Chicken</color> at $TARGET.",
+          "You fire a <color:y>Chicken</color>." }, MSF_INNATE | MSF_BALL0 | MSF_TARGET },
     {0}
 };
 
@@ -703,6 +709,9 @@ static mon_spell_parm_t _ball_parm(int which, int rlev)
     case GF_ROCKET:
         parm.v.dice = _dice(0, 0, 6*rlev);
         break;
+    case GF_CHICKEN:
+        parm.v.dice = _dice(0, 0, 5*rlev/2);
+        break;
     default:
         parm.v.dice = _dice(5, 5, rlev);
     }
@@ -747,6 +756,7 @@ static mon_spell_parm_t _bolt_parm(int which, int rlev)
         break;
     case GF_MISSILE:
         parm.v.dice = _dice(2, 6, rlev/3);
+        break;
     case GF_ATTACK:
     case GF_ARROW:
         /* SHOOT always specifies dice overrides */
@@ -1338,6 +1348,7 @@ static void _mon_desc(mon_ptr mon, char *buf, char color)
     tmp[0] = toupper(tmp[0]);
     sprintf(buf, "<color:%c>%s</color>", color, tmp);
 }
+
 static void _spell_cast_init(mon_spell_cast_ptr cast, mon_ptr mon)
 {
     cast->mon = mon;
@@ -1607,6 +1618,7 @@ static void _ball(void)
     switch (_current.spell->id.effect)
     {
     case GF_ROCKET:
+    case GF_CHICKEN:
         flags |= PROJECT_STOP;
         break;
     case GF_DRAIN_MANA:
@@ -1631,6 +1643,10 @@ static void _bolt(void)
     if (_current.race->id == MON_ARTEMIS && _spell_is_(_current.spell, MST_BOLT, GF_ARROW))
     {
         ct = 4;
+        flags &= ~PROJECT_REFLECTABLE;
+    }
+    else if (_current.race->id == MON_KUNDRY && _spell_is_(_current.spell, MST_BOLT, GF_TIME))
+    {
         flags &= ~PROJECT_REFLECTABLE;
     }
     if (_current.spell->id.effect == GF_ATTACK)
@@ -2252,6 +2268,15 @@ static void _summon_special(void)
             msg_format("%s summons sheep!", _current.name);
         r_idx = MON_SHEEP;
         break;
+    case MON_GRAGOMANI:
+        if (_current.flags & MSC_SRC_PLAYER)
+            msg_print("You summon your followers!");
+        else
+            msg_format("%s summons his followers!", _current.name);
+        if (one_in_(4)) r_idx = MON_MALICIOUS_LEPRECHAUN;
+        else r_idx = MON_LEPRECHAUN_FANATIC;
+        num += 4;
+        break;
     case MON_ZOOPI:
         if (_current.flags & MSC_SRC_PLAYER)
             msg_print("You summon your minions!");
@@ -2530,6 +2555,9 @@ static void _summon(void)
 }
 static void _weird_bird_p(void)
 {
+    char mon_name[MAX_NLEN] = "a strange monster";
+    if (_current.mon && _current.mon->id) monster_desc(mon_name, _current.mon, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
+
     if (one_in_(3) || !(_current.flags & MSC_DIRECT))
     {
         msg_format("%s suddenly goes out of your sight!", _current.name);
@@ -2558,7 +2586,7 @@ static void _weird_bird_p(void)
         /* Mega hack -- this special action deals damage to the player. Therefore the code of "eyeeye" is necessary.
            -- henkma
          */
-        get_damage = take_hit(DAMAGE_NOESCAPE, dam, _current.name);
+        get_damage = take_hit(DAMAGE_NOESCAPE, dam, mon_name);
         if (get_damage > 0)
             weaponmaster_do_readied_shot(_current.mon);
 
@@ -2623,11 +2651,13 @@ static void _weird_bird_m(void)
         if (_current.mon2->id == p_ptr->riding)
         {
             int get_damage = 0;
+            char mon_name[MAX_NLEN] = "a strange monster";
+            if (_current.mon && _current.mon->id) monster_desc(mon_name, _current.mon, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
             /* Mega hack -- this special action deals damage to the player. Therefore the code of "eyeeye" is necessary.
                -- henkma
              */
-            get_damage = take_hit(DAMAGE_NOESCAPE, dam, _current.name);
+            get_damage = take_hit(DAMAGE_NOESCAPE, dam, mon_name);
             if (get_damage > 0)
                 weaponmaster_do_readied_shot(_current.mon);
             if (IS_REVENGE() && get_damage > 0 && !p_ptr->is_dead)
@@ -3520,6 +3550,7 @@ static void _ai_direct(mon_spell_cast_ptr cast)
     {
         _remove_group(spells->groups[MST_BOLT], NULL);
         _remove_spell(spells, _id(MST_BALL, GF_ROCKET));
+        _remove_spell(spells, _id(MST_BALL, GF_CHICKEN));
     }
 
     if (spells->groups[MST_SUMMON] && !_summon_possible(cast->dest))
@@ -3636,6 +3667,7 @@ static void _ai_indirect(mon_spell_cast_ptr cast)
     _remove_group(spells->groups[MST_CURSE], NULL);
     _remove_group(spells->groups[MST_WEIRD], NULL);
     _remove_spell(spells, _id(MST_BALL, GF_ROCKET));
+    _remove_spell(spells, _id(MST_BALL, GF_CHICKEN));
 
     if (_pt_is_valid(new_dest))
     {
@@ -3904,7 +3936,7 @@ static void _avoid_hurting_player(mon_spell_cast_ptr cast)
 
         if (spells->groups[MST_BREATH])
         {
-            int rad = cast->race->level >= 50 ? 3 : 2;
+            int rad = ((cast->race->level >= 50) || (cast->race->d_char == 'D')) ? 3 : 2;
 
             if (!breath_direct(cast->src.y, cast->src.x, cast->dest.y, cast->dest.x, rad, 0, TRUE))
                 _remove_group(spells->groups[MST_BREATH], NULL);
@@ -4064,6 +4096,7 @@ static void _ai_think_mon(mon_spell_cast_ptr cast)
     {
         _remove_group(spells->groups[MST_BOLT], NULL);
         _remove_spell(spells, _id(MST_BALL, GF_ROCKET));
+        _remove_spell(spells, _id(MST_BALL, GF_CHICKEN));
     }
 
     if (spells->groups[MST_SUMMON] && !_summon_possible(cast->dest))

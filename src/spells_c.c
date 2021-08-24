@@ -162,7 +162,7 @@ void clear_mind_spell(int cmd, variant *res)
             msg_print("You need to concentrate on your pets now.");
             return;
         }
-        if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+        if ((p_ptr->pclass == CLASS_RUNE_KNIGHT) || (p_ptr->pclass == CLASS_RAGE_MAGE))
         {
             msg_print("Your mind remains cloudy.");
             return;
@@ -396,7 +396,10 @@ void crafting_spell(int cmd, variant *res)
         else
         {
             virtue_add(VIRTUE_ENCHANTMENT, 1);
+            object_origins(prompt.obj, ORIGIN_CRAFTING);
+            prompt.obj->mitze_type = 0;
             obj_identify_fully(prompt.obj);
+            if (!prompt.obj->mitze_type) object_mitze(prompt.obj, MITZE_ID);
             obj_display(prompt.obj);
             obj_release(prompt.obj, OBJ_RELEASE_ENCHANT);
         }
@@ -1254,7 +1257,7 @@ void dispel_magic_spell(int cmd, variant *res)
         var_set_string(res, "Dispel Magic");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Dispels all magics which is effecting a monster.");
+        var_set_string(res, "Dispels one monster, negating invulnerability spheres and temporary speed effects.");
         break;
     case SPELL_CAST:
     {

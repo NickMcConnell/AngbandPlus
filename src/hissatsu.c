@@ -387,6 +387,7 @@ void do_cmd_hissatsu(void)
         msg_print("You don't know any special attacks.");
         return;
     }
+    if (pelko()) return;
 
     if (p_ptr->special_defense & KATA_MASK)
         set_action(ACTION_NONE);

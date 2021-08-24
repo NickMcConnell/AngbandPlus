@@ -1574,7 +1574,7 @@ static void prt_depth(void)
     }
     else if (quests_get_current() && !dungeon_type)
     {
-        sprintf(buf, "Quest: L%d", dun_level);
+        sprintf(buf, "Quest: L%d", quests_get_current()->danger_level);
         /* Level is "special" until completed */
         if (quests_get_current()->status < QS_COMPLETED)
             attr = TERM_L_BLUE;
@@ -2221,8 +2221,8 @@ static void prt_mon_health_bar(int m_idx, int row, int col)
             if (MON_INVULNER(m_ptr)) attr = TERM_WHITE;
             else if (MON_PARALYZED(m_ptr)) attr = TERM_BLUE;
             else if (MON_CSLEEP(m_ptr)) attr = TERM_BLUE;
-            else if (MON_STUNNED(m_ptr)) attr = TERM_L_BLUE;
             else if (MON_CONFUSED(m_ptr)) attr = TERM_UMBER;
+            else if (MON_STUNNED(m_ptr)) attr = TERM_L_BLUE;
             else if (MON_MONFEAR(m_ptr)) attr = TERM_VIOLET;
             Term_putstr(col+1, row, 11, base_attr, "[---------]");
 
@@ -3446,7 +3446,8 @@ static void _calc_torch_imp(object_type *o_ptr)
     obj_flags(o_ptr, flgs);
     if (o_ptr->tval == TV_LITE)
     {
-        if (have_flag(flgs, OF_DARKNESS))
+        if (o_ptr->name1 == ART_ALL_SEEING_EYE) return;
+        else if (have_flag(flgs, OF_DARKNESS))
         {
             if (o_ptr->sval == SV_LITE_TORCH)
                 p_ptr->cur_lite -= 1;
@@ -3488,6 +3489,8 @@ static void calc_torch(void)
         p_ptr->cur_lite += sword_calc_torch();
     if (prace_is_(RACE_MON_RING))
         p_ptr->cur_lite += ring_calc_torch();
+    if (prace_is_(RACE_MON_ARMOR))
+        p_ptr->cur_lite += armor_calc_torch();
 
     equip_for_each(_calc_torch_imp);
 
@@ -3723,6 +3726,7 @@ void calc_bonuses(void)
     p_ptr->hold_life = 0;
     p_ptr->auto_id = FALSE;
     p_ptr->auto_pseudo_id = FALSE;
+    p_ptr->munchkin_pseudo_id = FALSE;
     p_ptr->auto_id_sp = 0;
     p_ptr->cult_of_personality = FALSE;
     p_ptr->telepathy = FALSE;
@@ -3753,16 +3757,17 @@ void calc_bonuses(void)
     p_ptr->life = 0;
     p_ptr->reflect = FALSE;
 
-    p_ptr->sh_fire = FALSE;
-    p_ptr->sh_elec = FALSE;
-    p_ptr->sh_cold = FALSE;
-    p_ptr->sh_shards = FALSE;
+    p_ptr->sh_fire = 0;
+    p_ptr->sh_elec = 0;
+    p_ptr->sh_cold = 0;
+    p_ptr->sh_shards = 0;
     p_ptr->sh_retaliation = FALSE;
     p_ptr->sh_fear = FALSE;
 
     p_ptr->anti_magic = FALSE;
     p_ptr->anti_tele = FALSE;
     p_ptr->anti_summon = FALSE;
+    p_ptr->ignore_invuln = FALSE;
     p_ptr->warning = FALSE;
     p_ptr->mighty_throw = FALSE;
     p_ptr->see_nocto = FALSE;
@@ -3913,9 +3918,6 @@ void calc_bonuses(void)
         o_ptr = equip_obj(slot);
         switch (o_ptr->name1)
         {
-        case ART_EYE_OF_VECNA:
-            p_ptr->see_nocto = TRUE;
-            break;
         case ART_STONE_OF_NATURE:
             p_ptr->easy_realm1 = REALM_NATURE;
             break;
@@ -3967,9 +3969,9 @@ void calc_bonuses(void)
         p_ptr->lite = TRUE;
         res_add_all();
         p_ptr->reflect = TRUE;
-        p_ptr->sh_fire = TRUE;
-        p_ptr->sh_elec = TRUE;
-        p_ptr->sh_cold = TRUE;
+        p_ptr->sh_fire++;
+        p_ptr->sh_elec++;
+        p_ptr->sh_cold++;
         p_ptr->to_a += 100;
         p_ptr->dis_to_a += 100;
     }
@@ -4002,18 +4004,18 @@ void calc_bonuses(void)
     }
 
     if (p_ptr->tim_sh_fire)
-        p_ptr->sh_fire = TRUE;
+        p_ptr->sh_fire++;
 
     if (p_ptr->tim_sh_shards)
-        p_ptr->sh_shards = TRUE;
+        p_ptr->sh_shards++;
 
     if (p_ptr->tim_sh_elements)
     {
-        p_ptr->sh_fire = TRUE;
+        p_ptr->sh_fire++;
         if (p_ptr->lev >= 25)
-            p_ptr->sh_cold = TRUE;
+            p_ptr->sh_cold++;
         if (p_ptr->lev >= 35)
-            p_ptr->sh_elec = TRUE;
+            p_ptr->sh_elec++;
     }
 
     if (IS_INVULN())
@@ -4083,18 +4085,18 @@ void calc_bonuses(void)
         if (hex_spelling(HEX_DETECT_EVIL)) p_ptr->esp_evil = TRUE;
         if (hex_spelling(HEX_DEMON_AURA))
         {
-            p_ptr->sh_fire = TRUE;
+            p_ptr->sh_fire++;
             p_ptr->regen += 100;
         }
         if (hex_spelling(HEX_ICE_ARMOR))
         {
-            p_ptr->sh_cold = TRUE;
+            p_ptr->sh_cold++;
             p_ptr->to_a += 30;
             p_ptr->dis_to_a += 30;
         }
         if (hex_spelling(HEX_SHOCK_CLOAK))
         {
-            p_ptr->sh_elec = TRUE;
+            p_ptr->sh_elec++;
             p_ptr->pspeed += 3;
         }
         for (i = 1; i <= equip_max(); i++)
@@ -4891,7 +4893,7 @@ void calc_bonuses(void)
             }
             else
             {
-                p_ptr->weapon_info[i].base_blow += MIN(600, 600 * blow_base / 60);
+                p_ptr->weapon_info[i].base_blow += MIN(550, 550 * blow_base / 60);
             }
 
             if (heavy_armor() && (p_ptr->pclass != CLASS_BERSERKER))
@@ -4950,6 +4952,7 @@ void calc_bonuses(void)
                 p_ptr->weapon_info[i].to_h += bonus;
                 p_ptr->weapon_info[i].dis_to_h += bonus;
             }
+            else if (p_ptr->prace == RACE_MON_ARMOR) {} /* no bonus */
             else
             {
                 int bonus = skills_weapon_calc_bonus(obj->tval, obj->sval);

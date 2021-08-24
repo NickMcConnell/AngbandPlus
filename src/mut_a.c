@@ -834,19 +834,19 @@ void draconian_shield_mut(int cmd, variant *res)
         switch (p_ptr->psubrace)
         {
         case DRACONIAN_RED:
-            p_ptr->sh_fire = TRUE;
+            p_ptr->sh_fire++;
             amt = 15;
             break;
         case DRACONIAN_WHITE:
-            p_ptr->sh_cold = TRUE;
+            p_ptr->sh_cold++;
             amt = 15;
             break;
         case DRACONIAN_BLUE:
-            p_ptr->sh_elec = TRUE;
+            p_ptr->sh_elec++;
             amt = 15;
             break;
         case DRACONIAN_CRYSTAL:
-            p_ptr->sh_shards = TRUE;
+            p_ptr->sh_shards++;
             amt = 10;
             break;
         }
@@ -1062,7 +1062,7 @@ void elec_aura_mut(int cmd, variant *res)
         var_set_string(res, "Electricity is running through your veins.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->sh_elec = TRUE;
+        p_ptr->sh_elec++;
         break;
     default:
         default_spell(cmd, res);
@@ -1318,7 +1318,7 @@ void fire_aura_mut(int cmd, variant *res)
         var_set_string(res, "Your body is enveloped in flames.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->sh_fire = TRUE;
+        p_ptr->sh_fire++;
         p_ptr->lite = TRUE;
         break;
     default:
@@ -1645,8 +1645,8 @@ void infernal_deal_mut(int cmd, variant *res)
         var_set_string(res, "You have made an infernal deal.");
         break;
     case SPELL_HELP_DESC:
-        if ((p_ptr->pclass == CLASS_RUNE_KNIGHT) || (p_ptr->pclass == CLASS_SAMURAI) || (p_ptr->pclass == CLASS_MYSTIC) || ((p_ptr->lev > 18) && (p_ptr->msp == 0))) var_set_string(res, "You will regain 15 HP whenever a nearby enemy monster is slain.");
-        else var_set_string(res, "You will regain 10 HP and 5 SP whenever a nearby enemy monster is slain.");
+        if ((p_ptr->pclass == CLASS_RUNE_KNIGHT) || (p_ptr->pclass == CLASS_SAMURAI) || (p_ptr->pclass == CLASS_MYSTIC) || ((p_ptr->lev > 18) && (p_ptr->msp == 0))) var_set_string(res, "You will regain HP whenever a nearby enemy monster is slain, the amount equalling two-thirds of the monster's native level.");
+        else var_set_string(res, "You will regain HP and SP whenever a nearby enemy monster is slain, the amount equalling four-ninths of the monster's native level for HP and half that for SP.");
         break;
     default:
         default_spell(cmd, res);
@@ -2663,6 +2663,31 @@ void steel_skin_mut(int cmd, variant *res)
     }
 }
 
+void strong_mind_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Strong Mind");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel in full control of your mind!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel in full control of your mind.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are immune to mana draining.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Makes you immune to mana draining.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void subtle_casting_mut(int cmd, variant *res)
 {
     switch (cmd)
@@ -2857,6 +2882,84 @@ void unyielding_mut(int cmd, variant *res)
         break;
     case SPELL_HELP_DESC:
         var_set_string(res, "Gives a bonus to hit points (+1 HP per character level).");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void vortex_melee_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Deadly Whirl");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start whirling with deadly power!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer whirl with deadly power.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You whirl with deadly power.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Gives one extra damage side and +25 to-hit/to-dam.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void vortex_speed_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Tornado Speed");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You start moving at tornado speed!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer move at tornado speed.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You move at tornado speed (+8 speed).");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Gives +8 speed.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->pspeed += 8;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void vortex_control_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Breath Control");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You learn to control your breathing.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer control your breathing.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You control your breathing.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Increases the cost of breathing and decreases breath power for some elements, but allows you to select the element breathed.");
         break;
     default:
         default_spell(cmd, res);

@@ -105,9 +105,9 @@ bool nemesis_hack = FALSE;
 bool retaliation_hack = FALSE;
 int retaliation_count = 0;
 
-static int _aura_dam_p(void)
+static int _aura_dam_p(int taso)
 {
-    return 2 + damroll(1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10));
+    return 2 + damroll(taso * 2 - 1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10));
 }
 
 /*
@@ -153,7 +153,7 @@ bool make_attack_normal(int m_idx)
     if (!is_hostile(m_ptr)) return FALSE;
 
     /* Extract the effective monster level */
-    rlev = r_ptr->level;
+    rlev = MAX(4, r_ptr->level);
     rlev = rlev * m_ptr->mpower / 1000;
 
     /* Get the monster name (or "it") */
@@ -420,6 +420,11 @@ bool make_attack_normal(int m_idx)
                   && p_ptr->duelist_target_idx == m_idx )
                 {
                     effect_dam -= effect_dam/3;
+                }
+
+                if ((effect_dam > 50) && (m_ptr->mflag & MFLAG_NICE)) /* Limit nice melee */
+                {
+                    effect_dam = 25 + (effect_dam / 2);
                 }
 
                 if (track_werewolf_dam) werewolf_hurt_max = MAX(werewolf_hurt_max, effect_dam / 2);
@@ -938,7 +943,7 @@ bool make_attack_normal(int m_idx)
                 {
                     if (!(r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK))
                     {
-                        int dam = _aura_dam_p();
+                        int dam = _aura_dam_p(p_ptr->sh_fire);
 
                         /* Modify the damage */
                         dam = mon_damage_mod(m_ptr, dam, FALSE);
@@ -963,7 +968,7 @@ bool make_attack_normal(int m_idx)
                 {
                     if (!(r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK))
                     {
-                        int dam = _aura_dam_p();
+                        int dam = _aura_dam_p(p_ptr->sh_elec);
 
                         /* Modify the damage */
                         dam = mon_damage_mod(m_ptr, dam, FALSE);
@@ -988,7 +993,7 @@ bool make_attack_normal(int m_idx)
                 {
                     if (!(r_ptr->flagsr & RFR_EFF_IM_COLD_MASK))
                     {
-                        int dam = _aura_dam_p();
+                        int dam = _aura_dam_p(p_ptr->sh_cold);
 
                         /* Modify the damage */
                         dam = mon_damage_mod(m_ptr, dam, FALSE);
@@ -1014,7 +1019,7 @@ bool make_attack_normal(int m_idx)
                 {
                     if (!(r_ptr->flagsr & RFR_EFF_RES_SHAR_MASK))
                     {
-                        int dam = _aura_dam_p();
+                        int dam = _aura_dam_p(p_ptr->sh_shards + (p_ptr->dustrobe ? 1 : 0));
 
                         dam = mon_damage_mod(m_ptr, dam, FALSE);
                         msg_format("%^s is <color:u>shredded</color>!", m_name);
@@ -1053,7 +1058,7 @@ bool make_attack_normal(int m_idx)
                 {
                     if (!(r_ptr->flagsr & RFR_EFF_RES_TIME_MASK))
                     {
-                        int dam = _aura_dam_p();
+                        int dam = _aura_dam_p(1);
                         switch (randint1(3))
                         {
                         case 1:
@@ -1089,7 +1094,7 @@ bool make_attack_normal(int m_idx)
                     {
                         if (!(r_ptr->flagsr & RFR_RES_ALL))
                         {
-                            int dam = _aura_dam_p();
+                            int dam = _aura_dam_p(1);
 
                             /* Modify the damage */
                             dam = mon_damage_mod(m_ptr, dam, FALSE);
@@ -1115,7 +1120,7 @@ bool make_attack_normal(int m_idx)
                 {
                     if (!(r_ptr->flagsr & RFR_RES_ALL))
                     {
-                        int dam = _aura_dam_p();
+                        int dam = _aura_dam_p(1);
 
                         /* Modify the damage */
                         dam = mon_damage_mod(m_ptr, dam, FALSE);

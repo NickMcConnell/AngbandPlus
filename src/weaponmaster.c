@@ -2260,7 +2260,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /*  S   I   W   D   C   C */
       {+3, -2, -1, -2, +1,  0},
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
-      {  25,  23,  31,   1,  14,   2, 70, 25},
+      {  25,  20,  31,   1,  14,   2, 70, 25},
       {   9,   7,  10,   0,   0,   0, 30, 11},
       { { TV_POLEARM, SV_HATCHET },
         { TV_POLEARM, SV_BATTLE_AXE },
@@ -2290,8 +2290,8 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /*  S   I   W   D   C   C */
       { 0,  0,  0, +2, -1,  0},
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
-      {  30,  30,  29,   4,  23,  13, 48, 72},
-      {   8,  10,  10,   0,   0,   0, 13, 28},
+      {  30,  27,  29,   4,  23,  13, 48, 72},
+      {   8,   9,  10,   0,   0,   0, 13, 28},
       { { TV_BOW, SV_SHORT_BOW },
         { TV_BOW, SV_LONG_BOW },
         { TV_BOW, SV_NAMAKE_BOW },
@@ -2318,7 +2318,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       {+2, -1, -1, -2, +1,  0},
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  25,  25,  35,   1,  14,   2, 65, 30},
-      {   9,  10,  12,   0,   0,   0, 20, 15},
+      {   9,   9,  12,   0,   0,   0, 20, 15},
         { { TV_HAFTED, SV_BALL_AND_CHAIN },
           { TV_HAFTED, SV_CLUB },
           { TV_HAFTED, SV_FLAIL },
@@ -2352,7 +2352,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /*  S   I   W   D   C   C */
       {+1, -1, -1, +1, +1,  0},
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
-      {  30,  30,  29,   3,  18,  10, 48, 72},
+      {  30,  27,  29,   3,  18,  10, 48, 72},
       {   8,   9,   9,   0,   0,   0, 13, 28},
       { { TV_BOW, SV_LIGHT_XBOW },
         { TV_BOW, SV_HEAVY_XBOW },
@@ -2383,7 +2383,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       { 0, +1,  0, +3, -1,  0},
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  30,  32,  31,   5,  30,  20, 60, 66},
-      {  12,  10,  10,   0,   0,   0, 18, 20},
+      {  12,   9,  10,   0,   0,   0, 18, 20},
       { { TV_SWORD, SV_BASILLARD },
         { TV_SWORD, SV_BROKEN_DAGGER },
         { TV_SWORD, SV_DAGGER },
@@ -2416,7 +2416,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       {+2, -1, -1,  0, +1,  0},
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  25,  23,  31,   1,  14,   2, 68, 25},
-      {  10,   8,  10,   0,   0,   0, 28, 11},
+      {  10,   7,  10,   0,   0,   0, 28, 11},
       {
         { TV_POLEARM, SV_AWL_PIKE },
         { TV_POLEARM, SV_BROAD_SPEAR },
@@ -2491,7 +2491,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       {-1, +1, +1, +3, -1,  0},
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  30,  30,  29,   4,  23,  13, 48, 72},
-      {   8,  10,  10,   0,   0,   0, 13, 28},
+      {   8,   9,  10,   0,   0,   0, 13, 28},
       { { TV_BOW, SV_SLING },
         { 0, 0 },
       },
@@ -2542,8 +2542,8 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /*  S   I   W   D   C   C */
       {+1, -1, -1, +1, +1,  0},
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
-      {  25,  23,  31,   1,  14,   2, 70, 25},
-      {  11,   9,  10,   0,   0,   0, 29, 11},
+      {  25,  21,  31,   1,  14,   2, 70, 25},
+      {  11,   8,  10,   0,   0,   0, 29, 11},
       { { TV_SWORD, SV_BASTARD_SWORD } ,
         { TV_SWORD, SV_BROKEN_SWORD } ,
         { TV_SWORD, SV_BLADE_OF_CHAOS } ,
@@ -2566,6 +2566,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
         { TV_SWORD, SV_TWO_HANDED_SWORD } ,
         { TV_SWORD, SV_WAKIZASHI } ,
         { TV_SWORD, SV_ZWEIHANDER } ,
+        { TV_SWORD, SV_RUNESWORD } ,
         { 0, 0 },
       },
       {
@@ -2593,7 +2594,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       {+2, -1, -1,  0, +1,  0},
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  25,  25,  33,   3,  14,   2, 60, 25},
-      {   9,   9,  11,   0,   0,   0, 26, 11},
+      {   9,   8,  11,   0,   0,   0, 26, 11},
       {
         { TV_DIGGING, SV_SHOVEL},
         { TV_DIGGING, SV_GNOMISH_SHOVEL},
@@ -2674,6 +2675,18 @@ static bool _check_speciality_equip(void)
 bool weaponmaster_is_favorite(object_type *o_ptr)
 {
     return _check_speciality_aux(o_ptr);
+}
+
+static bool _weaponmaster_object_is_icky(object_type *o_ptr)
+{
+    if (_specialities[p_ptr->psubclass].kind == _WEAPONMASTER_BOWS)
+    {
+        if (o_ptr->tval != TV_BOW) return FALSE;
+        return (!_check_speciality_aux(o_ptr));
+    }
+    if (_specialities[p_ptr->psubclass].kind != _WEAPONMASTER_MELEE) return FALSE; /* shieldmasters can use weapons */
+    if (!object_is_melee_weapon(o_ptr)) return FALSE;
+    return (!_check_speciality_aux(o_ptr));
 }
 
 static int _get_spells_aux(spell_info* spells, int max)
@@ -3513,7 +3526,7 @@ static void _move_monster(int m_idx)
         if (p_ptr->lev >= 20 && p_ptr->speciality_equip)
         {
             monster_type *m_ptr = &m_list[m_idx];
-            if (m_ptr->cdis == 1)
+            if ((m_ptr->cdis == 1) && (is_hostile(m_ptr)))
             {
                 char m_name[80];
                 monster_desc(m_name, m_ptr, 0);
@@ -3844,6 +3857,7 @@ class_t *weaponmaster_get_class(int subclass)
         me.move_monster = _move_monster;
         me.process_player = _process_player;
         me.character_dump = _character_dump;
+        me.known_icky_object = _weaponmaster_object_is_icky;
         init = TRUE;
     }
     {

@@ -448,6 +448,7 @@ race_t *mon_leprechaun_get_race(void)
         me.player_action = _player_action;
         me.destroy_object = _destroy_object;
         me.pseudo_class_idx = CLASS_ROGUE;
+        me.boss_r_idx = MON_GRAGOMANI;
 
         me.flags = RACE_IS_MONSTER;
         init = TRUE;

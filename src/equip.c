@@ -181,7 +181,7 @@ static slot_t _prompt_wield_slot(obj_ptr obj)
     {
         int    idx;
         menu_t menu = { "Choose an equipment slot", NULL, NULL,
-                        _slot_menu_fn, slots, ct };
+                        _slot_menu_fn, slots, ct, 0 };
 
         idx = menu_choose(&menu);
         if (idx >= 0)
@@ -209,7 +209,7 @@ cptr equip_describe_slot(slot_t slot)
                 return "Both Arms";
         }
         if (p_ptr->weapon_info[hand].riding)
-            return "Riding Reins";
+            return "Reins";
     }
     if (_template->slots[slot].type == EQUIP_SLOT_BOW)
     {
@@ -656,7 +656,8 @@ static void _wield_after(slot_t slot)
     handle_stuff();
 
     object_desc(o_name, obj, OD_COLOR_CODED);
-    if (p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_RING)
+    if ((p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_RING) || 
+        ((p_ptr->prace == RACE_MON_ARMOR) && (obj->tval == TV_SOFT_ARMOR)))
         msg_format("You are %s.", o_name);
     else
         msg_format("You are wearing %s (%c).", o_name, slot - 1 + 'a');
@@ -1064,8 +1065,9 @@ void equip_calc_bonuses(void)
     /* Find the weapons */
     for (slot = 1; slot <= _template->max; slot++)
     {
-        if ( _template->slots[slot].type == EQUIP_SLOT_WEAPON_SHIELD
-          || _template->slots[slot].type == EQUIP_SLOT_WEAPON )
+        if ( (_template->slots[slot].type == EQUIP_SLOT_WEAPON_SHIELD)
+          || (_template->slots[slot].type == EQUIP_SLOT_WEAPON)
+          || ((p_ptr->prace == RACE_MON_ARMOR) && (_template->slots[slot].type == EQUIP_SLOT_GLOVES)) )
         {
             obj_ptr obj;
             int     hand = _template->slots[slot].hand;
@@ -1199,6 +1201,8 @@ void equip_calc_bonuses(void)
     /* Hack for Death Swords ... but not Broken Death Swords ;) */
     if (prace_is_(RACE_MON_SWORD) && p_ptr->lev >= 10)
         p_ptr->weapon_info[0].wield_how = WIELD_TWO_HANDS;
+    if (prace_is_(RACE_MON_ARMOR))
+        p_ptr->weapon_info[0].wield_how = WIELD_ONE_HAND;
 
     /* It's convenient to have an accurate weapon count later */
     p_ptr->weapon_ct = 0;
@@ -1219,7 +1223,13 @@ void equip_calc_bonuses(void)
         if (!obj) continue;
         if (obj->marked & OM_SLIPPING) continue;
 
-        obj_flags(obj, flgs);
+        if (p_ptr->prace == RACE_MON_ARMOR)
+        {
+            armor_calc_obj_bonuses(obj, FALSE);
+            continue;
+        }
+
+        obj_flags_effective(obj, flgs);
         obj_flags_known(obj, known_flgs);
 
         p_ptr->cursed |= obj->curse_flags;
@@ -1302,6 +1312,8 @@ void equip_calc_bonuses(void)
                 amt -= obj->pval * 100;
             if (p_ptr->pclass == CLASS_MAULER && amt > 0)
                 amt = 0;
+            else if (prace_is_(RACE_MON_VORTEX) && amt > 0)
+                amt /= 2;
 
             switch (_template->slots[slot].type)
             {
@@ -1310,6 +1322,7 @@ void equip_calc_bonuses(void)
                 int arm = hand / 2;
                 int rhand = arm*2;
                 int lhand = arm*2 + 1;
+                if (p_ptr->prace == RACE_MON_ARMOR) break;
                 if (p_ptr->weapon_info[rhand].wield_how != WIELD_NONE && p_ptr->weapon_info[lhand].wield_how != WIELD_NONE)
                 {
                     if (amt > 0)
@@ -1408,32 +1421,11 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, OF_DRAIN_EXP))   p_ptr->cursed |= OFC_DRAIN_EXP;
         if (have_flag(flgs, OF_TY_CURSE))    p_ptr->cursed |= OFC_TY_CURSE;
 
-        if (have_flag(flgs, OF_DEC_MANA))
-        {
-            /* In general, you need to be a Mage/Priest to gain from wizardstaves, et. al.
-             * There are exceptions (e.g. Bards and the two artifact harps; Vampires
-             * and The Amulet of the Pitch Dark Night; etc). You will find code
-             * for these exceptions in class/race specific calc_bonuses functions.
-             * However, The Yumi of Irresponsibility works for everybody! */
-            if (obj->name1 == ART_NAMAKE_BOW)
-            {
-                p_ptr->dec_mana = TRUE;
-            }
-            else
-            {
-                caster_info *caster_ptr = get_caster_info();
-                if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
-                    p_ptr->dec_mana = TRUE;
-            }
-
-        }
-        if (have_flag(flgs, OF_EASY_SPELL))
-        {
-            caster_info *caster_ptr = get_caster_info();
-            if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
-                p_ptr->easy_spell = TRUE;
-        }
-
+        /* Whether these two flags should be available to the player is now
+         * calculated in obj_flags_effective() */
+        if (have_flag(flgs, OF_DEC_MANA)) p_ptr->dec_mana = TRUE;
+        if (have_flag(flgs, OF_EASY_SPELL)) p_ptr->easy_spell = TRUE;
+            
         if (have_flag(flgs, OF_SPELL_POWER)) p_ptr->spell_power += obj->pval;
         if (have_flag(flgs, OF_DEC_SPELL_POWER)) p_ptr->spell_power -= obj->pval;
         if (have_flag(flgs, OF_SPELL_CAP))   p_ptr->spell_cap += obj->pval;
@@ -1462,6 +1454,7 @@ void equip_calc_bonuses(void)
 
         if (have_flag(flgs, OF_SEE_INVIS))   p_ptr->see_inv++;
         if (have_flag(flgs, OF_LEVITATION))  p_ptr->levitation = TRUE;
+        if (have_flag(flgs, OF_NIGHT_VISION)) p_ptr->see_nocto = TRUE;
         if (have_flag(flgs, OF_FREE_ACT))    p_ptr->free_act++;
         if (have_flag(flgs, OF_HOLD_LIFE))   p_ptr->hold_life++;
         if (have_flag(flgs, OF_WARNING))
@@ -1484,14 +1477,15 @@ void equip_calc_bonuses(void)
         res_calc_bonuses(flgs);
 
         if (have_flag(flgs, OF_REFLECT))  p_ptr->reflect = TRUE;
-        if (have_flag(flgs, OF_AURA_FIRE))  p_ptr->sh_fire = TRUE;
-        if (have_flag(flgs, OF_AURA_ELEC))  p_ptr->sh_elec = TRUE;
-        if (have_flag(flgs, OF_AURA_COLD))  p_ptr->sh_cold = TRUE;
-        if (have_flag(flgs, OF_AURA_SHARDS))  p_ptr->sh_shards = TRUE;
+        if (have_flag(flgs, OF_AURA_FIRE))  p_ptr->sh_fire++;
+        if (have_flag(flgs, OF_AURA_ELEC))  p_ptr->sh_elec++;
+        if (have_flag(flgs, OF_AURA_COLD))  p_ptr->sh_cold++;
+        if (have_flag(flgs, OF_AURA_SHARDS))  p_ptr->sh_shards++;
         if (have_flag(flgs, OF_AURA_REVENGE))  p_ptr->sh_retaliation = TRUE;
         if (have_flag(flgs, OF_NO_MAGIC)) p_ptr->anti_magic = TRUE;
         if (have_flag(flgs, OF_NO_TELE))  p_ptr->anti_tele = TRUE;
         if (have_flag(flgs, OF_NO_SUMMON)) p_ptr->anti_summon = TRUE;
+        if (have_flag(flgs, OF_IGNORE_INVULN)) p_ptr->ignore_invuln = TRUE;
 
         if (have_flag(flgs, OF_SUST_STR)) p_ptr->sustain_str = TRUE;
         if (have_flag(flgs, OF_SUST_INT)) p_ptr->sustain_int = TRUE;

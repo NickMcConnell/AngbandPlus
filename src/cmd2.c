@@ -3114,7 +3114,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
     char o_name[MAX_NLEN];
     u16b path_g[512];
     int  flgs = PROJECT_PATH | PROJECT_THRU;
-    int  msec = delay_factor * delay_factor * delay_factor;
+    int  msec = delay_time();
     bool stick_to = FALSE;
 
     /* Sniper - Cannot shoot a single arrow twice */
@@ -4107,6 +4107,7 @@ void travel_begin(int mode, int x, int y)
 
 void travel_wilderness_scroll(int new_x, int new_y)
 {
+    bool was_travelling = (travel.run != 0);
     if (new_x == px && new_y == py)
     {
         /* Don't begin a new travel if we are just going
@@ -4127,12 +4128,21 @@ void travel_wilderness_scroll(int new_x, int new_y)
      * out of bounds. For example: Telmora and The Sand Pits quest. Travel
      * from the Manor square to the quest entrance to reproduce. */
     else if (in_bounds2(new_y, new_x))
-        travel_begin(travel.mode, new_x, new_y);
+    {
+        if (was_travelling) travel_begin(travel.mode, new_x, new_y);
+        else
+        {
+            travel.x = new_x;
+            travel.y = new_y;
+        }
+    }
     else
     {
         travel_cancel();
         forget_travel_flow();
-        msg_print("<color:v>Oops!</color> The location you were travelling towards has scrolled off the screen.");
+        if (was_travelling) msg_print("<color:v>Oops!</color> The location you were travelling towards has scrolled off the screen.");
+        travel.x = 0;
+        travel.y = 0;
     }
 }
 
@@ -4153,6 +4163,12 @@ void travel_cancel(void)
      * its thing, and aborting would be a gross error.
      *
      * travel.mode = TRAVEL_MODE_NORMAL;*/
+}
+
+void travel_cancel_fully(void)
+{
+    travel.run = 0;
+    travel.mode = TRAVEL_MODE_NORMAL;
 }
 
 void travel_end(void)

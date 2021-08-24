@@ -2187,12 +2187,9 @@ void do_cmd_view_map(void)
             int i;
             byte flag;
 
-            int wid, hgt, row_message;
+            int wid, hgt;
 
             Term_get_size(&wid, &hgt);
-            row_message = hgt - 1;
-
-            put_str(" Hit M, N(for ~), K(for !), or D(same as M+N) to display auto-picker items.", row_message, 1);
 
             /* Hilite the player */
             move_cursor(cy, cx);

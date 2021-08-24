@@ -148,8 +148,14 @@
 #define MUT_PURPLE_GIFT       137
 #define MUT_INSPIRED_SMITHING 138
 #define MUT_IMPOTENCE         139
+#define MUT_STRONG_MIND       140
 
-#define MAX_MUTATIONS      140   /* see also MUT_FLAG_SIZE in defines.h */
+/* Vortex mutations */
+#define MUT_VORTEX_MELEE      141
+#define MUT_VORTEX_SPEED      142
+#define MUT_VORTEX_CONTROL    143
+
+#define MAX_MUTATIONS      144   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
     MUT_RATING_AWFUL = -2,
@@ -171,6 +177,7 @@ extern bool mut_bad_pred(int mut_idx);
 extern bool mut_human_pred(int mut_idx);
 extern bool mut_demigod_pred(int mut_idx);
 extern bool mut_draconian_pred(int mut_idx);
+extern bool mut_vortex_pred(int mut_idx);
 extern bool mut_unlocked_pred(int mut_idx);
 
 extern void mut_calc_bonuses(void);
@@ -291,6 +298,7 @@ extern void silly_voice_mut(int cmd, variant *res);
 extern void speed_flux_mut(int cmd, variant *res);
 extern void speed_reader_mut(int cmd, variant *res);
 extern void steel_skin_mut(int cmd, variant *res);
+extern void strong_mind_mut(int cmd, variant *res);
 extern void subtle_casting_mut(int cmd, variant *res);
 extern void telepathy_mut(int cmd, variant *res);
 extern void tentacles_mut(int cmd, variant *res);
@@ -298,6 +306,11 @@ extern void tread_softly_mut(int cmd, variant *res);
 extern void trunk_mut(int cmd, variant *res);
 extern void untouchable_mut(int cmd, variant *res);
 extern void unyielding_mut(int cmd, variant *res);
+
+extern void vortex_melee_mut(int cmd, variant *res);
+extern void vortex_speed_mut(int cmd, variant *res);
+extern void vortex_control_mut(int cmd, variant *res);
+
 extern void vulnerability_mut(int cmd, variant *res);
 extern void warning_mut(int cmd, variant *res);
 extern void warts_mut(int cmd, variant *res);

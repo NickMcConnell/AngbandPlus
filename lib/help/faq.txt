@@ -56,6 +56,11 @@ Demigods and Amberites are two of the most powerful races, but they also have a 
 At the opposite end, yeek tourists and snotling tourists are extremely weak combinations, used by players looking for the ultimate challenge.
 
 
+<color:G>Q:</color> How do I put arrows (or other projectiles) in my quiver?
+
+<color:R>A:</color> First press 'w' (the "wear"/"wield" command) to equip the quiver, then press 'w' again to put the arrows in the quiver.
+
+
 <color:G>Q:</color> The game is offering me a stat-up. What should I invest in?
 
 <color:R>A:</color> Choose a statistic your character needs; for example, on a melee character you'll want to improve either your strength or dexterity first, and constitution will also help you. If the base for one of your key stats is exactly 18, you'll probably want to improve that stat, because improvements get larger and more significant above 18. Do not invest too much in any one stat, though; the improvements become much smaller again as a statistic approaches its cap level.
@@ -63,7 +68,7 @@ At the opposite end, yeek tourists and snotling tourists are extremely weak comb
 
 <color:G>Q:</color> The game is offering me a demigod power. Which one should I pick?
 
-<color:R>A:</color> It depends on what your character needs; take your time to read the descriptions of all the powers to see which one suits you best. Generally, though, Unyielding and Fleet of Foot are both very strong options and are good "default" picks if you don't feel comfortable selecting something more exotic.
+<color:R>A:</color> It depends on what your character needs; take your time to read the descriptions of all the powers to see which one suits you best. Generally, though, Evasion, Unyielding and Fleet of Foot are all very strong options and are good "default" picks if you don't feel comfortable selecting something more exotic.
 
 
 <color:G>Q:</color> I have found lots of cool items, but the monsters I meet keep destroying them! Am I doing something wrong?
@@ -92,7 +97,7 @@ Note that the armor you wear will always be susceptible to damage from acid atta
 
 <color:G>Q:</color> I tried to reach a dungeon through the overworld, and the overworld map says I should be right on top of it; yet when I go to the normal map I can't see a dungeon entrance anywhere. What's wrong?
 
-<color:R>A:</color> Dungeon entrances in the wilderness can sometimes be tricky to locate because one square on the overworld map corresponds to a fairly large area on the normal map. First, press ] or Ctrl+O (the object list commands) to confirm there is indeed no entrance in sight. If the lack of an entrance is confirmed by the object list, explore the nearby area until you find the dungeon; most commonly you'll have to travel further in the same direction you last moved in on the overworld map. If you still can't find the entrance, check the overworld map to confirm you haven't moved out of the right area, and then try again.
+<color:R>A:</color> Dungeon entrances in the wilderness can sometimes be tricky to locate because one square on the overworld map corresponds to a fairly large area on the normal map. If you exit the overworld map in the right square but the entrance is still far enough away to be out of sight, the game will tell you which direction it's in (e.g. "The Angband entrance doesn't appear to be within sight. Perhaps it's a bit further to the east?"). If no such hint appears, the entrance is within sight, you've just missed it; press ] or O (the object list commands) to see where it is. If such a hint does appear, explore the nearby area in the direction indicated, pressing ] or O occasionally to make sure you don't miss the entrance. If you feel you've walked a long way and still can't find the entrance, check the overworld map to confirm you haven't moved out of the right area, and then try again.
 
 
 <color:G>Q:</color> I want to play as an Android, Balrog, Golem, Skeleton, Zombie, Spectre, or Ent.  But I can't find any scrolls of satisfy hunger. And Berserkers no longer have racial ability of satisfy hunger. How do I avoid starvation?
@@ -183,7 +188,7 @@ In many other Angband variants one source of Free Action is enough to give compl
 
 <color:G>Q:</color> I'm a fighter type and rely largely on melee. Which weapon should I use?
 
-<color:R>A:</color> In the very early game, you should usually use the weapon that does the most damage. Press Shift+C to see the character sheet, which displays your melee damage and melee to-hit. You should look at both to determine how good a weapon is - it's no use having a weapon that technically does lots of damage if you can't hit anything with it! Also remember, though, that your to-hit percentages will improve rapidly as your proficiency with a weapon increases. Don't worry too much about starting with a -20 proficiency - unless that's your proficiency cap for the weapon, or if the weapon is an icky wield.
+<color:R>A:</color> In the very early game, you should usually use the weapon that does the most damage. Press Shift+C to see the character sheet, which displays your melee damage and melee to-hit. You should look at both to determine how good a weapon is - it's no use having a weapon that technically does lots of damage if you can't hit anything with it! Also remember, though, that your to-hit percentages will improve rapidly as your proficiency with a weapon increases. Don't worry too much about starting with an Unskilled proficiency - unless that's your proficiency cap for the weapon, or if the weapon is an icky wield.
 
 As you start finding {excellent} weapons and artifacts, you may well want to wield a particular weapon for the resists, bonuses or abilities it provides, even if you have another weapon that would do more damage. A dead character has no use for a high damage output.
 
@@ -258,7 +263,7 @@ Reflection is very helpful (and remains useful throughout the game) but is never
 
 <color:R>A:</color> Life points determine your effective maximum HP. Normally, your effective max HP and displayed max HP will be identical; but if your life points fall below 100%, your effective max HP is lowered. Life points are only shown (e.g. "Life: <color:U>95%</color>") if they fall below the maximum; a loss of a few points shouldn't worry you too much, but a more significant drop can ruin your day.
 
-Since life points only account for half of your max HP, your max HP will never hit zero; accordingly, it is possible to run out of life points without being killed outright. If this happens, you will be permanently transformed into an undead - either a skeleton, a vampire, a zombie or a spectre - and regain full life points (or "unlife points") since the undead are immune to loss of life.
+Since life points only account for half of your max HP, your max HP will never hit zero; accordingly, it is possible to run out of life points without being killed outright. If this happens, you will be permanently transformed into an undead - either a skeleton, a vampire, a zombie, an einheri or a spectre - and regain full life points (or "unlife points") since the undead are immune to loss of life.
 
 
 <color:G>Q:</color> My current HP is lower than my max HP - but it's still shown in green, not yellow, and it seems I can't heal any further. What's happening?
@@ -268,7 +273,7 @@ Since life points only account for half of your max HP, your max HP will never h
 
 <color:G>Q:</color> How can I regain my lost life points?
 
-<color:R>A:</color> Life points can be regained either through any type of vampiric attack, or by using a potion, device or activation. Potions of Restore Life Levels are a common way to regain life points, though they only restore up to 15 percentage points at a time.
+<color:R>A:</color> Life points can be regained either through any type of vampiric attack, or by using a potion, device or activation. Potions of Restore Life Levels are a common way to regain life points, though they only restore up to 15 percentage points at a time. The Restoration service, available in most towns, also restores life points.
 
 
 <color:G>Q:</color> There's a building in Morivant that offers artifact reforging. What does that mean? Is it something I should do?
@@ -284,7 +289,7 @@ There are many reasons why reforging can be a good idea; for example, you may be
 
 <color:R>A:</color> Stronger artifacts give better results, so use the strongest artifact you have that you can afford to reforge and that doesn't exceed your reforge power limit. (Of course, don't use a source artifact that's already useful to you, since the reforge will consume it!) If you're reforging onto a weaker slot, consider using a source artifact that's strong for its slot, rather than strong in absolute terms; this way, less power is lost to a slot downgrade. (For example, if you want a lamp, and you have artifact gloves with a 40K score and artifact armor with a 70K score, use the gloves; the two items will produce similar lamps, but the armor will produce a much better armor or weapon since none of its power is lost to a slot downgrade.)
 
-If possible, use a destination item that's already good in some useful way - for example, dragon wings that already have resistances you'd like, or a diamond edge with sharpness and high base damage - but not one that's already good in some way you don't need, since that would be lost value. Don't use a destination item that's too powerful compared to the source item, since the reforge would be left without much room for improvements.
+If possible, use a destination item that's already good in some useful way - for example, dragon wings that already have resistances you'd like, or a diamond edge with sharpness and high base damage - but not one that's already good in some way you don't need, since that would be lost value. Don't use a destination item that's too powerful compared to the source item, since the reforge would be left without much room for improvements. (If you're fortunate enough to have a Scroll of Artifact Creation or a Scroll of Crafting, consider using one of those on the already-powerful item instead.)
 
 Reforge from strong slots to strong slots, weak slots to weak slots, and - if necessary - strong slots to weak slots; but never reforge from a weak slot onto a strong slot.
 
@@ -362,4 +367,5 @@ Updated    : PosChengband 1.0.0
 Updated    : FrogComposband 7.0.strawberry
 Updated    : FrogComposband 7.0.peppermint
 Updated    : FrogComposband 7.0.nougat
+Updated    : FrogComposband 7.1.toffee
 </color>

@@ -7,6 +7,7 @@ enum menu_e {
     MENU_HELP,
     MENU_COLOR,
     MENU_ON_BROWSE,
+    MENU_COLUMN,
 };
 
 typedef void (*menu_fn)(int cmd, int which, vptr cookie, variant *res);
@@ -19,6 +20,7 @@ typedef struct {
     menu_fn fn;
     vptr    cookie;
     int     count;
+    int     col_entries;
 } menu_t, *menu_ptr;
 
 extern int menu_choose(menu_ptr menu);

@@ -4610,6 +4610,13 @@ unsigned int strpos(const char *mika, const char *missa)
 	if (loppu) return ((loppu - missa) + 1); else return 0;
 }
 
+unsigned int chrpos(const char mika, const char *missa)
+{
+    char ch2[2] = "\0\0";
+    ch2[0] = mika;
+    return strpos(ch2, missa);
+}
+
 /*
  * Clips away everything from paikka to paikka + pituus - 1
  * (this considers the array as starting at 1; it actually starts at 0,
@@ -4846,6 +4853,17 @@ int inkey_special(bool numpad_cursor)
 
     /* Return normal keycode */
     return (int)((unsigned char)key);
+}
+
+/* For use with randints and other varying input
+ * MIN and MAX cannot handle unpredictable input properly */
+int pienempi(int a, int b)
+{
+    return MIN(a, b);
+}
+int isompi(int a, int b)
+{
+    return MAX(a, b);
 }
 
 int count_bits(u32b x)

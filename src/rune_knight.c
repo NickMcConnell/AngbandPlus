@@ -1959,7 +1959,7 @@ static int _get_spells(spell_info* spells, int max)
     int idx = -1;
     int ct = 0;
     menu_t menu = { "Use which group of spells?", "Browse which group of spells?", NULL,
-                    _spell_menu_fn, _spell_groups, _MAX_SPELL_GROUPS};
+                    _spell_menu_fn, _spell_groups, _MAX_SPELL_GROUPS, 0};
 
     idx = menu_choose(&menu);
     if (idx < 0) return 0;

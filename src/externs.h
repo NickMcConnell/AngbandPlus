@@ -198,6 +198,8 @@ extern bool very_nice_summon_hack;
 extern bool predictable_energy_hack;
 extern bool delay_autopick_hack;
 extern bool monsters_damaged_hack;
+extern bool shop_exit_hack;
+extern byte spell_problem;
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
@@ -250,6 +252,7 @@ extern bool fresh_after;    /* Flush output after monster's move */
 extern bool fresh_message;    /* Flush output after every message */
 extern bool hilite_player;    /* Hilite the player with the cursor */
 extern bool display_path;    /* Display actual path before shooting */
+extern bool square_delays;   /* Use delay factors based on squares */
 
 
 /*** Text Display Options ***/
@@ -280,6 +283,8 @@ extern bool final_dump_origins; /* Show equipment origins in final dumps */
 extern bool always_dump_origins; /* Show equipment origins in all dumps */
 extern bool list_stairs; /* Display stairs in the object list */
 extern bool display_skill_num; /* Give skills numerically in char sheet */
+extern bool reforge_details; /* Show statistics before reforge */
+extern bool auto_sticky_labels; /* Automatically make power labels sticky */
 
 /*** Game-Play Options ***/
 
@@ -481,6 +486,7 @@ extern char *b_tag;
 extern dungeon_info_type *d_info;
 extern char *d_name;
 extern char *d_text;
+extern char power_labels[MAX_POWER_LABEL][15];
 extern cptr ANGBAND_SYS;
 extern cptr ANGBAND_KEYBOARD;
 extern cptr ANGBAND_GRAF;
@@ -759,6 +765,7 @@ extern void do_cmd_travel(void);
 extern void travel_begin(int mode, int x, int y);
 extern void travel_wilderness_scroll(int new_x, int new_y);
 extern void travel_cancel(void);
+extern void travel_cancel_fully(void);
 extern void travel_end(void);
 extern int breakage_chance(object_type *o_ptr);
 
@@ -784,6 +791,7 @@ extern void fix_object_list(void);
 /* cmd4.c */
 extern cptr get_ordinal_number_suffix(int num);
 extern void toggle_easy_mimics(bool kayta);
+extern int delay_time(void);
 extern bool redraw_hack;
 extern void do_cmd_redraw(void);
 extern void do_cmd_knowledge_shooter(void);
@@ -844,6 +852,17 @@ extern void increase_ball_num(int idx);
 extern void capture_ball_opening(object_type *j_ptr, int y, int x, bool from_drop);
 extern bool capture_ball_release(object_type *o_ptr, int y, int x, int mode);
 extern void empty_capture_ball(object_type *o_ptr);
+
+/* corny.c */
+extern void cornucopia_mark_destroyed(int policy, int amt);
+extern void cornucopia_object_destroyed(object_type *o_ptr, int amt, bool mon_attack);
+extern void cornucopia_do_command(building_type *bldg, int bact);
+extern void cornucopia_init(void);
+extern void cornucopia_save(savefile_ptr file);
+extern void cornucopia_load(savefile_ptr file);
+extern int  cornucopia_item_policy(object_type *o_ptr);
+extern void cornucopia_item_disenchanted(object_type *o_ptr, int new_to_a, int new_to_h, int new_to_d, int new_pval);
+extern void cornucopia_print_stats(doc_ptr doc);
 
 /* devices.c */
 extern bool class_uses_spell_scrolls(int mika);
@@ -1143,6 +1162,7 @@ extern void set_target(monster_type *m_ptr, int y, int x);
 extern void reset_target(monster_type *m_ptr);
 extern monster_race *real_r_ptr(monster_type *m_ptr);
 extern int real_r_idx(monster_type *m_ptr);
+extern void inc_cur_num(monster_type *m_ptr, int i);
 extern void delete_monster_idx(int i);
 extern void delete_monster(int y, int x);
 extern void compact_monsters(int size);
@@ -1229,6 +1249,7 @@ extern s16b m_bonus(int max, int level);
 
 extern void reset_visuals(void);
 extern void obj_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
+extern void obj_flags_effective(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
 extern void weapon_flags(int hand, u32b flgs[OF_ARRAY_SIZE]);
 extern void weapon_flags_known(int hand, u32b flgs[OF_ARRAY_SIZE]);
 extern void missile_flags(object_type *arrow, u32b flgs[OF_ARRAY_SIZE]);
@@ -1240,6 +1261,7 @@ extern void toggle_mon_obj_lists(void);
 /* Object Lore */
 extern void obj_flags_known(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
 extern void obj_flags_unknown(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
+extern void obj_flags_display(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
 extern bool obj_is_identified(object_type *o_ptr);
 extern bool obj_is_identified_fully(object_type *o_ptr);
 extern void obj_identify(object_type *o_ptr);
@@ -1573,7 +1595,7 @@ extern int set_acid_destroy(object_type *o_ptr);
 extern int set_elec_destroy(object_type *o_ptr);
 extern int set_fire_destroy(object_type *o_ptr);
 extern int set_cold_destroy(object_type *o_ptr);
-extern void inven_damage(inven_func typ, int perc, int which);
+extern void inven_damage(int who, inven_func typ, int perc, int which);
 extern bool rustproof(void);
 extern bool curse_armor(int slot);
 extern bool curse_weapon(bool force, int slot);
@@ -1591,6 +1613,7 @@ extern void battle_monsters(void);
 extern void do_cmd_bldg(void);
 extern void do_cmd_quest(void);
 extern bool tele_town(void);
+extern int reforge_limit(void);
 
 /* combat.c */
 extern int bow_energy(int sval);
@@ -1668,6 +1691,8 @@ extern bool is_a_vowel(int ch);
 extern int get_keymap_dir(char ch, bool under);
 extern errr type_string(cptr str, uint len);
 extern void roff_to_buf(cptr str, int wlen, char *tbuf, size_t bufsize);
+extern int pienempi(int a, int b);
+extern int isompi(int a, int b);
 
 #ifdef SORT_R_INFO
 extern void tag_sort(tag_type elements[], int number);
@@ -1686,6 +1711,7 @@ extern int my_stricmp(cptr a, cptr b);
 extern void str_tolower(char *str);
 extern int inkey_special(bool numpad_cursor);
 extern unsigned int strpos(const char *mika, const char *missa);
+extern unsigned int chrpos(const char mika, const char *missa);
 extern bool clip_and_locate(char *poista, char *mista);
 
 /* xtra1.c */
@@ -2002,11 +2028,13 @@ extern bool create_named_art(int a_idx, int y, int x, byte origin, int xtra);
 extern bool create_named_art_aux(int a_idx, object_type *o_ptr);
 extern bool create_named_art_aux_aux(int a_idx, object_type *o_ptr);
 extern bool create_replacement_art(int a_idx, object_type *o_ptr, byte origin);
+extern void get_reforge_powers(bool do_minmax, object_type *src, object_type *dest, int *swgt, int *dwgt, int *min_p, int *max_p, int *avg_bp, int fame);
 extern bool reforge_artifact(object_type *src, object_type *dest, int fame);
 extern void get_random_name(char *return_name, object_type *o_ptr, int power);
 extern int get_slot_weight(obj_ptr obj);
 extern int get_dest_weight(obj_ptr dest);
 extern int get_slot_power(obj_ptr obj);
+extern int trim(int start_val, int hi_val, int very_hi_val, int item_lv);
 
 /* scores.c */
 extern void display_scores_aux(int from, int to, int note, high_score *score);
@@ -2235,6 +2263,7 @@ extern race_t *get_race_aux(int prace, int psubrace);
 
 /* from gf.c */
 extern bool player_obviously_poly_immune(void);
+extern bool player_mana_drainable(void);
 
 /* Player Races */
 extern void mimic_race(int new_race, const char *msg);
@@ -2253,6 +2282,7 @@ extern race_t *archon_get_race(void);
 extern race_t *balrog_get_race(void);
 extern race_t *barbarian_get_race(void);
 extern race_t *beastman_get_race(void);
+extern race_t *boit_get_race(void);
 
 extern race_t *centaur_get_race(void);
 extern void    jump_spell(int cmd, variant *res);
@@ -2319,6 +2349,7 @@ extern race_t *mon_jelly_get_race(void);
 extern race_t *mon_leprechaun_get_race(void);
 extern race_t *mon_lich_get_race(void);
 extern race_t *mon_mimic_get_race(void);
+extern race_t *mon_orc_get_race(int psubrace);
 extern race_t *mon_possessor_get_race(void);
 extern race_t *mon_quylthulg_get_race(void);
 extern race_t *mon_ring_get_race(void);
@@ -2329,6 +2360,7 @@ extern race_t *mon_troll_get_race(int psubrace);
 extern race_t *mon_vampire_get_race(void);
 extern race_t *mon_vortex_get_race(void);
 extern race_t *mon_xorn_get_race(void);
+extern race_t *mon_armor_get_race(void);
 
 extern bool dragon_vamp_hack;
 extern int dragon_vamp_amt;
@@ -2384,6 +2416,12 @@ extern int     leprechaun_get_toggle(void);
 
 extern int     sword_calc_torch(void);
 extern bool    sword_disenchant(void);
+
+extern int     armor_calc_torch(void);
+extern void    armor_calc_obj_bonuses(object_type *o_ptr, bool get_flags);
+extern int     rag_effect_pval(object_type *o_ptr, int slot, int i, bool is_resist);
+extern void    res_calc_rag_bonuses(object_type *o_ptr);
+extern void    res_calc_rag_flags(object_type *o_ptr);
 
 extern int     ring_calc_torch(void);
 extern bool    ring_disenchant(void);
@@ -2514,6 +2552,8 @@ extern void     rodeo_spell(int cmd, variant *res);
 
 extern class_t *chaos_warrior_get_class(void);
 extern void     chaos_warrior_reward(void);
+extern void     nonlethal_ty_substitute(bool do_dec);
+
 extern class_t *devicemaster_get_class(int psubclass);
 extern bool     devicemaster_desperation;
 extern cptr     devicemaster_speciality_name(int psubclass);
@@ -2667,6 +2707,9 @@ extern bool     unique_is_friend(int which);
 extern bool     dungeon_conquered(int which);
 extern bool     object_is_deaggravated(object_type *o_ptr);
 extern void     set_filibuster(bool paalle);
+extern void     ini_statup_list(void);
+extern void     dungeon_statup_load(savefile_ptr file);
+extern void     dungeon_statup_save(savefile_ptr file);
 
 /* skills.c */
 extern skill_table *s_info; /* deprecated ... in process of removing naked table reads*/

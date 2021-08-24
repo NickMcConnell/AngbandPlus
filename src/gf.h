@@ -158,6 +158,8 @@ enum {
     /* New Stuff (unsorted) */
     /* Add new effects here. Reorganize later for next major version upgrade. */
     GF_SLOW,
+    GF_CHICKEN,
+    GF_BOMB,
 
     GF_COUNT  /* enumerate 0 <= i < GF_COUNT */
 };            /* allocate gf[GF_COUNT] */

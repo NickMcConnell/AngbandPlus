@@ -19,6 +19,15 @@ static _tier_t _tiers[_MAX_TIERS] = {
     { 50, { MON_AETHER_VORTEX, -1 } },
 };
 
+static int _vortex_mut_is(void)
+{
+    if (p_ptr->max_plv < 50) return 0;
+    if (mut_present(MUT_VORTEX_MELEE)) return MUT_VORTEX_MELEE;
+    if (mut_present(MUT_VORTEX_SPEED)) return MUT_VORTEX_SPEED;
+    if (mut_present(MUT_VORTEX_CONTROL)) return MUT_VORTEX_CONTROL;
+    return 0;
+}
+
 static int _count(int list[])
 {
     int i;
@@ -36,10 +45,84 @@ static int _random(int list[])
     return list[randint0(_count(list))];
 }
 
+static int _laskuri(int list[])
+{
+    int i, elem_ct = 0;
+
+    for (i = 0; ; i+=2)
+    {
+        if (list[i] == -1) break;
+        elem_ct++;
+    }
+    return elem_ct;
+}
+
+static void _display(rect_t r, int list[])
+{
+    doc_ptr doc = doc_alloc(r.cx);
+    int i, elem_ct = 0;
+
+    elem_ct = _laskuri(list);
+
+    doc_insert(doc, "<style:table>");
+    for (i = 0; i < elem_ct; i++)
+    {
+        gf_info_ptr this_gf = gf_lookup(list[i*2]);
+        if (this_gf) doc_printf(doc, " %c) <color:%c>%s</color>%s\n", I2A(i), attr_to_attr_char(this_gf->color), this_gf->name, (i > elem_ct - 6) ? strpos("Time", this_gf->name) ? " (-50% power)" : " (-33% power)" : "");
+    }
+    doc_insert(doc, "</style>");
+    doc_sync_term(doc, doc_range_all(doc), doc_pos_create(r.x, r.y));
+    doc_free(doc);
+}
+
+static bool _allow_control_hack = FALSE;
+
 static int _random_weights(int list[])
 {
     int i, k;
     int tot = 0;
+
+    if ((mut_present(MUT_VORTEX_CONTROL)) && (_allow_control_hack))
+    {
+        int cmd, valinta, elem_ct = _laskuri(list);
+        rect_t r = ui_menu_rect();
+        bool valmis = FALSE;
+
+        if (REPEAT_PULL(&cmd))
+        {
+            valinta = A2I(cmd);
+            if (0 <= valinta && valinta < elem_ct)
+                return list[valinta*2];
+        }
+
+        if (r.cx > 80)
+            r.cx = 80;
+        screen_save();
+        prt("Breathe which element?", 0, 0);
+        valinta = -1;
+        while (!valmis)
+        {
+            _display(r, list);
+
+            cmd = inkey_special(FALSE);
+
+            if (cmd == ESCAPE)
+            {
+                valmis = TRUE;
+            }
+            if ('a' <= cmd && cmd < 'a' + elem_ct)
+            {
+                valinta = A2I(cmd);
+                valmis = TRUE;
+            }
+        }
+        screen_load();
+        if ((valinta >= 0) && (valinta < elem_ct))
+        {
+            REPEAT_PUSH(I2A(valinta));
+            return list[valinta*2];
+        } /* otherwise just pick one at random */
+    }
 
     for (i = 0; ; i+=2)
     {
@@ -80,9 +163,12 @@ static int _find_tier(int r_idx)
 
 static int _rank(void)
 {
-    if (p_ptr->current_r_idx)
-        return _find_tier(p_ptr->current_r_idx);
-    return 0; /* Unborn ... */
+    int r = 0;
+    if (p_ptr->lev >= 14) r++;
+    if (p_ptr->lev >= 27) r++;
+    if (p_ptr->lev >= 39) r++;
+    if (p_ptr->lev >= 50) r++;
+    return r;
 }
 
 static cptr _mon_name(int r_idx)
@@ -92,6 +178,15 @@ static cptr _mon_name(int r_idx)
     if (r_idx)
         return r_name + r_info[r_idx].name;
     return ""; /* Birth Menu */
+}
+
+static void _gain_power(void)
+{
+    if (!_vortex_mut_is())
+    {
+        int idx = mut_gain_choice(mut_vortex_pred);
+        mut_lock(idx);
+    }
 }
 
 static void _gain_level(int new_level)
@@ -105,6 +200,7 @@ static void _gain_level(int new_level)
         equip_on_change_race();
         p_ptr->redraw |= PR_MAP | PR_BASIC;
     }
+    if (new_level == 50) _gain_power();
 }
 
 /**********************************************************************
@@ -186,7 +282,7 @@ int vortex_get_effect(void)
 static void _calc_innate_attacks(void)
 {
     int l = p_ptr->lev;
-    int r = _rank();
+    int r = MIN(3, _rank());
     int to_d = r + l/5;
     int to_h = l/2;
 
@@ -198,6 +294,13 @@ static void _calc_innate_attacks(void)
         a.ds = 3 + r;
         a.to_d += to_d;
         a.to_h += to_h;
+
+        if (mut_present(MUT_VORTEX_MELEE))
+        {
+            a.ds += 1;
+            a.to_d += 25;
+            a.to_h += 25;
+        }
 
         a.weight = 150;
         if (p_ptr->current_r_idx == MON_AETHER_VORTEX)
@@ -214,7 +317,7 @@ static void _calc_innate_attacks(void)
         if (p_ptr->current_r_idx == MON_SHARD_VORTEX)
             a.flags |= INNATE_VORPAL;
 
-        calc_innate_blows(&a, 400);
+        calc_innate_blows(&a, (p_ptr->current_r_idx == MON_AETHER_VORTEX) ? 363 : 375);
         a.msg = "You engulf.";
         a.name = "Engulf";
 
@@ -265,19 +368,41 @@ static void _breathe_spell(int cmd, variant *res)
     case SPELL_COST_EXTRA:
     {
         int l = p_ptr->lev;
-        int cst = l*l/150;
+        int cst = l*l/((mut_present(MUT_VORTEX_CONTROL)) ? 75 : 150);
         var_set_int(res, cst);
         break;
     }
     case SPELL_CAST:
     {
         int dir = 0;
+        int e, voima;
+        bool early_effect = mut_present(MUT_VORTEX_CONTROL);
         var_set_bool(res, FALSE);
+        voima = _breath_amount();
+        if (early_effect)
+        {
+            _allow_control_hack = TRUE;
+            e = _breath_effect();
+            switch (e)
+            {
+                case GF_PLASMA:
+                case GF_GRAVITY:
+                case GF_INERT:
+                case GF_FORCE:
+                    voima -= voima / 3;
+                    break;
+                case GF_TIME:
+                    voima -= voima / 2;
+                    break;
+                default: break;
+            }
+            _allow_control_hack = FALSE;
+        }
         if (get_fire_dir(&dir))
         {
-            int e = _breath_effect();
+            if (!early_effect) e = _breath_effect();
             msg_format("You breathe %s.", gf_name(e));
-            fire_ball(e, dir, _breath_amount(), -1 - (p_ptr->lev / 20));
+            fire_ball(e, dir, voima, -1 - (p_ptr->lev / 20));
             var_set_bool(res, TRUE);
         }
         break;
@@ -457,7 +582,6 @@ static void _calc_bonuses(void)
     p_ptr->no_stun = TRUE;
     p_ptr->no_cut = TRUE;
     p_ptr->no_eldritch = TRUE;
-    p_ptr->move_random = TRUE;
     p_ptr->hold_life++;
     p_ptr->levitation = TRUE;
 
@@ -467,13 +591,13 @@ static void _calc_bonuses(void)
         res_add(RES_FIRE);
         res_add(RES_FIRE);
         res_add_vuln(RES_COLD);
-        p_ptr->sh_fire = TRUE;
+        p_ptr->sh_fire++;
         break;
     case MON_COLD_VORTEX:
         res_add(RES_COLD);
         res_add(RES_COLD);
         res_add_vuln(RES_FIRE);
-        p_ptr->sh_cold = TRUE;
+        p_ptr->sh_cold++;
         break;
 
     case MON_WATER_VORTEX:
@@ -485,7 +609,7 @@ static void _calc_bonuses(void)
         p_ptr->pspeed += 1;
         res_add(RES_ELEC);
         res_add(RES_ELEC);
-        p_ptr->sh_elec = TRUE;
+        p_ptr->sh_elec++;
         break;
 
     case MON_NEXUS_VORTEX:
@@ -497,8 +621,8 @@ static void _calc_bonuses(void)
         p_ptr->pspeed += 3;
         res_add(RES_FIRE);
         res_add(RES_ELEC);
-        p_ptr->sh_fire = TRUE;
-        p_ptr->sh_elec = TRUE;
+        p_ptr->sh_fire++;
+        p_ptr->sh_elec++;
         break;
     case MON_SHIMMERING_VORTEX:
         p_ptr->pspeed += 3;
@@ -513,7 +637,7 @@ static void _calc_bonuses(void)
         p_ptr->pspeed += 5;
         p_ptr->skill_dig += 100;
         res_add(RES_SHARDS);
-        p_ptr->sh_shards = TRUE;
+        p_ptr->sh_shards++;
         break;
     case MON_CHAOS_VORTEX:
         p_ptr->pspeed += 7;
@@ -525,7 +649,7 @@ static void _calc_bonuses(void)
         break;
 
     case MON_AETHER_VORTEX:
-        p_ptr->pspeed += 10;
+        p_ptr->pspeed += 5;
         res_add(RES_FIRE);
         res_add(RES_COLD);
         res_add(RES_ACID);
@@ -541,9 +665,9 @@ static void _calc_bonuses(void)
         res_add(RES_CHAOS);
         res_add(RES_DISEN);
         res_add(RES_TIME);
-        p_ptr->sh_cold = TRUE;
-        p_ptr->sh_fire = TRUE;
-        p_ptr->sh_elec = TRUE;
+        p_ptr->sh_cold++;
+        p_ptr->sh_fire++;
+        p_ptr->sh_elec++;
         break;
     }
 }
@@ -566,18 +690,18 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
         break;
     case MON_COLD_VORTEX:
         add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_VULN_COLD);
+        add_flag(flgs, OF_VULN_FIRE);
         add_flag(flgs, OF_AURA_COLD);
         break;
 
     case MON_WATER_VORTEX:
         add_flag(flgs, OF_SPEED);
         add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_AURA_ELEC);
         break;
     case MON_ENERGY_VORTEX:
         add_flag(flgs, OF_SPEED);
         add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_AURA_ELEC);
         break;
 
     case MON_NEXUS_VORTEX:
@@ -649,7 +773,7 @@ race_t *mon_vortex_get_race(void)
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  40,   4,   5,   5,  60,   0};
-    skills_t xs = {  8,   7,  15,   0,   0,   0,  25,   0};
+    skills_t xs = {  8,   7,  15,   0,   0,   0,  20,   0};
 
         me.skills = bs;
         me.extra_skills = xs;
@@ -675,7 +799,6 @@ race_t *mon_vortex_get_race(void)
 
         me.infra = 0;
         me.exp = 125;
-        me.life = 102;
         me.base_hp = 25;
         me.shop_adjust = 120;
 
@@ -701,6 +824,7 @@ race_t *mon_vortex_get_race(void)
     me.stats[A_DEX] =  2 + r;
     me.stats[A_CON] =  1 + r/2;
     me.stats[A_CHR] =  0;
+    me.life = 93 + r;
     me.equip_template = mon_get_equip_template();
 
     return &me;

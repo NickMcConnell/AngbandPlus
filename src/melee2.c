@@ -2283,23 +2283,41 @@ static void process_monster(int m_idx)
         }
     }
 
+    if ((m_ptr->r_idx == MON_LEPRECHAUN_FANATIC) && (m_ptr->mflag & MFLAG_NICE))
+        return;
+
     if (m_ptr->r_idx == MON_SHURYUUDAN)
         mon_take_hit_mon(m_idx, 1, &fear, " explodes into tiny shreds.", m_idx);
 
-    if (((is_pet(m_ptr)) || ((is_friendly(m_ptr)) && ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL)))) && (!p_ptr->inside_battle))
+    if (((is_pet(m_ptr)) || (is_friendly(m_ptr))) && (!p_ptr->inside_battle))
     {
         static int riding_pinch = 0;
 
         if (m_ptr->hp < m_ptr->maxhp/3)
         {
             char m_name[80];
+            bool skip = FALSE;
             monster_desc(m_name, m_ptr, 0);
 
-            if (is_riding_mon && riding_pinch < 2)
+            for (i = 0; i < MAX_MON_BLOWS; i++)
+            {
+                if (r_ptr->blows[i].method == RBM_EXPLODE)
+                {
+                    skip = TRUE;
+                    break;
+                }
+            }
+
+            if (skip) {} /* Kamikaze pets fight to death */
+            else if (is_riding_mon && riding_pinch < 2)
             {
                 msg_format("%^s seems to be in so much pain, and trying to escape from your restriction.", m_name);
                 riding_pinch++;
                 disturb(1, 0);
+            }
+            else if ((!is_riding_mon) && (!((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL))) && ((randint1((s32b)m_ptr->maxhp * 7 / 20) < m_ptr->hp) || (one_in_(5)) || ((p_ptr->pclass == CLASS_POLITICIAN) && (!is_pet(m_ptr)) && (one_in_(2)))))
+            {
+                if (is_pet(m_ptr)) msg_format("<color:B>%^s</color> seems to be in great pain!", m_name);
             }
             else
             {
@@ -2315,10 +2333,11 @@ static void process_monster(int m_idx)
                     if ((r_ptr->flags2 & RF2_CAN_SPEAK) && (m_ptr->r_idx != MON_GRIP) && (m_ptr->r_idx != MON_WOLF) && (m_ptr->r_idx != MON_FANG) &&
                         player_has_los_bold(m_ptr->fy, m_ptr->fx) && projectable(m_ptr->fy, m_ptr->fx, py, px))
                     {
-                        msg_format("%^s says 'It is the pinch! I will retreat'.", m_name);
-                        msg_format("%^s reads a scroll of Teleport Level.", m_name);
+                        msg_format("<color:B>%^s</color> says 'It is the pinch! I will retreat'.", m_name);
+                        msg_format("<color:B>%^s</color> reads a scroll of Teleport Level.", m_name);
+                        msg_format("<color:B>%^s</color> disappears.", m_name);
                     }
-                    msg_format("%^s disappears.", m_name);
+                    else msg_format("<color:B>%^s</color> escapes.", m_name);
                 }
 
                 if (is_riding_mon && rakuba(-1, FALSE))
@@ -3852,6 +3871,11 @@ void process_monsters(void)
 
         /* Give this monster some energy */
         m_ptr->energy_need -= SPEED_TO_ENERGY(speed);
+//        {
+//            char mon_name[MAX_NLEN];
+//            monster_desc(mon_name, m_ptr, 0);
+//            msg_format("%^s (%+d) now at %d (vs. %d)", mon_name, speed, m_ptr->energy_need, p_ptr->energy_need);
+//        }
 
         /* Check for SI now in case the monster is sleeping or lacks enough
          * energy to move. Should the monster move or attack, we'll make another

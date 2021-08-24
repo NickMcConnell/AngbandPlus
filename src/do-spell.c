@@ -951,7 +951,7 @@ bool cast_summon_greater_demon(void)
     }
     else
     {
-        msg_print("No Greater Demon arrive.");
+        msg_print("No Greater Demons arrive.");
     }
 
     return TRUE;
@@ -1076,7 +1076,7 @@ static cptr do_life_spell(int spell, int mode)
         break;
     case 6:
         if (name) return "Cure Poison";
-        if (desc) return "Cure poison status.";
+        if (desc) return "Relieves poisoning a bit. Completely cures low-level poisoning.";
         if (cast)
             set_poisoned(p_ptr->poisoned - MAX(125, p_ptr->poisoned / 3), TRUE);
         break;
@@ -2195,7 +2195,7 @@ static cptr do_nature_spell(int spell, int mode)
 
     case 7:
         if (name) return "Cure Wounds & Poison";
-        if (desc) return "Heals all cut and poison status. Heals HP a little.";
+        if (desc) return "Heals all cuts. Heals HP a little. Relieves poisoning a bit; completely cures low-level poisoning.";
 
         {
             int dice = 2;
@@ -4967,7 +4967,7 @@ static cptr do_arcane_spell(int spell, int mode)
 
     case 13:
         if (name) return "Cure Poison";
-        if (desc) return "Cures poison status.";
+        if (desc) return "Relieves poisoning a bit. Completely cures low-level poisoning.";
 
         {
             if (cast)
@@ -5586,7 +5586,7 @@ static cptr do_craft_spell(int spell, int mode)
 
     case 14:
         if (name) return "Curing";
-        if (desc) return "It cures what ails you including fear, poison, stunning, cuts and hallucination.";
+        if (desc) return "It cures what ails you including fear, poison, stunning, cuts and hallucination. Serious poisoning may not be cured completely.";
         {
             if (cast)
             {
@@ -5765,17 +5765,13 @@ static cptr do_craft_spell(int spell, int mode)
         break;
 
     case 25:
-        if (name) return "Walk through Wall";
-        if (desc) return "Gives ability to pass walls for a while.";
+        if (name) return "Simplification";
+        if (desc) return "Removes all of an item's magical attributes, including its status as an ego item or artifact. Magically improved ego items cannot be simplified.";
 
         {
-            int base = spell_power(plev / 2);
-
-            if (info) return info_duration(base, base);
-
             if (cast)
             {
-                set_kabenuke(randint1(base) + base, FALSE);
+                if (!mundane_spell(FALSE)) return NULL;
             }
         }
         break;
@@ -7785,7 +7781,7 @@ static cptr do_music_spell(int spell, int mode)
         }
 
         {
-            int power = spell_power(plev * 4);
+            int power = spell_power(plev * 3 + 10);
 
             if (info) return info_power(power);
 
@@ -7942,7 +7938,7 @@ static cptr do_music_spell(int spell, int mode)
 
     case 31:
         if (name) return "Fingolfin's Challenge";
-        if (desc) return "Generates barrier which completely protect you from almost all damages. Takes a few your turns when the barrier breaks.";
+        if (desc) return "Temporarily makes you invulnerable to most attacks. Consumes an extra turn when the invulnerability ends.";
 
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
@@ -7976,6 +7972,9 @@ static cptr do_music_spell(int spell, int mode)
 
                 /* Window stuff */
                 p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+                /* Take an extra turn */
+                p_ptr->energy_need += ENERGY_NEED();
             }
         }
 

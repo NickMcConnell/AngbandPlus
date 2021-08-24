@@ -38,7 +38,8 @@ struct quest_s
     int  id;
     cptr name;
     cptr file;
-    int  level;
+    int  level;       /* dun_level, object_level, etc. */
+    int  danger_level;/* description of difficulty */
     int  dungeon;     /* where to find the quest? 0 -> Wilderness QUEST_ENTER(id) */
     int  flags;
 

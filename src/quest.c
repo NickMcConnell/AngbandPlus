@@ -93,7 +93,7 @@ void quest_take(quest_ptr q)
     q->seed = randint0(0x10000000);
     s = quest_get_description(q);
     msg_format("<color:R>%s</color> (<color:U>Level %d</color>): %s",
-        kayttonimi(q), q->level, string_buffer(s));
+        kayttonimi(q), q->danger_level, string_buffer(s));
     string_free(s);
 }
 
@@ -199,7 +199,7 @@ void quest_reward(quest_ptr q)
 
     s = quest_get_description(q);
     msg_format("<color:R>%s</color> (<color:U>Level %d</color>): %s",
-        kayttonimi(q), q->level, string_buffer(s));
+        kayttonimi(q), q->danger_level, string_buffer(s));
     string_free(s);
 
     reward = quest_get_reward(q);
@@ -227,6 +227,11 @@ void quest_fail(quest_ptr q)
     fame_on_failure();
     if (!(q->flags & QF_TOWN))
         q->status = QS_FAILED_DONE;
+    if ((q->flags & QF_RANDOM) && (q->goal == QG_KILL_MON))
+    {
+        monster_race *r_ptr = &r_info[q->goal_idx];
+        if (r_ptr) r_ptr->flagsx &= ~(RFX_QUESTOR);
+    }
 }
 
 /************************************************************************
@@ -397,6 +402,24 @@ bool quest_post_generate(quest_ptr q)
             q->status = QS_FINISHED;
             return TRUE;
         }
+        else if ((r_ptr->flags1 & RF1_UNIQUE) && (unique_is_friend(q->goal_idx))) /* this can happen at least with Eric if you befriend him in his quest */
+        {
+            int i, ct = (q->level/(coffee_break ? 13 : 25)) + 1;
+            cmsg_format(TERM_L_BLUE, "Your friend %s, protector of this level, allows you free passage and gives you presents.", r_name + r_ptr->name);
+            q->completed_lev = (prace_is_(RACE_ANDROID)) ? p_ptr->lev : p_ptr->max_plv;
+            q->completed_turn = game_turn;
+            q->status = QS_FINISHED;
+            if ((q->level > 14) && (q->level < 25) && (one_in_(5))) ct++;
+            for (i = 0; i < ct; i++)
+            {
+                obj_t forge = {0};
+                if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST, ORIGIN_ANGBAND_REWARD))
+                    pack_carry(&forge);
+                else
+                    msg_print("Software Bug ... you missed out on your reward!");
+            }
+            return TRUE;
+        }
 
         if (!(r_ptr->flags1 & RF1_FRIENDS))
             mode |= PM_ALLOW_GROUP; /* allow escorts but not friends */
@@ -492,6 +515,7 @@ static errr _parse_q_info(char *line, int options)
         quest = quest_alloc(zz[2]);
         quest->id = atoi(zz[0]);
         quest->level = atoi(zz[1]);
+        quest->danger_level = quest->level;
         int_map_add(_quests, quest->id, quest);
     }
     /* T:TOWN | GENERATE */
@@ -499,7 +523,7 @@ static errr _parse_q_info(char *line, int options)
     {
         char *flags[10];
         int   flag_ct = z_string_split(line + 2, flags, 10, "|");
-        int   i;
+        int   i, fake_lev;
 
         for (i = 0; i < flag_ct; i++)
         {
@@ -517,6 +541,8 @@ static errr _parse_q_info(char *line, int options)
                 quest->flags |= QF_ANYWHERE;
             else if (streq(flag, "NO_MSG"))
                 quest->flags |= QF_NO_MSG;
+            else if (1 == sscanf(flag, "DANGER_LEVEL_%d", &fake_lev))
+                quest->danger_level = fake_lev;
             else
             {
                 msg_format("Error: Invalid quest flag %s.", flag);
@@ -645,13 +671,13 @@ int quests_get_level(int id)
 {
     quest_ptr q = quests_get(id);
     if (!q) return 0;
-    return q->level;
+    return q->danger_level;
 }
 
 static int _quest_cmp_level(quest_ptr l, quest_ptr r)
 {
-    if (l->level < r->level) return -1;
-    if (l->level > r->level) return 1;
+    if (l->danger_level < r->danger_level) return -1;
+    if (l->danger_level > r->danger_level) return 1;
     if (l->completed_turn < r->completed_turn) return -1;
     if (l->completed_turn > r->completed_turn) return 1;
     if (l->completed_lev < r->completed_lev) return -1;
@@ -797,6 +823,7 @@ void quests_on_birth(void)
 {
     vec_ptr v;
     int i, last = 0;
+    bool parity = TRUE;
 
     /* stale data from the last character */
     quests_cleanup();
@@ -815,9 +842,11 @@ void quests_on_birth(void)
         {
             lvl = rand_range(q->level - spread, q->level + spread);
             ++attempt;
-        } while (lvl <= last && attempt < 1000);
+        } while (((lvl <= last) || ((coffee_break) && (lvl >= 43) && ((lvl % 2) != parity))) && (attempt < 1000));
         last = lvl;
         q->level = lvl;
+        q->danger_level = lvl;
+        parity = (lvl % 2) ? TRUE : FALSE;
 
         if (q->goal == QG_KILL_MON)
         {
@@ -1360,7 +1389,7 @@ void quests_display(void)
 
             /* Quest Name and Status */
             doc_printf(doc, "  <color:%c>%s</color> (Lvl <color:U>%d</color>)\n",
-                (q->status == QS_IN_PROGRESS) ? 'y' : 'R', kayttonimi(q), q->level);
+                (q->status == QS_IN_PROGRESS) ? 'y' : 'R', kayttonimi(q), q->danger_level);
 
             /* Description. However, the QS_COMPLETED description is the 'reward' message */
             if (q->status == QS_COMPLETED)
@@ -1419,7 +1448,7 @@ static void _quest_doc(quest_ptr q, doc_ptr doc)
             if (q->completed_lev == 0)
             {
                 doc_printf(doc, "  Kill %.44s <tab:53>DL%-3d <color:B>Cancelled</color>\n",
-                    _safe_r_name(q->goal_idx), q->level);
+                    _safe_r_name(q->goal_idx), q->danger_level);
             }
             else if (q->goal_count > 1)
             {
@@ -1429,18 +1458,18 @@ static void _quest_doc(quest_ptr q, doc_ptr doc)
                 extract_day_hour_min_imp(q->completed_turn, &day, &hour, &min);
                 if (strlen(name) > 29) {
                     doc_printf(doc, "  Kill %d %.41s <tab:53>DL%-3d CL%-2d  Day %d, %d:%02d\n",
-                        q->goal_count, name, q->goal_current, q->level, q->completed_lev, day, hour, min);
+                        q->goal_count, name, q->goal_current, q->danger_level, q->completed_lev, day, hour, min);
                 }
                 else {
                     doc_printf(doc, "  Kill %d %s (%d killed) <tab:53>DL%-3d CL%-2d  Day %d, %d:%02d\n",
-                        q->goal_count, name, q->goal_current, q->level, q->completed_lev, day, hour, min);
+                        q->goal_count, name, q->goal_current, q->danger_level, q->completed_lev, day, hour, min);
                 }
             }
             else
             {
                 extract_day_hour_min_imp(q->completed_turn, &day, &hour, &min);
                 doc_printf(doc, "  Kill %.44s <tab:53>DL%-3d CL%-2d  Day %d, %d:%02d\n",
-                    _safe_r_name(q->goal_idx), q->level, q->completed_lev, day, hour, min);
+                    _safe_r_name(q->goal_idx), q->danger_level, q->completed_lev, day, hour, min);
             }
         }
     }
@@ -1448,7 +1477,7 @@ static void _quest_doc(quest_ptr q, doc_ptr doc)
     {
         extract_day_hour_min_imp(q->completed_turn, &day, &hour, &min);
         doc_printf(doc, "  %.49s <tab:53>DL%-3d CL%-2d  Day %d, %d:%02d\n",
-            kayttonimi(q), q->level, q->completed_lev, day, hour, min);
+            kayttonimi(q), q->danger_level, q->completed_lev, day, hour, min);
     }
 }
 
@@ -1461,7 +1490,7 @@ static void _quest_doc_noturn(quest_ptr q, doc_ptr doc)
             if (q->completed_lev == 0)
             {
                 doc_printf(doc, "  Kill %s <tab:60>DL%3d <color:B>Cancelled</color>\n",
-                    _safe_r_name(q->goal_idx), q->level);
+                    _safe_r_name(q->goal_idx), q->danger_level);
             }
             else if (q->goal_count > 1)
             {
@@ -1469,19 +1498,19 @@ static void _quest_doc_noturn(quest_ptr q, doc_ptr doc)
                 strcpy(name, _safe_r_name(q->goal_idx));
                 plural_aux(name);
                 doc_printf(doc, "  Kill %d %s (%d killed) <tab:60>DL%3d CL%2d\n",
-                    q->goal_count, name, q->goal_current, q->level, q->completed_lev);
+                    q->goal_count, name, q->goal_current, q->danger_level, q->completed_lev);
             }
             else
             {
                 doc_printf(doc, "  Kill %s <tab:60>DL%3d CL%2d\n",
-                    _safe_r_name(q->goal_idx), q->level, q->completed_lev);
+                    _safe_r_name(q->goal_idx), q->danger_level, q->completed_lev);
             }
         }
     }
     else
     {
         doc_printf(doc, "  %s <tab:60>DL%3d CL%2d\n",
-            kayttonimi(q), q->level, q->completed_lev);
+            kayttonimi(q), q->danger_level, q->completed_lev);
     }
 }
 void quests_doc(doc_ptr doc)
@@ -1552,6 +1581,7 @@ void quests_load(savefile_ptr file)
         if (q->flags & QF_RANDOM)
         {
             q->level = savefile_read_s16b(file);
+            q->danger_level = q->level;
             q->goal_idx  = savefile_read_s32b(file);
             q->goal_count = savefile_read_s16b(file);
         }
@@ -1778,7 +1808,7 @@ static void _display_menu(_ui_context_ptr context)
             }
             else
                 doc_printf(doc, "%-40.40s ", quest->name);
-            doc_printf(doc, "%-10.10s %3d</color>", _status_name(quest->status), quest->level);
+            doc_printf(doc, "%-10.10s %3d</color>", _status_name(quest->status), quest->danger_level);
             doc_newline(doc);
         }
         else
@@ -2015,7 +2045,11 @@ static void _reward_cmd(_ui_context_ptr context)
                     obj_identify_fully(reward);
                     object_desc(name, reward, OD_COLOR_CODED);
                     msg_format("<color:R>%s</color> gives %s.", quest->name, name);
-                    if (reward->name1) a_info[reward->name1].generated = FALSE;
+                    if (reward->name1)
+                    {
+                        a_info[reward->name1].generated = FALSE;
+                        a_info[reward->name1].found = FALSE;
+                    }
                     obj_free(reward);
                 }
             }

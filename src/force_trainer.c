@@ -636,21 +636,21 @@ class_t *force_trainer_get_class(void)
     skills_t xs = { 10,  11,  11,   0,   0,   0,  14,  15 };
 
         me.name = "Force-Trainer";
-        me.desc = "A ForceTrainer is a master of the spiritual Force. They prefer "
+        me.desc = "A Force-Trainer is a master of the spiritual Force. They prefer "
                     "fighting with neither weapon nor armor. They are not as good "
                     "fighters as are Monks, but they can use both magic and the "
                     "spiritual Force. Wielding weapons or wearing heavy armor disturbs "
-                    "use of the Force. Wisdom is a ForceTrainer's primary stat.\n \n"
-                    "ForceTrainers use both spellbook magic and the special spiritual "
+                    "use of the Force. Wisdom is a Force-Trainer's primary stat.\n \n"
+                    "Force-Trainers use both spellbook magic and the special spiritual "
                     "power called the Force. They can select a realm from Life, "
                     "Nature, Craft, Death, and Crusade. To use The Force, you select "
-                    "it just as if it were spellbook 'w'; which means you need to press "
-                    "'m' and then 'w' to select the Force. The most important spell of "
-                    "the Force is 'Improve Force'; each time a ForceTrainer activates "
+                    "it just as if it were spellbook 'F'; which means you need to press "
+                    "'m' and then 'F' to select the Force. The most important spell of "
+                    "the Force is 'Improve Force'; each time a Force-Trainer activates "
                     "it, their Force power becomes more powerful, and their attack "
                     "power in bare-handed melee fighting is increased temporarily. The "
                     "strengthened Force can be released at one stroke when a "
-                    "ForceTrainer activates some other Force spell, typically an attack "
+                    "Force-Trainer activates some other Force spell, typically an attack "
                     "spell. They have a class power - 'Clear Mind' - which allows them "
                     "to rapidly regenerate their mana.";
         

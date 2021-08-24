@@ -179,12 +179,26 @@ bool fear_allow_device(void)
 
 bool fear_allow_magic(void)
 {
+    static s32b last_passed = 0;
+    if (last_passed == game_turn) return TRUE; /* don't punish cancelling the prompt */
     if (p_ptr->afraid && !fear_save_p(p_ptr->afraid))
     {
         if (p_ptr->pclass == CLASS_ALCHEMIST) return !one_in_(3);
         return FALSE;
     }
+    last_passed = game_turn;
     return TRUE;
+}
+
+bool pelko(void)
+{
+    if (!fear_allow_magic())
+    {
+        msg_print("You are too scared!");
+        if (energy_use < 100) energy_use = 100;
+        return TRUE;
+    }
+    return FALSE;
 }
 
 bool fear_allow_melee(int m_idx)

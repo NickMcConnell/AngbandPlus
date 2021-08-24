@@ -137,7 +137,7 @@ static void _greater_whirlwind_attack_spell(int cmd, variant *res)
 
             if (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT))
             {
-                int msec = delay_factor * delay_factor * delay_factor;
+                int msec = delay_time();
 
                 if (panel_contains(y, x) && player_can_see_bold(y, x))
                 {

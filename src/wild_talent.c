@@ -373,9 +373,12 @@ static int _get_spells(spell_info* spells, int max)
     int idx = -1;
     int ct = 0;
     menu_t menu = { "Use which group of talents?", "Browse which group of talents?", NULL,
-                    _spell_menu_fn, _groups, 3};
+                    _spell_menu_fn, _groups, 3, 0};
     
-    idx = menu_choose(&menu);
+    /* Mega-hack. Remove Fear is either in group 0 (in which case we get the right
+     * group) or not in any group (in which case we avoid a pointless menu) */
+    if (spell_problem & PWR_AFRAID) idx = 0;
+    else idx = menu_choose(&menu);
     if (idx < 0) return 0;
 
     /* Hack: Add innate Wonder attack to Wild Beginnings */

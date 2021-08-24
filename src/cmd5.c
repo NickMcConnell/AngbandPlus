@@ -839,6 +839,12 @@ void do_cmd_cast(void)
         return;
     }
 
+    if (pelko())
+    {
+        flush();
+        return;
+    }
+    
     /* Hex */
     if (p_ptr->realm1 == REALM_HEX)
     {
@@ -963,7 +969,7 @@ void do_cmd_cast(void)
     {
         if (flush_failure) flush();
 
-        msg_format("You failed to cast %s!", do_spell(use_realm, spell % 32, SPELL_NAME));
+        msg_format("You failed to %s %s!", spl_verb, do_spell(use_realm, spell % 32, SPELL_NAME));
         if (prompt_on_failure) msg_print(NULL);
 
         if (take_mana && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
@@ -1237,7 +1243,8 @@ void do_cmd_browse(void)
     int     num = 0;
     rect_t  display = ui_menu_rect();
     byte    spells[64];
-    char    temp[62*4];
+    bool    _browse_loading_hack = FALSE;
+    char    temp[62*5];
 
     if (!(p_ptr->realm1 || p_ptr->realm2) && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_RED_MAGE))
     {
@@ -1290,11 +1297,17 @@ void do_cmd_browse(void)
                 prt("No spells to browse.", 0, 0);
             (void)inkey();
 
-
             /* Restore the screen */
             screen_load();
 
             return;
+        }
+
+        if (_browse_loading_hack)
+        {
+            screen_load();
+            screen_save();
+            print_spells(0, spells, num, display, use_realm);
         }
 
         /* Clear lines, position cursor  (really should use strlen here) */
@@ -1306,8 +1319,15 @@ void do_cmd_browse(void)
 
         roff_to_buf(do_spell(use_realm, spell, SPELL_DESC), 62, temp, sizeof(temp));
 
+        _browse_loading_hack = FALSE;
+
         for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
         {
+            if (line > display.y + num + 3)
+            {
+                Term_erase(display.x, line + 1, display.cx);
+                _browse_loading_hack = TRUE;
+            }
             put_str(&temp[j], ++line, display.x);
         }
     }
@@ -1953,7 +1973,7 @@ static void do_name_pet(void)
         }
         if (r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE)
         {
-            msg_format("You cannot change name of this monster!");
+            msg_format("You cannot rename this monster!");
             return;
         }
         monster_desc(m_name, m_ptr, 0);

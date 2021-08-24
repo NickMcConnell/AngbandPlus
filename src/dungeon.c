@@ -31,43 +31,26 @@ static int wild_regen = 20;
  */
 byte value_check_aux1(object_type *o_ptr)
 {
-    /* Artifacts */
     if (object_is_artifact(o_ptr))
     {
-        /* Cursed/Broken */
         if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_TERRIBLE;
-
-        /* Normal */
         return FEEL_SPECIAL;
     }
 
-    /* Ego-Items */
     if (object_is_ego(o_ptr))
     {
-        /* Cursed/Broken */
-        if ((object_is_cursed(o_ptr) || object_is_broken(o_ptr)) && !object_is_device(o_ptr)) return FEEL_AWFUL;
-
-        /* Normal */
+        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_AWFUL;
         return FEEL_EXCELLENT;
     }
 
-    /* Cursed items */
-    if (object_is_cursed(o_ptr) && !object_is_device(o_ptr)) return FEEL_BAD;
-
-    /* Broken items */
+    if (object_is_cursed(o_ptr)) return FEEL_BAD;
     if (object_is_broken(o_ptr)) return FEEL_BROKEN;
-
     if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) return FEEL_AVERAGE;
 
-    /* Good "armor" bonus */
     if (o_ptr->to_a > 0) return FEEL_GOOD;
-
     if (o_ptr->tval == TV_GLOVES || o_ptr->tval == TV_BOOTS) return FEEL_AVERAGE;
-
-    /* Good "weapon" bonus */
     if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
 
-    /* Default to "average" */
     return FEEL_AVERAGE;
 }
 
@@ -96,6 +79,9 @@ static byte value_check_aux2(object_type *o_ptr)
 
     /* Good armor bonus */
     if (o_ptr->to_a > 0) return FEEL_ENCHANTED;
+
+    /* Don't be fooled by native to-hit/dam bonuses */
+    if (o_ptr->tval == TV_GLOVES || o_ptr->tval == TV_BOOTS) return FEEL_AVERAGE;
 
     /* Good weapon bonuses */
     if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_ENCHANTED;
@@ -1109,7 +1095,7 @@ static void process_world_aux_hp_and_sp(void)
     /*** Damage over Time ***/
 
     /* Take damage from cuts */
-    if (p_ptr->cut && !IS_INVULN())
+    if (p_ptr->cut && !IS_INVULN() && p_ptr->wild_mode)
     {
         cut_info_t cut = cut_info(p_ptr->cut);
         if (cut.dam)
@@ -1118,7 +1104,6 @@ static void process_world_aux_hp_and_sp(void)
             take_hit(DAMAGE_NOESCAPE, cut.dam, "a fatal wound");
         }
     }
-
 
     /* (Vampires) Take damage from sunlight. Note, Vampires are vulnerable
        to light so start with -50% resistance. Rather than res_save(RES_LIGHT)
@@ -1413,7 +1398,7 @@ static void process_world_aux_hp_and_sp(void)
     if (magic_eater_regen(regen_amount))
         wild_regen = 20;
 
-    if ((p_ptr->csp == 0) && (p_ptr->csp_frac == 0))
+    if (((p_ptr->csp == 0) && (p_ptr->csp_frac == 0)) || (elemental_is_(ELEMENTAL_WATER)))
     {
         if (p_ptr->msp == 0 && !one_in_(5))
         {
@@ -2749,7 +2734,7 @@ static void process_world(void)
             wm_ptr = &m_list[win_m_idx];
 
             monster_desc(m_name, wm_ptr, 0);
-            msg_format("%s is the winner!", m_name);
+            msg_format("%^s is the winner!", m_name);
             /* Hack: Make sure the player sees this one! */
             auto_more_state = AUTO_MORE_PROMPT;
             msg_print(NULL);
@@ -3601,18 +3586,13 @@ static void _dispatch_command(int old_now_turn)
                 msg_print("Your spells are blocked!");
                 /*energy_use = 100;*/
             }
-            else if (!fear_allow_magic())
-            {
-                msg_print("You are too scared!");
-                energy_use = 100;
-                if (p_ptr->pclass == CLASS_ALCHEMIST) energy_use = alchemist_infusion_energy_use();
-            }
             else if ( dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC)
                    && p_ptr->pclass != CLASS_BERSERKER
                    && p_ptr->pclass != CLASS_BLOOD_KNIGHT
                    && p_ptr->pclass != CLASS_WEAPONMASTER
                    && p_ptr->pclass != CLASS_MAULER
                    && p_ptr->pclass != CLASS_ALCHEMIST
+                   && p_ptr->pclass != CLASS_RAGE_MAGE
                    && p_ptr->prace  != RACE_MON_POSSESSOR
                    && p_ptr->prace  != RACE_MON_MIMIC)
             {
@@ -3625,6 +3605,7 @@ static void _dispatch_command(int old_now_turn)
                    && p_ptr->pclass != CLASS_WEAPONMASTER
                    && p_ptr->pclass != CLASS_MAULER
                    && p_ptr->pclass != CLASS_ALCHEMIST
+                   && p_ptr->pclass != CLASS_RAGE_MAGE
                    && p_ptr->prace  != RACE_MON_POSSESSOR
                    && p_ptr->prace  != RACE_MON_MIMIC)
             {
@@ -3641,8 +3622,6 @@ static void _dispatch_command(int old_now_turn)
                     which_power = "ninjutsu";
                 else if (mp_ptr->spell_book == TV_LIFE_BOOK)
                     which_power = "prayer";
-                else if (mp_ptr->spell_book == TV_RAGE_BOOK)
-                    which_power = "rage";
 
                 msg_format("An anti-magic shell disrupts your %s!", which_power);
                 equip_learn_flag(OF_NO_MAGIC);
@@ -3656,6 +3635,7 @@ static void _dispatch_command(int old_now_turn)
             }
             else
             {
+                spell_problem = 0;
                 if (p_ptr->prace == RACE_MON_RING)
                     ring_cast();
                 else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
@@ -3697,7 +3677,16 @@ static void _dispatch_command(int old_now_turn)
                     do_cmd_spell();
                 }
                 else
+                {
                     do_cmd_cast();
+                }
+                if (spell_problem & PWR_AFRAID)
+                {
+                    msg_print("You tremble in fear!");
+                    if (energy_use < 100) energy_use = 100;
+                    if (p_ptr->pclass == CLASS_ALCHEMIST) energy_use = alchemist_infusion_energy_use();
+                }
+                spell_problem = 0;
             }
             break;
 
@@ -3864,13 +3853,11 @@ static void _dispatch_command(int old_now_turn)
         {
             if (!p_ptr->wild_mode)
             {
-                if (!fear_allow_magic())
+                if ((do_cmd_power() & PWR_AFRAID) && (energy_use < 100))
                 {
-                    msg_print("You are too scared!");
+                    msg_print("You tremble in fear!");
                     energy_use = 100;
                 }
-                else
-                    do_cmd_power();
             }
             break;
         }
@@ -4704,6 +4691,21 @@ static void process_player(void)
                 set_poisoned(p_ptr->poisoned - amt, TRUE);
             }
 
+            /* Cuts now work the same way poison does
+             * (except that cut healing is handled separately) */
+            if ((p_ptr->cut) && (!p_ptr->wild_mode))
+            {
+                /* Take damage from cuts */
+                if (!IS_INVULN())
+                {
+                    cut_info_t cut = cut_info(p_ptr->cut);
+                    if (cut.dam)
+                    {
+                        /*msg_format("<color:r> %d Cut Damage</color>", cut.dam);*/
+                        take_hit(DAMAGE_NOESCAPE, cut.dam, "a fatal wound");
+                    }
+                }
+            }
 
             if (p_ptr->free_turns)
             {
@@ -5039,7 +5041,7 @@ static void dungeon(bool load_game)
 #ifdef _DEBUG
         if (p_ptr->action == ACTION_GLITTER)
         {
-            int msec = delay_factor * delay_factor * delay_factor;
+            int msec = delay_time();
             Term_xtra(TERM_XTRA_DELAY, msec);
             Term_fresh();
         }
@@ -5394,6 +5396,20 @@ void play_game(bool new_game)
 
         /* Initialize object array */
         wipe_o_list();
+
+        /* Confirm unusual settings
+         * (players who play both coffee-break and normal games and start
+         * new games by loading old savefiles sometimes turn coffee-break off,
+         * but forget to turn no_wilderness and ironman_downward off) */
+        if ((!coffee_break) && (ironman_downward))
+        {
+            bool okei = get_check("Really play with ironman stairs? ");
+            if (!okei)
+            {
+                ironman_downward = FALSE;
+                if ((no_wilderness) && (!get_check("Really play with no wilderness? "))) no_wilderness = FALSE;
+            }
+        }
     }
     else
     {

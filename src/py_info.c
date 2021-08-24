@@ -316,7 +316,7 @@ static void _build_general2(doc_ptr doc)
         _display_skill(doc, "Perception", skills.fos, 6);
         _display_skill(doc, "Searching", skills.srh, 6);
         _display_skill(doc, "Disarming", skills.dis, 8);
-        _display_skill(doc, "Device", skills.dev, 6);
+        _display_skill(doc, "Device", skills.dev, 7);
     }
 
     string_free(s);
@@ -401,7 +401,7 @@ static _flagzilla_ptr _flagzilla_alloc(void)
 
         if (o_ptr)
         {
-            obj_flags_known(o_ptr, flagzilla->obj_flgs[i]);
+            obj_flags_display(o_ptr, flagzilla->obj_flgs[i]);
             switch (o_ptr->rune)
             {
             case RUNE_ABSORPTION:
@@ -598,7 +598,15 @@ static void _build_flags_aura(doc_ptr doc, cptr name, int flg, _flagzilla_ptr fl
 {
     if (_build_flags_imp(doc, name, flg, OF_INVALID, flagzilla))
     {
-        doc_printf(doc, " %dd%d+2", 1 + p_ptr->lev/10, 2 + p_ptr->lev/ 10);
+        if (flg == OF_AURA_FIRE)
+             doc_printf(doc, " %dd%d+2", 2 * p_ptr->sh_fire - 1 + p_ptr->lev/10, 2 + p_ptr->lev/ 10);
+        else if (flg == OF_AURA_COLD)
+             doc_printf(doc, " %dd%d+2", 2 * p_ptr->sh_cold - 1 + p_ptr->lev/10, 2 + p_ptr->lev/ 10);
+        else if (flg == OF_AURA_ELEC)
+             doc_printf(doc, " %dd%d+2", 2 * p_ptr->sh_elec - 1 + p_ptr->lev/10, 2 + p_ptr->lev/ 10);
+        else if (flg == OF_AURA_SHARDS)
+             doc_printf(doc, " %dd%d+2", 2 * p_ptr->sh_shards - 1 + p_ptr->lev/10, 2 + p_ptr->lev/ 10);
+        else doc_printf(doc, " %dd%d+2", 1 + p_ptr->lev/10, 2 + p_ptr->lev/ 10);
     }
     doc_newline(doc);
 }
@@ -840,7 +848,10 @@ static void _build_stats(doc_ptr doc, _flagzilla_ptr flagzilla)
                 if (have_flag(flagzilla->obj_flgs[j], dec_flg))
                     adj = -o_ptr->pval;
                 else if (have_flag(flagzilla->obj_flgs[j], flg))
+                {
                     adj += o_ptr->pval;
+                    if (p_ptr->prace == RACE_MON_ARMOR) adj += rag_effect_pval(o_ptr, -1, flg, FALSE);
+                }
 
                 if (adj)
                 {
@@ -974,7 +985,8 @@ static void _build_equipment(doc_ptr doc)
             object_desc(o_name, o_ptr, OD_COLOR_CODED);
             doc_printf(doc, " %c) <indent><style:indent>%s</style></indent>\n", slot - 1 + 'a', o_name);
             if (((always_dump_origins) || ((final_dump_origins) && ((p_ptr->total_winner) || (p_ptr->is_dead))))
-              && (o_ptr->origin_type != ORIGIN_NONE) && (o_ptr->origin_type != ORIGIN_MIXED))
+              && (o_ptr->origin_type != ORIGIN_NONE) && (o_ptr->origin_type != ORIGIN_MIXED)
+              && (!prace_is_(RACE_MON_SWORD)) && (!prace_is_(RACE_MON_ARMOR)) && (!prace_is_(RACE_MON_RING)))
             {
                 doc_printf(doc, "    <indent><style:indent><color:W>");
                 (void)display_origin(o_ptr, doc);
@@ -2057,14 +2069,15 @@ static void _build_statistics(doc_ptr doc)
         doc_printf(doc, "  Selling  : <color:w>%8d</color>\n", stats_gold_counts.selling);
     else
         doc_printf(doc, "  Alchemy  : <color:w>%8d</color>\n", stats_gold_counts.selling);
-    doc_printf(doc, "  Winnings : <color:w>%8d</color> <color:w>%8d</color>\n",
+    doc_printf(doc, "  Winnings : <color:w>%8d</color> <color:G>%8d</color>\n",
         stats_gold_counts.winnings,
         stats_gold_counts.found + stats_gold_counts.selling + stats_gold_counts.winnings);
     doc_printf(doc, "  Purchases: <color:w>%8d</color>\n", stats_gold_counts.buying);
     doc_printf(doc, "  Services : <color:w>%8d</color>\n", stats_gold_counts.services);
-    doc_printf(doc, "  Stolen   : <color:w>%8d</color> <color:w>%8d</color>\n",
+    doc_printf(doc, "  Stolen   : <color:w>%8d</color> <color:R>%8d</color>\n",
         stats_gold_counts.stolen,
         stats_gold_counts.buying + stats_gold_counts.services + stats_gold_counts.stolen);
+    cornucopia_print_stats(doc);
     doc_printf(doc, "                      <color:y>%8d</color>\n\n", p_ptr->au);
 
     /* Objects */

@@ -95,7 +95,7 @@ void _equip_on_change_form(void)
     inv_free(temp);
     inv_free(temp2);
 
-    p_ptr->update |= PU_BONUS | PU_TORCH | PU_MANA;
+    p_ptr->update |= PU_BONUS | PU_TORCH | PU_MANA | PU_HP;
     p_ptr->redraw |= PR_EQUIPPY;
     p_ptr->window |= PW_INVEN | PW_EQUIP;
 }
@@ -111,6 +111,8 @@ static void _birth(void)
     _werewolf_form = 0;
     skills_innate_init("Claw", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
     skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+    py_birth_food();
+    py_birth_light();
 }
 
 void _werewolf_calc_innate_attacks(void)
@@ -385,7 +387,7 @@ void werewolf_silver_effect(int power, bool allow_mitigation)
         case 1:
         {
             msg_print("The silver hurts you!");
-            take_hit(DAMAGE_NOESCAPE, MIN(randint1(power), 32), "contact with silver");
+            take_hit(DAMAGE_NOESCAPE, pienempi(randint1(power), 32), "contact with silver");
             break;
         }
         case 2:
@@ -400,8 +402,9 @@ void werewolf_silver_effect(int power, bool allow_mitigation)
         } /* Fall through */
         case 3:
         {
+            int dam = randint1(MIN(40, power));
             if (noppa == 3) msg_print("The silver saps your energy away!");
-            p_inc_minislow(MAX(1, randint1(MIN(40, power)) / 8));
+            p_inc_minislow(MAX(1, dam / 8));
             break;
         }
         case 4:

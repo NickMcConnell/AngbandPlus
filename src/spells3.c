@@ -451,6 +451,8 @@ void teleport_player(int dis, u32b mode)
     if (!teleport_player_aux(dis, mode)) return;
     if (!dun_level) return; /* Wilderness scrolling ... */
 
+    if ((!mode) && (strpos("Alexander", player_name) == 1) && (one_in_(88))) msg_print("You feel a strange pulling sensation!");
+
     /* Monsters with teleport ability may follow the player */
     for (xx = -2; xx < 3; xx++)
     {
@@ -633,7 +635,9 @@ void teleport_away_followable(int m_idx)
 
         if (follow)
         {
-            if (get_check("Do you follow it? "))
+            char mon_pron[MAX_NLEN];
+            monster_desc(mon_pron, m_ptr, MD_PRON_VISIBLE | MD_PRON_HIDDEN | MD_OBJECTIVE);
+            if (get_check(format("Do you follow %s? ", mon_pron)))
             {
                 if (one_in_(3))
                 {
@@ -1021,6 +1025,13 @@ bool apply_disenchant(int mode)
         if (o_ptr->to_h <= 0 && o_ptr->to_d <= 0 && o_ptr->to_a <= 0 && o_ptr->pval <= 1)
             return FALSE;
 
+        if (p_ptr->prace == RACE_MON_ARMOR) /* Eat life rating instead */
+        {
+            int vahinko = res_calc_dam(RES_DISEN, randint1(50));
+            if (vahinko > 0) lp_player(0 - vahinko);
+            return FALSE;
+        }
+
         object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
         if (demigod_is_(DEMIGOD_HEPHAESTUS))
@@ -1069,6 +1080,7 @@ bool apply_disenchant(int mode)
             msg_format("Your %s was disenchanted!", o_name);
             virtue_add(VIRTUE_HARMONY, 1);
             virtue_add(VIRTUE_ENCHANTMENT, -2);
+            if (o_ptr->insured) cornucopia_item_disenchanted(o_ptr, to_a, to_h, to_d, pval);
 
             p_ptr->update |= (PU_BONUS);
             p_ptr->window |= (PW_EQUIP);
@@ -1235,17 +1247,20 @@ void apply_nexus(monster_type *m_ptr)
 
         case 6:
         {
-            if (randint0(100) < p_ptr->skills.sav)
+            if (!quest_id_current())
             {
-                msg_print("You resist the effects!");
+                if (randint0(100) < p_ptr->skills.sav)
+                {
+                    msg_print("You resist the effects!");
 
+                    break;
+                }
+
+                /* Teleport Level */
+                teleport_level(0);
                 break;
             }
-
-            /* Teleport Level */
-            teleport_level(0);
-            break;
-        }
+        } /* Fall through */
 
         case 7:
         {
@@ -1259,7 +1274,7 @@ void apply_nexus(monster_type *m_ptr)
                 msg_print("Your body starts to scramble...");
                 wild_talent_scramble();
             }
-            else if (no_wilderness || no_chris)
+            else if (no_wilderness || no_chris || quest_id_current())
             {
                 if (!no_scrambling) msg_print("Your body starts to scramble...");
                 mutate_player();
@@ -1633,9 +1648,9 @@ void fetch(int dir, int wgt, bool require_los)
     char            o_name[MAX_NLEN];
 
     /* Check to see if an object is already there */
-    if (cave[py][px].o_idx)
+    if ((cave[py][px].o_idx) || (!cave_drop_bold(py, px)))
     {
-        msg_print("You can't fetch when you're already standing on something.");
+        msg_print("You need empty floor under your feet to fetch.");
 
         return;
     }
@@ -1976,10 +1991,16 @@ static bool _alchemy_aux(obj_ptr obj, bool force)
 
     object_desc(o_name, obj, OD_COLOR_CODED);
 
+    if (object_is_shoukinkubi(obj))
+    {
+        msg_format("You consider pulverising %s, but quickly decide against it.", o_name);
+        return FALSE;
+    }
+
     /* Verify unless quantity given */
     if (!force)
     {
-        if (confirm_destroy || (obj_value(obj) > 0))
+        if (confirm_destroy || (obj_value(obj) > 0) || (obj->inscription))
         {
             sprintf(out_val, "Really turn %s to gold? ", o_name);
             if (!get_check(out_val)) return FALSE;
@@ -2006,7 +2027,7 @@ static bool _alchemy_aux(obj_ptr obj, bool force)
         if (no_selling) price /= 3;
         price *= obj->number;
 
-        msg_format("You turn %s to %d coins' worth of gold.", o_name, price);
+        msg_format("You turn %s to %d %s worth of gold.", o_name, price, (price == 1) ? "coin's" : "coins'");
 
         p_ptr->au += price;
         stats_on_gold_selling(price); /* ? */
@@ -2049,14 +2070,14 @@ bool alchemy(void)
         copy.number = amt;
         if (_alchemy_aux(&copy, force))
         {
-            prompt.obj->number -= amt;
+            obj_dec_number(prompt.obj, amt, TRUE);
             obj_release(prompt.obj, 0);
             return TRUE;
         }
     }
-    if (_alchemy_aux(prompt.obj, force))
+    else if (_alchemy_aux(prompt.obj, force))
     {
-        prompt.obj->number = 0;
+        obj_zero(prompt.obj);
         obj_release(prompt.obj, 0);
         return TRUE;
     }
@@ -2493,6 +2514,15 @@ bool mundane_spell(bool only_equip)
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
 
+    if ((prompt.obj->discount == 99) && (object_is_ego(prompt.obj)))
+    {
+        char o_name[MAX_NLEN];
+        object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_NAME_ONLY | OD_SINGULAR));
+        
+        msg_format("The masterful craftsmanship of the %s resists mundanization!", o_name);
+        return FALSE;
+    }
+
     if (prompt.obj->name1 == ART_HAND_OF_VECNA || prompt.obj->name1 == ART_EYE_OF_VECNA)
     {
         msg_print("There is no effect.");
@@ -2512,12 +2542,7 @@ bool mundane_spell(bool only_equip)
         byte marked = prompt.obj->marked;
         u16b inscription = prompt.obj->inscription;
         int  number = prompt.obj->number;
-        byte orig = prompt.obj->origin_type;
-        int  orig_x = prompt.obj->origin_xtra;
-        int  orig_p = prompt.obj->origin_place;
-        byte mitze_tp = prompt.obj->mitze_type;
-        byte mitze_lv = prompt.obj->mitze_level;
-        s32b mitze_tn = prompt.obj->mitze_turn;
+        int  insured = prompt.obj->insured;
 
         /* Wipe it clean ... note this erases info that must
          * not be erased. Thus, all the code to remember and restore ... sigh. */
@@ -2528,14 +2553,18 @@ bool mundane_spell(bool only_equip)
         prompt.obj->marked = marked;
         prompt.obj->inscription = inscription;
         prompt.obj->number = number;
-        prompt.obj->origin_type = orig;
-        prompt.obj->origin_xtra = orig_x;
-        prompt.obj->origin_place = orig_p;
-        prompt.obj->mitze_type = mitze_tp;
-        prompt.obj->mitze_level = mitze_lv;
-        prompt.obj->mitze_turn = mitze_tn;
+        object_origins(prompt.obj, ORIGIN_MUNDANITY);
+        object_mitze(prompt.obj, MITZE_ID);
+        if (insured)
+        {
+            prompt.obj->insured = insured;
+            cornucopia_mark_destroyed(cornucopia_item_policy(prompt.obj), prompt.obj->number);
+            prompt.obj->insured = 0;
+        }
     }
     p_ptr->update |= PU_BONUS;
+    p_ptr->window |= PW_EQUIP;
+    p_ptr->redraw |= PR_EFFECTS;
     android_calc_exp();
 
     return TRUE;
@@ -2793,7 +2822,7 @@ bool recharge_from_device(int power)
             object_desc(name, src_ptr, OD_OMIT_PREFIX | OD_COLOR_CODED);
             msg_format("Recharging consumes your %s!", name);
 
-            src_ptr->number = 0;
+            obj_zero(src_ptr);
             obj_release(src_ptr, OBJ_RELEASE_QUIET);
         }
     }
@@ -3824,7 +3853,7 @@ int set_cold_destroy(object_type *o_ptr)
  * New-style wands and rods handled correctly. -LM-
  * Returns TRUE if we must force a -more- prompt.
  */
-static bool _damage_obj(obj_ptr obj, int p1, int p2, int which_res)
+static bool _damage_obj(obj_ptr obj, int p1, int p2, int which_res, bool mon_attack)
 {
     int i, amt = 0;
     bool warn_player = FALSE;
@@ -3861,12 +3890,14 @@ static bool _damage_obj(obj_ptr obj, int p1, int p2, int which_res)
 
         stats_on_m_destroy(obj, amt);
 
-        obj->number -= amt;
+        if (obj->insured) cornucopia_object_destroyed(obj, amt, mon_attack);
+
+        obj->number -= amt; /* calling obj_dec_number() here would be bad */
         obj_release(obj, OBJ_RELEASE_QUIET);
     }
     return warn_player;
 }
-void inven_damage(inven_func typ, int p1, int which)
+void inven_damage(int who, inven_func typ, int p1, int which)
 {
     slot_t slot;
     int    p2 = 100;
@@ -3888,7 +3919,7 @@ void inven_damage(inven_func typ, int p1, int which)
         if (object_is_artifact(obj)) continue;
         if (!typ(obj)) continue;
 
-        if (_damage_obj(obj, p1, p2, which)) varoita = TRUE;
+        if (_damage_obj(obj, p1, p2, which, (who > 0))) varoita = TRUE;
     }
 
     /* Quiver */
@@ -3906,7 +3937,7 @@ void inven_damage(inven_func typ, int p1, int which)
                 if (object_is_artifact(obj)) continue;
                 if (!typ(obj)) continue;
 
-                (void)_damage_obj(obj, p1, p2, which);
+                (void)_damage_obj(obj, p1, p2, which, (who > 0));
             }
         }
     }
@@ -4108,8 +4139,9 @@ bool curse_weapon(bool force, int slot)
  *
  * Note that this function is one of the more "dangerous" ones...
  */
-static s16b poly_r_idx(int r_idx)
+static s16b poly_r_idx(monster_type *m_ptr)
 {
+    int r_idx = m_ptr->r_idx;
     monster_race *r_ptr = &r_info[r_idx];
 
     int i, r, lev1, lev2;
@@ -4151,9 +4183,13 @@ static s16b poly_r_idx(int r_idx)
 
         /* Ignore unique monsters */
         if (r_ptr->flags1 & RF1_UNIQUE) continue;
+        if (r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)) continue;
 
         /* Ignore monsters with incompatible levels */
         if ((r_ptr->level < lev1) || (r_ptr->level > lev2)) continue;
+
+        /* Try not to generate monsters in weird terrain */
+        if ((i < 600) && (!monster_can_cross_terrain(cave[m_ptr->fy][m_ptr->fx].feat, r_ptr, 0))) continue;
 
         /* Use that index */
         r_idx = r;
@@ -4172,7 +4208,7 @@ bool polymorph_monster(mon_ptr mon)
     int r_idx;
 
     if (mon->mflag2 & MFLAG2_QUESTOR) return FALSE;
-    r_idx = poly_r_idx(mon->r_idx);
+    r_idx = poly_r_idx(mon);
     if (r_idx != mon->r_idx || p_ptr->wizard)
         mon_change_race(mon, r_idx, "polymorphed");
     return TRUE;
@@ -4341,6 +4377,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
             case RACE_CYCLOPS:
                 summon_kin_type = 'P';
                 break;
+            case RACE_BOIT:
             case RACE_YEEK:
                 summon_kin_type = 'y';
                 break;

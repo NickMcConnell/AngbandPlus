@@ -5,8 +5,8 @@
 # across a range of different makefiles, to cut down on maintenance.
 #
 
-VERSION = 7.0.cloudberry
-COPYRIGHT = (c) 1995-2018 Angband contributors
+VERSION = 7.1.toffee
+COPYRIGHT = (c) 1995-2019 Angband contributors
 PROGNAME = frogcomposband
 
 HEADERS = \
@@ -38,8 +38,8 @@ WINMAINFILES = $(PROGNAME).res main-win.o readdib.o
 ANGFILES = \
     alky.o archaeologist.o archer.o artifact.o autopick.o virtue.o bard.o \
     beastmaster.o berserker.o birth.o bldg.o blood_knight.o blood_mage.o \
-    cavalry.o cave.o chaos_warrior.o classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o \
-    cmd6.o combat.o demigod.o devicemaster.o devices.o do-spell.o doppelganger.o duelist.o dungeon.o \
+    cavalry.o cave.o chaos_warrior.o classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+    combat.o corny.o demigod.o devicemaster.o devices.o do-spell.o doppelganger.o duelist.o dungeon.o \
     ego.o effects.o equip.o fear.o files.o flavor.o floors.o force_trainer.o generate.o gf.o gray_mage.o \
     grid.o hex.o high_mage.o hissatsu.o home.o init1.o init2.o int-map.o inv.o lawyer.o load.o mage.o \
     magic_eater.o mauler.o melee1.o melee2.o menu.o message.o mindcrafter.o mirror_master.o \
@@ -47,12 +47,12 @@ ANGFILES = \
     mut_a.o mystic.o necromancer.o ninja.o ninjalaw.o obj.o obj_info.o obj_prompt.o \
 	object1.o object2.o object3.o obj_kind.o pack.o paladin.o personality.o \
     polly.o priest.o psion.o py_birth.o py_info.o py_throw.o quest.o quiver.o \
-	races.o races_a.o races_k.o races_mimic.o race_angel.o \
-    race_beholder.o race_centipede.o race_demon.o race_dragon.o race_elemental.o race_giant.o race_golem.o \
-    race_hound.o race_hydra.o race_jelly.o race_leprechaun.o race_lich.o \
-	race_mimic.o race_possessor.o race_quylthulg.o race_spider.o \
-    race_ring.o race_sword.o race_troll.o race_vampire.o race_vortex.o \
-    race_xorn.o racial.o rage-mage.o randname.o ranger.o rect.o red_mage.o \
+	races.o races_a.o races_k.o races_mimic.o r_angel.o \
+    r_centip.o r_demon.o r_dragon.o r_elem.o r_eye.o r_giant.o r_golem.o \
+    r_hound.o r_hydra.o r_jelly.o r_leprec.o r_lich.o r_mimic.o \
+	r_orc.o r_poss.o r_quyl.o r_rag.o r_spider.o \
+    r_ring.o r_sword.o r_troll.o r_vamp.o r_vortex.o \
+    r_xorn.o racial.o rage-mage.o randname.o ranger.o rect.o red_mage.o \
     resist.o rogue.o rooms.o rune_knight.o samurai.o save.o savefile.o scores.o scout.o shop.o skillmaster.o \
     skills.o sniper.o sorcerer.o spells.o spells1.o spells2.o spells3.o spells_a.o \
     spells_c.o spells_h.o spells_m.o spells_s.o spoilers.o str-map.o streams.o \

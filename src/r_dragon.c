@@ -119,7 +119,7 @@ static int _choose_effect(int list[])
 
     {
         menu_t menu = { "Choose which effect?", NULL, NULL,
-                        _effect_menu_fn, list, ct};
+                        _effect_menu_fn, list, ct, 0};
         
         i = menu_choose(&menu);
         if (i >= 0)
@@ -2272,9 +2272,9 @@ static void _elemental_calc_bonuses(void) {
         res_add(RES_BLIND);
         switch (res)
         {
-        case RES_FIRE: p_ptr->sh_fire = TRUE; break;
-        case RES_COLD: p_ptr->sh_cold = TRUE; break;
-        case RES_ELEC: p_ptr->sh_elec = TRUE; break;
+        case RES_FIRE: p_ptr->sh_fire++; break;
+        case RES_COLD: p_ptr->sh_cold++; break;
+        case RES_ELEC: p_ptr->sh_elec++; break;
         }
     }
     _dragon_calc_bonuses();
@@ -2403,7 +2403,7 @@ static void _nether_calc_bonuses(void) {
     {
         p_ptr->align -= 200;
         p_ptr->pspeed += 2;
-        p_ptr->sh_cold = TRUE;
+        p_ptr->sh_cold++;
         res_add(RES_POIS);
         res_add_immune(RES_NETHER);
         res_add(RES_NEXUS);

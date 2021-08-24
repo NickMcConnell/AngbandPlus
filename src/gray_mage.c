@@ -512,6 +512,8 @@ void gray_mage_cast_spell(void)
         return;
     }
 
+    if (pelko()) return;
+
     slot_ptr = _choose("Cast", _ALLOW_EXCHANGE | _SHOW_INFO);
     if (slot_ptr)
     {

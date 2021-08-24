@@ -39,7 +39,7 @@ bool restore_mana(void)
         magic_eater_restore();
         result = TRUE;
     }
-    else if ((p_ptr->csp < p_ptr->msp) && (!elemental_is_(ELEMENTAL_WATER)))
+    else if ((p_ptr->csp < p_ptr->msp) && (!elemental_is_(ELEMENTAL_WATER)) && (p_ptr->pclass != CLASS_RAGE_MAGE))
     {
         if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
             p_ptr->csp += (p_ptr->msp - p_ptr->csp) / 3;
@@ -138,6 +138,12 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
                 {
                     if (set_image(p_ptr->image + randint0(25) + 25, FALSE))
                         ident = TRUE;
+                    if (((p_ptr->csp > 0) || (p_ptr->csp_frac > 0)) && (player_mana_drainable()))
+                    {
+                        p_ptr->csp = 0;
+                        p_ptr->csp_frac = 0;
+                        ident = TRUE;
+                    }
                 }
                 break;
             }
@@ -373,6 +379,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
              || prace_is_(RACE_GOLEM)
              || prace_is_(RACE_MON_GOLEM)
              || prace_is_(RACE_MON_SWORD)
+             || prace_is_(RACE_MON_ARMOR)
              || prace_is_(RACE_MON_RING)
              || p_ptr->mimic_form == MIMIC_CLAY_GOLEM
              || p_ptr->mimic_form == MIMIC_IRON_GOLEM
@@ -434,7 +441,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             msg_print("The food falls through your jaws and vanishes!");
         }
     }
-    else if (((get_race()->flags & RACE_IS_NONLIVING) && (!prace_is_(RACE_EINHERI))) || prace_is_(RACE_ENT))
+    else if (((get_race()->flags & RACE_IS_NONLIVING) && (!prace_is_(RACE_EINHERI))) || prace_is_(RACE_ENT) || prace_is_(RACE_MON_ARMOR))
     {
         msg_print("The food of mortals is poor sustenance for you.");
         set_food(p_ptr->food + obj->pval / 20);
@@ -472,6 +479,7 @@ static bool _can_eat(object_type *o_ptr)
         prace_is_(RACE_GOLEM) ||
         prace_is_(RACE_MON_GOLEM) ||
         prace_is_(RACE_MON_SWORD) ||
+        prace_is_(RACE_MON_ARMOR) ||
         prace_is_(RACE_MON_RING) ||
         p_ptr->mimic_form == MIMIC_CLAY_GOLEM ||
         p_ptr->mimic_form == MIMIC_IRON_GOLEM ||
@@ -625,6 +633,7 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
             case RACE_SPECTRE:
             case RACE_MON_DEMON:
             case RACE_MON_SWORD:
+            case RACE_MON_ARMOR:
             case RACE_MON_RING:
                 set_food(p_ptr->food + obj->pval / 20);
                 break;
@@ -682,7 +691,7 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
         if (obj->loc.where == INV_FLOOR)
             stats_on_pickup(obj);
 
-        obj->number -= number;
+        obj_dec_number(obj, number, TRUE);
         obj_release(obj, OBJ_RELEASE_DELAYED_MSG);
     }
 }
@@ -829,6 +838,7 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
                  case SV_SCROLL_SUMMON_PET:
                  case SV_SCROLL_SUMMON_KIN:
                  case SV_SCROLL_CRAFTING:
+                 case SV_SCROLL_MUNDANITY:
                  {
                      energy_use = 0;
                      break;
@@ -901,7 +911,7 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
     else
     {
         stats_on_use(o_ptr, number);
-        o_ptr->number -= number;
+        obj_dec_number(o_ptr, number, TRUE);
         obj_release(o_ptr, OBJ_RELEASE_DELAYED_MSG);
     }
 }
@@ -1106,7 +1116,7 @@ static void do_cmd_device_aux(obj_ptr obj)
                 char o_name[MAX_NLEN];
                 object_desc(o_name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
                 msg_format("Desperation magic consumes your %s!", o_name);
-                obj->number = 0;
+                obj_zero(obj);
             }
             else
             {
@@ -1515,6 +1525,12 @@ static void do_cmd_activate_aux(obj_ptr obj)
         return;
     }
 
+    if (obj->timeout)
+    {
+        msg_print("It whines, glows and fades...");
+        return;
+    }
+
     effect = obj_get_effect(obj);
     if (!effect_try(&effect))
     {
@@ -1522,12 +1538,6 @@ static void do_cmd_activate_aux(obj_ptr obj)
         msg_print("You failed to activate it properly.");
         if (prompt_on_failure) msg_print(NULL);
         sound(SOUND_FAIL);
-        return;
-    }
-
-    if (obj->timeout)
-    {
-        msg_print("It whines, glows and fades...");
         return;
     }
 

@@ -34,6 +34,7 @@ extern int py_birth(void);
                     static int _weaponmaster_ui(void);
                     static int _devicemaster_ui(void);
                     static int _gray_mage_ui(void);
+                    static int _patron_ui(void);
         static int _realm1_ui(void);
             static int _realm2_ui(void);
         /* Monster Mode */
@@ -48,6 +49,7 @@ extern int py_birth(void);
                     static int _mon_golem_ui(void);
                     static int _mon_spider_ui(void);
                     static int _mon_troll_ui(void);
+                    static int _mon_orc_ui(void);
     static int _stats_ui(void);
 
 extern void py_birth_obj(object_type *o_ptr);
@@ -143,6 +145,8 @@ void py_birth_obj(object_type *o_ptr)
 
     obj_identify_fully(o_ptr);
 
+    object_origins(o_ptr, ORIGIN_BIRTH);
+
     /* Big hack for sexy players ... only wield the starting whip,
      * but carry the alternate weapon. Previously, sexy characters
      * would usually start off dual-wielding (ineffectual and confusing)*/
@@ -154,8 +158,6 @@ void py_birth_obj(object_type *o_ptr)
         pack_carry(o_ptr);
         return;
     }
-
-    object_origins(o_ptr, ORIGIN_BIRTH);
 
     slot = equip_first_empty_slot(o_ptr);
     if (slot && o_ptr->number == 1)
@@ -200,6 +202,7 @@ static int _welcome_ui(void)
 {
     /* Mega-Hack */
     werewolf_init();
+    p_ptr->chaos_patron = RANDOM_PATRON;
 
     for (;;)
     {
@@ -262,7 +265,7 @@ static int _welcome_ui(void)
             p_ptr->realm1 = previous_char.realm1;
             p_ptr->realm2 = previous_char.realm2;
             p_ptr->dragon_realm = previous_char.dragon_realm;
-            p_ptr->au = previous_char.au;
+            p_ptr->au = previous_char.au;            
             for (i = 0; i < MAX_STATS; i++)
             {
                 p_ptr->stat_cur[i] = previous_char.stat_max[i];
@@ -639,6 +642,7 @@ static void _pers_ui(void)
         }
     }
     vec_free(v);
+    if (p_ptr->personality == PERS_CHAOTIC) (void)_patron_ui();
 }
 
 static int _pers_cmp(personality_ptr l, personality_ptr r)
@@ -689,7 +693,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Undead",
         {RACE_EINHERI, RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
     { "Other",
-        {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT,
+        {RACE_ANDROID, RACE_BEASTMAN, RACE_BOIT, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT,
          RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_WEREWOLF, RACE_YEEK,-1 } },
 };
 
@@ -1162,6 +1166,8 @@ static int _subclass_ui(void)
             rc = _devicemaster_ui();
         else if (p_ptr->pclass == CLASS_GRAY_MAGE)
             rc = _gray_mage_ui();
+        else if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+            rc = _patron_ui();
         else
         {
             p_ptr->psubclass = 0;
@@ -1363,6 +1369,41 @@ static int _gray_mage_ui(void)
     }
 }
 
+static int _patron_ui(void)
+{
+    for (;;)
+    {
+        int cmd, i, alku = 0, loppu = MAX_CHAOS_PATRON;
+
+        doc_clear(_doc);
+        _race_class_top(_doc);
+
+        doc_insert(_doc, "<color:G>Choose Patron</color>\n");
+        for (i = alku; i < loppu; i++)
+        {
+            cptr patron_name = chaos_patrons[i];
+            doc_printf(_doc, "  <color:y>%c</color>) <color:%c>%s</color>\n", I2A(i), p_ptr->chaos_patron == i ? 'B' : 'w', patron_name);
+        }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
+
+        _sync_term(_doc);
+        cmd = _inkey();
+        if (cmd == '\t') _inc_rcp_state();
+        else if (cmd == '=') _birth_options();
+        else if (cmd == ESCAPE) return UI_OK; /* ! */
+        else
+        {
+            if (cmd == '*') i = RANDOM_PATRON + alku;
+            else i = A2I(cmd);
+            if ((alku <= i && i < loppu) || (i == RANDOM_PATRON + alku))
+            {
+                p_ptr->chaos_patron = i - alku;
+                return UI_OK;
+            }
+        }
+    }
+}
+
 /************************************************************************
  * 2.3.2) Magic
  ***********************************************************************/ 
@@ -1547,9 +1588,9 @@ static _race_group_t _mon_race_groups[_MAX_MON_RACE_GROUPS] = {
     { "Leprechaun",
         {RACE_MON_LEPRECHAUN, -1} },
     { "Mimic/Possessor",
-        {RACE_MON_SWORD, /*RACE_MON_ARMOR,*/ RACE_MON_MIMIC, RACE_MON_POSSESSOR, RACE_MON_RING, -1} },
+        {RACE_MON_SWORD, RACE_MON_ARMOR, RACE_MON_MIMIC, RACE_MON_POSSESSOR, RACE_MON_RING, -1} },
     { "Orc/Troll/Giant",
-        {RACE_MON_GIANT, /*RACE_MON_KOBOLD, RACE_MON_ORC,*/ RACE_MON_TROLL, -1} },
+        {RACE_MON_GIANT, /*RACE_MON_KOBOLD,*/ RACE_MON_ORC, RACE_MON_TROLL, -1} },
     { "Undead",
         {/*RACE_MON_GHOST,*/ RACE_MON_LICH, RACE_MON_VAMPIRE, /*RACE_MON_WRAITH, RACE_MON_ZOMBIE,*/ -1 } },
     { "Xorn",
@@ -1705,6 +1746,8 @@ static int _mon_subrace_ui(void)
         return _mon_spider_ui();
     else if (p_ptr->prace == RACE_MON_TROLL)
         return _mon_troll_ui();
+    else if (p_ptr->prace == RACE_MON_ORC)
+        return _mon_orc_ui();
     else
     {
         p_ptr->psubrace = 0;
@@ -1716,6 +1759,12 @@ static int _mon_demon_ui(void)
 {
     assert(p_ptr->prace == RACE_MON_DEMON);
     return _subrace_ui_aux(DEMON_MAX, "Demon Subrace", "Demons.txt", NULL);
+}
+
+static int _mon_orc_ui(void)
+{
+    assert(p_ptr->prace == RACE_MON_ORC);
+    return _subrace_ui_aux(ORC_MAX, "Orc Subrace", "Orcs.txt", NULL);
 }
 
 static int _mon_dragon_ui(void)
@@ -2023,7 +2072,9 @@ static void _stats_init(void)
         case RACE_MON_LEPRECHAUN:
         case RACE_MON_ELEMENTAL:
         case RACE_MON_SWORD:
+        case RACE_MON_ARMOR:
         case RACE_MON_GOLEM:
+        case RACE_MON_ORC:
         {
             int stats[6] = { 17, 13, 8, 16, 15, 10 };
             _stats_init_aux(stats);
@@ -2118,9 +2169,14 @@ static void _stats_init(void)
     {
         switch (p_ptr->pclass)
         {
+        case CLASS_BERSERKER:
+        {
+            int stats[6] = { 17, 8, 8, 17, 15, 9 };
+            _stats_init_aux(stats);
+            break;
+        }
         case CLASS_WARRIOR:
         case CLASS_CAVALRY:
-        case CLASS_BERSERKER:
         case CLASS_MAULER:
         case CLASS_ARCHER:
         case CLASS_SAMURAI:
@@ -2131,7 +2187,7 @@ static void _stats_init(void)
         case CLASS_DUELIST:
         case CLASS_RAGE_MAGE:
         {
-            int stats[6] = { 17, 8, 8, 17, 15, 9 };
+            int stats[6] = { 17, 13, 8, 16, 15, 10 };
             _stats_init_aux(stats);
             break;
         }
@@ -2150,7 +2206,7 @@ static void _stats_init(void)
         }
         case CLASS_BLOOD_KNIGHT:
         {
-            int stats[6] = { 17, 8, 8, 15, 17, 9 };
+            int stats[6] = { 17, 13, 8, 15, 16, 10 };
             _stats_init_aux(stats);
             break;
         }
@@ -2284,6 +2340,7 @@ static int _stats_score(void)
               <tips and help>
    ----------------------------------- */
 
+static void _name_line(doc_ptr doc);
 static void _race_class_header(doc_ptr doc);
 static void _race_class_info(doc_ptr doc);
 
@@ -2294,6 +2351,7 @@ static void _race_class_top(doc_ptr doc)
     cols[0] = doc_alloc(27);
     cols[1] = doc_alloc(53);
 
+    _name_line(doc);
     _race_class_header(cols[0]);
     _race_class_info(cols[1]);
     doc_insert_cols(doc, cols, 2, 1);
@@ -2312,7 +2370,6 @@ static void _magic_line(doc_ptr doc);
 
 static void _race_class_header(doc_ptr doc)
 {
-    _name_line(doc);
     _sex_line(doc);
     if (game_mode != GAME_MODE_BEGINNER)
         _pers_line(doc);
@@ -2444,7 +2501,6 @@ static void _race_class_info(doc_ptr doc)
     dragon_realm_ptr realm_ptr = dragon_get_realm(p_ptr->dragon_realm); /* 0 is OK */
     int spell_stat = get_spell_stat();
     
-    doc_newline(doc);
     if (_rcp_state == _RCP_STATS)
     {
         s16b stats[MAX_STATS] = {0};
@@ -2584,7 +2640,7 @@ static void _change_name(void)
         char tmp[64];
         strcpy(tmp, player_name);
         Term_gotoxy(7, 0); /* Hack */
-        if (askfor(tmp, 15))
+        if (askfor(tmp, PY_NAME_LEN))
             strcpy(player_name, tmp);
         if (0 == strlen(player_name))
             strcpy(player_name, "PLAYER");
@@ -2656,6 +2712,7 @@ static void _bounty_uniques(void)
             int          id = get_mon_num(MAX_DEPTH - 1);
             mon_race_ptr race = &r_info[id];
 
+            if ((id == MON_IMPLORINGTON) && (!no_wilderness)) continue;
             if (!(race->flags1 & RF1_UNIQUE)) continue;
             if (race->flags1 & RF1_NO_QUEST) continue;
             if (race->flagsx & RFX_WANTED) continue;
@@ -2826,6 +2883,8 @@ static void _birth_finalize(void)
     towns_init();
     home_init();
     virtue_init();
+    cornucopia_init();
+    wipe_labels();
 
     /* Suppress any deprecated monsters for this new game. Upgrading an existing
      * game should continue to generate deprecated monsters, since they may be wanted
@@ -2846,7 +2905,8 @@ static void _birth_finalize(void)
 
     /* Everybody gets a chaos patron. The chaos warrior is obvious,
      * but anybody else can acquire MUT_CHAOS_GIFT during the game */
-    p_ptr->chaos_patron = randint0(MAX_PATRON);
+    if ((p_ptr->chaos_patron == RANDOM_PATRON) || ((p_ptr->pclass != CLASS_CHAOS_WARRIOR) && (p_ptr->personality != PERS_CHAOTIC)))
+        p_ptr->chaos_patron = randint0(MAX_CHAOS_PATRON);
 
     get_max_stats();
     do_cmd_rerate_aux();

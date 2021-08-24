@@ -58,13 +58,13 @@ void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb)
     old_r_idx = mon->r_idx;
     old_sub_align = mon->sub_align;
 
-    mon_true_race(mon)->cur_num--;
+    inc_cur_num(mon, -1);
 
     monster_desc(m_name, mon, 0);
     mon->r_idx = new_r_idx;
     mon->drop_ct = get_monster_drop_ct(mon);
 
-    mon_true_race(mon)->cur_num++;
+    inc_cur_num(mon, 1);
 
     mon->ap_r_idx = mon->r_idx;
     race = mon_race(mon);
@@ -114,6 +114,11 @@ void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb)
                 while (!hallu_race->name || (hallu_race->flags1 & RF1_UNIQUE));
                 hallu_name = r_name + hallu_race->name;
                 cmsg_format(TERM_L_BLUE, "%^s %s into %s %s.", m_name, verb, is_a_vowel(hallu_name[0]) ? "an" : "a", r_name + hallu_race->name);
+            }
+            else if (mon->nickname)
+            {
+                cptr my_desc = r_name + race->name; /* hack - no monster_desc() flags fully suppress the nickname */
+                cmsg_format(TERM_L_BLUE, "%^s %s into %s %s.", m_name, verb, is_a_vowel(my_desc[0]) ? "an" : "a", my_desc);
             }
             else
             {
@@ -775,12 +780,6 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if ( equip_find_art(ART_ETERNITY)
-      || equip_find_art(ART_ETERNAL_BLADE) )
-    {
-        p_ptr->dec_mana = TRUE;
-        p_ptr->easy_spell = TRUE;
-    }
     if (p_ptr->lev >= 30) res_add(RES_TIME);
     p_ptr->pspeed += (p_ptr->lev) / 7;
 }

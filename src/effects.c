@@ -222,7 +222,7 @@ void reset_tim_flags(void)
         (void)set_monster_invulner(p_ptr->riding, 0, FALSE);
     }
 
-    if (p_ptr->pclass == CLASS_BARD)
+    if ((p_ptr->pclass == CLASS_BARD) || (p_ptr->realm1 == REALM_HEX))
     {
         p_ptr->magic_num1[0] = 0;
         p_ptr->magic_num2[0] = 0;
@@ -2912,7 +2912,7 @@ bool set_invuln(int v, bool do_dec)
         {
             if (p_ptr->invuln > v) return FALSE;
         }
-        else if (!IS_INVULN())
+        else if ((!IS_INVULN()) && (!p_ptr->ignore_invuln))
         {
             msg_print("Invulnerability!");
 
@@ -4760,10 +4760,15 @@ bool set_stun(int v, bool do_dec)
  */
 cut_info_t cut_info(int cut)
 {
-    point_t tbl[7] = { {CUT_GRAZE, 1}, {CUT_LIGHT, 3}, {CUT_BAD, 7}, {CUT_NASTY, 16},
-                       {CUT_SEVERE, 32}, {CUT_DEEP_GASH, 80}, {CUT_MORTAL_WOUND, 200} };
+    point_t tbl[7] = { {CUT_GRAZE, 10}, {CUT_LIGHT, 30}, {CUT_BAD, 70}, {CUT_NASTY, 160},
+                       {CUT_SEVERE, 320}, {CUT_DEEP_GASH, 800}, {CUT_MORTAL_WOUND, 2000} };
     cut_info_t result = {0};
-    if (cut) result.dam = interpolate(cut, tbl, 7);
+    int divisor = 100 * SPEED_TO_ENERGY(p_ptr->pspeed);
+    if (cut)
+    {
+        if (p_ptr->wild_mode) result.dam = interpolate(cut, tbl, 7) / 10;
+        else result.dam = (int)((s32b)(interpolate(cut, tbl, 7) * energy_use + divisor - 1) / divisor);
+    }
     if (cut >= CUT_MORTAL_WOUND)
     {
         result.level = CUT_MORTAL_WOUND;
@@ -5466,7 +5471,7 @@ bool vamp_player(int num)
         num -= lp;
         assert(num > 0);
     }
-    return hp_player_aux(num);
+    return hp_player(num);
 }
 
 bool sp_player(int num)
@@ -5726,10 +5731,18 @@ void do_poly_wounds(void)
     hp_player(change);
     if (Nasty_effect)
     {
-        msg_print("A new wound was created!");
-        take_hit(DAMAGE_LOSELIFE, change / 2, "a polymorphed wound");
+        if (get_race()->flags & RACE_IS_NONLIVING)
+        { /* Nonliving characters can't bleed but can suffer other bodily harm */
+            msg_print("You suffer a new injury!");
+            take_hit(DAMAGE_LOSELIFE, change / 2, "a polymorphed wound");
+        }
+        else
+        {
+            msg_print("A new wound was created!");
+            take_hit(DAMAGE_LOSELIFE, change / 2, "a polymorphed wound");
 
-        set_cut(change, FALSE);
+            set_cut(change, FALSE);
+        }
     }
     else
     {
@@ -5745,7 +5758,7 @@ void change_race(int new_race, cptr effect_msg)
 {
     cptr title = get_race_aux(new_race, 0)->name;
     int  old_race = p_ptr->prace;
-    static bool _lock = FALSE; /* This effect is not re-entrant! */
+    static bool _lock = FALSE; /* make sure change_race() can't cause calls to itself */
 
     if (_lock) return;
     if (get_race()->flags & RACE_IS_MONSTER) return;

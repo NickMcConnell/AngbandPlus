@@ -103,7 +103,6 @@ void reset_visuals(void)
     if (easy_mimics) toggle_easy_mimics(TRUE);
 }
 
-
 /*
  * Obtain the "flags" for an item
  */
@@ -219,7 +218,7 @@ void obj_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
 
     if (object_is_smith(o_ptr))
         weaponsmith_object_flags(o_ptr, flgs);
-    if (object_is_deaggravated(o_ptr)) 
+    if (object_is_deaggravated(o_ptr))
         remove_flag(flgs, OF_AGGRAVATE);
 }
 
@@ -313,8 +312,99 @@ void obj_flags_known(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
 
     if (object_is_smith(o_ptr))
         weaponsmith_object_flags(o_ptr, flgs);
-    if (object_is_deaggravated(o_ptr)) 
+    if (object_is_deaggravated(o_ptr))
         remove_flag(flgs, OF_AGGRAVATE);
+}
+
+static bool _object_gives_esdm(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE],  bool easy_spell)
+{
+    if (o_ptr->name1)
+    {
+        if (o_ptr->name1 == ART_NAMAKE_BOW) return (!easy_spell);
+        if (prace_is_(RACE_MON_ANGEL)) return (o_ptr->name1 == ART_STONE_OF_CRUSADE);
+        if (prace_is_(RACE_MON_DEMON)) return ((p_ptr->psubrace == DEMON_BALROG) && (o_ptr->name1 == ART_STONE_OF_DAEMON));
+        if (prace_is_(RACE_MON_VAMPIRE)) return (o_ptr->name1 == ART_NIGHT);
+        if (p_ptr->pclass == CLASS_BARD) return (o_ptr->name1 == ART_DAERON || o_ptr->name1 == ART_MAGLOR);
+        if (p_ptr->pclass == CLASS_TIME_LORD) return (o_ptr->name1 == ART_ETERNITY || o_ptr->name1 == ART_ETERNAL_BLADE);
+        if ((p_ptr->pclass == CLASS_MINDCRAFTER) && (o_ptr->name1 == ART_STONE_OF_MIND)) return TRUE;
+        if (p_ptr->pclass == CLASS_MIRROR_MASTER)
+        {
+            if (o_ptr->name1 == ART_YATA) return TRUE;
+            if (o_ptr->name1 == ART_GIL_GALAD) return (!easy_spell);
+        }
+        if (p_ptr->pclass == CLASS_NECROMANCER)
+        {
+            if (o_ptr->name1 == ART_EYE_OF_VECNA) return (!easy_spell);
+            if (o_ptr->name1 == ART_HAND_OF_VECNA) return easy_spell;
+        }
+        if ((p_ptr->pclass == CLASS_PSION) && (o_ptr->name1 == ART_STONE_OF_MIND)) return TRUE;
+        if (p_ptr->pclass == CLASS_WARLOCK)
+        {
+            if (warlock_is_(WARLOCK_UNDEAD)) return (o_ptr->name1 == ART_STONE_OF_DEATH);
+            if (warlock_is_(WARLOCK_ANGELS)) return (o_ptr->name1 == ART_STONE_OF_CRUSADE || o_ptr->name1 == ART_STONE_OF_LIFE);
+            if (warlock_is_(WARLOCK_DEMONS)) return (o_ptr->name1 == ART_STONE_OF_DAEMON);
+            return FALSE;
+        }
+    }
+    else if (o_ptr->name2)
+    {
+        if ((p_ptr->pclass == CLASS_ROGUE) && (!easy_spell) && (p_ptr->realm1 == REALM_BURGLARY) && (o_ptr->name2 == EGO_GLOVES_THIEF)) return TRUE;
+        if ((p_ptr->pclass == CLASS_WILD_TALENT) && (!easy_spell) && (o_ptr->name2 == EGO_WEAPON_WILD)) return TRUE;
+    }
+    if (!have_flag(flgs, easy_spell ? OF_EASY_SPELL : OF_DEC_MANA)) return FALSE;
+    else
+    {
+         caster_info *caster_ptr = get_caster_info();
+         if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA)) return TRUE;
+         return FALSE;
+    }
+}
+
+static void _obj_esdm_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], bool display)
+{
+    if (have_flag(flgs, OF_DEC_MANA))
+    {
+        if (!_object_gives_esdm(o_ptr, flgs, FALSE)) remove_flag(flgs, OF_DEC_MANA);
+    }
+    else if (_object_gives_esdm(o_ptr, flgs, FALSE))
+    {
+        if ((!display) || (obj_is_identified(o_ptr)) || (have_flag(o_ptr->known_flags, OF_DEC_MANA))) add_flag(flgs, OF_DEC_MANA);
+        else if (o_ptr->loc.where == INV_EQUIP) /* learn flag on equipped item */
+        {
+            add_flag(flgs, OF_DEC_MANA);
+            add_flag(o_ptr->known_flags, OF_DEC_MANA);
+        }
+    }
+
+    if (have_flag(flgs, OF_EASY_SPELL))
+    {
+        if (!_object_gives_esdm(o_ptr, flgs, TRUE)) remove_flag(flgs, OF_EASY_SPELL);
+    }
+    else if (_object_gives_esdm(o_ptr, flgs, TRUE))
+    {
+        if ((!display) || (obj_is_identified(o_ptr)) || (have_flag(o_ptr->known_flags, OF_EASY_SPELL))) add_flag(flgs, OF_EASY_SPELL);
+        else if (o_ptr->loc.where == INV_EQUIP) /* learn flag on equipped item */
+        {
+            add_flag(flgs, OF_EASY_SPELL);
+            add_flag(o_ptr->known_flags, OF_EASY_SPELL);
+        }
+    }
+}
+
+/* We don't do this in regular obj_flags() and obj_flags_known() partly
+ * because it's slower, but mostly so that object value can be calculated
+ * without any player specialities factoring into it */
+
+void obj_flags_effective(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
+{
+    obj_flags(o_ptr, flgs);
+    _obj_esdm_flags(o_ptr, flgs, FALSE);
+}
+
+void obj_flags_display(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
+{
+    obj_flags_known(o_ptr, flgs);
+    _obj_esdm_flags(o_ptr, flgs, TRUE);
 }
 
 static void _obj_flags_purify(u32b flgs[OF_ARRAY_SIZE])
@@ -465,6 +555,7 @@ static void _obj_identify_fully_aux(object_type *o_ptr)
     }
 
     _obj_learn_curses(o_ptr);
+    object_mitze(o_ptr, MITZE_ID);
 }
 
 bool obj_is_identified(object_type *o_ptr)

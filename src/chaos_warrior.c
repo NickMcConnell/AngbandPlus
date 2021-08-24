@@ -38,7 +38,7 @@
 #define REW_SER_DEMO    35
 #define REW_SER_MONS    36
 
-int chaos_stats[MAX_PATRON] =
+int chaos_stats[MAX_CHAOS_PATRON] =
 {
     A_CON,  /* Slortar */
     A_CON,  /* Mabelode */
@@ -61,7 +61,7 @@ int chaos_stats[MAX_PATRON] =
     A_STR,  /* Khaine */
 };
 
-int chaos_rewards[MAX_PATRON][20] =
+int chaos_rewards[MAX_CHAOS_PATRON][20] =
 {
     /* Slortar the Old: */
     {
@@ -194,13 +194,13 @@ int chaos_rewards[MAX_PATRON][20] =
 };
 
 /* Bad things, but not ty_curse bad (or at least not ty_curse insta-deadly) */
-void _nonlethal_ty_substitute(void)
+void nonlethal_ty_substitute(bool do_dec)
 {
     bool old_nos = no_scrambling;
     no_scrambling = TRUE;
     mutate_player();
     no_scrambling = old_nos;
-    dec_stat(randint0(MAX_STATS), 12 + randint1(6), TRUE);
+    if (do_dec) dec_stat(randint0(MAX_STATS), 12 + randint1(6), TRUE);
 }
 
 
@@ -421,7 +421,7 @@ void chaos_warrior_reward(void)
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Thou art growing arrogant, mortal.'");
 
-            if (p_ptr->lev < 35) _nonlethal_ty_substitute();
+            if (p_ptr->lev < 35) nonlethal_ty_substitute(TRUE);
             else activate_ty_curse(FALSE, &count);
             break;
         case REW_SUMMON_M:
@@ -507,6 +507,14 @@ void chaos_warrior_reward(void)
         case REW_CURSE_WP:
         {
             int slot = equip_random_slot(object_is_melee_weapon);
+            if (prace_is_(RACE_MON_SWORD) || prace_is_(RACE_MON_RING) || prace_is_(RACE_MON_ARMOR))
+            {
+                msg_format("The voice of %s booms out:",
+                    chaos_patrons[p_ptr->chaos_patron]);
+                msg_print("'Now shalt thou pay for annoying me.'");
+                nonlethal_ty_substitute(TRUE);
+                break;
+            }
             if (slot)
             {
                 msg_format("The voice of %s booms out:",
@@ -519,6 +527,14 @@ void chaos_warrior_reward(void)
         case REW_CURSE_AR:
         {
             int slot = equip_random_slot(object_is_armour);
+            if (prace_is_(RACE_MON_SWORD) || prace_is_(RACE_MON_RING) || prace_is_(RACE_MON_ARMOR))
+            {
+                msg_format("The voice of %s booms out:",
+                    chaos_patrons[p_ptr->chaos_patron]);
+                msg_print("'Now shalt thou pay for annoying me.'");
+                nonlethal_ty_substitute(TRUE);
+                break;
+            }
             if (slot)
             {
                 msg_format("The voice of %s booms out:",
@@ -535,14 +551,18 @@ void chaos_warrior_reward(void)
             switch (randint1(4))
             {
                 case 1:
-                    if ((p_ptr->lev < 39) || (one_in_(2))) _nonlethal_ty_substitute();
+                    if ((p_ptr->lev < 39) || (one_in_(2))) nonlethal_ty_substitute(TRUE);
                     else activate_ty_curse(FALSE, &count);
                     break;
                 case 2:
                     activate_hi_summon(py, px, FALSE);
                     break;
                 case 3:
-                    if (one_in_(2))
+                    if (prace_is_(RACE_MON_SWORD) || prace_is_(RACE_MON_RING) || prace_is_(RACE_MON_ARMOR))
+                    {
+                        nonlethal_ty_substitute(TRUE);
+                    }
+                    else if (one_in_(2))
                     {
                         int slot = equip_random_slot(object_is_melee_weapon);
                         if (slot)
@@ -570,7 +590,7 @@ void chaos_warrior_reward(void)
             for (dummy = 0; dummy < 6; dummy++)
                 dec_stat(dummy, 10 + randint1(15), FALSE);
             activate_hi_summon(py, px, FALSE);
-            if ((p_ptr->lev < 39) || (!one_in_(8))) _nonlethal_ty_substitute();
+            if ((p_ptr->lev < 39) || (!one_in_(8))) nonlethal_ty_substitute(TRUE);
             else activate_ty_curse(FALSE, &count);
             if (one_in_(2))
             {

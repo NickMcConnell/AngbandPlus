@@ -178,6 +178,8 @@ bool very_nice_summon_hack = FALSE;
 bool predictable_energy_hack = FALSE;
 bool delay_autopick_hack = FALSE;
 bool monsters_damaged_hack = FALSE;
+bool shop_exit_hack = FALSE;
+byte spell_problem = 0;
 s16b run_count = 0;
 
 int current_flow_depth = 0;
@@ -234,6 +236,7 @@ bool fresh_after;    /* Flush output after monster's move */
 bool fresh_message;    /* Flush output after every message */
 bool hilite_player;    /* Hilite the player with the cursor */
 bool display_path;    /* Display actual path before shooting */
+bool square_delays;   /* Use delay factors based on squares */
 
 
 /*** Text Display Options ***/
@@ -264,6 +267,8 @@ bool final_dump_origins; /* Show equipment origins in final dumps */
 bool always_dump_origins; /* Show equipment origins in all dumps */
 bool list_stairs;  /* Display stairs in object list */
 bool display_skill_num; /* Give skills numerically in char sheet */
+bool reforge_details; /* Show statistics before proceeding with reforge */
+bool auto_sticky_labels; /* Automatically make power labels sticky */
 
 /*** Game-Play Options ***/
 
@@ -815,6 +820,10 @@ dungeon_info_type *d_info;
 char *d_name;
 char *d_text;
 
+/*
+ * Power labels
+ */
+char power_labels[MAX_POWER_LABEL][15];
 
 /*
  * Hack -- The special Angband "System Suffix"

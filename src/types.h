@@ -388,6 +388,7 @@ struct object_type
     byte mitze_type;    /* MITZE type */
     byte mitze_level;   /* level on MITZE */
     s32b mitze_turn;    /* turn on MITZE */
+    u16b insured;       /* Item is part of insurance policy */
     int  scratch;
 };
 #define object_is_(O, T, S) ((O)->tval == (T) && (O)->sval == (S))
@@ -500,7 +501,6 @@ struct monster_race
     s32b mexp;                /* Exp value for kill */
 
     s16b weight;
-    byte freq_spell;          /* Spell frequency */
     byte drop_theme;
 
     mon_spells_ptr spells;
@@ -1372,12 +1372,13 @@ struct player_type
     s16b life;
 
     bool reflect;
-    bool sh_fire;
-    bool sh_elec;
-    bool sh_cold;
-    bool sh_shards;
+    byte sh_fire;
+    byte sh_elec;
+    byte sh_cold;
+    byte sh_shards;
     bool sh_retaliation;
     bool sh_fear;
+    bool ignore_invuln;
 
     bool no_eldritch;
     bool no_stun;
@@ -1410,6 +1411,7 @@ struct player_type
 
     bool auto_id;
     bool auto_pseudo_id;
+    bool munchkin_pseudo_id;
     int  auto_id_sp;
     bool cult_of_personality;
     bool fairy_stealth;

@@ -456,7 +456,10 @@ void magic_eater_cast(int tval)
     }
 
     if (!tval)
+    {
+        if (pelko()) return; /* see above - we only want to check this if we're called from dungeon.c, which no tval is a proxy for */
         tval = TV_WAND;
+    }
 
     o_ptr = _choose("Use", tval, _ALLOW_SWITCH | _ALLOW_INSCRIBE);
     if (o_ptr)

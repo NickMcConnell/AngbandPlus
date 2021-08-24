@@ -2,7 +2,7 @@
 
 ?:[EQU $QUEST21 Taken InProgress]
 D:Another strange hole in reality has opened up on the edge of
-D:our town, and appears to be even more dangerous than the  
+D:our town, and appears to be even more dangerous than the 
 D:last. Five of our strongest knights ventured within -- only 
 D:one returned, scorched by fire and babbling incoherently.  
 D:We have not the resources to deal with this threat. Do you?

@@ -1119,7 +1119,7 @@ static void _cast_spell(_spell_info_ptr spell)
 
 void skillmaster_cast(void)
 {
-    if (_can_cast())
+    if ((_can_cast()) && (!pelko()))
     {
         object_type  *spellbook = _prompt_spellbook();
         _spell_info_t spell = {0};

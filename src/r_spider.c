@@ -634,7 +634,7 @@ race_t *mon_spider_get_race(int psubrace)
         result = _elder_aranea_get_race_t();
         break;
     default: /* Birth and High Scores */
-        result = _cave_spider_get_race_t();
+        result = (spoiler_hack ? _aranea_get_race_t() : _cave_spider_get_race_t());
     }
 
     result->name = "Spider";

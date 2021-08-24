@@ -478,6 +478,7 @@ static void _munchkin_calc_bonuses(void)
     res_add(RES_BLIND);
     res_add(RES_CONF);
     p_ptr->hold_life = TRUE;
+    p_ptr->munchkin_pseudo_id = TRUE;
     if (p_ptr->pclass != CLASS_NINJA)
         p_ptr->lite = TRUE;
 
@@ -727,6 +728,7 @@ static personality_ptr _get_pious_personality(void)
 static void _sexy_birth(void)
 {
     if ( p_ptr->prace != RACE_MON_SWORD
+      && p_ptr->prace != RACE_MON_ARMOR
       && !demon_is_(DEMON_BALROG) )
     {
         object_type forge = {0};

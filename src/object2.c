@@ -139,6 +139,8 @@ void excise_object_idx(int o_idx)
             prev_o_idx = this_o_idx;
         }
     }
+
+    if (j_ptr->insured) cornucopia_mark_destroyed(cornucopia_item_policy(j_ptr), j_ptr->number);
     p_ptr->window |= PW_OBJECT_LIST;
 }
 
@@ -208,6 +210,9 @@ void delete_object(int y, int x)
 
         /* Acquire next object */
         next_o_idx = o_ptr->next_o_idx;
+
+        /* Tell Cornucopia not to track the item anymore */
+        if (o_ptr->insured) cornucopia_mark_destroyed(cornucopia_item_policy(o_ptr), o_ptr->number);
 
         /* Wipe the object */
         object_wipe(o_ptr);
@@ -492,6 +497,9 @@ void wipe_o_list(void)
             /* Hack -- see above */
             c_ptr->o_idx = 0;
         }
+
+        /* Insurance tracking */
+        if (o_ptr->insured) cornucopia_mark_destroyed(cornucopia_item_policy(o_ptr), o_ptr->number);
 
         /* Wipe the object */
         object_wipe(o_ptr);
@@ -1669,7 +1677,7 @@ static bool make_artifact_special(object_type *o_ptr)
 static bool make_artifact(object_type *o_ptr)
 {
     int i;
-    int ref_level = dun_level;
+    int ref_level = ((opening_chest) ? object_level : dun_level);
     if (mut_present(MUT_BAD_LUCK)) ref_level -= (ref_level / (4 * randint1(4)));
 
 
@@ -1703,6 +1711,9 @@ static bool make_artifact(object_type *o_ptr)
         }
 
         if (!one_in_(a_ptr->rarity)) continue;
+
+        /* We can't make Feanor rare enough with a byte */
+        if ((i == ART_FEANOR) && (!one_in_(3))) continue;
 
         if ( random_artifacts
           && !(a_ptr->gen_flags & OFG_FIXED_ART)
@@ -4080,6 +4091,9 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 
         /* Debug */
         if (p_ptr->wizard) msg_print("(breakage)");
+
+        /* Track destruction for insurance policy */
+        if (j_ptr->insured) obj_zero(j_ptr);
 
         stats_on_m_destroy(j_ptr, 1);
 

@@ -723,6 +723,42 @@ static errr init_misc(void)
     return parse_edit_file("misc.txt", _parse_misc, 0);
 }
 
+/* I am too lazy to update help files regularly, so let's automate it
+ * The "parse errors" in _parse_help() just tell init_help_files() to update */
+static errr _parse_help(char *line, int options)
+{
+    char *zz[2];
+    if (tokenize(line, 2, zz, 0) == 2)
+    {
+        if (zz[0][0] == 'V')
+        {
+            char buf[30];
+            strcpy(buf, format("%d.%d.%s.%d", VER_MAJOR, VER_MINOR, VER_PATCH, VER_EXTRA));
+            if (!streq(buf, zz[1])) return PARSE_ERROR_GENERIC;
+        }
+        return 0;
+    }
+    return PARSE_ERROR_GENERIC;
+}
+
+static errr init_help_files(void)
+{
+    errr tulos = parse_edit_file("help_upd.txt", _parse_help, INIT_SILENT);
+    if (tulos)
+    {
+        FILE *tiedosto;
+        char buf[1024];
+        generate_spoilers();
+        path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, "help_upd.txt");
+        tiedosto = my_fopen(buf, "w");
+        if (!tiedosto) return -1;
+        fprintf(tiedosto, "### Version marker for automatic help file updates ###\n");
+        fprintf(tiedosto, "V:%d.%d.%s.%d\n", VER_MAJOR, VER_MINOR, VER_PATCH, VER_EXTRA);
+        my_fclose(tiedosto);
+    }
+    return 0;
+}
+
 /*
  * Initialize buildings
  */
@@ -1577,6 +1613,12 @@ void init_angband(void)
     /* Initialize some other arrays */
     note("[Initializing arrays... (alloc)]");
     if (init_alloc()) quit("Cannot initialize alloc stuff");
+
+#ifdef ALLOW_SPOILERS
+    /* Initialize help files */
+    note("[Updating help files - please wait...]");
+    if (init_help_files()) quit("Cannot initialize help files");
+#endif
 
     /*** Load default user pref files ***/
 

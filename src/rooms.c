@@ -2154,6 +2154,14 @@ static void _apply_room_grid_obj(point_t p, room_grid_ptr grid, room_ptr room)
             obj_ptr obj = room_grid_make_obj(grid, object_level);
             if (obj)
             {
+                if (object_is_fixed_artifact(obj))
+                {
+                    a_info[obj->name1].generated = FALSE;
+                }
+                else if (obj->name3)
+                {
+                    a_info[obj->name3].generated = FALSE;
+                }
                 inv_add(inv, obj);
                 obj_free(obj);
                 i++;
@@ -2162,7 +2170,17 @@ static void _apply_room_grid_obj(point_t p, room_grid_ptr grid, room_ptr room)
         inv_sort_aux(inv, _obj_cmp_score);
         obj = inv_obj(inv, 1);
         if (obj)
-           drop_here(obj, p.y, p.x);
+        {
+            if (object_is_fixed_artifact(obj))
+            {
+                a_info[obj->name1].generated = TRUE;
+            }
+            else if (obj->name3)
+            {
+                a_info[obj->name3].generated = TRUE;
+            }
+            drop_here(obj, p.y, p.x);
+        }
 
         inv_free(inv);
     }

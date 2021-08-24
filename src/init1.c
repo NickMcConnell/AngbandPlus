@@ -768,6 +768,12 @@ static cptr k_info_flags[OF_COUNT] =
 
     /* Plural */
     "PLURAL",
+
+    /* Ignore Invulnerability Spheres */
+    "IGNORE_INVULN",
+
+    /* Night Vision */
+    "NIGHT_VISION",
 };
 
 
@@ -5072,6 +5078,14 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
             else if (streq(b+1, "RACE"))
             {
                 v = get_true_race()->name;
+                while (1)
+                {
+                    unsigned int paikka = strpos(" ", v);
+                    if (!paikka) break;
+                    sprintf(tmp, v);
+                    tmp[paikka - 1] = '-';
+                    v = tmp;
+                }
             }
             else if (streq(b+1, "SUBRACE"))
             {
@@ -5323,7 +5337,7 @@ errr parse_edit_file(cptr name, parser_f parser, int options)
                     name, line_num, buf);
             }
             err = parser(buf, options);
-            if (err) /* report now for recursion */
+            if ((err) && (!(options & INIT_SILENT))) /* report now for recursion */
             {
                 cptr oops = (err > 0 && err < PARSE_ERROR_MAX) ? err_str[err] : "unknown";
 

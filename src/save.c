@@ -751,6 +751,16 @@ static void wr_extra(savefile_ptr file)
     for (i = 0; i < 16; i++)
         savefile_write_s32b(file, 0); /* Future use */
 
+    for (i = 0; i < MAX_POWER_LABEL; i++)
+    {
+        if (!power_labels[i]) savefile_write_byte(file, 0xFF);
+        else
+        {
+            savefile_write_byte(file, i);
+            savefile_write_cptr(file, power_labels[i]);
+        }
+    }
+
     {
     race_t  *race_ptr = get_true_race();
     class_t *class_ptr = get_class();
@@ -1202,6 +1212,7 @@ static bool wr_savefile_new(savefile_ptr file)
     quiver_save(file);
     towns_save(file);
     home_save(file);
+    cornucopia_save(file);
 
     savefile_write_s16b(file, p_ptr->pet_follow_distance);
     savefile_write_s16b(file, p_ptr->pet_extra_flags);

@@ -242,6 +242,17 @@ int get_spell_cost_extra(ang_spell spell)
     return n;
 }
 
+int get_spell_flags(ang_spell spell)
+{
+    int n;
+    variant res;
+    var_init(&res);
+    spell(SPELL_FLAGS, &res);
+    n = var_get_int(&res);
+    var_clear(&res);
+    return n;
+}
+
 int get_spell_fail_min(ang_spell spell)
 {
     int n;
@@ -323,7 +334,7 @@ static int _col_height(int ct)
     return result;
 }
 
-static void _list_spells(spell_info* spells, int ct, int max_cost)
+static void _list_spells(spell_info* spells, int ct, int max_cost, char *labels, bool rage_hack)
 {
     char temp[140];
     int  i;
@@ -332,6 +343,7 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
     int  col_width;
     variant name, info, color;
     bool poli = (p_ptr->pclass == CLASS_POLITICIAN);
+    byte skipped = 0;
 
     var_init(&name);
     var_init(&info);
@@ -351,6 +363,12 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
                 break;
             } 
         }        
+    }
+
+    if (rage_hack)
+    {
+        ct = 8;
+        col_height = _col_height(8);
     }
 
     Term_erase(display.x, display.y, display.cx);
@@ -379,6 +397,12 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
         spell_info* spell = &spells[i];
         int spell_cost = spell->cost;
 
+        if ((rage_hack) && (spell->level == 99))
+        {
+            skipped++;
+            continue;
+        }
+
         var_set_int(&color, TERM_WHITE);
 
         (spell->fn)(SPELL_NAME, &name);
@@ -387,7 +411,8 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
 
         attr = var_get_int(&color);
 
-        if (i < 26)
+        if ((labels) && (i < (int)strlen(labels))) letter = labels[i];
+        else if (i < 26)
             letter = I2A(i);
         else if (i < 52)
             letter = 'A' + i - 26;
@@ -429,17 +454,17 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
         if (spell->level > p_ptr->lev)
             attr = TERM_L_DARK;
 
-        if (i < col_height)
+        if ((i - skipped) < col_height)
         {
-            Term_erase(display.x, display.y + i + 1, display.cx);
-            c_put_str(attr, temp, display.y + i + 1, display.x);
+            Term_erase(display.x, display.y + i + 1 - skipped, display.cx);
+            c_put_str(attr, temp, display.y + i + 1 - skipped, display.x);
         }
         else
         {
-            c_put_str(attr, temp, display.y + (i - col_height) + 1, display.x + col_width);
+            c_put_str(attr, temp, display.y + (i - col_height) + 1 - skipped, display.x + col_width);
         }
     }
-    Term_erase(display.x, display.y + col_height + 1, display.cx);
+    Term_erase(display.x, display.y + col_height + 1 - skipped, display.cx);
     var_clear(&name);
     var_clear(&info);
     var_clear(&color);
@@ -482,50 +507,204 @@ static bool _describe_spell(spell_info *spell, int col_height)
     return result;
 }
 
-static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
+static void _make_sticky_label(spell_info *spell, int paikka)
+{
+    my_strcpy(power_labels[paikka], get_spell_spoiler_name(spell->fn), 15);
+}
+
+void wipe_labels(void)
+{
+    memset(power_labels, 0, sizeof(power_labels));
+}
+
+/* Mega-hack */
+static int _rage_mage_count_spells(spell_info *spells)
+{
+    int i, ct = 0;
+    for (i = 0; i < 8; i++)
+    {
+        if (spells[i].level < 99) ct++;
+    }
+    return ct;
+}
+
+static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost, bool power, bool force_browsing)
 {
     int choice = -1;
+    int korkeus = 0;
     char prompt1[140];
     char prompt2[140];
-    variant name;
-    bool describe = FALSE;
+    char prompt3[140];
+    bool describe = force_browsing;
+    bool inscribe = FALSE;
+    char labels[100] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&'()*+,-./:;<=>{|}...............";
+    static char multicase[64] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    bool rage_hack = ((streq("rage", desc)) && (ct == 8));
 
-    var_init(&name);
+    if (power)
+    {
+        int i;
+        bool compute_labels = FALSE;
+        bool auto_labels[98] = {0};
+        bool exists[MAX_POWER_LABEL] = {0};
+        bool kaytetty[MAX_POWER_LABEL] = {0};
+        for (i = 0; i < MAX_POWER_LABEL; i++)
+        {
+            if (power_labels[i][0])
+            {
+                compute_labels = TRUE;
+                exists[i] = TRUE;
+            }
+        }
+        if (compute_labels)
+        {
+            int kaytossa = 0;
+            for (i = 0; i < MIN(ct, 98); i++)
+            {
+                char mininimi[15];
+                int j;
+                my_strcpy(mininimi, get_spell_spoiler_name(spells[i].fn), 15);
+                for (j = 0; j < MAX_POWER_LABEL; j++)
+                {
+                    if (!exists[j]) continue;
+                    if (kaytetty[j]) continue;
+                    if (streq(mininimi, power_labels[j]))
+                    {
+                        kaytetty[j] = TRUE;
+                        auto_labels[i] = TRUE;
+                        if (multicase[j] != labels[i])
+                        {
+                            int paikka = chrpos(multicase[j], labels);
+                            if (paikka) labels[paikka - 1] = labels[i];
+                            labels[i] = multicase[j];
+                        }
+                        break;
+                    }
+                }
+                if ((!auto_labels[i]) && (i < MAX_POWER_LABEL))
+                {
+                    int paikka = chrpos(labels[i], multicase);
+                    if ((paikka) && (exists[paikka - 1]))
+                    {
+                        int laskuri = 0;
+                        for (j = 0; j < MAX_POWER_LABEL; j++)
+                        {
+                            int paikka2;
+                            if (exists[j]) continue;
+                            laskuri++;
+                            if (laskuri <= kaytossa) continue;
+                            kaytossa++;
+                            paikka2 = chrpos(multicase[j], labels);
+                            if (!paikka2)
+                            {
+                                labels[i] = multicase[j];
+                                break;
+                            }
+                            else
+                            {
+                                char muisti = labels[i];
+                                labels[i] = multicase[j];
+                                labels[paikka2 - 1] = muisti;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (auto_sticky_labels)
+        {
+            int paikka;
+            for (i = 0; i < MIN(ct, 98); i++)
+            {
+                if (auto_labels[i]) continue;
+                paikka = chrpos(labels[i], multicase);
+                if ((paikka) && (paikka <= MAX_POWER_LABEL)) _make_sticky_label(&spells[i], paikka - 1);
+            }
+        }
+    }
+
+    labels[MIN(ct, 98)] = '\0';
+
+    if (force_browsing)
+    {
+        strnfmt(prompt2, 78, "Browse which %s?", desc);
+    }
+    else if (power)
+    {
+        strnfmt(prompt1, 78, "Use which %s? ('?' to Browse, '!' to Label) ", desc);
+        strnfmt(prompt2, 78, "Browse which %s? ('?' to Use, '!' to Label) ", desc);
+        strnfmt(prompt3, 78, "Label which %s? ('!' to Use, '=' to wipe inactive) ", desc);
+    }
+    else
+    {
+        strnfmt(prompt1, 78, "Use which %s? (Type '?' to Browse) ", desc);
+        strnfmt(prompt2, 78, "Browse which %s? (Type '?' to Use) ", desc);
+    }
+
+    if (rage_hack)
+    {
+        int i;
+        for (i = 0; i < ct; i++)
+        {
+            if (spells[i].level == 99) labels[i] = 'i';
+        }
+    }
+
+    korkeus = _col_height(rage_hack ? _rage_mage_count_spells(spells) : ct);
 
     for (;;)
     {
         char ch = '\0';
+        int paikka;
 
-        strnfmt(prompt1, 78, "Use which %s? (Type '?' to Browse) ", desc);
-        strnfmt(prompt2, 78, "Browse which %s? (Type '?' to Use)", desc);
-        _list_spells(spells, ct, max_cost);
+        _list_spells(spells, ct, max_cost, labels, rage_hack);
 
         /* Prompt User */
         choice = -1;
 
-        if (!get_com(describe ? prompt2 : prompt1, &ch, FALSE)) break;
+        if (!get_com(describe ? prompt2 : inscribe ? prompt3 : prompt1, &ch, FALSE)) break;
 
-        if (ch == '?')
+        if ((ch == '?') && (!force_browsing))
         {
             describe = !describe;
+            inscribe = FALSE;
             if (!get_com(describe ? prompt2 : prompt1, &ch, FALSE)) break;
         }
 
-        if (isupper(ch))
+        if ((ch == '!') && (power) && (!force_browsing))
         {
-            if (ct < 26) /* browse unless a big spell list */
+            inscribe = !inscribe;
+            describe = FALSE;
+            if (!get_com(inscribe ? prompt3 : prompt1, &ch, FALSE)) break;
+        }
+
+        if ((rage_hack) && (ch == 'i')) continue;
+
+        if ((inscribe) && (ch == '='))
+        {
+            int i;
+            wipe_labels();
+            for (i = 0; i < ct; i++)
             {
-                choice = ch - 'A';
-                if (0 <= choice && choice < ct)
-                    _describe_spell(&spells[choice], _col_height(ct));
+                int paikka = chrpos(labels[i], multicase);
+                if ((paikka) && (paikka <= MAX_POWER_LABEL)) _make_sticky_label(&spells[i], paikka - 1);
+            }
+            continue;
+        }
+
+        paikka = chrpos(ch, labels);
+        if (paikka) choice = paikka - 1;
+        else if (isupper(ch))
+        {
+            paikka = chrpos(tolower(ch), labels);
+            if (paikka)
+            {
+                choice = paikka - 1;
+               _describe_spell(&spells[choice], korkeus);
                 continue;
             }
-            choice = ch - 'A' + 26;
         }
-        else if (islower(ch))
-            choice = ch - 'a';
-        else if (ch >= '0' && ch <= '9')
-            choice = ch - '0' + 52;
 
         /* Valid Choice? */
         if (choice < 0 || choice >= ct)
@@ -536,7 +715,36 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
 
         if (describe)
         {
-            _describe_spell(&spells[choice], _col_height(ct));
+            _describe_spell(&spells[choice], korkeus);
+            continue;
+        }
+        else if ((inscribe) && (get_com("New label ('!' to unstick): ", &ch, FALSE)))
+        {
+            char muisti = labels[choice];
+            paikka = chrpos(ch, multicase);
+            if ((paikka) && (paikka <= MAX_POWER_LABEL))
+            {
+                int vanha = chrpos(ch, labels);
+                if (vanha != choice + 1) /* no change needed */
+                {
+                    int paikka2 = chrpos(muisti, multicase);
+                    if ((paikka2) && (paikka2 <= MAX_POWER_LABEL)) strcpy(power_labels[paikka2 - 1], "\0");
+                    if ((vanha) && (vanha <= ct))
+                    {
+                        int paikka3 = chrpos(vanha, multicase);
+                        labels[vanha - 1] = muisti;
+                        if ((paikka3) && (paikka3 <= MAX_POWER_LABEL)) _make_sticky_label(&spells[vanha - 1], paikka3 - 1);
+                    }
+                    labels[choice] = ch;
+                    _make_sticky_label(&spells[choice], paikka - 1);
+                }
+            }
+            else if (ch == '!')
+            {
+                int paikka2 = chrpos(muisti, multicase);
+                if ((paikka2) && (paikka2 <= MAX_POWER_LABEL)) strcpy(power_labels[paikka2 - 1], "\0");
+                inscribe = FALSE;
+            }
             continue;
         }
 
@@ -544,11 +752,10 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
         break;
     }
 
-    var_clear(&name);
     return choice;
 }
 
-int choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
+int choose_spell(spell_info* spells, int ct, cptr desc, int max_cost, bool power)
 {
     int choice = -1;
 
@@ -560,7 +767,7 @@ int choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
 
     screen_save();
 
-    choice = _choose_spell(spells, ct, desc, max_cost);
+    choice = _choose_spell(spells, ct, desc, max_cost, power, FALSE);
     REPEAT_PUSH(choice);
 
     screen_load();
@@ -576,10 +783,14 @@ void browse_spells(spell_info* spells, int ct, cptr desc)
     {
         int choice = -1;
 
-        choice = _choose_spell(spells, ct, desc, 10000);
+        choice = _choose_spell(spells, ct, desc, 10000, FALSE, TRUE);
         if (choice < 0 || choice >= ct) break;
-
-        if (_describe_spell(&spells[choice], _col_height(ct)))
+        if (p_ptr->pclass == CLASS_RAGE_MAGE)
+        {
+            if (spells[choice].level == 99) continue;
+            if (_describe_spell(&spells[choice], _col_height(_rage_mage_count_spells(spells)))) break;
+        }
+        else if (_describe_spell(&spells[choice], _col_height(ct)))
             break;
     }
     screen_load();
@@ -707,6 +918,26 @@ static int _get_spell_table(spell_info* spells, int max)
     return ct;
 }
 
+static int _puhdista(spell_info* spells, int ct, byte liput)
+{
+    int i, confirmed_spells = 0;
+    byte vanha_paikka[MAX_SPELLS] = {0};
+    if (!liput) return ct; /* paranoia */
+    for (i = 0; i < ct; i++)
+    {
+        if ((get_spell_flags(spells[i].fn) & liput) == liput)
+        {
+            vanha_paikka[confirmed_spells] = i;
+            confirmed_spells++;
+        }
+    }
+    for (i = 0; i < ct; i++)
+    {
+        if ((i < confirmed_spells) && (i != vanha_paikka[i])) spells[i] = spells[vanha_paikka[i]];
+    }
+    return confirmed_spells;
+}
+
 void do_cmd_spell_browse(void)
 {
     spell_info spells[MAX_SPELLS];
@@ -730,6 +961,7 @@ void do_cmd_spell(void)
     int choice = 0;
     int max_cost = 0;
     bool poli = (p_ptr->pclass == CLASS_POLITICIAN);
+    spell_problem = 0;
 
     if (!caster)
     {
@@ -746,12 +978,6 @@ void do_cmd_spell(void)
     hp_caster = ((caster->options & CASTER_USE_HP) || (p_ptr->pclass == CLASS_NINJA_LAWYER));
     if (poli) hp_caster = (politician_get_toggle() == POLLY_TOGGLE_HPCAST);
 
-    if (p_ptr->confused)
-    {
-        msg_print("You are too confused!");
-        return;
-    }
-
     if ((p_ptr->riding) && (player_is_ninja))
     {
         msg_print("You cannot use ninjutsu while riding!");
@@ -763,11 +989,26 @@ void do_cmd_spell(void)
         set_action(ACTION_NONE);
     }
 
+    if (!fear_allow_magic()) spell_problem |= PWR_AFRAID;
+    if (p_ptr->confused) spell_problem |= PWR_CONFUSED;
+
     ct = _get_spell_table(spells, MAX_SPELLS);
     if (ct == 0)
     {
         /* User probably canceled the prompt for a spellbook */
+        spell_problem = 0;
         return;
+    }
+
+    if (spell_problem)
+    {
+        ct = _puhdista(spells, ct, spell_problem);
+        if (ct == 0)
+        {
+            if (spell_problem & PWR_CONFUSED) msg_print("You are too confused!");
+            else if (spell_problem & PWR_AFRAID) msg_print("You are too scared!");
+            return;
+        }
     }
 
     if (caster->options & CASTER_USE_CONCENTRATION)
@@ -780,7 +1021,7 @@ void do_cmd_spell(void)
         max_cost = p_ptr->au;
     else
         max_cost = p_ptr->csp;
-    choice = choose_spell(spells, ct, caster->magic_desc, max_cost);
+    choice = choose_spell(spells, ct, caster->magic_desc, max_cost, FALSE);
 
     if (choice >= 0 && choice < ct)
     {
@@ -893,24 +1134,23 @@ void do_cmd_spell(void)
         p_ptr->redraw |= PR_MANA;
         p_ptr->redraw |= PR_HP;
         p_ptr->window |= PW_SPELL;
+        spell_problem = 0; /* successful cast */
     }
 }
 
-void do_cmd_power(void)
+byte do_cmd_power(void)
 {
     spell_info spells[MAX_SPELLS];
     int ct = 0;
     int choice = 0;
     int budget = p_ptr->chp;
+    byte ongelma = 0;
     bool hp_only = (elemental_is_(ELEMENTAL_WATER));
     race_t *race_ptr = get_race();
     class_t *class_ptr = get_class();
 
-    if (p_ptr->confused)
-    {
-        msg_print("You are too confused!");
-        return;
-    }
+    if (!fear_allow_magic()) ongelma |= PWR_AFRAID;
+    if (p_ptr->confused) ongelma |= PWR_CONFUSED;
 
     if (!hp_only) budget += p_ptr->csp;
 
@@ -938,12 +1178,23 @@ void do_cmd_power(void)
     if (ct == 0)
     {
         msg_print("You have no powers.");
-        return;
+        return 0; /* No energy use even if frightened! */
     }
 
+    if (ongelma)
+    {
+        ct = _puhdista(spells, ct, ongelma);
+        if (ct == 0)
+        {
+             if (ongelma & PWR_AFRAID) msg_print("You are too scared!");
+             else if (ongelma & PWR_CONFUSED) msg_print("You are too confused!");
+             return ongelma;
+        }
+    }
+    
     _add_extra_costs_powers(spells, ct);
 
-    choice = choose_spell(spells, ct, "power", budget);
+    choice = choose_spell(spells, ct, "power", budget, TRUE);
 
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
     {
@@ -957,13 +1208,13 @@ void do_cmd_power(void)
         if (spell->level > p_ptr->lev)
         {
             msg_print("You can't use that power yet!");
-            return;
+            return ongelma;
         }
 
         if (spell->cost > budget)
         {
             msg_print("Using this power will kill you!  Why not rest a bit first?");
-            return;
+            return ongelma;
         }
 
         /* Check for Failure */
@@ -979,7 +1230,7 @@ void do_cmd_power(void)
         else
         {
             if (!cast_spell(spell->fn))
-                return;
+                return ongelma;
             spell_stats_on_cast(spell);
             sound(SOUND_ZAP); /* Wahoo! */
         }
@@ -1004,6 +1255,7 @@ void do_cmd_power(void)
         p_ptr->redraw |= (PR_HP);
         p_ptr->window |= (PW_SPELL);
     }
+    return ongelma;
 }
 
 /***********************************************************************

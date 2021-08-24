@@ -18,6 +18,7 @@ extern void ego_finalize(object_type *o_ptr, int level, int power, int mode);
  * Choose Ego Type
  *************************************************************************/
 int apply_magic_ego = 0; /* Hack to force a specific ego type (e.g. quest rewards) */
+static bool _jewelry_level_hack = FALSE;
 
 static int _ego_rarity(ego_type *e_ptr, int level)
 {
@@ -319,6 +320,14 @@ static void _art_create_random(object_type *o_ptr, int level, int power)
     int     max = interpolate(level, max_tbl, 5);
     int     pct = get_slot_power(o_ptr);
     int     softmax;
+
+    if ((_jewelry_level_hack) && (o_ptr->tval == TV_AMULET) &&
+        ((mut_present(MUT_BAD_LUCK)) || (!one_in_(14))))
+    {
+        if (min > 43560L) min = 43560L;
+        if (max > 58564L) max = (max + 58564L) / 2;
+    }
+    _jewelry_level_hack = FALSE;
 
     /* normalize based on the slot for this object (cf artifact.c)
      * weapons/armor are 100%; amulets/lights 50%; etc. */
@@ -670,11 +679,28 @@ static void _ego_create_jewelry_elemental(object_type *o_ptr, int level, int pow
     if (one_in_(ACTIVATION_CHANCE))
         effect_add_random(o_ptr, BIAS_ELEMENTAL);
 }
+static bool _jewelry_check_rand_art(int base, int *level, int power, int mode)
+{
+    int test_level = trim(MIN(100, *level), 20, 52, 64);
+    _jewelry_level_hack = _check_rand_art(50, test_level + 10, power, mode);
+    if (_jewelry_level_hack)
+    {
+        if ((power > 2) && (!one_in_(3)))
+        {
+            _jewelry_level_hack = FALSE;
+            return FALSE;
+        }
+        *level = test_level;
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
 {
     int powers = 0;
 
-    if (mode & AM_SPECIAL)
+    if ((mode & AM_SPECIAL) || _jewelry_check_rand_art(50, &level, power, mode))
     {
         _art_create_random(o_ptr, level, power);
         return;
@@ -1090,7 +1116,7 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
 {
     int powers = 0;
 
-    if (mode & AM_SPECIAL)
+    if ((mode & AM_SPECIAL) || ((!one_in_(6)) && (_jewelry_check_rand_art(50, &level, power, mode))))
     {
         _art_create_random(o_ptr, level, power);
         return;
@@ -2031,6 +2057,11 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
         case EGO_WEAPON_SHARPNESS:
             if (o_ptr->tval != TV_POLEARM && o_ptr->tval != TV_SWORD)
                 done = FALSE;
+            else if (object_is_(o_ptr, TV_SWORD, SV_DIAMOND_EDGE))
+            {
+                if (one_in_(8)) add_flag(o_ptr->flags, OF_VORPAL2);
+                else done = FALSE;
+            }
             else
             {
                 if (one_in_(2))
@@ -2745,13 +2776,26 @@ static void _ego_create_body_armor(object_type *o_ptr, int level)
                 o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
                 o_ptr->ac = k_info[o_ptr->k_idx].ac + 5;
                 if (one_in_(4))
+                {
                     add_flag(o_ptr->flags, OF_CON);
+                    if (one_in_(4)) add_flag(o_ptr->flags, OF_SUST_CON);
+                }
                 if (one_in_(4))
                     add_flag(o_ptr->flags, OF_DEC_DEX);
+                if (one_in_(4))
+                    add_flag(o_ptr->flags, OF_SUST_STR);
                 if (one_in_(4))
                     add_flag(o_ptr->flags, OF_DEC_STEALTH);
                 if (one_in_(2))
                     add_flag(o_ptr->flags, OF_REGEN);
+                if (one_in_(3))
+                    add_flag(o_ptr->flags, OF_RES_DARK);
+                if (one_in_(600 / MAX(10, MIN(100, level))))
+                    add_flag(o_ptr->flags, OF_RES_DISEN);
+                if (one_in_(300 / MAX(20, MIN(60, level))))
+                    add_flag(o_ptr->flags, OF_RES_BLIND);
+                if (one_in_(300 / MAX(20, MIN(60, level))))
+                    add_flag(o_ptr->flags, OF_FREE_ACT);
             }
             break;
         case EGO_BODY_URUK_HAI:
@@ -2785,6 +2829,32 @@ static void _ego_create_body_armor(object_type *o_ptr, int level)
                 if (one_in_(ACTIVATION_CHANCE))
                     effect_add_random(o_ptr, BIAS_DEMON);
             }
+            break;
+        case EGO_BODY_IMP:
+            if (o_ptr->tval == TV_HARD_ARMOR)
+            {
+                done = FALSE;
+                break;
+            }
+            while (1)
+            {
+                bool pval_used = FALSE;
+                if (one_in_(2)) { add_flag(o_ptr->flags, OF_DEX); pval_used = TRUE; }
+                if (one_in_(2)) { add_flag(o_ptr->flags, OF_DEC_WIS); pval_used = TRUE; }
+                if (one_in_(7)) { add_flag(o_ptr->flags, OF_INT); pval_used = TRUE; }
+                if (one_in_(7)) { add_flag(o_ptr->flags, OF_DEC_STR); pval_used = TRUE; }
+                if ((pval_used) && (one_in_(9))) add_flag(o_ptr->flags, OF_STEALTH);
+                if (pval_used) break;
+            }
+            if ((level > 55) && (one_in_(5)))
+                add_flag(o_ptr->flags, OF_RES_NETHER);
+            if (((level > 66) || (one_in_(4))) && (one_in_(4)))
+                add_flag(o_ptr->flags, OF_SPEED);
+            if (one_in_(ACTIVATION_CHANCE * 2))
+                effect_add_random(o_ptr, BIAS_DEMON);
+            if (one_in_(2)) o_ptr->to_h += 2;
+            break;
+        case EGO_BODY_AUGMENTATION:
             break;
         }
     }
@@ -2961,7 +3031,24 @@ static void _ego_create_helmet(object_type *o_ptr, int level)
             if (one_in_(4))
                 add_flag(o_ptr->flags, OF_TUNNEL);
             break;
-
+        case EGO_HELMET_TOMTE:
+            if (o_ptr->sval != SV_KNIT_CAP)
+            {
+                done = FALSE;
+                break;
+            }
+            if ((one_in_(2)) && (randint0(75) < level))
+            {
+                add_flag(o_ptr->flags, OF_SPEED);
+            }
+            if ((one_in_(2)) && (randint0(42) < level))
+                add_flag(o_ptr->flags, OF_RES_COLD);
+            if ((one_in_(4)) && (randint0(75) < level))
+            {
+                add_flag(o_ptr->flags, OF_DEX);
+                if (one_in_(2)) add_flag(o_ptr->flags, OF_SUST_DEX);
+            }
+            break;
         case EGO_HELMET_SUNLIGHT:
             if (one_in_(3))
                 add_flag(o_ptr->flags, OF_VULN_DARK);
@@ -3061,6 +3148,8 @@ static void _ego_create_cloak(object_type *o_ptr, int level)
             if (one_in_(3))
                 add_flag(o_ptr->flags, OF_DEC_STR);
         }
+        if (one_in_(12))
+            add_flag(o_ptr->flags, OF_NIGHT_VISION);
         break;
     case EGO_CLOAK_NAZGUL:
         o_ptr->to_d += 6;
@@ -3444,10 +3533,18 @@ void ego_finalize(object_type *o_ptr, int level, int power, int mode)
                 if (one_in_(15))
                     o_ptr->pval++;
             }
+            else if ((o_ptr->name2 == EGO_HELMET_TOMTE) && (have_flag(o_ptr->flags, OF_SPEED)))
+            {
+                o_ptr->pval = randint0(3);
+                do { o_ptr->pval++; }
+                while ((one_in_(MAX(7, (100 - level) / 6))) && (!mut_present(MUT_BAD_LUCK)));
+            }
             else
             {
                 o_ptr->pval += randint1(e_ptr->max_pval);
                 if ((o_ptr->name2 == EGO_CLOAK_HERO) && (o_ptr->pval > 3)) o_ptr->pval = 3; /* prevent oppy elven cloaks */
+                else if ((o_ptr->name2 == EGO_BODY_AUGMENTATION) && (o_ptr->pval > 4)) o_ptr->pval = 4 + randint0(2);
+                else if ((object_is_weapon(o_ptr)) && (o_ptr->pval > e_ptr->max_pval) && (o_ptr->tval != TV_DIGGING)) o_ptr->pval = randint1(e_ptr->max_pval);
             }
         }
 

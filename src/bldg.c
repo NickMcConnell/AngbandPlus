@@ -2288,7 +2288,7 @@ static void castle_quest(void)
     {
         string_ptr s = quest_get_description(quest);
         msg_format("<color:R>%s</color> (<color:U>Level %d</color>): %s",
-            quest->name, quest->level, string_buffer(s));
+            quest->name, quest->danger_level, string_buffer(s));
         string_free(s);
         quest->status = QS_FAILED_DONE;
         reinit_wilderness = TRUE;
@@ -2693,17 +2693,10 @@ static bool _reforge_artifact_exit(void)
     return FALSE;
 }
 
-static bool _reforge_artifact(void)
+int reforge_limit(void)
 {
-    int  cost, extra_cost = 0, value;
-    char o_name[MAX_NLEN];
-    object_type *src, *dest;
     int f = ((p_ptr->fame <= 128) || (p_ptr->fame >= 224)) ? p_ptr->fame : (((p_ptr->fame - 128) * 3) / 4) + 128;
     /* 90K max kind of removed - stronger objects are allowed but get scaled down */
-    int src_max_power = f*150 + f*f*3/2;
-    int dest_max_power = 0;
-    int src_weight = 80;
-
     if (coffee_break) /* Accelerated reforging */
     {
         int i;
@@ -2720,10 +2713,21 @@ static bool _reforge_artifact(void)
         vec_free(v);
 
         if (failed_quests < 2) f += ((p_ptr->lev * 3 / 2) / (1 + failed_quests));
-        src_max_power = f*150 + f*f*3/2;
     }
+    return (f*150 + f*f*3/2);
+}
 
-    if (p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_RING)
+static bool _reforge_artifact(void)
+{
+    int  cost, extra_cost = 0, value;
+    char o_name[MAX_NLEN];
+    object_type *src, *dest;
+    int src_max_power = reforge_limit();
+    int dest_max_power = 0;
+    int src_weight = 80;
+    int new_day, prev_day, prev_hour, prev_min;
+
+    if (p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_RING || p_ptr->prace == RACE_MON_ARMOR)
     {
         msg_print("Go enchant yourself!");
         return FALSE;
@@ -2840,6 +2844,199 @@ static bool _reforge_artifact(void)
         }
     }
 
+    if (reforge_details)
+    {
+        int dest_weight, min_power, max_power, voima, avg_bp, arvio, normi, minpwg, maxpwg, buflen, adjustment = 0, adjustment2 = 0;
+        char src_name[MAX_NLEN], dest_name[MAX_NLEN], buf[10];
+        int arvo = obj_value_real(dest) * 4 / 3;
+        static point_t tbl[12] = { {1, 0}, {28, 2}, {45, 4}, {57, 6}, {64, 10}, {70, 18}, {75, 30}, {80, 45}, {85, 69}, {95, 105}, {105, 120}, {120, 170} };
+        if ((object_is_gloves(dest)) && (arvo < 2000)) arvo = arvo / 3 + 1333;
+
+        get_reforge_powers(TRUE, src, dest, &src_weight, &dest_weight, &min_power, &max_power, &avg_bp, p_ptr->fame);
+        object_desc(src_name, src, (OD_NAME_ONLY));
+        object_desc(dest_name, dest, (OD_NAME_ONLY));
+        prt("Source:", 3, 1);
+        c_put_str(tval_to_attr[src->tval], format("%-30.30s", src_name), 3, 9);
+        put_str(format("Power: %-5d  Type strength: %d", MIN(value, MAX(src_weight, dest_weight) * 1125L), src_weight), 3, 41);
+        put_str("Target:", 4, 1);
+        c_put_str(tval_to_attr[dest->tval], format("%-30.30s", dest_name), 4, 9);
+        put_str(format("Score: %-5d  Type strength: %d", obj_value(dest), dest_weight), 4, 41);
+
+        voima = MIN(value * MIN(src_weight, dest_weight) / src_weight, dest_weight * 1125L);
+        put_str("Reforge power after adjusting for item types:", 6, 1);
+        c_put_str(TERM_L_BLUE, format("%d", voima), 6, 47);
+        if (mut_present(MUT_INSPIRED_SMITHING)) avg_bp += avg_bp / 10; /* Eyeballing */
+        put_str("Reforge power after adjusting for inspiration level:", 7, 1);
+        c_put_str(TERM_L_BLUE, format("%d", avg_bp), 7, 54);
+        put_str("Range of possible scores for resulting artifact:", 8, 1);
+        strcpy(buf, format("%d", min_power));
+        c_put_str(TERM_L_BLUE, buf, 8, 50);
+        buflen = strlen(buf);
+        put_str("to", 8, 51 + buflen);
+        c_put_str(TERM_L_BLUE, format("%d", max_power), 8, 54 + buflen);
+        put_str("Estimated average score:", 9, 1);
+        if (max_power < arvo * 7 / 5)
+        {
+            c_put_str(TERM_RED, "Not recommended - no room for improvements", 10, 1);
+        }
+        else if ((src_weight < dest_weight * 9 / 10) && (value < dest_weight * 1000L))
+        {
+            c_put_str(TERM_RED, "Not recommended - source item has lower type strength", 10, 1);
+        }
+        /* Hack - there's no actual way to calculate a real expected score,
+         * apart from generating a very large number of test artifacts and
+         * calculating the average; but using that approach can cause the
+         * game to become stuck, and still gives an unreliable estimate.
+         * So we do evil voodoo instead
+         * Calculating expected scores for dragon auxes is very difficult
+         * and should be improved somehow
+         * Anyone with any understanding of mathematics and probability is
+         * advised to skip this section of the code, for their own sanity */
+        normi = dest_weight * 460;
+        if ((object_is_cloak(dest)) || (object_is_boots(dest)) || (object_is_gloves(dest)) || (object_is_shield(dest))) normi += arvo / 2;
+        if (object_is_melee_weapon(dest))
+        { /* This makes no sense at all, but somehow it works
+           * Let's pray it keeps working and not think about it too closely */
+            static point_t taulu[14] = { {1, 20}, {25, 22}, {40, 25}, {55, 30}, {65, 38}, {72, 44}, {76, 50}, {80, 60}, {90, 84}, {95, 100}, {100, 120}, {105, 150}, {110, 195}, {115, 270} };
+            int paino5 = dest->ds * dest->ds * (dest->dd + 1);
+            int paino3 = min_power / ((paino5 * 2) + (dest_weight * 2) + 240);
+            int paino2 = interpolate(paino3, taulu, 14);
+            s32b paino4 = (dest->ds * 10) * (dest->ds + 9) * 24 * (dest->dd * 10 - 5 + (40 * paino2 / 100)) / (35 + 40 * paino2 / 100) / 75;
+            s32b paino = MAX(-100, ((paino4 / 10 + MIN(paino4, 700) * 9 / 10) * (paino2 + 5) / 3 + ((56 + dest_weight / 2) * (95 - paino2))) / 100);
+            int dmult = 60 + MAX(0, paino);
+            int n_arvo = 200L * (dest_weight + paino * 5 / 6);
+            int t_arvo = (((n_arvo / 2) - (dest_weight * 35)) - (ABS(min_power - n_arvo)));
+            if (t_arvo < 0) t_arvo /= 2;
+            adjustment += t_arvo / 484 + 24 - ((ABS(dest_weight - 53)) / 3);
+            if (object_is_(dest, TV_SWORD, SV_DIAMOND_EDGE)) adjustment -= ((min_power / 2 + 15000L) - (ABS(min_power - 32000L))) / 750;
+            normi = (56 + (dest_weight * 5 / 2) + (MAX(0, paino) * 3 / 2)) * dmult;
+            adjustment += dest_weight + 16 - paino;
+//            put_str(format("P1/P2/P3/P4/P5: %d/%d/%d/%d/%d", paino, paino2, paino3, paino4, paino5), 12, 1);
+        }
+        if (object_is_shield(dest)) adjustment = -12; /* Shields tend to be fairly good compared to what they "ought" to be like */
+        if (object_is_cloak(dest)) adjustment = -8;
+        if (object_is_boots(dest)) adjustment = -10;
+
+        /* Adjust for valuable source item */
+        adjustment2 = interpolate(arvo * (object_is_melee_weapon(dest) ? 800L : 480L) / (min_power * 3 + max_power), tbl, 12);
+
+//        put_str(format("Early adj2: %d", adjustment2), 10, 1);
+
+        if (min_power < dest_weight * 200)
+        {
+            if (object_is_melee_weapon(dest))
+                 adjustment2 += 126 * (dest_weight * 200 - min_power) / (dest_weight * 200);
+            else adjustment2 += 18 * (dest_weight * 200 - min_power) / (dest_weight * 200);
+        }
+
+        /* Adjustments for "Bilbo sweet spot"
+         * The generic formula tends to underestimate values in a range
+         * roughly centered around a Bilbo-esque 58K weight-80 source */
+
+        if (dest->tval == TV_AMULET)
+        { /* It has to be true if empirical data says so */
+            adjustment -= MAX(0, (6600 - ABS(min_power - 18000L)) / 300);
+        }
+
+        if (object_is_gloves(dest))
+        {
+            int nval = 16500L + arvo / 2;
+            adjustment -= MAX(0, ((nval / 2) - ABS(min_power - nval)) / 480);
+        }
+
+        if (object_is_helmet(dest))
+        {
+            int nval = 23500L;
+            adjustment2 -= (adjustment2 / 3);
+            adjustment -= MAX(0, ((nval / 2) - ABS(min_power - nval)) / 600);
+            adjustment -= MAX(0L, (32000L + MAX(0, arvo / 2 - 3500) - min_power)) / 100 * arvo / 12000 * (MIN(4800, MAX(100, min_power - arvo - 2000))) / 12000;
+        }
+
+        if (object_is_body_armour(dest))
+        {
+            int nval = MAX(0, 9000L - ABS(14000L - arvo)) * 4 / 3;
+            adjustment -= MAX(0, nval - ABS(min_power - 32000L)) / 220;
+        }
+
+        if (object_is_shield(dest))
+        {
+            int nval = 17500L + arvo / 2;
+            adjustment -= MAX(0, ((nval / 2) - ABS(min_power - nval)) / 720);
+        }
+
+        if (object_is_(dest, TV_HAFTED, SV_WIZSTAFF))
+        {
+            int muutos = ((8500 - ABS(min_power - 14000)) / 100);
+            if (muutos < 0) muutos /= 4;
+            adjustment2 -= muutos;
+        }
+
+        if (object_is_bow(dest)) /* All bows are unique, so we need to estimate them one by one */
+        {
+            switch (dest->sval)
+            {
+                case SV_SLING:
+                    if (min_power > normi) adjustment2 -= (min_power - normi) * 50 / min_power;
+                    break;
+                case SV_SHORT_BOW:
+                    adjustment2 += MAX(0, 12000L - ABS(27000L - min_power)) / 600;
+                    if (min_power > normi) adjustment2 -= (min_power - normi) * 30 / min_power;
+                    break;
+                case SV_LONG_BOW:
+                    {
+                       int lisays = (12000L - ABS(27000L - min_power)) / 440;
+                       if ((min_power < 25000) && (lisays < 0)) lisays = 0;
+                       adjustment2 += lisays;
+                       break;
+                    }
+                case SV_LIGHT_XBOW:
+                    adjustment2 += MAX(0, 16000L - ABS(27000L - min_power)) / 440;
+                    break;
+                case SV_HEAVY_XBOW:
+                    adjustment2 += MAX(0, 15000L - ABS(30000L - min_power)) / 330;
+                    break;
+                case SV_NAMAKE_BOW:
+                    adjustment2 -= interpolate(min_power / 425, tbl, 12) / 2;
+                    adjustment2 -= 17;
+                    adjustment2 += MAX(0, 12000L - ABS(27000L - min_power)) / 480;
+                    break;
+                default: /* harps, guns */
+                    adjustment2 += MAX(0, 7500L - ABS(18000L - min_power)) / 340;
+                    break;
+            }
+        }
+
+        minpwg = 448 - (((ABS(normi - min_power)) * 400L / (normi + min_power)));
+        maxpwg = 448 - (((ABS(normi - max_power)) * 400L / (normi + max_power)));
+//        put_str(format("Early minpwg/maxpwg: %d/%d Normi: %d", minpwg, maxpwg, normi), 13, 1);
+        minpwg = (minpwg * 400L / (minpwg + maxpwg)) + 52 + adjustment - adjustment2;
+        if (object_is_melee_weapon(dest)) /* Min-power is less important with melee weapons */
+        {
+            minpwg -= minpwg / 3;
+            minpwg += 85;
+        }
+        minpwg = MAX(30, MIN(370, minpwg));
+
+        arvio = (min_power * minpwg / 400) + (max_power * (400L - minpwg) / 400);
+        if (dest->tval == TV_LITE) arvio += arvio / 75;
+        else if (dest->tval == TV_RING) /* even worse */
+        {
+            arvio += arvio / 100;
+            arvio += (arvio / 200) * (arvio / 200) / 100;
+        }
+        else if (object_is_(dest, TV_BOW, SV_HARP))
+        {
+            arvio += (arvio / 200) * (arvio / 200) / 100;
+        }
+
+//        put_str(format("Arvo: %d Adj: %d Adj2: %d Minpwg: %d", arvo, adjustment, adjustment2, minpwg), 14, 1);
+         
+        c_put_str(TERM_YELLOW, format("%d", arvio), 9, 26);
+        paivita = TRUE;
+        paivitys_no_inkey_hack = TRUE;
+        if (!get_check("Proceed with this reforge? ")) return FALSE;
+    }
+
     if (p_ptr->wizard)
     {
         doc_ptr doc = doc_alloc(80);
@@ -2851,6 +3048,7 @@ static bool _reforge_artifact(void)
 
         object_desc(buf, src, OD_COLOR_CODED);
         doc_printf(doc, "Reforging %s (%d):\n", buf, base);
+        if (strpos("test", player_name)) ct = 1000;
         for (i = 0; i < ct; i++)
         {
             obj_t forge = *dest;
@@ -2884,7 +3082,28 @@ static bool _reforge_artifact(void)
     stats_on_gold_services(cost);
 
     msg_print("After several hours, you are presented your new artifact...");
+    extract_day_hour_min(&prev_day, &prev_hour, &prev_min);
     game_turn += rand_range(5000, 15000);
+    prevent_turn_overflow();
+    extract_day_hour_min(&new_day, &prev_hour, &prev_min);
+    if (new_day != prev_day)
+    {
+        determine_today_mon(FALSE);
+        if (p_ptr->prace == RACE_WEREWOLF) werewolf_check_midnight();
+        if (ironman_nightmare)
+        {
+            msg_print("You fall asleep as you wait, and horrible visions flit through your mind...");
+            get_mon_num_prep(get_nightmare, NULL);
+            while(1)
+            {
+                have_nightmare(get_mon_num(MAX_DEPTH));
+                if (!one_in_(3)) break;
+            }
+
+            get_mon_num_prep(NULL, NULL);
+            msg_print("You awake screaming.");
+        }
+    }
 
     /* The items we carried recharged during those hours */
     _recharge_player_items();
@@ -2948,7 +3167,7 @@ static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_
     if (cost == 0)
         cost = town_service_price(1500);
 
-    if (p_ptr->prace == RACE_MON_SWORD)
+    if ((p_ptr->prace == RACE_MON_SWORD) || (p_ptr->prace == RACE_MON_ARMOR))
     {
         msg_print("Go enchant yourself!");
         return FALSE;
@@ -2970,7 +3189,7 @@ static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_
     else
         maxenchant = 2 + p_ptr->lev/5;
 
-    /* Streamline. Nothing is more fun then enchanting Twilight (-40,-60)->(+10, +10), I 
+    /* Streamline. Nothing is more fun than enchanting Twilight (-40,-60)->(+10, +10), I
        admit. But other players might not share my love of carpal tunnel syndrome! */
     {
         int idx = -1;
@@ -2980,7 +3199,7 @@ static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_
         object_type copy = {0};
         menu_t menu = { "Enchant How Much?", NULL, 
                         "Amt      Cost", _enchant_menu_fn,
-                        choices, 25 };
+                        choices, 25, 0 };
 
         object_copy(&copy, prompt.obj);
         copy.curse_flags = 0;
@@ -3491,7 +3710,8 @@ static void _sell_photo_local_aux(object_type *o_ptr)
     myy = ((tarjous > 0) && (!no_selling));
     if (tarjous > 2000)
     {
-        msg_print("Is that... BIGFOOT????");
+        if (o_ptr->pval == MON_TSUCHINOKO) msg_print("Hey, nice find!");
+        else msg_print("Is that... BIGFOOT????");
         myy = TRUE;
         if (no_selling) tarjous = (tarjous / 1000) * 1000;
     }
@@ -3692,6 +3912,8 @@ static void bldg_process_command(building_type *bldg, int i)
         if (do_res_stat(A_DEX)) paid = TRUE;
         if (do_res_stat(A_CON)) paid = TRUE;
         if (do_res_stat(A_CHR)) paid = TRUE;
+        if (restore_level()) paid = TRUE;
+        if (lp_player(1000)) paid = TRUE;
         break;
     case BACT_ENCHANT_ARROWS:
         enchant_item(item_tester_hook_ammo, bcost, 1, 1, 0, is_guild);
@@ -3830,6 +4052,14 @@ static void bldg_process_command(building_type *bldg, int i)
     case BACT_SELL_PHOTO:
         _sell_photo();
         break;
+    case BACT_LOAN:
+    case BACT_DEPOSIT:
+    case BACT_INSURANCE:
+    case BACT_CORNY_CASH_IN:
+    case BACT_VIEW_POLICY:
+    case BACT_VIEW_POSTER:
+        cornucopia_do_command(bldg, bact);
+        break;
     }
 
     if (paid)
@@ -3839,7 +4069,6 @@ static void bldg_process_command(building_type *bldg, int i)
         if (prace_is_(RACE_MON_LEPRECHAUN))
             p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
     }
-
 }
 
 
@@ -3946,6 +4175,11 @@ void do_cmd_bldg(void)
             energy_use = 0;
         }
 
+        return;
+    }
+    else if (prace_is_(RACE_MON_LEPRECHAUN) && strpos("Cornucopia", bldg->name))
+    {
+        msg_print("We don't serve your kind in here!");
         return;
     }
     else if (p_ptr->inside_battle)

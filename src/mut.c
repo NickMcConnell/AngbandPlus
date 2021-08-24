@@ -152,6 +152,11 @@ static mutation_info _mutations[MAX_MUTATIONS] =
     {MUT_RATING_GOOD,                    0,             0, 0, {0,  0,   0, purple_mut}},
     {MUT_RATING_GREAT,                   0,             0, 0, {0,  0,   0, inspired_smithing_mut}},
     {MUT_RATING_BAD,                     0,             0, 4, {0,  0,   0, impotence_mut}},
+    {MUT_RATING_GREAT,                   0,             0, 0, {0,  0,   0, strong_mind_mut}},
+
+    {MUT_RATING_GOOD,                    0,             0, 0, {0,  0,   0, vortex_melee_mut}},
+    {MUT_RATING_GOOD,       MUT_TYPE_BONUS,             0, 0, {0,  0,   0, vortex_speed_mut}},
+    {MUT_RATING_GOOD,                    0,             0, 0, {0,  0,   0, vortex_control_mut}},
 
 };
 
@@ -238,7 +243,7 @@ int _mut_prob_gain(int i)
         result = 1;
     }
 
-    if (p_ptr->prace == RACE_MON_RING || p_ptr->prace == RACE_MON_SWORD)
+    if (p_ptr->prace == RACE_MON_RING || p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_ARMOR)
     {
         switch (i)
         {
@@ -513,9 +518,15 @@ bool mut_gain(int mut_idx)
 
 static void _mut_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
+    static char _mut_menu_options[] = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     int idx = ((int*)cookie)[which];
     switch (cmd)
     {
+    case MENU_KEY:
+    {
+        var_set_int(res, _mut_menu_options[which]);
+        break;
+    }
     case MENU_TEXT:
     {
         char buf[255];
@@ -530,6 +541,11 @@ static void _mut_menu_fn(int cmd, int which, vptr cookie, variant *res)
         var_set_string(res, buf);
         break;
     }
+    case MENU_COLUMN:
+    {
+        var_set_int(res, (which >= Term->hgt - 6) ? 45 : 13);
+        break;
+    }
     default:
         default_menu(cmd, which, cookie, res);
     }
@@ -541,7 +557,7 @@ int mut_gain_choice(mut_pred pred)
     int i;
     int ct = 0;
     menu_t menu = { "Gain which mutation?", "Browse which mutation?", NULL,
-                    _mut_menu_fn, choices, 0};
+                    _mut_menu_fn, choices, 0, Term->hgt - 6};
 
     for (i = 0; i < MAX_MUTATIONS; i++)
     {
@@ -722,6 +738,7 @@ bool mut_demigod_pred(int mut_idx)
     case MUT_FELL_SORCERY:
     case MUT_TREAD_SOFTLY:
     case MUT_INSPIRED_SMITHING:
+    case MUT_STRONG_MIND:
         return TRUE;
         break;
 
@@ -776,6 +793,18 @@ bool mut_draconian_pred(int mut_idx)
             return TRUE;
         }
         break;
+    }
+    return FALSE;
+}
+
+bool mut_vortex_pred(int mut_idx)
+{
+    switch (mut_idx)
+    {
+    case MUT_VORTEX_MELEE:
+    case MUT_VORTEX_SPEED:
+    case MUT_VORTEX_CONTROL:
+        return TRUE;
     }
     return FALSE;
 }

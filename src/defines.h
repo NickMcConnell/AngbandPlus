@@ -17,9 +17,9 @@
 
 
 #define VER_MAJOR 7
-#define VER_MINOR 0
-#define VER_PATCH "cloudberry"
-#define VER_EXTRA 3
+#define VER_MINOR 1
+#define VER_PATCH "toffee"
+#define VER_EXTRA 5
 #define VERSION_IS_DEVELOPMENT (FALSE)
 
 #define GAME_MODE_BEGINNER  0
@@ -89,7 +89,7 @@
 /*
  * Arena constants
  */
-#define MAX_ARENA_MONS        38    /* -KMW- */
+#define MAX_ARENA_MONS        41    /* excluding the babble */
 #define ARENA_DEFEATED_OLD_VER (-(MAX_SHORT))
 
 
@@ -114,7 +114,9 @@
 
 
 /* The number of "patrons" available (for Chaos Warriors) */
-#define MAX_PATRON          16
+#define RANDOM_PATRON       16
+#define MAX_CHAOS_PATRON    16
+#define MAX_PATRON          17
 
 /* Number of entries in the sanity-blast descriptions */
 #define MAX_SAN_HORROR 20
@@ -130,6 +132,9 @@
 # define MAX_MA 17
 # define MA_KNEE 1
 # define MA_SLOW 2
+
+/* Maximum length of the player's name */
+#define PY_NAME_LEN 22
 
 /* Hallucination stuff */
 #define MAX_SILLY_ATTACK 29
@@ -538,6 +543,7 @@
 #define SPELL_VALUE          19      /* For valuing object activations */
 #define SPELL_ON_BROWSE      20      /* Custom Handler for browsing the spell */
 #define SPELL_STAT_NAME      21      /* In case display name (SPELL_NAME) is duplicated/renamed */
+#define SPELL_FLAGS          22
 
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
@@ -628,7 +634,10 @@
 #define RACE_HALF_ORC           63
 #define RACE_EINHERI            64
 #define RACE_WEREWOLF           65
-#define MAX_RACES               66
+#define RACE_MON_ARMOR          66
+#define RACE_BOIT               67
+#define RACE_MON_ORC            68
+#define MAX_RACES               69
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -707,6 +716,10 @@
 #define ELEMENTAL_WATER   2
 #define ELEMENTAL_FIRE    3
 #define ELEMENTAL_MAX     4
+
+#define ORC_FIGHTER    0
+#define ORC_WARLOCK    1
+#define ORC_MAX        2
 
 /* TODO */
 #define RACE_IS_NONLIVING    0x0001
@@ -1251,6 +1264,7 @@ enum {
 #define ART_AMBER               42
 #define ART_NUMENOR             132
 #define ART_STONEMASK           146
+#define ART_BLACK_BELET         360
 
 /* Cloaks */
 #define ART_JACK                43
@@ -1480,6 +1494,7 @@ enum {
 #define ART_STONE_OF_WAR        291
 #define ART_STONE_OF_ARMAGEDDON 297
 #define ART_STONE_OF_MIND       328
+#define ART_ALL_SEEING_EYE      364
 
 #define ART_HOLY_GRAIL      293
 
@@ -1766,6 +1781,7 @@ enum {
 #define SV_YATA_MIRROR                  50
 
 /* The "sval" codes for TV_HELM */
+#define SV_KNIT_CAP                      1
 #define SV_HARD_LEATHER_CAP              2
 #define SV_METAL_CAP                     3
 #define SV_JINGASA                       4  /* 4 */
@@ -1803,7 +1819,7 @@ enum {
 #define SV_SET_OF_MITHRIL_GAUNTLETS      5
 #define SV_SET_OF_DRAGON_GLOVES          6
 #define SV_SET_OF_CESTI                  7
-#define SV_HAND                          6
+#define SV_HAND                          8
 
 /* The "sval" codes for TV_SOFT_ARMOR */
 #define SV_T_SHIRT                       0
@@ -2917,8 +2933,14 @@ enum obj_flags_e {
     /* Plural */
     OF_PLURAL,
 
+    /* Ignore Invulnerability */
+    OF_IGNORE_INVULN,
+
+    /* Night vision */
+    OF_NIGHT_VISION,
+
     /* A few places loop from 0 <= i < OF_COUNT ... (init1, race_sword and race_ring) */
-    OF_COUNT,
+    OF_COUNT, /* currently 178 */
 };
 #define OF_ARRAY_SIZE          6
 /* u32b flgs[OF_ARRAY_SIZE];
@@ -3943,6 +3965,12 @@ extern int PlayerUID;
 #define BACT_REFORGE_ARTIFACT       56
 #define BACT_CHANGE_NAME            57
 #define BACT_SELL_PHOTO             58
+#define BACT_LOAN                   59
+#define BACT_DEPOSIT                60
+#define BACT_INSURANCE              61
+#define BACT_CORNY_CASH_IN          62
+#define BACT_VIEW_POLICY            63
+#define BACT_VIEW_POSTER            64
 
 /*
  * Initialization flags
@@ -3951,7 +3979,7 @@ extern int PlayerUID;
 #define INIT_XXXXXX2            0x02
 #define INIT_XXXXXX3            0x04
 #define INIT_SCROLL_WILDERNESS  0x08
-#define INIT_XXXXXX5            0x10
+#define INIT_SILENT             0x10
 #define INIT_DEBUG              0x20 /* error checking on dungeon files */
 
 /*
@@ -4203,13 +4231,16 @@ extern int PlayerUID;
 #define MON_NOV_PRIEST_G        109
 #define MON_DISEMBODIED_HAND    112
 #define MON_SILVER_COINS        117
+#define MON_SNAGA               118
 #define MON_D_ELF               122
+#define MON_CAVE_ORC            126
 #define MON_MANES               128
 #define MON_LOST_SOUL           133
 #define MON_ROBIN_HOOD          138
 #define MON_NOV_PALADIN_G       147
 #define MON_PHANTOM_W           152
 #define MON_WOUNDED_BEAR        159
+#define MON_ORC_SHAMAN          162
 #define MON_GIANT_SPIDER        175
 #define MON_D_ELF_MAGE          178
 #define MON_D_ELF_WARRIOR       182
@@ -4249,6 +4280,7 @@ extern int PlayerUID;
 #define MON_FIRE_HOUND          307
 #define MON_COLD_HOUND          308
 #define MON_ENERGY_HOUND        309
+#define MON_URUK                313
 #define MON_SHAGRAT             314
 #define MON_GORBAG              315
 #define MON_STONE_GIANT         321
@@ -4337,6 +4369,7 @@ extern int PlayerUID;
 #define MON_BLOODLETTER_KHORNE 523
 #define MON_EARTH_ELEMENTAL 525
 #define MON_AIR_ELEMENTAL   526
+#define MON_MALICIOUS_LEPRECHAUN 529
 #define MON_EOG_GOLEM 530
 #define MON_DREAD         534
 #define MON_STAR_VAMPIRE 536
@@ -4424,6 +4457,7 @@ extern int PlayerUID;
 #define MON_DRACOLICH           701
 #define MON_G_TITAN             702
 #define MON_GREATER_TITAN       702
+#define MON_SPEC_TYRANNO        705
 #define MON_ENT                 708
 #define MON_HRU                 709
 #define MON_FAFNER              712
@@ -4438,6 +4472,7 @@ extern int PlayerUID;
 #define MON_HELL_KNIGHT         731
 #define MON_BULLGATES           732
 #define MON_SANTACLAUS          733
+#define MON_GREAT_UNCLE         736
 #define MON_LORD_CHAOS          737
 #define MON_KHAMUL              738
 #define MON_TINDALOS            739
@@ -4661,21 +4696,31 @@ extern int PlayerUID;
 #define MON_AUDE		1148
 #define MON_HELGA		1149
 #define MON_GERTRUDE            1150
+#define MON_OTHROD              1185
+#define MON_ORC_WARLOCK         1189
+#define MON_ORC_WARLORD         1190
 #define MON_WIRUIN              1192
 #define MON_NIGHTMARE_DRAGON    1215
 #define MON_JUSTSHORN           1225
 #define MON_SHEEP               1226
 #define MON_ZOOPI               1229
 #define MON_FESTIVUS            1230
+#define MON_IMPLORINGTON        1231
 #define MON_DUCK                1241
 #define MON_HORUS               1244
 #define MON_KUNDRY              1254
 #define MON_OSIRIS              1259
 #define MON_ISIS                1263
 #define MON_AMUN                1266
+#define MON_MUMMY_KING          1267
+#define MON_SHA                 1270
 #define MON_FISHROOSTER         1272
 #define MON_SEA_GIANT           1276
 #define MON_AEGIR               1277
+#define MON_AIJEM               1281
+#define MON_FILTHY_RAG          1282
+#define MON_SEXY_SWIMSUIT       1283
+#define MON_GRAGOMANI           1285
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle
@@ -4984,7 +5029,7 @@ enum mon_save_fields_e {
 /* Temporary flags macro */
 #define IS_FAST() (p_ptr->fast || music_singing(MUSIC_SPEED) || music_singing(MUSIC_SHERO) || wild_has_power(WILD_SPEED))
 #define IS_LIGHT_SPEED() (p_ptr->lightspeed || wild_has_power(WILD_LIGHT_SPEED))
-#define IS_INVULN() (p_ptr->invuln || music_singing(MUSIC_INVULN) || wild_has_power(WILD_INVULN) || (p_ptr->special_defense & DEFENSE_SANCTUARY))
+#define IS_INVULN() ((p_ptr->invuln || music_singing(MUSIC_INVULN) || wild_has_power(WILD_INVULN) || (p_ptr->special_defense & DEFENSE_SANCTUARY)) && (!p_ptr->ignore_invuln))
 #define IS_HERO() (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO) || p_ptr->constant_hero || player_is_monster_king())
 #define IS_BLESSED() (p_ptr->blessed || music_singing(MUSIC_BLESS) || hex_spelling(HEX_BLESS) || wild_has_power(WILD_BLESS))
 #define IS_SHERO() (p_ptr->shero || p_ptr->pclass == CLASS_BERSERKER || wild_has_power(WILD_BERSERK))
@@ -5389,6 +5434,8 @@ enum ego_type_e {
     EGO_BODY_OLOG_HAI,
     EGO_BODY_DEMON,
     EGO_BODY_DEMON_LORD,
+    EGO_BODY_IMP,
+    EGO_BODY_AUGMENTATION,
 
     EGO_ROBE_PERMANENCE = 80,
     EGO_ROBE_TWILIGHT,
@@ -5425,6 +5472,7 @@ enum ego_type_e {
     EGO_HELMET_DWARVEN,
     EGO_HELMET_VALKYRIE,
     EGO_HELMET_RAGE = 120,
+    EGO_HELMET_TOMTE,
 
     EGO_CROWN_TELEPATHY = 125,
     EGO_CROWN_MAGI,
@@ -5794,6 +5842,7 @@ enum effect_e
     EFFECT_GONG,
     EFFECT_MURAMASA,
     EFFECT_EXPERTSEXCHANGE,
+    EFFECT_EYE_HYPNO,
 
     EFFECT_MAX
 };
@@ -5865,6 +5914,9 @@ enum {
     ORIGIN_STOLEN,              /* stolen by a pickpocket */
     ORIGIN_CAN_OF_TOYS,         /* found in a can of toys */
     ORIGIN_BLOOD,               /* blood pool */
+    ORIGIN_CORNUCOPIA,          /* Cornucopia replacement */
+    ORIGIN_CRAFTING,            /* created by crafting */
+    ORIGIN_MUNDANITY,           /* created by mundanity */
 
     ORIGIN_MAX
 };
@@ -5965,3 +6017,10 @@ enum
 #define KILL_MULT_ORC KILL_MULT_HIGH
 #define KILL_MULT_TROLL KILL_MULT_HIGH
 #define KILL_MULT_GIANT KILL_MULT_HIGH
+
+/* Power usability flags */
+#define PWR_AFRAID 0x01
+#define PWR_CONFUSED 0x02
+/* to-do: PWR_ANTIMAGIC? */
+
+#define MAX_POWER_LABEL 62 /* uppercase, lowercase, and numbers */

@@ -437,6 +437,12 @@ static void rd_extra(savefile_ptr file)
     p_ptr->town_num = savefile_read_s16b(file);
 
     p_ptr->arena_number = savefile_read_s16b(file);
+    if (savefile_is_older_than(file, 7,1,0,2) && (p_ptr->arena_number > 32))
+    {
+        p_ptr->arena_number++;
+        if (p_ptr->arena_number > 34) p_ptr->arena_number++;
+        if (p_ptr->arena_number > 38) p_ptr->arena_number++;
+    }
     p_ptr->inside_arena = BOOL(savefile_read_s16b(file));
     p_ptr->inside_battle = BOOL(savefile_read_s16b(file));
     p_ptr->exit_bldg = savefile_read_byte(file);
@@ -710,6 +716,16 @@ static void rd_extra(savefile_ptr file)
     if (savefile_is_older_than(file, 7, 0, 9, 2)) p_ptr->py_summon_kills = 0;
     else p_ptr->py_summon_kills = savefile_read_byte(file);
     for (i = 0; i < 16; i++) (void)savefile_read_s32b(file);
+    wipe_labels();
+    if (!savefile_is_older_than(file, 7, 1, 0, 4))
+    {
+        for (i = 0; i < MAX_POWER_LABEL; i++)
+        {
+            int merkki = savefile_read_byte(file);
+            if (merkki > MAX_POWER_LABEL) continue;
+            savefile_read_cptr(file, power_labels[i], 15);
+        }
+    }
 
     {
     race_t  *race_ptr = get_true_race();
@@ -878,7 +894,7 @@ static errr rd_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
         rd_monster(file, m_ptr);
         c_ptr = &cave[m_ptr->fy][m_ptr->fx];
         c_ptr->m_idx = m_idx;
-        real_r_ptr(m_ptr)->cur_num++;
+        inc_cur_num(m_ptr, 1);
 
         /* Build a chain of objects carried */
         if (m_ptr->hold_o_idx)
@@ -1328,6 +1344,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     quiver_load(file);
     towns_load(file);
     home_load(file);
+    cornucopia_load(file);
 
     p_ptr->pet_follow_distance = savefile_read_s16b(file);
     p_ptr->pet_extra_flags = savefile_read_s16b(file);
