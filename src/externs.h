@@ -376,6 +376,7 @@ extern bool do_cmd_open_aux(int y, int x);
 extern void do_cmd_open(void);
 extern void do_cmd_close(void);
 extern void do_cmd_exchange(void);
+extern void do_cmd_running_shot(void);
 extern void do_cmd_tunnel(void);
 extern bool break_free_of_web(void);
 extern void do_cmd_disarm(void);
@@ -393,7 +394,7 @@ extern void do_cmd_rest(void);
 extern int archery_range(const object_type *j_ptr);
 extern int throwing_range(const object_type *i_ptr);
 extern void attacks_of_opportunity(int neutralized_y, int neutralized_x);
-extern void do_cmd_fire(int quiver);
+extern void do_cmd_fire(int quiver, bool running_shot);
 extern void do_cmd_throw(bool automatic);
 
 /* cmd3.c */
@@ -415,6 +416,7 @@ extern void do_cmd_look(void);
 extern void do_cmd_locate(void);
 extern void do_cmd_query_symbol(void);
 extern void do_cmd_view_monsters(void);
+extern void do_cmd_view_objects(void);
 extern bool ang_sort_comp_hook(const void *u, const void *v, int a, int b);
 extern void ang_sort_swap_hook(void *u, void *v, int a, int b);
 extern void py_steal(int y, int x);
@@ -954,7 +956,7 @@ extern int hand_and_a_half_bonus(const object_type *o_ptr);
 extern int blade_bonus(const object_type *o_ptr);
 extern int axe_bonus(const object_type *o_ptr);
 extern int polearm_bonus(const object_type *o_ptr);
-extern byte total_ads(const object_type *j_ptr, bool single_shot);
+extern byte total_ads(const object_type *j_ptr);
 extern void cnv_stat(int val, char *out_val);
 extern int health_level(int current, int max);
 extern bool get_alertness_text(monster_type *m_ptr, int text_size, char* text, int* color);
@@ -1065,8 +1067,6 @@ extern void user_name(char *buf, size_t len, int id);
 
 
 #ifdef ALLOW_REPEAT
-/* util.c */
-extern int interactive_input(bool look_ahead);
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
 extern void repeat_clear(void);

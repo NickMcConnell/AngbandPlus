@@ -851,12 +851,11 @@ static bool generate_poor_quality_object(object_type *o_ptr)
 {
 	bool search_failed = FALSE;
 
-	int object_roll = dieroll(8);
+	int object_roll = dieroll(5);
 
 	if (object_roll == 1)
 	{
 		object_prep(o_ptr, lookup_kind(TV_ARROW, SV_NORMAL_ARROW));
-		object_known(o_ptr);
 	}
 	else if (object_roll == 2)
 	{
@@ -866,7 +865,6 @@ static bool generate_poor_quality_object(object_type *o_ptr)
 	else if (object_roll == 3)
 	{
 		object_prep(o_ptr, lookup_kind(TV_CLOAK, SV_CLOAK));
-		object_known(o_ptr);
 	}
 	else if (object_roll == 4)
 	{
@@ -875,9 +873,9 @@ static bool generate_poor_quality_object(object_type *o_ptr)
 	else
 	{
 		search_failed = !make_object(o_ptr, FALSE, FALSE, DROP_TYPE_DAMAGED);
-		if (!search_failed) object_known(o_ptr);
 	}
 
+	if (!search_failed) object_known(o_ptr);
 	return search_failed;
 }
 
@@ -1000,9 +998,6 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 	bool more = FALSE;
 
 	object_type *o_ptr = &o_list[o_idx];
-
-	time_t c;      // time variables
-	struct tm *tp; //
 
 	/* Attempt to unlock it */
 	if (o_ptr->pval > 0)
@@ -1859,7 +1854,57 @@ void do_cmd_exchange(void)
 		
 }
 
+void do_cmd_running_shot()
+{
+	int i;
+	int dir = 5;
 
+	if (!p_ptr->active_ability[S_ARC][ARC_RUNNING_SHOT])
+	{
+		msg_print("You need the ability 'running shot' to use this command.");
+		return;
+	}
+
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	for (i = 0; i < ACTION_MAX; i++)
+	{
+		if ((p_ptr->previous_action[i] >= 1) && (p_ptr->previous_action[i] <= 9) && (p_ptr->previous_action[i] != 5))
+		{
+			dir = p_ptr->previous_action[i];
+			break;
+		}
+	}
+
+	if (dir == 5) return;
+
+	/* Get location */
+	int y = p_ptr->py + ddy[dir];
+	int x = p_ptr->px + ddx[dir];
+
+	/* Verify legality */
+	if (!do_cmd_walk_test(y, x)) return;
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	move_player(dir);
+
+	/* Player square can end up still black if we miss this. */
+	update_view();
+
+	for (i = ACTION_MAX - 1; i > 0; i--)
+	{
+		p_ptr->previous_action[i] = p_ptr->previous_action[i-1];
+	}
+
+	p_ptr->previous_action[0] = dir;
+	do_cmd_fire(1, TRUE);
+}
 
 
 /*
@@ -2453,9 +2498,6 @@ static bool do_cmd_disarm_aux(int y, int x)
 		}
 	}
 	
-	/* Prevent glyphs of warding granting exp. */
-	if (cave_feat[y][x] == FEAT_GLYPH) power = 0;
-
 	// Base difficulty is the trap power
 	difficulty = power;
 
@@ -3352,9 +3394,6 @@ static int breakage_chance(const object_type *o_ptr, bool hit_wall)
 		{
 			p = 20;
 			
-			// 100% chance if flaming arrows
-			if (p_ptr->active_ability[S_ARC][ARC_FLAMING]) p = 100;
-			
 			break;
 		}
 		
@@ -3420,7 +3459,7 @@ extern int archery_range(const object_type *j_ptr)
 {
 	int range;
 
-	range = (j_ptr->dd * total_ads(j_ptr, FALSE) * 3) / 2;
+	range = (j_ptr->dd * total_ads(j_ptr) * 3) / 2;
 	if (range > MAX_RANGE) range = MAX_RANGE;
 	
 	return (range);
@@ -3516,13 +3555,10 @@ void attacks_of_opportunity(int neutralized_y, int neutralized_x)
  *
  * Objects are more likely to break if they "attempt" to hit a monster.
  *
- * The "extra shot" code works by decreasing the amount of energy
- * required to make each shot, spreading the shots out over time.
- *
  * Note that when firing missiles, the launcher multiplier is applied
  * after all the bonuses are added in, making multipliers very useful.
  */
-void do_cmd_fire(int quiver)
+void do_cmd_fire(int quiver, bool running_shot)
 {
 	int dir, item;
 	int i, y, x, ty, tx;
@@ -3568,10 +3604,10 @@ void do_cmd_fire(int quiver)
 	u32b noticed_bow_flag = 0L;		// and the arrow/bow will be identified.
 
 	bool noticed_radiance = FALSE;
-	bool fatal_blow = FALSE;
 	
 	bool pierce = FALSE;
 	bool targets_remaining = FALSE;
+	bool deadly_hail_bonus = FALSE;
 
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
@@ -3614,7 +3650,24 @@ void do_cmd_fire(int quiver)
 	}
 	
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir, tdis)) return;
+	if (running_shot)
+	{
+		if (target_okay(tdis))
+		{
+			dir = 5;
+		}
+		else
+		{
+			/* Prepare the "temp" array */
+			get_sorted_target_list(TARGET_KILL, tdis);
+
+			/* If there are no visible monsters return */
+			if (!temp_n) return;
+			/* otherwise get a new target */
+			else if (!get_aim_dir(&dir, tdis)) return;
+		}
+	}
+	else if (!get_aim_dir(&dir, tdis)) return;
 
 	/* Start at the player */
 	y = p_ptr->py;
@@ -3655,23 +3708,7 @@ void do_cmd_fire(int quiver)
 	
 	/* Determine the base attack score */
 	attack_mod = (p_ptr->skill_use[S_ARC] + i_ptr->att);
-	
-	// deal with the rapid fire ability
-	if (p_ptr->active_ability[S_ARC][ARC_RAPID_FIRE])
-	{
-		// if the player has enough arrows, then allow 2 shots
-		if (o_ptr->number > 1)
-		{
-			shots = 2;
-		}
 
-		// otherwise remove the rapid fire penalty to attack
-		else
-		{
-			attack_mod += 3;
-		}
-	}
-	
 	/* Single object */
 	i_ptr->number = 1;
 	
@@ -3688,14 +3725,18 @@ void do_cmd_fire(int quiver)
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
 	
-	// flaming arrows are red
-	if (p_ptr->active_ability[S_ARC][ARC_FLAMING]) missile_attr = TERM_RED;
-
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 	// store the action type
-	p_ptr->previous_action[0] = ACTION_MISC;
+	p_ptr->previous_action[0] = ACTION_ARCHERY;
+
+	if (p_ptr->active_ability[S_ARC][ARC_DEADLY_HAIL])
+	{
+		deadly_hail_bonus = p_ptr->killed_enemy_with_arrow;
+	}
+
+	p_ptr->killed_enemy_with_arrow = FALSE;
 
 	// set dummy variables to pass to project_path (so it doesn't clobber the real ones)
 	ty2 = ty;
@@ -3859,12 +3900,17 @@ void do_cmd_fire(int quiver)
 					/* Hack -- Target this monster */
 					if (m_ptr->ml) target_set_monster(cave_m_idx[y][x]);
 				}
+
+				if (running_shot)
+				{
+					total_attack_mod /= 2;
+				}
 				
 				// Aim improved if monster is fleeing. If firing into several fleeing monsters,
 				// the chance of hitting one is high.
 				if (p_ptr->active_ability[S_ARC][ARC_ROUT] && m_ptr->stance == STANCE_FLEEING)
 				{
-					total_attack_mod += 3;
+					total_attack_mod += 4;
 				}
 
 				// Determine the monster's evasion after all modifiers
@@ -3872,7 +3918,6 @@ void do_cmd_fire(int quiver)
 				
 				/* Test for hit */
 				hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);				
-				
 				/* If it hit */
 				if (hit_result > 0)
 				{
@@ -3902,59 +3947,25 @@ void do_cmd_fire(int quiver)
 										
 					/* Add 'critical hit' dice based on bow weight */
 					crit_bonus_dice = crit_bonus(hit_result, j_ptr->weight, r_ptr, S_ARC, FALSE);
-										
+
 					/* Add slay (or brand) dice based on both arrow and bow */
 					slay_bonus_dice = slay_bonus(i_ptr, m_ptr, &noticed_arrow_flag);
 					slay_bonus_dice += slay_bonus(j_ptr, m_ptr, &noticed_bow_flag);
-					
-					// bonus for flaming arrows
-					if (p_ptr->active_ability[S_ARC][ARC_FLAMING])
-					{
-						monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-						
-						/* Notice immunity */
-						if (r_ptr->flags3 & (RF3_RES_FIRE))
-						{
-							if (m_ptr->ml)
-							{
-								l_ptr->flags3 |= (RF3_RES_FIRE);
-							}
-						}
-						
-						/* Otherwise, take the damage */
-						else
-						{
-							slay_bonus_dice += 1;
-														
-							// extra bonus against vulnerable creatures
-							if (r_ptr->flags3 & (RF3_HURT_FIRE))
-							{
-								slay_bonus_dice += 1;
-								
-								/* Memorize the effects */
-								l_ptr->flags3 |= (RF3_HURT_FIRE);
 
-								// cause a temporary morale penalty
-								scare_onlooking_friends(m_ptr, -20);
-							}
-							
-						}
-					}
-					
 					/* Calculate the damage done */
 					total_dd = j_ptr->dd + crit_bonus_dice + slay_bonus_dice;
-					
+
+					if (deadly_hail_bonus) total_dd *= 2;
+
 					// Sil-y: debugging test case
 					if (p_ptr->ads <= 0)
 					{
 						msg_format("BUG: Your damage sides for archery are %d.", p_ptr->ads);
-						msg_format("BUG: Recalculating them would give %d.", total_ads(j_ptr, shots == 1));
+						msg_format("BUG: Recalculating them would give %d.", total_ads(j_ptr));
 						msg_format("BUG: j_ptr->ds is %d.", j_ptr->ds);
 					}
 					
-					// Sil-y: does this cause a bug?
-					// Note that this is recalculated in case the player has rapid shots but only one arrow
-					total_ds = total_ads(j_ptr, shots == 1);
+					total_ds = total_ads(j_ptr);
 					
 					/* Can't have a negative number of sides */
 					if (total_ds < 0) total_ds = 0;
@@ -3986,10 +3997,14 @@ void do_cmd_fire(int quiver)
 						
 						// determine the punctuation for the attack ("...", ".", "!" etc)
 						attack_punctuation(punctuation, net_dam, crit_bonus_dice);
-						
+
 						/* Message */
-						if (pierce) msg_format("The %s pierces %s%s", o_name, m_name, punctuation);
-						else		msg_format("The %s hits %s%s", o_name, m_name, punctuation);
+						if (pierce)
+							msg_format("The %s pierces %s%s", o_name, m_name, punctuation);
+						else if (deadly_hail_bonus)
+							msg_format("The %s tears into %s!", o_name, m_name);
+						else
+							msg_format("The %s hits %s%s", o_name, m_name, punctuation);
 					}
 
 					// if a slay was noticed, then identify the bow/arrow
@@ -4004,11 +4019,11 @@ void do_cmd_fire(int quiver)
 					update_combat_rolls2(total_dd, total_ds, dam, r_ptr->pd, r_ptr->ps, prt, prt_percent, GF_HURT, FALSE); 
 					
 					// hit the monster, check for death
-					fatal_blow = mon_take_hit(cave_m_idx[y][x], net_dam, note_dies, -1);
-					display_hit(y, x, net_dam, GF_HURT, fatal_blow);
+					p_ptr->killed_enemy_with_arrow = mon_take_hit(cave_m_idx[y][x], net_dam, note_dies, -1);
+					display_hit(y, x, net_dam, GF_HURT, p_ptr->killed_enemy_with_arrow);
 
 					// if this wasn't the killing shot
-					if (!fatal_blow)
+					if (!p_ptr->killed_enemy_with_arrow)
 					{
 						// there is at least one target left on the trajectory
 						targets_remaining = TRUE;
@@ -4072,7 +4087,7 @@ void do_cmd_fire(int quiver)
 							}							
 						}
 					}
-					
+
 					/* Stop looking if a monster was hit but not pierced */
 					if (!pierce)
 					{
@@ -4126,6 +4141,8 @@ void do_cmd_fire(int quiver)
 	/* Have to set this here as well, just in case... */
 	/* Monsters might notice */
 	player_attacked = TRUE;
+
+	p_ptr->redraw |= (PR_ARC);
 	
     // provoke attacks of opportunity
     if (p_ptr->active_ability[S_ARC][ARC_POINT_BLANK])  attacks_of_opportunity(first_y, first_x);

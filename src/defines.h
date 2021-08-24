@@ -314,6 +314,7 @@
 // then the different movement directions
 // then possibly add more action types (such as melee, drink potion etc)
 #define ACTION_MISC		10
+#define ACTION_ARCHERY		11
 
 
 /*
@@ -363,12 +364,6 @@
 
 #define DIRECTION_DOWN -1
 #define DIRECTION_UP   -2
-
-/*
- * Misc constants
- */
-#define GATES_DAWN		10000	/* Number of turns from dawn to dawn XXX */
-
 
 /*
  * There is a 1 in 7 chance of inflating the requested object_level
@@ -470,14 +465,15 @@
 /* 
  * Archery abilities 
  */
-#define	ARC_ROUT					 0
-#define	ARC_IMPROVED_CRITICALS		 1
-#define	ARC_POINT_BLANK				 2
-#define	ARC_VERSATILITY				 3
-#define	ARC_CRIPPLING				 4
-#define	ARC_FLAMING					 5
-#define	ARC_RAPID_FIRE				 6
-#define	ARC_DEX						 7
+#define	ARC_STEADY_HANDS				0
+#define	ARC_ROUT					1
+#define	ARC_DEDICATION				 	2
+#define	ARC_POINT_BLANK				 	3
+#define	ARC_VERSATILITY				 	4
+#define	ARC_CRIPPLING				 	5
+#define	ARC_RUNNING_SHOT				6
+#define	ARC_DEADLY_HAIL				 	7
+#define	ARC_DEX						8
 
 /* 
  * Evasion abilities 
@@ -760,7 +756,7 @@
 #define COL_SPEED		56	/* "Slow" or "Fast" */
 
 #define ROW_TERRAIN		(Term->hgt - 1)
-#define COL_TERRAIN		61	/* "Web" or "Pit" */
+#define COL_TERRAIN		61	/* "Web" or "Pit" or "Sunlight" */
 
 #define ROW_DEPTH		(Term->hgt - 1)
 #define COL_DEPTH		72	/* "Lev NNN" / "NNNN ft" */
@@ -914,9 +910,9 @@
 #define FEAT_WARDED		0x06
 #define FEAT_WARDED2		0x07
 #define FEAT_WARDED3		0x08
+#define FEAT_SUNLIGHT 		0x09
 #define FEAT_CLOSED 	0x20  /*door*/
 
-/*stairs moved to make way for adventurers guild*/
 #define FEAT_LESS		0x50
 #define FEAT_MORE		0x51
 
@@ -2388,11 +2384,11 @@
 #define RF4_CONF           0x00002000  /* Cause confusion */
 #define RF4_HOLD           0x00004000  /* Entrance the player */
 #define RF4_SLOW           0x00008000  /* Slow the player */
-#define RF4_SNG_BINDING    0x00010000  /* Sing a song of binding */
-#define RF4_SNG_PIERCING   0x00020000  /* Sing a song of piercing */
-#define RF4_SNG_OATHS      0x00040000  /* Sing a song of oaths */
-#define RF4_HATCH_SPIDER   0x00080000  /* Hatch a spider */
-#define RF4_RF4XXX21       0x00100000  /*  */
+#define RF4_HATCH_SPIDER   0x00010000  /* Hatch a spider */
+#define RF4_DIM            0x00020000  /* Dim the lights */
+#define RF4_SNG_BINDING    0x00040000  /* Sing a song of binding */
+#define RF4_SNG_PIERCING   0x00080000  /* Sing a song of piercing */
+#define RF4_SNG_OATHS      0x00100000  /* Sing a song of oaths */
 #define RF4_RF4XXX22       0x00200000  /*  */
 #define RF4_RF4XXX23       0x00400000  /*  */
 #define RF4_RF4XXX24       0x00800000  /*  */
@@ -2405,7 +2401,7 @@
 #define RF4_RF4XXX31       0x40000000  /*  */
 #define RF4_RF4XXX32       0x80000000  /*  */
 
-#define RF4_SNG_HEAD       16          // the point on from which all the RF4_ abilities are songs
+#define RF4_SNG_HEAD       18          // the point on from which all the RF4_ abilities are songs
  /*
   * Some flags are obvious
   */
@@ -2453,8 +2449,8 @@
  * Need special treatment in AI.
  */
 #define RF4_HARASS_MASK \
-        (RF4_EARTHQUAKE | RF4_SHRIEK | RF4_SCREECH | RF4_DARKNESS | \
-		 RF4_FORGET | RF4_SCARE | RF4_CONF | RF4_HOLD | RF4_SLOW | RF4_HATCH_SPIDER)
+        (RF4_EARTHQUAKE | RF4_SHRIEK | RF4_SCREECH | RF4_DARKNESS | RF4_FORGET | RF4_SCARE \
+		| RF4_CONF | RF4_HOLD | RF4_SLOW | RF4_HATCH_SPIDER | RF4_DIM)
 
 /*
  * Harassment (not direct damage) attacks.

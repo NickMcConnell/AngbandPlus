@@ -305,12 +305,12 @@ static flag_name info_flags[] =
 	{"CONF", RF4, RF4_CONF},
 	{"HOLD", RF4, RF4_HOLD},
 	{"SLOW", RF4, RF4_SLOW},
+	{"HATCH_SPIDER", RF4, RF4_HATCH_SPIDER},
+	{"DIM", RF4, RF4_DIM},
 	{"SNG_BINDING", RF4, RF4_SNG_BINDING},
 	{"SNG_PIERCING", RF4, RF4_SNG_PIERCING},
 	{"SNG_OATHS", RF4, RF4_SNG_OATHS},
     
-	{"HATCH_SPIDER", RF4, RF4_HATCH_SPIDER},
-	{"RF4XXX21", RF4, RF4_RF4XXX21},
 	{"RF4XXX22", RF4, RF4_RF4XXX22},
 	{"RF4XXX23", RF4, RF4_RF4XXX23},
 	{"RF4XXX24", RF4, RF4_RF4XXX24},
@@ -3004,9 +3004,6 @@ errr parse_c_info(char *buf, header *head)
 	/* Current entry */
 	static player_house *ph_ptr = NULL;
 
-	static int cur_title = 0;
-	static int cur_equip = 0;
-
 
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')
@@ -3041,10 +3038,6 @@ errr parse_c_info(char *buf, header *head)
 		/* Store the name */
 		if (!(ph_ptr->name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
-
-		/* No titles and equipment yet */
-		cur_title = 0;
-		cur_equip = 0;
 	}
 	
 	/* Process 'A' for "Alternate Name" */

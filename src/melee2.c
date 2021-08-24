@@ -67,7 +67,7 @@ static void find_range(monster_type *m_ptr)
 		if (r_ptr->flags1 & (RF1_NEVER_MOVE)) m_ptr->min_range += 3;
 
 		/* Spellcasters that don't strike never like to get too close */
-		if (r_ptr->flags1 & (RF1_NEVER_BLOW)) m_ptr->min_range += 3;
+		if (r_ptr->flags1 & (RF1_NEVER_BLOW)) m_ptr->min_range += 6;
 		
 		// Spies have a high minimum range
 		if ((r_ptr->flags2 & (RF2_SMART)) && (r_ptr->flags4 & (RF4_SHRIEK)) && (m_ptr->stance != STANCE_AGGRESSIVE))
@@ -88,7 +88,20 @@ static void find_range(monster_type *m_ptr)
 	/* Now find preferred range */
 	m_ptr->best_range = m_ptr->min_range;
 
-	if ((r_ptr->freq_ranged > 15) && (m_ptr->r_idx != R_IDX_MORGOTH))
+	if (challenge_check(m_ptr) > 0)
+	{
+		char m_name[80];
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+		if (m_ptr->ml)
+		{
+			msg_format("%^s is agitated by your song.", m_name);
+		}
+
+		m_ptr->mana = 0;
+		m_ptr->best_range = 0;
+		m_ptr->min_range = 0;
+	}
+	else if ((r_ptr->freq_ranged > 15) && (m_ptr->r_idx != R_IDX_MORGOTH))
 	{
 		/* Breathers like range 2  */
 		if ((r_ptr->flags4 & (RF4_BREATH_MASK)) &&
@@ -104,22 +117,6 @@ static void find_range(monster_type *m_ptr)
 			if (m_ptr->best_range > 8) m_ptr->best_range = 8;
 			m_ptr->min_range = m_ptr->best_range - 1;
 		}
-	}
-
-	if (challenge_check(m_ptr) > 0)
-	{
-		char m_name[80];
-		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-		if (m_ptr->ml && m_ptr->mana > MON_MANA_MAX / 5)
-		{
-			msg_format("%^s is agitated by your song.", m_name);
-		}
-
-		m_ptr->tmp_morale = MAX(m_ptr->tmp_morale, 30);
-
-		m_ptr->mana = 0;
-		m_ptr->best_range = 0;
-		m_ptr->min_range = 0;
 	}
 
 	// Deal with the 'truce' on Morgoth's level (overrides everything else)
@@ -434,12 +431,6 @@ static int choose_ranged_attack(int m_idx)
 	/* No spells left */
 	if (!f4) return (0);
 
-	/* Ranged attacks are less likely if the monster is affected by Song of Challenge. */
-	if (challenge_check(m_ptr) > 0)
-	{
-		return (0);
-	}
-
 	/* Spells we can not afford */
 	remove_expensive_spells(m_idx, &f4);
 
@@ -681,12 +672,16 @@ int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 			 move_chance = break_chance;
 		
 	}
-
-    // only flying creatures can pass chasms
-    if (cave_feat[y][x] == FEAT_CHASM)
-    {
-        if (!(r_ptr->flags2 & (RF2_FLYING)))   return (0);
-    }
+	// only flying creatures can pass chasms
+	else if (feat == FEAT_CHASM)
+	{
+		if (!(r_ptr->flags2 & (RF2_FLYING)))   return (0);
+	}
+	// Light sensitive creatures and undead cannot pass sunlight
+	else if (feat == FEAT_SUNLIGHT)
+	{
+		if ((r_ptr->flags3 & (RF3_HURT_LITE)) || (r_ptr->flags3 & (RF3_UNDEAD)))   return (0);
+	}
 
 
 	/*** Check passability of various features. ***/
@@ -3589,8 +3584,6 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	int feat;
-
 	/* Existing monster location, proposed new location */
 	int oy, ox, ny, nx;
 
@@ -3673,9 +3666,6 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 	/* Can still move */
 	if (do_move)
 	{
-		/* Get the feature in the grid that the monster is trying to enter. */
-		feat = cave_feat[ny][nx];
-
 		/* Entering a wall */
 		if (cave_info[ny][nx] & (CAVE_WALL))
 		{
@@ -4452,6 +4442,34 @@ void wander(monster_type *m_ptr)
 }
 
 
+int get_chance_of_ranged_attack(monster_type *m_ptr)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Extract the ranged attack probability. */
+	int chance = r_ptr->freq_ranged;
+	
+	/* Certain conditions always cause a monster to always cast */
+	if (m_ptr->mflag & (MFLAG_ALWAYS_CAST)) chance = 100;
+
+	/* Cannot use ranged attacks when confused. */
+	if (m_ptr->confused) chance = 0;
+
+	/* Cannot use ranged attacks during the truce. */
+	if (p_ptr->truce) chance = 0;
+
+	/* Stunned monsters use ranged attacks half as often. */
+	if ((chance) && (m_ptr->stunned)) chance /= 2;
+
+	/* Smitten monsters get no ranged attacks. */
+	if (singing(SNG_OVERWHELMING) && m_ptr->stunned) chance = 0;
+
+	/* Successfully challenged monsters also get no ranged attacks. */
+	if ((singing(SNG_CHALLENGE)) && (m_ptr->stance == STANCE_AGGRESSIVE)) chance = 0;
+
+	return chance;
+}
+
 /*
  * Monster takes its turn.
  */
@@ -4766,25 +4784,8 @@ static void process_monster(monster_type *m_ptr)
 	/* Monster can cast spells */
 	if (r_ptr->freq_ranged)
 	{
-		/* Extract the ranged attack probability. */
-		chance = r_ptr->freq_ranged;
-		
-		/* Certain conditions always cause a monster to always cast */
-		if (m_ptr->mflag & (MFLAG_ALWAYS_CAST)) chance = 100;
+		chance = get_chance_of_ranged_attack(m_ptr);
 
-		/* Cannot use ranged attacks when confused. */
-		if (m_ptr->confused) chance = 0;
-
-		/* Cannot use ranged attacks during the truce. */
-		if (p_ptr->truce) chance = 0;
-
-		/* Stunned monsters use ranged attacks half as often. */
-		if ((chance) && (m_ptr->stunned)) chance /= 2;
-
-		/* Smitten monsters get no ranged attacks. */
-		if (singing(SNG_OVERWHELMING) && m_ptr->stunned) chance = 0;
-
-		/* Monster can use ranged attacks */
 		if ((chance) && percent_chance(chance))
 		{
 			/* Pick a ranged attack */
@@ -5003,14 +5004,19 @@ static void process_monster(monster_type *m_ptr)
 		// if the square is non-adjacent to the player, then allow a ranged attack instead of a move
 		if ((m_ptr->cdis > 1) && r_ptr->freq_ranged)
 		{
-			choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx]);
+			chance = get_chance_of_ranged_attack(m_ptr);
+
+			if ((chance) && percent_chance(chance))
+			{
+				choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx]);
+			}
 
 			/* Selected a ranged attack? */
 			if (choice != 0)
 			{
 				/* Execute said attack */
 				make_attack_ranged(m_ptr, choice);
-			}			
+			}
 		}
 		
 		return;
@@ -5633,27 +5639,6 @@ void monster_perception(bool player_centered, bool main_roll, int difficulty)
 		}
 	}
 
-	// display the amount of noise the player is making in the bottom left of the screen
-	if (main_roll)
-	{
-		char buf[13];
-		byte attr;
-		int dif = difficulty - combat_noise_bonus;
-				
-		if (singing(SNG_SILENCE))	dif += ability_bonus(S_SNG, SNG_SILENCE);
-		
-		if (dif < -5)		attr = TERM_RED;
-		else if (dif < 0)	attr = TERM_L_RED;
-		else if (dif < 5)	attr = TERM_ORANGE;
-		else if (dif < 10)	attr = TERM_YELLOW;
-		else if (dif < 15)	attr = TERM_L_GREEN;
-		else if (dif < 20)	attr = TERM_L_BLUE;
-		else				attr = TERM_BLUE;
-		
-		my_strcpy(buf, format("%3d", dif), sizeof(buf));
-		//c_put_str(attr, buf, ROW_STEALTH, COL_STEALTH);
-	}
-	
 	// make the difficulty roll just once per sound source
 	// i.e. once per call to this function
 	// this is a manual version of a 'skill_check()' and should be treated as such

@@ -974,7 +974,13 @@ static errr rd_extra(void)
 	/* Current player turn */
 	rd_s32b(&playerturn);
 
-	rd_s32b(&p_ptr->unused1);
+	rd_byte(&tmp8u);
+	p_ptr->killed_enemy_with_arrow = tmp8u;
+
+	rd_byte(&p_ptr->unused5);
+	rd_byte(&p_ptr->unused6);
+	rd_byte(&p_ptr->unused7);
+
 	rd_s32b(&p_ptr->unused2);
 	rd_s32b(&p_ptr->unused3);
 	rd_s32b(&p_ptr->unused4);
@@ -1496,9 +1502,6 @@ static errr rd_dungeon(void)
 	{
 		monster_type *n_ptr;
 		monster_type monster_type_body;
-		monster_race *r_ptr;
-
-		int r_idx;
 
 		/* Get local monster */
 		n_ptr = &monster_type_body;
@@ -1508,12 +1511,6 @@ static errr rd_dungeon(void)
 
 		/* Read the monster */
 		rd_monster(n_ptr);
-
-		/* Access the "r_idx" of the chosen monster */
-		r_idx = n_ptr->r_idx;
-
-		/* Access the actual race */
-		r_ptr = &r_info[r_idx];
 
 		/* Place monster in dungeon */
 		if (monster_place(n_ptr->fy, n_ptr->fx, n_ptr) != i)

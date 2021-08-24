@@ -113,11 +113,13 @@ I:0:8:9
 P:0/0:0/3
 D:When using a polearm or greatsword you can strike through or past
 D: opponents to attack an opponent behind.
-T:22:0:99  # Polearms
+T:23:25:25 # Greatswords
+T:23:30:30 # Mithril Greatswords
+T:22:0:4   # Polearms
 
 N:9:Rapid Attack
 I:0:9:10
-P:0/7:3/3
+P:0/7:3/4
 D:Grants you an extra melee attack, but your attacks
 D: are calculated as if you had 3 points less strength and dexterity.
 T:21:0:99  # Hafted
@@ -161,58 +163,65 @@ D:You gain a point of strength.
 
 # Archery ---------------------------------------------
 
-N:20:Rout
+N:20:Steady Hands
 I:1:0:2
-D:Firing at fleeing monsters is calculated as if you had 3 points
-D: more dexterity.
-T:19:0:99  # Bows
-
-N:21:Precision
-I:1:1:3
-D:Lowers the base number needed to get critical hits with archery
-D: from 7 to 6.
+D:If your Strength exceeds your bow's weight, gain the difference as
+D: a bonus to your Archery skill.
 T:19:0:99  # Bows
 T:31:1:1   # Gloves (leather gloves only)
 T:45:0:99  # Ring
 
-N:22:Point Blank Archery
+N:21:Rout
+I:1:1:3
+D:Firing at fleeing monsters is calculated as if you had 4 points
+D: more dexterity.
+T:19:0:99  # Bows
+
+N:22:Dedication
 I:1:2:4
+D:Increases your bow's damage sides by 2 as long as you are not wielding
+D: a weapon or carrying a shield.
+T:19:0:99  # Bows
+T:31:1:1   # Gloves (leather gloves only)
+T:45:0:99  # Ring
+
+N:23:Point Blank Archery
+I:1:3:5
 D:The monster you are firing at cannot get an attack of opportunity.
 T:19:0:99  # Bows
 T:31:1:1   # Gloves (leather gloves only)
 
-N:23:Versatility
-I:1:3:5
+N:24:Versatility
+I:1:4:6
 D:If you have more skill points in archery than in melee, you gain a bonus
 D: to melee of half the difference between them.
 T:19:0:99  # Bows
 T:31:1:1   # Gloves (leather gloves only)
 
-N:24:Crippling Shot
-I:1:4:6
-P:1/1
+N:25:Crippling Shot
+I:1:5:7
+P:1/0:1/1
 D:Your critical hits sometimes temporarily slow monsters
 D: (depending on the level of critical and the monster's Will).
 T:19:0:99  # Bows
 
-N:25:Flaming Arrows
-I:1:5:7
-D:Your arrows do an extra die of damage against most targets,
-D: but they always break.
-T:19:0:99  # Bows
-
-N:26:Rapid Fire
+N:26:Running Shot
 I:1:6:8
-P:1/1
-D:Lets you fire two arrows per round, but they are calculated as
-D: if you had 3 points less strength and dexterity.
+D:Allows you to use the '-' command to continue moving in the direction
+D: you moved last turn while firing using your primary quiver at your most
+D: recent target. Accuracy is halved while doing this.
 T:19:0:99  # Bows
-T:31:1:1   # Gloves (leather gloves only)
-T:45:0:99  # Ring
+T:30:0:99  # Boots
 
-N:27:Dexterity
-I:1:7:10
-P:1/3:1/5
+N:27:Deadly Hail
+I:1:7:9
+P:1/2:1/5
+D:Arrows fired the turn after killing an enemy with an arrow do twice their
+D: normal damage.
+T:19:0:99  # Bows
+
+N:28:Dexterity
+I:1:8:10
 D:You gain a point of dexterity.
 
 # Evasion ---------------------------------------------
@@ -651,8 +660,8 @@ T:20:0:99  # Shovels and Mattocks
 
 N:146:Song of Staying
 I:7:6:7
-D:Gives you a bonus of +X to Will and [1dX] protection,
-D: where X = Song/3.
+D:Gives you a bonus to Will equal to your Song score and
+D: [2d2] protection.
 T:32:0:99  # Helm
 T:34:0:99  # Shields
 T:35:0:99  # Cloak
@@ -678,10 +687,8 @@ T:35:0:99  # Cloak
 N:149:Song of Overwhelming
 I:7:9:10
 P:7/1:7/6
-D:Strikes may stun opponents depending on their Will and
-D: your Song score. Stunned opponents roll only half of
+D:Stuns adjacent opponents. Stunned opponents roll only half of
 D: their damage dice while the song is in effect.
-D: Heavy and blunt weapons stun opponents for longer.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:7:99  # Swords (not daggers)

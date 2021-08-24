@@ -1855,7 +1855,6 @@ static bool connect_rooms_stairs(void)
     // add any chasms if needed
     build_chasms();
 
-
 	return (TRUE);
 
 }
@@ -2738,6 +2737,68 @@ static bool build_vault(int y0, int x0, vault_type *v_ptr, bool flip_d)
 	return (TRUE);
 }
 
+static bool place_room(int y0, int x0, vault_type *v_ptr)
+{
+	int y1, x1, y2, x2;
+	bool flip_d;
+
+	// choose whether to rotate (flip diagonally)
+	flip_d = one_in_(3);
+
+	// some vaults ask not be be rotated
+	if (v_ptr->flags & (VLT_NO_ROTATION)) flip_d = FALSE;
+
+	if (flip_d)
+	{
+	/* determine the coordinates with height/width flipped */
+		y1 = y0 - (v_ptr->wid / 2);
+		x1 = x0 - (v_ptr->hgt / 2);
+		y2 = y1 + v_ptr->wid - 1;
+		x2 = x1 + v_ptr->hgt - 1;
+	}
+
+	else
+	{
+	/* determine the coordinates */
+		y1 = y0 - (v_ptr->hgt / 2);
+		x1 = x0 - (v_ptr->wid / 2);
+		y2 = y1 + v_ptr->hgt - 1;
+		x2 = x1 + v_ptr->wid - 1;
+	}
+
+	/* make sure that the location is within the map bounds */
+	if ((y1 <= 3) || (x1 <=3) || (y2 >= p_ptr->cur_map_hgt-3) || (x2 >= p_ptr->cur_map_wid-3))
+	{
+		return (FALSE);
+	}
+	/* make sure that the location is empty */
+	if (!solid_rock(y1 - 2, x1 - 2, y2 + 2, x2 + 2))
+	{
+		return (FALSE);
+	}
+
+	/* Try building the vault */
+	if (!build_vault(y0, x0, v_ptr, flip_d))
+	{
+		return (FALSE);
+	}
+
+	/* save the corner locations */
+	dun->corner[dun->cent_n].y1 = y1 + 1;
+	dun->corner[dun->cent_n].x1 = x1 + 1;
+	dun->corner[dun->cent_n].y2 = y2 - 1;
+	dun->corner[dun->cent_n].x2 = x2 - 1;
+
+	/* Save the room location */
+	dun->cent[dun->cent_n].y = y0;
+	dun->cent[dun->cent_n].x = x0;
+	dun->cent_n++;
+
+	/* Cause a special feeling */
+	good_item_flag = TRUE;
+
+	return (TRUE);
+}
 
 /*
  * Type 6 -- least vaults (see "vault.txt")
@@ -2746,8 +2807,6 @@ static bool build_type6(int y0, int x0, bool force_forge)
 {
 	vault_type *v_ptr;
 	int tries = 0;
-	int y1, x1, y2, x2;
-    bool flip_d;
 
 	/* Pick an interesting room */
 	while (TRUE)
@@ -2772,66 +2831,8 @@ static bool build_type6(int y0, int x0, bool force_forge)
 			return (FALSE);
 		}
 	}
-    
-    // choose whether to rotate (flip diagonally)
-    flip_d = one_in_(3);
-    
-    // some vaults ask not be be rotated
-    if (v_ptr->flags & (VLT_NO_ROTATION)) flip_d = FALSE;
 
-    if (flip_d)
-    {
-        /* determine the coordinates with hight/width flipped */
-        y1 = y0 - (v_ptr->wid / 2);
-        x1 = x0 - (v_ptr->hgt / 2);
-        y2 = y1 + v_ptr->wid - 1;
-        x2 = x1 + v_ptr->hgt - 1;
-    }
-    
-    else
-    {
-        /* determine the coordinates */
-        y1 = y0 - (v_ptr->hgt / 2);
-        x1 = x0 - (v_ptr->wid / 2);
-        y2 = y1 + v_ptr->hgt - 1;
-        x2 = x1 + v_ptr->wid - 1;
-    }
-
-	/* make sure that the location is within the map bounds */
-	if ((y1 <= 3) || (x1 <=3) || (y2 >= p_ptr->cur_map_hgt-3) || (x2 >= p_ptr->cur_map_wid-3))
-	{
-		return (FALSE);
-	}
-	/* make sure that the location is empty */
-	if (!solid_rock(y1 - 2, x1 - 2, y2 + 2, x2 + 2))
-	{
-		return (FALSE);
-	}
-
-	/* Try building the vault */
-	if (!build_vault(y0, x0, v_ptr, flip_d))
-	{
-		return (FALSE);
-	}
-
-	/* save the corner locations */
-	dun->corner[dun->cent_n].y1 = y1 + 1;
-	dun->corner[dun->cent_n].x1 = x1 + 1;
-	dun->corner[dun->cent_n].y2 = y2 - 1;
-	dun->corner[dun->cent_n].x2 = x2 - 1;
-	
-	/* Save the room location */
-	dun->cent[dun->cent_n].y = y0;
-	dun->cent[dun->cent_n].x = x0;
-	dun->cent_n++;
-
-	/* Message */
-	//if (cheat_room) msg_format("IR (%s).", v_name + v_ptr->name);
-
-	/* Cause a special feeling */
-	good_item_flag = TRUE;
-
-	return (TRUE);
+	return place_room(y0, x0, v_ptr);
 }
 
 /*
@@ -2841,8 +2842,6 @@ static bool build_type7(int y0, int x0)
 {
 	vault_type *v_ptr;
 	int tries = 0;
-	int y1, x1, y2, x2;
-    bool flip_d;
 
 	/* Pick a lesser vault */
 	while (TRUE)
@@ -2865,65 +2864,11 @@ static bool build_type7(int y0, int x0)
 		}
 	}
 
-    // choose whether to rotate (flip diagonally)
-    flip_d = one_in_(3);
-    
-    // some vaults ask not be be rotated
-    if (v_ptr->flags & (VLT_NO_ROTATION)) flip_d = FALSE;
-    
-    if (flip_d)
-    {
-        /* determine the coordinates with hight/width flipped */
-        y1 = y0 - (v_ptr->wid / 2);
-        x1 = x0 - (v_ptr->hgt / 2);
-        y2 = y1 + v_ptr->wid - 1;
-        x2 = x1 + v_ptr->hgt - 1;
-    }
-    
-    else
-    {
-        /* determine the coordinates */
-        y1 = y0 - (v_ptr->hgt / 2);
-        x1 = x0 - (v_ptr->wid / 2);
-        y2 = y1 + v_ptr->hgt - 1;
-        x2 = x1 + v_ptr->wid - 1;
-    }
-
-	/* make sure that the location is within the map bounds */
-	if ((y1 <= 3) || (x1 <=3) || (y2 >= p_ptr->cur_map_hgt-3) || (x2 >= p_ptr->cur_map_wid-3))
-	{
-		return (FALSE);
-	}
-	/* make sure that the location is empty */
-	if (!solid_rock(y1 - 2, x1 - 2, y2 + 2, x2 + 2))
-	{
-		return (FALSE);
-	}
-
-	/* Try building the vault */
-	if (!build_vault(y0, x0, v_ptr, flip_d))
-	{
-		return (FALSE);
-	}
-	
-	/* save the corner locations */
-	dun->corner[dun->cent_n].y1 = y1 + 1;
-	dun->corner[dun->cent_n].x1 = x1 + 1;
-	dun->corner[dun->cent_n].y2 = y2 - 1;
-	dun->corner[dun->cent_n].x2 = x2 - 1;
-	
-	/* Save the room location */
-	dun->cent[dun->cent_n].y = y0;
-	dun->cent[dun->cent_n].x = x0;
-	dun->cent_n++;
-
+	if (!place_room(y0, x0, v_ptr)) return FALSE;
 	/* Message */
 	if (cheat_room) msg_format("LV (%s).", v_name + v_ptr->name);
 
-	/* Cause a special feeling */
-	good_item_flag = TRUE;
-	
-	return (TRUE);
+	return TRUE;
 }
 
 
@@ -2964,9 +2909,7 @@ static bool build_type8(int y0, int x0)
 	bool found = FALSE;
 	bool repeated = FALSE;
 	int i;
-	int y1, x1, y2, x2;
 	s16b v_idx;
-    bool flip_d;
 
 	// Can only have one greater vault per level
 	if (g_vault_name[0] != '\0')
@@ -3008,57 +2951,7 @@ static bool build_type8(int y0, int x0)
 		}
 	}
 
-    // choose whether to rotate (flip diagonally)
-    flip_d = one_in_(3);
-    
-    // some vaults ask not be be rotated
-    if (v_ptr->flags & (VLT_NO_ROTATION)) flip_d = FALSE;
-    
-    if (flip_d)
-    {
-        /* determine the coordinates with hight/width flipped */
-        y1 = y0 - (v_ptr->wid / 2);
-        x1 = x0 - (v_ptr->hgt / 2);
-        y2 = y1 + v_ptr->wid - 1;
-        x2 = x1 + v_ptr->hgt - 1;
-    }
-    
-    else
-    {
-        /* determine the coordinates */
-        y1 = y0 - (v_ptr->hgt / 2);
-        x1 = x0 - (v_ptr->wid / 2);
-        y2 = y1 + v_ptr->hgt - 1;
-        x2 = x1 + v_ptr->wid - 1;
-    }
-
-	/* make sure that the location is within the map bounds */
-	if ((y1 <= 3) || (x1 <=3) || (y2 >= p_ptr->cur_map_hgt-3) || (x2 >= p_ptr->cur_map_wid-3))
-	{
-		return (FALSE);
-	}
-	/* make sure that the location is empty */
-	if (!solid_rock(y1 - 5, x1 - 5, y2 + 5, x2 + 5))
-	{
-		return (FALSE);
-	}
-
-	/* Try building the vault */
-	if (!build_vault(y0, x0, v_ptr, flip_d))
-	{
-		return (FALSE);
-	}
-	
-	/* save the corner locations */
-	dun->corner[dun->cent_n].y1 = y1 + 1;
-	dun->corner[dun->cent_n].x1 = x1 + 1;
-	dun->corner[dun->cent_n].y2 = y2 - 1;
-	dun->corner[dun->cent_n].x2 = x2 - 1;
-	
-	/* Save the room location */
-	dun->cent[dun->cent_n].y = y0;
-	dun->cent[dun->cent_n].x = x0;
-	dun->cent_n++;
+	if (!place_room(y0, x0, v_ptr)) return FALSE;
 
 	// Remember this greater vault
 	for (i = 0; i < MAX_GREATER_VAULTS; i++)
@@ -3088,7 +2981,6 @@ static bool build_type8(int y0, int x0)
 static bool build_type9(int y0, int x0)
 {
 	vault_type *v_ptr;
-	int y1, x1, y2, x2;
 	int tries = 0;
 
 	/* Pick a version of Morgoth's vault */
@@ -3107,12 +2999,6 @@ static bool build_type9(int y0, int x0)
 			return (FALSE);
 		}
 	}
-
-	/* determine the coordinates */
-	y1 = y0 - (v_ptr->hgt / 2);
-	x1 = x0 - (v_ptr->wid / 2);
-	y2 = y1 + v_ptr->hgt - 1;
-	x2 = x1 + v_ptr->wid - 1;
 
 	/* Try building the vault */
 	if (!build_vault(y0, x0, v_ptr, FALSE))
@@ -3138,16 +3024,9 @@ static bool build_type9(int y0, int x0)
 static bool build_type10(int y0, int x0)
 {
 	vault_type *v_ptr;
-	int y1, x1, y2, x2;
 
 	/* Get the first vault record */
 	v_ptr = &v_info[1];
-
-	/* determine the coordinates */
-	y1 = y0 - (v_ptr->hgt / 2);
-	x1 = x0 - (v_ptr->wid / 2);
-	y2 = y1 + v_ptr->hgt - 1;
-	x2 = x1 + v_ptr->wid - 1;
 
 	/* Try building the vault */
 	if (!build_vault(y0, x0, v_ptr, FALSE))
@@ -3188,9 +3067,23 @@ static bool room_build(int typ)
 	{
 		/* Build an appropriate room */
 		// Greater Vault
-		case 8: build_type8(y, x); break;
+		case 8:
+		{
+			if (!build_type8(y, x))
+			{
+				return (FALSE);
+			}
+			break;
+		}
 		// Lesser Vault
-		case 7: build_type7(y, x); break;
+		case 7:
+		{
+			if (!build_type7(y, x))
+			{
+				return (FALSE);
+			}
+			break;
+		}
 		// Least Vault
 		case 6:
 		{
@@ -3288,6 +3181,59 @@ static void basic_granite(void)
 	}
 }
 
+void make_patch_of_sunlight(int y, int x)
+{
+	int m, n, floor;
+
+	if (cave_info[y][x] & CAVE_GLOW)
+	{
+		floor = 0;
+		for (n = (y - 1); n <= (y + 1); n++)
+		{
+			for (m = (x - 1); m <= (x + 1); m++)
+			{
+				if (cave_feat[n][m] == FEAT_FLOOR) floor++;
+			}
+		}
+		if (floor > 6)
+		{
+			cave_set_feat(y, x, FEAT_RUBBLE);
+			for (n = (y - 1); n <= (y + 1); n++)
+			{
+				for (m = (x - 1); m <= (x + 1); m++)
+				{
+					if ((cave_info[n][m] & CAVE_GLOW) && cave_feat[n][m] == FEAT_FLOOR && one_in_(4))
+					{
+						cave_set_feat(n, m, FEAT_SUNLIGHT);
+					}
+				}
+			}
+		}
+	}
+
+}
+
+void make_patches_of_sunlight()
+{
+	int i, x, y;
+
+	// bunch near the player
+	for (i = 0; i < 40; ++i)
+	{
+		y = rand_range(p_ptr->py - 5, p_ptr->py + 5);
+		x = rand_range(p_ptr->px - 5, p_ptr->px + 5);
+		make_patch_of_sunlight(y, x);
+	}
+
+	// and a few scattered over the first level
+	for (i = 0; i < 20; ++i)
+	{
+		y = rand_range(10, p_ptr->cur_map_hgt - 10);
+		x = rand_range(10, p_ptr->cur_map_wid - 10);
+		make_patch_of_sunlight(y, x);
+	}
+}
+
 /*
  * Generate a new dungeon level
  *
@@ -3371,12 +3317,12 @@ static bool cave_gen(void)
         if (one_in_(5)) r += dieroll(5);
 		
 		// choose a room type based on the level
-		if ((r < 5) || one_in_(2) || (p_ptr->depth == 1))
+		if ((r < 5) || one_in_(2))
 		{
 			// standard room
 			room_build(1);
 		}
-		else if ((r < 8))
+		else if ((r < 8) || p_ptr->depth == 1)
 		{
 			// cross room
 			room_build(2);
@@ -3454,6 +3400,8 @@ static bool cave_gen(void)
 	{
 		// smaller number of monsters at 50ft
 		mon_gen = dun->cent_n / 2;
+		// game start
+		if (p_ptr->stairs_taken == 0) make_patches_of_sunlight();
 	}
 	else
 	{
@@ -3495,12 +3443,6 @@ static bool cave_gen(void)
 		}
 	}
 
-	// add a curved sword near the player if this is the beginning of the game
-	if (playerturn == 0)
-	{
-		place_item_randomly(TV_SWORD, SV_CURVED_SWORD, TRUE);
-	}
-
 	p_ptr->force_forge = FALSE;
 
 	return (TRUE);
@@ -3516,25 +3458,10 @@ static void gates_gen(void)
 	int y, x;
 	int i;
 	int py = 0, px = 0;
-	bool daytime;
 
 	/* Restrict to single-screen size */
 	p_ptr->cur_map_hgt = (3 * PANEL_HGT);
 	p_ptr->cur_map_wid = (2 * PANEL_WID_FIXED);
-
-	/* Day time */
-	if ((turn % (10L * GATES_DAWN)) < ((10L * GATES_DAWN) / 2))
-	{
-		/* Day time */
-		daytime = TRUE;
-	}
-
-	/* Night time */
-	else
-	{
-		/* Night time */
-		daytime = FALSE;
-	}
 
 	/*start with basic granite*/
 	basic_granite();
@@ -3726,7 +3653,7 @@ void unring_a_bell(void)
  */
 void generate_cave(void)
 {
-	int y, x, num, i;
+	int y, x, i;
 
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
@@ -3750,8 +3677,7 @@ void generate_cave(void)
     // reset the forced skipping of next turn (a bit rough to miss first turn if you fell down)
     p_ptr->skip_next_turn = FALSE;
 
-	/* Generate num is increased below*/
-	for (num = 0; TRUE;)
+	while (TRUE)
 	{
 		bool okay = TRUE;
 

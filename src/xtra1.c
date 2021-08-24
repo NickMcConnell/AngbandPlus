@@ -221,16 +221,14 @@ int polearm_bonus(const object_type *o_ptr)
  * based on the weight of the bow, strength, and the sides of the bow
  */
  
-extern byte total_ads(const object_type *j_ptr, bool single_shot)
+extern byte total_ads(const object_type *j_ptr)
 {
 	byte ads;
 	int int_ads; /* to allow negative values in the intermediate stages */
 	int str_to_ads;
-	
+
 	str_to_ads = p_ptr->stat_use[A_STR];
 
-	if (p_ptr->active_ability[S_ARC][ARC_RAPID_FIRE] && !single_shot) str_to_ads -= 3;
-	
 	int_ads = j_ptr->ds;
 	
 	/* limit the strength sides bonus by bow weight */
@@ -249,6 +247,13 @@ extern byte total_ads(const object_type *j_ptr, bool single_shot)
 	
 	// add archery damage bonus
 	int_ads += p_ptr->to_ads;
+
+	// Add Dedication bonus
+	if (p_ptr->active_ability[S_ARC][ARC_DEDICATION] && !inventory[INVEN_ARM].k_idx	&&
+		!inventory[INVEN_WIELD].k_idx)
+	{
+		int_ads += 2;
+	}
 
 	/* make sure the total is non-negative */
 	ads = (int_ads < 0) ? 0 : int_ads;
@@ -378,12 +383,22 @@ static void prt_arc(void)
 	/* Range attacks */
 	if ((&inventory[INVEN_BOW])->k_idx)
 	{
-		strnfmt(buf, sizeof(buf), "(%+d,%dd%d)", p_ptr->skill_use[S_ARC], p_ptr->add, p_ptr->ads);
-		Term_putstr(COL_ARC, ROW_ARC, -1, TERM_UMBER, format("%12s", buf));
-		
-		if (p_ptr->active_ability[S_ARC][ARC_RAPID_FIRE])
+		if (p_ptr->active_ability[S_ARC][ARC_DEADLY_HAIL] && p_ptr->killed_enemy_with_arrow)
 		{
-			Term_putstr(COL_ARC, ROW_ARC, -1, TERM_L_UMBER, "2x");
+			strnfmt(buf, sizeof(buf), ")");
+			Term_putstr(COL_ARC, ROW_ARC, -1, TERM_UMBER, format("%12s", buf));
+			strnfmt(buf, sizeof(buf), "%dd%d", 2 * p_ptr->add, p_ptr->ads);
+			Term_putstr(COL_ARC, ROW_ARC, -1, TERM_RED, format("%11s",buf));
+			strnfmt(buf, sizeof(buf), "(%+d,", p_ptr->skill_use[S_ARC]);
+			if (p_ptr->ads > 9)
+				Term_putstr(COL_ARC, ROW_ARC, -1, TERM_UMBER, format("%7s", buf));
+			else
+				Term_putstr(COL_ARC, ROW_ARC, -1, TERM_UMBER, format("%8s", buf));
+		}
+		else
+		{
+			strnfmt(buf, sizeof(buf), "(%+d,%dd%d)", p_ptr->skill_use[S_ARC], p_ptr->add, p_ptr->ads);
+			Term_putstr(COL_ARC, ROW_ARC, -1, TERM_UMBER, format("%12s", buf));
 		}
 	}
 	else
@@ -862,13 +877,17 @@ static void prt_terrain(void)
 	{
 		c_put_str(TERM_ORANGE, "Pit", ROW_TERRAIN, COL_TERRAIN);
 	}
-    else if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TRAP_WEB)
-    {
+	else if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TRAP_WEB)
+	{
 		c_put_str(TERM_ORANGE, "Web", ROW_TERRAIN, COL_TERRAIN);
-    }
+	}
+	else if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_SUNLIGHT)
+	{
+		c_put_str(TERM_YELLOW, "Sunlight", ROW_TERRAIN, COL_TERRAIN);
+	}
 	else
 	{
-		put_str("   ", ROW_TERRAIN, COL_TERRAIN);
+		put_str("        ", ROW_TERRAIN, COL_TERRAIN);
 	}
 }
 
@@ -1163,7 +1182,7 @@ static void prt_frame_extra(void)
 	prt_afraid();
 	prt_poisoned();
 	prt_cut();
-    prt_terrain();
+	prt_terrain();
     
 	/* State */
 	prt_state();
@@ -1902,7 +1921,7 @@ int ability_bonus(int skilltype, int abilitynum)
 			}
 			case SNG_STAYING:
 			{
-				bonus = skill / 3;
+				bonus = skill;
 				break;
 			}
 			case SNG_LORIEN:
@@ -2363,11 +2382,6 @@ static void calc_bonuses(void)
 		p_ptr->skill_misc_mod[S_MEL] -= 3;
 	}
 	
-	if (p_ptr->active_ability[S_ARC][ARC_RAPID_FIRE])
-	{
-		p_ptr->skill_misc_mod[S_ARC] -= 3;
-	}
-	
 	if (p_ptr->active_ability[S_WIL][WIL_POISON_RESISTANCE])
 	{
 		p_ptr->resist_pois += 1;
@@ -2530,7 +2544,7 @@ static void calc_bonuses(void)
 				case SNG_SILENCE:	song_noise += 0; break;
 				case SNG_FREEDOM:	song_noise += 4; break;
 				case SNG_TREES:		song_noise += 4; break;
-				case SNG_STAYING:	song_noise += 4; break;
+				case SNG_STAYING:	song_noise += 8; break;
 				case SNG_LORIEN:	song_noise += 4; break;
 				case SNG_THRESHOLDS:	song_noise += 4; break;
 				case SNG_DELVINGS:	song_noise += 4; break;
@@ -2562,7 +2576,7 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- archery (DEX) */
 	p_ptr->skill_stat_mod[S_ARC] = p_ptr->stat_use[A_DEX];
-	
+
 	/* Affect Skill -- evasion (DEX) */
 	p_ptr->skill_stat_mod[S_EVN] = p_ptr->stat_use[A_DEX];
 
@@ -2633,7 +2647,7 @@ static void calc_bonuses(void)
 		p_ptr->ammo_tval = TV_ARROW;
 
 		p_ptr->add = o_ptr->dd;
-		p_ptr->ads = total_ads(o_ptr, FALSE);
+		p_ptr->ads = total_ads(o_ptr);
 		
 		/* set the archery skill (if using a bow) -- it gets set again later, anyway */
 		p_ptr->skill_use[S_ARC] = p_ptr->skill_base[S_ARC] + p_ptr->skill_equip_mod[S_ARC] + 
@@ -2661,6 +2675,16 @@ static void calc_bonuses(void)
 	if (p_ptr->active_ability[S_PER][PER_FOREWARNED] && (p_ptr->skill_base[S_PER] > p_ptr->skill_base[S_EVN]))
 	{
 		p_ptr->skill_misc_mod[S_EVN] += p_ptr->skill_use[S_PER] / 3;
+	}
+
+	if (p_ptr->active_ability[S_ARC][ARC_STEADY_HANDS])
+	{
+		int difference = p_ptr->stat_use[A_STR] * 10 - (inventory[INVEN_BOW]).weight;
+		if (difference > 0)
+		{
+			difference += 5;
+			p_ptr->skill_misc_mod[S_ARC] += difference / 10;
+		}
 	}
 
 	/* generate the melee dice/sides from weapon, to_mdd, to_mds and strength */
@@ -2992,7 +3016,6 @@ void update_lore(void)
  */
 void update_stuff(void)
 {
-	// always handle the Lore-Keeper ability
 	update_lore();
 
 	/* Update stuff */

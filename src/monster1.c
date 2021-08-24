@@ -80,8 +80,6 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	int m, n;
 	int msex = 0;
 	int spower;
-	bool breath = FALSE;
-	bool magic = FALSE;
 	int vn;
 	cptr vp[64];
 	int attack = -1;
@@ -172,9 +170,6 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	/* Describe breaths */
 	if (vn)
 	{
-		/* Note breath */
-		breath = TRUE;
-
 		/* Intro */
 		text_out(format("%^s", wd_he[msex]));
 
@@ -207,15 +202,13 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags4 & (RF4_CONF))			vp[vn++] = "confuse";
 	if (l_ptr->flags4 & (RF4_HOLD))			vp[vn++] = "entrance";
 	if (l_ptr->flags4 & (RF4_SLOW))			vp[vn++] = "slow";
+	if (l_ptr->flags4 & (RF4_DIM))			vp[vn++] = "dim torches and lanterns";
 
 	m = vn;
 
 	/* Describe spells */
 	if (vn)
 	{
-		/* Note magic */
-		magic = TRUE;
-
 		/* Intro */
 		text_out(format("%^s may ", wd_he[msex]));
 
@@ -548,7 +541,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
     if (l_ptr->flags4 & (RF4_SNG_BINDING))        vp[vn++] = "song of binding";
     if (l_ptr->flags4 & (RF4_SNG_PIERCING))       vp[vn++] = "song of piercing";
     if (l_ptr->flags4 & (RF4_SNG_OATHS))          vp[vn++] = "song of oaths";
-    if (l_ptr->flags4 & (RF4_HATCH_SPIDER))          vp[vn++] = "hatch spider";
+    if (l_ptr->flags4 & (RF4_HATCH_SPIDER))       vp[vn++] = "hatch spider";
    
     /* Describe Abilities */
 	if (vn)
@@ -1433,16 +1426,14 @@ void roff_top(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	byte a1, a2;
-	char c1, c2;
+	byte a1;
+	char c1;
 
 	/* Get the chars */
 	c1 = r_ptr->d_char;
-	c2 = r_ptr->x_char;
 
 	/* Get the attrs */
 	a1 = r_ptr->d_attr;
-	a2 = r_ptr->x_attr;
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -1463,12 +1454,6 @@ void roff_top(int r_idx)
 	Term_addstr(-1, TERM_WHITE, " - ");
 	Term_addch(a1, c1);
 	Term_addstr(-1, TERM_SLATE, "");
-
-	// /* Append the "optional" attr/char info */
-	//Term_addstr(-1, TERM_WHITE, "/('");
-	//Term_addch(a2, c2);
-	//if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
-	//Term_addstr(-1, TERM_WHITE, "'):");
 }
 
 

@@ -231,7 +231,7 @@ D: It will shine forever.
 N:22:& Robe~
 G:(:b
 I:36:2:0
-W:5:0:30:4
+W:1:0:30:4
 P:0:0d0:1:1d0
 A:5/3:10/10
 F:ENCHANTABLE
@@ -312,7 +312,7 @@ G:~:w
 I:3:1:0
 W:8:5:120:0
 P:0:0d0:0:0d0
-A:8/5
+A:3/3:6/3
 F:EASY_KNOW
 
 
@@ -321,7 +321,7 @@ G:~:w
 I:3:2:0
 W:10:5:110:0
 P:0:0d0:0:0d0
-A:10/5
+A:9/3:12/3
 F:EASY_KNOW
 
 
@@ -491,7 +491,7 @@ I:21:3:0
 W:1:0:40:200
 P:0:2d4:2:0d0
 A:1/4
-F:TWO_HANDED
+F:TWO_HANDED | ENCHANTABLE | MORE_SPECIAL
 
 
 N:89:& War Hammer~
@@ -665,7 +665,7 @@ F:NO_SMITHING
 N:116:& Arrow~
 G:-:U
 I:17:1:0
-W:2:0:1:1
+W:1:0:1:1
 P:0:0d0:0:0d0
 A:2/1:6/1:11/1:17/1
 
@@ -731,9 +731,9 @@ F:IGNORE_ALL | MITHRIL
 N:128:& Wooden Torch~
 G:~:u
 I:39:0:0
-W:3:0:20:2
+W:1:0:20:2
 P:0:0d0:0:0d0:0
-A:3/1
+A:1/1:3/1
 F:NO_SMITHING | EASY_KNOW
 D:You can equip it as a light source with a radius of 1 square. It may
 D: also be used to fuel another torch, up to a maximum of 3,000 turns of
@@ -1277,9 +1277,9 @@ D:It renews your voice.
 N:320:True Sight
 G:!:d
 I:75:7:100
-W:7:0:5:100
+W:2:0:5:100
 P:0:0d0:0:0d0
-A:7/1
+A:2/1:12/1
 F:EASY_KNOW
 D:It restores your sight and enables you to resist
 D: blindness, resist hallucination, and see

@@ -690,7 +690,6 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-	NULL,										/* xxx */
 	"Debug: Peek into object creation",			/* OPT_cheat_peek */
 	"Debug: Peek into monster creation",		/* OPT_cheat_hear */
 	"Debug: Peek into dungeon creation",		/* OPT_cheat_room */
@@ -1280,13 +1279,13 @@ byte spell_info_RF4[32][3]=
 	{ MON_MANA_COST,     0,     0},        /* RF4_CONF */
 	{ MON_MANA_COST,     0,     0},        /* RF4_HOLD */
 	{ MON_MANA_COST,     0,     0},        /* RF4_SLOW */
-	
+	{ MON_MANA_COST,     0,     0},        /* RF4_HATCH_SPIDER */
+	{ MON_MANA_COST,     0,     0},        /* RF4_DIM */
+
 	{ MON_MANA_COST,     0,     0},        /* RF4_SNG_BINDING */
 	{ MON_MANA_COST,     0,     0},        /* RF4_SNG_PIERCING */
-    { MON_MANA_COST,     0,     0},        /* RF4_SNG_OATHS */
+ 	{ MON_MANA_COST,     0,     0},        /* RF4_SNG_OATHS */
     
-	{ MON_MANA_COST,     0,     0},        /* RF4_HATCH_SPIDER */
-	{             0,     0,     0},        /* RF4_XXX21 */
 	{             0,     0,     0},        /* RF4_XXX22 */
 	{             0,     0,     0},        /* RF4_XXX23 */
 	{             0,     0,     0},        /* RF4_XXX24 */
@@ -1325,13 +1324,13 @@ byte spell_desire_RF4[32][2] =
 	{  50,  100}, /* RF4_CONF	  */
 	{  50,  100}, /* RF4_HOLD	*/
 	{  50,  100}, /* RF4_SLOW	*/
+	{  50,  100}, /* RF4_HATCH_SPIDER */
+	{  50,  100}, /* RF4_DIM */
 	
 	{  50,  100}, /* RF4_SNG_BINDING */
 	{   0,    0}, /* RF4_SNG_PIERCING */
 	{  50,  100}, /* RF4_SNG_OATHS */
     
-	{ 50,   100}, /* RF4_HATCH_SPIDER */
-	{ 0,   100}, /* RF4_XXX21 */
 	{ 0,   100}, /* RF4_XXX22 */
 	{ 0,   100}, /* RF4_XXX23 */
 	{ 0,   100}, /* RF4_XXX24 */

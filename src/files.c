@@ -1218,8 +1218,6 @@ void display_player_xtra_info(int mode)
 	
 	int attacks = 1, shots = 1, mod = 2;
 
-	object_type *o_ptr;
-
 	char buf[160];
 
 	byte ahw_attr = (mode == 1) ? TERM_YELLOW : TERM_L_BLUE; 
@@ -1339,20 +1337,11 @@ void display_player_xtra_info(int mode)
 		Term_putstr(col+5, 6+attacks, -1, TERM_L_BLUE, format("%11s", buf));
 	}
 
-	/* Range weapon */
-	o_ptr = &inventory[INVEN_BOW];
-	
 	/* Range attacks */
 	strnfmt(buf, sizeof(buf), "(%+d,%dd%d)", p_ptr->skill_use[S_ARC], p_ptr->add, p_ptr->ads);
 	Term_putstr(col, 7+attacks, -1, TERM_WHITE, "Bows");
 	Term_putstr(col+5, 7+attacks, -1, TERM_L_BLUE, format("%11s", buf));
 
-	if (p_ptr->active_ability[S_ARC][ARC_RAPID_FIRE])
-	{
-		shots++;
-		Term_putstr(col+5, 8+attacks, -1, TERM_L_BLUE, format("%11s", buf));
-	}
-	
 	/* Total Armor */
 	strnfmt(buf, sizeof(buf), " [%+d,%d-%d]", p_ptr->skill_use[S_EVN], p_min(GF_HURT, TRUE), p_max(GF_HURT, TRUE));
 	Term_putstr(col, 7+attacks+shots, -1, TERM_WHITE, "Armor");
@@ -3669,7 +3658,7 @@ void atomonth(int number, char *output)
  */
 extern void display_single_score(byte attr, int row, int col, int place, int fake, high_score *the_score)
 {
-	int pr, ph, clev, cdun, mdun;
+	int ph;
 	int aged, depth;
 			
 	cptr user, when;
@@ -3681,14 +3670,8 @@ extern void display_single_score(byte attr, int row, int col, int place, int fak
 	char depth_commas[15];
 
 	/* Extract the race/house */
-	pr = atoi(the_score->p_r);
 	ph = atoi(the_score->p_h);
 
-	/* Extract the level info */
-	clev = atoi(the_score->cur_lev);
-	cdun = atoi(the_score->cur_dun);
-	mdun = atoi(the_score->max_dun);
-	
 	/* Hack -- extract the turns and such */
 	for (user = the_score->uid; isspace((unsigned char)*user); user++) /* loop */;
 	for (when = the_score->day; isspace((unsigned char)*when); when++) /* loop */;
@@ -3716,7 +3699,6 @@ extern void display_single_score(byte attr, int row, int col, int place, int fak
 	/* if not displayed in a place, then don't write the place number */
 	if (place == 0)
 	{
-		/* Prepare the first line, with the race only */
 		strnfmt(out_val, sizeof(out_val),
 				"     %5s ft  %s of %s",
 				depth_commas, the_score->who,
@@ -3724,7 +3706,6 @@ extern void display_single_score(byte attr, int row, int col, int place, int fak
 	}
 	else
 	{
-		/* Prepare the first line, with the house only */
 		strnfmt(out_val, sizeof(out_val),
 				"%3d. %5s ft  %s of %s",
 				place, depth_commas, the_score->who,

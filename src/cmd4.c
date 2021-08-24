@@ -522,10 +522,8 @@ void do_cmd_change_song()
 {
 	int i;
 	bool done = FALSE;
-	bool allow_list;
 	
 	int options = 0;
-	int final_song = 0;
 	int song_choice = -1;
 	
 	char out_val[80];
@@ -578,11 +576,9 @@ void do_cmd_change_song()
 		// count the abilities
 		for (i = 0; i < SNG_WOVEN_THEMES; i++)
 		{
-			// keep track of the number of options and final song
+			// keep track of the number of options
 			if (p_ptr->active_ability[S_SNG][i])
 			{
-				final_song = i;
-				
 				my_strcat(out_val, ",", sizeof(out_val));
 				sprintf(tmp_val, "%c", (char) 'a' + i);
 								
@@ -606,9 +602,6 @@ void do_cmd_change_song()
 		
 		/* Show the prompt */
 		prt(tmp_val, 0, 0);
-		
-		/* Hack - Find the origin of the next key */
-		allow_list = interactive_input(TRUE);
 		
 		/* Get a key */
 		which = inkey();
@@ -1055,7 +1048,6 @@ int abilities_menu2(int skilltype, int *highlight)
 	int i, j;
 
 	ability_type *b_ptr;
-	ability_type *b_ptr_hi;
 
 	int ch;
 	int options = 0; // a default value to soothe compilation warnings
@@ -1125,8 +1117,6 @@ int abilities_menu2(int skilltype, int *highlight)
 
 		if (*highlight == b_ptr->abilitynum + 1)
 		{
-			b_ptr_hi = b_ptr;
-
 			// highlight the label
 			strnfmt(buf, 80, "%c)", (char) 'a' + b_ptr->abilitynum);
 			Term_putstr(COL_ABILITY,  b_ptr->abilitynum + 4, -1, TERM_L_BLUE, buf);
@@ -2692,7 +2682,7 @@ int object_difficulty(object_type *o_ptr)
 	x = new - base;
 
 	// special costs for protection sides on hauberks and rings
-	if ((smith_o_ptr->tval == TV_MAIL) && (smith_o_ptr->sval == SV_LONG_CORSLET) && (x > 0))
+	if ((o_ptr->tval == TV_MAIL) && (o_ptr->sval == SV_LONG_CORSLET) && (x > 0))
 	{
 		dif_mod(x, 1, &dif_inc);
 		dif_inc += 2;
@@ -2723,7 +2713,11 @@ int object_difficulty(object_type *o_ptr)
 	if (f1 & TR1_BRAND_POIS)		{	dif_inc += 16;	smithing_cost.str += 2;	brands++; }
 	if (brands > 1)				{	dif_inc += (brands-1) * 20;  }
 	
-	if (f1 & TR1_SHARPNESS)			{	dif_inc += 24;	smithing_cost.str += 2;	}
+	if (f1 & TR1_SHARPNESS)
+	{
+		if (o_ptr->tval == TV_ARROW) 	{	dif_inc += 12;	smithing_cost.str += 1;	}
+		else				{	dif_inc += 24;	smithing_cost.str += 2;	}
+	}
 	if (f1 & TR1_SHARPNESS2)		{	dif_inc += 40;	smithing_cost.str += 4;	} // not available in smithing
 	if (f1 & TR1_VAMPIRIC)			{	dif_inc += 6;	smithing_cost.str += 1;	}
 	
@@ -3841,7 +3835,7 @@ int enchant_menu_aux(int *highlight)
 				}
 			}
 		}
-		
+
 		if (acceptable)
 		{
 			// make a 'special' version of the object
@@ -3856,7 +3850,7 @@ int enchant_menu_aux(int *highlight)
 			{
 				valid[num] = FALSE;
 			}
-			
+
 			/* Print it */
 			strnfmt(buf, 80, "%c) %s", (char) 'a' + num, e_name + e_ptr->name);
 			Term_putstr(COL_SMT2, num + 2, -1, valid[num] ? TERM_WHITE : TERM_SLATE, buf);
@@ -5096,7 +5090,8 @@ int smithing_menu_aux(int *highlight)
                                  (smith_o_ptr->tval != TV_RING) &&
                                  (smith_o_ptr->tval != TV_AMULET) &&
                                  (smith_o_ptr->tval != TV_HORN) &&
-                                 !((smith_o_ptr->tval == TV_DIGGING) && (smith_o_ptr->sval == SV_SHOVEL));
+                                 !((smith_o_ptr->tval == TV_DIGGING) && (smith_o_ptr->sval == SV_SHOVEL)) &&
+				 !((smith_o_ptr->tval == TV_ARROW) && (smith_o_ptr->att > 0));
 	valid[SMT_MENU_ARTEFACT-1] = (!smith_o_ptr->name2) &&
                                  (smith_o_ptr->tval != 0) &&
                                  (smith_o_ptr->tval != TV_HORN) &&
@@ -8967,8 +8962,6 @@ static int collect_objects(int grp_cur, object_list_entry object_idx[])
 {
 	int i, j, k, object_cnt = 0;
 	int max_sval = -1;
-	int norm = 0;
-	bool known_sval[256] = {};
 
 	/* Get a list of x_char in this group */
 	byte group_tval = object_group_tval[grp_cur];
@@ -9002,8 +8995,6 @@ static int collect_objects(int grp_cur, object_list_entry object_idx[])
 		/* Check for object in the group */
 		if (k_ptr->tval == group_tval)
 		{
-			known_sval[k_ptr->sval] = TRUE;
-
 			/* Save the highest sval in the group for later */
 			if (k_ptr->sval > max_sval)
 			{
@@ -9020,8 +9011,6 @@ static int collect_objects(int grp_cur, object_list_entry object_idx[])
 			object_cnt++;
 		}
 	}
-
-	norm = object_cnt;
 
 	/* Add special items to the list */
 	/* Skip this part if we don't know any normal items */

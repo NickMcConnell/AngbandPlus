@@ -88,7 +88,14 @@ F:CON
 F:IGNORE_ALL
 
 
-# Soft armour only
+# Leather armour only
+
+N:4:of Brethil
+W:6:6:0:1000
+C:0:0:0:0:0:0:0
+T:36:0:7
+F:FREE_ACT | IGNORE_ALL
+
 
 N:5:of Stealth
 W:0:1:0:1000
@@ -116,7 +123,6 @@ W:10:1:0:3000
 C:0:0:0:0:0:0:0
 T:36:2:2
 B:5/9
-
 
 
 ###
@@ -162,36 +168,32 @@ F:AGGRAVATE
 
 ##### Weapons #####
 
-# Includes bows but not daggers
+# Includes arrows
 
 N:21:of Gondolin
 W:0:2:10:1000
 C:0:0:0:0:0:0:0
-T:19:0:99
 T:21:8:8
 T:22:0:99
 T:23:7:99
+T:17:0:99
 F:SLAY_ORC | SLAY_TROLL
 
-
-# Includes bows
+# Includes arrows
 
 N:22:of Doriath
 W:0:2:0:2000
 C:0:0:0:0:0:0:0
-T:19:0:99
 T:21:8:8
 T:22:0:99
 T:23:7:99
+T:17:0:99
 F:SLAY_SPIDER | SLAY_WOLF
 
-
-# Includes bows
 
 N:23:of Nargothrond
 W:9:2:0:2000
 C:0:0:0:0:0:0:0
-T:19:0:99
 T:21:8:8
 T:22:0:99
 T:23:7:99
@@ -338,7 +340,7 @@ F:BRAND_FIRE | LIGHT
 # (ability 2/4 is Leaping)
 
 N:39:of Vaulting
-W:0:1:0:2000
+W:0:6:0:2000
 C:0:0:0:0:0:0:0
 T:21:3:3
 B:2/4
@@ -366,19 +368,19 @@ B:0/8
 # Quarterstaves only
 
 N:42:of Calacirya
-W:2:3:0:8000
-C:0:0:0:0:0:0:1
+W:0:4:0:8000
+C:0:0:2:0:0:0:3
 T:21:3:3
-F:WILL | SONG
+F:WILL | SONG | LIGHT
 
 
 # Quarterstaves only
 
 N:43:of the Helcaraxe
-W:2:3:0:8000
-C:0:0:0:0:0:0:1
+W:0:4:0:8000
+C:0:0:2:0:0:0:1
 T:21:3:3
-F:DEX | RES_COLD
+F:CON | RES_COLD
 
 
 # Daggers only
@@ -507,25 +509,42 @@ F:VUL_COLD
 
 ##### Bows #####
 
-# 'of Gondolin' is already defined above
 
-# 'of Doriath' is already defined above
+N:91:of Lindon
+W:0:2:0:3000
+C:0:0:0:0:0:0:2
+T:19:0:99
+F:STEALTH
 
-# 'of Nargothrond' is already defined above
+
+N:92:of Dorthonion
+W:0:2:0:3000
+C:1:0:0:0:0:0:2
+T:19:0:99
+F:PERCEPTION
 
 
-N:91:of Radiance
-W:0:1:0:1000
+N:93:of Radiance
+W:2:4:0:1000
 C:0:0:0:0:0:0:0
 T:19:0:99
 F:RADIANCE
 
 
-N:92:of Quickness
-W:10:3:0:3000
+N:94:of the Marchwardens
+W:2:4:0:1000
 C:0:0:0:0:0:0:0
 T:19:0:99
-B:1/6
+F:SEE_INVIS | RES_FEAR
+
+
+# (ability 1/2 is Dedication)
+N:95:of Falas
+W:2:4:0:3000
+C:1:0:0:0:0:0:0
+T:19:0:99
+B:1/2
+
 
 ###
 
@@ -535,18 +554,19 @@ B:1/6
 ##### Arrows #####
 
 
-N:101:(Poisoned)
-W:0:1:0:100
-C:0:0:0:0:0:0:0
-T:17:0:2
-F:BRAND_POIS
-
-
-N:102:of Piercing
-W:10:3:0:300
+N:101:of Piercing
+W:5:3:0:300
 C:0:0:0:0:0:0:0
 T:17:0:99
 F:SHARPNESS
+
+
+N:102:(Poisoned)
+W:10:10:0:100
+C:0:0:0:0:0:0:0
+T:17:0:99
+F:BRAND_POIS
+
 
 ###
 
@@ -648,14 +668,14 @@ F:STR
 ###
 
 
-# (ability 3/3 is Opportunist)
+# (ability 3/4 is Opportunist)
 
 N:126:of Treachery
 W:0:4:13:0
 C:0:0:0:0:0:0:1
 T:31:0:99
 F:STR | LIGHT_CURSE
-B:3/3
+B:3/4
 
 
 
