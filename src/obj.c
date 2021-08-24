@@ -130,7 +130,10 @@ void obj_release(obj_ptr obj, int options)
     {
     case INV_FLOOR:
         if (!quiet)
-            msg_format("You see %s.", name);
+            if (p_ptr->blind)
+                msg_format("You feel %s.", name);
+            else
+                msg_format("You see %s.", name);
         if (obj->number <= 0)
             delete_object_idx(obj->loc.slot);
         break;

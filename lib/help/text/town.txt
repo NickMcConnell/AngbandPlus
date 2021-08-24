@@ -22,7 +22,7 @@ are likely to see often in the town and the wilderness:
   ----------------------        -------------------------------
   #   Tree/wooded area          #   Building wall
   .   Patch of grass            1   Entrance to General Store
-  :   Flower                    2   Entrance to Armoury
+  :   Flower                       Entrance to Armoury
   :   Brake                     3   Entrance to Weapon Shop
   .   Swamp                     4   Entrance to Temple Shop
   ~   Shallow water             5   Entrance to Alchemy Shop
@@ -212,7 +212,7 @@ List of Shops
   items and some others can be sold back to the General store for 
   money.
 
-  The Armory (2)
+  The Armory ()
   The Armory is where the town's armor is fashioned. All sorts of 
   protective gear may be bought and sold here.
 

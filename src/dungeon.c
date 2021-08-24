@@ -3496,33 +3496,46 @@ static void _dispatch_command(int old_now_turn)
             break;
         }
 
-        /* Go up staircase */
-        case '<':
-        {
-            if (py_on_surface())
-            {
-                if (no_wilderness) break;
-
-                if (p_ptr->food < PY_FOOD_WEAK)
-                {
-                    msg_print("You must eat something here.");
-                    break;
-                }
-
-                change_wild_mode();
-            }
-            else
-                do_cmd_go_up();
-            break;
-        }
-
-        /* Go down staircase */
+        /* Go up or down a staircase */
         case '>':
+        case '<':
         {
             if (p_ptr->wild_mode)
                 change_wild_mode();
             else
-                do_cmd_go_down();
+            {
+                /* Player grid */
+                cave_type* c_ptr = &cave[py][px];
+                feature_type* f_ptr = &f_info[c_ptr->feat];
+
+                /* Verify stairs */
+                if (have_flag(f_ptr->flags, FF_LESS))
+                {
+                    do_cmd_go_up();
+                }
+                else if (have_flag(f_ptr->flags, FF_MORE))
+                {
+                    do_cmd_go_down();
+                }
+                else if (py_on_surface())
+                {
+                    if (no_wilderness) break;
+
+                    if (p_ptr->food < PY_FOOD_WEAK)
+                    {
+                        msg_print("You must eat something here.");
+                        break;
+                    }
+
+                    change_wild_mode();
+                }
+                else /* no stair / map change is possible */
+                {
+                    msg_print("I see no staircase here.");
+
+                    return;
+                }
+            }
 
             break;
         }

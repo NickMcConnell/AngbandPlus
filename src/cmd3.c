@@ -1621,7 +1621,10 @@ void do_cmd_list_monsters(int mode)
     if (list->ct_total)
         _list_monsters_aux(list, display_rect, mode);
     else
-        msg_print("You see no visible monsters.");
+        if (p_ptr->blind)
+            msg_print("You can't hear any monsters.");
+        else
+            msg_print("You see no visible monsters.");
 
     _mon_list_free(list);
 }
@@ -2213,6 +2216,8 @@ void do_cmd_list_objects(void)
         }
         screen_load();
     }
+    else if (p_ptr->blind)
+        msg_print("You feel no objects.");
     else
         msg_print("You see no objects.");
 

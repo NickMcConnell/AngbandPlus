@@ -237,9 +237,9 @@ Base HP       14        Archery     <color:o>Fair         </color>
 Experience   135%       Infravision 40'
 </style></indent>
 </indent>
-<style:heading>Angels/Demons</style>
+<style:heading>Archons/Demons</style>
   <indent><topic:Archon><color:o>Archon</color>
-Archons are a higher class of angels. They are good at all skills, and are strong, wise, and a favorite with any people. They are able to see the unseen, and their wings allow them to safely fly over traps and other dangerous places. However, belonging to a higher plane as they do, the experiences of this world do not leave a strong impression on them and they gain levels slowly.
+Archons are winged humanoids from the Astral Plane. They are good at all skills, and are strong, wise, and a favorite with any people. They are able to see the unseen, and their wings allow them to safely fly over traps and other dangerous places. However, belonging to a higher plane as they do, the experiences of this world do not leave a strong impression on them and they gain levels slowly.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +2        Disarming   <color:o>Fair         </color>
@@ -455,20 +455,6 @@ Charisma      +1        Perception  <color:y>Good         </color>
 Life Rating  113%       Melee       <color:g>Superb       </color>
 Base HP       44        Archery     <color:y>Good         </color>
 Experience   160%       Infravision 30'
-</style></indent>
-<topic:Ghoul><color:o>Ghoul</color>
-This race of undead preys upon the dead and dying. Ghouls can learn to sense living creatures around them and, having killed them, can feast upon their corpses gaining nourishment. As an undead being, Ghouls naturally resist the effects of cold, poison and life-draining attacks. As they grow stronger the effects of darkness and nether upon them decreases. In addition, the Ghoul's touch may paralyze some oponents. Ghoul's make adequate fighters and poor spell casters.
-
-  <indent><style:table><color:G>Stats                   Skills</color>
-Strength      +0        Disarming   <color:R>Poor         </color>
-Intelligence  -1        Device      <color:R>Poor         </color>
-Wisdom        -1        Save        <color:y>Good         </color>
-Dexterity     -1        Stealth     <color:y>Good         </color>
-Constitution  +1        Searching   <color:o>Fair         </color>
-Charisma      -5        Perception  <color:y>Good         </color>
-Life Rating   95%       Melee       <color:y>Good         </color>
-Base HP       18        Archery     <color:o>Fair         </color>
-Experience   125%       Infravision 20'
 </style></indent>
 <topic:Skeleton><color:o>Skeleton</color>
 As undead beings, skeletons need worry very little about poison or attacks that can drain life. Skeletons do not really use eyes for perceiving things, and are thus not fooled by invisibility. Their bones are resistant to sharp shrapnel, and they will quickly become resistant to cold. Although the magical effects of potions and mushrooms will affect the skeleton even without entering its (non-existent) belly, the food itself will fall through the skeleton's jaws, giving no nutritional benefit; instead, skeletons feed themselves by absorbing the energy of magical devices.
@@ -699,7 +685,7 @@ Base HP       14        Archery     <color:o>Fair         </color>
 Experience    70%       Infravision 20'
 </style></indent>
 <topic:Icky thing><color:o>Icky thing</color>
-Icky things are smallish, slimy, icky, blobby creatures. They are despised and ignored by other creatures, this is a blessing in disguise as being ignored means they are stealthy. Icky things are fairly weak overall but their slimy coatings protectthem from poisons and eventually acid.  Icky things a good friendsof molds and other dungeon growths and even allow them to grow onthemselves in a symbiotic relationship (in game turns, they can 'ride' immobile creatures, but in reverse as the icky thing walks around instead of the mount).
+Icky things are smallish, slimy, icky, blobby creatures. Theyare despised and ignored by other creatures, this is a blessing indisguise as being ignored means they are stealthy. Icky things are fairly weak overall but their slimy coatings protectthem from poisons and eventually acid.  Icky things a good friendsof molds and other dungeon growths and even allow them to grow onthemselves in a symbiotic relationship (in game turns, they can 'ride'immobile creatures, but in reverse as the icky thing walks aroundinstead of the mount).
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      -1        Disarming   <color:R>Poor         </color>
@@ -874,4 +860,4 @@ Icky thing   <color:G>Excellent    </color> <color:y>Good         </color> <colo
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.3.3.</color>
+<color:s>Automatically generated for Oposband 0.3.4.</color>

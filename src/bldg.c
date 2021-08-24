@@ -4171,7 +4171,10 @@ void do_cmd_quest(void)
 
     if (!cave_have_flag_bold(py, px, FF_QUEST_ENTER))
     {
-        msg_print("You see no quest level here.");
+        if (p_ptr->blind)
+            msg_print("You feel no entrance here.");
+        else
+            msg_print("You see no quest level here.");
         return;
     }
     else
@@ -4214,7 +4217,10 @@ void do_cmd_bldg(void)
 
     if (!cave_have_flag_bold(py, px, FF_BLDG))
     {
-        msg_print("You see no building here.");
+        if (p_ptr->blind)
+            msg_print("You feel no entrance here.");
+        else
+            msg_print("You see no building here.");
 
         return;
     }

@@ -1442,7 +1442,7 @@ player_pact pact_info[WARLOCK_MAX] =
         "Dd"
     },
     {
-        "Angel",
+        "Archon",
         "A"
     },
     {
@@ -2733,7 +2733,7 @@ cptr ident_info[] =
     ">:A down staircase",
     "?:A scroll",
     "@:You",
-    "A:Angel",
+    "A:Archon",
     "B:Bird",
     "C:Canine",
     "D:Ancient Dragon/Wyrm",

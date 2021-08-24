@@ -1236,11 +1236,11 @@ static void _dispelling_blast(int cmd, variant *res)
 }
 
 static _pact_t _angels_pact = {
-  "Angels",
-  "Angels are heavenly beings who use a variety of techniques to smite those they view as evil. "
-    "Warlocks who make pacts with Angels will also find their saving throws significantly improved, "
-    "and (eventually) their body almost immune to bolt-like effects. Since Angels are strongly aligned "
-    "with the forces of good, making a pact with Angels will reduce damage done to all good monsters "
+  "Archons",
+  "Archons are astral beings who use a variety of techniques to smite those they view as evil. "
+    "Warlocks who make pacts with Archons will also find their saving throws significantly improved, "
+    "and (eventually) their body almost immune to bolt-like effects. Since Archons are strongly aligned "
+    "with the forces of good, making a pact with Archons will reduce damage done to all good monsters "
     "by a substantial amount.",
   "A", /* + RF3_GOOD ... They are even allied with Fallen Angels! */
   _angel_calc_bonuses,

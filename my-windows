@@ -7,11 +7,11 @@ make -j4
 cp src/frogcomposband.exe .
 if [ -n "$1" ]
 then
-    file=frogcomposband-"$1".zip
+    file=oposband-"$1".zip
 else
-    file=frogcomposband-"$(git describe)".zip
+    file=oposband-"$(git describe)".zip
 fi
 
 rm $file
 find ./lib -name Makefile -prune -o -name .deps -prune -o -print | zip $file -@
-zip $file frogcomposband.exe readme.txt
+zip $file oposband.exe readme.txt

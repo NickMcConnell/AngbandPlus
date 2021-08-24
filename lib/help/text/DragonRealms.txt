@@ -224,5 +224,5 @@ Death          Poor          Poor          Good          Fair
 
 
 
-Automatically generated for Oposband 0.3.3.
+Automatically generated for Oposband 0.3.4.
 

@@ -171,10 +171,11 @@ Movement Commands
   the Mogaminator or the easy auto-destroyer is active, specified 
   objects will be picked up or destroyed.
 
-  Go Up Staircase (<)
-  Climbs up if you are standing on an up staircase or shaft. In the 
-  wilderness, toggles global map mode unless there are alert monsters 
-  nearby.
+  Take Staircase (> (or <))
+  Descends if you are standing on a down staircase or shaft, or climbs 
+  up if you are standing on an up staircase or shaft. In the 
+  wilderness, toggles local & global map mode unless there are alert 
+  monsters nearby.
   
   Unless you are playing in coffee-break mode or have activated the 
   ironman_downward option, there is always at least one up staircase on 
@@ -183,15 +184,10 @@ Movement Commands
   can be returned to while you remain in the dungeon (supposing up 
   staircases exist), but are lost forever when you return to surface.
 
-  Go Down Staircase (>)
-  Descends if you are standing on a down staircase or shaft. In the 
-  wilderness, returns from global map to local map.
-  
-  There are always at least two staircases going down on each level, 
-  except for quest levels (which have none until the quest monster is 
-  killed) and the bottom levels of dungeons. Going down a staircase 
-  will take you to a new dungeon level (see "Go Up Staircase" for 
-  notes).
+There are always at least two staircases going down on each level, 
+except for quest levels (which have none until the quest monster is 
+killed) and the bottom levels of dungeons. Going down a staircase will 
+take you to a new dungeon level.
 
   Travel to Nearest Interesting Item (H or ^E)
   Locates and automatically travels to the nearest known item that is 
@@ -673,7 +669,7 @@ Message Commands
     if you are paranoid about having the computer crash while you are 
     playing.
   
-    Quit (commit suicide) (Q)
+    Quit (commit suicide) (^Q)
     Kills your character and exits the game. You will be prompted to 
     make sure you really want to do this, and then asked to verify that 
     choice. Note that dead characters are dead forever.

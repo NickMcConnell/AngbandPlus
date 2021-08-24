@@ -463,9 +463,9 @@ void mut_calc_stats(s16b stats[MAX_STATS])
         stats[A_CHR] -= 1;
     }
     if (mut_present(MUT_SILLY_VOICE))
-        stats[A_CHR] -= 4;
-    if (mut_present(MUT_BLANK_FACE))
         stats[A_CHR] -= 1;
+    if (mut_present(MUT_BLANK_FACE))
+        stats[A_CHR] -= 4;
     if (mut_present(MUT_SCALES))
         stats[A_CHR] -= 1;
     if (mut_present(MUT_WARTS))

@@ -1,4 +1,4 @@
 #!/bin/bash
 make -j4
-cp src/frogcomposband .
+cp src/oposband .
 ls -lah frog*

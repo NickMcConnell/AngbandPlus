@@ -54,7 +54,7 @@ Press </font><font color="#ff8000">? </font><font color="#ffffff">for commands t
        4  5  6
        1  2  3
 
-   a  Aim a wand                           </font><font color="#ffffff">A  Activate equipment
+   a  Activate an item                     </font><font color="#ffffff">A  Activate equipment
    b  Browse magic list                    B  Bash a door
    c  Close a door                         </font><font color="#ffff00">C  Character description
    </font><font color="#ffffff">d  Drop an item                         </font><font color="#ffff00">D  Disarm a trap
@@ -69,9 +69,9 @@ Press </font><font color="#ff8000">? </font><font color="#ffffff">for commands t
    </font><font color="#ffff00">m  Cast a spell / use mental power      </font><font color="#ffffff">M  Full dungeon map
    </font><font color="#ffff00">n  Repeat last command                  </font><font color="#404040">N  (unused)
    </font><font color="#ffff00">o  Open a door or chest                 O  Display object list
-   </font><font color="#ffffff">p  Command your pets                    </font><font color="#404040">P  (unused)
-   </font><font color="#ffff00">q  Quaff a potion                       </font><font color="#ffffff">Q  Quit (commit suicide)
-   </font><font color="#ffff00">r  Read a scroll                        R  Rest for a period
+   </font><font color="#ffffff">p  Command your pets                    </font><font color="#ffff00">P  Show previous messages
+   q  Quaff a potion                       Q  Display quest info
+   r  Read a scroll                        R  Rest for a period
    s  Search for traps/doors               </font><font color="#ffffff">S  Toggle search mode
    t  Take off equipment                   T  Dig a tunnel
    </font><font color="#ffff00">u  Use a staff                          U  Use racial/bonus power
@@ -95,17 +95,17 @@ Press </font><font color="#ff8000">? </font><font color="#ffffff">for commands t
    </font><font color="#ffffff">[  Display monster list                ^M  (special - return)
    ]  Display object list                 </font><font color="#404040">^N  (unused)
    </font><font color="#ffffff">-  Walk (flip pickup)                  ^O  Display object list
-   _  Edit/activate Mogaminator prefs     ^P  Show previous messages
-   </font><font color="#ffff00">+  Alter adjacent grid                 ^Q  Display quest info
-   </font><font color="#ffffff">=  Set options                         ^R  Redraw the screen
+   _  Edit/activate Mogaminator prefs     </font><font color="#404040">^P    (unused)
+   </font><font color="#ffff00">+  Alter adjacent grid                 </font><font color="#ffffff">^Q  Quit (game over)
+   =  Set options                         ^R  Redraw the screen
    ;  Walk                                ^S  Save and don't quit
    :  Take notes                          ^T  Display game time
    '  Playback recorded command           </font><font color="#404040">^U  (unused)
    </font><font color="#ffffff">"  Record command                      ^V  Recenter Viewport
    ,  Stay still                          ^W  (special - wizard mode)
-   </font><font color="#ffff00">&lt;  Go up staircase/Toggle global map   ^X  Save and quit
-   .  Run                                 </font><font color="#ffffff">^Y  (special - wizard mode)
-   </font><font color="#ffff00">&gt;  Go down staircase/Enter normal map  </font><font color="#ffffff">^Z  (special - borg command)
+   </font><font color="#ffff00">.  Run                                 </font><font color="#ffffff">^Y  (special - wizard mode)
+   </font><font color="#ffff00">&gt;  Take staircase/Toggle global map    ^X  Save and quit
+   </font><font color="#ffffff">&lt;  Take staircase (alternate)          ^Z  (unused)
    \  (special - bypass keymap)            </font><font color="#404040">|  (unused)
    </font><font color="#ffffff">`  Travel to location                   ~  Knowledge menu
    /  Identify symbol                      </font><font color="#ffff00">?  Help
@@ -118,7 +118,7 @@ Press </font><font color="#ff8000">? </font><font color="#ffffff">for commands t
        h  .  l
        b  j  n
 
-   a  Zap a rod (Activate)                 </font><font color="#ffffff">A  Activate equipment
+   a  Activate an item                     </font><font color="#ffffff">A  Activate equipment
    b  (walk - south west)                  B  (run - south west)
    c  Close a door                         </font><font color="#ffff00">C  Character description
    </font><font color="#ffffff">d  Drop an item                         </font><font color="#ffff00">D  Disarm a trap or chest
@@ -134,8 +134,8 @@ Press </font><font color="#ff8000">? </font><font color="#ffffff">for commands t
    n  (walk - south east)                  N  (run - south east)
    </font><font color="#ffff00">o  Open a door or chest                 O  Use racial/bonus power
    </font><font color="#ffffff">p  Command your pets                    P  Browse magic list (Peruse)
-   </font><font color="#ffff00">q  Quaff a potion                       </font><font color="#ffffff">Q  Quit (commit suicide)
-   </font><font color="#ffff00">r  Read a scroll                        R  Rest for a period
+   </font><font color="#ffff00">q  Quaff a potion                       Q  Display quest info
+   r  Read a scroll                        R  Rest for a period
    </font><font color="#ffffff">s  Search for traps/doors               S  Jam a door (Spike)
    </font><font color="#ffff00">t  Fire an arrow etc.                   </font><font color="#ffffff">T  Take off equipment
    u  (walk - north east)                  U  (run - north east)
@@ -160,17 +160,17 @@ Press </font><font color="#ff8000">? </font><font color="#ffffff">for commands t
    </font><font color="#ffff00">]  Display object list                 </font><font color="#ffffff">^N  (tunnel - south east)
    -  Walk (flip pickup)                  </font><font color="#404040">^O  (unused)
    </font><font color="#ffffff">_  Edit/activate Mogaminator prefs     ^P  Show previous messages
-   </font><font color="#ffff00">+  Alter adjacent grid                 ^Q  Display quest info
-   </font><font color="#ffffff">=  Set options                         ^R  Redraw the screen
+   </font><font color="#ffff00">+  Alter adjacent grid                 </font><font color="#ffffff">^Q  Quit (game over) 
+   =  Set options                         ^R  Redraw the screen
    ;  Walk                                ^S  Save and don't quit
    :  Take notes                          ^T  Dig a Tunnel
    '  Playback recorded command           ^U  (tunnel - north east)
    "  Record command                      ^V  Recenter Viewport
    ,  Run                                 ^W  (special - wizard mode)
-   </font><font color="#ffff00">&lt;  Go up staircase/Toggle global map   ^X  Save and quit
-   </font><font color="#ffffff">.  Stay still                          ^Y  (tunnel - north west)
-   </font><font color="#ffff00">&gt;  Go down staircase/Enter normal map  </font><font color="#404040">^Z  (unused)
-   </font><font color="#ffffff">\  (special - bypass keymap)            </font><font color="#404040">|  (unused)
+   </font><font color="#ffff00">&gt;  Take staircase/Toggle global map    ^X  Save and quit
+   </font><font color="#ffffff">&lt;  Take staircase (alternate)          ^Y  (tunnel - north west)
+   .  Stay still                          ^Z  (unused)
+   \  (special - bypass keymap)            </font><font color="#404040">|  (unused)
    </font><font color="#ffffff">`  Travel to location                   ~  Knowledge menu
    /  Identify symbol                      </font><font color="#ffff00">?  Help
 

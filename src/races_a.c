@@ -317,8 +317,8 @@ race_t *archon_get_race(void)
     if (!init)
     {
         me.name = "Archon";
-        me.desc = "Archons are a higher class of angels. They are good at all skills, and are strong, "
-                    "wise, and a favorite with any people. They are able to see the unseen, and "
+        me.desc = "Archons are winged humanoids from the Astral Plane. They are good at all skills, and are "
+                    "strong, wise, and a favorite with any people. They are able to see the unseen, and "
                     "their wings allow them to safely fly over traps and other dangerous places. However, "
                     "belonging to a higher plane as they do, the experiences of this world do not leave "
                     "a strong impression on them and they gain levels slowly.";

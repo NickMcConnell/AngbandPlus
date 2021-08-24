@@ -784,6 +784,9 @@
     <ClCompile Include="src\imitator.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\hexblade.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\angband.ico">

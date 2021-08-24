@@ -1,14 +1,8 @@
 -Add Icky Things to lib/help/Races.txt
 -Archons should gain monk-like protections and high AC when wearing cloth armor, since their monster descriptions depict them so. Basically get the AC effects of wearing heavy armor, without the drawbacks. Maybe they lose flying in heavy as well? No penalties for shields, helms, etc
--Add Ghouls from Z+ angband
-	-paralyzing/slowing innate claw attack
-	-undead should resist sanity blasts
-	-undead should resist vampirism
-	-eats corpses like balrogs, but with eating text. "The food of mortals is poor sustenance for you."
-
 -Create golem should require rubble
 -Take away berserkers remove curse & recall powers, make them buy scrolls and then eat them. Its like reading but only 67% effective
-
+------------------------------------------------------------------------------
 How should weapon / skill proficiencies work?
 -Start at unskilled or beginner, work your way up to max:
 	-by grinding actions

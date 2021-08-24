@@ -6490,7 +6490,7 @@ S:1_IN_8 |
 S:SCARE | CAUSE_2 | DARKNESS
 D:It is a tangible but ghostly form made of white fog.
 
-N:417:Angel
+N:417:Lesser Archon
 G:A:b
 I:110:30d10:30:60:255:170
 W:26:4:999:220:2000:456
@@ -6507,7 +6507,7 @@ P:Copy:Archon:Paladin
 S:1_IN_3 |
 S:BLIND | CONFUSE | SCARE | AMNESIA | DETECT_EVIL | BLESS
 O:DROP_PALADIN
-D:A lesser angel wearing little more than a loincloth - its steely skin
+D:A lesser archon wearing little more than a loincloth - its steely skin
 D:provides all the protection it needs.
 
 N:418:Ghoul
@@ -7180,7 +7180,7 @@ D:A gigantic worm dripping with acid. "...even as he looked, one
 D:reared up several hundred feet and leveled a bleached, viscous end
 D:at him."
 
-N:456:Archangel
+N:456:Archon
 G:A:B
 I:110:40d10:30:68:255:190
 W:29:4:999:400:2500:511
@@ -7197,7 +7197,7 @@ P:Copy:Archon:Paladin
 S:1_IN_3 |
 S:HEAL | HASTE | BLIND | CONFUSE | SCARE | DETECT_EVIL | BLESS
 O:DROP_PALADIN
-D:A lesser angel protected by an aura of holiness. Its muscular form looks
+D:A lesser archon protected by an aura of holiness. Its muscular form looks
 D:extremely powerful next to your own frail body.
 
 N:457:Ring mimic
@@ -8143,7 +8143,7 @@ S:1_IN_6 |
 S:BO_FIRE
 D:It is a towering inferno of flames.
 
-N:511:Cherub
+N:511:Archon Guardian
 G:A:W
 I:120:45d10:30:68:255:170
 W:33:4:999:400:5000:605
@@ -8162,7 +8162,7 @@ S:1_IN_3 |
 S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST | BO_FIRE(18d8+22) |
 S:S_MONSTER | DETECT_EVIL | BLESS
 O:DROP_PALADIN
-D:It is an angel moving very quickly, wielding a holy war hammer and casting
+D:It is an archon moving very quickly, wielding a holy war hammer and casting
 D:a volley of powerful spells in your direction.
 
 N:512:Water elemental
@@ -9833,7 +9833,7 @@ S:PARALYZE | SCARE | CAUSE_3 | BO_NETHER
 D:Your life force is torn from your body as this powerful unearthly being
 D:approaches.
 
-N:605:Seraph
+N:605:Archon Justicar
 G:A:w
 I:120:50d10:30:68:255:160
 W:38:4:999:1800:8000:661
@@ -9852,7 +9852,7 @@ S:1_IN_11 |
 S:HEAL | HASTE | TELE_OTHER | CONFUSE | BO_MANA | BO_PLASMA |
 S:S_MONSTER | DETECT_EVIL | BLESS | HEROISM | MAPPING
 O:DROP_PALADIN
-D:It is an angel, fast and strong. You are stunned by its extreme holiness
+D:It is an archon, fast and strong. You are stunned by its extreme holiness
 D:and try to resist all desires to obey it.
 
 N:606:Loge, Spirit of Fire
@@ -10731,7 +10731,7 @@ D:growing out of its forehead. Nude, its flesh was a uniform ash-gray
 D:in color. It appeared to be sexless, and it had gray, leathery wings
 D:extending far out behind it'.
 
-N:652:Fallen angel
+N:652:Darkened Archon
 G:A:D
 I:130:100d35:30:140:255:190
 W:41:5:999:8000:0:0
@@ -10913,7 +10913,7 @@ D:The madman's son is a Logrus Master, almost as great a
 D:menace as his father.
 P:Copy:Amberite:Beastmaster
 
-N:661:Archon
+N:661:Archon Exemplar
 G:A:v
 I:130:100d35:30:140:255:170
 W:41:5:999:8000:50000:942
@@ -13086,7 +13086,7 @@ D:trust me.' 'Why not?' 'I told him I'd thought of a way to
 D:destroy Amber. I described it to him, and he locked me in.'"
 P:Copy:Amberite:Beastmaster
 
-N:764:Uriel, Angel of Fire
+N:764:Uriel, Archon of Fire
 G:A:R
 I:130:60d100:40:180:10:200
 W:73:3:999:40000:0:0
@@ -13112,7 +13112,7 @@ D:A creature of godly appearance, you dare not challenge Uriel's supremacy.
 D:Those who stood against him before are but a memory, cremated by his
 D:mastery of elemental fire.
 
-N:765:Azriel, Angel of Death
+N:765:Azriel, Archon of Death
 G:A:D
 I:130:65d100:40:190:10:200
 W:80:3:999:75000:0:0
@@ -13242,7 +13242,7 @@ S:BR_MANA | BR_LITE | BR_ELEC | MANA_STORM | HAND_DOOM | S_HI_DRAGON |
 S:BRAIN_SMASH | S_MONSTER | HEAL | BR_DISENCHANT | BA_LITE
 S:DETECT_MONSTERS | BLESS | HEROISM | MAPPING
 O:DROP_PALADIN
-D:Commanding a legion of angels, Raphael will destroy you for your sins. He
+D:Commanding a legion of archons, Raphael will destroy you for your sins. He
 D:will crush you like the pitiful insignificant being he sees you to be.
 D:Your very soul will be taken into judgement by his supreme authority as he
 D:cleanses the world of evil.
@@ -16904,7 +16904,7 @@ P:Copy:Barbarian:Beastmaster
 P:Body:Dragon
 D:An undead dragon skeleton.
 
-N:942:Planetar
+N:942:Greater Archon
 G:A:r
 I:130:22d100:30:150:255:180
 W:50:6:999:10000:100000:943
@@ -16923,10 +16923,10 @@ S:1_IN_4 | HEAL | HASTE | TELE_OTHER | BO_MANA | BO_PLASMA(8d7+85) | CAUSE_4 |
 S:S_MONSTER | S_ANGEL | INVULN | PSY_SPEAR(1d100+150) | S_DRAGON | DISPEL_MAGIC |
 S:ANTI_MAGIC | DETECT_MONSTERS | BLESS | HEROISM | MAPPING
 O:DROP_PALADIN
-D:It is an angel, fast and strong. You are stunned by its extreme holiness
+D:It is an archon, fast and strong. You are stunned by its extreme holiness
 D:and try to resist all desires to obey it.
 
-N:943:Solar
+N:943:Paragon Archon
 G:A:y
 I:130:100d30:30:160:255:180
 W:64:6:999:22000:0:0
@@ -16949,7 +16949,7 @@ S:DETECT_MONSTERS | BLESS | HEROISM | MAPPING
 O:DROP_PALADIN
 D:Never a more heavenly being have you seen. The very holiness of its
 D:presence makes you deeply respect it. Few creatures can match the powers
-D:of a Solar; fewer still live to tell the tale after attacking one.
+D:of a Paragon; fewer still live to tell the tale after attacking one.
 
 N:944:Deep puddle
 G:~:b
@@ -18047,7 +18047,7 @@ S:S_MONSTER | S_UNDEAD | S_HOUND
 D:Dwar had a special affinity for dogs in life, and can still command them
 D:at will. He howls manically as he reaches out to destroy you.
 
-N:1010:Golden Angel
+N:1010:Golden Archon
 G:A:y
 I:160:150d10:30:120:255:180
 W:50:100:999:1:0:0
@@ -18062,10 +18062,10 @@ P:Copy:Archon:Rogue
 P:Speed:+15
 S:1_IN_3 |
 S:TELE_SELF | HASTE | TELE_OTHER | TELE_LEVEL | BLINK
-D:Collect 5 marks of Silver Angel or 1 mark of Gold Angel
+D:Collect 5 marks of Silver Archon or 1 mark of Gold Archon
 D:and you will win The Can of Toys!
 
-N:1011:Silver Angel
+N:1011:Silver Archon
 G:A:w
 I:130:30d10:30:50:255:180
 W:30:30:999:1:10000:1010
@@ -18079,7 +18079,7 @@ P:Copy:Archon:Rogue
 P:Speed:+10
 S:1_IN_3 |
 S:TELE_SELF | HASTE | TELE_OTHER | TELE_LEVEL | BLINK
-D:Collect 5 marks of Silver Angel or 1 mark of Gold Angel
+D:Collect 5 marks of Silver Archon or 1 mark of Gold Archon
 D:and you will win The Can of Toys!
 
 N:1012:Jibaku ghost
@@ -21181,7 +21181,7 @@ D:A giant spider from the courts of chaos sent to rend your soul in
 D:eternal damnation.
 
 # Tomenet
-N:1178:Star Blade
+N:1178:Celestial Archon
 G:A:R
 I:130:90d100:100:155:255:250
 W:90:10:999:40000:0:0
@@ -21225,7 +21225,7 @@ S:BA_LITE | BO_MANA | BO_WATER | BRAIN_SMASH |
 S:HASTE | HEAL | ANTI_MAGIC | DRAIN_MANA
 D:Through many succeeding cycles of time, as ray after ray provided the pathway
 D:for the descent of new spirits, lord Michael has remained as the guardian
-D:overlord of the angelic host, the elemental kingdom and humanity. He shall
+D:overlord of the archon host, the elemental kingdom and humanity. He shall
 D:not fold his cosmic wings about him to return home until the final angelic
 D:being is freed, the last man is redeemed and the last elemental returned to
 D:its perfect state.
@@ -22680,7 +22680,7 @@ P:Copy:Human:Warrior
 P:Body:Fish
 D:It always grows louder when it's about to feed.
 
-N:1253:Metatron, the High Angel
+N:1253:Metatron, the High Archon
 G:A:G
 I:136:108d148:100:192:2:250
 W:100:1:999:80586:0:0
@@ -22703,10 +22703,10 @@ S:FREQ_36 |
 S:TELE_TO | INVULN | BR_FIRE | BR_DISENCHANT | BR_MANA | S_ANGEL
 S:BA_LITE | BO_MANA | BRAIN_SMASH | HASTE | HEAL | ANTI_MAGIC | BR_GRAVITY
 S:BLINK | BR_NEXUS | MANA_STORM | BA_DARK | S_HI_DRAGON | PSY_SPEAR(1d200+150)
-D:You assume that, as the leading angel in Heaven, he must be officially good;
+D:You assume that, as the leading archon in the astral plane, he must be officially good;
 D:but you sense in him a ruthless scheming manipulator, one who has remained
 D:home and ruled in absolute comfort as Michael and Raphael have led the
-D:heavenly legions to the world outside in their fight against evil.
+D:astral legions to the world outside in their fight against evil.
 D:Surrounded by light and darkness, master of contradictions and opposites,
 D:Metatron is an imposing and immensely powerful figure... but it is his low
 D:cunning you truly fear.

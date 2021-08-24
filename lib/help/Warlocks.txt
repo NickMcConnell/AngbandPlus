@@ -34,8 +34,8 @@ Life Rating  102%       Melee       <color:o>Fair         </color>
 Base HP       10        Archery     <color:R>Poor         </color>
 Experience   130%
 </style></indent>
-<topic:Angels><color:o>Angels</color>
-Angels are heavenly beings who use a variety of techniques to smite those they view as evil. Warlocks who make pacts with Angels will also find their saving throws significantly improved, and (eventually) their body almost immune to bolt-like effects. Since Angels are strongly aligned with the forces of good, making a pact with Angels will reduce damage done to all good monsters by a substantial amount.
+<topic:Archons><color:o>Archons</color>
+Archons are astral beings who use a variety of techniques to smite those they view as evil. Warlocks who make pacts with Archons will also find their saving throws significantly improved, and (eventually) their body almost immune to bolt-like effects. Since Archons are strongly aligned with the forces of good, making a pact with Archons will reduce damage done to all good monsters by a substantial amount.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +1</color>        Disarming   <color:R>Poor         </color>
@@ -109,7 +109,7 @@ Experience   140%
 <color:G>                 </color> <color:G>STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp</color>
 Undead             -1   +2   -3   +0   +2   +2  107%  +15  135%
 Dragons            +2   +0   +0   -1   +1   +2  102%  +10  130%
-Angels             +1   +1   +2   +1   +1   +3   98%   +4  150%
+Archons            +1   +1   +2   +1   +1   +3   98%   +4  150%
 Demons             +3   +1  -10   +1   +1   +2  100%  +15  150%
 Hounds             +0   -2   -2   +2   +2   +1  102%  +12  110%
 Spiders            -1   +0   -2   +2   +0   +1   97%   +1  120%
@@ -121,7 +121,7 @@ Giants             +2   -4   -4   -3   +2   +0  112%  +25  140%
                   <color:w>Disarming     Device        Save          Stealth      </color>
 Undead            <color:R>Poor         </color> <color:g>Superb       </color> <color:y>Very Good    </color> <color:y>Good         </color>
 Dragons           <color:R>Poor         </color> <color:y>Good         </color> <color:R>Poor         </color> <color:R>Poor         </color>
-Angels            <color:R>Poor         </color> <color:y>Very Good    </color> <color:g>Superb       </color> <color:R>Poor         </color>
+Archons           <color:R>Poor         </color> <color:y>Very Good    </color> <color:g>Superb       </color> <color:R>Poor         </color>
 Demons            <color:R>Poor         </color> <color:g>Superb       </color> <color:y>Very Good    </color> <color:r>Bad          </color>
 Hounds            <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Very Good    </color>
 Spiders           <color:R>Poor         </color> <color:G>Excellent    </color> <color:R>Poor         </color> <color:g>Superb       </color>
@@ -133,7 +133,7 @@ Giants            <color:R>Poor         </color> <color:r>Bad          </color> 
                   <color:w>Searching     Perception    Melee         Archery      </color>
 Undead            <color:R>Poor         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Dragons           <color:R>Poor         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color>
-Angels            <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color>
+Archons           <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Demons            <color:R>Poor         </color> <color:r>Bad          </color> <color:y>Very Good    </color> <color:R>Poor         </color>
 Hounds            <color:R>Poor         </color> <color:R>Poor         </color> <color:y>Good         </color> <color:R>Poor         </color>
 Spiders           <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:G>Excellent    </color>
@@ -142,4 +142,4 @@ Giants            <color:R>Poor         </color> <color:r>Bad          </color> 
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.3.3.</color>
+<color:s>Automatically generated for Oposband 0.3.4.</color>

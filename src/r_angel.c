@@ -1,13 +1,13 @@
 #include "angband.h"
 
 static cptr _desc =
-    "Angels are heavenly beings on a holy mission. Their wings allow them to "
+    "Archons are astral beings on a holy mission. Their wings allow them to "
     "fly over chasms and pits. They are rarely fooled by invisibility, and "
     "become resistant to the elements as they mature. Their stats are truly awe-inspiring, "
     "and their divine magic extremely strong, offering good offense combined with detection, "
-    "healing, melee enhancement and utility. Angels are one of the most powerful "
+    "healing, melee enhancement and utility. Archons are one of the most powerful "
     "races, but they also gain levels extremely slowly.\n \n"
-    "Angels have a humanoid body type; they use the same equipment slots as most normal "
+    "Archons have a humanoid body type; they use the same equipment slots as most normal "
     "player races, and have no innate melee attacks. Wisdom is their primary spell stat.";
 
 static void _birth(void)
@@ -166,37 +166,37 @@ static void _gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_ANGEL && new_level >= 10)
     {
         p_ptr->current_r_idx = MON_ARCHANGEL;
-        msg_print("You have evolved into an Archangel.");
+        msg_print("You have evolved into a full Archon.");
         p_ptr->redraw |= PR_MAP;
     }
     if (p_ptr->current_r_idx == MON_ARCHANGEL && new_level >= 20)
     {
         p_ptr->current_r_idx = MON_CHERUB;
-        msg_print("You have evolved into a Cherub.");
+        msg_print("You have evolved into a Archon Guardian.");
         p_ptr->redraw |= PR_MAP;
     }
     if (p_ptr->current_r_idx == MON_CHERUB && new_level >= 30)
     {
         p_ptr->current_r_idx = MON_SERAPH;
-        msg_print("You have evolved into a Seraph.");
+        msg_print("You have evolved into a Archon Justicar.");
         p_ptr->redraw |= PR_MAP;
     }
     if (p_ptr->current_r_idx == MON_SERAPH && new_level >= 40)
     {
         p_ptr->current_r_idx = MON_ARCHON;
-        msg_print("You have evolved into an Archon.");
+        msg_print("You have evolved into an Archon Exemplar.");
         p_ptr->redraw |= PR_MAP;
     }
     if (p_ptr->current_r_idx == MON_ARCHON && new_level >= 45)
     {
         p_ptr->current_r_idx = MON_PLANETAR;
-        msg_print("You have evolved into a Planetar.");
+        msg_print("You have evolved into a Greater Archon.");
         p_ptr->redraw |= PR_MAP;
     }
     if (p_ptr->current_r_idx == MON_PLANETAR && new_level >= 50)
     {
         p_ptr->current_r_idx = MON_SOLAR;
-        msg_print("You have evolved into a Solar.");
+        msg_print("You have evolved into a Paragon Archon.");
         p_ptr->redraw |= PR_MAP;
     }
 }
@@ -204,7 +204,7 @@ static race_t *_solar_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[7] =  {"Angel", "Archangel", "Cherub", "Seraph", "Archon", "Planetar", "Solar"};
+    static cptr   titles[7] =  {"Lesser Archon", "Archon", "Archon Guardian", "Archon Justicar", "Archon Exemplar", "Greater Archon", "Paragon Archon"};
     int           rank = 0;
 
     if (p_ptr->lev >= 10) rank++;
@@ -251,7 +251,7 @@ static caster_info * _caster_info(void)
     static bool init = FALSE;
     if (!init)
     {
-        me.magic_desc = "angelic power";
+        me.magic_desc = "astral power";
         me.which_stat = A_WIS;
         me.encumbrance.max_wgt = 450;
         me.encumbrance.weapon_pct = 67;
@@ -275,7 +275,7 @@ race_t *mon_angel_get_race(void)
         result = _solar_get_race_t();
     }
 
-    result->name = "Angel";
+    result->name = "Lesser Archon";
     result->desc = _desc;
     result->flags = RACE_IS_MONSTER;
     result->birth = _birth;

@@ -70,12 +70,12 @@ lance above all other weapons, and seek continuously the legendary
   Base HP       10        Archery     Poor         
   Experience   130%
   
-Angels
-Angels are heavenly beings who use a variety of techniques to smite 
-those they view as evil. Warlocks who make pacts with Angels will also 
+Archons
+Archons are astral beings who use a variety of techniques to smite 
+those they view as evil. Warlocks who make pacts with Archons will also 
 find their saving throws significantly improved, and (eventually) their 
-body almost immune to bolt-like effects. Since Angels are strongly 
-aligned with the forces of good, making a pact with Angels will reduce 
+body almost immune to bolt-like effects. Since Archons are strongly 
+aligned with the forces of good, making a pact with Archons will reduce 
 damage done to all good monsters by a substantial amount.
 
   Stats                   Skills
@@ -179,7 +179,7 @@ Table 1 - Warlock Statistic Bonus Table
                   STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
 Undead             -1   +2   -3   +0   +2   +2  107%  +15  135%
 Dragons            +2   +0   +0   -1   +1   +2  102%  +10  130%
-Angels             +1   +1   +2   +1   +1   +3   98%   +4  150%
+Archons            +1   +1   +2   +1   +1   +3   98%   +4  150%
 Demons             +3   +1  -10   +1   +1   +2  100%  +15  150%
 Hounds             +0   -2   -2   +2   +2   +1  102%  +12  110%
 Spiders            -1   +0   -2   +2   +0   +1   97%   +1  120%
@@ -191,7 +191,7 @@ Table 2 - Warlock Skill Bonus Table I
                   Disarming     Device        Save          Stealth      
 Undead            Poor          Superb        Very Good     Good         
 Dragons           Poor          Good          Poor          Poor         
-Angels            Poor          Very Good     Superb        Poor         
+Archons           Poor          Very Good     Superb        Poor         
 Demons            Poor          Superb        Very Good     Bad          
 Hounds            Poor          Fair          Poor          Very Good    
 Spiders           Poor          Excellent     Poor          Superb       
@@ -203,7 +203,7 @@ Table 3 - Warlock Skill Bonus Table II
                   Searching     Perception    Melee         Archery      
 Undead            Poor          Poor          Fair          Poor         
 Dragons           Poor          Poor          Fair          Poor         
-Angels            Poor          Bad           Fair          Poor         
+Archons           Poor          Bad           Fair          Poor         
 Demons            Poor          Bad           Very Good     Poor         
 Hounds            Poor          Poor          Good          Poor         
 Spiders           Poor          Bad           Fair          Excellent    
@@ -212,5 +212,5 @@ Giants            Poor          Bad           Heroic        Fair
 
 
 
-Automatically generated for Oposband 0.3.3.
+Automatically generated for Oposband 0.3.4.
 

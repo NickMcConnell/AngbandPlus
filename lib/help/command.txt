@@ -1,0 +1,221 @@
+<style:title>Commands</style>
+
+Commands are entered using the keyboard by pressing a single key that is mapped to an underlying command interpreted by the game. This mapping of keystrokes to game commands proceeds by using one of two standard keysets: the <color:keyword>Original Keyset</color> and the <color:keyword>Roguelike Keyset</color>. The Original Keyset, which is the default, is generally recommended to new players since it is more intuitive (for example, you move with the numpad keys). However, many strong players use the Roguelike keyset, and it is likely your best option if you lack a numpad on your keyboard (trying to just substitute the arrow keys for the numpad stops being a great idea when you have to move diagonally). You can toggle the keysets through the <color:o>=</color> options menu.
+
+This file contains the command mappings for the two keysets mentioned above. For a detailed overview of the various commands, see <link:commdesc.txt>. Also, for beginners, pressing <color:keypress>ENTER</color> opens a unified command menu that lists all commands and the corresponding keystrokes; this menu is intended for learning the commands on the go, and is much clumsier than just remembering the right key, so you want to grow out of it as soon as possible. (You may enable/disable the menu with the 'command_menu' input option; see <link:option.txt> for more on setting options.)
+
+Don't be overwhelmed by the sheer number of commands. Many are not often used or required, and I have tried to highlight the most common commands below in <color:y>yellow</color>. You should try to memorize those; note that many commands use a mnemonic just like the <color:keypress>E</color>at command discussed above. The caret (^) in the tables below indicates pressing the <color:keypress>CTRL</color> key (so <color:keypress>^S</color> means <color:keypress>Ctrl-S</color>), though it is also possible to treat these commands as literal two-key sequences beginning with the ^ key.
+
+Once you have chosen a game command, you may be prompted for additional input; for example, if you get hungry and decide to eat some food (eating is <color:keypress>E</color> in both keysets), the game will give you a list of choices (which might include rations of food, various mushrooms, and whatever other edibles you happen to have in your pack). You can cancel the command with the ESC key at this point.
+
+Note in particular the multi-purpose <color:keypress>+</color> command; often, if you forget what the regular command for interacting with something in an adjacent square is, you can just substitute <color:keypress>+</color> instead. You can tunnel with <color:keypress>+</color>, open doors with <color:keypress>+</color>, disarm traps with <color:keypress>+</color>, even fight a monster with <color:keypress>+</color>... and the list continues.
+
+Press <color:keypress>?</color> for commands to use in the help interface itself.
+
+<topic:OriginalKeyset><style:heading>Original Keyset</style>
+<style:table>
+       Movement
+       <color:y>7  8  9
+       4  5  6
+       1  2  3</color>
+
+   <color:y>a  Activate an item</color>                     A  Activate equipment
+   b  Browse magic list                    B  Bash a door
+   c  Close a door                         <color:y>C  Character description</color>
+   d  Drop an item                         <color:y>D  Disarm a trap</color>
+   <color:y>e  Equipment list</color>                       <color:y>E  Eat some food</color>
+   <color:y>f  Fire an arrow etc.</color>                   <color:y>F  Fuel your lantern/torch</color>
+   <color:y>g  Pick up objects (Get)</color>                <color:y>G  Gain new spells/prayers</color>
+   <color:D>h  (unused)</color>                             H  Travel to interesting item
+   <color:y>i  Inventory list</color>                       <color:y>I  Inspect an item</color>
+   j  Jam a door                           J  Resume travelling
+   k  Destroy an item                      <color:D>K  (unused)</color>
+   <color:y>l  Look around</color>                          L  Locate player on map
+   <color:y>m  Cast a spell / use mental power</color>      M  Full dungeon map
+   <color:y>n  Repeat last command</color>                  <color:D>N  (unused)</color>
+   <color:y>o  Open a door or chest</color>                 <color:y>O  Display object list</color>
+   p  Command your pets                    <color:y>P  Show previous messages</color>
+   <color:y>q  Quaff a potion</color>                       <color:y>Q  Display quest info</color>
+   <color:y>r  Read a scroll</color>                        <color:y>R  Rest for a period</color>
+   <color:y>s  Search for traps/doors</color>               S  Toggle search mode
+   t  Take off equipment                   T  Dig a tunnel
+   <color:y>u  Use a staff</color>                          <color:y>U  Use racial/bonus power</color>
+   v  Throw an item                        V  Version info
+   <color:y>w  Wear/wield equipment</color>                 W  Switch ring fingers
+   <color:D>x  (unused)</color>                             <color:D>X  (unused)</color>
+   <color:D>y  (unused)</color>                             <color:y>Y  Display monster list</color>
+   <color:y>z  Zap a rod</color>                            Z  Inscribe an object
+   !  Enter a user pref command           ^A  (special - wizard command)
+   @  Interact with macros                <color:D>^B  (unused)</color>
+   <color:D>#  (unused)</color>                            ^C  (special - break)
+   $  Reload Mogaminator prefs            <color:D>^D  (unused)</color>
+   %  Interact with visuals               ^E  Interact with macros
+   ^  (special - control key)             ^F  Repeat level feeling
+   &  Interact with colors                ^G  Auto-Get nearby objects
+   <color:y>*  Target monster or location</color>          <color:D>^H  (unused)</color>
+   <color:D>(  (unused)</color>                            ^I  Toggle choice window
+   )  Create screen dump                  ^J  (special - linefeed)
+   {  Inscribe an object                  <color:D>^K  (unused)</color>
+   }  Uninscribe an object                <color:D>^L  (unused)</color>
+   [  Display monster list                ^M  (special - return)
+   ]  Display object list                 <color:D>^N  (unused)</color>
+   -  Walk (flip pickup)                  ^O  Display object list
+   _  Edit/activate Mogaminator prefs     <color:D>^P    (unused)</color>
+   <color:y>+  Alter adjacent grid</color>                 ^Q  Quit (game over)
+   =  Set options                         ^R  Redraw the screen
+   ;  Walk                                ^S  Save and don't quit
+   :  Take notes                          ^T  Display game time
+   '  Playback recorded command           <color:D>^U  (unused)</color>
+   "  Record command                      ^V  Recenter Viewport
+   ,  Stay still                          ^W  (special - wizard mode)
+   <color:y>.  Run</color>                                 ^Y  (special - wizard mode)
+   <color:y>>  Take staircase/Toggle global map   </color> <color:y>^X  Save and quit</color>
+   <  Take staircase (alternate)          ^Z  (unused)
+   \  (special - bypass keymap)            <color:D>|  (unused)</color>
+   `  Travel to location                   ~  Knowledge menu
+   /  Identify symbol                      <color:y>?  Help</color>
+</style>
+
+<topic:RogueKeyset><style:heading>Roguelike Keyset</style>
+<style:table>
+       Movement
+       <color:y>y  k  u
+       h  .  l
+       b  j  n</color>
+
+   <color:y>a  Activate an item</color>                     A  Activate equipment
+   b  (walk - south west)                  B  (run - south west)
+   c  Close a door                         <color:y>C  Character description</color>
+   d  Drop an item                         <color:y>D  Disarm a trap or chest</color>
+   <color:y>e  Equipment list</color>                       <color:y>E  Eat some food</color>
+   f  Bash a door (Force)                  <color:y>F  Fuel your lantern/torch</color>
+   <color:y>g  Pick up objects (Get)</color>                <color:y>G  Gain new spells/prayers</color>
+   h  (walk - west)                        H  (run - west)
+   <color:y>i  Inventory list</color>                       <color:y>I  Inspect an item</color>
+   j  (walk - south)                       J  (run - south)
+   k  (walk - north)                       K  (run - north)
+   l  (walk - east)                        L  (run - east)
+   <color:y>m  Cast a spell / use mental power</color>      M  Full dungeon map
+   n  (walk - south east)                  N  (run - south east)
+   <color:y>o  Open a door or chest</color>                 <color:y>O  Use racial/bonus power</color>
+   p  Command your pets                    P  Browse magic list (Peruse)
+   <color:y>q  Quaff a potion</color>                       <color:y>Q  Display quest info</color>
+   <color:y>r  Read a scroll</color>                        <color:y>R  Rest for a period</color>
+   s  Search for traps/doors               S  Jam a door (Spike)
+   <color:y>t  Fire an arrow etc.</color>                   T  Take off equipment
+   u  (walk - north east)                  U  (run - north east)
+   v  Throw an item                        V  Version info
+   <color:y>w  Wear/wield equipment</color>                 W  Locate player on map
+   <color:y>x  Look around</color>                          <color:y>X  Repeat last command</color>
+   y  (walk - north west)                  Y  (run - north west)
+   <color:y>z  Aim a wand (Zap)</color>                     <color:y>Z  Use a staff (Zap)</color>
+   !  Enter a user pref command           ^A  (special - wizard command)
+   @  Interact with macros                ^B  (tunnel - south west)
+   #  Toggle search mode                  ^C  (special - break)
+   $  Reload Mogaminator prefs            ^D  Destroy item
+   %  Interact with visuals               ^E  Travel to interesting item
+   ^  (special - control key)             ^F  Repeat level feeling
+   &  Interact with colors                ^G  Auto-Get nearby objects
+   <color:y>*  Target monster or location</color>          ^H  (tunnel - west)
+   (  Resume travelling                   ^I  Toggle choice window
+   )  Create screen dump                  ^J  (tunnel - south)
+   {  Inscribe an object                  ^K  (tunnel - north)
+   }  Uninscribe an object                ^L  (tunnel - east)
+   <color:y>[  Display monster list</color>                ^M  (tunnel - south)
+   <color:y>]  Display object list</color>                 ^N  (tunnel - south east)
+   -  Walk (flip pickup)                  <color:D>^O  (unused)</color>
+   _  Edit/activate Mogaminator prefs     ^P  Show previous messages
+   <color:y>+  Alter adjacent grid</color>                 ^Q  Quit (game over)	
+   =  Set options                         ^R  Redraw the screen
+   ;  Walk                                ^S  Save and don't quit
+   :  Take notes                          ^T  Dig a Tunnel
+   '  Playback recorded command           ^U  (tunnel - north east)
+   "  Record command                      ^V  Recenter Viewport
+   ,  Run                                 ^W  (special - wizard mode)
+   <color:y>>  Take staircase/Toggle global map   </color> <color:y>^X  Save and quit</color>
+   <  Take staircase (alternate)          ^Y  (tunnel - north west)
+   .  Stay still                          ^Z  (unused)
+   \  (special - bypass keymap)            <color:D>|  (unused)</color>
+   `  Travel to location                   ~  Knowledge menu
+   /  Identify symbol                      <color:y>?  Help</color>
+</style>
+
+<topic:CommandCounts><style:heading>Command Counts</style>
+
+Some commands can be executed a fixed number of times by preceding them with a count. Counted commands will repeat until the count expires or until the repetition is disturbed. A successful use of the command (e.g. successful tunnelling) disturbs the repetition, as does any attack from a monster, or any new command from the player.
+
+The <color:keyword>always_repeat</color> option, which is on by default, automatically gives commonly repeated commands (open, disarm, tunnel, bash, etc.) a repeat count of 99. This means you usually don't need to specify repeat counts manually; but you can do so by typing <color:keypress>0</color>, then the repeat count, and then the command.
+
+<topic:CommandArguments><style:heading>Command Arguments</style>
+
+As already seen in the <color:keypress>E</color>at example, some commands will prompt for extra information; depending on the command, this could be a direction, an inventory or equipment item, a spell, the symbol of a monster race, a sub-command, a verification, a count, a quantity, text, or various other things. Often, you can hit <color:keypress>ENTER</color> to choose the "default" response and <color:keypress>ESC</color> to cancel the command entirely.
+
+Commands which prompt for a direction always accept <color:keyword>compass directions</color>, which you can enter using the direction keys shown above. Commands with the potential to affect distant squares or monsters usually also accept <color:keyword>targets</color>, which you can set (either beforehand or when prompted) with the <color:keypress>*</color> key. If you had previously specified a target, pressing <color:keypress>5</color> repeats the old target; or if you turned on the <color:keyword>use_old_target</color> option, the old target is repeated automatically. Some players really like <color:keyword>use_old_target</color>, others dislike it equally much; see <link:commdesc.txt#Targetting> for more details on selecting a target.
+
+<topic:SelectingObjects><style:heading>Item Labels</style>
+
+Many commands prompt for an item. These commands always display a list of all applicable items, where each item has a distinct single-key <color:keyword>label</color>; you then select the right item by pressing the label key.
+
+Item labels usually run from 'a' for the first applicable item to 'z' for the 26th item, and are not necessarily the same in every menu. In the example below, the <color:keypress>d</color>rop command simply offers every item in the inventory as a possibility, so Scrolls of Genocide are labeled '<color:keypress>l</color>':
+<style:screenshot>
+<color:G>Inventory</color> <color:b>|</color> <color:D>Equipment</color> <color:b>|</color> <color:D>Quiver</color>                                                  
+ a) <color:g>?</color> <color:s>a Law Book [Obstacle Coursebook] {25% off, @mb!k}</color>      3.0 lb LEVEL <color:G>    50</color>
+ b) <color:b>?</color> <color:s>a Law Book [Building Alternative Realities] {@mc!sd</color>    3.0 lb EXP <color:G>********</color>
+ c) <color:b>?</color> <color:s>a Law Book [Acquiris Quodcumque Rapis] {@md!sdk}</color>       3.0 lb AU  <color:G>    462k</color>
+ d) <color:g>,</color> <color:U>23 Mushrooms of Restoring {!E}</color>                         2.3 lb <color:W>|</color><color:U>)}~</color><color:g>==</color><color:y>"</color><color:o>~</color><color:U>(</color><color:g>(</color><color:y>]</color><color:U>]</color>
+ e) <color:v>!</color> <color:B>15 Potions of Speed {25% off, !kq}</color>                     6.0 lb STR!: <color:G>18/160</color>
+ f) <color:r>!</color> <color:B>15 Potions of Heroism</color>                                  6.0 lb INT!: <color:G>18/160</color>
+ g) <color:s>!</color> <color:B>41 Potions of Healing {!kq}</color>                           16.4 lb WIS!: <color:G>18/160</color>
+ h) ! <color:B>8 Potions of *Healing* {!kq}</color>                           3.2 lb DEX : <color:G>18/***</color>
+ i) ! <color:B>5 Potions of Life {!kq}</color>                                2.0 lb CON : <color:G>18/217</color>
+ j) <color:b>!</color> <color:B>18 Potions of Restore Mana {!kq}</color>                       7.2 lb CHR!: <color:G>18/150</color>
+ k) ? 12 Scrolls of Destruction {@r7!*}                      6.0 lb AC     <color:G>  156</color>
+ l) ? 9 Scrolls of Genocide {!*}                             4.5 lb HP <color:y> 950</color>/<color:G> 951</color>
+ m) ? 8 Scrolls of Mass Genocide {!*}                        4.0 lb SP <color:y> 141</color>/<color:G> 402</color>
+ n) <color:r>-</color> <color:v>a Rod: </color><color:o>Clairvoyance</color><color:v> (2/2 charges) {47%}</color>                1.5 lb             
+ o) <color:r>-</color> <color:v>a Rod: </color><color:o>Detection</color><color:v> (7/7 charges) {1%, @zb!sdk}</color>           1.5 lb             
+ p) <color:r>-</color> <color:v>a Rod: </color><color:B>Recall</color><color:v> (5/5 charges) {1%, @zc!sdk}</color>              1.5 lb             
+ q) <color:B>-</color> <color:g>a Wand of Resistance: </color>Teleport Other<color:g> (29/29 charges</color>    0.2 lb             
+ r) <color:B>-</color> <color:g>a Wand of Regeneration: </color><color:D>Annihilation</color><color:g> (8/8 charges) </color>    0.2 lb             
+ s) <color:B>-</color> <color:g>a Wand of Regeneration: </color>Tsunami<color:g> (14/14 charges) (+5</color>    0.2 lb             
+ t) <color:U>_</color> <color:U>a Staff: </color>Teleport<color:U> (</color><color:y>17/28 charges</color><color:U>) {1%, @ua!sdk}</color>        5.0 lb             
+ u) <color:U>_</color> <color:U>a Staff: </color><color:r>Destruction</color><color:U> (</color><color:y>2/8 charges</color><color:U>) {1%, @ud!sdk}</color>       5.0 lb <color:G>Fast (+33)</color>  
+ v) <color:U>_</color> <color:U>a Staff of Resistance: </color><color:B>Telepathy</color><color:U> (</color><color:y>3/9 charges</color><color:U>) {1%,</color>    5.0 lb <color:D>Cursed</color>      
+ w) <color:U>_</color> <color:U>a Staff: </color><color:y>Cure Wounds</color><color:U> (</color><color:y>8/18 charges</color><color:U>) {1%, @uu!sdk}</color>      5.0 lb <color:B>Study (4)</color>   
+ x) <color:U>_</color> <color:U>a Staff of Holding: </color><color:R>Confusing Lights</color><color:U> (7/7 charges) </color>    5.0 lb             
+ y) <color:s>[</color> <color:s>Metal Scale Mail {special}</color>                            25.0 lb             
+ z) <color:U>(</color> <color:s>Soft Leather Armour {excellent}</color>                        8.0 lb             
+                                                          <color:R> 129.7 lb</color>             
+<color:y>Drop which item?</color>                                                                
+<color:o>Angband: L100</color>                           <color:o>Telepa</color> <color:G>DTrap</color>
+</style>
+
+But if instead of the <color:keypress>d</color>rop command we use the <color:keypress>r</color>ead command, Scrolls of Genocide become '<color:keypress>b</color>' since only scrolls are now offered as options:
+<style:screenshot>
+<color:G>Inventory</color>                                                     <color:r>Fail</color>              
+ 7) ? 12 Scrolls of Destruction {@r7!*}                        2.8%
+ b) ? 9 Scrolls of Genocide {!*}                               2.8%
+ c) ? 8 Scrolls of Mass Genocide {!*}                          3.3%
+
+<color:y>Read which scroll? </color>
+</style>
+
+You might notice something odd, though: while Scrolls of Genocide are expectedly labeled 'b' as the second item listed and Scrolls of Mass Genocide are 'c' as the third item, Scrolls of Destruction are not labeled 'a' but rather '<color:keypress>7</color>'. This is because the Scrolls of Destruction have been <color:keyword>inscribed</color> with the inscription <color:keyword>@r7</color>, which simply tells the game to label them '7' in the 'r' Read a Scroll menu.
+
+The advantage of inscribing items in this way is that they retain their label even when items are added to or removed from the list. Note, for instance, that three books in the example inventory are inscribed <color:keyword>@mb</color> through <color:keyword>@md</color>; this allows them to keep their usual, "expected" labels in the <color:keypress>m</color> spellcasting menu even though the first book, book '<color:keypress>a</color>', is missing.
+
+Inscriptions are added with the <color:keypress>Z</color>/<color:keypress>{</color> command, and can be used for many other purposes besides item labeling (see <link:objects.txt#Inscriptions> for more detail). The Mogaminator often automatically applies standard inscriptions to items; the three books of the above example were inscribed by the Mogaminator. Note that inscriptions are always based on the <color:keyword>underlying keyset</color>, which for the most part is the same as the original keyset; so if you want a staff to be labeled '<color:keypress>y</color>' in the "Use a Staff" prompt, you should inscribe it <color:keyword>@uy</color> rather than <color:keyword>@Zy</color> even if you use the roguelike keyset.
+
+<style:note>Note: Many object selection menus allow you to select items from any of several inventories, which you can toggle between by pressing <color:keypress>/</color>. In the <color:keypress>d</color>rop example above, the default inventory is your backpack, but you can use <color:keypress>/</color> to select an item from your equipment or quiver instead.</style>
+
+<color:D>
+Original   : Alexander Cutler and Andy Astrand
+Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
+Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
+Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
+Updated    : Zangband DevTeam
+Updated    : Hengband 1.0.11
+Updated    : PosChengband 6.0.0
+Updated    : FrogComposband 7.1.liquorice
+</color>
+

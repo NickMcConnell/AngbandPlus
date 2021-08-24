@@ -1153,7 +1153,7 @@ static parse_tbl_t _summon_type_tbl[] = {
     { SUMMON_SPIDER, "Spiders", TERM_WHITE, "", "SPIDER", 10 },
     { SUMMON_HOUND, "Hounds", TERM_WHITE, "", "HOUND", 15 },
     { SUMMON_HYDRA, "Hydras", TERM_WHITE, "", "HYDRA", 20 },
-    { SUMMON_ANGEL, "Angels", TERM_WHITE, "", "ANGEL", 60 },
+    { SUMMON_ANGEL, "Archons", TERM_WHITE, "", "ANGEL", 60 },
     { SUMMON_DEMON, "Demons", TERM_WHITE, "", "DEMON", 40 },
     { SUMMON_UNDEAD, "Undead", TERM_WHITE, "", "UNDEAD", 40 },
     { SUMMON_DRAGON, "Dragons", TERM_WHITE, "", "DRAGON", 40 },

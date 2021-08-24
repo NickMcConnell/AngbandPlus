@@ -2295,13 +2295,14 @@ bool destroy_area(int y1, int x1, int r, int power)
         in_generate = TRUE;
 
     /* Prevent destruction of quest levels and town */
-    if (!py_in_dungeon() || !quests_allow_all_spells() || dungeon_type == DUNGEON_WOOD)
+    /*if (!py_in_dungeon() || !quests_allow_all_spells() || dungeon_type == DUNGEON_WOOD)*/
+    if (!quests_allow_all_spells())
     {
         return (FALSE);
     }
 
     /* Lose monster light */
-    if (!in_generate) clear_mon_lite();
+    if (!in_generate && (py_in_dungeon() || !is_daytime())) clear_mon_lite();
 
     /* Big area of affect */
     for (y = (y1 - r); y <= (y1 + r); y++)
@@ -2414,7 +2415,8 @@ bool destroy_area(int y1, int x1, int r, int power)
                         }
                         else
                         {
-                            delete_monster(y, x);
+                            if (py_in_dungeon() || one_in_(2))
+                                delete_monster(y, x);
                         }
                     }
                 }
@@ -2476,48 +2478,105 @@ bool destroy_area(int y1, int x1, int r, int power)
 
                 if (!in_generate) /* Normal */
                 {
-                    if (t < 20)
+                    if (py_in_dungeon())
                     {
-                        /* Create granite wall */
-                        cave_set_feat(y, x, feat_granite);
+                        if (t < 20)
+                        {
+                            /* Create granite wall */
+                            cave_set_feat(y, x, feat_granite);
+                        }
+                        else if (t < 70)
+                        {
+                            /* Create quartz vein */
+                            cave_set_feat(y, x, feat_quartz_vein);
+                        }
+                        else if (t < 100)
+                        {
+                            /* Create magma vein */
+                            cave_set_feat(y, x, feat_magma_vein);
+                        }
+                        else
+                        {
+                            /* Create floor */
+                            cave_set_feat(y, x, floor_type[randint0(100)]);
+                        }
                     }
-                    else if (t < 70)
+                    else /* On the surface */
                     {
-                        /* Create quartz vein */
-                        cave_set_feat(y, x, feat_quartz_vein);
-                    }
-                    else if (t < 100)
-                    {
-                        /* Create magma vein */
-                        cave_set_feat(y, x, feat_magma_vein);
-                    }
-                    else
-                    {
-                        /* Create floor */
-                        cave_set_feat(y, x, floor_type[randint0(100)]);
+                        if (t < 20)
+                        {
+                            /* Create granite wall */
+                            cave_set_feat(y, x, feat_rubble);
+                        }
+                        else if (t < 70)
+                        {
+                            /* Create quartz vein */
+                            cave_set_feat(y, x, feat_shallow_water);
+                        }
+                        else if (t < 100)
+                        {
+                            /* Create magma vein */
+                            cave_set_feat(y, x, feat_deep_water);
+                        }
+                        else
+                        {
+                            /* Create floor */
+                            cave_set_feat(y, x, floor_type[randint0(100)]);
+                        }
                     }
                 }
                 else /* In generation */
                 {
-                    if (t < 20)
+                    if (py_in_dungeon())
                     {
-                        /* Create granite wall */
-                        place_extra_grid(c_ptr);
-                    }
-                    else if (t < 70)
-                    {
-                        /* Create quartz vein */
-                        c_ptr->feat = feat_quartz_vein;
-                    }
-                    else if (t < 100)
-                    {
-                        /* Create magma vein */
-                        c_ptr->feat = feat_magma_vein;
+                        if (t < 20)
+                        {
+                            /* Create granite wall */
+                            place_extra_grid(c_ptr);
+                        }
+                        else if (t < 70)
+                        {
+                            /* Create quartz vein */
+                            c_ptr->feat = feat_quartz_vein;
+                        }
+                        else if (t < 100)
+                        {
+                            /* Create magma vein */
+                            c_ptr->feat = feat_magma_vein;
+                        }
+                        else
+                        {
+                            /* Create floor */
+                            place_floor_grid(c_ptr);
+                        }
                     }
                     else
                     {
-                        /* Create floor */
-                        place_floor_grid(c_ptr);
+                        if (t < 20)
+                        {
+                            /* Create granite wall */
+                            c_ptr->feat = feat_rubble;
+                        }
+                        else if (t < 70)
+                        {
+                            /* Create quartz vein */
+                            c_ptr->feat = feat_shallow_water;
+                        }
+                        else if (t < 90)
+                        {
+                            place_floor_grid(c_ptr);
+                        }
+                        else if (t < 100)
+                        {
+                            /* Create magma vein */
+
+                            c_ptr->feat = feat_deep_water;
+                        }
+                        else
+                        {
+                            /* Create floor */
+                            place_floor_grid(c_ptr);
+                        }
                     }
 
                     /* Clear garbage of hidden trap or door */

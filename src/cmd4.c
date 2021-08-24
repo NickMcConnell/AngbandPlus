@@ -3524,7 +3524,7 @@ static cptr monster_group_text[] =
     /* "unused", */
     "Yeek",
     "Zombie/Mummy",
-    "Angel",
+    "Archon",
     "Bird",
     "Canine",
     /* "Ancient Dragon/Wyrm", */

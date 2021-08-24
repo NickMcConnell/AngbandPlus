@@ -51,7 +51,7 @@ Original Keyset
        4  5  6
        1  2  3
 
-   a  Aim a wand                           A  Activate equipment
+   a  Activate an item                     A  Activate equipment
    b  Browse magic list                    B  Bash a door
    c  Close a door                         C  Character description
    d  Drop an item                         D  Disarm a trap
@@ -66,8 +66,8 @@ Original Keyset
    m  Cast a spell / use mental power      M  Full dungeon map
    n  Repeat last command                  N  (unused)
    o  Open a door or chest                 O  Display object list
-   p  Command your pets                    P  (unused)
-   q  Quaff a potion                       Q  Quit (commit suicide)
+   p  Command your pets                    P  Show previous messages
+   q  Quaff a potion                       Q  Display quest info
    r  Read a scroll                        R  Rest for a period
    s  Search for traps/doors               S  Toggle search mode
    t  Take off equipment                   T  Dig a tunnel
@@ -92,17 +92,17 @@ Original Keyset
    [  Display monster list                ^M  (special - return)
    ]  Display object list                 ^N  (unused)
    -  Walk (flip pickup)                  ^O  Display object list
-   _  Edit/activate Mogaminator prefs     ^P  Show previous messages
-   +  Alter adjacent grid                 ^Q  Display quest info
+   _  Edit/activate Mogaminator prefs     ^P    (unused)
+   +  Alter adjacent grid                 ^Q  Quit (game over)
    =  Set options                         ^R  Redraw the screen
    ;  Walk                                ^S  Save and don't quit
    :  Take notes                          ^T  Display game time
    '  Playback recorded command           ^U  (unused)
    "  Record command                      ^V  Recenter Viewport
    ,  Stay still                          ^W  (special - wizard mode)
-   <  Go up staircase/Toggle global map   ^X  Save and quit
    .  Run                                 ^Y  (special - wizard mode)
-   >  Go down staircase/Enter normal map  ^Z  (special - borg command)
+   >  Take staircase/Toggle global map    ^X  Save and quit
+   <  Take staircase (alternate)          ^Z  (unused)
    \  (special - bypass keymap)            |  (unused)
    `  Travel to location                   ~  Knowledge menu
    /  Identify symbol                      ?  Help
@@ -115,7 +115,7 @@ Roguelike Keyset
        h  .  l
        b  j  n
 
-   a  Zap a rod (Activate)                 A  Activate equipment
+   a  Activate an item                     A  Activate equipment
    b  (walk - south west)                  B  (run - south west)
    c  Close a door                         C  Character description
    d  Drop an item                         D  Disarm a trap or chest
@@ -131,7 +131,7 @@ Roguelike Keyset
    n  (walk - south east)                  N  (run - south east)
    o  Open a door or chest                 O  Use racial/bonus power
    p  Command your pets                    P  Browse magic list (Peruse)
-   q  Quaff a potion                       Q  Quit (commit suicide)
+   q  Quaff a potion                       Q  Display quest info
    r  Read a scroll                        R  Rest for a period
    s  Search for traps/doors               S  Jam a door (Spike)
    t  Fire an arrow etc.                   T  Take off equipment
@@ -157,16 +157,16 @@ Roguelike Keyset
    ]  Display object list                 ^N  (tunnel - south east)
    -  Walk (flip pickup)                  ^O  (unused)
    _  Edit/activate Mogaminator prefs     ^P  Show previous messages
-   +  Alter adjacent grid                 ^Q  Display quest info
+   +  Alter adjacent grid                 ^Q  Quit (game over) 
    =  Set options                         ^R  Redraw the screen
    ;  Walk                                ^S  Save and don't quit
    :  Take notes                          ^T  Dig a Tunnel
    '  Playback recorded command           ^U  (tunnel - north east)
    "  Record command                      ^V  Recenter Viewport
    ,  Run                                 ^W  (special - wizard mode)
-   <  Go up staircase/Toggle global map   ^X  Save and quit
-   .  Stay still                          ^Y  (tunnel - north west)
-   >  Go down staircase/Enter normal map  ^Z  (unused)
+   >  Take staircase/Toggle global map    ^X  Save and quit
+   <  Take staircase (alternate)          ^Y  (tunnel - north west)
+   .  Stay still                          ^Z  (unused)
    \  (special - bypass keymap)            |  (unused)
    `  Travel to location                   ~  Knowledge menu
    /  Identify symbol                      ?  Help

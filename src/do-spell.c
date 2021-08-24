@@ -6834,7 +6834,7 @@ static cptr do_crusade_spell(int spell, int mode)
         break;
 
     case 18:
-        if (name) return "Angelic Cloak";
+        if (name) return "Astral Cloak";
         if (desc) return "Gives resistance to acid, cold and lightning. Gives aura of holy power which injures evil monsters which attacked you for a while.";
 
         {
@@ -6919,8 +6919,8 @@ static cptr do_crusade_spell(int spell, int mode)
         break;
 
     case 23:
-        if (name) return "Summon Angel";
-        if (desc) return "Summons an angel.";
+        if (name) return "Summon Archon";
+        if (desc) return "Summons an archon.";
 
         {
             if (cast)

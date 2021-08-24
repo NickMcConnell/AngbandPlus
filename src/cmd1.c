@@ -5567,7 +5567,11 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
                 obj_ptr obj = &o_list[this_o_idx];
                 next_o_idx = obj->next_o_idx;
                 object_desc(name, obj, OD_COLOR_CODED);
-                msg_format("You see %s.", name);
+
+                if (p_ptr->blind)
+                    msg_format("You feel %s.", name);
+                else
+                    msg_format("You see %s.", name);
                 disturb(0, 0);
             }
         }

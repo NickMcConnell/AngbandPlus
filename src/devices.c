@@ -1519,8 +1519,7 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It destroys everything nearby you when you read it.";
         if (cast)
         {
-            if (((!py_in_dungeon()) || (!quests_allow_all_spells()) || (dungeon_type == DUNGEON_WOOD))
-               && (!_scroll_check_no_effect(sval))) return NULL;
+            if ((!quests_allow_all_spells()) && (!_scroll_check_no_effect(sval))) return NULL;
             if (destroy_area(py, px, 13 + randint0(5), _scroll_power(2000)))
                 device_noticed = TRUE;
             else
@@ -4461,8 +4460,8 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     case EFFECT_SUMMON_ANGEL:
-        if (name) return "Summon Angel";
-        if (desc) return "It attempts to summon a single angel for assistance.";
+        if (name) return "Summon Archon";
+        if (desc) return "It attempts to summon a single archon for assistance.";
         if (value) return format("%d", 5000);
         if (color) return format("%d", TERM_YELLOW);
         if (cast)
@@ -4725,7 +4724,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     case EFFECT_HEAL_CURING_HERO:
     {
         int amt = _extra(effect, 300 + _power_curve_offset(477, effect->power, 70));
-        if (name) return "Angelic Healing";
+        if (name) return "Astral Healing";
         if (desc) return "It heals your hitpoints, cures what ails you, and makes you heroic.";
         if (info) return info_heal(0, 0, _BOOST(amt));
         /* XXX The following is too low for -AngelicHealing, but avoids over-valuing Lohengrin */

@@ -341,5 +341,5 @@ Steel Dragon      Bad           Bad           Superb        Bad             50'
 
 
 
-Automatically generated for Oposband 0.3.3.
+Automatically generated for Oposband 0.3.4.
 

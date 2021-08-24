@@ -4999,16 +4999,24 @@ static vec_ptr _spells_plr(mon_race_ptr race, _spell_p filter, int page)
 }
 static bool _hp_casting_okay(mon_spell_ptr spell)
 {
-    return ((p_ptr->pclass != CLASS_BLUE_MAGE && p_ptr->pclass != CLASS_IMITATOR) &&
+    return p_ptr->pclass == CLASS_IMITATOR || ((p_ptr->pclass != CLASS_BLUE_MAGE) &&
             ((spell->flags & MSF_INNATE) || ((!p_ptr->msp) && (get_race()->pseudo_class_idx == CLASS_WARRIOR))));
 }
 
 static void _list_spells(doc_ptr doc, vec_ptr spells, mon_spell_cast_ptr cast)
 {
     int i;
-    bool is_blue_mage = ((p_ptr->pclass == CLASS_BLUE_MAGE || p_ptr->pclass == CLASS_IMITATOR) && (cast->flags & MSC_SRC_PLAYER));
-    doc_insert(doc, " <color:R>Cast which spell?</color>");
-    if (is_blue_mage)
+    bool is_blue_mage = (p_ptr->pclass == CLASS_BLUE_MAGE) && (cast->flags & MSC_SRC_PLAYER);
+    bool is_imitator = (p_ptr->pclass == CLASS_IMITATOR) && (cast->flags & MSC_SRC_PLAYER);
+
+    if (is_imitator)
+        doc_insert(doc, " <color:R>Perform which action?</color>");
+    else
+        doc_insert(doc, " <color:R>Cast which spell?</color>");
+    
+    if (is_imitator)
+        doc_insert(doc, "<color:G><tab:38>Lv Fail Info</color>\n"); 
+    else if (is_blue_mage)
         doc_insert(doc, "<color:G><tab:38>Lv Cost Fail Info</color>\n");
     else doc_insert(doc, "<color:G><tab:30>Cost Info</color>\n");
     for (i = 0; i < vec_length(spells); i++)
@@ -5020,26 +5028,33 @@ static void _list_spells(doc_ptr doc, vec_ptr spells, mon_spell_cast_ptr cast)
 
         if (cast->flags & MSC_SRC_PLAYER)
         {
-            cost = mon_spell_cost(spell, cast->race);
-            avail = p_ptr->csp;
-            if (_hp_casting_okay(spell))
-                avail += p_ptr->chp;
-            if (cost > avail) color = 'D';
-            else if ((p_ptr->pclass == CLASS_BLUE_MAGE || p_ptr->pclass == CLASS_IMITATOR) && (spell->prob > p_ptr->lev)) color = 'D';
+            if (is_imitator)
+                cost = 0;
+            else
+            {
+                cost = mon_spell_cost(spell, cast->race);
+                avail = p_ptr->csp;
+                if (_hp_casting_okay(spell))
+                    avail += p_ptr->chp;
+                if (cost > avail) color = 'D';
+                else if ((p_ptr->pclass == CLASS_BLUE_MAGE) && (spell->prob > p_ptr->lev)) color = 'D';
+            }
         }
         else if (spell == cast->spell)
             color = 'v';
         doc_printf(doc, " <color:%c>%c</color>) ", color, I2A(i));
         mon_spell_doc(spell, doc);
-        if (is_blue_mage)
+        if (is_blue_mage || is_imitator)
         {
             doc_printf(doc, "<tab:38>%2d", spell->prob);
         }
+        
         if (cost)
             doc_printf(doc, "%s%4d", is_blue_mage ? " " : "<tab:30>", cost);
-        else
+        else if (!is_imitator)
             doc_printf(doc, "%s    ", is_blue_mage ? " " : "<tab:30>");
-        if (is_blue_mage)
+
+        if (is_blue_mage || is_imitator)
         {
             doc_printf(doc, " %3d%%", blue_mage_spell_fail_rate(spell));
         }
@@ -5158,7 +5173,11 @@ static vec_ptr _spell_groups(mon_race_ptr race)
 static void _list_groups(doc_ptr doc, vec_ptr groups)
 {
     int i;
-    doc_insert(doc, " <color:R>Cast spell from which group?</color>\n");
+    if (p_ptr->pclass == CLASS_IMITATOR)
+        doc_insert(doc, " <color:R>Perform action from which group?</color>\n");
+    else
+        doc_insert(doc, " <color:R>Cast spell from which group?</color>\n");
+    
     for (i = 0; i < vec_length(groups); i++)
     {
         _group_ptr group = vec_get(groups, i);
@@ -5333,7 +5352,10 @@ bool mon_spell_cast_possessor(mon_race_ptr race)
     assert(cast.race->spells);
     if (_prompt_plr(&cast))
     {
-        int cost = mon_spell_cost(cast.spell, cast.race);
+        int cost = 0;
+        if (p_ptr->pclass != CLASS_IMITATOR)
+            cost = mon_spell_cost(cast.spell, cast.race);
+
         if ((_hp_casting_okay(cast.spell)) && (p_ptr->csp < cost))
         {
             int hp = cost - p_ptr->csp;

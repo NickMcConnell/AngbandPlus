@@ -744,10 +744,10 @@ void summon_angel_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Summon Angel");
+        var_set_string(res, "Summon Archon");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Attempts to summon a single angel for assistance.");
+        var_set_string(res, "Attempts to summon a single archon for assistance.");
         break;
     case SPELL_CAST:
     {
@@ -756,7 +756,7 @@ void summon_angel_spell(int cmd, variant *res)
 
         ct += summon_specific(-1, py, px, l, SUMMON_ANGEL, PM_FORCE_PET);
         if (!ct)
-            msg_print("No angel arrives.");
+            msg_print("No archon heeds your call.");
 
         var_set_bool(res, TRUE);
         break;

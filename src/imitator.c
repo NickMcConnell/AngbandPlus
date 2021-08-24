@@ -64,9 +64,17 @@ static void _double_revenge_spell(int cmd, variant* res)
         var_set_string(res, "imitate a power at double the damage");
         break;
     case SPELL_CAST:
+        /* Don't let player kill themselves */
+        if (p_ptr->chp <= 100)
+        {
+            msg_print("You are too hurt to use double revenge!");
+            break;
+        }
+
         double_revenge = TRUE;
         possessor_cast();
         double_revenge = FALSE;
+        hp_player(100);
         handle_stuff();
         break;
     default:
@@ -82,7 +90,11 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 30;
     spell->cost = 100;
-    spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_DEX]);
+
+    if (p_ptr->chp <= 100)
+        spell->fail = 99;
+    else
+        spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_DEX]);
     spell->fn = _double_revenge_spell;
 
     return ct;
@@ -94,12 +106,12 @@ static caster_info* _caster_info(void)
     static bool init = FALSE;
     if (!init)
     {
-        me.magic_desc = "power";
+        me.magic_desc = "action";
         me.which_stat = A_INT;
         me.encumbrance.max_wgt = 430;
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 600;
-        me.options = CASTER_ALLOW_DEC_MANA;
+        me.options = CASTER_USE_HP;
         init = TRUE;
     }
     return &me;
