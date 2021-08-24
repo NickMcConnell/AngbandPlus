@@ -891,7 +891,7 @@ void shatter_weapon(int silnum)
 			{
 				msg_print("A shard strikes Morgoth upon his cheek.");
 				set_alertness(m_ptr, ALERTNESS_VERY_ALERT);
-				anger_morgoth();
+				anger_morgoth(2);
 			}
 		}
 	}
@@ -986,8 +986,18 @@ void prise_silmaril(void)
 		
 		dam = damroll(p_ptr->mdd + crit_bonus_dice, mds);
 		prt = damroll(pd, 4);
-		
+
 		prt_percent = prt_after_sharpness(w_ptr, &dummy_noticed_flag);
+	
+		if (singing(SNG_WHETTING))
+		{
+			int weight = w_ptr->weight;
+			if (weight <= 5 * ability_bonus(S_SNG, SNG_WHETTING))
+			{
+				prt_percent -= 50;
+			}
+		}
+
 		prt = (prt * prt_percent) / 100;
 		net_dam = dam - prt;
 		
@@ -1031,7 +1041,7 @@ void prise_silmaril(void)
 							if ((m_ptr->cdis <= 5) && los(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx))
 							{
 								msg_print("Morgoth howls with rage!");
-								anger_morgoth();
+								anger_morgoth(2);
 							}
 						}
 					}
@@ -1108,7 +1118,7 @@ void prise_silmaril(void)
 		msg_print("You hear a cry of vengeance echo through the iron hells.");
 		msg_print("You feel your doom awaiting you.");
 		wake_all_monsters(0);
-		anger_morgoth();
+		anger_morgoth(2);
 	}
 }
 

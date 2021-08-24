@@ -190,11 +190,7 @@ void drop_iron_crown(monster_type *m_ptr, const char *msg)
 		create_chosen_artefact(ART_MORGOTH_3, near_y, near_x, TRUE);
 		
 		// lower Morgoth's protection, remove his light source, increase his will and perception and evasion
-		(&r_info[R_IDX_MORGOTH])->pd -= 1;
-		(&r_info[R_IDX_MORGOTH])->light = 0;
-		(&r_info[R_IDX_MORGOTH])->wil += 5;
-		(&r_info[R_IDX_MORGOTH])->per += 5;
-		(&r_info[R_IDX_MORGOTH])->evn += 2;
+		anger_morgoth(1);
 	}
 }
 
@@ -466,10 +462,6 @@ extern int light_penalty(const monster_type *m_ptr)
 	if (r_ptr->flags3 & (RF3_HURT_LITE))
 	{
 		penalty = (cave_light[m_ptr->fy][m_ptr->fx] - 2);
-		if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_SUNLIGHT)
-		{
-			penalty += 3;
-		}
 
 		if (penalty < 0) penalty = 0;
 	}
@@ -1005,6 +997,11 @@ extern void ident_on_wield(object_type *o_ptr)
 
 	// Currently tunneling is an unambiguous ego on mattocks, so auto-ID
 	if (f1 & TR1_TUNNEL)
+	{
+		notice = TRUE;
+	}
+
+	if (f3 & TR3_ACCURATE)
 	{
 		notice = TRUE;
 	}
@@ -1647,6 +1644,55 @@ extern void ident_cheat_death(object_type *o_ptr)
 	}
 }
 
+
+extern void ident_stand_fast()
+{
+	u32b f1, f2, f3;
+
+	int i;
+
+	bool notice = FALSE;
+
+	char o_full_name[80];
+	char o_short_name[80];
+
+	object_type *o_ptr;
+
+	/* Scan the equipment */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+		
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+		
+		/* Extract the item flags */
+		object_flags(o_ptr, &f1, &f2, &f3);
+		
+		if (!object_known_p(o_ptr))
+		{
+			if ((f3 & (TR3_STAND_FAST)))
+			{
+				notice = TRUE;
+			}
+		}
+		
+		if (notice)
+		{
+			/* Short, pre-identification object description */
+			object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
+			
+			/* identify the object */
+			ident(o_ptr);
+			
+			/* Full object description */
+			object_desc(o_full_name, sizeof(o_full_name), o_ptr, TRUE, 3);
+			msg_format("You realize that your %s is %s.", o_short_name, o_full_name);
+
+			return;
+		}
+	}
+}
 
 
 extern void ident_see_invisible(const monster_type *m_ptr)
@@ -2294,7 +2340,8 @@ extern int prt_after_sharpness(const object_type *o_ptr, u32b *noticed_flag)
 		*noticed_flag = maybe_notice_slay(o_ptr, TR1_SHARPNESS2);
 		protection = 0;
 	}
-    
+
+
     if (protection < 0) protection = 0;
 	
 	return protection;
@@ -3532,6 +3579,7 @@ bool knock_back(int y1, int x1, int y2, int x2)
         else
         {
             msg_print("You are knocked back.");
+	    p_ptr->knocked_back = TRUE;
 
             p_ptr->skip_next_turn = TRUE;
 
@@ -3568,9 +3616,8 @@ bool knock_back(int y1, int x1, int y2, int x2)
  *
  * If no "weapon" is available, then "punch" the monster one time.
  */
-int py_attack_aux(int y, int x, int attack_type)
+void py_attack_aux(int y, int x, int attack_type)
 {
-	int attack_result = ATTACK_MISSED;
 	int num = 0;
 	
 	int attack_mod = 0, total_attack_mod = 0, total_evasion_mod = 0;
@@ -3605,6 +3652,7 @@ int py_attack_aux(int y, int x, int attack_type)
 	bool rapid_attack = FALSE;
 	bool off_hand_blow = FALSE;
 	bool fatal_blow = FALSE;
+	bool smite = FALSE;
 
 	u32b f1, f2, f3; // the weapon's flags
 
@@ -3696,7 +3744,7 @@ int py_attack_aux(int y, int x, int attack_type)
         }
         
         /* Done */
-        return attack_result;
+	return;
     }
     
 	// fighting with fists is equivalent to a 4 lb weapon for the purpose of criticals
@@ -3744,8 +3792,17 @@ int py_attack_aux(int y, int x, int attack_type)
 	/* Attack once for each legal blow */
 	while (num++ < blows)
 	{
+		smite = two_handed_melee() &&
+			p_ptr->active_ability[S_MEL][MEL_SMITE] &&
+			num == 1 &&
+			(attack_type == ATT_MAIN || attack_type == ATT_FLANKING ||
+			 attack_type == ATT_IMPALE || attack_type == ATT_FOLLOW_THROUGH ||
+			 attack_type == ATT_WHIRLWIND);
+
 		do_knock_back = FALSE;
 		knocked = FALSE;
+
+		if (smite) p_ptr->skip_next_turn = TRUE;
 		
 		// if the previous blow was a charge, undo the charge effects for later blows
 		if (charge)
@@ -3801,21 +3858,19 @@ int py_attack_aux(int y, int x, int attack_type)
 		total_evasion_mod = total_monster_evasion(m_ptr, FALSE);
 				
 		hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
-		if (hit_result <= 0 && p_ptr->active_ability[S_MEL][MEL_ANTICIPATE] && m_ptr->stance == STANCE_AGGRESSIVE)
+
+		if (hit_result <= 0 && f3 & TR3_ACCURATE)
 		{
-			// Reroll on miss twice
+			char m_name[80];
+			monster_desc(m_name, sizeof(m_name), m_ptr, 0x00);
+
 			hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
-
-			if (hit_result <= 0) hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
-
-			if (hit_result > 0 && !(r_ptr->flags2 & (RF2_MINDLESS))) msg_format("You anticipate %s's aggression.", m_name);
+			if (hit_result > 0) msg_format("%^s tries and fails to dodge your blow.", m_name);
 		}
 
 		/* If the attack connects... */
 		if (hit_result > 0)
 		{
-			attack_result = ATTACK_HIT;
-
 			hits++;
 
 			/* Mark the monster as attacked */
@@ -3830,8 +3885,25 @@ int py_attack_aux(int y, int x, int attack_type)
 			total_dice = mdd + slay_bonus_dice + crit_bonus_dice;
 			
 			dam = damroll(total_dice, mds);
+			if (smite) dam = total_dice * mds;
+
 			prt = damroll(r_ptr->pd, r_ptr->ps);
 			prt_percent = prt_after_sharpness(o_ptr, &noticed_flag);
+
+			if (singing(SNG_WHETTING))
+			{
+				int weight = o_ptr->weight;
+				if (off_hand_blow)
+				{
+					// If offhand, consider weight of main weapon first
+					weight += inventory[INVEN_WIELD].weight;
+				}
+
+				if (weight <= 5 * ability_bonus(S_SNG, SNG_WHETTING))
+				{
+					prt_percent -= 50;
+				}
+			}
 
 			if (prt_percent < 0)
 			{
@@ -3844,13 +3916,6 @@ int py_attack_aux(int y, int x, int attack_type)
 
 			/* No negative damage */
 			if (net_dam < 0) net_dam = 0;
-			if (net_dam > 0) attack_result = ATTACK_DAMAGED;
-
-			if (o_ptr->tval == TV_HAFTED)
-			{
-				net_dam += (MIN(prt, dam) * BLUNT_WEAPON_ARMOR_DAMAGE_MULTIPLIER);
-				damage_type = GF_BLUNT;
-			}
 
 			// determine the punctuation for the attack ("...", ".", "!" etc)
 			attack_punctuation(punctuation, net_dam, crit_bonus_dice);
@@ -3869,6 +3934,10 @@ int py_attack_aux(int y, int x, int attack_type)
 				if (charge)
 				{
 					message_format(MSG_HIT, m_ptr->r_idx, "You charge %s%s", m_name, punctuation);
+				}
+				else if (smite)
+				{
+					message_format(MSG_HIT, m_ptr->r_idx, "You smite %s%s", m_name, punctuation);
 				}
 				else if (attack_type == ATT_IMPALE)
 				{
@@ -4038,8 +4107,6 @@ int py_attack_aux(int y, int x, int attack_type)
 
 	// Break the truce if creatures see
 	break_truce(FALSE);
-		
-	return attack_result;
 }
 
 bool whirlwind_possible(void)
@@ -4106,19 +4173,7 @@ void py_attack(int y, int x, int attack_type)
 				}
 				else if ((i == 0) || !forgo_attacking_unwary || (m_ptr->alertness >= ALERTNESS_ALERT))
 				{
-					int result;
-					char m_name[80];
-					bool lucky = one_in_(2);
-
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-					if (i != 0) msg_print("You continue your attack!");
-
-					result = py_attack_aux(yy, xx, ATT_WHIRLWIND);
-					if (result == ATTACK_DAMAGED)
-					{
-						if (!lucky) break;
-					}
+					py_attack_aux(yy, xx, ATT_WHIRLWIND);
 				}
 			}
 		}

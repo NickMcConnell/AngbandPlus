@@ -35,7 +35,7 @@ int challenge_check(monster_type *m_ptr)
 		m_ptr->r_idx == R_IDX_MORGOTH) return 0;
 
 	// Adjust to work best against lower-will monsters.
-	resistance = (resistance * resistance) / 7;
+	resistance = (resistance * resistance) / 10;
 
 	// adjust difficulty by the distance to the monster
 	return skill_check(PLAYER, challenge, resistance + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
@@ -3651,7 +3651,18 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
             if (r_ptr->flags2 & (RF2_EXCHANGE_PLACES) && one_in_(4) &&
                 (adj_mon_count(m_ptr->fy, m_ptr->fx) >= adj_mon_count(p_ptr->py, p_ptr->px)))
             {
-                monster_exchange_places(m_ptr);
+		if (p_ptr->stand_fast)
+		{
+    			char m_name[80];
+			monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+	    		msg_format("%^s attempts to exchange places with you, but you stand fast.", m_name);
+
+			ident_stand_fast();
+		}
+		else
+		{
+			monster_exchange_places(m_ptr);
+		}
             }
             else
             {
@@ -4461,10 +4472,7 @@ int get_chance_of_ranged_attack(monster_type *m_ptr)
 	/* Stunned monsters use ranged attacks half as often. */
 	if ((chance) && (m_ptr->stunned)) chance /= 2;
 
-	/* Smitten monsters get no ranged attacks. */
-	if (singing(SNG_OVERWHELMING) && m_ptr->stunned) chance = 0;
-
-	/* Successfully challenged monsters also get no ranged attacks. */
+	/* Successfully challenged monsters get no ranged attacks. */
 	if ((singing(SNG_CHALLENGE)) && (m_ptr->stance == STANCE_AGGRESSIVE)) chance = 0;
 
 	return chance;
@@ -4500,29 +4508,25 @@ static void process_monster(monster_type *m_ptr)
 
 	// do this before Mastery and Lorien effects kick in...
 	if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_WOUNDED &&
-		p_ptr->morgoth_state < 1)
+		p_ptr->morgoth_state < 2)
 	{
 		msg_print("Morgoth grows angry.");
 		message_flush();
-		p_ptr->morgoth_state = 1;
-		anger_morgoth();
+		anger_morgoth(2);
 	}
 	else if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_BADLY_WOUNDED &&
-		p_ptr->morgoth_state < 2)
+		p_ptr->morgoth_state < 3)
 	{
-		msg_print("Morgoth grows more angry.");
+		msg_print("Morgoth unslings his mighty shield.");
 		message_flush();
-		p_ptr->morgoth_state = 2;
-		anger_morgoth();
+		anger_morgoth(3);
 	}
 	else if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_ALMOST_DEAD &&
-		p_ptr->morgoth_state < 3)
+		p_ptr->morgoth_state < 4)
 	{
 		msg_print("Morgoth grows desperate.");
 		message_flush();
-		p_ptr->morgoth_state = 3;
-		anger_morgoth();
-		anger_morgoth();
+		anger_morgoth(4);
 	}
  
 	// assume we are not under the influence of the Song of Mastery
@@ -4533,7 +4537,7 @@ static void process_monster(monster_type *m_ptr)
 	{
 		if (skill_check(PLAYER,
 		                ability_bonus(S_SNG, SNG_MASTERY),
-			            monster_skill(m_ptr, S_WIL) + 5 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx),
+			            monster_skill(m_ptr, S_WIL) + 7 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx),
 						m_ptr) > 0)
 		{
             
@@ -4985,18 +4989,6 @@ static void process_monster(monster_type *m_ptr)
 				// removes the monster if it is still alive
 				delete_monster(ty, tx);
 
-				// Player gains some experience from non-unique monsters
-				if (!(r_ptr->flags1 & RF1_UNIQUE))
-				{
-					gain_exp(1 + adjusted_mon_exp(r_ptr, FALSE) / (l_ptr->pscares + 1));
-
-					/* Count scares this life */
-					if (l_ptr->pscares < MAX_SHORT) l_ptr->pscares++;
-
-					/* Count scares in all lives */
-					if (l_ptr->tscares < MAX_SHORT) l_ptr->tscares++;
-				}
-				
 				return;
 			}
 		}
@@ -5692,9 +5684,6 @@ void monster_perception(bool player_centered, bool main_roll, int difficulty)
             
 			// monsters are looking more carefully during the escape
 			if (p_ptr->on_the_run) m_perception += 5;
-			// otherwise monsters on earlier levels are a little less alert
-			else m_perception -= ((MORGOTH_DEPTH - p_ptr->depth) / 5) - 1;
-
 			
 			// monsters that are already alert get a penalty to the roll to stop them getting *too* alert
 			if (m_ptr->alertness >= ALERTNESS_ALERT) m_perception -= m_ptr->alertness;

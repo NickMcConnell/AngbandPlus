@@ -2594,15 +2594,13 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		}
 		case TV_ARROW:
 		{
-			// note that arrows can't be both fine and special (fine trumps)
+			// note that arrows can't be both fine and special
 			
 			if (special)
 			{
 				// More special arrows lower down
-				int depth_adjust = (MORGOTH_DEPTH - p_ptr->depth) / 5 + 2;
 				make_special_item(o_ptr, (bool)(good || great));
-
-				if (o_ptr->number > 10) o_ptr->number /= depth_adjust;
+				if (o_ptr->number > 1) o_ptr->number /= 2;
 			}
 
 			else if (fine)
@@ -3176,22 +3174,19 @@ static bool kind_is_jewelry(int k_idx)
 			return (TRUE);
 		}
 
-		/* Sceptres are suitable for a chest */
-		case TV_HAFTED:
-		{
-			if (k_ptr->sval == SV_SCEPTRE) return (TRUE);
-			return (FALSE);
-		}
-			
-		/*  Artefact rings are suitable for a chest */
 		case TV_RING:
 		{
+			if (k_ptr->sval == SV_RING_STR) return (TRUE);
+			if (k_ptr->sval == SV_RING_DEX) return (TRUE);
+			if (k_ptr->sval == SV_RING_EVASION) return (TRUE);
+			if (k_ptr->sval == SV_RING_PROTECTION) return (TRUE);
+			if (k_ptr->sval == SV_RING_ERED_LUIN) return (TRUE);
+			if (k_ptr->sval == SV_RING_ACCURACY) return (TRUE);
 			if (k_ptr->sval == SV_RING_BARAHIR) return (TRUE);
 			if (k_ptr->sval == SV_RING_MELIAN) return (TRUE);
 			return (FALSE);
 		}
 
-		/*  Artefact amulets and Blessed Realm are suitable for a chest */
 		case TV_AMULET:
 		{
 			if (k_ptr->sval == SV_AMULET_TINFANG_GELION) return (TRUE);
@@ -3199,6 +3194,10 @@ static bool kind_is_jewelry(int k_idx)
 			if (k_ptr->sval == SV_AMULET_ELESSAR) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_DWARVES) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_BLESSED_REALM) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_CON) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_GRA) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_VIGILANT_EYE) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_LAST_CHANCES) return (TRUE);
 			return (FALSE);
 		}
 			
@@ -3398,7 +3397,17 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype)
 		case TV_ARROW:
 		{
 			int depth_adjust = MORGOTH_DEPTH - p_ptr->depth;
-			j_ptr->number = 40 + damroll(2, 5 + depth_adjust);
+
+			object_type *q1_ptr = &inventory[INVEN_QUIVER1];
+			object_type *q2_ptr = &inventory[INVEN_QUIVER2];
+
+			j_ptr->number = 20 + damroll(1, 10 + depth_adjust);
+
+			if ((q1_ptr->number + q2_ptr->number) < 20)
+			{
+				j_ptr->number *= 2;
+			}
+
 			break;
 		}
 		
@@ -3778,12 +3787,6 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Handle lack of space */
 	if (!flag && (j_ptr->name1 != ART_MORGOTH_3) && ((j_ptr->tval != TV_LIGHT) || (j_ptr->sval != SV_LIGHT_SILMARIL)))
 	{
-		/* Message */
-		if (player_has_los_bold(y,x))
-		{
-			msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
-		}
-
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (no floor space).");
 

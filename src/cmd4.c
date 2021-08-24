@@ -1535,7 +1535,7 @@ smithing_cost_type smithing_cost;
 #define CAT_ARMOUR  1
 #define CAT_JEWELRY 2
 
-#define MAX_SMITHING_TVALS 18
+#define MAX_SMITHING_TVALS 17
 
 #define SMT_MENU_CREATE   1
 #define SMT_MENU_ENCHANT  2
@@ -1588,7 +1588,6 @@ static const smithing_tval_desc smithing_tvals[MAX_SMITHING_TVALS] =
 	{ CAT_ARMOUR,  TV_CLOAK,             "Cloak"                },
 	{ CAT_ARMOUR,  TV_SHIELD,            "Shield"               },
 	{ CAT_ARMOUR,  TV_HELM,              "Helm"                 },
-	{ CAT_ARMOUR,  TV_CROWN,             "Crown"                },
 	{ CAT_ARMOUR,  TV_GLOVES,            "Gloves"               },
 	{ CAT_ARMOUR,  TV_BOOTS,             "Boots"                },
 };
@@ -1668,9 +1667,11 @@ static const smithing_flag_desc smithing_flag_types[] =
 	{ CAT_MISC,		TR2_SPEED,			2,	"Speed"					},
 	{ CAT_MISC,		TR2_RADIANCE,		2,	"Radiance"				},
 	{ CAT_MISC,		TR3_CHEAT_DEATH,	3,	"Cheat Death"				},
-	{ CAT_MEL,		TR1_TUNNEL,			1,	"Tunneling Bonus"		},
+	{ CAT_MISC,		TR3_STAND_FAST,		3,	"Stand Fast"				},
+	{ CAT_MEL,		TR1_TUNNEL,		1,	"Tunneling Bonus"		},
 	{ CAT_MEL,		TR1_SHARPNESS,		1,	"Sharpness"				},
 	{ CAT_MEL,		TR1_VAMPIRIC,		1,	"Vampiric"				},
+	{ CAT_MEL,		TR3_ACCURATE,		3,	"Accurate"			},
 	{ CAT_SLAY,		TR1_SLAY_ORC,		1,	"Slay Orc"				},
 	{ CAT_SLAY,		TR1_SLAY_TROLL,		1,	"Slay Troll"			},
 	{ CAT_SLAY,		TR1_SLAY_WOLF,		1,	"Slay Wolf"				},
@@ -2290,8 +2291,8 @@ int wgt_valid(void)
 int wgt_max(void)
 {
 	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
-	
-	return (k_ptr->weight * 2);
+	int weight = div_round(k_ptr->weight, 2) * 3;
+	return (weight);
 }
 
 
@@ -2301,8 +2302,7 @@ int wgt_max(void)
 int wgt_min(void)
 {
 	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
-    int weight = div_round(k_ptr->weight, 10) * 5;
-    
+	int weight = div_round(k_ptr->weight, 3) * 2;
 	return (weight);
 }
 
@@ -2625,38 +2625,30 @@ int object_difficulty(object_type *o_ptr)
 	}
 
 	// unusual weight
-	if (o_ptr->weight == 0)
-	{
-		weight_factor = 1100;
-	}
-	else if (o_ptr->weight > k_ptr->weight)
-	{
-		weight_factor = 100 * o_ptr->weight / k_ptr->weight;
-	}
-	else
-	{
-		int low_weight_adjust;
-		weight_factor = 100 * k_ptr->weight / o_ptr->weight;
-		low_weight_adjust = (weight_factor - 100) * (o_ptr->ds / 4);
+	if (o_ptr->weight == 0) 		weight_factor = 1100;
+	else if (o_ptr->weight > k_ptr->weight)	weight_factor = 100 * o_ptr->weight / k_ptr->weight;
+	else                                    weight_factor = 100 * k_ptr->weight / o_ptr->weight;
 
-		if (o_ptr->weight < 15)
-		{
-			weight_factor = weight_factor + low_weight_adjust;
-		}
-	}
-
-	dif_inc += (weight_factor - 100) / 10;
+	dif_inc += (weight_factor - 100) / 20;
 
 	// attack bonus
 	x = o_ptr->att - k_ptr->att;
 
-	// special costs for attack bonus for arrows (half difficulty modifier)
+	// special costs for attack bonus for arrows
 	if ((o_ptr->tval == TV_ARROW) && (x > 0))
 	{	
 		int old_di = dif_inc;
 		
 		dif_mod(x, 5, &dif_inc);
 		dif_inc = (dif_inc - old_di) / 2;
+	}
+	// special costs for attack bonus for other weapons
+	else if ((o_ptr->tval == TV_BOW ||
+		  o_ptr->tval == TV_SWORD ||
+		  o_ptr->tval == TV_POLEARM ||
+		  o_ptr->tval == TV_HAFTED) && (x > 0))
+	{
+		dif_mod(x, 3, &dif_inc);
 	}
 	// normal costs for other items
 	else
@@ -2673,8 +2665,8 @@ int object_difficulty(object_type *o_ptr)
 	// damage bonus
 	x = (o_ptr->ds - k_ptr->ds);
 	// dd used to be a factor here, but a shortsword is far more breakable than a great axe
-	dif_mod(x, 8, &dif_inc);
-	if (x > 0) dif_inc -= o_ptr->tval == TV_BOW ? 1 : 4;
+	dif_mod(x, 7, &dif_inc);
+	if (x > 0) dif_inc -= 2;
 
 	// protection bonus
 	base = (k_ptr->ps > 0) ? ((k_ptr->ps + 1) * k_ptr->pd) : 0;
@@ -2710,16 +2702,21 @@ int object_difficulty(object_type *o_ptr)
 
 	if (f1 & TR1_BRAND_COLD)		{	dif_inc += 18;	smithing_cost.str += 2;	brands++; }
 	if (f1 & TR1_BRAND_FIRE)		{	dif_inc += 14;	smithing_cost.str += 2;	brands++; }
-	if (f1 & TR1_BRAND_POIS)		{	dif_inc += 16;	smithing_cost.str += 2;	brands++; }
+	if (f1 & TR1_BRAND_POIS)
+	{
+		if (o_ptr->tval == TV_ARROW) 	{	dif_inc += 12;	smithing_cost.str += 1;	}
+		else				{	dif_inc += 16;	smithing_cost.str += 2;	brands++; }
+	}
 	if (brands > 1)				{	dif_inc += (brands-1) * 20;  }
 	
 	if (f1 & TR1_SHARPNESS)
 	{
-		if (o_ptr->tval == TV_ARROW) 	{	dif_inc += 12;	smithing_cost.str += 1;	}
+		if (o_ptr->tval == TV_ARROW) 	{	dif_inc += 14;	smithing_cost.str += 1;	}
 		else				{	dif_inc += 24;	smithing_cost.str += 2;	}
 	}
 	if (f1 & TR1_SHARPNESS2)		{	dif_inc += 40;	smithing_cost.str += 4;	} // not available in smithing
 	if (f1 & TR1_VAMPIRIC)			{	dif_inc += 6;	smithing_cost.str += 1;	}
+	if (f3 & TR3_ACCURATE)			{	dif_inc += 10;	smithing_cost.dex += 1;	}
 	
 	// pval dependent bonuses
 	if (f1 & TR1_TUNNEL)
@@ -2768,6 +2765,7 @@ int object_difficulty(object_type *o_ptr)
 	if (f2 & TR2_FREE_ACT) 		{	dif_inc += 6;	}
 	if (f2 & TR2_SPEED)		{	dif_inc += 40;	smithing_cost.con += 5;	}
 	if (f3 & TR3_CHEAT_DEATH) 	{	dif_inc += 13;	}
+	if (f3 & TR3_STAND_FAST) 	{	dif_inc += 2;	}
 	
 	// Elemental Resistances
 	if (f2 & TR2_RES_COLD)		{	dif_inc += 5;	}
@@ -2802,8 +2800,8 @@ int object_difficulty(object_type *o_ptr)
 	{
 		int level = (&b_info[ability_index(o_ptr->skilltype[i],o_ptr->abilitynum[i])])->level;
 
-		dif_inc += 4 + (level / 2);
-		smithing_cost.exp += 100 * level;
+		dif_inc += 4 + (level / 3);
+		smithing_cost.exp += 50 * level;
 	}
 
 	// Penalty for being an artefact
@@ -3274,7 +3272,7 @@ void create_base_object(int tval, int sval)
 	// create arrows by the two dozen
 	if (tval == TV_ARROW)
 	{
-		smith_o_ptr->number = 24;
+		smith_o_ptr->number = 12;
 	}
 }
 
@@ -6036,7 +6034,29 @@ static void do_cmd_pref_file_hack(int row)
 	}
 }
 
+void clear_skills_and_abilities()
+{
+	int i, j;
 
+	/* Clear the base values of the skills */
+	for (i = 0; i < A_MAX; i++) p_ptr->skill_base[i] = 0;
+
+	/* Clear the abilities */
+	for (i = 0; i < S_MAX; i++)
+	{
+		for (j = 0; j < ABILITIES_MAX; j++)
+		{
+			p_ptr->innate_ability[i][j] = FALSE;
+			p_ptr->active_ability[i][j] = FALSE;
+		}
+	}
+
+	/* Calculate the bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Set the redraw flag for everything */
+	p_ptr->redraw |= (PR_EXP | PR_BASIC);
+}
 
 /*
  * Interact with some options
@@ -6232,39 +6252,21 @@ extern void do_cmd_options_aux(int page, cptr info)
 			}
 		}
 
-		if (birth_fixed_exp && playerturn == 0)
+		if (birth_fixed_exp && playerturn == 0 && p_ptr->exp != PY_FIXED_EXP)
 		{
 			int total_exp = PY_FIXED_EXP;
 			p_ptr->new_exp = total_exp;
 			p_ptr->exp = total_exp;
 			check_experience();
+			clear_skills_and_abilities();
 		}
 		else if (!birth_fixed_exp && playerturn == 0 && p_ptr->exp >= PY_FIXED_EXP)
 		{
-			int i, j;
 			int total_exp = PY_START_EXP;
 			p_ptr->new_exp = total_exp;
 			p_ptr->exp = total_exp;
 			check_experience();
-
-			/* Clear the base values of the skills */
-			for (i = 0; i < A_MAX; i++) p_ptr->skill_base[i] = 0;
-
-			/* Clear the abilities */
-			for (i = 0; i < S_MAX; i++)
-			{
-				for (j = 0; j < ABILITIES_MAX; j++)
-				{
-					p_ptr->innate_ability[i][j] = FALSE;
-					p_ptr->active_ability[i][j] = FALSE;
-				}
-			}
-
-			/* Calculate the bonuses */
-			p_ptr->update |= (PU_BONUS);
-
-			/* Set the redraw flag for everything */
-			p_ptr->redraw |= (PR_EXP | PR_BASIC);
+			clear_skills_and_abilities();
 		}
 	}
 }
@@ -8913,7 +8915,6 @@ static cptr object_group_text[] =
 	"Cloaks",
 	"Gloves",
 	"Helms",
-	"Crowns",
 	"Boots",
 	"Chests",
 	NULL

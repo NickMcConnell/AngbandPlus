@@ -28,7 +28,7 @@
 
 # Version stamp (required)
 
-V:1.4.1
+V:1.4.2
 
 # Melee ---------------------------------------------
 
@@ -87,16 +87,15 @@ D: moving onto the next adjacent enemy.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
-T:31:0:99  # Gloves
 
-N:6:Zone of Control
+N:6:Impale
 I:0:6:7
-P:0/1:0/3
-D:You get a free attack whenever an opponent moves between two
-D: squares which are adjacent to you.
-T:21:0:99  # Hafted
-T:22:0:99  # Polearms
-T:23:0:99  # Swords
+P:0/0:0/3
+D:When using a polearm or greatsword you can strike through or past
+D: opponents to attack an opponent behind.
+T:23:25:25 # Greatswords
+T:23:30:30 # Mithril Greatswords
+T:22:0:4   # Polearms
 T:31:0:99  # Gloves
 
 N:7:Subtlety
@@ -110,27 +109,39 @@ T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:8:Impale
+N:8:Whirlwind Attack
 I:0:8:9
-P:0/0:0/3
-D:When using a polearm or greatsword you can strike through or past
-D: opponents to attack an opponent behind.
-T:23:25:25 # Greatswords
-T:23:30:30 # Mithril Greatswords
-T:22:0:4   # Polearms
-
-N:9:Rapid Attack
-I:0:9:10
-P:0/7:3/4
-D:Grants you an extra melee attack, but your attacks
-D: are calculated as if you had 3 points less strength and dexterity.
+P:0/3:0/5
+D:Whenever you attack an enemy, you get a free attack on all other
+D: enemies adjacent to you. The original attack must be a regular,
+D: flanking or controlled retreat attack.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:10:Two Weapon Fighting
+N:9:Zone of Control
+I:0:9:10
+P:0/1:0/3
+D:You get a free attack whenever an opponent moves between two
+D: squares which are adjacent to you.
+T:21:0:99  # Hafted
+T:22:0:99  # Polearms
+T:23:0:99  # Swords
+T:31:0:99  # Gloves
+
+N:10:Smite
 I:0:10:11
+P:0/2:0/4
+D:When using a two-handed weapon, the first main attack you make on your
+D: turn rolls the maximum possible damage to all opponents it hits. If you
+D: make such an attack, you lose a turn to recover.
+T:21:0:99  # Hafted
+T:22:0:99  # Polearms
+T:23:0:99  # Swords
+
+N:11:Two Weapon Fighting
+I:0:11:12
 P:0/1:2/2
 D:Allows you to wield a one-handed weapon in your off-hand for an extra attack
 D: (calculated as if you had 3 points less strength and dexterity).
@@ -139,20 +150,11 @@ T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:11:Anticipate
-I:0:11:12
-P:0/0:7/1
-D:Missed attacks on opponents with an Aggressive stance are rerolled up to twice.
-T:21:0:99  # Hafted
-T:22:0:99  # Polearms
-T:23:0:99  # Swords
-
-N:12:Whirlwind Attack
+N:12:Rapid Attack
 I:0:12:13
-P:0/3:0/5
-D:Allows you to attack all adjacent enemies. If you miss an enemy you attack
-D: the next and so on until you damage one or have attacked all of them.
-D: Half the time you do damage you continue your attack.
+P:0/7:3/4
+D:Grants you an extra melee attack, but your attacks
+D: are calculated as if you had 3 points less strength and dexterity.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
@@ -167,37 +169,37 @@ D:You gain a point of strength.
 
 N:20:Rout
 I:1:0:2
-D:Firing at fleeing monsters is calculated as if you had 3 points
+D:Firing at fleeing monsters is calculated as if you had 5 points
 D: more dexterity.
 T:19:0:99  # Bows
 
-N:21:Blessing of Orome
+N:21:Fletchery
 I:1:1:3
-D:Every arrow you fire increases your light radius by one for the next five
-D: turns.
-T:19:0:99  # Bows
-T:32:0:99  # Helm
-T:40:0:99  # Amulet
-
-N:22:Fletchery
-I:1:2:4
 D:Allows you to use the '-' command to give ordinary arrows
 D: a +3 bonus. Takes one turn for each arrow.
 T:31:1:1   # Gloves (leather gloves only)
 
-N:23:Point Blank Archery
-I:1:3:5
+N:22:Point Blank Archery
+I:1:2:4
 D:The monster you are firing at cannot get an attack of opportunity.
 T:19:0:99  # Bows
 T:31:1:1   # Gloves (leather gloves only)
 
-N:24:Dedication
-I:1:4:6
-D:Increases your bow's damage sides by 2 as long as you are not wielding
-D: a weapon or carrying a shield.
+N:23:Puncture
+I:1:3:5
+D:Whenever an enemy's armour roll would fully block your archery damage roll,
+D: you deal the enemy a flat three damage instead.
 T:19:0:99  # Bows
 T:31:1:1   # Gloves (leather gloves only)
 T:45:0:99  # Ring
+
+N:24:Ambush
+I:1:4:6
+D:Grants an additional critical damage die whenever you hit an
+D: unwary or sleeping monster with an arrow.
+T:19:0:99  # Bows
+T:31:1:1   # Gloves (leather gloves only)
+T:35:0:99  # Cloak
 
 N:25:Versatility
 I:1:5:7
@@ -208,14 +210,14 @@ T:31:1:1   # Gloves (leather gloves only)
 
 N:26:Crippling Shot
 I:1:6:8
-P:1/0:1/4
+P:1/3:1/4
 D:Your critical hits sometimes temporarily slow monsters
 D: (depending on the level of critical and the monster's Will).
 T:19:0:99  # Bows
 
 N:27:Deadly Hail
 I:1:7:9
-P:1/0:1/4
+P:1/0:1/3
 D:Arrows fired the turn after killing an enemy with an arrow do twice their
 D: normal damage.
 T:19:0:99  # Bows
@@ -254,11 +256,10 @@ T:31:0:99  # Gloves
 N:43:Crowd Fighting
 I:2:3:5
 D:Halves the bonus opponents get for surrounding you.
-T:21:0:99  # Hafted
-T:22:0:99  # Polearms
-T:23:0:99  # Swords
 T:31:0:99  # Gloves
 T:37:0:99  # Mail
+T:30:0:99  # Boots
+T:32:0:99  # Helm
 
 N:44:Leaping
 I:2:4:6
@@ -279,10 +280,7 @@ I:2:6:8
 D:Gives you a free attack on an opponent if you step from a square
 D: which is adjacent to it, to another square which is adjacent
 D: to it.
-T:21:0:99  # Hafted
-T:22:0:99  # Polearms
-T:23:0:99  # Swords
-T:31:0:99  # Gloves
+T:30:0:99  # Boots
 T:36:0:99  # Soft Armour
 
 N:47:Heavy Armour Use
@@ -312,8 +310,8 @@ D: from it, but only if you did not move the previous round.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
-T:31:0:99  # Gloves
 T:34:0:99  # Shields
+T:30:0:99  # Boots
 
 N:50:Dexterity
 I:2:10:20
@@ -387,17 +385,16 @@ N:80:Quick Study
 I:4:0:1
 D:Allows you to take advanced abilities when you don't have the
 D: prerequisite abilities.
-T:33:0:99  # Crown
 T:40:0:99  # Amulet
 
 N:81:Focused attack
 I:4:1:2
 D:Gives you a bonus of half your Perception score to your
 D: attacks if you passed the previous turn.
+T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:19:0:99  # Bow
 
 N:82:Keen Senses
@@ -405,7 +402,6 @@ I:4:2:3
 D:Allows you to see enemies who are just beyond the edge of a
 D: pool of light, and gives a +5 bonus to spot 'invisible' creatures.
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:39:0:99  # Light Source
 T:40:0:99  # Amulet
 
@@ -414,7 +410,6 @@ I:4:3:4
 D:Gives you a +1 bonus to attack for every consecutive round
 D: spent attacking the same enemy (to a maximum of Perception/2).
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:36:0:99  # Soft Armour
 T:40:0:99  # Amulet
 
@@ -423,7 +418,6 @@ I:4:4:5
 D:Lets you determine the purpose of all herbs and potions you encounter,
 D: as well as staves and horns.
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:45:0:99  # Ring
 
 N:85:Bane
@@ -438,7 +432,6 @@ D:If your base Perception exceeds your Evasion, you gain a
 D: bonus to your Evasion of one third your Perception score.
 D: You can also determine when an item is cursed.
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:39:0:99  # Light Source
 T:40:0:99  # Amulet
 
@@ -448,7 +441,6 @@ P:4/2
 D:Gives you a chance each turn to detect enemies that you
 D: cannot see (including around corners and through doors).
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 
 N:88:Master Hunter
 I:4:8:9
@@ -456,7 +448,6 @@ P:4/3:4/5
 D:Gives you an attack bonus of +1 for each time you have killed
 D: an opponent of the same type (up to a maximum of Perception/4).
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:30:0:99  # Boots
 T:19:0:99  # Bows
 
@@ -470,7 +461,6 @@ N:100:Channeling
 I:5:0:2
 D:You automatically recognise all staves and horns and can use them twice as efficiently.
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:45:0:99  # Ring
 
 N:101:Strength in Adversity
@@ -478,10 +468,10 @@ I:5:1:3
 D:Gives you bonuses to Strength, Dexterity and Grace when seriously injured:
 D: +1 when less than or equal to 50% health, +3 when 25%.
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:36:0:99  # Soft Armour
 T:37:0:99  # Mail
 T:40:0:99  # Amulet
+T:39:0:99  # Light Source
 
 N:102:Curse Breaking
 I:5:2:4
@@ -489,7 +479,6 @@ D:Allows you to break the curses on items when you
 D: attempt to take them off.
 T:40:0:99  # Amulet
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:45:0:99  # Ring
 T:34:0:99  # Shields
 
@@ -498,10 +487,8 @@ I:5:3:5
 D:Increases the intensity of light within your light radius by 1 point
 D: (without increasing the radius).
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:39:0:99  # Light Source
 T:36:0:99  # Soft Armour
-T:21:9:9   # Sceptre
 
 N:104:Indomitable
 I:5:4:5
@@ -509,14 +496,11 @@ D:Gives you resistance to fear, confusion, stunning, and hallucination.
 D: Slows hunger to one third the normal rate.
 T:40:0:99  # Amulet
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:37:0:99  # Mail
-T:21:9:9   # Sceptre
 
 N:105:Hardiness
 I:5:5:6
 D:Gives you [1dX] additional protection, where X = Will/6.
-T:34:0:99  # Shields
 
 N:106:Poison Resistance
 I:5:6:7
@@ -530,7 +514,6 @@ D:When you are damaged in melee by an enemy, an additional damage
 D: die is added to your next successful strike. This effect does not stack.
 T:40:0:99  # Amulet
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 
 N:108:Critical Resistance
 I:5:8:9
@@ -548,9 +531,7 @@ I:5:9:9
 P:5/0:5/3
 D:Lowers monster morale by half the difference between your Will and theirs.
 T:32:0:99  # Helm
-T:33:0:99  # Crown
 T:36:2:2   # Robe
-T:21:9:9   # Sceptre
 T:40:0:99  # Amulet
 
 N:110:Constitution
@@ -585,18 +566,18 @@ D: what enchantments exist on items you encounter.
 T:21:8:8   # Hafted (War Hammer only)
 T:31:0:99  # Gloves
 
-N:124:Artifice
+N:124:Expertise
 I:6:4:6
-P:6/2:6/3
-D:Allows you to create highly customised artifacts.
-T:21:8:8   # Hafted (War Hammer only)
-T:31:0:99  # Gloves
-
-N:125:Expertise
-I:6:5:7
 P:6/3
 D:Reduces the time taken to forge an item by half and
 D: negates all experience and stat costs.
+T:21:8:8   # Hafted (War Hammer only)
+T:31:0:99  # Gloves
+
+N:125:Artifice
+I:6:5:7
+P:6/2:6/3
+D:Allows you to create highly customised artifacts.
 T:21:8:8   # Hafted (War Hammer only)
 T:31:0:99  # Gloves
 
@@ -617,55 +598,75 @@ D:You gain a point of grace.
 N:140:Song of Elbereth
 I:7:0:1
 D:Causes fear in nearby servants of Morgoth.
-T:33:0:99  # Crown
-T:40:0:99  # Amulet
-T:35:0:99  # Cloak
-
-N:141:Song of Challenge
-I:7:1:2
-D:Causes weak-willed foes to attack aggressively without regard to 
-D: strategy. Enemies with ranged weapons will close to melee range.
-T:33:0:99  # Crown
-T:40:0:99  # Amulet
-T:35:0:99  # Cloak
-
-N:142:Song of Silence
-I:7:2:3
-D:Dampens all nearby sounds, making it harder for
-D: opponents to hear you and each other.
-T:33:0:99  # Crown
-T:40:0:99  # Amulet
-T:35:0:99  # Cloak
-
-N:143:Song of Freedom
-I:7:3:4
-D:Discovers and overcomes nearby doors, traps, and rubble.
-T:33:0:99  # Crown
-T:40:0:99  # Amulet
-T:35:0:99  # Cloak
-
-N:144:Song of the Trees
-I:7:4:5
-D:Increases your light level by 1 point per 5 points
-D: of Song.
-T:33:0:99  # Crown
 T:40:0:99  # Amulet
 T:35:0:99  # Cloak
 T:39:0:99  # Light Source
 
-N:145:Song of Delvings
-I:7:5:6
-D:Reveals terrain adjacent to already known areas and shows
-D: features concealed in the stonework including traps and
-D: secret doors. Lowers tunneling difficulty by 1 point per
-D: 6 points of Song.
-T:33:0:99  # Crown
+N:141:Song of Challenge
+I:7:1:1
+D:Causes weak-willed foes to attack aggressively without regard to 
+D: strategy. Enemies with ranged weapons will close to melee range.
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
+T:21:0:99  # Hafted
+T:22:0:99  # Polearms
+T:23:0:99  # Swords
+
+N:142:Song of Delvings
+I:7:2:2
+D:Slowly reveals the terrain around you, working out from
+D: already known areas.
 T:35:0:99  # Cloak
 T:20:0:99  # Shovels and Mattocks
 
-N:146:Song of Staying
-I:7:6:7
+N:143:Song of Freedom
+I:7:3:2
+D:Discovers and overcomes nearby doors, traps, and rubble.
+T:40:0:99  # Amulet
+T:35:0:99  # Cloak
+
+N:144:Song of Silence
+I:7:4:3
+D:Dampens all nearby sounds, making it harder for
+D: opponents to hear you and each other.
+T:40:0:99  # Amulet
+T:35:0:99  # Cloak
+T:30:0:99  # Boots
+
+N:145:Song of Staunching
+I:7:5:3
+D:Stops all bleeding and speeds healing of your wounds.
+T:40:0:99  # Amulet
+T:35:0:99  # Cloak
+T:45:0:99  # Ring
+
+N:146:Song of Whetting
+I:7:6:4
+P:7/1
+D:Grants sharpness to a melee weapon of up to (Song/8) lbs in weight.
+T:22:0:99  # Polearms
+T:23:0:99  # Swords
+
+N:147:Song of the Trees
+I:7:7:5
+P:7/0:7/5
+D:Increases your light level by 1 point per 5 points
+D: of Song.
+T:40:0:99  # Amulet
+T:35:0:99  # Cloak
+T:39:0:99  # Light Source
+
+N:148:Song of Thresholds
+I:7:8:6
+P:7/0:7/2
+D:Doors you close while singing this song are warded against
+D: your enemies.
+T:40:0:99  # Amulet
+T:35:0:99  # Cloak
+
+N:149:Song of Staying
+I:7:9:7
+P:7/1:7/5
 D:Gives you a bonus to Will equal to your Song score and
 D: [2d2] protection.
 T:32:0:99  # Helm
@@ -673,51 +674,28 @@ T:34:0:99  # Shields
 T:35:0:99  # Cloak
 T:45:0:99  # Ring
 
-N:147:Song of Lorien
-I:7:7:8
-P:7/2
+N:150:Song of Lorien
+I:7:10:8
+P:7/4
 D:Gradually puts nearby opponents to sleep.
-T:33:0:99  # Crown
 T:40:0:99  # Amulet
 T:35:0:99  # Cloak
 
-N:148:Song of Thresholds
-I:7:8:9
-D:Doors you close while singing this song are warded against
-D: your enemies. When standing in a doorway, you gain a bonus
-D: of +1 to Evasion and Melee for every 3 points of Song.
-T:33:0:99  # Crown
-T:40:0:99  # Amulet
-T:35:0:99  # Cloak
-
-N:149:Song of Overwhelming
-I:7:9:10
-P:7/1:7/6
-D:Stuns adjacent opponents. Stunned opponents roll only half of
-D: their damage dice while the song is in effect.
-T:21:0:99  # Hafted
-T:22:0:99  # Polearms
-T:23:7:99  # Swords (not daggers)
-T:34:0:99  # Shields
-
-N:150:Song of Mastery
-I:7:10:11
-P:7/0:7/7
+N:151:Song of Mastery
+I:7:11:9
+P:7/3
 D:Occasionally prevents nearby opponents from moving or acting.
-T:33:0:99  # Crown
 T:40:0:99  # Amulet
 T:35:0:99  # Cloak
-T:21:9:9   # Sceptre
 
-N:151:Woven Themes
-I:7:11:12
+N:152:Woven Themes
+I:7:12:10
 D:Allows you to add a 'minor theme' to your song. This means you
 D: can have the effect of a second song, but at half your normal Song score.
-T:33:0:99  # Crown
 T:40:0:99  # Amulet
 T:35:0:99  # Cloak
 
-N:152:Grace
-I:7:12:15
+N:153:Grace
+I:7:13:12
 D:You gain a point of grace.
 

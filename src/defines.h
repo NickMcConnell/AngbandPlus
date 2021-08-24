@@ -50,7 +50,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.4.1"
+#define VERSION_STRING	"1.4.2"
 
 
 /*
@@ -58,7 +58,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	4
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 #define VERSION_EXTRA	0
 
 
@@ -67,7 +67,7 @@
  */
 #define OLD_VERSION_MAJOR	1
 #define OLD_VERSION_MINOR	4
-#define OLD_VERSION_PATCH	0
+#define OLD_VERSION_PATCH	2
 
 
 /*
@@ -151,18 +151,6 @@
  * Maximum length of the character's notes (for notes_buffer).
  */
 #define NOTES_LENGTH 100000
-
-/*
- * Maximum number of player "sex" types (see "table.c", etc)
- */
-#define MAX_SEXES            2
-
-/*
- * Player sex constants (hard-coded by save-files, arrays, etc)
- */
-#define SEX_FEMALE		0
-#define SEX_MALE		1
-#define SEX_UNDEFINED	2
 
 /*
  * Strange pointer constant for the Player
@@ -447,29 +435,29 @@
 /* 
  * Melee abilities 
  */
-#define	MEL_POWER					 0
-#define	MEL_FINESSE					 1
-#define	MEL_KNOCK_BACK				 2
-#define	MEL_POLEARMS				 3
-#define	MEL_CHARGE					 4
-#define	MEL_FOLLOW_THROUGH			 5
-#define	MEL_ZONE_OF_CONTROL			 6
-#define	MEL_CONTROL					 7
-#define	MEL_IMPALE				 8
-#define	MEL_RAPID_ATTACK			 9
-#define	MEL_TWO_WEAPON				10
-#define	MEL_ANTICIPATE				11
-#define	MEL_WHIRLWIND_ATTACK		12
+#define	MEL_POWER					0
+#define	MEL_FINESSE					1
+#define	MEL_KNOCK_BACK				 	2
+#define	MEL_POLEARMS				 	3
+#define	MEL_CHARGE					4
+#define	MEL_FOLLOW_THROUGH			 	5
+#define	MEL_IMPALE				 	6
+#define	MEL_CONTROL					7
+#define	MEL_WHIRLWIND_ATTACK				8
+#define	MEL_ZONE_OF_CONTROL			 	9
+#define	MEL_SMITE					10
+#define	MEL_TWO_WEAPON					11
+#define	MEL_RAPID_ATTACK			 	12
 #define	MEL_STR						13
 
 /* 
  * Archery abilities 
  */
 #define	ARC_ROUT					0
-#define	ARC_BLESSING_OF_OROME				1
-#define	ARC_FLETCHERY					2
-#define	ARC_POINT_BLANK				 	3
-#define	ARC_DEDICATION				 	4
+#define	ARC_FLETCHERY					1
+#define	ARC_POINT_BLANK				 	2
+#define	ARC_PUNCTURE				 	3
+#define	ARC_AMBUSH					4
 #define	ARC_VERSATILITY				 	5
 #define	ARC_CRIPPLING				 	6
 #define	ARC_DEADLY_HAIL				 	7
@@ -537,8 +525,8 @@
 #define	SMT_ARMOURSMITH				 1
 #define	SMT_JEWELLER				 2
 #define	SMT_ENCHANTMENT				 3
-#define	SMT_ARTEFACT				 4
-#define	SMT_EXPERTISE				 5
+#define	SMT_EXPERTISE				 4
+#define	SMT_ARTEFACT				 5
 #define	SMT_MASTERPIECE				 6
 #define	SMT_GRA					 7
 
@@ -547,17 +535,18 @@
  */
 #define	SNG_ELBERETH				 	0
 #define	SNG_CHALLENGE					1
-#define	SNG_SILENCE					2
+#define	SNG_DELVINGS					2
 #define	SNG_FREEDOM					3
-#define	SNG_TREES					4
-#define	SNG_DELVINGS					5
-#define	SNG_STAYING					6
-#define	SNG_LORIEN					7
+#define	SNG_SILENCE					4
+#define	SNG_STAUNCHING					5
+#define	SNG_WHETTING					6
+#define	SNG_TREES					7
 #define	SNG_THRESHOLDS					8
-#define	SNG_OVERWHELMING				9
-#define	SNG_MASTERY					10
-#define	SNG_WOVEN_THEMES			11
-#define	SNG_GRA						12
+#define	SNG_STAYING					9
+#define	SNG_LORIEN					10
+#define	SNG_MASTERY					11
+#define	SNG_WOVEN_THEMES				12
+#define	SNG_GRA						13
 
 #define	SNG_BINDING					50 /* monster songs */
 #define	SNG_PIERCING				51 /* monster songs */
@@ -839,7 +828,6 @@
 #define GF_LOCK_DOOR	23    // adds (skill_check/2) points to the lock level of a door        ( - - - f )
 #define GF_AWAY_ALL		24    // teleports monsters (XdY) squares away                          ( - m - - ) *
 #define GF_IDENTIFY		25    // identifies objects on the ground                               ( - - o - ) *
-#define GF_BLUNT		26    // damage partly reduced by armour, not used in the project functions    ( - - - - )
 
 
 /*
@@ -1096,7 +1084,6 @@
 /* The "sval" values for TV_HAFTED */
 #define SV_QUARTERSTAFF			3	/* 2d3 */
 #define SV_WAR_HAMMER			8	/* 4d1 */
-#define SV_SCEPTRE				9	/* 2d3 */
 #define SV_GROND				50	/* 5d5 */
 
 /* The "sval" values for TV_POLEARM */
@@ -1133,7 +1120,6 @@
 #define SV_DWARF_MASK			7
 #define SV_MITHRIL_HELM			8
 #define SV_GOLDEN_CROWN			11
-#define SV_JEWELED_CROWN		12
 #define SV_MORGOTH				50
 
 /* The "sval" codes for TV_BOOTS */
@@ -1180,7 +1166,7 @@
 #define RADIUS_SILMARIL		7
 
 /* The "sval" codes for TV_AMULET */
-#define SV_AMULET_ADORNMENT			0
+#define SV_AMULET_LAST_CHANCES			0
 #define SV_AMULET_CON				1
 #define SV_AMULET_GRA				2
 #define SV_AMULET_REGENERATION		3
@@ -1810,8 +1796,8 @@
 
 #define TR3_DAMAGED         0x00000001L /* xxx */
 #define TR3_CHEAT_DEATH     0x00000002L /* xxx */
-#define TR3_TR3XXX3         0x00000004L /* xxx */
-#define TR3_TR3XXX4         0x00000008L /* xxx */
+#define TR3_STAND_FAST      0x00000004L /* xxx */
+#define TR3_ACCURATE        0x00000008L /* xxx */
 #define TR3_TR3XXX14        0x00000010L /* xxx */
 #define TR3_TR3XXX13        0x00000020L /* xxx */
 #define TR3_TR3XXX5         0x00000040L /* xxx */
@@ -2052,7 +2038,7 @@
 
 /*** Race/House flags ***/
 
-#define RHF_BLADE_PROFICIENCY	0x00000001L	/* +1 bonus with bladed weapons */
+#define RHF_BOW_PROFICIENCY		0x00000001L	/* +1 bonus with bows */
 #define RHF_AXE_PROFICIENCY		0x00000002L	/* +1 bonus with axes */
 #define RHF_MEL_AFFINITY		0x00000004L	/* +1 bonus to melee and one free melee ability */
 #define RHF_MEL_PENALTY			0x00000008L	/* -1 penalty to melee and all abilities cost 500 more */
@@ -2201,18 +2187,7 @@
 #define ALERTNESS_VERY_ALERT	 10
 #define ALERTNESS_MAX			 20
 
-/*
- * Blow success: miss, hit, damage
- */
-#define ATTACK_MISSED	0
-#define ATTACK_HIT	1
-#define ATTACK_DAMAGED	2
-
-#define BLUNT_WEAPON_ARMOR_DAMAGE_MULTIPLIER	(1.0 / 4)
-
-
 /*** Monster flags ***/
-
 
 /*
  * Special Monster Flags

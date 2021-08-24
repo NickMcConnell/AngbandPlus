@@ -733,8 +733,6 @@ bool make_attack_normal(monster_type *m_ptr)
 			
 			total_damage_dice = dd + crit_bonus_dice + elem_bonus_dice;
 
-			if (singing(SNG_OVERWHELMING) && m_ptr->stunned) total_damage_dice /= 2;
-
 			/* Roll out the damage */
 			dam = damroll(total_damage_dice, ds);
 			
@@ -1672,8 +1670,19 @@ bool make_attack_normal(monster_type *m_ptr)
 					// determine if the player is knocked back
 					if (skill_check(m_ptr, monster_stat(m_ptr, A_STR) * 2, p_ptr->stat_use[A_CON] * 2, PLAYER) > 0)
 					{
-						// do the knocking back
-						knock_back(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px);
+						if (p_ptr->stand_fast)
+						{
+							char m_name[80];
+							monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+							msg_format("%^s attempts to knock you back, but you stand fast.", m_name);
+
+							ident_stand_fast();
+						}
+						else
+						{
+							// do the knocking back
+							knock_back(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px);
+						}
 
 						// remember that the monster can do this
 						if (m_ptr->ml)  l_ptr->flags2 |= (RF2_KNOCK_BACK);
@@ -3001,26 +3010,13 @@ void display_combat_rolls(void)
 				
 				if (combat_rolls[round][i].att_type == COMBAT_ROLL_ROLL)
 				{
-					int bonus_dam = (MIN(combat_rolls[round][i].dam, combat_rolls[round][i].prot)) *
-						    BLUNT_WEAPON_ARMOR_DAMAGE_MULTIPLIER;
-
 					net_dam = combat_rolls[round][i].dam - combat_rolls[round][i].prot;
 					if (net_dam < 0) net_dam = 0;
 
-					if (net_dam > 0 || bonus_dam > 0)
+					if (net_dam > 0)
 					{
-						if (combat_rolls[round][i].dam_type == GF_BLUNT && bonus_dam > 0)
-						{
-
-							strnfmt(buf, sizeof (buf), "%4d +%2d", net_dam, bonus_dam);
-							Term_addstr(-1, a_net_dam, buf);
-						}
-						else
-						{
-
-							strnfmt(buf, sizeof (buf), "%4d", net_dam);
-							Term_addstr(-1, a_net_dam, buf);
-						}
+						strnfmt(buf, sizeof (buf), "%4d", net_dam);
+						Term_addstr(-1, a_net_dam, buf);
 					}
 					else
 					{

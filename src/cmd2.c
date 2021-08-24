@@ -1523,7 +1523,7 @@ static bool do_cmd_close_aux(int y, int x)
 	/* Ward the open door */
 	else if (singing(SNG_THRESHOLDS))
 	{
-		int difficulty = 18;
+		int difficulty = 15;
 		int result = skill_check(PLAYER, ability_bonus(S_SNG, SNG_THRESHOLDS), difficulty, NULL);
 		if (result > 9)
 		{
@@ -2177,11 +2177,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
         }
 	}
     
-	if (singing(SNG_DELVINGS))
-	{
-		difficulty -= ability_bonus(S_SNG, SNG_DELVINGS) / 6;
-	}
-
 	/* test for success */
 	if ((difficulty <= digging_score) && (difficulty <= p_ptr->stat_use[A_STR]))
 	{
@@ -3389,7 +3384,7 @@ static int breakage_chance(const object_type *o_ptr, bool hit_wall)
 		/* Sometimes break */
 		case TV_ARROW:
 		{
-			p = 20;
+			p = 10;
 			
 			break;
 		}
@@ -3608,6 +3603,7 @@ void do_cmd_fire(int quiver)
 	bool pierce = FALSE;
 	bool targets_remaining = FALSE;
 	bool deadly_hail_bonus = FALSE;
+	bool puncture = FALSE;
 
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
@@ -3885,10 +3881,10 @@ void do_cmd_fire(int quiver)
 				}
 				
 				// Aim improved if monster is fleeing. If firing into several fleeing monsters,
-				// the chance of hitting one is high.
+				// the chance of hitting one is higher.
 				if (p_ptr->active_ability[S_ARC][ARC_ROUT] && m_ptr->stance == STANCE_FLEEING)
 				{
-					total_attack_mod += 3;
+					total_attack_mod += 5;
 				}
 
 				// Determine the monster's evasion after all modifiers
@@ -3896,6 +3892,13 @@ void do_cmd_fire(int quiver)
 				
 				/* Test for hit */
 				hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);				
+
+				if (hit_result <= 0 && f3 & TR3_ACCURATE)
+				{
+					hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
+					if (hit_result > 0) msg_print("Your arrow flies true.");
+				}
+
 				/* If it hit */
 				if (hit_result > 0)
 				{
@@ -3925,6 +3928,11 @@ void do_cmd_fire(int quiver)
 										
 					/* Add 'critical hit' dice based on bow weight */
 					crit_bonus_dice = crit_bonus(hit_result, j_ptr->weight, r_ptr, S_ARC, FALSE);
+		
+					if (p_ptr->active_ability[S_ARC][ARC_AMBUSH] && m_ptr->alertness < ALERTNESS_ALERT)
+					{
+						crit_bonus_dice++;
+					}
 
 					/* Add slay (or brand) dice based on both arrow and bow */
 					slay_bonus_dice = slay_bonus(i_ptr, m_ptr, &noticed_arrow_flag);
@@ -3952,7 +3960,14 @@ void do_cmd_fire(int quiver)
 					prt = damroll(r_ptr->pd, r_ptr->ps);
 					
 					prt = (prt * prt_percent) / 100;
-					
+
+					if (prt >= dam && p_ptr->active_ability[S_ARC][ARC_PUNCTURE])
+					{
+						puncture = TRUE;
+						dam = 3;
+						prt = 0;
+					}
+
 					net_dam = dam - prt;
 
 					// no negative damage
@@ -3981,6 +3996,8 @@ void do_cmd_fire(int quiver)
 							msg_format("The %s pierces %s%s", o_name, m_name, punctuation);
 						else if (deadly_hail_bonus)
 							msg_format("The %s tears into %s!", o_name, m_name);
+						else if (puncture)
+							msg_format("The %s hits %s in a vulnerable spot%s", o_name, m_name, punctuation);
 						else
 							msg_format("The %s hits %s%s", o_name, m_name, punctuation);
 					}
@@ -4013,11 +4030,7 @@ void do_cmd_fire(int quiver)
 							make_alert(m_ptr);
 						}
 
-						if (((j_ptr->name1 && (a_info[j_ptr->name1].flags2 & (TR2_RADIANCE))) ||
-						     (j_ptr->name2 && (e_info[j_ptr->name2].flags2 & (TR2_RADIANCE)))) &&
-						      r_ptr->flags3 & RF3_HURT_LITE &&
-						      net_dam > 5 &&
-						      one_in_(monster_skill(m_ptr, S_WIL)))
+						if ((f2 & (TR2_RADIANCE)) && r_ptr->flags3 & RF3_HURT_LITE && net_dam > 5 && one_in_(monster_skill(m_ptr, S_WIL)))
 						{
 							bool known_radiance = object_known_p(j_ptr) || noticed_radiance;
 							if (m_ptr->ml && known_radiance)
@@ -4029,9 +4042,9 @@ void do_cmd_fire(int quiver)
 						}
 						
 						// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
-						if ((m_ptr->r_idx == R_IDX_MORGOTH) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
+						if (m_ptr->r_idx == R_IDX_MORGOTH)
 						{
-							if (net_dam >= 10)
+							if (net_dam >= 10 && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
 							{
 								if (p_ptr->morgoth_hits == 0)
 								{
@@ -4542,7 +4555,6 @@ void do_cmd_throw(bool automatic)
 	
 	// subtract out the melee weapon's bonus (as we had already accounted for it)
 	attack_mod -= (&inventory[INVEN_WIELD])->att;
-	attack_mod -= blade_bonus(&inventory[INVEN_WIELD]);
 	attack_mod -= axe_bonus(&inventory[INVEN_WIELD]);
 	attack_mod -= polearm_bonus(&inventory[INVEN_WIELD]);
 
@@ -4553,7 +4565,6 @@ void do_cmd_throw(bool automatic)
 	}
 
 	// give people their weapon affinity bonuses if the weapon is thrown
-	attack_mod += blade_bonus(i_ptr);
 	attack_mod += axe_bonus(i_ptr);
 	attack_mod += polearm_bonus(i_ptr);
 	

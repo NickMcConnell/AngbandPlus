@@ -159,7 +159,7 @@
 
 # Version stamp (required)
 
-V:1.4.1
+V:1.4.2
 
 #################################################################
 # Here is the list of 'Special' artefacts. 
@@ -167,21 +167,22 @@ V:1.4.1
 #   - Rings
 #   - Amulets
 #   - Light Sources
+#   - Crowns
 # Only artefacts 1 to 19 may be of these types.
 # Artefacts from index number 20 onwards must be Armour or Weapons.
 
 
 ## The Ring of Barahir
 ## 1st age
-## (ability 7/6 is Song of Staying)
+## (ability 7/3 is Song of Staunching)
 
 N:1:of Barahir
 I:45:32:0
 W:10:20:1:5000
-P:0:0d0:0:0d0
+P:0:0d0:0:1d1
 F:FREE_ACT | RES_POIS
 F:INSTA_ART
-B:7/6
+B:7/3
 D:A ring shaped into twinned serpents with eyes of emerald meeting
 D: beneath a crown of flowers. It was given to Barahir of Beor's House
 D: by Finrod Felagund the Noldorin Prince. It is a symbol of loyalty and
@@ -206,7 +207,7 @@ D: Above all else, she is famed for her insight.
 
 ## The Amulet of Tinfang Gelion
 ## 1st age namesake
-## (ability 7/11 is Woven Themes)
+## (ability 7/12 is Woven Themes)
 
 N:3:of Tinfang Gelion
 I:40:10:2
@@ -214,7 +215,7 @@ W:12:20:1:5000
 P:0:0d0:0:0d0
 F:SONG
 F:INSTA_ART
-B:7/11
+B:7/12
 D:A delicate necklace traced with intricate designs.
 D: Clasping it around your neck fills you memories of
 D: great heroes and a desire to sing of their deeds.
@@ -275,6 +276,52 @@ B:3/5
 D:This ring was wrought by Mairon under Melkor's tuition, while Mairon
 D: pretended still to be faithful to the Valar. Shadows twist and weave about
 D: its surface, and it is deathly cold.
+
+
+## The Crown of Daeron
+## 1st age
+
+N:8:of Daeron
+G:]:g
+I:33:11:4
+W:14:30:5:600000
+P:0:0d0:0:1d0
+F:SONG | INSTA_ART
+D: '... Daeron the Dark with ferny crown
+D: played with bewildering wizard's art
+D: music for breaking of the heart.'
+
+
+## The Crown of Feanor
+
+N:9:of Feanor
+I:33:11:3
+W:20:20:35:300000
+P:0:0d0:0:1d1
+F:SMITHING | WILL | RES_FIRE | SEE_INVIS | LIGHT
+F:AGGRAVATE | INSTA_ART
+D:The crown of Feanor, greatest of the Noldor. It is beautifully wrought
+D: with many shining jewels of Valinor, whose light is a challenge to those born
+D: of darkness. Though his flaws ran deep, this crown is a reminder of his
+D: greatness.
+D: "Dear-bought those songs shall be accounted, and yet shall be
+D: well-bought.  For the price could be no other."
+
+
+## The Crown of Maedhros
+## (ability 5/9 is Majesty)
+
+N:10:of Maedhros
+I:33:11:3
+W:8:20:30:30000
+P:0:0d0:0:1d1
+F:WILL | RES_FEAR
+F:DANGER | INSTA_ART
+B:5/9
+D:The crown of Maedhros, High King of the Noldor, who was captured by Morgoth
+D: when he went to parley with him and hung by his right hand from Thangorodrim
+D: for thirty years.
+
 
 
 #################################################################
@@ -784,14 +831,12 @@ D:it is the twin to Anglachel.
 
 ## The Bastard Sword 'Luinmegil'
 ## Sindarin: blue sword
-## (ability 0/11 is Anticipate)
 N:72:'Luinmegil'
 G:|:b
 I:23:21:0
 W:11:30:40:10000
 P:-2:3d4:1:0d0
-F:AGGRAVATE | RES_COLD | FREE_ACT
-B:0/11
+F:ACCURATE | RES_COLD | FREE_ACT
 D:A sword made by the Sindarin in Vinyamar. Its steel blade is a
 D: murky blue like an overcast sea and its hilt chalk white.
 
@@ -870,7 +915,7 @@ D: might should he face it again.
 N:83:'Ungoliant's Lament'
 I:23:30:0
 W:12:20:40:30000
-P:0:3d6:2:0d0
+P:-2:3d7:2:0d0
 F:SLAY_SPIDER | LIGHT | FREE_ACT
 D:A long and dimly glowing blade with a handle clad in red leather.
 D: Many spiders of the Ered Gorgoroth were slain by it in the days following
@@ -948,6 +993,18 @@ D: himself as he came to Valinor in wrath. Its envenomed bite pierced
 D: the Two Trees with wounds that would not heal.
 
 
+## The Hand Axe 'Binahkram'
+## Khuzdul - 'without name'. Haladin misunderstanding.
+
+N:92:'Binahkram'
+I:22:11:1
+W:6:20:10:1000
+P:0:5d2:0:0d0
+F:CON | SLAY_ORC | SLAY_SPIDER
+D:A sharp and well-made axe with a sturdy haft. It was gifted to Haldan,
+D: Lord of the Men of Brethil, by the dwarves of the Blue Mountains.
+
+
 ## The Battle Axe 'Dramborleg'
 ## 1st age
 
@@ -992,6 +1049,21 @@ D: was for many years an heirloom of the dwarven city of Nogrod.
 D: It grants its wielder strength to wield it and the power to
 D: fight some of Morgoth's foulest servants.
 
+## The Great Axe 'Mazarbulbark'
+## Khuzdul 'that-which-is-written axe'
+## (ability 5/7 is Vengeance)
+
+N:96:'Mazarbulbark'
+I:22:13:3
+W:14:20:90:10000
+P:-3:4d4:0:0d0
+F:WILL | SLAY_TROLL
+B:5/7
+D:Both the blade and haft of this huge axe are made of a single
+D: piece of blackened steel. Engraved on the axehead are many tiny
+D: Dwarven runes recording the names of valiant fallen warriors of
+D: Belegost.
+
 
 ## The Glaive of Gaurin
 ## 1st age
@@ -1008,13 +1080,13 @@ D: did rive the rocks of Rodrim's hall.'
 ## The Glaive of the Sirion
 ## 1st age namesake
 ## (ability 3/4 is Opportunist)
-## (ability 0/6 is Zone of Control)
+## (ability 0/9 is Zone of Control)
 
 N:100:of the Sirion
 I:22:4:3
 W:10:20:70:50000
 P:0:2d10:1:0d0
-B:0/6:3/4
+B:0/9:3/4
 D:Like the waters of its namesake river, this fine blade
 D: is ever in motion. In combat, it seems to flow into
 D: every opening, no matter how brief.
@@ -1038,14 +1110,14 @@ D: in your hands, its point guiding itself to where it is needed.
 
 ## The Quarterstaff of Halmir
 ## 1st age namesake
-## (ability 7/3 is Song of Freedom)
+## (ability 7/2 is Song of Freedom)
 
 N:104:of Halmir
 I:21:3:3
 W:2:10:40:250000
 P:0:2d4:3:0d0
 F:SUST_STR | SUST_CON | RES_POIS
-B:7/3
+B:7/2
 D:Halmir, who once bore this staff, was a chieftain among men,
 D: and resolute always against the power of Morgoth.
 
@@ -1075,23 +1147,6 @@ D: following the destruction of the Two Trees, it has a haft and head of
 D: black iron banded about with red gold.
 
 
-## The Sceptre of Thu
-## 1st age
-## (ability 7/10 is Song of Mastery)
-
-N:110:of Thu
-G:\:D
-I:21:9:2
-W:20:20:40:50000
-P:0:2d4:0:0d0
-F:GRA | DANGER | HAUNTED
-B:7/10
-D:'Men called him Thu, and as a god
-D: in after days beneath his rod
-D: bewildered bowed to him, and made
-D: his ghastly temples in the shade.'
-
-
 ##### Digging Tools #####
 
 ## The Mattock 'Burkfelek'
@@ -1113,7 +1168,7 @@ D: and enchanted for both battle and mine.
 
 N:117:of Angrod
 I:32:5:0
-W:5:10:45:4500
+W:8:12:45:4500
 P:0:0d0:0:1d3
 F:RES_COLD | RES_FEAR | REGEN
 D:The helm of Angrod, son of Finarfin, who perished in
@@ -1136,8 +1191,8 @@ D: snared many in Beleriand.
 ## (ability 5/7 is Vengeance)
 
 N:119:of the Oathbreaker
-I:32:5:2
-W:5:10:15:45000
+I:32:5:0
+W:8:12:15:45000
 P:0:0d0:0:1d3
 F:TRAITOR | LIGHT_CURSE
 B:5/7
@@ -1189,7 +1244,7 @@ D: to fight on, no matter the circumstances.
 ## Mithril Helm of Ecthelion
 ## 1st age
 ## added for Psi -- our first great smith
-## (ability 7/6 is Song of Staying)
+## (ability 7/9 is Song of Staying)
 
 N:123:of Ecthelion
 G:]:w
@@ -1197,59 +1252,16 @@ I:32:8:2
 W:16:12:40:25000
 P:1:0d0:-1:1d3
 F:SONG | RES_FIRE | RES_FEAR
-B:7/6
+B:7/9
 D:A beautiful helm, wrought of mithril and inlaid with white stones.
 D: It rises gracefully to a tall point as sharp as any spear. 
-
-
-## The Crown of Daeron
-## 1st age
-
-N:125:of Daeron
-G:]:g
-I:33:11:4
-W:14:30:5:600000
-P:0:0d0:0:1d0
-F:SONG
-D: '... Daeron the Dark with ferny crown
-D: played with bewildering wizard's art
-D: music for breaking of the heart.'
-
-## The Jewelled Crown of Feanor
-
-N:129:of Feanor
-I:33:12:3
-W:20:15:35:300000
-P:0:0d0:0:1d1
-F:SMITHING | WILL | RES_FIRE | SEE_INVIS | LIGHT
-F:AGGRAVATE
-D:The crown of Feanor, greatest of the Noldor. It is beautifully wrought
-D: with many shining jewels of Valinor, whose light is a challenge to those born
-D: of darkness. Though his flaws ran deep, this crown is a reminder of his
-D: greatness.
-D: "Dear-bought those songs shall be accounted, and yet shall be
-D: well-bought.  For the price could be no other."
-
-## The Jewelled Crown of Maedhros
-## (ability 5/9 is Majesty)
-
-N:130:of Maedhros
-I:33:12:3
-W:8:10:30:30000
-P:0:0d0:0:1d1
-F:WILL | RES_FEAR
-F:DANGER
-B:5/9
-D:The crown of Maedhros, High King of the Noldor, who was captured by Morgoth
-D: when he went to parley with him and hung by his right hand from Thangorodrim
-D: for thirty years.
 
 ##### Cloaks #####
 
 
 ## The Cloak of Maglor
 ## 1st age namesake
-## (ability 7/4 is Song of the Trees)
+## (ability 7/7 is Song of the Trees)
 
 N:131:of Maglor
 G:(:b
@@ -1257,7 +1269,7 @@ I:35:1:2
 W:13:10:20:35000
 P:0:0d0:1:0d0
 F:SONG
-B:7/4
+B:7/7
 D:A cloak worn by Maglor, the mighty singer, and gentlest of Feanor's sons.
 
 
@@ -1276,14 +1288,14 @@ D: to the hoards of Angband, you cannot say.
 
 ## The Shadow Cloak of Luthien
 ## 1st age
-## (ability 7/7 is Song of Lorien)
+## (ability 7/10 is Song of Lorien)
 
 N:134:of Luthien
 I:35:6:4
 W:13:10:10:45000
 P:0:0d0:4:0d0
 F:STEALTH | DARKNESS | SUST_GRA
-B:7/7
+B:7/10
 D:A shadowy cloak, woven from soft elven-hair.
 D: It was made by Luthien Tinuviel, the most
 D: beautiful being who ever knew death.
@@ -1324,14 +1336,14 @@ D: let you pass as a messenger journeying to Morgoth?
 ##### Bows #####
 
 ## The Shortbow of Celegorm
-## (ability 4/8 is Master Hunter)
+## (ability 1/3 is Ambush)
 
 N:142:of Celegorm
 I:19:12:-1
 W:7:10:20:9000
 P:1:1d9:0:0d0
 F:GRA
-B:4/8
+B:1/3
 D:The bow of Celegorm the great huntsman, third son of Feanor,
 D: who in days of old hunted with Orome himself.
 
@@ -1356,8 +1368,8 @@ D: vulnerable places in your foe's armour.
 N:145:'Belthronding'
 G:}:D
 I:19:13:2
-W:14:10:30:35000
-P:1:2d7:0:0d0
+W:14:10:40:35000
+P:1:2d6:0:0d0
 F:PERCEPTION
 D:The great bow of Beleg Cuthalion, made of black yew and strung with
 D: elven hair that faintly shimmers a pale clear gold.
@@ -1370,8 +1382,8 @@ D: elven hair that faintly shimmers a pale clear gold.
 N:146:'Tawarcun'
 I:19:13:0
 W:10:10:20:3500
-P:2:2d6:0:0d0
-F:FREE_ACT
+P:2:2d5:0:0d0
+F:FREE_ACT | ACCURATE
 D:A long slender bow, well worn at the notches, but supple
 D: to the touch and easy on the draw.
 
@@ -1379,14 +1391,12 @@ D: to the touch and easy on the draw.
 ## The Dragon-horn Bow of Avernien
 ## 1st age
 ## Avernien was where Earendil was equipped (after the events of Sil)
-## (ability 1/1 is Blessing of Orome)
 
 N:148:of Avernien
 I:19:14:0
-W:20:5:20:35000
-P:1:1d12:0:0d0
+W:20:10:50:35000
+P:1:4d3:0:0d0
 F:RADIANCE | RES_FEAR | RES_CONFU | RES_STUN | RES_HALLU
-B:1/1
 D:A large exquisite bow fashioned from a single horn of a slain
 D: dragon. Many are the blessings of the Eldar laid over it.
 
@@ -1651,7 +1661,7 @@ N:182:'Ultimate'
 I:23:0:0
 F:STR | DEX | CON | GRA | NEG_STR | NEG_DEX | NEG_CON | NEG_GRA
 F:STEALTH | PERCEPTION | WILL | SONG
-F:TUNNEL | SHARPNESS | VAMPIRIC | CHEAT_DEATH
+F:TUNNEL | SHARPNESS | VAMPIRIC | CHEAT_DEATH | ACCURATE
 F:SLAY_ORC | SLAY_TROLL | SLAY_WOLF | SLAY_SPIDER
 F:SLAY_UNDEAD | SLAY_RAUKO | SLAY_DRAGON
 F:BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_POIS
@@ -1670,7 +1680,7 @@ N:183:'Ultimate'
 I:22:0:0
 F:STR | DEX | CON | GRA | NEG_STR | NEG_DEX | NEG_CON | NEG_GRA
 F:STEALTH | PERCEPTION | WILL | SONG
-F:TUNNEL | SHARPNESS | VAMPIRIC | CHEAT_DEATH
+F:TUNNEL | SHARPNESS | VAMPIRIC | CHEAT_DEATH | ACCURATE
 F:SLAY_ORC | SLAY_TROLL | SLAY_WOLF | SLAY_SPIDER
 F:SLAY_UNDEAD | SLAY_RAUKO | SLAY_DRAGON
 F:BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_POIS
@@ -1688,7 +1698,7 @@ F:INSTA_ART
 N:184:'Ultimate'
 I:21:0:0
 F:STR | DEX | CON | GRA | NEG_STR | NEG_DEX | NEG_CON | NEG_GRA
-F:STEALTH | PERCEPTION | WILL | SONG | CHEAT_DEATH
+F:STEALTH | PERCEPTION | WILL | SONG | CHEAT_DEATH | ACCURATE
 F:TUNNEL
 F:SLAY_ORC | SLAY_TROLL | SLAY_WOLF | SLAY_SPIDER
 F:SLAY_UNDEAD | SLAY_RAUKO | SLAY_DRAGON
@@ -1729,7 +1739,7 @@ F:RADIANCE | RES_FEAR | RES_BLIND | SEE_INVIS | SUST_DEX
 F:SUST_CON | SUST_STR | FREE_ACT | PERCEPTION | STEALTH
 F:HUNGER | DARKNESS | DANGER | AGGRAVATE | LIGHT_CURSE
 F:HAUNTED | FEAR | VUL_FIRE | VUL_COLD | VUL_POIS
-F:INSTA_ART
+F:INSTA_ART | ACCURATE
 
 
 ## The Ultimate TV_ARROW
@@ -1750,7 +1760,6 @@ N:188:'Ultimate'
 I:45:0:0
 F:STR | DEX | NEG_STR | NEG_DEX
 F:ARCHERY | STEALTH | PERCEPTION
-F:DAMAGE_SIDES
 F:TUNNEL
 F:SUST_STR | SUST_DEX
 F:RES_FIRE | RES_COLD | RES_POIS
@@ -1809,7 +1818,7 @@ F:INSTA_ART
 N:192:'Ultimate'
 I:37:0:0
 F:STR | DEX | CON | GRA | NEG_STR | NEG_DEX | NEG_CON | NEG_GRA
-F:STEALTH | PERCEPTION | WILL | SONG
+F:STEALTH | PERCEPTION | WILL | SONG | STAND_FAST
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_GRA
 F:RES_FIRE | RES_COLD | RES_POIS
 F:RES_FEAR | RES_BLIND | RES_CONFU | RES_STUN | RES_HALLU
@@ -1839,7 +1848,7 @@ F:INSTA_ART
 N:194:'Ultimate'
 I:34:0:0
 F:STR | CON | NEG_STR | NEG_CON
-F:WILL | CHEAT_DEATH
+F:WILL | CHEAT_DEATH | DAMAGE_SIDES
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_GRA
 F:RES_FIRE | RES_COLD | RES_POIS
 F:RES_FEAR | RES_BLIND | RES_CONFU | RES_STUN
@@ -1885,7 +1894,6 @@ N:197:'Ultimate'
 I:31:0:0
 F:STR | DEX | NEG_STR | NEG_DEX
 F:ARCHERY | SMITHING
-F:DAMAGE_SIDES
 F:TUNNEL
 F:SUST_STR | SUST_DEX
 F:FREE_ACT
@@ -1899,8 +1907,8 @@ F:INSTA_ART
 N:198:'Ultimate'
 I:30:0:0
 F:DEX | NEG_DEX
-F:STEALTH
-F:SUST_DEX
+F:STEALTH | STAND_FAST
+F:SUST_DEX | RADIANCE
 F:RES_FIRE | RES_COLD | RES_POIS
 F:FREE_ACT | SPEED
 F:HUNGER | DARKNESS | DANGER | AGGRAVATE | LIGHT_CURSE

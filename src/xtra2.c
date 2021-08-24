@@ -2193,12 +2193,48 @@ void drop_loot(monster_type *m_ptr)
 /*
  * Makes Morgoth progressively more dangerous.
  */
-void anger_morgoth()
+void anger_morgoth(int level)
 {
-	(&r_info[R_IDX_MORGOTH])->evn += 2;
-	(&r_info[R_IDX_MORGOTH])->blow[0].att += 5;
-	(&r_info[R_IDX_MORGOTH])->wil += 2;
-	(&r_info[R_IDX_MORGOTH])->per += 2;
+	if (p_ptr->morgoth_state >= level) return;
+
+	switch(level)
+	{
+	case 0:
+		/* starting values - for comparison. */
+		(&r_info[R_IDX_MORGOTH])->evn = 20;
+		(&r_info[R_IDX_MORGOTH])->blow[0].att = 20;
+		(&r_info[R_IDX_MORGOTH])->wil = 25;
+		(&r_info[R_IDX_MORGOTH])->per = 10;
+		break;
+	case 1: // loses crown
+		(&r_info[R_IDX_MORGOTH])->evn = 22;
+		(&r_info[R_IDX_MORGOTH])->light = 0;
+		(&r_info[R_IDX_MORGOTH])->per = 15;
+		break;
+	case 2: // hurt or Sils stolen
+		(&r_info[R_IDX_MORGOTH])->blow[0].att = 30;
+		(&r_info[R_IDX_MORGOTH])->blow[0].dd = 7;
+		(&r_info[R_IDX_MORGOTH])->wil = 30;
+		(&r_info[R_IDX_MORGOTH])->per = 20;
+		break;
+	case 3: // badly hurt
+		(&r_info[R_IDX_MORGOTH])->evn = 25;
+		(&r_info[R_IDX_MORGOTH])->pd = 7;
+		(&r_info[R_IDX_MORGOTH])->wil = 35;
+		(&r_info[R_IDX_MORGOTH])->per = 25;
+		break;
+	case 4: // desperate
+		(&r_info[R_IDX_MORGOTH])->evn = 30;
+		(&r_info[R_IDX_MORGOTH])->blow[0].att = 40;
+		(&r_info[R_IDX_MORGOTH])->blow[0].dd = 8;
+		(&r_info[R_IDX_MORGOTH])->wil = 40;
+		(&r_info[R_IDX_MORGOTH])->per = 30;
+		break;
+	default:
+		return;
+	}
+
+	p_ptr->morgoth_state = level;
 }
 
 /*
@@ -4920,7 +4956,7 @@ bool confuse_dir(int *dp)
 }
 
 
-const char female_entry_poetry[][100] =
+const char entry_poetry[][100] =
 {
 	{ "Into the vast and echoing gloom," },
 	{ "more dread than many-tunnelled tomb" },
@@ -4931,28 +4967,10 @@ const char female_entry_poetry[][100] =
 	{ "      down to the mountain's roots profound," },
 	{ "devoured, tormented, bored and ground" },
 	{ "by seething vermin spawned of stone;" },
-	{ "  down to the depths she went alone..." },
+	{ "  down to the depths they went alone..." },
 	
 	{ "" }
 };
-
-
-const char male_entry_poetry[][100] =
-{
-	{ "Into the vast and echoing gloom," },
-	{ "more dread than many-tunnelled tomb" },
-//	{ "in labyrinthine pyramid" },
-//	{ "where everlasting death is hid," },
-	{ "  down awful corridors that wind" },
-	{ "    down to a menace dark enshrined;" },
-	{ "      down to the mountain's roots profound," },
-	{ "devoured, tormented, bored and ground" },
-	{ "by seething vermin spawned of stone;" },
-	{ "  down to the depths he went alone..." },
-	
-	{ "" }
-};
-
 
 const char tutorial_leave_text[][100] =
 {

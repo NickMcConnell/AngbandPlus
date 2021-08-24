@@ -2843,7 +2843,10 @@ static bool build_type6(int y0, int x0, bool force_forge)
 
 		rarity = v_ptr->rarity;
 		/* Surface rooms get very much rarer at depth */
-		if (v_ptr->flags & (VLT_SURFACE)) rarity <<= (v_ptr->depth * 2);
+		if (v_ptr->flags & (VLT_SURFACE))
+		{
+			rarity += ((1 << (p_ptr->depth)) / 8);
+		}
 
         /* Accept the first interesting room */
 		if ((v_ptr->typ == 6) && (v_ptr->depth <= p_ptr->depth) && (one_in_(rarity))) break;
@@ -3698,8 +3701,7 @@ void generate_cave(void)
 	// display the entry poetry
 	if (playerturn == 0)
 	{
-		if (p_ptr->psex == SEX_FEMALE)	pause_with_text(female_entry_poetry, 5, 15);
-		else							pause_with_text(male_entry_poetry, 5, 15);
+		pause_with_text(entry_poetry, 5, 15);
 	}
 	
 	// reset smithing leftover (as there is no access to the old forge)

@@ -10,6 +10,28 @@
 
 #include "angband.h"
 
+static const char *races[] = {"Noldor","Sindar","Naugrim","Edain",};
+static const char *houses[] = {"Houseless","Feanor","Fingolfin","Finarfin","Doriath","Nogrod","Belegost","Beor","Haleth","Hador","Falas" };
+
+void updatecharinfoS(void)
+{
+	//File Output + Lookup Tables
+	char tmp_Path[1024];
+	FILE *oFile;
+	int curDepth = p_ptr->max_depth * 50 ;
+	path_build(tmp_Path, sizeof(tmp_Path), ANGBAND_DIR_USER, "CharOutput.txt");
+	oFile = fopen(tmp_Path, "w");
+	fprintf(oFile, "{\n");
+	fprintf(oFile, "race: \"%s\",\n", races[p_ptr->prace]);
+	fprintf(oFile, "class: \"%s\",\n", houses[p_ptr->phouse]);
+	fprintf(oFile, "mDepth: \"%i\",\n", curDepth);
+	fprintf(oFile, "isDead: \"%i\",\n", p_ptr->is_dead);
+	fprintf(oFile, "killedBy: \"%s\",\n", p_ptr->died_from);
+	fprintf(oFile, "onTheRun: \"%i\",\n", p_ptr->on_the_run);
+	fprintf(oFile, "morgothDead: \"%i\"\n", p_ptr->morgoth_slain);
+	fprintf(oFile, "}");
+	fclose(oFile);
+}
 
 #ifdef FUTURE_SAVEFILES
 
@@ -593,8 +615,6 @@ static void wr_lore(int r_idx)
 	wr_s16b(l_ptr->deaths);
 	wr_s16b(l_ptr->psights);
 	wr_s16b(l_ptr->tsights);
-	wr_s16b(l_ptr->pscares);
-	wr_s16b(l_ptr->tscares);
 	wr_s16b(l_ptr->pkills);
 	wr_s16b(l_ptr->tkills);
 
@@ -782,7 +802,7 @@ static void wr_extra(void)
 	/* Race/House/Sex */
 	wr_byte(p_ptr->prace);
 	wr_byte(p_ptr->phouse);
-	wr_byte(p_ptr->psex);
+	wr_byte(p_ptr->unused1);
 	
 	wr_s16b(p_ptr->game_type);
 
@@ -970,6 +990,8 @@ static void wr_extra(void)
 	wr_s32b(p_ptr->unused2);
 	wr_s32b(p_ptr->unused3);
 	wr_s32b(p_ptr->unused4);
+
+	updatecharinfoS();
 }
 
 
