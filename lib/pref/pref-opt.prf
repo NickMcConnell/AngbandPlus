@@ -15,7 +15,7 @@ X:rogue_like_commands
 X:always_pickup
 X:quick_messages
 X:command_menu
-X:use_old_target
+Y:use_old_target
 X:auto_target
 Y:always_repeat
 X:confirm_destroy

@@ -416,7 +416,7 @@ static _flagzilla_ptr _flagzilla_alloc(void)
                 add_flag(flagzilla->obj_flgs[i], OF_MAGIC_RESISTANCE);
                 break;
             case RUNE_SHADOW:
-                if (object_is_body_armour(o_ptr) || o_ptr->tval == TV_CLOAK)
+                if (object_is_body_armor(o_ptr) || o_ptr->tval == TV_CLOAK)
                     add_flag(flagzilla->obj_flgs[i], OF_STEALTH);
                 break;
             case RUNE_HASTE:

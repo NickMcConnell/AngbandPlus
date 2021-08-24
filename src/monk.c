@@ -759,7 +759,7 @@ class_t *monk_get_class(void)
                     "armor he wears is too heavy, it will severely disturb his martial "
                     "arts maneuvers. As the monk advances levels, new, powerful forms "
                     "of attack become available. Their defensive capabilities increase "
-                    "likewise, but if armour is being worn, this effect decreases. "
+                    "likewise, but if armor is being worn, this effect decreases. "
                     "Wisdom determines a Monk's spell casting ability.\n \n"
                     "The different sects of monks are devoted to different areas of "
                     "magic. They select a realm from Life, Nature, Craft, Trump and Death. "

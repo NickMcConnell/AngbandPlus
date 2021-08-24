@@ -2625,7 +2625,7 @@ option_type option_info[] =
     "leave_worth",                  "Auto-destroyer leaves known worthy items" },
 
     { &leave_equip,                 FALSE, OPT_PAGE_AUTODESTROY, 7, 3,
-    "leave_equip",                  "Auto-destroyer leaves weapons and armour" },
+    "leave_equip",                  "Auto-destroyer leaves weapons and armor" },
 
     { &leave_chest,                 TRUE,  OPT_PAGE_AUTODESTROY, 7, 7,
     "leave_chest",                  "Auto-destroyer leaves closed chests" },

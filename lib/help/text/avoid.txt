@@ -154,7 +154,7 @@ Teleport Other, Destruction or Dimension Door (or simply Healing or
 too much on any one method.
 
 Do not forget about reforging. Do not use mid-level, 50K weapons or 
-armour as reforge source items. (As long as you're reforging into 
+armor as reforge source items. (As long as you're reforging into 
 lower-value slots, a 40K bow, a 30K pair of gloves or even a 25K lamp 
 will give better results more cheaply.)
 

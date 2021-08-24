@@ -66,7 +66,7 @@ few are completely unrelated)
 monster race (Pumpkin) and three new personalities (Fragile, Sneaky and 
 Noble; thanks to emulord for suggesting Noble)
 
-* Added many new random artifact names; also, random body armour, 
+* Added many new random artifact names; also, random body armor, 
 shield, glove, boot, cloak and helm artifacts now sometimes pull their 
 names from a sub-list specific to their slot
 
@@ -557,7 +557,7 @@ in addition to stats (copied from Composband)
 * Allowed Chaos-Warriors and Chaotic characters to choose their patron 
 at character creation (copied from Composband)
 
-* Buffed dwarven body armour (inspired by Composband)
+* Buffed dwarven body armor (inspired by Composband)
 
 * Chaos patrons will no longer attempt (and fail) to curse the player's 
 equipment if the player is a Death-Sword, a Filthy Rag or a Ring; they 
@@ -1097,7 +1097,7 @@ retaken
 * Retaking level 99 or 100 in coffee-break mode now slightly increases 
 the Serpent's mpower
 
-* Body armour of Celestial Protection sometimes has additional buffs 
+* Body armor of Celestial Protection sometimes has additional buffs 
 now, especially at high levels
 
 * The "You have no artifacts to reforge" error message now displays the 
@@ -1109,8 +1109,8 @@ reforge power limit (thanks to bostock for suggesting this)
 command) to consume a flask of oil (thanks to Mocht and bostock for 
 suggesting this)
 
-* Made selling caps in key shops (armoury and weapon shop) friendlier 
-to the player, and removed some duplication in the shopkeeper list
+* Made selling caps in key shops (armory and weapon shop) friendlier to 
+the player, and removed some duplication in the shopkeeper list
 
 * Slightly reduced the cost of reforging in coffee-break mode to 
 compensate for the more limited money supply

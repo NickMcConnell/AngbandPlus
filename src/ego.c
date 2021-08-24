@@ -2700,7 +2700,7 @@ static void _ego_create_armor_elemental_protection(object_type *o_ptr, int level
     int rolls, i;
     assert(o_ptr->name2 == EGO_ARMOR_ELEMENTAL_PROTECTION);
 
-    if (object_is_body_armour(o_ptr))
+    if (object_is_body_armor(o_ptr))
         rolls = 1 + m_bonus(6, level);
     else
         rolls = 1 + m_bonus(5, level);
@@ -2717,7 +2717,7 @@ static void _ego_create_armor_celestial_protection(object_type *o_ptr, int level
 {
     int rolls, i;
     assert(o_ptr->name2 == EGO_ARMOR_CELESTIAL_PROTECTION);
-    if (object_is_body_armour(o_ptr))
+    if (object_is_body_armor(o_ptr))
         rolls = 2 + m_bonus(3, level);
     else
         rolls = 1 + m_bonus(3, level);
@@ -2728,7 +2728,7 @@ static void _ego_create_armor_celestial_protection(object_type *o_ptr, int level
     if (one_in_(7))
         add_flag(o_ptr->flags, OF_HOLD_LIFE);
 
-    if (object_is_body_armour(o_ptr))
+    if (object_is_body_armor(o_ptr))
     {
         while (one_in_(3))
             o_ptr->to_a += randint1(3);
@@ -2808,7 +2808,7 @@ static void _ego_create_armor_elvenkind(object_type *o_ptr, int level)
         if (one_in_(3))
             add_flag(o_ptr->flags, OF_DEC_STR);
     }
-    if (object_is_body_armour(o_ptr) && level > 60 && one_in_(7))
+    if (object_is_body_armor(o_ptr) && level > 60 && one_in_(7))
         add_flag(o_ptr->flags, OF_SPEED);
 }
 static void _ego_create_body_armor(object_type *o_ptr, int level)

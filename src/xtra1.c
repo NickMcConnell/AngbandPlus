@@ -1935,7 +1935,7 @@ static void prt_effects(void)
         else sprintf(buf, "[Bear]");
         c_put_str(TERM_ORANGE, buf, row++, col);
     }
-    if (monk_armour_aux)
+    if (monk_armor_aux)
         c_put_str(TERM_RED, "Heavy Armor", row++, col);
     if (p_ptr->cumber_glove)
         c_put_str(TERM_RED, "Encumbrance", row++, col);
@@ -2866,7 +2866,7 @@ static void _calc_encumbrance(void)
     }
 
     /* Armor/Weapon Weight */
-    weight = equip_weight(object_is_armour);
+    weight = equip_weight(object_is_armor);
     if (caster_ptr->encumbrance.weapon_pct)
     {
         int wgt = equip_weight(object_is_melee_weapon);
@@ -3904,7 +3904,7 @@ void calc_bonuses(void)
             int ac = 0;
             o_ptr = equip_obj(i);
             if (!o_ptr) continue;
-            if (!object_is_armour(o_ptr)) continue;
+            if (!object_is_armor(o_ptr)) continue;
             if (!object_is_cursed(o_ptr)) continue;
             ac += 5;
             if (o_ptr->curse_flags & OFC_HEAVY_CURSE) ac += 7;
@@ -4737,11 +4737,11 @@ void calc_bonuses(void)
     if (p_ptr->riding && p_ptr->prace != RACE_MON_RING)
         p_ptr->levitation = riding_levitation;
 
-    monk_armour_aux = FALSE;
+    monk_armor_aux = FALSE;
 
     if (heavy_armor())
     {
-        monk_armour_aux = TRUE;
+        monk_armor_aux = TRUE;
     }
 
     /* Weapon Skills */
@@ -4990,7 +4990,7 @@ void calc_bonuses(void)
       || p_ptr->pclass == CLASS_NINJA
       || p_ptr->pclass == CLASS_NINJA_LAWYER
       || p_ptr->pclass == CLASS_SCOUT
-      || prace_is_(RACE_TOMTE)) && (monk_armour_aux != monk_notify_aux))
+      || prace_is_(RACE_TOMTE)) && (monk_armor_aux != monk_notify_aux))
     {
         if (prace_is_(RACE_TOMTE) && (tomte_heavy_armor() > 0))
         {
@@ -5005,7 +5005,7 @@ void calc_bonuses(void)
         else
             msg_print("You regain your balance.");
 
-        monk_notify_aux = monk_armour_aux;
+        monk_notify_aux = monk_armor_aux;
         p_ptr->redraw |= PR_EFFECTS;
     }
 
@@ -5463,7 +5463,7 @@ bool heavy_armor(void)
         return FALSE;
     }
 
-    monk_arm_wgt = equip_weight(object_is_armour);
+    monk_arm_wgt = equip_weight(object_is_armor);
     if (player_is_ninja) return (monk_arm_wgt > (125 + (p_ptr->lev * 2)));
     return (monk_arm_wgt > (100 + (p_ptr->lev * 4)));
 }

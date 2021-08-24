@@ -42,7 +42,7 @@ static void _load(savefile_ptr file)
                 _essences[k][j] += n;
         }
     }
-//    if ((p_ptr->personality == PERS_SEXY) && (equip_obj(equip_find_first(object_is_body_armour)).sval == SV_SWIMSUIT)) _sup_triggered = TRUE;
+//    if ((p_ptr->personality == PERS_SEXY) && (equip_obj(equip_find_first(object_is_body_armor)).sval == SV_SWIMSUIT)) _sup_triggered = TRUE;
 }
 
 static void _save(savefile_ptr file)
@@ -634,7 +634,7 @@ static void _update_object(int slot)
     object_type *o_ptr;
     switch (slot)
     {
-        case _RAG_SLOT: e_slot = equip_find_first(object_is_body_armour); break;
+        case _RAG_SLOT: e_slot = equip_find_first(object_is_body_armor); break;
         case _GLOVE_SLOT: e_slot = equip_find_first(object_is_gloves); break;
         case _BOOT_SLOT: e_slot = equip_find_first(object_is_boots); break;
         default: break;
@@ -715,7 +715,7 @@ static void _absorb_spell(int cmd, variant *res)
         var_set_string(res, "Absorb Powers");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Destroys a single set of gloves, boots or body armour, absorbing the essence of its power.");
+        var_set_string(res, "Destroys a single set of gloves, boots or body armor, absorbing the essence of its power.");
         break;
     case SPELL_CAST:
     {
@@ -750,10 +750,10 @@ static void _detect_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Detect Armour");
+        var_set_string(res, "Detect Armor");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Locate nearby gloves, boots and body armour.");
+        var_set_string(res, "Locate nearby gloves, boots and body armor.");
         break;
     case SPELL_CAST:
     {
@@ -798,10 +798,10 @@ static void _judge_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Identify Armour");
+        var_set_string(res, "Identify Armor");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Identifies gloves, boots or body armour.");
+        var_set_string(res, "Identifies gloves, boots or body armor.");
         break;
     case SPELL_CAST:
         if (p_ptr->lev >= 35)
@@ -880,7 +880,7 @@ static void _gain_level(int new_level)
     if (new_level < 40) return;
     else
     {
-        object_type *o_ptr = equip_obj(equip_find_first(object_is_body_armour));
+        object_type *o_ptr = equip_obj(equip_find_first(object_is_body_armor));
         msg_print("You have evolved into a Sexy Swimsuit.");
         p_ptr->current_r_idx = MON_SEXY_SWIMSUIT;
         o_ptr->k_idx = lookup_kind(TV_SOFT_ARMOR, SV_SWIMSUIT);
@@ -1038,7 +1038,7 @@ race_t *mon_armor_get_race(void)
                     "permanently attached an old pair of boots and two plain leather gloves "
                     "to the original rag, allowing it to walk about and punch enemies. If "
                     "you think the thing looks ugly now, just wait until it's found some "
-                    "other protective armour and has had the time to take it apart and "
+                    "other protective armor and has had the time to take it apart and "
                     "absorb its magical qualities...";
 
         me.infra = 2;

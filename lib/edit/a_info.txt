@@ -271,7 +271,7 @@ D:A suit of imperishable adamant, with conquerable strength to endure evil
 D:and disruptive magics, that protects the life force of its wearer like
 D:nothing else can.
 
-# The Full Plate Armour of Isildur
+# The Full Plate Armor of Isildur
 
 N:20:of Isildur
 I:37:15:2
@@ -282,7 +282,7 @@ F:RES_SOUND | RES_CONF | RES_NEXUS
 D:A gleaming steel suit covering the wearer from neck to foot, with runes of
 D:warding and stability deeply engraved into its surface.
 
-# The Metal Brigandine Armour of the Rohirrim
+# The Metal Brigandine Armor of the Rohirrim
 
 N:21:of the Rohirrim
 I:37:9:2
@@ -292,7 +292,7 @@ F:STR | DEX | HIDE_TYPE | XTRA_H_RES |
 F:RES_ACID | RES_ELEC | RES_COLD | RES_CONF | RES_SOUND
 D:Small metal plates cover an inner layer of sturdy canvas, and both bear
 D:scenes of hunting and war. You feel the spirit of Eorl the Young, matchless
-D:in combat, around you as you put his armour on.
+D:in combat, around you as you put his armor on.
 
 # The Mithril Chain Mail 'Belegennon' -> of Lohengrin
 
@@ -355,7 +355,7 @@ F:BLOWS | RES_SHARDS | HOLD_LIFE | SLOW_DIGEST |
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 
-# The Soft Leather Armour 'Hithlomir'
+# The Soft Leather Armor 'Hithlomir'
 
 N:27:'Hithlomir'
 I:36:4:4
@@ -1117,7 +1117,7 @@ F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | SHOW_MODS
 E:DRAIN_LIFE:20:100:120
 E:Your axe blade glows black...
 D:The narrow axe head of this weapon, finely balanced by a crow's beak,
-D:would pierce even the armour of Smaug, and its wielder becomes aware of
+D:would pierce even the armor of Smaug, and its wielder becomes aware of
 D:the minds of their enemies.
 
 # The Glaive of Pain

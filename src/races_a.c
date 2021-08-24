@@ -140,7 +140,7 @@ int android_obj_exp(object_type *o_ptr)
     }
     if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_BOW)
         return exp / 48;
-    else if (object_is_body_armour(o_ptr))
+    else if (object_is_body_armor(o_ptr))
         return 3 * exp / 32;
     else
         return exp / 16;
@@ -769,7 +769,7 @@ static int _centaur_get_powers(spell_info* spells, int max)
 
 static void _centaur_calc_bonuses(void)
 {
-    int slot = equip_find_first(object_is_body_armour);
+    int slot = equip_find_first(object_is_body_armor);
     p_ptr->pspeed += p_ptr->lev / 10;
 
     if (slot)

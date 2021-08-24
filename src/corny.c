@@ -291,14 +291,14 @@ static bool _allow_disen_insurance(object_type *o_ptr)
     int _limit = _allow_disen_limit();
     if (p_ptr->prace == RACE_MON_ARMOR || p_ptr->prace == RACE_MON_RING || p_ptr->prace == RACE_MON_SWORD) return FALSE;
     if (have_flag(o_ptr->flags, OF_RES_DISEN)) return FALSE;
-    if (!object_is_weapon_armour_ammo(o_ptr)) return FALSE;
+    if (!object_is_weapon_armor_ammo(o_ptr)) return FALSE;
     if (object_is_ammo(o_ptr)) return FALSE;
     if (o_ptr->number != 1) return FALSE;
     if (obj_value(o_ptr) < 20) return FALSE;
     if (o_ptr->to_a > _limit) return TRUE;
     if (o_ptr->to_h > _limit) return TRUE;
     if (object_is_weapon(o_ptr)) return ((o_ptr->to_a > 0) || (o_ptr->pval > 1));
-    if (object_is_armour(o_ptr)) return ((o_ptr->to_h > 0) || (o_ptr->pval > 1));
+    if (object_is_armor(o_ptr)) return ((o_ptr->to_h > 0) || (o_ptr->pval > 1));
     return FALSE;
 }
 
@@ -319,7 +319,7 @@ static int _item_disenchantment_value(object_type *o_ptr, int tyyppi, int muutos
     if (object_is_artifact(o_ptr)) mult = 4;
     if ((tyyppi == _DISEN_PVAL) && (mult > 1)) mult *= 5;
     if ((object_is_weapon(o_ptr)) && (tyyppi == _DISEN_TO_A)) outo_tyyppi = TRUE;
-    else if ((object_is_armour(o_ptr)) && ((tyyppi == _DISEN_TO_H) || (tyyppi == _DISEN_TO_D))) outo_tyyppi = TRUE;
+    else if ((object_is_armor(o_ptr)) && ((tyyppi == _DISEN_TO_H) || (tyyppi == _DISEN_TO_D))) outo_tyyppi = TRUE;
     if (outo_tyyppi) mult *= 3;
     if ((tyyppi == _DISEN_TO_A || tyyppi == _DISEN_TO_H)) div = 2;
     if ((is_real) && (!outo_tyyppi) && (tyyppi != _DISEN_PVAL))

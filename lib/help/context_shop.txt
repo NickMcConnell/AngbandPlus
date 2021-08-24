@@ -14,9 +14,9 @@ When you enter a shop, you will see a screen describing the shop's owner and the
  a) <color:s>Metal Scale Mail (-2) [13,+2]</color>                                25.0 lbs <color:D>  1860</color>
  b) <color:s>a Robe [2,+4]</color>                                                 2.0 lbs    592
  c) <color:s>2 Soft Studded Leathers [5,+0]</color>                                9.0 lbs    131
- d) <color:s>Hard Leather Armour (-1) [6,+0]</color>                              10.0 lbs    111
+ d) <color:s>Hard Leather Armor (-1) [6,+0]</color>                              10.0 lbs    111
  e) <color:s>Hard Studded Leather (-1) [7,+0]</color>                             11.0 lbs    243
- f) <color:s>2 Rhino Hide Armours (-1) [8,+0]</color>                             11.0 lbs    420
+ f) <color:s>2 Rhino Hide Armors (-1) [8,+0]</color>                             11.0 lbs    420
  g) <color:s>Leather Scale Mail (-1) [11,+2]</color>                              14.0 lbs   1410
  h) <color:s>Leather Scale Mail (-1) [11,+1]</color>                              14.0 lbs   1270
  i) <color:s>5 Leather Scale Mails (-1) [11,+0]</color>                           14.0 lbs   1160

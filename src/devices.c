@@ -1176,10 +1176,10 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_CURSE_ARMOR:
-        if (desc) return "It makes your current armour (Blasted) when you read it.";
+        if (desc) return "It makes your current armor (Blasted) when you read it.";
         if (cast)
         {
-            int slot = equip_random_slot(object_is_armour);
+            int slot = equip_random_slot(object_is_armor);
             if (slot && curse_armor(slot)) device_noticed = TRUE;
         }
         break;
@@ -1330,7 +1330,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_ENCHANT_ARMOR:
-        if (desc) return "It increases an armour's to-AC by 1 when you read it.";
+        if (desc) return "It increases an armor's to-AC by 1 when you read it.";
         if (cast)
         {
             if (!enchant_spell(0, 1)) return NULL;
@@ -1346,7 +1346,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_STAR_ENCHANT_ARMOR:
-        if (desc) return "It increases an armour's to-ac by 3-6 when you read it.";
+        if (desc) return "It increases an armor's to-ac by 3-6 when you read it.";
         if (cast)
         {
             if (!enchant_spell(0, randint1(3) + 3)) return NULL;
@@ -1630,7 +1630,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_ARTIFACT:
-        if (desc) return "It creates an artifact from a nameless weapon or armour when you read it. Don't be greedy - you will get only one artifact.";
+        if (desc) return "It creates an artifact from a nameless weapon or armor when you read it. Don't be greedy - you will get only one artifact.";
         if (cast)
         {
             device_noticed = TRUE;

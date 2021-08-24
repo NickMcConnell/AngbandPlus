@@ -134,7 +134,7 @@ void py_birth_obj(object_type *o_ptr)
         return;
 
     /* Androids can hit CL9 or more with starting Chain Mail! */
-    if (p_ptr->prace == RACE_ANDROID && object_is_body_armour(o_ptr))
+    if (p_ptr->prace == RACE_ANDROID && object_is_body_armor(o_ptr))
         return;
 
     /* Weed out duplicate gear (e.g. Artemis Archer) but note
@@ -2311,14 +2311,9 @@ static void _stats_init(void)
         case CLASS_BLOOD_MAGE:
         case CLASS_NECROMANCER:
         case CLASS_CHAOS_MAGE:
+        case CLASS_SORCERER: 
         {
             int stats[6] = { 16, 17, 9, 9, 16, 9 };
-            _stats_init_aux(stats);
-            break;
-        }
-        case CLASS_SORCERER:
-        {
-            int stats[6] = { 16, 9, 9, 9, 16, 17 };
             _stats_init_aux(stats);
             break;
         }

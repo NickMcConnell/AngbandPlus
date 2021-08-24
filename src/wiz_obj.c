@@ -1125,7 +1125,7 @@ static bool _brands_p(object_type *o_ptr)
 }
 
 static _command_t _commands[] = {
-    { 'p', "Plusses", _smith_plusses, object_is_weapon_armour_ammo },
+    { 'p', "Plusses", _smith_plusses, object_is_weapon_armor_ammo },
     { 's', "Stats", _smith_stats, object_is_wearable },
     { 'b', "Bonuses", _smith_bonuses, object_is_wearable },
     { 'r', "Resistances", _smith_resistances, object_is_wearable },

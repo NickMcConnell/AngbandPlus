@@ -4790,7 +4790,7 @@ bool set_stun(int v, bool do_dec)
     if (p_ptr->is_dead) return FALSE;
 
     if (p_ptr->no_stun) v = 0;
-    slot = equip_find_first(object_is_body_armour);
+    slot = equip_find_first(object_is_body_armor);
     if (slot && equip_obj(slot)->rune == RUNE_WATER) v = 0;
     if (psion_mental_fortress()) v = 0;
 

@@ -2023,7 +2023,7 @@ void do_cmd_list_objects(void)
                     if (info_ptr->idx && info_ptr->group != _GROUP_FEATURE)
                     {
                         object_type *o_ptr = &o_list[info_ptr->idx];
-                        if (object_is_weapon_armour_ammo(o_ptr) || object_is_known(o_ptr))
+                        if (object_is_weapon_armor_ammo(o_ptr) || object_is_known(o_ptr))
                         {
                             obj_display(o_ptr);
                             screen_load();

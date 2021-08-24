@@ -720,7 +720,7 @@ static bool double_check_immunity(object_type * o_ptr)
                 break;
             }
         }
-        else if (object_is_armour(o_ptr))
+        else if (object_is_armor(o_ptr))
         {
             for (i = 0; i < ct; i++)
                 random_resistance(o_ptr);
@@ -1288,7 +1288,7 @@ static void random_misc(object_type * o_ptr)
         case 24:
         case 25:
         case 26:
-            if (object_is_armour(o_ptr))
+            if (object_is_armor(o_ptr))
                 random_misc(o_ptr);
             else
             {
@@ -1819,7 +1819,7 @@ static void get_random_name_aux(char *return_name, object_type *o_ptr, int power
     {
         cptr filename;
 
-        if (object_is_armour(o_ptr))
+        if (object_is_armor(o_ptr))
         {
             if (magik(40))
             {
@@ -1963,7 +1963,7 @@ static _slot_weight_t _slot_weight_tbl[] = {
     {"Rings", object_is_ring, 55},
     {"Amulets", object_is_amulet, 40},
     {"Lights", object_is_lite, 36},
-    {"Body Armor", object_is_body_armour, 80},
+    {"Body Armor", object_is_body_armor, 80},
     {"Cloaks", object_is_cloak, 43},
     {"Helmets", object_is_helmet, 50},
     {"Gloves", object_is_gloves, 45},
@@ -2021,7 +2021,7 @@ int get_slot_power(obj_ptr obj)
         if (d < 12)
             w = w * d / 12;
     }
-    else if (object_is_body_armour(obj))
+    else if (object_is_body_armor(obj))
     {
         int ac = k_info[obj->k_idx].ac;
         if (ac < 16)
@@ -2735,7 +2735,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     break;
                 case 3:
                     if (!has_resistance
-                      && (object_is_body_armour(o_ptr) || object_is_shield(o_ptr))
+                      && (object_is_body_armor(o_ptr) || object_is_shield(o_ptr))
                       && one_in_(4) )
                     {
                         add_flag(o_ptr->flags, OF_RES_ACID);
@@ -2768,7 +2768,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     else if (!boosted_ac)
                     {
                         o_ptr->to_a += randint1(8);
-                        if (object_is_body_armour(o_ptr) && one_in_(7))
+                        if (object_is_body_armor(o_ptr) && one_in_(7))
                             o_ptr->ac += 5;
 
                         boosted_ac = TRUE;
@@ -2792,7 +2792,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                         one_high_resistance(o_ptr);
                     break;
                 case 4:
-                    if (!(object_is_body_armour(o_ptr) || object_is_shield(o_ptr))
+                    if (!(object_is_body_armor(o_ptr) || object_is_shield(o_ptr))
                       || one_in_(3) )
                     {
                         random_misc(o_ptr);
@@ -2899,11 +2899,11 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     }
 
     /* give it some plusses... */
-    if (object_is_armour(o_ptr))
+    if (object_is_armor(o_ptr))
     {
         int a = randint1(5) + m_bonus(5, lev) + m_bonus(10, lev);
         int max = 20;
-        if (object_is_body_armour(o_ptr)) max += 5;
+        if (object_is_body_armor(o_ptr)) max += 5;
         o_ptr->to_a += a;
         if (o_ptr->to_a > max - 5) o_ptr->to_a = trim(o_ptr->to_a, max - 5, max, lev);
     }
@@ -2941,14 +2941,14 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     if ( !obj_has_effect(o_ptr)
       && !object_is_ammo(o_ptr) )
     {
-        int odds = object_is_armour(o_ptr) ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE;
+        int odds = object_is_armor(o_ptr) ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE;
         if (one_in_(odds))
         {
             effect_add_random(o_ptr, artifact_bias);
         }
     }
 
-    if (object_is_armour(o_ptr) || o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
+    if (object_is_armor(o_ptr) || o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
     {
         int lower1 = 20, lower2 = 10;
 
@@ -3503,7 +3503,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr, byte origin)
     {
         forge1.to_h = MAX(10, forge1.to_h);
     }
-    if (object_is_armour(&forge1))
+    if (object_is_armor(&forge1))
     {
         forge1.to_a = MAX(10, forge1.to_a);
     }

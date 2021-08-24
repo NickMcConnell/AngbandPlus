@@ -444,8 +444,8 @@ With this option on, any command that allows you to pick up items manually will 
 <topic:leave_worth><color:U>Auto-destroyer leaves known worthy items</color> <color:D>(leave_worth)</color>
 This option protects known objects that can be sold in stores from auto-destruction by The Easy Destroyer.
 
-<topic:leave_equip><color:U>Auto-destroyer leaves weapons and armour</color> <color:D>(leave_equip)</color>
-This option protects all weapons and armour from auto-destruction by The Easy Destroyer.
+<topic:leave_equip><color:U>Auto-destroyer leaves weapons and armor</color> <color:D>(leave_equip)</color>
+This option protects all weapons and armor from auto-destruction by The Easy Destroyer.
 
 <topic:leave_chest><color:U>Auto-destroyer leaves closed chests</color> <color:D>(leave_chest)</color>
 This option protects all chests which are not yet opened from auto-destruction by The Easy Destroyer.

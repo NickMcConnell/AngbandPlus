@@ -2634,7 +2634,7 @@ static bool _gamble_shop_artifact(void)
     {
         k_idx = get_obj_num(lvl);
         object_prep(&forge, k_idx);
-        if (!object_is_weapon(&forge) && !object_is_armour(&forge))
+        if (!object_is_weapon(&forge) && !object_is_armor(&forge))
             continue;
         apply_magic(&forge, lvl, AM_GOOD | AM_GREAT | AM_SPECIAL);
         if (!forge.art_name)
@@ -2673,7 +2673,7 @@ static obj_ptr _get_reforge_dest(int max_power)
     sprintf(buf, "Reforge which object (Max Power = %d)? ", max_power);
     prompt.prompt = buf;
     prompt.error = "You have nothing to reforge.";
-    prompt.filter = item_tester_hook_nameless_weapon_armour;
+    prompt.filter = item_tester_hook_nameless_weapon_armor;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.flags = INV_SHOW_VALUE;
@@ -2828,7 +2828,7 @@ static bool _reforge_artifact(void)
     }
 
     /* Items like Vilya count for the full 90K when reforged into e.g.
-     * the armour slot, so the reforge should also cost accordingly */
+     * the armor slot, so the reforge should also cost accordingly */
     if (dest_max_power < value / 2)
     {
         int dest_weight = get_dest_weight(dest);
@@ -2959,7 +2959,7 @@ static bool _reforge_artifact(void)
             adjustment -= MAX(0L, (32000L + MAX(0, arvo / 2 - 3500) - min_power)) / 100 * arvo / 12000 * (MIN(4800, MAX(100, min_power - arvo - 2000))) / 12000;
         }
 
-        if (object_is_body_armour(dest))
+        if (object_is_body_armor(dest))
         {
             int nval = MAX(0, 9000L - ABS(14000L - arvo)) * 4 / 3;
             adjustment -= MAX(0, nval - ABS(min_power - 32000L)) / 220;
@@ -3894,7 +3894,7 @@ static void bldg_process_command(building_type *bldg, int i)
         enchant_item(object_allow_enchant_melee_weapon, bcost, 1, 1, 0, is_guild);
         break;
     case BACT_ENCHANT_ARMOR:
-        enchant_item(object_allow_enchant_armour, bcost, 0, 0, 1, is_guild);
+        enchant_item(object_allow_enchant_armor, bcost, 0, 0, 1, is_guild);
         break;
     case BACT_RECHARGE:
         msg_print("My apologies, but that service is no longer available!");
@@ -4038,7 +4038,7 @@ static void bldg_process_command(building_type *bldg, int i)
         paid = _gamble_shop_device(TV_ROD);
         break;
     case BACT_GAMBLE_SHOP_ARMOR:
-        paid = _gamble_shop_object(object_is_armour);
+        paid = _gamble_shop_object(object_is_armor);
         break;
     case BACT_GAMBLE_SHOP_WEAPON:
         paid = _gamble_shop_object(object_is_weapon);

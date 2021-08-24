@@ -213,7 +213,7 @@ AU        c) } Shooting  : a Sling (x2) (+0)                             0.5 lb
 STR :  1  e)   Left Ring :
 INT :  1  f)   Neck      :
 WIS :     g) ~ Light     : a Wooden Torch (with 2442 turns of light)     3.0 lb
-DEX :  1  h) ( Body      : Soft Leather Armour [4,+0]                    8.0 lb
+DEX :  1  h) ( Body      : Soft Leather Armor [4,+0]                    8.0 lb
 CON :     i)   Cloak     :
 CHR :     j)   Head      :
 AC        k)   Hands     :
@@ -660,7 +660,7 @@ screen:
 ============================= Character Equipment =============================
 
  a) a Dagger (1d4) (+0,+0)
- h) Soft Leather Armour [4,+0]
+ h) Soft Leather Armor [4,+0]
 
               |      (                                |      (                  
  Resistances  abcdefghijkl@              Abilities    abcdefghijkl@             

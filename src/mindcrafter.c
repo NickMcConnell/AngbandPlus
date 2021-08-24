@@ -284,7 +284,7 @@ void _character_armor_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Character Armour");
+        var_set_string(res, "Character Armor");
         break;
     case SPELL_DESC:
         var_set_string(res, "Turns your skin to stone and provides temporary resistance to the elements. "

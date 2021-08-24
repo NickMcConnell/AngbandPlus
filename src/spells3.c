@@ -1014,7 +1014,7 @@ bool reset_recall(void)
  */
 bool apply_disenchant(int mode)
 {
-    int slot = equip_random_slot(object_is_weapon_armour_ammo);
+    int slot = equip_random_slot(object_is_weapon_armor_ammo);
 
     if (slot)
     {
@@ -1414,7 +1414,7 @@ bool brand_weapon_aux(object_type *o_ptr)
     apply_magic(o_ptr, p_ptr->lev, AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
     return TRUE;
 }
-bool brand_armour_aux(object_type *o_ptr)
+bool brand_armor_aux(object_type *o_ptr)
 {
     if (have_flag(o_ptr->flags, OF_NO_REMOVE))
         return FALSE;
@@ -2218,7 +2218,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 /*
  * Enchant an item (in the inventory or on the floor)
- * Note that "num_ac" requires armour, else weapon
+ * Note that "num_ac" requires armor, else weapon
  * Returns TRUE if attempted, FALSE if cancelled
  */
 bool enchant_spell(int num_hit, int num_ac)
@@ -2229,7 +2229,7 @@ bool enchant_spell(int num_hit, int num_ac)
 
     prompt.prompt = "Enchant which item?";
     prompt.error = "You have nothing to enchant.";
-    prompt.filter = num_ac ? object_allow_enchant_armour : object_allow_enchant_weapon;
+    prompt.filter = num_ac ? object_allow_enchant_armor : object_allow_enchant_weapon;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
@@ -2266,11 +2266,11 @@ bool enchant_spell(int num_hit, int num_ac)
 
 
 /*
- * Check if an object is nameless weapon or armour
+ * Check if an object is nameless weapon or armor
  */
-bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
+bool item_tester_hook_nameless_weapon_armor(object_type *o_ptr)
 {
-    if ( !object_is_weapon_armour_ammo(o_ptr)
+    if ( !object_is_weapon_armor_ammo(o_ptr)
       && !(o_ptr->tval == TV_LITE && o_ptr->sval == SV_LITE_FEANOR)
       && !(o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) /* Testing ... */
       && !(prace_is_(RACE_SNOTLING) && object_is_mushroom(o_ptr)) )
@@ -2296,7 +2296,7 @@ bool artifact_scroll(void)
 
     prompt.prompt = "Enchant which item?";
     prompt.error = "You have nothing to enchant.";
-    prompt.filter = item_tester_hook_nameless_weapon_armour;
+    prompt.filter = item_tester_hook_nameless_weapon_armor;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
@@ -2469,7 +2469,7 @@ bool mundane_spell(bool only_equip)
     prompt.prompt = "Use which item?";
     prompt.error = "You have nothing you can use.";
     if (only_equip)
-        prompt.filter = object_is_weapon_armour_ammo;
+        prompt.filter = object_is_weapon_armor_ammo;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
@@ -3863,7 +3863,7 @@ void inven_damage(int who, inven_func typ, int p1, int which)
  */
 int minus_ac(void)
 {
-    int slot = equip_random_slot(object_is_armour);
+    int slot = equip_random_slot(object_is_armor);
 
     if (slot)
     {
@@ -3904,9 +3904,9 @@ bool rustproof(void)
     obj_prompt_t prompt = {0};
     char         o_name[MAX_NLEN];
 
-    prompt.prompt = "Rustproof which piece of armour?";
+    prompt.prompt = "Rustproof which piece of armor?";
     prompt.error = "You have nothing to rustproof.";
-    prompt.filter = object_is_armour;
+    prompt.filter = object_is_armor;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_FLOOR;
@@ -3942,7 +3942,7 @@ bool rustproof(void)
 
 void blast_object(object_type *o_ptr)
 {
-    bool is_armor = object_is_armour(o_ptr);
+    bool is_armor = object_is_armor(o_ptr);
     bool is_weapon = object_is_weapon(o_ptr);
     int i;
 

@@ -1022,7 +1022,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     bool            device = FALSE;
 
     bool            show_weapon = FALSE;
-    bool            show_armour = FALSE;
+    bool            show_armor = FALSE;
 
     cptr            s, s0;
     char            *t;
@@ -1192,7 +1192,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         case TV_QUIVER:
             break;
 
-        /* Armour */
+        /* Armor */
         case TV_BOOTS:
         case TV_GLOVES:
         case TV_CLOAK:
@@ -1211,7 +1211,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 else            basenm = "& # Hand~";
             }
             else
-                show_armour = TRUE;
+                show_armor = TRUE;
             break;
         }
 
@@ -1814,8 +1814,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     /* Display the item like a weapon */
     if (o_ptr->to_h) show_weapon = TRUE;
 
-    /* Display the item like armour */
-    if (o_ptr->ac) show_armour = TRUE;
+    /* Display the item like armor */
+    if (o_ptr->ac) show_armor = TRUE;
 
 
     /* Dump base weapon info */
@@ -1963,12 +1963,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     if (known)
     {
         /* Show the armor class info */
-        if (show_armour)
+        if (show_armor)
         {
             int ac = o_ptr->ac;
             int to_a = o_ptr->to_a;
 
-            if (prace_is_(RACE_CENTAUR) && object_is_body_armour(o_ptr))
+            if (prace_is_(RACE_CENTAUR) && object_is_body_armor(o_ptr))
             {
                 ac -= ac / 3;
                 if (to_a > 0)
@@ -1994,7 +1994,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     /* Hack -- always show base armor
-    else if (show_armour)
+    else if (show_armor)
     {
         t = object_desc_chr(t, ' ');
         t = object_desc_chr(t, b1);

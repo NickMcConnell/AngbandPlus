@@ -725,7 +725,7 @@ W:15:0:0:130:304
 A:15/1
 P:0:2d7:0:0
 F:SHOW_MODS | TOWN
-D:A simple, single-bladed war axe capable of chopping though limbs or armour.
+D:A simple, single-bladed war axe capable of chopping though limbs or armor.
 
 N:*:& Lucerne Hammer~
 G:/:B
@@ -1157,7 +1157,7 @@ P:0:x3.00:0:0
 A:30/2
 F:SHOW_MODS | TOWN
 D:As tall as a man, the longbow can drive an arrow through the heaviest
-D:armour.
+D:armor.
 
 N:*:& Light Crossbow~
 G:}:s
@@ -1762,14 +1762,14 @@ F:TOWN
 P:2:0d0:0:0
 D:A practical garment of thick wool or velvet, draping from neck to heels.
 
-N:*:Paper Armour~
+N:*:Paper Armor~
 G:(:w
 I:36:3:0
 W:5:0:0:30:50
 A:7/2
 P:4:1d1:0:0
 
-N:*:Soft Leather Armour~
+N:*:Soft Leather Armor~
 G:(:U
 I:36:4:0
 W:3:0:0:80:18
@@ -1787,7 +1787,7 @@ F:TOWN
 P:5:1d1:0:0
 D:A cuirass of pliable leather studded with metal rivets.
 
-N:*:Hard Leather Armour~
+N:*:Hard Leather Armor~
 G:(:U
 I:36:6:0
 W:5:0:0:100:150
@@ -1806,14 +1806,14 @@ P:7:1d2:0:0
 D:A strong leather breastplate and shoulder guards over a sleeved shirt
 D:of cured leather covered with iron studs.
 
-N:*:Rhino Hide Armour~
+N:*:Rhino Hide Armor~
 G:(:s
 I:36:8:0
 W:15:0:0:110:400
 A:15/1
 P:8:1d1:0:0
 
-N:*:Cord Armour~
+N:*:Cord Armor~
 G:(:y
 I:36:9:0
 W:5:0:0:80:200
@@ -1821,7 +1821,7 @@ A:7/1
 P:6:1d1:0:0
 F:TOWN
 
-N:*:Padded Armour~
+N:*:Padded Armor~
 G:(:y
 I:36:10:0
 W:2:0:0:60:50
@@ -1855,7 +1855,7 @@ A:40/4
 P:4:1d1:0:12
 F:STEALTH | IGNORE_FIRE | PLURAL
 
-N:*:Stone and Hide Armour~
+N:*:Stone and Hide Armor~
 G:(:U
 I:36:15:0
 W:35:0:0:200:1000
@@ -1960,7 +1960,7 @@ A:35/1
 F:TOWN
 P:18:1d4:0:0
 
-N:*:Metal Brigandine Armour~
+N:*:Metal Brigandine Armor~
 G:[:s
 I:37:9:0
 W:35:0:0:290:1100
@@ -1984,7 +1984,7 @@ A:40/2
 F:TOWN
 P:20:1d4:0:0
 
-N:*:Partial Plate Armour~
+N:*:Partial Plate Armor~
 G:[:W
 I:37:12:0
 W:45:0:0:260:1200
@@ -1993,7 +1993,7 @@ F:TOWN
 P:22:1d6:0:0
 D:A steel corselet and vambraces over a skirt and leggings of chain.
 
-N:*:Metal Lamellar Armour~
+N:*:Metal Lamellar Armor~
 G:[:W
 I:37:13:0
 W:45:0:0:340:1150
@@ -2009,7 +2009,7 @@ A:32/2
 F:TOWN
 P:17:1d4:0:0
 
-N:*:Full Plate Armour~
+N:*:Full Plate Armor~
 G:[:W
 I:37:15:0
 W:45:0:0:380:1350
@@ -2027,7 +2027,7 @@ A:45/2
 F:TOWN
 P:24:1d4:0:0
 
-N:*:Ribbed Plate Armour~
+N:*:Ribbed Plate Armor~
 G:[:W
 I:37:18:0
 W:50:0:0:380:1500
@@ -2043,7 +2043,7 @@ A:55/4
 P:35:1d4:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:Rare and wondrous is chain mail made of true-silver, for it offers more
-D:protection for the weight than any other armour.
+D:protection for the weight than any other armor.
 
 N:*:Mithril Plate Mail~
 G:[:B
@@ -2118,7 +2118,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_FIRE:30:50:150
 E:You breathe fire.
 D:A suit of scales, with all the reds of every fire ever lit. The scar
-D:tissue from an old burn aches as you put this armour on.
+D:tissue from an old burn aches as you put this armor on.
 
 N:*:Green Dragon Scale Mail~
 G:[:g
@@ -2144,7 +2144,7 @@ E:BREATHE_ONE_MULTIHUED:40:70:250
 D:A suit of scales that throbs with angry energies; it takes all your energy
 D:to master the Elements fighting an endless war trapped inside.
 
-N:*:Pseudo Dragon Scale Mail~
+N:*:Moon Dragon Scale Mail~
 G:[:v
 I:38:10:0
 W:50:0:0:200:60000
@@ -2204,7 +2204,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_SOUND:30:40:130
 E:You breathe sound.
 D:A suit of scales in mirror-like gold. You hear nothing unusual as you
-D:wear this armour, yet your ears ache as though in the midst of a
+D:wear this armor, yet your ears ache as though in the midst of a
 D:cacophony.
 
 N:*:Chaos Dragon Scale Mail~

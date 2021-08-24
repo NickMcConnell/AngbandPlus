@@ -4122,7 +4122,7 @@ static _art_type_t _art_types[] = {
     { object_is_ring, "Rings" },
     { object_is_amulet, "Amulets" },
     { object_is_lite, "Lights" },
-    { object_is_body_armour, "Body Armor" },
+    { object_is_body_armor, "Body Armor" },
     { object_is_cloak, "Cloaks" },
     { object_is_helmet, "Helmets" },
     { object_is_gloves, "Gloves" },

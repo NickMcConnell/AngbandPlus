@@ -517,7 +517,7 @@ Mimic/Possessor
   thick layer of grime, has permanently attached an old pair of boots 
   and two plain leather gloves to the original rag, allowing it to walk 
   about and punch enemies. If you think the thing looks ugly now, just 
-  wait until it's found some other protective armour and has had the 
+  wait until it's found some other protective armor and has had the 
   time to take it apart and absorb its magical qualities...
   
     Stats                   Skills
@@ -905,5 +905,5 @@ Xorn         Poor          Bad           Good          Bad             50'
 
 
 
-Automatically generated for Oposband 0.2.0.
+Automatically generated for Oposband 0.2.1.
 

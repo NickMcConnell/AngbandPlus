@@ -352,7 +352,7 @@ Martial Arts
   is too heavy, it will severely disturb his martial arts maneuvers. As 
   the monk advances levels, new, powerful forms of attack become 
   available. Their defensive capabilities increase likewise, but if 
-  armour is being worn, this effect decreases. Wisdom determines a 
+  armor is being worn, this effect decreases. Wisdom determines a 
   Monk's spell casting ability.
    
   The different sects of monks are devoted to different areas of magic. 
@@ -548,8 +548,9 @@ Magic
   her realms better than any other character. The ability to choose 
   second realm of magic has a special meaning: Only the second realm 
   can be changed in the middle of the game. You can change second realm 
-  by studying ('G') from a spellbook of new realm. They have a class 
-  power - 'Eat Magic' - which absorbs mana from wands, staves or rods.
+  with a class power 'Change 2nd Magic Realm' and a spellbook of the 
+  new realm. They have another class power - 'Eat Magic' - which 
+  absorbs mana from wands, staves or rods.
   
     Stats                   Skills
     Strength      -4        Disarming   Poor         
@@ -906,7 +907,7 @@ Hybrid
   The Ninja-Lawyer moves silently in the night, combining the stealth, 
   agility and offensive power of the ninja with the subtle practical 
   tools of the lawyer. Ninja-Lawyers, like specialist ninjas, prefer 
-  light armour and stabbing weapons and acquire the powerful 'Quick 
+  light armor and stabbing weapons and acquire the powerful 'Quick 
   Walk' class power. A ninja-lawyer relies on both wisdom and 
   dexterity, requiring the former for legal tricks and the latter for 
   ninjutsu.
@@ -1635,5 +1636,5 @@ Wild-Talent   Fair          Poor          Good          Good
 
 
 
-Automatically generated for Oposband 0.2.0.
+Automatically generated for Oposband 0.2.1.
 

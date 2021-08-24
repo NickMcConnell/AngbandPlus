@@ -21,9 +21,9 @@ owner and the items available for purchase:
  a) Metal Scale Mail (-2) [13,+2]                                25.0 lbs   1860
  b) a Robe [2,+4]                                                 2.0 lbs    592
  c) 2 Soft Studded Leathers [5,+0]                                9.0 lbs    131
- d) Hard Leather Armour (-1) [6,+0]                              10.0 lbs    111
+ d) Hard Leather Armor (-1) [6,+0]                              10.0 lbs    111
  e) Hard Studded Leather (-1) [7,+0]                             11.0 lbs    243
- f) 2 Rhino Hide Armours (-1) [8,+0]                             11.0 lbs    420
+ f) 2 Rhino Hide Armors (-1) [8,+0]                             11.0 lbs    420
  g) Leather Scale Mail (-1) [11,+2]                              14.0 lbs   1410
  h) Leather Scale Mail (-1) [11,+1]                              14.0 lbs   1270
  i) 5 Leather Scale Mails (-1) [11,+0]                           14.0 lbs   1160

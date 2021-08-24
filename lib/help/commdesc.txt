@@ -13,7 +13,7 @@ Displays a list of objects being carried but not equipped. You can carry up to 2
     a) <color:U>,</color> <color:U>5 Rations of Food</color>                    5.0 lb
     b) <color:y>!</color> <color:y>5 Flasks of oil</color>                      5.0 lb
     c) <color:U>~</color> <color:y>3 Brass Lanterns {unidentified}</color>     15.0 lb
-    d) <color:U>(</color> <color:s>Hard Leather Armour [6]</color>             10.0 lb
+    d) <color:U>(</color> <color:s>Hard Leather Armor [6]</color>             10.0 lb
     e) <color:g>(</color> <color:U>a Cloak [1]</color>                          1.0 lb
     f) <color:U>]</color> <color:U>a Pair of Soft Leather Boots [2]</color>     2.0 lb
 </indent>

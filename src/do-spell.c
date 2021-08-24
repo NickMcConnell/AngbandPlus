@@ -5299,7 +5299,7 @@ static cptr do_arcane_spell(int spell, int mode)
 
 static bool _can_enchant(obj_ptr obj) {
     if (object_is_(obj, TV_DAGGER, SV_POISON_NEEDLE)) return FALSE;
-    return object_is_weapon_armour_ammo(obj);
+    return object_is_weapon_armor_ammo(obj);
 }
 bool craft_enchant(int max, int inc)
 {
@@ -8388,16 +8388,16 @@ static cptr do_hex_spell(int spell, int mode)
 
     case 20:
         if (name) return "Curse armor";
-        if (desc) return "Curse a piece of armour that you wielding.";
+        if (desc) return "Curse a piece of armor that you wielding.";
         if (cast)
         {
             obj_prompt_t prompt = {0};
             char o_name[MAX_NLEN];
             u32b f[OF_ARRAY_SIZE];
 
-            prompt.prompt = "Which piece of armour do you curse?";
-            prompt.error = "You wield no piece of armours.";
-            prompt.filter = object_is_armour;
+            prompt.prompt = "Which piece of armor do you curse?";
+            prompt.error = "You wield no piece of armors.";
+            prompt.filter = object_is_armor;
             prompt.where[0] = INV_EQUIP;
 
             obj_prompt(&prompt);

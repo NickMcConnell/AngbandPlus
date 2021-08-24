@@ -34,7 +34,7 @@ on your map.
   .   Dirt                        *   Section of the Pattern
   .   Patch of grass              *   Section of the Pattern
   :   Flower                      1   General Store
-  :   Brake                       2   Armoury
+  :   Brake                       2   Armory
   .   Swamp                       3   Weapon Smiths
   ~   Shallow Water               4   Temple
   ~   Deep Water                  5   Alchemy Shop

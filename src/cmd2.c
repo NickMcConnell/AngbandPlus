@@ -3381,7 +3381,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
             /* Monster here, Try to hit it */
             if (cave[y][x].m_idx)
             {
-                int armour;
+                int armor;
                 bool hit = FALSE;
                 cave_type *c_ptr = &cave[y][x];
 
@@ -3405,11 +3405,11 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                 if (p_ptr->riding)
                     skills_riding_gain_archery(r_ptr);
 
-                armour = mon_ac(m_ptr);
+                armor = mon_ac(m_ptr);
                 if (p_ptr->concent)
                 {
-                    armour *= (10 - p_ptr->concent);
-                    armour /= 10;
+                    armor *= (10 - p_ptr->concent);
+                    armor /= 10;
                 }
 
                 if ( p_ptr->painted_target
@@ -3430,7 +3430,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                     if (weaponmaster_is_(WEAPONMASTER_BOWS) && p_ptr->lev >= 15)
                         chance2 += 2*(bow_range(bow) - cur_dis);
 
-                    hit = test_hit_fire(chance2 - cur_dis, armour, m_ptr->ml);
+                    hit = test_hit_fire(chance2 - cur_dis, armor, m_ptr->ml);
                 }
 
                 if ((bow->name1 == ART_TUBER) && (r_ptr->d_char == 'B')) /* Hack - avoid harming birds with Tuber's bow */

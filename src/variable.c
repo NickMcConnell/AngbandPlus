@@ -359,7 +359,7 @@ bool destroy_debug;
 bool destroy_feeling;    /* Apply auto-destroy as sense feeling */
 bool destroy_identify;    /* Apply auto-destroy as identify an item */
 bool leave_worth;    /* Auto-destroyer leaves known worthy items */
-bool leave_equip;    /* Auto-destroyer leaves weapons and armour */
+bool leave_equip;    /* Auto-destroyer leaves weapons and armor */
 bool leave_chest;    /* Auto-destroyer leaves closed chests */
 bool leave_wanted;    /* Auto-destroyer leaves wanted corpses */
 bool leave_corpse;    /* Auto-destroyer leaves corpses and skeletons */
@@ -954,8 +954,8 @@ bool (*get_obj_num_hook)(int k_idx);
 int obj_drop_theme;
 
 
-/* Hack, monk armour */
-bool monk_armour_aux;
+/* Hack, monk armor */
+bool monk_armor_aux;
 bool monk_notify_aux;
 
 #ifdef ALLOW_EASY_OPEN /* TNB */

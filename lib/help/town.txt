@@ -16,7 +16,7 @@ Symbols on your map can be broken down into three categories: terrain features s
 <color:U>  Terrain                       Shops
   ----------------------        -------------------------------</color>
   <$:FF_TREE>   A Tree                    <$:FF_GENERAL_STORE>   Entrance to General Store
-  <$:FF_SHALLOW_WATER>   Shallow Water             <$:FF_ARMOURY>   Entrance to Armory
+  <$:FF_SHALLOW_WATER>   Shallow Water             <$:FF_ARMORY>   Entrance to Armory
   <$:FF_DEEP_WATER>   Deep Water                <$:FF_WEAPON_SMITHS>   Entrance to Weapon Smith
   <$:FF_SHALLOW_LAVA>   Shallow Lava              <$:FF_TEMPLE>   Entrance to Temple
   <$:FF_DEEP_LAVA>   Deep Lava                 <$:FF_ALCHEMY_SHOP>   Entrance to Alchemy Shop
@@ -169,7 +169,7 @@ Finally, when selling objects, the cap on the store owner's purse is applied so 
   <indent><color:B>The General Store</color> (<$:FF_GENERAL_STORE>)
 The General Store sells foods, drinks, some clothing, torches, lamps, oil, shovels, picks, and spikes. All of these items and some others can be sold back to the General store for money.</indent>
 
-  <indent><color:B>The Armory</color> (<$:FF_ARMOURY>)
+  <indent><color:B>The Armory</color> (<$:FF_ARMORY>)
 The Armory is where the town's armor is fashioned. All sorts of protective gear may be bought and sold here.</indent>
 
   <indent><color:B>The Weaponsmith's Shop</color> (<$:FF_WEAPON_SMITHS>)

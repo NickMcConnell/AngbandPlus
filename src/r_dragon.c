@@ -900,7 +900,7 @@ static obj_ptr _get_reforge_dest(int max_power)
     sprintf(buf, "Reforge which object (Max Power = %d)? ", max_power);
     prompt.prompt = buf;
     prompt.error = "You have nothing to reforge.";
-    prompt.filter = item_tester_hook_nameless_weapon_armour;
+    prompt.filter = item_tester_hook_nameless_weapon_armor;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;

@@ -1179,7 +1179,7 @@ s32b obj_value_real(object_type *o_ptr)
     if (object_is_melee_weapon(o_ptr)) return weapon_cost(o_ptr, COST_REAL);
     if (object_is_ammo(o_ptr)) return ammo_cost(o_ptr, COST_REAL);
     if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr, COST_REAL);
-    if (object_is_armour(o_ptr) || object_is_shield(o_ptr)) return armor_cost(o_ptr, COST_REAL);
+    if (object_is_armor(o_ptr) || object_is_shield(o_ptr)) return armor_cost(o_ptr, COST_REAL);
     if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr))) return jewelry_cost(o_ptr, COST_REAL);
     if (o_ptr->tval == TV_LITE) return lite_cost(o_ptr, COST_REAL);
     if (o_ptr->tval == TV_QUIVER) return quiver_cost(o_ptr, COST_REAL);

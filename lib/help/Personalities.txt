@@ -325,4 +325,4 @@ Noble        <color:R>Poor         </color> <color:R>Poor         </color> <colo
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.2.0.</color>
+<color:s>Automatically generated for Oposband 0.2.1.</color>

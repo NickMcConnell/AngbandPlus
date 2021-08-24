@@ -380,7 +380,7 @@ extern bool destroy_debug;
 extern bool destroy_feeling;    /* Apply auto-destroy as sense feeling */
 extern bool destroy_identify;    /* Apply auto-destroy as identify an item */
 extern bool leave_worth;    /* Auto-destroyer leaves known worthy items */
-extern bool leave_equip;    /* Auto-destroyer leaves weapons and armour */
+extern bool leave_equip;    /* Auto-destroyer leaves weapons and armor */
 extern bool leave_chest;    /* Auto-destroyer leaves closed chests */
 extern bool leave_wanted;    /* Auto-destroyer leaves wanted corpses */
 extern bool leave_corpse;    /* Auto-destroyer leaves corpses and skeletons */
@@ -518,7 +518,7 @@ extern monster_hook_type get_mon_num_hook;
 extern monster_hook_type get_mon_num2_hook;
 extern bool (*get_obj_num_hook)(int k_idx);
 extern int  obj_drop_theme;
-extern bool monk_armour_aux;
+extern bool monk_armor_aux;
 extern bool monk_notify_aux;
 extern wilderness_type **wilderness;
 extern u32b wilderness_seed;
@@ -1566,7 +1566,7 @@ extern void apply_nexus(monster_type *m_ptr);
 extern void phlogiston(void);
 extern bool brand_weapon(int brand_type);
 extern bool brand_weapon_aux(object_type *o_ptr);
-extern bool brand_armour_aux(object_type *o_ptr);
+extern bool brand_armor_aux(object_type *o_ptr);
 extern bool brand_weapon_slaying(int brand_flag, int res_flag);
 extern void call_the_(void);
 extern void fetch(int dir, int wgt, bool require_los);
@@ -1581,7 +1581,7 @@ extern bool alchemy(void);
 extern void break_curse(object_type *o_ptr);
 extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_ac);
-extern bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr);
+extern bool item_tester_hook_nameless_weapon_armor(object_type *o_ptr);
 extern bool artifact_scroll(void);
 extern bool ident_spell(object_p p);
 extern bool identify_fully(object_p p);
@@ -2162,15 +2162,15 @@ extern bool object_is_device(object_type *o_ptr);
 extern bool object_is_bow(object_type *o_ptr);
 extern bool object_is_weapon_ammo(object_type *o_ptr);
 extern bool object_is_ammo(object_type *o_ptr);
-extern bool object_is_armour(object_type *o_ptr);
+extern bool object_is_armor(object_type *o_ptr);
 extern bool object_is_shield(object_type *o_ptr);
-extern bool object_is_body_armour(object_type *o_ptr);
+extern bool object_is_body_armor(object_type *o_ptr);
 extern bool object_is_ring(object_type *o_ptr);
 extern bool object_is_amulet(object_type *o_ptr);
 extern bool object_is_lite(object_type *o_ptr);
 extern bool object_is_boots(object_type *o_ptr);
 extern bool enchantment_hack;
-extern bool object_is_weapon_armour_ammo(object_type *o_ptr);
+extern bool object_is_weapon_armor_ammo(object_type *o_ptr);
 extern bool object_is_melee_weapon(object_type *o_ptr);
 extern bool object_is_jewelry(object_type *o_ptr);
 extern bool object_is_wearable(object_type *o_ptr);
@@ -2178,7 +2178,7 @@ extern bool object_is_equipment(object_type *o_ptr);
 extern bool object_is_unenchantable(object_type *o_ptr);
 extern bool object_allow_enchant_weapon(object_type *o_ptr);
 extern bool object_allow_enchant_melee_weapon(object_type *o_ptr);
-extern bool object_allow_enchant_armour(object_type *o_ptr);
+extern bool object_allow_enchant_armor(object_type *o_ptr);
 extern bool object_is_smith(object_type *o_ptr);
 extern bool object_is_artifact(object_type *o_ptr);
 extern bool object_is_dragon_armor(object_type *o_ptr);
@@ -2866,7 +2866,7 @@ extern bool wild_has_power(int power);
 extern void wild_reset_counter(int power);
 
 /* spells_c.c*/
-extern void change_realm_power(void);
+extern void change_realm_power(int cmd, variant* res);
 
 /* chaos_patron.c */
 extern void     chaos_choose_effect(int);

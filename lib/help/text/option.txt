@@ -892,8 +892,8 @@ Easy Auto-Destroyer Options
   This option protects known objects that can be sold in stores from 
   auto-destruction by The Easy Destroyer.
   
-  Auto-destroyer leaves weapons and armour (leave_equip)
-  This option protects all weapons and armour from auto-destruction by 
+  Auto-destroyer leaves weapons and armor (leave_equip)
+  This option protects all weapons and armor from auto-destruction by 
   The Easy Destroyer.
   
   Auto-destroyer leaves closed chests (leave_chest)

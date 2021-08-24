@@ -33,7 +33,7 @@ Inventory Commands
       a) , 5 Rations of Food                    5.0 lb
       b) ! 5 Flasks of oil                      5.0 lb
       c) ~ 3 Brass Lanterns {unidentified}     15.0 lb
-      d) ( Hard Leather Armour [6]             10.0 lb
+      d) ( Hard Leather Armor [6]             10.0 lb
       e) ( a Cloak [1]                          1.0 lb
       f) ] a Pair of Soft Leather Boots [2]     2.0 lb
   

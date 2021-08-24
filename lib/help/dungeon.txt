@@ -19,7 +19,7 @@ It will not be necessary to remember all of the symbols and their meanings. The 
   <$:FF_DIRT>   Dirt                        <$:FF_PATTERN_1>   Section of the Pattern
   <$:FF_GRASS>   Patch of grass              <$:FF_PATTERN_2>   Section of the Pattern
   <$:FF_FLOWER>   Flower                      <$:FF_GENERAL_STORE>   General Store
-  <$:FF_BRAKE>   Brake                       <$:FF_ARMOURY>   Armoury
+  <$:FF_BRAKE>   Brake                       <$:FF_ARMORY>   Armory
   <$:FF_SWAMP>   Swamp                       <$:FF_WEAPON_SMITHS>   Weapon Smiths
   <$:FF_SHALLOW_WATER>   Shallow Water               <$:FF_TEMPLE>   Temple
   <$:FF_DEEP_WATER>   Deep Water                  <$:FF_ALCHEMY_SHOP>   Alchemy Shop

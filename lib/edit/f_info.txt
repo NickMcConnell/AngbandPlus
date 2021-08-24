@@ -819,10 +819,10 @@ W:10
 F:SUBTYPE_0 | LOS | PROJECT | MOVE | NOTICE | REMEMBER | STORE | DOOR |
 F:PERMANENT | GLOW | CAN_FLY
 
-# 0x4B --> shop -- armoury (perm)
+# 0x4B --> shop -- armory (perm)
 
-N:75:ARMOURY
-E:Armoury
+N:75:ARMORY
+E:Armory
 G:2:s
 W:10
 F:SUBTYPE_1 | LOS | PROJECT | MOVE | NOTICE | REMEMBER | STORE | DOOR |

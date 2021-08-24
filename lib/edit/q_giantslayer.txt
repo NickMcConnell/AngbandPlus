@@ -5,7 +5,7 @@ D:titans to show us you're really strong.
 ?:1
 
 ?:[OR [EQU $QUEST57 Completed] [EQU $QUEST81 Completed] ]
-D:Not bad. Our armourers have made you another trophy.
+D:Not bad. Our armorers have made you another trophy.
 ?:1
 
 ?:[OR [EQU $QUEST57 Failed] [EQU $QUEST81 Failed] ]

@@ -766,7 +766,7 @@ void water_mana_action(byte check_hurt_mode, int mana)
     p_ptr->redraw |= (PR_MANA); 
     if ((mana > 0) && ((uuskieppi) || (one_in_(5))) && (randint0(2178) < MIN(76, ((water_flow_rate() * 9 / 5) - 83))))
     {
-        slot_t slot = equip_find_first(object_is_body_armour);
+        slot_t slot = equip_find_first(object_is_body_armor);
         if (slot)
         {
             object_type *o_ptr = equip_obj(slot);
@@ -828,10 +828,10 @@ static void _water_gain_level(int new_level)
 
 static bool _adjust_armor_aux(void)
 {
-    slot_t slot = equip_find_first(object_is_body_armour);
+    slot_t slot = equip_find_first(object_is_body_armor);
     if (!slot)
     {
-        msg_print("You're not even attempting to wear body armour.");
+        msg_print("You're not even attempting to wear body armor.");
         return FALSE;
     }
     else
@@ -840,7 +840,7 @@ static bool _adjust_armor_aux(void)
 //        char o_name[MAX_NLEN];
         if (!(o_ptr->marked & OM_SLIPPING))
         {
-            msg_print("Your armour does not need adjusting.");
+            msg_print("Your armor does not need adjusting.");
             return FALSE;
         }
         o_ptr->marked &= ~OM_SLIPPING;
@@ -859,10 +859,10 @@ static void _adjust_armor_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Adjust Armour");
+        var_set_string(res, "Adjust Armor");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Flow back into a slipping body armour, at the cost of two turns.");
+        var_set_string(res, "Flow back into a slipping body armor, at the cost of two turns.");
         break;
     case SPELL_CAST:
         var_set_bool(res, _adjust_armor_aux());
@@ -1039,7 +1039,7 @@ static void _water_damage(obj_ptr obj)
     char o_name[MAX_NLEN];
     int  chance = 15;
 
-    if (!object_is_armour(obj)) return;
+    if (!object_is_armor(obj)) return;
     if (randint0(1452) >= chance) return;
     if (obj->ac + obj->to_a <= 0) return;
 

@@ -78,7 +78,7 @@ enum {
 
 static bool _object_is_allowed(object_type *o_ptr, int flags)
 {
-    if (object_is_armour(o_ptr))
+    if (object_is_armor(o_ptr))
         return (flags & _ALLOW_ARMOR) ? TRUE : FALSE;
     else if (object_is_ammo(o_ptr))
         return (flags & _ALLOW_AMMO) ? TRUE : FALSE;
@@ -525,7 +525,7 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
         if (old_obj.to_h > new_obj.to_h)
             absorb_f(_find_essence_info(_ESSENCE_TO_HIT), (old_obj.to_h - new_obj.to_h)*10*mult/div);
     }
-    else if (object_is_armour(&old_obj))
+    else if (object_is_armor(&old_obj))
     {
         if (old_obj.to_h > new_obj.to_h)
             absorb_f(_find_essence_info(_ESSENCE_TO_HIT_A), (old_obj.to_h - new_obj.to_h)*10*mult/div);
@@ -585,7 +585,7 @@ static void _remove(object_type *o_ptr)
 
 static bool _on_destroy_object(object_type *o_ptr)
 {
-    if (object_is_weapon_armour_ammo(o_ptr))
+    if (object_is_weapon_armor_ammo(o_ptr))
     {
         char o_name[MAX_NLEN];
         object_desc(o_name, o_ptr, OD_COLOR_CODED);
@@ -2047,7 +2047,7 @@ static void _smith_weapon_armor(object_type *o_ptr)
                 if (_count_essences_aux(ESSENCE_TYPE_BRANDS))
                     doc_insert(_doc, "   <color:y>8</color>) Add Brand\n");
             }
-            else if (object_is_armour(o_ptr))
+            else if (object_is_armor(o_ptr))
             {
                 if (_get_essence(_ESSENCE_TO_HIT_A) || _get_essence(_ESSENCE_TO_DAM_A))
                     doc_insert(_doc, "   <color:y>7</color>) Add Slaying\n");
@@ -2127,7 +2127,7 @@ static void _smith_weapon_armor(object_type *o_ptr)
                 if (_smith_add_essence(o_ptr, ESSENCE_TYPE_SLAYS) == _UNWIND)
                     done = TRUE;
             }
-            else if (object_is_armour(o_ptr))
+            else if (object_is_armor(o_ptr))
             {
                 if (!_get_essence(_ESSENCE_TO_HIT_A) && !_get_essence(_ESSENCE_TO_DAM_A)) break;
                 if (_smith_add_slaying(o_ptr) == _UNWIND)
@@ -2244,7 +2244,7 @@ static bool _smithing(void)
 
     prompt.prompt = "Smith which object?";
     prompt.error = "You have nothing to work with.";
-    prompt.filter = object_is_weapon_armour_ammo;
+    prompt.filter = object_is_weapon_armor_ammo;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_FLOOR;
     prompt.where[2] = INV_EQUIP;

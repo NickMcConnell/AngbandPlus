@@ -2767,7 +2767,7 @@ R:11:0
 
 ### Sorcerer ###
 N:14
-I:SORCERY:CHR:0x01:0:1:40
+I:SORCERY:INT:0x01:0:1:40
 # Life (Sorcerer)
 R:0:1
 T:1:1:30:4  #0

@@ -288,7 +288,7 @@ Base HP       30        Bows        <color:D>Very Bad     </color>
 Experience   150%       Infravision 30'
 </style></indent>
 <topic:Filthy Rag><color:o>Filthy Rag</color>
-A pile of dirty, old, timeworn clothing, brought to life and sentience by magic (or perhaps just by accumulating enough micro-organisms) and filled with a strong desire to get back at all those clean, polished, fashionable plate mails. Something, likely a thick layer of grime, has permanently attached an old pair of boots and two plain leather gloves to the original rag, allowing it to walk about and punch enemies. If you think the thing looks ugly now, just wait until it's found some other protective armour and has had the time to take it apart and absorb its magical qualities...
+A pile of dirty, old, timeworn clothing, brought to life and sentience by magic (or perhaps just by accumulating enough micro-organisms) and filled with a strong desire to get back at all those clean, polished, fashionable plate mails. Something, likely a thick layer of grime, has permanently attached an old pair of boots and two plain leather gloves to the original rag, allowing it to walk about and punch enemies. If you think the thing looks ugly now, just wait until it's found some other protective armor and has had the time to take it apart and absorb its magical qualities...
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> -1</color>        Disarming   <color:o>Fair         </color>
@@ -566,4 +566,4 @@ Xorn         <color:R>Poor         </color> <color:r>Bad          </color> <colo
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.2.0.</color>
+<color:s>Automatically generated for Oposband 0.2.1.</color>

@@ -303,11 +303,11 @@ cptr do_hissatsu_spell(int spell, int mode)
         {
             if (plev > 44)
             {
-                if (!identify_fully(object_is_weapon_armour_ammo)) return NULL;
+                if (!identify_fully(object_is_weapon_armor_ammo)) return NULL;
             }
             else
             {
-                if (!ident_spell(object_is_weapon_armour_ammo)) return NULL;
+                if (!ident_spell(object_is_weapon_armor_ammo)) return NULL;
             }
         }
         break;

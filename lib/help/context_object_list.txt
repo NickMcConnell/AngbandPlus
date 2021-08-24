@@ -33,7 +33,7 @@ There are 8 wanted objects:                       #<color:u>..</color>       # #
  <color:u>!</color> <color:B>a Brown Speckled Potion             </color> N 18 E 54 #<color:s>Z</color>#####<color:s>Z</color># #    #<color:D>#</color> INT : <color:G>    15</color>
                                                   #<color:u>.</color># # #<color:s>Z</color># #    %# WIS : <color:G>18/124</color>
 There are 79 other objects:                       #<color:u>.</color># ##### #       DEX : <color:G>18/163</color>
- <color:W>[</color> <color:s>Partial Plate Armour [22]           </color> N 16 E 62 <color:D>d</color><color:u>.</color>#   #   ###     CON : <color:G> 18/64</color>
+ <color:W>[</color> <color:s>Partial Plate Armor [22]           </color> N 16 E 62 <color:D>d</color><color:u>.</color>#   #   ###     CON : <color:G> 18/64</color>
  <color:D>[</color> <color:s>Splint Mail [19]                    </color> N 18 E 55 #<color:u>.</color># <color:s>o</color> #   #<color:D>#</color>#     CHR : <color:G>    18</color>
  <color:D>[</color> <color:s>Haramakido [17]                     </color> N 17 E 52 <color:u>..</color>#   #   ###     AC     <color:G>  126</color>
  <color:s>[</color> <color:s>Double Chain Mail [16]              </color> N 16 E 59 #<color:u>.</color>##<color:U>+</color>##<color:u>...</color>####    HP <color:y> 421</color>/<color:G> 471</color>
@@ -63,7 +63,7 @@ On the surface, there are unlikely to be many interesting objects. But, there ar
 <style:screenshot>
 There are 10 interesting features:                ......<color:U>##</color><color:g>.....</color><color:G>#</color><color:g>...</color> LEVEL <color:G>    50</color>
  <color:U>1</color> <color:U>General Store                       </color> S  1 E 17 ......<color:U>##</color><color:g>.........</color> EXP <color:G>********</color>
- <color:s>2</color> <color:s>Armoury                             </color> N  6 E  4 ......<color:U>##</color><color:g>......</color><color:G>#</color><color:g>..</color> AU  <color:G>    100M</color>
+ <color:s>2</color> <color:s>Armory                             </color> N  6 E  4 ......<color:U>##</color><color:g>......</color><color:G>#</color><color:g>..</color> AU  <color:G>    100M</color>
  3 Weapon Smiths                        N  6 E 12 <color:U>###</color>...<color:U>##</color><color:g>.</color><color:G>#</color><color:g>.....</color><color:G>#</color><color:g>.</color> <color:W>|</color><color:d>     </color><color:y>*</color><color:U>(</color><color:d>    </color>
  <color:g>4</color> <color:g>Temple                              </color> N  8 W  5 <color:U>##</color><color:B>+</color>...<color:U>##</color><color:g>....</color><color:G>#</color><color:g>....</color> STR!: <color:G> 18/90</color>
  <color:b>5</color> <color:b>Alchemy Shop                        </color> N  0 W  3 <color:U>###</color>...<color:U>##</color><color:g>.........</color> INT!: <color:G>18/140</color>

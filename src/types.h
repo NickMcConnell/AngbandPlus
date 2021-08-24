@@ -488,7 +488,7 @@ struct monster_race
 
     byte hdice;               /* Creatures hit dice count */
     byte hside;               /* Creatures hit dice sides */
-    s16b ac;                  /* Armour Class: Always use mon_ac(mon) instead! */
+    s16b ac;                  /* Armor Class: Always use mon_ac(mon) instead! */
 
     s16b sleep;               /* Inactive counter (base) */
     byte aaf;                 /* Area affect radius (1-100) */

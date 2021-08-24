@@ -184,7 +184,7 @@ Jul. 10th, 2003  hengband 1.4.2 (Stable branch) released.
 - Elvish waybread fully satisfies mortals.  (from OAngband)
 - General store sell Elvish waybread.
 - Salt water don't effect undead etc...
-- Description of weapons/armour from OAngband.
+- Description of weapons/armor from OAngband.
 - Added disturb when objects with inscription {!!} is recharged.
 - Improved display of tiles at knowledge command, etc., on Bigtile mode
 

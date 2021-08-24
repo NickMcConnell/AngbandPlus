@@ -5,12 +5,23 @@ static int _get_powers(spell_info* spells, int max)
 {
     int ct = 0;
 
+    /* Eat magic */
     spell_info* spell = &spells[ct++];
     spell->level = 25;
     spell->cost = 1;
     spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_INT]);
     spell->fn = eat_magic_spell;
-	/* TODO: add change_realm_spell to this list */
+
+    /* Change second magic realm, but only once since there is no more learning limits */
+    if (!p_ptr->old_realm)
+    {
+        spell_info* spell2 = &spells[ct++];
+        spell2->level = 1;
+        spell2->cost = 1;
+        spell2->fail = 0;
+        spell2->fn = change_realm_power;
+    }
+
     return ct;
 }
 
@@ -80,9 +91,9 @@ class_t *mage_get_class(void)
                     "her realms better than any other character. The ability to choose "
                     "second realm of magic has a special meaning: Only the "
                     "second realm can be changed in the middle of the game. You can "
-                    "change second realm by studying ('G') from a spellbook of new "
-                    "realm. They have a class power - 'Eat Magic' - which absorbs mana "
-                    "from wands, staves or rods.";
+                    "change second realm with a class power 'Change 2nd Magic Realm' and "
+                    "a spellbook of the new realm. They have another class power - "
+                    "'Eat Magic' - which absorbs mana from wands, staves or rods.";
 
         me.stats[A_STR] = -4;
         me.stats[A_INT] =  3;

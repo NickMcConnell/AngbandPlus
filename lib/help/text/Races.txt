@@ -868,7 +868,7 @@ Other Races
   make them among the most stealthy of any race. Kutars, although 
   expressionless, are beautiful and so have a high charisma. Members of 
   this race can learn to expand their body horizontally. This increases 
-  armour class, but renders them vulnerable to magical attacks.
+  armor class, but renders them vulnerable to magical attacks.
   
     Stats                   Skills
     Strength      +0        Disarming   Bad          
@@ -1096,5 +1096,5 @@ Yeek         Fair          Heroic        Bad           Poor            20'
 
 
 
-Automatically generated for Oposband 0.2.0.
+Automatically generated for Oposband 0.2.1.
 

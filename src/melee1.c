@@ -1164,7 +1164,7 @@ bool make_attack_normal(int m_idx)
                                 break;
                             }
                         }
-                        slot = equip_find_first(object_is_body_armour);
+                        slot = equip_find_first(object_is_body_armor);
                         if (slot)
                         {
                             object_type *o_ptr = equip_obj(slot);

@@ -225,5 +225,5 @@ Death          Very Bad      Very Bad      Good          Fair
 
 
 
-Automatically generated for Oposband 0.2.0.
+Automatically generated for Oposband 0.2.1.
 

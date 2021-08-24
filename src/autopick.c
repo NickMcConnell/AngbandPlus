@@ -690,7 +690,7 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
         /* Ego objects */
         if (object_is_ego(o_ptr))
         {
-            if (object_is_weapon_armour_ammo(o_ptr))
+            if (object_is_weapon_armor_ammo(o_ptr))
             {
                 /*
                  * Base name of ego weapons and armors
@@ -1798,7 +1798,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     }
     else if (IS_FLG(FLG_ARMORS))
     {
-        if (!object_is_armour(o_ptr))
+        if (!object_is_armor(o_ptr))
             return FALSE;
     }
     else if (IS_FLG(FLG_SHIELDS))
@@ -2013,7 +2013,7 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
     }
 
     if (leave_equip)
-        if (object_is_weapon_armour_ammo(o_ptr)) return FALSE;
+        if (object_is_weapon_armor_ammo(o_ptr)) return FALSE;
 
     if (leave_chest)
         if ((o_ptr->tval == TV_CHEST) && o_ptr->pval) return FALSE;

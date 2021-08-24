@@ -130,7 +130,7 @@ AU  <color:G>    </color>  c) <color:u>}</color> Shooting  : <color:u>a Sling (x
 STR : <color:G> 1</color>  e)   Left Ring :
 INT : <color:G> 1</color>  f)   Neck      :
 WIS : <color:G>  </color>  g) <color:u>~</color> Light     : <color:y>a Wooden Torch (with 2442 turns of light)</color>     3.0 lb
-DEX : <color:G> 1</color>  h) <color:U>(</color> Body      : <color:s>Soft Leather Armour [4,+0]</color>                    8.0 lb
+DEX : <color:G> 1</color>  h) <color:U>(</color> Body      : <color:s>Soft Leather Armor [4,+0]</color>                    8.0 lb
 CON : <color:G>  </color>  i)   Cloak     :
 CHR : <color:G>  </color>  j)   Head      :
 AC     <color:G> </color>  k)   Hands     :
@@ -442,7 +442,7 @@ In addition to AC, though, the player has a very important set of resistances. O
 ============================= Character <color:o>E</color>quipment =============================
 
  a) a Dagger (1d4) (+0,+0)
- h) <color:W>Soft Leather Armour [4,+0]</color>
+ h) <color:W>Soft Leather Armor [4,+0]</color>
 
               <color:W>|</color>      <color:U>(</color>    <color:d>              </color>              <color:W>|</color>      <color:U>(</color>    <color:d>              </color>
  <color:G>Resistances</color>  abcdefghijkl@<color:d>             </color> <color:G>Abilities  </color>  abcdefghijkl@<color:d>             </color>

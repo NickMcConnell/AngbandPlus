@@ -62,7 +62,7 @@ The number of possible mistakes and bad ideas in the game is essentially unlimit
 
 <color:G>Always</color> choose appropriate escapes. The best way to deal with a dangerous situation can be any of Phase Door, Teleport, Teleport Level, Teleport Other, Destruction or Dimension Door (or simply Healing or *Healing*), depending on the particulars of the situation; do not rely too much on any one method.
 
-<color:r>Do not</color> forget about reforging. <color:r>Do not</color> use mid-level, 50K weapons or armour as reforge source items. (As long as you're reforging into lower-value slots, a 40K bow, a 30K pair of gloves or even a 25K lamp will give better results more cheaply.)
+<color:r>Do not</color> forget about reforging. <color:r>Do not</color> use mid-level, 50K weapons or armor as reforge source items. (As long as you're reforging into lower-value slots, a 40K bow, a 30K pair of gloves or even a 25K lamp will give better results more cheaply.)
 
 <color:r>Do not</color> hang around in open areas where many dangerous high-level monsters simultaneously have you in their lines of sight, unless there's a reason you know it to be safe (for example, if the monsters are safely confused Cyberdemons and unlikely to recover for some time).
 

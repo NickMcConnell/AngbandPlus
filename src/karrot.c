@@ -693,7 +693,7 @@ void karrot_quest_finished(quest_ptr q, bool success)
                 }
                 if (one_in_(3))
                 {
-                    int slot = equip_random_slot(object_is_armour);
+                    int slot = equip_random_slot(object_is_armor);
                     if (slot) curse_armor(slot);
                     else
                     {

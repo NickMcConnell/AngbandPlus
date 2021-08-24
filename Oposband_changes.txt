@@ -1,3 +1,9 @@
+0.2.1
+-Nerfed dragons back to their previous levels; in Vanilla Angband breath damage is reduced by distance unlike variants so the buff was too much. 
+-Restored Mage's ability to change their second magic realm, now via a class power. They can only do this once but they will be able to cast all of the spells in the new realm.
+-Fixed Sorcerer starting stat distribution as it still was boosting CHR as if it were the caster stat.
+-Ants now come in groups.
+
 0.2.0
 -Split the three types of weapons (hafted, polearms, swords) into six: hafted, stave, polearms, axes, swords, daggers+stabby weapons, adding three new weapon TVALS.
 -Replaced weapon / skill proficiency system with new system where proficiency is by weapon class (TVAL; weaponmaster choices) instead of individual weapon types.
@@ -72,7 +78,6 @@ TODO
 -Should speed just be move speed?
 -Add group ID to objects, and make weapon proficiencies based on group. Groups could be as simple as weaponmaster specialties, or more specific.
 -Make beastmasters inability to summon ghosts be a class-specific code, where summoning them always results in hostiles.
--Change spell proficiency to be book-based.
 -Caster level mechanic (merge into spell power?). 0 for non-casters or non-realms, =level for primary realm, worse for hybrid casters (who count as several levels lower for spell learning), etc
 -Merge rod effects into wands and staves, then rebrand staves rods. Expand the wizardstaff to be like the MageStaff from ToME (extra mana, extra caster level/spell power,decreased mana usage,mana regen, etc)
 -Split HP and SP regeneration (reinvigoration or something).

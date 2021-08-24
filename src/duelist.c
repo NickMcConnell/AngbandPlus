@@ -7,7 +7,7 @@
    keep the user up to date as to why their powers don't work. */
 cptr duelist_equip_error(void)
 {
-    int wgt = equip_weight(object_is_armour);
+    int wgt = equip_weight(object_is_armor);
 
     if (wgt > (120 + (p_ptr->lev * 3)))
         return "The weight of your equipment is disrupting your talents.";

@@ -167,7 +167,7 @@ race_t *kutar_get_race(void)
                     "perception skills, but renders them resistant to being confused. Their unearthly "
                     "calmness and serenity make them among the most stealthy of any race. Kutars, "
                     "although expressionless, are beautiful and so have a high charisma. Members of "
-                    "this race can learn to expand their body horizontally. This increases armour class, "
+                    "this race can learn to expand their body horizontally. This increases armor class, "
                     "but renders them vulnerable to magical attacks.";
 
         me.stats[A_STR] =  0;

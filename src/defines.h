@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 0
 #define VER_MINOR 2
-#define VER_PATCH 0
+#define VER_PATCH 1
 #define VER_EXTRA 0
 #define VERSION_IS_DEVELOPMENT (FALSE)
 
@@ -1241,7 +1241,7 @@ enum {
 #define ART_BLADETURNER         130
 #define ART_SEIRYU              201
 
-/* Hard Armour */
+/* Hard Armor */
 #define ART_SOULKEEPER          19
 #define ART_ISILDUR             20
 #define ART_ROHIRRIM            21
@@ -1253,7 +1253,7 @@ enum {
 #define ART_MORLOK              203
 #define ART_VETERAN             206
 
-/* Soft Armour */
+/* Soft Armor */
 #define ART_SHIVA_JACKET        26
 #define ART_HITHLOMIR           27
 #define ART_THALKETTOTH         28
@@ -1887,15 +1887,15 @@ enum {
 #define SV_AUGMENTED_CHAIN_MAIL          6  /* 16  */
 #define SV_DOUBLE_CHAIN_MAIL             7  /* 16  */
 #define SV_BAR_CHAIN_MAIL                8  /* 18  */
-#define SV_METAL_BRIGANDINE_ARMOUR       9  /* 19  */
+#define SV_METAL_BRIGANDINE_ARMOR       9  /* 19  */
 #define SV_SPLINT_MAIL                  10  /* 19  */
 #define SV_DO_MARU                      11  /* 20  */
-#define SV_PARTIAL_PLATE_ARMOUR         12  /* 22  */
-#define SV_METAL_LAMELLAR_ARMOUR        13  /* 23  */
+#define SV_PARTIAL_PLATE_ARMOR         12  /* 22  */
+#define SV_METAL_LAMELLAR_ARMOR        13  /* 23  */
 #define SV_HARAMAKIDO                   14  /* 17  */
-#define SV_FULL_PLATE_ARMOUR            15  /* 25  */
+#define SV_FULL_PLATE_ARMOR            15  /* 25  */
 #define SV_O_YOROI                      16  /* 24  */
-#define SV_RIBBED_PLATE_ARMOUR          18  /* 28  */
+#define SV_RIBBED_PLATE_ARMOR          18  /* 28  */
 #define SV_MITHRIL_CHAIN_MAIL           20  /* 28+ */
 #define SV_MITHRIL_PLATE_MAIL           25  /* 35+ */
 #define SV_ADAMANTITE_PLATE_MAIL        30  /* 40+ */
@@ -5195,7 +5195,7 @@ enum mon_save_fields_e {
 #define HEX_CURE_CRITICAL    17
 #define HEX_RECHARGE         18
 #define HEX_RAISE_DEAD       19
-#define HEX_CURSE_ARMOUR     20
+#define HEX_CURSE_ARMOR     20
 #define HEX_SHADOW_CLOAK     21
 #define HEX_PAIN_TO_MANA     22
 #define HEX_EYE_FOR_EYE      23

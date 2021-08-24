@@ -224,7 +224,7 @@ class_t *ninja_lawyer_get_class(void)
         me.desc = "The Ninja-Lawyer moves silently in the night, combining the "
                   "stealth, agility and offensive power of the ninja with the "
                   "subtle practical tools of the lawyer. Ninja-Lawyers, like "
-                  "specialist ninjas, prefer light armour and stabbing weapons and "
+                  "specialist ninjas, prefer light armor and stabbing weapons and "
                   "acquire the powerful 'Quick Walk' class power. A ninja-lawyer "
                   "relies on both wisdom and dexterity, requiring the former for "
                   "legal tricks and the latter for ninjutsu.";

@@ -312,7 +312,7 @@ void crafting_spell(int cmd, variant *res)
 
         prompt.prompt = "Enchant which item?";
         prompt.error = "You have nothing to enchant.";
-        prompt.filter = object_is_weapon_armour_ammo;
+        prompt.filter = object_is_weapon_armor_ammo;
         prompt.where[0] = INV_PACK;
         prompt.where[1] = INV_EQUIP;
         prompt.where[2] = INV_QUIVER;
@@ -374,9 +374,9 @@ void crafting_spell(int cmd, variant *res)
                     okay = TRUE;
                 }
             }
-            else if (object_is_armour(prompt.obj) && prompt.obj->number == 1)
+            else if (object_is_armor(prompt.obj) && prompt.obj->number == 1)
             {
-                if (brand_armour_aux(prompt.obj))
+                if (brand_armor_aux(prompt.obj))
                 {
                     prompt.obj->discount = 99;
                     okay = TRUE;
@@ -2019,73 +2019,89 @@ static void change_realm2(int next_realm)
 /*
  * Study a book to gain a new spell/prayer
  */
-void change_realm_power(void)
+void change_realm_power(int cmd, variant* res)
 {
-	obj_prompt_t prompt = { 0 };
-	int          increment = 0;
-	bool         learned = FALSE;
-	int          spell = -1; /* Spells of realm2 will have an increment of +32 */
-	cptr         p = spell_category_name(mp_ptr->spell_book);
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Change 2nd Magic Realm");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Switch to a different second magic realm.");
+        break;
+    case SPELL_CAST:
+    {
+        obj_prompt_t prompt = { 0 };
+        int          increment = 0;
+        bool         learned = FALSE;
+        int          spell = -1; /* Spells of realm2 will have an increment of +32 */
+        cptr         p = spell_category_name(mp_ptr->spell_book);
 
-	if (!p_ptr->realm1)
-	{
-		msg_print("You cannot read books!");
-		return;
-	}
+        if (!p_ptr->realm1)
+        {
+            msg_print("You cannot read books!");
+            return;
+        }
 
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
+        if (p_ptr->blind || no_lite())
+        {
+            msg_print("You cannot see!");
+            return;
+        }
 
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
+        if (p_ptr->confused)
+        {
+            msg_print("You are too confused!");
+            return;
+        }
 
-	if (p_ptr->special_defense & KATA_MUSOU)
-		set_action(ACTION_NONE);
+        if (p_ptr->special_defense & KATA_MUSOU)
+            set_action(ACTION_NONE);
 
-	/* Get an item */
-	prompt.prompt = "Study which book?";
-	prompt.error = "You have no books that you can read.";
-	prompt.filter = item_tester_learn_spell;
-	prompt.where[0] = INV_PACK;
-	prompt.where[1] = INV_FLOOR;
+        /* Get an item */
+        prompt.prompt = "Study which book?";
+        prompt.error = "You have no books that you can read.";
+        prompt.filter = item_tester_learn_spell;
+        prompt.where[0] = INV_PACK;
+        prompt.where[1] = INV_FLOOR;
 
-	obj_prompt(&prompt);
-	if (!prompt.obj) return;
+        obj_prompt(&prompt);
+        if (!prompt.obj) return;
 
-	if (prompt.obj->tval == REALM1_BOOK)
-	{
-		msg_print("This is already your primary realm!");
-		return;
-	}
-	else if (prompt.obj->tval == REALM2_BOOK)
-	{
-		msg_print("This is already your secondary realm!");
-		return;
-	}
-	else
-	{
-		if (!get_check("Really, change magic realm? ")) return;
-		change_realm2(tval2realm(prompt.obj->tval));
-		autopick_alter_obj(prompt.obj, FALSE);
-	}
+        if (prompt.obj->tval == REALM1_BOOK)
+        {
+            msg_print("This is already your primary realm!");
+            return;
+        }
+        else if (prompt.obj->tval == REALM2_BOOK)
+        {
+            msg_print("This is already your secondary realm!");
+            return;
+        }
+        else
+        {
+            if (!get_check("Really, change magic realm? ")) return;
+            change_realm2(tval2realm(prompt.obj->tval));
+            autopick_alter_obj(prompt.obj, FALSE);
+        }
 
-	/* Hack -- Handle stuff */
-	handle_stuff();
+        /* Hack -- Handle stuff */
+        handle_stuff();
 
-	/* Take a turn */
-	energy_use = 100;
+        /* Take a turn */
+        energy_use = 100;
 
-	/* Sound */
-	sound(SOUND_STUDY);
+        /* Sound */
+        sound(SOUND_STUDY);
 
-	p_ptr->update |= PU_SPELLS;
-	p_ptr->redraw |= PR_EFFECTS;
-	p_ptr->window |= PW_OBJECT;
+        p_ptr->update |= PU_SPELLS;
+        p_ptr->redraw |= PR_EFFECTS;
+        p_ptr->window |= PW_OBJECT;
+        var_set_bool(res, FALSE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
-

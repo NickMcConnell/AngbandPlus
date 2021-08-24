@@ -63,12 +63,12 @@ static grouper group_item[] =
     { TV_STAVES,        NULL },
     { TV_DAGGER,        NULL },
 
-    { TV_SOFT_ARMOR,    "Armour (Body)" },
+    { TV_SOFT_ARMOR,    "Armor (Body)" },
 
     { TV_HARD_ARMOR,    NULL },
     { TV_DRAG_ARMOR,    NULL },
 
-    { TV_BOOTS,         "Armour (Misc)" },
+    { TV_BOOTS,         "Armor (Misc)" },
 
     { TV_GLOVES,        NULL },
     { TV_HELM,          NULL },
@@ -202,7 +202,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
             break;
         }
 
-        /* Armour */
+        /* Armor */
         case TV_BOOTS:
         case TV_GLOVES:
         case TV_CLOAK:
@@ -585,7 +585,7 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
                     {
                         forge.to_h = MAX(10, forge.to_h);
                     }
-                    if (object_is_armour(&forge))
+                    if (object_is_armor(&forge))
                     {
                         forge.to_a = MAX(10, forge.to_a);
                     }
@@ -717,7 +717,7 @@ static void spoil_artifact_tables(void)
     _spoil_artifact_table_aux(doc, "Rings", object_is_ring);
     _spoil_artifact_table_aux(doc, "Amulets", object_is_amulet);
     _spoil_artifact_table_aux(doc, "Lights", object_is_lite);
-    _spoil_artifact_table_aux(doc, "Body Armor", object_is_body_armour);
+    _spoil_artifact_table_aux(doc, "Body Armor", object_is_body_armor);
     _spoil_artifact_table_aux(doc, "Cloaks", object_is_cloak);
     _spoil_artifact_table_aux(doc, "Helmets", object_is_helmet);
     _spoil_artifact_table_aux(doc, "Gloves", object_is_gloves);
@@ -740,7 +740,7 @@ static void spoil_object_tables(void)
     _spoil_object_table_aux(doc, "Rings", object_is_ring);
     _spoil_object_table_aux(doc, "Amulets", object_is_amulet);
     _spoil_object_table_aux(doc, "Lights", object_is_lite);
-    _spoil_object_table_aux(doc, "Body Armor", object_is_body_armour);
+    _spoil_object_table_aux(doc, "Body Armor", object_is_body_armor);
     _spoil_object_table_aux(doc, "Cloaks", object_is_cloak);
     _spoil_object_table_aux(doc, "Helmets", object_is_helmet);
     _spoil_object_table_aux(doc, "Gloves", object_is_gloves);

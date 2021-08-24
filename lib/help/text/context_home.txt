@@ -24,8 +24,8 @@ bit of game play, your home might look like so:
                                                                                 
     Item Description                                               Weight  Score
  a) 2 Soft Studded Leathers [5,+4]                                9.0 lbs    514
- b) Rhino Hide Armour (-1) [8,+1]                                11.0 lbs    384
- c) Cord Armour [6,+2]                                            8.0 lbs    342
+ b) Rhino Hide Armor (-1) [8,+1]                                11.0 lbs    384
+ c) Cord Armor [6,+2]                                            8.0 lbs    342
  d) a Dagger (1d4) (+0,+0)                                        1.2 lbs      3
  e) a Main Gauche (1d5) (+1,+5)                                   3.0 lbs    628
  f) a Rapier (1d6) (+4,+5)                                        4.0 lbs    876

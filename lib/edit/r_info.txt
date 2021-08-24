@@ -1,5 +1,6 @@
 # File: r_info.txt
 # With new monsters for Zangband 2.2 (or 2.3)
+# With new monsters for Oposband 1.0
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
@@ -620,10 +621,10 @@ D:It is a yapping snarling dog, dangerous when in a pack.
 N:36:Soldier ant
 G:a:u
 I:110:2d5:10:3:10:50
-W:1:1:10:6:5:49
+W:3:1:10:6:5:49
 B:BITE:HURT(1d5)
 F:WEIRD_MIND | BASH_DOOR | DROP_CORPSE |
-F:ANIMAL | WILD_GRASS
+F:ANIMAL | WILD_GRASS | FRIENDS(1d3)
 P:Copy:Snotling:Warrior
 P:Life:60
 P:Body:Ant
@@ -822,7 +823,7 @@ B:BITE:HURT(1d8)
 F:RAND_25 |
 F:WEIRD_MIND | DROP_CORPSE
 F:BASH_DOOR | WILD_WOOD | WILD_GRASS |
-F:ANIMAL
+F:ANIMAL | FRIENDS
 P:Copy:Snotling:Warrior
 P:Life:65
 P:Body:Ant
@@ -1195,7 +1196,7 @@ I:110:3d6:8:16:80:30
 W:3:1:30:9:40:168
 B:BITE:HURT(1d7)
 F:WEIRD_MIND | BASH_DOOR | WILD_GRASS
-F:ANIMAL | DROP_CORPSE
+F:ANIMAL | DROP_CORPSE | FRIENDS
 P:Copy:Snotling:Warrior
 P:Life:70
 P:Body:Ant
@@ -1297,7 +1298,7 @@ F:ANIMAL | CAN_SWIM | DROP_CORPSE
 P:Copy:Snotling:Tourist
 P:Life:70
 P:Body:Scrawny
-D:It is an armoured lizard with a powerful bite.
+D:It is an armored lizard with a powerful bite.
 
 #Dup with N:142
 N:83:Novice ranger
@@ -2449,7 +2450,7 @@ D:An orc dressed in skins who gestures wildly.
 
 N:163:Baby blue dragon
 G:d:B
-I:110:16d10:20:36:70:150
+I:110:10d10:20:30:70:150
 W:9:2:40:35:700:459
 B:CLAW:HURT(1d4)
 B:CLAW:HURT(1d4)
@@ -2467,7 +2468,7 @@ D:its scales a pale blue.
 
 N:164:Baby white dragon
 G:d:W
-I:110:16d10:20:36:70:150
+I:110:10d10:20:30:70:150
 W:9:2:40:35:700:460
 B:CLAW:HURT(1d4)
 B:CLAW:HURT(1d4)
@@ -2485,7 +2486,7 @@ D:its scales a pale white.
 
 N:165:Baby green dragon
 G:d:G
-I:110:16d10:20:36:70:150
+I:110:10d10:20:30:70:150
 W:9:2:40:35:700:461
 B:CLAW:HURT(1d4)
 B:CLAW:HURT(1d4)
@@ -2503,7 +2504,7 @@ D:its scales a sickly green.
 
 N:166:Baby black dragon
 G:d:s
-I:110:16d10:20:36:70:150
+I:110:10d10:20:30:70:150
 W:9:2:40:35:750:546
 B:CLAW:HURT(1d4)
 B:CLAW:HURT(1d4)
@@ -2521,7 +2522,7 @@ D:its scales a dull black.
 
 N:167:Baby red dragon
 G:d:R
-I:110:16d10:20:36:70:150
+I:110:11d10:20:30:70:150
 W:9:2:40:35:850:563
 B:CLAW:HURT(1d4)
 B:CLAW:HURT(1d4)
@@ -2544,7 +2545,7 @@ W:9:2:80:22:500:408
 B:BITE:HURT(1d5)
 B:STING:HURT(1d4):LOSE_STR(50%)
 F:WEIRD_MIND | BASH_DOOR | WILD_ALL | DROP_CORPSE
-F:ANIMAL
+F:ANIMAL | FRIENDS
 P:Copy:Snotling:Warrior
 P:Life:75
 P:Body:Ant
@@ -2768,7 +2769,7 @@ P:Copy:Dark-Elf:Warrior-Mage
 S:1_IN_12
 S:MISSILE
 O:DROP_WARRIOR
-D:A dark elven figure in armour and ready with his sword.
+D:A dark elven figure in armor and ready with his sword.
 
 N:183:Sand-dweller
 G:u:U
@@ -2908,7 +2909,7 @@ S:1_IN_11 |
 S:DRAIN_MANA
 D:It is a strange glowing growth on the dungeon floor.
 
-N:193:Cave Drakling
+N:193:Moon Dragon
 G:d:s
 I:110:20d10:20:30:40:250
 W:10:2:50:150:1200:504
@@ -2922,7 +2923,7 @@ P:Copy:Human:Beastmaster
 P:Body:Dragon
 S:FREQ_5 |
 S:CONFUSE | SCARE | BR_LITE | BR_DARK | DETECT_OBJECTS
-D:A small relative of the dragon that inhabits dark caves.
+D:A small relative of the dragon that inhabits dark caves and only comes to the surface at full moons.
 
 N:194:Tengu
 G:u:b
@@ -3524,7 +3525,7 @@ F:ANIMAL | DROP_SKELETON
 F:POS_GAIN_AC
 P:Copy:Human:Warrior
 P:Body:Centipede4
-D:It is a vast armoured centipede with massive mandibles and a spiked tail.
+D:It is a vast armored centipede with massive mandibles and a spiked tail.
 
 N:233:Spotted jelly
 G:j:s
@@ -4346,7 +4347,7 @@ F:EVIL | ORC | RES_DARK | CAN_SPEAK
 P:Copy:Kobold:Warrior
 S:1_IN_15 | SHOOT(3d6)
 O:DROP_WARRIOR_SHOOT
-D:An armoured orc with an air of authority.
+D:An armored orc with an air of authority.
 
 N:286:Gelatinous cube
 G:j:B
@@ -5224,7 +5225,7 @@ P:Skills:0:-7:0:0:0:0:0:0
 P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:Body:Hound
 D:A fierce and dangerous cat, its huge tusks and sharp claws would lacerate
-D:even the strongest armour.
+D:even the strongest armor.
 
 N:340:Water hound
 G:Z:b
@@ -5367,7 +5368,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS
 P:Copy:Dark-Elf:Chaos-Warrior
 S:1_IN_5 | DETECT_MONSTERS | DETECT_TRAPS
 S:HASTE | BLIND | CONFUSE | DARKNESS | BO_FIRE | BO_COLD | MISSILE
-D:A dark elven figure in armour and radiating evil power.
+D:A dark elven figure in armor and radiating evil power.
 
 N:349:Cloud giant
 G:P:B
@@ -6351,10 +6352,9 @@ I:110:19d8:10:40:40:50
 W:26:1:90:90:800:469
 B:BITE:HURT(2d12)
 B:STING:ACID(4d4)
-B:SPIT:ACID(2d4)
 F:RAND_25 | KILL_BODY | DROP_CORPSE
 F:WEIRD_MIND | BASH_DOOR |
-F:ANIMAL
+F:ANIMAL | FRIENDS
 P:Copy:Snotling:Warrior
 P:Life:80
 P:Body:Ant
@@ -6947,7 +6947,7 @@ S:1_IN_8 |
 S:BLIND | SCARE | CAUSE_3 | DARKNESS | HEROISM
 P:Copy:Dunadan:Paladin
 O:DROP_PALADIN_EVIL
-D:He is a figure encased in deep black plate armour; he looks at you
+D:He is a figure encased in deep black plate armor; he looks at you
 D:menacingly.
 
 N:443:Seahorse
@@ -7232,11 +7232,11 @@ D:It is a floor tile corrupted by chaos.
 
 N:459:Young blue dragon
 G:d:b
-I:112:30d10:20:60:70:200
-W:29:1:999:500:4000:560
-B:CLAW:HURT(2d4)
-B:CLAW:HURT(2d4)
-B:BITE:HURT(1d6):ELEC(1d6)
+I:112:27d10:20:50:70:200
+W:29:1:999:330:4000:560
+B:CLAW:HURT(1d4)
+B:CLAW:HURT(1d4)
+B:BITE:HURT(1d6):ELEC(1d4)
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_MOUNTAIN | WILD_WOOD |
 F:DROP_60 | DROP_90 | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | CAN_FLY |
@@ -7250,11 +7250,11 @@ D:deep blue in hue. Sparks crackle along its length.
 
 N:460:Young white dragon
 G:d:w
-I:112:30d10:20:60:70:200
-W:29:1:999:500:4000:549
-B:CLAW:HURT(2d4)
-B:CLAW:HURT(2d4)
-B:BITE:HURT(1d6):COLD(1d6)
+I:112:27d10:20:50:70:200
+W:29:1:999:300:4000:549
+B:CLAW:HURT(1d4)
+B:CLAW:HURT(1d4)
+B:BITE:HURT(1d6):COLD(1d4)
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_MOUNTAIN | WILD_WASTE |
 F:DROP_60 | DROP_90 | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | CAN_FLY |
@@ -7268,11 +7268,11 @@ D:frosty white in hue. Icy blasts of cold air come from it as it breathes.
 
 N:461:Young green dragon
 G:d:g
-I:112:30d10:20:60:70:200
-W:29:1:999:500:4000:561
-B:CLAW:HURT(2d4)
-B:CLAW:HURT(2d4)
-B:BITE:HURT(1d6):POISON(1d6)
+I:112:27d10:20:60:70:200
+W:29:1:999:320:4000:561
+B:CLAW:HURT(1d4)
+B:CLAW:HURT(1d4)
+B:BITE:HURT(1d6):POISON(1d4)
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_MOUNTAIN | WILD_SWAMP |
 F:DROP_60 | DROP_90 | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | CAN_FLY |
@@ -7286,11 +7286,11 @@ D:deep green in hue. Foul gas seeps through its scales.
 
 N:462:Young bronze dragon
 G:d:U
-I:112:30d10:20:63:150:200
-W:29:3:999:500:4000:562
-B:CLAW:HURT(2d4)
-B:CLAW:HURT(2d4)
-B:BITE:HURT(1d6):CONFUSE(1d6, 20%)
+I:112:27d10:20:63:150:200
+W:29:3:999:340:4000:562
+B:CLAW:HURT(1d4)
+B:CLAW:HURT(1d4)
+B:BITE:HURT(1d6):CONFUSE(1d4, 20%)
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_MOUNTAIN |
 F:DROP_60 | DROP_90 | DROP_2D2 |
 F:OPEN_DOOR | BASH_DOOR | CAN_FLY |
@@ -7406,7 +7406,7 @@ W:30:2:80:80:1000:473
 B:BITE:ELEC(5d5)
 F:RAND_25 | WILD_ALL | DROP_CORPSE
 F:WEIRD_MIND | BASH_DOOR |
-F:ANIMAL | RES_ELEC
+F:ANIMAL | RES_ELEC | FRIENDS
 P:Copy:Snotling:Warrior
 P:Life:80
 P:Body:Ant
@@ -7470,11 +7470,11 @@ G:a:o
 I:120:19d6:10:40:40:60
 W:30:3:90:90:1200:548
 B:BITE:HURT(2d12)
-F:RAND_25 | KILL_BODY | FRIENDS(3d3) | WEIRD_MIND | BASH_DOOR | ANIMAL
+F:RAND_25 | KILL_BODY | FRIENDS(6d3) | WEIRD_MIND | BASH_DOOR | ANIMAL
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Warrior
 P:Body:Ant
-D:An armoured form moving with purpose. Powerful on its own, flee when
+D:An armored form moving with purpose. Powerful on its own, flee when
 D:hordes of them march.
 
 N:474:Killer slicer beetle
@@ -8443,7 +8443,7 @@ F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Barbarian:Beastmaster
 P:Body:Dragon
 S:FREQ_10 | BR_FIRE | DETECT_OBJECTS
-D:Doom drakes are trained firedrakes, always moving in pairs, looking
+D:Doom drakes are trained firedrakes, always moving in groups, looking
 D:for a battle.
 
 N:528:Gargoyle
@@ -8553,7 +8553,7 @@ F:POS_SEE_INVIS | POS_HOLD_LIFE
 P:Copy:High-Elf:Rogue
 S:1_IN_8 |
 S:BLIND | PARALYZE | CONFUSE | SCARE | BO_NETHER
-D:A towering figure clad in gruesome spiked armour, you
+D:A towering figure clad in gruesome spiked armor, you
 D:feel a chill in the air as he advances silently through
 D:the dungeon.
 
@@ -8766,11 +8766,11 @@ D:It is a towering mass of filth, an eyesore of ooze.
 
 N:546:Young black dragon
 G:d:D
-I:112:30d10:20:60:50:200
+I:112:25d10:20:60:50:200
 W:35:1:999:680:4000:592
-B:CLAW:HURT(2d5)
-B:CLAW:HURT(2d5)
-B:BITE:HURT(1d6):ACID(1d6)
+B:CLAW:HURT(1d5)
+B:CLAW:HURT(1d5)
+B:BITE:HURT(1d6):ACID(1d4)
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_SWAMP |
 F:DROP_60 | DROP_90 | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | CAN_FLY |
@@ -8804,7 +8804,7 @@ W:35:1:90:350:0:0
 B:BITE:HURT(2d12):FIRE(1d12)
 B:BITE:HURT(2d12):FIRE(1d12)
 F:FORCE_MAXHP | KILL_BODY | FRIENDS(3d3, 50%) | WEIRD_MIND | BASH_DOOR | ANIMAL
-F:RES_FIRE
+F:RES_FIRE | FRIENDS
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Warrior
 P:Body:Ant
@@ -8812,11 +8812,11 @@ D:A giant ant covered in shaggy fur. Its powerful jaws glow with heat.
 
 N:549:Mature white dragon
 G:d:w
-I:115:70d10:20:85:70:250
+I:115:40d10:20:65:70:250
 W:35:1:999:1200:10000:617
-B:CLAW:HURT(3d8)
-B:CLAW:HURT(3d8)
-B:BITE:HURT(2d8):COLD(2d8)
+B:CLAW:HURT(1d8)
+B:CLAW:HURT(1d8)
+B:BITE:HURT(2d8):COLD(2d4)
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_2D2 |
 F:OPEN_DOOR | BASH_DOOR | CAN_FLY | WILD_WASTE | WILD_MOUNTAIN |
 F:EVIL | DRAGON | RES_COLD | NO_CONF | NO_SLEEP | RIDING
@@ -9000,7 +9000,7 @@ I:112:30d10:20:63:150:200
 W:36:2:999:1050:6000:590
 B:CLAW:HURT(1d8)
 B:CLAW:HURT(1d8)
-B:BITE:HURT(2d10):SOUND(3d4, 50%)
+B:BITE:HURT(2d8):SOUND(2d4, 50%)
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:DROP_60 | DROP_90 | DROP_2D2 | RIDING
 F:OPEN_DOOR | BASH_DOOR | WILD_MOUNTAIN |
@@ -9014,11 +9014,11 @@ D:tarnished gold hue, and light is reflected from its form.
 
 N:560:Mature blue dragon
 G:d:b
-I:115:70d10:20:85:70:250
+I:115:40d10:20:75:70:250
 W:36:1:999:1400:10000:601
-B:CLAW:HURT(3d8)
-B:CLAW:HURT(3d8)
-B:BITE:HURT(2d10):ELEC(3d5)
+B:CLAW:HURT(1d8)
+B:CLAW:HURT(1d8)
+B:BITE:HURT(2d10):ELEC(2d5)
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:DROP_60 | DROP_90 | DROP_2D2 | RIDING
 F:BASH_DOOR | WILD_MOUNTAIN | WILD_WOOD |
@@ -9031,11 +9031,11 @@ D:A large dragon, scales tinted deep blue.
 
 N:561:Mature green dragon
 G:d:g
-I:115:70d10:20:85:70:250
+I:115:40d10:20:70:70:250
 W:36:1:999:1300:10000:618
-B:CLAW:HURT(3d8)
-B:CLAW:HURT(3d8)
-B:BITE:HURT(2d10):POISON(3d5)
+B:CLAW:HURT(1d8)
+B:CLAW:HURT(1d8)
+B:BITE:HURT(2d10):POISON(2d5)
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:DROP_60 | DROP_90 | DROP_2D2 |
 F:BASH_DOOR | WILD_MOUNTAIN | WILD_WOOD |
@@ -9048,11 +9048,11 @@ D:A large dragon, scales tinted deep green.
 
 N:562:Mature bronze dragon
 G:d:U
-I:115:70d10:20:85:150:250
+I:115:44d10:20:70:150:250
 W:36:2:999:1500:10000:602
-B:CLAW:HURT(3d8)
-B:CLAW:HURT(3d8)
-B:BITE:HURT(2d10):CONFUSE(3d5, 20%)
+B:CLAW:HURT(1d8)
+B:CLAW:HURT(1d8)
+B:BITE:HURT(2d10):CONFUSE(2d5, 20%)
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_MOUNTAIN |
 F:DROP_1D2 | DROP_4D2 | CAN_FLY |
 F:BASH_DOOR | RIDING
@@ -9065,7 +9065,7 @@ D:A large dragon with scales of rich bronze.
 
 N:563:Young red dragon
 G:d:r
-I:112:30d10:20:63:50:200
+I:112:29d10:20:63:50:200
 W:36:1:999:700:5000:589
 B:CLAW:HURT(1d8)
 B:CLAW:HURT(1d8)
@@ -9294,7 +9294,7 @@ P:Copy:Zombie:Warrior
 D:It is a massive figure clothed in wrappings. You are wary of its massive
 D:fists.
 
-N:576:Fire angel
+N:576:Draconic Assassin
 G:d:y
 I:120:50d10:10:100:25:170
 W:37:3:70:1500:0:0
@@ -9536,11 +9536,11 @@ D:A whirlpool of intense flame, charring the stones at your feet.
 
 N:589:Mature red dragon
 G:d:r
-I:115:70d10:20:85:30:250
+I:115:48d10:20:80:30:250
 W:37:1:999:1700:10000:644
-B:CLAW:HURT(3d8)
-B:CLAW:HURT(3d8)
-B:BITE:HURT(3d12):FIRE(3d6)
+B:CLAW:HURT(1d4)
+B:CLAW:HURT(1d10)
+B:BITE:HURT(2d12):FIRE(2d6)
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_MOUNTAIN | WILD_VOLCANO |
 F:DROP_1D2 | DROP_4D2 | CAN_FLY | RIDING
 F:BASH_DOOR | SELF_LITE_1 |
@@ -9553,11 +9553,11 @@ D:A large dragon, scales tinted deep red.
 
 N:590:Mature gold dragon
 G:d:y
-I:115:70d10:20:85:150:250
+I:115:56d10:20:80:150:250
 W:37:2:999:1800:12000:645
-B:CLAW:HURT(3d8)
-B:CLAW:HURT(3d8)
-B:BITE:HURT(3d12):CUT(2d6)
+B:CLAW:HURT(1d4)
+B:CLAW:HURT(1d10)
+B:BITE:HURT(2d12):CUT(2d6)
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_MOUNTAIN |
 F:DROP_1D2 | DROP_4D2 | CAN_FLY | RIDING
 F:BASH_DOOR |
@@ -9570,11 +9570,11 @@ D:A large dragon with scales of gleaming gold.
 
 N:591:Crystal drake
 G:d:B
-I:120:80d10:25:100:30:250
+I:120:50d10:25:100:30:250
 W:37:2:999:1500:11000:646
-B:CLAW:HURT(3d10)
-B:CLAW:HURT(3d10)
-B:BITE:HURT(3d12):SHARDS(3d6)
+B:CLAW:HURT(1d10)
+B:CLAW:HURT(1d10)
+B:BITE:HURT(2d12):SHARDS(2d6)
 F:FORCE_SLEEP | FORCE_MAXHP | RIDING
 F:ONLY_ITEM | DROP_4D2 | REFLECTING | ATTR_CLEAR |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | CAN_FLY |
@@ -9588,11 +9588,11 @@ D:your eyes with spectrums of colour.
 
 N:592:Mature black dragon
 G:d:D
-I:115:70d10:20:85:30:250
+I:115:46d10:20:55:30:250
 W:37:1:999:1600:10000:624
-B:CLAW:HURT(3d8)
-B:CLAW:HURT(3d8)
-B:BITE:HURT(3d10):ACID(3d5)
+B:CLAW:HURT(1d8)
+B:CLAW:HURT(1d8)
+B:BITE:HURT(2d10):ACID(2d5)
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:DROP_60 | DROP_90 | DROP_2D2 | WILD_SWAMP | WILD_MOUNTAIN |
 F:BASH_DOOR |
@@ -9605,11 +9605,11 @@ D:A large dragon, with scales of deepest black.
 
 N:593:Mature multi-hued dragon
 G:d:v
-I:117:75d10:20:85:50:250
+I:117:64d10:20:65:50:250
 W:38:2:999:2000:20000:675
-B:CLAW:HURT(3d10)
-B:CLAW:HURT(3d10)
-B:BITE:HURT(4d12)
+B:CLAW:HURT(1d10)
+B:CLAW:HURT(1d10)
+B:BITE:HURT(3d12)
 F:ATTR_MULTI |
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:DROP_3D2 | DROP_4D2 |
@@ -9698,7 +9698,7 @@ P:Copy:Dunadan:Paladin
 S:1_IN_5 | BLIND | SCARE | CAUSE_3 | BO_NETHER |
 S:S_MONSTER | DETECT_MONSTERS | MAPPING | BLESS
 O:DROP_PALADIN_EVIL
-D:It is a humanoid form dressed in armour of an ancient form. From beneath
+D:It is a humanoid form dressed in armor of an ancient form. From beneath
 D:its helmet, eyes glow a baleful red and seem to pierce you like lances of
 D:fire.
 
@@ -9758,10 +9758,10 @@ D:waking monsters from their slumber.
 
 N:601:Ancient blue dragon
 G:D:b
-I:120:15d100:20:110:80:500
-W:50:1:999:1500:100000:728
-B:CLAW:HURT(6d8)
-B:CLAW:HURT(6d8)
+I:120:70d10:20:80:80:500
+W:38:1:999:1500:100000:728
+B:CLAW:HURT(4d8)
+B:CLAW:HURT(4d8)
 B:BITE:HURT(5d8):ELEC(2d8):CUT(5d8, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP | SELF_LITE_1 |
 F:DROP_1D2 | DROP_4D2 | RIDING
@@ -9776,11 +9776,11 @@ D:A huge draconic form. Lightning crackles along its length.
 
 N:602:Ancient bronze dragon
 G:D:U
-I:120:15d100:20:110:200:500
+I:120:73d10:20:100:200:500
 W:38:2:999:1700:0:0
-B:CLAW:HURT(6d8)
-B:CLAW:HURT(6d8)
-B:BITE:HURT(6d10):CONFUSE(2d10, 50%):CUT(5d8, 10%)
+B:CLAW:HURT(4d8)
+B:CLAW:HURT(4d8)
+B:BITE:HURT(5d10):CONFUSE(2d10, 50%):CUT(5d8, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_3D2 | DROP_4D2 | CAN_FLY |
 F:SMART | BASH_DOOR | MOVE_BODY |
@@ -10082,11 +10082,11 @@ D:look for prey, but each with its own deadly breath weapon.
 
 N:617:Ancient white dragon
 G:D:w
-I:120:15d100:20:110:80:500
+I:120:70d10:20:90:80:500
 W:39:1:999:2500:100000:741
-B:CLAW:HURT(6d9)
-B:CLAW:HURT(6d9)
-B:BITE:HURT(6d12):COLD(2d12):CUT(5d12, 10%)
+B:CLAW:HURT(4d9)
+B:CLAW:HURT(4d9)
+B:BITE:HURT(5d12):COLD(2d12):CUT(5d12, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_3D2 | DROP_4D2 |
 F:SMART | BASH_DOOR | MOVE_BODY | CAN_FLY | WILD_WASTE | WILD_MOUNTAIN |
@@ -10100,11 +10100,11 @@ D:A huge draconic form. Frost covers it from head to tail.
 
 N:618:Ancient green dragon
 G:D:g
-I:120:15d100:20:110:80:500
+I:120:72d10:20:85:80:500
 W:39:1:999:2400:100000:890
-B:CLAW:HURT(6d8)
-B:CLAW:HURT(6d8)
-B:BITE:HURT(6d10):POISON(2d10):CUT(5d10, 10%)
+B:CLAW:HURT(4d8)
+B:CLAW:HURT(4d8)
+B:BITE:HURT(5d10):POISON(2d10):CUT(5d10, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_3D2 | DROP_4D2 | CAN_FLY | WILD_WASTE | WILD_MOUNTAIN |
 F:SMART | BASH_DOOR | MOVE_BODY |
@@ -10217,11 +10217,11 @@ P:Body:Vampire
 
 N:624:Ancient black dragon
 G:D:D
-I:120:15d100:20:110:70:500
+I:120:72d10:20:90:70:500
 W:39:1:999:2500:100000:1066
-B:CLAW:HURT(6d9)
-B:CLAW:HURT(6d9)
-B:BITE:HURT(6d10):ACID(2d10):CUT(5d10, 10%)
+B:CLAW:HURT(4d9)
+B:CLAW:HURT(4d9)
+B:BITE:HURT(5d10):ACID(2d10):CUT(5d10, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | WILD_WASTE | WILD_MOUNTAIN |
 F:DROP_3D2 | DROP_4D2 |
 F:SMART | BASH_DOOR | MOVE_BODY |
@@ -10348,7 +10348,7 @@ P:Copy:Half-Troll:Berserker
 P:Life:80
 S:BERSERK
 O:DROP_WARRIOR
-D:A massive troll, equipped with a scimitar and heavy armour.
+D:A massive troll, equipped with a scimitar and heavy armor.
 
 N:632:Disenchanter worm mass
 G:w:v
@@ -10572,11 +10572,11 @@ D:true form but you sense its evil.
 
 N:644:Ancient red dragon
 G:D:r
-I:120:15d100:20:110:70:500
+I:120:10d100:20:100:70:500
 W:40:1:999:2750:100000:756
-B:CLAW:HURT(6d10)
-B:CLAW:HURT(6d10)
-B:BITE:HURT(6d14):FIRE(2d14):CUT(5d14, 10%)
+B:CLAW:HURT(4d10)
+B:CLAW:HURT(4d10)
+B:BITE:HURT(5d14):FIRE(2d14):CUT(5d14, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_3D2 | DROP_4D2 | CAN_FLY | SELF_LITE_2 | WILD_VOLCANO | WILD_MOUNTAIN |
 F:SMART | BASH_DOOR | MOVE_BODY |
@@ -10591,11 +10591,11 @@ D:extreme heat surrounding it makes you gasp for breath.
 
 N:645:Ancient gold dragon
 G:D:y
-I:120:15d100:20:110:200:500
+I:120:15d100:20:100:200:500
 W:40:2:999:4000:0:0
-B:CLAW:HURT(6d10)
-B:CLAW:HURT(6d10)
-B:BITE:HURT(6d14):SOUND(2d14):CUT(5d14, 10%)
+B:CLAW:HURT(4d10)
+B:CLAW:HURT(4d10)
+B:BITE:HURT(5d14):SOUND(2d14):CUT(5d14, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_3D2 | DROP_4D2 | CAN_FLY |
 F:SMART | BASH_DOOR | MOVE_BODY |
@@ -10680,7 +10680,7 @@ P:Copy:Imp:Chaos-Warrior
 S:1_IN_10 |
 S:BLIND | CONFUSE | SCARE | CAUSE_3 | AMNESIA |
 S:S_DEMON
-D:It is a demon of small stature, but its armoured frame moves with
+D:It is a demon of small stature, but its armored frame moves with
 D:lightning speed and its powers make it a tornado of death and destruction.
 
 N:650:Giganto the Gargantuan
@@ -12284,11 +12284,11 @@ D:itself seems to cry out against it.
 
 N:728:Great Storm Wyrm
 G:D:b
-I:123:42d100:30:225:80:2000
-W:70:2:999:25000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(7d14):ELEC(4d7):CUT(7d14, 10%)
+I:123:30d100:30:175:80:2000
+W:58:2:999:22000:0:0
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
 B:BITE:HURT(7d14):ELEC(4d7):CUT(7d14, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP | AURA_ELEC | CAN_FLY |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GOOD | SELF_LITE_2 |
@@ -12363,7 +12363,7 @@ P:Copy:Dunadan:Paladin
 S:1_IN_5 |
 S:BLIND | SCARE | CAUSE_3 | BA_NETHER | BA_FIRE | BO_PLASMA | S_MONSTER | DETECT_MONSTERS
 O:DROP_PALADIN_EVIL
-D:It is a humanoid form dressed in armour of ancient style. From beneath
+D:It is a humanoid form dressed in armor of ancient style. From beneath
 D:its helmet, eyes glow with hellfire.
 
 N:732:Bull Gates
@@ -12568,12 +12568,12 @@ D:resembles a gargantuan octopus and its evil is almost tangible.
 
 N:741:Great Ice Wyrm
 G:D:w
-I:122:42d100:30:225:80:2000
-W:70:2:999:25000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(6d14):COLD(2d14):CUT(5d14, 10%)
-B:BITE:HURT(6d14):COLD(2d14):CUT(5d14, 10%)
+I:122:30d100:30:170:80:2000
+W:54:2:999:15000:0:0
+B:CLAW:HURT(4d12)
+B:CLAW:HURT(4d12)
+B:CLAW:HURT(4d12)
+B:BITE:HURT(5d14):COLD(2d14):CUT(5d14, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | AURA_COLD |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GOOD |
 F:BASH_DOOR | MOVE_BODY |
@@ -12630,7 +12630,7 @@ S:1_IN_3 |
 S:BO_FIRE | BO_PLASMA | BA_FIRE |
 S:BR_FIRE | BR_LITE | BR_PLASMA
 D:A massive glowing eagle bathed in flames. The searing heat chars your
-D:skin and melts your armour.
+D:skin and melts your armor.
 
 N:744:Nightcrawler
 G:W:D
@@ -12897,12 +12897,12 @@ D:eyes give away her true form.
 
 N:756:Great Brimstone Wyrm
 G:D:r
-I:122:54d100:40:225:40:2000
-W:70:2:999:25000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(6d14):FIRE(2d14):CUT(5d14, 10%)
-B:BITE:HURT(6d14):FIRE(2d14):CUT(5d14, 10%)
+I:122:54d100:40:170:40:2000
+W:55:2:999:18000:0:0
+B:CLAW:HURT(4d12)
+B:CLAW:HURT(4d12)
+B:CLAW:HURT(4d12)
+B:BITE:HURT(5d14):FIRE(2d14):CUT(5d14, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | SELF_LITE_1 |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | SELF_LITE_2 |
 F:BASH_DOOR | MOVE_BODY | AURA_FIRE |
@@ -12958,7 +12958,7 @@ S:BERSERK
 D:Khorne's mightiest servant, a winged hound-demon walking on
 D:two paws and wielding a mighty axe and a whip in the other
 D:two. Intelligent, bloodthirsty eyes behold you from inside
-D:the bloody demon armour.
+D:the bloody demon armor.
 
 N:759:Draconic quylthulg
 G:Q:G
@@ -13205,7 +13205,7 @@ S:BLIND | SCARE | BRAIN_SMASH |
 S:BO_MANA | BO_NETHER | BA_NETHER |
 S:S_UNDEAD
 D:A huge giant garbed in black, more massive than a titan and stronger than
-D:a dragon. With terrible blows, it breaks your armour from your back,
+D:a dragon. With terrible blows, it breaks your armor from your back,
 D:leaving you defenseless against its evil wrath. It can smell your fear,
 D:and you in turn smell the awful stench of death as this ghastly figure
 D:strides towards you menacingly.
@@ -13544,11 +13544,11 @@ D:An enormous, evil sea-dragon.
 
 N:783:Great Wyrm of Chaos
 G:D:v
-I:125:45d100:40:225:20:2000
-W:75:2:999:28000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(8d14):CHAOS(1d14):DISENCHANT(1d14):CUT(8d14, 50%)
+I:125:45d100:40:170:20:2000
+W:67:2:999:25000:0:0
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
 B:BITE:HURT(8d14):CHAOS(1d14):DISENCHANT(1d14):CUT(8d14, 50%)
 F:ATTR_MULTI | ATTR_ANY |
 F:FORCE_SLEEP | FORCE_MAXHP | RES_CHAO | RES_DISE |
@@ -13567,11 +13567,11 @@ D:stay real. Its very existence distorts the universe around it.
 
 N:784:Great Wyrm of Law
 G:D:W
-I:125:45d100:40:225:255:2000
-W:75:2:999:28000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(8d14):SOUND(1d14):SHARDS(1d14):CUT(8d14, 10%)
+I:125:45d100:40:170:255:2000
+W:67:2:999:25000:0:0
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
 B:BITE:HURT(8d14):SOUND(1d14):SHARDS(1d14):CUT(8d14, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP | GOOD |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD |
@@ -13589,11 +13589,11 @@ D:insects to be crushed underfoot.
 
 N:785:Great Wyrm of Balance
 G:D:s
-I:125:49d100:40:225:255:2000
-W:78:4:999:31000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(10d14):CUT(10d14, 10%)
+I:125:49d100:40:170:255:2000
+W:72:4:999:31000:0:0
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
 B:BITE:HURT(10d14):CUT(10d14, 10%)
 F:ATTR_MULTI | ATTR_ANY |
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
@@ -13708,11 +13708,11 @@ P:Copy:Amberite:Rogue
 
 N:790:Great Wyrm of Many Colours
 G:D:v
-I:125:52d100:40:225:255:2000
-W:75:4:999:31000:0:0
-B:CLAW:HURT(7d12)
-B:CLAW:HURT(7d12)
-B:BITE:HURT(10d14):CUT(10d14, 10%)
+I:125:52d100:40:170:255:2000
+W:68:4:999:31000:0:0
+B:CLAW:HURT(6d12)
+B:CLAW:HURT(6d12)
+B:CLAW:HURT(6d12)
 B:BITE:HURT(10d14):CUT(10d14, 10%)
 F:ATTR_MULTI | CAN_FLY | EVIL |
 F:FORCE_SLEEP | FORCE_MAXHP | AURA_FIRE | AURA_ELEC | RES_TELE
@@ -16047,11 +16047,11 @@ D:It was left here to be used against intruders.
 
 N:890:Great Venom Wyrm
 G:D:g
-I:122:54d100:30:225:80:1000
-W:70:2:999:25000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(7d14):POISON(2d14):CUT(7d14, 10%)
+I:122:54d100:30:170:80:1000
+W:55:2:999:16000:0:0
+B:CLAW:HURT(4d12)
+B:CLAW:HURT(4d12)
+B:CLAW:HURT(4d12)
 B:BITE:HURT(7d14):POISON(2d14):CUT(7d14, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GOOD |
@@ -16230,7 +16230,7 @@ B:SLASH:HURT(2d6):ELEC(8d6, 25%):CUT(1d4, 50%)
 B:SLASH:HURT(2d6):FIRE(4d6, 50%):CUT(1d4, 50%)
 F:MALE | ONLY_ITEM | DROP_90 | DROP_CORPSE | DROP_SKELETON | GOOD | HUMAN |
 F:OPEN_DOOR | BASH_DOOR | HAS_LITE_1 | RANGED_MELEE
-D:A warrior clad in ornate but effective armour, holding katana so sharp it
+D:A warrior clad in ornate but effective armor, holding katana so sharp it
 D:can cut your throat and you won't notice till you nod.
 O:DROP_SAMURAI
 P:Copy:Demigod:Warrior
@@ -16313,7 +16313,7 @@ F:RAND_25 | DROP_90 | OPEN_DOOR | BASH_DOOR | DROP_CORPSE | EVIL | GIANT | MOVE_
 F:WILD_WASTE
 P:Copy:Ogre:Warrior
 O:DROP_WARRIOR
-D:It is a massive ogre in metal armour, a champion of its kind.
+D:It is a massive ogre in metal armor, a champion of its kind.
 
 N:908:Pole axe of animated attack
 G:/:w
@@ -17492,7 +17492,7 @@ F:DROP_CORPSE | POS_SEE_INVIS
 P:Copy:Dark-Elf:Chaos-Warrior
 S:1_IN_3 | PARALYZE | SCARE | DARKNESS | BLIND | IDENTIFY
 D:A grim-faced dark elf, garbed in layer upon layer of gleaming black
-D:armour. As strong as he is magical, Eol is a worthy opponent.
+D:armor. As strong as he is magical, Eol is a worthy opponent.
 
 N:977:Maeglin, Betrayer of Gondolin
 G:h:r
@@ -18965,12 +18965,12 @@ D:who had become a louse just because he loves louses.
 
 N:1064:Great Wyrm of Space-Time
 G:D:v
-I:130:22d209:100:225:255:2000
+I:130:22d209:100:170:255:2000
 W:72:6:999:31460:0:0
-B:CLAW:HURT(6d12):TIME(1d12, 50%):SLOW(15%)
-B:CLAW:HURT(6d12):NEXUS(1d12, 50%)
-B:CLAW:HURT(6d12):GRAVITY(1d12, 50%):SLOW(15%)
-B:BITE:HURT(10d14):CUT(8d14, 10%)
+B:CLAW:HURT(5d12):TIME(1d12, 50%):SLOW(15%)
+B:CLAW:HURT(5d12):NEXUS(1d12, 50%)
+B:CLAW:HURT(5d12):GRAVITY(1d12, 50%):SLOW(15%)
+B:BITE:HURT(8d14):CUT(8d14, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | RES_TIME | RES_GRAV |
 F:BASH_DOOR | MOVE_BODY | RES_NEXU | RES_INER |
@@ -19001,12 +19001,12 @@ S:FREQ_15 | BR_DARK
 
 N:1066:Great Bile Wyrm
 G:D:s
-I:122:42d100:30:225:80:1000
-W:70:2:999:17000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(8d14):ACID(3d14):CUT(3d14, 10%)
-B:BITE:HURT(8d14):ACID(3d14):CUT(3d14, 10%)
+I:122:40d100:30:150:80:1000
+W:54:2:999:17000:0:0
+B:CLAW:HURT(4d12)
+B:CLAW:HURT(4d12)
+B:BITE:HURT(6d14):ACID(3d14):CUT(3d14, 10%)
+B:BITE:HURT(6d14):ACID(3d14):CUT(3d14, 10%)
 A:ACID(2d4)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD |
@@ -19823,7 +19823,7 @@ W:36:1:90:350:0:0
 B:EXPLODE:ACID(20d5)
 F:FORCE_MAXHP | FRIENDS(3d3, 25%) |
 F:WEIRD_MIND | BASH_DOOR |
-F:ANIMAL | RES_ACID
+F:ANIMAL | RES_ACID | FRIENDS(1d3)
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Warrior
 P:Body:Ant
@@ -21451,7 +21451,7 @@ F:EVIL | ORC | RES_DARK | CAN_SPEAK
 P:Copy:Kobold:Warrior
 S:1_IN_10 | SHOOT(3d8) | S_KIN | BERSERK
 O:DROP_WARRIOR_SHOOT
-D:An armoured orc of great size who has won respect and power among
+D:An armored orc of great size who has won respect and power among
 D:his fellow orcs.
 
 # new
@@ -21844,11 +21844,11 @@ D:tarnished silver hue, and light is reflected from its form.
 
 N:1209:Mature silver dragon
 G:d:W
-I:115:70d10:20:85:150:250
+I:115:56d10:20:80:150:250
 W:37:3:999:1815:12000:1210
-B:CLAW:HURT(3d4):SLOW(60%)
-B:CLAW:HURT(3d10)
-B:BITE:HURT(3d12):INERTIA(3d5)
+B:CLAW:HURT(1d4):SLOW(60%)
+B:CLAW:HURT(1d10)
+B:BITE:HURT(3d12)
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_MOUNTAIN |
 F:DROP_1D2 | DROP_4D2 | CAN_FLY | RIDING | SILVER |
 F:BASH_DOOR |
@@ -21861,11 +21861,11 @@ D:A large dragon with scales of gleaming silver.
 
 N:1210:Ancient silver dragon
 G:D:W
-I:120:15d100:20:110:200:500
+I:120:15d100:20:100:200:500
 W:40:3:999:4477:0:0
-B:CLAW:HURT(6d10):SLOW
-B:CLAW:HURT(6d10)
-B:BITE:HURT(7d14):CUT(6d14, 10%)
+B:CLAW:HURT(4d10):SLOW
+B:CLAW:HURT(4d10)
+B:BITE:HURT(6d14):CUT(6d14, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_3D2 | DROP_4D2 | CAN_FLY | SILVER |
 F:SMART | BASH_DOOR | MOVE_BODY |
@@ -22089,7 +22089,7 @@ F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Mauler
 P:Body:Elephant
 D:A giant armadillo-like creature shuffling along awkwardly beneath its
-D:massive armoured shell.
+D:massive armored shell.
 
 N:1223:Dimetrodon
 G:R:U
@@ -23905,7 +23905,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Mauler
 P:Body:Centipede6
-D:It is a vast armoured centipede with massive mandibles and a spiked tail.
+D:It is a vast armored centipede with massive mandibles and a spiked tail.
 
 N:1317:Horned reaper
 G:U:B
@@ -23928,7 +23928,7 @@ D:and you - even the minions it has just summoned.
 
 N:1318:Baby gold dragon
 G:d:y
-I:110:16d10:20:36:70:150
+I:110:10d10:20:30:70:150
 W:9:2:40:35:850:563
 B:CLAW:HURT(1d4)
 B:CLAW:HURT(1d4)
@@ -24020,7 +24020,7 @@ D:It is a towering tornado of winds.
 
 N:1323:Baby bronze dragon
 G:d:U
-I:110:16d10:20:36:70:150
+I:110:10d10:20:30:70:150
 W:9:3:40:35:850:563
 B:CLAW:HURT(1d4)
 B:CLAW:HURT(1d4)
@@ -24038,7 +24038,7 @@ D:its scales a pale bronze.
 
 N:1324:Baby silver dragon
 G:d:W
-I:110:16d10:20:36:70:150
+I:110:10d10:20:30:70:150
 W:9:3:40:35:850:563
 B:CLAW:HURT(1d4)
 B:CLAW:HURT(1d4)
@@ -24177,12 +24177,12 @@ D:A gaunt figure, clothed in black robes. A human skull perches atop his gnarled
 #Silver Dragon
 N:1331:Great Wyrm of Procrastination
 G:D:W
-I:122:42d100:30:225:80:1000
-W:70:2:999:17000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(8d14):ACID(3d14):CUT(3d14, 10%)
-B:BITE:HURT(8d14):ACID(3d14):CUT(3d14, 10%)
+I:122:30d100:30:170:80:2000
+W:57:2:999:15000:0:0
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
+B:BITE:HURT(7d14):ACID(4d7):CUT(7d14, 10%)
 A:ACID(2d4)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD |
@@ -24201,12 +24201,12 @@ D:eyes open and mind focused. Time seems to slow down as it approaches.
 #Bronze Dragon
 N:1332:Great Wyrm of Perplexity
 G:D:U
-I:122:42d100:30:225:80:1000
-W:70:2:999:17000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(8d14):ACID(3d14):CUT(3d14, 10%)
-B:BITE:HURT(8d14):ACID(3d14):CUT(3d14, 10%)
+I:122:30d100:30:170:80:2000
+W:57:2:999:15000:0:0
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
+B:BITE:HURT(7d14):CONFUSE:CUT(7d14, 10%)
 A:ACID(2d4)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD |
@@ -24225,12 +24225,12 @@ D:mind on the job of fighting for your life.
 #Gold Dragon
 N:1333:Great Wyrm of Dissonance
 G:D:y
-I:122:42d100:30:225:80:1000
-W:70:2:999:17000:0:0
-B:CLAW:HURT(6d12)
-B:CLAW:HURT(6d12)
-B:BITE:HURT(8d14):ACID(3d14):CUT(3d14, 10%)
-B:BITE:HURT(8d14):ACID(3d14):CUT(3d14, 10%)
+I:122:54d100:40:170:40:2000
+W:58:2:999:18000:0:0
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
+B:CLAW:HURT(5d12)
+B:BITE:HURT(7d14):SOUND(2d14):CUT(5d14, 10%)
 A:ACID(2d4)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD |

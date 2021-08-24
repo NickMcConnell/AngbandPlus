@@ -386,7 +386,7 @@ grimaces.
 laughs with a devastating sound which shakes the ground.
 asks, 'Where are those who dare approach me?'
 gloats, 'I am old and strong, strong, strong.'
-boasts, 'My armour is like tenfold shields, no blade can pierce me.'
+boasts, 'My armor is like tenfold shields, no blade can pierce me.'
 boasts, 'My teeth are swords, my claws are spears, my breath is death.'
 
 N:712:Fafner the Dragon

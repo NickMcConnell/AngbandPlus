@@ -830,7 +830,7 @@ racial body type. The usual body type is humanoid:
  f) = Left Ring : a Ring of Protection [+1] {Wr~L(Wi}
  g) " Neck      : an Amulet
  h) ~ Light     : a Wooden Torch (with 1999 turns of light)
- i) ( Body      : Soft Leather Armour [4,+0]
+ i) ( Body      : Soft Leather Armor [4,+0]
  j) ( Cloak     : a Cloak [1,+3]
  k) ] Head      : an Iron Helm [5,+5]
  l) ] Hands     : a Set of Leather Gloves [1,+5]
