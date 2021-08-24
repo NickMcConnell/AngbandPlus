@@ -18,6 +18,7 @@
 # being displayed when a monster is damaged only a little, and lower
 # messages being displayed when a monster is near death.
 
+
 type:1
 message:shrug[s] off the attack.
 message:grunt[s] with pain.

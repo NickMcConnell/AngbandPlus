@@ -244,7 +244,7 @@ keymap-input:0:[Delete]
 keymap-input:0:{K}[Delete]
 keymap-input:0:{MK}[Delete]
 
-# Hack -- Commit suicide
+# Hack -- End character
 keymap-act:Q
 keymap-input:0:^C
 
@@ -357,7 +357,7 @@ keymap-input:1:^K
 keymap-act:+9
 keymap-input:1:^U
 
-# Hack -- Commit suicide
+# Hack -- End character
 keymap-act:Q
 keymap-input:1:^C
 

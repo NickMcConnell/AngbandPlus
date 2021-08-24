@@ -77,7 +77,10 @@ msg_other: fires an acid bolt.
 name:ANNOY_MON
 aim:0
 power:0
-effect:AGGRAVATE
+effect:PROJECT_LOS:MON_SPEED
+dice:25
+effect:WAKE
+msg_self:There is a high pitched humming noise.
 msg:The {kind} sound{s} loud and clear...
 
 name:ARROW
@@ -171,15 +174,11 @@ desc:raises your constitution at the expense of a random attribute
 
 name:CLAIRVOYANCE
 aim:0
-power:23
-effect:DETECT_FEATURES
-dice:22d40
-effect:DETECT_TRAPS
-dice:22d40
-effect:ENLIGHTENMENT
+power:22
+effect:LIGHT_LEVEL
 msg:The {kind} form{s} an image in your mind...
-desc:completely lights up and magically maps the current level, and detects all
-desc: doors, stairs and traps in the immediate area
+desc:completely lights up and magically maps the current level, sensing all
+desc: objects
 
 name:COLD_BALL48
 aim:1
@@ -406,7 +405,7 @@ aim:0
 power:19
 effect:DEEP_DESCENT
 
-name:DESTROY_TDOORS
+name:DESTROY_DOORS
 aim:0
 power:6
 effect:TOUCH:KILL_DOOR
@@ -421,23 +420,15 @@ dice:15
 name:DETECT_ALL
 aim:0
 power:10
+effect:MAP_AREA
+dice:11d11
 effect:DETECT_MONSTERS
 dice:22d40
 effect:DETECT_TREASURES
 dice:22d40
-effect:DETECT_FEATURES
-dice:22d40
-effect:DETECT_TRAPS
-dice:22d40
 msg:{name} forms an image in your mind...
-desc:detects all treasure, objects, secret doors, stairs, traps and monsters in
-desc: the immediate area
-
-name:DETECT_DOORSTAIR
-aim:0
-power:6
-effect:DETECT_FEATURES
-dice:22d40
+desc:detects all treasure, objects and monsters in the immediate area, and
+desc: maps out a small portion of the level around you
 
 name:DETECT_EVIL
 aim:0
@@ -451,19 +442,13 @@ power:6
 effect:DETECT_INVISIBLE_MONSTERS
 dice:22d40
 
-name:DETECT_TRAP
-aim:0
-power:6
-effect:DETECT_TRAPS
-dice:22d40
-
 name:DETECT_TREASURE
 aim:0
 power:6
 effect:DETECT_TREASURES
 dice:22d40
 
-name:DISARMING
+name:DISABLE_TRAPS
 aim:1
 power:7
 effect:ALTER:KILL_TRAP
@@ -618,7 +603,7 @@ dice:150
 name:DRAGON_SILVER
 aim:1
 power:19
-effect:BREATH:INERT:20
+effect:BREATH:INERTIA:20
 dice:150
 effect:BREATH:COLD:20
 dice:150
@@ -652,7 +637,7 @@ dice:200
 name:DRAIN_LIFE
 aim:1
 power:9
-effect:BOLT_STATUS_DAM:OLD_DRAIN
+effect:BOLT_STATUS_DAM:MON_DRAIN
 dice:90
 msg:{name} glows white...
 desc:inflicts {90} points of damage on a single creature that is not undead, a
@@ -661,7 +646,7 @@ desc: demon, a golem, an elemental or a vortex
 name:DRAIN_LIFE2
 aim:1
 power:10
-effect:BOLT_STATUS_DAM:OLD_DRAIN
+effect:BOLT_STATUS_DAM:MON_DRAIN
 dice:120
 msg:Your {kind} glow{s} black...
 desc:inflicts {120} points of damage on a single creature that is not undead, a
@@ -670,7 +655,7 @@ desc: demon, a golem, an elemental or a vortex
 name:DRAIN_LIFE3
 aim:1
 power:11
-effect:BOLT_STATUS_DAM:OLD_DRAIN
+effect:BOLT_STATUS_DAM:MON_DRAIN
 dice:150
 desc:inflicts {150} points of damage on a single creature that is not undead, a
 desc: demon, a golem, an elemental or a vortex
@@ -678,7 +663,7 @@ desc: demon, a golem, an elemental or a vortex
 name:DRAIN_LIFE4
 aim:1
 power:12
-effect:BOLT_STATUS_DAM:OLD_DRAIN
+effect:BOLT_STATUS_DAM:MON_DRAIN
 dice:250
 desc:inflicts {250} points of damage on a single creature that is not undead, a
 desc: demon, a golem, an elemental or a vortex
@@ -759,8 +744,8 @@ dice:1d3
 
 name:ENLIGHTENMENT
 aim:0
-power:22
-effect:ENLIGHTENMENT
+power:25
+effect:LIGHT_LEVEL
 param:1
 
 name:FIRE_BALL72
@@ -838,12 +823,6 @@ dice:10
 desc:cures {10} points of damage, removes fear and grants heroism (resistance to
 desc: fear, and a bonus of {+12} to-hit) for {25+1d25} turns
 
-name:IDENTIFY
-aim:0
-power:9
-effect:IDENTIFY
-msg:Your {kind} glow{s} yellow...
-
 name:ILLUMINATION
 aim:0
 power:4
@@ -873,9 +852,8 @@ msg_self:A line of shimmering blue light appears.
 name:LOSCONF
 aim:0
 power:10
-effect:PROJECT_LOS_AWARE:OLD_CONF
-dice:$B
-expr:B:PLAYER_LEVEL:+ 0
+effect:PROJECT_LOS_AWARE:MON_CONF
+dice:5+1d5
 
 name:LOSKILL
 aim:0
@@ -886,14 +864,12 @@ msg:Your {kind} let{s} out a long, shrill note...
 name:LOSSLEEP
 aim:0
 power:8
-effect:PROJECT_LOS_AWARE:OLD_SLEEP
-dice:$B
-expr:B:PLAYER_LEVEL:+ 0
+effect:PROJECT_LOS_AWARE:MON_SLEEP
 
 name:LOSSLOW
 aim:0
 power:7
-effect:PROJECT_LOS_AWARE:OLD_SLOW
+effect:PROJECT_LOS_AWARE:MON_SLOW
 dice:20
 
 name:MANA_BOLT
@@ -923,37 +899,36 @@ desc:fires a magic missile that inflicts {3d4} points of damage
 name:MON_CONFUSE
 aim:1
 power:3
-effect:BOLT_AWARE:OLD_CONF
-dice:10
+effect:BOLT_AWARE:MON_CONF
+dice:5+1d5
 msg:{name} glows in scintillating colours...
-desc:attempts to confuse a single non-unique monster
+desc:attempts to confuse a single monster
+
+name:MON_HOLD
+aim:1
+power:3
+effect:BOLT_AWARE:MON_HOLD
+dice:3+1d5
+desc:attempts to hold a single monster
 
 name:MON_SCARE
 aim:1
 power:3
 effect:BOLT_AWARE:TURN_ALL
 dice:10
-desc:attempts to scare a single non-unique monster
-
-name:MON_SLEEP
-aim:1
-power:3
-effect:BOLT_AWARE:OLD_SLEEP
-dice:$B
-expr:B:PLAYER_LEVEL:+ 0
-desc:attempts to put a single non-unique monster to sleep
+desc:attempts to scare a single monster
 
 name:MON_SLOW
 aim:1
 power:3
-effect:BOLT_AWARE:OLD_SLOW
-dice:20
-desc:attempts to slow down a single non-unique monster
+effect:BOLT_AWARE:MON_SLOW
+dice:10+1d20
+desc:attempts to slow down a single monster
 
 name:POLYMORPH
 aim:1
 power:7
-effect:BOLT_AWARE:OLD_POLY
+effect:BOLT_AWARE:MON_POLY
 param:1
 dice:$B
 expr:B:PLAYER_LEVEL:+ 0
@@ -1013,15 +988,19 @@ effect:RECHARGE
 dice:60
 msg:Your {kind} glow{s} bright yellow...
 
-#name:REMOVE_CURSE
-#aim:0
-#power:8
-#effect:REMOVE_CURSE
+name:REMOVE_CURSE
+aim:0
+power:8
+effect:REMOVE_CURSE
+dice:20+d20
+desc:attempts to remove a curse from an item
 
-#name:REMOVE_CURSE2
-#aim:0
-#power:20
-#effect:REMOVE_ALL_CURSE
+name:REMOVE_CURSE2
+aim:0
+power:20
+effect:REMOVE_CURSE
+dice:50+d50
+desc:strongly attempts to remove a curse from an item
 
 name:REM_FEAR_POIS
 aim:0
@@ -1267,9 +1246,7 @@ desc: {80+1d40} turns
 name:SLEEPII
 aim:0
 power:8
-effect:TOUCH_AWARE:OLD_SLEEP
-dice:$B
-expr:B:PLAYER_LEVEL:+ 0
+effect:TOUCH_AWARE:MON_SLEEP
 msg:{name} glows deep blue...
 
 name:STAFF_HOLY
@@ -1344,7 +1321,7 @@ effect:LINE:KILL_WALL
 dice:20+1d30
 msg:Your {kind} pulsate{s}...
 
-name:TDOOR_DEST
+name:DOOR_DEST
 aim:1
 power:5
 effect:ALTER:KILL_DOOR
@@ -1404,24 +1381,24 @@ name:WAND_BREATH
 aim:1
 power:12
 effect:BREATH:POIS:30
-dice:120
+dice:160
 msg_other: shoots dragon poison!
 effect:BREATH:COLD:30
 dice:160
 msg_other: shoots dragon frost!
 effect:BREATH:FIRE:30
-dice:200
+dice:160
 msg_other: shoots dragon fire!
 effect:BREATH:ELEC:30
 dice:160
 msg_other: shoots dragon lightning!
 effect:BREATH:ACID:30
-dice:200
+dice:160
 msg_other: shoots dragon acid!
 effect:RANDOM
 dice:5
 desc:allows you to randomly breathe acid, lightning, fire, cold or poison for
-desc: {120-200} points of damage
+desc: {160} points of damage
 
 name:WONDER
 aim:1

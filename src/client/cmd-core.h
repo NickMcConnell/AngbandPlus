@@ -19,8 +19,7 @@ typedef enum cmd_code
      */
     CMD_GO_UP,
     CMD_GO_DOWN,
-    CMD_SEARCH,
-    CMD_TOGGLE_SEARCH,
+    CMD_TOGGLE_STEALTH,
     CMD_WALK,
     CMD_JUMP,
     CMD_INSCRIBE,

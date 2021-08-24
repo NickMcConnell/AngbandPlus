@@ -2,7 +2,7 @@
  * File: house.c
  * Purpose: House code.
  *
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -20,7 +20,7 @@
 #include "s-angband.h"
 
 
-static house_type *houses;
+static struct house_type *houses;
 static size_t num_houses = 0;
 static size_t alloc_houses = 0;
 static size_t num_custom = 0;
@@ -38,7 +38,7 @@ static size_t num_custom = 0;
 void houses_init(void)
 {
     alloc_houses = MAX_HOUSES;
-    houses = mem_zalloc(alloc_houses * sizeof(house_type));
+    houses = mem_zalloc(alloc_houses * sizeof(struct house_type));
 }
 
 
@@ -71,8 +71,8 @@ bool house_inside(struct player *p, int house)
     /* Skip unallocated houses */
     if (!houses[house].state) return false;
 
-    /* Skip houses not on this depth */
-    if (houses[house].depth != p->depth) return false;
+    /* Skip houses not on this level */
+    if (!COORDS_EQUAL(&houses[house].wpos, &p->wpos)) return false;
 
     /* Player is inside the house */
     return ((p->px >= houses[house].x_1) && (p->px <= houses[house].x_2) &&
@@ -113,7 +113,7 @@ int houses_owned(struct player *p)
 /*
  * Return the index of a house given a coordinate pair
  */
-int pick_house(int depth, int y, int x)
+int pick_house(struct worldpos *wpos, int y, int x)
 {
     int i;
 
@@ -122,7 +122,7 @@ int pick_house(int depth, int y, int x)
     {
         /* Check this one */
         if (houses[i].state && (houses[i].door_x == x) && (houses[i].door_y == y) &&
-            (houses[i].depth == depth))
+            COORDS_EQUAL(&houses[i].wpos, wpos))
         {
             /* Return */
             return i;
@@ -146,7 +146,7 @@ int find_house(struct player *p, int x, int y, int offset)
     for (i = offset; i < houses_count(); i++)
     {
         /* Check the house position *including* the walls */
-        if (houses[i].state && (houses[i].depth == p->depth) &&
+        if (houses[i].state && COORDS_EQUAL(&houses[i].wpos, &p->wpos) &&
             (x >= houses[i].x_1 - 1) && (x <= houses[i].x_2 + 1) &&
             (y >= houses[i].y_1 - 1) && (y <= houses[i].y_2 + 1))
         {
@@ -161,7 +161,7 @@ int find_house(struct player *p, int x, int y, int offset)
 /*
  * Set house owner
  */
-void set_house_owner(struct player *p, house_type *house)
+void set_house_owner(struct player *p, struct house_type *house)
 {
     house->ownerid = p->id;
     my_strcpy(house->ownername, p->name, sizeof(house->ownername));
@@ -196,7 +196,7 @@ int house_add(bool custom)
         {
             /* Extend the house array */
             alloc_houses += MAX_HOUSES;
-            houses = mem_realloc(houses, alloc_houses * sizeof(house_type));
+            houses = mem_realloc(houses, alloc_houses * sizeof(struct house_type));
         }
 
         /* Increment number of houses */
@@ -210,12 +210,12 @@ int house_add(bool custom)
 /*
  * Set house
  */
-void house_set(int slot, house_type *house)
+void house_set(int slot, struct house_type *house)
 {
     /* Paranoia */
     if ((slot < 0) || (slot >= houses_count())) return;
 
-    memcpy(&houses[slot], house, sizeof(house_type));
+    memcpy(&houses[slot], house, sizeof(struct house_type));
 }
 
 
@@ -259,7 +259,7 @@ void house_list(struct player *p, ang_file *fff)
     int i, j = 0;
     char buf[160];
     s16b sy, sx;
-    char dpt[8];
+    char dpt[13];
     int panel_wid, panel_hgt;
 
     panel_wid = PANEL_SIZE / p->tile_wid;
@@ -267,17 +267,21 @@ void house_list(struct player *p, ang_file *fff)
 
     for (i = 0; i < houses_count(); i++)
     {
+        const char *where = "at";
+
         if (!house_owned_by(p, i)) continue;
 
         j++;
 
         dpt[0] = '\0';
-        wild_cat_depth(houses[i].depth, dpt, sizeof(dpt));
+        wild_cat_depth(&houses[i].wpos, dpt, sizeof(dpt));
 
         verify_panel_loc(p, houses[i].y_1, houses[i].x_1, &sy, &sx);
 
-        strnfmt(buf, sizeof(buf), "  %c) House %d %s %s, sector [%d,%d]\n", I2A(j - 1), j,
-            (!houses[i].depth? "in": "at"), dpt, (sy / panel_hgt), (sx / panel_wid));
+        if (in_town(&houses[i].wpos)) where = "in";
+
+        strnfmt(buf, sizeof(buf), "  %c) House %d %s %s, sector [%d,%d]\n", I2A(j - 1), j, where,
+            dpt, (sy / panel_hgt), (sx / panel_wid));
         file_put(fff, buf);
     }
     if (!j) file_put(fff, "You do not own any house.\n");
@@ -287,14 +291,15 @@ void house_list(struct player *p, ang_file *fff)
 /*
  * Determine if the level contains owned houses
  */
-bool level_has_owned_houses(int depth)
+bool level_has_owned_houses(struct worldpos *wpos)
 {
     int i;
 
     for (i = 0; i < houses_count(); i++)
     {
-        /* House on this depth and owned? */
-        if (houses[i].state && (houses[i].depth == depth) && (houses[i].ownerid > 0)) return true;
+        /* House on this level and owned? */
+        if (houses[i].state && COORDS_EQUAL(&houses[i].wpos, wpos) && (houses[i].ownerid > 0))
+            return true;
     }
 
     return false;
@@ -304,19 +309,19 @@ bool level_has_owned_houses(int depth)
 /*
  * Wipe custom houses on a level
  */
-void wipe_custom_houses(int depth)
+void wipe_custom_houses(struct worldpos *wpos)
 {
     int house;
 
     for (house = 0; house < houses_count(); house++)
     {
-        /* Skip houses not on this depth */
-        if (houses[house].depth != depth) continue;
+        /* Skip houses not on this level */
+        if (!COORDS_EQUAL(&houses[house].wpos, wpos)) continue;
 
         /* Wipe extended and custom houses */
         if (houses[house].state >= HOUSE_EXTENDED)
         {
-            memset(&houses[house], 0, sizeof(house_type));
+            memset(&houses[house], 0, sizeof(struct house_type));
             num_custom--;
         }
     }
@@ -338,7 +343,7 @@ bool has_home_inventory(struct player *p)
         {
             for (x = houses[i].x_1; x <= houses[i].x_2; x++)
             {
-                if (square_object(chunk_get(houses[i].depth), y, x)) return true;
+                if (square_object(chunk_get(&houses[i].wpos), y, x)) return true;
             }
         }
     }
@@ -356,16 +361,16 @@ void house_dump(struct player *p, ang_file *fp)
     char o_name[NORMAL_WID];
 
     /* Header */
-    file_put(fp, "  [Home Inventory]\n");
+    file_put(fp, "  [House List]\n\n");
 
     /* Dump all available items */
     for (i = 0; i < houses_count(); i++)
     {
-        struct chunk *c = chunk_get(houses[i].depth);
+        struct chunk *c = chunk_get(&houses[i].wpos);
 
         if (!house_owned_by(p, i)) continue;
 
-        file_put(fp, "\n");
+        if (i > 0) file_put(fp, "\n");
         j = 0;
         for (y = houses[i].y_1; y <= houses[i].y_2; y++)
         {
@@ -383,10 +388,7 @@ void house_dump(struct player *p, ang_file *fp)
                     }
 
                     object_desc(p, o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
-
-                    file_putf(fp,"%c) %s\n", I2A(j), o_name);
-
-                    /*object_info_chardump(p, fp, obj);*/
+                    file_putf(fp, "%c) %s\n", I2A(j), o_name);
                     j++;
                 }
             }
@@ -401,14 +403,14 @@ void house_dump(struct player *p, ang_file *fp)
 /*
  * Determine if the location is inside a house
  */
-bool location_in_house(int depth, int y, int x)
+bool location_in_house(struct worldpos *wpos, int y, int x)
 {
     int i;
 
     for (i = 0; i < houses_count(); i++)
     {
         /* Check this one */
-        if (houses[i].state && (houses[i].depth == depth) &&
+        if (houses[i].state && COORDS_EQUAL(&houses[i].wpos, wpos) &&
             (houses[i].x_1 <= x) && (x <= houses[i].x_2) &&
             (houses[i].y_1 <= y) && (y <= houses[i].y_2))
         {
@@ -423,7 +425,7 @@ bool location_in_house(int depth, int y, int x)
 /*
  * Get house
  */
-house_type *house_get(int house)
+struct house_type *house_get(int house)
 {
     /* Paranoia */
     if ((house < 0) || (house >= houses_count())) return NULL;
@@ -438,7 +440,7 @@ house_type *house_get(int house)
 void reset_house(int house)
 {
     int i, yy, xx;
-    struct chunk *c = chunk_get(houses[house].depth);
+    struct chunk *c = chunk_get(&houses[house].wpos);
 
     /* House is no longer owned */
     houses[house].ownername[0] = '\0';
@@ -456,7 +458,11 @@ void reset_house(int house)
             msg(p, "You have been expelled from the house.");
             do
             {
-                effect_simple(p, EF_TELEPORT, "10", 0, 0, 0, NULL, NULL);
+                struct source who_body;
+                struct source *who = &who_body;
+
+                source_player(who, get_player_index(get_connection(p->conn)), p);
+                effect_simple(EF_TELEPORT, who, "10", 0, 0, 0, NULL);
             }
             while (house_inside(p, house));
         }
@@ -507,7 +513,7 @@ void know_houses(struct player *p)
 
     for (i = 0; i < houses_count(); i++)
     {
-        struct chunk *c = chunk_get(houses[i].depth);
+        struct chunk *c = chunk_get(&houses[i].wpos);
 
         if (!house_owned_by(p, i)) continue;
 
@@ -530,20 +536,20 @@ static byte door_color(int missile_attr)
  */
 void colorize_door(struct player *p, struct object_kind *kind, struct chunk *c, int y, int x)
 {
-    int shopnum = PLAYER_STORE_BM, house;
+    int shopnum = PLAYER_STORE_GENERAL, house;
 
     /* Find the color of the missile */
     byte m_attr = (kind->flavor? flavor_x_attr[kind->flavor->fidx]: kind_x_attr[kind->kidx]);
 
     /* Find suitable color */
-    while (shopnum <= PLAYER_STORE_GENERAL)
+    while (shopnum < PLAYER_STORE_MAX)
     {
         if (feat_x_attr[FEAT_HOME_CLOSED + shopnum][LIGHTING_LIT] == door_color(m_attr))
         {
             char store_name[NORMAL_WID];
 
             /* Pick a house */
-            if ((house = pick_house(c->depth, y, x)) == -1) break;
+            if ((house = pick_house(&p->wpos, y, x)) == -1) break;
 
             /* Must own the house */
             if (!house_owned_by(p, house)) break;
@@ -589,21 +595,22 @@ bool get_player_store_name(int num, char *name, int len)
 {
     int x, y;
     const char *c;
-    struct chunk *cv = chunk_get(houses[num].depth);
+    struct chunk *cv = chunk_get(&houses[num].wpos);
 
     /* Default title */
     switch (houses[num].color)
     {
-        case PLAYER_STORE_BM: my_strcpy(name, "Black Market", len); break;
-        case PLAYER_STORE_TAVERN: my_strcpy(name, "Home", len); break;
-        case PLAYER_STORE_XBM: my_strcpy(name, "Expensive Black Market", len); break;
-        case PLAYER_STORE_ALCHEMIST: my_strcpy(name, "Alchemy Shop", len); break;
-        case PLAYER_STORE_TEMPLE: my_strcpy(name, "Ecclesial Shop", len); break;
-        case PLAYER_STORE_MAGIC: my_strcpy(name, "Magic Shop", len); break;
-        case PLAYER_STORE_LIBRARY: my_strcpy(name, "House of Arcanes", len); break;
+        case PLAYER_STORE_GENERAL: my_strcpy(name, "General Store", len); break;
         case PLAYER_STORE_ARMOURY: my_strcpy(name, "Armoury", len); break;
         case PLAYER_STORE_SMITH: my_strcpy(name, "Weapon Shop", len); break;
-        case PLAYER_STORE_GENERAL: my_strcpy(name, "General Store", len); break;
+        case PLAYER_STORE_TEMPLE: my_strcpy(name, "Ecclesial Shop", len); break;
+        case PLAYER_STORE_ALCHEMIST: my_strcpy(name, "Alchemy Shop", len); break;
+        case PLAYER_STORE_MAGIC: my_strcpy(name, "Magic Shop", len); break;
+        case PLAYER_STORE_LIBRARY: my_strcpy(name, "House of Arcanes", len); break;
+        case PLAYER_STORE_BM: my_strcpy(name, "Black Market", len); break;
+        case PLAYER_STORE_XBM: my_strcpy(name, "Expensive Black Market", len); break;
+        case PLAYER_STORE_TAVERN: my_strcpy(name, "Tavern", len); break;
+        case PLAYER_STORE_HOME: my_strcpy(name, "Home", len); break;
     }
 
     /* Scan house */
@@ -652,8 +659,8 @@ int house_near(struct player *p, int x1, int y1, int x2, int y2)
         /* Skip unallocated houses */
         if (!houses[house].state) continue;
 
-        /* Skip houses not on this depth */
-        if (houses[house].depth != p->depth) continue;
+        /* Skip houses not on this level */
+        if (!COORDS_EQUAL(&houses[house].wpos, &p->wpos)) continue;
 
         /* Skip houses far away */
         if ((houses[house].x_2 + 2 < x1) || (houses[house].x_1 - 2 > x2) ||
@@ -715,15 +722,15 @@ void memorize_houses(struct player *p)
 
     for (i = 0; i < houses_count(); i++)
     {
-        struct chunk *c = chunk_get(houses[i].depth);
+        struct chunk *c = chunk_get(&houses[i].wpos);
 
         if (!house_owned_by(p, i)) continue;
 
         /* Only on the current level */
-        if (houses[i].depth != p->depth) continue;
+        if (!COORDS_EQUAL(&houses[i].wpos, &p->wpos)) continue;
 
         for (y = houses[i].y_1; y <= houses[i].y_2; y++)
             for (x = houses[i].x_1; x <= houses[i].x_2; x++)
-                floor_pile_know(p, c, y, x);
+                square_know_pile(p, c, y, x);
     }
 }

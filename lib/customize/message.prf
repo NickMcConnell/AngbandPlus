@@ -253,13 +253,13 @@ message:CUT:w
 # MSG_STAIRS_UP
 message:STAIRS_UP:w
 
-# MSG_STORE_ENTER (unused)
+# MSG_STORE_ENTER (sound only)
 message:STORE_ENTER:w
 
-# MSG_STORE_LEAVE (unused)
+# MSG_STORE_LEAVE (sound only)
 message:STORE_LEAVE:w
 
-# MSG_STORE_HOME (unused)
+# MSG_STORE_HOME (sound only)
 message:STORE_HOME:w
 
 # MSG_MONEY1
@@ -404,8 +404,8 @@ message:QUIVER:w
 # MSG_CURSED
 message:CURSED:w
 
-# MSG_PSEUDOID
-message:PSEUDOID:w
+# MSG_RUNE
+message:RUNE:w
 
 # MSG_HUNGRY
 message:HUNGRY:w
@@ -461,7 +461,7 @@ message:HIT_HI_SUPERB:w
 # MSG_SPELL (sound only)
 message:SPELL:w
 
-# MSG_PRAYER (unused)
+# MSG_PRAYER (sound only)
 message:PRAYER:w
 
 # MSG_KILL_UNIQUE
@@ -479,8 +479,14 @@ message:MULTIPLY:w
 # MSG_BOLD
 message:BOLD:w
 
-# MSG_WILD_SHORE
-message:WILD_SHORE:w
+# MSG_WILD_RIVER
+message:WILD_RIVER:w
+
+# MSG_WILD_WASTE
+message:WILD_WASTE:w
+
+# MSG_WILD_VOLCANO
+message:WILD_VOLCANO:w
 
 # MSG_WILD_GRASS
 message:WILD_GRASS:w
@@ -488,17 +494,26 @@ message:WILD_GRASS:w
 # MSG_WILD_WOOD
 message:WILD_WOOD:w
 
-# MSG_WILD_SWAMP
-message:WILD_SWAMP:w
-
-# MSG_WILD_WASTE
-message:WILD_WASTE:w
-
 # MSG_WILD_MOUNTAIN
 message:WILD_MOUNTAIN:w
 
-# MSG_WILD_VOLCANO
-message:WILD_VOLCANO:w
+# MSG_WILD_DESERT
+message:WILD_DESERT:w
+
+# MSG_WILD_GLACIER
+message:WILD_GLACIER:w
+
+# MSG_WILD_SWAMP
+message:WILD_SWAMP:w
+
+# MSG_WILD_DEEPWATER
+message:WILD_DEEPWATER:w
+
+# MSG_WILD_DEEPWATER
+message:WILD_DEEPWATER:w
+
+# MSG_WILD_HILL
+message:WILD_HILL:w
 
 # MSG_AMBIENT_SAURON
 message:AMBIENT_SAURON:w
@@ -514,6 +529,9 @@ message:AMBIENT_SENYA:w
 
 # MSG_AMBIENT_XAKAZE
 message:AMBIENT_XAKAZE:w
+
+# MSG_AMBIENT_MELKOR
+message:AMBIENT_MELKOR:w
 
 # MSG_HIT_HI_CRITICAL
 message:HIT_HI_CRITICAL:w
@@ -543,6 +561,9 @@ message:BROADCAST_LEVEL:G
 
 # MSG_BROADCAST_FRUITBAT
 message:BROADCAST_FRUITBAT:o
+
+# MSG_BROADCAST_STORE
+message:BROADCAST_STORE:s
 
 # PWMAngband-specific
 

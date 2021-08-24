@@ -3,7 +3,7 @@
  * Purpose: Projection effects on players
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -31,15 +31,15 @@ static bool is_susceptible(struct monster_race *race, int type)
     switch (type)
     {
         /* Check these attacks against vulnerability (polymorphed players) */
-        case GF_LIGHT_WEAK: return (race && rf_has(race->flags, RF_HURT_LIGHT));
-        case GF_KILL_WALL: return (race && rf_has(race->flags, RF_HURT_ROCK));
-        case GF_DISP_EVIL: return (race && rf_has(race->flags, RF_EVIL));
-        case GF_DISP_UNDEAD: return (race && rf_has(race->flags, RF_UNDEAD));
+        case PROJ_LIGHT_WEAK: return (race && rf_has(race->flags, RF_HURT_LIGHT));
+        case PROJ_KILL_WALL: return (race && rf_has(race->flags, RF_HURT_ROCK));
+        case PROJ_DISP_EVIL: return (race && monster_is_evil(race));
+        case PROJ_DISP_UNDEAD: return (race && rf_has(race->flags, RF_UNDEAD));
 
         /* Check these attacks against immunity (polymorphed players) */
-        case GF_PSI_DRAIN:
-        case GF_OLD_DRAIN:
-        case GF_DRAIN: return !(race && monster_is_nonliving(race));
+        case PROJ_PSI_DRAIN:
+        case PROJ_MON_DRAIN:
+        case PROJ_DRAIN: return !(race && monster_is_nonliving(race));
 
         /* Everything else will cause normal damage */
         default: return true;
@@ -57,10 +57,10 @@ static bool is_vulnerable(struct monster_race *race, int type)
     switch (type)
     {
         /* Check these attacks against vulnerability (polymorphed players) */
-        case GF_FIRE: return (race && rf_has(race->flags, RF_HURT_FIRE));
-        case GF_COLD:
-        case GF_ICE: return (race && rf_has(race->flags, RF_HURT_COLD));
-        case GF_LIGHT: return (race && rf_has(race->flags, RF_HURT_LIGHT));
+        case PROJ_FIRE: return (race && rf_has(race->flags, RF_HURT_FIRE));
+        case PROJ_COLD:
+        case PROJ_ICE: return (race && rf_has(race->flags, RF_HURT_COLD));
+        case PROJ_LIGHT: return (race && rf_has(race->flags, RF_HURT_LIGHT));
 
         /* Everything else will cause normal damage */
         default: return false;
@@ -84,12 +84,12 @@ int adjust_dam(struct player *p, int type, int dam, aspect dam_aspect, int resis
     if (p && (type < ELEM_MAX))
     {
         /* Hack -- ice damage checks against cold resistance */
-        int res_type = ((type == GF_ICE)? GF_COLD: type);
+        int res_type = ((type == PROJ_ICE)? PROJ_COLD: type);
 
         resist = p->state.el_info[res_type].res_level;
 
         /* Notice element stuff */
-        equip_notice_element(p, res_type);
+        equip_learn_element(p, res_type);
     }
 
     if (dam <= 0) return 0;
@@ -98,7 +98,7 @@ int adjust_dam(struct player *p, int type, int dam, aspect dam_aspect, int resis
     if (resist == 3) return 0;
 
     /* Hack -- acid damage is halved by armour, holy orb is halved */
-    if (((type == GF_ACID) && p && minus_ac(p)) || (type == GF_HOLY_ORB))
+    if (((type == PROJ_ACID) && p && minus_ac(p)) || (type == PROJ_HOLY_ORB))
         dam = (dam + 1) / 2;
 
     /* Hack -- biofeedback halves "sharp" damage */
@@ -106,15 +106,15 @@ int adjust_dam(struct player *p, int type, int dam, aspect dam_aspect, int resis
     {
         switch (type)
         {
-            case GF_MISSILE:
-            case GF_ARROW_X:
-            case GF_ARROW_1:
-            case GF_ARROW_2:
-            case GF_ARROW_3:
-            case GF_ARROW_4:
-            case GF_BOULDER:
-            case GF_SHARD:
-            case GF_SOUND:
+            case PROJ_MISSILE:
+            case PROJ_ARROW_X:
+            case PROJ_ARROW_1:
+            case PROJ_ARROW_2:
+            case PROJ_ARROW_3:
+            case PROJ_ARROW_4:
+            case PROJ_BOULDER:
+            case PROJ_SHARD:
+            case PROJ_SOUND:
                 dam = (dam + 1) / 2;
                 break;
         }
@@ -136,20 +136,20 @@ int adjust_dam(struct player *p, int type, int dam, aspect dam_aspect, int resis
     switch (dam_aspect)
     {
         case MINIMISE:
-            denom = randcalc(gf_denom(type), 0, MAXIMISE);
+            denom = randcalc(projections[type].denominator, 0, MAXIMISE);
             break;
         case MAXIMISE:
-            denom = randcalc(gf_denom(type), 0, MINIMISE);
+            denom = randcalc(projections[type].denominator, 0, MINIMISE);
             break;
         case AVERAGE:
         case RANDOMISE:
-            denom = randcalc(gf_denom(type), 0, dam_aspect);
+            denom = randcalc(projections[type].denominator, 0, dam_aspect);
             break;
     }
 
     for (i = resist; i > 0; i--)
     {
-        if (denom) dam = dam * gf_num(type) / denom;
+        if (denom) dam = dam * projections[type].numerator / denom;
     }
 
     return dam;
@@ -190,33 +190,38 @@ static void project_player_drain_stats(struct player *p, int num)
 
 
 /*
- * Swap a random pair of stats
+ * Swap stats at random to temporarily scramble the player's stats.
  */
 void project_player_swap_stats(struct player *p)
 {
-    int max1, cur1, max2, cur2, ii, jj;
+    int max1, cur1, max2, cur2, i, j, swap;
 
-    msg(p, "Your body starts to scramble...");
+    /* Fisher-Yates shuffling algorithm. */
+    for (i = STAT_MAX - 1; i > 0; --i)
+    {
+        j = randint0(i);
 
-    /* Pick a pair of stats */
-    ii = randint0(STAT_MAX);
-    for (jj = ii; jj == ii; jj = randint0(STAT_MAX)) /* loop */;
+        max1 = p->stat_max[i];
+        cur1 = p->stat_cur[i];
+        max2 = p->stat_max[j];
+        cur2 = p->stat_cur[j];
 
-    max1 = p->stat_max[ii];
-    cur1 = p->stat_cur[ii];
-    max2 = p->stat_max[jj];
-    cur2 = p->stat_cur[jj];
+        p->stat_max[i] = max2;
+        p->stat_cur[i] = cur2;
+        p->stat_max[j] = max1;
+        p->stat_cur[j] = cur1;
 
-    p->stat_max[ii] = max2;
-    p->stat_cur[ii] = cur2;
-    p->stat_max[jj] = max1;
-    p->stat_cur[jj] = cur1;
+        /* Record what we did */
+        swap = p->stat_map[i];
+        p->stat_map[i] = p->stat_map[j];
+        p->stat_map[j] = swap;
+    }
 
-    p->upkeep->update |= (PU_BONUS);
+    player_inc_timed(p, TMD_SCRAMBLE, randint0(20) + 20, true, true);
 }
 
 
-void project_player_time_effects(struct player *p, struct actor *who)
+void project_player_time_effects(struct player *p, struct source *who)
 {
     /* Life draining */
     if (one_in_(2))
@@ -245,8 +250,8 @@ void project_player_time_effects(struct player *p, struct actor *who)
 
         if (p->timed[TMD_ANCHOR]) perma--;
 
-        if (who->mon)
-            update_smart_learn(who->mon, p, 0, 0, ELEM_TIME);
+        if (who->monster)
+            update_smart_learn(who->monster, p, 0, 0, ELEM_TIME);
 
         /* PWMAngband: permanent time resistance prevents the effect completely */
         if (perma)
@@ -281,13 +286,16 @@ void project_player_time_effects(struct player *p, struct actor *who)
 
 typedef struct project_player_handler_context_s
 {
-    struct actor *who;
+    /* Input values */
+    struct source *origin;
     int r;
     struct chunk *cave;
     int y;
     int x;
     int dam;
     int type;
+
+    /* Return values */
     bool obvious;
 } project_player_handler_context_t;
 
@@ -299,15 +307,15 @@ static void project_player_handler_ACID(project_player_handler_context_t *contex
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, 0, 0, ELEM_ACID);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, 0, 0, ELEM_ACID);
     if (player_is_immune(p, ELEM_ACID))
     {
         msg(p, "You resist the effect!");
         return;
     }
 
-    inven_damage(p, GF_ACID, MIN(context->dam * 5, 300));
+    inven_damage(p, PROJ_ACID, MIN(context->dam * 5, 300));
 }
 
 
@@ -315,15 +323,15 @@ static void project_player_handler_ELEC(project_player_handler_context_t *contex
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, 0, 0, ELEM_ELEC);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, 0, 0, ELEM_ELEC);
     if (player_is_immune(p, ELEM_ELEC))
     {
         msg(p, "You resist the effect!");
         return;
     }
 
-    inven_damage(p, GF_ELEC, MIN(context->dam * 5, 300));
+    inven_damage(p, PROJ_ELEC, MIN(context->dam * 5, 300));
 }
 
 
@@ -331,15 +339,15 @@ static void project_player_handler_FIRE(project_player_handler_context_t *contex
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, 0, 0, ELEM_FIRE);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, 0, 0, ELEM_FIRE);
     if (player_is_immune(p, ELEM_FIRE))
     {
         msg(p, "You resist the effect!");
         return;
     }
 
-    inven_damage(p, GF_FIRE, MIN(context->dam * 5, 300));
+    inven_damage(p, PROJ_FIRE, MIN(context->dam * 5, 300));
 }
 
 
@@ -347,22 +355,22 @@ static void project_player_handler_COLD(project_player_handler_context_t *contex
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, 0, 0, ELEM_COLD);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, 0, 0, ELEM_COLD);
     if (player_is_immune(p, ELEM_COLD))
     {
         msg(p, "You resist the effect!");
         return;
     }
 
-    inven_damage(p, GF_COLD, MIN(context->dam * 5, 300));
+    inven_damage(p, PROJ_COLD, MIN(context->dam * 5, 300));
 }
 
 
 static void project_player_handler_POIS(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
     if (player_resists(p, ELEM_POIS))
     {
@@ -377,10 +385,10 @@ static void project_player_handler_POIS(project_player_handler_context_t *contex
 static void project_player_handler_LIGHT(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, OF_PROT_BLIND, 0, -1);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, OF_PROT_BLIND, 0, -1);
     if (player_resists(p, ELEM_LIGHT) || player_of_has(p, OF_PROT_BLIND))
     {
         msg(p, "You resist the effect!");
@@ -394,10 +402,10 @@ static void project_player_handler_LIGHT(project_player_handler_context_t *conte
 static void project_player_handler_DARK(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, OF_PROT_BLIND, 0, -1);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, OF_PROT_BLIND, 0, -1);
     if (player_resists(p, ELEM_DARK) || player_of_has(p, OF_PROT_BLIND))
     {
         msg(p, "You resist the effect!");
@@ -411,10 +419,10 @@ static void project_player_handler_DARK(project_player_handler_context_t *contex
 static void project_player_handler_SOUND(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, OF_PROT_STUN, 0, -1);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, OF_PROT_STUN, 0, -1);
     if (player_resists(p, ELEM_SOUND) || player_of_has(p, OF_PROT_STUN))
     {
         msg(p, "You resist the effect!");
@@ -429,7 +437,7 @@ static void project_player_handler_SOUND(project_player_handler_context_t *conte
 static void project_player_handler_SHARD(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
     if (player_resists(p, ELEM_SHARD))
     {
@@ -445,6 +453,10 @@ static void project_player_handler_SHARD(project_player_handler_context_t *conte
 static void project_player_handler_NEXUS(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct source who_body;
+    struct source *who = &who_body;
+
+    source_player(who, get_player_index(get_connection(p->conn)), p);
 
     if (player_resists(p, ELEM_NEXUS))
     {
@@ -453,25 +465,23 @@ static void project_player_handler_NEXUS(project_player_handler_context_t *conte
     }
 
     /* Stat swap */
-    if (one_in_(7))
-    {
-        if (randint0(100) < p->state.skills[SKILL_SAVE])
-        {
-            msg(p, "You avoid the effect!");
-            return;
-        }
+    if (magik(p->state.skills[SKILL_SAVE]))
+        msg(p, "You avoid the effect!");
+    else
         project_player_swap_stats(p);
-    }
 
     /* Teleport to */
-    else if (one_in_(3))
+    if (one_in_(3))
     {
-        if (context->who->mon)
-            effect_simple(p, EF_TELEPORT_TO, "0", 0, 0, 0, NULL, context->who->mon);
+        if (context->origin->monster)
+        {
+            who->monster = context->origin->monster;
+            effect_simple(EF_TELEPORT_TO, who, "0", 0, 0, 0, NULL);
+        }
         else
         {
-            effect_simple(p, EF_TELEPORT_TO, "0", context->who->player->py,
-                context->who->player->px, 0, NULL, NULL);
+            effect_simple(EF_TELEPORT_TO, who, "0", context->origin->player->py,
+                context->origin->player->px, 0, NULL);
         }
 
         /* Hack -- get new location */
@@ -482,18 +492,18 @@ static void project_player_handler_NEXUS(project_player_handler_context_t *conte
     /* Teleport level */
     else if (one_in_(4))
     {
-        if (randint0(100) < p->state.skills[SKILL_SAVE])
+        if (magik(p->state.skills[SKILL_SAVE]))
         {
             msg(p, "You avoid the effect!");
             return;
         }
-        effect_simple(p, EF_TELEPORT_LEVEL, "0", 0, 0, 0, NULL, NULL);
+        effect_simple(EF_TELEPORT_LEVEL, who, "0", 0, 0, 0, NULL);
     }
 
     /* Teleport */
     else
     {
-        effect_simple(p, EF_TELEPORT, "200", 0, 0, 0, NULL, NULL);
+        effect_simple(EF_TELEPORT, who, "200", 0, 0, 0, NULL);
 
         /* Hack -- get new location */
         context->y = p->py;
@@ -507,8 +517,8 @@ static void project_player_handler_NETHER(project_player_handler_context_t *cont
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
     int drain = 20 + (p->exp / 50) * z_info->life_drain_percent;
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, OF_HOLD_LIFE, 0, -1);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, OF_HOLD_LIFE, 0, -1);
     if (player_resists(p, ELEM_NETHER) || player_of_has(p, OF_HOLD_LIFE))
     {
         msg(p, "You resist the effect!");
@@ -524,12 +534,12 @@ static void project_player_handler_NETHER(project_player_handler_context_t *cont
 static void project_player_handler_CHAOS(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
-    if (context->who->mon)
+    if (context->origin->monster)
     {
-        update_smart_learn(context->who->mon, p, OF_PROT_CONF, 0, -1);
-        update_smart_learn(context->who->mon, p, OF_HOLD_LIFE, 0, -1);
+        update_smart_learn(context->origin->monster, p, OF_PROT_CONF, 0, -1);
+        update_smart_learn(context->origin->monster, p, OF_HOLD_LIFE, 0, -1);
     }
     if (player_resists(p, ELEM_CHAOS))
     {
@@ -562,6 +572,8 @@ static void project_player_handler_CHAOS(project_player_handler_context_t *conte
 static void project_player_handler_DISEN(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct source who_body;
+    struct source *who = &who_body;
 
     if (player_resists(p, ELEM_DISEN))
     {
@@ -570,19 +582,20 @@ static void project_player_handler_DISEN(project_player_handler_context_t *conte
     }
 
     /* Disenchant gear */
-    effect_simple(p, EF_DISENCHANT, "0", 0, 0, 0, NULL, NULL);
+    source_player(who, get_player_index(get_connection(p->conn)), p);
+    effect_simple(EF_DISENCHANT, who, "0", 0, 0, 0, NULL);
 }
 
 
 static void project_player_handler_WATER(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
-    if (context->who->mon)
+    if (context->origin->monster)
     {
-        update_smart_learn(context->who->mon, p, OF_PROT_CONF, 0, -1);
-        update_smart_learn(context->who->mon, p, OF_PROT_STUN, 0, -1);
+        update_smart_learn(context->origin->monster, p, OF_PROT_CONF, 0, -1);
+        update_smart_learn(context->origin->monster, p, OF_PROT_STUN, 0, -1);
     }
 
     /* Confusion */
@@ -602,19 +615,19 @@ static void project_player_handler_WATER(project_player_handler_context_t *conte
 static void project_player_handler_ICE(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
-    if (context->who->mon)
+    if (context->origin->monster)
     {
-        update_smart_learn(context->who->mon, p, 0, 0, ELEM_SHARD);
-        update_smart_learn(context->who->mon, p, OF_PROT_STUN, 0, -1);
-        update_smart_learn(context->who->mon, p, 0, 0, ELEM_COLD);
+        update_smart_learn(context->origin->monster, p, 0, 0, ELEM_SHARD);
+        update_smart_learn(context->origin->monster, p, OF_PROT_STUN, 0, -1);
+        update_smart_learn(context->origin->monster, p, 0, 0, ELEM_COLD);
     }
 
     if (player_is_immune(p, ELEM_COLD))
         msg(p, "You resist the effect!");
     else
-        inven_damage(p, GF_COLD, MIN(context->dam * 5, 300));
+        inven_damage(p, PROJ_COLD, MIN(context->dam * 5, 300));
 
     /* Cuts */
     if (player_resists(p, ELEM_SHARD))
@@ -633,17 +646,21 @@ static void project_player_handler_ICE(project_player_handler_context_t *context
 static void project_player_handler_GRAVITY(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
     msg(p, "Gravity warps around you.");
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, OF_PROT_STUN, 0, -1);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, OF_PROT_STUN, 0, -1);
 
     /* Blink */
     if (randint1(127) > p->lev)
     {
-        effect_simple(p, EF_TELEPORT, "5", 0, 0, 0, NULL, NULL);
+        struct source who_body;
+        struct source *who = &who_body;
+
+        source_player(who, get_player_index(get_connection(p->conn)), p);
+        effect_simple(EF_TELEPORT, who, "5", 0, 0, 0, NULL);
 
         /* Hack -- get new location */
         context->y = p->py;
@@ -661,10 +678,10 @@ static void project_player_handler_GRAVITY(project_player_handler_context_t *con
 }
 
 
-static void project_player_handler_INERT(project_player_handler_context_t *context)
+static void project_player_handler_INERTIA(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
     /* Slow */
     player_inc_timed(p, TMD_SLOW, 4 + randint0(4), true, check);
@@ -674,24 +691,17 @@ static void project_player_handler_INERT(project_player_handler_context_t *conte
 static void project_player_handler_FORCE(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
     char grids_away[5];
-    int c_y, c_x;
+    struct loc centre;
+    struct source who_body;
+    struct source *who = &who_body;
 
     /* Get location of caster (assumes index of caster is not zero) */
-    if (context->who->mon)
-    {
-        c_y = context->who->mon->fy;
-        c_x = context->who->mon->fx;
-    }
-    else
-    {
-        c_y = context->who->player->py;
-        c_x = context->who->player->px;
-    }
+    origin_get_loc(&centre, context->origin);
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, OF_PROT_STUN, 0, -1);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, OF_PROT_STUN, 0, -1);
     if (player_of_has(p, OF_PROT_STUN))
     {
         msg(p, "You resist the effect!");
@@ -703,7 +713,9 @@ static void project_player_handler_FORCE(project_player_handler_context_t *conte
 
     /* Thrust player away. */
     strnfmt(grids_away, sizeof(grids_away), "%d", 3 + context->dam / 20);
-    effect_simple(p, EF_THRUST_AWAY, grids_away, c_y, c_x, 0, NULL, NULL);
+    source_player(who, get_player_index(get_connection(p->conn)), p);
+    who->trap = context->origin->trap;
+    effect_simple(EF_THRUST_AWAY, who, grids_away, centre.y, centre.x, 0, NULL);
 
     /* Hack -- get new location */
     context->y = p->py;
@@ -715,17 +727,17 @@ static void project_player_handler_TIME(project_player_handler_context_t *contex
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
-    project_player_time_effects(p, context->who);
+    project_player_time_effects(p, context->origin);
 }
 
 
 static void project_player_handler_PLASMA(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool check = (context->who->mon? false: true);
+    bool check = (context->origin->monster? false: true);
 
-    if (context->who->mon)
-        update_smart_learn(context->who->mon, p, OF_PROT_STUN, 0, -1);
+    if (context->origin->monster)
+        update_smart_learn(context->origin->monster, p, OF_PROT_STUN, 0, -1);
     if (player_of_has(p, OF_PROT_STUN))
     {
         msg(p, "You resist the effect!");
@@ -747,6 +759,15 @@ static void project_player_handler_ARROW_2(project_player_handler_context_t *con
 static void project_player_handler_ARROW_3(project_player_handler_context_t *context) {}
 static void project_player_handler_ARROW_4(project_player_handler_context_t *context) {}
 static void project_player_handler_BOULDER(project_player_handler_context_t *context) {}
+static void project_player_handler_LIGHT_WEAK(project_player_handler_context_t *context) {}
+static void project_player_handler_DARK_WEAK(project_player_handler_context_t *context) {}
+static void project_player_handler_KILL_WALL(project_player_handler_context_t *context) {}
+static void project_player_handler_KILL_DOOR(project_player_handler_context_t *context) {}
+static void project_player_handler_KILL_TRAP(project_player_handler_context_t *context) {}
+static void project_player_handler_MAKE_DOOR(project_player_handler_context_t *context) {}
+static void project_player_handler_MAKE_TRAP(project_player_handler_context_t *context) {}
+static void project_player_handler_STONE_WALL(project_player_handler_context_t *context) {}
+static void project_player_handler_RAISE(project_player_handler_context_t *context) {}
 
 
 /* PvP handlers */
@@ -757,12 +778,15 @@ static void project_player_handler_AWAY_EVIL(project_player_handler_context_t *c
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
     /* Only evil players */
-    if (p->poly_race && rf_has(p->poly_race->flags, RF_EVIL))
+    if (p->poly_race && monster_is_evil(p->poly_race))
     {
         char dice[5];
+        struct source who_body;
+        struct source *who = &who_body;
 
         strnfmt(dice, sizeof(dice), "%d", context->dam);
-        effect_simple(p, EF_TELEPORT, dice, 0, 0, 0, NULL, NULL);
+        source_player(who, get_player_index(get_connection(p->conn)), p);
+        effect_simple(EF_TELEPORT, who, dice, 0, 0, 0, NULL);
 
         /* Hack -- get new location */
         context->y = p->py;
@@ -777,9 +801,12 @@ static void project_player_handler_AWAY_ALL(project_player_handler_context_t *co
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
     char dice[5];
+    struct source who_body;
+    struct source *who = &who_body;
 
     strnfmt(dice, sizeof(dice), "%d", context->dam);
-    effect_simple(p, EF_TELEPORT, dice, 0, 0, 0, NULL, NULL);
+    source_player(who, get_player_index(get_connection(p->conn)), p);
+    effect_simple(EF_TELEPORT, who, dice, 0, 0, 0, NULL);
 
     /* Hack -- get new location */
     context->y = p->py;
@@ -822,7 +849,7 @@ static void project_player_handler_DISP_EVIL(project_player_handler_context_t *c
 static void project_player_handler_DISP_ALL(project_player_handler_context_t *context) {}
 
 
-static void project_player_handler_OLD_CLONE(project_player_handler_context_t *context)
+static void project_player_handler_MON_CLONE(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
@@ -831,7 +858,7 @@ static void project_player_handler_OLD_CLONE(project_player_handler_context_t *c
 }
 
 
-static void project_player_handler_OLD_POLY(project_player_handler_context_t *context)
+static void project_player_handler_MON_POLY(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
@@ -841,7 +868,7 @@ static void project_player_handler_OLD_POLY(project_player_handler_context_t *co
     /* Swap stats */
     else if (one_in_(2))
     {
-        if (randint0(100) < p->state.skills[SKILL_SAVE])
+        if (magik(p->state.skills[SKILL_SAVE]))
             msg(p, "You avoid the effect!");
         else
             project_player_swap_stats(p);
@@ -852,25 +879,25 @@ static void project_player_handler_OLD_POLY(project_player_handler_context_t *co
     {
         char killer[NORMAL_WID];
 
-        my_strcpy(killer, context->who->player->name, sizeof(killer));
+        my_strcpy(killer, context->origin->player->name, sizeof(killer));
         poly_bat(p, 10 + context->dam * 4, killer);
     }
 }
 
 
-static void project_player_handler_OLD_HEAL(project_player_handler_context_t *context)
+static void project_player_handler_MON_HEAL(project_player_handler_context_t *context)
 {
-    project_player_handler_OLD_CLONE(context);
+    project_player_handler_MON_CLONE(context);
 }
 
 
-static void project_player_handler_OLD_SPEED(project_player_handler_context_t *context)
+static void project_player_handler_MON_SPEED(project_player_handler_context_t *context)
 {
-    project_player_handler_OLD_CLONE(context);
+    project_player_handler_MON_CLONE(context);
 }
 
 
-static void project_player_handler_OLD_SLOW(project_player_handler_context_t *context)
+static void project_player_handler_MON_SLOW(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
@@ -882,7 +909,7 @@ static void project_player_handler_OLD_SLOW(project_player_handler_context_t *co
 }
 
 
-static void project_player_handler_OLD_CONF(project_player_handler_context_t *context)
+static void project_player_handler_MON_CONF(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
@@ -894,7 +921,7 @@ static void project_player_handler_OLD_CONF(project_player_handler_context_t *co
 }
 
 
-static void project_player_handler_OLD_SLEEP(project_player_handler_context_t *context)
+static void project_player_handler_MON_SLEEP(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
@@ -906,7 +933,31 @@ static void project_player_handler_OLD_SLEEP(project_player_handler_context_t *c
 }
 
 
-static void project_player_handler_OLD_DRAIN(project_player_handler_context_t *context) {}
+static void project_player_handler_MON_HOLD(project_player_handler_context_t *context)
+{
+    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+
+    /* Paralysis */
+    if (player_of_has(p, OF_FREE_ACT))
+        msg(p, "You resist the effect!");
+    else
+        player_inc_timed(p, TMD_PARALYZED, 3 + randint1(4), true, true);
+}
+
+
+static void project_player_handler_MON_STUN(project_player_handler_context_t *context)
+{
+    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+
+    /* Stun */
+    if (player_of_has(p, OF_PROT_STUN))
+        msg(p, "You resist the effect!");
+    else
+        player_inc_timed(p, TMD_STUN, 3 + randint1(4), true, true);
+}
+
+
+static void project_player_handler_MON_DRAIN(project_player_handler_context_t *context) {}
 
 
 static void project_player_handler_PSI(project_player_handler_context_t *context)
@@ -958,20 +1009,21 @@ static void project_player_handler_PSI(project_player_handler_context_t *context
 }
 
 
-static void project_player_handler_OLD_STUN(project_player_handler_context_t *context)
+static void project_player_handler_DEATH(project_player_handler_context_t *context) {}
+
+static void project_player_handler_PSI_DRAIN(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    int drain = context->dam;
+    char dice[5];
 
-    /* Stun */
-    if (player_of_has(p, OF_PROT_STUN))
-        msg(p, "You resist the effect!");
-    else
-        player_inc_timed(p, TMD_STUN, 3 + randint1(4), true, true);
+    if (!drain) return;
+
+    if (drain > p->chp) drain = p->chp;
+    strnfmt(dice, sizeof(dice), "%d", 1 + 3 * drain / 4);
+    effect_simple(EF_RESTORE_MANA, context->origin, dice, 0, 0, 0, NULL);
 }
 
-
-static void project_player_handler_DEATH(project_player_handler_context_t *context) {}
-static void project_player_handler_PSI_DRAIN(project_player_handler_context_t *context) {}
 static void project_player_handler_CURSE(project_player_handler_context_t *context) {}
 
 
@@ -992,9 +1044,12 @@ static void project_player_handler_FOLLOW(project_player_handler_context_t *cont
 static void project_player_handler_TELE_TO(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct source who_body;
+    struct source *who = &who_body;
 
-    effect_simple(p, EF_TELEPORT_TO, "0", context->who->player->py, context->who->player->px, 0,
-        NULL, NULL);
+    source_player(who, get_player_index(get_connection(p->conn)), p);
+    effect_simple(EF_TELEPORT_TO, who, "0", context->origin->player->py, context->origin->player->px,
+        0, NULL);
 
     /* Hack -- get new location */
     context->y = p->py;
@@ -1009,11 +1064,17 @@ static void project_player_handler_TELE_LEVEL(project_player_handler_context_t *
     if (player_resists(p, ELEM_NEXUS))
         msg(p, "You resist the effect!");
     else
-        effect_simple(p, EF_TELEPORT_LEVEL, "0", 0, 0, 0, NULL, NULL);
+    {
+        struct source who_body;
+        struct source *who = &who_body;
+
+        source_player(who, get_player_index(get_connection(p->conn)), p);
+        effect_simple(EF_TELEPORT_LEVEL, who, "0", 0, 0, 0, NULL);
+    }
 }
 
 
-static void project_player_handler_OLD_BLIND(project_player_handler_context_t *context)
+static void project_player_handler_MON_BLIND(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
@@ -1028,10 +1089,9 @@ static void project_player_handler_OLD_BLIND(project_player_handler_context_t *c
 static void project_player_handler_DRAIN_MANA(project_player_handler_context_t *context)
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-    bool seen = (!p->timed[TMD_BLIND] &&
-        mflag_has(p->pflag[context->who->idx], MFLAG_VISIBLE));
+    bool seen = (!p->timed[TMD_BLIND] && player_is_visible(p, context->origin->idx));
 
-    drain_mana(p, context->who, (randint1(context->dam) / 2) + 1, seen);
+    drain_mana(p, context->origin, (randint1(context->dam) / 2) + 1, seen);
 }
 
 
@@ -1097,9 +1157,9 @@ static void project_player_handler_PROJECT(project_player_handler_context_t *con
 {
     struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
 
-    int cidx = context->who->player->clazz->cidx;
+    int cidx = context->origin->player->clazz->cidx;
 
-    if (context->who->player->ghost && !player_can_undead(context->who->player))
+    if (context->origin->player->ghost && !player_can_undead(context->origin->player))
         cidx = CLASS_GHOST;
 
     /* "dam" is used as spell index */
@@ -1109,15 +1169,12 @@ static void project_player_handler_PROJECT(project_player_handler_context_t *con
 
 static const project_player_handler_f player_handlers[] =
 {
-    #define ELEM(a, b, c, d, e, f, g, h, col, pvp) project_player_handler_##a,
+    #define ELEM(a) project_player_handler_##a,
     #include "../common/list-elements.h"
     #undef ELEM
-    #define PROJ_ENV(a, b, obv, col, desc, pvp) NULL,
-    #include "../common/list-project-environs.h"
-    #undef PROJ_ENV
-    #define PROJ_MON(a, b, obv, col, desc, pvp) project_player_handler_##a,
-    #include "../common/list-project-monsters.h"
-    #undef PROJ_MON
+    #define PROJ(a) project_player_handler_##a,
+    #include "../common/list-projections.h"
+    #undef PROJ
     NULL
 };
 
@@ -1129,10 +1186,10 @@ static bool project_p_is_threat(int type)
     /* Is this type of attack a threat? */
     switch (type)
     {
-        case GF_AWAY_ALL:
-        case GF_PROJECT:
-        case GF_TELE_TO:
-        case GF_TELE_LEVEL: break;
+        case PROJ_AWAY_ALL:
+        case PROJ_PROJECT:
+        case PROJ_TELE_TO:
+        case PROJ_TELE_LEVEL: break;
         default: threat = true; break;
     }
 
@@ -1146,12 +1203,12 @@ static bool project_p_is_threat(int type)
  * Called for projections with the PROJECT_PLAY flag set, which includes
  * bolt, beam, ball and breath effects.
  *
- * who is the caster
+ * origin is the origin of the effect
  * r is the distance from the centre of the effect
  * c is the current cave
  * (y, x) the coordinates of the grid being handled
  * dam is the "damage" from the effect at distance r from the centre
- * typ is the projection (GF_) type
+ * typ is the projection (PROJ_) type
  * what is the message to other players if the target dies
  * did_hit is true if a player was hit
  * was_obvious is true if the effects were obvious
@@ -1162,7 +1219,7 @@ static bool project_p_is_threat(int type)
  *
  * We assume the player is aware of some effect, and always return "true".
  */
-void project_p(struct actor *who, int r, struct chunk *c, int y, int x, int dam, int typ,
+void project_p(struct source *origin, int r, struct chunk *c, int y, int x, int dam, int typ,
     const char *what, bool *did_hit, bool *was_obvious, int *newy, int *newx)
 {
     bool blind, seen;
@@ -1172,7 +1229,7 @@ void project_p(struct actor *who, int r, struct chunk *c, int y, int x, int dam,
     /* Monster name (for attacks) */
     char m_name[NORMAL_WID];
 
-    /* Monster name (for damage) */
+    /* Monster or trap name (for damage) */
     char killer[NORMAL_WID];
 
     project_player_handler_f player_handler;
@@ -1192,70 +1249,109 @@ void project_p(struct actor *who, int r, struct chunk *c, int y, int x, int dam,
     if (!p) return;
 
     /* Never affect projector (except when trying to polymorph self) */
-    if ((who->player == p) && (typ != GF_OLD_POLY)) return;
+    if ((origin->player == p) && (typ != PROJ_MON_POLY)) return;
 
     /* Obtain player info */
     blind = (p->timed[TMD_BLIND]? true: false);
-    if (who->mon)
-        seen = (!blind && mflag_has(p->mflag[who->idx], MFLAG_VISIBLE));
-    else
-        seen = (!blind && mflag_has(p->pflag[who->idx], MFLAG_VISIBLE));
+    seen = !blind;
 
     /* Hack -- polymorph self */
-    if (who->player == p) {}
+    if ((origin->player == p) && (typ == PROJ_MON_POLY)) {}
+
+    /* Hit by a trap */
+    else if (origin->trap)
+    {
+        /* Get the trap name */
+        strnfmt(killer, sizeof(killer), "%s%s",
+            (is_a_vowel(origin->trap->kind->desc[0])? "an ": "a "), origin->trap->kind->desc);
+    }
 
     /* The caster is a monster */
-    else if (who->mon)
+    else if (origin->monster)
     {
+        /* Check it is visible */
+        if (!monster_is_visible(p, origin->idx)) seen = false;
+
         /* Get the monster name */
-        monster_desc(p, m_name, sizeof(m_name), who->mon, MDESC_CAPITAL);
+        monster_desc(p, m_name, sizeof(m_name), origin->monster, MDESC_CAPITAL);
 
         /* Get the monster's real name */
-        monster_desc(p, killer, sizeof(killer), who->mon, MDESC_DIED_FROM);
+        monster_desc(p, killer, sizeof(killer), origin->monster, MDESC_DIED_FROM);
 
         /* Check hostility for threatening spells */
-        if (!pvm_check(p, who->mon)) return;
+        if (!pvm_check(p, origin->monster)) return;
     }
 
     /* The caster is a player */
-    else if (who->player)
+    else if (origin->player)
     {
+        /* Check it is visible */
+        if (!player_is_visible(p, origin->idx)) seen = false;
+
+        /* Get the player name */
+        player_desc(p, m_name, sizeof(m_name), origin->player, true);
+
+        /* Get the player's real name */
+        my_strcpy(killer, origin->player->name, sizeof(killer));
+
         /* Check hostility for threatening spells */
         if (project_p_is_threat(typ))
         {
-            struct actor target_body;
-            struct actor *target = &target_body;
+            struct source target_body;
+            struct source *target = &target_body;
             int mode;
 
-            ACTOR_PLAYER(target, 0, p);
-            mode = (target_equals(who->player, target)? PVP_DIRECT: PVP_INDIRECT);
+            source_player(target, 0, p);
+            mode = (target_equals(origin->player, target)? PVP_DIRECT: PVP_INDIRECT);
 
-            if (!pvp_check(who->player, p, mode, true, c->squares[y][x].feat))
+            if (!pvp_check(origin->player, p, mode, true, c->squares[y][x].feat))
                 return;
         }
-
-        player_desc(p, m_name, sizeof(m_name), who->player, true);
-        my_strcpy(killer, who->player->name, sizeof(killer));
     }
 
     /* Let player know what is going on */
-    if (!seen && gf_blind_desc(typ)) msg(p, "You %s!", gf_blind_desc(typ));
+    if (!seen && projections[typ].blind_desc) msg(p, "You %s!", projections[typ].blind_desc);
 
-    /* MvP */
-    if (who->mon)
+    /* Hack -- polymorph self */
+    if ((origin->player == p) && (typ == PROJ_MON_POLY))
     {
-        strnfmt(p->died_flavor, sizeof(p->died_flavor), "was %s by %s", what, killer);
-
-        /* Adjust damage for resistance, immunity or vulnerability, and apply it */
-        dam = adjust_dam(p, typ, dam, RANDOMISE, 0);
-        if (dam) dead = take_hit(p, dam, killer, true);
+        /* XXX */
+        dam = adjust_dam(p, PROJ_MON_POLY, dam, RANDOMISE, 0);
     }
 
-    /* PvP */
-    else
+    /* Hit by a trap */
+    else if (origin->trap)
+    {
+        /* Adjust damage for resistance, immunity or vulnerability, and apply it */
+        dam = adjust_dam(p, typ, dam, RANDOMISE, 0);
+        if (dam)
+        {
+            char df[160];
+
+            trap_msg_death(p, origin->trap, df, sizeof(df));
+            dead = take_hit(p, dam, killer, false, df);
+        }
+    }
+
+    /* The caster is a monster */
+    else if (origin->monster)
+    {
+        /* Adjust damage for resistance, immunity or vulnerability, and apply it */
+        dam = adjust_dam(p, typ, dam, RANDOMISE, 0);
+        if (dam)
+        {
+            char df[160];
+
+            strnfmt(df, sizeof(df), "was %s by %s", what, killer);
+            dead = take_hit(p, dam, killer, true, df);
+        }
+    }
+
+    /* The caster is a player */
+    else if (origin->player)
     {
         /* Try a saving throw if available */
-        if ((gf_flags(typ) & ATT_SAVE) && magik(p->state.skills[SKILL_SAVE]))
+        if ((projections[typ].flags & ATT_SAVE) && magik(p->state.skills[SKILL_SAVE]))
         {
             msg(p, "You resist the effects!");
 
@@ -1264,25 +1360,28 @@ void project_p(struct actor *who, int r, struct chunk *c, int y, int x, int dam,
         }
         else
         {
-            bool non_physical = ((gf_flags(typ) & ATT_NON_PHYS)? true: false);
-
-            strnfmt(p->died_flavor, sizeof(p->died_flavor), "was %s by %s", what, killer);
+            bool non_physical = ((projections[typ].flags & ATT_NON_PHYS)? true: false);
 
             /* Adjust damage for resistance, immunity or vulnerability, and apply it */
             dam = adjust_dam(p, typ, dam, RANDOMISE, 0);
-            if (dam && (gf_flags(typ) & ATT_DAMAGE))
-                dead = take_hit(p, dam, killer, non_physical);
+            if (dam && (projections[typ].flags & ATT_DAMAGE))
+            {
+                char df[160];
+
+                strnfmt(df, sizeof(df), "was %s by %s", what, killer);
+                dead = take_hit(p, dam, killer, non_physical, df);
+            }
 
             /* Give a message */
-            if (dam && (gf_flags(typ) & ATT_DAMAGE) && !dead)
-                player_pain(who->player, p, dam);
+            if (dam && (projections[typ].flags & ATT_DAMAGE) && !dead)
+                player_pain(origin->player, p, dam);
 
             /* Projected spell */
-            if (gf_flags(typ) & ATT_RAW) dam = index;
+            if (projections[typ].flags & ATT_RAW) dam = index;
         }
     }
 
-    context.who = who;
+    context.origin = origin;
     context.r = r;
     context.cave = c;
     context.y = y;

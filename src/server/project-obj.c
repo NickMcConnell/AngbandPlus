@@ -3,7 +3,7 @@
  * Purpose: Projection effects on objects
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -190,7 +190,7 @@ struct monster_race *get_race(const char *name)
 
 typedef struct project_object_handler_context_s
 {
-    struct actor *who;
+    struct source *origin;
     int r;
     struct chunk *cave;
     int y;
@@ -291,7 +291,7 @@ static void project_object_handler_ICE(project_object_handler_context_t *context
 
 
 static void project_object_handler_GRAVITY(project_object_handler_context_t *context) {}
-static void project_object_handler_INERT(project_object_handler_context_t *context) {}
+static void project_object_handler_INERTIA(project_object_handler_context_t *context) {}
 
 
 /* Force -- potions and flasks */
@@ -333,17 +333,7 @@ static void project_object_handler_MANA(project_object_handler_context_t *contex
 }
 
 
-/* Holy Orb -- destroys cursed non-artifacts */
-static void project_object_handler_HOLY_ORB(project_object_handler_context_t *context)
-{
-    if (cursed_p(context->obj->flags))
-    {
-        context->do_kill = true;
-        context->note_kill = VERB_AGREEMENT(context->obj->number, "is destroyed", "are destroyed");
-    }
-}
-
-
+static void project_object_handler_HOLY_ORB(project_object_handler_context_t *context) {}
 static void project_object_handler_ARROW_X(project_object_handler_context_t *context) {}
 static void project_object_handler_ARROW_1(project_object_handler_context_t *context) {}
 static void project_object_handler_ARROW_2(project_object_handler_context_t *context) {}
@@ -353,10 +343,11 @@ static void project_object_handler_BOULDER(project_object_handler_context_t *con
 static void project_object_handler_LIGHT_WEAK(project_object_handler_context_t *context) {}
 static void project_object_handler_DARK_WEAK(project_object_handler_context_t *context) {}
 static void project_object_handler_KILL_WALL(project_object_handler_context_t *context) {}
+static void project_object_handler_KILL_DOOR(project_object_handler_context_t *context) {}
 
 
 /* Unlock chests */
-static void project_object_handler_KILL_DOOR(project_object_handler_context_t *context)
+static void project_object_handler_KILL_TRAP(project_object_handler_context_t *context)
 {
     /* Chests are noticed only if trapped or locked */
     if (is_locked_chest(context->obj))
@@ -365,22 +356,16 @@ static void project_object_handler_KILL_DOOR(project_object_handler_context_t *c
         unlock_chest(context->obj);
 
         /* Identify */
-        if (context->who->player)
-            object_notice_everything_aux(context->who->player, context->obj, true, false);
+        if (context->origin->player)
+            object_notice_everything_aux(context->origin->player, context->obj, true, false);
 
         /* Notice */
         if (context->observed)
         {
-            msg(context->who->player, "Click!");
+            msg(context->origin->player, "Click!");
             context->obvious = true;
         }
     }
-}
-
-
-static void project_object_handler_KILL_TRAP(project_object_handler_context_t *context)
-{
-    project_object_handler_KILL_DOOR(context);
 }
 
 
@@ -389,86 +374,137 @@ static void project_object_handler_MAKE_TRAP(project_object_handler_context_t *c
 static void project_object_handler_STONE_WALL(project_object_handler_context_t *context) {}
 
 
+/* Can this race be raised? */
+static bool valid_race(project_object_handler_context_t *context, struct monster_race *race)
+{
+    int level = monster_level(&context->cave->wpos), summon_level;
+
+    if (!race) return false;
+
+    /* Skip uniques and monsters that can't be generated */
+    if (monster_is_unique(race)) return false;
+    if (rf_has(race->flags, RF_PWMANG_BASE) && !cfg_base_monsters) return false;
+    if (rf_has(race->flags, RF_PWMANG_EXTRA) && !cfg_extra_monsters) return false;
+
+    /* Raised monsters can't be too powerful */
+    if (context->origin->player)
+        summon_level = (level + context->origin->player->lev) / 2 + 5;
+    else
+        summon_level = (level + context->origin->monster->level) / 2 + 5;
+    return (race->level <= summon_level);
+}
+
+
+/* Is the race consistent with the corpse? */
+static bool consistent_corpse(struct monster_race *race, struct monster_race *corpse)
+{
+    if (streq(race->name, "zombified kobold"))
+        return (corpse->base == lookup_monster_base("kobold"));
+
+    if (streq(race->name, "zombified orc") || streq(race->name, "mummified orc"))
+        return (corpse->base == lookup_monster_base("orc"));
+
+    if (streq(race->name, "zombified human") || streq(race->name, "mummified human"))
+        return (corpse->base == lookup_monster_base("person"));
+
+    if (streq(race->name, "mummified troll"))
+        return (corpse->base == lookup_monster_base("troll"));
+
+    return true;
+}
+
+
 /* Raise dead */
 static void project_object_handler_RAISE(project_object_handler_context_t *context)
 {
-    struct monster_race *race;
+    struct monster_race *race = NULL;
     struct chunk *c = context->cave;
-    int tries = 20, depth = monster_level(c->depth), summon_level, y, x;
+    int y, x;
 
-    /* Raise dead prohibited in town and special levels */
-    if (forbid_special(c->depth)) return;
+    /* Raise dead prohibited in towns and special levels */
+    if (forbid_special(&c->wpos)) return;
 
-    /* Try hard to raise something */
-    while (tries)
+    /* Skeletons and corpses can be raised */
+    if (!tval_is_skeleton(context->obj) && !tval_is_corpse(context->obj)) return;
+
+    /* Skeletons must match an existing skeleton race */
+    if (tval_is_skeleton(context->obj))
     {
-        race = NULL;
-        tries--;
-
-        /* Skeletons can be raised */
-        if (tval_is_skeleton(context->obj) &&
-            (context->obj->sval >= lookup_sval(context->obj->tval, "Kobold Skeleton")))
+        if (strstr(context->obj->kind->name, "Human"))
+            race = get_race("skeleton human");
+        else if (strstr(context->obj->kind->name, "Elf"))
+            race = get_race("ice skeleton");
+        else if (strstr(context->obj->kind->name, "Kobold"))
+            race = get_race("skeleton kobold");
+        else if (strstr(context->obj->kind->name, "Orc"))
+            race = get_race("skeleton orc");
+        else if (context->obj->sval == lookup_sval(context->obj->tval, "Skull"))
         {
-            /* Choose new animated skeleton */
-            if (strstr(context->obj->kind->name, "Kobold"))
-                race = get_race("Skeleton kobold");
-            else if (strstr(context->obj->kind->name, "Orc"))
-                race = get_race("Skeleton orc");
-            else if (strstr(context->obj->kind->name, "Human"))
-                race = get_race("Skeleton human");
-            else if (context->obj->sval == lookup_sval(context->obj->tval, "Skull"))
-                race = get_race("Flying skull");
-            else if (strstr(context->obj->kind->name, "Troll"))
-                race = get_race("Skeleton troll");
-            else if (strstr(context->obj->kind->name, "Ettin"))
-                race = get_race("Skeleton ettin");
+            /* Give a chance of getting a powerful skull druj */
+            if (one_in_(3))
+                race = get_race("skull druj");
+            else
+                race = get_race("flying skull");
         }
+        else if (strstr(context->obj->kind->name, "Troll"))
+            race = get_race("skeleton troll");
+        else if (strstr(context->obj->kind->name, "Ettin"))
+            race = get_race("skeleton ettin");
+    }
 
-        /* Humanoid corpses can be raised too */
-        else if (tval_is_corpse(context->obj) &&
-            (context->obj->sval == lookup_sval(context->obj->tval, "corpse (humanoid)")))
+    /* Humanoid corpses can be raised too */
+    else if (context->obj->sval == lookup_sval(context->obj->tval, "corpse (humanoid)"))
+    {
+        /* Rotten corpses only produce... rotting corpses :) */
+        if (context->obj->decay <= context->obj->timeout / 5)
+            race = get_race("rotting corpse");
+
+        /* Otherwise raise a zombie, wraith or lich */
+        else
         {
-            /* Rotten corpses only produce... Rotting corpses :) */
-            if (context->obj->decay <= context->obj->timeout / 5)
-                race = get_race("Rotting corpse");
+            struct monster_race *corpse = &r_info[context->obj->pval];
+            int tries = 20;
 
-            /* Otherwise raise a zombie, wraith or lich */
-            else while (true)
+            /* Try hard to raise something */
+            while (tries)
             {
-                race = &r_info[randint1(z_info->r_max - 1)];
-                if (!race->name) continue;
-
-                /* Animated corpses can be any of non unique z, W or L */
-                if ((race->base == lookup_monster_base("zombie")) ||
-                    (race->base == lookup_monster_base("wraith")) ||
-                    (race->base == lookup_monster_base("lich")))
+                while (true)
                 {
-                    break;
+                    race = &r_info[randint1(z_info->r_max - 1)];
+                    if (!race->name) continue;
+
+                    /* Animated corpses can be any of non unique z, W or L */
+                    if (race->base == lookup_monster_base("wraith")) break;
+                    if (race->base == lookup_monster_base("lich")) break;
+                    if ((race->base == lookup_monster_base("zombie")) &&
+                        consistent_corpse(race, corpse))
+                    {
+                        break;
+                    }
                 }
+
+                if (valid_race(context, race)) break;
+                race = NULL;
+                tries--;
             }
         }
+    }
 
-        if (!race) continue;
+    /* Give a chance of getting a powerful dracolich from dragon corpses */
+    else
+    {
+        struct monster_race *corpse = &r_info[context->obj->pval];
 
-        /* Skip uniques and monsters that can't be generated */
-        if (rf_has(race->flags, RF_UNIQUE)) continue;
-        if (rf_has(race->flags, RF_PWMANG_BASE) && !cfg_base_monsters) continue;
-        if (rf_has(race->flags, RF_PWMANG_EXTRA) && !cfg_extra_monsters) continue;
-
-        /* Raised monsters can't be too powerful */
-        if (context->who->player)
-            summon_level = (depth + monster_level(context->who->player->lev)) / 2 + 5;
-        else
-            summon_level = (depth + monster_level(context->who->mon->level)) / 2 + 5;
-        if (race->level <= summon_level) break;
+        if (one_in_(3) && rf_has(corpse->flags, RF_DRAGON))
+            race = get_race("dracolich");
     }
 
     /* Failure */
-    if (!tries) return;
+    if (!valid_race(context, race)) return;
 
     /* Raising dead costs mana */
-    if (context->who->player &&
-        (race->level > (context->who->player->csp - context->who->player->spell_cost)))
+    if (context->origin->player &&
+        (race->level > (context->origin->player->csp - context->origin->player->spell_cost)))
     {
         return;
     }
@@ -477,50 +513,75 @@ static void project_object_handler_RAISE(project_object_handler_context_t *conte
     if (!summon_location(c, &y, &x, context->y, context->x, 60)) return;
 
     /* Place a new monster */
-    if (place_new_monster(context->who->player, c, y, x, race, 0, ORIGIN_DROP_SUMMON))
+    if (place_new_monster(context->origin->player, c, y, x, race, 0, ORIGIN_DROP_SUMMON))
     {
         context->do_kill = true;
 
         /* Handle monsters raised by the player */
-        if (context->who->player)
+        if (context->origin->player)
         {
             struct monster *mon;
 
-            msg(context->who->player, "A monster rises from the grave!");
+            msg(context->origin->player, "A monster rises from the grave!");
 
             /* Hack -- get new monster */
             mon = square_monster(c, y, x);
 
             /* Raised monsters are mostly neutral */
-            if (magik(80)) monster_set_master(mon, context->who->player, MSTATUS_GUARD);
+            if (magik(80)) monster_set_master(mon, context->origin->player, MSTATUS_GUARD);
 
             /* Use some mana */
-            context->who->player->spell_cost += race->level;
+            context->origin->player->spell_cost += race->level;
         }
     }
 }
 
 
-/* Identify */
-static void project_object_handler_IDENTIFY(project_object_handler_context_t *context)
-{
-    /* Identify it fully */
-    if (context->who->player) object_notice_everything(context->who->player, context->obj);
-    context->obvious = true;
-}
+static void project_object_handler_AWAY_EVIL(project_object_handler_context_t *context) {}
+static void project_object_handler_AWAY_ALL(project_object_handler_context_t *context) {}
+static void project_object_handler_TURN_UNDEAD(project_object_handler_context_t *context) {}
+static void project_object_handler_TURN_ALL(project_object_handler_context_t *context) {}
+static void project_object_handler_DISP_UNDEAD(project_object_handler_context_t *context) {}
+static void project_object_handler_DISP_EVIL(project_object_handler_context_t *context) {}
+static void project_object_handler_DISP_ALL(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_CLONE(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_POLY(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_HEAL(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_SPEED(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_SLOW(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_CONF(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_SLEEP(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_HOLD(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_STUN(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_DRAIN(project_object_handler_context_t *context) {}
+static void project_object_handler_PSI(project_object_handler_context_t *context) {}
+static void project_object_handler_DEATH(project_object_handler_context_t *context) {}
+static void project_object_handler_PSI_DRAIN(project_object_handler_context_t *context) {}
+static void project_object_handler_CURSE(project_object_handler_context_t *context) {}
+static void project_object_handler_CURSE2(project_object_handler_context_t *context) {}
+static void project_object_handler_DRAIN(project_object_handler_context_t *context) {}
+static void project_object_handler_GUARD(project_object_handler_context_t *context) {}
+static void project_object_handler_FOLLOW(project_object_handler_context_t *context) {}
+static void project_object_handler_TELE_TO(project_object_handler_context_t *context) {}
+static void project_object_handler_TELE_LEVEL(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_BLIND(project_object_handler_context_t *context) {}
+static void project_object_handler_DRAIN_MANA(project_object_handler_context_t *context) {}
+static void project_object_handler_FORGET(project_object_handler_context_t *context) {}
+static void project_object_handler_BLAST(project_object_handler_context_t *context) {}
+static void project_object_handler_SMASH(project_object_handler_context_t *context) {}
+static void project_object_handler_ATTACK(project_object_handler_context_t *context) {}
+static void project_object_handler_CONTROL(project_object_handler_context_t *context) {}
+static void project_object_handler_PROJECT(project_object_handler_context_t *context) {}
 
 
 static const project_object_handler_f object_handlers[] =
 {
-    #define ELEM(a, b, c, d, e, f, g, h, col, pvp) project_object_handler_##a,
+    #define ELEM(a) project_object_handler_##a,
     #include "../common/list-elements.h"
     #undef ELEM
-    #define PROJ_ENV(a, b, obv, col, desc, pvp) project_object_handler_##a,
-    #include "../common/list-project-environs.h"
-    #undef PROJ_ENV
-    #define PROJ_MON(a, b, obv, col, desc, pvp) NULL,
-    #include "../common/list-project-monsters.h"
-    #undef PROJ_MON
+    #define PROJ(a) project_object_handler_##a,
+    #include "../common/list-projections.h"
+    #undef PROJ
     NULL
 };
 
@@ -531,19 +592,19 @@ static const project_object_handler_f object_handlers[] =
  * Called for projections with the PROJECT_ITEM flag set, which includes
  * beam, ball and breath effects.
  *
- * who is the caster
+ * origin is the origin of the effect
  * r is the distance from the centre of the effect
  * c is the current cave
  * (y, x) the coordinates of the grid being handled
  * dam is the "damage" from the effect at distance r from the centre
- * typ is the projection (GF_) type
+ * typ is the projection (PROJ_) type
  *
  * Returns whether the effects were obvious
  *
  * Note that this function determines if the player can see anything that
  * happens by taking into account: blindness, line-of-sight, and illumination.
  */
-bool project_o(struct actor *who, int r, struct chunk *c, int y, int x, int dam, int typ)
+bool project_o(struct source *origin, int r, struct chunk *c, int y, int x, int dam, int typ)
 {
     struct object *obj = square_object(c, y, x), *next;
     bool obvious = false;
@@ -561,13 +622,13 @@ bool project_o(struct actor *who, int r, struct chunk *c, int y, int x, int dam,
 
         next = obj->next;
 
-        if (who->player)
-            observed = (square_isseen(who->player, y, x) && !ignore_item_ok(who->player, obj));
+        if (origin->player)
+            observed = (square_isseen(origin->player, y, x) && !ignore_item_ok(origin->player, obj));
 
         /* Check for artifact */
         if (obj->artifact) is_art = true;
 
-        context.who = who;
+        context.origin = origin;
         context.r = r;
         context.cave = c;
         context.y = y;
@@ -599,7 +660,7 @@ bool project_o(struct actor *who, int r, struct chunk *c, int y, int x, int dam,
             if (observed)
             {
                 obvious = true;
-                object_desc(who->player, o_name, sizeof(o_name), obj, ODESC_BASE);
+                object_desc(origin->player, o_name, sizeof(o_name), obj, ODESC_BASE);
             }
 
             /* Artifacts, and other objects, get to resist */
@@ -608,7 +669,7 @@ bool project_o(struct actor *who, int r, struct chunk *c, int y, int x, int dam,
                 /* Observe the resist */
                 if (observed)
                 {
-                    msg(who->player, "The %s %s unaffected!", o_name,
+                    msg(origin->player, "The %s %s unaffected!", o_name,
                         VERB_AGREEMENT(obj->number, "is", "are"));
                     obj->known->el_info[typ].flags |= EL_INFO_IGNORE;
                 }
@@ -616,14 +677,14 @@ bool project_o(struct actor *who, int r, struct chunk *c, int y, int x, int dam,
 
             /* Reveal mimics */
             else if (obj->mimicking_m_idx)
-                become_aware(who->player, c, cave_monster(c, obj->mimicking_m_idx));
+                become_aware(origin->player, c, cave_monster(c, obj->mimicking_m_idx));
 
             /* Kill it */
             else
             {
                 /* Describe if needed */
                 if (observed && note_kill)
-                    msgt(who->player, MSG_DESTROY, "The %s %s!", o_name, note_kill);
+                    msgt(origin->player, MSG_DESTROY, "The %s %s!", o_name, note_kill);
 
                 /* Delete the object */
                 square_excise_object(c, y, x, obj);

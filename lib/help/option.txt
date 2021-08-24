@@ -122,6 +122,13 @@ Show walls with shaded background '[hybrid_walls]'
 Use sound '[use_sound]'
   Turns on sound effects, if your system supports them.
 
+.. _effective_speed:
+
+Show effective speed as multiplier '[effective_speed]'
+  Instead of showing absolute speed modifier (e.g. 'Slow (-2)' or 'Fast (+38)'),
+  show the effective rate at which the character is moving (e.g. 'Slow (x0.8)'
+  or 'Fast (x4.1)').
+
 MAngband options
 ================
 
@@ -286,7 +293,7 @@ Display messages
 
 Display monster recall
   Display a description of the monster which has been most recently
-  attacked, targetted, or examined in some way.
+  attacked, targeted, or examined in some way.
 
 Display object recall
   Display a description of the object which has been most recently examined.

@@ -3,7 +3,7 @@
  * Purpose: Spell UI handing
  *
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -307,10 +307,14 @@ static bool spell_okay_to_browse(int book, int spell_index)
 void textui_book_browse(int book)
 {
     struct menu *m;
-    const char *noun = player->clazz->magic.spell_realm->spell_noun;
+    const struct player_class *c = player->clazz;
+    const struct magic_realm *realm;
+    const char *noun;
 
-    if (player->ghost && !player_can_undead(player))
-        noun = player_id2class(CLASS_GHOST)->magic.spell_realm->spell_noun;
+    if (player->ghost && !player_can_undead(player)) c = player_id2class(CLASS_GHOST);
+
+    realm = c->magic.spell_realm;
+    noun = (realm? realm->spell_noun: "");
 
     m = spell_menu_new(book, spell_okay_to_browse);
     if (m)
@@ -328,11 +332,15 @@ void textui_book_browse(int book)
  */
 static int textui_get_spell_from_book(int book, const char *verb, bool (*spell_filter)(int, int))
 {
-    const char *noun = player->clazz->magic.spell_realm->spell_noun;
     struct menu *m;
+    const struct player_class *c = player->clazz;
+    const struct magic_realm *realm;
+    const char *noun;
 
-    if (player->ghost && !player_can_undead(player))
-        noun = player_id2class(CLASS_GHOST)->magic.spell_realm->spell_noun;
+    if (player->ghost && !player_can_undead(player)) c = player_id2class(CLASS_GHOST);
+
+    realm = c->magic.spell_realm;
+    noun = (realm? realm->spell_noun: "");
 
     m = spell_menu_new(book, spell_filter);
     if (m)
@@ -411,9 +419,10 @@ int textui_get_spell(int book, const char *verb, bool (*spell_filter)(int, int))
 bool spell_okay_to_study(int book, int spell_index)
 {
     int attr = spell_info[book][spell_index].flag.line_attr;
+    const struct magic_realm *realm = player->clazz->magic.spell_realm;
+    const char *name = (realm? realm->name: "");
 
-    return ((attr == COLOUR_L_BLUE) ||
-        ((attr == COLOUR_WHITE) && (player->clazz->magic.spell_realm->index == REALM_ELEM)));
+    return ((attr == COLOUR_L_BLUE) || ((attr == COLOUR_WHITE) && streq(name, "elemental")));
 }
 
 
@@ -434,11 +443,14 @@ bool spell_okay_to_cast(int book, int spell)
 static int textui_obj_cast_aux(int book, bool project, int *dir)
 {
     const struct player_class *c = player->clazz;
+    const struct magic_realm *realm;
     const char *verb;
     int spell;
 
     if (player->ghost && !player_can_undead(player)) c = player_id2class(CLASS_GHOST);
-    verb = c->magic.spell_realm->verb;
+
+    realm = c->magic.spell_realm;
+    verb = (realm? realm->verb: "");
 
     /* Cast a spell directly by using spell flag */
     if (book == -1)

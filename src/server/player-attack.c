@@ -3,7 +3,7 @@
  * Purpose: Attacks (both throwing and melee) by the player
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -57,7 +57,10 @@ static int chance_of_missile_hit(struct player *p, struct object *missile,
 
     if (launcher)
     {
-        bonus += launcher->to_h;
+        s16b to_h;
+
+        object_to_h(launcher, &to_h);
+        bonus += to_h;
         chance = p->state.skills[SKILL_TO_HIT_BOW] + bonus * BTH_PLUS_ADJ;
     }
     else
@@ -97,6 +100,7 @@ struct delayed_effects
     bool slow;
     bool conf;
     bool blind;
+    bool para;
     bool stab_sleep;
     bool stab_flee;
 };
@@ -108,23 +112,25 @@ struct delayed_effects
  * Factor in damage dice, to-dam and any brand or slay.
  */
 static int melee_damage(struct player *p, struct object *obj, random_value dice, int best_mult,
-    struct actor *target, struct delayed_effects *effects, int *d_dam)
+    struct source *target, struct delayed_effects *effects, int *d_dam)
 {
     int dmg = randcalc(dice, 0, RANDOMISE);
+    s16b to_d;
 
     /* Base damage for Shadow touch and cuts/stuns */
     *d_dam = dmg;
 
     dmg *= best_mult;
 
-    if (target->mon)
+    if (target->monster)
     {
         /* Stabbing attacks */
         if (effects->stab_sleep) dmg *= (3 + p->lev / 40);
         if (effects->stab_flee) dmg = dmg * 3 / 2;
     }
 
-    dmg += obj->to_d;
+    object_to_d(obj, &to_d);
+    dmg += to_d;
 
     return dmg;
 }
@@ -140,17 +146,23 @@ static int ranged_damage(struct player *p, struct object *missile, struct object
 {
     int dam;
 
-    /* If we have a slay, modify the multiplier appropriately */
+    /* If we have a slay or brand, modify the multiplier appropriately */
     if (best_mult > 1)
     {
         if (mult > 1) mult += best_mult;
         else mult = best_mult;
     }
 
-    /* Apply damage: multiplier, slays, criticals, bonuses */
+    /* Apply damage: multiplier, slays, bonuses */
     dam = damroll(missile->dd, missile->ds);
     dam += missile->to_d;
-    if (launcher) dam += launcher->to_d;
+    if (launcher)
+    {
+        s16b to_d;
+
+        object_to_d(launcher, &to_d);
+        dam += to_d;
+    }
     dam *= mult;
     if (p->timed[TMD_BOWBRAND] && !p->brand.blast) dam += p->brand.dam;
 
@@ -159,13 +171,35 @@ static int ranged_damage(struct player *p, struct object *missile, struct object
 
 
 /*
+ * Check if a target is debuffed in such a way as to make a critical
+ * hit more likely.
+ */
+static bool is_debuffed(struct source *target)
+{
+    if (target->monster)
+    {
+        return (target->monster->m_timed[MON_TMD_CONF] || target->monster->m_timed[MON_TMD_HOLD] ||
+            target->monster->m_timed[MON_TMD_STUN] || target->monster->m_timed[MON_TMD_BLIND]);
+    }
+    if (target->player)
+    {
+        return (target->player->timed[TMD_CONFUSED] || target->player->timed[TMD_PARALYZED] ||
+            target->player->timed[TMD_BLIND]);
+    }
+    return false;
+}
+
+
+/*
  * Determine damage for critical hits from shooting.
  *
  * Factor in item weight, total plusses, and player level.
  */
-static int critical_shot(struct player *p, int weight, int plus, int dam, u32b *msg_type)
+static int critical_shot(struct player *p, struct source *target, int weight, int plus, int dam,
+    u32b *msg_type)
 {
-    int chance = weight + (p->state.to_h + plus) * 4 + p->lev * 2;
+    int debuff_to_hit = (is_debuffed(target)? DEBUFF_CRITICAL_HIT: 0);
+    int chance = weight + (p->state.to_h + plus + debuff_to_hit) * 4 + p->lev * 2;
     int power = weight + randint1(500);
 
     if (randint1(5000) > chance)
@@ -193,9 +227,11 @@ static int critical_shot(struct player *p, int weight, int plus, int dam, u32b *
  *
  * Factor in weapon weight, total plusses, player level.
  */
-static int critical_norm(struct player *p, int weight, int plus, int dam, u32b *msg_type)
+static int critical_norm(struct player *p, struct source *target, int weight, int plus, int dam,
+    u32b *msg_type)
 {
-    int chance = weight + (p->state.to_h + plus) * 5 + p->lev * 3;
+    int debuff_to_hit = (is_debuffed(target)? DEBUFF_CRITICAL_HIT: 0);
+    int chance = weight + (p->state.to_h + plus + debuff_to_hit) * 5 + p->lev * 3;
     int power = weight + randint1(650);
 
     /* Apply Touch of Death */
@@ -247,29 +283,30 @@ static int player_damage_bonus(struct player_state *state)
 /*
  * Apply blow side effects
  */
-static void blow_side_effects(struct player *p, struct actor *target,
-    struct delayed_effects *effects, bool do_poison, bool do_conf, struct object *obj, int do_stun,
-    int do_cut, char name[NORMAL_WID], bool do_blind, bool do_fear, bool *do_quake, int dmg,
-    random_value dice, int d_dam, bool do_slow)
+static void blow_side_effects(struct player *p, struct source *target,
+    struct delayed_effects *effects, struct side_effects *seffects, bool do_conf,
+    struct object *obj, char name[NORMAL_WID], bool do_blind, bool do_para, bool do_fear,
+    bool *do_quake, int dmg, random_value dice, int d_dam, bool do_slow)
 {
     /* Apply poison */
-    if (do_poison)
+    if (seffects->do_poison)
     {
-        int dur = randint1(p->lev) + 5;
-
-        if (target->mon)
+        if (target->monster)
         {
-            if (mon_inc_timed(p, target->mon, MON_TMD_POIS, dur, MON_TMD_FLG_NOMESSAGE, false))
+            if (mon_inc_timed(p, target->monster, MON_TMD_POIS, 5 + randint1(5),
+                MON_TMD_FLG_NOMESSAGE))
+            {
                 effects->poison = true;
+            }
         }
         else
-            player_inc_timed(target->player, TMD_POISONED, dur, true, true);
+            player_inc_timed(target->player, TMD_POISONED, randint1(p->lev) + 5, true, true);
     }
 
     /* Apply Shadow Touch */
-    if (p->timed[TMD_TOUCH] && target->mon && !monster_is_nonliving(target->mon->race))
+    if (p->timed[TMD_TOUCH] && target->monster && !monster_is_nonliving(target->monster->race))
     {
-        int drain = ((d_dam > target->mon->hp)? target->mon->hp: d_dam);
+        int drain = ((d_dam > target->monster->hp)? target->monster->hp: d_dam);
 
         hp_player_safe(p, 1 + drain / 2);
     }
@@ -288,8 +325,8 @@ static void blow_side_effects(struct player *p, struct actor *target,
         int m = randint0(z_info->mon_blows_max);
 
         /* Extract the attack infomation */
-        int effect = p->poly_race->blow[m].effect;
-        int method = p->poly_race->blow[m].method;
+        struct blow_effect *effect = p->poly_race->blow[m].effect;
+        struct blow_method *method = p->poly_race->blow[m].method;
 
         melee_effect_handler_context_t context;
         melee_effect_handler_f effect_handler;
@@ -298,35 +335,38 @@ static void blow_side_effects(struct player *p, struct actor *target,
         if (method)
         {
             /* Describe the attack method */
-            do_cut = monster_blow_method_cut(method);
-            do_stun = monster_blow_method_stun(method);
+            seffects->do_cut = method->cut;
+            seffects->do_stun = method->stun;
 
             /* Initialize */
             context.p = p;
             context.target = target;
             context.ddesc = name;
             context.do_blind = do_blind;
+            context.do_para = do_para;
             context.do_conf = do_conf;
             context.do_fear = do_fear;
+            strnfmt(context.flav, sizeof(context.flav), "was killed by %s", name);
             context.do_quake = *do_quake;
-            context.do_stun = do_stun;
+            context.do_stun = seffects->do_stun;
             context.damage = dmg;
-            context.style = RBE_TYPE_PVX;
+            context.style = TYPE_PVX;
 
             /* Perform the actual effect. */
-            effect_handler = melee_handler_for_blow_effect(effect);
+            effect_handler = melee_handler_for_blow_effect(effect->name);
 
             if (effect_handler != NULL)
                 effect_handler(&context);
             else
-                plog_fmt("Effect handler not found for %d.", effect);
+                plog_fmt("Effect handler not found for %s.", effect->name);
 
             /* Save any changes made in the handler for later use. */
             do_blind = context.do_blind;
+            do_para = context.do_para;
             do_conf = context.do_conf;
             do_fear = context.do_fear;
             *do_quake = context.do_quake;
-            do_stun = context.do_stun;
+            seffects->do_stun = context.do_stun;
         }
     }
 
@@ -334,40 +374,50 @@ static void blow_side_effects(struct player *p, struct actor *target,
     if (p->ghost && !player_can_undead(p)) do_fear = true;
 
     /* Hack -- only one of cut or stun */
-    if (do_cut && do_stun)
+    if (seffects->do_cut && seffects->do_stun)
     {
         /* Cancel cut */
         if (magik(50))
-            do_cut = 0;
+            seffects->do_cut = 0;
 
         /* Cancel stun */
         else
-            do_stun = 0;
+            seffects->do_stun = 0;
     }
 
-    /* Handle cut (Shard breathers resist) */
-    if (do_cut) do_cut = get_cut(dice, d_dam);
-    if (do_cut)
+    /* Handle cut */
+    if (seffects->do_cut)
     {
         /* PvP */
         if (target->player)
-            player_inc_timed(target->player, TMD_CUT, do_cut, true, true);
-        else if (mon_inc_timed(p, target->mon, MON_TMD_CUT, do_cut, MON_TMD_FLG_NOMESSAGE,
-            false))
+        {
+            seffects->do_cut = get_cut(dice, d_dam);
+
+            /* Apply the cut */
+            if (seffects->do_cut)
+                player_inc_timed(target->player, TMD_CUT, seffects->do_cut, true, true);
+        }
+        else if (mon_inc_timed(p, target->monster, MON_TMD_CUT, 5 + randint1(5),
+            MON_TMD_FLG_NOMESSAGE))
         {
             effects->cut = true;
         }
     }
 
-    /* Apply stunning */
-    if (do_stun) do_stun = get_stun(dice, d_dam);
-    if (do_stun)
+    /* Handle stun */
+    if (seffects->do_stun)
     {
         /* PvP: stunning attack */
         if (target->player)
-            player_inc_timed(target->player, TMD_STUN, do_stun, true, true);
-        else if (mon_inc_timed(p, target->mon, MON_TMD_STUN, do_stun, MON_TMD_FLG_NOMESSAGE,
-            false))
+        {
+            seffects->do_stun = get_stun(dice, d_dam);
+
+            /* Apply the stun */
+            if (seffects->do_stun)
+                player_inc_timed(target->player, TMD_STUN, seffects->do_stun, true, true);
+        }
+        else if (mon_inc_timed(p, target->monster, MON_TMD_STUN, 5 + randint1(5),
+            MON_TMD_FLG_NOMESSAGE))
         {
             effects->stun = true;
         }
@@ -379,18 +429,13 @@ static void blow_side_effects(struct player *p, struct actor *target,
         /* PvP: slowing attack */
         if (target->player)
             player_inc_timed(target->player, TMD_SLOW, randint0(4) + 4, true, true);
-        else if (dmg && mon_inc_timed(p, target->mon, MON_TMD_SLOW, dmg, MON_TMD_FLG_NOMESSAGE,
-            false))
-        {
+        else if (dmg && mon_inc_timed(p, target->monster, MON_TMD_SLOW, 20, MON_TMD_FLG_NOMESSAGE))
             effects->slow = true;
-        }
     }
 
     /* Apply fear */
     if (do_fear)
     {
-        int dur = 3 + randint1(p->lev);
-
         /* PvP: fear attack */
         if (target->player)
         {
@@ -398,40 +443,61 @@ static void blow_side_effects(struct player *p, struct actor *target,
             if (magik(target->player->state.skills[SKILL_SAVE]))
                 msg(p, "%s is unaffected.", name);
             else
-                player_inc_timed(target->player, TMD_AFRAID, dur, true, true);
+                player_inc_timed(target->player, TMD_AFRAID, 3 + randint1(p->lev), true, true);
         }
-        else if (mon_inc_timed(p, target->mon, MON_TMD_FEAR, dur, MON_TMD_FLG_NOMESSAGE, false))
+        else if (mon_inc_timed(p, target->monster, MON_TMD_FEAR, 10 + randint1(10),
+            MON_TMD_FLG_NOMESSAGE))
+        {
             effects->fear = true;
+        }
     }
 
     /* Apply confusion */
     if (do_conf)
     {
-        int dur = 10 + randint0(p->lev) / 10;
-
         /* PvP: confusing attack */
         if (target->player)
         {
             /* Player is confused */
-            player_inc_timed(target->player, TMD_CONFUSED, dur, true, true);
+            player_inc_timed(target->player, TMD_CONFUSED, 10 + randint0(p->lev) / 10, true, true);
         }
-        else if (mon_inc_timed(p, target->mon, MON_TMD_CONF, dur, MON_TMD_FLG_NOMESSAGE, false))
+        else if (mon_inc_timed(p, target->monster, MON_TMD_CONF, 5 + randint1(5),
+            MON_TMD_FLG_NOMESSAGE))
+        {
             effects->conf = true;
+        }
     }
 
     /* Apply blindness */
     if (do_blind)
     {
-        int dur = 10 + randint1(p->lev);
-
         /* PvP: blinding attack */
         if (target->player)
         {
             /* Player is blinded */
-            player_inc_timed(target->player, TMD_BLIND, dur, true, true);
+            player_inc_timed(target->player, TMD_BLIND, 10 + randint1(p->lev), true, true);
         }
-        else if (mon_inc_timed(p, target->mon, MON_TMD_BLIND, dur, MON_TMD_FLG_NOMESSAGE, false))
+        else if (mon_inc_timed(p, target->monster, MON_TMD_BLIND, 5 + randint1(5),
+            MON_TMD_FLG_NOMESSAGE))
+        {
             effects->blind = true;
+        }
+    }
+
+    /* Handle paralysis */
+    if (do_para)
+    {
+        /* PvP: paralyzing attack */
+        if (target->player)
+        {
+            /* Player is paralyzed */
+            player_inc_timed(target->player, TMD_PARALYZED, 3 + randint1(p->lev), true, true);
+        }
+        else if (mon_inc_timed(p, target->monster, MON_TMD_HOLD, 3 + randint1(5),
+            MON_TMD_FLG_NOMESSAGE))
+        {
+            effects->para = true;
+        }
     }
 }
 
@@ -447,8 +513,8 @@ static bool blow_after_effects(struct player *p, struct chunk *c, int y, int x, 
     /* Apply circular kick: do damage to anything around the attacker */
     if (circle)
     {
-        fire_ball(p, GF_MISSILE, 0, dmg, 1, false);
-        flush_all_monster_messages(p);
+        fire_ball(p, PROJ_MISSILE, 0, dmg, 1, false);
+        show_monster_messages(p);
 
         /* Target may be dead */
         if (!c->squares[y][x].mon) stop = true;
@@ -457,7 +523,11 @@ static bool blow_after_effects(struct player *p, struct chunk *c, int y, int x, 
     /* Apply earthquake brand */
     if (quake)
     {
-        effect_simple(p, EF_EARTHQUAKE, "0", 0, 10, 0, NULL, NULL);
+        struct source who_body;
+        struct source *who = &who_body;
+
+        source_player(who, get_player_index(get_connection(p->conn)), p);
+        effect_simple(EF_EARTHQUAKE, who, "0", 0, 10, 0, NULL);
 
         /* Target may be dead or moved */
         if (!c->squares[y][x].mon) stop = true;
@@ -467,12 +537,8 @@ static bool blow_after_effects(struct player *p, struct chunk *c, int y, int x, 
 }
 
 
-/* A list of the different hit types and their associated special message */
-static const struct
-{
-    u32b msg;
-    const char *text;
-} melee_hit_types[] =
+/* Melee and throwing hit types */
+static const struct hit_types melee_hit_types[] =
 {
     {MSG_MISS, NULL},
     {MSG_HIT, NULL},
@@ -492,7 +558,13 @@ int py_attack_hit_chance(struct player *p, const struct object *weapon)
 {
     int chance, bonus = p->state.to_h;
 
-    if (weapon) bonus += weapon->to_h;
+    if (weapon)
+    {
+        s16b to_h;
+
+        object_to_h(weapon, &to_h);
+        bonus += to_h;
+    }
     chance = p->state.skills[SKILL_TO_HIT_MELEE] + bonus * BTH_PLUS_ADJ;
 
     return chance;
@@ -565,8 +637,8 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
     size_t i;
 
     /* Information about the target of the attack */
-    struct actor target_body;
-    struct actor *target = &target_body;
+    struct source target_body;
+    struct source *target = &target_body;
     char target_name[NORMAL_WID];
     bool stop = false;
     bool visible;
@@ -592,10 +664,12 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
     int show_mhit, show_mdam;
     int show_shit, show_sdam;
     int d_dam = 1;
-    bool do_poison = false;
+    bool do_circle = false;
     const char *hit_extra = "";
-    int do_stun = 0, do_cut = 0;
-    bool do_slow = false, do_fear = false, do_conf = false, do_blind = false, do_circle = false;
+    bool do_slow = false, do_fear = false, do_conf = false, do_blind = false, do_para = false;
+    struct side_effects seffects;
+
+    memset(&seffects, 0, sizeof(seffects));
 
     /* Default to punching for one damage */
     my_strcpy(verb, "punch", sizeof(verb));
@@ -603,21 +677,21 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
 
     /* Information about the target of the attack */
     square_actor(c, y, x, target);
-    if (target->mon)
+    if (target->monster)
     {
-        visible = mflag_has(p->mflag[target->idx], MFLAG_VISIBLE);
-        ac = target->mon->ac;
+        visible = monster_is_visible(p, target->idx);
+        ac = target->monster->ac;
     }
     else
     {
-        visible = mflag_has(p->pflag[target->idx], MFLAG_VISIBLE);
+        visible = player_is_visible(p, target->idx);
         ac = target->player->state.ac + target->player->state.to_a;
     }
 
     /* Extract target name */
-    if (target->mon)
+    if (target->monster)
     {
-        monster_desc(p, target_name, sizeof(target_name), target->mon,
+        monster_desc(p, target_name, sizeof(target_name), target->monster,
             MDESC_OBJE | MDESC_IND_HID | MDESC_PRO_HID);
     }
     else
@@ -627,7 +701,7 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
     }
 
     /* Auto-Recall if possible and visible */
-    if (target->mon && visible) monster_race_track(p->upkeep, target);
+    if (target->monster && visible) monster_race_track(p->upkeep, target);
 
     /* Track a new monster */
     if (visible) health_track(p->upkeep, target);
@@ -635,13 +709,17 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
     /* Handle player fear */
     if (player_of_has(p, OF_AFRAID))
     {
+        equip_learn_flag(p, OF_AFRAID);
         msgt(p, MSG_AFRAID, "You are too afraid to attack %s!", target_name);
         return false;
     }
 
     /* Disturb the target */
-    if (target->mon)
-        mon_clear_timed(p, target->mon, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE, false);
+    if (target->monster)
+    {
+        mon_clear_timed(p, target->monster, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
+        mon_clear_timed(p, target->monster, MON_TMD_HOLD, MON_TMD_FLG_NOTIFY);
+    }
     else
         disturb(target->player, 0);
 
@@ -673,9 +751,8 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
     {
         int best_mult = 1;
 
-        /* Handle polymorphed players */
-        improve_attack_modifier(p, NULL, target, &best_mult, &do_poison, verb, sizeof(verb), false,
-            true);
+        /* Handle polymorphed players + temp branding */
+        improve_attack_modifier(p, NULL, target, &best_mult, &seffects, verb, sizeof(verb), false);
 
         /*
          * Get the best attack from all slays or
@@ -687,8 +764,8 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
 
             if (equipped)
             {
-                improve_attack_modifier(p, equipped, target, &best_mult, &do_poison, verb,
-                    sizeof(verb), false, true);
+                improve_attack_modifier(p, equipped, target, &best_mult, &seffects, verb,
+                    sizeof(verb), false);
             }
         }
 
@@ -743,13 +820,13 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
             {
                 dice.dice += 2;
                 dice.sides += 2;
-                do_stun = 1;
+                seffects.do_stun = 1;
             }
 
             /* Compute the damage */
             dmg = d_dam = randcalc(dice, 0, RANDOMISE);
             dmg *= best_mult;
-            dmg = critical_norm(p, p->lev * randint1(10), p->lev, dmg, &msg_type);
+            dmg = critical_norm(p, target, p->lev * randint1(10), p->lev, dmg, &msg_type);
 
             /* Special effect: knee attack */
             if (ba_ptr->effect == MA_KNEE)
@@ -757,8 +834,8 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
                 bool male = false;
 
                 /* Male target */
-                if (target->mon)
-                    male = rf_has(target->mon->race->flags, RF_MALE);
+                if (target->monster)
+                    male = rf_has(target->monster->race->flags, RF_MALE);
                 else
                     male = (target->player->psex == SEX_MALE);
 
@@ -766,7 +843,7 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
                 if (male)
                 {
                     hit_extra = " in the groin with your knee";
-                    do_stun = 1;
+                    seffects.do_stun = 1;
                 }
             }
 
@@ -777,11 +854,11 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
             if (ba_ptr->effect == MA_SLOW)
             {
                 /* Slows some targets */
-                if (target->mon && !rf_has(target->mon->race->flags, RF_NEVER_MOVE) &&
-                    !rf_has(target->mon->race->flags, RF_UNIQUE) &&
-                    (is_humanoid(target->mon->race) ||
-                    rf_has(target->mon->race->flags, RF_HAS_LEGS)) &&
-                    !CHANCE(target->mon->level - 10, (dmg < 11)? 1: (dmg - 10)))
+                if (target->monster && !rf_has(target->monster->race->flags, RF_NEVER_MOVE) &&
+                    !monster_is_unique(target->monster->race) &&
+                    (is_humanoid(target->monster->race) ||
+                    rf_has(target->monster->race->flags, RF_HAS_LEGS)) &&
+                    !CHANCE(target->monster->level - 10, (dmg < 11)? 1: (dmg - 10)))
                 {
                     my_strcpy(verb, "kick", sizeof(verb));
                     hit_extra = " in the ankle";
@@ -791,11 +868,11 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
 
             /* Special effect: stunning attack */
             if ((ba_ptr->effect == MA_STUN) || (ba_ptr->effect == MA_JUMP))
-                do_stun = 1;
+                seffects.do_stun = 1;
 
             /* Special effect: cutting attack */
             if ((ba_ptr->effect == MA_CUT) || (ba_ptr->effect == MA_JUMP))
-                do_cut = 1;
+                seffects.do_cut = 1;
 
             /* Special effect: circular attack */
             if (ba_ptr->effect == MA_CIRCLE)
@@ -812,12 +889,15 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
         /* Handle normal weapon */
         else if (obj)
         {
+            s16b to_h;
+
             /* Handle the weapon itself */
-            improve_attack_modifier(p, obj, target, &best_mult, &do_poison, verb, sizeof(verb),
-                false, true);
+            improve_attack_modifier(p, obj, target, &best_mult, &seffects, verb, sizeof(verb),
+                false);
 
             dmg = melee_damage(p, obj, dice, best_mult, target, effects, &d_dam);
-            dmg = critical_norm(p, obj->weight, obj->to_h, dmg, &msg_type);
+            object_to_h(obj, &to_h);
+            dmg = critical_norm(p, target, obj->weight, to_h, dmg, &msg_type);
 
             /* Learn by use for the weapon */
             object_notice_attack_plusses(p, obj);
@@ -825,7 +905,7 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
             if (player_of_has(p, OF_IMPACT) && (dmg > 50))
             {
                 do_quake = true;
-                equip_notice_flag(p, OF_IMPACT);
+                equip_learn_flag(p, OF_IMPACT);
             }
         }
 
@@ -839,7 +919,7 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
     }
 
     /* Learn by use for other equipped items */
-    equip_notice_on_attack(p);
+    equip_learn_on_melee_attack(p);
 
     /* Apply the player damage bonuses */
     dmg += player_damage_bonus(&p->state);
@@ -854,7 +934,7 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
     }
 
     /* Special messages */
-    if (target->mon)
+    if (target->monster)
     {
         /* Stabbing attacks */
         if (effects->stab_sleep)
@@ -876,8 +956,8 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
     {
         const char *dmg_text = "";
 
-        if (msg_type != melee_hit_types[i].msg) continue;
-        if (OPT_P(p, show_damage)) dmg_text = format(" (%d)", dmg);
+        if (msg_type != melee_hit_types[i].msg_type) continue;
+        if (OPT(p, show_damage)) dmg_text = format(" (%d)", dmg);
         if (melee_hit_types[i].text)
         {
             msgt(p, msg_type, "You %s %s%s%s. %s", verb, target_name, hit_extra, dmg_text,
@@ -890,25 +970,26 @@ static bool py_attack_real(struct player *p, struct chunk *c, int y, int x,
     effects->stab_sleep = false;
 
     /* Pre-damage side effects */
-    blow_side_effects(p, target, effects, do_poison, do_conf, obj, do_stun, do_cut, name, do_blind,
-        do_fear, &do_quake, dmg, dice, d_dam, do_slow);
+    blow_side_effects(p, target, effects, &seffects, do_conf, obj, name, do_blind, do_para, do_fear,
+        &do_quake, dmg, dice, d_dam, do_slow);
 
     /* Damage, check for fear and death */
-    if (target->mon)
-        stop = mon_take_hit(p, c, target->mon, dmg, &effects->fear, -2);
+    if (target->monster)
+        stop = mon_take_hit(p, c, target->monster, dmg, &effects->fear, -2);
     else
     {
-        strnfmt(target->player->died_flavor, sizeof(target->player->died_flavor),
-            "was brutally murdered by %s", p->name);
-        stop = take_hit(target->player, dmg, p->name, false);
+        char df[160];
+
+        strnfmt(df, sizeof(df), "was brutally murdered by %s", p->name);
+        stop = take_hit(target->player, dmg, p->name, false, df);
 
         /* Handle freezing aura */
         if (!stop && target->player->timed[TMD_ICY_AURA] && dmg)
         {
             if (magik(50))
-                fire_ball(target->player, GF_ICE, 0, 1, 1, false);
+                fire_ball(target->player, PROJ_ICE, 0, 1, 1, false);
             else
-                fire_ball(target->player, GF_COLD, 0, 1 + target->player->lev / 5, 1, false);
+                fire_ball(target->player, PROJ_COLD, 0, 1 + target->player->lev / 5, 1, false);
 
             /* Stop if player is dead */
             if (p->is_dead) stop = true;
@@ -943,7 +1024,7 @@ void py_attack(struct player *p, struct chunk *c, int y, int x)
     int blows = 0;
     struct delayed_effects effects;
     struct monster *mon = square_monster(c, y, x);
-    bool visible = (mon && mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE));
+    bool visible = (mon && monster_is_visible(p, mon->midx));
 
     memset(&effects, 0, sizeof(effects));
 
@@ -979,19 +1060,14 @@ void py_attack(struct player *p, struct chunk *c, int y, int x)
     /* Hack -- delay messages */
     if (visible && !stop)
     {
-        char m_name[NORMAL_WID];
-
-        /* Don't set monster_desc flags, since add_monster_message does string processing on m_name */
-        monster_desc(p, m_name, sizeof(m_name), mon, MDESC_DEFAULT);
-        if (effects.fear)
-            add_monster_message(p, m_name, mon, MON_MSG_FLEE_IN_TERROR, true);
-        if (effects.poison)
-            add_monster_message(p, m_name, mon, MON_MSG_POISONED, true);
-        if (effects.cut) add_monster_message(p, m_name, mon, MON_MSG_BLEED, true);
-        if (effects.stun) add_monster_message(p, m_name, mon, MON_MSG_DAZED, true);
-        if (effects.slow) add_monster_message(p, m_name, mon, MON_MSG_SLOWED, true);
-        if (effects.conf) add_monster_message(p, m_name, mon, MON_MSG_CONFUSED, true);
-        if (effects.blind) add_monster_message(p, m_name, mon, MON_MSG_BLIND, true);
+        if (effects.fear) add_monster_message(p, mon, MON_MSG_FLEE_IN_TERROR, true);
+        if (effects.poison) add_monster_message(p, mon, MON_MSG_POISONED, true);
+        if (effects.cut) add_monster_message(p, mon, MON_MSG_BLEED, true);
+        if (effects.stun) add_monster_message(p, mon, MON_MSG_DAZED, true);
+        if (effects.slow) add_monster_message(p, mon, MON_MSG_SLOWED, true);
+        if (effects.conf) add_monster_message(p, mon, MON_MSG_CONFUSED, true);
+        if (effects.blind) add_monster_message(p, mon, MON_MSG_BLIND, true);
+        if (effects.para) add_monster_message(p, mon, MON_MSG_HELD, true);
     }
 
     /* Carry over the remaining energy to the next turn */
@@ -1003,7 +1079,7 @@ void py_attack(struct player *p, struct chunk *c, int y, int x)
 }
 
 
-void un_power(struct player *p, struct actor *who, bool* obvious)
+void un_power(struct player *p, struct source *who, bool* obvious)
 {
     struct object *obj;
     int tries;
@@ -1011,8 +1087,8 @@ void un_power(struct player *p, struct actor *who, bool* obvious)
     int rlev;
 
     /* Get level */
-    if (who->mon)
-        rlev = ((who->mon->level >= 1)? who->mon->level: 1);
+    if (who->monster)
+        rlev = ((who->monster->level >= 1)? who->monster->level: 1);
     else
         rlev = who->player->lev;
 
@@ -1053,13 +1129,13 @@ void un_power(struct player *p, struct actor *who, bool* obvious)
             *obvious = true;
 
             /* Heal */
-            if (who->mon)
+            if (who->monster)
             {
                 /* Don't heal more than max hp */
-                heal = MIN(heal, who->mon->maxhp - who->mon->hp);
+                heal = MIN(heal, who->monster->maxhp - who->monster->hp);
 
                 /* Heal */
-                who->mon->hp += heal;
+                who->monster->hp += heal;
 
                 /* Redraw (later) if needed */
                 update_health(who);
@@ -1080,7 +1156,7 @@ void un_power(struct player *p, struct actor *who, bool* obvious)
 }
 
 
-void eat_item(struct player *p, struct actor *who, bool* obvious, int* blinked)
+void eat_item(struct player *p, struct source *who, bool* obvious, int* blinked)
 {
     int tries;
 
@@ -1137,9 +1213,9 @@ void eat_item(struct player *p, struct actor *who, bool* obvious, int* blinked)
 
         /* Steal and carry */
         stolen = gear_object_for_use(p, obj, 1, false, &none_left);
-        if (who->mon)
+        if (who->monster)
         {
-            if (!monster_carry(who->mon, stolen, false))
+            if (!monster_carry(who->monster, stolen, false))
                 object_delete(&stolen);
         }
         else if (who->player)
@@ -1171,12 +1247,16 @@ static void use_fud(struct player *p, struct object *obj)
     /* Do effect */
     if (effect)
     {
+        struct source who_body;
+        struct source *who = &who_body;
+
         /* Make a noise! */
         sound(p, MSG_EAT);
 
         /* Do effect */
         if (effect->other_msg) msg_misc(p, effect->other_msg);
-        used = effect_do(p, effect, &ident, p->was_aware, 0, NULL, 0, 0, NULL, NULL);
+        source_player(who, get_player_index(get_connection(p->conn)), p);
+        used = effect_do(effect, who, &ident, p->was_aware, 0, NULL, 0, 0, NULL);
 
         /* Quit if the item wasn't used and no knowledge was gained */
         if (!used && (p->was_aware || !ident)) return;
@@ -1185,7 +1265,7 @@ static void use_fud(struct player *p, struct object *obj)
     if (ident) object_notice_effect(p, obj);
 
     if (ident && !p->was_aware)
-        object_notice_on_use(p, obj);
+        object_learn_on_use(p, obj);
     else if (used)
         object_flavor_tried(p, obj);
 }
@@ -1241,31 +1321,6 @@ void eat_fud(struct player *p, struct player *q, bool* obvious)
 }
 
 
-void eat_light(struct player *p, bool* obvious)
-{
-    int light_slot = slot_by_name(p, "light");
-    struct object *obj = slot_object(p, light_slot);
-
-    /* Drain fuel where applicable */
-    if (obj && !of_has(obj->flags, OF_NO_FUEL) && (obj->timeout > 0))
-    {
-        /* Reduce fuel */
-        obj->timeout -= (250 + randint1(250));
-        if (obj->timeout < 1) obj->timeout = 1;
-
-        /* Notice */
-        if (!p->timed[TMD_BLIND])
-        {
-            msg(p, "Your light dims.");
-            *obvious = true;
-        }
-
-        /* Redraw */
-        p->upkeep->redraw |= (PR_EQUIP);
-    }
-}
-
-
 void drain_xp(struct player *p, int amt)
 {
     int chance = 100 - (amt / 2) - (amt / 40) * 5;
@@ -1291,7 +1346,6 @@ void drain_xp(struct player *p, int amt)
 
 void drop_weapon(struct player *p, int damage)
 {
-    bitflag f[OF_SIZE];
     int tmp;
     struct object *obj;
 
@@ -1317,19 +1371,15 @@ void drop_weapon(struct player *p, int damage)
     /* Artifacts are safe */
     if (obj->artifact && magik(90)) return;
 
-    /* Permacursed weapons can't be removed */
-    object_flags(obj, f);
-    if (of_has(f, OF_PERMA_CURSE)) return;
+    /* Stuck weapons can't be removed */
+    if (!obj_can_takeoff(obj)) return;
 
     /* Two-handed weapons are safe */
     if (kf_has(obj->kind->kind_flags, KF_TWO_HANDED) && magik(90)) return;
 
     /* Give an extra chance for comfortable weapons */
-    if (magik(50) &&
-        !(p->state.heavy_wield || p->state.icky_wield || p->state.cumber_shield))
-    {
+    if (magik(50) && !(p->state.heavy_wield || p->state.icky_wield || p->state.cumber_shield))
         return;
-    }
 
     /* Finally give an extra chance for weak blows */
     if (!magik(damage)) return;
@@ -1348,7 +1398,7 @@ void drop_weapon(struct player *p, int damage)
 /*
  * Check for hostility (player vs target).
  */
-static bool pvx_check(struct player *p, struct actor *who, byte feat)
+static bool pvx_check(struct player *p, struct source *who, byte feat)
 {
     /* Player here */
     if (who->player)
@@ -1359,7 +1409,7 @@ static bool pvx_check(struct player *p, struct actor *who, byte feat)
     }
 
     /* Monster here */
-    if (who->mon) return pvm_check(p, who->mon);
+    if (who->monster) return pvm_check(p, who->monster);
 
     /* Nothing here */
     return false;
@@ -1372,6 +1422,8 @@ typedef struct delayed_ranged_effects
     int dmg;
     bool fear;
     bool poison;
+    bool stun;
+    bool cut;
     bool conf;
     struct delayed_ranged_effects *next;
 } ranged_effects;
@@ -1452,8 +1504,8 @@ static void wipe_delayed_ranged_effects(ranged_effects **effects, struct monster
 static void missile_pict(struct player *p, const struct object *obj, int y, int x,
     int ny, int nx, byte *a, char *c)
 {
-    int arrow_type = (kf_has(obj->kind->kind_flags, KF_AMMO_NORMAL)? GF_ARROW_2: GF_ARROW_X);
-    int bolt_type = (kf_has(obj->kind->kind_flags, KF_AMMO_NORMAL)? GF_ARROW_3: GF_ARROW_4);
+    int arrow_type = (kf_has(obj->kind->kind_flags, KF_AMMO_NORMAL)? PROJ_ARROW_2: PROJ_ARROW_X);
+    int bolt_type = (kf_has(obj->kind->kind_flags, KF_AMMO_NORMAL)? PROJ_ARROW_3: PROJ_ARROW_4);
 
     /* Get a nice missile picture for arrows and bolts */
     if (tval_is_arrow(obj))
@@ -1469,12 +1521,8 @@ static void missile_pict(struct player *p, const struct object *obj, int y, int 
 }
 
 
-/* A list of the different hit types and their associated special message */
-static const struct
-{
-    u32b msg;
-    const char *text;
-} ranged_hit_types[] =
+/* Shooting hit types */
+static const struct hit_types ranged_hit_types[] =
 {
     {MSG_MISS, NULL},
     {MSG_SHOOT_HIT, NULL},
@@ -1492,7 +1540,8 @@ static const struct
  * kind of attack.
  */
 static void ranged_helper(struct player *p, struct object *obj, int dir, int range, int shots,
-    ranged_attack attack, bool magic, bool pierce, bool ranged_effect)
+    ranged_attack attack, const struct hit_types *hit_types, int num_types, bool magic, bool pierce,
+    bool ranged_effect)
 {
     int i, j;
     char o_name[NORMAL_WID];
@@ -1512,7 +1561,7 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
     int num = 0;
     bool dead = false;
     ranged_effects *effects = NULL, *current;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Check for target validity */
     if ((dir == 5) && target_okay(p))
@@ -1543,8 +1592,8 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
     while (num++ < shots)
     {
         int by = -1, bx = -1;
-        struct actor who_body;
-        struct actor *who = &who_body;
+        struct source who_body;
+        struct source *who = &who_body;
         bool none_left = false;
 
         /* Start at the player */
@@ -1552,7 +1601,7 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
         x = p->px;
 
         /* Calculate the path */
-        path_n = project_path(path_g, range, c, y, x, ty, tx, (pierce? PROJECT_THRU: 0));
+        path_n = project_path(NULL, path_g, range, c, y, x, ty, tx, (pierce? PROJECT_THRU: 0));
 
         /* Hack -- handle stuff */
         handle_stuff(p);
@@ -1596,10 +1645,10 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
             /* Don't allow if not hostile */
             square_actor(c, y, x, who);
             if (!pvx_check(p, who, c->squares[y][x].feat))
-                memset(who, 0, sizeof(struct actor));
+                memset(who, 0, sizeof(struct source));
 
             /* Try the attack on the target at (x, y) if any */
-            if (!ACTOR_NULL(who))
+            if (!source_null(who))
             {
                 bool visible;
                 bool fear = false;
@@ -1609,21 +1658,20 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
                 int dmg = result.dmg;
                 u32b msg_type = result.msg_type;
                 const char *verb = result.verb;
-                bool do_poison = result.do_poison;
                 bool mimicking;
 
                 /* Target info */
-                if (who->mon)
+                if (who->monster)
                 {
-                    visible = mflag_has(p->mflag[who->idx], MFLAG_VISIBLE);
-                    monster_desc(p, m_name, sizeof(m_name), who->mon, MDESC_OBJE);
-                    if (monster_is_unusual(who->mon->race))
+                    visible = monster_is_visible(p, who->idx);
+                    monster_desc(p, m_name, sizeof(m_name), who->monster, MDESC_OBJE);
+                    if (monster_is_destroyed(who->monster->race))
                         note_dies = MON_MSG_DESTROYED;
-                    mimicking = is_mimicking(who->mon);
+                    mimicking = monster_is_camouflaged(who->monster);
                 }
                 else
                 {
-                    visible = mflag_has(p->pflag[who->idx], MFLAG_VISIBLE);
+                    visible = player_is_visible(p, who->idx);
                     my_strcpy(m_name, who->player->name, sizeof(m_name));
                     mimicking = who->player->k_idx;
                 }
@@ -1632,10 +1680,10 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
                 {
                     hit_target = true;
 
-                    object_notice_attack_plusses(p, obj);
+                    missile_learn_on_ranged_attack(p, obj);
 
                     /* Learn by use for other equipped items */
-                    equip_notice_to_hit_on_attack(p);
+                    equip_learn_on_ranged_attack(p);
 
                     /* No negative damage; change verb if no damage done */
                     if (dmg <= 0)
@@ -1652,19 +1700,19 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
                     }
                     else
                     {
-                        size_t type;
+                        int type;
 
                         /* Handle visible monster/player */
-                        for (type = 0; type < (int)N_ELEMENTS(ranged_hit_types); type++)
+                        for (type = 0; type < num_types; type++)
                         {
                             const char *dmg_text = "";
 
-                            if (msg_type != ranged_hit_types[type].msg) continue;
-                            if (OPT_P(p, show_damage)) dmg_text = format(" (%d)", dmg);
-                            if (ranged_hit_types[type].text)
+                            if (msg_type != hit_types[type].msg_type) continue;
+                            if (OPT(p, show_damage)) dmg_text = format(" (%d)", dmg);
+                            if (hit_types[type].text)
                             {
-                                msgt(p, msg_type, "Your %s %s %s%s. %s", o_name, verb,
-                                    m_name, dmg_text, ranged_hit_types[type].text);
+                                msgt(p, msg_type, "Your %s %s %s%s. %s", o_name, verb, m_name,
+                                    dmg_text, hit_types[type].text);
                             }
                             else
                             {
@@ -1674,7 +1722,7 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
                         }
 
                         /* Track this target */
-                        if (who->mon) monster_race_track(p->upkeep, who);
+                        if (who->monster) monster_race_track(p->upkeep, who);
                         health_track(p->upkeep, who);
                     }
 
@@ -1690,60 +1738,96 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
                     }
 
                     /* Hit the target, check for death */
-                    if (who->mon)
+                    if (who->monster)
                     {
                         /* Hit the monster, check for death */
-                        dead = mon_take_hit(p, c, who->mon, dmg, &fear, note_dies);
+                        dead = mon_take_hit(p, c, who->monster, dmg, &fear, note_dies);
                     }
                     else
                     {
-                        strnfmt(who->player->died_flavor, sizeof(who->player->died_flavor),
-                            "was shot to death with a %s by %s", o_name, p->name);
+                        char df[160];
+
+                        strnfmt(df, sizeof(df), "was shot to death with a %s by %s", o_name,
+                            p->name);
 
                         /* Hit the player, check for death */
-                        dead = take_hit(who->player, dmg, p->name, false);
+                        dead = take_hit(who->player, dmg, p->name, false, df);
                     }
 
                     /* Message */
                     if (!dead)
                     {
-                        if (who->mon)
+                        if (who->monster)
                         {
-                            current = get_delayed_ranged_effects(&effects, who->mon);
+                            current = get_delayed_ranged_effects(&effects, who->monster);
                             current->dmg += dmg;
                         }
                         else
                             player_pain(p, who->player, dmg);
                     }
-                    else if (who->mon)
-                        wipe_delayed_ranged_effects(&effects, who->mon);
+                    else if (who->monster)
+                        wipe_delayed_ranged_effects(&effects, who->monster);
 
                     /* Apply poison */
-                    if (do_poison && !dead)
+                    if (result.effects.do_poison && !dead)
                     {
-                        int dur = randint1(p->lev) + 5;
-
                         if (who->player)
-                            player_inc_timed(who->player, TMD_POISONED, dur, true, true);
-                        else if (mon_inc_timed(p, who->mon, MON_TMD_POIS, dur,
-                            MON_TMD_FLG_NOMESSAGE, false))
                         {
-                            current = get_delayed_ranged_effects(&effects, who->mon);
+                            player_inc_timed(who->player, TMD_POISONED, randint1(p->lev) + 5, true,
+                                true);
+                        }
+                        else if (mon_inc_timed(p, who->monster, MON_TMD_POIS, 5 + randint1(5),
+                            MON_TMD_FLG_NOMESSAGE))
+                        {
+                            current = get_delayed_ranged_effects(&effects, who->monster);
                             current->poison = true;
                         }
                     }
 
-                    /* Apply archer confusion brand */
-                    if (ranged_effect && has_bowbrand(p, GF_OLD_CONF, false) && !dead)
+                    /* Apply stun */
+                    if (result.effects.do_stun && !dead)
                     {
-                        int dur = 3 + randint1(10 + randint0(p->lev) / 10);
-
                         if (who->player)
-                            player_inc_timed(who->player, TMD_CONFUSED, dur, true, true);
-                        else if (mon_inc_timed(p, who->mon, MON_TMD_CONF, dur,
-                            MON_TMD_FLG_NOMESSAGE, false))
                         {
-                            current = get_delayed_ranged_effects(&effects, who->mon);
+                            player_inc_timed(who->player, TMD_STUN, randint1(p->lev) + 5, true,
+                                true);
+                        }
+                        else if (mon_inc_timed(p, who->monster, MON_TMD_STUN, 5 + randint1(5),
+                            MON_TMD_FLG_NOMESSAGE))
+                        {
+                            current = get_delayed_ranged_effects(&effects, who->monster);
+                            current->stun = true;
+                        }
+                    }
+
+                    /* Apply cut */
+                    if (result.effects.do_cut && !dead)
+                    {
+                        if (who->player)
+                        {
+                            player_inc_timed(who->player, TMD_CUT, randint1(p->lev) + 5, true,
+                                true);
+                        }
+                        else if (mon_inc_timed(p, who->monster, MON_TMD_CUT, 5 + randint1(5),
+                            MON_TMD_FLG_NOMESSAGE))
+                        {
+                            current = get_delayed_ranged_effects(&effects, who->monster);
+                            current->cut = true;
+                        }
+                    }
+
+                    /* Apply archer confusion brand */
+                    if (ranged_effect && has_bowbrand(p, PROJ_MON_CONF, false) && !dead)
+                    {
+                        if (who->player)
+                        {
+                            player_inc_timed(who->player, TMD_CONFUSED,
+                                3 + randint1(10 + randint0(p->lev) / 10), true, true);
+                        }
+                        else if (mon_inc_timed(p, who->monster, MON_TMD_CONF, 5 + randint1(5),
+                            MON_TMD_FLG_NOMESSAGE))
+                        {
+                            current = get_delayed_ranged_effects(&effects, who->monster);
                             current->conf = true;
                         }
                     }
@@ -1758,7 +1842,7 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
                     /* Take note */
                     if (!dead && fear)
                     {
-                        current = get_delayed_ranged_effects(&effects, who->mon);
+                        current = get_delayed_ranged_effects(&effects, who->monster);
                         current->fear = true;
                     }
                 }
@@ -1768,7 +1852,7 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
                     msgt(p, MSG_MISS, "The %s misses %s.", o_name, m_name);
 
                     /* Track this target */
-                    if (who->mon) monster_race_track(p->upkeep, who);
+                    if (who->monster) monster_race_track(p->upkeep, who);
                     health_track(p->upkeep, who);
                 }
 
@@ -1784,10 +1868,10 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
         if ((by >= 0) && (bx >= 0))
         {
             int p_flag = PROJECT_JUMP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY;
-            struct actor act_body;
-            struct actor *p_act = &act_body;
+            struct source act_body;
+            struct source *p_act = &act_body;
 
-            ACTOR_PLAYER(p_act, get_player_index(get_connection(p->conn)), p);
+            source_player(p_act, get_player_index(get_connection(p->conn)), p);
 
             p->current_sound = -2;
             project(p_act, 2, c, by, bx, p->brand.dam, p->brand.type, p_flag, 0, 0, "killed");
@@ -1810,7 +1894,7 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
             if (newbies_cannot_drop(p)) j = 100;
 
             /* Drop (or break) near that location */
-            drop_near(p, c, missile, j, y, x, true, DROP_FADE);
+            drop_near(p, c, &missile, j, y, x, true, DROP_FADE);
         }
 
         /* Stop if dead */
@@ -1822,23 +1906,14 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
     {
         /* Paranoia: only process living monsters */
         /* This is necessary to take into account monsters killed by ball effects */
-        if (effects->mon->race)
+        if (effects->mon->race && monster_is_visible(p, effects->mon->midx))
         {
-            char m_name[NORMAL_WID];
-
-            monster_desc(p, m_name, sizeof(m_name), effects->mon, MDESC_DEFAULT);
-
-            if (mflag_has(p->mflag[effects->mon->midx], MFLAG_VISIBLE))
-            {
-                if (effects->dmg)
-                    message_pain(p, effects->mon, effects->dmg);
-                if (effects->poison)
-                    add_monster_message(p, m_name, effects->mon, MON_MSG_POISONED, true);
-                if (effects->conf)
-                    add_monster_message(p, m_name, effects->mon, MON_MSG_CONFUSED, true);
-                if (effects->fear)
-                    add_monster_message(p, m_name, effects->mon, MON_MSG_FLEE_IN_TERROR, true);
-            }
+            if (effects->dmg) message_pain(p, effects->mon, effects->dmg);
+            if (effects->poison) add_monster_message(p, effects->mon, MON_MSG_POISONED, true);
+            if (effects->cut) add_monster_message(p, effects->mon, MON_MSG_BLEED, true);
+            if (effects->stun) add_monster_message(p, effects->mon, MON_MSG_DAZED, true);
+            if (effects->conf) add_monster_message(p, effects->mon, MON_MSG_CONFUSED, true);
+            if (effects->fear) add_monster_message(p, effects->mon, MON_MSG_FLEE_IN_TERROR, true);
         }
 
         current = effects->next;
@@ -1858,9 +1933,9 @@ static struct attack_result make_ranged_shot(struct player *p, struct object *am
     int chance = chance_of_missile_hit(p, ammo, bow, y, x);
     int multiplier = p->state.ammo_mult;
     int best_mult = 1;
-    struct chunk *c = chunk_get(p->depth);
-    struct actor target_body;
-    struct actor *target = &target_body;
+    struct chunk *c = chunk_get(&p->wpos);
+    struct source target_body;
+    struct source *target = &target_body;
     bool visible;
     int ac;
 
@@ -1869,14 +1944,14 @@ static struct attack_result make_ranged_shot(struct player *p, struct object *am
 
     /* Target info */
     square_actor(c, y, x, target);
-    if (target->mon)
+    if (target->monster)
     {
-        visible = mflag_has(p->mflag[target->idx], MFLAG_VISIBLE);
-        ac = target->mon->ac;
+        visible = monster_is_visible(p, target->idx);
+        ac = target->monster->ac;
     }
     else
     {
-        visible = mflag_has(p->pflag[target->idx], MFLAG_VISIBLE);
+        visible = player_is_visible(p, target->idx);
         ac = target->player->state.ac + target->player->state.to_a;
     }
 
@@ -1885,20 +1960,20 @@ static struct attack_result make_ranged_shot(struct player *p, struct object *am
 
     result.success = true;
 
-    improve_attack_modifier(p, NULL, target, &best_mult, &result.do_poison, result.verb,
-        sizeof(result.verb), true, true);
-    improve_attack_modifier(p, ammo, target, &best_mult, &result.do_poison, result.verb,
-        sizeof(result.verb), true, true);
+    improve_attack_modifier(p, NULL, target, &best_mult, &result.effects, result.verb,
+        sizeof(result.verb), true);
+    improve_attack_modifier(p, ammo, target, &best_mult, &result.effects, result.verb,
+        sizeof(result.verb), true);
     if (bow)
     {
-        improve_attack_modifier(p, bow, target, &best_mult, &result.do_poison, result.verb,
-            sizeof(result.verb), true, true);
+        improve_attack_modifier(p, bow, target, &best_mult, &result.effects, result.verb,
+            sizeof(result.verb), true);
     }
 
     result.dmg = ranged_damage(p, ammo, bow, best_mult, multiplier);
-    result.dmg = critical_shot(p, ammo->weight, ammo->to_h, result.dmg, &result.msg_type);
+    result.dmg = critical_shot(p, target, ammo->weight, ammo->to_h, result.dmg, &result.msg_type);
 
-    object_notice_attack_plusses(p, bow);
+    missile_learn_on_ranged_attack(p, bow);
 
     return result;
 }
@@ -1913,40 +1988,45 @@ static struct attack_result make_ranged_throw(struct player *p, struct object *o
     int chance = chance_of_missile_hit(p, obj, NULL, y, x);
     int multiplier = 1;
     int best_mult = 1;
-    struct chunk *c = chunk_get(p->depth);
-    struct actor target_body;
-    struct actor *target = &target_body;
+    struct chunk *c = chunk_get(&p->wpos);
+    struct source target_body;
+    struct source *target = &target_body;
     bool visible;
     int ac;
+    s16b to_h;
 
     memset(&result, 0, sizeof(result));
     my_strcpy(result.verb, "hits", sizeof(result.verb));
 
     /* Target info */
     square_actor(c, y, x, target);
-    if (target->mon)
+    if (target->monster)
     {
-        visible = mflag_has(p->mflag[target->idx], MFLAG_VISIBLE);
-        ac = target->mon->ac;
+        visible = monster_is_visible(p, target->idx);
+        ac = target->monster->ac;
     }
     else
     {
-        visible = mflag_has(p->pflag[target->idx], MFLAG_VISIBLE);
+        visible = player_is_visible(p, target->idx);
         ac = target->player->state.ac + target->player->state.to_a;
     }
 
-    /* Did we hit it (penalize distance travelled) */
+    /* If we missed then we're done */
     if (!test_hit(chance, ac, visible)) return result;
 
     result.success = true;
 
-    improve_attack_modifier(p, NULL, target, &best_mult, &result.do_poison, result.verb,
-        sizeof(result.verb), true, true);
-    improve_attack_modifier(p, obj, target, &best_mult, &result.do_poison, result.verb,
-        sizeof(result.verb), true, true);
+    improve_attack_modifier(p, NULL, target, &best_mult, &result.effects, result.verb,
+        sizeof(result.verb), true);
+    improve_attack_modifier(p, obj, target, &best_mult, &result.effects, result.verb,
+        sizeof(result.verb), true);
 
     result.dmg = ranged_damage(p, obj, NULL, best_mult, multiplier);
-    result.dmg = critical_shot(p, obj->weight, obj->to_h, result.dmg, &result.msg_type);
+    object_to_h(obj, &to_h);
+    result.dmg = critical_norm(p, target, obj->weight, to_h, result.dmg, &result.msg_type);
+
+    /* Direct adjustment for exploding things (flasks of oil) */
+    if (of_has(obj->flags, OF_EXPLODE)) result.dmg *= 3;
 
     return result;
 }
@@ -2027,8 +2107,8 @@ void do_cmd_fire(struct player *p, int dir, int item)
     /* Only fire in direction 5 if we have a target */
     if ((dir == 5) && !target_okay(p)) return;
 
-    magic = (kf_has(obj->kind->kind_flags, KF_AMMO_MAGIC) || obj->artifact);
-    pierce = has_bowbrand(p, GF_ARROW_X, false);
+    magic = of_has(obj->flags, OF_AMMO_MAGIC);
+    pierce = has_bowbrand(p, PROJ_ARROW_X, false);
 
     /* Temporary "Farsight" */
     if (p->timed[TMD_FARSIGHT]) range += (p->lev - 7) / 10;
@@ -2036,7 +2116,8 @@ void do_cmd_fire(struct player *p, int dir, int item)
     /* Check if we have enough missiles */
     if (!magic && (shots > obj->number)) shots = obj->number;
 
-    ranged_helper(p, obj, dir, range, shots, attack, magic, pierce, true);
+    ranged_helper(p, obj, dir, range, shots, attack, ranged_hit_types,
+        (int)N_ELEMENTS(ranged_hit_types), magic, pierce, true);
 }
 
 
@@ -2052,7 +2133,6 @@ void do_cmd_throw(struct player *p, int dir, int item)
     int range;
     struct object *obj = object_from_index(p, item, true, true);
     bool magic = false;
-    bool pierce = false;
 
     /* Paranoia: requires an item */
     if (!obj) return;
@@ -2092,8 +2172,10 @@ void do_cmd_throw(struct player *p, int dir, int item)
         return;
     }
 
+    if (tval_is_ammo(obj)) magic = of_has(obj->flags, OF_AMMO_MAGIC);
+
     /* Restrict artifacts */
-    if (obj->artifact)
+    if (obj->artifact && (!magic || newbies_cannot_drop(p)))
     {
         msg(p, "You cannot throw that!");
         return;
@@ -2119,7 +2201,8 @@ void do_cmd_throw(struct player *p, int dir, int item)
     /* Apply confusion */
     player_confuse_dir(p, &dir);
 
-    ranged_helper(p, obj, dir, range, shots, attack, magic, pierce, false);
+    ranged_helper(p, obj, dir, range, shots, attack, melee_hit_types,
+        (int)N_ELEMENTS(melee_hit_types), magic, false, false);
 }
 
 

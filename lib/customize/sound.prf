@@ -33,26 +33,41 @@ sound:ambient_day:amb_thunder_rain
 # Town during the night.
 sound:ambient_nite:amb_guitar_chord amb_thunder_roll
 
-# Shore
-sound:wild_shore:shore
-
-# Grass
-sound:wild_grass:grass
-
-# Wood
-sound:wild_wood:wood
-
-# Swamp
-sound:wild_swamp:swamp
+# River
+sound:wild_river:wild_river
 
 # Waste
-sound:wild_waste:waste
-
-# Mountain
-sound:wild_mountain:mountain
+sound:wild_waste:wild_waste
 
 # Volcano
-sound:wild_volcano:volcano
+sound:wild_volcano:wild_volcano
+
+# Grass
+sound:wild_grass:wild_grass
+
+# Wood
+sound:wild_wood:wild_wood
+
+# Mountain
+sound:wild_mountain:wild_mountain
+
+# Desert
+sound:wild_desert:wild_desert
+
+# Glacier
+sound:wild_glacier:wild_glacier
+
+# Swamp
+sound:wild_swamp:wild_swamp
+
+# Deep water
+sound:wild_deepwater:wild_deepwater
+
+# Hill
+sound:wild_hill:wild_hill
+
+# Shore
+sound:wild_shore:wild_shore
 
 # Dungeon levels 1-20 (50'- 1000')
 sound:ambient_dng1:amb_door_iron amb_bell_metal1
@@ -70,19 +85,22 @@ sound:ambient_dng4:amb_bell_tibet3 amb_dungeon_echowet amb_gong_undertone
 sound:ambient_dng5:amb_door_doom amb_gong_chinese amb_gong_low
 
 # Dungeon level 99 (4950')
-sound:ambient_sauron:sauron
+sound:ambient_sauron:amb_sauron
 
 # Dungeon level 100 (5000')
-sound:ambient_morgoth:morgoth
+sound:ambient_morgoth:amb_morgoth
 
-# Dungeon levels 101-125 (5050'- 6250')
+# Dungeon levels 101-124 (5050'- 6200')
 sound:ambient_dng6:amb_deep
 
+# Dungeon level 125 (6250')
+sound:ambient_senya:amb_senya
+
 # Dungeon level 126 (6300')
-sound:ambient_senya:senya
+sound:ambient_xakaze:amb_xakaze
 
 # Dungeon level 127 (6350')
-sound:ambient_xakaze:xakaze
+sound:ambient_melkor:amb_melkor
 
 #
 # Store sounds
@@ -334,8 +352,8 @@ sound:cursed:pls_man_oooh
 # You notice something (generic notice)
 sound:notice:id_bad_hmm
 
-# You notice something about your equipment or inventory.
-sound:pseudo_id:id_good_hmm
+# Learn a rune.
+sound:rune:id_good_hmm
 
 # You successfully cast a spell.
 sound:cast_spell:plm_spell1 plm_spell2 plm_spell3

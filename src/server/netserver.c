@@ -2,7 +2,7 @@
  * File: netserver.c
  * Purpose: The server side of the network stuff
  *
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -95,7 +95,6 @@
 static server_setup_t Setup;
 static int login_in_progress;
 static int num_logins, num_logouts;
-static int MetaSocket = -1;
 
 
 /* The contact socket */
@@ -177,6 +176,7 @@ int Setup_net_server(void)
     init_players();
 
     /* Tell the metaserver that we're starting up */
+    plog("Report to metaserver");
     Report_to_meta(META_START);
 
     plog_fmt("Server is running version %s", version_build(VB_BASE | VB_BUILD));
@@ -227,14 +227,16 @@ static void Conn_set_state(connection_t *connp, int state)
 static void do_quit(int ind)
 {
     connection_t *connp = get_connection(ind);
-    int depth = 0;
+    struct worldpos wpos;
     bool dungeon_master = false;
+
+    memset(&wpos, 0, sizeof(wpos));
 
     if (connp->id != -1)
     {
         struct player *p = player_get(get_player_index(connp));
 
-        depth = p->depth;
+        memcpy(&wpos, &p->wpos, sizeof(wpos));
         dungeon_master = is_dm_p(p);
     }
 
@@ -248,9 +250,9 @@ static void do_quit(int ind)
     connp->w.sock = -1;
 
     /* Check for immediate disconnection */
-    if (town_area(depth) || dungeon_master)
+    if (town_area(&wpos) || dungeon_master)
     {
-        /* If we are close to the center of town, exit quickly. */
+        /* If we are close to a town, exit quickly. */
         /* DM always disconnects immediately */
         Destroy_connection(ind, "Client quit");
     }
@@ -275,7 +277,7 @@ static int Send_reliable(int ind)
 
     if ((num_written = Sockbuf_write(&connp->w, connp->c.buf, connp->c.len)) != connp->c.len)
     {
-        plog_fmt("Cannot write reliable data (%d,%d)", num_written, connp->c.len);
+        plog_fmt("Cannot write reliable data (%d, %d)", num_written, connp->c.len);
         Destroy_connection(ind, "Cannot write reliable data");
         return -1;
     }
@@ -621,11 +623,16 @@ static void Contact(int fd, int arg)
         {
             /*
              * We couldn't accept the socket connection. This is bad because we can't
-             * handle this situation correctly yet.  For the moment, we just log the
-             * error and quit
+             * handle this situation correctly yet. For the moment, we just log the
+             * error and quit.
+             *
+             * PWMAngband: when running the server in debug mode, we get a lot of
+             * TCP connection failures with errno = 0, which doesn't make any sense.
+             * In this case, we just return without quitting.
              */
             plog_fmt("Could not accept TCP Connection, socket error = %d", errno);
-            quit("Couldn't accept TCP connection.");
+            if (errno) quit("Couldn't accept TCP connection.");
+            return;
         }
         install_input(Contact, newsock, 2);
 
@@ -768,6 +775,14 @@ static void Contact(int fd, int arg)
     /* Send reply */
     Packet_printf(&ibuf, "%c", (int)status);
     Packet_printf(&ibuf, "%hu", (unsigned)num);
+
+    /* Some error */
+    if (status)
+    {
+        Net_Send(fd);
+        return;
+    }
+
     for (i = 0; i < (size_t)num; i++)
     {
         hash_entry *ptr;
@@ -835,139 +850,13 @@ void setup_contact_socket(void)
  * This function is called on startup, on death, and when the number of players
  * in the game changes.
  */
-#define OLD_MANG_FORMAT
 bool Report_to_meta(int flag)
 {
-    static sockbuf_t meta_buf;
-    static char local_name[MSG_LEN];
-    static int init = 0;
-    int bytes, i;
-    char buf[MSG_LEN], temp[100];
-    int hidden_dungeon_master = 0;
-
     /* Abort if the user doesn't want to report */
-    if (!cfg_report_to_meta)
-        return false;
+    if (!cfg_report_to_meta) return false;
 
-    /* If this is the first time called, initialize our hostname */
-    if (!init)
-    {
-        /* Never do this again */
-        init = 1;
-
-        /* Get our hostname */
-        if (cfg_report_address)
-            my_strcpy(local_name, cfg_report_address, sizeof(local_name));
-        else if (cfg_bind_name)
-            my_strcpy(local_name, cfg_bind_name, sizeof(local_name));
-        else
-            GetLocalHostName(local_name, MSG_LEN);
-
-        my_strcat(local_name, ":", sizeof(local_name));
-        strnfmt(temp, sizeof(temp), "%d", (int)cfg_tcp_port);
-        my_strcat(local_name, temp, sizeof(local_name));
-    }
-
-    my_strcpy(buf, local_name, sizeof(buf));
-
-#ifndef OLD_MANG_FORMAT
-    /* Append the version number */
-    strnfmt(temp, sizeof(temp), "  %s  ", version_build(VB_NAME | VB_BUILD));
-#endif
-
-    if (flag & META_START)
-    {
-        if ((MetaSocket = CreateDgramSocket(0)) == -1)
-            quit("Couldn't create meta-server Dgram socket");
-
-        if (SetSocketNonBlocking(MetaSocket, 1) == -1)
-            quit("Can't make socket non-blocking");
-
-        if (Sockbuf_init(&meta_buf, MetaSocket, SERVER_SEND_SIZE,
-            SOCKBUF_READ | SOCKBUF_WRITE | SOCKBUF_DGRAM) == -1)
-        {
-            quit("No memory for sockbuf buffer");
-        }
-
-        Sockbuf_clear(&meta_buf);
-#ifdef OLD_MANG_FORMAT
-        my_strcat(buf, " Number of players: 0 ", sizeof(buf));
-#else
-        my_strcat(buf, "(no players)", sizeof(buf));
-#endif
-    }
-
-    else if (flag & META_DIE)
-    {
-#ifndef OLD_MANG_FORMAT
-        my_strcat(buf, "(down)", sizeof(buf));
-#endif
-    }
-
-    else if (flag & META_UPDATE)
-    {
-        /*
-         * Hack -- if cfg_secret_dungeon_master is enabled, determine
-         * if the Dungeon Master is playing, and if so, reduce the
-         * number of players reported.
-         */
-        for (i = 1; i <= NumPlayers; i++)
-        {
-            if (player_get(i)->dm_flags & DM_SECRET_PRESENCE) hidden_dungeon_master++;
-        }
-
-        /* If someone other than a dungeon master is playing */
-        if (NumPlayers - hidden_dungeon_master)
-        {
-            /* Tell the metaserver about everyone except hidden dungeon masters */
-#ifdef OLD_MANG_FORMAT
-            strnfmt(temp, sizeof(temp),
-                " Number of players: %d Names:", NumPlayers - hidden_dungeon_master);
-#else
-            strnfmt(temp, sizeof(temp), "Players (%d):", NumPlayers - hidden_dungeon_master);
-#endif
-            my_strcat(buf, temp, sizeof(buf));
-            for (i = 1; i <= NumPlayers; i++)
-            {
-                struct player *p = player_get(i);
-
-                /* Handle the cfg_secret_dungeon_master option */
-                if (p->dm_flags & DM_SECRET_PRESENCE) continue;
-                my_strcat(buf, " ", sizeof(buf));
-                my_strcat(buf, player_safe_name(p->name), sizeof(buf));
-            }
-        }
-        else
-        {
-#ifdef OLD_MANG_FORMAT
-            my_strcat(buf, " Number of players: 0", sizeof(buf));
-#else
-            my_strcat(buf, "(no players)", sizeof(buf));
-#endif
-        }
-    }
-
-#ifdef OLD_MANG_FORMAT
-    /* Append the version number */
-    strnfmt(temp, sizeof(temp), " Version: %s", version_build(VB_BASE | VB_BUILD));
-
-    if (!(flag & META_DIE)) my_strcat(buf, temp, sizeof(buf));
-#endif
-
-    /* If we haven't setup the meta connection yet, abort */
-    if (MetaSocket == -1) return false;
-
-    Sockbuf_clear(&meta_buf);
-
-    Packet_printf(&meta_buf, "%S", buf);
-
-    bytes = DgramSend(MetaSocket, cfg_meta_address, 8800, meta_buf.buf, meta_buf.len);
-    if (bytes == -1)
-    {
-        plog("Couldn't send info to meta-server!");
-        return false;
-    }
-
+    /* New implementation */
+    meta_report(flag);
     return true;
 }
 
@@ -981,12 +870,12 @@ static void Delete_player(int id)
     char buf[255];
     int i;
     struct monster *mon;
-    struct actor who_body;
-    struct actor *who = &who_body;
-    struct chunk *c = chunk_get(p->depth);
+    struct source who_body;
+    struct source *who = &who_body;
+    struct chunk *c = chunk_get(&p->wpos);
     struct chunk *c_last = NULL;
 
-    ACTOR_PLAYER(who, id, p);
+    source_player(who, id, p);
 
     /* Be paranoid */
     if (c)
@@ -996,9 +885,6 @@ static void Delete_player(int id)
 
         /* Redraw */
         square_light_spot(c, p->py, p->px);
-
-        /* Forget the view */
-        forget_view(p, c);
 
         /* Free monsters from slavery */
         for (i = 1; i < cave_monster_max(c); i++)
@@ -1020,7 +906,7 @@ static void Delete_player(int id)
     channels_leave(p);
 
     /* Hack -- unstatic if the DM left while manually designing a dungeon level */
-    if (chunk_inhibit_players(c->depth)) chunk_set_player_count(c->depth, 0);
+    if (chunk_inhibit_players(&p->wpos)) chunk_set_player_count(&p->wpos, 0);
 
     /* Try to save his character */
     save_player(p);
@@ -1047,8 +933,8 @@ static void Delete_player(int id)
     {
         struct player *q = player_get(i);
         struct actor_race *monster_race = &q->upkeep->monster_race;
-        struct actor *cursor_who = &q->cursor_who;
-        struct actor *health_who = &q->upkeep->health_who;
+        struct source *cursor_who = &q->cursor_who;
+        struct source *health_who = &q->upkeep->health_who;
 
         if (q == p) continue;
 
@@ -1059,10 +945,10 @@ static void Delete_player(int id)
         if (target_equals(q, who)) target_set_monster(q, NULL);
 
         /* Cancel tracking */
-        if (ACTOR_EQUAL(cursor_who, who)) cursor_track(q, NULL);
+        if (source_equal(cursor_who, who)) cursor_track(q, NULL);
 
         /* Cancel the health bar */
-        if (ACTOR_EQUAL(health_who, who)) health_track(q->upkeep, NULL);
+        if (source_equal(health_who, who)) health_track(q->upkeep, NULL);
     }
 
     /* Swap entry number 'id' with the last one */
@@ -1071,7 +957,7 @@ static void Delete_player(int id)
     {
         struct player *q = player_get(NumPlayers);
 
-        c_last = chunk_get(q->depth);
+        c_last = chunk_get(&q->wpos);
         if (c_last) c_last->squares[q->py][q->px].mon = 0 - id;
         player_set(NumPlayers, player_get(id));
         player_set(id, q);
@@ -1114,8 +1000,8 @@ static void wipe_connection(connection_t *connp)
     char (*f_char)[LIGHTING_MAX];
     byte (*t_attr)[LIGHTING_MAX];
     char (*t_char)[LIGHTING_MAX];
-    byte* flvr_x_attr;
-    char* flvr_x_char;
+    byte *flvr_x_attr;
+    char *flvr_x_char;
     bool has_setup = connp->has_setup;
 
     /* Save */
@@ -1436,7 +1322,7 @@ int Init_setup(void)
 }
 
 
-byte* Conn_get_console_channels(int ind)
+byte *Conn_get_console_channels(int ind)
 {
     connection_t *connp = get_connection(ind);
     return connp->console_channels;
@@ -1483,11 +1369,12 @@ int Send_limits_struct_info(int ind)
         return -1;
     }
 
-    if (Packet_printf(&connp->c, "%hu%hu%hu%hu%hu%hu%hu%hu%hu%hu%hu%hu", (unsigned)z_info->a_max,
+    if (Packet_printf(&connp->c, "%hu%hu%hu%hu%hu%hu%hu%hu%hu%hu%hu%hu%hu", (unsigned)z_info->a_max,
         (unsigned)z_info->e_max, (unsigned)z_info->k_max, (unsigned)z_info->r_max,
         (unsigned)z_info->f_max, (unsigned)z_info->trap_max, (unsigned)flavor_max,
         (unsigned)z_info->pack_size, (unsigned)z_info->quiver_size, (unsigned)z_info->floor_size,
-        (unsigned)z_info->stack_size, (unsigned)z_info->store_inven_max) <= 0)
+        (unsigned)z_info->quiver_slot_size, (unsigned)z_info->store_inven_max,
+        (unsigned)z_info->curse_max) <= 0)
     {
         Destroy_connection(ind, "Send_limits_struct_info write error");
         return -1;
@@ -1601,6 +1488,8 @@ int Send_class_struct_info(int ind)
     for (c = classes; c; c = c->next)
     {
         byte tval = 0;
+        const struct magic_realm *realm = c->magic.spell_realm;
+        const char *spell_realm = (realm? realm->name: "");
 
         if (c->magic.num_books)
             tval = c->magic.books[0].tval;
@@ -1641,8 +1530,8 @@ int Send_class_struct_info(int ind)
                 return -1;
             }
         }
-        if (Packet_printf(&connp->c, "%b%b%b%c", (unsigned)c->magic.spell_realm->index,
-            (unsigned)c->magic.total_spells, (unsigned)tval, c->magic.num_books) <= 0)
+        if (Packet_printf(&connp->c, "%b%b%c%s", (unsigned)c->magic.total_spells, (unsigned)tval,
+            c->magic.num_books, spell_realm) <= 0)
         {
             Destroy_connection(ind, "Send_class_struct_info write error");
             return -1;
@@ -1811,7 +1700,7 @@ int Send_ego_struct_info(int ind)
     for (i = 0; i < (u32b)z_info->e_max; i++)
     {
         u16b max = 0;
-        struct ego_poss_item *poss;
+        struct poss_item *poss;
 
         if (Packet_printf(&connp->c, "%s", (e_info[i].name? e_info[i].name: "")) <= 0)
         {
@@ -1971,6 +1860,155 @@ int Send_rbinfo_struct_info(int ind)
 }
 
 
+int Send_curse_struct_info(int ind)
+{
+    connection_t *connp = get_connection(ind);
+    u32b i;
+
+    if (connp->state != CONN_SETUP)
+    {
+        errno = 0;
+        plog_fmt("Connection not ready for curse info (%d.%d.%d)", ind, connp->state, connp->id);
+        return 0;
+    }
+
+    if (Packet_printf(&connp->c, "%b%c%hu", (unsigned)PKT_STRUCT_INFO, (int)STRUCT_INFO_CURSES,
+        (unsigned)z_info->curse_max) <= 0)
+    {
+        Destroy_connection(ind, "Send_curse_struct_info write error");
+        return -1;
+    }
+
+    for (i = 0; i < (u32b)z_info->curse_max; i++)
+    {
+        if (Packet_printf(&connp->c, "%s", (curses[i].name? curses[i].name: "")) <= 0)
+        {
+            Destroy_connection(ind, "Send_curse_struct_info write error");
+            return -1;
+        }
+
+        /* Transfer other fields here */
+        if (Packet_printf(&connp->c, "%s", (curses[i].desc? curses[i].desc: "")) <= 0)
+        {
+            Destroy_connection(ind, "Send_curse_struct_info write error");
+            return -1;
+        }
+    }
+
+    return 1;
+}
+
+
+int Send_realm_struct_info(int ind)
+{
+    connection_t *connp = get_connection(ind);
+    u16b max = 0;
+    struct magic_realm *realm;
+
+    if (connp->state != CONN_SETUP)
+    {
+        errno = 0;
+        plog_fmt("Connection not ready for realm info (%d.%d.%d)", ind, connp->state, connp->id);
+        return 0;
+    }
+
+    /* Count player magic realms */
+    for (realm = realms; realm; realm = realm->next) max++;
+
+    if (Packet_printf(&connp->c, "%b%c%hu", (unsigned)PKT_STRUCT_INFO, (int)STRUCT_INFO_REALM,
+        (unsigned)max) <= 0)
+    {
+        Destroy_connection(ind, "Send_realm_struct_info write error");
+        return -1;
+    }
+
+    for (realm = realms; realm; realm = realm->next)
+    {
+        const char *spell_noun = (realm->spell_noun? realm->spell_noun: "");
+        const char *verb = (realm->verb? realm->verb: "");
+
+        if (Packet_printf(&connp->c, "%s", realm->name) <= 0)
+        {
+            Destroy_connection(ind, "Send_realm_struct_info write error");
+            return -1;
+        }
+
+        /* Transfer other fields here */
+        if (Packet_printf(&connp->c, "%s%s", spell_noun, verb) <= 0)
+        {
+            Destroy_connection(ind, "Send_realm_struct_info write error");
+            return -1;
+        }
+    }
+
+    return 1;
+}
+
+
+int Send_feat_struct_info(int ind)
+{
+    connection_t *connp = get_connection(ind);
+    u32b i;
+
+    if (connp->state != CONN_SETUP)
+    {
+        errno = 0;
+        plog_fmt("Connection not ready for feat info (%d.%d.%d)", ind, connp->state, connp->id);
+        return 0;
+    }
+
+    if (Packet_printf(&connp->c, "%b%c%hu", (unsigned)PKT_STRUCT_INFO, (int)STRUCT_INFO_FEAT,
+        (unsigned)z_info->f_max) <= 0)
+    {
+        Destroy_connection(ind, "Send_feat_struct_info write error");
+        return -1;
+    }
+
+    for (i = 0; i < (u32b)z_info->f_max; i++)
+    {
+        if (Packet_printf(&connp->c, "%s", (f_info[i].name? f_info[i].name: "")) <= 0)
+        {
+            Destroy_connection(ind, "Send_feat_struct_info write error");
+            return -1;
+        }
+    }
+
+    return 1;
+}
+
+
+int Send_trap_struct_info(int ind)
+{
+    connection_t *connp = get_connection(ind);
+    u32b i;
+
+    if (connp->state != CONN_SETUP)
+    {
+        errno = 0;
+        plog_fmt("Connection not ready for trap info (%d.%d.%d)", ind, connp->state, connp->id);
+        return 0;
+    }
+
+    if (Packet_printf(&connp->c, "%b%c%hu", (unsigned)PKT_STRUCT_INFO, (int)STRUCT_INFO_TRAP,
+        (unsigned)z_info->trap_max) <= 0)
+    {
+        Destroy_connection(ind, "Send_trap_struct_info write error");
+        return -1;
+    }
+
+    for (i = 0; i < (u32b)z_info->trap_max; i++)
+    {
+        if (Packet_printf(&connp->c, "%s", (trap_info[i].desc? trap_info[i].desc: "")) <= 0)
+        {
+            Destroy_connection(ind, "Send_trap_struct_info write error");
+            return -1;
+        }
+    }
+
+    return 1;
+}
+
+
 static connection_t *get_connp(struct player *p, const char *errmsg)
 {
     connection_t *connp;
@@ -1999,10 +2037,10 @@ int Send_death_cause(struct player *p)
     connection_t *connp = get_connp(p, "death_cause");
     if (connp == NULL) return 0;
 
-    return Packet_printf(&connp->c, "%b%s%hd%ld%ld%hd%s%s", (unsigned)PKT_DEATH_CAUSE,
+    return Packet_printf(&connp->c, "%b%s%hd%ld%ld%hd%hd%hd%s%s", (unsigned)PKT_DEATH_CAUSE,
         p->death_info.title, (int)p->death_info.lev, p->death_info.exp,
-        p->death_info.au, (int)p->death_info.depth, p->death_info.died_from,
-        p->death_info.ctime);
+        p->death_info.au, (int)p->death_info.wpos.wy, (int)p->death_info.wpos.wx,
+        (int)p->death_info.wpos.depth, p->death_info.died_from, p->death_info.ctime);
 }
 
 
@@ -2126,12 +2164,13 @@ int Send_index(struct player *p, int i, int index, byte type)
 }
 
 
-int Send_item_request(struct player *p, byte tester_hook)
+int Send_item_request(struct player *p, byte tester_hook, char *dice_string)
 {
     connection_t *connp = get_connp(p, "item request");
     if (connp == NULL) return 0;
 
-    return Packet_printf(&connp->c, "%b%b", (unsigned)PKT_ITEM_REQUEST, (unsigned)tester_hook);
+    return Packet_printf(&connp->c, "%b%b%s", (unsigned)PKT_ITEM_REQUEST, (unsigned)tester_hook,
+        dice_string);
 }
 
 
@@ -2154,12 +2193,12 @@ int Send_turn(struct player *p, u32b game_turn, u32b player_turn, u32b active_tu
 }
 
 
-int Send_depth(struct player *p, int depth, int maxdepth)
+int Send_depth(struct player *p, int depth, int maxdepth, const char *depths)
 {
     connection_t *connp = get_connp(p, "depth");
     if (connp == NULL) return 0;
 
-    return Packet_printf(&connp->c, "%b%hd%hd", (unsigned)PKT_DEPTH, depth, maxdepth);
+    return Packet_printf(&connp->c, "%b%hd%hd%s", (unsigned)PKT_DEPTH, depth, maxdepth, depths);
 }
 
 
@@ -2198,12 +2237,12 @@ int Send_recall(struct player *p, s16b word_recall, s16b deep_descent)
 }
 
 
-int Send_state(struct player *p, bool searching, bool resting, bool unignoring)
+int Send_state(struct player *p, bool stealthy, bool resting, bool unignoring)
 {
     connection_t *connp = get_connp(p, "state");
     if (connp == NULL) return 0;
 
-    return Packet_printf(&connp->c, "%b%hd%hd%hd%hd%hd", (unsigned)PKT_STATE, (int)searching,
+    return Packet_printf(&connp->c, "%b%hd%hd%hd%hd%hd", (unsigned)PKT_STATE, (int)stealthy,
         (int)resting, (int)unignoring, (int)p->obj_feeling, (int)p->mon_feeling);
 }
 
@@ -2414,12 +2453,12 @@ int Send_remote_line(struct player *p, int y)
 }
 
 
-int Send_speed(struct player *p, int speed)
+int Send_speed(struct player *p, int speed, int mult)
 {
     connection_t *connp = get_connp(p, "speed");
     if (connp == NULL) return 0;
 
-    return Packet_printf(&connp->c, "%b%hd", (unsigned)PKT_SPEED, speed);
+    return Packet_printf(&connp->c, "%b%hd%hd", (unsigned)PKT_SPEED, speed, mult);
 }
 
 
@@ -2511,8 +2550,7 @@ int Send_spell_info(struct player *p, int book, int i, const char *out_val,
 }
 
 
-int Send_floor(struct player *p, byte num, const struct object *obj,
-    struct object_xtra *info_xtra)
+int Send_floor(struct player *p, byte num, const struct object *obj, struct object_xtra *info_xtra)
 {
     byte ignore = ((obj->known->notice & OBJ_NOTICE_IGNORE)? 1: 0);
     connection_t *connp = get_connp(p, "floor");
@@ -2521,12 +2559,13 @@ int Send_floor(struct player *p, byte num, const struct object *obj,
     Packet_printf(&connp->c, "%b%b", (unsigned)PKT_FLOOR, (unsigned)num);
     Packet_printf(&connp->c, "%b%b%hd%lu%ld%b%hd", (unsigned)obj->tval, (unsigned)obj->sval,
         obj->number, obj->note, obj->pval, (unsigned)ignore, obj->oidx);
-    Packet_printf(&connp->c, "%b%b%b%b%hd%b%b%b%b%b%hd%hd", (unsigned)info_xtra->attr,
-        (unsigned)info_xtra->act, (unsigned)info_xtra->fuel, (unsigned)info_xtra->fail,
-        info_xtra->slot, (unsigned)info_xtra->known, (unsigned)info_xtra->carry,
-        (unsigned)info_xtra->quality_ignore, (unsigned)info_xtra->ignored,
-        (unsigned)info_xtra->ego_ignore, info_xtra->eidx, info_xtra->bidx);
-    Packet_printf(&connp->c, "%s%s%s", info_xtra->name, info_xtra->name_terse, info_xtra->name_base);
+    Packet_printf(&connp->c, "%b%b%b%b%b%hd%b%b%b%b%hd%b%hd", (unsigned)info_xtra->attr,
+        (unsigned)info_xtra->act, (unsigned)info_xtra->aim, (unsigned)info_xtra->fuel,
+        (unsigned)info_xtra->fail, info_xtra->slot, (unsigned)info_xtra->known,
+        (unsigned)info_xtra->carry, (unsigned)info_xtra->quality_ignore,
+        (unsigned)info_xtra->ignored, info_xtra->eidx, (unsigned)info_xtra->magic, info_xtra->bidx);
+    Packet_printf(&connp->c, "%s%s%s%s%s", info_xtra->name, info_xtra->name_terse,
+        info_xtra->name_base, info_xtra->name_curse, info_xtra->name_power);
 
     return 1;
 }
@@ -2628,9 +2667,9 @@ int Send_skills(struct player *p)
     /* Basic abilities */
     skills[2] = p->state.skills[SKILL_SAVE];
     skills[3] = p->state.skills[SKILL_STEALTH];
-    skills[4] = p->state.skills[SKILL_SEARCH_FREQUENCY];
-    skills[5] = p->state.skills[SKILL_SEARCH];
-    skills[6] = p->state.skills[SKILL_DISARM];
+    skills[4] = p->state.skills[SKILL_SEARCH];
+    skills[5] = p->state.skills[SKILL_DISARM_PHYS];
+    skills[6] = p->state.skills[SKILL_DISARM_MAGIC];
     skills[7] = p->state.skills[SKILL_DEVICE];
 
     /* Number of blows */
@@ -2967,15 +3006,16 @@ int Send_item(struct player *p, const struct object *obj, int wgt, s32b price,
         price, obj->note, obj->pval, (unsigned)ignore, obj->oidx);
 
     /* Extra info */
-    Packet_printf(&connp->c, "%b%b%b%b%hd%b%b%b%b%b%b%hd%hd", (unsigned)info_xtra->attr,
-        (unsigned)info_xtra->act, (unsigned)info_xtra->fuel, (unsigned)info_xtra->fail,
-        info_xtra->slot, (unsigned)info_xtra->cursed, (unsigned)info_xtra->known,
-        (unsigned)info_xtra->sellable, (unsigned)info_xtra->quality_ignore,
-        (unsigned)info_xtra->ignored, (unsigned)info_xtra->ego_ignore, info_xtra->eidx,
-        info_xtra->bidx);
+    Packet_printf(&connp->c, "%b%b%b%b%b%hd%b%b%b%b%b%hd%b%hd", (unsigned)info_xtra->attr,
+        (unsigned)info_xtra->act, (unsigned)info_xtra->aim, (unsigned)info_xtra->fuel,
+        (unsigned)info_xtra->fail, info_xtra->slot, (unsigned)info_xtra->stuck,
+        (unsigned)info_xtra->known, (unsigned)info_xtra->sellable,
+        (unsigned)info_xtra->quality_ignore, (unsigned)info_xtra->ignored, info_xtra->eidx,
+        (unsigned)info_xtra->magic, info_xtra->bidx);
 
     /* Descriptions */
-    Packet_printf(&connp->c, "%s%s%s", info_xtra->name, info_xtra->name_terse, info_xtra->name_base);
+    Packet_printf(&connp->c, "%s%s%s%s%s", info_xtra->name, info_xtra->name_terse,
+        info_xtra->name_base, info_xtra->name_curse, info_xtra->name_power);
 
     return 1;
 }
@@ -3095,7 +3135,7 @@ int Send_ignore(struct player *p)
 
     /* Quality ignoring */
     for (i = ITYPE_NONE; i < ITYPE_MAX; i++)
-        Packet_printf(&connp->c, "%b", (unsigned)p->other.ignore_lvl[i]);
+        Packet_printf(&connp->c, "%b", (unsigned)p->opts.ignore_lvl[i]);
 
     return 1;
 }
@@ -3147,17 +3187,6 @@ int cmd_rest(struct player *p, s16b resting)
     if (connp == NULL) return 0;
 
     return Packet_printf(&connp->q, "%b%hd", (unsigned)PKT_REST, (int)resting);
-}
-
-
-int cmd_search(struct player *p)
-{
-    byte starting = 0;
-
-    connection_t *connp = get_connp(p, "search");
-    if (connp == NULL) return 0;
-
-    return Packet_printf(&connp->q, "%b%b", (unsigned)PKT_SEARCH, (unsigned)starting);
 }
 
 
@@ -3225,7 +3254,7 @@ static int Receive_verify(int ind)
         case 1: local_size = z_info->f_max * LIGHTING_MAX; break;
         case 2: local_size = z_info->k_max; break;
         case 3: local_size = z_info->r_max; break;
-        case 4: local_size = GF_MAX * BOLT_MAX; break;
+        case 4: local_size = PROJ_MAX * BOLT_MAX; break;
         case 5: local_size = z_info->trap_max * LIGHTING_MAX; break;
         default: discard = true;
     }
@@ -3261,8 +3290,8 @@ static int Receive_verify(int ind)
                 connp->Client_setup.r_char[i] = c;
                 break;
             case 4:
-                connp->Client_setup.gf_attr[i / BOLT_MAX][i % BOLT_MAX] = a;
-                connp->Client_setup.gf_char[i / BOLT_MAX][i % BOLT_MAX] = c;
+                connp->Client_setup.proj_attr[i / BOLT_MAX][i % BOLT_MAX] = a;
+                connp->Client_setup.proj_char[i / BOLT_MAX][i % BOLT_MAX] = c;
                 break;
             case 5:
                 connp->Client_setup.t_attr[i / LIGHTING_MAX][i % LIGHTING_MAX] = a;
@@ -3526,10 +3555,10 @@ static int Receive_tunnel(int ind)
         /* Break mind link */
         break_mind_link(p);
 
-        /* Repeat digging 10 times */
+        /* Repeat digging 99 times */
         if (starting)
         {
-            p->digging_request = 10;
+            p->digging_request = 99;
             p->digging_dir = (byte)dir;
             starting = 0;
         }
@@ -3823,7 +3852,7 @@ static int Receive_target_closest(int ind)
 }
 
 
-static int Receive_cast(int ind, char* errmsg)
+static int Receive_cast(int ind, char *errmsg)
 {
     connection_t *connp = get_connection(ind);
     struct player *p;
@@ -3973,45 +4002,6 @@ static int Receive_read(int ind)
         }
 
         Packet_printf(&connp->q, "%b%hd", (unsigned)ch, (int)item);
-        return 0;
-    }
-
-    return 1;
-}
-
-
-static int Receive_search(int ind)
-{
-    connection_t *connp = get_connection(ind);
-    struct player *p;
-    byte ch, starting;
-    int n;
-
-    if ((n = Packet_scanf(&connp->r, "%b%b", &ch, &starting)) <= 0)
-    {
-        if (n == -1)
-            Destroy_connection(ind, "Receive_search read error");
-        return n;
-    }
-
-    if (connp->id != -1)
-    {
-        p = player_get(get_player_index(connp));
-
-        /* Break mind link */
-        break_mind_link(p);
-
-        /* Repeat searching 10 times */
-        if (starting)
-        {
-            p->search_request = 10;
-            starting = 0;
-        }
-
-        if (do_cmd_search(p)) return 2;
-
-        /* If we don't have enough energy to search, queue the command */
-        Packet_printf(&connp->q, "%b%b", (unsigned)ch, (unsigned)starting);
         return 0;
     }
 
@@ -4492,7 +4482,7 @@ static int Receive_map(int ind)
 }
 
 
-static int Receive_search_mode(int ind)
+static int Receive_stealth_mode(int ind)
 {
     connection_t *connp = get_connection(ind);
     struct player *p;
@@ -4502,7 +4492,7 @@ static int Receive_search_mode(int ind)
     if ((n = Packet_scanf(&connp->r, "%b", &ch)) <= 0)
     {
         if (n == -1)
-            Destroy_connection(ind, "Receive_search_mode read error");
+            Destroy_connection(ind, "Receive_stealth_mode read error");
         return n;
     }
 
@@ -4513,7 +4503,7 @@ static int Receive_search_mode(int ind)
         /* Break mind link */
         break_mind_link(p);
 
-        do_cmd_toggle_search(p);
+        do_cmd_toggle_stealth(p);
     }
 
     return 1;
@@ -4849,7 +4839,7 @@ static int Receive_suicide(int ind)
         /* Break mind link */
         break_mind_link(p);
 
-        /* Commit suicide (or retire if winner) */
+        /* End character (or retire if winner) */
         do_cmd_suicide(p);
 
         /* Send any remaining information over the network (the tomsbtone) */
@@ -4857,7 +4847,7 @@ static int Receive_suicide(int ind)
 
         /* Get rid of him */
         if (!p->total_winner)
-            Destroy_connection(p->conn, "Committed suicide");
+            Destroy_connection(p->conn, "Terminated");
         else
             Destroy_connection(p->conn, "Retired");
     }
@@ -5039,11 +5029,11 @@ static int Receive_store_examine(int ind)
 {
     connection_t *connp = get_connection(ind);
     struct player *p;
-    byte ch;
+    byte ch, describe;
     int n;
     s16b item;
 
-    if ((n = Packet_scanf(&connp->r, "%b%hd", &ch, &item)) <= 0)
+    if ((n = Packet_scanf(&connp->r, "%b%hd%b", &ch, &item, &describe)) <= 0)
     {
         if (n == -1)
             Destroy_connection(ind, "Receive_store_examine read error");
@@ -5057,7 +5047,7 @@ static int Receive_store_examine(int ind)
         /* Break mind link */
         break_mind_link(p);
 
-        if (in_store(p)) store_examine(p, item);
+        if (in_store(p)) store_examine(p, item, (bool)describe);
     }
 
     return 1;
@@ -5354,6 +5344,34 @@ static int Receive_fountain(int ind)
 }
 
 
+static int Receive_time(int ind)
+{
+    connection_t *connp = get_connection(ind);
+    struct player *p;
+    int n;
+    byte ch;
+
+    if ((n = Packet_scanf(&connp->r, "%b", &ch)) <= 0)
+    {
+        if (n == -1)
+            Destroy_connection(ind, "Receive_time read error");
+        return n;
+    }
+
+    if (connp->id != -1)
+    {
+        p = player_get(get_player_index(connp));
+
+        /* Break mind link */
+        break_mind_link(p);
+
+        display_time(p);
+    }
+
+    return 1;
+}
+
+
 static int Receive_objlist(int ind)
 {
     connection_t *connp = get_connection(ind);
@@ -5566,15 +5584,15 @@ static bool screen_compatible(int ind)
 
 static void get_birth_options(struct player *p, struct birth_options *options)
 {
-    options->force_descend = OPT_P(p, birth_force_descend);
-    options->no_recall = OPT_P(p, birth_no_recall);
-    options->no_artifacts = OPT_P(p, birth_no_artifacts);
-    options->feelings = OPT_P(p, birth_feelings);
-    options->no_selling = OPT_P(p, birth_no_selling);
-    options->start_kit = OPT_P(p, birth_start_kit);
-    options->no_stores = OPT_P(p, birth_no_stores);
-    options->no_ghost = OPT_P(p, birth_no_ghost);
-    options->fruit_bat = OPT_P(p, birth_fruit_bat);
+    options->force_descend = OPT(p, birth_force_descend);
+    options->no_recall = OPT(p, birth_no_recall);
+    options->no_artifacts = OPT(p, birth_no_artifacts);
+    options->feelings = OPT(p, birth_feelings);
+    options->no_selling = OPT(p, birth_no_selling);
+    options->start_kit = OPT(p, birth_start_kit);
+    options->no_stores = OPT(p, birth_no_stores);
+    options->no_ghost = OPT(p, birth_no_ghost);
+    options->fruit_bat = OPT(p, birth_fruit_bat);
 }
 
 
@@ -5583,36 +5601,36 @@ static void update_birth_options(struct player *p, struct birth_options *options
     /* Birth options: can only be set at birth */
     if (!ht_zero(&p->game_turn))
     {
-        OPT_P(p, birth_force_descend) = options->force_descend;
-        OPT_P(p, birth_no_recall) = options->no_recall;
-        OPT_P(p, birth_no_artifacts) = options->no_artifacts;
-        OPT_P(p, birth_feelings) = options->feelings;
-        OPT_P(p, birth_no_selling) = options->no_selling;
-        OPT_P(p, birth_start_kit) = options->start_kit;
-        OPT_P(p, birth_no_stores) = options->no_stores;
-        OPT_P(p, birth_no_ghost) = options->no_ghost;
-        OPT_P(p, birth_fruit_bat) = options->fruit_bat;
+        OPT(p, birth_force_descend) = options->force_descend;
+        OPT(p, birth_no_recall) = options->no_recall;
+        OPT(p, birth_no_artifacts) = options->no_artifacts;
+        OPT(p, birth_feelings) = options->feelings;
+        OPT(p, birth_no_selling) = options->no_selling;
+        OPT(p, birth_start_kit) = options->start_kit;
+        OPT(p, birth_no_stores) = options->no_stores;
+        OPT(p, birth_no_ghost) = options->no_ghost;
+        OPT(p, birth_fruit_bat) = options->fruit_bat;
     }
 
-    /* Ironman options: not on ironman servers */
-    if (cfg_limit_stairs == 3) OPT_P(p, birth_force_descend) = false;
-    if (cfg_no_recall) OPT_P(p, birth_no_recall) = false;
-    if (cfg_no_ghost) OPT_P(p, birth_no_ghost) = false;
+    /* Server options supercede birth options */
+    if (cfg_limit_stairs == 3) OPT(p, birth_force_descend) = false;
+    if (cfg_diving_mode == 2) OPT(p, birth_no_recall) = false;
+    if (cfg_no_ghost) OPT(p, birth_no_ghost) = false;
 
     /* Fruit bat mode: not when a Dragon, a Shapechanger or a Necromancer */
     if (pf_has(p->race->pflags, PF_DRAGON) || pf_has(p->clazz->pflags, PF_MONSTER_SPELLS) ||
         pf_has(p->clazz->pflags, PF_UNDEAD_POWERS))
     {
-        OPT_P(p, birth_fruit_bat) = false;
+        OPT(p, birth_fruit_bat) = false;
     }
 
     /* Fruit bat mode supercedes no-ghost mode */
-    if (OPT_P(p, birth_fruit_bat)) OPT_P(p, birth_no_ghost) = false;
+    if (OPT(p, birth_fruit_bat)) OPT(p, birth_no_ghost) = false;
 
     /* Update form */
-    if (OPT_P(p, birth_fruit_bat) != options->fruit_bat)
+    if (OPT(p, birth_fruit_bat) != options->fruit_bat)
     {
-        do_cmd_poly(p, (OPT_P(p, birth_fruit_bat)? get_race("Fruit bat"): NULL), false,
+        do_cmd_poly(p, (OPT(p, birth_fruit_bat)? get_race("fruit bat"): NULL), false,
             domsg);
     }
 }
@@ -5628,10 +5646,12 @@ static void update_graphics(struct player *p, connection_t *connp)
         for (j = 0; j < LIGHTING_MAX; j++)
         {
             /* Ignore mimics */
-            if (f_info[i].mimic != i)
+            if (f_info[i].mimic)
             {
-                p->f_attr[i][j] = connp->Client_setup.f_attr[f_info[i].mimic][j];
-                p->f_char[i][j] = connp->Client_setup.f_char[f_info[i].mimic][j];
+                int mimic = lookup_feat(f_info[i].mimic);
+
+                p->f_attr[i][j] = connp->Client_setup.f_attr[mimic][j];
+                p->f_char[i][j] = connp->Client_setup.f_char[mimic][j];
             }
             else
             {
@@ -5726,17 +5746,17 @@ static void update_graphics(struct player *p, connection_t *connp)
     }
 
     /* Desired special things */
-    for (i = 0; i < GF_MAX; i++)
+    for (i = 0; i < PROJ_MAX; i++)
     {
         for (j = 0; j < BOLT_MAX; j++)
         {
-            p->gf_attr[i][j] = connp->Client_setup.gf_attr[i][j];
-            p->gf_char[i][j] = connp->Client_setup.gf_char[i][j];
+            p->proj_attr[i][j] = connp->Client_setup.proj_attr[i][j];
+            p->proj_char[i][j] = connp->Client_setup.proj_char[i][j];
 
-            if (!(p->gf_attr[i][j] && p->gf_char[i][j]))
+            if (!(p->proj_attr[i][j] && p->proj_char[i][j]))
             {
-                p->gf_attr[i][j] = gf_to_attr[i][j];
-                p->gf_char[i][j] = gf_to_char[i][j];
+                p->proj_attr[i][j] = proj_to_attr[i][j];
+                p->proj_char[i][j] = proj_to_char[i][j];
             }
         }
     }
@@ -5781,13 +5801,13 @@ static int Enter_player(int ind)
 
     /* Create the character */
     p = player_birth(NumPlayers + 1, connp->account, connp->nick, connp->pass, ind, connp->ridx,
-        connp->cidx, connp->psex, connp->stat_roll, connp->Client_setup.options[OPT_birth_start_kit],
-        connp->Client_setup.options[OPT_birth_no_recall]);
+        connp->cidx, connp->psex, connp->stat_roll, connp->options[OPT_birth_start_kit],
+        connp->options[OPT_birth_no_recall]);
 
     /* Failed, connection already destroyed */
     if (!p) return -1;
 
-    my_strcpy(p->other.full_name, connp->real, sizeof(p->other.full_name));
+    my_strcpy(p->full_name, connp->real, sizeof(p->full_name));
     my_strcpy(p->hostname, connp->host, sizeof(p->hostname));
     my_strcpy(p->addr, connp->addr, sizeof(p->addr));
     p->version = connp->version;
@@ -5798,7 +5818,7 @@ static int Enter_player(int ind)
     /* Copy the client preferences to the player struct */
     get_birth_options(p, &options);
     for (i = 0; i < OPT_MAX; i++)
-        p->other.opt[i] = connp->Client_setup.options[i];
+        p->opts.opt[i] = connp->options[i];
 
     /* Update birth options */
     update_birth_options(p, &options, false);
@@ -5819,7 +5839,7 @@ static int Enter_player(int ind)
     p->tile_distorted = connp->Client_setup.settings[SETTING_TILE_DISTORTED];
     p->max_hgt = connp->Client_setup.settings[SETTING_MAX_HGT];
     p->window_flag = connp->Client_setup.settings[SETTING_WINDOW_FLAG];
-    p->other.hitpoint_warn = connp->Client_setup.settings[SETTING_HITPOINT_WARN];
+    p->opts.hitpoint_warn = connp->Client_setup.settings[SETTING_HITPOINT_WARN];
 
     /*
      * Hack -- when processing a quickstart character, attr/char pair for
@@ -5873,8 +5893,8 @@ static int Enter_player(int ind)
     num_logins++;
 
     /* Report */
-    strnfmt(buf, sizeof(buf), "%s=%s@%s (%s) connected.", p->name, p->other.full_name,
-        p->hostname, p->addr);
+    strnfmt(buf, sizeof(buf), "%s=%s@%s (%s) connected.", p->name, p->full_name, p->hostname,
+        p->addr);
     debug(buf);
 
     /* Tell the new player about server configuration options */
@@ -5886,7 +5906,9 @@ static int Enter_player(int ind)
         msg(p, "Server is no-up.");
     if (cfg_limit_stairs == 3)
         msg(p, "Server is force-down.");
-    if (cfg_no_recall)
+    if (cfg_diving_mode == 1)
+        msg(p, "Server has no wilderness.");
+    if (cfg_diving_mode == 2)
         msg(p, "Server is no-recall.");
     if (cfg_no_ghost)
         msg(p, "Server is no-ghost.");
@@ -5904,13 +5926,13 @@ static int Enter_player(int ind)
     Send_poly(p, (p->poly_race? p->poly_race->ridx: 0));
     p->delayed_display = true;
     p->upkeep->update |= (PU_BONUS | PU_SPELLS | PU_INVEN);
-    update_stuff(p, chunk_get(p->depth));
+    update_stuff(p, chunk_get(&p->wpos));
     p->delayed_display = false;
 
     /* Give a level feeling to this player */
     p->obj_feeling = -1;
     p->mon_feeling = -1;
-    if (random_level(p->depth)) display_feeling(p, false);
+    if (random_level(&p->wpos)) display_feeling(p, false);
     p->upkeep->redraw |= (PR_STATE);
 
     /*
@@ -5986,12 +6008,9 @@ static bool Limit_connections(int ind)
         }
 
         /* Only one connection allowed? */
-        if (cfg_limit_player_connections &&
-            !my_stricmp(p->other.full_name, connp->real) &&
-            !my_stricmp(p->addr, connp->addr) &&
-            !my_stricmp(p->hostname, connp->host) &&
-             my_stricmp(connp->nick, cfg_dungeon_master) &&
-             my_stricmp(p->name, cfg_dungeon_master))
+        if (cfg_limit_player_connections && !my_stricmp(p->full_name, connp->real) &&
+            !my_stricmp(p->addr, connp->addr) && !my_stricmp(p->hostname, connp->host) &&
+            my_stricmp(connp->nick, cfg_dungeon_master) && my_stricmp(p->name, cfg_dungeon_master))
         {
             return true;
         }
@@ -6162,12 +6181,16 @@ static int Receive_play(int ind)
         Send_kind_struct_info(ind);
         Send_ego_struct_info(ind);
         Send_race_struct_info(ind);
+        Send_realm_struct_info(ind);
         Send_class_struct_info(ind);
         Send_body_struct_info(ind);
         Send_socials_struct_info(ind);
         Send_hints_struct_info(ind);
         Send_rinfo_struct_info(ind);
         Send_rbinfo_struct_info(ind);
+        Send_curse_struct_info(ind);
+        Send_feat_struct_info(ind);
+        Send_trap_struct_info(ind);
         Send_char_info_conn(ind);
     }
     else
@@ -6308,7 +6331,7 @@ static int sync_settings(struct player *p)
     p->tile_distorted = connp->Client_setup.settings[SETTING_TILE_DISTORTED];
     p->max_hgt = connp->Client_setup.settings[SETTING_MAX_HGT];
     p->window_flag = connp->Client_setup.settings[SETTING_WINDOW_FLAG];
-    p->other.hitpoint_warn = connp->Client_setup.settings[SETTING_HITPOINT_WARN];
+    p->opts.hitpoint_warn = connp->Client_setup.settings[SETTING_HITPOINT_WARN];
 
     return 1;
 }
@@ -6356,7 +6379,7 @@ static int Receive_options(int ind)
             return n;
         }
 
-        connp->Client_setup.options[i] = (bool)opt;
+        connp->options[i] = (bool)opt;
     }
 
     if (connp->id != -1)
@@ -6371,7 +6394,7 @@ static int Receive_options(int ind)
 
         /* Set new values */
         for (i = 0; i < OPT_MAX; i++)
-            p->other.opt[i] = connp->Client_setup.options[i];
+            p->opts.opt[i] = connp->options[i];
 
         /* Update birth options */
         update_birth_options(p, &options, true);
@@ -6439,7 +6462,7 @@ static int Receive_message(int ind)
 }
 
 
-static void Handle_item(struct player *p, int item)
+static void Handle_item(struct player *p, int item, int curse)
 {
     /* Set current value */
     p->current_value = item;
@@ -6456,13 +6479,19 @@ static void Handle_item(struct player *p, int item)
             const struct class_spell *spell;
             bool ident = false;
             struct beam_info beam;
+            struct source who_body;
+            struct source *who = &who_body;
+
+            /* Hack -- select a single curse for uncursing */
+            p->current_action = curse;
 
             if (p->ghost && !player_can_undead(p)) c = player_id2class(CLASS_GHOST);
 
             spell = spell_by_index(&c->magic, p->current_spell);
             fill_beam_info(p, p->current_spell, &beam);
 
-            if (!effect_do(p, spell->effect, &ident, true, 0, &beam, 0, note, NULL, NULL))
+            source_player(who, get_player_index(get_connection(p->conn)), p);
+            if (!effect_do(spell->effect, who, &ident, true, 0, &beam, 0, note, NULL))
                 return;
 
             cast_spell_end(p);
@@ -6495,6 +6524,9 @@ static void Handle_item(struct player *p, int item)
 
         /* Paranoia: requires an item */
         if (!obj) return;
+
+        /* Hack -- select a single curse for uncursing */
+        p->current_action = curse;
 
         /* The player is aware of the object's flavour */
         p->was_aware = object_flavor_is_aware(p, obj);
@@ -6529,7 +6561,7 @@ static void Handle_item(struct player *p, int item)
         switch (p->current_action)
         {
             /* Pickup */
-            case ACTION_PICKUP: player_pickup_item(p, chunk_get(p->depth), 3, NULL); break;
+            case ACTION_PICKUP: player_pickup_item(p, chunk_get(&p->wpos), 3, NULL); break;
             case ACTION_GO_DOWN: do_cmd_go_down(p); break;
             default: return;
         }
@@ -6543,9 +6575,9 @@ static int Receive_item(int ind)
     struct player *p;
     byte ch;
     int n;
-    s16b item;
+    s16b item, curse;
 
-    if ((n = Packet_scanf(&connp->r, "%b%hd", &ch, &item)) <= 0)
+    if ((n = Packet_scanf(&connp->r, "%b%hd%hd", &ch, &item, &curse)) <= 0)
     {
         if (n == -1)
             Destroy_connection(ind, "Receive_item read error");
@@ -6559,7 +6591,7 @@ static int Receive_item(int ind)
         /* Break mind link */
         break_mind_link(p);
 
-        Handle_item(p, item);
+        Handle_item(p, item, curse);
     }
 
     return 1;
@@ -6588,7 +6620,21 @@ static int Receive_sell(int ind)
         /* Break mind link */
         break_mind_link(p);
 
-        do_cmd_sell(p, item, amt);
+        if (in_store(p))
+        {
+            struct store *store = store_at(p);
+
+            /* Real store */
+            if (store->sidx != STORE_HOME)
+                do_cmd_sell(p, item, amt);
+
+            /* Player is at home */
+            else
+            {
+                do_cmd_stash(p, item, amt);
+                Send_store_sell(p, -1, false);
+            }
+        }
     }
 
     return 1;
@@ -6723,7 +6769,7 @@ static int Receive_poly(int ind)
         break_mind_link(p);
 
         /* Restrict to shapechangers in non-fruitbat mode */
-        if (player_has(p, PF_MONSTER_SPELLS) && !OPT_P(p, birth_fruit_bat))
+        if (player_has(p, PF_MONSTER_SPELLS) && !OPT(p, birth_fruit_bat))
         {
             /* Check boundaries */
             if ((number < 0) || (number > z_info->r_max - 1))
@@ -6764,7 +6810,16 @@ static int Receive_purchase(int ind)
 
         if (in_store(p))
         {
-            do_cmd_buy(p, item, amt);
+            struct store *store = store_at(p);
+
+            /* Attempt to buy it */
+            if (store->sidx != STORE_HOME)
+                do_cmd_buy(p, item, amt);
+
+            /* Home is much easier */
+            else
+                do_cmd_retrieve(p, item, amt);
+
             Packet_printf(&connp->c, "%b", (unsigned)PKT_PURCHASE);
         }
         else
@@ -6793,7 +6848,7 @@ static int Receive_store_leave(int ind)
     if (connp->id != -1)
     {
         p = player_get(get_player_index(connp));
-        c = chunk_get(p->depth);
+        c = chunk_get(&p->wpos);
 
         /* Break mind link */
         break_mind_link(p);
@@ -6884,7 +6939,7 @@ static int Receive_store_confirm(int ind)
         else if (p->current_house != -1)
             do_cmd_purchase_house(p, 0);
         else
-            player_pickup_item(p, chunk_get(p->depth), 4, NULL);
+            player_pickup_item(p, chunk_get(&p->wpos), 4, NULL);
     }
 
     return 1;
@@ -6998,8 +7053,8 @@ static int Receive_ignore(int ind)
         /* Quality ignoring */
         for (i = ITYPE_NONE; i < ITYPE_MAX; i++)
         {
-            if (new_ignore_level[i] > p->other.ignore_lvl[i]) ignore = true;
-            p->other.ignore_lvl[i] = new_ignore_level[i];
+            if (new_ignore_level[i] > p->opts.ignore_lvl[i]) ignore = true;
+            p->opts.ignore_lvl[i] = new_ignore_level[i];
         }
     }
 
@@ -7220,8 +7275,6 @@ bool process_pending_commands(int ind)
         if ((type < PKT_UNDEFINED) || (type >= PKT_MAX)) type = PKT_UNDEFINED;
 
         /* Cancel repeated commands */
-        if ((type != PKT_SEARCH) && (type != PKT_KEEPALIVE) && p->search_request)
-            p->search_request = 0;
         if ((type != PKT_TUNNEL) && (type != PKT_KEEPALIVE) && p->digging_request)
             p->digging_request = 0;
 

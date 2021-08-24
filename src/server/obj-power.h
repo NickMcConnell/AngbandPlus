@@ -7,31 +7,6 @@
 #define OBJECT_POWER_H
 
 /*
- * Constants for the power algorithm:
- * - fudge factor for extra damage from rings etc. (used if extra blows)
- * - assumed damage for off-weapon brands
- * - base power for jewelry
- * - base power for armour items (for halving acid damage)
- * - power per point of damage
- * - power per point of +to_hit
- * - power per point of base AC
- * - power per point of +to_ac
- * (these four are all halved in the algorithm)
- * - assumed max blows
- * - inhibiting values for +blows/might/shots/immunities (max is one less)
- */
-#define NONWEAP_DAMAGE          15  /* Fudge to boost extra blows */
-#define WEAP_DAMAGE             12  /* And for off-weapon combat flags */
-#define BASE_JEWELRY_POWER      4
-#define BASE_ARMOUR_POWER       1
-#define BASE_TOOL_POWER         5   /* PWMAngband: adjust this if necessary */
-#define DAMAGE_POWER            5
-#define TO_HIT_POWER            3
-#define BASE_AC_POWER           2
-#define TO_AC_POWER             2
-#define MAX_BLOWS               5
-
-/*
  * Some constants used in randart generation and power calculation
  * - thresholds for limiting to_hit, to_dam and to_ac
  * - fudge factor for rescaling ammo cost
@@ -52,13 +27,40 @@
 #define INHIBIT_TO_DAM  41
 #define AMMO_RESCALER   20
 
-/* PWMAngband: limit damage power on artifact ammo */
-#define HIGH_TO_DAM_AMMO     6
-#define VERYHIGH_TO_DAM_AMMO 11
-#define INHIBIT_TO_DAM_AMMO  16
+enum power_calc_operation
+{
+    POWER_CALC_NONE,
+    POWER_CALC_ADD,
+    POWER_CALC_ADD_IF_POSITIVE,
+    POWER_CALC_SQUARE_ADD_IF_POSITIVE,
+    POWER_CALC_MULTIPLY,
+    POWER_CALC_DIVIDE,
+    POWER_CALC_MAX
+};
 
-extern s32b object_power(struct player *p, const struct object* obj);
-extern s32b object_value_real(struct player *p, const struct object *obj, int qty);
-extern s32b object_value(struct player *p, const struct object *obj, int qty);
+struct iterate
+{
+    int property_type;
+    int max;
+};
+
+struct power_calc
+{
+    struct power_calc *next;
+    char *name;                     /* Name of the calculation */
+    struct poss_item *poss_items;
+    dice_t *dice;                   /* Dice expression used in the calculation */
+    int operation;                  /* How the calculation operates on power */
+    struct iterate iterate;         /* What the calculation iterates over */
+    char *apply_to;                 /* What the calculation is applied to */
+};
+
+extern struct power_calc *calculations;
+
+extern expression_base_value_f power_calculation_by_name(const char *name);
+
+extern int object_power(struct player *p, const struct object* obj);
+extern int object_value_real(struct player *p, const struct object *obj, int qty);
+extern int object_value(struct player *p, const struct object *obj, int qty);
 
 #endif /* OBJECT_POWER_H */

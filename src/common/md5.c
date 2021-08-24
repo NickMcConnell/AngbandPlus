@@ -2,7 +2,7 @@
  * File: md5.c
  * Purpose: MD5 message-digest algorithm
  *
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -335,7 +335,7 @@ void MD5Password(char *string)
     unsigned int len = (unsigned int)strlen(string);
     char temp[MAX_PASS_LEN];
     int i;
-    char* dst;
+    char *dst;
     char hexval[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
     MD5Init(&context);

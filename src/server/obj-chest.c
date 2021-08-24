@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2012 Peter Denison
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -224,63 +224,46 @@ int count_chests(struct player *p, struct chunk *c, int *y, int *x, enum chest_q
  *
  * Disperse treasures from the chest "obj", centered at (x,y).
  *
- * Small chests often contain "gold", while Large chests always contain
- * items. Wooden chests contain 2 items, Iron chests contain 4 items,
- * and Steel chests contain 6 items. The "value" of the items in a
- * chest is based on the level on which the chest is generated.
+ * Wooden chests contain 1 item, Iron chests contain 2 items,
+ * and Steel chests contain 3 items. Small chests now contain good items,
+ * large chests great items, out of depth for the level on which the chest
+ * is generated.
  */
 static void chest_death(struct player *p, struct chunk *c, int y, int x, struct object *chest)
 {
-    int number, value;
-    bool tiny;
-    struct object *treasure;
-
-    /* Small chests often hold "gold" */
-    tiny = (strstr(chest->kind->name, "Small")? true :false);
-
-    /* Determine how much to drop (see above) */
-    if (strstr(chest->kind->name, "wooden")) number = 2;
-    else if (strstr(chest->kind->name, "iron")) number = 4;
-    else if (strstr(chest->kind->name, "steel")) number = 6;
-    else number = 2 * randint1(3);
+    int number, level;
+    bool large = (strstr(chest->kind->name, "Large")? true :false);
 
     /* Zero pval means empty chest */
-    if (!chest->pval) number = 0;
+    if (!chest->pval) return;
 
-    /* Determine the "value" of the items */
-    value = chest->origin_depth - 10 + 2 * chest->sval;
-    if (value < 1) value = 1;
+    /* Determine how much to drop (see above) */
+    if (strstr(chest->kind->name, "wooden")) number = 1;
+    else if (strstr(chest->kind->name, "iron")) number = 2;
+    else if (strstr(chest->kind->name, "steel")) number = 3;
+    else number = randint1(3);
 
-    /* Drop some objects (non-chests) */
-    for (; number > 0; --number)
+    /* Drop some valuable objects (non-chests) */
+    level = chest->origin_depth + 5;
+    while (number > 0)
     {
-        /* Small chests often drop gold */
-        if (tiny && magik(75))
-            treasure = make_gold(p, value, "any");
+        struct object *treasure;
 
-        /* Otherwise drop an item */
-        else
+        treasure = make_object(p, c, level, true, large, false, NULL, 0);
+        if (!treasure) continue;
+        if (tval_is_chest(treasure))
         {
-            treasure = make_object(p, c, value, false, false, false, NULL, 0);
-            if (!treasure) continue;
-            if (tval_is_chest(treasure))
-            {
-                object_delete(&treasure);
-                continue;
-            }
+            object_delete(&treasure);
+            continue;
         }
 
-        /* Record origin */
-        set_origin(treasure, ORIGIN_CHEST, chest->origin_depth, 0);
-
-        /* Drop it in the dungeon */
-        drop_near(p, c, treasure, 0, y, x, true, DROP_FADE);
+        set_origin(treasure, ORIGIN_CHEST, chest->origin_depth, NULL);
+        drop_near(p, c, &treasure, 0, y, x, true, DROP_FADE);
+        number--;
     }
 
-    /* Empty */
+    /* Chest is now empty */
     chest->pval = 0;
-
-    /* Known */
     object_notice_everything_aux(p, chest, true, false);
 }
 
@@ -295,9 +278,13 @@ static void chest_trap(struct player *p, struct chunk *c, int y, int x, struct o
 {
     int trap;
     const char *pself = player_self(p);
+    struct source who_body;
+    struct source *who = &who_body;
 
     /* Ignore disarmed chests */
     if (obj->pval <= 0) return;
+
+    source_player(who, get_player_index(get_connection(p->conn)), p);
 
     /* Obtain the traps */
     trap = chest_traps[obj->pval];
@@ -305,42 +292,44 @@ static void chest_trap(struct player *p, struct chunk *c, int y, int x, struct o
     /* Lose strength */
     if (trap & CHEST_LOSE_STR)
     {
+        char df[160];
+
         msg(p, "A small needle has pricked you!");
-        strnfmt(p->died_flavor, sizeof(p->died_flavor), "pricked %s on a weakening needle",
-            pself);
-        if (!take_hit(p, damroll(1, 4), "a poison needle", false))
-            effect_simple(p, EF_DRAIN_STAT, "0", STAT_STR, 0, 0, NULL, NULL);
+        strnfmt(df, sizeof(df), "pricked %s on a weakening needle", pself);
+        if (!take_hit(p, damroll(1, 4), "a poison needle", false, df))
+            effect_simple(EF_DRAIN_STAT, who, "0", STAT_STR, 0, 0, NULL);
     }
 
     /* Lose constitution */
     if (trap & CHEST_LOSE_CON)
     {
+        char df[160];
+
         msg(p, "A small needle has pricked you!");
-        strnfmt(p->died_flavor, sizeof(p->died_flavor),
-            "pricked %s on an exhausting needle", pself);
-        if (!take_hit(p, damroll(1, 4), "a poison needle", false))
-            effect_simple(p, EF_DRAIN_STAT, "0", STAT_CON, 0, 0, NULL, NULL);
+        strnfmt(df, sizeof(df), "pricked %s on an exhausting needle", pself);
+        if (!take_hit(p, damroll(1, 4), "a poison needle", false, df))
+            effect_simple(EF_DRAIN_STAT, who, "0", STAT_CON, 0, 0, NULL);
     }
 
     /* Poison */
     if (trap & CHEST_POISON)
     {
         msg(p, "A puff of green gas surrounds you!");
-        effect_simple(p, EF_TIMED_INC, "10+1d20", TMD_POISONED, 0, 0, NULL, NULL);
+        effect_simple(EF_TIMED_INC, who, "10+1d20", TMD_POISONED, 0, 0, NULL);
     }
 
     /* Paralyze */
     if (trap & CHEST_PARALYZE)
     {
         msg(p, "A puff of yellow gas surrounds you!");
-        effect_simple(p, EF_TIMED_INC, "10+1d20", TMD_PARALYZED, 0, 0, NULL, NULL);
+        effect_simple(EF_TIMED_INC, who, "10+1d20", TMD_PARALYZED, 0, 0, NULL);
     }
 
     /* Summon monsters */
     if (trap & CHEST_SUMMON)
     {
         msgt(p, MSG_SUM_MONSTER, "You are enveloped in a cloud of smoke!");
-        effect_simple(p, EF_SUMMON, "2+1d3", S_MONSTER, 1, -1, NULL, NULL);
+        effect_simple(EF_SUMMON, who, "2+1d3", summon_name_to_idx("MONSTER"), 0, -2, NULL);
     }
 
     /* Explode */
@@ -349,9 +338,8 @@ static void chest_trap(struct player *p, struct chunk *c, int y, int x, struct o
         msg(p, "There is a sudden explosion!");
         msg(p, "Everything inside the chest is destroyed!");
         obj->pval = 0;
-        my_strcpy(p->died_flavor, "was torn apart by an exploding chest",
-            sizeof(p->died_flavor));
-        take_hit(p, damroll(5, 8), "an exploding chest", false);
+        take_hit(p, damroll(5, 8), "an exploding chest", false,
+            "was torn apart by an exploding chest");
     }
 }
 
@@ -376,11 +364,11 @@ bool do_cmd_open_chest(struct player *p, struct chunk *c, int y, int x, struct o
         flag = false;
 
         /* Get the "disarm" factor */
-        i = p->state.skills[SKILL_DISARM];
+        i = p->state.skills[SKILL_DISARM_PHYS];
 
         /* Penalize some conditions */
-        if (p->timed[TMD_BLIND] || no_light(p)) i = i / 10;
-        if (p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE]) i = i / 10;
+        if (p->timed[TMD_BLIND] || no_light(p) || p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE])
+            i = i / 10;
 
         /* Extract the difficulty */
         j = i - obj->pval;
@@ -407,8 +395,8 @@ bool do_cmd_open_chest(struct player *p, struct chunk *c, int y, int x, struct o
     /* Allowed to open */
     if (flag)
     {
-        /* Apply chest traps, if any */
-        chest_trap(p, c, y, x, obj);
+        /* Apply chest traps, if any and player is not trapsafe */
+        if (!p->timed[TMD_TRAPSAFE]) chest_trap(p, c, y, x, obj);
 
         /* Let the Chest drop items */
         chest_death(p, c, y, x, obj);
@@ -441,11 +429,14 @@ bool do_cmd_disarm_chest(struct player *p, struct chunk *c, int y, int x, struct
     bool more = false;
 
     /* Get the "disarm" factor */
-    i = p->state.skills[SKILL_DISARM];
+    if ((obj->pval > 0) && (chest_traps[obj->pval] & CHEST_SUMMON))
+        i = p->state.skills[SKILL_DISARM_MAGIC];
+    else
+        i = p->state.skills[SKILL_DISARM_PHYS];
 
     /* Penalize some conditions */
-    if (p->timed[TMD_BLIND] || no_light(p)) i = i / 10;
-    if (p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE]) i = i / 10;
+    if (p->timed[TMD_BLIND] || no_light(p) || p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE])
+        i = i / 10;
 
     /* Extract the difficulty */
     j = i - obj->pval;
@@ -470,7 +461,7 @@ bool do_cmd_disarm_chest(struct player *p, struct chunk *c, int y, int x, struct
     }
 
     /* Failure -- keep trying */
-    else if ((i > 5) && !CHANCE(5, i))
+    else if (magik(j))
     {
         more = true;
         msg(p, "You failed to disarm the chest.");

@@ -3,7 +3,7 @@
  * Purpose: Monster attacks
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -60,13 +60,17 @@ static void remove_bad_spells(struct player *p, struct monster *mon, bitflag f[R
     if (!p) return;
 
     /* Stupid monsters act randomly */
-    if (rf_has(mon->race->flags, RF_STUPID)) return;
+    if (monster_is_stupid(mon->race)) return;
 
     /* Take working copy of spell flags */
     rsf_copy(f2, f);
 
     /* Don't heal if full */
     if (mon->hp >= mon->maxhp) rsf_off(f2, RSF_HEAL);
+
+    /* Don't heal others if no injuries */
+    if (rsf_has(f2, RSF_HEAL_KIN) && !find_any_nearby_injured_kin(chunk_get(&p->wpos), mon))
+        rsf_off(f2, RSF_HEAL_KIN);
 
     /* Don't haste if hasted with time remaining */
     if (mon->m_timed[MON_TMD_FAST] > 10) rsf_off(f2, RSF_HASTE);
@@ -77,7 +81,7 @@ static void remove_bad_spells(struct player *p, struct monster *mon, bitflag f[R
     /* Update acquired knowledge */
     of_wipe(ai_flags);
     pf_wipe(ai_pflags);
-    memset(el, 0, sizeof(el));
+    memset(el, 0, ELEM_MAX * sizeof(struct element_info));
     if (cfg_ai_learn)
     {
         size_t i;
@@ -187,8 +191,8 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
     /* Assume "normal" target */
     bool normal = true;
 
-    /* Cannot cast spells when confused */
-    if (mon->m_timed[MON_TMD_CONF] || mon->m_timed[MON_TMD_BLIND]) return -1;
+    /* Cannot cast spells when blind */
+    if (mon->m_timed[MON_TMD_BLIND]) return -1;
 
     /* Hack -- extract the spell probability */
     chance = mon->race->freq_spell;
@@ -216,7 +220,7 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
     rsf_copy(f, mon->race->spell_flags);
 
     /* Allow "desperate" spells */
-    if (rf_has(mon->race->flags, RF_SMART) && (mon->hp < mon->maxhp / 10) && magik(50))
+    if (monster_is_smart(mon->race) && (mon->hp < mon->maxhp / 10) && magik(50))
     {
         /* Require intelligent spells */
         ignore_spells(f, RST_BOLT | RST_BALL | RST_BREATH | RST_ATTACK | RST_INNATE | RST_MISSILE);
@@ -226,7 +230,7 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
     remove_bad_spells(who, mon, f);
 
     /* Check whether summons and bolts are worth it. */
-    if (!rf_has(mon->race->flags, RF_STUPID))
+    if (!monster_is_stupid(mon->race))
     {
         /* Check for a clean bolt shot */
         if (test_spells(f, RST_BOLT) && !projectable(c, mon->fy, mon->fx, py, px, PROJECT_STOP))
@@ -258,7 +262,10 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
     if (failrate < 0) failrate = 0;
 
     /* Stupid monsters will never fail (for jellies and such) */
-    if (rf_has(mon->race->flags, RF_STUPID)) failrate = 0;
+    if (monster_is_stupid(mon->race)) failrate = 0;
+
+    /* Confusion adds 50% to fail rate */
+    if (mon->m_timed[MON_TMD_CONF]) failrate += 50;
 
     /* Hack -- pets/slaves will be unlikely to summon */
     if (mon->master && is_spell_summon(thrown_spell)) failrate = 95;
@@ -318,39 +325,39 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
  * them, or has spells but they will have no "useful" effect.  Note that
  * this function has been an efficiency bottleneck in the past.
  */
-bool make_attack_spell(struct actor *who, struct chunk *c, struct monster *mon, int target_m_dis)
+bool make_attack_spell(struct source *who, struct chunk *c, struct monster *mon, int target_m_dis)
 {
     int thrown_spell;
     struct monster_lore *lore = get_lore(who->player, mon->race);
 
     /* Target position */
-    int px = (who->mon? who->mon->fx: who->player->px);
-    int py = (who->mon? who->mon->fy: who->player->py);
+    int px = (who->monster? who->monster->fx: who->player->px);
+    int py = (who->monster? who->monster->fy: who->player->py);
 
     /* Extract the blind-ness */
     bool blind = (who->player->timed[TMD_BLIND]? true: false);
 
     /* Extract the "see-able-ness" */
-    bool seen = (!blind && mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE));
+    bool seen = (!blind && monster_is_visible(who->player, mon->midx));
 
     /* Stop if player is dead or gone */
     if (!who->player->alive || who->player->is_dead || who->player->upkeep->new_level_method)
         return false;
 
     /* Choose a spell to cast */
-    thrown_spell = get_thrown_spell(who->player, (who->mon? NULL: who->player), c, mon,
+    thrown_spell = get_thrown_spell(who->player, (who->monster? NULL: who->player), c, mon,
         target_m_dis, py, px);
 
     /* Abort if no spell was chosen */
     if (thrown_spell < 0) return ((thrown_spell == -1)? false: true);
 
-    /* If we see an unaware monster try to cast a spell, become aware of it */
-    if (mon->unaware) become_aware(who->player, c, mon);
+    /* If we see a hidden monster try to cast a spell, become aware of it */
+    if (monster_is_camouflaged(mon)) become_aware(who->player, c, mon);
 
     /* Cast the spell. */
     disturb(who->player, 1);
-    if (who->mon)
-        do_mon_spell_MvM(who->player, c, who->mon, thrown_spell, mon, seen);
+    if (who->monster)
+        do_mon_spell_MvM(who->player, c, who->monster, thrown_spell, mon, seen);
     else
         do_mon_spell(who->player, c, thrown_spell, mon, seen);
 
@@ -426,7 +433,7 @@ static int monster_critical(random_value dice, int dam)
  * Always miss 5% of the time, always hit 12% of the time.
  * Otherwise, match monster power against player armor.
  */
-bool check_hit(struct actor *who, int power, int level)
+bool check_hit(struct source *who, int power, int level, int debuff)
 {
     int chance, ac;
 
@@ -434,15 +441,18 @@ bool check_hit(struct actor *who, int power, int level)
     chance = (power + (level * 3));
 
     /* Total armor */
-    if (who->mon)
-        ac = who->mon->ac;
+    if (who->monster)
+        ac = who->monster->ac;
     else
     {
         ac = who->player->state.ac + who->player->state.to_a;
 
         /* If the monster checks vs ac, the player learns ac bonuses */
-        equip_notice_on_defend(who->player);
+        equip_learn_on_defend(who->player);
     }
+
+    /* Apply debuff penalty */
+    if (debuff) chance = (chance * (100 - debuff)) / 100;
 
     /* Check if the target was hit */
     return test_hit(chance, ac, true);
@@ -462,10 +472,10 @@ int adjust_dam_armor(int damage, int ac)
 /*
  * Attack a target via physical attacks.
  */
-bool make_attack_normal(struct monster *mon, struct actor *who)
+bool make_attack_normal(struct monster *mon, struct source *who)
 {
     struct monster_lore *lore = get_lore(who->player, mon->race);
-    struct monster_lore *target_l_ptr = (who->mon? get_lore(who->player, who->mon->race): NULL);
+    struct monster_lore *target_l_ptr = (who->monster? get_lore(who->player, who->monster->race): NULL);
     int ap_cnt;
     int ac, rlev;
     char m_name[NORMAL_WID];
@@ -477,7 +487,7 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
     byte note_dies = MON_MSG_DIE;
 
     /* Some monsters get "destroyed" */
-    if (monster_is_unusual(mon->race))
+    if (monster_is_destroyed(mon->race))
     {
         /* Special note at death */
         note_dies = MON_MSG_DESTROYED;
@@ -490,8 +500,8 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
     if (rf_has(mon->race->flags, RF_NEVER_BLOW)) return false;
 
     /* Total armor */
-    if (who->mon)
-        ac = who->mon->ac;
+    if (who->monster)
+        ac = who->monster->ac;
     else
         ac = who->player->state.ac + who->player->state.to_a;
 
@@ -500,8 +510,8 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
 
     /* Get the monster name (or "it") */
     monster_desc(who->player, m_name, sizeof(m_name), mon, MDESC_STANDARD);
-    if (who->mon)
-        monster_desc(who->player, target_m_name, sizeof(target_m_name), who->mon, MDESC_DEFAULT);
+    if (who->monster)
+        monster_desc(who->player, target_m_name, sizeof(target_m_name), who->monster, MDESC_DEFAULT);
     else
         my_strcpy(target_m_name, "you", sizeof(target_m_name));
 
@@ -517,52 +527,55 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
         bool visible = false;
         bool obvious = false;
         bool do_break = false;
-        int power = 0;
         int damage = 0;
         int do_cut = 0;
         int do_stun = 0;
         int sound_msg = MSG_GENERIC;
         const char *act = NULL;
-        const char *flav = NULL;
         bool do_conf = false, do_fear = false, do_blind = false, do_para = false;
         bool dead = false;
+        bool stunned;
+        int debuff;
 
         /* Extract the attack infomation */
-        int effect = mon->blow[ap_cnt].effect;
-        int method = mon->blow[ap_cnt].method;
+        struct blow_effect *effect = mon->blow[ap_cnt].effect;
+        struct blow_method *method = mon->blow[ap_cnt].method;
         random_value dice = mon->blow[ap_cnt].dice;
 
         /* Hack -- no more attacks */
         if (!method) break;
+        my_assert(effect);
 
         /* Stop if player is dead or gone */
         if (!who->player->alive || who->player->is_dead || who->player->upkeep->new_level_method)
             break;
 
         /* Extract visibility (before blink) */
-        if (mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE)) visible = true;
+        if (monster_is_visible(who->player, mon->midx)) visible = true;
 
         /* Extract visibility from carrying light */
         if (rf_has(mon->race->flags, RF_HAS_LIGHT)) visible = true;
 
-        /* Extract the attack "power" */
-        power = get_power(effect);
+        /* Is the monster stunned? */
+        stunned = (mon->m_timed[MON_TMD_STUN]? true: false);
+        debuff = (stunned? STUN_HIT_REDUCTION: 0);
 
         /* Monster hits target */
-        if (!effect || check_hit(who, power, rlev))
+        if (streq(effect->name, "NONE") || check_hit(who, effect->power, rlev, debuff))
         {
             melee_effect_handler_f effect_handler;
+            const char* flav = NULL;
 
             /* Always disturbing */
             disturb(who->player, 1);
 
             /* Hack -- apply "protection from evil" */
-            if ((who->player->timed[TMD_PROTEVIL] > 0) && !who->mon)
+            if ((who->player->timed[TMD_PROTEVIL] > 0) && !who->monster)
             {
                 /* Learn about the evil flag */
                 if (visible) rf_on(lore->flags, RF_EVIL);
 
-                if (rf_has(mon->race->flags, RF_EVIL) && (who->player->lev >= rlev) &&
+                if (monster_is_evil(mon->race) && (who->player->lev >= rlev) &&
                     !magik(PY_MAX_LEVEL - who->player->lev))
                 {
                     /* Message */
@@ -575,27 +588,11 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
 
             /* Describe the attack method */
             act = monster_blow_method_action(method);
-            do_cut = monster_blow_method_cut(method);
-            do_stun = monster_blow_method_stun(method);
-            sound_msg = monster_blow_method_message(method);
-            if (!who->mon) flav = monster_blow_method_flavor(method);
-
-            if (flav)
-            {
-                strnfmt(who->player->died_flavor, sizeof(who->player->died_flavor), "was %s by %s",
-                    flav, ddesc);
-            }
-
-            /* Message */
-            if (act)
-            {
-                if (strstr(act, "%s"))
-                    msgt(who->player, sound_msg, "%s %s", m_name, format(act, target_m_name));
-                else if (who->mon)
-                    msgt(who->player, sound_msg, "%s insults %s!", m_name, target_m_name);
-                else
-                    msgt(who->player, sound_msg, "%s %s", m_name, act);
-            }
+            do_cut = method->cut;
+            do_stun = method->stun;
+            sound_msg = method->msgt;
+            if (!who->monster) flav = method->flavor;
+            if (!flav) flav = "killed";
 
             /* Hack -- assume all attacks are obvious */
             obvious = true;
@@ -603,8 +600,35 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
             /* Roll dice */
             damage = randcalc(dice, 0, RANDOMISE);
 
+            /* Reduce damage when stunned */
+            if (stunned) damage = (damage * (100 - STUN_DAM_REDUCTION)) / 100;
+
+            /* Message */
+            if (act)
+            {
+                const char *fullstop = ".";
+                const char *act_text = "";
+                const char *dmg_text = "";
+
+                if (suffix(act, "'") || suffix(act, "!")) fullstop = "";
+
+                if (method->act_msg)
+                {
+                    act_text = format(act, target_m_name);
+                    if (OPT(who->player, show_damage)) dmg_text = format(" (%d)", damage);
+                }
+                else if (strstr(act, "%s"))
+                    act_text = format(act, target_m_name);
+                else if (who->monster)
+                    act_text = format("insults %s!", target_m_name);
+                else
+                    act_text = act;
+
+                msgt(who->player, sound_msg, "%s %s%s%s", m_name, act_text, dmg_text, fullstop);
+            }
+
             /* Perform the actual effect. */
-            effect_handler = melee_handler_for_blow_effect(effect);
+            effect_handler = melee_handler_for_blow_effect(effect->name);
 
             if (effect_handler != NULL)
             {
@@ -623,24 +647,26 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
                 context.visible = visible;
                 context.dead = dead;
                 context.do_blind = do_blind;
+                context.do_para = do_para;
                 context.do_conf = do_conf;
                 context.do_fear = do_fear;
-                context.flav = (flav? true: false);
+                strnfmt(context.flav, sizeof(context.flav), "was %s by %s", flav, ddesc);
                 context.blinked = blinked;
                 context.do_break = do_break;
                 context.damage = damage;
                 context.note_dies = note_dies;
-                context.style = (who->mon? RBE_TYPE_MVM: RBE_TYPE_MVP);
+                context.style = (who->monster? TYPE_MVM: TYPE_MVP);
 
                 effect_handler(&context);
 
                 /* Save any changes made in the handler for later use. */
                 obvious = context.obvious;
-                if (who->mon)
+                if (who->monster)
                     dead = context.dead;
                 else
                     dead = who->player->is_dead;
                 do_blind = context.do_blind;
+                do_para = context.do_para;
                 do_conf = context.do_conf;
                 do_fear = context.do_fear;
                 blinked = context.blinked;
@@ -648,7 +674,7 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
                 damage = context.damage;
             }
             else
-                plog_fmt("Effect handler not found for %d.", effect);
+                plog_fmt("Effect handler not found for %s.", effect->name);
 
             /* Handle effects (only if not dead) */
             if (!dead)
@@ -666,63 +692,69 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
                 }
 
                 /* Handle cut */
-                if (do_cut) do_cut = get_cut(dice, damage);
                 if (do_cut)
                 {
-                    if (who->mon)
+                    if (who->monster)
                     {
-                        mon_inc_timed(who->player, who->mon, MON_TMD_CUT, do_cut,
-                            MON_TMD_FLG_NOTIFY | MON_TMD_MON_SOURCE, false);
+                        mon_inc_timed(who->player, who->monster, MON_TMD_CUT, 5 + randint1(5),
+                            MON_TMD_FLG_NOTIFY);
                     }
                     else
-                        player_inc_timed(who->player, TMD_CUT, do_cut, true, true);
+                    {
+                        do_cut = get_cut(dice, damage);
+                        if (do_cut) player_inc_timed(who->player, TMD_CUT, do_cut, true, true);
+                    }
                 }
 
                 /* Handle stun */
-                if (do_stun) do_stun = get_stun(dice, damage);
                 if (do_stun)
                 {
-                    if (who->mon)
+                    if (who->monster)
                     {
-                        mon_inc_timed(who->player, who->mon, MON_TMD_STUN, do_stun,
-                            MON_TMD_FLG_NOTIFY | MON_TMD_MON_SOURCE, false);
+                        mon_inc_timed(who->player, who->monster, MON_TMD_STUN, 5 + randint1(5),
+                            MON_TMD_FLG_NOTIFY);
                     }
                     else
-                        player_inc_timed(who->player, TMD_STUN, do_stun, true, true);
+                    {
+                        do_stun = get_stun(dice, damage);
+
+                        /* Apply the stun */
+                        if (do_stun) player_inc_timed(who->player, TMD_STUN, do_stun, true, true);
+                    }
                 }
 
                 /* Apply fear */
                 if (do_fear)
                 {
-                    mon_inc_timed(who->player, who->mon, MON_TMD_FEAR, 3 + randint1(rlev),
-                        MON_TMD_FLG_NOTIFY | MON_TMD_MON_SOURCE, false);
+                    mon_inc_timed(who->player, who->monster, MON_TMD_FEAR, 10 + randint1(10),
+                        MON_TMD_FLG_NOTIFY);
                 }
 
                 /* Apply confusion */
                 if (do_conf)
                 {
-                    mon_inc_timed(who->player, who->mon, MON_TMD_CONF, 3 + randint1(rlev),
-                        MON_TMD_FLG_NOTIFY | MON_TMD_MON_SOURCE, false);
+                    mon_inc_timed(who->player, who->monster, MON_TMD_CONF, 5 + randint1(5),
+                        MON_TMD_FLG_NOTIFY);
                 }
 
                 /* Apply blindness */
                 if (do_blind)
                 {
-                    mon_inc_timed(who->player, who->mon, MON_TMD_BLIND, 10 + randint1(rlev),
-                        MON_TMD_FLG_NOTIFY | MON_TMD_MON_SOURCE, false);
+                    mon_inc_timed(who->player, who->monster, MON_TMD_BLIND, 5 + randint1(5),
+                        MON_TMD_FLG_NOTIFY);
                 }
 
                 /* Handle paralysis */
                 if (do_para)
                 {
-                    mon_inc_timed(who->player, who->mon, MON_TMD_HOLD, 3 + randint1(rlev),
-                        MON_TMD_FLG_NOTIFY | MON_TMD_MON_SOURCE, false);
+                    mon_inc_timed(who->player, who->monster, MON_TMD_HOLD, 3 + randint1(5),
+                        MON_TMD_FLG_NOTIFY);
                 }
             }
         }
 
         /* Visible monster missed target, so notify if appropriate. */
-        else if (visible && monster_blow_method_miss(method))
+        else if (visible && method->miss)
         {
             /* Disturbing */
             disturb(who->player, 1);
@@ -744,18 +776,15 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
         }
 
         /* Handle freezing aura */
-        if (who->player->timed[TMD_ICY_AURA] && damage && !who->mon)
+        if (who->player->timed[TMD_ICY_AURA] && damage && !who->monster)
         {
             if (magik(50))
-                 fire_ball(who->player, GF_ICE, 0, 1, 1, false);
+                 fire_ball(who->player, PROJ_ICE, 0, 1, 1, false);
             else
-                 fire_ball(who->player, GF_COLD, 0, 1 + who->player->lev / 5, 1, false);
+                 fire_ball(who->player, PROJ_COLD, 0, 1 + who->player->lev / 5, 1, false);
 
             /* Stop if monster is dead */
             if (mon->hp < 0) break;
-
-            /* Stop if monster is stunned */
-            if (mon->m_timed[MON_TMD_STUN] || mon->m_timed[MON_TMD_HOLD]) break;
         }
 
         /* Skip the other blows if necessary */
@@ -768,9 +797,14 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
         char dice[5];
         int fy = mon->fy;
         int fx = mon->fx;
+        struct source origin_body;
+        struct source *origin = &origin_body;
+
+        source_player(origin, get_player_index(get_connection(who->player->conn)), who->player);
+        origin->monster = mon;
 
         strnfmt(dice, sizeof(dice), "%d", z_info->max_sight * 2 + 5);
-        effect_simple(who->player, EF_TELEPORT, dice, 0, 0, 0, NULL, mon);
+        effect_simple(EF_TELEPORT, origin, dice, 0, 0, 0, NULL);
         if ((mon->fy != fy) || (mon->fx != fx))
             msg(who->player, "There is a puff of smoke!");
     }
@@ -778,8 +812,13 @@ bool make_attack_normal(struct monster *mon, struct actor *who)
     {
         int fy = mon->fy;
         int fx = mon->fx;
+        struct source origin_body;
+        struct source *origin = &origin_body;
 
-        effect_simple(who->player, EF_TELEPORT, "10", 0, 0, 0, NULL, mon);
+        source_player(origin, get_player_index(get_connection(who->player->conn)), who->player);
+        origin->monster = mon;
+
+        effect_simple(EF_TELEPORT, origin, "10", 0, 0, 0, NULL);
         if ((mon->fy != fy) || (mon->fx != fx))
             msg(who->player, "%s blinks away.", m_name);
     }
@@ -843,10 +882,4 @@ int get_stun(random_value dice, int d_dam)
     }
 
     return k;
-}
-
-
-int get_power(int effect)
-{
-    return monster_blow_effect_power(effect);
 }

@@ -13,6 +13,7 @@
 
 # H : Hint text.
 
+
 H:Cure Critical Wounds potions will cure blindness and confusion; carry lots.
 H:Staves can be used even when confused and blinded.
 H:Potions of Heroism or Berserk Strength will protect you from being scared. 
@@ -23,8 +24,7 @@ H:You can combine equipment of Resist Fire and a potion of the same name.
 H:You can combine equipment of Resist Cold and a potion of the same name.
 H:You can combine equipment of Resist Poison and a potion of the same name.
 H:If you don't know what a monster can do, use a rod of probing on it.
-H:Never underestimate the value of constitution. Hitpoints keep you alive. 
-H:Wield your ammo to your quiver to have it take fewer inventory slots.
+H:Never underestimate the value of constitution. Hitpoints keep you alive.
 H:Inscribe items with the '{' command.
 H:Inscribe an item with '!s' to get confirmation before selling it.
 H:Inscribe an item with '!d' to get confirmation before dropping it.
@@ -58,7 +58,6 @@ H:Finding a way to resist blindness and confusion is critical to survival.
 H:Probing an enemy to learn its abilities is always useful.
 H:Buy at least one scroll of phase door before you enter the dungeon.
 H:Buy at least one potion of cure light wounds before you enter the dungeon.
-H:If a potion or scroll is cheaper than a scroll of Identify, buy it to ID it.
 H:Acid can destroy your stuff - watch out for acid hounds and water vortices.
 H:Never underestimate monsters you haven't fought before.
 H:Quivers can hold different types of ammo in one inventory slot (max. 40).

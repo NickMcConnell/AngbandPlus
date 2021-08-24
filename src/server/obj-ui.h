@@ -15,7 +15,7 @@ extern void display_equip(struct player *p);
 extern void display_floor(struct player *p, struct chunk *c, struct object **floor_list,
     int floor_num);
 extern void show_floor(struct player *p, int mode);
-extern bool get_item(struct player *p, byte tester_hook);
+extern bool get_item(struct player *p, byte tester_hook, char *dice_string);
 extern void display_object_recall_interactive(struct player *p, const struct object *obj,
     char *header);
 

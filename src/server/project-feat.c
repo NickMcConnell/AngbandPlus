@@ -3,7 +3,7 @@
  * Purpose: Projection effects on terrain
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -28,7 +28,7 @@
 
 typedef struct project_feature_handler_context_s
 {
-    struct actor *who;
+    struct source *origin;
     int r;
     struct chunk *cave;
     int y;
@@ -64,15 +64,19 @@ static void project_feature_handler_FIRE(project_feature_handler_context_t *cont
     /* Grid is in line of sight and player is not blind */
     if (context->line_sight && !context->is_blind) context->obvious = true;
 
-    /* No effect on special levels */
-    if (special_level(context->cave->depth)) return;
+    /* No effect on special levels and towns (except starting town) */
+    if (special_level(&context->cave->wpos) ||
+        (in_town(&context->cave->wpos) && !in_start_town(&context->cave->wpos)))
+    {
+        return;
+    }
 
     /* Burn trees */
     if (square_isstrongtree(context->cave, context->y, context->x))
     {
         /* Message */
         if (context->line_sound)
-            msg(context->who->player, "The tree burns!");
+            msg(context->origin->player, "The tree burns!");
 
         /* Burn the tree */
         square_burn_tree(context->cave, context->y, context->x);
@@ -83,21 +87,22 @@ static void project_feature_handler_FIRE(project_feature_handler_context_t *cont
     {
         /* Message */
         if (context->line_sound)
-            msg(context->who->player, "The tree burns to the ground!");
+            msg(context->origin->player, "The tree burns to the ground!");
 
         /* Destroy the tree */
-        if (!context->cave->depth) trees_in_town--;
+        if (in_start_town(&context->cave->wpos)) trees_in_town--;
         square_destroy_tree(context->cave, context->y, context->x);
 
         /* Reapply illumination */
-        square_illuminate(context->who->player, context->cave, context->y, context->x, is_daytime());
+        square_illuminate(context->origin->player, context->cave, context->y, context->x,
+            is_daytime());
         square_light_spot(context->cave, context->y, context->x);
 
         /* Update the visuals */
-        update_visuals(context->cave->depth);
+        update_visuals(&context->cave->wpos);
 
         /* Fully update the flow */
-        fully_update_flow(context->cave->depth);
+        fully_update_flow(&context->cave->wpos);
     }
 
     /* Burn grass */
@@ -106,6 +111,17 @@ static void project_feature_handler_FIRE(project_feature_handler_context_t *cont
         /* Destroy the grass */
         square_burn_grass(context->cave, context->y, context->x);
     }
+
+    /* Can create lava if extremely powerful. */
+    if ((context->dam > randint1(1800) + 600) &&
+        square_isfloor(context->cave, context->y, context->x))
+    {
+        /* Forget the floor, make lava. */
+        square_set_feat(context->cave, context->y, context->x, FEAT_LAVA);
+
+        /* Objects that have survived should move */
+        push_object(context->origin->player, context->cave, context->y, context->x);
+    }
 }
 
 
@@ -113,6 +129,20 @@ static void project_feature_handler_COLD(project_feature_handler_context_t *cont
 {
     /* Grid is in line of sight and player is not blind */
     if (context->line_sight && !context->is_blind) context->obvious = true;
+
+    /* Sufficiently intense cold can solidify lava. */
+    if ((context->dam > randint1(900) + 300) &&
+        square_isfiery(context->cave, context->y, context->x))
+    {
+        bool occupied = square_isoccupied(context->cave, context->y, context->x);
+
+        if (one_in_(2))
+            square_set_feat(context->cave, context->y, context->x, FEAT_FLOOR);
+        else if (one_in_(2) && !occupied)
+            square_set_feat(context->cave, context->y, context->x, FEAT_RUBBLE);
+        else
+            square_set_feat(context->cave, context->y, context->x, FEAT_PASS_RUBBLE);
+    }
 }
 
 
@@ -136,7 +166,7 @@ static void project_feature_handler_LIGHT(project_feature_handler_context_t *con
     if (context->line_sight && !context->is_blind) context->obvious = true;
 
     /* Note changes to viewable region */
-    note_viewable_changes(context->cave->depth, y, x, true);
+    note_viewable_changes(&context->cave->wpos, y, x);
 }
 
 
@@ -148,10 +178,10 @@ static void project_feature_handler_DARK(project_feature_handler_context_t *cont
     int i;
 
     /* No effect outside of the dungeon during day */
-    if ((context->cave->depth <= 0) && is_daytime()) return;
+    if ((context->cave->wpos.depth == 0) && is_daytime()) return;
 
     /* No effect on special levels */
-    if (special_level(context->cave->depth)) return;
+    if (special_level(&context->cave->wpos)) return;
 
     /* Turn off the light */
     square_unglow(context->cave, y, x);
@@ -162,7 +192,7 @@ static void project_feature_handler_DARK(project_feature_handler_context_t *cont
         struct player *p = player_get(i);
 
         /* If he's not here, skip him */
-        if (p->depth != context->cave->depth) continue;
+        if (!COORDS_EQUAL(&p->wpos, &context->cave->wpos)) continue;
 
         /* Hack -- forget "boring" grids */
         if (square_isview(p, y, x) && !square_isnormal(context->cave, y, x))
@@ -173,7 +203,7 @@ static void project_feature_handler_DARK(project_feature_handler_context_t *cont
     if (context->line_sight && !context->is_blind) context->obvious = true;
 
     /* Note changes to viewable region */
-    note_viewable_changes(context->cave->depth, y, x, true);
+    note_viewable_changes(&context->cave->wpos, y, x);
 }
 
 
@@ -230,6 +260,20 @@ static void project_feature_handler_ICE(project_feature_handler_context_t *conte
 {
     /* Grid is in line of sight and player is not blind */
     if (context->line_sight && !context->is_blind) context->obvious = true;
+
+    /* Sufficiently intense cold can solidify lava. */
+    if ((context->dam > randint1(900) + 300) &&
+        square_isfiery(context->cave, context->y, context->x))
+    {
+        bool occupied = square_isoccupied(context->cave, context->y, context->x);
+
+        if (one_in_(2))
+            square_set_feat(context->cave, context->y, context->x, FEAT_FLOOR);
+        else if (one_in_(2) && !occupied)
+            square_set_feat(context->cave, context->y, context->x, FEAT_RUBBLE);
+        else
+            square_set_feat(context->cave, context->y, context->x, FEAT_PASS_RUBBLE);
+    }
 }
 
 
@@ -240,7 +284,7 @@ static void project_feature_handler_GRAVITY(project_feature_handler_context_t *c
 }
 
 
-static void project_feature_handler_INERT(project_feature_handler_context_t *context)
+static void project_feature_handler_INERTIA(project_feature_handler_context_t *context)
 {
     /* Grid is in line of sight and player is not blind */
     if (context->line_sight && !context->is_blind) context->obvious = true;
@@ -265,6 +309,17 @@ static void project_feature_handler_PLASMA(project_feature_handler_context_t *co
 {
     /* Grid is in line of sight and player is not blind */
     if (context->line_sight && !context->is_blind) context->obvious = true;
+
+    /* Can create lava if extremely powerful. */
+    if ((context->dam > randint1(1800) + 600) &&
+        square_isfloor(context->cave, context->y, context->x))
+    {
+        /* Forget the floor, make lava. */
+        square_set_feat(context->cave, context->y, context->x, FEAT_LAVA);
+
+        /* Objects that have survived should move */
+        push_object(context->origin->player, context->cave, context->y, context->x);
+    }
 }
 
 
@@ -356,82 +411,23 @@ static void project_feature_handler_KILL_WALL(project_feature_handler_context_t 
     const int x = context->x;
     const int y = context->y;
 
-    /* No effect on special levels */
-    if (special_level(context->cave->depth)) return;
+    /* No effect on special levels or in towns */
+    if (special_level(&context->cave->wpos) || in_town(&context->cave->wpos)) return;
 
     /* Non-walls (etc) */
-    if (square_ispassable(context->cave, y, x)) return;
-
-    /* Permanent walls */
-    if (square_isperm(context->cave, y, x) || square_isborder(context->cave, y, x))
+    if (square_ispassable(context->cave, y, x) && !square_seemslikewall(context->cave, y, x))
         return;
 
+    /* Permanent walls */
+    if (square_isperm(context->cave, y, x) || square_isborder(context->cave, y, x)) return;
+
     /* Different treatment for different walls */
-    if (square_isrock(context->cave, y, x))
+    if (square_isrubble(context->cave, y, x))
     {
         /* Message */
         if (context->line_sound)
         {
-            msg(context->who->player, "The wall turns into mud!");
-            context->obvious = true;
-        }
-
-        /* Destroy the wall */
-        square_destroy_wall(context->cave, y, x);
-
-        /* Update the visuals */
-        update_visuals(context->cave->depth);
-
-        /* Fully update the flow */
-        fully_update_flow(context->cave->depth);
-    }
-    else if (square_hasgoldvein(context->cave, y, x))
-    {
-        /* Message */
-        if (context->line_sound)
-        {
-            msg(context->who->player, "The vein turns into mud!");
-            msg(context->who->player, "You have found something!");
-            context->obvious = true;
-        }
-
-        /* Destroy the wall */
-        square_destroy_wall(context->cave, y, x);
-
-        /* Update the visuals */
-        update_visuals(context->cave->depth);
-
-        /* Fully update the flow */
-        fully_update_flow(context->cave->depth);
-
-        /* Place some gold */
-        place_gold(context->who->player, context->cave, y, x, object_level(context->cave->depth),
-            ORIGIN_FLOOR);
-    }
-    else if (square_ismagma(context->cave, y, x) || square_isquartz(context->cave, y, x))
-    {
-        /* Message */
-        if (context->line_sound)
-        {
-            msg(context->who->player, "The vein turns into mud!");
-            context->obvious = true;
-        }
-
-        /* Destroy the wall */
-        square_destroy_wall(context->cave, y, x);
-
-        /* Update the visuals */
-        update_visuals(context->cave->depth);
-
-        /* Fully update the flow */
-        fully_update_flow(context->cave->depth);
-    }
-    else if (square_isrubble(context->cave, y, x))
-    {
-        /* Message */
-        if (context->line_sound)
-        {
-            msg(context->who->player, "The rubble turns into mud!");
+            msg(context->origin->player, "The rubble turns into mud!");
             context->obvious = true;
         }
 
@@ -439,21 +435,21 @@ static void project_feature_handler_KILL_WALL(project_feature_handler_context_t 
         square_destroy_rubble(context->cave, y, x);
 
         /* Update the visuals */
-        update_visuals(context->cave->depth);
+        update_visuals(&context->cave->wpos);
 
         /* Fully update the flow */
-        fully_update_flow(context->cave->depth);
+        fully_update_flow(&context->cave->wpos);
 
         /* Hack -- place an object */
         if (magik(10))
         {
             /* Found something */
             if (context->line_sound)
-                msg(context->who->player, "There was something buried in the rubble!");
+                msg(context->origin->player, "There was something buried in the rubble!");
 
             /* Place object */
-            place_object(context->who->player, context->cave, y, x,
-                object_level(context->cave->depth), false, false, ORIGIN_RUBBLE, 0);
+            place_object(context->origin->player, context->cave, y, x,
+                object_level(&context->cave->wpos), false, false, ORIGIN_RUBBLE, 0);
         }
     }
     else if (square_home_iscloseddoor(context->cave, y, x))
@@ -461,23 +457,23 @@ static void project_feature_handler_KILL_WALL(project_feature_handler_context_t 
         /* Message */
         if (context->line_sound)
         {
-            msg(context->who->player, "The door resists.");
+            msg(context->origin->player, "The door resists.");
             context->obvious = true;
         }
     }
-    else if (square_isdoor(context->cave, y, x))
+    else if (square_isdoor(context->cave, y, x) && !square_seemslikewall(context->cave, y, x))
     {
         struct monster *mon = square_monster(context->cave, y, x);
 
         /* Reveal mimics */
-        if (mon && is_mimicking(mon))
-            become_aware(context->who->player, context->cave, mon);
+        if (mon && monster_is_camouflaged(mon))
+            become_aware(context->origin->player, context->cave, mon);
         else
         {
             /* Hack -- special message */
             if (context->line_sound)
             {
-                msg(context->who->player, "The door crumbles to dust!");
+                msg(context->origin->player, "The door crumbles to dust!");
                 context->obvious = true;
             }
 
@@ -485,13 +481,72 @@ static void project_feature_handler_KILL_WALL(project_feature_handler_context_t 
             square_destroy_door(context->cave, y, x);
 
             /* Update the visuals */
-            update_visuals(context->cave->depth);
+            update_visuals(&context->cave->wpos);
         }
+    }
+    else if (square_hasgoldvein(context->cave, y, x))
+    {
+        /* Message */
+        if (context->line_sound)
+        {
+            msg(context->origin->player, "The vein turns into mud!");
+            msg(context->origin->player, "You have found something!");
+            context->obvious = true;
+        }
+
+        /* Destroy the wall */
+        square_destroy_wall(context->cave, y, x);
+
+        /* Update the visuals */
+        update_visuals(&context->cave->wpos);
+
+        /* Fully update the flow */
+        fully_update_flow(&context->cave->wpos);
+
+        /* Place some gold */
+        place_gold(context->origin->player, context->cave, y, x, object_level(&context->cave->wpos),
+            ORIGIN_FLOOR);
+    }
+    else if (square_ismagma(context->cave, y, x) || square_isquartz(context->cave, y, x))
+    {
+        /* Message */
+        if (context->line_sound)
+        {
+            msg(context->origin->player, "The vein turns into mud!");
+            context->obvious = true;
+        }
+
+        /* Destroy the wall */
+        square_destroy_wall(context->cave, y, x);
+
+        /* Update the visuals */
+        update_visuals(&context->cave->wpos);
+
+        /* Fully update the flow */
+        fully_update_flow(&context->cave->wpos);
+    }
+    else if (square_isrock(context->cave, y, x))
+    {
+        /* Message */
+        if (context->line_sound)
+        {
+            msg(context->origin->player, "The wall turns into mud!");
+            context->obvious = true;
+        }
+
+        /* Destroy the wall */
+        square_destroy_wall(context->cave, y, x);
+
+        /* Update the visuals */
+        update_visuals(&context->cave->wpos);
+
+        /* Fully update the flow */
+        fully_update_flow(&context->cave->wpos);
     }
 }
 
 
-/* Destroy Doors (and traps) */
+/* Destroy Doors */
 static void project_feature_handler_KILL_DOOR(project_feature_handler_context_t *context)
 {
     const int x = context->x;
@@ -502,41 +557,38 @@ static void project_feature_handler_KILL_DOOR(project_feature_handler_context_t 
     {
         struct monster *mon = square_monster(context->cave, y, x);
 
-        if (mon && is_mimicking(mon))
+        if (mon && monster_is_camouflaged(mon))
         {
-            become_aware(context->who->player, context->cave, mon);
+            become_aware(context->origin->player, context->cave, mon);
             return;
         }
     }
 
-    /* Destroy all doors and traps */
-    if (square_isplayertrap(context->cave, y, x) || square_isdoor(context->cave, y, x))
+    /* Destroy all doors */
+    if (square_isdoor(context->cave, y, x))
     {
         /* Message */
         if (context->line_sound)
         {
-            msg(context->who->player, "There is a bright flash of light!");
+            msg(context->origin->player, "There is a bright flash of light!");
             context->obvious = true;
         }
 
         /* Destroy the feature */
-        if (square_isdoor(context->cave, y, x))
-            square_destroy_door(context->cave, y, x);
-        else
-            square_destroy_trap(context->who->player, context->cave, y, x);
+        square_destroy_door(context->cave, y, x);
 
         /* Visibility change */
         if (square_issecretdoor(context->cave, y, x) ||
             square_basic_iscloseddoor(context->cave, y, x))
         {
-            update_visuals(context->cave->depth);
-            /*note_viewable_changes(context->cave->depth, y, x, false);*/
+            update_visuals(&context->cave->wpos);
+            /*note_viewable_changes(&context->cave->wpos, y, x);*/
         }
     }
 }
 
 
-/* Destroy Traps (and Locks) */
+/* Disable traps, unlock doors */
 static void project_feature_handler_KILL_TRAP(project_feature_handler_context_t *context)
 {
     const int x = context->x;
@@ -551,18 +603,18 @@ static void project_feature_handler_KILL_TRAP(project_feature_handler_context_t 
         if (context->line_sound) context->obvious = true;
     }
 
-    /* Destroy traps, unlock doors */
+    /* Disable traps, unlock doors */
     if (square_isplayertrap(context->cave, y, x))
     {
         /* Message */
         if (context->line_sound)
         {
-            msg(context->who->player, "There is a bright flash of light!");
+            msg(context->origin->player, "The trap seizes up.");
             context->obvious = true;
         }
 
-        /* Destroy the trap */
-        square_destroy_trap(context->who->player, context->cave, y, x);
+        /* Disable the trap */
+        square_disable_trap(context->origin->player, context->cave, y, x);
     }
     else if (square_islockeddoor(context->cave, y, x))
     {
@@ -572,7 +624,7 @@ static void project_feature_handler_KILL_TRAP(project_feature_handler_context_t 
         /* Message */
         if (context->line_sound)
         {
-            msg(context->who->player, "Click!");
+            msg(context->origin->player, "Click!");
             context->obvious = true;
         }
     }
@@ -592,7 +644,8 @@ static void project_feature_handler_MAKE_DOOR(project_feature_handler_context_t 
     if (!square_isanyfloor(context->cave, y, x)) return;
 
     /* Push objects off the grid */
-    if (square_object(context->cave, y, x)) push_object(context->who->player, context->cave, y, x);
+    if (square_object(context->cave, y, x))
+        push_object(context->origin->player, context->cave, y, x);
 
     /* Create a closed door */
     square_close_door(context->cave, y, x);
@@ -601,7 +654,7 @@ static void project_feature_handler_MAKE_DOOR(project_feature_handler_context_t 
     if (context->line_sound) context->obvious = true;
 
     /* Update the visuals */
-    update_visuals(context->cave->depth);
+    update_visuals(&context->cave->wpos);
 }
 
 
@@ -610,12 +663,27 @@ static void project_feature_handler_MAKE_TRAP(project_feature_handler_context_t 
 {
     const int x = context->x;
     const int y = context->y;
+    int i;
 
     /* Require an "empty" floor grid */
     if (!square_isopen(context->cave, y, x)) return;
 
-    /* Create a trap */
-    square_add_trap(context->cave, y, x);
+    /* Create a trap, try to notice it */
+    if (one_in_(4))
+    {
+        square_add_trap(context->cave, y, x);
+
+        /* Check everyone */
+        for (i = 1; i <= NumPlayers; i++)
+        {
+            struct player *p = player_get(i);
+
+            /* If he's not here, skip him */
+            if (!COORDS_EQUAL(&p->wpos, &context->cave->wpos)) continue;
+
+            square_reveal_trap(p, y, x, false, false);
+        }
+    }
     context->obvious = true;
 }
 
@@ -636,28 +704,59 @@ static void project_feature_handler_STONE_WALL(project_feature_handler_context_t
     if (context->line_sound) context->obvious = true;
 
     /* Update the visuals */
-    update_visuals(context->cave->depth);
+    update_visuals(&context->cave->wpos);
 
     /* Fully update the flow */
-    fully_update_flow(context->cave->depth);
+    fully_update_flow(&context->cave->wpos);
 }
 
 
 static void project_feature_handler_RAISE(project_feature_handler_context_t *context) {}
-static void project_feature_handler_IDENTIFY(project_feature_handler_context_t *context) {}
+static void project_feature_handler_AWAY_EVIL(project_feature_handler_context_t *context) {}
+static void project_feature_handler_AWAY_ALL(project_feature_handler_context_t *context) {}
+static void project_feature_handler_TURN_UNDEAD(project_feature_handler_context_t *context) {}
+static void project_feature_handler_TURN_ALL(project_feature_handler_context_t *context) {}
+static void project_feature_handler_DISP_UNDEAD(project_feature_handler_context_t *context) {}
+static void project_feature_handler_DISP_EVIL(project_feature_handler_context_t *context) {}
+static void project_feature_handler_DISP_ALL(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_CLONE(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_POLY(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_HEAL(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_SPEED(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_SLOW(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_CONF(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_SLEEP(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_HOLD(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_STUN(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_DRAIN(project_feature_handler_context_t *context) {}
+static void project_feature_handler_PSI(project_feature_handler_context_t *context) {}
+static void project_feature_handler_DEATH(project_feature_handler_context_t *context) {}
+static void project_feature_handler_PSI_DRAIN(project_feature_handler_context_t *context) {}
+static void project_feature_handler_CURSE(project_feature_handler_context_t *context) {}
+static void project_feature_handler_CURSE2(project_feature_handler_context_t *context) {}
+static void project_feature_handler_DRAIN(project_feature_handler_context_t *context) {}
+static void project_feature_handler_GUARD(project_feature_handler_context_t *context) {}
+static void project_feature_handler_FOLLOW(project_feature_handler_context_t *context) {}
+static void project_feature_handler_TELE_TO(project_feature_handler_context_t *context) {}
+static void project_feature_handler_TELE_LEVEL(project_feature_handler_context_t *context) {}
+static void project_feature_handler_MON_BLIND(project_feature_handler_context_t *context) {}
+static void project_feature_handler_DRAIN_MANA(project_feature_handler_context_t *context) {}
+static void project_feature_handler_FORGET(project_feature_handler_context_t *context) {}
+static void project_feature_handler_BLAST(project_feature_handler_context_t *context) {}
+static void project_feature_handler_SMASH(project_feature_handler_context_t *context) {}
+static void project_feature_handler_ATTACK(project_feature_handler_context_t *context) {}
+static void project_feature_handler_CONTROL(project_feature_handler_context_t *context) {}
+static void project_feature_handler_PROJECT(project_feature_handler_context_t *context) {}
 
 
 static const project_feature_handler_f feature_handlers[] =
 {
-    #define ELEM(a, b, c, d, e, f, g, h, col, pvp) project_feature_handler_##a,
+    #define ELEM(a) project_feature_handler_##a,
     #include "../common/list-elements.h"
     #undef ELEM
-    #define PROJ_ENV(a, b, obv, col, desc, pvp) project_feature_handler_##a,
-    #include "../common/list-project-environs.h"
-    #undef PROJ_ENV
-    #define PROJ_MON(a, b, obv, col, desc, pvp) NULL,
-    #include "../common/list-project-monsters.h"
-    #undef PROJ_MON
+    #define PROJ(a) project_feature_handler_##a,
+    #include "../common/list-projections.h"
+    #undef PROJ
     NULL
 };
 
@@ -668,19 +767,19 @@ static const project_feature_handler_f feature_handlers[] =
  * Called for projections with the PROJECT_GRID flag set, which includes
  * beam, ball and breath effects.
  *
- * who is the caster
+ * origin is the origin of the effect
  * r is the distance from the centre of the effect
  * c is the current cave
  * (y, x) the coordinates of the grid being handled
  * dam is the "damage" from the effect at distance r from the centre
- * typ is the projection (GF_) type
+ * typ is the projection (PROJ_) type
  *
  * Returns whether the effects were obvious
  *
  * Note that this function determines if the player can see anything that
  * happens by taking into account: blindness, line-of-sight, and illumination.
  */
-bool project_f(struct actor *who, int r, struct chunk *c, int y, int x, int dam, int typ)
+bool project_f(struct source *origin, int r, struct chunk *c, int y, int x, int dam, int typ)
 {
     bool obvious = false;
     project_feature_handler_context_t context;
@@ -690,14 +789,14 @@ bool project_f(struct actor *who, int r, struct chunk *c, int y, int x, int dam,
     bool is_blind = false;
 
     /* Set the player info */
-    if (who->player)
+    if (origin->player)
     {
-        line_sight = square_isview(who->player, y, x);
-        line_sound = square_isseen(who->player, y, x);
-        is_blind = who->player->timed[TMD_BLIND];
+        line_sight = square_isview(origin->player, y, x);
+        line_sound = square_isseen(origin->player, y, x);
+        is_blind = origin->player->timed[TMD_BLIND];
     }
 
-    context.who = who;
+    context.origin = origin;
     context.r = r;
     context.cave = c;
     context.y = y;

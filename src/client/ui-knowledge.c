@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2000-2007 Eytan Zweig, Andrew Doull, Pete Mack.
  * Copyright (c) 2010 Peter Denison, Chris Carr.
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -110,6 +110,20 @@ static void do_cmd_knowledge_objects(const char *title, int row)
 
 
 /*
+ * OBJECT RUNES
+ */
+
+
+/*
+ * Display known runes
+ */
+static void do_cmd_knowledge_runes(const char *title, int row)
+{
+    do_cmd_knowledge_aux(SPECIAL_FILE_RUNE, "Object Runes", true);
+}
+
+
+/*
  * TERRAIN FEATURES
  */
 
@@ -188,11 +202,21 @@ static void do_cmd_knowledge_houses(const char *title, int row)
 
 
 /*
+ * Display visited dungeons and towns
+ */
+static void do_cmd_knowledge_dungeons(const char *title, int row)
+{
+    do_cmd_knowledge_aux(SPECIAL_FILE_DUNGEONS, "Visited Dungeons and Towns", true);
+}
+
+
+/*
  * Definition of the "player knowledge" menu.
  */
 static menu_action knowledge_actions[] =
 {
     {0, 0, "Display object knowledge", do_cmd_knowledge_objects},
+    {0, 0, "Display rune knowledge", do_cmd_knowledge_runes},
     {0, 0, "Display artifact knowledge", do_cmd_knowledge_artifacts},
     {0, 0, "Display ego item knowledge", do_cmd_knowledge_ego_items},
     {0, 0, "Display monster knowledge", do_cmd_knowledge_monsters},
@@ -202,7 +226,8 @@ static menu_action knowledge_actions[] =
     {0, 0, "Display character history", do_cmd_knowledge_history},
     {0, 0, "Display known uniques", do_cmd_knowledge_uniques},
     {0, 0, "Display party gear", do_cmd_knowledge_gear},
-    {0, 0, "Display owned houses", do_cmd_knowledge_houses}
+    {0, 0, "Display owned houses", do_cmd_knowledge_houses},
+    {0, 0, "Display visited dungeons and towns", do_cmd_knowledge_dungeons}
 };
 
 
@@ -215,7 +240,7 @@ static struct menu knowledge_menu;
 void textui_browse_knowledge(void)
 {
     struct menu *menu;
-    region knowledge_region = {0, 0, -1, 13};
+    region knowledge_region = {0, 0, -1, 15};
 
     /* Initialize the knowledge menu */
     menu = &knowledge_menu;

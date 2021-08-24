@@ -3,7 +3,7 @@
  * Purpose: Highscore handling
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -194,7 +194,7 @@ void build_score(struct player *p, high_score *entry, const char *died_from, tim
         score_info.max_exp = p->max_exp;
         score_info.au = p->au;
         score_info.max_depth = p->max_depth;
-        score_info.depth = p->depth;
+        memcpy(&score_info.wpos, &p->wpos, sizeof(struct worldpos));
     }
 
     /* Save the version */
@@ -227,7 +227,7 @@ void build_score(struct player *p, high_score *entry, const char *died_from, tim
 
     /* Save the level and such */
     strnfmt(entry->cur_lev, sizeof(entry->cur_lev), "%3d", score_info.lev);
-    strnfmt(entry->cur_dun, sizeof(entry->cur_dun), "%3d", score_info.depth);
+    strnfmt(entry->cur_dun, sizeof(entry->cur_dun), "%3d", score_info.wpos.depth);
     strnfmt(entry->max_lev, sizeof(entry->max_lev), "%3d", score_info.max_lev);
     strnfmt(entry->max_dun, sizeof(entry->max_dun), "%3d", score_info.max_depth);
 
@@ -269,14 +269,14 @@ long total_points(struct player *p, s32b max_exp, s16b max_depth)
     long score = base_score;
 
     /* We award a 50% score bonus for bravery with no ghost characters */
-    if (OPT_P(p, birth_no_ghost)) score += base_score / 2;
+    if (OPT(p, birth_no_ghost)) score += base_score / 2;
 
     /* We award a 50% score bonus for bravery with ironman characters */
-    if (OPT_P(p, birth_no_recall)) score += base_score / 4;
-    if (OPT_P(p, birth_force_descend) && (cfg_limit_stairs < 3)) score += base_score / 4;
+    if (OPT(p, birth_no_recall)) score += base_score / 4;
+    if (OPT(p, birth_force_descend) && (cfg_limit_stairs < 3)) score += base_score / 4;
 
     /* We award a 50% score bonus for bravery with fruit bat characters */
-    if (OPT_P(p, birth_fruit_bat))
+    if (OPT(p, birth_fruit_bat))
     {
         score += base_score / 2;
 

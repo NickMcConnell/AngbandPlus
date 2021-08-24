@@ -418,7 +418,7 @@ void message_next(message_iter *iter)
 void sound(int type)
 {
     /* No sound */
-    if (!OPT(use_sound)) return;
+    if (!OPT(player, use_sound)) return;
 
     /* Dispatch */
     event_signal_type(EVENT_SOUND, type);

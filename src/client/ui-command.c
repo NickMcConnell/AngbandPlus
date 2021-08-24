@@ -3,7 +3,7 @@
  * Purpose: Deal with UI only command processing.
  *
  * Copyright (c) 1997-2014 Angband developers
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -50,17 +50,17 @@ void do_cmd_unknown(void)
 
 
 /*
- * Verify the suicide command
+ * Verify the "kill character" command
  */
 void textui_cmd_suicide(void)
 {
     struct keypress ch;
 
     /* Verify */
-    if (!get_check("Do you really want to commit suicide? ")) return;
+    if (!get_check("Do you really want to kill this character? ")) return;
 
     /* Check again */
-    prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
+    prt("Please verify KILLING THIS CHARACTER by typing the '@' sign: ", 0, 0);
     event_signal(EVENT_INPUT_FLUSH);
     ch = inkey();
     prt("", 0, 0);
@@ -76,7 +76,7 @@ void textui_cmd_suicide(void)
  */
 void textui_cmd_rest(void)
 {
-    const char *p = "Rest (1-9999, '!' for HP or SP, '*' for HP and SP, '&' as needed): ";
+    const char *p = "Rest (1-9999, '!' HP or SP, '*' both, '&' full, 'm' till morning): ";
     char out_val[5] = "&";
     s16b resting;
 
@@ -87,6 +87,8 @@ void textui_cmd_rest(void)
     if (out_val[0] == '&') resting = REST_COMPLETE; /* ...until done */
     else if (out_val[0] == '*') resting = REST_ALL_POINTS; /* ...a lot */
     else if (out_val[0] == '!') resting = REST_SOME_POINTS; /* ...until HP or SP filled */
+    else if (out_val[0] == 'm') resting = REST_MORNING; /* ...until morning */
+    else if (out_val[0] == 'x') resting = REST_COMPLETE_NODISTURB; /* ...until done (no disturb) */
     else
     {
         /* ...some */
@@ -116,12 +118,6 @@ void textui_quit(void)
 
 
 /*
- * Encode the screen colors
- */
-static const char hack[BASIC_COLORS + 1] = "dwsorgbuDWPyRGBUpvtmYiTVIMzZ";
-
-
-/*
  * At a given location, determine the "current" attr and char.
  * Display walls and floors properly.
  */
@@ -133,83 +129,6 @@ static void Term_what_hack(int x, int y, u16b *a, char *c)
     /* Hack -- display walls and floors properly */
     if (*c == 7) *c = '.';
     if (*c == 127) *c = '#';
-}
-
-
-/*
- * Save a simple text screendump.
- */
-static void do_cmd_save_screen_text(void)
-{
-    int y, x;
-    u16b a = 0;
-    char c = ' ';
-    ang_file *fff;
-    char buf[MSG_LEN];
-    int wid, hgt;
-
-    /* Clear */
-    c_msg_print(NULL);
-
-    /* Build the filename */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump.txt");
-    fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
-    if (!fff) return;
-
-    /* Retrieve current screen size */
-    Term_get_size(&wid, &hgt);
-
-    /* Dump the screen */
-    for (y = 0; y < hgt; y++)
-    {
-        /* Dump each row */
-        for (x = 0; x < wid; x++)
-        {
-            /* Get the attr/char */
-            Term_what_hack(x, y, &a, &c);
-
-            /* Dump it */
-            buf[x] = c;
-        }
-
-        /* Terminate */
-        buf[x] = '\0';
-
-        /* End the row */
-        file_putf(fff, "%s\n", buf);
-    }
-
-    /* Skip a line */
-    file_put(fff, "\n");
-
-    /* Dump the screen */
-    for (y = 0; y < hgt; y++)
-    {
-        /* Dump each row */
-        for (x = 0; x < wid; x++)
-        {
-            /* Get the attr/char */
-            Term_what(x, y, &a, &c);
-
-            /* Dump it */
-            buf[x] = hack[a & 0x0F];
-        }
-
-        /* Terminate */
-        buf[x] = '\0';
-
-        /* End the row */
-        file_putf(fff, "%s\n", buf);
-    }
-
-    /* Skip a line */
-    file_put(fff, "\n");
-
-    /* Close it */
-    file_close(fff);
-
-    /* Message */
-    c_msg_print("Screen dump saved.");
 }
 
 
@@ -372,7 +291,7 @@ static void do_cmd_save_screen_html(int mode)
     /* Dump the screen with raw character attributes */
     html_screenshot(tmp_val, mode);
 
-    c_msg_print("HTML screen dump saved.");
+    c_msg_print(mode? "Forum text screen dump saved.": "HTML screen dump saved.");
 }
 
 
@@ -390,7 +309,7 @@ void do_cmd_save_screen(void)
         return;
     }
 
-    c_msg_print("Dump type [(t)ext; (h)tml; (f)orum embedded html]:");
+    c_msg_print("Dump as (h)tml or (f)orum text?");
 
     while (1)
     {
@@ -401,17 +320,8 @@ void do_cmd_save_screen(void)
         {
             switch (ke.key.code)
             {
-                case 't':
-                    do_cmd_save_screen_text();
-                    return;
-
-                case 'h':
-                    do_cmd_save_screen_html(0);
-                    return;
-
-                case 'f':
-                    do_cmd_save_screen_html(1);
-                    return;
+                case 'h': do_cmd_save_screen_html(0); return;
+                case 'f': do_cmd_save_screen_html(1); return;
             }
         }
     }

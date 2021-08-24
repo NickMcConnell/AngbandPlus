@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Erik Osheim, Nick McConnell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -38,7 +38,7 @@
 
 struct pit_profile *pit_info;
 struct vault *vaults;
-struct cave_profile *cave_profiles;
+static struct cave_profile *cave_profiles;
 
 
 /*
@@ -76,7 +76,9 @@ static const struct
 };
 
 
-/* Parsing functions for dungeon_profile.txt */
+/*
+ * Parsing functions for dungeon_profile.txt
+ */
 static enum parser_error parse_profile_name(struct parser *p)
 {
     struct cave_profile *h = parser_priv(p);
@@ -173,6 +175,7 @@ static enum parser_error parse_profile_room(struct parser *p)
     }
     if (!room_builders[i].name) return PARSE_ERROR_NO_ROOM_FOUND;
     r->builder = room_builders[i].builder;
+    r->rating = parser_getint(p, "rating");
     r->height = parser_getint(p, "height");
     r->width = parser_getint(p, "width");
     r->level = parser_getint(p, "level");
@@ -204,7 +207,8 @@ static struct parser *init_parse_profile(void)
     parser_reg(p, "params int block int rooms int unusual int rarity", parse_profile_params);
     parser_reg(p, "tunnel int rnd int chg int con int pen int jct", parse_profile_tunnel);
     parser_reg(p, "streamer int den int rng int mag int mc int qua int qc", parse_profile_streamer);
-    parser_reg(p, "room sym name int height int width int level int pit int rarity int cutoff",
+    parser_reg(p,
+        "room sym name int rating int height int width int level int pit int rarity int cutoff",
         parse_profile_room);
     parser_reg(p, "cutoff int cutoff", parse_profile_cutoff);
 
@@ -220,35 +224,36 @@ static errr run_parse_profile(struct parser *p)
 
 static errr finish_parse_profile(struct parser *p)
 {
-    struct cave_profile *c, *n;
-    size_t i, num = 0;
+    struct cave_profile *n, *c = parser_priv(p);
+    int i, num;
 
     /* Scan the list */
     z_info->profile_max = 0;
-    c = parser_priv(p);
     while (c)
     {
         struct room_profile *r = c->room_profiles;
 
         /* Count the room profiles */
         c->n_room_profiles = 0;
-        z_info->profile_max++;
         while (r)
         {
             c->n_room_profiles++;
             r = r->next;
         }
+
+        z_info->profile_max++;
         c = c->next;
     }
 
     /* Allocate the array and copy the records to it */
     cave_profiles = mem_zalloc(z_info->profile_max * sizeof(*c));
-    for (c = parser_priv(p); c; c = n, num++)
+    num = z_info->profile_max - 1;
+    for (c = parser_priv(p); c; c = n)
     {
         /* Main record */
         memcpy(&cave_profiles[num], c, sizeof(*c));
         n = c->next;
-        if (n) cave_profiles[num].next = &cave_profiles[num + 1];
+        if (num < z_info->profile_max - 1) cave_profiles[num].next = &cave_profiles[num + 1];
         else cave_profiles[num].next = NULL;
 
         /* Now allocate the room profile array */
@@ -268,6 +273,7 @@ static errr finish_parse_profile(struct parser *p)
         }
 
         mem_free(c);
+        num--;
     }
 
     parser_destroy(p);
@@ -303,7 +309,9 @@ static struct file_parser profile_parser =
 };
 
 
-/* Parsing functions for room_template.txt */
+/*
+ * Parsing functions for room_template.txt
+ */
 static enum parser_error parse_room_name(struct parser *p)
 {
     struct room_template *h = parser_priv(p);
@@ -716,13 +724,13 @@ static int calc_obj_feeling(struct chunk *c)
     u32b x;
 
     /* Non-random level gets no feeling */
-    if (!random_level(c->depth)) return 0;
+    if (!random_level(&c->wpos)) return 0;
 
     /* Artifacts trigger a special feeling when preserve=no */
     if (c->good_item && !cfg_preserve_artifacts) return 10;
 
     /* Check the loot adjusted for depth */
-    x = c->obj_rating / c->depth;
+    x = c->obj_rating / c->wpos.depth;
 
     /* Apply a minimum feeling if there's an artifact on the level */
     if (c->good_item && (x < 641)) return 60;
@@ -749,10 +757,10 @@ static int calc_mon_feeling(struct chunk *c)
     u32b x;
 
     /* Non-random level gets no feeling */
-    if (!random_level(c->depth)) return 0;
+    if (!random_level(&c->wpos)) return 0;
 
     /* Check the monster power adjusted for depth */
-    x = c->mon_rating / (c->depth * c->depth);
+    x = c->mon_rating / c->wpos.depth;
 
     if (x > 7000) return 1;
     if (x > 4500) return 2;
@@ -771,26 +779,81 @@ static int calc_mon_feeling(struct chunk *c)
  *
  * depth is the depth where we're trying to generate a labyrinth
  */
-static bool labyrinth_check(int depth)
+static bool labyrinth_check(struct worldpos *wpos)
 {
     /* There's a base 2 in 100 to accept the labyrinth */
     int chance = 2;
 
+    struct worldpos dpos;
+    struct location *dungeon;
+
+    /* Get the dungeon */
+    COORDS_SET(&dpos, wpos->wy, wpos->wx, 0);
+    dungeon = get_dungeon(&dpos);
+
+    /* Some dungeons are real mazes */
+    if (dungeon && wpos->depth && df_has(dungeon->flags, DF_MAZE))
+        return true;
+
     /* If we're too shallow then don't do it */
-    if (depth < 13) return false;
+    if (wpos->depth < 13) return false;
 
     /* Certain numbers increase the chance of having a labyrinth */
-    if (depth % 3 == 0) chance += 1;
-    if (depth % 5 == 0) chance += 1;
-    if (depth % 7 == 0) chance += 1;
-    if (depth % 11 == 0) chance += 1;
-    if (depth % 13 == 0) chance += 1;
+    if (wpos->depth % 3 == 0) chance += 1;
+    if (wpos->depth % 5 == 0) chance += 1;
+    if (wpos->depth % 7 == 0) chance += 1;
+    if (wpos->depth % 11 == 0) chance += 1;
+    if (wpos->depth % 13 == 0) chance += 1;
 
     /* Only generate the level if we pass a check */
     if (randint0(100) >= chance) return false;
 
     /* Successfully ran the gauntlet! */
     return true;
+}
+
+
+/*
+ * Do prime check for caverns
+ *
+ * wpos is the location where we're trying to generate a cavern
+ */
+static bool cavern_check(struct worldpos *wpos)
+{
+    struct worldpos dpos;
+    struct location *dungeon;
+
+    /* Get the dungeon */
+    COORDS_SET(&dpos, wpos->wy, wpos->wx, 0);
+    dungeon = get_dungeon(&dpos);
+
+    /* Some dungeons have an extra chance at generating caverns */
+    if (dungeon && wpos->depth && df_has(dungeon->flags, DF_CAVERN) && one_in_(20))
+        return true;
+
+    return false;
+}
+
+
+/*
+ * Do prime check for arenas
+ *
+ * wpos is the location where we're trying to generate an arena
+ */
+static bool arena_check(struct worldpos *wpos)
+{
+    struct worldpos dpos;
+    struct location *dungeon;
+
+    /* Get the dungeon */
+    COORDS_SET(&dpos, wpos->wy, wpos->wx, 0);
+    dungeon = get_dungeon(&dpos);
+
+    /* Some dungeons have a chance at generating arenas */
+    if (dungeon && wpos->depth && df_has(dungeon->flags, DF_EMPTY) && one_in_(15))
+        return true;
+
+    return false;
 }
 
 
@@ -820,35 +883,45 @@ static const struct cave_profile *find_cave_profile(char *name)
 /*
  * Choose a cave profile
  *
- * depth is the depth of the cave the profile will be used to generate
+ * wpos is the coordinates of the cave the profile will be used to generate
  */
-static const struct cave_profile *choose_profile(int depth)
+static const struct cave_profile *choose_profile(struct worldpos *wpos)
 {
     const struct cave_profile *profile = NULL;
 
     /* Make the profile choice */
-    if (!depth)
-        profile = find_cave_profile("town");
-    else if (depth < 0)
-        profile = find_cave_profile("wilderness");
-    /* Enable this code to generate a "new town" at 750ft
-    else if (depth == 15)
-        profile = find_cave_profile("new_town"); */
-    else if (is_quest(depth) || !random_level(depth))
-        profile = find_cave_profile("classic");
-    else if (labyrinth_check(depth))
-        profile = find_cave_profile("labyrinth");
-    else
+    if (wpos->depth > 0)
     {
-        int perc = randint0(100);
-        int i;
-
-        for (i = 0; i < z_info->profile_max; i++)
+        if (dynamic_town(wpos))
+            profile = find_cave_profile("town");
+        else if (is_quest(wpos->depth) || !random_level(wpos))
+            profile = find_cave_profile("classic");
+        else if (arena_check(wpos))
+            profile = find_cave_profile("arena");
+        else if (cavern_check(wpos))
+            profile = find_cave_profile("cavern");
+        else if (labyrinth_check(wpos))
+            profile = find_cave_profile("labyrinth");
+        else if ((wpos->depth >= 10) && (wpos->depth < 40) && one_in_(40))
+            profile = find_cave_profile("moria");
+        else
         {
-            profile = &cave_profiles[i];
-            if (profile->cutoff >= perc) break;
+            int pick = randint0(200);
+            int i;
+
+            for (i = 0; i < z_info->profile_max; i++)
+            {
+                profile = &cave_profiles[i];
+                if (profile->cutoff >= pick) break;
+            }
         }
     }
+    else if (in_base_town(wpos))
+        profile = find_cave_profile("town");
+    else if (in_start_town(wpos))
+        profile = find_cave_profile("mang_town");
+    else
+        profile = find_cave_profile("wilderness");
 
     /* Return the profile or fail horribly */
     if (profile) return profile;
@@ -960,20 +1033,23 @@ void cave_wipe(struct chunk *c)
 /*
  * Generate a random level.
  *
- * Confusingly, this function also generate the town level (level 0).
+ * Confusingly, this function also generates the surface levels (wilderness and towns).
  *
  * p is the current player struct
+ * wpos is the location where we're trying to generate a level
+ *
+ * Return a pointer to the new level
  */
-struct chunk *cave_generate(struct player *p)
+static struct chunk *cave_generate(struct player *p, struct worldpos *wpos, int height, int width)
 {
     const char *error = "no generation";
-    int y, x, tries = 0;
-    struct chunk *chunk;
-    int depth = (p? p->depth: 0);
+    int tries = 0;
+    struct chunk *chunk = NULL;
 
     /* Generate */
     for (tries = 0; (tries < 100) && error; tries++)
     {
+        int y, x;
         struct dun_data dun_body;
 
         error = NULL;
@@ -984,10 +1060,11 @@ struct chunk *cave_generate(struct player *p)
         dun->door = mem_zalloc(z_info->level_door_max * sizeof(struct loc));
         dun->wall = mem_zalloc(z_info->wall_pierce_max * sizeof(struct loc));
         dun->tunn = mem_zalloc(z_info->tunn_grid_max * sizeof(struct loc));
+        dun->tunn_flag = mem_zalloc(z_info->tunn_grid_max * sizeof(byte));
 
         /* Choose a profile and build the level */
-        dun->profile = choose_profile(depth);
-        chunk = dun->profile->builder(p);
+        dun->profile = choose_profile(wpos);
+        chunk = dun->profile->builder(p, wpos, height, width);
         if (!chunk)
         {
             error = "Failed to find builder";
@@ -995,26 +1072,30 @@ struct chunk *cave_generate(struct player *p)
             mem_free(dun->door);
             mem_free(dun->wall);
             mem_free(dun->tunn);
+            mem_free(dun->tunn_flag);
             continue;
         }
 
-        /* Ensure quest monsters */
-        if (p && is_quest_active(p, chunk->depth))
+        /* Ensure quest monsters and fixed encounters (normal servers) */
+        if (p)
         {
             int i;
 
             for (i = 1; i < z_info->r_max; i++)
             {
                 struct monster_race *race = &r_info[i];
+                bool quest_monster = (is_quest_active(p, chunk->wpos.depth) &&
+                    rf_has(race->flags, RF_QUESTOR));
+                bool fixed_encounter = (rf_has(race->flags, RF_PWMANG_FIXED) && !cfg_diving_mode);
 
-                /* The monster must be an unseen quest monster of this depth. */
+                /* The monster must be an unseen quest monster/fixed encounter of this depth. */
                 if (race->lore.spawned) continue;
-                if (!rf_has(race->flags, RF_QUESTOR)) continue;
-                if (race->level != chunk->depth) continue;
+                if (!quest_monster && !fixed_encounter) continue;
+                if (race->level != chunk->wpos.depth) continue;
 
                 /* Pick a location and place the monster */
                 find_empty(chunk, &y, &x);
-                place_new_monster(p, chunk, y, x, race, MON_SLEEP | MON_GROUP, ORIGIN_DROP);
+                place_new_monster(p, chunk, y, x, race, MON_ASLEEP | MON_GROUP, ORIGIN_DROP);
             }
         }
 
@@ -1037,25 +1118,32 @@ struct chunk *cave_generate(struct player *p)
         {
             plog_fmt("Generation restarted: (%s).", error);
             cave_clear(p, chunk);
+            chunk = NULL;
         }
 
         mem_free(dun->cent);
         mem_free(dun->door);
         mem_free(dun->wall);
         mem_free(dun->tunn);
+        mem_free(dun->tunn_flag);
     }
 
     if (error) quit_fmt("cave_generate() failed 100 times!");
 
-    plog_fmt("New Level %dft Ratings obj:%lu/mon:%lu", chunk->depth * 50,
-        (random_level(chunk->depth)? chunk->obj_rating / chunk->depth: 0),
-        (random_level(chunk->depth)? chunk->mon_rating / (chunk->depth * chunk->depth): 0));
+    if (random_level(&chunk->wpos))
+    {
+        plog_fmt("New Level %dft at (%d, %d) Ratings obj:%lu/mon:%lu", chunk->wpos.depth * 50,
+            chunk->wpos.wx, chunk->wpos.wy, chunk->obj_rating / chunk->wpos.depth,
+            chunk->mon_rating / chunk->wpos.depth);
+    }
+    else
+    {
+        plog_fmt("New Level %dft at (%d, %d)", chunk->wpos.depth * 50, chunk->wpos.wx,
+            chunk->wpos.wy);
+    }
 
-    /* Free the old cave, use the new one */
-    chunk_list_add(chunk);
-
-    /* Place dungeon squares to trigger feeling (not in town) */
-    if (depth > 0) place_feeling(p, chunk);
+    /* Place dungeon squares to trigger feeling (not on the surface) */
+    if (chunk->wpos.depth > 0) place_feeling(p, chunk);
 
     /* Get a feeling */
     if (p) p->feeling = calc_obj_feeling(chunk) + calc_mon_feeling(chunk);
@@ -1063,13 +1151,85 @@ struct chunk *cave_generate(struct player *p)
     /* Validate the dungeon (we could use more checks here) */
     chunk_validate_objects(chunk);
 
-    /* The dungeon is ready */
-    ht_copy(&chunk->generated, &turn);
+    /* Allocate new known level, light it if requested */
+    chunk_list_add(chunk);
+    if (p && chunk->light_level) wiz_light(p, chunk, false);
 
     /* Mark artifacts as "generated" */
     if (p) set_artifacts_generated(p, chunk);
 
     return chunk;
+}
+
+
+/*
+ * Prepare the level the player is about to enter
+ */
+struct chunk *prepare_next_level(struct player *p, struct worldpos *wpos)
+{
+    int min_height = 0, min_width = 0;
+    struct chunk *c;
+
+    /* Determine level size requirements (only for random levels) */
+    if (random_level(wpos))
+    {
+        struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
+        int n;
+
+        /* Check level above (must be a valid random level) */
+        /* We simply get the first level n where dungeon_get_next_level(n, 1) = wpos->depth */
+        for (n = wpos->depth - 1; n >= w_ptr->min_depth; n--)
+        {
+            if (dungeon_get_next_level(p, n, 1) == wpos->depth)
+            {
+                struct worldpos check;
+
+                COORDS_SET(&check, wpos->wy, wpos->wx, n);
+                if (random_level(&check))
+                {
+                    c = chunk_get(&check);
+                    if (c)
+                    {
+                        min_height = c->height;
+                        min_width = c->width;
+                    }
+                }
+
+                break;
+            }
+        }
+
+        /* Check level below (must be a valid random level) */
+        /* We simply get the first level n where dungeon_get_next_level(n, -1) = wpos->depth */
+        for (n = wpos->depth + 1; n < w_ptr->max_depth; n++)
+        {
+            if (dungeon_get_next_level(p, n, -1) == wpos->depth)
+            {
+                struct worldpos check;
+
+                COORDS_SET(&check, wpos->wy, wpos->wx, n);
+                if (random_level(&check))
+                {
+                    c = chunk_get(&check);
+                    if (c)
+                    {
+                        min_height = MAX(min_height, c->height);
+                        min_width = MAX(min_width, c->width);
+                    }
+                }
+
+                break;
+            }
+        }
+    }
+
+    /* Generate a new level */
+    c = cave_generate(p, wpos, min_height, min_width);
+
+    /* The dungeon is ready */
+    ht_copy(&c->generated, &turn);
+
+    return c;
 }
 
 
@@ -1082,3 +1242,4 @@ struct init_module generate_module =
     run_template_parser,
     cleanup_template_parser
 };
+

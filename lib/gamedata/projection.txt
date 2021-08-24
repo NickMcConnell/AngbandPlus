@@ -1,0 +1,750 @@
+# File: projection.txt
+
+
+code:ACID
+name:acid
+type:element
+desc:acid
+blind-desc:are hit by acid
+numerator:1  
+denominator:3
+divisor:3
+damage-cap:1600
+msgt:BR_ACID
+obvious:1
+color:Slate
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:ELEC
+name:lightning
+type:element
+desc:lightning
+blind-desc:are hit by lightning
+numerator:1  
+denominator:3
+divisor:3
+damage-cap:1600
+msgt:BR_ELEC
+obvious:1
+color:Blue
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:FIRE
+name:fire
+type:element
+desc:fire
+blind-desc:are hit by fire
+numerator:1  
+denominator:3
+divisor:3
+damage-cap:1600
+msgt:BR_FIRE
+obvious:1
+color:Red
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:COLD
+name:cold
+type:element
+desc:frost
+blind-desc:are hit by cold
+numerator:1  
+denominator:3
+divisor:3
+damage-cap:1600
+msgt:BR_FROST
+obvious:1
+color:White
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:POIS
+name:poison
+type:element
+desc:poison
+blind-desc:are hit by poison
+numerator:1  
+denominator:3
+divisor:3
+damage-cap:800
+msgt:BR_GAS
+obvious:1
+color:Green
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:LIGHT
+name:light
+type:element
+desc:light
+blind-desc:are hit by something
+numerator:4  
+denominator:6+1d6
+divisor:6
+damage-cap:400
+msgt:BR_LIGHT
+obvious:1
+color:Orange
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:DARK
+name:dark
+type:element
+desc:darkness
+blind-desc:are hit by something
+numerator:4  
+denominator:6+1d6
+divisor:6
+damage-cap:400
+msgt:BR_DARK
+obvious:1
+color:Light Dark
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:SOUND
+name:sound
+type:element
+desc:sound
+blind-desc:are hit by noise
+numerator:5  
+denominator:6+1d6
+divisor:6
+damage-cap:500
+msgt:BR_SOUND
+obvious:1
+color:Yellow
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:SHARD
+name:shards
+type:element
+desc:shards
+blind-desc:are hit by something sharp
+numerator:6  
+denominator:6+1d6
+divisor:6
+damage-cap:500
+msgt:BR_SHARDS
+obvious:1
+color:Umber
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:NEXUS
+name:nexus
+type:element
+desc:nexus
+blind-desc:are hit by something strange
+numerator:6  
+denominator:6+1d6
+divisor:6
+damage-cap:400
+msgt:BR_NEXUS
+obvious:1
+color:Light Red
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:NETHER
+name:nether
+type:element
+desc:nether
+blind-desc:are hit by something cold
+numerator:6  
+denominator:6+1d6
+divisor:6
+damage-cap:550
+msgt:BR_NETHER
+obvious:1
+color:Light Green
+pvp-flags:DAMAGE | NON_PHYS
+threat:immune
+threat-flag:UNDEAD
+
+code:CHAOS
+name:chaos
+type:element
+desc:chaos
+blind-desc:are hit by something strange
+numerator:6
+denominator:6+1d6
+divisor:6
+damage-cap:500
+msgt:BR_CHAOS
+obvious:1
+color:White
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:DISEN
+name:disenchantment
+type:element
+desc:disenchantment
+blind-desc:are hit by something strange
+numerator:6  
+denominator:6+1d6
+divisor:6
+damage-cap:500
+msgt:BR_DISEN
+obvious:1
+color:Violet
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:TIME
+name:time
+type:element
+desc:time
+blind-desc:are hit by something strange
+numerator:6  
+denominator:6+1d6
+divisor:3
+damage-cap:150
+msgt:BR_TIME
+obvious:1
+color:Light Blue
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:MANA
+name:mana
+type:element
+desc:mana
+blind-desc:are hit by something
+numerator:6  
+denominator:6+1d6
+divisor:3
+damage-cap:250
+msgt:BR_ELEMENTS
+obvious:1
+color:Light dark
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:WATER
+name:water
+type:element
+desc:water
+blind-desc:are hit by water
+divisor:3
+damage-cap:300
+msgt:GENERIC
+obvious:1
+color:Slate
+pvp-flags:DAMAGE | NON_PHYS
+threat:immune
+threat-flag:IM_WATER
+
+code:ICE
+name:ice
+type:element
+desc:ice
+blind-desc:are hit by something sharp
+numerator:1  
+denominator:3
+msgt:GENERIC
+obvious:1
+color:White
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:GRAVITY
+name:gravity
+type:element
+desc:gravity
+blind-desc:are hit by something strange
+numerator:6  
+denominator:6+1d6
+divisor:3
+damage-cap:200
+msgt:BR_GRAVITY
+obvious:1
+color:Light Slate
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:INERTIA
+name:inertia
+type:element
+desc:inertia
+blind-desc:are hit by something strange
+divisor:6
+damage-cap:200
+msgt:BR_INERTIA
+obvious:1
+color:Light Slate
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:FORCE
+name:force
+type:element
+desc:force
+blind-desc:are hit by something hard
+divisor:6
+damage-cap:200
+msgt:BR_FORCE
+obvious:1
+color:Umber
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:PLASMA
+name:plasma
+type:element
+desc:plasma
+blind-desc:are hit by something
+divisor:6
+damage-cap:150
+msgt:BR_PLASMA
+obvious:1
+color:Red
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:METEOR
+name:a meteor
+type:element
+desc:meteor
+blind-desc:are hit by something
+msgt:GENERIC
+obvious:1
+color:Red
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:MISSILE
+name:a missile
+type:element
+desc:magical energy
+blind-desc:are hit by something
+msgt:GENERIC
+obvious:1
+color:White
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:HOLY_ORB
+name:a holy orb
+type:element
+desc:holy power
+blind-desc:are hit by something
+msgt:GENERIC
+obvious:1
+color:Light Dark
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:ARROW_X
+name:a seeker arrow
+type:element
+desc:magical energy
+blind-desc:are hit by something sharp
+msgt:GENERIC
+obvious:1
+color:White
+pvp-flags:DAMAGE
+threat:always
+
+code:ARROW_1
+name:a shot
+type:element
+desc:shots
+blind-desc:are hit by something sharp
+msgt:GENERIC
+obvious:1
+color:White
+pvp-flags:DAMAGE
+threat:always
+
+code:ARROW_2
+name:an arrow
+type:element
+desc:arrows
+blind-desc:are hit by something sharp
+msgt:GENERIC
+obvious:1
+color:White
+pvp-flags:DAMAGE
+threat:always
+
+code:ARROW_3
+name:a bolt
+type:element
+desc:bolts
+blind-desc:are hit by something sharp
+msgt:GENERIC
+obvious:1
+color:White
+pvp-flags:DAMAGE
+threat:always
+
+code:ARROW_4
+name:a missile
+type:element
+desc:missiles
+blind-desc:are hit by something sharp
+msgt:GENERIC
+obvious:1
+color:White
+pvp-flags:DAMAGE
+threat:always
+
+code:BOULDER
+name:a boulder
+type:element
+desc:boulders
+blind-desc:are hit by something sharp
+msgt:GENERIC
+obvious:1
+color:White
+pvp-flags:DAMAGE
+threat:always
+
+code:LIGHT_WEAK
+type:environs
+desc:light
+blind-desc:are hit by something
+obvious:1
+color:Orange
+pvp-flags:DAMAGE | NON_PHYS
+threat:vulnerable
+threat-flag:HURT_LIGHT
+
+code:DARK_WEAK
+type:environs
+desc:darkness
+obvious:0
+color:Light Dark
+threat:never
+
+code:KILL_WALL
+type:environs
+desc:rock remover
+obvious:1
+color:White
+pvp-flags:DAMAGE | NON_PHYS
+threat:vulnerable
+threat-flag:HURT_ROCK
+
+code:KILL_DOOR
+type:environs
+desc:destroys all doors
+obvious:0
+color:White
+threat:never
+
+code:KILL_TRAP
+type:environs
+desc:disables all traps, unlocks all locked doors and reveals all secret doors
+obvious:0
+color:White
+threat:never
+
+code:MAKE_DOOR
+type:environs
+desc:creates doors
+obvious:0
+color:White
+threat:never
+
+code:MAKE_TRAP
+type:environs
+desc:creates traps on all empty squares
+obvious:0
+color:White
+threat:never
+
+code:STONE_WALL
+type:environs
+desc:creates walls
+obvious:0
+color:White
+threat:never
+
+code:RAISE
+type:environs
+desc:raises the dead
+obvious:0
+color:White
+threat:never
+
+code:AWAY_EVIL
+type:monster
+desc:teleports evil monsters away
+obvious:0
+color:White
+threat:never
+
+code:AWAY_ALL
+type:monster
+desc:teleports up to {100} squares away
+blind-desc:feel you are somewhere else
+obvious:1
+color:White
+threat:never
+
+code:TURN_UNDEAD
+type:monster
+desc:turns undead
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:TURN_ALL
+type:monster
+desc:attempts to scare for %s turns all non-unique monsters
+blind-desc:hear scary noises
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:DISP_UNDEAD
+type:monster
+desc:inflicts %s points of damage on all undead creatures
+obvious:0
+color:White
+pvp-flags:DAMAGE | NON_PHYS
+threat:vulnerable
+threat-flag:UNDEAD
+
+code:DISP_EVIL
+type:monster
+desc:inflicts %s points of damage on all evil monsters
+obvious:0
+color:White
+pvp-flags:DAMAGE | NON_PHYS
+threat:vulnerable
+threat-flag:EVIL
+
+code:DISP_ALL
+type:monster
+desc:inflicts %s points of damage on
+obvious:1
+color:White
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
+code:MON_CLONE
+type:monster
+desc:hastes, heals and magically duplicates (if not unique)
+obvious:1
+color:White
+threat:never
+
+code:MON_POLY
+type:monster
+desc:attempts to polymorph all non-unique monsters
+blind-desc:feel bizarre
+obvious:0
+color:White
+threat:never
+
+code:MON_HEAL
+type:monster
+desc:cures for {4d6} points of damage
+obvious:1
+color:White
+threat:never
+
+code:MON_SPEED
+type:monster
+desc:hastes for %s turns
+obvious:1
+color:White
+threat:never
+
+code:MON_SLOW
+type:monster
+desc:attempts to slow down for %s turns all monsters
+blind-desc:feel something draining power from your muscles
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:MON_CONF
+type:monster
+desc:attempts to confuse for %s turns all monsters
+blind-desc:hear puzzling noises
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:MON_SLEEP
+type:monster
+desc:attempts to put to sleep all monsters
+blind-desc:hear strange mumbling
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:MON_HOLD
+type:monster
+desc:attempts to hold for %s turns all monsters
+blind-desc:hear strange mumbling
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:MON_STUN
+type:monster
+desc:attempts to stun for %s turns all monsters
+blind-desc:hear strange mumbling
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:MON_DRAIN
+type:monster
+desc:damages living monsters
+obvious:1
+color:White
+pvp-flags:DAMAGE | NON_PHYS
+threat:living
+
+code:PSI
+type:monster
+blind-desc:are hit by psionic energy
+obvious:1
+color:White
+pvp-flags:SAVE | DAMAGE
+threat:immune
+threat-flag:EMPTY_MIND
+
+code:DEATH
+type:monster
+obvious:1
+color:Light Dark
+pvp-flags:SAVE | DAMAGE | NON_PHYS
+threat:immune
+threat-flag:UNIQUE
+
+code:PSI_DRAIN
+type:monster
+obvious:1
+color:White
+pvp-flags:DAMAGE
+threat:living
+
+code:CURSE
+type:monster
+blind-desc:hear loud mumbling
+obvious:1
+color:White
+pvp-flags:SAVE | DAMAGE | NON_PHYS
+threat:always
+
+code:CURSE2
+type:monster
+blind-desc:hear loud mumbling
+obvious:1
+color:White
+pvp-flags:SAVE | DAMAGE | NON_PHYS
+threat:always
+
+code:DRAIN
+type:monster
+obvious:1
+color:White
+threat:living
+
+code:GUARD
+type:monster
+obvious:0
+color:White
+threat:never
+
+code:FOLLOW
+type:monster
+obvious:0
+color:White
+threat:never
+
+code:TELE_TO
+type:monster
+blind-desc:feel you are somewhere else
+obvious:1
+color:White
+threat:never
+
+code:TELE_LEVEL
+type:monster
+blind-desc:hear strange mumbling
+obvious:1
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:MON_BLIND
+type:monster
+blind-desc:hear low mumbling
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:DRAIN_MANA
+type:monster
+blind-desc:feel your mana draining away
+obvious:1
+color:White
+threat:never
+
+code:FORGET
+type:monster
+blind-desc:feel something trying to blank your mind
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:BLAST
+type:monster
+blind-desc:are hit by psionic energy
+obvious:1
+color:White
+pvp-flags:SAVE | DAMAGE
+threat:immune
+threat-flag:EMPTY_MIND
+
+code:SMASH
+type:monster
+blind-desc:are hit by psionic energy
+obvious:1
+color:White
+pvp-flags:SAVE | DAMAGE
+threat:immune
+threat-flag:EMPTY_MIND
+
+code:ATTACK
+type:monster
+obvious:0
+color:White
+threat:never
+
+code:CONTROL
+type:monster
+obvious:1
+color:White
+threat:never
+
+code:PROJECT
+type:monster
+blind-desc:are hit by something
+obvious:0
+color:White
+pvp-flags:RAW
+threat:never

@@ -7,6 +7,8 @@
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 
+# === Understanding history.txt ===
+
 # Background information:
 # Pieces of player backstory are chosen from "charts", which are lists of
 # phrases or sentences with similar general meaning.

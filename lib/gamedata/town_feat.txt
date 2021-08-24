@@ -1,0 +1,45 @@
+# File: town_feat.txt
+
+
+# This file is used to initialize the "town feats" information for 
+# PWMAngband.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding town_feat.txt ===
+
+# feat : symbol : terrain type
+
+# 'feat' lines describe the type of terrain. 'Symbol' is the symbol used 
+# on the metamap (see town_XXX.txt files). 'Terrain type' is the feature
+# used to represent the terrain (see terrain.txt).
+
+
+# fake blank feature
+
+feat: :unknown grid
+
+# terrain types
+
+feat:.:open floor
+feat:1:General Store
+feat:2:Armoury
+feat:3:Weapon Smiths
+feat:4:Temple
+feat:5:Alchemy Shop
+feat:6:Magic Shop
+feat:9:House of Arcanes
+feat:7:Black Market
+feat:B:Expensive Black Market
+feat:8:Tavern
+feat:#:permanent wall
+feat:V:water
+feat:@:mud
+feat:C:loose dirt
+feat:,:packed dirt
+feat:~:safe floor
+feat:O:street
+feat:-:grass
+feat:T:tree
+feat:^:mountain

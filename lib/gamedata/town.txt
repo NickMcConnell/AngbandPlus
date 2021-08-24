@@ -1,0 +1,45 @@
+# File: town.txt
+
+
+# This file is used to initialize the "town" information for 
+# PWMAngband.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding town.txt ===
+
+# name : town name
+# wpos : x coordinate : y coordinate
+
+# Starting town should ALWAYS be the first entry in the list.
+# Base town should ALWAYS be the second entry in the list.
+
+
+# Starting town for non-ironman level 1 characters
+name:Hobbiton
+wpos:-21:20
+
+# Base town containing the main Angband dungeon
+name:Carn Dûm
+wpos:-9:37
+
+# Bree
+name:Bree
+wpos:-15:20
+
+# Lothlorien
+name:Lothlorien
+wpos:0:8
+
+# Minas Anor
+name:Minas Anor
+wpos:10:-16
+
+# Umbar
+name:Umbar
+wpos:2:-42
+
+# Gondolin
+name:Gondolin
+wpos:-31:37

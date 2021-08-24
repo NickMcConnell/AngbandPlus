@@ -18,7 +18,7 @@ extern s16b last_remote_line[ANGBAND_TERM_MAX];
 
 extern const char *window_flag_desc[PW_MAX_FLAGS];
 
-extern void display_player_screen(bool mode);
+extern void display_player_screen(byte mode);
 extern void redraw_stuff(void);
 extern int find_whisper_tab(const char *msg, char *text, size_t len);
 extern void message_color_hack(const char *msg, byte *ap);

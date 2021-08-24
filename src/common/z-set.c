@@ -3,7 +3,7 @@
  * Purpose: Sets of pointers
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -87,7 +87,7 @@ void set_add(struct set *s, void *p)
 
 bool set_del(struct set *s, void *p)
 {
-    ssize_t i;
+    int i;
 
     _set_check(s);
 

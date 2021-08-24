@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007 Antony Sidwell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -256,7 +256,7 @@ static void prt_hp(int row, int col)
 
     if (player->chp >= player->mhp)
         color = COLOUR_L_GREEN;
-    else if (player->chp > (player->mhp * player->other.hitpoint_warn) / 10)
+    else if (player->chp > (player->mhp * player->opts.hitpoint_warn) / 10)
         color = COLOUR_YELLOW;
     else
         color = COLOUR_RED;
@@ -288,7 +288,7 @@ static void prt_sp(int row, int col)
 
     if (player->csp >= player->msp)
         color = COLOUR_L_GREEN;
-    else if (player->csp > (player->msp * player->other.hitpoint_warn) / 10)
+    else if (player->csp > (player->msp * player->opts.hitpoint_warn) / 10)
         color = COLOUR_YELLOW;
     else
         color = COLOUR_RED;
@@ -374,10 +374,10 @@ static void prt_lag(int row, int col)
  */
 static void prt_speed(int row, int col)
 {
+    s16b speed = get_speed(player);
     byte attr = COLOUR_WHITE;
     const char *type = NULL;
     char buf[32] = "";
-    s16b speed = get_speed(player);
 
     /* 0 is normal speed, and requires no display */
     if (speed > 0)
@@ -391,7 +391,17 @@ static void prt_speed(int row, int col)
         type = "Slow";
     }
 
-    if (type) strnfmt(buf, sizeof(buf), "%s (%+d)", type, speed);
+    if (type)
+    {
+        if (OPT(player, effective_speed))
+        {
+            int multiplier = player->state.ammo_mult;
+
+            strnfmt(buf, sizeof(buf), "%s (%d.%dx)", type, multiplier / 10, multiplier % 10);
+        }
+        else
+            strnfmt(buf, sizeof(buf), "%s (%+d)", type, speed);
+    }
 
     /* Display the speed */
     c_put_str(attr, format("%-11s", buf), row, col);
@@ -541,14 +551,15 @@ static void update_statusline(game_event_type type, game_event_data *data, void 
 
 
 /*
- * Display the character on the screen (two different modes)
+ * Display the character on the screen (three different modes)
  *
  * The top two lines, and the bottom line (or two) are left blank.
  *
- * Mode false = standard display with skills/history
- * Mode true = special display with equipment flags
+ * Mode 0 = standard display with skills/history
+ * Mode 1 = special display with equipment flags
+ * Mode 2 = special display with equipment flags (ESP flags)
  */
-void display_player_screen(bool mode)
+void display_player_screen(byte mode)
 {
     /* Set the hooks */
     clear_hook = Term_clear;
@@ -611,7 +622,7 @@ static void update_player0_subwindow(game_event_type type, game_event_data *data
     Term_activate(inv_term);
 
     /* Display flags */
-    display_player_screen(false);
+    display_player_screen(0);
 
     Term_fresh();
 
@@ -632,7 +643,7 @@ static void update_player1_subwindow(game_event_type type, game_event_data *data
     Term_activate(inv_term);
 
     /* Display flags */
-    display_player_screen(true);
+    display_player_screen(1);
 
     Term_fresh();
 

@@ -3,7 +3,7 @@
  * Purpose: Various game initialisation routines
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -27,8 +27,12 @@
 #include "c-angband.h"
 
 
+struct feature *f_info;
+
+
 /* Connection parameters */
 char meta_address[NORMAL_WID];
+int meta_port;
 char nick[NORMAL_WID];
 char pass[NORMAL_WID];
 char stored_pass[NORMAL_WID];
@@ -63,14 +67,14 @@ static void free_file_paths(void)
  * Find the default paths to all of our important sub-directories.
  *
  * All of the sub-directories should, by default, be located inside
- * the main directory, whose location is very system dependant. (On multi-
+ * the main directory, whose location is very system dependent. (On multi-
  * user systems such as Linux this is not the default - see config.h for
  * more info.)
  *
  * This function takes a writable buffer, initially containing the
  * "path" to the "config", "lib" and "data" directories, for example,
  * "/etc/angband/", "/usr/share/angband" and "/var/games/angband" -
- * or a system dependant string, for example, ":lib:".  The buffer
+ * or a system dependent string, for example, ":lib:".  The buffer
  * must be large enough to contain at least 32 more characters.
  *
  * Various command line options may allow some of the important
@@ -164,6 +168,8 @@ static void init_player(void)
     /* Allocate player sub-structs */
     player->upkeep = mem_zalloc(sizeof(struct player_upkeep));
     player->timed = mem_zalloc(TMD_MAX * sizeof(s16b));
+
+    options_init_defaults(&player->opts);
 }
 
 
@@ -280,7 +286,7 @@ bool gather_settings(void)
     new_settings[SETTING_MAX_HGT] = Term->max_hgt;
     new_settings[SETTING_WINDOW_FLAG] = 0;
     for (i = 0; i < 8; i++) new_settings[SETTING_WINDOW_FLAG] |= window_flag[i];
-    new_settings[SETTING_HITPOINT_WARN] = player->other.hitpoint_warn;
+    new_settings[SETTING_HITPOINT_WARN] = player->opts.hitpoint_warn;
 
     /* Change */
     for (i = 0; i < SETTING_MAX; i++)
@@ -307,10 +313,10 @@ void client_ready(bool newchar)
 
     /* Save birth options for new characters */
     for (opt = 0; newchar && (opt < OPT_MAX); opt++)
-        options[opt] = Client_setup.options[opt];
+        options[opt] = player->opts.opt[opt];
 
     /* Initialize default option values */
-    init_options(Client_setup.options);
+    init_options(player->opts.opt);
 
     /* Initialize window options that will be overridden by the savefile */
     memset(window_flag, 0, sizeof(u32b) * ANGBAND_TERM_MAX);
@@ -332,7 +338,7 @@ void client_ready(bool newchar)
         const char *name = option_name(opt);
 
         if (name && strstr(name, "birth_"))
-            Client_setup.options[opt] = options[opt];
+            player->opts.opt[opt] = options[opt];
     }
 
     /* Send event */
@@ -496,6 +502,29 @@ void client_init(void)
     /* Read what he sent */
     Packet_scanf(&ibuf, "%c", &status);
     Packet_scanf(&ibuf, "%hu", &num);
+
+    /* Check for error */
+    switch (status)
+    {
+        case SUCCESS: break;
+
+        /* The server didn't like us.... */
+        case E_VERSION_OLD:
+            quit("Your client will not work on that server (client version is too old).");
+        case E_INVAL:
+            quit("The server didn't like your nickname, realname, or hostname.");
+        case E_ACCOUNT:
+            quit("The password you supplied for the account is incorrect.");
+        case E_GAME_FULL:
+            quit("Sorry, the game is full. Try again later.");
+        case E_SOCKET:
+            quit("Socket error.");
+        case E_VERSION_NEW:
+            quit("Your client will not work on that server (server version is too old).");
+        default:
+            quit("Your client will not work on that server (not a PWMAngband server).");
+    }
+
     char_num = num;
     char_name = NULL;
     char_expiry = NULL;
@@ -529,29 +558,6 @@ void client_init(void)
         {
             Packet_scanf(&ibuf, "%s", buffer);
             name_sections[i][j] = string_make(buffer);
-        }
-    }
-
-    /* Some error */
-    if (status)
-    {
-        /* The server didn't like us.... */
-        switch (status)
-        {
-            case E_VERSION_OLD:
-                quit("Client is outdated. Check MAngband forums to get the new PWMAngband client.");
-            case E_INVAL:
-                quit("The server didn't like your nickname, realname, or hostname.");
-            case E_ACCOUNT:
-                quit("The password you supplied for the account is incorrect.");
-            case E_GAME_FULL:
-                quit("Sorry, the game is full. Try again later.");
-            case E_SOCKET:
-                quit("Socket error.");
-            case E_VERSION_NEW:
-                quit("Your client will not work on that server (server version is too old).");
-            default:
-                quit_fmt("Connection failed with status %d.", status);
         }
     }
 
@@ -685,7 +691,7 @@ void cleanup_angband(void)
     mem_free(k_info);
     for (i = 0; e_info && (i < z_info->e_max); i++)
     {
-        struct ego_poss_item *poss, *pn;
+        struct poss_item *poss, *pn;
 
         string_free(e_info[i].name);
         poss = e_info[i].poss_items;
@@ -698,6 +704,7 @@ void cleanup_angband(void)
     }
     mem_free(e_info);
     cleanup_p_race();
+    cleanup_realm();
     cleanup_class();
     cleanup_body();
     for (i = 0; soc_info && (i < z_info->soc_max); i++) string_free(soc_info[i].name);
@@ -720,6 +727,16 @@ void cleanup_angband(void)
         mem_free(rb_info);
         rb_info = rb;
     }
+    for (i = 0; curses && (i < z_info->curse_max); i++)
+    {
+        string_free(curses[i].name);
+        string_free(curses[i].desc);
+    }
+    mem_free(curses);
+    for (i = 0; f_info && (i < z_info->f_max); i++) string_free(f_info[i].name);
+    mem_free(f_info);
+    for (i = 0; trap_info && (i < z_info->trap_max); i++) string_free(trap_info[i].desc);
+    mem_free(trap_info);
 
     /* Free the format() buffer */
     vformat_kill();

@@ -60,7 +60,7 @@ struct pit_forbidden_monster
 struct pit_profile
 {
     struct pit_profile *next;                           /* Pointer to next pit profile */
-    int pit_idx;                                        /* Index in pit_info */
+    unsigned int pit_idx;                               /* Index in pit_info */
     char *name;
     int room_type;                                      /* Is this a pit or a nest? */
     int ave;                                            /* Level where this pit is most common */
@@ -100,6 +100,7 @@ struct dun_data
     /* Array of tunnel grids */
     int tunn_n;
     struct loc *tunn;
+    byte *tunn_flag;
 
     /* Number of grids in each block (vertically) */
     int block_hgt;
@@ -145,7 +146,7 @@ struct streamer_profile
 /*
  * cave_builder is a function pointer which builds a level
  */
-typedef struct chunk * (*cave_builder) (struct player *p);
+typedef struct chunk * (*cave_builder) (struct player *p, struct worldpos *wpos, int h, int w);
 
 struct cave_profile
 {
@@ -168,7 +169,7 @@ struct cave_profile
  * room_builder is a function pointer which builds rooms in the cave given
  * anchor coordinates.
  */
-typedef bool (*room_builder) (struct player *p, struct chunk *c, int y0, int x0);
+typedef bool (*room_builder) (struct player *p, struct chunk *c, int y0, int x0, int rating);
 
 /*
  * This tracks information needed to generate the room, including the room's
@@ -180,6 +181,7 @@ struct room_profile
 
     char *name;
     room_builder builder;   /* Function used to build fixed size rooms */
+    int rating;             /* Extra control for template rooms */
     int height, width;      /* Space required in grids */
     int level;              /* Minimum dungeon level */
     bool pit;               /* Whether this room is a pit/nest or not */
@@ -226,26 +228,43 @@ extern struct room_template *room_templates;
 extern byte trees_in_town;
 
 /* gen-cave.c */
-extern struct chunk *town_gen(struct player *p);
-extern struct chunk *new_town_gen(struct player *p);
-extern struct chunk *classic_gen(struct player *p);
-extern struct chunk *labyrinth_gen(struct player *p);
-extern void ensure_connectedness(struct chunk *c);
-extern struct chunk *cavern_gen(struct player *p);
+extern struct chunk *classic_gen(struct player *p, struct worldpos *wpos, int min_height,
+    int min_width);
+extern struct chunk *labyrinth_gen(struct player *p, struct worldpos *wpos, int min_height,
+    int min_width);
+extern struct chunk *cavern_gen(struct player *p, struct worldpos *wpos, int min_height,
+    int min_width);
+extern struct chunk *town_gen(struct player *p, struct worldpos *wpos, int min_height,
+    int min_width);
+extern struct chunk *modified_gen(struct player *p, struct worldpos *wpos, int min_height,
+    int min_width);
+extern struct chunk *moria_gen(struct player *p, struct worldpos *wpos, int min_height,
+    int min_width);
+extern struct chunk *mang_town_gen(struct player *p, struct worldpos *wpos, int min_height,
+    int min_width);
+extern struct chunk *arena_gen(struct player *p, struct worldpos *wpos, int min_height,
+    int min_width);
 
 /* gen-chunk.c */
-extern void chunk_list_new(void);
-extern void chunk_list_free(void);
 extern void chunk_list_add(struct chunk *c);
-extern void chunk_list_remove(s16b depth);
-extern struct chunk *chunk_get(s16b depth);
+extern void chunk_list_remove(struct chunk *c);
 extern void chunk_validate_objects(struct chunk *c);
-extern bool chunk_inhibit_players(s16b depth);
-extern void chunk_decrease_player_count(s16b depth);
-extern void chunk_set_player_count(s16b depth, s16b value);
-extern void chunk_increase_player_count(s16b depth);
-extern bool chunk_has_players(s16b depth);
-extern s16b chunk_get_player_count(s16b depth);
+extern struct chunk *chunk_get(struct worldpos *wpos);
+extern bool chunk_inhibit_players(struct worldpos *wpos);
+extern void chunk_decrease_player_count(struct worldpos *wpos);
+extern void chunk_set_player_count(struct worldpos *wpos, s16b value);
+extern void chunk_increase_player_count(struct worldpos *wpos);
+extern bool chunk_has_players(struct worldpos *wpos);
+extern s16b chunk_get_player_count(struct worldpos *wpos);
+
+/* gen-monster.c */
+extern bool mon_restrict(struct player *p, const char *monster_type, int depth, bool unique_ok);
+extern void spread_monsters(struct player *p, struct chunk *c, const char *type, int depth, int num,
+    int y0, int x0, int dy, int dx, byte origin);
+extern void get_vault_monsters(struct player *p, struct chunk *c, char racial_symbol[],
+    char *vault_type, const char *data, int y1, int y2, int x1, int x2);
+extern void get_chamber_monsters(struct player *p, struct chunk *c, int y1, int x1, int y2, int x2,
+    char *name, int area);
 
 /* gen-room.c */
 extern void fill_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat, int flag);
@@ -254,22 +273,27 @@ extern void draw_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int 
 extern void set_marked_granite(struct chunk *c, int y, int x, int flag);
 extern bool generate_starburst_room(struct chunk *c, int y1, int x1, int y2, int x2, bool light,
     int feat, bool special_ok);
-extern bool build_simple(struct player *p, struct chunk *c, int y0, int x0);
-extern bool build_circular(struct player *p, struct chunk *c, int y0, int x0);
-extern bool build_overlap(struct player *p, struct chunk *c, int y0, int x0);
-extern bool build_crossed(struct player *p, struct chunk *c, int y0, int x0);
-extern bool build_large(struct player *p, struct chunk *c, int y0, int x0);
 extern bool mon_pit_hook(struct monster_race *race);
 extern void set_pit_type(int depth, int type);
-extern bool build_nest(struct player *p, struct chunk *c, int y0, int x0);
-extern bool build_pit(struct player *p, struct chunk *c, int y0, int x0);
-extern bool build_template(struct player *p, struct chunk *c, int y0, int x0);
-extern bool build_lesser_vault(struct player *p, struct chunk *c, int y0, int x0);
-extern bool build_medium_vault(struct player *p, struct chunk *c, int y0, int x0);
-extern bool build_greater_vault(struct player *p, struct chunk *c, int y0, int x0);
+extern bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault *v,
+    bool find);
+extern bool build_circular(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_simple(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_overlap(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_crossed(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_nest(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_pit(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_template(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_interesting(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_lesser_vault(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_medium_vault(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_greater_vault(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_moria(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_room_of_chambers(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_huge(struct player *p, struct chunk *c, int y0, int x0, int rating);
 extern bool room_build(struct player *p, struct chunk *c, int by0, int bx0,
     struct room_profile profile, bool finds_own_space);
-extern bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault *v);
 
 /* gen-util.c */
 extern byte get_angle_to_grid[41][41];
@@ -283,6 +307,7 @@ extern bool find_empty(struct chunk *c, int *y, int *x);
 extern bool find_nearby_grid(struct chunk *c, int *y, int y0, int yd, int *x, int x0, int xd);
 extern void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2);
 extern void rand_dir(int *rdir, int *cdir);
+extern void add_down_stairs(struct chunk *c);
 extern void new_player_spot(struct chunk *c, struct player *p);
 extern void place_object(struct player *p, struct chunk *c, int y, int x, int level,
     bool good, bool great, byte origin, int tval);
@@ -291,7 +316,7 @@ extern void place_secret_door(struct chunk *c, int y, int x);
 extern void place_closed_door(struct chunk *c, int y, int x);
 extern void place_random_door(struct chunk *c, int y, int x);
 extern void place_random_stairs(struct chunk *c, int y, int x);
-extern void alloc_stairs(struct chunk *c, int feat, int num, int walls);
+extern void alloc_stairs(struct chunk *c, int feat, int num);
 extern void vault_objects(struct player *p, struct chunk *c, int y, int x, int num);
 extern void vault_traps(struct chunk *c, int y, int x, int yd, int xd, int num);
 extern void vault_monsters(struct player *p, struct chunk *c, int y1, int x1, int depth,
@@ -304,6 +329,6 @@ extern bool alloc_object(struct player *p, struct chunk *c, int set, int typ, in
 
 /* generate.c */
 extern void cave_wipe(struct chunk *c);
-extern struct chunk *cave_generate(struct player *p);
+extern struct chunk *prepare_next_level(struct player *p, struct worldpos *wpos);
 
 #endif /* GENERATE_H */

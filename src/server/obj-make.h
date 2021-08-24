@@ -16,8 +16,8 @@ extern struct object_kind *get_obj_num(int level, bool good, int tval);
 extern void init_powers(const struct object *obj, int *power, int *resist);
 extern void dec_power(const struct object *obj, int *power);
 extern void dec_resist(const struct object *obj, int *resist);
-extern void inc_power(const struct object *obj, int *power);
-extern void inc_resist(const struct object *obj, int *resist);
+extern void inc_power(const struct object *obj, int *power, int *resist);
+extern void inc_resist(const struct object *obj, int *power, int *resist);
 extern void do_fixed_powers(struct object *obj, int power, int resist);
 extern void undo_fixed_powers(struct object *obj, int power, int resist);
 extern void get_power_descs(int power, int resist, char *buf, int len);
@@ -33,10 +33,13 @@ extern struct object *make_gold(struct player *p, int lev, char *coin_type);
 extern void make_randart(struct player *p, struct chunk *c, struct object *obj,
     struct artifact *art, s32b randart_seed);
 extern void copy_artifact_data(struct object *obj, const struct artifact *art);
-extern bool make_fake_artifact(struct object *obj, struct artifact *artifact);
+extern bool make_fake_artifact(struct object **obj_address, const struct artifact *artifact);
+extern bool create_randart_drop(struct player *p, struct chunk *c, struct object **obj_address,
+    int a_idx, bool check);
 extern bool kind_is_good(const struct object_kind *kind);
 extern void ego_apply_magic(struct object *obj, int level);
 extern void fuel_default(struct object *obj);
 extern void create_randart(struct player *p, struct chunk *c);
+extern void reroll_randart(struct player *p, struct chunk *c);
 
 #endif /* OBJECT_MAKE_H */

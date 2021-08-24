@@ -27,6 +27,7 @@ extern expression_base_value_f spell_value_base_by_name(const char *name);
 
 extern void cast_spell_end(struct player *p);
 extern void show_ghost_spells(struct player *p);
+extern int antimagic_field(const struct object *obj, bitflag flags[OF_SIZE]);
 extern bool check_antimagic(struct player *p, struct chunk *c, struct monster *who);
 extern bool check_antisummon(struct player *p, struct monster *mon);
 extern void show_mimic_spells(struct player *p);

@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Ben Semmler
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -98,11 +98,12 @@ static void monster_list_format_section(struct player *p, const monster_list_t *
 		/* Only display directions for the case of a single monster. */
 		if (list->entries[index].count[section] == 1)
         {
-			const char *direction1 = ((list->entries[index].dy <= 0)? "N": "S");
-			const char *direction2 = ((list->entries[index].dx <= 0)? "W": "E");
+			const char *direction1 = ((list->entries[index].dy[section] <= 0)? "N": "S");
+			const char *direction2 = ((list->entries[index].dx[section] <= 0)? "W": "E");
 
-			strnfmt(location, sizeof(location), " %d %s %d %s", abs(list->entries[index].dy),
-                direction1, abs(list->entries[index].dx), direction2);
+			strnfmt(location, sizeof(location), " %d %s %d %s",
+                abs(list->entries[index].dy[section]), direction1,
+                abs(list->entries[index].dx[section]), direction2);
 		}
 
         /*

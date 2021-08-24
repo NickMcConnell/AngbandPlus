@@ -13,7 +13,9 @@
 # break: breakage chance when thrown
 # flags: default flags
 
+
 default:break-chance:10
+default:max-stack:40
 
 name:skeleton:Skeleton~
 graphics:white

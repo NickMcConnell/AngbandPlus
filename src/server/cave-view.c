@@ -3,7 +3,7 @@
  * Purpose: Line-of-sight and view calculations
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -364,9 +364,9 @@ bool los(struct chunk *c, int y1, int x1, int y2, int x2)
  * the player.  This flag is never set for a grid unless "SQUARE_VIEW" is also
  * set for the grid.  Whenever the terrain or "SQUARE_GLOW" flag changes
  * for a grid which has the "SQUARE_VIEW" flag set, the "SQUARE_SEEN" flag must
- * be recalculated.  The simplest way to do this is to call "forget_view()"
- * and "update_view()" whenever the terrain or "SQUARE_GLOW" flags change
- * for a grid which has "SQUARE_VIEW" set.
+ * be recalculated.  The simplest way to do this is to call "update_view()"
+ * whenever the terrain or "SQUARE_GLOW" flags change for a grid which has
+ * "SQUARE_VIEW" set.
  *
  * The "SQUARE_WASSEEN" flag is used to determine if the "SQUARE_SEEN" flag for a
  * grid has changed during the "update_view()" function. This flag must always
@@ -458,26 +458,6 @@ bool los(struct chunk *c, int y1, int x1, int y2, int x2)
  */
 
 
-/*
- * Forget the "SQUARE_VIEW" grids, redrawing as needed
- */
-void forget_view(struct player *p, struct chunk *c)
-{
-    int x, y;
-
-    for (y = 0; y < c->height; y++)
-    {
-        for (x = 0; x < c->width; x++)
-        {
-            if (!square_isview(p, y, x)) continue;
-            sqinfo_off(p->cave->squares[y][x].info, SQUARE_VIEW);
-            sqinfo_off(p->cave->squares[y][x].info, SQUARE_SEEN);
-            square_light_spot_aux(p, c, y, x);
-        }
-    }
-}
-
-
 static void mark_wasseen(struct player *p, struct chunk *c)
 {
     int x, y;
@@ -553,8 +533,8 @@ static void add_player_lights(struct player *p, struct chunk *c)
         /* Ignore the player that we're updating */
         if (q == p) continue;
 
-        /* Skip players not on this depth */
-        if (q->depth != p->depth) continue;
+        /* Skip players not on this level */
+        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
 
         /* Skip players not carrying light */
         if (!q->state.cur_light) continue;
@@ -596,8 +576,11 @@ static void add_player_lights(struct player *p, struct chunk *c)
 
 static void update_one(struct player *p, struct chunk *c, int y, int x)
 {
+    /* Remove view if blind, check visible squares for traps */
     if (p->timed[TMD_BLIND])
         sqinfo_off(p->cave->squares[y][x].info, SQUARE_SEEN);
+    else if (square_isseen(p, y, x) && square_issecrettrap(c, y, x))
+        square_reveal_trap(p, y, x, false, true);
 
     /* Square went from unseen -> seen */
     if (square_isseen(p, y, x) && !square_wasseen(c, y, x))
@@ -635,8 +618,7 @@ static void become_viewable(struct player *p, struct chunk *c, int y, int x, boo
 
     sqinfo_on(p->cave->squares[y][x].info, SQUARE_VIEW);
 
-    if (lit)
-        sqinfo_on(p->cave->squares[y][x].info, SQUARE_SEEN);
+    if (lit) sqinfo_on(p->cave->squares[y][x].info, SQUARE_SEEN);
 
     if (square_isglow(c, y, x))
     {
@@ -664,7 +646,8 @@ static void update_view_one(struct player *p, struct chunk *c, int y, int x, int
 
     if (d > z_info->max_sight) return;
 
-    /* Light squares with adjacent bright terrain */
+    /* Light squares with bright terrain, or squares adjacent */
+    if (square_isbright(c, y, x)) lit = true;
     for (dir = 0; dir < 8; dir++)
     {
         if (!square_in_bounds(c, y + ddy_ddd[dir], x + ddx_ddd[dir])) continue;

@@ -3,7 +3,7 @@
  * Purpose: Deal with miscellaneous commands.
  *
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -22,11 +22,11 @@
 
 
 /*
- * Commit suicide
+ * Kill character
  */
 void do_cmd_suicide(struct player *p)
 {
-    /* Mark as suicide */
+    /* Mark as killed */
     p->alive = false;
 
     /* Note cause of death */

@@ -22,7 +22,7 @@ extern errr buffer_put_str(int x, int y, int n, u16b a, const char *s);
 extern char *buffer_line(int row);
 
 /*** Utility display functions ***/
-extern void display_player(struct player *pplayer, bool mode);
+extern void display_player(struct player *pplayer, byte mode);
 
 /*** Status line display functions ***/
 extern size_t display_depth(struct player *p, int row, int col);

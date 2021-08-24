@@ -27,11 +27,34 @@ enum
     TMD_FAIL_FLAG_VULN
 };
 
+/*
+ * Data struct
+ */
+struct timed_effect_data
+{
+    const char *name;
+    u32b flag_redraw;
+    u32b flag_update;
+
+    int index;
+    char *desc;
+    char *on_begin;
+    char *on_end;
+    char *on_increase;
+    char *on_decrease;
+    char *near_begin;
+    char *near_end;
+    int msgt;
+    int fail_code;
+    int fail;
+};
+
+extern struct file_parser player_timed_parser;
+extern struct timed_effect_data timed_effects[];
+
 extern int timed_name_to_idx(const char *name);
-extern const char *timed_idx_to_name(int type);
-extern const char *timed_idx_to_desc(int type);
-extern int timed_protect_flag(int type);
 extern bool player_set_timed(struct player *p, int idx, int v, bool notify);
+extern bool player_inc_check(struct player *p, struct monster *mon, int idx, bool lore);
 extern bool player_inc_timed_aux(struct player *p, struct monster *mon, int idx, int v,
     bool notify, bool check);
 extern bool player_inc_timed(struct player *p, int idx, int v, bool notify, bool check);

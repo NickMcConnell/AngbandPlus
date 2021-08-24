@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2004 Robert Ruehlmann
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -23,16 +23,6 @@
 
 
 /*
- * Describes a flag-name pair
- */
-struct flag_type
-{
-    int flag;
-    const char *name;
-};
-
-
-/*
  * Describes the number of blows possible for given stat bonuses
  */
 struct blow_info
@@ -43,81 +33,9 @@ struct blow_info
 };
 
 
-/*** Big fat data tables ***/
-
-
-static const struct flag_type elements[] =
-{
-    #define ELEM(a, b, c, d, e, f, g, h, col, pvp) {ELEM_##a, b},
-    #include "../common/list-elements.h"
-    #undef ELEM
-    {ELEM_MAX, NULL}
-};
-
-
-static const struct flag_type mod_flags[] =
-{
-    #define STAT(a, b, c, d, e, f, g, h) {OBJ_MOD_##a, h},
-    #include "../common/list-stats.h"
-    #undef STAT
-    #define OBJ_MOD(a, b, c, d) {OBJ_MOD_##a, d},
-    #include "../common/list-object-modifiers.h"
-    #undef OBJ_MOD
-    {OBJ_MOD_MAX, ""}
-};
-
-
-static const struct flag_type protect_flags[] =
-{
-    {OF_PROT_FEAR, "fear"},
-    {OF_PROT_BLIND, "blindness"},
-    {OF_PROT_CONF, "confusion"},
-    {OF_PROT_STUN, "stunning"}
-};
-
-
-static const struct flag_type sustain_flags[] =
-{
-    #define STAT(a, b, c, d, e, f, g, h) {OF_##c, h},
-    #include "../common/list-stats.h"
-    #undef STAT
-    {0, ""}
-};
-
-
-static const struct flag_type misc_flags[] =
-{
-    {OF_BLESSED, "Blessed by the gods"},
-    {OF_SLOW_DIGEST, "Slows your metabolism"},
-    {OF_IMPAIR_HP, "Impairs hitpoint recovery"},
-    {OF_IMPAIR_MANA, "Impairs mana recovery"},
-    {OF_AFRAID, "Makes you afraid of melee, and worse at shooting and casting spells"},
-    {OF_FEATHER, "Makes you fall like a feather"},
-    {OF_REGEN, "Speeds regeneration"},
-    {OF_FREE_ACT, "Prevents paralysis"},
-    {OF_HOLD_LIFE, "Sustains your life force"},
-    {OF_SEE_INVIS, "Grants the ability to see invisible things"},
-    {OF_KNOWLEDGE, "Identifies all items for you"},
-    {OF_ANTI_MAGIC, "Creates an anti-magic field"},
-    {OF_AGGRAVATE, "Aggravates nearby creatures"},
-    {OF_DRAIN_EXP, "Drains experience"},
-    {OF_TELEPORT, "Induces random teleportation"}
-};
-
-
-static const struct flag_type esp_flags[] =
-{
-    {OF_ESP_ALL, "Grants telepathy"},
-    {OF_ESP_ANIMAL, "Grants the ability to sense animals"},
-    {OF_ESP_EVIL, "Grants the ability to sense evil"},
-    {OF_ESP_UNDEAD, "Grants the ability to sense undead"},
-    {OF_ESP_DEMON, "Grants the ability to sense demons"},
-    {OF_ESP_ORC, "Grants the ability to sense orcs"},
-    {OF_ESP_TROLL, "Grants the ability to sense trolls"},
-    {OF_ESP_GIANT, "Grants the ability to sense giants"},
-    {OF_ESP_DRAGON, "Grants the ability to sense dragons"},
-    {OF_ESP_RADIUS, "Grants telepathic awareness"}
-};
+/*
+ * Data tables
+ */
 
 
 static const struct origin_type
@@ -151,7 +69,9 @@ static struct
 };
 
 
-/*** Utility code ***/
+/*
+ * List-writing utility code
+ */
 
 
 /*
@@ -175,16 +95,15 @@ static void info_out_list(struct player *p, const char *list[], size_t count)
 
 
 /*
- * Fills recepticle with all the flags in `flags` that are in the given `list`.
+ * Fills recepticle with all the elements that correspond to the given `list`.
  */
-static size_t flag_info_collect(const struct flag_type list[], size_t max,
-    const bitflag flags[OF_SIZE], const char *recepticle[])
+static size_t element_info_collect(const bool list[], const char *recepticle[])
 {
-    size_t i, count = 0;
+    int i, count = 0;
 
-    for (i = 0; i < max; i++)
+    for (i = 0; i < ELEM_MAX; i++)
     {
-        if (of_has(flags, list[i].flag)) recepticle[count++] = list[i].name;
+        if (list[i]) recepticle[count++] = projections[i].name;
     }
 
     return count;
@@ -192,38 +111,29 @@ static size_t flag_info_collect(const struct flag_type list[], size_t max,
 
 
 /*
- * Fills recepticle with all the elements that correspond to the given `list`.
+ * Code that makes use of the data tables to describe aspects of an
+ * object's information
  */
-static size_t element_info_collect(const bool list[], const char *recepticle[])
-{
-    size_t i, count = 0;
-
-    for (i = 0; i < ELEM_MAX; i++)
-    {
-        if (list[i]) recepticle[count++] = elements[i].name;
-    }
-
-    return count;
-}
-
-
-/*** Code that makes use of the data tables ***/
 
 
 /*
  * Describe an item's curses.
  */
-static bool describe_curses(struct player *p, const struct object *obj,
-    const bitflag flags[OF_SIZE])
+static bool describe_curses(struct player *p, const struct object *obj)
 {
-    if (of_has(flags, OF_PERMA_CURSE))
-        text_out_c(p, COLOUR_L_RED, "Permanently cursed.\n");
-    else if (of_has(flags, OF_HEAVY_CURSE))
-        text_out_c(p, COLOUR_L_RED, "Heavily cursed.\n");
-    else if (of_has(flags, OF_LIGHT_CURSE))
-        text_out_c(p, COLOUR_L_RED, "Cursed.\n");
-    else
-        return false;
+    int i;
+    struct curse_data *c = (obj->curses? obj->known->curses: NULL);
+
+    if (!c) return false;
+
+    for (i = 0; i < z_info->curse_max; i++)
+    {
+        if (c[i].power == 0) continue;
+        text_out(p, "It ");
+        text_out_c(p, COLOUR_L_RED, curses[i].desc);
+        if (c[i].power == 100) text_out(p, "; this curse cannot be removed");
+        text_out(p, ".\n");
+    }
 
     return true;
 }
@@ -235,25 +145,33 @@ static bool describe_curses(struct player *p, const struct object *obj,
 static bool describe_stats(struct player *p, const struct object *obj, bool aware)
 {
     size_t count = 0, i;
+    s32b modifiers[OBJ_MOD_MAX];
 
     /* Fact of but not size of mods is known for egos and flavoured items the player is aware of */
     bool known_effect = false;
 
-    if (object_ego_is_visible(obj)) known_effect = true;
+    if (obj->ego && obj->known->ego) known_effect = true;
     if (tval_can_have_flavor(obj) && aware) known_effect = true;
+
+    object_modifiers(obj, modifiers);
 
     /* See what we've got */
     for (i = 0; i < OBJ_MOD_MAX; i++)
     {
-        const char *desc = mod_flags[i].name;
-        int val = obj->modifiers[mod_flags[i].flag];
+        const char *desc = lookup_obj_property(OBJ_PROPERTY_MOD, i)->name;
+        int val = modifiers[i];
+
+        /* Hack -- don't show pointless "poly race" modifier */
+        if (i == OBJ_MOD_POLY_RACE) continue;
+
+        /* Hack -- antimagic is described elsewhere */
+        if (i == OBJ_MOD_ANTI_MAGIC) continue;
 
         if (!val) continue;
-        if (!mod_flags[i].name[0]) continue;
-        count++;
+        if (obj->known->modifiers[i] || known_effect) count++;
 
         /* Either all mods are visible, or none are */
-        if (object_this_mod_is_visible(obj, mod_flags[i].flag))
+        if (obj->known->modifiers[i])
             text_out_c(p, ((val > 0)? COLOUR_L_GREEN: COLOUR_RED), "%+i %s.\n", val, desc);
         else if (known_effect)
             text_out(p, "Affects your %s.\n", desc);
@@ -316,11 +234,17 @@ static bool describe_elements(struct player *p, const struct element_info el_inf
  */
 static bool describe_protects(struct player *p, const bitflag flags[OF_SIZE])
 {
-    const char *p_descs[N_ELEMENTS(protect_flags)];
-    size_t count;
+    const char *p_descs[OF_MAX];
+    int i, count = 0;
 
     /* Protections */
-    count = flag_info_collect(protect_flags, N_ELEMENTS(protect_flags), flags, p_descs);
+    for (i = 1; i < OF_MAX; i++)
+    {
+        struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_FLAG, i);
+
+        if (prop->subtype != OFT_PROT) continue;
+        if (of_has(flags, prop->index)) p_descs[count++] = prop->desc;
+    }
     if (!count) return false;
 
     text_out(p, "Provides protection from ");
@@ -380,7 +304,14 @@ static bool describe_hates(struct player *p, const struct element_info el_info[]
 static bool describe_sustains(struct player *p, const bitflag flags[OF_SIZE])
 {
     const char *descs[STAT_MAX];
-    size_t count = flag_info_collect(sustain_flags, STAT_MAX, flags, descs);
+    int i, count = 0;
+
+    for (i = 0; i < STAT_MAX; i++)
+    {
+        struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_STAT, i);
+
+        if (of_has(flags, sustain_flag(prop->index))) descs[count++] = prop->name;
+    }
 
     if (!count) return false;
 
@@ -396,14 +327,21 @@ static bool describe_sustains(struct player *p, const bitflag flags[OF_SIZE])
  */
 static bool describe_misc_magic(struct player *p, const bitflag flags[OF_SIZE])
 {
-    size_t i;
+    int i;
     bool printed = false;
 
-    for (i = 0; i < N_ELEMENTS(misc_flags); i++)
+    for (i = 1; i < OF_MAX; i++)
     {
-        if (of_has(flags, misc_flags[i].flag))
+        struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_FLAG, i);
+
+        if ((prop->subtype != OFT_MISC) && (prop->subtype != OFT_MELEE) &&
+            (prop->subtype != OFT_BAD) && (prop->subtype != OFT_OTHER))
         {
-            text_out(p, "%s. ", misc_flags[i].name);
+            continue;
+        }
+        if (of_has(flags, prop->index) && prop->desc)
+        {
+            text_out(p, "%s. ", prop->desc);
             printed = true;
         }
     }
@@ -419,20 +357,29 @@ static bool describe_misc_magic(struct player *p, const bitflag flags[OF_SIZE])
  */
 static bool describe_slays(struct player *p, const struct object *obj, bool fulldesc)
 {
-    struct slay *s = obj->known->slays;
+    int i, count = 0;
+    bool *s = obj->known->slays;
 
     if (!s) return false;
+
+    for (i = 0; i < z_info->slay_max; i++)
+    {
+        if (s[i]) count++;
+    }
+
+    my_assert(count >= 1);
 
     if (fulldesc) text_out(p, "It causes your melee attacks to slay ");
     else text_out(p, "Slays ");
 
-    while (s)
+    for (i = 0; i < z_info->slay_max; i++)
     {
-        text_out(p, s->name);
-        if (s->multiplier > 3) text_out(p, " (powerfully)");
-        if (s->next) text_out(p, ", ");
+        if (!s[i]) continue;
+        text_out(p, slays[i].name);
+        if (slays[i].multiplier > 3) text_out(p, " (powerfully)");
+        if (count > 1) text_out(p, ", ");
         else text_out(p, ".\n");
-        s = s->next;
+        count--;
     }
 
     return true;
@@ -444,43 +391,55 @@ static bool describe_slays(struct player *p, const struct object *obj, bool full
  */
 static bool describe_brands(struct player *p, const struct object *obj, bool fulldesc)
 {
-    struct brand *b = obj->known->brands;
-    struct brand *known_brands = brand_collect(b, NULL);
+    int i, count = 0;
+    bool *b = obj->known->brands, *known_brands = NULL;
     bool weapon = (tval_is_melee_weapon(obj) || tval_is_mstaff(obj));
     bool ammo = (p->state.ammo_tval == obj->tval);
-    int i;
+
+    copy_brands(&known_brands, b);
 
     /* Handle polymorphed players */
     if (weapon && p->poly_race)
     {
         for (i = 0; i < z_info->mon_blows_max; i++)
-            append_fixed_brand(&known_brands, get_poly_brand(p->poly_race, i), 3);
+            append_brand(&known_brands, get_poly_brand(p->poly_race, i));
     }
 
     /* Hack -- extract temp branding */
     if (ammo && p->timed[TMD_BOWBRAND])
-        append_fixed_brand(&known_brands, get_bow_brand(&p->brand), 3);
+        append_brand(&known_brands, get_bow_brand(&p->brand));
 
     /* Hack -- extract temp branding */
     if (weapon && p->timed[TMD_SGRASP])
-        append_fixed_brand(&known_brands, ELEM_ELEC, 3);
+        append_brand(&known_brands, get_brand("lightning", 3));
 
     if (!known_brands) return false;
+
+    for (i = 0; i < z_info->brand_max; i++)
+    {
+        if (known_brands[i]) count++;
+    }
+
+    my_assert(count >= 1);
 
     if (fulldesc) text_out(p, "It brands your melee attacks with ");
     else text_out(p, "Branded with ");
 
-    b = known_brands;
-    while (b)
+    for (i = 0; i < z_info->brand_max; i++)
     {
-        if (b->multiplier < 3) text_out(p, "weak ");
-        text_out(p, b->name);
-        if (b->next) text_out(p, ", ");
+        if (!known_brands[i]) continue;
+        if (brands[i].desc_adjective)
+        {
+            text_out(p, brands[i].desc_adjective);
+            text_out(p, " ");
+        }
+        text_out(p, brands[i].name);
+        if (count > 1) text_out(p, ", ");
         else text_out(p, ".\n");
-        b = b->next;
+        count--;
     }
 
-    free_brand(known_brands);
+    mem_free(known_brands);
     return true;
 }
 
@@ -490,14 +449,17 @@ static bool describe_brands(struct player *p, const struct object *obj, bool ful
  */
 static bool describe_esp(struct player *p, const bitflag flags[OF_SIZE])
 {
-    size_t i;
+    int i;
     bool printed = false;
 
-    for (i = 0; i < N_ELEMENTS(esp_flags); i++)
+    for (i = 1; i < OF_MAX; i++)
     {
-        if (of_has(flags, esp_flags[i].flag))
+        struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_FLAG, i);
+
+        if (prop->subtype != OFT_ESP) continue;
+        if (of_has(flags, prop->index))
         {
-            text_out(p, "%s.\n", esp_flags[i].name);
+            text_out(p, "%s.\n", prop->desc);
             printed = true;
         }
     }
@@ -588,16 +550,13 @@ static void get_known_elements(const struct object *obj, int mode, struct elemen
 {
     size_t i;
 
+    object_elements(obj, el_info);
+
     /* Grab the element info */
     for (i = 0; i < ELEM_MAX; i++)
     {
         /* Report known element info */
-        if (object_element_is_known(obj, i, aware))
-        {
-            el_info[i].res_level = obj->el_info[i].res_level;
-            el_info[i].flags = obj->el_info[i].flags;
-        }
-        else
+        if (!object_element_is_known(obj, i, aware))
         {
             el_info[i].res_level = 0;
             el_info[i].flags = 0;
@@ -642,7 +601,7 @@ static void get_known_elements(const struct object *obj, int mode, struct elemen
 static int obj_known_blows(struct player *p, const struct object *obj, int max_num,
     struct blow_info possible_blows[])
 {
-    int str_plus, dex_plus, old_blows, new_blows;
+    int str_plus, dex_plus, old_blows;
     int str_faster = -1, str_done = -1;
     int dex_plus_bound;
     int str_plus_bound;
@@ -668,16 +627,20 @@ static int obj_known_blows(struct player *p, const struct object *obj, int max_n
     possible_blows[num].centiblows = state.num_blows;
     num++;
 
+    /* Check to see if extra STR or DEX would yield extra blows */
+    old_blows = state.num_blows;
     dex_plus_bound = STAT_RANGE - state.stat_ind[STAT_DEX];
     str_plus_bound = STAT_RANGE - state.stat_ind[STAT_STR];
 
-    /* Check to see if extra STR or DEX would yield extra blows */
+    /* Re-calculate with increased stats */
     for (dex_plus = 0; dex_plus < dex_plus_bound; dex_plus++)
     {
         for (str_plus = 0; str_plus < str_plus_bound; str_plus++)
         {
+            int new_blows;
             struct player_state tmpstate;
 
+            /* Unlikely */
             if (num == max_num)
             {
                 p->body.slots[weapon_slot].obj = current_weapon;
@@ -685,13 +648,9 @@ static int obj_known_blows(struct player *p, const struct object *obj, int max_n
             }
 
             memset(&tmpstate, 0, sizeof(tmpstate));
-
             tmpstate.stat_add[STAT_STR] = str_plus;
             tmpstate.stat_add[STAT_DEX] = dex_plus;
-
             calc_bonuses(p, &tmpstate, true, false);
-
-            old_blows = state.num_blows;
             new_blows = tmpstate.num_blows;
 
             /* Test to make sure that this extra blow is a new str/dex combination, not a repeat */
@@ -779,7 +738,7 @@ static int calc_damage(struct player *p, struct player_state *state, const struc
     int multiplier = 1;
 
     /* Use displayed dice if real dice not known */
-    if (object_attack_plusses_are_visible(obj))
+    if (obj->known->dd && obj->known->ds)
     {
         dice = obj->dd;
         sides = obj->ds;
@@ -797,14 +756,24 @@ static int calc_damage(struct player *p, struct player_state *state, const struc
     if (weapon) dam *= mult;
 
     /* Add object to-dam (x10) */
-    if (object_attack_plusses_are_visible(obj))
-        dam += obj->to_d * 10;
+    if (obj->known->to_d)
+    {
+        s16b to_d;
+
+        object_to_d(obj, &to_d);
+        dam += to_d * 10;
+    }
 
     /* Apply melee critical hits */
     if (weapon)
     {
-        if (object_attack_plusses_are_visible(obj))
-            plus = obj->to_h;
+        if (obj->known->to_h)
+        {
+            s16b to_h;
+
+            object_to_h(obj, &to_h);
+            plus = to_h;
+        }
         dam = calculate_melee_crits(p, state, obj->weight, plus, dam);
     }
 
@@ -812,8 +781,13 @@ static int calc_damage(struct player *p, struct player_state *state, const struc
     if (weapon) dam += state->to_d * 10;
 
     /* Add shooter to-dam (x10) for missile weapons */
-    if (ammo && bow && object_attack_plusses_are_visible(bow))
-        dam += bow->to_d * 10;
+    if (ammo && bow && bow->known->to_d)
+    {
+        s16b to_d;
+
+        object_to_d(bow, &to_d);
+        dam += to_d * 10;
+    }
 
     /* Calculate missile multiplier from launcher multiplier, slays & brands */
     if (ammo)
@@ -835,8 +809,7 @@ static int calc_damage(struct player *p, struct player_state *state, const struc
     /* Apply missile critical hits */
     if (ammo)
     {
-        if (object_attack_plusses_are_visible(obj))
-            plus = obj->to_h;
+        if (obj->known->to_h) plus = obj->to_h;
         dam = calculate_missile_crits(p, &p->state, obj->weight, plus, dam);
     }
 
@@ -856,24 +829,23 @@ static int calc_damage(struct player *p, struct player_state *state, const struc
  * the player wields the given weapon.
  *
  * Fills in the damage against normal adversaries in `normal_damage`, as well
- * as the slays/brands on the weapon in slay_list/brand_list.
+ * as the slays/brands on the weapon in slay_damage/brand_list.
  * `nonweap_slay` is set to whether other items being worn could add to the
  * damage done by branding attacks.
- *
- * Returns the number of slays populated in slay_list[] and slay_damage[].
  */
 static bool obj_known_damage(struct player *p, const struct object *obj, int *normal_damage,
-    struct brand **brand_list, struct slay **slay_list, bool *nonweap_slay)
+    int *brand_damage, int *slay_damage, bool *nonweap_slay)
 {
     int i;
+    bool *total_brands;
+    bool *total_slays;
+    bool has_brands_or_slays = false;
     struct object *bow = equipped_item_by_slot_name(p, "shooting");
     bool weapon = (tval_is_melee_weapon(obj) || tval_is_mstaff(obj));
     bool ammo = (p->state.ammo_tval == obj->tval);
     struct player_state state;
     int weapon_slot = slot_by_name(p, "weapon");
     struct object *current_weapon = slot_object(p, weapon_slot);
-    struct brand *brand;
-    struct slay *slay;
     struct object *known_bow = (bow? bow->known: NULL);
 
     /* Pretend we're wielding the object if it's a weapon */
@@ -888,25 +860,31 @@ static bool obj_known_damage(struct player *p, const struct object *obj, int *no
     p->body.slots[weapon_slot].obj = current_weapon;
 
     /* Get the brands */
-    *brand_list = brand_collect(obj->known->brands, (ammo? known_bow: NULL));
+    total_brands = mem_zalloc(z_info->brand_max * sizeof(bool));
+    copy_brands(&total_brands, obj->known->brands);
+    if (ammo && known_bow)
+        copy_brands(&total_brands, known_bow->brands);
 
     /* Handle polymorphed players */
     if (weapon && p->poly_race)
     {
         for (i = 0; i < z_info->mon_blows_max; i++)
-            append_fixed_brand(brand_list, get_poly_brand(p->poly_race, i), 3);
+            append_brand(&total_brands, get_poly_brand(p->poly_race, i));
     }
 
     /* Hack -- extract temp branding */
     if (ammo && p->timed[TMD_BOWBRAND])
-        append_fixed_brand(brand_list, get_bow_brand(&p->brand), 3);
+        append_brand(&total_brands, get_bow_brand(&p->brand));
 
     /* Hack -- extract temp branding */
     if (weapon && p->timed[TMD_SGRASP])
-        append_fixed_brand(brand_list, ELEM_ELEC, 3);
+        append_brand(&total_brands, get_brand("lightning", 3));
 
     /* Get the slays */
-    *slay_list = slay_collect(obj->known->slays, (ammo? known_bow: NULL));
+    total_slays = mem_zalloc(z_info->slay_max * sizeof(bool));
+    copy_slays(&total_slays, obj->known->slays);
+    if (ammo && known_bow)
+        copy_slays(&total_slays, known_bow->slays);
 
     /* Melee weapons may get slays and brands from other items */
     *nonweap_slay = false;
@@ -918,47 +896,47 @@ static bool obj_known_damage(struct player *p, const struct object *obj, int *no
 
             if (!slot_obj) continue;
 
-            for (slay = slot_obj->known->slays; slay; slay = slay->next)
-            {
-                *nonweap_slay = true;
-                append_fixed_slay(slay_list, slay->name, slay->race_flag, slay->multiplier);
-            }
-            for (brand = slot_obj->known->brands; brand; brand = brand->next)
-            {
-                *nonweap_slay = true;
-                append_fixed_brand(brand_list, brand->element, brand->multiplier);
-            }
-        }
-    }
-
-    /* Hack -- double damage if vulnerable to fire or cold */
-    for (brand = *brand_list; brand; brand = brand->next)
-    {
-        if ((brand->element == ELEM_FIRE) || (brand->element == ELEM_COLD))
-        {
-            struct brand *b = mem_zalloc(sizeof(*b));
-
-            b->name = string_make(brand->name);
-            b->element = brand->element;
-            b->multiplier = brand->multiplier * 2;
-            b->next = brand->next;
-            brand->next = b;
-            brand = b;
+            if (copy_brands(&total_brands, slot_obj->known->brands)) *nonweap_slay = true;
+            if (copy_slays(&total_slays, slot_obj->known->slays)) *nonweap_slay = true;
         }
     }
 
     /* Get damage for each brand on the objects */
-    for (brand = *brand_list; brand; brand = brand->next)
-        brand->damage = calc_damage(p, &state, obj, bow, weapon, ammo, brand->multiplier);
+    for (i = 0; i < z_info->brand_max; i++)
+    {
+        int index = -1, multiplier = brands[i].multiplier;
+
+        /* Must have the brand */
+        if (total_brands[i]) has_brands_or_slays = true;
+        else continue;
+
+        brand_damage[i] = calc_damage(p, &state, obj, bow, weapon, ammo, multiplier);
+
+        /* Hack -- double damage if vulnerable to fire or cold */
+        if (streq(brands[i].name, "fire"))
+            index = z_info->brand_max + multiplier - 2;
+        if (streq(brands[i].name, "cold"))
+            index = z_info->brand_max + multiplier;
+        if (index > 0)
+            brand_damage[index] = calc_damage(p, &state, obj, bow, weapon, ammo, multiplier * 2);
+    }
 
     /* Get damage for each slay on the objects */
-    for (slay = *slay_list; slay; slay = slay->next)
-        slay->damage = calc_damage(p, &state, obj, bow, weapon, ammo, slay->multiplier);
+    for (i = 0; i < z_info->slay_max; i++)
+    {
+        /* Must have the slay */
+        if (total_slays[i]) has_brands_or_slays = true;
+        else continue;
+
+        slay_damage[i] = calc_damage(p, &state, obj, bow, weapon, ammo, slays[i].multiplier);
+    }
 
     /* Normal damage, not considering brands or slays */
     *normal_damage = calc_damage(p, &state, obj, bow, weapon, ammo, 1);
 
-    return (*slay_list || *brand_list);
+    mem_free(total_brands);
+    mem_free(total_slays);
+    return has_brands_or_slays;
 }
 
 
@@ -967,14 +945,14 @@ static bool obj_known_damage(struct player *p, const struct object *obj, int *no
  */
 static void describe_damage(struct player *p, const struct object *obj)
 {
+    int i;
     bool nonweap_slay = false;
-    int normal_damage;
-    struct brand *brand, *brands = NULL;
-    struct slay *slay, *slays = NULL;
-    bool has_brands_or_slays;
+    int normal_damage = 0;
+    int *brand_damage = mem_zalloc((z_info->brand_max + 4) * sizeof(int));
+    int *slay_damage = mem_zalloc(z_info->slay_max * sizeof(int));
 
     /* Collect brands and slays */
-    has_brands_or_slays = obj_known_damage(p, obj, &normal_damage, &brands, &slays,
+    bool has_brands_or_slays = obj_known_damage(p, obj, &normal_damage, brand_damage, slay_damage,
         &nonweap_slay);
 
     /* Mention slays and brands from other items */
@@ -984,30 +962,30 @@ static void describe_damage(struct player *p, const struct object *obj)
     text_out(p, "Average damage/round: ");
 
     /* Output damage for creatures effected by the brands */
-    for (brand = brands; brand; brand = brand->next)
+    for (i = 0; i < z_info->brand_max + 4; i++)
     {
-        if (!brand->damage)
-            text_out_c(p, COLOUR_L_RED, "0");
-        else if (brand->damage % 10)
-            text_out_c(p, COLOUR_L_GREEN, "%d.%d", brand->damage / 10, brand->damage % 10);
+        if (!brand_damage[i]) continue;
+        if (brand_damage[i] % 10)
+            text_out_c(p, COLOUR_L_GREEN, "%d.%d", brand_damage[i] / 10, brand_damage[i] % 10);
         else
-            text_out_c(p, COLOUR_L_GREEN, "%d", brand->damage / 10);
-        if (brand->multiplier <= 3)
-            text_out(p, " vs. creatures not resistant to %s, ", brand->name);
+            text_out_c(p, COLOUR_L_GREEN, "%d", brand_damage[i] / 10);
+        if (i < z_info->brand_max)
+            text_out(p, " vs. creatures not resistant to %s, ", brands[i].name);
+        else if (i < z_info->brand_max + 2)
+            text_out(p, " vs. creatures susceptible to fire, ");
         else
-            text_out(p, " vs. creatures susceptible to %s, ", brand->name);
+            text_out(p, " vs. creatures susceptible to cold, ");
     }
 
     /* Output damage for creatures effected by the slays */
-    for (slay = slays; slay; slay = slay->next)
+    for (i = 0; i < z_info->slay_max; i++)
     {
-        if (!slay->damage)
-            text_out_c(p, COLOUR_L_RED, "0");
-        else if (slay->damage % 10)
-            text_out_c(p, COLOUR_L_GREEN, "%d.%d", slay->damage / 10, slay->damage % 10);
+        if (!slay_damage[i]) continue;
+        if (slay_damage[i] % 10)
+            text_out_c(p, COLOUR_L_GREEN, "%d.%d", slay_damage[i] / 10, slay_damage[i] % 10);
         else
-            text_out_c(p, COLOUR_L_GREEN, "%d", slay->damage / 10);
-        text_out(p, " vs. %s, ", slay->name);
+            text_out_c(p, COLOUR_L_GREEN, "%d", slay_damage[i] / 10);
+        text_out(p, " vs. %s, ", slays[i].name);
     }
 
     if (has_brands_or_slays) text_out(p, "and ");
@@ -1022,8 +1000,8 @@ static void describe_damage(struct player *p, const struct object *obj)
     if (has_brands_or_slays) text_out(p, " vs. others");
     text_out(p, ".\n");
 
-    free_brand(brands);
-    free_slay(slays);
+    mem_free(brand_damage);
+    mem_free(slay_damage);
 }
 
 
@@ -1031,23 +1009,18 @@ static void describe_damage(struct player *p, const struct object *obj)
  * Gets miscellaneous combat information about the given object.
  *
  * Fills in whether there is a special effect when thrown in `thrown effect`,
- * the `range` in ft (or zero if not ammo), whether the weapon has the
- * impact flag set, the percentage chance of breakage and whether it is
- * too heavy to be weilded effectively at the moment.
+ * the `range` in ft (or zero if not ammo), the percentage chance of breakage
+ * and whether it is too heavy to be wielded effectively at the moment.
  */
 static void obj_known_misc_combat(struct player *p, const struct object *obj,
-    bool *thrown_effect, int *range, bool *impactful, int *break_chance, bool *too_heavy,
-    bool *two_handed)
+    bool *thrown_effect, int *range, int *break_chance, bool *heavy, bool *two_handed)
 {
     bool weapon = (tval_is_melee_weapon(obj) || tval_is_mstaff(obj));
     bool ammo = (p->state.ammo_tval == obj->tval);
-    bitflag f[OF_SIZE];
     bool aware = object_flavor_is_aware(p, obj);
 
-    *thrown_effect = *impactful = *too_heavy = *two_handed = false;
+    *thrown_effect = *heavy = *two_handed = false;
     *range = *break_chance = 0;
-
-    get_known_flags(obj, 0, f, aware);
 
     if (!weapon && !ammo)
     {
@@ -1064,9 +1037,6 @@ static void obj_known_misc_combat(struct player *p, const struct object *obj,
         /* Temporary "Farsight" */
         if (p->timed[TMD_FARSIGHT]) *range += (p->lev - 7) / 10;
     }
-
-    /* Note the impact flag */
-    *impactful = of_has(f, OF_IMPACT);
 
     /* Add breakage chance */
     *break_chance = breakage_chance(obj, true);
@@ -1089,7 +1059,7 @@ static void obj_known_misc_combat(struct player *p, const struct object *obj,
         p->body.slots[weapon_slot].obj = current_weapon;
 
         /* Warn about heavy weapons */
-        *too_heavy = state.heavy_wield;
+        *heavy = state.heavy_wield;
 
         /* Special -- two-handed weapons */
         if (kf_has(obj->kind->kind_flags, KF_TWO_HANDED)) *two_handed = true;
@@ -1105,10 +1075,9 @@ static bool describe_combat(struct player *p, const struct object *obj)
     bool weapon = (tval_is_melee_weapon(obj) || tval_is_mstaff(obj));
     bool ammo = (p->state.ammo_tval == obj->tval);
     int range, break_chance;
-    bool impactful, thrown_effect, too_heavy, two_handed;
+    bool thrown_effect, heavy, two_handed;
 
-    obj_known_misc_combat(p, obj, &thrown_effect, &range, &impactful, &break_chance,
-        &too_heavy, &two_handed);
+    obj_known_misc_combat(p, obj, &thrown_effect, &range, &break_chance, &heavy, &two_handed);
 
     /* Abort if we've nothing to say */
     if (!weapon && !ammo)
@@ -1130,7 +1099,7 @@ static bool describe_combat(struct player *p, const struct object *obj)
         text_out_c(p, COLOUR_L_RED, "This weapon should be wielded with both hands.\n");
 
     /* Warn about heavy weapons */
-    if (too_heavy)
+    if (heavy)
         text_out_c(p, COLOUR_L_RED, "You are too weak to use this weapon.\n");
 
     /* Weapon: blows/round */
@@ -1150,12 +1119,8 @@ static bool describe_combat(struct player *p, const struct object *obj)
     /* Describe damage */
     describe_damage(p, obj);
 
-    /* Note the impact flag */
-    if (impactful)
-        text_out(p, "Sometimes creates earthquakes on impact.\n");
-
     /* Add breakage chance */
-    if (ammo && !magic_ammo_p(obj) && !obj->artifact)
+    if (ammo && !of_has(obj->flags, OF_AMMO_MAGIC) && !obj->artifact)
     {
         text_out_c(p, COLOUR_L_GREEN, "%d%%", break_chance);
         text_out(p, " chance of breaking upon contact.\n");
@@ -1183,13 +1148,19 @@ static bool obj_known_digging(struct player *p, const struct object *obj, int de
     int slot = wield_slot(p, obj);
     struct object *current;
     bool equipped = object_is_equipped(p->body, obj);
+    s32b modifiers[OBJ_MOD_MAX];
+
+    object_modifiers(obj, modifiers);
 
     /* Doesn't remotely resemble a digger */
-    if ((slot < 0) || (obj->modifiers[OBJ_MOD_TUNNEL] <= 0)) return false;
+    if (!tval_is_digger(obj) && (modifiers[OBJ_MOD_TUNNEL] <= 0)) return false;
 
     /* Player has no digging info */
-    if (!object_this_mod_is_visible(obj, OBJ_MOD_TUNNEL))
+    if ((modifiers[OBJ_MOD_TUNNEL] || !tval_is_digger(obj)) &&
+        !obj->known->modifiers[OBJ_MOD_TUNNEL])
+    {
         return false;
+    }
 
     /* Pretend we're wielding the object, unless already equipped */
     if (!equipped)
@@ -1279,26 +1250,31 @@ static bool describe_digger(struct player *p, const struct object *obj)
 static bool obj_known_light(struct player *p, const struct object *obj, int mode, int *rad,
     bool *uses_fuel, int *refuel_turns)
 {
-    bitflag flags[OF_SIZE];
     bool no_fuel;
-    bool is_light = (tval_is_light(obj)? true: false);
-    bool artifact = (obj->artifact? true: false);
+    bool is_light = tval_is_light(obj);
+    s32b modifiers[OBJ_MOD_MAX];
     bool known = object_is_known(p, obj);
+    bool known_light = (known || obj->known->modifiers[OBJ_MOD_LIGHT]);
+    bitflag flags[OF_SIZE];
+    bool artifact = (obj->artifact? true: false);
 
-    get_known_flags(obj, mode, flags, object_flavor_is_aware(p, obj));
+    object_modifiers(obj, modifiers);
+    if (!is_light && (modifiers[OBJ_MOD_LIGHT] <= 0)) return false;
+    if (modifiers[OBJ_MOD_LIGHT] && !known_light) return false;
 
-    if (!is_light && (obj->modifiers[OBJ_MOD_LIGHT] <= 0)) return false;
+    /* Work out radius */
+    if (of_has(obj->flags, OF_LIGHT_1)) *rad = 1;
+    else if (of_has(obj->flags, OF_LIGHT_2)) *rad = 2;
+    else if (of_has(obj->flags, OF_LIGHT_3)) *rad = 3;
+    if (known_light) *rad += modifiers[OBJ_MOD_LIGHT];
 
     /*
      * Prevent unidentified objects (especially artifact lights) from showing
      * bad radius and refueling info.
      */
-    if (!known && !object_this_mod_is_visible(obj, OBJ_MOD_LIGHT))
-        return false;
+    if (*rad == 0) return false;
 
-    /* Work out radius */
-    *rad = obj->modifiers[OBJ_MOD_LIGHT];
-
+    get_known_flags(obj, mode, flags, object_flavor_is_aware(p, obj));
     no_fuel = of_has(flags, OF_NO_FUEL);
 
     if (no_fuel && !artifact)
@@ -1307,10 +1283,15 @@ static bool obj_known_light(struct player *p, const struct object *obj, int mode
         *uses_fuel = true;
 
     /* Only show refueling info for known objects */
-    if (is_light && !no_fuel && of_has(obj->flags, OF_TAKES_FUEL) && known)
-        *refuel_turns = z_info->fuel_lamp;
+    if (known)
+    {
+        if (is_light && !no_fuel && of_has(obj->flags, OF_TAKES_FUEL))
+            *refuel_turns = z_info->fuel_lamp;
+        else
+            *refuel_turns = 0;
+    }
     else
-        *refuel_turns = 0;
+        *refuel_turns = -1;
 
     return true;
 }
@@ -1329,28 +1310,50 @@ static bool describe_light(struct player *p, const struct object *obj, int mode)
     if (!obj_known_light(p, obj, mode, &rad, &uses_fuel, &refuel_turns))
         return false;
 
+    if (!tval_is_light(obj)) return false;
+
     text_out(p, "Radius ");
     text_out_c(p, COLOUR_L_GREEN, "%d", rad);
     text_out(p, " light.");
 
-    if (tval_is_light(obj))
-    {
-        if (!uses_fuel)
-            text_out(p, " No fuel required.");
+    if (!uses_fuel)
+        text_out(p, " No fuel required.");
 
-        /* Lamps can refill other lamps */
-        if (!terse)
-        {
-            if (refuel_turns)
-                text_out(p, " Refills other lamps up to %d turns of fuel.", refuel_turns);
-            else
-                text_out(p, " Cannot be refueled.");
-        }
+    /* Lamps can refill other lamps */
+    if (!terse)
+    {
+        if (refuel_turns > 0)
+            text_out(p, " Refills other lamps up to %d turns of fuel.", refuel_turns);
+        else if (refuel_turns == 0)
+            text_out(p, " Cannot be refueled.");
     }
 
     text_out(p, "\n");
 
     return true;
+}
+
+
+/*
+ * Can the effect be aimed?
+ *
+ * Based on obj_needs_aim().
+ */
+bool obj_can_aim(struct player *p, const struct object *obj)
+{
+    bool aim = effect_aim(object_effect(obj));
+    bool aware = object_flavor_is_aware(p, obj);
+
+    /* Wands */
+    if (tval_is_wand(obj)) return true;
+
+    /* Rods that require aiming or unknown rods */
+    if (tval_can_have_timeout(obj) && (aim || !aware)) return true;
+
+    /* Aware flavored items or unflavored flavored with known effect */
+    if (aim) return ((aware && obj->kind->flavor) || object_effect_is_known(obj, aware));
+
+    return false;
 }
 
 
@@ -1370,27 +1373,22 @@ static bool obj_known_effect(struct player *p, const struct object *obj, struct 
     bool *aimed, int *min_recharge, int *max_recharge, int *failure_chance)
 {
     random_value timeout = obj->time;
-    struct effect *eff = object_effect(obj);
 
-    *effect = NULL;
+    *effect = object_effect(obj);
     *min_recharge = 0;
     *max_recharge = 0;
     *failure_chance = 0;
-    *aimed = false;
-
-    /* Don't know much - be vague */
-    if (eff && !object_effect_is_known(obj, object_flavor_is_aware(p, obj)))
-    {
-        *aimed = effect_aim(eff);
-
-        return true;
-    }
+    *aimed = obj_can_aim(p, obj);
 
     /* No effect - no info */
-    if (!eff) return false;
+    if (!*effect) return false;
 
-    *effect = eff;
-    *aimed = effect_aim(eff);
+    /* Don't know much - be vague */
+    if (!object_effect_is_known(obj, object_flavor_is_aware(p, obj)))
+    {
+        *effect = NULL;
+        return true;
+    }
 
     if (randcalc(timeout, 0, MAXIMISE) > 0)
     {
@@ -1435,12 +1433,10 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
     struct effect *effect = NULL;
     bool aimed = false, has_desc = false;
     int min_time, max_time, failure_chance;
-    struct actor actor_body;
-    struct actor *data = &actor_body;
+    struct source actor_body;
+    struct source *data = &actor_body;
 
-    data->idx = 0;
-    data->player = p;
-    data->mon = NULL;
+    source_player(data, 0, p);
 
     /* Sometimes only print artifact activation info */
     /* PWMAngband: also print ego activation info */
@@ -1452,14 +1448,14 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
     /* Effect not known, mouth platitudes */
     if (!effect && object_effect(obj))
     {
-        if (aimed)
-            text_out(p, "It can be aimed.\n");
-        else if (tval_is_edible(obj))
+        if (tval_is_edible(obj))
             text_out(p, "It can be eaten.\n");
         else if (tval_is_potion(obj))
-            text_out(p, "It can be drunk.\n");
+            text_out(p, "It can be quaffed.\n");
         else if (tval_is_scroll(obj))
             text_out(p, "It can be read.\n");
+        else if (aimed)
+            text_out(p, "It can be aimed.\n");
         else
             text_out(p, "It can be activated.\n");
 
@@ -1469,7 +1465,10 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
     /* Activations get a special message */
     if (obj->activation && obj->activation->desc)
     {
-        text_out(p, "When activated, it ");
+        if (aimed)
+            text_out(p, "When aimed, it ");
+        else
+            text_out(p, "When activated, it ");
         print_effect(p, obj->activation->desc);
     }
     else
@@ -1490,14 +1489,14 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
         if (!has_desc) return false;
         effect = object_effect(obj);
 
-        if (aimed)
-            text_out(p, "When aimed, it ");
-        else if (tval_is_edible(obj))
+        if (tval_is_edible(obj))
             text_out(p, "When eaten, it ");
         else if (tval_is_potion(obj))
             text_out(p, "When quaffed, it ");
         else if (tval_is_scroll(obj))
             text_out(p, "When read, it ");
+        else if (aimed)
+            text_out(p, "When aimed, it ");
         else
             text_out(p, "When activated, it ");
 
@@ -1507,7 +1506,7 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
             int roll = 0;
             random_value value;
             char dice_string[20];
-            int boost, level;
+            int level, boost;
 
             /* Skip blank descriptions */
             if (!effect_desc(effect))
@@ -1516,18 +1515,12 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
                 continue;
             }
 
-            /* Get the level */
-            if (obj->artifact)
-                level = get_artifact_level(obj);
-            else
-                level = obj->kind->level;
-
-            /* Get the boost */
+            level = (obj->artifact? get_artifact_level(obj): obj->kind->level);
             boost = MAX(p->state.skills[SKILL_DEVICE] - level, 0);
 
             memset(&value, 0, sizeof(value));
             if (effect->dice != NULL)
-                dice_roll(effect->dice, (void *)data, &value);
+                roll = dice_roll(effect->dice, (void *)data, &value);
 
             /* Deal with special random effect */
             if (effect->index == EF_RANDOM) random_choices = roll + 1;
@@ -1584,7 +1577,7 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
                 case EFINFO_CURE:
                 {
                     strnfmt(desc, sizeof(desc), effect_desc(effect),
-                        timed_idx_to_desc(effect->params[0]));
+                        timed_effects[effect->params[0]].desc);
                     break;
                 }
 
@@ -1592,7 +1585,7 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
                 case EFINFO_TIMED:
                 {
                     strnfmt(desc, sizeof(desc), effect_desc(effect),
-                        timed_idx_to_desc(effect->params[0]), dice_string);
+                        timed_effects[effect->params[0]].desc, dice_string);
                     break;
                 }
 
@@ -1600,17 +1593,7 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
                 case EFINFO_STAT:
                 {
                     strnfmt(desc, sizeof(desc), effect_desc(effect),
-                        mod_flags[effect->params[0]].name);
-                    break;
-                }
-
-                /* PWMAngband: restore original description (spell effect description + dice string) */
-                case EFINFO_SEEN:
-                {
-                    char los_string[100];
-
-                    strnfmt(los_string, sizeof(los_string), gf_desc(effect->params[0]), dice_string);
-                    strnfmt(desc, sizeof(desc), effect_desc(effect), los_string);
+                        lookup_obj_property(OBJ_PROPERTY_STAT, effect->params[0])->name);
                     break;
                 }
 
@@ -1633,7 +1616,7 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
                 case EFINFO_BALL:
                 {
                     strnfmt(desc, sizeof(desc), effect_desc(effect), effect->params[1],
-                        gf_desc(effect->params[0]), dice_string);
+                        projections[effect->params[0]].desc, dice_string);
                     if (boost)
                     {
                         my_strcat(desc,
@@ -1647,33 +1630,37 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
                 /* PWMAngband: restore original description (effect + damage) */
                 case EFINFO_BREATH:
                 {
-                    strnfmt(desc, sizeof(desc), effect_desc(effect), gf_desc(effect->params[0]),
-                        dice_string);
+                    strnfmt(desc, sizeof(desc), effect_desc(effect),
+                        projections[effect->params[0]].desc, dice_string);
                     break;
                 }
 
                 /* Bolts that inflict status */
                 case EFINFO_BOLT:
+                /* PWMAngband: restore original description (spell effect description + dice string) */
+                case EFINFO_SEEN:
                 case EFINFO_TOUCH:
                 {
+                    const char *proj_desc = projections[effect->params[0]].desc;
+
                     /* Hack -- some effects have a duration */
-                    if (strstr(gf_desc(effect->params[0]), "%s"))
+                    if (strstr(proj_desc, "%s"))
                     {
                         char tmp[100];
 
-                        strnfmt(tmp, sizeof(tmp), gf_desc(effect->params[0]), dice_string);
+                        strnfmt(tmp, sizeof(tmp), proj_desc, dice_string);
                         strnfmt(desc, sizeof(desc), effect_desc(effect), tmp);
                     }
                     else
-                        strnfmt(desc, sizeof(desc), effect_desc(effect), gf_desc(effect->params[0]));
+                        strnfmt(desc, sizeof(desc), effect_desc(effect), proj_desc);
                     break;
                 }
 
                 /* Bolts and beams that damage */
                 case EFINFO_BOLTD:
                 {
-                    strnfmt(desc, sizeof(desc), effect_desc(effect), gf_desc(effect->params[0]),
-                        dice_string);
+                    strnfmt(desc, sizeof(desc), effect_desc(effect),
+                        projections[effect->params[0]].desc, dice_string);
                     if (boost)
                     {
                         my_strcat(desc,
@@ -1743,8 +1730,12 @@ static bool describe_effect(struct player *p, const struct object *obj, bool onl
             }
             else if (effect->next)
             {
-                if (effect->next->next && (effect->next->index != EF_RANDOM)) text_out(p, ", ");
-                else text_out(p, " and ");
+                struct effect *next = effect->next;
+
+                if (next->next && (next->index != EF_RANDOM) && effect_desc(next))
+                    text_out(p, ", ");
+                else
+                    text_out(p, " and ");
             }
             effect = effect->next;
         }
@@ -1793,8 +1784,9 @@ static bool describe_origin(struct player *p, const struct object *obj, bool ter
     char loot_spot[NORMAL_WID];
     char name[NORMAL_WID];
     int origin;
-    const char *droppee;
+    const char *dropper = NULL;
     const char *article;
+    bool unique = false;
 
     /* Only give this info in chardumps if wieldable */
     if (terse && !obj_can_wear(p, obj)) return false;
@@ -1812,20 +1804,23 @@ static bool describe_origin(struct player *p, const struct object *obj, bool ter
             obj->origin_depth);
     }
     else
-        my_strcpy(loot_spot, "in town", sizeof(loot_spot));
+        my_strcpy(loot_spot, "on the surface", sizeof(loot_spot));
 
     /* Name the monster of origin */
-    if (r_info[obj->origin_xtra].ridx)
-        droppee = r_info[obj->origin_xtra].name;
+    if (obj->origin_race)
+    {
+        dropper = obj->origin_race->name;
+        if (monster_is_unique(obj->origin_race)) unique = true;
+    }
     else
-        droppee = "monster lost to history";
-    article = (is_a_vowel(droppee[0])? "an ": "a ");
-    if (rf_has(r_info[obj->origin_xtra].flags, RF_UNIQUE))
-        my_strcpy(name, droppee, sizeof(name));
+        dropper = "monster lost to history";
+    article = (is_a_vowel(dropper[0])? "an ": "a ");
+    if (unique)
+        my_strcpy(name, dropper, sizeof(name));
     else
     {
         my_strcpy(name, article, sizeof(name));
-        my_strcat(name, droppee, sizeof(name));
+        my_strcat(name, dropper, sizeof(name));
     }
 
     /* Print an appropriate description */
@@ -1848,12 +1843,15 @@ static bool describe_origin(struct player *p, const struct object *obj, bool ter
  *
  * obj is the object we are describing
  */
-static void describe_flavor_text(struct player *p, const struct object *obj)
+static bool describe_flavor_text(struct player *p, const struct object *obj)
 {
     /* Display the known artifact or object description */
-    if (true_artifact_p(obj) && object_is_known(p, obj) && obj->artifact->text)
+    if (true_artifact_p(obj) && obj->known->artifact && obj->artifact->text)
+    {
         text_out(p, "%s\n\n", obj->artifact->text);
-    else if (object_flavor_is_aware(p, obj))
+        return true;
+    }
+    if (object_flavor_is_aware(p, obj))
     {
         bool did_desc = false;
 
@@ -1864,7 +1862,7 @@ static void describe_flavor_text(struct player *p, const struct object *obj)
         }
 
         /* Display an additional ego-item description */
-        if (object_ego_is_visible(obj) && obj->ego->text)
+        if (obj->ego && obj->known->ego && obj->ego->text)
         {
             if (did_desc) text_out(p, " ");
             text_out(p, "%s", obj->ego->text);
@@ -1872,8 +1870,16 @@ static void describe_flavor_text(struct player *p, const struct object *obj)
         }
 
         if (did_desc) text_out(p, "\n\n");
+        return did_desc;
     }
+
+    return false;
 }
+
+
+/*
+ * Output code
+ */
 
 
 /*
@@ -1881,12 +1887,12 @@ static void describe_flavor_text(struct player *p, const struct object *obj)
  */
 static void object_info_out(struct player *p, const struct object *obj, int mode)
 {
-    bitflag flags[OF_SIZE];
+    bitflag flags[OF_SIZE], flags_misc[OF_SIZE];
     struct element_info el_info[ELEM_MAX];
-    bool something = false;
-    bool known = object_is_known(p, obj);
+    bool something = false, origin_or_desc = false;
     bool aware = object_flavor_is_aware(p, obj);
     bool terse = ((mode & OINFO_TERSE)? true: false);
+    int am, i;
 
     /* Hack -- "wearable" items other than weapons/ammo add slays/brands to melee attacks */
     bool fulldesc = (tval_has_variable_power(obj) && !tval_is_enchantable_weapon(obj));
@@ -1905,18 +1911,29 @@ static void object_info_out(struct player *p, const struct object *obj, int mode
     get_known_elements(obj, mode, el_info, aware);
 
     /* Print origin and descriptive text for a given object */
-    describe_origin(p, obj, terse);
-    if (!terse) describe_flavor_text(p, obj);
+    if (describe_origin(p, obj, terse)) origin_or_desc = true;
+    if (!terse)
+    {
+        if (describe_flavor_text(p, obj)) origin_or_desc = true;
+    }
 
     /* Unidentified item */
-    if (!known)
+    if (!object_fully_known(p, obj) && object_was_sensed(obj))
     {
         text_out(p, "You do not know the full extent of this item's powers.\n");
         something = true;
     }
 
+    /* Hack -- don't display misc magic flags from curses (description is enough) */
+    of_copy(flags_misc, flags);
+    for (i = 0; obj->known->curses && (i < z_info->curse_max); i++)
+    {
+        if (obj->known->curses[i].power == 0) continue;
+        of_diff(flags_misc, curses[i].obj->flags);
+    }
+
     /* Describe bits */
-    if (describe_curses(p, obj, flags)) something = true;
+    if (describe_curses(p, obj)) something = true;
     if (describe_stats(p, obj, aware)) something = true;
     if (describe_slays(p, obj, fulldesc)) something = true;
     if (describe_brands(p, obj, fulldesc)) something = true;
@@ -1925,10 +1942,18 @@ static void object_info_out(struct player *p, const struct object *obj, int mode
     if (describe_ignores(p, el_info)) something = true;
     if (describe_hates(p, el_info)) something = true;
     if (describe_sustains(p, flags)) something = true;
-    if (describe_misc_magic(p, flags)) something = true;
+    if (describe_misc_magic(p, flags_misc)) something = true;
     if (describe_light(p, obj, mode)) something = true;
     if (describe_esp(p, flags)) something = true;
     if (something) text_out(p, "\n");
+
+    /* PWMAngband: dark swords have an antimagic field */
+    am = antimagic_field(obj, flags);
+    if (am)
+    {
+        something = true;
+        text_out_c(p, COLOUR_L_DARK, "Has a %d%% chance of suppressing magic.\n", am);
+    }
 
     if (describe_effect(p, obj, terse))
     {
@@ -1947,8 +1972,13 @@ static void object_info_out(struct player *p, const struct object *obj, int mode
     if (!terse && describe_digger(p, obj)) something = true;
 
     /* Don't append anything in terse (for character dump), since that seems to cause extra linebreaks */
-    if (!something && !terse)
-        text_out(p, "\n\nThis item does not seem to possess any special abilities.");
+    if (!something)
+    {
+        if (!terse)
+            text_out(p, "\n\nThis item does not seem to possess any special abilities.");
+        else if (!origin_or_desc)
+            text_out(p, "\n");
+    }
 }
 
 

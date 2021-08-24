@@ -2,7 +2,7 @@
 The PWMAngband Manual
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../icons/mr_att.png
+.. image:: ../icons/mr-att.png
    :alt: 
    :align: center
 

@@ -1,0 +1,163 @@
+# File: wild_feat.txt
+
+
+# This file is used to initialize the "wilderness feats" information for 
+# PWMAngband.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding wild_feat.txt ===
+
+# name : terrain name
+# feat : level : terrain type : symbol
+# chance : index : terrain feat : chance of generation
+# sound : ambient sound
+
+# 'feat' lines describe the type of terrain. 'Level' is the maximum level of
+# objects and monsters generated on such type of terrain (for monsters: during
+# the day). 'Terrain type' is the feature used to represent the terrain (see
+# terrain.txt). 'Symbol' is the symbol used on the metamap (see wild_info.txt).
+
+# Important note: order must match entries in list-wild-feats.h.
+
+
+name:undefined
+feat:0:unknown grid:x
+sound:GENERIC
+
+# terrain types
+
+# grass, water, tree, packed dirt
+name:river
+feat:20:water:_
+chance:0:grass:25
+chance:1:water:49
+chance:2:tree:1
+chance:3:packed dirt:25
+sound:WILD_RIVER
+
+# grass, dark tree, mountain, packed dirt
+name:waste
+feat:10:packed dirt:.
+chance:0:grass:1
+chance:1:dark tree:1
+chance:2:mountain:1
+chance:3:packed dirt:97
+sound:WILD_WASTE
+
+# dark tree, mountain, packed dirt, lava
+name:volcano
+feat:50:lava:#
+chance:0:dark tree:1
+chance:1:mountain:15
+chance:2:packed dirt:60
+chance:3:lava:24
+sound:WILD_VOLCANO
+
+# grass, water, tree, packed dirt
+name:grass
+feat:5:grass:,
+chance:0:grass:97
+chance:1:water:1
+chance:2:tree:1
+chance:3:packed dirt:1
+sound:WILD_GRASS
+
+# grass, water, tree, packed dirt
+name:wood
+feat:20:tree:*
+chance:0:grass:30
+chance:1:water:1
+chance:2:tree:39
+chance:3:packed dirt:30
+sound:WILD_WOOD
+
+# grass, dark tree, mountain, packed dirt
+name:mountain
+feat:0:mountain:&
+chance:0:grass:1
+chance:1:dark tree:1
+chance:2:mountain:97
+chance:3:packed dirt:1
+sound:WILD_MOUNTAIN
+
+# packed dirt, sand, sandwall, dark tree
+name:desert
+feat:30:sand:d
+chance:0:packed dirt:1
+chance:1:sand:97
+chance:2:sandwall:1
+chance:3:dark tree:1
+sound:WILD_DESERT
+
+# mud, ice, ice wall, dark tree
+name:glacier
+feat:30:ice:g
+chance:0:mud:1
+chance:1:ice:97
+chance:2:ice wall:1
+chance:3:dark tree:1
+sound:WILD_GLACIER
+
+# grass, water, tree, packed dirt
+name:swamp
+feat:50:swamp:%
+chance:0:grass:30
+chance:1:water:20
+chance:2:tree:20
+chance:3:packed dirt:30
+sound:WILD_SWAMP
+
+# town
+name:town
+feat:0:town:T
+sound:GENERIC
+
+# grass, water, tree, sand
+name:deep water
+feat:0:deep water:=
+chance:0:grass:1
+chance:1:water:97
+chance:2:tree:1
+chance:3:sand:1
+sound:WILD_DEEPWATER
+
+# grass, tree, mountain, packed dirt
+name:hill
+feat:40:hill:^
+chance:0:grass:60
+chance:1:tree:1
+chance:2:mountain:15
+chance:3:packed dirt:24
+sound:WILD_HILL
+
+# grass, water, tree, sand
+name:shore
+feat:20:shore:~
+chance:0:grass:30
+chance:1:water:39
+chance:2:tree:1
+chance:3:sand:30
+sound:WILD_SHORE
+
+# hotspots (not terrain types)
+
+# grass, mud, water, tree, packed dirt
+name:mud pit
+feat:0:unknown grid:X
+chance:0:grass:10
+chance:1:mud:60
+chance:2:water:10
+chance:3:tree:10
+chance:4:packed dirt:10
+sound:GENERIC
+
+# grass, dark tree, mountain, packed dirt
+name:scorched
+feat:0:unknown grid:X
+chance:0:grass:30
+chance:1:dark tree:39
+chance:2:mountain:1
+chance:3:packed dirt:30
+sound:GENERIC

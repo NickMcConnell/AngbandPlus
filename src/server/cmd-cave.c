@@ -3,7 +3,7 @@
  * Purpose: Chest and door opening/closing, disarming, running, resting, ...
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -28,10 +28,11 @@ void do_cmd_go_up(struct player *p)
 {
     int ascend_to;
     byte new_level_method;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
+    struct worldpos wpos;
 
-    /* Can't go up outside of the dungeon */
-    if (p->depth <= 0)
+    /* Can't go up on the surface */
+    if (p->wpos.depth == 0)
     {
         msg(p, "There is nothing above you.");
         return;
@@ -52,7 +53,7 @@ void do_cmd_go_up(struct player *p)
     }
 
     /* Force down */
-    if ((cfg_limit_stairs >= 2) || OPT_P(p, birth_force_descend))
+    if ((cfg_limit_stairs >= 2) || OPT(p, birth_force_descend))
     {
         /* Going up is forbidden (except ghosts) */
         if (!p->ghost)
@@ -63,16 +64,19 @@ void do_cmd_go_up(struct player *p)
     }
 
     /* No going up from quest levels with force_descend while the quest is active */
-    if (((cfg_limit_stairs == 3) || OPT_P(p, birth_force_descend)) && is_quest_active(p, p->depth))
+    if (((cfg_limit_stairs == 3) || OPT(p, birth_force_descend)) &&
+        is_quest_active(p, p->wpos.depth))
     {
         msg(p, "Something prevents you from going up...");
         return;
     }
 
-    ascend_to = dungeon_get_next_level(p, p->depth, -1);
+    ascend_to = dungeon_get_next_level(p, p->wpos.depth, -1);
+
+    COORDS_SET(&wpos, p->wpos.wy, p->wpos.wx, ascend_to);
 
     /* Hack -- DM redesigning the level */
-    if (chunk_inhibit_players(ascend_to))
+    if (chunk_inhibit_players(&wpos))
     {
         msg(p, "Something prevents you from going up...");
         return;
@@ -94,7 +98,7 @@ void do_cmd_go_up(struct player *p)
     }
 
     /* Change level */
-    dungeon_change_level(p, c, ascend_to, new_level_method);
+    dungeon_change_level(p, c, &wpos, new_level_method);
 }
 
 
@@ -105,10 +109,12 @@ void do_cmd_go_down(struct player *p)
 {
     int descend_to;
     byte new_level_method;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
+    struct wild_type *w_ptr = get_wt_info_at(p->wpos.wy, p->wpos.wx);
+    struct worldpos wpos;
 
-    /* Can't go down in the wilderness */
-    if (p->depth < 0)
+    /* Can't go down if no dungeon */
+    if (w_ptr->max_depth == 1)
     {
         msg(p, "There is nothing below you.");
         return;
@@ -135,24 +141,31 @@ void do_cmd_go_down(struct player *p)
         return;
     }
 
-    /* Paranoia, no descent from z_info->max_depth - 1 */
-    if (p->depth == z_info->max_depth - 1)
+    /* Paranoia, no descent from max_depth - 1 */
+    if (p->wpos.depth == w_ptr->max_depth - 1)
     {
         msg(p, "The dungeon does not appear to extend deeper.");
         return;
     }
 
     /* Verify basic quests */
-    if (is_quest_active(p, p->depth))
+    if (is_quest_active(p, p->wpos.depth))
     {
         msg(p, "Something prevents you from going down...");
         return;
     }
 
-    descend_to = dungeon_get_next_level(p, p->depth, 1);
+    /* Winner-only dungeons */
+    if (forbid_entrance(p))
+    {
+        msg(p, "You're not powerful enough to enter!");
+        return;
+    }
+
+    descend_to = dungeon_get_next_level(p, p->wpos.depth, 1);
 
     /* Warn a force_descend player if they're going to a quest level */
-    if ((cfg_limit_stairs == 3) || OPT_P(p, birth_force_descend))
+    if ((cfg_limit_stairs == 3) || OPT(p, birth_force_descend))
     {
         descend_to = dungeon_get_next_level(p, p->max_depth, 1);
 
@@ -160,13 +173,15 @@ void do_cmd_go_down(struct player *p)
         if (is_quest_active(p, descend_to) && !p->current_action)
         {
             p->current_action = ACTION_GO_DOWN;
-            get_item(p, HOOK_DOWN);
+            get_item(p, HOOK_DOWN, "");
             return;
         }
     }
 
+    COORDS_SET(&wpos, p->wpos.wy, p->wpos.wx, descend_to);
+
     /* Hack -- DM redesigning the level */
-    if (chunk_inhibit_players(descend_to))
+    if (chunk_inhibit_players(&wpos))
     {
         msg(p, "Something prevents you from going down...");
         return;
@@ -188,162 +203,27 @@ void do_cmd_go_down(struct player *p)
     }
 
     /* Change level */
-    dungeon_change_level(p, c, descend_to, new_level_method);
+    dungeon_change_level(p, c, &wpos, new_level_method);
 }
 
 
 /*
- * Search for hidden things.  Returns true if a search was attempted, returns
- * false when the player has a 0% chance of finding anything.  Prints messages
- * for negative confirmation when verbose mode is requested.
+ * Toggle stealth mode
  */
-bool search(struct player *p, struct chunk *c, bool verbose)
+void do_cmd_toggle_stealth(struct player *p)
 {
-    int py = p->py;
-    int px = p->px;
-    int y, x, chance;
-    bool found = false;
-    struct object *obj;
-
-    /* Start with base search ability */
-    chance = p->state.skills[SKILL_SEARCH];
-
-    /* Penalize various conditions */
-    if (p->timed[TMD_BLIND] || no_light(p)) chance = chance / 10;
-    if (p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE]) chance = chance / 10;
-
-    /* Prevent fruitless searches */
-    if (chance <= 0)
+    /* Stop stealth mode */
+    if (p->stealthy)
     {
-        if (verbose)
-        {
-            msg(p, "You can't make out your surroundings well enough to search.");
-
-            /* Cancel repeat */
-            disturb(p, 0);
-        }
-
-        return false;
-    }
-
-    /* Search the nearby grids, which are always in bounds */
-    for (y = (py - 1); y <= (py + 1); y++)
-    {
-        for (x = (px - 1); x <= (px + 1); x++)
-        {
-            /* Sometimes, notice things */
-            if (magik(chance))
-            {
-                /* Invisible trap */
-                if (square_issecrettrap(c, y, x))
-                {
-                    found = true;
-
-                    /* Reveal trap, display a message */
-                    if (square_reveal_trap(p, y, x, chance, true))
-                    {
-                        /* Disturb */
-                        disturb(p, 0);
-                    }
-                }
-
-                /* Secret door */
-                if (square_issecretdoor(c, y, x))
-                {
-                    found = true;
-
-                    /* Message */
-                    msg(p, "You have found a secret door.");
-
-                    /* Pick a door */
-                    place_closed_door(c, y, x);
-
-                    /* Disturb */
-                    disturb(p, 0);
-
-                    /* Give the player an EXP bump */
-                    p->exp += 1;
-                }
-
-                /* Scan all objects in the grid */
-                for (obj = square_object(c, y, x); obj; obj = obj->next)
-                {
-                    /* Skip if not a trapped chest */
-                    if (!is_trapped_chest(obj)) continue;
-
-                    /* Identify once */
-                    if (!object_is_known(p, obj))
-                    {
-                        /* Know the trap */
-                        object_notice_everything_aux(p, obj, true, false);
-
-                        /* Notice */
-                        if (!ignore_item_ok(p, obj))
-                        {
-                            found = true;
-
-                            /* Message */
-                            msg(p, "You have discovered a trap on the chest!");
-
-                            /* Notice it */
-                            disturb(p, 0);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (verbose && !found)
-    {
-        if (chance >= 100) msg(p, "There are no secrets here.");
-        else msg(p, "You found nothing.");
-    }
-
-    return true;
-}
-
-
-/*
- * Simple command to "search" for some turns
- */
-bool do_cmd_search(struct player *p)
-{
-    struct chunk *c = chunk_get(p->depth);
-
-    /* Cancel repeat */
-    if (!p->search_request) return true;
-
-    /* Check energy */
-    if (!has_energy(p)) return false;
-
-    /* Only take a turn if attempted */
-    if (search(p, c, true)) use_energy(p);
-
-    /* Repeat */
-    if (p->search_request > 0) p->search_request--;
-    if (p->search_request > 0) cmd_search(p);
-    return true;
-}
-
-
-/*
- * Toggle search mode
- */
-void do_cmd_toggle_search(struct player *p)
-{
-    /* Stop searching */
-    if (p->searching)
-    {
-        p->searching = false;
+        p->stealthy = false;
         p->upkeep->update |= (PU_BONUS);
         p->upkeep->redraw |= (PR_STATE);
     }
 
-    /* Start searching */
+    /* Start stealth mode */
     else
     {
-        p->searching = true;
+        p->stealthy = true;
         p->upkeep->update |= (PU_BONUS);
         p->upkeep->redraw |= (PR_STATE | PR_SPEED);
     }
@@ -363,7 +243,7 @@ static bool do_cmd_open_test(struct player *p, struct chunk *c, int y, int x)
     }
 
     /* Handle polymorphed players */
-    if (p->poly_race && !OPT_P(p, birth_fruit_bat))
+    if (p->poly_race && !OPT(p, birth_fruit_bat))
     {
         if (!rf_has(p->poly_race->flags, RF_OPEN_DOOR))
         {
@@ -401,7 +281,7 @@ static bool do_cmd_open_aux(struct player *p, struct chunk *c, int y, int x)
 {
     int i, j, k;
     bool more = false;
-    house_type *house;
+    struct house_type *house;
 
     /* Verify legality */
     if (!do_cmd_open_test(p, c, y, x)) return false;
@@ -409,7 +289,7 @@ static bool do_cmd_open_aux(struct player *p, struct chunk *c, int y, int x)
     /* Player Houses */
     if (square_home_iscloseddoor(c, y, x))
     {
-        i = pick_house(p->depth, y, x);
+        i = pick_house(&p->wpos, y, x);
         house = house_get(i);
 
         /* Tell the DM who owns the house */
@@ -444,7 +324,9 @@ static bool do_cmd_open_aux(struct player *p, struct chunk *c, int y, int x)
             square_open_homedoor(c, y, x);
 
             /* Update the visuals */
-            update_visuals(p->depth);
+            square_memorize(p, c, y, x);
+            square_light_spot_aux(p, c, y, x);
+            update_visuals(&p->wpos);
 
             /* Sound */
             sound(p, MSG_STORE_HOME);
@@ -474,11 +356,11 @@ static bool do_cmd_open_aux(struct player *p, struct chunk *c, int y, int x)
     else if (square_islockeddoor(c, y, x))
     {
         /* Disarm factor */
-        i = p->state.skills[SKILL_DISARM];
+        i = p->state.skills[SKILL_DISARM_PHYS];
 
         /* Penalize some conditions */
-        if (p->timed[TMD_BLIND] || no_light(p)) i = i / 10;
-        if (p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE]) i = i / 10;
+        if (p->timed[TMD_BLIND] || no_light(p) || p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE])
+            i = i / 10;
 
         /* Extract the door power */
         j = square_door_power(c, y, x);
@@ -499,7 +381,9 @@ static bool do_cmd_open_aux(struct player *p, struct chunk *c, int y, int x)
             square_open_door(c, y, x);
 
             /* Update the visuals */
-            update_visuals(p->depth);
+            square_memorize(p, c, y, x);
+            square_light_spot_aux(p, c, y, x);
+            update_visuals(&p->wpos);
         }
 
         /* Failure */
@@ -520,7 +404,9 @@ static bool do_cmd_open_aux(struct player *p, struct chunk *c, int y, int x)
         square_open_door(c, y, x);
 
         /* Update the visuals */
-        update_visuals(p->depth);
+        square_memorize(p, c, y, x);
+        square_light_spot_aux(p, c, y, x);
+        update_visuals(&p->wpos);
 
         /* Sound */
         sound(p, MSG_OPENDOOR);
@@ -537,7 +423,7 @@ static bool do_cmd_open_aux(struct player *p, struct chunk *c, int y, int x)
 static bool is_blocker(struct player *p, struct chunk *c, int y, int x, bool allow_5)
 {
     if (!c->squares[y][x].mon) return false;
-    if ((p->px != x) || (p->py != y)) return true;
+    if (!player_is_at(p, y, x)) return true;
     return !allow_5;
 }
 
@@ -547,22 +433,22 @@ static bool is_blocker(struct player *p, struct chunk *c, int y, int x, bool all
  */
 static void attack_blocker(struct player *p, struct chunk *c, int y, int x)
 {
-    struct actor who_body;
-    struct actor *who = &who_body;
+    struct source who_body;
+    struct source *who = &who_body;
 
     square_actor(c, y, x, who);
 
     /* Monster in the way */
-    if (who->mon)
+    if (who->monster)
     {
         /* Mimics surprise the player */
-        if (is_mimicking(who->mon))
+        if (monster_is_camouflaged(who->monster))
         {
-            become_aware(p, c, who->mon);
+            become_aware(p, c, who->monster);
 
             /* Mimic wakes up */
-            if (pvm_check(p, who->mon))
-                mon_clear_timed(p, who->mon, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE, false);
+            if (pvm_check(p, who->monster))
+                mon_clear_timed(p, who->monster, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
         }
         else
         {
@@ -570,7 +456,7 @@ static void attack_blocker(struct player *p, struct chunk *c, int y, int x)
             msg(p, "There is a monster in the way!");
 
             /* Attack */
-            if (pvm_check(p, who->mon)) py_attack(p, c, y, x);
+            if (pvm_check(p, who->monster)) py_attack(p, c, y, x);
         }
     }
 
@@ -602,7 +488,7 @@ void do_cmd_open(struct player *p, int dir, bool easy)
     int y, x;
     struct object *obj;
     bool more = false, allow_5 = false;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Easy Open */
     if (easy)
@@ -688,7 +574,7 @@ static bool do_cmd_close_test(struct player *p, struct chunk *c, int y, int x)
     }
 
     /* Handle polymorphed players */
-    if (p->poly_race && !OPT_P(p, birth_fruit_bat))
+    if (p->poly_race && !OPT(p, birth_fruit_bat))
     {
         if (!rf_has(p->poly_race->flags, RF_OPEN_DOOR))
         {
@@ -755,13 +641,15 @@ static bool do_cmd_close_aux(struct player *p, struct chunk *c, int y, int x)
     else if (square_home_isopendoor(c, y, x))
     {
         /* Find this house */
-        i = pick_house(p->depth, y, x);
+        i = pick_house(&p->wpos, y, x);
 
         /* Close the door */
         square_colorize_door(c, y, x, house_get(i)->color);
 
         /* Update the visuals */
-        update_visuals(p->depth);
+        square_memorize(p, c, y, x);
+        square_light_spot_aux(p, c, y, x);
+        update_visuals(&p->wpos);
 
         /* Sound */
         sound(p, MSG_SHUTDOOR);
@@ -774,7 +662,9 @@ static bool do_cmd_close_aux(struct player *p, struct chunk *c, int y, int x)
         square_close_door(c, y, x);
 
         /* Update the visuals */
-        update_visuals(p->depth);
+        square_memorize(p, c, y, x);
+        square_light_spot_aux(p, c, y, x);
+        update_visuals(&p->wpos);
 
         /* Sound */
         sound(p, MSG_SHUTDOOR);
@@ -792,7 +682,7 @@ void do_cmd_close(struct player *p, int dir, bool easy)
 {
     int y, x;
     bool more = false;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Easy Close */
     if (easy)
@@ -874,8 +764,8 @@ static bool do_cmd_tunnel_test(struct player *p, struct chunk *c, int y, int x)
         return false;
     }
 
-    /* No tunneling on special levels */
-    if (special_level(p->depth))
+    /* No tunneling on special levels and towns (except starting town) */
+    if (special_level(&p->wpos) || (in_town(&p->wpos) && !in_start_town(&p->wpos)))
     {
         msg(p, "Nothing happens.");
         return false;
@@ -908,10 +798,10 @@ static bool twall(struct player *p, struct chunk *c, int y, int x)
     square_tunnel_wall(c, y, x);
 
     /* Update the visuals */
-    update_visuals(p->depth);
+    update_visuals(&p->wpos);
 
     /* Fully update the flow */
-    fully_update_flow(p->depth);
+    fully_update_flow(&p->wpos);
 
     /* Result */
     return true;
@@ -936,6 +826,8 @@ static bool do_cmd_tunnel_aux(struct player *p, struct chunk *c, int y, int x)
     bool okay = false;
     bool gold = square_hasgoldvein(c, y, x);
     bool rubble = square_isrubble(c, y, x);
+    bool tree = square_istree(c, y, x);
+    bool web = square_isweb(c, y, x);
     int digging;
 
     /* Verify legality */
@@ -979,14 +871,17 @@ static bool do_cmd_tunnel_aux(struct player *p, struct chunk *c, int y, int x)
     else if (okay && twall(p, c, y, x))
     {
         /* Mow down the vegetation */
-        if (square_istree(c, y, x))
+        if (tree)
         {
-            if (!p->depth && !square_iswitheredtree(c, y, x))
-                trees_in_town--;
+            if (in_start_town(&p->wpos)) trees_in_town--;
 
             /* Message */
             msg(p, "You hack your way through the vegetation.");
         }
+
+        /* Clear some web */
+        else if (web)
+            msg(p, "You hack your way through the web.");
 
         /* Remove the rubble */
         else if (rubble)
@@ -998,8 +893,7 @@ static bool do_cmd_tunnel_aux(struct player *p, struct chunk *c, int y, int x)
             if (magik(10))
             {
                 /* Create a simple object */
-                place_object(p, c, y, x, object_level(p->depth), false, false,
-                    ORIGIN_RUBBLE, 0);
+                place_object(p, c, y, x, object_level(&p->wpos), false, false, ORIGIN_RUBBLE, 0);
 
                 /* Observe the new object */
                 if (!ignore_item_ok(p, square_object(c, y, x)) && square_isseen(p, y, x))
@@ -1011,7 +905,7 @@ static bool do_cmd_tunnel_aux(struct player *p, struct chunk *c, int y, int x)
         else if (gold)
         {
             /* Place some gold */
-            place_gold(p, c, y, x, object_level(p->depth), ORIGIN_FLOOR);
+            place_gold(p, c, y, x, object_level(&p->wpos), ORIGIN_FLOOR);
 
             /* Message */
             msg(p, "You have found something!");
@@ -1025,16 +919,13 @@ static bool do_cmd_tunnel_aux(struct player *p, struct chunk *c, int y, int x)
     /* Failure, continue digging */
     else
     {
-        if (square_istree(c, y, x))
+        if (tree || web)
             msg(p, "You attempt to clear a path.");
         else if (rubble)
             msg(p, "You dig in the rubble.");
         else
             msg(p, "You tunnel into the %s.", square_apparent_name(p, c, y, x));
          more = true;
-
-        /* Occasional Search XXX XXX */
-        if (square_issecretdoor(c, y, x) && magik(25)) search(p, c, false);
     }
 
     /* Result */
@@ -1052,7 +943,7 @@ bool do_cmd_tunnel(struct player *p)
 {
     int y, x, dir = (int)p->digging_dir;
     bool more = false;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Cancel repeat */
     if (!p->digging_request) return true;
@@ -1140,7 +1031,7 @@ static bool do_cmd_disarm_test(struct player *p, struct chunk *c, int y, int x)
         return true;
 
     /* Look for a trap */
-    if (!square_isknowntrap(c, y, x))
+    if (!square_isdisarmabletrap(c, y, x))
     {
         msg(p, "You see nothing there to disarm.");
         return false;
@@ -1167,14 +1058,14 @@ static bool do_cmd_lock_door(struct player *p, struct chunk *c, int y, int x)
     if (!do_cmd_disarm_test(p, c, y, x)) return false;
 
     /* Get the "disarm" factor */
-    i = p->state.skills[SKILL_DISARM];
+    i = p->state.skills[SKILL_DISARM_PHYS];
 
     /* Penalize some conditions */
-    if (p->timed[TMD_BLIND] || no_light(p)) i = i / 10;
-    if (p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE]) i = i / 10;
+    if (p->timed[TMD_BLIND] || no_light(p) || p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE])
+        i = i / 10;
 
     /* Calculate lock "power" */
-    power = m_bonus(7, p->depth);
+    power = m_bonus(7, p->wpos.depth);
 
     /* Extract the difficulty */
     j = i - power;
@@ -1190,7 +1081,7 @@ static bool do_cmd_lock_door(struct player *p, struct chunk *c, int y, int x)
     }
 
     /* Failure -- keep trying */
-    else if ((i > 5) && !CHANCE(5, i))
+    else if (magik(j))
     {
         msg(p, "You failed to lock the door.");
 
@@ -1216,7 +1107,7 @@ static bool do_cmd_lock_door(struct player *p, struct chunk *c, int y, int x)
  */
 static bool do_cmd_disarm_aux(struct player *p, struct chunk *c, int y, int x, int dir)
 {
-    int i, j, power;
+    int skill, power, chance;
     struct trap *trap = c->squares[y][x].trap;
     bool more = false;
 
@@ -1231,54 +1122,44 @@ static bool do_cmd_disarm_aux(struct player *p, struct chunk *c, int y, int x, i
     }
     if (!trap) return false;
 
-    /* Get the "disarm" factor */
-    i = p->state.skills[SKILL_DISARM];
+    /* Get the base disarming skill */
+    if (trf_has(trap->flags, TRF_MAGICAL))
+        skill = p->state.skills[SKILL_DISARM_MAGIC];
+    else
+        skill = p->state.skills[SKILL_DISARM_PHYS];
 
     /* Penalize some conditions */
-    if (p->timed[TMD_BLIND] || no_light(p)) i = i / 10;
-    if (p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE]) i = i / 10;
+    if (p->timed[TMD_BLIND] || no_light(p) || p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE])
+        skill = skill / 10;
 
-    /* XXX XXX XXX Variable power? */
+    /* Extract trap power */
+    power = MAX(c->wpos.depth, 0) / 5;
 
-    /* Extract trap "power" */
-    power = 5;
-
-    /* Extract the difficulty */
-    j = i - power;
+    /* Extract the percentage success */
+    chance = skill - power;
 
     /* Always have a small chance of success */
-    if (j < 2) j = 2;
+    if (chance < 2) chance = 2;
 
-    /* Success */
-    if (magik(j))
+    /* Two chances - one to disarm, one not to set the trap off */
+    if (magik(chance))
     {
-        /* Message */
         msgt(p, MSG_DISARM, "You have disarmed the %s.", trap->kind->name);
+        player_exp_gain(p, 1 + power);
 
-        /* Reward */
-        player_exp_gain(p, power);
-
-        /* Remove the trap */
-        square_destroy_trap(p, c, y, x);
+        /* Trap is gone */
+        square_destroy_trap(c, y, x);
     }
-
-    /* Failure -- keep trying */
-    else if ((i > 5) && !CHANCE(5, i))
+    else if (magik(chance))
     {
-        /* Message */
         msg(p, "You failed to disarm the %s.", trap->kind->name);
 
-        /* We may keep trying */
+        /* Player can try again */
         more = true;
     }
-
-    /* Failure -- set off the trap */
     else
     {
-        /* Message */
         msg(p, "You set off the %s!", trap->kind->name);
-
-        /* Hit the trap */
         move_player(p, c, dir, false, false, true);
     }
 
@@ -1303,7 +1184,7 @@ void do_cmd_disarm(struct player *p, int dir, bool easy)
     int y, x;
     struct object *obj;
     bool more = false, allow_5 = false;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Easy Disarm */
     if (easy)
@@ -1314,7 +1195,7 @@ void do_cmd_disarm(struct player *p, int dir, bool easy)
         num_doors = count_feats(p, c, &y, &x, square_hack_iscloseddoor, false);
 
         /* Count visible traps */
-        n_traps = count_feats(p, c, &y, &x, square_isknowntrap, true);
+        n_traps = count_feats(p, c, &y, &x, square_isdisarmabletrap, true);
 
         /* Count chests (trapped) */
         n_chests = count_chests(p, c, &y, &x, CHEST_TRAPPED);
@@ -1395,7 +1276,7 @@ void do_cmd_alter(struct player *p, int dir)
 {
     int y, x;
     bool more = false;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Get a direction (or abort) */
     if (!dir || !VALID_DIR(dir)) return;
@@ -1442,7 +1323,7 @@ void do_cmd_alter(struct player *p, int dir)
         more = do_cmd_open_aux(p, c, y, x);
 
     /* Disarm traps */
-    else if (square_isknowntrap(c, y, x))
+    else if (square_isdisarmabletrap(c, y, x))
         more = do_cmd_disarm_aux(p, c, y, x, dir);
 
     /* Oops */
@@ -1488,8 +1369,8 @@ static void do_prob_travel(struct player *p, struct chunk *c, int dir)
             break;
         }
 
-        /* Require an "empty" floor grid */
-        if (!square_isemptyfloor(c, y, x) || square_isvault(c, y, x))
+        /* Require a "naked" floor grid */
+        if (!square_isempty(c, y, x) || square_isvault(c, y, x))
         {
             y += ddy[dir];
             x += ddx[dir];
@@ -1519,14 +1400,18 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
     int y, x;
     bool old_dtrap, new_dtrap, old_pit, new_pit;
     bool do_move = true;
-    struct actor who_body;
-    struct actor *who = &who_body;
+    struct source who_body;
+    struct source *who = &who_body;
+    bool trapsafe = (p->timed[TMD_TRAPSAFE]? true: false);
+    bool alterable;
 
     /* Ensure "dir" is in ddx/ddy array bounds */
     if (!VALID_DIR(dir)) return;
 
     y = p->py + ddy[dir];
     x = p->px + ddx[dir];
+
+    alterable = (square_isdisarmabletrap(c, y, x) || square_iscloseddoor(c, y, x));
 
     /* Handle polymorphed players */
     if (p->poly_race)
@@ -1538,11 +1423,11 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
     }
 
     /* New player location on the world map */
-    if ((p->depth <= 0) && !square_in_bounds_fully(c, y, x))
+    if ((p->wpos.depth == 0) && !square_in_bounds_fully(c, y, x))
     {
-        int new_world_x = p->world_x, new_world_y = p->world_y;
+        int new_world_x = p->wpos.wx, new_world_y = p->wpos.wy;
         int new_x = p->px, new_y = p->py;
-        int new_world_index;
+        struct wild_type *w_ptr;
 
         /* Handle polymorphed players */
         if (!do_move)
@@ -1551,16 +1436,16 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
             return;
         }
 
-        /* Leaving town */
-        if (!p->depth)
+        /* Leaving base town */
+        if (in_base_town(&p->wpos))
         {
             /* Forbid */
-            if (cfg_no_recall || cfg_town_wall || OPT_P(p, birth_no_recall))
+            if (cfg_diving_mode || OPT(p, birth_no_recall))
             {
-                if (!cfg_town_wall)
-                    msg(p, ONE_OF(comment_ironman));
-                else
+                if (cfg_diving_mode)
                     msg(p, "There is a wall blocking your way.");
+                else
+                    msg(p, ONE_OF(comment_ironman));
                 disturb(p, 1);
                 return;
             }
@@ -1593,42 +1478,40 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
         }
 
         /* New location */
-        new_world_index = world_index(new_world_x, new_world_y);
+        w_ptr = get_wt_info_at(new_world_y, new_world_x);
 
-        /* Check to make sure he hasnt hit the edge of the world */
-        if (new_world_index < 0 - MAX_WILD)
+        /* Check to make sure he hasn't hit the edge of the world */
+        if (!w_ptr)
         {
-            /* Hack -- consider a circular wilderness */
-            if ((y <= 0) || (y >= c->height - 1))
-                new_world_y = 0 - p->world_y;
-            if ((x <= 0) || (x >= c->width - 1))
-                new_world_x = 0 - p->world_x;
+            switch (randint0(2))
+            {
+                case 0: msg(p, "You have reached the Walls of the World. You can not pass."); break;
+                case 1: msg(p, "You cannot go beyond the Walls of the World."); break;
+            }
 
-            new_world_index = world_index(new_world_x, new_world_y);
-            if (new_world_index < 0 - MAX_WILD) return;
+            disturb(p, 1);
+            return;
         }
 
         /* Hack -- DM redesigning the level */
-        if (chunk_inhibit_players(new_world_index))
+        if (chunk_inhibit_players(&w_ptr->wpos))
         {
             msg(p, "Something prevents you from going this way...");
             return;
         }
 
         /* Change location */
-        dungeon_change_level(p, c, new_world_index, LEVEL_OUTSIDE);
+        dungeon_change_level(p, c, &w_ptr->wpos, LEVEL_OUTSIDE);
 
         /* Hack -- replace the player */
-        p->world_x = new_world_x;
-        p->world_y = new_world_y;
         p->old_px = p->px = new_x;
         p->old_py = p->py = new_y;
 
         /* Update the wilderness map */
-        wild_set_explored(p, 0 - p->depth);
+        wild_set_explored(p, &w_ptr->wpos);
 
         /* Disturb if necessary */
-        if (OPT_P(p, disturb_panel)) disturb(p, 0);
+        if (OPT(p, disturb_panel)) disturb(p, 0);
 
         return;
     }
@@ -1683,6 +1566,9 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
 
                 /* Unhack both of them */
                 who->player->last_dir = p->last_dir = 5;
+
+                player_know_floor(p, c);
+                player_know_floor(who->player, c);
             }
 
             /* Bump into other players */
@@ -1707,18 +1593,18 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
     }
 
     /* Bump into monsters */
-    if (who->mon)
+    if (who->monster)
     {
         /* Check for an attack */
-        if (pvm_check(p, who->mon))
+        if (pvm_check(p, who->monster))
         {
-            /* Mimics surprise the player */
-            if (is_mimicking(who->mon))
+            /* Attack monsters */
+            if (monster_is_camouflaged(who->monster))
             {
-                become_aware(p, c, who->mon);
+                become_aware(p, c, who->monster);
 
                 /* Mimic wakes up */
-                mon_clear_timed(p, who->mon, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE, false);
+                mon_clear_timed(p, who->monster, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
             }
             else
                 py_attack(p, c, y, x);
@@ -1729,12 +1615,15 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
             msg(p, "You cannot move!");
 
         /* Reveal mimics */
-        else if (is_mimicking(who->mon))
-            become_aware(p, c, who->mon);
+        else if (monster_is_camouflaged(who->monster))
+            become_aware(p, c, who->monster);
 
         /* Switch places */
         else
-            monster_swap(c, p->py, p->px, who->mon->fy, who->mon->fx);
+        {
+            monster_swap(c, p->py, p->px, who->monster->fy, who->monster->fx);
+            player_know_floor(p, c);
+        }
 
         return;
     }
@@ -1754,15 +1643,14 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
     }
 
     /* Optionally alter traps/doors on movement */
-    if (disarm && square_isknown(p, y, x) &&
-        (square_iscloseddoor(c, y, x) || square_isknowntrap(c, y, x)))
+    if (alterable && disarm && square_isknown(p, y, x))
     {
         do_cmd_alter(p, dir);
         return;
     }
 
     /* Stop running before known traps */
-    if (p->upkeep->running && square_isknowntrap(c, y, x))
+    if (p->upkeep->running && square_isdisarmabletrap(c, y, x) && !trapsafe)
     {
         disturb(p, 0);
         return;
@@ -1771,7 +1659,6 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
     /* Normal players can not walk through "walls" */
     if (!player_passwall(p) && !square_ispassable(c, y, x))
     {
-        /* Disturb the player */
         disturb(p, 0);
 
         /* Notice unknown obstacles */
@@ -1801,14 +1688,6 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
                 square_light_spot_aux(p, c, y, x);
             }
 
-            /* Lava */
-            else if (square_isbright(c, y, x))
-            {
-                msgt(p, MSG_HITWALL, "You feel a pool of lava blocking your way.");
-                square_memorize(p, c, y, x);
-                square_light_spot_aux(p, c, y, x);
-            }
-
             /* Wall (or secret door) */
             else
             {
@@ -1832,10 +1711,6 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
             /* Tree */
             else if (square_istree(c, y, x))
                 msgt(p, MSG_HITWALL, "There is a tree blocking your way.");
-
-            /* Lava */
-            else if (square_isbright(c, y, x))
-                msgt(p, MSG_HITWALL, "There is a pool of lava blocking your way.");
 
             /* Wall (or secret door) */
             else
@@ -1883,7 +1758,7 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
 
     /* Disturb if the player is about to leave the area */
     if (p->upkeep->running && !p->upkeep->running_firststep && old_dtrap && !new_dtrap &&
-        random_level(p->depth))
+        random_level(&p->wpos))
     {
         disturb(p, 0);
         return;
@@ -1898,31 +1773,21 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
     /* Move player */
     monster_swap(c, p->py, p->px, y, x);
 
-    /* Searching */
-    if (p->searching || (p->state.skills[SKILL_SEARCH_FREQUENCY] >= 50) ||
-        one_in_(50 - p->state.skills[SKILL_SEARCH_FREQUENCY]))
-    {
-        search(p, c, false);
-    }
-
-    /* Know objects, queue autopickup */
-    if (c->squares[y][x].obj)
-    {
-        p->ignore = 1;
-        floor_pile_know(p, c, y, x);
-        do_autopickup(p, c, check_pickup);
-        current_clear(p);
-        player_pickup_item(p, c, check_pickup, NULL);
-    }
-
-    /* Handle "store doors" */
+    /* Handle store doors, or notice objects */
     if (!p->ghost && square_isshop(c, y, x))
     {
-        /* Disturb */
         disturb(p, 0);
 
         /* Hack -- enter store */
         do_cmd_store(p, -1);
+    }
+    if (c->squares[y][x].obj)
+    {
+        p->ignore = 1;
+        player_know_floor(p, c);
+        do_autopickup(p, c, check_pickup);
+        current_clear(p);
+        player_pickup_item(p, c, check_pickup, NULL);
     }
 
     /* Handle resurrection */
@@ -1939,32 +1804,32 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
     /* Discover invisible traps */
     else if (square_issecrettrap(c, y, x))
     {
-        /* Disturb */
         disturb(p, 0);
-
-        /* Hit the trap */
         hit_trap(p);
     }
 
     /* Set off a visible trap */
-    else if (square_isknowntrap(c, y, x))
+    else if (square_isdisarmabletrap(c, y, x) && !trapsafe)
     {
-        /* Disturb */
         disturb(p, 0);
-
-        /* Hit the trap */
         hit_trap(p);
     }
 
     /* Mention fountains */
     else if (square_isfountain(c, y, x))
     {
-        /* Disturb */
         disturb(p, 0);
-
-        /* Message */
         msg(p, "A fountain is located at this place.");
     }
+
+    p->upkeep->running_firststep = false;
+
+    /* Hack -- we're done if player is gone (trap door) */
+    if (p->upkeep->new_level_method) return;
+
+    /* Update view and search */
+    update_view(p, c);
+    search(p, c);
 
     /*
      * Hack -- if we are the dungeon master, and our movement hook
@@ -1973,8 +1838,6 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
      */
     if (is_dm_p(p) && master_move_hook)
         master_move_hook(p, NULL);
-
-    p->upkeep->running_firststep = false;
 }
 
 
@@ -2044,6 +1907,10 @@ static bool erratic_dir(struct player *p, int *dp)
  */
 void do_cmd_walk(struct player *p, int dir)
 {
+    int x, y;
+    struct chunk *c = chunk_get(&p->wpos);
+    bool trapsafe = (p->timed[TMD_TRAPSAFE]? true: false);
+
     /* Get a direction (or abort) */
     if (!dir) return;
 
@@ -2057,8 +1924,14 @@ void do_cmd_walk(struct player *p, int dir)
     player_confuse_dir(p, &dir);
     erratic_dir(p, &dir);
 
-    /* Move the player */
-    move_player(p, chunk_get(p->depth), dir, true, true, false);
+    /* Ensure "dir" is in ddx/ddy array bounds */
+    if (!VALID_DIR(dir)) return;
+
+    y = p->py + ddy[dir];
+    x = p->px + ddx[dir];
+
+    /* Attempt to disarm unless it's a trap and we're trapsafe */
+    move_player(p, c, dir, !(square_isdisarmabletrap(c, y, x) && trapsafe), true, false);
 }
 
 
@@ -2081,7 +1954,7 @@ void do_cmd_jump(struct player *p, int dir)
     erratic_dir(p, &dir);
 
     /* Move the player */
-    move_player(p, chunk_get(p->depth), dir, false, true, false);
+    move_player(p, chunk_get(&p->wpos), dir, false, true, false);
 }
 
 
@@ -2090,7 +1963,7 @@ void do_cmd_jump(struct player *p, int dir)
  */
 static bool do_cmd_run_test(struct player *p, int y, int x)
 {
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Check preventive inscription '^.' */
     if (check_prevent_inscription(p, INSCRIPTION_RUN))
@@ -2103,7 +1976,7 @@ static bool do_cmd_run_test(struct player *p, int y, int x)
     if (player_passwall(p)) return true;
 
     /* Do wilderness hack, keep running from one outside level to another */
-    if (!square_in_bounds_fully(c, y, x) && (p->depth <= 0)) return true;
+    if (!square_in_bounds_fully(c, y, x) && (p->wpos.depth == 0)) return true;
 
     /* Illegal grids are not known walls XXX XXX XXX */
     if (!square_in_bounds(c, y, x)) return true;
@@ -2125,10 +1998,6 @@ static bool do_cmd_run_test(struct player *p, int y, int x)
         /* Tree */
         else if (square_istree(c, y, x))
             msgt(p, MSG_HITWALL, "There is a tree in the way!");
-
-        /* Lava */
-        else if (square_isbright(c, y, x))
-            msgt(p, MSG_HITWALL, "The heat of the lava turns you away!");
 
         /* Wall */
         else
@@ -2215,7 +2084,7 @@ bool do_cmd_rest(struct player *p, s16b resting)
     /* Do some upkeep on the first turn of rest */
     if (!player_is_resting(p))
     {
-        /* Disturb us: reset searching, running if needed */
+        /* Disturb us: reset running if needed */
         disturb(p, 1);
 
         /* Redraw the state */
@@ -2311,24 +2180,24 @@ void display_feeling(struct player *p, bool obj_only)
     byte set = 0;
 
     /* Don't show feelings for cold-hearted characters */
-    if (!OPT_P(p, birth_feelings)) return;
+    if (!OPT(p, birth_feelings)) return;
 
     /* No feeling in towns */
-    if (forbid_town(p->depth))
+    if (forbid_town(&p->wpos))
     {
         msg(p, "Looks like a typical town.");
         return;
     }
 
     /* Hack -- special levels */
-    if (special_level(p->depth))
+    if (special_level(&p->wpos))
     {
         msg(p, "Looks like a special level.");
         return;
     }
 
     /* No feeling in the wilderness */
-    if (p->depth < 0)
+    if (p->wpos.depth == 0)
     {
         msg(p, "Looks like a typical wilderness level.");
         return;
@@ -2348,7 +2217,7 @@ void display_feeling(struct player *p, bool obj_only)
             struct player *q = player_get(i);
 
             if (q == p) continue;
-            if (q->depth != p->depth) continue;
+            if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
             if (q->feeling < 0) continue;
 
             obj_f = q->feeling / 10;
@@ -2452,7 +2321,7 @@ static int can_buy_house(struct player *p, int price)
 void do_cmd_purchase_house(struct player *p, int dir)
 {
     int y, x, i, n, check;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Ghosts cannot buy houses */
     if (p->ghost && !(p->dm_flags & DM_HOUSE_CONTROL))
@@ -2463,7 +2332,7 @@ void do_cmd_purchase_house(struct player *p, int dir)
     }
 
     /* Restricted by choice */
-    if (OPT_P(p, birth_no_stores))
+    if (OPT(p, birth_no_stores))
     {
         /* Message */
         msg(p, "You cannot buy a house.");
@@ -2480,7 +2349,7 @@ void do_cmd_purchase_house(struct player *p, int dir)
     /* Check for no-direction -- confirmation (when selling house) */
     if (!dir)
     {
-        house_type *house;
+        struct house_type *house;
 
         i = p->current_house;
         p->current_house = -1;
@@ -2541,14 +2410,14 @@ void do_cmd_purchase_house(struct player *p, int dir)
     /* Be sure we have a direction */
     if (VALID_DIR(dir))
     {
-        house_type *house;
+        struct house_type *house;
 
         /* Get requested direction */
         y = p->py + ddy[dir];
         x = p->px + ddx[dir];
 
         /* Check for a house */
-        if ((i = pick_house(p->depth, y, x)) == -1)
+        if ((i = pick_house(&p->wpos, y, x)) == -1)
         {
             /* No house, message */
             msg(p, "You see nothing to buy there.");
@@ -2710,7 +2579,7 @@ static bool create_house_door(struct player *p, struct chunk *c, int x, int y)
     house = find_house(p, x, y, lastmatch);
     while (house >= 0)
     {
-        house_type *h_ptr = house_get(house);
+        struct house_type *h_ptr = house_get(house);
 
         /* Do we own this house? */
         if (!house_owned_by(p, house))
@@ -2951,8 +2820,8 @@ static bool get_house_foundation(struct player *p, struct chunk *c, int *px1, in
 bool create_house(struct player *p)
 {
     int x1, x2, y1, y2, x, y, house;
-    house_type h_local;
-    struct chunk *c = chunk_get(p->depth);
+    struct house_type h_local;
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* The DM cannot create houses! */
     if (p->dm_flags & DM_HOUSE_CONTROL)
@@ -2962,14 +2831,14 @@ bool create_house(struct player *p)
     }
 
     /* Restricted by choice */
-    if (OPT_P(p, birth_no_stores))
+    if (OPT(p, birth_no_stores))
     {
         msg(p, "You cannot create or extend houses.");
         return false;
     }
 
     /* Houses can only be created in the wilderness */
-    if (p->depth >= 0)
+    if (!in_wild(&p->wpos))
     {
         msg(p, "This location is not suited for a house.");
         return false;
@@ -2998,7 +2867,7 @@ bool create_house(struct player *p)
     h_local.y_2 = y2 - 1;
     h_local.door_y = 0;
     h_local.door_x = 0;
-    h_local.depth = p->depth;
+    memcpy(&h_local.wpos, &p->wpos, sizeof(struct worldpos));
     h_local.price = 0;   /* XXX */
     set_house_owner(p, &h_local);
     h_local.state = HOUSE_CUSTOM;
@@ -3270,8 +3139,8 @@ static bool allowed_foundation_area(struct player *p, struct chunk *c, int x1, i
 bool build_house(struct player *p)
 {
     int x, y, x1, x2, y1, y2, house, area, price = 0, tax;
-    house_type *h_ptr = NULL;
-    struct chunk *c = chunk_get(p->depth);
+    struct house_type *h_ptr = NULL;
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* The DM cannot create or extend houses! */
     if (p->dm_flags & DM_HOUSE_CONTROL)
@@ -3281,15 +3150,21 @@ bool build_house(struct player *p)
     }
 
     /* Restricted by choice */
-    if (OPT_P(p, birth_no_stores))
+    if (OPT(p, birth_no_stores))
     {
         msg(p, "You cannot create or extend houses.");
         return false;
     }
 
     /* Houses can only be created in the wilderness */
-    /* PWMAngband: no house expansion in immediate suburb */
-    if (wild_radius(p->depth) <= 1)
+    if (!in_wild(&p->wpos))
+    {
+        msg(p, "This location is not suited for a house.");
+        return false;
+    }
+
+    /* PWMAngband: no house expansion in immediate suburbs */
+    if (town_suburb(&p->wpos))
     {
         msg(p, "This location is not suited for a house.");
         return false;
@@ -3422,7 +3297,7 @@ bool build_house(struct player *p)
     /* Finish house creation */
     if (!h_ptr)
     {
-        house_type h_local;
+        struct house_type h_local;
         int tmp, door_x, door_y;
 
         /* Pick a door direction (S,N,E,W) */
@@ -3474,7 +3349,7 @@ bool build_house(struct player *p)
         h_local.y_2 = y2 - 1;
         h_local.door_y = door_y;
         h_local.door_x = door_x;
-        h_local.depth = p->depth;
+        memcpy(&h_local.wpos, &p->wpos, sizeof(struct worldpos));
         h_local.price = price;
         set_house_owner(p, &h_local);
         h_local.state = HOUSE_CUSTOM;
@@ -3483,7 +3358,7 @@ bool build_house(struct player *p)
         house_set(house, &h_local);
 
         /* Update the visuals */
-        update_visuals(p->depth);
+        update_visuals(&p->wpos);
 
         return true;
     }
@@ -3497,7 +3372,24 @@ bool build_house(struct player *p)
     h_ptr->state = HOUSE_EXTENDED;
 
     /* Update the visuals */
-    update_visuals(p->depth);
+    update_visuals(&p->wpos);
 
     return true;
+}
+
+
+/*
+ * Display current time (of the day).
+ */
+void display_time(struct player *p)
+{
+    int day = 5 * z_info->day_length;
+    int hour = 1 + (turn.turn % day) * 12 / day;
+    const char *suffix = "th";
+
+    if (hour == 1) suffix = "st";
+    else if (hour == 2) suffix = "nd";
+    else if (hour == 3) suffix = "rd";
+
+    msg(p, "It is the %d%s hour of the %s.", hour, suffix, (is_daytime()? "day": "night"));
 }

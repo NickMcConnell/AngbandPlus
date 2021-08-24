@@ -3,7 +3,7 @@
  * Purpose: Handling of chunks of cave
  *
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -21,27 +21,20 @@
 #include "s-angband.h"
 
 
-/* List of pointers to saved chunks */
-static struct chunk **chunk_list = NULL;
-
-
-/* How many players are at each depth */
-static s16b *players_on_depth = NULL;
-
-
-void chunk_list_new(void)
+/*
+ * Get the index of an entry in the chunk list corresponding to the given depth.
+ */
+static int chunk_index(struct wild_type *w_ptr, int depth)
 {
-    chunk_list = mem_zalloc((z_info->max_depth + MAX_WILD) * sizeof(struct chunk *));
-    players_on_depth = mem_zalloc((z_info->max_depth + MAX_WILD) * sizeof(s16b));
-}
+    /* Paranoia */
+    my_assert(w_ptr);
+    my_assert(w_ptr->chunk_list);
+    my_assert(depth >= 0);
 
+    if (!depth) return 0;
 
-void chunk_list_free(void)
-{
-    mem_free(chunk_list);
-    chunk_list = NULL;
-    mem_free(players_on_depth);
-    players_on_depth = NULL;
+    my_assert((depth >= w_ptr->min_depth) && (depth < w_ptr->max_depth));
+    return (depth - w_ptr->min_depth + 1);
 }
 
 
@@ -52,45 +45,22 @@ void chunk_list_free(void)
  */
 void chunk_list_add(struct chunk *c)
 {
-    /* Depth MUST be valid */
-    my_assert((c->depth >= 0 - MAX_WILD) && (c->depth < z_info->max_depth));
+    struct wild_type *w_ptr = get_wt_info_at(c->wpos.wy, c->wpos.wx);
 
-    /* Paranoia */
-    my_assert(chunk_list);
-
-    chunk_list[c->depth + MAX_WILD] = c;
+    w_ptr->chunk_list[chunk_index(w_ptr, c->wpos.depth)] = c;
 }
 
 
 /*
  * Remove an entry from the chunk list.
  *
- * depth the depth of the chunk being removed from the list
+ * c the chunk being removed from the list
  */
-void chunk_list_remove(s16b depth)
+void chunk_list_remove(struct chunk *c)
 {
-    /* Depth MUST be valid */
-    my_assert((depth >= 0 - MAX_WILD) && (depth < z_info->max_depth));
+    struct wild_type *w_ptr = get_wt_info_at(c->wpos.wy, c->wpos.wx);
 
-    /* Paranoia */
-    my_assert(chunk_list);
-
-    chunk_list[depth + MAX_WILD] = NULL;
-}
-
-
-/*
- * Get an entry from the chunk list.
- */
-struct chunk *chunk_get(s16b depth)
-{
-    /* Depth MUST be valid */
-    my_assert((depth >= 0 - MAX_WILD) && (depth < z_info->max_depth));
-
-    /* Paranoia */
-    if (!chunk_list) return NULL;
-
-    return chunk_list[depth + MAX_WILD];
+    w_ptr->chunk_list[chunk_index(w_ptr, c->wpos.depth)] = NULL;
 }
 
 
@@ -124,74 +94,79 @@ void chunk_validate_objects(struct chunk *c)
 }
 
 
-bool chunk_inhibit_players(s16b depth)
+/*
+ * Get an entry from the chunk list.
+ */
+struct chunk *chunk_get(struct worldpos *wpos)
 {
-    /* Depth MUST be valid */
-    my_assert((depth >= 0 - MAX_WILD) && (depth < z_info->max_depth));
+    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
 
-    /* Paranoia */
-    my_assert(players_on_depth);
-
-    return (players_on_depth[depth + MAX_WILD] == INHIBIT_DEPTH);
+    return w_ptr->chunk_list[chunk_index(w_ptr, wpos->depth)];
 }
 
 
-void chunk_decrease_player_count(s16b depth)
+/*
+ * Get the index of an entry in the players_on_depth array corresponding to the given depth.
+ */
+static int players_on_depth_index(struct wild_type *w_ptr, int depth)
 {
-    /* Depth MUST be valid */
-    my_assert((depth >= 0 - MAX_WILD) && (depth < z_info->max_depth));
-
     /* Paranoia */
-    my_assert(players_on_depth);
+    my_assert(w_ptr);
+    my_assert(w_ptr->players_on_depth);
+    my_assert(depth >= 0);
 
-    if (players_on_depth[depth + MAX_WILD]) players_on_depth[depth + MAX_WILD]--;
+    if (!depth) return 0;
+
+    my_assert((depth >= w_ptr->min_depth) && (depth < w_ptr->max_depth));
+    return (depth - w_ptr->min_depth + 1);
 }
 
 
-void chunk_set_player_count(s16b depth, s16b value)
+bool chunk_inhibit_players(struct worldpos *wpos)
 {
-    /* Depth MUST be valid */
-    my_assert((depth >= 0 - MAX_WILD) && (depth < z_info->max_depth));
+    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
 
-    /* Paranoia */
-    my_assert(players_on_depth);
-
-    players_on_depth[depth + MAX_WILD] = value;
+    return (w_ptr->players_on_depth[players_on_depth_index(w_ptr, wpos->depth)] == INHIBIT_DEPTH);
 }
 
 
-void chunk_increase_player_count(s16b depth)
+void chunk_decrease_player_count(struct worldpos *wpos)
 {
-    /* Depth MUST be valid */
-    my_assert((depth >= 0 - MAX_WILD) && (depth < z_info->max_depth));
+    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
+    int index = players_on_depth_index(w_ptr, wpos->depth);
 
-    /* Paranoia */
-    my_assert(players_on_depth);
-
-    players_on_depth[depth + MAX_WILD]++;
+    if (w_ptr->players_on_depth[index]) w_ptr->players_on_depth[index]--;
 }
 
 
-bool chunk_has_players(s16b depth)
+void chunk_set_player_count(struct worldpos *wpos, s16b value)
 {
-    /* Depth MUST be valid */
-    my_assert((depth >= 0 - MAX_WILD) && (depth < z_info->max_depth));
+    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
 
-    /* Paranoia */
-    my_assert(players_on_depth);
+    w_ptr->players_on_depth[players_on_depth_index(w_ptr, wpos->depth)] = value;
+}
+
+
+void chunk_increase_player_count(struct worldpos *wpos)
+{
+    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
+
+    w_ptr->players_on_depth[players_on_depth_index(w_ptr, wpos->depth)]++;
+}
+
+
+bool chunk_has_players(struct worldpos *wpos)
+{
+    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
 
     /* Note that there is actually 1 player on the level (the DM) when INHIBIT_DEPTH is set */
-    return (players_on_depth[depth + MAX_WILD] != 0);
+    return (w_ptr->players_on_depth[players_on_depth_index(w_ptr, wpos->depth)] != 0);
 }
 
 
-s16b chunk_get_player_count(s16b depth)
+s16b chunk_get_player_count(struct worldpos *wpos)
 {
-    /* Depth MUST be valid */
-    my_assert((depth >= 0 - MAX_WILD) && (depth < z_info->max_depth));
+    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
 
-    /* Paranoia */
-    my_assert(players_on_depth);
-
-    return players_on_depth[depth + MAX_WILD];
+    return w_ptr->players_on_depth[players_on_depth_index(w_ptr, wpos->depth)];
 }

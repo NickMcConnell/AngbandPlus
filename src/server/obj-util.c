@@ -3,7 +3,7 @@
  * Purpose: Object utilities
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -224,27 +224,26 @@ static void remove_redundant_flags(bitflag flags[OF_SIZE])
     {
         bitflag f2[OF_SIZE];
 
-        create_mask(f2, false, OFT_ESP, OFT_MAX);
+        create_obj_flag_mask(f2, false, OFT_ESP, OFT_MAX);
         of_diff(flags, f2);
         of_on(flags, OF_ESP_ALL);
     }
 }
 
 
-/*
- * Obtain the flags for an item
- */
-static void object_flags_aux(const struct object *obj, bitflag flags[OF_SIZE],
-    bool no_redundancy)
+void object_flags_aux(const struct object *obj, bitflag flags[OF_SIZE])
 {
-    of_wipe(flags);
+    size_t i;
 
-    if (!obj) return;
-
+    /* Add object flags */
     of_copy(flags, obj->flags);
 
-    /* Hack -- remove redundant bitflags */
-    if (no_redundancy) remove_redundant_flags(flags);
+    /* Add curse flags */
+    for (i = 0; obj->curses && (i < (size_t)z_info->curse_max); i++)
+    {
+        if (obj->curses[i].power == 0) continue;
+        of_union(flags, curses[i].obj->flags);
+    }
 }
 
 
@@ -253,7 +252,14 @@ static void object_flags_aux(const struct object *obj, bitflag flags[OF_SIZE],
  */
 void object_flags(const struct object *obj, bitflag flags[OF_SIZE])
 {
-    object_flags_aux(obj, flags, true);
+    of_wipe(flags);
+
+    if (!obj) return;
+
+    object_flags_aux(obj, flags);
+
+    /* Hack -- remove redundant bitflags */
+    remove_redundant_flags(flags);
 }
 
 
@@ -262,10 +268,24 @@ void object_flags(const struct object *obj, bitflag flags[OF_SIZE])
  */
 void object_flags_known(const struct object *obj, bitflag flags[OF_SIZE], bool aware)
 {
-    object_flags_aux(obj, flags, false);
+    bitflag obj_flags[OF_SIZE], known_flags[OF_SIZE];
+
+    of_wipe(flags);
+
     if (!obj) return;
 
-    of_inter(flags, obj->known->flags);
+    /* Get object flags */
+    of_wipe(obj_flags);
+    object_flags_aux(obj, obj_flags);
+
+    /* Get known flags */
+    of_wipe(known_flags);
+    object_flags_aux(obj->known, known_flags);
+
+    /* Add object flags */
+    of_copy(flags, obj_flags);
+
+    of_inter(flags, known_flags);
 
     if (aware) of_union(flags, obj->kind->flags);
 
@@ -276,7 +296,146 @@ void object_flags_known(const struct object *obj, bitflag flags[OF_SIZE], bool a
     remove_redundant_flags(flags);
 
     /* Make sure all flags are present on the object */
-    of_inter(flags, obj->flags);
+    of_inter(flags, obj_flags);
+}
+
+
+/*
+ * Obtain the modifiers for an item
+ */
+void object_modifiers(const struct object *obj, s32b modifiers[OBJ_MOD_MAX])
+{
+    int i, j;
+
+    memset(modifiers, 0, OBJ_MOD_MAX * sizeof(s32b));
+
+    if (!obj) return;
+
+    /* Add object modifiers */
+    for (i = 0; i < OBJ_MOD_MAX; i++)
+        modifiers[i] = obj->modifiers[i];
+
+    /* Add curse modifiers */
+    for (i = 0; obj->curses && (i < z_info->curse_max); i++)
+    {
+        if (obj->curses[i].power == 0) continue;
+        for (j = 0; j < OBJ_MOD_MAX; j++)
+            modifiers[j] += obj->curses[i].modifiers[j];
+    }
+}
+
+
+/*
+ * Obtain the to-hit for an item
+ */
+void object_to_h(const struct object *obj, s16b *to_h)
+{
+    size_t i;
+
+    *to_h = 0;
+
+    if (!obj) return;
+
+    /* Add object to-hit */
+    *to_h = obj->to_h;
+
+    /* Add curse to-hit */
+    for (i = 0; obj->curses && (i < (size_t)z_info->curse_max); i++)
+    {
+        if (obj->curses[i].power == 0) continue;
+        *to_h += obj->curses[i].to_h;
+    }
+}
+
+
+/*
+ * Obtain the to-dam for an item
+ */
+void object_to_d(const struct object *obj, s16b *to_d)
+{
+    size_t i;
+
+    *to_d = 0;
+
+    if (!obj) return;
+
+    /* Add object to-dam */
+    *to_d = obj->to_d;
+
+    /* Add curse to-dam */
+    for (i = 0; obj->curses && (i < (size_t)z_info->curse_max); i++)
+    {
+        if (obj->curses[i].power == 0) continue;
+        *to_d += obj->curses[i].to_d;
+    }
+}
+
+
+/*
+ * Obtain the to-ac for an item
+ */
+void object_to_a(const struct object *obj, s16b *to_a)
+{
+    size_t i;
+
+    *to_a = 0;
+
+    if (!obj) return;
+
+    /* Add object to-ac */
+    *to_a = obj->to_a;
+
+    /* Add curse to-ac */
+    for (i = 0; obj->curses && (i < (size_t)z_info->curse_max); i++)
+    {
+        if (obj->curses[i].power == 0) continue;
+        *to_a += obj->curses[i].to_a;
+    }
+}
+
+
+/*
+ * Obtain the elements for an item
+ */
+void object_elements(const struct object *obj, struct element_info el_info[ELEM_MAX])
+{
+    int i, j;
+    bool vuln[ELEM_MAX];
+
+    memset(el_info, 0, ELEM_MAX * sizeof(struct element_info));
+
+    if (!obj) return;
+
+    /* Add object elements */
+    memcpy(el_info, obj->el_info, ELEM_MAX * sizeof(struct element_info));
+    for (i = 0; i < ELEM_MAX; i++)
+    {
+        vuln[i] = false;
+        if (el_info[i].res_level == -1)
+        {
+            vuln[i] = true;
+            el_info[i].res_level = 0;
+        }
+    }
+
+    /* Add curse elements */
+    for (i = 0; obj->curses && (i < z_info->curse_max); i++)
+    {
+        if (obj->curses[i].power == 0) continue;
+        for (j = 0; j < ELEM_MAX; j++)
+        {
+            if (curses[i].obj->el_info[j].res_level == -1)
+                vuln[j] = true;
+            if (curses[i].obj->el_info[j].res_level > el_info[j].res_level)
+                el_info[j].res_level = curses[i].obj->el_info[j].res_level;
+        }
+    }
+
+    for (i = 0; i < ELEM_MAX; i++)
+    {
+        if (vuln[i] && (el_info[i].res_level < 3))
+            el_info[i].res_level--;
+    }
 }
 
 
@@ -505,41 +664,75 @@ bool recharge_timeout(struct object *obj)
 }
 
 
+/* Can only take off non-stuck items */
+bool obj_can_takeoff(const struct object *obj)
+{
+    bitflag f[OF_SIZE];
+
+    object_flags(obj, f);
+
+    return !of_has(f, OF_STICKY);
+}
+
+
+/*
+ * Does the given object need to be aimed?
+ */
+int obj_needs_aim(struct player *p, const struct object *obj)
+{
+    bool aim = effect_aim(object_effect(obj));
+    bool aware = object_flavor_is_aware(p, obj);
+
+    /* Determine whether we know an item needs to be aimed */
+    bool known_aim = (aware || object_effect_is_known(obj, aware));
+
+    /* Wands and ammo */
+    if (tval_is_ammo(obj) || tval_is_wand(obj)) return AIM_NORMAL;
+
+    /* Rods that require aiming or unknown rods */
+    if (tval_can_have_timeout(obj) && (aim || !aware)) return AIM_NORMAL;
+
+    /* Unknown things with no obvious aim get a random direction */
+    if (aim) return (known_aim? AIM_NORMAL: AIM_RANDOM);
+
+    return AIM_NONE;
+}
+
+
 /*** PWMAngband ***/
 
 
-void get_object_info(struct player *p, struct object *obj, struct object_xtra *info_xtra)
+void get_object_info(struct player *p, struct object *obj, byte equipped,
+    struct object_xtra *info_xtra)
 {
-    /* Get a color */
+    struct curse_data *c = obj->known->curses;
+    int i;
+    bool activatable, charging;
+
+    /* Get the color */
     info_xtra->attr = obj->kind->base->attr;
 
     /* Get the "activation" flag */
-    if (tval_can_have_timeout(obj))
+    activatable = ((equipped && object_effect(obj)) || (!equipped && tval_can_have_timeout(obj)));
+    if (activatable)
     {
+        info_xtra->act = ACT_NORMAL;
+
         /* Check the recharge */
-        if (number_charging(obj) == obj->number)
-            info_xtra->act = ACT_TIMEOUT;
-        else
-        {
-            info_xtra->act = ACT_NORMAL;
-
-            /* Get direction choice */
-            if (effect_aim(object_effect(obj))) info_xtra->act = ACT_AIMED;
-
-            /* Force direction choice for unknown rods */
-            if (!object_flavor_is_aware(p, obj)) info_xtra->act = ACT_AIMED;
-        }
+        charging = ((equipped && obj->timeout) ||
+            (!equipped && (number_charging(obj) == obj->number)));
+        if (charging) info_xtra->act = ACT_TIMEOUT;
     }
 
-    /* Hack -- potions of Dragon Breath can be aimed when aware */
-    else if (tval_is_potion(obj) && effect_aim(object_effect(obj)) && object_flavor_is_aware(p, obj))
-        info_xtra->act = ACT_HACK;
+    /* Get direction choice */
+    if (obj_needs_aim(p, obj) == AIM_NORMAL) info_xtra->aim = 1;
 
     /* Get the "fuelable" flag */
     if (tval_is_light(obj) && of_has(obj->flags, OF_TAKES_FUEL))
     {
         /* Non-empty, non-everburning lamps are okay */
-        if ((obj->timeout > 0) && !of_has(obj->flags, OF_NO_FUEL)) info_xtra->fuel = 1;
+        if ((equipped || (obj->timeout > 0)) && !of_has(obj->flags, OF_NO_FUEL))
+            info_xtra->fuel = 1;
     }
 
     /* Get the "fail" flag */
@@ -551,11 +744,30 @@ void get_object_info(struct player *p, struct object *obj, struct object_xtra *i
             info_xtra->fail = (9 + get_use_device_chance(p, obj)) / 10;
     }
 
+    /* Get the "cursed" flag */
+    for (i = 0; c && (i < z_info->curse_max); i++)
+    {
+        if (c[i].power == 0) continue;
+        if (c[i].power >= 100) continue;
+        if (!player_knows_curse(p, i)) continue;
+        if (!STRZERO(info_xtra->name_curse))
+        {
+            my_strcat(info_xtra->name_curse, "|", sizeof(info_xtra->name_curse));
+            my_strcat(info_xtra->name_power, "|", sizeof(info_xtra->name_power));
+        }
+        my_strcat(info_xtra->name_curse, format("%d", i), sizeof(info_xtra->name_curse));
+        my_strcat(info_xtra->name_power, format("%d", c[i].power), sizeof(info_xtra->name_power));
+    }
+
+    /* Get the "stuck" flag */
+    if (equipped) info_xtra->stuck = !obj_can_takeoff(obj);
+
     /* Get the "known" flag */
-    info_xtra->known = object_is_known(p, obj);
+    info_xtra->known = object_runes_known(obj);
 
     /* Get the "slot" flag */
-    info_xtra->slot = wield_slot(p, obj);
+    if (equipped) info_xtra->slot = equipped_item_slot(p->body, obj);
+    else info_xtra->slot = wield_slot(p, obj);
 }
 
 
@@ -594,10 +806,10 @@ void set_artifact_info(struct player *p, const struct object *obj, byte info)
     switch (info)
     {
         case ARTS_GENERATED:
-            history_add_artifact(p, obj, false);
+            history_generate_artifact(p, obj);
             break;
         case ARTS_FOUND:
-            history_add_artifact(p, obj, true);
+            history_find_artifact(p, obj);
             break;
         case ARTS_ABANDONED:
         case ARTS_SOLD:
@@ -610,47 +822,6 @@ void set_artifact_info(struct player *p, const struct object *obj, byte info)
 
     /* Register info */
     pinfo[obj->artifact->aidx] = info;
-}
-
-
-void object_absorb_origin(struct object *obj1, struct object *obj2)
-{
-    /* Combine origin data as best we can */
-    if ((obj1->origin != obj2->origin) || (obj1->origin_depth != obj2->origin_depth) ||
-        (obj1->origin_xtra != obj2->origin_xtra))
-    {
-        int act = 2;
-
-        if (obj1->origin_xtra && obj2->origin_xtra)
-        {
-            struct monster_race *race1 = &r_info[obj1->origin_xtra];
-            struct monster_race *race2 = &r_info[obj2->origin_xtra];
-
-            bool r1_uniq = rf_has(race1->flags, RF_UNIQUE);
-            bool r2_uniq = rf_has(race2->flags, RF_UNIQUE);
-
-            if (r1_uniq && !r2_uniq) act = 0;
-            else if (r2_uniq && !r1_uniq) act = 1;
-            else act = 2;
-        }
-
-        switch (act)
-        {
-            /* Overwrite with obj2 */
-            case 1:
-            {
-                set_origin(obj1, obj2->origin, obj2->origin_depth, obj2->origin_xtra);
-                break;
-            }
-
-            /* Set as "mixed" */
-            case 2:
-            {
-                set_origin(obj1, ORIGIN_MIXED, 0, 0);
-                break;
-            }
-        }
-    }
 }
 
 
@@ -672,11 +843,11 @@ bool kind_is_good_other(const struct object_kind *kind)
 }
 
 
-void set_origin(struct object *obj, byte origin, s16b origin_depth, u16b origin_xtra)
+void set_origin(struct object *obj, byte origin, s16b origin_depth, struct monster_race *origin_race)
 {
     obj->origin = origin;
     obj->origin_depth = origin_depth;
-    obj->origin_xtra = origin_xtra;
+    obj->origin_race = origin_race;
 }
 
 
@@ -695,7 +866,7 @@ void shimmer_objects(struct player *p, struct chunk *c)
             struct object *obj, *first_obj = NULL;
 
             /* Need to be the first object on the pile that is not ignored */
-            for (obj = floor_pile_known(p, c, y, x); obj; obj = obj->next)
+            for (obj = square_known_pile(p, c, y, x); obj; obj = obj->next)
             {
                 if (!ignore_item_ok(p, obj))
                 {
@@ -733,7 +904,7 @@ void process_objects(struct chunk *c)
         struct player *p = player_get(i);
 
         /* Skip irrelevant players */
-        if (p->depth != c->depth) continue;
+        if (!COORDS_EQUAL(&p->wpos, &c->wpos)) continue;
         if (p->upkeep->new_level_method || p->upkeep->funeral) continue;
         if (!allow_shimmer(p)) continue;
 
@@ -777,7 +948,7 @@ void process_objects(struct chunk *c)
                 obj = next;
             }
 
-            if (redraw) redraw_floor(c->depth, y, x);
+            if (redraw) redraw_floor(&c->wpos, y, x);
         }
     }
 }
@@ -789,7 +960,7 @@ bool is_owner(struct player *p, struct object *obj)
     if (!obj->owner) return true;
 
     /* No restriction */
-    if (!OPT_P(p, birth_no_stores)) return true;
+    if (!OPT(p, birth_no_stores)) return true;
 
     /* Must be the owner */
     return (obj->owner == p->id);
@@ -891,18 +1062,6 @@ void preserve_artifact(const struct object *obj)
 }
 
 
-bool is_sense_machine(const struct object *obj)
-{
-    if (tval_is_weapon(obj) || tval_is_armor(obj))
-        return true;
-    if (tval_is_light(obj))
-        return true;
-    if (tval_is_tool(obj))
-        return true;
-    return false;
-}
-
-
 /*
  * Destroy an item in the pack or on the floor. Returns true if the item has been completely
  * used up, false otherwise.
@@ -911,7 +1070,7 @@ bool use_object(struct player *p, struct object *obj, int amount, bool describe)
 {
     struct object *used_obj;
     bool none_left = false;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Destroy an item in the pack */
     if (object_is_carried(p, obj))
@@ -933,7 +1092,7 @@ bool use_object(struct player *p, struct object *obj, int amount, bool describe)
  * Note: this is similar to square_note_spot(), but we don't memorize the grid -- we redraw
  * the floor instead.
  */
-void redraw_floor(int depth, int y, int x)
+void redraw_floor(struct worldpos *wpos, int y, int x)
 {
     int i;
 
@@ -943,18 +1102,19 @@ void redraw_floor(int depth, int y, int x)
         struct player *p = player_get(i);
 
         /* Require "seen" flag and the current level */
-        if (p->depth != depth) continue;
+        /* PWMAngband: consider player spot as "seen" */
+        if (!COORDS_EQUAL(&p->wpos, wpos)) continue;
         if (p->upkeep->new_level_method || p->upkeep->funeral) continue;
-        if (!square_isseen(p, y, x)) continue;
+        if (!square_isseen(p, y, x) && !player_is_at(p, y, x)) continue;
 
         /* Make the player know precisely what is on this grid */
-        floor_pile_know(p, chunk_get(depth), y, x);
+        square_know_pile(p, chunk_get(wpos), y, x);
 
         /* Redraw */
         p->upkeep->redraw |= PR_ITEMLIST;
 
         /* Under a player */
-        if ((p->py != y) || (p->px != x)) continue;
+        if (!player_is_at(p, y, x)) continue;
 
         /* Redraw */
         p->upkeep->redraw |= PR_FLOOR;
@@ -981,7 +1141,7 @@ bool object_marked_aware(struct player *p, const struct object *obj)
 struct object *object_from_index(struct player *p, int item, bool prompt, bool check_ignore)
 {
     struct object *obj;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Get the item (from pack or equipment) */
     if (item >= 0)
@@ -1011,4 +1171,65 @@ struct object *object_from_index(struct player *p, int item, bool prompt, bool c
     /* Nothing */
     if (prompt) msg(p, "There's nothing on the floor.");
     return NULL;
+}
+
+
+/*
+ * Find an ego item from its name.
+ *
+ * name ego type name
+ * kind object kind
+ */
+struct ego_item *lookup_ego_item(const char *name, struct object_kind *kind)
+{
+    int i;
+
+    /* Paranoia */
+    if (!kind) return NULL;
+
+    /* Look for it */
+    for (i = 0; i < z_info->e_max; i++)
+    {
+        struct ego_item *ego = &e_info[i];
+        struct poss_item *poss_item = ego->poss_items;
+
+        /* Reject nameless and wrong names */
+        if (!ego->name) continue;
+        if (strcmp(name, ego->name)) continue;
+
+        /* Check kind */
+        while (poss_item)
+        {
+            if (kind->kidx == poss_item->kidx) return ego;
+            poss_item = poss_item->next;
+        }
+    }
+
+    return NULL;
+}
+
+
+/*
+ * Return the artifact with the given name
+ */
+struct artifact *lookup_artifact_name(const char *name)
+{
+    int i;
+    struct artifact *match = NULL;
+
+    /* Look for it */
+    for (i = 0; i < z_info->a_max; i++)
+    {
+        struct artifact *art = &a_info[i];
+
+        /* Test for equality */
+        if (art->name && streq(name, art->name)) return art;
+
+        /* Test for close matches */
+        if ((strlen(name) >= 3) && art->name && my_stristr(art->name, name) && !match)
+            match = art;
+    }
+
+    /* Return our best match */
+    return match;
 }

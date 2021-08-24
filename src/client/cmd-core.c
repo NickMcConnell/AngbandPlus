@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2008-9 Antony Sidwell
  * Copyright (c) 2014 Andi Sidwell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -44,8 +44,7 @@ static const struct command_info game_cmds[] =
 {
     {CMD_GO_UP, "go up stairs", Send_go_up},
     {CMD_GO_DOWN, "go down stairs", Send_go_down},
-    {CMD_SEARCH, "search", Send_search},
-    {CMD_TOGGLE_SEARCH, "toggle search mode", Send_toggle_search},
+    {CMD_TOGGLE_STEALTH, "toggle stealth mode", Send_toggle_stealth},
     {CMD_WALK, "walk", Send_walk},
     {CMD_JUMP, "jump", Send_jump},
     {CMD_INSCRIBE, "inscribe", Send_inscribe},

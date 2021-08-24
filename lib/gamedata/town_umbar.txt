@@ -1,0 +1,89 @@
+# File: town_umbar.txt
+
+
+# This file is used to initialize the "town of Umbar" information for 
+# PWMAngband.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding town_umbar.txt ===
+
+# feat : special feat : special feat : % chance of generating the second feat
+# D : lines giving full layout of town using symbols in town_feat.txt
+
+# 'feat' is the special feats replacing fake blank features (' ')
+
+# 'D' lines describe the layout of the town. There MUST be "dungeon-hgt" lines
+# with a size of "dungeon-wid" (see constants.txt).
+
+
+# Special feats: sand/sandwall
+feat:sand:sandwall:10
+
+D:######################################################################################################################################################################################################
+D:#                                                                                                                                                                                                    #
+D:#                                                                                                                                                                                                    #
+D:#                                                                                                                                                                                                    #
+D:#                                                                                                                                         ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#
+D:#                                                                                                                                         ,                                                          #
+D:#                                                                                                                                         ,                                                          #
+D:#                                                                                                                                         ,                                                          #
+D:#                                                                                                                    ####                 ,                 ####                                     #
+D:#                                                                                                                    ###1,,,,,,,,,,,,,,,,,,                 ####                                     #
+D:#                                                                                                                    ####                 ,,,,,,,,,,,,,,,,,,2###                                     #
+D:#                                                                                                                    ####                 ,                 ####                                     #
+D:#                                                                                                                                         ,                                                          #
+D:#                                                                                                                                         ,                                                          #
+D:#                                                     @@@@@@                                                                              ,                                                          #
+D:#                                                  @@@@VVVV@                                                                              ,                                                          #
+D:#                                               @@@@VVVVVV@@                                                                              ,                                                          #
+D:#                                             @@@VVVVVVVV@@                                                                               ,                                                          #
+D:#                                            @@VVVVVVVV@@@                                                                                ,                                                          #
+D:#                                           @@VVVVVV@@@@                                                             ####                 ,                 ####                                     #
+D:#                                         @@@VVVV@@@@                                                                ###3,,,,,,,,,,,,,,,,,,                 ####                                     #
+D:#                                         @VVVV@@@                                                                   ####                 ,,,,,,,,,,,,,,,,,,4###                                     #
+D:#                                        VVVV                                                                        ####                 ,                 ####                                     #
+D:#                                      VVVV                                                                                               ,                                                          #
+D:#                                    VVVV                                                                                                 ,                                                          #
+D:#                                  VVVV                                                                                                   ,                                                          #
+D:#                                VVVV                                                                                                     ,                                                          #
+D:#                              VVVV                                                                                                       ,                                                          #
+D:#                            VVVV                                                                                                         ,                                                          #
+D:#                          VVVV                                                                                                           ,                                                          #
+D:#                        VVVV                                                                                        ####                 ,                 ####                                     #
+D:#                      VVVV                                                                                          ###5,,,,,,,,,,,,,,,,,,                 ####                                     #
+D:#                    VVVV                                                                                            ####                 ,,,,,,,,,,,,,,,,,,6###                                     #
+D:#                  VVVV                                                                                              ####                 ,                 ####                                     #
+D:#VVVVVVVVVVV     VVVV                                                                                                                     ,                                                          #
+D:#VVVVVVVVVVVVVVVVVV                                                                                                                       ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVV                                                                                                                   ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVV                                                                                                               ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                                                                                                           ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV             ###                                                                                       ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV      #########                                                                                    ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV###############,,,,,,,,,,,,,,,,,                                           ####                 ,                 ####                                     #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#########                   ,                                           ###9,,,,,,,,,,,,,,,,,,                 ####                                     #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV###                      ,                                           ####                 ,,,,,,,,,,,,,,,,,,7###                                     #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                      ,                                           ####                 ,                 ####                                     #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                    ,                                                                ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                  ,                                                                ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV        ##      ,                                                                ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV    ######    ,                                                                ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV##########,,,,,,,,,,,,,                                                      ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV######              ,                                                      ,               ########                                   #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV##                ,                                                      ,               #~~~~~~#                                   #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                ,                                 ####                 ,               #~~~~~~#                                   #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV              ,                                 ###B,,,,,,,,,,,,,,,,,,               #~~~~~~#                                   #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV            ,                                 ####                 ,,,,,,,,,,,,,,,,8~~~~~~#                                   #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV     #    ,                                 ####                 ,               #~~~~~~#                                   #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV  ###   ,                                                      ,               #~~~~~~#                                   #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#####,,,                                                      ,               ########                                   #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV###   ,                                                      ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#    ,                                                      ,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV    ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,                                                          #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                                                                                                                     #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                                                                                                                     #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                                                                                                                    #
+D:#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                                                                                                                    #
+D:######################################################################################################################################################################################################

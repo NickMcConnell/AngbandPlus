@@ -12,6 +12,7 @@ extern s16b ddx[10];
 extern s16b ddy[10];
 
 extern void cleanup_p_race(void);
+extern void cleanup_realm(void);
 extern void free_effect(struct effect *source);
 extern void cleanup_class(void);
 extern void cleanup_body(void);
@@ -49,5 +50,8 @@ extern struct monster_base *lookup_monster_base(const char *name);
 extern struct monster_race *lookup_monster(const char *name);
 extern s16b modify_stat_value(int value, int amount);
 extern int message_lookup_by_name(const char *name);
+extern void player_embody(struct player *p);
+extern const struct magic_realm *lookup_realm(const char *name);
+extern struct trap_kind *lookup_trap(const char *desc);
 
 #endif /* INCLUDED_UTIL_H */

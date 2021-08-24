@@ -1,9 +1,80 @@
-=================
-PWMAngband 1.1.11
+﻿=================
+PWMAngband 1.1.12
 =================
 
-This new version has a few significant changes ported from the Angband 4.0.x
-series.
+This new version has a few significant changes ported from the Angband 4.1.x
+series:
+
+Traps
+ - The general philosophy is that all players will hit traps at some time
+ - Magical trap detection has been removed, except as a spell for mages
+ - Active searching has been removed
+ - Characters have one chance to detect a trap, on seeing the grid it is on;
+   this chance is dependent on searching skill
+ - Traps are either physical or magical, and there is a corresponding split
+   in the player disarming skill
+ - Many new traps have been introduced, and old ones amended
+ - Traps are placed almost exclusively at corridor intersections or other
+   chokepoints
+ - Trap density in vaults is reduced by 75%
+
+Identify
+ - ID is now "rune-based"; once an object property is recognised once, it will
+   always be recognised on all future items
+ - The only forms of magical identify are scrolls and the mage spell, both of
+   which identify a single unknown rune
+ - All scrolls, potions, mushrooms are identified on their first use
+ - Most wands, staffs and rods are identified on first use, the main exceptions
+   being when they affect monsters and are tested in the absence of monsters
+ - Ego item names become known once all the relevant runes are known
+
+Player knowledge
+ - Changes to previously known terrain outside the player's field of view
+   (doors opening, etc) are no longer immediately known by the player
+ - Secret doors are now always found on stepping adjacent (or at a distance
+   by the mage spell)
+
+Dungeon generation
+ - A new generation algorithm has been introduced, and appears roughly as often
+   as the classical generation algorithm
+ - There are many new vaults in the new algorithm, and also new room types -
+   huge rooms, rooms of chambers, and interesting rooms (like small vaults)
+ - There is also an infrequently occurring generation type, the "moria level",
+   which features large rough-edged rooms and many orcs, trolls and ogres
+ - Lava has changed from being a visual curiosity in town in 4.0.x to being
+   generated in the dungeon; it will burn those without fire immunity
+ - Another new type of terrain has been introduced: passable rubble, which
+   behaves like regular rubble except it can be walked through
+
+Monsters
+ - Monster breaths are now cone-shaped starting at the monster, instead of
+   being indistinguishable from ball spells
+ - Monster pathfinding has been improved (mostly), with monsters tracking
+   explicitly by sight, sound or scent
+ - The relationship between player stealth and monsters waking has changed
+
+Random artifacts
+ - The artifact set generation algorithm has been changed so that random
+   artifacts no longer correspond to individual standard artifacts, but rather
+   are generated so as to get a statistically similar distribution
+ - Calculation of object power has been simplified
+
+Curses
+ - Sticky curses have been removed completely
+ - A large number of new curses have been introduced
+ - Items can have multiple curses
+ - Curse removal targets individual known curses on items
+ - Failed curse removal causes an item to become fragile
+ - Fragile items have a chance to be destroyed on future failed curse removals
+
+Status effects
+ - Monster status effects have been redone to rebalance reliability and
+   effectiveness, so that they may actually be interesting to use
+ - New types of status-inducing spells and magic devices have been included
+
+Other
+ - Much more detail has been moved out to text files in lib/gamedata
+ - Many underlying code improvements
 
 For a full list of changes made in older versions, check the Official
 PWMAngband Forum: http://www.mangband.org/forum/viewforum.php?f=9
@@ -11,729 +82,738 @@ PWMAngband Forum: http://www.mangband.org/forum/viewforum.php?f=9
 Features from Angband 4.x and MAngband 1.x are explicitely mentioned. Other
 changes and fixes are specific to PWMAngband.
 
-New features in PWMAngband 1.1.11 build 10
-==========================================
-
-Bugs fixed
-----------
-
-PWMAngband:
-
-- Fix monsters breathing at a random square next to the player instead of
-  breathing directly at the player
-- Redraw the floor when walking over objects while wearing an auto-ID item
-- Learn object activation on use, not automatically when the object is created
-
-Features in PWMAngband 1.1.11 build 9
-=====================================
+New features in PWMAngband 1.1.12 build 7
+=========================================
 
 User interface
 --------------
 
-MAngband 1.2:
+Angband 4.1.x:
 
-- Add owner info for DMs (artifact list)
+- Show speed multipliers in lore
+- Move the 'x' after the number in speed display
+- Show hit chance for each attack in monster lore
+- Report of monsters are slowed or hasted when looking at them
+- Increase size of windows floor dot
+- New tile for passable rubble
+- Show total expected monster damage in lore
+
+PWMAngband:
+
+- Improve player health description with more status ailments
 
 Gameplay changes
 ----------------
 
-MAngband 1.2:
+Angband 4.1.x:
 
-- Change message for wilderness food and add a tiny bit of healing
-- Remove artifact dropping restriction from ironman
+- Give rogue enemies a chance to drop phase door scrolls
+- Double stack size of phase door scrolls
+- Move resist heat, cold, and poison to be later in the dungeon
+- Increase duration of resist cold, heat, and poison potions
+- Increase duration of true seeing potion
+- Greatly reduce trap frequency
+- Halve greater vault frequency
+- Adjust some interesting rooms to avoid disconnected levels
 
 PWMAngband:
 
-- Bypass the "Get out of icky screens when disturbed" option for the following
-  commands: Wear/wield an item ('w'), Use a staff ('u'), Aim a wand ('a'),
-  Zap a rod ('z'), Activate an object ('A'), Eat some food ('E'),
-  Quaff a potion ('q'), Read a scroll ('r') and Cast a spell ('m')
+- Implement project_player_handler_PSI_DRAIN()
+- Increase amount of mana gained by Psychic Drain
 
 Bugs fixed
 ----------
 
-Angband 4.0.x:
+Angband 4.1.x:
 
-- Change tomb preposition for date
-
-MAngband 1.1.4:
-
-- Fix buffer overflow in console
-- Players shouldn't be able to pickup items while paralyzed
-
-PWMAngband:
-
-- Fix crash when quitting the GCU client
-- Fix small visual glitch when displaying the non crypted password as xxxxxx
+- Make fizzix's fixes to generation
 
 Coding changes
 --------------
 
-Angband 4.0.x:
+Angband 4.1.x:
 
-- New sound module (for SDL and Windows clients)
-- Parser arg to state err or quit on file not found
-
-MAngband 1.2:
-
-- Use array of buffers in format(), allow up to 5 consecutive calls
-- Replace calls to quit(format()) and plog(format()) by quit_fmt() and
-  plog_fmt()
-- Always alloc/dealloc interactive_file string
-- Rename init_stuff() to init_stuff_win() on windows client
-- Ensure returned string is static in conf_get_string()
-- Ensure msg_log[i] check is not pointless
-- Add const qualifier to temporary "c" char* in do_cmd_observe
-- Ensure virt_channels are initialized
-- Quit early when there's no space for special levels
-- Add proper command-line parsing to mangclient
-- Fix some warnings
-- Replace all occurences of strcasecmp/strncasecmp with my_stricmp/my_strnicmp
-- Normalize name/pass buffer and string lengths
-- Fix a possible overflow during chat channel cycling
-- Replace calls to fprintf with no format specifier (file_putf -> file_put)
-- Cleanup name checking a bit
-
-PWMAngband:
-
-- When both special pre-designed level and town exist for a given depth, load
-  the town on no_recall or more_towns servers and the level on other servers
-
-Features in PWMAngband 1.1.11 build 8
-=====================================
-
-User interface
---------------
-
-Angband 4.0.x:
-
-- Fix the worst cases of double negative options, rearrange the options a bit
-
-PWMAngband:
-
-- Dungeon Master menu: add command to generate static levels where monsters can
-  spawn
-
-Bugs fixed
-----------
-
-PWMAngband:
-
-- Fix crash when an object dropped under a player is combined with a similar
-  object
-- Allow digits and extra symbols ('-', '*') in "fuzzy" name parsing when
-  searching for monsters, objects and vaults by name
-- Cancel repeated commands (searching and digging) with any new command, and not
-  just Escape
-
-Coding changes
---------------
-
-Angband 4.0.x:
-
-- Removed magic numbers from CUT timer
-
-PWMAngband:
-
-- Save static levels as "server.level.x.y.z", rename town files to
-  "server.town.x.y.z"
-
-Features in PWMAngband 1.1.11 build 7
-=====================================
-
-Bugs fixed
-----------
-
-Angband 4.0.x:
-
-- Fixes for monster list
-- Fixes for object list
-- Force panel/map refresh if player is disturbed while running
-
-PWMAngband:
-
-- Fix monsters never dropping anything if killed while still asleep
-- Fixes for object identification and knowledge
-- Redraw floor when blindness wears off (to identify any scroll or staff of
-  darkness used from the floor)
-- Redraw spells when stun wears off
-- Fix crash when trying to shimmer objects for players leaving a level
-
-Coding changes
---------------
-
-Angband 4.0.x:
-
-- Fix some compiler warnings
-
-Features in PWMAngband 1.1.11 build 6
-=====================================
-
-Gameplay changes
-----------------
-
-PWMAngband:
-
-- Slightly decrease fail rate of Fire Bolt for Sorcerors
-- Use a random direction if no direction is given for breathing effects
-- Rewrite thrusting effect for force breaths using project_path(), stopping at
-  the first monster, player or wall
-
-Bugs fixed
-----------
-
-Angband 4.0.x:
-
-- Only get a message in become_aware() if mimic is in view
-- Give a correct description for breath activations
-
-PWMAngband:
-
-- Fix tracking of monster hit by force effect
-- Fix tracking of player hit by some effect that modifies location (nexus,
-  gravity, teleport, force...)
-- Don't save player trap/object knowledge in the savefile if the character is
-  dead
-- Make drinking from a fountain use a turn
-
-Coding changes
---------------
-
-Angband 4.0.x:
-
-- Make building directory paths a bit more robust
-
-PWMAngband:
-
-- Remove project_hurt hack, use SQUARE_PROJECT instead
-
-Features in PWMAngband 1.1.11 build 5
-=====================================
-
-User interface
---------------
-
-Angband 4.0.x:
-
-- Only update player map knowledge on seeing or mapping
-- Only update player object knowledge on seeing or detecting
-- Improve screen updates
-- Improved profile for town lava streamers (750ft ironman town layout)
-
-PWMAngband:
-
-- Remove radius from breath effect description
-- Only update player trap knowledge on seeing or detecting
-- New walls for ironman town layout at 750ft
-- Cancel object tracking if the object is on the floor when leaving a level
-
-Gameplay changes
-----------------
-
-Angband 4.0.x:
-
-- Basic cone-shaped breaths
-- Add thrusting effect for force breaths
-- Change WAND_BREATH activation and Dragon's Flame/Frost/Breath effects from
-  BALL to BREATH
-- Make trap location detect chests
-
-PWMAngband:
-
-- Make trap location also detect visible traps
-
-Bugs fixed
-----------
-
-PWMAngband:
-
-- Really fix parsing error when parsing female player presets (Shockbolt
-  tileset)
-- Fix Wipe spell (update visuals)
-- Fix projection effects on terrain (light, visuals and flow)
-- Prevent casting darkness on safe floor tiles (they should always remain lit)
-- Fix player forgetting the level layout when entering a suburb area
-- Fix hallucinations on non-dungeon permanent walls (house, arena...)
-- Prevent controlled monsters from picking up items, allow others to do so again
-- Fix crash when freeing player struct
-- Describe targeted objects properly when the player is blind
-- Prevent non crypted password from showing up at "Enter password" prompt,
-  display "(default)" instead
-- Fix "You are not experienced enough to drop items" message spamming when a
-  level 1 character tries to ignore items
-- Properly boost magic device damage according to character device skill
-- Fix another bug in the slay cache
-- Fix a bug when stacking an unknown item with a similar item bought from a shop
-- Use a charge from the right staff after pack reordering when using a staff
-  of identify to identify another staff
-
-Coding changes
---------------
-
-Angband 4.0.x:
-
-- Use ANSI standard where feasible
-- Use known cave to memorize terrain
-- Use known cave to memorize objects
-- Add known field to struct object, set it when object becomes known
-- Move ID to known objects
-
-PWMAngband:
-
-- Use known cave to memorize traps
-- Remove a useless object knowledge flag
+- Add summon.txt
 
 Compilation
 -----------
 
-- LIBPNG upgraded to version 1.6.21
+- FREETYPE upgraded to version 2.9.1
+- PYTHON upgraded to 32-bit version 2.7.15
 
-Features in PWMAngband 1.1.11 build 4
+Features in PWMAngband 1.1.12 build 6
 =====================================
-
-User interface
---------------
-
-Angband 4.0.x:
-
-- Improve town generation ("new" town layout used for ironman town at 750ft)
-- UI lore: add line for when you've learned everything about a monster; make
-  probing learn everything
-- Update store names, so that they are similar to store names in terrain.txt
-
-PWMAngband:
-
-- Increase size of "new" town layout to 132x44 (twice as big as Angband)
-- Move misc. panel (character screen) one column to the right
-- Display ego activation info in character dumps
-- Only display "missed" artifact entries if preserve mode is off (artifact
-  preservation mode PRESERVE_ARTIFACTS = 0 in mangband.cfg)
 
 Gameplay changes
 ----------------
 
 PWMAngband:
 
-- Make Mage/Elven Staves always (1d1)
-- Make randart Mage/Elven Staves always (+0,+0)
-- New server option: extended store purse (doubles each store owner's max purse)
-- Always apply side effects from player spells as long as the target doesn't
-  resist those effects and damage is dealt by the spell (poison, shards, ice...)
-- Make Mind Blast/Brain Smash much more powerful
-- Consider Mind Vision/Telekinesis to be successfully cast when there is no
-  player around to cast the spell on
+- Add SEDUCE attack to incubi and succubi
 
 Bugs fixed
 ----------
 
-Angband 4.0.x:
+PWMAngband:
 
-- Fix (Grand) Master Mystics not having a spider escort
-- Make monster list update after detection
+- Fix ego Witan Boots losing their penalty to stealth
+- Force update when entering a store to avoid bogus "you have nothing that I
+  want" or "you cannot carry that many items" messages when trying to buy/sell
+  items
+
+Features in PWMAngband 1.1.12 build 5
+=====================================
+
+User interface
+--------------
 
 PWMAngband:
 
-- Fix spell level of Poison Shots
-- Properly set return value to PARSE_ERROR_INTERNAL in process_pref_file_named()
-  when file to parse is not found, enabling graphical flavors to be loaded again
-- Only display a list of items that can be carried when picking up items from a
-  pile to avoid crashing the server
-- Fix parsing error when parsing female player presets (Shockbolt tileset)
-- Make shimmering objects properly shimmer if they're the first object of a pile
-  containing ignored items
-- Fix Cure Light Wounds spell for Rangers
-- Fix Cell Adjustment spell for Telepaths
-- Fix Mind Blast/Brain Smash spell descriptions for Shapechangers
-- Fix "invicible" typo in hints.txt
+- Add a hidden resting option ('x' on the command line) to rest without being
+  interrupted by hp damage
+
+Bugs fixed
+----------
+
+PWMAngband:
+  
+- Make birth_no_artifacts actually prevent generating and using ANY artifact
+- Fix unidentified weapons with slays or brands being sold for more than their
+  real value
+- Fix object rating being based on known value instead of real value of objects
+  generated on the level
+
+Features in PWMAngband 1.1.12 build 4
+=====================================
+
+User interface
+--------------
+
+PWMAngband:
+
+- Make accounts case insensitive
+- Improve XBM order parsing by allowing orders based on two criteria
+  (for example: "potion|speed")
+- Display price info when describing an item in a shop
+
+Gameplay changes
+----------------
+
+PWMAngband:
+
+- Move green and blue Thunderlords deeper
+- Repeat digging 99 times
+
+Bugs fixed
+----------
+
+PWMAngband:
+
+- Fix rooms of chambers
+- Add missing FORCE_DEPTH flag to spirits and blood lurchers
+- Prevent randart ammo from having non-weapon abilities
+- Choose a brand randomly when poison, stunning and cutting are available
+- Update the Home when discovering a new rune
+
+Features in PWMAngband 1.1.12 build 3
+=====================================
+
+Gameplay changes
+----------------
+
+PWMAngband:
+
+- Add stunning brand to Rocks
+- Add two new brands: strong stunning and strong cutting (x2 multiplier)
+- Make scrolls of Wilderness Mapping more common
+- Make scrolls of Wilderness Mapping map a 3x3 area instead of just one sector
+- Make scrolls of *Teleport Level* more common
+
+Bugs fixed
+----------
+
+PWMAngband:
+
+- Implement cutting and stunning brands properly
+- Fix teleport effect (especially when trying to phase out of a big vault)
+- Allow throwing artifact missiles
+- Make "returning" missiles actually return when "thrown" and not just "fired"
+- Change "wilderness mapping" effect to "magic mapping" if no wilderness
+- Forbid recalling with @Rx,y if no wilderness
+- Fix critical hits from throwing stuff
+
+Features in PWMAngband 1.1.12 build 2
+=====================================
+
+Gameplay changes
+----------------
+
+PWMAngband:
+
+- Make normal mithril shots +0 +0
+- Add two new brands: stunning and cutting (x1 multiplier)
+- Add cutting brand to Shurikens
+- Remove tohit and todam from artifact ammo, tweak some of their brands
+
+Compilation
+-----------
+
+- LIBPNG upgraded to version 1.6.34
+
+Features in PWMAngband 1.1.12 build 1
+=====================================
+
+User interface
+--------------
+
+Angband 4.1.x:
+
+- Add ?? inscription for unknown runes
+- Improve player screen object property grid
+- Add rune knowledge screen
+- Give messages on learning jewelry and ego types
+- Remove trap detect edge
+- Add shimmer to shimmering monsters
+- Add flicker to blink dogs, phase spiders
+- Make known to-dam/to-hit values appear when only one rune is learnt
+- Remove text screen dumps
+- Change monster names to appropriate English case
+- Adopt some of James Doyle's suggestions from the forum (flavors)
+- Add show_damage support to monster melee attacks
+- Switch out 'suicide' for 'kill character'
+- Add sound for learning a rune
+- Make separate locations for list monsters in and out of los
+- Base targeting lines off player belief rather than truth
+- Make lava glow
+- Add option to display effective speed
+
+MAngband 1.2:
+
+- Add Walls of the World messages
+- Add "-v" version output to server
+
+PWMAngband:
+
+- Remove a few obsolete hints
+- Display real damage dice/base armor class if known, otherwise display
+  damage dice/base armor class from object kind
+- Display header in red on the player screen object property grid for
+  vulnerabilities
+- Add an extra panel for ESP flags on the player screen object property grid
+  (press 'm' to switch between skills/history, equipment flags and ESP flags)
+- Add a debug command allowing creation of traps (Dungeon Master menu)
+- Remove generation of item/ego by number (Dungeon Master menu)
+- Generate true artifacts by kind + name (Dungeon Master menu)
+- Select features by name instead of number (Dungeon Master menu)
+- Add 'D' command in stores to describe an item
+- Switch around tiles for log and drawbridge
+- New ambient sounds for wilderness and deep dungeon levels
+- Mention dungeon name when looking at a dungeon entrance
+- Mention dungeon name instead of "Dungeon" when displaying the wilderness
+  metamap while inside a dungeon
+- Move amb_senya/amb_xakaze ambient sounds to depths 125/126
+- Add ambient sound (amb_melkor) for depth 127
+- Remove 8x8, 16x16 and 8x16 tilesets
+- Add new titles for conquering the Nether Realm and killing Melkor
+- Automatically assign spellbooks tags 1-9 based on sval
+- New command: '%' (display current time)
+- Add an option ('m') to rest until morning
+- Add antimagic field value to the description when inspecting dark swords
+- Add list of visited dungeon/town locations to the knowledge screen
+- Allow rerolling random artifacts (Dungeon Master menu)
+
+Gameplay changes
+----------------
+
+Angband 4.1.x:
+
+- Don't notice brands on wield (only notice when hitting a monster susceptible
+  to the brand)
+- Transfer object knowledge on walkover
+- Don't learn the flavor of jewelry with obvious properties until all of them
+  are learned
+- Remove IDENTIFY activation
+- Remove staves and rods of Identify, scrolls of Identify still exist but are
+  not sold in the Alchemy Shop anymore
+- Remove IDENTIFY_PACK effect (from potions of *Enlightenment*)
+- Remove pseudo-id (PWMAngband: remove PSEUDO_ID_IMPROV, make pseudo-id
+  automatic and immediate on walkover, keep feeling message but remove
+  feeling inscriptions, simplify quality ignoring)
+- Temporarily swap all stats around when hit by nexus in addition to teleporting
+- Make dice and ac (runes) known at birth
+- Make IDENTIFY effect (scroll + spell) identify an unknown rune on an item
+- ID flavored consumables on first use
+- Make basic lights and diggers have innate not magical properties
+- Make *Slay*s have a random power or base resist
+- Learn sustains if their item also boosts the stat
+- Identify obvious effects on abort (IDENTIFY, RECHARGE...)
+- Make devices that affect monsters require a target to ID
+- Make standard body armor to-hit penalties not part of the to-hit rune
+- Remove search command and searching status (PWMAngband: 'Toggle search mode'
+  becomes 'Toggle stealth mode' for Rogues)
+- Remove search frequency skill
+- Introduce trapsafe status and trap disabling, change trap destruction spells
+- Secret doors only inside rooms
+- Only set traps in corridors, replace some tunnel junction doors with traps
+- Make door detection miss secret doors, generate many fewer secret doors
+- Nomad's new template rooms with placed traps
+- Split disarm skill to physical and magical
+- Add new traps, improving effects where necessary
+- Add rubble fall effect
+- Allow summon effect to have an added out of depth element
+- Change pit behaviour
+- Make chests rarer and more valuable
+- Add DRAIN_LIGHT effect
+- New curses: defined by power (1 = easily breakable, 100 = permanent),
+  to_a/to_h/to_d values, object flags/modifiers/elements, effect, tval
+- New curse system: implement curses as runes, update object info and
+  description, restore curse removal, allow branding of cursed items, know
+  curses on wield (instead of pickup), turn cursed egos into curses, replace
+  OF_TELEPORT with OF_NO_TELEPORT, redo teleportation jewelry as cursed
+- Enable fizzix's probability tweaks from 2012
+- Allow passable rubble in the dungeon
+- Activate new dungeon profiles (modified, moria)
+- Activate new room types (moria room, Interesting room, huge room, room of
+  chambers)
+- Activate new vault types
+- Make lava passable and hurt the player
+- Allow hot and cold projections to create or destroy lava
+- Allow lava to appear in vaults
+- Stop monsters from moving into lava, hurt them if they're pushed
+- Weight slays and brands by fixed weights, adjust monster feelings
+- Make player know all combat runes at birth
+- Tone down greater vaults for non-classic profiles
+- Adjust slays, brands and modifiers on randarts
+- Some improvements to curses on randarts
+- Distinguish between ratings for template rooms
+- Remove "Find Traps, Doors & Stairs" spell (priest, paladin, summoner)
+- Replace "Find Traps, Doors & Stairs" spell by "Detect Stairs" (rogue, ranger)
+- Remove trap/door/stair detection from "Detection" spell (paladin)
+- Remove trap/door/stair detection from CLAIRVOYANCE and DETECT_ALL activations
+- Remove DETECT_TRAP and DETECT_DOORSTAIR activations
+- Remove scrolls of Trap Detection and Door/Stair Location
+- Remove trap/door/stair detection from potions of *Enlightenment*
+- Move objects when lava is created
+- Make stone to mud destroy passable rubble
+- Reduce the supply of gold, in line with its value in older versions
+- Make a hard cap of 6 on non-speed randart mods
+- Curse a few randarts
+- Adjust class and race searching skills
+- Implement basic trap searching
+- Add visibility ratings for traps
+- Change create traps to radius 3, make created traps and vault traps only
+  appear one in four times
+- Implement 'hold monster' effect (PWMAngband: adapt the existing effect)
+- Implement new stunning effect (PWMAngband: adapt the existing effect)
+- Implement new 'slow monster' effect
+- Implement new 'confuse monster' effect
+- Add heal-other monster spell and low-level healer monster
+- Increase bonus on rings of Searching
+- Adjust mushroom effect times
+- New randart set generation algorithm (PWMAngband: keep the item kind)
+- Make !g on an object turn off pickup_inven for that object
+- Allow monster pathing through passable rubble
+- Stop HOLY_ORB destroying cursed items
+- Massive buff to probing
+- Make donation rules the same as selling rules
+- Learn runes of innate properties at birth
+- Make vortices resist poison, silver jellies not hurt by light
+- Forget destructed and earthquaked terrain
+- Make monsters in lava take damage (PWMAngband: extend to all damaging terrain)
+- Make group monsters only try to surround the player when in los
+- New monster pathfinding
+- Change waybread to a flat 20 heal
+- Give all traps a 1 in 3 chance of being destroyed when the player hits them
+- Tweak modified profile unusual room parameter
+- Always give the player some experience for disarming a trap
+- Place stairs in safer places (PWMAngband: forbid stairs in vaults, starburst
+  rooms and rooms of chambers)
+- Randomise teleport distances a bit
+- Place player more safely
+- Make all random breath activations have the same damage
+- Make effects and curses unnecessary for IDing jewellery
+- Make not obviously aimed flavored items use a random direction if unknown
+  (except rods)
+
+PWMAngband:
+
+- Port and adapt object knowledge from Angband: transfer player knowledge
+  (automatically notice damage dice and base armor class), set ego type if
+  known, notice artifacts, apply auto-id, "assess" objects, ignore items
+  eligible for ignoring
+- Remove Greater Identify and Knowledge Explosion spells
+- Sorcerors learn the Telepathy spell at level 34 (instead of 36)
+- Remove scrolls of *Identify*
+- Prevent probability travel on grids with items
+- Prevent earthquakes placing players and monsters on grids with items
+- Rename Identify spell back to Perception for Priests and Paladins
+- Give Dungeon Master full knowledge of runes
+- Scale physical and magical disarm skill with racial DEX/INT
+- Increase digging repeat count from 10 to 20
+- Assess jewelry on walkover
+- Make unbelievers *suck* at magic devices
+- Replace Sense Traps, Doors & Stairs with Spiritual Hammer (Telepath class)
+- Allow the Dungeon Master to summon uniques
+- Give archers extra shots at level 20 and 40 (instead of 15/30/45)
+- Limit extra shots to +1 on Slings of Buckland
+- Limit damage power on artifact ammo to +10
+- Allow only one of KILL_XXX or SLAY_EVIL on artifact ammo
+- Reduce monster saving throw against status effects
+- Tweak some artifacts, delete a few, add new ones from TomeNet
+- Align blinding effect with new hold/confuse effects
+- Use target monster 'sleepiness' value for 'sleep monster' duration
+- Make wilderness square-shaped (with radius 43) instead of diamond-shaped
+- Make wilderness bordered (by the Walls of the World) instead of circular
+- Add new wilderness types (river, deep water, desert, glacier, hill)
+- Add new wilderness terrain types (sand, sandwall, ice, ice wall)
+- Make wilderness metamap fixed instead of randomly generated, using a
+  pseudo Middle-Earth map as layout
+- Use (modified) Angband-style town layout as base town layout
+- Remove the static pre-designed dungeon towns used on no_recall/more_towns
+  servers every 750ft (while keeping the framework for designing static dungeon
+  levels/towns)
+- Generate Angband-style dungeon towns automatically every 1000ft on no_recall
+  servers (if there is no static pre-designed dungeon town loaded at that depth)
+- Generate arenas on WILD_DESERT terrain
+- Don't respawn monsters in town suburbs
+- Allow special manually-designed levels/towns in the wilderness
+- Split starting town (starting point for non-ironman level 1 characters) and
+  base town (containing the main Angband dungeon) into two separate towns,
+  rename them Hobbiton and Carn Dûm and place them at their real location
+  on the pseudo Middle-Earth map
+- Remove WILD_GRASS restriction for town suburbs, allow houses on waste and
+  glacier terrains
+- Set monster/object level depending on wilderness level and distance from towns
+- Prohibit stone to mud effect in towns
+- Add towns of Bree, Lothlorien, Minas Anor, Umbar and Gondolin
+- Close shop doors if someone is already in the shop in another town
+- Make Farmer Maggot only appear in Hobbiton
+- Add "The Orc Cave" (depth 500' to 1150') with Azog, King of the Uruk-Hai as
+  dungeon boss
+- Add "The Old Forest" (depth 650' to 1250') with Old Man Willow as dungeon boss
+- Add "The Sandworm Lair" (depth 1100' to 1500') with The Sandworm Queen as
+  dungeon boss
+- Add "The Land Of Rhûn" (depth 1000' to 1700') with Ulfang the Black as
+  dungeon boss
+- Add "The Barrow-downs" (depth 50' to 1750') with The Wight-King of the
+  Barrow-downs as dungeon boss
+- Add "The Maze" (depth 1250' to 2000') with The Minotaur of the Labyrinth as
+  dungeon boss
+- Add "The Heart of the Earth" (depth 1250' to 2250') with Golgarach, the
+  Living Rock as dungeon boss
+- Add "The Small Water Cave" (depth 1600' to 2250') with The Watcher in the
+  Water as dungeon boss
+- Add "The Helcaraxe" (depth 1000' to 2500') with The White Balrog as
+  dungeon boss
+- Add "The Mines of Moria" (depth 1500' to 2500') with The Balrog of Moria as
+  dungeon boss
+- Add "The Illusory Castle" (depth 1750' to 2600') with The Glass Golem as
+  dungeon boss
+- Add "Cirith Ungol" (depth 1250' to 2750') with Shelob, Spider of Darkness as
+  dungeon boss
+- Add "Númenor" (depth 1750' to 2750') with Ar-Pharazôn the Golden as
+  dungeon boss
+- Add "Mirkwood" (depth 550' to 3200') with Radagast the Brown as dungeon boss
+- Add "Mordor" (depth 1700' to 3250') with The Mouth of Sauron as dungeon boss
+- Add "Erebor" (depth 2900' to 3500') with Glaurung, Father of the Dragons as
+  dungeon boss
+- Add "The Sacred Land Of Mountains" (depth 2250' to 3600') with Trone, the
+  Rebel Thunderlord as dungeon boss
+- Add "Dol Guldur" (depth 2850' to 3750') with The Necromancer of Dol Guldur as
+  dungeon boss
+- Add "The Paths of the Dead" (depth 2000' to 3850') with Feagwath, the
+  Undead Sorcerer as dungeon boss
+- Add "Mount Doom" (depth 4200' to 4900') with The Balrog of the Sammath Naur as
+  dungeon boss
+- Move Tik'srvzllat to level 124 of Angband
+- Add "The Nether Realm" (depth 5050' to 6300') with Xakaze, Father of
+  Abominations as dungeon boss
+- Move Senyakaze, Sorceress of the Nether Realm to level 125 of The Nether Realm
+- Remove Senyakaze/Xakaze from the list of questors, making them optional kills
+- Add "Utumno, Portal to the Void" (depth 5100' to 6350') with Melkor, Lord of
+  Darkness as dungeon boss
+- Make last four uniques fixed encounters always appearing on their base depth
+- Allow force-location monsters to appear in the main Angband dungeon on
+  no-recall/no wilderness servers
+- Restrict The Nether Realm and Utumno, Portal to the Void to winners
+- Merge NO_RECALL and TOWN_WALL server options into DIVING_MODE (0 = normal
+  mode, 1 = no wilderness, 2 = no recall)
+- Implement the Home (in Carn Dûm) for every player on no-wilderness servers
+- New special level "The Brandywine Bridge" with Otho and Lobelia
+  Sackville-Baggins as fixed encounters
+- Add BASEANGBAND monsters from ToME/TomeNET, remove some non-BASEANGBAND ones
+- Make Melkor the final battle (auto retire)
+- Make Senyakaze, Sorceress of the Nether Realm an Ainu
+- Add "The Training Cave" (depth 50' to 100') in Hobbiton
+- Add monster themes to dungeons
+- Add dungeon flags to generate themed dungeon levels
+- Add feature themes to dungeons
+- New terrain: ash (floor tile), nether mist (floor tile, damaging),
+  dark wall (wall), web (passable, diggable), void (floor tile),
+  glass wall (permanent wall), illusion wall (fake wall)
+- Add scroll of Wilderness Mapping which reveals the location of a random
+  wilderness area
+- Allow players in undead form to inscribe/uninscribe carried items
+- Cap anti-magic and anti-summoning at 90%
+- Minor changes to randarts (AC, to-hit and to-dam)
+- Forbid enchantments (to-hit, to-dam, to-ac) on dark swords
+- Allow Raise Dead to raise ice skeletons from elven bones and give a chance
+  to get skull drujs from skulls
+- Allow cursed objects with positive value to be sold in shops
+- Remove HOLD_LIFE from Morgul weapons and from Mormegil
+- Remove slay undead from Morgul weapons
+- Change Feather Falling to Levitation (makes falls painless + prevents
+  drowning)
+- Add LEVITATE flag to allow (mainly flying) monsters to cross water
+- Make antimagic a modifier instead of a flag, cap its value at +4 (40% field)
+- Give all randart weapons a chance to get an antimagic field
+- Add mana resistance to randart Crystal DSMs
+- Give a chance to get dracoliches when using Raise Dead on dragon corpses
+- Make controlled monsters more likely to react to new orders
+- Make ancient wyrms rarer
+- Add ABOMINATION flag (crawling masses of primal chaos)
+- Add S_ABOMINATION spell (Xakaze)
+- Add S_SPIRIT spell (Melkor)
+- Allow ESP undead to detect ghost players
+- Reduce stat boosts on the Massive Iron Crown of Morgoth to +50
+- Tweak base depth of some postgame monsters
+- Restrict nether vortices and crawling masses of primal chaos to the Nether
+  Realm
+- Add new abominations: chaos mutant, vlodblad and blood lurcher
+- Don't give the Dungeon Master full flavor knowledge at birth to allow
+  generation of unaware items
+- Allow '*' to specify a rod when generating an item with the Dungeon Master
+
+Bugs fixed
+----------
+
+Angband 4.1.x:
+
+- Make dwarf gold detection more update-efficient
+- Fix 'dependant' typo
+- Fix randart weapons having both supercharged AC and normal AC
+- Register monster resistance to known brands and slays
+- Stop infinite loops in scatter()
+- Fix hit chance in monster lore
+- Amend interesting room Hourglass
+- Fix laxity in scatter(), find_nearby_grid(), and vault_monsters()
+- Bounds checking and other fixes in dungeon generation
+- Stop ID info leaking when inspecting
+- Forget los-blocking grids between player and monster they can see
+- Allow chests to be specifically generated in vaults
+- Don't count timed effects as damage in nonhp_dam()
+- Fix quiver header
+- Fix a buffer overflow
+- Fix some memory leaks
+- Stopped reporting "Radius 1 light" for non-lights
+- Stop monster status info when blind
+- Update view correctly after darkening a room
+- Prevent conflict between object flags and curses
+- Fix ART_TAG stuff for plurals
+
+PWMAngband:
+
+- Learn the ego when branding an item, not the brand itself
+- Display temporary effect (resistance, ESP) with a light green '!' on the
+  player screen object property grid instead of using the green header which is
+  reserved for immunity
+- Fix typo that prevented displaying temporary resistance to cold on the player
+  screen object property grid (temporary resistance to fire was displayed twice)
+- Make sure the object still exists when ignoring an object from the ignore menu
+  to avoid crashing the client (corpses may have decomposed, ...)
+- Display "It can be aimed" for all unaware rods
+- Update quiver count when dropping a partial stack of missiles
+- Don't draw breath effect over the breather
+- Fix "resist acid" element/rune learned when hit by a Darkness spell
+- Take a turn if device/spell failed due to antimagic field
+- Fix incorrect frequency for immunities leading to them appearing too often on
+  randarts
+- Fix some memset declarations
+- Fix crash when trying to generate creeping coins in the wilderness
+- Display wilderness coordinates properly at the bottom right of the wilderness
+  minimap, fixing a crash in the process if the size of the minimap was too big
+- Add missing town wall tile mappings
+- Re-introduce tunneling ability for randart weapons
+- Fix monster summoning (Dungeon Master menu)
+- Fix mowing down trees in town not decreasing the trees_in_town counter
+- Fix color of light slate monsters
+- Fix weight of unbelievers, remove weight for Emperor Mimic
+- Don't add stealth to players polymorphed into a race with no base weight
+- Fix some TOWN_WALL (no wilderness) issues
+- Don't count held monsters for players' time bubble
+- Fix paralyzing melee attacks not holding players/monsters
+- Fix sound effects not activated in the Win and SDL clients
+- Fix some string_append() copy/paste errors
+- Fix crash in manual vault creation
+- Fix ethereal hounds never trying to swarm the player
+- Fix display of store entries
+- Save all SQUARE_ dungeon flags in savefiles, fixing level feelings
+- Use singular when displaying the activation message for a stack of rods
+- Fix "It (offscreen) disappears" message when teleporting a monster away
+- Don't make teleport other sound twice when teleporting a monster away
+- Remove old code displaying garbled entries at the beginning of the character
+  history
+- Don't report "Cannot be refueled" for unknown lamps
+- Allow selling cursed artifacts
+- Fix Raise Dead spell
+- Remove reference to obsolete monster index in monster.txt
+- Fix experience earned by killing Atlas, the Titan
+- Fix crash when monster tries to create traps in MvM mode
+- Ensure that Raise Dead generates an undead monster consistent with the corpse
+  used
+- Fix typo in description of potions of life
+- Fix description of objects with random effects
+- Fix placement of rubble and traps in turn-based mode
+- Make Mirrored script "B"s vault centered
+- Don't allow antimagic field from monsters to disrupt other monsters' spells
+- Fix client hanging when the metaserver is reachable but not responding
 
 Coding changes
 --------------
 
-Angband 4.0.x:
+Angband 4.1.x:
 
-- Improve efficiency of object list
-- More code improvements from the Angband 4.0.5 release 
+- Rename obj-identify module to obj-knowledge
+- Add rune module
+- Handle non-magical object properties with flags
+- Warning cleanup
+- Remove special trap effects, make traps use other effects
+- Add DUNGEON_LEVEL to effect expressions
+- Split aggravate effect into wake and haste
+- Rewrite drop_near()
+- Nuke forget_view and PU_FORGET_VIEW
+- Remove unnecessary screen updates in detection effects
+- Various refactorings
+- Fix memory leaks
+- Add list-randart-properties.h
+- Refactor obj-randart
+- Move monster blow methods to a data file
+- Move much of list-player-timed.h to player_timed.txt
+- Move monster blow effects to blow_effects.txt
+- Make monster lookup case-insensitive
+- Excise mon-power
+- Split object data file reading into obj-init.c
+- Replace linked lists of curses with arrays
+- Parse slays from slay.txt
+- Remove the slay cache
+- Replace linked lists of slays with arrays
+- Parse brands from brand.txt
+- Replace linked lists of brands with arrays
+- Remove monster power and scaled_power
+- Move magic realms to realm.txt
+- Tidy up some parser errors
+- Include spell power, use it instead of monster level
+- Replace origin_xtra with origin_race (struct monster_race)
+- Remove indices from (many) text files
+- Replace indices with strings in savefiles (PWMAngband: keep indices
+  by default, use a #define to switch to strings)
+- Put monster spell lore colours into monster_spell.txt
+- Put monster blow lore colours into blow_effects.txt
+- Implement monster flag types
+- Use monster flag types to write lore abilities
+- Use monster spell types to write lore spell descriptions
+- Use monster flag types in monster type descriptions
+- Put element/projection info into projection.txt
+- Parse object power calculations from object_power.txt
+- Parse object properties from object_property.txt
+- Use new object power calculations
+- Move higher level parsing functions to datafile.c
+- Move artifact light activations to the object kind
+- Stop handling special artifacts separately for randarts
+- Re-order artifact.txt and ego_item.txt to match the ordering in object.txt
+- Thorough refactor of mon-timed.c
+- Add NO_SLEEP/STUN/etc flags to monsters that previously had them inferred from
+  spell flags
+- Refactor of project-mon.c
+- Add new NO_HOLD flag for monsters immune to holding
+- Implement variable slot sizes by item base
+- Enable two levels of monster spell message
+- Expand info and power lines in monster.txt
+- Rename aaf/vision to hearing, alertness to sleepiness
+- Move distance/direction arrays to cave.c
+- Reorganise mon-move.c
+- Add mon-predicate
+- Move rd_artifacts() to after rd_misc()
+- Remove drop-artifact from monsters and drop the Morgoth artifacts directly
+- Write error diagnosis file on object pile error
+- Generalise lava damage to damaging terrain
+- Improve ranged_helper()
+- Make a list of grids to pick a teleport location from
+- Remove (unused) monster spell power
+- Clarify door opening and bashing logic
+- Re-create missing mimicked objects on savefile load
+- Add struct connector for joining levels (adapted for PWMAngband)
+- Enforce minimum level sizes for persistent levels (adapted for PWMAngband)
+- Change to main-gcu.c
 
-PWMAngband:
+MAngband 1.2:
 
-- Indent object.txt again so that description lines are at most 80 characters
-  long
-- Change line wrapping length from 75 to 74 to avoid bad wrapping in oook ladder
-  dumps
-
-Features in PWMAngband 1.1.11 build 3
-=====================================
-
-Gameplay changes
-----------------
-
-PWMAngband:
-
-- Give archers an extra shot at levels 15, 30 and 45 with any missile launcher
-  (this should rebalance damage output of sling vs bow vs crossbow)
-
-Bugs fixed
-----------
-
-PWMAngband:
-
-- Fix crash when trying to lay a rune of protection on top of an (ignored)
-  object
-- Fix slay cache again, preventing it from filling up and looping on 65536
-  entries indefinitely potentially leading to memory leaks and crashes
-- Fix crash when an archer kills something with the ball effect from a branded
-  ranged attack if delayed messages are pending
-- Display death message properly after all other pain/effect messages when an
-  archer kills something with the ball effect from a branded ranged attack
-- Rearrange quiver automatically after inscribing/uninscribing missiles
-- Save archer brand info in the savefile (doesn't break savefile compatibility)
-- Give monsters a chance to retaliate if attacked by weaker controlled monsters
-- Save terrain under monster (for feature mimics) in the savefile (doesn't break
-  savefile compatibility)
-
-Features in PWMAngband 1.1.11 build 2
-=====================================
-
-User interface
---------------
-
-PWMAngband:
-
-- New corrected ironman town layout at 750ft
-
-Gameplay changes
-----------------
-
-PWMAngband:
-
-- Don't reset object visibility flag (MARK_SEEN) when clearing cave flags for
-  a player if the object is inside a house owned by that player
-
-Bugs fixed
-----------
-
-PWMAngband:
-
-- Stop generating lava tiles on the border of "new town" levels
-- Display "You do not have enough room for this item" when trying to buy
-  something with a full pack instead of "Buy how many? (max 0)"
-- Fix plural of Knight Templar
-- Don't notice ignored chests when searching or detecting traps
-- Don't try to open or disarm ignored chests
-- Fix a stupid bug which prevented items from dropping near a location which
-  contained a trap or rune of protection
-- Fix a critical bug which increased the stun counter by an absurd amount when
-  something breathed sound, gravity or plasma on a character without protection
-  from stunning
-
-Features in PWMAngband 1.1.11 build 1
-=====================================
-
-User interface
---------------
-
-Angband 4.0.x:
-
-- Add debug command to perform effects (Dungeon Master menu)
-- Add timed flags display to character flag screen
-- Add message if a summon fails
-- Recolour permanent walls
-- Separate quiver list
-- Give the elven rings unique object names
-- Add ego-item ignoring menu
-- Remove cfg_small_range option
-- Make player life history editable (accessible in PWMAngband from the 'C' menu)
-- Make object selection use a real menu
-- New effect descriptions
-- New icon (Mr Att) for executable file
-- New town layout (in PWMAngband, this is only used to generate the static
-  ironman town at 750ft -- base town at 0ft remains the same)
-- Add quiver viewing command ('|' key)
-- New splashscreen
-- Update Nomad's graphics
-- Add trap knowledge screen
-- Add descriptions for terrain
-- Add a sound for objects being dropped from or carried to the quiver
-- Divide object list into seen and aware
-- New monster spell messages from Elsairon
-- Put subwindow options in a separate file so they work for all characters
-- Order quiver ammo from worst to best
-- Make resting and statusline display for deep descent work like for recall
-- Shorten inventory prompt, put overweight info in 'C' screen
-- Split launcher and DSM types for ignoring purposes
+- Improve console command handling
 
 PWMAngband:
 
-- Display minimap like Angband
-- Remove font-xxx.prf, setting the same default color for inventory display
-  for all players (configurable server-side in object_base.txt)
-- Make town building walls (stores + houses) regular permanent walls
-- Move MAngband permanent walls (suburb houses + arenas) to their own terrain
-  feature, leave house walls brown, make arena walls red
-- Display a red "-" instead of a green "+" for negative modifiers on the
-  character sheet
-- Split fixed pval/modifier commands for item generation (Dungeon Master menu)
-- Add new fixed flavor ("Black Ring") for randart Rings of Power
-- Add a Summon Pet command to the Dungeon Master menu
-- Add an entry for the "unknown item" and "unknown treasure" tiles for all
-  tilesets
-- Slightly alter town layout, reduce feature array size from 12x6 to 11x6
-- Tell Shapechangers they cannot gain spells instead of browsing unexisting
-  books
-- Make spell list subwindow display spells for Shapechangers and player ghosts
-- Remove check against maximum window size during setup mode to eliminate
-  dependency with dungeon dimensions, use server-side check instead
-- Display "You see (top item) on a pile." instead of actually listing all
-  objects when moving on a square that contains a pile of objects
-- Remove the '%' command (Interact with keymaps): the menu can be accessed by
-  pressing '=' (Interact with options) and then 'k' (Edit keymaps)
-- Remove vault generation by index (Dungeon Master menu)
-- Roguelike keyset: move "Display connected players" command from '|' to CTRL-V
-- Display trap description when looking at a trap and pressing 'r'
-- Display terrain description when looking at a feature and pressing 'r'
-- Replace "Save keymaps and options" by "Save options to pref file" and only
-  save options + window settings (keymaps can already be saved from the
-  "Interact with keymaps" submenu)
-- Never show empty equipment/inventory/quiver/floor list
-- Merge some new effect descriptions from Angband, update activation and spell
-  descriptions accordingly
-- Display number of player/active turns elapsed in real game turns (without
-  dividing them by the FPS parameter)
-- Display number of game/player/active turns immediately after entering the game
-- Dungeon Master menu: add command to generate true artifacts for debug purposes
-- While running, only update object/monster lists when panel changes
-- Generate houses as lit rooms
-
-Gameplay changes
-----------------
-
-Angband 4.0.x:
-
-- Remove fired status
-- Describe object plusses and modifiers regardless of the player, using
-  identification flags from the object exclusively
-- Remove class choices, make them all available for each race
-- Make dropping ignored items use energy
-- Allow barehanded combat to get multiple blows (important note: this doesn't
-  affect monks in PWMAngband which still get 1 + character level / 10 blows
-  per round)
-- Triple the number of room templates, add another 200 (for a total of 500)
-- Add stair-skip constant, making stairs go up or down that number of levels
-- Make Potions of Resist Poison also cure poison
-- Disturb on first getting the object feeling
-- Improve pickup of partial stacks
-
-PWMAngband:
-
-- Allow wands of polymorph to work on self
-- Implement the BERSERKER activation like Angband
-- Implement the healing spells like Angband (in PWMAngband, they will only cure
-  blindness and confusion if projectable)
-- Change duration of slowing effect to 15+1d25 turns (Angband value)
-- Allow General Store to buy food from crops
-- Make digging time for all trees equal
-- Make wilderness level generation a "one-time" process: generate objects and
-  monsters once (for the first player that enters the level), then only
-  generate the layout ("deserted" level)
-- Tweak some of the PWMAngband artifacts and add more to ensure that every
-  object kind has a corresponding non-cursed non-aggravating artifact
-- Make Shapechangers polymorphing into a monster susceptible to fire/cold
-  actually vulnerable to fire/cold
-- Increment quiver size from five to eight slots
-- Give the Dungeon Master (or all players in debug mode) all books at birth
-  instead of only deep books
-- Give Wands of Stinking Cloud radius 3 like Angband
-- Improve the Wonder effect in PvP mode
-- Let KILL_WALL spells hurt players vulnerable to rock remover in PvP mode
-- Let DISP_EVIL/DISP_UNDEAD spells hurt evil/undead players in PvP mode
-- Allow pets/slaves to attack a player instead of a monster if that player is
-  the closest target
-- Make DEATH spells work on players in PvP mode
-- Don't crush objects when an artifact cannot be dropped, drop the artifact
-  elsewhere on the level instead
-- Allow piles of objects (use default Angband value of 23 objects per dungeon
-  grid)
-- Drop gold after all carried items when the character dies, remove the 32000
-  gold coin cap
-- Preserve mana (for spells) and consumables in some cases where an effect
-  cannot be triggered on a specific level (usually on static levels)
-- Deal with ignored stuff (dropping all ignored items) only on random levels
-  (to avoid littering town, wilderness and static levels)
-- Don't halve extra blows given by equipped items when a monk is encumbered
-- Halve the barehanded damage bonus from ghost melee attacks so that it doesn't
-  get too good compared to the barehanded damage monks/dragons get since now
-  ghosts also get multiple attacks per round
-- Make all monsters find a safe place when fleeing (it was limited to smart
-  monsters before)
-- Forbid summoning in arenas
-- Apply off-weapon brands and slays (from items or monster form) to all
-  barehanded attacks (special monk/dragon attacks + basic barehanded attacks)
-- Slightly alter energy system: give frame_energy to players and monsters every
-  frame (every 1/FPS second); allow them to act once move_energy has been
-  accumulated; use up move_energy when they act, leaving (energy - move_energy)
-  for the next turn; make monsters with more energy than their closest player
-  act first, so that slower monsters never get double moves against players
-  (change from the Angband 2.9 era that was never ported to MAngband)
-- Apply elemental damage (which damages inventory) before physical damage when
-  dealing with monster elemental melee attacks
-- Allow browse/study/cast from a book on the floor
-- New server option: turn-based mode (makes the server turn-based if there is
-  only one player connected)
-- Make "Stay still" command use energy (via ',' or '5')
-- New server option: limited telepathy (makes telepathy limited to a radius of
-  "max_sight" like Angband)
-- Stop restricting monster/player visibility (line of sight or telepathy) to the
-  current panel
-- Limit to-dam on artifact missiles (to make ego missiles still valuable)
-- Make Resilience a one-time effect setting monster lifespan to maximum value
-- Check for monster respawn every 10 turns (Angband rate)
-- Let fainting and starving effects occur in town areas
-- Make anti-summon field "imperfect" (range 8-11 field with 65-95% chance of
-  disrupting any summon attempts)
-- Don't record a real "death" when a player uses the Undead Form or Death spells
-- Prevent ghosts from casting Undead Form or Death spells
-- Give monsters a chance to retaliate if attacked by controlled monsters
-- Don't make controlled monsters always visible
-- Give controlled monsters a (small) chance to break free from their master's
-  control when out of awareness range
-- Don't allow TELE_TO effect to teleport something outside a vault next to
-  something inside a vault (it will still work if both caster and target are
-  inside the same vault)
-
-Bugs fixed
-----------
-
-Angband 4.0.x:
-
-- Fix message pain for meteor swarm hitting multiple similar monsters
-- Fix shatter moving player (skip remaining blows)
-- Make Study indicator active for spellbooks on the ground
-
-PWMAngband:
-
-- Properly tag all water tiles as "icky" when building moats
-- Consider all features as "memorized" for DM_SEE_LEVEL characters
-- Fix berserk strength description (increases to-hit by +24, not +12)
-- Fix typo "You hit by something!" when projecting a spell
-- Remove pointless direction choice for the Mass Sleep spell (arcane realm)
-- Fix stun amount for monster ice projections
-- Apply sleep effect after damage to avoid monster from waking up instantly
-- Make logs undiggable
-- Fix description not mentioning the fail rate when describing an activation
-- Hopefully fix "net write error" disconnections when generating a cavern level
-  with a large screen
-- Prevent dungeon generator from chopping the corners of rooms off when
-  generating wide corridors
-- Fix dungeon generator not placing any intersection doors when generating wide
-  corridors
-- Remove "LIGHT" from the list of abilities when generating an item that can
-  have a random ability (Dungeon Master menu)
-- Fix typo "You hit by something strange!" when hit by chaos effects
-- Fix crash when casting Cold Brand with a Necromancer
-- Objects with "LIGHT" modifier: hide light radius and refueling info if not
-  known, show light radius when worn, show light radius and refueling info when
-  identified
-- Don't show pointless "worn" special inscription when looking at an unaware
-  identified ring or amulet
-- Allow Sorcerors to cast Resistance on others
-- Remove pointless direction choice for the Displace Other spell (psi realm)
-- Fix Teleport Level for Shapechangers: add missing direction choice and stop
-  crashing when using the spell on monsters
-- Update some spell descriptions for Shapechangers
-- Fix an entertaining bug when casting Anime Dead/Raise Dead spells while
-  any player in line of sight (including the caster) was standing on a corpse
-  or a skeleton
-- Fix mana balls/breaths power (value is 100, not 30)
-- Don't let LIGHT_WEAK spells hurt players not vulnerable to light in PvP mode
-- Don't let PSI_DRAIN/OLD_DRAIN/DRAIN spells hurt nonliving players in PvP mode
-- Fix mass effect spells not working on players in PvP mode
-- Fix crash when casting Alter Reality
-- Make RAISE spells work much more often by using the same desired level for
-  raised monsters as for any summon
-- Fix floor display (load/save screen and prompt for a key) when looking at a
-  pile of objects and pressing 'r' for details
-- Fix crash when attacking someone with a "slay" weapon in PvP mode
-- Don't allow players to steal artifacts from other players
-- Properly describe stolen item if the thief is unaware of the stolen item's
-  flavor
-- Display correct number of turns when describing food or activatable items
-- Properly display store inventory when using pseudo-3D tiles
-- Fix crash due to monster closest player index not properly updated when a
-  player leaves the game
-- Make message_flush() really flush messages, so that last messages prior to
-  character death are recorded in the message subwindow
-- Update subwindows when ignoring an item on the floor
-- Make houses bought with a Deed of Property "free" (they sell for 0 gold) to
-  prevent cheezing by endlessly buying a house with a starter character then
-  immediately selling it and transferring the gold to another starter character
-- Calculate torchlight radius when generating a new level so that players going
-  down from town during daylight don't find themselves in the dark for a turn
-- Reveal the mimic instead of destroying the feature when using Trap/Door
-  Destruction or Stone to Mud on a Door mimic
-- Remove pit floors properly after an earthquake or destruction effect
-- Don't clear pit floors when deleting a feature mimic inside a pit
-- Fix randart generation not taking into account slays/brands power
-- Fix slay cache, allowing object power to be calculated properly
-- Dungeon Master menu: fix summoning commands
-- Prevent friendly monsters from picking up items on the floor
-- Make true artifacts dropped in unauthorized places (house, wilderness...)
-  stay in inventory instead of vanishing forever
-- Fix failing to use a magic device not taking a turn
-- Properly set the timout on activatable items after item request (identify,
-  recharging...)
-- Fix wrong message when a monster fails to summon due to a player using the
-  Suppress Summoning spell
-- Fix monsters with more energy than the closest player regenerating twice
-- Fix monsters regenerating way too often
-- Break long messages (over 80 characters) into multiple pieces so that they are
-  not truncated in the message history log
-- Fix Black Rings of Power having no weight
-
-Coding changes
---------------
-
-Angband 4.0.x:
-
-- Complete code restructure: for a full list of changes, check changes.txt from
-  any of the Angband 4.0.x releases, or http://rephial.org/release/4.0.0
-
-PWMAngband:
-
-- Refactor archer spells
-- Refactor options, factorize duplicate code
-- Renumber terrain features to match Angband more closely
-- Move maximum number of objects per level to a hardcoded constant, limiting it
-  to 13068
-- Move ghost abilities and mimic spells to class.txt
-- Move "near" messages to class.txt
-- Factorize MvP and MvM code
-- Reorder packets by type, reorganize netclient and netserver files
-- Don't save third-person player history in the savefile, generate it when
-  asking for player description instead
-- Don't save object descriptions in the savefile (obsolete)
-- Make quit() call exit_game_panic() to save players and server state in case
-  of a forced quit
+- Remove OF_ESP_POWER (use ESP flags directly)
+- Refactor project_m_is_threat using projection.txt
+- Make "returning" an object flag, replacing the corresponding object kind flag
+- Add some sanity checks on server options (mangband.cfg)
+- Reorganize player store feature order to match regular store features
+- Split DETECT_FEATURES into DETECT_DOORS and DETECT_STAIRS
+- Use a long integer for monster HPs instead of a short integer
+- Refactor flavored death message code
+- Parse wilderness terrain information from wild_feat.txt
+- Parse wilderness metamap from wild_info.txt
+- Make wilderness level info array bidimensional
+- Reorganize wilderness.c
+- Replace "depth" with "struct worldpos" containing both depth and wilderness
+  coordinates ("player", "player_death_info, "monster", "object", "chunk",
+  "arena_type", "house_type" and "wild_type" structures)
+- Set depth to 0 when on the wilderness surface
+- Move "chunk_list" and "players_on_depth" arrays to "struct wild_type"
+- Replace "recall_depth" with "struct worldpos", parsing "@Rx,y" inscription to
+  recall to a specific wilderness level
+- Add two "struct town" for starting town and base town
+- Use an array of "struct town" for towns
+- Parse town features from town_feat.txt
+- Parse town names and coordinates from town.txt
+- Parse layout of Bree from town_bree.txt
+- Parse layout of Lothlorien from town_lothlorien.txt
+- Parse layout of Minas Anor from town_minas_anor.txt
+- Add a system to restrict monster creation to certain locations
+- Parse dungeon names and coordinates from dungeon.txt
+- Don't keep towns allocated if they don't have players or owned houses
+- Remap 32x32 and 48x64 tilesets to match the 64x64 tileset
+- Add min depth to dungeons, only allocate max_depth - min_depth cave chunks per
+  dungeon
+- Simplify the time bubble code and add time scaling in town
+- Reorder monster.txt for the last three dungeons
+- Don't send extra info in the reply when the server refuses a client connection
+- Check status error immediately when the client tries to contact a server and
+  return "not a PWMAngband server" for unknown errors
+- Refactor object_xtra structure, splitting activation and aiming flags
 
 Documentation
 -------------
 
-Angband 4.0.x:
+Angband 4.1.x:
 
+- Fixed spelling errors in help
+- Document trap.txt
+- Add documentation of new status effects
+- Fix some typos in user manual
 - Update help files
-- Complete lib directory re-org
-- Add modifying.txt help file
 
 PWMAngband:
 
-- Add lib/readme.txt from Angband
-- Update some URLs in manual.txt
+- Reorganize setup.bat a bit
+- Move angband.css to the manual generation directory, generate PDF and HTML
+  manuals in the root directory
+- Simplify the readme.7z archive
 
 Compilation
 -----------
 
-- PYTHON upgraded to 32-bit version 2.7.11
-- Removed dependencies to DOCUTILS and SETUPTOOLS by installing rst2pdf
-  directly from Python (using pip)
-- LIBPNG upgraded to version 1.6.20
-- FREETYPE upgraded to version 2.6.2
-- NOTEYE upgraded to version 8.3
+- ZLIB upgraded to version 1.2.11
+- LIBPNG upgraded to version 1.6.32
+- FREETYPE upgraded to version 2.8.1
+- PYTHON upgraded to 32-bit version 2.7.14
+- NOTEYE upgraded to version 8.4

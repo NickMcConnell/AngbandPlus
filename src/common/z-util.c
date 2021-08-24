@@ -3,7 +3,7 @@
  * Purpose: Low-level string handling and other utilities.
  *
  * Copyright (c) 1997-2005 Ben Harrison, Robert Ruehlmann.
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -441,7 +441,7 @@ u32b ht_diff(hturn *ht_ptr1, hturn *ht_ptr2)
 }
 
 
-char* ht_show(hturn *ht_ptr)
+char *ht_show(hturn *ht_ptr)
 {
     static char buf[MSG_LEN];
 
@@ -649,7 +649,7 @@ void strescape(char *s, const char c)
 /*
  * Returns true if string only contains spaces
  */
-bool contains_only_spaces(const char* s)
+bool contains_only_spaces(const char *s)
 {
     char spaces[] = " \t";
 

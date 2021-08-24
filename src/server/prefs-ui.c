@@ -3,7 +3,7 @@
  * Purpose: Pref file handling code
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -107,7 +107,7 @@ static enum parser_error parse_prefs_object(struct parser *p)
 
         for (i = 0; i < z_info->k_max; i++)
         {
-            struct object_kind *kind = &k_info[i];
+            kind = &k_info[i];
 
             kind_x_attr[kind->kidx] = attr;
             kind_x_char[kind->kidx] = chr;
@@ -132,7 +132,7 @@ static enum parser_error parse_prefs_object(struct parser *p)
 
             for (i = 0; i < z_info->k_max; i++)
             {
-                struct object_kind *kind = &k_info[i];
+                kind = &k_info[i];
 
                 if (kind->tval != tvi) continue;
 
@@ -196,7 +196,7 @@ static enum parser_error parse_prefs_monster_base(struct parser *p)
 
     name = parser_getsym(p, "name");
     mb = lookup_monster_base(name);
-    if (!mb) return PARSE_ERROR_NO_KIND_FOUND;
+    if (!mb) return PARSE_ERROR_INVALID_MONSTER_BASE;
 
     a = (byte)parser_getint(p, "attr");
     c = (char)parser_getint(p, "char");
@@ -225,8 +225,7 @@ static enum parser_error parse_prefs_feat(struct parser *p)
     my_assert(d != NULL);
     if (d->bypass) return PARSE_ERROR_NONE;
 
-    idx = parser_getuint(p, "idx");
-    if (idx >= z_info->f_max) return PARSE_ERROR_OUT_OF_BOUNDS;
+    idx = lookup_feat(parser_getsym(p, "idx"));
 
     lighting = parser_getsym(p, "lighting");
     if (streq(lighting, "torch"))
@@ -291,18 +290,17 @@ static enum parser_error parse_prefs_trap(struct parser *p)
     my_assert(d != NULL);
     if (d->bypass) return PARSE_ERROR_NONE;
 
-    /* idx can be "*" or a number */
+    /* idx can be "*" or a name */
     idx_sym = parser_getsym(p, "idx");
 
     if (!strcmp(idx_sym, "*"))
         trap_idx = -1;
     else
     {
-        char *z = NULL;
+        struct trap_kind *trap = lookup_trap(idx_sym);
 
-        trap_idx = strtoul(idx_sym, NULL, 0);
-        if ((z == idx_sym) || (*idx_sym == '-')) return PARSE_ERROR_NOT_NUMBER;
-        if (trap_idx >= z_info->trap_max) return PARSE_ERROR_OUT_OF_BOUNDS;
+        if (!trap) return PARSE_ERROR_UNRECOGNISED_TRAP;
+        trap_idx = trap->tidx;
     }
 
     lighting = parser_getsym(p, "lighting");
@@ -338,7 +336,7 @@ static enum parser_error parse_prefs_trap(struct parser *p)
 
 static enum parser_error parse_prefs_gf(struct parser *p)
 {
-    bool types[GF_MAX] = { 0 };
+    bool types[PROJ_MAX];
     const char *direction;
     int motion, motion2 = 0;
     char *s, *t;
@@ -348,16 +346,18 @@ static enum parser_error parse_prefs_gf(struct parser *p)
     my_assert(d != NULL);
     if (d->bypass) return PARSE_ERROR_NONE;
 
-    /* Parse the type, which is a | seperated list of GF_ constants */
+    memset(types, 0, PROJ_MAX * sizeof(bool));
+
+    /* Parse the type, which is a | seperated list of PROJ_ constants */
     s = string_make(parser_getsym(p, "type"));
     t = strtok(s, "| ");
     while (t)
     {
         if (streq(t, "*"))
-            memset(types, true, sizeof(types));
+            memset(types, true, PROJ_MAX * sizeof(bool));
         else
         {
-            int idx = gf_name_to_idx(t);
+            int idx = proj_name_to_idx(t);
 
             if (idx == -1) return PARSE_ERROR_INVALID_VALUE;
 
@@ -403,18 +403,18 @@ static enum parser_error parse_prefs_gf(struct parser *p)
     else
         return PARSE_ERROR_INVALID_VALUE;
 
-    for (i = 0; i < GF_MAX; i++)
+    for (i = 0; i < PROJ_MAX; i++)
     {
         if (!types[i]) continue;
 
-        gf_to_attr[i][motion] = (byte)parser_getuint(p, "attr");
-        gf_to_char[i][motion] = (char)parser_getuint(p, "char");
+        proj_to_attr[i][motion] = (byte)parser_getuint(p, "attr");
+        proj_to_char[i][motion] = (char)parser_getuint(p, "char");
 
         /* Default values */
         if (motion2)
         {
-            gf_to_attr[i][motion2] = (byte)parser_getuint(p, "attr");
-            gf_to_char[i][motion2] = (char)parser_getuint(p, "char");
+            proj_to_attr[i][motion2] = (byte)parser_getuint(p, "attr");
+            proj_to_char[i][motion2] = (char)parser_getuint(p, "char");
         }
     }
 
@@ -467,7 +467,7 @@ static struct parser *init_parse_prefs(void)
     parser_reg(p, "object sym tval sym sval int attr int char", parse_prefs_object);
     parser_reg(p, "monster sym name int attr int char", parse_prefs_monster);
     parser_reg(p, "monster-base sym name int attr int char", parse_prefs_monster_base);
-    parser_reg(p, "feat uint idx sym lighting int attr int char", parse_prefs_feat);
+    parser_reg(p, "feat sym idx sym lighting int attr int char", parse_prefs_feat);
     parser_reg(p, "trap sym idx sym lighting int attr int char", parse_prefs_trap);
     parser_reg(p, "GF sym type sym direction uint attr uint char", parse_prefs_gf);
     parser_reg(p, "flavor uint idx int attr int char", parse_prefs_flavor);

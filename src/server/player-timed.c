@@ -3,8 +3,8 @@
  * Purpose: Timed effects handling
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2007 A Sidwell <andi@takkaria.org>
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2007 Andi Sidwell
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -37,71 +37,52 @@ static bool set_biofeedback(struct player *p, int v);
 static bool set_harmony(struct player *p, int v);
 
 
-struct timed_effect
+struct timed_effect_data timed_effects[] =
 {
-  const char *description;
-  const char *on_begin, *on_end;
-  const char *on_increase, *on_decrease;
-  const char *near_begin, *near_end;
-  u32b flag_redraw, flag_update;
-  u16b msg;
-  int fail_code;
-  int fail;
-};
-
-
-static struct timed_effect effects[] =
-{
-    #define TMD(a, b, c, d, e, f, g, h, i, j, k, l, m) {b, c, d, e, f, g, h, i, j, k, l, m},
+    #define TMD(a, b, c) {#a, b, c, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
     #include "../common/list-player-timed.h"
     #undef TMD
-    {NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0}
-};
-
-
-static const char *timed_name_list[] =
-{
-    #define TMD(a, b, c, d, e, f, g, h, i, j, k, l, m) #a,
-    #include "../common/list-player-timed.h"
-    #undef TMD
-    NULL
+    {"MAX", 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0}
 };
 
 
 int timed_name_to_idx(const char *name)
 {
-    int i;
+    size_t i;
 
-    for (i = 0; timed_name_list[i]; i++)
+    for (i = 0; i < N_ELEMENTS(timed_effects); i++)
     {
-        if (!my_stricmp(name, timed_name_list[i])) return i;
+        if (!my_stricmp(name, timed_effects[i].name)) return i;
     }
 
     return -1;
 }
 
 
-const char *timed_idx_to_name(int type)
+/*
+ * Undo scrambled stats when effect runs out.
+ */
+static void player_fix_scramble(struct player *p)
 {
-    my_assert(type >= 0);
-    my_assert(type < TMD_MAX);
+    int i;
 
-    return timed_name_list[type];
-}
+    /* Figure out what stats should be */
+    int new_cur[STAT_MAX];
+    int new_max[STAT_MAX];
 
+    for (i = 0; i < STAT_MAX; ++i)
+    {
+        new_cur[p->stat_map[i]] = p->stat_cur[i];
+        new_max[p->stat_map[i]] = p->stat_max[i];
+    }
 
-const char *timed_idx_to_desc(int type)
-{
-    my_assert(type >= 0);
-    my_assert(type < TMD_MAX);
-
-    return effects[type].description;
-}
-
-
-int timed_protect_flag(int type)
-{
-    return effects[type].fail;
+    /* Apply new stats and clear the stat_map */
+    for (i = 0; i < STAT_MAX; ++i)
+    {
+        p->stat_cur[i] = new_cur[i];
+        p->stat_max[i] = new_max[i];
+        p->stat_map[i] = i;
+    }
 }
 
 
@@ -110,17 +91,22 @@ int timed_protect_flag(int type)
  */
 bool player_set_timed(struct player *p, int idx, int v, bool notify)
 {
-    struct timed_effect *effect;
+    struct timed_effect_data *effect;
     bool result;
 
-    /* Hack -- force good values */
-    v = ((v > 10000)? 10000: ((v < 0)? 0: v));
-    if ((idx < 0) || (idx > TMD_MAX)) return false;
+    my_assert(idx >= 0);
+    my_assert(idx < TMD_MAX);
+
+    effect = &timed_effects[idx];
+
+    /* Limit values */
+    v = MIN(v, 10000);
+    v = MAX(v, 0);
 
     /* No change */
     if (p->timed[idx] == v) return false;
 
-    /* Hack -- call other functions, reveal unaware players if noticed */
+    /* Hack -- call other functions, reveal hidden players if noticed */
     if (idx == TMD_STUN)
     {
         result = set_stun(p, v);
@@ -165,9 +151,6 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
     if ((idx == TMD_OPP_COLD) && player_is_immune(p, ELEM_COLD)) notify = false;
     if ((idx == TMD_OPP_CONF) && player_of_has(p, OF_PROT_CONF)) notify = false;
 
-    /* Find the effect */
-    effect = &effects[idx];
-
     /* Always mention start or finish, otherwise on request */
     if (v == 0)
     {
@@ -178,18 +161,18 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
     else if (p->timed[idx] == 0)
     {
         msg_misc(p, effect->near_begin);
-        msgt(p, effect->msg, effect->on_begin);
+        msgt(p, effect->msgt, effect->on_begin);
         notify = true;
     }
     else if (notify)
     {
         /* Decrementing */
         if ((p->timed[idx] > v) && effect->on_decrease)
-            msgt(p, effect->msg, effect->on_decrease);
+            msgt(p, effect->msgt, effect->on_decrease);
 
         /* Incrementing */
         else if ((v > p->timed[idx]) && effect->on_increase)
-            msgt(p, effect->msg, effect->on_increase);
+            msgt(p, effect->msgt, effect->on_increase);
     }
 
     /* Use the value */
@@ -198,24 +181,26 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
     /* Sort out the sprint effect */
     if ((idx == TMD_SPRINT) && (v == 0)) player_inc_timed(p, TMD_SLOW, 100, true, false);
 
-    /* Nothing to notice */
-    if (!notify) return false;
+    /* Undo stat swap */
+    if ((idx == TMD_SCRAMBLE) && (v == 0)) player_fix_scramble(p);
 
-    /* Disturb */
-    disturb(p, 0);
+    if (notify)
+    {
+        /* Disturb */
+        disturb(p, 0);
 
-    /* Reveal unaware players */
-    if (p->k_idx) aware_player(p, p);
+        /* Reveal hidden players */
+        if (p->k_idx) aware_player(p, p);
 
-    /* Update the visuals, as appropriate. */
-    p->upkeep->update |= effect->flag_update;
-    p->upkeep->redraw |= (PR_STATUS | effect->flag_redraw);
+        /* Update the visuals, as appropriate. */
+        p->upkeep->update |= effect->flag_update;
+        p->upkeep->redraw |= (PR_STATUS | effect->flag_redraw);
 
-    /* Handle stuff */
-    handle_stuff(p);
+        /* Handle stuff */
+        handle_stuff(p);
+    }
 
-    /* Result */
-    return true;
+    return notify;
 }
 
 
@@ -224,7 +209,7 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
  */
 static bool player_set_timed_perma(struct player *p, int idx)
 {
-    struct timed_effect *effect;
+    struct timed_effect_data *effect;
     bool notify = true;
 
     /* No change */
@@ -237,13 +222,13 @@ static bool player_set_timed_perma(struct player *p, int idx)
     if ((idx == TMD_OPP_COLD) && player_is_immune(p, ELEM_COLD)) notify = false;
 
     /* Find the effect */
-    effect = &effects[idx];
+    effect = &timed_effects[idx];
 
     /* Turning on, always mention */
     if (p->timed[idx] == 0)
     {
         msg_misc(p, effect->near_begin);
-        msgt(p, effect->msg, effect->on_begin);
+        msgt(p, effect->msgt, effect->on_begin);
         notify = true;
     }
 
@@ -256,7 +241,7 @@ static bool player_set_timed_perma(struct player *p, int idx)
     /* Disturb */
     disturb(p, 0);
 
-    /* Reveal unaware players */
+    /* Reveal hidden players */
     if (p->k_idx) aware_player(p, p);
 
     /* Update the visuals, as appropriate. */
@@ -272,74 +257,81 @@ static bool player_set_timed_perma(struct player *p, int idx)
 
 
 /*
+ * Check whether a timed effect will affect the player
+ */
+bool player_inc_check(struct player *p, struct monster *mon, int idx, bool lore)
+{
+    struct timed_effect_data *effect = &timed_effects[idx];
+
+    /* Check that @ can be affected by this effect */
+    if (!effect->fail_code) return true;
+
+    /* Determine whether an effect can be prevented by a flag */
+    if (effect->fail_code == TMD_FAIL_FLAG_OBJECT)
+    {
+        /* Effect is inhibited by an object flag */
+        if (!lore) equip_learn_flag(p, effect->fail);
+
+        /* If the effect is from a monster action, extra stuff happens */
+        if (mon && !lore) update_smart_learn(mon, p, effect->fail, 0, -1);
+        if (player_of_has(p, effect->fail))
+        {
+            if (mon && !lore) msg(p, "You resist the effect!");
+            return false;
+        }
+    }
+    else if (effect->fail_code == TMD_FAIL_FLAG_RESIST)
+    {
+        /* Effect is inhibited by a resist -- always learn */
+        if (!lore) equip_learn_element(p, effect->fail);
+        if (p->state.el_info[effect->fail].res_level > 0) return false;
+    }
+    else if (effect->fail_code == TMD_FAIL_FLAG_VULN)
+    {
+        /* Effect is inhibited by a vulnerability -- don't learn if temporary resistance */
+        if (p->state.el_info[effect->fail].res_level < 0)
+        {
+            if (!lore) equip_learn_element(p, effect->fail);
+            return false;
+        }
+    }
+
+    /* Special case */
+    if ((idx == TMD_POISONED) && p->timed[TMD_OPP_POIS]) return false;
+
+    return true;
+}
+
+
+/*
  * Increase the timed effect `idx` by `v`.  Mention this if `notify` is true.
  * Check for resistance to the effect if `check` is true.
  */
 bool player_inc_timed_aux(struct player *p, struct monster *mon, int idx, int v, bool notify,
     bool check)
 {
-    struct timed_effect *effect;
+    my_assert(idx >= 0);
+    my_assert(idx < TMD_MAX);
 
-    /* Check we have a valid effect */
-    if ((idx < 0) || (idx > TMD_MAX)) return false;
-
-    /* Find the effect */
-    effect = &effects[idx];
-
-    /* Check that @ can be affected by this effect */
-    if (check && effect->fail_code)
+    if (!check || player_inc_check(p, mon, idx, false))
     {
-        /* If the effect is from a monster action, extra stuff happens */
+        /* Paralysis should be non-cumulative */
+        if ((idx == TMD_PARALYZED) && (p->timed[idx] > 0)) return false;
 
-        /* Determine whether an effect can be prevented by a flag */
-        if (effect->fail_code == TMD_FAIL_FLAG_OBJECT)
+        /* Hack -- permanent effect */
+        if (p->timed[idx] == -1) return false;
+
+        /* Handle polymorphed players */
+        if (p->poly_race && (idx == TMD_AMNESIA))
         {
-            /* Effect is inhibited by an object flag */
-            equip_notice_flag(p, effect->fail);
-            if (mon) update_smart_learn(mon, p, effect->fail, 0, -1);
-            if (player_of_has(p, effect->fail))
-            {
-                if (mon) msg(p, "You resist the effect!");
-                return false;
-            }
-        }
-        else if (effect->fail_code == TMD_FAIL_FLAG_RESIST)
-        {
-            /* Effect is inhibited by a resist -- always learn */
-            equip_notice_element(p, effect->fail);
-            if (p->state.el_info[effect->fail].res_level > 0) return false;
-        }
-        else if (effect->fail_code == TMD_FAIL_FLAG_VULN)
-        {
-            /* Effect is inhibited by a vulnerability -- don't learn if temporary resistance */
-            if (p->state.el_info[effect->fail].res_level < 0)
-            {
-                equip_notice_element(p, effect->fail);
-                return false;
-            }
+            if (rf_has(p->poly_race->flags, RF_EMPTY_MIND)) v /= 2;
+            if (rf_has(p->poly_race->flags, RF_WEIRD_MIND)) v = v * 3 / 4;
         }
 
-        /* Special case */
-        if ((idx == TMD_POISONED) && p->timed[TMD_OPP_POIS]) return false;
+        return player_set_timed(p, idx, p->timed[idx] + v, notify);
     }
 
-    /* Paralysis should be non-cumulative */
-    if ((idx == TMD_PARALYZED) && (p->timed[idx] > 0)) return false;
-
-    /* Hack -- permanent effect */
-    if (p->timed[idx] == -1) return false;
-
-    /* Handle polymorphed players */
-    if (p->poly_race && (idx == TMD_AMNESIA))
-    {
-        if (rf_has(p->poly_race->flags, RF_EMPTY_MIND)) v /= 2;
-        if (rf_has(p->poly_race->flags, RF_WEIRD_MIND)) v = v * 3 / 4;
-    }
-
-    /* Set v */
-    v = v + p->timed[idx];
-
-    return player_set_timed(p, idx, v, notify);
+    return false;
 }
 
 
@@ -358,13 +350,10 @@ bool player_inc_timed(struct player *p, int idx, int v, bool notify, bool check)
  */
 bool player_dec_timed(struct player *p, int idx, int v, bool notify)
 {
-    /* Check we have a valid effect */
-    if ((idx < 0) || (idx > TMD_MAX)) return false;
+    my_assert(idx >= 0);
+    my_assert(idx < TMD_MAX);
 
-    /* Set v */
-    v = p->timed[idx] - v;
-
-    return player_set_timed(p, idx, v, notify);
+    return player_set_timed(p, idx, p->timed[idx] - v, notify);
 }
 
 
@@ -373,6 +362,9 @@ bool player_dec_timed(struct player *p, int idx, int v, bool notify)
  */
 bool player_clear_timed(struct player *p, int idx, bool notify)
 {
+    my_assert(idx >= 0);
+    my_assert(idx < TMD_MAX);
+
     return player_set_timed(p, idx, 0, notify);
 }
 
@@ -653,7 +645,7 @@ static bool set_bow_brand(struct player *p, int v)
         {
             switch (p->brand.type)
             {
-                case GF_ELEC:
+                case PROJ_ELEC:
                 {
                     if (p->brand.blast)
                     {
@@ -667,7 +659,7 @@ static bool set_bow_brand(struct player *p, int v)
                     }
                     break;
                 }
-                case GF_COLD:
+                case PROJ_COLD:
                 {
                     if (p->brand.blast)
                     {
@@ -681,7 +673,7 @@ static bool set_bow_brand(struct player *p, int v)
                     }
                     break;
                 }
-                case GF_FIRE:
+                case PROJ_FIRE:
                 {
                     if (p->brand.blast)
                     {
@@ -695,7 +687,7 @@ static bool set_bow_brand(struct player *p, int v)
                     }
                     break;
                 }
-                case GF_ACID:
+                case PROJ_ACID:
                 {
                     if (p->brand.blast)
                     {
@@ -709,27 +701,27 @@ static bool set_bow_brand(struct player *p, int v)
                     }
                     break;
                 }
-                case GF_OLD_CONF:
+                case PROJ_MON_CONF:
                     msg_misc(p, "'s missiles glow many colors.");
                     msg(p, "Your missiles glow many colors!");
                     break;
-                case GF_POIS:
+                case PROJ_POIS:
                     msg_misc(p, "'s missiles are covered with venom.");
                     msg(p, "Your missiles are covered with venom!");
                     break;
-                case GF_ARROW_X:
+                case PROJ_ARROW_X:
                     msg_misc(p, "'s missiles sharpen.");
                     msg(p, "Your missiles sharpen!");
                     break;
-                case GF_SHARD:
+                case PROJ_SHARD:
                     msg_misc(p, "'s missiles become explosive.");
                     msg(p, "Your missiles become explosive!");
                     break;
-                case GF_MISSILE:
+                case PROJ_MISSILE:
                     msg_misc(p, "'s missiles glow with power.");
                     msg(p, "Your missiles glow with power!");
                     break;
-                case GF_SOUND:
+                case PROJ_SOUND:
                     msg_misc(p, "'s missiles vibrate in a strange way.");
                     msg(p, "Your missiles vibrate in a strange way!");
                     break;
@@ -788,9 +780,8 @@ static bool set_adrenaline(struct player *p, int v)
 
         /* Too much adrenaline causes damage */
         msg(p, "Your body can't handle that much adrenaline!");
-        my_strcpy(p->died_flavor, "had a heart attack due to too much adrenaline",
-            sizeof(p->died_flavor));
-        take_hit(p, damroll(2, v), "adrenaline poisoning", false);
+        take_hit(p, damroll(2, v), "adrenaline poisoning", false,
+            "had a heart attack due to too much adrenaline");
         notice = true;
     }
 
@@ -818,9 +809,8 @@ static bool set_adrenaline(struct player *p, int v)
                 if (p->timed[TMD_BIOFEEDBACK])
                 {
                     player_clear_timed(p, TMD_BIOFEEDBACK, true);
-                    my_strcpy(p->died_flavor, "had a heart attack due to too much adrenaline",
-                        sizeof(p->died_flavor));
-                    take_hit(p, damroll(2, v), "adrenaline poisoning", false);
+                    take_hit(p, damroll(2, v), "adrenaline poisoning", false,
+                        "had a heart attack due to too much adrenaline");
                 }
                 break;
             }
@@ -1293,3 +1283,221 @@ bool player_set_food(struct player *p, int v)
     /* Result */
     return true;
 }
+
+
+/*
+ * Initialize player timed effects
+ */
+
+
+/*
+ * List of timed effect names
+ */
+static const char *list_timed_effect_names[] =
+{
+    #define TMD(a, b, c) #a,
+    #include "../common/list-player-timed.h"
+    #undef TMD
+    "MAX"
+};
+
+
+static enum parser_error parse_player_timed_name(struct parser *p)
+{
+    const char *name = parser_getstr(p, "name");
+    int index;
+    struct timed_effect_data *t;
+
+    if (grab_name("timed effect", name, list_timed_effect_names,
+        N_ELEMENTS(list_timed_effect_names), &index))
+    {
+        return PARSE_ERROR_INVALID_SPELL_NAME;
+    }
+
+    t = &timed_effects[index];
+    t->index = index;
+    parser_setpriv(p, t);
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_timed_desc(struct parser *p)
+{
+    struct timed_effect_data *t = parser_priv(p);
+
+    my_assert(t);
+    t->desc = string_append(t->desc, parser_getstr(p, "desc"));
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_timed_begin_message(struct parser *p)
+{
+    struct timed_effect_data *t = parser_priv(p);
+
+    my_assert(t);
+    t->on_begin = string_append(t->on_begin, parser_getstr(p, "text"));
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_timed_end_message(struct parser *p)
+{
+    struct timed_effect_data *t = parser_priv(p);
+
+    my_assert(t);
+    t->on_end = string_append(t->on_end, parser_getstr(p, "text"));
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_timed_increase_message(struct parser *p)
+{
+    struct timed_effect_data *t = parser_priv(p);
+
+    my_assert(t);
+    t->on_increase = string_append(t->on_increase, parser_getstr(p, "text"));
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_timed_decrease_message(struct parser *p)
+{
+    struct timed_effect_data *t = parser_priv(p);
+
+    my_assert(t);
+    t->on_decrease = string_append(t->on_decrease, parser_getstr(p, "text"));
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_timed_nbegin_message(struct parser *p)
+{
+    struct timed_effect_data *t = parser_priv(p);
+
+    my_assert(t);
+    t->near_begin = string_append(t->near_begin, parser_getstr(p, "text"));
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_timed_nend_message(struct parser *p)
+{
+    struct timed_effect_data *t = parser_priv(p);
+
+    my_assert(t);
+    t->near_end = string_append(t->near_end, parser_getstr(p, "text"));
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_timed_message_type(struct parser *p)
+{
+    struct timed_effect_data *t = parser_priv(p);
+
+    my_assert(t);
+    t->msgt = message_lookup_by_name(parser_getsym(p, "type"));
+    return ((t->msgt < 0)? PARSE_ERROR_INVALID_MESSAGE: PARSE_ERROR_NONE);
+}
+
+
+static enum parser_error parse_player_timed_fail(struct parser *p)
+{
+    struct timed_effect_data *t = parser_priv(p);
+    const char *name;
+
+    my_assert(t);
+    t->fail_code = parser_getuint(p, "code");
+
+    name = parser_getstr(p, "flag");
+    if (t->fail_code == TMD_FAIL_FLAG_OBJECT)
+    {
+        int flag = lookup_flag(list_obj_flag_names, name);
+
+        if (flag == FLAG_END) return PARSE_ERROR_INVALID_FLAG;
+        t->fail = flag;
+    }
+    else if ((t->fail_code == TMD_FAIL_FLAG_RESIST) || (t->fail_code == TMD_FAIL_FLAG_VULN))
+    {
+        size_t i = 0;
+
+        while (list_element_names[i] && !streq(list_element_names[i], name)) i++;
+
+        if (i == ELEM_MAX) return PARSE_ERROR_INVALID_FLAG;
+        t->fail = i;
+    }
+    else
+        return PARSE_ERROR_INVALID_FLAG;
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static struct parser *init_parse_player_timed(void)
+{
+    struct parser *p = parser_new();
+    parser_setpriv(p, NULL);
+
+    parser_reg(p, "name str name", parse_player_timed_name);
+    parser_reg(p, "desc str desc", parse_player_timed_desc);
+    parser_reg(p, "on-begin str text", parse_player_timed_begin_message);
+    parser_reg(p, "on-end str text", parse_player_timed_end_message);
+    parser_reg(p, "on-increase str text", parse_player_timed_increase_message);
+    parser_reg(p, "on-decrease str text", parse_player_timed_decrease_message);
+    parser_reg(p, "near-begin str text", parse_player_timed_nbegin_message);
+    parser_reg(p, "near-end str text", parse_player_timed_nend_message);
+    parser_reg(p, "msgt sym type", parse_player_timed_message_type);
+    parser_reg(p, "fail uint code str flag", parse_player_timed_fail);
+    return p;
+}
+
+
+static errr run_parse_player_timed(struct parser *p)
+{
+    return parse_file_quit_not_found(p, "player_timed");
+}
+
+
+static errr finish_parse_player_timed(struct parser *p)
+{
+    parser_destroy(p);
+    return 0;
+}
+
+
+static void cleanup_player_timed(void)
+{
+    size_t i;
+
+    for (i = 0; i < TMD_MAX; i++)
+    {
+        struct timed_effect_data *effect = &timed_effects[i];
+
+        string_free(effect->desc);
+        string_free(effect->on_begin);
+        string_free(effect->on_end);
+        string_free(effect->on_increase);
+        string_free(effect->on_decrease);
+        string_free(effect->near_begin);
+        string_free(effect->near_end);
+
+        effect->desc = NULL;
+        effect->on_begin = NULL;
+        effect->on_end = NULL;
+        effect->on_increase = NULL;
+        effect->on_decrease = NULL;
+        effect->near_begin = NULL;
+        effect->near_end = NULL;
+    }
+}
+
+
+struct file_parser player_timed_parser =
+{
+    "player timed effects",
+    init_parse_player_timed,
+    run_parse_player_timed,
+    finish_parse_player_timed,
+    cleanup_player_timed
+};

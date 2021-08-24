@@ -6,6 +6,11 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
+#define ATT_SAVE        0x01
+#define ATT_DAMAGE      0x02
+#define ATT_NON_PHYS    0x04
+#define ATT_RAW         0x08
+
 /*
  * Bit flags for the "project()" function
  *
@@ -22,6 +27,7 @@
  *   SAFE: Doesn't affect monsters of the same race as the caster
  *   ARC: Projection is a sector of circle radiating from the caster
  *   PLAY: May affect players
+ *   INFO: Use believed map rather than truth for player ui
  */
 #define PROJECT_NONE    0x0000
 #define PROJECT_JUMP    0x0001
@@ -37,32 +43,56 @@
 #define PROJECT_SAFE    0x0200
 #define PROJECT_ARC     0x0400
 #define PROJECT_PLAY    0x0800
+#define PROJECT_INFO    0x1000
+
+/*
+ * Projection struct
+ */
+struct projection
+{
+    int index;
+    char *name;
+    char *type;
+    char *desc;
+    char *blind_desc;
+    int numerator;
+    random_value denominator;
+    int divisor;
+    int damage_cap;
+    int msgt;
+    bool obvious;
+    int color;
+    byte flags;
+    char *threat;
+    int threat_flag;
+    struct projection *next;
+};
+
+extern struct projection *projections;
+
+/* Display attrs and chars */
+extern byte proj_to_attr[PROJ_MAX][BOLT_MAX];
+extern char proj_to_char[PROJ_MAX][BOLT_MAX];
 
 /* project.c */
-extern byte gf_to_attr[GF_MAX][BOLT_MAX];
-extern char gf_to_char[GF_MAX][BOLT_MAX];
-
-extern int project_path(struct loc *gp, int range, struct chunk *c, int y1, int x1, int y2, int x2,
-    int flg);
+extern int proj_name_to_idx(const char *name);
+extern const char *proj_idx_to_name(int type);
+extern int project_path(struct player *p, struct loc *gp, int range, struct chunk *c,
+    int y1, int x1, int y2, int x2, int flg);
 extern bool projectable(struct chunk *c, int y1, int x1, int y2, int x2, int flg);
 extern bool projectable_wall(struct chunk *c, int y1, int x1, int y2, int x2);
-extern bool gf_force_obvious(int type);
-extern byte gf_color(int type);
-extern int gf_num(int type);
-extern random_value gf_denom(int type);
-extern const char *gf_desc(int type);
-extern const char *gf_blind_desc(int type);
-extern byte gf_flags(int type);
-extern bool project(struct actor *who, int rad, struct chunk *cv, int y, int x, int dam, int typ,
-    int flg, int degrees_of_arc, byte diameter_of_source, const char *what);
+extern byte proj_color(int type);
+extern void origin_get_loc(struct loc *ploc, struct source *origin);
+extern bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int dam,
+    int typ, int flg, int degrees_of_arc, byte diameter_of_source, const char *what);
 
 /* project-feat.c */
-extern bool project_f(struct actor *who, int r, struct chunk *c, int y, int x, int dam, int typ);
+extern bool project_f(struct source *origin, int r, struct chunk *c, int y, int x, int dam, int typ);
 
 /* project-mon.c */
 extern bool project_m_monster_attack_aux(struct monster *attacker, struct chunk *c,
     struct monster *mon, int dam, byte note);
-extern void project_m(struct actor *who, int r, struct chunk *c, int y, int x, int dam, int typ,
+extern void project_m(struct source *origin, int r, struct chunk *c, int y, int x, int dam, int typ,
     int flg, bool *did_hit, bool *was_obvious, int *newy, int *newx);
 extern void monster_set_master(struct monster *mon, struct player *p, byte status);
 extern bool can_charm_monster(struct player *p);
@@ -71,13 +101,13 @@ extern int charm_monster(struct monster *mon, struct player *p, byte status);
 /* project-obj.c */
 extern int inven_damage(struct player *p, int type, int cperc);
 extern struct monster_race *get_race(const char *name);
-extern bool project_o(struct actor *who, int r, struct chunk *c, int y, int x, int dam, int typ);
+extern bool project_o(struct source *origin, int r, struct chunk *c, int y, int x, int dam, int typ);
 
 /* project-player.c */
 extern int adjust_dam(struct player *p, int type, int dam, aspect dam_aspect, int resist);
 extern void project_player_swap_stats(struct player *p);
-extern void project_player_time_effects(struct player *p, struct actor *who);
-extern void project_p(struct actor *who, int r, struct chunk *c, int y, int x, int dam, int typ,
+extern void project_player_time_effects(struct player *p, struct source *who);
+extern void project_p(struct source *origin, int r, struct chunk *c, int y, int x, int dam, int typ,
     const char *what, bool *did_hit, bool *was_obvious, int *newy, int *newx);
 
 #endif /* PROJECT_H */

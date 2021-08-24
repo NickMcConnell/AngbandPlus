@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -58,19 +58,18 @@ int slot_by_name(struct player *p, const char *name)
 struct object *slot_object(struct player *p, int slot)
 {
     /* Ensure a valid body */
-    if (!p->body.slots) return NULL;
+    if (p->body.slots) return p->body.slots[slot].obj;
 
-    /* Returns NULL if no object in that slot */
-    return p->body.slots[slot].obj;
+    return NULL;
 }
 
 
 struct object *equipped_item_by_slot_name(struct player *p, const char *name)
 {
     /* Ensure a valid body */
-    if (!p->body.slots) return NULL;
+    if (p->body.slots) return slot_object(p, slot_by_name(p, name));
 
-    return slot_object(p, slot_by_name(p, name));
+    return NULL;
 }
 
 
@@ -85,9 +84,7 @@ bool object_is_equipped(struct player_body body, const struct object *obj)
  */
 const char *equip_mention(struct player *p, int slot)
 {
-    int type;
-
-    type = p->body.slots[slot].type;
+    int type = p->body.slots[slot].type;
 
     /* Heavy */
     if (((type == EQUIP_WEAPON) && p->state.heavy_wield) ||
@@ -107,9 +104,7 @@ const char *equip_mention(struct player *p, int slot)
  */
 const char *equip_describe(struct player *p, int slot)
 {
-    int type;
-
-    type = p->body.slots[slot].type;
+    int type = p->body.slots[slot].type;
 
     /* Heavy */
     if (((type == EQUIP_WEAPON) && p->state.heavy_wield) ||

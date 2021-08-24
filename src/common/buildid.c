@@ -3,7 +3,7 @@
  * Purpose: Version strings
  *
  * Copyright (c) 2011 Andi Sidwell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -42,8 +42,8 @@ bool beta_version(void)
  */
 #define VERSION_MAJOR   1
 #define VERSION_MINOR   1
-#define VERSION_PATCH   11
-#define VERSION_EXTRA   10
+#define VERSION_PATCH   12
+#define VERSION_EXTRA   7
 
 
 u16b current_version(void)
@@ -57,8 +57,8 @@ u16b current_version(void)
  */
 #define MIN_VERSION_MAJOR   1
 #define MIN_VERSION_MINOR   1
-#define MIN_VERSION_PATCH   11
-#define MIN_VERSION_EXTRA   9
+#define MIN_VERSION_PATCH   12
+#define MIN_VERSION_EXTRA   7
 
 
 u16b min_version(void)

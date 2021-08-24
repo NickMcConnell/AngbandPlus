@@ -21,6 +21,7 @@ OP(purple_uniques, "Color: Show unique monsters in purple", INTERFACE, false, tr
 OP(solid_walls, "Show walls as solid blocks", INTERFACE, false, true)
 OP(hybrid_walls, "Show walls with shaded background", INTERFACE, false, true)
 OP(use_sound, "Use sound", INTERFACE, false, false)
+OP(effective_speed, "Show effective speed as multiplier", INTERFACE, false, true)
 OP(view_orange_light, "Color: Illuminate torchlight in orange", MANGBAND, true, true)
 OP(highlight_leader, "Use special color for party leader", MANGBAND, false, true)
 OP(disturb_panel, "Disturb whenever map panel changes", MANGBAND, true, true)

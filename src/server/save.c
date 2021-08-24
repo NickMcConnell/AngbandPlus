@@ -3,7 +3,7 @@
  * Purpose: Individual saving functions
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -30,17 +30,71 @@ void wr_description(void *data)
     char buf[MSG_LEN];
 
     if (p->is_dead)
-    {
-        strnfmt(buf, sizeof(buf), "%s, dead (%s)", p->other.full_name,
-            p->death_info.died_from);
-    }
+        strnfmt(buf, sizeof(buf), "%s, dead (%s)", p->full_name, p->death_info.died_from);
     else
     {
-        strnfmt(buf, sizeof(buf), "%s, L%d %s %s, at DL%d", p->other.full_name, p->lev,
-            p->race->name, p->clazz->name, p->depth);
+        strnfmt(buf, sizeof(buf), "%s, L%d %s %s, at DL%d", p->full_name, p->lev, p->race->name,
+            p->clazz->name, p->wpos.depth);
     }
 
     wr_string(buf);
+}
+
+
+static void wr_tval_sval(byte tval, byte sval)
+{
+#ifdef SAVE_AS_STRINGS
+    wr_string(tval_find_name(tval));
+    if (sval)
+    {
+        char name[MSG_LEN];
+
+        obj_desc_name_format(name, sizeof(name), NULL, lookup_kind(tval, sval)->name, 0, false);
+        wr_string(name);
+    }
+    else
+        wr_string("");
+#else
+    wr_byte(tval);
+    wr_byte(sval);
+#endif
+}
+
+
+static void wr_artifact(struct artifact *art)
+{
+#ifdef SAVE_AS_STRINGS
+    if (!art) wr_string("");
+    else if (art == (struct artifact *)1) wr_string("1");
+    else if ((art->aidx >= (u32b)z_info->a_max) && (art->aidx < (u32b)z_info->a_max + 9))
+        wr_string(format("%d", art->aidx));
+    else wr_string(art->name);
+#else
+    if (!art) wr_byte(0);
+    else if (art == (struct artifact *)1) wr_byte(EGO_ART_KNOWN);
+    else wr_byte(art->aidx + 1);
+#endif
+}
+
+
+static void wr_ego(struct ego_item *ego)
+{
+#ifdef SAVE_AS_STRINGS
+    if (!ego) wr_string("");
+    else if (ego == (struct ego_item *)1) wr_string("1");
+    else wr_string(ego->name);
+#else
+    if (!ego) wr_byte(0);
+    else if (ego == (struct ego_item *)1) wr_byte(EGO_ART_KNOWN);
+    else wr_byte(ego->eidx + 1);
+#endif
+}
+
+
+static void wr_activation(struct activation *act)
+{
+    if (act) wr_u16b(act->index + 1);
+    else wr_u16b(0);
 }
 
 
@@ -50,42 +104,25 @@ void wr_description(void *data)
 static void wr_item(struct object *obj)
 {
     size_t i;
-    struct brand *b;
-    struct slay *s;
 
     wr_byte(ITEM_VERSION);
 
     /* Location */
     wr_byte(obj->iy);
     wr_byte(obj->ix);
-    wr_s16b(obj->depth);
+    wr_s16b(obj->wpos.wy);
+    wr_s16b(obj->wpos.wx);
+    wr_s16b(obj->wpos.depth);
 
-    wr_byte(obj->tval);
-    wr_byte(obj->sval);
+    wr_tval_sval(obj->tval, obj->sval);
     wr_s32b(obj->pval);
 
     wr_byte(obj->number);
     wr_s16b(obj->weight);
 
-    if (obj->artifact)
-    {
-        if (obj->artifact != (struct artifact *)1)
-            wr_byte(obj->artifact->aidx);
-        else
-            wr_byte(EGO_ART_KNOWN);
-    }
-    else
-        wr_byte(0);
-
-    if (obj->ego)
-    {
-        if (obj->ego != (struct ego_item *)1)
-            wr_byte(obj->ego->eidx);
-        else
-            wr_byte(EGO_ART_KNOWN);
-    }
-    else
-        wr_byte(0);
+    wr_s32b(obj->randart_seed);
+    wr_artifact(obj->artifact);
+    wr_ego(obj->ego);
 
     if (obj->effect)
     {
@@ -96,8 +133,6 @@ static void wr_item(struct object *obj)
     }
     else
         wr_byte(0);
-
-    wr_s32b(obj->randart_seed);
 
     wr_s16b(obj->timeout);
 
@@ -111,7 +146,8 @@ static void wr_item(struct object *obj)
     /* Origin */
     wr_byte(obj->origin);
     wr_s16b(obj->origin_depth);
-    wr_u16b(obj->origin_xtra);
+    if (obj->origin_race) wr_string(obj->origin_race->name);
+    else wr_string("");
 
     wr_byte(obj->notice);
 
@@ -123,22 +159,27 @@ static void wr_item(struct object *obj)
 
     /* Save brands */
     wr_byte(obj->brands? 1: 0);
-    for (b = obj->brands; b; b = b->next)
-    {
-        wr_string(b->name);
-        wr_s16b(b->element);
-        wr_s16b(b->multiplier);
-        wr_byte(b->next? 1: 0);
-    }
+    for (i = 0; obj->brands && (i < (size_t)z_info->brand_max); i++)
+        wr_byte(obj->brands[i]? 1: 0);
 
     /* Save slays */
     wr_byte(obj->slays? 1: 0);
-    for (s = obj->slays; s; s = s->next)
+    for (i = 0; obj->slays && (i < (size_t)z_info->slay_max); i++)
+        wr_byte(obj->slays[i]? 1: 0);
+
+    /* Save curses */
+    wr_byte(obj->curses? 1: 0);
+    for (i = 0; obj->curses && (i < (size_t)z_info->curse_max); i++)
     {
-        wr_string(s->name);
-        wr_s16b(s->race_flag);
-        wr_s16b(s->multiplier);
-        wr_byte(s->next? 1: 0);
+        int j;
+
+        wr_s16b(obj->curses[i].power);
+        wr_s16b(obj->curses[i].timeout);
+        wr_s16b(obj->curses[i].to_a);
+        wr_s16b(obj->curses[i].to_h);
+        wr_s16b(obj->curses[i].to_d);
+        for (j = 0; j < OBJ_MOD_MAX; j++)
+            wr_s16b(obj->curses[i].modifiers[j]);
     }
 
     for (i = 0; i < ELEM_MAX; i++)
@@ -153,10 +194,7 @@ static void wr_item(struct object *obj)
     wr_s16b(obj->mimicking_m_idx);
 
     /* Activation */
-    if (obj->activation)
-        wr_s16b(obj->activation->index);
-    else
-        wr_s16b(-1);
+    wr_activation(obj->activation);
     wr_s16b(obj->time.base);
     wr_s16b(obj->time.dice);
     wr_s16b(obj->time.sides);
@@ -170,7 +208,7 @@ static void wr_item(struct object *obj)
     /* PWMAngband */
     wr_s32b(obj->creator);
     wr_s32b(obj->owner);
-    wr_byte(obj->allow_ignore);
+    wr_byte(obj->ignore_protect);
     wr_byte(obj->ordered);
     wr_s16b(obj->decay);
     wr_byte(obj->bypass_aware);
@@ -180,18 +218,18 @@ static void wr_item(struct object *obj)
 void wr_monster_memory(void *data)
 {
     struct player *p = (struct player *)data;
-    int race;
+    int r;
 
     /* Dump the monster lore */
     wr_u16b(z_info->r_max);
     wr_byte(RF_SIZE);
     wr_byte(RSF_SIZE);
     wr_byte(z_info->mon_blows_max);
-    for (race = 0; race < z_info->r_max; race++)
+    for (r = 0; r < z_info->r_max; r++)
     {
         int i;
-        struct monster_race *r = &r_info[race];
-        struct monster_lore* lore = (p? get_lore(p, r): &r->lore);
+        struct monster_race *race = &r_info[r];
+        struct monster_lore* lore = (p? get_lore(p, race): &race->lore);
 
         /* Count sights/deaths/kills */
         wr_byte(lore->spawned);
@@ -228,6 +266,9 @@ void wr_object_memory(void *data)
     wr_byte(OF_SIZE);
     wr_byte(OBJ_MOD_MAX);
     wr_byte(ELEM_MAX);
+    wr_byte(z_info->brand_max);
+    wr_byte(z_info->slay_max);
+    wr_byte(z_info->curse_max);
 
     if (!p) return;
 
@@ -248,7 +289,7 @@ void wr_object_memory(void *data)
     /* Dump the ego memory */
     wr_u16b(z_info->e_max);
     wr_u16b(ITYPE_SIZE);
-    for (i = 1; i < z_info->e_max; i++)
+    for (i = 0; i < z_info->e_max; i++)
     {
         bitflag everseen = 0, itypes[ITYPE_SIZE];
 
@@ -322,7 +363,9 @@ void wr_player(void *data)
     wr_s32b(p->death_info.exp);
     wr_s32b(p->death_info.au);
     wr_s16b(p->death_info.max_depth);
-    wr_s16b(p->death_info.depth);
+    wr_s16b(p->death_info.wpos.wy);
+    wr_s16b(p->death_info.wpos.wx);
+    wr_s16b(p->death_info.wpos.depth);
     wr_string(p->death_info.died_from);
     wr_s32b((s32b)p->death_info.time);
     wr_string(p->death_info.ctime);
@@ -336,9 +379,10 @@ void wr_player(void *data)
     wr_s16b(p->ht);
     wr_s16b(p->wt);
 
-    /* Dump the stats (maximum and current and birth) */
+    /* Dump the stats (maximum and current and birth and swap-mapping) */
     for (i = 0; i < STAT_MAX; ++i) wr_s16b(p->stat_max[i]);
     for (i = 0; i < STAT_MAX; ++i) wr_s16b(p->stat_cur[i]);
+    for (i = 0; i < STAT_MAX; ++i) wr_s16b(p->stat_map[i]);
     for (i = 0; i < STAT_MAX; ++i) wr_s16b(p->stat_birth[i]);
 
     /* PWMAngband: don't save body, use race body instead */
@@ -370,7 +414,7 @@ void wr_player(void *data)
     wr_s32b(p->energy);
     wr_s16b(p->word_recall);
     wr_byte(p->confusing);
-    wr_byte(p->searching);
+    wr_byte(p->stealthy);
 
     /* Find the number of timed effects */
     wr_byte(TMD_MAX);
@@ -393,7 +437,17 @@ void wr_ignore(void *data)
     /* Write number of ignore bytes */
     wr_byte(ITYPE_MAX);
 
-    for (i = ITYPE_NONE; i < ITYPE_MAX; i++) wr_byte(p->other.ignore_lvl[i]);
+    for (i = ITYPE_NONE; i < ITYPE_MAX; i++) wr_byte(p->opts.ignore_lvl[i]);
+}
+
+
+static void wr_race(struct monster_race *race)
+{
+#ifdef SAVE_AS_STRINGS
+    wr_string(race? race->name: "");
+#else
+    wr_u16b(race? race->ridx: 0);
+#endif
 }
 
 
@@ -401,6 +455,7 @@ void wr_player_misc(void *data)
 {
     struct player *p = (struct player *)data;
     struct quest *quest = &p->quest;
+    size_t i;
 
     /* Special stuff */
     wr_u16b(p->total_winner);
@@ -420,24 +475,63 @@ void wr_player_misc(void *data)
     wr_hturn(&turn);
     wr_s16b(p->ghost);
     wr_byte(p->lives);
-    wr_byte(OPT_P(p, birth_force_descend));
-    wr_byte(OPT_P(p, birth_no_recall));
-    wr_byte(OPT_P(p, birth_no_artifacts));
-    wr_byte(OPT_P(p, birth_feelings));
-    wr_byte(OPT_P(p, birth_no_selling));
-    wr_byte(OPT_P(p, birth_start_kit));
-    wr_byte(OPT_P(p, birth_no_stores));
-    wr_byte(OPT_P(p, birth_no_ghost));
-    wr_byte(OPT_P(p, birth_fruit_bat));
-    wr_s16b(quest->race? quest->race->ridx: 0);
+    wr_byte(OPT(p, birth_force_descend));
+    wr_byte(OPT(p, birth_no_recall));
+    wr_byte(OPT(p, birth_no_artifacts));
+    wr_byte(OPT(p, birth_feelings));
+    wr_byte(OPT(p, birth_no_selling));
+    wr_byte(OPT(p, birth_start_kit));
+    wr_byte(OPT(p, birth_no_stores));
+    wr_byte(OPT(p, birth_no_ghost));
+    wr_byte(OPT(p, birth_fruit_bat));
+    wr_race(quest->race);
     wr_s16b(quest->cur_num);
     wr_s16b(quest->max_num);
     wr_s16b(quest->timer);
     wr_byte(p->party);
     wr_u16b(p->retire_timer);
     wr_s16b(p->tim_mimic_what);
-    wr_s16b(p->poly_race? p->poly_race->ridx: 0);
+    wr_race(p->poly_race);
     wr_s16b(p->k_idx);
+
+    if (p->is_dead) return;
+
+    /* Property knowledge */
+
+    /* Flags */
+    for (i = 0; i < OF_SIZE; i++)
+        wr_byte(p->obj_k->flags[i]);
+
+    /* Modifiers */
+    for (i = 0; i < OBJ_MOD_MAX; i++)
+        wr_s32b(p->obj_k->modifiers[i]);
+
+    /* Elements */
+    for (i = 0; i < ELEM_MAX; i++)
+    {
+        wr_s16b(p->obj_k->el_info[i].res_level);
+        wr_byte(p->obj_k->el_info[i].flags);
+    }
+
+    /* Brands */
+    for (i = 0; i < (size_t)z_info->brand_max; i++)
+        wr_byte(p->obj_k->brands[i]? 1: 0);
+
+    /* Slays */
+    for (i = 0; i < (size_t)z_info->slay_max; i++)
+        wr_byte(p->obj_k->slays[i]? 1: 0);
+
+    /* Curses */
+    for (i = 0; i < (size_t)z_info->curse_max; i++)
+        wr_s16b(p->obj_k->curses[i].power);
+
+    /* Combat data */
+    wr_s16b(p->obj_k->ac);
+    wr_s16b(p->obj_k->to_a);
+    wr_s16b(p->obj_k->to_h);
+    wr_s16b(p->obj_k->to_d);
+    wr_byte(p->obj_k->dd);
+    wr_byte(p->obj_k->ds);
 }
 
 
@@ -515,6 +609,27 @@ void wr_gear(void *data)
 }
 
 
+static void wr_store(struct store *store)
+{
+    struct object *obj;
+
+    /* Save the current owner */
+    wr_byte(store->owner->oidx);
+
+    /* Save the stock size */
+    wr_s16b(store->stock_num);
+
+    /* Save the stock */
+    for (obj = store->stock; obj; obj = obj->next)
+    {
+        wr_item(obj);
+
+        /* Dump known object */
+        wr_item(obj->known);
+    }
+}
+
+
 void wr_stores(void *unused)
 {
     int i;
@@ -525,18 +640,9 @@ void wr_stores(void *unused)
     /* Dump the stores */
     for (i = 0; i < MAX_STORES; i++)
     {
-        const struct store *store = &stores[i];
-        struct object *obj;
+        struct store *store = &stores[i];
 
-        /* Save the current owner */
-        wr_byte(store->owner->oidx);
-
-        /* Save the stock size */
-        wr_s16b(store->stock_num);
-
-        /* Save the stock */
-        for (obj = store->stock; obj; obj = obj->next)
-            wr_item(obj);
+        wr_store(store);
     }
 
     /* Dump the store orders */
@@ -557,20 +663,17 @@ void wr_player_dungeon(void *data)
     byte tmp8u;
     byte count;
     byte prev_char;
-    bitflag cave_info[SQUARE_SIZE], important_flags[SQUARE_SIZE];
 
     if (p->is_dead) return;
 
     /* Dungeon specific info follows */
-    wr_s16b(p->depth);
+    wr_s16b(p->wpos.wy);
+    wr_s16b(p->wpos.wx);
+    wr_s16b(p->wpos.depth);
     wr_s16b(p->py);
     wr_s16b(p->px);
     wr_u16b(p->cave->height);
     wr_u16b(p->cave->width);
-
-    /* PWMAngband */
-    wr_s16b(p->world_y);
-    wr_s16b(p->world_x);
 
     /*** Simple "Run-Length-Encoding" of cave ***/
 
@@ -608,9 +711,6 @@ void wr_player_dungeon(void *data)
         wr_byte((byte)prev_char);
     }
 
-    sqinfo_wipe(important_flags);
-    sqinfo_on(important_flags, SQUARE_DTRAP);
-
     /* Run length encoding of cave->squares[y][x].info */
     for (i = 0; i < SQUARE_SIZE; i++)
     {
@@ -622,12 +722,8 @@ void wr_player_dungeon(void *data)
         {
             for (x = 0; x < p->cave->width; x++)
             {
-                sqinfo_wipe(cave_info);
-                sqinfo_copy(cave_info, p->cave->squares[y][x].info);
-                sqinfo_inter(cave_info, important_flags);
-
                 /* Extract the important cave->squares[y][x].info flags */
-                tmp8u = cave_info[i];
+                tmp8u = p->cave->squares[y][x].info[i];
 
                 /* If the run is broken, or too full, flush it */
                 if ((tmp8u != prev_char) || (count == UCHAR_MAX))
@@ -655,43 +751,36 @@ void wr_player_dungeon(void *data)
 
 
 /*
- * Write the current dungeon terrain features and info flags (depth)
+ * Write the current dungeon terrain features and info flags (level)
  */
-void wr_depth_dungeon(void *data)
+void wr_level(void *data)
 {
-    int depth = (int)data;
     int y, x;
     size_t i;
     byte tmp8u;
     byte count;
     byte prev_char;
-    struct chunk *c = chunk_get(depth);
-    bitflag cave_info[SQUARE_SIZE], important_flags[SQUARE_SIZE];
+    struct chunk *c = chunk_get((struct worldpos *)data);
 
     /* Dungeon specific info follows */
 
-    /* Depth */
-    wr_s16b(depth);
+    /* Coordinates */
+    wr_s16b(c->wpos.wy);
+    wr_s16b(c->wpos.wx);
+    wr_s16b(c->wpos.depth);
 
     /* Dungeon size */
     wr_u16b(c->height);
     wr_u16b(c->width);
 
     /* Player count + turn of creation */
-    wr_s16b(chunk_get_player_count(depth));
+    wr_s16b(chunk_get_player_count(&c->wpos));
     wr_hturn(&c->generated);
 
-    /* The staircase locations on this depth */
-    /* Hack -- this information is currently not present for the wilderness levels. */
-    if (depth >= 0)
-    {
-        wr_byte(c->level_up_y);
-        wr_byte(c->level_up_x);
-        wr_byte(c->level_down_y);
-        wr_byte(c->level_down_x);
-        wr_byte(c->level_rand_y);
-        wr_byte(c->level_rand_x);
-    }
+    /* Write connector info */
+    wr_loc(c->join->up);
+    wr_loc(c->join->down);
+    wr_loc(c->join->rand);
 
     /*** Simple "Run-Length-Encoding" of cave ***/
 
@@ -729,15 +818,6 @@ void wr_depth_dungeon(void *data)
         wr_byte((byte)prev_char);
     }
 
-    sqinfo_wipe(important_flags);
-    sqinfo_on(important_flags, SQUARE_GLOW);
-    sqinfo_on(important_flags, SQUARE_VAULT);
-    sqinfo_on(important_flags, SQUARE_ROOM);
-    sqinfo_on(important_flags, SQUARE_FEEL);
-    sqinfo_on(important_flags, SQUARE_NO_TELEPORT);
-    sqinfo_on(important_flags, SQUARE_TRAP);
-    /*sqinfo_on(important_flags, SQUARE_INVIS);*/
-
     /* Run length encoding of cave->squares[y][x].info */
     for (i = 0; i < SQUARE_SIZE; i++)
     {
@@ -749,12 +829,8 @@ void wr_depth_dungeon(void *data)
         {
             for (x = 0; x < c->width; x++)
             {
-                sqinfo_wipe(cave_info);
-                sqinfo_copy(cave_info, c->squares[y][x].info);
-                sqinfo_inter(cave_info, important_flags);
-
                 /* Extract the important cave->squares[y][x].info flags */
-                tmp8u = cave_info[i];
+                tmp8u = c->squares[y][x].info[i];
 
                 /* If the run is broken, or too full, flush it */
                 if ((tmp8u != prev_char) || (count == UCHAR_MAX))
@@ -786,17 +862,26 @@ void wr_depth_dungeon(void *data)
  */
 void wr_dungeon(void *unused)
 {
-    int i;
-    u32b tmp32u;
+    int i, x, y;
+    u32b tmp32u = 0;
 
     wr_byte(SQUARE_SIZE);
 
     /* Get the number of levels to dump */
-    tmp32u = 0;
-    for (i = 0 - MAX_WILD; i < z_info->max_depth; i++)
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
     {
-        /* Make sure the level has been allocated */
-        if (chunk_get(i) && level_keep_allocated(i)) tmp32u++;
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
+        {
+            struct wild_type *w_ptr = get_wt_info_at(y, x);
+
+            for (i = 0; i <= w_ptr->max_depth - w_ptr->min_depth; i++)
+            {
+                struct chunk *c = w_ptr->chunk_list[i];
+
+                /* Make sure the level has been allocated */
+                if (c && level_keep_allocated(c)) tmp32u++;
+            }
+        }
     }
 
     /* Write the number of levels */
@@ -804,20 +889,38 @@ void wr_dungeon(void *unused)
 
     /* Write the levels players are actually on - and special levels */
     /* Note that this saves the player count */
-    for (i = 0 - MAX_WILD; i < z_info->max_depth; i++)
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
     {
-        if (chunk_get(i) && level_keep_allocated(i))
-            wr_depth_dungeon((void *)i);
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
+        {
+            struct wild_type *w_ptr = get_wt_info_at(y, x);
+
+            for (i = 0; i <= w_ptr->max_depth - w_ptr->min_depth; i++)
+            {
+                struct chunk *c = w_ptr->chunk_list[i];
+
+                if (c && level_keep_allocated(c))
+                    wr_level((void *)&c->wpos);
+            }
+        }
     }
 
     /*** Compact ***/
 
     /* Compact the monsters */
-    for (i = 0 - MAX_WILD; i < z_info->max_depth; i++)
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
     {
-        struct chunk *c = chunk_get(i);
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
+        {
+            struct wild_type *w_ptr = get_wt_info_at(y, x);
 
-        if (c) compact_monsters(c, 0);
+            for (i = 0; i <= w_ptr->max_depth - w_ptr->min_depth; i++)
+            {
+                struct chunk *c = w_ptr->chunk_list[i];
+
+                if (c) compact_monsters(c, 0);
+            }
+        }
     }
 }
 
@@ -889,30 +992,50 @@ void wr_player_objects(void *data)
 
 void wr_objects(void *unused)
 {
-    int i;
+    int i, x, y;
     u32b tmp32u = 0;
 
     /* Get the number of levels to dump */
-    for (i = 0 - MAX_WILD; i < z_info->max_depth; i++)
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
     {
-        /* Make sure the level has been allocated */
-        if (chunk_get(i) && level_keep_allocated(i)) tmp32u++;
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
+        {
+            struct wild_type *w_ptr = get_wt_info_at(y, x);
+
+            for (i = 0; i <= w_ptr->max_depth - w_ptr->min_depth; i++)
+            {
+                struct chunk *c = w_ptr->chunk_list[i];
+
+                /* Make sure the level has been allocated */
+                if (c && level_keep_allocated(c)) tmp32u++;
+            }
+        }
     }
 
     /* Write the number of levels */
     wr_u32b(tmp32u);
 
     /* Write the objects */
-    for (i = 0 - MAX_WILD; i < z_info->max_depth; i++)
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
     {
-        struct chunk *c = chunk_get(i);
-
-        if (c && level_keep_allocated(i))
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
         {
-            /* Write the depth */
-            wr_s16b(c->depth);
+            struct wild_type *w_ptr = get_wt_info_at(y, x);
 
-            wr_objects_aux(c);
+            for (i = 0; i <= w_ptr->max_depth - w_ptr->min_depth; i++)
+            {
+                struct chunk *c = w_ptr->chunk_list[i];
+
+                if (c && level_keep_allocated(c))
+                {
+                    /* Write the coordinates */
+                    wr_s16b(c->wpos.wy);
+                    wr_s16b(c->wpos.wx);
+                    wr_s16b(c->wpos.depth);
+
+                    wr_objects_aux(c);
+                }
+            }
         }
     }
 }
@@ -926,12 +1049,14 @@ static void wr_monster(const struct monster *mon)
     int j;
     struct object *obj = mon->held_obj;
 
-    wr_s16b(mon->race->ridx);
+    wr_race(mon->race);
     wr_byte(mon->fy);
     wr_byte(mon->fx);
-    wr_s16b(mon->depth);
-    wr_s16b(mon->hp);
-    wr_s16b(mon->maxhp);
+    wr_s16b(mon->wpos.wy);
+    wr_s16b(mon->wpos.wx);
+    wr_s16b(mon->wpos.depth);
+    wr_s32b(mon->hp);
+    wr_s32b(mon->maxhp);
     wr_byte(mon->mspeed);
     wr_s32b(mon->energy);
 
@@ -946,7 +1071,7 @@ static void wr_monster(const struct monster *mon)
         wr_s16b(mon->known_pstate.el_info[j].res_level);
 
     /* Mimic stuff */
-    wr_byte(mon->unaware);
+    wr_byte(mon->camouflage);
     wr_s16b(mon->mimicked_k_idx);
     wr_byte(mon->feat);
 
@@ -954,10 +1079,15 @@ static void wr_monster(const struct monster *mon)
     wr_s16b(mon->ac);
     for (j = 0; j < z_info->mon_blows_max; j++)
     {
-        wr_byte(mon->blow[j].method);
-        wr_byte(mon->blow[j].effect);
-        wr_byte(mon->blow[j].dice.dice);
-        wr_byte(mon->blow[j].dice.sides);
+        if (mon->blow[j].method)
+        {
+            wr_byte(blow_method_index(mon->blow[j].method->name) + 1);
+            wr_byte(blow_effect_index(mon->blow[j].effect->name));
+            wr_byte(mon->blow[j].dice.dice);
+            wr_byte(mon->blow[j].dice.sides);
+        }
+        else
+            wr_byte(0);
     }
     wr_s16b(mon->level);
 
@@ -1014,32 +1144,62 @@ static void wr_monsters_aux(struct chunk *c)
 
 void wr_monsters(void *unused)
 {
-    int i;
+    int i, x, y;
     u32b tmp32u = 0;
 
     /* Get the number of levels to dump */
-    for (i = 0 - MAX_WILD; i < z_info->max_depth; i++)
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
     {
-        /* Make sure the level has been allocated */
-        if (chunk_get(i) && level_keep_allocated(i)) tmp32u++;
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
+        {
+            struct wild_type *w_ptr = get_wt_info_at(y, x);
+
+            for (i = 0; i <= w_ptr->max_depth - w_ptr->min_depth; i++)
+            {
+                struct chunk *c = w_ptr->chunk_list[i];
+
+                /* Make sure the level has been allocated */
+                if (c && level_keep_allocated(c)) tmp32u++;
+            }
+        }
     }
 
     /* Write the number of levels */
     wr_u32b(tmp32u);
 
     /* Write the monsters */
-    for (i = 0 - MAX_WILD; i < z_info->max_depth; i++)
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
     {
-        struct chunk *c = chunk_get(i);
-
-        if (c && level_keep_allocated(i))
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
         {
-            /* Write the depth */
-            wr_s16b(c->depth);
+            struct wild_type *w_ptr = get_wt_info_at(y, x);
 
-            wr_monsters_aux(c);
+            for (i = 0; i <= w_ptr->max_depth - w_ptr->min_depth; i++)
+            {
+                struct chunk *c = w_ptr->chunk_list[i];
+
+                if (c && level_keep_allocated(c))
+                {
+                    /* Write the coordinates */
+                    wr_s16b(c->wpos.wy);
+                    wr_s16b(c->wpos.wx);
+                    wr_s16b(c->wpos.depth);
+
+                    wr_monsters_aux(c);
+                }
+            }
         }
     }
+}
+
+
+static void wr_trap_kind(struct trap_kind *kind)
+{
+#ifdef SAVE_AS_STRINGS
+    wr_string(kind? kind->desc: "");
+#else
+    wr_byte(kind? kind->tidx: 0);
+#endif
 }
 
 
@@ -1050,10 +1210,11 @@ static void wr_trap(struct trap *trap)
 {
     size_t i;
 
-    wr_byte(trap->t_idx);
+    wr_trap_kind(trap->kind);
     wr_byte(trap->fy);
     wr_byte(trap->fx);
-    wr_byte(trap->xtra);
+    wr_byte(trap->power);
+    wr_byte(trap->timeout);
 
     for (i = 0; i < TRF_SIZE; i++)
         wr_byte(trap->flags[i]);
@@ -1090,13 +1251,15 @@ void wr_player_traps(void *data)
 }
 
 
-static void wr_depth_traps(struct chunk *c)
+static void wr_level_traps(struct chunk *c)
 {
     int x, y;
     struct trap *dummy;
 
-    /* Write the depth */
-    wr_s16b(c->depth);
+    /* Write the coordinates */
+    wr_s16b(c->wpos.wy);
+    wr_s16b(c->wpos.wx);
+    wr_s16b(c->wpos.depth);
 
     /* Write the traps */
     for (y = 0; y < c->height; y++)
@@ -1122,27 +1285,45 @@ static void wr_depth_traps(struct chunk *c)
 
 void wr_traps(void *unused)
 {
-    int i;
+    int i, x, y;
     u32b tmp32u = 0;
 
     wr_byte(TRF_SIZE);
 
     /* Get the number of levels to dump */
-    for (i = 0 - MAX_WILD; i < z_info->max_depth; i++)
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
     {
-        /* Make sure the level has been allocated */
-        if (chunk_get(i) && level_keep_allocated(i)) tmp32u++;
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
+        {
+            struct wild_type *w_ptr = get_wt_info_at(y, x);
+
+            for (i = 0; i <= w_ptr->max_depth - w_ptr->min_depth; i++)
+            {
+                struct chunk *c = w_ptr->chunk_list[i];
+
+                /* Make sure the level has been allocated */
+                if (c && level_keep_allocated(c)) tmp32u++;
+            }
+        }
     }
 
     /* Write the number of levels */
     wr_u32b(tmp32u);
 
     /* Write the traps */
-    for (i = 0 - MAX_WILD; i < z_info->max_depth; i++)
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
     {
-        struct chunk *c = chunk_get(i);
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
+        {
+            struct wild_type *w_ptr = get_wt_info_at(y, x);
 
-        if (c && level_keep_allocated(i)) wr_depth_traps(c);
+            for (i = 0; i <= w_ptr->max_depth - w_ptr->min_depth; i++)
+            {
+                struct chunk *c = w_ptr->chunk_list[i];
+
+                if (c && level_keep_allocated(c)) wr_level_traps(c);
+            }
+        }
     }
 }
 
@@ -1155,19 +1336,18 @@ void wr_history(void *data)
     wr_byte(HIST_SIZE);
 
     /* Write character event history */
-    wr_s16b(p->history_size);
-    for (i = 0; i < p->history_size; i++)
+    wr_s16b(p->hist.next);
+    for (i = 0; i < p->hist.next; i++)
     {
         for (j = 0; j < HIST_SIZE; j++)
-            wr_byte(p->history_list[i].type[j]);
-        wr_hturn(&p->history_list[i].turn);
-        wr_s16b(p->history_list[i].dlev);
-        wr_s16b(p->history_list[i].clev);
-        wr_byte(p->history_list[i].a_idx);
-        wr_string(p->history_list[i].name);
-        wr_string(p->history_list[i].event);
+            wr_byte(p->hist.entries[i].type[j]);
+        wr_hturn(&p->hist.entries[i].turn);
+        wr_s16b(p->hist.entries[i].dlev);
+        wr_s16b(p->hist.entries[i].clev);
+        wr_artifact(p->hist.entries[i].art);
+        wr_string(p->hist.entries[i].name);
+        wr_string(p->hist.entries[i].event);
     }
-    wr_s16b(p->history_ctr);
 }
 
 
@@ -1185,8 +1365,8 @@ void wr_header(void *data)
     wr_string(p->pass);
 
     /* Race/Class/Gender/Spells */
-    wr_byte(p->race->ridx);
-    wr_byte(p->clazz->cidx);
+    wr_string(p->race->name);
+    wr_string(p->clazz->name);
     wr_byte(p->psex);
 }
 
@@ -1194,11 +1374,21 @@ void wr_header(void *data)
 void wr_wild_map(void *data)
 {
     struct player *p = (struct player *)data;
-    int i;
+    int x, y;
 
     /* Write the wilderness map */
-    wr_u16b(MAX_WILD / 8);
-    for (i = 0; i < MAX_WILD / 8; i++) wr_byte(p->wild_map[i]);
+    wr_u16b(radius_wild);
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
+            wr_byte(p->wild_map[radius_wild - y][radius_wild + x]);
+}
+
+
+void wr_home(void *data)
+{
+    struct player *p = (struct player *)data;
+
+    wr_store(p->home);
 }
 
 
@@ -1226,7 +1416,7 @@ void wr_parties(void *unused)
 /*
  * Write the information about a house
  */
-static void wr_house(house_type *house)
+static void wr_house(struct house_type *house)
 {
     wr_byte(house->x_1);
     wr_byte(house->y_1);
@@ -1234,7 +1424,8 @@ static void wr_house(house_type *house)
     wr_byte(house->y_2);
     wr_byte(house->door_y);
     wr_byte(house->door_x);
-    wr_s32b(house->depth);
+    wr_s16b(house->wpos.wy);
+    wr_s16b(house->wpos.wx);
     wr_s32b(house->price);
     wr_s32b(house->ownerid);
     wr_string(house->ownername);
@@ -1259,13 +1450,15 @@ void wr_houses(void *unused)
 /*
  * Write the information about an arena
  */
-static void wr_arena(arena_type *arena)
+static void wr_arena(struct arena_type *arena)
 {
     wr_byte(arena->x_1);
     wr_byte(arena->y_1);
     wr_byte(arena->x_2);
     wr_byte(arena->y_2);
-    wr_s32b(arena->depth);
+    wr_s16b(arena->wpos.wy);
+    wr_s16b(arena->wpos.wx);
+    wr_s16b(arena->wpos.depth);
 }
 
 
@@ -1281,23 +1474,23 @@ void wr_arenas(void *unused)
 }
 
 
-static void wr_wild(int n)
-{
-    wilderness_type *w_ptr = &wild_info[0 - n];
-
-    wr_byte((byte)w_ptr->generated);
-}
-
-
 void wr_wilderness(void *unused)
 {
-    int i;
+    int x, y;
 
-    /* Note the size of the wilderness... change this to num_wild? */
-    wr_u32b(MAX_WILD);
+    /* Note the size of the wilderness */
+    wr_u16b(radius_wild);
 
     /* Dump the wilderness */
-    for (i = 1; i <= MAX_WILD; i++) wr_wild(i);
+    for (y = radius_wild; y >= 0 - radius_wild; y--)
+    {
+        for (x = 0 - radius_wild; x <= radius_wild; x++)
+        {
+            struct wild_type *w_ptr = get_wt_info_at(y, x);
+
+            wr_byte((byte)w_ptr->generated);
+        }
+    }
 }
 
 

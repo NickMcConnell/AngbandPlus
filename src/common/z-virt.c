@@ -3,7 +3,7 @@
  * Purpose: Memory management routines
  *
  * Copyright (c) 1997 Ben Harrison.
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -61,7 +61,7 @@ void* mem_zalloc(size_t len)
 {
     void *mem = mem_alloc(len);
 
-    memset(mem, 0, len);
+    if (len) memset(mem, 0, len);
     return mem;
 }
 

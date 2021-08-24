@@ -5,7 +5,7 @@
  * Copyright (c) 1997-2007 Robert A. Koeneke, James E. Wilson, Ben Harrison,
  * Eytan Zweig, Andrew Doull, Pete Mack.
  * Copyright (c) 2004 DarkGod (HTML dump code)
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -222,7 +222,7 @@ static void do_cmd_knowledge_monsters(struct player *p, int line)
         if (!lore->pseen) continue;
         if (!race->name) continue;
 
-        if (rf_has(race->flags, RF_UNIQUE)) m_count++;
+        if (monster_is_unique(race)) m_count++;
 
         for (j = 1; j < N_ELEMENTS(monster_group) - 1; j++)
         {
@@ -249,7 +249,7 @@ static void do_cmd_knowledge_monsters(struct player *p, int line)
         {
             const char *pat = monster_group[j].chars;
 
-            if ((j == 0) && !rf_has(race->flags, RF_UNIQUE)) continue;
+            if ((j == 0) && !monster_is_unique(race)) continue;
             else if ((j > 0) && !strchr(pat, race->d_char)) continue;
 
             monsters[m_count] = m_count;
@@ -287,11 +287,11 @@ static void do_cmd_knowledge_monsters(struct player *p, int line)
         }
 
         /* If uniques are purple, make it so */
-        if (OPT_P(p, purple_uniques) && rf_has(race->flags, RF_UNIQUE) && !(a & 0x80))
+        if (OPT(p, purple_uniques) && monster_is_unique(race) && !(a & 0x80))
             a = COLOUR_VIOLET;
 
         /* Display kills */
-        if (rf_has(race->flags, RF_UNIQUE))
+        if (monster_is_unique(race))
             my_strcpy(kills, (lore->pkills? " dead": "alive"), sizeof(kills));
         else
             strnfmt(kills, sizeof(kills), "%5d", lore->pkills);
@@ -413,13 +413,13 @@ static int a_cmp_tval(const void *a, const void *b)
 }
 
 
-static char highlight_unknown(struct player *p, int a_idx)
+static char highlight_unknown(struct player *p, int idx)
 {
     /* Artifact is unknown */
-    if (p->art_info[a_idx] < ARTS_FOUND) return 'd';
+    if (p->art_info[idx] < ARTS_FOUND) return 'd';
 
     /* Artifact is discarded and unfindable again */
-    if (p->art_info[a_idx] > cfg_preserve_artifacts) return 'r';
+    if (p->art_info[idx] > cfg_preserve_artifacts) return 'r';
 
     /* Artifact is discarded and findable again */
     return 'g';
@@ -438,7 +438,7 @@ static char highlight_unknown(struct player *p, int a_idx)
 static int collect_known_artifacts(struct player *p, struct cmp_art *artifacts)
 {
     int a_count = 0;
-    int i, y, x;
+    int i, wx, wy, y, x;
     struct object *obj;
     char *highlights = mem_zalloc(z_info->a_max * sizeof(char));
     char *owners = mem_zalloc(z_info->a_max * NORMAL_WID * sizeof(char));
@@ -465,35 +465,48 @@ static int collect_known_artifacts(struct player *p, struct cmp_art *artifacts)
         }
     }
 
-    /* Check the dungeon */
-    for (i = 0 - MAX_WILD; i < z_info->max_depth; i++)
+    /* Check the world */
+    for (wy = radius_wild; wy >= 0 - radius_wild; wy--)
     {
-        struct chunk *c = chunk_get(i);
-
-        if (!c) continue;
-
-        for (y = 0; y < c->height; y++)
+        for (wx = 0 - radius_wild; wx <= radius_wild; wx++)
         {
-            for (x = 0; x < c->width; x++)
+            struct wild_type *w_ptr = get_wt_info_at(wy, wx);
+
+            for (i = 0; i <= w_ptr->max_depth - w_ptr->min_depth; i++)
             {
-                for (obj = square_object(c, y, x); obj; obj = obj->next)
+                struct chunk *c = w_ptr->chunk_list[i];
+
+                if (!c) continue;
+
+                for (y = 0; y < c->height; y++)
                 {
-                    /* Ignore non-artifacts */
-                    if (!true_artifact_p(obj)) continue;
+                    for (x = 0; x < c->width; x++)
+                    {
+                        for (obj = square_object(c, y, x); obj; obj = obj->next)
+                        {
+                            /* Ignore non-artifacts */
+                            if (!true_artifact_p(obj)) continue;
 
-                    /* Note location */
-                    strnfmt(&owners[obj->artifact->aidx * NORMAL_WID], NORMAL_WID, " (%d ft)",
-                        c->depth * 50);
+                            /* Note location */
+                            strnfmt(&owners[obj->artifact->aidx * NORMAL_WID], NORMAL_WID,
+                                " (%d ft)", c->wpos.depth * 50);
 
-                    /* Artifact is owned by the player */
-                    if (obj->owner == p->id) highlights[obj->artifact->aidx] = 'w';
+                            /* Artifact is owned by the player */
+                            if (obj->owner == p->id)
+                                highlights[obj->artifact->aidx] = 'w';
 
-                    /* Artifact is not owned or owned by someone else */
-                    else if (object_is_known(p, obj)) highlights[obj->artifact->aidx] = 'D';
+                            /* Artifact is not owned or owned by someone else */
+                            else if (object_is_known(p, obj))
+                                highlights[obj->artifact->aidx] = 'D';
 
-                    /* Artifact is unknown */
-                    else
-                        highlights[obj->artifact->aidx] = highlight_unknown(p, obj->artifact->aidx);
+                            /* Artifact is unknown */
+                            else
+                            {
+                                highlights[obj->artifact->aidx] = highlight_unknown(p,
+                                    obj->artifact->aidx);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -594,11 +607,11 @@ static void do_cmd_knowledge_artifacts(struct player *p, int line)
         const struct artifact *art = artifacts[i].artifact;
         char o_name[NORMAL_WID];
         int gid = obj_group_order[art->tval];
-        struct object *fake = object_new();
+        struct object *fake;
 
         /* Paranoia */
         if (gid == -1) continue;
-        if (!make_fake_artifact(fake, (struct artifact *)art)) continue;
+        if (!make_fake_artifact(&fake, art)) continue;
 
         /* Print group */
         if (gid != a_group)
@@ -693,12 +706,12 @@ static void do_cmd_knowledge_ego_items(struct player *p, int line)
     }
 
     /* Look at all the ego items */
-    for (i = 1; i < z_info->e_max; i++)
+    for (i = 0; i < z_info->e_max; i++)
     {
         struct ego_item *ego = &e_info[i];
         size_t j;
         int *tval;
-        struct ego_poss_item *poss;
+        struct poss_item *poss;
 
         /* Ignore non-egos && unknown egos */
         if (!(ego->name && p->ego_everseen[i])) continue;
@@ -870,9 +883,10 @@ static void do_cmd_knowledge_objects(struct player *p, int line)
     }
 
     /* Collect matching objects */
-    for (i = 1; i < z_info->k_max; i++)
+    for (i = 0; i < z_info->k_max; i++)
     {
         struct object_kind *kind = &k_info[i];
+        bool aware_art = (kf_has(kind->kind_flags, KF_INSTA_ART) && p->obj_aware[i]);
 
         /*
          * It's in the list if we've ever seen it, or it has a flavour,
@@ -880,8 +894,7 @@ static void do_cmd_knowledge_objects(struct player *p, int line)
          * we're not aware of it yet. This way the flavour appears in the list
          * until it is found.
          */
-        if ((p->kind_everseen[i] || kind->flavor) &&
-            (!kf_has(kind->kind_flags, KF_INSTA_ART) || !p->obj_aware[i]))
+        if ((p->kind_everseen[i] || kind->flavor) && !aware_art)
         {
             int c = obj_group_order[kind->tval];
 
@@ -927,7 +940,7 @@ static void do_cmd_knowledge_objects(struct player *p, int line)
         if (p->obj_tried[kind->kidx] && !aware) my_strcat(o_name, " {tried}", sizeof(o_name));
 
         /* Append flavour if desired */
-        else if (OPT_P(p, show_flavors) && kind->flavor && aware)
+        else if (OPT(p, show_flavors) && kind->flavor && aware)
         {
             my_strcat(o_name, " (", sizeof(o_name));
             my_strcat(o_name, kind->flavor->text, sizeof(o_name));
@@ -953,6 +966,88 @@ static void do_cmd_knowledge_objects(struct player *p, int line)
 
     /* Display the file contents */
     show_file(p, file_name, "Known Objects", line, 1);
+
+    /* Remove the file */
+    file_delete(file_name);
+}
+
+
+/*
+ * OBJECT RUNES
+ */
+
+
+/*
+ * Description of each rune group
+ */
+static const char *rune_group_text[] =
+{
+    "Combat",
+    "Modifiers",
+    "Resists",
+    "Brands",
+    "Slays",
+    "Curses",
+    "Other",
+    NULL
+};
+
+
+/*
+ * Display known runes
+ */
+static void do_cmd_knowledge_runes(struct player *p, int line)
+{
+    int *runes;
+    int rune_max = max_runes();
+    int count = 0;
+    int i;
+    char file_name[MSG_LEN];
+    ang_file *fff;
+    int r_group = -1;
+
+    /* Temporary file */
+    fff = file_temp(file_name, sizeof(file_name));
+    if (!fff) return;
+
+    runes = mem_zalloc(rune_max * sizeof(int));
+
+    /* Collect runes */
+    for (i = 0; i < rune_max; i++)
+    {
+        /* Ignore unknown runes */
+        if (!player_knows_rune(p, i)) continue;
+
+        runes[count++] = i;
+    }
+
+    /* Print the runes */
+    for (i = 0; i < count; i++)
+    {
+        int gid = rune_variety(runes[i]);
+
+        /* Print group */
+        if (gid != r_group)
+        {
+            r_group = gid;
+            file_putf(fff, "w%s\n", rune_group_text[r_group]);
+        }
+
+        /* Print a message */
+        file_putf(fff, "B     %s:\n", rune_name(runes[i]));
+        file_putf(fff, "w          %s\n", rune_desc(runes[i]));
+    }
+
+    file_putf(fff, "w\n");
+    file_putf(fff, "w%d unknown", rune_max - count);
+
+    mem_free(runes);
+
+    /* Close the file */
+    file_close(fff);
+
+    /* Display the file contents */
+    show_file(p, file_name, "Object Runes", line, 1);
 
     /* Remove the file */
     file_delete(file_name);
@@ -1018,7 +1113,7 @@ static void do_cmd_knowledge_features(struct player *p, int line)
     for (i = 0; i < z_info->f_max; i++)
     {
         /* Ignore non-features and mimics */
-        if (!f_info[i].name || (f_info[i].mimic != i)) continue;
+        if (!f_info[i].name || f_info[i].mimic) continue;
 
         features[f_count++] = i;
     }
@@ -1230,7 +1325,7 @@ static void do_cmd_knowledge_uniques(struct player *p, int line)
         race = &r_info[k];
 
         /* Only print Uniques */
-        if (rf_has(race->flags, RF_UNIQUE))
+        if (monster_is_unique(race))
         {
             /* Only display "known" uniques */
             if (race->lore.seen)
@@ -1350,14 +1445,14 @@ static void do_cmd_knowledge_gear(struct player *p, int line)
         /* Print a message */
         if (q->total_winner)
         {
-            file_putf(fff, "G     %s the %s %s (%s, Level %d) at %d ft\n", q->name,
-                q->race->name, q->clazz->name, q->sex->winner, q->lev,
-                q->depth * 50);
+            file_putf(fff, "G     %s the %s %s (%s, Level %d) at %d ft (%d, %d)\n", q->name,
+                q->race->name, q->clazz->name, get_title(q), q->lev, q->wpos.depth * 50, q->wpos.wx,
+                q->wpos.wy);
         }
         else
         {
-            file_putf(fff, "G     %s the %s %s (Level %d) at %d ft\n", q->name,
-                q->race->name, q->clazz->name, q->lev, q->depth * 50);
+            file_putf(fff, "G     %s the %s %s (Level %d) at %d ft (%d, %d)\n", q->name,
+                q->race->name, q->clazz->name, q->lev, q->wpos.depth * 50, q->wpos.wx, q->wpos.wy);
         }
 
         /* Display the equipment */
@@ -1423,6 +1518,32 @@ static void do_cmd_knowledge_houses(struct player *p, int line)
 
 
 /*
+ * Display visited dungeons and towns
+ */
+static void do_cmd_knowledge_dungeons(struct player *p, int line)
+{
+    char file_name[MSG_LEN];
+    ang_file *fff;
+
+    /* Temporary file */
+    fff = file_temp(file_name, sizeof(file_name));
+    if (!fff) return;
+
+    /* List visited dungeons and towns */
+    dungeon_list(p, fff);
+
+    /* Close the file */
+    file_close(fff);
+
+    /* Display the file contents */
+    show_file(p, file_name, "Visited Dungeons and Towns", line, 0);
+
+    /* Remove the file */
+    file_delete(file_name);
+}
+
+
+/*
  * Display the "player knowledge" menu.
  */
 void do_cmd_knowledge(struct player *p, char type, int line)
@@ -1433,6 +1554,13 @@ void do_cmd_knowledge(struct player *p, char type, int line)
         case SPECIAL_FILE_OBJECT:
             Send_term_info(p, NTERM_ACTIVATE, NTERM_WIN_SPECIAL);
             do_cmd_knowledge_objects(p, line);
+            Send_term_info(p, NTERM_ACTIVATE, NTERM_WIN_OVERHEAD);
+            break;
+
+        /* Display rune knowledge */
+        case SPECIAL_FILE_RUNE:
+            Send_term_info(p, NTERM_ACTIVATE, NTERM_WIN_SPECIAL);
+            do_cmd_knowledge_runes(p, line);
             Send_term_info(p, NTERM_ACTIVATE, NTERM_WIN_OVERHEAD);
             break;
 
@@ -1505,6 +1633,13 @@ void do_cmd_knowledge(struct player *p, char type, int line)
             do_cmd_knowledge_houses(p, line);
             Send_term_info(p, NTERM_ACTIVATE, NTERM_WIN_OVERHEAD);
             break;
+
+        /* Display visited dungeons and towns */
+        case SPECIAL_FILE_DUNGEONS:
+            Send_term_info(p, NTERM_ACTIVATE, NTERM_WIN_SPECIAL);
+            do_cmd_knowledge_dungeons(p, line);
+            Send_term_info(p, NTERM_ACTIVATE, NTERM_WIN_OVERHEAD);
+            break;
     }
 }
 
@@ -1535,7 +1670,7 @@ void do_cmd_redraw(struct player *p)
     p->upkeep->update |= (PU_BONUS | PU_SPELLS | PU_INVEN);
 
     /* Fully update the visuals */
-    p->upkeep->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+    p->upkeep->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
     /* Redraw */
     p->upkeep->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_FLOOR | PR_INVEN |
@@ -1595,7 +1730,7 @@ void do_cmd_drop_gold(struct player *p, s32b amt)
     obj->owner = p->id;
 
     /* Drop it */
-    drop_near(p, chunk_get(p->depth), obj, 0, p->py, p->px, false, DROP_FADE);
+    drop_near(p, chunk_get(&p->wpos), &obj, 0, p->py, p->px, false, DROP_FADE);
 }
 
 
@@ -1604,10 +1739,10 @@ void do_cmd_drop_gold(struct player *p, s32b amt)
  */
 void do_cmd_steal(struct player *p, int dir)
 {
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
     int y, x;
-    struct actor who_body;
-    struct actor *who = &who_body;
+    struct source who_body;
+    struct source *who = &who_body;
     struct player *target;
     int chance, notice;
     bool success = false;
@@ -1637,7 +1772,7 @@ void do_cmd_steal(struct player *p, int dir)
     }
 
     /* Restricted by choice */
-    if (OPT_P(p, birth_no_stores))
+    if (OPT(p, birth_no_stores))
     {
         msg(p, "You cannot steal from players.");
         return;
@@ -1651,7 +1786,7 @@ void do_cmd_steal(struct player *p, int dir)
     }
 
     /* May only steal from visible players */
-    if (!who->player || !mflag_has(p->pflag[who->idx], MFLAG_VISIBLE))
+    if (!who->player || !player_is_visible(p, who->idx))
     {
         /* Message */
         msg(p, "You see nothing there to steal from.");
@@ -1832,7 +1967,7 @@ void do_cmd_query_symbol(struct player *p, const char *buf)
 {
     int i;
     bool found = false;
-    char* str;
+    char *str;
 
     /* Let the player scroll through this info */
     p->special_file_type = SPECIAL_FILE_OTHER;
@@ -1896,14 +2031,14 @@ void do_cmd_query_symbol(struct player *p, const char *buf)
  */
 void do_cmd_describe(struct player *p)
 {
-    struct actor *cursor_who = &p->cursor_who;
+    struct source *cursor_who = &p->cursor_who;
 
     /* We need something */
-    if (ACTOR_NULL(cursor_who)) return;
+    if (source_null(cursor_who)) return;
 
     /* Describe it */
     if (cursor_who->player) describe_player(p, cursor_who->player);
-    else describe_monster(p, cursor_who->mon->race);
+    else describe_monster(p, cursor_who->monster->race);
 
     /* Notify player */
     notify_player(p, "Monster Recall", NTERM_WIN_MONSTER, false);
@@ -1974,7 +2109,7 @@ void do_cmd_locate(struct player *p, int dir)
         (y2 / panel_hgt), (x2 / panel_wid), tmp_val);
 
     /* More detail */
-    if (OPT_P(p, center_player))
+    if (OPT(p, center_player))
     {
         strnfmt(out_val, sizeof(out_val),
             "Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
@@ -1999,9 +2134,13 @@ static void drink_fountain(struct player *p, struct object *obj)
     /* Do effect */
     if (effect)
     {
+        struct source who_body;
+        struct source *who = &who_body;
+
         /* Do effect */
         if (effect->other_msg) msg_misc(p, effect->other_msg);
-        used = effect_do(p, effect, &ident, p->was_aware, 0, NULL, 0, 0, NULL, NULL);
+        source_player(who, get_player_index(get_connection(p->conn)), p);
+        used = effect_do(effect, who, &ident, p->was_aware, 0, NULL, 0, 0, NULL);
 
         /* Quit if the item wasn't used and no knowledge was gained */
         if (!used && (p->was_aware || !ident)) return;
@@ -2018,7 +2157,7 @@ void do_cmd_fountain(struct player *p, int item)
 {
     struct object *obj;
     struct object_kind *kind;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Restrict ghosts */
     if (p->ghost && !(p->dm_flags & DM_GHOST_BODY))
@@ -2054,7 +2193,7 @@ void do_cmd_fountain(struct player *p, int item)
     /* Fruit bat! */
     if (item == -1)
     {
-        struct monster_race *race_fruit_bat = get_race("Fruit bat");
+        struct monster_race *race_fruit_bat = get_race("fruit bat");
         bool poly = false;
 
         /* Try (very rarely) to turn the player into a fruit bat */
@@ -2083,18 +2222,18 @@ void do_cmd_fountain(struct player *p, int item)
             byte chance;
         } summon_chance[] =
         {
-            {"Giant green frog", 0, 100},
-            {"Giant red frog", 7, 90},
-            {"Water spirit", 17, 80},
-            {"Water vortex", 21, 70},
-            {"Water elemental", 33, 60},
-            {"Water hound", 43, 50}
+            {"giant green frog", 0, 100},
+            {"giant red frog", 7, 90},
+            {"water spirit", 17, 80},
+            {"water vortex", 21, 70},
+            {"water elemental", 33, 60},
+            {"water hound", 43, 50}
         };
         int i;
 
         msg(p, "Something pops out of the water!");
         do {i = randint0(N_ELEMENTS(summon_chance));}
-        while ((p->depth < summon_chance[i].minlev) || !magik(summon_chance[i].chance));
+        while ((p->wpos.depth < summon_chance[i].minlev) || !magik(summon_chance[i].chance));
         summon_specific_race(p, c, p->py, p->px, get_race(summon_chance[i].race), 1);
 
         /* Done */
@@ -2106,11 +2245,7 @@ void do_cmd_fountain(struct player *p, int item)
     {
         msg(p, "You slip and fall in the water.");
         if (!player_passwall(p) && !can_swim(p))
-        {
-            my_strcpy(p->died_flavor, "slipped and fell in a fountain",
-                sizeof(p->died_flavor));
-            take_hit(p, damroll(4, 5), "drowning", false);
-        }
+            take_hit(p, damroll(4, 5), "drowning", false, "slipped and fell in a fountain");
 
         /* Done */
         return;
@@ -2149,10 +2284,10 @@ void do_cmd_fountain(struct player *p, int item)
             if (!kind) continue;
 
             /* No out of depth effect */
-            if (p->depth < kind->alloc_min) continue;
+            if (p->wpos.depth < kind->alloc_min) continue;
 
             /* Less chance to get the effect deeper */
-            if ((p->depth > kind->alloc_max) && magik(50)) continue;
+            if ((p->wpos.depth > kind->alloc_max) && magik(50)) continue;
 
             /* Apply rarity */
             if (!magik(kind->alloc_prob)) continue;
@@ -2170,10 +2305,10 @@ void do_cmd_fountain(struct player *p, int item)
 
     /* Prepare the object */
     obj = object_new();
-    object_prep(p, obj, kind, p->depth, RANDOMISE);
+    object_prep(p, obj, kind, p->wpos.depth, RANDOMISE);
 
     /* Set origin */
-    set_origin(obj, ORIGIN_FOUNTAIN, p->depth, 0);
+    set_origin(obj, ORIGIN_FOUNTAIN, p->wpos.depth, NULL);
 
     /* Get an empty bottle */
     if (item >= 0)
@@ -2196,10 +2331,10 @@ void do_cmd_fountain(struct player *p, int item)
         object_delete(&used);
 
         /* Create the object */
-        apply_magic(p, c, obj, p->depth, false, false, false, false);
+        apply_magic(p, c, obj, p->wpos.depth, false, false, false, false);
 
         /* Drop it in the dungeon */
-        drop_near(p, c, obj, 0, p->py, p->px, true, DROP_FADE);
+        drop_near(p, c, &obj, 0, p->py, p->px, true, DROP_FADE);
     }
 
     /* Drink from a fountain */
@@ -2308,13 +2443,13 @@ void do_cmd_check_players(struct player *p, int line)
 
         /* Challenge options */
         strnfmt(brave, sizeof(brave), "the%s%s%s",
-            OPT_P(q, birth_no_ghost)? " brave": "",
-            OPT_P(q, birth_no_recall)? " hardcore": "",
-            OPT_P(q, birth_force_descend)? " diving": "");
+            OPT(q, birth_no_ghost)? " brave": "",
+            OPT(q, birth_no_recall)? " hardcore": "",
+            OPT(q, birth_force_descend)? " diving": "");
 
         winner[0] = '\0';
-        if (q->total_winner) strnfmt(winner, sizeof(winner), "%s, ", q->sex->winner);
-        if (OPT_P(q, birth_fruit_bat)) batty = "batty, ";
+        if (q->total_winner) strnfmt(winner, sizeof(winner), "%s, ", get_title(q));
+        if (OPT(q, birth_fruit_bat)) batty = "batty, ";
 
         /* Print a message */
         file_putf(fff, "     %s %s %s %s (%s%sLevel %d, %s)", q->name, brave, q->race->name,
@@ -2323,11 +2458,11 @@ void do_cmd_check_players(struct player *p, int line)
         /* Print extra info if these people are not 'red' aka hostile */
         /* Hack -- always show extra info to dungeon master */
         if ((attr != 'r') || (p->dm_flags & DM_SEE_PLAYERS))
-            file_putf(fff, " at %d ft", q->depth * 50);
+            file_putf(fff, " at %d ft (%d, %d)", q->wpos.depth * 50, q->wpos.wx, q->wpos.wy);
 
         /* Newline */
         file_put(fff, "\n");
-        file_putf(fff, "U         %s@%s\n", q->other.full_name, q->hostname);
+        file_putf(fff, "U         %s@%s\n", q->full_name, q->hostname);
     }
 
     /* Close the file */
@@ -2391,7 +2526,7 @@ static int affinity(struct player *p, struct monster_race *race)
         if (!r->name) continue;
 
         /* Skip uniques */
-        if (rf_has(r->flags, RF_UNIQUE)) continue;
+        if (monster_is_unique(r)) continue;
 
         /* Skip different symbol */
         if (r->d_char != race->d_char) continue;
@@ -2474,7 +2609,7 @@ void do_cmd_poly(struct player *p, struct monster_race *race, bool check_kills, 
     }
 
     /* Must not be unique (allow it to the DM for debug purposes) */
-    if (rf_has(race->flags, RF_UNIQUE) && !is_dm_p(p))
+    if (monster_is_unique(race) && !is_dm_p(p))
     {
         if (domsg)
             msg(p, "This monster race is unique.");
@@ -2503,7 +2638,7 @@ void do_cmd_poly(struct player *p, struct monster_race *race, bool check_kills, 
     }
 
     /* Polymorph into that monster */
-    if (!rf_has(race->flags, RF_UNIQUE))
+    if (!monster_is_unique(race))
         prefix = (is_a_vowel(tolower(race->name[0]))? "an ": "a ");
     if (domsg)
         msg(p, "You polymorph into %s%s.", prefix, race->name);
@@ -2521,7 +2656,7 @@ void do_cmd_poly(struct player *p, struct monster_race *race, bool check_kills, 
         player_clear_timed(p, TMD_WRAITHFORM, true);
 
     /* Invisibility */
-    if (rf_has(race->flags, RF_INVISIBLE))
+    if (monster_is_invisible(race))
     {
         p->timed[TMD_INVIS] = -1;
         p->upkeep->update |= PU_MONSTERS;
@@ -2595,7 +2730,7 @@ void do_cmd_check_poly(struct player *p, int line)
     struct monster_race *race;
     struct monster_lore *lore;
     int aff, rkills;
-    char* str;
+    char *str;
 
     /* Temporary file */
     fff = file_temp(file_name, sizeof(file_name));
@@ -2619,7 +2754,7 @@ void do_cmd_check_poly(struct player *p, int line)
         if (!race->name) continue;
 
         /* Only print non uniques */
-        if (rf_has(race->flags, RF_UNIQUE)) continue;
+        if (monster_is_unique(race)) continue;
 
         /* Only display "known" races */
         if (!lore->pkills) continue;

@@ -5,7 +5,7 @@
  * Copyright (c) 2003 Takeshi Mogami, Robert Ruehlmann
  * Copyright (c) 2007 Pete Mack
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -184,16 +184,16 @@ void option_dump(ang_file *f)
         file_putf(f, "# Option '%s'\n", option_desc(i));
 
         /* Dump the option */
-        file_putf(f, "%c:%s\n", (Client_setup.options[i]? 'Y': 'X'), name);
+        file_putf(f, "%c:%s\n", (player->opts.opt[i]? 'Y': 'X'), name);
 
         /* Skip a line */
         file_put(f, "\n");
     }
 
-    file_putf(f, "# Hitpoint warning (0-9)\nO:hp_warn_factor:%d\n\n", player->other.hitpoint_warn);
-    file_putf(f, "# Base delay factor (0-255)\nO:delay_factor:%d\n\n", player->other.delay_factor);
+    file_putf(f, "# Hitpoint warning (0-9)\nO:hp_warn_factor:%d\n\n", player->opts.hitpoint_warn);
+    file_putf(f, "# Base delay factor (0-255)\nO:delay_factor:%d\n\n", player->opts.delay_factor);
     file_putf(f, "# Movement delay factor (0-9)\nO:lazymove_delay:%d\n\n",
-        player->other.lazymove_delay);
+        player->opts.lazymove_delay);
 }
 
 
@@ -504,7 +504,7 @@ static enum parser_error parse_prefs_object(struct parser *p)
 
         for (i = 0; i < z_info->k_max; i++)
         {
-            struct object_kind *kind = &k_info[i];
+            kind = &k_info[i];
 
             Client_setup.k_attr[kind->kidx] = attr;
             Client_setup.k_char[kind->kidx] = chr;
@@ -529,7 +529,7 @@ static enum parser_error parse_prefs_object(struct parser *p)
 
             for (i = 0; i < z_info->k_max; i++)
             {
-                struct object_kind *kind = &k_info[i];
+                kind = &k_info[i];
 
                 if (kind->tval != tvi) continue;
 
@@ -593,7 +593,7 @@ static enum parser_error parse_prefs_monster_base(struct parser *p)
 
     name = parser_getsym(p, "name");
     mb = lookup_monster_base(name);
-    if (!mb) return PARSE_ERROR_NO_KIND_FOUND;
+    if (!mb) return PARSE_ERROR_INVALID_MONSTER_BASE;
 
     a = (byte)parser_getint(p, "attr");
     c = (char)parser_getint(p, "char");
@@ -612,6 +612,29 @@ static enum parser_error parse_prefs_monster_base(struct parser *p)
 }
 
 
+/*
+ * Find a terrain feature index by name
+ */
+static int lookup_feat(const char *name)
+{
+    int i;
+
+    /* Look for it */
+    for (i = 0; i < z_info->f_max; i++)
+    {
+        struct feature *feat = &f_info[i];
+
+        if (!feat->name) continue;
+
+        /* Test for equality */
+        if (streq(name, feat->name)) return i;
+    }
+
+    quit_fmt("Failed to find terrain feature %s", name);
+    return -1;
+}
+
+
 static enum parser_error parse_prefs_feat(struct parser *p)
 {
     int idx;
@@ -622,8 +645,7 @@ static enum parser_error parse_prefs_feat(struct parser *p)
     assert(d != NULL);
     if (d->bypass) return PARSE_ERROR_NONE;
 
-    idx = parser_getuint(p, "idx");
-    if (idx >= z_info->f_max) return PARSE_ERROR_OUT_OF_BOUNDS;
+    idx = lookup_feat(parser_getsym(p, "idx"));
 
     lighting = parser_getsym(p, "lighting");
     if (streq(lighting, "torch"))
@@ -688,18 +710,17 @@ static enum parser_error parse_prefs_trap(struct parser *p)
     assert(d != NULL);
     if (d->bypass) return PARSE_ERROR_NONE;
 
-    /* idx can be "*" or a number */
+    /* idx can be "*" or a name */
     idx_sym = parser_getsym(p, "idx");
 
     if (!strcmp(idx_sym, "*"))
         trap_idx = -1;
     else
     {
-        char *z = NULL;
+        struct trap_kind *trap = lookup_trap(idx_sym);
 
-        trap_idx = strtoul(idx_sym, NULL, 0);
-        if ((z == idx_sym) || (*idx_sym == '-')) return PARSE_ERROR_NOT_NUMBER;
-        if (trap_idx >= z_info->trap_max) return PARSE_ERROR_OUT_OF_BOUNDS;
+        if (!trap) return PARSE_ERROR_UNRECOGNISED_TRAP;
+        trap_idx = trap->tidx;
     }
 
     lighting = parser_getsym(p, "lighting");
@@ -733,9 +754,39 @@ static enum parser_error parse_prefs_trap(struct parser *p)
 }
 
 
+/*
+ * PROJ type info needed for projections
+ *
+ * Note that elements come first, so PROJ_ACID == ELEM_ACID, etc
+ */
+static const char *proj_name_list[] =
+{
+    #define ELEM(a) #a,
+    #include "../common/list-elements.h"
+    #undef ELEM
+    #define PROJ(a) #a,
+    #include "../common/list-projections.h"
+    #undef PROJ
+    NULL
+};
+
+
+static int proj_name_to_idx(const char *name)
+{
+    int i;
+
+    for (i = 0; proj_name_list[i]; i++)
+    {
+        if (!my_stricmp(name, proj_name_list[i])) return i;
+    }
+
+    return -1;
+}
+
+
 static enum parser_error parse_prefs_gf(struct parser *p)
 {
-    bool types[GF_MAX] = { 0 };
+    bool types[PROJ_MAX];
     const char *direction;
     int motion, motion2 = 0;
     char *s, *t;
@@ -745,16 +796,18 @@ static enum parser_error parse_prefs_gf(struct parser *p)
     assert(d != NULL);
     if (d->bypass) return PARSE_ERROR_NONE;
 
-    /* Parse the type, which is a | separated list of GF_ constants */
+    memset(types, 0, PROJ_MAX * sizeof(bool));
+
+    /* Parse the type, which is a | separated list of PROJ_ constants */
     s = string_make(parser_getsym(p, "type"));
     t = strtok(s, "| ");
     while (t)
     {
         if (streq(t, "*"))
-            memset(types, true, sizeof(types));
+            memset(types, true, PROJ_MAX * sizeof(bool));
         else
         {
-            int idx = gf_name_to_idx(t);
+            int idx = proj_name_to_idx(t);
 
             if (idx == -1) return PARSE_ERROR_INVALID_VALUE;
 
@@ -800,18 +853,18 @@ static enum parser_error parse_prefs_gf(struct parser *p)
     else
         return PARSE_ERROR_INVALID_VALUE;
 
-    for (i = 0; i < GF_MAX; i++)
+    for (i = 0; i < PROJ_MAX; i++)
     {
         if (!types[i]) continue;
 
-        Client_setup.gf_attr[i][motion] = (byte)parser_getuint(p, "attr");
-        Client_setup.gf_char[i][motion] = (char)parser_getuint(p, "char");
+        Client_setup.proj_attr[i][motion] = (byte)parser_getuint(p, "attr");
+        Client_setup.proj_char[i][motion] = (char)parser_getuint(p, "char");
 
         /* Default values */
         if (motion2)
         {
-            Client_setup.gf_attr[i][motion2] = (byte)parser_getuint(p, "attr");
-            Client_setup.gf_char[i][motion2] = (char)parser_getuint(p, "char");
+            Client_setup.proj_attr[i][motion2] = (byte)parser_getuint(p, "attr");
+            Client_setup.proj_char[i][motion2] = (char)parser_getuint(p, "char");
         }
     }
 
@@ -982,7 +1035,7 @@ static enum parser_error parse_prefs_x(struct parser *p)
     assert(d != NULL);
     if (d->bypass) return PARSE_ERROR_NONE;
 
-    option_set(Client_setup.options, parser_getstr(p, "option"), false);
+    option_set(player->opts.opt, parser_getstr(p, "option"), false);
 
     return PARSE_ERROR_NONE;
 }
@@ -995,7 +1048,7 @@ static enum parser_error parse_prefs_y(struct parser *p)
     assert(d != NULL);
     if (d->bypass) return PARSE_ERROR_NONE;
 
-    option_set(Client_setup.options, parser_getstr(p, "option"), true);
+    option_set(player->opts.opt, parser_getstr(p, "option"), true);
 
     return PARSE_ERROR_NONE;
 }
@@ -1036,7 +1089,7 @@ static struct parser *init_parse_prefs(bool user)
     parser_reg(p, "object sym tval sym sval int attr int char", parse_prefs_object);
     parser_reg(p, "monster sym name int attr int char", parse_prefs_monster);
     parser_reg(p, "monster-base sym name int attr int char", parse_prefs_monster_base);
-    parser_reg(p, "feat uint idx sym lighting int attr int char", parse_prefs_feat);
+    parser_reg(p, "feat sym idx sym lighting int attr int char", parse_prefs_feat);
     parser_reg(p, "trap sym idx sym lighting int attr int char", parse_prefs_trap);
     parser_reg(p, "GF sym type sym direction uint attr uint char", parse_prefs_gf);
     parser_reg(p, "flavor uint idx int attr int char", parse_prefs_flavor);
@@ -1256,7 +1309,7 @@ void process_pref_options(void)
     char line[MSG_LEN];
 
     /* Initialize default option values */
-    init_options(Client_setup.options);
+    init_options(player->opts.opt);
 
     /* Build the filename */
     strnfmt(name, sizeof(name), "%s.prf", strip_suffix(nick));
@@ -1306,8 +1359,8 @@ void reset_visuals(bool load_prefs)
     memset(Client_setup.k_char, 0, z_info->k_max * sizeof(char));
     memset(Client_setup.r_attr, 0, z_info->r_max * sizeof(byte));
     memset(Client_setup.r_char, 0, z_info->r_max * sizeof(char));
-    memset(Client_setup.gf_attr, 0, sizeof(Client_setup.gf_attr));
-    memset(Client_setup.gf_char, 0, sizeof(Client_setup.gf_char));
+    memset(Client_setup.proj_attr, 0, sizeof(Client_setup.proj_attr));
+    memset(Client_setup.proj_char, 0, sizeof(Client_setup.proj_char));
 
     /* Don't load the user pref file */
     if (!load_prefs) return;

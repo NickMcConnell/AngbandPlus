@@ -2,7 +2,7 @@
  * File: display.c
  * Purpose: Display the character on the screen or in a file
  *
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -195,7 +195,7 @@ char *buffer_line(int row)
 /*
  * List of resistances and abilities to display
  */
-static const char *player_flag_table[RES_PANELS * RES_ROWS] =
+static const char *player_flag_table[(RES_PANELS + 1) * RES_ROWS] =
 {
     "Ac :", /* ELEM_ACID */
     "El :", /* ELEM_ELEC */
@@ -206,15 +206,17 @@ static const char *player_flag_table[RES_PANELS * RES_ROWS] =
     "Dk :", /* ELEM_DARK */
     "Snd:", /* ELEM_SOUND */
     "Shr:", /* ELEM_SHARD */
+
     "Nxs:", /* ELEM_NEXUS */
     "Ntr:", /* ELEM_NETHER */
     "Chs:", /* ELEM_CHAOS */
     "Dsn:", /* ELEM_DISEN */
-    "FF :", /* OF_FEATHER */
+    "Lev:", /* OF_FEATHER */
     "Fe :", /* OF_PROT_FEAR */
     "Bld:", /* OF_PROT_BLIND */
     "Cnf:", /* OF_PROT_CONF */
     "Stn:", /* OF_PROT_STUN */
+
     "Lit:", /* OBJ_MOD_LIGHT */
     "Rgn:", /* OF_REGEN */
     "ESP:", /* OF_ESP_XXX */
@@ -224,6 +226,7 @@ static const char *player_flag_table[RES_PANELS * RES_ROWS] =
     "Stl:", /* OBJ_MOD_STEALTH */
     "Src:", /* OBJ_MOD_SEARCH */
     "Inf:", /* OBJ_MOD_INFRA */
+
     "Tun:", /* OBJ_MOD_TUNNEL */
     "Spd:", /* OBJ_MOD_SPEED */
     "EA :", /* OBJ_MOD_BLOWS */
@@ -232,7 +235,17 @@ static const char *player_flag_table[RES_PANELS * RES_ROWS] =
     "Dig:", /* OF_SLOW_DIGEST */
     "-HP:", /* OF_IMPAIR_HP */
     "Afr:", /* OF_AFRAID */
-    "Agg:"  /* OF_AGGRAVATE */
+    "Agg:", /* OF_AGGRAVATE */
+
+    "Rad:", /* OF_ESP_RADIUS */
+    "Evi:", /* OF_ESP_EVIL */
+    "Ani:", /* OF_ESP_ANIMAL */
+    "Und:", /* OF_ESP_UNDEAD */
+    "Dem:", /* OF_ESP_DEMON */
+    "Orc:", /* OF_ESP_ORC */
+    "Tro:", /* OF_ESP_TROLL */
+    "Gia:", /* OF_ESP_GIANT */
+    "Dra:"  /* OF_ESP_DRAGON */
 };
 
 
@@ -263,10 +276,14 @@ static void display_equippy(struct player *p, int row, int col)
 
 static void display_resistance_panel(struct player *p, const char **rec, const region *bounds)
 {
+    size_t i;
+    int j;
     int col = bounds->col;
     int row = bounds->row;
-    size_t i, j;
     int off = 1 + STAT_MAX + RES_ROWS * col / (p->body.count + 6);
+
+    /* Special case: ESP flags */
+    if (col == RES_PANELS * (p->body.count + 6)) col = 0;
 
     /* Header */
     put_str_hook(col, row++, -1, COLOUR_WHITE, "    abcdefghijklm@");
@@ -277,18 +294,42 @@ static void display_resistance_panel(struct player *p, const char **rec, const r
         byte name_attr = COLOUR_WHITE;
 
         /* Draw dots */
-        for (j = 0; j <= (size_t)p->body.count; j++)
+        for (j = 0; j <= p->body.count; j++)
         {
             byte attr = p->hist_flags[off + i][j].a;
             char sym = p->hist_flags[off + i][j].c;
+            bool rune = false;
+
+            /* Hack -- rune is known */
+            if (attr >= BASIC_COLORS)
+            {
+                attr -= BASIC_COLORS;
+                rune = true;
+            }
 
             /* Dump proper character */
             put_ch_hook(col + 4 + j, row, attr, sym);
 
             /* Name color */
-            if ((sym == '*') || (sym == '!'))
-                name_attr = COLOUR_GREEN;
-            else if ((sym != '.') && (sym != '-') && (sym != '?') && (name_attr == COLOUR_WHITE))
+
+            /* Unknown rune */
+            if (!rune) name_attr = COLOUR_SLATE;
+            if (name_attr == COLOUR_SLATE) continue;
+
+            /* Immunity */
+            if (sym == '*') name_attr = COLOUR_GREEN;
+            if (name_attr == COLOUR_GREEN) continue;
+
+            /* Vulnerability */
+            if (sym == '-') name_attr = COLOUR_L_RED;
+            if (name_attr == COLOUR_L_RED) continue;
+
+            /* Resistance */
+            if (sym == '+') name_attr = COLOUR_L_BLUE;
+            if (name_attr == COLOUR_L_BLUE) continue;
+
+            /* Other known properties */
+            if ((sym != '.') && (sym != '?') && (sym != '!'))
                 name_attr = COLOUR_L_BLUE;
         }
 
@@ -324,6 +365,20 @@ static void display_player_flag_info(struct player *p)
 
     for (i = 0; i < RES_PANELS; i++)
         display_resistance_panel(p, player_flag_table + i * RES_ROWS, &resist_region[i]);
+}
+
+
+static void display_player_esp_info(struct player *p)
+{
+    int res_cols = p->body.count + 5;
+    region resist_region;
+
+    resist_region.col = RES_PANELS * (res_cols + 1);
+    resist_region.row = 10;
+    resist_region.width = res_cols;
+    resist_region.page_rows = RES_ROWS + 2;
+
+    display_resistance_panel(p, player_flag_table + RES_PANELS * RES_ROWS, &resist_region);
 }
 
 
@@ -508,7 +563,7 @@ static const char *show_depth(struct player *p)
 {
     static char buffer[13];
 
-    if (p->max_depth == 0) return "Town";
+    if (p->max_depth == 0) return "Surface";
 
     strnfmt(buffer, sizeof(buffer), "%d' (L%d)", p->max_depth * 50, p->max_depth);
     return buffer;
@@ -629,6 +684,7 @@ static struct panel *get_panel_skills(struct player *pplayer)
     int skill;
     byte attr;
     const char *desc;
+    int depth = pplayer->wpos.depth;
 
     #define BOUND(x, min, max) MIN(max, MAX(min, x))
 
@@ -640,24 +696,17 @@ static struct panel *get_panel_skills(struct player *pplayer)
     desc = likert(pplayer->state.skills[SKILL_STEALTH], 1, &attr);
     panel_line(p, attr, "Stealth", "%s", desc);
 
-    /* Disarming: -5 because we assume we're disarming a dungeon trap */
-    skill = BOUND(pplayer->state.skills[SKILL_DISARM] - 5, 2, 100);
-    panel_line(p, colour_table[skill / 10], "Disarming", "%d%%", skill);
+    /* Physical disarming: assume we're disarming a dungeon trap */
+    skill = BOUND(pplayer->state.skills[SKILL_DISARM_PHYS] - depth / 5, 2, 100);
+    panel_line(p, colour_table[skill / 10], "Disarm - phys.", "%d%%", skill);
+
+    /* Magical disarming */
+    skill = BOUND(pplayer->state.skills[SKILL_DISARM_MAGIC] - depth / 5, 2, 100);
+    panel_line(p, colour_table[skill / 10], "Disarm - magic", "%d%%", skill);
 
     /* Magic devices */
-    skill = MIN(pplayer->state.skills[SKILL_DEVICE], 130);
-    panel_line(p, colour_table[skill / 13], "Magic Devices", "%d", skill);
-
-    /* Search frequency */
-    skill = MAX(pplayer->state.skills[SKILL_SEARCH_FREQUENCY], 1);
-    if (skill >= 50)
-        panel_line(p, colour_table[10], "Perception", "1 in 1");
-    else
-    {
-        /* Convert to % chance of searching */
-        skill = 50 - skill;
-        panel_line(p, colour_table[(100 - skill * 2) / 10], "Perception", "1 in %d", skill);
-    }
+    skill = pplayer->state.skills[SKILL_DEVICE];
+    panel_line(p, colour_table[MIN(skill, 130) / 13], "Magic Devices", "%d", skill);
 
     /* Searching ability */
     skill = BOUND(pplayer->state.skills[SKILL_SEARCH], 0, 100);
@@ -741,14 +790,15 @@ static void display_player_xtra_info(struct player *pplayer)
 
 
 /*
- * Display the character on the screen or in a file (two different modes)
+ * Display the character on the screen or in a file (three different modes)
  *
  * The top two lines, and the bottom line (or two) are left blank.
  *
- * Mode false = standard display with skills/history
- * Mode true = special display with equipment flags
+ * Mode 0 = standard display with skills/history
+ * Mode 1 = special display with equipment flags
+ * Mode 2 = special display with equipment flags (ESP flags)
  */
-void display_player(struct player *pplayer, bool mode)
+void display_player(struct player *pplayer, byte mode)
 {
     /* Clear */
     clear_hook();
@@ -757,7 +807,20 @@ void display_player(struct player *pplayer, bool mode)
     display_player_stat_info(pplayer);
 
     /* Special display */
-    if (mode)
+    if (mode == 2)
+    {
+        struct panel *p = panels[0].panel(pplayer);
+
+        display_panel(p, panels[0].align_left, &panels[0].bounds);
+        panel_free(p);
+
+        /* Stat/Sustain flags */
+        display_player_sust_info(pplayer);
+
+        /* Other flags */
+        display_player_esp_info(pplayer);
+    }
+    else if (mode == 1)
     {
         struct panel *p = panels[0].panel(pplayer);
 
@@ -783,18 +846,10 @@ void display_player(struct player *pplayer, bool mode)
 
 size_t display_depth(struct player *p, int row, int col)
 {
-    char depths[13];
     char *text;
 
-    if (!p->depth)
-        my_strcpy(depths, "Town", sizeof(depths));
-    else if (p->depth < 0)
-        strnfmt(depths, sizeof(depths), "WLev %d", 0 - p->depth);
-    else
-        strnfmt(depths, sizeof(depths), "%d' (L%d)", p->depth * 50, p->depth);
-
     /* Display the depth */
-    text = format("%-12s", depths);
+    text = format("%-12s", p->depths);
     put_str_hook(col, row, -1, COLOUR_WHITE, text);
 
     return (strlen(text) + 1);
@@ -926,6 +981,7 @@ static const struct state_info effects[] =
     { TMD_OPP_POIS,    S("RPois"),      COLOUR_GREEN },
     { TMD_OPP_CONF,    S("RConf"),      COLOUR_VIOLET },
     { TMD_AMNESIA,     S("Amnesiac"),   COLOUR_ORANGE },
+    { TMD_SCRAMBLE,    S("Scrambled"),  COLOUR_VIOLET },
     { TMD_IMAGE,       S("Hallu"),      COLOUR_ORANGE },
     { TMD_PROTEVIL,    S("ProtEvil"),   COLOUR_L_GREEN },
     { TMD_INVULN,      S("Invuln"),     COLOUR_L_GREEN },
@@ -942,7 +998,7 @@ static const struct state_info effects[] =
     { TMD_MANASHIELD,  S("MShield"),    COLOUR_L_GREEN },
     { TMD_INVIS,       S("Invis"),      COLOUR_L_GREEN },
     { TMD_MIMIC,       S("Mimic"),      COLOUR_L_GREEN },
-    { TMD_TRAPS,       S("PTraps"),     COLOUR_L_GREEN },
+    { TMD_TRAPSAFE,    S("TrapSafe"),   COLOUR_L_GREEN },
     { TMD_BOWBRAND,    S("Brand"),      COLOUR_L_GREEN },
     { TMD_ESP,         S("ESP"),        COLOUR_L_GREEN },
     { TMD_ANCHOR,      S("Anchor"),     COLOUR_L_GREEN },
@@ -1132,7 +1188,7 @@ static size_t prt_descent(struct player *p, int row, int col)
 
 
 /*
- * Prints Searching, Resting, or Stealth Mode status
+ * Prints Resting or Stealth Mode status
  */
 static size_t prt_state(struct player *p, int row, int col)
 {
@@ -1143,16 +1199,11 @@ static size_t prt_state(struct player *p, int row, int col)
     if (p->upkeep->resting)
         text = "Resting";
 
-    /* Searching */
-    else if (p->searching)
+    /* Stealth mode */
+    else if (p->stealthy)
     {
-        if (!player_has(p, PF_STEALTH_MODE))
-            text = "Searching";
-        else
-        {
-            attr = COLOUR_L_DARK;
-            text = "Stealth Mode";
-        }
+        attr = COLOUR_L_DARK;
+        text = "Stealth Mode";
     }
 
     /* Display the info (or blanks) */

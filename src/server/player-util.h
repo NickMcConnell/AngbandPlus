@@ -31,12 +31,15 @@
 #define LEVEL_OUTSIDE_RAND  6
 
 extern int dungeon_get_next_level(struct player *p, int dlev, int added);
-extern void dungeon_change_level(struct player *p, struct chunk *c, int new_depth,
+extern void dungeon_change_level(struct player *p, struct chunk *c, struct worldpos *new_wpos,
     byte new_level_method);
-extern bool take_hit(struct player *p, int damage, const char *kb_str, bool non_physical);
+extern bool take_hit(struct player *p, int damage, const char *kb_str, bool non_physical,
+    const char *died_flavor);
 extern void player_regen_hp(struct player *p);
 extern void player_regen_mana(struct player *p);
 extern void player_update_light(struct player *p);
+extern int player_check_terrain_damage(struct player *p, struct chunk *c, int y, int x);
+extern void player_take_terrain_damage(struct player *p, struct chunk *c, int y, int x);
 extern bool player_confuse_dir(struct player *p, int *dp);
 extern bool player_resting_is_special(s16b count);
 extern bool player_is_resting(struct player *p);
@@ -54,6 +57,7 @@ extern bool player_book_has_unlearned_spells(struct player *p);
 extern int coords_to_dir(struct player *p, int y, int x);
 extern void cancel_running(struct player *p);
 extern void disturb(struct player *p, int stop_search);
+extern void search(struct player *p, struct chunk *c);
 extern bool has_bowbrand(struct player *p, bitflag type, bool blast);
 extern bool can_swim(struct player *p);
 extern bool hp_player_safe(struct player *p, int num);
@@ -61,14 +65,20 @@ extern bool hp_player(struct player *p, int num);
 extern int get_player_num(struct player *p);
 extern void redraw_picture(struct player *p, int old_num);
 extern void current_clear(struct player *p);
-extern bool check_st_anchor(int depth, int y, int x);
+extern bool check_st_anchor(struct worldpos *wpos, int y, int x);
 extern void poly_dragon(struct player *p, bool msg);
 extern void poly_bat(struct player *p, int chance, char *killer);
-extern void drain_mana(struct player *p, struct actor *who, int drain, bool seen);
+extern void drain_mana(struct player *p, struct source *who, int drain, bool seen);
 extern void recall_player(struct player *p, struct chunk *c);
 extern int player_digest(struct player *p);
 extern void use_energy(struct player *p);
 extern bool has_energy(struct player *p);
-extern void set_energy(struct player *p, int depth);
+extern void set_energy(struct player *p, struct worldpos *wpos);
+extern bool player_is_at(struct player *p, int y, int x);
+extern struct player_race *lookup_player_race(const char *name);
+extern struct player_class *lookup_player_class(const char *name);
+extern bool forbid_entrance(struct player *p);
+extern bool player_is_in_view(struct player *p, int p_idx);
+extern bool player_is_visible(struct player *p, int p_idx);
 
 #endif /* PLAYER_UTIL_H */

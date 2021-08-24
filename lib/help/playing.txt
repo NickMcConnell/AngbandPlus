@@ -94,9 +94,9 @@ Original Keyset Command Summary
  'n'     (unused)                       'N'    (unused)
  'o'     Open a door or chest           'O'    (unused)
  'p'     Project a spell                'P'    Access party menu
- 'q'     Quaff a potion                 'Q'    Quit (commit suicide)
+ 'q'     Quaff a potion                 'Q'    End character & quit
  'r'     Read a scroll                  'R'    Rest for a period
- 's'     Search for traps/doors         'S'    Toggle search mode
+ 's'     (unused)                       'S'    Toggle stealth mode
  't'     Take off equipment             'T'    Dig a tunnel
  'u'     Use a staff                    'U'    Use an item
  'v'     Throw an item                  'V'    Polymorph into a monster
@@ -106,9 +106,9 @@ Original Keyset Command Summary
  'z'     Zap a rod                      'Z'    (unused)
  '!'     (unused)                       '^A'   Do autopickup
  '@'     Display connected players      '^B'   (unused)
- '#'     (unused)                       '^C'   Quit (commit suicide)
+ '#'     (unused)                       '^C'   End character & quit
  '$'     Drop gold                      '^D'   Describe object
- '%'     (unused)                       '^E'   Buy a house
+ '%'     Display current time           '^E'   Buy a house
  '^'     (special - control key)        '^F'   Repeat level feeling
  '&'     Enter Dungeon Master menu      '^G'   (special - bell)
  '*'     Target monster or location     '^H'   (unused)
@@ -156,9 +156,9 @@ Roguelike Keyset Command Summary
  'n'    (walk - south east)             'N'    (run - south east)
  'o'    Open a door or chest            'O'    Toggle ignore
  'p'    Project a spell                 'P'    Browse a book (Peruse)
- 'q'    Quaff a potion                  'Q'    Quit (commit suicide)
+ 'q'    Quaff a potion                  'Q'    End character & quit
  'r'    Read a scroll                   'R'    Rest for a period
- 's'    Search for traps/doors          'S'    Steal from a player
+ 's'    (unused)                        'S'    Steal from a player
  't'    Fire an item                    'T'    Take off equipment
  'u'    (walk - north east)             'U'    (run - north east)
  'v'    Throw an item                   'V'    Polymorph into a monster
@@ -168,9 +168,9 @@ Roguelike Keyset Command Summary
  'z'    Aim a wand (Zap)                'Z'    Use a staff (Zap)
  '!'    Access party menu               '^A'   Do autopickup
  '@'    Center map                      '^B'   (alter - south west)
- '#'    Toggle search mode              '^C'   Quit (commit suicide)
+ '#'    Toggle stealth mode             '^C'   End character & quit
  '$'    Drop gold                       '^D'   Ignore an item
- '%'    (unused)                        '^E'   Buy a house
+ '%'    Display current time            '^E'   Buy a house
  '^'    (special - control key)         '^F'   Repeat level feeling
  '&'    Enter Dungeon Master menu       '^G'   (special - bell)
  '*'    Target monster or location      '^H'   (alter - west)
@@ -216,7 +216,7 @@ Pressing backslash ('\\') before a command will bypass all keymaps, and
 the next keypress will be interpreted as an "underlying command" key,
 unless it is a caret ('^'), in which case the keypress after that will be
 turned into a control-key and interpreted as a command in the underlying
-angband keyset. The backslash key is useful for creating actions which are
+Angband keyset. The backslash key is useful for creating actions which are
 not affected by any keymap definitions that may be in force, for example,
 the sequence '\\' + '.' + '6' will always mean "run east", even if the
 '.' key has been mapped to a different underlying command.

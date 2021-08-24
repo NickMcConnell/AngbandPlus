@@ -3,7 +3,7 @@
  * Purpose: Text-based user interface for character creation
  *
  * Copyright (c) 1987 - 2015 Angband contributors
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -298,15 +298,14 @@ static void skill_help(int col, int *row, const s16b r_skills[], const s16b c_sk
     format_help(col, (*row)++, "Hit/Shoot/Throw: %+3d/%+4d/%+4d", skills[SKILL_TO_HIT_MELEE],
         skills[SKILL_TO_HIT_BOW], skills[SKILL_TO_HIT_THROW]);
     format_help(col, (*row)++, "Hit die: %2d       XP mod: %3d%%", mhp, exp);
-    format_help(col, (*row)++, "Disarm: %+3d       Devices: %+3d", skills[SKILL_DISARM],
-        skills[SKILL_DEVICE]);
+    format_help(col, (*row)++, "Disarm: %+3d/%+3d   Devices: %+3d", skills[SKILL_DISARM_PHYS],
+        skills[SKILL_DISARM_MAGIC], skills[SKILL_DEVICE]);
     format_help(col, (*row)++, "Save:   %+3d       Stealth: %+3d", skills[SKILL_SAVE],
         skills[SKILL_STEALTH]);
     if (infra >= 0)
         format_help(col, (*row)++, "Infravision:             %2d ft", infra * 10);
     format_help(col, (*row)++, "Digging:                   %+3d", skills[SKILL_DIGGING]);
-    format_help(col, (*row)++, "Search:                 %+3d/%2d", skills[SKILL_SEARCH],
-        skills[SKILL_SEARCH_FREQUENCY]);
+    format_help(col, (*row)++, "Search:                    %+3d", skills[SKILL_SEARCH]);
     if (infra < 0) erase_help(col, row);
 }
 
@@ -323,7 +322,7 @@ static const char *get_flag_desc(bitflag flag)
         case OF_FREE_ACT: return "Resists paralysis";
         case OF_REGEN: return "Regenerates quickly";
         case OF_SEE_INVIS: return "Sees invisible creatures";
-        case OF_FEATHER: return "Falls like a feather";
+        case OF_FEATHER: return "Floats just above the floor";
         case OF_SLOW_DIGEST: return "Digests food slowly";
 
         default: return "Undocumented flag";
@@ -391,7 +390,7 @@ static void race_help(int i, void *db, const region *l)
 
     skill_help(RACE_AUX_COL, &j, r->r_skills, NULL, r->r_mhp, r->r_exp, r->infra);
 
-    for (k = 0; k < OF_MAX; k++)
+    for (k = 1; k < OF_MAX; k++)
     {
         if (n_flags >= flag_space) break;
         if (!of_has(r->flags, k)) continue;
@@ -462,8 +461,13 @@ static void class_help(int i, void *db, const region *l)
     skill_help(CLASS_AUX_COL, &j, r->r_skills, c->c_skills, r->r_mhp + c->c_mhp,
         r->r_exp + c->c_exp, -1);
 
-    if (c->magic.spell_realm->adjective)
-        format_help(CLASS_AUX_COL, j++, "Learns %-23s", c->magic.spell_realm->adjective);
+    if (c->magic.spell_realm)
+    {
+        char adjective[24];
+
+        strnfmt(adjective, sizeof(adjective), "%s magic", c->magic.spell_realm->name);
+        format_help(CLASS_AUX_COL, j++, "Learns %-23s", adjective);
+    }
 
     for (k = 0; k < PF__MAX; k++)
     {
@@ -1235,11 +1239,15 @@ static bool enter_server_name(void)
  */
 bool get_server_name(void)
 {
-    int i, j, y, bytes, socket, offsets[20];
+    int i;
+    int j, k, l, bytes = 0, socket, offsets[20], lines = 0;
+    char buf[80192], *ptr, out_val[260];
+    int retries;
     bool server, info;
-    char buf[8192], *ptr, out_val[160];
-    int ports[30];
+    int ports[20];
     struct keypress c;
+    bool mang_meta = true;
+    bool first_player = false, the_end = false;
 
     /* Perhaps we already have a server name from config file ? */
     if (strlen(server_name) > 0) return true;
@@ -1251,87 +1259,247 @@ bool get_server_name(void)
     Term_fresh();
 
     /* Connect to metaserver */
-    socket = CreateClientSocket(meta_address, 8802);
+    socket = CreateClientSocket(meta_address, meta_port);
 
     /* Check for failure */
-    if (socket == -1) return enter_server_name();
+    if (socket == -1)
+    {
+        prt("Failed to connect to meta server.", 2, 1);
+        return enter_server_name();
+    }
 
-    /* Read */
-    bytes = SocketRead(socket, buf, 8192);
+    /* Wipe the buffer */
+    memset(buf, 0, sizeof(buf));
+
+    /* Listen for reply (try ten times in ten seconds) */
+    for (retries = 0; retries < 10; retries++)
+    {
+        /* Set timeout */
+        SetTimeout(1, 0);
+
+        /* Wait for info */
+        if (!SocketReadable(socket)) continue;
+
+        /* Read */
+        bytes = SocketRead(socket, buf, sizeof(buf));
+        break;
+    }
 
     /* Close the socket */
     SocketClose(socket);
 
     /* Check for error while reading */
-    if (bytes <= 0) return enter_server_name();
+    if (bytes <= 0)
+    {
+        prt("Meta server didn't respond.", 2, 1);
+        return enter_server_name();
+    }
+
+    Term_clear();
+
+    /* Check reply format */
+    if (strstr(buf, "<meta>"))
+    {
+        mang_meta = false;
+        ptr = buf;
+        while (ptr - buf < bytes)
+        {
+            if (*ptr == '\n') *ptr = '\0';
+            ptr++;
+        }
+    }
 
     /* Start at the beginning */
     ptr = buf;
-    i = y = 0;
+    i = 0;
 
     /* Print each server */
     while (ptr - buf < bytes)
     {
         /* Check for no entry */
-        if (strlen(ptr) <= 1)
+        if (*ptr == '\0')
         {
-            /* Increment */
             ptr++;
-
-            /* Next */
             continue;
         }
 
-        info = true;
+        /* Entries can be "server" or "%port" or " notice" (MAngband format) */
+        server = info = false;
+
+        /* Display notices */
+        if ((*ptr == ' ') || (!mang_meta && !strstr(ptr, "protocol")))
+        {
+            /* Check for no entry */
+            if (strlen(ptr) == 1)
+            {
+                ptr += 2;
+                continue;
+            }
+
+            if (mang_meta)
+            {
+                info = true;
+                memset(out_val, 0, sizeof(out_val));
+                strnfmt(out_val, sizeof(out_val), "%s", ptr);
+            }
+            else
+            {
+                /* <meta>...</meta> */
+                if (strstr(ptr, "<meta>"))
+                {
+                    char meta[100], *t;
+
+                    my_strcpy(meta, ptr, sizeof(meta));
+                    t = strtok(meta, ">");
+                    t = strtok(NULL, "<");
+
+                    info = true;
+                    memset(out_val, 0, sizeof(out_val));
+                    my_strcpy(out_val, t, sizeof(out_val));
+                }
+
+                /* \t<game>...</game> */
+                else if (strstr(ptr, "<game>"))
+                {
+                    char game[100], *t;
+
+                    my_strcpy(game, ptr, sizeof(game));
+                    t = strtok(game, ">");
+                    t = strtok(NULL, "<");
+
+                    memset(out_val, 0, sizeof(out_val));
+                    strnfmt(out_val, sizeof(out_val), "     Game: %s", t);
+                }
+
+                /* \t<version>...</version> */
+                else if (strstr(ptr, "<version>"))
+                {
+                    char version[100], *t;
+
+                    my_strcpy(version, ptr, sizeof(version));
+                    t = strtok(version, ">");
+                    t = strtok(NULL, "<");
+
+                    info = true;
+                    my_strcat(out_val, " Version: ", sizeof(out_val));
+                    my_strcat(out_val, t, sizeof(out_val));
+                    first_player = true;
+                }
+
+                /* \t<player>...</player> */
+                else if (strstr(ptr, "<player>"))
+                {
+                    char name[100], *t;
+
+                    my_strcpy(name, ptr, sizeof(name));
+                    t = strtok(name, ">");
+                    t = strtok(NULL, "<");
+
+                    if (first_player)
+                    {
+                        memset(out_val, 0, sizeof(out_val));
+                        my_strcpy(out_val, "     Players:", sizeof(out_val));
+                        first_player = false;
+                    }
+                    else
+                        my_strcat(out_val, ",", sizeof(out_val));
+                    my_strcat(out_val, " ", sizeof(out_val));
+                    my_strcat(out_val, t, sizeof(out_val));
+                }
+
+                /* </server> */
+                else if (!the_end)
+                {
+                    if (!first_player) info = true;
+                    the_end = true;
+                }
+            }
+        }
+
+        /* Save port */
+        else if (*ptr == '%')
+        {
+            /* Check for no entry */
+            if ((strlen(ptr) == 1) || (i == 0))
+            {
+                ptr += strlen(ptr) + 1;
+                continue;
+            }
+
+            ports[i - 1] = atoi(ptr + 1);
+        }
 
         /* Save server entries */
-        if (*ptr == '%')
-        {
-            server = info = false;
-
-            /* Save port */
-            ports[i] = atoi(ptr+1);
-        }
-        else if (*ptr != ' ')
+        else
         {
             server = true;
+            info = true;
+            the_end = false;
 
             /* Save offset */
             offsets[i] = ptr - buf;
 
             /* Format entry */
-            strnfmt(out_val, sizeof(out_val), "%c) %s", I2A(i), ptr);
-        }
-        else
-        {
-            server = false;
+            memset(out_val, 0, sizeof(out_val));
+            if (mang_meta)
+                strnfmt(out_val, sizeof(out_val), "%c) %s", I2A(i), ptr);
+            else
+            {
+                char server[100], *t;
 
-            /* Display notices */
-            strnfmt(out_val, sizeof(out_val), "%s", ptr);
+                /* <server url="server" port="port" protocol="2"> */
+                while (*ptr != '\"') ptr++;
+                ptr++;
+                offsets[i] = ptr - buf;
+                while (*ptr != '\"') ptr++;
+                *ptr = '\0';
+                ptr++;
+                sscanf(buf + offsets[i], "%s", server);
+                strnfmt(out_val, sizeof(out_val), "%c) %s", I2A(i), server);
+
+                my_strcpy(server, ptr, sizeof(server));
+                t = strtok(server, "\"");
+                t = strtok(NULL, "\"");
+                ports[i] = atoi(t);
+            }
         }
 
         if (info)
         {
+            j = strlen(out_val);
+
             /* Strip off offending characters */
-            out_val[strlen(out_val) - 1] = '\0';
+            if (mang_meta) out_val[j - 1] = '\0';
 
-            /* Print this entry */
-            prt(out_val, y + 1, 1);
-
-            /* One more entry */
-            if (server) i++;
-            y++;
+            /* Print this entry (with word wrap) */
+            k = 0;
+            while (j)
+            {
+                l = strlen(&out_val[k]);
+                if (j > 75)
+                {
+                    l = 75;
+                    while (out_val[k + l] != ' ') l--;
+                    out_val[l] = '\0';
+                }
+                prt(out_val + k, lines++, (k? 4: 1));
+                k += (l + 1);
+                j = strlen(&out_val[k]);
+            }
         }
 
         /* Go to next metaserver entry */
         ptr += strlen(ptr) + 1;
 
-        /* We can't handle more than 20 entries -- BAD */
-        if (i > 20) break;
+        /* One more entry */
+        if (server) i++;
+
+        /* We can't handle more than 20 lines */
+        if (lines > 20) break;
     }
 
     /* Prompt */
-    prt("Choose a server to connect to (Ctrl-m for manual selection): ", y + 2, 1);
+    prt("Choose a server to connect to (Ctrl-m for manual selection): ", lines + 2, 1);
 
     /* Ask until happy */
     while (1)
@@ -1356,7 +1524,7 @@ bool get_server_name(void)
     sscanf(buf + offsets[j], "%s", server_name);
 
     /* Set port */
-    server_port = ports[j+1];
+    server_port = ports[j];
 
     /* Success */
     return true;

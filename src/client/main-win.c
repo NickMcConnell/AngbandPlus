@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, Skirmantas Kligys, Robert Ruehlmann,
  * and others
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -743,6 +743,7 @@ static void load_prefs(void)
 
     my_strcpy(meta_address, conf_get_string("MAngband", "meta_address", "mangband.org"),
         sizeof(meta_address));
+    meta_port = conf_get_int("MAngband", "meta_port", 8802);
 
     /* XXX Default real name */
     my_strcpy(real_name, "PLAYER", sizeof(real_name));
@@ -4231,7 +4232,7 @@ static LONG FAR PASCAL SubClassFunc(HWND hWnd, WORD Message, WORD wParam, LONG l
             else
             {
                 int offset = 0, breakpoint, nicklen;
-                char* startmsg;
+                char *startmsg;
 
                 /* See if this was a privmsg, if so, pull off the nick */
                 for (startmsg = pmsgbuf; *startmsg; startmsg++)

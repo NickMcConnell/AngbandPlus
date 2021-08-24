@@ -115,7 +115,6 @@ typedef char char_lit[LIGHTING_MAX];
 typedef struct
 {
     s16b settings[SETTING_MAX];
-    bool options[OPT_MAX];
     byte *flvr_x_attr;
     char *flvr_x_char;
     byte (*f_attr)[LIGHTING_MAX];
@@ -126,8 +125,8 @@ typedef struct
     char *k_char;
     byte *r_attr;
     char *r_char;
-    byte gf_attr[GF_MAX][BOLT_MAX];
-    char gf_char[GF_MAX][BOLT_MAX];
+    byte proj_attr[PROJ_MAX][BOLT_MAX];
+    char proj_char[PROJ_MAX][BOLT_MAX];
 } client_setup_t;
 
 extern client_setup_t Client_setup;
@@ -178,11 +177,24 @@ struct angband_constants
     u16b s_max;                 /* Maximum number of magic spells */
     u16b pit_max;               /* Maximum number of monster pit types */
     u16b act_max;               /* Maximum number of activations */
+    u16b curse_max;             /* Maximum number of curses */
+    u16b slay_max;              /* Maximum number of slays */
+    u16b brand_max;             /* Maximum number of brands */
     u16b mon_blows_max;         /* Maximum number of monster blows */
+    u16b blow_methods_max;      /* Maximum number of monster blow methods */
+    u16b blow_effects_max;      /* Maximum number of monster blow effects */
     u16b equip_slots_max;       /* Maximum number of player equipment slots */
     u16b profile_max;           /* Maximum number of cave_profiles */
     u16b quest_max;             /* Maximum number of quests */
+    u16b projection_max;        /* Maximum number of projection types */
+    u16b calculation_max;       /* Maximum number of object power calculations */
+    u16b property_max;          /* Maximum number of object properties */
+    u16b summon_max;            /* Maximum number of summon types */
     u16b soc_max;               /* Maximum number of socials */
+    u16b wf_max;                /* Maximum number of wilderness terrain features */
+    u16b tf_max;                /* Maximum number of town terrain features */
+    u16b town_max;              /* Maximum number of towns */
+    u16b dungeon_max;           /* Maximum number of dungeons */
 
     /* Maxima of things on a given level, read from constants.txt */
     u16b level_monster_max;     /* Maximum number of monsters on a given level */
@@ -200,7 +212,6 @@ struct angband_constants
     u16b glyph_hardness;        /* How hard for a monster to break a glyph */
     u16b repro_monster_rate;    /* Monster reproduction rate-slower */
     u16b life_drain_percent;    /* Percent of player life drained */
-    u16b max_flow_depth;        /* Maximum depth for flow calculation */
     u16b flee_range;            /* Monsters run this many grids out of view */
     u16b turn_range;            /* Monsters turn to fight closer than this */
 
@@ -219,8 +230,8 @@ struct angband_constants
     u16b day_length;            /* Number of turns from dawn to dawn */
     u16b dungeon_hgt;           /* Maximum number of vertical grids on a level */
     u16b dungeon_wid;           /* Maximum number of horizontal grids on a level */
-    u16b town_hgt;              /* Number of features in the town (vertically) */
-    u16b town_wid;              /* Number of features in the town (horizontally) */
+    u16b town_hgt;              /* Number of features in the starting town (vertically) */
+    u16b town_wid;              /* Number of features in the starting town (horizontally) */
     u16b feeling_total;         /* Total number of feeling squares per level */
     u16b feeling_need;          /* Squares needed to see to get first feeling */
     u16b stair_skip;            /* Number of levels to skip for each down stair */
@@ -229,8 +240,8 @@ struct angband_constants
     /* Carrying capacity constants, read from constants.txt */
     u16b pack_size;             /* Maximum number of pack slots */
     u16b quiver_size;           /* Maximum number of quiver slots */
+    u16b quiver_slot_size;      /* Maximum number of missiles per quiver slot */
     u16b floor_size;            /* Maximum number of items per floor grid */
-    u16b stack_size;            /* Maximum number of items per stack */
 
     /* Store parameters, read from constants.txt */
     u16b store_inven_max;       /* Maximum number of objects in store inventory */

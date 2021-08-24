@@ -2,8 +2,8 @@
  * File: mon-msg.c
  * Purpose: Monster message code.
  *
- * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 1997-2016 Jeff Greene, Andi Sidwell
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -22,70 +22,45 @@
 
 
 /*
- * The NULL-terminated array of string actions used to format stacked messages.
+ * Maximum number of stacked monster messages
+ */
+#define MAX_STORED_MON_MSG      200
+#define MAX_STORED_MON_CODES    400
+
+
+/*
+ * Flags for whether monsters are offscreen or invisible
+ */
+#define MON_MSG_FLAG_OFFSCREEN	0x01
+#define MON_MSG_FLAG_INVISIBLE	0x02
+
+
+/*
+ * An array of monster messages in order of monster message type.
+ *
  * Singular and plural modifiers are encoded in the same string. Example:
  * "[is|are] hurt" is expanded to "is hurt" if you request the singular form.
  * The string is expanded to "are hurt" if the plural form is requested.
+ *
  * The singular and plural parts are optional. Example:
  * "rear[s] up in anger" only includes a modifier for the singular form.
+ *
  * Any of these strings can start with "~", in which case we consider that
  * string as a whole message, not as a part of a larger message. This
  * is useful to display Moria-like death messages.
  */
-static const char *msg_repository[] =
+static const struct
 {
-    #define MON_MSG(x, s) s,
+    const char *msg;
+    bool omit_subject;
+    int type;
+} msg_repository[] =
+{
+    #define MON_MSG(x, t, o, s) {s, o, t},
     #include "../common/list-mon-message.h"
     #undef MON_MSG
-    NULL
+    {NULL, MSG_GENERIC}
 };
-
-
-static char *get_mon_msg_action(byte msg_code, bool do_plural, const struct monster_race *race);
-
-
-/*
- * Displays a message describing a player's reaction to damage.
- */
-void player_pain(struct player *p, struct player *who, int dam)
-{
-    long oldhp, newhp, tmp;
-    int percentage;
-    int msg_code = MON_MSG_UNHARMED;
-    char m_name[NORMAL_WID];
-    char *action;
-
-    /* Paranoia */
-    if (!who) return;
-
-    /* Get the player name */
-    player_desc(p, m_name, sizeof(m_name), who, true);
-
-    /* Notice non-damage */
-    if (dam == 0)
-    {
-        action = get_mon_msg_action(msg_code, false, &r_info[0]);
-        msg(p, "%s %s", m_name, action);
-        return;
-    }
-
-    /* Note -- subtle fix */
-    newhp = (long)(who->chp);
-    oldhp = newhp + (long)(dam);
-    tmp = ((oldhp > 0)? ((newhp * 100L) / oldhp): 0);
-    percentage = (int)(tmp);
-
-    if (percentage > 95) msg_code = MON_MSG_95;
-    else if (percentage > 75) msg_code = MON_MSG_75;
-    else if (percentage > 50) msg_code = MON_MSG_50;
-    else if (percentage > 35) msg_code = MON_MSG_35;
-    else if (percentage > 20) msg_code = MON_MSG_20;
-    else if (percentage > 10) msg_code = MON_MSG_10;
-    else msg_code = MON_MSG_0;
-
-    action = get_mon_msg_action(msg_code, false, &r_info[0]);
-    msg(p, "%s %s", m_name, action);
-}
 
 
 /*
@@ -94,128 +69,27 @@ void player_pain(struct player *p, struct player *who, int dam)
  */
 void message_pain(struct player *p, struct monster *mon, int dam)
 {
-    long oldhp, newhp, tmp;
-    int percentage;
     int msg_code = MON_MSG_UNHARMED;
-    char m_name[NORMAL_WID];
 
-    /* Get the monster name */
-    /* Don't use monster_desc flags because add_monster_message does string processing on m_name */
-    monster_desc(p, m_name, sizeof(m_name), mon, MDESC_DEFAULT);
-
-    /* Notice non-damage */
-    if (dam == 0)
+    /* Calculate damage levels */
+    if (dam > 0)
     {
-        add_monster_message(p, m_name, mon, msg_code, false);
-        return;
+        /* Note -- subtle fix */
+        long newhp = (long)(mon->hp);
+        long oldhp = newhp + (long)(dam);
+        long tmp = ((oldhp > 0)? ((newhp * 100L) / oldhp): 0);
+        int percentage = (int)(tmp);
+
+        if (percentage > 95) msg_code = MON_MSG_95;
+        else if (percentage > 75) msg_code = MON_MSG_75;
+        else if (percentage > 50) msg_code = MON_MSG_50;
+        else if (percentage > 35) msg_code = MON_MSG_35;
+        else if (percentage > 20) msg_code = MON_MSG_20;
+        else if (percentage > 10) msg_code = MON_MSG_10;
+        else msg_code = MON_MSG_0;
     }
 
-    /* Note -- subtle fix */
-    newhp = (long)(mon->hp);
-    oldhp = newhp + (long)(dam);
-    tmp = ((oldhp > 0)? ((newhp * 100L) / oldhp): 0);
-    percentage = (int)(tmp);
-
-    if (percentage > 95) msg_code = MON_MSG_95;
-    else if (percentage > 75) msg_code = MON_MSG_75;
-    else if (percentage > 50) msg_code = MON_MSG_50;
-    else if (percentage > 35) msg_code = MON_MSG_35;
-    else if (percentage > 20) msg_code = MON_MSG_20;
-    else if (percentage > 10) msg_code = MON_MSG_10;
-    else msg_code = MON_MSG_0;
-
-    add_monster_message(p, m_name, mon, msg_code, false);
-}
-
-
-#define SINGULAR_MON    1
-#define PLURAL_MON      2
-
-
-/*
- * Returns a pointer to a statically allocatted string containing a formatted
- * message based on the given message code and the quantity flag.
- * The contents of the returned value will change with the next call
- * to this function
- */
-static char *get_mon_msg_action(byte msg_code, bool do_plural, const struct monster_race *race)
-{
-    static char buf[200];
-    const char *action;
-    u16b n = 0;
-
-    /* Regular text */
-    byte flag = 0;
-
-    my_assert(msg_code < MON_MSG_MAX);
-    action = msg_repository[msg_code];
-
-    my_assert(race->base && race->base->pain);
-
-    if (race->base && race->base->pain)
-    {
-        switch (msg_code)
-        {
-            case MON_MSG_95: action = race->base->pain->messages[0]; break;
-            case MON_MSG_75: action = race->base->pain->messages[1]; break;
-            case MON_MSG_50: action = race->base->pain->messages[2]; break;
-            case MON_MSG_35: action = race->base->pain->messages[3]; break;
-            case MON_MSG_20: action = race->base->pain->messages[4]; break;
-            case MON_MSG_10: action = race->base->pain->messages[5]; break;
-            case MON_MSG_0: action = race->base->pain->messages[6]; break;
-        }
-    }
-
-    /* Put the message characters in the buffer */
-    for (; *action; action++)
-    {
-        /* Check available space */
-        if (n >= (sizeof(buf) - 1)) break;
-
-        /* Are we parsing a quantity modifier? */
-        if (flag)
-        {
-            /* Check the presence of the modifier's terminator */
-            if (*action == ']')
-            {
-                /* Go back to parsing regular text */
-                flag = 0;
-
-                /* Skip the mark */
-                continue;
-            }
-
-            /* Check if we have to parse the plural modifier */
-            if (*action == '|')
-            {
-                /* Switch to plural modifier */
-                flag = PLURAL_MON;
-
-                /* Skip the mark */
-                continue;
-            }
-
-            /* Ignore the character if we need the other part */
-            if ((flag == PLURAL_MON) != do_plural) continue;
-        }
-        else if (*action == '[')
-        {
-            /* Switch to singular modifier */
-            flag = SINGULAR_MON;
-
-            /* Skip the mark */
-            continue;
-        }
-
-        /* Append the character to the buffer */
-        buf[n++] = *action;
-    }
-
-    /* Terminate the buffer */
-    buf[n] = '\0';
-
-    /* Done */
-    return (buf);
+    add_monster_message(p, mon, msg_code, false);
 }
 
 
@@ -229,20 +103,122 @@ static bool redundant_monster_message(struct player *p, struct monster *mon, int
     int i;
 
     my_assert(mon);
-    my_assert((msg_code >= 0) && (msg_code < MON_MSG_MAX));
-
-    /* No messages yet */
-    if (!p->size_mon_hist) return false;
+    my_assert(msg_code >= 0);
+    my_assert(msg_code < MON_MSG_MAX);
 
     for (i = 0; i < p->size_mon_hist; i++)
     {
-        /* Not the same monster */
-        if (mon != p->mon_message_hist[i].mon) continue;
+        /* Check for a matched monster & monster code */
+        if ((mon == p->mon_message_hist[i].mon) && (msg_code == p->mon_message_hist[i].message_code))
+            return true;
+    }
 
-        /* Not the same code */
-        if (msg_code != p->mon_message_hist[i].message_code) continue;
+    return false;
+}
 
-        /* We have a match. */
+
+/*
+ * Try to work out what flags a message should have from a monster name
+ */
+static int message_flags(struct player *p, const struct monster *mon)
+{
+    int flags = 0;
+
+    if (!panel_contains(p, mon->fy, mon->fx))
+        flags |= MON_MSG_FLAG_OFFSCREEN;
+
+    if (!monster_is_visible(p, mon->midx))
+        flags |= MON_MSG_FLAG_INVISIBLE;
+
+    return flags;
+}
+
+
+/*
+ * Store the monster in the monster history for duplicate checking later
+ */
+static void store_monster(struct player *p, struct monster *mon, int msg_code)
+{
+    /* Record which monster had this message stored */
+    if (p->size_mon_hist < MAX_STORED_MON_CODES)
+    {
+        p->mon_message_hist[p->size_mon_hist].mon = mon;
+        p->mon_message_hist[p->size_mon_hist].message_code = msg_code;
+        p->size_mon_hist++;
+    }
+}
+
+
+/*
+ * Try to stack a message on top of existing ones
+ *
+ * Returns true if successful, false if failed
+ */
+static bool stack_message(struct player *p, struct monster *mon, int msg_code, int flags)
+{
+    int i;
+
+    for (i = 0; i < p->size_mon_msg; i++)
+    {
+        /* We found the race and the message code */
+        if ((p->mon_msg[i].race == mon->race) &&
+            (p->mon_msg[i].flags == flags) &&
+            (p->mon_msg[i].msg_code == msg_code))
+        {
+            p->mon_msg[i].count++;
+            store_monster(p, mon, msg_code);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+static int what_delay(int msg_code, int delay)
+{
+    int type = msg_repository[msg_code].type;
+
+    if (type == MSG_KILL) return 2;
+    return (delay? 1: 0);
+}
+
+
+/*
+ * Stack a codified message for the given monster race.
+ *
+ * Return true on success.
+ */
+bool add_monster_message(struct player *p, struct monster *mon, int msg_code, bool delay)
+{
+    int flags;
+
+    /* Paranoia */
+    if (!p) return false;
+
+    my_assert(msg_code >= 0);
+    my_assert(msg_code < MON_MSG_MAX);
+
+    flags = message_flags(p, mon);
+
+    /* Try to stack the message on top of older messages if it isn't redundant */
+    if (redundant_monster_message(p, mon, msg_code)) return false;
+    if (stack_message(p, mon, msg_code, flags)) return true;
+
+    /* If not possible, check we have storage space for more messages and add */
+    if (p->size_mon_msg < MAX_STORED_MON_MSG)
+    {
+        p->mon_msg[p->size_mon_msg].race = mon->race;
+        p->mon_msg[p->size_mon_msg].flags = flags;
+        p->mon_msg[p->size_mon_msg].msg_code = msg_code;
+        p->mon_msg[p->size_mon_msg].count = 1;
+        p->mon_msg[p->size_mon_msg].delay = what_delay(msg_code, delay);
+        p->size_mon_msg++;
+
+        store_monster(p, mon, msg_code);
+
+        p->upkeep->notice |= PN_MON_MESSAGE;
+
         return true;
     }
 
@@ -251,256 +227,259 @@ static bool redundant_monster_message(struct player *p, struct monster *mon, int
 
 
 /*
- * Stack a codified message for the given monster race. You must supply
- * the description of some monster of this race. You can also supply
- * different monster descriptions for the same race.
- * Return true on success.
+ * Create the subject of the sentence for monster messages
  */
-bool add_monster_message(struct player *p, const char *mon_name, struct monster *mon, int msg_code,
-    bool delay)
+static void get_subject(char *buf, size_t buflen, struct monster_race *race, int count,
+    bool invisible, bool offscreen)
 {
-    int i;
-    byte mon_flags = 0;
-
-    /* Paranoia */
-    if (!p) return false;
-
-    my_assert((msg_code >= 0) && (msg_code < MON_MSG_MAX));
-
-    if (redundant_monster_message(p, mon, msg_code)) return false;
-
-    /* Paranoia */
-    if (!mon_name || !mon_name[0]) mon_name = "it";
-
-    /* Save the "hidden" mark, if present */
-    if (strstr(mon_name, "(hidden)")) mon_flags |= MON_MSG_FLAG_HIDDEN;
-
-    /* Save the "offscreen" mark, if present */
-    if (strstr(mon_name, "(offscreen)")) mon_flags |= MON_MSG_FLAG_OFFSCREEN;
-
-    /* Monster is invisible or out of LOS */
-    if (streq(mon_name, "it") || streq(mon_name, "something")) mon_flags |= MON_MSG_FLAG_INVISIBLE;
-
-    /* Query if the message is already stored */
-    /*for (i = 0; i < p->size_mon_msg; i++)*/
-    for (i = p->size_mon_msg - 1; i < p->size_mon_msg; i++)
+    if (invisible)
     {
-        /* We found the race and the message code */
-        if ((p->mon_msg[i].race == mon->race) &&
-            (p->mon_msg[i].mon_flags == mon_flags) &&
-            (p->mon_msg[i].msg_code == msg_code))
-        {
-            /* Can we increment the counter? */
-            if (p->mon_msg[i].mon_count < UCHAR_MAX)
-            {
-                /* Stack the message */
-                ++(p->mon_msg[i].mon_count);
-            }
-
-            /* Record which monster had this message stored */
-            if (p->size_mon_hist >= MAX_STORED_MON_CODES) return true;
-            p->mon_message_hist[p->size_mon_hist].mon = mon;
-            p->mon_message_hist[p->size_mon_hist].message_code = msg_code;
-            p->size_mon_hist++;
-
-            /* Success */
-            return true;
-        }
+        if (count == 1)
+            my_strcpy(buf, "It", buflen);
+        else
+            strnfmt(buf, buflen, "%d monsters", count);
     }
-
-    /* The message isn't stored. Check free space */
-    if (p->size_mon_msg >= MAX_STORED_MON_MSG) return false;
-
-    /* Assign the message data to the free slot */
-    p->mon_msg[i].race = mon->race;
-    p->mon_msg[i].mon_flags = mon_flags;
-    p->mon_msg[i].msg_code = msg_code;
-    p->mon_msg[i].delay = delay;
-    p->mon_msg[i].delay_tag = MON_DELAY_TAG_DEFAULT;
-
-    /* Just this monster so far */
-    p->mon_msg[i].mon_count = 1;
-
-    /* Force all death messages to go at the end of the group for logical presentation */
-    if ((msg_code == MON_MSG_DIE) || (msg_code == MON_MSG_DESTROYED))
+    else
     {
-        p->mon_msg[i].delay = true;
-        p->mon_msg[i].delay_tag = MON_DELAY_TAG_DEATH;
-    }
-
-    /* One more entry */
-    ++p->size_mon_msg;
-
-    p->upkeep->notice |= PN_MON_MESSAGE;
-
-    /* Record which monster had this message stored */
-    if (p->size_mon_hist >= MAX_STORED_MON_CODES) return true;
-    p->mon_message_hist[p->size_mon_hist].mon = mon;
-    p->mon_message_hist[p->size_mon_hist].message_code = msg_code;
-    p->size_mon_hist++;
-
-    /* Success */
-    return true;
-}
-
-
-/*
- * Show and delete the stacked monster messages.
- */
-static void flush_monster_messages(struct player *p, bool delay, byte delay_tag)
-{
-    int i, count;
-    const struct monster_race *race;
-    char buf[512];
-    char *action;
-    bool action_only;
-
-    /* Show every message */
-    for (i = 0; i < p->size_mon_msg; i++)
-    {
-        int type = MSG_GENERIC;
-
-        if (p->mon_msg[i].delay != delay) continue;
-
-        /* Skip if we are delaying and the tags don't match */
-        if (p->mon_msg[i].delay && (p->mon_msg[i].delay_tag != delay_tag)) continue;
-
-        /* Cache the monster count */
-        count = p->mon_msg[i].mon_count;
-
-        /* Paranoia */
-        if (count < 1) continue;
-
-        /* Start with an empty string */
-        buf[0] = '\0';
-
-        /* Cache the race index */
-        race = p->mon_msg[i].race;
-
-        /* Get the proper message action */
-        action = get_mon_msg_action(p->mon_msg[i].msg_code, (count > 1), race);
-
-        /* Monster is marked as invisible */
-        if (p->mon_msg[i].mon_flags & MON_MSG_FLAG_INVISIBLE) race = NULL;
-
-        /* Special message? */
-        action_only = (*action == '~');
-
-        /* Format the proper message depending on type, number and visibility */
-        if (race && !action_only)
-        {
-            char race_name[NORMAL_WID];
-
-            /* Get the race name */
-            my_strcpy(race_name, race->name, sizeof(race_name));
-
-            /* Uniques, multiple monsters, or just one */
-            if (rf_has(race->flags, RF_UNIQUE))
-            {
-                /* Just copy the race name */
-                my_strcpy(buf, race->name, sizeof(buf));
-            }
-            else if (count > 1)
-            {
-                /* Get the plural of the race name */
-                if (race->plural != NULL)
-                    my_strcpy(race_name, race->plural, sizeof(race_name));
-                else
-                    plural_aux(race_name, sizeof(race_name));
-
-                /* Put the count and the race name together */
-                strnfmt(buf, sizeof(buf), "%d %s", count, race_name);
-            }
-            else
-            {
-                /* Just add a slight flavor */
-                strnfmt(buf, sizeof(buf), "the %s", race_name);
-            }
-        }
-        else if (!race && !action_only)
-        {
-            if (count > 1)
-            {
-                /* Show the counter */
-                strnfmt(buf, sizeof(buf), "%d monsters", count);
-            }
-            else
-            {
-                /* Just one non-visible monster */
-                my_strcpy(buf, "it", sizeof(buf));
-            }
-        }
-
-        /* Special message. Nuke the mark */
-        if (action_only) ++action;
-
-        /* Regular message */
+        /* Uniques, multiple monsters, or just one */
+        if (monster_is_unique(race))
+            my_strcpy(buf, race->name, buflen);
+        else if (count == 1)
+            strnfmt(buf, buflen, "The %s", race->name);
         else
         {
-            /* Add special mark. Monster is offscreen */
-            if (p->mon_msg[i].mon_flags & MON_MSG_FLAG_OFFSCREEN)
-                my_strcat(buf, " (offscreen)", sizeof(buf));
-
-            /* Add the separator */
-            my_strcat(buf, " ", sizeof(buf));
-        }
-
-        /* Append the action to the message */
-        my_strcat(buf, action, sizeof(buf));
-
-        /* Capitalize the message */
-        *buf = toupper((unsigned char)*buf);
-
-        switch (p->mon_msg[i].msg_code)
-        {
-            case MON_MSG_FLEE_IN_TERROR:
+            /* Get the plural of the race name */
+            if (race->plural != NULL)
+                strnfmt(buf, buflen, "%d %s", count, race->plural);
+            else
             {
-                type = MSG_FLEE;
-                break;
-            }
-
-            case MON_MSG_DIE:
-            case MON_MSG_DESTROYED:
-            case MON_MSG_DISENTEGRATES:
-            case MON_MSG_FREEZE_SHATTER:
-            case MON_MSG_SHRIVEL_LIGHT:
-            case MON_MSG_DISSOLVE:
-            case MON_MSG_DROP_DEAD:
-            case MON_MSG_MORIA_DEATH:
-            {
-                /* Assume normal death sound */
-                type = MSG_KILL;
-
-                /* Play a special sound if the monster was unique (and visible) */
-                if (race && rf_has(race->flags, RF_UNIQUE))
-                {
-                    if (race->base == lookup_monster_base("Morgoth"))
-                        type = MSG_KILL_KING;
-                    else
-                        type = MSG_KILL_UNIQUE;
-                }
-
-                break;
+                strnfmt(buf, buflen, "%d %s", count, race->name);
+                plural_aux(buf, buflen);
             }
         }
-
-        /* Show the message */
-        msgt(p, type, "%s", buf);
     }
+
+    if (offscreen)
+        my_strcat(buf, " (offscreen)", buflen);
+
+    /* Add a separator */
+    my_strcat(buf, " ", buflen);
+}
+
+
+/* State machine constants for get_message_text() */
+#define MSG_PARSE_NORMAL    0
+#define MSG_PARSE_SINGLE    1
+#define MSG_PARSE_PLURAL    2
+
+
+/*
+ * Formats a message based on the given message code and the plural flag.
+ *
+ * pos the position in buf to start writing the message into
+ */
+static void get_message_text(char *buf, size_t buflen, int msg_code,
+    const struct monster_race *race, bool do_plural)
+{
+    const char *source;
+    int state;
+    size_t maxlen;
+    size_t pos;
+    size_t i;
+
+    my_assert(msg_code < MON_MSG_MAX);
+    my_assert(race != NULL);
+    my_assert(race->base != NULL);
+    my_assert(race->base->pain != NULL);
+
+    /* Find the appropriate message */
+    source = msg_repository[msg_code].msg;
+    switch (msg_code)
+    {
+        case MON_MSG_95: source = race->base->pain->messages[0]; break;
+        case MON_MSG_75: source = race->base->pain->messages[1]; break;
+        case MON_MSG_50: source = race->base->pain->messages[2]; break;
+        case MON_MSG_35: source = race->base->pain->messages[3]; break;
+        case MON_MSG_20: source = race->base->pain->messages[4]; break;
+        case MON_MSG_10: source = race->base->pain->messages[5]; break;
+        case MON_MSG_0: source = race->base->pain->messages[6]; break;
+    }
+
+    state = MSG_PARSE_NORMAL;
+    maxlen = strlen(source);
+    pos = 0;
+
+    /* Put the message characters in the buffer */
+    for (i = 0; ((i < maxlen) && (pos < buflen - 1)); i++)
+    {
+        char cur = source[i];
+
+        /*
+         * The characters '[|]' switch parsing mode and are never output.
+         * The syntax is [singular|plural]
+         */
+        if ((state == MSG_PARSE_NORMAL) && (cur == '['))
+            state = MSG_PARSE_SINGLE;
+        else if ((state == MSG_PARSE_SINGLE) && (cur == '|'))
+            state = MSG_PARSE_PLURAL;
+        else if ((state != MSG_PARSE_NORMAL) && (cur == ']'))
+            state = MSG_PARSE_NORMAL;
+        else if ((state == MSG_PARSE_NORMAL) ||
+                ((state == MSG_PARSE_SINGLE) && (do_plural == false)) ||
+                ((state == MSG_PARSE_PLURAL) && (do_plural == true)))
+        {
+            /* Copy the characters according to the mode */
+            buf[pos++] = cur;
+        }
+    }
+
+    /* We should always return to the normal state */
+    my_assert(state == MSG_PARSE_NORMAL);
+
+    /* Terminate the buffer */
+    buf[pos] = 0;
+}
+
+
+#undef MSG_PARSE_NORMAL
+#undef MSG_PARSE_SINGLE
+#undef MSG_PARSE_PLURAL
+
+
+/*
+ * Accessor function - should we skip the monster name for this message type?
+ */
+static bool skip_subject(int msg_code)
+{
+    my_assert(msg_code >= 0);
+    my_assert(msg_code < MON_MSG_MAX);
+
+    return msg_repository[msg_code].omit_subject;
 }
 
 
 /*
- * Print and delete all stacked monster messages.
+ * Return a MSG_ type for the given message code (and monster)
  */
-void flush_all_monster_messages(struct player *p)
+static int get_message_type(int msg_code, const struct monster_race *race)
 {
-    /* Flush regular messages, then delayed messages */
-    flush_monster_messages(p, false, MON_DELAY_TAG_DEFAULT);
-    flush_monster_messages(p, true, MON_DELAY_TAG_DEFAULT);
-    flush_monster_messages(p, true, MON_DELAY_TAG_DEATH);
+    int type = msg_repository[msg_code].type;
+
+    if (type == MSG_KILL)
+    {
+        /* Play a special sound if the monster was unique */
+        if (monster_is_unique(race))
+        {
+            if (race->base == lookup_monster_base("Morgoth"))
+                type = MSG_KILL_KING;
+            else
+                type = MSG_KILL_UNIQUE;
+        }
+    }
+
+    return type;
+}
+
+
+/*
+ * Show the given monster message.
+ */
+static void show_message(struct player *p, struct monster_race_message *msg)
+{
+    char subject[60] = "";
+    char body[60];
+
+    /* Some messages don't require a monster name */
+    if (!skip_subject(msg->msg_code))
+    {
+        /* Get 'it ' or '3 monsters (offscreen) ' or '15000 snakes ' etc */
+        get_subject(subject, sizeof(subject), msg->race, msg->count,
+            (msg->flags & MON_MSG_FLAG_INVISIBLE), (msg->flags & MON_MSG_FLAG_OFFSCREEN));
+    }
+
+    /* Get the message proper, corrected for singular/plural etc. */
+    get_message_text(body, sizeof(body), msg->msg_code, msg->race, (msg->count > 1));
+
+    /* Show the message */
+    msgt(p, get_message_type(msg->msg_code, msg->race), "%s%s", subject, body);
+}
+
+
+/*
+ * Show and then clear all stacked monster messages.
+ */
+void show_monster_messages(struct player *p)
+{
+    int delay;
+
+    for (delay = 0; delay < 3; delay++)
+    {
+        int i;
+
+        for (i = 0; i < p->size_mon_msg; i++)
+        {
+            struct monster_race_message *msg = &p->mon_msg[i];
+
+            /* Skip irrelevant entries */
+            if (msg->delay == delay)
+                show_message(p, msg);
+        }
+    }
 
     /* Delete all the stacked messages and history */
-    p->size_mon_msg = 0;
-    p->size_mon_hist = 0;
+    p->size_mon_msg = p->size_mon_hist = 0;
+}
+
+
+/*
+ * Displays a message describing a player's reaction to damage.
+ */
+void player_pain(struct player *p, struct player *who, int dam)
+{
+    int msg_code = MON_MSG_UNHARMED;
+    char subject[NORMAL_WID];
+    char body[60];
+
+    /* Paranoia */
+    if (!who) return;
+
+    /* Get the player name */
+    player_desc(p, subject, sizeof(subject), who, true);
+
+    /* Calculate damage levels */
+    if (dam > 0)
+    {
+        /* Note -- subtle fix */
+        long newhp = (long)(who->chp);
+        long oldhp = newhp + (long)(dam);
+        long tmp = ((oldhp > 0)? ((newhp * 100L) / oldhp): 0);
+        int percentage = (int)(tmp);
+
+        if (percentage > 95) msg_code = MON_MSG_95;
+        else if (percentage > 75) msg_code = MON_MSG_75;
+        else if (percentage > 50) msg_code = MON_MSG_50;
+        else if (percentage > 35) msg_code = MON_MSG_35;
+        else if (percentage > 20) msg_code = MON_MSG_20;
+        else if (percentage > 10) msg_code = MON_MSG_10;
+        else msg_code = MON_MSG_0;
+    }
+
+    get_message_text(body, sizeof(body), msg_code, &r_info[0], false);
+    msg(p, "%s %s", subject, body);
+}
+
+
+void monmsg_init(struct player *p)
+{
+    /* Array of stacked monster messages */
+    p->mon_msg = mem_zalloc(MAX_STORED_MON_MSG * sizeof(*p->mon_msg));
+    p->mon_message_hist = mem_zalloc(MAX_STORED_MON_CODES * sizeof(*p->mon_message_hist));
+}
+
+
+void monmsg_cleanup(struct player *p)
+{
+    /* Free the stacked monster messages */
+    mem_free(p->mon_msg);
+    mem_free(p->mon_message_hist);
 }

@@ -1,9 +1,9 @@
-cd ..\..\zlib-1.2.8
+cd ..\..\zlib-1.2.11
 make -f win32\Makefile.bor
 pause
 copy zlib.lib ..\PWMAngband\src\win
 pause
-cd ..\lpng1621
+cd ..\lpng1634
 make -f scripts\makefile.bc32
 pause
 copy libpng.lib ..\PWMAngband\src\win

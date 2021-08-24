@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Ben Semmler
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -128,7 +128,7 @@ static bool object_list_should_ignore_object(struct player *p, struct chunk *c,
     const struct object *obj)
 {
 	/* Make sure it's on the same dungeon level */
-    if (p->depth != obj->depth) return true;
+    if (!COORDS_EQUAL(&p->wpos, &obj->wpos)) return true;
 
 	if (!is_unknown(obj) && ignore_item_ok(p, obj)) return true;
 
@@ -146,7 +146,7 @@ void object_list_collect(struct player *p, object_list_t *list)
 	int i, y, x;
     int py = p->py;
     int px = p->px;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
 	if (!object_list_can_update(list)) return;
 
@@ -159,7 +159,7 @@ void object_list_collect(struct player *p, object_list_t *list)
             int entry_index;
             int field;
             bool los = false;
-            struct object *obj = floor_pile_known(p, c, y, x);
+            struct object *obj = square_known_pile(p, c, y, x);
 
             /* Skip unfilled entries, unknown objects and monster-held objects */
             if (!obj) continue;
@@ -356,21 +356,16 @@ void object_list_format_name(struct player *p, const object_list_entry_t *entry,
     int px = p->px;
     int iy;
     int ix;
-    bool object_is_artifact;
-    bool object_name_visible;
-    bool object_known;
     bool object_is_recognized_artifact;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     if ((entry == NULL) || (entry->object == NULL) || (entry->object->kind == NULL))
         return;
 
     iy = entry->object->iy;
     ix = entry->object->ix;
-    object_is_artifact = (entry->object->artifact != NULL);
-    object_name_visible = object_name_is_visible(entry->object);
-    object_known = object_is_known(p, entry->object);
-    object_is_recognized_artifact = (object_is_artifact && (object_name_visible || object_known));
+    object_is_recognized_artifact = (entry->object->artifact &&
+        (entry->object->known->artifact || object_is_known(p, entry->object)));
 
     /* Hack -- these don't have a prefix when there is only one, so just pad with a space. */
     switch (entry->object->kind->tval)

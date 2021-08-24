@@ -56,6 +56,10 @@ enum
 #define STRUCT_INFO_HINTS   8
 #define STRUCT_INFO_RINFO   9
 #define STRUCT_INFO_RBINFO  10
+#define STRUCT_INFO_CURSES  11
+#define STRUCT_INFO_REALM   12
+#define STRUCT_INFO_FEAT    13
+#define STRUCT_INFO_TRAP    14
 
 /*
  * PKT_TERM helpers

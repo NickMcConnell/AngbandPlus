@@ -114,7 +114,7 @@ function starttcod(name)
 
 function createmainscr()
   
-  setmainwindowtitle("Necklace of the Eye v"..fullversion()) 
+  setmainwindowtitle(fullversion()) 
 
   scrfill(IMG, 0, 0, 80, 25, 0)
   
@@ -132,7 +132,7 @@ function createmainscr()
     scrwrite(IMG, x, y, text, Font, Col)
     end
   
-  write(1, "Welcome to Necklace of the Eye v"..noteyeversion.."!")
+  write(1, "Welcome to Necklace of the Eye v"..noteyeversion..noteyepatch..scriptpatch.."! ")
 
   Col = vgaget(7)
   write(2, "Copyright (C) 2010-2015 Zeno Rogue")
@@ -316,9 +316,10 @@ function noteyemain()
         end
       redrawmenu()
 
-    elseif lev.type == evTextInput then
+    elseif lev.type == evTextInput or lev.type == evKeyConsole then
 
       userremap(lev)
+      lev.text = lev.text or (lev.char and utf8.enc(lev.char))
       local mgame = lev.text and menugames[lev.text]
 
       if lev.text == "q" then break
@@ -361,6 +362,8 @@ if not file_exists(configfile) and file_exists(commondir.."dftconfig.noe") then
   end
 
 noteye_pcall("load the config", -1, nil, function() dofile (configfile) end)
+
+load_env_config("NOTEYEEXTRACONFIG")
 
 if not config_override_font then
   curfont = "Inconsolata"

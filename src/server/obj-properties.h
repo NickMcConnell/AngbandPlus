@@ -1,6 +1,6 @@
 /*
  * File: obj-properties.h
- * Purpose: Definitions and functions for object flags and modifiers
+ * Purpose: Definitions and functions for object properties
  */
 
 #ifndef INCLUDED_OBJPROPERTIES_H
@@ -21,10 +21,10 @@ enum object_flag_type
     OFT_MISC,       /* a good property, suitable for ego items */
     OFT_LIGHT,      /* applicable only to light sources */
     OFT_MELEE,      /* applicable only to melee weapons */
-    OFT_CURSE,      /* a "sticky" curse */
-    OFT_BAD,        /* an undesirable flag that isn't a curse */
+    OFT_BAD,        /* an undesirable flag */
+    OFT_DIG,        /* applicable only to diggers */
     OFT_ESP,        /* an ESP flag */
-    OFT_KNOW,       /* affects knowledge */
+    OFT_OTHER,      /* other flags (auto-id, magic) */
 
     OFT_MAX
 };
@@ -41,45 +41,55 @@ enum object_flag_id
 };
 
 /*
+ * The object property types
+ */
+enum obj_property_type
+{
+    OBJ_PROPERTY_NONE = 0,
+    OBJ_PROPERTY_STAT,
+    OBJ_PROPERTY_MOD,
+    OBJ_PROPERTY_FLAG,
+    OBJ_PROPERTY_IGNORE,
+    OBJ_PROPERTY_RESIST,
+    OBJ_PROPERTY_VULN,
+    OBJ_PROPERTY_IMM,
+    OBJ_PROPERTY_MAX
+};
+
+/*
  * Structures
  */
 
 /*
- * The object flag structure
+ * The object property structure
  */
-struct object_flag
+struct obj_property
 {
-    u16b index;             /* the OF_ index */
-    u16b id;                /* how is it identified */
-    u16b type;              /* OFT_ category */
-    s16b power;             /* base power rating */
-    const char *message;    /* id message */
+    struct obj_property *next;
+    int type;               /* type of property */
+    int subtype;            /* subtype of property */
+    int id_type;            /* how the property is identified (flags only?) */
+    int index;              /* index of the property for its type */
+    int power;              /* base power rating */
+    int mult;               /* relative weight rating */
+    int type_mult[TV_MAX];  /* relative weight rating specific to object type */
+    char *name;             /* property name */
+    char *adjective;        /* adjective for property */
+    char *neg_adj;          /* adjective for negative of property */
+    char *msg;              /* message on noticing property */
+    char *desc;             /* extra text for object info */
+    char *short_desc;       /* short description for random powers/resists */
 };
 
-/*
- * The object modifier structure
- */
-struct object_mod
-{
-    u16b index;             /* the OBJ_MOD_ index */
-    s16b power;             /* base power rating */
-    s16b mod_mult;          /* modifier weight rating */
-    const char *name;       /* modifier name */
-};
+extern struct obj_property *obj_properties;
 
 /*
  * Functions
  */
 
-extern int sustain_flag(int stat);
-extern void create_mask(bitflag *f, bool id, ...);
-extern bool cursed_p(const bitflag *f);
-extern s16b flag_slot_mult(struct player *p, int flag, int slot);
-extern s32b flag_power(int flag);
-extern int obj_flag_type(int flag);
+extern struct obj_property *lookup_obj_property(int type, int index);
+extern void create_obj_flag_mask(bitflag *f, bool id, ...);
 extern void flag_message(struct player *p, int flag, char *name);
-extern s32b mod_power(int mod);
-extern int mod_mult(int mod);
-extern s16b mod_slot_mult(struct player *p, int mod, int slot);
+extern int sustain_flag(int stat);
 
 #endif /* INCLUDED_OBJPROPERTIES_H */

@@ -51,6 +51,7 @@ CPPFLAGS= $(CCOPTS) $(DBGOPT)
 
 CLI_SRCS = \
   common\buildid.c \
+  common\datafile.c \
   common\display.c \
   common\guid.c \
   common\md5.c \
@@ -61,6 +62,7 @@ CLI_SRCS = \
   common\parser.c \
   common\randname.c \
   common\sockbuf.c \
+  common\source.c \
   common\util.c \
   common\z-bitflag.c \
   common\z-color.c \
@@ -69,7 +71,6 @@ CLI_SRCS = \
   common\z-file.c \
   common\z-form.c \
   common\z-rand.c \
-  common\z-spells.c \
   common\z-type.c \
   common\z-util.c \
   common\z-virt.c \
@@ -90,6 +91,7 @@ CLI_SRCS = \
   client\ui-birth.c \
   client\ui-command.c \
   client\ui-context.c \
+  client\ui-curse.c \
   client\ui-death.c \
   client\ui-display.c \
   client\ui-event.c \
@@ -110,6 +112,7 @@ CLI_SRCS = \
 
 CLI_OBJS = \
   common\buildid.obj \
+  common\datafile.obj \
   common\display.obj \
   common\guid.obj \
   common\md5.obj \
@@ -120,6 +123,7 @@ CLI_OBJS = \
   common\parser.obj \
   common\randname.obj \
   common\sockbuf.obj \
+  common\source.obj \
   common\util.obj \
   common\z-bitflag.obj \
   common\z-color.obj \
@@ -128,7 +132,6 @@ CLI_OBJS = \
   common\z-file.obj \
   common\z-form.obj \
   common\z-rand.obj \
-  common\z-spells.obj \
   common\z-type.obj \
   common\z-util.obj \
   common\z-virt.obj \
@@ -149,6 +152,7 @@ CLI_OBJS = \
   client\ui-birth.obj \
   client\ui-command.obj \
   client\ui-context.obj \
+  client\ui-curse.obj \
   client\ui-death.obj \
   client\ui-display.obj \
   client\ui-event.obj \

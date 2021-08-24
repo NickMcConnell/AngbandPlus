@@ -3,7 +3,7 @@
  * Purpose: Message handling
  *
  * Copyright (c) 2007 Elly, Andi Sidwell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -65,6 +65,24 @@ void msg_broadcast(struct player *p, const char *msg, u16b type)
 }
 
 
+void msg_all(struct player *p, const char *msg, u16b type)
+{
+    int i;
+
+    /* Tell every player */
+    for (i = 1; i <= NumPlayers; i++)
+    {
+        struct player *player = player_get(i);
+        struct message data;
+
+        /* Tell this one */
+        data.msg = msg;
+        data.type = type;
+        display_message(player, &data);
+    }
+}
+
+
 /*
  * Display a formatted message.
  */
@@ -117,8 +135,8 @@ void msg_print_complex_near(struct player *p, struct player *q, u16b type, const
         /* Don't send the message to the second ignoree */
         if (q == player) continue;
 
-        /* Make sure this player is at this depth */
-        if (player->depth != p->depth) continue;
+        /* Make sure this player is on this level */
+        if (!COORDS_EQUAL(&player->wpos, &p->wpos)) continue;
 
         /* Can he see this player? */
         if (square_isview(player, y, x))
@@ -181,7 +199,7 @@ void msg_print_near(struct player *p, u16b type, const char *msg)
         if (p == q) continue;
 
         /* Make sure this player is at this depth */
-        if (q->depth != p->depth) continue;
+        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
 
         /* Can he see this player? */
         if (square_isview(q, y, x))

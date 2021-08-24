@@ -1,0 +1,25 @@
+How to build HTML and PDF manuals from the help files:
+
+- Download and install the 32-bit version of Python 2.7.15 in the same root
+  directory as your \PWMAngband folder:
+  https://www.python.org/downloads/release
+- Add Python directories to the PATH variable (\Python27 + \Python27\Scripts)
+- Install rst2pdf by opening a Windows console and typing the following command:
+  "pip install rst2pdf"
+- Run \PWMAngband\doc\manual\manual.bat
+
+In case Python or the rst2pdf module installation fails, you may require one or
+more of the following components: 
+  
+- Microsoft Visual C++ 2008 SP1 Redistributable Package (9.0.30729):
+  https://www.microsoft.com/fr-be/download/details.aspx?id=2092
+- Docutils:
+  http://docutils.sourceforge.net
+- setuptools:
+  https://pypi.python.org/pypi/setuptools
+- rst2pdf:
+  http://rst2pdf.ralsina.me/stories/index.html
+- Microsoft Visual C++ Compiler for Python 2.7
+  https://www.microsoft.com/en-us/download/details.aspx?id=44266
+- Python Imaging Library (PIL):
+  http://www.pythonware.com/products/pil

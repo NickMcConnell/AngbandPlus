@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, and others
  * Copyright (c) 2009-2015 Erik Osheim
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -1046,6 +1046,7 @@ errr init_gcu(void)
     cbreak();
     noecho();
     nonl();
+    raw();
 
     /* Tell curses to rewrite escape sequences to KEY_UP and friends */
     keypad(stdscr, true);

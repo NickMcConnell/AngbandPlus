@@ -13,46 +13,48 @@ BCB = $(MAKEDIR)\..
 
 VERSION = BCB.06.00
 # ---------------------------------------------------------------------------
+FREETYPE = freetype-2.9.1
+# ---------------------------------------------------------------------------
 PROJECT = ..\freetype.dll
-OBJFILES = ..\..\SDL\freetype-2.6.2\src\autofit\autofit.obj \
-      ..\..\SDL\freetype-2.6.2\src\bdf\bdf.obj \
-      ..\..\SDL\freetype-2.6.2\src\cff\cff.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftbase.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftbitmap.obj \
-      ..\..\SDL\freetype-2.6.2\src\cache\ftcache.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftdebug.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftfstype.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftgasp.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftglyph.obj \
-      ..\..\SDL\freetype-2.6.2\src\gzip\ftgzip.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftinit.obj \
-      ..\..\SDL\freetype-2.6.2\src\lzw\ftlzw.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftstroke.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftsystem.obj \
-      ..\..\SDL\freetype-2.6.2\src\smooth\smooth.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftbbox.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftfntfmt.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftmm.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftpfr.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftsynth.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\fttype1.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftwinfnt.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftlcdfil.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftgxval.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftotval.obj \
-      ..\..\SDL\freetype-2.6.2\src\base\ftpatent.obj \
-      ..\..\SDL\freetype-2.6.2\src\pcf\pcf.obj \
-      ..\..\SDL\freetype-2.6.2\src\pfr\pfr.obj \
-      ..\..\SDL\freetype-2.6.2\src\psaux\psaux.obj \
-      ..\..\SDL\freetype-2.6.2\src\pshinter\pshinter.obj \
-      ..\..\SDL\freetype-2.6.2\src\psnames\psmodule.obj \
-      ..\..\SDL\freetype-2.6.2\src\raster\raster.obj \
-      ..\..\SDL\freetype-2.6.2\src\sfnt\sfnt.obj \
-      ..\..\SDL\freetype-2.6.2\src\truetype\truetype.obj \
-      ..\..\SDL\freetype-2.6.2\src\type1\type1.obj \
-      ..\..\SDL\freetype-2.6.2\src\cid\type1cid.obj \
-      ..\..\SDL\freetype-2.6.2\src\type42\type42.obj \
-      ..\..\SDL\freetype-2.6.2\src\winfonts\winfnt.obj
+OBJFILES = ..\..\SDL\$(FREETYPE)\src\autofit\autofit.obj \
+      ..\..\SDL\$(FREETYPE)\src\bdf\bdf.obj \
+      ..\..\SDL\$(FREETYPE)\src\cff\cff.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftbase.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftbitmap.obj \
+      ..\..\SDL\$(FREETYPE)\src\cache\ftcache.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftdebug.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftfstype.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftgasp.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftglyph.obj \
+      ..\..\SDL\$(FREETYPE)\src\gzip\ftgzip.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftinit.obj \
+      ..\..\SDL\$(FREETYPE)\src\lzw\ftlzw.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftstroke.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftsystem.obj \
+      ..\..\SDL\$(FREETYPE)\src\smooth\smooth.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftbbox.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftfntfmt.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftmm.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftpfr.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftsynth.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\fttype1.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftwinfnt.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftlcdfil.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftgxval.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftotval.obj \
+      ..\..\SDL\$(FREETYPE)\src\base\ftpatent.obj \
+      ..\..\SDL\$(FREETYPE)\src\pcf\pcf.obj \
+      ..\..\SDL\$(FREETYPE)\src\pfr\pfr.obj \
+      ..\..\SDL\$(FREETYPE)\src\psaux\psaux.obj \
+      ..\..\SDL\$(FREETYPE)\src\pshinter\pshinter.obj \
+      ..\..\SDL\$(FREETYPE)\src\psnames\psmodule.obj \
+      ..\..\SDL\$(FREETYPE)\src\raster\raster.obj \
+      ..\..\SDL\$(FREETYPE)\src\sfnt\sfnt.obj \
+      ..\..\SDL\$(FREETYPE)\src\truetype\truetype.obj \
+      ..\..\SDL\$(FREETYPE)\src\type1\type1.obj \
+      ..\..\SDL\$(FREETYPE)\src\cid\type1cid.obj \
+      ..\..\SDL\$(FREETYPE)\src\type42\type42.obj \
+      ..\..\SDL\$(FREETYPE)\src\winfonts\winfnt.obj
 
 RESFILES = 
 MAINSOURCE = freetype.bpf
@@ -70,10 +72,10 @@ DEBUGLIBPATH = $(BCB)\lib\debug
 RELEASELIBPATH = $(BCB)\lib\release
 USERDEFINES = WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;FT2_BUILD_LIBRARY;
 SYSDEFINES = NO_STRICT;_NO_VCL
-INCLUDEPATH = $(BCB)\include;..\..\SDL\freetype-2.6.2\include;..\..\SDL\freetype-2.6.2\src\autofit;..\..\SDL\freetype-2.6.2\src\bdf;..\..\SDL\freetype-2.6.2\src\cff;..\..\SDL\freetype-2.6.2\src\base;..\..\SDL\freetype-2.6.2\src\cache;..\..\SDL\freetype-2.6.2\src\gzip;..\..\SDL\freetype-2.6.2\src\lzw;..\..\SDL\freetype-2.6.2\src\pcf;..\..\SDL\freetype-2.6.2\src\pfr;..\..\SDL\freetype-2.6.2\src\psaux;..\..\SDL\freetype-2.6.2\src\pshinter;..\..\SDL\freetype-2.6.2\src\psnames;..\..\SDL\freetype-2.6.2\src\raster;..\..\SDL\freetype-2.6.2\src\sfnt;..\..\SDL\freetype-2.6.2\src\smooth;..\..\SDL\freetype-2.6.2\src\truetype;..\..\SDL\freetype-2.6.2\src\type1;..\..\SDL\freetype-2.6.2\src\cid;..\..\SDL\freetype-2.6.2\src\type42;..\..\SDL\freetype-2.6.2\src\winfonts
-LIBPATH = $(BCB)\lib\obj;$(BCB)\lib;"..\..\SDL\freetype-2.6.2\src\autofit";"..\..\SDL\freetype-2.6.2\src\bdf";"..\..\SDL\freetype-2.6.2\src\cff";"..\..\SDL\freetype-2.6.2\src\base";"..\..\SDL\freetype-2.6.2\src\cache";"..\..\SDL\freetype-2.6.2\src\gzip";"..\..\SDL\freetype-2.6.2\src\lzw";"..\..\SDL\freetype-2.6.2\src\pcf";"..\..\SDL\freetype-2.6.2\src\pfr";"..\..\SDL\freetype-2.6.2\src\psaux";"..\..\SDL\freetype-2.6.2\src\pshinter";"..\..\SDL\freetype-2.6.2\src\psnames";"..\..\SDL\freetype-2.6.2\src\raster";"..\..\SDL\freetype-2.6.2\src\sfnt";"..\..\SDL\freetype-2.6.2\src\smooth";"..\..\SDL\freetype-2.6.2\src\truetype";"..\..\SDL\freetype-2.6.2\src\type1";"..\..\SDL\freetype-2.6.2\src\cid";"..\..\SDL\freetype-2.6.2\src\type42";"..\..\SDL\freetype-2.6.2\src\winfonts"
+INCLUDEPATH = $(BCB)\include;..\..\SDL\$(FREETYPE)\include;..\..\SDL\$(FREETYPE)\src\autofit;..\..\SDL\$(FREETYPE)\src\bdf;..\..\SDL\$(FREETYPE)\src\cff;..\..\SDL\$(FREETYPE)\src\base;..\..\SDL\$(FREETYPE)\src\cache;..\..\SDL\$(FREETYPE)\src\gzip;..\..\SDL\$(FREETYPE)\src\lzw;..\..\SDL\$(FREETYPE)\src\pcf;..\..\SDL\$(FREETYPE)\src\pfr;..\..\SDL\$(FREETYPE)\src\psaux;..\..\SDL\$(FREETYPE)\src\pshinter;..\..\SDL\$(FREETYPE)\src\psnames;..\..\SDL\$(FREETYPE)\src\raster;..\..\SDL\$(FREETYPE)\src\sfnt;..\..\SDL\$(FREETYPE)\src\smooth;..\..\SDL\$(FREETYPE)\src\truetype;..\..\SDL\$(FREETYPE)\src\type1;..\..\SDL\$(FREETYPE)\src\cid;..\..\SDL\$(FREETYPE)\src\type42;..\..\SDL\$(FREETYPE)\src\winfonts
+LIBPATH = $(BCB)\lib\obj;$(BCB)\lib;"..\..\SDL\$(FREETYPE)\src\autofit";"..\..\SDL\$(FREETYPE)\src\bdf";"..\..\SDL\$(FREETYPE)\src\cff";"..\..\SDL\$(FREETYPE)\src\base";"..\..\SDL\$(FREETYPE)\src\cache";"..\..\SDL\$(FREETYPE)\src\gzip";"..\..\SDL\$(FREETYPE)\src\lzw";"..\..\SDL\$(FREETYPE)\src\pcf";"..\..\SDL\$(FREETYPE)\src\pfr";"..\..\SDL\$(FREETYPE)\src\psaux";"..\..\SDL\$(FREETYPE)\src\pshinter";"..\..\SDL\$(FREETYPE)\src\psnames";"..\..\SDL\$(FREETYPE)\src\raster";"..\..\SDL\$(FREETYPE)\src\sfnt";"..\..\SDL\$(FREETYPE)\src\smooth";"..\..\SDL\$(FREETYPE)\src\truetype";"..\..\SDL\$(FREETYPE)\src\type1";"..\..\SDL\$(FREETYPE)\src\cid";"..\..\SDL\$(FREETYPE)\src\type42";"..\..\SDL\$(FREETYPE)\src\winfonts"
 WARNINGS= -w-par
-PATHCPP = .;..\..\SDL\freetype-2.6.2\src\autofit;..\..\SDL\freetype-2.6.2\src\bdf;..\..\SDL\freetype-2.6.2\src\cff;..\..\SDL\freetype-2.6.2\src\base;..\..\SDL\freetype-2.6.2\src\cache;..\..\SDL\freetype-2.6.2\src\gzip;..\..\SDL\freetype-2.6.2\src\lzw;..\..\SDL\freetype-2.6.2\src\pcf;..\..\SDL\freetype-2.6.2\src\pfr;..\..\SDL\freetype-2.6.2\src\psaux;..\..\SDL\freetype-2.6.2\src\pshinter;..\..\SDL\freetype-2.6.2\src\psnames;..\..\SDL\freetype-2.6.2\src\raster;..\..\SDL\freetype-2.6.2\src\sfnt;..\..\SDL\freetype-2.6.2\src\smooth;..\..\SDL\freetype-2.6.2\src\truetype;..\..\SDL\freetype-2.6.2\src\type1;..\..\SDL\freetype-2.6.2\src\cid;..\..\SDL\freetype-2.6.2\src\type42;..\..\SDL\freetype-2.6.2\src\winfonts
+PATHCPP = .;..\..\SDL\$(FREETYPE)\src\autofit;..\..\SDL\$(FREETYPE)\src\bdf;..\..\SDL\$(FREETYPE)\src\cff;..\..\SDL\$(FREETYPE)\src\base;..\..\SDL\$(FREETYPE)\src\cache;..\..\SDL\$(FREETYPE)\src\gzip;..\..\SDL\$(FREETYPE)\src\lzw;..\..\SDL\$(FREETYPE)\src\pcf;..\..\SDL\$(FREETYPE)\src\pfr;..\..\SDL\$(FREETYPE)\src\psaux;..\..\SDL\$(FREETYPE)\src\pshinter;..\..\SDL\$(FREETYPE)\src\psnames;..\..\SDL\$(FREETYPE)\src\raster;..\..\SDL\$(FREETYPE)\src\sfnt;..\..\SDL\$(FREETYPE)\src\smooth;..\..\SDL\$(FREETYPE)\src\truetype;..\..\SDL\$(FREETYPE)\src\type1;..\..\SDL\$(FREETYPE)\src\cid;..\..\SDL\$(FREETYPE)\src\type42;..\..\SDL\$(FREETYPE)\src\winfonts
 PATHASM = .;
 PATHPAS = .;
 PATHRC = .;
@@ -82,17 +84,17 @@ PATHOBJ = .;$(LIBPATH)
 CFLAG1 = -WD -O2 -Hc -w- -Vx -Ve -X- \
     -a8 -b -k- -vi -tWD -tWM -c
 IDLCFLAGS = -I$(BCB)\include \
-      -I..\..\SDL\freetype-2.6.2\include \
-      -I..\..\SDL\freetype-2.6.2\src\autofit -I..\..\SDL\freetype-2.6.2\src\bdf \
-      -I..\..\SDL\freetype-2.6.2\src\cff -I..\..\SDL\freetype-2.6.2\src\base \
-      -I..\..\SDL\freetype-2.6.2\src\cache -I..\..\SDL\freetype-2.6.2\src\gzip \
-      -I..\..\SDL\freetype-2.6.2\src\lzw -I..\..\SDL\freetype-2.6.2\src\pcf \
-      -I..\..\SDL\freetype-2.6.2\src\pfr -I..\..\SDL\freetype-2.6.2\src\psaux \
-      -I..\..\SDL\freetype-2.6.2\src\pshinter -I..\..\SDL\freetype-2.6.2\src\psnames \
-      -I..\..\SDL\freetype-2.6.2\src\raster -I..\..\SDL\freetype-2.6.2\src\sfnt \
-      -I..\..\SDL\freetype-2.6.2\src\smooth -I..\..\SDL\freetype-2.6.2\src\truetype \
-      -I..\..\SDL\freetype-2.6.2\src\type1 -I..\..\SDL\freetype-2.6.2\src\cid \
-      -I..\..\SDL\freetype-2.6.2\src\type42 -I..\..\SDL\freetype-2.6.2\src\winfonts \
+      -I..\..\SDL\$(FREETYPE)\include \
+      -I..\..\SDL\$(FREETYPE)\src\autofit -I..\..\SDL\$(FREETYPE)\src\bdf \
+      -I..\..\SDL\$(FREETYPE)\src\cff -I..\..\SDL\$(FREETYPE)\src\base \
+      -I..\..\SDL\$(FREETYPE)\src\cache -I..\..\SDL\$(FREETYPE)\src\gzip \
+      -I..\..\SDL\$(FREETYPE)\src\lzw -I..\..\SDL\$(FREETYPE)\src\pcf \
+      -I..\..\SDL\$(FREETYPE)\src\pfr -I..\..\SDL\$(FREETYPE)\src\psaux \
+      -I..\..\SDL\$(FREETYPE)\src\pshinter -I..\..\SDL\$(FREETYPE)\src\psnames \
+      -I..\..\SDL\$(FREETYPE)\src\raster -I..\..\SDL\$(FREETYPE)\src\sfnt \
+      -I..\..\SDL\$(FREETYPE)\src\smooth -I..\..\SDL\$(FREETYPE)\src\truetype \
+      -I..\..\SDL\$(FREETYPE)\src\type1 -I..\..\SDL\$(FREETYPE)\src\cid \
+      -I..\..\SDL\$(FREETYPE)\src\type42 -I..\..\SDL\$(FREETYPE)\src\winfonts \
     -src_suffix cpp -DWIN32 -D_LIB -D_CRT_SECURE_NO_WARNINGS -DFT2_BUILD_LIBRARY -DNO_STRICT -D_NO_VCL -boa
 PFLAGS = -$Y- -$L- -$D- -$A8 -v -JPHNE -M
 RFLAGS = 

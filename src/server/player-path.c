@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1988 Christopher J Stuart (running code)
  * Copyright (c) 2004-2007 Christophe Cavalaria, Leon Marrick (pathfinding)
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -41,7 +41,7 @@
  * must be careful when dealing with "illegal" grids.
  *
  * No assumptions are made about the layout of the dungeon, so this
- * algorithm works in hallways, rooms, town, destroyed areas, etc.
+ * algorithm works in hallways, rooms, towns, destroyed areas, etc.
  *
  * In the diagrams below, the player has just arrived in the grid
  * marked as '@', and he has just come from a grid marked as 'o',
@@ -201,7 +201,7 @@ static int see_wall(struct player *p, struct chunk *c, int dir, int y, int x)
     if (player_passwall(p)) return false;
 
     /* Do wilderness hack, keep running from one outside level to another */
-    if (!square_in_bounds_fully(c, y, x) && (p->depth <= 0)) return false;
+    if (!square_in_bounds_fully(c, y, x) && (p->wpos.depth == 0)) return false;
 
     /* Illegal grids are not known walls XXX XXX XXX */
     if (!square_in_bounds(c, y, x)) return false;
@@ -268,8 +268,8 @@ static void run_init(struct player *p, struct chunk *c, int dir)
     /* Check for nearby or distant wall */
     if (see_wall(p, c, cycle[i + 1], p->py, p->px))
     {
-        /* When in the town/wilderness, don't break left/right. */
-        if (p->depth > 0)
+        /* When in the towns/wilderness, don't break left/right. */
+        if (p->wpos.depth > 0)
         {
             p->run_break_left = true;
             shortleft = true;
@@ -277,8 +277,8 @@ static void run_init(struct player *p, struct chunk *c, int dir)
     }
     else if (see_wall(p, c, cycle[i + 1], row, col))
     {
-        /* When in the town/wilderness, don't break left/right. */
-        if (p->depth > 0)
+        /* When in the towns/wilderness, don't break left/right. */
+        if (p->wpos.depth > 0)
         {
             p->run_break_left = true;
             deepleft = true;
@@ -288,8 +288,8 @@ static void run_init(struct player *p, struct chunk *c, int dir)
     /* Check for nearby or distant wall */
     if (see_wall(p, c, cycle[i - 1], p->py, p->px))
     {
-        /* When in the town/wilderness, don't break left/right. */
-        if (p->depth > 0)
+        /* When in the towns/wilderness, don't break left/right. */
+        if (p->wpos.depth > 0)
         {
             p->run_break_right = true;
             shortright = true;
@@ -297,8 +297,8 @@ static void run_init(struct player *p, struct chunk *c, int dir)
     }
     else if (see_wall(p, c, cycle[i - 1], row, col))
     {
-        /* When in the town/wilderness, don't break left/right. */
-        if (p->depth > 0)
+        /* When in the towns/wilderness, don't break left/right. */
+        if (p->wpos.depth > 0)
         {
             p->run_break_right = true;
             deepright = true;
@@ -309,8 +309,8 @@ static void run_init(struct player *p, struct chunk *c, int dir)
     if (p->run_break_left && p->run_break_right)
     {
         /* Not looking for open area */
-        /* In the town/wilderness, always in an open area */
-        if (p->depth > 0)
+        /* In the towns/wilderness, always in an open area */
+        if (p->wpos.depth > 0)
             p->run_open_area = false;
 
         /* Angled or blunt corridor entry */
@@ -346,8 +346,8 @@ static bool run_test(struct player *p, struct chunk *c)
     int row, col;
     int i, max, inv;
     int option, option2;
-    struct actor who_body;
-    struct actor *who = &who_body;
+    struct source who_body;
+    struct source *who = &who_body;
 
     /* Ghosts never stop running */
     if (player_passwall(p)) return false;
@@ -366,7 +366,7 @@ static bool run_test(struct player *p, struct chunk *c)
     for (i = -max; i <= max; i++)
     {
         struct object *obj;
-        int m_idx, feat;
+        int feat;
 
         /* New direction */
         new_dir = cycle[chome[prev_dir] + i];
@@ -379,38 +379,28 @@ static bool run_test(struct player *p, struct chunk *c)
         if (!square_in_bounds(c, row, col)) continue;
 
         feat = c->squares[row][col].feat;
-        m_idx = c->squares[row][col].mon;
-        ACTOR_WHO(who, m_idx, player_get(0 - m_idx), cave_monster(c, m_idx));
+        square_actor(c, row, col, who);
 
         /* Visible hostile monsters abort running */
-        if (who->mon)
-        {
-            /* Visible hostile monster */
-            if (pvm_check(p, who->mon) && mflag_has(p->mflag[who->idx], MFLAG_VISIBLE))
-                return true;
-        }
+        if (who->monster && pvm_check(p, who->monster) && monster_is_visible(p, who->idx))
+            return true;
 
         /* Visible hostile players abort running */
-        if (who->player)
+        if (who->player && pvp_check(p, who->player, PVP_CHECK_BOTH, true, feat) &&
+            player_is_visible(p, who->idx))
         {
-            /* Visible hostile player */
-            if (pvp_check(p, who->player, PVP_CHECK_BOTH, true, feat) &&
-                mflag_has(p->pflag[who->idx], MFLAG_VISIBLE))
-            {
-                return true;
-            }
+            return true;
         }
 
         /* Visible objects abort running */
-        for (obj = floor_pile_known(p, c, row, col); obj; obj = obj->next)
+        for (obj = square_known_pile(p, c, row, col); obj; obj = obj->next)
         {
             /* Visible object */
             if (!ignore_item_ok(p, obj)) return true;
         }
 
-        /* Hack -- always stop in water and lava */
-        if (square_iswater(c, row, col)) return true;
-        if (square_islava(c, row, col)) return true;
+        /* Hack -- always stop in damaging terrain */
+        if (square_isdamaging(c, row, col)) return true;
 
         /* Assume unknown */
         inv = true;
@@ -430,7 +420,7 @@ static bool run_test(struct player *p, struct chunk *c)
         /* Analyze unknown grids and floors */
         /* Wilderness hack to run from one level to the next */
         if (inv || square_ispassable(c, row, col) ||
-            (!square_in_bounds_fully(c, row, col) && (p->depth <= 0)))
+            (!square_in_bounds_fully(c, row, col) && (p->wpos.depth == 0)))
         {
             /* Looking for open area */
             if (p->run_open_area)
@@ -463,7 +453,7 @@ static bool run_test(struct player *p, struct chunk *c)
         }
 
         /* Obstacle, while looking for open area */
-        /* When in the town/wilderness, don't break left/right. */
+        /* When in the towns/wilderness, don't break left/right. */
         else
         {
             if (p->run_open_area)
@@ -471,14 +461,14 @@ static bool run_test(struct player *p, struct chunk *c)
                 if (i < 0)
                 {
                     /* Break to the right */
-                    if (p->depth > 0)
+                    if (p->wpos.depth > 0)
                         p->run_break_right = (true);
                 }
 
                 else if (i > 0)
                 {
                     /* Break to the left */
-                    if (p->depth > 0)
+                    if (p->wpos.depth > 0)
                         p->run_break_left = (true);
                 }
             }
@@ -488,7 +478,7 @@ static bool run_test(struct player *p, struct chunk *c)
     /* Look at every soon to be newly adjacent square. */
     for (i = -max; i <= max; i++)
     {
-        int m_idx, feat;
+        int feat;
 
         /* New direction */
         new_dir = cycle[chome[prev_dir] + i];
@@ -501,29 +491,20 @@ static bool run_test(struct player *p, struct chunk *c)
         if (!square_in_bounds_fully(c, row, col)) continue;
 
         feat = c->squares[row][col].feat;
-        m_idx = c->squares[row][col].mon;
-        ACTOR_WHO(who, m_idx, player_get(0 - m_idx), cave_monster(c, m_idx));
+        square_actor(c, row, col, who);
 
-        /* Visible hostile monsters abort running */
-        if (who->mon)
+        /* Obvious hostile monsters abort running */
+        if (who->monster && pvm_check(p, who->monster) &&
+            monster_is_obvious(p, who->idx, who->monster))
         {
-            /* Visible hostile monster (except unaware mimics) */
-            if (pvm_check(p, who->mon) && mflag_has(p->mflag[who->idx], MFLAG_VISIBLE) &&
-                !is_mimicking(who->mon))
-            {
-                return true;
-            }
+            return true;
         }
 
-        /* Visible hostile players abort running */
-        if (who->player)
+        /* Obvious hostile players abort running */
+        if (who->player && pvp_check(p, who->player, PVP_CHECK_BOTH, true, feat) &&
+            player_is_visible(p, who->idx) && !who->player->k_idx)
         {
-            /* Visible hostile player (except unaware mimics) */
-            if (pvp_check(p, who->player, PVP_CHECK_BOTH, true, feat) &&
-                mflag_has(p->pflag[who->idx], MFLAG_VISIBLE) && !who->player->k_idx)
-            {
-                return true;
-            }
+            return true;
         }
     }
 
@@ -623,7 +604,10 @@ static bool run_test(struct player *p, struct chunk *c)
  */
 void run_step(struct player *p, int dir)
 {
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
+
+    /* Trapsafe player will treat the trap as if it isn't there */
+    bool disarm = (p->timed[TMD_TRAPSAFE]? false: true);
 
     /* Start or continue run */
     if (dir)
@@ -652,7 +636,7 @@ void run_step(struct player *p, int dir)
     use_energy(p);
 
     /* Move the player, attempts to disarm if running straight at a trap */
-    move_player(p, c, p->run_cur_dir, (dir? true: false), false, false);
+    move_player(p, c, p->run_cur_dir, (dir && disarm), false, false);
 
     /* Prepare the next step */
     if (p->upkeep->running) cmd_run(p, 0);

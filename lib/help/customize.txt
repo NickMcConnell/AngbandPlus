@@ -11,12 +11,22 @@ Ignore settings
 ================
       
 PWMAngband allows you to ignore specific items that you don't want to see
-anymore. These items are marked 'ignored' and any similar items are hidden from
-view.
+anymore. These items are marked 'ignored' and any similar items are hidden
+from view. The easiest way to ignore an item is with the 'k' (or '^D')
+command; the object is dropped and then hidden from view. When ignoring an
+object, you will be given a choice of ignoring just that object, or all
+objects like it in some way.
 
-Items have quality ignore options. These allow you to specify what types of
-items you are no longer interested in seeing. These quality settings are
-described below:
+The entire ignoring system can also be accessed from the options menu ('=')
+by choosing "i) Item ignoring setup". This allows ignore settings for
+non-wearable items, and quality and ego ignore settings (described below)
+for wearable items, to be viewed or changed.
+
+There is a quality setting for each wearable item type. Ignoring a wearable
+item will prompt you with a question about whether you wish to ignore all of
+that type of item with a certain quality setting, or of an ego type, or both.
+
+The quality settings are:
 
 worthless
   Weapon/armor with negative AC, to-hit or to-dam, or item with zero base cost.
@@ -28,15 +38,8 @@ good
   Weapon/armor with positive AC, to-hit or to-dam, but without any special
   abilities, brands, slays, stat-boosts, resistances, or magical items.
  
-excellent, with no high resists
-  Weapons with some slays, armor with resistances, but these are limited to
-  rfire, rcold, racid and relec.
-
-excellent but not splendid
-  Weapons and armor with high resists, but no stat boosts or brands.
-
-splendid
-  Ignoring all splendid items only leaves artifacts unignored.
+non-artifact
+  This setting only leaves artifacts unignored.
 
 Using Inscriptions
 ==================
@@ -181,7 +184,7 @@ For example:
 Special keys include [Escape].
 
 The game will run keymaps in whatever keyset you use (original or roguelike).
-So if you write keymaps for roguelike keys and swith to original keys, they
+So if you write keymaps for roguelike keys and switch to original keys, they
 may not work as you expect! Keymap actions aren't recursive either, so if you
 had a keymap whose trigger was F1, including F1 inside the action wouldn't run
 the keymap action again.

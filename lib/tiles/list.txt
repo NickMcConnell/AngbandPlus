@@ -31,37 +31,19 @@
 # to the bottom half of the double row.
 
 
-name:1:Original Tiles
-directory:old
-size:8:8:8x8.png
-pref:graf-xxx.prf
-extra:0:0:0:0
-
-name:2:Adam Bolt's tiles
-directory:adam-bolt
-size:16:16:16x16.png
-pref:graf-new.prf
-extra:0:0:0:0
-
-name:3:David Gervais' tiles
+name:1:David Gervais' tiles
 directory:gervais
 size:32:32:32x32.png
 pref:graf-dvg.prf
 extra:0:0:0:0
 
-name:4:Nomad's tiles
-directory:nomad
-size:16:16:8x16.png
-pref:graf-nmd.prf
-extra:0:0:0:0
-
-name:5:Shockbolt's tiles
+name:2:Shockbolt's tiles
 directory:shockbolt
 size:64:64:64x64.png
 pref:graf-shb.prf
 extra:1:29:31:0
 
-name:6:Pseudo-3D tiles
+name:3:Pseudo-3D tiles
 directory:pseudo
 size:48:64:48x64.png
 pref:graf-dvg.prf

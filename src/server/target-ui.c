@@ -1,9 +1,9 @@
 /*
  * File: target-ui.c
- * Purpose: UI for targetting code
+ * Purpose: UI for targeting code
  *
  * Copyright (c) 1997-2014 Angband contributors
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -108,7 +108,7 @@ static bool target_info(struct player *p, int y, int x, const char *info, const 
     if ((query == 'q') || (query == ESCAPE)) return false;
 
     /* Hack -- is there something targetable above our position? */
-    if (square_in_bounds_fully(chunk_get(p->depth), y - 1, x) && target_accept(p, y - 1, x))
+    if (square_in_bounds_fully(chunk_get(&p->wpos), y - 1, x) && target_accept(p, y - 1, x))
         dble = false;
 
     /* Display help info */
@@ -159,9 +159,9 @@ static bool target_set_interactive_aux(struct player *p, int y, int x, int mode,
     char out_val[256];
     char coords[20];
     int tries = 200;
-    struct chunk *c = chunk_get(p->depth);
-    struct actor who_body;
-    struct actor *who = &who_body;
+    struct chunk *c = chunk_get(&p->wpos);
+    struct source who_body;
+    struct source *who = &who_body;
 
     square_actor(c, y, x, who);
 
@@ -180,6 +180,9 @@ static bool target_set_interactive_aux(struct player *p, int y, int x, int mode,
         s1 = "You see ";
         s2 = "";
         s3 = "";
+
+        /* Bail if looking at a forbidden grid */
+        if (!square_in_bounds(c, y, x)) break;
 
         /* The player */
         if (who->player && (who->player == p))
@@ -221,7 +224,7 @@ static bool target_set_interactive_aux(struct player *p, int y, int x, int mode,
         if (who->player && (who->player != p))
         {
             /* Visible */
-            if (mflag_has(p->pflag[who->idx], MFLAG_VISIBLE))
+            if (player_is_visible(p, who->idx))
             {
                 bool recall = false;
                 char player_name[NORMAL_WID];
@@ -336,10 +339,10 @@ static bool target_set_interactive_aux(struct player *p, int y, int x, int mode,
         }
 
         /* Actual monsters */
-        if (who->mon)
+        if (who->monster)
         {
             /* Visible */
-            if (mflag_has(p->mflag[who->idx], MFLAG_VISIBLE) && !who->mon->unaware)
+            if (monster_is_obvious(p, who->idx, who->monster))
             {
                 bool recall = false;
                 char m_name[NORMAL_WID];
@@ -348,7 +351,7 @@ static bool target_set_interactive_aux(struct player *p, int y, int x, int mode,
                 boring = false;
 
                 /* Get the monster name ("a kobold") */
-                monster_desc(p, m_name, sizeof(m_name), who->mon, MDESC_IND_VIS);
+                monster_desc(p, m_name, sizeof(m_name), who->monster, MDESC_IND_VIS);
 
                 /* Hack -- track this monster race */
                 monster_race_track(p->upkeep, who);
@@ -381,7 +384,7 @@ static bool target_set_interactive_aux(struct player *p, int y, int x, int mode,
                     char buf[NORMAL_WID];
 
                     /* Describe the monster */
-                    look_mon_desc(who->mon, buf, sizeof(buf));
+                    look_mon_desc(who->monster, buf, sizeof(buf));
 
                     /* Describe, and prompt for recall */
                     strnfmt(out_val, sizeof(out_val), "%s%s%s%s (%s), %s.", s1, s2, s3, m_name, buf,
@@ -402,8 +405,8 @@ static bool target_set_interactive_aux(struct player *p, int y, int x, int mode,
                 if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
 
                 /* Take account of gender */
-                if (rf_has(who->mon->race->flags, RF_FEMALE)) s1 = "She is ";
-                else if (rf_has(who->mon->race->flags, RF_MALE)) s1 = "He is ";
+                if (rf_has(who->monster->race->flags, RF_FEMALE)) s1 = "She is ";
+                else if (rf_has(who->monster->race->flags, RF_MALE)) s1 = "He is ";
                 else s1 = "It is ";
 
                 /* Disabled for non-DMs since monsters now carry their drops */
@@ -416,7 +419,7 @@ static bool target_set_interactive_aux(struct player *p, int y, int x, int mode,
                     if (p->tt_o) s2 = "also carrying ";
 
                     /* Scan all objects being carried */
-                    if (!p->tt_o) p->tt_o = who->mon->held_obj;
+                    if (!p->tt_o) p->tt_o = who->monster->held_obj;
                     else p->tt_o = p->tt_o->next;
                     if (p->tt_o)
                     {
@@ -591,6 +594,7 @@ static bool target_set_interactive_aux(struct player *p, int y, int x, int mode,
         {
             const char *name = square_apparent_name(p, c, y, x);
             bool recall = false;
+            struct location *dungeon = get_dungeon(&p->wpos);
 
             /* Pick a prefix */
             if (*s2 && feat_isprefixed(feat))
@@ -601,6 +605,13 @@ static bool target_set_interactive_aux(struct player *p, int y, int x, int mode,
 
             /* Hack -- special introduction for store doors */
             if (feat_is_shop(feat)) s3 = "the entrance to the ";
+
+            /* Hack -- dungeon entrance */
+            if (dungeon && square_isdownstairs(c, y, x))
+            {
+                s3 = "the entrance to ";
+                name = dungeon->name;
+            }
 
             /* Interact */
             if ((query == 'r') && (p->tt_step == TARGET_FEAT))
@@ -671,7 +682,8 @@ int draw_path(struct player *p, u16b path_n, struct loc *path_g, int y1, int x1)
 {
     int i;
     bool on_screen;
-    struct chunk *c = chunk_get(p->depth);
+    bool pastknown = false;
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* No path, so do nothing. */
     if (path_n < 1) return 0;
@@ -691,10 +703,10 @@ int draw_path(struct player *p, u16b path_n, struct loc *path_g, int y1, int x1)
         int y = path_g[i].y;
         int x = path_g[i].x;
 
-        struct object *obj = floor_pile_known(p, c, y, x);
+        struct object *obj = square_known_pile(p, c, y, x);
 
-        struct actor who_body;
-        struct actor *who = &who_body;
+        struct source who_body;
+        struct source *who = &who_body;
 
         /*
          * As path[] is a straight line and the screen is oblong,
@@ -711,11 +723,15 @@ int draw_path(struct player *p, u16b path_n, struct loc *path_g, int y1, int x1)
 
         square_actor(c, y, x, who);
 
+        /* Once we pass an unknown square, we no longer know if we will reach later squares */
+        if (pastknown)
+            colour = COLOUR_L_DARK;
+
         /* Choose a colour (monsters). */
-        if (who->mon && mflag_has(p->mflag[who->idx], MFLAG_VISIBLE))
+        else if (who->monster && monster_is_visible(p, who->idx))
         {
             /* Mimics act as objects */
-            if (who->mon->unaware && who->mon->mimicked_obj)
+            if (monster_is_mimicking(who->monster))
                 colour = COLOUR_YELLOW;
 
             /* Visible monsters are red. */
@@ -724,7 +740,7 @@ int draw_path(struct player *p, u16b path_n, struct loc *path_g, int y1, int x1)
         }
 
         /* Choose a colour (players). */
-        else if (who->player && mflag_has(p->pflag[who->idx], MFLAG_VISIBLE))
+        else if (who->player && player_is_visible(p, who->idx))
         {
             /* Player mimics act as objects (or features) */
             if (who->player->k_idx > 0)
@@ -750,7 +766,10 @@ int draw_path(struct player *p, u16b path_n, struct loc *path_g, int y1, int x1)
 
         /* Unknown squares are grey. */
         else if (!square_isknown(p, y, x) && !square_isseen(p, y, x))
+        {
+            pastknown = true;
             colour = COLOUR_L_DARK;
+        }
 
         /* Unoccupied squares are white. */
         else
@@ -781,7 +800,7 @@ void load_path(struct player *p, u16b path_n, struct loc *path_g)
         int x = path_g[i].x;
 
         if (!panel_contains(p, y, x)) continue;
-        square_light_spot_aux(p, chunk_get(p->depth), y, x);
+        square_light_spot_aux(p, chunk_get(&p->wpos), y, x);
     }
 
     Send_flush(p, true, false);
@@ -880,12 +899,12 @@ bool target_set_interactive(struct player *p, int mode, u32b query)
     struct point_set *targets;
     bool good_target;
     char help[NORMAL_WID];
-    struct actor old_target_who_body;
-    struct actor *old_target_who = &old_target_who_body;
+    struct source old_target_who_body;
+    struct source *old_target_who = &old_target_who_body;
     int old_target_x, old_target_y;
     bool auto_target = false;
     int tries = 200;
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Paranoia */
     if (!c) return false;
@@ -894,9 +913,9 @@ bool target_set_interactive(struct player *p, int mode, u32b query)
     if (p->path_drawn) load_path(p, p->path_n, p->path_g);
 
     /* Hack -- auto-target if requested */
-    if ((mode & (TARGET_AIM)) && OPT_P(p, use_old_target) && target_okay(p))
+    if ((mode & (TARGET_AIM)) && OPT(p, use_old_target) && target_okay(p))
     {
-        memcpy(old_target_who, &p->target_who, sizeof(struct actor));
+        memcpy(old_target_who, &p->target_who, sizeof(struct source));
         old_target_x = p->target_x;
         old_target_y = p->target_y;
         auto_target = true;
@@ -945,14 +964,12 @@ bool target_set_interactive(struct player *p, int mode, u32b query)
             {
                 int temp_y = targets->pts[i].y;
                 int temp_x = targets->pts[i].x;
-                int temp_idx;
-                struct actor temp_who_body;
-                struct actor *temp_who = &temp_who_body;
+                struct source temp_who_body;
+                struct source *temp_who = &temp_who_body;
 
-                temp_idx = c->squares[temp_y][temp_x].mon;
-                ACTOR_WHO(temp_who, temp_idx, player_get(0 - temp_idx), cave_monster(c, temp_idx));
+                square_actor(c, temp_y, temp_x, temp_who);
 
-                if (ACTOR_EQUAL(temp_who, old_target_who))
+                if (source_equal(temp_who, old_target_who))
                 {
                     set_tt_m(p, i);
                     break;
@@ -1010,8 +1027,8 @@ bool target_set_interactive(struct player *p, int mode, u32b query)
         /* Interesting grids if chosen and there are any, otherwise arbitrary */
         if (p->tt_flag && point_set_size(targets))
         {
-            struct actor who_body;
-            struct actor *who = &who_body;
+            struct source who_body;
+            struct source *who = &who_body;
 
             p->tt_y = targets->pts[p->tt_m].y;
             p->tt_x = targets->pts[p->tt_m].x;
@@ -1025,8 +1042,8 @@ bool target_set_interactive(struct player *p, int mode, u32b query)
             target_display_help(help, sizeof(help), good_target, false);
 
             /* Find the path. */
-            p->path_n = project_path(p->path_g, z_info->max_range, c, py, px, p->tt_y,
-                p->tt_x, PROJECT_THRU);
+            p->path_n = project_path(p, p->path_g, z_info->max_range, c, py, px, p->tt_y,
+                p->tt_x, PROJECT_THRU | PROJECT_INFO);
 
             /* Draw the path in "target" mode. If there is one */
             if (mode & TARGET_KILL)
@@ -1194,8 +1211,8 @@ bool target_set_interactive(struct player *p, int mode, u32b query)
         }
         else
         {
-            struct actor who_body;
-            struct actor *who = &who_body;
+            struct source who_body;
+            struct source *who = &who_body;
 
             /* Update help */
             square_actor(c, p->tt_y, p->tt_x, who);
@@ -1203,8 +1220,8 @@ bool target_set_interactive(struct player *p, int mode, u32b query)
             target_display_help(help, sizeof(help), good_target, true);
 
             /* Find the path. */
-            p->path_n = project_path(p->path_g, z_info->max_range, c, py, px, p->tt_y,
-                p->tt_x, PROJECT_THRU);
+            p->path_n = project_path(p, p->path_g, z_info->max_range, c, py, px, p->tt_y,
+                p->tt_x, PROJECT_THRU | PROJECT_INFO);
 
             /* Draw the path in "target" mode. If there is one */
             if (mode & TARGET_KILL)

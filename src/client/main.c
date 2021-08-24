@@ -3,7 +3,7 @@
  * Purpose: Core game initialisation
  *
  * Copyright (c) 1997 Ben Harrison, and others
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -147,6 +147,7 @@ int main(int argc, char **argv)
     /* Get the meta address */
     my_strcpy(meta_address, conf_get_string("MAngband", "meta_address", "mangband.org"),
         sizeof(meta_address));
+    meta_port = conf_get_int("MAngband", "meta_port", 8802);
 
     turn_off_numlock();
 

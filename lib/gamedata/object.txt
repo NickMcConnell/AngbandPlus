@@ -8,7 +8,7 @@
 
 # === Understanding object.txt ===
 
-# name: serial number : & object name~
+# name: & object name~
 # graphics: symbol : color
 # type: tval
 # properties: depth : weight : cost
@@ -28,6 +28,9 @@
 # flags: flag | flag | etc.
 # pval: pval
 # values: mod[value] | mod[value] | etc.
+# brand: brand code
+# slay: slay code
+# curse: curse name : power
 # desc: description
 
 # Some fields accept randomized numbers of the form "10+2d3M4" where
@@ -39,9 +42,8 @@
 # range 10-14.  10+2d3 has the range 12-16.  10+d3 has the range 11-13.
 # 2d3, d3, M4, 2d3M4, and d3M4 are all acceptable as well.
 
-# 'name' indicates the beginning of an entry. The serial number must
-# increase for each new item. The '&' and '~' symbols are use to
-# include articles and pluralization as necessary to ensure
+# 'name' indicates the beginning of an entry. The '&' and '~' symbols are used
+# to include articles and pluralization as necessary to ensure
 # grammatical correctness in object descriptions.
 #
 # For non-English and irregular plurals, the '|' symbol may be used
@@ -74,7 +76,7 @@
 # accept randomized values.
 
 # 'alloc' is for allocation - depth and rarity, in pairs. It is used to
-# ensure that certain vital items such as food and identify scrolls
+# ensure that certain vital items such as food and recall scrolls
 # are found throughout the dungeon. The "allocation" depth need not
 # match the depth as specified in the "properties:" line.
 
@@ -118,11 +120,17 @@
 # 'pval' is for pval - an auxiliary value that can mean food value, launcher
 # multiplier or turns of light. A pval can take a random value.
 
-# 'values' is for object modifiers which take a value - stats, slays, brands,
-# resistances and so on.  An example is SLAY_UNDEAD[3], which denotes that
-# the weapon concerned has a basic 3x slay against undead creatures.  Like
-# flags, values are separated by '|' and as many values: lines as needed
-# can be used.
+# 'values' is for object modifiers which take a value - stats,
+# resistances and so on. Like flags, values are separated by '|' and as many
+# values: lines as needed can be used.
+
+# 'brand' is for brands as listed in brand.txt.
+
+# 'slay' is for slays as listed in slay.txt. An example is slay:UNDEAD_3, which
+# denotes that the weapon concerned has a basic 3x slay against undead
+# creatures.
+
+# 'curse' is for curses
 
 # 'desc' is for description. As many desc: lines may be used as are needed
 # to describe the object. Note that lines will need spaces at their
@@ -130,70 +138,66 @@
 # together.
 
 
-##### Non-kind (contains the "pile" picture) #####
+##### Non-kind (things treated like objects) #####
 
-name:0:<pile>
+name:<pile>
 graphics:&:w
-type:0
+type:none
+
+name:<unknown item>
+graphics:*:r
+type:none
+
+name:<unknown treasure>
+graphics:*:o
+type:none
+
+name:<curse object>
+graphics:*:v
+type:none
 
 
-##### Various Stuff #####
+##### Lights #####
 
-## XXX 1 XXX ##
-
-name:2:& Wooden Torch~
+name:& Wooden Torch~
 graphics:~:u
 type:light
 properties:1:22:2
 alloc:70:1 to 40
 combat:0:1d1:0:0:0
-flags:BURNS_OUT
-values:LIGHT[1]
+flags:BURNS_OUT | LIGHT_1
 desc:A piece of wood with an oily rag wrapped around it. When lit, it will give
 desc: off a little light and much smoke.
 
-name:3:& Lantern~
+name:& Lantern~
 graphics:~:U
 type:light
 properties:5:50:35
 alloc:70:5 to 100
 combat:0:1d1:0:0:0
-flags:TAKES_FUEL | IGNORE_FIRE
-values:LIGHT[2]
+flags:TAKES_FUEL | LIGHT_2 | IGNORE_FIRE
 desc:A brass container with a wick emerging from it, protected from draughts by
 desc: a sheet of greased paper. It can be carried by a handle.
 
-name:4:& Flask~ of oil
+name:& Flask~ of oil
 graphics:!:y
 type:flask
 properties:1:20:3
 alloc:50:1 to 100
 combat:0:1d4:0:0:0
-values:BRAND_FIRE[3]
+flags:EXPLODE
 pval:7500
 desc:It can be used to fuel a lantern with 7500 turns of light, up to
 desc: a maximum of 15000 turns of light.
 desc: When thrown, it is considered lit, so it does more than nominal
 desc: damage (which occurs even against creatures resistant to fire).
 
-## XXX 5 XXX ##
-
-name:6:<unknown item>
-graphics:*:r
-type:0
-
-name:7:<unknown treasure>
-graphics:*:o
-type:0
-
-## XXX 8 - 9 XXX ##
-
 
 ##### Food #####
 
 ### Normal Food ###
 
-name:10:& Ration~ of Food
+name:& Ration~ of Food
 graphics:,:U
 type:food
 properties:0:8:3
@@ -205,7 +209,7 @@ msg_self:That tastes good.
 desc:This nutritious but fairly bland food is familiar to anyone contemplating
 desc: long journeys.
 
-name:11:& Slime Mold~
+name:& Slime Mold~
 graphics:,:g
 type:food
 properties:5:2:2
@@ -217,7 +221,7 @@ msg_self:That tastes good.
 desc:A strange fungal growth, prone to moving if not observed. Not very tasty
 desc: but quite filling.
 
-name:12:& Piece~ of Elvish Waybread
+name:& Piece~ of Elvish Waybread
 graphics:,:B
 type:food
 properties:30:3:10
@@ -225,14 +229,14 @@ alloc:40:30 to 100
 pile:10:1d3
 effect:CURE:POISONED
 effect:HEAL_HP
-dice:4d8
+dice:20
 effect:NOURISH
 dice:7500
 msg_self:That tastes good.
 desc:Food of the elves is always good; their waybread is no exception. These
 desc: thin cakes are wrapped in leaves and keep their tastiness for months.
 
-name:13:& Hard Biscuit~
+name:& Hard Biscuit~
 graphics:,:U
 type:food
 properties:0:2:1
@@ -241,7 +245,7 @@ dice:500
 effect:CRUNCH
 desc:A filling if tooth-breaking biscuit made mostly of rye.
 
-name:14:& Flask~ of Whisky
+name:& Flask~ of Whisky
 graphics:,:y
 type:food
 properties:0:5:1
@@ -252,7 +256,7 @@ dice:250
 msg_self:That tastes great!
 desc:It raises your spirits.
 
-name:15:& Pint~ of Fine Wine
+name:& Pint~ of Fine Wine
 graphics:,:r
 type:food
 properties:0:10:2
@@ -265,19 +269,19 @@ desc:A fine way to wash down some otherwise unappetising rations.
 
 ### The shrooms, an interesting collection ###
 
-name:16:Second Sight
+name:Second Sight
 graphics:,:d
 type:mushroom
 properties:5:1:200
 alloc:10:5 to 100
 pile:70:1d4
 effect:TIMED_INC:ESP
-dice:24+9d9
+dice:50+7d7
 effect:CURE:BLIND
 effect:NOURISH
 dice:500
 
-name:17:Fast Recovery
+name:Fast Recovery
 graphics:,:d
 type:mushroom
 properties:5:1:200
@@ -292,7 +296,7 @@ dice:30
 effect:NOURISH
 dice:500
 
-name:18:Vigor
+name:Vigor
 graphics:,:d
 type:mushroom
 properties:20:1:200
@@ -306,14 +310,14 @@ effect:RESTORE_STAT:STR
 effect:NOURISH
 dice:500
 
-name:19:Clear Mind
+name:Clear Mind
 graphics:,:d
 type:mushroom
 properties:5:1:200
 alloc:10:5 to 40
 pile:70:1d4
 effect:TIMED_INC:OPP_CONF
-dice:12+6d10
+dice:50+7d7
 effect:CURE:IMAGE
 effect:CURE:AFRAID
 effect:CURE:CONFUSED
@@ -322,7 +326,7 @@ dice:10
 effect:NOURISH
 dice:500
 
-name:20:Emergency
+name:Emergency
 graphics:,:d
 type:mushroom
 properties:5:1:60
@@ -331,41 +335,39 @@ pile:70:1d4
 effect:HEAL_HP
 dice:200
 effect:TIMED_INC:OPP_COLD
-dice:20+1d20
+dice:25+5d5
 effect:TIMED_INC:OPP_FIRE
-dice:20+1d20
+dice:25+5d5
 effect:TIMED_INC:IMAGE
-dice:200+1d100
+dice:25+5d5
 effect:NOURISH
 dice:500
 
-name:21:Terror
+name:Terror
 graphics:,:d
 type:mushroom
 properties:5:1:60
 alloc:10:5 to 40
 pile:70:1d4
 effect:TIMED_SET:TERROR
-dice:80+1d40
+dice:25+5d5
 effect:NOURISH
 dice:500
 desc:It allows you to run for your life.
 
-name:22:Stoneskin
+name:Stoneskin
 graphics:,:d
 type:mushroom
 properties:10:1:60
 alloc:10:10 to 40
 pile:70:1d4
 effect:TIMED_SET:STONESKIN
-dice:60+1d40
+dice:50+7d7
 effect:NOURISH
 dice:500
 desc:Its poison turns your skin to stone, albeit briefly.
 
-## XXX 23 XXX ##
-
-name:24:Debility
+name:Debility
 graphics:,:d
 type:mushroom
 properties:10:1:20
@@ -379,7 +381,7 @@ effect:RESTORE_MANA
 effect:NOURISH
 dice:500
 
-name:25:Sprinting
+name:Sprinting
 graphics:,:d
 type:mushroom
 properties:15:1:100
@@ -391,7 +393,7 @@ effect:NOURISH
 dice:500
 desc:It hastes you for a while, but then makes you slower for a while afterward.
 
-name:26:Purging
+name:Purging
 graphics:,:d
 type:mushroom
 properties:15:1:60
@@ -405,14 +407,12 @@ dice:$B
 expr:B:FOOD_FAINT:- 1
 desc:It makes you very hungry but otherwise healthy.
 
-## XXX 27 - 29 XXX ##
-
 
 ##### Weapons #####
 
 ### Swords ###
 
-name:30:& Dagger~
+name:& Dagger~
 graphics:|:W
 type:sword
 properties:0:12:30
@@ -420,7 +420,7 @@ alloc:20:0 to 100
 combat:0:1d4:0:0:0
 desc:A short two-edged blade perfect for thrusting.
 
-name:31:& Main Gauche~
+name:& Main Gauche~
 graphics:|:W
 type:sword
 properties:3:30:45
@@ -430,7 +430,7 @@ desc:This blade is sinuously curved and tipped with a harpoon-like end.
 desc: This blade has a large handguard and was designed as an off-hand weapon.
 desc: This short but cruel blade is a favourite among orcs.
 
-name:32:& Rapier~
+name:& Rapier~
 graphics:|:W
 type:sword
 properties:5:40:70
@@ -440,7 +440,7 @@ desc:The rapier's hilt consisted of a pair of oval guards pierced with holes,
 desc: recurved quillions, and a knuckle guard. The guard is very intricate
 desc: and very effective as protection.
 
-name:33:& Short Sword~
+name:& Short Sword~
 graphics:|:W
 type:sword
 properties:5:80:90
@@ -449,7 +449,7 @@ combat:0:1d7:0:0:0
 desc:This shorter version of the long sword is a common weapon for rogues
 desc: and mages.
 
-name:34:& Cutlass~
+name:& Cutlass~
 graphics:|:W
 type:sword
 properties:5:110:120
@@ -458,7 +458,7 @@ combat:0:1d8:0:0:0
 desc:A thicker and slightly longer dagger, the cutlass is a slashing sword. It
 desc: possesses a slight curve and only one side is sharp.
 
-name:35:& Tulwar~
+name:& Tulwar~
 graphics:|:W
 type:sword
 properties:5:100:170
@@ -466,7 +466,7 @@ alloc:20:5 to 100
 combat:0:2d4:0:0:0
 desc:A wider-bladed cousin of the shamshir, with less of a curve.
 
-name:36:& Scimitar~
+name:& Scimitar~
 graphics:|:W
 type:sword
 properties:10:150:300
@@ -474,7 +474,7 @@ alloc:20:10 to 100
 combat:0:4d2:0:0:0
 desc:A long sabre with an extreme curve to the blade.
 
-name:37:& Long Sword~
+name:& Long Sword~
 graphics:|:W
 type:sword
 properties:10:130:300
@@ -484,7 +484,7 @@ desc:A long straight sword, tapering to a pronounced point. Mainly good for
 desc: piercing attacks, but it can be used for slashing, too. It is a very
 desc: popular design and has become standard issue in many armies.
 
-name:38:& Broad Sword~
+name:& Broad Sword~
 graphics:|:W
 type:sword
 properties:10:150:300
@@ -493,7 +493,7 @@ combat:0:2d5:0:0:0
 desc:This broader version of the long sword is a standard weapon in the army
 desc: of Gondolin.
 
-name:39:& Bastard Sword~
+name:& Bastard Sword~
 graphics:|:W
 type:sword
 properties:15:140:400
@@ -506,7 +506,7 @@ desc: having a family of its own. It's typically around 51 inches long.
 desc: It is effective for cutting through tougher armours. It could be used for
 desc: thrusting, but most wielders swing it like a bat.
 
-name:40:& Katana~
+name:& Katana~
 graphics:|:W
 type:sword
 properties:20:120:600
@@ -519,7 +519,7 @@ desc: The art of forging such swords is largely unknown in this part
 desc: of Middle-earth, and such weapons are typically imported from
 desc: distant lands.
 
-name:41:& Zweihander~
+name:& Zweihander~
 graphics:|:W
 type:sword
 properties:30:200:700
@@ -528,7 +528,7 @@ combat:0:3d8:0:0:0
 flags:TWO_HANDED
 desc:A sword designed for two hands.
 
-name:42:& Executioner's Sword~
+name:& Executioner's Sword~
 graphics:|:r
 type:sword
 properties:40:260:850
@@ -539,7 +539,7 @@ desc:These weapons have been built in all sizes. They are custom-made
 desc: for warriors that want to set out and kill their archenemy. These
 desc: blades are rare, costly and very deadly.
 
-name:43:& Blade~ of Chaos
+name:& Blade~ of Chaos
 graphics:|:x
 type:sword
 properties:70:180:4000
@@ -550,11 +550,9 @@ desc:A mighty sword which seems to be completely blunt. However, it is a conduit
 desc: into the realms of pure chaos and strikes its victims with the devastating
 desc: might of chaos itself whenever it connects.
 
-## XXX 44 - 49 XXX ##
-
 ### Whips ###
 
-name:50:& Whip~
+name:& Whip~
 graphics:\:D
 type:hafted
 properties:3:30:30
@@ -564,7 +562,7 @@ desc:Think Doctor Jones. This weapon is light and easy to fight with.
 desc: It has nasty barbs and hooks fixed to the thong to make it useful
 desc: in combat. Whips give easily multiple attacks.
 
-name:51:& Ball-and-Chain~
+name:& Ball-and-Chain~
 graphics:\:D
 type:hafted
 properties:20:150:200
@@ -573,7 +571,7 @@ combat:0:2d4:0:0:0
 desc:This weapon has a ball linked with a chain to a wooden handle.
 desc: Preferred tactic is smashing the brains of your opponent.
 
-name:52:& Morning Star~
+name:& Morning Star~
 graphics:\:D
 type:hafted
 properties:10:150:396
@@ -582,7 +580,7 @@ combat:0:2d6:0:0:0
 desc:This weapon consists of a large club with chains that have wooden balls
 desc: with metal spikes on the end.
 
-name:53:& Flail~
+name:& Flail~
 graphics:\:D
 type:hafted
 properties:10:150:353
@@ -592,7 +590,7 @@ desc:This weapon was originally used to cut corn. More warlike versions
 desc: sport a large blade stuck on a wooden handle. The hinge allows it to get
 desc: past enemy defences or to strike with added momentum when used skillfully.
 
-name:54:& Two-Handed Great Flail~
+name:& Two-Handed Great Flail~
 graphics:\:y
 type:hafted
 properties:45:280:590
@@ -605,7 +603,7 @@ desc: spiked metal lumps on chains.
 
 ### Clubs ###
 
-name:55:& Mace~
+name:& Mace~
 graphics:\:D
 type:hafted
 properties:5:120:130
@@ -614,7 +612,7 @@ combat:0:2d4:0:0:0
 desc:This weapon is a club ending in a sphere. The sphere is studded
 desc: with metal shards, and thus can both crush and cut your adversary.
 
-name:56:& Lead-Filled Mace~
+name:& Lead-Filled Mace~
 graphics:\:D
 type:hafted
 properties:15:180:502
@@ -622,7 +620,7 @@ alloc:20:15 to 100
 combat:0:4d3:0:0:0
 desc:A large, mean mace filled with lead in order to wreak a maximum of havoc.
 
-name:57:& Quarterstaff~
+name:& Quarterstaff~
 graphics:\:U
 type:hafted
 properties:10:150:200
@@ -635,7 +633,7 @@ desc: is an excellent weapon for travellers as it doubles both as a walking
 desc: staff and as a deterrent against brigands. The quarterstaff is used more
 desc: in fencing and brawling than melee combat.
 
-name:58:& War Hammer~
+name:& War Hammer~
 graphics:\:D
 type:hafted
 properties:5:120:225
@@ -643,7 +641,7 @@ alloc:20:5 to 100
 combat:0:3d3:0:0:0
 desc:A large hammer, designed to crush skulls with mighty strikes.
 
-name:59:& Maul~
+name:& Maul~
 graphics:\:D
 type:hafted
 properties:5:200:130
@@ -651,7 +649,7 @@ alloc:20:5 to 100
 combat:0:4d4:0:0:0
 desc:A large hammer, designed to crush skulls with mighty strikes.
 
-name:60:& Great Hammer~
+name:& Great Hammer~
 graphics:\:D
 type:hafted
 properties:20:180:500
@@ -659,22 +657,20 @@ alloc:20:20 to 100
 combat:0:8d1:0:0:0
 desc:A large hammer, designed to crush skulls with mighty strikes.
 
-name:61:& Mace~ of Disruption
+name:& Mace~ of Disruption
 graphics:\:v
 type:hafted
 properties:80:400:4300
 alloc:10:80 to 100
 combat:0:5d10:0:0:0
 flags:TWO_HANDED
-values:SLAY_UNDEAD[3]
+slay:UNDEAD_3
 desc:This mace is custom-made for priests that go out to destroy evil.
 desc: It is deadly, especially for undead.
 
-## XXX 62 - 64 XXX ##
-
 ### Spears ###
 
-name:65:& Spear~
+name:& Spear~
 graphics:/:s
 type:polearm
 properties:5:50:36
@@ -686,7 +682,7 @@ desc: sockets are usually riveted to the shaft and some have two small lugs near
 desc: the base of the socket to allow the head to be possibly bound on as well.
 desc: This spear is 7 feet long.
 
-name:66:& Awl-Pike~
+name:& Awl-Pike~
 graphics:/:s
 type:polearm
 properties:10:160:340
@@ -694,7 +690,7 @@ alloc:20:10 to 100
 combat:0:1d8:0:0:0
 desc:This is a polearm with a long square-sectioned spike on the end.
 
-name:67:& Trident~
+name:& Trident~
 graphics:/:y
 type:polearm
 properties:5:70:120
@@ -705,7 +701,7 @@ desc: it is often employed as a pitchfork. It is famous for its uses in
 desc: gladiatorial arenas. It is used much like a spear and could even be thrown
 desc: like one in desperate situations.
 
-name:68:& Halberd~
+name:& Halberd~
 graphics:/:s
 type:polearm
 properties:25:190:430
@@ -720,7 +716,7 @@ desc: general melee. The top pike is used to pierce armour, or is set against a
 desc: cavalry charge. The back hook could unseat horses, trip opponents, parry a
 desc: blow, or be a general piercing weapon.
 
-name:69:& Pike~
+name:& Pike~
 graphics:/:s
 type:polearm
 properties:15:160:358
@@ -733,7 +729,7 @@ desc: effective against mounted troops.
 
 ### Axes ###
 
-name:70:& Beaked Axe~
+name:& Beaked Axe~
 graphics:/:s
 type:polearm
 properties:15:180:408
@@ -742,7 +738,7 @@ combat:0:2d8:0:0:0
 flags:TWO_HANDED
 desc:This polearm has a beak mounted opposite the blade.
 
-name:71:& Broad Axe~
+name:& Broad Axe~
 graphics:/:s
 type:polearm
 properties:15:160:304
@@ -750,7 +746,7 @@ alloc:20:15 to 100
 combat:0:2d6:0:0:0
 desc:A one-headed axe made for combat, with an elongated moon-shaped blade.
 
-name:72:& Battle Axe~
+name:& Battle Axe~
 graphics:/:s
 type:polearm
 properties:15:170:334
@@ -758,7 +754,7 @@ alloc:20:15 to 100
 combat:0:2d8:0:0:0
 desc:A dwarven one-handed axe made for combat.
 
-name:73:& Lochaber Axe~
+name:& Lochaber Axe~
 graphics:/:D
 type:polearm
 properties:45:250:750
@@ -769,7 +765,7 @@ desc: shaft. A Nordic version of the halberd. The polearm of choice for many
 desc: Nordics, this weapon is ideally suited for slashing, thrusting, and
 desc: unseating cavalry.
 
-name:74:& Great Axe~
+name:& Great Axe~
 graphics:/:s
 type:polearm
 properties:40:230:500
@@ -780,7 +776,7 @@ desc:A huge and heavy two-headed axe.
 
 ### Other misc polearms ###
 
-name:75:& Scythe~
+name:& Scythe~
 graphics:/:s
 type:polearm
 properties:45:250:800
@@ -790,7 +786,7 @@ desc:A simple farm implement, converted into a weapon by slightly straightening
 desc: its blade and putting it in line with its pole, instead of the typical
 desc: right angle.
 
-name:76:& Glaive~
+name:& Glaive~
 graphics:/:s
 type:polearm
 properties:20:190:363
@@ -802,7 +798,7 @@ desc: Glaives are often used to protect archers, crossbowmen, and gunners while
 desc: they reload. Outside of combat they are a popular processional weapon and
 desc: therefore many have ornately carved blades.
 
-name:77:& Lance~
+name:& Lance~
 graphics:/:s
 type:polearm
 properties:10:300:230
@@ -812,7 +808,7 @@ flags:TWO_HANDED
 desc:This is the original polearm. It is shaped like a spear but is bigger. It's
 desc: meant to fend off enemies, not to be thrown.
 
-name:78:& Scythe~ of Slicing
+name:& Scythe~ of Slicing
 graphics:/:r
 type:polearm
 properties:60:250:3500
@@ -822,7 +818,7 @@ flags:TWO_HANDED
 desc:The simple design of the war scythe, but this one uses a finely crafted and
 desc: incredibly sharp steel blade which causes terrible wounds when it hits.
 
-name:79:& Lucerne Hammer~
+name:& Lucerne Hammer~
 graphics:/:B
 type:polearm
 properties:10:120:376
@@ -830,12 +826,10 @@ alloc:20:10 to 100
 combat:0:2d5:0:0:0
 desc:A war hammer combined with a spearpoint, mounted on a long pole.
 
-## XXX 80 - 89 XXX ##
-
 
 ##### Bows, Crossbows, Slings #####
 
-name:90:& Sling~
+name:& Sling~
 graphics:}:u
 type:bow
 properties:1:5:5
@@ -845,7 +839,7 @@ pval:2
 desc:A simple cloth or leather pouch with two strings attached. It is used to
 desc: hurl pebbles or iron shots.
 
-name:91:& Short Bow~
+name:& Short Bow~
 graphics:}:U
 type:bow
 properties:3:30:50
@@ -855,7 +849,7 @@ pval:2
 desc:A piece of bent wood, fitted with a string. Easy to transport and use, but
 desc: its effect is not very impressive.
 
-name:92:& Long Bow~
+name:& Long Bow~
 graphics:}:U
 type:bow
 properties:10:40:120
@@ -866,7 +860,7 @@ desc:A bow almost as long as a human. It takes considerable strength and skill
 desc: to use and is rather awkward to carry around inside buildings.
 desc: Nevertheless, it shoots arrows with astonishing force.
 
-name:93:& Light Crossbow~
+name:& Light Crossbow~
 graphics:}:s
 type:bow
 properties:15:110:140
@@ -877,7 +871,7 @@ desc:A metal bow mounted on a wooden stock. It is used for shooting bolts. This
 desc: design is relatively light and not too difficult to cock, but also shoots
 desc: its quarrels with less force.
 
-name:94:& Heavy Crossbow~
+name:& Heavy Crossbow~
 graphics:}:s
 type:bow
 properties:30:200:300
@@ -888,12 +882,10 @@ desc:A metal bow mounted on a wooden stock, with attached cocking mechanism. It
 desc: takes considerable time and strength to cock it and it's rather heavy.
 desc: However, it hurls its ammunition with incredible force.
 
-## XXX 95 - 99 XXX ##
-
 
 ##### Missiles #####
 
-name:100:& Arrow~
+name:& Arrow~
 graphics:{:U
 type:arrow
 properties:3:2:1
@@ -904,7 +896,7 @@ flags:AMMO_NORMAL
 desc:A simple metal head on a piece of wood or bamboo, fitted with some
 desc: feathers. It can be shot with a bow.
 
-name:101:& Seeker Arrow~
+name:& Seeker Arrow~
 graphics:{:G
 type:arrow
 properties:55:2:20
@@ -914,7 +906,7 @@ combat:0:4d4:0:0:0
 desc:A precision-made arrow, which allows you to hit precisely the most
 desc: vulnerable place of an opponent. It can be shot with a bow.
 
-name:102:& Mithril Arrow~
+name:& Mithril Arrow~
 graphics:{:B
 type:arrow
 properties:50:2:25
@@ -925,9 +917,7 @@ flags:IGNORE_ACID
 desc:An arrow made from mithril. It hits with great force, and is almost
 desc: imperishable. It can be shot with a bow.
 
-## XXX 103 - 104 XXX ##
-
-name:105:& Bolt~
+name:& Bolt~
 graphics:{:s
 type:bolt
 properties:3:3:2
@@ -937,7 +927,7 @@ combat:0:1d5:0:0:0
 flags:AMMO_NORMAL
 desc:A short metal arrow. It can be shot with a crossbow.
 
-name:106:& Seeker Bolt~
+name:& Seeker Bolt~
 graphics:{:g
 type:bolt
 properties:65:3:25
@@ -947,7 +937,7 @@ combat:0:4d5:0:0:0
 desc:A precision-made bolt, which allows you to hit exactly the most vulnerable
 desc: place of an opponent. It can be shot with a crossbow.
 
-name:107:& Mithril Bolt~
+name:& Mithril Bolt~
 graphics:{:B
 type:bolt
 properties:60:2:30
@@ -958,9 +948,7 @@ flags:IGNORE_ACID
 desc:A bolt made from mithril. It hits with great force, and is almost
 desc: imperishable. It can be shot with a crossbow.
 
-## XXX 108 - 109 XXX ##
-
-name:110:& Rounded Pebble~
+name:& Rounded Pebble~
 graphics:{:s
 type:shot
 properties:0:4:1
@@ -969,7 +957,7 @@ alloc:30:0 to 100
 combat:0:1d2:0:0:0
 desc:Small round stones. When fired with a sling, they could even hurt a giant.
 
-name:111:& Iron Shot~
+name:& Iron Shot~
 graphics:{:s
 type:shot
 properties:3:5:2
@@ -978,60 +966,56 @@ alloc:25:3 to 100
 combat:0:1d4:0:0:0
 desc:Metal balls, made for shooting with slings.
 
-name:112:& Mithril Shot~
+name:& Mithril Shot~
 graphics:{:B
 type:shot
 properties:40:4:20
 pile:100:5d7
 alloc:20:40 to 100
-combat:0:2d4:5:5:0
+combat:0:2d4:0:0:0
 flags:IGNORE_ACID
 desc:A sling bullet made from the slags of mithril smelting. It is unusually
 desc: heavy, hitting with great force, and is almost imperishable. It can be
 desc: shot with a sling.
 
-## XXX 113 - 119 XXX ##
-
 
 ##### Digging Tools #####
 
-name:120:& Shovel~
+name:& Shovel~
 graphics:\:s
 type:digger
 properties:5:60:10
 alloc:20:5 to 100
 combat:0:1d2:0:0:0
-values:TUNNEL[1]
+flags:DIG_1
 desc:A simple digging tool for shovelling away rubble and maybe even soft rock.
 
-name:121:& Pick~
+name:& Pick~
 graphics:\:g
 type:digger
 properties:30:180:300
 alloc:20:30 to 100
 combat:0:1d3:0:0:0
-values:TUNNEL[2]
+flags:DIG_2
 desc:A heavy digging tool, primarily for earthworking, but also good for
 desc: tunnelling through stone, if one is willing to perform the time-consuming
 desc: labour.
 
-name:122:& Mattock~
+name:& Mattock~
 graphics:\:D
 type:digger
 properties:50:250:700
 alloc:20:50 to 100
 combat:0:1d8:0:0:0
-values:TUNNEL[3]
+flags:DIG_3
 desc:This is a digging tool. Use it to dig in walls, destroy doors, or cut wood.
-
-## XXX 123 - 129 XXX ##
 
 
 ##### Armor #####
 
-### Footwear ###
+### Boots ###
 
-name:130:& Pair~ of Leather Sandals
+name:& Pair~ of Leather Sandals
 graphics:]:U
 type:boots
 properties:1:15:4
@@ -1040,7 +1024,7 @@ combat:1:1d1:0:0:0
 desc:A set of open-topped footgear with soft calfskin lacings and a sturdy 
 desc: cured leather base.
 
-name:131:& Pair~ of Leather Boots
+name:& Pair~ of Leather Boots
 graphics:]:U
 type:boots
 properties:3:20:7
@@ -1048,7 +1032,7 @@ alloc:20:3 to 100
 combat:2:1d1:0:0:0
 desc:A pair of low boots, comfortable to wear.
 
-name:132:& Pair~ of Iron Shod Boots
+name:& Pair~ of Iron Shod Boots
 graphics:]:U
 type:boots
 properties:5:35:12
@@ -1058,7 +1042,7 @@ flags:IGNORE_FIRE
 desc:A pair of boots, with iron strips at the caps, offering a little
 desc: extra protection for the feet.
 
-name:133:& Pair~ of Steel Shod Boots
+name:& Pair~ of Steel Shod Boots
 graphics:]:s
 type:boots
 properties:20:60:50
@@ -1068,7 +1052,7 @@ flags:IGNORE_FIRE
 desc:Heavy boots, with metal strips at the toes, heels and other vulnerable
 desc: parts, to better protect the wearer's feet from harm.
 
-name:134:& Pair~ of Mithril Shod Boots
+name:& Pair~ of Mithril Shod Boots
 graphics:]:B
 type:boots
 properties:60:40:500
@@ -1076,7 +1060,7 @@ alloc:20:60 to 100
 combat:8:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_FIRE
 
-name:135:& Pair~ of Ethereal Slippers
+name:& Pair~ of Ethereal Slippers
 graphics:]:U
 type:boots
 properties:30:0:4
@@ -1084,11 +1068,9 @@ alloc:10:30 to 100
 combat:0:0d0:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 136 - 139 XXX ##
-
 ### Headgear ###
 
-name:140:& Hard Leather Cap~
+name:& Hard Leather Cap~
 graphics:]:u
 type:helm
 properties:3:20:12
@@ -1097,7 +1079,7 @@ combat:2:0d0:0:0:0
 desc:A piece of protective headgear made from hardened leather, just covering
 desc: the skull.
 
-name:141:& Metal Cap~
+name:& Metal Cap~
 graphics:]:s
 type:helm
 properties:10:25:30
@@ -1105,7 +1087,7 @@ alloc:20:10 to 100
 combat:3:1d1:0:0:0
 desc:A metal skullcap with nose and cheekguards.
 
-name:142:& Iron Helm~
+name:& Iron Helm~
 graphics:]:s
 type:helm
 properties:20:50:75
@@ -1114,7 +1096,7 @@ combat:7:1d3:0:0:0
 desc:A large helmet that can protect the entire head. Ventilation and bad vision
 desc: can be a problem, however.
 
-name:143:& Steel Helm~
+name:& Steel Helm~
 graphics:]:W
 type:helm
 properties:40:60:200
@@ -1123,7 +1105,7 @@ combat:9:1d3:0:0:0
 desc:A helmet which protects the entire head. The expensive steel as base
 desc: material allows it to offer very good protection while being fairly light.
 
-name:144:& Iron Crown~
+name:& Iron Crown~
 graphics:]:s
 type:crown
 properties:45:20:500
@@ -1132,7 +1114,7 @@ combat:0:1d1:0:0:0
 desc:An iron circlet which might be worn, but which is purely ornamental unless
 desc: it has special powers.
 
-name:145:& Golden Crown~
+name:& Golden Crown~
 graphics:]:y
 type:crown
 properties:45:30:1000
@@ -1142,7 +1124,7 @@ flags:IGNORE_ACID
 desc:A gilded crown, which just looks good. Sometimes such headgear also has
 desc: additional properties which might make it worth wearing.
 
-name:146:& Jewel Encrusted Crown~
+name:& Jewel Encrusted Crown~
 graphics:]:v
 type:crown
 properties:50:40:2000
@@ -1152,11 +1134,9 @@ flags:IGNORE_ACID
 desc:A gorgeous-looking silver crown, adorned with several gems. You might wear
 desc: it on your head, if you really think you're worthy.
 
-## XXX 147 - 149 XXX ##
-
 ### Body armours ###
 
-name:150:& Robe~
+name:& Robe~
 graphics:(:b
 type:soft armour
 properties:1:20:4
@@ -1166,7 +1146,7 @@ desc:A full-length garment which can be worn on the body. It is not really
 desc: armour, but mages often wear them as they are very light and don't hinder
 desc: movement much.
 
-name:151:Soft Leather Armour~
+name:Soft Leather Armour~
 graphics:(:U
 type:soft armour
 properties:3:80:20
@@ -1174,7 +1154,7 @@ alloc:20:3 to 100
 combat:8:0d0:0:0:0
 desc:A leather jerkin, light and unencumbering, but not very protective.
 
-name:152:Studded Leather Armour~
+name:Studded Leather Armour~
 graphics:(:U
 type:soft armour
 properties:5:100:100
@@ -1182,7 +1162,7 @@ alloc:20:5 to 100
 combat:12:1d1:-1:0:0
 desc:A suit of hardened leather armour, reinforced with metal studs.
 
-name:153:Hard Leather Armour~
+name:Hard Leather Armour~
 graphics:(:U
 type:soft armour
 properties:10:120:150
@@ -1192,7 +1172,7 @@ desc:A leather armour covering only the body. It is made of hardened leather to
 desc: make it harder to penetrate. It's also a bit harder to move in, as it is
 desc: rather stiff.
 
-name:154:Leather Scale Mail~
+name:Leather Scale Mail~
 graphics:(:U
 type:soft armour
 properties:15:140:370
@@ -1201,7 +1181,7 @@ combat:20:1d1:-1:0:0
 desc:A suit of armour made of overlapping hardened leather scales. It offers
 desc: good protection while still being rather lightweight.
 
-name:155:Metal Scale Mail~
+name:Metal Scale Mail~
 graphics:[:s
 type:hard armour
 properties:25:250:550
@@ -1209,7 +1189,7 @@ alloc:20:25 to 100
 combat:38:1d4:-2:0:0
 desc:A suit of overlapping metal scales, sewn onto a leather or cloth jerkin.
 
-name:156:Chain Mail~
+name:Chain Mail~
 graphics:[:s
 type:hard armour
 properties:20:220:750
@@ -1217,7 +1197,7 @@ alloc:20:20 to 100
 combat:32:1d4:-2:0:0
 desc:A suit of interlinked metal rings, to be worn over a woollen garment.
 
-name:157:Augmented Chain Mail~
+name:Augmented Chain Mail~
 graphics:[:s
 type:hard armour
 properties:35:270:900
@@ -1226,7 +1206,7 @@ combat:42:1d4:-2:0:0
 desc:A suit of interlinked metal rings, with additional metal plates or scales
 desc: covering vulnerable parts of the wearer.
 
-name:158:Bar Chain Mail~
+name:Bar Chain Mail~
 graphics:[:s
 type:hard armour
 properties:40:280:950
@@ -1235,7 +1215,7 @@ combat:45:1d4:-2:0:0
 desc:A suit of interlinked metal rings, with additional short metal bars added
 desc: in many places to prevent penetration of the armour by piercing attacks.
 
-name:159:Metal Brigandine Armour~
+name:Metal Brigandine Armour~
 graphics:[:s
 type:hard armour
 properties:45:290:1100
@@ -1244,7 +1224,7 @@ combat:48:1d4:-3:0:0
 desc:This is a leather armour with many small metal plates fixed to it, covering
 desc: it entirely.
 
-name:160:Partial Plate Armour~
+name:Partial Plate Armour~
 graphics:[:W
 type:hard armour
 properties:30:260:1200
@@ -1252,7 +1232,7 @@ alloc:20:30 to 100
 combat:40:1d6:-3:0:0
 desc:An armour made of steel plates, covering only the body of the wearer.
 
-name:161:Metal Lamellar Armour~
+name:Metal Lamellar Armour~
 graphics:[:W
 type:hard armour
 properties:50:340:1250
@@ -1262,7 +1242,7 @@ desc:Lamellar consists of small rectangular plates (lames) attached to each
 desc: other at each edge or corner with leather lacings through small holes in
 desc: the plates.
 
-name:162:Full Plate Armour~
+name:Full Plate Armour~
 graphics:[:W
 type:hard armour
 properties:55:360:1350
@@ -1271,7 +1251,7 @@ combat:62:2d4:-3:0:0
 desc:A suit of armour made of metal plates, covering the body, arms and upper
 desc: legs. A very effective but very heavy armour.
 
-name:163:Ribbed Plate Armour~
+name:Ribbed Plate Armour~
 graphics:[:W
 type:hard armour
 properties:60:380:1500
@@ -1280,7 +1260,7 @@ combat:66:2d4:-3:0:0
 desc:This full suit of armour has been strengthened in places to better deflect
 desc: or absorb blows.
 
-name:164:Mithril Chain Mail~
+name:Mithril Chain Mail~
 graphics:[:B
 type:hard armour
 properties:55:150:7000
@@ -1290,7 +1270,7 @@ flags:IGNORE_ACID
 desc:A suit of chain mail, made by dwarven smiths from the rare and precious
 desc: metal also called true-silver.
 
-name:165:Mithril Plate Mail~
+name:Mithril Plate Mail~
 graphics:[:B
 type:hard armour
 properties:65:300:15000
@@ -1300,7 +1280,7 @@ flags:IGNORE_ACID
 desc:A full suit of plate armour, fashioned from the rare true-silver. Only the
 desc: dwarves know the secret of making armour or weapons of this metal.
 
-name:166:Adamantite Plate Mail~
+name:Adamantite Plate Mail~
 graphics:[:G
 type:hard armour
 properties:75:420:20000
@@ -1310,11 +1290,9 @@ flags:IGNORE_ACID
 desc:A suit of plate armour fashioned from an unbreakable crystal by
 desc: mage-smiths.
 
-## XXX 167 - 169 XXX ##
+### Cloaks ###
 
-### The Cloaks ###
-
-name:170:& Cloak~
+name:& Cloak~
 graphics:(:g
 type:cloak
 properties:1:10:3
@@ -1322,7 +1300,7 @@ alloc:20:1 to 100
 combat:1:0d0:0:0:0
 desc:A traveller's sturdy outer garment.
 
-name:171:& Fur Cloak~
+name:& Fur Cloak~
 graphics:(:o
 type:cloak
 properties:20:25:600
@@ -1330,7 +1308,7 @@ alloc:20:20 to 100
 combat:3:0d0:0:0:0
 desc:A heavy cloak made from fur and lined with leather; a luxury.
 
-name:172:& Elven Cloak~
+name:& Elven Cloak~
 graphics:(:D
 type:cloak
 properties:40:5:2000
@@ -1340,7 +1318,7 @@ values:STEALTH[1] | SPEED[1]
 desc:A mantle made of curious silken material by the Galadrim that wondrously 
 desc: takes on the hues and shapes of its surroundings.
 
-name:173:& Ethereal Cloak~
+name:& Ethereal Cloak~
 graphics:(:W
 type:cloak
 properties:70:0:4500
@@ -1350,9 +1328,9 @@ flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 desc:This unearthly, completely transparent body mantle folds and drapes in
 desc: iridescent patterns around you. It weighs absolutely nothing.
 
-### The Gloves ###
+### Gloves ###
 
-name:174:& Set~ of Leather Gloves
+name:& Set~ of Leather Gloves
 graphics:]:U
 type:gloves
 properties:1:10:5
@@ -1361,7 +1339,7 @@ combat:1:0d0:0:0:0
 desc:Light gloves which do not seriously hinder finger movements, while still
 desc: protecting the hands somewhat.
 
-name:175:& Set~ of Gauntlets
+name:& Set~ of Gauntlets
 graphics:]:s
 type:gloves
 properties:10:25:45
@@ -1369,7 +1347,7 @@ alloc:20:10 to 100
 combat:3:1d1:0:0:0
 desc:Metal gloves protecting the hands up to the middle of the lower arm.
 
-name:176:& Set~ of Mithril Gauntlets
+name:& Set~ of Mithril Gauntlets
 graphics:]:B
 type:gloves
 properties:40:25:700
@@ -1378,7 +1356,7 @@ combat:6:1d1:0:0:0
 flags:IGNORE_ACID
 desc:Mithril gloves protecting the hands up to the middle of the lower arm.
 
-name:177:& Set~ of Caestus
+name:& Set~ of Caestus
 graphics:]:U
 type:gloves
 properties:20:40:100
@@ -1387,7 +1365,7 @@ combat:5:1d1:0:3:0
 desc:An ancient battle glove designed for hand-to-hand fighting. Its layered
 desc: leather thongs are enhanced for combat by bloody-looking spikes.
 
-name:178:& Set~ of Alchemist's Gloves
+name:& Set~ of Alchemist's Gloves
 graphics:]:R
 type:gloves
 properties:50:5:500
@@ -1397,13 +1375,9 @@ flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 flags:SPELLS_OK
 desc:Highly protective gloves designed for an alchemist's elemental magics.
 
-## XXX 179 XXX ##
+### Shields ###
 
-### The shields ###
-
-## XXX 180 XXX ##
-
-name:181:& Wicker Shield~
+name:& Wicker Shield~
 graphics:):U
 type:shield
 properties:1:30:20
@@ -1411,7 +1385,7 @@ alloc:20:1 to 100
 combat:2:1d1:0:0:0
 desc:A light circular frame of wood surrounding fine-grained wickerwork.
 
-name:182:& Small Metal Shield~
+name:& Small Metal Shield~
 graphics:):s
 type:shield
 properties:10:60:80
@@ -1419,7 +1393,7 @@ alloc:20:10 to 100
 combat:5:1d2:0:0:0
 desc:A small shield strengthened with a layer of metal.
 
-name:183:& Leather Shield~
+name:& Leather Shield~
 graphics:):U
 type:shield
 properties:15:90:200
@@ -1428,7 +1402,7 @@ combat:8:1d3:0:0:0
 desc:A large oval or rectangular shield. It is made of wood, typically linden,
 desc: and covered with a layer of hardened leather to offer better protection.
 
-name:184:& Large Metal Shield~
+name:& Large Metal Shield~
 graphics:):s
 type:shield
 properties:30:120:500
@@ -1438,7 +1412,7 @@ desc:A large piece of wood, rectangular or oval in shape, and covered with metal
 desc: to strengthen it. It's to be worn strapped to the arm not occupied by the
 desc: weapon when fighting.
 
-name:185:& Mithril Shield~
+name:& Mithril Shield~
 graphics:):B
 type:shield
 properties:70:100:10000
@@ -1448,14 +1422,12 @@ flags:IGNORE_ACID
 desc:A large shield fashioned from a metal alloy that is not subject to
 desc: corrosion. It was especially crafted to better deflect attacks.
 
-## XXX 186 - 189 XXX ##
-
 
 ##### Rings #####
 
 ### Stat rings ###
 
-name:190:Strength
+name:Strength
 graphics:=:d
 type:ring
 properties:30:2:500
@@ -1464,7 +1436,7 @@ flags:SUST_STR
 values:STR[1+M5]
 desc:This bauble magically improves your strength.
 
-name:191:Intelligence
+name:Intelligence
 graphics:=:d
 type:ring
 properties:30:2:500
@@ -1473,7 +1445,7 @@ flags:SUST_INT
 values:INT[1+M5]
 desc:This magical piece of jewellery makes you smarter.
 
-name:192:Dexterity
+name:Dexterity
 graphics:=:d
 type:ring
 properties:30:2:500
@@ -1482,7 +1454,7 @@ flags:SUST_DEX
 values:DEX[1+M5]
 desc:This piece of jewellery magically improves your agility.
 
-name:193:Constitution
+name:Constitution
 graphics:=:d
 type:ring
 properties:30:2:500
@@ -1491,7 +1463,7 @@ flags:SUST_CON
 values:CON[1+M5]
 desc:This ring magically grants you health, improving your constitution.
 
-name:194:Speed
+name:Speed
 graphics:=:d
 type:ring
 properties:75:2:100000
@@ -1501,20 +1473,18 @@ values:SPEED[4+M6]
 desc:This wonderful ring grants you additional energy, allowing you to act
 desc: faster.
 
-name:195:Searching
+name:Searching
 graphics:=:d
 type:ring
 properties:5:2:250
 alloc:20:5 to 90
-values:SEARCH[1+M5]
+values:SEARCH[d4M2]
 desc:This ring magically improves your attention, so you can detect hidden
 desc: things better.
 
-## XXX 196 - 197 XXX ##
-
 ### Stat sustain rings ###
 
-name:198:Bodykeeping
+name:Bodykeeping
 graphics:=:d
 type:ring
 properties:30:2:750
@@ -1522,7 +1492,7 @@ alloc:20:30 to 100
 flags:SUST_STR | SUST_DEX | SUST_CON | EASY_KNOW
 desc:This magical bauble protects your body against draining attacks.
 
-name:199:Soulkeeping
+name:Soulkeeping
 graphics:=:d
 type:ring
 properties:30:2:600
@@ -1530,11 +1500,9 @@ alloc:20:30 to 100
 flags:SUST_STR | SUST_INT | SUST_WIS | EASY_KNOW
 desc:This magical ring protects your mind against draining attacks.
 
-## XXX 200 XXX ##
-
 ### Resistance rings ###
 
-name:201:Resist Poison
+name:Resist Poison
 graphics:=:d
 type:ring
 properties:40:2:16000
@@ -1545,7 +1513,7 @@ desc:This magical ring grants protection from poison.
 desc: It is rumoured that in deep dungeons monsters can kill you at once if you
 desc: don't have poison resistance.
 
-name:202:Resist Fire and Cold
+name:Resist Fire and Cold
 graphics:=:d
 type:ring
 properties:10:2:250
@@ -1555,20 +1523,16 @@ values:RES_FIRE[1] | RES_COLD[1]
 desc:This piece of jewellery grants you some protection from the burning heat of
 desc: fire and the chilling forces of cold.
 
-## XXX 203 - 204 XXX ##
-
 ### Elemental rings ###
 
-name:205:Light
+name:Light
 graphics:=:d
 type:ring
 properties:25:2:400
 alloc:20:25 to 100
 values:SEARCH[1+M5] | LIGHT[1] | RES_LIGHT[1]
 
-## XXX 206 XXX ##
-
-name:207:Flames
+name:Flames
 graphics:=:d
 type:ring
 properties:20:2:500
@@ -1581,7 +1545,7 @@ time:50+d50
 desc:This fiery circlet grants you protection, makes fire less dangerous and
 desc: even allows you to call forth a ball of flame.
 
-name:208:Acid
+name:Acid
 graphics:=:d
 type:ring
 properties:20:2:500
@@ -1595,7 +1559,7 @@ desc:This magical ring is imbued with spells of devouring acid, granting
 desc: protection against such assaults and the ability to shoot acid at your
 desc: foes.
 
-name:209:Ice
+name:Ice
 graphics:=:d
 type:ring
 properties:20:2:500
@@ -1609,7 +1573,7 @@ desc:This ring is imbued with supernatural cold, which makes you less vulnerable
 desc: to such effects and occasionally allows you to throw balls of ice at your
 desc: foes.
 
-name:210:Lightning
+name:Lightning
 graphics:=:d
 type:ring
 properties:20:2:500
@@ -1622,11 +1586,9 @@ time:50+d50
 desc:This sparkling circlet grants you protection, makes electricity less
 desc: dangerous and even allows you to call forth a ball of lightning.
 
-## XXX 211 XXX ##
-
 ### Combat rings ###
 
-name:212:Damage
+name:Damage
 graphics:=:d
 type:ring
 properties:20:2:500
@@ -1635,7 +1597,7 @@ combat:0:0d0:0:5+d3M7:0
 desc:This ring makes your hands magically strong in combat, allowing you to
 desc: inflict greater pain with your hand-to-hand attacks.
 
-name:213:Accuracy
+name:Accuracy
 graphics:=:d
 type:ring
 properties:20:2:500
@@ -1644,7 +1606,7 @@ combat:0:0d0:10+d6M7:0:0
 desc:This ring magically improves your control in combat, allowing you to hit
 desc: more often.
 
-name:214:Slaying
+name:Slaying
 graphics:=:d
 type:ring
 properties:40:2:1000
@@ -1653,7 +1615,7 @@ combat:0:0d0:d10M10:d5M5:0
 desc:This ring magically improves your fighting prowess, allowing to hit more
 desc: often and harder.
 
-name:215:Protection
+name:Protection
 graphics:=:d
 type:ring
 properties:10:2:500
@@ -1664,22 +1626,23 @@ desc: blows of your enemies.
 
 ### Mixed blessings ###
 
-name:216:Teleportation
+name:Teleportation
 graphics:=:d
 type:ring
 properties:10:2:1000
 alloc:20:10 to 50
-flags:TELEPORT | EASY_KNOW
+flags:EASY_KNOW
+curse:teleportation:100
 values:SPEED[2]
 
-name:217:Reckless Attacks
+name:Reckless Attacks
 graphics:=:d
 type:ring
 properties:10:2:200
 alloc:30:10 to 50
 combat:0:0d0:2+d3:2+d3:-8+4d3
 
-name:218:Open Wounds
+name:Open Wounds
 graphics:=:d
 type:ring
 properties:10:2:700
@@ -1688,7 +1651,7 @@ flags:IMPAIR_HP | EASY_KNOW
 act:CURE_SERIOUS
 time:10+5d8
 
-name:219:Escaping
+name:Escaping
 graphics:=:d
 type:ring
 properties:15:2:4000
@@ -1696,7 +1659,7 @@ alloc:50:15 to 80
 flags:AFRAID | EASY_KNOW
 values:SPEED[4]
 
-name:220:the Mouse
+name:the Mouse
 graphics:=:d
 type:ring
 properties:10:2:100
@@ -1704,7 +1667,7 @@ alloc:50:10 to 50
 combat:0:0d0:0:-3d5:0
 values:DEX[d4] | STEALTH[d4]
 
-name:221:the Dog
+name:the Dog
 graphics:=:d
 type:ring
 properties:10:2:100
@@ -1712,11 +1675,9 @@ alloc:50:10 to 50
 flags:PROT_FEAR | EASY_KNOW
 values:STEALTH[-2]
 
-## XXX 222 XXX ##
-
 ### Misc rings ###
 
-name:223:Slow Digestion
+name:Slow Digestion
 graphics:=:d
 type:ring
 properties:10:2:250
@@ -1725,7 +1686,7 @@ flags:SLOW_DIGEST | EASY_KNOW
 desc:This magical bauble grants you some sustenance, allowing you to subsist on
 desc: less food.
 
-name:224:Feather Falling
+name:Levitation
 graphics:=:d
 type:ring
 properties:10:2:200
@@ -1734,7 +1695,7 @@ flags:FEATHER | EASY_KNOW
 desc:When you put on this ring, you will be able to float just above the floor.
 desc: It prevents you from drowning, and all your falls will be painless.
 
-name:225:Free Action
+name:Free Action
 graphics:=:d
 type:ring
 properties:20:2:1500
@@ -1743,7 +1704,7 @@ flags:FREE_ACT | EASY_KNOW
 desc:This magical bauble prevents you from being held.
 desc: Some monsters will paralyse you and then kill you if you lack free action.
 
-name:226:See Invisible
+name:See Invisible
 graphics:=:d
 type:ring
 properties:30:2:340
@@ -1752,7 +1713,7 @@ flags:SEE_INVIS | EASY_KNOW
 desc:This magical piece of jewellery allows your eyes to perceive beings
 desc: otherwise unseen.
 
-name:227:Digging
+name:Digging
 graphics:=:d
 type:ring
 properties:10:2:800
@@ -1761,14 +1722,12 @@ values:TUNNEL[2+d3]
 act:STONE_TO_MUD
 time:15+2d10
 
-## XXX 228 - 229 XXX ##
-
 
 ##### Amulets #####
 
 ### Stat boosts ###
 
-name:230:Wisdom
+name:Wisdom
 graphics:":d
 type:amulet
 properties:20:3:500
@@ -1777,11 +1736,9 @@ flags:SUST_WIS
 values:WIS[1+M5]
 desc:This magical amulet will magically make you wiser.
 
-## XXX 231 XXX ##
-
 ### Resistances ###
 
-name:232:Resist Lightning
+name:Resist Lightning
 graphics:":d
 type:amulet
 properties:10:3:300
@@ -1790,7 +1747,7 @@ flags:IGNORE_ELEC | EASY_KNOW
 values:RES_ELEC[1]
 desc:This amulet will protect you from electrical discharges and storms.
 
-name:233:Resist Acid
+name:Resist Acid
 graphics:":d
 type:amulet
 properties:10:3:300
@@ -1800,7 +1757,7 @@ values:RES_ACID[1]
 desc:This magical talisman will make the corroding forces of acid less
 desc: threatening to your health.
 
-name:234:Resistance
+name:Resistance
 graphics:":d
 type:amulet
 properties:60:3:20000
@@ -1812,7 +1769,7 @@ desc:This amulet will make the wearer resist the elements.
 
 ### JLE amulets ###
 
-name:235:Sustenance
+name:Sustenance
 graphics:":d
 type:amulet
 properties:60:3:20000
@@ -1824,7 +1781,7 @@ desc:This blessed amulet will make the wearer impervious to evil magics
 desc: that would sap innate abilities. It also slows down the digestive
 desc: system, making food less necessary on long journeys.
 
-name:236:the Magi
+name:the Magi
 graphics:":d
 type:amulet
 properties:70:3:30000
@@ -1837,7 +1794,7 @@ desc:This rare amulet is highly desirable for mages, as it makes its wearer
 desc: smarter, more attentive and impervious to magics which would make their
 desc: own magic-use impossible.
 
-name:237:Telepathic Awareness
+name:Telepathic Awareness
 graphics:":d
 type:amulet
 properties:60:3:25000
@@ -1847,7 +1804,7 @@ values:SEARCH[d5M5]
 desc:This rare and powerful amulet lays bare the minds of monsters
 desc: before the wearer.
 
-name:238:Devotion
+name:Devotion
 graphics:":d
 type:amulet
 properties:70:3:30000
@@ -1858,7 +1815,7 @@ desc:This blessed amulet will protect your wisdom and charms from
 desc: diminishing, often adding to them as well. It also grants
 desc: some extra protective magics by the grace of the Valar.
 
-name:239:Weaponmastery
+name:Weaponmastery
 graphics:":d
 type:amulet
 properties:70:3:30000
@@ -1870,7 +1827,7 @@ desc:The ultimate amulet for a warrior, it will grant protection
 desc: in the face of some evil magics, protect your strength and health,
 desc: also increasing them.
 
-name:240:Trickery
+name:Trickery
 graphics:":d
 type:amulet
 properties:70:3:30000
@@ -1882,11 +1839,9 @@ desc:The ultimate amulet for a rogue or assassin, it protects the
 desc: wearer against some evil magics, granting improvements in
 desc: the abilities vital to these adventurers.
 
-## XXX 241 - 243 XXX ##
-
 ### Ability boosts ###
 
-name:244:Regeneration
+name:Regeneration
 graphics:":d
 type:amulet
 properties:30:3:600
@@ -1895,7 +1850,7 @@ flags:REGEN | EASY_KNOW
 desc:Wearing this amulet will trigger your body's regenerational
 desc: processes quicker and make them proceed faster.
 
-name:245:Infravision
+name:Infravision
 graphics:":d
 type:amulet
 properties:10:3:200
@@ -1904,7 +1859,7 @@ values:INFRA[1+M5]
 desc:This amulet will increase your ability to sense warm-blooded
 desc: creatures in your vicinity.
 
-name:246:Searching
+name:Searching
 graphics:":d
 type:amulet
 properties:10:3:600
@@ -1914,15 +1869,16 @@ desc:This amulet grants keen sight, finding things that are hidden.
 
 ### Powers ###
 
-name:247:Teleportation
+name:Teleportation
 graphics:":d
 type:amulet
 properties:10:3:10
 alloc:20:10 to 40
-flags:TELEPORT | EASY_KNOW
+flags:EASY_KNOW
+curse:teleportation:100
 desc:This amulet will randomly teleport you all over the place.
 
-name:248:Slow Digestion
+name:Slow Digestion
 graphics:":d
 type:amulet
 properties:15:3:200
@@ -1930,7 +1886,7 @@ alloc:20:15 to 40
 flags:SLOW_DIGEST | EASY_KNOW
 desc:This talisman will make you hungry less quickly when worn.
 
-name:249:Adornment
+name:Adornment
 graphics:":d
 type:amulet
 properties:10:3:0
@@ -1940,7 +1896,7 @@ desc:This amulet is not magical. It just looks good.
 
 ### Mixed ###
 
-name:250:Inertia
+name:Inertia
 graphics:":d
 type:amulet
 properties:15:3:10
@@ -1948,25 +1904,23 @@ alloc:20:15 to 40
 flags:FREE_ACT
 values:SPEED[-3+1d2]
 
-## XXX 251 - 259 XXX ##
-
 
 ##### Scrolls #####
 
 ### Teleportation ###
 
-name:260:Phase Door
+name:Phase Door
 graphics:?:w
 type:scroll
 properties:1:5:15
 alloc:50:1 to 100
-pile:100:1d3
+pile:100:2d3
 effect:TELEPORT
 param:0:1
 dice:10
 msg_other: blinks away.
 
-name:261:Teleportation
+name:Teleportation
 graphics:?:w
 type:scroll
 properties:10:5:40
@@ -1978,7 +1932,7 @@ dice:$B
 expr:B:MAX_SIGHT:* 5
 msg_other: teleports away.
 
-name:262:Teleport Level
+name:Teleport Level
 graphics:?:w
 type:scroll
 properties:20:5:800
@@ -1989,7 +1943,7 @@ param:1
 
 ### Detection ###
 
-name:263:Magic Mapping
+name:Magic Mapping
 graphics:?:w
 type:scroll
 properties:5:5:65
@@ -1998,7 +1952,7 @@ pile:70:1d3
 effect:MAP_AREA
 dice:22d40
 
-name:264:Treasure Detection
+name:Treasure Detection
 graphics:?:w
 type:scroll
 properties:0:5:70
@@ -2007,25 +1961,7 @@ pile:40:1d5
 effect:DETECT_TREASURES
 dice:22d40
 
-name:265:Trap Detection
-graphics:?:w
-type:scroll
-properties:0:5:35
-alloc:50:0 to 70
-pile:70:1d3
-effect:DETECT_TRAPS
-dice:22d40
-
-name:266:Door/Stair Location
-graphics:?:w
-type:scroll
-properties:5:5:50
-alloc:50:5 to 70
-pile:70:1d3
-effect:DETECT_FEATURES
-dice:22d40
-
-name:267:Detect Invisible
+name:Detect Invisible
 graphics:?:w
 type:scroll
 properties:1:5:15
@@ -2034,11 +1970,9 @@ pile:70:1d3
 effect:DETECT_INVISIBLE_MONSTERS
 dice:22d40
 
-## XXX 268 - 269 XXX ##
-
 ### Enchantments ###
 
-name:270:Enchant Weapon To-Hit
+name:Enchant Weapon To-Hit
 graphics:?:w
 type:scroll
 properties:15:5:125
@@ -2048,7 +1982,7 @@ effect:ENCHANT
 param:1:1
 dice:1
 
-name:271:Enchant Weapon To-Dam
+name:Enchant Weapon To-Dam
 graphics:?:w
 type:scroll
 properties:15:5:125
@@ -2058,7 +1992,7 @@ effect:ENCHANT
 param:2:1
 dice:1
 
-name:272:Enchant Armour
+name:Enchant Armour
 graphics:?:w
 type:scroll
 properties:15:5:125
@@ -2068,7 +2002,7 @@ effect:ENCHANT
 param:4:1
 dice:1
 
-name:273:*Enchant Weapon*
+name:*Enchant Weapon*
 graphics:?:w
 type:scroll
 properties:50:5:500
@@ -2078,7 +2012,7 @@ effect:ENCHANT
 param:3:1
 dice:1d3
 
-name:274:*Enchant Armour*
+name:*Enchant Armour*
 graphics:?:w
 type:scroll
 properties:50:5:500
@@ -2088,47 +2022,47 @@ effect:ENCHANT
 param:4:1
 dice:2+1d3
 
-#name:275:Remove Curse
-#graphics:?:w
-#type:scroll
-#properties:10:5:100
-#alloc:16:10 to 100
-#pile:25:2
-#effect:REMOVE_CURSE
+name:Remove Curse
+graphics:?:w
+type:scroll
+properties:10:5:100
+alloc:16:10 to 100
+pile:25:2
+effect:REMOVE_CURSE
+dice:20+d20
 
-#name:276:*Remove Curse*
-#graphics:?:w
-#type:scroll
-#properties:50:5:8000
-#alloc:16:50 to 100
-#pile:25:2
-#effect:REMOVE_ALL_CURSE
-
-## XXX 277 XXX ##
+name:*Remove Curse*
+graphics:?:w
+type:scroll
+properties:50:5:8000
+alloc:16:50 to 100
+pile:25:2
+effect:REMOVE_CURSE
+dice:50+d50
 
 ### Summoning ###
 
-name:278:Summon Monster
+name:Summon Monster
 graphics:?:w
 type:scroll
 properties:1:5:0
 alloc:10:1 to 100
 pile:70:1d3
 effect:SUMMON
-param:1
+param:0:-1
 dice:1d3
 
-name:279:Summon Undead
+name:Summon Undead
 graphics:?:w
 type:scroll
 properties:15:5:0
 alloc:10:15 to 100
 pile:70:1d3
 effect:SUMMON:UNDEAD
-param:1
+param:0:-1
 dice:1d3
 
-name:280:Acquirement
+name:Acquirement
 graphics:?:w
 type:scroll
 properties:20:5:5000
@@ -2136,7 +2070,7 @@ alloc:10:20 to 100
 effect:ACQUIRE
 dice:1
 
-name:281:*Acquirement*
+name:*Acquirement*
 graphics:?:w
 type:scroll
 properties:60:5:10000
@@ -2146,7 +2080,7 @@ dice:1+1d2
 
 ### Killing scrolls ###
 
-name:282:Dispel Undead
+name:Dispel Undead
 graphics:?:w
 type:scroll
 properties:40:5:200
@@ -2156,14 +2090,14 @@ effect:PROJECT_LOS_AWARE:DISP_UNDEAD
 param:1
 dice:60
 
-name:283:Banishment
+name:Banishment
 graphics:?:w
 type:scroll
 properties:40:5:2500
 alloc:25:40 to 100
 effect:BANISH
 
-name:284:Mass Banishment
+name:Mass Banishment
 graphics:?:w
 type:scroll
 properties:50:5:3000
@@ -2172,7 +2106,7 @@ effect:MASS_BANISH
 
 ### Utility ###
 
-name:285:Satisfy Hunger
+name:Satisfy Hunger
 graphics:?:w
 type:scroll
 properties:5:5:10
@@ -2182,17 +2116,15 @@ effect:SET_NOURISH
 dice:$B
 expr:B:FOOD_MAX:- 1
 
-name:286:Identify
+name:Identify Rune
 graphics:?:w
 type:scroll
-properties:1:5:100
-alloc:60:5 to 100
-pile:100:2d3
+properties:1:5:200
+alloc:50:5 to 100
+pile:70:1d4
 effect:IDENTIFY
 
-## XXX 287 - 288 XXX ##
-
-name:289:Light
+name:Light
 graphics:?:w
 type:scroll
 properties:0:5:15
@@ -2203,7 +2135,7 @@ param:2
 dice:2d8
 msg_other: calls light.
 
-name:290:Word of Recall
+name:Word of Recall
 graphics:?:w
 type:scroll
 properties:5:5:125
@@ -2212,7 +2144,7 @@ pile:35:2d3
 effect:RECALL
 dice:14+1d20
 
-name:291:Recharging
+name:Recharging
 graphics:?:w
 type:scroll
 properties:40:5:200
@@ -2221,7 +2153,7 @@ pile:12:2d3
 effect:RECHARGE
 dice:60
 
-name:292:Trap/Door Destruction
+name:Door Destruction
 graphics:?:w
 type:scroll
 properties:10:5:50
@@ -2229,7 +2161,7 @@ alloc:40:10 to 60
 pile:25:2d3
 effect:TOUCH:KILL_DOOR
 
-name:293:Deep Descent
+name:Deep Descent
 graphics:?:w
 type:scroll
 properties:1:5:250
@@ -2239,7 +2171,7 @@ effect:DEEP_DESCENT
 
 ### "Holy" spells ###
 
-name:294:Blessing
+name:Blessing
 graphics:?:w
 type:scroll
 properties:1:5:15
@@ -2248,7 +2180,7 @@ pile:70:1d3
 effect:TIMED_INC:BLESSED
 dice:6+1d12
 
-name:295:Holy Chant
+name:Holy Chant
 graphics:?:w
 type:scroll
 properties:10:5:40
@@ -2257,7 +2189,7 @@ pile:25:2
 effect:TIMED_INC:BLESSED
 dice:12+1d24
 
-name:296:Holy Prayer
+name:Holy Prayer
 graphics:?:w
 type:scroll
 properties:50:5:80
@@ -2266,7 +2198,7 @@ pile:25:2
 effect:TIMED_INC:BLESSED
 dice:24+1d48
 
-name:297:Protection from Evil
+name:Protection from Evil
 graphics:?:w
 type:scroll
 properties:30:5:50
@@ -2278,7 +2210,7 @@ expr:B:PLAYER_LEVEL:* 3
 
 ### Misc. ###
 
-name:298:Monster Confusion
+name:Monster Confusion
 graphics:?:w
 type:scroll
 properties:5:5:30
@@ -2286,7 +2218,7 @@ alloc:16:5 to 60
 pile:25:2
 effect:CONFUSING
 
-name:299:Rune of Protection
+name:Rune of Protection
 graphics:?:w
 type:scroll
 properties:70:5:500
@@ -2294,7 +2226,7 @@ alloc:30:70 to 100
 effect:RUNE
 param:1
 
-name:300:*Destruction*
+name:*Destruction*
 graphics:?:w
 type:scroll
 properties:40:5:1000
@@ -2304,17 +2236,18 @@ dice:15
 
 ### Bad scrolls ###
 
-name:301:Aggravate Monster
+name:Aggravate Monster
 graphics:?:w
 type:scroll
 properties:5:5:0
 alloc:10:5 to 70
 pile:70:1d3
-effect:AGGRAVATE
+effect:PROJECT_LOS:MON_SPEED
+dice:25
+effect:WAKE
+msg_self:There is a high pitched humming noise.
 
-## XXX 302 - 303 XXX ##
-
-name:304:Darkness
+name:Darkness
 graphics:?:w
 type:scroll
 properties:1:5:0
@@ -2324,24 +2257,22 @@ effect:DARKEN_AREA
 param:3
 dice:10
 
-name:305:Trap Creation
+name:Trap Creation
 graphics:?:w
 type:scroll
 properties:10:5:0
 alloc:10:10 to 70
 pile:70:1d3
 effect:TOUCH:MAKE_TRAP
-param:1
+param:3:1
 msg_self:You hear a low-pitched whistling sound.
-
-## XXX 306 - 309 XXX ##
 
 
 ##### Potions #####
 
 ### Statgain ###
 
-name:310:Strength
+name:Strength
 graphics:!:d
 type:potion
 properties:30:4:8000
@@ -2350,7 +2281,7 @@ pile:10:2
 effect:GAIN_STAT:STR
 effect:RESTORE_STAT:STR
 
-name:311:Intelligence
+name:Intelligence
 graphics:!:d
 type:potion
 properties:30:4:8000
@@ -2359,7 +2290,7 @@ pile:10:2
 effect:GAIN_STAT:INT
 effect:RESTORE_STAT:INT
 
-name:312:Wisdom
+name:Wisdom
 graphics:!:d
 type:potion
 properties:30:4:8000
@@ -2368,7 +2299,7 @@ pile:10:2
 effect:GAIN_STAT:WIS
 effect:RESTORE_STAT:WIS
 
-name:313:Dexterity
+name:Dexterity
 graphics:!:d
 type:potion
 properties:30:4:8000
@@ -2377,7 +2308,7 @@ pile:10:2
 effect:GAIN_STAT:DEX
 effect:RESTORE_STAT:DEX
 
-name:314:Constitution
+name:Constitution
 graphics:!:d
 type:potion
 properties:30:4:8000
@@ -2386,9 +2317,7 @@ pile:10:2
 effect:GAIN_STAT:CON
 effect:RESTORE_STAT:CON
 
-## XXX 315 XXX ##
-
-name:316:Augmentation
+name:Augmentation
 graphics:!:d
 type:potion
 properties:40:4:50000
@@ -2404,7 +2333,7 @@ effect:RESTORE_STAT:INT
 effect:GAIN_STAT:STR
 effect:RESTORE_STAT:STR
 
-name:317:Experience
+name:Experience
 graphics:!:d
 type:potion
 properties:65:4:25000
@@ -2415,7 +2344,7 @@ effect:RESTORE_EXP
 
 ### Healings ###
 
-name:318:Cure Light Wounds
+name:Cure Light Wounds
 graphics:!:d
 type:potion
 properties:1:4:20
@@ -2431,7 +2360,7 @@ dice:20
 effect:NOURISH
 dice:150
 
-name:319:Cure Serious Wounds
+name:Cure Serious Wounds
 graphics:!:d
 type:potion
 properties:5:4:70
@@ -2445,7 +2374,7 @@ dice:40
 effect:NOURISH
 dice:150
 
-name:320:Cure Critical Wounds
+name:Cure Critical Wounds
 graphics:!:d
 type:potion
 properties:12:4:200
@@ -2462,7 +2391,7 @@ dice:60
 effect:NOURISH
 dice:150
 
-name:321:Healing
+name:Healing
 graphics:!:d
 type:potion
 properties:30:4:800
@@ -2479,7 +2408,7 @@ dice:300+m35
 effect:NOURISH
 dice:200
 
-name:322:*Healing*
+name:*Healing*
 graphics:!:d
 type:potion
 properties:40:4:1500
@@ -2495,7 +2424,7 @@ dice:1200
 effect:NOURISH
 dice:300
 
-name:323:Life
+name:Life
 graphics:!:d
 type:potion
 properties:60:4:5000
@@ -2518,7 +2447,7 @@ effect:CURE:BLIND
 effect:RESTORE_EXP
 msg_self:You feel life flow through your body!
 
-name:324:Neutralize Poison
+name:Neutralize Poison
 graphics:!:d
 type:potion
 properties:1:4:75
@@ -2526,7 +2455,7 @@ alloc:40:1 to 35
 pile:25:2
 effect:CURE:POISONED
 
-name:325:Restore Mana
+name:Restore Mana
 graphics:!:d
 type:potion
 properties:15:4:350
@@ -2537,9 +2466,7 @@ dice:500
 
 ### Stat restore ###
 
-## XXX 326 - 331 XXX ##
-
-name:332:Restore Life Levels
+name:Restore Life Levels
 graphics:!:d
 type:potion
 properties:30:4:400
@@ -2549,7 +2476,7 @@ effect:RESTORE_EXP
 
 ### Gain one/lose one potions ###
 
-name:333:Brawn
+name:Brawn
 graphics:!:d
 type:potion
 properties:20:4:1000
@@ -2559,7 +2486,7 @@ effect:LOSE_RANDOM_STAT:STR
 effect:GAIN_STAT:STR
 effect:RESTORE_STAT:STR
 
-name:334:Intellect
+name:Intellect
 graphics:!:d
 type:potion
 properties:20:4:1000
@@ -2569,7 +2496,7 @@ effect:LOSE_RANDOM_STAT:INT
 effect:GAIN_STAT:INT
 effect:RESTORE_STAT:INT
 
-name:335:Contemplation
+name:Contemplation
 graphics:!:d
 type:potion
 properties:20:4:1000
@@ -2579,7 +2506,7 @@ effect:LOSE_RANDOM_STAT:WIS
 effect:GAIN_STAT:WIS
 effect:RESTORE_STAT:WIS
 
-name:336:Nimbleness
+name:Nimbleness
 graphics:!:d
 type:potion
 properties:20:4:1000
@@ -2589,7 +2516,7 @@ effect:LOSE_RANDOM_STAT:DEX
 effect:GAIN_STAT:DEX
 effect:RESTORE_STAT:DEX
 
-name:337:Toughness
+name:Toughness
 graphics:!:d
 type:potion
 properties:20:4:1000
@@ -2599,45 +2526,36 @@ effect:LOSE_RANDOM_STAT:CON
 effect:GAIN_STAT:CON
 effect:RESTORE_STAT:CON
 
-## XXX 338 - 339 XXX ##
-
 ### Knowledge ###
 
-## XXX 340 XXX ##
-
-name:341:Enlightenment
+name:Enlightenment
 graphics:!:d
 type:potion
 properties:25:4:800
 alloc:40:25 to 100
 pile:25:2
-effect:ENLIGHTENMENT
+effect:LIGHT_LEVEL
 param:1
 
-name:342:*Enlightenment*
+name:*Enlightenment*
 graphics:!:d
 type:potion
 properties:70:4:12000
 alloc:8:70 to 100
-effect:IDENTIFY_PACK
 effect:DETECT_ALL_MONSTERS
 effect:DETECT_TREASURES
 param:1
-dice:22d40
-effect:DETECT_FEATURES
-dice:22d40
-effect:DETECT_TRAPS
 dice:22d40
 effect:GAIN_STAT:WIS
 effect:RESTORE_STAT:WIS
 effect:GAIN_STAT:INT
 effect:RESTORE_STAT:INT
-effect:ENLIGHTENMENT
+effect:LIGHT_LEVEL
 param:1
 
 ### Buffs ###
 
-name:343:Speed
+name:Speed
 graphics:!:d
 type:potion
 properties:1:4:75
@@ -2647,7 +2565,7 @@ effect:TIMED_INC:FAST
 param:5
 dice:20+1d20
 
-name:344:Heroism
+name:Heroism
 graphics:!:d
 type:potion
 properties:1:4:25
@@ -2661,7 +2579,7 @@ effect:CURE:AFRAID
 effect:HEAL_HP
 dice:10
 
-name:345:Berserk Strength
+name:Berserk Strength
 graphics:!:d
 type:potion
 properties:3:4:100
@@ -2675,7 +2593,7 @@ effect:CURE:AFRAID
 effect:HEAL_HP
 dice:30
 
-name:346:Boldness
+name:Boldness
 graphics:!:d
 type:potion
 properties:1:4:8
@@ -2683,47 +2601,47 @@ alloc:40:1 to 90
 pile:25:2
 effect:CURE:AFRAID
 
-name:347:Resist Heat
+name:Resist Heat
 graphics:!:d
 type:potion
-properties:1:4:30
-alloc:40:1 to 100
+properties:30:4:30
+alloc:40:30 to 100
 pile:25:2
 flags:IGNORE_FIRE
 effect:TIMED_INC:OPP_FIRE
-dice:10+1d10
+dice:50+1d10
 
-name:348:Resist Cold
+name:Resist Cold
 graphics:!:d
 type:potion
-properties:1:4:30
-alloc:40:1 to 100
+properties:30:4:30
+alloc:40:30 to 100
 pile:25:2
 flags:IGNORE_COLD
 effect:TIMED_INC:OPP_COLD
-dice:10+1d10
+dice:50+1d10
 
-name:349:Resist Poison
+name:Resist Poison
 graphics:!:d
 type:potion
-properties:8:4:30
-alloc:40:8 to 100
+properties:20:4:30
+alloc:40:20 to 100
 pile:25:2
 effect:TIMED_INC:OPP_POIS
-dice:10+1d10
+dice:50+1d10
 effect:CURE:POISONED
 
-name:350:True Seeing
+name:True Seeing
 graphics:!:d
 type:potion
 properties:3:4:50
 alloc:40:3 to 40
 pile:25:2
 effect:TIMED_INC:SINVIS
-dice:12+2d6
+dice:50+2d6
 effect:CURE:BLIND
 
-name:351:Infravision
+name:Infravision
 graphics:!:d
 type:potion
 properties:3:4:20
@@ -2732,11 +2650,9 @@ pile:25:2
 effect:TIMED_INC:SINFRA
 dice:100+4d25
 
-## XXX 352 - 354 XXX ##
-
 ### Useless buggers ###
 
-name:355:Slime Mold Juice
+name:Slime Mold Juice
 graphics:!:d
 type:potion
 properties:1:4:2
@@ -2746,7 +2662,7 @@ effect:NOURISH
 dice:1000
 msg_self:You feel less thirsty.
 
-name:356:Sleep
+name:Sleep
 graphics:!:d
 type:potion
 properties:0:4:0
@@ -2758,7 +2674,7 @@ dice:5+1d5
 effect:NOURISH
 dice:100
 
-name:357:Blindness
+name:Blindness
 graphics:!:d
 type:potion
 properties:0:4:0
@@ -2768,7 +2684,7 @@ combat:0:3d4:0:0:0
 effect:TIMED_INC:BLIND
 dice:75+4d25
 
-name:358:Confusion
+name:Confusion
 graphics:!:d
 type:potion
 properties:0:4:0
@@ -2780,18 +2696,18 @@ dice:10+4d5
 effect:NOURISH
 dice:50
 
-name:359:Poison
+name:Poison
 graphics:!:d
 type:potion
 properties:0:4:0
 alloc:10:0 to 10
 pile:70:2d3
 combat:0:3d4:0:0:0
-values:BRAND_POIS[3]
+brand:POIS_3
 effect:TIMED_INC:POISONED
 dice:10+2d7
 
-name:360:Slowness
+name:Slowness
 graphics:!:d
 type:potion
 properties:0:4:0
@@ -2803,7 +2719,7 @@ dice:15+1d25
 effect:NOURISH
 dice:50
 
-name:361:Lose Memories
+name:Lose Memories
 graphics:!:d
 type:potion
 properties:10:4:0
@@ -2811,7 +2727,7 @@ alloc:10:10 to 15
 pile:25:2
 effect:LOSE_EXP
 
-name:362:Salt Water
+name:Salt Water
 graphics:!:d
 type:potion
 properties:3:4:0
@@ -2828,7 +2744,7 @@ msg_other: vomits!
 
 ### Weird one ###
 
-name:363:Dragon Breath
+name:Dragon Breath
 graphics:!:d
 type:potion
 properties:40:4:100
@@ -2844,14 +2760,12 @@ dice:80
 effect:RANDOM
 dice:2
 
-## XXX 364 - 369 XXX ##
-
 
 ##### Wands #####
 
 ### Bolts ###
 
-name:370:Magic Missile
+name:Magic Missile
 graphics:-:d
 type:wand
 properties:3:10:200
@@ -2862,7 +2776,7 @@ effect:BOLT_OR_BEAM:MISSILE
 dice:3d4
 msg_other: fires a magic missile.
 
-name:371:Lightning Bolts
+name:Lightning Bolts
 graphics:-:d
 type:wand
 properties:15:10:600
@@ -2874,7 +2788,7 @@ effect:BEAM:ELEC
 dice:6d6
 msg_other: fires a lightning bolt.
 
-name:372:Frost Bolts
+name:Frost Bolts
 graphics:-:d
 type:wand
 properties:20:10:800
@@ -2886,7 +2800,7 @@ effect:BOLT_OR_BEAM:COLD
 dice:6d8
 msg_other: fires a frost bolt.
 
-name:373:Fire Bolts
+name:Fire Bolts
 graphics:-:d
 type:wand
 properties:30:10:1000
@@ -2898,7 +2812,7 @@ effect:BOLT_OR_BEAM:FIRE
 dice:12d8
 msg_other: fires a fire bolt.
 
-name:374:Acid Bolts
+name:Acid Bolts
 graphics:-:d
 type:wand
 properties:30:10:950
@@ -2912,7 +2826,7 @@ msg_other: fires an acid bolt.
 
 ### Balls ###
 
-name:375:Stinking Cloud
+name:Stinking Cloud
 graphics:-:d
 type:wand
 properties:5:10:400
@@ -2923,7 +2837,7 @@ effect:BALL:POIS:3
 dice:12
 msg_other: fires a stinking cloud.
 
-name:376:Lightning Balls
+name:Lightning Balls
 graphics:-:d
 type:wand
 properties:35:10:1200
@@ -2935,7 +2849,7 @@ effect:BALL:ELEC:2
 dice:64
 msg_other: fires a lightning ball.
 
-name:377:Cold Balls
+name:Cold Balls
 graphics:-:d
 type:wand
 properties:40:10:1500
@@ -2947,7 +2861,7 @@ effect:BALL:COLD:2
 dice:96
 msg_other: fires a frost ball.
 
-name:378:Fire Balls
+name:Fire Balls
 graphics:-:d
 type:wand
 properties:50:10:1800
@@ -2959,7 +2873,7 @@ effect:BALL:FIRE:2
 dice:144
 msg_other: fires a fire ball.
 
-name:379:Acid Balls
+name:Acid Balls
 graphics:-:d
 type:wand
 properties:50:10:1650
@@ -2973,42 +2887,51 @@ msg_other: fires an acid ball.
 
 ### Monster status changing ###
 
-name:380:Slow Monster
+name:Slow Monster
 graphics:-:d
 type:wand
 properties:5:10:500
-alloc:20:5 to 60
+alloc:20:5 to 100
 combat:0:1d1:0:0:0
-charges:6+d10
-effect:BOLT_AWARE:OLD_SLOW
-dice:20
+charges:2+d6
+effect:BOLT_AWARE:MON_SLOW
+dice:10+1d20
 
-name:381:Confuse Monster
+name:Confuse Monster
 graphics:-:d
 type:wand
 properties:5:10:500
-alloc:20:5 to 60
+alloc:20:5 to 100
 combat:0:1d1:0:0:0
-charges:6+d12
-effect:BOLT_AWARE:OLD_CONF
-dice:10
+charges:2+d6
+effect:BOLT_AWARE:MON_CONF
+dice:5+1d5
 
-name:382:Sleep Monster
+name:Hold Monster
 graphics:-:d
 type:wand
 properties:5:10:500
-alloc:20:5 to 60
+alloc:20:5 to 100
 combat:0:1d1:0:0:0
-charges:8+d15
-effect:BOLT_AWARE:OLD_SLEEP
-dice:$B
-expr:B:PLAYER_LEVEL:+ 0
+charges:2+d6
+effect:BOLT_AWARE:MON_HOLD
+dice:3+1d5
 
-name:383:Scare Monster
+name:Stun Monster
+graphics:-:d
+type:wand
+properties:5:10:500
+alloc:20:5 to 100
+combat:0:1d1:0:0:0
+charges:2+d6
+effect:BOLT_AWARE:MON_STUN
+dice:5+1d5
+
+name:Scare Monster
 graphics:-:d
 type:wand
 properties:10:10:500
-alloc:20:10 to 60
+alloc:20:10 to 100
 combat:0:1d1:0:0:0
 charges:3+d5
 effect:BOLT_AWARE:TURN_ALL
@@ -3016,7 +2939,7 @@ dice:10
 
 ### Utility ###
 
-name:384:Light
+name:Light
 graphics:-:d
 type:wand
 properties:3:10:200
@@ -3027,7 +2950,7 @@ effect:LINE:LIGHT_WEAK
 dice:6d8
 msg_self:A line of shimmering blue light appears.
 
-name:385:Stone to Mud
+name:Stone to Mud
 graphics:-:d
 type:wand
 properties:10:10:300
@@ -3037,19 +2960,19 @@ charges:3+d4
 effect:LINE:KILL_WALL
 dice:20+1d30
 
-name:386:Polymorph
+name:Polymorph
 graphics:-:d
 type:wand
 properties:20:10:400
 alloc:20:20 to 60
 combat:0:1d1:0:0:0
 charges:6+d8
-effect:BOLT_AWARE:OLD_POLY
+effect:BOLT_AWARE:MON_POLY
 param:1
 dice:$B
 expr:B:PLAYER_LEVEL:+ 0
 
-name:387:Trap/Door Destruction
+name:Door Destruction
 graphics:-:d
 type:wand
 properties:10:10:100
@@ -3058,16 +2981,16 @@ combat:0:1d1:0:0:0
 charges:6+d8
 effect:ALTER:KILL_DOOR
 
-name:388:Clone Monster
+name:Clone Monster
 graphics:-:d
 type:wand
 properties:15:10:0
 alloc:20:15 to 100
 combat:0:1d1:0:0:0
 charges:3+d5
-effect:BOLT_STATUS:OLD_CLONE
+effect:BOLT_STATUS:MON_CLONE
 
-name:389:Teleport Other
+name:Teleport Other
 graphics:-:d
 type:wand
 properties:20:10:3500
@@ -3079,7 +3002,7 @@ param:1
 dice:$B
 expr:B:MAX_SIGHT:* 5
 
-name:390:Disarming
+name:Disable Traps
 graphics:-:d
 type:wand
 properties:20:10:700
@@ -3088,7 +3011,7 @@ combat:0:1d1:0:0:0
 charges:4+d5
 effect:ALTER:KILL_TRAP
 
-name:391:Wonder
+name:Wonder
 graphics:-:d
 type:wand
 properties:3:10:250
@@ -3102,7 +3025,7 @@ expr:B:PLAYER_LEVEL:/ 5
 
 ### Dragons' wands ###
 
-name:392:Dragon's Flame
+name:Dragon's Flame
 graphics:-:d
 type:wand
 properties:50:10:2400
@@ -3114,7 +3037,7 @@ effect:BREATH:FIRE:30
 dice:200
 msg_other: shoots dragon fire!
 
-name:393:Dragon's Frost
+name:Dragon's Frost
 graphics:-:d
 type:wand
 properties:50:10:2400
@@ -3126,7 +3049,7 @@ effect:BREATH:COLD:30
 dice:160
 msg_other: shoots dragon frost!
 
-name:394:Dragon's Breath
+name:Dragon's Breath
 graphics:-:d
 type:wand
 properties:60:10:2400
@@ -3135,36 +3058,36 @@ combat:0:1d1:0:0:0
 charges:1+d3
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 effect:BREATH:POIS:30
-dice:120
+dice:160
 msg_other: shoots dragon poison!
 effect:BREATH:COLD:30
 dice:160
 msg_other: shoots dragon frost!
 effect:BREATH:FIRE:30
-dice:200
+dice:160
 msg_other: shoots dragon fire!
 effect:BREATH:ELEC:30
 dice:160
 msg_other: shoots dragon lightning!
 effect:BREATH:ACID:30
-dice:200
+dice:160
 msg_other: shoots dragon acid!
 effect:RANDOM
 dice:5
 
 ### Drain lifes ###
 
-name:395:Drain Life
+name:Drain Life
 graphics:-:d
 type:wand
 properties:50:10:1200
 alloc:50:50 to 100
 combat:0:1d1:0:0:0
 charges:3+d3
-effect:BOLT_STATUS_DAM:OLD_DRAIN
+effect:BOLT_STATUS_DAM:MON_DRAIN
 dice:150
 
-name:396:Annihilation
+name:Annihilation
 graphics:-:d
 type:wand
 properties:60:10:3000
@@ -3172,39 +3095,37 @@ alloc:20:60 to 100
 combat:0:1d1:0:0:0
 charges:1+d2
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-effect:BOLT_STATUS_DAM:OLD_DRAIN
+effect:BOLT_STATUS_DAM:MON_DRAIN
 dice:250
 
 ### Rubbish ###
 
-name:397:Heal Monster
+name:Heal Monster
 graphics:-:d
 type:wand
 properties:3:10:0
 alloc:10:3 to 40
 combat:0:1d1:0:0:0
 charges:8+d20
-effect:BOLT_STATUS:OLD_HEAL
+effect:BOLT_STATUS:MON_HEAL
 dice:4d6
 
-name:398:Haste Monster
+name:Haste Monster
 graphics:-:d
 type:wand
 properties:3:10:0
 alloc:10:3 to 40
 combat:0:1d1:0:0:0
 charges:8+d20
-effect:BOLT_STATUS:OLD_SPEED
+effect:BOLT_STATUS:MON_SPEED
 dice:100
-
-## XXX 399 XXX ##
 
 
 ##### Staves #####
 
 ### Bad staves ###
 
-name:400:Summoning
+name:Summoning
 graphics:_:d
 type:staff
 properties:10:50:0
@@ -3212,20 +3133,20 @@ alloc:10:10 to 100
 combat:0:1d2:0:0:0
 charges:2d3
 effect:SUMMON
-param:1
+param:0:-1
 dice:1d3
 
-name:401:Haste Monsters
+name:Haste Monsters
 graphics:_:d
 type:staff
 properties:10:50:0
 alloc:10:10 to 40
 combat:0:1d2:0:0:0
 charges:8+d8
-effect:PROJECT_LOS:OLD_SPEED
+effect:PROJECT_LOS:MON_SPEED
 dice:50
 
-name:402:Darkness
+name:Darkness
 graphics:_:d
 type:staff
 properties:5:50:0
@@ -3238,7 +3159,7 @@ dice:10
 
 ### Destruction ### 
 
-name:403:Earthquakes
+name:Earthquakes
 graphics:_:d
 type:staff
 properties:40:50:350
@@ -3248,7 +3169,7 @@ charges:3+d5
 effect:EARTHQUAKE
 dice:10
 
-name:404:*Destruction*
+name:*Destruction*
 graphics:_:d
 type:staff
 properties:50:50:6000
@@ -3260,41 +3181,38 @@ dice:15
 
 ### Monster-affecting ###
 
-name:405:Confuse Monsters
+name:Confuse Monsters
 graphics:_:d
 type:staff
 properties:10:50:800
 alloc:20:10 to 100
 combat:0:1d2:0:0:0
-charges:6+d5
-effect:PROJECT_LOS_AWARE:OLD_CONF
-dice:$B
-expr:B:PLAYER_LEVEL:+ 0
+charges:3+d3
+effect:PROJECT_LOS_AWARE:MON_CONF
+dice:5+1d5
 
-name:406:Slow Monsters
+name:Slow Monsters
 graphics:_:d
 type:staff
 properties:10:50:800
 alloc:20:10 to 100
 combat:0:1d2:0:0:0
-charges:6+d5
-effect:PROJECT_LOS_AWARE:OLD_SLOW
-dice:20
+charges:4+d4
+effect:PROJECT_LOS_AWARE:MON_SLOW
+dice:10+1d10
 
-name:407:Sleep Monsters
+name:Sleep Monsters
 graphics:_:d
 type:staff
 properties:10:50:700
 alloc:20:10 to 100
 combat:0:1d2:0:0:0
 charges:6+d5
-effect:PROJECT_LOS_AWARE:OLD_SLEEP
-dice:$B
-expr:B:PLAYER_LEVEL:+ 0
+effect:PROJECT_LOS_AWARE:MON_SLEEP
 
 ### Detect ###
 
-name:408:Detect Invisible
+name:Detect Invisible
 graphics:_:d
 type:staff
 properties:5:50:200
@@ -3304,7 +3222,7 @@ charges:8+d15
 effect:DETECT_INVISIBLE_MONSTERS
 dice:22d40
 
-name:409:Detect Evil
+name:Detect Evil
 graphics:_:d
 type:staff
 properties:20:50:350
@@ -3314,11 +3232,11 @@ charges:8+d15
 effect:DETECT_EVIL
 dice:22d40
 
-name:410:Magic Mapping
+name:Magic Mapping
 graphics:_:d
 type:staff
 properties:20:50:600
-alloc:30:20 to 100
+alloc:40:10 to 100
 combat:0:1d2:0:0:0
 charges:5+d5
 effect:MAP_AREA
@@ -3326,7 +3244,7 @@ dice:22d40
 
 ### Healing ###
 
-name:411:Curing
+name:Curing
 graphics:_:d
 type:staff
 properties:10:50:500
@@ -3340,7 +3258,7 @@ effect:CURE:POISONED
 effect:CURE:CONFUSED
 effect:CURE:BLIND
 
-name:412:Cure Light Wounds
+name:Cure Light Wounds
 graphics:_:d
 type:staff
 properties:5:50:350
@@ -3355,7 +3273,7 @@ effect:CURE:BLIND
 effect:HEAL_HP
 dice:20
 
-name:413:Healing
+name:Healing
 graphics:_:d
 type:staff
 properties:70:50:5000
@@ -3373,7 +3291,7 @@ dice:300+m35
 
 ### Killing staves ###
 
-name:414:Dispel Evil
+name:Dispel Evil
 graphics:_:d
 type:staff
 properties:50:50:1200
@@ -3384,7 +3302,7 @@ effect:PROJECT_LOS_AWARE:DISP_EVIL
 param:1
 dice:60
 
-name:415:Banishment
+name:Banishment
 graphics:_:d
 type:staff
 properties:70:50:5000
@@ -3393,7 +3311,7 @@ combat:0:1d2:0:0:0
 charges:1+d2
 effect:BANISH
 
-name:416:Power
+name:Power
 graphics:_:d
 type:staff
 properties:70:50:4000
@@ -3404,7 +3322,7 @@ effect:PROJECT_LOS:DISP_ALL
 param:1
 dice:120
 
-name:417:Holiness
+name:Holiness
 graphics:_:d
 type:staff
 properties:70:50:3500
@@ -3432,7 +3350,7 @@ dice:120
 
 ### Utility ###
 
-name:418:Light
+name:Light
 graphics:_:d
 type:staff
 properties:5:50:250
@@ -3443,7 +3361,7 @@ effect:LIGHT_AREA
 param:2
 dice:2d8
 
-name:419:Starlight
+name:Starlight
 graphics:_:d
 type:staff
 properties:20:50:800
@@ -3454,7 +3372,7 @@ effect:STAR:LIGHT_WEAK
 dice:6d8
 msg_self:Light shoots in all directions!
 
-name:420:Teleportation
+name:Teleportation
 graphics:_:d
 type:staff
 properties:20:50:2000
@@ -3466,7 +3384,7 @@ param:0:1
 dice:$B
 expr:B:MAX_SIGHT:* 5
 
-name:421:Speed
+name:Speed
 graphics:_:d
 type:staff
 properties:40:50:2000
@@ -3477,16 +3395,17 @@ effect:TIMED_INC:FAST
 param:5
 dice:20+1d20
 
-#name:422:Remove Curse
-#graphics:_:d
-#type:staff
-#properties:40:50:500
-#alloc:20:40 to 100
-#combat:0:1d2:0:0:0
-#charges:4+d3
-#effect:REMOVE_CURSE
+name:Remove Curse
+graphics:_:d
+type:staff
+properties:40:50:500
+alloc:20:40 to 100
+combat:0:1d2:0:0:0
+charges:4+d3
+effect:REMOVE_CURSE
+dice:20+d20
 
-name:423:the Magi
+name:the Magi
 graphics:_:d
 type:staff
 properties:70:50:4500
@@ -3496,23 +3415,12 @@ charges:2+d2
 effect:RESTORE_MANA
 effect:RESTORE_STAT:INT
 
-name:424:Identify
-graphics:_:d
-type:staff
-properties:10:50:600
-alloc:50:10 to 100
-combat:0:1d2:0:0:0
-charges:5+d15
-effect:IDENTIFY
-
-## XXX 425 - 429 XXX ##
-
 
 ##### Rods #####
 
 ### Detection ###
 
-name:430:Treasure Location
+name:Treasure Location
 graphics:-:d
 type:rod
 properties:8:15:1000
@@ -3521,25 +3429,7 @@ combat:0:1d1:0:0:0
 act:DETECT_TREASURE
 time:50
 
-name:431:Door/Stair Location
-graphics:-:d
-type:rod
-properties:8:15:1000
-alloc:30:8 to 75
-combat:0:1d1:0:0:0
-act:DETECT_DOORSTAIR
-time:70
-
-name:432:Trap Location
-graphics:-:d
-type:rod
-properties:8:15:1000
-alloc:30:8 to 75
-combat:0:1d1:0:0:0
-act:DETECT_TRAP
-time:50
-
-name:433:Detection
+name:Detection
 graphics:-:d
 type:rod
 properties:50:15:3000
@@ -3549,16 +3439,16 @@ flags:IGNORE_ELEC
 act:DETECT_ALL
 time:100
 
-name:434:Magic Mapping
+name:Magic Mapping
 graphics:-:d
 type:rod
 properties:65:15:2000
-alloc:10:65 to 100
+alloc:30:35 to 100
 combat:0:1d1:0:0:0
 act:MAPPING
 time:100
 
-name:435:Probing
+name:Probing
 graphics:-:d
 type:rod
 properties:35:15:1000
@@ -3569,7 +3459,7 @@ time:100
 
 ### Bolts ###
 
-name:436:Fire Bolts
+name:Fire Bolts
 graphics:-:d
 type:rod
 properties:30:15:3000
@@ -3579,7 +3469,7 @@ flags:IGNORE_FIRE
 act:FIRE_BOLT
 time:15
 
-name:437:Frost Bolts
+name:Frost Bolts
 graphics:-:d
 type:rod
 properties:25:15:2500
@@ -3589,7 +3479,7 @@ flags:IGNORE_COLD
 act:COLD_BOLT2
 time:13
 
-name:438:Lightning Bolts
+name:Lightning Bolts
 graphics:-:d
 type:rod
 properties:20:15:2000
@@ -3599,7 +3489,7 @@ flags:IGNORE_ELEC
 act:ELEC_BOLT
 time:11
 
-name:439:Acid Bolts
+name:Acid Bolts
 graphics:-:d
 type:rod
 properties:40:15:3500
@@ -3611,7 +3501,7 @@ time:12
 
 ### Balls ###
 
-name:440:Fire Balls
+name:Fire Balls
 graphics:-:d
 type:rod
 properties:75:15:5000
@@ -3621,7 +3511,7 @@ flags:IGNORE_FIRE
 act:FIRE_BALL144
 time:30
 
-name:441:Cold Balls
+name:Cold Balls
 graphics:-:d
 type:rod
 properties:60:15:4500
@@ -3631,7 +3521,7 @@ flags:IGNORE_COLD
 act:COLD_BALL96
 time:25
 
-name:442:Lightning Balls
+name:Lightning Balls
 graphics:-:d
 type:rod
 properties:55:15:4000
@@ -3641,7 +3531,7 @@ flags:IGNORE_ELEC
 act:ELEC_BALL64
 time:23
 
-name:443:Acid Balls
+name:Acid Balls
 graphics:-:d
 type:rod
 properties:70:15:5500
@@ -3653,27 +3543,27 @@ time:27
 
 ### Status-affecting ###
 
-name:444:Slow Monster
+name:Slow Monster
 graphics:-:d
 type:rod
 properties:30:15:1500
 alloc:20:30 to 100
 combat:0:1d1:0:0:0
 act:MON_SLOW
-time:20
+time:40
 
-name:445:Sleep Monster
+name:Hold Monster
 graphics:-:d
 type:rod
 properties:30:15:1500
 alloc:20:30 to 100
 combat:0:1d1:0:0:0
-act:MON_SLEEP
-time:18
+act:MON_HOLD
+time:40
 
 ### Healing ###
 
-name:446:Curing
+name:Curing
 graphics:-:d
 type:rod
 properties:10:15:1000
@@ -3682,7 +3572,7 @@ combat:0:1d1:0:0:0
 act:CURE_TEMP
 time:100
 
-name:447:Healing
+name:Healing
 graphics:-:d
 type:rod
 properties:80:15:20000
@@ -3692,7 +3582,7 @@ flags:IGNORE_ELEC
 act:CURE_FULL500
 time:1000
 
-name:448:Restoration
+name:Restoration
 graphics:-:d
 type:rod
 properties:80:15:25000
@@ -3704,7 +3594,7 @@ time:1000
 
 ### Other ###
 
-name:449:Polymorph
+name:Polymorph
 graphics:-:d
 type:rod
 properties:35:15:1200
@@ -3713,7 +3603,7 @@ combat:0:1d1:0:0:0
 act:POLYMORPH
 time:25
 
-name:450:Drain Life
+name:Drain Life
 graphics:-:d
 type:rod
 properties:75:15:3600
@@ -3722,7 +3612,7 @@ combat:0:1d1:0:0:0
 act:DRAIN_LIFE3
 time:23
 
-name:451:Teleport Other
+name:Teleport Other
 graphics:-:d
 type:rod
 properties:45:15:5000
@@ -3731,16 +3621,16 @@ combat:0:1d1:0:0:0
 act:TELE_OTHER
 time:25
 
-name:452:Disarming
+name:Disable Traps
 graphics:-:d
 type:rod
 properties:10:15:2100
 alloc:10:10 to 100
 combat:0:1d1:0:0:0
-act:DISARMING
+act:DISABLE_TRAPS
 time:30
 
-name:453:Light
+name:Light
 graphics:-:d
 type:rod
 properties:8:15:500
@@ -3749,7 +3639,7 @@ combat:0:1d1:0:0:0
 act:LIGHT_LINE
 time:9
 
-name:454:Illumination
+name:Illumination
 graphics:-:d
 type:rod
 properties:20:15:1000
@@ -3758,7 +3648,7 @@ combat:0:1d1:0:0:0
 act:LIGHT
 time:30
 
-name:455:Recall
+name:Recall
 graphics:-:d
 type:rod
 properties:30:15:4000
@@ -3768,17 +3658,7 @@ flags:IGNORE_ELEC
 act:RECALL
 time:60
 
-name:456:Identify
-graphics:-:d
-type:rod
-properties:50:15:10000
-alloc:15:50 to 100
-combat:0:1d1:0:0:0
-flags:IGNORE_ELEC
-act:IDENTIFY
-time:10
-
-name:457:Speed
+name:Speed
 graphics:-:d
 type:rod
 properties:80:15:25000
@@ -3788,12 +3668,10 @@ flags:IGNORE_ELEC
 act:HASTE
 time:100
 
-## XXX 458 - 459 XXX ##
-
 
 ##### Basic Books #####
 
-name:460:[Magic for Beginners]
+name:[Magic for Beginners]
 graphics:?:R
 type:magic book
 properties:1:30:25
@@ -3801,7 +3679,7 @@ alloc:40:1 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:461:[Conjurings and Tricks]
+name:[Conjurings and Tricks]
 graphics:?:R
 type:magic book
 properties:5:30:100
@@ -3809,7 +3687,7 @@ alloc:40:5 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:462:[Incantations and Illusions]
+name:[Incantations and Illusions]
 graphics:?:R
 type:magic book
 properties:10:30:400
@@ -3817,7 +3695,7 @@ alloc:40:10 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:463:[Sorcery and Evocations]
+name:[Sorcery and Evocations]
 graphics:?:R
 type:magic book
 properties:20:30:800
@@ -3825,7 +3703,7 @@ alloc:40:20 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:464:[Beginners Handbook]
+name:[Beginners Handbook]
 graphics:?:G
 type:prayer book
 properties:1:30:25
@@ -3833,7 +3711,7 @@ alloc:40:1 to 100
 combat:0:1d1:0:0:0
 desc:A standard holy book with a few prayers.
 
-name:465:[Words of Wisdom]
+name:[Words of Wisdom]
 graphics:?:G
 type:prayer book
 properties:5:30:100
@@ -3841,7 +3719,7 @@ alloc:40:5 to 100
 combat:0:1d1:0:0:0
 desc:A standard holy book with a few prayers.
 
-name:466:[Chants and Blessings]
+name:[Chants and Blessings]
 graphics:?:G
 type:prayer book
 properties:10:30:400
@@ -3849,7 +3727,7 @@ alloc:40:10 to 100
 combat:0:1d1:0:0:0
 desc:A standard holy book with a few prayers.
 
-name:467:[Exorcism and Dispelling]
+name:[Exorcism and Dispelling]
 graphics:?:G
 type:prayer book
 properties:20:30:800
@@ -3860,7 +3738,7 @@ desc:A standard holy book with a few prayers.
 
 ##### Special Books (note resistances) #####
 
-name:468:[Resistances of Scarabtarices]
+name:[Resistances of Scarabtarices]
 graphics:?:r
 type:magic book
 properties:40:30:10000
@@ -3869,7 +3747,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:469:[Raal's Tome of Destruction]
+name:[Raal's Tome of Destruction]
 graphics:?:r
 type:magic book
 properties:50:30:20000
@@ -3878,7 +3756,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:470:[Mordenkainen's Escapes]
+name:[Mordenkainen's Escapes]
 graphics:?:r
 type:magic book
 properties:60:30:30000
@@ -3887,7 +3765,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:471:[Tenser's Transformations]
+name:[Tenser's Transformations]
 graphics:?:r
 type:magic book
 properties:70:30:50000
@@ -3896,7 +3774,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:472:[Kelek's Grimoire of Power]
+name:[Kelek's Grimoire of Power]
 graphics:?:r
 type:magic book
 properties:90:30:90000
@@ -3905,7 +3783,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:473:[Ethereal Openings]
+name:[Ethereal Openings]
 graphics:?:g
 type:prayer book
 properties:40:30:10000
@@ -3914,7 +3792,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced holy book with a few prayers.
 
-name:474:[Godly Insights]
+name:[Godly Insights]
 graphics:?:g
 type:prayer book
 properties:50:30:20000
@@ -3923,7 +3801,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced holy book with a few prayers.
 
-name:475:[Purifications and Healing]
+name:[Purifications and Healing]
 graphics:?:g
 type:prayer book
 properties:60:30:30000
@@ -3932,7 +3810,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced holy book with a few prayers.
 
-name:476:[Holy Infusions]
+name:[Holy Infusions]
 graphics:?:g
 type:prayer book
 properties:70:30:50000
@@ -3941,7 +3819,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced holy book with a few prayers.
 
-name:477:[Wrath of God]
+name:[Wrath of God]
 graphics:?:g
 type:prayer book
 properties:90:30:90000
@@ -3949,112 +3827,104 @@ alloc:10:90 to 100
 combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced holy book with a few prayers.
-
-## XXX 478 - 479 XXX ##
 
 
 ##### Chests #####
 
-name:480:& Small wooden chest~
+name:& Small wooden chest~
 graphics:~:s
 type:chest
 properties:5:250:20
-alloc:30:5 to 100
+alloc:5:5 to 100
 combat:0:2d3:0:0:0
 desc:A small wooden box, locked and possibly trapped. You wonder what might be
 desc: inside.
 
-name:481:& Large wooden chest~
+name:& Large wooden chest~
 graphics:~:s
 type:chest
 properties:15:500:60
-alloc:30:15 to 100
+alloc:5:15 to 100
 combat:0:2d5:0:0:0
 desc:A large wooden box. It doesn't seem to be locked - why not risk a look
 desc: inside?
 
-name:482:& Small iron chest~
+name:& Small iron chest~
 graphics:~:s
 type:chest
 properties:25:300:100
-alloc:30:25 to 100
+alloc:5:25 to 100
 combat:0:2d4:0:0:0
 desc:A small rectangular container made of wood and reinforced with iron corners
 desc: and latches.
 
-name:483:& Large iron chest~
+name:& Large iron chest~
 graphics:~:s
 type:chest
 properties:35:1000:150
-alloc:30:35 to 100
+alloc:5:35 to 100
 combat:0:2d6:0:0:0
 desc:A big container made of wood, with a heavy iron lock.
 
-name:484:& Small steel chest~
+name:& Small steel chest~
 graphics:~:s
 type:chest
 properties:45:500:200
-alloc:30:45 to 100
+alloc:5:45 to 100
 combat:0:2d4:0:0:0
 desc:A small wooden box with strong steel locks and reinforcements.
 
-name:485:& Large steel chest~
+name:& Large steel chest~
 graphics:~:s
 type:chest
 properties:55:1000:250
-alloc:30:55 to 100
+alloc:5:55 to 100
 combat:0:2d6:0:0:0
 desc:A nearly indestructible chest of wood and steel. The lock doesn't look
 desc: impenetrable, but it might be trapped.
 
-## XXX 486 - 489 XXX ##
-
 
 ##### Junk #####
 
-name:490:& Empty Bottle~
+name:& Empty Bottle~
 graphics:!:w
 type:bottle
 properties:0:2:1
 alloc:50:0 to 100
 desc:A plain bottle made of glass. It can be filled with various liquids...
 
-## XXX 491 - 492 XXX ##
-
-name:493:& Broken Skull~
+name:& Broken Skull~
 graphics:~:W
 type:skeleton
 properties:0:2:0
 desc:Good old Yorick. So that's where he ended up.
 
-name:494:& Broken Bone~
+name:& Broken Bone~
 graphics:~:W
 type:skeleton
 properties:0:2:0
 desc:A yellowish bone, broken off. Obviously, its owner no longer has a use for
 desc: it.
 
-name:495:& Canine Skeleton~
+name:& Canine Skeleton~
 graphics:~:W
 type:skeleton
 properties:0:10:0
 desc:The sorry, bony remains of some hapless dog.
 
-name:496:& Rodent Skeleton~
+name:& Rodent Skeleton~
 graphics:~:W
 type:skeleton
 properties:1:10:0
 desc:The sorry, bony remains of some hapless rodent.
 
-name:497:& Human Skeleton~
+name:& Human Skeleton~
 graphics:~:w
 type:skeleton
 properties:12:60:0
 desc:The sorry, bony remains of some hapless human.
 
-## XXX 498 XXX ##
-
-name:499:& Elf Skeleton~
+name:& Elf Skeleton~
 graphics:~:W
 type:skeleton
 properties:7:40:0
@@ -4063,7 +3933,7 @@ desc:The sorry, bony remains of some hapless elf.
 
 ##### Dragon Scale Mail #####
 
-name:500:Black Dragon Scale Mail~
+name:Black Dragon Scale Mail~
 graphics:[:s
 type:dragon armour
 properties:35:120:40000
@@ -4076,7 +3946,7 @@ time:50
 desc:An armour made of a black dragon's hide, containing some of this beast's
 desc: powers.
 
-name:501:Blue Dragon Scale Mail~
+name:Blue Dragon Scale Mail~
 graphics:[:b
 type:dragon armour
 properties:25:100:40000
@@ -4088,7 +3958,7 @@ act:DRAGON_BLUE
 time:50
 desc:A piece of dragon hide fashioned into an armour, shimmering bright blue.
 
-name:502:White Dragon Scale Mail~
+name:White Dragon Scale Mail~
 graphics:[:w
 type:dragon armour
 properties:30:110:40000
@@ -4100,7 +3970,7 @@ act:DRAGON_WHITE
 time:50
 desc:An armour fashioned from dragon hide, glistening the white of snow.
 
-name:503:Red Dragon Scale Mail~
+name:Red Dragon Scale Mail~
 graphics:[:r
 type:dragon armour
 properties:40:160:40000
@@ -4113,7 +3983,7 @@ time:50
 desc:The skin of a dragon made into a suit of armour. It glows a bright red and
 desc: radiates heat.
 
-name:504:Green Dragon Scale Mail~
+name:Green Dragon Scale Mail~
 graphics:[:g
 type:dragon armour
 properties:60:140:60000
@@ -4126,7 +3996,7 @@ time:50
 desc:A suit of armour fashioned of dragon hide. It is dirty green and smells
 desc: awful.
 
-name:505:Multi-Hued Dragon Scale Mail~
+name:Multi-Hued Dragon Scale Mail~
 graphics:[:x
 type:dragon armour
 properties:75:260:150000
@@ -4139,7 +4009,7 @@ time:50
 desc:A powerful armour made of dragonhide. It glows red, blue, green, black and
 desc: white.
 
-name:506:Shadow Dragon Scale Mail~
+name:Shadow Dragon Scale Mail~
 graphics:[:o
 type:dragon armour
 properties:75:200:60000
@@ -4152,7 +4022,7 @@ time:50
 desc:A suit of armour made of dragon hide, glowing with a strange light, or is
 desc: it darkness?
 
-name:507:Law Dragon Scale Mail~
+name:Law Dragon Scale Mail~
 graphics:[:B
 type:dragon armour
 properties:80:220:80000
@@ -4166,9 +4036,7 @@ desc:A piece of dragonhide cut and shaped so it can be worn as armour. The
 desc: scales are very sharp, and the roaring of a storm seems to come from it,
 desc: but you're not afraid of either.
 
-## XXX 508 XXX ##
-
-name:509:Gold Dragon Scale Mail~
+name:Gold Dragon Scale Mail~
 graphics:[:y
 type:dragon armour
 properties:70:180:40000
@@ -4181,7 +4049,7 @@ time:50
 desc:A suit of golden-hued armour made of dragonhide. The rustle of its scales
 desc: occasionally increases to a loud boom.
 
-name:510:Chaos Dragon Scale Mail~
+name:Chaos Dragon Scale Mail~
 graphics:[:x
 type:dragon armour
 properties:85:240:80000
@@ -4195,7 +4063,7 @@ desc:A suit of armour made of dragon hide. It glows in colours you have never
 desc: seen before. As you put it on, you feel like you could change the world
 desc: and are no longer afraid of your equipment losing its magic.
 
-name:511:Balance Dragon Scale Mail~
+name:Balance Dragon Scale Mail~
 graphics:[:v
 type:dragon armour
 properties:95:280:100000
@@ -4209,7 +4077,7 @@ desc:A suit of armour made of the hide of a dead dragon. When wearing it, you
 desc: feel like you understand the principles of law and chaos, and no longer
 desc: fear either.
 
-name:512:Power Dragon Scale Mail~
+name:Power Dragon Scale Mail~
 graphics:[:v
 type:dragon armour
 properties:100:300:300000
@@ -4225,56 +4093,52 @@ time:50
 desc:A suit of armour made of a very thick richly coloured dragonhide. You think
 desc: you'll never have to fear dragons if you put it on.
 
-## XXX 513 - 519 XXX ##
-
 
 ##### Gold/gems #####
 
-name:520:copper
+name:copper
 graphics:$:u
 type:gold
 
-name:521:silver
+name:silver
 graphics:$:s
 type:gold
 
-name:522:garnets
+name:garnets
 graphics:$:r
 type:gold
 
-name:523:gold
+name:gold
 graphics:$:y
 type:gold
 
-name:524:opals
+name:opals
 graphics:$:W
 type:gold
 
-name:525:sapphires
+name:sapphires
 graphics:$:b
 type:gold
 
-name:526:rubies
+name:rubies
 graphics:$:r
 type:gold
 
-name:527:diamonds
+name:diamonds
 graphics:$:w
 type:gold
 
-name:528:emeralds
+name:emeralds
 graphics:$:g
 type:gold
 
-name:529:mithril
+name:mithril
 graphics:$:B
 type:gold
 
-name:530:adamantite
+name:adamantite
 graphics:$:G
 type:gold
-
-## XXX 531 - 539 XXX ##
 
 
 ##### "Morgoth Artifacts" #####
@@ -4282,7 +4146,7 @@ type:gold
 # These objects are never created without being turned into artifacts.
 # This simplifies the code for "killing the winner monster".
 
-name:540:& Mighty Hammer~
+name:& Mighty Hammer~
 graphics:\:D
 type:hafted
 properties:100:1000:1
@@ -4290,34 +4154,28 @@ combat:0:9d9:0:0:0
 flags:QUEST_ART
 flags:TWO_HANDED
 
-## XXX 541 XXX ##
-
-name:542:& Massive Iron Crown~
+name:& Massive Iron Crown~
 graphics:]:D
 type:crown
 properties:100:200:1
 combat:0:1d1:0:0:0
 flags:QUEST_ART
 
-## XXX 543 - 549 XXX ##
-
 
 ##### "Special Artifacts" #####
 
 # The "Special Artifacts" are now automatically generated from artifact.txt
 
-## XXX 550 - 569 XXX ##
-
 
 ##### MAngband objects #####
 
-name:570:& House Foundation Stone~
+name:& House Foundation Stone~
 graphics:~:v
 type:stone
 properties:0:200:1000
 desc:A rectangular stone. It can be used to build houses.
 
-name:571:& Pint~ of Fine Ale
+name:& Pint~ of Fine Ale
 graphics:,:y
 type:food
 properties:0:5:1
@@ -4326,7 +4184,7 @@ dice:500
 msg_self:That tastes good.
 desc:A fine way to wash down some otherwise unappetising rations.
 
-name:572:& Potato~
+name:& Potato~
 graphics:,:u
 type:crop
 properties:0:2:1
@@ -4336,7 +4194,7 @@ effect:NOURISH
 dice:1500
 msg_self:That tastes especially good.
 
-name:573:& Head~ of Cabbage
+name:& Head~ of Cabbage
 graphics:,:G
 type:crop
 properties:0:3:1
@@ -4346,7 +4204,7 @@ effect:NOURISH
 dice:1500
 msg_self:That tastes especially good.
 
-name:574:& Carrot~
+name:& Carrot~
 graphics:,:o
 type:crop
 properties:0:1:2
@@ -4356,7 +4214,7 @@ effect:NOURISH
 dice:500
 msg_self:That tastes especially good.
 
-name:575:& Beet~
+name:& Beet~
 graphics:,:r
 type:crop
 properties:0:1:2
@@ -4366,7 +4224,7 @@ effect:NOURISH
 dice:750
 msg_self:That tastes especially good.
 
-name:576:& Squash~
+name:& Squash~
 graphics:,:y
 type:crop
 properties:0:3:1
@@ -4376,7 +4234,7 @@ effect:NOURISH
 dice:2000
 msg_self:That tastes especially good.
 
-name:577:& Ear~ of Corn
+name:& Ear~ of Corn
 graphics:`:y
 type:crop
 properties:0:2:2
@@ -4386,7 +4244,7 @@ effect:NOURISH
 dice:1500
 msg_self:That tastes especially good.
 
-name:578:& Pair~ of Witan Boots
+name:& Pair~ of Witan Boots
 graphics:]:b
 type:boots
 properties:60:80:5000
@@ -4395,7 +4253,7 @@ combat:10:1d1:0:0:5
 flags:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 values:STEALTH[-2]
 
-name:579:& Kolla~
+name:& Kolla~
 graphics:(:G
 type:cloak
 properties:65:5:15000
@@ -4404,7 +4262,7 @@ combat:3:0d0:0:0:4
 flags:SUST_STR | SUST_CON | SUST_DEX
 values:STR[d2] | CON[d2] | DEX[d2]
 
-name:580:& Set~ of Elven Gloves
+name:& Set~ of Elven Gloves
 graphics:]:g
 type:gloves
 properties:20:40:2500
@@ -4412,7 +4270,7 @@ alloc:10:20 to 100
 combat:1:0d0:0:0:0
 flags:REGEN
 
-name:581:& Orcish Shield~
+name:& Orcish Shield~
 graphics:):D
 type:shield
 properties:40:100:5000
@@ -4421,7 +4279,7 @@ combat:12:1d3:0:0:5
 flags:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 values:STR[d2] | CON[d2]
 
-name:582:the Moon
+name:the Moon
 graphics:":d
 type:amulet
 properties:35:3:2500
@@ -4433,7 +4291,7 @@ values:INFRA[d5M5]
 act:LOSSLEEP
 time:100+d100
 
-name:583:Terken
+name:Terken
 graphics:":d
 type:amulet
 properties:30:3:4000
@@ -4442,23 +4300,14 @@ flags:SEE_INVIS | FREE_ACT | RAND_POWER |
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 values:SEARCH[d5M5]
 
-name:584:Speed
+name:Speed
 graphics:":d
 type:amulet
 properties:35:3:10000
 alloc:10:35 to 100
 values:SPEED[d5]
 
-name:585:*Identify*
-graphics:?:w
-type:scroll
-properties:30:5:1000
-alloc:40:30 to 100
-pile:25:2
-effect:IDENTIFY_PACK
-msg_self:You begin to know more about what you are carrying...
-
-name:586:Life
+name:Life
 graphics:?:w
 type:scroll
 properties:0:5:100
@@ -4466,14 +4315,14 @@ alloc:40:0 to 100
 pile:25:2
 effect:RESURRECT
 
-name:587:House Creation
+name:House Creation
 graphics:?:w
 type:scroll
 properties:0:5:10000
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 effect:CREATE_HOUSE
 
-name:588:Water
+name:Water
 graphics:!:d
 type:potion
 properties:0:4:1
@@ -4483,24 +4332,21 @@ effect:NOURISH
 dice:200
 msg_self:You feel less thirsty.
 
-## XXX 589 XXX ##
-
 
 ##### PWMAngband objects #####
 
-name:590:& Lamp~
+name:& Lamp~
 graphics:~:B
 type:light
 properties:20:70:1000
 alloc:20:20 to 100
 combat:0:1d1:0:0:0
-flags:TAKES_FUEL | IGNORE_FIRE
-values:LIGHT[3]
+flags:TAKES_FUEL | LIGHT_3 | IGNORE_FIRE
 desc:A brass container, larger than a lantern, with a wick emerging from it,
 desc: protected from draughts by a sheet of greased paper. It can be carried by
 desc: a handle.
 
-name:591:& Large Trout~
+name:& Large Trout~
 graphics:,:G
 type:food
 properties:1:10:2
@@ -4511,64 +4357,66 @@ dice:1000
 msg_self:Yuk, that tastes awful!
 desc:A smelly fish. It doesn't look fresh.
 
-name:592:& Dark Sword~
+name:& Dark Sword~
 graphics:|:D
 type:sword
 properties:25:70:500
 alloc:20:25 to 100
 combat:0:3d7:0:0:0
-flags:ANTI_MAGIC
+values:ANTI_MAGIC[1+M3]
 desc:A strange, very sharp long sword, which seems to drain light from its
 desc: surroundings. As you wield it, you feel much less attuned to magic.
 
-name:593:& Magic Arrow~
+name:& Magic Arrow~
 graphics:{:v
 type:arrow
 properties:10:2:100
-alloc:20:10 to 100
+alloc:10:10 to 100
 combat:0:1d4:0:0:0
 flags:EASY_KNOW | AMMO_MAGIC
 desc:An ethereal arrow, made of pure mana.
 
-name:594:& Magic Bolt~
+name:& Magic Bolt~
 graphics:{:b
 type:bolt
 properties:10:3:100
-alloc:20:10 to 100
+alloc:10:10 to 100
 combat:0:1d5:0:0:0
 flags:EASY_KNOW | AMMO_MAGIC
 desc:An ethereal bolt, made of pure mana.
 
-name:595:& Magic Shot~
+name:& Magic Shot~
 graphics:{:D
 type:shot
 properties:10:2:100
-alloc:20:10 to 100
+alloc:10:10 to 100
 combat:0:1d3:0:0:0
 flags:EASY_KNOW | AMMO_MAGIC
 desc:An ethereal shot, made of pure mana.
 
-name:596:& Rock~
+name:& Rock~
 graphics:*:s
 type:rock
 properties:1:5:1
 pile:100:6d7
 alloc:20:1 to 100
 combat:0:1d6:0:0:0
+brand:STUN_1
 desc:A simple piece of stone.
 desc: It can be fired without any missile launcher.
 
-name:597:& Shuriken~
+name:& Shuriken~
 graphics:*:W
 type:rock
 properties:45:5:15
 pile:100:6d7
 alloc:20:45 to 100
 combat:0:3d6:0:0:0
+brand:CUT_1
 desc:A sharp little piece of metal.
 desc: It can be fired without any missile launcher.
 
-name:598:& Boomerang~
+name:& Boomerang~
 graphics:*:y
 type:rock
 properties:10:5:100
@@ -4577,7 +4425,7 @@ combat:0:1d6:0:0:0
 flags:EASY_KNOW | AMMO_MAGIC
 desc:It returns when thrown.
 
-name:599:& Black Ring~ of Power
+name:& Black Ring~ of Power
 graphics:=:d
 type:ring
 properties:0:2:0
@@ -4585,23 +4433,23 @@ flags:AGGRAVATE
 flags:INSTA_ART
 desc:"Nine rings for mortal men doomed to die."
 
-name:600:*Teleport Level*
+name:*Teleport Level*
 graphics:?:w
 type:scroll
-properties:100:5:1000
-alloc:1:100 to 100
+properties:95:5:1000
+alloc:2:95 to 100
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 effect:TIMED_INC:PROBTRAVEL
 dice:20+1d20
 
-name:601:*Restore Mana*
+name:*Restore Mana*
 graphics:!:d
 type:potion
 properties:70:4:3500
 alloc:50:70 to 100
 effect:RESTORE_MANA
 
-name:602:[Apprentice Handbook]
+name:[Apprentice Handbook]
 graphics:?:u
 type:sorcery book
 properties:1:30:25
@@ -4609,7 +4457,7 @@ alloc:40:1 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:603:[Mystical Words]
+name:[Mystical Words]
 graphics:?:u
 type:sorcery book
 properties:5:30:100
@@ -4617,7 +4465,7 @@ alloc:40:5 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:604:[Arcane Chants]
+name:[Arcane Chants]
 graphics:?:u
 type:sorcery book
 properties:10:30:400
@@ -4625,7 +4473,7 @@ alloc:40:10 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:605:[Locus of Force]
+name:[Locus of Force]
 graphics:?:u
 type:sorcery book
 properties:20:30:800
@@ -4633,7 +4481,7 @@ alloc:40:20 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:606:[Robbers Handbook]
+name:[Robbers Handbook]
 graphics:?:B
 type:shadow book
 properties:1:30:25
@@ -4641,7 +4489,7 @@ alloc:40:1 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:607:[Shadows and Illusions]
+name:[Shadows and Illusions]
 graphics:?:B
 type:shadow book
 properties:10:30:250
@@ -4649,7 +4497,7 @@ alloc:40:10 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:608:[Killing Made Easy]
+name:[Killing Made Easy]
 graphics:?:B
 type:shadow book
 properties:20:30:800
@@ -4657,7 +4505,7 @@ alloc:40:20 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:609:[Hunting and Tracking]
+name:[Hunting and Tracking]
 graphics:?:W
 type:hunt book
 properties:1:30:25
@@ -4665,7 +4513,7 @@ alloc:40:1 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:610:of Telepathy
+name:of Telepathy
 graphics:?:U
 type:psi book
 properties:1:30:25
@@ -4673,7 +4521,7 @@ alloc:40:1 to 100
 combat:0:1d1:0:0:0
 desc:A glowing stone, engraved with runes of power.
 
-name:611:of Mind Support
+name:of Mind Support
 graphics:?:U
 type:psi book
 properties:10:30:250
@@ -4681,7 +4529,7 @@ alloc:40:10 to 100
 combat:0:1d1:0:0:0
 desc:A glowing stone, engraved with runes of power.
 
-name:612:of Mindcraft
+name:of Mindcraft
 graphics:?:U
 type:psi book
 properties:20:30:800
@@ -4689,7 +4537,7 @@ alloc:40:20 to 100
 combat:0:1d1:0:0:0
 desc:A glowing stone, engraved with runes of power.
 
-name:613:[Necromancy for Beginners]
+name:[Necromancy for Beginners]
 graphics:?:v
 type:death book
 properties:1:30:25
@@ -4697,7 +4545,7 @@ alloc:40:1 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:614:[Dark Conjurings]
+name:[Dark Conjurings]
 graphics:?:v
 type:death book
 properties:10:30:250
@@ -4705,7 +4553,7 @@ alloc:40:10 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:615:[Necromantic Incantations]
+name:[Necromantic Incantations]
 graphics:?:v
 type:death book
 properties:20:30:800
@@ -4713,7 +4561,7 @@ alloc:40:20 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:616:[Powerful Sigils]
+name:[Powerful Sigils]
 graphics:?:o
 type:sorcery book
 properties:40:30:10000
@@ -4722,7 +4570,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:617:[Disruptive Forces]
+name:[Disruptive Forces]
 graphics:?:o
 type:sorcery book
 properties:55:30:25000
@@ -4731,7 +4579,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:618:[Forces of the Mind]
+name:[Forces of the Mind]
 graphics:?:o
 type:sorcery book
 properties:65:30:40000
@@ -4740,7 +4588,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:619:[Power of Ancient Sorcerors]
+name:[Power of Ancient Sorcerors]
 graphics:?:o
 type:sorcery book
 properties:90:30:90000
@@ -4749,7 +4597,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:620:[Shadows Escapes]
+name:[Shadows Escapes]
 graphics:?:b
 type:shadow book
 properties:40:30:10000
@@ -4758,7 +4606,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:621:[Bilbo's Tome of Burglary]
+name:[Bilbo's Tome of Burglary]
 graphics:?:b
 type:shadow book
 properties:60:30:30000
@@ -4767,7 +4615,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:622:[Great Shadows]
+name:[Great Shadows]
 graphics:?:b
 type:shadow book
 properties:90:30:90000
@@ -4776,7 +4624,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:623:[Killing from Afar]
+name:[Killing from Afar]
 graphics:?:s
 type:hunt book
 properties:40:30:10000
@@ -4785,7 +4633,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:624:[Arrows of the Master Archers]
+name:[Arrows of the Master Archers]
 graphics:?:s
 type:hunt book
 properties:90:30:90000
@@ -4794,7 +4642,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:625:of Telekinesis
+name:of Telekinesis
 graphics:?:y
 type:psi book
 properties:40:30:10000
@@ -4803,7 +4651,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:A stone glowing brightly, engraved with runes of power.
 
-name:626:of Psychoportation
+name:of Psychoportation
 graphics:?:y
 type:psi book
 properties:60:30:30000
@@ -4812,7 +4660,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:A stone glowing brightly, engraved with runes of power.
 
-name:627:of Empathy
+name:of Empathy
 graphics:?:y
 type:psi book
 properties:90:30:90000
@@ -4821,7 +4669,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:A stone glowing brightly, engraved with runes of power.
 
-name:628:[Dark Evocations]
+name:[Dark Evocations]
 graphics:?:D
 type:death book
 properties:40:30:10000
@@ -4830,7 +4678,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:629:[Advanced Necromancy]
+name:[Advanced Necromancy]
 graphics:?:D
 type:death book
 properties:60:30:30000
@@ -4839,7 +4687,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:630:[Darkest Magic]
+name:[Darkest Magic]
 graphics:?:D
 type:death book
 properties:90:30:90000
@@ -4848,37 +4696,37 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:631:& Kobold Skeleton~
+name:& Kobold Skeleton~
 graphics:~:w
 type:skeleton
 properties:5:20:0
 desc:The sorry, bony remains of some hapless kobold.
 
-name:632:& Orc Skeleton~
+name:& Orc Skeleton~
 graphics:~:w
 type:skeleton
 properties:8:40:0
 desc:The sorry, bony remains of some hapless orc.
 
-name:633:& Skull~
+name:& Skull~
 graphics:~:w
 type:skeleton
 properties:15:15:0
 desc:It's a white bony skull, smiling to you without teeth.
 
-name:634:& Troll Skeleton~
+name:& Troll Skeleton~
 graphics:~:w
 type:skeleton
 properties:30:100:0
 desc:The sorry, bony remains of some hapless troll.
 
-name:635:& Ettin Skeleton~
+name:& Ettin Skeleton~
 graphics:~:w
 type:skeleton
 properties:33:200:0
 desc:The sorry, bony remains of some hapless ettin.
 
-name:636:Crystal Dragon Scale Mail~
+name:Crystal Dragon Scale Mail~
 graphics:[:u
 type:dragon armour
 properties:60:140:40000
@@ -4890,7 +4738,7 @@ act:DRAGON_CRYSTAL
 time:50
 desc:A suit of armour made of the hide of a dead crystal drake.
 
-name:637:Silver Dragon Scale Mail~
+name:Silver Dragon Scale Mail~
 graphics:[:W
 type:dragon armour
 properties:65:160:50000
@@ -4903,7 +4751,7 @@ act:DRAGON_SILVER
 time:50
 desc:A suit of armour made of the hide of a dead silver dragon.
 
-name:638:Ethereal Dragon Scale Mail~
+name:Ethereal Dragon Scale Mail~
 graphics:[:G
 type:dragon armour
 properties:70:180:80000
@@ -4915,7 +4763,7 @@ act:DRAGON_ETHEREAL
 time:50
 desc:A suit of armour made of the hide of a dead ethereal drake.
 
-name:639:Dracolisk Scale Mail~
+name:Dracolisk Scale Mail~
 graphics:[:R
 type:dragon armour
 properties:75:200:60000
@@ -4927,21 +4775,21 @@ act:DRAGON_DLISK
 time:50
 desc:A suit of armour made of the hide of a dead dracolisk.
 
-name:640:corpse (humanoid)
+name:corpse (humanoid)
 graphics:%:w
 type:corpse
 properties:0:100:0
 combat:0:1d1:0:0:0
 desc:Whatever happened with this one, it wasn't pretty.
 
-name:641:corpse (other)
+name:corpse (other)
 graphics:%:W
 type:corpse
 properties:0:100:0
 combat:0:1d1:0:0:0
 desc:Whatever happened with this one, it wasn't pretty.
 
-name:642:& Mage Staff~
+name:& Mage Staff~
 graphics:|:B
 type:mage staff
 properties:5:12:10
@@ -4951,7 +4799,7 @@ flags:TWO_HANDED
 desc:It looks like a simple walking stick, plain and nondescript.
 desc: In the hands of a spellcaster, it can be a deadly weapon.
 
-name:643:& Elven Staff~
+name:& Elven Staff~
 graphics:|:B
 type:mage staff
 properties:20:12:2500
@@ -4961,7 +4809,7 @@ flags:REGEN | TWO_HANDED
 desc:It looks like a simple walking stick, plain and nondescript.
 desc: In the hands of a spellcaster, it can be a deadly weapon.
 
-name:644:& Horn~
+name:& Horn~
 graphics:/:W
 type:horn
 properties:15:30:10
@@ -4971,7 +4819,7 @@ act:ANNOY_MON
 time:5+d5
 desc:It sounds loud and clear.
 
-name:645:[Air]
+name:[Air]
 graphics:?:x
 type:elemental book
 properties:5:30:100
@@ -4980,7 +4828,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ELEC
 desc:A standard spellbook with a few spells.
 
-name:646:[Fire]
+name:[Fire]
 graphics:?:x
 type:elemental book
 properties:5:30:100
@@ -4989,7 +4837,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_FIRE
 desc:A standard spellbook with a few spells.
 
-name:647:[Earth]
+name:[Earth]
 graphics:?:x
 type:elemental book
 properties:5:30:100
@@ -4998,7 +4846,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID
 desc:A standard spellbook with a few spells.
 
-name:648:[Water]
+name:[Water]
 graphics:?:x
 type:elemental book
 properties:5:30:100
@@ -5007,7 +4855,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_COLD
 desc:A standard spellbook with a few spells.
 
-name:649:[Elemental]
+name:[Elemental]
 graphics:?:x
 type:elemental book
 properties:10:30:400
@@ -5016,7 +4864,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 desc:A standard spellbook with a few spells.
 
-name:650:Water Dragon Scale Mail~
+name:Water Dragon Scale Mail~
 graphics:[:Z
 type:dragon armour
 properties:75:200:60000
@@ -5028,7 +4876,7 @@ act:DRAGON_WATER
 time:50
 desc:A suit of armour made of the hide of a dead water dragon.
 
-name:651:[Survival]
+name:[Survival]
 graphics:?:T
 type:summoning book
 properties:1:30:25
@@ -5036,7 +4884,7 @@ alloc:40:1 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:652:[Nature]
+name:[Nature]
 graphics:?:T
 type:summoning book
 properties:10:30:400
@@ -5044,7 +4892,7 @@ alloc:40:10 to 100
 combat:0:1d1:0:0:0
 desc:A standard spellbook with a few spells.
 
-name:653:[Summoning]
+name:[Summoning]
 graphics:?:t
 type:summoning book
 properties:40:30:10000
@@ -5053,7 +4901,7 @@ combat:0:1d1:0:0:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | GOOD
 desc:An advanced spellbook with a few spells.
 
-name:654:[Anti-Summoning]
+name:[Anti-Summoning]
 graphics:?:t
 type:summoning book
 properties:90:30:90000
@@ -5064,17 +4912,13 @@ desc:An advanced spellbook with a few spells.
 
 # The Blue Stone 'Toris Mejistos' -- see artifact list
 
-## XXX 655 XXX ##
-
 # The Lost Silmaril of Maglor -- see artifact list
-
-## XXX 656 XXX ##
 
 # Ring of Polymorphing
 # Variable modifier will be re-randomized for monster race
 # One-time effect
 
-name:657:Polymorphing
+name:Polymorphing
 graphics:=:d
 type:ring
 properties:10:2:100
@@ -5082,9 +4926,17 @@ alloc:30:10 to 127
 values:POLY_RACE[d1000]
 effect:POLY_RACE
 
-name:658:& Deed~ of Property
+name:& Deed~ of Property
 graphics:?:W
 type:deed
 properties:0:5:0
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 desc:A deed of property. It can be used to claim a house.
+
+name:Wilderness Mapping
+graphics:?:w
+type:scroll
+properties:1:5:0
+alloc:40:1 to 100
+effect:MAP_WILD
+dice:22d40

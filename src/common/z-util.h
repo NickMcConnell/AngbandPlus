@@ -129,7 +129,7 @@ extern void strescape(char *s, const char c);
 /*
  * Determines if a string is "empty"
  */
-extern bool contains_only_spaces(const char* s);
+extern bool contains_only_spaces(const char *s);
 
 /*
  * Print an error message
@@ -148,7 +148,7 @@ extern bool is_a_vowel(int ch);
 
 /* hturn manipulations */
 extern u32b ht_diff(hturn *ht_ptr1, hturn *ht_ptr2);
-extern char* ht_show(hturn *ht_ptr);
+extern char *ht_show(hturn *ht_ptr);
 extern void ht_copy(hturn *ht_ptr1, hturn *ht_ptr2);
 extern void ht_add(hturn *ht_ptr, u32b value);
 extern void ht_reset(hturn *ht_ptr);

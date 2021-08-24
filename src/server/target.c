@@ -3,7 +3,7 @@
  * Purpose: Targeting code
  *
  * Copyright (c) 1997-2007 Angband contributors
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -57,7 +57,7 @@ int motion_dir(int y1, int x1, int y2, int x2)
 /*
  * Health description (unhurt, wounded, etc)
  */
-static const char *look_health_desc(bool living, s16b chp, s16b mhp)
+static const char *look_health_desc(bool living, int chp, int mhp)
 {
     int perc;
 
@@ -97,15 +97,17 @@ void look_mon_desc(struct monster *mon, char *buf, size_t max)
     /* Apply health description */
     my_strcpy(buf, look_health_desc(living, mon->hp, mon->maxhp), max);
 
-    /* Apply condition descriptions */
+    /* Effect status */
     if (mon->m_timed[MON_TMD_SLEEP]) my_strcat(buf, ", asleep", max);
+    if (mon->m_timed[MON_TMD_HOLD]) my_strcat(buf, ", held", max);
     if (mon->m_timed[MON_TMD_CONF]) my_strcat(buf, ", confused", max);
-    if (mon->m_timed[MON_TMD_BLIND]) my_strcat(buf, ", blind", max);
     if (mon->m_timed[MON_TMD_FEAR]) my_strcat(buf, ", afraid", max);
     if (mon->m_timed[MON_TMD_STUN]) my_strcat(buf, ", stunned", max);
-    if (mon->m_timed[MON_TMD_HOLD]) my_strcat(buf, ", paralyzed", max);
+    if (mon->m_timed[MON_TMD_SLOW]) my_strcat(buf, ", slowed", max);
+    if (mon->m_timed[MON_TMD_FAST]) my_strcat(buf, ", hasted", max);
 
-    /* Monster-specific conditions */
+    /* PWMAngband */
+    if (mon->m_timed[MON_TMD_BLIND]) my_strcat(buf, ", blind", max);
     if (mon->m_timed[MON_TMD_POIS]) my_strcat(buf, ", poisoned", max);
     if (mon->m_timed[MON_TMD_CUT]) my_strcat(buf, ", bleeding", max);
 
@@ -132,14 +134,17 @@ void look_player_desc(struct player *p, char *buf, size_t max)
     /* Apply health description */
     my_strcpy(buf, look_health_desc(living, p->chp, p->mhp), max);
 
-    /* Apply condition descriptions */
-    if (player_is_resting(p)) my_strcat(buf, ", resting", max);
+    /* Effect status */
+    if (p->timed[TMD_PARALYZED]) my_strcat(buf, ", paralyzed", max);
     if (p->timed[TMD_CONFUSED]) my_strcat(buf, ", confused", max);
-    if (player_of_has(p, OF_AFRAID)) my_strcat(buf, ", afraid", max);
+    if (player_of_has(p, OF_AFRAID) || p->timed[TMD_AFRAID]) my_strcat(buf, ", afraid", max);
     if (p->timed[TMD_STUN]) my_strcat(buf, ", stunned", max);
+    if (p->timed[TMD_BLIND]) my_strcat(buf, ", blind", max);
+    if (p->timed[TMD_POISONED]) my_strcat(buf, ", poisoned", max);
+    if (p->timed[TMD_CUT]) my_strcat(buf, ", bleeding", max);
 
     /* Player-specific conditions */
-    if (p->timed[TMD_PARALYZED]) my_strcat(buf, ", paralyzed", max);
+    if (player_is_resting(p)) my_strcat(buf, ", resting", max);
 }
 
 
@@ -154,25 +159,24 @@ void look_player_desc(struct player *p, char *buf, size_t max)
  * the player can hit it with a projection, and the player is not
  * hallucinating. This allows use of "use closest target" macros.
  */
-bool target_able(struct player *p, struct actor *who)
+bool target_able(struct player *p, struct source *who)
 {
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* No target */
-    if (ACTOR_NULL(who)) return false;
+    if (source_null(who)) return false;
 
     /* Target is a player */
     if (who->player)
     {
-        return ((p->depth == who->player->depth) &&
-            mflag_has(p->pflag[who->idx], MFLAG_VISIBLE) && !who->player->k_idx &&
+        return (COORDS_EQUAL(&p->wpos, &who->player->wpos) && player_is_visible(p, who->idx) &&
+            !who->player->k_idx &&
             projectable(c, p->py, p->px, who->player->py, who->player->px, PROJECT_NONE) &&
             !p->timed[TMD_IMAGE]);
     }
 
-    return (who->mon->race && mflag_has(p->mflag[who->idx], MFLAG_VISIBLE) &&
-        !who->mon->unaware &&
-        projectable(c, p->py, p->px, who->mon->fy, who->mon->fx, PROJECT_NONE) &&
+    return (who->monster->race && monster_is_obvious(p, who->idx, who->monster) &&
+        projectable(c, p->py, p->px, who->monster->fy, who->monster->fx, PROJECT_NONE) &&
         !p->timed[TMD_IMAGE]);
 }
 
@@ -184,27 +188,27 @@ bool target_able(struct player *p, struct actor *who)
  */
 bool target_okay(struct player *p)
 {
-    struct actor *target_who = &p->target_who;
+    struct source *target_who = &p->target_who;
 
     /* No target */
     if (!p->target_set) return false;
 
     /* Allow a direction without a monster */
-    if (ACTOR_NULL(target_who))
+    if (source_null(target_who))
     {
         if (p->target_x || p->target_y) return true;
         return false;
     }
 
     /* Check "monster" targets */
-    if (target_who->mon)
+    if (target_who->monster)
     {
         /* Accept reasonable targets */
         if (target_able(p, target_who))
         {
             /* Get the monster location */
-            p->target_y = target_who->mon->fy;
-            p->target_x = target_who->mon->fx;
+            p->target_y = target_who->monster->fy;
+            p->target_x = target_who->monster->fx;
 
             /* Good target */
             return true;
@@ -234,18 +238,18 @@ bool target_okay(struct player *p)
 /*
  * Set the target to a monster/player (or nobody)
  */
-bool target_set_monster(struct player *p, struct actor *who)
+bool target_set_monster(struct player *p, struct source *who)
 {
     /* Acceptable target */
     if (target_able(p, who))
     {
         /* Save target info */
         p->target_set = true;
-        memcpy(&p->target_who, who, sizeof(struct actor));
-        if (who->mon)
+        memcpy(&p->target_who, who, sizeof(struct source));
+        if (who->monster)
         {
-            p->target_y = who->mon->fy;
-            p->target_x = who->mon->fx;
+            p->target_y = who->monster->fy;
+            p->target_x = who->monster->fx;
         }
         else
         {
@@ -271,13 +275,13 @@ bool target_set_monster(struct player *p, struct actor *who)
  */
 void target_set_location(struct player *p, int y, int x)
 {
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Legal target */
     if (square_in_bounds_fully(c, y, x))
     {
-        struct actor who_body;
-        struct actor *who = &who_body;
+        struct source who_body;
+        struct source *who = &who_body;
 
         square_actor(c, y, x, who);
 
@@ -285,7 +289,7 @@ void target_set_location(struct player *p, int y, int x)
         p->target_set = true;
         memset(&p->target_who, 0, sizeof(p->target_who));
         if (target_able(p, who))
-            memcpy(&p->target_who, who, sizeof(struct actor));
+            memcpy(&p->target_who, who, sizeof(struct source));
         p->target_y = y;
         p->target_x = x;
 
@@ -386,9 +390,9 @@ s16b target_pick(int y1, int x1, int dy, int dx, struct point_set *targets)
 bool target_accept(struct player *p, int y, int x)
 {
     struct object *obj;
-    struct chunk *c = chunk_get(p->depth);
-    struct actor who_body;
-    struct actor *who = &who_body;
+    struct chunk *c = chunk_get(&p->wpos);
+    struct source who_body;
+    struct source *who = &who_body;
 
     square_actor(c, y, x, who);
 
@@ -398,12 +402,12 @@ bool target_accept(struct player *p, int y, int x)
     /* Handle hallucination */
     if (p->timed[TMD_IMAGE]) return false;
 
-    /* Visible players */
-    if (who->player && mflag_has(p->pflag[who->idx], MFLAG_VISIBLE) && !who->player->k_idx)
+    /* Obvious players */
+    if (who->player && player_is_visible(p, who->idx) && !who->player->k_idx)
         return true;
 
-    /* Visible monsters */
-    if (who->mon && mflag_has(p->mflag[who->idx], MFLAG_VISIBLE) && !who->mon->unaware)
+    /* Obvious monsters */
+    if (who->monster && monster_is_obvious(p, who->idx, who->monster))
         return true;
 
     /* Traps */
@@ -411,7 +415,7 @@ bool target_accept(struct player *p, int y, int x)
         return true;
 
     /* Scan all objects in the grid */
-    for (obj = floor_pile_known(p, c, y, x); obj; obj = obj->next)
+    for (obj = square_known_pile(p, c, y, x); obj; obj = obj->next)
     {
         /* Memorized object */
         if (!ignore_item_ok(p, obj)) return true;
@@ -460,11 +464,11 @@ void target_get(struct player *p, int *x, int *y)
 /*
  * Returns whether the given monster (or player) is the currently targeted monster (or player).
  */
-bool target_equals(struct player *p, struct actor *who)
+bool target_equals(struct player *p, struct source *who)
 {
-    struct actor *target_who = &p->target_who;
+    struct source *target_who = &p->target_who;
 
-    return ACTOR_EQUAL(target_who, who);
+    return source_equal(target_who, who);
 }
 
 
@@ -486,7 +490,7 @@ void draw_path_grid(struct player *p, int y, int x, byte a, char c)
 }
 
 
-void flush_path_grid(struct player *p, int depth, int y, int x, byte a, char c)
+void flush_path_grid(struct player *p, struct chunk *cv, int y, int x, byte a, char c)
 {
     /* Draw, Highlight, Fresh, Pause, Erase */
     draw_path_grid(p, y, x, a, c);
@@ -495,7 +499,7 @@ void flush_path_grid(struct player *p, int depth, int y, int x, byte a, char c)
     Send_flush(p, true, true);
 
     /* Restore */
-    square_light_spot_aux(p, chunk_get(p->depth), y, x);
+    square_light_spot_aux(p, cv, y, x);
 
     Send_flush(p, true, false);
 }
@@ -513,8 +517,8 @@ static int cmp_wounded(const void *a, const void *b)
     const struct cmp_loc *pb = b;
     struct player *pa_ptr = pa->data;
     struct player *pb_ptr = pb->data;
-    int idx1 = 0 - chunk_get(pa_ptr->depth)->squares[pa->y][pa->x].mon;
-    int idx2 = 0 - chunk_get(pb_ptr->depth)->squares[pb->y][pb->x].mon;
+    int idx1 = 0 - chunk_get(&pa_ptr->wpos)->squares[pa->y][pa->x].mon;
+    int idx2 = 0 - chunk_get(&pb_ptr->wpos)->squares[pb->y][pb->x].mon;
     int w1 = player_wounded(player_get(idx1));
     int w2 = player_wounded(player_get(idx2));
 
@@ -560,7 +564,7 @@ struct point_set *target_get_monsters(struct player *p, int mode)
     int y, x;
     int min_y, min_x, max_y, max_x;
     struct point_set *targets = point_set_new(TS_INITIAL_SIZE);
-    struct chunk *c = chunk_get(p->depth);
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Get the current panel */
     get_panel(p, &min_y, &min_x, &max_y, &max_x);
@@ -571,8 +575,8 @@ struct point_set *target_get_monsters(struct player *p, int mode)
         for (x = min_x; x < max_x; x++)
         {
             int feat;
-            struct actor who_body;
-            struct actor *who = &who_body;
+            struct source who_body;
+            struct source *who = &who_body;
 
             /* Check bounds */
             if (!square_in_bounds_fully(c, y, x)) continue;
@@ -593,7 +597,7 @@ struct point_set *target_get_monsters(struct player *p, int mode)
                 if (!target_able(p, who)) continue;
 
                 /* Skip non hostile monsters */
-                if (who->mon && !pvm_check(p, who->mon)) continue;
+                if (who->monster && !pvm_check(p, who->monster)) continue;
 
                 /* Don't target yourself */
                 if (who->player && (who->player == p)) continue;
@@ -638,9 +642,9 @@ bool target_set_closest(struct player *p, int mode)
     int y, x;
     char m_name[NORMAL_WID];
     struct point_set *targets;
-    struct actor who_body;
-    struct actor *who = &who_body;
-    struct chunk *c = chunk_get(p->depth);
+    struct source who_body;
+    struct source *who = &who_body;
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Paranoia */
     if (!c) return false;
@@ -673,8 +677,8 @@ bool target_set_closest(struct player *p, int mode)
     }
 
     /* Target the monster */
-    if (who->mon)
-        monster_desc(p, m_name, sizeof(m_name), who->mon, MDESC_CAPITAL);
+    if (who->monster)
+        monster_desc(p, m_name, sizeof(m_name), who->monster, MDESC_CAPITAL);
 
     /* Target the player */
     else
@@ -683,7 +687,7 @@ bool target_set_closest(struct player *p, int mode)
     if (!(mode & TARGET_QUIET)) msg(p, "%s is targeted.", m_name);
 
     /* Set up target information */
-    if (who->mon) monster_race_track(p->upkeep, who);
+    if (who->monster) monster_race_track(p->upkeep, who);
     health_track(p->upkeep, who);
     target_set_monster(p, who);
 

@@ -8,7 +8,7 @@
 
 struct explosion
 {
-    int gf_type;
+    int proj_type;
     int num_grids;
     const int *distance_to_grid;
     const struct loc *blast_grid;
@@ -16,7 +16,7 @@ struct explosion
 
 struct bolt
 {
-    int gf_type;
+    int proj_type;
     bool beam;
     int oy;
     int ox;
@@ -51,15 +51,15 @@ extern void verify_panel(struct player *p);
 extern void center_panel(struct player *p);
 extern int move_energy(int depth);
 extern int time_factor(struct player *p, struct chunk *c);
-extern int base_time_factor(struct player *p, struct chunk *c, int slowest);
-extern int pick_arena(int depth, int y, int x);
+extern int pick_arena(struct worldpos *wpos, int y, int x);
 extern void access_arena(struct player *p, int y, int x);
 extern void describe_player(struct player *p, struct player *q);
 extern void describe_trap(struct player *p, struct trap *trap);
 extern void describe_feat(struct player *p, struct feature *feat);
 extern void player_dump(struct player *p, bool server);
 extern void bolt_pict(struct player *p, int y, int x, int ny, int nx, int typ, byte *a, char *c);
-extern void display_explosion(struct chunk *cv, struct explosion *data, const bool *drawing);
+extern void display_explosion(struct chunk *cv, struct explosion *data, const bool *drawing,
+    bool arc);
 extern void display_bolt(struct chunk *cv, struct bolt *data, bool *drawing);
 extern void display_missile(struct chunk *cv, struct missile *data);
 extern void display_message(struct player *p, struct message *data);

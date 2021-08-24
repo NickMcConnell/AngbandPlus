@@ -3,7 +3,7 @@
  * Purpose: Keymap handling
  *
  * Copyright (c) 2011 Andi Sidwell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -176,7 +176,7 @@ void keymap_dump(ang_file *fff)
     int mode;
     struct keymap *k;
 
-    if (OPT(rogue_like_commands))
+    if (OPT(player, rogue_like_commands))
         mode = KEYMAP_MODE_ROGUE;
     else
         mode = KEYMAP_MODE_ORIG;
@@ -184,9 +184,11 @@ void keymap_dump(ang_file *fff)
     for (k = keymaps[mode]; k; k = k->next)
     {
         char buf[MSG_LEN];
-        struct keypress key[2] = {{0}, {0}};
+        struct keypress key[2];
 
         if (!k->user) continue;
+
+        memset(key, 0, 2 * sizeof(struct keypress));
 
         /* Encode the action */
         keypress_to_text(buf, sizeof(buf), k->actions, false);
@@ -209,7 +211,7 @@ int keymap_browse(int o, int *j)
     int total;
     int hgt = Term->max_hgt - 4;
 
-    if (OPT(rogue_like_commands))
+    if (OPT(player, rogue_like_commands))
         mode = KEYMAP_MODE_ROGUE;
     else
         mode = KEYMAP_MODE_ORIG;
@@ -217,10 +219,12 @@ int keymap_browse(int o, int *j)
     for (k = keymaps[mode], total = 0; k; k = k->next)
     {
         char buf[MSG_LEN];
-        struct keypress key[2] = {{0}, {0}};
+        struct keypress key[2];
         char act[MSG_LEN];
         int i = total;
         char a;
+
+        memset(key, 0, 2 * sizeof(struct keypress));
 
         /* Encode the action */
         keypress_to_text(act, sizeof(act), k->actions, false);

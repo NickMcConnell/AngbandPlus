@@ -39,19 +39,20 @@ enum
  */
 enum
 {
-    RST_BOLT    = 0x0001,
-    RST_BALL    = 0x0002,
-    RST_BREATH  = 0x0004,
-    RST_ATTACK  = 0x0008,   /* Direct (non-projectable) attacks */
-    RST_ANNOY   = 0x0010,   /* Irritant spells, usually non-fatal */
-    RST_HASTE   = 0x0020,   /* Relative speed advantage */
-    RST_HEAL    = 0x0040,
-    RST_TACTIC  = 0x0080,   /* Get a better position */
-    RST_ESCAPE  = 0x0100,
-    RST_SUMMON  = 0x0200,
-    RST_INNATE  = 0x0400,
-    RST_MISSILE = 0x0800,
-    RST_HACK    = 0x1000    /* Hack -- projectable attacks that are not an element */
+    RST_NONE        = 0x0000,
+    RST_BOLT        = 0x0001,
+    RST_BALL        = 0x0002,
+    RST_BREATH      = 0x0004,
+    RST_ATTACK      = 0x0008,   /* Direct (non-projectable) attacks */
+    RST_ANNOY       = 0x0010,   /* Irritant spells, usually non-fatal */
+    RST_HASTE       = 0x0020,   /* Relative speed advantage */
+    RST_HEAL        = 0x0040,
+    RST_HEAL_OTHER  = 0x0080,
+    RST_TACTIC      = 0x0100,   /* Get a better position */
+    RST_ESCAPE      = 0x0200,
+    RST_SUMMON      = 0x0400,
+    RST_INNATE      = 0x0800,
+    RST_MISSILE     = 0x1000
 };
 
 typedef enum
@@ -78,7 +79,7 @@ enum
  */
 enum
 {
-    #define MON_TMD(a, b, c, d, e, f) MON_TMD_##a,
+    #define MON_TMD(a, b, c, d, e, f, g, h) MON_TMD_##a,
     #include "list-mon-timed.h"
     #undef MON_TMD
 
@@ -94,9 +95,9 @@ struct monster_blow
 {
     struct monster_blow *next;
 
-    byte method;        /* Method (RBM_*) */
-    byte effect;        /* Effect (RBE_*) */
-    random_value dice;  /* Damage Dice */
+    struct blow_method *method; /* Method */
+    struct blow_effect *effect; /* Effect */
+    random_value dice;          /* Damage Dice */
 };
 
 /*
@@ -121,7 +122,6 @@ struct monster_base
 	char *text;                     /* In-game name */
 
 	bitflag flags[RF_SIZE];         /* Flags */
-	bitflag spell_flags[RSF_SIZE];  /* Spell flags */
 
 	char d_char;                    /* Default monster character */
 
@@ -135,7 +135,6 @@ struct monster_drop
 {
     struct monster_drop *next;
     struct object_kind *kind;
-    struct artifact *artifact;
     unsigned int percent_chance;
     unsigned int min;
     unsigned int max;
@@ -220,12 +219,12 @@ struct monster_race
     int avg_hp;                             /* Average HP for this creature */
     int ac;                                 /* Armour Class */
     int sleep;                              /* Inactive counter (base) */
-    int aaf;                                /* Area affect radius (1-100) */
+    int hearing;                            /* Monster sense of hearing (1-100, standard 20) */
+    int smell;                              /* Monster sense of smell (0-50, standard 20) */
     int speed;                              /* Speed (normally 110) */
     int mexp;                               /* Exp value for kill */
-    u32b power;                             /* Monster power */
-    u32b scaled_power;                      /* Monster power scaled by level */
     int freq_spell;                         /* Spell frequency */
+    int spell_power;                        /* Power of spells */
     bitflag flags[RF_SIZE];                 /* Flags */
     bitflag spell_flags[RSF_SIZE];          /* Spell flags */
     struct monster_blow *blow;              /* Melee blows */
@@ -233,12 +232,13 @@ struct monster_race
     int rarity;                             /* Rarity of creature */
     byte d_attr;                            /* Default monster attribute */
     char d_char;                            /* Default monster character */
-    s16b extra;                             /* Corpse weight */
+    s16b weight;                            /* Corpse weight */
     struct monster_lore lore;               /* Monster "lore" information */
     struct monster_drop *drops;
     struct monster_friends *friends;
     struct monster_friends_base *friends_base;
     struct monster_mimic *mimic_kinds;
+    struct worldpos *wpos;                  /* Restrict to this location */
 };
 
 /*
@@ -255,13 +255,13 @@ struct monster
     int midx;
     byte fy;                            /* Y location on map */
     byte fx;                            /* X location on map */
-    s16b hp;                            /* Current Hit points */
-    s16b maxhp;                         /* Max Hit points */
+    s32b hp;                            /* Current Hit points */
+    s32b maxhp;                         /* Max Hit points */
     s16b m_timed[MON_TMD_MAX];          /* Timed monster status effects */
     byte mspeed;                        /* Monster "speed" */
     s32b energy;                        /* Monster "energy" */
     byte cdis;                          /* Current dis from player (transient) */
-    bool unaware;                       /* Players don't know this is a monster */
+    bool camouflage;                    /* Players don't know this is a monster */
     bool handled;                       /* Monster has been processed this turn */
     struct object *mimicked_obj;        /* Object this monster is mimicking */
     struct object *held_obj;            /* Object being held (if any) */
@@ -270,9 +270,10 @@ struct monster
     byte ty;                            /* Monster target (transient) */
     byte tx;
     byte min_range;                     /* Minimum combat range (transient) */
+    byte best_range;                    /* How close we want to be (transient) */
 
     /* MAngband */
-    s16b depth;                         /* Level of the dungeon */
+    struct worldpos wpos;               /* Position on the world map */
     struct player *closest_player;      /* The player closest to this monster (transient) */
 
     /* PWMAngband */
@@ -287,26 +288,30 @@ struct monster
     s16b mimicked_k_idx;                /* Object kind this monster is mimicking (random mimics) */
     byte origin;                        /* How this monster was created */
     byte feat;                          /* Terrain under monster (for feature mimics) */
+    byte old_fy;                        /* Previous monster location */
+    byte old_fx;
 };
 
 /*
  * A stacked monster message entry
  */
-typedef struct monster_race_message
+struct monster_race_message
 {
     struct monster_race *race;  /* The race of the monster */
-    byte mon_flags;             /* Flags */
-    int  msg_code;              /* The coded message */
-    byte mon_count;             /* How many monsters triggered this message */
-    bool delay;                 /* Should this message be put off to the end */
-    byte delay_tag;             /* To group delayed messages for better presentation */
-} monster_race_message;
+    int flags;                  /* Flags */
+    int msg_code;               /* The coded message */
+    int count;                  /* How many monsters triggered this message */
+    int delay;                  /* Messages will be processed in this order: delay = 0, 1, 2 */
+};
 
-typedef struct monster_message_history
+/*
+ * A (monster, message type) pair used for duplicate checking
+ */
+struct monster_message_history
 {
     struct monster *mon;    /* The monster */
     int message_code;       /* The coded message */
-} monster_message_history;
+};
 
 /** Variables **/
 

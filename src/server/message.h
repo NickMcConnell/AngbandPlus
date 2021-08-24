@@ -10,6 +10,7 @@
 
 extern void sound(struct player *p, int num);
 extern void msg_broadcast(struct player *p, const char *msg, u16b type);
+extern void msg_all(struct player *p, const char *msg, u16b type);
 extern void msg(struct player *p, const char *fmt, ...);
 extern void msg_print_complex_near(struct player *p, struct player *q, u16b type,
     const char *msg);

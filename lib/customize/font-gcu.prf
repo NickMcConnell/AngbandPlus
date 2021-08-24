@@ -10,22 +10,22 @@
 ### Terrain features (solid walls) ###
 
 # Floors
-feat:1:*:0x01:0xB7
+feat:open floor:*:0x01:0xB7
 
 # Magma
-feat:19:*:0x81:0xAE
+feat:magma vein:*:0x81:0xAE
 
 # Quartz
-feat:20:*:0x81:0xAE
+feat:quartz vein:*:0x81:0xAE
 
 # Magma vein with treasure
-feat:21:*:0x83:0xAE
+feat:magma vein with treasure:*:0x83:0xAE
 
 # Quartz vein with treasure
-feat:22:*:0x83:0xAE
+feat:quartz vein with treasure:*:0x83:0xAE
 
 # Granite wall
-feat:23:*:0x81:0x20
+feat:granite wall:*:0x81:0x20
 
 # Permanent rock
-feat:24:*:0x87:0x20
+feat:permanent wall:*:0x87:0x20

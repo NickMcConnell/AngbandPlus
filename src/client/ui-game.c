@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2015 Nick McConnell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -70,7 +70,6 @@ struct cmd_info cmd_item[] =
  */
 struct cmd_info cmd_action[] =
 {
-    {"Search for traps/doors", {'s'}, CMD_SEARCH, NULL, NULL},
     {"Disarm a trap or chest", {'D'}, CMD_DISARM, NULL, NULL},
     {"Rest for a while", {'R'}, CMD_NULL, textui_cmd_rest, NULL},
     {"Look around", {'l', 'x'}, CMD_NULL, do_cmd_look, NULL},
@@ -80,7 +79,7 @@ struct cmd_info cmd_action[] =
     {"Dig a tunnel", {'T', KTRL('T')}, CMD_TUNNEL, NULL, NULL},
     {"Go up staircase", {'<'}, CMD_GO_UP, NULL, NULL},
     {"Go down staircase", {'>'}, CMD_GO_DOWN, NULL, NULL},
-    {"Toggle search mode", {'S', '#'}, CMD_TOGGLE_SEARCH, NULL, NULL},
+    {"Toggle stealth mode", {'S', '#'}, CMD_TOGGLE_STEALTH, NULL, NULL},
     {"Open a door or a chest", {'o'}, CMD_OPEN, NULL, NULL},
     {"Close a door", {'c'}, CMD_CLOSE, NULL, NULL},
     {"Fire at nearest target", {'h', KC_TAB}, CMD_NULL, do_cmd_fire_at_nearest, NULL},
@@ -131,7 +130,8 @@ struct cmd_info cmd_info[] =
     {"Access party menu", {'P', '!'}, CMD_NULL, do_cmd_party, NULL},
     {"Display connected players", {'@', KTRL('V')}, CMD_NULL, do_cmd_players, NULL},
     {"Describe an item in chat window", {KTRL('D'), KC_BACKSPACE}, CMD_NULL, do_cmd_describe, NULL},
-    {"Full wilderness map", {KTRL('W')}, CMD_NULL, do_cmd_wild_map, NULL}
+    {"Full wilderness map", {KTRL('W')}, CMD_NULL, do_cmd_wild_map, NULL},
+    {"Display current time", {'%'}, CMD_NULL, do_cmd_time, NULL}
 };
 
 
@@ -142,7 +142,7 @@ struct cmd_info cmd_util[] =
 {
     {"Interact with options", {'='}, CMD_NULL, do_cmd_xxx_options, NULL},
     {"Save and quit", {KTRL('X')}, CMD_NULL, textui_quit, NULL},
-    {"Quit (commit suicide)", {'Q'}, CMD_NULL, textui_cmd_suicide, NULL},
+    {"Kill character and quit", {'Q'}, CMD_NULL, textui_cmd_suicide, NULL},
     {"Redraw the screen", {KTRL('R')}, CMD_NULL, do_cmd_redraw, NULL},
     {"Save \"screen dump\"", {')'}, CMD_NULL, do_cmd_save_screen, NULL},
     {"Purchase a house", {KTRL('E')}, CMD_NULL, do_cmd_purchase_house, NULL},
@@ -196,7 +196,7 @@ void cmd_init(void)
 {
     size_t i, j;
 
-    memset(converted_list, 0, sizeof(converted_list));
+    memset(converted_list, 0, 2 * (UCHAR_MAX + 1) * sizeof(struct cmd_info *));
 
     /* Go through all generic commands */
     for (j = 0; j < MAX_COMMAND_LIST; j++)
@@ -260,7 +260,7 @@ static void textui_process_command_aux(ui_event e)
     bool done = true;
     struct cmd_info *cmd = NULL;
     unsigned char key = '\0';
-    int mode = (OPT(rogue_like_commands)? KEYMAP_MODE_ROGUE: KEYMAP_MODE_ORIG);
+    int mode = (OPT(player, rogue_like_commands)? KEYMAP_MODE_ROGUE: KEYMAP_MODE_ORIG);
 
     if (e.type == EVT_KBRD) done = textui_process_key(e.key, &key);
 

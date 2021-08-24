@@ -3,7 +3,7 @@
  * Purpose: Ask for non-command input from the UI.
  *
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -34,6 +34,7 @@ int (*get_aim_dir_ex_hook)(int *dir);
 int (*get_spell_hook)(int book, const char *verb, bool (*spell_test)(int, int));
 bool (*get_item_hook)(struct object **choice, const char *pmt, const char *str, cmd_code cmd,
     item_tester tester, int mode);
+bool (*get_curse_hook)(int *choice, struct object *obj, char *dice_string);
 
 
 /*
@@ -203,5 +204,16 @@ bool get_item(struct object **choice, const char *pmt, const char *str, cmd_code
 {
     /* Ask the UI for it */
     if (get_item_hook) return get_item_hook(choice, pmt, str, cmd, tester, mode);
+    return false;
+}
+
+
+/*
+ * Get a curse from an object
+ */
+bool get_curse(int *choice, struct object *obj, char *dice_string)
+{
+    /* Ask the UI for it */
+    if (get_curse_hook) return get_curse_hook(choice, obj, dice_string);
     return false;
 }

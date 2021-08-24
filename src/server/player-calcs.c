@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -25,7 +25,7 @@
 /*
  * Stat Table (INT) -- magic devices
  */
-static const byte adj_int_dev[STAT_RANGE] =
+static const int adj_int_dev[STAT_RANGE] =
 {
     0   /* 3 */,
     0   /* 4 */,
@@ -71,7 +71,7 @@ static const byte adj_int_dev[STAT_RANGE] =
 /*
  * Stat Table (WIS) -- saving throw
  */
-static const byte adj_wis_sav[STAT_RANGE] =
+static const int adj_wis_sav[STAT_RANGE] =
 {
     0   /* 3 */,
     0   /* 4 */,
@@ -117,53 +117,7 @@ static const byte adj_wis_sav[STAT_RANGE] =
 /*
  * Stat Table (DEX) -- disarming
  */
-static const byte adj_dex_dis[STAT_RANGE] =
-{
-    0   /* 3 */,
-    0   /* 4 */,
-    0   /* 5 */,
-    0   /* 6 */,
-    0   /* 7 */,
-    0   /* 8 */,
-    0   /* 9 */,
-    0   /* 10 */,
-    0   /* 11 */,
-    0   /* 12 */,
-    1   /* 13 */,
-    1   /* 14 */,
-    1   /* 15 */,
-    2   /* 16 */,
-    2   /* 17 */,
-    4   /* 18/00-18/09 */,
-    4   /* 18/10-18/19 */,
-    4   /* 18/20-18/29 */,
-    4   /* 18/30-18/39 */,
-    5   /* 18/40-18/49 */,
-    5   /* 18/50-18/59 */,
-    5   /* 18/60-18/69 */,
-    6   /* 18/70-18/79 */,
-    6   /* 18/80-18/89 */,
-    7   /* 18/90-18/99 */,
-    8   /* 18/100-18/109 */,
-    8   /* 18/110-18/119 */,
-    8   /* 18/120-18/129 */,
-    8   /* 18/130-18/139 */,
-    8   /* 18/140-18/149 */,
-    9   /* 18/150-18/159 */,
-    9   /* 18/160-18/169 */,
-    9   /* 18/170-18/179 */,
-    9   /* 18/180-18/189 */,
-    9   /* 18/190-18/199 */,
-    10  /* 18/200-18/209 */,
-    10  /* 18/210-18/219 */,
-    10  /* 18/220+ */
-};
-
-
-/*
- * Stat Table (INT) -- disarming
- */
-static const byte adj_int_dis[STAT_RANGE] =
+static const int adj_dex_dis[STAT_RANGE] =
 {
     0   /* 3 */,
     0   /* 4 */,
@@ -175,225 +129,271 @@ static const byte adj_int_dis[STAT_RANGE] =
     1   /* 10 */,
     1   /* 11 */,
     1   /* 12 */,
-    1   /* 13 */,
-    1   /* 14 */,
-    2   /* 15 */,
-    2   /* 16 */,
+    2   /* 13 */,
+    2   /* 14 */,
+    3   /* 15 */,
+    4   /* 16 */,
+    4   /* 17 */,
+    7   /* 18/00-18/09 */,
+    7   /* 18/10-18/19 */,
+    7   /* 18/20-18/29 */,
+    8   /* 18/30-18/39 */,
+    9   /* 18/40-18/49 */,
+    10  /* 18/50-18/59 */,
+    11  /* 18/60-18/69 */,
+    13  /* 18/70-18/79 */,
+    14  /* 18/80-18/89 */,
+    16  /* 18/90-18/99 */,
+    18  /* 18/100-18/109 */,
+    18  /* 18/110-18/119 */,
+    19  /* 18/120-18/129 */,
+    20  /* 18/130-18/139 */,
+    21  /* 18/140-18/149 */,
+    23  /* 18/150-18/159 */,
+    24  /* 18/160-18/169 */,
+    25  /* 18/170-18/179 */,
+    26  /* 18/180-18/189 */,
+    27  /* 18/190-18/199 */,
+    29  /* 18/200-18/209 */,
+    29  /* 18/210-18/219 */,
+    29  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (INT) -- disarming
+ */
+static const int adj_int_dis[STAT_RANGE] =
+{
+    0   /* 3 */,
+    0   /* 4 */,
+    0   /* 5 */,
+    0   /* 6 */,
+    0   /* 7 */,
+    1   /* 8 */,
+    1   /* 9 */,
+    1   /* 10 */,
+    1   /* 11 */,
+    1   /* 12 */,
+    2   /* 13 */,
+    2   /* 14 */,
+    3   /* 15 */,
+    4   /* 16 */,
+    4   /* 17 */,
+    7   /* 18/00-18/09 */,
+    7   /* 18/10-18/19 */,
+    7   /* 18/20-18/29 */,
+    8   /* 18/30-18/39 */,
+    9   /* 18/40-18/49 */,
+    10  /* 18/50-18/59 */,
+    11  /* 18/60-18/69 */,
+    13  /* 18/70-18/79 */,
+    14  /* 18/80-18/89 */,
+    16  /* 18/90-18/99 */,
+    18  /* 18/100-18/109 */,
+    18  /* 18/110-18/119 */,
+    19  /* 18/120-18/129 */,
+    20  /* 18/130-18/139 */,
+    21  /* 18/140-18/149 */,
+    23  /* 18/150-18/159 */,
+    24  /* 18/160-18/169 */,
+    25  /* 18/170-18/179 */,
+    26  /* 18/180-18/189 */,
+    27  /* 18/190-18/199 */,
+    29  /* 18/200-18/209 */,
+    29  /* 18/210-18/219 */,
+    29  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (DEX) -- bonus to ac
+ */
+static const int adj_dex_ta[STAT_RANGE] =
+{
+    -4  /* 3 */,
+    -3  /* 4 */,
+    -2  /* 5 */,
+    -1  /* 6 */,
+    0   /* 7 */,
+    0   /* 8 */,
+    0   /* 9 */,
+    0   /* 10 */,
+    0   /* 11 */,
+    0   /* 12 */,
+    0   /* 13 */,
+    0   /* 14 */,
+    1   /* 15 */,
+    1   /* 16 */,
+    1   /* 17 */,
+    2   /* 18/00-18/09 */,
+    2   /* 18/10-18/19 */,
+    2   /* 18/20-18/29 */,
+    2   /* 18/30-18/39 */,
+    2   /* 18/40-18/49 */,
+    3   /* 18/50-18/59 */,
+    3   /* 18/60-18/69 */,
+    3   /* 18/70-18/79 */,
+    4   /* 18/80-18/89 */,
+    5   /* 18/90-18/99 */,
+    6   /* 18/100-18/109 */,
+    7   /* 18/110-18/119 */,
+    8   /* 18/120-18/129 */,
+    9   /* 18/130-18/139 */,
+    9   /* 18/140-18/149 */,
+    10  /* 18/150-18/159 */,
+    11  /* 18/160-18/169 */,
+    12  /* 18/170-18/179 */,
+    13  /* 18/180-18/189 */,
+    14  /* 18/190-18/199 */,
+    15  /* 18/200-18/209 */,
+    15  /* 18/210-18/219 */,
+    15  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (STR) -- bonus to dam
+ */
+static const int adj_str_td[STAT_RANGE] =
+{
+    -2  /* 3 */,
+    -2  /* 4 */,
+    -1  /* 5 */,
+    -1  /* 6 */,
+    0   /* 7 */,
+    0   /* 8 */,
+    0   /* 9 */,
+    0   /* 10 */,
+    0   /* 11 */,
+    0   /* 12 */,
+    0   /* 13 */,
+    0   /* 14 */,
+    0   /* 15 */,
+    1   /* 16 */,
+    2   /* 17 */,
+    2   /* 18/00-18/09 */,
+    2   /* 18/10-18/19 */,
+    3   /* 18/20-18/29 */,
+    3   /* 18/30-18/39 */,
+    3   /* 18/40-18/49 */,
+    3   /* 18/50-18/59 */,
+    3   /* 18/60-18/69 */,
+    4   /* 18/70-18/79 */,
+    5   /* 18/80-18/89 */,
+    5   /* 18/90-18/99 */,
+    6   /* 18/100-18/109 */,
+    7   /* 18/110-18/119 */,
+    8   /* 18/120-18/129 */,
+    9   /* 18/130-18/139 */,
+    10  /* 18/140-18/149 */,
+    11  /* 18/150-18/159 */,
+    12  /* 18/160-18/169 */,
+    13  /* 18/170-18/179 */,
+    14  /* 18/180-18/189 */,
+    15  /* 18/190-18/199 */,
+    16  /* 18/200-18/209 */,
+    18  /* 18/210-18/219 */,
+    20  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (DEX) -- bonus to hit
+ */
+static const int adj_dex_th[STAT_RANGE] =
+{
+    -3  /* 3 */,
+    -2  /* 4 */,
+    -2  /* 5 */,
+    -1  /* 6 */,
+    -1  /* 7 */,
+    0   /* 8 */,
+    0   /* 9 */,
+    0   /* 10 */,
+    0   /* 11 */,
+    0   /* 12 */,
+    0   /* 13 */,
+    0   /* 14 */,
+    0   /* 15 */,
+    1   /* 16 */,
     2   /* 17 */,
     3   /* 18/00-18/09 */,
     3   /* 18/10-18/19 */,
     3   /* 18/20-18/29 */,
-    4   /* 18/30-18/39 */,
-    4   /* 18/40-18/49 */,
-    5   /* 18/50-18/59 */,
-    6   /* 18/60-18/69 */,
-    7   /* 18/70-18/79 */,
-    8   /* 18/80-18/89 */,
-    9   /* 18/90-18/99 */,
-    10  /* 18/100-18/109 */,
-    10  /* 18/110-18/119 */,
-    11  /* 18/120-18/129 */,
-    12  /* 18/130-18/139 */,
-    13  /* 18/140-18/149 */,
-    14  /* 18/150-18/159 */,
-    15  /* 18/160-18/169 */,
-    16  /* 18/170-18/179 */,
-    17  /* 18/180-18/189 */,
-    18  /* 18/190-18/199 */,
-    19  /* 18/200-18/209 */,
-    19  /* 18/210-18/219 */,
-    19  /* 18/220+ */
+    3   /* 18/30-18/39 */,
+    3   /* 18/40-18/49 */,
+    4   /* 18/50-18/59 */,
+    4   /* 18/60-18/69 */,
+    4   /* 18/70-18/79 */,
+    4   /* 18/80-18/89 */,
+    5   /* 18/90-18/99 */,
+    6   /* 18/100-18/109 */,
+    7   /* 18/110-18/119 */,
+    8   /* 18/120-18/129 */,
+    9   /* 18/130-18/139 */,
+    9   /* 18/140-18/149 */,
+    10  /* 18/150-18/159 */,
+    11  /* 18/160-18/169 */,
+    12  /* 18/170-18/179 */,
+    13  /* 18/180-18/189 */,
+    14  /* 18/190-18/199 */,
+    15  /* 18/200-18/209 */,
+    15  /* 18/210-18/219 */,
+    15  /* 18/220+ */
 };
 
 
 /*
- * Stat Table (DEX) -- bonus to ac (plus 128)
+ * Stat Table (STR) -- bonus to hit
  */
-static const byte adj_dex_ta[STAT_RANGE] =
+static const int adj_str_th[STAT_RANGE] =
 {
-    128 + -4    /* 3 */,
-    128 + -3    /* 4 */,
-    128 + -2    /* 5 */,
-    128 + -1    /* 6 */,
-    128 + 0     /* 7 */,
-    128 + 0     /* 8 */,
-    128 + 0     /* 9 */,
-    128 + 0     /* 10 */,
-    128 + 0     /* 11 */,
-    128 + 0     /* 12 */,
-    128 + 0     /* 13 */,
-    128 + 0     /* 14 */,
-    128 + 1     /* 15 */,
-    128 + 1     /* 16 */,
-    128 + 1     /* 17 */,
-    128 + 2     /* 18/00-18/09 */,
-    128 + 2     /* 18/10-18/19 */,
-    128 + 2     /* 18/20-18/29 */,
-    128 + 2     /* 18/30-18/39 */,
-    128 + 2     /* 18/40-18/49 */,
-    128 + 3     /* 18/50-18/59 */,
-    128 + 3     /* 18/60-18/69 */,
-    128 + 3     /* 18/70-18/79 */,
-    128 + 4     /* 18/80-18/89 */,
-    128 + 5     /* 18/90-18/99 */,
-    128 + 6     /* 18/100-18/109 */,
-    128 + 7     /* 18/110-18/119 */,
-    128 + 8     /* 18/120-18/129 */,
-    128 + 9     /* 18/130-18/139 */,
-    128 + 9     /* 18/140-18/149 */,
-    128 + 10    /* 18/150-18/159 */,
-    128 + 11    /* 18/160-18/169 */,
-    128 + 12    /* 18/170-18/179 */,
-    128 + 13    /* 18/180-18/189 */,
-    128 + 14    /* 18/190-18/199 */,
-    128 + 15    /* 18/200-18/209 */,
-    128 + 15    /* 18/210-18/219 */,
-    128 + 15    /* 18/220+ */
-};
-
-
-/*
- * Stat Table (STR) -- bonus to dam (plus 128)
- */
-static const byte adj_str_td[STAT_RANGE] =
-{
-    128 + -2    /* 3 */,
-    128 + -2    /* 4 */,
-    128 + -1    /* 5 */,
-    128 + -1    /* 6 */,
-    128 + 0     /* 7 */,
-    128 + 0     /* 8 */,
-    128 + 0     /* 9 */,
-    128 + 0     /* 10 */,
-    128 + 0     /* 11 */,
-    128 + 0     /* 12 */,
-    128 + 0     /* 13 */,
-    128 + 0     /* 14 */,
-    128 + 0     /* 15 */,
-    128 + 1     /* 16 */,
-    128 + 2     /* 17 */,
-    128 + 2     /* 18/00-18/09 */,
-    128 + 2     /* 18/10-18/19 */,
-    128 + 3     /* 18/20-18/29 */,
-    128 + 3     /* 18/30-18/39 */,
-    128 + 3     /* 18/40-18/49 */,
-    128 + 3     /* 18/50-18/59 */,
-    128 + 3     /* 18/60-18/69 */,
-    128 + 4     /* 18/70-18/79 */,
-    128 + 5     /* 18/80-18/89 */,
-    128 + 5     /* 18/90-18/99 */,
-    128 + 6     /* 18/100-18/109 */,
-    128 + 7     /* 18/110-18/119 */,
-    128 + 8     /* 18/120-18/129 */,
-    128 + 9     /* 18/130-18/139 */,
-    128 + 10    /* 18/140-18/149 */,
-    128 + 11    /* 18/150-18/159 */,
-    128 + 12    /* 18/160-18/169 */,
-    128 + 13    /* 18/170-18/179 */,
-    128 + 14    /* 18/180-18/189 */,
-    128 + 15    /* 18/190-18/199 */,
-    128 + 16    /* 18/200-18/209 */,
-    128 + 18    /* 18/210-18/219 */,
-    128 + 20    /* 18/220+ */
-};
-
-
-/*
- * Stat Table (DEX) -- bonus to hit (plus 128)
- */
-static const byte adj_dex_th[STAT_RANGE] =
-{
-    128 + -3    /* 3 */,
-    128 + -2    /* 4 */,
-    128 + -2    /* 5 */,
-    128 + -1    /* 6 */,
-    128 + -1    /* 7 */,
-    128 + 0     /* 8 */,
-    128 + 0     /* 9 */,
-    128 + 0     /* 10 */,
-    128 + 0     /* 11 */,
-    128 + 0     /* 12 */,
-    128 + 0     /* 13 */,
-    128 + 0     /* 14 */,
-    128 + 0     /* 15 */,
-    128 + 1     /* 16 */,
-    128 + 2     /* 17 */,
-    128 + 3     /* 18/00-18/09 */,
-    128 + 3     /* 18/10-18/19 */,
-    128 + 3     /* 18/20-18/29 */,
-    128 + 3     /* 18/30-18/39 */,
-    128 + 3     /* 18/40-18/49 */,
-    128 + 4     /* 18/50-18/59 */,
-    128 + 4     /* 18/60-18/69 */,
-    128 + 4     /* 18/70-18/79 */,
-    128 + 4     /* 18/80-18/89 */,
-    128 + 5     /* 18/90-18/99 */,
-    128 + 6     /* 18/100-18/109 */,
-    128 + 7     /* 18/110-18/119 */,
-    128 + 8     /* 18/120-18/129 */,
-    128 + 9     /* 18/130-18/139 */,
-    128 + 9     /* 18/140-18/149 */,
-    128 + 10    /* 18/150-18/159 */,
-    128 + 11    /* 18/160-18/169 */,
-    128 + 12    /* 18/170-18/179 */,
-    128 + 13    /* 18/180-18/189 */,
-    128 + 14    /* 18/190-18/199 */,
-    128 + 15    /* 18/200-18/209 */,
-    128 + 15    /* 18/210-18/219 */,
-    128 + 15    /* 18/220+ */
-};
-
-
-/*
- * Stat Table (STR) -- bonus to hit (plus 128)
- */
-static const byte adj_str_th[STAT_RANGE] =
-{
-    128 + -3    /* 3 */,
-    128 + -2    /* 4 */,
-    128 + -1    /* 5 */,
-    128 + -1    /* 6 */,
-    128 + 0     /* 7 */,
-    128 + 0     /* 8 */,
-    128 + 0     /* 9 */,
-    128 + 0     /* 10 */,
-    128 + 0     /* 11 */,
-    128 + 0     /* 12 */,
-    128 + 0     /* 13 */,
-    128 + 0     /* 14 */,
-    128 + 0     /* 15 */,
-    128 + 0     /* 16 */,
-    128 + 0     /* 17 */,
-    128 + 1     /* 18/00-18/09 */,
-    128 + 1     /* 18/10-18/19 */,
-    128 + 1     /* 18/20-18/29 */,
-    128 + 1     /* 18/30-18/39 */,
-    128 + 1     /* 18/40-18/49 */,
-    128 + 1     /* 18/50-18/59 */,
-    128 + 1     /* 18/60-18/69 */,
-    128 + 2     /* 18/70-18/79 */,
-    128 + 3     /* 18/80-18/89 */,
-    128 + 4     /* 18/90-18/99 */,
-    128 + 5     /* 18/100-18/109 */,
-    128 + 6     /* 18/110-18/119 */,
-    128 + 7     /* 18/120-18/129 */,
-    128 + 8     /* 18/130-18/139 */,
-    128 + 9     /* 18/140-18/149 */,
-    128 + 10    /* 18/150-18/159 */,
-    128 + 11    /* 18/160-18/169 */,
-    128 + 12    /* 18/170-18/179 */,
-    128 + 13    /* 18/180-18/189 */,
-    128 + 14    /* 18/190-18/199 */,
-    128 + 15    /* 18/200-18/209 */,
-    128 + 15    /* 18/210-18/219 */,
-    128 + 15    /* 18/220+ */
+    -3  /* 3 */,
+    -2  /* 4 */,
+    -1  /* 5 */,
+    -1  /* 6 */,
+    0   /* 7 */,
+    0   /* 8 */,
+    0   /* 9 */,
+    0   /* 10 */,
+    0   /* 11 */,
+    0   /* 12 */,
+    0   /* 13 */,
+    0   /* 14 */,
+    0   /* 15 */,
+    0   /* 16 */,
+    0   /* 17 */,
+    1   /* 18/00-18/09 */,
+    1   /* 18/10-18/19 */,
+    1   /* 18/20-18/29 */,
+    1   /* 18/30-18/39 */,
+    1   /* 18/40-18/49 */,
+    1   /* 18/50-18/59 */,
+    1   /* 18/60-18/69 */,
+    2   /* 18/70-18/79 */,
+    3   /* 18/80-18/89 */,
+    4   /* 18/90-18/99 */,
+    5   /* 18/100-18/109 */,
+    6   /* 18/110-18/119 */,
+    7   /* 18/120-18/129 */,
+    8   /* 18/130-18/139 */,
+    9   /* 18/140-18/149 */,
+    10  /* 18/150-18/159 */,
+    11  /* 18/160-18/169 */,
+    12  /* 18/170-18/179 */,
+    13  /* 18/180-18/189 */,
+    14  /* 18/190-18/199 */,
+    15  /* 18/200-18/209 */,
+    15  /* 18/210-18/219 */,
+    15  /* 18/220+ */
 };
 
 
 /*
  * Stat Table (STR) -- weight limit in deca-pounds
  */
-static const byte adj_str_wgt[STAT_RANGE] =
+static const int adj_str_wgt[STAT_RANGE] =
 {
     5   /* 3 */,
     6   /* 4 */,
@@ -439,7 +439,7 @@ static const byte adj_str_wgt[STAT_RANGE] =
 /*
  * Stat Table (STR) -- weapon weight limit in pounds
  */
-const byte adj_str_hold[STAT_RANGE] =
+const int adj_str_hold[STAT_RANGE] =
 {
     4   /* 3 */,
     5   /* 4 */,
@@ -485,7 +485,7 @@ const byte adj_str_hold[STAT_RANGE] =
 /*
  * Stat Table (STR) -- digging value
  */
-static const byte adj_str_dig[STAT_RANGE] =
+static const int adj_str_dig[STAT_RANGE] =
 {
     0   /* 3 */,
     0   /* 4 */,
@@ -531,7 +531,7 @@ static const byte adj_str_dig[STAT_RANGE] =
 /*
  * Stat Table (STR) -- help index into the "blow" table
  */
-const byte adj_str_blow[STAT_RANGE] =
+const int adj_str_blow[STAT_RANGE] =
 {
     3   /* 3 */,
     4   /* 4 */,
@@ -577,7 +577,7 @@ const byte adj_str_blow[STAT_RANGE] =
 /*
  * Stat Table (DEX) -- index into the "blow" table
  */
-static const byte adj_dex_blow[STAT_RANGE] =
+static const int adj_dex_blow[STAT_RANGE] =
 {
     0   /* 3 */,
     0   /* 4 */,
@@ -623,7 +623,7 @@ static const byte adj_dex_blow[STAT_RANGE] =
 /*
  * Stat Table (DEX) -- chance of avoiding "theft" and "falling"
  */
-const byte adj_dex_safe[STAT_RANGE] =
+const int adj_dex_safe[STAT_RANGE] =
 {
     0   /* 3 */,
     1   /* 4 */,
@@ -669,7 +669,7 @@ const byte adj_dex_safe[STAT_RANGE] =
 /*
  * Stat Table (CON) -- base regeneration rate
  */
-const byte adj_con_fix[STAT_RANGE] =
+const int adj_con_fix[STAT_RANGE] =
 {
     0   /* 3 */,
     0   /* 4 */,
@@ -1088,6 +1088,8 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
     int i, msp, levels, cur_wgt, max_wgt;
     struct object *obj;
     int exmsp = 0;
+    bitflag flags[OF_SIZE];
+    s32b modifiers[OBJ_MOD_MAX];
 
     /* Shapechangers get arbitrary mana */
     if (player_has(p, PF_MONSTER_SPELLS))
@@ -1097,7 +1099,7 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
     }
 
     /* Hack -- must be literate */
-    else if (!p->clazz->magic.total_spells)
+    else if (!p->clazz->magic.spell_realm)
     {
         p->msp = 0;
         p->csp = 0;
@@ -1124,6 +1126,9 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
     /* Get the gloves */
     obj = equipped_item_by_slot_name(p, "hands");
 
+    object_flags(obj, flags);
+    object_modifiers(obj, modifiers);
+
     /* Process gloves for those disturbed by them */
     if (player_has(p, PF_CUMBER_GLOVE))
     {
@@ -1132,9 +1137,9 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
 
         /* Normal gloves hurt mage-type spells */
         /* PWMAngband: gloves with +MANA should NEVER hinder spellcasting */
-        if (obj && !of_has(obj->flags, OF_FREE_ACT) &&
+        if (obj && !of_has(flags, OF_FREE_ACT) &&
             !kf_has(obj->kind->kind_flags, KF_SPELLS_OK) &&
-            (obj->modifiers[OBJ_MOD_MANA] <= 0) && (obj->modifiers[OBJ_MOD_DEX] <= 0))
+            (modifiers[OBJ_MOD_MANA] <= 0) && (modifiers[OBJ_MOD_DEX] <= 0))
         {
             /* Encumbered */
             state->cumber_glove = true;
@@ -1182,13 +1187,15 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
     if (player_has(p, PF_EXTRA_MANA)) msp = (5 * msp) / 4;
 
     /* Extra mana capacity from gloves */
-    if (obj) exmsp += obj->modifiers[OBJ_MOD_MANA];
+    exmsp += modifiers[OBJ_MOD_MANA];
 
     /* Get the weapon */
     obj = equipped_item_by_slot_name(p, "weapon");
 
+    object_modifiers(obj, modifiers);
+
     /* Extra mana capacity from weapon */
-    if (obj) exmsp += obj->modifiers[OBJ_MOD_MANA];
+    exmsp += modifiers[OBJ_MOD_MANA];
 
     /* 1 point = 10% more mana */
     msp = ((10 + exmsp) * msp) / 10;
@@ -1295,7 +1302,7 @@ static void calc_torch(struct player *p, struct player_state *state, bool update
     state->cur_light = 0;
 
     /* Ascertain lightness if outside of the dungeon */
-    if ((p->depth <= 0) && is_daytime())
+    if ((p->wpos.depth == 0) && is_daytime())
     {
         /* Update the visuals if necessary */
         if (update && (p->state.cur_light != state->cur_light))
@@ -1309,15 +1316,18 @@ static void calc_torch(struct player *p, struct player_state *state, bool update
     {
         int amt = 0;
         struct object *obj = slot_object(p, i);
+        s32b modifiers[OBJ_MOD_MAX];
 
         /* Skip empty slots */
         if (!obj) continue;
 
-        /* Light radius is now a modifier */
-        amt = obj->modifiers[OBJ_MOD_LIGHT];
+        object_modifiers(obj, modifiers);
 
-        /* Cursed objects emit no light */
-        if (of_has(obj->flags, OF_LIGHT_CURSE)) amt = 0;
+        /* Light radius - innate plus modifier */
+        if (of_has(obj->flags, OF_LIGHT_1)) amt = 1;
+        else if (of_has(obj->flags, OF_LIGHT_2)) amt = 2;
+        else if (of_has(obj->flags, OF_LIGHT_3)) amt = 3;
+        amt += modifiers[OBJ_MOD_LIGHT];
 
         /* Lights without fuel provide no light */
         if (tval_is_light(obj) && !of_has(obj->flags, OF_NO_FUEL) && (obj->timeout == 0))
@@ -1388,7 +1398,7 @@ void calc_digging_chances(struct player *p, struct player_state *state, int chan
  * The player gets blows/round equal to 100/this number, up to a maximum of
  * "num" blows/round, plus any "bonus" blows/round.
  */
-static const byte blows_table[12][12] =
+static const int blows_table[12][12] =
 {
     /* P/D */
     /* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
@@ -1434,6 +1444,8 @@ static const byte blows_table[12][12] =
 bool obj_can_browse(struct player *p, const struct object *obj)
 {
     int i;
+
+    if (!p) return false;
 
     for (i = 0; i < p->clazz->magic.num_books; i++)
     {
@@ -1481,7 +1493,7 @@ bool earlier_object(struct player *p, struct object *orig, struct object *newobj
     if (orig->sval < newobj->sval) return false;
     if (orig->sval > newobj->sval) return true;
 
-    /* Unidentified objects always come last */
+    /* Unaware objects always come last */
     if (!store)
     {
         if (!object_is_known(p, newobj)) return false;
@@ -1559,8 +1571,8 @@ void calc_inventory(struct player *p)
                         p->upkeep->quiver[i] = current;
                         p->upkeep->quiver_cnt += current->number;
 
-                        /* Notice stuff if it's first time in the quiver */
-                        if (!object_was_worn(current)) object_notice_on_wield(p, current);
+                        /* In the quiver counts as worn */
+                        object_learn_on_wield(p, current);
 
                         /* Done with this slot */
                         break;
@@ -1606,8 +1618,8 @@ void calc_inventory(struct player *p)
         p->upkeep->quiver[i] = first;
         p->upkeep->quiver_cnt += first->number;
 
-        /* Notice stuff if it's first time in the quiver */
-        if (!object_was_worn(first)) object_notice_on_wield(p, first);
+        /* In the quiver counts as worn */
+        object_learn_on_wield(p, first);
     }
 
     /* Note reordering */
@@ -1813,6 +1825,34 @@ static int monk_get_extra_ac(const struct object *obj, int bonus, const struct o
 
 
 /*
+ * Checks whether the player knows the given modifier of an object
+ *
+ * obj is the object
+ * mod is the modifier
+ */
+static bool object_modifier_is_known(const struct object *obj, int mod, bool aware)
+{
+    size_t i;
+
+    if (mod < 0 || mod >= OBJ_MOD_MAX) return false;
+
+    /* Object has been exposed to the modifier means OK */
+    if (easy_know(obj, aware) || obj->known->modifiers[mod])
+        return true;
+
+    /* Check curses */
+    for (i = 0; obj->known->curses && (i < (size_t)z_info->curse_max); i++)
+    {
+        if (obj->known->curses[i].power == 0) continue;
+        if (curses[i].obj->modifiers[mod])
+            return true;
+    }
+
+    return false;
+}
+
+
+/*
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
  * and temporary spell effects.
@@ -1840,15 +1880,17 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     int extra_blows = 0;
     int extra_shots = 0;
     int extra_might = 0;
-    struct object *obj;
+    struct object *launcher = equipped_item_by_slot_name(p, "shooting");
+    struct object *weapon = equipped_item_by_slot_name(p, "weapon");
     bitflag f[OF_SIZE], f2[OF_SIZE];
     bitflag collect_f[OF_SIZE];
     bool vuln[ELEM_MAX];
     bool unencumbered_monk = monk_armor_ok(p);
     byte cumber_shield = 0;
     struct element_info el_info[ELEM_MAX];
+    struct object *tool = equipped_item_by_slot_name(p, "tool");
 
-    create_mask(f2, false, OFT_ESP, OFT_MAX);
+    create_obj_flag_mask(f2, false, OFT_ESP, OFT_MAX);
 
     /* Set various defaults */
     state->speed = 110;
@@ -1857,21 +1899,11 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     state->ammo_tval = TV_ROCK;
     state->ammo_mult = 1;
 
-    /*
-     * Extract race/class info
-     */
-
-    /* Base infravision (purely racial) */
+    /* Extract race/class info */
     state->see_infra = p->race->infra;
-
-    /* Base skills */
     for (i = 0; i < SKILL_MAX; i++)
         state->skills[i] = p->race->r_skills[i] + p->clazz->c_skills[i];
-
-    /* Extract the racial flags */
     player_elements(p, el_info);
-
-    /* Base resists */
     for (i = 0; i < ELEM_MAX; i++)
     {
         vuln[i] = false;
@@ -1880,15 +1912,9 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         else
             state->el_info[i].res_level = el_info[i].res_level;
     }
-
-    /* Base pflags */
     pf_wipe(state->pflags);
     pf_copy(state->pflags, p->race->pflags);
     pf_union(state->pflags, p->clazz->pflags);
-
-    /*
-     * Analyze player
-     */
 
     /* Extract the player flags */
     player_flags(p, collect_f);
@@ -1928,76 +1954,89 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->speed += (p->poly_race->speed - 110) / 2;
 
         /* Fruit bat mode: get double speed bonus */
-        if (OPT_P(p, birth_fruit_bat)) state->speed += (p->poly_race->speed - 110) / 2;
+        if (OPT(p, birth_fruit_bat)) state->speed += (p->poly_race->speed - 110) / 2;
     }
 
-    /*
-     * Analyze equipment
-     */
-
-    /* Scan the usable inventory */
+    /* Analyze equipment */
     for (i = 0; i < p->body.count; i++)
     {
-        obj = slot_object(p, i);
+        int dig = 0;
+        struct object *obj = slot_object(p, i);
+        s32b modifiers[OBJ_MOD_MAX];
+        bool aware;
 
         /* Skip non-objects */
         if (!obj) continue;
 
+        aware = object_flavor_is_aware(p, obj);
+
         /* Extract the item flags */
         if (known_only)
-            object_flags_known(obj, f, object_flavor_is_aware(p, obj));
+            object_flags_known(obj, f, aware);
         else
             object_flags(obj, f);
 
         of_union(collect_f, f);
 
+        object_modifiers(obj, modifiers);
+        object_elements(obj, el_info);
+
+        for (j = 0; j < OBJ_MOD_MAX; j++)
+        {
+            if (known_only && !object_is_known(p, obj) && !object_modifier_is_known(obj, j, aware))
+                modifiers[j] = 0;
+        }
+
         /* Affect stats */
-        state->stat_add[STAT_STR] += obj->modifiers[OBJ_MOD_STR];
-        state->stat_add[STAT_INT] += obj->modifiers[OBJ_MOD_INT];
-        state->stat_add[STAT_WIS] += obj->modifiers[OBJ_MOD_WIS];
-        state->stat_add[STAT_DEX] += obj->modifiers[OBJ_MOD_DEX];
-        state->stat_add[STAT_CON] += obj->modifiers[OBJ_MOD_CON];
+        state->stat_add[STAT_STR] += modifiers[OBJ_MOD_STR];
+        state->stat_add[STAT_INT] += modifiers[OBJ_MOD_INT];
+        state->stat_add[STAT_WIS] += modifiers[OBJ_MOD_WIS];
+        state->stat_add[STAT_DEX] += modifiers[OBJ_MOD_DEX];
+        state->stat_add[STAT_CON] += modifiers[OBJ_MOD_CON];
 
         /* Affect stealth */
-        state->skills[SKILL_STEALTH] += obj->modifiers[OBJ_MOD_STEALTH];
+        state->skills[SKILL_STEALTH] += modifiers[OBJ_MOD_STEALTH];
 
         /* Affect searching ability (factor of five) */
-        state->skills[SKILL_SEARCH] += (obj->modifiers[OBJ_MOD_SEARCH] * 5);
-
-        /* Affect searching frequency (factor of five) */
-        state->skills[SKILL_SEARCH_FREQUENCY] += (obj->modifiers[OBJ_MOD_SEARCH] * 5);
+        state->skills[SKILL_SEARCH] += (modifiers[OBJ_MOD_SEARCH] * 5);
 
         /* Affect infravision */
-        state->see_infra += obj->modifiers[OBJ_MOD_INFRA];
+        state->see_infra += modifiers[OBJ_MOD_INFRA];
 
-        /* Affect digging (factor of 20) */
-        state->skills[SKILL_DIGGING] += (obj->modifiers[OBJ_MOD_TUNNEL] * 20);
+        /* Affect digging (innate effect, plus bonus, times 20) */
+        if (tval_is_digger(obj))
+        {
+            if (of_has(obj->flags, OF_DIG_1)) dig = 1;
+            else if (of_has(obj->flags, OF_DIG_2)) dig = 2;
+            else if (of_has(obj->flags, OF_DIG_3)) dig = 3;
+        }
+        dig += modifiers[OBJ_MOD_TUNNEL];
+        state->skills[SKILL_DIGGING] += (dig * 20);
 
         /* Affect speed */
-        state->speed += obj->modifiers[OBJ_MOD_SPEED];
+        state->speed += modifiers[OBJ_MOD_SPEED];
 
         /* Affect blows */
-        extra_blows += obj->modifiers[OBJ_MOD_BLOWS];
+        extra_blows += modifiers[OBJ_MOD_BLOWS];
 
         /* Affect shots */
-        extra_shots += obj->modifiers[OBJ_MOD_SHOTS];
+        extra_shots += modifiers[OBJ_MOD_SHOTS];
 
         /* Affect Might */
-        extra_might += obj->modifiers[OBJ_MOD_MIGHT];
+        extra_might += modifiers[OBJ_MOD_MIGHT];
 
         /* Affect resists */
         for (j = 0; j < ELEM_MAX; j++)
         {
-            if (!known_only || object_is_known(p, obj) ||
-                object_element_is_known(obj, j, object_flavor_is_aware(p, obj)))
+            if (!known_only || object_is_known(p, obj) || object_element_is_known(obj, j, aware))
             {
                 /* Note vulnerability for later processing */
-                if (obj->el_info[j].res_level == -1)
+                if (el_info[j].res_level == -1)
                     vuln[i] = true;
 
                 /* OK because res_level has not included vulnerability yet */
-                if (obj->el_info[j].res_level > state->el_info[j].res_level)
-                    state->el_info[j].res_level = obj->el_info[j].res_level;
+                if (el_info[j].res_level > state->el_info[j].res_level)
+                    state->el_info[j].res_level = el_info[j].res_level;
             }
         }
 
@@ -2009,43 +2048,46 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->ac += obj->ac;
 
         /* Apply the bonuses to armor class */
-        if (!known_only || object_is_known(p, obj) || object_defence_plusses_are_visible(obj))
-            state->to_a += obj->to_a;
+        if (!known_only || object_is_known(p, obj) || obj->known->to_a)
+        {
+            s16b to_a;
+
+            object_to_a(obj, &to_a);
+            state->to_a += to_a;
+        }
 
         /* Do not apply weapon and bow bonuses until combat calculations */
         if (slot_type_is(p, i, EQUIP_WEAPON)) continue;
         if (slot_type_is(p, i, EQUIP_BOW)) continue;
 
         /* Apply the bonuses to hit/damage */
-        if (!known_only || object_is_known(p, obj) || object_attack_plusses_are_visible(obj))
+        if (!known_only || object_is_known(p, obj) || (obj->known->to_h && obj->known->to_d))
         {
-            state->to_h += obj->to_h;
-            state->to_d += obj->to_d;
+            s16b to_h, to_d;
 
-            /* Unencumbered monks get double bonuses from gloves */
+            object_to_h(obj, &to_h);
+            object_to_d(obj, &to_d);
+
+            state->to_h += to_h;
+            state->to_d += to_d;
+
+            /* Unencumbered monks get double bonuses from gloves (if positive) */
             if (unencumbered_monk && slot_type_is(p, i, EQUIP_GLOVES))
             {
-                state->to_h += obj->to_h;
-                state->to_d += obj->to_d;
+                if (to_h > 0) state->to_h += to_h;
+                if (to_d > 0) state->to_d += to_d;
             }
         }
     }
 
-    /*
-     * Update all flags
-     */
-
+    /* Apply the collected flags */
     of_union(state->flags, collect_f);
-
-    /*
-     * Handle stats
-     */
 
     /* Handle polymorphed players */
     if (p->poly_race)
     {
-        if (rf_has(p->poly_race->flags, RF_STUPID)) state->stat_add[STAT_INT] -= 2;
-        if (rf_has(p->poly_race->flags, RF_SMART)) state->stat_add[STAT_INT] += 2;
+        if (monster_is_stupid(p->poly_race)) state->stat_add[STAT_INT] -= 2;
+        if (monster_is_smart(p->poly_race)) state->stat_add[STAT_INT] += 2;
         if (p->poly_race->freq_spell == 33) state->stat_add[STAT_INT] += 1;
         if (p->poly_race->freq_spell == 50) state->stat_add[STAT_INT] += 3;
         if (p->poly_race->freq_spell == 100) state->stat_add[STAT_INT] += 5;
@@ -2073,12 +2115,11 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->stat_add[STAT_CON] += fx;
     }
 
-    /* Calculate stats */
+    /* Calculate the various stat values */
     for (i = 0; i < STAT_MAX; i++)
     {
-        int add, top, use, ind, r_adj;
+        int add, use, ind, r_adj;
 
-        /* Extract modifier */
         add = state->stat_add[i];
 
         /* Polymorphed players only get half adjustment from race */
@@ -2089,19 +2130,10 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
             else if (r_adj < 0) r_adj = (r_adj - 1) / 2;
         }
 
-        /* Modify the stats for race and class */
         add += (r_adj + p->clazz->c_adj[i]);
-
-        /* Extract the new "stat_top" value for the stat */
-        top = modify_stat_value(p->stat_max[i], add);
-
-        /* Save the new value */
-        state->stat_top[i] = top;
-
-        /* Extract the new "stat_use" value for the stat */
+        state->stat_top[i] = modify_stat_value(p->stat_max[i], add);
         use = modify_stat_value(p->stat_cur[i], add);
 
-        /* Save the new value */
         state->stat_use[i] = use;
 
         /* Values: n/a */
@@ -2172,11 +2204,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
             state->el_info[i].res_level--;
     }
 
-    /*
-     * Temporary flags
-     */
-
-    /* Apply temporary "stun" */
+    /* Temporary flags */
     if (p->timed[TMD_STUN] > 50)
     {
         state->to_h -= 20;
@@ -2189,8 +2217,6 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->to_d -= 5;
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 9 / 10;
     }
-
-    /* Adrenaline effects (part 2) */
     if (p->timed[TMD_ADRENALINE])
     {
         s16b fx = (p->timed[TMD_ADRENALINE] - 1) / 20;
@@ -2198,140 +2224,86 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         if (fx >= 2) state->to_d += 8;
         if (fx >= 3) extra_blows++;
     }
-
-    /* Invulnerability */
     if (p->timed[TMD_INVULN])
         state->to_a += 100;
-
-    /* Temporary blessing */
     if (p->timed[TMD_BLESSED])
     {
         state->to_a += 5;
         state->to_h += 10;
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 105 / 100;
     }
-
-    /* Temporary shield */
     if (p->timed[TMD_SHIELD])
         state->to_a += 50;
-
-    /* Temporary stoneskin */
     if (p->timed[TMD_STONESKIN])
     {
         state->to_a += 40;
         state->speed -= 5;
     }
-
-    /* Temporary resistance to fear */
     if (p->timed[TMD_BOLD]) of_on(state->flags, OF_PROT_FEAR);
-
-    /* Temporary "Hero" */
     if (p->timed[TMD_HERO])
     {
         state->to_h += 12;
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 105 / 100;
     }
-
-    /* Temporary "Berserk" */
     if (p->timed[TMD_SHERO])
     {
         state->to_h += 24;
         state->to_a -= 10;
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 9 / 10;
     }
-
-    /* Temporary "fast" */
     if (p->timed[TMD_FAST] || p->timed[TMD_SPRINT]) state->speed += 10;
-
-    /* Temporary "slow" */
     if (p->timed[TMD_SLOW]) state->speed -= 10;
-
-    /* Temporary infravision boost */
     if (p->timed[TMD_SINFRA]) state->see_infra += 5;
-
-    /* Temporary ESP */
     if (p->timed[TMD_ESP]) of_on(state->flags, OF_ESP_ALL);
-
-    /* Full ESP supercedes all other ESP flags */
     if (of_has(state->flags, OF_ESP_ALL))
     {
         of_diff(state->flags, f2);
         of_on(state->flags, OF_ESP_ALL);
     }
-
-    /* Temporary see invisible */
     if (p->timed[TMD_SINVIS]) of_on(state->flags, OF_SEE_INVIS);
-
-    /* Fear / terror flags */
     if (p->timed[TMD_AFRAID] || p->timed[TMD_TERROR]) of_on(state->flags, OF_AFRAID);
     if (p->timed[TMD_TERROR]) state->speed += 10;
-
-    /* Resist acid */
     if (p->timed[TMD_OPP_ACID])
     {
         if (state->el_info[ELEM_ACID].res_level < 2)
             state->el_info[ELEM_ACID].res_level++;
     }
-
-    /* Resist lightning */
     if (p->timed[TMD_OPP_ELEC])
     {
         if (state->el_info[ELEM_ELEC].res_level < 2)
             state->el_info[ELEM_ELEC].res_level++;
     }
-
-    /* Resist fire */
     if (p->timed[TMD_OPP_FIRE])
     {
         if (state->el_info[ELEM_FIRE].res_level < 2)
             state->el_info[ELEM_FIRE].res_level++;
     }
-
-    /* Resist cold */
     if (p->timed[TMD_OPP_COLD])
     {
         if (state->el_info[ELEM_COLD].res_level < 2)
             state->el_info[ELEM_COLD].res_level++;
     }
-
-    /* Resist poison */
     if (p->timed[TMD_OPP_POIS])
     {
         if (state->el_info[ELEM_POIS].res_level < 2)
             state->el_info[ELEM_POIS].res_level++;
     }
-
-    /* Hack -- space-time anchor lets us resist time and gravity */
     if (p->timed[TMD_ANCHOR])
     {
         state->el_info[ELEM_TIME].res_level++;
         state->el_info[ELEM_GRAVITY].res_level = 1;
     }
-
-    /* Resist confusion */
     if (p->timed[TMD_OPP_CONF]) of_on(state->flags, OF_PROT_CONF);
-
-    /* Confusion */
     if (p->timed[TMD_CONFUSED])
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 75 / 100;
-
-    /* Amnesia */
     if (p->timed[TMD_AMNESIA])
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 8 / 10;
-
-    /* Poison */
     if (p->timed[TMD_POISONED])
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 95 / 100;
-
-    /* Hallucination */
     if (p->timed[TMD_IMAGE])
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 8 / 10;
 
-    /*
-     * Analyze flags
-     */
-
-    /* Check for fear */
+    /* Analyze flags - check for fear */
     if (of_has(state->flags, OF_AFRAID))
     {
         state->to_h -= 20;
@@ -2339,174 +2311,103 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 95 / 100;
     }
 
-    /*
-     * Analyze weight
-     */
-
-    /* Extract the current weight (in tenth pounds) */
+    /* Analyze weight */
     j = p->upkeep->total_weight;
-
-    /* Cap the weight */
     if (j > (1 << 14)) j = (1 << 14);
-
-    /* Extract the "weight limit" (in tenth pounds) */
     i = weight_limit(state);
-
-    /* Apply "encumbrance" from weight */
     if (j > i / 2) state->speed -= ((j - (i / 2)) / (i / 10));
 
-    /* Searching slows the player down */
-    if (p->searching)
+    /* Adding "stealth mode" for rogues */
+    if (p->stealthy)
     {
         state->speed -= 10;
-
-        /* Adding "stealth mode" for rogues */
-        if (player_has(p, PF_STEALTH_MODE))
-            state->skills[SKILL_STEALTH] *= 3;
+        state->skills[SKILL_STEALTH] *= 3;
     }
 
     /* Sanity check on extreme speeds */
     if (state->speed < 0) state->speed = 0;
     if (state->speed > 199) state->speed = 199;
 
-    /*
-     * Apply modifier bonuses
-     */
+    /* Apply modifier bonuses (Un-inflate stat bonuses) */
+    state->to_a += adj_dex_ta[state->stat_ind[STAT_DEX]];
+    state->to_d += adj_str_td[state->stat_ind[STAT_STR]];
+    state->to_h += adj_dex_th[state->stat_ind[STAT_DEX]];
+    state->to_h += adj_str_th[state->stat_ind[STAT_STR]];
 
-    /* Modifier Bonuses (Un-inflate stat bonuses) */
-    state->to_a += ((int)(adj_dex_ta[state->stat_ind[STAT_DEX]]) - 128);
-    state->to_d += ((int)(adj_str_td[state->stat_ind[STAT_STR]]) - 128);
-    state->to_h += ((int)(adj_dex_th[state->stat_ind[STAT_DEX]]) - 128);
-    state->to_h += ((int)(adj_str_th[state->stat_ind[STAT_STR]]) - 128);
-
-    /*
-     * Modify skills
-     */
-
-    /* Affect Skill -- disarming (DEX and INT) */
-    state->skills[SKILL_DISARM] += adj_dex_dis[state->stat_ind[STAT_DEX]];
-    state->skills[SKILL_DISARM] += adj_int_dis[state->stat_ind[STAT_INT]];
-
-    /* Affect Skill -- magic devices (INT) */
+    /* Modify skills */
+    state->skills[SKILL_DISARM_PHYS] += adj_dex_dis[state->stat_ind[STAT_DEX]];
+    state->skills[SKILL_DISARM_MAGIC] += adj_int_dis[state->stat_ind[STAT_INT]];
     state->skills[SKILL_DEVICE] += adj_int_dev[state->stat_ind[STAT_INT]];
-
-    /* Affect Skill -- saving throw (WIS) */
     state->skills[SKILL_SAVE] += adj_wis_sav[state->stat_ind[STAT_WIS]];
-
-    /* Affect Skill -- digging (STR) */
     state->skills[SKILL_DIGGING] += adj_str_dig[state->stat_ind[STAT_STR]];
-
-    /* Handle polymorphed players */
     if (p->poly_race && rf_has(p->poly_race->flags, RF_KILL_WALL))
         state->skills[SKILL_DIGGING] = 2000;
-
-    /* Elementalists get instant tunnel at level 50 */
     if (player_has(p, PF_ELEMENTAL_SPELLS) && (p->lev == 50))
         state->skills[SKILL_DIGGING] = 2000;
-
-    /* Affect Skills (Level, by Class) */
     for (i = 0; i < SKILL_MAX; i++)
         state->skills[i] += (p->clazz->x_skills[i] * p->lev / 10);
-
-    /* Handle polymorphed players */
     if (p->poly_race)
     {
-        if (p->poly_race->extra <= 50) state->skills[SKILL_STEALTH] += 2;
-        else if (p->poly_race->extra <= 100) state->skills[SKILL_STEALTH] += 1;
-        else if (p->poly_race->extra <= 150) state->skills[SKILL_STEALTH] += 0;
-        else if (p->poly_race->extra <= 450) state->skills[SKILL_STEALTH] -= 1;
-        else if (p->poly_race->extra <= 2000) state->skills[SKILL_STEALTH] -= 2;
-        else if (p->poly_race->extra <= 10000) state->skills[SKILL_STEALTH] -= 3;
+        if (p->poly_race->weight == 0) state->skills[SKILL_STEALTH] += 0;
+        else if (p->poly_race->weight <= 50) state->skills[SKILL_STEALTH] += 2;
+        else if (p->poly_race->weight <= 100) state->skills[SKILL_STEALTH] += 1;
+        else if (p->poly_race->weight <= 150) state->skills[SKILL_STEALTH] += 0;
+        else if (p->poly_race->weight <= 450) state->skills[SKILL_STEALTH] -= 1;
+        else if (p->poly_race->weight <= 2000) state->skills[SKILL_STEALTH] -= 2;
+        else if (p->poly_race->weight <= 10000) state->skills[SKILL_STEALTH] -= 3;
         else state->skills[SKILL_STEALTH] -= 4;
     }
 
-    /* Limit Skill -- digging from 1 up */
     if (state->skills[SKILL_DIGGING] < 1) state->skills[SKILL_DIGGING] = 1;
-
-    /* Limit Skill -- stealth from 0 to 30 */
     if (state->skills[SKILL_STEALTH] > 30) state->skills[SKILL_STEALTH] = 30;
     if (state->skills[SKILL_STEALTH] < 0) state->skills[SKILL_STEALTH] = 0;
-
-    /* Apply Skill -- extract noise from stealth */
-    state->noise = (1L << (30 - state->skills[SKILL_STEALTH]));
-
-    /* Obtain the "hold" value */
     hold = adj_str_hold[state->stat_ind[STAT_STR]];
 
-    /*
-     * Analyze current bow
-     */
-
-    /* Examine the "current bow" */
-    obj = equipped_item_by_slot_name(p, "shooting");
-
-    /* Assume not heavy */
-    state->heavy_shoot = false;
+    if (state->skills[SKILL_DEVICE] < 0) state->skills[SKILL_DEVICE] = 0;
 
     /* Analyze launcher */
-    if (obj)
+    state->heavy_shoot = false;
+    if (launcher)
     {
-        /* It is hard to hold a heavy bow */
-        if (hold < obj->weight / 10)
+        if (hold < launcher->weight / 10)
         {
-            /* Hard to wield a heavy bow */
-            state->to_h += 2 * (hold - obj->weight / 10);
-
-            /* Heavy Bow */
+            state->to_h += 2 * (hold - launcher->weight / 10);
             state->heavy_shoot = true;
         }
 
         /* Type of ammo */
-        if (kf_has(obj->kind->kind_flags, KF_SHOOTS_SHOTS))
+        if (kf_has(launcher->kind->kind_flags, KF_SHOOTS_SHOTS))
             state->ammo_tval = TV_SHOT;
-        else if (kf_has(obj->kind->kind_flags, KF_SHOOTS_ARROWS))
+        else if (kf_has(launcher->kind->kind_flags, KF_SHOOTS_ARROWS))
             state->ammo_tval = TV_ARROW;
-        else if (kf_has(obj->kind->kind_flags, KF_SHOOTS_BOLTS))
+        else if (kf_has(launcher->kind->kind_flags, KF_SHOOTS_BOLTS))
             state->ammo_tval = TV_BOLT;
 
         /* Multiplier */
-        state->ammo_mult = obj->pval;
+        state->ammo_mult = launcher->pval;
 
         /* Apply special flags */
         if (!state->heavy_shoot)
         {
-            /* Extra shots */
             state->num_shots += extra_shots;
-
-            /* Extra might */
             state->ammo_mult += extra_might;
 
-            /* Hack -- rangers love bows */
-            if (player_has(p, PF_EXTRA_SHOT) && (state->ammo_tval == TV_ARROW))
+            /* Rangers with bows and archers are good at shooting */
+            if ((player_has(p, PF_EXTRA_SHOT) && (state->ammo_tval == TV_ARROW)) ||
+                player_has(p, PF_EXTRA_SHOTS))
             {
-                /* Extra shot at level 20 */
                 if (p->lev >= 20) state->num_shots++;
-
-                /* Extra shot at level 40 */
                 if (p->lev >= 40) state->num_shots++;
-            }
-
-            /* Archers are powerful with missile launchers */
-            if (player_has(p, PF_EXTRA_SHOTS))
-            {
-                /* Extra shot at levels 15, 30 and 45 */
-                state->num_shots += p->lev / 15;
             }
         }
     }
 
-    /* Monks are good rock throwers */
-    if (player_has(p, PF_MARTIAL_ARTS) && (state->ammo_tval == TV_ROCK))
+    /* Monks and archers are good at throwing */
+    if ((player_has(p, PF_MARTIAL_ARTS) || player_has(p, PF_EXTRA_SHOTS)) &&
+        (state->ammo_tval == TV_ROCK))
     {
         /* Extra shot at levels 15, 30 and 45 */
         state->num_shots += p->lev / 15;
-    }
-
-    /* Archers are great rock throwers */
-    if (player_has(p, PF_EXTRA_SHOTS) && (state->ammo_tval == TV_ROCK))
-    {
-        /* Up to 6 extra shots when throwing rocks */
-        state->num_shots += p->lev * 6 / 50;
     }
 
     /* Handle polymorphed players */
@@ -2530,57 +2431,34 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     if (p->timed[TMD_ZFARSIGHT])
         state->see_infra += p->lev / 4;
 
-    /*
-     * Analyze weapon
-     */
-
-    /* Examine the "main weapon" */
-    obj = equipped_item_by_slot_name(p, "weapon");
-
-    /* Assume not heavy */
-    state->heavy_wield = false;
-
-    /* Assume no pointy problem */
-    state->icky_wield = false;
-
     /* Analyze weapon */
-    if (obj)
+    state->heavy_wield = false;
+    state->icky_wield = false;
+    if (weapon)
     {
         /* It is hard to hold a heavy weapon */
-        if (hold < obj->weight / 10)
+        if (hold < weapon->weight / 10)
         {
-            /* Hard to wield a heavy weapon */
-            state->to_h += 2 * (hold - obj->weight / 10);
-
-            /* Heavy weapon */
+            state->to_h += 2 * (hold - weapon->weight / 10);
             state->heavy_wield = true;
         }
 
         /* Normal weapons */
         if (!state->heavy_wield)
         {
-            struct object *tool = equipped_item_by_slot_name(p, "tool");
-
-            /* Calculate number of blows */
-            state->num_blows = calc_blows(p, obj, state, extra_blows);
-
-            /* Boost digging skill by weapon weight if no digger equipped */
+            state->num_blows = calc_blows(p, weapon, state, extra_blows);
             if (!tool || !tval_is_digger(tool))
-                state->skills[SKILL_DIGGING] += (obj->weight / 10);
+                state->skills[SKILL_DIGGING] += (weapon->weight / 10);
         }
 
         /* Priest weapon penalty for non-blessed edged weapons */
         if (player_has(p, PF_BLESS_WEAPON) && !of_has(state->flags, OF_BLESSED) &&
-            tval_is_pointy(obj))
+            tval_is_pointy(weapon))
         {
-            /* Reduce the real bonuses */
-            /* Really reduce them (a penalty of -2 is a joke...) */
             if (state->to_h > 0) state->to_h = 3 * state->to_h / 5;
             state->to_h -= 2;
             if (state->to_d > 0) state->to_d = 3 * state->to_d / 5;
             state->to_d -= 2;
-
-            /* Icky weapon */
             state->icky_wield = true;
         }
     }
@@ -2600,18 +2478,14 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     /* It is hard to wield a two-handed weapon with a shield */
     if (cumber_shield == 2)
     {
-        /* Hard to wield a two-handed weapon with a shield */
         if (state->to_h > 0) state->to_h = 2 * state->to_h / 3;
         state->to_h -= 2;
-
-        /* Shield encumberance */
         state->cumber_shield = true;
     }
 
     /* Boost digging skill by digger weight */
-    obj = equipped_item_by_slot_name(p, "tool");
-    if (obj && tval_is_digger(obj))
-        state->skills[SKILL_DIGGING] += (obj->weight / 10);
+    if (tool && tval_is_digger(tool))
+        state->skills[SKILL_DIGGING] += (tool->weight / 10);
 
     /* Call individual functions for other state fields */
     calc_torch(p, state, update);
@@ -2679,7 +2553,7 @@ static void update_bonuses(struct player *p)
     }
 
     /* Hack -- telepathy change */
-    create_mask(f, false, OFT_ESP, OFT_MAX);
+    create_obj_flag_mask(f, false, OFT_ESP, OFT_MAX);
     for (flag = of_next(f, FLAG_START); flag != FLAG_END; flag = of_next(f, flag + 1))
     {
         if (of_has(state.flags, flag) != of_has(p->state.flags, flag))
@@ -2834,9 +2708,9 @@ static void update_bonuses(struct player *p)
 /*
  * Track the given monster (or player)
  */
-void health_track(struct player_upkeep *upkeep, struct actor *who)
+void health_track(struct player_upkeep *upkeep, struct source *who)
 {
-    if (ACTOR_NULL(who))
+    if (source_null(who))
         memset(&upkeep->health_who, 0, sizeof(upkeep->health_who));
     else
         memcpy(&upkeep->health_who, who, sizeof(upkeep->health_who));
@@ -2848,13 +2722,13 @@ void health_track(struct player_upkeep *upkeep, struct actor *who)
 /*
  * Track the given monster race (or player)
  */
-void monster_race_track(struct player_upkeep *upkeep, struct actor *who)
+void monster_race_track(struct player_upkeep *upkeep, struct source *who)
 {
     bool redraw = false;
     struct actor_race *monster_race = &upkeep->monster_race;
 
     /* Don't track anything */
-    if (ACTOR_NULL(who))
+    if (source_null(who))
         memset(monster_race, 0, sizeof(struct actor_race));
 
     /* Hack -- track this player */
@@ -2868,13 +2742,13 @@ void monster_race_track(struct player_upkeep *upkeep, struct actor *who)
     }
 
     /* Track the given monster race */
-    else if (who->mon)
+    else if (who->monster)
     {
-        redraw = !ACTOR_RACE_EQUAL(monster_race, who->mon);
+        redraw = !ACTOR_RACE_EQUAL(monster_race, who->monster);
 
         /* Save this monster ID */
         monster_race->player = NULL;
-        monster_race->race = who->mon->race;
+        monster_race->race = who->monster->race;
     }
 
     /* Redraw */
@@ -2910,10 +2784,10 @@ bool tracked_object_is(struct player_upkeep *upkeep, struct object *obj)
 /*
  * Cursor-track a new monster (or player)
  */
-void cursor_track(struct player *p, struct actor *who)
+void cursor_track(struct player *p, struct source *who)
 {
     /* Don't track anything */
-    if (ACTOR_NULL(who))
+    if (source_null(who))
         memset(&p->cursor_who, 0, sizeof(p->cursor_who));
 
     /* Track a new monster (or player) */
@@ -2937,9 +2811,9 @@ void notice_stuff(struct player *p)
     if (p->upkeep->notice & PN_WAIT) return;
 
     /* Deal with ignored stuff */
-    /* PWMAngband: only on random levels (to avoid littering town, wilderness and static levels) */
+    /* PWMAngband: only on random levels (to avoid littering towns, wilderness and static levels) */
     /* Note: we also handle the newbies_cannot_drop option to avoid spamming useless messages */
-    if (random_level(p->depth) && !newbies_cannot_drop(p) && (p->upkeep->notice & PN_IGNORE))
+    if (random_level(&p->wpos) && !newbies_cannot_drop(p) && (p->upkeep->notice & PN_IGNORE))
     {
         p->upkeep->notice &= ~(PN_IGNORE);
         cmd_ignore_drop(p);
@@ -2958,7 +2832,7 @@ void notice_stuff(struct player *p)
         p->upkeep->notice &= ~(PN_MON_MESSAGE);
 
         /* Make sure this comes after all of the monster messages */
-        if (p->size_mon_msg > 0) flush_all_monster_messages(p);
+        show_monster_messages(p);
     }
 }
 
@@ -2986,34 +2860,16 @@ void update_stuff(struct player *p, struct chunk *c)
     if (p->upkeep->update & PU_SPELLS)
     {
         p->upkeep->update &= ~(PU_SPELLS);
-        calc_spells(p);
+        if (p->clazz->magic.spell_realm) calc_spells(p);
     }
 
     /* Character is not ready yet, no map updates */
     if (!p->alive) return;
 
-    if (p->upkeep->update & PU_FORGET_VIEW)
-    {
-        p->upkeep->update &= ~(PU_FORGET_VIEW);
-        forget_view(p, c);
-    }
-
     if (p->upkeep->update & PU_UPDATE_VIEW)
     {
         p->upkeep->update &= ~(PU_UPDATE_VIEW);
         update_view(p, c);
-    }
-
-    if (p->upkeep->update & PU_FORGET_FLOW)
-    {
-        p->upkeep->update &= ~(PU_FORGET_FLOW);
-        cave_forget_flow(p, c);
-    }
-
-    if (p->upkeep->update & PU_UPDATE_FLOW)
-    {
-        p->upkeep->update &= ~(PU_UPDATE_FLOW);
-        cave_update_flow(p, c);
     }
 
     if (p->upkeep->update & PU_DISTANCE)
@@ -3041,7 +2897,7 @@ void handle_stuff(struct player *p)
     /* Hack -- delay updating */
     if (p->upkeep->new_level_method) return;
 
-    update_stuff(p, chunk_get(p->depth));
+    update_stuff(p, chunk_get(&p->wpos));
     redraw_stuff(p);
 }
 

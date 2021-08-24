@@ -3,7 +3,7 @@
  * Purpose: Writing level map info to the screen
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -313,7 +313,7 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, u1
     /* Handle ghosts in graphical mode */
     if (p->use_graphics && q->ghost)
     {
-        struct monster_race *race = get_race("Ghost");
+        struct monster_race *race = get_race("ghost");
 
         *a = p->r_attr[race->ridx];
         *c = p->r_char[race->ridx];
@@ -359,7 +359,7 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, u1
             *a = COLOUR_VIOLET;
 
         /* Handle hp_changes_color option */
-        else if (OPT_P(p, hp_changes_color))
+        else if (OPT(p, hp_changes_color))
         {
             *a = COLOUR_WHITE;
             life = ((p->chp * 95) / (p->mhp * 10));
@@ -371,7 +371,7 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, u1
         }
 
         /* If we are in a slow time bubble, give a visual warning */
-        timefactor = base_time_factor(p, cv, 0);
+        timefactor = time_factor(p, cv);
         if (timefactor < NORMAL_TIME)
         {
             u32b diff = (u32b)(10 + (NORMAL_TIME - timefactor));
@@ -404,7 +404,7 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, u1
     else
     {
         if (!p->use_graphics && is_party_owner(p, q) &&
-            OPT_P(p, highlight_leader) && magik(50))
+            OPT(p, highlight_leader) && magik(50))
         {
             if (*a == COLOUR_YELLOW) *a = COLOUR_L_DARK;
             else *a = COLOUR_YELLOW;
@@ -479,8 +479,6 @@ byte get_color(byte a, int attr, int n)
  */
 static void grid_get_attr(struct player *p, struct grid_data *g, u16b *a)
 {
-    struct feature *feat = &f_info[g->f_idx];
-
     /* Save the high-bit, since it's used for attr inversion in GCU */
     u16b a0 = (*a & 0x80);
 
@@ -490,10 +488,6 @@ static void grid_get_attr(struct player *p, struct grid_data *g, u16b *a)
     /* Never play with fg colours for treasure */
     if (!feat_is_treasure(g->f_idx))
     {
-        /* Tint trap detection borders */
-        if (g->trapborder)
-            *a = (g->in_view? COLOUR_L_GREEN: COLOUR_GREEN);
-
         /*
          * Only apply lighting effects when the attr is white:
          * this is to stop e.g. doors going grey when out of LOS
@@ -501,12 +495,12 @@ static void grid_get_attr(struct player *p, struct grid_data *g, u16b *a)
         if (*a == COLOUR_WHITE)
         {
             /* If it's a floor tile then we'll tint based on lighting. */
-            if (tf_has(feat->flags, TF_TORCH))
+            if (feat_is_torch(g->f_idx))
             {
                 switch (g->lighting)
                 {
                     case LIGHTING_TORCH:
-                        *a = (OPT_P(p, view_orange_light)? COLOUR_ORANGE: COLOUR_YELLOW);
+                        *a = (OPT(p, view_orange_light)? COLOUR_ORANGE: COLOUR_YELLOW);
                         break;
                     case LIGHTING_LIT:
                         *a = COLOUR_L_DARK;
@@ -532,8 +526,8 @@ static void grid_get_attr(struct player *p, struct grid_data *g, u16b *a)
         }
 
         /* PWMAngband: apply torchlight effect to some other terrain (for example: grass) */
-        else if ((g->lighting == LIGHTING_TORCH) && tf_has(feat->flags, TF_TORCH))
-            *a = (OPT_P(p, view_orange_light)? COLOUR_ORANGE: COLOUR_YELLOW);
+        else if ((g->lighting == LIGHTING_TORCH) && feat_is_torch(g->f_idx))
+            *a = (OPT(p, view_orange_light)? COLOUR_ORANGE: COLOUR_YELLOW);
     }
 
     /* Hybrid or block walls -- for GCU, then for everyone else */
@@ -541,9 +535,9 @@ static void grid_get_attr(struct player *p, struct grid_data *g, u16b *a)
         *a = a0 | *a;
     else if (feat_is_wall(g->f_idx))
     {
-        if (OPT_P(p, hybrid_walls))
+        if (OPT(p, hybrid_walls))
             *a = *a + (MAX_COLORS * BG_DARK);
-        else if (OPT_P(p, solid_walls))
+        else if (OPT(p, solid_walls))
             *a = *a + (MAX_COLORS * BG_SAME);
     }
 }
@@ -627,7 +621,6 @@ static bool get_trap_graphics(struct player *p, struct chunk *c, bool server,
 void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct grid_data *g,
     u16b *ap, char *cp, u16b *tap, char *tcp)
 {
-    struct feature *feat = &f_info[g->f_idx];
     u16b a;
     char c;
     char (*f_char_ptr)[LIGHTING_MAX];
@@ -662,18 +655,6 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
 
     /* Apply text lighting effects */
     if (!use_graphics) grid_get_attr(p, g, &a);
-
-    /* Check for trap detection boundaries */
-    else if (g->trapborder && tf_has(feat->flags, TF_FLOOR) && !tf_has(feat->flags, TF_PIT) &&
-        (g->m_idx || g->first_obj))
-    {
-        /*
-         * If there is an object or monster here, and this is a plain floor
-         * display the border here rather than an overlay below
-         */
-        a = f_attr_ptr[FEAT_DTRAP_FLOOR][g->lighting];
-        c = f_char_ptr[FEAT_DTRAP_FLOOR][g->lighting];
-    }
 
     /* Save the terrain info for the transparency effects */
     (*tap) = a;
@@ -749,7 +730,7 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
             /* Just pick a random monster to display. */
             hallucinatory_monster(p, &a, &c);
         }
-        else if (!is_mimicking(mon))
+        else if (!monster_is_camouflaged(mon))
         {
             byte da;
             char dc;
@@ -765,7 +746,7 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
                 a = da;
                 c = dc;
             }
-            else if (OPT_P(p, purple_uniques) && rf_has(mon->race->flags, RF_UNIQUE))
+            else if (OPT(p, purple_uniques) && monster_is_unique(mon->race))
             {
                 /* Turn uniques purple if desired (violet, actually) */
                 a = COLOUR_VIOLET;
@@ -850,12 +831,6 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
         else
             player_pict(p, cv, player_get(0 - g->m_idx), &a, &c);
     }
-    else if (g->trapborder && g->f_idx && !g->first_obj && use_graphics)
-    {
-        /* No overlay is used, so we can use the trap border overlay */
-        a = f_attr_ptr[FEAT_DTRAP_WALL][g->lighting];
-        c = f_char_ptr[FEAT_DTRAP_WALL][g->lighting];
-    }
 
     /* Result */
     (*ap) = a;
@@ -864,9 +839,7 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
 
 
 /*
- * Redraw (on the screen) the current map panel
- *
- * Note the inline use of "square_light_spot()" for efficiency.
+ * Redraw (on the screen) the current map panel.
  *
  * The main screen will always be at least 24x80 in size.
  */
@@ -879,7 +852,7 @@ void prt_map(struct player *p)
     int vy, vx;
     int ty, tx;
     int screen_hgt, screen_wid;
-    struct chunk *cv = chunk_get(p->depth);
+    struct chunk *cv = chunk_get(&p->wpos);
 
     screen_hgt = p->screen_rows / p->tile_hgt;
     screen_wid = p->screen_cols / p->tile_wid;
@@ -943,7 +916,7 @@ void display_map(struct player *p, bool subwindow)
     u16b a, ta;
     char c, tc;
     byte tp;
-    struct chunk *cv = chunk_get(p->depth);
+    struct chunk *cv = chunk_get(&p->wpos);
 
     /* Priority array */
     byte **mp;
@@ -1098,19 +1071,18 @@ void display_map(struct player *p, bool subwindow)
 }
 
 
-static int get_wilderness_type(struct player *p, int wild_idx)
+static int get_wilderness_type(struct player *p, int wy, int wx)
 {
-    /* If off the map, set to unknown type */
-    if (wild_idx < 0 - MAX_WILD) return -1;
+    struct wild_type *w_ptr = get_wt_info_at(wy, wx);
 
-    /* Hack -- the town is always known */
-    if (!wild_idx) return WILD_TOWN;
+    /* If off the map, set to unknown type */
+    if (!w_ptr) return -1;
 
     /* If the player hasnt been here, dont show him the terrain */
-    if (!wild_is_explored(p, 0 - wild_idx)) return -1;
+    if (!wild_is_explored(p, &w_ptr->wpos)) return -1;
 
     /* Determine wilderness type */
-    return determine_wilderness_type(wild_idx);
+    return w_ptr->type;
 }
 
 
@@ -1122,7 +1094,7 @@ static void wild_display_map(struct player *p)
     struct grid_data g;
     u16b a, ta;
     char c, tc;
-    struct chunk *cv = chunk_get(p->depth);
+    struct chunk *cv = chunk_get(&p->wpos);
     u16b **ma;
     char **mc;
     char buf[NORMAL_WID];
@@ -1162,15 +1134,14 @@ static void wild_display_map(struct player *p)
     {
         for (x = 0; x < map_wid; x++)
         {
-            int world_y, world_x, wild_idx, type;
+            int wy, wx, type;
 
             /* Location */
-            world_y = p->world_y + map_hgt / 2 - y;
-            world_x = p->world_x - map_wid / 2 + x;
-            wild_idx = world_index(world_x, world_y);
+            wy = p->wpos.wy + map_hgt / 2 - y;
+            wx = p->wpos.wx - map_wid / 2 + x;
 
             /* Get wilderness type */
-            type = get_wilderness_type(p, wild_idx);
+            type = get_wilderness_type(p, wy, wx);
 
             /* Initialize our grid_data structure */
             memset(&g, 0, sizeof(g));
@@ -1178,16 +1149,16 @@ static void wild_display_map(struct player *p)
             g.in_view = true;
 
             /* Set meta terrain feature */
-            switch (type)
+            if (type >= 0)
             {
-                case WILD_SHORE: g.f_idx = FEAT_WATER; break;
-                case WILD_GRASS: g.f_idx = FEAT_GRASS; break;
-                case WILD_WOOD: g.f_idx = FEAT_TREE; break;
-                case WILD_SWAMP: g.f_idx = FEAT_SWAMP; break;
-                case WILD_WASTE: g.f_idx = FEAT_DIRT; break;
-                case WILD_MOUNTAIN: g.f_idx = FEAT_MOUNTAIN; break;
-                case WILD_VOLCANO: g.f_idx = FEAT_LAVA; break;
-                case WILD_TOWN: g.f_idx = FEAT_TOWN; break;
+                struct worldpos wpos;
+
+                g.f_idx = wf_info[type].feat_idx;
+
+                /* Show a down staircase if the location contains a dungeon (outside of towns) */
+                COORDS_SET(&wpos, wy, wx, 0);
+                if ((get_dungeon(&wpos) != NULL) && !in_town(&wpos))
+                    g.f_idx = FEAT_MORE;
             }
 
             /* Extract the current attr/char at that map location */
@@ -1215,12 +1186,24 @@ static void wild_display_map(struct player *p)
     /* Prepare bottom string */
     buf[0] = '\0';
     my_strcat(buf, " ", sizeof(buf));
-    wild_cat_depth(p->depth, buf, sizeof(buf));
+    if (p->wpos.depth > 0)
+    {
+        struct worldpos wpos;
+
+        COORDS_SET(&wpos, p->wpos.wy, p->wpos.wx, 0);
+        my_strcat(buf, get_dungeon(&wpos)->name, sizeof(buf));
+    }
+    else
+        wild_cat_depth(&p->wpos, buf, sizeof(buf));
     my_strcat(buf, " ", sizeof(buf));
 
     /* Print string at the bottom */
     col = map_wid - strlen(buf);
-    for (x = col; x < map_wid; x++) mc[y][x] = buf[x - col];
+    for (x = col; x < map_wid; x++)
+    {
+        mc[map_hgt - 1][x] = buf[x - col];
+        ma[map_hgt - 1][x] = COLOUR_WHITE;
+    }
 
     /* Display each map line in order */
     for (y = 0; y < map_hgt; ++y)

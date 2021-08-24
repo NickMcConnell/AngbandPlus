@@ -7,11 +7,11 @@
 #define INCLUDED_PLAYER_STATE_H
 
 /*
- * Indexes of the various "stats" (hard-coded by savefiles, etc).
+ * Indexes of the player stats (hard-coded by savefiles).
  */
 enum
 {
-    #define STAT(a, b, c, d, e, f, g, h) STAT_##a,
+    #define STAT(a) STAT_##a,
     #include "list-stats.h"
     #undef STAT
 
@@ -23,16 +23,16 @@ enum
  */
 enum
 {
-    SKILL_DISARM,           /* Skill: Disarming */
-    SKILL_DEVICE,           /* Skill: Magic Devices */
-    SKILL_SAVE,             /* Skill: Saving throw */
-    SKILL_STEALTH,          /* Skill: Stealth factor */
-    SKILL_SEARCH,           /* Skill: Searching ability */
-    SKILL_SEARCH_FREQUENCY, /* Skill: Searching frequency */
-    SKILL_TO_HIT_MELEE,     /* Skill: To hit (normal) */
-    SKILL_TO_HIT_BOW,       /* Skill: To hit (shooting) */
-    SKILL_TO_HIT_THROW,     /* Skill: To hit (throwing) */
-    SKILL_DIGGING,          /* Skill: Digging */
+    SKILL_DISARM_PHYS,      /* Disarming - physical */
+    SKILL_DISARM_MAGIC,     /* Disarming - magical */
+    SKILL_DEVICE,           /* Magic Devices */
+    SKILL_SAVE,             /* Saving throw */
+    SKILL_STEALTH,          /* Stealth factor */
+    SKILL_SEARCH,           /* Searching ability */
+    SKILL_TO_HIT_MELEE,     /* To hit (normal) */
+    SKILL_TO_HIT_BOW,       /* To hit (shooting) */
+    SKILL_TO_HIT_THROW,     /* To hit (throwing) */
+    SKILL_DIGGING,          /* Digging */
 
     SKILL_MAX
 };
@@ -64,7 +64,6 @@ enum
 #define pf_negate(f)           flag_negate(f, PF_SIZE)
 #define pf_copy(f1, f2)        flag_copy(f1, f2, PF_SIZE)
 #define pf_union(f1, f2)       flag_union(f1, f2, PF_SIZE)
-#define pf_comp_union(f1, f2)  flag_comp_union(f1, f2, PF_SIZE)
 #define pf_inter(f1, f2)       flag_inter(f1, f2, PF_SIZE)
 #define pf_diff(f1, f2)        flag_diff(f1, f2, PF_SIZE)
 
@@ -80,23 +79,22 @@ struct player_state
 {
     /*** Angband extracted fields ***/
 
-    s16b speed;                 /* Current speed */
-    s16b num_blows;             /* Number of blows x100 */
-    s16b num_shots;             /* Number of shots */
-    byte ammo_mult;             /* Ammo multiplier */
-    byte ammo_tval;             /* Ammo variety */
-    s16b stat_add[STAT_MAX];    /* Modifiers to stat values */
-    s16b stat_ind[STAT_MAX];    /* Indexes into stat tables */
-    s16b stat_use[STAT_MAX];    /* Current modified stats */
-    s16b stat_top[STAT_MAX];    /* Maximal modified stats */
-    s16b ac;                    /* Base ac */
-    s16b to_a;                  /* Bonus to ac */
-    s16b to_h;                  /* Bonus to hit */
-    s16b to_d;                  /* Bonus to dam */
-    s16b see_infra;             /* Infravision range */
-    s16b cur_light;             /* Radius of light (if any) */
-    s16b skills[SKILL_MAX];     /* Skills */
-    int noise;                  /* Derived from stealth */
+    int stat_add[STAT_MAX];     /* Equipment stat bonuses */
+    int stat_ind[STAT_MAX];     /* Indexes into stat tables */
+    int stat_use[STAT_MAX];     /* Current modified stats */
+    int stat_top[STAT_MAX];     /* Maximal modified stats */
+    int skills[SKILL_MAX];      /* Skills */
+    int speed;                  /* Current speed */
+    int num_blows;              /* Number of blows x100 */
+    int num_shots;              /* Number of shots */
+    int ammo_mult;              /* Ammo multiplier */
+    int ammo_tval;              /* Ammo variety */
+    int ac;                     /* Base ac */
+    int to_a;                   /* Bonus to ac */
+    int to_h;                   /* Bonus to hit */
+    int to_d;                   /* Bonus to dam */
+    int see_infra;              /* Infravision range */
+    int cur_light;              /* Radius of light (if any) */
     bool heavy_wield;           /* Heavy weapon */
     bool heavy_shoot;           /* Heavy shooter */
     bool icky_wield;            /* Icky weapon */
@@ -109,7 +107,7 @@ struct player_state
     /*** PWMAngband extracted fields ***/
 
     bool cumber_shield;         /* Encumbering shield */
-    s16b frac_blow;             /* Blow frac (%) */
+    int frac_blow;              /* Blow frac (%) */
 };
 
 #endif /* INCLUDED_PLAYER_STATE_H */

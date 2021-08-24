@@ -53,6 +53,7 @@ typedef struct
     byte            psex;
     s16b            stat_roll[STAT_MAX + 1];
     client_setup_t  Client_setup;
+    bool            options[OPT_MAX];
     bool            console_authenticated;
     bool            console_listen;
     byte            console_channels[MAX_CHANNELS];
@@ -75,7 +76,7 @@ extern bool Conn_is_alive(int ind);
 extern void Conn_set_console_setting(int ind, int set, bool val);
 extern bool Conn_get_console_setting(int ind, int set);
 extern int Init_setup(void);
-extern byte* Conn_get_console_channels(int ind);
+extern byte *Conn_get_console_channels(int ind);
 
 /*** Sending ***/
 extern int Send_basic_info(int ind);
@@ -89,6 +90,10 @@ extern int Send_ego_struct_info(int ind);
 extern int Send_hints_struct_info(int ind);
 extern int Send_rinfo_struct_info(int ind);
 extern int Send_rbinfo_struct_info(int ind);
+extern int Send_curse_struct_info(int ind);
+extern int Send_realm_struct_info(int ind);
+extern int Send_feat_struct_info(int ind);
+extern int Send_trap_struct_info(int ind);
 extern int Send_death_cause(struct player *p);
 extern int Send_winner(struct player *p);
 extern int Send_lvl(struct player *p, int lev, int mlev);
@@ -105,17 +110,17 @@ extern int Send_stat(struct player *p, int stat, int stat_top, int stat_use, int
     int stat_add, int stat_cur);
 extern int Send_history(struct player *p, int line, const char *hist);
 extern int Send_index(struct player *p, int i, int index, byte type);
-extern int Send_item_request(struct player *p, byte tester_hook);
+extern int Send_item_request(struct player *p, byte tester_hook, char *dice_string);
 extern int Send_title(struct player *p, const char *title);
 extern int Send_turn(struct player *p, u32b game_turn, u32b player_turn, u32b active_turn);
-extern int Send_depth(struct player *p, int depth, int maxdepth);
+extern int Send_depth(struct player *p, int depth, int maxdepth, const char *depths);
 extern int Send_food(struct player *p, int food);
 extern int Send_status(struct player *p, s16b *effects);
 extern int Send_recall(struct player *p, s16b word_recall, s16b deep_descent);
-extern int Send_state(struct player *p, bool searching, bool resting, bool unignoring);
+extern int Send_state(struct player *p, bool stealthy, bool resting, bool unignoring);
 extern int Send_line_info(struct player *p, int y);
 extern int Send_remote_line(struct player *p, int y);
-extern int Send_speed(struct player *p, int speed);
+extern int Send_speed(struct player *p, int speed, int mult);
 extern int Send_study(struct player *p, int study, bool can_study_book);
 extern int Send_count(struct player *p, byte type, s16b count);
 extern int Send_show_floor(struct player *p, byte mode);
@@ -168,7 +173,6 @@ extern int Send_channel(struct player *p, byte n, const char *virt);
 extern int cmd_ignore_drop(struct player *p);
 extern int cmd_run(struct player *p, int dir);
 extern int cmd_rest(struct player *p, s16b resting);
-extern int cmd_search(struct player *p);
 extern int cmd_tunnel(struct player *p);
 
 /*** General network functions ***/
@@ -182,8 +186,7 @@ extern bool process_turn_based(void);
 extern u32b get_account(const char *name, const char *pass);
 
 /* control.c */
-extern void NewConsole(int fd, int arg);
-extern bool InitNewConsole(int write_fd);
 extern void console_print(char *msg, int chan);
+extern void NewConsole(int fd, int arg);
 
 #endif

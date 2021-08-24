@@ -1,5 +1,4 @@
 call cleansetup.bat
-copy ..\doc\manual\*.* ..\setup\doc\manual
 copy ..\lib\readme.txt ..\setup\lib
 copy ..\lib\customize\*.* ..\setup\lib\customize
 copy ..\lib\fonts\*.* ..\setup\lib\fonts
@@ -9,13 +8,11 @@ copy ..\lib\icons\*.* ..\setup\lib\icons
 copy ..\lib\screens\*.* ..\setup\lib\screens
 copy ..\lib\sounds\*.* ..\setup\lib\sounds
 copy ..\lib\tiles\*.* ..\setup\lib\tiles
-copy ..\lib\tiles\adam-bolt\*.* ..\setup\lib\tiles\adam-bolt
 copy ..\lib\tiles\gervais\*.* ..\setup\lib\tiles\gervais
-copy ..\lib\tiles\nomad\*.* ..\setup\lib\tiles\nomad
-copy ..\lib\tiles\old\*.* ..\setup\lib\tiles\old
 copy ..\lib\tiles\pseudo\*.* ..\setup\lib\tiles\pseudo
 copy ..\lib\tiles\shockbolt\*.* ..\setup\lib\tiles\shockbolt
-copy ..\lib\user\save\server.town.* ..\setup\lib\user\save
+copy ..\lib\user\save\*.* ..\setup\lib\user\save
+copy ..\manual\*.* ..\setup\manual
 copy ..\noteye\*.* ..\setup\noteye
 copy *.* ..\setup\src
 copy client\*.* ..\setup\src\client
@@ -33,4 +30,5 @@ copy ..\copying.txt ..\setup
 copy ..\noteye.bat ..\setup
 copy ..\*.dll ..\setup
 copy ..\*.exe ..\setup
+copy ..\Manual.* ..\setup
 pause

@@ -8,12 +8,6 @@
 
 /*** Game constants ***/
 
-#define ART_MAX_STATIC  139
-
-/*** Ego-Item indexes (see "lib/gamedata/ego_item.txt") ***/
-
-#define EGO_ELEMENTAL           143
-
 /* Object origin kinds */
 enum
 {

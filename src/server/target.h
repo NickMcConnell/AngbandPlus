@@ -1,6 +1,6 @@
 /*
  * File: target.h
- * Purpose: Targetting code
+ * Purpose: Targeting code
  */
 
 #ifndef TARGET_H
@@ -37,18 +37,18 @@
 extern int motion_dir(int y1, int x1, int y2, int x2);
 extern void look_mon_desc(struct monster *mon, char *buf, size_t max);
 extern void look_player_desc(struct player *p, char *buf, size_t max);
-extern bool target_able(struct player *p, struct actor *who);
+extern bool target_able(struct player *p, struct source *who);
 extern bool target_okay(struct player *p);
-extern bool target_set_monster(struct player *p, struct actor *who);
+extern bool target_set_monster(struct player *p, struct source *who);
 extern void target_set_location(struct player *p, int y, int x);
 extern int cmp_distance(const void *a, const void *b);
 extern s16b target_pick(int y1, int x1, int dy, int dx, struct point_set *targets);
 extern bool target_accept(struct player *p, int y, int x);
 extern void coords_desc(struct player *p, char *buf, int size, int y, int x);
 extern void target_get(struct player *p, int *x, int *y);
-extern bool target_equals(struct player *p, struct actor *who);
+extern bool target_equals(struct player *p, struct source *who);
 extern void draw_path_grid(struct player *p, int y, int x, byte a, char c);
-extern void flush_path_grid(struct player *p, int depth, int y, int x, byte a, char c);
+extern void flush_path_grid(struct player *p, struct chunk *cv, int y, int x, byte a, char c);
 extern bool panel_contains(struct player *p, int y, int x);
 extern struct point_set *target_get_monsters(struct player *p, int mode);
 extern bool target_set_closest(struct player *p, int mode);

@@ -82,6 +82,7 @@ BOOL ReadDIB2_PNG(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo, DIBINIT *pMask, B
     if (!info_ptr)
     {
         png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+        fclose(fp);
         return FALSE;
     }
 

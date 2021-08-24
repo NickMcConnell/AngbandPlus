@@ -2,7 +2,7 @@
  * File: party.c
  * Purpose: Support for the "party" system
  *
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -479,7 +479,7 @@ void party_msg_format(int party_id, const char *fmt, ...)
 
 bool party_share_with(struct player *p, int party_id, struct player *q)
 {
-    return (in_party(q, party_id) && (q->depth == p->depth) &&
+    return (in_party(q, party_id) && COORDS_EQUAL(&q->wpos, &p->wpos) &&
         ((cfg_party_sharelevel == -1) || (abs(q->lev - p->lev) <= cfg_party_sharelevel)));
 }
 
@@ -836,7 +836,7 @@ bool pvp_check(struct player *attacker, struct player *target, int mode, bool si
 }
 
 
-void do_cmd_party(struct player *p, s16b command, char* buf)
+void do_cmd_party(struct player *p, s16b command, char *buf)
 {
     /* Check arena */
     if (p->arena_num != -1)
@@ -911,7 +911,7 @@ void party_msg_near(struct player *p, const char *msg)
         if (p == q) continue;
 
         /* Make sure this player is at this depth */
-        if (q->depth != p->depth) continue;
+        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
 
         /* Meh, different party */
         if (!player_in_party(party, q)) continue;

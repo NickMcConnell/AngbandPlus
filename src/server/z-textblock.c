@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2010 Andi Sidwell
  * Copyright (c) 2011 Peter Denison
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -225,7 +225,7 @@ void text_out_c(struct player *p, byte a, const char *fmt, ...)
  * path the path to write to
  * writer the text-writing function
  */
-errr text_lines_to_file(struct player *p, const char *path, text_writer writer)
+errr text_lines_to_file(const char *path, text_writer writer, void *data)
 {
     char new_fname[MSG_LEN];
     char old_fname[MSG_LEN];
@@ -239,7 +239,7 @@ errr text_lines_to_file(struct player *p, const char *path, text_writer writer)
     new_file = file_open(new_fname, MODE_WRITE, FTYPE_TEXT);
     if (!new_file) return -1;
 
-    writer(p, new_file);
+    writer(new_file, data);
     file_close(new_file);
 
     /* Move files around */

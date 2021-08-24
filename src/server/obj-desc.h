@@ -27,8 +27,6 @@ enum
     ODESC_FLAVOR    = 0x200     /* Show flavor */
 };
 
-extern const char *inscrip_text[];
-
 extern size_t object_desc(struct player *p, char *buf, size_t max, const struct object *obj,
     int mode);
 

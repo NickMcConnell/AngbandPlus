@@ -3,7 +3,7 @@
  * Purpose: Utility functions
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -139,7 +139,7 @@ void alloc_header_icky(struct player *p, const char *header)
 }
 
 
-const char* get_header(struct player *p, const char *header)
+const char *get_header(struct player *p, const char *header)
 {
     if (p->header_icky) return p->header_icky;
     return header;
@@ -257,7 +257,12 @@ const char *player_self(struct player *p)
 const char *get_title(struct player *p)
 {
     /* Winner */
-    if (p->total_winner) return p->sex->winner;
+    switch (p->total_winner)
+    {
+        case 1: return p->sex->winner;
+        case 2: return p->sex->conqueror;
+        case 3: return p->sex->killer;
+    }
 
     /* Normal */
     return p->clazz->title[(p->lev - 1) / 5];
@@ -266,12 +271,12 @@ const char *get_title(struct player *p)
 
 s16b get_speed(struct player *p)
 {
-    s16b speed = p->state.speed - 110;
+    s16b speed = p->state.speed;
 
-    /* Hack -- visually "undo" the "Search Mode" slowdown */
-    if (p->searching) speed += 10;
+    /* Hack -- visually "undo" the "Stealth Mode" slowdown */
+    if (p->stealthy) speed += 10;
 
-    return speed;
+    return speed - 110;
 }
 
 
@@ -305,10 +310,15 @@ void get_plusses(struct player *p, struct player_state *state, int* dd, int* ds,
         *ds = obj->ds;
 
         /* If known, add the wielded weapon bonuses */
-        if (object_attack_plusses_are_visible(obj))
+        if (obj->known->to_h && obj->known->to_d)
         {
-            *mhit += obj->to_h;
-            *mdam += obj->to_d;
+            s16b to_h, to_d;
+
+            object_to_h(obj, &to_h);
+            object_to_d(obj, &to_d);
+
+            *mhit += to_h;
+            *mdam += to_d;
         }
     }
 
@@ -317,10 +327,15 @@ void get_plusses(struct player *p, struct player_state *state, int* dd, int* ds,
     if (obj)
     {
         /* If known, add the wielded bow bonuses */
-        if (object_attack_plusses_are_visible(obj))
+        if (obj->known->to_h && obj->known->to_d)
         {
-            *shit += obj->to_h;
-            *sdam += obj->to_d;
+            s16b to_h, to_d;
+
+            object_to_h(obj, &to_h);
+            object_to_d(obj, &to_d);
+
+            *shit += to_h;
+            *sdam += to_d;
         }
     }
 }
@@ -341,10 +356,10 @@ s16b get_ranged_skill(struct player *p)
 byte get_dtrap(struct player *p)
 {
     /* Only on random levels */
-    if (!random_level(p->depth)) return 0;
+    if (!random_level(&p->wpos)) return 0;
 
     /* Edge of detected area */
-    if (square_isdedge(p, p->py, p->px)) return 2;
+    if (square_dtrap_edge(p, chunk_get(&p->wpos), p->py, p->px)) return 2;
 
     /* Detected area (safe) */
     if (square_isdtrap(p, p->py, p->px)) return 1;
@@ -391,8 +406,8 @@ void strrepall(char *dest, size_t len, const char *src, const char *search, cons
 
 void clean_name(char *buf, char *name)
 {
-    char* str;
-    char* dst;
+    char *str;
+    char *dst;
 
     dst = buf;
     for (str = name; *str; str++)

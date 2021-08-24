@@ -14,7 +14,6 @@ SQUARE(VIEW, "view flag")                               /* player */
 SQUARE(WASSEEN, "previously seen (during update)")      /* global */
 SQUARE(DTRAP, "trap detected square")                   /* player */
 SQUARE(FEEL, "hidden points to trigger feelings")       /* player + global */
-SQUARE(DEDGE, "border of trap detected area")           /* player */
 SQUARE(TRAP, "square containing a known trap")          /* global */
 /*SQUARE(INVIS, "square containing an unknown trap")*/      /* global */
 SQUARE(WALL_INNER, "inner wall generation flag")        /* global */
@@ -25,3 +24,5 @@ SQUARE(NO_TELEPORT, "can't teleport from this square")  /* global */
 SQUARE(NO_MAP, "square can't be magically mapped")      /* global */
 SQUARE(NO_ESP, "telepathy doesn't work on this square") /* global */
 SQUARE(PROJECT, "marked for projection processing")     /* global */
+SQUARE(NO_STAIRS, "square can't contain stairs")        /* global */
+SQUARE(STAIRS, "square can contain stairs")             /* global */

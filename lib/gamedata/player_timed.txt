@@ -1,0 +1,442 @@
+# File: player_timed.txt
+
+
+# Used in conjunction with list-player-timed.h
+# Timed player properties
+#
+# Descriptions, messages and message types can be edited without bad effects.
+# Changing code or fail may have unpredictable results.
+# Changing the name, reordering, or adding whole new entires will severely
+# disrupt the game, and should only be done when list-player-timed.h
+# (and other code) is also being changed, and the game recompiled.
+
+# === Understanding player_timed.txt ===
+
+# name - the effect name
+# desc - the effect description
+# on-begin - the message on beginning the effect
+# on-end - the message on ending the effect
+# on-increase - the message on the effect increasing
+# on-decrease - the message on the effect decreasing
+# near-begin - the message on beginning the effect for nearby players
+# near-end - the message on ending the effect for nearby players
+# msgt - the message type for this effect
+# fail - determines what makes the effect fail.
+#        param one:
+#          1 - object flag
+#          2 - resist
+#          3 - vulnerability
+#        param two:
+#          the actual flag that causes the failure
+#
+
+
+name:FAST
+desc:haste ({+10} to speed)
+on-begin:You feel yourself moving faster!
+on-end:You feel yourself slow down.
+near-begin: starts moving faster.
+near-end: slows down.
+msgt:SPEED
+
+name:SLOW
+desc:slowness ({-10} to speed)
+on-begin:You feel yourself moving slower!
+on-end:You feel yourself speed up.
+near-begin: starts moving slower.
+near-end: speeds up.
+msgt:SLOW
+fail:1:FREE_ACT
+
+name:BLIND
+desc:blindness
+on-begin:You are blind!
+on-end:You blink and your eyes clear.
+near-begin: gropes around blindly.
+near-end: can see again.
+msgt:BLIND
+fail:1:PROT_BLIND
+
+name:PARALYZED
+desc:paralysis
+on-begin:You are paralyzed!
+on-end:You can move again.
+near-begin: becomes rigid.
+near-end: can move again.
+msgt:PARALYZED
+fail:1:FREE_ACT
+
+name:CONFUSED
+desc:confusion
+on-begin:You are confused!
+on-end:You are no longer confused.
+on-increase:You are more confused!
+on-decrease:You feel a little less confused.
+near-begin: appears confused.
+near-end: appears less confused.
+msgt:CONFUSED
+fail:1:PROT_CONF
+
+name:AFRAID
+desc:fear
+on-begin:You are terrified!
+on-end:You feel bolder now.
+on-increase:You are more scared!
+on-decrease:You feel a little less scared.
+near-begin: cowers in fear.
+near-end: appears bolder now.
+msgt:AFRAID
+fail:1:PROT_FEAR
+
+name:IMAGE
+desc:hallucinations
+on-begin:You feel drugged!
+on-end:You can see clearly again.
+on-increase:You feel more drugged!
+on-decrease:You feel less drugged.
+near-begin: appears drugged.
+near-end: can see clearly again.
+msgt:DRUGGED
+fail:2:CHAOS
+
+name:POISONED
+desc:poisoning
+on-begin:You are poisoned!
+on-end:You are no longer poisoned.
+on-increase:You are more poisoned!
+on-decrease:You are less poisoned.
+near-begin: appears poisoned.
+near-end: appears less poisoned.
+msgt:POISONED
+fail:2:POIS
+
+name:CUT
+desc:cuts
+
+name:STUN
+desc:stunning
+fail:1:PROT_STUN
+
+name:PROTEVIL
+desc:protection from evil
+on-begin:You feel safe from evil!
+on-end:You no longer feel safe from evil.
+on-increase:You feel even safer from evil!
+on-decrease:You feel less safe from evil.
+near-begin: is surrounded by a holy aura.
+near-end:'s holy aura disappears.
+msgt:PROT_EVIL
+
+name:INVULN
+#desc:invulnerability
+on-begin:You feel invulnerable!
+on-end:You feel vulnerable once more.
+near-begin: is surrounded by an aura of power.
+near-end:'s aura of power disappears.
+msgt:INVULN
+
+name:HERO
+desc:heroism (a bonus of {+12} to-hit)
+on-begin:You feel like a hero!
+on-end:You no longer feel heroic.
+on-increase:You feel more like a hero!
+on-decrease:You feel less heroic.
+near-begin: appears heroic.
+near-end: appears less heroic.
+msgt:HERO
+
+name:SHERO
+desc:berserk strength (a bonus of {+24} to-hit, and a penalty of {-10} to AC)
+on-begin:You feel like a killing machine!
+on-end:You no longer feel berserk.
+on-increase:You feel even more berserk!
+on-decrease:You feel less berserk.
+near-begin: enters a battle rage.
+near-end: calms down.
+msgt:BERSERK
+
+name:SHIELD
+#desc:mystic shield
+on-begin:A mystic shield forms around your body!
+on-end:Your mystic shield crumbles away.
+on-increase:The mystic shield strengthens.
+on-decrease:The mystic shield weakens.
+near-begin: forms a mystic shield.
+near-end:'s mystic shield crumbles away.
+msgt:SHIELD
+
+name:BLESSED
+desc:blessing (a bonus of {+5} to armor class and {+10} to-hit)
+on-begin:You feel righteous!
+on-end:The prayer has expired.
+on-increase:You feel more righteous!
+on-decrease:You feel less righteous.
+near-begin: is surrounded by a bright aura.
+near-end:'s bright aura disappears.
+msgt:BLESSED
+
+name:SINVIS
+desc:the power to see invisible
+on-begin:Your eyes feel very sensitive!
+on-end:Your eyes no longer feel so sensitive.
+on-increase:Your eyes feel more sensitive!
+on-decrease:Your eyes feel less sensitive.
+near-begin:'s eyes glow brightly.
+near-end:'s eyes are back to normal.
+msgt:SEE_INVIS
+
+name:SINFRA
+desc:extra infravision ({+50} feet)
+on-begin:Your eyes begin to tingle!
+on-end:Your eyes stop tingling.
+on-increase:Your eyes' tingling intensifies.
+on-decrease:Your eyes tingle less.
+near-begin:'s eyes begin to tingle.
+near-end:'s eyes stop tingling.
+msgt:INFRARED
+
+name:OPP_ACID
+desc:temporary resistance to acid
+on-begin:You feel resistant to acid!
+on-end:You are no longer resistant to acid.
+on-increase:You feel more resistant to acid!
+on-decrease:You feel less resistant to acid.
+near-begin: is surrounded by an acidic aura.
+near-end:'s acidic aura disappears.
+msgt:RES_ACID
+fail:3:ACID
+
+name:OPP_ELEC
+desc:temporary resistance to lightning
+on-begin:You feel resistant to lightning!
+on-end:You are no longer resistant to lightning.
+on-increase:You feel more resistant to lightning!
+on-decrease:You feel less resistant to lightning.
+near-begin: is surrounded by an electric aura.
+near-end:'s electric aura disappears.
+msgt:RES_ELEC
+fail:3:ELEC
+
+name:OPP_FIRE
+desc:temporary resistance to fire
+on-begin:You feel resistant to fire!
+on-end:You are no longer resistant to fire.
+on-increase:You feel more resistant to fire!
+on-decrease:You feel less resistant to fire.
+near-begin: is surrounded by a fiery aura.
+near-end:'s fiery aura disappears.
+msgt:RES_FIRE
+fail:3:FIRE
+
+name:OPP_COLD
+desc:temporary resistance to cold
+on-begin:You feel resistant to cold!
+on-end:You are no longer resistant to cold.
+on-increase:You feel more resistant to cold!
+on-decrease:You feel less resistant to cold.
+near-begin: is surrounded by a chilling aura.
+near-end:'s chilling aura disappears.
+msgt:RES_COLD
+fail:3:COLD
+
+name:OPP_POIS
+desc:temporary resistance to poison
+on-begin:You feel resistant to poison!
+on-end:You are no longer resistant to poison.
+on-increase:You feel more resistant to poison!
+on-decrease:You feel less resistant to poison.
+near-begin: is surrounded by a toxic aura.
+near-end:'s toxic aura disappears.
+msgt:RES_POIS
+
+name:OPP_CONF
+desc:temporary resistance to confusion
+on-begin:You feel resistant to confusion!
+on-end:You are no longer resistant to confusion.
+on-increase:You feel more resistant to confusion!
+on-decrease:You feel less resistant to confusion.
+near-begin: is surrounded by a clear aura.
+near-end:'s clear aura disappears.
+
+name:AMNESIA
+desc:amnesia
+on-begin:You feel your memories fade!
+on-end:Your memories come flooding back.
+near-begin: appears disoriented.
+near-end: appears less disoriented.
+
+name:ESP
+desc:the power of telepathy
+on-begin:Your mind expands!
+on-end:Your mind retracts.
+on-increase:Your mind expands further.
+near-begin: appears receptive.
+near-end: appears less receptive.
+
+name:STONESKIN
+desc:stoneskin (a bonus of {+40} to AC, and a penalty of {-5} to speed)
+on-begin:Your skin turns to stone!
+on-end:A fleshy shade returns to your skin.
+near-begin:'s skin turns to stone.
+near-end:'s skin turns back to flesh.
+
+name:TERROR
+desc:terror (uncontrollable fear, with a bonus of {+10} to speed)
+on-begin:You feel the need to run away and fast!
+on-end:The urge to run dissipates.
+near-begin: feels the need to run away, and fast!
+near-end:'s urge to run dissipates.
+msgt:AFRAID
+
+name:SPRINT
+desc:sprinting ({+10} to speed, then {-10} to speed)
+on-begin:You start sprinting!
+on-end:You suddenly stop sprinting.
+near-begin: starts sprinting.
+near-end: suddenly stops sprinting.
+msgt:SPEED
+
+name:BOLD
+desc:temporary resistance to fear
+on-begin:You feel bold!
+on-end:You no longer feel bold.
+on-increase:You feel even bolder!
+on-decrease:You feel less bold.
+near-begin: feels bold.
+near-end: no longer feels bold.
+msgt:BOLD
+
+name:SCRAMBLE
+#desc:scrambled
+on-begin:Your body starts to scramble...
+on-end:Your body reasserts its true nature.
+on-increase:You are more scrambled!
+on-decrease:You are less scrambled.
+near-begin:'s body starts to scramble.
+near-end:'s body reasserts its true nature.
+msgt:SCRAMBLE
+fail:2:NEXUS
+
+name:TRAPSAFE
+#desc:safety from traps
+on-begin:You feel safe from traps.
+on-end:You feel vulnerable to traps again.
+on-increase:You feel even safer from traps!
+on-decrease:You feel less safe from traps.
+near-begin: appears stealthy.
+near-end: appears less stealthy.
+
+# PWMAngband
+
+name:WRAITHFORM
+on-begin:You turn into a wraith!
+on-end:You lose your wraith powers.
+near-begin: turns into a wraith.
+near-end: appears more solid.
+
+name:MEDITATE
+on-begin:You start a calm meditation!
+on-end:You stop your meditation.
+near-begin: starts a calm meditation.
+near-end: stops meditating.
+
+name:MANASHIELD
+on-begin:You feel immortal!
+on-end:You feel less immortal.
+near-begin: forms a mana shield.
+near-end:'s mana shield crumbles away.
+
+name:INVIS
+on-begin:You fade in the shadows!
+on-end:The shadows enveloping you dissipate.
+near-begin: fades in the shadows.
+near-end: is visible once again.
+
+name:MIMIC
+on-begin:Your image changes!
+on-end:Your image is back to normality.
+near-begin:'s image changes.
+near-end:'s image is back to normality.
+
+name:BOWBRAND
+
+name:ANCHOR
+on-begin:The space/time continuum seems to solidify!
+on-end:The space/time continuum seems more flexible.
+near-begin: tightens the space/time continuum.
+near-end: loosens the space/time continuum.
+
+name:PROBTRAVEL
+desc:the ability to cross floors and ceilings
+on-begin:You feel instable!
+on-end:You feel more stable.
+near-begin: appears instable.
+near-end: appears more stable.
+
+name:ADRENALINE
+
+name:BIOFEEDBACK
+
+name:TOUCH
+on-begin:Your touch becomes vampiric!
+on-end:Your touch is back to normal.
+near-begin:'s touch becomes vampiric.
+near-end:'s touch is back to normal.
+
+name:SOUL
+on-begin:You start absorbing the souls of your foes!
+on-end:You stop absorbing the souls of your foes.
+near-begin: is surrounded by a dark aura.
+near-end:'s dark aura disappears.
+
+name:DEADLY
+on-begin:Your hands begin to glow black!
+on-end:Your hands stop glowing black.
+near-begin:'s hands begin to glow black.
+near-end:'s hands stop glowing black.
+
+name:EPOWER
+on-begin:You feel attuned to the elements!
+on-end:You feel less attuned to the elements.
+near-begin: appears more powerful.
+near-end: appears less powerful.
+
+name:ICY_AURA
+on-begin:Your skin turns icy!
+on-end:Your skin is no longer icy.
+near-begin: is surrounded by an icy aura.
+near-end:'s icy aura disappears.
+
+name:SGRASP
+on-begin:Your hands are covered with lightning!
+on-end:Your hands are normal once again.
+near-begin:'s hands are covered with lightning.
+near-end:'s hands are normal once again.
+
+name:FARSIGHT
+on-begin:Your sight expands!
+on-end:Your sight is back to normal.
+on-increase:Your sight expands further!
+near-begin:'s sight expands.
+near-end:'s sight is back to normal.
+
+name:ZFARSIGHT
+on-begin:Your sight expands!
+on-end:Your sight is back to normal.
+on-increase:Your sight expands further!
+near-begin:'s sight expands.
+near-end:'s sight is back to normal.
+
+name:REGEN
+on-begin:You start to regenerate quickly!
+on-end:Your regeneration rate is back to normal.
+near-begin: starts to regenerate quickly.
+near-end:'s regeneration rate is back to normal.
+
+name:HARMONY
+
+name:ANTISUMMON
+on-begin:You are surrounded by an anti-summon field!
+on-end:You should worry about summons again.
+near-begin: is surrounded by a black aura.
+near-end:'s black aura disappears.

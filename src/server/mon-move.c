@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke (attacking code)
  * Copyright (c) 1997 Ben Harrison, David Reeve Sward, Keldon Jones (AI routines).
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -23,55 +23,314 @@
 
 
 /*
- * Given a central direction at position [dir #][0], return a series
- * of directions radiating out on both sides from the central direction
- * all the way back to its rear.
- *
- * Side directions come in pairs; for example, directions '1' and '3'
- * flank direction '2'. The code should know which side to consider
- * first. If the left, it must add 10 to the central direction to
- * access the second part of the table.
+ * Routines to enable decisions on monster behaviour
  */
-static byte side_dirs[20][8] =
-{
-    /* bias right */
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {1, 4, 2, 7, 3, 8, 6, 9},
-    {2, 1, 3, 4, 6, 7, 9, 8},
-    {3, 2, 6, 1, 9, 4, 8, 7},
-    {4, 7, 1, 8, 2, 9, 3, 6},
-    {5, 5, 5, 5, 5, 5, 5, 5},
-    {6, 3, 9, 2, 8, 1, 7, 4},
-    {7, 8, 4, 9, 1, 6, 2, 3},
-    {8, 9, 7, 6, 4, 3, 1, 2},
-    {9, 6, 8, 3, 7, 2, 4, 1},
 
-    /* bias left */
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {1, 2, 4, 3, 7, 6, 8, 9},
-    {2, 3, 1, 6, 4, 9, 7, 8},
-    {3, 6, 2, 9, 1, 8, 4, 7},
-    {4, 1, 7, 2, 8, 3, 9, 6},
-    {5, 5, 5, 5, 5, 5, 5, 5},
-    {6, 9, 3, 8, 2, 7, 1, 4},
-    {7, 4, 8, 1, 9, 2, 6, 3},
-    {8, 7, 9, 4, 6, 1, 3, 2},
-    {9, 8, 6, 7, 3, 4, 2, 1}
-};
+
+/*
+ * Find whether a PASS_WALL or KILL_WALL monster has a clear path to the player.
+ *
+ * This is a modified/simplified version of project_path().
+ */
+static bool can_path_player(struct player *p, const struct monster *mon, struct chunk *c)
+{
+    int y, x;
+    int y1 = mon->fy;
+    int x1 = mon->fx;
+    int y2 = p->py;
+    int x2 = p->px;
+
+    /* Absolute */
+    int ay, ax;
+
+    /* Offsets */
+    int sy, sx;
+
+    /* Fractions */
+    int frac;
+
+    /* Scale factors */
+    int full, half;
+
+    /* Slope */
+    int m;
+
+    /* If player is in LOS, there's no need to go around walls */
+    if (projectable_wall(c, y1, x1, y2, x2)) return true;
+
+    /* Analyze "dy" */
+    if (y2 < y1)
+    {
+        ay = (y1 - y2);
+        sy = -1;
+    }
+    else
+    {
+        ay = (y2 - y1);
+        sy = 1;
+    }
+
+    /* Analyze "dx" */
+    if (x2 < x1)
+    {
+        ax = (x1 - x2);
+        sx = -1;
+    }
+    else
+    {
+        ax = (x2 - x1);
+        sx = 1;
+    }
+
+    /* Number of "units" in one "half" grid */
+    half = (ay * ax);
+
+    /* Number of "units" in one "full" grid */
+    full = half << 1;
+
+    /* Vertical */
+    if (ay > ax)
+    {
+        /* Start at tile edge */
+        frac = ax * ax;
+
+        /* Let m = ((dx/dy) * full) = (dx * dx * 2) = (frac * 2) */
+        m = frac << 1;
+
+        /* Start */
+        y = y1 + sy;
+        x = x1;
+
+        /* Never go back from whence we came */
+        if ((x == mon->old_fx) && (y == mon->old_fy)) return false;
+
+        /* Create the projection path */
+        while (1)
+        {
+            /* Stop at destination grid */
+            if ((x == x2) && (y == y2)) return true;
+
+            /* Stop at permawall grids */
+            if (square_isperm(c, y, x)) return false;
+
+            /* Slant */
+            if (m)
+            {
+                /* Advance (X) part 1 */
+                frac += m;
+
+                /* Horizontal change */
+                if (frac >= half)
+                {
+                    /* Advance (X) part 2 */
+                    x += sx;
+
+                    /* Advance (X) part 3 */
+                    frac -= full;
+                }
+            }
+
+            /* Advance (Y) */
+            y += sy;
+        }
+    }
+
+    /* Horizontal */
+    else if (ax > ay)
+    {
+        /* Start at tile edge */
+        frac = ay * ay;
+
+        /* Let m = ((dy/dx) * full) = (dy * dy * 2) = (frac * 2) */
+        m = frac << 1;
+
+        /* Start */
+        y = y1;
+        x = x1 + sx;
+
+        /* Never go back from whence we came */
+        if ((x == mon->old_fx) && (y == mon->old_fy)) return false;
+
+        /* Create the projection path */
+        while (1)
+        {
+            /* Stop at destination grid */
+            if ((x == x2) && (y == y2)) return true;
+
+            /* Stop at permawall grids */
+            if (square_isperm(c, y, x)) return false;
+
+            /* Slant */
+            if (m)
+            {
+                /* Advance (Y) part 1 */
+                frac += m;
+
+                /* Vertical change */
+                if (frac >= half)
+                {
+                    /* Advance (Y) part 2 */
+                    y += sy;
+
+                    /* Advance (Y) part 3 */
+                    frac -= full;
+                }
+            }
+
+            /* Advance (X) */
+            x += sx;
+        }
+    }
+
+    /* Diagonal */
+    else
+    {
+        /* Start */
+        y = y1 + sy;
+        x = x1 + sx;
+
+        /* Never go back from whence we came */
+        if ((x == mon->old_fx) && (y == mon->old_fy)) return false;
+
+        /* Create the projection path */
+        while (1)
+        {
+            /* Stop at destination grid */
+            if ((x == x2) && (y == y2)) return true;
+
+            /* Stop at permawall grids */
+            if (square_isperm(c, y, x)) return false;
+
+            /* Advance (Y) */
+            y += sy;
+
+            /* Advance (X) */
+            x += sx;
+        }
+    }
+}
+
+
+/*
+ * Check if the monster can hear anything
+ */
+static bool monster_can_hear(struct player *p, struct monster *mon)
+{
+    int base_hearing = mon->race->hearing - p->state.skills[SKILL_STEALTH] / 3;
+
+    if (p->cave->noise.grids[mon->fy][mon->fx] == 0) return false;
+    return ((base_hearing > p->cave->noise.grids[mon->fy][mon->fx])? true: false);
+}
+
+
+/*
+ * Check if the monster can smell anything
+ */
+static bool monster_can_smell(struct player *p, struct monster *mon)
+{
+    if (p->cave->scent.grids[mon->fy][mon->fx] == 0) return false;
+    return ((mon->race->smell > p->cave->scent.grids[mon->fy][mon->fx])? true: false);
+}
+
+
+/*
+ * Compare the "strength" of two monsters XXX XXX XXX
+ */
+static int compare_monsters(const struct monster *mon1, const struct monster *mon2)
+{
+    u32b mexp1 = mon1->race->mexp;
+    u32b mexp2 = mon2->race->mexp;
+
+    /* Compare */
+    if (mexp1 < mexp2) return (-1);
+    if (mexp1 > mexp2) return (1);
+
+    /* Assume equal */
+    return (0);
+}
+
+
+/*
+ * Check if the monster can kill any monster on the relevant grid
+ */
+static bool monster_can_kill(struct chunk *c, struct monster *mon, int y, int x)
+{
+    struct monster *mon1 = square_monster(c, y, x);
+
+    /* Kill weaker monsters */
+    int kill_ok = rf_has(mon->race->flags, RF_KILL_BODY);
+
+    /* No monster */
+    if (!mon1) return true;
+
+    if (kill_ok && (compare_monsters(mon, mon1) > 0)) return true;
+
+    return false;
+}
+
+
+/*
+ * Check if the monster can move any monster on the relevant grid
+ */
+static bool monster_can_move(struct chunk *c, struct monster *mon, int y, int x)
+{
+    struct monster *mon1 = square_monster(c, y, x);
+
+    /* Push past weaker monsters (unless leaving a wall) */
+    int move_ok = (rf_has(mon->race->flags, RF_MOVE_BODY) &&
+        square_ispassable(c, mon->fy, mon->fx));
+
+    /* No monster */
+    if (!mon1) return true;
+
+    if (move_ok && (compare_monsters(mon, mon1) > 0)) return true;
+
+    return false;
+}
+
+
+/*
+ * Check if the monster can occupy a grid safely
+ */
+bool monster_hates_grid(struct chunk *c, struct monster *mon, int y, int x)
+{
+    /* Only some creatures can handle damaging terrain */
+    if (square_isdamaging(c, y, x) && !rf_has(mon->race->flags, square_feat(c, y, x)->resist_flag))
+    {
+        /* Hack -- passwall creatures can cross any damaging terrain */
+        if (rf_has(mon->race->flags, RF_PASS_WALL)) return false;
+
+        /* Hack -- levitating creatures can cross water */
+        if (square_iswater(c, y, x) && rf_has(mon->race->flags, RF_LEVITATE)) return false;
+
+        return true;
+    }
+
+    return false;
+}
+
+
+/*
+ * Monster movement routines
+ * These routines, culminating in get_move(), choose if and where a monster
+ * will move on its turn
+ */
 
 
 /*
  * Calculate minimum and desired combat ranges
  */
-static void find_range(struct player *p, struct monster *mon)
+static void get_move_find_range(struct player *p, struct monster *mon)
 {
     u16b p_lev, m_lev;
     u16b p_chp, p_mhp;
-    u16b m_chp, m_mhp;
+    u32b m_chp, m_mhp;
     u32b p_val, m_val;
 
     /* Monsters will run up to z_info->flee_range grids out of sight */
     int flee_range = z_info->max_sight + z_info->flee_range;
+
+    bool breathes = flags_test(mon->race->spell_flags, RSF_SIZE, RSF_BREATH_MASK, FLAG_END);
 
     /* Controlled monsters won't run away */
     if (master_in_party(mon->master, p->id))
@@ -135,85 +394,174 @@ static void find_range(struct player *p, struct monster *mon)
         mon->min_range = 1;
 
     /* Now find preferred range */
+    mon->best_range = mon->min_range;
+
+    if (mon->race->freq_spell > 24)
+    {
+        /* Breathers like point blank range */
+        if (breathes && (mon->best_range < 6) && (mon->hp > mon->maxhp / 2))
+            mon->best_range = 6;
+
+        /* Other spell casters will sit back and cast */
+        else
+            mon->best_range += 3;
+    }
 }
 
 
-/*
- * Lets the given monster attempt to reproduce.
- *
- * Note that "reproduction" REQUIRES empty space.
- *
- * Returns true if the monster successfully reproduced.
- */
-bool multiply_monster(struct player *p, struct chunk *c, struct monster *mon)
+static int get_best_noise(struct player *p, struct chunk *c, struct monster *mon, int my, int mx)
 {
-    int i, y, x;
-    bool result = false;
+    int i;
+    int base_hearing = mon->race->hearing - p->state.skills[SKILL_STEALTH] / 3;
+    int best_noise = base_hearing - p->cave->noise.grids[my][mx];
 
-    my_assert(mon);
-
-    /* Paranoia */
-    if (!p) return false;
-
-    /* Only on random levels */
-    if (!random_level(p->depth)) return false;
-
-    /* No uniques */
-    if (rf_has(mon->race->flags, RF_UNIQUE)) return false;
-
-    /* Limit number of clones */
-    if (c->num_clones == z_info->repro_monster_max) return false;
-
-    /* Try up to 18 times */
-    for (i = 0; i < 18; i++)
+    /* Check nearby sound, giving preference to the cardinal directions */
+    for (i = 0; i < 8; i++)
     {
-        int d = 1;
+        /* Get the location */
+        int y = my + ddy_ddd[i];
+        int x = mx + ddx_ddd[i];
+        int heard_noise;
 
-        /* Pick a location */
-        scatter(c, &y, &x, mon->fy, mon->fx, d, true);
+        /* Bounds check */
+        if (!square_in_bounds(c, y, x)) continue;
 
-        /* Require an "empty" floor grid */
-        if (!square_isemptyfloor(c, y, x)) continue;
+        heard_noise = base_hearing - p->cave->noise.grids[y][x];
 
-        /* Create a new monster (awake, no groups) */
-        result = place_new_monster(p, c, y, x, mon->race, MON_CLONE, ORIGIN_DROP_BREED);
+        /* Must be some noise */
+        if (p->cave->noise.grids[y][x] == 0) continue;
 
-        /* Done */
-        break;
+        /* There's a monster blocking that we can't deal with */
+        if (!monster_can_kill(c, mon, y, x) && !monster_can_move(c, mon, y, x)) continue;
+
+        /* There's damaging terrain */
+        if (monster_hates_grid(c, mon, y, x)) continue;
+
+        /* If it's better than the current noise, choose this direction */
+        if (heard_noise > best_noise) best_noise = heard_noise;
     }
 
-    /* Result */
-    return (result);
+    return best_noise;
 }
 
 
-/*
- * Find whether a monster is near a permanent wall.
- * This decides whether PASS_WALL & KILL_WALL monsters use the monster flow code.
- */
-static bool near_permwall(struct player *p, const struct monster *mon, struct chunk *c)
+static int get_max_noise(struct player *p, struct chunk *c, struct monster *mon, int best_noise)
 {
-    int y, x;
-    int my = mon->fy;
-    int mx = mon->fx;
+    int i;
+    int my = mon->fy, mx = mon->fx;
+    int base_hearing = mon->race->hearing - p->state.skills[SKILL_STEALTH] / 3;
+    int max_noise = 0;
 
-    /* If PC is in LOS, there's no need to go around walls */
-    if (projectable_wall(c, my, mx, p->py, p->px)) return false;
-
-    /* PASS_WALL & KILL_WALL monsters occasionally flow for a turn anyway */
-    if (randint0(99) < 5) return true;
-
-    /* Search the nearby grids, which are always in bounds */
-    for (y = (my - 2); y <= (my + 2); y++)
+    /* Check nearby sound, giving preference to the cardinal directions */
+    for (i = 0; i < 8; i++)
     {
-        for (x = (mx - 2); x <= (mx + 2); x++)
+        /* Get the location */
+        int y = my + ddy_ddd[i];
+        int x = mx + ddx_ddd[i];
+        int heard_noise;
+
+        /* Bounds check */
+        if (!square_in_bounds(c, y, x)) continue;
+
+        heard_noise = base_hearing - p->cave->noise.grids[y][x];
+
+        /* Must be some noise */
+        if (p->cave->noise.grids[y][x] == 0) continue;
+
+        /* There's a monster blocking that we can't deal with */
+        if (!monster_can_kill(c, mon, y, x) && !monster_can_move(c, mon, y, x)) continue;
+
+        /* There's damaging terrain */
+        if (monster_hates_grid(c, mon, y, x)) continue;
+
+        /* Possible move if we can't actually get closer */
+        if (heard_noise == best_noise)
         {
-            if (!square_in_bounds_fully(c, y, x)) continue;
-            if (square_isperm(c, y, x)) return true;
+            /* Check nearby grids for max noise */
+            int noise = get_best_noise(p, c, mon, y, x);
+
+            if (noise > max_noise) max_noise = noise;
         }
     }
 
-    return false;
+    return max_noise;
+}
+
+
+static int get_best_scent(struct player *p, struct chunk *c, struct monster *mon, int my, int mx)
+{
+    int i;
+    int best_scent = mon->race->smell - p->cave->scent.grids[my][mx];
+
+    /* Check nearby scent, giving preference to the cardinal directions */
+    for (i = 0; i < 8; i++)
+    {
+        /* Get the location */
+        int y = my + ddy_ddd[i];
+        int x = mx + ddx_ddd[i];
+        int smelled_scent;
+
+        /* Bounds check */
+        if (!square_in_bounds(c, y, x)) continue;
+
+        smelled_scent = mon->race->smell - p->cave->scent.grids[y][x];
+
+        /* Must be some scent */
+        if (p->cave->scent.grids[y][x] == 0) continue;
+
+        /* There's a monster blocking that we can't deal with */
+        if (!monster_can_kill(c, mon, y, x) && !monster_can_move(c, mon, y, x)) continue;
+
+        /* There's damaging terrain */
+        if (monster_hates_grid(c, mon, y, x)) continue;
+
+        /* If it's better than the current scent, choose this direction */
+        if (smelled_scent > best_scent) best_scent = smelled_scent;
+    }
+
+    return best_scent;
+}
+
+
+static int get_max_scent(struct player *p, struct chunk *c, struct monster *mon, int best_scent)
+{
+    int i;
+    int my = mon->fy, mx = mon->fx;
+    int max_scent = 0;
+
+    /* Check nearby scent, giving preference to the cardinal directions */
+    for (i = 0; i < 8; i++)
+    {
+        /* Get the location */
+        int y = my + ddy_ddd[i];
+        int x = mx + ddx_ddd[i];
+        int smelled_scent;
+
+        /* Bounds check */
+        if (!square_in_bounds(c, y, x)) continue;
+
+        smelled_scent = mon->race->smell - p->cave->scent.grids[y][x];
+
+        /* Must be some scent */
+        if (p->cave->scent.grids[y][x] == 0) continue;
+
+        /* There's a monster blocking that we can't deal with */
+        if (!monster_can_kill(c, mon, y, x) && !monster_can_move(c, mon, y, x)) continue;
+
+        /* There's damaging terrain */
+        if (monster_hates_grid(c, mon, y, x)) continue;
+
+        /* Possible move if we can't actually get closer */
+        if (smelled_scent == best_scent)
+        {
+            /* Check nearby grids for max scent */
+            int scent = get_best_scent(p, c, mon, y, x);
+
+            if (scent > max_scent) max_scent = scent;
+        }
+    }
+
+    return max_scent;
 }
 
 
@@ -233,328 +581,172 @@ static bool player_walled(struct player *p, struct chunk *c)
 
 
 /*
- * Choose the best direction for "flowing".
+ * Choose the best direction to advance toward the player, using sound or scent.
  *
- * Note that ghosts and rock-eaters generally don't flow because they can move
- * through obstacles.
+ * Note that ghosts and rock-eaters generally just head straight for the player.
  *
- * Monsters first try to use up-to-date distance information ('sound') as
- * saved in cave->squares[y][x].cost. Failing that, they'll try using scent
- * ('when') which is just old cost information.
+ * Monsters first try to use current sound information as saved in
+ * cave->noise.grids[y][x]. Failing that, they'll try using scent, saved in
+ * cave->scent.grids[y][x].
+ *
+ * Note that this function assumes the monster is moving to an adjacent grid,
+ * and so the noise can be louder by at most 1.
  *
  * Tracking by 'scent' means that monsters end up near enough the player to
- * switch to 'sound' (cost), or they end up somewhere the player left via
+ * switch to 'sound' (noise), or they end up somewhere the player left via
  * teleport. Teleporting away from a location will cause the monsters who
  * were chasing the player to converge on that location as long as the player
  * is still near enough to "annoy" them without being close enough to chase
  * directly.
  */
-static bool get_moves_flow(struct player *p, struct chunk *c, struct monster *mon)
+static bool get_move_advance(struct player *p, struct chunk *c, struct monster *mon)
 {
-    int i;
-    int best_when = 0;
-    int best_cost = 999;
-    int best_direction = 0;
-    bool found_direction = false;
-    int py = p->py, px = p->px;
+    int i, n = 0;
+    int best_scent, max_scent;
     int my = mon->fy, mx = mon->fx;
+    int base_hearing = mon->race->hearing - p->state.skills[SKILL_STEALTH] / 3;
+    int best_noise, max_noise;
+    int best_direction[8];
 
-    /* PWMAngband: never flow if the player is wraithed in walls */
+    /* PWMAngband: not if the player is wraithed in walls */
     if (player_walled(p, c)) return false;
 
-    /*
-     * Only use this algorithm for passwall monsters if near permanent walls,
-     * to avoid getting snagged
-     */
-    if (flags_test(mon->race->flags, RF_SIZE, RF_PASS_WALL, RF_KILL_WALL, FLAG_END) &&
-        !near_permwall(p, mon, c))
+    /* If the monster can pass through nearby walls, do that */
+    if (monster_passes_walls(mon->race) && can_path_player(p, mon, c))
     {
-        return false;
+        mon->ty = p->py;
+        mon->tx = p->px;
+        return true;
     }
-
-    /* If the player has never been near this grid, abort */
-    if ((p->cave->squares[my][mx].when < p->cave->squares[py][px].when) &&
-        (p->cave->squares[my][mx].when == 0))
-    {
-        return false;
-    }
-
-    /* Monster is too far away to notice the player */
-    if (p->cave->squares[my][mx].cost > z_info->max_flow_depth) return false;
-    if (p->cave->squares[my][mx].cost > mon->race->aaf)
-        return false;
 
     /* If the player can see monster, set target and run towards them */
-    if (square_isview(p, my, mx))
+    if (square_isview(p, mon->fy, mon->fx))
     {
-        mon->ty = py;
-        mon->tx = px;
-        return false;
+        mon->ty = p->py;
+        mon->tx = p->px;
+        return true;
     }
 
-    /* Check nearby grids, diagonals first */
-    /* This gives preference to the cardinal directions */
-    for (i = 7; i >= 0; i--)
+    for (i = 0; i < 8; i++) best_direction[i] = 0;
+
+    /* Get nearby grids with best noise, break ties with max noise */
+    best_noise = get_best_noise(p, c, mon, my, mx);
+    max_noise = get_max_noise(p, c, mon, best_noise);
+    for (i = 0; i < 8; i++)
     {
         /* Get the location */
         int y = my + ddy_ddd[i];
         int x = mx + ddx_ddd[i];
+        int heard_noise;
 
         /* Bounds check */
         if (!square_in_bounds(c, y, x)) continue;
 
-        /* Ignore unvisited/unpassable locations */
-        if (p->cave->squares[y][x].when == 0) continue;
+        heard_noise = base_hearing - p->cave->noise.grids[y][x];
 
-        /* Ignore locations whose data is more stale */
-        if (p->cave->squares[y][x].when < best_when) continue;
+        /* Must be some noise */
+        if (p->cave->noise.grids[y][x] == 0) continue;
 
-        /* Ignore locations which are farther away */
-        if (p->cave->squares[y][x].cost > best_cost) continue;
+        /* There's a monster blocking that we can't deal with */
+        if (!monster_can_kill(c, mon, y, x) && !monster_can_move(c, mon, y, x)) continue;
 
-        /* Save the cost and time */
-        best_when = p->cave->squares[y][x].when;
-        best_cost = p->cave->squares[y][x].cost;
-        best_direction = i;
-        found_direction = true;
-    }
+        /* There's damaging terrain */
+        if (monster_hates_grid(c, mon, y, x)) continue;
 
-    /* Save the location to flow toward */
-    /* Multiply by 16 to angle slightly toward the player's actual location */
-    if (found_direction)
-    {
-        int dy = 0, dx = 0;
-
-        /* Location must be positive */
-        for (i = 0; i < 16; i++)
+        /* If it's better than the current noise, choose this direction */
+        /* Possible move if we can't actually get closer */
+        if (heard_noise == best_noise)
         {
-            if ((py + dy > 0) && (px + dx > 0))
+            /* Check nearby grids for best noise again (in case we have multiple valid grids) */
+            int noise = get_best_noise(p, c, mon, y, x);
+
+            if (noise == max_noise)
             {
-                dy += ddy_ddd[best_direction];
-                dx += ddx_ddd[best_direction];
+                best_direction[n] = i;
+                n++;
             }
         }
+    }
 
-        mon->ty = py + dy;
-        mon->tx = px + dx;
+    /* Set the target */
+    if (n)
+    {
+        /* If we have multiple valid directions, choose one at random */
+        i = randint0(n);
+
+        mon->ty = my + ddy_ddd[best_direction[i]];
+        mon->tx = mx + ddx_ddd[best_direction[i]];
         return true;
     }
 
-    return false;
-}
-
-
-/*
- * Provide a location to flee to, but give the player a wide berth.
- *
- * A monster may wish to flee to a location that is behind the player,
- * but instead of heading directly for it, the monster should "swerve"
- * around the player so that it has a smaller chance of getting hit.
- */
-static bool get_moves_fear(struct player *p, struct monster *mon)
-{
-    int i;
-    int gy = 0, gx = 0;
-    int best_when = 0, best_score = -1;
-    int py = p->py, px = p->px;
-    int my = mon->fy, mx = mon->fx;
-
-    /* If the player is not currently near the monster, no reason to flow */
-    if (p->cave->squares[my][mx].when < p->cave->squares[py][px].when)
-        return false;
-
-    /* Monster is too far away to use flow information */
-    if (p->cave->squares[my][mx].cost > z_info->max_flow_depth) return false;
-    if (p->cave->squares[my][mx].cost > mon->race->aaf)
-        return false;
-
-    /* Check nearby grids, diagonals first */
-    for (i = 7; i >= 0; i--)
+    /* If no good sound, use scent */
+    best_scent = get_best_scent(p, c, mon, my, mx);
+    max_scent = get_max_scent(p, c, mon, best_scent);
+    for (i = 0; i < 8; i++)
     {
-        int dis, score;
-
         /* Get the location */
         int y = my + ddy_ddd[i];
         int x = mx + ddx_ddd[i];
+        int smelled_scent;
 
         /* Bounds check */
-        if (!square_in_bounds(chunk_get(p->depth), y, x)) continue;
+        if (!square_in_bounds(c, y, x)) continue;
 
-        /* Ignore illegal & older locations */
-        if ((p->cave->squares[y][x].when == 0) || (p->cave->squares[y][x].when < best_when))
-            continue;
+        smelled_scent = mon->race->smell - p->cave->scent.grids[y][x];
 
-        /* Calculate distance of this grid from our target */
-        dis = distance(y, x, mon->ty, mon->tx);
+        /* Must be some scent */
+        if (p->cave->scent.grids[y][x] == 0) continue;
 
-        /*
-         * Score this grid
-         * First half of calculation is inversely proportional to distance
-         * Second half is inversely proportional to grid's distance from player
-         */
-        score = 5000 / (dis + 3) - 500 / (p->cave->squares[y][x].cost + 1);
+        /* There's a monster blocking that we can't deal with */
+        if (!monster_can_kill(c, mon, y, x) && !monster_can_move(c, mon, y, x)) continue;
 
-        /* No negative scores */
-        if (score < 0) score = 0;
+        /* There's damaging terrain */
+        if (monster_hates_grid(c, mon, y, x)) continue;
 
-        /* Ignore lower scores */
-        if (score < best_score) continue;
+        /* If it's better than the current scent, choose this direction */
+        /* Possible move if we can't actually get closer */
+        if (smelled_scent == best_scent)
+        {
+            /* Check nearby grids for best scent again (in case we have multiple valid grids) */
+            int scent = get_best_scent(p, c, mon, y, x);
 
-        /* Save the score and time */
-        best_when = p->cave->squares[y][x].when;
-        best_score = score;
-
-        /* Save the location */
-        gy = y;
-        gx = x;
+            if (scent == max_scent)
+            {
+                best_direction[n] = i;
+                n++;
+            }
+        }
     }
 
-    /* No legal move (?) */
-    if (!best_when) return false;
+    /* Set the target */
+    if (n)
+    {
+        /* If we have multiple valid directions, choose one at random */
+        i = randint0(n);
 
-    /* Set the immediate target */
-    mon->ty = gy;
-    mon->tx = gx;
+        mon->ty = my + ddy_ddd[best_direction[i]];
+        mon->tx = mx + ddx_ddd[best_direction[i]];
+        return true;
+    }
 
-    /* Success */
-    return true;
+    /* No reason to advance */
+    return false;
 }
-
-
-/*
- * Hack -- precompute a bunch of calls to distance() in find_safety() and
- * find_hiding().
- *
- * The pair of arrays dist_offsets_y[n] and dist_offsets_x[n] contain the
- * offsets of all the locations with a distance of n from a central point,
- * with an offset of (0,0) indicating no more offsets at this distance.
- *
- * This is, of course, fairly unreadable, but it eliminates multiple loops
- * from the previous version.
- *
- * It is probably better to replace these arrays with code to compute
- * the relevant arrays, even if the storage is pre-allocated in hard
- * coded sizes.  At the very least, code should be included which is
- * able to generate and dump these arrays (ala "los()").  XXX XXX XXX
- *
- * Also, the storage needs could be reduced by using char.  XXX XXX XXX
- */
-
-static const int d_off_y_0[] =
-{ 0 };
-
-static const int d_off_x_0[] =
-{ 0 };
-
-static const int d_off_y_1[] =
-{ -1, -1, -1, 0, 0, 1, 1, 1, 0 };
-
-static const int d_off_x_1[] =
-{ -1, 0, 1, -1, 1, -1, 0, 1, 0 };
-
-static const int d_off_y_2[] =
-{ -1, -1, -2, -2, -2, 0, 0, 1, 1, 2, 2, 2, 0 };
-
-static const int d_off_x_2[] =
-{ -2, 2, -1, 0, 1, -2, 2, -2, 2, -1, 0, 1, 0 };
-
-static const int d_off_y_3[] =
-{ -1, -1, -2, -2, -3, -3, -3, 0, 0, 1, 1, 2, 2,
-  3, 3, 3, 0 };
-
-static const int d_off_x_3[] =
-{ -3, 3, -2, 2, -1, 0, 1, -3, 3, -3, 3, -2, 2,
-  -1, 0, 1, 0 };
-
-static const int d_off_y_4[] =
-{ -1, -1, -2, -2, -3, -3, -3, -3, -4, -4, -4, 0,
-  0, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 0 };
-
-static const int d_off_x_4[] =
-{ -4, 4, -3, 3, -2, -3, 2, 3, -1, 0, 1, -4, 4,
-  -4, 4, -3, 3, -2, -3, 2, 3, -1, 0, 1, 0 };
-
-static const int d_off_y_5[] =
-{ -1, -1, -2, -2, -3, -3, -4, -4, -4, -4, -5, -5,
-  -5, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5,
-  5, 0 };
-
-static const int d_off_x_5[] =
-{ -5, 5, -4, 4, -4, 4, -2, -3, 2, 3, -1, 0, 1,
-  -5, 5, -5, 5, -4, 4, -4, 4, -2, -3, 2, 3, -1,
-  0, 1, 0 };
-
-static const int d_off_y_6[] =
-{ -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -5, -5,
-  -6, -6, -6, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5,
-  5, 5, 6, 6, 6, 0 };
-
-static const int d_off_x_6[] =
-{ -6, 6, -5, 5, -5, 5, -4, 4, -2, -3, 2, 3, -1,
-  0, 1, -6, 6, -6, 6, -5, 5, -5, 5, -4, 4, -2,
-  -3, 2, 3, -1, 0, 1, 0 };
-
-static const int d_off_y_7[] =
-{ -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -5, -5,
-  -6, -6, -6, -6, -7, -7, -7, 0, 0, 1, 1, 2, 2, 3,
-  3, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 0 };
-
-static const int d_off_x_7[] =
-{ -7, 7, -6, 6, -6, 6, -5, 5, -4, -5, 4, 5, -2,
-  -3, 2, 3, -1, 0, 1, -7, 7, -7, 7, -6, 6, -6,
-  6, -5, 5, -4, -5, 4, 5, -2, -3, 2, 3, -1, 0,
-  1, 0 };
-
-static const int d_off_y_8[] =
-{ -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6,
-  -6, -6, -7, -7, -7, -7, -8, -8, -8, 0, 0, 1, 1,
-  2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7,
-  8, 8, 8, 0 };
-
-static const int d_off_x_8[] =
-{ -8, 8, -7, 7, -7, 7, -6, 6, -6, 6, -4, -5, 4,
-  5, -2, -3, 2, 3, -1, 0, 1, -8, 8, -8, 8, -7,
-  7, -7, 7, -6, 6, -6, 6, -4, -5, 4, 5, -2, -3,
-  2, 3, -1, 0, 1, 0 };
-
-static const int d_off_y_9[] =
-{ -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6,
-  -7, -7, -7, -7, -8, -8, -8, -8, -9, -9, -9, 0,
-  0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7,
-  7, 8, 8, 8, 8, 9, 9, 9, 0 };
-
-static const int d_off_x_9[] =
-{ -9, 9, -8, 8, -8, 8, -7, 7, -7, 7, -6, 6, -4,
-  -5, 4, 5, -2, -3, 2, 3, -1, 0, 1, -9, 9, -9,
-  9, -8, 8, -8, 8, -7, 7, -7, 7, -6, 6, -4, -5,
-  4, 5, -2, -3, 2, 3, -1, 0, 1, 0 };
-
-static const int *dist_offsets_y[10] =
-{
-    d_off_y_0, d_off_y_1, d_off_y_2, d_off_y_3, d_off_y_4,
-    d_off_y_5, d_off_y_6, d_off_y_7, d_off_y_8, d_off_y_9
-};
-
-static const int *dist_offsets_x[10] =
-{
-    d_off_x_0, d_off_x_1, d_off_x_2, d_off_x_3, d_off_x_4,
-    d_off_x_5, d_off_x_6, d_off_x_7, d_off_x_8, d_off_x_9
-};
 
 
 /*
  * Choose a "safe" location near a monster for it to run toward.
  *
  * A location is "safe" if it can be reached quickly and the player
- * is not able to fire into it (it isn't a "clean shot").  So, this will
- * cause monsters to "duck" behind walls.  Hopefully, monsters will also
+ * is not able to fire into it (it isn't a "clean shot"). So, this will
+ * cause monsters to "duck" behind walls. Hopefully, monsters will also
  * try to run towards corridor openings if they are in a room.
  *
  * This function may take lots of CPU time if lots of monsters are fleeing.
  *
  * Return true if a safe location is available.
  */
-static bool find_safety(struct player *p, struct chunk *c, struct monster *mon)
+static bool get_move_find_safety(struct player *p, struct chunk *c, struct monster *mon)
 {
     int fy = mon->fy;
     int fx = mon->fx;
@@ -585,12 +777,12 @@ static bool find_safety(struct player *p, struct chunk *c, struct monster *mon)
             /* Skip locations in a wall */
             if (!square_ispassable(c, y, x)) continue;
 
-            /* Ignore grids very far from the player */
-            if (p->cave->squares[y][x].when < p->cave->squares[py][px].when) continue;
-
             /* Ignore too-distant grids */
-            if (p->cave->squares[y][x].cost > p->cave->squares[fy][fx].cost + 2 * d)
+            if (p->cave->noise.grids[y][x] > p->cave->noise.grids[fy][fx] + 2 * d)
                 continue;
+
+            /* Ignore damaging terrain if they can't handle it */
+            if (monster_hates_grid(c, mon, y, x)) continue;
 
             /* Check for absence of shot (more or less) */
             if (!square_isview(p, y, x))
@@ -633,7 +825,7 @@ static bool find_safety(struct player *p, struct chunk *c, struct monster *mon)
  *
  * Return true if a good location is available.
  */
-static bool find_hiding(struct player *p, struct chunk *c, struct monster *mon)
+static bool get_move_find_hiding(struct player *p, struct chunk *c, struct monster *mon)
 {
     int fy = mon->fy;
     int fx = mon->fx;
@@ -700,12 +892,77 @@ static bool find_hiding(struct player *p, struct chunk *c, struct monster *mon)
 
 
 /*
+ * Provide a location to flee to, but give the player a wide berth.
+ *
+ * A monster may wish to flee to a location that is behind the player,
+ * but instead of heading directly for it, the monster should "swerve"
+ * around the player so that it has a smaller chance of getting hit.
+ */
+static bool get_move_flee(struct player *p, struct monster *mon)
+{
+    int i;
+    int gy = 0, gx = 0;
+    int best_score = -1;
+    int my = mon->fy, mx = mon->fx;
+
+    /* If the player is not currently near the monster, no reason to flow */
+    if (mon->cdis >= mon->best_range) return false;
+
+    /* Monster is too far away to use sound or scent */
+    if (!monster_can_hear(p, mon) && !monster_can_smell(p, mon)) return false;
+
+    /* Check nearby grids, diagonals first */
+    for (i = 7; i >= 0; i--)
+    {
+        int dis, score;
+
+        /* Get the location */
+        int y = my + ddy_ddd[i];
+        int x = mx + ddx_ddd[i];
+
+        /* Bounds check */
+        if (!square_in_bounds(chunk_get(&p->wpos), y, x)) continue;
+
+        /* Calculate distance of this grid from our target */
+        dis = distance(y, x, mon->ty, mon->tx);
+
+        /*
+         * Score this grid
+         * First half of calculation is inversely proportional to distance
+         * Second half is inversely proportional to grid's distance from player
+         */
+        score = 5000 / (dis + 3) - 500 / (p->cave->noise.grids[y][x] + 1);
+
+        /* No negative scores */
+        if (score < 0) score = 0;
+
+        /* Ignore lower scores */
+        if (score < best_score) continue;
+
+        /* Save the score */
+        best_score = score;
+
+        /* Save the location */
+        gy = y;
+        gx = x;
+    }
+
+    /* Set the immediate target */
+    mon->ty = gy;
+    mon->tx = gx;
+
+    /* Success */
+    return true;
+}
+
+
+/*
  * Choose the basic direction of movement, and whether to bias left or right
  * if the main direction is blocked.
  *
  * Note that this direction is intended as an index into the side_dirs array.
  */
-static int choose_direction(int dy, int dx)
+static int get_move_choose_direction(int dy, int dx)
 {
     int dir = 0;
 
@@ -800,7 +1057,7 @@ static int choose_direction(int dy, int dx)
 /*
  * Choose "logical" directions for monster movement
  */
-static bool get_moves(struct actor *who, struct chunk *c, struct monster *mon, int *dir)
+static bool get_move(struct source *who, struct chunk *c, struct monster *mon, int *dir, bool *good)
 {
     int y, x;
 
@@ -810,19 +1067,20 @@ static bool get_moves(struct actor *who, struct chunk *c, struct monster *mon, i
     bool done = false;
 
     /* Calculate range */
-    if (!who->mon) find_range(who->player, mon);
+    if (!who->monster) get_move_find_range(who->player, mon);
 
-    /* Flow towards the player */
-    if (!who->mon)
+    /* Assume we're heading towards the player */
+    if (!who->monster)
     {
         /* Extract the "pseudo-direction" */
-        if (get_moves_flow(who->player, c, mon))
+        if (get_move_advance(who->player, c, mon))
         {
             y = mon->ty - mon->fy;
             x = mon->tx - mon->fx;
+            *good = true;
         }
 
-        /* Head straight for the player */
+        /* Head blindly straight for the player if there's no better idea */
         else
         {
             y = who->player->py - mon->fy;
@@ -832,19 +1090,20 @@ static bool get_moves(struct actor *who, struct chunk *c, struct monster *mon, i
     else
     {
         /* Head straight for the monster */
-        y = who->mon->fy - mon->fy;
-        x = who->mon->fx - mon->fx;
+        y = who->monster->fy - mon->fy;
+        x = who->monster->fx - mon->fx;
     }
 
     /* Player */
-    if (!who->mon)
+    if (!who->monster)
     {
         int py = who->player->py;
         int px = who->player->px;
+        bool group_ai = (rf_has(mon->race->flags, RF_GROUP_AI) &&
+            !flags_test(mon->race->flags, RF_SIZE, RF_KILL_WALL, RF_PASS_WALL, FLAG_END));
 
         /* Normal animal packs try to get the player out of corridors. */
-        if (rf_has(mon->race->flags, RF_GROUP_AI) &&
-            !flags_test(mon->race->flags, RF_SIZE, RF_KILL_WALL, RF_PASS_WALL, FLAG_END))
+        if (group_ai)
         {
             int i, open = 0;
 
@@ -866,10 +1125,10 @@ static bool get_moves(struct actor *who, struct chunk *c, struct monster *mon, i
             }
 
             /* Not in an empty space and strong player */
-            if ((open < 7) && (who->player->chp > who->player->mhp / 2))
+            if ((open < 5) && (who->player->chp > who->player->mhp / 2))
             {
                 /* Find hiding place */
-                if (find_hiding(who->player, c, mon))
+                if (get_move_find_hiding(who->player, c, mon))
                 {
                     done = true;
                     y = mon->ty - mon->fy;
@@ -882,7 +1141,7 @@ static bool get_moves(struct actor *who, struct chunk *c, struct monster *mon, i
         if (!done && (mon->min_range == flee_range))
         {
             /* Try to find safe place */
-            if (!find_safety(who->player, c, mon))
+            if (!get_move_find_safety(who->player, c, mon))
             {
                 /* Just leg it away from the player */
                 y = (-y);
@@ -891,7 +1150,7 @@ static bool get_moves(struct actor *who, struct chunk *c, struct monster *mon, i
             else
             {
                 /* Set a course for the safe place */
-                get_moves_fear(who->player, mon);
+                get_move_flee(who->player, mon);
                 y = mon->ty - mon->fy;
                 x = mon->tx - mon->fx;
             }
@@ -900,7 +1159,7 @@ static bool get_moves(struct actor *who, struct chunk *c, struct monster *mon, i
         }
 
         /* Monster groups try to surround the player */
-        if (!done && rf_has(mon->race->flags, RF_GROUP_AI))
+        if (!done && group_ai && square_isview(who->player, mon->fy, mon->fx))
         {
             int i, tmp, yy = mon->ty, xx = mon->tx;
 
@@ -929,33 +1188,773 @@ static bool get_moves(struct actor *who, struct chunk *c, struct monster *mon, i
         }
     }
 
-    /* Check for no move */
+    /* Check if the monster has already reached its target */
     if (!x && !y) return false;
 
     /* Pick the correct direction */
-    *dir = choose_direction(y, x);
+    *dir = get_move_choose_direction(y, x);
 
     /* Want to move */
     return true;
 }
 
 
-static bool monster_can_flow(struct monster *mon)
+/*
+ * Monster turn routines
+ * These routines, culminating in monster_turn(), decide how a monster uses
+ * its turn
+ */
+
+
+/*
+ * Lets the given monster attempt to reproduce.
+ *
+ * Note that "reproduction" REQUIRES empty space.
+ *
+ * Returns true if the monster successfully reproduced.
+ */
+bool multiply_monster(struct player *p, struct chunk *c, struct monster *mon)
+{
+    int i, y, x;
+    bool result = false;
+
+    my_assert(mon);
+
+    /* Paranoia */
+    if (!p) return false;
+
+    /* Only on random levels */
+    if (!random_level(&p->wpos)) return false;
+
+    /* No uniques */
+    if (monster_is_unique(mon->race)) return false;
+
+    /* Limit number of clones */
+    if (c->num_clones == z_info->repro_monster_max) return false;
+
+    /* Try up to 18 times */
+    for (i = 0; i < 18; i++)
+    {
+        int d = 1;
+
+        /* Pick a location */
+        if (!scatter(c, &y, &x, mon->fy, mon->fx, d, true)) continue;
+
+        /* Require an "empty" floor grid */
+        if (!square_isemptyfloor(c, y, x)) continue;
+
+        /* Create a new monster (awake, no groups) */
+        result = place_new_monster(p, c, y, x, mon->race, MON_CLONE, ORIGIN_DROP_BREED);
+
+        /* Done */
+        break;
+    }
+
+    /* Result */
+    return (result);
+}
+
+
+/*
+ * Attempt to reproduce, if possible. All monsters are checked here for
+ * lore purposes, the unfit fail.
+ */
+static bool monster_turn_multiply(struct chunk *c, struct monster *mon)
 {
     struct player *p = mon->closest_player;
-    int fy = mon->fy;
-    int fx = mon->fx;
+    int k = 0, y, x;
+    struct monster_lore *lore = get_lore(p, mon->race);
+    bool allow_breed = false;
 
-    /* Check the flow (normal aaf is about 20) */
-    if ((p->cave->squares[fy][fx].when == p->cave->squares[p->py][p->px].when) &&
-        (p->cave->squares[fy][fx].cost < z_info->max_flow_depth) &&
-        (p->cave->squares[fy][fx].cost <  mon->race->aaf))
+    /* Count the adjacent monsters */
+    for (y = mon->fy - 1; y <= mon->fy + 1; y++)
     {
-        return true;
+        for (x = mon->fx - 1; x <= mon->fx + 1; x++)
+        {
+            if (c->squares[y][x].mon > 0) k++;
+        }
+    }
+
+    /* Multiply slower in crowded areas */
+    /* Hack -- multiply even more slowly on no_recall servers */
+    if (cfg_diving_mode == 2)
+        allow_breed = ((k < 4) && one_in_((k + 1) * z_info->repro_monster_rate * 2));
+    else
+        allow_breed = ((k < 4) && (!k || one_in_(k * z_info->repro_monster_rate)));
+    if (allow_breed)
+    {
+        /* Successful breeding attempt, learn about that now */
+        if (monster_is_visible(p, mon->midx)) rf_on(lore->flags, RF_MULTIPLY);
+
+        /* Leave now if not a breeder */
+        if (!rf_has(mon->race->flags, RF_MULTIPLY)) return false;
+
+        /* Try to multiply */
+        if (multiply_monster(p, c, mon))
+        {
+            /* Make a sound */
+            if (monster_is_visible(p, mon->midx)) sound(p, MSG_MULTIPLY);
+
+            /* Multiplying takes energy */
+            return true;
+        }
     }
 
     return false;
 }
+
+
+/*
+ * Check if a monster should stagger or not. Always stagger when confused,
+ * but also deal with random movement for RAND_25 and _50 monsters.
+ */
+static bool monster_turn_should_stagger(struct player *p, struct monster *mon)
+{
+    struct monster_lore *lore = get_lore(p, mon->race);
+    int chance = 0;
+
+    /* Blind */
+    if (mon->m_timed[MON_TMD_BLIND]) return true;
+
+    /* Confused */
+    if (mon->m_timed[MON_TMD_CONF]) chance = CONF_ERRATIC_CHANCE;
+
+    /* RAND_25 and RAND_50 are cumulative */
+    if (rf_has(mon->race->flags, RF_RAND_25))
+    {
+        chance += 25;
+        if (monster_is_visible(p, mon->midx)) rf_on(lore->flags, RF_RAND_25);
+    }
+
+    if (rf_has(mon->race->flags, RF_RAND_50))
+    {
+        chance += 50;
+        if (monster_is_visible(p, mon->midx)) rf_on(lore->flags, RF_RAND_50);
+    }
+
+    return magik(chance);
+}
+
+
+/*
+ * Work out if a monster can move through the grid, if necessary bashing
+ * down doors in the way.
+ *
+ * Returns true if the monster is able to move through the grid.
+ */
+static bool monster_turn_can_move(struct source *who, struct chunk *c, struct monster *mon,
+    int nx, int ny, bool *did_something)
+{
+    struct monster_lore *lore = get_lore(who->player, mon->race);
+    struct monster *square_mon = NULL;
+
+    /* Dangerous terrain in the way */
+    if (monster_hates_grid(c, mon, ny, nx)) return false;
+
+    /* Safe floor */
+    if (square_issafefloor(c, ny, nx)) return false;
+
+    /* Floor is open? */
+    if (square_ispassable(c, ny, nx)) return true;
+
+    /* Permanent wall in the way */
+    if (square_isperm(c, ny, nx) || square_isborder(c, ny, nx)) return false;
+
+    /* Normal wall, door, or secret door in the way */
+
+    /*
+     * There's some kind of feature in the way, so learn about
+     * kill-wall and pass-wall now
+     */
+    if (monster_is_visible(who->player, mon->midx))
+    {
+        rf_on(lore->flags, RF_PASS_WALL);
+        rf_on(lore->flags, RF_KILL_WALL);
+    }
+
+    /* Reveal (door) mimics */
+    if (square_monster(c, ny, nx)) square_mon = cave_monster(c, c->squares[ny][nx].mon);
+    if (square_mon && monster_is_camouflaged(square_mon))
+    {
+        become_aware(who->player, c, square_mon);
+
+        return true;
+    }
+
+    /* Monster may be able to deal with walls and doors */
+    if (rf_has(mon->race->flags, RF_PASS_WALL)) return true;
+    if (rf_has(mon->race->flags, RF_KILL_WALL))
+    {
+        /* Remove the wall */
+        square_destroy_wall(c, ny, nx);
+
+        /* Note changes to viewable region */
+        note_viewable_changes(&c->wpos, ny, nx);
+
+        /* Fully update the flow since terrain changed */
+        fully_update_flow(&c->wpos);
+
+        return true;
+    }
+    if (square_basic_iscloseddoor(c, ny, nx) || square_issecretdoor(c, ny, nx))
+    {
+        bool can_open = rf_has(mon->race->flags, RF_OPEN_DOOR);
+        bool can_bash = rf_has(mon->race->flags, RF_BASH_DOOR);
+        bool will_bash = false;
+
+        /* Take a turn */
+        *did_something = true;
+
+        /* Learn about door abilities */
+        if (monster_is_visible(who->player, mon->midx))
+        {
+            rf_on(lore->flags, RF_OPEN_DOOR);
+            rf_on(lore->flags, RF_BASH_DOOR);
+        }
+
+        /* If creature can open or bash doors, make a choice */
+        if (can_open)
+        {
+            /* Sometimes bash anyway (impatient) */
+            if (can_bash) will_bash = (one_in_(2)? true: false);
+        }
+
+        /* Only choice */
+        else if (can_bash)
+            will_bash = true;
+
+        /* Door is an insurmountable obstacle */
+        else
+            return false;
+
+        /* Now outcome depends on type of door */
+        if (square_islockeddoor(c, ny, nx))
+        {
+            /* Locked door -- test monster strength against door strength */
+            int k = square_door_power(c, ny, nx);
+
+            if (!CHANCE(k, mon->hp / 10))
+            {
+                char m_name[NORMAL_WID];
+                const char *article = "a";
+
+                if (monster_is_visible(who->player, mon->midx)) article = "the";
+                monster_desc(who->player, m_name, sizeof(m_name), mon, MDESC_CAPITAL);
+
+                /* Print a message */
+                if (will_bash)
+                    msg(who->player, "%s slams against %s door.", m_name, article);
+                else
+                    msg(who->player, "%s fiddles with %s lock.", m_name, article);
+
+                /* Reduce the power of the door by one */
+                square_set_door_lock(c, ny, nx, k - 1);
+            }
+        }
+        else
+        {
+            /* Closed or secret door -- always open or bash */
+            if (will_bash)
+            {
+                square_smash_door(c, ny, nx);
+
+                msg(who->player, "You hear a door burst open!");
+
+                /* Disturb if necessary */
+                if (!who->monster && OPT(who->player, disturb_bash)) disturb(who->player, 0);
+
+                /* Note changes to viewable region */
+                note_viewable_changes(&c->wpos, ny, nx);
+
+                /* Fall into doorway */
+                return true;
+            }
+
+            square_open_door(c, ny, nx);
+
+            /* Note changes to viewable region */
+            note_viewable_changes(&c->wpos, ny, nx);
+        }
+    }
+
+    return false;
+}
+
+
+/*
+ * Try to break a glyph.
+ */
+static bool monster_turn_glyph(struct player *p, struct monster *mon, int nx, int ny)
+{
+    /* Break the ward */
+    if (CHANCE(mon->level, z_info->glyph_hardness))
+    {
+        /* Describe observable breakage */
+        if (square_isseen(p, ny, nx))
+            msg(p, "The rune of protection is broken!");
+
+        /* Break the rune */
+        square_remove_ward(chunk_get(&p->wpos), ny, nx);
+
+        return true;
+    }
+
+    /* Unbroken ward - can't move */
+    return false;
+}
+
+
+/*
+ * Try to push past / kill another monster. Returns true on success.
+ */
+static bool monster_turn_try_push(struct source *who, struct chunk *c, struct monster *mon,
+    const char *m_name, int nx, int ny, bool *did_something)
+{
+    struct monster *mon1 = square_monster(c, ny, nx);
+    struct monster_lore *lore = get_lore(who->player, mon->race);
+    struct source target_body;
+    struct source *target = &target_body;
+
+    /* Kill weaker monsters */
+    int kill_ok = rf_has(mon->race->flags, RF_KILL_BODY);
+
+    /* Push past weaker monsters (unless leaving a wall) */
+    int move_ok = (rf_has(mon->race->flags, RF_MOVE_BODY) &&
+        square_ispassable(c, mon->fy, mon->fx));
+
+    source_both(target, who->player, mon1);
+
+    /* Always attack if this is our target */
+    if (who->monster && (who->monster == mon1) && !master_in_party(mon->master, mon1->master))
+    {
+        /* Do the attack */
+        make_attack_normal(mon, target);
+
+        /* Took a turn */
+        *did_something = true;
+
+        return false;
+    }
+
+    if (compare_monsters(mon, mon1) > 0)
+    {
+        /* Learn about pushing and shoving */
+        if (monster_is_visible(who->player, mon->midx))
+        {
+            rf_on(lore->flags, RF_KILL_BODY);
+            rf_on(lore->flags, RF_MOVE_BODY);
+        }
+
+        if (kill_ok || move_ok)
+        {
+            char n_name[NORMAL_WID];
+
+            /* Get the names of the monsters involved */
+            monster_desc(who->player, n_name, sizeof(n_name), mon1, MDESC_IND_HID);
+
+            /* Reveal mimics */
+            if (monster_is_camouflaged(mon1)) become_aware(who->player, c, mon1);
+
+            /* Note if visible */
+            if (monster_is_visible(who->player, mon->midx) &&
+                monster_is_in_view(who->player, mon->midx))
+            {
+                msg(who->player, "%s %s %s.", m_name, (kill_ok? "tramples over": "pushes past"),
+                    n_name);
+            }
+
+            /* Monster ate another monster */
+            if (kill_ok) delete_monster(c, ny, nx);
+
+            /* Move the monster */
+            monster_swap(c, mon->fy, mon->fx, ny, nx);
+            *did_something = true;
+
+            return true;
+        }
+
+        /* Otherwise, attack the monster (skip if non hostile) */
+        if (who->monster && !master_in_party(mon->master, mon1->master))
+        {
+            /* Do the attack */
+            make_attack_normal(mon, target);
+
+            /* Took a turn */
+            *did_something = true;
+
+            return false;
+        }
+
+        /* If the target is a player and there's a controlled monster on the way, try to retaliate */
+        if (!who->monster && master_in_party(mon1->master, who->player->id))
+        {
+            int chance = 25;
+
+            /* Stupid monsters rarely retaliate */
+            if (monster_is_stupid(mon->race)) chance = 10;
+
+            /* Smart monsters always retaliate */
+            if (monster_is_smart(mon->race)) chance = 100;
+
+            /* Sometimes monsters retaliate */
+            if (magik(chance))
+            {
+                /* Do the attack */
+                make_attack_normal(mon, target);
+
+                /* Took a turn */
+                *did_something = true;
+            }
+        }
+
+        return false;
+    }
+
+    /* Always attack stronger monsters */
+    if (who->monster && !master_in_party(mon->master, mon1->master))
+    {
+        /* Do the attack */
+        make_attack_normal(mon, target);
+
+        /* Took a turn */
+        *did_something = true;
+
+        return false;
+    }
+
+    /* If the target is a player and there's a controlled monster on the way, try to retaliate */
+    if (!who->monster && master_in_party(mon1->master, who->player->id))
+    {
+        int chance = 25;
+
+        /* Stupid monsters rarely retaliate */
+        if (monster_is_stupid(mon->race)) chance = 10;
+
+        /* Smart monsters always retaliate */
+        if (monster_is_smart(mon->race)) chance = 100;
+
+        /* Sometimes monsters retaliate */
+        if (magik(chance))
+        {
+            /* Do the attack */
+            make_attack_normal(mon, target);
+
+            /* Took a turn */
+            *did_something = true;
+        }
+    }
+
+    return false;
+}
+
+
+/*
+ * Grab all objects from the grid.
+ */
+static void monster_turn_grab_objects(struct player *p, struct chunk *c, struct monster *mon,
+    const char *m_name, int nx, int ny)
+{
+    struct monster_lore *lore = get_lore(p, mon->race);
+    struct object *obj, *next;
+    bool visible = monster_is_visible(p, mon->midx);
+
+    /* Learn about item pickup behavior */
+    for (obj = square_object(c, ny, nx); obj; obj = obj->next)
+    {
+        /* Skip gold and mimicked objects */
+        if (tval_is_money(obj) || obj->mimicking_m_idx) continue;
+
+        if (visible)
+        {
+            rf_on(lore->flags, RF_TAKE_ITEM);
+            rf_on(lore->flags, RF_KILL_ITEM);
+        }
+
+        break;
+    }
+
+    /* Abort if can't pickup/kill */
+    if (!rf_has(mon->race->flags, RF_TAKE_ITEM) && !rf_has(mon->race->flags, RF_KILL_ITEM))
+        return;
+
+    /* Take or kill objects on the floor */
+    obj = square_object(c, ny, nx);
+    while (obj)
+    {
+        char o_name[NORMAL_WID];
+        bool safe = (obj->artifact? true: false);
+
+        next = obj->next;
+
+        /* Skip gold */
+        if (tval_is_money(obj))
+        {
+            obj = next;
+            continue;
+        }
+
+        /* Skip mimicked objects */
+        if (obj->mimicking_m_idx)
+        {
+            obj = next;
+            continue;
+        }
+
+        /* Get the object name */
+        object_desc(p, o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
+
+        /* React to objects that hurt the monster */
+        if (react_to_slay(obj, mon)) safe = true;
+
+        /* Try to pick up, or crush */
+        if (safe)
+        {
+            /* Only give a message for "take_item" */
+            if (rf_has(mon->race->flags, RF_TAKE_ITEM) && visible && square_isview(p, ny, nx) &&
+                !ignore_item_ok(p, obj))
+            {
+                /* Dump a message */
+                msg(p, "%s tries to pick up %s, but fails.", m_name, o_name);
+            }
+        }
+        else if (rf_has(mon->race->flags, RF_TAKE_ITEM))
+        {
+            /* Controlled monsters don't take objects */
+            if (!mon->master)
+            {
+                /* Describe observable situations */
+                if (square_isseen(p, ny, nx) && !ignore_item_ok(p, obj))
+                    msg(p, "%s picks up %s.", m_name, o_name);
+
+                /* Carry the object */
+                square_excise_object(c, ny, nx, obj);
+                if (!monster_carry(mon, obj, false))
+                    object_delete(&obj);
+
+                square_note_spot(c, ny, nx);
+                square_light_spot(c, ny, nx);
+            }
+        }
+        else
+        {
+            /* Describe observable situations */
+            if (square_isseen(p, ny, nx) && !ignore_item_ok(p, obj))
+                msgt(p, MSG_DESTROY, "%s crushes %s.", m_name, o_name);
+
+            /* Delete the object */
+            square_excise_object(c, ny, nx, obj);
+            object_delete(&obj);
+
+            square_note_spot(c, ny, nx);
+            square_light_spot(c, ny, nx);
+        }
+
+        /* Next object */
+        obj = next;
+    }
+}
+
+
+/*
+ * Monster movement
+ */
+static void monster_turn_move(struct source *who, struct chunk *c, struct monster *mon,
+    const char *m_name, int dir, bool stagger, bool tracking, bool *did_something)
+{
+    struct monster_lore *lore = get_lore(who->player, mon->race);
+    int i;
+    int y, x;
+
+    /* Target info */
+    if (!who->monster)
+    {
+        y = who->player->py;
+        x = who->player->px;
+    }
+    else
+    {
+        y = who->monster->fy;
+        x = who->monster->fx;
+    }
+
+    /* Process moves */
+    for (i = 0; ((i < 5) && !(*did_something)); i++)
+    {
+        int oy = mon->fy;
+        int ox = mon->fx;
+        bool move;
+
+        /* Get the direction (or stagger) */
+        int d = (stagger? ddd[randint0(8)]: side_dirs[dir][i]);
+
+        /* Get the destination */
+        int ny = oy + ddy[d];
+        int nx = ox + ddx[d];
+
+        /* Tracking monsters have their best direction, don't change */
+        if ((i > 0) && !stagger && tracking) break;
+
+        /* Check if we can move */
+        move = monster_turn_can_move(who, c, mon, nx, ny, did_something);
+
+        /* Hack -- a player is in the way */
+        if (square_isplayer(c, ny, nx)) move = true;
+
+        if (!move) continue;
+
+        /* Try to break the glyph if there is one */
+        if (square_iswarded(c, ny, nx) && !monster_turn_glyph(who->player, mon, nx, ny))
+            continue;
+
+        /* A player is in the way. */
+        if (square_isplayer(c, ny, nx))
+        {
+            struct player *q = player_get(0 - c->squares[ny][nx].mon);
+
+            /* Learn about if the monster attacks */
+            if (monster_is_visible(who->player, mon->midx))
+                rf_on(lore->flags, RF_NEVER_BLOW);
+
+            /* Some monsters never attack */
+            if ((ny == y) && (nx == x) && rf_has(mon->race->flags, RF_NEVER_BLOW))
+                continue;
+
+            /* Otherwise, attack the player (skip if non hostile) */
+            if (pvm_check(q, mon))
+            {
+                struct source target_body;
+                struct source *target = &target_body;
+
+                /* Do the attack */
+                source_player(target, get_player_index(get_connection(q->conn)), q);
+                make_attack_normal(mon, target);
+
+                *did_something = true;
+            }
+
+            continue;
+        }
+
+        /* Some monsters never move */
+        if (rf_has(mon->race->flags, RF_NEVER_MOVE))
+        {
+            /* Learn about lack of movement */
+            if (monster_is_visible(who->player, mon->midx))
+                rf_on(lore->flags, RF_NEVER_MOVE);
+
+            continue;
+        }
+
+        /* A monster is in the way */
+        if (square_monster(c, ny, nx))
+        {
+            if (!monster_turn_try_push(who, c, mon, m_name, nx, ny, did_something))
+                continue;
+        }
+
+        /* Otherwise we can just move */
+        else
+        {
+            monster_swap(c, oy, ox, ny, nx);
+            *did_something = true;
+        }
+
+        /* Scan all objects in the grid, if we reached it */
+        if (mon == square_monster(c, ny, nx))
+            monster_turn_grab_objects(who->player, c, mon, m_name, nx, ny);
+    }
+
+    if (*did_something)
+    {
+        /* Learn about no lack of movement */
+        if (monster_is_visible(who->player, mon->midx))
+            rf_on(lore->flags, RF_NEVER_MOVE);
+
+        /* Possible disturb */
+        if (!who->monster && monster_is_visible(who->player, mon->midx) &&
+            monster_is_in_view(who->player, mon->midx) && OPT(who->player, disturb_near))
+        {
+            /* Disturb (except townies, friendlies and hidden mimics) */
+            if ((mon->level > 0) && pvm_check(who->player, mon) && !monster_is_camouflaged(mon))
+                disturb(who->player, 0);
+        }
+    }
+}
+
+
+/*
+ * Process a monster's turn
+ *
+ * In several cases, we directly update the monster lore
+ *
+ * Note that a monster is only allowed to "reproduce" if there
+ * are a limited number of "reproducing" monsters on the current
+ * level.  This should prevent the level from being "swamped" by
+ * reproducing monsters.  It also allows a large mass of mice to
+ * prevent a louse from multiplying, but this is a small price to
+ * pay for a simple multiplication method.
+ *
+ * XXX Monster fear is slightly odd, in particular, monsters will
+ * fixate on opening a door even if they cannot open it.  Actually,
+ * the same thing happens to normal monsters when they hit a door.
+ *
+ * In addition, monsters which *cannot* open or bash down a door
+ * will still stand there trying to open it...  XXX XXX XXX
+ *
+ * Technically, need to check for monster in the way combined
+ * with that monster being in a wall (or door?) XXX
+ */
+static void monster_turn(struct source *who, struct chunk *c, struct monster *mon,
+    int target_m_dis)
+{
+    bool did_something = false;
+    int dir = 0;
+    bool stagger = false;
+    bool tracking = false;
+    char m_name[NORMAL_WID];
+
+    /* Get the monster name */
+    monster_desc(who->player, m_name, sizeof(m_name), mon, MDESC_CAPITAL | MDESC_IND_HID);
+
+    /* Generate monster drops */
+    if (!who->monster) mon_create_drops(who->player, c, mon);
+
+    /* Try to multiply - this can use up a turn */
+    if (!who->monster && monster_turn_multiply(c, mon)) return;
+
+    /* Attempt to cast a spell (skip if non hostile) */
+    if (who->monster || pvm_check(who->player, mon))
+    {
+        if (make_attack_spell(who, c, mon, target_m_dis)) return;
+    }
+
+    /* Work out what kind of movement to use - AI or staggered movement */
+    if (!monster_turn_should_stagger(who->player, mon))
+    {
+        if (!get_move(who, c, mon, &dir, &tracking)) return;
+    }
+    else
+        stagger = true;
+
+    /* Movement */
+    monster_turn_move(who, c, mon, m_name, dir, stagger, tracking, &did_something);
+
+    if (rf_has(mon->race->flags, RF_HAS_LIGHT))
+        who->player->upkeep->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+    /* Hack -- get "bold" if out of options */
+    if (!did_something && mon->m_timed[MON_TMD_FEAR])
+        mon_clear_timed(who->player, mon, MON_TMD_FEAR, MON_TMD_FLG_NOTIFY);
+
+    /* If we see a hidden monster do something, become aware of it */
+    if (did_something && monster_is_camouflaged(mon)) become_aware(who->player, c, mon);
+}
+
+
+/*
+ * Processing routines that happen to a monster regardless of whether it
+ * gets a turn, and/or to decide whether it gets a turn
+ */
 
 
 /*
@@ -1023,10 +2022,10 @@ static struct monster *get_closest_target(struct chunk *c, struct monster *mon, 
  * Determine whether a monster is active or passive
  */
 static bool monster_check_active(struct chunk *c, struct monster *mon, int *target_m_dis, bool *mvm,
-    struct actor *who)
+    struct source *who)
 {
     struct player *p = mon->closest_player;
-    bool target_m_los, is_hurt = false, can_smell = false;
+    bool target_m_los, is_hurt = false, can_hear = false, can_smell = false;
 
     /* Hack -- MvM */
     if (mon->status == MSTATUS_ATTACK)
@@ -1041,7 +2040,7 @@ static bool monster_check_active(struct chunk *c, struct monster *mon, int *targ
             if (master_in_party(mon->master, p->id) || (mon->cdis >= *target_m_dis))
             {
                 *mvm = true;
-                ACTOR_BOTH(who, p, target_m_ptr);
+                source_both(who, p, target_m_ptr);
             }
         }
     }
@@ -1050,20 +2049,24 @@ static bool monster_check_active(struct chunk *c, struct monster *mon, int *targ
         *target_m_dis = mon->cdis;
         target_m_los = square_isview(p, mon->fy, mon->fx);
         is_hurt = ((mon->hp < mon->maxhp)? true: false);
-        can_smell = monster_can_flow(mon);
-        ACTOR_PLAYER(who, get_player_index(get_connection(p->conn)), p);
+        can_hear = monster_can_hear(p, mon);
+        can_smell = monster_can_smell(p, mon);
+        source_player(who, get_player_index(get_connection(p->conn)), p);
     }
 
-    /* Character is inside scanning range */
-    if (*target_m_dis <= mon->race->aaf) return true;
+    /* Character is inside scanning range, monster can go straight there */
+    if (*target_m_dis <= mon->race->hearing) return true;
 
     /* Monster is hurt */
     if (is_hurt) return true;
 
-    /* Monster can "see" the player */
+    /* Monster can "see" the player (checked backwards) */
     if (target_m_los) return true;
 
-    /* Monster can "smell" the player from far away (flow) */
+    /* Monster can hear the player */
+    if (can_hear) return true;
+
+    /* Monster can smell the player */
     if (can_smell) return true;
 
     /* Otherwise go passive */
@@ -1072,71 +2075,14 @@ static bool monster_check_active(struct chunk *c, struct monster *mon, int *targ
 
 
 /*
- * Handle "stun"
- */
-static bool monster_stunned(struct player *p, struct monster *mon)
-{
-    /* Handle "stun" */
-    if (mon->m_timed[MON_TMD_STUN])
-    {
-        int d = 1;
-
-        /* Make a "saving throw" against stun */
-        if (CHANCE(mon->level * mon->level, 5000))
-        {
-            /* Recover fully */
-            d = mon->m_timed[MON_TMD_STUN];
-        }
-
-        /* Hack -- recover from stun */
-        mon_dec_timed(p, mon, MON_TMD_STUN, d, MON_TMD_FLG_NOTIFY, false);
-
-        /* Still stunned */
-        if (mon->m_timed[MON_TMD_STUN]) return true;
-    }
-
-    /* Handle "paralysis" */
-    if (mon->m_timed[MON_TMD_HOLD])
-    {
-        int d = 1;
-
-        /* Make a "saving throw" against paralysis */
-        if (CHANCE(mon->level * mon->level, 5000))
-        {
-            /* Recover fully */
-            d = mon->m_timed[MON_TMD_HOLD];
-        }
-
-        /* Hack -- recover from paralysis */
-        mon_dec_timed(p, mon, MON_TMD_HOLD, d, MON_TMD_FLG_NOTIFY, false);
-
-        /* Still paralyzed */
-        if (mon->m_timed[MON_TMD_HOLD]) return true;
-    }
-
-    /* Not stunned */
-    return false;
-}
-
-
-/*
- * Handle confusion, fear, poison, bleeding
+ * Handle fear, poison, bleeding
  */
 static void monster_effects(struct player *p, struct monster *mon)
 {
-    struct actor who_body;
-    struct actor *who = &who_body;
+    struct source who_body;
+    struct source *who = &who_body;
 
-    ACTOR_MONSTER(who, mon);
-
-    /* Handle confusion */
-    if (mon->m_timed[MON_TMD_CONF])
-    {
-        /* Amount of "boldness" */
-        int d = randint1(mon->level / 10 + 1);
-
-        mon_dec_timed(p, mon, MON_TMD_CONF, d, MON_TMD_FLG_NOTIFY, false);
-    }
+    source_monster(who, mon);
 
     /* Handle "fear" */
     if (mon->m_timed[MON_TMD_FEAR])
@@ -1144,7 +2090,7 @@ static void monster_effects(struct player *p, struct monster *mon)
         /* Amount of "boldness" */
         int d = randint1(mon->level / 10 + 1);
 
-        mon_dec_timed(p, mon, MON_TMD_FEAR, d, MON_TMD_FLG_NOTIFY, false);
+        mon_dec_timed(p, mon, MON_TMD_FEAR, d, MON_TMD_FLG_NOTIFY);
     }
 
     /* Handle poison */
@@ -1156,7 +2102,7 @@ static void monster_effects(struct player *p, struct monster *mon)
         if (mon->m_timed[MON_TMD_POIS] > d)
         {
             /* Reduce the poison */
-            mon_dec_timed(p, mon, MON_TMD_POIS, d, MON_TMD_FLG_NOMESSAGE, false);
+            mon_dec_timed(p, mon, MON_TMD_POIS, d, MON_TMD_FLG_NOMESSAGE);
 
             /* Take damage */
             if (mon->hp > 0)
@@ -1164,24 +2110,19 @@ static void monster_effects(struct player *p, struct monster *mon)
                 mon->hp--;
 
                 /* Unconscious state - message if visible */
-                if ((mon->hp == 0) && mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE))
+                if ((mon->hp == 0) && monster_is_visible(p, mon->midx))
                 {
-                    char m_name[NORMAL_WID];
-
-                    /* Acquire the monster name */
-                    monster_desc(p, m_name, sizeof(m_name), mon, MDESC_DEFAULT);
-
                     /* Dump a message */
-                    add_monster_message(p, m_name, mon, MON_MSG_CROAK, true);
+                    add_monster_message(p, mon, MON_MSG_CROAK, true);
                 }
 
                 /* Hack -- update the health bar */
-                if (mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE)) update_health(who);
+                if (monster_is_visible(p, mon->midx)) update_health(who);
             }
         }
         else
-            mon_clear_timed(p, mon, MON_TMD_POIS, MON_TMD_FLG_NOTIFY, false);
-    }       
+            mon_clear_timed(p, mon, MON_TMD_POIS, MON_TMD_FLG_NOTIFY);
+    }
 
     /* Handle bleeding */
     if (mon->m_timed[MON_TMD_CUT])
@@ -1192,7 +2133,7 @@ static void monster_effects(struct player *p, struct monster *mon)
         if (mon->m_timed[MON_TMD_CUT] > d)
         {
             /* Reduce the bleeding */
-            mon_dec_timed(p, mon, MON_TMD_CUT, d, MON_TMD_FLG_NOMESSAGE, false);
+            mon_dec_timed(p, mon, MON_TMD_CUT, d, MON_TMD_FLG_NOMESSAGE);
 
             /* Take damage */
             if (mon->hp > 0)
@@ -1200,32 +2141,73 @@ static void monster_effects(struct player *p, struct monster *mon)
                 mon->hp--;
 
                 /* Unconscious state - message if visible */
-                if ((mon->hp == 0) && mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE))
+                if ((mon->hp == 0) && monster_is_visible(p, mon->midx))
                 {
-                    char m_name[NORMAL_WID];
-
-                    /* Acquire the monster name */
-                    monster_desc(p, m_name, sizeof(m_name), mon, MDESC_DEFAULT);
-
                     /* Dump a message */
-                    add_monster_message(p, m_name, mon, MON_MSG_CROAK, true);
+                    add_monster_message(p, mon, MON_MSG_CROAK, true);
                 }
 
                 /* Hack -- update the health bar */
-                if (mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE)) update_health(who);
+                if (monster_is_visible(p, mon->midx)) update_health(who);
             }
         }
         else
-            mon_clear_timed(p, mon, MON_TMD_CUT, MON_TMD_FLG_NOTIFY, false);
+            mon_clear_timed(p, mon, MON_TMD_CUT, MON_TMD_FLG_NOTIFY);
+    }
+}
+
+
+/*
+ * Wake a monster or reduce its depth of sleep
+ *
+ * Chance of waking up is dependent only on the player's stealth, but the
+ * amount of sleep reduction takes into account the monster's distance from
+ * the player. Currently straight line distance is used; possibly this
+ * should take into account dungeon structure.
+ */
+static void monster_reduce_sleep(struct monster *mon, bool mvm)
+{
+    struct player *p = mon->closest_player;
+    bool woke_up = false;
+    int stealth = p->state.skills[SKILL_STEALTH];
+    int player_noise = 1 << (30 - stealth);
+    int notice = randint0(1024);
+    struct monster_lore *lore = get_lore(p, mon->race);
+
+    /* PWMAngband: idle players are less susceptible to get noticed */
+    if (has_energy(p)) player_noise = 1 + player_noise / 2;
+
+    /* MvM or aggravation */
+    if (mvm || player_of_has(p, OF_AGGRAVATE))
+    {
+        /* Wake the monster */
+        mon_clear_timed(p, mon, MON_TMD_SLEEP, MON_TMD_FLG_NOTIFY);
+
+        woke_up = true;
     }
 
-    /* Handle blindness */
-    if (mon->m_timed[MON_TMD_BLIND])
+    /* Hack -- see if monster "notices" player */
+    else if ((notice * notice * notice) <= player_noise)
     {
-        /* Amount of "boldness" */
-        int d = randint1(mon->level / 10 + 1);
+        int sleep_reduction = 1;
+        int local_noise = p->cave->noise.grids[mon->fy][mon->fx];
 
-        mon_dec_timed(p, mon, MON_TMD_BLIND, d, MON_TMD_FLG_NOTIFY, false);
+        /* Wake up faster in hearing distance of the player */
+        if ((local_noise > 0) && (local_noise < 50)) sleep_reduction = (100 / local_noise);
+
+        /* Note a complete wakeup */
+        if (mon->m_timed[MON_TMD_SLEEP] <= sleep_reduction) woke_up = true;
+
+        /* Monster wakes up a bit */
+        mon_dec_timed(p, mon, MON_TMD_SLEEP, sleep_reduction, MON_TMD_FLG_NOTIFY);
+
+        /* Update knowledge */
+        if (monster_is_obvious(p, mon->midx, mon))
+        {
+            if (!woke_up && (lore->ignore < UCHAR_MAX)) lore->ignore++;
+            else if (woke_up && (lore->wake < UCHAR_MAX)) lore->wake++;
+            lore_update(mon->race, lore);
+        }
     }
 }
 
@@ -1235,784 +2217,85 @@ static void monster_effects(struct player *p, struct monster *mon)
  *
  * Returns true if the monster is skipping its turn.
  */
-static bool process_monster_timed(struct chunk *c, struct monster *mon, bool mvm)
+static bool process_monster_timed(struct monster *mon, bool mvm)
 {
     struct player *p = mon->closest_player;
-    struct monster_lore *lore = get_lore(p, mon->race);
 
-    /* Handle "sleep" */
+    /* If the monster is asleep or just woke up, then it doesn't act */
     if (mon->m_timed[MON_TMD_SLEEP])
     {
-        bool woke_up = false;
-
-        /* Anti-stealth */
-        int notice = randint0(1024);
-
-        /* PWMAngband: idle players are less susceptible to get noticed */
-        int noise = p->state.noise;
-
-        if (has_energy(p)) noise = 1 + noise / 2;
-
-        /* MvM or aggravation */
-        if (mvm || player_of_has(p, OF_AGGRAVATE))
-        {
-            /* Wake the monster */
-            mon_clear_timed(p, mon, MON_TMD_SLEEP, MON_TMD_FLG_NOTIFY, false);
-
-            woke_up = true;
-        }
-
-        /* Hack -- see if monster "notices" player */
-        else if ((notice * notice * notice) <= noise)
-        {
-            int d = 1;
-
-            /* Hack -- make sure the distance isn't zero */
-            if (mon->cdis == 0) mon->cdis = 1;
-
-            /* Wake up faster near the player */
-            if (mon->cdis < 50) d = (100 / mon->cdis);
-
-            /* Note a complete wakeup */
-            if (mon->m_timed[MON_TMD_SLEEP] <= d) woke_up = true;
-
-            /* Monster wakes up a bit */
-            mon_dec_timed(p, mon, MON_TMD_SLEEP, d, MON_TMD_FLG_NOTIFY, false);
-
-            /* Update knowledge */
-            if (mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE) && !mon->unaware)
-            {
-                if (!woke_up && (lore->ignore < UCHAR_MAX)) lore->ignore++;
-                else if (woke_up && (lore->wake < UCHAR_MAX)) lore->wake++;
-                lore_update(mon->race, lore);
-            }
-        }
-
-        /* Sleeping monsters don't recover in any other ways */
-        /* If the monster just woke up, then it doesn't act */
+        monster_reduce_sleep(mon, mvm);
         return true;
     }
 
     if (mon->m_timed[MON_TMD_FAST])
-        mon_dec_timed(p, mon, MON_TMD_FAST, 1, 0, false);
+        mon_dec_timed(p, mon, MON_TMD_FAST, 1, 0);
 
     if (mon->m_timed[MON_TMD_SLOW])
-        mon_dec_timed(p, mon, MON_TMD_SLOW, 1, 0, false);
+        mon_dec_timed(p, mon, MON_TMD_SLOW, 1, 0);
 
-    /* Handle "stun" */
-    if (monster_stunned(p, mon)) return true;
+    if (mon->m_timed[MON_TMD_HOLD])
+        mon_dec_timed(p, mon, MON_TMD_HOLD, 1, 0);
 
-    /* Handle confusion, fear, poison, bleeding */
+    if (mon->m_timed[MON_TMD_STUN])
+        mon_dec_timed(p, mon, MON_TMD_STUN, 1, MON_TMD_FLG_NOTIFY);
+
+    if (mon->m_timed[MON_TMD_CONF])
+        mon_dec_timed(p, mon, MON_TMD_CONF, 1, MON_TMD_FLG_NOTIFY);
+
+    if (mon->m_timed[MON_TMD_BLIND])
+        mon_dec_timed(p, mon, MON_TMD_BLIND, 1, MON_TMD_FLG_NOTIFY);
+
+    /* Handle fear, poison, bleeding */
     monster_effects(p, mon);
 
-    return false;
-}
-
-
-/*
- * Attempt to reproduce, if possible. All monsters are checked here for
- * lore purposes, the unfit fail.
- */
-static bool process_monster_multiply(struct chunk *c, struct monster *mon)
-{
-    struct player *p = mon->closest_player;
-    int k = 0, y, x;
-    struct monster_lore *lore = get_lore(p, mon->race);
-    bool allow_breed = false;
-
-    /* Count the adjacent monsters */
-    for (y = mon->fy - 1; y <= mon->fy + 1; y++)
-    {
-        for (x = mon->fx - 1; x <= mon->fx + 1; x++)
-        {
-            if (c->squares[y][x].mon > 0) k++;
-        }
-    }
-
-    /* Multiply slower in crowded areas */
-    /* Hack -- multiply even more slowly on no_recall servers */
-    if (cfg_no_recall)
-        allow_breed = ((k < 4) && one_in_((k + 1) * z_info->repro_monster_rate * 2));
-    else
-        allow_breed = ((k < 4) && (!k || one_in_(k * z_info->repro_monster_rate)));
-    if (allow_breed)
-    {
-        /* Successful breeding attempt, learn about that now */
-        if (mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE)) rf_on(lore->flags, RF_MULTIPLY);
-
-        /* Leave now if not a breeder */
-        if (!rf_has(mon->race->flags, RF_MULTIPLY)) return false;
-
-        /* Try to multiply */
-        if (multiply_monster(p, c, mon))
-        {
-            /* Make a sound */
-            if (mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE)) sound(p, MSG_MULTIPLY);
-
-            /* Multiplying takes energy */
-            return true;
-        }
-    }
+    /* One in __ chance of missing turn if stunned; always miss if held */
+    if (mon->m_timed[MON_TMD_STUN] && one_in_(STUN_MISS_CHANCE)) return true;
+    if (mon->m_timed[MON_TMD_HOLD]) return true;
 
     return false;
 }
 
 
 /*
- * Check if a monster should stagger or not. Always stagger when confused,
- * but also deal with random movement for RAND_25 and _50 monsters.
+ * Monster regeneration of HPs.
  */
-static bool process_monster_should_stagger(struct player *p, struct monster *mon)
+static void regen_monster(struct monster *mon)
 {
-    struct monster_lore *lore = get_lore(p, mon->race);
-    int chance = 0;
+    /* Skip poisoned and bleeding monsters! */
+    if (mon->m_timed[MON_TMD_POIS] || mon->m_timed[MON_TMD_CUT]) return;
 
-    /* Confused */
-    if (mon->m_timed[MON_TMD_CONF] || mon->m_timed[MON_TMD_BLIND])
-        return true;
-
-    /* RAND_25 and RAND_50 are cumulative */
-    if (rf_has(mon->race->flags, RF_RAND_25))
+    /* Regenerate (if needed) */
+    if (mon->hp < mon->maxhp)
     {
-        chance += 25;
-        if (mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE)) rf_on(lore->flags, RF_RAND_25);
-    }
+        /* Base regeneration */
+        int frac = mon->maxhp / 100;
 
-    if (rf_has(mon->race->flags, RF_RAND_50))
-    {
-        chance += 50;
-        if (mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE)) rf_on(lore->flags, RF_RAND_50);
-    }
+        struct source who_body;
+        struct source *who = &who_body;
 
-    return magik(chance);
-}
+        /* Minimal regeneration rate */
+        if (!frac) frac = 1;
 
+        /* Some monsters regenerate quickly */
+        if (rf_has(mon->race->flags, RF_REGENERATE)) frac *= 2;
 
-/*
- * Work out if a monster can move through the grid, if necessary bashing
- * down doors in the way.
- *
- * Returns true if the monster is able to move through the grid.
- */
-static bool process_monster_can_move(struct actor *who, struct chunk *c, struct monster *mon,
-    int nx, int ny, bool *did_something)
-{
-    struct monster_lore *lore = get_lore(who->player, mon->race);
-    struct monster *square_mon = NULL;
+        /* Regenerate */
+        mon->hp += frac;
 
-    /* Safe floor */
-    if (square_issafefloor(c, ny, nx)) return false;
+        /* Do not over-regenerate */
+        if (mon->hp > mon->maxhp) mon->hp = mon->maxhp;
 
-    /* Floor is open? */
-    if (square_ispassable(c, ny, nx)) return true;
-
-    /* Permanent wall in the way */
-    if (square_isperm(c, ny, nx) || square_isborder(c, ny, nx)) return false;
-
-    /* Normal wall, door, or secret door in the way */
-
-    /*
-     * There's some kind of feature in the way, so learn about
-     * kill-wall and pass-wall now
-     */
-    if (mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE))
-    {
-        rf_on(lore->flags, RF_PASS_WALL);
-        rf_on(lore->flags, RF_KILL_WALL);
-    }
-
-    /* Reveal (door) mimics */
-    if (square_monster(c, ny, nx)) square_mon = cave_monster(c, c->squares[ny][nx].mon);
-    if (square_mon && is_mimicking(square_mon))
-    {
-        become_aware(who->player, c, square_mon);
-
-        return true;
-    }
-
-    /* Monster moves through walls (and doors) */
-    if (rf_has(mon->race->flags, RF_PASS_WALL)) return true;
-
-    /* Monster destroys walls (and doors) */
-    if (rf_has(mon->race->flags, RF_KILL_WALL))
-    {
-        /* Remove the wall */
-        square_destroy_wall(c, ny, nx);
-
-        /* Note changes to viewable region */
-        note_viewable_changes(c->depth, ny, nx, false);
-
-        /* Fully update the flow since terrain changed */
-        fully_update_flow(c->depth);
-
-        return true;
-    }
-
-    /* Handle doors and secret doors */
-    if (square_basic_iscloseddoor(c, ny, nx) || square_issecretdoor(c, ny, nx))
-    {
-        bool may_bash = ((rf_has(mon->race->flags, RF_BASH_DOOR) && one_in_(2))? true: false);
-
-        /* Take a turn */
-        *did_something = true;
-
-        /* Learn about door abilities */
-        if (mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE))
-        {
-            rf_on(lore->flags, RF_OPEN_DOOR);
-            rf_on(lore->flags, RF_BASH_DOOR);
-        }
-
-        /* Creature can open or bash doors */
-        if (!rf_has(mon->race->flags, RF_OPEN_DOOR) && !rf_has(mon->race->flags, RF_BASH_DOOR))
-            return false;
-
-        /* Stuck door -- try to unlock it */
-        if (square_islockeddoor(c, ny, nx))
-        {
-            int k = square_door_power(c, ny, nx);
-
-            if (!CHANCE(k, mon->hp / 10))
-            {
-                /* Print a message */
-                if (mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE))
-                {
-                    char m_name[NORMAL_WID];
-
-                    monster_desc(who->player, m_name, sizeof(m_name), mon, MDESC_CAPITAL);
-                    if (may_bash)
-                        msg(who->player, "%s slams against the door.", m_name);
-                    else
-                        msg(who->player, "%s fiddles with the lock.", m_name);
-                }
-                else if (may_bash)
-                    msg(who->player, "Something slams against a door.");
-                else
-                    msg(who->player, "Something fiddles with a lock.");
-
-                /* Reduce the power of the door by one */
-                square_set_door_lock(c, ny, nx, k - 1);
-            }
-        }
-
-        /* Closed or secret door -- open or bash if allowed */
-        else
-        {
-            if (may_bash)
-            {
-                square_smash_door(c, ny, nx);
-
-                msg(who->player, "You hear a door burst open!");
-
-                /* Disturb if necessary */
-                if (!who->mon && OPT_P(who->player, disturb_bash)) disturb(who->player, 0);
-
-                /* Note changes to viewable region */
-                note_viewable_changes(c->depth, ny, nx, false);
-
-                /* Fall into doorway */
-                return true;
-            }
-
-            if (rf_has(mon->race->flags, RF_OPEN_DOOR))
-            {
-                square_open_door(c, ny, nx);
-
-                /* Note changes to viewable region */
-                note_viewable_changes(c->depth, ny, nx, false);
-            }
-        }
-    }
-
-    return false;
-}
-
-
-/*
- * Try to break a glyph.
- */
-static bool process_monster_glyph(struct player *p, struct monster *mon, int nx, int ny)
-{
-    /* Break the ward */
-    if (CHANCE(mon->level, z_info->glyph_hardness))
-    {
-        /* Describe observable breakage */
-        if (square_isseen(p, ny, nx))
-            msg(p, "The rune of protection is broken!");
-
-        /* Break the rune */
-        square_remove_ward(chunk_get(p->depth), ny, nx);
-
-        return true;
-    }
-
-    /* Unbroken ward - can't move */
-    return false;
-}
-
-
-/*
- * Hack -- compare the "strength" of two monsters XXX XXX XXX
- */
-static int compare_monsters(const struct monster *mon1, const struct monster *mon2)
-{
-    u32b mexp1 = mon1->race->mexp;
-    u32b mexp2 = mon2->race->mexp;
-
-    /* Compare */
-    if (mexp1 < mexp2) return (-1);
-    if (mexp1 > mexp2) return (1);
-
-    /* Assume equal */
-    return (0);
-}
-
-
-/*
- * Try to push past / kill another monster. Returns true on success.
- */
-static bool process_monster_try_push(struct actor *who, struct chunk *c, struct monster *mon,
-    const char *m_name, int nx, int ny, bool *did_something)
-{
-    struct monster *mon1 = square_monster(c, ny, nx);
-    struct monster_lore *lore = get_lore(who->player, mon->race);
-    struct actor target_body;
-    struct actor *target = &target_body;
-
-    /* Kill weaker monsters */
-    int kill_ok = rf_has(mon->race->flags, RF_KILL_BODY);
-
-    /* Push past weaker monsters (unless leaving a wall) */
-    int move_ok = (rf_has(mon->race->flags, RF_MOVE_BODY) &&
-        square_ispassable(c, mon->fy, mon->fx));
-
-    ACTOR_BOTH(target, who->player, mon1);
-
-    /* Always attack if this is our target */
-    if (who->mon && (who->mon == mon1) && !master_in_party(mon->master, mon1->master))
-    {
-        /* Do the attack */
-        make_attack_normal(mon, target);
-
-        /* Took a turn */
-        *did_something = true;
-
-        return false;
-    }
-
-    if (compare_monsters(mon, mon1) > 0)
-    {
-        /* Learn about pushing and shoving */
-        if (mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE))
-        {
-            rf_on(lore->flags, RF_KILL_BODY);
-            rf_on(lore->flags, RF_MOVE_BODY);
-        }
-
-        if (kill_ok || move_ok)
-        {
-            char n_name[NORMAL_WID];
-
-            /* Get the names of the monsters involved */
-            monster_desc(who->player, n_name, sizeof(n_name), mon1, MDESC_IND_HID);
-
-            /* Reveal mimics */
-            if (is_mimicking(mon1)) become_aware(who->player, c, mon1);
-
-            /* Note if visible */
-            if (mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE) &&
-                mflag_has(who->player->mflag[mon->midx], MFLAG_VIEW))
-            {
-                msg(who->player, "%s %s %s.", m_name, (kill_ok? "tramples over": "pushes past"),
-                    n_name);
-            }
-
-            /* Monster ate another monster */
-            if (kill_ok) delete_monster(c, ny, nx);
-
-            /* Move the monster */
-            monster_swap(c, mon->fy, mon->fx, ny, nx);
-            *did_something = true;
-
-            return true;
-        }
-
-        /* Otherwise, attack the monster (skip if non hostile) */
-        if (who->mon && !master_in_party(mon->master, mon1->master))
-        {
-            /* Do the attack */
-            make_attack_normal(mon, target);
-
-            /* Took a turn */
-            *did_something = true;
-
-            return false;
-        }
-
-        /* If the target is a player and there's a controlled monster on the way, try to retaliate */
-        if (!who->mon && master_in_party(mon1->master, who->player->id))
-        {
-            int chance = 25;
-
-            /* Stupid monsters rarely retaliate */
-            if (rf_has(mon->race->flags, RF_STUPID)) chance = 10;
-
-            /* Smart monsters always retaliate */
-            if (rf_has(mon->race->flags, RF_SMART)) chance = 100;
-
-            /* Sometimes monsters retaliate */
-            if (magik(chance))
-            {
-                /* Do the attack */
-                make_attack_normal(mon, target);
-
-                /* Took a turn */
-                *did_something = true;
-            }
-        }
-
-        return false;
-    }
-
-    /* Always attack stronger monsters */
-    if (who->mon && !master_in_party(mon->master, mon1->master))
-    {
-        /* Do the attack */
-        make_attack_normal(mon, target);
-
-        /* Took a turn */
-        *did_something = true;
-
-        return false;
-    }
-
-    /* If the target is a player and there's a controlled monster on the way, try to retaliate */
-    if (!who->mon && master_in_party(mon1->master, who->player->id))
-    {
-        int chance = 25;
-
-        /* Stupid monsters rarely retaliate */
-        if (rf_has(mon->race->flags, RF_STUPID)) chance = 10;
-
-        /* Smart monsters always retaliate */
-        if (rf_has(mon->race->flags, RF_SMART)) chance = 100;
-
-        /* Sometimes monsters retaliate */
-        if (magik(chance))
-        {
-            /* Do the attack */
-            make_attack_normal(mon, target);
-
-            /* Took a turn */
-            *did_something = true;
-        }
-    }
-
-    return false;
-}
-
-
-/*
- * Grab all objects from the grid.
- */
-static void process_monster_grab_objects(struct player *p, struct chunk *c, struct monster *mon,
-    const char *m_name, int nx, int ny)
-{
-    struct monster_lore *lore = get_lore(p, mon->race);
-    struct object *obj, *next;
-    bool visible = mflag_has(p->mflag[mon->midx], MFLAG_VISIBLE);
-
-    /* Learn about item pickup behavior */
-    for (obj = square_object(c, ny, nx); obj; obj = obj->next)
-    {
-        /* Skip gold and mimicked objects */
-        if (tval_is_money(obj) || obj->mimicking_m_idx) continue;
-
-        if (visible)
-        {
-            rf_on(lore->flags, RF_TAKE_ITEM);
-            rf_on(lore->flags, RF_KILL_ITEM);
-        }
-
-        break;
-    }
-
-    /* Abort if can't pickup/kill */
-    if (!rf_has(mon->race->flags, RF_TAKE_ITEM) && !rf_has(mon->race->flags, RF_KILL_ITEM))
-        return;
-
-    /* Take or kill objects on the floor */
-    obj = square_object(c, ny, nx);
-    while (obj)
-    {
-        char o_name[NORMAL_WID];
-        bool safe = (obj->artifact? true: false);
-
-        next = obj->next;
-
-        /* Skip gold */
-        if (tval_is_money(obj))
-        {
-            obj = next;
-            continue;
-        }
-
-        /* Skip mimicked objects */
-        if (obj->mimicking_m_idx)
-        {
-            obj = next;
-            continue;
-        }
-
-        /* Get the object name */
-        object_desc(p, o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
-
-        /* React to objects that hurt the monster */
-        if (react_to_slay(obj, mon)) safe = true;
-
-        /* The object cannot be picked up by the monster */
-        if (safe)
-        {
-            /* Only give a message for "take_item" */
-            if (rf_has(mon->race->flags, RF_TAKE_ITEM) && visible && square_isview(p, ny, nx) &&
-                !ignore_item_ok(p, obj))
-            {
-                /* Dump a message */
-                msg(p, "%s tries to pick up %s, but fails.", m_name, o_name);
-            }
-        }
-
-        /* Pick up the item */
-        else if (rf_has(mon->race->flags, RF_TAKE_ITEM))
-        {
-            /* Controlled monsters don't take objects */
-            if (!mon->master)
-            {
-                /* Describe observable situations */
-                if (square_isseen(p, ny, nx) && !ignore_item_ok(p, obj))
-                    msg(p, "%s picks up %s.", m_name, o_name);
-
-                /* Carry the object */
-                square_excise_object(c, ny, nx, obj);
-                if (!monster_carry(mon, obj, false))
-                    object_delete(&obj);
-
-                square_note_spot(c, ny, nx);
-                square_light_spot(c, ny, nx);
-            }
-        }
-
-        /* Destroy the item */
-        else
-        {
-            /* Describe observable situations */
-            if (square_isseen(p, ny, nx) && !ignore_item_ok(p, obj))
-                msgt(p, MSG_DESTROY, "%s crushes %s.", m_name, o_name);
-
-            /* Delete the object */
-            square_excise_object(c, ny, nx, obj);
-            object_delete(&obj);
-
-            square_note_spot(c, ny, nx);
-            square_light_spot(c, ny, nx);
-        }
-
-        /* Next object */
-        obj = next;
+        /* Update health bars */
+        source_monster(who, mon);
+        update_health(who);
     }
 }
 
 
 /*
- * Monster movement
+ * Monster processing routines to be called by the main game loop
  */
-static void process_move(struct actor *who, struct chunk *c, struct monster *mon,
-    const char *m_name, int dir, bool stagger, bool *did_something)
-{
-    struct monster_lore *lore = get_lore(who->player, mon->race);
-    int i;
-    int y, x;
-
-    /* Target info */
-    if (!who->mon)
-    {
-        y = who->player->py;
-        x = who->player->px;
-    }
-    else
-    {
-        y = who->mon->fy;
-        x = who->mon->fx;
-    }
-
-    /* Process moves */
-    for (i = 0; ((i < 5) && !(*did_something)); i++)
-    {
-        int oy = mon->fy;
-        int ox = mon->fx;
-
-        /* Get the direction (or stagger) */
-        int d = (stagger? ddd[randint0(8)]: side_dirs[dir][i]);
-
-        /* Get the destination */
-        int ny = oy + ddy[d];
-        int nx = ox + ddx[d];
-
-        /* Check if we can move */
-        bool move = process_monster_can_move(who, c, mon, nx, ny, did_something);
-
-        /* Hack -- a player is in the way */
-        if (square_isplayer(c, ny, nx)) move = true;
-
-        if (!move) continue;
-
-        /* Try to break the glyph if there is one */
-        if (square_iswarded(c, ny, nx) && !process_monster_glyph(who->player, mon, nx, ny))
-            continue;
-
-        /* A player is in the way. */
-        if (square_isplayer(c, ny, nx))
-        {
-            struct player *q = player_get(0 - c->squares[ny][nx].mon);
-
-            /* Learn about if the monster attacks */
-            if (mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE))
-                rf_on(lore->flags, RF_NEVER_BLOW);
-
-            /* Some monsters never attack */
-            if ((ny == y) && (nx == x) && rf_has(mon->race->flags, RF_NEVER_BLOW))
-                continue;
-
-            /* Otherwise, attack the player (skip if non hostile) */
-            if (pvm_check(q, mon))
-            {
-                struct actor target_body;
-                struct actor *target = &target_body;
-
-                /* Do the attack */
-                ACTOR_PLAYER(target, get_player_index(get_connection(q->conn)), q);
-                make_attack_normal(mon, target);
-
-                *did_something = true;
-            }
-
-            continue;
-        }
-
-        /* Some monsters never move */
-        if (rf_has(mon->race->flags, RF_NEVER_MOVE))
-        {
-            /* Learn about lack of movement */
-            if (mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE))
-                rf_on(lore->flags, RF_NEVER_MOVE);
-
-            continue;
-        }
-
-        /* A monster is in the way */
-        if (square_monster(c, ny, nx))
-        {
-            if (!process_monster_try_push(who, c, mon, m_name, nx, ny, did_something))
-                continue;
-        }
-
-        /* Otherwise we can just move */
-        else
-        {
-            monster_swap(c, oy, ox, ny, nx);
-            *did_something = true;
-        }
-
-        /* Scan all objects in the grid, if we reached it */
-        if (mon == square_monster(c, ny, nx))
-            process_monster_grab_objects(who->player, c, mon, m_name, nx, ny);
-    }
-
-    if (*did_something)
-    {
-        /* Learn about no lack of movement */
-        if (mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE))
-            rf_on(lore->flags, RF_NEVER_MOVE);
-
-        /* Possible disturb */
-        if (!who->mon && mflag_has(who->player->mflag[mon->midx], MFLAG_VISIBLE) &&
-            mflag_has(who->player->mflag[mon->midx], MFLAG_VIEW) &&
-            OPT_P(who->player, disturb_near))
-        {
-            /* Disturb (except townies, friendlies and unaware mimics) */
-            if ((mon->level > 0) && pvm_check(who->player, mon) && !is_mimicking(mon))
-                disturb(who->player, 0);
-        }
-    }
-}
-
-
-/*
- * Process a monster
- *
- * In several cases, we directly update the monster lore
- *
- * Note that a monster is only allowed to "reproduce" if there
- * are a limited number of "reproducing" monsters on the current
- * level.  This should prevent the level from being "swamped" by
- * reproducing monsters.  It also allows a large mass of mice to
- * prevent a louse from multiplying, but this is a small price to
- * pay for a simple multiplication method.
- *
- * XXX Monster fear is slightly odd, in particular, monsters will
- * fixate on opening a door even if they cannot open it.  Actually,
- * the same thing happens to normal monsters when they hit a door.
- *
- * In addition, monsters which *cannot* open or bash down a door
- * will still stand there trying to open it...  XXX XXX XXX
- *
- * Technically, need to check for monster in the way combined
- * with that monster being in a wall (or door?) XXX
- */
-static void process_monster(struct actor *who, struct chunk *c, struct monster *mon,
-    int target_m_dis)
-{
-    bool did_something = false;
-    int dir = 0;
-    bool stagger = false;
-    char m_name[NORMAL_WID];
-
-    /* Get the monster name */
-    monster_desc(who->player, m_name, sizeof(m_name), mon, MDESC_CAPITAL | MDESC_IND_HID);
-
-    /* Generate monster drops */
-    if (!who->mon) mon_create_drops(who->player, c, mon);
-
-    /* Try to multiply - this can use up a turn */
-    if (!who->mon && process_monster_multiply(c, mon)) return;
-
-    /* Attempt to cast a spell (skip if non hostile) */
-    if (who->mon || pvm_check(who->player, mon))
-    {
-        if (make_attack_spell(who, c, mon, target_m_dis)) return;
-    }
-
-    /* Work out what kind of movement to use - AI or staggered movement */
-    if (!process_monster_should_stagger(who->player, mon))
-    {
-        if (!get_moves(who, c, mon, &dir)) return;
-    }
-    else
-        stagger = true;
-
-    /* Movement */
-    process_move(who, c, mon, m_name, dir, stagger, &did_something);
-
-    if (rf_has(mon->race->flags, RF_HAS_LIGHT))
-        who->player->upkeep->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-    /* Hack -- get "bold" if out of options */
-    if (!did_something && mon->m_timed[MON_TMD_FEAR])
-        mon_clear_timed(who->player, mon, MON_TMD_FEAR, MON_TMD_FLG_NOTIFY, false);
-
-    /* If we see an unaware monster do something, become aware of it */
-    if (did_something && mon->unaware) become_aware(who->player, c, mon);
-}
 
 
 /*
@@ -2043,7 +2326,7 @@ static void get_closest_player(struct chunk *c, struct monster *mon)
         int d;
 
         /* Make sure he's on the same dungeon level */
-        if (p->depth != mon->depth) continue;
+        if (!COORDS_EQUAL(&p->wpos, &mon->wpos)) continue;
 
         /* Hack -- skip him if he's shopping */
         if (in_store(p)) continue;
@@ -2098,42 +2381,6 @@ static void get_closest_player(struct chunk *c, struct monster *mon)
 
 
 /*
- * Monster regeneration of HPs.
- */
-static void regen_monster(struct chunk *c, struct monster *mon)
-{
-    /* Skip poisoned and bleeding monsters! */
-    if (mon->m_timed[MON_TMD_POIS] || mon->m_timed[MON_TMD_CUT]) return;
-
-    /* Regenerate (if needed) */
-    if (mon->hp < mon->maxhp)
-    {
-        /* Base regeneration */
-        int frac = mon->maxhp / 100;
-
-        struct actor who_body;
-        struct actor *who = &who_body;
-
-        /* Minimal regeneration rate */
-        if (!frac) frac = 1;
-
-        /* Some monsters regenerate quickly */
-        if (rf_has(mon->race->flags, RF_REGENERATE)) frac *= 2;
-
-        /* Regenerate */
-        mon->hp += frac;
-
-        /* Do not over-regenerate */
-        if (mon->hp > mon->maxhp) mon->hp = mon->maxhp;
-
-        /* Update health bars */
-        ACTOR_MONSTER(who, mon);
-        update_health(who);
-    }
-}
-
-
-/*
  * Process all the "live" monsters, once per game turn.
  *
  * During each game turn, we scan through the list of all the "live" monsters,
@@ -2157,8 +2404,8 @@ void process_monsters(struct chunk *c, bool more_energy)
         struct monster *mon;
         int target_m_dis;
         bool mvm = false;
-        struct actor who_body;
-        struct actor *who = &who_body;
+        struct source who_body;
+        struct source *who = &who_body;
 
         /* Get a 'live' monster */
         mon = cave_monster(c, i);
@@ -2179,17 +2426,17 @@ void process_monsters(struct chunk *c, bool more_energy)
 
         /* Regenerate hitpoints and mana every 100 "scaled" turns */
         regen = false;
-        time = move_energy(c->depth) / base_time_factor(mon->closest_player, c, 0);
+        time = move_energy(c->wpos.depth) / time_factor(mon->closest_player, c);
         if (!(turn.turn % time)) regen = true;
 
         /* Handle monster regeneration if requested */
-        if (regen) regen_monster(c, mon);
+        if (regen) regen_monster(mon);
 
         /* End the turn of monsters without enough energy to move */
-        if (mon->energy < move_energy(mon->depth)) continue;
+        if (mon->energy < move_energy(mon->wpos.depth)) continue;
 
         /* Use up "some" energy */
-        mon->energy -= move_energy(mon->depth);
+        mon->energy -= move_energy(mon->wpos.depth);
 
         /* Hack -- controlled monsters have a limited lifespan */
         if (mon->master && mon->lifespan)
@@ -2221,10 +2468,10 @@ void process_monsters(struct chunk *c, bool more_energy)
                 d = distance(q->py, q->px, mon->fy, mon->fx);
 
                 /* Player is inside scanning range */
-                if (d <= mon->race->aaf) break;
+                if (d <= mon->race->hearing) break;
 
                 /* The monster is visible */
-                if (mflag_has(q->mflag[mon->midx], MFLAG_VISIBLE)) break;
+                if (monster_is_visible(q, mon->midx)) break;
 
                 /* Sometimes free monster from slavery */
                 if (one_in_(100))
@@ -2242,16 +2489,16 @@ void process_monsters(struct chunk *c, bool more_energy)
         if (!mon->closest_player) continue;
 
         /* Mimics lie in wait */
-        if (is_mimicking(mon)) continue;
+        if (monster_is_camouflaged(mon)) continue;
 
         /* Check if the monster is active */
         if (monster_check_active(c, mon, &target_m_dis, &mvm, who))
         {
             /* Process timed effects - skip turn if necessary */
-            if (process_monster_timed(c, mon, mvm)) continue;
+            if (process_monster_timed(mon, mvm)) continue;
 
-            /* Process the monster */
-            process_monster(who, c, mon, target_m_dis);
+            /* The monster takes its turn */
+            monster_turn(who, c, mon, target_m_dis);
         }
     }
 
@@ -2275,7 +2522,7 @@ void process_monsters(struct chunk *c, bool more_energy)
             struct player *q = player_get(j);
 
             /* If he's not here, skip him */
-            if (q->depth != mon->depth) continue;
+            if (!COORDS_EQUAL(&q->wpos, &mon->wpos)) continue;
 
             /* Actually light that spot for that player */
             if (allow_shimmer(q)) square_light_spot_aux(q, c, mon->fy, mon->fx);
@@ -2294,6 +2541,9 @@ void reset_monsters(struct chunk *c)
     {
         /* Access the monster */
         mon = cave_monster(c, i);
+
+        /* Dungeon hurts monsters */
+        monster_take_terrain_damage(c, mon);
 
         /* Monster is ready to go again */
         mon->handled = false;
@@ -2317,11 +2567,12 @@ static bool player_invis(struct player *p, struct monster *mon)
     /* Can't fool a monster once injured */
     if (mon->hp < mon->maxhp) return false;
 
-    /* Questor monsters see invisible */
+    /* Questor and very powerful monsters see invisible */
     if (rf_has(mon->race->flags, RF_QUESTOR)) return false;
+    if (rf_has(mon->race->flags, RF_PWMANG_FIXED)) return false;
 
     /* Invisible monsters see invisible */
-    if (rf_has(mon->race->flags, RF_INVISIBLE)) return false;
+    if (monster_is_invisible(mon->race)) return false;
 
     mlv = (s16b)mon->level;
     if (rf_has(mon->race->flags, RF_NO_SLEEP)) mlv += 5;
@@ -2331,9 +2582,9 @@ static bool player_invis(struct player *p, struct monster *mon)
     if (rf_has(mon->race->flags, RF_ANIMAL)) mlv += 3;
     if (rf_has(mon->race->flags, RF_ORC)) mlv -= 15;
     if (rf_has(mon->race->flags, RF_TROLL)) mlv -= 10;
-    if (rf_has(mon->race->flags, RF_STUPID)) mlv /= 2;
-    if (rf_has(mon->race->flags, RF_SMART)) mlv = (mlv * 5) / 4;
-    if (rf_has(mon->race->flags, RF_UNIQUE)) mlv *= 2;
+    if (monster_is_stupid(mon->race)) mlv /= 2;
+    if (monster_is_smart(mon->race)) mlv = (mlv * 5) / 4;
+    if (monster_is_unique(mon->race)) mlv *= 2;
     if (mlv < 0) mlv = 0;
 
     /* High level monsters can't be fooled */

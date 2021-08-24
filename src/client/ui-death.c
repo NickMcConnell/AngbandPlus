@@ -3,7 +3,7 @@
  * Purpose: Handle the UI bits that happen after the character dies.
  *
  * Copyright (c) 1987 - 2007 Angband contributors
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -70,7 +70,8 @@ void print_tomb(void)
     put_str_centred(line++, 8, 8+31, "Level: %d", (int)player->death_info.lev);
     put_str_centred(line++, 8, 8+31, "Exp: %d", (int)player->death_info.exp);
     put_str_centred(line++, 8, 8+31, "AU: %d", (int)player->death_info.au);
-    put_str_centred(line++, 8, 8+31, "Killed on Level %d", player->death_info.depth);
+    put_str_centred(line++, 8, 8+31, "Killed on Level %d (%d, %d)", player->death_info.wpos.depth,
+        player->death_info.wpos.wx, player->death_info.wpos.wy);
     put_str_centred(line++, 8, 8+31, "by %s.", player->death_info.died_from);
 
     line++;
@@ -101,7 +102,7 @@ void display_winner(void)
         text_out_e(&Setup.text_screen[TEXTFILE_CRWN][i * TEXTFILE__WID], i, 0);
     }
 
-    put_str_centred(i, 0, wid, "All Hail the Mighty %s!", player->sex->winner);
+    put_str_centred(i, 0, wid, "All Hail the Mighty %s!", title);
 
     /* Show it */
     Term_fresh();

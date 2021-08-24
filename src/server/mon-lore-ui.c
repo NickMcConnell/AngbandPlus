@@ -3,7 +3,7 @@
  * Purpose: Monster memory UI
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -46,8 +46,8 @@ static void lore_title(struct player *p, const struct monster_race *race)
     optional_attr = monster_x_attr[race->ridx];
 
     /* A title (use "The" for non-uniques) */
-    if (!rf_has(race->flags, RF_UNIQUE)) text_out(p, "The ");
-    else if (OPT_P(p, purple_uniques))
+    if (!monster_is_unique(race)) text_out(p, "The ");
+    else if (OPT(p, purple_uniques))
     {
         standard_attr = COLOUR_VIOLET;
         if (!(optional_attr & 0x80)) optional_attr = COLOUR_VIOLET;
@@ -83,12 +83,8 @@ void lore_description(struct player *p, const struct monster_race *race)
     struct monster_lore mutable_lore;
     struct monster_lore *lore = &mutable_lore;
     bitflag known_flags[RF_SIZE];
-    int melee_colors[RBE_MAX], spell_colors[RSF_MAX];
 
     my_assert(race);
-
-    /* Determine the special attack colors */
-    get_attack_colors(p, melee_colors, spell_colors);
 
     /* Get the lores (player + global) */
     get_global_lore(p, race, lore);
@@ -119,8 +115,8 @@ void lore_description(struct player *p, const struct monster_race *race)
     lore_append_friends(p, race, lore, known_flags);
 
     /* Describe the spells, spell-like abilities and melee attacks */
-    lore_append_spells(p, race, lore, known_flags, spell_colors);
-    lore_append_attack(p, race, lore, known_flags, melee_colors);
+    lore_append_spells(p, race, lore, known_flags);
+    lore_append_attack(p, race, lore, known_flags);
 
     /* Do we know everything */
     if (lore_is_fully_known(p, race))

@@ -3,7 +3,7 @@
  * Purpose: Low-level bit vector manipulation
  *
  * Copyright (c) 2010 William L Moore
- * Copyright (c) 2016 MAngband and PWMAngband Developers
+ * Copyright (c) 2018 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -86,6 +86,28 @@ int flag_next(const bitflag *flags, const size_t size, const int flag)
     }
 
     return FLAG_END;
+}
+
+
+/*
+ * Counts the flags which are "on" in a bitflag set.
+ *
+ * The bitfield size is supplied in `size`.
+ */
+int flag_count(const bitflag *flags, const size_t size)
+{
+    size_t i, j;
+    int count = 0;
+
+    for (i = 0; i < size; i++)
+    {
+        for (j = 0; j < FLAG_WIDTH; j++)
+        {
+            if (flags[i] & FLAG_BINARY(j)) count++;
+        }
+    }
+
+    return count;
 }
 
 
@@ -301,30 +323,6 @@ bool flag_union(bitflag *flags1, const bitflag *flags2, const size_t size)
         if (~flags1[i] & flags2[i]) delta = true;
 
         flags1[i] |= flags2[i];
-    }
-
-    return delta;
-}
-
-
-/*
- * Computes the union of one bitfield and the complement of another.
- *
- * For every unset flag in `flags2`, the corresponding flag is set in `flags1`.
- * The size of the bitfields is supplied in `size`. true is returned when
- * changes were made, and false otherwise.
- */
-bool flag_comp_union(bitflag *flags1, const bitflag *flags2, const size_t size)
-{
-    size_t i;
-    bool delta = false;
-
-    for (i = 0; i < size; i++)
-    {
-        /* no equivalent fn */
-        if (!(~flags1[i] & ~flags2[i])) delta = true;
-
-        flags1[i] |= ~flags2[i];
     }
 
     return delta;

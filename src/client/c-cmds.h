@@ -27,6 +27,7 @@ extern void do_cmd_master(void);
 extern void do_cmd_social(void);
 extern void do_cmd_feeling(void);
 extern void do_cmd_fountain(void);
+extern void do_cmd_time(void);
 
 /* c-cmd-obj.c */
 extern bool obj_can_takeoff(struct player *p, const struct object *obj);

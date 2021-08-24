@@ -2,7 +2,7 @@
  * File: account.c
  * Purpose: Account management
  *
- * Copyright (c) 2016 PWMAngband Developers
+ * Copyright (c) 2018 PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -27,6 +27,7 @@ u32b get_account(const char *name, const char *pass)
     char filebuf[MSG_LEN];
     u32b account_id = 1;
     bool check_name = true, name_ok = false, pass_ok = false;
+    char *str;
 
     /* Check account file */
     path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, "account");
@@ -44,7 +45,7 @@ u32b get_account(const char *name, const char *pass)
         while (file_getl(fh, filebuf, sizeof(filebuf)))
         {
             /* Get account name */
-            if (check_name) name_ok = streq(filebuf, name);
+            if (check_name) name_ok = !my_stricmp(filebuf, name);
 
             /* Get account password */
             else pass_ok = streq(filebuf, pass);
@@ -83,8 +84,12 @@ u32b get_account(const char *name, const char *pass)
         return 0L;
     }
 
+    /* Lowercase account name */
+    my_strcpy(filebuf, name, sizeof(filebuf));
+    for (str = filebuf; *str; str++) *str = tolower((unsigned char)*str);
+
     /* Create new account */
-    file_putf(fh, "%s\n", name);
+    file_putf(fh, "%s\n", filebuf);
     file_putf(fh, "%s\n", pass);
 
     /* Close */

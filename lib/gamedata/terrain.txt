@@ -11,15 +11,18 @@
 
 # === Understanding terrain.txt ===
 
-# name : serial number : terrain name
+# name : terrain name
 # graphics : symbol : color
 # mimic : feature to mimic
 # priority : display priority on mini-map
 # flags : terrain flags
 # info : shop number : digging
+# hurt-msg: damage message
+# died-flavor: flavored death message
+# die-msg: death message
+# resist-flag: monster race flag for resist
 
-# 'name' indicates the beginning of an entry. The serial number must
-# increase for each new feature.
+# 'name' indicates the beginning of an entry.
 
 # 'graphics' is for graphics - symbol and color. There are 27 colors:
 
@@ -31,7 +34,7 @@
 # i - Magenta-Pink T - Light Teal     V - Light Violet  I - Light Pink
 # M - Mustard      z - Blue Slate     Z - Deep Light Blue
 
-# 'mimic' is the index of a feature to mimic; some features look like another
+# 'mimic' is a feature to mimic; some features look like another
 # feature until they are discovered by the player.
 
 # 'priority' is for display priority on the minimap, where only a selection
@@ -40,16 +43,16 @@
 #
 # Current priority table:
 #	 1 = unknown grid
-#	 2 = grass
+#	 2 = grass, sand, ice
 #	 3 = packed dirt
 #	 4 = tree
 #	 5 = water
 #	 6 = mountain
-#	 7 = lava
+#	 7 = lava stream
 #	 8 = mud
 #	 9 = dark tree
 #	10 = other wilderness features
-#	11 = granite walls
+#	11 = granite walls, sandwalls, ice walls
 #	12 = trap detection overlay
 #	13 = log
 #	14 = quartz veins
@@ -63,7 +66,7 @@
 #	22 = fountains, house walls
 #	23 = house doors
 #	24 = stores
-#	25 = permanent walls
+#	25 = permanent walls, lava
 #	26 = staircases
 #	27 = level borders
 
@@ -73,19 +76,26 @@
 # shop if the terrain is a shop entrance, and 0 otherwise. Digging is an
 # index used to get the difficulty of digging through this type of terrain.
 
+# 'hurt-msg' is the message the player gets when damaged by terrain
 
-name:0:unknown grid
+# 'die-msg' is the description if damaging terrain kills the player
+
+# 'resist-flag' is the race flag a monster must have to be able to enter
+# damaging terrain
+
+
+name:unknown grid
 graphics: :w
 priority:1
 
-name:1:open floor
+name:open floor
 graphics:.:w
 priority:16
 flags:LOS | PROJECT | PASSABLE | FLOOR | OBJECT | EASY | TRAP | RUNE | TORCH
 desc:An open floor or bare ground. Can be walked across by anything, and can
 desc: hold traps or items. Does not break line of sight.
 
-name:2:closed door
+name:closed door
 graphics:+:U
 priority:21
 flags:DOOR_ANY | DOOR_CLOSED | INTERESTING
@@ -96,39 +106,39 @@ desc: but you can also take a pickaxe to them, or blast them open
 desc: with magic. Monsters are also slowed down by doors; you can earn yourself
 desc: valuable time by locking them.
 
-name:3:open door
+name:open door
 graphics:':U
 priority:20
 flags:LOS | PROJECT | PASSABLE | DOOR_ANY | INTERESTING | CLOSABLE | EASY
 desc:A door that is already open. Player, monster, spell and missile can pass
 desc: through as long as it stays open.
 
-name:4:broken door
+name:broken door
 graphics:':u
 priority:20
 flags:LOS | PROJECT | PASSABLE | DOOR_ANY | INTERESTING | EASY
 desc:A door so broken that it cannot be shut.
 
-name:5:up staircase
+name:up staircase
 graphics:<:w
 priority:26
 flags:LOS | PROJECT | PASSABLE | PERMANENT | INTERESTING | STAIR | UPSTAIR | EASY
 desc:A staircase up to a shallower part of the dungeon.
 
-name:6:down staircase
+name:down staircase
 graphics:>:w
 priority:26
 flags:LOS | PROJECT | PASSABLE | PERMANENT | INTERESTING | STAIR | DOWNSTAIR | EASY
 desc:A staircase down to a deeper part of the dungeon.
 
-name:7:General Store
+name:General Store
 graphics:1:U
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
 info:1:0
 desc:The General Store sells food, ammunition and lighting supplies.
 
-name:8:Armoury
+name:Armoury
 graphics:2:s
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
@@ -136,7 +146,7 @@ info:2:0
 desc:The armour sold here will give you some protection against the blows of
 desc: your enemies.
 
-name:9:Weapon Smiths
+name:Weapon Smiths
 graphics:3:w
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
@@ -144,7 +154,7 @@ info:3:0
 desc:Weapons for hitting and shooting your enemies are forged in the hot, acrid
 desc: backroom of this enticing shop.
 
-name:10:Temple
+name:Temple
 graphics:4:g
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
@@ -152,14 +162,14 @@ info:4:0
 desc:A quiet, reflective place of refuge, with priestly books and supplies of
 desc: magical and hallowed goods for the pure of heart.
 
-name:11:Alchemy Shop
+name:Alchemy Shop
 graphics:5:b
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
 info:5:0
 desc:A dim, scented room where potions and scrolls are traded.
 
-name:12:Magic Shop
+name:Magic Shop
 graphics:6:r
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
@@ -167,14 +177,14 @@ info:6:0
 desc:A shop for devices with magic trapped within, lined with shelves of
 desc: mystical tomes. 
 
-name:13:House of Arcanes
+name:House of Arcanes
 graphics:9:o
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
 info:7:0
 desc:A shop that sells and buys magical and mystical books.
 
-name:14:Black Market
+name:Black Market
 graphics:7:D
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
@@ -182,7 +192,7 @@ info:8:0
 desc:Watch your back and hold onto your purse as you enter this disreputable
 desc: haunt - and do not expect friendly service or good bargains.
 
-name:15:Expensive Black Market
+name:Expensive Black Market
 graphics:7:v
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
@@ -192,21 +202,29 @@ desc: haunt - and do not expect friendly service or good bargains. Although
 desc: you may find exceptional items, be ready to spend a lot of money for
 desc: them!
 
-name:16:Tavern
+name:Tavern
 graphics:8:y
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
 info:10:0
 desc:A safe place, perfect for drinking a pint of ale or two.
 
-name:17:secret door
+name:Home
+graphics:0:B
+priority:24
+flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
+info:11:0
+desc:Your safe piece of Middle Earth, and the only place you can store goods 
+desc:apart from on your person.
+
+name:secret door
 graphics:#:w
-mimic:23
+mimic:granite wall
 priority:11
 flags:WALL | ROCK | DOOR_ANY | GRANITE
 desc:A door that appears like a granite wall to untrained eyes.
 
-name:18:pile of rubble
+name:pile of rubble
 graphics:::w
 priority:18
 flags:ROCK | NO_SCENT | NO_FLOW | INTERESTING
@@ -214,7 +232,7 @@ info:0:2
 desc:Ends LOS, stops missiles, bolts, and beams. May dissolve or be tunnelled
 desc: to normal floor.
 
-name:19:magma vein
+name:magma vein
 graphics:%:s
 priority:15
 flags:WALL | ROCK | NO_SCENT | NO_FLOW | MAGMA
@@ -223,7 +241,7 @@ desc:A seam of soft rock. It can be removed by digging or magic, and passed
 desc: through by immaterial monsters. It stops any spells, missiles or line of
 desc: sight.
 
-name:20:quartz vein
+name:quartz vein
 graphics:%:W
 priority:14
 flags:WALL | ROCK | NO_SCENT | NO_FLOW | QUARTZ
@@ -232,7 +250,7 @@ desc:A seam of hardish rock. It can be removed by digging or magic, and passed
 desc: through by immaterial monsters. It stops any spells, missiles or line of
 desc: sight.
 
-name:21:magma vein with treasure
+name:magma vein with treasure
 graphics:*:o
 priority:19
 flags:WALL | ROCK | INTERESTING | NO_SCENT | NO_FLOW | GOLD | MAGMA
@@ -241,7 +259,7 @@ desc:A seam of soft rock. It can be removed by digging or magic, and passed
 desc: through by immaterial monsters. It stops any spells, missiles or line of
 desc: sight. It contains visible treasure.
 
-name:22:quartz vein with treasure
+name:quartz vein with treasure
 graphics:*:o
 priority:19
 flags:WALL | ROCK | INTERESTING | NO_SCENT | NO_FLOW | GOLD | QUARTZ
@@ -250,7 +268,7 @@ desc:A seam of hardish rock. It can be removed by digging or magic, and passed
 desc: through by immaterial monsters. It stops any spells, missiles or line of
 desc: sight. It contains visible treasure.
 
-name:23:granite wall
+name:granite wall
 graphics:#:w
 priority:11
 flags:WALL | ROCK | GRANITE | NO_SCENT | NO_FLOW
@@ -259,7 +277,7 @@ desc:A seam of hard rock. It can be removed by digging or magic, and passed
 desc: through by immaterial monsters. It stops any spells, missiles or line of
 desc: sight.
 
-name:24:permanent wall
+name:permanent wall
 graphics:#:z
 priority:25
 flags:WALL | ROCK | PERMANENT | NO_SCENT | NO_FLOW
@@ -267,35 +285,22 @@ desc:You can dig through most walls but these are impenetrable. The dungeon is
 desc: surrounded by these kinds of walls and some special rooms are made of
 desc: them.
 
-name:25:dtrap edge - floor
-graphics:.:G
-priority:17
-flags:LOS | PROJECT | PASSABLE | FLOOR | OBJECT | EASY | TRAP | RUNE
-desc:An open floor or bare ground. Can be walked across by anything, and can
-desc: hold traps or items. Does not break line of sight. It indicates the edge
-desc: of trap detection.
-
-name:26:dtrap edge - wall
-graphics:#:G
-priority:12
-flags:WALL | ROCK | GRANITE | NO_SCENT | NO_FLOW
-info:0:5
-desc:A seam of hard rock. It can be removed by digging or magic, and passed
-desc: through by immaterial monsters. It stops any spells, missiles or line of
-desc: sight. It indicates the edge of trap detection.
-
 # New terrain
 
-name:27:lava flow
+name:lava
 graphics:#:r
 priority:25
-flags:PROJECT | WALL | ROCK | PERMANENT | NO_SCENT | NO_FLOW | BRIGHT
-desc:An impassable pool of glowing lava.
+flags:PROJECT | FIERY | PASSABLE | NO_SCENT | BRIGHT
+desc:A fiery pool of glowing lava. Step in it at your peril!
+hurt-msg:The lava burns you!
+died-flavor:burned to a cinder in lava
+die-msg:burning to a cinder in lava
+resist-flag:IM_FIRE
 
-name:28:pile of passable rubble
+name:pile of passable rubble
 graphics:::u
 priority:18
-flags:ROCK | PASSABLE | NO_SCENT | NO_FLOW | INTERESTING
+flags:ROCK | PASSABLE | INTERESTING
 info:0:2
 desc:Ends LOS, stops missiles, bolts, and beams, and reduces the radius of ball
 desc: spells. May dissolve or be tunnelled to normal floor, and can be walked
@@ -303,14 +308,14 @@ desc: through by the player and monsters.
 
 # MAngband-specific terrain elements
 
-name:29:static dungeon town wall
+name:static dungeon town wall
 graphics:#:z
 priority:25
 flags:WALL | ROCK | PERMANENT | NO_SCENT | NO_FLOW
 desc:You can dig through most walls but these are impenetrable. Static dungeon
 desc: towns are surrounded by these kinds of walls.
 
-name:30:house wall
+name:house wall
 graphics:#:u
 priority:22
 flags:WALL | ROCK | PERMANENT | PLOT | NO_SCENT | NO_FLOW
@@ -318,205 +323,264 @@ desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a section of wall from such
 desc: house.
 
-name:31:fake permanent wall
+name:fake permanent wall
 graphics:#:w
-mimic:23
+mimic:granite wall
 priority:25
 flags:WALL | ROCK | PERMANENT | PIT | NO_SCENT | NO_FLOW
 desc:This is a section of wall from a pit or nest.
 
-name:32:arena wall
+name:arena wall
 graphics:#:r
 priority:25
 flags:WALL | ROCK | PERMANENT | PLOT | ARENA | NO_SCENT | NO_FLOW
 desc:This is a section of wall from an arena.
 
-name:33:water
-graphics:~:b
+name:water
+graphics:~:B
 priority:5
-flags:LOS | PROJECT | PASSABLE | WATER | FLOOR_BORING | EASY | NOTICEABLE
+flags:LOS | PROJECT | PASSABLE | WATER | FLOOR_BORING | EASY | NOTICEABLE | NO_SCENT
 desc:A pool of water.
+hurt-msg:You are drowning!
+died-flavor:drowned
+die-msg:drowning
+resist-flag:IM_WATER
 
-name:34:mud
+name:mud
 graphics:~:u
 priority:8
 flags:LOS | PROJECT | PASSABLE | FLOOR_BORING | EASY | NOTICEABLE
 desc:A section of slippery mud.
 
-name:35:drawbridge
+name:drawbridge
 graphics:=:u
 priority:10
-flags:LOS | PROJECT | PASSABLE | FLOOR_BORING | EASY | NOTICEABLE
+flags:LOS | PROJECT | PASSABLE | FLOOR_BORING | EASY
 desc:This is a section of a bridge.
 
-name:36:fountain
+name:fountain
 graphics:_:w
 priority:22
 flags:LOS | PROJECT | PASSABLE | FOUNTAIN | FLOOR_BORING | EASY | INTERESTING | TORCH
 desc:An ornate basin filled with water.
 
-name:37:fountain (dried out)
+name:fountain (dried out)
 graphics:_:s
 priority:22
 flags:LOS | PROJECT | PASSABLE | FOUNTAIN | DRIED | FLOOR_BORING | EASY | INTERESTING
 desc:An empty ornate basin.
 
-name:38:loose dirt
+name:loose dirt
 graphics:%:u
 priority:10
 flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | PLOT | FLOOR_BORING | OBJECT | EASY | NOTICEABLE
 desc:A section of loose dirt.
 
-name:39:packed dirt
+name:packed dirt
 graphics:.:u
 priority:3
 flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | DIRT | FLOOR_BORING | OBJECT | EASY
 desc:A section of packed dirt.
 
-name:40:safe floor
+name:safe floor
 graphics:.:w
-mimic:1
+mimic:open floor
 priority:16
 flags:LOS | PROJECT | PASSABLE | FLOOR_SAFE | FLOOR_BORING | OBJECT | EASY | TORCH
 desc:An open floor or bare ground that prevents any hostile action from
 desc: monsters or other players.
 
-name:41:lava
+name:lava stream
 graphics:.:r
 priority:7
-flags:LOS | PROJECT | PASSABLE | LAVA | FLOOR_BORING | EASY | NOTICEABLE
-desc:A pool of glowing lava.
+flags:LOS | PROJECT | PASSABLE | LAVA | FLOOR_BORING | EASY | NOTICEABLE | NO_SCENT
+desc:A stream of glowing lava.
+hurt-msg:You are hit by fire!
+died-flavor:took a bath in molten lava
+die-msg:molten lava
+resist-flag:IM_FIRE
 
-name:42:street
+name:street
 graphics:.:w
 priority:16
 flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | FLOOR_BORING | OBJECT | EASY | TORCH
 desc:A section of street.
 
-name:43:pit floor
-graphics:.:u
+name:pit floor
+graphics:.:D
 priority:16
 flags:LOS | PROJECT | PASSABLE | FLOOR | PIT | OBJECT | EASY | TRAP | RUNE
 desc:An open floor or bare ground that prevents any form of teleportation.
 
-name:44:grass
+name:grass
 graphics:.:g
 priority:2
 flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | GRASS | FLOOR_BORING | OBJECT | EASY | TORCH
 desc:A patch of grass.
 
-name:45:crops
+name:crops
 graphics:%:g
 priority:10
 flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | PLOT | CROP | FLOOR_BORING | OBJECT | EASY | NOTICEABLE
 desc:A piece of land used for growing any kind of vegetables.
 
-name:46:tree
+name:tree
 graphics:*:g
 priority:4
-flags:TREE | PREFIXED
+flags:TREE | PREFIXED | NO_SCENT | NO_FLOW
 info:0:1
 desc:A tree.
 
-name:47:dark tree
+name:dark tree
 graphics:*:D
 priority:9
-flags:TREE | WITHERED | PREFIXED
+flags:TREE | WITHERED | PREFIXED | NO_SCENT | NO_FLOW
 info:0:1
 desc:A withered tree.
 
-name:48:mountain
+name:mountain
 graphics:^:D
 priority:6
-flags:MOUNTAIN | PREFIXED
+flags:MOUNTAIN | PREFIXED | NO_SCENT | NO_FLOW
 desc:A section of mountains.
 
-name:49:log
+name:log
 graphics:=:u
 priority:13
-flags:ROCK | PERMANENT | PLOT | PREFIXED
+flags:ROCK | PERMANENT | PLOT | PREFIXED | NO_SCENT | NO_FLOW
 desc:A section of wall from a public building. It is made of wood.
 
-name:50:swamp
+name:sand
+graphics:.:y
+priority:2
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | FLOOR_BORING | OBJECT | EASY | TORCH
+desc:A section of sand.
+
+name:sandwall
+graphics:#:y
+priority:11
+flags:WALL | ROCK | NO_SCENT | NO_FLOW | SAND
+info:0:2
+desc:A seam of compact sand. It can be removed by digging or magic, and passed
+desc: through by immaterial monsters. It stops any spells, missiles or line of
+desc: sight.
+
+name:ice
+graphics:.:W
+priority:2
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | FLOOR_BORING | OBJECT | EASY | TORCH
+desc:A section of ice.
+
+name:ice wall
+graphics:#:W
+priority:11
+flags:WALL | ROCK | NO_SCENT | NO_FLOW | ICE
+info:0:3
+desc:A seam of compact ice. It can be removed by digging or magic, and passed
+desc: through by immaterial monsters. It stops any spells, missiles or line of
+desc: sight.
+
+name:swamp
 graphics:%:v
 priority:10
+flags:METAMAP
 desc:A section of swamps.
 
-name:51:town
+name:town
 graphics:T:y
 priority:10
+flags:METAMAP
 desc:The location of a town.
 
-name:52:border permawall
+name:deep water
+graphics:~:b
+priority:10
+flags:METAMAP
+desc:A section of deep water.
+
+name:hill
+graphics:^:u
+priority:10
+flags:METAMAP
+desc:A section of hills.
+
+name:shore
+graphics:~:y
+priority:10
+flags:METAMAP
+desc:Lake or sea shore.
+
+name:border permawall
 graphics: :w
 priority:27
-flags:BORDER | PREFIXED
+flags:BORDER | PREFIXED | NO_SCENT | NO_FLOW
 desc:The border of a wilderness or town level.
 
-name:53:open house door
+name:open house door
 graphics:':U
 priority:23
 flags:LOS | PROJECT | PASSABLE | DOOR_HOME | INTERESTING | CLOSABLE | EASY
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is an open door from such house.
 
-name:54:closed house door
+name:closed house door
 graphics:+:U
 priority:23
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
 
-name:55:closed house door (Black Market)
-graphics:+:D
+name:closed house door (General Store)
+graphics:+:u
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 info:1:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a Black Market can be dropped inside and
+desc: Anything that can be sold in a General Store can be dropped inside and
 desc: sold to other players.
 
-name:56:closed house door (Tavern)
-graphics:+:y
+name:closed house door (Armoury)
+graphics:+:s
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 info:2:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything can be dropped inside and sold to other players.
+desc: Anything that can be sold in an Armoury can be dropped inside and
+desc: sold to other players.
 
-name:57:closed house door (Expensive Black Market)
-graphics:+:v
+name:closed house door (Weapon Smiths)
+graphics:+:w
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 info:3:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a Black Market can be dropped inside and
+desc: Anything that can be sold in a Weapon Smiths can be dropped inside and
 desc: sold to other players.
 
-name:58:closed house door (Alchemy Shop)
-graphics:+:b
+name:closed house door (Temple)
+graphics:+:g
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 info:4:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in an Alchemy Shop can be dropped inside and
+desc: Anything that can be sold in a Temple can be dropped inside and
 desc: sold to other players.
 
-name:59:closed house door (Temple)
-graphics:+:g
+name:closed house door (Alchemy Shop)
+graphics:+:b
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 info:5:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a Temple can be dropped inside and
+desc: Anything that can be sold in an Alchemy Shop can be dropped inside and
 desc: sold to other players.
 
-name:60:closed house door (Magic Shop)
+name:closed house door (Magic Shop)
 graphics:+:r
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
@@ -526,7 +590,7 @@ desc: safely apart from on your person. This is a closed door from such house.
 desc: Anything that can be sold in a Magic Shop can be dropped inside and
 desc: sold to other players.
 
-name:61:closed house door (House of Arcanes)
+name:closed house door (House of Arcanes)
 graphics:+:o
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
@@ -536,32 +600,94 @@ desc: safely apart from on your person. This is a closed door from such house.
 desc: Anything that can be sold in a House of Arcanes can be dropped inside and
 desc: sold to other players.
 
-name:62:closed house door (Armoury)
-graphics:+:s
+name:closed house door (Black Market)
+graphics:+:D
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 info:8:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in an Armoury can be dropped inside and
+desc: Anything that can be sold in a Black Market can be dropped inside and
 desc: sold to other players.
 
-name:63:closed house door (Weapon Smiths)
-graphics:+:w
+name:closed house door (Expensive Black Market)
+graphics:+:v
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 info:9:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a Weapon Smiths can be dropped inside and
+desc: Anything that can be sold in a Black Market can be dropped inside and
 desc: sold to other players.
 
-name:64:closed house door (General Store)
-graphics:+:u
+name:closed house door (Tavern)
+graphics:+:y
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 info:10:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a General Store can be dropped inside and
-desc: sold to other players.
+desc: Anything can be dropped inside and sold to other players.
+
+name:closed house door (Home)
+graphics:+:B
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+info:11:0
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Anything can be dropped inside and sold to other players.
+
+# New PWMAngband terrain (at the end of file to avoid breaking custom levels)
+
+name:ash
+graphics:.:s
+priority:3
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | FLOOR_BORING | OBJECT | EASY
+desc:A section of ash.
+
+name:nether mist
+graphics:.:G
+priority:5
+flags:LOS | PROJECT | PASSABLE | FLOOR_BORING | EASY | NOTICEABLE | NETHER | NO_SCENT
+desc:Some nether mist.
+hurt-msg:The mist saps your health!
+died-flavor:was sucked dry by nether mist
+die-msg:nether mist
+resist-flag:IM_NETHER
+
+name:dark wall
+graphics:#:s
+priority:11
+flags:WALL | ROCK | DARK | NO_SCENT | NO_FLOW
+info:0:5
+desc:A dark wall. It can be removed by digging or magic, and passed
+desc: through by immaterial monsters. It stops any spells, missiles or line of
+desc: sight.
+
+name:web
+graphics:+:Y
+priority:18
+flags:PASSABLE | INTERESTING | WEB
+info:0:2
+desc:Ends LOS, stops missiles, bolts, and beams, and reduces the radius of ball
+desc: spells. May dissolve or be tunnelled to normal floor, and can be walked
+desc: through by the player and monsters.
+
+name:void
+graphics:.:d
+priority:3
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | FLOOR_BORING | OBJECT | EASY
+desc:A section of nothingness.
+
+name:glass wall
+graphics:#:B
+priority:25
+flags:WALL | ROCK | PERMANENT | NO_SCENT | NO_FLOW
+desc:A glass wall blocking your way.
+
+name:illusion wall
+graphics:#:w
+priority:10
+flags:LOS | PROJECT | PASSABLE | FLOOR_BORING | EASY
+desc:Looks like this wall is not so real.

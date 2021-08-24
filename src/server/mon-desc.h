@@ -27,7 +27,7 @@
 #define MDESC_DIED_FROM (MDESC_SHOW | MDESC_IND_VIS)
 
 extern void plural_aux(char *name, size_t max);
-extern void get_mon_name(char *output_name, size_t max, const struct monster_race *race, int num);
+extern void get_mon_name(char *buf, size_t buflen, const struct monster_race *race, int num);
 extern void monster_desc(struct player *p, char *desc, size_t max, const struct monster *mon,
     int mode);
 

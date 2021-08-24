@@ -1,6 +1,6 @@
 /*
  * File: target-ui.h
- * Purpose: UI for targetting code
+ * Purpose: UI for targeting code
  */
 
 #ifndef TARGET_UI_H

@@ -1,0 +1,191 @@
+# File: blow_methods.txt
+
+
+# Methods for monster blows
+
+# === Understanding blow_methods.txt ===
+
+# name: blow method code
+# cut: 1 if the method can cut, 0 if not
+# stun: 1 if the method can stun, 0 if not
+# miss: 1 if the player is told when the blow misses, 0 if not
+# phys: 1 if the method does physical damage, 0 if not
+# msg: message type to display
+# act: action string to append
+# desc: monster lore description
+# flavor: death message to display
+
+
+name:HIT
+cut:1
+stun:1
+miss:1
+phys:1
+msg:MON_HIT
+act:hits %s
+desc:hit
+
+name:TOUCH
+cut:0
+stun:0
+miss:1
+phys:0
+msg:MON_TOUCH
+act:touches %s
+desc:touch
+
+name:PUNCH
+cut:0
+stun:1
+miss:1
+phys:1
+msg:MON_PUNCH
+act:punches %s
+desc:punch
+flavor:punched to death
+
+name:KICK
+cut:0
+stun:1
+miss:1
+phys:1
+msg:MON_KICK
+act:kicks %s
+desc:kick
+flavor:kicked to death
+
+name:CLAW
+cut:1
+stun:0
+miss:1
+phys:1
+msg:MON_CLAW
+act:claws %s
+desc:claw
+flavor:eviscerated
+
+name:BITE
+cut:1
+stun:0
+miss:1
+phys:1
+msg:MON_BITE
+act:bites %s
+desc:bite
+flavor:shred to pieces
+
+name:STING
+cut:0
+stun:0
+miss:1
+phys:1
+msg:MON_STING
+act:stings %s
+desc:sting
+
+name:BUTT
+cut:0
+stun:1
+miss:1
+phys:1
+msg:MON_BUTT
+act:butts %s
+desc:butt
+
+name:CRUSH
+cut:0
+stun:1
+miss:1
+phys:1
+msg:MON_CRUSH
+act:crushes %s
+desc:crush
+flavor:crushed to pulp
+
+name:ENGULF
+cut:0
+stun:0
+miss:1
+phys:0
+msg:MON_ENGULF
+act:engulfs %s
+desc:engulf
+
+name:CRAWL
+cut:0
+stun:0
+miss:0
+phys:0
+msg:MON_CRAWL
+act:crawls on %s
+desc:crawl on you
+
+name:DROOL
+cut:0
+stun:0
+miss:0
+phys:0
+msg:MON_DROOL
+act:drools on %s
+desc:drool on you
+
+name:SPIT
+cut:0
+stun:0
+miss:0
+phys:0
+msg:MON_SPIT
+act:spits on %s
+desc:spit
+
+name:GAZE
+cut:0
+stun:0
+miss:0
+phys:0
+msg:MON_GAZE
+act:gazes at %s
+desc:gaze
+
+name:WAIL
+cut:0
+stun:0
+miss:0
+phys:0
+msg:MON_WAIL
+act:wails at %s
+desc:wail
+
+name:SPORE
+cut:0
+stun:0
+miss:0
+phys:0
+msg:MON_SPORE
+act:releases spores at %s
+desc:release spores
+
+name:BEG
+cut:0
+stun:0
+miss:0
+phys:0
+msg:MON_BEG
+act:begs %s for money
+desc:beg
+
+name:INSULT
+cut:0
+stun:0
+miss:0
+phys:0
+msg:MON_INSULT
+desc:insult
+
+name:MOAN
+cut:0
+stun:0
+miss:0
+phys:0
+msg:MON_MOAN
+desc:moan

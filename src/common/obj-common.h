@@ -13,24 +13,22 @@
  */
 enum
 {
-    #define ELEM(a, b, c, d, e, f, g, h, col, pvp) ELEM_##a,
+    #define ELEM(a) ELEM_##a,
     #include "list-elements.h"
     #undef ELEM
     ELEM_MAX
 };
 
 #define ELEM_BASE_MIN   ELEM_ACID
+#define ELEM_BASE_MAX   ELEM_COLD
 #define ELEM_HIGH_MIN   ELEM_POIS
 #define ELEM_HIGH_MAX   ELEM_DISEN
+#define ELEM_XHIGH_MAX  ELEM_MANA
 
 /* The object flags */
 enum
 {
-    OF_NONE,
-    #define STAT(a, b, c, d, e, f, g, h) OF_##c,
-    #include "list-stats.h"
-    #undef STAT
-    #define OF(a, b, c, d, e) OF_##a,
+    #define OF(a) OF_##a,
     #include "list-object-flags.h"
     #undef OF
     OF_MAX
@@ -40,6 +38,7 @@ enum
 
 #define of_has(f, flag)        flag_has_dbg(f, OF_SIZE, flag, #f, #flag)
 #define of_next(f, flag)       flag_next(f, OF_SIZE, flag)
+#define of_count(f)            flag_count(f, OF_SIZE)
 #define of_is_empty(f)         flag_is_empty(f, OF_SIZE)
 #define of_is_full(f)          flag_is_full(f, OF_SIZE)
 #define of_is_inter(f1, f2)    flag_is_inter(f1, f2, OF_SIZE)
@@ -52,7 +51,6 @@ enum
 #define of_negate(f)           flag_negate(f, OF_SIZE)
 #define of_copy(f1, f2)        flag_copy(f1, f2, OF_SIZE)
 #define of_union(f1, f2)       flag_union(f1, f2, OF_SIZE)
-#define of_comp_union(f1, f2)  flag_comp_union(f1, f2, OF_SIZE)
 #define of_inter(f1, f2)       flag_inter(f1, f2, OF_SIZE)
 #define of_diff(f1, f2)        flag_diff(f1, f2, OF_SIZE)
 
@@ -84,17 +82,16 @@ enum
 #define kf_negate(f)           flag_negate(f, KF_SIZE)
 #define kf_copy(f1, f2)        flag_copy(f1, f2, KF_SIZE)
 #define kf_union(f1, f2)       flag_union(f1, f2, KF_SIZE)
-#define kf_comp_union(f1, f2)  flag_comp_union(f1, f2, KF_SIZE)
 #define kf_inter(f1, f2)       flag_inter(f1, f2, KF_SIZE)
 #define kf_diff(f1, f2)        flag_diff(f1, f2, KF_SIZE)
 
 /* The object modifiers */
 enum
 {
-    #define STAT(a, b, c, d, e, f, g, h) OBJ_MOD_##a,
+    #define STAT(a) OBJ_MOD_##a,
     #include "list-stats.h"
     #undef STAT
-    #define OBJ_MOD(a, b, c, d) OBJ_MOD_##a,
+    #define OBJ_MOD(a) OBJ_MOD_##a,
     #include "list-object-modifiers.h"
     #undef OBJ_MOD
     OBJ_MOD_MAX
@@ -106,11 +103,9 @@ enum
 enum
 {
     IGNORE_NONE,
-    IGNORE_WORTHLESS,
+    IGNORE_BAD,
     IGNORE_AVERAGE,
     IGNORE_GOOD,
-    IGNORE_EXCELLENT_NO_HI,
-    IGNORE_EXCELLENT_NO_SPL,
     IGNORE_ALL,
 
     IGNORE_MAX
@@ -118,6 +113,9 @@ enum
 
 /*** Structures ***/
 
+/*
+ * Effect
+ */
 struct effect
 {
     struct effect *next;
@@ -143,36 +141,67 @@ struct flavor
     char d_char;        /* Default flavor character */
 };
 
-/* Brand type */
+/*
+ * Brand type
+ */
 struct brand
 {
+    char *code;
     char *name;
-    int element;
+    char *verb;
+    int resist_flag;
     int multiplier;
-    int damage; /* Storage for damage during description */
+    int power;
+    char *active_verb;
+    char *active_verb_plural;
+    char *desc_adjective;
     struct brand *next;
 };
 
-/* Slay type */
+/*
+ * Slay type
+ */
 struct slay
 {
+    char *code;
     char *name;
+    char *base;
+    char *melee_verb;
+    char *range_verb;
     int race_flag;
     int multiplier;
-    int damage; /* Storage for damage during description */
+    int power;
+    int esp_chance;
+    int esp_flag;
     struct slay *next;
 };
 
-enum
+/*
+ * Curse type
+ */
+struct curse
 {
-    EL_XXX = 0x01, /* TODO: remove for the next 1.1.12 version */
-    EL_INFO_HATES = 0x02, /* TODO: renumber for the next 1.1.12 version */
-    EL_INFO_IGNORE = 0x04, /* TODO: renumber for the next 1.1.12 version */
-    EL_INFO_RANDOM = 0x08, /* TODO: renumber for the next 1.1.12 version */
-    EL_YYY = 0x10  /* TODO: remove for the next 1.1.12 version */
+    struct curse *next;
+    char *name;
+    bool *poss;
+    struct object *obj;
+    char *conflict;
+    bitflag conflict_flags[OF_SIZE];
+    char *desc;
 };
 
-/* Element info type */
+extern struct curse *curses;
+
+enum
+{
+    EL_INFO_HATES = 0x01,
+    EL_INFO_IGNORE = 0x02,
+    EL_INFO_RANDOM = 0x04
+};
+
+/*
+ * Element info type
+ */
 struct element_info
 {
     s16b res_level;
@@ -186,7 +215,7 @@ struct activation
 {
     struct activation *next;
     char *name;
-    int index;
+    unsigned int index;
     bool aim;
     int power;
     struct effect *effect;
@@ -209,6 +238,7 @@ struct object_base
     bitflag kind_flags[KF_SIZE];    /* Kind flags */
     struct element_info el_info[ELEM_MAX];
     int break_perc;
+    int max_stack;
     int num_svals;
 };
 
@@ -239,8 +269,9 @@ struct object_kind
     bitflag kind_flags[KF_SIZE];    /* Kind flags */
     random_value modifiers[OBJ_MOD_MAX];
     struct element_info el_info[ELEM_MAX];
-    struct brand *brands;
-    struct slay *slays;
+    bool *brands;
+    bool *slays;
+    int *curses;                    /* Array of curse powers */
     byte d_attr;                    /* Default object attribute */
     char d_char;                    /* Default object character */
     int alloc_prob;                 /* Allocation: commonness */
@@ -280,8 +311,9 @@ struct artifact
     bitflag flags[OF_SIZE];         /* Flags (all) */
     int modifiers[OBJ_MOD_MAX];
     struct element_info el_info[ELEM_MAX];
-    struct brand *brands;
-    struct slay *slays;
+    bool *brands;
+    bool *slays;
+    int *curses;                    /* Array of curse powers */
     int level;                      /* Difficulty level for activation */
     int alloc_prob;                 /* Chance of being generated (i.e. rarity) */
     int alloc_min;                  /* Minimum depth (can appear earlier) */
@@ -291,15 +323,16 @@ struct artifact
     struct activation *activation;  /* Artifact activation */
     char *alt_msg;
     random_value time;              /* Recharge time (if appropriate) */
+    int base_power;                 /* Artifact power (for randarts) */
 };
 
 /*
  * Structure for possible object kinds for an ego item
  */
-struct ego_poss_item
+struct poss_item
 {
     u32b kidx;
-    struct ego_poss_item *next;
+    struct poss_item *next;
 };
 
 /*
@@ -316,15 +349,14 @@ struct ego_item
     random_value modifiers[OBJ_MOD_MAX];
     int min_modifiers[OBJ_MOD_MAX];
     struct element_info el_info[ELEM_MAX];
-    struct brand *brands;
-    struct slay *slays;
-    int level;                      /* Minimum level */
-    int rarity;                     /* Object rarity */
+    bool *brands;
+    bool *slays;
+    int *curses;                    /* Array of curse powers */
     int rating;                     /* Level rating boost */
     int alloc_prob;                 /* Chance of being generated (i.e. rarity) */
     int alloc_min;                  /* Minimum depth (can appear earlier) */
     int alloc_max;                  /* Maximum depth (will NEVER appear deeper) */
-    struct ego_poss_item *poss_items;
+    struct poss_item *poss_items;
     random_value to_h;              /* Extra to-hit bonus */
     random_value to_d;              /* Extra to-dam bonus */
     random_value to_a;              /* Extra to-ac bonus */
@@ -342,11 +374,19 @@ extern struct ego_item *e_info;
  */
 enum
 {
-    ACT_NONE,
-    ACT_HACK,
-    ACT_TIMEOUT,
-    ACT_NORMAL,
-    ACT_AIMED
+    ACT_NONE,       /* Not activatable */
+    ACT_TIMEOUT,    /* Charging */
+    ACT_NORMAL      /* Activatable */
+};
+
+/*
+ * Direction choice
+ */
+enum
+{
+    AIM_NONE,   /* None */
+    AIM_RANDOM, /* Random */
+    AIM_NORMAL  /* Normal */
 };
 
 /*
@@ -356,24 +396,27 @@ struct object_xtra
 {
     byte attr;              /* Color */
     byte act;               /* Activation flag */
+    byte aim;               /* Aiming flag */
     byte fuel;              /* Fuelable flag */
     byte fail;              /* Fail flag */
     s16b slot;              /* Slot flag */
     byte max;               /* Max amount */
     byte owned;             /* Owned amount */
-    byte cursed;            /* Cursed flag */
+    byte stuck;             /* Stuck flag */
     byte known;             /* Known flag */
     byte sellable;          /* Sellable flag */
     byte carry;             /* Carry flag */
     byte quality_ignore;    /* Quality ignoring */
     byte ignored;           /* Ignored flag */
-    byte ego_ignore;        /* Ego ignoring */
-    s16b eidx;              /* Ego index */
+    s16b eidx;              /* Ego index (or -1 if no ego) */
     byte equipped;          /* Equipped flag */
+    byte magic;             /* Magic flag */
     s16b bidx;              /* Book index */
     char name[NORMAL_WID];
     char name_terse[NORMAL_WID];
     char name_base[NORMAL_WID];
+    char name_curse[NORMAL_WID];
+    char name_power[NORMAL_WID];
 };
 
 /*
@@ -382,8 +425,18 @@ struct object_xtra
 enum
 {
     OBJ_NOTICE_WORN = 0x01,
-    OBJ_NOTICE_SENSED = 0x02,
+    OBJ_NOTICE_ASSESSED = 0x02,
     OBJ_NOTICE_IGNORE = 0x04
+};
+
+struct curse_data
+{
+    int power;
+    int timeout;
+    int to_a;
+    int to_h;
+    int to_d;
+    int modifiers[OBJ_MOD_MAX];
 };
 
 /*
@@ -414,55 +467,70 @@ enum
  */
 struct object
 {
-    struct object_kind *kind;
-    struct ego_item *ego;
-    struct artifact *artifact;
+    struct object_kind *kind;           /* Kind of the object */
+    struct ego_item *ego;               /* Ego item info of the object, if any */
+    struct artifact *artifact;          /* Artifact info of the object, if any */
 
-    struct object *prev;            /* Previous object in a pile */
-    struct object *next;            /* Next object in a pile */
-    struct object *known;           /* Known version of this object */
+    struct object *prev;                /* Previous object in a pile */
+    struct object *next;                /* Next object in a pile */
+    struct object *known;               /* Known version of this object */
 
-    s16b oidx;                      /* Item list index, if any */
+    s16b oidx;                          /* Item list index, if any */
 
-    byte iy;                        /* Y-position on map, or zero */
-    byte ix;                        /* X-position on map, or zero */
-    byte tval;                      /* Item type (from kind) */
-    byte sval;                      /* Item sub-type (from kind) */
-    s32b pval;                      /* Item extra-parameter */
-    s16b weight;                    /* Item weight */
-    bitflag flags[OF_SIZE];         /* Flags (all) */
-    s32b modifiers[OBJ_MOD_MAX];
-    struct element_info el_info[ELEM_MAX];
-    struct brand *brands;
-    struct slay *slays;
-    s16b ac;                        /* Normal AC */
-    s16b to_a;                      /* Plusses to AC */
-    s16b to_h;                      /* Plusses to hit */
-    s16b to_d;                      /* Plusses to damage */
-    byte dd, ds;                    /* Damage dice/sides */
-    struct effect *effect;          /* Effect this item produces (effects.c) */
-    struct activation *activation;  /* Activation */
-    random_value time;              /* Recharge time (rods/activation) */
-    s16b timeout;                   /* Timeout Counter */
-    byte number;                    /* Number of items */
-    bitflag notice;                 /* Attention paid to the object */
-    s16b held_m_idx;                /* Monster holding us (if any) */
-    s16b mimicking_m_idx;           /* Monster mimicking us (if any) */
-    byte origin;                    /* How this item was found */
-    s16b origin_depth;              /* What depth the item was found at */
-    u16b origin_xtra;               /* Extra information about origin */
-    quark_t note;                   /* Inscription index */
-    s16b depth;                     /* Depth into the dungeon */
-    s32b randart_seed;              /* Randart seed, if any */
-    s32b askprice;                  /* Item sale price (transient) */
-    s32b creator;                   /* Item creator (if any) */
-    s32b owner;                     /* Item owner (if any) */
-    byte allow_ignore;              /* Item can be ignored */
-    byte ordered;                   /* Item has been ordered */
-    struct object_xtra info_xtra;   /* Extra information used by the client */
-    byte attr;                      /* "attr" last used for drawing object */
-    s16b decay;                     /* Decay timeout for corpses */
-    byte bypass_aware;              /* Bypasses the "aware" flag */
+    byte iy;                            /* Y-position on map, or zero */
+    byte ix;                            /* X-position on map, or zero */
+
+    byte tval;                          /* Item type (from kind) */
+    byte sval;                          /* Item sub-type (from kind) */
+
+    s32b pval;                          /* Item extra-parameter */
+
+    s16b weight;                        /* Item weight */
+
+    byte dd;                            /* Number of damage dice */
+    byte ds;                            /* Number of sides on each damage die */
+    s16b ac;                            /* Normal AC */
+    s16b to_a;                          /* Plusses to AC */
+    s16b to_h;                          /* Plusses to hit */
+    s16b to_d;                          /* Plusses to damage */
+
+    bitflag flags[OF_SIZE];             /* Object flags */
+    s32b modifiers[OBJ_MOD_MAX];        /* Object modifiers */
+    struct element_info el_info[ELEM_MAX];  /* Object element info */
+    bool *brands;                       /* Array of brands */
+    bool *slays;                        /* Array of slays */
+    struct curse_data *curses;          /* Array of curse powers and timeouts */
+
+    struct effect *effect;              /* Effect this item produces (effects.c) */
+    struct activation *activation;      /* Activation */
+    random_value time;                  /* Recharge time (rods/activation) */
+    s16b timeout;                       /* Timeout Counter */
+
+    byte number;                        /* Number of items */
+    bitflag notice;                     /* Attention paid to the object */
+
+    s16b held_m_idx;                    /* Monster holding us (if any) */
+    s16b mimicking_m_idx;               /* Monster mimicking us (if any) */
+
+    byte origin;                        /* How this item was found */
+    s16b origin_depth;                  /* What depth the item was found at */
+    struct monster_race *origin_race;   /* Monster race that dropped it */
+
+    quark_t note;                       /* Inscription index */
+
+    /* MAngband & PWMAngband fields */
+
+    struct worldpos wpos;               /* Position on the world map */
+    s32b randart_seed;                  /* Randart seed, if any */
+    s32b askprice;                      /* Item sale price (transient) */
+    s32b creator;                       /* Item creator (if any) */
+    s32b owner;                         /* Item owner (if any) */
+    byte ignore_protect;                /* Bypass auto-ignore */
+    byte ordered;                       /* Item has been ordered */
+    struct object_xtra info_xtra;       /* Extra information used by the client */
+    byte attr;                          /* "attr" last used for drawing object */
+    s16b decay;                         /* Decay timeout for corpses */
+    byte bypass_aware;                  /* Bypasses the "aware" flag */
 };
 
 typedef bool (*item_tester)(struct player *, const struct object *);

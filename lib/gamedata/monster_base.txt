@@ -1,10 +1,14 @@
+# File: monster_base.txt
+
+
 # This file provides information for monster "templates".
-# 
+
+# === Understanding monster_base.txt ===
+ 
 # name : template name
 # glyph : default display character
 # pain : pain message index
 # flags : flag | flag | ...
-# spells : spell flag | spell flag | ...
 # desc : description
 #
 # 'name' indicates the beginning of an entry. The template name is used in
@@ -18,17 +22,16 @@
 #
 # 'flags' indicates the flags that every monster inherits from this template.
 #
-# 'spells' indicates the spell flags that every monster inherits from this
-# template.
-#
 # 'desc' indicates the textual description of this template that is used by
 # the '/' command in-game.
 #
-# Note that some templates have hardcoded references. In particular, changing
-# the name of the following templates will cause certain summon spells to break:
+# Note that some templates have references to other data files. In particular,
+# changing the name of the following templates will cause certain summon spells
+# to break:
 # ancient dragon, ainu, canine, hydra, lich, major demon, spider, vampire,
 # wraith, zephyr hound.
 # Changing other characteristics of these monsters is fine.
+
 
 ##### Normal monster templates #####
 
@@ -38,17 +41,17 @@ pain:1
 flags:DRAGON | EVIL | POWERFUL | SMART
 flags:DROP_4
 flags:MOVE_BODY
-flags:NO_CONF | NO_SLEEP
+flags:NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_SLEEP
 desc:Ancient Dragon/Wyrm
 
 name:ainu
 glyph:A
 pain:1
-flags:POWERFUL
+flags:POWERFUL | LEVITATE
 flags:ONLY_ITEM
 flags:OPEN_DOOR | BASH_DOOR | TAKE_ITEM
-flags:IM_POIS | NO_CONF | NO_SLEEP
+flags:IM_POIS | NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_SLEEP
 desc:Ainu/Maia
 
@@ -63,13 +66,13 @@ desc:Ant
 name:bat
 glyph:b
 pain:4
-flags:ANIMAL
+flags:ANIMAL | LEVITATE
 desc:Bat
 
 name:bird
 glyph:B
 pain:8
-flags:ANIMAL
+flags:ANIMAL | LEVITATE
 desc:Bird
 
 name:canine
@@ -98,14 +101,14 @@ desc:Creeping Coins
 name:dragon
 glyph:d
 pain:1
-flags:DRAGON | EVIL
+flags:DRAGON | EVIL | LEVITATE
 flags:FORCE_SLEEP
 desc:Dragon
 
 name:dragon fly
 glyph:F
 pain:7
-flags:ANIMAL | WEIRD_MIND
+flags:ANIMAL | WEIRD_MIND | LEVITATE
 flags:RAND_50 | BASH_DOOR
 flags:FORCE_SLEEP
 desc:Dragon Fly
@@ -113,6 +116,7 @@ desc:Dragon Fly
 name:eye
 glyph:e
 pain:1
+flags:LEVITATE
 desc:Floating Eye
 
 name:elemental
@@ -135,7 +139,7 @@ glyph:G
 pain:1
 flags:UNDEAD | EVIL | INVISIBLE | COLD_BLOOD
 flags:PASS_WALL
-flags:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN
+flags:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN | NO_HOLD
 desc:Ghost
 
 name:giant
@@ -143,7 +147,6 @@ glyph:P
 pain:1
 flags:GIANT | EVIL
 flags:BASH_DOOR
-spells:BOULDER
 flags:HUMANOID
 desc:Giant Humanoid
 
@@ -187,7 +190,7 @@ desc:Icky Thing
 name:insect
 glyph:I
 pain:7
-flags:ANIMAL | WEIRD_MIND | MULTIPLY
+flags:ANIMAL | WEIRD_MIND | MULTIPLY | LEVITATE
 flags:RAND_25 | RAND_50
 desc:Insect
 
@@ -201,7 +204,7 @@ desc:Jelly
 name:killer beetle
 glyph:K
 pain:7
-flags:ANIMAL | WEIRD_MIND
+flags:ANIMAL | WEIRD_MIND | LEVITATE
 flags:BASH_DOOR
 flags:HAS_LEGS
 desc:Killer Beetle
@@ -220,15 +223,14 @@ glyph:L
 pain:1
 flags:UNDEAD | EVIL | COLD_BLOOD | SMART
 flags:OPEN_DOOR | BASH_DOOR
-flags:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN
+flags:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN | NO_HOLD
 flags:FORCE_SLEEP
-spells:BRAIN_SMASH
 desc:Lich
 
 name:louse
 glyph:l
 pain:7
-flags:ANIMAL | WEIRD_MIND | MULTIPLY
+flags:ANIMAL | WEIRD_MIND | MULTIPLY | LEVITATE
 flags:RAND_50
 desc:Louse
 
@@ -247,7 +249,7 @@ pain:1
 flags:DEMON | EVIL
 flags:ONLY_ITEM
 flags:OPEN_DOOR | BASH_DOOR
-flags:NO_CONF | NO_SLEEP
+flags:NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_SLEEP
 desc:Major Demon
 
@@ -258,7 +260,6 @@ flags:COLD_BLOOD | EMPTY_MIND | UNAWARE
 flags:NEVER_MOVE
 flags:NO_FEAR | NO_CONF | NO_SLEEP
 flags:FORCE_SLEEP | ATTR_CLEAR
-spells:BLIND | CAUSE_2 | CONF | SCARE
 desc:Mimic
 
 name:minor demon
@@ -326,7 +327,7 @@ glyph:Q
 pain:2
 flags:EMPTY_MIND | INVISIBLE
 flags:NEVER_BLOW | NEVER_MOVE
-flags:NO_FEAR | NO_CONF | NO_SLEEP
+flags:NO_FEAR | NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_SLEEP
 desc:Quylthulg
 
@@ -381,19 +382,18 @@ desc:Troll
 name:vampire
 glyph:V
 pain:1
-flags:UNDEAD | EVIL | COLD_BLOOD | REGENERATE
+flags:UNDEAD | EVIL | COLD_BLOOD | REGENERATE | LEVITATE
 flags:OPEN_DOOR | BASH_DOOR
 flags:HURT_LIGHT | HURT_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN
 flags:FORCE_SLEEP
-spells:HOLD | SCARE
 desc:Vampire
 
 name:vortex
 glyph:v
 pain:11
-flags:EMPTY_MIND | POWERFUL
+flags:EMPTY_MIND | POWERFUL | LEVITATE
 flags:RAND_50 | BASH_DOOR
-flags:NO_FEAR | NO_CONF | NO_SLEEP
+flags:NO_FEAR | NO_CONF | NO_SLEEP | NO_HOLD | IM_POIS
 flags:FORCE_SLEEP
 flags:NONLIVING
 desc:Vortex
@@ -408,7 +408,7 @@ name:wraith
 glyph:W
 pain:1
 flags:UNDEAD | EVIL | COLD_BLOOD
-flags:HURT_LIGHT | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN
+flags:HURT_LIGHT | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN | NO_HOLD
 desc:Wight/Wraith
 
 name:xorn
@@ -421,7 +421,7 @@ desc:Xorn/Xaren
 name:yeek
 glyph:y
 pain:1
-flags:ANIMAL
+flags:ANIMAL | LEVITATE
 flags:OPEN_DOOR | BASH_DOOR
 flags:IM_ACID
 flags:HUMANOID
@@ -465,10 +465,17 @@ desc:Morgoth
 
 ##### Extra templates #####
 
+name:aquatic
+glyph:~
+pain:1
+desc:Aquatic
+flags:ANIMAL
+flags:IM_WATER
+
 name:ball
 glyph:*
 pain:11
-flags:EMPTY_MIND | PWMANG_BASE | NONLIVING
+flags:EMPTY_MIND | NONLIVING | LEVITATE
 flags:RAND_25 | RAND_50
 flags:IM_POIS
 desc:Ball
@@ -476,7 +483,7 @@ desc:Ball
 name:dragon worm
 glyph:w
 pain:1
-flags:DRAGON | EVIL | MULTIPLY | PWMANG_BASE
+flags:DRAGON | EVIL | MULTIPLY
 flags:DROP_40 | ONLY_GOLD
 flags:RAND_25 | RAND_50 | OPEN_DOOR | BASH_DOOR
 desc:Dragon Worm
@@ -493,14 +500,14 @@ desc:Feature Mimic
 name:mineral
 glyph:#
 pain:1
-flags:COLD_BLOOD | EMPTY_MIND | PWMANG_BASE
+flags:COLD_BLOOD | EMPTY_MIND
 flags:IM_POIS | IM_COLD | IM_ACID | NO_CONF | NO_SLEEP
 desc:Mineral
 
 name:mist
 glyph:#
 pain:1
-flags:EVIL | EMPTY_MIND | COLD_BLOOD | PWMANG_BASE
+flags:EVIL | EMPTY_MIND | COLD_BLOOD
 flags:RAND_25
 flags:IM_COLD | IM_POIS | IM_ACID
 desc:Mist
@@ -508,12 +515,12 @@ desc:Mist
 name:nether
 glyph:P
 pain:1
-desc:Nether Realm uniques
+desc:Nether Realm dungeon boss
 
 name:object mimic
 glyph:|
 pain:1
-flags:COLD_BLOOD | EMPTY_MIND | UNAWARE | PWMANG_BASE
+flags:COLD_BLOOD | EMPTY_MIND | UNAWARE
 flags:NEVER_MOVE
 flags:NO_FEAR | NO_CONF | NO_SLEEP
 flags:FORCE_SLEEP | ATTR_CLEAR
@@ -522,7 +529,7 @@ desc:Object Mimic
 name:phantom warrior
 glyph:G
 pain:1
-flags:UNDEAD | EVIL | COLD_BLOOD | PWMANG_BASE
+flags:UNDEAD | EVIL | COLD_BLOOD
 flags:PASS_WALL
 flags:NO_CONF | NO_SLEEP | IM_POIS | NO_STUN
 desc:Phantom Warrior
@@ -530,29 +537,26 @@ desc:Phantom Warrior
 name:random mimic
 glyph:x
 pain:1
-flags:COLD_BLOOD | EMPTY_MIND | UNAWARE | PWMANG_BASE
+flags:COLD_BLOOD | EMPTY_MIND | UNAWARE
 flags:NEVER_MOVE
 flags:NO_FEAR | NO_CONF | NO_SLEEP
 flags:FORCE_SLEEP | ATTR_CLEAR
-spells:BLIND | CONF | SCARE
-spells:BO_COLD | BO_FIRE
 desc:Random Mimic
 
 name:sandworm
 glyph:w
 pain:1
-flags:EVIL | EMPTY_MIND | PWMANG_BASE
+flags:EVIL | EMPTY_MIND
 flags:IM_ELEC | IM_FIRE | IM_POIS | IM_ACID
 desc:Sandworm
 
 name:stinger
 glyph:I
 pain:7
-flags:ANIMAL | WEIRD_MIND | PWMANG_BASE
+flags:ANIMAL | WEIRD_MIND | LEVITATE
 desc:Stinger
 
 name:vegetal
 glyph:#
 pain:1
-flags:PWMANG_BASE
 desc:Vegetal

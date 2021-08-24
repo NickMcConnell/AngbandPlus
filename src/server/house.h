@@ -15,7 +15,7 @@ enum
 };
 
 /* Information about a "house" */
-typedef struct
+struct house_type
 {
     byte x_1;                   /* Location of house */
     byte y_1;
@@ -23,14 +23,14 @@ typedef struct
     byte y_2;
     byte door_y;                /* Location of door */
     byte door_x;
-    s32b depth;
+    struct worldpos wpos;       /* Position on the world map */
     s32b price;                 /* Cost of buying */
     s32b ownerid;               /* Owner ID */
     char ownername[NORMAL_WID]; /* Owner name */
     byte color;                 /* Door color */
     byte state;                 /* State */
     byte free;                  /* House is free (bought with a Deed of Property) */
-} house_type;
+};
 
 /* Initialize the house package */
 extern void houses_init(void);
@@ -51,28 +51,28 @@ extern bool house_owned_by(struct player *p, int house);
 extern int houses_owned(struct player *p);
 
 /* Return the index of a house given a coordinate pair */
-extern int pick_house(int depth, int y, int x);
+extern int pick_house(struct worldpos *wpos, int y, int x);
 
 /* Given coordinates return a house to which they belong */
 extern int find_house(struct player *p, int x, int y, int offset);
 
 /* Set house owner */
-extern void set_house_owner(struct player *p, house_type *house);
+extern void set_house_owner(struct player *p, struct house_type *house);
 
 /* Get an empty house slot */
 extern int house_add(bool custom);
 
 /* Set house */
-extern void house_set(int slot, house_type *house);
+extern void house_set(int slot, struct house_type *house);
 
 /* List owned houses in a file */
 extern void house_list(struct player *p, ang_file *fff);
 
 /* Determine if the level contains owned houses */
-extern bool level_has_owned_houses(int depth);
+extern bool level_has_owned_houses(struct worldpos *wpos);
 
 /* Wipe custom houses on a level */
-extern void wipe_custom_houses(int depth);
+extern void wipe_custom_houses(struct worldpos *wpos);
 
 /* Determine if the player has stored items in houses */
 extern bool has_home_inventory(struct player *p);
@@ -81,10 +81,10 @@ extern bool has_home_inventory(struct player *p);
 extern void house_dump(struct player *p, ang_file *fp);
 
 /* Determine if the location is inside a house */
-extern bool location_in_house(int depth, int y, int x);
+extern bool location_in_house(struct worldpos *wpos, int y, int x);
 
 /* Get house */
-extern house_type *house_get(int house);
+extern struct house_type *house_get(int house);
 
 /* Reset house */
 extern void reset_house(int house);

@@ -22,9 +22,10 @@ enum
     STORE_B_MARKET = 7,
     STORE_XBM = 8,
     STORE_TAVERN = 9,
-    STORE_PLAYER = 10,
+    STORE_HOME = 10,
+    STORE_PLAYER = 11,
 
-    MAX_STORES = 11
+    MAX_STORES = 12
 };
 
 /*** Types ***/
@@ -59,7 +60,7 @@ struct store
     char *name;
     struct store *next;
     s16b stock_num;             /* Stock -- number of entries */
-    s16b stock_size;            /* Stock -- total Size of Array (transient) */
+    s16b stock_size;            /* Stock -- size of array (transient) */
     struct object *stock;       /* Stock -- actual stock items */
 
     /* Always stock these items */

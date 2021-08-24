@@ -4,8 +4,11 @@
  */
 
 DUN("town", town)
-DUN("wilderness", wilderness)
+DUN("modified", modified)
+DUN("moria", moria)
 DUN("labyrinth", labyrinth)
 DUN("cavern", cavern)
 DUN("classic", classic)
-DUN("new_town", new_town)
+DUN("wilderness", wilderness)
+DUN("mang_town", mang_town)
+DUN("arena", arena)

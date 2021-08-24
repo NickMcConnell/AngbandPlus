@@ -23,6 +23,7 @@
 #include "z-form.h"
 #include "z-msg.h"
 #include "z-rand.h"
+#include "z-set.h"
 #include "z-spells.h"
 #include "z-type.h"
 #include "z-util.h"
@@ -36,9 +37,10 @@
  */
 #include "z-defines.h"
 
-#include "actor.h"
 #include "buildid.h"
 #include "config.h"
+#include "coords.h""
+#include "datafile.h"
 #include "display.h"
 #include "guid.h"
 #include "hint.h"
@@ -46,9 +48,11 @@
 #include "obj-common.h"
 #include "obj-gear-common.h"
 #include "obj-tval.h"
-#include "player-state.h" /* for struct player_state in mon-common.h */
+#include "player-state.h"
 #include "mon-common.h"
 #include "parser.h"
+#include "trap-common.h"
+#include "source.h"
 #include "player-common.h"
 #include "player-common-calcs.h"
 #include "randname.h"
