@@ -1610,61 +1610,94 @@ static cptr likert(int x, int y)
 	if (y <= 0) y = 1;
 
 	/* Negative value */
-	if (x < 0)
+	if (x >= -25 && x < 0)
 	{
-		likert_color = TERM_L_DARK;
+		likert_color = TERM_RED;
 		return ("Very Bad");
 	}
+	else if (x < -25)
+	{
+		likert_color = TERM_RED;
+		return ("Extremely Bad");
+	}
+
 
 	/* Analyze the value */
 	switch ((x / y))
 	{
 	case 0:
 	case 1:
+	case 2:
 		{
-			likert_color = TERM_RED;
+			likert_color = TERM_L_RED;
 			return ("Bad");
 		}
-	case 2:
+	case 3:
+	case 4:
+	case 5:
 		{
 			likert_color = TERM_L_RED;
 			return ("Poor");
 		}
-	case 3:
-	case 4:
+	case 6:
+	case 7:
+	case 8:
+	case 9:
 		{
 			likert_color = TERM_ORANGE;
 			return ("Fair");
 		}
-	case 5:
-		{
-			likert_color = TERM_YELLOW;
-			return ("Good");
-		}
-	case 6:
-		{
-			likert_color = TERM_YELLOW;
-			return ("Very Good");
-		}
-	case 7:
-	case 8:
-		{
-			likert_color = TERM_L_GREEN;
-			return ("Excellent");
-		}
-	case 9:
 	case 10:
 	case 11:
 	case 12:
 	case 13:
+	case 14:
+		{
+			likert_color = TERM_YELLOW;
+			return ("Good");
+		}
+	case 15:
+	case 16:
+	case 17:
+	case 18:
+	case 19:
+	case 20:
+		{
+			likert_color = TERM_YELLOW;
+			return ("Very Good");
+		}
+	case 21:
+	case 22:
+	case 23:
+	case 24:
+	case 25:
+	case 26:
+	case 27:
+	case 28:
+		{
+			likert_color = TERM_L_GREEN;
+			return ("Excellent");
+		}
+	case 29:
+	case 30:
+	case 31:
+	case 32:
+	case 33:
+	case 34:
+	case 35:
+	case 36:
 		{
 			likert_color = TERM_GREEN;
 			return ("Superb");
 		}
-	case 14:
-	case 15:
-	case 16:
-	case 17:
+	case 37:
+	case 38:
+	case 39:
+	case 40:
+	case 41:
+	case 42:
+	case 43:
+	case 44:
 		{
 			likert_color = TERM_L_GREEN;
 			return ("Heroic");
@@ -1672,8 +1705,7 @@ static cptr likert(int x, int y)
 	default:
 		{
 			likert_color = TERM_L_GREEN;
-			sprintf(dummy, "Legendary[%d]", (int)((((x / y) - 17) * 5) / 2));
-			return dummy;
+			return ("Legendary");
 		}
 	}
 }
@@ -1911,7 +1943,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 /* Skills */
 	if (get_skill(SKILL_DAEMON) > 20) (*f2) |= TR2_RES_CONF;
 	if (get_skill(SKILL_DAEMON) > 30) (*f2) |= TR2_RES_FEAR;
-	if (get_skill(SKILL_MINDCRAFT) >= 40) (*esp) |= ESP_ALL;
+	if (get_skill(SKILL_MINDCRAFT) >= 75) (*esp) |= ESP_ALL;
 	if (p_ptr->melee_style == SKILL_HAND && get_skill(SKILL_HAND) > 24 && !monk_heavy_armor())
 		(*f2) |= TR2_FREE_ACT;
 /* Hack - from Lua */
@@ -1935,6 +1967,50 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 		{
 			if (p_ptr->grace > 5000)  (*f2) |= TR2_INVIS;
 			if (p_ptr->grace > 15000) (*f2) |= TR2_IM_FIRE;
+		}
+	}
+
+	GOD(GOD_AULE)
+	{
+		if (p_ptr->grace > 5000)  (*f2) |= TR2_RES_FIRE;
+	}
+
+	GOD(GOD_VARDA)
+	{
+		(*f3) |= TR3_LITE1;
+		PRAY_GOD(GOD_VARDA)
+		{
+			if (p_ptr->grace > 25000)  (*f2) |= TR2_RES_LITE;
+		}
+	}
+
+	GOD(GOD_ULMO)
+	{
+		(*f5) |= TR5_WATER_BREATH;
+		PRAY_GOD(GOD_ULMO)
+		{
+			if (p_ptr->grace > 1000)  (*f2) |= TR2_RES_POIS;
+			if (p_ptr->grace > 15000)  (*f5) |= TR5_MAGIC_BREATH;
+		}
+	}
+
+	GOD(GOD_MANDOS)
+	{
+		(*f2) |= TR2_RES_NETHER;
+		PRAY_GOD(GOD_MANDOS)
+		{
+			if (p_ptr->grace > 20000) (*f4) |= TR4_IM_NETHER;
+		}
+	}
+
+	GOD(GOD_AMYBSOD)
+	{
+		if (p_ptr->grace > 10000) (*f1) |= (TR1_INT | TR1_WIS | TR1_CHR | TR1_STR | TR1_CON | TR1_DEX);
+		if (p_ptr->grace < 0)  (*f3) |= TR3_AGGRAVATE;
+		PRAY_GOD(GOD_AMYBSOD)
+		{
+			if (p_ptr->grace > 60000)  (*f2) |= TR2_IM_ACID;
+			if (p_ptr->grace > 90000) (*f2) |= TR2_RES_DISEN;
 		}
 	}
 
@@ -3132,7 +3208,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [%s %ld.%ld.%ld%s Character Sheet]\n\n",
+	fprintf(fff, "  [%s %ld.%ld.%ld%s (SX) Character Sheet]\n\n",
 	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
 
 
@@ -3196,6 +3272,11 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n Maximize mode:        ON");
 	else
 		fprintf(fff, "\n Maximize mode:        OFF");
+
+	if (p_ptr->lvling_system)
+		fprintf(fff, "\n Monster levelscaling: ON");
+	else
+		fprintf(fff, "\n Monster levelscaling: OFF");
 
 	if (p_ptr->preserve)
 		fprintf(fff, "\n Preserve Mode:        ON");
@@ -3359,6 +3440,9 @@ errr file_character(cptr name, bool full)
 	dump_skills(fff);
 	dump_abilities(fff);
 
+	/* Dump companions. */ 
+	dump_companions(fff); 
+ 
 	if (p_ptr->companion_killed)
 	{
 		if (p_ptr->companion_killed == 1)

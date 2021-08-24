@@ -3060,6 +3060,26 @@ extern s16b dun_level;
 #define GOD_YAVANNA	     5
 /** @} */
 
+/** @def GOD_AMYBSOD */
+#define GOD_AMYBSOD	     6
+/** @} */
+
+/** @def GOD_AULE */
+#define GOD_AULE	     7
+/** @} */
+
+/** @def GOD_VARDA */
+#define GOD_VARDA	     8
+/** @} */
+
+/** @def GOD_ULMO */
+#define GOD_ULMO	     9
+/** @} */
+
+/** @def GOD_MANDOS */
+#define GOD_MANDOS	     10
+/** @} */
+
 
 /** @fn inc_piety(int god, s32b amt)
  * @brief Increase piety for god "god" by amount "amt".\n

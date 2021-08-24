@@ -318,8 +318,8 @@ struct ego_item_type
 	byte rating;		/* Rating boost */
 
 	byte level;			/* Minimum level */
-	byte rarity;            /* Object rarity */
-	byte mrarity;           /* Object rarity */
+	s32b rarity;            /* Object rarity */
+	s32b mrarity;           /* Object rarity */
 
 	s16b max_to_h;          /* Maximum to-hit bonus */
 	s16b max_to_d;          /* Maximum to-dam bonus */
@@ -374,8 +374,8 @@ struct randart_part_type
 	byte max_sval[20];
 
 	byte level;             /* Minimum level */
-	byte rarity;            /* Object rarity */
-	byte mrarity;           /* Object rarity */
+	s32b rarity;            /* Object rarity */
+	s32b mrarity;           /* Object rarity */
 
 	s16b max_to_h;          /* Maximum to-hit bonus */
 	s16b max_to_d;          /* Maximum to-dam bonus */
@@ -494,7 +494,7 @@ struct monster_race
 	byte body_parts[BODY_MAX];      /* To help to decide what to use when body changing */
 
 	byte level;                     /* Level of creature */
-	byte rarity;			/* Rarity of creature */
+	s32b rarity;			/* Rarity of creature */
 
 
 	byte d_attr;			/* Default monster attribute */
@@ -961,9 +961,9 @@ struct alloc_entry
 	s16b index;		/* The actual index */
 
 	byte level;		/* Base dungeon level */
-	byte prob1;		/* Probability, pass 1 */
-	byte prob2;		/* Probability, pass 2 */
-	byte prob3;		/* Probability, pass 3 */
+	s32b prob1;		/* Probability, pass 1 */
+	s32b prob2;		/* Probability, pass 2 */
+	s32b prob3;		/* Probability, pass 3 */
 
 	u16b total;		/* Unused for now */
 };
@@ -1476,6 +1476,7 @@ struct player_type
 
 	byte maximize;		/* Maximize stats */
 	byte preserve;		/* Preserve artifacts */
+	byte lvling_system;	/* Monsters level up with the dungeon's depth --Amy */
 	byte special;           /* Special levels */
 	byte allow_one_death;   /* Blood of life */
 
@@ -2340,7 +2341,7 @@ struct birther
 	s16b pclass;
 	s16b spec;
 
-	byte quests;
+	s32b quests;
 
 	byte god;
 	s32b grace;

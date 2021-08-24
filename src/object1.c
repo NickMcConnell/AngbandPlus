@@ -1228,7 +1228,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 	}
 
 	/* Hack - Res Chaos -> Res Confusion */
-	if (*f2 & TR2_RES_CHAOS) (*f2) |= (TR2_RES_CONF);
+	/* if (*f2 & TR2_RES_CHAOS) (*f2) |= (TR2_RES_CONF); */
 }
 
 
@@ -2832,13 +2832,13 @@ void output_ammo_dam(object_type *o_ptr, int mult, int mult2, cptr against, cptr
 	object_type *b_ptr = &p_ptr->inventory[INVEN_BOW];
 	int is_boomerang = (o_ptr->tval == TV_BOOMERANG);
 	int tmul = get_shooter_mult(b_ptr) + p_ptr->xtra_might;
-	if (is_boomerang) tmul = p_ptr->throw_mult;
+	if (is_boomerang) tmul = p_ptr->throw_mult + p_ptr->xtra_might;
 
 	dam = (o_ptr->dd + (o_ptr->dd * o_ptr->ds)) * 5;
 	dam += o_ptr->to_d * 10;
 	if (!is_boomerang) dam += b_ptr->to_d * 10;
 	dam *= tmul;
-	if (!is_boomerang) dam += (p_ptr->to_d_ranged) * 10;
+	/*if (!is_boomerang)*/ dam += (p_ptr->to_d_ranged) * 10;
 	dam *= mult;
 	CHECK_FIRST("", *first);
 	if (dam > 0)
@@ -2858,7 +2858,7 @@ void output_ammo_dam(object_type *o_ptr, int mult, int mult2, cptr against, cptr
 		dam += o_ptr->to_d * 10;
 		if (!is_boomerang) dam += b_ptr->to_d * 10;
 		dam *= tmul;
-		if (!is_boomerang) dam += (p_ptr->to_d_ranged) * 10;
+		/*if (!is_boomerang)*/ dam += (p_ptr->to_d_ranged) * 10;
 		dam *= mult2;
 		CHECK_FIRST("", *first);
 		if (dam > 0)
@@ -3147,6 +3147,31 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 
 		/* Mega Hack^3 -- describe the Anchor of Space-time */
 		if (o_ptr->name1 == ART_ANCHOR)
+		{
+			text_out("It prevents the space-time continuum from being disrupted.  ");
+		}
+
+		if (o_ptr->name1 == ART_ANCHOR2)
+		{
+			text_out("It prevents the space-time continuum from being disrupted.  ");
+		}
+
+		if (o_ptr->name1 == ART_ANCHOR3)
+		{
+			text_out("It prevents the space-time continuum from being disrupted.  ");
+		}
+
+		if (o_ptr->name1 == ART_ANCHOR4)
+		{
+			text_out("It prevents the space-time continuum from being disrupted.  ");
+		}
+
+		if (o_ptr->name1 == ART_ANCHOR5)
+		{
+			text_out("It prevents the space-time continuum from being disrupted.  ");
+		}
+
+		if (o_ptr->name1 == ART_ANCHOR6)
 		{
 			text_out("It prevents the space-time continuum from being disrupted.  ");
 		}
@@ -6131,6 +6156,8 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
 	automatizer_create = FALSE;
+
+      command_see = TRUE; /* Start out displaying all alternatives. */ 
 
 	return get_item_floor(cp, pmt, str, mode);
 }

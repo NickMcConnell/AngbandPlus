@@ -365,10 +365,11 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
 	}
 
 	/* Set the monster generation level to the wilderness level */
-	monster_level = wf_info[wild_map[y][x].feat].level;
+	monster_level = wf_info[wild_map[y][x].feat].level + rand_int(p_ptr->lev);
+	/*msg_format("Monster level set to %d.", monster_level);*/
 
 	/* Set the object generation level to the wilderness level */
-	object_level = wf_info[wild_map[y][x].feat].level;
+	object_level = wf_info[wild_map[y][x].feat].level + rand_int(p_ptr->lev);
 
 	return hack_floor;
 }
@@ -546,13 +547,17 @@ void wilderness_gen(int refresh)
 
 	if (!refresh)
 	{
-		int lim = (generate_encounter == TRUE) ? 60 : MIN_M_ALLOC_TN;
+		/* randomize amount a bit --Amy */
+		int lim = (generate_encounter == TRUE) ? (30 + randint(60)) : (MIN_M_ALLOC_TN + randint(MIN_M_ALLOC_TN));
+		if (randint(10) == 2) lim += randint(MIN_M_ALLOC_TN);
+		if (randint(100) == 2) lim += randint(60);
+
 
 		/*
 		 * Can't have more monsters than floor grids -1(for the player,
 		 * not needed but safer
 		 */
-		if (lim > hack_floor - 1) lim = hack_floor - 1;
+		/*if (lim > hack_floor - 1) lim = hack_floor - 1;*/
 
 		/* Make some residents */
 		for (i = 0; i < lim; i++)

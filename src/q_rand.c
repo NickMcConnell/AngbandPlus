@@ -20,13 +20,13 @@ bool is_randhero(int level)
 void do_get_new_obj(int y, int x)
 {
 	obj_theme theme;
-	char *items[3];
-	object_type *q_ptr[3], forge[3];
+	char *items[4];
+	object_type *q_ptr[4], forge[4];
 	int max = 0, res, i;
 
-	/* Create 3 ones */
+	/* Create 4 ones */
 	max = 0;
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 4; i++)
 	{
 		/* Get local object */
 		q_ptr[max] = &forge[max];
@@ -52,7 +52,7 @@ void do_get_new_obj(int y, int x)
 
 	while (TRUE)
 	{
-		res = ask_menu("Choose a reward to get(a-c to choose, ESC to cancel)?", (char **)items, 3);
+		res = ask_menu("Choose a reward to get(a-c to choose, ESC to cancel)?", (char **)items, 4);
 
 		/* Ok ? lets learn ! */
 		if (res > -1)
@@ -61,11 +61,18 @@ void do_get_new_obj(int y, int x)
 			drop_near(q_ptr[res], -1, y + 1, x);
 
 			cmsg_print(TERM_YELLOW, "There, Noble Hero. I put it there. Thanks again!");
+
+			cmsg_print(TERM_YELLOW, "Since you took the time to rescue me even though I'm an utter bitch who always");
+			cmsg_print(TERM_YELLOW, "gets captured by the most annoying monsters in existence, I have another reward for you!");
+			cmsg_print(TERM_YELLOW, "You are infused with the Princess's bitchy charm...");
+
+			do_get_new_skill(1);
+
 			break;
 		}
 	}
 
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 4; i++)
 	{
 
 		object_type *o_ptr = q_ptr[i];
@@ -89,7 +96,7 @@ void do_get_new_obj(int y, int x)
 		}
 	}
 
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 4; i++)
 		C_KILL(items[i], 100, char);
 
 }
@@ -148,7 +155,7 @@ void hero_death(s32b m_idx, s32b r_idx)
 		cmsg_print(TERM_YELLOW, "I must go on my own way now.");
 		cmsg_print(TERM_YELLOW, "But before I go, I can help your skills.'");
 		cmsg_print(TERM_YELLOW, "He touches your forehead.");
-		do_get_new_skill();
+		do_get_new_skill(0);
 		return;
 	}
 	cmsg_print(TERM_YELLOW, "If you wish, I can help you in your adventures.'");
@@ -209,7 +216,7 @@ void hero_death(s32b m_idx, s32b r_idx)
 	{
 		cmsg_print(TERM_YELLOW, "'As you wish, but I want to do something for you.'");
 		cmsg_print(TERM_YELLOW, "He touches your forehead.");
-		do_get_new_skill();
+		do_get_new_skill(0);
 	}
 }
 
@@ -221,7 +228,7 @@ bool quest_random_death_hook(char *fmt)
 	m_idx = get_next_arg(fmt);
 	r_idx = m_list[m_idx].r_idx;
 
-	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
+	/*if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);*/
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
 	if (random_quests[dun_level].done) return (FALSE);
@@ -250,7 +257,7 @@ bool quest_random_turn_hook(char *fmt)
 }
 bool quest_random_feeling_hook(char *fmt)
 {
-	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
+	/*if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);*/
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
 	if (random_quests[dun_level].done) return (FALSE);
@@ -270,7 +277,7 @@ bool quest_random_gen_hero_hook(char *fmt)
 {
 	int i;
 
-	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
+	/*if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);*/
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
 	if (random_quests[dun_level].done) return (FALSE);
@@ -284,12 +291,14 @@ bool quest_random_gen_hero_hook(char *fmt)
 	{
 		int m_idx, y = rand_range(1, cur_hgt - 2), x = rand_range(1, cur_wid - 2);
 
-		m_idx = place_monster_one(y, x, random_quests[dun_level].r_idx, 0, FALSE, MSTATUS_ENEMY);
-		if (m_idx)
-		{
-			monster_type *m_ptr = &m_list[m_idx];
-			m_ptr->mflag |= MFLAG_QUEST;
-			i--;
+		if (cave_empty_bold(y, x)) {
+			m_idx = place_monster_one(y, x, random_quests[dun_level].r_idx, 0, FALSE, MSTATUS_ENEMY);
+			if (m_idx)
+			{
+				monster_type *m_ptr = &m_list[m_idx];
+				m_ptr->mflag |= MFLAG_QUEST;
+				i--;
+			}
 		}
 	}
 	m_allow_special[random_quests[dun_level].r_idx] = FALSE;
@@ -304,7 +313,7 @@ bool quest_random_gen_hook(char *fmt)
 	int y2, x2, yval, xval;
 	int y1, x1, xsize, ysize;
 
-	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
+	/*if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);*/
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
 	if (random_quests[dun_level].done) return (FALSE);
@@ -418,9 +427,9 @@ bool quest_random_dump_hook(char *fmt)
 			fprintf(hook_file, "\n You haven't completed a single princess quest.");
 
 		if (lscnt > 10)
-			fprintf(hook_file, "\n You have completed %d lost sword quests.", pcnt);
+			fprintf(hook_file, "\n You have completed %d lost sword quests.", lscnt);
 		else if (lscnt > 1)
-			fprintf(hook_file, "\n You have completed %s lost sword quests.", number[pcnt-2]);
+			fprintf(hook_file, "\n You have completed %s lost sword quests.", number[lscnt-2]);
 		else if (lscnt == 1)
 			fprintf(hook_file, "\n You have completed one lost sword quest.");
 		else

@@ -537,13 +537,15 @@ static void roff_aux(int r_idx, int ego, int remem)
 		/* Speed */
 		if (r_ptr->speed > 110)
 		{
-			if (r_ptr->speed > 130) text_out_c(TERM_RED, " incredibly");
+			if (r_ptr->speed > 160) text_out_c(TERM_RED, " incredibly");
+			else if (r_ptr->speed > 140) text_out_c(TERM_RED, " extremely");
 			else if (r_ptr->speed > 120) text_out_c(TERM_ORANGE, " very");
 			text_out_c(TERM_L_RED, " quickly");
 		}
 		else if (r_ptr->speed < 110)
 		{
-			if (r_ptr->speed < 90) text_out_c(TERM_L_GREEN, " incredibly");
+			if (r_ptr->speed < 60) text_out_c(TERM_L_GREEN, " incredibly");
+			else if (r_ptr->speed < 80) text_out_c(TERM_L_GREEN, " extremely");
 			else if (r_ptr->speed < 100) text_out_c(TERM_BLUE, " very");
 			text_out_c(TERM_L_BLUE, " slowly");
 		}
@@ -1905,6 +1907,7 @@ void set_mon_num_hook(void)
 			get_mon_num_hook = monster_shore;
 			break;
 		case TERRAIN_DIRT:
+		case TERRAIN_DESERT:
 			get_mon_num_hook = monster_waste;
 			break;
 		case TERRAIN_GRASS:

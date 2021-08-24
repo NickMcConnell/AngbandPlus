@@ -80,11 +80,13 @@ add_quest
 				if (player.astral ~= FALSE) or (player.pgod <= 0) 
 				or (quest(GOD_QUEST).status == QUEST_STATUS_TAKEN) or (quest(GOD_QUEST).status == QUEST_STATUS_FAILED)
 				or (god_quest.quests_given >= god_quest.MAX_NUM_GOD_QUESTS) or (give_god_quest == FALSE)
-				or ((current_dungeon_idx == god_quest.DUNGEON_GOD) and (dun_level > 0)) or (player.lev <= god_quest.dun_minplev) then
+				or ((current_dungeon_idx == god_quest.DUNGEON_GOD) and (dun_level > 0)) then
 					-- Don't let a player get quests with trickery
-					if player.lev > god_quest.dun_minplev then
-						god_quest.dun_minplev = player.lev
-					end
+					-- Amy edit: randarts of high experience loss are no trickery IMHO...
+
+					-- if player.lev > god_quest.dun_minplev then
+					-- 	god_quest.dun_minplev = player.lev
+					-- end
 					return
 				else
 					-- each god has different characteristics, so the quests are differnet depending on your god
@@ -98,6 +100,16 @@ add_quest
 						god_quest.relic_num = 10
 					elseif player.pgod == GOD_YAVANNA then
 						god_quest.relic_num =11
+					elseif player.pgod == GOD_AMYBSOD then
+						god_quest.relic_num =12
+					elseif player.pgod == GOD_AULE then
+						god_quest.relic_num =16
+					elseif player.pgod == GOD_VARDA then
+						god_quest.relic_num =17
+					elseif player.pgod == GOD_ULMO then
+						god_quest.relic_num =18
+					elseif player.pgod == GOD_MANDOS then
+						god_quest.relic_num =19
 					end
 
 					-- This var will need resetting
@@ -294,12 +306,12 @@ function place_rand_dung()
 		-- Is there a town/dungeon/potentially impassable feature there, ?
 		if (wild_map(god_quest.dung_y, god_quest.dung_x).entrance ~= 0)
 		or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).entrance ~= 0)
-		or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_EDGE)
-		or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_DEEP_WATER)
-		or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_TREES)
-		or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_SHALLOW_LAVA)
-		or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_DEEP_LAVA)
-		or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_MOUNTAIN) then
+		or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_EDGE) then
+		-- or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_DEEP_WATER)
+		-- or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_TREES)
+		-- or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_SHALLOW_LAVA)
+		-- or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_DEEP_LAVA)
+		-- or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_MOUNTAIN) then
 			-- try again
 		else
 			--neither player, nor wall, then stop this 'while'
@@ -410,17 +422,11 @@ function set_god_dungeon_attributes()
 
 		-- R:
 		dungeon(god_quest.DUNGEON_GOD).rules[1].mode = 3
-		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 50
+		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 100
 
 		-- M: We want evil or flying characters
 		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags3 = RF3_EVIL
-
-		dungeon(god_quest.DUNGEON_GOD).rules[2].mode = 3
-		dungeon(god_quest.DUNGEON_GOD).rules[2].percent = 50
-
-		-- M: We want evil or flying characters
-		dungeon(god_quest.DUNGEON_GOD).rules[2].mflags7 = RF7_CAN_FLY
-
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags7 = RF7_CAN_FLY
 
 	elseif player.pgod == GOD_MANWE then
 
@@ -455,22 +461,14 @@ function set_god_dungeon_attributes()
 
 		-- R:
 		dungeon(god_quest.DUNGEON_GOD).rules[1].mode = 3
-		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 20
-		dungeon(god_quest.DUNGEON_GOD).rules[2].mode = 3
-		dungeon(god_quest.DUNGEON_GOD).rules[2].percent = 20
-		dungeon(god_quest.DUNGEON_GOD).rules[3].mode = 3
-		dungeon(god_quest.DUNGEON_GOD).rules[3].percent = 20
-		dungeon(god_quest.DUNGEON_GOD).rules[4].mode = 3
-		dungeon(god_quest.DUNGEON_GOD).rules[4].percent = 20
-		dungeon(god_quest.DUNGEON_GOD).rules[5].mode = 3
-		dungeon(god_quest.DUNGEON_GOD).rules[5].percent = 20
+		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 100
 
 		-- M: We want air(poison-type) or flying characters. Orcs too. They would have ransacked his elf-loving temple :)
 		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags2 = RF2_INVISIBLE
-		dungeon(god_quest.DUNGEON_GOD).rules[2].mflags3 = bor(RF3_ORC, RF3_IM_POIS)
-		dungeon(god_quest.DUNGEON_GOD).rules[3].mflags4 = bor(RF4_BR_POIS, RF4_BR_GRAV)
-		dungeon(god_quest.DUNGEON_GOD).rules[4].mflags5 = RF5_BA_POIS
-		dungeon(god_quest.DUNGEON_GOD).rules[5].mflags7 = RF7_CAN_FLY
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags3 = bor(RF3_ORC, RF3_IM_POIS)
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags4 = bor(RF4_BR_POIS, RF4_BR_GRAV)
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags5 = RF5_BA_POIS
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags7 = RF7_CAN_FLY
 
 
 	elseif player.pgod == GOD_TULKAS then
@@ -548,15 +546,56 @@ function set_god_dungeon_attributes()
 		dungeon(god_quest.DUNGEON_GOD).flags2 = bor(DF2_ADJUST_LEVEL_1_2, DF2_ADJUST_LEVEL_PLAYER)
 
 		-- R: No restrictions on monsters here
-		dungeon(god_quest.DUNGEON_GOD).rules[1].mode = 0
-		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 80
-
 		-- R: Apart from making sure we have some GOOD ones
-		dungeon(god_quest.DUNGEON_GOD).rules[2].mode = 3
-		dungeon(god_quest.DUNGEON_GOD).rules[2].percent = 20
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mode = 3
+		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 100
 
 		-- M:
-		dungeon(god_quest.DUNGEON_GOD).rules[2].mflags3 = RF3_GOOD
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags3 = bor(RF3_GOOD, RF3_EVIL)
+
+	elseif player.pgod == GOD_AMYBSOD then
+
+		dungeon(god_quest.DUNGEON_GOD).min_m_alloc_level = 24
+		dungeon(god_quest.DUNGEON_GOD).min_m_alloc_chance = 80
+
+
+		-- L: floor is dirt/mud/nether
+		dungeon(god_quest.DUNGEON_GOD).floor1 = 88
+		dungeon(god_quest.DUNGEON_GOD).floor2 = 94
+		dungeon(god_quest.DUNGEON_GOD).floor3 = 102
+		dungeon(god_quest.DUNGEON_GOD).floor_percent1[1] = 45
+		dungeon(god_quest.DUNGEON_GOD).floor_percent2[1] = 45
+		dungeon(god_quest.DUNGEON_GOD).floor_percent3[1] = 10
+		dungeon(god_quest.DUNGEON_GOD).floor_percent1[2] = 35
+		dungeon(god_quest.DUNGEON_GOD).floor_percent2[2] = 35
+		dungeon(god_quest.DUNGEON_GOD).floor_percent3[2] = 30
+
+		-- A: Granite walls to fill but glass walls for room perimeters (you can see the nasty monsters coming)
+		dungeon(god_quest.DUNGEON_GOD).fill_type1 = 188
+		dungeon(god_quest.DUNGEON_GOD).fill_percent1[1] = 100
+		dungeon(god_quest.DUNGEON_GOD).outer_wall = 188
+		dungeon(god_quest.DUNGEON_GOD).inner_wall = 57
+		dungeon(god_quest.DUNGEON_GOD).fill_method = 1
+
+		-- O: Even drops
+		dungeon(god_quest.DUNGEON_GOD).objs.treasure = 25
+		dungeon(god_quest.DUNGEON_GOD).objs.combat = 25
+		dungeon(god_quest.DUNGEON_GOD).objs.magic = 25
+		dungeon(god_quest.DUNGEON_GOD).objs.tools = 25
+
+		-- F: Big, lava rivers, nasty monsters hehehehehe
+		dungeon(god_quest.DUNGEON_GOD).flags1 = bor(DF1_LAVA_RIVERS, DF1_BIG, DF1_ADJUST_LEVEL_2)
+		dungeon(god_quest.DUNGEON_GOD).flags2 = bor(DF2_ADJUST_LEVEL_PLAYER)
+
+		-- R: No restrictions on monsters here
+		-- R: Apart from making sure we have some GOOD ones
+		-- R: and eldritch horrors because I'm evil
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mode = 3
+		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 100
+
+		-- M:
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags3 = bor(RF3_GOOD, RF3_EVIL)
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags2 = RF2_ELDRITCH_HORROR
 
 	elseif player.pgod == GOD_YAVANNA then
 
@@ -596,6 +635,158 @@ function set_god_dungeon_attributes()
 		-- M:
 		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags3 = bor(RF3_DEMON, RF3_UNDEAD, RF3_NONLIVING)
 
+	elseif player.pgod == GOD_AULE then
+
+		dungeon(god_quest.DUNGEON_GOD).min_m_alloc_level = 24
+		dungeon(god_quest.DUNGEON_GOD).min_m_alloc_chance = 80
+
+		-- L: floor is dirt/mud/shallow water
+		dungeon(god_quest.DUNGEON_GOD).floor1 = 88
+		dungeon(god_quest.DUNGEON_GOD).floor2 = 94
+		dungeon(god_quest.DUNGEON_GOD).floor3 = 84
+		dungeon(god_quest.DUNGEON_GOD).floor_percent1[1] = 45
+		dungeon(god_quest.DUNGEON_GOD).floor_percent2[1] = 45
+		dungeon(god_quest.DUNGEON_GOD).floor_percent3[1] = 10
+		dungeon(god_quest.DUNGEON_GOD).floor_percent1[2] = 35
+		dungeon(god_quest.DUNGEON_GOD).floor_percent2[2] = 35
+		dungeon(god_quest.DUNGEON_GOD).floor_percent3[2] = 30
+
+		-- A: Grey mountains, inner walls are low hills
+		dungeon(god_quest.DUNGEON_GOD).fill_type1 = 216
+		dungeon(god_quest.DUNGEON_GOD).fill_percent1[1] = 100
+		dungeon(god_quest.DUNGEON_GOD).outer_wall = 216
+		dungeon(god_quest.DUNGEON_GOD).inner_wall = 213
+		dungeon(god_quest.DUNGEON_GOD).fill_method = 1
+
+		-- O: Weapons and tools only
+		dungeon(god_quest.DUNGEON_GOD).objs.treasure = 0
+		dungeon(god_quest.DUNGEON_GOD).objs.combat = 50
+		dungeon(god_quest.DUNGEON_GOD).objs.magic = 0
+		dungeon(god_quest.DUNGEON_GOD).objs.tools = 50
+
+		-- F: Small, no destroyed levels, min monster level = dungeon level
+		dungeon(god_quest.DUNGEON_GOD).flags1 = bor(DF1_SMALL, DF1_NO_DESTROY, DF1_ADJUST_LEVEL_1, DF1_NO_STREAMERS)
+
+		-- R: No restrictions on monsters here
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mode = 0
+		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 100
+
+	elseif player.pgod == GOD_VARDA then
+
+		-- Varda lives with Manwe, so high in the clouds
+		-- W: Has average number of monsters.
+		dungeon(god_quest.DUNGEON_GOD).min_m_alloc_level = 18
+		dungeon(god_quest.DUNGEON_GOD).min_m_alloc_chance = 160
+
+
+		-- L: floor will be grass and flowers
+		dungeon(god_quest.DUNGEON_GOD).floor1 = 89
+		dungeon(god_quest.DUNGEON_GOD).floor2 = 82
+		dungeon(god_quest.DUNGEON_GOD).floor_percent1[1] = 85
+		dungeon(god_quest.DUNGEON_GOD).floor_percent2[1] = 15
+
+		-- A: Outer wall is 'hail stone wall', inner wall 'dense fog'. Filled at max smoothing, like islands.
+		dungeon(god_quest.DUNGEON_GOD).fill_type1 = 211
+		dungeon(god_quest.DUNGEON_GOD).fill_percent1[1] = 100
+		dungeon(god_quest.DUNGEON_GOD).outer_wall = 210
+		dungeon(god_quest.DUNGEON_GOD).inner_wall = 211
+		dungeon(god_quest.DUNGEON_GOD).fill_method = 4
+
+		-- O: Varda likes magical items and tools, not much treasure or weapons
+		dungeon(god_quest.DUNGEON_GOD).objs.treasure = 15
+		dungeon(god_quest.DUNGEON_GOD).objs.combat = 5
+		dungeon(god_quest.DUNGEON_GOD).objs.magic = 55
+		dungeon(god_quest.DUNGEON_GOD).objs.tools = 25
+
+		-- F: It's open, goes up like a tower, give it a few interesting rooms, make the monsters hard(ish).
+		dungeon(god_quest.DUNGEON_GOD).flags1 = bor(DF1_NO_DOORS, DF1_TOWER, DF1_CAVERN,  DF1_ADJUST_LEVEL_1)
+		dungeon(god_quest.DUNGEON_GOD).flags2 = bor(DF2_NO_SHAFT, DF2_ADJUST_LEVEL_PLAYER)
+
+		-- R:
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mode = 3
+		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 100
+
+		-- M: We want air(poison-type) or flying characters. Orcs too.
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags2 = RF2_EMPTY_MIND
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags3 = bor(RF3_ORC, RF3_IM_POIS)
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags4 = bor(RF4_BR_POIS, RF4_BR_GRAV)
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags5 = RF5_BA_POIS
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags7 = RF7_CAN_FLY
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags8 = RF8_WILD_VOLCANO
+
+
+	elseif player.pgod == GOD_ULMO then
+
+		-- Mandos dungeon is basically Tulkas, except with undead.
+		-- W: but with lots of monsters
+		dungeon(god_quest.DUNGEON_GOD).min_m_alloc_level = 20
+		dungeon(god_quest.DUNGEON_GOD).min_m_alloc_chance = 120
+
+		-- L: floor is dirt
+		dungeon(god_quest.DUNGEON_GOD).floor1 = 88
+		dungeon(god_quest.DUNGEON_GOD).floor_percent1[1] = 100
+
+		-- A: Cheat: walls are water.
+		dungeon(god_quest.DUNGEON_GOD).fill_type1 = 187
+		dungeon(god_quest.DUNGEON_GOD).fill_percent1[1] = 100
+		dungeon(god_quest.DUNGEON_GOD).outer_wall = 238
+		dungeon(god_quest.DUNGEON_GOD).inner_wall = 84
+		dungeon(god_quest.DUNGEON_GOD).fill_method = 0
+
+		-- O: Lots of treasure, not much else.
+		dungeon(god_quest.DUNGEON_GOD).objs.treasure = 90
+		dungeon(god_quest.DUNGEON_GOD).objs.combat = 0
+		dungeon(god_quest.DUNGEON_GOD).objs.magic = 5
+		dungeon(god_quest.DUNGEON_GOD).objs.tools = 5
+
+		-- F: fairly standard
+		dungeon(god_quest.DUNGEON_GOD).flags1 = bor(DF1_NO_DESTROY, DF1_ADJUST_LEVEL_2)
+		dungeon(god_quest.DUNGEON_GOD).flags2 = DF2_ADJUST_LEVEL_PLAYER
+
+		-- R:
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mode = 3
+		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 100
+
+		-- M: Aquatic creatures only.
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags3 = RF3_RES_WATE
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags7 = bor(RF7_CAN_FLY, RF7_AQUATIC)
+
+	elseif player.pgod == GOD_MANDOS then
+
+		-- Mandos dungeon is basically Tulkas, except with undead.
+		-- W: but with lots of monsters
+		dungeon(god_quest.DUNGEON_GOD).min_m_alloc_level = 20
+		dungeon(god_quest.DUNGEON_GOD).min_m_alloc_chance = 120
+
+		-- L: floor is normal
+		dungeon(god_quest.DUNGEON_GOD).floor1 = 1
+		dungeon(god_quest.DUNGEON_GOD).floor_percent1[1] = 100
+
+		-- A: Granite walls
+		dungeon(god_quest.DUNGEON_GOD).fill_type1 = 56
+		dungeon(god_quest.DUNGEON_GOD).fill_percent1[1] = 100
+		dungeon(god_quest.DUNGEON_GOD).outer_wall = 58
+		dungeon(god_quest.DUNGEON_GOD).inner_wall = 57
+		dungeon(god_quest.DUNGEON_GOD).fill_method = 0
+
+		-- O: Loads of combat drops
+		dungeon(god_quest.DUNGEON_GOD).objs.treasure = 10
+		dungeon(god_quest.DUNGEON_GOD).objs.combat = 70
+		dungeon(god_quest.DUNGEON_GOD).objs.magic = 5
+		dungeon(god_quest.DUNGEON_GOD).objs.tools = 15
+
+		-- F: fairly standard
+		dungeon(god_quest.DUNGEON_GOD).flags1 = bor(DF1_NO_DESTROY, DF1_ADJUST_LEVEL_2)
+		dungeon(god_quest.DUNGEON_GOD).flags2 = DF2_ADJUST_LEVEL_PLAYER
+
+		-- R:
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mode = 3
+		dungeon(god_quest.DUNGEON_GOD).rules[1].percent = 100
+
+		-- M: vampires!
+		dungeon(god_quest.DUNGEON_GOD).rules[1].r_char = "V"
+		dungeon(god_quest.DUNGEON_GOD).rules[1].mflags3 = bor(RF3_UNDEAD, RF3_EVIL)
+
 	end
 
 	-- W: All dungeons are 5 levels deep, and created at 2/3 of the player clvl when the quest is given
@@ -611,7 +802,7 @@ function get_god_quest_axes()
 	local home, home_y_coord, home_x_coord, home_axis, home2, home2_y_coord, home2_x_coord, home2_axis, mydistance
 
 	-- different values for different gods...
-	if player.pgod ~= GOD_MELKOR then
+	if player.pgod ~= GOD_MELKOR and player.pgod ~= GOD_AMYBSOD then
 
 		-- one of the valar, "home" is lothlorien, home2 is Minas Arnor
 		home = "Bree"

@@ -69,13 +69,13 @@ L:Elf | Half-Elf | Dark-Elf | High-Elf
 H:Orc | Troll | Half-Ogre | Beorning | Kobold |
 
 N:8:Kon-Dar the Ugly(Half-Orc)
-I:5000:210:115:5:7
+I:10000:210:115:5:7
 C:120:100:80
 L:Orc | Troll | Half-Ogre | Beorning | Kobold
 H:Gnome | Dwarf | Human | RohanKnight | Elf | Half-Elf | High-Elf
 
 N:9:Darg-Low the Grim(Human)
-I:10000:190:111:4:9
+I:20000:190:111:4:9
 C:120:100:80
 L:Human
 H:Orc | Troll | Half-Ogre | Beorning | Kobold |
@@ -93,11 +93,11 @@ L:Gnome | Dwarf | Petty-Dwarf
 H:Orc | Troll | Half-Ogre | Beorning | Kobold |
 
 N:12:Arnold the Beastly(Barbarian)
-I:5000:210:115:6:6
+I:10000:210:115:6:6
 C:120:100:80
 
 N:13:Arndal Beast-Slayer(Half-Elf)
-I:10000:185:110:5:9
+I:20000:185:110:5:9
 C:120:100:80
 L:Elf | Half-Elf | Dark-Elf | High-Elf
 H:Orc | Troll | Half-Ogre | Beorning | Kobold |
@@ -203,20 +203,20 @@ H:Orc | Troll | DeathMold | Half-Ogre | Beorning | Kobold |
 
 
 N:31:Wizzle the Chaotic(Hobbit)
-I:10000:190:110:6:8
+I:20000:190:110:6:8
 C:120:100:80
 L:Elf | Half-Elf | High-Elf | Dunadan | Hobbit | Dwarf | RohanKnight
 H:Orc | Troll | DeathMold | Half-Ogre | Beorning | Kobold |
 
 
 N:32:Midas the Greedy(Gnome)
-I:15000:200:116:6:9
+I:25000:200:116:6:9
 C:120:100:80
 L:Gnome | Dwarf | Petty-Dwarf
 H:Orc | Troll | Half-Ogre | Beorning | Kobold |
 
 N:33:Ja-Far the Alchemist(Elf)
-I:15000:220:111:4:9
+I:30000:220:111:4:9
 C:120:100:80
 L:Elf | Half-Elf | Dark-Elf | High-Elf
 H:Orc | Troll | Half-Ogre | Beorning | Kobold |

@@ -126,7 +126,7 @@
 #define CHANCE_TRAP_SECRET_DOOR 1500
 #define CHANCE_TRAP_LOCKED_DOOR 1000
 #define CHANCE_TRAP_DOOR  500        /* in 10000 */
-#define CHANCE_TRAP_FLOOR 4          /* in 10000 chance of placing a trap */
+#define CHANCE_TRAP_FLOOR 5          /* in 10000 chance of placing a trap */
 
 #define MAX_BOUNTIES        24
 
@@ -162,7 +162,7 @@
 
 /* Number of Random Artifacts */
 #define MAX_RANDARTS 84
-#define MAX_T_ACT    51
+#define MAX_T_ACT    71
 
 /* Chaos Warrior: Reward types: */
 #define REW_POLY_SLF    0
@@ -236,8 +236,8 @@
 /*
  * Size of memory reserved for initialization of some arrays
  */
-#define FAKE_NAME_SIZE  40 * 1024L
-#define FAKE_TEXT_SIZE 120 * 1024L
+#define FAKE_NAME_SIZE  400 * 1024L
+#define FAKE_TEXT_SIZE 1200 * 1024L
 
 
 /*
@@ -345,9 +345,9 @@
 #define STORE_INVEN_MAX 255             /* Max number of discrete objs in inven */
 #define STORE_CHOICES   56              /* Number of items to choose stock from */
 #define STORE_OBJ_LEVEL 5               /* Magic Level for normal stores */
-#define STORE_TURNOVER  9               /* Normal shop turnover, per day */
-#define STORE_MIN_KEEP  6               /* Min slots to "always" keep full */
-#define STORE_MAX_KEEP  18              /* Max slots to "always" keep full */
+#define STORE_TURNOVER  36              /* Normal shop turnover, per day */
+#define STORE_MIN_KEEP  12              /* Min slots to "always" keep full */
+#define STORE_MAX_KEEP  120             /* Max slots to "always" keep full */
 #define STORE_SHUFFLE   21              /* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS             1000    /* Number of turns between turnovers */
 
@@ -365,7 +365,7 @@
 #define BREAK_GLYPH             550             /* Rune of protection resistance */
 #define BREAK_MINOR_GLYPH       99             /* For explosive runes */
 #define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */
-#define MON_MULT_ADJ    10              /* High value slows multiplication */
+#define MON_MULT_ADJ    50              /* High value slows multiplication */
 #define MON_SUMMON_ADJ  2               /* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE  2               /* Percent of player exp drained per hit */
 #define USE_DEVICE      3               /* x> Harder devices x< Easier devices     */
@@ -452,7 +452,7 @@
  * is a hack which prevents the "m_list[]" array from exploding due to
  * reproducing monsters.  Messy, but necessary.
  */
-#define MAX_REPRO       100
+#define MAX_REPRO       50
 
 
 /*
@@ -918,6 +918,11 @@
 #define ART_ANCHOR                      14
 #define ART_ELESSAR                     206
 #define ART_EVENSTAR                    207
+#define ART_ANCHOR2                     219
+#define ART_ANCHOR3                     220
+#define ART_ANCHOR4                     221
+#define ART_ANCHOR5                     222
+#define ART_ANCHOR6                     223
 
 /* Rings */
 #define ART_FLAR                        7
@@ -4282,7 +4287,7 @@ extern int PlayerUID;
 #define MEGO_FIX                2
 #define MEGO_PRC                3
 
-#define MEGO_CHANCE             18      /* % chances of getting ego monsters */
+#define MEGO_CHANCE             4      /* % chances of getting ego monsters */
 
 #define race_inf(m_ptr) (((m_ptr)->sr_ptr) ? (m_ptr)->sr_ptr : race_info_idx((m_ptr)->r_idx, (m_ptr)->ego))
 
@@ -4405,7 +4410,7 @@ extern int PlayerUID;
 #define MAX_MON_QUEST       10
 #define MAX_ITEM_QUEST       5
 
-#define MAX_RANDOM_QUEST    99
+#define MAX_RANDOM_QUEST    981
 
 #define QUEST_NULL              0
 #define QUEST_NECRO             1
@@ -4570,7 +4575,7 @@ extern int PlayerUID;
 /*
  * Skills !
  */
-#define SKILL_MAX               50000           /* Maximun skill value */
+#define SKILL_MAX               100000           /* Maximun skill value */
 #define SKILL_STEP              1000            /* 1 skill point */
 
 #define SKILL_EXCLUSIVE         9999            /* Flag to tell exclusive skills */
@@ -4668,7 +4673,12 @@ extern int PlayerUID;
 #define GOD_TULKAS              3
 #define GOD_MELKOR              4
 #define GOD_YAVANNA             5
-#define MAX_GODS_INIT           6
+#define GOD_AMYBSOD             6
+#define GOD_AULE                7
+#define GOD_VARDA               8
+#define GOD_ULMO                9
+#define GOD_MANDOS              10
+#define MAX_GODS_INIT           11
 
 #define GOD(g)                  if (p_ptr->pgod == (g))
 #define PRAY_GOD(g)             if ((p_ptr->pgod == (g)) && (p_ptr->praying))

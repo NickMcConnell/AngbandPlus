@@ -3,74 +3,74 @@
 # Designed to "look like" Middle-earth map
 
 W:D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-W:D:XgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
-W:D:XgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
-W:D:Xggggggggggg=========g=========gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
-W:D:Xgggggg========t===ggg==========gggggtggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
+W:D:XgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggRRggggggggggggggggX
+W:D:XggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggRRRRgggggggggggggggX
+W:D:Xggggggggggg=========g=========ggggggggggggggggggggggggggggggggggggggggggggggggggRRRRgggggggggggggggX
+W:D:Xgggggg========t===ggg==========gggggtggggggggggggggggggggggggggggggggggggggggggggRRggggggggggggggggX
 W:D:Xggggg=========gtgg^g======ggg=gggggggggggtggtggggggggggggggggggggggggggggggggggggggggggggggggggggggX
-W:D:Xggg=========gg^t^^g========ggggt^g^ttggtgtgggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
-W:D:X==========,,,,&__ttgg=ggg=ggggt^^%t^^^tg&ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
-W:D:X========..tt&&&^__,ttttttttttttt,gttttt&&&&ggtggggggggggtgggggtgggggggggggggggggtggggggggggggggtgggX
-W:D:X===^===....,&&&,t__,,,,,,g,t,,,,,,,,tttgt&^^&g&g&ggtggggggggggggggggtttggtgggggggtgggtgggggtgggggggX
-W:D:X=========.,.&&,,,,__t,,,,,t,,,,t,t,,,,,tttt&t&^MMM&ggggg&g&&&gggttttttgtttgttttttttttttttttttttttttX
-W:D:X=========.,.&&,,_,__,,,,,,,,,,,,,,,,,,,,,tttg...2Mt&&&&&&&t&t&&&&tgttttttttttttgtttttttttttttttttttX
+W:D:XgggB========gg^t^^g========ggggt^g^ttggtgtgggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
+W:D:XBBBB======AAAA&__ttgg=ggg=ggggt^^%t^^^tg&ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
+W:D:XBBBB====AAtt&&&^__,tttttttttttttQgttttt&&&&ggtggggggggggtgggggtgggggggggggggggggtggggggggggggggtgggX
+W:D:XBBB^===AAAA,&&&,t__,,,,Q,g,tAAAQQQQAtttgt&^^&g&g&ggtggggggggggggggggtttggtgggggggtgggtgggggtgggggggX
+W:D:XBBBB=====AAA&&,,,,__t,QQQ,t,,,,t,tAAAAAtttt&t&^MMM&ggggg&g&&&gggttttttgtttgttttttttttttttttttttttttX
+W:D:XBBBB=====AAA&&,,_,__,,,Q,,,,,,,,,,,,AAAAAtttgAAA2Mt&&&&&&&t&t&&&&tgttttttttttttgtttttttttttttttttttX
 ?:[EQU $TOWN_DESTROY2 1]
 W:M:0:1
-W:D:X=========.,.&&,,_,__,,,,,,,,,,,,,,,,,,,,,tttg...PMt&&&&&&&t&t&&&&tgttttttttttttgtttttttttttttttttttX
+W:D:XBBB======AAA&&,,_,__,,,,,,,,,,,,,,,,,,,,,tttgAAAPMt&&&&&&&t&t&&&&tgttttttttttttgtttttttttttttttttttX
 ?:1
-W:D:X========..T.&___.___,,^,,,,,,,,,,,,,,,,,,tttt.&MMM^^__t^&&&,t^^ttttt,t,t,ttttttttttttttttttttttttttX
-W:D:X======.,..__&&,,,,__,,^^,,,,,,,,,,,,,,,,,t....t&&t^^__^__&.&,&&&^^,,t,,,,,,,,t,t,t,ttttttttttttttttX
-W:D:X=====,..__.T&&..,,__,,^^,,,,.,,,^^,,,,,,,,^^^t^&&&&,__^__tTTT,,,,,,,,,,,,t,,,,,,,,,,,,,t,ttttttttttX
-W:D:X===....__.,.&&,.,,__,,_^,,,,,,,,^^,,,,,,,,^^,^^^_&_^^__TT__T_TT,,&_,,,,,,,,,,,,,^,^,t,,,,,,t,ttttttX
-W:D:X===..,.__.TT&&..,__,__^^==,,.,^^,,.,,.,,,,^^____^&&___,TTTT_T__,,__,,,,^^,^^^^^^^^,,,,,t,,,,,,,,,,tX
-W:D:X===....__..T&&....__,^^=,__....,.....,,.,,^__^^,^&&,__,TTTTT__T_==,,,,,,,^_,,^,,,,,,,,,,,,,,t,t,,,,X
-W:D:X===...__..TT&&...__,.^^^..__.........,,,,,__^^^^^&&,__,TTTTTT_TT_=,,,,,,,__,,,,,,,,,,,,,,,,,,,,,,t,X
-W:D:X===...__..TT&&&..__..^..,.__...,..^..,,,,__^.^^^^&&,__,TTTTT&T&T__,,,,,,,,,__,,,,,,,,,,,,,,,,,,,,,,X
-W:D:X===....==..T.&..__..,.....__TTT....^^...__..TTT._&&..__,TTT&T&T&T__,,,,,,,,,__,,,,,,,,,,,,,,,,,,,,,X
-W:D:X====...==.....==......^...__TTTT.1.^^..,__...T__&&...__.TTTTTTTTT__,,,,,,,,__,,,,,,,,,,,,,,,,,,,,,,X
-W:D:X=====..========...^.^......__TTT._.^....__..,__._&...__.TTTTTTTTTT,__,,,,,,,__,,,,,,,,,,,,,,,,,,,,,X
-W:D:X==============..............__TT........__..__^_&&..,.__.TTTTTTTTT,__,,,,,,,,__,,,,,,,,,,,,,,,,,,,,X
-W:D:X======..==....&&............__..^^^....__...__^&&.....__.*TTTTTTT,,,__,,,,,,__,,,,,,,,,,,,,,,,,,,,,X
-W:D:X======........&&......,.....__...^.^...__.__.^^&&..._.__.TTTTTTTT..,,______,__,,,,,,,,,,,,,,,,,,,,,X
-W:D:X======........&&............__.,......__..__.^^&&___.___.TTTTTTTT....,,.,,,__,,,,,,,,,,,,,,,,,,,,,,X
-W:D:X======........&&....^......__..........___...^^&&.....__.TTTTT.T.,.....,,,,,__,,,,,,,,,,,,,,,,,,,,,X
-W:D:X=======.....T&&&..^^^^....__..........__....^^&&^...,__...TTTT......,....,,,__,,,,,,,,,,,,,,,,,,,,,X
-W:D:X==========..T&&&T.......__..........__......^^&&&&^..__...TTTT...........,,,,__,,,_,,,,,,,T,T,,,,,,X
-W:D:X==========..TTT&&T&&...__........,___......^)^&&.&^.__.....TTTTTT....,.....,,__,__,_=,,,TTTTTT,,,,,X
-W:D:X==========...TT&TT..___.__.......__.@__..._^^^&&....__..TTTTTTTTTT...........,,_,.,,==...T=_TT,,,,,X
-W:D:X==========.....T.T.__.._........__..._____^___&__...__,TTTTTTTTTT...,..,..,....,,,,,========TT,,,,,X
-W:D:X===========.=......__.........__.........^^^&&&_T,T__,.TT&TTTTTTT..........,.,.....=========T,,,,,,X
-W:D:X================..__..........__,.......^.^M&&._T4T__..TTTTTTTTT......,......,.....=====..==,,,,,,,X
-W:D:X=================.==T....,...__.........^^^MM&,.TTT.__...TTTTT..........,..........========,,.,,,,,X
-W:D:X===================TT........__.........^^MMMTT.T.^.^__^^........,......,,......^^..=======,,,.,.,,X
-W:D:X===================T==......__......,...^^M)MTTTT^___^.__^.,....................^,..==...==..,,.,.,X
-W:D:X===================T==.....__...........^&MgMMTTTTT..___^^................,..,..^^.......=.....,.,,X
-W:D:X=====================.....__...,........^&M5MTTTTTT.^^^__.....,..,......,,,.....^^...,......,......X
-W:D:X=====================.....=_............&&MMMTTTTT..^^..__.,.........,.........,^^.......,.........X
-W:D:X======================...==........,....&&&&&T.._......__..,..................................,..,.X
-W:D:X=======================.===.............._&^.....__..,...__.....,.........,..,,,...,...,...........X
-W:D:X===========================..............__.......__....__......,.......,...........,..............X
-W:D:X==========================.........._._..__.......__...__^..^,..............................,..,...X
-W:D:X==========================...._.,.__._.___........__...^^_^^@.....,..,.....,.,,....,,....,.,.,.....X
-W:D:X==========================..__.__.___._..&&^^.....__...^^_^^_@..&.&.....,.......,....,.............X
-W:D:X============================....._..._.__.&&&.....__....__.@...&&DD&&....,..................,.,..,.X
-W:D:X===========================.............._&&&^^....__...___....&&D^^D&&.&.&.&.&.&.&.&.&^^^,,,,,,,,,X
-W:D:X===========================.......^.&.^^&&&&&&&......______.....&&DDD&^&^&D&D&D&,&,&,&,,,,,,,,,,,,,X
-W:D:X===========================.....^^.&.&_&^&.&^&_&&&^...._.___....&&^DDD&^DDDDDD^&_,,,,,,,,,,,,,D,D,,X
-W:D:X===========================....^....__^^...^^^__^&&........__...&&^D&DDDDDDD^^,_,__,,,,,,,,,,,,,,,,X
-W:D:X===========================..^^^_..__......^^.__^^&&&........__.&&^DDDDDDDDD^^,,,,__,,,,,D,,,,,,,,,X
-W:D:X============================.^__.__.__......__&^^^.&&&&&&&&&..__&&^DDDDDDD^__,,,,,,__,,,,,,,DDDD,,,X
-W:D:X============================.&^__.._....^^.__&&&^^.._&&&&&&&.^__&^^DDDDD^^,,__,,,,,,__,,,,,,,,,,,,,X
-W:D:X============================^&^__.^^^^^^^^...__...__^&^&&&&&.__^&&^DDD^^^,,,,__,,,D,,__,,,,,,,D,,D,X
-W:D:X===========================.^^.__..^.^.........___..^&^^.^^3.__.&&^D^D^^,,,,__,,D,,,D,__,,,D,,,,,,,X
-W:D:X==========================.^^^..__....===.====__..&^...._^...__.&&,^,^,,,,,,,____,,,,,__,,,,,,,,,,,X
-W:D:X==========================^^....__..===========.&&^....__....__.$&,,,,,,,,D,,,,,=_,,__,,,,,D,,D,D,,X
-W:D:X========================..^^=...=_.==========&^^^^.._.__....__..&&,,,,,,,,,,,,,,==__,,&,,,,,,,,,,,,X
-W:D:X======================^^.^=====.==============^^^._=._......__.._&&,,,,,,,,,======,,,,&&,,D,D,D,D,,X
-W:D:X==============================================.^^^==...._.__..__.&&,,,___,_======,D,,&&,D,,,D,,,DD,X
-W:D:X===============================================..====___.__.__...&&,__,,D_,,D,,=_,,,D&&,D,DD,DDD,DDX
-W:D:X===============================================.==^==_@@..._.....&&_,,,,,,,,,,,__,&&&&DDDDDDDDD,,DDX
-W:D:X=================================================^^===...........&&,&,&,&,&,&,&__&&&DD,DD,DDD,D,,DDX
+W:D:XBB======AATA&___.___,,^,,,,,,,,,,,,,,,,,,ttttA&MMM^^__t^&&&,t^^ttttt,t,t,ttttttttttttttttttttttttttX
+W:D:XB=====AAAA__&&DD,,__,,^^,,,,,,,,,,,,,,,,,tAAAAt&&t^^__^__&.&,&&&^^AAtRRAAAAAAtAtAtAttttttttttttttttX
+W:D:XB====AAA__DT&&DD,,__,,^^,,,,.,,,^^,,,,,,,,^^^t^&&&&,__^__tTTTAAAAAAARRRRAtAAAAAAAAAAAAAtAttttttttttX
+W:D:XB==AAAA__DDD&&DD,,__,,_^,,,,,,,,^^,,,,,,,,^^,^^^_&_^^__TT__T_TTAA&_ARRRRAAAAAAAA^,^,t,,,,,,t,ttttttX
+W:D:XB==AAAA__DTT&&DD,__,__^^==,,.,^^,,.,,.,,,,^^____^&&___,TTTT_T__AA__AARR^^,^^^^^^^^,,,,,t,,,,,,,,,,tX
+W:D:XB==AAAA__DDT&&DD..__,^^=,__....,.....,,.,,^__^^,^&&,__,TTTTT__T_==AAAAAAA^_,,^,,,,,,,,,,,,,,t,t,,,,X
+W:D:XB==AAA__DDTT&&D..__,.^^^..__.........,,,,,__^^^^^&&,__,TTTTTT_TT_=AAAAAAA__,,,,,,,,,,,,,,,,,,,,,,t,X
+W:D:XB==AAA__DDTT&&&..__..^..,.__...,..^..,,,,__^.^^^^&&,__,TTTTT&T&T__AAAAAAAAA__,,,,,,,,,,,,,,RR,,,,,,X
+W:D:XB==AAAA==DDT.&..__..,.....__TTT....^^...__..TTT._&&..__,TTT&T&T&T__AAAAAAAAA__,,,,,,,,,,,,RRRR,,,,,X
+W:D:XB===AAA==.....==......^...__TTTT.1.^^..,__...T__&&...__.TTTTTTTTT__AAAAAAAA__,,,,,,,,,,,,,RRRR,,,,,X
+W:D:XBB===AA========...^.^......__TTT._.^....__..,__._&...__.TTTTTTTTTT,__,,,,,,,__,,,,,,,,,,,,,RR,,,,,,X
+W:D:XBB============..............__TT........__..__^_&&..,.__.TTTTTTTTT,__,,,,,,,,__,,,,,,,,,,,,,,,,,,,,X
+W:D:XBB====..==....&&............__..^^^....__...__^&&.....__.*TTTTTTT,,,__,,,,,,__DD,,,,,,,,,,,,,,,,,,,X
+W:D:XBB====........&&......,.....__...^.^...__.__.^^&&..._.__.TTTTTTTT..,,______,__DDD,,,,,,,,,,,,,,,,,,X
+W:D:XBB====.Q......&&............__.,......__..__.^^&&___.___.TTTTTTTT....,,.,,,__DDDDD,,,,,,,,,,,,,,,,,X
+W:D:XBB====QQQ.....&&....^......__..........___...^^&&.....__.TTTTTQT.,.....,,,,,__DDDDD,,,,,,,,,,,,,,,,X
+W:D:XBB=====Q....T&&&..^^^^....__..........__....^^&&^...,__...TTTTQQ....,.Q..,,,__DDDDDD,,,,,,,,,,,,,,,X
+W:D:XBB========..T&&&T.......__..........__......^^&&&&^..__...TTTTQQ.....QQQ.,,,,__DDD_DD,,,,,T,T,,,,,,X
+W:D:XBB========..TTT&&T&&...__........,___......^)^&&.&^.__.....TTTTTT....,Q....,,__D__D_=,,,TTTTTTDDDDDX
+W:D:XBBB=======...TT&TT..___.__.......__.@__..._^^^&&....__..TTTTTTTTTT...........DD_DDDD==...T=_TT,,,,,X
+W:D:XBBBB======.....T.T.__.._........__..._____^___&__...__,TTTTTTTTTT...,..,..,..DDDDDDD========TT,,,,,X
+W:D:XBBBBB======.=......__.........__.........^^^&&&_T,T__,.TT&TTTTTTT..........,.,DDDDD=========T,,,,,,X
+W:D:XBBBBBB==========..__..........__,.......^.^M&&._T4T__..TTTTTTTTTD.....,......,.DDDD=====AA==,,,,,,,X
+W:D:XBBBBBBB==========.==T....,...__.........^^^MM&,.TTT.__...TTTTT...D......,.......DDD========,,.,,,,,X
+W:D:XBBBBBBBB===========TT........__.........^^MMMTT.T.^.^__^^........,D.....,,......^^..=======,,,.,.,,X
+W:D:XBBBBBBBBB==========T==......__......,...^^M)MTTTT^___^.__^.,.......D............^,..==...==..,,.,.,X
+W:D:XBBBBBBBBBB=========T==.....__...........^&MgMMTTTTT..___^^..........D.....,..,..^^.......=.....,.,,X
+W:D:XBBBBBBBBBBB==========DDDDD__...,........^&M5MTTTTTT.^^^__.....,..,...D..,,,.....^^...,......,......X
+W:D:XBBBBBBBBBBBB=========DDDDD=_............&&MMMTTTTT..^^..__.,.........,D........,^^.......,.........X
+W:D:XBBBBBBBBBBBBB=========DDD==....Q...,....&&&&&T.._......__..,...........D......................,..,.X
+W:D:XBBBBBBBBBBBBBB=========D===...QQQ........_&^.....__..,...__.....,.......D.,..,,,...,...,...........X
+W:D:XBBBBBBBBBBBBBBB============....Q.........__.......__....__......,.......,D..........,..R...........X
+W:D:XBBBBBBBBBBBBBBB===========.........._._..__.......__...__^..^,............D...........RRR...,..,...X
+W:D:XBBBBBBBBBBBBBBBB==========...._.,.__._.___........__...^^_^^@.....,..,.....D.,,....,,..R.,.,.,.....X
+W:D:XBBBBBBBBBBBBBBBB==========..__.__.___._..&&^^.....__...^^_^^_@..&.&.....,...D...,....,.............X
+W:D:XBBBBBBBBBBBBBBBB============....._..._.__.&&&.....__....__.@...&&DD&&....,...D..............,.,..,.X
+W:D:XBBBBBBBBBBBBBBBB===========.............._&&&^^....__...___....&&D^^D&&.&.&.&.&.&.&.&.&^^^,,,,,,,,,X
+W:D:XBBBBBBBBBBBBBBBBB==========.......^.&.^^&&&&&&&......______.....&&DDD&^&^&D&D&D&,&,&,&,,,,,,,,,,,,,X
+W:D:XBBBBBBBBBBBBBBBBB==========.....^^.&.&_&^&.&^&_&&&^...._.___....&&^DDD&^DDDDDD^&C,,,,,,,,,,,,,D,D,,X
+W:D:XBBBBBBBBBBBBBBBBB==========....^....__^^.Q.^^^__^&&........__...&&^D&DDDDDDD^^,C,CC,,,,,,,,,,,,,,,,X
+W:D:XBBBBBBBBBBBBBBBBB==========AA^^^_..__...QQQ^^.__^^&&&........__.&&^DDDDDDDDD^^,,,,CC,,,,,D,,,,,,,,,X
+W:D:XBBBBBBBBBBBBBBBBBB==========A^__A__.__...Q..__&^^^.&&&&&&&&&..__&&^DDDDDDD^CC,,,,,,CC,,,,,,,DDDD,,,X
+W:D:XBBBBBBBBBBBBBBBBBB==========A&^__AA_....^^.__&&&^^.._&&&&&&&.^__&^^DDDDD^^,,CC,,,,,,CC,,,,,,,,,,,,,X
+W:D:XBBBBBBBBBBBBBBBBBB==========^&^__A^^^^^^^^...__...__^&^&&&&&.__^&&^DDD^^^,,,,CC,,,D,,CC,,,,,,,DAADAX
+W:D:XBBBBBBBBBBBBBBBBBB=========A^^A__AA^A^.........___..^&^^.^^3.__.&&^D^D^^,,,,CC,,D,,,D,CC,,,DAAAAAAAX
+W:D:XBBBBBBBBBBBBBBBBBB========A^^^AA__AAAA===.====__..&^...._^...__Q&&,^,^,,,,,,,CCCC,,,,,CC,,,AAAAAAAAX
+W:D:XBBBBBBBBBBBBBBBBBB========^^AAAA__AA===========.&&^....__....__Q$&,,,,,,,,D,,,,,=C,,CC,,,,,DAADADAAX
+W:D:XBBBBBBBBBBBBBBBBBB======AA^^=AAA=_A==========&^^^^.._.__....__.Q&&,,,,,,,,,,,,,,==CC,,&AAAAAAAAAAAAX
+W:D:XBBRRBBBBBBBBBBBBBB====^^A^=====A==============^^^._=._......__.._&&,,,,,,,,,======,,,,&&AAEAEAEAEAAX
+W:D:XBRRRRBBBBBBBBBBBBB============================A^^^==...._.__..__A&&,,,CCC,C======,D,,&&AEAAAEAAAEEAX
+W:D:XBRRRRBBBBBBBBBBBBBBBB==========================AA====___A__.__AAA&&,CC,,DC,,D,,=C,,,D&&AEAEEAEEEAEEX
+W:D:XBBRRBBBBBBBBBBBBBBBBBBBB=======================A==^==_@@AAA_AAAAA&&_,,,,,,,,,,,CC,&&&&EEEEEEEEEAAEEX
+W:D:XBBBBBBBBBBBBBBBBBBBBBBBBBBB======================^^===AAAAAAAAAAA&&,&,&,&,&,&,&CC&&&EEAEEAEEEAEAAEEX
 W:D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # Definition of all the entrances to the dungeons
@@ -115,6 +115,29 @@ W:E:23:30:60
 # Cirith Ungol
 W:E:9:56:65
 
+# The Northern Waste
+W:E:31:5:44
+
+# The Blue Mountains
+W:E:32:29:18
+
+# Dol Amroth
+W:E:33:60:48
+
+# Angmar
+W:E:34:13:48
+
+# Near Harad
+W:E:35:64:97
+
+# Isengard
+W:E:36:42:43
+
+# Tol Eressea
+W:E:37:64:1
+
+# Utumno
+W:E:38:1:99
 
 # Starting position
 W:P:34:21

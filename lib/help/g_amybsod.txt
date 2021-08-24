@@ -1,0 +1,55 @@
+|||||oy
+~~~~~01|AmyBSOD
+~~~~~02|Gods|AmyBSOD
+#####R === AmyBSOD ===
+
+AmyBSOD is the creator of ToME-SX. She loves fleecy colors and high heels.
+Her most faithful followers are those of the class Fleecy Priest.
+
+#####GThe benefits of Worshipping AmyBSOD
+ 1. As you increase your piety, AmyBSOD will grant boosts to your intelligence,
+    wisdom and charisma and will decrease strength, constitution and dexterity.
+ 2. If you are praying, AmyBSOD may grant acid immunity and disenchantment
+    resistance.
+ 3. AmyBSOD likes it if you kill animals.
+ 4. AmyBSOD *likes* it if you kill eldritch horrors and monsters that are
+    aligned with good.
+ 5. AmyBSOD grants access to the *****m_udun.txt*0[Udun] school of magic.
+   
+#####GThe disadvantages of Worshipping AmyBSOD
+1. Your piety decreases rapidly with time.
+2. Your piety decreases with time even more if you are praying.
+3. She will completely abandon you if you destroy The One Ring.
+4. If you have negative piety, you aggravate monsters.
+~~~~~03|AmyBSOD|Prayers
+#####GAmyBSOD's Magic
+Worshipping AmyBSOD gives the adventurer access to a set of special
+spells that come directly from the hands of AmyBSOD. These spells use your piety
+to cast rather than your spellpoints, and the level of spells that AmyBSOD will 
+permit you to use is determined by your Prayer skill - how skillful you are
+in asking for her help without offending her!
+
+There is a special book called the "Colorful Tome of Rainbows" which 
+contains instructions for the procedure for each of the prayers AmyBSOD will
+grant. There are three prayers all told, which are:
+1. [[[[[BBanshee Scream] (Level 1)
+   Scream like a banshee to damage the monsters' ears and daze them.
+   Sometimes it can blast through its first target.
+2. [[[[[BLights Out] (Level 20)
+   Conjures a ball of darkness to punch the monsters' lights out
+3. [[[[[BTrololololol] (Level 30)
+   Summons a troll that fights on your side
+   
+Each of these spells can be increased in level both by improving your Prayer
+skill, and by improving your Spell-power skill.
+
+In addition to her specific magic, AmyBSOD will also assist with your ability to
+use some magic from the "standard" schools, in relation to how skilled you 
+are at Prayer. These schools are as follows:
+    *****m_fire.txt*0[Fire School] at 1/2 the Prayer skill level.
+    *****m_meta.txt*0[Meta School] at 1/2 the Prayer skill level.
+    
+AmyBSOD also grants all of her followers access to the *****m_udun.txt*0[Udun] school of magic,
+but only powerful mages are able to cast all of its spells.
+
+The spells from these schools are all cast using your normal spellpoints.

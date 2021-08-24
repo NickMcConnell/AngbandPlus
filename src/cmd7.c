@@ -31,39 +31,39 @@ void mindcraft_info(char *p, int power)
 	switch (power)
 	{
 	case 0:
-		strnfmt(p, 80, " rad %d", DEFAULT_RADIUS);
+		strnfmt(p, 80, " rad %d", 15);
 		break;
 	case 1:
 		strnfmt(p, 80, " dam %dd%d", 3 + ((plev - 1) / 4), 3 + plev / 15);
 		break;
 	case 2:
-		strnfmt(p, 80, " range %d", (plev < 25 ? 10 : plev + 2 + p_ptr->to_s * 3));
+		strnfmt(p, 80, " range %d", (plev < 25 ? 10 : (plev / 2) + p_ptr->to_s * 3));
 		break;
 	case 3:
 		strnfmt(p, 80, " range %d", plev * 5);
 		break;
 	case 4:
-		strnfmt(p, 80, " power %d", plev * (plev < 30 ? 1 : 2));
+		strnfmt(p, 80, " power %d", plev);
 		break;
 	case 5:
-		if (plev > 20)
-			strnfmt(p, 80, " dam %dd8 rad %d", 8 + ((plev - 5) / 4), (plev - 20)/8 + 1);
+		if (plev > 35)
+			strnfmt(p, 80, " dam %dd8 rad %d", 8 + ((plev - 5) / 4), (plev - 35)/20 + 1);
 		else
 			strnfmt(p, 80, " dam %dd8", 8 + ((plev - 5) / 4));
 		break;
 	case 6:
-		strnfmt(p, 80, " dur %d", plev);
+		strnfmt(p, 80, " dur %d", 1 + (plev/3) );
 		break;
 	case 7:
 		break;
 	case 8:
-		if (plev < 25)
+		if (plev < 45)
 			strnfmt(p, 80, " dam %d rad %d", (3 * plev) / 2, 2 + (plev / 10));
 		else
 			strnfmt(p, 80, " dam %d", plev * ((plev - 5) / 10 + 1));
 		break;
 	case 9:
-		strnfmt(p, 80, " dur 11-%d", 10 + plev + plev / 2);
+		strnfmt(p, 80, " dur 5-%d", 5 + plev);
 		break;
 	case 10:
 		strnfmt(p, 80, " dam %dd6 rad %d", plev / 2, 0 + (plev - 25) / 10);
@@ -109,6 +109,73 @@ void mimic_info(char *p, int power)
 	}
 }
 
+/** 
+ * Show magic powers that user can choose from 
+ */ 
+static void display_magic_powers( 
+	magic_power *powers, 
+	int max_powers, 
+	void (*power_info)(char *p, int power), 
+	int plev, 
+	int cast_stat, 
+	int y, 
+	int x) 
+{ 
+	char psi_desc[80]; 
+	magic_power spell; 
+	int i; 
+	int chance = 0; 
+	int minfail = 0; 
+	char comment[80]; 
+ 
+	/* Display a list of spells */ 
+	prt("", 1, x); 
+	prt("", y, x); 
+	put_str("Name", y, x + 5); 
+	put_str("Lv Mana Fail Info", y, x + 35); 
+ 
+	/* Dump the spells */ 
+	for (i = 0; i < max_powers; i++) 
+	{ 
+		/* Access the spell */ 
+		spell = powers[i]; 
+		if (spell.min_lev > plev) 
+		{ 
+			break; 
+		} 
+ 
+		chance = spell.fail; 
+		/* Reduce failure rate by "effective" level adjustment */ 
+		chance -= 3 * (plev - spell.min_lev); 
+ 
+		/* Reduce failure rate by INT/WIS adjustment */ 
+		chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cast_stat]] - 1); 
+ 
+		/* Not enough mana to cast */ 
+		if (spell.mana_cost > p_ptr->csp) 
+		{ 
+			chance += 5 * (spell.mana_cost - p_ptr->csp); 
+		} 
+ 
+		/* Extract the minimum failure rate */ 
+		minfail = adj_mag_fail[p_ptr->stat_ind[cast_stat]]; 
+ 
+		/* Minimum failure rate */
+		if (chance < minfail) chance = minfail;
+ 
+		/* Get info */ 
+		power_info(comment, i); 
+ 
+		/* Dump the spell --(-- */ 
+		strnfmt(psi_desc, 80, "  %c) %-30s%2d %4d %3d%%%s", 
+			I2A(i), spell.name, 
+			spell.min_lev, spell.mana_cost, chance, comment); 
+		prt(psi_desc, y + i + 1, x); 
+	} 
+ 
+	/* Clear the bottom line */ 
+	prt("", y + i + 1, x); 
+} 
 
 /*
  * Allow user to choose a magic power.
@@ -135,23 +202,17 @@ bool get_magic_power(int *sn, magic_power *powers, int max_powers,
 
 	int x = 18;
 
-	int minfail = 0;
-
-	int chance = 0;
-
 	int info;
 
 	char choice;
 
 	char out_val[160];
 
-	char comment[80];
-
 	cptr p = "power";
 
 	magic_power spell;
 
-	bool flag, redraw;
+	bool flag;
 
 
 	/* Assume cancelled */
@@ -175,9 +236,6 @@ bool get_magic_power(int *sn, magic_power *powers, int max_powers,
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
-
 	/* Count number of powers that satisfies minimum plev requirement */
 	for (i = 0; i < max_powers; i++)
 	{
@@ -188,95 +246,20 @@ bool get_magic_power(int *sn, magic_power *powers, int max_powers,
 	}
 
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit, %c-%c=Info) Use which %s? ",
+	strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit, %c-%c=Info) Use which %s? ",
 	        p, I2A(0), I2A(num - 1), toupper(I2A(0)), toupper(I2A(num - 1)), p);
 
 	/* Save the screen */
 	character_icky = TRUE;
 	Term_save();
 
+	/* Show the list */ 
+        
+	display_magic_powers(powers, max_powers, power_info, plev, cast_stat, y, x);
+
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
-		{
-			/* Show the list */
-			if (!redraw)
-			{
-				char psi_desc[80];
-
-				/* Show list */
-				redraw = TRUE;
-
-				/* Display a list of spells */
-				prt("", 1, x);
-				prt("", y, x);
-				put_str("Name", y, x + 5);
-				put_str("Lv Mana Fail Info", y, x + 35);
-
-				/* Dump the spells */
-				for (i = 0; i < max_powers; i++)
-				{
-					/* Access the spell */
-					spell = powers[i];
-					if (spell.min_lev > plev) break;
-
-					chance = spell.fail;
-					/* Reduce failure rate by "effective" level adjustment */
-					chance -= 3 * (plev - spell.min_lev);
-
-					/* Reduce failure rate by INT/WIS adjustment */
-					chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cast_stat]] - 1);
-
-					/* Not enough mana to cast */
-					if (spell.mana_cost > p_ptr->csp)
-					{
-						chance += 5 * (spell.mana_cost - p_ptr->csp);
-					}
-
-					/* Extract the minimum failure rate */
-					minfail = adj_mag_fail[p_ptr->stat_ind[cast_stat]];
-
-					/* Minimum failure rate */
-					if (chance < minfail) chance = minfail;
-
-					/* Stunning makes spells harder */
-					if (p_ptr->stun > 50) chance += 25;
-					else if (p_ptr->stun) chance += 15;
-
-					/* Always a 5 percent chance of working */
-					if (chance > 95) chance = 95;
-
-					/* Get info */
-					power_info(comment, i);
-
-					/* Dump the spell --(-- */
-					strnfmt(psi_desc, 80, "  %c) %-30s%2d %4d %3d%%%s",
-					        I2A(i), spell.name,
-					        spell.min_lev, spell.mana_cost, chance, comment);
-					prt(psi_desc, y + i + 1, x);
-				}
-
-				/* Clear the bottom line */
-				prt("", y + i + 1, x);
-			}
-
-			/* Hide the list */
-			else
-			{
-				/* Hide list */
-				redraw = FALSE;
-
-				/* Restore the screen */
-				Term_load();
-				character_icky = FALSE;
-			}
-
-			/* Redo asking */
-			continue;
-		}
-
 		/* Note verify */
 		info = (isupper(choice));
 
@@ -305,6 +288,10 @@ bool get_magic_power(int *sn, magic_power *powers, int max_powers,
 			inkey();
 			Term_load();
 			character_icky = FALSE;
+ 
+			/* Redisplay choices */ 
+        
+			display_magic_powers(powers, max_powers, power_info, plev, cast_stat, y, x);
 			continue;
 		}
 
@@ -313,10 +300,7 @@ bool get_magic_power(int *sn, magic_power *powers, int max_powers,
 	}
 
 	/* Restore the screen */
-	if (redraw)
-	{
-		Term_load();
-	}
+	Term_load();
 	character_icky = FALSE;
 
 	/* Abort if needed */
@@ -356,16 +340,11 @@ void do_cmd_mindcraft(void)
 
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
-		return;
-	}
-
-	/* No magic */
-	if (p_ptr->anti_magic)
-	{
-		msg_print("Your anti-magic shell disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -415,7 +394,7 @@ void do_cmd_mindcraft(void)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
+	if (p_ptr->stun > 100) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
@@ -427,10 +406,11 @@ void do_cmd_mindcraft(void)
 		if (flush_failure) flush();
 
 		msg_format("You failed to concentrate hard enough!");
+		msg_print(NULL);
 
 		sound(SOUND_FAIL);
 
-		if (randint(100) < (chance / 2))
+		if (randint(100) < ((chance / 2) + 10) )
 		{
 			/* Backfire */
 			b = randint(100);
@@ -475,34 +455,34 @@ void do_cmd_mindcraft(void)
 			/* Precog */
 		case 0:
 			{
-				/* Magic mapping */
-				if (plev > 44)
+				/* Magic mapping - Amy edit: way too overpowered, makes divination useless */
+				/*if (plev > 44)
 				{
 					wiz_lite();
 				}
 				else if (plev > 19)
 				{
 					map_area();
-				}
+				}*/
 
-				/* Detection */
-				if (plev < 30)
+				/* Detection - radius reduced by Amy */
+				if (plev < 50)
 				{
-					b = detect_monsters_normal(DEFAULT_RADIUS);
-					if (plev > 14) b |= detect_monsters_invis(DEFAULT_RADIUS);
-					if (plev > 4) b |= detect_traps(DEFAULT_RADIUS);
+					b = detect_monsters_normal(15);
+					if (plev > 29) b |= detect_monsters_invis(15);
+					if (plev > 14) b |= detect_traps(15);
 				}
 				else
 				{
-					b = detect_all(DEFAULT_RADIUS);
+					b = detect_all(15);
 				}
 
-				/* Telepathy */
-				if (plev > 24)
+				/* Telepathy - much higher level requirement because it's teh uber --Amy */
+				if (plev > 40)
 				{
 					set_tim_esp(p_ptr->tim_esp + plev);
 
-					/* If plvl >= 40, we should have permanent ESP */
+					/* If plvl >= 75, we should have permanent ESP */
 				}
 
 				if (!b) msg_print("You feel safe.");
@@ -515,7 +495,7 @@ void do_cmd_mindcraft(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 
-				if (randint(100) < plev * 2)
+				if (randint(100) < plev)
 				{
 					fire_beam(GF_PSI, dir, damroll(3 + ((plev - 1) / 4), (3 + plev / 15)));
 				}
@@ -551,7 +531,7 @@ void do_cmd_mindcraft(void)
 
 					if (!cave_empty_bold(ij, ii) ||
 					                (cave[ij][ii].info & CAVE_ICKY) ||
-					                (distance(ij, ii, p_ptr->py, p_ptr->px) > plev + 2 + (p_ptr->to_s*3)) ||
+					                (distance(ij, ii, p_ptr->py, p_ptr->px) > (plev / 2) + (p_ptr->to_s*3)) ||
 					                (rand_int(plev * plev / 2) == 0))
 					{
 						msg_print("You fail to exit the void correctly!");
@@ -571,7 +551,7 @@ void do_cmd_mindcraft(void)
 			/* Major displace */
 		case 3:
 			{
-				if (plev > 29) banish_monsters(plev);
+				if (plev > 49) banish_monsters(plev / 10);
 				teleport_player(plev * 5);
 
 				break;
@@ -587,7 +567,7 @@ void do_cmd_mindcraft(void)
 				}
 				else
 				{
-					charm_monsters(plev * 2);
+					charm_monsters(plev);
 				}
 
 				break;
@@ -598,7 +578,7 @@ void do_cmd_mindcraft(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_SOUND, dir, damroll(8 + ((plev - 5) / 4), 8),
-				          (plev > 20 ? (plev - 20) / 8 + 1 : 0));
+				          (plev > 35 ? (plev - 35) / 20 + 1 : 0));
 
 				break;
 			}
@@ -606,12 +586,12 @@ void do_cmd_mindcraft(void)
 			/* Character Armour */
 		case 6:
 			{
-				set_shield(p_ptr->shield + plev, 50, 0, 0, 0);
-				if (plev > 14) set_oppose_acid(p_ptr->oppose_acid + plev);
-				if (plev > 19) set_oppose_fire(p_ptr->oppose_fire + plev);
-				if (plev > 24) set_oppose_cold(p_ptr->oppose_cold + plev);
-				if (plev > 29) set_oppose_elec(p_ptr->oppose_elec + plev);
-				if (plev > 34) set_oppose_pois(p_ptr->oppose_pois + plev);
+				set_shield(p_ptr->shield + 1 + (plev / 3), 50, 0, 0, 0);
+				if (plev > 19) set_oppose_acid(p_ptr->oppose_acid + 1 + (plev / 3));
+				if (plev > 29) set_oppose_fire(p_ptr->oppose_fire + 1 + (plev / 3));
+				if (plev > 39) set_oppose_cold(p_ptr->oppose_cold + 1 + (plev / 3));
+				if (plev > 49) set_oppose_pois(p_ptr->oppose_pois + 1 + (plev / 3));
+				if (plev > 59) set_oppose_elec(p_ptr->oppose_elec + 1 + (plev / 3));
 
 				break;
 			}
@@ -619,7 +599,7 @@ void do_cmd_mindcraft(void)
 			/* Psychometry */
 		case 7:
 			{
-				if (plev < 40)
+				if (plev < 75)
 				{
 					psychometry();
 				}
@@ -635,7 +615,7 @@ void do_cmd_mindcraft(void)
 		case 8:
 			{
 				msg_print("Mind-warping forces emanate from your brain!");
-				if (plev < 25)
+				if (plev < 45)
 				{
 					project(0, 2 + plev / 10, p_ptr->py, p_ptr->px,
 					        (plev*3) / 2, GF_PSI, PROJECT_KILL);
@@ -655,9 +635,9 @@ void do_cmd_mindcraft(void)
 				set_stun(0);
 				hp_player(plev);
 
-				b = 10 + randint((plev * 3) / 2);
+				b = 5 + randint(plev);
 
-				if (plev < 35)
+				if (plev < 45)
 				{
 					set_hero(p_ptr->hero + b);
 				}
@@ -773,7 +753,7 @@ static int get_mimic_chance(int mimic)
 	if (chance < 2) chance = 2;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
+	if (p_ptr->stun > 100) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
@@ -902,16 +882,11 @@ void do_cmd_mimic(void)
 	}
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
-		return;
-	}
-
-	/* No magic */
-	if (p_ptr->anti_magic)
-	{
-		msg_print("Your anti-magic shell disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -961,7 +936,7 @@ void do_cmd_mimic(void)
 	if (fail < minfail) fail = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) fail += 25;
+	if (p_ptr->stun > 100) fail += 25;
 	else if (p_ptr->stun) fail += 15;
 
 	/* Always a 5 percent chance of working */
@@ -973,6 +948,7 @@ void do_cmd_mimic(void)
 		if (flush_failure) flush();
 
 		msg_format("You failed to concentrate hard enough!");
+		msg_print(NULL);
 
 		sound(SOUND_FAIL);
 
@@ -4456,7 +4432,7 @@ int spell_chance_random(random_spell* rspell)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
+	if (p_ptr->stun > 100) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
@@ -4512,7 +4488,7 @@ static void print_spell_batch(int batch, int max)
 /*
  * List ten random spells and ask to pick one.
  */
-static random_spell* select_spell_from_batch(int batch, bool quick)
+static random_spell* select_spell_from_batch(int batch)
 {
 	char tmp[160];
 
@@ -4536,18 +4512,16 @@ static random_spell* select_spell_from_batch(int batch, bool quick)
 		mut_max = spell_num - batch * 10;
 	}
 
-	strnfmt(tmp, 160, "(a-%c, * to list, A-%cto browse, / to rename, - to comment) Select a power: ",
+	strnfmt(tmp, 160, "(a-%c, A-%cto browse, / to rename, - to comment) Select a power: ",
 	        I2A(mut_max - 1), I2A(mut_max - 1) - 'a' + 'A');
 
 	prt(tmp, 0, 0);
 
-	if (quick)
-	{
-		print_spell_batch(batch, mut_max);
-	}
-
 	while (1)
 	{
+		/* Print power list */ 
+		print_spell_batch(batch, mut_max);
+
 		/* Get a command */
 		which = inkey();
 
@@ -4560,16 +4534,6 @@ static random_spell* select_spell_from_batch(int batch, bool quick)
 			/* Leave the command loop */
 			break;
 
-		}
-
-		/* List */
-		if (which == '*' || which == '?' || which == ' ')
-		{
-			/* Print power list */
-			print_spell_batch(batch, mut_max);
-
-			/* Wait for next command */
-			continue;
 		}
 
 		/* Accept default */
@@ -4715,6 +4679,8 @@ random_spell* select_spell(bool quick)
 
 		if (which == ESCAPE)
 		{
+			Term_load(); 
+ 
 			ret = NULL;
 
 			break;
@@ -4724,7 +4690,7 @@ random_spell* select_spell(bool quick)
 		{
 			if (batch_max == 0)
 			{
-				ret = select_spell_from_batch(0, quick);
+				ret = select_spell_from_batch(0);
 
 				break;
 			}
@@ -4735,7 +4701,8 @@ random_spell* select_spell(bool quick)
 		which = tolower(which);
 		if (isalpha(which) && (A2I(which) <= batch_max))
 		{
-			ret = select_spell_from_batch(A2I(which), quick);
+			Term_load(); 
+			ret = select_spell_from_batch(A2I(which));
 
 			break;
 		}
@@ -4744,9 +4711,6 @@ random_spell* select_spell(bool quick)
 			bell();
 		}
 	}
-
-	/* Restore the screen */
-	Term_load();
 
 	/* Leave "icky" mode */
 	character_icky = FALSE;
@@ -4767,16 +4731,11 @@ void do_cmd_powermage(void)
 
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
-		return;
-	}
-
-	/* No magic */
-	if (p_ptr->anti_magic)
-	{
-		msg_print("Your anti-magic shell disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -4813,7 +4772,8 @@ void do_cmd_powermage(void)
 		/* Normal failure messages */
 		else
 		{
-			msg_print("You failed to get the spell off!");
+			msg_format("You failed to get the spell off!");
+			msg_print(NULL);
 		}
 
 		sound(SOUND_FAIL);
@@ -5111,16 +5071,11 @@ void do_cmd_possessor()
 
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
-		return;
-	}
-
-	/* No magic */
-	if (p_ptr->anti_magic)
-	{
-		msg_print("Your anti-magic shell disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -5301,8 +5256,8 @@ void do_cmd_archer(void)
 			object_aware(q_ptr);
 			object_known(q_ptr);
 			q_ptr->ident |= IDENT_MENTAL;
-			apply_magic(q_ptr, dun_level, TRUE, TRUE, (magik(20)) ? TRUE : FALSE);
-			q_ptr->discount = 90;
+			apply_magic(q_ptr, dun_level, TRUE, (magik(20)) ? TRUE : FALSE, (magik(2)) ? TRUE : FALSE);
+			q_ptr->discount = 100;
 			q_ptr->found = OBJ_FOUND_SELFMADE;
 
 			(void)inven_carry(q_ptr, FALSE);
@@ -5354,8 +5309,8 @@ void do_cmd_archer(void)
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		q_ptr->ident |= IDENT_MENTAL;
-		apply_magic(q_ptr, dun_level, TRUE, TRUE, (magik(20)) ? TRUE : FALSE);
-		q_ptr->discount = 90;
+		apply_magic(q_ptr, dun_level, TRUE, (magik(20)) ? TRUE : FALSE, (magik(2)) ? TRUE : FALSE);
+		q_ptr->discount = 100;
 		q_ptr->found = OBJ_FOUND_SELFMADE;
 
 		msg_print("You make some ammo.");
@@ -5415,8 +5370,8 @@ void do_cmd_archer(void)
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		q_ptr->ident |= IDENT_MENTAL;
-		apply_magic(q_ptr, dun_level, TRUE, TRUE, (magik(20)) ? TRUE : FALSE);
-		q_ptr->discount = 90;
+		apply_magic(q_ptr, dun_level, TRUE, (magik(20)) ? TRUE : FALSE, (magik(2)) ? TRUE : FALSE);
+		q_ptr->discount = 100;
 		q_ptr->found = OBJ_FOUND_SELFMADE;
 
 		msg_print("You make some ammo.");
@@ -5519,16 +5474,11 @@ void do_cmd_necromancer(void)
 	if (mto_s2 == 0) mto_s2 = 1;
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
-		return;
-	}
-
-	/* No magic */
-	if (p_ptr->anti_magic)
-	{
-		msg_print("Your anti-magic shell disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -5577,7 +5527,7 @@ void do_cmd_necromancer(void)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
+	if (p_ptr->stun > 100) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
@@ -5588,6 +5538,7 @@ void do_cmd_necromancer(void)
 	{
 		if (flush_failure) flush();
 		msg_format("You failed to concentrate hard enough!");
+		msg_print(NULL);
 		sound(SOUND_FAIL);
 
 		if (randint(100) < (chance / 2))
@@ -5953,7 +5904,7 @@ int spell_chance_rune(rune_spell* spell)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
+	if (p_ptr->stun > 100) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
@@ -6036,7 +5987,8 @@ int rune_exec(rune_spell *spell, int cost)
 		/* Normal failure messages */
 		else
 		{
-			msg_print("You failed to get the spell off!");
+			msg_format("You failed to get the spell off!");
+			msg_print(NULL);
 		}
 
 		sound(SOUND_FAIL);
@@ -6350,8 +6302,7 @@ static void print_runespell_batch(int batch, int max)
  * List ten random spells and ask to pick one.
  */
 
-static rune_spell* select_runespell_from_batch(int batch, bool quick,
-                int *s_idx)
+static rune_spell* select_runespell_from_batch(int batch, int *s_idx)
 {
 	char tmp[160];
 
@@ -6365,7 +6316,6 @@ static rune_spell* select_runespell_from_batch(int batch, bool quick,
 
 
 	character_icky = TRUE;
-	Term_save();
 
 	if (rune_num < (batch + 1) * 10)
 	{
@@ -6377,14 +6327,13 @@ static rune_spell* select_runespell_from_batch(int batch, bool quick,
 
 	prt(tmp, 0, 0);
 
-	if (quick)
-	{
-		print_runespell_batch(batch, mut_max);
-	}
-
 	while (1)
 	{
+		print_runespell_batch(batch, mut_max);
+
 		which = inkey();
+
+		Term_load(); 
 
 		if (which == ESCAPE)
 		{
@@ -6438,7 +6387,6 @@ static rune_spell* select_runespell_from_batch(int batch, bool quick,
 		}
 	}
 
-	Term_load();
 	character_icky = FALSE;
 
 	return (ret);
@@ -6449,7 +6397,7 @@ static rune_spell* select_runespell_from_batch(int batch, bool quick,
  * Pick a random spell from a menu
  */
 
-rune_spell* select_runespell(bool quick, int *s_idx)
+rune_spell* select_runespell(int *s_idx)
 {
 	char tmp[160];
 
@@ -6484,7 +6432,7 @@ rune_spell* select_runespell(bool quick, int *s_idx)
 		{
 			Term_load();
 			character_icky = FALSE;
-			return (select_runespell_from_batch(0, quick, s_idx));
+			return (select_runespell_from_batch(0, s_idx));
 
 		}
 		else
@@ -6494,7 +6442,7 @@ rune_spell* select_runespell(bool quick, int *s_idx)
 			{
 				Term_load();
 				character_icky = FALSE;
-				return (select_runespell_from_batch(A2I(which), quick, s_idx));
+				return (select_runespell_from_batch(A2I(which), s_idx));
 			}
 			else
 			{
@@ -6524,16 +6472,11 @@ void do_cmd_rune_cast()
 	}
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
-		return;
-	}
-
-	/* No magic */
-	if (p_ptr->anti_magic)
-	{
-		msg_print("Your anti-magic shell disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -6544,7 +6487,7 @@ void do_cmd_rune_cast()
 		return;
 	}
 
-	s_ptr = select_runespell(FALSE, &s_idx);
+	s_ptr = select_runespell(&s_idx);
 
 	if (s_ptr == NULL) return;
 
@@ -6607,16 +6550,11 @@ void do_cmd_runestone()
 	}
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
-		return;
-	}
-
-	/* No magic */
-	if (p_ptr->anti_magic)
-	{
-		msg_print("Your anti-magic shell disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -6833,7 +6771,7 @@ void do_cmd_rune_del()
 		return;
 	}
 
-	s_ptr = select_runespell(FALSE, &s_idx);
+	s_ptr = select_runespell(&s_idx);
 
 	if (s_ptr == NULL) return;
 
@@ -7385,16 +7323,11 @@ void do_cmd_summoner(void)
 	char ch;
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
-		return;
-	}
-
-	/* No magic */
-	if (p_ptr->anti_magic)
-	{
-		msg_print("Your anti-magic shell disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -7552,16 +7485,11 @@ void do_cmd_symbiotic(void)
 	object_type *o_ptr = &p_ptr->inventory[INVEN_CARRY];
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
-		return;
-	}
-
-	/* No magic */
-	if (p_ptr->anti_magic)
-	{
-		msg_print("Your anti-magic shell disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -7610,7 +7538,7 @@ void do_cmd_symbiotic(void)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
+	if (p_ptr->stun > 100) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
@@ -7621,6 +7549,7 @@ void do_cmd_symbiotic(void)
 	{
 		if (flush_failure) flush();
 		msg_format("You failed to concentrate hard enough!");
+		msg_print(NULL);
 		sound(SOUND_FAIL);
 	}
 	else

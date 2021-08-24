@@ -17,6 +17,61 @@ bool quest_main_monsters_hook(char *fmt)
 	}
 	return FALSE;
 }
+
+bool quest_main_gen_hook(char *fmt)
+{
+	s32b x, y, try = 10000;
+
+	/* Paranoia */
+	if ((dungeon_type != DUNGEON_ANGBAND) || (dun_level != 99)) return (FALSE);
+	if (r_info[819].max_num) return FALSE;
+
+	/* Find a good position */
+	while (try)
+	{
+		/* Get a random spot */
+		y = randint(cur_hgt - 4) + 2;
+		x = randint(cur_wid - 4) + 2;
+
+		/* Is it a good spot ? */
+		if (cave_empty_bold(y, x)) break;
+
+		/* One less try */
+		try--;
+	}
+
+	if (try) place_monster_one(y, x, test_monster_name("Sauron, the Sorcerer"), 0, FALSE, MSTATUS_ENEMY);
+
+	return (FALSE);
+}
+
+bool quest_mainmorg_gen_hook(char *fmt)
+{
+	s32b x, y, try = 10000;
+
+	/* Paranoia */
+	if ((dungeon_type != DUNGEON_ANGBAND) || (dun_level != 100)) return (FALSE);
+	if (r_info[860].max_num) return FALSE;
+
+	/* Find a good position */
+	while (try)
+	{
+		/* Get a random spot */
+		y = randint(cur_hgt - 4) + 2;
+		x = randint(cur_wid - 4) + 2;
+
+		/* Is it a good spot ? */
+		if (cave_empty_bold(y, x)) break;
+
+		/* One less try */
+		try--;
+	}
+
+	if (try) place_monster_one(y, x, test_monster_name("Morgoth, Lord of Darkness"), 0, FALSE, MSTATUS_ENEMY);
+
+	return (FALSE);
+}
+
 bool quest_morgoth_hook(char *fmt)
 {
 	/* Using test_monster_name() here would be a lot less ugly, but would take much more time */
@@ -86,6 +141,8 @@ bool quest_morgoth_init_hook(int q_idx)
 	}
 	add_hook(HOOK_CHAR_DUMP, quest_morgoth_dump_hook, "morgoth_dump");
 	add_hook(HOOK_NEW_MONSTER, quest_main_monsters_hook, "main_new_monster");
+	add_hook(HOOK_LEVEL_END_GEN, quest_main_gen_hook, "main_gen");
+	add_hook(HOOK_LEVEL_END_GEN, quest_mainmorg_gen_hook, "mainmorg_gen");
 	return (FALSE);
 }
 
@@ -139,6 +196,8 @@ bool quest_sauron_init_hook(int q_idx)
 		add_hook(HOOK_MONSTER_DEATH, quest_sauron_hook, "sauron_death");
 	}
 	add_hook(HOOK_NEW_MONSTER, quest_main_monsters_hook, "main_new_monster");
+	add_hook(HOOK_LEVEL_END_GEN, quest_main_gen_hook, "main_gen");
+	add_hook(HOOK_LEVEL_END_GEN, quest_mainmorg_gen_hook, "mainmorg_gen");
 	add_hook(HOOK_MONSTER_DEATH, quest_sauron_resurect_hook, "sauron_resurect_death");
 	return (FALSE);
 }
@@ -172,5 +231,7 @@ bool quest_necro_init_hook(int q_idx)
 		add_hook(HOOK_MONSTER_DEATH, quest_necro_hook, "necro_death");
 	}
 	add_hook(HOOK_NEW_MONSTER, quest_main_monsters_hook, "main_new_monster");
+	add_hook(HOOK_LEVEL_END_GEN, quest_main_gen_hook, "main_gen");
+	add_hook(HOOK_LEVEL_END_GEN, quest_mainmorg_gen_hook, "mainmorg_gen");
 	return (FALSE);
 }

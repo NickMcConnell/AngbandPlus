@@ -1,4 +1,4 @@
-61
+154
 *********** BUFFER LINE ********************** DO NOT REMOVE *****************
 says: 'I am too young to die.'
 says: 'Ok, ok! I get: no more pals.'
@@ -61,3 +61,96 @@ says: 'Cannot stand this hell I feel!'
 cries: 'Someone help me, oh please God help me!'
 cries: 'Please! I have a mate and six siblings!'
 cries: 'Mama, they try and break me!'
+begs for you to spare its life.
+grovels at your feet.
+says: 'Money? Sure, take it all back!'
+sobs: 'I didn't MEAN it...'
+begs: 'Spare me and I'll get you Ringil! Really!'
+whimpers and grovels.
+sobs: 'All right! I apologise! I really, really do!'
+cringes and whimpers.
+prays fervently to any Gods that are listening.
+cries: 'Spare me!'
+yells, 'I'm a head of state!  You can't *do* this!'
+yells, 'Help! Psycho on the loose!'
+shouts, 'Vassals, rouse yourselves! Take your weapons, good strong weapons!'
+shouts, 'There is danger! Danger!'
+cries, 'Woe! Woe!'
+sobs.
+sobs and whines.
+screams, 'Ohe! Ohe! Au! Au!'
+pleads, 'Let me go!'
+wails, 'Au! Au! Au!'
+says, 'I was so good to you, and this is my reward?'
+moans, 'Such ingratitude!'
+says, 'Go now, on your way!'
+screams, 'Aaah! Crushed! Shattered!'
+moans, 'Base trickery, foul deceit!'
+pleads, 'I have paid, now let me depart!'
+cries, 'O shameful humiliation!'
+shouts, 'Rascally rogue! Robber! Ruffian!'
+grumbles, 'You will regret this outrage, you wretch!'
+moans, 'Terrible vengeance I vow for this wrong!'
+says, 'Smile now, but you can never escape my curse!'
+wails, 'Alas! Alas! Woe is me!'
+moans, 'Do you mock me?'
+whines, 'Mommy, save me!'
+says, 'Now, stop it!'
+yells, 'Ey, watch it, you cheeky sod!'
+screams, 'Me mates'll settle yer hash!'
+cries, 'Take my life, but not my gold!'
+complains, 'Why do you rush at me? I sought justice, my just payment!'
+whines, 'Why do you threaten me?'
+sobs, 'No! I'm an endangered aquatic species!'
+pants and gasps.
+wails, 'Help! Murder! Murder!'
+says, 'Run while you can, I'll breathe inertia next!'
+says, 'C'mon! I'm sure we can work this out...'
+screams, 'Not the face! Not the face!'
+says, 'Yikes! Where'd I put my mail-order Cyberdemon?'
+says, 'You'll never get away with this...'
+says, 'Hey! I've got LAWYERS!'
+groans in disbelief.
+roars furiously.
+howls, 'Black Arrow? NOOOO!'
+howls, 'This CAN'T be happening!'
+wails, 'Who are you that have wounded me so? Speak me your name!'
+complains, 'Who kindled your childish courage to this deadly deed?'
+writhes as he spouts black blood from many wounds.
+says, 'I shall be avenged!'
+defiantly caws, 'I shall rise again!'
+writhes as he spouts acidic blood from many wounds.
+says, 'My friends the Wyrms of Power will get you!'
+says, 'This would be a lot different if this was Sil!'
+says, 'Wait! Look behind you!'
+screams, 'How have things come to this... again?!'
+yells, 'Ouch!'
+spits, 'I'll be back, worse than ever!'
+snarls weakly.
+howls with pain and fear.
+says, 'Who am I? Where is here? Why do you attack me?'
+says, 'Do you know the terrors of Amberite blood curse?!'
+says, 'Dammit! I knew I should have brought my Trumps along!'
+wails, 'Nooooo!'
+shouts, 'Why didn't I just stay in Asgard?'
+offers you everything in exchange for life.
+yells, 'I'll be back, with a squad of Cyberdemons!'
+sobs, 'I'm not bad, I was just born this way!'
+gibbers weakly.
+mumbles, 'kill -9 adventurer, kill -9 adventurer'
+oozes greenish blood from many wounds.
+burbles 'kyary pamyu pamyu!'
+says shiftlessly, 'Shit...!'
+says 'I knew I should have picked the Mighty personality!'
+says, 'This CAN'T be happening! I feel horror?!'
+whimpers, 'Why does everybody try to kill me?'
+pleads, 'Let's make a deal. What do you want? Ringil? Vorpal Blade? Harpies?'
+boasts, 'You can kill me, but I will only have my revenge later!'
+pleads, 'Wait! I can tell the RNG to play fair!'
+cries, 'Where's a scroll of teleport level when you need one?'
+cries, 'No fair, players get 26 inventory slots and I get none!'
+whimpers, 'Don't you like this game?'
+whimpers, 'If I die, who will take over Poschengband?'
+whimpers, 'But I had this really good idea for a new monster race!'
+whimpers, 'Shit, why did I add fail rates to scrolls of teleportation?'
+curses 'No. This CAN'T be the end. What trickery did you use to beat me?'

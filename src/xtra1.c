@@ -899,11 +899,11 @@ static void prt_stun(void)
 {
 	int s = p_ptr->stun;
 
-	if (s > 100)
+	if (s > 300)
 	{
 		c_put_str(TERM_RED, "Knocked out ", ROW_STUN, COL_STUN);
 	}
-	else if (s > 50)
+	else if (s > 100)
 	{
 		c_put_str(TERM_ORANGE, "Heavy stun  ", ROW_STUN, COL_STUN);
 	}
@@ -1731,7 +1731,7 @@ static void calc_mana(void)
 	if (msp) msp++;
 
 	/* Possessors mana is different */
-	if (p_ptr->body_monster && (!p_ptr->disembodied))
+	/*if (p_ptr->body_monster && (!p_ptr->disembodied))
 	{
 		monster_race *r_ptr = &r_info[p_ptr->body_monster];
 		int f = 100 / (r_ptr->freq_spell ? r_ptr->freq_spell : 1);
@@ -1739,7 +1739,7 @@ static void calc_mana(void)
 		msp = 21 - f;
 
 		if (msp < 1) msp = 1;
-	}
+	}*/
 
 	/* Apply race mod mana */
 	msp = msp * rmp_ptr->mana / 100;
@@ -2023,6 +2023,11 @@ static void calc_torch(void)
 	/* Assume no light */
 	p_ptr->cur_lite = 0;
 
+	GOD(GOD_VARDA)
+	{
+		p_ptr->cur_lite = 1;
+	}
+
 	/* Loop through all wielded items */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -2103,7 +2108,7 @@ int weight_limit(void)
 	int i;
 
 	/* Weight limit based only on strength */
-	i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
+	i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 200;
 
 	if (process_hooks_ret(HOOK_CALC_WEIGHT, "d", "(d)", i))
 		i = process_hooks_return[0].num;
@@ -2456,6 +2461,96 @@ void calc_gods()
 		p_ptr->resist_fire = TRUE;
 	}
 
+	GOD(GOD_AULE)
+	{
+		if (p_ptr->grace > 5000) p_ptr->resist_fire = TRUE;
+
+		int bonus = p_ptr->grace / 5000;
+		if (bonus > 5) bonus = 5;
+		p_ptr->to_h = p_ptr->to_h + bonus;
+		p_ptr->dis_to_h = p_ptr->dis_to_h + bonus;
+		p_ptr->to_d = p_ptr->to_d + bonus;
+		p_ptr->dis_to_d = p_ptr->dis_to_d + bonus;
+
+		PRAY_GOD(GOD_AULE) {
+			p_ptr->ac = p_ptr->ac + (bonus * 5);
+			p_ptr->dis_ac = p_ptr->dis_ac + (bonus * 5);
+		}
+
+	}
+
+	GOD(GOD_VARDA)
+	{
+		p_ptr->cur_lite = p_ptr->cur_lite + 1;
+		PRAY_GOD(GOD_VARDA)
+		{
+			if (p_ptr->grace > 25000) p_ptr->resist_lite = TRUE;
+		}
+	}
+
+	GOD(GOD_ULMO)
+	{
+		p_ptr->water_breath = TRUE;
+		PRAY_GOD(GOD_ULMO)
+		{
+			if (p_ptr->grace > 1000) p_ptr->resist_pois = TRUE;
+			if (p_ptr->grace > 15000) p_ptr->magical_breath = TRUE;
+		}
+	}
+
+	GOD(GOD_MANDOS)
+	{
+		p_ptr->resist_neth = TRUE;
+		PRAY_GOD(GOD_MANDOS)
+		{
+			if (p_ptr->grace > 10000) p_ptr->resist_continuum = TRUE;
+			if (p_ptr->grace > 20000) p_ptr->immune_neth = TRUE;
+
+		}
+	}
+
+	GOD(GOD_AMYBSOD)
+	{
+		if (p_ptr->grace > 10000) p_ptr->stat_add[A_STR] -= 1;
+		if (p_ptr->grace > 20000) p_ptr->stat_add[A_STR] -= 1;
+		if (p_ptr->grace > 30000) p_ptr->stat_add[A_STR] -= 1;
+		if (p_ptr->grace > 40000) p_ptr->stat_add[A_STR] -= 1;
+		if (p_ptr->grace > 50000) p_ptr->stat_add[A_STR] -= 1;
+
+		if (p_ptr->grace > 10000) p_ptr->stat_add[A_DEX] -= 1;
+		if (p_ptr->grace > 20000) p_ptr->stat_add[A_DEX] -= 1;
+		if (p_ptr->grace > 30000) p_ptr->stat_add[A_DEX] -= 1;
+		if (p_ptr->grace > 40000) p_ptr->stat_add[A_DEX] -= 1;
+		if (p_ptr->grace > 50000) p_ptr->stat_add[A_DEX] -= 1;
+
+		if (p_ptr->grace > 10000) p_ptr->stat_add[A_CON] -= 1;
+		if (p_ptr->grace > 20000) p_ptr->stat_add[A_CON] -= 1;
+		if (p_ptr->grace > 30000) p_ptr->stat_add[A_CON] -= 1;
+		if (p_ptr->grace > 40000) p_ptr->stat_add[A_CON] -= 1;
+		if (p_ptr->grace > 50000) p_ptr->stat_add[A_CON] -= 1;
+
+		if (p_ptr->grace > 10000) p_ptr->stat_add[A_CHR] += 1;
+		if (p_ptr->grace > 20000) p_ptr->stat_add[A_CHR] += 1;
+		if (p_ptr->grace > 30000) p_ptr->stat_add[A_CHR] += 1;
+		if (p_ptr->grace > 40000) p_ptr->stat_add[A_CHR] += 1;
+		if (p_ptr->grace > 50000) p_ptr->stat_add[A_CHR] += 1;
+
+		if (p_ptr->grace > 10000) p_ptr->stat_add[A_INT] += 1;
+		if (p_ptr->grace > 20000) p_ptr->stat_add[A_INT] += 1;
+		if (p_ptr->grace > 30000) p_ptr->stat_add[A_INT] += 1;
+		if (p_ptr->grace > 40000) p_ptr->stat_add[A_INT] += 1;
+		if (p_ptr->grace > 50000) p_ptr->stat_add[A_INT] += 1;
+
+		if (p_ptr->grace > 10000) p_ptr->stat_add[A_WIS] += 1;
+		if (p_ptr->grace > 20000) p_ptr->stat_add[A_WIS] += 1;
+		if (p_ptr->grace > 30000) p_ptr->stat_add[A_WIS] += 1;
+		if (p_ptr->grace > 40000) p_ptr->stat_add[A_WIS] += 1;
+		if (p_ptr->grace > 50000) p_ptr->stat_add[A_WIS] += 1;
+
+		if (p_ptr->grace < 0) p_ptr->aggravate = TRUE;
+
+	}
+
 	/* Gifts of Manwe if the player is praying to Manwe */
 	PRAY_GOD(GOD_MANWE)
 	{
@@ -2616,10 +2711,12 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 
 		tmp = 10 + get_skill_scale(SKILL_ANTIMAGIC, 40)
 		      - to_h - to_d - pval - to_a;
+		tmp /= 2;
 		if (tmp > 0) p_ptr->antimagic += tmp;
 
 		tmp = 1 + get_skill_scale(SKILL_ANTIMAGIC, 4)
 		      - (to_h + to_d + pval + to_a) / 15;
+		tmp /= 2;
 		if (tmp > 0) p_ptr->antimagic_dis += tmp;
 	}
 
@@ -2629,10 +2726,12 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 
 		tmp = 7 + get_skill_scale(SKILL_ANTIMAGIC, 33)
 		      - to_h - to_d - pval - to_a;
+		tmp /= 2;
 		if (tmp > 0) p_ptr->antimagic += tmp;
 
 		tmp = 1 + get_skill_scale(SKILL_ANTIMAGIC, 2)
 		      - (to_h + to_d + pval + to_a) / 15;
+		tmp /= 2;
 		if (tmp > 0) p_ptr->antimagic_dis += tmp;
 	}
 
@@ -2642,9 +2741,10 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 
 		tmp = 5 + get_skill_scale(SKILL_ANTIMAGIC, 15)
 		      - to_h - to_d - pval - to_a;
+		tmp /= 2;
 		if (tmp > 0) p_ptr->antimagic += tmp;
 
-		p_ptr->antimagic_dis += 2;
+		p_ptr->antimagic_dis += 1;
 	}
 
 	if (f4 & (TR4_ANTIMAGIC_10))
@@ -2653,6 +2753,7 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 
 		tmp = 1 + get_skill_scale(SKILL_ANTIMAGIC, 9)
 		      - to_h - to_d - pval - to_a;
+		tmp /= 2;
 		if (tmp > 0) p_ptr->antimagic += tmp;
 
 		p_ptr->antimagic_dis += 1;
@@ -2929,10 +3030,10 @@ void calc_bonuses(bool silent)
 			p_ptr->free_act = TRUE;
 	}
 
-	if (get_skill(SKILL_ANTIMAGIC))
+	if (get_skill(SKILL_ANTIMAGIC) > 0)
 	{
-		p_ptr->antimagic += get_skill(SKILL_ANTIMAGIC);
-		p_ptr->antimagic_dis += get_skill_scale(SKILL_ANTIMAGIC, 10) + 1;
+		p_ptr->antimagic += get_skill_scale(SKILL_ANTIMAGIC, 30);
+		p_ptr->antimagic_dis += get_skill_scale(SKILL_ANTIMAGIC, 7) + 1;
 
 		if (p_ptr->antimagic_extra & CLASS_ANTIMAGIC)
 		{
@@ -2944,7 +3045,7 @@ void calc_bonuses(bool silent)
 	if (get_skill(SKILL_DAEMON) > 20) p_ptr->resist_conf = TRUE;
 	if (get_skill(SKILL_DAEMON) > 30) p_ptr->resist_fear = TRUE;
 
-	if ( get_skill(SKILL_MINDCRAFT) >= 40 ) p_ptr->telepathy = ESP_ALL;
+	if ( get_skill(SKILL_MINDCRAFT) >= 75 ) p_ptr->telepathy = ESP_ALL;
 
 	if (p_ptr->astral)
 	{
@@ -2996,6 +3097,26 @@ void calc_bonuses(bool silent)
 
 		/* MEGA ugly hack -- set spacetime distortion resistance */
 		if (o_ptr->name1 == ART_ANCHOR)
+		{
+			p_ptr->resist_continuum = TRUE;
+		}
+		if (o_ptr->name1 == ART_ANCHOR2)
+		{
+			p_ptr->resist_continuum = TRUE;
+		}
+		if (o_ptr->name1 == ART_ANCHOR3)
+		{
+			p_ptr->resist_continuum = TRUE;
+		}
+		if (o_ptr->name1 == ART_ANCHOR4)
+		{
+			p_ptr->resist_continuum = TRUE;
+		}
+		if (o_ptr->name1 == ART_ANCHOR5)
+		{
+			p_ptr->resist_continuum = TRUE;
+		}
+		if (o_ptr->name1 == ART_ANCHOR6)
 		{
 			p_ptr->resist_continuum = TRUE;
 		}
@@ -3198,7 +3319,7 @@ void calc_bonuses(bool silent)
 	p_ptr->skill_stl += move_info[(byte)p_ptr->movement].to_stealth;
 
 	/* Apply temporary "stun" */
-	if (p_ptr->stun > 50)
+	if (p_ptr->stun > 100)
 	{
 		p_ptr->to_h -= 20;
 		p_ptr->dis_to_h -= 20;
@@ -3430,10 +3551,11 @@ void calc_bonuses(bool silent)
 	}
 
 	/* Hack -- Res Chaos -> Res Conf */
-	if (p_ptr->resist_chaos)
+	/* Amy edit: sorry but I want confusion resistance to be important, so... */
+	/*if (p_ptr->resist_chaos)
 	{
 		p_ptr->resist_conf = TRUE;
-	}
+	}*/
 
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero)
@@ -3567,6 +3689,10 @@ void calc_bonuses(bool silent)
 				break;
 			case SKILL_XBOW:
 				if (p_ptr->tval_ammo == TV_BOLT) p_ptr->xtra_might += get_skill(archery) / 30;
+				break;
+			case SKILL_BOOMERANG:
+				p_ptr->xtra_might += get_skill(archery) / 10;
+				p_ptr->to_d_ranged += get_skill(SKILL_DRUID);
 				break;
 			}
 		}
@@ -3769,10 +3895,10 @@ void calc_bonuses(bool silent)
 		p_ptr->dodge_chance = get_skill_scale(SKILL_DODGE, 150) + get_skill(SKILL_HAND);
 
 		/* Armor weight bonus/penalty */
-		p_ptr->dodge_chance -= cur_wgt * 2;
+		p_ptr->dodge_chance -= cur_wgt;
 
 		/* Encumberance bonus/penalty */
-		p_ptr->dodge_chance = p_ptr->dodge_chance - (calc_total_weight() / 100);
+		p_ptr->dodge_chance = p_ptr->dodge_chance - (calc_total_weight() / 500);
 
 		/* Never below 0 */
 		if (p_ptr->dodge_chance < 0) p_ptr->dodge_chance = 0;
@@ -3888,10 +4014,10 @@ void calc_bonuses(bool silent)
 	p_ptr->skill_dev += (get_skill_scale(SKILL_DEVICE, 150));
 
 	/* Affect Skill -- saving throw (skill and level) */
-	p_ptr->skill_sav += (get_skill_scale(SKILL_SPIRITUALITY, 75));
+	p_ptr->skill_sav += (get_skill_scale(SKILL_SPIRITUALITY, 45));
 
 	/* Affect Skill -- stealth (skill) */
-	p_ptr->skill_stl += (get_skill_scale(SKILL_STEALTH, 25));
+	p_ptr->skill_stl += (get_skill_scale(SKILL_STEALTH, 12));
 
 	/* Affect Skill -- search ability (Sneakiness skill) */
 	p_ptr->skill_srh += (get_skill_scale(SKILL_SNEAK, 35));
@@ -3916,7 +4042,10 @@ void calc_bonuses(bool silent)
 	/* Limit Skill -- digging from 1 up */
 	if (p_ptr->skill_dig < 1) p_ptr->skill_dig = 1;
 
-	if ((p_ptr->anti_magic) && (p_ptr->skill_sav < 95)) p_ptr->skill_sav = 95;
+	if ((p_ptr->anti_magic) && (p_ptr->skill_sav < 95)) {
+		int randomvalue = randint(95);
+		if (p_ptr->skill_sav < randomvalue) p_ptr->skill_sav = randomvalue;
+	}
 
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
@@ -4619,15 +4748,16 @@ void gain_fate(byte fate)
 				case 0:
 					{
 						/* The deepest the better */
-						int chance = dun_level / 4;
+						int chance = dun_level / 5;
 
-						/* No more than 1/2 chances */
-						if (chance > 50) chance = 50;
+						/* No more than 1/3 chances */
+						if (chance > 33) chance = 33;
 
 						/* It's HARD to get now */
 						if (magik(chance))
 						{
-							fates[i].fate = FATE_NO_DIE_MORTAL;
+							/* No idea how to balance this, so let's disable it for now --Amy */
+							fates[i].fate = /*FATE_NO_DIE_MORTAL*/FATE_DIE;
 						}
 						else
 						{
@@ -4823,6 +4953,7 @@ void dump_fates(FILE *outfile)
 {
 	int i;
 	char buf[120];
+	bool pending = FALSE; 
 
 	if (!outfile) return;
 
@@ -4833,6 +4964,11 @@ void dump_fates(FILE *outfile)
 			fate_desc(buf, i);
 			fprintf(outfile, "%s\n", buf);
 		}
+		if ((fates[i].fate) && !(fates[i].know)) pending = TRUE; 
+	} 
+	if (pending) 
+	{ 
+		fprintf(outfile, "You do not know all of your fate.\n"); 
 	}
 }
 

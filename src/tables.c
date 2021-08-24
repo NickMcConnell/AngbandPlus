@@ -1129,27 +1129,27 @@ byte extract_energy[300] =
 	/* Slow */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
 	/* Slow */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
 	/* Slow */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-	/* S-50 */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	/* S-50 */     2,    2,    2,    2,    2,    2,    2,    2,    2,    2,
 	/* S-40 */     2,    2,    2,    2,    2,    2,    2,    2,    2,    2,
-	/* S-30 */     2,    2,    2,    2,    2,    2,    2,    3,    3,    3,
-	/* S-20 */     3,    3,    3,    3,    3,    4,    4,    4,    4,    4,
+	/* S-30 */     3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+	/* S-20 */     4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
 	/* S-10 */     5,    5,    5,    5,    6,    6,    7,    7,    8,    9,
 	/* Norm */    10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
 	/* F+10 */    20,   21,   22,   23,   24,   25,   26,   27,   28,   29,
 	/* F+20 */    30,   31,   32,   33,   34,   35,   36,   36,   37,   37,
-	/* F+30 */    38,   38,   39,   39,   40,   40,   40,   41,   41,   41,
-	/* F+40 */    42,   42,   42,   43,   43,   43,   44,   44,   44,   44,
-	/* F+50 */    45,   45,   45,   45,   45,   46,   46,   46,   46,   46,
-	/* F+60 */    47,   47,   47,   47,   47,   48,   48,   48,   48,   48,
-	/* F+70 */    49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
-	/* Fast */    49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
-	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
-	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
-	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
-	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
-	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
-	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
-	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* F+30 */    38,   38,   39,   39,   39,   40,   40,   40,   41,   41,
+	/* F+40 */    41,   41,   42,   42,   42,   42,   43,   43,   43,   43,
+	/* F+50 */    43,   44,   44,   44,   44,   44,   44,   45,   45,   45,
+	/* F+60 */    45,   45,   45,   45,   45,   45,   46,   46,   46,   46,
+	/* F+70 */    46,   46,   46,   46,   46,   46,   46,   46,   46,   46,
+	/* Fast */    46,   46,   46,   46,   46,   46,   46,   46,   46,   46,
+	/* Virtual */  47,   47,   47,   47,   47,   47,   47,   47,   47,   47,
+	/* Virtual */  47,   47,   47,   47,   47,   47,   47,   47,   47,   47,
+	/* Virtual */  47,   47,   47,   47,   47,   47,   47,   47,   47,   47,
+	/* Virtual */  48,   48,   48,   48,   48,   48,   48,   48,   48,   48,
+	/* Virtual */  48,   48,   48,   48,   48,   48,   48,   48,   48,   48,
+	/* Virtual */  48,   48,   48,   48,   48,   48,   48,   48,   48,   48,
+	/* Virtual */  48,   48,   48,   48,   48,   48,   48,   48,   48,   48,
 	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
 	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
 	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
@@ -1641,6 +1641,9 @@ option_type option_info[] =
 	{ &maximize, TRUE, 6, 1,
 	  "maximize", "Maximise stats" },
 
+	{ &lvling_system, TRUE, 6, 19,
+	  "lvling_system", "Level scaling" },
+
 	{ &preserve, TRUE, 6, 2,
 	  "preserve", "Preserve artifacts" },
 
@@ -1672,7 +1675,7 @@ option_type option_info[] =
 	{ &fast_autoroller, FALSE, 6, 10,
 	  "fast_autoroller", "Fast autoroller(NOT on multiuser systems)" },
 
-	{ &joke_monsters, FALSE, 6, 14,
+	{ &joke_monsters, TRUE, 6, 14,
 	  "joke_monsters", "Allow use of some 'joke' monsters" },
 
 	/* XXX */
@@ -2536,70 +2539,70 @@ magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 	/* Level gained,  cost,  %fail,  name,  desc */
 	{
 		/* Det. monsters/traps */
-		1, 1, 15,
+		1, 15, 15,
 		"Precognition",
-		"Detect monsters, traps and level layout and lights up at higher levels."
+		"Detect monsters, traps and grants ESP at higher levels."
 	},
 	{
 		/* ~MM */
-		2, 1, 20,
+		2, 10, 20,
 		"Neural Blast",
 		"Blast the minds of your foes."
 	},
 	{
 		/* Phase/Between gate */
-		3, 2, 25,
+		3, 20, 25,
 		"Minor Displacement",
 		"Short distance teleportation"
 	},
 	{
 		/* Tele. Self / All */
-		7, 6, 35,
+		7, 35, 35,
 		"Major Displacement",
 		"Teleport you and others at high levels."
 	},
 	{
-		9, 7, 50,
+		9, 45, 50,
 		"Domination",
 		"Charm monsters"
 	},
 	{
 		/* Telekinetic "bolt" */
-		11, 7, 30,
+		11, 70, 30,
 		"Pulverise",
 		"Fires a bolt of pure sound."
 	},
 	{
 		/* Psychic/physical defenses */
-		13, 12, 50,
+		13, 100, 50,
 		"Character Armour",
 		"Sets up physical/elemental shield."
 	},
 	{
-		15, 12, 60,
+		15, 120, 60,
 		"Psychometry",
 		"Senses/identifies objects."
 	},
 	{
 		/* Ball -> LOS */
-		18, 10, 45,
+		18, 100, 45,
 		"Mind Wave",
 		"Projects psi waves to crush the minds of your foes."
 	},
 	{
-		23, 15, 50,
+		23, 150, 50,
 		"Adrenaline Channeling",
 		"Heals you, cures you and speeds you."
 	},
 	{
 		/* Convert enemy HP to mana */
-		25, 10, 40,
+		25, 50, 40,
 		"Psychic Drain",
 		"Drain your foes' life into your mana reserves"
 	},
 	{
 		/* Ball -> LOS */
-		28, 20, 45,
+		28, 120, 45,
 		"Telekinetic Wave",
 		"Powerful wave of pure telekinetic forces."
 	},
@@ -2867,6 +2870,82 @@ deity_type deity_info_init[MAX_GODS_INIT] =
 			"",
 		},
 	},
+	{
+		"AmyBSOD",
+		{
+			"She is the queen of self-inserts and creator of ToME-SX. Famous mainly ",
+			"for her love of fleecy colors and high-heeled footwear.",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+	},
+	{
+		"Aule the Smith",
+		{
+			"The god of Smithing.",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+	},
+	{
+		"Varda Elentari",
+		{
+			"The goddess of Light.",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+	},
+	{
+		"Ulmo",
+		{
+			"The god of Water.",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+	},
+	{
+		"Mandos",
+		{
+			"The god of the Dead, who is nonetheless good for some reason.",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+	},
+
 };
 
 /* jk - to hit, to dam, to ac, to stealth, to disarm, to saving throw */
@@ -2875,15 +2954,15 @@ deity_type deity_info_init[MAX_GODS_INIT] =
 tactic_info_type tactic_info[9] =
 {
 	/*        hit  dam   ac stl  dis  sav */
-	{ -10, -10, + 15, + 3, + 15, + 14, "coward"},             /* 4-4 */
-	{ -8, -8, + 10, + 2, + 9, + 9, "meek"},               /* 4-3 */
-	{ -4, -4, + 5, + 1, + 5, + 5, "wary"},               /* 4-2 */
-	{ -2, -2, + 2, + 1, + 2, + 2, "careful"},            /* 4-1 */
+	{ -10, -10, + 15, + 3, 0, 0, "coward"},             /* 4-4 */
+	{ -8, -8, + 10, + 2, 0, 0, "meek"},               /* 4-3 */
+	{ -4, -4, + 5, + 1, 0, 0, "wary"},               /* 4-2 */
+	{ -2, -2, + 2, + 1, 0, 0, "careful"},            /* 4-1 */
 	{ 0, 0, 0, 0, 0, 0, "normal"},             /* 4+0 */
-	{ 2, 2, -2, -1, -2, -3, "confident"},          /* 4+1 */
-	{ 4, 4, -5, -2, -5, -7, "aggressive"},         /* 4+2 */
-	{ 6, 6, -10, -3, -11, -12, "furious"},            /* 4+3 */
-	{ 8, 12, -25, -5, -18, -18, "berserker"}         /* 4+4 */
+	{ 2, 2, -2, -1, 0, 0, "confident"},          /* 4+1 */
+	{ 4, 4, -5, -2, 0, 0, "aggressive"},         /* 4+2 */
+	{ 6, 6, -10, -3, 0, 0, "furious"},            /* 4+3 */
+	{ 8, 8, -20, -5, 0, 0, "berserker"}         /* 4+4 */
 };
 
 /*
@@ -2942,6 +3021,26 @@ activation activation_info[MAX_T_ACT] =
 	{ "corruption", 100, ACT_MUT },
 	{ "cure insanity", 2000, ACT_CURE_INSANITY },
 	{ "light absortion", 800, ACT_LIGHT_ABSORBTION },
+	{ "whispers from beyond", 0, ACT_KNOWLEDGE },
+	{ "detect orcs", 10, ACT_ORCHAST },
+	{ "sunlight", 10, ACT_SUNLIGHT },
+	{ "whirlwind attack", 200, ACT_WHIRLWIND },
+	{ "dispel evil", 50, ACT_DISP_EVIL },
+	{ "dispel good", 50, ACT_DISP_GOOD },
+	{ "confuse monster", 50, ACT_CONFUSE },
+	{ "sleep monster", 50, ACT_SLEEP },
+	{ "teleport away", 2000, ACT_TELE_AWAY },
+	{ "charm animal", 1000, ACT_CHARM_ANIMAL },
+	{ "charm undead", 1000, ACT_CHARM_UNDEAD },
+	{ "charm other", 4000, ACT_CHARM_OTHER },
+	{ "charm animals", 2000, ACT_CHARM_ANIMALS },
+	{ "charm others", 10000, ACT_CHARM_OTHERS },
+	{ "summon animal", 750, ACT_SUMMON_ANIMAL },
+	{ "summon undead", 750, ACT_SUMMON_UNDEAD },
+	{ "restore life levels", 1000, ACT_REST_LIFE },
+	{ "full healing", 2000, ACT_CURE_1000 },
+	{ "protection from evil", 100, ACT_PROT_EVIL },
+	{ "speed", 20000, ACT_SPEED },
 #if 0 /* No more for the time being, ehehhe evil I am :> */
 	{ "cure corruption", 2000, ACT_CURE_MUT },
 #endif
@@ -2953,15 +3052,15 @@ activation activation_info[MAX_T_ACT] =
 move_info_type move_info[9] =
 {
 	/*        speed, searching, stealth, perception */
-	{ -10, 17, 4, 20, "slug-like"},
-	{ -8, 12, 4, 16, "very slow"},
-	{ -6, 8, 3, 10, "slow"},
-	{ -3, 4, 2, 6, "leisurely"},
+	{ -12, 0, 5, 0, "slug-like"},
+	{ -8, 0, 4, 0, "very slow"},
+	{ -6, 0, 3, 0, "slow"},
+	{ -3, 0, 2, 0, "leisurely"},
 	{ 0, 0, 0, 0, "normal"},
-	{ 1, -4, -1, -4, "brisk"},
-	{ 2, -6, -4, -8, "fast"},
-	{ 3, -10, -7, -14, "very fast"},
-	{ 4, -16, -10, -20, "running"}
+	{ 1, 0, -1, 0, "brisk"},
+	{ 2, 0, -4, 0, "fast"},
+	{ 3, 0, -7, 0, "very fast"},
+	{ 4, 0, -10, 0, "running"}
 };
 
 /*
@@ -4267,102 +4366,102 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 monster_power monster_powers[96] =
 	{
 		{ RF4_SHRIEK, "Aggravate Monster", 1, FALSE },
-		{ RF4_MULTIPLY, "Multiply", 10, FALSE },
-		{ RF4_S_ANIMAL, "Summon Animal", 30, FALSE },
-		{ RF4_ROCKET, "Fire a Rocket", 40, TRUE },
-		{ RF4_ARROW_1, "Light Arrow", 1, FALSE },
-		{ RF4_ARROW_2, "Minor Arrow", 3, FALSE },
-		{ RF4_ARROW_3, "Major Arrow", 7, TRUE },
-		{ RF4_ARROW_4, "Great Arrow", 9, TRUE },
-		{ RF4_BR_ACID, "Breathe Acid", 10, FALSE },
-		{ RF4_BR_ELEC, "Breathe Lightning", 10, FALSE },
-		{ RF4_BR_FIRE, "Breathe Fire", 10, FALSE },
-		{ RF4_BR_COLD, "Breathe Cold", 10, FALSE },
-		{ RF4_BR_POIS, "Breathe Poison", 15, TRUE },
-		{ RF4_BR_NETH, "Breathe Nether", 30, TRUE },
-		{ RF4_BR_LITE, "Breathe Light", 20, TRUE },
-		{ RF4_BR_DARK, "Breathe Dark", 20, TRUE },
-		{ RF4_BR_CONF, "Breathe Confusion", 15, TRUE },
-		{ RF4_BR_SOUN, "Breathe Sound", 30, TRUE },
-		{ RF4_BR_CHAO, "Breathe Chaos", 30, TRUE },
-		{ RF4_BR_DISE, "Breathe Disenchantment", 30, TRUE },
-		{ RF4_BR_NEXU, "Breathe Nexus", 30, TRUE },
-		{ RF4_BR_TIME, "Breathe Time", 30, TRUE },
-		{ RF4_BR_INER, "Breathe Inertia", 30, TRUE },
-		{ RF4_BR_GRAV, "Breathe Gravity", 30, TRUE },
-		{ RF4_BR_SHAR, "Breathe Shards", 30, TRUE },
-		{ RF4_BR_PLAS, "Breathe Plasma", 30, TRUE },
-		{ RF4_BR_WALL, "Breathe Force", 30, TRUE },
-		{ RF4_BR_MANA, "Breathe Mana", 40, TRUE },
-		{ RF4_BA_NUKE, "Nuke Ball", 30, TRUE },
-		{ RF4_BR_NUKE, "Breathe Nuke", 40, TRUE },
-		{ RF4_BA_CHAO, "Chaos Ball", 30, TRUE },
-		{ RF4_BR_DISI, "Breathe Disintegration", 40, TRUE },
+		{ RF4_MULTIPLY, "Multiply", 50, FALSE },
+		{ RF4_S_ANIMAL, "Summon Animal", 150, FALSE },
+		{ RF4_ROCKET, "Fire a Rocket", 300, TRUE },
+		{ RF4_ARROW_1, "Light Arrow", 5, FALSE },
+		{ RF4_ARROW_2, "Minor Arrow", 15, FALSE },
+		{ RF4_ARROW_3, "Major Arrow", 35, TRUE },
+		{ RF4_ARROW_4, "Great Arrow", 45, TRUE },
+		{ RF4_BR_ACID, "Breathe Acid", 70, FALSE },
+		{ RF4_BR_ELEC, "Breathe Lightning", 70, FALSE },
+		{ RF4_BR_FIRE, "Breathe Fire", 70, FALSE },
+		{ RF4_BR_COLD, "Breathe Cold", 70, FALSE },
+		{ RF4_BR_POIS, "Breathe Poison", 85, TRUE },
+		{ RF4_BR_NETH, "Breathe Nether", 120, TRUE },
+		{ RF4_BR_LITE, "Breathe Light", 100, TRUE },
+		{ RF4_BR_DARK, "Breathe Dark", 100, TRUE },
+		{ RF4_BR_CONF, "Breathe Confusion", 85, TRUE },
+		{ RF4_BR_SOUN, "Breathe Sound", 120, TRUE },
+		{ RF4_BR_CHAO, "Breathe Chaos", 120, TRUE },
+		{ RF4_BR_DISE, "Breathe Disenchantment", 120, TRUE },
+		{ RF4_BR_NEXU, "Breathe Nexus", 120, TRUE },
+		{ RF4_BR_TIME, "Breathe Time", 120, TRUE },
+		{ RF4_BR_INER, "Breathe Inertia", 250, TRUE },
+		{ RF4_BR_GRAV, "Breathe Gravity", 160, TRUE },
+		{ RF4_BR_SHAR, "Breathe Shards", 150, TRUE },
+		{ RF4_BR_PLAS, "Breathe Plasma", 120, TRUE },
+		{ RF4_BR_WALL, "Breathe Force", 120, TRUE },
+		{ RF4_BR_MANA, "Breathe Mana", 200, TRUE },
+		{ RF4_BA_NUKE, "Nuke Ball", 300, TRUE },
+		{ RF4_BR_NUKE, "Breathe Nuke", 400, TRUE },
+		{ RF4_BA_CHAO, "Chaos Ball", 300, TRUE },
+		{ RF4_BR_DISI, "Breathe Disintegration", 400, TRUE },
 
-		{ RF5_BA_ACID, "Acid Ball", 8, FALSE },
-		{ RF5_BA_ELEC, "Lightning Ball", 8, FALSE },
-		{ RF5_BA_FIRE, "Fire Ball", 8, FALSE },
-		{ RF5_BA_COLD, "Cold Ball", 8, FALSE },
-		{ RF5_BA_POIS, "Poison Ball", 20, TRUE },
-		{ RF5_BA_NETH, "Nether Ball", 20, TRUE },
-		{ RF5_BA_WATE, "Water Ball", 20, TRUE },
-		{ RF5_BA_MANA, "Mana Ball", 50, TRUE },
-		{ RF5_BA_DARK, "Darkness Ball", 20, TRUE },
+		{ RF5_BA_ACID, "Acid Ball", 80, FALSE },
+		{ RF5_BA_ELEC, "Lightning Ball", 80, FALSE },
+		{ RF5_BA_FIRE, "Fire Ball", 80, FALSE },
+		{ RF5_BA_COLD, "Cold Ball", 80, FALSE },
+		{ RF5_BA_POIS, "Poison Ball", 150, TRUE },
+		{ RF5_BA_NETH, "Nether Ball", 200, TRUE },
+		{ RF5_BA_WATE, "Water Ball", 200, TRUE },
+		{ RF5_BA_MANA, "Mana Ball", 500, TRUE },
+		{ RF5_BA_DARK, "Darkness Ball", 200, TRUE },
 		{ 0, "(none)", 0, FALSE },
 		{ 0, "(none)", 0, FALSE },
 		{ 0, "(none)", 0, FALSE },
-		{ RF5_CAUSE_1, "Cause Light Wounds", 20, FALSE },
-		{ RF5_CAUSE_2, "Cause Medium Wounds", 30, FALSE },
-		{ RF5_CAUSE_3, "Cause Critical Wounds", 35, TRUE },
-		{ RF5_CAUSE_4, "Cause Mortal Wounds", 45, TRUE },
-		{ RF5_BO_ACID, "Acid Bolt", 5, FALSE },
-		{ RF5_BO_ELEC, "Lightning Bolt", 5, FALSE },
-		{ RF5_BO_FIRE, "Fire Bolt", 5, FALSE },
-		{ RF5_BO_COLD, "Cold Bolt", 5, FALSE },
-		{ RF5_BO_POIS, "Poison Bolt", 10, TRUE },
-		{ RF5_BO_NETH, "Nether Bolt", 15, TRUE },
-		{ RF5_BO_WATE, "Water Bolt", 20, TRUE },
-		{ RF5_BO_MANA, "Mana Bolt", 25, TRUE },
-		{ RF5_BO_PLAS, "Plasma Bolt", 20, TRUE },
-		{ RF5_BO_ICEE, "Ice Bolt", 20, TRUE },
-		{ RF5_MISSILE, "Magic Missile", 1, FALSE },
-		{ RF5_SCARE, "Scare", 4, FALSE },
-		{ RF5_BLIND, "Blindness", 6, FALSE },
-		{ RF5_CONF, "Confusion", 7, FALSE },
-		{ RF5_SLOW, "Slowness", 10, FALSE },
-		{ RF5_HOLD, "Paralyse", 10, FALSE },
+		{ RF5_CAUSE_1, "Cause Light Wounds", 80, FALSE },
+		{ RF5_CAUSE_2, "Cause Medium Wounds", 140, FALSE },
+		{ RF5_CAUSE_3, "Cause Critical Wounds", 195, TRUE },
+		{ RF5_CAUSE_4, "Cause Mortal Wounds", 275, TRUE },
+		{ RF5_BO_ACID, "Acid Bolt", 25, FALSE },
+		{ RF5_BO_ELEC, "Lightning Bolt", 25, FALSE },
+		{ RF5_BO_FIRE, "Fire Bolt", 25, FALSE },
+		{ RF5_BO_COLD, "Cold Bolt", 25, FALSE },
+		{ RF5_BO_POIS, "Poison Bolt", 35, TRUE },
+		{ RF5_BO_NETH, "Nether Bolt", 65, TRUE },
+		{ RF5_BO_WATE, "Water Bolt", 80, TRUE },
+		{ RF5_BO_MANA, "Mana Bolt", 125, TRUE },
+		{ RF5_BO_PLAS, "Plasma Bolt", 80, TRUE },
+		{ RF5_BO_ICEE, "Ice Bolt", 100, TRUE },
+		{ RF5_MISSILE, "Magic Missile", 15, FALSE },
+		{ RF5_SCARE, "Scare", 20, FALSE },
+		{ RF5_BLIND, "Blindness", 30, FALSE },
+		{ RF5_CONF, "Confusion", 40, FALSE },
+		{ RF5_SLOW, "Slowness", 50, FALSE },
+		{ RF5_HOLD, "Paralyse", 90, FALSE },
 
-		{ RF6_HASTE, "Haste Self", 50, FALSE },
-		{ RF6_HAND_DOOM, "Hand of Doom", 30, TRUE },
-		{ RF6_HEAL, "Healing", 60, FALSE },
-		{ RF6_S_ANIMALS, "Summon Animals", 60, TRUE },
-		{ RF6_BLINK, "Phase Door", 2, FALSE },
-		{ RF6_TPORT, "Teleport", 10, FALSE },
-		{ RF6_TELE_TO, "Teleport To", 20, TRUE },
-		{ RF6_TELE_AWAY, "Teleport Away", 20, FALSE },
-		{ RF6_TELE_LEVEL, "Teleport Level", 20, TRUE },
-		{ RF6_DARKNESS, "Darkness", 3, FALSE },
-		{ RF6_TRAPS, "Create Traps", 10, TRUE },
+		{ RF6_HASTE, "Haste Self", 100, FALSE },
+		{ RF6_HAND_DOOM, "Hand of Doom", 600, TRUE },
+		{ RF6_HEAL, "Healing", 200, FALSE },
+		{ RF6_S_ANIMALS, "Summon Animals", 250, TRUE },
+		{ RF6_BLINK, "Phase Door", 14, FALSE },
+		{ RF6_TPORT, "Teleport", 40, FALSE },
+		{ RF6_TELE_TO, "Teleport To", 80, TRUE },
+		{ RF6_TELE_AWAY, "Teleport Away", 100, FALSE },
+		{ RF6_TELE_LEVEL, "Teleport Level", 170, TRUE },
+		{ RF6_DARKNESS, "Darkness", 10, FALSE },
+		{ RF6_TRAPS, "Create Traps", 20, TRUE },
 		{ 0, "(none)", 0, FALSE },
 		{ RF6_RAISE_DEAD, "Raise the Dead", 400, TRUE },
 		{ 0, "(none)", 0, FALSE },
 		{ 0, "(none)", 0, FALSE },
-		{ RF6_S_THUNDERLORD, "Summon Thunderlords", 90, TRUE },
-		{ RF6_S_KIN, "Summon Kin", 80, FALSE },
-		{ RF6_S_HI_DEMON, "Summon Greater Demons", 90, TRUE },
-		{ RF6_S_MONSTER, "Summon Monster", 50, FALSE },
-		{ RF6_S_MONSTERS, "Summon Monsters", 60, TRUE },
-		{ RF6_S_ANT, "Summon Ants", 30, FALSE },
-		{ RF6_S_SPIDER, "Summon Spider", 30, FALSE },
-		{ RF6_S_HOUND, "Summon Hound", 50, TRUE },
-		{ RF6_S_HYDRA, "Summon Hydra", 40, TRUE },
-		{ RF6_S_ANGEL, "Summon Angel", 60, TRUE },
-		{ RF6_S_DEMON, "Summon Demon", 60, TRUE },
-		{ RF6_S_UNDEAD, "Summon Undead", 70, TRUE },
-		{ RF6_S_DRAGON, "Summon Dragon", 70, TRUE },
-		{ RF6_S_HI_UNDEAD, "Summon High Undead", 90, TRUE },
-		{ RF6_S_HI_DRAGON, "Summon High Dragon", 90, TRUE },
-		{ RF6_S_WRAITH, "Summon Wraith", 90, TRUE },
+		{ RF6_S_THUNDERLORD, "Summon Thunderlords", 900, TRUE },
+		{ RF6_S_KIN, "Summon Kin", 600, FALSE },
+		{ RF6_S_HI_DEMON, "Summon Greater Demons", 900, TRUE },
+		{ RF6_S_MONSTER, "Summon Monster", 400, FALSE },
+		{ RF6_S_MONSTERS, "Summon Monsters", 750, TRUE },
+		{ RF6_S_ANT, "Summon Ants", 300, FALSE },
+		{ RF6_S_SPIDER, "Summon Spider", 300, FALSE },
+		{ RF6_S_HOUND, "Summon Hound", 500, TRUE },
+		{ RF6_S_HYDRA, "Summon Hydra", 600, TRUE },
+		{ RF6_S_ANGEL, "Summon Angel", 600, TRUE },
+		{ RF6_S_DEMON, "Summon Demon", 600, TRUE },
+		{ RF6_S_UNDEAD, "Summon Undead", 700, TRUE },
+		{ RF6_S_DRAGON, "Summon Dragon", 700, TRUE },
+		{ RF6_S_HI_UNDEAD, "Summon High Undead", 900, TRUE },
+		{ RF6_S_HI_DRAGON, "Summon High Dragon", 900, TRUE },
+		{ RF6_S_WRAITH, "Summon Wraith", 900, TRUE },
 		{ 0, "(none)", 0, FALSE },
 	};
 

@@ -138,7 +138,57 @@ static void say_comment_1(void)
 	if (randint(RUMOR_CHANCE) == 1 && speak_unique)
 	{
 		msg_print("The shopkeeper whispers something into your ear:");
-		get_rnd_line("rumors.txt", rumour);
+
+		/* Pick random text */
+		switch (randint(100))
+		{
+		case 1:
+			{
+				get_rnd_line("chainswd.txt", rumour);
+
+				break;
+			}
+
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+			{
+				get_rnd_line("error.txt", rumour);
+
+				break;
+			}
+
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
+		case 15:
+		case 16:
+		case 17:
+		case 18:
+		case 19:
+		case 20:
+		case 21:
+			{
+				get_rnd_line("death.txt", rumour);
+
+				break;
+			}
+
+		default:
+			{
+				get_rnd_line("rumors.txt", rumour);
+
+				break;
+			}
+		}
+
 		msg_print(rumour);
 	}
 }
@@ -417,7 +467,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust > 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM) price = price / 2;
+		if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM) price = price / 3;
 	}
 
 	/* Shop is selling */
@@ -430,7 +480,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust < 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM) price = price * 2;
+		if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM) price = price * 3;
 	}
 
 	/* Compute the final price (with rounding) */
@@ -475,8 +525,9 @@ static void mass_produce(object_type *o_ptr)
 	case TV_FLASK:
 	case TV_LITE:
 		{
-			if (cost <= 5L) size += mass_roll(3, 5);
-			if (cost <= 20L) size += mass_roll(3, 5);
+			if (cost <= 5L) size += mass_roll(2, 5);
+			if (cost <= 20L) size += mass_roll(2, 5);
+			size += mass_roll(2, 5);
 			break;
 		}
 
@@ -484,8 +535,9 @@ static void mass_produce(object_type *o_ptr)
 	case TV_POTION2:
 	case TV_SCROLL:
 		{
-			if (cost <= 60L) size += mass_roll(3, 5);
+			if (cost <= 60L) size += mass_roll(2, 5);
 			if (cost <= 240L) size += mass_roll(1, 5);
+			size += mass_roll(1, 5);
 			break;
 		}
 
@@ -495,8 +547,9 @@ static void mass_produce(object_type *o_ptr)
 	case TV_DAEMON_BOOK:
 	case TV_BOOK:
 		{
-			if (cost <= 50L) size += mass_roll(2, 3);
+			if (cost <= 50L) size += mass_roll(1, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
+			size += mass_roll(1, 3);
 			break;
 		}
 
@@ -526,9 +579,10 @@ static void mass_produce(object_type *o_ptr)
 	case TV_ARROW:
 	case TV_BOLT:
 		{
-			if (cost <= 5L) size += mass_roll(5, 5);
-			if (cost <= 50L) size += mass_roll(5, 5);
-			if (cost <= 500L) size += mass_roll(5, 5);
+			if (cost <= 5L) size += mass_roll(4, 5);
+			if (cost <= 50L) size += mass_roll(4, 5);
+			if (cost <= 500L) size += mass_roll(4, 5);
+			size += mass_roll(8, 5);
 			break;
 		}
 
@@ -541,6 +595,7 @@ static void mass_produce(object_type *o_ptr)
 		{
 			if (cost < 1601L) size += mass_roll(1, 5);
 			else if (cost < 3201L) size += mass_roll(1, 3);
+			size += mass_roll(1, 3);
 			break;
 		}
 	}
@@ -551,19 +606,19 @@ static void mass_produce(object_type *o_ptr)
 	{
 		discount = 0;
 	}
-	else if (rand_int(25) == 0)
+	else if (rand_int(125) == 0)
 	{
 		discount = 25;
 	}
-	else if (rand_int(150) == 0)
+	else if (rand_int(750) == 0)
 	{
 		discount = 50;
 	}
-	else if (rand_int(300) == 0)
+	else if (rand_int(2000) == 0)
 	{
 		discount = 75;
 	}
-	else if (rand_int(500) == 0)
+	else if (rand_int(50000) == 0)
 	{
 		discount = 90;
 	}
@@ -1107,6 +1162,23 @@ int return_level()
 
 	if (sti_ptr->flags1 & SF1_ALL_ITEM) level += p_ptr->lev;
 
+	switch (randint(1000)) {
+
+		case 94:
+		case 95:
+		case 96:
+		case 97:
+		case 98:
+			level += rand_int(20);
+			break;
+		case 99:
+			level += rand_int(100);
+			break;
+		default:
+			break;
+
+	}
+
 	return (level);
 }
 
@@ -1297,14 +1369,14 @@ static void store_create(void)
 		if (q_ptr->tval == TV_CHEST) continue;
 
 		/* Prune the black market */
-		if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM)
-		{
+		/*if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM)
+		{*/
 			/* Hack -- No "crappy" items */
-			if (black_market_crap(q_ptr)) continue;
+			/*if (black_market_crap(q_ptr)) continue;*/
 
 			/* Hack -- No "cheap" items */
-			if (object_value(q_ptr) < 10) continue;
-		}
+			/*if (object_value(q_ptr) < 10) continue;
+		}*/
 
 		/* Prune normal stores */
 		else
@@ -2454,9 +2526,9 @@ void store_stole(void)
 	}
 
 	/* Player tries to stole it */
-	if (rand_int((40 - p_ptr->stat_ind[A_DEX]) +
-	                ((j_ptr->weight * amt) / (5 + get_skill_scale(SKILL_STEALING, 15))) -
-	                (get_skill_scale(SKILL_STEALING, 15))) <= 10)
+	if ((rand_int((40 - p_ptr->stat_ind[A_DEX]) +
+	                (( (j_ptr->weight + randint(5) ) * amt) / (5 + get_skill_scale(SKILL_STEALING, 15))) -
+	                (get_skill_scale(SKILL_STEALING, 15))) <= 10) && (rand_int(10) > 0)) /* minimum failure rate --Amy */
 	{
 		/* Hack -- buying an item makes you aware of it */
 		object_aware(j_ptr);
@@ -4056,7 +4128,10 @@ void store_shuffle(int which)
  */
 void store_maint(int town_num, int store_num)
 {
-	int j, tries = 100;
+	int j, tries = 200;
+
+	/*if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM) tries = 500;*/ /* crash because st_ptr not set! --Amy */
+	/* But unneccessary since the black market gets enough items even without this line. :-) */
 
 	int old_rating = rating;
 
@@ -4078,22 +4153,22 @@ void store_maint(int town_num, int store_num)
 	st_ptr->insult_cur = 0;
 
 	/* Mega-Hack -- prune the black market */
-	if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM)
-	{
+	/*if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM)
+	{*/
 		/* Destroy crappy black market items */
-		for (j = st_ptr->stock_num - 1; j >= 0; j--)
+		/*for (j = st_ptr->stock_num - 1; j >= 0; j--)
 		{
-			object_type *o_ptr = &st_ptr->stock[j];
+			object_type *o_ptr = &st_ptr->stock[j];*/
 
 			/* Destroy crappy items */
-			if (black_market_crap(o_ptr))
-			{
+			/*if (black_market_crap(o_ptr))
+			{*/
 				/* Destroy the item */
-				store_item_increase(j, 0 - o_ptr->number);
+				/*store_item_increase(j, 0 - o_ptr->number);
 				store_item_optimize(j);
 			}
 		}
-	}
+	}*/
 
 
 	/* Choose the number of slots to keep */
@@ -4120,6 +4195,10 @@ void store_maint(int town_num, int store_num)
 
 	/* Buy some more items */
 	j = j + randint(STORE_TURNOVER);
+
+	if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM) {
+		j = j + randint(STORE_TURNOVER);
+	}
 
 	/* Never keep more than "STORE_MAX_KEEP" slots */
 	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;

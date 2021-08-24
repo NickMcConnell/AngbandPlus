@@ -106,7 +106,7 @@
  * Dungeon generation values
  */
 #define DUN_ROOMS      50	/* Number of rooms to attempt */
-#define DUN_UNUSUAL   194	/* Level/chance of unusual room (was 200) */
+#define DUN_UNUSUAL   /*194*/134	/* Level/chance of unusual room (was 200) */
 #define DUN_DEST       18	/* 1/chance of having a destroyed level */
 #define SMALL_LEVEL     6	/* 1/chance of smaller size (3->6) */
 #define EMPTY_LEVEL    15	/* 1/chance of being 'empty' (15)*/
@@ -326,16 +326,16 @@ static s16b roomdep[] =
 	0, 	/* 0 = Nothing */
 	1, 	/* 1 = Simple (33x11) */
 	1, 	/* 2 = Overlapping (33x11) */
-	3, 	/* 3 = Crossed (33x11) */
-	3, 	/* 4 = Large (33x11) */
-	5, 	/* 5 = Monster nest (33x11) */
-	5, 	/* 6 = Monster pit (33x11) */
-	5, 	/* 7 = Lesser vault (33x22) */
-	10, 	/* 8 = Greater vault (66x44) */
+	1, 	/* 3 = Crossed (33x11) */
+	1, 	/* 4 = Large (33x11) */
+	1, 	/* 5 = Monster nest (33x11) */
+	1, 	/* 6 = Monster pit (33x11) */
+	1, 	/* 7 = Lesser vault (33x22) */
+	1, 	/* 8 = Greater vault (66x44) */
 	1, 	/* 9 = Circular rooms (22x22) */
-	3, 	/* 10 = Fractal cave (42x24) */
-	10, 	/* 11 = Random vault (44x22) */
-	10, 	/* 12 = Crypts (22x22) */
+	1, 	/* 10 = Fractal cave (42x24) */
+	1, 	/* 11 = Random vault (44x22) */
+	1, 	/* 12 = Crypts (22x22) */
 };
 
 
@@ -897,7 +897,7 @@ static void place_random_stairs(int y, int x)
 	{
 		place_down_stairs(y, x);
 	}
-	else if (is_quest(dun_level) && (dun_level > 1))
+	else if (is_quest(dun_level) && (is_quest(dun_level) != QUEST_RANDOM) && (dun_level > 1))
 	{
 		place_up_stairs(y, x);
 	}
@@ -1076,7 +1076,7 @@ static void alloc_stairs(int feat, int num, int walls, int branch)
 			}
 
 			/* Quest -- must go up */
-			else if ((is_quest(dun_level) && (dun_level >= 1)) ||
+			else if ((is_quest(dun_level) && (is_quest(dun_level) != QUEST_RANDOM) && (dun_level >= 1)) ||
 			                ((dun_level >= d_info[dungeon_type].maxdepth) &&
 			                 (!dungeon_flags1 & DF1_FORCE_DOWN)))
 			{
@@ -1977,7 +1977,7 @@ bool room_alloc(int width, int height, bool crowded, int by0, int bx0, int *cx, 
 
 	for (ebx = bx0 + temp; bx0 > 0 && ebx > dun->col_rooms; bx0--, ebx--);
 
-	if (ebx >= dun->col_rooms) return (FALSE);
+	if (ebx > dun->col_rooms) return (FALSE);
 
 	/* Total number along height */
 	temp = ((height - 1) / BLOCK_HGT) + 1;
@@ -2691,7 +2691,7 @@ static bool vault_aux_jelly(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Also decline evil jellies (like death molds and shoggoths) */
-	if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE);
+	/*if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE);*/
 
 	/* Require icky thing, jelly, mold, or mushroom */
 	if (!strchr("ijm,", r_ptr->d_char)) return (FALSE);
@@ -6831,7 +6831,7 @@ bool level_generate_dungeon(cptr name)
 	}
 
 	/* Hack -- No destroyed "quest" levels */
-	if (is_quest(dun_level)) destroyed = FALSE;
+	if (is_quest(dun_level) && (is_quest(dun_level) != QUEST_RANDOM) ) destroyed = FALSE;
 
 	/* Hack -- No destroyed "small" levels */
 	if ((cur_wid != MAX_WID) || (cur_hgt != MAX_HGT)) destroyed = FALSE;
@@ -8879,14 +8879,14 @@ void generate_cave(void)
 			}
 
 			/* Extract the feeling */
-			if (rating > 100) feeling = 2;
-			else if (rating > 80) feeling = 3;
-			else if (rating > 60) feeling = 4;
-			else if (rating > 40) feeling = 5;
-			else if (rating > 30) feeling = 6;
-			else if (rating > 20) feeling = 7;
-			else if (rating > 10) feeling = 8;
-			else if (rating > 0) feeling = 9;
+			if (rating > 200) feeling = 2;
+			else if (rating > 150) feeling = 3;
+			else if (rating > 120) feeling = 4;
+			else if (rating > 100) feeling = 5;
+			else if (rating > 70) feeling = 6;
+			else if (rating > 50) feeling = 7;
+			else if (rating > 30) feeling = 8;
+			else if (rating > 10) feeling = 9;
 			else feeling = 10;
 
 			/* Hack -- Have a special feeling sometimes */

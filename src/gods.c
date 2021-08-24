@@ -49,11 +49,11 @@ void abandon_god(int god)
 void follow_god(int god, bool silent)
 {
 	/* Poor unbelievers, i'm so mean ... BOUHAHAHA */
-	if (get_skill(SKILL_ANTIMAGIC))
+	/*if (get_skill(SKILL_ANTIMAGIC))
 	{
 		msg_print("Don't be silly; you don't believe in gods.");
 		return;
-	}
+	}*/
 
 	/* Are we allowed ? */
 	if (process_hooks(HOOK_FOLLOW_GOD, "(d,s)", god, "ask"))
@@ -68,6 +68,12 @@ void follow_god(int god, bool silent)
 		{
 			s_info[SKILL_UDUN].hidden = FALSE;
 			if (!silent) msg_print("You feel the dark powers of Melkor in you.  You can now use the Udun skill.");
+		}
+
+		GOD(GOD_AMYBSOD)
+		{
+			s_info[SKILL_UDUN].hidden = FALSE;
+			if (!silent) msg_print("You feel the fleecy colors of AmyBSOD in you.  You can now use the Udun skill.");
 		}
 
 		/* Anything to be done? */

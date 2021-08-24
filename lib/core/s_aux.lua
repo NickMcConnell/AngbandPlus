@@ -456,16 +456,16 @@ function cast_school_spell(s, s_ptr, no_cost)
 	local use = FALSE
 
 	-- No magic
-	if (player.antimagic > 0) then
-		msg_print("Your anti-magic field disrupts any magic attempts.")
-		return
-	end
+	--if (player.antimagic > 0) then
+	--	msg_print("Your anti-magic field disrupts any magic attempts.")
+	--	return
+	--end
 
 	-- No magic
-	if (player.anti_magic == TRUE) then
-		msg_print("Your anti-magic shell disrupts any magic attempts.")
-		return
-	end
+	--if (player.anti_magic == TRUE) then
+	--	msg_print("Your anti-magic shell disrupts any magic attempts.")
+	--	return
+	--end
 
 	-- if it costs something then some condition must be met
 	if not no_cost then
@@ -497,7 +497,7 @@ function cast_school_spell(s, s_ptr, no_cost)
 			-- added because this is *extremely* important --pelpel
 			if (flush_failure) then flush() end
 
-			msg_print("You failed to get the spell off!")
+			msg_print("You failed to get the spell off! This message needs to be extra long to force a MORE prompt so you don't hit a direction key and move when you wanted to target.")
 			for index, sch in __spell_school[s] do
 				if __schools[sch].fail then
 					__schools[sch].fail(spell_chance(s))

@@ -359,3 +359,223 @@ screams 'Your code is ugly!'
 mutters something about bugs.
 1
 screams 'ToME rules!'.
+
+N:1086:Elif
+4
+announces that she'll kick your hands until they start bleeding.
+tells you that she'd like to stroke you softly.
+shows you her pointy fingernails with which she wants to scratch you!
+creates a "Pfffffffff!" sound.
+1
+hopes that you won't actually kill her.
+
+N:1090:Jessica
+4
+regards you as a danger to her life.
+gets ready to fight you.
+shouts 'You can't be allowed to rape me!'
+releases stinking gas with her butt.
+2
+screams 'I'm an innocent virgin! Stay away from me!'
+sighs 'What a cruel world this is, where even harmless ladies are being raped...'
+
+N:1092:Wendy
+4
+farts in your general direction.
+announces 'I'll scratch open your legs with my heels.'
+announces 'You can't possibly best me in heel-to-heel combat.'
+shouts 'I'll make you pay dearly, just like I did those no-good plumbers.'
+1
+is looking for the nearest toilet.
+
+N:1099:Nadja
+4
+tells you to stop acting like a crazy person.
+flips you the bird.
+boasts about her shiny buckled lady's shoes.
+tells you to stop staring at her all the damn time.
+1
+threatens to report you to the principal.
+
+N:1100:Katia
+4
+starts scratching your legs with her block-heeled combat boots.
+produces charming noises with her butt.
+pulls down your trousers.
+asks you if you'll allow her to use the WC.
+1
+tries to run for her life.
+
+N:1327:Magdalena
+4
+challenges you to a duel on life and death.
+wants to find out whether you can withstand her female combat boots.
+asks whether you know what you're getting into.
+closes in on you to attack.
+1
+feels that she's met her match.
+
+N:1332:Ina
+4
+screams 'I'm not anorexic! I'm too fat!'
+shouts 'Look at yourself, you're much too skinny! Why don't you eat?'
+mutters something about her dietary plans failing.
+remarks that you need something to eat or you'll starve.
+1
+screams 'Nobody ever tells me I'm beautiful! I just can't lose enough weight!'
+
+N:1685:Sunali
+5
+announces 'You are going down.'
+says 'I'm a woman who learned to defend herself.'
+threatens you with her very presence.
+closes in on you while readying her weapons and spells.
+tells you that she's the "Farting Queen from India".
+1
+screams 'If you kill me, I'll come back stronger than before!'
+
+N:1691:Meltem
+4
+announces 'I hope for a fair battle.'
+shouts 'Allah Akbar!'
+says 'My fleecy combat boots want to scratch your legs.'
+turns her butt towards you and produces beautiful farting noises.
+1
+prays to her god, hoping that you won't kill her.
+
+N:1698:Ariane
+4
+says 'I'm the lady of the elements, and I will defeat you.'
+shouts 'I will extract so much of your blood!'
+announces 'You'll bleed for hours before I finish you off.'
+wonders how long a weakling like you can withstand her might.
+1
+collects mana for her emergency teleport spell.
+
+N:1710:Miriam
+4
+asks 'Do you want me to squeeze your toes with my high-heeled combat boots?'
+shouts 'Your soft toes need to be clamped by my heels!'
+announces 'I'm gonna smash your toes.'
+prepares to place her leather boots on your unprotected toes.
+1
+runs away in panic.
+
+N:1711:Elena
+4
+teases you with her feminine charm.
+asks whether you'd like to pull down the soft panties that cover her sexy butt.
+announces 'I'll make sure that you won't defeat Katharina.'
+says 'I'm looking forward to having fun with you.'
+1
+says 'You might defeat me, but Katharina will crush you.'
+
+N:1712:Katharina
+4
+farts in your face, producing squeaky noises with her butt.
+tries to smash your legs with her very lovely plateau boots.
+asks whether you'd like to smell her worn socks.
+says 'If you want to get acquainted with me, use your hands to feel up my butt.'
+1
+seems about to give up the ghost.
+
+N:1717:Nelly
+4
+shakes her fists.
+threatens to crush you.
+announces 'If you don't flee, I'll drive you several feet into the ground.'
+says 'Any adventurer who dares to fight me will be annihilated.'
+1
+is surprised that she has found her match.
+
+N:1718:Nora
+4
+announces 'I don't eat too little. But you, adventurer, eat too much.'
+complains about being too fat.
+says 'All of my friends support my anorexia, why don't you?'
+calls for her minions and instructs them to take away all your food.
+1
+very hurriedly tries to run away from you.
+
+N:1719:Jasieen
+4
+says 'I'm not a Mary Sue. What makes you think that?'
+announces 'Sorry, but you look like Moderator Breaker to me.'
+strikes a sexy pose.
+happily remarks that ever since she won the show she can live a happy life.
+1
+implores you: 'Please don't kill me! I'm too important to die!'
+
+N:1720:Marike
+4
+squeaks like a little girl.
+farts in your general direction in a very squeaky, disgusting way.
+laughs about you being such a puny weakling.
+shows you her thick butt which she will use to destroy you.
+1
+laughs 'You cannot defeat me. Ha ha ha.'
+
+N:2667:Gudrun
+4
+announces 'Pay 10 euros to me or you will be terminated.'
+says 'Work hard if you don't want to anger me.'
+eyes you suspiciously.
+strides toward you with determination in her face.
+1
+shouts 'Ella will avenge me!'
+
+N:2668:Ella
+4
+announces 'If you touch me I'll make your hands bleed.'
+says 'You have no right to be here. Now I will eliminate you.'
+gives you a mean look.
+is ready to kick your butt, you wimpy 'adventurer'!
+1
+mutters 'Where's my sister Gudrun when I need her?'
+
+N:2669:Melissa
+4
+announces 'Abide by my rules or you will be punished.'
+says 'Adventurers are not permitted on this dungeon level.'
+says 'You'll pay a fine of 2 euros for trespassing here.'
+wants to demonstrate her kung-fu abilities to you.
+1
+calls for her fellow assistants.
+
+N:2670:Manuela
+4
+announces 'Pay 100 euros immediately or I will kill you!'
+shouts 'I'm not here to talk, I'm here to terminate your sorry existence!'
+shouts 'I have friends in powerful positions who will fuck you up!'
+points at you and screams 'Avada Kedavra!'
+1
+laughs 'I'll revive anyway. Every time you kill me your fine will increase by 200 euros.'
+
+N:2678:Annemarie
+4
+giggles 'I'll use the turbo power booster.'
+boasts 'I own a helicopter!'
+says 'I'm beautiful! Wouldn't you agree?'
+poses sexily with her high-heeled sandals.
+1
+announces 'I'll be back.'
+
+N:3570:Elif
+4
+wants to try out her beautiful combat boots on you.
+tells you that she'd like to stroke you softly.
+shows you her pointy fingernails with which she wants to scratch you!
+creates a "Pfffffffff!" sound.
+1
+hopes that you won't actually kill her.
+
+N:3572:Jessica
+4
+regards you as a criminal and will wipe you off the face of the earth.
+gets ready to fight you.
+shouts 'You can't be allowed to rape me!'
+releases stinking gas with her butt.
+2
+screams 'I'm an innocent virgin! Stay away from me!'
+sighs 'What a cruel world this is, where even harmless ladies are being raped...'
+

@@ -1337,7 +1337,7 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 					if (damage > 23)
 					{
 						/* Prevent destruction of quest levels and town */
-						if (!is_quest(dun_level) && dun_level)
+						if (!is_quest(dun_level) || (is_quest(dun_level) == QUEST_RANDOM))
 							earthquake(p_ptr->py, p_ptr->px, 8);
 					}
 					break;
@@ -1968,7 +1968,7 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 					if (damage > 23)
 					{
 						/* Prevent destruction of quest levels and town */
-						if (!is_quest(dun_level) && dun_level)
+						if (!is_quest(dun_level) || (is_quest(dun_level) == QUEST_RANDOM))
 							earthquake(p_ptr->py, p_ptr->px, 8);
 					}
 					break;
@@ -2362,7 +2362,11 @@ static void py_attack_hand(int *k, monster_type *m_ptr, s32b *special)
 		                (randint(plev) > m_ptr->level) && m_ptr->mspeed > 60)
 		{
 			msg_format("%^s starts limping slower.", m_name);
-			m_ptr->mspeed -= 10;
+			if (m_ptr->mspeed > 100) m_ptr->mspeed -= 10;
+			else if (m_ptr->mspeed > 90) m_ptr->mspeed -= 5;
+			else if (m_ptr->mspeed > 80) m_ptr->mspeed -= 3;
+			else if (m_ptr->mspeed > 70) m_ptr->mspeed -= 2;
+			else if (m_ptr->mspeed > 60) m_ptr->mspeed -= 1;
 		}
 	}
 
@@ -2494,6 +2498,7 @@ void py_attack(int y, int x, int max_blow)
 	object_type *o_ptr;
 
 	char m_name[80];
+	char securityquestion[160];
 
 	bool fear = FALSE;
 
@@ -2567,9 +2572,12 @@ void py_attack(int y, int x, int max_blow)
 	if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 	/* Stop if friendly */
+
+	sprintf(securityquestion, "Really attack %s? ", m_name);
+
 	if ((is_friend(m_ptr) >= 0) &&
-	                !(p_ptr->stun || p_ptr->confused || p_ptr->image ||
-	                  !(m_ptr->ml)))
+	                !(p_ptr->stun || p_ptr->confused || p_ptr->blind || p_ptr->image ||
+	                  !(m_ptr->ml)) && !get_check(securityquestion) )
 	{
 		if (!(p_ptr->inventory[INVEN_WIELD].art_name))
 		{
@@ -2812,9 +2820,12 @@ void py_attack(int y, int x, int max_blow)
 
 							if (lv >= 10)
 							{
-								int chance = (wisdom_scale(30) * lv) / ((m_ptr->level < 1) ? 1 : m_ptr->level);
+								int chance = (wisdom_scale(10) * lv) / ((m_ptr->level < 1) ? 1 : m_ptr->level);
 
 								if (chance < 1) chance = 1;
+								if (chance > 15) chance = 15;
+	/* ever seen how unbalanced late-game Melkor characters are? This is in dire need of a nerf. --Amy */
+
 								if ((p_ptr->grace > 5000) && magik(chance))
 								{
 									exec_lua(format("do_melkor_curse(%d)", c_ptr->m_idx));
@@ -3069,7 +3080,7 @@ void py_attack(int y, int x, int max_blow)
 	if (do_quake)
 	{
 		/* Prevent destruction of quest levels and town */
-		if (!is_quest(dun_level) && dun_level)
+		if (!is_quest(dun_level) || (is_quest(dun_level) == QUEST_RANDOM))
 			earthquake(p_ptr->py, p_ptr->px, 10);
 	}
 }
@@ -3371,6 +3382,14 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = cur_wid - 2;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if ((y == 0) && (x == MAX_WID - 1))
@@ -3380,6 +3399,14 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = 1;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if ((y == MAX_HGT - 1) && (x == 0))
@@ -3389,6 +3416,14 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = cur_wid - 2;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if ((y == MAX_HGT - 1) && (x == MAX_WID - 1))
@@ -3398,6 +3433,14 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = 1;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if (y == 0)
@@ -3406,6 +3449,14 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = x;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if (y == cur_hgt - 1)
@@ -3414,6 +3465,14 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = x;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if (x == 0)
@@ -3422,6 +3481,14 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 				p_ptr->oldpx = cur_wid - 2;
 				p_ptr->oldpy = y;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if (x == cur_wid - 1)
@@ -3430,6 +3497,14 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 				p_ptr->oldpx = 1;
 				p_ptr->oldpy = y;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			p_ptr->leaving = TRUE;

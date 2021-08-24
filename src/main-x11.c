@@ -510,8 +510,11 @@ errr type_string(char *str, uint len)
 	Term_activate(term_screen);
 
 	/* Not enough space for the string. */
-	if (Term_queue_space() <= (int)len)
+	if (Term_queue_space() <= (int)len) {
+		msg_format("NOT ENOUGH MEMORY: %d available, %d required", Term_queue_space(), (int)len );
+		msg_print(NULL);		
 		return 7;
+	}
 
 	for (s = str; s < str + len; s++)
 	{

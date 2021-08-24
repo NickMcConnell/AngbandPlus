@@ -35,6 +35,26 @@ bool quest_one_move_hook(char *fmt)
 			cmsg_print(TERM_YELLOW, "'Also, Manwe will abandon you if you wear it.'");
 		}
 
+		GOD(GOD_AULE)
+		{
+			cmsg_print(TERM_YELLOW, "'Also, Aule will abandon you if you wear it.'");
+		}
+
+		GOD(GOD_VARDA)
+		{
+			cmsg_print(TERM_YELLOW, "'Also, Varda will abandon you if you wear it.'");
+		}
+
+		GOD(GOD_ULMO)
+		{
+			cmsg_print(TERM_YELLOW, "'Also, Ulmo will abandon you if you wear it.'");
+		}
+
+		GOD(GOD_MANDOS)
+		{
+			cmsg_print(TERM_YELLOW, "'Also, Mandos will abandon you if you wear it.'");
+		}
+
 		GOD(GOD_TULKAS)
 		{
 			cmsg_print(TERM_YELLOW, "'Also, Tulkas will abandon you if you wear it.'");
@@ -55,6 +75,11 @@ bool quest_one_move_hook(char *fmt)
 		GOD(GOD_MELKOR)
 		{
 			cmsg_print(TERM_YELLOW, "'Melkor will abandon you when you do, but you must do it anyway!'");
+		}
+
+		GOD(GOD_AMYBSOD)
+		{
+			cmsg_print(TERM_YELLOW, "'AmyBSOD will abandon you when you do, but you must do it anyway!'");
 		}
 
 		/* Continue the plot */
@@ -88,6 +113,7 @@ bool quest_one_drop_hook(char *fmt)
 	inven_item_optimize(o_idx);
 
 	abandon_god(GOD_MELKOR);
+	abandon_god(GOD_AMYBSOD);
 
 	/* Continue the plot */
 	cquest.status = QUEST_STATUS_FINISHED;
@@ -131,6 +157,10 @@ bool quest_one_wield_hook(char *fmt)
 	abandon_god(GOD_MANWE);
 	abandon_god(GOD_TULKAS);
 	abandon_god(GOD_YAVANNA);
+	abandon_god(GOD_AULE);
+	abandon_god(GOD_MANDOS);
+	abandon_god(GOD_ULMO);
+	abandon_god(GOD_VARDA);
 
 	/*
 	 * Ok now we are evil, right ?
@@ -258,6 +288,66 @@ bool quest_one_death_hook(char *fmt)
 		ok = TRUE;
 	}
 	else if (magik(10) && (r_idx == test_monster_name("Feagwath, the Undead Sorcerer")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Smeagol")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("DarkGod, the Mighty Coder of Hell")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Marylene, Heartbreakeress of the Netherworld")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Tom Bombadil")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Ingeborg, the Runemistress")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Sunali")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Ariane")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Elena")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Katharina")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Marike")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Dr. Moreau")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Fu Manchu, The Yellow Peril")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Lina Inverse")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Neo, bane of the lands of Rgra")))
+	{
+		ok = TRUE;
+	}
+	else if (magik(10) && (r_idx == test_monster_name("Ken-Oh")))
 	{
 		ok = TRUE;
 	}

@@ -14,8 +14,8 @@ Another of the Valar. His most faithful followers are *****c_palad.txt*0[Paladin
 5. If you are praying, Tulkas may increase the damage you do in melee combat.
    
 #####GThe disadvantages of Worshipping Tulkas
-1. When you are praying, your piety slowly decreases with time.
-2. He will completely abandon you if you wear The One Ring.
+1. Your piety slowly decreases with time.
+3. He will completely abandon you if you wear The One Ring.
 ~~~~~03|Tulkas|Prayers
 #####GTulkas's Magic
 Worshipping Tulkas gives the adventurer access to a set of special spells 

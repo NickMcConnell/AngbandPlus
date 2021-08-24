@@ -1424,7 +1424,7 @@ bool autoroll;
 bool point_based;
 
 /* Maximize, preserve, special levels, ironman_rooms */
-bool maximize, preserve, special_lvls, ironman_rooms;
+bool maximize, preserve, special_lvls, ironman_rooms, lvling_system;
 
 /* In inventory option window, just erase the letters,
  * rather that displaying the list without the invalid

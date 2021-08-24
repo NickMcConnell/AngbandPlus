@@ -178,10 +178,12 @@ void do_cmd_go_up(void)
 		{
 			if (get_check("Really leave the level? "))
 				go_up = TRUE;
+				p_ptr->prob_travel = FALSE;
 		}
 		else
 		{
 			go_up = TRUE;
+			p_ptr->prob_travel = FALSE;
 		}
 	}
 	else
@@ -430,10 +432,12 @@ void do_cmd_go_down(void)
 		{
 			if (get_check("Really leave the level? "))
 				go_down = TRUE;
+				p_ptr->prob_travel = FALSE;
 		}
 		else
 		{
 			go_down = TRUE;
+			p_ptr->prob_travel = FALSE;
 		}
 	}
 
@@ -483,7 +487,7 @@ void do_cmd_go_down(void)
 			for (j = 1; j < i; j++)
 			{
 				dun_level++;
-				if (is_quest(dun_level + i - 1)) break;
+				if (is_quest(dun_level + i - 1) && (is_quest(dun_level + i - 1) != QUEST_RANDOM) ) break;
 				if (d_ptr->maxdepth == dun_level) break;
 			}
 		}
@@ -2726,8 +2730,8 @@ static void do_cmd_walk_jump(int pickup, bool disarm)
 	energy_use *= (p_ptr->wild_mode) ? ((MAX_HGT + MAX_WID) / 2) : 1;
 
 	/* Hack again -- Is there a special encounter ??? */
-	if (p_ptr->wild_mode &&
-	                magik(wf_info[wild_map[p_ptr->py][p_ptr->px].feat].level - (p_ptr->lev * 2)))
+	if ((p_ptr->wild_mode &&
+	                magik(wf_info[wild_map[p_ptr->py][p_ptr->px].feat].level - (p_ptr->lev * 2))) || (p_ptr->wild_mode && (rand_int(50) < 1) ) )
 	{
 		/* Go into large wilderness view */
 		p_ptr->wilderness_x = p_ptr->px;
@@ -3987,7 +3991,7 @@ void do_cmd_boomerang(void)
 
 	int j, y, x, ny, nx, ty, tx;
 
-	int chance, tdam, tdis;
+	int chance, tdam, tdis, tmul;
 
 	int mul, div;
 
@@ -4061,6 +4065,14 @@ void do_cmd_boomerang(void)
 	         ((p_ptr->to_h + p_ptr->to_h_ranged) * BTH_PLUS_ADJ));
 
 	chance += get_skill(SKILL_BOOMERANG);
+
+	tmul = 1 + p_ptr->xtra_might;
+
+	/* Boost the damage */
+	tdam *= tmul;
+
+	/* Add in the player damage */
+	tdam += p_ptr->to_d_ranged;
 
 	/* Take a turn */
 	energy_use = 100;
@@ -4256,8 +4268,8 @@ void do_cmd_boomerang(void)
 				j = (hit_body ? breakage_chance(o_ptr) : 0);
 
 				/* Break the boomerang */
-				if (!(o_ptr->art_name || artifact_p(o_ptr)) &&
-				                (rand_int(100) < j))
+				if ((!(o_ptr->art_name || artifact_p(o_ptr)) &&
+				                (rand_int(100) < j)) && (rand_int(55) > get_skill(SKILL_BOOMERANG) ) )
 				{
 					msg_print(format("Your %s is destroyed.", o_name));
 					inven_item_increase(INVEN_BOW, -1);
@@ -4386,6 +4398,14 @@ void do_cmd_unwalk()
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = cur_wid - 2;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if ((y == 0) && (x == MAX_WID - 1))
@@ -4395,6 +4415,14 @@ void do_cmd_unwalk()
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = 1;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if ((y == MAX_HGT - 1) && (x == 0))
@@ -4404,6 +4432,14 @@ void do_cmd_unwalk()
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = cur_wid - 2;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if ((y == MAX_HGT - 1) && (x == MAX_WID - 1))
@@ -4413,6 +4449,14 @@ void do_cmd_unwalk()
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = 1;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if (y == 0)
@@ -4421,6 +4465,14 @@ void do_cmd_unwalk()
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = x;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if (y == cur_hgt - 1)
@@ -4429,6 +4481,14 @@ void do_cmd_unwalk()
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = x;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if (x == 0)
@@ -4437,6 +4497,14 @@ void do_cmd_unwalk()
 				p_ptr->oldpx = cur_wid - 2;
 				p_ptr->oldpy = y;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			else if (x == cur_wid - 1)
@@ -4445,6 +4513,14 @@ void do_cmd_unwalk()
 				p_ptr->oldpx = 1;
 				p_ptr->oldpy = y;
 				ambush_flag = FALSE;
+
+				if (magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2)) || (rand_int(30) < 1) ) {
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					msg_print("All of a sudden, a huge squad of monsters appears and ambushes you!");
+
+				}
 			}
 
 			p_ptr->leaving = TRUE;

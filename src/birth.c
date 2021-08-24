@@ -27,7 +27,7 @@
 #define MAX_TRIES 100
 
 /* Max quests */
-static byte max_quests = 0;
+static s32b max_quests = 0;
 
 /*
  * Current stats
@@ -770,6 +770,12 @@ static void get_money(void)
 	/* Minimum 100 gold */
 	if (gold < 100) gold = 100;
 
+	/* Amy edit: give much more to speed up the boring early game */
+	gold *= 5;
+
+	/* and even more in ironman mode, where you'll definitely need all the help you can get */
+	if (ironman_rooms) gold *= 3;
+
 	/* Save the gold */
 	p_ptr->au = gold;
 }
@@ -1195,11 +1201,9 @@ static void player_outfit(void)
 
 
 /* Possible number(and layout) or random quests */
-#define MAX_RANDOM_QUESTS_TYPES ((8 * 3) + (8 * 1))
+#define MAX_RANDOM_QUESTS_TYPES ((8 * 1) + (8 * 1))
 int random_quests_types[MAX_RANDOM_QUESTS_TYPES] =
 {
-	1, 5, 6, 7, 10, 11, 12, 14,          /* Princess type */
-	1, 5, 6, 7, 10, 11, 12, 14,          /* Princess type */
 	1, 5, 6, 7, 10, 11, 12, 14,          /* Princess type */
 	20, 13, 15, 16, 9, 17, 18, 8,        /* Hero Sword Quest */
 };
@@ -1213,7 +1217,7 @@ static void gen_random_quests(int n)
 	int old_type = dungeon_type;
 
 	/* Factor dlev value by 1000 to keep precision */
-	step = (98 * 1000) / n;
+	step = (980 * 1000) / n;
 
 	lvl = step / 2;
 
@@ -1257,7 +1261,7 @@ static void gen_random_quests(int n)
 			tries--;
 
 			/* Random monster 5 - 10 levels out of depth */
-			q_ptr->r_idx = get_mon_num(rl + 4 + randint(6));
+			q_ptr->r_idx = get_mon_num( (rl > 600) ? 150 : (rl + randint(10)) );
 
 			if (!q_ptr->r_idx) continue;
 
@@ -1271,7 +1275,7 @@ static void gen_random_quests(int n)
 			if (r_ptr->flags4 & RF4_MULTIPLY) continue;
 
 			/* Forbid joke monsters */
-			if (r_ptr->flags8 & RF8_JOKEANGBAND) continue;
+			/*if (r_ptr->flags8 & RF8_JOKEANGBAND) continue;*/
 
 			/* Accept only monsters that are not friends */
 			if (r_ptr->flags7 & RF7_PET) continue;
@@ -1280,7 +1284,7 @@ static void gen_random_quests(int n)
 			if (r_ptr->flags7 & RF7_NAZGUL) continue;
 
 			/* Accept only monsters that are not good */
-			if (r_ptr->flags3 & RF3_GOOD) continue;
+			/*if (r_ptr->flags3 & RF3_GOOD) continue;*/
 
 			/* Assume no explosion attacks */
 			ok = TRUE;
@@ -2377,6 +2381,7 @@ static bool player_birth_aux_ask()
 
 	/* Set birth options: maximize, preserve, sepcial levels and astral */
 	p_ptr->maximize = maximize;
+	p_ptr->lvling_system = lvling_system;
 	p_ptr->preserve = preserve;
 	p_ptr->special = special_lvls;
 	p_ptr->astral = (PRACE_FLAG2(PR2_ASTRAL)) ? TRUE : FALSE;
@@ -2432,7 +2437,8 @@ static bool player_birth_aux_ask()
 	/* Heino Vander Sanden and Jimmy De Laet */
 
 	call_lua("get_module_info", "(s)", "d", "rand_quest", &allow_quest);
-	if (!ironman_rooms && !permanent_levels && allow_quest)
+	/* Ironman rooms work just fine with princess bitch quests. --Amy */
+	if (/*!ironman_rooms &&*/ !permanent_levels && allow_quest)
 	{
 		if (do_quick_start)
 		{
@@ -2459,10 +2465,10 @@ static bool player_birth_aux_ask()
 					put_str("", 20, 27);
 
 					/* Default */
-					strcpy(inp, "20");
+					strcpy(inp, "980");
 
 					/* Get a response (or escape) */
-					if (!askfor_aux(inp, 2)) inp[0] = '\0';
+					if (!askfor_aux(inp, 3)) inp[0] = '\0';
 					if (inp[0] == '*') v = rand_int(MAX_RANDOM_QUEST);
 					else v = atoi(inp);
 

@@ -2887,3 +2887,53 @@ D:A massive pair of adamantine boots studded with gold, the final and
 D:greatest product of the petty-dwarven magical forge.  Despite 
 D:the great powers they contain, they are heavy and awkward enough to 
 D:make quite a racket whenever you move.
+
+# more powerful anchor
+
+N:219:of Elbereth
+I:39:105:4
+W:60:12:15:50000
+P:0:1d1:0:0:0
+F:INSTA_ART | SEARCH | LITE3 | LUCK
+D:A powerful anchor that provides a strong light for any who 
+D:wields it. It is rumoured that it may even protect the wearer from 
+D:the passing of time.
+
+N:220:of Legolas
+I:39:105:1
+W:80:25:5:32500
+P:0:1d1:0:0:0
+F:INSTA_ART | SEE_INVIS | HOLD_LIFE |
+F:SPEED | LITE3 | LITE1
+D:The shining Anchor of the West, a famed heirloom of Legolas's house.
+
+N:221:of the Wizard of Yendor
+I:39:105:3
+W:99:50:5:50000
+P:0:1d1:0:0:0
+F:SEE_INVIS | HOLD_LIFE | RES_CHAOS | LUCK
+F:INSTA_ART | SPEED | RES_LITE | RES_DARK | ESP_ORC | LITE3
+D:A great anchor seemingly filled with moonlight, the famed Heart of the 
+D:Mountain, which splinters the light that falls upon it into a thousand 
+D:glowing shards.
+
+N:222:of Undeath
+I:39:105:-5
+W:50:10:10:0
+P:0:1d1:0:0:0
+F:CURSED | INT | WIS | CON | DEX | CHR | STR | 
+F:LITE3 | LITE2 | LUCK | MAGIC_BREATH
+F:INSTA_ART | DG_CURSE | ESP_UNDEAD |
+D:It appears like the Anchor of Elbereth at first - but wait! It 
+D:is a cursed anchor created by an evil wizard to lure adventurers 
+D:into wielding it unknowingly.
+
+N:223:of Unliving
+I:39:105:0
+W:99:10:10:0
+P:0:1d1:0:0:0
+F:CURSED | 
+F:LITE3 | LITE2 | LUCK | MAGIC_BREATH
+F:INSTA_ART | TY_CURSE | ESP_UNDEAD |
+D:A cursed anchor that was put into the game by an evil developer.
+

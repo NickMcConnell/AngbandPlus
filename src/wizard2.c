@@ -425,6 +425,20 @@ static void do_cmd_wiz_change_aux(void)
 	/* Save */
 	p_ptr->luck_base = tmp_long;
 	p_ptr->luck_max = tmp_long;
+
+	/* Default */
+	sprintf(tmp_val, "%d", p_ptr->grace);
+
+	/* Query */
+	if (!get_string("Piety: ", tmp_val, 8)) return;
+
+	/* Extract */
+	tmp_long = atol(tmp_val);
+
+	/* Save */
+	p_ptr->grace = tmp_long;
+	p_ptr->grace = tmp_long;
+
 }
 
 

@@ -497,13 +497,13 @@ F:SUPPORT_GROWTH
 
 # -1 = player level
 N:85:pool of deep lava
-G:.:R
+G:~:R
 E:-1d2:1:FIRE
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 D:0:You move across the deep lava.
 
 N:86:stream of shallow lava
-G:.:r
+G:~:r
 E:-1d1:1:FIRE
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 D:0:You move across the shallow lava.
@@ -528,7 +528,7 @@ F:DONT_NOTICE_RUNNING
 F:SUPPORT_GROWTH
 
 N:90:ice
-G:.:W
+G:~:W
 E:1d1:50:ICE
 F:FLOOR | NOTICE
 
@@ -659,6 +659,33 @@ G:0:g
 F:FLOOR | REMEMBER | NOTICE | CAN_RUN
 D:0:You feel the desire to walk in a great forest.
 
+# New altars
+
+N:166:Altar of Scintillating Purple
+G:0:v
+F:FLOOR | REMEMBER | NOTICE | CAN_RUN
+D:0:Fleecy colors fill your mind.
+
+N:167:Altar of Stone
+G:0:s
+F:FLOOR | REMEMBER | NOTICE | CAN_RUN
+D:0:You grow a desire to forge items.
+
+N:168:Altar of Light
+G:0:y
+F:FLOOR | REMEMBER | NOTICE | CAN_RUN
+D:0:You grow a desire to light up dark places.
+
+N:169:Altar of Waters
+G:0:b
+F:FLOOR | REMEMBER | NOTICE | CAN_RUN
+D:0:You grow a desire to bathe in the ocean.
+
+N:170:Altar of Doom
+G:0:o
+F:FLOOR | REMEMBER | NOTICE | CAN_RUN
+D:0:You grow a desire to do justice.
+
 # XXX
 # XXX
 # XXX
@@ -752,7 +779,7 @@ F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 # Glass wall -- can see but not pass
 N:188:glass wall
-G:.:B
+G:#:B
 F:NO_WALK | WALL | PERMANENT | NOTICE
 F:DONT_NOTICE_RUNNING
 D:1:This glass seems to be totaly impenetrable.
@@ -931,3 +958,4 @@ F:NO_WALK | CAN_PASS | NOTICE | SUPPORT_LIGHT
 F:DONT_NOTICE_RUNNING | TUNNELABLE
 D:1:You tunnel into the battlement.
 D:2:a hard stone battlement blocking your way
+

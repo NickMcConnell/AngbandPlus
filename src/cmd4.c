@@ -3656,9 +3656,10 @@ static void do_cmd_knowledge_uniques(void)
 		monster_race *r_ptr = &r_info[k];
 
 		/* Only print Uniques */
-		if (r_ptr->flags1 & (RF1_UNIQUE) &&
+		/* Amy edit: allow the player to view non-hostile ones too, because seriously, why not? */
+		if (r_ptr->flags1 & (RF1_UNIQUE) /*&&
 		                !(r_ptr->flags7 & RF7_PET) &&
-		                !(r_ptr->flags7 & RF7_NEUTRAL))
+		                !(r_ptr->flags7 & RF7_NEUTRAL)*/)
 		{
 			insert_sort_unique(sort_uniques, &num, k);
 		}

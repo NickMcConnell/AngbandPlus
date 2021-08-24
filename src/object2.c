@@ -533,7 +533,7 @@ void wipe_o_list(void)
 		if (!character_dungeon || p_ptr->preserve)
 		{
 			/* Hack -- Preserve unknown artifacts */
-			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
+			if (artifact_p(o_ptr)/* && !object_known_p(o_ptr)*/)
 			{
 				/* Mega-Hack -- Preserve the artifact */
 				if (o_ptr->tval == TV_RANDART)
@@ -2639,6 +2639,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		/* Enchant */
 		o_ptr->to_h += tohit1;
 		o_ptr->to_d += todam1;
+		if (!rand_int(100)) o_ptr->to_h += tohit1;
+		if (!rand_int(100)) o_ptr->to_d += todam1;
 
 		/* Very good */
 		if (power > 1)
@@ -2655,6 +2657,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		/* Penalize */
 		o_ptr->to_h -= tohit1;
 		o_ptr->to_d -= todam1;
+		if (!rand_int(100)) o_ptr->to_h -= tohit1;
+		if (!rand_int(100)) o_ptr->to_d -= todam1;
 
 		/* Very cursed */
 		if (power < -1)
@@ -2789,6 +2793,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 	{
 		/* Enchant */
 		o_ptr->to_a += toac1;
+		if (!rand_int(100)) o_ptr->to_a += toac1;
 
 		/* Very good */
 		if (power > 1)
@@ -2803,6 +2808,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 	{
 		/* Penalize */
 		o_ptr->to_a -= toac1;
+		if (!rand_int(100)) o_ptr->to_a -= toac1;
 
 		/* Very cursed */
 		if (power < -1)
@@ -3439,8 +3445,17 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			}
 
 			/* Ok now get a base level */
-			call_lua("get_stick_base_level", "(d,d,d)", "d", TV_WAND, dun_level, o_ptr->pval2, &bonus_lvl);
-			call_lua("get_stick_max_level", "(d,d,d)", "d", TV_WAND, dun_level, o_ptr->pval2, &max_lvl);
+
+			if (dun_level) call_lua("get_stick_base_level", "(d,d,d)", "d", TV_WAND, dun_level, o_ptr->pval2, &bonus_lvl);
+			else if (level > 1) call_lua("get_stick_base_level", "(d,d,d)", "d", TV_WAND, level, o_ptr->pval2, &bonus_lvl);
+			else call_lua("get_stick_base_level", "(d,d,d)", "d", TV_WAND, 1, o_ptr->pval2, &bonus_lvl);
+			if (dun_level) call_lua("get_stick_max_level", "(d,d,d)", "d", TV_WAND, dun_level, o_ptr->pval2, &max_lvl);
+			else if (level > 1) call_lua("get_stick_max_level", "(d,d,d)", "d", TV_WAND, level, o_ptr->pval2, &max_lvl);
+			else call_lua("get_stick_max_level", "(d,d,d)", "d", TV_WAND, 1, o_ptr->pval2, &max_lvl);
+
+			/*call_lua("get_stick_base_level", "(d,d,d)", "d", TV_WAND, dun_level, o_ptr->pval2, &bonus_lvl);
+			call_lua("get_stick_max_level", "(d,d,d)", "d", TV_WAND, dun_level, o_ptr->pval2, &max_lvl);*/
+
 			o_ptr->pval3 = (max_lvl << 16) + (bonus_lvl & 0xFFFF);
 
 			/* Hack -- charge wands */
@@ -3467,8 +3482,16 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			}
 
 			/* Ok now get a base level */
-			call_lua("get_stick_base_level", "(d,d,d)", "d", TV_STAFF, dun_level, o_ptr->pval2, &bonus_lvl);
-			call_lua("get_stick_max_level", "(d,d,d)", "d", TV_STAFF, dun_level, o_ptr->pval2, &max_lvl);
+
+			if (dun_level) call_lua("get_stick_base_level", "(d,d,d)", "d", TV_STAFF, dun_level, o_ptr->pval2, &bonus_lvl);
+			else if (level > 1) call_lua("get_stick_base_level", "(d,d,d)", "d", TV_STAFF, level, o_ptr->pval2, &bonus_lvl);
+			else call_lua("get_stick_base_level", "(d,d,d)", "d", TV_STAFF, 1, o_ptr->pval2, &bonus_lvl);
+			if (dun_level) call_lua("get_stick_max_level", "(d,d,d)", "d", TV_STAFF, dun_level, o_ptr->pval2, &max_lvl);
+			else if (level > 1) call_lua("get_stick_max_level", "(d,d,d)", "d", TV_STAFF, level, o_ptr->pval2, &max_lvl);
+			else call_lua("get_stick_max_level", "(d,d,d)", "d", TV_STAFF, 1, o_ptr->pval2, &max_lvl);
+
+			/*call_lua("get_stick_base_level", "(d,d,d)", "d", TV_STAFF, dun_level, o_ptr->pval2, &bonus_lvl);
+			call_lua("get_stick_max_level", "(d,d,d)", "d", TV_STAFF, dun_level, o_ptr->pval2, &max_lvl);*/
 			o_ptr->pval3 = (max_lvl << 16) + (bonus_lvl & 0xFFFF);
 
 			/* Hack -- charge staffs */
@@ -4052,8 +4075,13 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 				}
 
 				/* Determine a base and a max level */
-				call_lua("get_stick_base_level", "(d,d,d)", "d", o_ptr->tval, dun_level, o_ptr->pval2, &base_lvl);
-				call_lua("get_stick_max_level", "(d,d,d)", "d", o_ptr->tval, dun_level, o_ptr->pval2, &max_lvl);
+
+				if (dun_level) call_lua("get_stick_base_level", "(d,d,d)", "d", o_ptr->tval, dun_level, o_ptr->pval2, &base_lvl);
+				else if (lev > 1) call_lua("get_stick_base_level", "(d,d,d)", "d", o_ptr->tval, lev, o_ptr->pval2, &base_lvl);
+				else call_lua("get_stick_base_level", "(d,d,d)", "d", o_ptr->tval, 1, o_ptr->pval2, &base_lvl);
+				if (dun_level) call_lua("get_stick_max_level", "(d,d,d)", "d", o_ptr->tval, dun_level, o_ptr->pval2, &max_lvl);
+				else if (lev > 1) call_lua("get_stick_max_level", "(d,d,d)", "d", o_ptr->tval, lev, o_ptr->pval2, &max_lvl);
+				else call_lua("get_stick_max_level", "(d,d,d)", "d", o_ptr->tval, 1, o_ptr->pval2, &max_lvl);
 				o_ptr->pval3 = (max_lvl << 16) + (base_lvl & 0xFFFF);
 
 				/* Hack -- charge wands */
@@ -4073,7 +4101,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 
 	/* Base chance of being "good" */
-	f1 = lev + 10 + luck( -15, 15);
+	f1 = lev + 10 + rand_int(10) + luck( -15, 15);
 
 	/* Maximal chance of being "good" */
 	if (f1 > 75) f1 = 75;
@@ -4918,7 +4946,9 @@ bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 	}
 
 	/* hack, no multiple artifacts */
-	if (artifact_p(j_ptr)) j_ptr->number = 1;
+	/*if (artifact_p(j_ptr)) j_ptr->number = 1;*/
+	/* Amy edit: seriously, single artifact ammos are almost never useful in combat. Sure, stat stick artifact ammo
+	 * is, but the primary function of ammo is to be fired at enemies, so there! */
 
 	/* Notice "okay" out-of-depth objects */
 	if (!cursed_p(j_ptr) &&

@@ -238,7 +238,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 
 			case RBE_BLIND:
 				{
-					if (!p_ptr->resist_blind)
+					if (!p_ptr->resist_blind || (rand_int(100) < 5) )
 					{
 						set_blind(p_ptr->blind + dam * 2 + idam * 2 + 20);
 					}
@@ -248,11 +248,11 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 
 			case RBE_CONFUSE:
 				{
-					if (!p_ptr->resist_conf)
+					if (!p_ptr->resist_conf || (rand_int(100) < 5) )
 					{
 						set_confused(p_ptr->confused + dam + idam + 10);
 					}
-					if (!p_ptr->resist_chaos && rand_int(mdam - dam))
+					if ( (!p_ptr->resist_chaos || (rand_int(100) < 5) ) && rand_int(mdam - dam))
 					{
 						set_image(p_ptr->image + dam * 10 + idam * 10 + 100);
 					}
@@ -262,7 +262,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 
 			case RBE_HALLU:
 				{
-					if (!p_ptr->resist_chaos && rand_int(mdam - dam))
+					if ( (!p_ptr->resist_chaos || (rand_int(100) < 5) ) && rand_int(mdam - dam))
 					{
 						set_image(p_ptr->image + dam * 10 + idam * 10 + 50);
 					}
@@ -272,7 +272,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 
 			case RBE_TERRIFY:
 				{
-					if (!p_ptr->resist_fear)
+					if (!p_ptr->resist_fear || (rand_int(100) < 5) )
 					{
 						set_afraid(p_ptr->afraid + dam + idam + 10);
 					}
@@ -282,7 +282,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 
 			case RBE_PARALYZE:
 				{
-					if (!p_ptr->free_act)
+					if (!p_ptr->free_act || (rand_int(100) == 0) )
 					{
 						set_paralyzed(p_ptr->paralyzed + dam + idam + 10);
 					}
@@ -637,7 +637,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 	{
 		msg_print("A strange liquid splashes on you!");
 
-		if (!p_ptr->resist_conf)
+		if (!p_ptr->resist_conf || (rand_int(100) < 5) )
 		{
 			set_confused(p_ptr->confused + brdam + idam + 10);
 		}
@@ -658,12 +658,12 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 			brdam /= (randint(6) + 6);
 		}
 
-		if (!p_ptr->resist_conf)
+		if (!p_ptr->resist_conf || (rand_int(100) < 5) )
 		{
 			(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 		}
 
-		if (!p_ptr->resist_chaos)
+		if (!p_ptr->resist_chaos || (rand_int(100) < 5) )
 		{
 			(void)set_image(p_ptr->image + randint(10));
 		}
@@ -723,7 +723,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 		/* Resist the damage */
 		if (p_ptr->resist_fire || p_ptr->oppose_fire) brdam = (brdam + 2) / 3;
 
-		if (!p_ptr->resist_sound)
+		if (!p_ptr->resist_sound || (rand_int(3) == 0) )
 		{
 			int k = (randint((brdam > 40) ? 35 : (brdam * 3 / 4 + 5)));
 			(void)set_stun(p_ptr->stun + k);
@@ -1007,7 +1007,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_BLINDNESS:
 			{
-				if (!p_ptr->resist_blind)
+				if (!p_ptr->resist_blind || (rand_int(100) < 5) )
 				{
 					if (set_blind(p_ptr->blind + rand_int(200) + 200))
 					{
@@ -1020,7 +1020,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_PARANOIA:
 			{
-				if (!p_ptr->resist_fear)
+				if (!p_ptr->resist_fear || (rand_int(100) < 5) )
 				{
 					if (set_afraid(p_ptr->afraid + rand_int(10) + 10))
 					{
@@ -1033,7 +1033,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_CONFUSION:
 			{
-				if (!p_ptr->resist_conf)
+				if (!p_ptr->resist_conf || (rand_int(100) < 5) )
 				{
 					if (set_confused(p_ptr->confused + rand_int(10) + 10))
 					{
@@ -1046,7 +1046,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_HALLUCINATION:
 			{
-				if (!p_ptr->resist_chaos)
+				if (!p_ptr->resist_chaos || (rand_int(100) < 5) )
 				{
 					if (set_image(p_ptr->image + rand_int(250) + 250))
 					{
@@ -1059,7 +1059,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_PARALYSIS:
 			{
-				if (!p_ptr->free_act)
+				if (!p_ptr->free_act || (rand_int(100) == 0) )
 				{
 					if (set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10))
 					{
@@ -1160,7 +1160,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_CURE_SERIOUS:
 			{
-				if (hp_player(damroll(4, 8))) ident = TRUE;
+				if (hp_player(75)) ident = TRUE;
 
 				break;
 			}
@@ -1854,7 +1854,7 @@ static bool quaff_potion(int tval, int sval, int pval, int pval2)
 
 		case SV_POTION_BLINDNESS:
 			{
-				if (!p_ptr->resist_blind)
+				if (!p_ptr->resist_blind || (rand_int(100) < 5) )
 				{
 					if (set_blind(p_ptr->blind + rand_int(100) + 100))
 					{
@@ -1868,7 +1868,7 @@ static bool quaff_potion(int tval, int sval, int pval, int pval2)
 			/* Booze */
 		case SV_POTION_CONFUSION:
 			{
-				if (!((p_ptr->resist_conf) || (p_ptr->resist_chaos)))
+				if (!((p_ptr->resist_conf) || (p_ptr->resist_chaos)) || (rand_int(100) < 5) )
 				{
 					if (set_confused(p_ptr->confused + rand_int(20) + 15))
 					{
@@ -1898,7 +1898,7 @@ static bool quaff_potion(int tval, int sval, int pval, int pval2)
 
 		case SV_POTION_SLEEP:
 			{
-				if (!p_ptr->free_act)
+				if (!p_ptr->free_act || (rand_int(100) == 0) )
 				{
 					if (set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4))
 					{
@@ -2093,7 +2093,7 @@ static bool quaff_potion(int tval, int sval, int pval, int pval2)
 
 		case SV_POTION_CURE_LIGHT:
 			{
-				if (hp_player(damroll(2, 8))) ident = TRUE;
+				if (hp_player(40)) ident = TRUE;
 				if (set_blind(0)) ident = TRUE;
 				if (set_cut(p_ptr->cut - 10)) ident = TRUE;
 
@@ -2102,7 +2102,7 @@ static bool quaff_potion(int tval, int sval, int pval, int pval2)
 
 		case SV_POTION_CURE_SERIOUS:
 			{
-				if (hp_player(damroll(4, 8))) ident = TRUE;
+				if (hp_player(75)) ident = TRUE;
 				if (set_blind(0)) ident = TRUE;
 				if (set_confused(0)) ident = TRUE;
 				if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
@@ -2112,7 +2112,7 @@ static bool quaff_potion(int tval, int sval, int pval, int pval2)
 
 		case SV_POTION_CURE_CRITICAL:
 			{
-				if (hp_player(damroll(6, 8))) ident = TRUE;
+				if (hp_player(150)) ident = TRUE;
 				if (set_blind(0)) ident = TRUE;
 				if (set_confused(0)) ident = TRUE;
 				if (set_poisoned(0)) ident = TRUE;
@@ -3111,7 +3111,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_DARKNESS:
 			{
-				if (!(p_ptr->resist_blind) && !(p_ptr->resist_dark))
+				if ((!(p_ptr->resist_blind) && !(p_ptr->resist_dark)) || (rand_int(100) < 5) )
 				{
 					(void)set_blind(p_ptr->blind + 3 + randint(5));
 				}
@@ -3451,7 +3451,7 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_STAR_DESTRUCTION:
 			{
 				/* Prevent destruction of quest levels and town */
-				if (!is_quest(dun_level) && dun_level)
+				if (!is_quest(dun_level) || (is_quest(dun_level) == QUEST_RANDOM))
 				{
 					destroy_area(p_ptr->py, p_ptr->px, 15, TRUE, FALSE);
 				}
@@ -3768,9 +3768,11 @@ void do_cmd_use_staff(void)
 	cptr q, s;
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -3838,6 +3840,7 @@ void do_cmd_use_staff(void)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the staff properly.");
+		msg_print(NULL);
 		sound(SOUND_FAIL);
 
 		/* Leave device mode  */
@@ -3971,9 +3974,11 @@ void do_cmd_aim_wand(void)
 
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -4035,6 +4040,7 @@ void do_cmd_aim_wand(void)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the wand properly.");
+		msg_print(NULL);
 		sound(SOUND_FAIL);
 
 		/* Leave device mode  */
@@ -4167,9 +4173,11 @@ void zap_combine_rod_tip(object_type *q_ptr, int tip_item)
 
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 
@@ -4262,12 +4270,13 @@ void do_cmd_zap_rod(void)
 
 
 	/* No magic */
-	if (p_ptr->antimagic)
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
-
 
 	/* Restrict choices to rods */
 	item_tester_hook = item_tester_hook_zapable;
@@ -4395,6 +4404,7 @@ void do_cmd_zap_rod(void)
 
 		/* Message */
 		msg_print("You failed to use the rod properly.");
+		msg_print(NULL);
 
 		sound(SOUND_FAIL);
 
@@ -6358,7 +6368,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 			{
 				if (!doit) return "earthquake (rad 10) every 50 turns";
 				/* Prevent destruction of quest levels and town */
-				if (!is_quest(dun_level) && dun_level)
+				if (!is_quest(dun_level) || (is_quest(dun_level) == QUEST_RANDOM))
 				{
 					earthquake(p_ptr->py, p_ptr->px, 10);
 					o_ptr->timeout = 50;
@@ -6600,7 +6610,7 @@ turn_monsters(40 + p_ptr->lev);
 			{
 				if (!doit) return format("cure serious wounds every %s turns", (is_junkart? "75" : "3+d3"));
 				msg_print("It radiates deep purple...");
-				hp_player(damroll(4, 8));
+				hp_player(60);
 				(void)set_cut((p_ptr->cut / 2) - 50);
 
 				o_ptr->timeout = rand_int(3) + 3;

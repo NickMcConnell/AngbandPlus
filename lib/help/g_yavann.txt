@@ -17,7 +17,7 @@ surname. Her most faithful followers are the *****c_druid.txt*0[Druids].
 
 #####GThe disadvantages of Worshipping Yavanna
 1. Your piety slowly decreases with time, whether you are praying or not.
-2. She doesn't like it if you kill monsters while praying.
+2. She doesn't like it if you kill animals.
 3. She hates it if you kill animals while praying.
 4. She hates it if you hurt your animal pets.
 5. She hates it if you burn or destroy trees with magic or allow monsters to

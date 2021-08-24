@@ -37,8 +37,8 @@ harness the powers of the elements using *****m_geoman.txt*0[Geomancy]. Lastly w
 
 In addition to the schools of magic, you can get access to special sets of
 spells if you worship a God. There are currently four good Gods,
-*****g_eru.txt*0[Eru Iluvatar], *****g_manwe.txt*0[Manwe Sulimo], *****g_yavann.txt*0[Yavanna Kementari] and *****g_tulkas.txt*0[Tulkas]. There is also an evil
-god, *****g_melkor.txt*0[Melkor]. Each of them gives you access to different types of spells.
+*****g_eru.txt*0[Eru Iluvatar], *****g_manwe.txt*0[Manwe Sulimo], *****g_yavann.txt*0[Yavanna Kementari] and *****g_tulkas.txt*0[Tulkas]. There are also evil gods, *****g_melkor.txt*0[Melkor]
+and *****g_amybso.txt*0[AmyBSOD]. Each of them gives you access to different types of spells.
 
 *****c_pr_drk.txt*0[Worshippers of Melkor] also have access to the special *****m_udun.txt*0[Udun] school of magic,
 whereas other *****c_priest.txt*0[Priests] and *****c_mindcr.txt*0[Mindcrafters] can use *****m_mindcr.txt*0[Mindcrafting Powers].

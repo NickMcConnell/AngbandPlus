@@ -35,9 +35,9 @@ V:2.0.0
 N:1:Skeleton
 G:s:*
 I:%100:+1d+1:+0:+5:-5
-W:+5:13:%30:%95:B
+W:+5:16:%30:%95:B
 F:DROP_SKELETON
-H:UNDEAD | NONLIVING | R_CHAR_Z | R_CHAR_A | R_CHAR_E | R_CHAR_g
+H:UNDEAD | NONLIVING
 M:DROP_SKELETON | UNDEAD | IM_COLD | IM_POIS | NO_FEAR | NO_CONF | 
 M:NO_SLEEP | EMPTY_MIND | COLD_BLOOD | STUPID | EVIL
 O:GOOD | DROP_CORPSE | FRIEND | FRIENDS | ESCORT | ESCORTS | SMART | 
@@ -47,9 +47,9 @@ T:MF_ALL
 N:2:Zombie
 G:z:*
 I:%95:%110d%100:%90:+10:-5
-W:+10:14:%70:%100:B
+W:+10:18:%70:%100:B
 F:DROP_CORPSE
-H:UNDEAD | NONLIVING | R_CHAR_Z | R_CHAR_A | R_CHAR_E | R_CHAR_g
+H:UNDEAD | NONLIVING
 M:DROP_CORPSE | UNDEAD | IM_COLD | IM_POIS | NO_FEAR | NO_CONF
 M:NO_SLEEP | EVIL | EMPTY_MIND | COLD_BLOOD | STUPID | EVIL
 O:GOOD | DROP_SKELETON | FRIEND | FRIENDS | ESCORT | ESCORTS | SMART
@@ -59,7 +59,7 @@ T:MF_ALL
 N:3:Lich
 G:L:*
 I:%100:+0d+1:+10:+20:-10
-W:+30:22:+0:%200:B
+W:+30:25:+0:%200:B
 B:TOUCH:LOSE_DEX:+0d+0
 B:TOUCH:LOSE_DEX:+0d+0
 B:TOUCH:UN_POWER:+0d+0
@@ -77,11 +77,11 @@ S:BLIND | HOLD | SLOW | SCARE
 N:4:Spectral
 G:G:*
 I:+10:%80d%100:+10:+20:-5
-W:+20:20:%10:%110:B
+W:+20:30:%10:%110:B
 B:*:EXP_20:+0d+0
 B:*:EXP_20:+0d+0
 F:DROP_CORPSE
-H:UNDEAD | NONLIVING | R_CHAR_Z | R_CHAR_A | R_CHAR_E | R_CHAR_g
+H:UNDEAD | NONLIVING
 M:UNDEAD | IM_COLD | IM_POIS | NO_FEAR | NO_CONF
 M:NO_SLEEP | PASS_WALL | EVIL | COLD_BLOOD
 O:GOOD | DROP_CORPSE | FRIEND | FRIENDS | ESCORT | ESCORTS | 
@@ -92,68 +92,61 @@ T:MF_ALL
 N:5:Captain
 G:*:v
 I:+5:%150d%100:+5:%120:-2
-W:+5:4:%120:%150:A
+W:+5:9:%120:%150:A
 B:*:*:+0d+1
 B:*:*:+0d+1
 B:*:*:+0d+1
 B:*:*:+0d+1
-F:R_CHAR_o | R_CHAR_y | R_CHAR_k | BASEANGBAND
 M:FORCE_MAXHP | FRIENDS | SMART | DROP_1D2
 
 N:6:Chieftain
 G:*:*
 I:+10:%200d%100:+10:%120:-3
-W:+5:4:%120:%200:A
+W:+5:14:%120:%200:A
 B:*:*:+1d+2
 B:*:*:+1d+2
 B:*:*:+1d+2
 B:*:*:+1d+2
-F:R_CHAR_T | R_CHAR_P | R_CHAR_O | BASEANGBAND
 M:FORCE_MAXHP | FRIENDS | SMART | DROP_1D2
 
 N:7:Shaman
 G:*:r
 I:+0:%90d%100:+10:%90:+0
-W:+2:1:%90:%120:A
-F:R_CHAR_o | R_CHAR_k | R_CHAR_n | BASEANGBAND
+W:+1:15:%90:%120:A
 M:SMART | FORCE_MAXHP | DROP_1D2
 O:FRIENDS
-S:1_IN_6 | MISSILE | CAUSE_1 | CONF | BLINK
+S:1_IN_9 | MISSILE | CAUSE_1 | CONF | BLINK
 
 N:8:Priest
 G:*:G
 I:+0:%90d%100:+10:%90:+0
-W:+3:2:%90:%120:A
-F:R_CHAR_T | R_CHAR_P | R_CHAR_O | BASEANGBAND
+W:+1:15:%90:%120:A
 M:FRIENDS | SMART | FORCE_MAXHP | DROP_1D2
-S:1_IN_6 | CAUSE_2 | MISSILE | DARKNESS | CONF | SCARE | BLINK
+S:1_IN_9 | CAUSE_1 | MISSILE | DARKNESS | CONF | SCARE | BLINK
 
 N:9:Mage
 G:*:r
 I:+0:%150d%100:+10:%120:+0
-W:+5:4:%120:%150:A
+W:+1:15:%120:%150:A
 B:*:*:+0d+0
 B:*:*:+0d+0
 B:HIT:HURT:=2d=8
 B:HIT:HURT:=2d=8
-F:R_CHAR_O | BASEANGBAND
 M:SMART | FORCE_MAXHP | DROP_1D2
 O:FRIENDS
-S:1_IN_6 | BA_COLD | BO_FIRE | TRAPS | HEAL | HOLD | S_MONSTER | TPORT
+S:1_IN_9 | BA_COLD | BO_FIRE | TRAPS | HEAL | HOLD | S_MONSTER | TPORT
 
 N:10:Archer
 G:*:W
 I:+0:+0d+0:+0:+0:+0
-W:+1:1:%100:%110:A
-F:R_CHAR_y | R_CHAR_k | R_CHAR_O | R_CHAR_o | BASEANGBAND
-S:1_IN_4 | ARROW_2
+W:+1:12:%100:%110:A
+S:1_IN_5 | ARROW_2
 
 N:11:Rogue
 G:*:b
 I:+2:+0d+0:+0:+10:-30
-W:+1:2:%90:%100:A
+W:+1:8:%90:%100:A
 B:*:EAT_GOLD:+0d+0
-F:R_CHAR_y | R_CHAR_k | R_CHAR_o
 
 # For townpeople
 N:12:Elven
@@ -170,6 +163,209 @@ I:+2:+0d+0:+0:+0:+0
 W:+0:15:+0:+0:B
 F:WILD_TOWN
 H:ANIMAL
+
+N:14:Thief
+G:*:b
+I:+2:+0d+0:+0:+10:-30
+W:+1:8:%90:%100:A
+B:*:EAT_ITEM:+0d+0
+
+N:15:Gasbomber
+G:*:g
+I:+0:%90d%100:+10:%90:+0
+W:+1:50:%90:%120:A
+M:FRIENDS | SMART | FORCE_MAXHP | DROP_1D2
+S:1_IN_10 | BR_POIS
+
+N:16:Trapmaster
+G:*:s
+I:+0:+0d+0:+0:+10:-30
+W:+1:40:%90:%100:A
+S:1_IN_10 | TRAPS
+
+N:17:Blaster
+G:*:v
+I:+0:+0d+0:+0:+10:-30
+W:+5:28:%90:%100:A
+B:TOUCH:INSANITY:+0d+0
+
+N:18:Broodmaster
+G:*:y
+I:+0:+0d+0:+0:+10:-30
+W:+10:35:%90:%100:A
+S:1_IN_10 | S_KIN
+
+N:19:Multiplicator
+G:*:r
+I:+0:+0d+0:+0:+10:-30
+W:+12:75:%90:%100:A
+S:1_IN_10 | S_MONSTERS
+
+N:20:Exploder
+G:*:r
+I:+0:+0d+0:+0:+10:-30
+W:+15:100:%90:%100:A
+S:MULTIPLY
+
+N:21:Breather
+G:*:g
+I:+0:%90d%100:+10:%90:+0
+W:+1:150:%90:%120:A
+M:FRIENDS | SMART | FORCE_MAXHP | DROP_1D2
+S:1_IN_10 | BR_POIS | BR_ACID | BR_ELEC | BR_FIRE | BR_COLD | BR_NETH | BR_LITE | BR_DARK
+S:BR_CONF | BR_SOUN | BR_CHAO | BR_DISE | BR_NEXU | BR_TIME | BR_INER | BR_GRAV | BR_SHAR
+S:BR_PLAS | BR_WALL | BR_MANA
+
+N:22:Bouncer
+G:*:B
+I:+0:+0d+0:+0:+10:-30
+W:+1:5:%90:%100:A
+B:*:TERRIFY:+0d+0
+
+N:23:Eater
+G:*:U
+I:+0:+0d+0:+0:+10:-30
+W:+1:10:%90:%100:A
+B:*:EAT_FOOD:+0d+0
+
+N:24:Boss
+G:*:*
+I:+20:%200d%100:+10:%130:-10
+W:+7:40:%130:%240:A
+B:*:*:+1d+4
+B:*:*:+1d+4
+B:*:*:+1d+4
+B:*:*:+1d+4
+M:FORCE_MAXHP | FRIENDS | SMART | DROP_1D2
+
+N:25:Defender
+G:*:*
+I:+0:+0d+0:+0:%130:+0
+W:+2:5:%90:%100:A
+
+N:26:Speedster
+G:*:*
+I:%140:+0d+0:+0:+0:+0
+W:+2:5:%90:%100:A
+
+N:27:Tank
+G:*:*
+I:+0:%150d%150:+0:+0:+0
+W:+3:7:%90:%100:A
+
+N:28:Glass Cannon
+G:*:G
+I:%180:%70d%70:+0:%50:+0
+W:+2:25:%90:%100:A
+
+N:29:Battle Tank
+G:*:o
+I:%60:%200d%200:+0:%200:+0
+W:+5:35:%90:%100:A
+
+N:30:Fighter
+G:*:*
+I:+3:%130d%100:+3:%110:-2
+W:+3:7:%110:%130:A
+B:*:*:+0d+1
+B:*:*:+0d+1
+B:*:*:+0d+1
+B:*:*:+0d+1
+
+N:31:Grunt
+G:*:*
+I:+2:%115d%100:+1:%105:-2
+W:+2:5:%105:%115:A
+
+N:32:Timer
+G:*:B
+I:+0:+0d+0:+0:+10:-30
+W:+1:25:%90:%100:A
+B:*:TIME:+0d+0
+
+N:33:Crack-abuser
+G:*:v
+I:+0:+0d+0:+0:+10:-30
+W:+1:10:%90:%100:A
+B:*:HALLU:+0d+0
+
+N:34:Shatterer
+G:*:w
+I:+0:+0d+0:+0:+10:-30
+W:+1:10:%90:%100:A
+B:*:SHATTER:+0d+0
+
+N:35:Drainer
+G:*:D
+I:+0:+0d+0:+0:+10:-30
+W:+1:15:%90:%100:A
+B:*:LOSE_ALL:+0d+0
+
+N:36:Disenchanter
+G:*:D
+I:+0:+0d+0:+0:+10:-30
+W:+1:20:%90:%100:A
+B:*:UN_BONUS:+0d+0
+
+N:37:Shrieker
+G:*:v
+I:+0:+0d+0:+0:+10:-30
+W:+1:5:%90:%100:A
+S:1_IN_4 | SHRIEK
+
+N:38:Inert
+G:*:U
+I:+0:+0d+0:+0:+10:-30
+W:+1:25:%90:%100:A
+S:1_IN_10 | BR_INER
+
+N:39:Gravitator
+G:*:s
+I:+0:+0d+0:+0:+10:-30
+W:+1:25:%90:%100:A
+S:1_IN_10 | BR_GRAV
+
+N:40:Shredder
+G:*:b
+I:+0:+0d+0:+0:+10:-30
+W:+1:25:%90:%100:A
+S:1_IN_10 | BR_SHAR
+
+N:41:Plasmon
+G:*:o
+I:+0:+0d+0:+0:+10:-30
+W:+1:25:%90:%100:A
+S:1_IN_10 | BR_PLAS
+
+N:42:Manastormer
+G:*:b
+I:+0:+0d+0:+0:+10:-30
+W:+1:30:%90:%100:A
+S:1_IN_10 | BR_MANA
+
+N:43:Aquaman
+G:*:b
+I:+0:+0d+0:+0:+10:-30
+W:+1:200:%90:%100:A
+S:1_IN_10 | BA_WATE
+
+N:44:Abomination
+G:*:v
+I:+0:+0d+0:+0:+10:-30
+W:+1:10:%90:%100:A
+M:ELDRITCH_HORROR
+
+N:45:Phaser
+G:*:s
+I:+0:+0d+0:+0:+10:-30
+W:+1:20:%90:%100:A
+M:PASS_WALL
+
+N:46:Digger
+G:*:D
+I:+0:+0d+0:+0:+10:-30
+W:+1:20:%90:%100:A
+M:KILL_WALL
 
 # N:x:ego name
 # G:x:y                 x is the char, y the attribute, * means the normal one

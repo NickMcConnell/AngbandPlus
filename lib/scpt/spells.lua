@@ -18,6 +18,13 @@ SCHOOL_MANA = add_school
 			["mul"] = 1,
 			["div"] = 2,
 		},
+		-- Varda provides the Mana school at 1/4 the prayer skill
+		[GOD_VARDA] = 
+		{
+			["skill"] = SKILL_PRAY,
+			["mul"] = 1,
+			["div"] = 4,
+		},
 	},
 	["hooks"] =
 	{
@@ -35,6 +42,25 @@ SCHOOL_FIRE = add_school
 	["skill"] = SKILL_FIRE,
 	["spell_power"] = TRUE,
 	["sorcery"] = TRUE,
+	["gods"] =
+	{
+		-- AmyBSOD provides the Fire school at 1/2 the prayer skill
+		[GOD_AMYBSOD] =
+		{
+			["skill"] = SKILL_PRAY,
+			["mul"] = 1,
+			["div"] = 2,
+		},
+
+		-- Aule provides the Fire school at 3/5 the prayer skill
+		[GOD_AULE] = 
+		{
+			["skill"] = SKILL_PRAY,
+			["mul"] = 3,
+			["div"] = 5,
+		},
+
+	},
 }
 SCHOOL_AIR = add_school
 {
@@ -84,6 +110,13 @@ SCHOOL_WATER = add_school
 			["mul"] = 1,
 			["div"] = 2,
 		},
+		-- Ulmo provides the Water school at 3/5 the prayer skill
+		[GOD_ULMO] =
+		{
+			["skill"] = SKILL_PRAY,
+			["mul"] = 3,
+			["div"] = 5,
+		},
 	},
 }
 SCHOOL_EARTH = add_school
@@ -107,6 +140,13 @@ SCHOOL_EARTH = add_school
 			["skill"] = SKILL_PRAY,
 			["mul"] = 1,
 			["div"] = 2,
+		},
+		-- Aule provides the Earth school at 1/3 the prayer skill
+		[GOD_AULE] = 
+		{
+			["skill"] = SKILL_PRAY,
+			["mul"] = 1,
+			["div"] = 3,
 		},
 	},
 }
@@ -159,6 +199,13 @@ SCHOOL_DIVINATION = add_school
 			["mul"] = 2,
 			["div"] = 3,
 		},
+		-- Mandos the Divination school at 1/3 the prayer skill
+		[GOD_MANDOS] =
+		{
+			["skill"] = SKILL_PRAY,
+			["mul"] = 1,
+			["div"] = 3,
+		},
 	},
 }
 SCHOOL_TEMPORAL = add_school
@@ -176,6 +223,13 @@ SCHOOL_TEMPORAL = add_school
 			["mul"] = 1,
 			["div"] = 6,
 		},
+		-- Mandos provides the Temporal school at 1/4 the prayer skill
+		[GOD_MANDOS] =
+		{
+			["skill"] = SKILL_PRAY,
+			["mul"] = 1,
+			["div"] = 4,
+		},
 	},
 }
 SCHOOL_NATURE = add_school
@@ -188,6 +242,13 @@ SCHOOL_NATURE = add_school
 	{
 		-- Yavanna Kementari provides the Nature school at 1/2 the prayer skill
 		[GOD_YAVANNA] =
+		{
+			["skill"] = SKILL_PRAY,
+			["mul"] = 1,
+			["div"] = 2,
+		},
+		-- Ulmo provides the Nature school at 1/2 the prayer skill
+		[GOD_ULMO] =
 		{
 			["skill"] = SKILL_PRAY,
 			["mul"] = 1,
@@ -209,6 +270,20 @@ SCHOOL_META = add_school
 			["skill"] = SKILL_PRAY,
 			["mul"] = 1,
 			["div"] = 3,
+		},
+		-- AmyBSOD provides the Meta school at 1/2 the prayer skill
+		[GOD_AMYBSOD] =
+		{
+			["skill"] = SKILL_PRAY,
+			["mul"] = 1,
+			["div"] = 2,
+		},
+		-- Varda provides the Meta school at 1/2 the prayer skill
+		[GOD_VARDA] =
+		{
+			["skill"] = SKILL_PRAY,
+			["mul"] = 1,
+			["div"] = 2,
 		},
 	},
 }
@@ -287,6 +362,45 @@ SCHOOL_YAVANNA = add_school
 	["spell_power"] = TRUE,
 	["god"] = GOD_YAVANNA,
 }
+SCHOOL_AMYBSOD = add_school
+{
+	["name"] = "AmyBSOD",
+	["skill"] = SKILL_PRAY,
+	["spell_power"] = TRUE,
+	["god"] = GOD_AMYBSOD,
+}
+
+-- New schools
+SCHOOL_AULE = add_school
+{
+	["name"] = "Aule the Smith",
+	["skill"] = SKILL_PRAY,
+	["spell_power"] = TRUE,
+	["god"] = GOD_AULE,
+}
+SCHOOL_VARDA = add_school
+{
+	["name"] = "Varda Elentari",
+	["skill"] = SKILL_PRAY,
+	["spell_power"] = TRUE,
+	["god"] = GOD_VARDA,
+}
+
+SCHOOL_ULMO = add_school
+{
+	["name"] = "Ulmo",
+	["skill"] = SKILL_PRAY,
+	["spell_power"] = TRUE,
+	["god"] = GOD_ULMO,
+}
+
+SCHOOL_MANDOS = add_school
+{
+	["name"] = "Mandos",
+	["skill"] = SKILL_PRAY,
+	["spell_power"] = TRUE,
+	["god"] = GOD_MANDOS,
+}
 
 -- Not a real school, rather a palcehodler for stick only spells
 SCHOOL_DEVICE = add_school
@@ -323,6 +437,13 @@ tome_dofile("s_manwe.lua")
 tome_dofile("s_tulkas.lua")
 tome_dofile("s_melkor.lua")
 tome_dofile("s_yavann.lua")
+tome_dofile("s_amybsod.lua")
+
+-- New gods' spells
+tome_dofile("s_aule.lua")
+tome_dofile("s_varda.lua")
+tome_dofile("s_ulmo.lua")
+tome_dofile("s_mandos.lua")
 
 -- Specific schools
 tome_dofile("s_demon.lua")
@@ -420,6 +541,11 @@ school_book[24] = {
 	YAVANNA_CHARM_ANIMAL, YAVANNA_GROW_GRASS, YAVANNA_TREE_ROOTS, YAVANNA_WATER_BITE, YAVANNA_UPROOT,
 }
 
+-- Create the book of amybsod
+school_book[25] = {
+	AMYBSOD_SOUND, AMYBSOD_DARK, AMYBSOD_TROLL,
+}
+
 -- Create the book of beginner's cantrip
 school_book[50] = {
 	MANATHRUST, GLOBELIGHT, ENTPOTION, BLINK, SENSEMONSTERS, SENSEHIDDEN,
@@ -472,4 +598,28 @@ school_book[61] = { }
 -- Geomancy spells, not a real book
 school_book[62] = {
 	CALL_THE_ELEMENTS, CHANNEL_ELEMENTS, ELEMENTAL_WAVE, VAPORIZE, GEOLYSIS, DRIPPING_TREAD, GROW_BARRIER, ELEMENTAL_MINION
+}
+
+-- Aule book
+school_book[63] =
+{ 
+	AULE_FIREBRAND, AULE_ENCHANT_WEAPON, AULE_ENCHANT_ARMOUR, AULE_CHILD,
+} 
+
+-- Varda book
+school_book[64] =
+{ 
+	VARDA_LIGHT_VALINOR, VARDA_CALL_ALMAREN, VARDA_EVENSTAR, VARDA_STARKINDLER,
+} 
+
+-- Ulmo book
+school_book[65] =
+{ 	
+	ULMO_BELEGAER, ULMO_DRAUGHT_ULMONAN, ULMO_CALL_ULUMURI, ULMO_WRATH,
+} 
+
+-- Mandos book
+school_book[66] =
+{ 
+	MANDOS_TEARS_LUTHIEN, MANDOS_SPIRIT_FEANTURI, MANDOS_TALE_DOOM, MANDOS_CALL_HALLS
 }

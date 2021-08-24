@@ -30,9 +30,14 @@ are cast using Mana, not Piety; and success depends on your intelligence, not
 your wisdom.
 
 #####G4. So, Who Are These Gods?
-        In ToME, there are five Gods you may choose to worship, being:
+        In ToME, there are ten Gods you may choose to worship, being:
 1. *****g_eru.txt*0[Eru Iluvatar] - the father of the Valar.
 2. *****g_manwe.txt*0[Manwe Sulimo] - the second strongest of the Valar (Morgoth was the strongest).
 3. *****g_yavann.txt*0[Yavanna Kementari] - the Earth Queen who created plants and animals.
 4. *****g_tulkas.txt*0[Tulkas] - another of the Valar, Tulkas values strength and courage.
 5. *****g_melkor.txt*0[Melkor Bauglir] - the Dark Enemy himself, once the most powerful of the Valar.
+6. *****g_amybso.txt*0[AmyBSOD] - the creator of ToME-SX, who inserted herself as a deity.
+7. *****g_ulmo.txt*0[Ulmo] - the second mightiest of the Valar, lord of all waters on Arda.
+8. *****g_varda.txt*0[Varda Elentari] - Manwe's spouse, the most beloved by the Elves.
+9. *****g_aule.txt*0[Aule the Smith] - the builder and inventor of the Valar.
+10.*****g_mandos.txt*0[Mandos] - the Doomsman of the Valar, wise and powerful.

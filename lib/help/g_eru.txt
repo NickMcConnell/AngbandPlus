@@ -15,15 +15,15 @@ of the class *****c_pr_eru.txt*0[Priest(Eru)].
    piety).
 3. If you are praying to him at the time, there is a chance that he will
    resurrect you from the dead (provided you are very pious!).
-4. Your piety automatically increases over time if you are:
-     a) Not praying, and
-     b) Actively doing something (i.e. not resting or in the Wilderness map).
+4. Eru likes it if you kill undead or demons.
+5. Eru *likes* it if you kill eldritch abominations.
    
 #####GThe disadvantages of Worshipping Eru Iluvatar
 1. He doesn't like it if you destroy blessed weapons.
 2. You can only wield blunt or blessed weapons without penalty.
 3. He doesn't like it if you kill monsters that are aligned with good.
 4. He will completely abandon you if you wear The One Ring.
+5. Your piety slowly decreases over time.
 ~~~~~~03|Eru|Prayers
 #####GEru Iluvatar's Magic
 Worshipping Eru Iluvatar gives the adventurer access to a set of special

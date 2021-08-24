@@ -36,14 +36,21 @@ void monster_check_experience(int m_idx, bool silent)
 		if (m_ptr->ml && (!silent)) cmsg_format(TERM_L_BLUE, "%^s gains a level.", m_name);
 
 		/* Gain hp */
-		if (magik(80))
+		if (magik(50))
 		{
-			m_ptr->maxhp += r_ptr->hside;
-			m_ptr->hp += r_ptr->hside;
+			m_ptr->maxhp += (r_ptr->hside > 50 ? 50 : r_ptr->hside);
+			m_ptr->hp += (r_ptr->hside > 50 ? 50 : r_ptr->hside);
+		}
+
+		if (magik(50))
+		{
+			int lowincrease = randint(10);
+			m_ptr->maxhp += lowincrease;
+			m_ptr->hp += lowincrease;
 		}
 
 		/* Gain speed */
-		if (magik(40))
+		if (magik(20))
 		{
 			int speed = randint(2);
 			m_ptr->speed += speed;
@@ -176,10 +183,12 @@ int pick_ego_monster(int r_idx)
 	int tries = max_re_idx + 10;
 	monster_ego *re_ptr;
 
-	if ((!(dungeon_flags2 & DF2_ELVEN)) && (!(dungeon_flags2 & DF2_DWARVEN)))
+	/* changed by Amy: remove useless dwarf/elf egotype, allow egotypes for town NPCs etc. */
+
+	/*if ((!(dungeon_flags2 & DF2_ELVEN)) && (!(dungeon_flags2 & DF2_DWARVEN)))*/
 	{
 		/* No townspeople ego */
-		if (!r_info[r_idx].level) return 0;
+		/*if (!r_info[r_idx].level) return 0;*/
 
 		/* First are we allowed to find an ego */
 		if (!magik(MEGO_CHANCE)) return 0;
@@ -209,7 +218,7 @@ int pick_ego_monster(int r_idx)
 		}
 	}
 	/* Bypass restrictions for themed townspeople */
-	else
+	/*else
 	{
 		if (dungeon_flags2 & DF2_ELVEN)
 			ego = test_mego_name("Elven");
@@ -218,7 +227,7 @@ int pick_ego_monster(int r_idx)
 
 		if (mego_ok(r_idx, ego))
 			return ego;
-	}
+	}*/
 
 	/* Found none ? so sad, well no ego for the time being */
 	return 0;
@@ -470,7 +479,7 @@ void delete_monster_idx(int i)
 		if ( p_ptr->preserve )
 		{
 			/* Hack -- Preserve unknown artifacts */
-			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
+			if (artifact_p(o_ptr)/* && !object_known_p(o_ptr)*/)
 			{
 				/* Mega-Hack -- Preserve the artifact */
 				if (o_ptr->tval == TV_RANDART)
@@ -1255,7 +1264,8 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 			{
 				hallu_race = &r_info[randint(max_r_idx - 2)];
 			}
-			while (hallu_race->flags1 & RF1_UNIQUE);
+			while (hallu_race->flags1 & /*RF1_UNIQUE*/RF8_ZANGBAND);
+			/* why exempt uniques from this? It makes no fucking sense! --Amy */
 
 			strcpy(silly_name, (r_name + hallu_race->name));
 		}
@@ -1531,6 +1541,8 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 	bool happened = FALSE;
 	int power = 100;
 
+	char ddesc[80] = "the necronomicon";
+
 	if (!necro)
 	{
 		char m_name[80];
@@ -1544,6 +1556,7 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 		if (m_ptr != NULL)
 		{
 			monster_desc(m_name, m_ptr, 0);
+			monster_desc(ddesc, m_ptr, 0);
 
 			if (!(r_ptr->flags1 & RF1_UNIQUE))
 			{
@@ -1558,8 +1571,8 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 			if (!(m_ptr->ml))
 				return ;  /* Cannot see it for some reason */
 
-			if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR))
-				return ;  /* oops */
+			/*if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR))
+				return ;*/  /* oops */
 
 
 
@@ -1604,34 +1617,102 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 	{
 		msg_print("Your sanity is shaken by reading the Necronomicon!");
 	}
-	if (randint(power) < p_ptr->skill_sav) /* Mind blast */
+
+	switch (rand_int(100)) {
+
+	default:
+	case 0: /* Level drain */
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+	case 6:
+	case 7:
+	case 8:
 	{
-		if (!p_ptr->resist_conf)
+		if (p_ptr->hold_life)
+		{
+			msg_print("You feel your life slipping away!");
+			lose_exp(p_ptr->exp / 100);
+		}
+		else
+		{
+			msg_print("You feel your life draining away!");
+			lose_exp(p_ptr->exp / 16);
+		}
+		return;
+	}
+
+	case 9: /* Mind blast */
+	case 10:
+	case 11:
+	case 12:
+	case 13:
+	case 14:
+	case 15:
+	case 16:
+	case 17:
+	{
+		if (!p_ptr->resist_conf || (rand_int(100) < 5) )
 		{
 			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 		}
-		if ((!p_ptr->resist_chaos) && (randint(3) == 1))
+		if ( (!p_ptr->resist_chaos || (rand_int(100) < 5) ) && (randint(3) == 1))
 		{
 			(void) set_image(p_ptr->image + rand_int(250) + 150);
 		}
 		return;
 	}
 
-	if (randint(power) < p_ptr->skill_sav) /* Lose int & wis */
+	case 18: /* Lose int & wis */
+	case 19:
+	case 20:
+	case 21:
+	case 22:
+	case 23:
+	case 24:
+	case 25:
+	case 26:
 	{
 		do_dec_stat (A_INT, STAT_DEC_NORMAL);
 		do_dec_stat (A_WIS, STAT_DEC_NORMAL);
 		return;
 	}
 
-
-	if (randint(power) < p_ptr->skill_sav) /* Brain smash */
+	case 27: /* Insanity */
+	case 28:
+	case 29:
+	case 30:
+	case 31:
+	case 32:
+	case 33:
+	case 34:
+	case 35:
+	/* we even specifically call this function "sanity blast",
+	 * yet there is no reduction of sanity taking place??? --Amy */
 	{
-		if (!p_ptr->resist_conf)
+		msg_print("You are getting insane!");
+		take_sanity_hit(rand_int(5 + power), ddesc);
+		return;
+	}
+
+	case 36: /* Brain smash */
+	case 37:
+	case 38:
+	case 39:
+	case 40:
+	case 41:
+	case 42:
+	case 43:
+	case 44:
+	case 45:
+	{
+		if (!p_ptr->resist_conf || (rand_int(100) < 5) )
 		{
 			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 		}
-		if (!p_ptr->free_act)
+		if (!p_ptr->free_act || (rand_int(100) == 0) )
 		{
 			(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
 		}
@@ -1646,7 +1727,16 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 		return;
 	}
 
-	if (randint(power) < p_ptr->skill_sav) /* Permanent lose int & wis */
+	case 46: /* Permanent lose int & wis */
+	case 47:
+	case 48:
+	case 49:
+	case 50:
+	case 51:
+	case 52:
+	case 53:
+	case 54:
+	case 55:
 	{
 		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
 		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
@@ -1655,13 +1745,104 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 		return;
 	}
 
+	case 56: /* Stun */
+	case 57:
+	case 58:
+	case 59:
+	case 60:
+	case 61:
+	case 62:
+	case 63:
+	case 64:
+	{
 
-	if (randint(power) < p_ptr->skill_sav) /* Amnesia */
+		msg_print("You stagger...");
+		(void)set_stun(p_ptr->stun + rand_int(10) );
+		return;
+	}
+
+	case 65: /* Amnesia */
+	case 66:
+	case 67:
+	case 68:
+	case 69:
+	case 70:
+	case 71:
+	case 72:
+	case 73:
 	{
 
 		if (lose_all_info())
 			msg_print("You forget everything in your utmost terror!");
 		return;
+	}
+
+	case 74: /* Aggravate monster */
+	case 75:
+	case 76:
+	case 77:
+	case 78:
+	case 79:
+	case 80:
+	case 81:
+	case 82:
+	{
+
+		msg_print("You let out a bloodcurdling scream of fear!");
+		aggravate_monsters(1);
+		return;
+	}
+
+	case 83: /* Fear */
+	case 84:
+	case 85:
+	case 86:
+	case 87:
+	case 88:
+	case 89:
+	case 90:
+	case 91:
+	{
+
+		if (!p_ptr->resist_fear || (rand_int(100) < 4) )
+		{
+			set_afraid(p_ptr->afraid + 3 + power);
+		}
+		return;
+	}
+
+	case 92: /* Lose money */
+	case 93:
+	case 94:
+	case 95:
+	case 96:
+	case 97:
+	case 98:
+	case 99:
+	case 100:
+	{
+		s32b gold = (p_ptr->au / 50) + randint(15 + (20 * power) );
+		if (gold < 2) gold = 2;
+		if (gold > 5000) gold = (p_ptr->au / 20) + randint(3000);
+		if (gold > p_ptr->au) gold = p_ptr->au;
+
+		p_ptr->au -= gold;
+		if (gold <= 0)
+		{
+			msg_print("You are startled.");			
+		}
+		else if (p_ptr->au)
+		{
+			msg_format("You drop %ld coins in terror!", (long)gold);
+		}
+		else
+		{
+			msg_print("You drop all your money in terror!");
+		}
+		p_ptr->redraw |= (PR_GOLD);
+		return;
+	}
+
 	}
 
 	p_ptr->update |= PU_BONUS;
@@ -2166,7 +2347,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	}
 
 	/* Require empty space */
-	if (!cave_empty_bold(y, x))
+	if (!cave_empty_bold(y, x) && !( ( (f_info[(&cave[y][x])->feat].flags1 & FF1_CAN_LEVITATE ) || (f_info[(&cave[y][x])->feat].flags1 & FF1_CAN_FLY ) || (f_info[(&cave[y][x])->feat].flags1 & FF1_CAN_CLIMB ) ) && (!dun_level) && (r_ptr->flags7 & (RF7_CAN_FLY)) ) )
 	{
 		if (wizard) cmsg_format(TERM_L_RED, "WARNING: Refused monster(%d): EMPTY BOLD", r_idx);
 		if (place_monster_one_race) KILL(place_monster_one_race, monster_race);
@@ -2238,11 +2419,12 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	}
 
 	/* Ego Uniques are NOT to be created */
-	if ((r_ptr->flags1 & RF1_UNIQUE) && ego)
+	/* Amy edit - why not? I allowed it in slex, so I'll allow it here too. */
+	/*if ((r_ptr->flags1 & RF1_UNIQUE) && ego)
 	{
 		if (place_monster_one_race) KILL(place_monster_one_race, monster_race);
 		return 0;
-	}
+	}*/
 
 	/* Now could we generate an Ego Monster */
 	/* Grab the special race if needed */
@@ -2271,7 +2453,8 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	}
 
 	/* Disallow Spirits in The Void, now this *IS* an ugly hack, I hate to do it ... */
-	if ((r_ptr->flags7 & RF7_SPIRIT) && (dungeon_type != DUNGEON_VOID))
+	/* Amy edit: occasionally allow them in other places too */
+	if ((r_ptr->flags7 & RF7_SPIRIT) && (dungeon_type != DUNGEON_VOID) && (!m_allow_special[r_idx]) && (rand_int(100) > 5) )
 	{
 		if (wizard) cmsg_format(TERM_L_RED, "WARNING: Refused monster(%d): SPIRIT in non VOID", r_idx);
 		if (place_monster_one_race) KILL(place_monster_one_race, monster_race);
@@ -2468,12 +2651,13 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 		object_level = (dun_level + r_ptr->level) / 2;
 
 		/* Determine how much we can drop */
-		if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
-		if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
-		if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
-		if (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
-		if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
-		if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
+		/* Amy edit: greatly reduced, based on Steamband's implementation */
+		if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 20)) number++;
+		if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 40)) number++;
+		if ((r_ptr->flags1 & (RF1_DROP_1D2)) && (rand_int(100) < 60)) number++;
+		if ((r_ptr->flags1 & (RF1_DROP_2D2)) && (rand_int(100) < 90)) number++;
+		if ((r_ptr->flags1 & (RF1_DROP_3D2)) && (rand_int(100) < 90)) number += damroll(1, 2);
+		if ((r_ptr->flags1 & (RF1_DROP_4D2)) && (rand_int(100) < 90)) number += damroll(2, 2);
 		if (r_ptr->flags9 & (RF9_MIMIC)) number = 1;
 
 		/* Hack -- handle creeping coins */
@@ -2632,20 +2816,30 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	if (dungeon_flags2 & DF2_ADJUST_LEVEL_PLAYER)
 		base = p_ptr->lev * 2;
 
+	if (p_ptr->lvling_system)
+	{
+		if (!min_level) min_level = /*dun_level*/1;
+		max_level = randint(dun_level);
+		if (monster_level > dun_level) max_level = randint(monster_level);
+		add_level = TRUE;
+	}
+
+	/* make the system a bit less unforgiving --Amy */
 	if (dungeon_flags2 & DF2_ADJUST_LEVEL_1_2)
 	{
-		min_level = max_level = dun_level / 2;
+		if (!min_level) min_level = 1;
+		max_level = dun_level / 2;
 		add_level = TRUE;
 	}
 	if (dungeon_flags1 & DF1_ADJUST_LEVEL_1)
 	{
-		if (!min_level) min_level = dun_level;
+		if (!min_level) min_level = /*dun_level*/1;
 		max_level = dun_level;
 		add_level = TRUE;
 	}
 	if (dungeon_flags1 & DF1_ADJUST_LEVEL_2)
 	{
-		if (!min_level) min_level = dun_level * 2;
+		if (!min_level) min_level = /*dun_level * 2*/1;
 		max_level = dun_level * 2;
 		add_level = TRUE;
 	}
@@ -3063,8 +3257,9 @@ bool alloc_monster(int dis, bool slp)
 		if (distance(y, x, p_ptr->py, p_ptr->px) > dis) break;
 	}
 
-	if (!attempts_left)
+	if (!attempts_left && !( (f_info[(&cave[y][x])->feat].flags1 & FF1_CAN_LEVITATE ) || (f_info[(&cave[y][x])->feat].flags1 & FF1_CAN_FLY ) || (f_info[(&cave[y][x])->feat].flags1 & FF1_CAN_CLIMB )) )
 	{
+
 		if (cheat_xtra || cheat_hear)
 		{
 			msg_print("Warning! Could not allocate a new monster. Small level?");

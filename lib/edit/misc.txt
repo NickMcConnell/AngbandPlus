@@ -13,46 +13,46 @@ M:X:101
 M:Y:66
 
 # Maximum number of randart parts in ra_info.txt
-M:Z:516
+M:Z:529
 
 # Maximum number of monsters in r_info.txt
 # WARNING ! add one more to the real count for the player ghost !!
-M:R:1078
+M:R:3756
 
 # Maximum number of monsters in re_info.txt
 # WARNING ! Use the exact amount of ego types used, if not you
 # will get weird results !
-M:r:14
+M:r:47
 
 # Maximum number of items in k_info.txt
-M:K:819
+M:K:828
 
 # Maximum number of vaults in v_info.txt
 M:V:108
 
 # Maximum number of terrain features in f_info.txt
-M:F:256
+M:F:257
 
 # Maximum number of alchemist recipes
 M:a:1000
 
 # Maximum number of artifacts in a_info.txt
-M:A:219
+M:A:224
 
 # Maximum number of sets types in set_info.txt
 M:s:10
 
 # Maximum number of ego-items in e_info.txt
-M:E:200
+M:E:220
 
 # Maximum number of dungeon types in d_info.txt
-M:D:31
+M:D:54
 
 # Maximum number of trap types in tr_info.txt
 M:U:176
 
 # Maximum number of terrain types in wf_info.txt
-M:W:30
+M:W:36
 
 # Maximum number of owners types in ow_info.txt
 M:N:70
@@ -70,13 +70,13 @@ M:O:1024
 M:M:768
 
 # Maximum number of race types in p_info.txt
-M:P:R:22
+M:P:R:36
 
 # Maximum number of subrace types in p_info.txt
-M:P:S:10
+M:P:S:14
 
 # Maximum number of class types in p_info.txt
-M:P:C:32
+M:P:C:99
 
 # Maximum number of meta class types in p_info.txt
 M:P:M:1

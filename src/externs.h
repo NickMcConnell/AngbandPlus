@@ -549,7 +549,7 @@ extern bool generate_encounter;
 extern bool permanent_levels;
 extern bool autoroll;
 extern bool point_based;
-extern bool maximize, preserve, special_lvls, ironman_rooms;
+extern bool maximize, preserve, special_lvls, ironman_rooms, lvling_system;
 extern bool inventory_no_move;
 extern bool take_notes, auto_notes;
 extern bool *m_allow_special;
@@ -1097,6 +1097,7 @@ extern bool monster_can_cross_terrain(byte feat, monster_race *r_ptr);
 extern void corrupt_corrupted(void);
 
 /* monster3.c */
+extern void dump_companions(FILE *outfile); 
 extern void do_cmd_companion(void);
 extern bool do_control_reconnect(void);
 extern bool do_control_drop(void);
@@ -1827,7 +1828,7 @@ extern bool select_module(void);
 
 /* lua_bind.c */
 extern magic_power *grab_magic_power(magic_power *m_ptr, int num);
-extern bool get_magic_power(int *sn, magic_power *powers, int max_powers, void (*power_info)(char *p, int power), int plev, int cast_stat);
+extern bool get_magic_power(int *sn, magic_power *powers, int max_powers, void (*power_info)(char *p, int power), int plev, int cast_stat);	
 extern magic_power *new_magic_power(int num);
 extern bool get_magic_power_lua(int *sn, magic_power *powers, int max_powers, char *info_fct, int plev, int cast_stat);
 extern bool lua_spell_success(magic_power *spell, int stat, char *oups_fct);
@@ -1903,7 +1904,7 @@ extern bool forbid_non_blessed(void);
 extern int validate_autoskiller(s32b *ideal);
 extern void compute_skills(s32b *v, s32b *m, int i);
 extern void select_default_melee(void);
-extern void do_get_new_skill(void);
+extern void do_get_new_skill(bool princessbitch);
 extern void init_skill(s32b value, s32b mod, int i);
 extern s16b find_ability(cptr name);
 extern void dump_abilities(FILE *fff);

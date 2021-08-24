@@ -137,7 +137,7 @@ s16b get_skill_scale(int skill, u32b scale)
 	*/
 	temp = scale * s_info[skill].value;
 
-	return (temp / SKILL_MAX);
+	return (temp / /*SKILL_MAX*/50000);
 }
 
 
@@ -301,7 +301,7 @@ void print_skills(int table[MAX_SKILLS][2], int max, int sel, int start)
 			if (s_info[i].mod == 0) color = TERM_L_DARK;
 			else color = TERM_ORANGE;
 		}
-		else if (s_info[i].value == SKILL_MAX) color = TERM_L_BLUE;
+		else if (s_info[i].value >= 50) color = TERM_L_BLUE;
 		if (s_info[i].hidden) color = TERM_L_RED;
 		if (j == sel)
 		{
@@ -744,12 +744,12 @@ void select_default_melee()
 /*
  * Print a batch of skills.
  */
-static void print_skill_batch(int *p, cptr *p_desc, int start, int max, bool mode)
+static void print_skill_batch(int *p, cptr *p_desc, int start, int max) 
 {
 	char buff[80];
 	int i = start, j = 0;
 
-	if (mode) prt(format("         %-31s", "Name"), 1, 20);
+	prt(format("         %-31s", "Name"), 1, 20);
 
 	for (i = start; i < (start + 20); i++)
 	{
@@ -760,10 +760,10 @@ static void print_skill_batch(int *p, cptr *p_desc, int start, int max, bool mod
 		else
 			sprintf(buff, "  %c - %d) %-30s", I2A(j), p[i], "Change melee style");
 
-		if (mode) prt(buff, 2 + j, 20);
+		prt(buff, 2 + j, 20);
 		j++;
 	}
-	if (mode) prt("", 2 + j, 20);
+	prt("", 2 + j, 20);
 	prt(format("Select a skill (a-%c), @ to select by name, +/- to scroll:", I2A(j - 1)), 0, 0);
 }
 
@@ -772,7 +772,6 @@ int do_cmd_activate_skill_aux()
 	char which;
 	int max = 0, i, start = 0;
 	int ret;
-	bool mode = FALSE;
 	int *p;
 	cptr *p_desc;
 
@@ -845,19 +844,13 @@ int do_cmd_activate_skill_aux()
 
 	while (1)
 	{
-		print_skill_batch(p, p_desc, start, max, mode);
+		print_skill_batch(p, p_desc, start, max);
 		which = inkey();
 
 		if (which == ESCAPE)
 		{
 			ret = -1;
 			break;
-		}
-		else if (which == '*' || which == '?' || which == ' ')
-		{
-			mode = (mode) ? FALSE : TRUE;
-			Term_load();
-			character_icky = FALSE;
 		}
 		else if (which == '+')
 		{
@@ -1279,11 +1272,11 @@ void init_skill(s32b value, s32b mod, int i)
 		s_info[i].hidden = FALSE;
 }
 
-void do_get_new_skill()
+void do_get_new_skill(bool princessbitch)
 {
-	char *items[4];
-	int skl[4];
-	s32b val[4], mod[4];
+	char *items[6];
+	int skl[6];
+	s32b val[6], mod[6];
 	bool used[MAX_SKILLS];
 	int available_skills[MAX_SKILLS];
 	int max = 0, max_a = 0, res, i;
@@ -1310,7 +1303,7 @@ void do_get_new_skill()
 	while (available_skills[max_a] != -1) max_a++;
 
 	/* Get 4 skills */
-	for (max = 0; max < 4; max++)
+	for (max = 0; max < 6; max++)
 	{
 		int i;
 		skill_type *s_ptr;
@@ -1331,22 +1324,30 @@ void do_get_new_skill()
 
 		if (s_ptr->mod)
 		{
-			if (s_ptr->mod < 300)
+			if (s_ptr->mod < 100)
 			{
-				val[max] = 1000;
-				mod[max] = 300 - s_ptr->mod;
+				val[max] = 1000 + (s_ptr->mod * 3);
+				mod[max] = 300;
+			}
+			else if (s_ptr->mod < 200)
+			{
+				val[max] = 1000 + (s_ptr->mod * 3);
+				mod[max] = 200;
+			}
+			else if (s_ptr->mod < 300)
+			{
+				val[max] = 1000 + (s_ptr->mod * 3);
+				mod[max] = 100;
 			}
 			else if (s_ptr->mod < 500)
 			{
-				val[max] = s_ptr->mod * 1;
+				val[max] = 1000 + (s_ptr->mod * 3);
 				mod[max] = 100;
-				if (mod[max] + s_ptr->mod > 500)
-					mod[max] = 500 - s_ptr->mod;
 			}
 			else
 			{
-				val[max] = s_ptr->mod * 3;
-				mod[max] = 0;
+				val[max] = 1000 + (s_ptr->mod * 3);
+				mod[max] = 50;
 			}
 		}
 		else
@@ -1354,6 +1355,14 @@ void do_get_new_skill()
 			mod[max] = 300;
 			val[max] = 1000;
 		}
+
+		if (princessbitch) {
+
+			mod[max] /= 5;
+			val[max] /= 5;
+
+		}
+
 		if (s_ptr->value + val[max] > SKILL_MAX) val[max] = SKILL_MAX - s_ptr->value;
 		skl[max] = available_skills[i];
 		items[max] = (char *)string_make(format("%-40s: +%02ld.%03ld value, +%01d.%03d modifier", s_ptr->name + s_name, val[max] / SKILL_STEP, val[max] % SKILL_STEP, mod[max] / SKILL_STEP, mod[max] % SKILL_STEP));
@@ -1361,7 +1370,7 @@ void do_get_new_skill()
 
 	while (TRUE)
 	{
-		res = ask_menu("Choose a skill to learn(a-d to choose, ESC to cancel)?", (char **)items, 4);
+		res = ask_menu("Choose a skill to learn(a-d to choose, ESC to cancel)?", (char **)items, 6);
 
 		/* Ok ? lets learn ! */
 		if (res > -1)
@@ -1405,7 +1414,12 @@ void do_get_new_skill()
 			s_ptr = &s_info[skl[res]];
 			s_ptr->value += val[res];
 			s_ptr->mod += mod[res];
-			if (mod[res])
+			if (mod[res] >= 300)
+			{
+				msg_format("You can now learn the %s skill.",
+				           s_ptr->name + s_name);
+			}
+			else if (princessbitch && mod[res] >= 60)
 			{
 				msg_format("You can now learn the %s skill.",
 				           s_ptr->name + s_name);
@@ -1420,7 +1434,7 @@ void do_get_new_skill()
 	}
 
 	/* Free them ! */
-	for (max = 0; max < 4; max++)
+	for (max = 0; max < 6; max++)
 	{
 		string_free(items[max]);
 	}

@@ -706,7 +706,7 @@ void wild_magic(int spell)
 	case 26:
 		{
 			/* Prevent destruction of quest levels and town */
-			if (!is_quest(dun_level) && dun_level)
+			if (!is_quest(dun_level) || (is_quest(dun_level) == QUEST_RANDOM))
 				earthquake(p_ptr->py, p_ptr->px, 5);
 
 			break;
@@ -867,7 +867,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 
 	int powers[96];
 
-	bool flag, redraw;
+	bool flag;
 
 	int ask, plev = p_ptr->lev;
 
@@ -885,6 +885,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 
 	int label;
 
+	no_cost = FALSE;
 
 	/* List the monster powers -- RF4_* */
 	for (i = 0; i < 32; i++)
@@ -930,99 +931,80 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
-
 	/* Get the last label */
 	label = (num <= 26) ? I2A(num - 1) : I2D(num - 1 - 26);
 
 	/* Build a prompt (accept all spells) */
 	/* Mega Hack -- if no_cost is false, we're actually a Possessor -dsb */
 	strnfmt(out_val, 78,
-	        "(Powers a-%c, *=List, ESC=exit) Use which power of your %s? ",
+	        "(Powers a-%c, ESC=exit) Use which power of your %s? ",
 	        label, (no_cost ? "symbiote" : "body"));
 
+	/* Save the screen */ 
+	character_icky = TRUE; 
+	Term_save(); 
+ 
+
 	/* Get a spell from the user */
-	while (!flag && get_com(out_val, &choice))
+	while (!flag)
 	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		/* Show the list */
 		{
-			/* Show the list */
-			if (!redraw)
-			{
-				byte y = 1, x = 0;
-				int ctr = 0;
-				char dummy[80];
+			byte y = 1, x = 0; 
+			int ctr = 0; 
+			char dummy[80]; 
+ 
+			strcpy(dummy, ""); 
 
-				strcpy(dummy, "");
+			prt ("", y++, x); 
+ 
+			while (ctr < num) 
+			{ 
+				monster_power *mp_ptr = &monster_powers[powers[ctr]]; 
+				int mana = mp_ptr->mana /* / 10*/; 
 
-				/* Show list */
-				redraw = TRUE;
+				/*if (mana > p_ptr->msp) mana = p_ptr->msp; */
 
-				/* Save the screen */
-				character_icky = TRUE;
-				Term_save();
+				if (!mana) mana = 1; 
 
-				prt ("", y++, x);
+				label = (ctr < 26) ? I2A(ctr) : I2D(ctr - 26); 
 
-				while (ctr < num)
+				if (!no_cost) 
+				{ 
+					strnfmt(dummy, 80, " %c) %2d %s", 
+						label, mana, mp_ptr->name); 
+				} 
+				else 
 				{
-					monster_power *mp_ptr = &monster_powers[powers[ctr]];
-					int mana = mp_ptr->mana / 10;
-
-					if (mana > p_ptr->msp) mana = p_ptr->msp;
-
-					if (!mana) mana = 1;
-
-					label = (ctr < 26) ? I2A(ctr) : I2D(ctr - 26);
-
-					if (!no_cost)
-					{
-						strnfmt(dummy, 80, " %c) %2d %s",
-						        label, mana, mp_ptr->name);
-					}
-					else
-					{
-						strnfmt(dummy, 80, " %c) %s",
-						        label, mp_ptr->name);
-					}
-
-					if (ctr < 17)
-					{
-						prt(dummy, y + ctr, x);
-					}
-					else
-					{
-						prt(dummy, y + ctr - 17, x + 40);
-					}
-
-					ctr++;
+					strnfmt(dummy, 80, " %c) %s", 
+						label, mp_ptr->name); 
 				}
 
 				if (ctr < 17)
 				{
-					prt ("", y + ctr, x);
+					prt (dummy, y + ctr, x);
 				}
 				else
 				{
-					prt ("", y + 17, x);
+					prt (dummy, y + 17, x);
 				}
+				ctr++; 
 			}
 
-			/* Hide the list */
+			if (ctr < 17) 
+			{ 
+				prt ("", y + ctr, x); 
+			} 
 			else
 			{
-				/* Hide list */
-				redraw = FALSE;
-
-				/* Restore the screen */
-				Term_load();
-				character_icky = FALSE;
+				prt ("", y + 17, x); 
 			}
+		} 
 
-			/* Redo asking */
-			continue;
+		if (!get_com(out_val, &choice)) 
+		{ 
+			flag = FALSE; 
+			break; 
 		}
 
 		if (choice == '\r' && num == 1)
@@ -1076,11 +1058,8 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 	}
 
 	/* Restore the screen */
-	if (redraw)
-	{
-		Term_load();
-		character_icky = FALSE;
-	}
+	Term_load(); 
+	character_icky = FALSE; 
 
 	/* Abort if needed */
 	if (!flag)
@@ -2081,9 +2060,9 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 
 		if (rand_int(chance) >= pchance)
 		{
-			int m = monster_powers[power].mana / 10;
+			int m = monster_powers[power].mana /* / 10*/;
 
-			if (m > p_ptr->msp) m = p_ptr->msp;
+			/*if (m > p_ptr->msp) m = p_ptr->msp;*/
 			if (!m) m = 1;
 
 			p_ptr->csp -= m;
@@ -2179,8 +2158,7 @@ u32b get_school_spell(cptr do_what, cptr check_fct, s16b force_book)
 	int num = 0;
 	s32b where = 1;
 	int ask;
-	bool flag, redraw;
-	char choice;
+	bool flag;
 	char out_val[160];
 	char buf2[40];
 	char buf3[40];
@@ -2238,9 +2216,6 @@ u32b get_school_spell(cptr do_what, cptr check_fct, s16b force_book)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
-
 	/* Show choices */
 	if (show_choices)
 	{
@@ -2263,48 +2238,38 @@ u32b get_school_spell(cptr do_what, cptr check_fct, s16b force_book)
 		pval = o_ptr->pval2;
 	}
 
+	/* Save the screen */ 
+	character_icky = TRUE; 
+	Term_save(); 
+ 
+	/* Go */ 
 	if (hack_force_spell == -1)
 	{
 		num = exec_lua(format("return book_spells_num(%d)", sval));
 
 		/* Build a prompt (accept all spells) */
-		strnfmt(out_val, 78, "(Spells %c-%c, Descs %c-%c, *=List, ESC=exit) %^s which spell? ",
+		strnfmt(out_val, 78, "(Spells %c-%c, Descs %c-%c, ESC=exit) %^s which spell? ",
 		        I2A(0), I2A(num - 1), I2A(0) - 'a' + 'A', I2A(num - 1) - 'a' + 'A', do_what);
 
 		/* Get a spell from the user */
-		while (!flag && get_com(out_val, &choice))
+		while (!flag)
 		{
-			/* Request redraw */
-			if (((choice == ' ') || (choice == '*') || (choice == '?')))
-			{
-				/* Show the list */
-				if (!redraw)
-				{
-					/* Show list */
-					redraw = TRUE;
+			char choice; 
 
-					/* Save the screen */
-					character_icky = TRUE;
-					Term_save();
+			/* Restore and save screen; this prevents 
+			   subprompt from leaving garbage when going 
+			   around the loop multiple times. */ 
+			Term_load(); 
+			Term_save(); 
 
-					/* Display a list of spells */
-					call_lua("print_book", "(d,d,O)", "d", sval, pval, o_ptr, &where);
-				}
+			/* Display a list of spells */ 
+				call_lua("print_book", "(d,d,O)", "d", sval, pval, o_ptr, &where);
 
-				/* Hide the list */
-				else
-				{
-					/* Hide list */
-					redraw = FALSE;
-					where = 1;
-
-					/* Restore the screen */
-					Term_load();
-					character_icky = FALSE;
-				}
-
-				/* Redo asking */
-				continue;
+			/* Input */ 
+			if (!get_com(out_val, &choice)) 
+			{ 
+				flag = FALSE; 
+				break; 
 			}
 
 
@@ -2327,24 +2292,6 @@ u32b get_school_spell(cptr do_what, cptr check_fct, s16b force_book)
 			/* Verify it */
 			if (ask)
 			{
-				/* Show the list */
-				if (!redraw)
-				{
-					/* Show list */
-					redraw = TRUE;
-
-					/* Save the screen */
-					character_icky = TRUE;
-					Term_load();
-					Term_save();
-
-				}
-				/* Rstore the screen */
-				else
-				{
-					/* Restore the screen */
-					Term_load();
-				}
 
 				/* Display a list of spells */
 				call_lua("print_book", "(d,d,O)", "d", sval, pval, o_ptr, &where);
@@ -2395,11 +2342,8 @@ u32b get_school_spell(cptr do_what, cptr check_fct, s16b force_book)
 
 
 	/* Restore the screen */
-	if (redraw)
-	{
-		Term_load();
-		character_icky = FALSE;
-	}
+	Term_load();
+	character_icky = FALSE;
 
 
 	/* Show choices */
@@ -2423,16 +2367,15 @@ void cast_school_spell()
 	int spell;
 
 	/* No magic */
-	if (p_ptr->antimagic)
-	{
-		msg_print("Your anti-magic field disrupts any magic attempts.");
-		return;
-	}
 
-	/* No magic */
-	if (p_ptr->anti_magic)
+	/*msg_format("antimagic dis %d", p_ptr->antimagic_dis);
+	msg_format("player antimagic %d", p_ptr->antimagic);*/
+
+	if ( ( (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) || (p_ptr->antimagic_dis >= randint(p_ptr->lev) ) ) && (magik(p_ptr->antimagic)))
 	{
-		msg_print("Your anti-magic shell disrupts any magic attempts.");
+		msg_print("Your anti-magic field disrupts your magic attempts.");
+		msg_print(NULL);
+		energy_use = 100;
 		return;
 	}
 

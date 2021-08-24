@@ -20,6 +20,15 @@ function __birth_hook_objects()
 		end_object(obj)
 	end
 
+	-- Provide a book of Charm to topmodels
+	if get_class_name() == "Topmodel" then
+		local obj = create_object(TV_BOOK, 255);
+		obj.pval = find_spell("Charm")
+		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
+		inven_carry(obj, FALSE)
+		end_object(obj)
+	end
+
 	-- Provide a book of prayer to priests
 	if get_class_name() == "Priest(Eru)" then
 		local obj = create_object(TV_BOOK, 255);
@@ -42,6 +51,13 @@ function __birth_hook_objects()
 		inven_carry(obj, FALSE)
 		end_object(obj)
 	end
+	if get_class_name() == "Fleecy Priest" then
+		local obj = create_object(TV_BOOK, 255);
+		obj.pval = find_spell("Banshee Scream")
+		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
+		inven_carry(obj, FALSE)
+		end_object(obj)
+	end
 	if get_class_name() == "Dark-Priest" then
 		local obj = create_object(TV_BOOK, 255);
 		obj.pval = find_spell("Curse")
@@ -52,6 +68,34 @@ function __birth_hook_objects()
 	if get_class_name() == "Paladin" then
 		local obj = create_object(TV_BOOK, 255);
 		obj.pval = find_spell("Divine Aim")
+		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
+		inven_carry(obj, FALSE)
+		end_object(obj)
+	end
+	if get_class_name() == "Stonewright" then
+		local obj = create_object(TV_BOOK, 255);
+		obj.pval = find_spell("Firebrand")
+		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
+		inven_carry(obj, FALSE)
+		end_object(obj)
+	end
+	if get_class_name() == "Priest(Varda)" then
+		local obj = create_object(TV_BOOK, 255);
+		obj.pval = find_spell("Light of Valinor")
+		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
+		inven_carry(obj, FALSE)
+		end_object(obj)
+	end
+	if get_class_name() == "Priest(Ulmo)" then
+		local obj = create_object(TV_BOOK, 255);
+		obj.pval = find_spell("Song of Belegaer")
+		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
+		inven_carry(obj, FALSE)
+		end_object(obj)
+	end
+	if get_class_name() == "Priest(Mandos)" then
+		local obj = create_object(TV_BOOK, 255);
+		obj.pval = find_spell("Tears of Luthien")
 		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
 		inven_carry(obj, FALSE)
 		end_object(obj)

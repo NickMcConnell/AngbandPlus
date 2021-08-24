@@ -1918,19 +1918,21 @@ static void process_world(void)
 	}
 
 	/* Eru piety incraese with time */
-	if (((turn % 100) == 0) && (!p_ptr->did_nothing) && (!p_ptr->wild_mode))
+	/* Amy edit: removed due to potential of abuse (intentionally overburdening yourself and then walking around) */
+	/*if (((turn % 100) == 0) && (!p_ptr->did_nothing) && (!p_ptr->wild_mode))
 	{
 		NOT_PRAY_GOD(GOD_ERU)
 		{
-			int inc = wisdom_scale(10);
+			int inc = wisdom_scale(10);*/
 
 			/* Increase by wisdom/4 */
-			if (!inc) inc = 1;
+			/*if (!inc) inc = 1;
 			inc_piety(GOD_ERU, inc);
 		}
-	}
+	}*/
 	/* Most gods piety decrease with time */
-	if (((turn % 300) == 0) && (!p_ptr->did_nothing) && (!p_ptr->wild_mode) && (dun_level))
+	/* Amy edit: replace "most" by "all", and do so regardless of whether you're in the dungeon */
+	if (((turn % 300) == 0) && (!p_ptr->did_nothing) && (!p_ptr->wild_mode) /*&& (dun_level)*/)
 	{
 		GOD(GOD_MANWE)
 		{
@@ -1943,6 +1945,42 @@ static void process_world(void)
 			if (dec < 1) dec = 1;
 			inc_piety(GOD_MANWE, -dec);
 		}
+		GOD(GOD_ERU)
+		{
+			int dec = 2 - wisdom_scale(1);
+
+			PRAY_GOD(GOD_ERU)
+			dec++;
+			if (dec < 1) dec = 1;
+			inc_piety(GOD_ERU, -dec);
+		}
+		GOD(GOD_AULE)
+		{
+			int dec = 2 - wisdom_scale(1);
+
+			PRAY_GOD(GOD_AULE)
+			dec++;
+			if (dec < 1) dec = 1;
+			inc_piety(GOD_AULE, -dec);
+		}
+		GOD(GOD_VARDA)
+		{
+			int dec = 4 - wisdom_scale(1);
+
+			PRAY_GOD(GOD_VARDA)
+			dec++;
+			if (dec < 1) dec = 1;
+			inc_piety(GOD_VARDA, -dec);
+		}
+		GOD(GOD_MANDOS)
+		{
+			int dec = 4 - wisdom_scale(2);
+
+			PRAY_GOD(GOD_MANDOS)
+			dec += 15 - wisdom_scale(8);
+			if (dec < 1) dec = 1;
+			inc_piety(GOD_MANDOS, -dec);
+		}
 		GOD(GOD_MELKOR)
 		{
 			int dec = 8 - wisdom_scale(6);
@@ -1954,16 +1992,36 @@ static void process_world(void)
 			if (dec < 1) dec = 1;
 			inc_piety(GOD_MELKOR, -dec);
 		}
-		PRAY_GOD(GOD_TULKAS)
+		GOD(GOD_ULMO)
 		{
-			int dec = 4 - wisdom_scale(3);
+			int dec = 8 - wisdom_scale(5);
+
+			PRAY_GOD(GOD_ULMO)
+			dec += 5;
+			if (dec < 1) dec = 1;
+			inc_piety(GOD_ULMO, -dec);
+		}
+		GOD(GOD_AMYBSOD)
+		{
+			int dec = 20 - wisdom_scale(15);
+
+			PRAY_GOD(GOD_AMYBSOD)
+			dec += 10;
+			if (dec < 1) dec = 1;
+			inc_piety(GOD_AMYBSOD, -dec);
+		}
+		GOD(GOD_TULKAS)
+		{
+			int dec = 2 - wisdom_scale(1);
+			PRAY_GOD(GOD_TULKAS)
+			dec += (2 - wisdom_scale(1));
 
 			if (dec < 1) dec = 1;
 			inc_piety(GOD_TULKAS, -dec);
 		}
 	}
 	/* Yavanna piety decrease with time */
-	if (((turn % 400) == 0) && (!p_ptr->did_nothing) && (!p_ptr->wild_mode) && (dun_level))
+	if (((turn % 400) == 0) && (!p_ptr->did_nothing) && (!p_ptr->wild_mode) /*&& (dun_level)*/)
 	{
 		GOD(GOD_YAVANNA)
 		{
@@ -3923,6 +3981,25 @@ static void process_command(void)
 				reveal_wilderness_around_player(p_ptr->wilderness_y,
 				                                p_ptr->wilderness_x,
 				                                0, WILDERNESS_SEE_RADIUS);
+
+				/*msg_format("encounter level %d", wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level);*/
+
+				if ((p_ptr->wild_mode &&
+	                magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2))) || (p_ptr->wild_mode && (rand_int(20) < 1) ) ) {
+
+					change_wild_mode();
+
+					/* HACk -- set the encouter flag for the wilderness generation */
+					generate_encounter = TRUE;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+
+					/* Inform the player of his horrible fate :=) */
+					msg_print("The monsters have been waiting for you, and now you're ambushed. Bwarharharharhar!");
+
+				}
+
+
 			}
 
 			break;
@@ -4913,7 +4990,7 @@ void process_player(void)
 
 
 		/* Paralyzed or Knocked Out */
-		if ((p_ptr->paralyzed) || (p_ptr->stun >= 100))
+		if ((p_ptr->paralyzed) || (p_ptr->stun >= 300))
 		{
 			/* Take a turn */
 			energy_use = 100;
@@ -5238,7 +5315,7 @@ static void dungeon(void)
 	}
 
 	/* No stairs down from Quest */
-	if (is_quest(dun_level) && !p_ptr->astral)
+	if (is_quest(dun_level) && (is_quest(dun_level) != QUEST_RANDOM) && !p_ptr->astral)
 	{
 		create_down_stair = FALSE;
 		create_down_shaft = FALSE;
@@ -5382,6 +5459,10 @@ static void dungeon(void)
 
 	/* Reset the monster generation level */
 	monster_level = dun_level;
+	/*msg_format("Monster level set to %d.", monster_level);*/
+	/*if (!dun_level && !p_ptr->wild_mode) {
+		monster_level = wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level + rand_int(p_ptr->lev);
+	}*/
 
 	/* Reset the object generation level */
 	object_level = dun_level;

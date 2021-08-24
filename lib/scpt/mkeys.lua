@@ -40,10 +40,10 @@ add_mkey
 			local s
 
 			-- No magic
-			if (player.antimagic > 0) then
-				msg_print("Your anti-magic field disrupts any magic attempts.")
-				return
-			end
+			--if (player.antimagic > 0) then
+			--	msg_print("Your anti-magic field disrupts any magic attempts.")
+			--	return
+			--end
 
 			local obj = get_object(INVEN_WIELD)
 			if (obj.k_idx <= 0) or (obj.tval ~= TV_MSTAFF) then

@@ -73,7 +73,7 @@ bool lua_spell_success(magic_power *spell, int stat, char *oups_fct)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
+	if (p_ptr->stun > 100) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
@@ -84,6 +84,7 @@ bool lua_spell_success(magic_power *spell, int stat, char *oups_fct)
 	{
 		if (flush_failure) flush();
 		msg_format("You failed to concentrate hard enough!");
+		msg_print(NULL);
 		sound(SOUND_FAIL);
 
 		if (oups_fct != NULL)
@@ -281,7 +282,7 @@ s32b lua_get_level(s32b s, s32b lvl, s32b max, s32b min, s32b bonus)
 	if (tmp >= (SKILL_STEP / 10)) /* We require at least one spell level */
 		tmp += bonus;
 
-	tmp = (tmp * (max * (SKILL_STEP / 10)) / (SKILL_MAX / 10));
+	tmp = (tmp * (max * (SKILL_STEP / 10)) / (/*SKILL_MAX*/50000 / 10));
 
 	if (tmp < 0) /* Shift all negative values, so they map to appropriate integer */
 		tmp -= SKILL_STEP / 10 - 1;
@@ -329,7 +330,7 @@ s32b lua_spell_chance(s32b chance, int level, int skill_level, int mana, int cur
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
+	if (p_ptr->stun > 100) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
@@ -354,7 +355,7 @@ s32b lua_spell_device_chance(s32b chance, int level, int base_level)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
+	if (p_ptr->stun > 100) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
 	/* Always a 5 percent chance of working */

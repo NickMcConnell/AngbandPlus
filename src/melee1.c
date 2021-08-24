@@ -737,7 +737,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "blind" */
-					if (!p_ptr->resist_blind)
+					if (!p_ptr->resist_blind || (rand_int(100) < 5) )
 					{
 						if (set_blind(p_ptr->blind + 10 + randint(rlev)))
 						{
@@ -756,7 +756,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_conf)
+					if (!p_ptr->resist_conf || (rand_int(100) < 5) )
 					{
 						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
 						{
@@ -775,7 +775,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "afraid" */
-					if (p_ptr->resist_fear)
+					if (p_ptr->resist_fear && (rand_int(100) > 4) )
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -807,7 +807,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "paralyzed" */
-					if (p_ptr->free_act)
+					if (p_ptr->free_act && (rand_int(100) > 0) )
 					{
 						msg_print("You are unaffected!");
 						obvious = TRUE;
@@ -934,7 +934,7 @@ bool carried_make_attack_normal(int r_idx)
 					if (damage > 23)
 					{
 						/* Prevent destruction of quest levels and town */
-						if (!is_quest(dun_level) && dun_level)
+						if (!is_quest(dun_level) || (is_quest(dun_level) == QUEST_RANDOM))
 							earthquake(p_ptr->py, p_ptr->px, 8);
 					}
 
@@ -1101,7 +1101,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "image" */
-					if (!p_ptr->resist_chaos)
+					if (!p_ptr->resist_chaos || (rand_int(100) < 5) )
 					{
 						if (set_image(p_ptr->image + 3 + randint(rlev / 2)))
 						{
@@ -1570,7 +1570,7 @@ bool make_attack_normal(int m_idx, byte divis)
 			/* Always disturbing */
 			disturb(1, 0);
 
-			if ((chance > 0) && magik(chance))
+			if ((chance > 0) && magik(chance) && (rand_int(8) > 0) ) /* minimum failure rate --Amy */
 			{
 				msg_format("You dodge %s attack!", m_name);
 				continue;
@@ -2024,9 +2024,9 @@ bool make_attack_normal(int m_idx, byte divis)
 					obvious = TRUE;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (!p_ptr->paralyzed &&
+					if (!p_ptr->paralyzed && (rand_int(10) > 0) &&
 					                (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                                  p_ptr->lev)))
+					                                  p_ptr->lev - m_ptr->level)))
 					{
 						/* Saving throw message */
 						msg_print("You quickly protect your money pouch!");
@@ -2095,9 +2095,9 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (!p_ptr->paralyzed &&
+					if (!p_ptr->paralyzed && (rand_int(10) > 0) &&
 					                (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                                  p_ptr->lev)))
+					                                  p_ptr->lev - m_ptr->level)))
 					{
 						/* Saving throw message */
 						msg_print("You grab hold of your backpack!");
@@ -2376,7 +2376,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Increase "blind" */
-					if (!p_ptr->resist_blind)
+					if (!p_ptr->resist_blind || (rand_int(100) < 5) )
 					{
 						if (set_blind(p_ptr->blind + 10 + randint(rlev)))
 						{
@@ -2396,7 +2396,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_conf)
+					if (!p_ptr->resist_conf || (rand_int(100) < 5) )
 					{
 						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
 						{
@@ -2416,7 +2416,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Increase "afraid" */
-					if (p_ptr->resist_fear)
+					if (p_ptr->resist_fear && (rand_int(100) > 4) )
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -2449,7 +2449,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Increase "paralyzed" */
-					if (p_ptr->free_act)
+					if (p_ptr->free_act && (rand_int(100) > 0) )
 					{
 						msg_print("You are unaffected!");
 						obvious = TRUE;
@@ -2570,7 +2570,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					if (damage > 23)
 					{
 						/* Prevent destruction of quest levels and town */
-						if (!is_quest(dun_level) && dun_level)
+						if (!is_quest(dun_level) || (is_quest(dun_level) == QUEST_RANDOM))
 							earthquake(m_ptr->fy, m_ptr->fx, 8);
 					}
 
@@ -2723,7 +2723,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Increase "image" */
-					if (!p_ptr->resist_chaos)
+					if (!p_ptr->resist_chaos || (rand_int(100) < 5) )
 					{
 						if (set_image(p_ptr->image + 3 + randint(rlev / 2)))
 						{

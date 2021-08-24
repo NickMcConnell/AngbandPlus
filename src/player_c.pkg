@@ -843,7 +843,7 @@ extern s16b get_skill_scale(int skill, u32b scale);
  * @brief Player select one of four new skills.
  * @note (see file skills.c)
  */
-extern void do_get_new_skill();
+extern void do_get_new_skill(bool princessbitch);
 
 /** @fn get_melee_skills()
  * @brief Return the number of melee skills the player has.

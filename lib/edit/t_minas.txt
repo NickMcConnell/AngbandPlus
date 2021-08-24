@@ -74,6 +74,9 @@ F:x:63:3
 F:x:8:3:0:0:0:0:0:"Library quest"
 ?:1
 
+# Altar
+F:z:166:3
+
 ############### Town Layout ###############
 
 D:######################################################################################################################################################################################################
@@ -109,7 +112,7 @@ D:#^^#####B###----OOO---#-###6#-OOO-#-##g#---OOOOOO--#######-----ssssssss-O-----
 D:#^^^#######-----OOO---#-------OOO-#---------OOOOOOOOOOOOOOOOO--###e####-O-----------                                @@VVV@@         ------OO--                                                       #
 D:#^^#######bOOOOOOOO-^^^^^^^^^^MMM^^^^^^^^^^^^OOOOOOOOOOOOOOOOOOOOOOOOOOOO-----------                              @@@VVV@@         ---OOOOOO--                                                       #
 D:#^^#######bOOOOOOO############III############^OOOOOOOOOOOOOOOOOOOOOOOOOOOOO---------                             @@VVVV@@         ---OOOOOO--                                                        #
-D:#^ #######bOOOOOOO############III############^OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO---------                            @VVVV@@        ----OOOOOO----                                                       #
+D:#^ #######bOOOzOOO############III############^OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO---------                            @VVVV@@        ----OOOOOO----                                                       #
 D:#^ #######bOOOOOOOO-^^^^^^^^^^MMM^^^^^^^^^^^^OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO-------                            @VVV@@      ------OOOO------                                                        #
 D:#^^^######Z-----OOO---#-sSss--OOO-#---------OOOOOOOOOOOOOOOOO-----------OOOOOOO------                 ---------##@VVV@## --------OOOOO-----                                                          #
 D:#^^#########----OOO---#-sSss--OOO-#-sssss--OOOOOO--#######--------sssss-O-OOOOO-----                 --OOOO-----#######--------OOOOOO-----                                                           #

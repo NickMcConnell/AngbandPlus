@@ -9,7 +9,8 @@ Bauglir are used to create the final spell effect. There are rumours of an
 "Unholy Tome of the Hellflame" which contains all the Udun school spells within
 its bindings.
 
-The Udun school is available only to worshippers of *****g_melkor.txt*0[Melkor Bauglir]. They will also
+The Udun school is available only to worshippers of *****g_melkor.txt*0[Melkor Bauglir]
+and *****g_amybso.txt*0[AmyBSOD]. They will also
 need some proficiency in the magic schools of Mana, Nature, Conveyance, and Fire
 (or alternatively Sorcery) to cast the Udun spells. On the other hand, the spell
 power of Udun spells is greatly increased by the level of the caster.

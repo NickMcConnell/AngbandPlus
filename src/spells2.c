@@ -253,7 +253,7 @@ bool do_dec_stat(int stat, int mode)
 	}
 
 	/* Sustain */
-	if (sust)
+	if (sust && rand_int(100) > 5)
 	{
 		/* Message */
 		msg_format("You feel %s for a moment, but the feeling passes.",
@@ -423,8 +423,8 @@ static int enchant_table[16] =
 {
 	0, 10, 50, 100, 200,
 	300, 400, 500, 650, 800,
-	950, 987, 993, 995, 998,
-	1000
+	900, 950, 975, 980, 990,
+	995
 };
 
 bool remove_curse_object(object_type *o_ptr, bool all)
@@ -1330,7 +1330,7 @@ void self_knowledge(FILE *fff)
 	{
 		info[i++] = "You are surrounded with electricity.";
 	}
-	if (p_ptr->antimagic)
+	if (p_ptr->antimagic > 0)
 	{
 		info[i++] = "You are surrounded by an anti-magic field.";
 	}
@@ -2849,7 +2849,7 @@ void stair_creation(void)
 		/* Town/wilderness */
 		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_MORE);
 	}
-	else if (is_quest(dun_level) || (dun_level >= MAX_DEPTH - 1))
+	else if ( (is_quest(dun_level) && (is_quest(dun_level) != QUEST_RANDOM) ) || (dun_level >= MAX_DEPTH - 1))
 	{
 		/* Quest level */
 		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
@@ -3009,7 +3009,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TOHIT))
 		{
 			if (o_ptr->to_h < 0) chance = 0;
-			else if (o_ptr->to_h > 15) chance = 1000;
+			else if (o_ptr->to_h > 15) chance = 995;
 			else chance = enchant_table[o_ptr->to_h];
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -3040,7 +3040,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TODAM))
 		{
 			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > 15) chance = 1000;
+			else if (o_ptr->to_d > 15) chance = 995;
 			else chance = enchant_table[o_ptr->to_d];
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -3072,7 +3072,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_PVAL))
 		{
 			if (o_ptr->pval < 0) chance = 0;
-			else if (o_ptr->pval > 6) chance = 1000;
+			else if (o_ptr->pval > 6) chance = 995;
 			else chance = enchant_table[o_ptr->pval * 2];
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -3103,7 +3103,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TOAC))
 		{
 			if (o_ptr->to_a < 0) chance = 0;
-			else if (o_ptr->to_a > 15) chance = 1000;
+			else if (o_ptr->to_a > 15) chance = 995;
 			else chance = enchant_table[o_ptr->to_a];
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -5532,7 +5532,7 @@ void wipe(int y1, int x1, int r)
 		msg_print("There is a searing blast of light!");
 
 		/* Blind the player */
-		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
+		if ((!p_ptr->resist_blind && !p_ptr->resist_lite) || (rand_int(100) < 5) )
 		{
 			/* Become blind */
 			(void)set_blind(p_ptr->blind + 10 + randint(10));
@@ -5677,7 +5677,7 @@ void destroy_area(int y1, int x1, int r, bool full, bool bypass)
 		msg_print("There is a searing blast of light!");
 
 		/* Blind the player */
-		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
+		if ((!p_ptr->resist_blind && !p_ptr->resist_lite) || (rand_int(100) < 5) )
 		{
 			/* Become blind */
 			(void)set_blind(p_ptr->blind + 10 + randint(10));
@@ -7428,7 +7428,7 @@ void wall_breaker(void)
 	else if (randint(100) > 30)
 	{
 		/* Prevent destruction of quest levels and town */
-		if (!is_quest(dun_level) && dun_level)
+		if (!is_quest(dun_level) || (is_quest(dun_level) == QUEST_RANDOM))
 			earthquake(p_ptr->py, p_ptr->px, 1);
 	}
 	else

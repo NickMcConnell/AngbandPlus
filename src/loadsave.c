@@ -208,7 +208,7 @@ void do_quick_start(int flag)
 	do_s16b(&previous_char.rmod, flag);
 	do_s16b(&previous_char.pclass, flag);
 	do_s16b(&previous_char.spec, flag);
-	do_byte(&previous_char.quests, flag);
+	do_s32b(&previous_char.quests, flag);
 	do_byte(&previous_char.god, flag);
 	do_s32b(&previous_char.grace, flag);
 	do_s16b(&previous_char.age, flag);
@@ -515,13 +515,13 @@ static bool do_extra(int flag)
 
 	if (flag == LS_SAVE)
 	{
-		tmp8u = MAX_RANDOM_QUEST;
+		tmp32u = MAX_RANDOM_QUEST;
 	}
-	do_byte(&tmp8u, flag);
+	do_s32b(&tmp32u, flag);
 
 	if ((flag == LS_LOAD) &&
-	                (tmp8u > MAX_RANDOM_QUEST)) quit("Too many random quests");
-	for (i = 0; i < tmp8u; i++)
+	                (tmp32u > MAX_RANDOM_QUEST)) quit("Too many random quests");
+	for (i = 0; i < tmp32u; i++)
 	{
 		do_byte(&random_quests[i].type, flag);
 		do_s16b(&random_quests[i].r_idx, flag);
@@ -692,6 +692,7 @@ static bool do_extra(int flag)
 	do_byte((byte*)&fate_flag, flag);
 	do_byte(&p_ptr->searching, flag);
 	do_byte(&p_ptr->maximize, flag);
+	do_byte(&p_ptr->lvling_system, flag);
 	do_byte(&p_ptr->preserve, flag);
 	do_byte(&p_ptr->special, flag);
 	do_byte((byte*)&ambush_flag, flag);
@@ -2168,7 +2169,7 @@ static void do_monster(monster_type *m_ptr, int flag)
 			do_byte(&m_ptr->sr_ptr->body_parts[i], flag);
 
 		do_byte(&m_ptr->sr_ptr->level, flag);
-		do_byte(&m_ptr->sr_ptr->rarity, flag);
+		do_u32b(&m_ptr->sr_ptr->rarity, flag);
 
 		do_byte((byte*)&m_ptr->sr_ptr->d_char, flag);
 		do_byte(&m_ptr->sr_ptr->d_attr, flag);
