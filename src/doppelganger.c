@@ -208,7 +208,7 @@ static void _list_forms(int ct)
     int  y = 1;
     int  x = 10;
     int  col_height = _col_height(ct);
-    int  col_width;
+    int  col_width = 0;
 
     Term_erase(x, y, 255);
 

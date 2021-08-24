@@ -142,10 +142,10 @@ B:4:A:3:Teleport to other town:500:500:m:42:0
 B:4:A:4:Ask about your reputation:1:1:a:55:0
 B:4:R:*:Member
 
-B:5:N:Beastmaster:Lorien Goldenhair:Elf
-B:5:A:0:Research monster:10000:10000:r:20:0
+B:5:N:Telmora Ferry:Lorien Goldenhair:Elf
+B:5:A:0:Thalos Ferry:500:500:r:20:0
 ?:[EQU $QUEST5 Finished]
-B:5:A:0:Research monster:1200:1200:r:20:0
+B:5:A:0:Thalos Ferry:120:120:r:20:0
 ?:1
 
 B:6:N:Weaponmaster:Suiyan the Swift:Human

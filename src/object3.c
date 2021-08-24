@@ -26,7 +26,7 @@ static double _calc_cost(double cost, int count)
     /*return cost * (1.0 + c/5.0 + c*c/25.0);*/
 }
 
-static double _check_flag_and_score(u32b flgs[OF_ARRAY_SIZE], u32b flg, u32b score, int *count)
+static s32b _check_flag_and_score(u32b flgs[OF_ARRAY_SIZE], u32b flg, u32b score, int *count)
 {
     double result = 0.0;
     if (have_flag(flgs, flg))
@@ -34,7 +34,7 @@ static double _check_flag_and_score(u32b flgs[OF_ARRAY_SIZE], u32b flg, u32b sco
         (*count)++;
         result += _calc_cost(score, *count);
     }
-    return result;
+    return (s32b)result;
 }
 
 static s32b _activation_p(u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)

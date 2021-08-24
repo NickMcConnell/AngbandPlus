@@ -382,7 +382,7 @@ void scores_update(void)
  ************************************************************************/
 static void _display(doc_ptr doc, vec_ptr scores, int top, int page_size)
 {
-    int i, j;
+    int i, j = 0;
     doc_clear(doc);
     doc_insert(doc, "<style:table>");
     doc_insert(doc, "<tab:32><color:R>High Score Listing</color>\n");

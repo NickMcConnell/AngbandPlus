@@ -448,4 +448,10 @@ W:amber
 G:KILL(metatron)
 F:q_meta.txt
 
+N:98:127:Tik'srvzllat
+T:RETAKE | INVIS
+W:angband
+G:KILL(tik'srvzllat)
+F:q_tik.txt
+
 # vim: filetype=qi :

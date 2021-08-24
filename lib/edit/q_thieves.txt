@@ -96,9 +96,6 @@ R:OBJ(katana)
 ?:[EQU $CLASS Mauler]
 R:OBJ(potion of cure critical wounds)
 
-?:[EQU $CLASS Warrior Paladin]
-R:OBJ(broad sword)
-
 ?:[EQU $CLASS Priest]
 R:OBJ(war hammer)
 

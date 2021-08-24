@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 0
 #define VER_MINOR 3
-#define VER_PATCH 0
+#define VER_PATCH 1
 #define VER_EXTRA 0
 #define VERSION_IS_DEVELOPMENT (FALSE)
 
@@ -3940,7 +3940,7 @@ extern int PlayerUID;
 #define BACT_REST                   17
 #define BACT_FOOD                   18
 #define BACT_RUMORS                 19
-#define BACT_RESEARCH_MONSTER       20
+#define BACT_THALOS_FERRY			20
 #define BACT_COMPARE_WEAPONS        21
 #define BACT_LEGENDS                22
 #define BACT_ENCHANT_WEAPON         23

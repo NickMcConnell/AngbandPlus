@@ -138,8 +138,8 @@ B:4:A:3:Teleport to other town:500:500:m:42:0
 B:4:A:4:Ask about your reputation:1:1:a:55:0
 B:4:R:*:Member
 
-B:5:N:Beastmaster:Gil the Freak:Human
-B:5:A:0:Research monster:1500:1500:r:20:0
+B:5:N:Anambar Ferry:Gil the Freak:Human
+B:5:A:0:Thalos Ferry:500:500:r:20:0
 
 B:6:N:Weaponmaster:Tomtek Hammer-Toe:Elf
 B:6:A:0:Evaluate AC:400:400:a:46:0

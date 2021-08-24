@@ -286,14 +286,11 @@ B:2:A:1:Look at poster:0:0:p:8:0
 B:2:A:2:Palace of heros:0:0:s:11:0
 
 B:3:N:Library:Astinus:Human?
-B:3:A:0:Research item:1500:1500:a:1:0
+B:3:A:0:Research item:150:150:a:1:0
 ?:[EQU $QUEST5 Finished]
-B:3:A:0:Research item:750:750:a:1:0
+B:3:A:0:Research item:25:25:a:1:0
 ?:1
 B:3:A:1:Town Overview:0:0:h:2:0
-B:3:A:2:Research monster:10000:10000:r:20:0
-?:[EQU $QUEST5 Finished]
-B:3:A:2:Research monster:1200:1200:r:20:0
 ?:1
 
 B:4:N:Chaos Tower:Xeno:Beastman

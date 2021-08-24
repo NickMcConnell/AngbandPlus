@@ -1812,12 +1812,13 @@ P:25:2d4:0:0
 D:A full suit of carefully fitted plates, with hinged joints backed
 D:by chain, and light padding underneath.
 
-N:*:Knight Armor~
-G:[:r
+N:*:Deluxe Steel Plate Armor~
+G:[:W
 I:37:18:0
 W:50:0:0:380:1500
 A:50/1
 P:28:2d4:0:0
+D:It's new and improved
 
 N:*:Mithril Chain Mail~
 G:[:B

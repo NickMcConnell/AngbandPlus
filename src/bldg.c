@@ -3371,6 +3371,36 @@ static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_
     }
 }
 
+/* Get to Thalos easier */
+static bool thalos_ferry(void)
+{
+	int i, x, y;
+
+	screen_save();
+	clear_bldg(4, 10);
+	for (y = 0; y < max_wild_y; y++)
+	{
+		for (x = 0; x < max_wild_x; x++)
+		{
+			if (wilderness[y][x].town == TOWN_THALOS)
+			{
+				p_ptr->wilderness_y = y;
+				p_ptr->wilderness_x = x;
+
+				p_ptr->wilderness_dx = 0;
+				p_ptr->wilderness_dy = 0;
+			}
+		}
+	}
+
+	p_ptr->leaving = TRUE;
+	leave_bldg = TRUE;
+	p_ptr->teleport_town = TRUE;
+	screen_load();
+	msg_print("You ride the ferry all the way to Thalos");
+	return TRUE;
+}
+
 bool tele_town(void)
 {
     int i, x, y;
@@ -3397,7 +3427,7 @@ bool tele_town(void)
         char buf[80];
 
         if (i == p_ptr->town_num) continue;
-        if ((num) && (easy_thalos) && (i == TOWN_THALOS)) town_on_visit(i); /* Make people not hate me */
+        
         if (!town_visited(i) && !p_ptr->wizard) continue;
 
         sprintf(buf,"%c) %-20s", I2A(i-1), town_name(i));
@@ -3884,8 +3914,8 @@ static void bldg_process_command(building_type *bldg, int i)
     case BACT_FOOD:
         paid = inn_comm(bact);
         break;
-    case BACT_RESEARCH_MONSTER:
-        paid = research_mon();
+    case BACT_THALOS_FERRY:
+        paid = thalos_ferry();
         break;
     case BACT_COMPARE_WEAPONS:
     /*    paid = compare_weapons(); */

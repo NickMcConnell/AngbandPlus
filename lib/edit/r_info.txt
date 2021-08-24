@@ -15683,7 +15683,7 @@ P:Speed:+7
 
 N:871:Metal Babble
 G:j:s
-I:190:3d2:200:10000:0:2
+I:100:3d2:200:10000:0:2
 W:80:30:999:400000:0:0
 B:HIT:DISENCHANT(1d10)
 B:HIT:DISENCHANT(1d10)
@@ -19831,7 +19831,7 @@ D:A giant ant with a greatly enlarged mandibular gland.
 
 N:1110:Metal Babble
 G:j:s
-I:190:3d2:200:10000:0:2
+I:100:3d2:200:10000:0:2
 W:80:10:999:400000:0:0
 B:HIT:DISENCHANT(1d10)
 B:HIT:DISENCHANT(1d10)
@@ -23727,8 +23727,8 @@ B:PUNCH:HURT(10d5)
 B:PUNCH:HURT(10d5)
 B:CRUSH:HURT(3d10)
 B:CRUSH:HURT(3d10)
-F:DROP_1D2 | FRIENDS(3d4) | MOVE_BODY | RES_ACID
-F:COLD_BLOOD | REGENERATE | KILL_WALL | KILL_ITEM
+F:DROP_1D2 | KILL_WALL | MOVE_BODY | RES_ACID
+F:COLD_BLOOD | KILL_ITEM
 F:NO_FEAR | NO_CONF | HURT_FIRE | RES_WATE
 F:NO_STUN | NO_SLEEP | WEIRD_MIND | FORCE_MAXHP
 D:Ents are not altogether on anybody's side, because nobody is altogether on
@@ -24267,6 +24267,70 @@ P:Body:Hound
 S:FREQ_5 | BO_WATER | DETECT_MONSTERS
 D:Liquid footprints follow this hound as it pads around the dungeon. An
 D:salty smell of the sea rises from the dog's pelt.
+
+# I: speed : hit points : vision : armor class : alertness : weight (lbs)
+# W: depth : rarity : max_depth : exp : next_exp : next_mon
+# B: attack method : attack effect : damage
+
+N:1335:Tomte
+G:h:b
+I:110:14d8:30:30:6:130
+W:9:1:1400:25:30:1336
+B:HIT:HURT(3d4)
+F:MALE | AQUATIC | SMART | DROP_CORPSE |
+F:FRIENDS | DROP_60 | HAS_LITE_1
+P:Copy:Tomte:Warrior
+D:A sleek form vaguely shaped like a dolphin, except with a humanoid 
+D:head and arms. The facial features are decidedly elven. 
+
+N:1336:Tomte warrior
+G:h:b
+I:110:20d8:40:35:5:140
+W:10:1:1500:35:30:1337
+B:HIT:HURT(4d4)
+B:HIT:HURT(4d4)
+F:MALE | AQUATIC | FRIENDS | SMART | DROP_60 | DROP_CORPSE
+F:HAS_LITE_1
+P:Copy:Tomte:Warrior
+D:An aquatic elf trained in all forms of combat. 
+
+N:1337:Tomte shaman
+G:h:b
+I:110:12d8:30:30:6:130
+W:10:1:1400:35:0:0
+B:TOUCH:DISENCHANT
+F:MALE | AQUATIC | SMART | DROP_2D2 | DROP_CORPSE
+F:HAS_LITE_1
+S:1_IN_12 |
+S:BO_MANA | BO_COLD | S_MONSTER(1d1)
+P:Copy:Tomte:Mage
+D:A wizened aquatic elf skilled in the magical arts. You can see an 
+D:iridescent film coating the water around him. 
+
+N:1338:Tik'srvzllat
+G:G:v
+I:142:180d100:200:170:0:0
+W:127:2:1000:350000:0:0
+B:GAZE:DISENCHANT(10d10)
+B:GAZE:TIME(10d10)
+B:GAZE:CONFUSE(10d10)
+B:GAZE:CONFUSE(10d5)
+F:UNIQUE | FORCE_MAXHP | ELDRITCH_HORROR | 
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | WEIRD_MIND | FORCE_DEPTH
+F:EVIL | UNDEAD | IM_COLD | IM_FIRE | IM_ACID | IM_ELEC | AURA_COLD |
+F:IM_POIS | RES_NETH | RES_SHAR
+S:1_IN_2 | 
+S:S_UNDEAD | S_DEMON | S_DRAGON | 
+S:S_UNIQUE | S_AMBERITE | S_HI_DEMON | 
+S:S_HI_UNDEAD | S_HI_DRAGON | S_KIN | 
+S:BR_DISENCHANT | BA_NETHER
+D:A disembodied and barely sentient mind, Tik'srvzllat floated 
+D:through the void for eons before being awakened by sorcery, pulled 
+D:into the nether realm, and shaped into the being you see before you.  
+D:A flickering purple outline of a sphere, with eerie yellow-purple 
+D:mist circling rapidly around it, Tik'srvzllat threatens your sanity 
+D:with its appearance alone. 
 
 # New monsters for Oposband 0.3
 #Gnome trickster (shoot, traps, blink, otherwise annoy)

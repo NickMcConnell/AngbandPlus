@@ -5451,7 +5451,7 @@ bool lp_player(int num)
     {
         if (p_ptr->pclass != CLASS_MONSTER)
         {
-            int which;
+            int which = -1;
             switch (randint1(5))
             {
             case 1: which = RACE_VAMPIRE; break;
@@ -6178,7 +6178,7 @@ int take_hit(int damage_type, int damage, cptr hit_from)
     }
 
     
-	if (show_damage & damage > 0)
+	if (show_damage && damage > 0)
 	{
 		if (hit_from == "poison")
 			msg_format("(<color:g>Poison: %d</color>)", damage);

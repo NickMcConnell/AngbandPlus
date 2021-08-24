@@ -1937,7 +1937,10 @@ static cptr do_sorcery_spell(int spell, int mode)
 				int power = spell_power(p_ptr->lev * 2);
 				if (!get_fire_dir(&dir)) return NULL;
 
-				slow_monster(dir, power);
+				/* Slow monsters powerfully */
+				int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
+				project_hook(GF_OLD_SLOW, dir, power, flg);
+
 				stun_monster(dir, 5 + p_ptr->lev / 5);
             }
         }
@@ -4154,10 +4157,10 @@ static cptr do_trump_spell(int spell, int mode)
 
             if (cast)
             {
-                if (TRUE || get_check("Are you sure you wish to shuffle?"))
+                /*if (TRUE || get_check("Are you sure you wish to shuffle?"))*/
                     cast_shuffle();
-                else
-                    return NULL;
+                /*else
+                    return NULL;*/
             }
         }
         break;

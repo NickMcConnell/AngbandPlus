@@ -355,7 +355,6 @@ extern bool no_artifacts;
 extern bool no_egos;
 extern bool no_selling;
 extern bool enable_virtues;
-extern bool easy_thalos;
 extern bool never_forget;
 extern bool no_nexus_warp;
 extern bool no_scrambling;

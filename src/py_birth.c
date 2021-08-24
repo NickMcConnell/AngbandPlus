@@ -2159,10 +2159,7 @@ static cptr _stat_desc(int stat)
     static char buf[10];
     if (stat < 3) stat = 3;
     if (stat > 40) stat = 40;
-    if (stat < 19)
-        sprintf(buf, "%2d", stat);
-    else
-        sprintf(buf, "18/%d", 10 * (stat - 18));
+    sprintf(buf, "%2d", stat);
     return buf;
 }
 

@@ -2513,13 +2513,10 @@ option_type option_info[] =
 	"coffee_break",			"Coffee-break mode (accelerated game) (*)" },
 
 	{ &no_id,			FALSE, OPT_PAGE_BIRTH, 6, 31,
-	"no_id",			"No ID is needed" },
+	"no_id",			"No ID is needed (*)" },
 
 	{ &power_tele,			FALSE, OPT_PAGE_BIRTH, 6, 6,
 	"power_tele",			"Use enhanced telepathy" },
-
-	{ &easy_thalos,			TRUE, OPT_PAGE_BIRTH, 6, 28,
-	"easy_thalos",			"Allow easy teleportation to Thalos (*)" },
 
 	{ &never_forget,		FALSE, OPT_PAGE_BIRTH, 6, 27,
 	"never_forget",			"Easy Labyrinth and no amnesia" },
