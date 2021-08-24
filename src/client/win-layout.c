@@ -3,7 +3,7 @@
  * Purpose: Shape an initial or default display on windows systems.
  *
  * Copyright (c) 2012 Brett Reid
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -22,8 +22,8 @@
 #include "../win/win-term.h"
 
 
-bool use_graphics_nice = TRUE;
-int use_graphics = GRAPHICS_NONE;
+bool arg_graphics_nice = true;
+int arg_graphics = GRAPHICS_NONE;
 
 
 /*
@@ -40,7 +40,7 @@ int use_graphics = GRAPHICS_NONE;
  * Just a big list of what to do for a specific screen resolution.
  *
  * Note: graphics modes are hardcoded, using info from
- * angband/lib/xtra/graf/graphics.txt at the time of this writing
+ * angband/lib/tiles/graphics.txt at the time of this writing
  *
  * Return values:    0 - Success
  *                  -1 - Invalid argument
@@ -76,8 +76,8 @@ int default_layout_win(term_data *data, int maxterms)
 
     if ((sx == 1024) && (sy == 768))
     {
-        use_graphics = GRAPHICS_32x32;
-        use_graphics_nice = FALSE;
+        arg_graphics = GRAPHICS_32x32;
+        arg_graphics_nice = false;
         tile_width = 4;
         tile_height = 2;
 
@@ -169,8 +169,8 @@ int default_layout_win(term_data *data, int maxterms)
     }
     if ((sx == 1280) && (sy == 1024))
     {
-        use_graphics = GRAPHICS_64x64;
-        use_graphics_nice = 0;
+        arg_graphics = GRAPHICS_64x64;
+        arg_graphics_nice = 0;
         tile_width = 4;
         tile_height = 2;
 
@@ -353,8 +353,8 @@ int default_layout_win(term_data *data, int maxterms)
     }
 
     /* Setup main window */
-    use_graphics = mode;
-    use_graphics_nice = FALSE;
+    arg_graphics = mode;
+    arg_graphics_nice = false;
     tile_width = mult_wid;
     tile_height = mult_hgt;
 

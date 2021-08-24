@@ -2,8 +2,8 @@
  * File: parser.c
  * Purpose: Info file parser
  *
- * Copyright (c) 2011 Elly <elly+angband@leptoquark.net>
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2011 elly+angband@leptoquark.net
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,7 +19,6 @@
 
 
 #include "angband.h"
-#include "parser.h"
 
 
 /*
@@ -33,34 +32,12 @@
  */
 
 
-const char *parser_error_str[PARSE_ERROR_MAX] =
+const char *parser_error_str[PARSE_ERROR_MAX + 1] =
 {
-    "(none)",
-    "generic error",
-    "invalid flag",
-    "invalid item number",
-    "invalid spell frequency",
-    "invalid value",
-    "invalid colour",
-    "invalid effect",
-    "invalid option",
-    "missing field",
-    "missing record header",
-    "field too long",
-    "non-sequential records",
-    "not a number",
-    "not random",
-    "obsolete file",
-    "out of bounds",
-    "out of memory",
-    "too few entries",
-    "too many entries",
-    "undefined directive",
-    "unrecognized blow",
-    "unrecognized tval",
-    "unrecognized sval",
-    "vault too big",
-    "internal error"
+    #define PARSE_ERROR(a, b) b,
+    #include "list-parser-errors.h"
+    #undef PARSE_ERROR
+    NULL
 };
 
 
@@ -122,6 +99,9 @@ struct parser
 };
 
 
+/*
+ * Allocates a new parser.
+ */
 struct parser *parser_new(void)
 {
     struct parser *p = mem_zalloc(sizeof(*p));
@@ -162,7 +142,7 @@ static void parser_freeold(struct parser *p)
 
 static bool parse_random(const char *str, random_value *bonus)
 {
-    bool negative = FALSE;
+    bool negative = false;
     char buffer[50];
     int i = 0, b, dn, ds, mb;
     const char end_chr = '|';
@@ -171,7 +151,7 @@ static bool parse_random(const char *str, random_value *bonus)
     /* Entire value may be negated */
     if (str[0] == '-')
     {
-        negative = TRUE;
+        negative = true;
         i++;
     }
 
@@ -179,7 +159,7 @@ static bool parse_random(const char *str, random_value *bonus)
     my_strcpy(buffer, &str[i], N_ELEMENTS(buffer) - 2);
 
     /* Check for invalid negative numbers */
-    if (NULL != strstr(buffer, "-")) return FALSE;
+    if (NULL != strstr(buffer, "-")) return false;
 
     /*
      * Add a sentinal value at the end of the string.
@@ -238,7 +218,7 @@ static bool parse_random(const char *str, random_value *bonus)
         mb = 0;
     }
     else
-        return FALSE;
+        return false;
 
     /* Assign the values */
     bonus->base = b;
@@ -257,11 +237,15 @@ static bool parse_random(const char *str, random_value *bonus)
         bonus->base -= bonus->dice * (bonus->sides + 1);
     }
 
-    return TRUE;
+    return true;
 }
 
 
-/* This is a bit long and should probably be refactored a bit. */
+/*
+ * Parses the provided line.
+ *
+ * This runs the first parser hook registered with `p` that matches `line`.
+ */
 enum parser_error parser_parse(struct parser *p, const char *line)
 {
     char *cline;
@@ -349,14 +333,13 @@ enum parser_error parser_parse(struct parser *p, const char *line)
             break;
         }
 
-        /*
-         * Allocate a value node, parse out its value, and link it into
-         * the value list.
-         */
+        /* Allocate a value node. */
         v = mem_alloc(sizeof(*v));
         v->spec.next = NULL;
         v->spec.type = s->type;
         v->spec.name = s->name;
+
+        /* Parse out its value. */
         if (t == PARSE_T_INT)
         {
             char *z = NULL;
@@ -403,6 +386,8 @@ enum parser_error parser_parse(struct parser *p, const char *line)
                 return PARSE_ERROR_NOT_RANDOM;
             }
         }
+
+        /* Link it into the value list. */
         if (!p->fhead)
             p->fhead = v;
         else
@@ -417,12 +402,20 @@ enum parser_error parser_parse(struct parser *p, const char *line)
 }
 
 
+/*
+ * Gets parser's private data.
+ */
 void *parser_priv(struct parser *p)
 {
     return p->priv;
 }
 
 
+/*
+ * Sets parser's private data.
+ *
+ * This is commonly used to store context for stateful parsing.
+ */
 void parser_setpriv(struct parser *p, void *v)
 {
     p->priv = v;
@@ -464,6 +457,9 @@ static void clean_specs(struct parser_hook *h)
 }
 
 
+/*
+ * Destroys a parser.
+ */
 void parser_destroy(struct parser *p)
 {
     struct parser_hook *h;
@@ -545,8 +541,20 @@ static errr parse_specs(struct parser_hook *h, char *fmt)
     return 0;
 }
 
-errr parser_reg(struct parser *p, const char *fmt,
-    enum parser_error (*func)(struct parser *p))
+
+/*
+ * Registers a parser hook.
+ *
+ * Hooks have the following format:
+ *   <fmt>  ::= <name> [<type> <name>]* [?<type> <name>]*
+ *   <type> ::= int | str | sym | rand | char
+ * The first <name> is called the directive for this hook. Any other hooks with
+ * the same directive are superseded by this hook. It is an error for a
+ * mandatory field to follow an optional field. It is an error for any field to
+ * follow a field of type `str`, since `str` fields are not delimited and will
+ * consume the entire rest of the line.
+ */
+errr parser_reg(struct parser *p, const char *fmt, enum parser_error (*func)(struct parser *p))
 {
     errr r;
     char *cfmt;
@@ -574,22 +582,30 @@ errr parser_reg(struct parser *p, const char *fmt,
 }
 
 
+/*
+ * A placeholder parse hook indicating a value is ignored
+ */
 enum parser_error ignored(struct parser *p)
 {
     return PARSE_ERROR_NONE;
 }
 
 
+/*
+ * Returns whether the parser has a value named `name`.
+ *
+ * Used to test for presence of optional values.
+ */
 bool parser_hasval(struct parser *p, const char *name)
 {
     struct parser_value *v;
 
     for (v = p->fhead; v; v = (struct parser_value *)v->spec.next)
     {
-        if (!strcmp(v->spec.name, name)) return TRUE;
+        if (!strcmp(v->spec.name, name)) return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -606,6 +622,9 @@ static struct parser_value *parser_getval(struct parser *p, const char *name)
 }
 
 
+/*
+ * Returns the symbol named `name`. This symbol must exist.
+ */
 const char *parser_getsym(struct parser *p, const char *name)
 {
     struct parser_value *v = parser_getval(p, name);
@@ -615,6 +634,9 @@ const char *parser_getsym(struct parser *p, const char *name)
 }
 
 
+/*
+ * Returns the integer named `name`. This symbol must exist.
+ */
 int parser_getint(struct parser *p, const char *name)
 {
     struct parser_value *v = parser_getval(p, name);
@@ -624,6 +646,9 @@ int parser_getint(struct parser *p, const char *name)
 }
 
 
+/*
+ * Returns the unsigned integer named `name`. This symbol must exist.
+ */
 unsigned int parser_getuint(struct parser *p, const char *name)
 {
     struct parser_value *v = parser_getval(p, name);
@@ -633,6 +658,9 @@ unsigned int parser_getuint(struct parser *p, const char *name)
 }
 
 
+/*
+ * Returns the string named `name`. This symbol must exist.
+ */
 const char *parser_getstr(struct parser *p, const char *name)
 {
     struct parser_value *v = parser_getval(p, name);
@@ -642,6 +670,9 @@ const char *parser_getstr(struct parser *p, const char *name)
 }
 
 
+/*
+ * Returns the random value named `name`. This symbol must exist.
+ */
 struct random parser_getrand(struct parser *p, const char *name)
 {
     struct parser_value *v = parser_getval(p, name);
@@ -651,6 +682,9 @@ struct random parser_getrand(struct parser *p, const char *name)
 }
 
 
+/*
+ * Returns the character named `name`. This symbol must exist.
+ */
 char parser_getchar(struct parser *p, const char *name)
 {
     struct parser_value *v = parser_getval(p, name);
@@ -660,6 +694,10 @@ char parser_getchar(struct parser *p, const char *name)
 }
 
 
+/*
+ * Fills the provided struct with the parser's state, if any. Returns true if
+ * the parser is in an error state, and false otherwise.
+ */
 int parser_getstate(struct parser *p, struct parser_state *s)
 {
     s->error = p->error;
@@ -670,6 +708,9 @@ int parser_getstate(struct parser *p, struct parser_state *s)
 }
 
 
+/*
+ * Sets the parser's detailed error description and field number.
+ */
 void parser_setstate(struct parser *p, unsigned int col, const char *msg)
 {
     p->colno = col;
@@ -712,7 +753,24 @@ errr run_parser(struct file_parser *fp)
 }
 
 
-/* The basic file parsing function */
+/*
+ * The basic file parsing function. Attempt to load filename through
+ * parser and perform a quit if the file is not found.
+ */
+errr parse_file_quit_not_found(struct parser *p, const char *filename)
+{
+    errr parse_err = parse_file(p, filename);
+
+    if (parse_err == PARSE_ERROR_NO_FILE_FOUND)
+        quit_fmt("Cannot open '%s.txt'", filename);
+
+    return parse_err;
+}
+
+
+/*
+ * The basic file parsing function.
+ */
 errr parse_file(struct parser *p, const char *filename)
 {
     char path[MSG_LEN];
@@ -720,9 +778,21 @@ errr parse_file(struct parser *p, const char *filename)
     ang_file *fh;
     errr r = 0;
 
-    path_build(path, sizeof(path), ANGBAND_DIR_EDIT, format("%s.txt", filename));
+    /* The player can put a customised file in the user directory */
+    path_build(path, sizeof(path), ANGBAND_DIR_USER, format("%s.txt", filename));
     fh = file_open(path, MODE_READ, FTYPE_TEXT);
-    if (!fh) quit(format("Cannot open '%s.txt'", filename));
+
+    /* If no custom file, just load the standard one */
+    if (!fh)
+    {
+        path_build(path, sizeof(path), ANGBAND_DIR_GAMEDATA, format("%s.txt", filename));
+        fh = file_open(path, MODE_READ, FTYPE_TEXT);
+    }
+
+    /* File wasn't found, return the error */
+    if (!fh) return PARSE_ERROR_NO_FILE_FOUND;
+
+    /* Parse it */
     while (file_getl(fh, buf, sizeof(buf)))
     {
         r = parser_parse(p, buf);
@@ -750,6 +820,214 @@ int lookup_flag(const char **flag_table, const char *flag_name)
     if (!flag_table[i]) i = FLAG_END;
 
     return i;
+}
+
+
+/*
+ * Gets a name and argument for a value expression of the form NAME[arg]
+ *
+ * name_and_value is the expression
+ * string is the random value string to return (NULL if not required)
+ * num is the integer to return (NULL if not required)
+ */
+static bool find_value_arg(char *value_name, char *string, int *num)
+{
+    char *t;
+
+    /* Find the first bracket */
+    for (t = value_name; *t && (*t != '['); ++t);
+
+    /* Choose random_value value or int or fail */
+    if (string)
+    {
+        /* Get the dice */
+        if (1 != sscanf(t + 1, "%s", string))
+            return false;
+    }
+    else if (num)
+    {
+        /* Get the value */
+        if (1 != sscanf(t + 1, "%d", num))
+            return false;
+    }
+    else
+        return false;
+
+    /* Terminate the string */
+    *t = '\0';
+
+    /* Success */
+    return true;
+}
+
+
+/*
+ * Get the random value argument from a value expression and put it into the
+ * appropriate place in an array
+ *
+ * value the target array of values
+ * value_type the possible value strings
+ * name_and_value the value expression being matched
+ *
+ * Returns 0 if successful, otherwise an error value
+ */
+errr grab_rand_value(random_value *value, const char **value_type, const char *name_and_value)
+{
+    int i = 0;
+    char value_name[NORMAL_WID];
+    char dice_string[40];
+
+    /* Get a rewritable string */
+    my_strcpy(value_name, name_and_value, strlen(name_and_value));
+
+    /* Parse the value expression */
+    if (!find_value_arg(value_name, dice_string, NULL))
+        return PARSE_ERROR_INVALID_VALUE;
+
+    while (value_type[i] && !streq(value_type[i], value_name))
+        i++;
+
+    if (value_type[i])
+    {
+        dice_t *dice = dice_new();
+
+        if (!dice_parse_string(dice, dice_string))
+        {
+            dice_free(dice);
+            return PARSE_ERROR_NOT_RANDOM;
+        }
+        dice_random_value(dice, NULL, &value[i]);
+        dice_free(dice);
+    }
+
+    return (value_type[i]? PARSE_ERROR_NONE: PARSE_ERROR_INTERNAL);
+}
+
+
+/*
+ * Get the integer argument from a value expression and put it into the
+ * appropriate place in an array
+ *
+ * value the target array of integers
+ * value_type the possible value strings
+ * name_and_value the value expression being matched
+ *
+ * Returns 0 if successful, otherwise an error value
+ */
+errr grab_int_value(int *value, const char **value_type, const char *name_and_value)
+{
+    int val, i = 0;
+    char value_name[NORMAL_WID];
+
+    /* Get a rewritable string */
+    my_strcpy(value_name, name_and_value, strlen(name_and_value));
+
+    /* Parse the value expression */
+    if (!find_value_arg(value_name, NULL, &val))
+        return PARSE_ERROR_INVALID_VALUE;
+
+    while (value_type[i] && !streq(value_type[i], value_name))
+        i++;
+
+    if (value_type[i])
+        value[i] = val;
+
+    return (value_type[i]? PARSE_ERROR_NONE: PARSE_ERROR_INTERNAL);
+}
+
+
+/*
+ * Get the integer argument from a value expression and the index in the
+ * value_type array of the suffix used to build the value string
+ *
+ * value the integer value
+ * index the information on where to put it (eg array index)
+ * value_type the variable suffix of the possible value strings
+ * prefix the constant prefix of the possible value strings
+ * name_and_value the value expression being matched
+ *
+ * Returns 0 if successful, otherwise an error value
+ */
+errr grab_index_and_int(int *value, int *index, const char **value_type, const char *prefix,
+    const char *name_and_value)
+{
+    int i;
+    char value_name[NORMAL_WID];
+    char value_string[NORMAL_WID];
+
+    /* Get a rewritable string */
+    my_strcpy(value_name, name_and_value, strlen(name_and_value));
+
+    /* Parse the value expression */
+    if (!find_value_arg(value_name, NULL, value))
+        return PARSE_ERROR_INVALID_VALUE;
+
+    /* Compose the value string and look for it */
+    for (i = 0; value_type[i]; i++)
+    {
+        my_strcpy(value_string, prefix, sizeof(value_string));
+        my_strcat(value_string, value_type[i], sizeof(value_string) - strlen(value_string));
+        if (streq(value_string, value_name)) break;
+    }
+
+    if (value_type[i])
+        *index = i;
+
+    return (value_type[i]? PARSE_ERROR_NONE: PARSE_ERROR_INTERNAL);
+}
+
+
+errr grab_name(const char *from, const char *what, const char *list[], int max, int *num)
+{
+    int i;
+
+    /* Scan list */
+    for (i = 0; i < max; i++)
+    {
+        if (list[i] && streq(what, list[i]))
+        {
+            *num = i;
+            return PARSE_ERROR_NONE;
+        }
+    }
+
+    /* Oops */
+    plog_fmt("Unknown %s '%s'.", from, what);
+
+    /* Error */
+    return PARSE_ERROR_GENERIC;
+}
+
+
+/*
+ * Get the integer argument from a slay value expression and the monster base
+ * name it is slaying
+ *
+ * value the integer value
+ * base the monster base name
+ * name_and_value the value expression being matched
+ *
+ * Returns 0 if successful, otherwise an error value
+ */
+errr grab_base_and_int(int *value, char **base, const char *name_and_value)
+{
+    char value_name[NORMAL_WID];
+
+    /* Get a rewritable string */
+    my_strcpy(value_name, name_and_value, strlen(name_and_value));
+
+    /* Parse the value expression */
+    if (!find_value_arg(value_name, NULL, value))
+        return PARSE_ERROR_INVALID_VALUE;
+
+    /* Must be a slay */
+    if (strncmp(value_name, "SLAY_", 5))
+        return PARSE_ERROR_INVALID_VALUE;
+
+    *base = string_make(value_name + 5);
+
+    /* If we've got this far, assume it's a valid monster base name */
+    return PARSE_ERROR_NONE;
 }
 
 

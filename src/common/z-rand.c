@@ -3,7 +3,7 @@
  * Purpose: A Random Number Generator for Angband
  *
  * Copyright (c) 1997 Ben Harrison, Randy Hutson
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * See below for copyright on the WELL random number generator.
  *
@@ -33,10 +33,10 @@
  * algorithm, used with permission. See below for copyright information
  * about the WELL implementation.
  *
- * To use of the "simple" RNG, activate it via "Rand_quick = TRUE" and
+ * To use of the "simple" RNG, activate it via "Rand_quick = true" and
  * "Rand_value = seed". After that it will be automatically used instead of
  * the "complex" RNG. When you are done, you can de-activate it via
- * "Rand_quick = FALSE". You can also choose a new seed.
+ * "Rand_quick = false". You can also choose a new seed.
  */
 
 /*
@@ -95,7 +95,7 @@ static u32b WELLRNG1024a(void)
 /*
  * Whether to use the simple RNG or not
  */
-bool Rand_quick = TRUE;
+bool Rand_quick = true;
 
 
 /*
@@ -128,6 +128,28 @@ void Rand_state_init(u32b seed)
 
         /* Advance the index */
         state_i = j;
+    }
+}
+
+
+/*
+ * Initialize the RNG
+ */
+void Rand_init(void)
+{
+    /* Init RNG */
+    if (Rand_quick)
+    {
+        u32b seed;
+
+        /* Basic seed */
+        seed = (time(NULL));
+
+        /* Use the complex RNG */
+        Rand_quick = false;
+
+        /* Seed the "complex" RNG */
+        Rand_state_init(seed);
     }
 }
 
@@ -315,7 +337,7 @@ s16b Rand_normal(int mean, int stand)
  */
 u32b Rand_simple(u32b m)
 {
-    static bool initialized = FALSE;
+    static bool initialized = false;
     static u32b simple_rand_value;
     bool old_rand_quick;
     u32b old_rand_value;
@@ -326,7 +348,7 @@ u32b Rand_simple(u32b m)
     old_rand_value = Rand_value;
 
     /* Use "simple" RNG */
-    Rand_quick = TRUE;
+    Rand_quick = true;
 
     if (initialized)
     {
@@ -337,7 +359,7 @@ u32b Rand_simple(u32b m)
     {
         /* Initialize with new seed */
         Rand_value = time(NULL);
-        initialized = TRUE;
+        initialized = true;
     }
 
     /* Get a random number */
@@ -458,10 +480,10 @@ s16b m_bonus(int max, int level)
     int bonus, stand, value;
 
     /* Make sure level is reasonable */
-    if (level >= MAX_DEPTH) level = MAX_DEPTH - 1;
+    if (level >= MAX_RAND_DEPTH) level = MAX_RAND_DEPTH - 1;
 
-    /* The bonus approaches max as level approaches MAX_DEPTH */
-    bonus = simulate_division(max * level, MAX_DEPTH);
+    /* The bonus approaches max as level approaches MAX_RAND_DEPTH */
+    bonus = simulate_division(max * level, MAX_RAND_DEPTH);
 
     /* The standard deviation is 1/4 of the max */
     stand = simulate_division(max, 4);
@@ -486,7 +508,7 @@ s16b m_bonus_calc(int max, int level, aspect bonus_aspect)
         case MAXIMISE: return max;
         case RANDOMISE: return m_bonus(max, level);
         case MINIMISE: return 0;
-        case AVERAGE: return max * level / MAX_DEPTH;
+        case AVERAGE: return max * level / MAX_RAND_DEPTH;
     }
 
     return 0;
@@ -511,12 +533,12 @@ int randcalc(random_value v, int level, aspect rand_aspect)
 bool randcalc_valid(random_value v, int test)
 {
     if (test < randcalc(v, 0, MINIMISE))
-        return FALSE;
+        return false;
 
     if (test > randcalc(v, 0, MAXIMISE))
-        return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 
 
@@ -583,8 +605,8 @@ u32b Rand_test(u32b seed)
     randstate_i = state_i;
     for (i = 0; i < RAND_DEG; i++) randstate[i] = STATE[i];
 
-    /* Initialise to a known state */
-    Rand_quick = FALSE;
+    /* Initialize to a known state */
+    Rand_quick = false;
     Rand_value = 0;
     state_i = 0;
     Rand_state_init(seed);

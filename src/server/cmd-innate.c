@@ -2,7 +2,7 @@
  * File: cmd-innate.c
  * Purpose: Innate casting
  *
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -18,72 +18,99 @@
  
 
 #include "s-angband.h"
-#include "cmds.h"
-#include "monster/mon-spell.h"
-#include "s-spells.h"
 
 
 /*
  * Use a ghostly ability.
  */
-void do_cmd_ghost(int Ind, int ability, int dir)
+void do_cmd_ghost(struct player *p, int ability, int dir)
 {
-    player_type *p_ptr = player_get(Ind);
-    magic_type *s_ptr;
-    int plev = p_ptr->lev;
-    const char *pself = player_self(p_ptr);
-    int j;
+    struct player_class *c = player_id2class(CLASS_GHOST);
+    const struct class_book *book = &c->magic.books[0];
+    int spell_index;
+    struct class_spell *spell;
+    const char *pself = player_self(p);
 
     /* Check for ghost-ness */
-    if (!p_ptr->ghost || player_can_undead(p_ptr)) return;
+    if (!p->ghost || player_can_undead(p)) return;
 
     /* Not when confused */
-    if (p_ptr->timed[TMD_CONFUSED])
+    if (p->timed[TMD_CONFUSED])
     {
-        msg(p_ptr, "You are too confused!");
+        msg(p, "You are too confused!");
         return;
     }
 
     /* Set the ability number */
-    if (ability < PY_MAX_SPELLS)
-        j = ability;
+    if (ability < c->magic.total_spells)
+    {
+        spell_index = ability;
+
+        /* Access the ability */
+        spell = &book->spells[spell_index];
+    }
     else
     {
-        j = ability - PY_MAX_SPELLS;
+        spell_index = ability - c->magic.total_spells;
+
+        /* Access the ability */
+        spell = &book->spells[spell_index];
 
         /* Projected spells */
-        if (!ghost_spell_projs[j])
+        if (!spell->sproj)
         {
-            msg(p_ptr, "You cannot project that ability.");
+            msg(p, "You cannot project that ability.");
             return;
         }
     }
 
-    /* Access the ability */
-    s_ptr = &ghost_spells[j];
-
     /* Check for level */
-    if (s_ptr->slevel > plev)
+    if (spell->slevel > p->lev)
     {
         /* Message */
-        msg(p_ptr, "You aren't powerful enough to use that ability.");
+        msg(p, "You aren't powerful enough to use that ability.");
         return;
     }
 
+    /* Set current spell and inscription */
+    p->current_spell = spell_index;
+    p->current_item = 0;
+
+    /* Only fire in direction 5 if we have a target */
+    if ((dir == 5) && !target_okay(p)) return;
+
+    /* Projected */
+    if (ability >= c->magic.total_spells)
+    {
+        project_aimed(p, NULL, GF_PROJECT, dir, spell_index,
+            PROJECT_STOP | PROJECT_KILL | PROJECT_PLAY, "killed");
+    }
+
     /* Cast the spell */
-    if (!cast_ghost_spell(p_ptr, ability, dir)) return;
+    else
+    {
+        bool ident = false;
+        struct beam_info beam;
+
+        fill_beam_info(p, spell_index, &beam);
+
+        if (spell->effect && spell->effect->other_msg)
+            msg_print_near(p, MSG_PY_SPELL, spell->effect->other_msg);
+        if (!effect_do(p, spell->effect, &ident, true, dir, &beam, 0, 0, NULL, NULL))
+            return;
+    }
 
     /* Take a turn */
-    use_energy(Ind);
+    use_energy(p);
 
     /* Too much can kill you */
-    strnfmt(p_ptr->died_flavor, sizeof(p_ptr->died_flavor),
-        "exhausted %s with ghostly spells", pself);
-    if (p_ptr->exp < s_ptr->slevel * s_ptr->smana)
-        take_hit(p_ptr, 5000, "the strain of ghostly powers", FALSE);
+    strnfmt(p->died_flavor, sizeof(p->died_flavor), "exhausted %s with ghostly spells",
+        pself);
+    if (p->exp < spell->slevel * spell->smana)
+        take_hit(p, 5000, "the strain of ghostly powers", false);
 
     /* Take some experience */
-    player_exp_lose(p_ptr, s_ptr->slevel * s_ptr->smana, TRUE);
+    player_exp_lose(p, spell->slevel * spell->smana, true);
 }
 
 
@@ -92,118 +119,135 @@ void do_cmd_ghost(int Ind, int ability, int dir)
  *
  * Can be "cancelled" at the "Direction?" prompt for free.
  */
-void do_cmd_breath(int Ind, int dir)
+void do_cmd_breath(struct player *p, int dir)
 {
-    player_type *p_ptr = player_get(Ind);
     bitflag mon_breath[RSF_SIZE];
-
-    rsf_wipe(mon_breath);
+    int typ;
+    struct effect *effect;
+    bool ident = false;
 
     /* Restrict ghosts */
-    if (p_ptr->ghost && !(p_ptr->dm_flags & DM_GHOST_BODY))
+    if (p->ghost && !(p->dm_flags & DM_GHOST_BODY))
     {
-        msg(p_ptr, "You need a tangible body to breathe!");
+        msg(p, "You need a tangible body to breathe!");
+        return;
+    }
+
+    /* Handle polymorphed players */
+    rsf_wipe(mon_breath);
+    if (p->poly_race)
+    {
+        /* Hack -- require correct "breath attack" */
+        rsf_copy(mon_breath, p->poly_race->spell_flags);
+        set_breath(mon_breath);
+    }
+
+    /* No breath attacks */
+    if (rsf_is_empty(mon_breath))
+    {
+        msg(p, "You are not able to breathe anything but air...");
         return;
     }
 
     /* Take a turn */
-    use_energy(Ind);
+    use_energy(p);
 
     /* Apply confusion */
-    player_confuse_dir(p_ptr, &dir);
+    player_confuse_dir(p, &dir);
 
-    /* Handle polymorphed players */
-    if (p_ptr->r_idx)
-    {
-        monster_race *r_ptr = &r_info[p_ptr->r_idx];
+    /* Get breath effect */
+    typ = breath_effect(p, mon_breath);
 
-        /* Hack -- Require correct "breath attack" */
-        rsf_copy(mon_breath, r_ptr->spell_flags);
-        set_spells(mon_breath, RST_BREATH);
-    }
+    /* Make the breath attack an effect */
+    effect = mem_zalloc(sizeof(struct effect));
+    effect->index = EF_BREATH;
+    effect->params[0] = typ;
+    effect->params[1] = 20;
 
     /* Cast the breath attack */
-    fire_breath(p_ptr, mon_breath, dir, 0);
+    effect_do(p, effect, &ident, true, dir, NULL, 0, 0, NULL, NULL);
+
+    free_effect(effect);
 }
 
 
 /*
  * Cast a mimic spell
  */
-void do_cmd_mimic(int Ind, int page, int spell, int dir)
+void do_cmd_mimic(struct player *p, int page, int spell_index, int dir)
 {
-    player_type *p_ptr = player_get(Ind);
-    monster_race *r_ptr = &r_info[p_ptr->r_idx];
-    magic_type *s_ptr;
     int i, j = 0, k = 0, chance;
-    int flag, plev = p_ptr->lev;
-    int old_num = get_player_num(p_ptr);
+    struct class_spell *spell;
+    bool projected = false;
+    int old_num = get_player_num(p);
 
     /* Restrict ghosts */
-    if (p_ptr->ghost && !is_dm_p(p_ptr))
+    if (p->ghost && !is_dm_p(p))
     {
-        msg(p_ptr, "You cannot cast monster spells!");
+        msg(p, "You cannot cast monster spells!");
         return;
     }
 
     /* Not when confused */
-    if (p_ptr->timed[TMD_CONFUSED])
+    if (p->timed[TMD_CONFUSED])
     {
-        msg(p_ptr, "You are too confused!");
+        msg(p, "You are too confused!");
         return;
     }
 
     /* Check each spell */
-    for (i = 0; i < MIMIC_SPELLS; i++)
+    for (i = 0; i < p->clazz->magic.books[0].num_spells; i++)
     {
+        int flag;
+
         /* Access the spell */
-        s_ptr = &mimic_spells[i];
+        spell = &p->clazz->magic.books[0].spells[i];
 
         /* Access the spell flag */
-        flag = s_ptr->sexp;
+        flag = spell->effect->flag;
 
         /* Check spell availability */
-        if (!rsf_has(r_ptr->spell_flags, flag)) continue;
+        if (!(p->poly_race && rsf_has(p->poly_race->spell_flags, flag))) continue;
 
         /* Did we find it? */
         if (page == -1)
         {
             /* Normal spell */
-            if (flag == spell) break;
+            if (flag == spell_index) break;
 
             /* Projected spell */
-            if (flag == 0 - spell)
+            if (flag == 0 - spell_index)
             {
-                if (!mimic_spell_projs[i])
+                if (!spell->sproj)
                 {
-                    msg(p_ptr, "You cannot project that spell.");
+                    msg(p, "You cannot project that spell.");
                     return;
                 }
-                flag = 0 - flag;
+                projected = true;
                 break;
             }
         }
         if (page == k)
         {
             /* Normal spell */
-            if (j == spell) break;
+            if (j == spell_index) break;
 
             /* Projected spell */
-            if (j == spell - PY_MAX_SPELLS)
+            if (j == spell_index - p->clazz->magic.total_spells)
             {
-                if (!mimic_spell_projs[i])
+                if (!spell->sproj)
                 {
-                    msg(p_ptr, "You cannot project that spell.");
+                    msg(p, "You cannot project that spell.");
                     return;
                 }
-                flag = 0 - flag;
+                projected = true;
                 break;
             }
         }
 
         /* Next spell */
         j++;
-        if (j == SPELLS_PER_BOOK)
+        if (j == MAX_SPELLS_PER_PAGE)
         {
             j = 0;
             k++;
@@ -211,44 +255,89 @@ void do_cmd_mimic(int Ind, int page, int spell, int dir)
     }
 
     /* Paranoia */
-    if (i == MIMIC_SPELLS) return;
+    if (i == p->clazz->magic.books[0].num_spells) return;
 
     /* Check mana */
-    if (s_ptr->smana > p_ptr->csp)
+    if (spell->smana > p->csp)
     {
-        msg(p_ptr, "You do not have enough mana.");
+        msg(p, "You do not have enough mana.");
         return;
     }
 
     /* Antimagic field (no effect on spells that are not "magical") */
-    if ((s_ptr->smana > 0) && check_antimagic(p_ptr, NULL)) return;
+    if ((spell->smana > 0) && check_antimagic(p, chunk_get(p->depth), NULL)) return;
 
     /* Spell cost */
-    p_ptr->spell_cost = s_ptr->smana;
+    p->spell_cost = spell->smana;
 
     /* Spell failure chance */
-    chance = s_ptr->sfail;
+    chance = spell->sfail;
 
     /* Failed spell */
     if (magik(chance))
-        msg(p_ptr, "You failed to get the spell off!");
+        msg(p, "You failed to get the spell off!");
 
     /* Process spell */
     else
     {
+        /* Set current spell and inscription */
+        p->current_spell = spell->sidx;
+        p->current_item = 0;
+
+        /* Only fire in direction 5 if we have a target */
+        if ((dir == 5) && !target_okay(p)) return;
+
+        /* Unaware players casting spells reveal themselves */
+        if (p->k_idx) aware_player(p, p);
+
+        /* Projected */
+        if (projected)
+        {
+            project_aimed(p, NULL, GF_PROJECT, dir, spell->sidx,
+                PROJECT_STOP | PROJECT_KILL | PROJECT_PLAY, "killed");
+        }
+
         /* Cast the spell */
-        if (!cast_mimic_spell(p_ptr, flag, dir)) return;
+        else
+        {
+            bool ident = false;
+
+            if (spell->effect && spell->effect->other_msg)
+            {
+
+                /* Hack -- formatted message */
+                switch (spell->effect->flag)
+                {
+                    case RSF_HEAL:
+                    case RSF_TELE_TO:
+                    case RSF_FORGET:
+                    case RSF_S_KIN:
+                    {
+                        msg_format_near(p, MSG_PY_SPELL, spell->effect->other_msg,
+                            player_poss(p));
+                        break;
+                    }
+                    default:
+                    {
+                        msg_print_near(p, MSG_PY_SPELL, spell->effect->other_msg);
+                        break;
+                    }
+                }
+            }
+            if (!effect_do(p, spell->effect, &ident, true, dir, NULL, 0, 0, NULL, NULL))
+                return;
+        }
     }
 
     /* Take a turn */
-    use_energy(Ind);
+    use_energy(p);
 
     /* Use some mana */
-    p_ptr->csp -= p_ptr->spell_cost;
+    p->csp -= p->spell_cost;
 
-    /* Hack -- Redraw picture */
-    redraw_picture(p_ptr, old_num);
+    /* Hack -- redraw picture */
+    redraw_picture(p, old_num);
 
     /* Redraw mana */
-    p_ptr->redraw |= (PR_MANA);
+    p->upkeep->redraw |= (PR_MANA);
 }

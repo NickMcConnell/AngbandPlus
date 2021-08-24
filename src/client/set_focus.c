@@ -2,7 +2,7 @@
  * File: set_focus.c
  * Purpose: A gross hack to allow the client to scroll the dungeon display
  *
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

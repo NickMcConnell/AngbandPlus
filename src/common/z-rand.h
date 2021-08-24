@@ -7,6 +7,13 @@
 #define INCLUDED_Z_RAND_H
 
 /*
+ * Assumed maximum dungeon level. This value is used for various
+ * calculations involving object and monster creation. It must be at least
+ * 100. Setting it below 128 may prevent the creation of some objects.
+ */
+#define MAX_RAND_DEPTH 128
+
+/*
  * A struct representing a strategy for making a dice roll.
  *
  * The result will be base + XdY + BONUS, where m_bonus is used in a
@@ -25,7 +32,9 @@ typedef struct random
  */
 #define RAND_DEG 32
 
-/* Random aspects used by damcalc, m_bonus_calc, and ranvals */
+/*
+ * Random aspects used by damcalc, m_bonus_calc, and ranvals
+ */
 typedef enum
 {
     MAXIMISE,
@@ -57,17 +66,17 @@ typedef enum
 #define rand_spread(A, D) ((A) + (randint0(1 + (D) + (D))) - (D))
 
 /*
- * Return TRUE one time in `x`.
+ * Return true one time in `x`.
  */
 #define one_in_(x)  (!randint0(x))
 
 /*
- * Evaluate to TRUE "P" percent of the time
+ * Evaluate to true "P" percent of the time
  */
 #define magik(P) (randint0(100) < (P))
 
 /*
- * Evaluate to TRUE A times out of B
+ * Evaluate to true A times out of B
  */
 #define CHANCE(A, B) (randint0(B) < (A))
 
@@ -91,9 +100,14 @@ extern u32b z1;
 extern u32b z2;
 
 /*
- * Initialise the RNG state with the given seed.
+ * Initialize the RNG state with the given seed.
  */
 extern void Rand_state_init(u32b seed);
+
+/*
+ * Initialize the RNG
+ */
+extern void Rand_init(void);
 
 /*
  * Generates a random unsigned long integer X where "0 <= X < M" holds.

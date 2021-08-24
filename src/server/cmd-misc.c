@@ -3,7 +3,7 @@
  * Purpose: Deal with miscellaneous commands.
  *
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,35 +19,27 @@
 
 
 #include "s-angband.h"
-#include "cmds.h"
-#include "monster/mon-util.h"
 
 
 /*
- * Display the main-screen monster list.
+ * Commit suicide
  */
-void do_cmd_monlist(int Ind)
+void do_cmd_suicide(struct player *p)
 {
-    player_type *p_ptr = player_get(Ind);
+    /* Mark as suicide */
+    p->alive = false;
 
-    /* Display visible monsters */
-    display_monlist(p_ptr, TRUE);
+    /* Note cause of death */
+    my_strcpy(p->died_from, "self-inflicted wounds", sizeof(p->died_from));
 
-    /* Notify player */
-    notify_player(Ind, "Monster List", NTERM_WIN_MONLIST, TRUE);
-}
+    /* Record the original (pre-ghost) cause of death */
+    if (p->ghost != 1) player_death_info(p, "self-inflicted wounds");
 
+    /* Mark as quitter */
+    if ((p->ghost != 1) && !p->total_winner) p->noscore = 1;
 
-/*
- * Display the main-screen item list.
- */
-void do_cmd_itemlist(int Ind)
-{
-    player_type *p_ptr = player_get(Ind);
+    if (p->total_winner) kingly(p);
 
-    /* Display visible monsters */
-    display_itemlist(p_ptr, TRUE);
-
-    /* Notify player */
-    notify_player(Ind, "Object List", NTERM_WIN_OBJLIST, TRUE);
+    /* Kill him */
+    player_death(p);
 }

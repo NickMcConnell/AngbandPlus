@@ -2,8 +2,8 @@
  * File: z-file.c
  * Purpose: Low-level file (and directory) handling
  *
- * Copyright (c) 1997-2007 Ben Harrison, pelpel, Andrew Sidwell, Matthew Jones
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 1997-2007 Ben Harrison, pelpel, Andi Sidwell, Matthew Jones
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -20,10 +20,11 @@
 
 #include "angband.h"
 #include <sys/stat.h>
+#include <dir.h>
 
 
 /*
- * Hack -- Fake declarations from "dos.h" XXX XXX XXX
+ * Hack -- fake declarations from "dos.h" XXX XXX XXX
  */
 #define INVALID_FILE_NAME (DWORD)0xFFFFFFFF
 
@@ -52,6 +53,8 @@ static void path_process(char *buf, size_t len, size_t *cur_len, const char *pat
 size_t path_build(char *buf, size_t len, const char *base, const char *leaf)
 {
     size_t cur_len = 0;
+    bool starts_with_separator;
+
     buf[0] = '\0';
 
     if (!leaf || !leaf[0])
@@ -61,11 +64,13 @@ size_t path_build(char *buf, size_t len, const char *base, const char *leaf)
         return cur_len;
     }
 
+    starts_with_separator = ((!base || !base[0]) || prefix(leaf, PATH_SEP));
+
     /*
      * If the leafname starts with the separator or there's no base path,
      * we use the leafname only.
      */
-    if ((!base || !base[0]) || prefix(leaf, PATH_SEP))
+    if (starts_with_separator)
     {
         path_process(buf, len, &cur_len, leaf);
         return cur_len;
@@ -73,14 +78,20 @@ size_t path_build(char *buf, size_t len, const char *base, const char *leaf)
 
     /* There is both a relative leafname and a base path from which it is relative */
     path_process(buf, len, &cur_len, base);
-    strnfcat(buf, len, &cur_len, "%s", PATH_SEP);
+    if (!suffix(base, PATH_SEP))
+    {
+        /* Append separator if it isn't already in the string. */
+        strnfcat(buf, len, &cur_len, "%s", PATH_SEP);
+    }
     path_process(buf, len, &cur_len, leaf);
 
     return cur_len;
 }
 
 
-/*** File-handling API ***/
+/*
+ * File-handling API
+ */
 
 
 /* Some defines for compatibility between various build platforms */
@@ -158,15 +169,15 @@ bool file_exists(const char *fname)
     my_strcpy(path, fname, sizeof(path));
 
     attrib = GetFileAttributes(path);
-    if (attrib == INVALID_FILE_NAME) return FALSE;
-    if (attrib & FILE_ATTRIBUTE_DIRECTORY) return FALSE;
+    if (attrib == INVALID_FILE_NAME) return false;
+    if (attrib & FILE_ATTRIBUTE_DIRECTORY) return false;
 
-    return TRUE;
+    return true;
 }
 
 
 /*
- * Return TRUE if first is newer than second, FALSE otherwise.
+ * Return true if first is newer than second, false otherwise.
  */
 bool file_newer(const char *first, const char *second)
 {
@@ -176,13 +187,13 @@ bool file_newer(const char *first, const char *second)
     _fstat(0, NULL);
 
     /* If the first doesn't exist, the first is not newer. */
-    if (stat(first, &stat1) != 0) return FALSE;
+    if (stat(first, &stat1) != 0) return false;
 
     /* If the second doesn't exist, the first is always newer. */
-    if (stat(second, &stat2) != 0) return TRUE;
+    if (stat(second, &stat2) != 0) return true;
 
     /* Compare modification times. */
-    return stat1.st_mtime > stat2.st_mtime ? TRUE : FALSE;
+    return stat1.st_mtime > stat2.st_mtime ? true : false;
 }
 
 
@@ -203,7 +214,7 @@ static char typechar[3] = "tbb";
  */
 ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 {
-    ang_file *f = ZNEW(ang_file);
+    ang_file *f = mem_zalloc(sizeof(ang_file));
     char modestr[3] = "__";
     char buf[MSG_LEN];
 
@@ -248,12 +259,12 @@ ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
  */
 bool file_close(ang_file *f)
 {
-    if (fclose(f->fh) != 0) return FALSE;
+    if (fclose(f->fh) != 0) return false;
 
     string_free(f->fname);
     mem_free(f);
 
-    return TRUE;
+    return true;
 }
 
 
@@ -310,9 +321,9 @@ void file_unlock(ang_file *f)
 /*
  * Seek to location 'pos' in file 'f'
  */
-bool file_seek(ang_file *f, u32b pos)
+bool file_skip(ang_file *f, int bytes)
 {
-    return (fseek(f->fh, pos, SEEK_SET) == 0);
+    return (fseek(f->fh, bytes, SEEK_CUR) == 0);
 }
 
 
@@ -323,10 +334,10 @@ bool file_readc(ang_file *f, byte *b)
 {
     int i = fgetc(f->fh);
 
-    if (i == EOF) return FALSE;
+    if (i == EOF) return false;
 
     *b = (byte)i;
-    return TRUE;
+    return true;
 }
 
 
@@ -372,7 +383,7 @@ bool file_write(ang_file *f, const char *buf, size_t n)
 #define TAB_COLUMNS 4
 bool file_getl(ang_file *f, char *buf, size_t len)
 {
-    bool seen_cr = FALSE;
+    bool seen_cr = false;
     byte b;
     size_t i = 0;
 
@@ -386,14 +397,14 @@ bool file_getl(ang_file *f, char *buf, size_t len)
         if (!file_readc(f, &b))
         {
             buf[i] = '\0';
-            return ((i == 0)? FALSE: TRUE);
+            return ((i == 0)? false: true);
         }
 
         c = (char) b;
 
         if (c == '\r')
         {
-            seen_cr = TRUE;
+            seen_cr = true;
             continue;
         }
 
@@ -401,13 +412,13 @@ bool file_getl(ang_file *f, char *buf, size_t len)
         {
             fseek(f->fh, -1, SEEK_CUR);
             buf[i] = '\0';
-            return TRUE;
+            return true;
         }
 
         if (c == '\n')
         {
             buf[i] = '\0';
-            return TRUE;
+            return true;
         }
 
         /* Expand tabs */
@@ -428,7 +439,7 @@ bool file_getl(ang_file *f, char *buf, size_t len)
     }
 
     buf[i] = '\0';
-    return TRUE;
+    return true;
 }
 
 
@@ -446,15 +457,15 @@ bool file_put(ang_file *f, const char *buf)
  * Append a formatted line of text to the end of file 'f'.
  *
  * file_putf() is the ellipsis version. Most file output will call this
- * version. It calls file_vputf() to do the real work. It returns TRUE
- * if the write was successful and FALSE otherwise.
+ * version. It calls file_vputf() to do the real work. It returns true
+ * if the write was successful and false otherwise.
  */
 bool file_putf(ang_file *f, const char *fmt, ...)
 {
     va_list vp;
     bool status;
 
-    if (!f) return FALSE;
+    if (!f) return false;
 
     va_start(vp, fmt);
     status = file_vputf(f, fmt, vp);
@@ -467,37 +478,16 @@ bool file_putf(ang_file *f, const char *fmt, ...)
 /*
  * Append a formatted line of text to the end of file 'f'.
  *
- * file_vputf() is the va_list version. It returns TRUE if the write was
- * successful and FALSE otherwise.
+ * file_vputf() is the va_list version. It returns true if the write was
+ * successful and false otherwise.
  */
 bool file_vputf(ang_file *f, const char *fmt, va_list vp)
 {
     char buf[MSG_LEN];
 
-    if (!f) return FALSE;
+    if (!f) return false;
 
     vstrnfmt(buf, sizeof(buf), fmt, vp);
-    return file_put(f, buf);
-}
-
-
-/*
- * Format and translate a string, then print it out to file.
- */
-bool x_file_putf(ang_file *f, const char *fmt, ...)
-{
-    va_list vp;
-    char buf[MSG_LEN];
-
-    /* Begin the Varargs Stuff */
-    va_start(vp, fmt);
-
-    /* Format the args, save the length */
-    vstrnfmt(buf, sizeof(buf), fmt, vp);
-
-    /* End the Varargs Stuff */
-    va_end(vp);
-
     return file_put(f, buf);
 }
 
@@ -532,10 +522,10 @@ bool dir_exists(const char *path)
     my_strcpy(dirpath, path, sizeof(dirpath));
 
     attrib = GetFileAttributes(dirpath);
-    if (attrib == INVALID_FILE_NAME) return FALSE;
-    if (attrib & FILE_ATTRIBUTE_DIRECTORY) return TRUE;
+    if (attrib == INVALID_FILE_NAME) return false;
+    if (attrib & FILE_ATTRIBUTE_DIRECTORY) return true;
 
-    return FALSE;
+    return false;
 }
 
 
@@ -550,7 +540,7 @@ bool dir_create(const char *path)
     char buf[MSG_LEN];
 
     /* If the directory already exists then we're done */
-    if (dir_exists(path)) return TRUE;
+    if (dir_exists(path)) return true;
 
     /* If we're on windows, we need to skip past the "C:" part. */
     if (isalpha(path[0]) && path[1] == ':') path += 2;
@@ -573,7 +563,7 @@ bool dir_create(const char *path)
             if (*(ptr - 1) == PATH_SEPC) continue;
 
             /* We can't handle really big filenames */
-            if (len - 1 > MSG_LEN) return FALSE;
+            if (len - 1 > MSG_LEN) return false;
 
             /* Create the parent path string, plus null-padding */
             my_strcpy(buf, path, len + 1);
@@ -582,15 +572,17 @@ bool dir_create(const char *path)
             if (dir_exists(buf)) continue;
 
             /* The parent doesn't exist, so create it or fail */
-            if (mkdir(buf) != 0) return FALSE;
+            if (mkdir(buf) != 0) return false;
         }
     }
 
-    return (mkdir(path) == 0)? TRUE: FALSE;
+    return (mkdir(path) == 0)? true: false;
 }
 
 
-/*** Directory scanning API ***/
+/*
+ * Directory scanning API
+ */
 
 
 /* System-specific struct */
@@ -614,7 +606,7 @@ ang_dir *my_dopen(const char *dirname)
     if (h == INVALID_HANDLE_VALUE) return NULL;
 
     /* Set up the handle */
-    dir = ZNEW(ang_dir);
+    dir = mem_zalloc(sizeof(ang_dir));
     dir->h = h;
     dir->first_file = string_make(fd.cFileName);
 
@@ -637,14 +629,14 @@ bool my_dread(ang_dir *dir, char *fname, size_t len)
         dir->first_file = NULL;
 
         /* Wild success */
-        return TRUE;
+        return true;
     }
 
     /* Try the next file */
     while (1)
     {
         ok = FindNextFile(dir->h, &fd);
-        if (!ok) return FALSE;
+        if (!ok) return false;
 
         /* Skip directories */
         if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ||
@@ -659,7 +651,7 @@ bool my_dread(ang_dir *dir, char *fname, size_t len)
     /* Copy name */
     my_strcpy(fname, fd.cFileName, len);
 
-    return TRUE;
+    return true;
 }
 
 

@@ -18,7 +18,7 @@ OBJFILES = ..\..\SDL\SDL_ttf-2.0.11\SDL_ttf.obj
 RESFILES = 
 MAINSOURCE = SDL_ttf.bpf
 RESDEPEN = $(RESFILES)
-LIBFILES = SDL\freetype.lib SDL\SDL.lib 
+LIBFILES = SDL\freetype.lib SDL\SDL.lib
 IDLFILES = 
 IDLGENFILES = 
 LIBRARIES = 
@@ -31,7 +31,7 @@ DEBUGLIBPATH = $(BCB)\lib\debug
 RELEASELIBPATH = $(BCB)\lib\release
 USERDEFINES = WIN32;_WINDOWS;BUILD_SDL;
 SYSDEFINES = NO_STRICT;_NO_VCL
-INCLUDEPATH = $(BCB)\include;SDL;..\..\SDL\freetype-2.4.10\include
+INCLUDEPATH = $(BCB)\include;SDL;..\..\SDL\freetype-2.6.2\include
 LIBPATH = $(BCB)\lib\obj;$(BCB)\lib;SDL
 WARNINGS= -w-par
 PATHCPP= .;..\..\SDL\SDL_ttf-2.0.11
@@ -42,7 +42,7 @@ PATHOBJ = .;$(LIBPATH)
 # ---------------------------------------------------------------------------
 CFLAG1 = -WD -O2 -Hc -w- -Vx -Ve -X- \
     -a8 -b -k- -vi -tWD -tWM -c
-IDLCFLAGS = -I$(BCB)\include  -ISDL -I..\..\SDL\freetype-2.4.10\include \
+IDLCFLAGS = -I$(BCB)\include  -ISDL -I..\..\SDL\freetype-2.6.2\include \
     -src_suffix cpp -DWIN32 -D_WINDOWS -DBUILD_SDL -DNO_STRICT -D_NO_VCL -boa
 PFLAGS = -$Y- -$L- -$D- -$A8 -v -JPHNE -M
 RFLAGS = 

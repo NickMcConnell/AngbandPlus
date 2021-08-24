@@ -1,6 +1,6 @@
 /*
  * File: effects.h
- * Purpose: List of effect types
+ * Purpose: Effect handling
  */
 
 #ifndef INCLUDED_EFFECTS_H
@@ -9,26 +9,28 @@
 /* Types of effect */
 typedef enum
 {
-    #define EFFECT(x, y, r, z) EF_##x,
+    EF_NONE,
+    #define EFFECT(x, a, b, c, d, e) EF_##x,
     #include "list-effects.h"
     #undef EFFECT
     EF_MAX
-} effect_type;
+} effect_index;
+
+extern const char *desc_stat_neg[];
 
 /* Functions */
-extern bool effect_do(struct player *p, effect_type effect, bool *ident, bool aware, int dir,
-    int beam, int boost);
-extern bool effect_aim(effect_type effect);
-extern u16b effect_power(effect_type effect);
-extern const char *effect_desc(effect_type effect);
-extern bool effect_obvious(effect_type effect);
-extern bool effect_wonder(struct player *p, int dir, int die, int beam);
-extern void effect_light(struct player *p, bool *ident);
-extern void effect_serious(struct player *p, bool *ident);
-extern void effect_critical(struct player *p, bool *ident);
-extern void effect_mortal(struct player *p, bool *ident);
-extern void effect_heal(struct player *p, bool *ident);
-extern void effect_hero(struct player *p, int dur, bool *ident);
-extern void effect_berserk(struct player *p, int dur, bool *ident);
+extern bool project_aimed(struct player *p, struct monster *mon, int typ, int dir, int dam,
+    int flg, const char *what);
+extern bool effect_aim(struct effect *effect);
+extern const char *effect_info(struct effect *effect);
+extern const char *effect_desc(struct effect *effect);
+extern effect_index effect_lookup(const char *name);
+extern int effect_param(int index, const char *type);
+extern bool effect_do(struct player *p, struct effect *effect, bool *ident, bool aware,
+    int dir, struct beam_info *beam, int boost, quark_t note, struct monster *mon,
+    struct monster *target_m_ptr);
+extern bool effect_simple(struct player *p, int index, const char* dice_string, int p1, int p2,
+    int p3, bool *ident, struct monster *mon);
+extern bool fire_ball(struct player *p, int typ, int dir, int dam, int rad, bool obvious);
 
 #endif /* INCLUDED_EFFECTS_H */

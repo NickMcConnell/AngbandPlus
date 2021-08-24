@@ -21,6 +21,7 @@ typedef enum
     EVT_ESCAPE      = 0x0010,   /* Get out of this menu */
     EVT_MOVE        = 0x0020,   /* Menu movement */
     EVT_SELECT      = 0x0040,   /* Menu selection */
+    EVT_SWITCH      = 0x0080,   /* Menu switch */
 
     /* PWMAngband events */
     EVT_DONE        = 0x0200,   /* Done */
@@ -57,11 +58,11 @@ typedef enum
  * You can use these macros for part of the above conditions.
  */
 #define MODS_INCLUDE_CONTROL(v) \
-    ((((v) >= 0x01) && ((v) <= 0x1F))? FALSE: TRUE)
+    ((((v) >= 0x01) && ((v) <= 0x1F))? false: true)
 
 #define MODS_INCLUDE_SHIFT(v) \
     (((((v) >= 0x21) && ((v) <= 0x60)) || \
-        (((v) >= 0x7B) && ((v) <= 0x7E)))? FALSE: TRUE)
+        (((v) >= 0x7B) && ((v) <= 0x7E)))? false: true)
 
 /*
  * If keycode you're trying to apply control to is between 0x40-0x5F
@@ -70,7 +71,7 @@ typedef enum
  * KC_MOD_CONTROL in mods.
  */
 #define ENCODE_KTRL(v) \
-    ((((v) >= 0x40) && ((v) <= 0x5F))? TRUE: FALSE)
+    ((((v) >= 0x40) && ((v) <= 0x5F))? true: false)
 
 /*
  * Given a character X, turn it into a control character.
@@ -123,7 +124,9 @@ typedef enum
 #define KC_BACKSPACE    0x9F /* ASCII \h */
 #define ESCAPE          0xE000
 
-/* Analogous to isdigit() etc in ctypes */
+/*
+ * Analogous to isdigit() etc in ctypes
+ */
 #define isarrow(c)  ((c >= ARROW_DOWN) && (c <= ARROW_UP))
 
 /*
@@ -150,7 +153,11 @@ typedef union
     struct keypress key;
 } ui_event;
 
+/*
+ * Easy way to initialize a ui_event without seeing the gory bits.
+ */
 #define EVENT_EMPTY {EVT_NONE}
+
 #define EVENT_ABORT {EVT_ABORT}
 
 /* Escape event */
@@ -172,19 +179,31 @@ typedef union
 
 /*** Functions ***/
 
-/* Given a string (and that string's length), return the corresponding keycode */
+/*
+ * Given a string (and that string's length), return the corresponding keycode
+ */
 extern keycode_t keycode_find_code(const char *str, size_t len);
 
-/* Given a keycode, return its description */
+/*
+ * Given a keycode, return its description
+ */
 extern const char *keycode_find_desc(keycode_t kc);
 
-/* Convert a string of keypresses into their textual representation */
+/*
+ * Convert a textual representation of keypresses into actual keypresses
+ */
 extern void keypress_from_text(struct keypress *buf, size_t len, const char *str);
 
-/* Convert a textual representation of keypresses into actual keypresses */
-extern void keypress_to_text(char *buf, size_t len, const struct keypress *src, bool expand_backslash);
+/*
+ * Convert a string of keypresses into their textual representation
+ */
+extern void keypress_to_text(char *buf, size_t len, const struct keypress *src,
+    bool expand_backslash);
 
-/* Convert a keypress into something the user can read (not designed to be used internally) */
+/*
+ * Convert a keypress into something the user can read (not designed to be used
+ * internally)
+ */
 extern void keypress_to_readable(char *buf, size_t len, struct keypress src);
 
 #endif

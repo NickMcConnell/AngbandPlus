@@ -10,17 +10,17 @@ How to build all SDL libraries required to run the SDL client:
 - In \SDL\SDL-1.2.15, replace the following files by the ones in \PWMAngband\src\SDL:
 	\include\begin_code.h
 	\include\SDL_stdinc.h
-- Download and unzip FreeType 2.4.10 in the \SDL directory:
+- Download and unzip FreeType 2.6.2 in the \SDL directory:
 	http://sourceforge.net/projects/freetype/files
-- In \SDL\freetype-2.4.10, replace the following file by the one in \PWMAngband\src\SDL:
+- In \SDL\freetype-2.6.2, replace the following file by the one in \PWMAngband\src\fix:
 	\include\freetype\config\ftconfig.h
 - Download and unzip SDL_ttf 2.0.11 in the \SDL directory:
-	http://www.libsdl.org/projects/SDL_ttf/
+	https://www.libsdl.org/projects/SDL_ttf/release-1.2.html
 - Download and unzip SDL_image 1.2.12 in the \SDL directory:
-	http://www.libsdl.org/projects/SDL_image/
+	https://www.libsdl.org/projects/SDL_image/release-1.2.html
 - Download and unzip MAD 0.15.1b in the \SDL directory:
-	http://sourceforge.net/projects/mad/files/libmad/0.15.1b/
-- In \SDL\libmad-0.15.1b, replace layer3.c by the one in \PWMAngband\src\SDL to fix compile errors
+	http://sourceforge.net/projects/mad/files/libmad/0.15.1b
+- In \SDL\libmad-0.15.1b, replace layer3.c by the one in \PWMAngband\src\fix to remove compile errors
 - Download and unzip SDL_mixer 1.2.12 in the \SDL directory:
-	http://www.libsdl.org/projects/SDL_mixer/
+	https://www.libsdl.org/projects/SDL_mixer/release-1.2.html
 - Run \PWMAngband\src\SDL.bat

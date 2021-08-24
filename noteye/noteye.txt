@@ -1,0 +1,6 @@
+How to run PWMAngband client with NotEye:
+
+- Download NotEye 8.3
+	http://www.roguetemple.com/z/noteye.php
+- Launch noteye.bat
+- Choose (p) for PWMAngband

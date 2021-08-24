@@ -2,7 +2,7 @@
  * File: md5.c
  * Purpose: MD5 message-digest algorithm
  *
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -18,7 +18,6 @@
 
 
 #include "angband.h"
-#include "md5.h"
 
 
 /* Constants for MD5Transform routine. */
@@ -341,7 +340,7 @@ void MD5Password(char *string)
 
     MD5Init(&context);
     MD5Update(&context, (unsigned char*)string, len);
-    MD5Final(string, &context);
+    MD5Final((unsigned char*)string, &context);
 
     /* Convert to hex */
     my_strcpy(temp, "$1$", sizeof(temp));

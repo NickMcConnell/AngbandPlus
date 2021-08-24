@@ -8,8 +8,6 @@
 
 /*** Constants ***/
 
-#define STORE_INVEN_MAX 24  /* Max number of discrete objs in inven */
-
 /* List of store indexes */
 enum
 {
@@ -31,16 +29,23 @@ enum
 
 /*** Types ***/
 
+struct object_buy
+{
+    struct object_buy *next;
+    byte tval;
+    size_t flag;
+};
+
 /*
  * A store owner
  */
-typedef struct owner
+struct owner
 {
     char *name;         /* Name */
     unsigned int oidx;  /* Index */
     struct owner *next;
     s32b max_cost;      /* Purse limit */
-} owner_type;
+};
 
 /*
  * A store, with an owner, various state flags, a current stock
@@ -51,13 +56,29 @@ struct store
     struct owner *owners;       /* Owners */
     struct owner *owner;        /* Current owner */
     unsigned int sidx;          /* Index */
+    char *name;
     struct store *next;
-    s16b stock_num;             /* Stock -- Number of entries */
-    s16b stock_size;            /* Stock -- Total Size of Array (transient) */
-    object_type *stock;         /* Stock -- Actual stock items */
-    unsigned int table_num;     /* Table -- Number of entries (transient) */
-    unsigned int table_size;    /* Table -- Total Size of Array (transient) */
-    object_kind **table;        /* Table -- Legal item kinds (transient) */
+    s16b stock_num;             /* Stock -- number of entries */
+    s16b stock_size;            /* Stock -- total Size of Array (transient) */
+    struct object *stock;       /* Stock -- actual stock items */
+
+    /* Always stock these items */
+    size_t always_size;
+    size_t always_num;
+    struct object_kind **always_table;
+
+    /* Select a number of these items to stock */
+    size_t normal_size;
+    size_t normal_num;
+    struct object_kind **normal_table;
+
+    /* Buy these items */
+    struct object_buy *buy;
+
+    int turnover;
+    int normal_stock_min;
+    int normal_stock_max;
+
     s16b max_depth;             /* Max level of last customer */
 };
 

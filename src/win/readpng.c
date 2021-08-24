@@ -2,7 +2,7 @@
  * File: readpng.c
  * Purpose: PNG support
  *
- * This package provides a routine to read a DIB file and set up the
+ * This package provides a routine to read a PNG file and set up the
  * device dependent version of the image.
  *
  * This file has been modified for use with "Angband 2.9.2"
@@ -55,7 +55,7 @@ BOOL ReadDIB2_PNG(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo, DIBINIT *pMask, B
     png_byte color_type;
     png_byte bit_depth;
     int width, height;
-    int y, number_of_passes;
+    int y;
     BOOL update = FALSE;
 
     /* Open the file and test it for being a png */
@@ -96,7 +96,7 @@ BOOL ReadDIB2_PNG(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo, DIBINIT *pMask, B
     color_type = png_get_color_type(png_ptr, info_ptr);
     bit_depth = png_get_bit_depth(png_ptr, info_ptr);
     
-    number_of_passes = png_set_interlace_handling(png_ptr);
+    png_set_interlace_handling(png_ptr);
     if (color_type == PNG_COLOR_TYPE_PALETTE)
     {
         png_set_palette_to_rgb(png_ptr);
@@ -256,7 +256,7 @@ BOOL ReadDIB2_PNG(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo, DIBINIT *pMask, B
             if (SetDIBits(hDC, hBitmap, height - y - 1, 1, row_pointers[y], &biSrc,
                 DIB_RGB_COLORS) != 1)
             {
-                /* Hack -- Replace unreadable line by data from previous line */
+                /* Hack -- replace unreadable line by data from previous line */
                 if (!errline)
                 {
                     errline = 1;
@@ -268,7 +268,7 @@ BOOL ReadDIB2_PNG(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo, DIBINIT *pMask, B
                     }
                 }
 
-                /* Hack -- Don't allow multiple unreadable lines */
+                /* Hack -- don't allow multiple unreadable lines */
                 else errline = 2;
             }
             else errline = 0;

@@ -3,7 +3,7 @@
  * Purpose: Entity guids.
  *
  * Copyright (c) 2011 elly+angband@leptoquark.net
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -17,7 +17,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "guid.h"
+#include "angband.h"
 
 int guid_eq(guid a, guid b)
 {

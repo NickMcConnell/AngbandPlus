@@ -20,13 +20,19 @@ typedef struct
     int ImageHeight;
 } DIBINIT;
 
-/* Read a DIB from a file */
+/*
+ * Read a DIB from a file
+ */
 extern BOOL ReadDIB(HWND, LPSTR, DIBINIT *);
 
-/* Free a DIB */
+/*
+ * Free a DIB
+ */
 extern void FreeDIB(DIBINIT *dib);
 
-/* New png stuff */
+/*
+ * New png stuff
+ */
 extern BOOL ReadDIB2_PNG(HWND, LPSTR, DIBINIT *, DIBINIT *, BOOL);
 extern BOOL SaveWindow_PNG(HWND hWnd, LPSTR lpFileName);
 

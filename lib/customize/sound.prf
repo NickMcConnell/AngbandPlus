@@ -1,0 +1,555 @@
+# File: sound.prf
+#
+# Configuration file for the PWMAngband sound events
+#
+# The format is:
+# <event name>:<sample-names separated by spaces>
+#
+# Example:
+# hit:hit hit1
+#
+
+#
+# This is the Dubtrain Angband Sound config list, v.3.1.0 - February 24th, 2009
+#
+# Licensed under a Creative Commons non-commercial agreement
+#
+# Inspired by the original Craig's Angband Sound Patch.
+#
+# But with all new sounds.
+#
+# contact angband@dubtrain.com
+#
+# download zipped archive at www.dubtrain.com/angband
+#
+
+#
+# Ambient sounds
+#
+
+# Town during the day.
+sound:ambient_day:amb_thunder_rain
+
+# Town during the night.
+sound:ambient_nite:amb_guitar_chord amb_thunder_roll
+
+# Shore
+sound:wild_shore:shore
+
+# Grass
+sound:wild_grass:grass
+
+# Wood
+sound:wild_wood:wood
+
+# Swamp
+sound:wild_swamp:swamp
+
+# Waste
+sound:wild_waste:waste
+
+# Mountain
+sound:wild_mountain:mountain
+
+# Volcano
+sound:wild_volcano:volcano
+
+# Dungeon levels 1-20 (50'- 1000')
+sound:ambient_dng1:amb_door_iron amb_bell_metal1
+
+# Dungeon levels 21-40 (1050'- 2000')
+sound:ambient_dng2:amb_bell_tibet1 amb_bell_metal2 amb_gong_strike
+
+# Dungeon levels 41-60 (2050'- 3000')
+sound:ambient_dng3:amb_bell_tibet2 amb_dungeon_echo amb_pulse_low
+
+# Dungeon levels 61-80 (3050'- 4000')
+sound:ambient_dng4:amb_bell_tibet3 amb_dungeon_echowet amb_gong_undertone
+
+# Dungeon levels 81-98 (4050'- 4900')
+sound:ambient_dng5:amb_door_doom amb_gong_chinese amb_gong_low
+
+# Dungeon level 99 (4950')
+sound:ambient_sauron:sauron
+
+# Dungeon level 100 (5000')
+sound:ambient_morgoth:morgoth
+
+# Dungeon levels 101-125 (5050'- 6250')
+sound:ambient_dng6:amb_deep
+
+# Dungeon level 126 (6300')
+sound:ambient_senya:senya
+
+# Dungeon level 127 (6350')
+sound:ambient_xakaze:xakaze
+
+#
+# Store sounds
+#
+
+# The shopkeep bought a worthless item.
+sound:store1:sto_man_hey
+
+# The shopkeep paid too much for an item.
+sound:store2:id_bad_dang
+
+# The shopkeep got away with a good bargain.
+sound:store3:sto_man_haha
+
+# The shopkeep got away with a great bargain.
+sound:store4:sto_man_whoohaha
+
+# You make a normal transaction (buying or selling).
+sound:store5:sto_coins_countertop sto_bell_register1 sto_bell_register2
+
+# You enter a store.
+sound:store_enter:sto_bell_desk sto_bell_ding sto_bell_dingaling sto_bell_jingles sto_bell_ringing sto_bell_shop
+
+# You enter your home.
+sound:store_home:plm_door_entrance
+
+# You leave a store.
+sound:store_leave:plm_door_bolt
+
+#
+# Player sounds - combat
+#
+
+# You succeed in a melee attack against a monster.
+sound:hit:plc_hit_hay plc_hit_body
+
+# It was a good hit!
+sound:hit_good:plc_hit_anvil
+
+# It was a great hit!
+sound:hit_great:plc_hit_groan
+
+# It was a superb hit!
+sound:hit_superb:plc_hit_grunt
+
+# It was a *GREAT* hit!
+sound:hit_hi_great:plc_hit_grunt2
+
+# It was a *SUPERB* hit!
+sound:hit_hi_superb:plc_hit_anvil2
+
+# It was a *CRITICAL* hit!
+sound:hit_hi_critical:plc_hit_critical
+
+# You miss a melee attack against a monster.
+sound:miss:plc_miss_arrow2
+
+# You fire a missile.
+sound:shoot:plc_miss_arrow
+
+# You hit something with a missile.
+sound:shoot_hit:plc_hit_arrow
+
+# You receive a hitpoint warning.
+sound:hitpoint_warn:plc_bell_warn
+
+# You die.
+sound:death:plc_die_laugh
+
+#
+# Player sounds - status changes
+#
+
+# You become blind.
+sound:blind:pls_tone_conk
+
+# You become confused.
+sound:confused:pls_man_ugh
+
+# You become poisoned.
+sound:poisoned:pls_tone_guiro
+
+# You become afraid.
+sound:afraid:pls_man_yell
+
+# You become paralyzed.
+sound:paralyzed:pls_man_gulp_new
+
+# You feel drugged (chaos effects).
+sound:drugged:pls_breathe_in
+
+# You become slower.
+sound:slow:pls_man_sigh
+
+# You become stunned.
+sound:stun:pls_bell_mute
+
+# You suffer a cut.
+sound:cut:pls_man_argoh
+
+# A stat is drained
+sound:drain_stat:pls_tone_headstock
+
+# You recover from a condition (blind, confused, etc.)
+sound:recover:pls_bell_chime_new
+
+# You become faster.
+sound:speed:pls_bell_sustain
+
+# You attain a mystic shield.
+sound:shield:pls_bell_bowl
+
+# You become blessed.
+sound:blessed:sum_angel_song
+
+# You feel heroic.
+sound:hero:pls_tone_goblet
+
+# You are bold.
+sound:bold:pls_bell_hibell_soft
+
+# You become berserk.
+sound:berserk:pls_man_scream2
+
+# You feel protected from evil.
+sound:prot_evil:pls_bell_glass
+
+# You feel invulnerable. (does any item/spell do this anymore?)
+sound:invuln:pls_tone_blurk
+
+# You can see invisible things.
+sound:see_invis:pls_tone_clave6
+
+# You can see the infrared spectrum
+sound:infrared:pls_tone_clavelo8
+
+# You become resistant to acid.
+sound:res_acid:pls_man_sniff
+
+# You become resistant to electricity.
+sound:res_elec:pls_tone_elec
+
+# You become resistant to fire.
+sound:res_fire:pls_tone_scrape
+
+# You become resistant to cold.
+sound:res_cold:pls_tone_stick
+
+# You become resistant to poison.
+sound:res_pois:pls_man_spit
+
+# You become hungry.
+sound:hungry:pls_man_sob
+
+#
+# Player sounds - misc.
+#
+
+# You pick up money worth less than 200 au.
+sound:money1:plm_coins_light plm_coins_shake
+
+# You pick up money worth between 200 and 600 au.
+sound:money2:plm_chain_light plm_coins_pour
+
+# You pick up money worth 600 au or more.
+sound:money3:plm_coins_dump
+
+# You (or a monster) drop something on the ground.
+sound:drop:plm_drop_boot
+
+# You gain (or regain) a level.
+sound:level:plm_levelup
+
+# You successfully study a spell or prayer.
+sound:study:plm_book_pageturn
+
+# You teleport or phase door.
+sound:teleport:plm_chimes_jangle
+
+# You quaff a potion.
+sound:quaff:plm_bottle_clinks plm_cork_pop plm_cork_squeak
+
+# You zap a rod.
+sound:zap_rod:plm_zap_rod
+
+# You take a step.  (unimplemented)
+#sound:walk:
+
+# You teleport someone else away.
+sound:tpother:plm_chimes_jangle
+
+# You bump into a wall or door.
+sound:hitwall:plm_wood_thud
+
+# You eat something.
+sound:eat:plm_eat_bite
+
+# You successfully dig through something.
+sound:dig:plm_metal_clank
+
+# You open a door.
+sound:opendoor:plm_door_bolt plm_door_creak plm_door_dungeon plm_door_entrance plm_door_open plm_door_opening plm_door_rusty plm_door_squeaky
+
+# You shut a door.
+sound:shutdoor:plm_bang_dumpster plm_cabinet_shut plm_close_hatch plm_door_creakshut plm_door_latch plm_door_shut plm_door_slam
+
+# You teleport from a level (including via recall).
+sound:tplevel:sum_bell_crystal
+
+# Default "bell" sound for system messages.
+sound:bell:plm_jar_ding
+
+# You try to open something that's not a door.
+sound:nothing_to_open:plm_click_switch2 plm_door_knob
+
+# You fail to pick a lock.
+sound:lockpick_fail:plm_click_dry plm_click_switch plm_click_wood plm_door_echolock plm_door_wooden
+
+# You pick a lock.
+sound:lockpick:plm_break_wood plm_cabinet_open plm_chest_unlatch plm_lock_case plm_lock_distant plm_open_case
+
+# You disarm a trap.
+sound:disarm:plm_bang_ceramic plm_chest_latch plm_click_switch3
+
+# You go up stairs.
+sound:stairs_up:plm_floor_creak2
+
+# You go down stairs.
+sound:stairs_down:plm_floor_creak
+
+# You activate an artifact.
+sound:act_artifact:plm_aim_wand
+
+# You use a staff.
+sound:use_staff:plm_use_staff
+
+# An object is destroyed.
+sound:destroy:plm_bang_metal plm_break_canister plm_break_glass plm_break_glass2 plm_break_plates plm_break_shatter plm_break_smash plm_glass_breaking plm_glass_break plm_glass_smashing
+
+# You wield or take off something.
+sound:wield:plm_metal_sharpen
+
+# You take something in or out of your quiver.
+sound:quiver:plc_miss_swish
+
+# You wield a cursed item.
+sound:cursed:pls_man_oooh
+
+# You notice something (generic notice)
+sound:notice:id_bad_hmm
+
+# You notice something about your equipment or inventory.
+sound:pseudo_id:id_good_hmm
+
+# You successfully cast a spell.
+sound:cast_spell:plm_spell1 plm_spell2 plm_spell3
+
+# You successfully pray a prayer.
+sound:pray_prayer:sum_angel_song
+
+# You enter a pit.
+sound:enter_pit:enter_pit
+
+#
+# Monster Sounds - combat
+#
+
+# A monster flees in terror.
+sound:flee:mco_creature_yelp
+
+# A monster is killed.
+sound:kill:mco_howl_croak mco_howl_deep mco_howl_distressed mco_howl_high mco_howl_long
+
+# A unique is killed.
+sound:kill_unique:sum_ghost_wail
+
+# Morgoth, Lord of Darkness is killed.
+sound:kill_king:amb_guitar_chord
+
+# Attack - hit
+sound:mon_hit:mco_hit_whip
+
+# Attack - touch
+sound:mon_touch:mco_click_vibra
+
+# Attack - punch
+sound:mon_punch:mco_squish_snap
+
+# Attack - kick
+sound:mon_kick:mco_rubber_thud
+
+# Attack - claw
+sound:mon_claw:mco_ceramic_trill mco_scurry_dry
+
+# Attack - bite
+sound:mon_bite:mco_snarl_short mco_bite_soft mco_bite_munch mco_bite_long mco_bite_short mco_bite_gnash mco_bite_chomp mco_bite_regular mco_bite_small mco_bite_dainty mco_bite_hard mco_bite_chew
+
+# Attack - sting
+sound:mon_sting:mco_castanet_trill mco_tube_hit
+
+# Attack - butt
+sound:mon_butt:mco_cuica_rubbing mco_thud_crash
+
+# Attack - crush
+sound:mon_crush:mco_dino_low mco_squish_hit
+
+# Attack - engulf
+sound:mon_engulf:mco_dino_talk mco_dino_yawn
+
+# Attack - crawl
+sound:mon_crawl:mco_card_shuffle mco_shake_roll
+
+# Attack - drool
+sound:mon_drool:mco_creature_choking mco_liquid_squirt
+
+# Attack - spit
+sound:mon_spit:mco_attack_spray
+
+# Attack - gaze
+sound:mon_gaze:mco_thoing_backwards
+
+# Attack - wail
+sound:mon_wail:mco_dino_low
+
+# Attack - release spores
+sound:mon_spore:mco_dub_wobble mco_spray_long
+
+# Attack - beg for money
+sound:mon_beg:mco_man_mumble
+
+# Attack - insult
+sound:mon_insult:mco_strange_thwoink
+
+# Attack - moan
+sound:mon_moan:mco_strange_music
+
+# Attack - shriek
+sound:mon_shriek:mco_mouse_squeaks
+
+# Spell - create traps
+sound:mon_create_trap:mco_thoing_deep
+
+# Spell - cause fear
+sound:mon_cast_fear:mco_creature_groan mco_dino_slur
+
+# Multiply (breed explosively)
+sound:multiply:mco_frog_trill
+
+#
+# Summons
+#
+
+# Summon one or more monsters.
+sound:summon_monster:sum_chime_jangle
+
+# Summon ainur.
+sound:summon_ainu:sum_angel_song
+
+# Summon undead.
+sound:summon_undead:sum_ghost_oooo
+
+# Summon animals.
+sound:summon_animal:sum_lion_growl
+
+# Summon spiders.
+sound:summon_spider:sum_piano_scrape
+
+# Summon hounds.
+sound:summon_hound:sum_lion_growl
+
+# Summon hydras.
+sound:summon_hydra:sum_piano_scrape
+
+# Summon demons.
+sound:summon_demon:sum_ghost_wail sum_laugh_evil2
+
+# Summon dragon.
+sound:summon_dragon:sum_piano_scrape
+
+# Summon greater undead.
+sound:summon_gr_undead:sum_ghost_moan
+
+# Summon greater dragons.
+sound:summon_gr_dragon:sum_gong_temple
+
+# Summon greater demons.
+sound:summon_gr_demon:sum_ghost_moan
+
+# Summon Ringwraiths.
+sound:summon_ringwraith:sum_bell_hand
+
+# Summon uniques.
+sound:summon_unique:sum_bell_tone
+
+#
+# Breath weapons
+#
+
+# Breathe frost.
+sound:breathe_frost:mco_attack_breath
+
+# Breathe electricity.
+sound:breathe_elec:mco_attack_breath
+
+# Breathe acid.
+sound:breathe_acid:mco_attack_breath
+
+# Breathe gas.
+sound:breathe_gas:mco_attack_breath
+
+# Breathe fire.
+sound:breathe_fire:mco_attack_breath
+
+# Breathe water.
+sound:breathe_water:mco_attack_breath
+
+# Breathe disenchantment.
+sound:breathe_disenchant:mco_attack_breath
+
+# Breathe chaos.
+sound:breathe_chaos:mco_attack_breath
+
+# Breathe shards.
+sound:breathe_shards:mco_attack_breath
+
+# Breathe sound.
+sound:breathe_sound:mco_attack_breath
+
+# Breathe light.
+sound:breathe_light:mco_attack_breath
+
+# Breathe darkness.
+sound:breathe_dark:mco_attack_breath
+
+# Breathe nether.
+sound:breathe_nether:mco_attack_breath
+
+# Breathe nexus.
+sound:breathe_nexus:mco_attack_breath
+
+# Breathe time.
+sound:breathe_time:mco_attack_breath
+
+# Breathe inertia.
+sound:breathe_inertia:mco_attack_breath
+
+# Breathe gravity.
+sound:breathe_gravity:mco_attack_breath
+
+# Breathe plasma.
+sound:breathe_plasma:mco_attack_breath
+
+# Breathe force.
+sound:breathe_force:mco_attack_breath
+
+# Breathe the elements (power dragon scale mail).
+sound:breathe_elements:mco_attack_breath
+
+#
+# Identifying Items
+#
+
+# Identify a bad item (including bad ego items and artifacts).
+sound:identify_bad:id_bad_aww id_bad_dang id_bad_hmm id_bad_hmph id_bad_ohh
+
+# Identify a good ego item.
+sound:identify_ego:id_ego_whoa id_ego_woohoo id_ego_yeah id_ego_yeah2 id_ego_yes
+
+# Identify a good artifact.
+sound:identify_art:id_good_hey id_good_hey2 id_good_hmm id_good_huh id_good_ooh id_good_ooo id_good_wow

@@ -19,28 +19,44 @@
 
 /**** Available Functions ****/
 
-/* Format arguments into given bounded-length buffer */
+/*
+ * Format arguments into given bounded-length buffer
+ */
 extern size_t vstrnfmt(char *buf, size_t max, const char *fmt, va_list vp);
 
-/* Simple interface to "vstrnfmt()" */
+/*
+ * Simple interface to "vstrnfmt()"
+ */
 extern size_t strnfmt(char *buf, size_t max, const char *fmt, ...);
 
-/* Format arguments into a static resizing buffer */
+/*
+ * Format arguments into a static resizing buffer
+ */
 extern char *vformat(const char *fmt, va_list vp);
 
-/* Free the memory allocated for the format buffer */
+/*
+ * Free the memory allocated for the format buffer
+ */
 extern void vformat_kill(void);
 
-/* Append a formatted string to another string */
+/*
+ * Append a formatted string to another string
+ */
 extern void strnfcat(char *str, size_t max, size_t *end, const char *fmt, ...);
 
-/* Simple interface to "vformat()" */
+/*
+ * Simple interface to "vformat()"
+ */
 extern char *format(const char *fmt, ...);
 
-/* Vararg interface to "plog()", using "format()" */
+/*
+ * Vararg interface to "plog()", using "format()"
+ */
 extern void plog_fmt(const char *fmt, ...);
 
-/* Vararg interface to "quit()", using "format()" */
+/*
+ * Vararg interface to "quit()", using "format()"
+ */
 extern void quit_fmt(const char *fmt, ...);
 
 #endif /* INCLUDED_Z_FORM_H */

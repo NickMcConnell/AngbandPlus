@@ -3,7 +3,7 @@
  * Purpose: Save a graphical screen shot on Windows systems.
  *
  * Copyright (c) 2011 Brett Reid
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

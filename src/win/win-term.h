@@ -55,8 +55,8 @@ typedef struct
  */
 #define MAX_TERM_DATA 8
 
-extern bool use_graphics_nice;
-extern int use_graphics;
+extern bool arg_graphics_nice;
+extern int arg_graphics;
 
 /*
  * Default window layout function

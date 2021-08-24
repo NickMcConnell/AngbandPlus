@@ -2,7 +2,7 @@
  * File: sched-win.c
  * Purpose: Windows port of sched.c
  *
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -253,7 +253,7 @@ struct io_handler
 static struct io_handler *input_handlers = NULL;
 static int biggest_fd = -1;
 static fd_set input_mask;
-static int input_mask_cleared = FALSE;
+static int input_mask_cleared = false;
 static int max_fd;
 
 
@@ -266,10 +266,10 @@ static void clear_mask(void)
 
 void install_input(void (*func)(int, int), int fd, int arg)
 {
-    if (input_mask_cleared == FALSE)
+    if (input_mask_cleared == false)
     {
         clear_mask();
-        input_mask_cleared = TRUE;
+        input_mask_cleared = true;
     }
     if (fd < 0)
     {
@@ -297,7 +297,7 @@ void install_input(void (*func)(int, int), int fd, int arg)
     }
     input_handlers[fd].func = func;
     input_handlers[fd].arg = arg;
-    FD_SET(fd, &input_mask);
+    FD_SET((SOCKET)fd, &input_mask);
     if (fd >= max_fd) max_fd = fd + 1;
 }
 
@@ -312,7 +312,7 @@ void remove_input(int fd)
     if (FD_ISSET(fd, &input_mask))
     {
         input_handlers[fd].func = 0;
-        FD_CLR(fd, &input_mask);
+        FD_CLR((SOCKET)fd, &input_mask);
         if (fd == (max_fd - 1))
         {
             int i;
@@ -347,7 +347,7 @@ void sched(void)
     struct timeval tv;
     fd_set readmask = input_mask;
 
-    while (TRUE)
+    while (true)
     {
         tv.tv_sec = 0;
         tv.tv_usec = 333;

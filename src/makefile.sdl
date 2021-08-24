@@ -9,7 +9,7 @@
 #
 # Set tool and version names:
 !ifndef BCCDIR
-BCCDIR     = "C:\Program Files\Borland\CBuilder6"
+BCCDIR     = "C:\Program Files (x86)\Borland\CBuilder6"
 !endif
 
 CPP        = $(BCCDIR)\bin\bcc32
@@ -35,8 +35,8 @@ CLI_EXE = mangclient_sdl.exe
 #
 # Set any compiler options
 
-CCOPTS = -Hc -tW -lGn -w8080 -w-8004 -w-8012 -w-8057 -w-8065 \
-	-D_WIN32_WINNT=0x0410 -DWINVER=0x0500 \
+CCOPTS = -Hc -tW -lGn -w8080 -w-8004 -w-8057 \
+	-D_WIN32_WINNT=0x0500 -DWINVER=0x0500 \
 	-DWIN32 -D_WINDOWS -DSTRICT \
 	-D"USE_SDL" \
 	-I$(BCCDIR)\include \
@@ -57,51 +57,59 @@ CLI_SRCS = \
   common\guid.c \
   common\md5.c \
   common\net-win.c \
+  common\obj-gear-common.c \
+  common\obj-tval.c \
+  common\option.c \
   common\parser.c \
   common\randname.c \
   common\sockbuf.c \
-  common\spells.c \
   common\util.c \
-  common\variable.c \
   common\z-bitflag.c \
+  common\z-color.c \
+  common\z-dice.c \
+  common\z-expression.c \
   common\z-file.c \
   common\z-form.c \
-  common\z-msg.c \
   common\z-rand.c \
+  common\z-spells.c \
   common\z-type.c \
   common\z-util.c \
   common\z-virt.c \
-  client\c-cmd0.c \
   client\c-cmd.c \
   client\c-cmd-obj.c \
-  client\c-files.c \
-  client\c-init.c \
-  client\c-obj-ui.c \
-  client\c-store.c \
-  client\c-tables.c \
-  client\c-util.c \
-  client\c-variable.c \
-  client\c-xtra.c \
-  client\cmd-context.c \
-  client\game-cmd.c \
+  client\c-option.c \
+  client\c-player.c \
+  client\cmd-core.c \
+  client\conf.c \
   client\game-event.c \
+  client\game-input.c \
   client\grafmode.c \
-  client\keymap.c \
   client\main.c \
   client\main-sdl.c \
   client\netclient.c \
-  client\option.c \
-  client\prefs.c \
   client\set_focus.c \
   client\snd-sdl.c \
-  client\ui.c \
+  client\sound-core.c \
   client\ui-birth.c \
+  client\ui-command.c \
+  client\ui-context.c \
+  client\ui-death.c \
+  client\ui-display.c \
   client\ui-event.c \
+  client\ui-game.c \
+  client\ui-init.c \
+  client\ui-input.c \
+  client\ui-keymap.c \
   client\ui-knowledge.c \
   client\ui-menu.c \
+  client\ui-message.c \
+  client\ui-object.c \
   client\ui-options.c \
+  client\ui-output.c \
+  client\ui-prefs.c \
   client\ui-spell.c \
-  client\z-term.c
+  client\ui-store.c \
+  client\ui-term.c
 
 CLI_OBJS = \
   common\buildid.obj \
@@ -109,51 +117,59 @@ CLI_OBJS = \
   common\guid.obj \
   common\md5.obj \
   common\net-win.obj \
+  common\obj-gear-common.obj \
+  common\obj-tval.obj \
+  common\option.obj \
   common\parser.obj \
   common\randname.obj \
   common\sockbuf.obj \
-  common\spells.obj \
   common\util.obj \
-  common\variable.obj \
   common\z-bitflag.obj \
+  common\z-color.obj \
+  common\z-dice.obj \
+  common\z-expression.obj \
   common\z-file.obj \
   common\z-form.obj \
-  common\z-msg.obj \
   common\z-rand.obj \
+  common\z-spells.obj \
   common\z-type.obj \
   common\z-util.obj \
   common\z-virt.obj \
-  client\c-cmd0.obj \
   client\c-cmd.obj \
   client\c-cmd-obj.obj \
-  client\c-files.obj \
-  client\c-init.obj \
-  client\c-obj-ui.obj \
-  client\c-store.obj \
-  client\c-tables.obj \
-  client\c-util.obj \
-  client\c-variable.obj \
-  client\c-xtra.obj \
-  client\cmd-context.obj \
-  client\game-cmd.obj \
+  client\c-option.obj \
+  client\c-player.obj \
+  client\cmd-core.obj \
+  client\conf.obj \
   client\game-event.obj \
+  client\game-input.obj \
   client\grafmode.obj \
-  client\keymap.obj \
   client\main.obj \
   client\main-sdl.obj \
   client\netclient.obj \
-  client\option.obj \
-  client\prefs.obj \
   client\set_focus.obj \
   client\snd-sdl.obj \
-  client\ui.obj \
+  client\sound-core.obj \
   client\ui-birth.obj \
+  client\ui-command.obj \
+  client\ui-context.obj \
+  client\ui-death.obj \
+  client\ui-display.obj \
   client\ui-event.obj \
+  client\ui-game.obj \
+  client\ui-init.obj \
+  client\ui-input.obj \
+  client\ui-keymap.obj \
   client\ui-knowledge.obj \
   client\ui-menu.obj \
+  client\ui-message.obj \
+  client\ui-object.obj \
   client\ui-options.obj \
+  client\ui-output.obj \
+  client\ui-prefs.obj \
   client\ui-spell.obj \
-  client\z-term.obj
+  client\ui-store.obj \
+  client\ui-term.obj
 
 default: $(CLI_EXE)
 

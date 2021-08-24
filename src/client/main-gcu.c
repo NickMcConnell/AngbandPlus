@@ -3,8 +3,8 @@
  * Purpose: Support for "curses" systems
  *
  * Copyright (c) 1997 Ben Harrison, and others
- * Copyright (c) 2009-2011 Erik Osheim
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2009-2015 Erik Osheim
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,10 +19,8 @@
  */
 
 #include "c-angband.h"
-#include "netclient.h"
 
 #ifdef USE_GCU
-#include "main.h"
 
 #undef MOUSE_MOVED
 
@@ -34,9 +32,10 @@
 
 /*
  * The TERM environment variable; used for terminal capabilities.
+ * PWMAngband: pointless -- using PDCurses
  */
-static char *termtype;
-static bool loaded_terminfo;
+/*static char *termtype;
+static bool loaded_terminfo;*/
 
 /*
  * Information about a term
@@ -48,7 +47,15 @@ typedef struct term_data
 } term_data;
 
 /* Max number of windows on screen */
-#define MAX_TERM_DATA 4
+#define MAX_TERM_DATA 6
+
+/* Minimum main term size */
+#define MIN_TERM0_LINES NORMAL_HGT
+#define MIN_TERM0_COLS NORMAL_WID
+
+/* Comfortable subterm size */
+#define COMFY_SUBTERM_LINES 5
+#define COMFY_SUBTERM_COLS 40
 
 /* Information about our windows */
 static term_data data[MAX_TERM_DATA];
@@ -59,7 +66,7 @@ static int active = 0;
 #ifdef A_COLOR
 
 /*
- * Hack -- Define "A_BRIGHT" to be "A_BOLD", because on many
+ * Hack -- define "A_BRIGHT" to be "A_BOLD", because on many
  * machines, "A_BRIGHT" produces ugly "inverse" video.
  */
 #ifndef A_BRIGHT
@@ -67,9 +74,9 @@ static int active = 0;
 #endif
 
 /*
- * Software flag -- We are allowed to use color
+ * Software flag -- we are allowed to use color
  */
-static int can_use_color = FALSE;
+static int can_use_color = false;
 
 /*
  * Simple Angband to Curses color conversion table
@@ -77,8 +84,8 @@ static int can_use_color = FALSE;
 static int colortable[BASIC_COLORS];
 
 /* Screen info: use one big Term 0, or other subwindows? */
-static bool use_big_screen = FALSE;
-static bool bold_extended = FALSE;
+static bool bold_extended = false;
+static int term_count = 4;
 
 /*
  * Background color we should draw with; either BLACK or DEFAULT
@@ -151,7 +158,7 @@ static void Term_nuke_gcu(term *t)
     /* Count nuke's, handle last */
     if (--active != 0) return;
 
-    /* Hack -- Make sure the cursor is visible */
+    /* Hack -- make sure the cursor is visible */
     Term_xtra(TERM_XTRA_SHAPE, 1);
 
 #ifdef A_COLOR
@@ -177,49 +184,133 @@ static void Term_nuke_gcu(term *t)
 
 
 /*
+ * Helper function for get_gcu_term_size:
+ * Given inputs, populates size and start (rows and y, or cols and x)
+ * with correct values for a group (column or row) of terms.
+ *
+ * term_group_index: the placement of the group, e.g. top row is 0
+ * term_group_count: the number of groups in this dimension (2 or 3)
+ * window_size:      the number of grids the window has in this dimension
+ * min_term0_size:   the minimum main term size in this dimension
+ *   (80 or 24), also the maximum subterm size
+ * comfy_subterm_size: in balancing among three groups, we first give the
+ *   main term its minimum, and then allocate evenly between the other
+ *   two subterms until they are both comfy_subterm_size, at which point
+ *   we grow the outer subterm until it reaches min_term0_size. (The
+ *   middle subterm then grows until min_term0_size, and any further
+ *   window space goes to the main term.)
+ */
+static void balance_dimension(int *size, int *start, int term_group_index, int term_group_count,
+    int window_size, int min_term0_size, int comfy_subterm_size)
+{
+    /*
+     * Convenience variable for clarity.
+     * Note that it is also the number of separator rows/columns
+     */
+    int subterm_group_count = term_group_count - 1;
+
+    if (term_group_index == 0)
+    {
+        /* Main term */
+        *size = MAX(min_term0_size, window_size - subterm_group_count * (min_term0_size + 1));
+        *start = 0;
+    }
+    else if (term_group_index == term_group_count - 1)
+    {
+        /* Outer or only subterm */
+        if (window_size <= min_term0_size + subterm_group_count * (comfy_subterm_size + 1))
+        {
+            /*
+             * Not enough room for min term0 and all subterms comfy.
+             * Note that we round up here and down for the middle subterm
+             */
+            *size = (window_size - min_term0_size - subterm_group_count) / subterm_group_count;
+            if (window_size > min_term0_size + subterm_group_count + *size * subterm_group_count)
+                (*size)++;
+        }
+        else
+        {
+            *size = MIN(min_term0_size, window_size - min_term0_size -
+                comfy_subterm_size * (subterm_group_count - 1) - subterm_group_count);
+        }
+        *start = window_size - *size;
+    }
+    else
+    {
+        /* Middle subterm */
+        if (window_size <= subterm_group_count * (min_term0_size + 1) + comfy_subterm_size)
+        {
+            /* Outer subterm(s) not yet full-sized, thus at most comfy */
+            *size = MIN(comfy_subterm_size,
+                (window_size - min_term0_size - subterm_group_count) / subterm_group_count);
+        }
+        else
+            *size = MIN(min_term0_size, window_size - subterm_group_count * (min_term0_size + 1));
+        *start = 1 + MAX(min_term0_size, window_size - subterm_group_count * (min_term0_size + 1));
+    }
+}
+
+
+/*
  * For a given term number (i) set the upper left corner (x, y) and the
- * correct dimensions. Terminal layout: 0|2
- *                                      1|3
+ * correct dimensions. Remember to leave one row and column between
+ * subterms.
  */
 static void get_gcu_term_size(int i, int *rows, int *cols, int *y, int *x)
 {
-    if (use_big_screen && i == 0)
+    bool is_wide = (10 * LINES < 3 * COLS);
+    int term_rows = 1;
+    int term_cols = 1;
+    int term_row_index = 0;
+    int term_col_index = 0;
+
+    assert(i < term_count);
+
+    /*
+     * For sufficiently small windows, we can only use one term.
+     * Each additional row/column of terms requires at least two lines
+     * for the separators. If everything is as square as possible,
+     * the 3rd, 7th, 13th, etc. terms add to the short dimension, while
+     * the 2nd, 5th, 10th, etc. terms add to the long dimension.
+     * However, three terms are the special case of 1x3 or 3x1.
+     */
+    if (is_wide)
     {
-        *rows = LINES;
-        *cols = COLS;
-        *y = *x = 0;
-    }
-    else if (use_big_screen)
-        *rows = *cols = *y = *x = 0;
-    else if (i == 0)
-    {
-        *rows = NORMAL_HGT;
-        *cols = NORMAL_WID;
-        *y = *x = 0;
-    }
-    else if (i == 1)
-    {
-        *rows = LINES - NORMAL_HGT - 1;
-        *cols = NORMAL_WID;
-        *y = NORMAL_HGT + 1;
-        *x = 0;
-    }
-    else if (i == 2)
-    {
-        *rows = NORMAL_HGT;
-        *cols = COLS - NORMAL_WID - 1;
-        *y = 0;
-        *x = NORMAL_WID + 1;
-    }
-    else if (i == 3)
-    {
-        *rows = LINES - NORMAL_HGT - 1;
-        *cols = COLS - NORMAL_WID - 1;
-        *y = NORMAL_HGT + 1;
-        *x = NORMAL_WID + 1;
+        while (term_rows * (term_rows + 1) < term_count) term_rows++;
+        while (term_cols * term_cols < term_count) term_cols++;
+        if (term_count == 3)
+        {
+            term_rows = 1;
+            term_cols = 3;
+        }
+        term_col_index = i % term_cols;
+        term_row_index = (int)(i / term_cols);
     }
     else
-        *rows = *cols = *y = *x = 0;
+    {
+        while (term_rows * term_rows < term_count) term_rows++;
+        while (term_cols * (term_cols + 1) < term_count) term_cols++;
+        if (term_count == 3)
+        {
+            term_rows = 3;
+            term_cols = 1;
+        }
+        term_col_index = (int)(i / term_rows);
+        term_row_index = i % term_rows;
+    }
+
+    if ((LINES < MIN_TERM0_LINES + 2 * (term_rows - 1)) ||
+        (COLS  < MIN_TERM0_COLS + 2 * (term_cols - 1)))
+    {
+        term_rows = term_cols = term_count = 1;
+        if (i != 0)
+            *rows = *cols = *y = *x = 0;
+
+        term_col_index = term_row_index = 0;
+    }
+
+    balance_dimension(cols, x, term_col_index, term_cols, COLS, MIN_TERM0_COLS, COMFY_SUBTERM_COLS);
+    balance_dimension(rows, y, term_row_index, term_rows, LINES, MIN_TERM0_LINES, COMFY_SUBTERM_LINES);
 }
 
 #ifdef USE_NCURSES
@@ -231,11 +322,8 @@ static void do_gcu_resize(void)
     int i, rows, cols, y, x;
     term *old_t = Term;
 
-    for (i = 0; i < MAX_TERM_DATA; i++)
+    for (i = 0; i < term_count; i++)
     {
-        /* If we're using a big screen, we only care about Term-0 */
-        if (use_big_screen && i > 0) break;
-        
         /* Activate the current Term */
         Term_activate(&data[i].t);
 
@@ -302,7 +390,7 @@ static void gcu_keypress(int i)
     if (i == 27)
     {
         /* ESC */
-        nodelay(stdscr, TRUE);
+        nodelay(stdscr, true);
         j = getch();
         switch (j)
         {
@@ -333,7 +421,7 @@ static void gcu_keypress(int i)
             case ERR: break;
             default: ungetch(j);
         }
-        nodelay(stdscr, FALSE);
+        nodelay(stdscr, false);
     }
 
 #ifdef KEY_DOWN
@@ -394,15 +482,15 @@ static void gcu_keypress(int i)
         case KEY_SRIGHT: i = ARROW_RIGHT; mods |= KC_MOD_SHIFT; break;
 
         /* Key definitions, part 4 */
-        /*case CTL_LEFT: i = ARROW_LEFT; mods |= KC_MOD_CONTROL; break;
+        case CTL_LEFT: i = ARROW_LEFT; mods |= KC_MOD_CONTROL; break;
         case CTL_RIGHT: i = ARROW_RIGHT; mods |= KC_MOD_CONTROL; break;
         case CTL_PGUP: i = KC_PGUP; mods |= KC_MOD_CONTROL; break;
         case CTL_PGDN: i = KC_PGDOWN; mods |= KC_MOD_CONTROL; break;
         case CTL_HOME: i = KC_HOME; mods |= KC_MOD_CONTROL; break;
-        case CTL_END: i = KC_END; mods |= KC_MOD_CONTROL; break;*/
+        case CTL_END: i = KC_END; mods |= KC_MOD_CONTROL; break;
 
         /* Virtual keypad keys (NUMLOCK off) */
-        /*case KEY_A1: i = '7'; mods |= KC_MOD_KEYPAD; break;
+        case KEY_A1: i = '7'; mods |= KC_MOD_KEYPAD; break;
         case KEY_A2: i = '8'; mods |= KC_MOD_KEYPAD; break;
         case KEY_A3: i = '9'; mods |= KC_MOD_KEYPAD; break;
         case KEY_B1: i = '4'; mods |= KC_MOD_KEYPAD; break;
@@ -410,23 +498,23 @@ static void gcu_keypress(int i)
         case KEY_B3: i = '6'; mods |= KC_MOD_KEYPAD; break;
         case KEY_C1: i = '1'; mods |= KC_MOD_KEYPAD; break;
         case KEY_C2: i = '2'; mods |= KC_MOD_KEYPAD; break;
-        case KEY_C3: i = '3'; mods |= KC_MOD_KEYPAD; break;*/
+        case KEY_C3: i = '3'; mods |= KC_MOD_KEYPAD; break;
 
         /* Keypad keys */
-        /*case PADSLASH: i = '/'; mods |= KC_MOD_KEYPAD; break;
+        case PADSLASH: i = '/'; mods |= KC_MOD_KEYPAD; break;
         case PADENTER: i = KC_ENTER; mods |= KC_MOD_KEYPAD; break;
         case PADSTOP: i = '.'; mods |= KC_MOD_KEYPAD; break;
         case PADSTAR: i = '*'; mods |= KC_MOD_KEYPAD; break;
         case PADMINUS: i = '-'; mods |= KC_MOD_KEYPAD; break;
-        case PADPLUS: i = '+'; mods |= KC_MOD_KEYPAD; break;*/
+        case PADPLUS: i = '+'; mods |= KC_MOD_KEYPAD; break;
 
         /* Key definitions, part 5 */
-        /*case CTL_UP: i = ARROW_UP; mods |= KC_MOD_CONTROL; break;
+        case CTL_UP: i = ARROW_UP; mods |= KC_MOD_CONTROL; break;
         case CTL_DOWN: i = ARROW_DOWN; mods |= KC_MOD_CONTROL; break;
-        case PAD0: i = '0'; mods |= KC_MOD_KEYPAD; break;*/
+        case PAD0: i = '0'; mods |= KC_MOD_KEYPAD; break;
 
         /* Key definitions, part 6 */
-        /*case CTL_PAD0: i = '0'; mods |= (KC_MOD_CONTROL | KC_MOD_KEYPAD); break;
+        case CTL_PAD0: i = '0'; mods |= (KC_MOD_CONTROL | KC_MOD_KEYPAD); break;
         case CTL_PAD1: i = '1'; mods |= (KC_MOD_CONTROL | KC_MOD_KEYPAD); break;
         case CTL_PAD2: i = '2'; mods |= (KC_MOD_CONTROL | KC_MOD_KEYPAD); break;
         case CTL_PAD3: i = '3'; mods |= (KC_MOD_CONTROL | KC_MOD_KEYPAD); break;
@@ -435,17 +523,17 @@ static void gcu_keypress(int i)
         case CTL_PAD6: i = '6'; mods |= (KC_MOD_CONTROL | KC_MOD_KEYPAD); break;
         case CTL_PAD7: i = '7'; mods |= (KC_MOD_CONTROL | KC_MOD_KEYPAD); break;
         case CTL_PAD8: i = '8'; mods |= (KC_MOD_CONTROL | KC_MOD_KEYPAD); break;
-        case CTL_PAD9: i = '9'; mods |= (KC_MOD_CONTROL | KC_MOD_KEYPAD); break;*/
+        case CTL_PAD9: i = '9'; mods |= (KC_MOD_CONTROL | KC_MOD_KEYPAD); break;
 
         /* Key definitions, part 7 */
-        /*case KEY_SUP: i = ARROW_UP; mods |= KC_MOD_SHIFT; break;
-        case KEY_SDOWN: i = ARROW_DOWN; mods |= KC_MOD_SHIFT; break;*/
+        case KEY_SUP: i = ARROW_UP; mods |= KC_MOD_SHIFT; break;
+        case KEY_SDOWN: i = ARROW_DOWN; mods |= KC_MOD_SHIFT; break;
 
         default:
         {
             if (i < KEY_MIN) break;
 
-            /* Mega-Hack -- Fold, spindle, and mutilate the keys to fit in 7 bits. */
+            /* Hack -- fold, spindle, and mutilate the keys to fit in 7 bits. */
             if (i >= 252) i = KEY_F(63) - (i - 252);
             if (i >= ARROW_DOWN) i += 4;
 
@@ -486,13 +574,13 @@ static errr gcu_WaitEvent(int *pk)
 static errr gcu_PollEvent(int *pk)
 {
     /* Do not wait for it */
-    nodelay(stdscr, TRUE);
+    nodelay(stdscr, true);
 
     /* Check for keypresses */
     *pk = getch();
 
     /* Wait for it next time */
-    nodelay(stdscr, FALSE);
+    nodelay(stdscr, false);
 
     /* None ready */
     if (*pk == ERR) return (0);
@@ -585,7 +673,7 @@ static errr Term_xtra_gcu_react(void)
     {
         /*
          * If we have more than 16 colors, find the best matches. These numbers
-         * correspond to xterm/rxvt's builtin color numbers--they do not
+         * correspond to xterm/rxvt's builtin color numbers -- they do not
          * correspond to curses' constants OR with curses' color pairs.
          *
          * XTerm has 216 (6*6*6) RGB colors, with each RGB setting 0-5.
@@ -663,7 +751,7 @@ static errr Term_curs_gcu(int x, int y)
 
 /*
  * Erase a grid of space
- * Hack -- Try to be "semi-efficient".
+ * Hack -- try to be "semi-efficient".
  */
 static errr Term_wipe_gcu(int x, int y, int n)
 {
@@ -684,7 +772,7 @@ static errr Term_wipe_gcu(int x, int y, int n)
 /*
  * Place some text on the screen using an attribute
  */
-static errr Term_text_gcu(int x, int y, int n, byte a, const char *s)
+static errr Term_text_gcu(int x, int y, int n, u16b a, const char *s)
 {
     term_data *td = (term_data *)(Term->data);
     wchar_t buf[NORMAL_WID + 1];
@@ -692,37 +780,37 @@ static errr Term_text_gcu(int x, int y, int n, byte a, const char *s)
 
     mbstowcs(buf, s, n);
 
-    /* Hack -- Replace magma/quartz by semi-solid blocks */
+    /* Hack -- replace magma/quartz by semi-solid blocks */
     for (i = 0; i < n; i++)
     {
         if (buf[i] == 0xAE) buf[i] = 0x2591;
     }
 
-    /* Hack -- Full icky screen */
+    /* Hack -- full icky screen */
     if (full_icky_screen)
     {
         for (i = 0; i <= n; i++)
         {
-            int px = x + i + p_ptr->offset_x - COL_MAP, py = y + p_ptr->offset_y - ROW_MAP;
+            int px = x + i + player->offset_x - COL_MAP, py = y + player->offset_y - ROW_MAP;
 
             /*
-             * Hack -- For the minimap, the @ may not be displayed with this function so check the
+             * Hack -- for the minimap, the @ may not be displayed with this function so check the
              * position instead and add a "white smiling face" at player location
              */
             if (i == n)
             {
-                if (Term->minimap_active && (px == p_ptr->px) && (py == p_ptr->py))
+                if (Term->minimap_active && (px == player->px) && (py == player->py))
                     buf[n++] = 0x263A;
             }
 
-            /* Hack -- Display the @ as a "white smiling face" on icky screens */
-            else if (p_ptr->screen_icky)
+            /* Hack -- display the @ as a "white smiling face" on icky screens */
+            else if (player->screen_save_depth)
             {
                 if (buf[i] == '@') buf[i] = 0x263A;
             }
 
-            /* Hack -- Always display the player as a @ except when looking/targeting */
-            else if ((px == p_ptr->px) && (py == p_ptr->py) && !target_icky_screen)
+            /* Hack -- always display the player as a @ except when looking/targeting */
+            else if ((px == player->px) && (py == player->py) && !target_icky_screen)
                 buf[i] = '@';
         }
     }
@@ -730,13 +818,24 @@ static errr Term_text_gcu(int x, int y, int n, byte a, const char *s)
 #ifdef A_COLOR
     if (can_use_color)
     {
+        int mode;
+
         /* The lower 7 bits of the attribute indicate the fg/bg */
         int attr = a & 127;
+        int color = colortable[attr];
 
         /* The high bit of the attribute indicates a reversed fg/bg */
-        int flip = ((a > 127)? A_REVERSE: A_NORMAL);
+        bool reversed = a > 127;
 
-        wattrset(td->win, colortable[attr] | flip);
+        /* The following check for A_BRIGHT is to avoid incorrect lighting */
+        if (reversed && (color & A_BRIGHT))
+            mode = (color & ~A_BRIGHT) | A_BLINK | A_REVERSE;
+        else if (reversed)
+            mode = color | A_REVERSE;
+        else
+            mode = color | A_NORMAL;
+
+        wattrset(td->win, mode);
         mvwaddnwstr(td->win, y, x, buf, n);
         wattrset(td->win, A_NORMAL);
 
@@ -768,14 +867,14 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
     term_init(t, cols, rows, rows, 256);
 
     /* Avoid bottom right corner */
-    t->icky_corner = TRUE;
+    t->icky_corner = true;
 
     /* Erase with "white space" */
-    t->attr_blank = TERM_WHITE;
+    t->attr_blank = COLOUR_WHITE;
     t->char_blank = ' ';
 
     /* Differentiate between BS/^h, Tab/^i, etc. */
-    t->complex_input = TRUE;
+    t->complex_input = true;
 
     /* Set some hooks */
     t->init_hook = Term_init_gcu;
@@ -810,15 +909,22 @@ static void hook_plog(const char *str)
 
 static void hook_quit(const char *str)
 {
-    static bool quitting = FALSE;
+    static bool quitting = false;
+    int i;
 
     /* Don't re-enter if already quitting */
     if (quitting) return;
-    quitting = TRUE;
+    quitting = true;
+
+    for (i = 0; i < term_count; i++)
+    {
+        if (angband_term[i]) term_nuke(angband_term[i]);
+    }
 
     endwin();
 
     /* Free resources */
+    textui_cleanup();
     cleanup_angband();
 
     /* Cleanup network stuff */
@@ -837,13 +943,13 @@ static BOOL CtrlHandler(DWORD fdwCtrlType)
             quit(NULL);
             return FALSE;
         default:
-            return FALSE;
+            return TRUE;
     }
 }
 
 
 /*
- * Prepare "curses" for use by the file "z-term.c"
+ * Prepare "curses" for use by the file "ui-term.c"
  *
  * Installs the "hook" functions defined above, and then activates
  * the main screen "term", which clears the screen and such things.
@@ -857,8 +963,8 @@ errr init_gcu(void)
     int next_win = 0;
 
     /* Initialize info about terminal capabilities */
-    termtype = getenv("TERM");
-    loaded_terminfo = termtype && tgetent(0, termtype) == 1;
+    /*termtype = getenv("TERM");
+    loaded_terminfo = termtype && tgetent(0, termtype) == 1;*/
 
     /* We do it like this to prevent a link error with curseses that lack ESCDELAY. */
     if (!getenv("ESCDELAY")) putenv("ESCDELAY=20");
@@ -871,11 +977,11 @@ errr init_gcu(void)
     quit_aux = hook_quit;
 
     /* Register a control handler */
-    if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE))
+    if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, true))
         quit("Could not set control handler");
 
     /* Require standard size screen */
-    if (LINES < NORMAL_HGT || COLS < NORMAL_WID)
+    if (LINES < MIN_TERM0_LINES || COLS < MIN_TERM0_COLS)
         quit("Angband needs at least an 80x24 'curses' screen");
 
 #ifdef A_COLOR
@@ -901,40 +1007,40 @@ errr init_gcu(void)
         init_pair(PAIR_BLACK, COLOR_BLACK, bg_color);
 
         /* Prepare the colors */
-        colortable[TERM_DARK]     = (COLOR_PAIR(PAIR_BLACK));
-        colortable[TERM_WHITE]    = (COLOR_PAIR(PAIR_WHITE) | A_BRIGHT);
-        colortable[TERM_SLATE]    = (COLOR_PAIR(PAIR_WHITE));
-        colortable[TERM_ORANGE]   = (COLOR_PAIR(PAIR_YELLOW));
-        colortable[TERM_RED]      = (COLOR_PAIR(PAIR_RED));
-        colortable[TERM_GREEN]    = (COLOR_PAIR(PAIR_GREEN));
-        colortable[TERM_BLUE]     = (COLOR_PAIR(PAIR_BLUE));
-        colortable[TERM_UMBER]    = (COLOR_PAIR(PAIR_YELLOW));
-        colortable[TERM_L_DARK]   = (COLOR_PAIR(PAIR_BLACK) | A_BRIGHT);
-        colortable[TERM_L_WHITE]  = (COLOR_PAIR(PAIR_WHITE));
-        colortable[TERM_L_PURPLE] = (COLOR_PAIR(PAIR_MAGENTA) | A_BRIGHT);
-        colortable[TERM_YELLOW]   = (COLOR_PAIR(PAIR_YELLOW) | A_BRIGHT);
-        colortable[TERM_L_RED]    = (COLOR_PAIR(PAIR_RED) | A_BRIGHT);
-        colortable[TERM_L_GREEN]  = (COLOR_PAIR(PAIR_GREEN) | A_BRIGHT);
-        colortable[TERM_L_BLUE]   = (COLOR_PAIR(PAIR_BLUE) | A_BRIGHT);
-        colortable[TERM_L_UMBER]  = (COLOR_PAIR(PAIR_YELLOW));
+        colortable[COLOUR_DARK]     = (COLOR_PAIR(PAIR_BLACK));
+        colortable[COLOUR_WHITE]    = (COLOR_PAIR(PAIR_WHITE) | A_BRIGHT);
+        colortable[COLOUR_SLATE]    = (COLOR_PAIR(PAIR_WHITE));
+        colortable[COLOUR_ORANGE]   = (COLOR_PAIR(PAIR_YELLOW));
+        colortable[COLOUR_RED]      = (COLOR_PAIR(PAIR_RED));
+        colortable[COLOUR_GREEN]    = (COLOR_PAIR(PAIR_GREEN));
+        colortable[COLOUR_BLUE]     = (COLOR_PAIR(PAIR_BLUE));
+        colortable[COLOUR_UMBER]    = (COLOR_PAIR(PAIR_YELLOW));
+        colortable[COLOUR_L_DARK]   = (COLOR_PAIR(PAIR_BLACK) | A_BRIGHT);
+        colortable[COLOUR_L_WHITE]  = (COLOR_PAIR(PAIR_WHITE));
+        colortable[COLOUR_L_PURPLE] = (COLOR_PAIR(PAIR_MAGENTA) | A_BRIGHT);
+        colortable[COLOUR_YELLOW]   = (COLOR_PAIR(PAIR_YELLOW) | A_BRIGHT);
+        colortable[COLOUR_L_RED]    = (COLOR_PAIR(PAIR_RED) | A_BRIGHT);
+        colortable[COLOUR_L_GREEN]  = (COLOR_PAIR(PAIR_GREEN) | A_BRIGHT);
+        colortable[COLOUR_L_BLUE]   = (COLOR_PAIR(PAIR_BLUE) | A_BRIGHT);
+        colortable[COLOUR_L_UMBER]  = (COLOR_PAIR(PAIR_YELLOW));
 
-        colortable[TERM_PURPLE]      = (COLOR_PAIR(PAIR_MAGENTA));
-        colortable[TERM_VIOLET]      = (COLOR_PAIR(PAIR_MAGENTA));
-        colortable[TERM_TEAL]        = (COLOR_PAIR(PAIR_CYAN));
-        colortable[TERM_MUD]         = (COLOR_PAIR(PAIR_YELLOW));
-        colortable[TERM_L_YELLOW]    = (COLOR_PAIR(PAIR_YELLOW) | A_BRIGHT);
-        colortable[TERM_MAGENTA]     = (COLOR_PAIR(PAIR_MAGENTA));
-        colortable[TERM_L_TEAL]      = (COLOR_PAIR(PAIR_CYAN) | A_BRIGHT);
-        colortable[TERM_L_VIOLET]    = (COLOR_PAIR(PAIR_MAGENTA) | A_BRIGHT);
-        colortable[TERM_L_PINK]      = (COLOR_PAIR(PAIR_MAGENTA) | A_BRIGHT);
-        colortable[TERM_MUSTARD]     = (COLOR_PAIR(PAIR_YELLOW) | A_BRIGHT);
-        colortable[TERM_BLUE_SLATE]  = (COLOR_PAIR(PAIR_CYAN) | A_BRIGHT);
-        colortable[TERM_DEEP_L_BLUE] = (COLOR_PAIR(PAIR_CYAN));
+        colortable[COLOUR_PURPLE]      = (COLOR_PAIR(PAIR_MAGENTA));
+        colortable[COLOUR_VIOLET]      = (COLOR_PAIR(PAIR_MAGENTA));
+        colortable[COLOUR_TEAL]        = (COLOR_PAIR(PAIR_CYAN));
+        colortable[COLOUR_MUD]         = (COLOR_PAIR(PAIR_YELLOW));
+        colortable[COLOUR_L_YELLOW]    = (COLOR_PAIR(PAIR_YELLOW) | A_BRIGHT);
+        colortable[COLOUR_MAGENTA]     = (COLOR_PAIR(PAIR_MAGENTA));
+        colortable[COLOUR_L_TEAL]      = (COLOR_PAIR(PAIR_CYAN) | A_BRIGHT);
+        colortable[COLOUR_L_VIOLET]    = (COLOR_PAIR(PAIR_MAGENTA) | A_BRIGHT);
+        colortable[COLOUR_L_PINK]      = (COLOR_PAIR(PAIR_MAGENTA) | A_BRIGHT);
+        colortable[COLOUR_MUSTARD]     = (COLOR_PAIR(PAIR_YELLOW) | A_BRIGHT);
+        colortable[COLOUR_BLUE_SLATE]  = (COLOR_PAIR(PAIR_CYAN) | A_BRIGHT);
+        colortable[COLOUR_DEEP_L_BLUE] = (COLOR_PAIR(PAIR_CYAN));
     }
 #endif
 
-    /* Paranoia -- Assume no waiting */
-    nodelay(stdscr, FALSE);
+    /* Paranoia -- assume no waiting */
+    nodelay(stdscr, false);
 
     /* Prepare */
     cbreak();
@@ -942,13 +1048,11 @@ errr init_gcu(void)
     nonl();
 
     /* Tell curses to rewrite escape sequences to KEY_UP and friends */
-    keypad(stdscr, TRUE);
+    keypad(stdscr, true);
 
     /* Now prepare the term(s) */
-    for (i = 0; i < MAX_TERM_DATA; i++)
+    for (i = 0; i < term_count; i++)
     {
-        if (use_big_screen && i > 0) break;
-
         /*
          * Get the terminal dimensions; if the user asked for a big screen
          * then we'll put the whole screen in term 0; otherwise we'll divide

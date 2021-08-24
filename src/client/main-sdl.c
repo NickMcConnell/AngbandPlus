@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2007 Ben Harrison, Gregory Velichansky, Eric Stevens,
  * Leon Marrick, Iain McFall, and others
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -17,14 +17,11 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
+
 #include "c-angband.h"
-#include "../common/buildid.h"
-#include "c-cmds.h"
-#include "netclient.h"
 
 #ifdef USE_SDL
 
-#include "main.h"
 #include "..\SDL\SDL.h"
 #include "..\SDL\SDL_ttf.h"
 #include "..\SDL\SDL_image.h"
@@ -44,16 +41,15 @@ static int full_w;
 static int full_h;
 
 /* Want fullscreen? */
-static bool fullscreen = FALSE;
+static bool fullscreen = false;
 
 /* Want nice graphics? */
-static bool nicegfx = FALSE;
+static bool nicegfx = false;
 
 static int overdraw = 0;
 static int overdraw_max = 0;
 
-/* XXXXXXXXX */
-static char *ANGBAND_DIR_USER_SDL;
+static char *sdl_settings_file;
 
 /*
  * Used as 'system' font
@@ -96,10 +92,8 @@ struct term_window
 {
     term term_data;
     SDL_Surface *surface;   /* The surface for this window */
-#ifdef USE_GRAPHICS
     SDL_Surface *tiles;     /* The appropriately sized tiles for this window */
     SDL_Surface *ttrans;    /* Translucent tiles (pseudo-3D) */
-#endif
     byte Term_idx;          /* Index of term that relates to this */
     int top;                /* Window Coordinates on the main screen */
     int left;
@@ -213,7 +207,9 @@ static bool popped;
 static term_window windows[ANGBAND_TERM_MAX];
 static int Zorder[ANGBAND_TERM_MAX];
 
-/* Keep track of the mouse status */
+/*
+ * Keep track of the mouse status
+ */
 static mouse_info mouse;
 
 /*
@@ -248,11 +244,8 @@ static int MoreSnapMinus;   /* Decrease snap range */
 static bool Moving;             /* Moving a window */
 static bool Sizing;             /* Sizing a window */
 static SDL_Rect SizingSpot;     /* Rect to describe the sizing area */
-static bool Sizingshow = FALSE; /* Is the resize thingy displayed? */
+static bool Sizingshow = false; /* Is the resize thingy displayed? */
 static SDL_Rect SizingRect;     /* Rect to describe the current resize window */
-
-#ifdef USE_GRAPHICS
-#include "grafmode.h"
 
 static SDL_Surface *GfxSurface = NULL;  /* A surface for the graphics */
 static SDL_Surface *mmSurface = NULL;   /* Minimap surface (pseudo-3D) */
@@ -263,7 +256,6 @@ static int MoreHeightPlus;  /* Increase tile height */
 static int MoreHeightMinus; /* Decrease tile height */
 static int *GfxButtons;     /* Graphics mode buttons */
 static int SelectedGfx;     /* Current selected gfx */
-#endif
 
 
 /*
@@ -286,13 +278,13 @@ static SDL_Rect *sdl_RECT(int x, int y, int w, int h, SDL_Rect *rect)
  */
 static bool point_in(SDL_Rect *rect, int x, int y)
 {
-    if (x < rect->x) return (FALSE);
-    if (y < rect->y) return (FALSE);
-    if (x >= rect->x + rect->w) return (FALSE);
-    if (y >= rect->y + rect->h) return (FALSE);
+    if (x < rect->x) return false;
+    if (y < rect->y) return false;
+    if (x >= rect->x + rect->w) return false;
+    if (y >= rect->y + rect->h) return false;
     
     /* Must be inside */
-    return (TRUE);
+    return true;
 }
 
 
@@ -336,7 +328,7 @@ static errr sdl_CheckFont(const char *fontname, int *width, int *height)
     TTF_Font *ttf_font;
     
     /* Build the path */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, fontname);
+    path_build(buf, sizeof(buf), ANGBAND_DIR_FONTS, fontname);
     
     /* Attempt to load it */
     ttf_font = TTF_OpenFont(buf, 0);
@@ -379,7 +371,7 @@ static errr sdl_FontCreate(sdl_Font *font, const char *fontname, SDL_Surface *su
     TTF_Font *ttf_font;
     
     /* Build the path */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, fontname);
+    path_build(buf, sizeof(buf), ANGBAND_DIR_FONTS, fontname);
     
     /* Attempt to load it */
     ttf_font = TTF_OpenFont(buf, 0);
@@ -394,13 +386,54 @@ static errr sdl_FontCreate(sdl_Font *font, const char *fontname, SDL_Surface *su
     TTF_SetFontHinting(ttf_font, TTF_HINTING_LIGHT);
     
     /* Fill in some of the font struct */
-    my_strcpy(font->name, fontname, 30);
+    if (font->name != fontname) my_strcpy(font->name, fontname, 30);
     font->pitch = surface->pitch;
     font->bpp = surface->format->BytesPerPixel;
     font->sdl_font = ttf_font;
     
     /* Success */
     return (0); 
+}
+
+
+/*
+ * Draw some text onto a surface, allowing shaded backgrounds.
+ * The surface is first checked to see if it is compatible with
+ * this font, if it isn't the the font will be 're-precalculated'.
+ *
+ * You can, I suppose, use one font on many surfaces, but it is
+ * definitely not recommended. One font per surface is good enough.
+ */
+static errr sdl_mapFontDraw(sdl_Font *font, SDL_Surface *surface, SDL_Color colour,
+    SDL_Color bg, int x, int y, int n, const char *s)
+{
+    Uint8 bpp = surface->format->BytesPerPixel;
+    Uint16 pitch = surface->pitch;
+    SDL_Rect rc;
+    SDL_Surface *text;
+
+    if ((bpp != font->bpp) || (pitch != font->pitch))
+        sdl_FontCreate(font, font->name, surface);
+
+    /* Lock the window surface (if necessary) */
+    if (SDL_MUSTLOCK(surface))
+    {
+        if (SDL_LockSurface(surface) < 0) return (-1);
+    }
+
+    sdl_RECT(x, y, n * font->width, font->height, &rc);
+    text = TTF_RenderText_Shaded(font->sdl_font, s, colour, bg);
+    if (text)
+    {
+        SDL_BlitSurface(text, NULL, surface, &rc);
+        SDL_FreeSurface(text);
+    }
+
+    /* Unlock the surface */
+    if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+
+    /* Success */
+    return (0);
 }
 
 
@@ -436,10 +469,10 @@ static errr sdl_FontDraw(sdl_Font *font, SDL_Surface *surface, SDL_Color colour,
         SDL_BlitSurface(text, NULL, surface, &rc);
         SDL_FreeSurface(text);
     }
-    
+
     /* Unlock the surface */
     if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
-    
+
     /* Success */
     return (0);
 }
@@ -478,7 +511,7 @@ static void sdl_ButtonMove(sdl_Button *button, int x, int y)
 {
     button->pos.x = x;
     button->pos.y = y;
-    button->owner->need_update = TRUE;
+    button->owner->need_update = true;
 }
 
 
@@ -489,7 +522,7 @@ static void sdl_ButtonSize(sdl_Button *button, int w, int h)
 {
     button->pos.w = w;
     button->pos.h = h;
-    button->owner->need_update = TRUE;
+    button->owner->need_update = true;
 }
 
 
@@ -499,7 +532,7 @@ static void sdl_ButtonSize(sdl_Button *button, int w, int h)
 static void sdl_ButtonCaption(sdl_Button *button, const char *s)
 {
     my_strcpy(button->caption, s, sizeof(button->caption));
-    button->owner->need_update = TRUE;
+    button->owner->need_update = true;
 }
 
 
@@ -512,12 +545,14 @@ static void sdl_ButtonVisible(sdl_Button *button, bool visible)
     {
         button->visible = visible;
         
-        button->owner->need_update = TRUE;
+        button->owner->need_update = true;
     }
 }
 
 
-/* Maximum amount of buttons in a bank */
+/*
+ * Maximum amount of buttons in a bank
+ */
 #define MAX_BUTTONS 40
 
 
@@ -532,9 +567,9 @@ static void sdl_ButtonVisible(sdl_Button *button, bool visible)
 static void sdl_ButtonBankInit(sdl_ButtonBank *bank, sdl_Window *window)
 {
     bank->window = window;
-    bank->buttons = C_ZNEW(MAX_BUTTONS, sdl_Button);
-    bank->used = C_ZNEW(MAX_BUTTONS, bool);
-    bank->need_update = TRUE;
+    bank->buttons = mem_zalloc(MAX_BUTTONS * sizeof(sdl_Button));
+    bank->used = mem_zalloc(MAX_BUTTONS * sizeof(bool));
+    bank->need_update = true;
 }
 
 
@@ -564,7 +599,7 @@ static void sdl_ButtonBankDrawAll(sdl_ButtonBank *bank)
         
         sdl_ButtonDraw(button);
     }
-    bank->need_update = FALSE;
+    bank->need_update = false;
 }
 
 
@@ -588,10 +623,10 @@ static int sdl_ButtonBankNew(sdl_ButtonBank *bank)
     new_button = &bank->buttons[i];
     
     /* Mark the button as used */
-    bank->used[i] = TRUE;
+    bank->used[i] = true;
 
     /* Clear it */
-    WIPE(new_button, sdl_Button);
+    memset(new_button, 0, sizeof(sdl_Button));
     
     /* Mark it as mine */
     new_button->owner = bank;
@@ -646,15 +681,15 @@ static bool sdl_ButtonBankMouseDown(sdl_ButtonBank *bank, int x, int y)
         /* Check the coordinates */
         if (point_in(&button->pos, x, y))
         {
-            button->selected = TRUE;
+            button->selected = true;
             
             /* Draw it */
-            bank->need_update = TRUE;
+            bank->need_update = true;
             
-            return (TRUE);
+            return true;
         }
     }
-    return (FALSE);
+    return false;
 }
 
 
@@ -684,12 +719,12 @@ static bool sdl_ButtonBankMouseUp(sdl_ButtonBank *bank, int x, int y)
                 if (button->activate) (*button->activate)(button);
                 
                 /* Now not selected */
-                button->selected = FALSE;
+                button->selected = false;
                 
                 /* Draw it */
-                bank->need_update = TRUE;
+                bank->need_update = true;
                 
-                return (TRUE);
+                return true;
             }
         }
         else
@@ -699,15 +734,15 @@ static bool sdl_ButtonBankMouseUp(sdl_ButtonBank *bank, int x, int y)
             if (button->selected)
             {
                 /* Now not selected */
-                button->selected = FALSE;
+                button->selected = false;
                 
                 /* Draw it */
-                bank->need_update = TRUE;
+                bank->need_update = true;
             }
         }
     }
     
-    return (FALSE);
+    return false;
 }
 
 
@@ -721,7 +756,7 @@ static void sdl_WindowFree(sdl_Window* window)
         SDL_FreeSurface(window->surface);
         sdl_ButtonBankFree(&window->buttons);
         sdl_FontFree(&window->font);
-        WIPE(window, sdl_Window);
+        memset(window, 0, sizeof(sdl_Window));
     }
 }
 
@@ -741,8 +776,8 @@ static void sdl_WindowInit(sdl_Window* window, int w, int h, SDL_Surface *owner,
         owner->format->Bmask, owner->format->Amask);
     sdl_ButtonBankInit(&window->buttons, window);
     sdl_FontCreate(&window->font, fontname, window->surface);
-    window->visible = TRUE;
-    window->need_update = TRUE;
+    window->visible = true;
+    window->need_update = true;
 }
 
 
@@ -777,9 +812,9 @@ static void sdl_WindowUpdate(sdl_Window* window)
         
         sdl_ButtonBankDrawAll(&window->buttons);
         
-        window->need_update = FALSE;
+        window->need_update = false;
         
-        WIPE(&Event, SDL_Event);
+        memset(&Event, 0, sizeof(SDL_Event));
         
         Event.type = WINDOW_DRAW;
         
@@ -797,7 +832,6 @@ static void term_windowFree(term_window* win)
         SDL_FreeSurface(win->surface);
         win->surface = NULL;
 
-#ifdef USE_GRAPHICS
         /* Invalidate the gfx surface */
         if (win->tiles)
         {
@@ -809,7 +843,6 @@ static void term_windowFree(term_window* win)
             SDL_FreeSurface(win->ttrans);
             win->ttrans = NULL;
         }
-#endif
 
         term_nuke(&win->term_data);
     }
@@ -834,15 +867,15 @@ static void hook_plog(const char *str)
 static void hook_quit(const char *str)
 {
     int i;
-    static bool quitting = FALSE;
+    static bool quitting = false;
 
     /* Don't re-enter if already quitting */
     if (quitting) return;
-    quitting = TRUE;
+    quitting = true;
     
     save_prefs();
     
-    string_free(ANGBAND_DIR_USER_SDL);
+    string_free(sdl_settings_file);
     
     /* Free the surfaces of the windows */
     for (i = 0; i < ANGBAND_TERM_MAX; i++)
@@ -851,11 +884,9 @@ static void hook_quit(const char *str)
         string_free(windows[i].req_font);
     }
 
-#ifdef USE_GRAPHICS
     /* Free the graphics surfaces */
     if (GfxSurface) SDL_FreeSurface(GfxSurface);
     if (mmSurface) SDL_FreeSurface(mmSurface);
-#endif
 
     /* Free the 'System font' */
     sdl_FontFree(&SystemFont);
@@ -882,6 +913,7 @@ static void hook_quit(const char *str)
         string_free(FontList[i]);
 
     /* Free resources */
+    textui_cleanup();
     cleanup_angband();
 
     /* Cleanup network stuff */
@@ -913,7 +945,7 @@ static void BringToTop(void)
     {
         if (Zorder[idx] == SelectedTerm) break;
     }
-    
+
     if (idx == ANGBAND_TERM_MAX) return;
     
     for (i = idx; i < ANGBAND_TERM_MAX - 1; i++)
@@ -982,7 +1014,7 @@ static void draw_statusbar(sdl_Window *window)
     button = sdl_ButtonBankGet(&StatusBar.buttons, TermSelect);
     button->pos.x = x;
     x += button->pos.w + 10;
-    
+
     my_strcpy(buf, format("(%dx%d)", win->cols, win->rows), sizeof(buf));
     sdl_WindowText(&StatusBar, c, x, 1, buf);
     x += strlen(buf) * fw + 20;
@@ -1051,13 +1083,13 @@ static void sdl_BlitAll(void)
         
         if (!win->surface) continue;
         if (!win->visible) continue;
-        
+
         sdl_RECT(win->left, win->top, win->width, win->height, &rc);
         SDL_BlitSurface(win->surface, NULL, AppWin, &rc);
 
         if (Zorder[i] == SelectedTerm)
         {
-            sdl_SizingSpot(win, FALSE, &SizingSpot);
+            sdl_SizingSpot(win, false, &SizingSpot);
 
             if (Sizing)
             {
@@ -1083,8 +1115,8 @@ static void sdl_BlitAll(void)
 
 static void RemovePopUp(void)
 {
-    PopUp.visible = FALSE;
-    popped = FALSE;
+    PopUp.visible = false;
+    popped = false;
     sdl_BlitAll();
 }
 
@@ -1110,12 +1142,12 @@ static void SetStatusButtons(void)
     
     if (!win->visible)
     {
-        sdl_ButtonVisible(fontbutton, FALSE);
+        sdl_ButtonVisible(fontbutton, false);
         sdl_ButtonCaption(visbutton, "No");
     }
     else
     {
-        sdl_ButtonVisible(fontbutton, TRUE);
+        sdl_ButtonVisible(fontbutton, true);
         sdl_ButtonCaption(fontbutton, win->font.name);
         sdl_ButtonCaption(visbutton, "Yes");
     }
@@ -1143,7 +1175,7 @@ static void AboutDraw(sdl_Window *win)
     
     /* Wow - a different colour! */
     SDL_Color colour = {160, 60, 60, 0};
-    
+
     sdl_RECT(0, 0, win->width, win->height, &rc);
     
     /* Draw a nice box */
@@ -1155,7 +1187,8 @@ static void AboutDraw(sdl_Window *win)
         sdl_RECT((win->width - mratt->w) / 2, 5, mratt->w, mratt->h, &icon);
         SDL_BlitSurface(mratt, NULL, win->surface, &icon);
     }
-    sdl_WindowText(win, colour, 20, 150, format("You are playing %s", get_buildid(TRUE)));
+    sdl_WindowText(win, colour, 20, 150,
+        format("You are playing %s", version_build(VB_NAME | VB_BUILD)));
     sdl_WindowText(win, colour, 20, 160, "See http://www.mangband.org");
 }
 
@@ -1170,7 +1203,7 @@ static void AboutActivate(sdl_Button *sender)
     PopUp.top = (AppWin->h / 2) - height / 2;
     PopUp.draw_extra = AboutDraw;
     
-    popped = TRUE;
+    popped = true;
 }
 
 
@@ -1215,11 +1248,11 @@ static void TermActivate(sdl_Button *sender)
         sdl_ButtonSize(button, width - 2 , h);
         sdl_ButtonMove(button, 1, i * (h + 1));
         sdl_ButtonCaption(button, angband_term_name[i]);
-        sdl_ButtonVisible(button, TRUE);
+        sdl_ButtonVisible(button, true);
         button->tag = i;
         button->activate = SelectTerm;
     }
-    popped = TRUE;
+    popped = true;
 }
 
 
@@ -1238,13 +1271,13 @@ static void VisibleActivate(sdl_Button *sender)
 
     if (window->visible)
     {
-        window->visible = FALSE;
+        window->visible = false;
         term_windowFree(window);
         angband_term[SelectedTerm] = NULL;
     }
     else
     {
-        window->visible = TRUE;
+        window->visible = true;
         ResizeWin(window, window->width, window->height);
     }
 
@@ -1271,7 +1304,6 @@ static void SelectFont(sdl_Button *sender)
     
     sdl_CheckFont(window->req_font, &w, &h);
 
-#ifdef USE_GRAPHICS
     /* Invalidate the gfx surface */
     if (window->tiles)
     {
@@ -1283,7 +1315,6 @@ static void SelectFont(sdl_Button *sender)
         SDL_FreeSurface(window->ttrans);
         window->ttrans = NULL;
     }
-#endif
     
     ResizeWin(window, (w * window->cols) + (2 * window->border),
         (h * window->rows) + window->border + window->title_height);
@@ -1327,22 +1358,20 @@ static void FontActivate(sdl_Button *sender)
         sdl_ButtonSize(button, width - 2 , h);
         sdl_ButtonMove(button, 1, i * (h + 1));
         sdl_ButtonCaption(button, FontList[i]);
-        sdl_ButtonVisible(button, TRUE);
+        sdl_ButtonVisible(button, true);
         button->activate = SelectFont;
     }
-    popped = TRUE;
+    popped = true;
 }
 
 
-#ifdef USE_GRAPHICS
 static errr load_gfx(void);
-static bool do_update = FALSE;
+static bool do_update = false;
 
 static void SelectGfx(sdl_Button *sender)
 {
     SelectedGfx = sender->tag;
 }
-#endif
 
 
 /*
@@ -1350,7 +1379,7 @@ static void SelectGfx(sdl_Button *sender)
  */
 static void apply_nice_graphics(term_window* win)
 {
-    graphics_mode *mode = get_graphics_mode(p_ptr->use_graphics, TRUE);
+    graphics_mode *mode = get_graphics_mode(use_graphics, true);
     int nice_tile_wid = 0, nice_tile_hgt = 0;
 
     if (!nicegfx) return;
@@ -1386,32 +1415,31 @@ static void apply_nice_graphics(term_window* win)
 static void AcceptChanges(sdl_Button *sender)
 {
     sdl_Button *button;
-    bool do_video_reset = FALSE;
+    bool do_video_reset = false;
 
-#ifdef USE_GRAPHICS
     /* Allow only in initial phase */
     if (!Setup.initialized)
     {
-        if (p_ptr->use_graphics != SelectedGfx)
+        if (use_graphics != SelectedGfx)
         {
-            do_update = TRUE;
+            do_update = true;
 
-            p_ptr->use_graphics = SelectedGfx;
+            use_graphics = SelectedGfx;
         }
 
-        if (!p_ptr->use_graphics) reset_tile_params();
+        if (!use_graphics) reset_tile_params();
 
         button = sdl_ButtonBankGet(&PopUp.buttons, MoreNiceGfx);
         if (button->tag != nicegfx)
         {
             nicegfx = !nicegfx;
-            do_update = TRUE;
+            do_update = true;
         }
 
         load_gfx();
 
         /* Reset visuals */
-        reset_visuals(TRUE);
+        reset_visuals(true);
 
         /* Invalidate all the gfx surfaces */
         if (do_update)
@@ -1435,7 +1463,6 @@ static void AcceptChanges(sdl_Button *sender)
             }
         }
     }
-#endif
 
     button = sdl_ButtonBankGet(&PopUp.buttons, MoreFullscreen);
 
@@ -1443,7 +1470,7 @@ static void AcceptChanges(sdl_Button *sender)
     {
         fullscreen = !fullscreen;
 
-        do_video_reset = TRUE;
+        do_video_reset = true;
     }
 
     SetStatusButtons();
@@ -1466,7 +1493,7 @@ static void AcceptChanges(sdl_Button *sender)
     {
         SDL_Event Event;
 
-        WIPE(&Event, SDL_Event);
+        memset(&Event, 0, sizeof(SDL_Event));
 
         Event.type = SDL_VIDEORESIZE;
         Event.resize.w = screen_w;
@@ -1475,7 +1502,7 @@ static void AcceptChanges(sdl_Button *sender)
         SDL_PushEvent(&Event);
     }
 
-	do_update = FALSE;
+	do_update = false;
 }
 
 
@@ -1499,17 +1526,16 @@ static void SnapChange(sdl_Button *sender)
     SnapRange += sender->tag;
     if (SnapRange < 0) SnapRange = 0;
     if (SnapRange > 20) SnapRange = 20;
-    PopUp.need_update = TRUE;
+    PopUp.need_update = true;
 }
 
 
-#ifdef USE_GRAPHICS
 static void WidthChange(sdl_Button *sender)
 {
 	tile_width += sender->tag;
 	if (tile_width < 1) tile_width = 1;
 	if (tile_width > 12) tile_width = 12;
-	do_update = TRUE;
+	do_update = true;
 }
 
 
@@ -1518,9 +1544,8 @@ static void HeightChange(sdl_Button *sender)
 	tile_height += sender->tag;
 	if (tile_height < 1) tile_height = 1;
 	if (tile_height > 8) tile_height = 8;
-	do_update = TRUE;
+	do_update = true;
 }
-#endif
 
 
 static void MoreDraw(sdl_Window *win)
@@ -1539,21 +1564,20 @@ static void MoreDraw(sdl_Window *win)
     /* Draw a nice box */
     sdl_DrawBox(win->surface, &rc, colour, 5);
 
-#ifdef USE_GRAPHICS
     /* Allow only in initial phase */
     if (!Setup.initialized)
     {
         button = sdl_ButtonBankGet(&win->buttons, MoreWidthMinus);
-        sdl_ButtonVisible(button, SelectedGfx? TRUE: FALSE);
+        sdl_ButtonVisible(button, SelectedGfx? true: false);
 
         button = sdl_ButtonBankGet(&win->buttons, MoreWidthPlus);
-        sdl_ButtonVisible(button, SelectedGfx? TRUE: FALSE);
+        sdl_ButtonVisible(button, SelectedGfx? true: false);
 
         button = sdl_ButtonBankGet(&win->buttons, MoreHeightMinus);
-        sdl_ButtonVisible(button, SelectedGfx? TRUE: FALSE);
+        sdl_ButtonVisible(button, SelectedGfx? true: false);
 
         button = sdl_ButtonBankGet(&win->buttons, MoreHeightPlus);
-        sdl_ButtonVisible(button, SelectedGfx? TRUE: FALSE);
+        sdl_ButtonVisible(button, SelectedGfx? true: false);
 
         if (SelectedGfx)
         {
@@ -1584,7 +1608,7 @@ static void MoreDraw(sdl_Window *win)
 
         sdl_WindowText(win, colour, 20, y, "Selected Graphics:");
 
-        mode = get_graphics_mode(SelectedGfx, FALSE);
+        mode = get_graphics_mode(SelectedGfx, false);
         if (mode && mode->grafID)
             sdl_WindowText(win, select_colour, 150, y, mode->menuname);
         else
@@ -1606,7 +1630,6 @@ static void MoreDraw(sdl_Window *win)
             mode = mode->pNext;
         }
     }
-#endif  
 
     button = sdl_ButtonBankGet(&win->buttons, MoreFullscreen);
     sdl_WindowText(win, colour, 20, y, "Fullscreen is:");
@@ -1657,11 +1680,10 @@ static void MoreActivate(sdl_Button *sender)
     PopUp.top = (AppWin->h / 2) - height / 2;
     PopUp.draw_extra = MoreDraw;
 
-#ifdef USE_GRAPHICS
     /* Allow only in initial phase */
     if (!Setup.initialized)
     {
-        SelectedGfx = p_ptr->use_graphics;
+        SelectedGfx = use_graphics;
 
         MoreWidthPlus = sdl_ButtonBankNew(&PopUp.buttons);
         button = sdl_ButtonBankGet(&PopUp.buttons, MoreWidthPlus);
@@ -1671,7 +1693,7 @@ static void MoreActivate(sdl_Button *sender)
         sdl_ButtonSize(button, 20, PopUp.font.height + 2);
         sdl_ButtonCaption(button, "+");
         button->tag = 1;
-        sdl_ButtonVisible(button, SelectedGfx? TRUE: FALSE);
+        sdl_ButtonVisible(button, SelectedGfx? true: false);
         button->activate = WidthChange;
 
         MoreWidthMinus = sdl_ButtonBankNew(&PopUp.buttons);
@@ -1682,7 +1704,7 @@ static void MoreActivate(sdl_Button *sender)
         sdl_ButtonSize(button, 20, PopUp.font.height + 2);
         sdl_ButtonCaption(button, "-");
         button->tag = -1;
-        sdl_ButtonVisible(button, SelectedGfx? TRUE: FALSE);
+        sdl_ButtonVisible(button, SelectedGfx? true: false);
         button->activate = WidthChange;
 
         MoreHeightPlus = sdl_ButtonBankNew(&PopUp.buttons);
@@ -1693,7 +1715,7 @@ static void MoreActivate(sdl_Button *sender)
         sdl_ButtonSize(button, 20, PopUp.font.height + 2);
         sdl_ButtonCaption(button, "+");
         button->tag = 1;
-        sdl_ButtonVisible(button, SelectedGfx? TRUE: FALSE);
+        sdl_ButtonVisible(button, SelectedGfx? true: false);
         button->activate = HeightChange;
 
         MoreHeightMinus = sdl_ButtonBankNew(&PopUp.buttons);
@@ -1704,7 +1726,7 @@ static void MoreActivate(sdl_Button *sender)
         sdl_ButtonSize(button, 20, PopUp.font.height + 2);
         sdl_ButtonCaption(button, "-");
         button->tag = -1;
-        sdl_ButtonVisible(button, SelectedGfx? TRUE: FALSE);
+        sdl_ButtonVisible(button, SelectedGfx? true: false);
 	    button->activate = HeightChange;
 
         MoreNiceGfx = sdl_ButtonBankNew(&PopUp.buttons);
@@ -1713,7 +1735,7 @@ static void MoreActivate(sdl_Button *sender)
         button->unsel_colour = ucolour;
         button->sel_colour = scolour;
         sdl_ButtonSize(button, 50, PopUp.font.height + 2);
-        sdl_ButtonVisible(button, TRUE);
+        sdl_ButtonVisible(button, true);
         sdl_ButtonCaption(button, nicegfx? "On": "Off");
         button->tag = nicegfx;
         button->activate = FlipTag;
@@ -1729,7 +1751,7 @@ static void MoreActivate(sdl_Button *sender)
                 button->unsel_colour = ucolour;
                 button->sel_colour = scolour;
                 sdl_ButtonSize(button, gfx_namewidth, PopUp.font.height + 2);
-                sdl_ButtonVisible(button, TRUE);
+                sdl_ButtonVisible(button, true);
                 sdl_ButtonCaption(button, mode->menuname);
                 button->tag = mode->grafID;
                 button->activate = SelectGfx;
@@ -1737,7 +1759,6 @@ static void MoreActivate(sdl_Button *sender)
             mode = mode->pNext;
         }
     }
-#endif
 
     MoreFullscreen = sdl_ButtonBankNew(&PopUp.buttons);
     button = sdl_ButtonBankGet(&PopUp.buttons, MoreFullscreen);
@@ -1745,7 +1766,7 @@ static void MoreActivate(sdl_Button *sender)
     button->unsel_colour = ucolour;
     button->sel_colour = scolour;
     sdl_ButtonSize(button, 50, PopUp.font.height + 2);
-    sdl_ButtonVisible(button, TRUE);
+    sdl_ButtonVisible(button, true);
     sdl_ButtonCaption(button, fullscreen? "On": "Off");
     button->tag = fullscreen;
     button->activate = FlipTag;
@@ -1758,7 +1779,7 @@ static void MoreActivate(sdl_Button *sender)
     sdl_ButtonSize(button, 20, PopUp.font.height + 2);
     sdl_ButtonCaption(button, "+");
     button->tag = 1;
-    sdl_ButtonVisible(button, TRUE);
+    sdl_ButtonVisible(button, true);
     button->activate = SnapChange;
 
     MoreSnapMinus = sdl_ButtonBankNew(&PopUp.buttons);
@@ -1769,7 +1790,7 @@ static void MoreActivate(sdl_Button *sender)
     sdl_ButtonSize(button, 20, PopUp.font.height + 2);
     sdl_ButtonCaption(button, "-");
     button->tag = -1;
-    sdl_ButtonVisible(button, TRUE);
+    sdl_ButtonVisible(button, true);
     button->activate = SnapChange;
 
     MoreOK = sdl_ButtonBankNew(&PopUp.buttons);
@@ -1778,12 +1799,12 @@ static void MoreActivate(sdl_Button *sender)
     button->unsel_colour = ucolour;
     button->sel_colour = scolour;
     sdl_ButtonSize(button, 50, PopUp.font.height + 2);
-    sdl_ButtonVisible(button, TRUE);
+    sdl_ButtonVisible(button, true);
     sdl_ButtonCaption(button, "OK");
     sdl_ButtonMove(button, width / 2 - 25, height - 40);
     button->activate = AcceptChanges;
 
-    popped = TRUE;
+    popped = true;
 }
 
 
@@ -1801,7 +1822,7 @@ static void check_bounds_resize(term_window *win, int *cols, int *rows, int *max
     *rows = *max_rows = (*height - win->border - win->title_height) / win->tile_hgt;
 
     /* Do something to display more lines in pseudo-3D mode */
-    if ((win->Term_idx == 0) && streq(get_graphics_mode(p_ptr->use_graphics, TRUE)->pref, "pseudo"))
+    if ((win->Term_idx == 0) && get_graphics_mode(use_graphics, true)->distorted)
         *rows = (*rows - ROW_MAP - 1) * 2 - 3 + ROW_MAP + 1;
 
     check_term_resize((win->Term_idx == 0), cols, rows);
@@ -1841,14 +1862,14 @@ static void ResizeWin(term_window *win, int w, int h)
 			quit_fmt("Unable to find font '%s'.\n"
                 "Note that there are new extended font files ending in 'x' in %s.\n"
                 "Please check %s and edit if necessary.",
-                win->req_font, ANGBAND_DIR_XTRA_FONT, ANGBAND_DIR_USER_SDL);
+                win->req_font, ANGBAND_DIR_FONTS, sdl_settings_file);
         }
 
         /* Apply nice graphics */
         if (win->Term_idx == 0)
         {
             apply_nice_graphics(win);
-            tile_distorted = is_tile_distorted(p_ptr->use_graphics, tile_width, tile_height);
+            tile_distorted = is_tile_distorted(use_graphics, tile_width, tile_height);
         }
     }
 
@@ -1881,7 +1902,7 @@ static void ResizeWin(term_window *win, int w, int h)
     if (!win->font.data)
         sdl_FontCreate(&win->font, win->req_font, win->surface);
 
-    /* This window was never visible before */
+    /* This window was never visible before, or needs resizing */
     if (!angband_term[win->Term_idx])
     {
         term *old = Term;
@@ -1901,8 +1922,6 @@ static void ResizeWin(term_window *win, int w, int h)
         /* Restore */
         Term_activate(old);
     }
-
-    /* Resize the term */
     else
     {
         term *old = Term;
@@ -1921,15 +1940,15 @@ static void ResizeWin(term_window *win, int w, int h)
     }
 
     /* Calculate the hotspot */
-    if (win->Term_idx == SelectedTerm) sdl_SizingSpot(win, FALSE, &SizingSpot);
+    if (win->Term_idx == SelectedTerm) sdl_SizingSpot(win, false, &SizingSpot);
 
-    StatusBar.need_update = TRUE;
+    StatusBar.need_update = true;
 
     /* Dungeon size */
     if (win->Term_idx == 0)
         net_term_resize(win->cols, win->rows, win->max_rows);
 
-    /* Hack - Redraw all windows */
+    /* Hack -- redraw all windows */
     if (Setup.initialized) do_cmd_redraw();
 }
 
@@ -1941,9 +1960,7 @@ static errr load_prefs(void)
 
     /* Build the path */
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "sdlinit.txt");
-
-    /* XXXXX */
-    ANGBAND_DIR_USER_SDL = string_make(buf);
+    sdl_settings_file = string_make(buf);
 
     /* Open the file */
     fff = file_open(buf, MODE_READ, FTYPE_TEXT);
@@ -1974,7 +1991,7 @@ static errr load_prefs(void)
         else if (strstr(buf, "NiceGraphics"))
             nicegfx = atoi(s);
         else if (strstr(buf, "Graphics"))
-            p_ptr->use_graphics = atoi(s);
+            use_graphics = atoi(s);
         else if (strstr(buf, "TileWidth"))
 			tile_width = atoi(s);
 		else if (strstr(buf, "TileHeight"))
@@ -1986,7 +2003,7 @@ static errr load_prefs(void)
 
     file_close(fff);
 
-    tile_distorted = is_tile_distorted(p_ptr->use_graphics, tile_width, tile_height);
+    tile_distorted = is_tile_distorted(use_graphics, tile_width, tile_height);
 
     return (0);
 }
@@ -2005,7 +2022,7 @@ static errr load_window_prefs(void)
         win = &windows[i];
 
         /* Clear the data */
-        WIPE(win, term_window);
+        memset(win, 0, sizeof(term_window));
 
         /* Who? */
         win->Term_idx = i;
@@ -2023,19 +2040,19 @@ static errr load_window_prefs(void)
         {
             win->top = StatusHeight;
             win->keys = 1024;
-            win->visible = TRUE;
+            win->visible = true;
         }
         else
         {
             win->top = windows[0].top + windows[0].height + (i * 10);
             win->left = (i - 1) * 10;
             win->keys = 32;
-            win->visible = FALSE;
+            win->visible = false;
         }
     }
 
     /* Open the file */
-    fff = file_open(ANGBAND_DIR_USER_SDL, MODE_READ, FTYPE_TEXT);
+    fff = file_open(sdl_settings_file, MODE_READ, FTYPE_TEXT);
 
     /* Check it */
     if (!fff) return (1);
@@ -2082,7 +2099,7 @@ static errr save_prefs(void)
     int i;
 
     /* Open the file */
-    fff = file_open(ANGBAND_DIR_USER_SDL, MODE_WRITE, FTYPE_TEXT);
+    fff = file_open(sdl_settings_file, MODE_WRITE, FTYPE_TEXT);
 
     /* Check it */
     if (!fff) return (1);
@@ -2090,7 +2107,7 @@ static errr save_prefs(void)
     file_putf(fff, "Resolution = %dx%d\n", screen_w, screen_h);
     file_putf(fff, "Fullscreen = %d\n", fullscreen);
     file_putf(fff, "NiceGraphics = %d\n", nicegfx);
-    file_putf(fff, "Graphics = %d\n", p_ptr->use_graphics);
+    file_putf(fff, "Graphics = %d\n", use_graphics);
     file_putf(fff, "TileWidth = %d\n", tile_width);
     file_putf(fff, "TileHeight = %d\n", tile_height);
 
@@ -2155,7 +2172,7 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
             mouse.y = event->motion.y;
             win = &windows[SelectedTerm];
 
-            /* We are moving a window */
+            /* We are moving or resizing a window */
             if (Moving)
             {
                 int i;
@@ -2244,8 +2261,6 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
                 /* Show on the screen */
                 sdl_BlitAll();
             }
-            
-            /* A window is being re-sized */
             else if (Sizing)
             {
                 int dummy_cols, dummy_rows, dummy_max_rows;
@@ -2275,7 +2290,7 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
                     if (!Sizingshow)
                     {
                         /* Indicate the hotspot */
-                        Sizingshow = TRUE;
+                        Sizingshow = true;
                         DrawSizeWidget();
                     }
                 }
@@ -2285,8 +2300,8 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
                 {
                     SDL_Rect rc;
 
-                    Sizingshow = FALSE;
-                    sdl_SizingSpot(win, TRUE, &rc);
+                    Sizingshow = false;
+                    sdl_SizingSpot(win, true, &rc);
                     set_update_rect(win, &rc);
                     sdl_BlitWin(win);
                 }
@@ -2315,7 +2330,7 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
                 res = sdl_ButtonBankMouseDown(&window->buttons,
                     mouse.x - window->left, mouse.y - window->top);
 
-                /* If pop-up window active and no reaction then cancel the popup */
+                /* If pop-up window active and no reaction, cancel the popup */
                 if (popped && !res)
                 {
                     RemovePopUp();
@@ -2334,22 +2349,22 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
                 /* A button press has happened on the focused term window */
                 win = &windows[idx];
 
-                /* Check for mouse press in the title bar */
+                /* Check for mouse press in the title bar... */
                 if (mouse.y < win->top + win->title_height)
                 {
                     /* Let's get moving */
-                    Moving = TRUE;
+                    Moving = true;
 
                     /* Remember where we started */
                     Movingx = mouse.x - win->left;
                     Movingy = mouse.y - win->top;
                 }
 
-                /* Check for the little hotspot in the botton right corner */
+                /* ...or the little hotspot in the bottom right corner... */
                 else if (point_in(&SizingSpot, mouse.x, mouse.y))
                 {
                     /* Let's get sizing */
-                    Sizing = TRUE;
+                    Sizing = true;
 
                     /* Create the sizing rectangle */
                     sdl_RECT(win->left, win->top, win->width, win->height, &SizingRect);
@@ -2359,8 +2374,6 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
                     Movingy = mouse.y - win->top;
                 }
             }
-
-            /* Process right mouse button */
             else if (event->button.button == SDL_BUTTON_RIGHT)
             {
                 mouse.right = 1;
@@ -2368,7 +2381,7 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
                 mouse.righty = event->button.y;
 
                 /* Right-click always cancels the popup */
-                if (popped) popped = FALSE;
+                if (popped) popped = false;
             }
 
             break;
@@ -2396,7 +2409,7 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
                 /* Finish moving */
                 if (Moving)
                 {
-                    Moving = FALSE;
+                    Moving = false;
 
                     /* Update */
                     sdl_BlitAll();
@@ -2407,8 +2420,8 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
                 {
                     /* Sort out the window */
                     ResizeWin(&windows[SelectedTerm], SizingRect.w, SizingRect.h);
-                    Sizing = FALSE;
-                    Sizingshow = FALSE;
+                    Sizing = false;
+                    Sizingshow = false;
 
                     /* Update */
                     sdl_BlitAll();
@@ -2441,11 +2454,11 @@ static void sdl_keypress(SDL_keysym keysym)
 	bool ma = ((keysym.mod & KMOD_ALT) > 0);
 	bool mm = ((keysym.mod & KMOD_META) > 0);
     /*bool mg = ((keysym.mod & KMOD_MODE) > 0);*/
-    bool kp = FALSE;
+    bool kp = false;
     byte mods = ((ma? KC_MOD_ALT: 0) | (mm? KC_MOD_META: 0));
 
-    /* Hack -- For keyboards with Alt-Gr translated into KMOD_RALT | KMOD_LCTRL */
-    /*if ((keysym.mod & KMOD_RALT) && (keysym.mod & KMOD_LCTRL)) mg = TRUE;*/
+    /* Hack -- for keyboards with Alt-Gr translated into KMOD_RALT | KMOD_LCTRL */
+    /*if ((keysym.mod & KMOD_RALT) && (keysym.mod & KMOD_LCTRL)) mg = true;*/
 
     /* Ignore if main term is not initialized */
     if (!Term) return;
@@ -2454,23 +2467,23 @@ static void sdl_keypress(SDL_keysym keysym)
     switch (key_sym)
     {
         /* Keypad */
-        case SDLK_KP0: ch = '0'; kp = TRUE; break;
-        case SDLK_KP1: ch = '1'; kp = TRUE; break;
-        case SDLK_KP2: ch = '2'; kp = TRUE; break;
-        case SDLK_KP3: ch = '3'; kp = TRUE; break;
-        case SDLK_KP4: ch = '4'; kp = TRUE; break;
-        case SDLK_KP5: ch = '5'; kp = TRUE; break;
-        case SDLK_KP6: ch = '6'; kp = TRUE; break;
-        case SDLK_KP7: ch = '7'; kp = TRUE; break;
-        case SDLK_KP8: ch = '8'; kp = TRUE; break;
-        case SDLK_KP9: ch = '9'; kp = TRUE; break;
-        case SDLK_KP_PERIOD: ch = '.'; kp = TRUE; break;
-        case SDLK_KP_DIVIDE: ch = '/'; kp = TRUE; break;
-        case SDLK_KP_MULTIPLY: ch = '*'; kp = TRUE; break;
-        case SDLK_KP_MINUS: ch = '-'; kp = TRUE; break;
-        case SDLK_KP_PLUS: ch = '+'; kp = TRUE; break;
-        case SDLK_KP_ENTER: ch = KC_ENTER; kp = TRUE; break;
-        case SDLK_KP_EQUALS: ch = '='; kp = TRUE; break;
+        case SDLK_KP0: ch = '0'; kp = true; break;
+        case SDLK_KP1: ch = '1'; kp = true; break;
+        case SDLK_KP2: ch = '2'; kp = true; break;
+        case SDLK_KP3: ch = '3'; kp = true; break;
+        case SDLK_KP4: ch = '4'; kp = true; break;
+        case SDLK_KP5: ch = '5'; kp = true; break;
+        case SDLK_KP6: ch = '6'; kp = true; break;
+        case SDLK_KP7: ch = '7'; kp = true; break;
+        case SDLK_KP8: ch = '8'; kp = true; break;
+        case SDLK_KP9: ch = '9'; kp = true; break;
+        case SDLK_KP_PERIOD: ch = '.'; kp = true; break;
+        case SDLK_KP_DIVIDE: ch = '/'; kp = true; break;
+        case SDLK_KP_MULTIPLY: ch = '*'; kp = true; break;
+        case SDLK_KP_MINUS: ch = '-'; kp = true; break;
+        case SDLK_KP_PLUS: ch = '+'; kp = true; break;
+        case SDLK_KP_ENTER: ch = KC_ENTER; kp = true; break;
+        case SDLK_KP_EQUALS: ch = '='; kp = true; break;
 
         /* Have these to get consistent ctrl-shift behaviour */
         /*case SDLK_0: if ((!ms || mc || ma) && !mg) ch = '0'; break;
@@ -2719,7 +2732,7 @@ static errr Term_xtra_sdl_event(int v)
     SDL_Event event;
     errr error = 0;
 
-    /* Wait for an event */
+    /* Wait or check for an event */
     if (v)
     {
         /* Wait for an event */
@@ -2730,8 +2743,6 @@ static errr Term_xtra_sdl_event(int v)
         }
         else return (1);
     }
-
-    /* Check for an event */
     else
     {
         /* Get a single pending event */
@@ -2784,14 +2795,14 @@ static errr Term_xtra_sdl_delay(int v)
 
 
 /*
- * Returns TRUE if pseudo-3D tiles are allowed
+ * Returns true if pseudo-3D tiles are allowed
  */
 static bool pseudo_allowed(term_window *win)
 {
-    if (!Setup.initialized) return FALSE;
-    if (strcmp(get_graphics_mode(p_ptr->use_graphics, TRUE)->pref, "pseudo")) return FALSE;
-    if (win->minimap_active) return FALSE;
-    return TRUE;
+    if (!Setup.initialized) return false;
+    if (!get_graphics_mode(use_graphics, true)->distorted) return false;
+    if (win->minimap_active) return false;
+    return true;
 }
 
 
@@ -2806,14 +2817,14 @@ static bool pseudo_translate(term_window *win, SDL_Rect *prc)
     int xmax = win->cols * win->tile_wid;
     int ymax = win->rows * win->tile_hgt;
 
-    if (!pseudo_allowed(win)) return TRUE;
+    if (!pseudo_allowed(win)) return true;
 
     /* Inscribe the tile in the display rectangle */
     prc->x = x0 + 2 * (prc->x - x0) / 3 + (ymax - prc->y) / 4;
     prc->y = y0 + (prc->y - y0) / 2;
 
-    if (prc->x + prc->w > xmax) return FALSE;
-    return TRUE;
+    if (prc->x + prc->w > xmax) return false;
+    return true;
 }
 
 
@@ -2842,34 +2853,23 @@ static errr get_sdl_rect(term_window *win, int col, int row, bool translate, SDL
 
 
 /*
- * Displays the "big" cursor
+ * Displays the "normal" cursor
  */
-static errr Term_bigcurs_sdl(int col, int row)
+static errr Term_curs_sdl(int col, int row)
 {
     term_window *win = (term_window*)(Term->data);
-    SDL_Color colour = text_colours[TERM_YELLOW];
+    SDL_Color colour = text_colours[COLOUR_YELLOW];
     SDL_Rect rc;
-    /*byte a, ta;
-    char c, tc;
-    int j = 0;*/
-
-    if (Term->minimap_active)
-    {
-        /* Normal cursor in map window */
-        Term_curs_sdl(col, row);
-        return 0;
-    }
 
     /* Make a rectangle */
-    if (get_sdl_rect(win, col, row, TRUE, &rc)) return (1);
+    sdl_RECT(col * win->tile_wid, row * win->tile_hgt, win->tile_wid, win->tile_hgt, &rc);
 
-    /* If we are using overdraw, draw a double height cursor (disabled for now) */
-    /*if (!Term_info(col, row, &a, &c, &ta, &tc)) j = (a & 0x7F);
-    if (overdraw && (j > 2) && (j >= overdraw) && (j <= overdraw_max))
-    {
-        rc.y -= rc.h;
-        rc.h = (rc.h << 1);
-    }*/
+    /* Translate it */
+    rc.x += win->border;
+    rc.y += win->title_height;
+
+    /* Paranoia */
+    if (rc.y > win->height) return (-1);
 
     /* Draw it */
     sdl_DrawBox(win->surface, &rc, colour, 1);
@@ -2883,23 +2883,34 @@ static errr Term_bigcurs_sdl(int col, int row)
 
 
 /*
- * Displays the "normal" cursor
+ * Displays the "big" cursor
  */
-static errr Term_curs_sdl(int col, int row)
+static errr Term_bigcurs_sdl(int col, int row)
 {
     term_window *win = (term_window*)(Term->data);
-    SDL_Color colour = text_colours[TERM_YELLOW];
+    SDL_Color colour = text_colours[COLOUR_YELLOW];
     SDL_Rect rc;
+    /*u16b a, ta;
+    char c, tc;
+    int j = 0;*/
+
+    if (Term->minimap_active)
+    {
+        /* Normal cursor in map window */
+        Term_curs_sdl(col, row);
+        return 0;
+    }
 
     /* Make a rectangle */
-    sdl_RECT(col * win->tile_wid, row * win->tile_hgt, win->tile_wid, win->tile_hgt, &rc);
+    if (get_sdl_rect(win, col, row, true, &rc)) return (1);
 
-    /* Translate it */
-    rc.x += win->border;
-    rc.y += win->title_height;
-
-    /* Paranoia */
-    if (rc.y > win->height) return (-1);
+    /* If we are using overdraw, draw a double height cursor (disabled for now) */
+    /*if (!Term_info(col, row, &a, &c, &ta, &tc)) j = (a & 0x7F);
+    if (overdraw && (j > 2) && (j >= overdraw) && (j <= overdraw_max))
+    {
+        rc.y -= rc.h;
+        rc.h = (rc.h << 1);
+    }*/
 
     /* Draw it */
     sdl_DrawBox(win->surface, &rc, colour, 1);
@@ -2968,12 +2979,12 @@ static errr Term_xtra_sdl(int n, int v)
                 text_colours[i].b = angband_color_table[i][3];
             }
 
-            if (p_ptr->use_graphics != v)
+            if (use_graphics != v)
             {
-                p_ptr->use_graphics = v;
-                if (!p_ptr->use_graphics) reset_tile_params();
+                use_graphics = v;
+                if (!use_graphics) reset_tile_params();
                 load_gfx();
-                reset_visuals(TRUE);
+                reset_visuals(true);
 
                 /* Redraw */
                 if (Setup.initialized)
@@ -2983,7 +2994,7 @@ static errr Term_xtra_sdl(int n, int v)
                 else
                 {
                     apply_nice_graphics(&windows[0]);
-                    tile_distorted = is_tile_distorted(p_ptr->use_graphics, tile_width, tile_height);
+                    tile_distorted = is_tile_distorted(use_graphics, tile_width, tile_height);
                 }
             }
         }
@@ -3021,7 +3032,6 @@ static errr Term_wipe_sdl(int col, int row, int n)
 }
 
 
-#ifdef USE_GRAPHICS
 /*
  * Do a 'stretched blit'
  * SDL has no support for stretching... What a bastard!
@@ -3091,13 +3101,13 @@ static errr sdl_BuildTileset(term_window *win)
     int dwid, dhgt;
     SDL_Surface *surface = GfxSurface;
 
-    info = get_graphics_mode(p_ptr->use_graphics, TRUE);
+    info = get_graphics_mode(use_graphics, true);
     if (!(info && info->grafID)) return (1);
 
-    /* Hack -- Use 32x32 tiles in pseudo-3D mode for minimap */
-    if (streq(info->pref, "pseudo") && Term->minimap_active)
+    /* Hack -- use 32x32 tiles in pseudo-3D mode for minimap */
+    if (info->distorted && Term->minimap_active)
     {
-        info = get_graphics_mode_by_name("david");
+        info = get_graphics_mode_by_name("graf-dvg.prf");
         if (!(info && info->grafID)) return (1);
         surface = mmSurface;
     }
@@ -3132,7 +3142,7 @@ static errr sdl_BuildTileset(term_window *win)
     if (!win->tiles) return (1);
 
     /* Pseudo-3D: blit using the colour key AND the per-surface alpha value */
-    if (streq(info->pref, "pseudo"))
+    if (info->distorted)
     {
         /* Normal tiles */
         SDL_SetColorKey(win->tiles, SDL_SRCCOLORKEY, back_pixel_colour);
@@ -3177,7 +3187,7 @@ static errr sdl_BuildTileset(term_window *win)
  * If "prc" is not null, only draw the portion of the tile inside that rectangle. We suppose here
  * that the two rectangles "rc" and "prc" are overlapping.
  */
-static void sdl_DrawTile(term_window *win, int col, int row, SDL_Rect rc, SDL_Rect *prc, byte a,
+static void sdl_DrawTile(term_window *win, int col, int row, SDL_Rect rc, SDL_Rect *prc, u16b a,
     char c, bool background)
 {
     int j = (a & 0x7F);
@@ -3249,17 +3259,17 @@ static void sdl_DrawTile(term_window *win, int col, int row, SDL_Rect rc, SDL_Re
  * If "prc" is not null, only draw the portion of the tiles inside that rectangle. We suppose here
  * that the two rectangles "rc" and "prc" are overlapping.
  */
-static void sdl_DrawTiles(term_window *win, int col, int row, SDL_Rect rc, SDL_Rect *prc, byte a,
-    char c, byte ta, char tc)
+static void sdl_DrawTiles(term_window *win, int col, int row, SDL_Rect rc, SDL_Rect *prc, u16b a,
+    char c, u16b ta, char tc)
 {
     /* Draw the terrain tile */
-    sdl_DrawTile(win, col, row, rc, prc, ta, tc, TRUE);
+    sdl_DrawTile(win, col, row, rc, prc, ta, tc, true);
 
     /* If foreground is the same as background, we're done */
     if ((ta == a) && (tc == c)) return;
 
     /* Draw the foreground tile */
-    sdl_DrawTile(win, col, row, rc, prc, a, c, FALSE);
+    sdl_DrawTile(win, col, row, rc, prc, a, c, false);
 }
 
 
@@ -3281,7 +3291,7 @@ static void sdl_DrawNeighbors(term_window *win, int col, int row, SDL_Rect *prc,
     const POINT points[3])
 {
     int j;
-    byte a, ta;
+    u16b a, ta;
     char c, tc;
     SDL_Rect rc;
     int tile_wid = 1, tile_hgt = 1;
@@ -3307,22 +3317,22 @@ static void sdl_DrawNeighbors(term_window *win, int col, int row, SDL_Rect *prc,
         if (Term_info(jcol, jrow, &a, &c, &ta, &tc)) continue;
 
         /* Make the destination rectangle */
-        if (get_sdl_rect(win, jcol, jrow, TRUE, &rc)) continue;
+        if (get_sdl_rect(win, jcol, jrow, true, &rc)) continue;
 
         /* Only redraw overlapping parts */
         sdl_DrawTiles(win, jcol, jrow, rc, prc, a, c, ta, tc);
     }
 }
-#endif
 
 
 /*
  * Draw some text to a window
  */
-static errr Term_text_sdl_aux(int col, int row, int n, byte a, const char *s)
+static errr Term_text_sdl_aux(int col, int row, int n, u16b a, const char *s)
 {
     term_window *win = (term_window*)(Term->data);
-    SDL_Color colour = text_colours[a];
+    SDL_Color colour = text_colours[a % MAX_COLORS];
+    SDL_Color bg = text_colours[COLOUR_DARK];
     int x = col * win->tile_wid;
     int y = row * win->tile_hgt;
     char buf[256];
@@ -3331,7 +3341,7 @@ static errr Term_text_sdl_aux(int col, int row, int n, byte a, const char *s)
     if (n > win->cols) return (-1);
 
     /* Do something to display more lines in pseudo-3D mode */
-    if ((win->Term_idx == 0) && streq(get_graphics_mode(p_ptr->use_graphics, TRUE)->pref, "pseudo"))
+    if ((win->Term_idx == 0) && get_graphics_mode(use_graphics, true)->distorted)
     {
         int sizey = (win->height - win->border - win->title_height) / win->tile_hgt;
 
@@ -3360,8 +3370,21 @@ static errr Term_text_sdl_aux(int col, int row, int n, byte a, const char *s)
     strncpy(buf, s, n);
     buf[n] = '\0';
 
+    /* Handle background */
+    switch (a / MAX_COLORS)
+    {
+        /* Default Background */
+        case BG_BLACK: break;
+
+        /* Background same as foreground */
+        case BG_SAME: bg = colour; break;
+
+        /* Highlight Background */
+        case BG_DARK: bg = text_colours[COLOUR_SHADE]; break;
+    }
+
     /* Draw it */
-    return (sdl_FontDraw(&win->font, win->surface, colour, x, y, n, buf));
+    return (sdl_mapFontDraw(&win->font, win->surface, colour, bg, x, y, n, buf));
 }
 
 
@@ -3370,13 +3393,12 @@ static errr Term_text_sdl_aux(int col, int row, int n, byte a, const char *s)
  *
  * For double-height tiles, we redraw all double-height tiles below.
  */
-static errr Term_text_sdl(int col, int row, int n, byte a, const char *s)
+static errr Term_text_sdl(int col, int row, int n, u16b a, const char *s)
 {
-#ifdef USE_GRAPHICS
     term_window *win = (term_window*)(Term->data);
     SDL_Rect rc;
     int i;
-    byte fa, ta;
+    u16b fa, ta;
     char fc, tc;
     int tile_wid = 1, tile_hgt = 1;
 
@@ -3386,12 +3408,10 @@ static errr Term_text_sdl(int col, int row, int n, byte a, const char *s)
         tile_wid = tile_width;
         tile_hgt = tile_height;
     }
-#endif /* USE_GRAPHICS */
 
     /* Redraw the current text */
     Term_text_sdl_aux(col, row, n, a, s);
 
-#ifdef USE_GRAPHICS
     /* Redraw the bottom tiles (recursively) */
     for (i = 0; i < n; i++)
     {
@@ -3411,7 +3431,7 @@ static errr Term_text_sdl(int col, int row, int n, byte a, const char *s)
                 if (((trow >= overdraw) && (trow <= overdraw_max)) ||
                     ((row >= overdraw) && (row <= overdraw_max)))
                 {
-                    get_sdl_rect(win, tilex, tiley, FALSE, &rc);
+                    get_sdl_rect(win, tilex, tiley, false, &rc);
                     set_update_rect(win, &rc);
                     sdl_DrawTiles(win, tilex, tiley, rc, NULL, fa, fc, ta, tc);
                     j++;
@@ -3421,7 +3441,6 @@ static errr Term_text_sdl(int col, int row, int n, byte a, const char *s)
             else j = 0;
         }
     }
-#endif /* USE_GRAPHICS */
 
     /* Success */
     return 0;
@@ -3435,15 +3454,14 @@ static errr Term_text_sdl(int col, int row, int n, byte a, const char *s)
  *
  * For double-height tiles, we redraw the tile just above and all double-height tiles below.
  */
-static errr Term_pict_sdl(int col, int row, int n, const byte *ap, const char *cp,
-    const byte *tap, const char *tcp)
+static errr Term_pict_sdl(int col, int row, int n, const u16b *ap, const char *cp,
+    const u16b *tap, const char *tcp)
 {
-#ifdef USE_GRAPHICS
     /* Get the right window */
     term_window *win = (term_window*)(Term->data);
     SDL_Rect rc, rc2;
 	int i;
-    byte a, ta;
+    u16b a, ta;
     char c, tc;
     int tile_wid = 1, tile_hgt = 1;
 
@@ -3478,7 +3496,7 @@ static errr Term_pict_sdl(int col, int row, int n, const byte *ap, const char *c
     }
 
     /* Make the destination rectangle */
-    if (get_sdl_rect(win, col, row, TRUE, &rc)) return (1);
+    if (get_sdl_rect(win, col, row, true, &rc)) return (1);
 
     /* Blit 'em! (it) */
     for (i = 0; i < n; i++)
@@ -3500,7 +3518,7 @@ static errr Term_pict_sdl(int col, int row, int n, const byte *ap, const char *c
         {
             if (a & 0x80)
             {
-                get_sdl_rect(win, col + i * tile_wid, row - tile_hgt, FALSE, &rc2);
+                get_sdl_rect(win, col + i * tile_wid, row - tile_hgt, false, &rc2);
                 set_update_rect(win, &rc2);
                 sdl_DrawTiles(win, col + i * tile_wid, row - tile_hgt, rc2, NULL, a, c, ta, tc);
             }
@@ -3538,7 +3556,7 @@ static errr Term_pict_sdl(int col, int row, int n, const byte *ap, const char *c
                 if (((trow >= overdraw) && (trow <= overdraw_max)) ||
                     ((frow >= overdraw) && (frow <= overdraw_max)))
                 {
-                    get_sdl_rect(win, col + i * tile_wid, row + j * tile_hgt, FALSE, &rc2);
+                    get_sdl_rect(win, col + i * tile_wid, row + j * tile_hgt, false, &rc2);
                     set_update_rect(win, &rc2);
                     sdl_DrawTiles(win, col + i * tile_wid, row + j * tile_hgt, rc2, NULL, a, c,
                         ta, tc);
@@ -3552,7 +3570,6 @@ static errr Term_pict_sdl(int col, int row, int n, const byte *ap, const char *c
         /* Advance */
         rc.x += rc.w;
     }
-#endif
 
     return (0);
 }
@@ -3568,20 +3585,20 @@ static void term_data_link_sdl(term_window *win)
     /* Initialize the term */
     term_init(t, win->cols, win->rows, win->max_rows, win->keys);
 
-    t->higher_pict = TRUE;
+    t->higher_pict = true;
 
     /* Use a "software" cursor */
-    t->soft_cursor = TRUE;
+    t->soft_cursor = true;
 
     /* Erase with "white space" */
-    t->attr_blank = TERM_WHITE;
+    t->attr_blank = COLOUR_WHITE;
     t->char_blank = ' ';
 
     /* Differentiate between BS/^h, Tab/^i, etc. */
-    t->complex_input = TRUE;
+    t->complex_input = true;
 
     /* Never refresh one row */
-    t->never_frosh = TRUE;
+    t->never_frosh = true;
 
     /* Ignore the init/nuke hooks */
 
@@ -3609,7 +3626,7 @@ static void init_morewindows(void)
     sdl_Button *button;
     int x;
 
-    popped = FALSE;
+    popped = false;
 
     /* Make sure */
     sdl_WindowFree(&PopUp);
@@ -3621,7 +3638,7 @@ static void init_morewindows(void)
     StatusBar.draw_extra = draw_statusbar;
 
     /* Don't overlap the buttons */
-    if (AppWin->w >= 720) my_strcpy(buf, get_buildid(TRUE), sizeof(buf));
+    if (AppWin->w >= 720) my_strcpy(buf, version_build(VB_NAME | VB_BUILD), sizeof(buf));
     else my_strcpy(buf, "About...", sizeof(buf));
 
     AboutSelect = sdl_ButtonBankNew(&StatusBar.buttons);
@@ -3630,7 +3647,7 @@ static void init_morewindows(void)
     /* Initialize the 'about' button */
     sdl_ButtonSize(button, StatusBar.font.width * strlen(buf) + 5, StatusHeight - 2);
     sdl_ButtonMove(button, 1, 1);
-    sdl_ButtonVisible(button, TRUE);
+    sdl_ButtonVisible(button, true);
     sdl_ButtonCaption(button, buf);
     button->activate = AboutActivate;
 
@@ -3642,7 +3659,7 @@ static void init_morewindows(void)
     sdl_ButtonSize(button, get_term_namewidth(), StatusHeight - 2);
     x = 100 + (StatusBar.font.width * 5);
     sdl_ButtonMove(button, x, 1);
-    sdl_ButtonVisible(button, TRUE);
+    sdl_ButtonVisible(button, true);
     button->activate = TermActivate;
 
     /* Another new button */
@@ -3653,7 +3670,7 @@ static void init_morewindows(void)
     sdl_ButtonSize(button, 50, StatusHeight - 2);
     x = 200 + (StatusBar.font.width * 8);
     sdl_ButtonMove(button, x, 1);
-    sdl_ButtonVisible(button, TRUE);
+    sdl_ButtonVisible(button, true);
     button->activate = VisibleActivate;
 
     /* Another new button */
@@ -3672,7 +3689,7 @@ static void init_morewindows(void)
     /* Initialize the 'more' button */
     sdl_ButtonSize(button, 50, StatusHeight - 2);
     sdl_ButtonMove(button, 400, 1);
-    sdl_ButtonVisible(button, TRUE);
+    sdl_ButtonVisible(button, true);
     sdl_ButtonCaption(button, "Options");
     button->activate = MoreActivate;
 
@@ -3685,7 +3702,7 @@ static void init_morewindows(void)
     sdl_ButtonMove(button, AppWin->w - 51, 1);
     sdl_ButtonCaption(button, "Quit");
     button->activate = QuitActivate;
-    sdl_ButtonVisible(button, TRUE);
+    sdl_ButtonVisible(button, true);
 
     SetStatusButtons();
 
@@ -3693,7 +3710,6 @@ static void init_morewindows(void)
 }
 
 
-#ifdef USE_GRAPHICS
 /*
  * The new streamlined graphics loader.
  * Only uses colour keys.
@@ -3706,9 +3722,9 @@ static errr load_gfx(void)
     SDL_Surface *temp;
     graphics_mode *mode;
 
-    if (GfxSurface && is_current_graphics_mode(p_ptr->use_graphics)) return (0);
+    if (GfxSurface && is_current_graphics_mode(use_graphics)) return (0);
 
-    mode = get_graphics_mode(p_ptr->use_graphics, TRUE);
+    mode = get_graphics_mode(use_graphics, true);
     if (mode && mode->grafID) filename = mode->file;
 
     /* Free the old surfaces */
@@ -3724,34 +3740,30 @@ static errr load_gfx(void)
     }
 
     /* This may be called when GRAPHICS_NONE is set */
-    ANGBAND_GRAF = "none";
     if (!filename) return (0);
 
     /* Find and load the file into a temporary surface */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, filename);
+    path_build(buf, sizeof(buf), mode->path, filename);
     temp = IMG_Load(buf);
     if (!temp) return (1);
 
     /* Change the surface type to the current video surface format */
-    if (streq(mode->pref, "pseudo"))
+    if (mode->distorted)
         GfxSurface = SDL_DisplayFormat(temp);
     else
         GfxSurface = SDL_DisplayFormatAlpha(temp);
 
     /* Minimap surface (pseudo-3D) */
-    if (streq(mode->pref, "pseudo"))
+    if (mode->distorted)
     {
-        graphics_mode *info = get_graphics_mode_by_name("david");
+        graphics_mode *info = get_graphics_mode_by_name("graf-dvg.prf");
 
         if (!(info && info->grafID)) return (1);
-        path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, info->file);
+        path_build(buf, sizeof(buf), info->path, info->file);
         temp = IMG_Load(buf);
         if (!temp) return (1);
         mmSurface = SDL_DisplayFormatAlpha(temp);
     }
-
-    /* Make sure we know what pref file to use */
-    ANGBAND_GRAF = mode->pref;
 
     overdraw = mode->overdrawRow;
     overdraw_max = mode->overdrawMax;
@@ -3759,7 +3771,6 @@ static errr load_gfx(void)
     /* All good */
     return (0);
 }
-#endif
 
 
 /*
@@ -3767,11 +3778,6 @@ static errr load_gfx(void)
  */
 static void init_gfx(void)
 {
-#ifndef USE_GRAPHICS
-    /* Make sure */
-    p_ptr->use_graphics = GRAPHICS_NONE;
-    reset_tile_params();
-#else
     graphics_mode *mode;
 
     /* Check for existence of required files */
@@ -3783,7 +3789,7 @@ static void init_gfx(void)
         /* Check the graphic file */
         if (mode->file[0])
         {
-            path_build(path, sizeof(path), ANGBAND_DIR_XTRA_GRAF, mode->file);
+            path_build(path, sizeof(path), mode->path, mode->file);
 
             if (!file_exists(path))
             {
@@ -3796,16 +3802,15 @@ static void init_gfx(void)
     }
 
     /* Check availability (default to no graphics) */
-    mode = get_graphics_mode(p_ptr->use_graphics, TRUE);
+    mode = get_graphics_mode(use_graphics, true);
     if (!(mode && mode->grafID && mode->file[0]))
     {
-        p_ptr->use_graphics = GRAPHICS_NONE;
+        use_graphics = GRAPHICS_NONE;
         reset_tile_params();
     }
 
     /* Load the graphics stuff in */
     load_gfx();
-#endif
 }
 
 /*
@@ -3843,7 +3848,6 @@ static void init_windows(void)
                 win->top = AppWin->h - win->height;
             }
 
-#ifdef USE_GRAPHICS
             /* Invalidate the gfx surface */
             if (win->tiles)
             {
@@ -3855,7 +3859,6 @@ static void init_windows(void)
                 SDL_FreeSurface(win->ttrans);
                 win->ttrans = NULL;
             }
-#endif
 
             /* This will set up the window correctly */
             ResizeWin(win, win->width, win->height);
@@ -3890,7 +3893,7 @@ static void init_sdl_local(void)
 
     /* Require at least 256 colors */
     if (VideoInfo->vfmt->BitsPerPixel < 8)
-        quit_fmt("This %s port requires lots of colors.", get_buildid(TRUE));
+        quit_fmt("This %s port requires lots of colors.", version_build(VB_NAME | VB_BUILD));
 
     full_w = VideoInfo->current_w;
     full_h = VideoInfo->current_h;
@@ -3910,12 +3913,12 @@ static void init_sdl_local(void)
     /* Handle failure */
     if (!AppWin)
     {
-        quit(format("Failed to create %dx%d window at %d bpp!", screen_w, screen_h,
-            VideoInfo->vfmt->BitsPerPixel));
+        quit_fmt("Failed to create %dx%d window at %d bpp!", screen_w, screen_h,
+            VideoInfo->vfmt->BitsPerPixel);
     }
 
     /* Set the window caption */
-    SDL_WM_SetCaption(get_buildid(TRUE), NULL);
+    SDL_WM_SetCaption(version_build(VB_NAME | VB_BUILD), NULL);
 
     /* Enable key repeating; use defaults */
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -3924,9 +3927,9 @@ static void init_sdl_local(void)
     SDL_EnableUNICODE(1);
 
     /* Build a color for "black" that matches the pixel depth of this surface */
-    back_colour.r = angband_color_table[TERM_DARK][1];
-    back_colour.g = angband_color_table[TERM_DARK][2];
-    back_colour.b = angband_color_table[TERM_DARK][3];
+    back_colour.r = angband_color_table[COLOUR_DARK][1];
+    back_colour.g = angband_color_table[COLOUR_DARK][2];
+    back_colour.b = angband_color_table[COLOUR_DARK][3];
     back_pixel_colour = SDL_MapRGB(AppWin->format, back_colour.r, back_colour.g, back_colour.b);
 
     /* Initialize the colours */
@@ -3945,7 +3948,7 @@ static void init_sdl_local(void)
     sdl_FontCreate(&SystemFont, DEFAULT_FONT_FILE, AppWin);
 
     /* Get the icon for display in the About box */
-    path_build(path, sizeof(path), ANGBAND_DIR_XTRA_ICON, "att-128.png");
+    path_build(path, sizeof(path), ANGBAND_DIR_ICONS, "att-128.png");
     if (file_exists(path))
         mratt = IMG_Load(path);
 }
@@ -3990,31 +3993,17 @@ static void init_paths(void)
     char buf[MSG_LEN];
     ang_dir *dir;
 
-    /* Build the gfx path */
-    path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "graf");
-    ANGBAND_DIR_XTRA_GRAF = string_make(path);
-
-    /* Build the "font" path */
-    path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "font");
-    ANGBAND_DIR_XTRA_FONT = string_make(path);
-
-    /* Build the "icon" path */
-    path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "icon");
-    ANGBAND_DIR_XTRA_ICON = string_make(path);
-
     /* Build the filename */
-    path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT_FILE);
+    path_build(path, sizeof(path), ANGBAND_DIR_FONTS, DEFAULT_FONT_FILE);
 
-    /* Hack -- Validate the basic font */
+    /* Hack -- validate the basic font */
     validate_file(path);
 
     for (i = 0; i < MAX_FONTS; i++)
         FontList[i] = NULL;
 
-    /** Scan for fonts **/
-
-    /* Open the directory */
-    dir = my_dopen(ANGBAND_DIR_XTRA_FONT);
+    /* Open the fonts directory */
+    dir = my_dopen(ANGBAND_DIR_FONTS);
     if (!dir) return;
 
     /* Read every font to the limit */
@@ -4054,15 +4043,6 @@ errr init_sdl(void)
         return (2);
     }
 
-#ifdef USE_SOUND
-    /* Initialise the mixer  */
-    if (!open_audio())
-    {
-        SDL_Quit();
-        return (2);
-    }
-#endif /* USE_SOUND */
-
     /* Initialize the TTF library */
     if (TTF_Init() < 0)
     {
@@ -4075,7 +4055,7 @@ errr init_sdl(void)
     init_paths();
 
     /* Load possible graphics modes */
-    init_graphics_modes("graphics.txt");
+    init_graphics_modes();
     GfxButtons = mem_zalloc(sizeof(int) * (graphics_mode_high_id + 1));
 
     /* Load prefs */
@@ -4103,7 +4083,7 @@ errr init_sdl(void)
     quit_aux = hook_quit;
 
     /* Register a control handler */
-    if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE))
+    if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, true))
         quit("Could not set control handler");
 
     /* Paranoia */

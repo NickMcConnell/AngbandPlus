@@ -3,7 +3,7 @@
  * Purpose: Memory management routines
  *
  * Copyright (c) 1997 Ben Harrison.
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -21,7 +21,7 @@
 #include "angband.h"
 
 
-#ifdef _DEBUG
+#ifdef DEBUG_MODE
 unsigned int mem_flags = MEM_POISON_ALLOC | MEM_POISON_FREE;
 #else
 unsigned int mem_flags = 0;
@@ -131,7 +131,7 @@ char *string_append(char *s1, const char *s2)
 
     len = strlen(s1);
     s1 = mem_realloc(s1, len + strlen(s2) + 1);
-    strcpy(s1 + len, s2);
+    my_strcpy(s1 + len, s2, strlen(s2) + 1);
     return s1;
 }
 

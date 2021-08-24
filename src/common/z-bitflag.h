@@ -17,19 +17,29 @@ typedef byte bitflag;
  */
 #define FLAG_START        1
 
-/* Sentinel value indicates no more flags present for va-arg functions */
+/*
+ * Sentinel value indicates no more flags present for va-arg functions
+ */
 #define FLAG_END          (FLAG_START - 1)
 
-/* The array size necessary to hold "n" flags */
+/*
+ * The array size necessary to hold "n" flags
+ */
 #define FLAG_SIZE(n)      (((n) + FLAG_WIDTH - 1) / FLAG_WIDTH)
 
-/* The highest flag value plus one in an array of size "n" */
+/*
+ * The highest flag value plus one in an array of size "n"
+ */
 #define FLAG_MAX(n)       (int)((n) * FLAG_WIDTH + FLAG_START)
 
-/* Convert a sequential flag enum value to its array index */
+/*
+ * Convert a sequential flag enum value to its array index
+ */
 #define FLAG_OFFSET(id)   (((id) - FLAG_START) / FLAG_WIDTH)
 
-/* Convert a sequential flag enum value to its binary flag value. */
+/*
+ * Convert a sequential flag enum value to its binary flag value.
+ */
 #define FLAG_BINARY(id)   (1 << ((id) - FLAG_START) % FLAG_WIDTH)
 
 extern bool flag_has(const bitflag *flags, const size_t size, const int flag);

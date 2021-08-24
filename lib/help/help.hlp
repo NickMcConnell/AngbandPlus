@@ -1,0 +1,39 @@
+Welcome to the PWMAngband Online Help System.
+
+Please choose one of the following online help files:
+    (a) General information        (general.txt)
+    (b) Creating a character       (birth.txt)
+    (c) Exploring the dungeon      (dungeon.txt)
+    (d) Attacking monsters         (attack.txt)
+    (e) Playing the game           (playing.txt)
+    (f) Command descriptions       (command.txt)
+    (g) Option descriptions        (option.txt)
+    (h) Customising the game       (customize.txt)
+	(i) Modifying the game         (modifying.txt)
+    (j) Historic information       (version.txt)
+	(k) Licence information        (copying.txt)
+    (l) Quick reference guide      (mangband.hlp)
+
+.. menu:: [a] general.txt
+
+.. menu:: [b] birth.txt
+
+.. menu:: [c] dungeon.txt
+
+.. menu:: [d] attack.txt
+
+.. menu:: [e] playing.txt
+
+.. menu:: [f] command.txt
+
+.. menu:: [g] option.txt
+
+.. menu:: [h] customize.txt
+
+.. menu:: [i] modifying.txt
+
+.. menu:: [j] version.txt
+
+.. menu:: [k] copying.txt
+
+.. menu:: [l] mangband.hlp

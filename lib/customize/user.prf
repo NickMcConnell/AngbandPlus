@@ -1,0 +1,77 @@
+# File: user.prf
+
+#
+# This file defines "override" actions of various kinds
+#
+# This file includes, if appropriate, various "sub-files"
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+
+
+##### Race Specific Subfiles #####
+
+?:[EQU $RACE Human]
+%:human.prf
+
+?:[EQU $RACE Half-Elf]
+%:half-elf.prf
+
+?:[EQU $RACE Elf]
+%:elf.prf
+
+?:[EQU $RACE Hobbit]
+%:hobbit.prf
+
+?:[EQU $RACE Gnome]
+%:gnome.prf
+
+?:[EQU $RACE Dwarf]
+%:dwarf.prf
+
+?:[EQU $RACE Half-Orc]
+%:half-orc.prf
+
+# "Half-Troll.prf" is too long for stupid 8.3 filenames,
+# so try to load the shortened filename too.
+?:[EQU $RACE Half-Troll]
+%:half-troll.prf
+%:h-troll.prf
+
+?:[EQU $RACE Dunadan]
+%:dunadan.prf
+
+?:[EQU $RACE High-Elf]
+%:high-elf.prf
+
+?:[EQU $RACE Kobold]
+%:kobold.prf
+
+# Race Specific Subfiles not implemented yet
+# TODO: add new races
+
+
+##### Class Specific Subfiles #####
+
+?:[EQU $CLASS Warrior]
+%:warrior.prf
+
+?:[EQU $CLASS Mage]
+%:mage.prf
+
+?:[EQU $CLASS Priest]
+%:priest.prf
+
+?:[EQU $CLASS Rogue]
+%:rogue.prf
+
+?:[EQU $CLASS Ranger]
+%:ranger.prf
+
+?:[EQU $CLASS Paladin]
+%:paladin.prf
+
+# Class Specific Subfiles not implemented yet
+# TODO: add new classes
+
+?:1

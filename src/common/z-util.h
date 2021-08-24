@@ -7,7 +7,9 @@
 #define INCLUDED_Z_UTIL_H
 
 
-/**** Available variables ****/
+/*
+ * Available variables
+ */
 
 /* Temporary Vars */
 extern char char_tmp;
@@ -31,13 +33,28 @@ extern void *vptr_self;
 /* The name of the program */
 extern char *argv0;
 
-/* Aux functions */
+/*
+ * Aux functions
+ */
 extern void (*plog_aux)(const char *);
 extern void (*quit_aux)(const char *);
 extern void (*assert_aux)(void);
 
 
-/**** Available Functions ****/
+/*
+ * Available Functions
+ */
+
+/*
+ * Return "s" (or not) depending on whether n is singular.
+ */
+#define PLURAL(n) (((n) == 1)? "": "s")
+#define SINGULAR(n) (((n) == 1)? "s": "")
+
+/*
+ * Return the verb form matching the given count
+ */
+#define VERB_AGREEMENT(count, singular, plural) (((count) == 1)? (singular): (plural))
 
 /* Function that does nothing */
 extern void func_nothing(void);
@@ -50,6 +67,12 @@ extern errr func_failure(void);
 /* Functions that return bools */
 extern bool func_true(void);
 extern bool func_false(void);
+
+/* Count the number of characters in a UTF-8 encoded string */
+extern size_t utf8_strlen(char *s);
+
+/* Clip a null-terminated UTF-8 string 's' to 'n' unicode characters. */
+extern void utf8_clipto(char *s, size_t n);
 
 /* Case insensitive comparison between two strings */  
 extern int my_stricmp(const char *s1, const char *s2);
@@ -85,26 +108,42 @@ extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
  */
 extern size_t my_strcat(char *buf, const char *src, size_t bufsize);
 
-/* Capitalise string 'buf' */
+/*
+ * Capitalise string 'buf'
+ */
 extern void my_strcap(char *buf);
 
-/* Test equality, prefix, suffix, and do "strdup" */
+/*
+ * Test equality, prefix, suffix
+ */
 extern bool streq(const char *s, const char *t);
 extern bool prefix(const char *s, const char *t);
 extern bool suffix(const char *s, const char *t);
 
-/* Skip occurrences of a character */
-extern void strskip(char *s, const char c);
+/*
+ * Skip occurrences of a character
+ */
+extern void strskip(char *s, const char c, const char e);
+extern void strescape(char *s, const char c);
 
-/* Determines if a string is "empty" */
+/*
+ * Determines if a string is "empty"
+ */
 extern bool contains_only_spaces(const char* s);
 
-/* Print an error message */
+/*
+ * Print an error message
+ */
 extern void plog(const char *str);
 
-/* Exit, with optional message */
+/*
+ * Exit, with optional message
+ */
 extern void quit(const char *str);
 
+/*
+ * Check if a char is a vowel
+ */
 extern bool is_a_vowel(int ch);
 
 /* hturn manipulations */
@@ -117,12 +156,22 @@ extern bool ht_zero(hturn *ht_ptr);
 extern int ht_cmp(hturn *ht_ptr1, hturn *ht_ptr2);
 extern u32b ht_div(hturn *ht_ptr, s16b value);
 
+/*
+ * Sorting functions
+ */
 extern void sort(void *array, size_t nmemb, size_t smemb,
     int (*comp)(const void *a, const void *b));
 
-/* Mathematical functions */
-int mean(int *nums, int size);
-int variance(int *nums, int size);
+/*
+ * Create a hash for a string
+ */
+extern u32b djb2_hash(const char *str);
+
+/*
+ * Mathematical functions
+ */
+extern int mean(int *nums, int size);
+extern int variance(int *nums, int size);
 
 /* Tests a condition and possibly aborts, using the "assert" macro */
 #define my_assert(p) \

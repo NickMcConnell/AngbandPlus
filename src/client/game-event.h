@@ -6,7 +6,9 @@
 #ifndef INCLUDED_GAME_EVENT_H
 #define INCLUDED_GAME_EVENT_H
 
-/* The various events we can send signals about. */
+/*
+ * The various events we can send signals about.
+ */
 typedef enum
 {
     EVENT_MAP = 0,          /* Some part of the map has changed. */
@@ -42,6 +44,11 @@ typedef enum
     EVENT_SPELL,
     EVENT_SPECIAL_INFO,
 
+    EVENT_SOUND,
+    EVENT_BELL,
+
+    EVENT_INPUT_FLUSH,
+
     EVENT_END             /* It's the end of a "set" of events, so safe to update */
 } game_event_type;
 
@@ -49,11 +56,8 @@ typedef enum
 
 typedef union
 {
-    struct 
-    {
-        int x;
-        int y;
-    } point;
+    struct loc point;
+    int type;
 } game_event_data;
 
 /*
@@ -72,7 +76,8 @@ extern void event_add_handler_set(game_event_type *type, size_t n_types,
 extern void event_remove_handler_set(game_event_type *type, size_t n_types,
     game_event_handler *fn, void *user);
 
-extern void event_signal_point(game_event_type, int x, int y);
-extern void event_signal(game_event_type);
+extern void event_signal(game_event_type type);
+extern void event_signal_point(game_event_type type, int x, int y);
+extern void event_signal_type(game_event_type type, int t);
 
 #endif /* INCLUDED_GAME_EVENT_H */

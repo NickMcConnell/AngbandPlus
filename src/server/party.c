@@ -2,7 +2,7 @@
  * File: party.c
  * Purpose: Support for the "party" system
  *
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -18,10 +18,6 @@
 
 
 #include "s-angband.h"
-#include "cmds.h"
-#include "history.h"
-#include "netserver.h"
-#include "party.h"
 
 
 /*** Player lookup ***/
@@ -50,6 +46,10 @@ struct player *player_lookup(const char *name)
     /* No match */
     return NULL;
 }
+
+
+/* The party information */
+party_type parties[MAX_PARTIES];
 
 
 /*** Party functions ***/
@@ -101,62 +101,58 @@ bool is_party_owner(struct player *p, struct player *q)
  */
 bool master_in_party(s16b p1_id, s16b p2_id)
 {
-    player_type *p1_ptr = NULL;
-    player_type *p2_ptr = NULL;
+    struct player *p1_ptr = NULL;
+    struct player *p2_ptr = NULL;
     int i;
 
     /* Find IDs */
     for (i = 1; i <= NumPlayers; i++)
     {
-        player_type *p_ptr = player_get(i);
+        struct player *p = player_get(i);
 
         /* Check this one */
-        if (p1_id == p_ptr->id) p1_ptr = p_ptr;
-        if (p2_id == p_ptr->id) p2_ptr = p_ptr;
+        if (p1_id == p->id) p1_ptr = p;
+        if (p2_id == p->id) p2_ptr = p;
     }
 
     /* Player IDs not found */
-    if (!p1_ptr || !p2_ptr) return FALSE;
+    if (!p1_ptr || !p2_ptr) return false;
 
     /* Same IDs */
-    if (p1_id == p2_id) return TRUE;
+    if (p1_id == p2_id) return true;
 
     /* Not in a party */
-    if (!p1_ptr->party || !p2_ptr->party) return FALSE;
+    if (!p1_ptr->party || !p2_ptr->party) return false;
 
     /* Same party */
-    if (p1_ptr->party == p2_ptr->party) return TRUE;
+    if (p1_ptr->party == p2_ptr->party) return true;
 
     /* Different parties */
-    return FALSE;
+    return false;
 }
 
 
-bool pvm_check(int attacker, int target)
+bool pvm_check(struct player *p, struct monster *mon)
 {
-    player_type *p_ptr = player_get(attacker);
-    monster_type *m_ptr = cave_monster(cave_get(p_ptr->depth), target);
+   /* Paranoia */
+    if (!mon->race) return false;
 
-    /* Paranoia */
-    if (!m_ptr->r_idx) return FALSE;
-
-    /* Hack -- Dungeon master and his monsters */
-    if (p_ptr->dm_flags & DM_MONSTER_FRIEND) return FALSE;
+    /* Hack -- dungeon master and his monsters */
+    if (p->dm_flags & DM_MONSTER_FRIEND) return false;
 
     /* Same party */
-    if (master_in_party(m_ptr->master, p_ptr->id)) return FALSE;
+    if (master_in_party(mon->master, p->id)) return false;
 
     /* Always hostile by default */
-    return TRUE;
+    return true;
 }
 
 
 /*
- * Create a new party, owned by "Ind", and called "name".
+ * Create a new party, owned by "p", and called "name".
  */
-bool party_create(int Ind, const char *name)
+static bool party_create(struct player *p, const char *name)
 {
-    player_type *p_ptr = player_get(Ind);
     int index = 0, i;
     hturn oldest;
 
@@ -165,15 +161,15 @@ bool party_create(int Ind, const char *name)
     /* Check for already existing party by that name */
     if (party_lookup(name) != -1)
     {
-        msg(p_ptr, "A party by that name already exists.");
-        return FALSE;
+        msg(p, "A party by that name already exists.");
+        return false;
     }
 
     /* Make sure this guy isn't in some other party already */
-    if (p_ptr->party != 0)
+    if (p->party != 0)
     {
-        msg(p_ptr, "You already belong to a party!");
-        return FALSE;
+        msg(p, "You already belong to a party!");
+        return false;
     }
 
     /* Find the "best" party index */
@@ -192,28 +188,28 @@ bool party_create(int Ind, const char *name)
     if ((index == 0) || (ht_cmp(&oldest, &turn) == 0))
     {
         /* Error */
-        msg(p_ptr, "There aren't enough party slots!");
-        return FALSE;
+        msg(p, "There aren't enough party slots!");
+        return false;
     }
 
     /* Set party name */
     my_strcpy(parties[index].name, name, sizeof(parties[0].name));
 
     /* Set owner name */
-    my_strcpy(parties[index].owner, p_ptr->name, sizeof(parties[0].owner));
+    my_strcpy(parties[index].owner, p->name, sizeof(parties[0].owner));
 
     /* Add the owner as a member */
-    p_ptr->party = index;
+    p->party = index;
     parties[index].num++;
 
     /* Set the "creation time" */
     ht_copy(&parties[index].created, &turn);
 
     /* Resend party info */
-    Send_party(p_ptr);
+    Send_party(p);
 
     /* Success */
-    return TRUE;
+    return true;
 }
 
 
@@ -228,64 +224,63 @@ static bool check_hostile(struct player *attacker, struct player *target)
     for (h_ptr = attacker->hostile; h_ptr; h_ptr = h_ptr->next)
     {
         /* Identical ID's yield hostility */
-        if (h_ptr->id == target->id) return TRUE;
+        if (h_ptr->id == target->id) return true;
     }
 
     /* Not hostile */
-    return FALSE;
+    return false;
 }
 
 
 /*
  * Add a player to a party.
  */
-bool party_add(int adder, const char *name)
+static bool party_add(struct player *q, const char *name)
 {
-    player_type *q_ptr = player_get(adder);
-    int party_id = q_ptr->party, i;
+    int party_id = q->party, i;
     char desc[NORMAL_WID];
 
     /* Find name */
-    player_type *p_ptr = player_lookup(name);
+    struct player *p = player_lookup(name);
 
     /* Check for existance */
-    if (!p_ptr)
+    if (!p)
     {
         /* Oops */
-        msg(q_ptr, "That player is not currently in the game.");
+        msg(q, "That player is not currently in the game.");
 
-        return FALSE;
+        return false;
     }
 
     /* Make sure this added person is neutral */
-    if (p_ptr->party != 0)
+    if (p->party != 0)
     {
         /* Message */
-        msg(q_ptr, "That player is already in a party.");
+        msg(q, "That player is already in a party.");
 
         /* Abort */
-        return FALSE;
+        return false;
     }
 
     /* You can't add a hostile player! */
     for (i = 1; i <= NumPlayers; i++)
     {
-        player_type *i_ptr = player_get(i);
+        struct player *player = player_get(i);
 
         /* Check this one */
-        if ((i_ptr->party == party_id) &&
-            (check_hostile(p_ptr, i_ptr) || check_hostile(i_ptr, p_ptr)))
+        if ((player->party == party_id) &&
+            (check_hostile(p, player) || check_hostile(player, p)))
         {
             /* Player is hostile to someone in the party */
-            msg(q_ptr, "Ask this hostile player to make peace first.");
+            msg(q, "Ask this hostile player to make peace first.");
 
             /* Abort */
-            return FALSE;
+            return false;
         }
     }
 
     /* Tell the party about its new member */
-    my_strcpy(desc, p_ptr->name, sizeof(desc));
+    my_strcpy(desc, p->name, sizeof(desc));
     my_strcap(desc);
     party_msg_format(party_id, "%s has been added to party %s.", desc, parties[party_id].name);
 
@@ -293,16 +288,16 @@ bool party_add(int adder, const char *name)
     parties[party_id].num++;
 
     /* Tell him about it */
-    msg(p_ptr, "You've been added to party '%s'.", parties[party_id].name);
+    msg(p, "You've been added to party '%s'.", parties[party_id].name);
 
     /* Set his party number */
-    p_ptr->party = party_id;
+    p->party = party_id;
 
     /* Resend info */
-    Send_party(p_ptr);
+    Send_party(p);
 
     /* Success */
-    return TRUE;
+    return true;
 }
 
 
@@ -311,45 +306,44 @@ bool party_add(int adder, const char *name)
  *
  * Removing the party owner destroys the party.
  */
-bool party_remove(int remover, const char *name)
+static bool party_remove(struct player *q, const char *name)
 {
-    player_type *q_ptr = player_get(remover);
-    int party_id = q_ptr->party, i;
+    int party_id = q->party, i;
 
     /* Find name */
-    player_type *p_ptr = player_lookup(name);
+    struct player *p = player_lookup(name);
 
     /* Check for existance */
-    if (!p_ptr)
+    if (!p)
     {
         /* Oops */
-        msg(q_ptr, "That player is not currently in the game.");
+        msg(q, "That player is not currently in the game.");
 
-        return FALSE;
+        return false;
     }
 
     /* Make sure this is the owner */
-    if (!streq(parties[party_id].owner, q_ptr->name))
+    if (!streq(parties[party_id].owner, q->name))
     {
         /* Message */
-        msg(q_ptr, "You must be the owner to delete someone.");
+        msg(q, "You must be the owner to delete someone.");
 
         /* Abort */
-        return FALSE;
+        return false;
     }
 
     /* Make sure they were in the party to begin with */
-    if (!player_in_party(party_id, p_ptr))
+    if (!player_in_party(party_id, p))
     {
         /* Message */
-        msg(q_ptr, "You can only delete party members.");
+        msg(q, "You can only delete party members.");
 
         /* Abort */
-        return FALSE;
+        return false;
     }
 
     /* See if this is the owner we're deleting */
-    if (q_ptr == p_ptr)
+    if (q == p)
     {
         /* Remove the party altogether */
 
@@ -359,14 +353,14 @@ bool party_remove(int remover, const char *name)
         /* Remove everyone else */
         for (i = 1; i <= NumPlayers; i++)
         {
-            player_type *i_ptr = player_get(i);
+            struct player *player = player_get(i);
 
             /* Check if they are in here */
-            if (player_in_party(party_id, i_ptr))
+            if (player_in_party(party_id, player))
             {
-                i_ptr->party = 0;
-                msg(i_ptr, "Your party has been disbanded.");
-                Send_party(i_ptr);
+                player->party = 0;
+                msg(player, "Your party has been disbanded.");
+                Send_party(player);
             }
         }
 
@@ -386,43 +380,42 @@ bool party_remove(int remover, const char *name)
         parties[party_id].num--;
 
         /* Set his party number back to "neutral" */
-        p_ptr->party = 0;
+        p->party = 0;
 
         /* Messages */
-        my_strcpy(desc, p_ptr->name, sizeof(desc));
+        my_strcpy(desc, p->name, sizeof(desc));
         my_strcap(desc);
-        msg(p_ptr, "You have been removed from your party.");
+        msg(p, "You have been removed from your party.");
         party_msg_format(party_id, "%s has been removed from the party.", desc);
 
         /* Resend info */
-        Send_party(p_ptr);
+        Send_party(p);
     }
 
-    return TRUE;
+    return true;
 }
 
 
 /*
  * A player wants to leave a party.
  */
-void party_leave(int Ind)
+void party_leave(struct player *p)
 {
-    player_type *p_ptr = player_get(Ind);
-    int party_id = p_ptr->party;
+    int party_id = p->party;
     char desc[NORMAL_WID];
 
     /* Make sure he belongs to a party */
     if (!party_id)
     {
-        msg(p_ptr, "You don't belong to a party.");
+        msg(p, "You don't belong to a party.");
         return;
     }
 
     /* If he's the owner, use the other function */
-    if (streq(p_ptr->name, parties[party_id].owner))
+    if (streq(p->name, parties[party_id].owner))
     {
         /* Call party_remove */
-        party_remove(Ind, p_ptr->name);
+        party_remove(p, p->name);
         return;
     }
 
@@ -430,16 +423,16 @@ void party_leave(int Ind)
     parties[party_id].num--;
 
     /* Set him back to "neutral" */
-    p_ptr->party = 0;
+    p->party = 0;
 
     /* Inform people */
-    my_strcpy(desc, p_ptr->name, sizeof(desc));
+    my_strcpy(desc, p->name, sizeof(desc));
     my_strcap(desc);
-    msg(p_ptr, "You have been removed from your party.");
+    msg(p, "You have been removed from your party.");
     party_msg_format(party_id, "%s has left the party.", desc);
 
     /* Resend info */
-    Send_party(p_ptr);
+    Send_party(p);
 }
 
 
@@ -453,11 +446,11 @@ static void party_msg(int party_id, const char *msg)
     /* Check for this guy */
     for (i = 1; i <= NumPlayers; i++)
     {
-        player_type *i_ptr = player_get(i);
+        struct player *player = player_get(i);
 
         /* Check this guy */
-        if (player_in_party(party_id, i_ptr))
-            msg_print_aux(i_ptr, msg, MSG_WHISPER);
+        if (player_in_party(party_id, player))
+            msg_print(player, msg, MSG_WHISPER);
     }
 }
 
@@ -484,13 +477,10 @@ void party_msg_format(int party_id, const char *fmt, ...)
 }
 
 
-bool party_share_with(int Ind, int party_id, int Ind2)
+bool party_share_with(struct player *p, int party_id, struct player *q)
 {
-    player_type *p_ptr = player_get(Ind);
-    player_type *q_ptr = player_get(Ind2);
-
-    return (in_party(q_ptr, party_id) && (q_ptr->depth == p_ptr->depth) &&
-        ((cfg_party_sharelevel == -1) || (abs(q_ptr->lev - p_ptr->lev) <= cfg_party_sharelevel)));
+    return (in_party(q, party_id) && (q->depth == p->depth) &&
+        ((cfg_party_sharelevel == -1) || (abs(q->lev - p->lev) <= cfg_party_sharelevel)));
 }
 
 
@@ -512,9 +502,8 @@ bool party_share_with(int Ind, int party_id, int Ind2)
  * 3) Higher-leveled members of a party get higher percentages of the
  * experience.
  */
-void party_exp_gain(int Ind, int party_id, s32b amount)
+void party_exp_gain(struct player *p, int party_id, s32b amount)
 {
-    player_type *p_ptr;
     int i;
     s32b new_exp, new_exp_frac, average_lev = 0, num_members = 0;
     s32b modified_level;
@@ -522,13 +511,13 @@ void party_exp_gain(int Ind, int party_id, s32b amount)
     /* Calculate the average level */
     for (i = 1; i <= NumPlayers; i++)
     {
-        p_ptr = player_get(i);
+        struct player *q = player_get(i);
 
         /* Check for his existance in the party */
-        if (party_share_with(Ind, party_id, i))
+        if (party_share_with(p, party_id, q))
         {
             /* Increase the "divisor" */
-            average_lev += p_ptr->lev;
+            average_lev += q->lev;
             num_members++;
         }
     }
@@ -536,42 +525,42 @@ void party_exp_gain(int Ind, int party_id, s32b amount)
     /* Now, distribute the experience */
     for (i = 1; i <= NumPlayers; i++)
     {
-        p_ptr = player_get(i);
+        struct player *q = player_get(i);
 
         /* Check for existance in the party */
-        if (party_share_with(Ind, party_id, i))
+        if (party_share_with(p, party_id, q))
         {
             /* Calculate this guy's experience */
-            if (p_ptr->lev * num_members < average_lev) /* below average */
+            if (q->lev * num_members < average_lev) /* below average */
             {
-                if ((average_lev - p_ptr->lev * num_members) > 2 * num_members)
-                    modified_level = p_ptr->lev * num_members + 2 * num_members;
+                if ((average_lev - q->lev * num_members) > 2 * num_members)
+                    modified_level = q->lev * num_members + 2 * num_members;
                 else
                     modified_level = average_lev;
             }
             else
             {
-                if ((p_ptr->lev * num_members - average_lev) > 2 * num_members)
-                    modified_level = p_ptr->lev * num_members - 2 * num_members;
+                if ((q->lev * num_members - average_lev) > 2 * num_members)
+                    modified_level = q->lev * num_members - 2 * num_members;
                 else
                     modified_level = average_lev;
             }
 
-            new_exp = (amount * modified_level) / (average_lev * num_members * p_ptr->lev);
-            new_exp_frac = ((((amount * modified_level) % (average_lev * num_members * p_ptr->lev))
-                * 0x10000L) / (average_lev * num_members * p_ptr->lev)) + p_ptr->exp_frac;
+            new_exp = (amount * modified_level) / (average_lev * num_members * q->lev);
+            new_exp_frac = ((((amount * modified_level) % (average_lev * num_members * q->lev))
+                * 0x10000L) / (average_lev * num_members * q->lev)) + q->exp_frac;
 
             /* Keep track of experience */
             if (new_exp_frac >= 0x10000L)
             {
                 new_exp++;
-                p_ptr->exp_frac = new_exp_frac - 0x10000L;
+                q->exp_frac = new_exp_frac - 0x10000L;
             }
             else
-                p_ptr->exp_frac = new_exp_frac;
+                q->exp_frac = new_exp_frac;
 
             /* Gain experience */
-            player_exp_gain(p_ptr, new_exp);
+            player_exp_gain(q, new_exp);
         }
     }
 }
@@ -591,7 +580,7 @@ static bool add_hostility(struct player *attacker, struct player *target, bool s
         /* Message */
         if (!silent) msg(attacker, "You cannot be hostile toward yourself.");
 
-        return FALSE;
+        return false;
     }
 
     /* Check for existance */
@@ -600,7 +589,7 @@ static bool add_hostility(struct player *attacker, struct player *target, bool s
         /* Oops */
         if (!silent) msg(attacker, "That player is not currently in the game.");
 
-        return FALSE;
+        return false;
     }
 
     /* Make sure players aren't in the same party */
@@ -614,7 +603,7 @@ static bool add_hostility(struct player *attacker, struct player *target, bool s
             msg(attacker, "%s is in your party!", desc);
         }
 
-        return FALSE;
+        return false;
     }
 
     /* Ensure we don't add the same player twice */
@@ -626,12 +615,12 @@ static bool add_hostility(struct player *attacker, struct player *target, bool s
             /* Message */
             if (!silent) msg(attacker, "You are already hostile toward %s.", target->name);
 
-            return FALSE;
+            return false;
         }
     }
 
     /* Create a new hostility node */
-    h_ptr = ZNEW(hostile_type);
+    h_ptr = mem_zalloc(sizeof(hostile_type));
 
     /* Set ID in node */
     h_ptr->id = target->id;
@@ -641,15 +630,15 @@ static bool add_hostility(struct player *attacker, struct player *target, bool s
     attacker->hostile = h_ptr;
 
     /* Message */
-    msg(attacker, "You are now hostile toward %s.", target->name);
+    msgt(attacker, MSG_HOSTILE, "You are now hostile toward %s.", target->name);
 
     /* Notify the victim */
     my_strcpy(desc, attacker->name, sizeof(desc));
     my_strcap(desc);
-    msg(target, "%s is now hostile towards you.", desc);
+    msgt(target, MSG_HOSTILE, "%s is now hostile towards you.", desc);
 
     /* Success */
-    return TRUE;
+    return true;
 }
 
 
@@ -658,7 +647,7 @@ static bool add_hostility(struct player *attacker, struct player *target, bool s
  */
 static bool remove_hostility(struct player *attacker, struct player *target, bool silent)
 {
-    hostile_type *h_ptr, *i_ptr;
+    hostile_type *h_ptr, *temp;
 
     /* Check for sillyness */
     if (attacker == target)
@@ -666,7 +655,7 @@ static bool remove_hostility(struct player *attacker, struct player *target, boo
         /* Message */
         if (!silent) msg(attacker, "You are not hostile toward yourself.");
 
-        return FALSE;
+        return false;
     }
 
     /* Check for existance */
@@ -675,23 +664,23 @@ static bool remove_hostility(struct player *attacker, struct player *target, boo
         /* Oops */
         if (!silent) msg(attacker, "That player is not currently in the game.");
 
-        return FALSE;
+        return false;
     }
 
     /* Initialize lock-step */
-    i_ptr = NULL;
+    temp = NULL;
 
     /* Search entries */
-    for (h_ptr = attacker->hostile; h_ptr; i_ptr = h_ptr, h_ptr = h_ptr->next)
+    for (h_ptr = attacker->hostile; h_ptr; temp = h_ptr, h_ptr = h_ptr->next)
     {
         /* Check entry */
         if (h_ptr->id == target->id)
         {
             /* Delete this entry */
-            if (i_ptr)
+            if (temp)
             {
                 /* Skip over */
-                i_ptr->next = h_ptr->next;
+                temp->next = h_ptr->next;
             }
             else
             {
@@ -706,7 +695,7 @@ static bool remove_hostility(struct player *attacker, struct player *target, boo
             mem_free(h_ptr);
 
             /* Success */
-            return TRUE;
+            return true;
         }
     }
 
@@ -714,7 +703,7 @@ static bool remove_hostility(struct player *attacker, struct player *target, boo
     if (!silent) msg(attacker, "You are not hostile toward %s.", target->name);
 
     /* Failure */
-    return FALSE;
+    return false;
 }
 
 
@@ -731,7 +720,7 @@ static bool remove_hostility(struct player *attacker, struct player *target, boo
  *  PVP_ADD: adds hostility
  *  PVP_REMOVE: removes hostility
  *
- * Returns TRUE if a hostile response must be taken
+ * Returns true if a hostile response must be taken
  */
 bool pvp_check(struct player *attacker, struct player *target, int mode, bool silent, byte feat)
 {
@@ -740,13 +729,13 @@ bool pvp_check(struct player *attacker, struct player *target, int mode, bool si
         case PVP_CHECK_ONE:
         {
             /* Always safe */
-            if (feat == FEAT_FLOOR_SAFE) return FALSE;
+            if (feat_issafefloor(feat)) return false;
 
             /* Same party: can't be hostile */
-            if (in_party(target, attacker->party)) return FALSE;
+            if (in_party(target, attacker->party)) return false;
 
             /* Brutal mode: always hostile */
-            if (cfg_pvp_hostility == PVP_BRUTAL) return TRUE;
+            if (cfg_pvp_hostility == PVP_BRUTAL) return true;
 
             /* One player must be hostile */
             return (check_hostile(attacker, target) || check_hostile(target, attacker));
@@ -754,21 +743,21 @@ bool pvp_check(struct player *attacker, struct player *target, int mode, bool si
         case PVP_INDIRECT:
         {
             /* Always safe */
-            if (feat == FEAT_FLOOR_SAFE) return FALSE;
+            if (feat_issafefloor(feat)) return false;
 
             /* Same party: can't be hostile */
-            if (in_party(target, attacker->party)) return FALSE;
+            if (in_party(target, attacker->party)) return false;
 
             /* Dangerous mode: add hostilities and take a hostile response */
             if (cfg_pvp_hostility == PVP_DANGEROUS)
             {
-                add_hostility(attacker, target, TRUE);
-                add_hostility(target, attacker, TRUE);
-                return TRUE;
+                add_hostility(attacker, target, true);
+                add_hostility(target, attacker, true);
+                return true;
             }
 
             /* Brutal mode: always hostile */
-            if (cfg_pvp_hostility == PVP_BRUTAL) return TRUE;
+            if (cfg_pvp_hostility == PVP_BRUTAL) return true;
 
             /* Both players must be hostile */
             return (check_hostile(attacker, target) && check_hostile(target, attacker));
@@ -777,13 +766,13 @@ bool pvp_check(struct player *attacker, struct player *target, int mode, bool si
         case PVP_DIRECT:
         {
             /* Always safe */
-            if (feat == FEAT_FLOOR_SAFE) return FALSE;
+            if (feat_issafefloor(feat)) return false;
 
             /* Same party: can't be hostile */
-            if (in_party(target, attacker->party)) return FALSE;
+            if (in_party(target, attacker->party)) return false;
 
             /* Brutal mode: always hostile */
-            if (cfg_pvp_hostility == PVP_BRUTAL) return TRUE;
+            if (cfg_pvp_hostility == PVP_BRUTAL) return true;
 
             /* Both players must be hostile */
             return (check_hostile(attacker, target) && check_hostile(target, attacker));
@@ -811,7 +800,7 @@ bool pvp_check(struct player *attacker, struct player *target, int mode, bool si
 
                 /* Unsafe modes make both players hostile */
                 if ((cfg_pvp_hostility != PVP_SAFE) && hostile)
-                    add_hostility(target, attacker, TRUE);
+                    add_hostility(target, attacker, true);
             }
             break;
         }
@@ -837,24 +826,22 @@ bool pvp_check(struct player *attacker, struct player *target, int mode, bool si
                 bool unhostile = remove_hostility(attacker, target, silent);
 
                 /* Always un-hostile both players */
-                if (unhostile) remove_hostility(target, attacker, TRUE);
+                if (unhostile) remove_hostility(target, attacker, true);
             }
             break;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 
-void do_cmd_party(int Ind, s16b command, char* buf)
+void do_cmd_party(struct player *p, s16b command, char* buf)
 {
-    player_type *p_ptr = player_get(Ind);
-
     /* Check arena */
-    if (p_ptr->arena_num != -1)
+    if (p->arena_num != -1)
     {
-        msg(p_ptr, "You cannot access party commands while inside an arena.");
+        msg(p, "You cannot access party commands while inside an arena.");
         return;
     }
 
@@ -862,37 +849,37 @@ void do_cmd_party(int Ind, s16b command, char* buf)
     {
         case PARTY_CREATE:
         {
-            party_create(Ind, buf);
+            party_create(p, buf);
             break;
         }
 
         case PARTY_ADD:
         {
-            party_add(Ind, buf);
+            party_add(p, buf);
             break;
         }
 
         case PARTY_DELETE:
         {
-            party_remove(Ind, buf);
+            party_remove(p, buf);
             break;
         }
 
         case PARTY_REMOVE_ME:
         {
-            party_leave(Ind);
+            party_leave(p);
             break;
         }
 
         case PARTY_HOSTILE:
         {
-            pvp_check(p_ptr, player_lookup(buf), PVP_ADD, FALSE, FEAT_NONE);
+            pvp_check(p, player_lookup(buf), PVP_ADD, false, 0x00);
             break;
         }
 
         case PARTY_PEACE:
         {
-            pvp_check(p_ptr, player_lookup(buf), PVP_REMOVE, FALSE, FEAT_NONE);
+            pvp_check(p, player_lookup(buf), PVP_REMOVE, false, 0x00);
             break;
         }
     }
@@ -918,22 +905,22 @@ void party_msg_near(struct player *p, const char *msg)
     for (i = 1; i <= NumPlayers; i++)
     {
         /* Check this player */
-        player_type *q_ptr = player_get(i);
+        struct player *q = player_get(i);
 
         /* Don't send the message to the player who caused it */
-        if (p == q_ptr) continue;
+        if (p == q) continue;
 
         /* Make sure this player is at this depth */
-        if (q_ptr->depth != p->depth) continue;
+        if (q->depth != p->depth) continue;
 
         /* Meh, different party */
-        if (!player_in_party(party, q_ptr)) continue;
+        if (!player_in_party(party, q)) continue;
 
         /* Can he see this player? */
-        if (player_has_los_bold(q_ptr, y, x))
+        if (square_isview(q, y, x))
         {
             /* Send the message */
-            msg_print_aux(q_ptr, buf, MSG_PY_MISC);
+            msg_print(q, buf, MSG_PY_MISC);
         }
     }
 }
@@ -1027,7 +1014,7 @@ void add_player_name(int id, u32b account, const char *name, hturn *death_turn)
     slot = hash_slot(id);
 
     /* Create a new hash entry struct */
-    ptr = ZNEW(hash_entry);
+    ptr = mem_zalloc(sizeof(hash_entry));
 
     /* Make a copy of the player name in the entry */
     ptr->name = string_make(name);
@@ -1164,7 +1151,7 @@ u32b player_id_list(int **list, u32b account)
     if (!len) return 0;
 
     /* Allocate memory for the list */
-    (*list) = C_ZNEW(len, int);
+    (*list) = mem_zalloc(len * sizeof(int));
 
     /* Look again, this time storing ID's */
     for (i = 0; i < NUM_HASH_ENTRIES; i++)

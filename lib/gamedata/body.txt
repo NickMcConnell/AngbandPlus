@@ -1,0 +1,23 @@
+# File: body.txt
+
+
+# === Understanding body.txt ===
+
+# body : body name
+# slot : slot type : slot name
+
+
+body:Humanoid
+slot:WEAPON:weapon
+slot:BOW:shooting
+slot:RING:right hand
+slot:RING:left hand
+slot:AMULET:neck
+slot:LIGHT:light
+slot:BODY_ARMOR:body
+slot:CLOAK:back
+slot:SHIELD:arm
+slot:HAT:head
+slot:GLOVES:hands
+slot:BOOTS:feet
+slot:TOOL:tool

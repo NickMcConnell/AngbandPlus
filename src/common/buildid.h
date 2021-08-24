@@ -3,29 +3,18 @@
  * Purpose: Version strings
  */
 
-#define VERSION_NAME  "PWMAngband"
+extern bool beta_version(void);
+extern u16b current_version(void);
+extern u16b min_version(void);
 
 /*
- * Current version number of PWMAngband
+ * Modes for version_build().
  */
-#define VERSION_MAJOR    1
-#define VERSION_MINOR    1
-#define VERSION_PATCH    9
-#define VERSION_EXTRA    2
+enum
+{
+    VB_BASE     = 0x00, /* Base version string */
+    VB_BUILD    = 0x01, /* Add the build (or beta) number */
+    VB_NAME     = 0x02  /* Add the name */
+};
 
-#define CUR_VERSION ((VERSION_MAJOR << 12) | (VERSION_MINOR << 8) | \
-    (VERSION_PATCH << 4) | VERSION_EXTRA)
-
-/*
- * Minimum version number of PWMAngband client allowed
- */
-#define MIN_VERSION_MAJOR   1
-#define MIN_VERSION_MINOR   1
-#define MIN_VERSION_PATCH   9
-#define MIN_VERSION_EXTRA   1
-
-#define MIN_VERSION ((MIN_VERSION_MAJOR << 12) | (MIN_VERSION_MINOR << 8) | \
-    (MIN_VERSION_PATCH << 4) | MIN_VERSION_EXTRA)
-
-extern char *get_buildid(bool full);
-extern char *get_buildver(void);
+extern char *version_build(int mode);

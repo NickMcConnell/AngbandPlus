@@ -1,0 +1,13 @@
+-- which version of NotEye is this noe-file compatible with
+gamenoteyever = 0x750
+
+minipos = {x=1, y=1}
+mapregion = {x0=13, y0=1, x1=80, y1=24}
+
+dofile(commondir.."generic-tile.noe")
+
+mapextent = 0
+
+defaultmode(modeASCII)
+setwindowtitle("PWMAngband")
+rungame(caller3("PWMAngband", "pwmangband"))

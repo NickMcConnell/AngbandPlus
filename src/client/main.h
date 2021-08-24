@@ -12,9 +12,6 @@ struct module
     errr (*init)(void);
 };
 
-extern errr init_sound_sdl(void);
-extern bool open_audio(void);
-
 extern errr init_sdl(void);
 extern errr init_gcu(void);
 

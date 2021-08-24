@@ -31,7 +31,7 @@
 #
 # Set tool and version names:
 !ifndef BCCDIR
-BCCDIR     = "C:\Program Files\Borland\CBuilder6"
+BCCDIR     = "C:\Program Files (x86)\Borland\CBuilder6"
 !endif
 
 CPP        = $(BCCDIR)\bin\bcc32
@@ -58,8 +58,8 @@ CLI_EXE = mangclient.exe
 #
 # Set any compiler options
 
-CCOPTS = -Hc -tW -lGn -w8080 -w-8004 -w-8012 -w-8057 -w-8065 \
-	-D_WIN32_WINNT=0x0410 -DWINVER=0x0500 \
+CCOPTS = -Hc -tW -lGn -w8080 -w-8004 -w-8057 \
+	-D_WIN32_WINNT=0x0500 -DWINVER=0x0500 \
 	-DWIN32 -D_WINDOWS -DSTRICT \
 	-I$(BCCDIR)\include
 
@@ -78,89 +78,120 @@ SERV_SRCS = \
   common\guid.c \
   common\md5.c \
   common\net-win.c \
+  common\obj-gear-common.c \
+  common\obj-tval.c \
+  common\option.c \
   common\parser.c \
   common\randname.c \
   common\sockbuf.c \
-  common\spells.c \
   common\util.c \
-  common\variable.c \
   common\z-bitflag.c \
+  common\z-color.c \
+  common\z-dice.c \
+  common\z-expression.c \
   common\z-file.c \
   common\z-form.c \
-  common\z-msg.c \
   common\z-rand.c \
+  common\z-spells.c \
   common\z-type.c \
   common\z-util.c \
   common\z-virt.c \
   server\account.c \
-  server\attack.c \
-  server\birth.c \
   server\cave.c \
-  server\cmd1.c \
-  server\cmd2.c \
-  server\cmd3.c \
-  server\cmd4.c \
+  server\cave-map.c \
+  server\cave-square.c \
+  server\cave-view.c \
+  server\channel.c \
+  server\cmd-cave.c \
   server\cmd-innate.c \
   server\cmd-misc.c \
   server\cmd-obj.c \
+  server\cmd-pickup.c \
   server\control.c \
-  server\dungeon.c \
+  server\display-ui.c \
   server\effects.c \
-  server\files.c \
+  server\game-world.c \
   server\generate.c \
-  server\history.c \
+  server\gen-cave.c \
+  server\gen-chunk.c \
+  server\gen-room.c \
+  server\gen-util.c \
+  server\help-ui.c \
+  server\history-ui.c \
+  server\house.c \
   server\init.c \
+  server\knowledge-ui.c \
   server\load.c \
   server\main.c \
-  server\monster\melee.c \
-  server\monster\mon-init.c \
-  server\monster\mon-lore.c \
-  server\monster\mon-make.c \
-  server\monster\mon-msg.c \
-  server\monster\mon-power.c \
-  server\monster\mon-spell.c \
-  server\monster\mon-timed.c \
-  server\monster\mon-util.c \
-  server\monster\mvm.c \
+  server\map-ui.c \
+  server\message.c \
+  server\mon-attack.c \
+  server\mon-blow-effects.c \
+  server\mon-blow-methods.c \
+  server\mon-desc.c \
+  server\mon-init.c \
+  server\mon-list.c \
+  server\mon-list-ui.c \
+  server\mon-lore.c \
+  server\mon-lore-ui.c \
+  server\mon-make.c \
+  server\mon-move.c \
+  server\mon-msg.c \
+  server\mon-power.c \
+  server\mon-spell.c \
+  server\mon-summon.c \
+  server\mon-timed.c \
+  server\mon-util.c \
   server\netserver.c \
-  server\object\chest.c \
-  server\object\identify.c \
-  server\object\obj-desc.c \
-  server\object\obj-flag.c \
-  server\object\obj-info.c \
-  server\object\obj-make.c \
-  server\object\obj-power.c \
-  server\object\obj-ui.c \
-  server\object\obj-util.c \
-  server\object\pval.c \
-  server\object\randart.c \
-  server\object\slays.c \
+  server\obj-chest.c \
+  server\obj-desc.c \
+  server\obj-gear.c \
+  server\obj-identify.c \
+  server\obj-ignore.c \
+  server\obj-info.c \
+  server\obj-inscrip.c \
+  server\obj-list.c \
+  server\obj-list-ui.c \
+  server\obj-make.c \
+  server\obj-pile.c \
+  server\obj-power.c \
+  server\obj-properties.c \
+  server\obj-randart.c \
+  server\obj-slays.c \
+  server\obj-ui.c \
+  server\obj-util.c \
   server\party.c \
-  server\pathfind.c \
-  server\player\calcs.c \
-  server\player\player.c \
-  server\player\p-util.c \
-  server\player\spell.c \
-  server\player\timed.c \
+  server\player.c \
+  server\player-attack.c \
+  server\player-birth.c \
+  server\player-calcs.c \
+  server\player-history.c \
+  server\player-path.c \
+  server\player-quest.c \
+  server\player-spell.c \
+  server\player-timed.c \
+  server\player-ui.c \
+  server\player-util.c \
+  server\prefs-ui.c \
+  server\project.c \
+  server\project-feat.c \
+  server\project-mon.c \
+  server\project-obj.c \
+  server\project-player.c \
   server\save.c \
   server\savefile.c \
   server\sched-win.c \
   server\score.c \
-  server\spells1.c \
-  server\spells2.c \
-  server\squelch.c \
+  server\score-ui.c \
   server\store.c \
   server\s-util.c \
-  server\s-variable.c \
-  server\tables.c \
   server\target.c \
+  server\target-ui.c \
   server\trap.c \
   server\wilderness.c \
-  server\x-spell.c \
-  server\xtra2.c \
-  server\xtra3.c \
   server\z-quark.c \
-  server\z-queue.c
+  server\z-queue.c \
+  server\z-textblock.c
 
 SERV_OBJS = \
   common\buildid.obj \
@@ -168,89 +199,120 @@ SERV_OBJS = \
   common\guid.obj \
   common\md5.obj \
   common\net-win.obj \
+  common\obj-gear-common.obj \
+  common\obj-tval.obj \
+  common\option.obj \
   common\parser.obj \
   common\randname.obj \
   common\sockbuf.obj \
-  common\spells.obj \
   common\util.obj \
-  common\variable.obj \
   common\z-bitflag.obj \
+  common\z-color.obj \
+  common\z-dice.obj \
+  common\z-expression.obj \
   common\z-file.obj \
   common\z-form.obj \
-  common\z-msg.obj \
   common\z-rand.obj \
+  common\z-spells.obj \
   common\z-type.obj \
   common\z-util.obj \
   common\z-virt.obj \
   server\account.obj \
-  server\attack.obj \
-  server\birth.obj \
   server\cave.obj \
-  server\cmd1.obj \
-  server\cmd2.obj \
-  server\cmd3.obj \
-  server\cmd4.obj \
+  server\cave-map.obj \
+  server\cave-square.obj \
+  server\cave-view.obj \
+  server\channel.obj \
+  server\cmd-cave.obj \
   server\cmd-innate.obj \
   server\cmd-misc.obj \
   server\cmd-obj.obj \
+  server\cmd-pickup.obj \
   server\control.obj \
-  server\dungeon.obj \
+  server\display-ui.obj \
   server\effects.obj \
-  server\files.obj \
+  server\game-world.obj \
   server\generate.obj \
-  server\history.obj \
+  server\gen-cave.obj \
+  server\gen-chunk.obj \
+  server\gen-room.obj \
+  server\gen-util.obj \
+  server\help-ui.obj \
+  server\history-ui.obj \
+  server\house.obj \
   server\init.obj \
+  server\knowledge-ui.obj \
   server\load.obj \
   server\main.obj \
-  server\monster\melee.obj \
-  server\monster\mon-init.obj \
-  server\monster\mon-lore.obj \
-  server\monster\mon-make.obj \
-  server\monster\mon-msg.obj \
-  server\monster\mon-power.obj \
-  server\monster\mon-spell.obj \
-  server\monster\mon-timed.obj \
-  server\monster\mon-util.obj \
-  server\monster\mvm.obj \
+  server\map-ui.obj \
+  server\message.obj \
+  server\mon-attack.obj \
+  server\mon-blow-effects.obj \
+  server\mon-blow-methods.obj \
+  server\mon-desc.obj \
+  server\mon-init.obj \
+  server\mon-list.obj \
+  server\mon-list-ui.obj \
+  server\mon-lore.obj \
+  server\mon-lore-ui.obj \
+  server\mon-make.obj \
+  server\mon-move.obj \
+  server\mon-msg.obj \
+  server\mon-power.obj \
+  server\mon-spell.obj \
+  server\mon-summon.obj \
+  server\mon-timed.obj \
+  server\mon-util.obj \
   server\netserver.obj \
-  server\object\chest.obj \
-  server\object\identify.obj \
-  server\object\obj-desc.obj \
-  server\object\obj-flag.obj \
-  server\object\obj-info.obj \
-  server\object\obj-make.obj \
-  server\object\obj-power.obj \
-  server\object\obj-ui.obj \
-  server\object\obj-util.obj \
-  server\object\pval.obj \
-  server\object\randart.obj \
-  server\object\slays.obj \
+  server\obj-chest.obj \
+  server\obj-desc.obj \
+  server\obj-gear.obj \
+  server\obj-identify.obj \
+  server\obj-ignore.obj \
+  server\obj-info.obj \
+  server\obj-inscrip.obj \
+  server\obj-list.obj \
+  server\obj-list-ui.obj \
+  server\obj-make.obj \
+  server\obj-pile.obj \ 
+  server\obj-power.obj \
+  server\obj-properties.obj \
+  server\obj-randart.obj \
+  server\obj-slays.obj \
+  server\obj-ui.obj \
+  server\obj-util.obj \
   server\party.obj \
-  server\pathfind.obj \
-  server\player\calcs.obj \
-  server\player\player.obj \
-  server\player\p-util.obj \
-  server\player\spell.obj \
-  server\player\timed.obj \
+  server\player.obj \
+  server\player-attack.obj \
+  server\player-birth.obj \
+  server\player-calcs.obj \
+  server\player-history.obj \
+  server\player-path.obj \
+  server\player-quest.obj \
+  server\player-spell.obj \
+  server\player-timed.obj \
+  server\player-ui.obj \
+  server\player-util.obj \
+  server\prefs-ui.obj \
+  server\project.obj \
+  server\project-feat.obj \
+  server\project-mon.obj \
+  server\project-obj.obj \
+  server\project-player.obj \
   server\save.obj \
   server\savefile.obj \
   server\sched-win.obj \
   server\score.obj \
-  server\spells1.obj \
-  server\spells2.obj \
-  server\squelch.obj \
-  server\store.obj \  
+  server\score-ui.obj \
+  server\store.obj \
   server\s-util.obj \
-  server\s-variable.obj \
-  server\tables.obj \
   server\target.obj \
+  server\target-ui.obj \
   server\trap.obj \
   server\wilderness.obj \
-  server\x-spell.obj \
-  server\xtra2.obj \
-  server\xtra3.obj \
   server\z-quark.obj \
-  server\z-queue.obj
+  server\z-queue.obj \
+  server\z-textblock.obj
 
 CLI_SRCS = \
   common\buildid.c \
@@ -258,49 +320,58 @@ CLI_SRCS = \
   common\guid.c \
   common\md5.c \
   common\net-win.c \
+  common\obj-gear-common.c \
+  common\obj-tval.c \
+  common\option.c \
   common\parser.c \
   common\randname.c \
   common\sockbuf.c \
-  common\spells.c \
   common\util.c \
-  common\variable.c \
   common\z-bitflag.c \
+  common\z-color.c \
+  common\z-dice.c \
+  common\z-expression.c \
   common\z-file.c \
   common\z-form.c \
-  common\z-msg.c \
   common\z-rand.c \
+  common\z-spells.c \
   common\z-type.c \
   common\z-util.c \
   common\z-virt.c \
-  client\c-cmd0.c \
   client\c-cmd.c \
   client\c-cmd-obj.c \
-  client\c-files.c \
-  client\c-init.c \
-  client\c-obj-ui.c \
-  client\c-store.c \
-  client\c-tables.c \
-  client\c-util.c \
-  client\c-variable.c \
-  client\c-xtra.c \
-  client\cmd-context.c \
-  client\game-cmd.c \
+  client\c-option.c \
+  client\c-player.c \
+  client\cmd-core.c \
+  client\conf.c \
   client\game-event.c \
+  client\game-input.c \
   client\grafmode.c \
-  client\keymap.c \
   client\main-win.c \
   client\netclient.c \
-  client\option.c \
-  client\prefs.c \
-  client\ui.c \
+  client\snd-win.c \
+  client\sound-core.c \
   client\ui-birth.c \
+  client\ui-command.c \
+  client\ui-context.c \
+  client\ui-death.c \
+  client\ui-display.c \
   client\ui-event.c \
+  client\ui-game.c \
+  client\ui-init.c \
+  client\ui-input.c \
+  client\ui-keymap.c \
   client\ui-knowledge.c \
   client\ui-menu.c \
+  client\ui-message.c \
+  client\ui-object.c \
   client\ui-options.c \
+  client\ui-output.c \
+  client\ui-prefs.c \
   client\ui-spell.c \
+  client\ui-store.c \
+  client\ui-term.c \
   client\win-layout.c \
-  client\z-term.c \
   win\readdib.c \
   win\readpng.c \
   win\scrnshot.c
@@ -311,49 +382,58 @@ CLI_OBJS = \
   common\guid.obj \
   common\md5.obj \
   common\net-win.obj \
+  common\obj-gear-common.obj \
+  common\obj-tval.obj \
+  common\option.obj \
   common\parser.obj \
   common\randname.obj \
   common\sockbuf.obj \
-  common\spells.obj \
   common\util.obj \
-  common\variable.obj \
   common\z-bitflag.obj \
+  common\z-color.obj \
+  common\z-dice.obj \
+  common\z-expression.obj \
   common\z-file.obj \
   common\z-form.obj \
-  common\z-msg.obj \
   common\z-rand.obj \
+  common\z-spells.obj \
   common\z-type.obj \
   common\z-util.obj \
   common\z-virt.obj \
-  client\c-cmd0.obj \
   client\c-cmd.obj \
   client\c-cmd-obj.obj \
-  client\c-files.obj \
-  client\c-init.obj \
-  client\c-obj-ui.obj \
-  client\c-store.obj \
-  client\c-tables.obj \
-  client\c-util.obj \
-  client\c-variable.obj \
-  client\c-xtra.obj \
-  client\cmd-context.obj \
-  client\game-cmd.obj \
+  client\c-option.obj \
+  client\c-player.obj \
+  client\cmd-core.obj \
+  client\conf.obj \
   client\game-event.obj \
+  client\game-input.obj \
   client\grafmode.obj \
-  client\keymap.obj \
   client\main-win.obj \
   client\netclient.obj \
-  client\option.obj \
-  client\prefs.obj \
-  client\ui.obj \
+  client\snd-win.obj \
+  client\sound-core.obj \
   client\ui-birth.obj \
+  client\ui-command.obj \
+  client\ui-context.obj \
+  client\ui-death.obj \
+  client\ui-display.obj \
   client\ui-event.obj \
+  client\ui-game.obj \
+  client\ui-init.obj \
+  client\ui-input.obj \
+  client\ui-keymap.obj \
   client\ui-knowledge.obj \
   client\ui-menu.obj \
+  client\ui-message.obj \
+  client\ui-object.obj \
   client\ui-options.obj \
+  client\ui-output.obj \
+  client\ui-prefs.obj \
   client\ui-spell.obj \
+  client\ui-store.obj \
+  client\ui-term.obj \
   client\win-layout.obj \
-  client\z-term.obj \
   win\readdib.obj \
   win\readpng.obj \
   win\scrnshot.obj
@@ -372,9 +452,6 @@ clean:
 	-@if exist client\*.obj del client\*.obj >nul
 	-@if exist common\*.obj del common\*.obj >nul
 	-@if exist server\*.obj del server\*.obj >nul
-	-@if exist server\monster\*.obj del server\monster\*.obj >nul
-	-@if exist server\object\*.obj del server\object\*.obj >nul
-	-@if exist server\player\*.obj del server\player\*.obj >nul
 	-@if exist win\*.obj del win\*.obj >nul
 	-@if exist win\*.res del win\*.res >nul
 	-@if exist *.tds del *.tds >nul

@@ -2,7 +2,8 @@
  * File: buildid.c
  * Purpose: Version strings
  *
- * Copyright (c) 2011 Angband, MAngband and PWMAngband Developers
+ * Copyright (c) 2011 Andi Sidwell
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -16,42 +17,84 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
+
 #include "angband.h"
-#include "buildid.h"
+
+
+/*
+ * Define for Beta version, undefine for stable build
+ */
+/*#define VERSION_BETA*/
+
+
+bool beta_version(void)
+{
+#ifdef VERSION_BETA
+    return true;
+#else
+    return false;
+#endif
+}
+
+
+/*
+ * Current version number of PWMAngband
+ */
+#define VERSION_MAJOR   1
+#define VERSION_MINOR   1
+#define VERSION_PATCH   11
+#define VERSION_EXTRA   10
+
+
+u16b current_version(void)
+{
+    return ((VERSION_MAJOR << 12) | (VERSION_MINOR << 8) | (VERSION_PATCH << 4) | VERSION_EXTRA);
+}
+
+
+/*
+ * Minimum version number of PWMAngband client allowed
+ */
+#define MIN_VERSION_MAJOR   1
+#define MIN_VERSION_MINOR   1
+#define MIN_VERSION_PATCH   11
+#define MIN_VERSION_EXTRA   9
+
+
+u16b min_version(void)
+{
+    return ((MIN_VERSION_MAJOR << 12) | (MIN_VERSION_MINOR << 8) |
+        (MIN_VERSION_PATCH << 4) | MIN_VERSION_EXTRA);
+}
+
+
+/*
+ * Name of this Angband variant
+ */
+#define VERSION_NAME    "PWMAngband "
 
 
 static char version[32];
 
 
-char *get_buildid(bool full)
+char *version_build(int mode)
 {
-    if (full)
-    {
-        int build = VERSION_EXTRA;
+    bool name = ((mode & VB_NAME)? true: false);
 
-        if (build > 0)
-            strnfmt(version, sizeof(version), "%s %d.%d.%d (Build %d)", VERSION_NAME,
-                VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EXTRA);
-        else
-            strnfmt(version, sizeof(version), "%s %d.%d.%d (Beta)", VERSION_NAME,
-                VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+    if (mode & VB_BUILD)
+    {
+        strnfmt(version, sizeof(version), "%s%d.%d.%d (%s %d)", (name? VERSION_NAME: ""),
+            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, (beta_version()? "Beta": "Build"),
+            VERSION_EXTRA);
     }
     else
-        strnfmt(version, sizeof(version), "%s %d.%d.%d", VERSION_NAME, VERSION_MAJOR,
+    {
+        strnfmt(version, sizeof(version), "%s%d.%d.%d", (name? VERSION_NAME: ""), VERSION_MAJOR,
             VERSION_MINOR, VERSION_PATCH);
+    }
 
     return version;
 }
-
-
-char *get_buildver(void)
-{
-    strnfmt(version, sizeof(version), "%d.%d.%d", VERSION_MAJOR, VERSION_MINOR,
-        VERSION_PATCH);
-
-    return version;
-}
-
 
 
 

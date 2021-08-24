@@ -3,7 +3,7 @@
  * Purpose: Random name generation
  *
  * Copyright (c) 2007 Antony Sidwell, Sheldon Simms
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -18,12 +18,17 @@
  */
 
 #include "angband.h"
-#include "randname.h"
 
 /* Markers for the start and end of words. */
 #define S_WORD 26
 #define E_WORD S_WORD
 #define TOTAL  27
+
+/*
+ * Array[RANDNAME_NUM_TYPES][num_names] of random names
+ */
+u32b *num_names;
+const char ***name_sections;
 
 typedef unsigned short name_probs[S_WORD+1][S_WORD+1][TOTAL+1];
 
@@ -75,7 +80,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max,
     char *word_buf, size_t buflen, const char ***sections)
 {
     size_t lnum = 0;
-    bool found_word = FALSE;
+    bool found_word = false;
 
     static name_probs lprobs;
     static randname_type cached_type = RANDNAME_NUM_TYPES;
@@ -92,7 +97,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max,
     {
         const char **wordlist = sections[name_type];
 
-        WIPE(lprobs, name_probs);
+        memset(lprobs, 0, sizeof(name_probs));
         build_prob(lprobs, wordlist);
         cached_type = name_type;
     }
@@ -104,7 +109,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max,
         int c_prev = S_WORD;
         int c_cur = S_WORD;
         int tries = 0;
-        bool contains_vowel = FALSE;
+        bool contains_vowel = false;
         lnum = 0;
 
         /*
@@ -144,7 +149,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max,
                 if (lnum >= min && contains_vowel)
                 {
                     *cp = '\0';
-                    found_word = TRUE;
+                    found_word = true;
                 }
                 else
                     tries++;
@@ -154,7 +159,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max,
                 /* Add the letter to the word and move on. */
                 *cp = I2A(c_next);
 
-                if (is_a_vowel(*cp)) contains_vowel = TRUE;
+                if (is_a_vowel(*cp)) contains_vowel = true;
 
                 cp++;
                 lnum++;

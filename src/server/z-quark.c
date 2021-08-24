@@ -5,7 +5,7 @@
  *
  * Copyright (c) 1997 Ben Harrison
  * Copyright (c) 2007 "Elly"
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -59,21 +59,26 @@ const char *quark_str(quark_t q)
 }
 
 
-errr quarks_init(void)
+static void quarks_init(void)
 {
     alloc_quarks = QUARKS_INIT;
-    quarks = C_ZNEW(alloc_quarks, char*);
-
-    return 0;
+    quarks = mem_zalloc(alloc_quarks * sizeof(char*));
 }
 
 
-errr quarks_free(void)
+static void quarks_free(void)
 {
     size_t i;
 
-    for (i = 0; i < nr_quarks; i++) string_free(quarks[i]);
+    for (i = 1; i < nr_quarks; i++) string_free(quarks[i]);
 
     mem_free(quarks);
-    return 0;
 }
+
+
+struct init_module z_quark_module =
+{
+    "z-quark",
+    quarks_init,
+    quarks_free
+};

@@ -3,7 +3,7 @@
  * Purpose: Load a list of possible graphics modes.
  *
  * Copyright (c) 2011 Brett Reid
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,8 +19,6 @@
 
 
 #include "c-angband.h"
-#include "../common/parser.h"
-#include "grafmode.h"
 
 
 graphics_mode *graphics_modes;
@@ -31,7 +29,7 @@ int graphics_mode_high_id;
 static graphics_mode *current_graphics_mode = NULL;
 
 
-static enum parser_error parse_graf_n(struct parser *p)
+static enum parser_error parse_graf_name(struct parser *p)
 {
     graphics_mode *list = parser_priv(p);
     graphics_mode *mode = mem_zalloc(sizeof(graphics_mode));
@@ -52,7 +50,21 @@ static enum parser_error parse_graf_n(struct parser *p)
 }
 
 
-static enum parser_error parse_graf_i(struct parser *p)
+static enum parser_error parse_graf_directory(struct parser *p)
+{
+    graphics_mode *mode = parser_priv(p);
+    const char *dir = parser_getsym(p, "dirname");
+
+    if (!mode) return PARSE_ERROR_INVALID_VALUE;
+
+    /* Build a usable path */
+    path_build(mode->path, sizeof(mode->path), ANGBAND_DIR_TILES, dir);
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_graf_size(struct parser *p)
 {
     graphics_mode *mode = parser_priv(p);
 
@@ -65,7 +77,7 @@ static enum parser_error parse_graf_i(struct parser *p)
 }
 
 
-static enum parser_error parse_graf_p(struct parser *p)
+static enum parser_error parse_graf_pref(struct parser *p)
 {
     graphics_mode *mode = parser_priv(p);
 
@@ -76,7 +88,7 @@ static enum parser_error parse_graf_p(struct parser *p)
 }
 
 
-static enum parser_error parse_graf_x(struct parser *p)
+static enum parser_error parse_graf_extra(struct parser *p)
 {
     graphics_mode *mode = parser_priv(p);
 
@@ -84,6 +96,7 @@ static enum parser_error parse_graf_x(struct parser *p)
     mode->alphablend = parser_getuint(p, "alpha");
     mode->overdrawRow = parser_getuint(p, "row");
     mode->overdrawMax = parser_getuint(p, "max");
+    mode->distorted = parser_getuint(p, "distorted");
 
     return PARSE_ERROR_NONE;
 }
@@ -94,11 +107,11 @@ static struct parser *init_parse_grafmode(void)
     struct parser *p = parser_new();
     parser_setpriv(p, NULL);
 
-    parser_reg(p, "V sym version", ignored);
-    parser_reg(p, "N uint index str menuname", parse_graf_n);
-    parser_reg(p, "I uint wid uint hgt str filename", parse_graf_i);
-    parser_reg(p, "P str prefname", parse_graf_p);
-    parser_reg(p, "X uint alpha uint row uint max", parse_graf_x);
+    parser_reg(p, "name uint index str menuname", parse_graf_name);
+    parser_reg(p, "directory sym dirname", parse_graf_directory);
+    parser_reg(p, "size uint wid uint hgt str filename", parse_graf_size);
+    parser_reg(p, "pref str prefname", parse_graf_pref);
+    parser_reg(p, "extra uint alpha uint row uint max uint distorted", parse_graf_extra);
 
     return p;
 }
@@ -144,6 +157,7 @@ static errr finish_parse_grafmode(struct parser *p)
     graphics_modes[count].overdrawRow = 0;
     graphics_modes[count].overdrawMax = 0;
     strncpy(graphics_modes[count].pref, "none", 8);
+    strncpy(graphics_modes[count].path, "", 32);
     strncpy(graphics_modes[count].file, "", 32);
     strncpy(graphics_modes[count].menuname, "None", 32);
 
@@ -176,7 +190,7 @@ static void print_error(const char *name, struct parser *p)
 }
 
 
-bool init_graphics_modes(const char *filename)
+bool init_graphics_modes(void)
 {
     char buf[MSG_LEN];
     ang_file *f;
@@ -185,9 +199,9 @@ bool init_graphics_modes(const char *filename)
     int line_no = 0;
 
     /* Build the filename */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, filename);
+    path_build(buf, sizeof(buf), ANGBAND_DIR_TILES, "list.txt");
 
-    f = file_open(buf, MODE_READ, -1);
+    f = file_open(buf, MODE_READ, FTYPE_TEXT);
     if (!f)
     {
         plog_fmt("Cannot open '%s'.", buf);
@@ -260,7 +274,7 @@ bool is_current_graphics_mode(byte id)
 
 bool is_tile_distorted(byte id, byte width, byte height)
 {
-    if (streq(get_graphics_mode(id, TRUE)->pref, "pseudo")) return TRUE;
+    if (get_graphics_mode(id, true)->distorted) return true;
     return (width * height > 1);
 }
 

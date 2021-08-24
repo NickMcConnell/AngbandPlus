@@ -3,7 +3,7 @@
  * Purpose: Simple circular integer queue.
  *
  * Copyright (c) 2011 Erik Osheim
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -18,9 +18,8 @@
  */
 
 
-#include <stdlib.h>
 #include "s-angband.h"
-#include "z-queue.h"
+#include <stdlib.h>
 
 
 struct queue *q_new(size_t size)

@@ -10,9 +10,9 @@
 
 /*
  * Using C99, assume we have stdint and stdbool
+ *
+ * Note: I build PWMAngband with C++ Builder, which DOES NOT have stdbool
  */
-#define HAVE_STDINT_H
-/*#define HAVE_STDBOOL_H*/
 
 /*
  * Every system seems to use its own symbol as a path separator.
@@ -22,16 +22,18 @@
 #define PATH_SEP "\\"
 #define PATH_SEPC '\\'
 
-#define strcasecmp stricmp
-
 #define EWOULDBLOCK WSAEWOULDBLOCK
 #define ECONNRESET WSAECONNRESET
 
-/*** Include the library header files ***/
+/*
+ * Include the library header files
+ */
 
 /** ANSI C headers **/
 
 #include <ctype.h>
+#include <stdint.h>
+/*#include <stdbool.h>*/
 #include <errno.h>
 #include <assert.h>
 
@@ -45,77 +47,34 @@
 /** Other headers **/
 
 #include <io.h>
-#define strncasecmp strnicmp
-
 #include <fcntl.h>
 
 /* Basic networking stuff */
 #include "h-net.h"
 
-/*** Define the basic game types ***/
-
-/* C++ defines its own bool type, so we hack around it */
-#undef bool
-#define bool bool_hack
+/*
+ * Define the basic game types
+ */
 
 typedef int errr;
 
-/*
- * Use a real bool type where possible
- */
-#undef TRUE
-#undef FALSE
-#ifdef HAVE_STDBOOL_H
-    #include <stdbool.h>
+/* Use a char otherwise */
+typedef char bool;
 
-    #define TRUE  true
-    #define FALSE false
-#else
-    /* Use a char otherwise */
-    typedef char bool;
+#define true    1
+#define false   0
 
-    #define TRUE    1
-    #define FALSE   0
-#endif
+/* Use guaranteed-size types */
+typedef uint8_t byte;
 
-/*
- * Use guaranteed-size ints where possible
- */
-#ifdef HAVE_STDINT_H
-    /* Use guaranteed-size types */
-    #include <stdint.h>
+typedef uint16_t u16b;
+typedef int16_t s16b;
 
-    typedef uint8_t byte;
+typedef uint32_t u32b;
+typedef int32_t s32b;
 
-    typedef uint16_t u16b;
-    typedef int16_t s16b;
-
-    typedef uint32_t u32b;
-    typedef int32_t s32b;
-
-    typedef uint64_t u64b;
-    typedef int64_t s64b;
-
-    #define MAX_UCHAR   UINT8_MAX
-    #define MAX_SHORT   INT16_MAX
-#else
-    /* Try hacks instead (not guaranteed to work) */
-    typedef unsigned char byte;
-    typedef signed short s16b;
-    typedef unsigned short u16b;
-
-    #define MAX_UCHAR   UCHAR_MAX
-    #define MAX_SHORT   SHRT_MAX
-
-    /* Detect >32-bit longs */
-    #if (UINT_MAX == 0xFFFFFFFFUL) && (ULONG_MAX > 0xFFFFFFFFUL)
-        typedef signed int s32b;
-        typedef unsigned int u32b;
-    #else
-        typedef signed long s32b;
-        typedef unsigned long u32b;
-    #endif
-#endif
+typedef uint64_t u64b;
+typedef int64_t s64b;
 
 /* MAngband hacks */
 #if (UINT_MAX == 0xFFFFFFFFUL) && (ULONG_MAX > 0xFFFFFFFFUL)
@@ -139,7 +98,9 @@ typedef struct
     u32b turn;
 } hturn;
 
-/*** Basic math macros ***/
+/*
+ * Basic math macros
+ */
 
 #undef MIN
 #undef MAX
@@ -153,7 +114,9 @@ typedef struct
 #define SGN(a)      (((a) < 0)  ? (-1)  : ((a) != 0))
 #define CMP(a,b)    (((a) < (b))? (-1)  : (((b) < (a))? 1: 0))
 
-/*** Useful fairly generic macros ***/
+/*
+ * Useful fairly generic macros
+ */
 
 /*
  * Given an array, determine how many elements are in it.
@@ -161,12 +124,8 @@ typedef struct
 #define N_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
 
 /*
- * Return "s" (or not) depending on whether n is singular.
+ * Some hackish character manipulation
  */
-#define PLURAL(n) (((n) == 1)? "": "s")
-#define SINGULAR(n) (((n) == 1)? "s": "")
-
-/*** Some hackish character manipulation ***/
 
 /*
  * Note that all "index" values must be "lowercase letters", while

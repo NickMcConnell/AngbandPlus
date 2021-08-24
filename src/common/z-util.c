@@ -3,7 +3,7 @@
  * Purpose: Low-level string handling and other utilities.
  *
  * Copyright (c) 1997-2005 Ben Harrison, Robert Ruehlmann.
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -130,6 +130,52 @@ bool func_false(void)
 
 
 /*
+ * Count the number of characters in a UTF-8 encoded string
+ */
+size_t utf8_strlen(char *s)
+{
+    size_t i = 0, j = 0;
+
+    while (s[i])
+    {
+        if ((s[i] & 0xc0) != 0x80) j++;
+        i++;
+    }
+
+    return j;
+}
+
+
+/*
+ * Clip a null-terminated UTF-8 string 's' to 'n' unicode characters.
+ * e.g. utf8_clipto("example", 4) will clip after 'm', resulting in 'exam'.
+ */
+void utf8_clipto(char *s, size_t n)
+{
+    size_t i = 0, j = 0;
+    bool terminate_next = false;
+
+    if (n == 0)
+    {
+        s[i] = 0;
+        return;
+    }
+
+    while (s[i])
+    {
+        if ((s[i] & 0xc0) != 0x80)
+        {
+            j++;
+            if (terminate_next) break;
+            if (j == n) terminate_next = true;
+        }
+        i++;
+    }
+    s[i] = 0;
+}
+
+
+/*
  * Case insensitive comparison between two strings
  */
 int my_stricmp(const char *s1, const char *s2)
@@ -138,7 +184,7 @@ int my_stricmp(const char *s1, const char *s2)
     char ch2 = 0;
 
     /* Just loop */
-    while (TRUE)
+    while (true)
     {
         /* We've reached the end of both strings simultaneously */
         if ((*s1 == 0) && (*s2 == 0))
@@ -273,7 +319,7 @@ bool suffix(const char *s, const char *t)
     size_t slen = strlen(s);
 
     /* Check for incompatible lengths */
-    if (tlen > slen) return (FALSE);
+    if (tlen > slen) return false;
 
     /* Compare "t" to the end of "s" */
     return (!strcmp(s + slen - tlen, t));
@@ -289,11 +335,11 @@ bool prefix(const char *s, const char *t)
     while (*t)
     {
         /* Compare content and length */
-        if (*t++ != *s++) return (FALSE);
+        if (*t++ != *s++) return false;
     }
 
     /* Matched, we have a prefix */
-    return (TRUE);
+    return true;
 }
 
 
@@ -372,10 +418,10 @@ bool is_a_vowel(int ch)
         case 'i':
         case 'o':
         case 'u':
-        return (TRUE);
+        return true;
     }
 
-    return (FALSE);
+    return false;
 }
 
 
@@ -493,7 +539,9 @@ char *my_stristr(const char *haystack, const char *needle)
 }
 
 
-/* Arithmetic mean of the first 'size' entries of the array 'nums' */
+/*
+ * Arithmetic mean of the first 'size' entries of the array 'nums'
+ */
 int mean(int *nums, int size)
 {
     int i, total = 0;
@@ -504,7 +552,9 @@ int mean(int *nums, int size)
 }
 
 
-/* Variance of the first 'size' entries of the array 'nums' */
+/*
+ * Variance of the first 'size' entries of the array 'nums'
+ */
 int variance(int *nums, int size)
 {
     int i, avg, total = 0;
@@ -529,19 +579,40 @@ void sort(void *base, size_t nmemb, size_t smemb, int (*comp)(const void *, cons
 
 
 /*
- * Rewrite string s in-place "skipping" every occurrence of character c
+ * Rewrite string s in-place "skipping" every occurrence of character c except
+ * those preceded by character e
  */
-void strskip(char *s, const char c)
+void strskip(char *s, const char c, const char e)
 {
     char *in = s;
     char *out = s;
+    bool escapeseen = false;
 
     while (*in)
     {
-        if (*in != c)
+        if ((*in != c) && ((*in != e) || escapeseen))
+        {
+            /* Not escaping anything */
+            if (escapeseen)
+            {
+                *out = e;
+                out++;
+            }
+            *out = *in;
+            out++;
+            escapeseen = false;
+        }
+
+        /* Maybe escaping something */
+        else if (*in == e)
+            escapeseen = true;
+
+        /* Add the escaped character */
+        else if (escapeseen)
         {
             *out = *in;
             out++;
+            escapeseen = false;
         }
         in++;
     }
@@ -550,7 +621,33 @@ void strskip(char *s, const char c)
 
 
 /*
- * Returns TRUE if string only contains spaces
+ * Rewrite string s in-place removing escape character c.
+ * Note that pairs of c will leave one instance of c in out.
+ */
+void strescape(char *s, const char c)
+{
+    char *in = s;
+    char *out = s;
+    bool escapenext = false;
+
+    while (*in)
+    {
+        if ((*in != c) || escapenext)
+        {
+            *out = *in;
+            out++;
+            escapenext = false;
+        }
+        else if (*in == c)
+            escapenext = true;
+        in++;
+    }
+    *out = 0;
+}
+
+
+/*
+ * Returns true if string only contains spaces
  */
 bool contains_only_spaces(const char* s)
 {
@@ -558,8 +655,23 @@ bool contains_only_spaces(const char* s)
 
     while (*s)
     {
-        if (strchr(spaces, *s) != NULL) return FALSE;
+        if (strchr(spaces, *s) != NULL) return false;
         s++;
     }
-    return TRUE;
+    return true;
+}
+
+
+u32b djb2_hash(const char *str)
+{
+    u32b hash = 5381;
+    int c = *str;
+
+    while (c)
+    {
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+        c = *++str;
+    }
+
+    return hash;
 }

@@ -3,7 +3,7 @@
  * Purpose: Allows the registering of handlers to be told about game events.
  *
  * Copyright (c) 2007 Antony Sidwell
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,7 +19,6 @@
 
 
 #include "c-angband.h"
-#include "game-event.h"
 
 
 typedef struct _event_handler_entry
@@ -30,7 +29,7 @@ typedef struct _event_handler_entry
 } event_handler_entry;
 
 
-event_handler_entry *event_handlers[N_GAME_EVENTS];
+static event_handler_entry *event_handlers[N_GAME_EVENTS];
 
 
 static void game_event_dispatch(game_event_type type, game_event_data *data)
@@ -134,8 +133,23 @@ void event_signal(game_event_type type)
 void event_signal_point(game_event_type type, int x, int y)
 {
     game_event_data data;
+
+    memset(&data, 0, sizeof(data));
+
     data.point.x = x;
     data.point.y = y;
+
+    game_event_dispatch(type, &data);
+}
+
+
+void event_signal_type(game_event_type type, int t)
+{
+    game_event_data data;
+
+    memset(&data, 0, sizeof(data));
+
+    data.type = t;
 
     game_event_dispatch(type, &data);
 }

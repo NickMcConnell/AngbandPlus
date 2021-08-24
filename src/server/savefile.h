@@ -6,7 +6,9 @@
 #ifndef INCLUDED_SAVEFILE_H
 #define INCLUDED_SAVEFILE_H
 
-#define ITEM_VERSION    1
+#define FINISHED_CODE 255
+#define ITEM_VERSION 1
+#define EGO_ART_KNOWN 255
 
 /* Writing bits */
 extern void wr_byte(byte v);
@@ -31,22 +33,43 @@ extern void strip_string(int max);
 
 /* load.c */
 extern int rd_monster_memory(struct player *p);
+extern int rd_object_memory_old(struct player *p); /* TODO: remove for the next 1.1.12 version */
 extern int rd_object_memory(struct player *p);
 extern int rd_player_artifacts(struct player *p);
 extern int rd_artifacts(struct player *unused);
+extern int rd_player_old(struct player *p); /* TODO: remove for the next 1.1.12 version */
 extern int rd_player(struct player *p);
+extern int rd_ignore(struct player *p);
+extern int rd_player_misc_old(struct player *p); /* TODO: remove for the next 1.1.12 version */
 extern int rd_player_misc(struct player *p);
 extern int rd_misc(struct player *unused);
 extern int rd_player_hp(struct player *p);
 extern int rd_player_spells(struct player *p);
-extern int rd_inventory(struct player *p);
+extern int rd_gear_1(struct player *p); /* TODO: remove for the next 1.1.12 version */
+extern int rd_gear_2(struct player *p); /* TODO: remove for the next 1.1.12 version */
+extern int rd_gear(struct player *p);
+extern int rd_stores_old(struct player *unused); /* TODO: remove for the next 1.1.12 version */
 extern int rd_stores(struct player *unused);
+extern int rd_player_dungeon_old(struct player *p); /* TODO: remove for the next 1.1.12 version */
 extern int rd_player_dungeon(struct player *p);
 extern int rd_depth_dungeon(struct player *unused);
 extern int rd_dungeon(struct player *unused);
+extern int rd_player_objects_1(struct player *p); /* TODO: remove for the next 1.1.12 version */
+extern int rd_player_objects_2(struct player *p); /* TODO: remove for the next 1.1.12 version */
+extern int rd_player_objects_3(struct player *p); /* TODO: remove for the next 1.1.12 version */
+extern int rd_player_objects(struct player *p);
+extern int rd_objects_1(struct player *unused); /* TODO: remove for the next 1.1.12 version */
+extern int rd_objects_2(struct player *unused); /* TODO: remove for the next 1.1.12 version */
 extern int rd_objects(struct player *unused);
+extern int rd_monsters_1(struct player *unused); /* TODO: remove for the next 1.1.12 version */
+extern int rd_monsters_2(struct player *unused); /* TODO: remove for the next 1.1.12 version */
+extern int rd_monsters_3(struct player *unused); /* TODO: remove for the next 1.1.12 version */
 extern int rd_monsters(struct player *unused);
+extern int rd_player_traps_old(struct player *p); /* TODO: remove for the next 1.1.12 version */
+extern int rd_player_traps(struct player *p);
+extern int rd_traps(struct player *unused);
 extern int rd_history(struct player *p);
+extern int rd_null(struct player *unused);
 extern int rd_header(struct player *p);
 extern int rd_wild_map(struct player *p);
 extern int rd_parties(struct player *unused);
@@ -56,29 +79,51 @@ extern int rd_wilderness(struct player *unused);
 extern int rd_player_names(struct player *unused);
 
 /* save.c */
-extern void wr_monster_memory(int Ind);
-extern void wr_object_memory(int Ind);
-extern void wr_player_artifacts(int Ind);
-extern void wr_artifacts(int unused);
-extern void wr_player(int Ind);
-extern void wr_player_misc(int Ind);
-extern void wr_misc(int unused);
-extern void wr_player_hp(int Ind);
-extern void wr_player_spells(int Ind);
-extern void wr_inventory(int Ind);
-extern void wr_stores(int unused);
-extern void wr_player_dungeon(int Ind);
-extern void wr_depth_dungeon(int depth);
-extern void wr_dungeon(int unused);
-extern void wr_objects(int unused);
-extern void wr_monsters(int unused);
-extern void wr_history(int Ind);
-extern void wr_header(int Ind);
-extern void wr_wild_map(int Ind);
-extern void wr_parties(int unused);
-extern void wr_houses(int unused);
-extern void wr_arenas(int unused);
-extern void wr_wilderness(int unused);
-extern void wr_player_names(int unused);
+extern void wr_description(void *data);
+extern void wr_monster_memory(void *data);
+extern void wr_object_memory(void *data);
+extern void wr_player_artifacts(void *data);
+extern void wr_artifacts(void *unused);
+extern void wr_player(void *data);
+extern void wr_ignore(void *data);
+extern void wr_player_misc(void *data);
+extern void wr_misc(void *unused);
+extern void wr_player_hp(void *data);
+extern void wr_player_spells(void *data);
+extern void wr_gear(void *data);
+extern void wr_stores(void *unused);
+extern void wr_player_dungeon(void *data);
+extern void wr_depth_dungeon(void *data);
+extern void wr_dungeon(void *unused);
+extern void wr_player_objects(void *data);
+extern void wr_objects(void *unused);
+extern void wr_monsters(void *unused);
+extern void wr_player_traps(void *data);
+extern void wr_traps(void *unused);
+extern void wr_history(void *data);
+extern void wr_header(void *data);
+extern void wr_wild_map(void *data);
+extern void wr_parties(void *unused);
+extern void wr_houses(void *unused);
+extern void wr_arenas(void *unused);
+extern void wr_wilderness(void *unused);
+extern void wr_player_names(void *unused);
+
+/*
+ * Try to get a description for this savefile.
+ */
+extern const char *savefile_get_description(const char *path);
+
+extern bool save_player(struct player *p);
+extern void save_dungeon_special(int depth, bool town);
+extern bool save_server_info(void);
+extern bool load_player(struct player *p);
+extern int scoop_player(char *nick, char *pass, byte *pridx, byte *pcidx, byte *psex);
+extern bool load_server_info(void);
+extern bool special_level(s16b depth);
+extern bool special_town(s16b depth);
+extern bool forbid_special(s16b depth);
+extern bool forbid_town(s16b depth);
+extern bool random_level(s16b depth);
 
 #endif /* INCLUDED_SAVEFILE_H */

@@ -3,7 +3,7 @@
  * Purpose: Savefile loading and saving main routines
  *
  * Copyright (c) 2009 Andi Sidwell <andi@takkaria.org>
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,10 +19,6 @@
 
 
 #include "s-angband.h"
-#include "../common/md5.h"
-#include "files.h"
-#include "netserver.h"
-#include "savefile.h"
 
 
 /*
@@ -67,9 +63,31 @@
  */
 
 
-/* Magic bits at beginning of savefile */
-static const byte savefile_magic[4] = {1, 1, 9, 6};
+/*
+ * Magic bits at beginning of savefile
+ */
+static const byte savefile_magic[4] = {1, 1, 11, 2};
 static const byte savefile_name[4] = "PWMG";
+
+
+/* Some useful types */
+typedef int (*loader_t)(struct player *);
+
+
+struct blockheader
+{
+    char name[16];
+    u32b version;
+    u32b size;
+};
+
+
+struct blockinfo
+{
+    char name[16];
+    loader_t loader;
+    u32b version;
+};
 
 
 /*
@@ -78,7 +96,7 @@ static const byte savefile_name[4] = "PWMG";
 typedef struct
 {
     char name[16];
-    void (*save)(int);
+    void (*save)(void *);
     u32b version;
 } savefile_saver;
 
@@ -88,18 +106,22 @@ typedef struct
  */
 static const savefile_saver player_savers[] =
 {
-    /* Hack - Save basic player info */
+    /* Hack -- save basic player info */
     {"header", wr_header, 1},
 
+    {"description", wr_description, 1},
     {"monster memory", wr_monster_memory, 1},
-    {"object memory", wr_object_memory, 1},
+    {"object memory", wr_object_memory, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
     {"artifacts", wr_player_artifacts, 1},
-    {"player", wr_player, 1},
-    {"misc", wr_player_misc, 1},
+    {"player", wr_player, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"ignore", wr_ignore, 1},
+    {"misc", wr_player_misc, 2},  /* TODO: reset to 1 for the next 1.1.12 version */
     {"player hp", wr_player_hp, 1},
     {"player spells", wr_player_spells, 1},
-    {"inventory", wr_inventory, 1},
-    {"dungeon", wr_player_dungeon, 1},
+    {"gear", wr_gear, 3}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"dungeon", wr_player_dungeon, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"objects", wr_player_objects, 4}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"traps", wr_player_traps, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
     {"history", wr_history, 1},
 
     /* PWMAngband */
@@ -113,12 +135,14 @@ static const savefile_saver player_savers[] =
 static const savefile_saver server_savers[] =
 {
     {"monster memory", wr_monster_memory, 1},
+    {"object memory", wr_object_memory, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
     {"artifacts", wr_artifacts, 1},
     {"misc", wr_misc, 1},
-    {"stores", wr_stores, 1},
+    {"stores", wr_stores, 2},
     {"dungeons", wr_dungeon, 1},
-    {"objects", wr_objects, 1},
-    {"monsters", wr_monsters, 1},
+    {"objects", wr_objects, 3}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"monsters", wr_monsters, 4}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"traps", wr_traps, 1},
 
     /* PWMAngband */
     {"parties", wr_parties, 1},
@@ -137,33 +161,36 @@ static const savefile_saver special_savers[] =
 
 
 /*
- * Savefile loader
- */
-typedef struct
-{
-    char name[16];
-    int (*load)(struct player *);
-    u32b version;
-} savefile_loader;
-
-
-/*
  * Savefile loading functions (player)
  */
-static const savefile_loader player_loaders[] =
+static const struct blockinfo player_loaders[] =
 {
-    /* Hack - Save basic player info */
+    /* Hack -- save basic player info */
     {"header", rd_header, 1},
 
+    {"description", rd_null, 1},
     {"monster memory", rd_monster_memory, 1},
-    {"object memory", rd_object_memory, 1},
+    {"object memory", rd_object_memory_old, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"object memory", rd_object_memory, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
     {"artifacts", rd_player_artifacts, 1},
-    {"player", rd_player, 1},
-    {"misc", rd_player_misc, 1},
+    {"player", rd_player_old, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"player", rd_player, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"ignore", rd_ignore, 1},
+    {"misc", rd_player_misc_old, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"misc", rd_player_misc, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
     {"player hp", rd_player_hp, 1},
     {"player spells", rd_player_spells, 1},
-    {"inventory", rd_inventory, 1},
-    {"dungeon", rd_player_dungeon, 1},
+    {"gear", rd_gear_1, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"gear", rd_gear_2, 2}, /* TODO: remove for the next 1.1.12 version */
+    {"gear", rd_gear, 3}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"dungeon", rd_player_dungeon_old, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"dungeon", rd_player_dungeon, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"objects", rd_player_objects_1, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"objects", rd_player_objects_2, 2}, /* TODO: remove for the next 1.1.12 version */
+    {"objects", rd_player_objects_3, 3}, /* TODO: remove for the next 1.1.12 version */
+    {"objects", rd_player_objects, 4}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"traps", rd_player_traps_old, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"traps", rd_player_traps, 2},
     {"history", rd_history, 1},
 
     /* PWMAngband */
@@ -174,15 +201,24 @@ static const savefile_loader player_loaders[] =
 /*
  * Savefile loading functions (server)
  */
-static const savefile_loader server_loaders[] =
+static const struct blockinfo server_loaders[] =
 {
     {"monster memory", rd_monster_memory, 1},
+    {"object memory", rd_object_memory_old, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"object memory", rd_object_memory, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
     {"artifacts", rd_artifacts, 1},
     {"misc", rd_misc, 1},
-    {"stores", rd_stores, 1},
+    {"stores", rd_stores_old, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"stores", rd_stores, 2}, /* TODO: reset to 1 for the next 1.1.12 version */
     {"dungeons", rd_dungeon, 1},
-    {"objects", rd_objects, 1},
-    {"monsters", rd_monsters, 1},
+    {"objects", rd_objects_1, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"objects", rd_objects_2, 2}, /* TODO: remove for the next 1.1.12 version */
+    {"objects", rd_objects, 3}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"monsters", rd_monsters_1, 1}, /* TODO: remove for the next 1.1.12 version */
+    {"monsters", rd_monsters_2, 2}, /* TODO: remove for the next 1.1.12 version */
+    {"monsters", rd_monsters_3, 3}, /* TODO: remove for the next 1.1.12 version */
+    {"monsters", rd_monsters, 4}, /* TODO: reset to 1 for the next 1.1.12 version */
+    {"traps", rd_traps, 1},
 
     /* PWMAngband */
     {"parties", rd_parties, 1},
@@ -194,7 +230,7 @@ static const savefile_loader server_loaders[] =
 
 
 /* Hack */
-static const savefile_loader special_loaders[] =
+static const struct blockinfo special_loaders[] =
 {
     {"dungeon", rd_depth_dungeon, 1}
 };
@@ -213,7 +249,9 @@ static u32b buffer_check;
 #define SAVEFILE_HEAD_SIZE      28
 
 
-/** Base put/get **/
+/*
+ * Base put/get
+ */
 
 
 static void sf_put(byte v)
@@ -235,9 +273,8 @@ static void sf_put(byte v)
 
 static byte sf_get(void)
 {
-    my_assert(buffer != NULL);
-    my_assert(buffer_size > 0);
-    my_assert(buffer_pos < buffer_size);
+    if ((buffer == NULL) || (buffer_size <= 0) || (buffer_pos >= buffer_size))
+        quit("Broken savefile - probably from a development version");
 
     buffer_check += buffer[buffer_pos];
 
@@ -389,16 +426,18 @@ void strip_string(int max)
 {
     char *dummy;
 
-    dummy = C_ZNEW(max, char);
+    dummy = mem_zalloc(max * sizeof(char));
     rd_string(dummy, max);
     mem_free(dummy);
 }
 
 
-/*** Savefile saving functions ***/
+/*
+ * Savefile saving functions
+ */
 
 
-static bool try_save(int Ind, ang_file *file, savefile_saver *savers, size_t n_savers)
+static bool try_save(void *data, ang_file *file, savefile_saver *savers, size_t n_savers)
 {
     byte savefile_head[SAVEFILE_HEAD_SIZE];
     size_t i, pos;
@@ -412,7 +451,7 @@ static bool try_save(int Ind, ang_file *file, savefile_saver *savers, size_t n_s
         buffer_pos = 0;
         buffer_check = 0;
 
-        savers[i].save(Ind);
+        savers[i].save(data);
 
         /* 16-byte block name */
         pos = my_strcpy((char *)savefile_head, savers[i].name, sizeof(savefile_head));
@@ -439,32 +478,37 @@ static bool try_save(int Ind, ang_file *file, savefile_saver *savers, size_t n_s
 
     mem_free(buffer);
     buffer = NULL;
-    return TRUE;
+    return true;
 }
 
 
 /*
  * Attempt to save the player in a savefile
  */
-bool save_player(int Ind)
+bool save_player(struct player *p)
 {
-    player_type *p_ptr = player_get(Ind);
     ang_file *file;
     int count = 0;
     char new_savefile[MSG_LEN];
     char old_savefile[MSG_LEN];
-    bool character_saved = FALSE;
+    bool character_saved = false;
 
     /* New savefile */
-    strnfmt(old_savefile, sizeof(old_savefile), "%s%u.old", p_ptr->savefile, Rand_simple(1000000));
+    strnfmt(old_savefile, sizeof(old_savefile), "%s%u.old", p->savefile, Rand_simple(1000000));
     while (file_exists(old_savefile) && (count++ < 100))
-        strnfmt(old_savefile, sizeof(old_savefile), "%s%u%u.old", p_ptr->savefile, Rand_simple(1000000), count);
+    {
+        strnfmt(old_savefile, sizeof(old_savefile), "%s%u%u.old", p->savefile,
+            Rand_simple(1000000), count);
+    }
     count = 0;
 
     /* Open the savefile */
-    strnfmt(new_savefile, sizeof(new_savefile), "%s%u.new", p_ptr->savefile, Rand_simple(1000000));
+    strnfmt(new_savefile, sizeof(new_savefile), "%s%u.new", p->savefile, Rand_simple(1000000));
     while (file_exists(new_savefile) && (count++ < 100))
-        strnfmt(new_savefile, sizeof(new_savefile), "%s%u%u.new", p_ptr->savefile, Rand_simple(1000000), count);
+    {
+        strnfmt(new_savefile, sizeof(new_savefile), "%s%u%u.new", p->savefile,
+            Rand_simple(1000000), count);
+    }
     file = file_open(new_savefile, MODE_WRITE, FTYPE_SAVE);
 
     if (file)
@@ -472,7 +516,7 @@ bool save_player(int Ind)
         file_write(file, (char *)&savefile_magic, 4);
         file_write(file, (char *)&savefile_name, 4);
 
-        character_saved = try_save(Ind, file, (savefile_saver *)player_savers,
+        character_saved = try_save((void *)p, file, (savefile_saver *)player_savers,
             N_ELEMENTS(player_savers));
         file_close(file);
     }
@@ -480,16 +524,16 @@ bool save_player(int Ind)
     /* Attempt to save the player */
     if (character_saved)
     {
-        bool err = FALSE;
+        bool err = false;
 
-        if (file_exists(p_ptr->savefile) && !file_move(p_ptr->savefile, old_savefile))
-            err = TRUE;
+        if (file_exists(p->savefile) && !file_move(p->savefile, old_savefile))
+            err = true;
 
         if (!err)
         {
-            if (!file_move(new_savefile, p_ptr->savefile)) err = TRUE;
+            if (!file_move(new_savefile, p->savefile)) err = true;
 
-            if (err) file_move(old_savefile, p_ptr->savefile);
+            if (err) file_move(old_savefile, p->savefile);
             else file_delete(old_savefile);
         }
 
@@ -499,14 +543,14 @@ bool save_player(int Ind)
     /* Delete temp file if the save failed */
     if (file) file_delete(new_savefile);
 
-    return FALSE;
+    return false;
 }
 
 
 /*
  * Save special manually-designed dungeon levels
  */
-void save_dungeon_special(int depth)
+void save_dungeon_special(int depth, bool town)
 {
     char filename[MSG_LEN];
     char levelname[32];
@@ -514,16 +558,20 @@ void save_dungeon_special(int depth)
     int j = 0, k = 0;
 
     /* Build a file name */
-    strnfmt(levelname, sizeof(levelname), "server.level.%d.%d.%d", k, j, depth);
-    path_build(filename, MSG_LEN, ANGBAND_DIR_SAVE, levelname);
+    if (town)
+        strnfmt(levelname, sizeof(levelname), "server.town.%d.%d.%d", k, j, depth);
+    else
+        strnfmt(levelname, sizeof(levelname), "server.level.%d.%d.%d", k, j, depth);
+    path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, levelname);
 
     /* Open the savefile */
     file = file_open(filename, MODE_WRITE, FTYPE_RAW);
     if (file)
     {
         /* Save the level */
-        plog_fmt("Saving special level for level %d...", depth);
-        try_save(depth, file, (savefile_saver *)special_savers, N_ELEMENTS(special_savers));
+        if (town) plog_fmt("Saving special town for level %d...", depth);
+        else plog_fmt("Saving special level for level %d...", depth);
+        try_save((void *)depth, file, (savefile_saver *)special_savers, N_ELEMENTS(special_savers));
         file_close(file);
     }
 }
@@ -538,25 +586,25 @@ bool save_server_info(void)
     int count = 0;
     char new_savefile[MSG_LEN], new_name[MSG_LEN];
     char old_savefile[MSG_LEN], old_name[MSG_LEN];
-    bool server_saved = FALSE;
+    bool server_saved = false;
 
     /* New savefile */
     strnfmt(old_name, sizeof(old_name), "server%u.old", Rand_simple(1000000));
-    path_build(old_savefile, MSG_LEN, ANGBAND_DIR_SAVE, old_name);
+    path_build(old_savefile, sizeof(old_savefile), ANGBAND_DIR_SAVE, old_name);
     while (file_exists(old_savefile) && (count++ < 100))
     {
         strnfmt(old_name, sizeof(old_name), "server%u%u.old", Rand_simple(1000000), count);
-        path_build(old_savefile, MSG_LEN, ANGBAND_DIR_SAVE, old_name);
+        path_build(old_savefile, sizeof(old_savefile), ANGBAND_DIR_SAVE, old_name);
     }
     count = 0;
 
     /* Open the savefile */
     strnfmt(new_name, sizeof(new_name), "server%u.new", Rand_simple(1000000));
-    path_build(new_savefile, MSG_LEN, ANGBAND_DIR_SAVE, new_name);
+    path_build(new_savefile, sizeof(new_savefile), ANGBAND_DIR_SAVE, new_name);
     while (file_exists(new_savefile) && (count++ < 100))
     {
         strnfmt(new_name, sizeof(new_name), "server%u%u.new", Rand_simple(1000000), count);
-        path_build(new_savefile, MSG_LEN, ANGBAND_DIR_SAVE, new_name);
+        path_build(new_savefile, sizeof(new_savefile), ANGBAND_DIR_SAVE, new_name);
     }
     file = file_open(new_savefile, MODE_WRITE, FTYPE_SAVE);
 
@@ -565,7 +613,7 @@ bool save_server_info(void)
         file_write(file, (char *)&savefile_magic, 4);
         file_write(file, (char *)&savefile_name, 4);
 
-        server_saved = try_save(0, file, (savefile_saver *)server_savers,
+        server_saved = try_save(NULL, file, (savefile_saver *)server_savers,
             N_ELEMENTS(server_savers));
         file_close(file);
     }
@@ -574,16 +622,16 @@ bool save_server_info(void)
     if (server_saved)
     {
         char savefile[MSG_LEN];
-        bool err = FALSE;
+        bool err = false;
 
-        path_build(savefile, MSG_LEN, ANGBAND_DIR_SAVE, "server");
+        path_build(savefile, sizeof(savefile), ANGBAND_DIR_SAVE, "server");
 
         if (file_exists(savefile) && !file_move(savefile, old_savefile))
-            err = TRUE;
+            err = true;
 
         if (!err)
         {
-            if (!file_move(new_savefile, savefile)) err = TRUE;
+            if (!file_move(new_savefile, savefile)) err = true;
 
             if (err) file_move(old_savefile, savefile);
             else file_delete(old_savefile);
@@ -595,116 +643,59 @@ bool save_server_info(void)
     /* Delete temp file if the save failed */
     if (file) file_delete(new_savefile);
 
-    return FALSE;
+    return false;
 }
 
 
-/*** Savefile loading functions ***/
+/*
+ * Savefile loading functions
+ */
 
 
-static bool try_load(struct player *p, ang_file *f, savefile_loader *loaders, size_t n_loaders)
+/*
+ * Check the savefile header file clearly indicates that it's a savefile
+ */
+static bool check_header(ang_file *f)
 {
-    byte savefile_head[SAVEFILE_HEAD_SIZE];
-    u32b block_version, block_size;
-    char *block_name;
+    byte head[8];
 
-    while (TRUE)
+    if ((file_read(f, (char *)&head, 8) == 8) && (memcmp(&head[0], savefile_magic, 4) == 0) &&
+        (memcmp(&head[4], savefile_name, 4) == 0))
     {
-        size_t i;
-        int (*loader)(struct player *) = NULL;
-
-        /* Load in the next header */
-        size_t size = file_read(f, (char *)savefile_head, SAVEFILE_HEAD_SIZE);
-
-        if (!size) break;
-
-        if ((size != SAVEFILE_HEAD_SIZE) || (savefile_head[15] != 0))
-        {
-            plog("Savefile is corrupted -- block header mangled.");
-            return FALSE;
-        }
-
-#define RECONSTRUCT_U32B(from) \
-        ((u32b)savefile_head[from]) | \
-        ((u32b)savefile_head[from + 1] << 8) | \
-        ((u32b)savefile_head[from + 2] << 16) | \
-        ((u32b)savefile_head[from + 3] << 24);
-
-        block_name = (char *)savefile_head;
-        block_version = RECONSTRUCT_U32B(16);
-        block_size = RECONSTRUCT_U32B(20);
-
-        /* Pad to 4 bytes */
-        if (block_size % 4) block_size += 4 - (block_size % 4);
-
-        /* Find the right loader */
-        for (i = 0; i < n_loaders; i++)
-        {
-            if (streq(block_name, loaders[i].name) && (block_version == loaders[i].version))
-                loader = loaders[i].load;
-        }
-
-        /* No loader found */
-        if (!loader)
-        {
-            plog("Savefile too old -- no loader found.");
-            return FALSE;
-        }
-
-        /* Allocate space for the buffer */
-        buffer = mem_alloc(block_size);
-        buffer_pos = 0;
-        buffer_check = 0;
-
-        buffer_size = file_read(f, (char *)buffer, block_size);
-        if (buffer_size != block_size)
-        {
-            plog("Savefile is corrupted -- not enough bytes.");
-            mem_free(buffer);
-            return FALSE;
-        }
-
-        /* Try loading */
-        if (loader(p) != 0)
-        {
-            plog("Savefile is corrupted.");
-            mem_free(buffer);
-            return FALSE;
-        }
-
-        mem_free(buffer);
-
-        /* Hack -- load any special static levels */
-        if (streq(block_name, "dungeons"))
-        {
-            if (!load_dungeon_special()) return FALSE;
-        }
+        return true;
     }
 
-    /* Success */
-    return TRUE;
+    return false;
 }
 
 
-static int try_scoop(ang_file *f, char *pass_word, byte *pridx, byte *pcidx, byte *psex)
+static void throw_err(struct player *p, const char *str)
+{
+    plog(str);
+    if (p) Destroy_connection(p->conn, (char *)str);
+}
+
+
+/*
+ * Get the next block header from the savefile
+ */
+static errr next_blockheader(ang_file *f, struct blockheader *b, bool scoop)
 {
     byte savefile_head[SAVEFILE_HEAD_SIZE];
-    u32b block_version, block_size;
-    char *block_name;
+    size_t len;
     const char *header = "header";
-    char pass[NORMAL_WID];
-    char stored_pass[NORMAL_WID];
-    char client_pass[NORMAL_WID];
-    int err = 0;
 
-    /* Load in the next header */
-    size_t size = file_read(f, (char *)savefile_head, SAVEFILE_HEAD_SIZE);
+    len = file_read(f, (char *)savefile_head, SAVEFILE_HEAD_SIZE);
 
-    if (!size) return -1;
-    if ((size != SAVEFILE_HEAD_SIZE) || (savefile_head[15] != 0)) return -1;
+    /* No more blocks */
+    if (len == 0) return 1;
+
+    if ((len != SAVEFILE_HEAD_SIZE) || (savefile_head[15] != 0))
+        return -1;
 
     /* Determine the block ID */
-    if (strncmp((char *)savefile_head, header, sizeof(header)) != 0) return -1;
+    if (scoop && (strncmp((char *)savefile_head, header, sizeof(header)) != 0))
+        return -1;
 
 #define RECONSTRUCT_U32B(from) \
     ((u32b)savefile_head[from]) | \
@@ -712,21 +703,204 @@ static int try_scoop(ang_file *f, char *pass_word, byte *pridx, byte *pcidx, byt
     ((u32b)savefile_head[from + 2] << 16) | \
     ((u32b)savefile_head[from + 3] << 24);
 
-    block_name = (char *)savefile_head;
-    block_version = RECONSTRUCT_U32B(16);
-    block_size = RECONSTRUCT_U32B(20);
+    my_strcpy(b->name, (char *)&savefile_head, sizeof(b->name));
+    b->version = RECONSTRUCT_U32B(16);
+    b->size = RECONSTRUCT_U32B(20);
 
     /* Pad to 4 bytes */
-    if (block_size % 4) block_size += 4 - (block_size % 4);
+    if (b->size % 4) b->size += 4 - (b->size % 4);
 
+    return 0;
+}
+
+
+/*
+ * Find the right loader for this block, return it
+ */
+static loader_t find_loader(struct blockheader *b, const struct blockinfo *loaders, size_t n_loaders)
+{
+    size_t i = 0;
+
+    /* Find the right loader */
+    for (i = 0; i < n_loaders; i++)
+    {
+        if (!streq(b->name, loaders[i].name)) continue;
+        if (b->version != loaders[i].version) continue;
+
+        return loaders[i].loader;
+    }
+
+    return NULL;
+}
+
+
+/*
+ * Load a given block with the given loader
+ */
+static bool load_block(struct player *p, ang_file *f, struct blockheader *b, loader_t loader)
+{
     /* Allocate space for the buffer */
-    buffer = mem_alloc(block_size);
+    buffer = mem_alloc(b->size);
     buffer_pos = 0;
     buffer_check = 0;
 
-    buffer_size = file_read(f, (char *)buffer, block_size);
-    if (buffer_size != block_size)
+    buffer_size = file_read(f, (char *)buffer, b->size);
+    if ((buffer_size != b->size) || (loader(p) != 0))
     {
+        mem_free(buffer);
+        return false;
+    }
+
+    mem_free(buffer);
+    return true;
+}
+
+
+/*
+ * Skip a block
+ */
+static void skip_block(ang_file *f, struct blockheader *b)
+{
+    file_skip(f, b->size);
+}
+
+
+/*
+ * Try to load a savefile
+ */
+static bool try_load(struct player *p, ang_file *f, const struct blockinfo *loaders,
+    size_t n_loaders, bool with_header)
+{
+    struct blockheader b;
+    errr err;
+
+    if (with_header && !check_header(f))
+    {
+        throw_err(p, "Savefile is corrupted or too old -- incorrect file header.");
+        return false;
+    }
+
+    /* Get the next block header */
+    while ((err = next_blockheader(f, &b, false)) == 0)
+    {
+        loader_t loader = find_loader(&b, loaders, n_loaders);
+
+        /* No loader found */
+        if (!loader)
+        {
+            throw_err(p, "Savefile block can't be read -- probably an old savefile.");
+            return false;
+        }
+
+        if (!load_block(p, f, &b, loader))
+        {
+            throw_err(p,
+                format("Savefile is corrupted or too old -- couldn't load block %s", b.name));
+            return false;
+        }
+
+        /* Hack -- load any special static levels */
+        if (streq(b.name, "dungeons"))
+        {
+            if (!load_dungeon_special()) return false;
+        }
+    }
+
+    if (err == -1)
+    {
+        throw_err(p, "Savefile is corrupted or too old -- block header mangled.");
+        return false;
+    }
+
+    return true;
+}
+
+
+/* XXX this isn't nice but it'll have to do */
+static char savefile_desc[120];
+
+
+static int get_desc(struct player *unused)
+{
+    rd_string(savefile_desc, sizeof(savefile_desc));
+    return 0;
+}
+
+
+/*
+ * Try to get the 'description' block from a savefile. Fail gracefully.
+ */
+const char *savefile_get_description(const char *path)
+{
+    struct blockheader b;
+    ang_file *f = file_open(path, MODE_READ, FTYPE_RAW);
+
+    if (!f) return NULL;
+
+    /* Blank the description */
+    savefile_desc[0] = 0;
+
+    if (!check_header(f))
+        my_strcpy(savefile_desc, "Invalid savefile", sizeof(savefile_desc));
+    else
+    {
+        while (!next_blockheader(f, &b, false))
+        {
+            if (!streq(b.name, "description"))
+            {
+                skip_block(f, &b);
+                continue;
+            }
+
+            load_block(NULL, f, &b, get_desc);
+            break;
+        }
+    }
+
+    file_close(f);
+
+    return savefile_desc;
+}
+
+
+static int try_scoop(ang_file *f, char *pass_word, byte *pridx, byte *pcidx, byte *psex)
+{
+    struct blockheader b;
+    errr err;
+    char pass[NORMAL_WID];
+    char stored_pass[NORMAL_WID];
+    char client_pass[NORMAL_WID];
+
+    if (!check_header(f))
+    {
+        plog("Savefile is corrupted or too old -- incorrect file header.");
+        return -1;
+    }
+
+    /* Get the next block header */
+    err = next_blockheader(f, &b, true);
+    if (err == -1)
+    {
+        plog("Savefile is corrupted or too old -- block header mangled.");
+        return -1;
+    }
+
+    /* There should be at least one block */
+    if (err == 1)
+    {
+        plog("Cannot read savefile -- no block of data found.");
+        return -1;
+    }
+
+    /* Allocate space for the buffer */
+    buffer = mem_alloc(b.size);
+    buffer_pos = 0;
+    buffer_check = 0;
+
+    buffer_size = file_read(f, (char *)buffer, b.size);
+    if (buffer_size != b.size)
+    {
+        plog("Savefile is corrupted or too old -- block too short.");
         mem_free(buffer);
         return -1;
     }
@@ -753,6 +927,7 @@ static int try_scoop(ang_file *f, char *pass_word, byte *pridx, byte *pcidx, byt
             if (strcmp(pass, client_pass))
             {
                 /* No, it's not correct */
+                plog("Incorrect password");
                 err = -2;
             }
 
@@ -768,6 +943,7 @@ static int try_scoop(ang_file *f, char *pass_word, byte *pridx, byte *pcidx, byt
             if (strcmp(stored_pass, pass_word))
             {
                 /* No, it doesn't match hashed */
+                plog("Incorrect password");
                 err = -2;
             }
         }
@@ -777,6 +953,7 @@ static int try_scoop(ang_file *f, char *pass_word, byte *pridx, byte *pcidx, byt
             if (strcmp(pass, pass_word))
             {
                 /* No, it's not correct */
+                plog("Incorrect password");
                 err = -2;
             }
         }
@@ -797,41 +974,17 @@ static int try_scoop(ang_file *f, char *pass_word, byte *pridx, byte *pcidx, byt
  */
 bool load_player(struct player *p)
 {
-    byte head[8];
-    bool ok = TRUE;
+    bool ok;
     ang_file *f = file_open(p->savefile, MODE_READ, FTYPE_RAW);
-    char buf[NORMAL_WID];
 
-    if (f)
+    if (!f)
     {
-        if ((file_read(f, (char *)&head, 8) == 8) && (memcmp(&head[0], savefile_magic, 4) == 0) &&
-            (memcmp(&head[4], savefile_name, 4) == 0))
-        {
-            if (!try_load(p, f, (savefile_loader *)player_loaders, N_ELEMENTS(player_loaders)))
-            {
-                ok = FALSE;
-                my_strcpy(buf, "Failed loading savefile.", sizeof(buf));
-            }
-        }
-        else
-        {
-            ok = FALSE;
-            my_strcpy(buf, "Savefile is corrupted or too old -- incorrect file header.", sizeof(buf));
-        }
-
-        file_close(f);
-    }
-    else
-    {
-        ok = FALSE;
-        my_strcpy(buf, "Couldn't open savefile.", sizeof(buf));
+        throw_err(p, "Couldn't open savefile.");
+        return false;
     }
 
-    if (!ok)
-    {
-        plog(buf);
-        Destroy_connection(p->conn, buf);
-    }
+    ok = try_load(p, f, player_loaders, N_ELEMENTS(player_loaders), true);
+    file_close(f);
 
     return ok;
 }
@@ -850,14 +1003,13 @@ bool load_player(struct player *p)
  */
 int scoop_player(char *nick, char *pass, byte *pridx, byte *pcidx, byte *psex)
 {
-    byte head[8];
-    int err = 0;
+    int err;
     ang_file *f;
     char tmp[MSG_LEN];
 
     my_strcpy(tmp, nick, sizeof(tmp));
 
-    if (process_player_name_aux(nick, NULL, tmp, TRUE) < 0)
+    if (!savefile_set_name(NULL, tmp, player_safe_name(nick)))
     {
         /* Error already! */
         plog_fmt("Incorrect player name %s.", nick);
@@ -876,33 +1028,31 @@ int scoop_player(char *nick, char *pass, byte *pridx, byte *pcidx, byte *psex)
 
     /* Open savefile */
     f = file_open(tmp, MODE_READ, FTYPE_RAW);
-    if (f)
+    if (!f)
     {
-        if ((file_read(f, (char *)&head, 8) == 8) &&
-            (memcmp(&head[0], savefile_magic, 4) == 0) &&
-            (memcmp(&head[4], savefile_name, 4) == 0))
-        {
-            err = try_scoop(f, pass, pridx, pcidx, psex);
-            if (err == -2) plog("Incorrect password");
-            else if (err) plog("Failed loading savefile.");
-        }
-        else
-        {
-            err = -1;
-            plog("Savefile is corrupted or too old -- incorrect file header.");
-        }
-
-        file_close(f);
-    }
-    else
-    {
-        err = -1;
         plog("Couldn't open savefile.");
+        return -1;
     }
 
-    /* Oops */
-    return (err);
+    err = try_scoop(f, pass, pridx, pcidx, psex);
+    file_close(f);
+
+    return err;
 }
+
+
+/*
+ * Maximum number of special pre-designed static levels.
+ */
+#define MAX_SPECIAL_LEVELS 10
+
+
+/* List of depths which are special static levels */
+static s16b special_levels[MAX_SPECIAL_LEVELS];
+
+
+/* List of depths which are special static towns */
+static s16b special_towns[MAX_SPECIAL_LEVELS];
 
 
 /*
@@ -910,62 +1060,98 @@ int scoop_player(char *nick, char *pass, byte *pridx, byte *pcidx, byte *psex)
  *
  * Special pre-designed levels are stored in separate files with
  * the filename "server.level.<wild_x>.<wild_y>.<depth>".
+ *
+ * Special pre-designed towns are stored in separate files with
+ * the filename "server.town.<wild_x>.<wild_y>.<depth>".
+ *
  * Level files are searched for at runtime and loaded if present.
+ *
+ * On no_recall or more_towns servers, we first search for a special town.
+ * If not found, we search for a special level instead. On other servers,
+ * we only search for special levels.
  */
 static bool load_dungeon_special(void)
 {
     char filename[MSG_LEN];
     char levelname[32];
     ang_file *fhandle;
-    int i, num_levels;
+    int i, num_levels = 0, num_towns = 0;
     int j = 0, k = 0;
 
-    /* Clear all the special levels */
-    for (i = 0; i < MAX_SPECIAL_LEVELS; i++) special_levels[i] = -999;
-
-    /*
-     * Special static pre-designed levels are only used on no_recall or
-     * more_towns servers
-     */
-    if (!cfg_no_recall && !cfg_more_towns) return TRUE;
-
-    /* k = E/W, j = N/S for wilderness towns */
-    num_levels = 0;
-    for (i = 0; i < MAX_DEPTH; i++)
+    /* Clear all the special levels and towns */
+    for (i = 0; i < MAX_SPECIAL_LEVELS; i++)
     {
-        bool ok;
+        special_levels[i] = -999;
+        special_towns[i] = -999;
+    }
+
+    /* k = E/W, j = N/S for wilderness levels */
+    for (i = 0; i < z_info->max_depth; i++)
+    {
+        bool ok, town = false;
 
         /* No special "quest" levels */
         if (is_quest(i)) continue;
 
-        /* Build a file name */
-        strnfmt(levelname, sizeof(levelname), "server.level.%d.%d.%d", k, j, i);
-        path_build(filename, MSG_LEN, ANGBAND_DIR_SAVE, levelname);
+        /* Special static pre-designed towns are only used on no_recall or more_towns servers */
+        if (cfg_no_recall || cfg_more_towns)
+        {
+            /* Build a file name */
+            strnfmt(levelname, sizeof(levelname), "server.town.%d.%d.%d", k, j, i);
+            path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, levelname);
+
+            if (file_exists(filename))
+                town = true;
+            else
+            {
+                /* If no special town is found, check for special level */
+                strnfmt(levelname, sizeof(levelname), "server.level.%d.%d.%d", k, j, i);
+                path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, levelname);
+            }
+        }
+
+        /* Special static pre-designed levels can be used on other servers */
+        else
+        {
+            /* Build a file name */
+            strnfmt(levelname, sizeof(levelname), "server.level.%d.%d.%d", k, j, i);
+            path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, levelname);
+        }
 
         /* Open the file if it exists */
         fhandle = file_open(filename, MODE_READ, FTYPE_RAW);
         if (fhandle)
         {
             /* Load the level */
-            plog_fmt("Loading special level for level %d...", i);
-            ok = try_load(NULL, fhandle, (savefile_loader *)special_loaders,
-                N_ELEMENTS(special_loaders));
+            plog_fmt("Loading special %s for level %d...", (town? "town": "level"), i);
+            ok = try_load(NULL, fhandle, special_loaders, N_ELEMENTS(special_loaders), false);
 
             /* Close the level file */
             file_close(fhandle);
 
-            if (!ok) return FALSE;
+            if (!ok) return false;
 
-            /* Add this depth to the special level list */
-            special_levels[num_levels++] = i;
+            if (town)
+            {
+                /* We have an arbitrary max number of towns */
+                if (num_towns + 1 > MAX_SPECIAL_LEVELS) break;
 
-            /* We have an arbitrary max number of levels */
-            if (num_levels > MAX_SPECIAL_LEVELS) break;
+                /* Add this depth to the special town list */
+                special_towns[num_towns++] = i;
+            }
+            else
+            {
+                /* We have an arbitrary max number of levels */
+                if (num_levels + 1 > MAX_SPECIAL_LEVELS) break;
+
+                /* Add this depth to the special level list */
+                special_levels[num_levels++] = i;
+            }
         }
     }
 
     /* Success */
-    return TRUE;
+    return true;
 }
 
 
@@ -975,12 +1161,11 @@ static bool load_dungeon_special(void)
  */
 bool load_server_info(void)
 {
-    byte head[8];
-    bool ok = TRUE;
+    bool ok;
     ang_file *f;
     char buf[MSG_LEN];
 
-    path_build(buf, MSG_LEN, ANGBAND_DIR_SAVE, "server");
+    path_build(buf, sizeof(buf), ANGBAND_DIR_SAVE, "server");
 
     /* No file */
     if (!file_exists(buf))
@@ -988,57 +1173,98 @@ bool load_server_info(void)
         /* Give message */
         plog("Server savefile does not exist.");
 
-        /* No-recall/more_towns modes: read the special levels */
-        if (cfg_no_recall || cfg_more_towns)
+        /* Read the special levels */
+        if (!load_dungeon_special())
         {
-            if (!load_dungeon_special())
-            {
-                plog("Cannot read special levels.");
-                return FALSE;
-            }
+            plog("Cannot read special levels.");
+            return false;
         }
 
         /* Allow this */
-        return TRUE;
+        return true;
     }
 
     /* Open savefile */
     f = file_open(buf, MODE_READ, FTYPE_RAW);
-    if (f)
-    {
-        if ((file_read(f, (char *)&head, 8) == 8) && (memcmp(&head[0], savefile_magic, 4) == 0) &&
-            (memcmp(&head[4], savefile_name, 4) == 0))
-        {
-            if (!try_load(NULL, f, (savefile_loader *)server_loaders, N_ELEMENTS(server_loaders)))
-            {
-                ok = FALSE;
-                plog("Failed loading server savefile.");
-            }
-        }
-        else
-        {
-            ok = FALSE;
-            plog("Server savefile is corrupted or too old -- incorrect file header.");
-        }
 
-        file_close(f);
-    }
-    else
+    if (!f)
     {
-        ok = FALSE;
         plog("Couldn't open server savefile.");
+        return false;
     }
+
+    ok = try_load(NULL, f, server_loaders, N_ELEMENTS(server_loaders), true);
+    file_close(f);
 
     /* Okay */
     if (ok)
     {
         /* The server state was loaded */
-        server_state_loaded = TRUE;
+        server_state_loaded = true;
 
         /* Success */
-        return TRUE;
+        return true;
     }
 
     /* Oops */
-    return FALSE;
+    return false;
+}
+
+
+/*
+ * Return true if the given depth is a special static level, i.e. a hand designed level.
+ */
+bool special_level(s16b depth)
+{
+    int i;
+
+    for (i = 0; i < MAX_SPECIAL_LEVELS; i++)
+    {
+        if ((depth == special_levels[i]) || (depth == special_towns[i])) return true;
+    }
+
+    return false;
+}
+
+
+/*
+ * Return true if the given depth is a special static town.
+ */
+bool special_town(s16b depth)
+{
+    int i;
+
+    for (i = 0; i < MAX_SPECIAL_LEVELS; i++)
+    {
+        if (depth == special_towns[i]) return true;
+    }
+
+    return false;
+}
+
+
+/*
+ * Forbid in the town or on special levels.
+ */
+bool forbid_special(s16b depth)
+{
+    return (special_level(depth) || !depth);
+}
+
+
+/*
+ * Forbid in the towns.
+ */
+bool forbid_town(s16b depth)
+{
+    return (special_town(depth) || !depth);
+}
+
+
+/*
+ * Returns whether "depth" corresponds to a randomly generated level.
+ */
+bool random_level(s16b depth)
+{
+    return ((depth > 0) && !special_level(depth));
 }

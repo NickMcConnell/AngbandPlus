@@ -2,8 +2,8 @@
  * File: ui-birth.c
  * Purpose: Text-based user interface for character creation
  *
- * Copyright (c) 1987 - 2007 Angband contributors
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 1987 - 2015 Angband contributors
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,10 +19,6 @@
 
 
 #include "c-angband.h"
-#include "../common/md5.h"
-#include "../common/randname.h"
-#include "../common/tvalsval.h"
-#include "ui-menu.h"
 
 
 /*
@@ -39,10 +35,10 @@
 
 /*
  * A local-to-this-file global to hold the most important bit of state
- * between calls to the game proper.  Probably not strictly necessary,
-   but reduces complexity a bit.
-   */
-typedef enum birth_stage
+ * between calls to the game proper. Probably not strictly necessary,
+ * but reduces complexity a bit.
+ */
+enum birth_stage
 {
     BIRTH_BACK = -1,
     BIRTH_RESET = 0,
@@ -54,7 +50,7 @@ typedef enum birth_stage
     BIRTH_FINAL_CONFIRM,
     BIRTH_COMPLETE,
     BIRTH_QUIT
-} birth_stage;
+};
 
 
 /*
@@ -86,7 +82,7 @@ static bool get_name_keypress(char *buf, size_t buflen, size_t *curs,
             *len = randname_make(RANDNAME_TOLKIEN, 4, 8, buf, buflen, name_sections);
             my_strcap(buf);
             *curs = 0;
-            result = FALSE;
+            result = false;
             break;
         }
         
@@ -106,7 +102,7 @@ static bool get_name_keypress(char *buf, size_t buflen, size_t *curs,
  */
 static void choose_name(void)
 {
-    char tmp[23];
+    char tmp[NORMAL_WID];
 
     /* Prompt and ask */
     prt("Enter your player's name above (* for a random name, or hit ESCAPE).", 21, 2);
@@ -121,7 +117,7 @@ static void choose_name(void)
         my_strcpy(tmp, nick, sizeof(tmp));
 
         /* Ask the user for a string */
-        if (askfor_aux(tmp, 16, get_name_keypress))
+        if (askfor_aux(tmp, MAX_NAME_LEN + 1, get_name_keypress))
             my_strcpy(nick, tmp, sizeof(nick));
 
         /* All done */
@@ -135,7 +131,7 @@ static void choose_name(void)
     strnfmt(tmp, sizeof(tmp), "%-15.15s", nick);
 
     /* Redraw the name (in light blue) */
-    c_put_str(TERM_L_BLUE, tmp, 2, 15);
+    c_put_str(COLOUR_L_BLUE, tmp, 2, 15);
 
     /* Erase the prompt, etc */
     clear_from(20);
@@ -147,14 +143,11 @@ static void choose_name(void)
  */
 static void enter_password(void)
 {
-    int c;
-    char tmp[MAX_PASS_LEN];
+    size_t c;
+    char tmp[NORMAL_WID];
 
     /* Prompt and ask */
     prt("Enter your password above (or hit ESCAPE).", 21, 2);
-
-    /* Default */
-    my_strcpy(tmp, pass, sizeof(tmp));
 
     /* Ask until happy */
     while (1)
@@ -162,25 +155,31 @@ static void enter_password(void)
         /* Go to the "password" area */
         Term_gotoxy(15, 3);
 
+        /* Default (used to hide the real password) */
+        my_strcpy(tmp, "(default)", sizeof(tmp));
+
         /* Get an input, ignore "Escape" */
-        if (!askfor_ex(tmp, 16, NULL, TRUE))
+        askfor_ex(tmp, MAX_PASS_LEN + 1, NULL, true);
+
+        /* Don't allow default `passwd` password */
+        if (streq(tmp, "passwd") || (streq(tmp, "(default)") && streq(pass, "passwd")))
         {
-            if (!strcmp(tmp, "passwd"))
-            {
-                prt("Please do not use `passwd` as your password.", 22, 2);
-                continue;
-            }
-            else
-                my_strcpy(pass, tmp, sizeof(pass));
+            prt("Please do not use `passwd` as your password.", 22, 2);
+            continue;
         }
 
         /* All done */
         break;
     }
 
+    /* Set password (if not default) */
+    if (strcmp(tmp, "(default)"))
+        my_strcpy(pass, tmp, sizeof(pass));
+
     /* Redraw the password (in light blue) */
+    Term_erase(15, 3, 9);
     for (c = 0; c < strlen(pass); c++)
-        Term_putch(15 + c, 3, TERM_L_BLUE, 'x');
+        Term_putch(15 + c, 3, COLOUR_L_BLUE, 'x');
 
     /* Now hash that sucker! */
     my_strcpy(stored_pass, pass, sizeof(stored_pass));
@@ -191,14 +190,14 @@ static void enter_password(void)
 }
 
 
-/* ------------------------------------------------------------------------
+/*
  * The various "menu" bits of the birth process - namely choice of sex,
  * race, class, and roller type.
- * ------------------------------------------------------------------------ */
+ */
 
 
 /* The various menus */
-static menu_type sex_menu, race_menu, class_menu, roller_menu;
+static struct menu sex_menu, race_menu, class_menu, roller_menu;
 
 
 /* Locations of the menus, etc. on the screen */
@@ -217,10 +216,10 @@ static menu_type sex_menu, race_menu, class_menu, roller_menu;
 
 
 /* Upper left column and row, width, and lower column */
-static region gender_region = {SEX_COL, TABLE_ROW, 14, MENU_ROWS};
+static region gender_region = {SEX_COL, TABLE_ROW, 12, MENU_ROWS};
 static region race_region = {RACE_COL, TABLE_ROW, 15, MENU_ROWS};
 static region class_region = {CLASS_COL, TABLE_ROW, 16, MENU_ROWS};
-static region roller_region = {ROLLER_COL, TABLE_ROW, 28, MENU_ROWS};
+static region roller_region = {ROLLER_COL, TABLE_ROW, 30, MENU_ROWS};
 
 
 /*
@@ -242,7 +241,6 @@ typedef struct birthmenu_data
     const char **items;
     const char *hint;
     bool allow_random;
-    u16b choice;
 } birthmenu_data;
 
 
@@ -251,11 +249,10 @@ typedef struct birthmenu_data
  * text from our stored data in a different colour if it's currently
  * selected.
  */
-static void birthmenu_display(menu_type *menu, int oid, bool cursor,
-    int row, int col, int width)
+static void birthmenu_display(struct menu *menu, int oid, bool cursor, int row, int col, int width)
 {
     struct birthmenu_data *data = menu_priv(menu);
-    byte attr = curs_attrs[0 != (data->choice & (1L << oid))][0 != cursor];
+    byte attr = curs_attrs[CURS_KNOWN][0 != cursor];
 
     c_put_str(attr, data->items[oid], row, col);
 }
@@ -278,7 +275,7 @@ static void format_help(int col, int row, const char *fmt, ...)
     vstrnfmt(buf, sizeof(buf), fmt, vp);
     va_end(vp);
 
-    Term_putstr(col, TABLE_ROW + row, -1, TERM_WHITE, buf);
+    Term_putstr(col, TABLE_ROW + row, -1, COLOUR_WHITE, buf);
 }
 
 
@@ -289,19 +286,26 @@ static void erase_help(int col, int *row)
 }
 
 
-static void skill_help(int col, int *row, s16b skills[], int mhp, int exp, int infra)
+static void skill_help(int col, int *row, const s16b r_skills[], const s16b c_skills[], int mhp,
+    int exp, int infra)
 {
-    format_help(col, (*row)++, "Hit/Shoot/Throw: %+3d/%+3d/%+3d", skills[SKILL_TO_HIT_MELEE],
+    s16b skills[SKILL_MAX];
+    unsigned i;
+
+    for (i = 0; i < SKILL_MAX; i++)
+        skills[i] = (r_skills? r_skills[i]: 0) + (c_skills? c_skills[i]: 0);
+
+    format_help(col, (*row)++, "Hit/Shoot/Throw: %+3d/%+4d/%+4d", skills[SKILL_TO_HIT_MELEE],
         skills[SKILL_TO_HIT_BOW], skills[SKILL_TO_HIT_THROW]);
-    format_help(col, (*row)++, "Hit die: %2d     XP mod: %3d%%", mhp, exp);
-    format_help(col, (*row)++, "Disarm: %+3d     Devices: %+3d", skills[SKILL_DISARM],
+    format_help(col, (*row)++, "Hit die: %2d       XP mod: %3d%%", mhp, exp);
+    format_help(col, (*row)++, "Disarm: %+3d       Devices: %+3d", skills[SKILL_DISARM],
         skills[SKILL_DEVICE]);
-    format_help(col, (*row)++, "Save:   %+3d     Stealth: %+3d", skills[SKILL_SAVE],
+    format_help(col, (*row)++, "Save:   %+3d       Stealth: %+3d", skills[SKILL_SAVE],
         skills[SKILL_STEALTH]);
     if (infra >= 0)
-        format_help(col, (*row)++, "Infravision:           %2d ft", infra * 10);
-    format_help(col, (*row)++, "Digging:                 %+3d", skills[SKILL_DIGGING]);
-    format_help(col, (*row)++, "Search:               %+3d/%2d", skills[SKILL_SEARCH],
+        format_help(col, (*row)++, "Infravision:             %2d ft", infra * 10);
+    format_help(col, (*row)++, "Digging:                   %+3d", skills[SKILL_DIGGING]);
+    format_help(col, (*row)++, "Search:                 %+3d/%2d", skills[SKILL_SEARCH],
         skills[SKILL_SEARCH_FREQUENCY]);
     if (infra < 0) erase_help(col, row);
 }
@@ -314,19 +318,29 @@ static const char *get_flag_desc(bitflag flag)
         case OF_SUST_STR: return "Sustains strength";
         case OF_SUST_DEX: return "Sustains dexterity";
         case OF_SUST_CON: return "Sustains constitution";
-        case OF_RES_POIS: return "Resists poison";
-        case OF_RES_LIGHT: return "Resists light damage";
-        case OF_RES_DARK: return "Resists darkness damage";
-        case OF_RES_BLIND: return "Resists blindness";
+        case OF_PROT_BLIND: return "Resists blindness";
         case OF_HOLD_LIFE: return "Sustains experience";
         case OF_FREE_ACT: return "Resists paralysis";
         case OF_REGEN: return "Regenerates quickly";
         case OF_SEE_INVIS: return "Sees invisible creatures";
         case OF_FEATHER: return "Falls like a feather";
         case OF_SLOW_DIGEST: return "Digests food slowly";
-        case OF_RES_NEXUS: return "Resists nexus";
 
         default: return "Undocumented flag";
+    }
+}
+
+
+static const char *get_resist_desc(int element)
+{
+    switch (element)
+    {
+        case ELEM_POIS: return "Resists poison";
+        case ELEM_LIGHT: return "Resists light damage";
+        case ELEM_DARK: return "Resists darkness damage";
+        case ELEM_NEXUS: return "Resists nexus";
+
+        default: return "Undocumented element";
     }
 }
 
@@ -335,35 +349,9 @@ static const char *get_pflag_desc(bitflag flag)
 {
     switch (flag)
     {
-        case PF_EXTRA_SHOT: return "Gains extra shots with bow";
-        case PF_BRAVERY_30: return "Gains immunity to fear";
-        case PF_BLESS_WEAPON: return "Prefers blunt/blessed weapons";
-        case PF_CUMBER_GLOVE: return NULL;
-        case PF_ZERO_FAIL: return "Advanced spellcasting";
-        case PF_BEAM: return NULL;
-        case PF_CHOOSE_SPELLS: return NULL;
-        case PF_PSEUDO_ID_IMPROV: return NULL;
-        case PF_KNOW_MUSHROOM: return "Identifies mushrooms";
-        case PF_KNOW_ZAPPER: return "Identifies magic devices";
-        case PF_SEE_ORE: return "Senses ore/minerals";
-        case PF_ORC: return NULL;
-        case PF_TROLL: return NULL;
-        case PF_ANIMAL: return NULL;
-        case PF_GIANT: return NULL;
-        case PF_THUNDERLORD: return NULL;
-        case PF_DRAGON: return NULL;
-        case PF_BACK_STAB: return NULL;
-        case PF_STEALING_IMPROV: return NULL;
-        case PF_SPEED_BONUS: return NULL;
-        case PF_STEALTH_MODE: return NULL;
-        case PF_EXTRA_MANA: return NULL;
-        case PF_ANTIMAGIC: return NULL;
-        case PF_EXTRA_SHOTS: return NULL;
-        case PF_MARTIAL_ARTS: return NULL;
-        case PF_ELEMENTAL_SPELLS: return NULL;
-        case PF_UNDEAD_POWERS: return NULL;
-        case PF_MONSTER_SPELLS: return NULL;
-        case PF_SUMMON_SPELLS: return NULL;
+        #define PF(a, b, c) case PF_##a: return c;
+        #include "../common/list-player-flags.h"
+        #undef PF
 
         default: return "Undocumented pflag";
     }
@@ -378,7 +366,7 @@ static void race_help(int i, void *db, const region *l)
     int j;
     size_t k;
     struct player_race *r = player_id2race(i);
-    int len = (A_MAX + 1) / 2;
+    int len = (STAT_MAX + 1) / 2;
     int n_flags = 0;
     int flag_space = 3;
 
@@ -387,21 +375,35 @@ static void race_help(int i, void *db, const region *l)
     /* Display relevant details. */
     for (j = 0; j < len; j++)
     {
-        const char *name1 = stat_names_reduced[j];
-        const char *name2 = stat_names_reduced[j + len];
-        int adj1 = r->r_adj[j];
-        int adj2 = r->r_adj[j + len];
+        const char *name = stat_names_reduced[j];
+        int adj = r->r_adj[j];
 
-        format_help(RACE_AUX_COL, j, "%s%+3d  %s%+3d", name1, adj1, name2, adj2);
+        if (j * 2 + 1 < STAT_MAX)
+        {
+            const char *name2 = stat_names_reduced[j + len];
+            int adj2 = r->r_adj[j + len];
+
+            format_help(RACE_AUX_COL, j, "%s%+3d  %s%+3d", name, adj, name2, adj2);
+        }
+        else
+            format_help(RACE_AUX_COL, j, "%s%+3d", name, adj);
     }
 
-    skill_help(RACE_AUX_COL, &j, r->r_skills, r->r_mhp, r->r_exp, r->infra);
+    skill_help(RACE_AUX_COL, &j, r->r_skills, NULL, r->r_mhp, r->r_exp, r->infra);
 
     for (k = 0; k < OF_MAX; k++)
     {
         if (n_flags >= flag_space) break;
         if (!of_has(r->flags, k)) continue;
         format_help(RACE_AUX_COL, j++, "%-30s", get_flag_desc(k));
+        n_flags++;
+    }
+
+    for (k = 0; k < ELEM_MAX; k++)
+    {
+        if (n_flags >= flag_space) break;
+        if (r->el_info[k].res_level != 1) continue;
+        format_help(RACE_AUX_COL, j++, "%-30s", get_resist_desc(k));
         n_flags++;
     }
 
@@ -433,7 +435,8 @@ static void class_help(int i, void *db, const region *l)
     int j;
     size_t k;
     struct player_class *c = player_id2class(i);
-    int len = (A_MAX + 1) / 2;
+    const struct player_race *r = player->race;
+    int len = (STAT_MAX + 1) / 2;
     int n_flags = 0;
     int flag_space = 5;
 
@@ -442,46 +445,25 @@ static void class_help(int i, void *db, const region *l)
     /* Display relevant details. */
     for (j = 0; j < len; j++)
     {
-        const char *name1 = stat_names_reduced[j];
-        const char *name2 = stat_names_reduced[j + len];
-        int adj1 = c->c_adj[j] + p_ptr->race->r_adj[j];
-        int adj2 = c->c_adj[j + len] + p_ptr->race->r_adj[j + len];
+        const char *name = stat_names_reduced[j];
+        int adj = c->c_adj[j] + r->r_adj[j];
 
-        format_help(CLASS_AUX_COL, j, "%s%+3d  %s%+3d", name1, adj1, name2, adj2);
+        if (j * 2 + 1 < STAT_MAX)
+        {
+            const char *name2 = stat_names_reduced[j + len];
+            int adj2 = c->c_adj[j + len] + r->r_adj[j + len];
+
+            format_help(CLASS_AUX_COL, j, "%s%+3d  %s%+3d", name, adj, name2, adj2);
+        }
+        else
+            format_help(CLASS_AUX_COL, j, "%s%+3d", name, adj);
     }
 
-    skill_help(CLASS_AUX_COL, &j, c->c_skills, c->c_mhp, c->c_exp, -1);
+    skill_help(CLASS_AUX_COL, &j, r->r_skills, c->c_skills, r->r_mhp + c->c_mhp,
+        r->r_exp + c->c_exp, -1);
 
-    switch (c->spell_book)
-    {
-        case TV_MAGIC_BOOK:
-            format_help(CLASS_AUX_COL, j++, "%-30s", "Learns arcane magic");
-            break;
-        case TV_PRAYER_BOOK:
-            format_help(CLASS_AUX_COL, j++, "%-30s", "Learns divine magic");
-            break;
-        case TV_SORCERY_BOOK:
-            format_help(CLASS_AUX_COL, j++, "%-30s", "Learns sorcery magic");
-            break;
-        case TV_SHADOW_BOOK:
-            format_help(CLASS_AUX_COL, j++, "%-30s", "Learns shadow magic");
-            break;
-        case TV_HUNT_BOOK:
-            format_help(CLASS_AUX_COL, j++, "%-30s", "Learns hunting magic");
-            break;
-        case TV_PSI_BOOK:
-            format_help(CLASS_AUX_COL, j++, "%-30s", "Learns psi powers");
-            break;
-        case TV_DEATH_BOOK:
-            format_help(CLASS_AUX_COL, j++, "%-30s", "Learns death magic");
-            break;
-        case TV_ELEM_BOOK:
-            format_help(CLASS_AUX_COL, j++, "%-30s", "Learns elemental magic");
-            break;
-        case TV_SUMMON_BOOK:
-            format_help(CLASS_AUX_COL, j++, "%-30s", "Learns summon magic");
-            break;
-    }
+    if (c->magic.spell_realm->adjective)
+        format_help(CLASS_AUX_COL, j++, "Learns %-23s", c->magic.spell_realm->adjective);
 
     for (k = 0; k < PF__MAX; k++)
     {
@@ -507,12 +489,12 @@ static void class_help(int i, void *db, const region *l)
  * Set up one of our menus ready to display choices for a birth question.
  * This is slightly involved.
  */
-static void init_birth_menu(menu_type *menu, int n_choices, int initial_choice,
+static void init_birth_menu(struct menu *menu, int n_choices, int initial_choice,
     const region *reg, bool allow_random, browse_f aux)
 {
     struct birthmenu_data *menu_data;
 
-    /* Initialise a basic menu */
+    /* Initialize a basic menu */
     menu_init(menu, MN_SKIN_SCROLL, &birth_iter);
 
     /*
@@ -544,7 +526,7 @@ static void init_birth_menu(menu_type *menu, int n_choices, int initial_choice,
 
 
 /* Cleans up our stored menu info when we've finished with it. */
-static void free_birth_menu(menu_type *menu)
+static void free_birth_menu(struct menu *menu)
 {
     struct birthmenu_data *data = menu_priv(menu);
 
@@ -568,27 +550,29 @@ static void clear_question(void)
 }
 
 
-/* Show the birth instructions on an otherwise blank screen */  
+#define BIRTH_MENU_HELPLINE1 \
+    "{light blue}Please select your character traits from the menus below:{/}"
+
+#define BIRTH_MENU_HELPLINE3 \
+    "Use the {light green}movement keys{/} to scroll the menu, {light green}Enter{/} to select the current menu"
+
+#define BIRTH_MENU_HELPLINE4 \
+    "item, '{light green}*{/}' for a random menu item, '{light green}ESC{/}' to step back through the birth"
+
+#define BIRTH_MENU_HELPLINE5 \
+    "process, '{light green}={/}' for the birth options, or '{light green}Ctrl-X{/}' to quit."
+
+/* Show the birth instructions on an otherwise blank screen */
 static void print_menu_instructions(void)
 {
     /* Clear screen */
     Term_clear();
 
     /* Display some helpful information */
-    c_put_str(TERM_L_BLUE, "Please select your character from the menu below:", 1, 1);
-    put_str("Use the ", 3, 1);
-    c_put_str(TERM_L_GREEN, "movement keys", 3, 9);
-    put_str(" to scroll the menu, ", 3, 22);
-    c_put_str(TERM_L_GREEN, "Enter", 3, 43);
-    put_str(" to select the current menu ", 3, 48);
-    put_str("item, '", 4, 1);
-    c_put_str(TERM_L_GREEN, "*", 4, 8);
-    put_str("' for a random menu item, ", 4, 9);
-    c_put_str(TERM_L_GREEN, "ESC", 4, 35);
-    put_str(" to step back through the birth ", 4, 38);
-    put_str("process, '", 5, 1);
-    c_put_str(TERM_L_GREEN, "Q", 5, 11);
-    put_str("' to quit.", 5, 12);
+    text_out_e(BIRTH_MENU_HELPLINE1, 1, 0);
+    text_out_e(BIRTH_MENU_HELPLINE3, 3, 0);
+    text_out_e(BIRTH_MENU_HELPLINE4, 4, 0);
+    text_out_e(BIRTH_MENU_HELPLINE5, 5, 0);
 }
 
 
@@ -597,22 +581,22 @@ static void print_menu_instructions(void)
  * corresponding command to the game.  Some actions are handled entirely
  * by the UI (displaying help text, for instance).
  */
-static enum birth_stage menu_question(enum birth_stage current, menu_type *current_menu)
+static enum birth_stage menu_question(enum birth_stage current, struct menu *current_menu)
 {
     struct birthmenu_data *menu_data = menu_priv(current_menu);
     ui_event cx;
     enum birth_stage next = BIRTH_RESET;
-    
+
     /* Print the question currently being asked. */
     clear_question();
-    Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW, menu_data->hint);
+    Term_putstr(QUESTION_COL, QUESTION_ROW, -1, COLOUR_YELLOW, menu_data->hint);
 
-    current_menu->cmd_keys = "*Q";
+    current_menu->cmd_keys = "=*Q";
 
     while (next == BIRTH_RESET)
     {
         /* Display the menu, wait for a selection of some sort to be made. */
-        cx = menu_select(current_menu, EVT_KBRD, FALSE);
+        cx = menu_select(current_menu, EVT_KBRD, false);
 
         /*
          * As all the menus are displayed in "hierarchical" style, we allow
@@ -625,12 +609,12 @@ static enum birth_stage menu_question(enum birth_stage current, menu_type *curre
         {
             switch (current)
             {
-                case BIRTH_SEX_CHOICE: p_ptr->psex = current_menu->cursor; break;
+                case BIRTH_SEX_CHOICE: player->psex = current_menu->cursor; break;
                 case BIRTH_RACE_CHOICE:
-                    p_ptr->race = player_id2race(current_menu->cursor);
+                    player->race = player_id2race(current_menu->cursor);
                     break;
                 case BIRTH_CLASS_CHOICE:
-                    p_ptr->clazz = player_id2class(current_menu->cursor);
+                    player->clazz = player_id2class(current_menu->cursor);
                     break;
                 case BIRTH_ROLLER_CHOICE: roller_type = current_menu->cursor; break;
             }
@@ -644,20 +628,25 @@ static enum birth_stage menu_question(enum birth_stage current, menu_type *curre
                 current_menu->cursor = randint0(current_menu->count);
                 switch (current)
                 {
-                    case BIRTH_SEX_CHOICE: p_ptr->psex = current_menu->cursor; break;
+                    case BIRTH_SEX_CHOICE: player->psex = current_menu->cursor; break;
                     case BIRTH_RACE_CHOICE:
-                        p_ptr->race = player_id2race(current_menu->cursor);
+                        player->race = player_id2race(current_menu->cursor);
                         break;
                     case BIRTH_CLASS_CHOICE:
-                        p_ptr->clazz = player_id2class(current_menu->cursor);
+                        player->clazz = player_id2class(current_menu->cursor);
                         break;
                     case BIRTH_ROLLER_CHOICE: roller_type = current_menu->cursor; break;
                 }
 
-                menu_refresh(current_menu, FALSE);
+                menu_refresh(current_menu, false);
                 next = current + 1;
             }
-            else if (cx.key.code == 'Q')
+            else if (cx.key.code == '=')
+            {
+                do_cmd_options_birth();
+                next = current;
+            }
+            else if (cx.key.code == KTRL('X'))
                 next = BIRTH_QUIT;
         }
     }
@@ -674,24 +663,21 @@ static const char *roller_choices[MAX_BIRTH_ROLLERS] =
 
 
 /*
- * Helper function for 'player_birth()'.
- *
  * This function allows the player to select a sex, race, and class, and
  * a method for stat rolling.
  */
-static enum birth_stage player_birth_aux_1(enum birth_stage current_stage)
+static enum birth_stage roller_command(enum birth_stage current_stage)
 {
     int i;
     struct birthmenu_data *mdata;
-    menu_type *menu = &sex_menu;
+    struct menu *menu = &sex_menu;
     enum birth_stage next;
 
     /* Sex menu fairly straightforward */
-    init_birth_menu(menu, MAX_SEXES, p_ptr->psex, &gender_region, TRUE, NULL);
+    init_birth_menu(menu, MAX_SEXES, player->psex, &gender_region, true, NULL);
     mdata = menu_priv(menu);
     for (i = 0; i < MAX_SEXES; i++) mdata->items[i] = sex_info[i].title;
-    mdata->hint = "Your 'sex' does not have any significant gameplay effects.";
-    mdata->choice = 0xFFFF;
+    mdata->hint = "Sex does not have any significant gameplay effects.";
 
     Term_clear();
     print_menu_instructions();
@@ -701,17 +687,16 @@ static enum birth_stage player_birth_aux_1(enum birth_stage current_stage)
         int n;
         struct player_race *r;
 
-        menu_refresh(menu, FALSE);
+        menu_refresh(menu, false);
         menu = &race_menu;
 
         n = player_rmax();
 
         /* Race menu more complicated. */
-        init_birth_menu(menu, n, (p_ptr->race? p_ptr->race->ridx: 0), &race_region, TRUE, race_help);
+        init_birth_menu(menu, n, (player->race? player->race->ridx: 0), &race_region, true, race_help);
         mdata = menu_priv(menu);
         for (r = races; r; r = r->next) mdata->items[r->ridx] = r->name;
-        mdata->hint = "Your 'race' determines various intrinsic factors and bonuses.";
-        mdata->choice = 0xFFFF;
+        mdata->hint = "Race affects stats and skills, and may confer resistances and abilities.";
     }
 
     if (current_stage > BIRTH_RACE_CHOICE)
@@ -719,37 +704,38 @@ static enum birth_stage player_birth_aux_1(enum birth_stage current_stage)
         int n;
         struct player_class *c;
 
-        menu_refresh(menu, FALSE);
+        menu_refresh(menu, false);
         menu = &class_menu;
 
         n = player_cmax();
 
+        /* Hack -- remove the fake "ghost" class */
+        n--;
+
         /* Restrict choices for Dragon race */
-        if (pf_has(p_ptr->race->pflags, PF_DRAGON)) n -= 2;
+        if (pf_has(player->race->pflags, PF_DRAGON)) n -= 2;
 
         /* Class menu similar to race. */
-        init_birth_menu(menu, n, (p_ptr->clazz? p_ptr->clazz->cidx: 0), &class_region,
-            TRUE, class_help);
+        init_birth_menu(menu, n, (player->clazz? player->clazz->cidx: 0), &class_region,
+            true, class_help);
         mdata = menu_priv(menu);
         for (c = classes; c; c = c->next)
         {
-            if (c->cidx < n) mdata->items[c->cidx] = c->name;
+            if (c->cidx < (unsigned int)n) mdata->items[c->cidx] = c->name;
         }
-        mdata->hint = "Your 'class' determines various intrinsic abilities and bonuses";
-        mdata->choice = p_ptr->race->choice;
+        mdata->hint = "Class affects stats, skills, and other character traits.";
     }
 
     if (current_stage > BIRTH_CLASS_CHOICE)
     {
-        menu_refresh(menu, FALSE);
+        menu_refresh(menu, false);
         menu = &roller_menu;
 
         /* Roller menu straightforward again */
-        init_birth_menu(menu, MAX_BIRTH_ROLLERS, roller_type, &roller_region, FALSE, NULL);
+        init_birth_menu(menu, MAX_BIRTH_ROLLERS, roller_type, &roller_region, false, NULL);
         mdata = menu_priv(menu);
         for (i = 0; i < MAX_BIRTH_ROLLERS; i++) mdata->items[i] = roller_choices[i];
-        mdata->hint = "Your choice of character generation. Point-based is recommended.";
-        mdata->choice = 0xFFFF;
+        mdata->hint = "Choose how to generate your intrinsic stats. Point-based is recommended.";
     }
 
     next = menu_question(current_stage, menu);
@@ -767,58 +753,9 @@ static enum birth_stage player_birth_aux_1(enum birth_stage current_stage)
 
 
 /*
- * Modify a stat value by a "modifier", return new value
- *
- * Stats go up: 3,4,...,17,18,18/10,18/20,...,18/220
- * Or even: 18/13, 18/23, 18/33, ..., 18/220
- *
- * Stats go down: 18/220, 18/210,..., 18/10, 18, 17, ..., 3
- * Or even: 18/13, 18/03, 18, 17, ..., 3
+ * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static s16b modify_stat_value(int value, int amount)
-{
-    int i;
-
-    /* Reward */
-    if (amount > 0)
-    {
-        /* Apply each point */
-        for (i = 0; i < amount; i++)
-        {
-            /* One point at a time */
-            if (value < 18) value++;
-
-            /* Ten "points" at a time */
-            else value += 10;
-        }
-    }
-
-    /* Penalty */
-    else if (amount < 0)
-    {
-        /* Apply each point */
-        for (i = 0; i < (0 - amount); i++)
-        {
-            /* Ten points at a time */
-            if (value >= 18+10) value -= 10;
-
-            /* Hack -- prevent weirdness */
-            else if (value > 18) value = 18;
-
-            /* One point at a time */
-            else if (value > 3) value--;
-        }
-    }
-
-    /* Return new value */
-    return (value);
-}
-
-
-/*
- * Initial stat costs (initial stats always range from 8 to 17 inclusive).
- */
-static const int birth_stat_costs[10] = {-2, -1, 0, 1, 2, 3, 4, 5, 6, 8};
+static const int birth_stat_costs[9] = {0, 1, 2, 3, 4, 5, 6, 8, 12};
 
 
 /* Pool of available points */
@@ -826,19 +763,17 @@ static const int birth_stat_costs[10] = {-2, -1, 0, 1, 2, 3, 4, 5, 6, 8};
 
 
 /*
- * Helper function for 'player_birth()'.
- *
  * This function handles "point-based" character creation.
  *
- * The player selects, for each stat, a value from 8 to 17 (inclusive),
+ * The player selects, for each stat, a value from 10 to 18 (inclusive),
  * each costing a certain amount of points (as above), from a pool of MAX_BIRTH_POINTS
  * available points, to which race/class modifiers are then applied.
  *
  * PWMAngband: each unused point is lost (giving gold would be exploitable)
  */
-static enum birth_stage player_birth_aux_2(void)
+static enum birth_stage point_based_command(void)
 {
-    bool first_time = TRUE;
+    bool first_time = true;
     int i;
     int cost;
     int stat = 0;
@@ -849,7 +784,7 @@ static enum birth_stage player_birth_aux_2(void)
     Term_clear();
 
     /* Initialize stats */
-    for (i = 0; i < A_MAX; i++)
+    for (i = 0; i < STAT_MAX; i++)
     {
         /* Initial stats */
         stat_roll[i] = 10;
@@ -857,22 +792,22 @@ static enum birth_stage player_birth_aux_2(void)
 
     /* Title everything */
     put_str("Name        :", 2, 1);
-    c_put_str(TERM_L_BLUE, nick, 2, 15);
+    c_put_str(COLOUR_L_BLUE, nick, 2, 15);
     put_str("Sex         :", 4, 1);
-    c_put_str(TERM_L_BLUE, sex_info[p_ptr->psex].title, 4, 15);
+    c_put_str(COLOUR_L_BLUE, sex_info[player->psex].title, 4, 15);
     put_str("Race        :", 5, 1);
-    c_put_str(TERM_L_BLUE, p_ptr->race->name, 5, 15);
+    c_put_str(COLOUR_L_BLUE, player->race->name, 5, 15);
     put_str("Class       :", 6, 1);
-    c_put_str(TERM_L_BLUE, p_ptr->clazz->name, 6, 15);
+    c_put_str(COLOUR_L_BLUE, player->clazz->name, 6, 15);
 
-    put_str("[Press 'ESC' at any time to restart this step, or 'Q' to quit]", 23, 1);
+    put_str("[Press 'ESC' at any time to restart this step, or 'Ctrl-X' to quit]", 23, 1);
 
     /* Extra info */
-    Term_putstr(5, 8, -1, TERM_WHITE, "The point-based roller allows players to increase or decrease");
-    Term_putstr(5, 9, -1, TERM_WHITE, "each stat, each increase costing a certain amount of points,");
-    Term_putstr(5, 10, -1, TERM_WHITE, "each decrease giving back some points.");
+    Term_putstr(5, 8, -1, COLOUR_WHITE, "The point-based roller allows players to increase or decrease");
+    Term_putstr(5, 9, -1, COLOUR_WHITE, "each stat, each increase costing a certain amount of points,");
+    Term_putstr(5, 10, -1, COLOUR_WHITE, "each decrease giving back some points.");
     strnfmt(buf, sizeof(buf), "The starting pool consists of %d available points.", MAX_BIRTH_POINTS);
-    Term_putstr(5, 11, -1, TERM_WHITE, buf);
+    Term_putstr(5, 11, -1, COLOUR_WHITE, buf);
 
     /* Interact */
     while (1)
@@ -883,18 +818,15 @@ static enum birth_stage player_birth_aux_2(void)
         cost = 0;
 
         /* Process stats */
-        for (i = 0; i < A_MAX; i++)
+        for (i = 0; i < STAT_MAX; i++)
         {
             /* Total cost */
-            cost += birth_stat_costs[stat_roll[i] - 8];
+            cost += birth_stat_costs[stat_roll[i] - 10];
         }
 
         /* Restrict cost (upper bound) */
         if (cost > MAX_BIRTH_POINTS)
         {
-            /* Warning */
-            bell(NULL);
-
             /* Reduce stat */
             stat_roll[stat]--;
 
@@ -905,9 +837,6 @@ static enum birth_stage player_birth_aux_2(void)
         /* Restrict cost (lower bound) */
         if (cost < 0)
         {
-            /* Warning */
-            bell(NULL);
-
             /* Increase stat */
             stat_roll[stat]++;
 
@@ -919,7 +848,7 @@ static enum birth_stage player_birth_aux_2(void)
         put_str("  Self    Best", 15, 10);
 
         /* Display the stats */
-        for (i = 0; i < A_MAX; i++)
+        for (i = 0; i < STAT_MAX; i++)
         {
             int j, m;
 
@@ -928,27 +857,27 @@ static enum birth_stage player_birth_aux_2(void)
 
             /* Display stat value */
             cnv_stat(stat_roll[i], buf, sizeof(buf));
-            c_put_str(TERM_L_GREEN, buf, 16 + i, 10);
+            c_put_str(COLOUR_L_GREEN, buf, 16 + i, 10);
 
             /* Race/Class bonus */
-            j = p_ptr->race->r_adj[i] + p_ptr->clazz->c_adj[i];
+            j = player->race->r_adj[i] + player->clazz->c_adj[i];
 
             /* Obtain the "maximal" stat */
             m = modify_stat_value(stat_roll[i], j);
 
             /* Display "maximal" stat value */
             cnv_stat(m, buf, sizeof(buf));
-            c_put_str(TERM_L_GREEN, buf, 16 + i, 18);
+            c_put_str(COLOUR_L_GREEN, buf, 16 + i, 18);
         }
 
         /* Display the costs header */
         put_str("Cost", 15, 26);
 
         /* Display the costs */
-        for (i = 0; i < A_MAX; i++)
+        for (i = 0; i < STAT_MAX; i++)
         {
             /* Display cost */
-            strnfmt(buf, sizeof(buf), "%4d", birth_stat_costs[stat_roll[i] - 8]);
+            strnfmt(buf, sizeof(buf), "%4d", birth_stat_costs[stat_roll[i] - 10]);
             put_str(buf, 16 + i, 26);
         }
 
@@ -960,19 +889,19 @@ static enum birth_stage player_birth_aux_2(void)
 
         /* Place cursor just after cost of current stat */
         Term_gotoxy(29, 16 + stat);
-        Term_set_cursor(TRUE);
+        Term_set_cursor(true);
 
         /* Get key */
         ch = inkey();
 
         /* Start over */
-        if (ch.code == 'Q') return BIRTH_QUIT;
+        if (ch.code == KTRL('X')) return BIRTH_QUIT;
 
         /* Go back a step, or back to the start of this step */
         if (ch.code == ESCAPE)
         {
             /* Reset cursor stuff */
-            Term_set_cursor(FALSE);
+            Term_set_cursor(false);
 
             /* Back a step */
             if (first_time) return BIRTH_BACK;
@@ -981,7 +910,7 @@ static enum birth_stage player_birth_aux_2(void)
             return BIRTH_ROLLER;
         }
 
-        first_time = FALSE;
+        first_time = false;
 
         /* Done */
         if (ch.code == KC_ENTER) break;
@@ -989,25 +918,25 @@ static enum birth_stage player_birth_aux_2(void)
         dir = target_dir(ch);
 
         /* Prev stat */
-        if (dir == 8) stat = (stat + A_MAX - 1) % A_MAX;
+        if (dir == 8) stat = (stat + STAT_MAX - 1) % STAT_MAX;
 
         /* Next stat */
-        if (dir == 2) stat = (stat + 1) % A_MAX;
+        if (dir == 2) stat = (stat + 1) % STAT_MAX;
 
         /* Decrease stat */
-        if ((dir == 4) && (stat_roll[stat] > 8)) stat_roll[stat]--;
+        if ((dir == 4) && (stat_roll[stat] > 10)) stat_roll[stat]--;
 
         /* Increase stat */
-        if ((dir == 6) && (stat_roll[stat] < 17)) stat_roll[stat]++;
+        if ((dir == 6) && (stat_roll[stat] < 18)) stat_roll[stat]++;
     }
 
     /* Clear prompt */
     clear_from(23);
 
-    stat_roll[A_MAX] = roller_type;
+    stat_roll[STAT_MAX] = roller_type;
 
     /* Reset cursor stuff */
-    Term_set_cursor(FALSE);
+    Term_set_cursor(false);
 
     /* Done - advance a step */
     return BIRTH_FINAL_CONFIRM;
@@ -1015,59 +944,57 @@ static enum birth_stage player_birth_aux_2(void)
 
 
 /*
- * Helper function for 'player_birth()'.
- *
  * This function handles "standard" character creation.
  */
-static enum birth_stage player_birth_aux_3(void)
+static enum birth_stage standard_command(void)
 {
-    int i, j, k, avail[A_MAX];
+    int i, j, k, avail[STAT_MAX];
     struct keypress c;
-    char out_val[160], stats[A_MAX][4];
+    char out_val[160], stats[STAT_MAX][4];
 
     /* Clear screen */
     Term_clear();
 
     /* Title everything */
     put_str("Name        :", 2, 1);
-    c_put_str(TERM_L_BLUE, nick, 2, 15);
+    c_put_str(COLOUR_L_BLUE, nick, 2, 15);
     put_str("Sex         :", 4, 1);
-    c_put_str(TERM_L_BLUE, sex_info[p_ptr->psex].title, 4, 15);
+    c_put_str(COLOUR_L_BLUE, sex_info[player->psex].title, 4, 15);
     put_str("Race        :", 5, 1);
-    c_put_str(TERM_L_BLUE, p_ptr->race->name, 5, 15);
+    c_put_str(COLOUR_L_BLUE, player->race->name, 5, 15);
     put_str("Class       :", 6, 1);
-    c_put_str(TERM_L_BLUE, p_ptr->clazz->name, 6, 15);
+    c_put_str(COLOUR_L_BLUE, player->clazz->name, 6, 15);
     put_str("Stat roll   :", 8, 1);
 
-    put_str("[Press 'ESC' at any time to restart this step, or 'Q' to quit]", 23, 1);
+    put_str("[Press 'ESC' at any time to restart this step, or 'Ctrl-X' to quit]", 23, 1);
 
     /* Extra info */
-    Term_putstr(5, 15, -1, TERM_WHITE,
+    Term_putstr(5, 15, -1, COLOUR_WHITE,
         "The standard roller will automatically ignore characters which do");
-    Term_putstr(5, 16, -1, TERM_WHITE,
+    Term_putstr(5, 16, -1, COLOUR_WHITE,
         "not meet the minimum values of 17 for the first stat, 16 for the");
-    Term_putstr(5, 17, -1, TERM_WHITE,
+    Term_putstr(5, 17, -1, COLOUR_WHITE,
         "second stat and 15 for the third stat specified below.");
-    Term_putstr(5, 18, -1, TERM_WHITE,
+    Term_putstr(5, 18, -1, COLOUR_WHITE,
         "Stats will be rolled randomly according to the specified order.");
 
     put_str("Choose your stat order: ", 20, 2);
 
     /* All stats are initially available */
-    for (i = 0; i < A_MAX; i++)
+    for (i = 0; i < STAT_MAX; i++)
     {
         my_strcpy(stats[i], stat_names[i], sizeof(stats[0]));
         avail[i] = 1;
     }
 
     /* Find the ordering of all stats */
-    for (i = 0; i < A_MAX; i++)
+    for (i = 0; i < STAT_MAX; i++)
     {
         /* Clear line */
         prt("", 21, 0);
 
         /* Print available stats at bottom */
-        for (k = 0; k < A_MAX; k++)
+        for (k = 0; k < STAT_MAX; k++)
         {
             /* Check for availability */
             if (avail[k])
@@ -1084,7 +1011,7 @@ static enum birth_stage player_birth_aux_3(void)
             c = inkey();
 
             /* Start over */
-            if (c.code == 'Q') return BIRTH_QUIT;
+            if (c.code == KTRL('X')) return BIRTH_QUIT;
 
             /* Handle ESC */
             if (c.code == ESCAPE)
@@ -1098,22 +1025,20 @@ static enum birth_stage player_birth_aux_3(void)
 
             /* Break on valid input */
             j = (islower(c.code) ? A2I(c.code) : -1);
-            if ((j < A_MAX) && (j >= 0) && avail[j])
+            if ((j < STAT_MAX) && (j >= 0) && avail[j])
             {
                 stat_roll[i] = j;
-                c_put_str(TERM_L_BLUE, stats[j], 8 + i, 15);
+                c_put_str(COLOUR_L_BLUE, stats[j], 8 + i, 15);
                 avail[j] = 0;
                 break;
             }
-            else
-                bell(NULL);
         }
     }
 
     /* Clear bottom of screen */
     clear_from(20);
 
-    stat_roll[A_MAX] = roller_type;
+    stat_roll[STAT_MAX] = roller_type;
 
     /* Done - move on a stage */
     return BIRTH_FINAL_CONFIRM;
@@ -1121,8 +1046,6 @@ static enum birth_stage player_birth_aux_3(void)
 
 
 /*
- * Helper function for 'player_birth()'.
- *
  * This function handles quick creation based on the previous character.
  */
 static bool player_birth_quick(void)
@@ -1130,7 +1053,7 @@ static bool player_birth_quick(void)
     struct keypress ch;
 
     /* Starting over */
-    if (!quick_start) return FALSE;
+    if (!quick_start) return false;
 
     /* Clear screen */
     Term_clear();
@@ -1138,43 +1061,40 @@ static bool player_birth_quick(void)
     /* Prompt for it */
     put_str("Quick-start character based on previous one (y/n)? ", 2, 2);
 
-    while (TRUE)
+    while (true)
     {
         /* Get key */
         ch = inkey();
 
         /* Start over */
-        if (ch.code == 'Q') quit(NULL);
+        if (ch.code == KTRL('X')) quit(NULL);
 
         /* Done */
         else if ((ch.code == ESCAPE) || strchr("YyNn\r\n", ch.code)) break;
-
-        /* Error */
-        else bell(NULL);
     }
 
     /* Quick generation */
     if ((ch.code == 'y') || (ch.code == 'Y'))
     {
         /* Prompt for it */
-        prt("['Q' to quit, 'ESC' to start over, or any other key to continue]", 23, 5);
+        prt("['Ctrl-X' to quit, 'ESC' to start over, or any other key to continue]", 23, 5);
 
         /* Get a key */
         ch = inkey();
 
         /* Quit */
-        if (ch.code == 'Q') quit(NULL);
+        if (ch.code == KTRL('X')) quit(NULL);
 
         /* Start over */
-        if (ch.code == ESCAPE) return (FALSE);
+        if (ch.code == ESCAPE) return false;
 
         /* Accept */
-        stat_roll[A_MAX] = quick_start;
-        return (TRUE);
+        stat_roll[STAT_MAX] = quick_start;
+        return true;
     }
 
     /* Start over */
-    return FALSE;
+    return false;
 }
 
 
@@ -1199,7 +1119,7 @@ static enum birth_stage get_confirm_command(void)
             case 'S':
             case 's': return BIRTH_RESET;
 
-            case 'Q': return BIRTH_QUIT;
+            case KTRL('X'): return BIRTH_QUIT;
         }
     }
 
@@ -1212,7 +1132,7 @@ static enum birth_stage get_confirm_command(void)
 /*
  * Create a new character.
  */
-void player_birth(void)
+void textui_do_birth(void)
 {
     static enum birth_stage current_stage = BIRTH_RESET;
     enum birth_stage next = current_stage;
@@ -1237,7 +1157,7 @@ void player_birth(void)
             case BIRTH_ROLLER_CHOICE:
             {
                 /* Race, class, etc. choices */
-                next = player_birth_aux_1(current_stage);
+                next = roller_command(current_stage);
 
                 break;
             }
@@ -1247,12 +1167,12 @@ void player_birth(void)
                 if (roller_type == BR_POINTBASED)
                 {
                     /* Fill stats using point-based methods */
-                    next = player_birth_aux_2();
+                    next = point_based_command();
                 }
                 else
                 {
                     /* Fills stats using the standard roller */
-                    next = player_birth_aux_3();
+                    next = standard_command();
                 }
 
                 if (next == BIRTH_BACK) next = BIRTH_ROLLER_CHOICE;
@@ -1322,7 +1242,7 @@ bool get_server_name(void)
     struct keypress c;
 
     /* Perhaps we already have a server name from config file ? */
-    if (strlen(server_name) > 0) return TRUE;
+    if (strlen(server_name) > 0) return true;
 
     /* Message */
     prt("Connecting to metaserver for server list....", 1, 1);
@@ -1362,19 +1282,19 @@ bool get_server_name(void)
             continue;
         }
 
-        info = TRUE;
+        info = true;
 
         /* Save server entries */
         if (*ptr == '%')
         {
-            server = info = FALSE;
+            server = info = false;
 
             /* Save port */
             ports[i] = atoi(ptr+1);
         }
         else if (*ptr != ' ')
         {
-            server = TRUE;
+            server = true;
 
             /* Save offset */
             offsets[i] = ptr - buf;
@@ -1384,7 +1304,7 @@ bool get_server_name(void)
         }
         else
         {
-            server = FALSE;
+            server = false;
 
             /* Display notices */
             strnfmt(out_val, sizeof(out_val), "%s", ptr);
@@ -1411,7 +1331,7 @@ bool get_server_name(void)
     }
 
     /* Prompt */
-    prt("Choose a server to connect to (Q for manual entry): ", y + 2, 1);
+    prt("Choose a server to connect to (Ctrl-m for manual selection): ", y + 2, 1);
 
     /* Ask until happy */
     while (1)
@@ -1420,7 +1340,10 @@ bool get_server_name(void)
         c = inkey();
 
         /* Check for quit */
-        if (c.code == 'Q') return enter_server_name();
+        if (c.code == KTRL('X')) quit(NULL);
+
+        /* Check for manual selection */
+        if (c.code == KTRL('M')) return enter_server_name();
 
         /* Index */
         j = (islower(c.code) ? A2I(c.code) : -1);
@@ -1436,7 +1359,7 @@ bool get_server_name(void)
     server_port = ports[j+1];
 
     /* Success */
-    return TRUE;
+    return true;
 }
 
 
@@ -1445,7 +1368,7 @@ bool get_server_name(void)
  */
 static void choose_account(void)
 {
-    char tmp[23];
+    char tmp[NORMAL_WID];
 
     /* Prompt and ask */
     prt("Enter your account's name above (or hit ESCAPE).", 21, 2);
@@ -1460,7 +1383,8 @@ static void choose_account(void)
         Term_gotoxy(15, 2);
 
         /* Ask the user for a string */
-        if (askfor_aux(tmp, 16, NULL)) my_strcpy(nick, tmp, sizeof(nick));
+        if (askfor_aux(tmp, MAX_NAME_LEN + 1, NULL))
+            my_strcpy(nick, tmp, sizeof(nick));
 
         /* All done */
         break;
@@ -1473,7 +1397,7 @@ static void choose_account(void)
     strnfmt(tmp, sizeof(tmp), "%-15.15s", nick);
 
     /* Redraw the name (in light blue) */
-    c_put_str(TERM_L_BLUE, tmp, 2, 15);
+    c_put_str(COLOUR_L_BLUE, tmp, 2, 15);
 
     /* Erase the prompt, etc */
     clear_from(20);
@@ -1530,24 +1454,24 @@ void get_char_name(void)
     put_str("Password    :", 3, 1);
 
     /* Redraw the name (in light blue) */
-    c_put_str(TERM_L_BLUE, nick, 2, 15);
+    c_put_str(COLOUR_L_BLUE, nick, 2, 15);
 
     /* Redraw the password (in light blue) */
     for (i = 0; i < strlen(pass); i++)
-        Term_putch(15 + i, 3, TERM_L_BLUE, 'x');
+        Term_putch(15 + i, 3, COLOUR_L_BLUE, 'x');
 
     /* Display some helpful information */
-    c_put_str(TERM_L_BLUE, "Please select your character from the list below:", 6, 1);
+    c_put_str(COLOUR_L_BLUE, "Please select your character from the list below:", 6, 1);
 
     /* Display character names */
-    for (i = 0; i < char_num; i++)
+    for (i = 0; i < (size_t)char_num; i++)
     {
         /* Character is dead */
         if (char_expiry[i] > 0)
         {
             strnfmt(charname, sizeof(charname), "%c) %s (deceased, expires in %d days)", I2A(i),
                 char_name[i], char_expiry[i]);
-            c_put_str(TERM_L_DARK, charname, 8 + i, 5);
+            c_put_str(COLOUR_L_DARK, charname, 8 + i, 5);
         }
 
         /* Character is alive */
@@ -1561,22 +1485,22 @@ void get_char_name(void)
         else
         {
             strnfmt(charname, sizeof(charname), "%c) ERROR: expired or unknown character", I2A(i));
-            c_put_str(TERM_RED, charname, 8 + i, 5);
+            c_put_str(COLOUR_RED, charname, 8 + i, 5);
         }
     }
 
     /* Check number of characters */
     if (char_num == MAX_ACCOUNT_CHARS)
     {
-        c_put_str(TERM_YELLOW, "Your account is full.", 9 + char_num, 5);
-        c_put_str(TERM_YELLOW, "You cannot create any new character with this account.",
+        c_put_str(COLOUR_YELLOW, "Your account is full.", 9 + char_num, 5);
+        c_put_str(COLOUR_YELLOW, "You cannot create any new character with this account.",
             10 + char_num, 5);
     }
     else
     {
         /* Give choice for a new character */
         strnfmt(charname, sizeof(charname), "%c) New character", I2A(char_num));
-        c_put_str(TERM_L_BLUE, charname, 9 + char_num, 5);
+        c_put_str(COLOUR_L_BLUE, charname, 9 + char_num, 5);
     }
 
     /* Ask until happy */
@@ -1586,7 +1510,7 @@ void get_char_name(void)
         c = inkey();
 
         /* Check for quit */
-        if (c.code == 'Q') quit(NULL);
+        if (c.code == KTRL('X')) quit(NULL);
 
         /* Check for legality */
         if (!islower(c.code)) continue;
@@ -1595,10 +1519,10 @@ void get_char_name(void)
         i = A2I(c.code);
 
         /* Check for legality */
-        if ((i > char_num) || (i >= MAX_ACCOUNT_CHARS)) continue;
+        if ((i > (size_t)char_num) || (i >= MAX_ACCOUNT_CHARS)) continue;
 
         /* Paranoia */
-        if ((i == char_num) || (char_expiry[i] > 0) || (char_expiry[i] == -1))
+        if ((i == (size_t)char_num) || (char_expiry[i] > 0) || (char_expiry[i] == -1))
             break;
     }
 
@@ -1612,7 +1536,7 @@ void get_char_name(void)
     quick_start = 0;
 
     /* Existing character */
-    if (i < char_num)
+    if (i < (size_t)char_num)
     {
         /* Set the player name to the selected character name */
         my_strcpy(nick, char_name[i], sizeof(nick));
@@ -1621,7 +1545,7 @@ void get_char_name(void)
         my_strcap(nick);
 
         /* Dump the player name */
-        c_put_str(TERM_L_BLUE, nick, 2, 15);
+        c_put_str(COLOUR_L_BLUE, nick, 2, 15);
 
         /* Enter password */
         enter_password();
@@ -1629,17 +1553,14 @@ void get_char_name(void)
         /* Display actions */
         if (char_expiry[i] > 0)
         {
-            bool ok = get_incarnation(1, char_name[i], sizeof(char_name[i]));
-            int max = (ok? 3: 2);
-
             /* Display some helpful information */
-            c_put_str(TERM_L_BLUE, "Please select an action from the list below:", 6, 1);
+            c_put_str(COLOUR_L_BLUE, "Please select an action from the list below:", 6, 1);
 
             /* Display actions */
             put_str("a) Get a character dump", 8, 5);
             put_str("b) Delete this character", 9, 5);
             put_str("c) Reroll this character", 10, 5);
-            if (ok) put_str("d) Play a new incarnation of this character", 11, 5);
+            put_str("d) Play a new incarnation of this character", 11, 5);
 
             /* Ask until happy */
             while (1)
@@ -1648,7 +1569,7 @@ void get_char_name(void)
                 c = inkey();
 
                 /* Check for quit */
-                if (c.code == 'Q') quit(NULL);
+                if (c.code == KTRL('X')) quit(NULL);
 
                 /* Check for legality */
                 if (!islower(c.code)) continue;
@@ -1657,7 +1578,7 @@ void get_char_name(void)
                 i = A2I(c.code);
 
                 /* Check for legality */
-                if (i <= max) break;
+                if (i <= 3) break;
             }
 
             /* Get a character dump */
@@ -1682,7 +1603,7 @@ void get_char_name(void)
     else
     {
         /* Dump the default name (account name) */
-        c_put_str(TERM_L_BLUE, nick, 2, 15);
+        c_put_str(COLOUR_L_BLUE, nick, 2, 15);
 
         /* Choose a name */
         choose_name();

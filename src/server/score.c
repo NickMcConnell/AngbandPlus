@@ -3,7 +3,7 @@
  * Purpose: Highscore handling
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,68 +19,28 @@
 
 
 #include "s-angband.h"
-#include "../common/buildid.h"
-#include "files.h"
-
-
-/*
- * Maximum number of high scores in the high score file
- */
-#define MAX_HISCORES    100
-
-
-/*
- * Semi-Portable High Score List Entry (128 bytes)
- *
- * All fields listed below are null terminated ascii strings.
- *
- * In addition, the "number" fields are right justified, and
- * space padded, to the full available length (minus the "null").
- *
- * Note that "string comparisons" are thus valid on "pts".
- */
-typedef struct
-{
-    char what[8];       /* Version info (string) */
-    char pts[10];       /* Total Score (number) */
-    char gold[10];      /* Total Gold (number) */
-    char turns[20];     /* Turns Taken (number) */
-    char day[10];       /* Time stamp (string) */
-    char who[16];       /* Player Name (string) */
-    char uid[8];        /* Player UID (number) */
-    char sex[2];        /* Player Sex (string) */
-    char p_r[3];        /* Player Race (number) */
-    char p_c[3];        /* Player Class (number) */
-    char cur_lev[4];    /* Current Player Level (number) */
-    char cur_dun[4];    /* Current Dungeon Level (number) */
-    char max_lev[4];    /* Max Player Level (number) */
-    char max_dun[4];    /* Max Dungeon Level (number) */
-    char how[32];       /* Method of death (string) */
-} high_score;
 
 
 /*
  * Read in a highscore file
  */
-static size_t highscore_read(high_score scores[], size_t sz)
+size_t highscore_read(high_score scores[], size_t sz)
 {
     char fname[MSG_LEN];
     ang_file *scorefile;
     size_t i;
 
     /* Wipe current scores */
-    C_WIPE(scores, sz, high_score);
+    memset(scores, 0, sz * sizeof(high_score));
 
-    path_build(fname, sizeof(fname), ANGBAND_DIR_APEX, "scores.raw");
+    path_build(fname, sizeof(fname), ANGBAND_DIR_SCORES, "scores.raw");
     scorefile = file_open(fname, MODE_READ, FTYPE_RAW);
 
-    if (!scorefile) return TRUE;
+    if (!scorefile) return true;
 
-    for (i = 0;
-        (i < sz) &&
-            (file_read(scorefile, (char *)&scores[i], sizeof(high_score)) > 0);
-        i++)
+    for (i = 0; i < sz; i++)
     {
+        if (file_read(scorefile, (char *)&scores[i], sizeof(high_score)) <= 0) break;
     }
 
     file_close(scorefile);
@@ -93,8 +53,7 @@ static size_t highscore_read(high_score scores[], size_t sz)
  * Just determine where a new score *would* be placed
  * Return the location (0 is best) or -1 on failure
  */
-static size_t highscore_where(const high_score *entry,
-    const high_score scores[], size_t sz)
+size_t highscore_where(const high_score *entry, const high_score scores[], size_t sz)
 {
     size_t i;
 
@@ -113,13 +72,12 @@ static size_t highscore_where(const high_score *entry,
 }
 
 
-static size_t highscore_add(const high_score *entry, high_score scores[],
-    size_t sz)
+size_t highscore_add(const high_score *entry, high_score scores[], size_t sz)
 {
     size_t slot = highscore_where(entry, scores, sz);
 
     memmove(&scores[slot + 1], &scores[slot], sizeof(high_score) * (sz - 1 - slot));
-    COPY(&scores[slot], entry, high_score);
+    memcpy(&scores[slot], entry, sizeof(high_score));
 
     return slot;
 }
@@ -152,16 +110,15 @@ static void highscore_write(const high_score scores[], size_t sz)
     char new_name[MSG_LEN];
     char lok_name[MSG_LEN];
 
-    path_build(old_name, sizeof(old_name), ANGBAND_DIR_APEX, "scores.old");
-    path_build(cur_name, sizeof(cur_name), ANGBAND_DIR_APEX, "scores.raw");
-    path_build(new_name, sizeof(new_name), ANGBAND_DIR_APEX, "scores.new");
-    path_build(lok_name, sizeof(lok_name), ANGBAND_DIR_APEX, "scores.lok");
+    path_build(old_name, sizeof(old_name), ANGBAND_DIR_SCORES, "scores.old");
+    path_build(cur_name, sizeof(cur_name), ANGBAND_DIR_SCORES, "scores.raw");
+    path_build(new_name, sizeof(new_name), ANGBAND_DIR_SCORES, "scores.new");
+    path_build(lok_name, sizeof(lok_name), ANGBAND_DIR_SCORES, "scores.lok");
 
     /* Read in and add new score */
     n = highscore_count(scores, sz);
 
-    /*** Lock scores ***/
-
+    /* Lock scores */
     if (file_exists(lok_name))
     {
         plog("Lock file in place for scorefile; not writing.");
@@ -177,8 +134,7 @@ static void highscore_write(const high_score scores[], size_t sz)
         return;
     }
 
-    /*** Open the new file for writing ***/
-
+    /* Open the new file for writing */
     scorefile = file_open(new_name, MODE_WRITE, FTYPE_RAW);
 
     if (!scorefile)
@@ -193,8 +149,7 @@ static void highscore_write(const high_score scores[], size_t sz)
     file_write(scorefile, (const char *)scores, sizeof(high_score) * n);
     file_close(scorefile);
 
-    /*** Now move things around ***/
-
+    /* Now move things around */
     if (file_exists(old_name) && !file_delete(old_name))
         plog("Couldn't delete old scorefile");
 
@@ -210,141 +165,47 @@ static void highscore_write(const high_score scores[], size_t sz)
 }
 
 
-/*
- * Display the scores in a given range.
- */
-static void display_scores_aux(ang_file *fff, const high_score scores[], int from, int to,
-    int highlight)
+void build_score(struct player *p, high_score *entry, const char *died_from, time_t *death_time)
 {
-    int j, place;
-    int count;
-
-    /* Assume we will show the first 10 */
-    if (from < 0) from = 0;
-    if (to < 0) to = 10;
-    if (to > MAX_HISCORES) to = MAX_HISCORES;
-
-    /* Hack -- Count the high scores */
-    for (count = 0; count < MAX_HISCORES; count++)
-    {
-        if (!scores[count].what[0]) break;
-    }
-
-    /* Forget about the last entries */
-    if (count > to) count = to;
-
-    /* Show 5 per page, until "done" */
-    for (j = from, place = j + 1; j < count; j++, place++)
-    {
-        char out_val[160];
-        char tmp_val[160];
-        const high_score *score = &scores[j];
-        char attr;
-        int clev, mlev, cdun, mdun;
-        const char *user, *gold, *when, *aged;
-        struct player_class *c;
-        struct player_race *r;
-
-        /* Hack -- Indicate current in green */
-        attr = ((j == highlight)? 'G': 'w');
-
-        /* Hack -- Indicate winners in purple */
-        if (streq(score->how, "winner")) attr = 'v';
-
-        /* Extract the race/class */
-        c = player_id2class(atoi(score->p_c));
-        r = player_id2race(atoi(score->p_r));
-
-        /* Extract the level info */
-        clev = atoi(score->cur_lev);
-        mlev = atoi(score->max_lev);
-        cdun = atoi(score->cur_dun);
-        mdun = atoi(score->max_dun);
-
-        /* Hack -- Extract the gold and such */
-        for (user = score->uid; isspace(*user); user++) /* loop */;
-        for (when = score->day; isspace(*when); when++) /* loop */;
-        for (gold = score->gold; isspace(*gold); gold++) /* loop */;
-        for (aged = score->turns; isspace(*aged); aged++) /* loop */;
-
-        /* Dump some info */
-        strnfmt(out_val, sizeof(out_val), "%3d.%9s  %s the %s %s, Level %d",
-            place, score->pts, score->who, r->name, c->name, clev);
-
-        /* Append a "maximum level" */
-        if (mlev > clev) my_strcat(out_val, format(" (Max %d)", mlev), sizeof(out_val));
-
-        /* Dump the first line */
-        file_putf(fff, "%c%s\n", attr, out_val);
-
-        /* Died where? */
-        if (streq(score->how, "winner"))
-            strnfmt(out_val, sizeof(out_val), "Retired after a legendary career");
-        else if (!cdun)
-            strnfmt(out_val, sizeof(out_val), "Killed by %s in the town", score->how);
-        else
-            strnfmt(out_val, sizeof(out_val), "Killed by %s on dungeon level %d", score->how, cdun);
-
-        /* Append a "maximum level" */
-        if (mdun > cdun)
-            my_strcat(out_val, format(" (Max %d)", mdun), sizeof(out_val));
-
-        /* Dump the info */
-        file_putf(fff, "%c               %s\n", attr, out_val);
-
-        /* Clean up standard encoded form of "when" */
-        if ((*when == '@') && strlen(when) == 9)
-        {
-            strnfmt(tmp_val, sizeof(tmp_val), "%.4s-%.2s-%.2s", when + 1, when + 5, when + 7);
-            when = tmp_val;
-        }
-
-        /* And still another line of info */
-        strnfmt(out_val, sizeof(out_val), "(User %s, Date %s, Gold %s, Turn %s).", user, when, gold,
-            aged);
-        file_putf(fff, "%c               %s\n", attr, out_val);
-
-        /* Print newline if this isn't the last one */
-        if (j < count - 1) file_put(fff, "d\n");
-    }
-}
-
-
-static void build_score(int Ind, high_score *entry, const char *died_from, time_t *death_time)
-{
-    player_type *p_ptr = player_get(Ind);
-    char sx;
+    char psex;
     struct player_death_info score_info;
 
-    WIPE(entry, high_score);
+    memset(entry, 0, sizeof(high_score));
+
+    switch (p->psex)
+    {
+        case SEX_MALE: psex = 'm'; break;
+        case SEX_FEMALE: psex = 'f'; break;
+        default: psex = 'n'; break;
+    }
 
     /* Score info */
-    WIPE(&score_info, struct player_death_info);
+    memset(&score_info, 0, sizeof(score_info));
     if (death_time)
     {
-        /* Hack -- Take the saved cause of death of the character, not the ghost */
-        COPY(&score_info, &p_ptr->death_info, struct player_death_info);
+        /* Hack -- take the saved cause of death of the character, not the ghost */
+        memcpy(&score_info, &p->death_info, sizeof(struct player_death_info));
     }
     else
     {
         /* Take the current info */
-        score_info.max_lev = p_ptr->max_lev;
-        score_info.lev = p_ptr->lev;
-        score_info.max_exp = p_ptr->max_exp;
-        score_info.au = p_ptr->au;
-        score_info.max_depth = p_ptr->max_depth;
-        score_info.depth = p_ptr->depth;
+        score_info.max_lev = p->max_lev;
+        score_info.lev = p->lev;
+        score_info.max_exp = p->max_exp;
+        score_info.au = p->au;
+        score_info.max_depth = p->max_depth;
+        score_info.depth = p->depth;
     }
 
     /* Save the version */
-    strnfmt(entry->what, sizeof(entry->what), "%s", get_buildver());
+    strnfmt(entry->what, sizeof(entry->what), "%s", version_build(VB_BASE));
 
     /* Calculate and save the points */
-    strnfmt(entry->pts, sizeof(entry->pts), "%9lu",
-        (long)total_points(p_ptr, score_info.max_exp, score_info.max_depth));
+    strnfmt(entry->pts, sizeof(entry->pts), "%9u",
+        total_points(p, score_info.max_exp, score_info.max_depth));
 
     /* Save the current gold */
-    strnfmt(entry->gold, sizeof(entry->gold), "%9lu", (long)score_info.au);
+    strnfmt(entry->gold, sizeof(entry->gold), "%9u", score_info.au);
 
     /* Save the current turn */
     my_strcpy(entry->turns, ht_show(&turn), sizeof(entry->turns));
@@ -356,20 +217,13 @@ static void build_score(int Ind, high_score *entry, const char *died_from, time_
         my_strcpy(entry->day, "TODAY", sizeof(entry->day));
 
     /* Save the player name (15 chars) */
-    strnfmt(entry->who, sizeof(entry->who), "%-.15s", p_ptr->name);
-
-    switch (p_ptr->psex)
-    {
-        case SEX_FEMALE: sx = 'f'; break;
-        case SEX_MALE: sx = 'm'; break;
-        default: sx = 'n'; break;
-    }
+    strnfmt(entry->who, sizeof(entry->who), "%-.15s", p->name);
 
     /* Save the player info */
     strnfmt(entry->uid, sizeof(entry->uid), "%7u", 0);
-    strnfmt(entry->sex, sizeof(entry->sex), "%c", sx);
-    strnfmt(entry->p_r, sizeof(entry->p_r), "%2d", p_ptr->race->ridx);
-    strnfmt(entry->p_c, sizeof(entry->p_c), "%2d", p_ptr->clazz->cidx);
+    strnfmt(entry->sex, sizeof(entry->sex), "%c", psex);
+    strnfmt(entry->p_r, sizeof(entry->p_r), "%2d", p->race->ridx);
+    strnfmt(entry->p_c, sizeof(entry->p_c), "%2d", p->clazz->cidx);
 
     /* Save the level and such */
     strnfmt(entry->cur_lev, sizeof(entry->cur_lev), "%3d", score_info.lev);
@@ -385,21 +239,20 @@ static void build_score(int Ind, high_score *entry, const char *died_from, time_
 /*
  * Enters a players name on a hi-score table, if "legal".
  */
-void enter_score(int Ind, time_t *death_time)
+void enter_score(struct player *p, time_t *death_time)
 {
-    player_type *p_ptr = player_get(Ind);
     high_score entry;
     high_score scores[MAX_HISCORES];
 
-    /* Wizard-mode pre-empts scoring */
-    if (p_ptr->noscore)
+    /* Add a new entry, if allowed */
+    if (p->noscore)
     {
-        msg(p_ptr, "Score not registered for wizards, quitters and cheaters.");
+        msg(p, "Score not registered for wizards, quitters and cheaters.");
         return;
     }
 
     /* Add a new entry to the score list, see where it went */
-    build_score(Ind, &entry, p_ptr->death_info.died_from, death_time);
+    build_score(p, &entry, p->death_info.died_from, death_time);
 
     highscore_read(scores, N_ELEMENTS(scores));
     highscore_add(&entry, scores, N_ELEMENTS(scores));
@@ -408,57 +261,7 @@ void enter_score(int Ind, time_t *death_time)
 
 
 /*
- * Display hall of fame
- */
-void do_cmd_knowledge_scores(int Ind, int line)
-{
-    player_type *p_ptr = player_get(Ind);
-    int j;
-    high_score the_score;
-    high_score scores[MAX_HISCORES];
-    ang_file *fff;
-    char file_name[MSG_LEN];
-
-    /* Read scores, place current score */
-    highscore_read(scores, N_ELEMENTS(scores));
-    if (p_ptr->ghost)
-        build_score(Ind, &the_score, p_ptr->death_info.died_from, &p_ptr->death_info.time);
-    else
-        build_score(Ind, &the_score, "nobody (yet!)", NULL);
-    if (p_ptr->is_dead)
-        j = highscore_where(&the_score, scores, N_ELEMENTS(scores));
-    else
-        j = highscore_add(&the_score, scores, N_ELEMENTS(scores));
-
-    /* Temporary file */
-    fff = file_temp(file_name, sizeof(file_name));
-    if (!fff) return;
-
-    /* Hack -- Display the top 25 scores */
-    if (j < 20)
-        display_scores_aux(fff, scores, 0, 25, j);
-
-    /* Display some "useful" scores */
-    else
-    {
-        display_scores_aux(fff, scores, 0, 15, -1);
-        file_put(fff, "d\n");
-        display_scores_aux(fff, scores, j - 2, j + 7, j);
-    }
-
-    /* Close the file */
-    file_close(fff);
-
-    /* Display the file contents */
-    show_file(Ind, file_name, "Hall of Fame", line, 1);
-
-    /* Remove the file */
-    file_delete(file_name);
-}
-
-
-/*
- * Hack -- Calculates the total number of points earned
+ * Calculates the total number of points earned
  */
 long total_points(struct player *p, s32b max_exp, s16b max_depth)
 {
@@ -466,15 +269,20 @@ long total_points(struct player *p, s32b max_exp, s16b max_depth)
     long score = base_score;
 
     /* We award a 50% score bonus for bravery with no ghost characters */
-    if ((OPT_P(p, birth_no_ghost) || OPT_P(p, birth_fruit_bat)) && !cfg_no_ghost)
-        score += base_score / 2;
+    if (OPT_P(p, birth_no_ghost)) score += base_score / 2;
 
     /* We award a 50% score bonus for bravery with ironman characters */
-    if (OPT_P(p, birth_ironman) && !cfg_no_recall) score += base_score / 4;
-    if (OPT_P(p, birth_ironman) && (cfg_limit_stairs != 2)) score += base_score / 4;
+    if (OPT_P(p, birth_no_recall)) score += base_score / 4;
+    if (OPT_P(p, birth_force_descend) && (cfg_limit_stairs < 3)) score += base_score / 4;
 
     /* We award a 50% score bonus for bravery with fruit bat characters */
-    if (OPT_P(p, birth_fruit_bat)) score += base_score / 2;
+    if (OPT_P(p, birth_fruit_bat))
+    {
+        score += base_score / 2;
+
+        /* Boost further on normal servers */
+        if (!cfg_no_ghost) score += base_score / 2;
+    }
 
     /* Standard scoring */
     return (score);

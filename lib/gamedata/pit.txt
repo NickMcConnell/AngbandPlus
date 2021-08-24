@@ -1,0 +1,444 @@
+# File: pit.txt
+
+# This file is used to initialize the "monster nest/pit" information for
+# PWMAngband.
+
+# Do not modify this file unless you know exactly what you are doing, unless
+# you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding pit.txt ===
+
+# name: serial number : name
+# room: room type
+# alloc: rarity : average level
+# obj-rarity: object rarity
+# color: color
+# mon-base: template name
+# mon-base: template name
+# flags-req: flag | flag | ...
+# flags-ban: forbidden flag | ...
+# spell-req: spell | spell | ...
+# spell-ban: forbidden spell | ...
+# mon-ban: forbidden monster name
+#
+# Each entry must start with a 'name' line, with a new serial number,
+# and a name.
+#
+# 'room' is for room type. Currently, room type is one of the following:
+#   (1) Pits (large room filled with many monsters of a few types in an
+#       ordered fashion)
+#   (2) Nests (large room filled with many types of monsters in a
+#       disordered fashion)
+#   (3) Other (all monster groupings can be used to fill other areas with
+#       thematically chosen monsters; entries with all room types can be
+#       used for this, so type 3 allows grouping which don't appear in
+#       pits or nests)
+#
+# 'alloc' is for rarity and average level. A rarity of N means that the pit is
+# N times more rare than a pit with a rarity of 1. The average level is the
+# dungeon level at which this pit is most common.
+#
+# 'obj-rarity' is for object rarity. A rarity of N means that every square of
+# the pit has an N % chance of having an item.
+#
+# 'color' is for monster color. If any 'color' lines are present, then all
+# monsters in this pit will be one of the specified colors.
+# As many 'color' lines as are necessary may be used.
+#
+# 'mon-base' is for monster template (see monster_base.txt). Up to 4
+# 'mon-base' lines may be  present. If there are no 'mon-base' lines,
+# then monsters may have any monster template. Otherwise, every monster in
+# this pit/nest will be one of the listed templates.
+#
+# 'flags-req' is for monster flags. Every monster in this pit/nest will have
+# every listed flag.
+# As many 'flags-req' lines as are necessary may be used.
+#
+# 'spell-req' is for spell flags. Every monster in this nest/pit will have
+# every listed spell flag.
+# As many 'spell-req' lines as are necessary may be used.
+#
+# 'flags-ban' is for forbidden flags. No monster in this nest/pit will have
+# any of the listed flags.
+# As many 'flags-ban' lines as are necessary may be used.
+#
+# 'spell-ban' is for forbidden spell flags. No monster in this nest/pit will
+# have any of the listed spell flags.
+# As many 'spell-ban' lines as are necessary may be used.
+#
+# 'mon-ban' is for forbidden monsters. The named monster will not appear in
+# this pit.
+# As many 'mon-ban' lines as are necessary may be used.
+
+name:1:Orcs
+room:1
+alloc:1:25
+obj-rarity:0
+mon-base:orc
+
+name:2:Trolls
+room:1
+alloc:1:45
+obj-rarity:0
+mon-base:troll
+
+name:3:Giants
+room:1
+alloc:1:65
+obj-rarity:0
+mon-base:giant
+
+name:4:Black dragons
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_ACID
+spell-ban:BR_ELEC
+
+name:5:Blue dragons
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_ELEC
+spell-ban:BR_ACID | BR_GRAV
+
+name:6:Red dragons
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_FIRE
+spell-ban:BR_COLD | BR_NEXU
+
+name:7:White dragons
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_COLD
+spell-ban:BR_FIRE | BR_NETH | BR_INER
+
+name:8:Green dragons
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_POIS
+spell-ban:BR_FIRE
+
+name:9:Multi-hued dragons
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_ACID | BR_ELEC | BR_FIRE | BR_COLD | BR_POIS
+spell-ban:BR_MANA
+
+name:10:Demons
+room:1
+alloc:1:105
+obj-rarity:0
+mon-base:major demon
+
+name:11:Jellies
+room:2
+alloc:1:20
+obj-rarity:5
+mon-base:icky thing
+mon-base:jelly
+mon-base:mold
+mon-base:mushroom
+
+name:12:Animals
+room:2
+alloc:1:50
+obj-rarity:10
+flags-req:ANIMAL
+
+name:13:Undead
+room:2
+alloc:1:80
+obj-rarity:20
+flags-req:UNDEAD
+
+##### New pits and nests #####
+
+name:14:Ants
+room:2
+alloc:1:15
+obj-rarity:5
+mon-base:ant
+
+name:15:Kobolds
+room:1
+alloc:1:15
+obj-rarity:0
+mon-base:kobold
+
+name:16:Creepy crawlies
+room:2
+alloc:1:20
+obj-rarity:5
+mon-base:centipede
+mon-base:killer beetle
+mon-base:spider
+spell-ban:BLINK
+spell-ban:CONF
+spell-ban:SLOW
+
+name:17:Minor demons
+room:1
+alloc:1:20
+obj-rarity:0
+mon-base:minor demon
+spell-ban:S_DEMON
+
+name:18:Spellcasters
+room:1
+alloc:1:20
+obj-rarity:0
+mon-base:kobold
+mon-base:humanoid
+mon-base:orc
+mon-base:person
+spell-req:MISSILE
+spell-ban:ARROW_1
+spell-ban:ARROW_2
+
+name:19:Archers
+room:1
+alloc:1:25
+obj-rarity:0
+mon-base:kobold
+mon-base:orc
+mon-base:person
+color:W
+color:D
+spell-ban:BO_NETH
+spell-ban:HASTE
+spell-ban:BA_NETH
+
+name:20:Nagas
+room:1
+alloc:1:25
+obj-rarity:0
+mon-base:naga
+
+name:21:Thieves
+room:1
+alloc:1:25
+obj-rarity:0
+mon-base:person
+color:b
+
+name:22:Warriors
+room:1
+alloc:1:25
+obj-rarity:0
+mon-base:person
+color:u
+color:y
+
+name:23:Dark elves
+room:1
+alloc:1:30
+obj-rarity:0
+mon-base:humanoid
+flags-req:HURT_LIGHT
+spell-ban:CAUSE_1
+
+name:24:Eyes
+room:1
+alloc:1:30
+obj-rarity:0
+mon-base:eye
+spell-ban:S_UNDEAD
+spell-ban:S_KIN
+
+name:25:Ogres
+room:1
+alloc:1:30
+obj-rarity:0
+mon-base:ogre
+
+name:26:Believers
+room:1
+alloc:1:35
+obj-rarity:0
+mon-base:person
+spell-req:HEAL
+spell-ban:S_ANIMAL
+spell-ban:MIND_BLAST
+
+name:27:Serpents
+room:2
+alloc:1:40
+obj-rarity:5
+mon-base:snake
+mon-base:naga
+mon-base:hydra
+spell-ban:BA_POIS
+spell-ban:BR_FIRE
+
+name:28:Lesser undead
+room:2
+alloc:1:40
+obj-rarity:10
+mon-base:skeleton
+mon-base:zombie
+mon-base:wraith
+spell-ban:BO_NETH
+spell-ban:TELE_AWAY
+
+name:29:Wizards
+room:1
+alloc:1:45
+obj-rarity:0
+mon-base:person
+spell-req:CONF
+spell-ban:TRAPS
+
+name:30:Vampires
+room:1
+alloc:1:55
+obj-rarity:0
+mon-base:bat
+mon-base:vampire
+flags-req:UNDEAD
+
+name:31:Hydrae
+room:2
+alloc:1:60
+obj-rarity:8
+mon-base:hydra
+
+name:32:Golems
+room:1
+alloc:1:65
+obj-rarity:0
+mon-base:golem
+flags-ban:DRAGON
+flags-ban:UNDEAD
+flags-ban:DEMON
+flags-ban:IM_NETHER
+
+name:33:Gold dragons
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_SOUN
+spell-ban:BR_SHAR
+
+name:34:Ainur
+room:1
+alloc:1:90
+obj-rarity:0
+mon-base:ainu
+
+##### Extra templates #####
+
+name:35:Mimics
+room:2
+alloc:1:35
+obj-rarity:0
+mon-base:creeping coins
+mon-base:mimic
+mon-base:feature mimic
+mon-base:object mimic
+mon-base:random mimic
+
+name:36:Unlife
+room:2
+alloc:1:110
+obj-rarity:20
+flags-req:NONLIVING
+
+name:37:People
+room:1
+alloc:1:45
+obj-rarity:0
+mon-base:humanoid
+mon-base:person
+
+name:38:Silver dragons
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_COLD | BR_INER
+spell-ban:BR_MANA
+
+name:39:Shadow drakes
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_DARK | BR_LIGHT
+spell-ban:BR_MANA
+
+name:40:Crystal drakes
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_SHAR
+spell-ban:BR_SOUN
+
+name:41:Ethereal drakes
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_NETH
+spell-ban:BR_COLD
+
+name:42:Chaos drakes
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_CHAO | BR_DISE
+spell-ban:BR_SHAR | BR_SOUN
+
+name:43:Law drakes
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_SHAR | BR_SOUN
+spell-ban:BR_CHAO | BR_DISE
+
+name:44:Balance drakes
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_CHAO | BR_DISE | BR_SHAR | BR_SOUN
+spell-ban:BR_MANA
+
+name:45:Power dragons
+room:1
+alloc:15:85
+obj-rarity:0
+mon-base:dragon
+mon-base:ancient dragon
+spell-req:BR_ACID | BR_ELEC | BR_FIRE | BR_COLD | BR_POIS | BR_NETH | BR_LIGHT | BR_DARK
+spell-req:BR_SOUN | BR_CHAO | BR_DISE | BR_NEXU | BR_TIME | BR_INER | BR_GRAV
+spell-req:BR_SHAR | BR_PLAS | BR_WALL | BR_MANA

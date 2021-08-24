@@ -6,7 +6,14 @@
 #ifndef INCLUDED_Z_FILE_H
 #define INCLUDED_Z_FILE_H
 
-/*** Path building code ***/
+/*
+ * Maximum message length
+ */
+#define MSG_LEN 1024
+
+/*
+ * Path building code
+ */
 
 /*
  * Concatenates "leaf" onto the end of "base", using system-specific path
@@ -14,7 +21,9 @@
  */
 extern size_t path_build(char *buf, size_t len, const char *base, const char *leaf);
 
-/*** File access code ***/
+/*
+ * File access code
+ */
 
 /** Data types **/
 
@@ -46,26 +55,26 @@ typedef enum
 /** Utility functions **/
 
 /*
- * Returns TRUE if `fname` exists (and is a file), FALSE otherwise.
+ * Returns true if `fname` exists (and is a file), false otherwise.
  */
 extern bool file_exists(const char *fname);
 
 /*
  * Tries to delete `fname`.
  *
- * Returns TRUE if successful, FALSE otherwise.
+ * Returns true if successful, false otherwise.
  */
 extern bool file_delete(const char *fname);
 
 /*
  * Moves the file `fname` to `newname`.
  *
- * Returns TRUE if successful, FALSE otherwise.
+ * Returns true if successful, false otherwise.
  */
 extern bool file_move(const char *fname, const char *newname);
 
 /*
- * Returns TRUE if the file `first` is newer than `second`.
+ * Returns true if the file `first` is newer than `second`.
  */
 extern bool file_newer(const char *first, const char *second);
 
@@ -94,7 +103,7 @@ extern ang_file *file_temp(char *fname, size_t len);
 /*
  * Attempt to close the file handle `f`.
  *
- * Returns TRUE if successful, FALSE otherwise.
+ * Returns true if successful, false otherwise.
  */
 extern bool file_close(ang_file *f);
 
@@ -117,14 +126,14 @@ extern void file_unlock(ang_file *f);
  *
  * This expands tabs and deals with differing line endings.
  *
- * Returns TRUE when data is returned; FALSE otherwise.
+ * Returns true when data is returned; false otherwise.
  */
 extern bool file_getl(ang_file *f, char *buf, size_t n);
 
 /*
  * Write the string pointed to by `buf` to the file represented by `f`.
  *
- * Returns TRUE if successful, FALSE otherwise.
+ * Returns true if successful, false otherwise.
  */
 extern bool file_put(ang_file *f, const char *buf);
 
@@ -134,19 +143,13 @@ extern bool file_put(ang_file *f, const char *buf);
 extern bool file_putf(ang_file *f, const char *fmt, ...);
 extern bool file_vputf(ang_file *f, const char *fmt, va_list vp);
 
-/*
- * Format and translate a string, then print it out to file.
- */
-extern bool x_file_putf(ang_file *f, const char *fmt, ...);
-
 /** Byte-based IO */
 
 /*
- * Seek to position `pos` in the file represented by `f`.
- *
- * Returns TRUE if successful, FALSE otherwise.
+ * Skip 'bytes' bytes.
+ * Returns true if successful, false otherwise.
  */
-extern bool file_seek(ang_file *f, u32b pos);
+extern bool file_skip(ang_file *f, int bytes);
 
 /*
  * Reads n bytes from file 'f' into buffer 'buf'.
@@ -158,7 +161,7 @@ extern int file_read(ang_file *f, char *buf, size_t n);
  * Write the first `n` bytes following the pointer `buf` to the file represented
  * by `f`.  Do not mix with calls to file_writec().
  *
- * Returns TRUE if successful, FALSE otherwise.
+ * Returns true if successful, false otherwise.
  */
 extern bool file_write(ang_file *f, const char *buf, size_t n);
 
@@ -166,14 +169,14 @@ extern bool file_write(ang_file *f, const char *buf, size_t n);
  * Read a byte from the file represented by `f` and place it at the location
  * specified by 'b'.
  *
- * Returns TRUE if successful, FALSE otherwise.
+ * Returns true if successful, false otherwise.
  */
 extern bool file_readc(ang_file *f, byte *b);
 
 /*
  * Write the byte `b` to the file represented by `f`.
  *
- * Returns TRUE if successful, FALSE otherwise.
+ * Returns true if successful, false otherwise.
  */
 extern bool file_writec(ang_file *f, byte b);
 
@@ -182,7 +185,9 @@ extern void file_flush(ang_file *f);
 extern long file_tell(ang_file *f);
 extern void file_rewind(ang_file *f);
 
-/*** Directory code ***/
+/*
+ * Directory code
+ */
 
 /*
  * Return whether or not a directory exists
@@ -217,8 +222,8 @@ extern ang_dir *my_dopen(const char *dirname);
  * `dir` must point to a directory handle previously returned by my_dopen().
  * `fname` must be a pointer to a writeable chunk of memory `len` long.
  *
- * Returns TRUE on successful reading, FALSE otherwise.
- * (FALSE generally indicates that there are no more files to be read.)
+ * Returns true on successful reading, false otherwise.
+ * (false generally indicates that there are no more files to be read.)
  */
 extern bool my_dread(ang_dir *dir, char *fname, size_t len);
 

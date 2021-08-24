@@ -3,7 +3,7 @@
  * Purpose: Utility functions relating to UI events
  *
  * Copyright (c) 2011 Andi Sidwell
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,7 +19,6 @@
 
 
 #include "c-angband.h"
-#include "ui-event.h"
 
 
 /*

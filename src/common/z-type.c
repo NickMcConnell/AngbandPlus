@@ -3,7 +3,7 @@
  * Purpose: Helper classes for the display of typed data
  *
  * Copyright (c) 2007 Angband Developers
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -21,28 +21,27 @@
 #include "angband.h"
 
 
-type_union null2u()
-{
-    type_union r;
-    r.t = T_END;
-    return r;
-}
+/*
+ * Hack -- the special Angband "System Suffix"
+ * This variable is used to choose an appropriate "pref-xxx" file
+ */
+const char *ANGBAND_SYS;
 
 
-#define TYPE_FUN(v2u, tv, T, v) \
-type_union v2u(T v) \
-{ \
-    type_union r; \
-    r.u.v = v; \
-    r.t = tv; \
-    return r; \
-}
-
-
-TYPE_FUN(i2u, T_INTEGER, int, i)
-TYPE_FUN(c2u, T_CHAR, char, c)
-TYPE_FUN(f2u, T_FLOAT, float, f)
-TYPE_FUN(s2u, T_STRING, const char *, s)
+/*
+ * Various directories. These are no longer necessarily all subdirs of "lib"
+ */
+char *ANGBAND_DIR_GAMEDATA;
+char *ANGBAND_DIR_CUSTOMIZE;
+char *ANGBAND_DIR_HELP;
+char *ANGBAND_DIR_SCREENS;
+char *ANGBAND_DIR_FONTS;
+char *ANGBAND_DIR_TILES;
+char *ANGBAND_DIR_SOUNDS;
+char *ANGBAND_DIR_ICONS;
+char *ANGBAND_DIR_USER;
+char *ANGBAND_DIR_SAVE;
+char *ANGBAND_DIR_SCORES;
 
 
 /*
@@ -70,9 +69,9 @@ void point_set_dispose(struct point_set *ps)
  * Add the point to the given point set, making more space if there is
  * no more space left.
  */
-void add_to_point_set(struct point_set *ps, int Ind, int y, int x)
+void add_to_point_set(struct point_set *ps, void *data, int y, int x)
 {
-    ps->pts[ps->n].Ind = Ind;
+    ps->pts[ps->n].data = data;
     ps->pts[ps->n].x = x;
     ps->pts[ps->n].y = y;
     ps->n++;
@@ -88,3 +87,43 @@ int point_set_size(struct point_set *ps)
 {
     return ps->n;
 }
+
+
+int point_set_contains(struct point_set *ps, int y, int x)
+{
+    int i;
+
+    for (i = 0; i < ps->n; i++)
+    {
+        if ((ps->pts[i].x == x) && (ps->pts[i].y == y)) return 1;
+    }
+
+    return 0;
+}
+
+
+/**** MAngband specific ****/
+
+
+/* The information given to us by the server */
+server_setup_t Setup;
+
+
+/* The information we give to the server */
+client_setup_t Client_setup;
+
+
+/* Chat channels */
+channel_type channels[MAX_CHANNELS];
+
+
+/*
+ * Structure (not array) of game constants
+ */
+struct angband_constants *z_info;
+
+
+/*
+ * Socials
+ */
+struct social *soc_info;

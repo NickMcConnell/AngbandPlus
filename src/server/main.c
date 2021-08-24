@@ -3,7 +3,7 @@
  * Purpose: Core game initialisation
  *
  * Copyright (c) 1997 Ben Harrison, and others
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,8 +19,6 @@
 
 
 #include "s-angband.h"
-#include "files.h"
-#include "monster/mon-power.h"
 
 
 /*
@@ -30,8 +28,11 @@
  */
 static void quit_hook(const char *s)
 {
+    /* Quit with error */
+    if (s) exit_game_panic();
+
     /* Free resources */
-    cleanup_angband();
+    else cleanup_angband();
 }
 
 
@@ -55,7 +56,7 @@ static void init_stuff(void)
     my_strcpy(libpath, DEFAULT_LIB_PATH, sizeof(libpath));
     my_strcpy(datapath, DEFAULT_DATA_PATH, sizeof(datapath));
 
-    /* Hack -- Add a path separator (only if needed) */
+    /* Hack -- add a path separator (only if needed) */
     if (!suffix(configpath, PATH_SEP))
         my_strcat(configpath, PATH_SEP, sizeof(configpath));
     if (!suffix(libpath, PATH_SEP))
@@ -143,7 +144,7 @@ static void server_log(const char *str)
 
         /* Open a new daily log file */
         strftime(file, 30, "pwmangband%d%m%y.log", local);
-        path_build(path, MSG_LEN, ANGBAND_DIR_APEX, file);
+        path_build(path, sizeof(path), ANGBAND_DIR_SCORES, file);
         fp = file_open(path, MODE_APPEND, FTYPE_TEXT);
     }
 
@@ -180,7 +181,7 @@ int main(int argc, char *argv[])
     /* We use exchndl.dll from the mingw-utils package */
     LoadLibrary("exchndl.dll");
 
-    /* Initialise WinSock */
+    /* Initialize WinSock */
     WSAStartup(MAKEWORD(1, 1), &wsadata);
 
     /* Process the command line arguments */
@@ -192,8 +193,12 @@ int main(int argc, char *argv[])
         /* Analyze option */
         switch (argv[0][1])
         {
+            case 'p':
+                arg_power = true;
+                break;
+
             case 'r':
-                arg_rebalance = TRUE;
+                arg_rebalance = true;
                 break;
 
             default:
@@ -201,6 +206,7 @@ int main(int argc, char *argv[])
 
                 /* Note -- the Term is NOT initialized */
                 puts("Usage: mangband [options]");
+                puts("  -p   Compute monster power");
                 puts("  -r   Rebalance monsters");
 
                 /* Actually abort the process */
@@ -217,7 +223,7 @@ int main(int argc, char *argv[])
     setup_exit_handler();
 
     /* Verify the "news" file */
-    path_build(buf, MSG_LEN, ANGBAND_DIR_FILE, "news.txt");
+    path_build(buf, sizeof(buf), ANGBAND_DIR_SCREENS, "news.txt");
     if (!file_exists(buf))
     {
         /* Why */
@@ -230,7 +236,7 @@ int main(int argc, char *argv[])
     /* Load the mangband.cfg options */
     load_server_cfg();
 
-    /* Initialize the arrays */
+    /* Initialize the basics */
     init_angband();
 
     /* Play the game */

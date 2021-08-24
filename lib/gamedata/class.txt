@@ -1,0 +1,5172 @@
+# File: class.txt
+
+
+# This file is used to initialize the "player class" information for PWMAngband.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding class.txt ===
+
+# name:class number:class name
+# color:color
+# stats:str:int:wis:dex:con
+# skill-disarm:base:increment
+# skill-device:base:increment
+# skill-save:base:increment
+# skill-stealth:base:increment
+# skill-search:base:increment
+# skill-search-freq:base:increment
+# skill-melee:base:increment
+# skill-shoot:base:increment
+# skill-dig:base:increment
+# info:mhp:exp:sense_base:sense_div
+# attack:max_attacks:min_weight:att_multiply
+# equip:tval:sval:min:max:no_recall
+# flags:class flags
+# title:title
+# magic:spell_first:spell_weight:spell_realm:num_books
+# book:tval:sval:spells:realm
+# spell:name:level:mana:fail:exp:sproj
+# effect:effect:parameter (if needed):parameter (if needed)
+# param:parameter:parameter (if needed)
+# dice:dice string
+# expr:dice expression
+# msg_self:message to self
+# msg_other:message to others
+# desc:description
+
+# 'name' indicates the beginning of an entry. The serial number must
+# increase for each new class.
+
+# 'color' is for color. MAngband-specific. See 'terrain.txt' for colors.
+
+# 'stats' is for the stat modifiers - strength, intelligence, wisdom,
+# dexterity, constitution.
+
+# 'skill-<skill name>' is for skills - disarming, magic devices, saving throws,
+# stealth, searching ability, searching frequency, to hit (normal),
+# to hit (bows), digging bonus. The base entry is what
+# gets added to the character's skills at birth, the increments are added to
+# the base skill every ten levels.
+
+# 'info' is for extra info - max. hitpoints gained per level, experience
+# factor in percent, base chance for pseudo-id (smaller is better),
+# level dependent divisor for the pseudo-id chance.
+
+# 'attack' is for attack info - maximum possible number of attacks, minimum
+# weapon weight for calculating the number of attacks, multiplier for
+# attack calculations.
+
+# 'equip' is for starting equipment - tval of the item, sval of the item,
+# minimum amount, maximum amount, flag for no_recall characters.
+
+# 'flags' is for class flags.
+
+# Note: MAngband supports several additional flags.
+#  ANTIMAGIC - antimagic field
+#  BACK_STAB - deal extra damage to sleeping and fleeing creatures
+#  EXTRA_MANA - extra mana
+#  EXTRA_SHOTS - more extra shots
+#  MARTIAL_ARTS - adds fighting abilities when fighting barehanded
+#  MONSTER_SPELLS - access to monster spells
+#  SPEED_BONUS - extra speed
+#  STEALING_IMPROV - better chance at stealing
+#  STEALTH_MODE - turns "Searching Mode" into "Stealth Mode"
+#  UNDEAD_POWERS - undead powers
+
+# 'title' is for class titles.
+
+# 'magic' is for general magic info - level of the first spell, weight that
+# hurts spells, primary spellcasting realm (as in src/list=magic-realms.h),
+# number of books used.
+
+# 'book' defines one of these books - object base, object kind, number of
+# spells, book realm. 'spell:' lines always refer to spells in the previous
+# 'book:' line
+
+# 'spell' defines an individual spell - name, level, mana required,
+# fail-rate, experience for first casting. The lines below are all used in
+# reference to the previous 'spell:' line.
+# PWMAngband: the sproj tells if the spell is projectable on others
+
+# 'effect' defines the spell effect (as listed in src/list-effects.h), along
+# with up to two effect parameters if needed
+
+# 'param' defines an extra one or two effect parameters if needed
+
+# 'dice' provides a random value to be used by an effect (for damage,
+# healing, etc). As well as the normal random value fields described above,
+# it can contain expressions like $B, which refer forward to an 'expr' line.
+
+# 'expr' provides an expression for use in effect dice. It consists of a
+# code letter (eg B) for the expression, a base function to use (for example
+# PLAYER_LEVEL), and a sequence of operations to perform on that base.
+
+# 'msg_self' provides a message to give when the spell is cast. This
+# describes the effect.
+
+# 'msg_other' provides a message to give to other players when the spell
+# is cast.
+
+# 'desc' is for description. As many desc: lines may be used as needed
+# to describe the spell. Note that lines will need spaces at their
+# ends or the beginning of the next line to prevent words from running
+# together.
+
+
+
+############### WARRIOR ###############
+name:0:Warrior
+color:u
+stats:3:-2:-2:2:2
+skill-disarm:25:10
+skill-device:18:7
+skill-save:18:10
+skill-stealth:0:0
+skill-search:14:0
+skill-search-freq:2:0
+skill-melee:70:45
+skill-shoot:55:45
+skill-dig:0:0
+info:10:0:7000:40
+attack:6:30:5
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:potion:Berserk Strength:1:1:0
+equip:sword:Dagger:1:1:1
+equip:soft armour:Soft Leather Armour:1:1:0
+equip:scroll:Word of Recall:1:1:0
+flags:BRAVERY_30 | PSEUDO_ID_IMPROV | NO_MANA
+title:Rookie
+title:Soldier
+title:Swordsman
+title:Swashbuckler
+title:Veteran
+title:Myrmidon
+title:Commando
+title:Champion
+title:Hero
+title:Lord
+
+magic:0:0:0:0
+
+
+############### MAGE ###############
+name:1:Mage
+color:r
+stats:-3:3:0:0:-2
+skill-disarm:30:7
+skill-device:36:13
+skill-save:30:9
+skill-stealth:2:0
+skill-search:16:0
+skill-search-freq:20:0
+skill-melee:34:15
+skill-shoot:20:15
+skill-dig:0:0
+info:1:30:170000:5
+attack:4:40:2
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:magic book:[Magic for Beginners]:1:1:1
+equip:sword:Dagger:1:1:1
+equip:scroll:Word of Recall:1:1:0
+flags:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
+title:Novice
+title:Apprentice
+title:Trickster
+title:Illusionist
+title:Spellbinder
+title:Evoker
+title:Conjurer
+title:Warlock
+title:Sorcerer
+title:Arch-Mage
+
+magic:1:300:1:9
+
+book:magic book:[Magic for Beginners]:6:1
+
+spell:Magic Missile:1:1:22:4:0
+effect:BOLT_OR_BEAM:MISSILE:-10
+dice:$Dd4
+expr:D:PLAYER_LEVEL:- 1 / 5 + 3
+msg_other: fires a magic missile.
+desc:Fires a magic missile that always hits its target and does
+desc: unresistable damage.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Detect Monsters:1:1:23:4:0
+effect:DETECT_VISIBLE_MONSTERS
+dice:22d40
+desc:Detects all non-invisible monsters in the immediate area,
+desc: for one turn only.
+
+spell:Phase Door:1:2:24:4:0
+effect:TELEPORT
+dice:10
+msg_other: blinks away.
+desc:Teleports you randomly up to 10 squares away.
+
+spell:Light Area:1:2:26:4:0
+effect:LIGHT_AREA
+param:1:10
+dice:2d$S
+expr:S:PLAYER_LEVEL:/ 2
+msg_other: calls light.
+desc:Lights up all squares in a level-dependant area and hurts
+desc: all light-sensitive monsters in the area of effect.
+desc: If you are in a room, the entire room will be lit up as well.
+
+spell:Find Traps, Doors & Stairs:3:3:25:2:0
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all traps, doors and stairs in the immediate area.
+
+spell:Stinking Cloud:3:2:27:3:0
+effect:BALL:POIS:2
+dice:$B
+expr:B:PLAYER_LEVEL:/ 2 + 10
+msg_other: fires a stinking cloud.
+desc:Shoots a radius-2 poison ball.
+
+book:magic book:[Conjurings and Tricks]:9:1
+
+spell:Confuse Monster:5:4:30:4:0
+effect:BOLT_AWARE:OLD_CONF
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: makes a complicated gesture.
+desc:Attempts to confuse a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist confusion are not affected.
+
+spell:Lightning Bolt:5:4:30:4:0
+effect:BEAM:ELEC
+dice:$Dd6
+expr:D:PLAYER_LEVEL:- 5 / 6 + 3
+msg_other: fires a lightning bolt.
+desc:Fires a lightning beam that hurts each monster in its path.
+
+spell:Trap/Door Destruction:5:5:30:6:0
+effect:TOUCH:KILL_DOOR
+msg_other: sways his hands.
+desc:Destroys all traps and doors within a 1-square radius of you.
+
+spell:Cure Poison:5:5:35:4:0
+effect:CURE:POISONED
+desc:Neutralizes poison.
+
+spell:Sleep Monster:7:5:30:4:0
+effect:BOLT_AWARE:OLD_SLEEP
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: gestures and mumbles calmly.
+desc:Attempts to put to sleep a single monster.
+desc: Uniques and monsters that resist sleep are not affected.
+
+spell:Teleport Self:7:6:35:5:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 5
+msg_other: teleports away.
+desc:Teleports you randomly within the current level.
+
+spell:Spear of Light:7:6:30:5:0
+effect:LINE:LIGHT_WEAK
+dice:6d8
+msg_self:A line of shimmering blue light appears.
+msg_other:'s hands project a line of shimmering blue light.
+desc:Fires a beam that lights up each square and hurts each
+desc: light-sensitive monster in its path.
+
+spell:Frost Bolt:7:3:40:6:0
+effect:BOLT_OR_BEAM:COLD:-10
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 5
+msg_other: fires a frost bolt.
+desc:Fires a frost bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Wonder:7:10:50:5:0
+effect:WONDER
+dice:$B+1d100
+expr:B:PLAYER_LEVEL:/ 5
+desc:Invokes a random spell effect.
+
+book:magic book:[Incantations and Illusions]:9:1
+
+spell:Satisfy Hunger:9:7:45:8:0
+effect:SET_NOURISH
+dice:$B
+expr:B:FOOD_MAX:- 1
+desc:Magically renders you well-fed (but not satiated).
+desc: This will also cure a bloated stomach.
+
+spell:Lesser Recharging:9:7:75:10:0
+effect:RECHARGE
+dice:$B
+expr:B:PLAYER_LEVEL:/ 5 + 2
+desc:Adds charges to a stack of wands or staves.
+desc: Chance of success and number of charges gained increase with your
+desc: level and decrease with level of wand or staff and number of charges.
+desc: A failed attempt to recharge destroys one wand or staff from the stack.
+
+spell:Turn Stone to Mud:9:7:44:8:0
+effect:LINE:KILL_WALL
+dice:20+1d30
+msg_other: makes a moving gesture.
+desc:Produces a beam that destroys the first section of wall it hits,
+desc: unless it is a permanent wall. Each monster caught in the beam that
+desc: is susceptible to rock remover takes 20+1d30 points of damage.
+
+spell:Fire Bolt:10:3:50:7:0
+effect:BOLT_OR_BEAM:FIRE
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 6
+msg_other: fires a fire bolt.
+desc:Fires a fire bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Polymorph Other:11:7:45:9:0
+effect:BOLT_AWARE:OLD_POLY
+param:1
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: discharges an everchanging blast of energy.
+desc:Attempts to polymorph a single monster.
+desc: Uniques are not affected.
+
+spell:Identify:11:7:25:6:0
+effect:IDENTIFY
+desc:Reveals all normal and hidden powers of one object.
+
+spell:Reveal Monsters:15:6:40:6:0
+effect:DETECT_MONSTERS
+dice:22d40
+desc:Detects all monsters in the immediate area, for one turn only.
+
+spell:Acid Bolt:15:4:50:8:0
+effect:BOLT_OR_BEAM:ACID
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 8
+msg_other: fires an acid bolt.
+desc:Fires an acid bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Slow Monster:17:9:50:7:0
+effect:BOLT_AWARE:OLD_SLOW
+dice:20
+msg_other: makes a lengthy gesture.
+desc:Attempts to slow a single monster.
+desc: Uniques are not affected.
+
+book:magic book:[Sorcery and Evocations]:6:1
+
+spell:Frost Ball:19:6:55:8:0
+effect:BALL:COLD:2
+dice:$B
+expr:B:PLAYER_LEVEL:+ 30
+msg_other: fires a frost ball.
+desc:Shoots a radius-2 frost ball.
+
+spell:Teleport Other:23:12:60:8:0
+effect:BOLT_STATUS:AWAY_ALL
+param:1
+dice:$B
+expr:B:MAX_SIGHT:* 5
+msg_other: makes a rush gesture.
+desc:Produces a bolt that teleports the first monster in its path
+desc: up to 100 squares away.
+
+spell:Haste Self:25:12:65:10:0
+effect:TIMED_INC:FAST
+param:5
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 0
+desc:Hastes you (+10 to speed) for a level-dependant duration.
+
+spell:Mass Sleep:25:7:50:6:0
+effect:PROJECT_LOS_AWARE:OLD_SLEEP
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+desc:Attempts to put to sleep each monster within line of sight.
+desc: Uniques and monsters that resist sleep are not affected.
+
+spell:Fire Ball:26:9:65:12:0
+effect:BALL:FIRE:2
+dice:$B
+expr:B:PLAYER_LEVEL:+ 55
+msg_other: fires a fire ball.
+desc:Shoots a radius-2 fire ball.
+
+spell:Detect Treasure:30:10:70:10:0
+effect:DETECT_TREASURES
+dice:22d40
+desc:Detects all treasure in the immediate area.
+
+book:magic book:[Resistances of Scarabtarices]:5:1
+
+spell:Resist Cold:10:5:50:10:0
+effect:TIMED_INC:OPP_COLD
+dice:20+1d20
+desc:Grants you resistance to cold for 20+1d20 turns.
+
+spell:Resist Fire:10:5:50:10:0
+effect:TIMED_INC:OPP_FIRE
+dice:20+1d20
+desc:Grants you resistance to fire for 20+1d20 turns.
+
+spell:Resist Poison:25:10:45:20:0
+effect:TIMED_INC:OPP_POIS
+dice:20+1d20
+desc:Grants you resistance to poison for 20+1d20 turns.
+
+spell:Resistance:28:20:65:30:0
+effect:TIMED_INC:OPP_POIS
+dice:20+1d20
+effect:TIMED_INC:OPP_COLD
+dice:20+1d20
+effect:TIMED_INC:OPP_FIRE
+dice:20+1d20
+effect:TIMED_INC:OPP_ELEC
+dice:20+1d20
+effect:END_INFO
+effect:TIMED_INC:OPP_ACID
+dice:20+1d20
+desc:Grants you resistance to acid, cold, fire, lightning and poison for
+desc: 20+1d20 turns.
+
+spell:Shield:32:24:75:30:0
+effect:TIMED_INC:SHIELD
+dice:30+1d20
+desc:Grants you +50 to AC for 30+1d20 turns.
+
+book:magic book:[Raal's Tome of Destruction]:7:1
+
+spell:Shock Wave:16:5:40:6:0
+effect:BALL:SOUND:2
+dice:$B
+expr:B:PLAYER_LEVEL:+ 10
+msg_other: fires a sonic ball.
+desc:Shoots a radius-2 sound ball.
+desc: Apart from doing sound damage, this also has a chance to stun
+desc: each monster in the area of effect.
+
+spell:Explosion:20:10:50:10:0
+effect:BALL:SHARD:2
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 20
+msg_other: fires an exploding missile.
+desc:Shoots a radius-2 shards ball.
+
+spell:Cloudkill:20:5:50:8:0
+effect:BALL:POIS:3
+dice:$B
+expr:B:PLAYER_LEVEL:/ 2 + 40
+msg_other: fires a cloud of death.
+desc:Shoots a radius-3 poison ball.
+
+spell:Acid Ball:20:7:70:20:0
+effect:BALL:ACID:2
+dice:$B
+expr:B:PLAYER_LEVEL:+ 40
+msg_other: fires an acid ball.
+desc:Shoots a radius-2 acid ball.
+
+spell:Ice Storm:27:11:75:24:0
+effect:BALL:ICE:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 50
+msg_other: invokes an ice storm.
+desc:Shoots a radius-3 ice ball.
+
+spell:Meteor Swarm:30:14:85:34:0
+effect:SWARM:METEOR:1
+dice:$B+m$M
+expr:B:PLAYER_LEVEL:/ 2 + 30
+expr:M:PLAYER_LEVEL:/ 20 + 2
+msg_other: fires a swarm of meteors.
+desc:Shoots a swarm of 3 or 4 meteors.
+desc: Meteors will travel until hitting a wall, a monster
+desc: or reaching the target location.
+desc: Meteors will explode as a radius-1 ball that does unresistable
+desc: damage to each monster in its area of effect.
+desc: If this kills the monster that blocked the path to the target
+desc: location, the next meteor may continue to find another target.
+
+spell:Rift:35:20:60:25:0
+effect:BEAM:GRAVITY
+dice:40+$Dd7
+expr:D:PLAYER_LEVEL:+ 0
+msg_other: fires a gravity beam.
+desc:Fires a gravity beam that hurts each monster in its path
+desc: and has a chance of teleporting it away.
+
+book:magic book:[Mordenkainen's Escapes]:5:1
+
+spell:Door Creation:13:9:40:12:0
+effect:TOUCH:MAKE_DOOR
+param:1
+desc:A door is created on each empty floor space that is directly
+desc: adjacent to you. These doors are closed, but not locked.
+
+spell:Stair Creation:24:20:50:20:0
+effect:CREATE_STAIRS
+desc:A stair (going up or down, chosen at random) is created on the space
+desc: where you are standing. This will destroy any terrain feature that
+desc: was there before. It will also destroy all items currently on the
+desc: floor where the spell is cast.
+
+spell:Teleport Level:28:17:65:20:0
+effect:TELEPORT_LEVEL
+desc:Teleports you 1 level up or 1 level down (chosen at random).
+
+spell:Word of Recall:30:25:75:15:0
+effect:RECALL
+dice:14+1d20
+desc:Teleports you from the dungeon to the town or from the town to the
+desc: deepest level you have visited in the dungeon.
+desc: The recall effect is not immediate; it is delayed by 14+1d20 turns.
+desc: During that delay, the effect can be canceled by invoking the spell
+desc: of recall again.
+
+spell:Rune of Protection:36:60:70:40:0
+effect:RUNE
+desc:Inscribes a glyph of warding beneath you.
+desc: Summoned monsters can't appear on the glyph.
+desc: If a monster attempts to move onto the glyph or melee you while you
+desc: are standing on the glyph, it must first succeed in breaking the glyph.
+desc: Higher level monsters are more likely to break the glyph.
+desc: The glyph will remain where it is, until a monster succeeds in
+desc: breaking it or until you leave the level.
+
+book:magic book:[Tenser's Transformations]:3:1
+
+spell:Greater Recharging:30:30:95:100:0
+effect:RECHARGE
+dice:$B
+expr:B:PLAYER_LEVEL:+ 50
+desc:Adds charges to a stack of wands or staves.
+desc: Chance of success and number of charges gained increase with your
+desc: level and decrease with level of wand or staff and number of charges,
+desc: but are overall much better than for the spell Lesser Recharging.
+desc: A failed attempt to recharge destroys one wand or staff from the stack.
+
+spell:Elemental Brand:32:60:95:120:0
+effect:BRAND_AMMO
+desc:Brands one stack of ammunition with fire, cold or poison
+desc: (selected at random) and at the same time attempts to improve
+desc: the to-hit bonus and the to-dam bonus of the same ammunition.
+desc: The spell has no effect if the ammunition is already branded, has a
+desc: slay, is broken or is cursed.
+
+spell:Globe of Invulnerability:35:70:95:250:0
+effect:TIMED_INC:INVULN
+dice:8+1d10
+desc:Grants you resistance against non-physical attacks.
+desc: The shield absorbs a percentage of damage from such attacks
+desc: equal to your character level.
+
+book:magic book:[Kelek's Grimoire of Power]:8:1
+
+spell:Earthquake:20:18:60:20:0
+effect:EARTHQUAKE
+dice:10
+desc:Causes a 10-square radius earthquake around you.
+desc: Earthquakes may damage monsters and destroy items in some
+desc: squares in the area of effect.
+desc: Artifacts will not be destroyed by this spell.
+desc: This spell has no effect when used in the town.
+
+spell:Bedlam:25:15:60:24:0
+effect:BALL_OBVIOUS:OLD_CONF:4
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: fires a confusion ball.
+desc:Shoots a radius-4 confusion ball that doesn't cause physical
+desc: damage but has a chance to confuse each monster in the area of effect.
+desc: Uniques or monsters that resist confusion are not affected.
+
+spell:Rend Soul:25:15:80:30:0
+effect:BOLT_OR_BEAM:NETHER
+param:4:1
+dice:11d$S
+expr:S:PLAYER_LEVEL:+ 0
+msg_other: fires a nether bolt.
+desc:Fires a nether bolt that always hits its target. Does not affect undead.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Banishment:30:45:95:25:0
+effect:BANISH
+desc:Removes all monsters represented by a chosen symbol from the level.
+desc: Uniques are not affected.
+desc: You take 1d4 points of damage for every monster removed.
+
+spell:Word of Destruction:33:21:80:35:0
+effect:DESTRUCTION
+dice:15
+desc:Destroys everything in a 15-square radius circle around you.
+desc: All monsters, objects and terrain features in the area of
+desc: effect are destroyed, except stairs and permanent walls.
+desc: You will also be blinded for 10+1d10 turns, unless you
+desc: have resistance to blindness or light.
+desc: This spell has no effect when used in the town.
+
+spell:Mass Banishment:35:75:90:100:0
+effect:MASS_BANISH
+desc:Removes all monsters within 20 squares of you.
+desc: Uniques are not affected.
+desc: You take 1d3 points of damage for every monster removed.
+
+spell:Chaos Strike:38:15:90:40:0
+effect:BOLT_OR_BEAM:CHAOS
+dice:13d$S
+expr:S:PLAYER_LEVEL:+ 0
+msg_other: fires a chaos bolt.
+desc:Fires a chaos bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Mana Storm:42:16:95:200:0
+effect:BALL:MANA:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 300
+msg_other: invokes a mana storm.
+desc:Shoots a radius-3 mana ball that does unresistable
+desc: damage to each monster in its area of effect.
+
+
+############### PRIEST ###############
+name:2:Priest
+color:g
+stats:-1:-3:3:-1:1
+skill-disarm:25:7
+skill-device:30:10
+skill-save:32:12
+skill-stealth:2:0
+skill-search:16:0
+skill-search-freq:8:0
+skill-melee:48:20
+skill-shoot:35:20
+skill-dig:0:0
+info:2:20:15000:40
+attack:4:35:3
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:prayer book:[Beginners Handbook]:1:1:1
+equip:hafted:Mace:1:1:1
+equip:potion:Cure Serious Wounds:2:2:1
+equip:scroll:Word of Recall:1:1:0
+flags:BLESS_WEAPON | ZERO_FAIL | PSEUDO_ID_IMPROV
+title:Believer
+title:Acolyte
+title:Adept
+title:Evangelist
+title:Priest
+title:Curate
+title:Canon
+title:Bishop
+title:Prophet
+title:Patriarch
+
+magic:1:350:2:9
+
+book:prayer book:[Beginners Handbook]:7:2
+
+spell:Detect Evil:1:1:10:4:0
+effect:DETECT_EVIL
+dice:22d40
+desc:Detects all evil monsters in the immediate area,
+desc: for one turn only.
+
+spell:Cure Light Wounds:1:2:15:4:1
+effect:TIMED_DEC:CONFUSED
+dice:20
+effect:TIMED_DEC:CUT
+dice:20
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:15+m15
+desc:Cures 15% of your wounds (min 15hp) and heals 20 points worth of cuts.
+
+spell:Bless:1:2:20:4:0
+effect:TIMED_INC:BLESSED
+dice:12+1d12
+desc:Blesses you, giving a bonus of +5 to AC and +10 to-hit, for 12+1d12 turns.
+
+spell:Remove Fear:1:2:5:4:0
+effect:CURE:AFRAID
+desc:Removes fear.
+
+spell:Call Light:3:2:25:1:0
+effect:LIGHT_AREA
+param:1:10
+dice:2d$S
+expr:S:PLAYER_LEVEL:/ 2
+msg_other: calls light.
+desc:Lights up all squares in a level-dependant area and hurts
+desc: all light-sensitive monsters in the area of effect.
+desc: If you are in a room, the entire room will be lit up as well.
+
+spell:Find Traps, Doors & Stairs:3:3:27:2:0
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all traps, doors and stairs in the immediate area.
+
+spell:Slow Poison:3:3:28:4:0
+effect:TIMED_DEC:POISONED
+param:2
+desc:Halves the remaining duration of any current poisoning.
+
+book:prayer book:[Words of Wisdom]:7:2
+
+spell:Scare Monster:5:4:29:3:0
+effect:BOLT_AWARE:TURN_ALL
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+desc:Attempts to scare a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist fear are not affected.
+
+spell:Portal:5:4:30:4:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 3
+msg_other: blinks away.
+desc:Teleports you randomly over a short distance.
+
+spell:Cure Serious Wounds:5:4:32:4:1
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:CURE:CUT
+effect:HEAL_HP
+dice:25+m20
+desc:Cures 20% of your wounds (min 25hp) and heals all cut damage.
+
+spell:Chant:5:5:34:4:0
+effect:TIMED_INC:BLESSED
+dice:24+1d24
+desc:Blesses you, giving a bonus of +5 to AC and +10 to-hit, for 24+1d24
+desc: turns.
+
+spell:Sanctuary:7:5:36:3:0
+effect:TOUCH_AWARE:OLD_SLEEP
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: is briefly enclosed by a deep blue aura.
+desc:Attempts to put to sleep each monster directly adjacent to you.
+desc: Uniques and monsters that resist sleep are not affected.
+
+spell:Satisfy Hunger:7:5:38:4:0
+effect:SET_NOURISH
+dice:$B
+expr:B:FOOD_MAX:- 1
+desc:Magically renders you well-fed (but not satiated).
+desc: This will also cure a bloated stomach.
+
+#spell:Remove Curse:7:6:38:5:0
+#effect:REMOVE_CURSE
+#desc:Removes all ordinary curses from one carried item.
+#desc: Heavy or permanent curses are not affected.
+
+spell:Resist Heat and Cold:7:7:38:5:0
+effect:TIMED_INC:OPP_COLD
+dice:10+1d10
+effect:END_INFO
+effect:TIMED_INC:OPP_FIRE
+dice:10+1d10
+desc:Gives you temporary resistance to cold and fire, for 10+1d10 turns each.
+
+book:prayer book:[Chants and Blessings]:9:2
+
+spell:Neutralize Poison:9:6:38:4:0
+effect:CURE:POISONED
+desc:Neutralizes poison.
+
+spell:Orb of Draining:9:7:40:4:0
+effect:BALL:HOLY_ORB
+param:2:30
+dice:$B+3d6
+expr:B:PLAYER_LEVEL:* 3 / 2
+msg_other: fires a holy orb!
+desc:Shoots a radius-2 or radius-3 ball that does unresistable
+desc: damage to each monster in its area of effect.
+desc: Evil monsters take double damage.
+desc: All cursed items in the area of effect are destroyed.
+desc: The bigger area of effect is attained at character level 30.
+
+spell:Cure Critical Wounds:9:7:38:4:1
+effect:CURE:AMNESIA
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:30+m25
+desc:Cures 25% of your wounds (min 30hp) and heals all cut damage, poison,
+desc: amnesia and stunning.
+
+spell:Sense Invisible:11:8:42:4:0
+effect:TIMED_INC:SINVIS
+dice:24+1d24
+desc:Enables you to see invisible monsters for 24+1d24 turns.
+
+spell:Protection from Evil:11:8:42:4:0
+effect:TIMED_INC:PROTEVIL
+dice:$B+1d25
+expr:B:PLAYER_LEVEL:* 3
+desc:Protects you from evil for a level-dependant duration:
+desc: all melee attacks by evil monsters have a chance to be repelled,
+desc: unless the monster's level is higher than your character level.
+
+spell:Earthquake:11:9:55:5:0
+effect:EARTHQUAKE
+dice:10
+desc:Causes a 10-square radius earthquake around you.
+desc: Earthquakes may damage monsters and destroy items in some
+desc: squares in the area of effect.
+desc: Artifacts will not be destroyed by this prayer.
+desc: This prayer has no effect when used in the town.
+
+spell:Sense Surroundings:13:10:45:4:0
+effect:MAP_AREA
+dice:22d40
+desc:Maps out a portion of the level around you.
+
+spell:Cure Mortal Wounds:13:11:45:4:1
+effect:CURE:AMNESIA
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:50+m30
+desc:Cures 30% of your wounds (min 50hp), cures all stunning and heals all
+desc: cut damage, poison and amnesia.
+
+spell:Turn Undead:15:12:50:5:0
+effect:PROJECT_LOS_AWARE:TURN_UNDEAD
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: tries to turn undead.
+desc:Attempts to scare each undead monster within line of sight,
+desc: causing it to flee in terror for a level-dependant duration.
+
+book:prayer book:[Exorcism and Dispelling]:6:2
+
+spell:Prayer:15:14:50:5:0
+effect:TIMED_INC:BLESSED
+dice:48+1d48
+desc:Blesses you, giving a bonus of +5 to AC and +10 to-hit, for 48+1d48 turns.
+
+spell:Dispel Undead:17:14:55:7:0
+effect:PROJECT_LOS_AWARE:DISP_UNDEAD
+param:1
+dice:d$S
+expr:S:PLAYER_LEVEL:* 3
+msg_other: dispels undead.
+desc:Inflicts unresistable damage on each undead monster within line of sight.
+
+spell:Heal:21:16:60:7:1
+effect:CURE:AMNESIA
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:300+m35
+desc:Cures at least 300 points of damage (up to 35% of max HP), cures all
+desc: stunning, heals all cut damage, neutralizes poison, and cures amnesia.
+
+spell:Dispel Evil:25:20:70:12:0
+effect:PROJECT_LOS_AWARE:DISP_EVIL
+param:1
+dice:d$S
+expr:S:PLAYER_LEVEL:* 3
+msg_other: dispels evil.
+desc:Inflicts unresistable damage on each evil monster within line of sight.
+
+spell:Glyph of Warding:33:55:90:15:0
+effect:RUNE
+desc:Inscribes a glyph of warding beneath you.
+desc: Summoned monsters can't appear on the glyph.
+desc: If a monster attempts to move onto the glyph or melee you while you
+desc: are standing on the glyph, it must first succeed in breaking the glyph.
+desc: Higher level monsters are more likely to break the glyph.
+desc: The glyph will remain where it is, until a monster succeeds in
+desc: breaking it or until you leave the level.
+
+spell:Holy Word:39:32:95:20:0
+effect:CURE:AFRAID
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:AMNESIA
+effect:HEAL_HP
+dice:1000
+effect:PROJECT_LOS_AWARE:DISP_EVIL
+param:1
+dice:d$S
+expr:S:PLAYER_LEVEL:* 4
+msg_other: shouts the holy word.
+desc:Inflicts unresistable damage on each evil monster within line of sight,
+desc: cures 1000 points of damage, cures all stunning, heals all cut damage,
+desc: neutralizes poison, cures amnesia, and removes fear.
+
+book:prayer book:[Ethereal Openings]:6:2
+
+spell:Blink:3:3:50:6:0
+effect:TELEPORT
+dice:10
+msg_other: blinks away.
+desc:Teleports you randomly up to 10 squares away.
+
+spell:Teleport Self:10:10:50:8:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 8
+msg_other: teleports away.
+desc:Teleports you randomly within the current level.
+
+spell:Teleport Other:20:20:80:16:0
+effect:BOLT_STATUS:AWAY_ALL
+param:1
+dice:$B
+expr:B:MAX_SIGHT:* 5
+msg_other: prays for divine intervention.
+desc:Produces a bolt that teleports the first monster in its path
+desc: up to 100 squares away.
+
+spell:Teleport Level:30:40:75:133:0
+effect:TELEPORT_LEVEL
+desc:Teleports you 1 level up or 1 level down (chosen at random).
+
+spell:Word of Recall:35:50:75:11:0
+effect:RECALL
+dice:14+1d20
+desc:Teleports you from the dungeon to the town or from the town to the
+desc: deepest level you have visited in the dungeon.
+desc: The recall effect is not immediate; it is delayed by 14+1d20 turns.
+desc: During that delay, the effect can be canceled by invoking the prayer
+desc: of recall again.
+
+spell:Alter Reality:40:60:75:250:0
+effect:ALTER_REALITY
+desc:The current level will be discarded and a new dungeon level (on the
+desc: same dungeon depth) will be generated. This has exactly the same
+desc: side effects as leaving and re-entering the level through a stair,
+desc: except that you won't start on a square with a stair.
+
+book:prayer book:[Godly Insights]:5:2
+
+spell:Detect Monsters:3:3:50:2:0
+effect:DETECT_VISIBLE_MONSTERS
+dice:22d40
+desc:Detects all non-invisible monsters in the immediate area,
+desc: for one turn only
+
+spell:Detection:10:10:80:20:0
+effect:DETECT_MONSTERS
+dice:22d40
+effect:DETECT_TREASURES
+dice:22d40
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all gold, objects, doors, stairs, traps and monsters
+desc: in the immediate area.
+
+spell:Identify:20:20:80:20:0
+effect:IDENTIFY
+desc:Reveals all normal and hidden powers of one object.
+
+spell:Probing:25:40:80:150:0
+effect:PROBE
+desc:Probes each monster within line of sight, giving information on the
+desc: current hit points of the monster and many of its characteristics
+desc: and abilities.
+
+spell:Clairvoyance:35:50:80:230:0
+effect:ENLIGHTENMENT
+desc:Lights up, maps out and detects all objects on the complete current
+desc: dungeon level.
+
+book:prayer book:[Purifications and Healing]:6:2
+
+spell:Cure Serious Wounds:4:2:50:25:1
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:CURE:CUT
+effect:HEAL_HP
+dice:25+m20
+desc:Cures 20% of your wounds (min 25hp) and heals all cut damage.
+
+spell:Cure Mortal Wounds:10:6:60:45:1
+effect:CURE:AMNESIA
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:50+m30
+desc:Cures 30% of your wounds (min 50hp), cures all stunning and heals all
+desc: cut damage, poison and amnesia.
+
+spell:Healing:30:50:80:130:1
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:AMNESIA
+effect:HEAL_HP
+dice:2000
+desc:Cures 2000 points of damage, cures all stunning, heals all
+desc: cut damage, neutralizes poison, and cures amnesia.
+
+spell:Restoration:35:70:90:230:1
+effect:RESTORE_STAT:CON
+effect:RESTORE_STAT:DEX
+effect:RESTORE_STAT:WIS
+effect:RESTORE_STAT:INT
+effect:RESTORE_STAT:STR
+desc:Restores to maximum all stats that are currently below maximum.
+
+spell:Remembrance:35:70:90:250:1
+effect:RESTORE_EXP
+desc:Restores experience points to maximum if it is currently below maximum.
+
+spell:Resurrection:35:70:90:270:0
+effect:RESURRECT
+desc:Brings back to life a ghost character standing next to the caster.
+
+book:prayer book:[Holy Infusions]:5:2
+
+spell:Unbarring Ways:5:6:50:40:0
+effect:TOUCH:KILL_DOOR
+msg_other: sways his hands.
+desc:Destroys all traps and doors within a 1-square radius of you.
+
+spell:Recharging:15:20:80:25:0
+effect:RECHARGE
+dice:$B
+expr:B:PLAYER_LEVEL:+ 20
+desc:Adds charges to a stack of wands or staves.
+desc: Chance of success and number of charges gained increase with your
+desc: level and decrease with level of wand or staff and number of charges.
+desc: A failed attempt to recharge destroys one wand or staff from the stack.
+
+#spell:Dispel Curse:25:40:80:160:0
+#effect:REMOVE_ALL_CURSE
+#desc:Removes all ordinary and heavy curses from all carried objects.
+#desc: Permanent curses are not affected.
+
+spell:Enchant Weapon:5:50:80:230:0
+effect:ENCHANT
+param:3
+dice:1d4
+desc:Attempts to improve the to-hit bonus and the to-dam bonus of a weapon.
+desc: Also gives a chance to break a curse.
+
+spell:Enchant Armor:37:60:85:250:0
+effect:ENCHANT
+param:4
+dice:1+1d3
+desc:Attempts to improve the armour class bonus of a piece of armour.
+desc: Also gives a chance to break a curse.
+
+spell:Elemental Brand:45:95:85:250:0
+effect:BRAND_WEAPON
+desc:Brands the currently wielded melee weapon with fire (50%) or cold (50%),
+desc: and at the same time attempts to improve the to-hit bonus and the
+desc: to-dam bonus of the same weapon.
+desc: The prayer has no effect if the weapon is an artifact or ego item,
+desc: is already branded, has a slay, is broken or is cursed.
+
+book:prayer book:[Wrath of God]:5:2
+
+spell:Dispel Undead:15:7:70:25:0
+effect:PROJECT_LOS_AWARE:DISP_UNDEAD
+param:1
+dice:d$S
+expr:S:PLAYER_LEVEL:* 4
+msg_other: dispels undead.
+desc:Inflicts unresistable damage on each undead monster within line of sight.
+
+spell:Dispel Evil:20:10:75:60:0
+effect:PROJECT_LOS_AWARE:DISP_EVIL
+param:1
+dice:d$S
+expr:S:PLAYER_LEVEL:* 4
+msg_other: dispels evil.
+desc:Inflicts unresistable damage on each evil monster within line of sight.
+
+spell:Banish Evil:25:25:80:250:0
+effect:PROJECT_LOS_AWARE:AWAY_EVIL
+dice:100
+msg_self:The power of your god banishes evil!
+msg_other: speaks a holy curse on nearby evil!
+desc:Teleports away each evil monster within line of sight.
+
+spell:Word of Destruction:35:35:80:115:0
+effect:DESTRUCTION
+dice:15
+desc:Destroys everything in a 15-square radius circle around you.
+desc: All monsters, objects and terrain features in the area of
+desc: effect are destroyed, except stairs and permanent walls.
+desc: You will also be blinded for 10+1d10 turns, unless you
+desc: have resistance to blindness or light.
+desc: This prayer has no effect when used in the town.
+
+spell:Annihilation:45:60:75:250:0
+effect:BOLT_STATUS_DAM:OLD_DRAIN
+dice:200
+msg_other: fires a massive bolt filled with pure energy!
+desc:Inflicts 200 points of damage on a single monster that is not
+desc: undead, a demon, an elemental, a golem or a vortex.
+
+
+############### ROGUE ###############
+name:3:Rogue
+color:b
+stats:0:1:-3:3:-1
+skill-disarm:45:15
+skill-device:32:10
+skill-save:28:10
+skill-stealth:3:1
+skill-search:32:0
+skill-search-freq:24:0
+skill-melee:60:40
+skill-shoot:66:30
+skill-dig:0:0
+info:6:25:10000:40
+attack:5:30:4
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:shadow book:[Robbers Handbook]:1:1:1
+equip:sword:Dagger:1:1:1
+equip:soft armour:Soft Leather Armour:1:1:0
+equip:scroll:Word of Recall:1:1:0
+flags:CUMBER_GLOVE | CHOOSE_SPELLS | PSEUDO_ID_IMPROV
+flags:BACK_STAB | STEALING_IMPROV | SPEED_BONUS | STEALTH_MODE
+title:Vagabond
+title:Cutpurse
+title:Footpad
+title:Robber
+title:Burglar
+title:Filcher
+title:Sharper
+title:Rogue
+title:Thief
+title:Master Thief
+
+magic:5:350:4:6
+
+book:shadow book:[Robbers Handbook]:7:4
+
+spell:Detect Monsters:5:1:50:1:0
+effect:DETECT_VISIBLE_MONSTERS
+dice:22d40
+desc:Detects all non-invisible monsters in the immediate area,
+desc: for one turn only.
+
+spell:Phase Door:7:2:55:1:0
+effect:TELEPORT
+dice:10
+msg_other: blinks away.
+desc:Teleports you randomly up to 10 squares away.
+
+spell:Find Traps, Doors & Stairs:8:3:50:1:0
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all traps, doors and stairs in the immediate area.
+
+spell:Light Area:9:3:60:1:0
+effect:LIGHT_AREA
+param:1:10
+dice:2d$S
+expr:S:PLAYER_LEVEL:/ 2
+msg_other: calls light.
+desc:Lights up all squares in a level-dependant area and hurts
+desc: all light-sensitive monsters in the area of effect.
+desc: If you are in a room, the entire room will be lit up as well.
+
+spell:Create Poison:10:3:60:1:0
+effect:CREATE_POISON
+desc:Allows to create potions of poison from any potion.
+
+#spell:Remove Curse:11:9:60:1:0
+#effect:REMOVE_CURSE
+#desc:Removes all ordinary curses from one carried item.
+#desc: Heavy or permanent curses are not affected.
+
+spell:Detect Objects:12:4:65:1:0
+effect:DETECT_TREASURES
+param:1
+dice:22d40
+desc:Detects all objects in the immediate area.
+
+spell:Trap/Door Destruction:14:7:60:2:0
+effect:TOUCH:KILL_DOOR
+msg_other: sways his hands.
+desc:Destroys all traps and doors within a 1-square radius of you.
+
+book:shadow book:[Shadows and Illusions]:8:4
+
+spell:Cure Poison:16:9:90:1:0
+effect:CURE:POISONED
+desc:Neutralizes poison.
+
+spell:Identify:18:18:60:2:0
+effect:IDENTIFY
+desc:Reveals all normal and hidden powers of one object.
+
+spell:Reveal Monsters:20:11:50:4:0
+effect:DETECT_MONSTERS
+dice:22d40
+desc:Detects all monsters in the immediate area, for one turn only.
+
+spell:Stinking Cloud:21:12:50:10:0
+effect:BALL:POIS:2
+dice:$B
+expr:B:PLAYER_LEVEL:/ 2 + 10
+msg_other: fires a stinking cloud.
+desc:Shoots a radius-2 poison ball.
+
+spell:Teleport Self:22:9:50:1:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 5
+msg_other: teleports away.
+desc:Teleports you randomly within the current level.
+
+spell:Spear of Light:23:10:95:1:0
+effect:LINE:LIGHT_WEAK
+dice:6d8
+msg_self:A line of shimmering blue light appears.
+msg_other:'s hands project a line of shimmering blue light.
+desc:Fires a beam that lights up each square and hurts each
+desc: light-sensitive monster in its path.
+
+spell:Turn Stone to Mud:24:11:70:1:0
+effect:LINE:KILL_WALL
+dice:20+1d30
+msg_other: makes a moving gesture.
+desc:Produces a beam that destroys the first section of wall it hits,
+desc: unless it is a permanent wall. Each monster caught in the beam that
+desc: is susceptible to rock remover takes 20+1d30 points of damage.
+
+spell:Satisfy Hunger:25:12:95:1:0
+effect:SET_NOURISH
+dice:$B
+expr:B:FOOD_MAX:- 1
+desc:Magically renders you well-fed (but not satiated).
+desc: This will also cure a bloated stomach.
+
+book:shadow book:[Killing Made Easy]:8:4
+
+spell:Mass Sleep:26:15:80:10:0
+effect:PROJECT_LOS_AWARE:OLD_SLEEP
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+desc:Attempts to put to sleep each monster within line of sight.
+desc: Uniques and monsters that resist sleep are not affected.
+
+spell:Deep Nights:27:12:80:10:0
+effect:DEEP_NIGHTS
+desc:Unlights the current dungeon level.
+
+spell:Cloak of Changement:28:15:75:15:0
+effect:CLOAK_CHANGT
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 20
+desc:Disguises you as another player's class.
+
+spell:Bedlam:29:20:70:20:0
+effect:BALL_OBVIOUS:OLD_CONF:4
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: fires a confusion ball.
+desc:Shoots a radius-4 confusion ball that doesn't cause physical
+desc: damage but has a chance to confuse each monster in the area of effect.
+desc: Uniques or monsters that resist confusion are not affected.
+
+spell:Create Traps:30:15:75:25:0
+effect:TOUCH:MAKE_TRAP
+param:1
+desc:A trap is created on each empty floor space that is directly
+desc: adjacent to you.
+desc: This spell has no effect when used in the town.
+
+spell:Scare Monsters:32:15:80:30:0
+effect:PROJECT_LOS_AWARE:TURN_ALL
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+desc:Attempts to scare each monster within line of sight.
+desc: Uniques and monsters that resist fear are not affected.
+
+spell:Stun Monsters:35:20:85:40:0
+effect:PROJECT_LOS_AWARE:OLD_STUN
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+desc:Attempts to stun each monster within line of sight.
+
+spell:Summon Monsters:37:37:90:50:0
+effect:SUMMON:MONSTERS
+param:0:5
+dice:8
+msg_other: summons some monsters.
+desc:Attempts to summon up to eight monsters generated at the current dungeon
+desc: level.
+desc: This spell has no effect when used in the town.
+
+book:shadow book:[Shadows Escapes]:8:4
+
+spell:Door Creation:17:7:30:15:0
+effect:TOUCH:MAKE_DOOR
+param:1
+desc:A door is created on each empty floor space that is directly
+desc: adjacent to you. These doors are closed, but not locked.
+
+spell:Sense Surroundings:20:15:50:20:0
+effect:MAP_AREA
+dice:22d40
+desc:Maps out a portion of the level around you.
+
+spell:Invisibility:23:14:45:20:0
+effect:TIMED_INC:INVIS
+param:5
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 20
+desc:Makes you invisible for a short duration.
+desc: High level, questor, invisible and injured monsters
+desc: cannot be fooled by this trick.
+
+spell:Stair Creation:25:12:40:25:0
+effect:CREATE_STAIRS
+desc:A stair (going up or down, chosen at random) is created on the space
+desc: where you are standing. This will destroy any terrain feature that
+desc: was there before. It will also destroy all items currently on the
+desc: floor where the spell is cast.
+
+spell:Teleport Level:27:20:60:20:0
+effect:TELEPORT_LEVEL
+desc:Teleports you 1 level up or 1 level down (chosen at random).
+
+spell:Teleport to Target:29:20:65:20:0
+effect:TELEPORT_TO
+dice:$B
+expr:B:PLAYER_LEVEL:/ 5 + 10
+desc:Teleports you next to a chosen target.
+
+spell:Teleport Other:31:25:70:20:0
+effect:BOLT_STATUS:AWAY_ALL
+param:1
+dice:$B
+expr:B:MAX_SIGHT:* 5
+msg_other: makes a rush gesture.
+desc:Produces a bolt that teleports the first monster in its path
+desc: up to 100 squares away.
+
+spell:Word of Recall:36:40:80:18:0
+effect:RECALL
+dice:$B+1d$S
+expr:B:PLAYER_LEVEL:n + 50
+expr:S:PLAYER_LEVEL:n + 56
+desc:Teleports you from the dungeon to the town or from the town to the
+desc: deepest level you have visited in the dungeon.
+desc: The recall effect is not immediate; it is delayed by a level-dependant
+desc: duration. During that delay, the effect can be canceled by invoking
+desc: the spell of recall again.
+
+book:shadow book:[Bilbo's Tome of Burglary]:7:4
+
+spell:Beam of Disarming:24:17:60:30:0
+effect:ALTER:KILL_TRAP
+desc:Creates a line which disarms all traps, unlocks all locked doors and
+desc: reveals all secret doors.
+
+spell:Knowledge Explosion:5:20:50:40:0
+effect:BLAST_OBVIOUS:IDENTIFY
+param:2:40
+dice:1
+desc:Creates a radius-2 or radius-3 ball around you that
+desc: reveals all normal and hidden powers of objects.
+
+spell:Recharging:29:30:95:50:0
+effect:RECHARGE
+dice:$B
+expr:B:PLAYER_LEVEL:+ 20
+desc:Adds charges to a stack of wands or staves.
+desc: Chance of success and number of charges gained increase with your
+desc: level and decrease with level of wand or staff and number of charges.
+desc: A failed attempt to recharge destroys one wand or staff from the stack.
+
+spell:Enchant Armor:31:50:95:90:0
+effect:ENCHANT
+param:4
+dice:$B+1d3
+expr:B:PLAYER_LEVEL:/ 20
+desc:Attempts to improve the armour class bonus of a piece of armour.
+desc: Also gives a chance to break a curse.
+
+#spell:Dispel Curse:33:40:80:80:0
+#effect:REMOVE_ALL_CURSE
+#desc:Removes all ordinary and heavy curses from all carried objects.
+#desc: Permanent curses are not affected.
+
+spell:Enchant Weapon:35:55:90:90:0
+effect:ENCHANT
+param:3
+dice:$B+1d4
+expr:B:PLAYER_LEVEL:/ 20
+desc:Attempts to improve the to-hit bonus and the to-dam bonus of a weapon.
+desc: Also gives a chance to break a curse.
+
+spell:Elemental Brand:37:60:80:120:0
+effect:BRAND_AMMO
+desc:Brands one stack of ammunition with fire, cold or poison
+desc: (selected at random) and at the same time attempts to improve
+desc: the to-hit bonus and the to-dam bonus of the same ammunition.
+desc: The spell has no effect if the ammunition is already branded, has a
+desc: slay, is broken or is cursed.
+
+spell:Greater Identify:39:50:85:90:0
+effect:IDENTIFY_PACK
+desc:Reveals all normal and hidden powers of all carried objects.
+
+book:shadow book:[Great Shadows]:6:4
+
+spell:Cloudkill:25:20:60:15:0
+effect:BALL:POIS:3
+dice:$B
+expr:B:PLAYER_LEVEL:/ 2 + 40
+msg_other: fires a cloud of death.
+desc:Shoots a radius-3 poison ball.
+
+spell:Resistance:31:30:85:80:0
+effect:TIMED_INC:OPP_POIS
+dice:20+1d20
+effect:TIMED_INC:OPP_COLD
+dice:20+1d20
+effect:TIMED_INC:OPP_FIRE
+dice:20+1d20
+effect:TIMED_INC:OPP_ELEC
+dice:20+1d20
+effect:END_INFO
+effect:TIMED_INC:OPP_ACID
+dice:20+1d20
+desc:Grants you resistance to acid, cold, fire, lightning and poison for
+desc: 20+1d20 turns.
+
+spell:Day of the Misrule:32:25:70:65:0
+effect:TIMED_INC:SHERO
+dice:30+1d30
+effect:TIMED_INC:BOLD
+dice:30+1d30
+effect:CURE:AFRAID
+effect:HEAL_HP
+dice:30
+effect:TIMED_SET:FAST
+dice:30+1d30
+msg_self:%s of the Night rejoice! It's the Day of the Misrule!
+desc:Hastes you (+10 to speed), cures 30 points of damage, removes fear and
+desc: grants you berserk strength (resistance to fear, a bonus of +24 to-hit and
+desc: a penalty of -10 to AC) for 30+1d30 turns.
+
+spell:Shield:34:20:75:80:0
+effect:TIMED_INC:SHIELD
+dice:30+1d20
+desc:Grants you +50 to AC for 30+1d20 turns.
+
+spell:Shock Wave:35:25:80:50:0
+effect:BALL:SOUND:2
+dice:$B
+expr:B:PLAYER_LEVEL:+ 10
+msg_other: fires a sonic ball.
+desc:Shoots a radius-2 sound ball.
+desc: Apart from doing sound damage, this also has a chance to stun
+desc: each monster in the area of effect.
+
+spell:Avoid Traps:39:25:85:50:0:0
+effect:TIMED_INC:TRAPS
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 30
+desc:Makes you immune to trap effects for a level-dependant duration.
+
+
+############### RANGER ###############
+name:4:Ranger
+color:U
+stats:0:2:-2:1:-1
+skill-disarm:30:8
+skill-device:32:10
+skill-save:28:10
+skill-stealth:3:0
+skill-search:24:0
+skill-search-freq:16:0
+skill-melee:56:30
+skill-shoot:72:45
+skill-dig:0:0
+info:5:30:20000:40
+attack:5:35:4
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:magic book:[Magic for Beginners]:1:1:1
+equip:sword:Dagger:1:1:1
+equip:bow:Short Bow:1:1:0
+equip:arrow:Arrow:15:20:0
+equip:scroll:Word of Recall:1:1:0
+flags:CUMBER_GLOVE | EXTRA_SHOT | CHOOSE_SPELLS | PSEUDO_ID_IMPROV
+title:Runner
+title:Strider
+title:Scout
+title:Courser
+title:Tracker
+title:Guide
+title:Explorer
+title:Pathfinder
+title:Ranger
+title:Ranger Lord
+
+magic:3:400:1:9
+
+book:magic book:[Magic for Beginners]:7:1
+
+spell:Magic Missile:3:1:30:1:0
+effect:BOLT_OR_BEAM:MISSILE:-10
+dice:$Dd4
+expr:D:PLAYER_LEVEL:- 1 / 5 + 3
+msg_other: fires a magic missile.
+desc:Fires a magic missile that always hits its target and does
+desc: unresistable damage.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Detect Monsters:3:2:35:2:0
+effect:DETECT_VISIBLE_MONSTERS
+dice:22d40
+desc:Detects all non-invisible monsters in the immediate area,
+desc: for one turn only.
+
+spell:Phase Door:3:2:35:2:0
+effect:TELEPORT
+dice:10
+msg_other: blinks away.
+desc:Teleports you randomly up to 10 squares away.
+
+spell:Light Area:5:3:35:1:0
+effect:LIGHT_AREA
+param:1:10
+dice:2d$S
+expr:S:PLAYER_LEVEL:/ 2
+msg_other: calls light.
+desc:Lights up all squares in a level-dependant area and hurts
+desc: all light-sensitive monsters in the area of effect.
+desc: If you are in a room, the entire room will be lit up as well.
+
+spell:Cure Light Wounds:5:3:40:1:0
+effect:TIMED_DEC:CONFUSED
+dice:20
+effect:TIMED_DEC:CUT
+dice:20
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:15+m15
+desc:Cures 15% of your wounds (min 15hp) and heals 20 points worth of cuts.
+
+spell:Find Traps, Doors & Stairs:5:4:45:2:0
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all traps, doors and stairs in the immediate area.
+
+spell:Stinking Cloud:7:5:40:3:0
+effect:BALL:POIS:2
+dice:$B
+expr:B:PLAYER_LEVEL:/ 2 + 10
+msg_other: fires a stinking cloud.
+desc:Shoots a radius-2 poison ball.
+
+book:magic book:[Conjurings and Tricks]:9:1
+
+spell:Confuse Monster:7:6:40:2:0
+effect:BOLT_AWARE:OLD_CONF
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: makes a complicated gesture.
+desc:Attempts to confuse a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist confusion are not affected.
+
+spell:Lightning Bolt:9:7:40:3:0
+effect:BEAM:ELEC
+dice:$Dd6
+expr:D:PLAYER_LEVEL:- 5 / 6 + 3
+msg_other: fires a lightning bolt.
+desc:Fires a lightning beam that hurts each monster in its path.
+
+spell:Trap/Door Destruction:9:8:45:3:0
+effect:TOUCH:KILL_DOOR
+msg_other: sways his hands.
+desc:Destroys all traps and doors within a 1-square radius of you.
+
+spell:Cure Poison:11:9:45:3:0
+effect:CURE:POISONED
+desc:Neutralizes poison.
+
+spell:Sleep Monster:11:8:40:3:0
+effect:BOLT_AWARE:OLD_SLEEP
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: gestures and mumbles calmly.
+desc:Attempts to put to sleep a single monster.
+desc: Uniques and monsters that resist sleep are not affected.
+
+spell:Teleport Self:13:10:45:3:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 5
+msg_other: teleports away.
+desc:Teleports you randomly within the current level.
+
+spell:Spear of Light:13:11:55:4:0
+effect:LINE:LIGHT_WEAK
+dice:6d8
+msg_self:A line of shimmering blue light appears.
+msg_other:'s hands project a line of shimmering blue light.
+desc:Fires a beam that lights up each square and hurts each
+desc: light-sensitive monster in its path.
+
+spell:Frost Bolt:15:12:50:4:0
+effect:BOLT_OR_BEAM:COLD:-10
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 5
+msg_other: fires a frost bolt.
+desc:Fires a frost bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Wonder:15:18:80:10:0
+effect:WONDER
+dice:$B+1d100
+expr:B:PLAYER_LEVEL:/ 5
+desc:Invokes a random spell effect.
+
+book:magic book:[Incantations and Illusions]:9:1
+
+spell:Satisfy Hunger:17:17:55:3:0
+effect:SET_NOURISH
+dice:$B
+expr:B:FOOD_MAX:- 1
+desc:Magically renders you well-fed (but not satiated).
+desc: This will also cure a bloated stomach.
+
+spell:Lesser Recharging:29:17:90:4:0
+effect:RECHARGE
+dice:$B
+expr:B:PLAYER_LEVEL:/ 5 + 2
+desc:Adds charges to a stack of wands or staves.
+desc: Chance of success and number of charges gained increase with your
+desc: level and decrease with level of wand or staff and number of charges.
+desc: A failed attempt to recharge destroys one wand or staff from the stack.
+
+spell:Turn Stone to Mud:15:13:50:4:0
+effect:LINE:KILL_WALL
+dice:20+1d30
+msg_other: makes a moving gesture.
+desc:Produces a beam that destroys the first section of wall it hits,
+desc: unless it is a permanent wall. Each monster caught in the beam that
+desc: is susceptible to rock remover takes 20+1d30 points of damage.
+
+spell:Fire Bolt:25:20:60:3:0
+effect:BOLT_OR_BEAM:FIRE
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 6
+msg_other: fires a fire bolt.
+desc:Fires a fire bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Polymorph Other:21:19:60:3:0
+effect:BOLT_AWARE:OLD_POLY
+param:1
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: discharges an everchanging blast of energy.
+desc:Attempts to polymorph a single monster.
+desc: Uniques are not affected.
+
+spell:Identify:23:25:90:3:0
+effect:IDENTIFY
+desc:Reveals all normal and hidden powers of one object.
+
+spell:Reveal Monsters:25:17:50:4:0
+effect:DETECT_MONSTERS
+dice:22d40
+desc:Detects all monsters in the immediate area, for one turn only.
+
+spell:Acid Bolt:20:16:50:6:0
+effect:BOLT_OR_BEAM:ACID
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 8
+msg_other: fires an acid bolt.
+desc:Fires an acid bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Slow Monster:25:21:65:3:0
+effect:BOLT_AWARE:OLD_SLOW
+dice:20
+msg_other: makes a lengthy gesture.
+desc:Attempts to slow down a single monster.
+desc: Uniques are not affected.
+
+book:magic book:[Sorcery and Evocations]:6:1
+
+spell:Frost Ball:27:21:65:6:0
+effect:BALL:COLD:2
+dice:$B
+expr:B:PLAYER_LEVEL:+ 30
+msg_other: fires a frost ball.
+desc:Shoots a radius-2 frost ball.
+
+spell:Teleport Other:31:25:70:3:0
+effect:BOLT_STATUS:AWAY_ALL
+param:1
+dice:$B
+expr:B:MAX_SIGHT:* 5
+msg_other: makes a rush gesture.
+desc:Produces a bolt that teleports the first monster in its path
+desc: up to 100 squares away.
+
+spell:Haste Self:33:25:75:4:0
+effect:TIMED_INC:FAST
+param:5
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 0
+desc:Hastes you (+10 to speed) for a level-dependant duration.
+
+spell:Mass Sleep:23:20:60:4:0
+effect:PROJECT_LOS_AWARE:OLD_SLEEP
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+desc:Attempts to put to sleep each monster within line of sight.
+desc: Uniques and monsters that resist sleep are not affected.
+
+spell:Fire Ball:34:28:80:9:0
+effect:BALL:FIRE:2
+dice:$B
+expr:B:PLAYER_LEVEL:+ 55
+msg_other: fires a fire ball.
+desc:Shoots a radius-2 fire ball.
+
+spell:Detect Treasure:35:20:70:10:0
+effect:DETECT_TREASURES
+dice:22d40
+desc:Detects all treasure in the immediate area.
+
+book:magic book:[Resistances of Scarabtarices]:5:1
+
+spell:Resist Cold:8:15:50:30:0
+effect:TIMED_INC:OPP_COLD
+dice:20+1d20
+desc:Grants you resistance to cold for 20+1d20 turns.
+
+spell:Resist Fire:8:15:50:30:0
+effect:TIMED_INC:OPP_FIRE
+dice:20+1d20
+desc:Grants you resistance to fire for 20+1d20 turns.
+
+spell:Resist Poison:26:25:75:50:0
+effect:TIMED_INC:OPP_POIS
+dice:20+1d20
+desc:Grants you resistance to poison for 20+1d20 turns.
+
+spell:Resistance:31:40:85:70:0
+effect:TIMED_INC:OPP_POIS
+dice:20+1d20
+effect:TIMED_INC:OPP_COLD
+dice:20+1d20
+effect:TIMED_INC:OPP_FIRE
+dice:20+1d20
+effect:TIMED_INC:OPP_ELEC
+dice:20+1d20
+effect:END_INFO
+effect:TIMED_INC:OPP_ACID
+dice:20+1d20
+desc:Grants you resistance to acid, cold, fire, lightning and poison for
+desc: 20+1d20 turns.
+
+spell:Shield:35:30:75:80:0
+effect:TIMED_INC:SHIELD
+dice:30+1d20
+desc:Grants you +50 to AC for 30+1d20 turns.
+
+book:magic book:[Raal's Tome of Destruction]:4:1
+
+spell:Cloudkill:22:19:60:6:0
+effect:BALL:POIS:3
+dice:$B
+expr:B:PLAYER_LEVEL:/ 2 + 40
+msg_other: fires a cloud of death.
+desc:Shoots a radius-3 poison ball.
+
+spell:Acid Ball:30:24:70:6:0
+effect:BALL:ACID:2
+dice:$B
+expr:B:PLAYER_LEVEL:+ 40
+msg_other: fires an acid ball.
+desc:Shoots a radius-2 acid ball.
+
+spell:Ice Storm:35:35:70:10:0
+effect:BALL:ICE:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 50
+msg_other: invokes an ice storm.
+desc:Shoots a radius-3 ice ball.
+
+spell:Meteor Swarm:36:45:80:35:0
+effect:SWARM:METEOR:1
+dice:$B+m$M
+expr:B:PLAYER_LEVEL:/ 2 + 30
+expr:M:PLAYER_LEVEL:/ 20 + 2
+msg_other: fires a swarm of meteors.
+desc:Shoots a swarm of 3 or 4 meteors.
+desc: Meteors will travel until hitting a wall, a monster
+desc: or reaching the target location.
+desc: Meteors will explode as a radius-1 ball that does unresistable
+desc: damage to each monster in its area of effect.
+desc: If this kills the monster that blocked the path to the target
+desc: location, the next meteor may continue to find another target.
+
+book:magic book:[Mordenkainen's Escapes]:5:1
+
+spell:Door Creation:20:17:20:25:0
+effect:TOUCH:MAKE_DOOR
+param:1
+desc:A door is created on each empty floor space that is directly
+desc: adjacent to you. These doors are closed, but not locked.
+
+spell:Stair Creation:32:32:50:40:0
+effect:CREATE_STAIRS
+desc:A stair (going up or down, chosen at random) is created on the space
+desc: where you are standing. This will destroy any terrain feature that
+desc: was there before. It will also destroy all items currently on the
+desc: floor where the spell is cast.
+
+spell:Teleport Level:34:27:60:15:0
+effect:TELEPORT_LEVEL
+desc:Teleports you 1 level up or 1 level down (chosen at random).
+
+spell:Word of Recall:35:35:75:16:0
+effect:RECALL
+dice:14+1d20
+desc:Teleports you from the dungeon to the town or from the town to the
+desc: deepest level you have visited in the dungeon.
+desc: The recall effect is not immediate; it is delayed by 14+1d20 turns.
+desc: During that delay, the effect can be canceled by invoking the spell
+desc: of recall again.
+
+spell:Rune of Protection:40:75:80:80:0
+effect:RUNE
+desc:Inscribes a glyph of warding beneath you.
+desc: Summoned monsters can't appear on the glyph.
+desc: If a monster attempts to move onto the glyph or melee you while you
+desc: are standing on the glyph, it must first succeed in breaking the glyph.
+desc: Higher level monsters are more likely to break the glyph.
+desc: The glyph will remain where it is, until a monster succeeds in
+desc: breaking it or until you leave the level.
+
+book:magic book:[Tenser's Transformations]:6:1
+
+spell:Heroism:18:15:30:40:0
+effect:TIMED_INC:BOLD
+dice:25+1d25
+effect:CURE:AFRAID
+effect:HEAL_HP
+dice:10
+effect:TIMED_INC:HERO
+dice:25+1d25
+desc:Cures 10 points of damage, removes fear and grants you heroism
+desc: (resistance to fear and a bonus of +12 to-hit) for 25+1d25 turns.
+
+spell:Berserker:23:30:80:35:0
+effect:TIMED_INC:BOLD
+dice:25+1d25
+effect:CURE:AFRAID
+effect:HEAL_HP
+dice:30
+effect:TIMED_INC:SHERO
+dice:25+1d25
+desc:Cures 30 points of damage, removes fear and grants you berserk
+desc: strength (resistance to fear, a bonus of +24 to-hit and a penalty
+desc: of -10 to AC) for 25+1d25 turns.
+
+spell:Enchant Armor:33:45:90:50:0
+effect:ENCHANT
+param:4
+dice:$B+1d3
+expr:B:PLAYER_LEVEL:/ 20
+desc:Attempts to improve the armour class bonus of a piece of armour.
+desc: Also gives a chance to break a curse.
+
+spell:Enchant Weapon:34:50:90:60:0
+effect:ENCHANT
+param:3
+dice:$B+1d4
+expr:B:PLAYER_LEVEL:/ 20
+desc:Attempts to improve the to-hit bonus and the to-dam bonus of a weapon.
+desc: Also gives a chance to break a curse.
+
+spell:Greater Recharging:35:50:95:115:0
+effect:RECHARGE
+dice:$B
+expr:B:PLAYER_LEVEL:+ 50
+desc:Adds charges to a stack of wands or staves.
+desc: Chance of success and number of charges gained increase with your
+desc: level and decrease with level of wand or staff and number of charges,
+desc: but are overall much better than for the spell Lesser Recharging.
+desc: A failed attempt to recharge destroys one wand or staff from the stack.
+
+spell:Elemental Brand:31:60:95:180:0
+effect:BRAND_AMMO
+desc:Brands one stack of ammunition with fire, cold or poison
+desc: (selected at random) and at the same time attempts to improve
+desc: the to-hit bonus and the to-dam bonus of the same ammunition.
+desc: The spell has no effect if the ammunition is already branded, has a
+desc: slay, is broken or is cursed.
+
+book:magic book:[Kelek's Grimoire of Power]:3:1
+
+spell:Earthquake:30:28:60:16:0
+effect:EARTHQUAKE
+dice:10
+desc:Causes a 10-square radius earthquake around you.
+desc: Earthquakes may damage monsters and destroy items in some
+desc: squares in the area of effect.
+desc: Artifacts will not be destroyed by this spell.
+desc: This spell has no effect when used in the town.
+
+spell:Bedlam:32:30:70:12:0
+effect:BALL_OBVIOUS:OLD_CONF:4
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: fires a confusion ball.
+desc:Shoots a radius-4 confusion ball that doesn't cause physical
+desc: damage but has a chance to confuse each monster in the area of effect.
+desc: Uniques or monsters that resist confusion are not affected.
+
+spell:Word of Destruction:37:30:95:30:0
+effect:DESTRUCTION
+dice:15
+desc:Destroys everything in a 15-square radius circle around you.
+desc: All monsters, objects and terrain features in the area of
+desc: effect are destroyed, except stairs and permanent walls.
+desc: You will also be blinded for 10+1d10 turns, unless you
+desc: have resistance to blindness or light.
+desc: This spell has no effect when used in the town.
+
+
+############### PALADIN ###############
+name:5:Paladin
+color:B
+stats:1:-3:1:-1:2
+skill-disarm:20:7
+skill-device:24:10
+skill-save:25:11
+skill-stealth:0:0
+skill-search:12:0
+skill-search-freq:2:0
+skill-melee:68:35
+skill-shoot:40:30
+skill-dig:0:0
+info:7:35:60000:40
+attack:5:30:5
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:prayer book:[Beginners Handbook]:1:1:1
+equip:sword:Dagger:1:1:1
+equip:scroll:Protection from Evil:1:1:0
+equip:scroll:Word of Recall:1:1:0
+flags:PSEUDO_ID_IMPROV
+title:Gallant
+title:Keeper
+title:Protector
+title:Defender
+title:Warder
+title:Knight
+title:Guardian
+title:Chevalier
+title:Paladin
+title:Paladin Lord
+
+magic:1:400:2:9
+
+book:prayer book:[Beginners Handbook]:7:2
+
+spell:Detect Evil:1:1:30:4:0
+effect:DETECT_EVIL
+dice:22d40
+desc:Detects all evil monsters in the immediate area,
+desc: for one turn only.
+
+spell:Cure Light Wounds:2:2:35:4:1
+effect:TIMED_DEC:CONFUSED
+dice:20
+effect:TIMED_DEC:CUT
+dice:20
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:15+m15
+desc:Cures 15% of your wounds (min 15hp) and heals 20 points worth of cuts.
+
+spell:Bless:3:3:35:4:0
+effect:TIMED_INC:BLESSED
+dice:12+1d12
+desc:Blesses you, giving a bonus of +5 to AC and +10 to-hit, for 12+1d12 turns.
+
+spell:Remove Fear:5:3:15:4:0
+effect:CURE:AFRAID
+desc:Removes fear.
+
+spell:Call Light:5:4:35:4:0
+effect:LIGHT_AREA
+param:1:10
+dice:2d$S
+expr:S:PLAYER_LEVEL:/ 2
+msg_other: calls light.
+desc:Lights up all squares in a level-dependant area and hurts
+desc: all light-sensitive monsters in the area of effect.
+desc: If you are in a room, the entire room will be lit up as well.
+
+spell:Find Traps, Doors & Stairs:7:5:40:3:0
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all traps, doors and stairs in the immediate area.
+
+spell:Slow Poison:9:7:40:3:0
+effect:TIMED_DEC:POISONED
+param:2
+desc:Halves the remaining duration of any current poisoning.
+
+book:prayer book:[Words of Wisdom]:7:2
+
+spell:Scare Monster:9:7:40:3:0
+effect:BOLT_AWARE:TURN_ALL
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+desc:Attempts to scare a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist fear are not affected.
+
+spell:Portal:9:8:40:3:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 3
+msg_other: blinks away.
+desc:Teleports you randomly over a short distance.
+
+spell:Cure Serious Wounds:11:9:40:3:1
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:CURE:CUT
+effect:HEAL_HP
+dice:25+m20
+desc:Cures 20% of your wounds (min 25hp) and heals all cut damage.
+
+spell:Chant:11:10:45:3:0
+effect:TIMED_INC:BLESSED
+dice:24+1d24
+desc:Blesses you, giving a bonus of +5 to AC and +10 to-hit, for 24+1d24
+desc: turns.
+
+spell:Sanctuary:11:10:45:3:0
+effect:TOUCH_AWARE:OLD_SLEEP
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: is briefly enclosed by a deep blue aura.
+desc:Attempts to put to sleep each monster directly adjacent to you.
+desc: Uniques and monsters that resist sleep are not affected.
+
+spell:Satisfy Hunger:13:10:45:3:0
+effect:SET_NOURISH
+dice:$B
+expr:B:FOOD_MAX:- 1
+desc:Magically renders you well-fed (but not satiated).
+desc: This will also cure a bloated stomach.
+
+#spell:Remove Curse:13:11:45:4:0
+#effect:REMOVE_CURSE
+#desc:Removes all ordinary curses from one carried item.
+#desc: Heavy or permanent curses are not affected.
+
+spell:Resist Heat and Cold:15:13:45:4:0
+effect:TIMED_INC:OPP_COLD
+dice:10+1d10
+effect:END_INFO
+effect:TIMED_INC:OPP_FIRE
+dice:10+1d10
+desc:Gives you temporary resistance to cold and fire, for 10+1d10 turns each.
+
+book:prayer book:[Chants and Blessings]:9:2
+
+spell:Neutralize Poison:15:15:50:4:0
+effect:CURE:POISONED
+desc:Neutralizes poison.
+
+spell:Orb of Draining:17:15:50:4:0
+effect:BALL:HOLY_ORB
+param:2:30
+dice:$B+3d6
+expr:B:PLAYER_LEVEL:* 5 / 4
+msg_other: fires a holy orb!
+desc:Shoots a radius-2 or radius-3 ball that does unresistable
+desc: damage to each monster in its area of effect.
+desc: Evil monsters take double damage.
+desc: All cursed items in the area of effect are destroyed.
+desc: The bigger area of effect is attained at character level 30.
+
+spell:Cure Critical Wounds:17:15:50:4:1
+effect:CURE:AMNESIA
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:30+m25
+desc:Cures 25% of your wounds (min 30hp) and heals all cut damage, poison,
+desc: amnesia and stunning.
+
+spell:Sense Invisible:19:15:50:4:0
+effect:TIMED_INC:SINVIS
+dice:24+1d24
+desc:Enables you to see invisible monsters for 24+1d24 turns.
+
+spell:Protection from Evil:19:15:50:4:0
+effect:TIMED_INC:PROTEVIL
+dice:$B+1d25
+expr:B:PLAYER_LEVEL:* 3
+desc:Protects you from evil for a level-dependant duration:
+desc: all melee attacks by evil monsters have a chance to be repelled,
+desc: unless the monster's level is higher than your character level.
+
+spell:Earthquake:21:17:50:3:0
+effect:EARTHQUAKE
+dice:10
+desc:Causes a 10-square radius earthquake around you.
+desc: Earthquakes may damage monsters and destroy items in some
+desc: squares in the area of effect.
+desc: Artifacts will not be destroyed by this prayer.
+desc: This prayer has no effect when used in the town.
+
+spell:Sense Surroundings:23:17:50:3:0
+effect:MAP_AREA
+dice:22d40
+desc:Maps out a portion of the level around you.
+
+spell:Cure Mortal Wounds:25:20:50:3:1
+effect:CURE:AMNESIA
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:50+m30
+desc:Cures 30% of your wounds (min 50hp), cures all stunning and heals all
+desc: cut damage, poison and amnesia.
+
+spell:Turn Undead:27:21:50:3:0
+effect:PROJECT_LOS_AWARE:TURN_UNDEAD
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: tries to turn undead.
+desc:Attempts to scare each undead monster within line of sight,
+desc: causing it to flee in terror for a level-dependant duration.
+
+book:prayer book:[Exorcism and Dispelling]:4:2
+
+spell:Prayer:29:22:50:3:0
+effect:TIMED_INC:BLESSED
+dice:48+1d48
+desc:Blesses you, giving a bonus of +5 to AC and +10 to-hit, for 48+1d48 turns.
+
+spell:Dispel Undead:31:24:60:3:0
+effect:PROJECT_LOS_AWARE:DISP_UNDEAD
+param:1
+dice:d$S
+expr:S:PLAYER_LEVEL:* 3
+msg_other: dispels undead.
+desc:Inflicts unresistable damage on each undead monster within line of sight.
+
+spell:Heal:33:28:60:3:1
+effect:CURE:AMNESIA
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:300+m35
+desc:Cures at least 300 points of damage (up to 35% of max HP), cures all
+desc: stunning, heals all cut damage, neutralizes poison, and cures amnesia.
+
+spell:Dispel Evil:35:32:70:4:0
+effect:PROJECT_LOS_AWARE:DISP_EVIL
+param:1
+dice:d$S
+expr:S:PLAYER_LEVEL:* 3
+msg_other: dispels evil.
+desc:Inflicts unresistable damage on each evil monster within line of sight.
+
+book:prayer book:[Ethereal Openings]:5:2
+
+spell:Blink:7:7:50:2:0
+effect:TELEPORT
+dice:10
+msg_other: blinks away.
+desc:Teleports you randomly up to 10 squares away.
+
+spell:Teleport Self:20:20:50:4:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 8
+msg_other: teleports away.
+desc:Teleports you randomly within the current level.
+
+spell:Teleport Other:25:25:80:12:0
+effect:BOLT_STATUS:AWAY_ALL
+param:1
+dice:$B
+expr:B:MAX_SIGHT:* 5
+msg_other: prays for divine intervention.
+desc:Produces a bolt that teleports the first monster in its path
+desc: up to 100 squares away.
+
+spell:Teleport Level:35:50:75:115:0
+effect:TELEPORT_LEVEL
+desc:Teleports you 1 level up or 1 level down (chosen at random).
+
+spell:Word of Recall:40:60:75:10:0
+effect:RECALL
+dice:14+1d20
+desc:Teleports you from the dungeon to the town or from the town to the
+desc: deepest level you have visited in the dungeon.
+desc: The recall effect is not immediate; it is delayed by 14+1d20 turns.
+desc: During that delay, the effect can be canceled by invoking the prayer
+desc: of recall again.
+
+book:prayer book:[Godly Insights]:4:2
+
+spell:Detect Monsters:5:5:50:1:0
+effect:DETECT_VISIBLE_MONSTERS
+dice:22d40
+desc:Detects all non-invisible monsters in the immediate area,
+desc: for one turn only.
+
+spell:Detection:15:15:80:12:0
+effect:DETECT_MONSTERS
+dice:22d40
+effect:DETECT_TREASURES
+dice:22d40
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all gold, objects, doors, stairs, traps and monsters
+desc: in the immediate area.
+
+spell:Identify:25:25:80:16:0
+effect:IDENTIFY
+desc:Reveals all normal and hidden powers of one object.
+
+spell:Probing:30:15:80:135:0
+effect:PROBE
+desc:Probes each monster within line of sight, giving information on the
+desc: current hit points of the monster and many of its characteristics
+desc: and abilities.
+
+book:prayer book:[Purifications and Healing]:3:2
+
+spell:Cure Serious Wounds:9:5:50:25:1
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:CURE:CUT
+effect:HEAL_HP
+dice:25+m20
+desc:Cures 20% of your wounds (min 25hp) and heals all cut damage.
+
+spell:Cure Mortal Wounds:20:10:60:35:1
+effect:CURE:AMNESIA
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:CONFUSED
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:50+m30
+desc:Cures 30% of your wounds (min 50hp), cures all stunning and heals all
+desc: cut damage, poison and amnesia.
+
+spell:Restoration:40:80:90:250:1
+effect:RESTORE_STAT:CON
+effect:RESTORE_STAT:DEX
+effect:RESTORE_STAT:WIS
+effect:RESTORE_STAT:INT
+effect:RESTORE_STAT:STR
+desc:Restores to maximum all stats that are currently below maximum.
+
+book:prayer book:[Holy Infusions]:5:2
+
+spell:Unbarring Ways:10:16:50:20:0
+effect:TOUCH:KILL_DOOR
+msg_other: sways his hands.
+desc:Destroys all traps and doors within a 1-square radius of you.
+
+spell:Recharging:25:30:80:15:0
+effect:RECHARGE
+dice:$B
+expr:B:PLAYER_LEVEL:+ 20
+desc:Adds charges to a stack of wands or staves.
+desc: Chance of success and number of charges gained increase with your
+desc: level and decrease with level of wand or staff and number of charges.
+desc: A failed attempt to recharge destroys one wand or staff from the stack.
+
+spell:Enchant Weapon:40:70:80:200:0
+effect:ENCHANT
+param:3
+dice:1d4
+desc:Attempts to improve the to-hit bonus and the to-dam bonus of a weapon.
+desc: Also gives a chance to break a curse.
+
+spell:Enchant Armor:42:80:85:250:0
+effect:ENCHANT
+param:4
+dice:1+1d3
+desc:Attempts to improve the armour class bonus of a piece of armour.
+desc: Also gives a chance to break a curse.
+
+spell:Elemental Brand:47:95:85:250:0
+effect:BRAND_WEAPON
+desc:Brands the currently wielded melee weapon with fire (50%) or cold (50%),
+desc: and at the same time attempts to improve the to-hit bonus and the
+desc: to-dam bonus of the same weapon.
+desc: The prayer has no effect if the weapon is an artifact or ego item,
+desc: is already branded, has a slay, is broken or is cursed.
+
+book:prayer book:[Wrath of God]:3:2
+
+spell:Dispel Undead:20:13:70:20:0
+effect:PROJECT_LOS_AWARE:DISP_UNDEAD
+param:1
+dice:d$S
+expr:S:PLAYER_LEVEL:* 4
+msg_other: dispels undead.
+desc:Inflicts unresistable damage on each undead monster within line of sight.
+
+spell:Banish Evil:30:35:80:200:0
+effect:PROJECT_LOS_AWARE:AWAY_EVIL
+dice:100
+msg_self:The power of your god banishes evil!
+msg_other: speaks a holy curse on nearby evil!
+desc:Teleports away each evil monster within line of sight.
+
+spell:Word of Destruction:0:40:80:100:0
+effect:DESTRUCTION
+dice:15
+desc:Destroys everything in a 15-square radius circle around you.
+desc: All monsters, objects and terrain features in the area of
+desc: effect are destroyed, except stairs and permanent walls.
+desc: You will also be blinded for 10+1d10 turns, unless you
+desc: have resistance to blindness or light.
+desc: This prayer has no effect when used in the town.
+
+
+############### SORCEROR ###############
+name:6:Sorceror
+color:o
+stats:-5:5:0:0:-3
+skill-disarm:35:8
+skill-device:40:15
+skill-save:30:9
+skill-stealth:2:0
+skill-search:16:0
+skill-search-freq:20:0
+skill-melee:30:11
+skill-shoot:20:15
+skill-dig:0:0
+info:0:35:170000:5
+attack:1:40:2
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:sorcery book:[Apprentice Handbook]:1:1:1
+equip:sword:Dagger:1:1:1
+equip:scroll:Word of Recall:1:1:0
+flags:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
+flags:EXTRA_MANA
+title:Novice
+title:Apprentice
+title:Trickster
+title:Illusionist
+title:Spellbinder
+title:Evoker
+title:Conjurer
+title:Warlock
+title:Sorcerer
+title:Arch-Mage
+
+magic:1:300:3:8
+
+book:sorcery book:[Apprentice Handbook]:8:3
+
+spell:Magic Missile:1:1:12:4:0
+effect:BOLT_OR_BEAM:MISSILE:-10
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 1 / 5 + 3
+expr:S:PLAYER_LEVEL:/ 10 + 4
+msg_other: fires a magic missile.
+desc:Fires a magic missile that always hits its target and does
+desc: unresistable damage.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Detect Monsters:1:1:13:4:0
+effect:DETECT_VISIBLE_MONSTERS
+dice:22d40
+desc:Detects all non-invisible monsters in the immediate area,
+desc: for one turn only.
+
+spell:Phase Door:2:2:14:4:0
+effect:TELEPORT
+dice:10
+msg_other: blinks away.
+desc:Teleports you randomly up to 10 squares away.
+
+spell:Light Area:2:2:16:4:0
+effect:LIGHT_AREA
+param:1:10
+dice:2d$S
+expr:S:PLAYER_LEVEL:/ 2
+msg_other: calls light.
+desc:Lights up all squares in a level-dependant area and hurts
+desc: all light-sensitive monsters in the area of effect.
+desc: If you are in a room, the entire room will be lit up as well.
+
+spell:Find Traps, Doors & Stairs:3:3:15:3:0
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all traps, doors and stairs in the immediate area.
+
+spell:Stinking Cloud:3:2:17:3:0
+effect:BALL:POIS:2
+dice:$B
+expr:B:PLAYER_LEVEL:/ 2 + 10
+msg_other: fires a stinking cloud.
+desc:Shoots a radius-2 poison ball.
+
+spell:Detect Treasure:4:4:18:4:0
+effect:DETECT_TREASURES
+dice:22d40
+desc:Detects all treasure in the immediate area.
+
+spell:Confuse Monster:4:4:20:4:0
+effect:BOLT_AWARE:OLD_CONF
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: makes a complicated gesture.
+desc:Attempts to confuse a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist confusion are not affected.
+
+book:sorcery book:[Mystical Words]:8:3
+
+spell:Lightning Bolt:5:4:20:4:0
+effect:BEAM:ELEC
+dice:$Dd6
+expr:D:PLAYER_LEVEL:- 5 / 6 + 4
+msg_other: fires a lightning bolt.
+desc:Fires a lightning beam that hurts each monster in its path.
+
+spell:Trap/Door Destruction:5:5:20:6:0
+effect:TOUCH:KILL_DOOR
+msg_other: sways his hands.
+desc:Destroys all traps and doors within a 1-square radius of you.
+
+spell:Sleep Monster:6:5:20:4:0
+effect:BOLT_AWARE:OLD_SLEEP
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: gestures and mumbles calmly.
+desc:Attempts to put to sleep a single monster.
+desc: Uniques and monsters that resist sleep are not affected.
+
+spell:Teleport Self:6:6:25:5:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 5
+msg_other: teleports away.
+desc:Teleports you randomly within the current level.
+
+spell:Spear of Light:7:6:20:5:0
+effect:LINE:LIGHT_WEAK
+dice:6d8
+msg_self:A line of shimmering blue light appears.
+msg_other:'s hands project a line of shimmering blue light.
+desc:Fires a beam that lights up each square and hurts each
+desc: light-sensitive monster in its path.
+
+spell:Frost Bolt:7:3:30:6:0
+effect:BOLT_OR_BEAM:COLD:-10
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 6
+msg_other: fires a frost bolt.
+desc:Fires a frost bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Satisfy Hunger:8:7:35:8:0
+effect:SET_NOURISH
+dice:$B
+expr:B:FOOD_MAX:- 1
+desc:Magically renders you well-fed (but not satiated).
+desc: This will also cure a bloated stomach.
+
+spell:Turn Stone to Mud:9:7:34:8:0
+effect:LINE:KILL_WALL
+dice:20+1d30
+msg_other: makes a moving gesture.
+desc:Produces a beam that destroys the first section of wall it hits,
+desc: unless it is a permanent wall. Each monster caught in the beam that
+desc: is susceptible to rock remover takes 20+1d30 points of damage.
+
+book:sorcery book:[Arcane Chants]:8:3
+
+spell:Fire Bolt:10:3:35:7:0
+effect:BOLT_OR_BEAM:FIRE
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 9
+msg_other: fires a fire bolt.
+desc:Fires a fire bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Polymorph Other:11:7:35:9:0
+effect:BOLT_AWARE:OLD_POLY
+param:1
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: discharges an everchanging blast of energy.
+desc:Attempts to polymorph a single monster.
+desc: Uniques are not affected.
+
+spell:Identify:12:7:40:6:0
+effect:IDENTIFY
+desc:Reveals all normal and hidden powers of one object.
+
+spell:Sense Surroundings:13:10:45:7:0
+effect:MAP_AREA
+dice:22d40
+desc:Maps out a portion of the level around you.
+
+spell:Radiate Fear:14:12:45:8:0
+effect:BLAST_OBVIOUS:TURN_ALL:5
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: emits a blast of terror.
+desc:Attempts to scare monsters around you for a level-dependant duration.
+desc: Uniques and monsters that resist fear are not affected.
+
+spell:Reveal Monsters:15:6:40:10:0
+effect:DETECT_MONSTERS
+dice:22d40
+desc:Detects all monsters in the immediate area, for one turn only.
+
+spell:Elemental Bolt:17:9:40:14:0
+effect:BOLT_OR_BEAM:ACID
+param:2:1
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 5
+effect:BOLT_OR_BEAM:FIRE
+param:2:1
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 5
+effect:BOLT_OR_BEAM:COLD
+param:2:1
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 5
+effect:END_INFO
+effect:BOLT_OR_BEAM:ELEC
+param:2:1
+dice:$Dd8&m4
+expr:D:PLAYER_LEVEL:- 5 / 4 + 5
+msg_other: fires an elemental bolt.
+desc:Fires an elemental bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Meditation:20:5:30:15:0
+effect:TIMED_INC:MEDITATE
+dice:20+1d20
+desc:Helps increasing your mana capacity at the cost of hit points.
+
+book:sorcery book:[Locus of Force]:6:3
+
+spell:Teleport Other:23:12:50:15:0
+effect:BOLT_STATUS:AWAY_ALL
+param:1
+dice:$B
+expr:B:MAX_SIGHT:* 5
+msg_other: makes a rush gesture.
+desc:Produces a bolt that teleports the first monster in its path
+desc: up to 100 squares away.
+
+spell:Recharging:24:26:70:19:0
+effect:RECHARGE
+dice:$B
+expr:B:PLAYER_LEVEL:+ 20
+desc:Adds charges to a stack of wands or staves.
+desc: Chance of success and number of charges gained increase with your
+desc: level and decrease with level of wand or staff and number of charges.
+desc: A failed attempt to recharge destroys one wand or staff from the stack.
+
+spell:Haste Self:25:12:55:20:1
+effect:TIMED_INC:FAST
+param:5
+dice:$B+1d$S
+expr:B:PLAYER_LEVEL:+ 20
+expr:S:PLAYER_LEVEL:+ 0
+desc:Hastes you (+10 to speed) for a level-dependant duration.
+
+spell:Fire Ball:26:9:55:28:0
+effect:BALL:FIRE:2
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 110
+msg_other: fires a fire ball.
+desc:Shoots a radius-2 fire ball.
+
+spell:Sunfire:28:20:70:35:0
+effect:BALL:LIGHT:2
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 130
+msg_other: invokes the sunfire.
+desc:Shoots a radius-2 light ball.
+
+spell:Sea of Runes:36:60:60:40:0
+effect:SAFE_GUARD
+desc:Inscribes a circle of glyphs of warding around you.
+desc: Summoned monsters can't appear on the glyphs.
+desc: If a monster attempts to move onto a glyph or melee you while you
+desc: are standing on a glyph, it must first succeed in breaking the glyph.
+desc: Higher level monsters are more likely to break the glyphs.
+desc: The glyphs will remain where they are, until a monster succeeds in
+desc: breaking them or until you leave the level.
+
+book:sorcery book:[Powerful Sigils]:5:3
+
+spell:Stone Prison:20:15:44:30:0
+effect:CREATE_WALLS
+desc:A wall is created on each empty floor space that is directly
+desc: adjacent to you.
+
+spell:Stair Creation:24:20:50:40:0
+effect:CREATE_STAIRS
+desc:A stair (going up or down, chosen at random) is created on the space
+desc: where you are standing. This will destroy any terrain feature that
+desc: was there before. It will also destroy all items currently on the
+desc: floor where the spell is cast.
+
+spell:Resistance:28:20:55:60:1
+effect:TIMED_INC:OPP_POIS
+dice:20+1d20
+effect:TIMED_INC:OPP_COLD
+dice:20+1d20
+effect:TIMED_INC:OPP_FIRE
+dice:20+1d20
+effect:TIMED_INC:OPP_ELEC
+dice:20+1d20
+effect:END_INFO
+effect:TIMED_INC:OPP_ACID
+dice:20+1d20
+desc:Grants you resistance to acid, cold, fire, lightning and poison for
+desc: 20+1d20 turns.
+
+spell:Word of Recall:30:25:65:70:1
+effect:RECALL
+dice:14+1d20
+desc:Teleports you from the dungeon to the town or from the town to the
+desc: deepest level you have visited in the dungeon.
+desc: The recall effect is not immediate; it is delayed by 14+1d20 turns.
+desc: During that delay, the effect can be canceled by invoking the spell
+desc: of recall again.
+
+spell:Shield:32:24:65:80:1
+effect:TIMED_INC:SHIELD
+dice:30+1d20
+desc:Grants you +50 to AC for 30+1d20 turns.
+
+book:sorcery book:[Disruptive Forces]:5:3
+
+spell:Chaos Blast:28:18:55:60:0
+effect:BLAST:CHAOS:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 100
+msg_other: emits a chaos blast.
+desc:Creates a radius-3 chaos ball around you.
+
+spell:Wraithform:30:30:95:70:1
+effect:TIMED_INC:WRAITHFORM
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 10
+desc:Grants you the ability to pass through non-permanent walls.
+
+spell:Disruption Shield:35:70:95:100:0
+effect:TIMED_INC:MANASHIELD
+dice:8+1d10
+desc:Creates a shield of mana around you that absorbs all damage
+desc: inflicted to your character... as long as you have mana
+desc: to fuel it.
+
+spell:Plasma Blast:6:21:45:120:0
+effect:BLAST:PLASMA:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 250
+msg_other: emits a plasma blast.
+desc:Creates a radius-3 plasma ball around you.
+
+spell:Mana Blast:38:23:45:150:0
+effect:BLAST:MANA:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 350
+msg_other: emits a mana blast.
+desc:Creates a radius-3 mana ball around you.
+
+book:sorcery book:[Forces of the Mind]:5:3
+
+spell:Mind Vision:15:16:30:20:0
+effect:MIND_VISION
+desc:Allows you to infiltrate other players' minds
+desc: and see through their eyes.
+
+spell:Telekinesis:28:50:35:60:0
+effect:TELE_OBJECT
+desc:Allows you to send objects from your inventory
+desc: to another player's inventory.
+
+spell:Greater Identify:32:30:55:100:0
+effect:IDENTIFY_PACK
+desc:Reveals all normal and hidden powers of all carried objects.
+
+spell:Telepathy:36:40:75:150:0
+effect:TIMED_INC:ESP
+dice:$B+1d10
+expr:B:PLAYER_LEVEL:+ 0
+desc:Grants you the power of telepathy for a level-dependant duration.
+
+spell:Clairvoyance:40:50:95:200:0
+effect:ENLIGHTENMENT
+desc:Lights up, maps out and detects all objects on the complete current
+desc: dungeon level.
+
+book:sorcery book:[Power of Ancient Sorcerors]:8:3
+
+spell:Earthquake:20:18:50:30:0
+effect:EARTHQUAKE
+dice:10
+desc:Causes a 10-square radius earthquake around you.
+desc: Earthquakes may damage monsters and destroy items in some
+desc: squares in the area of effect.
+desc: Artifacts will not be destroyed by this spell.
+desc: This spell has no effect when used in the town.
+
+spell:Wipe:27:20:65:50:0
+effect:WIPE_AREA
+param:10
+msg_other: wrecks havoc.
+desc:Wipes everything in a 10-square radius around you.
+desc: Only artifacts and permanent features (stairs and permanent
+desc: doors/walls) will not be affected by this spell.
+desc: This spell has no effect when used in the town.
+
+spell:Word of Destruction:33:21:80:80:0
+effect:DESTRUCTION
+dice:15
+desc:Destroys everything in a 15-square radius circle around you.
+desc: All monsters, objects and terrain features in the area of
+desc: effect are destroyed, except stairs and permanent walls.
+desc: You will also be blinded for 10+1d10 turns, unless you
+desc: have resistance to blindness or light.
+desc: This spell has no effect when used in the town.
+
+spell:Mass Banishment:35:75:90:100:0
+effect:MASS_BANISH
+desc:Removes all monsters within 20 squares of you.
+desc: Uniques are not affected.
+desc: You take 1d3 points of damage for every monster removed.
+
+spell:Annihilation Bolt:39:20:45:180:0
+effect:BOLT:MISSILE
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 400
+msg_other: fires an annihilation bolt.
+desc:Fires a powerful magic missile that always hits its target
+desc: and does unresistable damage.
+
+spell:Mana Storm:42:16:50:200:0
+effect:BALL:MANA:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 350
+msg_other: invokes a mana storm.
+desc:Shoots a radius-3 mana ball that does unresistable
+desc: damage to each monster in its area of effect.
+
+spell:Tidal Wave:45:27:55:250:0
+effect:BALL:WATER:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 450
+msg_other: invokes a tidal wave.
+desc:Shoots a radius-3 water ball.
+
+spell:Anarchy Force:47:31:55:250:0
+effect:STAR_BALL:CHAOS:3
+dice:$B+m8
+expr:B:PLAYER_LEVEL:* 2 + 100
+msg_other: invokes a chaos storm.
+desc:Shoots a radius-3 chaos ball in all eight cardinal directions.
+
+
+############### UNBELIEVER ###############
+name:7:Unbeliever
+color:s
+stats:3:-4:-3:2:2
+skill-disarm:25:10
+skill-device:3:2
+skill-save:32:14
+skill-stealth:0:0
+skill-search:14:0
+skill-search-freq:2:0
+skill-melee:70:45
+skill-shoot:55:45
+skill-dig:0:0
+info:9:15:8000:40
+attack:6:30:5
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:potion:Berserk Strength:1:1:0
+equip:sword:Dagger:1:1:1
+equip:soft armour:Soft Leather Armour:1:1:0
+equip:scroll:Word of Recall:1:1:0
+flags:PSEUDO_ID_IMPROV | NO_MANA
+flags:ANTIMAGIC
+title:Asker
+title:Thinker
+title:Faithless
+title:Critic
+title:Betrayer
+title:Renegate
+title:Undisciple
+title:Disbeliever
+title:Knower
+title:Magicbane
+
+magic:0:0:0:0
+
+
+############### ARCHER ###############
+name:8:Archer
+color:G
+stats:-2:-2:2:2:0
+skill-disarm:30:8
+skill-device:32:10
+skill-save:28:10
+skill-stealth:2:0
+skill-search:24:0
+skill-search-freq:20:0
+skill-melee:56:30
+skill-shoot:82:55
+skill-dig:0:0
+info:4:30:8000:40
+attack:2:35:3
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:hunt book:[Hunting and Tracking]:1:1:1
+equip:sword:Dagger:1:1:1
+equip:bow:Short Bow:1:1:0
+equip:arrow:Arrow:30:40:0
+equip:scroll:Word of Recall:1:1:0
+flags:CUMBER_GLOVE | CHOOSE_SPELLS | PSEUDO_ID_IMPROV
+flags:EXTRA_SHOTS
+title:Rock Thrower
+title:Slinger
+title:Great Slinger
+title:Bowsen
+title:Bowman
+title:Great Bowman
+title:High Archer
+title:Grand Archer
+title:Master Archer
+title:Elite Archer
+
+magic:5:400:5:3
+
+book:hunt book:[Hunting and Tracking]:6:5
+
+spell:Lightning Shots:5:1:10:4:0
+effect:BOW_BRAND_SHOT:ELEC
+dice:3
+desc:Covers your missiles with lightning.
+
+spell:Sense Monsters:7:2:14:8:0
+effect:DETECT_VISIBLE_MONSTERS
+dice:22d40
+desc:Detects all non-invisible monsters in the immediate area,
+desc: for one turn only.
+
+spell:Cold Shots:10:3:18:12:0
+effect:BOW_BRAND_SHOT:COLD
+dice:5
+desc:Covers your missiles with frost.
+
+spell:Create Light:12:4:22:16:0
+effect:LIGHT_AREA
+param:1:10
+dice:2d$S
+expr:S:PLAYER_LEVEL:/ 2
+msg_other: calls light.
+desc:Lights up all squares in a level-dependant area and hurts
+desc: all light-sensitive monsters in the area of effect.
+desc: If you are in a room, the entire room will be lit up as well.
+
+spell:Fire Shots:15:5:26:20:0
+effect:BOW_BRAND_SHOT:FIRE
+dice:7
+desc:Covers your missiles with fire.
+
+spell:Farsight:17:6:30:25:0
+effect:TIMED_INC:FARSIGHT
+dice:$B+1d20&m$M
+expr:B:PLAYER_LEVEL:+ 0
+expr:M:PLAYER_LEVEL:- 7 / 10
+desc:Increases your shooting range, infravision and chance to-hit for a
+desc: level-dependant duration.
+
+book:hunt book:[Killing from Afar]:6:5
+
+spell:Acid Shots:20:7:34:30:0
+effect:BOW_BRAND_SHOT:ACID
+dice:9
+desc:Covers your missiles with acid.
+
+spell:Thunder Shots:22:8:38:35:0
+effect:BOW_BRAND:ELEC
+param:1
+dice:20
+desc:Turns your missiles into explosive lightning shots.
+
+spell:Confusion Shots:25:9:42:40:0
+effect:BOW_BRAND:OLD_CONF
+desc:Turns your missiles into confusing shots.
+
+spell:Poison Shots:27:10:46:45:0
+effect:BOW_BRAND_SHOT:POIS
+dice:11
+desc:Covers your missiles with venom.
+
+spell:Piercing Shots:30:11:50:50:0
+effect:BOW_BRAND:ARROW_X
+desc:Turns your missiles into deadly piercing shots.
+
+spell:Explosive Shots:32:12:54:55:0
+effect:BOW_BRAND:SHARD
+param:1
+dice:10
+desc:Turns your missiles into explosive shots.
+
+book:hunt book:[Arrows of the Master Archers]:5:5
+
+spell:Ice Shots:35:14:58:60:0
+effect:BOW_BRAND:COLD
+param:1
+dice:30
+desc:Turns your missiles into explosive ice shots.
+
+spell:Flame Shots:37:16:62:70:0
+effect:BOW_BRAND:FIRE
+param:1
+dice:35
+desc:Turns your missiles into explosive flame shots.
+
+spell:Water Shots:40:18:66:80:0
+effect:BOW_BRAND:ACID
+param:1
+dice:40
+desc:Turns your missiles into explosive acid shots.
+
+spell:Power Shots:42:20:70:90:0
+effect:BOW_BRAND_SHOT:MISSILE
+dice:20
+desc:Covers your missiles with the elements.
+
+spell:Sonic Shots:45:25:70:100:0
+effect:BOW_BRAND:SOUND
+param:1
+dice:25
+desc:Turns your missiles into explosive sonic shots.
+
+
+############### MONK ###############
+name:9:Monk
+color:W
+stats:1:-2:0:2:1
+skill-disarm:45:15
+skill-device:32:11
+skill-save:28:10
+skill-stealth:3:1
+skill-search:32:0
+skill-search-freq:24:0
+skill-melee:64:40
+skill-shoot:60:30
+skill-dig:10:5
+info:8:10:15000:40
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:potion:Berserk Strength:1:1:0
+equip:soft armour:Soft Leather Armour:1:1:0
+equip:scroll:Word of Recall:1:1:0
+flags:PSEUDO_ID_IMPROV | NO_MANA
+flags:MARTIAL_ARTS
+title:Initiate
+title:Brother
+title:Disciple
+title:Immaculate
+title:Soft Master
+title:Master
+title:Hard Master
+title:Flower Master
+title:Dragon Master
+title:Grand Master
+
+magic:0:0:0:0
+
+
+############### TELEPATH ###############
+name:10:Telepath
+color:y
+stats:-1:-2:3:-1:0
+skill-disarm:30:7
+skill-device:30:13
+skill-save:30:6
+skill-stealth:1:0
+skill-search:26:0
+skill-search-freq:30:0
+skill-melee:42:20
+skill-shoot:30:20
+skill-dig:0:0
+info:3:20:6000:40
+attack:4:35:3
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:psi book:of Telepathy:1:1:1
+equip:sword:Dagger:1:1:1
+equip:scroll:Word of Recall:1:1:0
+flags:BEAM | CHOOSE_SPELLS | PSEUDO_ID_IMPROV
+title:Novice
+title:Talent
+title:Empath
+title:Mindbender
+title:Mindcrafter
+title:Psionicist
+title:Clairvoyant
+title:Telepath
+title:Meta
+title:Pegasus Rider
+
+magic:1:400:6:6
+
+book:psi book:of Telepathy:6:6
+
+spell:Mind Blast:1:1:12:4:0
+effect:BOLT_OR_BEAM:PSI
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 1 / 4 + 3
+expr:S:PLAYER_LEVEL:/ 15 + 3
+msg_other: hurls a mind blast.
+desc:Fires a mental blast that will damage minded creatures.
+desc: This also has a chance to stun, confuse, put to sleep or scare
+desc: affected monsters.
+
+spell:Sense Monsters:2:2:14:4:0
+effect:DETECT_VISIBLE_MONSTERS
+dice:22d40
+desc:Detects all non-invisible monsters in the immediate area,
+desc: for one turn only.
+
+spell:Minor Displacement:3:3:16:5:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:+ 7
+msg_other: blinks away.
+desc:Teleports you randomly to a short distance.
+
+spell:Light Control:4:4:18:5:0
+effect:LIGHT_AREA
+param:1:10
+dice:2d$S
+expr:S:PLAYER_LEVEL:/ 2
+msg_other: calls light.
+desc:Lights up all squares in a level-dependant area and hurts
+desc: all light-sensitive monsters in the area of effect.
+desc: If you are in a room, the entire room will be lit up as well.
+
+spell:Sense Traps, Doors & Stairs:5:5:20:6:0
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all traps, doors and stairs in the immediate area.
+
+spell:Confusion Blast:6:5:22:6:0
+effect:BOLT_AWARE:OLD_CONF
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: hurls a confusing blast.
+desc:Attempts to confuse a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist confusion are not affected.
+
+book:psi book:of Mind Support:6:6
+
+spell:Cell Adjustment:7:6:24:7:0
+effect:TIMED_DEC:CONFUSED
+dice:20
+effect:TIMED_DEC:CUT
+dice:20
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:6+$Dd6
+expr:D:PLAYER_LEVEL:/ 2
+desc:Cures up to 6+25d6 points of damage and heals 20 points worth of cuts.
+
+spell:Major Displacement:8:7:26:8:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 5
+msg_other: teleports away.
+desc:Teleports you randomly within the current level.
+
+spell:Dig:9:8:28:9:0
+effect:LINE:KILL_WALL
+dice:20+1d30
+msg_other: makes a moving gesture.
+desc:Produces a beam that destroys the first section of wall it hits,
+desc: unless it is a permanent wall. Each monster caught in the beam that
+desc: is susceptible to rock remover takes 20+1d30 points of damage.
+
+spell:Mind Vision:10:9:30:10:0
+effect:MIND_VISION
+desc:Allows you to infiltrate other players' minds
+desc: and see through their eyes.
+
+spell:Hypnosis:11:10:32:11:0
+effect:PROJECT_LOS_AWARE:OLD_SLEEP
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+desc:Attempts to put to sleep each monster within line of sight.
+desc: Uniques and monsters that resist sleep are not affected.
+
+spell:Sense Surroundings:12:10:34:12:0
+effect:MAP_AREA
+dice:22d40
+desc:Maps out a portion of the level around you.
+
+book:psi book:of Mindcraft:6:6
+
+spell:Psychometry:14:12:37:14:0
+effect:IDENTIFY
+desc:Reveals all normal and hidden powers of one object.
+
+spell:Satisfy Hunger:16:14:40:16:0
+effect:SET_NOURISH
+dice:$B
+expr:B:FOOD_MAX:- 1
+msg_self:You focus your mind to convert energy into food.
+desc:Magically renders you well-fed (but not satiated).
+desc: This will also cure a bloated stomach.
+
+spell:Stunning Wave:18:15:43:18:0
+effect:PROJECT_LOS_AWARE:OLD_STUN
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+desc:Attempts to stun each monster within line of sight.
+
+spell:Kinetic Blast:20:11:46:20:0
+effect:BEAM:FORCE
+dice:$B+1d$S
+expr:B:PLAYER_LEVEL:+ 50
+expr:S:PLAYER_LEVEL:* 2
+msg_other: hurls a kinetic blast.
+desc:Fires a beam of pure mental force that crushes each monster in its path.
+
+spell:Psychic Drain:25:21:53:25:0
+effect:BOLT:PSI_DRAIN
+dice:$Dd6
+expr:D:PLAYER_LEVEL:/ 2
+msg_other: hurls a psychic bolt.
+desc:Drains part of the life-force from a nearby monster and replenishes
+desc: your mana with it. Does not affect undead, demons, golems, elementals or
+desc: vortices.
+
+spell:Mind Wave:30:17:61:35:0
+effect:BLAST:PSI
+param:2:10
+dice:$B
+expr:B:PLAYER_LEVEL:* 3 / 2
+msg_other: radiates a powerful mind wave.
+desc:Creates a radius-5 to radius-7 mental wave around you.
+
+book:psi book:of Telekinesis:6:6
+
+spell:Precognition:20:17:46:20:0
+effect:DETECT_MONSTERS
+dice:22d40
+effect:DETECT_TREASURES
+dice:22d40
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all gold, objects, doors, stairs, traps and monsters
+desc: in the immediate area.
+
+spell:Telekinesis:25:21:53:25:0
+effect:TELE_OBJECT
+desc:Allows you to send objects from your inventory
+desc: to another player's inventory.
+
+spell:Force Shield:27:23:56:29:0
+effect:TIMED_INC:SHIELD
+dice:30+1d20
+desc:Grants you +50 to AC for 30+1d20 turns.
+
+spell:Prismatic Shield:29:25:59:33:0
+effect:TIMED_INC:OPP_POIS
+dice:20+1d20
+effect:TIMED_INC:OPP_COLD
+dice:20+1d20
+effect:TIMED_INC:OPP_FIRE
+dice:20+1d20
+effect:TIMED_INC:OPP_ELEC
+dice:20+1d20
+effect:END_INFO
+effect:TIMED_INC:OPP_ACID
+dice:20+1d20
+desc:Grants you resistance to acid, cold, fire, lightning and poison for
+desc: 20+1d20 turns.
+
+spell:Awareness:32:27:64:39:0
+effect:TIMED_INC:ESP
+dice:$B+1d10
+expr:B:PLAYER_LEVEL:+ 0
+desc:Grants you the power of telepathy for a level-dependant duration.
+
+spell:Sonic Wave:35:20:68:45:0
+effect:BLAST:SOUND
+param:2:10
+dice:$B
+expr:B:PLAYER_LEVEL:* 3 / 2
+msg_other: radiates a powerful sonic wave.
+desc:Creates a radius-5 to radius-7 sonic wave around you.
+
+book:psi book:of Psychoportation:6:6
+
+spell:Recall:30:25:61:35:0
+effect:RECALL
+dice:14+1d20
+desc:Teleports you from the dungeon to the town or from the town to the
+desc: deepest level you have visited in the dungeon.
+desc: The recall effect is not immediate; it is delayed by 14+1d20 turns.
+desc: During that delay, the effect can be canceled by invoking the power
+desc: of recall again.
+
+spell:Space/Time Anchor:32:27:64:39:0
+effect:TIMED_INC:ANCHOR
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 0
+desc:Grants you resistance to gravity and time for a level-dependant duration.
+desc: Watch out, this also prevents any means of teleportation around you!
+
+spell:Displace Other:34:29:67:43:0
+effect:BLAST_OBVIOUS:AWAY_ALL
+param:2:10
+dice:100
+msg_other: makes a rush gesture.
+desc:Creates a radius-5 to radius-7 wave around you that teleports each monster
+desc: in its path up to 100 squares away.
+
+spell:Probability Travel:36:30:70:47:0
+effect:TIMED_INC:PROBTRAVEL
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 0
+desc:Allows you to teleport 1 level up or 1 level down at will.
+desc: This also allows fast traveling on current level.
+
+spell:Inertia Wave:38:21:73:51:0
+effect:BLAST:INERT
+param:2:10
+dice:$B
+expr:B:PLAYER_LEVEL:* 3 / 2
+msg_other: radiates a powerful inertia wave.
+desc:Creates a radius-5 to radius-7 inertia wave around you.
+
+spell:Time Bolt:40:23:76:55:0
+effect:BOLT_OR_BEAM:TIME
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:/ 12 + 10
+expr:S:PLAYER_LEVEL:+ 0
+msg_other: breaks the space/time continuum.
+desc:Fires a time bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+book:psi book:of Empathy:6:6
+
+spell:Biofeedback:35:30:68:45:0
+effect:TIMED_INC:BIOFEEDBACK
+dice:d$S
+expr:S:PLAYER_LEVEL:+ 10
+desc:Increases regeneration rate. Also reduces damage from missile,
+desc: shards or sound attacks.
+desc: This power can cause nasty effects when Adrenaline Channeling is
+desc: activated.
+
+spell:Clairvoyance:40:34:76:55:0
+effect:ENLIGHTENMENT
+desc:Lights up, maps out and detects all objects on the complete current
+desc: dungeon level.
+
+spell:Kinetic Wave:42:23:79:59:0
+effect:BLAST:FORCE
+param:3:10
+dice:$B
+expr:B:PLAYER_LEVEL:* 4
+msg_other: radiates a powerful kinetic wave.
+desc:Creates a radius-7 to radius-8 wave of pure mental force around you.
+
+spell:Rapid Healing:45:38:82:65:0
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:AMNESIA
+effect:HEAL_HP
+dice:1000
+msg_self:Your body begins to rapidly recover.
+desc:Cures 1000 points of damage, cures all stunning, heals all
+desc: cut damage, neutralizes poison, and cures amnesia.
+
+spell:Brain Smash:48:25:77:70:0
+effect:BOLT_OR_BEAM:SMASH
+dice:$Dd15
+expr:D:PLAYER_LEVEL:* 3 / 5
+msg_other: hurls a powerful mind blast.
+desc:Fires a powerful mental blast that will damage minded creatures.
+desc: This also has a chance to blind, confuse, put to sleep or slow
+desc: affected monsters.
+
+spell:Adrenaline Channeling:50:42:72:75:0
+effect:TIMED_INC:ADRENALINE
+dice:10+1d10
+desc:Attempts to control the adrenaline flow in your body, increasing your
+desc: fighting abilities for 10+1d10 turns.
+desc: At a first stage, cures 30 points of damage, removes fear and grants
+desc: you berserk strength (resistance to fear, a bonus of +24 to-hit and a
+desc: penalty of -10 to AC).
+desc: At a second stage, increases strength, dexterity and constitution.
+desc: At a third stage, grants a bonus of +8 to-dam.
+desc: At a fourth stage, increases attack speed by 1.
+desc: At a fifth and last stage, hastes you (+10 to speed).
+desc: This power can cause damage if used too often or when Biofeedback is
+desc: activated.
+
+
+############### ELEMENTALIST ###############
+name:11:Elementalist
+color:x
+stats:-4:4:0:0:-2
+skill-disarm:30:7
+skill-device:36:13
+skill-save:30:9
+skill-stealth:2:0
+skill-search:16:0
+skill-search-freq:20:0
+skill-melee:34:15
+skill-shoot:20:15
+skill-dig:0:0
+info:1:30:170000:5
+attack:3:40:2
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:elemental book:[Fire]:1:1:1
+equip:sword:Dagger:1:1:1
+equip:scroll:Word of Recall:1:1:0
+flags:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
+flags:ELEMENTAL_SPELLS | EXTRA_MANA
+title:Novice
+title:Apprentice
+title:Trickster
+title:Illusionist
+title:Spellbinder
+title:Evoker
+title:Conjurer
+title:Warlock
+title:Sorcerer
+title:Arch-Mage
+
+magic:1:300:8:5
+
+book:elemental book:[Air]:8:8
+
+spell:Shocking Grasp:3:2:21:4:0
+effect:TIMED_INC:SGRASP
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 5
+expr:S:SPELL_POWER:* 5
+desc:Charges your hands with a powerful electrical field to shock your foes.
+
+spell:Lightning Bolt:9:4:31:7:0
+effect:BOLT_OR_BEAM:ELEC
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 5 / 4 + 7
+expr:S:SPELL_POWER:+ 6
+msg_other: fires a lightning bolt.
+desc:Fires a lightning bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Resist Lightning:14:6:39:11:0
+effect:TIMED_INC:OPP_ELEC
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 10
+expr:S:SPELL_POWER:* 10
+desc:Grants you temporary resistance to lightning.
+
+spell:Resist Poison:21:9:51:17:0
+effect:TIMED_INC:OPP_POIS
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 10
+expr:S:SPELL_POWER:* 10
+desc:Grants you temporary resistance to poison.
+
+spell:Lightning Ball:27:12:61:22:0
+effect:BALL:ELEC:2
+dice:$B
+expr:B:BALL_ELEMENT:+ 25
+msg_other: fires a lightning ball.
+desc:Shoots a lightning ball.
+
+spell:Toxic Cloud:31:13:67:25:0
+effect:BALL:POIS:3
+dice:$B
+expr:B:BLAST_ELEMENT:- 20
+msg_other: fires a toxic cloud.
+desc:Shoots a poison ball.
+
+spell:Shock Wave:36:16:76:29:0
+effect:BALL:SOUND:3
+dice:$B
+expr:B:BLAST_ELEMENT:+ 125
+msg_other: fires a sonic ball.
+desc:Shoots a sound ball.
+
+spell:Thunderstorm:43:23:83:35:0
+effect:STAR:ELEC
+dice:$Dd$S&m8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 7
+expr:S:SPELL_POWER:+ 6
+effect:BLAST:SOUND:3
+dice:$B
+expr:B:BLAST_ELEMENT:+ 225
+msg_other: invokes a thunderstorm!
+desc:Creates a sonic blast around you that shoots lightning beams in each of
+desc: the eight directions starting from your character.
+
+book:elemental book:[Fire]:8:8
+
+spell:Burning Hands:1:1:17:4:0
+effect:BOLT_MELEE:FIRE
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 1 / 4 + 4
+expr:S:SPELL_POWER:+ 3
+msg_other:'s hands are covered with fire.
+desc:Covers your hands with fire to burn your foes.
+
+spell:Fire Bolt:8:4:29:6:0
+effect:BOLT_OR_BEAM:FIRE
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 5 / 4 + 6
+expr:S:SPELL_POWER:+ 6
+msg_other: fires a fire bolt.
+desc:Fires a fire bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Illumination:13:5:37:10:0
+effect:LIGHT_AREA
+dice:$B
+expr:B:SPELL_POWER:+ 1 * 3 / 2
+msg_other: fires a minor fire ball.
+desc:Conjures a minor fire ball to light up all squares in the nearby area.
+desc: If you are in a room, the entire room will be lit up as well.
+
+spell:Resist Fire:19:8:47:15:0
+effect:TIMED_INC:OPP_FIRE
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 10
+expr:S:SPELL_POWER:* 10
+desc:Grants you temporary resistance to fire.
+
+spell:Fire Ball:26:12:59:21:0
+effect:BALL:FIRE:2
+dice:$B
+expr:B:BALL_ELEMENT:+ 20
+msg_other: fires a fire ball.
+desc:Shoots a fire ball.
+
+spell:Fireflash:33:15:71:27:0
+effect:BALL_OBVIOUS:OLD_STUN:3
+dice:$Dd4
+expr:D:PLAYER_LEVEL:* 2 / 3 + 2
+effect:BALL:FIRE:3
+dice:$B
+expr:B:BLAST_ELEMENT:- 10
+msg_other: fires a fire flash.
+desc:Shoots a fire ball that has a chance to stun each monster in the area of
+desc: effect.
+
+spell:Plasma Ball:37:16:77:30:0
+effect:BALL:PLASMA:3
+dice:$B
+expr:B:BLAST_ELEMENT:+ 150
+msg_other: fires a plasma ball.
+desc:Shoots a plasma ball.
+
+spell:Inferno:44:24:82:36:0
+effect:STAR:FIRE
+dice:$Dd$S&m8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 6
+expr:S:SPELL_POWER:+ 6
+effect:BLAST:PLASMA:3
+dice:$B
+expr:B:BLAST_ELEMENT:+ 250
+msg_other: invokes a hellish storm.
+desc:Creates a plasma blast around you that shoots fire beams in each of
+desc: the eight directions starting from your character.
+
+book:elemental book:[Earth]:8:8
+
+spell:Stone to Mud:4:2:23:4:0
+effect:LINE:KILL_WALL
+dice:20+1d30&m$M
+expr:M:SPELL_POWER:+ 1 / 2
+msg_other: makes a moving gesture.
+desc:Produces some beams that destroy the first section of wall they hit,
+desc: unless it is a permanent wall. Each monster susceptible to rock remover
+desc: caught in a beam takes 20+1d30 points of damage.
+
+spell:Acid Bolt:10:5:33:8:0
+effect:BOLT_OR_BEAM:ACID
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 5 / 4 + 8
+expr:S:SPELL_POWER:+ 6
+msg_other: fires an acid bolt.
+desc:Fires an acid bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Resist Acid:15:7:41:12:0
+effect:TIMED_INC:OPP_ACID
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 10
+expr:S:SPELL_POWER:* 10
+desc:Grants you temporary resistance to acid.
+
+spell:Wall Creation:22:10:53:18:0
+effect:CREATE_WALLS
+dice:$B
+expr:B:SPELL_POWER:* 3 / 2
+desc:Creates some walls around the player.
+
+spell:Acid Ball:28:13:63:23:0
+effect:BALL:ACID:2
+dice:$B
+expr:B:BALL_ELEMENT:+ 30
+msg_other: fires an acid ball.
+desc:Shoots an acid ball.
+
+spell:Stoneskin:32:14:69:26:0
+effect:TIMED_INC:SHIELD
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 10
+expr:S:SPELL_POWER:* 10
+desc:Grants you temporary +50 to AC.
+
+spell:Explosion:38:17:79:31:0
+effect:BALL:SHARD:3
+dice:$B
+expr:B:BLAST_ELEMENT:+ 10
+msg_other: fires an exploding missile.
+desc:Shoots a shards ball.
+
+spell:Wall of Force:46:27:80:38:0
+effect:BALL:FORCE:3
+dice:$B
+expr:B:BLAST_ELEMENT:+ 200
+msg_other: fires a force ball.
+desc:Shoots a force ball.
+
+book:elemental book:[Water]:8:8
+
+spell:Freezing Aura:2:1:19:4:0
+effect:TIMED_INC:ICY_AURA
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 5
+expr:S:SPELL_POWER:* 5
+desc:Surrounds you with an icy aura that chills monsters dumb enough to hit you.
+
+spell:Frost Bolt:7:3:27:5:0
+effect:BOLT_OR_BEAM:COLD
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 5 / 4 + 5
+expr:S:SPELL_POWER:+ 6
+msg_other: fires a frost bolt.
+desc:Fires a frost bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Resist Cold:16:7:43:13:0
+effect:TIMED_INC:OPP_COLD
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 10
+expr:S:SPELL_POWER:* 10
+desc:Grants you temporary resistance to cold.
+
+spell:Potion of Vitality:20:9:49:16:0
+effect:SET_NOURISH
+dice:$B
+expr:B:FOOD_MAX:- 1
+effect:TIMED_INC:BOLD
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 10
+expr:S:SPELL_POWER:* 10
+effect:CURE:AFRAID
+effect:HEAL_HP
+dice:10
+effect:TIMED_INC:HERO
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 10
+expr:S:SPELL_POWER:* 10
+desc:Conjures a magical brew that feeds you, cures 10 points of damage,
+desc: removes fear and grants you temporary heroism (resistance to fear
+desc: and a bonus of +12 to-hit).
+
+spell:Frost Ball:25:11:57:20:0
+effect:BALL:COLD:2
+dice:$B
+expr:B:BALL_ELEMENT:+ 15
+msg_other: fires a frost ball.
+desc:Shoots a frost ball.
+
+spell:Ice Storm:34:15:73:28:0
+effect:BALL:ICE:3
+dice:$B
+expr:B:BLAST_ELEMENT:+ 0
+msg_other: invokes an ice storm.
+desc:Shoots an ice ball.
+
+spell:Tidal Wave:39:18:81:32:0
+effect:BALL:WATER:3
+dice:$B
+expr:B:BLAST_ELEMENT:+ 175
+msg_other: invokes a tidal wave.
+desc:Shoots a water ball.
+
+spell:Maelstrom:45:25:81:37:0
+effect:STAR:COLD
+dice:$Dd$S&m8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 5
+expr:S:SPELL_POWER:+ 6
+effect:BLAST:WATER:3
+dice:$B
+expr:B:BLAST_ELEMENT:+ 275
+msg_other: invokes a maelstrom!
+desc:Creates a water blast around you that shoots frost beams in each of
+desc: the eight directions starting from your character.
+
+book:elemental book:[Elemental]:8:8
+
+spell:Elemental Power:5:3:25:4:0
+effect:TIMED_INC:EPOWER
+dice:20+1d20&m$M
+expr:M:SPELL_POWER:* 5
+desc:Calls the power of the elements to boost the effectiveness
+desc: of all other spells for 20+1d20 turns.
+
+spell:Elemental Bolt:11:6:35:9:0
+effect:BOLT_OR_BEAM:ACID
+param:2:1
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 5 / 4 + 4
+expr:S:SPELL_POWER:/ 2 + 6
+effect:BOLT_OR_BEAM:FIRE
+param:2:1
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 5 / 4 + 4
+expr:S:SPELL_POWER:/ 2 + 6
+effect:BOLT_OR_BEAM:COLD
+param:2:1
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 5 / 4 + 4
+expr:S:SPELL_POWER:/ 2 + 6
+effect:END_INFO
+effect:BOLT_OR_BEAM:ELEC
+param:2:1
+dice:$Dd$S&m4
+expr:D:PLAYER_LEVEL:- 5 / 4 + 4
+expr:S:SPELL_POWER:/ 2 + 6
+msg_other: fires an elemental bolt.
+desc:Fires an elemental bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+spell:Minor Havoc:17:8:45:14:0
+effect:EARTHQUAKE
+dice:$B
+expr:B:SPELL_POWER:/ 2 + 5
+desc:Causes a minor elemental disturbance around you.
+desc: This may damage monsters and destroy items in some
+desc: squares in the area of effect.
+desc: Artifacts will not be destroyed by this spell.
+desc: This spell has no effect when used in the town.
+
+spell:Resistance:23:11:55:19:0
+effect:TIMED_INC:OPP_POIS
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 5
+expr:S:SPELL_POWER:* 5
+effect:TIMED_INC:OPP_COLD
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 5
+expr:S:SPELL_POWER:* 5
+effect:TIMED_INC:OPP_FIRE
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 5
+expr:S:SPELL_POWER:* 5
+effect:TIMED_INC:OPP_ELEC
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 5
+expr:S:SPELL_POWER:* 5
+effect:END_INFO
+effect:TIMED_INC:OPP_ACID
+dice:$B+1d$S
+expr:B:SPELL_POWER:* 5
+expr:S:SPELL_POWER:* 5
+desc:Grants you temporary resistance to acid, cold, fire, lightning and poison.
+
+spell:Elemental Ball:29:14:65:24:0
+effect:BALL:ACID:2
+dice:$B
+expr:B:XBALL_ELEMENT:+ 10
+effect:BALL:FIRE:2
+dice:$B
+expr:B:XBALL_ELEMENT:+ 10
+effect:BALL:COLD:2
+dice:$B
+expr:B:XBALL_ELEMENT:+ 10
+effect:END_INFO
+effect:BALL:ELEC:2
+dice:$B+m4
+expr:B:XBALL_ELEMENT:+ 10
+msg_other: fires an elemental ball.
+desc:Shoots an elemental ball.
+
+spell:Elemental Brand:35:16:75:29:0
+effect:ELEM_BRAND
+dice:$B
+expr:B:SPELL_POWER:/ 2 + 1
+desc:Brands the currently wielded melee weapon with some elements and attempts
+desc: to improve the to-hit and to-dam bonuses of that weapon.
+desc: The spell has no effect if the weapon is an artifact or ego item,
+desc: is worthless or is cursed.
+
+spell:Major Havoc:40:20:83:33:0
+effect:DESTRUCTION
+dice:$B
+expr:B:SPELL_POWER:+ 10
+desc:Causes a major elemental disturbance around you.
+desc: All monsters, objects and terrain features in the area of
+desc: effect are destroyed, except stairs and permanent walls.
+desc: You will also be blinded for 10+1d10 turns, unless you
+desc: have resistance to blindness or light.
+desc: This spell has no effect when used in the town.
+
+spell:Elemental Storm:41:21:85:34:0
+effect:STAR:ACID
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 5 / 4 + 4
+expr:S:SPELL_POWER:/ 2 + 6
+effect:BLAST:ACID:3
+dice:$B
+expr:B:XBLAST_ELEMENT:+ 200
+effect:STAR:FIRE
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 5 / 4 + 4
+expr:S:SPELL_POWER:/ 2 + 6
+effect:BLAST:FIRE:3
+dice:$B
+expr:B:XBLAST_ELEMENT:+ 200
+effect:STAR:COLD
+dice:$Dd$S
+expr:D:PLAYER_LEVEL:- 5 / 4 + 4
+expr:S:SPELL_POWER:/ 2 + 6
+effect:BLAST:COLD:3
+dice:$B
+expr:B:XBLAST_ELEMENT:+ 200
+effect:END_INFO
+effect:STAR:ELEC
+dice:$Dd$S&m8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 4
+expr:S:SPELL_POWER:/ 2 + 6
+effect:BLAST:ELEC:3
+dice:$B
+expr:B:XBLAST_ELEMENT:+ 200
+msg_other: invokes an elemental storm.
+desc:Creates an elemental ball around you that shoots elemental beams in each of
+desc: the eight directions starting from your character.
+
+
+############### SUMMONER ###############
+name:12:Summoner
+color:t
+stats:-5:-5:5:-5:-5
+skill-disarm:30:7
+skill-device:36:13
+skill-save:30:9
+skill-stealth:2:0
+skill-search:16:0
+skill-search-freq:20:0
+skill-melee:34:15
+skill-shoot:20:15
+skill-dig:0:0
+info:0:25:170000:5
+attack:1:40:2
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:summoning book:[Survival]:1:1:1
+equip:hafted:Quarterstaff:1:1:1
+equip:scroll:Summon Monster:10:10:1
+equip:scroll:Word of Recall:1:1:0
+flags:ZERO_FAIL | CHOOSE_SPELLS
+flags:SUMMON_SPELLS
+title:Novice
+title:Apprentice
+title:Evoker
+title:Spiritualist
+title:Conjurer
+title:Spiritwalker
+title:Summoner
+title:Controller
+title:Master
+title:Summoner Lord
+
+magic:1:300:9:4
+
+book:summoning book:[Survival]:7:9
+
+spell:Summon Monster:1:1:22:4:0
+effect:SUMMON:MONSTER
+dice:1
+msg_other: summons a monster.
+desc:Attempts to summon one monster generated at the current dungeon level.
+desc: This spell has no effect when used in the town.
+
+spell:Detect Monsters:2:1:23:4:0
+effect:DETECT_VISIBLE_MONSTERS
+dice:22d40
+desc:Detects all non-invisible monsters in the immediate area,
+desc: for one turn only.
+
+spell:Blink:3:2:24:4:0
+effect:TELEPORT
+dice:10
+msg_other: blinks away.
+desc:Teleports you randomly up to 10 squares away.
+
+spell:Call Light:4:2:26:4:0
+effect:LIGHT_AREA
+param:1:10
+dice:2d$S
+expr:S:PLAYER_LEVEL:/ 2
+msg_other: calls light.
+desc:Lights up all squares in a level-dependant area and hurts
+desc: all light-sensitive monsters in the area of effect.
+desc: If you are in a room, the entire room will be lit up as well.
+
+spell:Cure Light Wounds:5:3:27:4:1
+effect:TIMED_DEC:CONFUSED
+dice:20
+effect:TIMED_DEC:CUT
+dice:20
+effect:CURE:BLIND
+effect:HEAL_HP
+dice:15+m15
+desc:Cures 15% of your wounds (min 15hp) and heals 20 points worth of cuts.
+
+spell:Find Traps, Doors & Stairs:6:4:28:4:0
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all traps, doors and stairs in the immediate area.
+
+spell:Trap/Door Destruction:7:5:30:5:0
+effect:TOUCH:KILL_DOOR
+msg_other: sways his hands.
+desc:Destroys all traps and doors within a 1-square radius of you.
+
+book:summoning book:[Nature]:7:9
+
+spell:Farsight:10:7:35:5:0
+effect:TIMED_INC:ZFARSIGHT
+dice:$B+1d20&m$M
+expr:B:PLAYER_LEVEL:+ 0
+expr:M:PLAYER_LEVEL:/ 4
+desc:Increases your infravision for a level-dependant duration.
+
+spell:Sense Surroundings:13:10:40:6:0
+effect:MAP_AREA
+dice:22d40
+desc:Maps out a portion of the level around you.
+
+spell:Charm:16:15:50:8:0
+effect:PROJECT_LOS_AWARE:CONTROL
+dice:1+1d2
+msg_other: makes an hypnotic move.
+desc:Attempts to pacify any monster within line of sight that has been summoned
+desc: by a player. Uniques are not affected.
+
+spell:Nature's Touch:20:16:60:10:1
+effect:CURE:CUT
+effect:CURE:STUN
+effect:CURE:POISONED
+effect:CURE:AMNESIA
+effect:HEAL_HP
+dice:$B
+expr:B:PLAYER_LEVEL:* 6
+desc:Cures up to 300 points of damage, cures all stunning, heals all
+desc: cut damage, neutralizes poison, and cures amnesia.
+
+spell:Regeneration:25:20:70:12:0
+effect:TIMED_INC:REGEN
+dice:20+1d20
+desc:Greatly increases your regeneration rate for 20+1d20 turns.
+desc: The effect of this spell is cumulative with other means of regeneration.
+
+spell:Recovery:30:70:80:15:1
+effect:RESTORE_EXP
+effect:RESTORE_STAT:CON
+effect:RESTORE_STAT:DEX
+effect:RESTORE_STAT:WIS
+effect:RESTORE_STAT:INT
+effect:RESTORE_STAT:STR
+desc:Restores experience points and all stats to maximum if they are currently
+desc: below maximum.
+
+spell:Elemental Harmony:40:42:72:20:0
+effect:TIMED_INC:HARMONY
+dice:10+1d10
+desc:Attunes you to nature, increasing your defensive abilities for 10+1d10
+desc: turns.
+desc: At a first stage, blesses you, giving a bonus of +5 to AC and +10 to-hit.
+desc: At a second stage, increases strength, dexterity and constitution.
+desc: At a third stage, shields you, granting +50 to AC.
+desc: At a fourth stage, grants you resistance to acid, cold, fire, lightning
+desc: and poison.
+desc: At a fifth and last stage, hastes you (+10 to speed).
+
+book:summoning book:[Summoning]:6:9
+
+spell:Summon Jelly:20:6:56:20:0
+effect:SUMMON:JELLY
+dice:1
+msg_other: summons a jelly.
+desc:Attempts to summon one jelly generated at the current dungeon level.
+desc: This spell has no effect when used in the town.
+
+spell:Summon Golem:24:8:60:24:0
+effect:SUMMON:GOLEM
+dice:1
+msg_other: summons a golem.
+desc:Attempts to summon one golem generated at the current dungeon level.
+desc: This spell has no effect when used in the town.
+
+spell:Summon Vortex:28:10:64:28:0
+effect:SUMMON:VORTEX
+dice:1
+msg_other: summons a vortex.
+desc:Attempts to summon one vortex generated at the current dungeon level.
+desc: This spell has no effect when used in the town.
+
+spell:Summon Hydra:32:12:68:32:0
+effect:SUMMON:HYDRA
+dice:1
+msg_other: summons a hydra.
+desc:Attempts to summon one hydra generated at the current dungeon level.
+desc: This spell has no effect when used in the town.
+
+spell:Summon Control:36:35:72:36:0
+effect:PROJECT_LOS_AWARE:CONTROL
+dice:4
+msg_other: screams a raging order.
+desc:Attempts to control the will of each summoned monster within line of sight
+desc: and order them to attack other monsters. Uniques are not affected.
+
+spell:Resilience:40:40:76:40:0
+effect:RESILIENCE
+desc:Increases the lifespan of all controlled monsters.
+
+book:summoning book:[Anti-Summoning]:5:9
+
+spell:Thunderstorm:25:10:65:50:0
+effect:STAR:LIGHT
+param:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 200
+effect:STAR:SOUND
+param:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 200
+effect:END_INFO
+effect:STAR:ELEC
+param:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 200
+msg_other: invokes a thunderstorm!
+desc:Shoots thunder beams in each of the eight directions starting from your
+desc: character. Each beam will do 1/3 damage from lightning, 1/3 damage from
+desc: sound and 1/3 damage from light.
+
+spell:Detonate:30:20:70:60:0
+effect:DETONATE
+desc:Makes all your summoned jellies within line of sight explode with a slowing
+desc: effect, and all your summoned vortices within line of sight explode with a
+desc: ball effect.
+
+spell:Suppress Summoning:35:30:75:70:0
+effect:TIMED_INC:ANTISUMMON
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 0
+desc:Prevents summoning around you for a level-dependant duration.
+
+spell:Banishment:40:45:80:80:0
+effect:BANISH
+desc:Removes all monsters represented by a chosen symbol from the level.
+desc: Uniques are not affected.
+desc: You take 1d4 points of damage for every monster removed.
+
+spell:Mass Banishment:45:75:70:90:0
+effect:MASS_BANISH
+desc:Removes all monsters within 20 squares of you.
+desc: Uniques are not affected.
+desc: You take 1d3 points of damage for every monster removed.
+
+
+############### NECROMANCER ###############
+name:13:Necromancer
+color:R
+stats:-3:3:0:0:-2
+skill-disarm:30:7
+skill-device:36:13
+skill-save:30:9
+skill-stealth:2:0
+skill-search:16:0
+skill-search-freq:20:0
+skill-melee:34:15
+skill-shoot:20:15
+skill-dig:0:0
+info:1:30:170000:5
+attack:4:40:2
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:death book:[Necromancy for Beginners]:1:1:1
+equip:sword:Dagger:1:1:1
+equip:scroll:Word of Recall:1:1:0
+flags:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
+flags:UNDEAD_POWERS
+title:Novice
+title:Apprentice
+title:Trickster
+title:Illusionist
+title:Spellbinder
+title:Evoker
+title:Conjurer
+title:Warlock
+title:Sorcerer
+title:Arch-Mage
+
+magic:1:300:7:6
+
+book:death book:[Necromancy for Beginners]:8:7
+
+spell:Horrify:1:2:26:2:0
+effect:BOLT_AWARE:TURN_ALL
+dice:$Dd4
+expr:D:PLAYER_LEVEL:* 2 / 3 + 2
+effect:BOLT_AWARE:OLD_STUN
+dice:$Dd4
+expr:D:PLAYER_LEVEL:* 2 / 3 + 2
+msg_other: creates visions of terror!
+desc:Calls upon the dark forces and opens a channel into the mind of a
+desc: monster, stunning and scaring it.
+
+spell:Detect Monsters:2:2:29:3:0
+effect:DETECT_VISIBLE_MONSTERS
+dice:22d40
+desc:Detects all non-invisible monsters in the immediate area,
+desc: for one turn only.
+
+spell:Phase Door:2:2:29:3:0
+effect:TELEPORT
+dice:10
+msg_other: blinks away.
+desc:Teleports you randomly up to 10 squares away.
+
+spell:Remove Fear:3:2:10:4:0
+effect:CURE:AFRAID
+desc:Removes fear.
+
+spell:Find Traps, Doors & Stairs:4:3:35:2:0
+effect:DETECT_FEATURES
+dice:22d40
+effect:DETECT_TRAPS
+dice:22d40
+desc:Detects all traps, doors and stairs in the immediate area.
+
+spell:Raise Dead:5:6:35:3:0
+effect:BLAST_OBVIOUS:RAISE
+param:1:10
+dice:1
+msg_other: mumbles coldly.
+desc:This power makes humanoid corpses and skeletons in a small radius
+desc: around the caster rise as undead monsters at the service of the caster.
+desc: The loyalty of those monsters is not guaranteed, though.
+desc: Each animated corpse/skeleton drains additional spell points
+desc: depending on the type of undead monster raised.
+
+spell:Confuse Monster:6:5:35:3:0
+effect:BOLT_AWARE:OLD_CONF
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: makes a complicated gesture.
+desc:Attempts to confuse a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist confusion are not affected.
+
+spell:Frost Bolt:7:3:35:6:0
+effect:BOLT_OR_BEAM:COLD:-10
+dice:$Dd8
+expr:D:PLAYER_LEVEL:- 5 / 4 + 5
+msg_other: fires a frost bolt.
+desc:Fires a frost bolt that always hits its target.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+book:death book:[Dark Conjurings]:8:7
+
+spell:Trap/Door Destruction:7:6:37:4:0
+effect:TOUCH:KILL_DOOR
+msg_other: sways his hands.
+desc:Destroys all traps and doors within a 1-square radius of you.
+
+spell:Resist Cold:9:10:50:20:0
+effect:TIMED_INC:OPP_COLD
+dice:20+1d20
+desc:Grants you resistance to cold for 20+1d20 turns.
+
+spell:Teleport Self:10:8:40:4:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 5
+msg_other: teleports away.
+desc:Teleports you randomly within the current level.
+
+spell:Turn Stone to Mud:12:10:47:6:0
+effect:LINE:KILL_WALL
+dice:20+1d30
+msg_other: makes a moving gesture.
+desc:Produces a beam that destroys the first section of wall it hits,
+desc: unless it is a permanent wall. Each monster caught in the beam that
+desc: is susceptible to rock remover takes 20+1d30 points of damage.
+
+spell:Shadow Touch:12:12:48:5:0
+effect:TIMED_INC:TOUCH
+dice:$B+1d$S
+expr:B:PLAYER_LEVEL:* 3 / 10 + 20
+expr:S:PLAYER_LEVEL:* 4 / 10 + 10
+desc:Temporarily grants your weapon a vampiric brand, draining life from
+desc: monsters when you hit them and giving it to you.
+
+spell:Satisfy Hunger:13:12:50:5:0
+effect:SET_NOURISH
+dice:$B
+expr:B:FOOD_MAX:- 1
+desc:Magically renders you well-fed (but not satiated).
+desc: This will also cure a bloated stomach.
+
+spell:Guard:15:14:53:4:0
+effect:BOLT_AWARE:GUARD
+dice:$B
+expr:B:PLAYER_LEVEL:* 2
+msg_other: emits a silent order.
+desc:Attempts to control the will of a single undead monster and order it to
+desc: stay at its position. Uniques are not affected.
+
+spell:Identify:17:16:57:4:0
+effect:IDENTIFY
+desc:Reveals all normal and hidden powers of one object.
+
+book:death book:[Necromantic Incantations]:8:7
+
+spell:Frost Ball:19:6:50:8:0
+effect:BALL:COLD:2
+dice:$B
+expr:B:PLAYER_LEVEL:+ 30
+msg_other: fires a frost ball.
+desc:Shoots a radius-2 frost ball.
+
+spell:Recharging:19:12:82:7:0
+effect:RECHARGE
+dice:$B
+expr:B:PLAYER_LEVEL:/ 2 + 10
+desc:Adds charges to a stack of wands or staves.
+desc: Chance of success and number of charges gained increase with your
+desc: level and decrease with level of wand or staff and number of charges.
+desc: A failed attempt to recharge destroys one wand or staff from the stack.
+
+spell:Reveal Monsters:20:11:45:5:0
+effect:DETECT_MONSTERS
+dice:22d40
+desc:Detects all monsters in the immediate area, for one turn only.
+
+spell:Absorb Soul:20:15:46:5:0
+effect:TIMED_INC:SOUL
+dice:$B+1d$S
+expr:B:PLAYER_LEVEL:+ 50
+expr:S:PLAYER_LEVEL:* 2 + 30
+desc:This heals you by a substantial amount every time you kill a monster
+desc: within its duration. It is especially useful when your character is
+desc: in Undead Form.
+
+spell:Beam of Terror:21:13:48:4:0
+effect:BEAM_OBVIOUS:TURN_ALL
+dice:$Dd4
+expr:D:PLAYER_LEVEL:* 2 / 3 + 2
+effect:BEAM_OBVIOUS:OLD_STUN
+dice:$Dd4
+expr:D:PLAYER_LEVEL:* 2 / 3 + 2
+msg_other: creates visions of terror!
+desc:Calls upon the dark forces and opens a channel into the mind of a
+desc: line of monsters, stunning and scaring them.
+
+spell:Turn Undead:21:16:50:4:0
+effect:PROJECT_LOS_AWARE:TURN_UNDEAD
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: tries to turn undead.
+desc:Attempts to scare each undead monster within line of sight,
+desc: causing it to flee in terror for a level-dependant duration.
+
+spell:Dispel Undead:24:19:57:5:0
+effect:PROJECT_LOS_AWARE:DISP_UNDEAD
+param:1
+dice:d$S
+expr:S:PLAYER_LEVEL:* 3
+msg_other: dispels undead.
+desc:Inflicts unresistable damage on each undead monster within line of sight.
+
+spell:Nether Bolt:25:15:75:30:0
+effect:BOLT_OR_BEAM:NETHER
+param:4:1
+dice:11d$S
+expr:S:PLAYER_LEVEL:+ 0
+msg_other: fires a nether bolt.
+desc:Fires a nether bolt that always hits its target. Does not affect undead.
+desc: Sometimes a beam is fired instead that hurts each monster
+desc: in its path.
+desc: The chance to get a beam goes up with your character level.
+
+book:death book:[Dark Evocations]:7:7
+
+spell:Follow:26:18:63:6:0
+effect:BOLT_AWARE:FOLLOW
+dice:$B
+expr:B:PLAYER_LEVEL:* 2
+msg_other: emits a silent order.
+desc:Attempts to control the will of a single undead monster and order it to
+desc: follow you. Uniques are not affected.
+
+spell:Ice Storm:27:11:70:24:0
+effect:BALL:ICE:3
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 50
+msg_other: invokes an ice storm.
+desc:Shoots a radius-3 ice ball.
+
+spell:Haste Self:29:18:70:7:0
+effect:TIMED_INC:FAST
+param:5
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 0
+desc:Hastes you (+10 to speed) for a level-dependant duration.
+
+spell:Resistance:29:30:75:50:0
+effect:TIMED_INC:OPP_POIS
+dice:20+1d20
+effect:TIMED_INC:OPP_COLD
+dice:20+1d20
+effect:TIMED_INC:OPP_FIRE
+dice:20+1d20
+effect:TIMED_INC:OPP_ELEC
+dice:20+1d20
+effect:END_INFO
+effect:TIMED_INC:OPP_ACID
+dice:20+1d20
+desc:Grants you resistance to acid, cold, fire, lightning and poison for
+desc: 20+1d20 turns.
+
+spell:Undead Form:30:15:72:21:0
+effect:UNDEAD_FORM
+desc:Kills you, turning you into a ghost (even in no_ghost mode).
+desc: Unlike other characters, necromancers in Undead Form will retain
+desc: all their gear, but they will lose one hit point every turn and won't
+desc: be able to use any means of resurrection except the town Temple.
+desc: Be also warned that any common method of healing will damage your
+desc: ghost instead...
+
+spell:Drain Life:30:15:67:19:0
+effect:BOLT:DRAIN
+dice:100
+msg_other: fires a vampiric bolt.
+desc:Drains part of the life-force from a nearby monster and gives it to you.
+desc: Does not affect undead, demons, golems, elementals or vortices.
+
+spell:Teleport Level:31:22:62:17:0
+effect:TELEPORT_LEVEL
+desc:Teleports you 1 level up or 1 level down (chosen at random).
+
+book:death book:[Advanced Necromancy]:7:7
+
+spell:Cold Brand:31:60:95:150:0
+effect:BRAND_WEAPON
+param:1
+desc:Brands the currently wielded melee weapon with cold
+desc: and at the same time attempts to improve the to-hit bonus and the
+desc: to-dam bonus of the same weapon.
+desc: The spell has no effect if the weapon is an artifact or ego item,
+desc: is already branded, has a slay, is broken or is cursed.
+
+spell:Detect Treasure:32:15:70:10:0
+effect:DETECT_TREASURES
+dice:22d40
+desc:Detects all treasure in the immediate area.
+
+spell:Word of Recall:32:30:75:15:0
+effect:RECALL
+dice:14+1d20
+desc:Teleports you from the dungeon to the town or from the town to the
+desc: deepest level you have visited in the dungeon.
+desc: The recall effect is not immediate; it is delayed by 14+1d20 turns.
+desc: During that delay, the effect can be canceled by invoking the spell
+desc: of recall again.
+
+spell:Shield:33:27:75:55:0
+effect:TIMED_INC:SHIELD
+dice:30+1d20
+desc:Grants you +50 to AC for 30+1d20 turns.
+
+spell:Word of Destruction:35:25:87:32:0
+effect:DESTRUCTION
+dice:15
+desc:Destroys everything in a 15-square radius circle around you.
+desc: All monsters, objects and terrain features in the area of
+desc: effect are destroyed, except stairs and permanent walls.
+desc: You will also be blinded for 10+1d10 turns, unless you
+desc: have resistance to blindness or light.
+desc: This spell has no effect when used in the town.
+
+spell:Nether Ball:35:20:83:41:0
+effect:BALL:NETHER:2
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 100
+msg_other: fires a nether ball.
+desc:Shoots a radius-2 nether ball. Does not affect undead.
+
+spell:Ball of Terror:36:30:79:51:0
+effect:BALL_OBVIOUS:TURN_ALL
+param:3:10
+dice:$Dd4
+expr:D:PLAYER_LEVEL:* 2 / 3 + 2
+effect:BALL_OBVIOUS:OLD_STUN
+param:3:10
+dice:$Dd4
+expr:D:PLAYER_LEVEL:* 2 / 3 + 2
+msg_other: creates visions of terror!
+desc:Calls upon the dark forces and opens a channel into the mind of a
+desc: group of monsters, stunning and scaring them.
+
+book:death book:[Darkest Magic]:7:7
+
+spell:Rune of Protection:38:67:75:60:0
+effect:RUNE
+desc:Inscribes a glyph of warding beneath you.
+desc: Summoned monsters can't appear on the glyph.
+desc: If a monster attempts to move onto the glyph or melee you while you
+desc: are standing on the glyph, it must first succeed in breaking the glyph.
+desc: Higher level monsters are more likely to break the glyph.
+desc: The glyph will remain where it is, until a monster succeeds in
+desc: breaking it or until you leave the level.
+
+spell:Cloud of Draining:40:30:78:65:0
+effect:BALL:DRAIN:2
+dice:100
+msg_other: fires a cloud of draining.
+desc:Shoots a radius-2 vampiric ball that drains part of the life-force
+desc: from nearby monsters and gives it to you. Does not affect undead, demons,
+desc: golems, elementals or vortices.
+
+spell:Attack:42:35:81:70:0
+effect:BOLT_AWARE:ATTACK
+dice:$B
+expr:B:PLAYER_LEVEL:* 2
+msg_other: emits a silent order.
+desc:Attempts to control the will of a single undead monster and order it to
+desc: attack other monsters. Uniques are not affected.
+
+spell:Darkness Storm:45:27:75:75:0
+effect:BALL:DARK:3
+dice:$B+10d10
+expr:B:PLAYER_LEVEL:* 5
+msg_other: invokes a darkness storm.
+desc:Shoots a radius-3 darkness ball.
+
+spell:Death:45:100:78:80:0
+effect:DEATH
+dice:30000
+msg_other: calls upon Death herself!
+desc:Calls upon Death herself, killing the target... but also your character.
+desc: Uniques are not affected.
+
+spell:Mass Horrify:46:45:78:85:0
+effect:PROJECT_LOS_AWARE:TURN_ALL
+dice:$Dd4
+expr:D:PLAYER_LEVEL:* 2 / 3 + 2
+effect:PROJECT_LOS_AWARE:OLD_STUN
+dice:$Dd4
+expr:D:PLAYER_LEVEL:* 2 / 3 + 2
+msg_other: creates visions of terror!
+desc:Calls upon the dark forces and opens a channel into the mind of all
+desc: monsters within line of sight, stunning and scaring them.
+
+spell:Touch of Death:50:75:72:90:0
+effect:TIMED_SET:DEADLY
+dice:12+1d12
+desc:Gives all your melee blows a chance to score a critical hit
+desc: within its duration.
+
+
+############### SHAPECHANGER ###############
+name:14:Shapechanger
+color:m
+stats:1:-1:-1:1:1
+skill-disarm:25:9
+skill-device:35:10
+skill-save:28:10
+skill-stealth:1:0
+skill-search:18:0
+skill-search-freq:18:0
+skill-melee:60:40
+skill-shoot:66:30
+skill-dig:0:0
+info:5:40:15000:40
+attack:5:35:4
+equip:food:Ration of Food:1:3:1
+equip:light:Wooden Torch:1:3:1
+equip:potion:Berserk Strength:1:1:0
+equip:sword:Dagger:1:1:1
+equip:soft armour:Soft Leather Armour:1:1:0
+equip:scroll:Word of Recall:1:1:0
+flags:PSEUDO_ID_IMPROV
+flags:MONSTER_SPELLS
+title:Pretender
+title:Modifier
+title:Copier
+title:Multiple
+title:Shapeshifter
+title:Metamorph
+title:Changer
+title:Mast. Changer
+title:Gdm. Changer
+title:Ult. Changer
+
+magic:0:400:11:1
+
+# Hack -- mimic realm spells
+# Spells are all put in one book, and they use RSF_XXX flags as effect flag
+book:mimic realm:xxx:65:11
+
+spell:Shriek:0:1:1:0:0
+effect:AGGRAVATE
+flag:SHRIEK
+msg_other: makes a high-pitched shriek.
+desc:Awakens all nearby sleeping monsters and hastens all monsters within line
+desc: of sight (#%d).
+
+spell:Seeker Arrow:0:0:8:0:0
+effect:BOLT:ARROW_X
+flag:ARROW_X
+dice:9d6
+msg_other: fires a seeker arrow.
+desc:Fires a seeker arrow that always hits its target (#%d).
+
+spell:Shot:0:0:1:0:0
+effect:BOLT:ARROW_1
+flag:ARROW_1
+dice:1d6
+msg_other: fires a shot.
+desc:Fires a shot that always hits its target (#%d).
+
+spell:Arrow:0:0:3:0:0
+effect:BOLT:ARROW_2
+flag:ARROW_2
+dice:3d6
+msg_other: fires an arrow.
+desc:Fires an arrow that always hits its target (#%d).
+
+spell:Bolt:0:0:5:0:0
+effect:BOLT:ARROW_3
+flag:ARROW_3
+dice:5d6
+msg_other: fires a bolt.
+desc:Fires a bolt that always hits its target (#%d).
+
+spell:Missile:0:0:6:0:0
+effect:BOLT:ARROW_4
+flag:ARROW_4
+dice:7d6
+msg_other: fires a missile.
+desc:Fires a missile that always hits its target (#%d).
+
+spell:Boulder:0:0:14:0:0
+effect:BOLT:BOULDER
+flag:BOULDER
+dice:$Dd12
+expr:D:PLAYER_LEVEL:/ 7 + 1
+msg_other: hurls a boulder.
+desc:Fires a boulder that always hits its target (#%d).
+
+spell:Acid Ball:0:17:24:0:0
+effect:BALL:ACID:2
+flag:BA_ACID
+dice:15+1d$S
+expr:S:PLAYER_LEVEL:* 3
+msg_other: fires an acid ball.
+desc:Shoots a radius-2 or radius-3 acid ball (#%d).
+
+spell:Lightning Ball:0:9:12:0:0
+effect:BALL:ELEC:2
+flag:BA_ELEC
+dice:8+1d$S
+expr:S:PLAYER_LEVEL:* 3 / 2
+msg_other: fires a lightning ball.
+desc:Shoots a radius-2 or radius-3 lightning ball (#%d).
+
+spell:Fire Ball:0:19:27:0:0
+effect:BALL:FIRE:2
+flag:BA_FIRE
+dice:10+1d$S
+expr:S:PLAYER_LEVEL:* 7 / 2
+msg_other: fires a fire ball.
+desc:Shoots a radius-2 or radius-3 fire ball (#%d).
+
+spell:Frost Ball:0:9:13:0:0
+effect:BALL:COLD:2
+flag:BA_COLD
+dice:10+1d$S
+expr:S:PLAYER_LEVEL:* 3 / 2
+msg_other: fires a frost ball.
+desc:Shoots a radius-2 or radius-3 frost ball (#%d).
+
+spell:Stinking Cloud:0:3:4:0:0
+effect:BALL:POIS:2
+flag:BA_POIS
+dice:12d2
+msg_other: fires a stinking cloud.
+desc:Shoots a radius-2 or radius-3 poison ball (#%d).
+
+spell:Nether Ball:0:20:29:0:0
+effect:BALL:NETHER:2
+flag:BA_NETH
+dice:$B+10d10
+expr:B:PLAYER_LEVEL:+ 50
+msg_other: fires a nether ball.
+desc:Shoots a radius-2 or radius-3 nether ball (#%d).
+
+spell:Water Ball:0:18:25:0:0
+effect:BALL:WATER:2
+flag:BA_WATE
+dice:50+1d$S
+expr:S:PLAYER_LEVEL:* 5 / 2
+msg_other: fires a water ball.
+desc:Shoots a radius-2 or radius-3 water ball (#%d).
+
+spell:Mana Storm:0:35:50:0:0
+effect:BALL:MANA:2
+flag:BA_MANA
+dice:$B+10d10
+expr:B:PLAYER_LEVEL:* 5
+msg_other: invokes a mana storm.
+desc:Shoots a radius-2 or radius-3 mana ball (#%d).
+
+spell:Darkness Storm:0:35:50:0:0
+effect:BALL:DARK:2
+flag:BA_DARK
+dice:$B+10d10
+expr:B:PLAYER_LEVEL:* 5
+msg_other: invokes a darkness storm.
+desc:Shoots a radius-2 or radius-3 darkness ball (#%d).
+
+spell:Drain Mana:0:3:6:0:0
+effect:BOLT_AWARE:DRAIN_MANA
+flag:DRAIN_MANA
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: drains mana away.
+desc:Drains mana from its target and cures an amount of damage points
+desc: equal to 6 times the amount of mana drained (#%d).
+
+spell:Mind Blast:0:7:10:0:0
+effect:BOLT:BLAST
+flag:MIND_BLAST
+dice:8d8
+msg_other: hurls a mind blast.
+desc:Fires a mental blast that will damage minded creatures. This also has
+desc: a chance to confuse the target (#%d).
+
+spell:Brain Smash:0:18:26:0:0
+effect:BOLT:SMASH
+flag:BRAIN_SMASH
+dice:12d15
+msg_other: hurls a powerful mind blast.
+desc:Fires a powerful mental blast that will damage minded creatures. This also
+desc: has a chance to blind, confuse, put to sleep or slow the target (#%d).
+
+spell:Cause Light Wounds:0:3:4:0:0
+effect:BOLT:CURSE
+flag:CAUSE_1
+dice:3d8
+msg_other: curses.
+desc:Cause 3d8 points of damage to its target (#%d).
+
+spell:Cause Serious Wounds:0:7:10:0:0
+effect:BOLT:CURSE
+flag:CAUSE_2
+dice:8d8
+msg_other: curses horribly.
+desc:Cause 8d8 points of damage to its target (#%d).
+
+spell:Cause Critical Wounds:0:15:22:0:0
+effect:BOLT:CURSE
+flag:CAUSE_3
+dice:10d15
+msg_other: incants terribly.
+desc:Cause 10d15 points of damage to its target (#%d).
+
+spell:Cause Mortal Wounds:0:23:33:0:0
+effect:BOLT:CURSE2
+flag:CAUSE_4
+dice:15d15
+msg_other: screams the word 'DIE!'
+desc:Cause 15d15 points of damage to its target. This also has a chance
+desc: to cause open wounds (#%d).
+
+spell:Acid Bolt:0:8:11:0:0
+effect:BOLT:ACID
+flag:BO_ACID
+dice:$B+7d8
+expr:B:PLAYER_LEVEL:/ 3
+msg_other: fires an acid bolt.
+desc:Fires an acid bolt that always hits its target (#%d).
+
+spell:Lightning Bolt:0:5:7:0:0
+effect:BOLT:ELEC
+flag:BO_ELEC
+dice:$B+4d8
+expr:B:PLAYER_LEVEL:/ 3
+msg_other: fires a lightning bolt.
+desc:Fires a lightning bolt that always hits its target (#%d).
+
+spell:Fire Bolt:0:9:13:0:0
+effect:BOLT:FIRE
+flag:BO_FIRE
+dice:$B+9d8
+expr:B:PLAYER_LEVEL:/ 3
+msg_other: fires a fire bolt.
+desc:Fires a fire bolt that always hits its target (#%d).
+
+spell:Frost Bolt:0:7:10:0:0
+effect:BOLT:COLD
+flag:BO_COLD
+dice:$B+6d8
+expr:B:PLAYER_LEVEL:/ 3
+msg_other: fires a frost bolt.
+desc:Fires a frost bolt that always hits its target (#%d).
+
+spell:Nether Bolt:0:13:19:0:0
+effect:BOLT:NETHER
+flag:BO_NETH
+dice:$B+5d5
+expr:B:PLAYER_LEVEL:* 3 / 2 + 30
+msg_other: fires a nether bolt.
+desc:Fires a nether bolt that always hits its target (#%d).
+
+spell:Water Bolt:0:15:22:0:0
+effect:BOLT:WATER
+flag:BO_WATE
+dice:$B+10d10
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: fires a water bolt.
+desc:Fires a water bolt that always hits its target (#%d).
+
+spell:Mana Bolt:0:23:33:0:0
+effect:BOLT:MANA
+flag:BO_MANA
+dice:50+1d$S
+expr:S:PLAYER_LEVEL:* 7 / 2
+msg_other: fires a mana bolt.
+desc:Fires a mana bolt that always hits its target (#%d).
+
+spell:Plasma Bolt:0:12:17:0:0
+effect:BOLT:PLASMA
+flag:BO_PLAS
+dice:$B+8d7
+expr:B:PLAYER_LEVEL:+ 10
+msg_other: fires a plasma bolt.
+desc:Fires a plasma bolt that always hits its target (#%d).
+
+spell:Ice Bolt:0:9:13:0:0
+effect:BOLT:ICE
+flag:BO_ICEE
+dice:$B+6d6
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: fires an ice bolt.
+desc:Fires an ice bolt that always hits its target (#%d).
+
+spell:Magic Missile:0:3:4:0:0
+effect:BOLT:MISSILE
+flag:MISSILE
+dice:$B+2d6
+expr:B:PLAYER_LEVEL:/ 3
+msg_other: fires a magic missile.
+desc:Fires a magic missile that always hits its target (#%d).
+
+spell:Scare:0:5:10:0:0
+effect:BOLT_AWARE:TURN_ALL
+flag:SCARE
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: conjures up scary horrors.
+desc:Attempts to scare a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist fear are not affected (#%d).
+
+spell:Blind:0:4:8:0:0
+effect:BOLT_AWARE:OLD_BLIND
+flag:BLIND
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: sets off a blinding flash.
+desc:Attempts to blind a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist blindness are not affected (#%d).
+
+spell:Confuse:0:4:8:0:0
+effect:BOLT_AWARE:OLD_CONF
+flag:CONF
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: makes a complicated gesture.
+desc:Attempts to confuse a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist confusion are not affected (#%d).
+
+spell:Slow:0:9:18:0:0
+effect:BOLT_AWARE:OLD_SLOW
+flag:SLOW
+dice:20
+msg_other: makes a lengthy gesture.
+desc:Attempts to slow down a single monster. Uniques are not affected (#%d).
+
+spell:Hold:0:5:10:0:0
+effect:BOLT_AWARE:OLD_SLEEP
+flag:HOLD
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: gestures and mumbles calmly.
+desc:Attempts to put to sleep a single monster. Uniques and monsters
+desc: that resist sleep are not affected (#%d).
+
+spell:Haste:0:14:28:0:0
+effect:TIMED_INC:FAST
+param:5
+flag:HASTE
+dice:$B+1d20
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: starts moving faster.
+desc:Hastes you (+10 to speed) for a level-dependant duration (#%d).
+
+spell:Heal:0:16:32:0:0
+effect:CURE:CUT
+effect:CURE:POISONED
+effect:CURE:AFRAID
+effect:HEAL_HP
+flag:HEAL
+dice:$B
+expr:B:PLAYER_LEVEL:* 6
+msg_other: concentrates on %s wounds.
+desc:Cures a level-dependant amount of damage points, removes fear,
+desc: neutralizes poison and heals all cut damage (#%d).
+
+spell:Blink:0:2:4:0:0
+effect:TELEPORT
+flag:BLINK
+dice:10
+msg_other: blinks away.
+desc:Teleports you randomly up to 10 squares away (#%d).
+
+spell:Teleport:0:6:12:0:0
+effect:TELEPORT
+flag:TPORT
+dice:$B
+expr:B:MAX_SIGHT:* 2 + 5
+msg_other: teleports away.
+desc:Teleports you randomly within the current level (#%d).
+
+spell:Teleport To:0:12:24:0:0
+effect:BOLT_AWARE:TELE_TO
+flag:TELE_TO
+msg_other: commands %s target to come hither.
+desc:Teleports its target next to you (#%d).
+
+spell:Teleport Away:0:12:24:0:0
+effect:BOLT_STATUS:AWAY_ALL
+param:1
+flag:TELE_AWAY
+dice:$B
+expr:B:MAX_SIGHT:* 5
+msg_other: makes a rush gesture.
+desc:Produces a bolt that teleports the first monster in its path
+desc: up to 100 squares away. (#%d).
+
+spell:Teleport Level:0:18:36:0:0
+effect:BOLT_AWARE:TELE_LEVEL
+flag:TELE_LEVEL
+msg_other: commands %s target to go far away.
+desc:Teleports its target 1 level up or 1 level down (chosen at random) (#%d).
+
+spell:Darkness:0:3:6:0:0
+effect:DARKEN_AREA
+flag:DARKNESS
+param:3
+msg_other: gestures in shadow.
+desc:Darkens a radius-{3} area (plus the entire room if you are currently in
+desc: one) (#%d).
+
+spell:Traps:0:10:20:0:0
+effect:BALL_OBVIOUS:MAKE_TRAP
+flag:TRAPS
+param:1:-1
+msg_other: casts a spell and cackles evilly.
+desc:A trap is created on each empty floor space that is directly adjacent
+desc: to the target. This spell has no effect when used in the town (#%d).
+
+spell:Forget:0:8:16:0:0
+effect:BOLT_AWARE:FORGET
+flag:FORGET
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: tries to make %s target forget things.
+desc:Attempts to cause amnesia to a single monster for a level-dependant
+desc: duration. Uniques and monsters that resist are not affected (#%d).
+
+spell:Anime Dead:0:7:14:0:0
+effect:BLAST_OBVIOUS:RAISE
+flag:ANIM_DEAD
+param:1:10
+msg_other: mumbles coldly.
+desc:This power makes humanoid corpses and skeletons in a small radius
+desc: around the caster rise as undead monsters (#%d).
+
+spell:Summon Kin:0:35:47:0:0
+effect:SUMMON:KIN
+flag:S_KIN
+param:0:10
+dice:8
+msg_other: magically summons %s kin.
+desc:Attempts to summon up to eight similar monsters generated at the current
+desc: dungeon level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Monster:0:20:40:0:0
+effect:SUMMON:MONSTER
+flag:S_MONSTER
+param:0:10
+dice:1
+msg_other: magically summons a monster!
+desc:Attempts to summon one monster generated at the current dungeon level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Monsters:0:35:47:0:0
+effect:SUMMON:MONSTERS
+flag:S_MONSTERS
+param:0:10
+dice:8
+msg_other: magically summons monsters!
+desc:Attempts to summon up to eight monsters generated at the current dungeon
+desc: level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Animals:0:30:45:0:0
+effect:SUMMON:ANIMAL
+flag:S_ANIMAL
+param:0:10
+dice:12
+msg_other: magically summons animals.
+desc:Attempts to summon up to twelve animals generated at the current dungeon
+desc: level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Spiders:0:30:45:0:0
+effect:SUMMON:SPIDER
+flag:S_SPIDER
+param:0:10
+dice:12
+msg_other: magically summons spiders.
+desc:Attempts to summon up to twelve spiders generated at the current dungeon
+desc: level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Hounds:0:35:47:0:0
+effect:SUMMON:HOUND
+flag:S_HOUND
+param:0:10
+dice:12
+msg_other: magically summons hounds.
+desc:Attempts to summon up to twelve hounds generated at the current dungeon
+desc: level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Hydras:0:30:45:0:0
+effect:SUMMON:HYDRA
+flag:S_HYDRA
+param:0:10
+dice:6
+msg_other: magically summons hydras.
+desc:Attempts to summon up to six hydras generated at the current dungeon
+desc: level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Ainu:0:25:42:0:0
+effect:SUMMON:AINU
+flag:S_AINU
+param:0:10
+dice:1
+msg_other: magically summons an ainu!
+desc:Attempts to summon one ainu generated at the current dungeon level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Demon:0:25:42:0:0
+effect:SUMMON:DEMON
+flag:S_DEMON
+param:0:10
+dice:1
+msg_other: magically summons a demon!
+desc:Attempts to summon one demon generated at the current dungeon level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Undead:0:25:42:0:0
+effect:SUMMON:UNDEAD
+flag:S_UNDEAD
+param:0:10
+dice:1
+msg_other: magically summons an undead monster!
+desc:Attempts to summon one undead monster generated at the current dungeon
+desc: level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Dragon:0:25:42:0:0
+effect:SUMMON:DRAGON
+flag:S_DRAGON
+param:0:10
+dice:1
+msg_other: magically summons a dragon!
+desc:Attempts to summon one dragon generated at the current dungeon level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon High Demons:0:40:50:0:0
+effect:SUMMON:HI_DEMON
+flag:S_HI_DEMON
+param:0:10
+dice:8
+msg_other: magically summons greater demons!
+desc:Attempts to summon up to eight greater demons generated at the current
+desc: dungeon level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon High Undead:0:40:50:0:0
+effect:SUMMON:HI_UNDEAD
+flag:S_HI_UNDEAD
+param:0:10
+dice:8
+msg_other: magically summons greater undead!
+desc:Attempts to summon up to eight greater undead monsters generated at the
+desc: current dungeon level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon High Dragons:0:40:50:0:0
+effect:SUMMON:HI_DRAGON
+flag:S_HI_DRAGON
+param:0:10
+dice:8
+msg_other: magically summons ancient dragons!
+desc:Attempts to summon up to eight ancient dragons generated at the current
+desc: dungeon level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Wraiths:0:40:50:0:0
+effect:SUMMON:WRAITH
+flag:S_WRAITH
+param:0:10
+dice:8
+msg_other: magically summons mighty undead monsters!
+desc:Attempts to summon up to eight wraiths generated at the current dungeon
+desc: level.
+desc: This spell has no effect when used in the town (#%d).
+
+spell:Summon Uniques:0:40:50:0:0
+effect:SUMMON:UNIQUE
+flag:S_UNIQUE
+dice:8
+msg_other: magically summons special opponents!
+desc:Attempts to summon up to eight unique monsters generated at the current
+desc: dungeon level.
+desc: This spell has no effect when used in the town (#%d).
+
+
+############### GHOST ###############
+# Hack -- not a real class, used for ghost realm spells
+name:15:Ghost
+
+magic:0:0:10:1
+
+book:ghost realm:xxx:8:10
+
+spell:Blink:1:1:0:0:0
+effect:TELEPORT
+dice:10
+msg_other: blinks away.
+desc:Teleports you randomly up to 10 squares away.
+
+spell:Terrify:10:2:0:0:0
+effect:BOLT_AWARE:TURN_ALL
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+desc:Attempts to scare a single monster for a level-dependant duration. Uniques
+desc: and monsters that resist fear are not affected.
+
+spell:Confuse:15:3:0:0:0
+effect:BOLT_AWARE:OLD_CONF
+dice:$B
+expr:B:PLAYER_LEVEL:+ 0
+msg_other: makes a complicated gesture.
+desc:Attempts to confuse a single monster for a level-dependant duration.
+desc: Uniques and monsters that resist confusion are not affected.
+
+spell:Teleport:20:5:0:0:0
+effect:TELEPORT
+dice:$B
+expr:B:PLAYER_LEVEL:* 8
+msg_other: teleports away.
+desc:Teleports you randomly within the current level.
+
+spell:Nether Bolt:25:10:0:0:0
+effect:BOLT_OR_BEAM:NETHER
+dice:$B+5d5
+expr:B:PLAYER_LEVEL:+ 50
+msg_other: fires a nether bolt.
+desc:Fires a nether bolt that always hits its target. Sometimes a beam is fired
+desc: instead that hurts each monster in its path. The chance to get a beam goes
+desc: up with your character level.
+
+spell:Disenchantment Bolt:30:20:0:0:0
+effect:BOLT_OR_BEAM:DISEN
+dice:$B+5d5
+expr:B:PLAYER_LEVEL:+ 75
+msg_other: fires a disenchantment bolt.
+desc:Fires a disenchantment bolt that always hits its target. Sometimes a beam
+desc: is fired instead that hurts each monster in its path. The chance to get a
+desc: beam goes up with your character level.
+
+spell:Nether Ball:35:60:0:0:0
+effect:BALL:NETHER:2
+dice:$B
+expr:B:PLAYER_LEVEL:* 2 + 100
+msg_other: fires a nether ball.
+desc:Shoots a radius-2 nether ball.
+
+spell:Darkness Storm:45:100:0:0:0
+effect:BALL:DARK:3
+dice:$B+10d10
+expr:B:PLAYER_LEVEL:* 5
+msg_other: invokes a darkness storm.
+desc:Shoots a radius-3 darkness ball.

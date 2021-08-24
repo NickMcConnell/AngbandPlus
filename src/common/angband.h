@@ -10,30 +10,49 @@
  * Include the low-level includes
  */
 #include "h-basic.h"
+#include "h-quark.h"
+
+#include "option.h"
 
 /*
  * Include the mid-level includes
  */
 #include "z-bitflag.h"
+#include "z-color.h"
 #include "z-file.h"
 #include "z-form.h"
+#include "z-msg.h"
+#include "z-rand.h"
+#include "z-spells.h"
+#include "z-type.h"
 #include "z-util.h"
 #include "z-virt.h"
-#include "z-rand.h"
-#include "z-msg.h"
+
+#include "z-expression.h"
+#include "z-dice.h"
 
 /*
  * Include the high-level includes
  */
-#include "config.h"
-#include "defines.h"
-#include "types.h"
-#include "obj-types.h"
-#include "mon-types.h"
-#include "player-types.h"
-#include "store-types.h"
+#include "z-defines.h"
 
-#include "z-type.h"
-#include "externs.h"
+#include "actor.h"
+#include "buildid.h"
+#include "config.h"
+#include "display.h"
+#include "guid.h"
+#include "hint.h"
+#include "md5.h"
+#include "obj-common.h"
+#include "obj-gear-common.h"
+#include "obj-tval.h"
+#include "player-state.h" /* for struct player_state in mon-common.h */
+#include "mon-common.h"
+#include "parser.h"
+#include "player-common.h"
+#include "player-common-calcs.h"
+#include "randname.h"
+#include "store-types.h"
+#include "util.h"
 
 #endif

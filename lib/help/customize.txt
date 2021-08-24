@@ -1,0 +1,224 @@
+====================
+Customising the game
+====================
+
+PWMAngband supports multiple customizations. These can vary from alternative
+methods for selecting objects, keymaps for different commands, changing the
+visuals (using graphical tiles), creating subwindows, and saving
+customizations for use on future characters.
+
+Ignore settings
+================
+      
+PWMAngband allows you to ignore specific items that you don't want to see
+anymore. These items are marked 'ignored' and any similar items are hidden from
+view.
+
+Items have quality ignore options. These allow you to specify what types of
+items you are no longer interested in seeing. These quality settings are
+described below:
+
+worthless
+  Weapon/armor with negative AC, to-hit or to-dam, or item with zero base cost.
+
+average
+  Weapon/armor with no pluses no minuses, or any other non-magical item.
+
+good
+  Weapon/armor with positive AC, to-hit or to-dam, but without any special
+  abilities, brands, slays, stat-boosts, resistances, or magical items.
+ 
+excellent, with no high resists
+  Weapons with some slays, armor with resistances, but these are limited to
+  rfire, rcold, racid and relec.
+
+excellent but not splendid
+  Weapons and armor with high resists, but no stat boosts or brands.
+
+splendid
+  Ignoring all splendid items only leaves artifacts unignored.
+
+Using Inscriptions
+==================
+
+Inscriptions are notes you can mark on objects using the '{' command. You can
+use this to give the game commands about the object, which are listed below.
+
+Inscribing an item with '=g':
+    This marks an item as 'always pick up'. This is sometimes useful for
+    picking up ammunition after a shootout.
+
+Inscribing an item with '!' followed by a command letter or '*':
+    This means "prevent me from using this item". '!w' means 'prevent me from
+    wielding', '!d' means 'prevent me from dropping', and so on. If you
+    inscribe an item with '!*' then the game will prevent any use of the item.
+
+    Say you inscribed your potion of Speed with '!q'. This would prevent
+    you from drinking it to be sure you really meant to.
+
+    Similarly, using !v!k!d makes it very hard for you to accidentally
+    throw, ignore or put down the item it is inscribed on.
+
+    Some adventurers use this for Scrolls of Word of Recall so they don't
+    accidentally return to the dungeon too soon.
+
+Inscribing an item with '@', followed by a command latter, followed by 0-9:
+    Normally when you select an item from your inventory you must enter the
+    letter that corresponds to the item. Since the order of your inventory
+    changes as items get added and removed, this can get annoying. You
+    can instead assign certain items numbers when using a command so that
+    wherever they are in your backpack, you can use the same keypresses.
+    If you have multiple items inscribed with the same thing, the game will
+    use the first one.
+
+    For example, if you inscribe a staff of Cure Light Wounds with '@u1',
+    you can refer to it by pressing 1 when 'u'sing it. You could also
+    inscribe a wand of Wonder with '@a1', and when using 'a', 1 would select
+    that wand.
+
+    Spellcasters should inscribe their books, so that if they lose them they
+    do not cast the wrong spell. If you are mage and the beginner's spellbook
+    is the first in your inventory, casting 'maa' will cast magic missile. But
+    if you lose your spellbook, casting 'maa' will cast the first spell in
+    whatever new book is in the top of your inventory. This can be a waste in
+    the best case scenario and exceedingly dangerous in the worst! By
+    inscribing your spellbooks with '@m1', '@m2', etc., if you lose your first
+    spellbook and attempt to cast magic missile by using 'm1a', you cannot
+    accidentally select the wrong spellbook.
+
+Inscribing an item with '^', followed by a command letter:
+    When you inscribe an item with '^', the game prevents you from doing that
+    action. You might inscribe '^>' on an item if you want to be reminded to
+    take it off before going down stairs.
+    
+    Like with '!', you can use '*' for the command letter if you want the game
+    to prevent you from doing any action. This can get very annoying!
+
+User Pref Files
+===============
+
+PWMAngband allows you to change various aspects of the game to suit your
+tastes. You may define keymaps (changing the way PWMAngband maps your
+keypresses to underlying commands), modify the visuals (allowing you to change
+the appearance of monsters, objects, or terrain features), change the colors
+(allowing you to make a given color brighter, darker, or even completely
+different), or set options (turning them off or on).
+
+PWMAngband stores your preferences in files called "user pref files", which
+contain comments and "user pref commands", which are simple strings describing
+one aspect of the system about which the user has a preference. There are many
+ways to load a user pref file, and in fact, some of these files are
+automatically loaded for you by the game. All of the files are kept in the
+"lib/user/" directory, though you may have to use one of the command line
+arguments to redirect this directory, especially on multiuser systems. You may
+also enter single user pref commands directly, using the special "Enter a user
+pref command" command, activated by "double quote". You may have to use the
+"redraw" command ('^R') after changing certain of the aspects of the game, to
+allow PWMAngband to adapt to your changes.
+
+When the game starts up, after you have loaded an old character, or created a
+new character, some user pref files are loaded automatically. First, the
+"pref.prf" file is loaded. This file contains some user pref commands which
+will work on all platforms. Then one of 'font-xxx.prf' (for normal usage) or
+'graf-xxx.prf' (for bitmap usage) is loaded. These files contain attr/char
+changes to allow the monsters, objects, and/or terrain features to look
+"better" on your system. Then the 'pref-xxx.prf' file is loaded. This file
+contains pre-defined system specific stuff (keymaps, color definitions, etc).
+Then, the 'user-xxx.prf' file is loaded. This file contains user-defined
+system specific stuff. The 'user-xxx.prf' file is used as the "default" user
+pref file in many places. The 'xxx' is the "system suffix" for your system,
+taken from the 'main-xxx.c' file which was used to generate your executable.
+Finally, the 'Race.prf', 'Class.prf', and 'Name.prf' files are loaded, where
+'Race', 'Class', and 'Name' are replaced by the actual race, class, and name
+of the current character.
+
+Several options menu items allow you to load existing user pref files, create
+new user pref files, append information to existing user pref files, and/or
+interact with various of the user preferences.
+
+Subwindows
+==========
+
+In addition to the main window, you can create additional window displays
+that have other secondary information on them. You can access the subwindow
+menu by using '=' then 'w'. You can select what windows to display. You
+may then need to make the window visible using the "window" pull down menu
+from the menu bar. There are a variety of subwindow choices and you should
+experiment to see which ones are the most useful for you.
+
+User Pref Files (Keymaps)
+=========================
+
+The "Interact with keymaps" menu allows you to set up keymaps. Keymaps map
+a single keypress to a series of keypresses. For example you might map the
+key F1 to "maa" (the keypresses to cast "Magic Missile" as a spellcaster).
+This can speed up access to commonly-used features.
+
+Keymaps have two parts: the trigger key and the action. These are written
+where possible just as ordinary characters. However, if modifier keys
+(shift, control, etc.) are used then they are encoded as special characters
+within curly braces {}.
+
+Possible modifiers are:
+
+    K = Keypad (for numbers)
+    M = Meta (Cmd-key on OS X, alt on most other platforms)
+    ^ = Control
+    S = Shift
+
+If the only modifier is the control key, the curly braces {} aren't included.
+For example:
+
+    {^K}2 = Control-Keypad-2
+    ^D    = Control-D
+
+Special keys, like F1, F2, or Tab, are all written within square brackets [].
+For example:
+
+    ^[F1]     = Control-F1
+    {^S}[Tab] = Control-Shift-Tab
+
+Special keys include [Escape].
+
+The game will run keymaps in whatever keyset you use (original or roguelike).
+So if you write keymaps for roguelike keys and swith to original keys, they
+may not work as you expect! Keymap actions aren't recursive either, so if you
+had a keymap whose trigger was F1, including F1 inside the action wouldn't run
+the keymap action again.
+
+Keymaps are written in pref files as:
+
+    A:<action>
+    C:<T>:<trigger>
+
+The action must always come first, <T> means 'keyset Type', which is either
+0 for the original keyset or 1 for the roguelike keyset. For example:
+
+    A:maa
+    C:0:[F1]
+
+PWMAngband uses a few built-in keymaps. These are for the movement keys (they
+are mapped to ';' plus the number, e.g. '5' -> ';5'), amongst others. You
+can see the full list in pref.prf but they shouldn't impact on you in any way.
+
+To avoid triggering a keymap, you can use the backslash ('\\') command.
+
+User Pref Files (Colors)
+========================
+
+The "Interact with colors" menu allows you to change the actual internal
+values used to display various colors. This command may or may not have any
+effect on your machine. Advanced machines may allow you to change the
+actual RGB values used to represent each of the 16 colors used by PWMAngband,
+and perhaps even allow you to define new colors which are not currently
+used by PWMAngband.
+
+Colors can be specified in user pref files as lines of the form
+'V:<N>:<V>:<R>:<G>:<B>'.
+
+User Pref Files (Options)
+=========================
+
+The "Interact with options" command allows you to turn options on or off.
+You may turn options off or on using the user pref commands of the form
+'X:<option>' or 'Y:<option>' respectively.

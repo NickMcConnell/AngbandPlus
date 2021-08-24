@@ -2,7 +2,7 @@
  * File: net-win.c
  * Purpose: Network module
  *
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -404,7 +404,7 @@ GetSocketError(int fd)
  *  None
  *
  * Return Value
- *  TRUE (non-zero) or FALSE (zero) (or -1 if select() fails).
+ *  true (non-zero) or false (zero) (or -1 if select() fails).
  *
  * Globals Referenced
  *  socket_timeout
@@ -429,7 +429,7 @@ SocketReadable(int fd)
     timeout.tv_usec = sl_timeout_us;
 
     FD_ZERO(&readfds);
-    FD_SET(fd, &readfds);
+    FD_SET((SOCKET)fd, &readfds);
 
     if (select(fd, &readfds, NULL, NULL, &timeout) == SOCKET_ERROR)
         return ((errno == EINTR) ? 0 : -1);
@@ -889,7 +889,7 @@ DgramSend(int fd, char *host, int port,
     else
     {
         the_addr.sin_addr.s_addr    = inet_addr(host);
-        if (the_addr.sin_addr.s_addr == (int)-1)
+        if (the_addr.sin_addr.s_addr == (u_long)-1)
         {
             hp = gethostbyname(host);
             if (hp == NULL)
@@ -997,7 +997,7 @@ DgramReceive(int fd, char *from, char *rbuf, int size)
     int retval;
 
     tmp_addr.sin_addr.s_addr = inet_addr(from);
-    if (tmp_addr.sin_addr.s_addr == (int)-1)
+    if (tmp_addr.sin_addr.s_addr == (u_long)-1)
     {
         hp = gethostbyname(from);
         if (hp == NULL)
@@ -1707,7 +1707,7 @@ CreateClientSocket(char *host, int port)
     peer.sin_port   = htons(port);
 
     peer.sin_addr.s_addr = inet_addr(host);
-    if (peer.sin_addr.s_addr == (int)-1)
+    if (peer.sin_addr.s_addr == (u_long)-1)
     {
         hp = gethostbyname(host);
         if (hp == NULL)

@@ -6,7 +6,9 @@
 #ifndef INCLUDED_CONFIG_H
 #define INCLUDED_CONFIG_H
 
-/*** Some really important things you ought to change ***/
+/*
+ * Some really important things you ought to change
+ */
 
 /*
  * Defines the default paths to the Angband directories, for ports that use
@@ -42,25 +44,21 @@
 # define DEFAULT_DATA_PATH "." PATH_SEP "lib" PATH_SEP
 #endif
 
-/*** Some no-brainer defines ***/
-
-/* Allow the game to make noises correlating to what the player does in-game */
-#define USE_SOUND
-
-/* Allow the use of graphics rather than only having a text-mode */
-#define USE_GRAPHICS
-
-/*** Things useful for debugging compiles ***/
+/*
+ * Other defines
+ */
 
 /* Compile in support for debug commands */
-/* #define _DEBUG */
-
-/*** Other defines ***/
+/*#define DEBUG_MODE*/
 
 /*
  * OPTION: Do not switch to manual targeting if there are no
  * targets in the vicinity of player (un-Angband), display a prompt instead
  */
 #define NOTARGET_PROMPT
+
+/* Use private paths: /save and /scores subdirectories are put in /user if defined */
+/* PWMAngband: since we only work under Windows, we define this here -- do not modify! */
+#define USE_PRIVATE_PATHS
 
 #endif /* INCLUDED_CONFIG_H */

@@ -2,7 +2,7 @@
  * File: control.c
  * Purpose: Support for the "remote console"
  *
- * Copyright (c) 2012 MAngband and PWMAngband Developers
+ * Copyright (c) 2016 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -18,15 +18,12 @@
 
 
 #include "s-angband.h"
-#include "cmds.h"
-#include "init.h"
-#include "netserver.h"
 
 
 #define CONSOLE_AUTH    1
 #define CONSOLE_LISTEN  0
-#define CONSOLE_WRITE   TRUE
-#define CONSOLE_READ    FALSE
+#define CONSOLE_WRITE   true
+#define CONSOLE_READ    false
 
 
 typedef void (*console_cb) (int ind, char *params);
@@ -59,11 +56,11 @@ void console_print(char *msg, int chan)
         if (Conn_is_alive(i))
         {
             chan_ptr = Conn_get_console_channels(i);
-            hint = FALSE;
+            hint = false;
             if (chan_ptr[chan] || (chan == 0 &&
-                ((hint = Conn_get_console_setting(i, CONSOLE_LISTEN)) == TRUE)))
+                ((hint = Conn_get_console_setting(i, CONSOLE_LISTEN)) == true)))
             {
-                console_buf_w = (sockbuf_t*)console_buffer(i, FALSE);
+                console_buf_w = (sockbuf_t*)console_buffer(i, false);
                 if (!hint)
                 {
                     /* Name channel */
@@ -84,14 +81,14 @@ void console_print(char *msg, int chan)
 static void console_who(int ind, char *dummy)
 {
     int k, num = 0;
-    char brave[20];
+    char brave[30];
     sockbuf_t *console_buf_w = (sockbuf_t*)console_buffer(ind, CONSOLE_WRITE);
 
-    /* Hack -- Count players */
+    /* Hack -- count players */
     for (k = 1; k <= NumPlayers; k++)
     {
-        player_type *p_ptr = player_get(k);
-        if (!(p_ptr->dm_flags & DM_SECRET_PRESENCE)) num++;
+        struct player *p = player_get(k);
+        if (!(p->dm_flags & DM_SECRET_PRESENCE)) num++;
     }
 
     /* Packet header */
@@ -100,26 +97,21 @@ static void console_who(int ind, char *dummy)
     /* Scan the player list */
     for (k = 1; k <= NumPlayers; k++)
     {
-        player_type *p_ptr = player_get(k);
+        struct player *p = player_get(k);
         const char *batty = "";
         char *entry;
 
-        if (OPT_P(p_ptr, birth_no_ghost))
-        {
-            if (OPT_P(p_ptr, birth_ironman))
-                my_strcpy(brave, "an iron level", sizeof(brave));
-            else
-                my_strcpy(brave, "a brave level", sizeof(brave));
-        }
-        else if (OPT_P(p_ptr, birth_ironman))
-            my_strcpy(brave, "a hardcore level", sizeof(brave));
-        else
-            my_strcpy(brave, "a level", sizeof(brave));
-        if (OPT_P(p_ptr, birth_fruit_bat)) batty = "(batty) ";
+        /* Challenge options */
+        strnfmt(brave, sizeof(brave), "a%s%s%s level",
+            OPT_P(p, birth_no_ghost)? " brave": "",
+            OPT_P(p, birth_no_recall)? " hardcore": "",
+            OPT_P(p, birth_force_descend)? " diving": "");
+
+        if (OPT_P(p, birth_fruit_bat)) batty = "(batty) ";
 
         /* Add an entry */
-        entry = format("%s is %s %d %s %s %sat %d ft\n", p_ptr->name, brave, p_ptr->lev,
-            p_ptr->race->name, p_ptr->clazz->name, batty, p_ptr->depth * 50);
+        entry = format("%s is %s %d %s %s %sat %d ft\n", p->name, brave, p->lev,
+            p->race->name, p->clazz->name, batty, p->depth * 50);
         Packet_printf(console_buf_w, "%S", entry);
     }
     Sockbuf_flush(console_buf_w);
@@ -155,7 +147,7 @@ static void console_listen(int ind, char *channel)
             }
         }
     }
-    Conn_set_console_setting(ind, CONSOLE_LISTEN, TRUE);
+    Conn_set_console_setting(ind, CONSOLE_LISTEN, true);
 }
 
 
@@ -166,8 +158,8 @@ static void console_whois(int ind, char *name)
 {
     int i, len;
     u16b major, minor, patch, extra;
-    player_type *p_ptr = NULL, *p_ptr_search;
-    char brave[20];
+    struct player *p = NULL, *p_ptr_search;
+    char brave[30];
     const char *batty = "";
     char *entry;
     sockbuf_t *console_buf_w = (sockbuf_t*)console_buffer(ind, CONSOLE_WRITE);
@@ -178,10 +170,10 @@ static void console_whois(int ind, char *name)
     {
         p_ptr_search = player_get(i);
         len = strlen(p_ptr_search->name);
-        if (!strncasecmp(p_ptr_search->name, name, len))
-            p_ptr = p_ptr_search;
+        if (!my_strnicmp(p_ptr_search->name, name, len))
+            p = p_ptr_search;
     }
-    if (!p_ptr)
+    if (!p)
     {
         Packet_printf(console_buf_w, "%s%c", "No such player", (int)terminator);
         Sockbuf_flush(console_buf_w);
@@ -189,49 +181,42 @@ static void console_whois(int ind, char *name)
     }
 
     /* Output player information */
-    if (OPT_P(p_ptr, birth_no_ghost))
-    {
-        if (OPT_P(p_ptr, birth_ironman))
-            my_strcpy(brave, "an iron level", sizeof(brave));
-        else
-            my_strcpy(brave, "a brave level", sizeof(brave));
-    }
-    else if (OPT_P(p_ptr, birth_ironman))
-        my_strcpy(brave, "a hardcore level", sizeof(brave));
-    else
-        my_strcpy(brave, "a level", sizeof(brave));
-    if (OPT_P(p_ptr, birth_fruit_bat)) batty = "(batty) ";
+    strnfmt(brave, sizeof(brave), "a%s%s%s level",
+        OPT_P(p, birth_no_ghost)? " brave": "",
+        OPT_P(p, birth_no_recall)? " hardcore": "",
+        OPT_P(p, birth_force_descend)? " diving": "");
+    if (OPT_P(p, birth_fruit_bat)) batty = "(batty) ";
 
     /* General character description */
-    entry = format("%s is %s %d %s %s %sat %d ft\n", p_ptr->name, brave, p_ptr->lev,
-            p_ptr->race->name, p_ptr->clazz->name, batty, p_ptr->depth * 50);
+    entry = format("%s is %s %d %s %s %sat %d ft\n", p->name, brave, p->lev,
+            p->race->name, p->clazz->name, batty, p->depth * 50);
     Packet_printf(console_buf_w, "%S", entry);
 
     /* Breakup the client version identifier */
-    major = (p_ptr->version & 0xF000) >> 12;
-    minor = (p_ptr->version & 0xF00) >> 8;
-    patch = (p_ptr->version & 0xF0) >> 4;
-    extra = (p_ptr->version & 0xF);
+    major = (p->version & 0xF000) >> 12;
+    minor = (p->version & 0xF00) >> 8;
+    patch = (p->version & 0xF0) >> 4;
+    extra = (p->version & 0xF);
 
     /* Player connection info */
     Packet_printf(console_buf_w, "%S", format("(%s@%s [%s] v%d.%d.%d.%d)\n",
-        p_ptr->other.full_name, p_ptr->hostname, p_ptr->addr, major, minor, patch, extra));
+        p->other.full_name, p->hostname, p->addr, major, minor, patch, extra));
 
     /* Other interesting factoids */
-    if (p_ptr->lives > 0)
-        Packet_printf(console_buf_w, "%s", format("Has resurrected %d times.\n", p_ptr->lives));
-    if (p_ptr->max_depth == 0)
+    if (p->lives > 0)
+        Packet_printf(console_buf_w, "%s", format("Has resurrected %d times.\n", p->lives));
+    if (p->max_depth == 0)
         Packet_printf(console_buf_w, "%s%c", "Has never left the town!", (int)terminator);
     else
     {
         Packet_printf(console_buf_w, "%s",
-            format("Has ventured down to %d ft\n", p_ptr->max_depth * 50));
+            format("Has ventured down to %d ft\n", p->max_depth * 50));
     }
-    i = p_ptr->msg_hist_ptr - 1;
+    i = p->msg_hist_ptr - 1;
     if (i >= 0)
     {
-        if (p_ptr->msg_log[i])
-            Packet_printf(console_buf_w, "%S", format("Last message: %s\n", p_ptr->msg_log[i]));
+        if (!STRZERO(p->msg_log[i]))
+            Packet_printf(console_buf_w, "%S", format("Last message: %s\n", p->msg_log[i]));
     }
 
     Sockbuf_flush(console_buf_w);
@@ -241,36 +226,36 @@ static void console_whois(int ind, char *name)
 static void console_message(int ind, char *buf)
 {
     /* Send the message */
-    do_cmd_message(0, buf);
+    do_cmd_message(NULL, buf);
 }
 
 
 static void console_kick_player(int ind, char *name)
 {
     int i, len;
-    player_type *p_ptr, *p_ptr_search;
+    struct player *p, *p_ptr_search;
     sockbuf_t *console_buf_w = (sockbuf_t*)console_buffer(ind, CONSOLE_WRITE);
     char terminator = '\n';
 
-    p_ptr = 0;
+    p = 0;
 
     /* Check the players in the game */
     for (i = 1; i <= NumPlayers; i++)
     {
         p_ptr_search = player_get(i);
         len = strlen(p_ptr_search->name);
-        if (!strncasecmp(p_ptr_search->name, name, len))
+        if (!my_strnicmp(p_ptr_search->name, name, len))
         {
-            p_ptr = p_ptr_search;
+            p = p_ptr_search;
             break;
         }
     }
 
     /* Check name */
-    if (p_ptr)
+    if (p)
     {
         /* Kick him */
-        Destroy_connection(p_ptr->conn, "Kicked out");
+        Destroy_connection(p->conn, "Kicked out");
 
         /* Success */
         Packet_printf(console_buf_w, "%s%c", "Kicked player", (int)terminator);
@@ -329,7 +314,7 @@ static void console_rng_test(int ind, char *dummy)
 static void console_reload(int ind, char *mod)
 {
     sockbuf_t *console_buf_w = (sockbuf_t*)console_buffer(ind, CONSOLE_WRITE);
-    bool done = FALSE;
+    bool done = false;
     char terminator = '\n';
 
     if (mod && !strcmp(mod, "config"))
@@ -337,14 +322,14 @@ static void console_reload(int ind, char *mod)
         /* Reload the server preferences */
         load_server_cfg();
 
-        done = TRUE;
+        done = true;
     }
     else if (mod && !strcmp(mod, "news"))
     {
         /* Reload the news file */
         Init_setup();
 
-        done = TRUE;
+        done = true;
     }
 
     /* Let mangconsole know that the command was a success */
@@ -389,26 +374,25 @@ static void console_wrath(int ind, char *name)
     /* Check the players in the game */
     for (i = 1; i <= NumPlayers; i++)
     {
-        player_type *p_ptr = player_get(i);
+        struct player *p = player_get(i);
 
         /* Check name */
-        if (!strcmp(name, p_ptr->name))
+        if (!strcmp(name, p->name))
         {
             /* Mark as permanent death */
-            p_ptr->alive = FALSE;
+            p->alive = false;
+
+            /* Note cause of death */
+            my_strcpy(p->died_from, "divine wrath", sizeof(p->died_from));
+
+            /* Record cause of death */
+            player_death_info(p, "divine wrath");
 
             /* Mark as cheater */
-            p_ptr->noscore = 1;
-
-            /* Hack -- Set the cause of death */
-            my_strcpy(p_ptr->died_from, "divine wrath", sizeof(p_ptr->died_from));
-            player_death_info(p_ptr, "divine wrath");
-
-            /* Hack -- Clear ghost */
-            set_ghost_flag(p_ptr, 0, TRUE);
+            p->noscore = 1;
 
             /* Kill him */
-            player_death(i);
+            player_death(p);
 
             /* Success */
             Packet_printf(console_buf_w, "%s%c", "Wrathed player", (int)terminator);
@@ -429,7 +413,7 @@ static void console_help(int ind, char *name)
 {
     sockbuf_t *console_buf_w = (sockbuf_t*)console_buffer(ind, CONSOLE_WRITE);
     int i;
-    bool done = FALSE;
+    bool done = false;
     char terminator = '\n';
 
     /* Root */
@@ -441,7 +425,7 @@ static void console_help(int ind, char *name)
             Packet_printf(console_buf_w, "%s", " ");
         }
         Packet_printf(console_buf_w, "%c", (int)terminator);
-        done = TRUE;
+        done = true;
     }
 
     /* Specific command */
@@ -456,7 +440,7 @@ static void console_help(int ind, char *name)
                 Packet_printf(console_buf_w, "%s", " ");
                 Packet_printf(console_buf_w, "%s", console_commands[i].comment);
                 Packet_printf(console_buf_w, "%c", (int)terminator);
-                done = TRUE;
+                done = true;
             }
         }
     }
@@ -474,7 +458,7 @@ static void console_help(int ind, char *name)
  */
 void NewConsole(int read_fd, int arg)
 {
-    char passwd[NORMAL_WID], buf[MSG_LEN];
+    char passwd[MSG_LEN], buf[MSG_LEN];
     char *params;
     int bytes, buflen, ind;
     int newsock = 0;
@@ -510,8 +494,8 @@ void NewConsole(int read_fd, int arg)
         if (SetSocketNonBlocking(newsock, 1) == -1)
             plog("Can't make contact socket non-blocking");
         install_input(NewConsole, newsock, ind);
-        Conn_set_console_setting(ind, CONSOLE_AUTH, FALSE);
-        Conn_set_console_setting(ind, CONSOLE_LISTEN, FALSE);
+        Conn_set_console_setting(ind, CONSOLE_AUTH, false);
+        Conn_set_console_setting(ind, CONSOLE_LISTEN, false);
         Sockbuf_clear(console_buf_w);
         Packet_printf(console_buf_w, "%s%c", "Connected", (int)terminator);
         Sockbuf_flush(console_buf_w);
@@ -534,7 +518,7 @@ void NewConsole(int read_fd, int arg)
     }
     if (bytes < 0)
     {
-        /* Hack - ignore these errors */
+        /* Hack -- ignore these errors */
         if ((errno == EAGAIN) || (errno == EINTR))
         {
             GetSocketError(newsock);
@@ -554,7 +538,7 @@ void NewConsole(int read_fd, int arg)
     {
         Packet_scanf(console_buf_r, "%N", passwd);
 
-        /* Hack: comply with telnet */
+        /* Hack -- comply with telnet */
         buflen = strlen(passwd);
         if (buflen && passwd[buflen-1] == '\r') passwd[buflen-1] = '\0';
 
@@ -581,7 +565,7 @@ void NewConsole(int read_fd, int arg)
         {
             /* Clear buffer */
             Sockbuf_clear(console_buf_w);
-            Conn_set_console_setting(ind, CONSOLE_AUTH, TRUE);
+            Conn_set_console_setting(ind, CONSOLE_AUTH, true);
             Packet_printf(console_buf_w, "%s%c", "Authenticated", (int)terminator);
             Sockbuf_flush(console_buf_w);
             return;
@@ -592,7 +576,7 @@ void NewConsole(int read_fd, int arg)
     Packet_scanf(console_buf_r, "%N", buf);
     buflen = strlen(buf);
 
-    /* Hack: comply with telnet */
+    /* Hack -- comply with telnet */
     if (buflen && buf[buflen-1] == '\r') buf[buflen-1] = '\0';
 
     /* Split up command and params */

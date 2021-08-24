@@ -2,7 +2,7 @@
  * File: account.c
  * Purpose: Account management
  *
- * Copyright (c) 2011 PWMAngband Developers
+ * Copyright (c) 2016 PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -26,10 +26,10 @@ u32b get_account(const char *name, const char *pass)
     char filename[MSG_LEN];
     char filebuf[MSG_LEN];
     u32b account_id = 1;
-    bool check_name = TRUE, name_ok = FALSE, pass_ok = FALSE;
+    bool check_name = true, name_ok = false, pass_ok = false;
 
     /* Check account file */
-    path_build(filename, MSG_LEN, ANGBAND_DIR_SAVE, "account");
+    path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, "account");
     if (file_exists(filename))
     {
         /* Open the file */
@@ -62,8 +62,8 @@ u32b get_account(const char *name, const char *pass)
                     /* Incorrect password */
                     return 0L;
                 }
-                name_ok = FALSE;
-                pass_ok = FALSE;
+                name_ok = false;
+                pass_ok = false;
                 account_id++;
             }
         }

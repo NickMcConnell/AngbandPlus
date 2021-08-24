@@ -67,11 +67,11 @@ extern "C"
  *
  */
 
-#ifndef FALSE
-# define FALSE 0
+#ifndef false
+# define false 0
 #endif
-#ifndef TRUE
-# define TRUE 1
+#ifndef true
+# define true 1
 #endif
 #ifndef NULL
 # define NULL (void *)0
@@ -279,10 +279,10 @@ typedef struct
     bool  echo;           /* if terminal echo */
     bool  raw_inp;        /* raw input mode (v. cooked input) */
     bool  raw_out;        /* raw output mode (7 v. 8 bits) */
-    bool  audible;        /* FALSE if the bell is visual */
-    bool  mono;           /* TRUE if current screen is mono */
-    bool  resized;        /* TRUE if TERM has been resized */
-    bool  orig_attr;      /* TRUE if we have the original colors */
+    bool  audible;        /* false if the bell is visual */
+    bool  mono;           /* true if current screen is mono */
+    bool  resized;        /* true if TERM has been resized */
+    bool  orig_attr;      /* true if we have the original colors */
     short orig_fore;      /* original screen foreground color */
     short orig_back;      /* original screen foreground color */
     int   cursrow;        /* position of physical cursor */
@@ -303,15 +303,15 @@ typedef struct
                                       top via ripoffline() */
     int   delaytenths;             /* 1/10ths second to wait block
                                       getch() for */
-    bool  _preserve;               /* TRUE if screen background
+    bool  _preserve;               /* true if screen background
                                       to be preserved */
     int   _restore;                /* specifies if screen background
                                       to be restored, and how */
-    bool  save_key_modifiers;      /* TRUE if each key modifiers saved
+    bool  save_key_modifiers;      /* true if each key modifiers saved
                                       with each key press */
-    bool  return_key_modifiers;    /* TRUE if modifier keys are
+    bool  return_key_modifiers;    /* true if modifier keys are
                                       returned as "real" keys */
-    bool  key_code;                /* TRUE if last key is a special key;
+    bool  key_code;                /* true if last key is a special key;
                                       used internally by get_wch() */
 #ifdef XCURSES
     int   XcurscrSize;    /* size of Xcurscr shared memory block */

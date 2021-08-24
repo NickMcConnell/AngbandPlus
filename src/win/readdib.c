@@ -48,7 +48,7 @@ static DWORD PASCAL lread(HFILE fh, VOID FAR *pv, DWORD ul)
         ul -= MAXREAD;
         hp += MAXREAD;
     }
-    if (_lread(fh, (LPSTR)hp, (WORD)ul) != (WORD)ul)
+    if (_lread(fh, (LPSTR)hp, (WORD)ul) != (UINT)ul)
         return 0;
     return ulT;
 }
@@ -75,7 +75,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
         npPal = (PLOGPALETTE)LocalAlloc(LMEM_FIXED, sizeof(LOGPALETTE) +
                                          (WORD)lpInfo->biClrUsed * sizeof(PALETTEENTRY));
         if (!npPal)
-            return(FALSE);
+            return(0);
 
         npPal->palVersion = 0x300;
         npPal->palNumEntries = (WORD)lpInfo->biClrUsed;
