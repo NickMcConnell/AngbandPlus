@@ -321,6 +321,7 @@ void cast_wonder(int dir)
         sleep_monsters(p_ptr->lev);
         hp_player(300);
     }
+    if (disciple_is_(DISCIPLE_TROIKA)) troika_effect(TROIKA_CHANCE);
 }
 
 
@@ -584,7 +585,7 @@ static void wild_magic(int spell)
 }
 
 
-static void cast_shuffle(void)
+void cast_shuffle(void)
 {
     int plev = p_ptr->lev;
     int dir;
@@ -595,7 +596,8 @@ static void cast_shuffle(void)
     /* Card sharks and high mages get a level bonus */
     if ((p_ptr->pclass == CLASS_ROGUE) ||
         (p_ptr->pclass == CLASS_HIGH_MAGE) ||
-        (p_ptr->pclass == CLASS_SORCERER))
+        (p_ptr->pclass == CLASS_SORCERER) ||
+        (p_ptr->pclass == CLASS_DISCIPLE))
         die = (randint1(110)) + plev / 5;
     else
         die = randint1(120);
@@ -1204,7 +1206,7 @@ static cptr do_life_spell(int spell, int mode)
 
     case 15:
         if (name) return "Glyph of Warding";
-        if (desc) return "Sets a glyph on the floor beneath you. Monsters cannot attack you if you are on a glyph, but can try to break glyph.";
+        if (desc) return "Sets a glyph on the floor beneath you. Monsters cannot attack you if you are on a glyph, but can try to break the glyph.";
 
         {
             if (cast)
@@ -3059,10 +3061,13 @@ static cptr do_chaos_spell(int spell, int mode)
         {
             int base = 12;
             int sides = 4;
+            int power = spell_power(4 * plev);
+
+            if (info) return info_power(power);
 
             if (cast)
             {
-                destroy_area(py, px, base + randint1(sides), spell_power(4 * plev));
+                destroy_area(py, px, base + randint1(sides), power);
             }
         }
         break;
@@ -3331,15 +3336,18 @@ static cptr do_chaos_spell(int spell, int mode)
                       && which != RACE_DRACONIAN
                       && which != RACE_ANDROID
                       && which != RACE_WEREWOLF
+                      && which != RACE_BEORNING
                       && which != RACE_DOPPELGANGER
                       && p_ptr->prace != which
-                      && !(get_race_aux(which, 0)->flags & RACE_IS_MONSTER) )
+                      && !(get_race_aux(which, 0)->flags & RACE_IS_MONSTER)
+                      && !(get_race_aux(which, 0)->flags & RACE_NO_POLY) )
                     {
                         break;
                     }
                 }
             }
             set_mimic(50 + randint1(50), which, FALSE);
+            if (p_ptr->mimic_form == MIMIC_NONE) msg_print("There is no effect.");
         }
         break;
 
@@ -3820,7 +3828,7 @@ static cptr do_death_spell(int spell, int mode)
 
     case 19:
         if (name) return "Battle Frenzy";
-        if (desc) return "Gives another bonus to hit and HP, immunity to fear for a while. Hastes you. But decreases AC.";
+        if (desc) return "Gives a bonus to accuracy and HP and fear resistance for a while, hastes you, and increases AC.";
 
         {
             int b_base = spell_power(25);
@@ -3998,6 +4006,7 @@ static cptr do_death_spell(int spell, int mode)
             if (cast)
             {
                 set_mimic(base + randint1(base), MIMIC_VAMPIRE, FALSE);
+                if (p_ptr->mimic_form == MIMIC_NONE) msg_print("There is no effect.");
             }
         }
         break;
@@ -6294,6 +6303,7 @@ static cptr do_daemon_spell(int spell, int mode)
             if (cast)
             {
                 set_mimic(base + randint1(base), MIMIC_DEMON, FALSE);
+                if (p_ptr->mimic_form == MIMIC_NONE) msg_print("There is no effect.");
             }
         }
         break;
@@ -6472,6 +6482,7 @@ static cptr do_daemon_spell(int spell, int mode)
             if (cast)
             {
                 set_mimic(base + randint1(base), MIMIC_DEMON_LORD, FALSE);
+                if (p_ptr->mimic_form == MIMIC_NONE) msg_print("There is no effect.");
             }
         }
         break;
@@ -8626,12 +8637,14 @@ static cptr do_hex_spell(int spell, int mode)
                 {
                     msg_print("Heavy curse vanished away.");
                     prompt.obj->curse_flags = 0L;
+                    prompt.obj->known_curse_flags = 0L;
                 }
             }
             else if ((prompt.obj->curse_flags & (OFC_CURSED)) && one_in_(3))
             {
                 msg_print("Curse vanished away.");
                 prompt.obj->curse_flags = 0L;
+                prompt.obj->known_curse_flags = 0L;
             }
 
             add = FALSE;

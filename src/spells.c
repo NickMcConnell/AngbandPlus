@@ -528,7 +528,7 @@ static int _rage_mage_count_spells(spell_info *spells)
     return ct;
 }
 
-static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost, bool power, bool force_browsing)
+static int _choose_spell(spell_info* spells, int ct, cptr verb, cptr desc, int max_cost, bool power, bool force_browsing)
 {
     int choice = -1;
     int korkeus = 0;
@@ -539,7 +539,7 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost, bo
     bool inscribe = FALSE;
     char labels[100] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&'()*+,-./:;<=>{|}...............";
     static char multicase[64] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    bool rage_hack = ((streq("rage", desc)) && (ct == 8));
+    bool rage_hack = ((desc) && (streq("rage", desc)) && (ct == 8));
 
     if (power)
     {
@@ -623,6 +623,14 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost, bo
             }
         }
     }
+    else if (disciple_is_(DISCIPLE_TROIKA))
+    {
+        int i;
+        for (i = troika_spell_hack; i < ct; i++)
+        {
+            labels[i] = '0' + i - troika_spell_hack;
+        }
+    }
 
     labels[MIN(ct, 98)] = '\0';
 
@@ -638,8 +646,8 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost, bo
     }
     else
     {
-        strnfmt(prompt1, 78, "Use which %s? (Type '?' to Browse) ", desc);
-        strnfmt(prompt2, 78, "Browse which %s? (Type '?' to Use) ", desc);
+        strnfmt(prompt1, 78, "%s which %s? (Type '?' to Browse) ", verb, desc);
+        strnfmt(prompt2, 78, "Browse which %s? (Type '?' to %s) ", desc, verb);
     }
 
     if (rage_hack)
@@ -755,7 +763,7 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost, bo
     return choice;
 }
 
-int choose_spell(spell_info* spells, int ct, cptr desc, int max_cost, bool power)
+int choose_spell(spell_info* spells, int ct, cptr verb, cptr desc, int max_cost, bool power)
 {
     int choice = -1;
 
@@ -767,7 +775,7 @@ int choose_spell(spell_info* spells, int ct, cptr desc, int max_cost, bool power
 
     screen_save();
 
-    choice = _choose_spell(spells, ct, desc, max_cost, power, FALSE);
+    choice = _choose_spell(spells, ct, verb, desc, max_cost, power, FALSE);
     REPEAT_PUSH(choice);
 
     screen_load();
@@ -783,7 +791,7 @@ void browse_spells(spell_info* spells, int ct, cptr desc)
     {
         int choice = -1;
 
-        choice = _choose_spell(spells, ct, desc, 10000, FALSE, TRUE);
+        choice = _choose_spell(spells, ct, "Use", desc, 10000, FALSE, TRUE);
         if (choice < 0 || choice >= ct) break;
         if (p_ptr->pclass == CLASS_RAGE_MAGE)
         {
@@ -910,9 +918,15 @@ static int _get_spell_table(spell_info* spells, int max)
     race_t  *race_ptr = get_race();
 
     if (race_ptr->get_spells != NULL) /* Monster Races ... */
+    {
+        inkey_xtra = FALSE;
         ct = (race_ptr->get_spells)(spells, max);
+    }
     else if (class_ptr->get_spells != NULL)
+    {
+        inkey_xtra = FALSE;
         ct = (class_ptr->get_spells)(spells, max);
+    }
 
     _add_extra_costs(spells, ct);
     return ct;
@@ -961,7 +975,10 @@ void do_cmd_spell(void)
     int choice = 0;
     int max_cost = 0;
     bool poli = (p_ptr->pclass == CLASS_POLITICIAN);
+    bool _old_inkey_xtra = inkey_xtra;
     spell_problem = 0;
+
+    inkey_xtra = TRUE;
 
     if (!caster)
     {
@@ -997,8 +1014,11 @@ void do_cmd_spell(void)
     {
         /* User probably canceled the prompt for a spellbook */
         spell_problem = 0;
+        if (p_ptr->pclass == CLASS_DISCIPLE) msg_print("The Purples have not taught you any spells yet!");
         return;
     }
+
+    inkey_xtra = TRUE;
 
     if (spell_problem)
     {
@@ -1011,6 +1031,8 @@ void do_cmd_spell(void)
         }
     }
 
+    inkey_xtra = _old_inkey_xtra;
+
     if (caster->options & CASTER_USE_CONCENTRATION)
         max_cost = p_ptr->concent;
     else if (hp_caster)
@@ -1021,7 +1043,7 @@ void do_cmd_spell(void)
         max_cost = p_ptr->au;
     else
         max_cost = p_ptr->csp;
-    choice = choose_spell(spells, ct, caster->magic_desc, max_cost, FALSE);
+    choice = choose_spell(spells, ct, "Use", caster->magic_desc, max_cost, FALSE);
 
     if (choice >= 0 && choice < ct)
     {
@@ -1105,8 +1127,11 @@ void do_cmd_spell(void)
             {	
                 /* Give back the spell cost, since the user canceled the spell
                  * There is no CASTER_USE_SP flag so we need to check all the alternatives */
-                if ((!hp_caster) && (!poli) && (!(caster->options & (CASTER_USE_AU | CASTER_USE_CONCENTRATION)))) 
+                if ((!hp_caster) && (!poli) && (!(caster->options & (CASTER_USE_AU | CASTER_USE_CONCENTRATION))))
+                {
                     p_ptr->csp += spell->cost;
+                    p_ptr->redraw |= PR_MANA;
+                }
                 return;
             }
             spell_stats_on_cast(spell);
@@ -1114,6 +1139,7 @@ void do_cmd_spell(void)
         }
 
         energy_use = get_spell_energy(spell->fn);
+        p_inc_fatigue(MUT_EASY_TIRING2, 50 + MIN(50, spell->cost / 2));
 
         if (poli) /* Do nothing - let on_cast handle it */
         {
@@ -1135,6 +1161,7 @@ void do_cmd_spell(void)
         p_ptr->redraw |= PR_HP;
         p_ptr->window |= PW_SPELL;
         spell_problem = 0; /* successful cast */
+        if (disciple_is_(DISCIPLE_TROIKA)) troika_effect(TROIKA_CAST);
     }
 }
 
@@ -1188,13 +1215,14 @@ byte do_cmd_power(void)
         {
              if (ongelma & PWR_AFRAID) msg_print("You are too scared!");
              else if (ongelma & PWR_CONFUSED) msg_print("You are too confused!");
+             if (flush_failure) flush();
              return ongelma;
         }
     }
     
     _add_extra_costs_powers(spells, ct);
 
-    choice = choose_spell(spells, ct, "power", budget, TRUE);
+    choice = choose_spell(spells, ct, "Use", "power", budget, TRUE);
 
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
     {
@@ -1236,6 +1264,7 @@ byte do_cmd_power(void)
         }
 
         energy_use = get_spell_energy(spell->fn);
+        p_inc_fatigue(MUT_EASY_TIRING2, 50 + MIN(50, spell->cost / 2));
 
         /* Casting costs spill over into hit points */
         if (hp_only)

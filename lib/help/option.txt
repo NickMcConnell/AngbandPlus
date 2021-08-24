@@ -61,6 +61,12 @@ If this option is enabled, then every level will be empty 'arena' level. See the
 <topic:ironman_nightmare><color:U>Nightmare mode(it isn't even remotely fair!)</color> <color:D>(ironman_nightmare)</color>
 If this option is enabled, all monsters become unusually powerful, and fast. And there will be various unbelievable things happening in various situations. Furthermore, at 12:00 every night, you will have a real nightmare. You need to be crazy to turn this option on!
 
+<topic:thrall_mode><color:U>Thrall mode (start in extreme danger)</color> <color:D>(thrall_mode)</color>
+With this option enabled, you start the game on level 90 of R'lyeh (or level 90 of Angband in no-wilderness mode) as a runaway slave of the dungeon's demonic masters. With extreme care, you have managed to steal a few useful items that might help you in your escape. But now you've been noticed, everyone's on alert, and it is up to you to die, escape - or fight your way through...
+
+<topic:wacky_rooms><color:U>Always generate very unusual rooms</color> <color:D>(wacky_rooms)</color>
+If this option is enabled, every room becomes a vault (except in a few dungeons with special generation rules), vaults are allowed to generate extremely out-of-depth monsters and floor items, and extremely small levels are made slightly larger (to accommodate the vaults). This option is purposely game-unbalancing, and is intended for experienced players who have found they actually like the game unbalanced now and then.
+
 <topic:enable_virtues><color:U>Enable virtues</color> <color:D>(enable_virtues)</color>
 Turns on the virtue system. Virtues can help or hinder the player; among other things, they affect spell fail rates, the strength of many magical effects, and the friendliness of some monsters.
 
@@ -78,6 +84,18 @@ This option removes some percentage of uniques from the game. A few uniques (mos
 
 <topic:single_pantheon><color:U>Play with only one pantheon</color> <color:D>(single_pantheon)</color>
 This option removes one of the game's two main monster pantheons (Olympian or Egyptian) from the game, but also re-adds all members of the remaining pantheon if they have been removed by the reduce_uniques option. In wilderness mode, the dungeon associated with the removed pantheon is also removed from the game. Which pantheon remains can be either specified by the player or left to a random decision.
+
+<topic:always_small_levels><color:U>Level size</color> <color:D>(always_small_levels)</color>
+This option allows you to select from a variety of different level-size selection methods. See <link:small_lv.txt> for more details.
+
+<topic:increase_density><color:U>Increase monster density on small levels</color> <color:D>(increase_density)</color>
+This option switches to the old PosChengband 6.1.0 monster density formula for small levels, increasing the number of monsters generated on newly entered small levels.
+
+<topic:no_big_dungeons><color:U>Allow small levels in all dungeons except Arena</color> <color:D>(no_big_dungeons)</color>
+If this option is enabled, small levels can generate even in dungeons that normally always generate maximum-sized levels. The exception is Arena, which will still always generate large levels.
+
+<topic:even_proportions><color:U>Sometimes reshape very flat "pipe" levels</color> <color:D>(even_proportions)</color>
+If this option is turned on, levels with a very high (6-to-1 or higher) width-to-height ratio are sometimes re-shaped to have the same total area but different proportions.
 
 <topic:no_chris><color:U>Nexus attacks never teleport to another dungeon</color> <color:D>(no_chris)</color>
 Turning on this option disables the "Chris effect" (a nexus attack effect that teleports the player to another dungeon, potentially one that's highly dangerous and was never previously visited by the player). As a substitute for the Chris effect, the player's stats will be scrambled; or if stat scrambling is also disabled, the Baby Foul Curse (a less deadly version of the infamous Ancient Foul Curse) will trigger. This option has no effect (or, rather, is effectively always on) in no-wilderness mode, since no-wilderness mode only has the one dungeon.
@@ -223,6 +241,9 @@ Display the weights of objects in the inventory and equipment lists, and in stor
 <topic:show_discounts><color:U>Show discounts in object listings</color> <color:D>(show_discounts)</color>
 Display the discount of the object, if any, as part of its inscription. Disabling this option won't remove the object's discount. Rather, this information will no longer be displayed to the player.
 
+<topic:show_power><color:U>Show device power in object listings (if known)</color> <color:D>(show_power)</color>
+Displays details about an object's power (like <color:g>dam 158</color> or <color:U>heal 250</color>) in inventories, allowing you to compare items at a glance.
+
 <topic:show_item_graph><color:U>Show items graphics</color> <color:D>(show_item_graph)</color>
 Displays small icons of the items in your inventory list, equipment list and stores.
 
@@ -286,6 +307,12 @@ If this option is enabled, the list of visible objects (accessible in-game by pr
 <topic:display_skill_num><color:U>Display skills as numbers in the character sheet</color> <color:D>(display_skill_num)</color>
 If this option is on, the character sheet displays the player's skills numerically in addition to the usual verbal description; <color:g>Superb</color> may become <color:g>Superb</color> (82), for example. This format is familiar to players of Composband, where the numerical display is always on.
 
+<topic:reforge_details><color:U>Show statistics before proceeding with a reforge</color> <color:D>(reforge_details)</color>
+This option shows statistics about how good a reforge result is likely to be (and why), gives warnings in case of reforges that look particularly misguided, and allows you to cancel the reforge if the statistics are not to your liking.
+
+<topic:auto_sticky_labels><color:U>Automatically make all power labels sticky</color> <color:D>(auto_sticky_labels)</color>
+With this option on, all powers used through the 'U' key ('O' in the roguelike keyset) will be assigned a permanent and unchanging letter slot, allowing reliable macros and keymaps (and finger memory).
+
 </indent>
 <topic:GamePlay><style:heading>Game Play Options</style>
   <indent>
@@ -317,6 +344,9 @@ Ignore stairs when running.
 
 <topic:find_ignore_doors><color:U>Run through open doors</color> <color:D>(find_ignore_doors)</color>
 Ignore open doors when running.
+
+<topic:find_ignore_veins><color:U>Run past buried treasure</color> <color:D>(find_ignore_veins)</color>
+Ignore treasure veins when running.
 
 <topic:find_cut><color:U>Run past known corners</color> <color:D>(find_cut)</color>
 Cut sharply around known corners when running. This will result in faster running, but may cause you to run into a lurking monster.
@@ -352,7 +382,10 @@ This option causes you to be disturbed by the map scrolling, as it does automati
 This option causes you to be disturbed whenever the player state changes, including changes in hunger, resistance, confusion, etc.
 
 <topic:disturb_minor><color:U>Disturb whenever boring things happen</color> <color:D>(disturb_minor)</color>
-This option causes you to be disturbed by various bring things, including monsters bashing down doors, inventory feelings, and beginning to run out of fuel.
+This option causes you to be disturbed by various boring things, including monsters bashing down doors, inventory feelings, and beginning to run out of fuel.
+
+<topic:town_no_disturb><color:U>Never disturb when a town monster moves</color> <color:D>(town_no_disturb)</color>
+With this option on, non-attacking moves by monsters native to towns (mercenaries, drunks, street urchins etc.) will never disturb you.
 
 <topic:ring_bell><color:U>Audible bell (on errors, etc)</color> <color:D>(ring_bell)</color>
 Attempt to make a bell noise when various errors occur.
@@ -361,7 +394,20 @@ Attempt to make a bell noise when various errors occur.
 This option causes you to be disturbed when the player is running out of trap-detected area.
 
 <topic:alert_trap_detect><color:U>Alert when leaving trap detected area</color> <color:D>(alert_trap_detect)</color>
-This option alerts you with message when the player is moving out of the trap-detected area.
+This option alerts you with a message when the player is moving out of the trap-detected area.
+
+<topic:alert_device_gone><color:U>Alert when carried device is destroyed or stolen</color> <color:D>(alert_device_gone)</color>
+This option forces a <color:B>-more-</color> prompt whenever any wand, rod or staff in your inventory is destroyed or stolen.
+
+<topic:alert_insc_gone><color:U>Alert when inscribed item is destroyed or stolen</color> <color:D>(alert_insc_gone)</color>
+This option forces a <color:B>-more-</color> prompt whenever any inscribed item in your inventory is destroyed or stolen.
+
+<topic:alert_wanted_kill><color:U>Alert on killing wanted uniques</color> <color:D>(alert_wanted_kill)</color>
+This option forces a <color:B>-more-</color> prompt when a unique with a price on its head is killed.
+
+<topic:alert_poison><color:U>Alert on dangerously high poison counter</color> <color:D>(alert_poison)</color>
+This option alerts you with a message before your move if your poison counter exceeds your current HP, 80% of your maximum HP, or 499 points, whichever is lowest. (Subsequent warnings for the same instance of poisoning will be displayed only if you are at immediate risk of dying from poison.)
+
 </indent>
 <topic:AutoDestroyer><style:heading>Easy Auto-Destroyer Options</style>
   <indent>
@@ -391,6 +437,9 @@ In addition, the matching rule will be displayed when inspecting objects. For ex
 </style>
 <topic:no_mogaminator><color:U>Never apply the Mogaminator</color> <color:D>(no_mogaminator)</color>
 This option deactivates the Mogaminator. (It is redundant if the Mogaminator was never activated in the first place.)
+
+<topic:delay_autopick><color:U>Allow manual pickup before applying auto-pickup</color> <color:D>(delay_autopick)</color>
+With this option on, any command that allows you to pick up items manually will give the manual pickup priority over auto-pickup. (With the option off, this only happens if you are picking up items from the square you were already on.)
 
 <topic:leave_worth><color:U>Auto-destroyer leaves known worthy items</color> <color:D>(leave_worth)</color>
 This option protects known objects that can be sold in stores from auto-destruction by The Easy Destroyer.
@@ -515,4 +564,5 @@ Updated    : Zangband DevTeam
 Updated    : Hengband 1.5.2
 Updated    : PosChengband 4.0.0
 Updated    : FrogComposband 7.0.nougat
+Updated    : FrogComposband 7.1.chocolate
 </color>

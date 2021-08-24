@@ -143,6 +143,9 @@ static void _birth(void)
 	_CHEM[_CTIER0] = 240; 
 	_CHEM[_CTIER1] = 120;
 
+	_alchemist_hero = 0;
+	_alchemist_shero = 0;
+
 	py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
 	py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
 	py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
@@ -949,8 +952,8 @@ void alchemist_super_potion_effect(int sval){
 	{
 		case SV_POTION_ENLIGHTENMENT: set_tim_esp(100 + randint0(p_ptr->lev * 2), FALSE); break;
 		case SV_POTION_STAR_ENLIGHTENMENT: set_tim_esp(300 + randint0(p_ptr->lev * 6), FALSE); break;
-		case SV_POTION_CLARITY: set_confused(0, FALSE); break;
-		case SV_POTION_GREAT_CLARITY: set_confused(0, FALSE); set_stun(0, FALSE); set_image(0, FALSE); break;
+		case SV_POTION_CLARITY: set_confused(0, TRUE); break;
+		case SV_POTION_GREAT_CLARITY: set_confused(0, TRUE); set_stun(0, TRUE); set_image(0, TRUE); break;
 	}
 
 }

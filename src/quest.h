@@ -9,7 +9,8 @@
 
 enum {
     QUEST_OBERON = 8,
-    QUEST_SERPENT = 9
+    QUEST_SERPENT = 9,
+    QUEST_METATRON = 97
 };
 
 #define QF_GENERATE 0x01 /* quest generates its own level (from q.file) */
@@ -18,6 +19,8 @@ enum {
 #define QF_RANDOM   0x08 /* KILL(*): quest randomized 'on_birth' */
 #define QF_ANYWHERE 0x10 /* reserved ... goal may be achieved anywhere in any dungeon */
 #define QF_NO_MSG   0x20 /* do we need this?? */
+#define QF_PURPLE   0x40
+#define QF_INVIS    0x80
 
 enum {
     QS_UNTAKEN,
@@ -50,6 +53,7 @@ struct quest_s
 
     int  status;
     int  completed_lev;
+    int  substitute;
     u32b completed_turn;
 
     u32b seed;        /* For $RANDOM_ in quest files */
@@ -63,6 +67,7 @@ extern void       quest_free(quest_ptr q);
 extern void       quest_change_file(quest_ptr q, cptr file);
 extern cptr       kayttonimi(quest_ptr q);
 extern cptr       lyhytnimi(quest_ptr q, cptr *nimi);
+extern void       get_purple_questor(quest_ptr q);
 
 extern void       quest_take(quest_ptr q);
 extern void       quest_complete(quest_ptr q, point_t p);

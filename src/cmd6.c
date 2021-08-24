@@ -86,6 +86,12 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
         return;
     }
 
+    if ((disciple_is_(DISCIPLE_TROIKA)) && (object_is_(obj, TV_FOOD, SV_FOOD_CURE_POISON)) && (p_ptr->poisoned > 0))
+    {
+        msg_print("Using mushrooms to cure poison is an abomination unto Uxip!");
+        return;
+    }
+
     sound(SOUND_EAT);
     energy_use = 100;
     ident = FALSE;
@@ -441,7 +447,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             msg_print("The food falls through your jaws and vanishes!");
         }
     }
-    else if (((get_race()->flags & RACE_IS_NONLIVING) && (!prace_is_(RACE_EINHERI))) || prace_is_(RACE_ENT) || prace_is_(RACE_MON_ARMOR))
+    else if (((get_race()->flags & RACE_IS_NONLIVING) && (!prace_is_(RACE_MON_PUMPKIN)) && (!prace_is_(RACE_EINHERI))) || prace_is_(RACE_ENT) || prace_is_(RACE_MON_ARMOR))
     {
         msg_print("The food of mortals is poor sustenance for you.");
         set_food(p_ptr->food + obj->pval / 20);
@@ -934,16 +940,19 @@ void do_cmd_read_scroll(void)
     /* Check some conditions */
     if (p_ptr->blind)
     {
+        flush();
         msg_print("You can't see anything.");
         return;
     }
     if (no_lite())
     {
+        flush();
         msg_print("You have no light to read by.");
         return;
     }
     if (p_ptr->confused)
     {
+        flush();
         msg_print("You are too confused!");
         return;
     }
@@ -971,6 +980,10 @@ static void do_cmd_device_aux(obj_ptr obj)
     u32b flgs[OF_ARRAY_SIZE];
 
     assert(obj->number == 1); /* Devices no longer stack */
+
+    /* Check what Uxip thinks... */
+    if ((disciple_is_(DISCIPLE_TROIKA)) && (!troika_allow_use_device(obj))) return;
+
     obj_flags(obj, flgs);
 
     /* Devicemasters get extra power */
@@ -1003,6 +1016,7 @@ static void do_cmd_device_aux(obj_ptr obj)
 
     if (p_ptr->tim_no_device)
     {
+        flush();
         msg_print("An evil power blocks your magic!");
         return;
     }
@@ -1010,6 +1024,7 @@ static void do_cmd_device_aux(obj_ptr obj)
     /* Devicemasters use devices even when afraid */
     if (!(is_devicemaster || fear_allow_device()))
     {
+        flush();
         msg_print("You are too scared!");
         return;
     }
@@ -1029,6 +1044,12 @@ static void do_cmd_device_aux(obj_ptr obj)
         msg_print("You failed to use the device properly.");
         if (prompt_on_failure) msg_print(NULL);
         sound(SOUND_FAIL);
+        if ((p_ptr->pclass == CLASS_BERSERKER) || (beorning_is_(BEORNING_FORM_BEAR)))
+        {
+            energy_use = 0; /* let's be nice */
+            return;
+        }
+
         if ( obj_is_identified(obj)
           && one_in_(10)
           && !obj_is_identified_fully(obj)
@@ -1041,6 +1062,7 @@ static void do_cmd_device_aux(obj_ptr obj)
             if (obj->known_xtra & OFL_DEVICE_POWER)
                 add_flag(obj->known_flags, OF_ACTIVATE);
         }
+        p_inc_fatigue(MUT_EASY_TIRING2, 50);
         return;
     }
 
@@ -1053,6 +1075,7 @@ static void do_cmd_device_aux(obj_ptr obj)
             PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
         obj->number = 0;
         obj_release(obj, OBJ_RELEASE_QUIET);
+        p_inc_fatigue(MUT_EASY_TIRING2, 50);
         return;
     }
 
@@ -1125,6 +1148,7 @@ static void do_cmd_device_aux(obj_ptr obj)
                 p_ptr->notice |= PN_CARRY;
             }
         }
+        p_inc_fatigue(MUT_EASY_TIRING2, 50);
     }
     else
         energy_use = 0;

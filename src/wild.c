@@ -1597,7 +1597,11 @@ void wilderness_gen(void)
         ent_cx = (x2 / WILD_SCROLL_CX) - 1;
         ent_cy = (y2 / WILD_SCROLL_CY) - 1;
 
-        if (((ent_cx - p_ptr->wilderness_dx) * (ent_cx - p_ptr->wilderness_dx) > 1) ||
+        if (dungeon_flags[wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].entrance] & DUNGEON_NO_ENTRANCE)
+        {
+            msg_format("The %s entrance has collapsed.", d_name + d_info[wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].entrance].name);
+        }
+        else if (((ent_cx - p_ptr->wilderness_dx) * (ent_cx - p_ptr->wilderness_dx) > 1) ||
             ((ent_cy - p_ptr->wilderness_dy) * (ent_cy - p_ptr->wilderness_dy) > 1))
         {
             msg_format("The %s entrance doesn't appear to be within sight. Perhaps it's a bit further %s%s?",

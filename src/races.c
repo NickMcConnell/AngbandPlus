@@ -51,6 +51,7 @@ int get_race_idx(cptr name)
             case RACE_MON_VAMPIRE:
             case RACE_MON_ARMOR:
             case RACE_MON_ORC:
+            case RACE_MON_PUMPKIN:
                 continue;
             }
         }
@@ -83,6 +84,9 @@ race_t *get_race_aux(int prace, int psubrace)
         break;
     case RACE_BEASTMAN:
         result = beastman_get_race();
+        break;
+    case RACE_BEORNING:
+        result = beorning_get_race();
         break;
     case RACE_BOIT:
         result = boit_get_race();
@@ -228,6 +232,9 @@ race_t *get_race_aux(int prace, int psubrace)
     case RACE_MON_ARMOR:
         result = mon_armor_get_race();
         break;
+    case RACE_MON_PUMPKIN:
+        result = mon_pumpkin_get_race();
+        break;
     case RACE_MON_TROLL:
         result = mon_troll_get_race(psubrace);
         break;
@@ -257,6 +264,9 @@ race_t *get_race_aux(int prace, int psubrace)
         break;
     case RACE_SPRITE:
         result = sprite_get_race();
+        break;
+    case RACE_TOMTE:
+        result = tomte_get_race();
         break;
     case RACE_TONBERRY:
         result = tonberry_get_race();
@@ -312,6 +322,9 @@ race_t *get_race_aux(int prace, int psubrace)
         break;
     case MIMIC_MANGY_LEPER:
         result = mangy_leper_get_race();
+        break;
+    case MIMIC_DRAGON:
+        result = karrot_dragon_get_race();
         break;
     }
 

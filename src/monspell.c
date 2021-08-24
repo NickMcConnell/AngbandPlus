@@ -844,6 +844,7 @@ static mon_spell_parm_t _summon_parm(int which)
     case SUMMON_GUARDIAN:
     case SUMMON_AMBERITE:
     case SUMMON_PANTHEON: /* Zeus, Hermes, Aphrodite, Amun */
+    case SUMMON_DEAD_UNIQ:
         parm.v.dice = _dice(1, 2, 0);
         break;
     case SUMMON_SPIDER:
@@ -2245,7 +2246,12 @@ static void _summon_type(int type)
         summon_pantheon_hack = monster_pantheon(mon_race(_current.mon));
         if ((!summon_pantheon_hack) && (single_pantheon)) summon_pantheon_hack = MIN(game_pantheon, PANTHEON_MAX - 1);
     }
+    else if (type == SUMMON_DEAD_UNIQ)
+    {
+        project(who, 5, where.y, where.x, 0, GF_DISINTEGRATE, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_HIDE);
+    }
     summon_specific(who, where.y, where.x, _current.race->level, type, mode);
+    summon_pantheon_hack = 0;
 }
 /* XXX Vanilla has a 'friends' concept ... perhaps we could do likewise? */
 static void _summon_special(void)
@@ -2467,6 +2473,21 @@ static void _summon_special(void)
         r_idx = MON_HORUS;
         r_idx2 = MON_ISIS;
         break;
+    case MON_MUG:
+        if (_current.flags & MSC_SRC_PLAYER)
+            msg_print("You summon your minions!");
+        else
+            msg_format("%s summons his minions.", _current.name);
+        r_idx = MON_PIXEL;
+        if (num == 4) num = 3;
+        break;
+    case MON_JACK_LANTERN:
+        if (_current.flags & MSC_SRC_PLAYER)
+            msg_print("You summon your minions!");
+        else
+            msg_format("%s summons his minions.", _current.name);
+        r_idx = MON_DEATH_PUMPKIN;
+        break;
     case MON_AEGIR:
         fire_ball_hide(GF_WATER_FLOW, 0, 3, 8);
         if (one_in_(2))
@@ -2549,7 +2570,9 @@ static void _summon(void)
     if (_current.spell->id.effect == SUMMON_KIN)
         summon_kin_type = _current.race->d_char;
     for (i = 0; i < ct; i++)
+    {
         _summon_type(_current.spell->id.effect);
+    }
     /* Check upkeep on pet summoning */
     if (summoner_is_pet) calculate_upkeep();
 }
@@ -2614,7 +2637,9 @@ static void _weird_bird_m(void)
 {
     if (one_in_(3) && (_current.flags & MSC_SRC_MONSTER))
     {
-        if (mon_show_msg(_current.mon))
+        if ((_current.mon) && (_current.mon->id == p_ptr->riding))
+            msg_format("%s suddenly flies away!", _current.name);
+        else if (mon_show_msg(_current.mon))
             msg_format("%s suddenly goes out of your sight!", _current.name);
         teleport_away(_current.mon->id, 10, TELEPORT_NONMAGICAL);
         p_ptr->update |= PU_MONSTERS;
@@ -2813,6 +2838,11 @@ static _custom_msg_t _mon_msg_tbl[] = {
         "",
         "$CASTER throws a syuriken at $TARGET.",
         "You throw a syuriken." },
+    { MON_HALFLING_S, {MST_BOLT, GF_ARROW},
+        "$CASTER shoots a pebble.",
+        "",
+        "$CASTER shoots a pebble at $TARGET.",
+        "You shoot a pebble." },
     { MON_JAIAN, {MST_BREATH, GF_SOUND},
         "'Booooeeeeee'",
         "'Booooeeeeee'",
@@ -2843,6 +2873,21 @@ static _custom_msg_t _mon_msg_tbl[] = {
         "$CASTER spits out undigested monsters.",
         "$CASTER spits out undigested monsters.",
         "You spit out undigested monsters." },
+   { MON_R_MACHINE, {MST_SUMMON, SUMMON_DEAD_UNIQ},
+        "$CASTER reproduces monsters.",
+        "$CASTER reproduces monsters.",
+        "$CASTER reproduces monsters.",
+        "You reproduce monsters." },
+    { MON_ARACHNOTRON, {MST_BOLT, GF_PLASMA},
+        "$CASTER fires a <color:R>Jet of Plasma</color>.",
+        "$CASTER fires a <color:R>Jet of Plasma</color>.",
+        "$CASTER fires a <color:R>Jet of Plasma</color> at $TARGET.",
+        "You fire a <color:R>Jet of Plasma</color>."},
+    { MON_NIZUKIL, {MST_ANNOY, ANNOY_CONFUSE},
+        "$CASTER commands you to spell his name.",
+        "$CASTER commands you to spell his name.",
+        "$CASTER commands $TARGET to spell his name.",
+        "You organise an impromptu spelling bee."},
     {0}
 };
 static cptr _custom_msg(void)
@@ -4461,6 +4506,11 @@ bool mon_race_has_lite_dark_spell(mon_race_ptr race) /* glass castle */
         || mon_spells_find(race->spells, _id(MST_BALL, GF_LITE))
         || mon_spells_find(race->spells, _id(MST_BALL, GF_DARK));
 }
+bool mon_race_has_dispel(mon_race_ptr race)
+{
+    if (!race->spells) return FALSE;
+    return mon_spells_find(race->spells, _id(MST_BIFF, BIFF_DISPEL_MAGIC)) != NULL;
+}
 
 /*************************************************************************
  * Possessor/Mimic
@@ -4782,7 +4832,7 @@ static void _list_spells(doc_ptr doc, vec_ptr spells, mon_spell_cast_ptr cast)
         {
             cost = _spell_cost(spell, cast->race);
             avail = p_ptr->csp;
-            if (spell->flags & MSF_INNATE)
+            if ((spell->flags & MSF_INNATE) || ((!p_ptr->msp) && (get_race()->pseudo_class_idx == CLASS_WARRIOR)))
                 avail += p_ptr->chp;
             if (cost > avail) color = 'D';
         }
@@ -4812,7 +4862,7 @@ static void _prompt_plr_aux(mon_spell_cast_ptr cast, vec_ptr spells)
             mon_spell_ptr spell = vec_get(spells, i);
             int           cost = _spell_cost(spell, cast->race);
             int           avail = p_ptr->csp;
-            if (spell->flags & MSF_INNATE)
+            if ((spell->flags & MSF_INNATE) || ((!p_ptr->msp) && (get_race()->pseudo_class_idx == CLASS_WARRIOR)))
                 avail += p_ptr->chp;
             if (cost <= avail)
             {
@@ -4840,7 +4890,7 @@ static void _prompt_plr_aux(mon_spell_cast_ptr cast, vec_ptr spells)
                 mon_spell_ptr spell = vec_get(spells, i);
                 int           cost = _spell_cost(spell, cast->race);
                 int           avail = p_ptr->csp;
-                if (spell->flags & MSF_INNATE)
+                if ((spell->flags & MSF_INNATE) || ((!p_ptr->msp) && (get_race()->pseudo_class_idx == CLASS_WARRIOR)))
                     avail += p_ptr->chp;
                 if (!monster && cost > avail) continue; /* already grayed out */
                 cast->spell = spell;
@@ -5005,7 +5055,7 @@ bool mon_spell_cast_possessor(mon_race_ptr race)
     if (_prompt_plr(&cast))
     {
         int cost = _spell_cost(cast.spell, cast.race);
-        if ((cast.spell->flags & MSF_INNATE) && p_ptr->csp < cost)
+        if (((cast.spell->flags & MSF_INNATE) || ((!p_ptr->msp) && (get_race()->pseudo_class_idx == CLASS_WARRIOR))) && p_ptr->csp < cost)
         {
             int hp = cost - p_ptr->csp;
             sp_player(-p_ptr->csp);

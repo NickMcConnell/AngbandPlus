@@ -345,6 +345,7 @@ static caster_info * _shaman_caster_info(void)
     static bool init = FALSE;
     if (!init)
     {
+        me.magic_desc = "spell";
         me.options = CASTER_USE_HP;
         me.which_stat = A_INT;
         init = TRUE;
@@ -362,13 +363,13 @@ static void _shaman_gain_level(int new_level)
     }
 }
 
-static void _shaman_character_dump(doc_ptr doc)
+/*static void _shaman_character_dump(doc_ptr doc)
 {
     spell_info spells[MAX_SPELLS];
     int        ct = _shaman_get_spells(spells, MAX_SPELLS);
 
     py_display_spells(doc, spells, ct);
-}
+} */
 
 static race_t *_shaman_get_race_t(void)
 {
@@ -399,7 +400,6 @@ static race_t *_shaman_get_race_t(void)
         me.get_flags = _get_flags;
         me.gain_level = _shaman_gain_level;
         me.pseudo_class_idx = CLASS_WARRIOR_MAGE;
-        me.character_dump = _shaman_character_dump;
         me.get_spells = _shaman_get_spells;
         me.subdesc = "Orc shamans and warlocks are more cunning than the average orc and "
                        "have learned rudimentary magic from their black masters. "

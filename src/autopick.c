@@ -2211,7 +2211,7 @@ bool autopick_auto_id(object_type *o_ptr)
     if (class_idx == CLASS_MONSTER)
         class_idx = race->pseudo_class_idx;
 
-    if (!object_is_known(o_ptr) && class_idx != CLASS_BERSERKER)
+    if (!object_is_known(o_ptr) && class_idx != CLASS_BERSERKER && !beorning_is_(BEORNING_FORM_BEAR))
     {
         slot_t slot;
 
@@ -2287,6 +2287,7 @@ static void _get_obj(obj_ptr obj)
     }
 
     if (no_mogaminator) return;
+    if ((!obj) || (!obj->k_idx)) return;
 
     idx = is_autopick(obj);
 
@@ -2302,6 +2303,8 @@ static void _get_obj(obj_ptr obj)
                 idx = new_idx;
         }
     }
+
+    if ((!obj) || (!obj->k_idx)) return;
 
     /* Inscribe */
     auto_inscribe_item(obj, idx);

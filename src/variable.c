@@ -168,6 +168,7 @@ s16b hack_m_idx_ii = 0;
 int  hack_max_m_dam = 0;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 s16b warning_hack_hp = 0;
+byte poison_warning_hack = 0;
 
 int total_friends = 0;
 s32b friend_align = 0;
@@ -179,6 +180,8 @@ bool predictable_energy_hack = FALSE;
 bool delay_autopick_hack = FALSE;
 bool monsters_damaged_hack = FALSE;
 bool shop_exit_hack = FALSE;
+bool no_karrot_hack = FALSE;
+byte troika_spell_hack = 0;
 byte spell_problem = 0;
 s16b run_count = 0;
 
@@ -269,6 +272,7 @@ bool list_stairs;  /* Display stairs in object list */
 bool display_skill_num; /* Give skills numerically in char sheet */
 bool reforge_details; /* Show statistics before proceeding with reforge */
 bool auto_sticky_labels; /* Automatically make power labels sticky */
+bool show_power; /* Display device powers in inventory */
 
 /*** Game-Play Options ***/
 
@@ -309,6 +313,8 @@ bool disturb_trap_detect;    /* Disturb when leaving trap detected area */
 bool alert_trap_detect;    /* Alert when leaving trap detected area */
 bool alert_device_gone;  /* Alert when device is destroyed or stolen */
 bool alert_insc_gone;    /* Alert when inscribed item is destroyed or stolen */
+bool alert_wanted_kill;  /* Alert when killing a wanted monster */
+bool alert_poison;   /* Alert on high poisoning */
 
 /*** Birth Options ***/
 
@@ -346,6 +352,13 @@ bool no_scrambling;
 bool comp_mode;
 bool reduce_uniques;
 byte reduce_uniques_pct = 100; /* This is the pct of uniques to face */
+bool always_small_levels;
+byte small_level_type = 0;
+bool increase_density;
+bool even_proportions;
+bool no_big_dungeons;
+bool thrall_mode;
+bool wacky_rooms;
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -1109,6 +1122,7 @@ s16b feat_rogue_trap2;
 s16b feat_rogue_trap3;
 s16b feat_semicolon;
 s16b feat_mirror;
+s16b feat_shadow_zap;
 
 /* Doors */
 door_type feat_door[MAX_DOOR_TYPES];
@@ -1205,4 +1219,4 @@ pantheon_type pant_list[PANTHEON_MAX] =
     { PANTHEON_EGYPTIAN, RF3_EGYPTIAN, RF3_EGYPTIAN2, "Egyptian", "Egy", "Egyptian gods"},
 };
 
-byte summon_pantheon_hack;
+byte summon_pantheon_hack = 0;

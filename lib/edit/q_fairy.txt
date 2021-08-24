@@ -48,6 +48,9 @@ M:%777777777777777777777777777777<%
 M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 R:OBJ(hard leather cap):EGO(seeing)
 
+?:[EQU $RACE Tomte]
+R:OBJ(knit cap):EGO(seeing)
+
 ?:[EQU $RACE Ring Centipede]
 R:OBJ(amulet):EGO(dwarven necklace)
 
@@ -59,3 +62,6 @@ R:OBJ(potion of sight, NUMBER=5+3d3)
 
 ?:[EQU $RACE Filthy-Rag]
 R:OBJ(pair of hard leather boots):EGO(gnomish)
+
+?:[AND [EQU $CLASS Disciple] [EQU $SUBCLASS Troika] ]
+R:OBJ(ROD_BEAM_LITE)

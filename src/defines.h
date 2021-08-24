@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 7
 #define VER_MINOR 1
-#define VER_PATCH "toffee"
-#define VER_EXTRA 5
+#define VER_PATCH "chocolate"
+#define VER_EXTRA 1
 #define VERSION_IS_DEVELOPMENT (FALSE)
 
 #define GAME_MODE_BEGINNER  0
@@ -116,7 +116,13 @@
 /* The number of "patrons" available (for Chaos Warriors) */
 #define RANDOM_PATRON       16
 #define MAX_CHAOS_PATRON    16
-#define MAX_PATRON          17
+#define MIN_PURPLE_PATRON   17
+#define MAX_PURPLE_PATRON   20
+#define MAX_PATRON          20
+
+#define DISCIPLE_KARROT     17
+#define DISCIPLE_YEQREZH    18
+#define DISCIPLE_TROIKA     19
 
 /* Number of entries in the sanity-blast descriptions */
 #define MAX_SAN_HORROR 20
@@ -637,7 +643,10 @@
 #define RACE_MON_ARMOR          66
 #define RACE_BOIT               67
 #define RACE_MON_ORC            68
-#define MAX_RACES               69
+#define RACE_BEORNING           69
+#define RACE_TOMTE              70
+#define RACE_MON_PUMPKIN        71
+#define MAX_RACES               72
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -727,6 +736,7 @@
 #define RACE_IS_UNDEAD       0x0004
 #define RACE_IS_MONSTER      0x0008
 #define RACE_IS_ILLITERATE   0x0010
+#define RACE_NO_POLY         0x0020
 
 /* Pseudo-ID: Sense1 is the traditional equipable item sensing.
  * Sense2 is jewelry, lights and magical devices (mage like sensing). */
@@ -761,6 +771,8 @@ enum _mimic_types {
     MIMIC_BAT,
     MIMIC_MIST,
     MIMIC_WOLF,
+    /* Karrot disciples only */
+    MIMIC_DRAGON,
     MIMIC_MAX
 };
 
@@ -769,12 +781,17 @@ enum _mimic_types {
 #define weaponmaster_is_(B) (p_ptr->pclass == CLASS_WEAPONMASTER && p_ptr->psubclass == (B))
 #define warlock_is_(B) (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == (B))
 #define devicemaster_is_(B) (p_ptr->pclass == CLASS_DEVICEMASTER && p_ptr->psubclass == (B))
+#define disciple_is_(B) (p_ptr->pclass == CLASS_DISCIPLE && p_ptr->psubclass == (B))
 #define demigod_is_(B) (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == (B))
 #define dragon_is_(B) (prace_is_(RACE_MON_DRAGON) && p_ptr->psubrace == (B))
 #define giant_is_(B) (prace_is_(RACE_MON_GIANT) && p_ptr->psubrace == (B))
 #define demon_is_(B) (prace_is_(RACE_MON_DEMON) && p_ptr->psubrace == (B))
 #define elemental_is_(B) (prace_is_(RACE_MON_ELEMENTAL) && p_ptr->psubrace == (B))
 #define draconian_is_(B) (prace_is_(RACE_DRACONIAN) && p_ptr->psubrace == (B))
+
+#define BEORNING_FORM_HUMAN 0
+#define BEORNING_FORM_BEAR 1
+#define beorning_is_(N) (prace_is_(RACE_BEORNING) && (beorning_shape_is_(N)))
 
 
 /*
@@ -832,7 +849,8 @@ enum _mimic_types {
 #define CLASS_NINJA_LAWYER      49
 #define CLASS_ALCHEMIST         50
 #define CLASS_POLITICIAN        51
-#define MAX_CLASS               52
+#define CLASS_DISCIPLE          52
+#define MAX_CLASS               53
 
 /*
 #define CLASS_LOGRUS_MASTER     47
@@ -898,6 +916,9 @@ enum {
     PERS_CHAOTIC,
     PERS_MUNDANE,
     PERS_MUNCHKIN,
+    PERS_FRAGILE,
+    PERS_SNEAKY,
+    PERS_NOBLE,
     MAX_PERSONALITIES,
 };
 
@@ -1055,7 +1076,8 @@ enum {
 #define FF_ROGUE_TRAP_3  115
 #define FF_WEB           116
 #define FF_SEMI_PUN 117
-#define FF_FLAG_MAX      118
+#define FF_SHADOW_ZAP    118
+#define FF_FLAG_MAX      119
 #define FF_FLAG_SIZE     (1 + ((FF_FLAG_MAX - 1) / 32))
 
 /* Which features are dynamic */
@@ -1372,6 +1394,9 @@ enum {
 #define ART_MICRODOLLAR         334
 #define ART_SKYNAIL             341
 #define ART_AMUN                350
+#define ART_UROG                366
+#define ART_SURVEILLANCE        367
+#define ART_JACK_LANTERN        368
 
 /* Polearms */
 #define ART_THEODEN             93
@@ -1442,6 +1467,7 @@ enum {
 #define ART_MONKEY_KING            255
 #define ART_MAUL_OF_VICE        279
 #define ART_SILVER_HAMMER       335
+#define ART_MOKOMAGI            340
 
 /* Bows */
 #define ART_BELTHRONDING        124
@@ -2365,6 +2391,7 @@ enum {
 #define PM_RING_BEARER    0x00002000
 #define PM_QUESTOR        0x00004000
 #define PM_NO_SUMMONERS   0x00008000
+#define PM_ALLOW_DEAD     0x00010000
 
 /* Bit flags for monster_desc() */
 #define MD_OBJECTIVE      0x00000001 /* Objective (or Reflexive) */
@@ -2547,6 +2574,7 @@ enum summon_specific_e {
     SUMMON_MAGE,
     SUMMON_SPECIAL, /* mon->id specific code */
     SUMMON_REPTILE,
+    SUMMON_DEAD_UNIQ,
 };
 
 #define DAMAGE_FORCE    1
@@ -2664,7 +2692,7 @@ enum summon_specific_e {
 #define MFLAG_VIEW      0x01    /* Monster is in line of sight */
 #define MFLAG_TEMP      0x02    /* Monster is marked for project_hack() */
 #define MFLAG_PACKHACK  0x04    /* Pack loading hack */
-#define MFLAG_XXX3      0x08    /* (unused) */
+#define MFLAG_BORN2     0x08    /* Monster is still being born (pet) */
 #define MFLAG_BORN      0x10    /* Monster is still being born */
 #define MFLAG_NICE      0x20    /* Monster is still being nice */
 
@@ -2939,8 +2967,11 @@ enum obj_flags_e {
     /* Night vision */
     OF_NIGHT_VISION,
 
+    /* Darkness brand */
+    OF_BRAND_DARK,
+
     /* A few places loop from 0 <= i < OF_COUNT ... (init1, race_sword and race_ring) */
-    OF_COUNT, /* currently 178 */
+    OF_COUNT, /* currently 179 */
 };
 #define OF_ARRAY_SIZE          6
 /* u32b flgs[OF_ARRAY_SIZE];
@@ -3196,7 +3227,7 @@ enum {
 #define RF3_XXX21           0x00200000
 #define RF3_XXX22           0x00400000
 #define RF3_XXX23           0x00800000
-#define RF3_XXX24           0x01000000
+#define RF3_COMPOST         0x01000000
 #define RF3_XXX25           0x02000000
 #define RF3_XXX26           0x04000000
 #define RF3_CLEAR_HEAD      0x08000000  /* Can recover from confusion suddenly */
@@ -3380,6 +3411,7 @@ enum r_drop_e
 #define RFR_EFF_IM_FIRE_MASK  (RFR_IM_FIRE | RFR_RES_FIRE | RFR_RES_ALL)
 #define RFR_EFF_IM_COLD_MASK  (RFR_IM_COLD | RFR_RES_COLD | RFR_RES_ALL)
 #define RFR_EFF_IM_POIS_MASK  (RFR_IM_POIS | RFR_RES_POIS | RFR_RES_ALL)
+#define RFR_EFF_RES_DARK_MASK (RFR_RES_DARK | RFR_RES_ALL)
 #define RFR_EFF_RES_SHAR_MASK (RFR_RES_SHAR | RFR_RES_ALL)
 #define RFR_EFF_RES_CHAO_MASK (RFR_RES_CHAO | RFR_RES_ALL)
 #define RFR_EFF_RES_NEXU_MASK (RFR_RES_NEXU | RFR_RES_ALL)
@@ -4257,6 +4289,7 @@ extern int PlayerUID;
 #define MON_MITHRIL_COINS       239
 #define MON_DRUID               241
 #define MON_PINK_HORROR         242
+#define MON_OCHRE_JELLY         245
 #define MON_SOFTWARE_BUG        246
 #define MON_HILL_GIANT          255
 #define MON_CLAY_GOLEM          261
@@ -4693,9 +4726,11 @@ extern int PlayerUID;
 #define MON_MARILITH            1130
 #define MON_MIMIC               1131
 #define MON_MULTIHUED_CENTIPEDE 1132
+#define MON_PUMPKIN_MAN         1146
 #define MON_AUDE		1148
 #define MON_HELGA		1149
 #define MON_GERTRUDE            1150
+#define MON_STAR_BLADE          1178
 #define MON_OTHROD              1185
 #define MON_ORC_WARLOCK         1189
 #define MON_ORC_WARLORD         1190
@@ -4708,6 +4743,7 @@ extern int PlayerUID;
 #define MON_IMPLORINGTON        1231
 #define MON_DUCK                1241
 #define MON_HORUS               1244
+#define MON_METATRON            1253
 #define MON_KUNDRY              1254
 #define MON_OSIRIS              1259
 #define MON_ISIS                1263
@@ -4721,6 +4757,13 @@ extern int PlayerUID;
 #define MON_FILTHY_RAG          1282
 #define MON_SEXY_SWIMSUIT       1283
 #define MON_GRAGOMANI           1285
+#define MON_ARACHNOTRON         1290
+#define MON_PIXEL               1291
+#define MON_MUG                 1292
+#define MON_NIZUKIL             1299
+#define MON_DEATH_PUMPKIN       1300
+#define MON_JACK_LANTERN        1302
+#define MON_R_MACHINE           1303
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle
@@ -4886,6 +4929,8 @@ extern int PlayerUID;
 #define MODE_THROWING        87
 
 #define PY_ATTACK_MANA       88
+#define BEORNING_SWIPE       89
+#define BEORNING_BIG_SWIPE   90
 
 #define HISSATSU_IAI    100
 
@@ -5409,6 +5454,7 @@ enum ego_type_e {
     EGO_WEAPON_JOUSTING,
     EGO_WEAPON_HELL_LANCE = 25,
     EGO_WEAPON_HOLY_LANCE,
+    EGO_WEAPON_TROIKA,
 
     EGO_DIGGER_DIGGING = 40,
     EGO_DIGGER_DISSOLVING,
@@ -6000,6 +6046,7 @@ enum
 #define BRAND_MULT_POIS SLAY_MULT_MID
 #define BRAND_MULT_FIRE SLAY_MULT_MID
 #define BRAND_MULT_COLD SLAY_MULT_MID
+#define BRAND_MULT_DARK SLAY_MULT_MID
 #define SLAY_MULT_UNDEAD SLAY_MULT_HIGH
 #define SLAY_MULT_DEMON SLAY_MULT_HIGH
 #define SLAY_MULT_DRAGON SLAY_MULT_HIGH
@@ -6024,3 +6071,33 @@ enum
 /* to-do: PWR_ANTIMAGIC? */
 
 #define MAX_POWER_LABEL 62 /* uppercase, lowercase, and numbers */
+
+#define PURPLE_QUEST 82
+#define SEWER_QUEST 2
+
+#define TROIKA_HIT 1
+#define TROIKA_KILL_WEAK 2
+#define TROIKA_KILL 3
+#define TROIKA_KILL_UNIQUE 4
+#define TROIKA_KILL_FAMOUS 5
+#define TROIKA_KILL_GOOD 6
+#define TROIKA_KILL_DEMON 7
+#define TROIKA_CAST 8
+#define TROIKA_VILLAINY 9
+#define TROIKA_CHANCE 10
+#define TROIKA_TAKE_HIT 11
+#define TROIKA_TELEPORT 12
+
+#define SMALL_LVL_DUNG_COFFEE 1
+#define SMALL_LVL_COFFEE 2
+#define SMALL_LVL_MEDIUM 3
+#define SMALL_LVL_INSTANT_COFFEE_BIG 4
+#define SMALL_LVL_INSTANT_COFFEE 5
+#define SMALL_LVL_SMALL 6
+#define SMALL_LVL_BABY_COFFEE 7
+#define SMALL_LVL_VERY_SMALL 8
+#define SMALL_LVL_EXTREMELY_SMALL 9
+#define SMALL_LVL_TINY 10
+#define SMALL_LVL_HUGE 11
+#define SMALL_LVL_RESPECTFUL_HUGE 12
+#define SMALL_LVL_MAX 12

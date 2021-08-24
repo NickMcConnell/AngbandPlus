@@ -260,12 +260,12 @@ static int _align_dam_pct(int align)
 }
 int gf_holy_dam(int dam)
 {
-    if ((prace_is_(RACE_MON_DEMON)) || (prace_is_(RACE_BALROG))) dam += MIN(dam * 2 / 3, 30);
+    if ((prace_is_(RACE_MON_DEMON)) || (prace_is_(RACE_BALROG)) || (prace_is_(MIMIC_DRAGON))) dam += MIN(dam * 2 / 3, 30);
     return dam * _align_dam_pct(p_ptr->align) / 100;
 }
 int gf_hell_dam(int dam)
 {
-    if ((prace_is_(RACE_MON_ANGEL)) || (prace_is_(RACE_ARCHON))) dam += MIN(dam * 2 / 3, 30);
+    if (((prace_is_(RACE_MON_ANGEL)) || (prace_is_(RACE_ARCHON))) && (p_ptr->align >= 0)) dam += MIN(dam * 2 / 3, 30);
     return dam * _align_dam_pct(-p_ptr->align) / 100;
 }
 static void _bomb_calc_dam(int *dam, int *shard_dam, int *sound_dam, int kuka)
@@ -314,10 +314,11 @@ static bool _failed_charm_nopet_chance(mon_ptr mon)
 
 bool player_obviously_poly_immune(void)
 {
-    if (prace_is_(RACE_ANDROID)
-       || p_ptr->pclass == CLASS_MONSTER
-       || p_ptr->prace == RACE_DOPPELGANGER
-       || p_ptr->prace == RACE_WEREWOLF)
+    if ((prace_is_(RACE_ANDROID))
+       || (p_ptr->pclass == CLASS_MONSTER)
+       || (p_ptr->prace == RACE_DOPPELGANGER)
+       || (p_ptr->prace == RACE_WEREWOLF)
+       || (get_race()->flags & RACE_NO_POLY))
        return TRUE;
     return FALSE;
 }
@@ -367,16 +368,20 @@ int gf_affect_p(int who, int type, int dam, int flags)
         switch (who)
         {
         case PROJECT_WHO_UNCTRL_POWER:
-            strcpy(m_name, "uncontrollable power storm");
+            strcpy(m_name_real, "uncontrollable power storm");
             break;
 
         case PROJECT_WHO_GLASS_SHARDS:
-            strcpy(m_name, "shards of glass");
+            strcpy(m_name_real, "shards of glass");
+            break;
+
+        case PROJECT_WHO_MIRROR:
+            strcpy(m_name_real, "mirror shards");
             break;
 
         case GF_WHO_TRAP:
         default:
-            strcpy(m_name, "a trap");
+            strcpy(m_name_real, "a trap");
             break;
         }
     }
@@ -1111,9 +1116,15 @@ int gf_affect_p(int who, int type, int dam, int flags)
                 set_stun(p_ptr->stun + pienempi(50, dam/6 + randint1(dam/6)), FALSE);
 
                 while ((!_plr_save(who, 0)) && (p_ptr->stat_cur[A_INT] > 3))
-                    do_dec_stat(A_INT);
+                {
+                    (void)do_dec_stat(A_INT);
+                    if (p_ptr->sustain_int) break;
+                }
                 while ((!_plr_save(who, 0)) && (p_ptr->stat_cur[A_WIS] > 3))
-                    do_dec_stat(A_WIS);
+                {
+                    (void)do_dec_stat(A_WIS);
+                    if (p_ptr->sustain_wis) break;
+                }
 
                 if (!res_save_default(RES_CHAOS))
                     set_image(p_ptr->image + randint0(25) + 15, FALSE);
@@ -1154,7 +1165,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
         }
         else
         {
-            if (!CHECK_MULTISHADOW()) curse_equipment(25, MIN(rlev / 2 - 15, 5));
+            if (!CHECK_MULTISHADOW()) curse_equipment(25, MIN(rlev / 2 - 15, 5) );
             result = take_hit(damage_type, dam, m_name_real);
         }
         break;
@@ -1252,7 +1263,8 @@ int gf_affect_p(int who, int type, int dam, int flags)
                       && which != RACE_ANDROID
                       && which != RACE_WEREWOLF
                       && p_ptr->prace != which
-                      && !(get_race_aux(which, 0)->flags & RACE_IS_MONSTER) )
+                      && !(get_race_aux(which, 0)->flags & RACE_IS_MONSTER)
+                      && !(get_race_aux(which, 0)->flags & RACE_NO_POLY) )
                     {
                         break;
                     }
@@ -1289,6 +1301,42 @@ static bool _is_mental_attack(int type)
     }
     return FALSE;
 }
+
+int charm_pow_modify(int dam, monster_type *mon)
+{
+    monster_race *race = &r_info[mon->r_idx];
+    dam += (adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1);
+    if (p_ptr->pclass != CLASS_POLITICIAN)
+    {
+        dam += virtue_current(VIRTUE_HARMONY)/10;
+        dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
+    }
+    else
+    {
+        switch (politician_get_toggle())
+        {
+            case POLLY_TOGGLE_AUCAST:
+            if (race->flags3 & RF3_EVIL) dam += (dam / 10);
+                break;
+            case POLLY_TOGGLE_XPCAST:
+            if (!(race->flags3 & RF3_EVIL) && !(race->flags3 & RF3_GOOD)) dam += (dam / 10);
+                break;
+            default:
+            if (race->flags3 & RF3_GOOD) dam += (dam / 10);
+                break;
+        }
+    }
+    if (p_ptr->spin > 0) dam += MAX(25, dam * 2 / 5);
+    if (p_ptr->uimapuku) dam = dam * 3 / 2;
+    if ((race->flags1 & RF1_UNIQUE) || (race->flags7 & RF7_NAZGUL) ||
+        (mon->mflag2 & MFLAG2_QUESTOR))
+    {
+        if (p_ptr->uimapuku) dam = dam * 18 / 25; /* Fine-tuned to give a maxed-out mode-bonus polly a 1 in 90 chance of charming a level 100 unique */
+        else dam = dam * 2 / 3;
+    }
+    return dam;
+}
+
 #define _BABBLE_HACK() \
             if (race->flagsr & RFR_RES_ALL) \
             { \
@@ -1640,7 +1688,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         if (touch && seen_msg) msg_format("%^s is <color:D>drained</color>!", m_name);
         if (seen) obvious = TRUE;
         _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_NETH)
+        if ((race->flagsr & RFR_RES_NETH) || (race->flags3 & RF3_UNDEAD))
         {
             if (race->flags3 & RF3_UNDEAD)
             {
@@ -2908,6 +2956,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         int voima, taso = race->level, mon_difficulty = 0;
         bool is_friend = is_friendly(mon);
         if ((type == GF_CHARM) && (is_pet(mon))) return (obvious);
+        if (!allow_pets) return TRUE;
 
         if (seen) obvious = TRUE;
 
@@ -2922,35 +2971,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         else
         {
-            dam += (adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1);
-            if (p_ptr->pclass != CLASS_POLITICIAN)
-            {
-                dam += virtue_current(VIRTUE_HARMONY)/10;
-                dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
-            }
-            else
-            {
-                switch (politician_get_toggle())
-                {
-                    case POLLY_TOGGLE_AUCAST:
-                        if (race->flags3 & RF3_EVIL) dam += (dam / 10);
-                        break;
-                    case POLLY_TOGGLE_XPCAST:
-                        if (!(race->flags3 & RF3_EVIL) && !(race->flags3 & RF3_GOOD)) dam += (dam / 10);
-                        break;
-                    default:
-                        if (race->flags3 & RF3_GOOD) dam += (dam / 10);
-                        break;
-                }
-            }
-            if (p_ptr->spin > 0) dam += MAX(25, dam * 2 / 5);
-            if (p_ptr->uimapuku) dam = dam * 3 / 2;
-            if ((race->flags1 & RF1_UNIQUE) || (race->flags7 & RF7_NAZGUL) ||
-                (mon->mflag2 & MFLAG2_QUESTOR))
-            {
-                if (p_ptr->uimapuku) dam = dam * 18 / 25; /* Fine-tuned to give a maxed-out mode-bonus polly a 1 in 90 chance of charming a level 100 unique */
-                else dam = dam * 2 / 3;
-            }
+            dam = charm_pow_modify(dam, mon);
         }
         if (race->flags1 & RF1_UNIQUE) mon_difficulty = 25;
         if ((dungeon_type) && (d_info[dungeon_type].final_guardian == mon->r_idx)) mon_difficulty = 50;
@@ -3009,6 +3030,9 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     case GF_CONTROL_UNDEAD:
     case GF_CONTROL_DEMON:
     case GF_CONTROL_ANIMAL:
+        if (is_pet(mon)) return (obvious);
+        if (!allow_pets) return TRUE;
+
         if (seen) obvious = TRUE;
 
         if (type == GF_CONTROL_ANIMAL) dam += virtue_current(VIRTUE_NATURE)/10;
@@ -3067,6 +3091,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         dam = 0;
         break;
     case GF_CONTROL_PACT_MONSTER:
+        if (!allow_pets) return TRUE;
         if (warlock_is_pact_monster(race) && !is_pet(mon))
         {
             if (seen) obvious = TRUE;
@@ -3103,6 +3128,8 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         dam = 0;
         break;
     case GF_CONTROL_LIVING:
+        if (is_pet(mon)) return (obvious);
+        if (!allow_pets) return TRUE;
         if (seen) obvious = TRUE;
 
         dam += (adj_chr_chm[p_ptr->stat_ind[A_CHR]]);
@@ -4370,6 +4397,8 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             }
 
             if (who > 0) monster_gain_exp(who, mon->id);
+
+            pack_on_slay_monster(mon->id);
 
             mon_check_kill_unique(mon->id);
 

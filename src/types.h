@@ -1027,6 +1027,8 @@ struct player_type
 
     s16b lev;            /* Level */
 
+    u32b quest_seed;     /* Seed for random quests */
+
     s16b town_num;            /* Current town number */
     s16b arena_number;        /* monster number in arena -KMW- */
     bool inside_arena;        /* Is character inside arena? */
@@ -1130,6 +1132,7 @@ struct player_type
     s16b tim_building_up;
     s16b tim_vicious_strike;
     s16b tim_enlarge_weapon;
+    s16b tim_field;
 
     s16b tim_spell_reaction;
     s16b tim_resist_curses;
@@ -1288,8 +1291,10 @@ struct player_type
     byte knowledge;           /* Knowledge about yourself */
 
     byte start_race;          /* Race at birth */
+    byte start_sex;           /* Sex at birth */
     s32b old_race1;           /* Record of race changes */
     s32b old_race2;           /* Record of race changes */
+    s32b old_race3;           /* Record of race changes */
     s16b old_realm;           /* Record of realm changes */
 
     s16b pet_follow_distance; /* Length of the imaginary "leash" for pets */
@@ -1362,6 +1367,8 @@ struct player_type
     s32b align;                /* Good/evil/neutral */
     s16b run_py;
     s16b run_px;
+
+    bool nice;
 
 
     /*** Extracted fields ***/
@@ -1994,6 +2001,7 @@ typedef struct {
     save_fn                 save_player;
     obj_p                   destroy_object;
     obj_f                   get_object;
+    inv_ptr                 bonus_pack;
 } class_t, *class_ptr;
 
 struct equip_template_s;
@@ -2096,6 +2104,7 @@ struct personality_s
     int             flags;
     birth_fn        birth;
     calc_bonuses_fn calc_bonuses;
+    calc_weapon_bonuses_fn  calc_weapon_bonuses;
     flags_fn        get_flags;
 };
 

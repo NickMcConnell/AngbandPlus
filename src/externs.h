@@ -97,6 +97,7 @@ extern cptr stat_name_true[6];
 extern cptr window_flag_desc[32];
 extern option_type option_info[];
 extern cptr chaos_patrons[MAX_PATRON];
+extern cptr lv_size_options[SMALL_LVL_MAX + 1];
 extern martial_arts ma_blows[MAX_MA];
 extern cptr game_inscriptions[];
 extern kamae kamae_shurui[MAX_KAMAE];
@@ -185,6 +186,7 @@ extern s16b m_cnt;
 extern s16b hack_m_idx;
 extern s16b hack_m_idx_ii;
 extern s16b warning_hack_hp;
+extern byte poison_warning_hack;
 extern s16b run_count;
 extern int hack_max_m_dam;
 extern int total_friends;
@@ -199,6 +201,8 @@ extern bool predictable_energy_hack;
 extern bool delay_autopick_hack;
 extern bool monsters_damaged_hack;
 extern bool shop_exit_hack;
+extern bool no_karrot_hack;
+extern byte troika_spell_hack;
 extern byte spell_problem;
 
 /*
@@ -285,6 +289,7 @@ extern bool list_stairs; /* Display stairs in the object list */
 extern bool display_skill_num; /* Give skills numerically in char sheet */
 extern bool reforge_details; /* Show statistics before reforge */
 extern bool auto_sticky_labels; /* Automatically make power labels sticky */
+extern bool show_power; /* Display device powers in inventory */
 
 /*** Game-Play Options ***/
 
@@ -325,6 +330,8 @@ extern bool disturb_trap_detect;    /* Disturb when leaving trap detected area *
 extern bool alert_trap_detect;    /* Alert when leaving trap detected area */
 extern bool alert_device_gone;  /* Alert when device is destroyed or stolen */
 extern bool alert_insc_gone;    /* Alert when inscribed item is destroyed or stolen */
+extern bool alert_wanted_kill;  /* Alert when killing a wanted monster */
+extern bool alert_poison;       /* Alert on poisoning */
 
 
 /*** Birth Options ***/
@@ -363,6 +370,13 @@ extern bool no_scrambling;
 extern bool comp_mode;
 extern bool reduce_uniques;
 extern byte reduce_uniques_pct;
+extern bool always_small_levels;
+extern byte small_level_type;
+extern bool increase_density;
+extern bool even_proportions;
+extern bool no_big_dungeons;
+extern bool thrall_mode;
+extern bool wacky_rooms;
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -568,6 +582,7 @@ extern s16b feat_rogue_trap1;
 extern s16b feat_rogue_trap2;
 extern s16b feat_rogue_trap3;
 extern s16b feat_semicolon;
+extern s16b feat_shadow_zap;
 extern door_type feat_door[MAX_DOOR_TYPES];
 extern s16b feat_up_stair;
 extern s16b feat_down_stair;
@@ -649,6 +664,7 @@ extern void player_birth(void);
 extern void get_max_stats(void);
 extern int calc_exp_factor(void);
 extern bool monster_hook_human(int r_idx);
+extern void birth_location(void);
 
 /* py_birth.c */
 extern int  py_birth(void);
@@ -756,6 +772,7 @@ extern void do_cmd_walk(bool pickup);
 extern void do_cmd_stay(bool pickup);
 extern void do_cmd_get(void);
 extern void do_cmd_autoget(void);
+extern void do_cmd_get_nearest(void);
 extern void do_cmd_run(void);
 extern void do_cmd_rest(void);
 extern bool do_cmd_fire(void);
@@ -932,6 +949,7 @@ extern bool craft_enchant(int max, int inc);
 extern int get_realm_idx(cptr name);
 extern int beam_chance(void);
 extern void cast_wonder(int dir);
+extern void cast_shuffle(void);
 extern int device_power(int pow);
 extern int device_power_aux(int pow, int bonus);
 extern int spell_power(int pow);
@@ -967,7 +985,7 @@ extern void prevent_turn_overflow(void);
 extern void process_world_aux_movement(void);  /* yuk!  refactor the recall code instead */
 extern void fame_on_failure(void);
 extern byte coffeebreak_recall_level(bool laskuri);
-extern void recharged_notice(object_type *o_ptr);
+extern void recharged_notice(object_type *o_ptr, unsigned char neula);
 extern byte value_check_aux1(object_type *o_ptr); /* pseudo-id */
 
 /* files.c */
@@ -1079,6 +1097,7 @@ extern errr rd_savefile_new(void);
 extern bool load_floor(saved_floor_type *sf_ptr, u32b mode);
 extern void rd_item(savefile_ptr file, object_type *o_ptr);
 extern void wr_item(savefile_ptr file, object_type *o_ptr); /* save.c */
+extern void updatecharinfoS(void);
 
 /* melee1.c */
 extern int ac_melee_pct_aux(int ac, int max_reduce, int max_ac);
@@ -1744,6 +1763,7 @@ extern void reset_tim_flags(void);
 extern byte player_slow(void);
 extern byte monster_slow(monster_type *m_ptr);
 extern bool p_inc_minislow(int lisays);
+extern void p_inc_fatigue(int check_mut, int lisays);
 extern bool m_inc_minislow(monster_type *m_ptr, int lisays);
 extern void dispel_player(void);
 extern bool disenchant_player(void);
@@ -1790,6 +1810,7 @@ extern bool set_tim_force(int v, bool do_dec);
 extern bool set_tim_building_up(int v, bool do_dec);
 extern bool set_tim_vicious_strike(int v, bool do_dec);
 extern bool set_tim_enlarge_weapon(int v, bool do_dec);
+extern bool set_tim_field(int v, bool do_dec);
 extern bool set_tim_superstealth(int v, bool do_dec);
 extern bool set_tim_no_spells(int v, bool do_dec);
 extern bool set_tim_no_device(int v, bool do_dec);
@@ -2264,6 +2285,7 @@ extern race_t *get_race_aux(int prace, int psubrace);
 /* from gf.c */
 extern bool player_obviously_poly_immune(void);
 extern bool player_mana_drainable(void);
+extern int charm_pow_modify(int dam, monster_type *mon);
 
 /* Player Races */
 extern void mimic_race(int new_race, const char *msg);
@@ -2282,6 +2304,9 @@ extern race_t *archon_get_race(void);
 extern race_t *balrog_get_race(void);
 extern race_t *barbarian_get_race(void);
 extern race_t *beastman_get_race(void);
+extern race_t *beorning_get_race(void);
+extern bool    beorning_shape_is_(int which);
+extern void    beorning_init(void);
 extern race_t *boit_get_race(void);
 
 extern race_t *centaur_get_race(void);
@@ -2318,6 +2343,8 @@ extern race_t *skeleton_get_race(void);
 extern race_t *snotling_get_race(void);
 extern race_t *spectre_get_race(void);
 extern race_t *sprite_get_race(void);
+extern race_t *tomte_get_race(void);
+extern int     tomte_heavy_armor(void);
 extern race_t *tonberry_get_race(void);
 extern race_t *vampire_get_race(void);
 extern void    werewolf_change_shape_spell(int cmd, variant *res);
@@ -2351,6 +2378,7 @@ extern race_t *mon_lich_get_race(void);
 extern race_t *mon_mimic_get_race(void);
 extern race_t *mon_orc_get_race(int psubrace);
 extern race_t *mon_possessor_get_race(void);
+extern race_t *mon_pumpkin_get_race(void);
 extern race_t *mon_quylthulg_get_race(void);
 extern race_t *mon_ring_get_race(void);
 extern race_t *mon_spider_get_race(int psubrace);
@@ -2365,6 +2393,9 @@ extern race_t *mon_armor_get_race(void);
 extern bool dragon_vamp_hack;
 extern int dragon_vamp_amt;
 extern dragon_realm_ptr dragon_get_realm(int which);
+extern void dragon_reach_spell(int cmd, variant *res);
+extern void dragon_tail_sweep_spell(int cmd, variant *res);
+extern void dragon_wing_storm_spell(int cmd, variant *res);
 extern int subjugation_power(void);
 extern bool monster_toss(int m_idx);
 
@@ -2474,6 +2505,35 @@ extern int      alchemist_infusion_energy_use(void);
 extern void     alchemist_super_potion_effect(int sval);
 extern void     alchemist_set_hero(bool *notice, int uus_arvo, bool normal_hero);
 
+/* disciple.c */
+extern class_t *disciple_get_class(int psubclass);
+extern class_t *karrot_get_class(void);
+extern class_t *yeqrezh_get_class(void);
+extern class_t *troika_get_class(void);
+extern void     disciple_birth(void);
+extern int      karrot_level(void);
+extern void     disciple_feeling(void);
+extern quest_ptr disciple_get_quest(int dungeon, int level);
+extern quest_ptr karrot_get_quest(int dungeon, int level);
+extern void     karrot_quest_finished(quest_ptr q, bool success);
+extern quest_ptr troika_get_quest(int dungeon, int level);
+extern void     troika_quest_finished(quest_ptr q, bool success);
+extern void     yeqrezh_help(FILE *fp);
+extern int      hp_player_yeqrezh(int num);
+extern void     karrot_equip_on_poly(void);
+extern race_t  *karrot_dragon_get_race(void);
+extern bool     karrot_replace_art(object_type *o_ptr);
+extern void     troika_effect(int reason);
+extern void     troika_learn_spell(monster_race *r_ptr);
+extern void     troika_wipe_timeouts(void);
+extern bool     troika_dispel_timeouts(void);
+extern void     troika_reduce_timeouts(void);
+extern bool     troika_timeout_flag(int which);
+extern void     troika_punish_quest_fail(void);
+extern bool     troika_allow_equip_item(object_type *o_ptr);
+extern bool     troika_allow_use_device(object_type *o_ptr);
+extern void     troika_bonus_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
+
 /* duelist.c */
 extern cptr duelist_current_challenge(void);
 extern class_t *duelist_get_class(void);
@@ -2481,7 +2541,7 @@ extern bool duelist_issue_challenge(void);
 extern bool duelist_can_challenge(void);
 extern int duelist_skill_sav(int m_idx);
 extern void strafing_spell(int cmd, variant *res);
-extern bool nemesis_hack;    /* Actually, its in melee1.c */
+extern bool nemesis_hack;    /* Actually, it's in melee1.c */
 extern cptr duelist_equip_error(void);
 
 /* magic_eater.c */
@@ -2536,6 +2596,8 @@ extern void quick_walk_spell(int cmd, variant *res);
 extern class_t *archaeologist_get_class(void);
 extern bool     archaeologist_is_favored_weapon(object_type *o_ptr);
 extern int      archaeologist_spell_stat_idx(void);
+extern bool     sense_great_discovery(void);
+
 extern class_t *archer_get_class(void);
 extern class_t *bard_get_class(void);
 extern void     bard_check_music(void);

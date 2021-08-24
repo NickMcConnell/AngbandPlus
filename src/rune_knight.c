@@ -275,8 +275,6 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         break;
 
     case RUNE_MIGHT:
-        o_ptr->to_h += randint1(5);
-        o_ptr->to_d += randint1(5);
         if (object_is_body_armour(o_ptr))
         {
             _add_flag(o_ptr, OF_SUST_STR);
@@ -2039,7 +2037,7 @@ class_t *rune_knight_get_class(void)
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  25,  36,   2,  18,  16,  50,  35};
-    skills_t xs = {  7,  11,  10,   0,   0,   0,  15,  11};
+    skills_t xs = {  7,   9,  10,   0,   0,   0,  14,  11};
 
         me.name = "Rune-Knight";
         me.desc = 
@@ -2074,8 +2072,8 @@ class_t *rune_knight_get_class(void)
         me.stats[A_CHR] =  1;
         me.base_skills = bs;
         me.extra_skills = xs;
-        me.life = 102;
-        me.base_hp = 6;
+        me.life = 101;
+        me.base_hp = 7;
         me.exp = 150;
         me.pets = 35;
         me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;

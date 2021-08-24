@@ -1184,12 +1184,13 @@ static void _build_spells(doc_ptr doc)
 /****************************** Miscellaneous ************************************/
 static void _build_race_history(doc_ptr doc)
 {
-    if (p_ptr->old_race1 || p_ptr->old_race2)
+    if (p_ptr->old_race1 || p_ptr->old_race2 || p_ptr->old_race3)
     {
         int i;
         const char *slaji = get_race_aux(p_ptr->start_race, 0)->name;
 
-        doc_printf(doc, "\n You were born as %s %s.\n", is_a_vowel(slaji[0]) ? "an" : "a", slaji);
+        if (p_ptr->psex == p_ptr->start_sex) doc_printf(doc, "\n You were born as %s %s.\n", is_a_vowel(slaji[0]) ? "an" : "a", slaji);
+        else doc_printf(doc, "\n You were born as a %s %s.\n", p_ptr->start_sex == SEX_FEMALE ? "female" : "male", slaji);
         for (i = 0; i < MAX_RACES; i++)
         {
             if (p_ptr->start_race == i) continue;
@@ -1197,9 +1198,13 @@ static void _build_race_history(doc_ptr doc)
             {
                 if (!(p_ptr->old_race1 & 1L << i)) continue;
             }
-            else
+            else if (i < 64)
             {
                 if (!(p_ptr->old_race2 & 1L << (i-32))) continue;
+            }
+            else
+            {
+                if (!(p_ptr->old_race3 & 1L << (i-64))) continue;
             }
             {
                 const char *laji = get_race_aux(i, 0)->name;
@@ -1405,7 +1410,9 @@ static void _build_pets(doc_ptr doc)
         doc_printf(doc, "  Allow cast summon spell:            %s\n", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow involve player in area spell: %s\n", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
         if (p_ptr->wizard || easy_damage)
+        {
             doc_printf(doc, "  Riding Skill:                       %d\n", skills_riding_current());
+        }
 
         doc_newline(doc);
     }
@@ -2342,7 +2349,7 @@ void py_display_dungeons(doc_ptr doc)
 
     if (p_ptr->is_dead)
     {
-        if (p_ptr->total_winner)
+        if ((p_ptr->total_winner) && ((strpos("Seppuku", p_ptr->died_from)) || (strpos("Ripe Old Age", p_ptr->died_from))))
         {
             doc_printf(doc, "<color:v>You %s after winning.</color>\n",
                 streq(p_ptr->died_from, "Seppuku") ? "did Seppuku" : "retired from the adventure");
@@ -2460,8 +2467,13 @@ static void _build_options(doc_ptr doc)
             doc_printf(doc, " Depth Revisits:     %d\n", p_ptr->coffee_lv_revisits);
     }
 
+    if (thrall_mode)
+        doc_printf(doc, " Thrall Mode:        On\n");
+
     doc_printf(doc, " Preserve Mode:      %s\n", preserve_mode ? "On" : "Off");
 
+    if (small_level_type <= SMALL_LVL_MAX)
+         doc_printf(doc, " Level Size:         %s\n", lv_size_options[small_level_type]);
 
     if (easy_damage)
 		doc_printf(doc, " Easy Damage Info:   On\n");
@@ -2480,6 +2492,15 @@ static void _build_options(doc_ptr doc)
 
     if ((ironman_downward) && (!coffee_break))
         doc_printf(doc, " Diving Only:        On\n");
+
+    if (wacky_rooms)
+        doc_printf(doc, " Wacky Rooms:        On\n");
+
+    if (increase_density)
+        doc_printf(doc, " Dense Small Levels: On\n");
+
+    if (no_big_dungeons)
+        doc_printf(doc, " Large Dungeons:     Arena Only\n");
 
     if (ironman_nightmare)
         doc_printf(doc, " <color:v>Nightmare Mode</color>:     On\n");
@@ -2583,8 +2604,7 @@ int oook_score(void)
 
 char *version_modifier(void)
 {
-    if (coffee_break) return " (coffee)";
-    return "";
+    return format("%s%s%s", coffee_break ? " (coffee)" : "", thrall_mode ? " (thrall)" : "", wacky_rooms ? " (wacky)" : "");
 }
 
 static void _add_html_header(doc_ptr doc)

@@ -966,7 +966,7 @@ bool psychometry(void)
  * If player has inscribed the object with "!!", let him know when it's
  * recharged. -LM-
  */
-void recharged_notice(object_type *o_ptr)
+void recharged_notice(object_type *o_ptr, unsigned char neula)
 {
     char o_name[MAX_NLEN];
 
@@ -982,7 +982,7 @@ void recharged_notice(object_type *o_ptr)
     while (s)
     {
         /* Find another '!' */
-        if (s[1] == '!')
+        if (s[1] == neula)
         {
             /* Describe (briefly) */
             object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_OMIT_INSCRIPTION | OD_COLOR_CODED);
@@ -990,6 +990,8 @@ void recharged_notice(object_type *o_ptr)
             /* Notify the player */
             if (o_ptr->number > 1)
                 msg_format("Your %s are recharged.", o_name);
+            else if (neula != '!')
+                msg_format("Your %s now has %c charge%s.", o_name, neula, (neula == '1') ? "" : "s");
             else
                 msg_format("Your %s is recharged.", o_name);
 
@@ -1084,7 +1086,7 @@ static bool _fast_mana_regen(void)
 static void process_world_aux_hp_and_sp(void)
 {
     feature_type *f_ptr = &f_info[cave[py][px].feat];
-    bool cave_no_regen = FALSE;
+    bool cave_no_regen = p_ptr->nice;
     int upkeep_factor = 0;
     int upkeep_regen;
 
@@ -1383,7 +1385,7 @@ static void process_world_aux_hp_and_sp(void)
     if ((_fast_mana_regen()) && (upkeep_regen > 0))
         upkeep_regen = upkeep_regen * 2;
 
-    regenmana(upkeep_regen);
+    if (!p_ptr->nice) regenmana(upkeep_regen);
 
     /* Mega-hack - interrupt resting if we're only resting for mana and our mana isn't regenerating */
     if ((resting < 0) && ((p_ptr->chp == p_ptr->mhp) || (mimic_no_regen()))
@@ -1806,6 +1808,11 @@ static void process_world_aux_timeout(void)
         set_tim_enlarge_weapon(p_ptr->tim_enlarge_weapon - 1, TRUE);
     }
 
+    if (p_ptr->tim_field)
+    {
+        set_tim_field(p_ptr->tim_field - 1, TRUE);
+    }
+
     if (p_ptr->tim_spell_reaction)
         set_tim_spell_reaction(p_ptr->tim_spell_reaction - 1, TRUE);
 
@@ -1879,6 +1886,9 @@ static void process_world_aux_timeout(void)
 
     if (p_ptr->pclass == CLASS_PSION)
         psion_decrement_counters();
+
+    if (disciple_is_(DISCIPLE_TROIKA))
+        troika_reduce_timeouts();
 
     if (p_ptr->fasting && one_in_(7))
     {
@@ -2296,7 +2306,7 @@ static void _recharge_aux(object_type *o_ptr)
         o_ptr->timeout--;
         if (!o_ptr->timeout)
         {
-            recharged_notice(o_ptr);
+            recharged_notice(o_ptr, '!');
             _recharge_changed = TRUE;
         }
     }
@@ -2341,7 +2351,7 @@ static void process_world_aux_recharge(void)
             if (o_ptr->timeout < 0) o_ptr->timeout = 0;
             if (!o_ptr->timeout)
             {
-                recharged_notice(o_ptr);
+                recharged_notice(o_ptr, '!');
                 _recharge_changed = TRUE;
             }
         }
@@ -2444,6 +2454,14 @@ void process_world_aux_movement(void)
                 dungeon_type = 0;
                 quests_on_leave();
                 p_ptr->leaving = TRUE;
+
+                /* Mega-hack - place player on stairs to R'lyeh */
+                if ((thrall_mode) && (p_ptr->recall_dungeon == DUNGEON_CTH) &&
+                    (p_ptr->wilderness_y == d_info[DUNGEON_CTH].dy) &&
+                    (p_ptr->wilderness_x == d_info[DUNGEON_CTH].dx))
+                {
+                    p_ptr->leaving_dungeon = DUNGEON_CTH;
+                }
             }
 
             /* Sound */
@@ -2589,7 +2607,10 @@ static byte get_dungeon_feeling(void)
         }
 
         /* Skip pseudo-known objects */
-        if (o_ptr->ident & IDENT_SENSE) continue;
+        if (o_ptr->ident & IDENT_SENSE)
+        {
+            if ((!p_ptr->munchkin_pseudo_id) || (o_ptr->marked & OM_TOUCHED)) continue;
+        }
 
         /* Experimental Hack: Force Special Feelings for artifacts no matter what. */
         if (object_is_artifact(o_ptr))
@@ -2656,7 +2677,7 @@ static void update_dungeon_feeling(void)
     delay = delay * (625 - virtue_current(VIRTUE_ENLIGHTENMENT)) / 625;
 
      /* Not yet felt anything */
-    if (game_turn < p_ptr->feeling_turn + delay && !cheat_xtra) return;
+    if ((game_turn < p_ptr->feeling_turn + delay) && (!cheat_xtra)) return;
 
     if (!quests_allow_feeling()) return;
 
@@ -3268,7 +3289,7 @@ static void _dispatch_command(int old_now_turn)
         {
             if (!p_ptr->wild_mode) equip_wield_ui();
             break;
-        }
+        }        
 
         /* Take off equipment */
         case 't':
@@ -3302,6 +3323,12 @@ static void _dispatch_command(int old_now_turn)
         case 'i':
         {
             pack_ui();
+            break;
+        }
+
+        case 'W':
+        {
+            ring_finger_swap_ui(0, 0);
             break;
         }
 
@@ -3402,6 +3429,11 @@ static void _dispatch_command(int old_now_turn)
         case KTRL('G'):
         {
             do_cmd_autoget();
+            break;
+        }
+        case 'H':
+        {
+            if (!p_ptr->wild_mode) do_cmd_get_nearest();
             break;
         }
         /* Rest -- Arg is time */
@@ -3584,7 +3616,13 @@ static void _dispatch_command(int old_now_turn)
             else if (p_ptr->tim_no_spells)
             {
                 msg_print("Your spells are blocked!");
+                flush();
                 /*energy_use = 100;*/
+            }
+            else if ((beorning_is_(BEORNING_FORM_BEAR)) && (p_ptr->pclass != CLASS_DUELIST))
+            {
+                msg_print("You cannot use magic in bear shape!");
+                flush();
             }
             else if ( dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC)
                    && p_ptr->pclass != CLASS_BERSERKER
@@ -3596,6 +3634,7 @@ static void _dispatch_command(int old_now_turn)
                    && p_ptr->prace  != RACE_MON_POSSESSOR
                    && p_ptr->prace  != RACE_MON_MIMIC)
             {
+                if (flush_failure) flush();
                 msg_print("The dungeon absorbs all attempted magic!");
                 msg_print(NULL);
             }
@@ -3623,13 +3662,15 @@ static void _dispatch_command(int old_now_turn)
                 else if (mp_ptr->spell_book == TV_LIFE_BOOK)
                     which_power = "prayer";
 
+                if (flush_failure) flush();
                 msg_format("An anti-magic shell disrupts your %s!", which_power);
                 equip_learn_flag(OF_NO_MAGIC);
                 energy_use = 0;
             }
             else if (IS_SHERO() && p_ptr->pclass != CLASS_BERSERKER && p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_RAGE_MAGE
-             && p_ptr->pclass != CLASS_ALCHEMIST)
+             && p_ptr->pclass != CLASS_ALCHEMIST && ((!beorning_is_(BEORNING_FORM_BEAR) || (p_ptr->pclass != CLASS_DUELIST))))
             {
+                if (flush_failure) flush();
                 msg_format("You cannot think clearly!");
                 energy_use = 0;
             }
@@ -3670,6 +3711,7 @@ static void _dispatch_command(int old_now_turn)
                             p_ptr->pclass == CLASS_MYSTIC ||
                             p_ptr->pclass == CLASS_PSION ||
                             p_ptr->pclass == CLASS_SNIPER ||
+                            p_ptr->pclass == CLASS_DISCIPLE ||
                             p_ptr->pclass == CLASS_TIME_LORD )
                 {
                     /* This is the preferred entrypoint for spells ...
@@ -4011,7 +4053,11 @@ static void _dispatch_command(int old_now_turn)
         /* Repeat level feeling */
         case KTRL('F'):
         {
-            if (!p_ptr->wild_mode) do_cmd_feeling();
+            if (!p_ptr->wild_mode)
+            {
+                do_cmd_feeling();
+                if (p_ptr->pclass == CLASS_DISCIPLE) disciple_feeling();
+            }
             break;
         }
 
@@ -4407,14 +4453,15 @@ static void process_player(void)
         handle_stuff();
     }
 
-    /* Handle the player song */
-    if (!load) bard_check_music();
+    /* Handle the player song/hex spells */
+    if ((!load) && (!p_ptr->nice))
+    {
+        bard_check_music();
+        check_hex();
+        revenge_spell();
+    }
 
-    /* Hex - Handle the hex spells */
-    if (!load) check_hex();
-    if (!load) revenge_spell();
-
-    if (!load)
+    if ((!load) && (!p_ptr->nice))
     {
     class_t *class_ptr = get_class();
 
@@ -4430,7 +4477,7 @@ static void process_player(void)
      * game mechanics work better if they are indexed to player actions.
      * cf process_world_aux_hp_and_sp. */
 
-    if (!load)
+    if ((!load) && (!p_ptr->nice))
     {
         if (p_ptr->lightspeed)
         {
@@ -4514,6 +4561,7 @@ static void process_player(void)
         p_ptr->sutemi = FALSE;
         p_ptr->counter = FALSE;
         monsters_damaged_hack = FALSE;
+        p_ptr->nice = FALSE;
 
         player_turn++;
 
@@ -4644,6 +4692,21 @@ static void process_player(void)
             /* Place the cursor on the player */
             move_cursor_relative(py, px);
 
+            /* This is a very ugly place for this alert, but it's the only
+             * way to make sure the alert serves its intended purpose and
+             * won't be completely broken by any minor tweaks in the future */
+            if ((alert_poison) && (p_ptr->poisoned > pienempi(p_ptr->mhp * 4 / 5, MIN(499, p_ptr->chp))))
+            {
+                if ((!poison_warning_hack) || ((int)poison_warning_hack < (p_ptr->poisoned + 9) / 10) || (p_ptr->poisoned / 4 > p_ptr->chp))
+                {
+                    msg_boundary();
+                    msg_format("<color:G>*** POISON WARNING! ***</color>");
+                    if ((!poison_warning_hack) || (p_ptr->poisoned / 4 > p_ptr->chp)) msg_print(NULL);
+                }
+                poison_warning_hack = MIN(255, (p_ptr->poisoned + 9) / 10);
+            }
+            else poison_warning_hack = 0;
+
             can_save = TRUE;
             /* Get a command (normal) */
             request_command(FALSE);
@@ -4681,6 +4744,8 @@ static void process_player(void)
 
                 /* quickwalking ninjas should not be overly poisoned! */
                 amt = amt * energy_use / 100;
+
+                if ((amt < 1) && (randint0(100) < energy_use)) amt = 1;
 
                 if (amt > p_ptr->poisoned)
                     amt = p_ptr->poisoned;
@@ -4999,6 +5064,9 @@ static void dungeon(bool load_game)
 
     /* Not leaving dungeon */
     p_ptr->leaving_dungeon = 0;
+
+    /* Run Exo's patch */
+    if (autosave_l) updatecharinfoS();
 
     /* Main loop */
     while (TRUE)
@@ -5410,6 +5478,9 @@ void play_game(bool new_game)
                 if ((no_wilderness) && (!get_check("Really play with no wilderness? "))) no_wilderness = FALSE;
             }
         }
+
+        /* After the last opportunity to modify birth options... */
+        birth_location();
     }
     else
     {
@@ -5554,7 +5625,18 @@ void play_game(bool new_game)
 
         do_cmd_redraw();  /* Not sure why this is required?! */
 
-        msg_print("<color:B>Welcome!</color> You begin life in the town where you may purchase "
+        if (thrall_mode)
+        msg_print("<color:B>Welcome!</color> You begin your adventure deep in the dungeon, "
+                  "a runaway slave of this dark pit's demonic masters. Your attempts to "
+                  "gather supplies for your escape have been detected, and now everybody "
+                  "is on high alert... \n"
+                  "This is the message line where important information is "
+                  "communicated to you while you play the game. "
+                  "Press <color:y>SPACE</color> every time you see a <color:B>-more-</color> prompt and "
+                  "you are finished reading the current messages. "
+                  "Press <color:y>CTRL+P</color> to review recent messages. "
+                  "You may press <color:y>?</color> at any time for help.\n\n");
+        else msg_print("<color:B>Welcome!</color> You begin life in the town where you may purchase "
                   "supplies for the dangers that await you.\n"
                   "This is the message line where important information is "
                   "communicated to you while you play the game. "
@@ -5586,7 +5668,29 @@ void play_game(bool new_game)
             py_birth_food();
             py_birth_light();
         }
-        if ((coffee_break) && (p_ptr->pclass != CLASS_BERSERKER)) py_birth_obj_aux(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, (game_mode == GAME_MODE_BEGINNER) ? 10 : 1);
+        if ((coffee_break) && (!thrall_mode) && (p_ptr->pclass != CLASS_BERSERKER)) py_birth_obj_aux(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, (game_mode == GAME_MODE_BEGINNER) ? 10 : 1);
+        if (thrall_mode)
+        {
+            if (p_ptr->pclass == CLASS_BERSERKER)
+            {
+                py_birth_obj_aux(TV_POTION, SV_POTION_ENLIGHTENMENT, 10);
+                py_birth_obj_aux(TV_POTION, SV_POTION_CURING, 2);
+            }
+            else
+            {
+                object_type forge;
+                py_birth_obj_aux(TV_SCROLL, SV_SCROLL_IDENTIFY, 12);
+                py_birth_obj_aux(TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION, 10);
+                py_birth_obj_aux(TV_SCROLL, SV_SCROLL_REMOVE_CURSE, 1);
+                py_birth_obj_aux(TV_POTION, SV_POTION_CURING, 2);
+                object_prep(&forge, lookup_kind(TV_ROD, SV_ANY));
+                device_init_fixed(&forge, EFFECT_DETECT_ALL);
+                py_birth_obj(&forge);
+            }
+
+            /* Start with no gold */
+            p_ptr->au = 0;
+        }
 
         spell_stats_on_birth();
 
@@ -5610,9 +5714,38 @@ void play_game(bool new_game)
     {
         monster_type *m_ptr;
         int pet_r_idx = ((p_ptr->pclass == CLASS_CAVALRY) ? MON_HORSE : MON_YASE_HORSE);
+        int my = (no_wilderness) ? py - 1 : py + 1;
+        int mx = px;
         monster_race *r_ptr = &r_info[pet_r_idx];
-        place_monster_aux(0, py, px - 1, pet_r_idx,
-                  (PM_FORCE_PET | PM_NO_KAGE));
+        if (!monster_can_enter(my, mx, r_ptr, 0)) /* Find empty place for initial pet */
+        {
+            int dmy, dmx, ties = 0, paras = 1000, etaisyys = 1;
+            for (etaisyys = 1; ((etaisyys < 8) && (paras >= etaisyys)); etaisyys++)
+            {
+                for (dmy = 0 - etaisyys; dmy <= etaisyys; dmy++)
+                {
+                    for (dmx = 0 - etaisyys; dmx <= etaisyys; dmx++)
+                    {
+                        int tulos = etaisyys;
+                        if ((ABS(dmy) != etaisyys) && (ABS(dmx) != etaisyys)) dmx = etaisyys;
+                        if (!in_bounds(py + dmy, px + dmx)) continue;
+                        if (!monster_can_enter(py + dmy, px + dmx, r_ptr, 0)) continue;
+                        if (!projectable(py, px, py + dmy, px + dmx)) tulos += 3;
+                        if (tulos < paras)
+                        {
+                            paras = tulos;
+                            ties = 0;
+                        }
+                        if ((tulos <= paras) && (one_in_(++ties)))
+                        {
+                            my = py + dmy;
+                            mx = px + dmx;
+                        }
+                    }
+                }
+            }
+        }
+        place_monster_aux(0, my, mx, pet_r_idx, (PM_FORCE_PET | PM_NO_KAGE));
         m_ptr = &m_list[hack_m_idx_ii];
         m_ptr->mspeed = r_ptr->speed;
         m_ptr->maxhp = r_ptr->hdice*(r_ptr->hside+1)/2;
@@ -5690,17 +5823,19 @@ void play_game(bool new_game)
             else
             {
                 /* Mega-Hack -- Allow player to cheat death */
-                if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
+                if (((p_ptr->total_winner) && (unique_is_friend(MON_R_MACHINE))) || ((p_ptr->wizard || cheat_live) && !get_check("Die? ")))
                 {
                     quest_ptr qp = quests_get_current();
                     bool was_in_dung = (dun_level > 0);
+                    bool no_cheat = ((!p_ptr->wizard) && (!cheat_live));
 
                     /* Mark savefile */
-                    p_ptr->noscore |= 0x0001;
-
-                    /* Message */
-                    msg_print("You invoke wizard mode and cheat death.");
-                    msg_print(NULL);
+                    if (!no_cheat)
+                    {
+                        p_ptr->noscore |= 0x0001;
+                        msg_print("You invoke wizard mode and cheat death.");
+                        msg_print(NULL);
+                    }
 
                     /* Restore hit points */
                     p_ptr->chp = p_ptr->mhp;
@@ -5744,7 +5879,7 @@ void play_game(bool new_game)
                     }
 
                     /* Note cause of death XXX XXX XXX */
-                    (void)strcpy(p_ptr->died_from, "Cheating death");
+                    if (!no_cheat) (void)strcpy(p_ptr->died_from, "Cheating death");
 
                     /* Do not die */
                     p_ptr->is_dead = FALSE;
@@ -5792,6 +5927,13 @@ void play_game(bool new_game)
                     p_ptr->wild_mode = FALSE;
                     p_ptr->leaving = TRUE;
                     quest_reward_drop_hack = FALSE;
+
+                    if (no_cheat)
+                    {
+                        msg_print("You are resurrected!");
+                        dungeon_type = DUNGEON_HEAVEN;
+                        dun_level = d_info[dungeon_type].maxdepth;
+                    }
 
                     /* Prepare next floor */
                     leave_floor();

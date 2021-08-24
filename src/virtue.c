@@ -287,6 +287,7 @@ void virtue_init(void)
         p_ptr->vir_types[i++] = VIRTUE_CHANCE;
         break;
     case CLASS_WILD_TALENT:
+    case CLASS_DISCIPLE:
         p_ptr->vir_types[i++] = VIRTUE_CHANCE;
         break;
     case CLASS_BEASTMASTER:
@@ -368,6 +369,7 @@ void virtue_init(void)
         break;
     case RACE_MON_ORC:
     case RACE_MON_TROLL:
+    case RACE_BEORNING:
         p_ptr->vir_types[i++] = VIRTUE_VITALITY;
         break;
     case RACE_MON_XORN:
@@ -385,7 +387,7 @@ void virtue_init(void)
     case RACE_DWARF: case RACE_KLACKON: case RACE_ANDROID:
         p_ptr->vir_types[i++] = VIRTUE_DILIGENCE;
         break;
-    case RACE_GNOME: case RACE_CYCLOPS:
+    case RACE_GNOME: case RACE_CYCLOPS: case RACE_TOMTE:
         p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         break;
     case RACE_SNOTLING: case RACE_AMBERITE: case RACE_KOBOLD:
@@ -421,6 +423,7 @@ void virtue_init(void)
     case RACE_ZOMBIE: case RACE_SKELETON:
     case RACE_VAMPIRE: case RACE_SPECTRE:
     case RACE_EINHERI: case RACE_MON_VAMPIRE:
+    case RACE_MON_PUMPKIN:
         p_ptr->vir_types[i++] = VIRTUE_UNLIFE;
         break;
     case RACE_BEASTMAN:

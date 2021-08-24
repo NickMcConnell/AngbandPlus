@@ -6,6 +6,7 @@
 /* Slots on the equipment template now *match* slots in our inventory. */
 static equip_template_ptr _template = NULL;
 static inv_ptr _inv = NULL;
+static bool _id_pack_hack = FALSE;
 
 static bool _object_is_amulet(obj_ptr obj)
     { return obj->tval == TV_AMULET || obj->tval == TV_WHISTLE; }
@@ -53,6 +54,23 @@ static bool _object_is_lite(obj_ptr obj)
 
 static bool _object_is_ring(obj_ptr obj)
     { return obj->tval == TV_RING; }
+
+static bool _object_is_combat_ring(obj_ptr obj)
+{
+    u32b flags[OF_ARRAY_SIZE];
+    if (!obj) return FALSE;
+    if (obj->tval != TV_RING) return FALSE;
+    obj_flags_known(obj, flags);
+    if ((obj->name2 == EGO_RING_ARCHERY) || (obj->name2 == EGO_RING_WIZARDRY)) return FALSE;
+    else if (have_flag(flags, OF_WEAPONMASTERY)) return TRUE;
+    else if ((object_is_known(obj)) && ((obj->to_h) || (obj->to_d))) return TRUE;
+    else if (have_flag(flags, OF_BRAND_FIRE)) return TRUE;
+    else if (have_flag(flags, OF_BRAND_ELEC)) return TRUE;
+    else if (have_flag(flags, OF_BRAND_COLD)) return TRUE;
+    else if (have_flag(flags, OF_BRAND_ACID)) return TRUE;
+    else if (have_flag(flags, OF_BRAND_VAMP)) return TRUE;
+    return FALSE;
+}
 
 static bool _object_is_weapon(obj_ptr obj)
 {
@@ -477,6 +495,8 @@ void equip_wield_ui(void)
         }
     }
 
+    if ((disciple_is_(DISCIPLE_TROIKA)) && (!troika_allow_equip_item(obj))) return;
+
     if (obj_is_ammo(obj))
     {
         int amt = obj->number;
@@ -510,14 +530,23 @@ void equip_wield_ui(void)
         energy_use = weaponmaster_wield_hack(obj);
         _wield(obj, slot);
 
+        if ((!obj) || (!obj->k_idx)) return;
+
         _wield_after(slot);
         obj_release(obj, OBJ_RELEASE_QUIET);
+        if (_id_pack_hack)
+        {
+            pack_overflow();
+            identify_pack();
+            _id_pack_hack = FALSE;
+        }
     }
 }
 
 void equip_wield(obj_ptr obj, slot_t slot)
 {
     _wield(obj, slot);
+    if ((!obj) || (!obj->k_idx)) return;
     _wield_after(slot);
 }
 
@@ -609,6 +638,7 @@ static bool _wield_confirm(obj_ptr obj, slot_t slot)
       && p_ptr->prace != RACE_ANDROID
       && p_ptr->prace != RACE_WEREWOLF
       && !(get_race()->flags & RACE_IS_MONSTER)
+      && !(get_race()->flags & RACE_NO_POLY)
       && p_ptr->pclass != CLASS_BLOOD_KNIGHT)
     {
         char dummy[MAX_NLEN+80];
@@ -628,15 +658,18 @@ static void _wield_before(obj_ptr obj, slot_t slot)
     quests_on_get_obj(obj);
 }
 
+static void _ring_finger_sanity_check(void);
 static void equip_takeoff(slot_t slot);
 static void _wield(obj_ptr obj, slot_t slot)
 {
     obj_ptr old_obj = inv_obj(_inv, slot);
 
+    object_mitze(obj, MITZE_PICKUP);
+    if ((!obj) || (!obj->k_idx)) return;
+
     if (old_obj)
         equip_takeoff(slot);
 
-    object_mitze(obj, MITZE_PICKUP);
     stats_on_use(obj, 1);
     inv_add_at(_inv, obj, slot);
 }
@@ -645,6 +678,7 @@ static void _wield_after(slot_t slot)
 {
     char    o_name[MAX_NLEN];
     obj_ptr obj = inv_obj(_inv, slot);
+    u32b flgs[OF_ARRAY_SIZE];
 
     obj_learn_equipped(obj);
     stats_on_equip(obj);
@@ -683,16 +717,23 @@ static void _wield_after(slot_t slot)
       && p_ptr->prace != RACE_VAMPIRE
       && p_ptr->prace != RACE_ANDROID
       && p_ptr->prace != RACE_WEREWOLF
+      && p_ptr->prace != RACE_BEORNING
       && p_ptr->pclass != CLASS_BLOOD_KNIGHT )
     {
         change_race(RACE_VAMPIRE, "");
     }
+
+    if (object_is_melee_weapon(obj) || _object_is_ring(obj)) _ring_finger_sanity_check();
+
+    obj_flags(obj, flgs);
+    if (have_flag(flgs, OF_LORE2)) _id_pack_hack = TRUE;
 
     p_ptr->update |= PU_BONUS;
     p_ptr->update |= PU_TORCH;
     p_ptr->update |= PU_MANA;
     p_ptr->redraw |= PR_EQUIPPY;
     p_ptr->window |= PW_INVEN | PW_EQUIP;
+
     android_calc_exp();
 }
 
@@ -748,6 +789,7 @@ static void equip_takeoff(slot_t slot)
     {
         _unwield(obj, FALSE);
         _unwield_after();
+        if (p_ptr->tim_field && object_is_melee_weapon(obj)) set_tim_field(0, TRUE);
     }
 }
 
@@ -792,7 +834,7 @@ bool _unwield_verify(obj_ptr obj)
     }
     if (object_is_cursed(obj) && obj->loc.where == INV_EQUIP)
     {
-        if ((obj->curse_flags & OFC_PERMA_CURSE) || p_ptr->pclass != CLASS_BERSERKER)
+        if ((obj->curse_flags & OFC_PERMA_CURSE) || ((p_ptr->pclass != CLASS_BERSERKER) && (!beorning_is_(BEORNING_FORM_BEAR))))
         {
             msg_print("Hmmm, it seems to be cursed.");
             energy_use = 0;
@@ -803,6 +845,7 @@ bool _unwield_verify(obj_ptr obj)
             msg_print("You tear the cursed equipment off by sheer strength!");
             obj->ident |= IDENT_SENSE;
             obj->curse_flags = 0L;
+            obj->known_curse_flags = 0L;
             obj->feeling = FEEL_NONE;
             p_ptr->update |= PU_BONUS;
             p_ptr->window |= PW_EQUIP;
@@ -1407,6 +1450,7 @@ void equip_calc_bonuses(void)
             _weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_HUMAN); 
 			_weapon_info_flag(slot, flgs, known_flgs, OF_KILL_LIVING);  /* Thanos */
             _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_VAMP); /* Dragon Armor (Death), Helm of the Vampire */
+            _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_DARK); /* Allow possible future use */
         }
 
         if (have_flag(flgs, OF_XTRA_SHOTS))
@@ -1907,4 +1951,128 @@ inv_ptr get_equipment(void)
 void set_equip_template(equip_template_ptr new_template)
 {
     _template = new_template;
+}
+
+void _ring_finger_swap_aux(object_type *o_ptr, slot_t f1, slot_t f2)
+{
+    obj_p p;
+    object_type *t_ptr;
+    if ((!f1) || (!f2) || (f1 >= _template->max) || (f2 >= _template->max)) return; /* Paranoia */
+    if (!o_ptr) return;
+    p = (_accept[_template->slots[f1].type]); /* More paranoia */
+    if (!p(o_ptr)) return;
+    p = (_accept[_template->slots[f2].type]);
+    if (!p(o_ptr)) return;
+    t_ptr = equip_obj(f1);
+    if ((t_ptr) && (t_ptr->tval) && (object_is_cursed(t_ptr)))
+    {
+        msg_print("A dark curse prevents you from switching ring fingers!");
+        t_ptr->ident |= IDENT_SENSE;
+        return;
+    }
+    t_ptr = equip_obj(f2);
+    if ((t_ptr) && (t_ptr->tval) && (object_is_cursed(t_ptr)))
+    {
+        msg_print("A dark curse prevents you from switching ring fingers!");
+        t_ptr->ident |= IDENT_SENSE;
+        return;
+    }
+    inv_swap(_inv, f1, f2);
+    msg_print("You nimbly switch ring fingers.");
+    p_ptr->update |= PU_BONUS;
+    _ring_finger_sanity_check();
+}
+
+void _ring_finger_sanity_check(void)
+{
+    slot_t hukattu = 0, tyhja = 0, i;
+    slot_t slot = equip_find_first(_object_is_combat_ring);
+    int ct;
+    slot_t slots[EQUIP_MAX + 1];
+    object_type *o_ptr;
+    if (!slot) return;
+    o_ptr = equip_obj(slot);
+    ct = _get_slots(o_ptr, slots);
+    if (ct < 2) return;
+    for (i = 0; i < ct; i++)
+    {
+        slot_t slot = slots[i];
+        int hand = _template->slots[slot].hand;
+        int arm = hand / 2;
+        int rhand = arm*2;
+        int lhand = arm*2 + 1;
+        int other_hand = (hand == rhand) ? lhand : rhand;
+        bool hand_is_weapon = FALSE, hand_is_combat_ring = FALSE;
+        object_type *obj = equip_obj(slot);
+        if ((obj) && (obj->known_curse_flags)) return;
+        if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE) hand_is_weapon = TRUE;
+        else if ((_template->slots[slot].type == EQUIP_SLOT_RING) && (p_ptr->weapon_info[other_hand].wield_how == WIELD_TWO_HANDS)) hand_is_weapon = TRUE;
+        if (obj) hand_is_combat_ring = _object_is_combat_ring(obj);
+        if (hand_is_weapon != hand_is_combat_ring)
+        {
+            if (hand_is_weapon) tyhja = slot;
+            else hukattu = slot;
+        }
+    }
+    if ((tyhja) && (hukattu))
+    {
+        if (get_check("Switch ring fingers so combat bonuses can apply to a weapon?")) _ring_finger_swap_aux(o_ptr, tyhja, hukattu);
+    }
+}
+
+void ring_finger_swap_ui(slot_t f1, slot_t f2)
+{
+    slot_t ring_slot = equip_find_first(_object_is_ring);
+    int ct;
+    slot_t slots[EQUIP_MAX + 1];
+    object_type *o_ptr;
+    if (!ring_slot)
+    {
+        msg_print("You do not have any rings equipped.");
+        return;
+    }
+    o_ptr = equip_obj(ring_slot);
+    if ((!o_ptr) || (o_ptr->tval != TV_RING))
+    {
+        msg_print("A software bug has occurred in the ring finger swap UI - please report!");
+        return;
+    }
+    ct = _get_slots(o_ptr, slots);
+    if (ct < 2)
+    {
+        msg_print("You cannot change ring fingers!");
+        return;
+    }
+    if (ct == 2)
+    {
+        _ring_finger_swap_aux(o_ptr, slots[0], slots[1]);
+        return;
+    }
+    if ((f1) && (f2))
+    {
+        _ring_finger_swap_aux(o_ptr, f1, f2);
+        return;
+    }
+    else if (ct > 2)
+    {
+        menu_t menu = { "Choose first slot", NULL, NULL,
+                        _slot_menu_fn, slots, ct, 0 };
+
+        int i, idx = menu_choose(&menu);
+        if (idx < 0) return;
+        f1 = slots[idx];
+        ct--;
+        for (i = idx; i < ct; i++)
+        {
+            slots[i] = slots[i + 1];
+        }
+        menu.count = ct;
+        menu.cookie = slots;
+        menu.choose_prompt = "Choose second slot";
+        idx = menu_choose(&menu);
+        if (idx < 0) return;
+        f2 = slots[idx];
+        _ring_finger_swap_aux(o_ptr, f1, f2);
+        return;
+    }
 }

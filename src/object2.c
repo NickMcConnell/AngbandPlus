@@ -690,7 +690,8 @@ s16b get_obj_num(int level)
         k_idx = table[i].index;
         k_ptr = &k_info[k_idx];
         if (k_ptr->tval == TV_FOOD && k_ptr->sval == SV_FOOD_AMBROSIA && dungeon_type != DUNGEON_OLYMPUS) continue;
-		if (easy_id && k_ptr->tval == TV_SCROLL && k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) continue;
+	if (easy_id && k_ptr->tval == TV_SCROLL && k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) continue;
+        if (ironman_downward && k_ptr->tval == TV_SCROLL && k_ptr->sval == SV_SCROLL_RESET_RECALL) continue;
         /* Hack -- prevent embedded chests */
         if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
 
@@ -2408,6 +2409,8 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     return TRUE;
 }
 
+static bool _kind_is_(int k_idx, int tval, int sval);
+
 static bool _is_favorite_weapon(int tval, int sval)
 {
     if (p_ptr->pclass != CLASS_ARCHER)
@@ -2459,7 +2462,8 @@ static bool kind_is_tailored(int k_idx)
             && p_ptr->pclass != CLASS_NINJA
             && p_ptr->pclass != CLASS_NINJA_LAWYER
             && p_ptr->pclass != CLASS_MAULER
-            && p_ptr->pclass != CLASS_DUELIST;
+            && p_ptr->pclass != CLASS_DUELIST
+            && !disciple_is_(DISCIPLE_TROIKA);
 
     case TV_HARD_ARMOR:
     case TV_SOFT_ARMOR:
@@ -2479,10 +2483,13 @@ static bool kind_is_tailored(int k_idx)
     case TV_CLOAK:
     case TV_BOOTS:
     case TV_GLOVES:
-    case TV_HELM:
-    case TV_CROWN:
     case TV_BOW:
         return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
+
+    case TV_HELM:
+    case TV_CROWN:
+        if (p_ptr->prace == RACE_TOMTE) return _kind_is_(k_idx, TV_HELM, SV_KNIT_CAP);
+        else return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
 
     case TV_RING:
     case TV_AMULET:
@@ -3770,6 +3777,8 @@ void object_mitze(object_type *j_ptr, byte mode)
 {
     if ((!j_ptr) || (!j_ptr->tval)) return; /* paranoia */
     if (j_ptr->mitze_type) return; /* already MITZE'd */
+    if (spoiler_hack || no_karrot_hack) return;
+    if ((disciple_is_(DISCIPLE_KARROT)) && (karrot_replace_art(j_ptr))) return;
     j_ptr->mitze_type = mode; /* We can assume previous mitze_type was 0 */
     j_ptr->mitze_turn = game_turn;
     j_ptr->mitze_level = p_ptr->max_plv;
@@ -3939,6 +3948,7 @@ bool make_gold(object_type *j_ptr, bool do_boost)
         int kerroin = interpolate(dun_level, skaala, 5);
         au = au * kerroin / 100;
     }
+    if (p_ptr->personality == PERS_NOBLE) au += (au / 4);
     if (au > MAX_SHORT)
         au = MAX_SHORT - randint0(1000);
     j_ptr->pval = au;
@@ -4197,6 +4207,8 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
     /* Handle lack of space */
     if (!flag && !object_is_artifact(j_ptr))
     {
+        if (!character_dungeon) return (0);
+
         /* Message */
         msg_format("The %s disappear%s.",
                o_name, (plural ? "" : "s"));
@@ -4302,6 +4314,23 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 
     /* Grid */
     c_ptr = &cave[by][bx];
+
+    if (j_ptr->tval == TV_BOTTLE)
+    {
+        feature_type *f_ptr = &f_info[c_ptr->feat];
+        if (have_flag(f_ptr->flags, FF_WATER))
+        {
+            j_ptr->tval = TV_POTION;
+            j_ptr->sval = ((py_on_surface()) && (base_level >= 45)) ? SV_POTION_SALT_WATER : SV_POTION_WATER;
+            j_ptr->k_idx = lookup_kind(j_ptr->tval, j_ptr->sval);
+        }
+        else if (have_flag(f_ptr->flags, FF_ACID))
+        {
+            j_ptr->tval = TV_POTION;
+            j_ptr->sval = SV_POTION_POISON;
+            j_ptr->k_idx = lookup_kind(j_ptr->tval, j_ptr->sval);
+        }
+    }
 
     /* Scan objects in that grid for combination */
     for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)

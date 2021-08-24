@@ -3818,7 +3818,7 @@ bool binding_field( int dam )
         }
     }
     if( one_in_(7) ){
-        msg_print("The field broke a mirror");
+        msg_print("The field broke a mirror!");
         remove_mirror(point_y[0],point_x[0]);
     }
 

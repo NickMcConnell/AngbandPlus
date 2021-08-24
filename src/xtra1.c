@@ -495,7 +495,7 @@ static void prt_stat(int stat)
 #define BAR_VAMPILIC 64
 #define BAR_CURE 65
 #define BAR_ESP_EVIL 66
-#define BAR_XXXX1 67
+#define BAR_CHAOTIC 67
 #define BAR_BLOOD_SHIELD 68
 #define BAR_BLOOD_SEEK 69
 #define BAR_BLOOD_REVENGE 70
@@ -510,7 +510,7 @@ static void prt_stat(int stat)
 #define BAR_FLYING_DAGGER 79
 #define BAR_SHADOW_STANCE 80
 #define BAR_FRENZY_STANCE 81
-#define BAR_XXXX3 82
+#define BAR_SLAY_ORC 82
 #define BAR_FORCE 83
 #define BAR_COMBAT_EXPERTISE 84
 #define BAR_STONE_BONES 85
@@ -610,6 +610,16 @@ static void prt_stat(int stat)
 #define BAR_UPKEEP 179
 #define BAR_FILIBUSTER 180
 #define BAR_UNWELL 181
+#define BAR_FIELD 182
+#define BAR_SLAY_HUMAN 183
+#define BAR_SLAY_GIANT 184
+#define BAR_SLAY_TROLL 185
+#define BAR_SLAY_DRAGON 186
+#define BAR_SLAY_DEMON 187
+#define BAR_SLAY_UNDEAD 188
+#define BAR_SLAY_ANIMAL 189
+#define BAR_WP_STUN 190
+#define BAR_WP_SHARP 191
 
 static struct {
     byte attr;
@@ -685,7 +695,7 @@ static struct {
     {TERM_RED, "Vm", "Vampiric"},
     {TERM_WHITE, "Cu", "Cure"},
     {TERM_L_DARK, "ET", "EvilTele"},
-    {TERM_RED, "At", "Attacks"},
+    {TERM_VIOLET, "Ch", "Chaotic"},
     {TERM_ORANGE, "Sh", "Shield"},
     {TERM_YELLOW, "Sk", "Seek"},
     {TERM_RED, "Rv", "Revenge"},
@@ -700,7 +710,7 @@ static struct {
     {TERM_L_BLUE, "FD", "Flying Dagger"},
     {TERM_L_BLUE, "Sw", "Shadow"},
     {TERM_L_BLUE, "Fz", "Frenzy"},
-    {TERM_YELLOW, "Gj", "Genji"},
+    {TERM_L_UMBER, "/o", "/Orc"},
     {TERM_L_BLUE, "Fc", "Force"},
     {TERM_L_BLUE, "DS", "Defensive Stance"},
     {TERM_UMBER, "SB", "Stone Bones"},
@@ -800,6 +810,16 @@ static struct {
     {TERM_L_RED, "Upk", "Upkeep"},
     {TERM_ORANGE, "Flb", "Filibuster"},
     {TERM_L_WHITE, "Unw", "Unwell"},
+    {TERM_ORANGE, "Fld", "ForceField"},
+    {TERM_WHITE, "/p", "/Human"},
+    {TERM_L_UMBER, "/P", "/Giant"},
+    {TERM_L_WHITE, "/T", "/Troll"},
+    {TERM_GREEN, "/D", "/Dragon"},
+    {TERM_L_RED, "/U", "/Demon"},
+    {TERM_SLATE, "/L", "/Undead"},
+    {TERM_L_GREEN, "/Z", "/Animal"},
+    {TERM_ORANGE, "|St", "Stun"},
+    {TERM_L_WHITE, "|S", "Vorpal"},
     {0, NULL, NULL}
 };
 
@@ -995,6 +1015,7 @@ static void prt_status(void)
     if (p_ptr->tim_no_spells) ADD_FLG(BAR_NO_SPELLS);
     if (p_ptr->tim_blood_revenge) ADD_FLG(BAR_BLOOD_REVENGE);
     if (p_ptr->tim_force) ADD_FLG(BAR_FORCE);
+    if (p_ptr->tim_field) ADD_FLG(BAR_FIELD);
     if (p_ptr->filibuster) ADD_FLG(BAR_FILIBUSTER);
     if (p_ptr->pclass == CLASS_WEAPONMASTER)
     {
@@ -1093,6 +1114,28 @@ static void prt_status(void)
         }
 
         if (p_ptr->entrenched) ADD_FLG(BAR_ENTRENCHED);
+    }
+
+    if (disciple_is_(DISCIPLE_TROIKA))
+    {
+        if (troika_timeout_flag(OF_BRAND_FIRE)) ADD_FLG(BAR_ATTKFIRE);
+        if (troika_timeout_flag(OF_BRAND_COLD)) ADD_FLG(BAR_ATTKCOLD);
+        if (troika_timeout_flag(OF_BRAND_ELEC)) ADD_FLG(BAR_ATTKELEC);
+        if (troika_timeout_flag(OF_BRAND_ACID)) ADD_FLG(BAR_ATTKACID);
+        if (troika_timeout_flag(OF_BRAND_MANA)) ADD_FLG(BAR_FORCE);
+        if (troika_timeout_flag(OF_BRAND_VAMP)) ADD_FLG(BAR_VAMPILIC);
+        if (troika_timeout_flag(OF_BRAND_CHAOS)) ADD_FLG(BAR_CHAOTIC);
+        if (troika_timeout_flag(OF_SLAY_EVIL)) ADD_FLG(BAR_HOLY_BLADE);
+        if (troika_timeout_flag(OF_SLAY_ORC)) ADD_FLG(BAR_SLAY_ORC);
+        if (troika_timeout_flag(OF_SLAY_GIANT)) ADD_FLG(BAR_SLAY_GIANT);
+        if (troika_timeout_flag(OF_SLAY_TROLL)) ADD_FLG(BAR_SLAY_TROLL);
+        if (troika_timeout_flag(OF_SLAY_DRAGON)) ADD_FLG(BAR_SLAY_DRAGON);
+        if (troika_timeout_flag(OF_SLAY_DEMON)) ADD_FLG(BAR_SLAY_DEMON);
+        if (troika_timeout_flag(OF_SLAY_HUMAN)) ADD_FLG(BAR_SLAY_HUMAN);
+        if (troika_timeout_flag(OF_SLAY_UNDEAD)) ADD_FLG(BAR_SLAY_UNDEAD);
+        if (troika_timeout_flag(OF_SLAY_ANIMAL)) ADD_FLG(BAR_SLAY_ANIMAL);
+        if (troika_timeout_flag(OF_STUN)) ADD_FLG(BAR_WP_STUN);
+        if (troika_timeout_flag(OF_VORPAL)) ADD_FLG(BAR_WP_SHARP);
     }
 
     if (p_ptr->pclass == CLASS_MYSTIC)
@@ -1942,6 +1985,13 @@ static void prt_effects(void)
         char buf[MAX_NLEN];
         if (werewolf_in_human_form()) sprintf(buf, "[Human]");
         else sprintf(buf, "[Wolf]");
+        c_put_str(TERM_ORANGE, buf, row++, col);
+    }
+    else if (prace_is_(RACE_BEORNING))
+    {
+        char buf[MAX_NLEN];
+        if (beorning_is_(BEORNING_FORM_HUMAN)) sprintf(buf, "[Human]");
+        else sprintf(buf, "[Bear]");
         c_put_str(TERM_ORANGE, buf, row++, col);
     }
     if (monk_armour_aux)
@@ -3311,10 +3361,24 @@ static int _calc_xtra_hp(int amt)
     case CLASS_SAMURAI:
     case CLASS_ARCHER:
     case CLASS_WEAPONSMITH:
-    case CLASS_WEAPONMASTER:
     case CLASS_RAGE_MAGE:
         w1 = 2; w2 = 1; w3 = 0;
         break;
+
+    case CLASS_WEAPONMASTER:
+    {
+        switch (p_ptr->psubclass)
+        {
+            case WEAPONMASTER_SLINGS:
+            case WEAPONMASTER_BOWS:
+            case WEAPONMASTER_CROSSBOWS:
+                w1 = 1; w2 = 1; w3 = 0;
+                break;
+            default:
+                w1 = 2; w2 = 1; w3 = 0;
+                break;
+        }
+    }
 
     case CLASS_ROGUE:
     case CLASS_MONK:
@@ -3365,6 +3429,20 @@ static int _calc_xtra_hp(int amt)
             break;
         case WARLOCK_SPIDERS:
             w1 = 0; w2 = 1; w3 = 1;
+            break;
+        }
+        break;
+    case CLASS_DISCIPLE:
+        switch (p_ptr->psubclass)
+        {
+        case DISCIPLE_YEQREZH:
+            w1 = 0; w2 = 1; w3 = 1;
+            break;
+        case DISCIPLE_TROIKA:
+            w1 = 2; w2 = 1; w3 = 0;
+            break;
+        default:
+            w1 = 3; w2 = 2; w3 = 1;
             break;
         }
         break;
@@ -3456,16 +3534,16 @@ static void _calc_torch_imp(object_type *o_ptr)
             else
                 p_ptr->cur_lite -= 3;
         }
+        else if (o_ptr->name1 || o_ptr->art_name || o_ptr->name3)
+        {
+            p_ptr->cur_lite += 3;
+        }
         else if (o_ptr->sval == SV_LITE_TORCH && o_ptr->xtra4 > 0)
             p_ptr->cur_lite += 1;
         else if (o_ptr->sval == SV_LITE_LANTERN && o_ptr->xtra4 > 0)
             p_ptr->cur_lite += 2;
         else if (o_ptr->sval == SV_LITE_FEANOR)
             p_ptr->cur_lite += 2;
-        else if (o_ptr->name1 || o_ptr->art_name || o_ptr->name3)
-        {
-            p_ptr->cur_lite += 3;
-        }
         if (have_flag(flgs, OF_LITE)) p_ptr->cur_lite++;
         if (o_ptr->sval == SV_LITE_EYE) p_ptr->cur_lite -= 10;
     }
@@ -4157,7 +4235,7 @@ void calc_bonuses(void)
     {
         int ct = 0;
         int to_d = 3 + p_ptr->lev/5;
-        int pct = p_ptr->pclass == CLASS_RAGE_MAGE ? 50 : 100; /* XXX tweak me */
+        int pct = ((p_ptr->pclass == CLASS_RAGE_MAGE) || (beorning_is_(BEORNING_FORM_BEAR))) ? 50 : 100; /* XXX tweak me */
 
         res_add_immune(RES_FEAR);
 
@@ -4698,6 +4776,11 @@ void calc_bonuses(void)
             }
         }
 
+        if ((p_ptr->tim_field) && (p_ptr->weapon_ct == 1))
+        {
+            info_ptr->to_dd += 1;
+        }
+
         if (info_ptr->wield_how == WIELD_TWO_HANDS)
             tmp_hold *= 2;
 
@@ -4729,6 +4812,8 @@ void calc_bonuses(void)
          * combat.c is required. */
         init_blows_calc(o_ptr, info_ptr);
 
+        if (pers_ptr->calc_weapon_bonuses)
+            pers_ptr->calc_weapon_bonuses(o_ptr, info_ptr);
         if (class_ptr->calc_weapon_bonuses)
             class_ptr->calc_weapon_bonuses(o_ptr, info_ptr);
         if (race_ptr->calc_weapon_bonuses)
@@ -5180,9 +5265,14 @@ void calc_bonuses(void)
       || p_ptr->pclass == CLASS_SKILLMASTER
       || p_ptr->pclass == CLASS_NINJA
       || p_ptr->pclass == CLASS_NINJA_LAWYER
-      || p_ptr->pclass == CLASS_SCOUT) && (monk_armour_aux != monk_notify_aux))
+      || p_ptr->pclass == CLASS_SCOUT
+      || prace_is_(RACE_TOMTE)) && (monk_armour_aux != monk_notify_aux))
     {
-        if (heavy_armor())
+        if (prace_is_(RACE_TOMTE) && (tomte_heavy_armor() > 0))
+        {
+            msg_print("The weight of your helmet squeezes your head.");
+        }
+        else if (heavy_armor())
         {
             msg_print("The weight of your armor disrupts your balance.");
             if (hack_mind)
@@ -5635,6 +5725,8 @@ void handle_stuff(void)
 bool heavy_armor(void)
 {
     u16b monk_arm_wgt = 0;
+
+    if ((prace_is_(RACE_TOMTE)) && (tomte_heavy_armor() > 0)) return TRUE;
 
     if (p_ptr->pclass != CLASS_MONK
      && p_ptr->pclass != CLASS_MYSTIC

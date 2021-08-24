@@ -343,7 +343,6 @@ _essence_req_t _vaatimus(int lippu)
             _aseta_vaatimus(&pyydetaan, 2, 1, 0);
             break;
 
-        case OF_SPEED:
         case OF_RES_DISEN:
         case OF_RES_POIS:
         case OF_RES_LITE:
@@ -356,6 +355,10 @@ _essence_req_t _vaatimus(int lippu)
         case OF_RES_CHAOS:
         case OF_RES_BLIND:
             _aseta_vaatimus(&pyydetaan, 2, 2, 0);
+            break;
+
+        case OF_SPEED:
+            _aseta_vaatimus(&pyydetaan, 2, 3, 18);
             break;
 
         case OF_STEALTH:
@@ -684,6 +687,7 @@ static void _calc_bonuses(void)
     p_ptr->no_cut = TRUE;
     p_ptr->to_a += p_ptr->lev / 2 + 5;
     p_ptr->dis_to_a += p_ptr->lev / 2 + 5;
+    if (p_ptr->lev > 30) p_ptr->pspeed += (p_ptr->lev - 28) / 3;
     res_add_amt(RES_BLIND, 2);
     res_add_amt(RES_POIS, 2);
 
@@ -700,6 +704,7 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_LITE);
     add_flag(flgs, OF_RES_BLIND);
     add_flag(flgs, OF_RES_POIS);
+    if (p_ptr->lev > 30) add_flag(flgs, OF_SPEED);
 }
 
 /**********************************************************************

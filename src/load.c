@@ -14,38 +14,6 @@
 
 #include <assert.h>
 
-/*Exo's patch for updating character info*/
-void updatecharinfoL(void)
-{
-	//File Output + Lookup Tables
-	char tmp_Path[1024];
-	FILE *oFile;
-	path_build(tmp_Path, sizeof(tmp_Path), ANGBAND_DIR_USER, "CharOutput.txt");
-	oFile = fopen(tmp_Path, "w");
-
-	race_t         *race = get_true_race();
-	class_t        *class_ = get_class();
-	dragon_realm_ptr drealm = dragon_get_realm(p_ptr->dragon_realm);
-
-	fprintf(oFile, "{\n");
-	fprintf(oFile, "race: \"%s\",\n", race->name);
-	if (p_ptr->psubrace>0)fprintf(oFile, "subRace: \"%s\",\n", race->subname);
-	fprintf(oFile, "class: \"%s\",\n", class_->name);
-	if (p_ptr->psubclass>0)fprintf(oFile, "subClass: \"%s\",\n", class_->subname);
-	fprintf(oFile, "mapName: \"%s\",\n", map_name());
-	fprintf(oFile, "dLvl: \"%i\",\n", dun_level);
-	if (p_ptr->realm1 > 0)fprintf(oFile, "mRealm1: \"%s\",\n", realm_names[p_ptr->realm1]);
-	if (p_ptr->realm2 > 0)fprintf(oFile, "mRealm2: \"%s\",\n", realm_names[p_ptr->realm2]);
-	if (!strcmp("Chaos-Warrior", class_->name))fprintf(oFile, "mRealm2: \"%s\",\n", chaos_patrons[p_ptr->chaos_patron]);
-	if (p_ptr->dragon_realm > 0)fprintf(oFile, "mRealm1: \"%s\",\n", drealm->name);
-	fprintf(oFile, "cLvl: \"%i\",\n", p_ptr->lev);
-	fprintf(oFile, "isDead: \"%i\",\n", p_ptr->is_dead);
-	fprintf(oFile, "killedBy: \"%s\"\n", p_ptr->died_from);
-	fprintf(oFile, "}");
-	fclose(oFile);
-}
-
-
 /*
  * Hack -- Show information on the screen, one line at a time.
  *
@@ -269,6 +237,7 @@ static void rd_options(savefile_ptr file)
     mana_warn = savefile_read_byte(file);
     random_artifact_pct = savefile_read_byte(file);
     reduce_uniques_pct = savefile_read_byte(file);
+    small_level_type = savefile_is_older_than(file, 7,1,0,11) ? 0 : savefile_read_byte(file);
 
     /*** Cheating options ***/
     c = savefile_read_u16b(file);
@@ -405,6 +374,8 @@ static void rd_extra(savefile_ptr file)
     p_ptr->exp = savefile_read_s32b(file);
     p_ptr->exp_frac = savefile_read_u32b(file);
     p_ptr->lev = savefile_read_s16b(file);
+    if (savefile_is_older_than(file, 7,1,0,8)) p_ptr->quest_seed = 0;
+    else p_ptr->quest_seed = savefile_read_u32b(file);
 
     for (i = 0; i < 64; i++) p_ptr->spell_exp[i] = savefile_read_s16b(file);
     for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) p_ptr->weapon_exp[i][j] = savefile_read_s16b(file);
@@ -414,8 +385,10 @@ static void rd_extra(savefile_ptr file)
     if (music_singing_any()) p_ptr->action = ACTION_SING;
 
     p_ptr->start_race = savefile_read_byte(file);
+    p_ptr->start_sex = savefile_is_older_than(file, 7,1,0,12) ? p_ptr->psex : savefile_read_byte(file);
     p_ptr->old_race1 = savefile_read_s32b(file);
     p_ptr->old_race2 = savefile_read_s32b(file);
+    p_ptr->old_race3 = savefile_is_older_than(file, 7,1,0,10) ? 0 : savefile_read_s32b(file);
     p_ptr->old_realm = savefile_read_s16b(file);
 
     for (i = 0; i < MAX_MANE; i++)
@@ -562,6 +535,7 @@ static void rd_extra(savefile_ptr file)
     p_ptr->tim_building_up = savefile_read_s16b(file);
     p_ptr->tim_vicious_strike = savefile_read_s16b(file);
     p_ptr->tim_enlarge_weapon = savefile_read_s16b(file);
+    p_ptr->tim_field = ((savefile_is_older_than(file, 7,1,0,7)) ? 0 : savefile_read_s16b(file));
     p_ptr->tim_spell_reaction = savefile_read_s16b(file);
     p_ptr->tim_resist_curses = savefile_read_s16b(file);
     p_ptr->tim_armor_of_fury = savefile_read_s16b(file);
@@ -1251,6 +1225,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     }
     if (arg_fiddle) note("Loaded Object Memory");
 
+    p_ptr->quest_seed = 0; /* paranoia */
     quests_load(file); /* quests must load after monster lore ... see above */
     if (arg_fiddle) note("Loaded Quests");
 
@@ -1372,8 +1347,6 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         }
         p_ptr->duelist_target_idx = tmp_ix;
     }
-
-	updatecharinfoL();
 
 #ifdef VERIFY_CHECKSUMS
 

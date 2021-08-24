@@ -1219,6 +1219,9 @@ bool mon_is_type(int r_idx, int type)
         if (r_idx == MON_CHAMELEON || r_idx == MON_CHAMELEON_K) return FALSE;
         if (r_ptr->d_char == 'R') return TRUE;
         break;
+    case SUMMON_DEAD_UNIQ:
+        if ((r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->max_num == 0) && (r_ptr->cur_num == 0)) return TRUE;
+        break;
     }
     return FALSE;
 }
@@ -1636,6 +1639,26 @@ s16b get_mon_num_aux(int level, int min_level, u32b options)
         r_idx = table[i].index;
         r_ptr = &r_info[r_idx];
 
+        if (summon_specific_type == SUMMON_DEAD_UNIQ)
+        {
+            int delta;
+            if (r_ptr->max_num > 0) continue;
+            if (r_ptr->ball_num > 0) continue;
+            if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+            if (r_ptr->flags7 & RF7_AQUATIC) continue;
+            if ((!no_wilderness) && (r_ptr->flags3 & RF3_EVIL) && !(r_ptr->flags3 & RF3_GOOD)) continue;
+            if (quests_get_current() && (r_ptr->flags1 & RF1_NO_QUEST)) continue;
+            if ((r_ptr->level < 45) && (!(r_ptr->flags2 & RF2_CAMELOT))) continue;
+            if (summon_specific_who != SUMMON_WHO_NOBODY && (r_ptr->flags1 & RF1_NO_SUMMON)) continue;
+            table[i].prob3 = table[i].prob2;
+            delta = level - r_ptr->level;
+            table[i].prob3 = table[i].prob3 >> (delta/8);
+            if (!table[i].prob3)
+                table[i].prob3 = 1;
+            total += table[i].prob3;
+            continue;
+        }
+
         /* Hack: Camelot monsters only appear in Camelot. Olympians in Mt Olympus. Southerings in the Hideout */
         if (no_wilderness)
         {
@@ -1656,12 +1679,13 @@ s16b get_mon_num_aux(int level, int min_level, u32b options)
             if (mon_pant > 0)
             {
                 if (!dungeon_type) continue;
-                if ((mon_pant != d_info[dungeon_type].pantheon) && ((d_info[dungeon_type].pantheon) || (!(r_ptr->flags3 & pant_list[mon_pant].flag2)))) continue; 
+                if ((mon_pant != d_info[dungeon_type].pantheon) && ((d_info[dungeon_type].pantheon) || (!(r_ptr->flags3 & pant_list[mon_pant].flag2)))) continue;
             }
         }
 
         /* Hack: Some monsters are restricted from quests and summons */
         if (quests_get_current() && (r_ptr->flags1 & RF1_NO_QUEST)) continue;
+        if ((r_ptr->flags3 & RF3_COMPOST) && (quest_id_current() != SEWER_QUEST)) continue;
         if (summon_specific_who != SUMMON_WHO_NOBODY && (r_ptr->flags1 & RF1_NO_SUMMON)) continue;
 
         /* No point in generating memory mosses if the never_forget birth option is on */
@@ -1706,6 +1730,11 @@ s16b get_mon_num_aux(int level, int min_level, u32b options)
                 if (r_info[MON_SERPENT].max_num > 0) continue;
             }
 
+            if (r_idx == MON_R_MACHINE)
+            {
+                if ((!dungeon_type) || (dun_level < d_info[dungeon_type].maxdepth)) continue;
+            }
+
             /* No spamming summoning staves for tsuchinokos */
             if ((r_idx == MON_TSUCHINOKO) && (summon_specific_who == SUMMON_WHO_PLAYER)) continue;
         }
@@ -1727,6 +1756,11 @@ s16b get_mon_num_aux(int level, int min_level, u32b options)
         }
 
         total += table[i].prob3;
+    }
+
+    if (summon_specific_type == SUMMON_DEAD_UNIQ)
+    {
+        if ((total <= 0) || (one_in_(13))) return MON_STAR_BLADE;
     }
 
     /* No legal monsters */
@@ -1846,7 +1880,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 
     /* Mode of MD_TRUE_NAME will reveal Chameleon's true name */
     if (mode & MD_TRUE_NAME) name = (r_name + real_r_ptr(m_ptr)->name);
-    else if (m_ptr->mflag2 & MFLAG2_FUZZY) name = "Monster";
+    else if ((m_ptr->mflag2 & MFLAG2_FUZZY) && (!(mode & MD_IGNORE_HALLU))) name = "Monster";
     else name = (r_name + r_ptr->name);
 
     /* Are we hallucinating? (Idea from Nethack...) */
@@ -1965,7 +1999,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
         /* It could be a Unique */
         if ( (r_ptr->flags1 & RF1_UNIQUE)
           && !(p_ptr->image && !(mode & MD_IGNORE_HALLU))
-          && (!(m_ptr->mflag2 & MFLAG2_FUZZY) || (mode & MD_TRUE_NAME)) )
+          && (!(m_ptr->mflag2 & MFLAG2_FUZZY) || (mode & MD_TRUE_NAME) || (mode & MD_IGNORE_HALLU)) )
         {
             /* Start with the name (thus nominative and objective) */
             if ((m_ptr->mflag2 & MFLAG2_CHAMELEON) && !(mode & MD_TRUE_NAME))
@@ -2365,10 +2399,16 @@ void sanity_blast(monster_type *m_ptr, bool necro)
             (void)set_paralyzed(randint1(4), FALSE);
         }
         else equip_learn_flag(OF_FREE_ACT);
-        while (randint0(100) > p_ptr->skills.sav)
+        while ((randint0(100) > p_ptr->skills.sav) && (p_ptr->stat_cur[A_INT] > 3))
+        {
             (void)do_dec_stat(A_INT);
-        while (randint0(100) > p_ptr->skills.sav)
+            if (p_ptr->sustain_int) break;
+        }
+        while ((randint0(100) > p_ptr->skills.sav) && (p_ptr->stat_cur[A_WIS] > 3))
+        {
             (void)do_dec_stat(A_WIS);
+            if (p_ptr->sustain_wis) break;
+        }
         if (!res_save_default(RES_CHAOS))
         {
             (void)set_image(p_ptr->image + randint0(25) + 15, FALSE);
@@ -3307,7 +3347,11 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
             (r_ptr->cur_num >= mon_available_num(r_ptr)))
         {
             /* Cannot create */
-            if (mode & PM_ALLOW_CLONED)
+            if ((mode & PM_ALLOW_DEAD) && (!r_ptr->cur_num) && (!r_ptr->max_num) && (!r_ptr->ball_num))
+            {
+                r_ptr->max_num = 1;
+            }
+            else if (mode & PM_ALLOW_CLONED)
                 cloned = TRUE;
             else
                 return 0;
@@ -3491,6 +3535,9 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
     /* Not visible */
     m_ptr->ml = FALSE;
 
+    /* Being born */
+    m_ptr->mflag |= MFLAG_BORN2;
+
     /* Pet? */
     if (mode & PM_FORCE_PET)
     {
@@ -3551,6 +3598,7 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
         if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
+    m_ptr->mflag &= ~(MFLAG_BORN2);
 
     if ((who > 0) && ((is_pet(m_ptr) || is_friendly(m_ptr))) && (m_ptr->mflag2 & MFLAG2_PLAYER_SUMMONED))
         m_ptr->mflag2 |= MFLAG2_DIRECT_PY_SUMMON;
@@ -4432,6 +4480,11 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
     summon_specific_type = type;
     if ((type == SUMMON_BIZARRE1 || type == SUMMON_THIEF) && who == SUMMON_WHO_PLAYER)
         _ignore_depth_hack = TRUE;
+    if (type == SUMMON_DEAD_UNIQ)
+    {
+        mode |= PM_ALLOW_DEAD;
+        mode &= ~(PM_ALLOW_GROUP);
+    }
 
     summon_unique_okay = (mode & PM_ALLOW_UNIQUE) ? TRUE : FALSE;
     summon_cloned_okay = (mode & PM_ALLOW_CLONED) ? TRUE : FALSE;

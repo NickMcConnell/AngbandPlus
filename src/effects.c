@@ -171,6 +171,7 @@ void reset_tim_flags(void)
     p_ptr->tim_blood_revenge = 0;
     p_ptr->tim_superstealth = 0;
     p_ptr->tim_force = 0;
+    p_ptr->tim_field = 0;
     p_ptr->fasting = FALSE;
     p_ptr->tim_sustain_str = 0;
     p_ptr->tim_sustain_int = 0;
@@ -208,7 +209,7 @@ void reset_tim_flags(void)
     while(p_ptr->energy_need < 0) p_ptr->energy_need += ENERGY_NEED();
     world_player = FALSE;
 
-    if (p_ptr->pclass == CLASS_BERSERKER) p_ptr->shero = 1;
+    if ((p_ptr->pclass == CLASS_BERSERKER) || (beorning_is_(BEORNING_FORM_BEAR))) p_ptr->shero = 1;
     else if (p_ptr->pclass == CLASS_ALCHEMIST)
     {
         alchemist_set_hero(NULL, 0, TRUE);
@@ -227,6 +228,7 @@ void reset_tim_flags(void)
         p_ptr->magic_num1[0] = 0;
         p_ptr->magic_num2[0] = 0;
     }
+    if (disciple_is_(DISCIPLE_TROIKA)) troika_wipe_timeouts();
 }
 
 byte _slow_calc(bool is_slow, byte minislow)
@@ -290,6 +292,22 @@ bool p_inc_minislow(int lisays)
     return TRUE;
 }
 
+void p_inc_fatigue(int check_mut, int lisays)
+{
+    if ((!check_mut) || (!mut_present(check_mut)) || (lisays < 1)) return;
+
+    /* Check for easy tiring */
+    if ((one_in_(16 - p_ptr->minislow)) || ((check_mut == MUT_EASY_TIRING2) && (one_in_(6))))
+    {
+        if (p_ptr->mini_energy >= lisays)
+        {
+            p_ptr->mini_energy -= lisays;
+        }
+        else if (p_inc_minislow(1)) p_ptr->mini_energy += MAX(0, (100 - lisays));
+        else p_ptr->mini_energy = 0;
+    }
+}
+
 bool m_inc_minislow(monster_type *m_ptr, int lisays)
 {
     byte vanha = m_ptr->minislow;
@@ -311,6 +329,7 @@ bool disenchant_player(void)
 {
     int attempts = 200;
     bool result = FALSE;
+    if (disciple_is_(DISCIPLE_TROIKA)) result = troika_dispel_timeouts();
     for (; attempts; attempts--)
     {
         switch (randint1(32))
@@ -501,6 +520,13 @@ bool disenchant_player(void)
             }
             break;
         case 23:
+            if (p_ptr->tim_field)
+            {
+                (void)set_tim_field(0, TRUE);
+                result = TRUE;
+                return result;
+            }
+            break;
         case 24:
             if (p_ptr->tim_force)
             {
@@ -663,6 +689,7 @@ void dispel_player(void)
     set_tim_force(0, TRUE);
     set_tim_building_up(0, TRUE);
     set_tim_enlarge_weapon(0, TRUE);
+    set_tim_field(0, TRUE);
 
     set_tim_spell_reaction(0, TRUE);
     set_tim_resist_curses(0, TRUE);
@@ -738,6 +765,7 @@ void dispel_player(void)
 bool set_mimic(int v, int p, bool do_dec)
 {
     bool notice = FALSE;
+    bool dragon_poly = FALSE;
 
     /* Hack -- Force good values */
     v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -749,11 +777,29 @@ bool set_mimic(int v, int p, bool do_dec)
      * or if anyone else could mimic a werewolf, due to the mega-hacks
      * involved in werewolf equipment handling */
     if (prace_is_(RACE_WEREWOLF)) return FALSE;
-    if (p == RACE_WEREWOLF) /* please don't let this even happen */
+    if (get_race()->flags & RACE_NO_POLY) return FALSE;
+    if ((p == RACE_WEREWOLF) || (p == RACE_BEORNING)) /* please don't let this even happen */
     {
         v = 0;
         p = MIMIC_NONE; /* paranoia */
     }
+
+
+    if (p == MIMIC_DRAGON)
+    {
+        if (!disciple_is_(DISCIPLE_KARROT)) /* further paranoia */
+        {
+            v = 0;
+            p = MIMIC_NONE;
+        }
+    }
+    if ((p != MIMIC_NONE) && ((get_race_aux(p, 0)->flags & RACE_NO_POLY)))
+    {
+        v = 0;
+        p = MIMIC_NONE;
+    }
+
+    dragon_poly = ((p == MIMIC_DRAGON) || (p_ptr->mimic_form == MIMIC_DRAGON));
 
     /* Open */
     if (v)
@@ -790,6 +836,7 @@ bool set_mimic(int v, int p, bool do_dec)
 
     /* Use the value */
     p_ptr->tim_mimic = v;
+    if (dragon_poly) karrot_equip_on_poly();
     equip_on_change_race();
 
     /* Nothing to notice */
@@ -911,6 +958,7 @@ bool set_confused(int v, bool do_dec)
     /* Open */
     if (v)
     {
+        if ((p_ptr->confused > v) && (!do_dec)) return FALSE;
         if (!p_ptr->confused)
         {
             msg_print("You are confused!");
@@ -1000,6 +1048,7 @@ bool set_poisoned(int v, bool do_dec)
     /* Open */
     if (v)
     {
+        if ((p_ptr->poisoned > v) && (!do_dec)) return FALSE;
         if (!p_ptr->poisoned)
         {
             msg_print("You are poisoned!");
@@ -1018,6 +1067,8 @@ bool set_poisoned(int v, bool do_dec)
             notice = TRUE;
         }
     }
+
+    if ((v < p_ptr->poisoned) && (alert_poison)) poison_warning_hack = MIN(255, (v + 9) / 10);
 
     /* Use the value */
     p_ptr->poisoned = v;
@@ -1158,6 +1209,7 @@ bool set_image(int v, bool do_dec)
     if (v)
     {
         set_tsuyoshi(0, TRUE);
+        if ((p_ptr->image > v) && (!do_dec)) return FALSE;
         if (!p_ptr->image)
         {
             msg_print("Oh, wow! Everything looks so cosmic now!");
@@ -1873,6 +1925,58 @@ bool set_tim_enlarge_weapon(int v, bool do_dec)
 
     /* Use the value */
     p_ptr->tim_enlarge_weapon = v;
+
+    /* Nothing to notice */
+    if (!notice) return (FALSE);
+
+    /* Disturb */
+    if (disturb_state) disturb(0, 0);
+
+    /* Recalculate bonuses */
+    p_ptr->redraw |= (PR_STATUS);
+    p_ptr->update |= (PU_BONUS);
+
+    /* Handle stuff */
+    handle_stuff();
+
+    /* Result */
+    return (TRUE);
+}
+
+bool set_tim_field(int v, bool do_dec)
+{
+    bool notice = FALSE;
+
+    /* Hack -- Force good values */
+    v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+    if (p_ptr->is_dead) return FALSE;
+
+    /* Open */
+    if (v)
+    {
+        if (p_ptr->tim_field)
+        {
+            if (p_ptr->tim_field > v && !do_dec) return FALSE;
+        }
+        else
+        {
+            msg_print("An invisible force field surrounds your weapon!");
+            notice = TRUE;
+        }
+    }
+    /* Shut */
+    else
+    {
+        if (p_ptr->tim_field)
+        {
+            msg_print("Your weapon is no longer surrounded by a force field.");
+            notice = TRUE;
+        }
+    }
+
+    /* Use the value */
+    p_ptr->tim_field = v;
 
     /* Nothing to notice */
     if (!notice) return (FALSE);
@@ -2695,7 +2799,7 @@ bool set_shero(int v, bool do_dec)
 
     if (p_ptr->is_dead) return FALSE;
 
-    if (p_ptr->pclass == CLASS_BERSERKER) v = 1;
+    if ((p_ptr->pclass == CLASS_BERSERKER) || (beorning_is_(BEORNING_FORM_BEAR))) v = 1;
     /* Open */
     if (v)
     {
@@ -5371,6 +5475,7 @@ bool hp_player_aux(int num)
     }
 
     if ((p_ptr->prace == RACE_EINHERI) || (p_ptr->mimic_form == RACE_EINHERI)) num /= 2;
+    if (disciple_is_(DISCIPLE_YEQREZH)) num = hp_player_yeqrezh(num);
 
     /* Healing needed */
     if (p_ptr->chp < p_ptr->mhp)
@@ -5807,9 +5912,13 @@ void change_race(int new_race, cptr effect_msg)
     {
         p_ptr->old_race1 |= 1L << p_ptr->prace;
     }
-    else
+    else if (p_ptr->prace < 64)
     {
         p_ptr->old_race2 |= 1L << (p_ptr->prace-32);
+    }
+    else if (p_ptr->prace < 96)
+    {
+        p_ptr->old_race3 |= 1L << (p_ptr->prace-64);
     }
     p_ptr->prace = new_race;
     p_ptr->psubrace = 0;
@@ -5823,7 +5932,8 @@ void change_race(int new_race, cptr effect_msg)
     check_experience();
 
     if (p_ptr->prace == RACE_HUMAN || p_ptr->prace == RACE_DEMIGOD || p_ptr->prace == RACE_DRACONIAN ||
-        p_ptr->prace == RACE_BARBARIAN || p_ptr->prace == RACE_DUNADAN || p_ptr->prace == RACE_HALF_ORC)
+        p_ptr->prace == RACE_BARBARIAN || p_ptr->prace == RACE_DUNADAN || p_ptr->prace == RACE_HALF_ORC ||
+        p_ptr->prace == RACE_EINHERI)
     {
         race_t *race_ptr = get_true_race();
         if (race_ptr != NULL && race_ptr->gain_level != NULL)
@@ -5854,7 +5964,7 @@ void do_poly_self(void)
 
     virtue_add(VIRTUE_CHANCE, 1);
 
-    if ((power > randint0(20)) && one_in_(3) && (p_ptr->prace != RACE_ANDROID) && (p_ptr->prace != RACE_WEREWOLF))
+    if ((power > randint0(20)) && one_in_(3) && (p_ptr->prace != RACE_ANDROID) && (p_ptr->prace != RACE_WEREWOLF) && (!(get_race()->flags & RACE_NO_POLY)))
     {
         char effect_msg[80] = "";
         int new_race, expfact, goalexpfact;
@@ -6085,20 +6195,20 @@ int take_hit(int damage_type, int damage, cptr hit_from)
 
 
     /* Tera-Hack:  Duelist Nemesis */
-    if ( p_ptr->pclass == CLASS_DUELIST
+/*    if ( p_ptr->pclass == CLASS_DUELIST
       && p_ptr->duelist_target_idx
       && p_ptr->duelist_target_idx == hack_m_idx
       && p_ptr->lev >= 45
       && damage > p_ptr->chp )
     {
-        nemesis_hack = TRUE;  /* Stops monster melee back in make_attack_normal in melee1.c */
+        nemesis_hack = TRUE;
         damage = 0;
         msg_print("Nemesis!!!!  You cannot be slain by your current target!");
-        set_stun(99, FALSE); /* 100 is Knocked Out */
+        set_stun(99, FALSE);
         msg_format("%^s is no longer your current target.", duelist_current_challenge());
         p_ptr->duelist_target_idx = 0;
         p_ptr->redraw |= PR_STATUS;
-    }
+    } */
     
     /* Rage Mage: "Rage Fueled" */
     if ( p_ptr->pclass == CLASS_RAGE_MAGE
@@ -6149,6 +6259,7 @@ int take_hit(int damage_type, int damage, cptr hit_from)
     {
         virtue_add(VIRTUE_SACRIFICE, 1);
         virtue_add(VIRTUE_CHANCE, 2);
+        if (disciple_is_(DISCIPLE_TROIKA)) troika_effect(TROIKA_CHANCE);
     }
 
     /* Dead player */
@@ -6173,6 +6284,11 @@ int take_hit(int damage_type, int damage, cptr hit_from)
             msg_format("You are beaten by %s.", m_name);
             msg_print(NULL);
         }
+        else if ((p_ptr->total_winner) && (unique_is_friend(MON_R_MACHINE)))
+        {
+            msg_print(android ? "You are broken." : "You die.");
+            msg_print(NULL);
+        }
         else
         {
             bool seppuku = streq(hit_from, "Seppuku");
@@ -6187,12 +6303,12 @@ int take_hit(int damage_type, int damage, cptr hit_from)
             {
                 char dummy[1024];
                 sprintf(dummy, "%s%s", hit_from, !p_ptr->paralyzed ? "" : " while helpless");
+                clip_and_locate(" (Foe)", dummy);
                 my_strcpy(p_ptr->died_from, dummy, sizeof p_ptr->died_from);
             }
 
             msg_add_tiny_screenshot(50, 24);
 
-            p_ptr->total_winner = FALSE;
             flush();
 
             if (get_check_strict("Dump the screen? ", CHECK_NO_HISTORY))
@@ -6269,6 +6385,10 @@ int take_hit(int damage_type, int damage, cptr hit_from)
     if (p_ptr->wild_mode && !p_ptr->leaving && (p_ptr->chp < MAX(warning, p_ptr->mhp/5)))
     {
         change_wild_mode();
+    }
+    else if ((disciple_is_(DISCIPLE_TROIKA)) && (p_ptr->mhp / (MAX(1, old_chp - p_ptr->chp))) < 6) /* counterintuitively, the MAX(1,) is needed - the difference actually can be zero in some strange circumstances */
+    {
+        troika_effect(TROIKA_TAKE_HIT);
     }
     return damage;
 }
@@ -7323,7 +7443,7 @@ bool set_tim_inven_prot2(int v, bool do_dec)
     bool notice = FALSE;
 
     /* Hack -- Force good values */
-    v = (v > 50) ? 50 : (v < 0) ? 0 : v;
+    v = (v > 100) ? 100 : (v < 0) ? 0 : v;
 
     if (p_ptr->is_dead) return FALSE;
 

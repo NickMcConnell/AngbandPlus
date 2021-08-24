@@ -91,7 +91,7 @@ score_ptr score_current(void)
     score->personality = _str_copy(personality->name);
 
     score->gold = p_ptr->au;
-    score->turns = player_turn;
+    score->turns = game_turn;
     score->clvl = p_ptr->max_plv;
     score->dlvl = dun_level;
     score->dungeon = _str_copy(map_name());
@@ -417,7 +417,13 @@ static void _display(doc_ptr doc, vec_ptr scores, int top, int page_size)
     doc_insert(doc, "\n <color:U>Press corresponding letter to view last character sheet.</color>\n");
     doc_insert(doc, " <color:U>Press <color:keypress>^N</color> to sort by Name, <color:keypress>^R</color> to sort by Race, etc.</color>\n");
     if (page_size < vec_length(scores))
+    {
         doc_insert(doc, " <color:U>Use <color:keypress>PageUp</color> and <color:keypress>PageDown</color> to scroll.</color>\n");
+        for (i = j; i < top + page_size; i++) /* hack */
+        {
+            doc_insert(doc, "\n");
+        }
+    }
     doc_sync_menu(doc);
 }
 /* Generating html dumps from the scores directory will omit the html header

@@ -1,3 +1,7 @@
+?:[GEQ [MOD $RANDOM0 66] 33]
+K:86
+?:1
+
 ?:[EQU $QUEST24 Taken InProgress]
 D:A mysterious building has appeared, with the eldritch runes "M$"
 D:inscribed in its walls. An aura of evil radiates from this building.
@@ -112,6 +116,9 @@ M:##+##^#######################################################################^
 M:#<..#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 M:###############################################################################
 R:OBJ(^ring$, DEPTH+10):EGO(defender)
+
+?:[EQU $RACE Pumpkin]
+R:OBJ(potion of *healing*)
 
 ?:[EQU $RACE Hydra]
 R:OBJ(^amulet$, DEPTH+10):EGO(defender)

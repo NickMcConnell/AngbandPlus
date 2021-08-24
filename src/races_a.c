@@ -288,7 +288,7 @@ race_t *android_get_race(void)
         me.calc_bonuses = _android_calc_bonuses;
         me.get_powers = _android_get_powers;
         me.get_flags = _android_get_flags;
-        me.flags = RACE_IS_NONLIVING;
+        me.flags = RACE_IS_NONLIVING | RACE_NO_POLY;
 
         init = TRUE;
     }
@@ -1285,6 +1285,7 @@ static int _draconian_attack_level(void)
     case CLASS_DEVICEMASTER:
     case CLASS_FORCETRAINER:
     case CLASS_SKILLMASTER:
+    case CLASS_DISCIPLE:
         /*l = MAX(1, l * 100 / 100);*/
         break;
     case CLASS_BARD:

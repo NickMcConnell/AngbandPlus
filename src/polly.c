@@ -12,7 +12,18 @@ static s32b _peak_au = 0;       /* Peak gold on this level */
 static s32b _peak_exp = 0;      /* Peak experience on this level */
 static s32b _spent_exp = 0;     /* Total exp spent (for androids) */
 static u32b *friend_list;       /* List of monster races by friendliness */
+static byte _list_init = 0;
 static u32b dungeon_statup[_dung_array_size];
+
+#define _INIT_FRIENDS 0x01
+#define _INIT_STATUPS 0x02
+
+static void _ini_friend_list(void)
+{
+    if (_list_init & _INIT_FRIENDS) return;
+    C_MAKE(friend_list, _mon_array_size, u32b);
+    _list_init |= _INIT_FRIENDS;
+}
 
 bool unique_is_friend(int which)
 {
@@ -22,6 +33,7 @@ bool unique_is_friend(int which)
     if (!r_ptr->name) return FALSE; /* Nonexistent or removed */
     if (r_ptr->flagsx & RFX_SUPPRESS) return FALSE; /* Suppressed */
     if (r_ptr->max_num != 1) return FALSE; /* Either dead or not unique */
+    if (!(_list_init & _INIT_FRIENDS)) _ini_friend_list();
     return have_flag(friend_list, which);
 }
 
@@ -32,7 +44,11 @@ bool dungeon_conquered(int which)
     if (d_info[which].flags1 & DF1_RANDOM) return FALSE;
     if (!d_info[which].final_guardian) return ((max_dlv[which] == d_info[which].maxdepth) ? TRUE : FALSE);
     if (!r_info[d_info[which].final_guardian].max_num) return TRUE;
-    if ((prace_is_(RACE_MON_RING)) && (have_flag(dungeon_statup, which))) return TRUE;
+    if (prace_is_(RACE_MON_RING))
+    {
+        if (!(_list_init & _INIT_STATUPS)) ini_statup_list();
+        if (have_flag(dungeon_statup, which)) return TRUE;
+    }
     return (unique_is_friend(d_info[which].final_guardian));
 }
 
@@ -55,15 +71,11 @@ bool politician_dungeon_on_statup(int which)
     return TRUE;
 }
 
-static void _ini_friend_list(void)
-{
-    C_MAKE(friend_list, _mon_array_size, u32b);
-}
-
 void ini_statup_list(void)
 {
     int i;
     for (i = 0; i < _dung_array_size; i++) dungeon_statup[i] = 0;
+    _list_init |= _INIT_STATUPS;
 }
 
 static void _detect_threats_spell(int cmd, variant *res)
@@ -258,7 +270,7 @@ static void _summon_aide_spell(int cmd, variant *res)
         var_set_string(res, "Summons a friendly monster.");
         break;
     case SPELL_CAST:
-        (void)summon_specific(-1, py, px, (p_ptr->lev * 7 / 4) - 24, 0, PM_FORCE_PET);
+        (void)summon_specific(-1, py, px, (p_ptr->lev * 7 / 5) - 15, 0, PM_FORCE_PET);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -775,6 +787,12 @@ static void _calc_bonuses(void)
 
 static void _politician_check_magic(bool syntyma)
 {
+    if ((!strlen(player_name)))
+    {
+        p_ptr->realm1 = REALM_NONE;
+        return;
+    }
+
     /* Some politicians can access a magic realm */
     if ((strpos("Don", player_name)) || (strpos("ump", player_name)) ||
         (strpos("Small", player_name)) || (strpos("Little", player_name)) ||
@@ -888,6 +906,9 @@ static void _birth(void)
     py_birth_spellbooks();
 
     p_ptr->au += 150;
+    _peak_au = 0;
+    _peak_exp = 0;
+    _spent_exp = 0;
     _ini_friend_list();
     ini_statup_list();
     _politician_check_magic(TRUE);

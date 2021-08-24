@@ -1777,6 +1777,7 @@ s32b realm_choices1[MAX_CLASS] =
     CH_LAW,                 /* Ninja-Lawyer */
     CH_NONE,                /* Alchemist */
     CH_NONE,                /* Politician */
+    CH_NONE,                /* Disciple */
 };
 
 
@@ -1850,6 +1851,7 @@ s32b realm_choices2[MAX_CLASS] =
     CH_NONE,                /* Ninja-Lawyer */
     CH_NONE,                /* Alchemist */
     CH_NONE,                /* Politician */
+    CH_NONE,                /* Disciple */
 };
 
 
@@ -2214,8 +2216,11 @@ option_type option_info[] =
     { &show_discounts,              TRUE,  OPT_PAGE_TEXT, 0, 12,
     "show_discounts",               "Show discounts in object listings" },
 
+    { &show_power,                  FALSE, OPT_PAGE_TEXT, 2, 14,
+    "show_power",                   "Show device power in object listings (if known)" },
+
     { &show_item_graph,             TRUE,  OPT_PAGE_TEXT, 2, 0,
-    "show_item_graph",              "Show items graphics" },
+    "show_item_graph",              "Show item graphics in object listings" },
 
     { &equippy_chars,               TRUE,  OPT_PAGE_TEXT, 1, 12,
     "equippy_chars",                "Display 'equippy' chars" },
@@ -2259,7 +2264,7 @@ option_type option_info[] =
     { &show_discovery,		        FALSE, OPT_PAGE_TEXT, 2, 26,
     "show_discovery",                 "Show time of discovery on examination" },
 
-    { &final_dump_origins,		TRUE, OPT_PAGE_TEXT, 2, 17,
+    { &final_dump_origins,		TRUE, OPT_PAGE_TEXT, 2, 18,
     "final_dump_origins",             "Show origins in final character dumps" },
 
     { &always_dump_origins,		FALSE, OPT_PAGE_TEXT, 2, 19,
@@ -2371,6 +2376,12 @@ option_type option_info[] =
     { &alert_insc_gone,             TRUE,  OPT_PAGE_DISTURBANCE, 0, 2,
     "alert_insc_gone",              "Alert when inscribed item is destroyed or stolen" },
 
+    { &alert_wanted_kill,           FALSE,  OPT_PAGE_DISTURBANCE, 0, 30,
+    "alert_wanted_kill",            "Alert on killing wanted uniques" },
+
+    { &alert_poison,                TRUE,  OPT_PAGE_DISTURBANCE, 2, 2,
+    "alert_poison",                 "Alert on dangerously high poison counter" },
+
     /*** Birth Options ***/
 
 	{ &coffee_break,		FALSE, OPT_PAGE_BIRTH, 6, 3,
@@ -2421,6 +2432,12 @@ option_type option_info[] =
     { &ironman_nightmare,           FALSE, OPT_PAGE_BIRTH, 6, 18,
     "ironman_nightmare",            "Nightmare mode(it isn't even remotely fair!)(*)" },
 
+    { &thrall_mode,                 FALSE, OPT_PAGE_BIRTH, 1, 19,
+    "thrall_mode",                  "Thrall mode (start in extreme danger) (*)" },
+
+    { &wacky_rooms,                 FALSE, OPT_PAGE_BIRTH, 1, 22,
+    "wacky_rooms",                  "Always generate very unusual rooms (*)" },
+
     { &enable_virtues,              FALSE, OPT_PAGE_BIRTH, 6, 13,
     "enable_virtues",               "Enable the virtue system" },
 
@@ -2456,6 +2473,18 @@ option_type option_info[] =
 
     { &single_pantheon,             FALSE, OPT_PAGE_BIRTH, 5, 9,
     "single_pantheon",              "Play with only one pantheon" },
+
+    { &always_small_levels,         FALSE, OPT_PAGE_BIRTH, 4, 14,
+    "always_small_levels",          "Level size" },
+
+    { &increase_density,            FALSE, OPT_PAGE_BIRTH, 4, 15,
+    "increase_density",             "Increase monster density on small levels" },
+
+    { &no_big_dungeons,             FALSE, OPT_PAGE_BIRTH, 4, 17,
+    "no_big_dungeons",              "Allow small levels in all dungeons except Arena" },
+
+    { &even_proportions,            FALSE, OPT_PAGE_BIRTH, 4, 16,
+    "even_proportions",             "Sometimes reshape very flat \"pipe\" levels" },
 
     { &no_chris,			FALSE, OPT_PAGE_BIRTH, 6, 12,
     "no_chris",				"Nexus attacks never teleport to another dungeon" },
@@ -2535,7 +2564,28 @@ cptr chaos_patrons[MAX_PATRON] =
     "Tzeentch",
 
     "Khaine",
-    "Random"
+    "Random",
+
+    "Karrot",
+    "Yeqrezh",
+    "Troika"
+};
+
+cptr lv_size_options[SMALL_LVL_MAX + 1] =
+{
+    "Normal",
+    "Coffee-break (allow big)",
+    "Coffee-break (never big)",
+    "Medium",
+    "Instant Coffee (allow big)",
+    "Instant Coffee (never big)",
+    "Small (classic)",
+    "Small Coffee",
+    "Very Small",
+    "Extremely Small",
+    "Tiny",
+    "Huge",
+    "Huge (respect tiny)"
 };
 
 martial_arts ma_blows[MAX_MA] =

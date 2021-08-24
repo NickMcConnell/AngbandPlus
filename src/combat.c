@@ -99,6 +99,12 @@ int race_melee_mult(bool attack_is_innate)
             else if (!attack_is_innate) return 100;
             else return MIN(115, MAX(66, 61 + (get_class()->base_skills.thn * 3 / 5)));
         }
+        case RACE_BEORNING:
+        {
+            if (beorning_is_(BEORNING_FORM_HUMAN)) return 100;
+            else if (!attack_is_innate) return 100;
+            else return MIN(140, MAX(55, 50 + (get_class()->base_skills.thn * 3 / 4)));
+        }
         case RACE_MON_ELEMENTAL:
         {
             if (elemental_is_(ELEMENTAL_WATER)) return 75 + (water_flow_rate() / 2);
@@ -106,6 +112,8 @@ int race_melee_mult(bool attack_is_innate)
         }
         case RACE_MON_ORC:
         case RACE_BOIT: return 95;
+        case RACE_TOMTE: return 82;
+        case RACE_NIBELUNG: return 96;
         default: return 100;
     }
 }
@@ -179,6 +187,17 @@ void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
             info_ptr->blows_calc.mult = 50 + p_ptr->lev/5;
             info_ptr->blows_calc.max = 500;
             break;
+        }
+        break;
+
+    case CLASS_DISCIPLE:
+        info_ptr->blows_calc.max = 475;
+        info_ptr->blows_calc.wgt = 75;
+        info_ptr->blows_calc.mult = 40;
+        if (p_ptr->psubclass == DISCIPLE_TROIKA)
+        {
+            info_ptr->blows_calc.wgt = 100;
+            info_ptr->blows_calc.mult = 50;
         }
         break;
 
@@ -335,6 +354,10 @@ void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
         else if (prace_is_(RACE_MON_TROLL))
         {
             info_ptr->blows_calc.max = 550;
+        }
+        else if (prace_is_(RACE_MON_PUMPKIN))
+        {
+            info_ptr->blows_calc.max = 470;
         }
         else if (prace_is_(RACE_MON_GIANT))
         {
@@ -520,6 +543,26 @@ static void _display_weapon_slay(int base_mult, int slay_mult, bool force, int b
     min = blows * (mult*dd/100 + to_d) / 100;
     max = blows * (mult*dd*ds/100 + to_d) / 100;
 
+    if ((p_ptr->pclass == CLASS_DUELIST) && (!duelist_equip_error()))
+    {
+        int l1 = min, l2 = max, mahis = MAX(0, p_ptr->lev + adj_stat_save[p_ptr->stat_ind[A_DEX]]);
+        if (p_ptr->lev >= 10)
+        {
+            min += l1;
+            max += l2;
+        }
+        if ((p_ptr->lev >= 20) && (mahis))
+        {
+            min += (2L * l1 * mahis / (mahis + 125)); /* Worst-case scenario - Serpent */
+            max += (2L * l2 * mahis / (mahis + 125));
+        }
+        if ((p_ptr->lev >= 40) && (mahis))
+        {
+            min += (8L * l1 * mahis / (mahis + 125) / 2); /* Worst-case scenario - Serpent */
+            max += (8L * l2 * mahis / (mahis + 125) / 2);
+        }
+    }
+
     min = ((min * (class_melee_mult() * race_melee_mult(FALSE) / 100)) + 50) / 100;
     max = ((max * (class_melee_mult() * race_melee_mult(FALSE) / 100)) + 50) / 100;
 
@@ -582,6 +625,8 @@ void display_weapon_info(doc_ptr doc, int hand)
         to_d += p_ptr->lev / 2;
         break;
     }
+
+    if ((p_ptr->pclass == CLASS_DUELIST) && (!duelist_equip_error())) to_h += p_ptr->lev;
 
     weapon_flags_known(hand, flgs);
     if ((have_flag(flgs, OF_BRAND_MANA) || p_ptr->tim_force) && (!elemental_is_(ELEMENTAL_WATER)))
@@ -804,6 +849,9 @@ void display_weapon_info(doc_ptr doc, int hand)
     if (have_flag(flgs, OF_BRAND_POIS))
         _display_weapon_slay(mult, BRAND_MULT_POIS, force, num_blow, dd, ds, to_d, "Poison", TERM_RED, cols[0]);
 
+    if (have_flag(flgs, OF_BRAND_DARK))
+        _display_weapon_slay(mult, BRAND_MULT_DARK, force, num_blow, dd, ds, to_d, "Dark", TERM_RED, cols[0]);
+
     if (p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS)
     {
         if (p_ptr->weapon_info[hand].omoi)
@@ -1000,6 +1048,7 @@ void display_innate_attack_info(doc_ptr doc, int which)
             int p = a->effect_chance[i];
             char xtra[255];
             if (!a->effect[i]) continue;
+            if ((p_ptr->current_r_idx == MON_DEATH_PUMPKIN) && (a->effect[i] == GF_OLD_DRAIN)) continue;
             if (!p)
                 sprintf(xtra, "%s", "");
             else

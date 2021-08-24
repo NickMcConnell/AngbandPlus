@@ -194,10 +194,11 @@ void gain_chosen_stat(void)
  * Advance experience levels and print experience
  */
 
+
 void check_experience(void)
 {
-    bool level_inc_stat = FALSE;
-    int  old_lev = p_ptr->lev;
+    int old_lev = p_ptr->lev;
+    static bool level_inc_stat = FALSE;
 
     /* Hack -- lower limit */
     if (p_ptr->exp < 0) p_ptr->exp = 0;
@@ -208,6 +209,12 @@ void check_experience(void)
     if (p_ptr->exp > PY_MAX_EXP) p_ptr->exp = PY_MAX_EXP;
     if (p_ptr->max_exp > PY_MAX_EXP) p_ptr->max_exp = PY_MAX_EXP;
     if (p_ptr->max_max_exp > PY_MAX_EXP) p_ptr->max_max_exp = PY_MAX_EXP;
+
+    if (p_ptr->is_dead) /* Disallow posthumous XP gains */
+    {
+        if (p_ptr->exp > p_ptr->max_max_exp) p_ptr->exp = p_ptr->max_max_exp;
+        return;
+    }
 
     /* Hack -- maintain "max" experience */
     if (p_ptr->exp > p_ptr->max_exp) p_ptr->max_exp = p_ptr->exp;
@@ -258,6 +265,8 @@ void check_experience(void)
             if (class_ptr->gain_level != NULL)
                 (class_ptr->gain_level)(p_ptr->lev);
 
+            level_inc_stat = TRUE;
+
             if (mut_present(MUT_CHAOS_GIFT))
                 chaos_warrior_reward();
 
@@ -273,9 +282,6 @@ void check_experience(void)
                 if (race_ptr->gain_level != NULL)
                     (race_ptr->gain_level)(p_ptr->lev);
             }
-
-
-            level_inc_stat = TRUE;
         }
 
 
@@ -298,7 +304,10 @@ void check_experience(void)
         if (level_inc_stat)
         {
             if(p_ptr->max_plv % 5 == 0)
+            {
                 gain_chosen_stat();
+                level_inc_stat = FALSE;
+            }
         }
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
         p_ptr->redraw |= (PR_LEV);
@@ -539,6 +548,7 @@ byte get_monster_drop_ct(monster_type *m_ptr)
             cap = 200; /* About 110k gp at DL21 */
         if (no_selling) cap /= 2; /* Gold drops are bigger with no_selling */
         if (coffee_break) cap /= 2; /* More drops in coffee_break mode */
+        if (r_ptr->flags1 & RF1_NEVER_MOVE) cap /= 2;
         if (r_ptr->r_akills > cap)
             number = 0;
     }
@@ -1178,7 +1188,7 @@ void monster_death(int m_idx, bool drop_item)
          */
         if (!p_ptr->inside_arena && !p_ptr->inside_battle)
         {
-            if (!one_in_(5))
+            if (!one_in_(5) && !equip_find_art(ART_SILVER_HAMMER))
             {
                 int wy = y, wx = x;
                 int attempts = 100;
@@ -1756,6 +1766,11 @@ void monster_death(int m_idx, bool drop_item)
              chance = 100;
              break;
 
+        case MON_METATRON:
+             a_idx = ART_DESTINY;
+             chance = 100;
+             break;
+
         case MON_BULLGATES:
             if (one_in_(3)) {
              a_idx = ART_MICRODOLLAR;
@@ -1765,6 +1780,16 @@ void monster_death(int m_idx, bool drop_item)
              a_idx = ART_WINBLOWS;
              chance = 100;
             }
+            break;
+
+        case MON_MUG:
+            a_idx = ART_SURVEILLANCE;
+            chance = 100;
+            break;
+
+        case MON_JACK_LANTERN:
+            a_idx = ART_JACK_LANTERN;
+            chance = 10;
             break;
 
         case MON_LUNGORTHIN:
@@ -2422,7 +2447,7 @@ void mon_check_kill_unique(int m_idx)
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
-    if (!(m_ptr->smart & (1U << SM_CLONED)))
+    if ((!(m_ptr->smart & (1U << SM_CLONED))) && (!p_ptr->inside_battle))
     {
         /* When the player kills a Unique, it stays dead */
         if (r_ptr->flags1 & RF1_UNIQUE)
@@ -2619,7 +2644,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
             /* When the player kills a Unique, it stays dead */
             if (r_ptr->flags1 & RF1_UNIQUE)
             {
-                if (m_ptr->r_idx == MON_PHOENIX && one_in_(3))
+                if (m_ptr->r_idx == MON_PHOENIX && one_in_(3) && !equip_find_art(ART_SILVER_HAMMER) /* blame bostock */)
                 {
                     m_ptr->hp = m_ptr->maxhp;
                     msg_print("The Phoenix rises again!");
@@ -2735,6 +2760,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
                 screen_dump = make_screen_dump();
             }
 #endif
+        }
+        else if (m_ptr->r_idx == MON_R_MACHINE)
+        {
+             msg_format("%^s types, 'All you have done is seal the permanence of your fate!'", m_name);
         }
 
         if (!(d_info[dungeon_type].flags1 & DF1_BEGINNER))
@@ -2884,10 +2913,41 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
             char m_posname[MAX_NLEN];
             monster_desc(m_posname, m_ptr, MD_TRUE_NAME | MD_POSSESSIVE);
             msg_format("There is a price on %s head.", m_posname);
+            if (alert_wanted_kill) msg_print(NULL);
         }
 
         /* Generate treasure */
         monster_death(m_idx, TRUE);
+
+        /* Guntujant takes interest... */
+        if (disciple_is_(DISCIPLE_TROIKA))
+        {
+            if (r_ptr->flags1 & RF1_UNIQUE && (r_ptr->level + randint1(r_ptr->level) > p_ptr->lev * 2))
+            {
+                troika_effect(TROIKA_KILL_FAMOUS);
+            }
+            else if (r_ptr->flags1 & RF1_UNIQUE)
+            {
+                troika_effect(TROIKA_KILL_UNIQUE);
+            }
+            else if (r_ptr->flags3 & RF3_DEMON)
+            {
+                troika_effect(TROIKA_KILL_DEMON);
+            }
+            else if (r_ptr->flags3 & RF3_GOOD)
+            {
+                troika_effect(TROIKA_KILL_GOOD);
+            }
+            else if (r_ptr->level < (p_ptr->lev - 15))
+            {
+                troika_effect(TROIKA_KILL_WEAK);
+            }
+            else
+            {
+                troika_effect(TROIKA_KILL);
+            }
+            troika_learn_spell(r_ptr);
+        }
 
         /* Mega hack : replace IKETA to BIKETAL */
         if ((m_ptr->r_idx == MON_IKETA) &&
@@ -4110,7 +4170,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
             char f_idx_str[32];
             if (c_ptr->mimic) sprintf(f_idx_str, "%d/%d", c_ptr->feat, c_ptr->mimic);
             else sprintf(f_idx_str, "%d", c_ptr->feat);
-            sprintf(out_val, "%s%s%s%s [%s] %x %s %d %d %d (%d,%d)", s1, s2, s3, name, info, c_ptr->info, f_idx_str, c_ptr->dist, c_ptr->cost, c_ptr->when, y, x);
+            sprintf(out_val, "%s%s%s%s [%s] %x %s %d %d %d %d (%d,%d)", s1, s2, s3, name, info, c_ptr->info, f_idx_str, c_ptr->dist, c_ptr->cost, c_ptr->when, c_ptr->special, y, x);
         }
         else if (display_distance)
         {

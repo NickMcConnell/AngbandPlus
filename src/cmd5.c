@@ -337,7 +337,6 @@ static bool item_tester_learn_spell(object_type *o_ptr)
 
     if (!obj_is_book(o_ptr)) return FALSE;
     if (o_ptr->tval == TV_MUSIC_BOOK && p_ptr->pclass == CLASS_BARD) return TRUE;
-    if (o_ptr->tval == TV_BURGLARY_BOOK && p_ptr->pclass == CLASS_ROGUE) return TRUE;
     else if (o_ptr->tval == TV_HEX_BOOK && p_ptr->pclass == CLASS_HIGH_MAGE && REALM1_BOOK == o_ptr->tval) return TRUE;
     else if (REALM1_BOOK == o_ptr->tval || REALM2_BOOK == o_ptr->tval) return TRUE;
     else if (!is_magic(tval2realm(o_ptr->tval))) return FALSE;
@@ -1032,6 +1031,7 @@ void do_cmd_cast(void)
             if (take_mana > 0)
                 p_ptr->csp += take_mana;
             energy_use = 0;
+            p_ptr->redraw |= PR_MANA;
             return;
         }
 
@@ -1219,6 +1219,8 @@ void do_cmd_cast(void)
             p_ptr->csp -= need_mana;
         }
     }
+
+    p_inc_fatigue(MUT_EASY_TIRING2, 50 + MIN(50, need_mana / 2));
 
     /* Redraw mana */
     p_ptr->redraw |= (PR_MANA);

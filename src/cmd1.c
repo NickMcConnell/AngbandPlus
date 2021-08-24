@@ -1408,6 +1408,20 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 if (mult > old_mult) hissatsu_brand = ((mode == HISSATSU_POISON) ? OF_BRAND_POIS : 0);
             }
 
+            /* Dark brand */
+            if ( have_flag(flgs, OF_BRAND_DARK))
+            {
+                if (r_ptr->flagsr & RFR_EFF_RES_DARK_MASK)
+                {
+                    mon_lore_r(m_ptr, RFR_EFF_RES_DARK_MASK);
+                }
+                else
+                {
+                    obj_learn_slay(o_ptr, OF_BRAND_DARK, "has <color:G>Shadow Sweep</color>");
+                    mult = MAX(mult, BRAND_MULT_DARK / 10);
+                }
+            }
+
             /* 'light brand' */
             if (have_flag(flgs, OF_LITE) && (r_ptr->flags3 & RF3_HURT_LITE))
             {
@@ -2243,6 +2257,19 @@ static bool _gf_innate(mon_ptr m, int type, int dam)
     return gf_affect_m(GF_WHO_PLAYER, m, type, dam, GF_AFFECT_ATTACK);
 }
 
+static bool _pumpkin_drain_life(mon_ptr m_ptr, int *power, bool *weak)
+{
+    int vahennys = 0;
+    if (p_ptr->prace != RACE_MON_PUMPKIN) return FALSE;
+    *power = damroll(2, (*power) / 6);
+    vahennys = ((*power)+7) / 8;
+    m_ptr->maxhp -= vahennys;
+    if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+    if (m_ptr->maxhp < 1) m_ptr->maxhp = 1;
+    if (vahennys > 0) *weak = TRUE;
+    return TRUE;
+}
+
 static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
 {
     int             dam, base_dam, effect_pow, to_h, chance;
@@ -2260,10 +2287,12 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     int             drain_amt = 0;
     int             steal_ct = 0;
     int             hit_ct = 0;
+    bool            weak = FALSE;
     const int       max_drain_amt = _max_vampiric_drain();
-    bool            backstab = FALSE, fuiuchi = FALSE, stab_fleeing = FALSE;
+    bool            backstab = FALSE, fuiuchi = FALSE, stab_fleeing = FALSE, sleep_hit = FALSE;
     bool            do_werewolf_effect = (((p_ptr->prace == RACE_WEREWOLF) || (p_ptr->current_r_idx == MON_WEREWOLF)) && (r_ptr->flags7 & RF7_SILVER)) ? TRUE : FALSE;
 
+    if ((MON_CSLEEP(m_ptr)) && (m_ptr->ml)) sleep_hit = TRUE;
     set_monster_csleep(m_idx, 0);
 
     monster_desc(m_name_subject, m_ptr, MD_PRON_VISIBLE);
@@ -2295,7 +2324,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                 if (p_ptr->monlite && (mode != HISSATSU_NYUSIN)) tmp /= 3;
                 if (p_ptr->cursed & OFC_AGGRAVATE) tmp /= 2;
                 if (r_ptr->level > (p_ptr->lev * p_ptr->lev / 20 + 10)) tmp /= 3;
-                if (MON_CSLEEP(m_ptr))
+                if (sleep_hit)
                 {
                     backstab = TRUE;
                 }
@@ -2314,16 +2343,28 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         case CLASS_SCOUT:
             if (p_ptr->ambush)
             {
-                if (MON_CSLEEP(m_ptr) && m_ptr->ml)
+                if (sleep_hit && m_ptr->ml)
                     backstab = TRUE;
             }
             break;
         }
     }
+
+    if ((p_ptr->pclass == CLASS_DUELIST) && ((!retaliation_hack) || (!p_ptr->duelist_target_idx)) && (m_ptr->maxhp > 100) && ((r_ptr->level >= (p_ptr->lev * 4 / 5)) || (m_ptr->maxhp > 1000)) && (m_idx != p_ptr->duelist_target_idx) && (!duelist_equip_error()))
+    {
+        p_ptr->duelist_target_idx = m_idx;
+        msg_format("You challenge %s to a duel!", duelist_current_challenge());
+        set_monster_csleep(m_idx, 0);
+        set_hostile(&m_list[m_idx]);
+        p_ptr->redraw |= PR_STATUS;
+        return;
+    }
+
     for (i = 0; i < p_ptr->innate_attack_ct; i++)
     {
         innate_attack_ptr a = &p_ptr->innate_attacks[i];
         int               blows = _get_num_blow_innate(i);
+        if ((mode == BEORNING_SWIPE) || (mode == BEORNING_BIG_SWIPE)) blows = 1;
 
         if (a->flags & INNATE_SKIP) continue;
         if (m_ptr->fy != old_fy || m_ptr->fx != old_fx) break; /* Teleport Effect? */
@@ -2344,7 +2385,9 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
             if (prace_is_(RACE_MON_GOLEM))
                 ac = ac * (100 - p_ptr->lev) / 100;
 
-            if (fuiuchi || test_hit_norm(chance, ac, m_ptr->ml))
+            p_inc_fatigue(MUT_EASY_TIRING, 50);
+
+            if ((fuiuchi) || ((sleep_hit) && (j == 0) && (p_ptr->personality == PERS_SNEAKY)) || (test_hit_norm(chance, ac, m_ptr->ml)))
             {
                 int dd = a->dd + p_ptr->innate_attack_info.to_dd;
 
@@ -2356,7 +2399,8 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
 
                 hit_ct++;
                 sound(SOUND_HIT);
-                msg_format(a->msg, m_name_object);
+                if (mode == BEORNING_BIG_SWIPE) msg_print("You hit.");
+                else msg_format(a->msg, m_name_object);
 
                 base_dam = damroll(dd, a->ds);
                 if ((a->flags & INNATE_VORPAL) && one_in_(6))
@@ -2413,6 +2457,11 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     base_dam -= base_dam * MIN(100, p_ptr->stun) / 150;
                 }
                 dam = ((dam * (class_melee_mult() * race_melee_mult(TRUE) / 100)) + 50) / 100;
+
+                if (mode == BEORNING_BIG_SWIPE)
+                {
+                    dam = (dam * (race_melee_mult(TRUE) + p_ptr->lev)) / 100;
+                }
 
                 /* More slop for Draconian Metamorphosis ... */
                 if ( (player_is_ninja)
@@ -2618,6 +2667,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     case GF_STUN:
                     {
                         int pow = (prace_is_(RACE_MON_GOLEM)) ? (effect_pow / (5 + (p_ptr->lev / 9) + (p_ptr->lev / 48) + randint1(4))) : effect_pow;
+                        if (prace_is_(RACE_MON_PUMPKIN)) pow /= 2;
                         _gf_innate(m_ptr, e, pow);
                         *mdeath = (m_ptr->r_idx == 0);
                         break;
@@ -2631,7 +2681,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         break;
                     }
                     case GF_OLD_DRAIN:
-                        if (monster_living(r_ptr) && _gf_innate(m_ptr, e, effect_pow))
+                        if (monster_living(r_ptr) && (_pumpkin_drain_life(m_ptr, &effect_pow, &weak) || _gf_innate(m_ptr, e, effect_pow)))
                         {
                             int amt = MIN(effect_pow, max_drain_amt - drain_amt);
                             if (prace_is_(MIMIC_BAT))
@@ -2707,9 +2757,9 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         }
         if (mode == WEAPONMASTER_RETALIATION) break;
     }
-    if (mode == DRAGON_TAIL_SWEEP && !*mdeath && hit_ct)
+    if (((mode == DRAGON_TAIL_SWEEP) || (mode == BEORNING_BIG_SWIPE)) && (!*mdeath) && (hit_ct))
     {
-        int dist = randint1(1 + p_ptr->lev/20);
+        int dist = randint1((mode == BEORNING_BIG_SWIPE) ? 2 : 1 + p_ptr->lev/20);
         do_monster_knockback(m_ptr->fx, m_ptr->fy, dist);
     }
     if (delay_quake)
@@ -2720,6 +2770,8 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         _gf_innate(m_ptr, GF_STASIS, delay_stasis);
     if (delay_paralysis && !*mdeath)
         _gf_innate(m_ptr, GF_PARALYSIS, delay_paralysis);
+    if (weak && !(*mdeath))
+        msg_format("%^s seems weakened.", m_name_subject);
     if (steal_ct && !*mdeath)
     {
         if (mon_save_p(m_ptr->r_idx, A_DEX))
@@ -2853,6 +2905,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     bool            duelist_attack = FALSE;
 	bool            duelist_challenge = FALSE;
     bool            perfect_strike = FALSE;
+    bool            sleep_hit = FALSE;
     bool            do_quake = FALSE;
     bool            weak = FALSE;
     bool            drain_msg = TRUE;
@@ -2933,6 +2986,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         p_ptr->painted_target_ct = 0;
     }
 
+    if ((p_ptr->personality == PERS_SNEAKY) && (MON_CSLEEP(m_ptr)) && (m_ptr->ml))
+        sleep_hit = TRUE;
+
 	switch (p_ptr->pclass)
 	{
 	case CLASS_DUELIST:
@@ -2940,7 +2996,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		{
 			duelist_attack = TRUE;
 		}
-		else if (!duelist_equip_error())
+		else if (((!retaliation_hack) || (!p_ptr->duelist_target_idx)) && ((r_ptr->level >= p_ptr->lev * 4 / 5) || (m_ptr->maxhp >= p_ptr->lev * 9) || ((p_ptr->lev < 35) && (m_ptr->r_idx == MON_OCHRE_JELLY))) && (!duelist_equip_error()))
 		{
 			duelist_challenge = TRUE;
 		}
@@ -3114,15 +3170,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         }
 
         /* Check for easy tiring */
-        if (mut_present(MUT_EASY_TIRING) && (one_in_(16 - p_ptr->minislow)))
-        {
-            if (p_ptr->mini_energy >= 50)
-            {
-                p_ptr->mini_energy -= 50;
-            }
-            else if (p_inc_minislow(1)) p_ptr->mini_energy += 50;
-            else p_ptr->mini_energy = 0;
-        }
+        p_inc_fatigue(MUT_EASY_TIRING, 50);
 
         /* Weaponmaster Whirlwind turns a normal strike into a sweeping whirlwind strike */
         if (p_ptr->whirlwind && mode == 0)
@@ -3139,6 +3187,11 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 n *= 2;
 
             success_hit = one_in_(n);
+        }
+        else if (sleep_hit)
+        {
+            success_hit = TRUE;
+            sleep_hit = FALSE;
         }
         else if (fuiuchi && !(r_ptr->flagsr & RFR_RES_ALL)) success_hit = TRUE;
         else if ((player_is_ninja) && ((backstab || fuiuchi) && !(r_ptr->flagsr & RFR_RES_ALL))) success_hit = TRUE;
@@ -3415,7 +3468,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     }
                 }
 
-                if ((have_flag(flgs, OF_STUN) && randint1(100) < k) || ((o_ptr->name1 == ART_SILVER_HAMMER) && ((r_ptr->id == MON_WEREWOLF) || (r_ptr->id == MON_DRAUGLUIN) || (r_ptr->id == MON_CARCHAROTH))))
+                if ((((have_flag(flgs, OF_STUN)) || (p_ptr->tim_field)) && randint1(100) < k) || ((o_ptr->name1 == ART_SILVER_HAMMER) && ((r_ptr->id == MON_WEREWOLF) || (r_ptr->id == MON_DRAUGLUIN) || (r_ptr->id == MON_CARCHAROTH))))
                 {
                     if ( (r_ptr->flagsr & RFR_RES_ALL)
                       || (r_ptr->flags3 & RF3_NO_STUN) )
@@ -3558,7 +3611,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     && !(r_ptr->flags3 & (RF3_NO_STUN))
                     && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
-                    msg_format("%^s is dealt a <color:B>stunning</color> blow (%d).", m_name_subject, k);
+                    msg_format("%^s is dealt a <color:B>stunning</color> blow.", m_name_subject);
                     mon_stun(m_ptr, mon_stun_amount(d));
                 }
                 if ( p_ptr->lev >= 20    /* Wounding Strike */
@@ -3572,7 +3625,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                   && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
                     msg_format("%^s is dealt a <color:v>*WOUNDING*</color> strike.", m_name_subject);
-                    k += MIN(m_ptr->hp * 2 / 5, rand_range(2, 10) * d);
+                    k += pienempi(m_ptr->hp * 2 / 5, rand_range(2, 6) * d);
                     drain_result = k;
                 }
             }
@@ -3874,7 +3927,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         msg_print("Your chosen target is vanquished!");
                 }
 
-                if ((p_ptr->pclass == CLASS_BERSERKER || mut_present(MUT_FANTASTIC_FRENZY)) && energy_use)
+                if ((p_ptr->pclass == CLASS_BERSERKER || mut_present(MUT_FANTASTIC_FRENZY) || beorning_is_(BEORNING_FORM_BEAR)) && energy_use)
                 {
                     int ct = MAX(1, p_ptr->weapon_ct); /* paranoia ... if we are called with 0, that is a bug (I cannot reproduce) */
                     int frac = 100/ct;                 /* Perhaps the 'zerker leveled up to 35 in the middle of a round of attacks? */
@@ -4273,6 +4326,12 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             {
                 death_scythe_miss(o_ptr, hand, mode);
             }
+
+            if (disciple_is_(DISCIPLE_TROIKA))
+            {
+                if (chaos_effect) troika_effect(TROIKA_CHANCE);
+                else troika_effect(TROIKA_HIT);
+            }
         }
         /* Player misses */
         else
@@ -4614,6 +4673,7 @@ bool py_attack(int y, int x, int mode)
                 virtue_add(VIRTUE_HONOUR, -1);
                 virtue_add(VIRTUE_JUSTICE, -1);
                 virtue_add(VIRTUE_COMPASSION, -1);
+                if (disciple_is_(DISCIPLE_TROIKA)) troika_effect(TROIKA_VILLAINY);
             }
             else
             {
@@ -5132,6 +5192,7 @@ static bool _auto_detect_traps(void)
     slot_t slot;
     if (!auto_detect_traps) return FALSE;
     if (p_ptr->pclass == CLASS_BERSERKER) return FALSE;
+    if (beorning_is_(BEORNING_FORM_BEAR)) return FALSE;
     if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_detect_traps()) return TRUE;
 
     slot = pack_find_device(EFFECT_DETECT_TRAPS);
@@ -5173,6 +5234,7 @@ static bool _auto_mapping(void)
     slot_t slot;
     if (!auto_map_area) return FALSE;
     if (p_ptr->pclass == CLASS_BERSERKER) return FALSE;
+    if (beorning_is_(BEORNING_FORM_BEAR)) return FALSE;
     if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_mapping()) return TRUE;
 
     slot = pack_find_device(EFFECT_ENLIGHTENMENT);
@@ -5468,6 +5530,19 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
         energy_use = 0;
         /* Hack -- Enter quest level */
         command_new = SPECIAL_KEY_QUEST;
+    }
+
+    else if (c_ptr->mimic == feat_shadow_zap)
+    {
+        /* Disturb */
+        disturb(0, 0);
+
+        /* Merge with shadow */
+        c_ptr->info &= ~(CAVE_MARK);
+        c_ptr->info &= ~(CAVE_OBJECT);
+        c_ptr->mimic = 0;
+        note_spot(py, px);
+        msg_print("You merge with your shadow!");
     }
 
     /* Set off a trap */
@@ -6887,6 +6962,8 @@ void travel_step(void)
     point_t pt_best = {0};
     int py_old=py;
     int px_old=px;
+    bool ongelma = FALSE;
+    bool door_hack = FALSE;
 
     find_prevdir = travel.dir;
 
@@ -6922,6 +6999,7 @@ void travel_step(void)
     /* Closed door */
     else if (is_closed_door(cave[pt_best.y][pt_best.x].feat))
     {
+        door_hack = TRUE;
         if (!easy_open)
         {
             disturb(0, 0);
@@ -6935,13 +7013,18 @@ void travel_step(void)
         return;
     }
 
+    command_dir = dir;
+    if (get_rep_dir(&dir, FALSE) == GET_DIR_RANDOM)
+    {
+        ongelma = TRUE;
+    }
     travel.dir = dir;
     move_player(dir, always_pickup, easy_disarm);
     Term_xtra(TERM_XTRA_DELAY, delay_time());
     Term_fresh();
     travel.run = old_run;
 
-    if (((py == travel.y) && (px == travel.x)) || ((py == py_old)&&(px == px_old)))
+    if (((py == travel.y) && (px == travel.x)) || ((py == py_old)&&(px == px_old) && (!door_hack)) || (ongelma))
     {
         travel_end();
     }

@@ -955,6 +955,23 @@ cptr process_pref_file_expr(char **sp, char *fp)
                 v = get_class()->name;
             }
 
+            else if (streq(b+1, "SUBCLASS"))
+            {
+                v = get_class()->subname;
+                if (!v) v = "why are we here";
+            }
+
+            else if (streq(b+1, "SPECIALITY"))
+            {
+                if (p_ptr->pclass == CLASS_WEAPONMASTER)
+                    sprintf(tmp, "%s", weaponmaster_speciality_name(p_ptr->psubclass));
+                else if (p_ptr->pclass == CLASS_DEVICEMASTER)
+                    sprintf(tmp, "%s", devicemaster_speciality_name(p_ptr->psubclass));
+                else
+                    sprintf(tmp, "None");
+                v = tmp;
+            }
+
             /* Player */
             else if (streq(b+1, "PLAYER"))
             {
@@ -1828,7 +1845,7 @@ static errr file_character(cptr name, bool no_msgs)
         if (!strpos("htm", name)) /* Assume we know better than the player */
         {
             char nuname[1024];
-            int i, paikka;
+            int i, paikka = 0;
             strcpy(nuname, name);
             for (i = strlen(name) - 1; ((i > 0) && (i > (int)strlen(name) - 7)); i--)
             {
@@ -1841,6 +1858,7 @@ static errr file_character(cptr name, bool no_msgs)
                     break;
                 }
             }
+            if ((!paikka) && (strlen(name))) paikka = strlen(name) + 1;
             if (paikka)
             {
                 for (i = strlen(name) - 1; i > paikka - 2; i--)
@@ -2819,7 +2837,7 @@ void do_cmd_suicide(void)
     p_ptr->leaving = TRUE;
 
     /* Cause of death */
-    (void)strcpy(p_ptr->died_from, "Quitting");
+    (void)strcpy(p_ptr->died_from, p_ptr->total_winner ? "Ripe Old Age" : "Quitting");
 }
 
 
@@ -2905,6 +2923,8 @@ long total_points(void)
     if (ironman_shops) mult += 50;
     if (ironman_empty_levels) mult += 20;
     if (ironman_nightmare) mult += 100;
+    if (wacky_rooms) mult += 10;
+    if (thrall_mode) mult += (p_ptr->personality == PERS_SEXY) ? 50 : 10;
     if (easy_damage) mult /= 2;
     if (coffee_break)
     {
@@ -3293,15 +3313,9 @@ void kingly(void)
 {
     int wid, hgt;
     int cx, cy;
-    bool seppuku = streq(p_ptr->died_from, "Seppuku");
 
     /* Hack -- retire in town */
     dun_level = 0;
-
-    /* Fake death */
-    if (!seppuku)
-        (void)strcpy(p_ptr->died_from, "Ripe Old Age");
-
 
     /* Restore the experience */
     p_ptr->exp = p_ptr->max_exp;
@@ -3391,7 +3405,7 @@ void close_game(void)
     if (p_ptr->is_dead)
     {
         /* Handle retirement */
-        if (p_ptr->total_winner) kingly();
+        if ((p_ptr->total_winner) && ((strpos("Ripe Old Age", p_ptr->died_from)) || (strpos("Seppuku", p_ptr->died_from)))) kingly();
 
         /* Save memories */
         if (!cheat_save || get_check("Save death? "))

@@ -137,7 +137,7 @@ static cptr _pers_stl_skill_desc(personality_ptr pers_ptr) { return _stl_skill_d
 /* TODO: This is copied/duplicated in birth.txt ... Spoiler generation is a convenience
    hack, so I'll turn a blind eye for now :) */
 #define _MAX_RACES_PER_GROUP 23
-#define _MAX_RACE_GROUPS      8
+#define _MAX_RACE_GROUPS      9
 typedef struct _race_group_s {
     cptr name;
     int ids[_MAX_RACES_PER_GROUP];
@@ -146,7 +146,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Humans",
         {RACE_AMBERITE, RACE_BARBARIAN, RACE_DEMIGOD, RACE_DUNADAN, RACE_HUMAN, -1} },
     { "Elves",
-        {RACE_DARK_ELF, RACE_HIGH_ELF, RACE_WOOD_ELF, -1} },
+        {RACE_DARK_ELF, RACE_HIGH_ELF, RACE_TOMTE, RACE_WOOD_ELF, -1} },
     { "Hobbits/Dwarves",
         {RACE_DWARF, RACE_GNOME, RACE_HOBBIT, RACE_NIBELUNG, -1} },
     { "Fairies",
@@ -156,11 +156,13 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Orcs/Trolls/Giants",
         {RACE_CYCLOPS, RACE_HALF_GIANT, RACE_OGRE, RACE_HALF_ORC,
          RACE_HALF_TITAN, RACE_HALF_TROLL, RACE_KOBOLD, RACE_SNOTLING, -1} },
+    { "Shapeshifters",
+        {RACE_BEORNING, RACE_DOPPELGANGER, RACE_WEREWOLF, -1} },
     { "The Undead",
         {RACE_EINHERI, RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
     { "Other Races",
-        {RACE_ANDROID, RACE_BEASTMAN, RACE_BOIT, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT,
-         RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_WEREWOLF, RACE_YEEK,-1 } },
+        {RACE_ANDROID, RACE_BEASTMAN, RACE_BOIT, RACE_CENTAUR, RACE_DRACONIAN, RACE_ENT,
+         RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
 };
 
 static void _race_help_table(FILE *fp, race_t *race_ptr)
@@ -567,8 +569,8 @@ static _race_group_t _mon_race_groups[_MAX_MON_RACE_GROUPS] = {
         {RACE_MON_GIANT, /*RACE_MON_KOBOLD,*/ RACE_MON_ORC, RACE_MON_TROLL, -1} },
     { "Undead",
         {/*RACE_MON_GHOST,*/ RACE_MON_LICH, RACE_MON_VAMPIRE, /*RACE_MON_WRAITH, RACE_MON_ZOMBIE,*/ -1 } },
-    { "Xorn",
-        {RACE_MON_XORN, -1} },
+    { "Other",
+        {RACE_MON_PUMPKIN, RACE_MON_XORN, -1} },
 };
 
 static void _mon_race_help_table(FILE *fp, race_t *race_ptr)
@@ -1104,6 +1106,9 @@ static void _class_help(FILE *fp, int idx)
     case CLASS_SKILLMASTER:
         fputs("See <link:Skillmasters.txt> for more details on skillmasters.\n\n", fp);
         break;
+    case CLASS_DISCIPLE:
+        fputs("See <link:Disciples.txt> for more details on disciples.\n\n", fp);
+        break;
     case CLASS_RUNE_KNIGHT:
         fputs("See <link:Runeknights.txt> for more details on rune knights.\n\n", fp);
         break;
@@ -1129,8 +1134,8 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
     { "Devices", {CLASS_ALCHEMIST, CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
     { "Prayer", {CLASS_PRIEST, -1} },
     { "Stealth", {CLASS_NINJA, CLASS_ROGUE, CLASS_SCOUT, -1} },
-    { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_NINJA_LAWYER, CLASS_PALADIN, CLASS_RANGER,
-                    CLASS_RED_MAGE, CLASS_WARRIOR_MAGE,  -1} },
+    { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_DISCIPLE, CLASS_NINJA_LAWYER, CLASS_PALADIN,
+                    CLASS_RANGER, CLASS_RED_MAGE, CLASS_WARRIOR_MAGE,  -1} },
     { "Riding", {CLASS_BEASTMASTER, CLASS_CAVALRY, -1} },
     { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION,
                     CLASS_TIME_LORD, CLASS_WARLOCK, -1} },
@@ -1243,6 +1248,73 @@ static void _classes_help(FILE* fp)
             fputc('\n', fp);
         }
     }
+    fputs("\n</style>\n", fp);
+}
+
+static void _disciples_help(FILE *fp)
+{
+    int i;
+    fputs("<style:title>Disciples</style>\n\n", fp);
+    fputs(get_class_aux(CLASS_DISCIPLE, 0)->desc, fp);
+    fputs("\n\n", fp);
+
+    for (i = MIN_PURPLE_PATRON; i < MAX_PURPLE_PATRON; i++)
+    {
+        class_t *class_ptr = get_class_aux(CLASS_DISCIPLE, i);
+
+        fprintf(fp, "<topic:%s><color:o>%s</color>\n", class_ptr->subname, class_ptr->subname);
+        fprintf(fp, "%s\n\n", class_ptr->subdesc);
+        _class_help_table(fp, class_ptr);
+    }
+
+    fprintf(fp, "<color:B>TIP</color>: The special random quests for Karrot and Troika disciples can only appear ");
+    fprintf(fp, "if you are sufficiently deep for the quest to be challenging. Pressing <color:y>CTRL+F</color> ");
+    fprintf(fp, "reveals your patron's opinion of your current depth. The Purples also like you to visit ");
+    fprintf(fp, "many different dungeons; do not expect a large number of assignments in a single dungeon, unless ");
+    fprintf(fp, "you are playing with no wilderness.\n\n");
+
+    fputs("<topic:Tables><style:heading>Table 1 - Disciple Statistic Bonus Table</style>\n<style:table>\n", fp);
+    fprintf(fp, "<color:G>%-17.17s</color> <color:G>STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp</color>\n", "");
+    for (i = MIN_PURPLE_PATRON; i < MAX_PURPLE_PATRON; i++)
+    {
+        class_t *class_ptr = get_class_aux(CLASS_DISCIPLE, i);
+        fprintf(fp, "%-17.17s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n",
+            class_ptr->subname,
+            class_ptr->stats[A_STR], class_ptr->stats[A_INT], class_ptr->stats[A_WIS],
+            class_ptr->stats[A_DEX], class_ptr->stats[A_CON], class_ptr->stats[A_CHR],
+            class_ptr->life, class_ptr->base_hp, class_ptr->exp
+        );
+    }
+    fputs("\n</style>\n", fp);
+
+    fputs("<topic:Skills1><style:heading>Table 2 - Disciple Skill Bonus Table I</style>\n<style:table>\n", fp);
+    fprintf(fp, "%-17.17s <color:w>%-13.13s %-13.13s %-13.13s %-13.13s</color>\n", "", "Disarming", "Device", "Save", "Stealth");
+    for (i = MIN_PURPLE_PATRON; i < MAX_PURPLE_PATRON; i++)
+    {
+        class_t *class_ptr = get_class_aux(CLASS_DISCIPLE, i);
+        fprintf(fp, "%-17.17s", class_ptr->subname);
+        fprintf(fp, " %s", _class_dis_skill_desc(class_ptr));
+        fprintf(fp, " %s", _class_dev_skill_desc(class_ptr));
+        fprintf(fp, " %s", _class_sav_skill_desc(class_ptr));
+        fprintf(fp, " %s", _class_stl_skill_desc(class_ptr));
+        fputc('\n', fp);
+    }
+    fputs("\n</style>\n", fp);
+
+    fputs("<topic:Skills2><style:heading>Table 3 - Disciple Skill Bonus Table II</style>\n<style:table>\n", fp);
+    fprintf(fp, "%-17.17s <color:w>%-13.13s %-13.13s %-13.13s %-13.13s</color>\n", "", "Searching", "Perception", "Melee", "Bows");
+    for (i = MIN_PURPLE_PATRON; i < MAX_PURPLE_PATRON; i++)
+    {
+        class_t *class_ptr = get_class_aux(CLASS_DISCIPLE, i);
+        fprintf(fp, "%-17.17s", class_ptr->subname);
+        fprintf(fp, " %s", _skill_desc(class_ptr->base_skills.srh + 5*class_ptr->extra_skills.srh, 6));
+        fprintf(fp, " %s", _skill_desc(class_ptr->base_skills.fos + 5*class_ptr->extra_skills.fos, 6));
+        fprintf(fp, " %s", _class_thn_skill_desc(class_ptr));
+        fprintf(fp, " %s", _class_thb_skill_desc(class_ptr));
+        fputc('\n', fp);
+    }
+    fputs("\n</style>\n", fp);
+    yeqrezh_help(fp);
     fputs("\n</style>\n", fp);
 }
 
@@ -1816,6 +1888,7 @@ void generate_spoilers(void)
     _help_file("Classes.txt", _classes_help);
     _help_file("Weaponmasters.txt", _weaponmasters_help);
     _help_file("Warlocks.txt", _warlocks_help);
+    _help_file("Disciples.txt", _disciples_help);
 
     _help_file("Personalities.txt", _personalities_help);
 

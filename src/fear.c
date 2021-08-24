@@ -196,6 +196,7 @@ bool pelko(void)
     {
         msg_print("You are too scared!");
         if (energy_use < 100) energy_use = 100;
+        if (flush_failure) flush();
         return TRUE;
     }
     return FALSE;
@@ -272,6 +273,7 @@ bool fear_save_p(int ml)
             return TRUE;
         }
     }
+    equip_learn_vuln(OF_VULN_FEAR);
     return FALSE;
 }
 

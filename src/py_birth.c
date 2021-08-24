@@ -143,9 +143,8 @@ void py_birth_obj(object_type *o_ptr)
         return;
     }
 
-    obj_identify_fully(o_ptr);
-
     object_origins(o_ptr, ORIGIN_BIRTH);
+    obj_identify_fully(o_ptr);
 
     /* Big hack for sexy players ... only wield the starting whip,
      * but carry the alternate weapon. Previously, sexy characters
@@ -160,8 +159,13 @@ void py_birth_obj(object_type *o_ptr)
     }
 
     slot = equip_first_empty_slot(o_ptr);
-    if (slot && o_ptr->number == 1)
+    if ((slot) && (o_ptr->number == 1))
         equip_wield(o_ptr, slot);
+    else if ((slot) && (thrall_mode))
+    {
+        equip_wield(o_ptr, slot);
+        pack_carry(o_ptr);
+    }
     else
         pack_carry(o_ptr);
 }
@@ -202,6 +206,7 @@ static int _welcome_ui(void)
 {
     /* Mega-Hack */
     werewolf_init();
+    beorning_init();
     p_ptr->chaos_patron = RANDOM_PATRON;
 
     for (;;)
@@ -395,6 +400,7 @@ static int _beginner_races[] = {
   RACE_DUNADAN,
   RACE_HIGH_ELF,
   RACE_HALF_TROLL,
+  RACE_WEREWOLF,
   -1
 };
 
@@ -406,6 +412,7 @@ static int _beginner_classes[] = {
   CLASS_RANGER,
   CLASS_PALADIN,
   CLASS_NINJA,
+  CLASS_WEAPONSMITH,
   -1
 };
 
@@ -461,6 +468,10 @@ static int _race_class_ui(void)
         switch (cmd)
         {
         case '\r':
+            if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || ((p_ptr->personality == PERS_CHAOTIC) && (p_ptr->pclass != CLASS_DISCIPLE)))
+            {
+                if (_patron_ui() != UI_OK) break;
+            }
             if (_stats_ui() == UI_OK)
                 return UI_OK;
             break;
@@ -642,7 +653,7 @@ static void _pers_ui(void)
         }
     }
     vec_free(v);
-    if (p_ptr->personality == PERS_CHAOTIC) (void)_patron_ui();
+//    if ((p_ptr->personality == PERS_CHAOTIC) && (p_ptr->pclass != CLASS_DISCIPLE)) (void)_patron_ui();
 }
 
 static int _pers_cmp(personality_ptr l, personality_ptr r)
@@ -671,7 +682,7 @@ static vec_ptr _get_races_aux(int ids[]);
 static bool _is_valid_race_class(int race_id, int class_id);
 
 #define _MAX_RACES_PER_GROUP 23
-#define _MAX_RACE_GROUPS      8
+#define _MAX_RACE_GROUPS      9
 typedef struct _race_group_s {
     cptr name;
     int ids[_MAX_RACES_PER_GROUP];
@@ -680,7 +691,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Human",
         {RACE_AMBERITE, RACE_BARBARIAN, RACE_DEMIGOD, RACE_DUNADAN, RACE_HUMAN, -1} },
     { "Elf",
-        {RACE_DARK_ELF, RACE_HIGH_ELF, RACE_WOOD_ELF, -1} },
+        {RACE_DARK_ELF, RACE_HIGH_ELF, RACE_TOMTE, RACE_WOOD_ELF, -1} },
     { "Hobbit/Dwarf",
         {RACE_DWARF, RACE_GNOME, RACE_HOBBIT, RACE_NIBELUNG, -1} },
     { "Fairy",
@@ -690,11 +701,13 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Orc/Troll/Giant",
         {RACE_CYCLOPS, RACE_HALF_GIANT, RACE_OGRE, RACE_HALF_ORC,
          RACE_HALF_TITAN, RACE_HALF_TROLL, RACE_KOBOLD, RACE_SNOTLING, -1} },
+    { "Shapeshifter",
+        {RACE_BEORNING, RACE_DOPPELGANGER, RACE_WEREWOLF, -1} },
     { "Undead",
         {RACE_EINHERI, RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
     { "Other",
-        {RACE_ANDROID, RACE_BEASTMAN, RACE_BOIT, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT,
-         RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_WEREWOLF, RACE_YEEK,-1 } },
+        {RACE_ANDROID, RACE_BEASTMAN, RACE_BOIT, RACE_CENTAUR, RACE_DRACONIAN, RACE_ENT,
+         RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
 };
 
 static void _race_group_ui(void)
@@ -993,8 +1006,8 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
     { "Devices", { CLASS_ALCHEMIST, CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
     { "Prayer", {CLASS_PRIEST, -1} },
     { "Stealth", {CLASS_NINJA, CLASS_ROGUE, CLASS_SCOUT, -1} },
-    { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_NINJA_LAWYER, CLASS_PALADIN, CLASS_RANGER,
-                    CLASS_RED_MAGE, CLASS_WARRIOR_MAGE, -1} },
+    { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_DISCIPLE, CLASS_NINJA_LAWYER, CLASS_PALADIN,
+                    CLASS_RANGER, CLASS_RED_MAGE, CLASS_WARRIOR_MAGE, -1} },
     { "Riding", {CLASS_BEASTMASTER, CLASS_CAVALRY, -1} },
     { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION,
                     CLASS_TIME_LORD, CLASS_WARLOCK, -1} },
@@ -1166,7 +1179,7 @@ static int _subclass_ui(void)
             rc = _devicemaster_ui();
         else if (p_ptr->pclass == CLASS_GRAY_MAGE)
             rc = _gray_mage_ui();
-        else if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+        else if (p_ptr->pclass == CLASS_DISCIPLE)
             rc = _patron_ui();
         else
         {
@@ -1369,35 +1382,70 @@ static int _gray_mage_ui(void)
     }
 }
 
+static int _random_patron(void)
+{
+    if (p_ptr->pclass == CLASS_DISCIPLE)
+    {
+        int patron = (MIN_PURPLE_PATRON + randint0(MAX_PURPLE_PATRON - MIN_PURPLE_PATRON));
+        if ((p_ptr->psubclass >= MIN_PURPLE_PATRON) && (p_ptr->psubclass < MAX_PURPLE_PATRON)) patron = p_ptr->psubclass;
+        else p_ptr->psubclass = patron;
+        return patron;
+    }
+    return randint0(MAX_CHAOS_PATRON);
+}
+
 static int _patron_ui(void)
 {
     for (;;)
     {
         int cmd, i, alku = 0, loppu = MAX_CHAOS_PATRON;
 
+        if (p_ptr->pclass == CLASS_DISCIPLE)
+        {
+            alku = MIN_PURPLE_PATRON;
+            loppu = MAX_PURPLE_PATRON;
+            p_ptr->realm1 = REALM_NONE;
+            p_ptr->realm2 = REALM_NONE;
+        }
+
         doc_clear(_doc);
         _race_class_top(_doc);
 
         doc_insert(_doc, "<color:G>Choose Patron</color>\n");
+        if (p_ptr->pclass != CLASS_DISCIPLE)
+            doc_insert(_doc, "  <color:y>*</color>) Random\n");
         for (i = alku; i < loppu; i++)
         {
             cptr patron_name = chaos_patrons[i];
-            doc_printf(_doc, "  <color:y>%c</color>) <color:%c>%s</color>\n", I2A(i), p_ptr->chaos_patron == i ? 'B' : 'w', patron_name);
+            doc_printf(_doc, "  <color:y>%c</color>) <color:%c>%s</color>\n", I2A(i - alku), p_ptr->chaos_patron == i ? 'B' : 'w', patron_name);
         }
-        doc_insert(_doc, "  <color:y>*</color>) Random\n");
+        if (p_ptr->pclass == CLASS_DISCIPLE)
+            doc_insert(_doc, "  <color:y>*</color>) Random\n");
 
         _sync_term(_doc);
         cmd = _inkey();
         if (cmd == '\t') _inc_rcp_state();
         else if (cmd == '=') _birth_options();
-        else if (cmd == ESCAPE) return UI_OK; /* ! */
+        else if (cmd == ESCAPE) return UI_CANCEL;
+        else if ((isupper(cmd)) && (p_ptr->pclass == CLASS_DISCIPLE))
+        {
+            i = A2I(tolower(cmd)) + alku;
+            if (alku <= i && i < loppu)
+            {
+                class_t *class_ptr = get_class_aux(p_ptr->pclass, i);
+                doc_display_help("Disciples.txt", class_ptr->subname);
+            }
+        }
         else
         {
-            if (cmd == '*') i = RANDOM_PATRON + alku;
-            else i = A2I(cmd);
-            if ((alku <= i && i < loppu) || (i == RANDOM_PATRON + alku))
+            if (cmd == '*') i = RANDOM_PATRON;
+            if (cmd == '\r') i = (p_ptr->pclass == CLASS_DISCIPLE) ? DISCIPLE_YEQREZH : RANDOM_PATRON;
+            else i = A2I(cmd) + alku;
+            if ((alku <= i && i < loppu) || (i == RANDOM_PATRON))
             {
-                p_ptr->chaos_patron = i - alku;
+                if (i == RANDOM_PATRON) i = _random_patron();
+                p_ptr->chaos_patron = i;
+                if (p_ptr->pclass == CLASS_DISCIPLE) p_ptr->psubclass = i;
                 return UI_OK;
             }
         }
@@ -1593,8 +1641,8 @@ static _race_group_t _mon_race_groups[_MAX_MON_RACE_GROUPS] = {
         {RACE_MON_GIANT, /*RACE_MON_KOBOLD,*/ RACE_MON_ORC, RACE_MON_TROLL, -1} },
     { "Undead",
         {/*RACE_MON_GHOST,*/ RACE_MON_LICH, RACE_MON_VAMPIRE, /*RACE_MON_WRAITH, RACE_MON_ZOMBIE,*/ -1 } },
-    { "Xorn",
-        {RACE_MON_XORN, -1} },
+    { "Other",
+        {RACE_MON_PUMPKIN, RACE_MON_XORN, -1} },
 };
 
 static void _mon_race_group_ui(void)
@@ -2075,6 +2123,7 @@ static void _stats_init(void)
         case RACE_MON_ARMOR:
         case RACE_MON_GOLEM:
         case RACE_MON_ORC:
+        case RACE_MON_PUMPKIN:
         {
             int stats[6] = { 17, 13, 8, 16, 15, 10 };
             _stats_init_aux(stats);
@@ -2280,6 +2329,31 @@ static void _stats_init(void)
         {
             int stats[6] = { 16, 8, 8, 16, 11, 17 };
             _stats_init_aux(stats);
+            break;
+        }
+        case CLASS_DISCIPLE:
+        {
+            switch (p_ptr->psubclass)
+            {
+                case DISCIPLE_KARROT:
+                {
+                    int stats[6] = { 17, 15, 8, 15, 14, 13 };
+                    _stats_init_aux(stats);
+                    break;
+                }
+                case DISCIPLE_TROIKA:
+                {
+                    int stats[6] = { 17, 13, 8, 16, 15, 10 };
+                    _stats_init_aux(stats);
+                    break;
+                }
+                default:
+                {
+                    int stats[6] = { 16, 16, 9, 14, 16, 10 };
+                    _stats_init_aux(stats);
+                    break;
+                }
+            }
             break;
         }
         /* TODO */
@@ -2877,6 +2951,9 @@ static void _birth_finalize(void)
 //      reduce_uniques_pct = 90;
     }
 
+    /* Can't have people sneaking out of R'lyeh by way of nexus attack... */
+    if (thrall_mode) no_chris = TRUE;
+
     equip_init();
     pack_init();
     quiver_init();
@@ -2905,14 +2982,19 @@ static void _birth_finalize(void)
 
     /* Everybody gets a chaos patron. The chaos warrior is obvious,
      * but anybody else can acquire MUT_CHAOS_GIFT during the game */
-    if ((p_ptr->chaos_patron == RANDOM_PATRON) || ((p_ptr->pclass != CLASS_CHAOS_WARRIOR) && (p_ptr->personality != PERS_CHAOTIC)))
-        p_ptr->chaos_patron = randint0(MAX_CHAOS_PATRON);
+    if ((p_ptr->chaos_patron == RANDOM_PATRON) || ((p_ptr->pclass != CLASS_CHAOS_WARRIOR) &&
+        (p_ptr->pclass != CLASS_DISCIPLE) && (p_ptr->personality != PERS_CHAOTIC)) || ((p_ptr->pclass == CLASS_DISCIPLE) && (p_ptr->chaos_patron < MIN_PURPLE_PATRON)) ||
+        ((p_ptr->pclass != CLASS_DISCIPLE) && (p_ptr->chaos_patron > MAX_CHAOS_PATRON)))
+        p_ptr->chaos_patron = _random_patron();
 
     get_max_stats();
     do_cmd_rerate_aux();
 
     p_ptr->start_race = p_ptr->prace;
+    p_ptr->start_sex = p_ptr->psex;
     p_ptr->expfact = calc_exp_factor();
+
+    p_ptr->quest_seed = randint0(0x10000000);
 
     mp_ptr = &m_info[p_ptr->pclass];
     /* Hack ... external files always make easy stuff hard ... Burglary is natural for rogues!!!*/
@@ -2923,6 +3005,8 @@ static void _birth_finalize(void)
         else
             mp_ptr->spell_first = 5;
     }
+
+    if (!ironman_shops) birth_shop_items();
 
     /* Rest Up to Max HP and SP */
     p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;

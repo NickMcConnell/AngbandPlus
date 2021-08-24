@@ -96,7 +96,7 @@ void _equip_on_change_form(void)
     inv_free(temp2);
 
     p_ptr->update |= PU_BONUS | PU_TORCH | PU_MANA | PU_HP;
-    p_ptr->redraw |= PR_EQUIPPY;
+    p_ptr->redraw |= PR_EQUIPPY | PR_EFFECTS | PR_STATUS;
     p_ptr->window |= PW_INVEN | PW_EQUIP;
 }
 
@@ -172,10 +172,15 @@ void werewolf_change_shape_spell(int cmd, variant *res)
         else var_set_string(res, "Assume the shape of a human. Changing shape costs one turn.");
         break;
     case SPELL_CAST:
+        var_set_bool(res, FALSE);
         if (p_ptr->cursed & 0x0000000F)
         {
             msg_print("Your cursed equipment prevents you from changing shape!");
-            var_set_bool(res, FALSE);
+            break;
+        }
+        if (psion_weapon_graft())
+        {
+            msg_print("You cannot change shape with a weapon fused to your arm!");
             break;
         }
         _werewolf_form = 1 - _werewolf_form;
@@ -524,6 +529,7 @@ race_t *werewolf_get_race(void)
             me.save_player = _werewolf_save;
             me.character_dump = _dump_satchel;
             me.calc_extra_weight = _werewolf_pack_weight;
+            me.flags = RACE_NO_POLY;
         }
         if (_werewolf_form == WEREWOLF_FORM_HUMAN)
         {

@@ -3,11 +3,13 @@
 #include <assert.h>
 
 doc_ptr trace_doc = NULL;
+static int _current = 0;
 
 static cptr _strcpy(cptr s)
 {
     char *r = malloc(strlen(s)+1);
     strcpy(r, s);
+    if (strpos("\\", r)) (void)clip_and_locate("\\", r);
     return r;
 }
 
@@ -102,6 +104,31 @@ void quest_complete(quest_ptr q, point_t p)
     assert(q);
     if ((q->status == QS_COMPLETED) || (q->status == QS_FINISHED)) return;
     assert(q->status == QS_IN_PROGRESS);
+
+    if (q->goal == QG_KILL_MON)
+    {
+        monster_race *r_ptr = &r_info[q->goal_idx];
+        if (r_ptr) r_ptr->flagsx &= ~(RFX_QUESTOR);
+    }
+
+    if (q->flags & QF_PURPLE)
+    {
+        if (disciple_is_(DISCIPLE_KARROT))
+        {
+            karrot_quest_finished(q, TRUE);
+            _current = 0;
+            return;
+        }
+        if (disciple_is_(DISCIPLE_TROIKA))
+        {
+            troika_quest_finished(q, TRUE);
+            _current = 0;
+            return;
+        }
+        /* Please don't let the code reach here... */
+        msg_print("Software bug detected - please report!");
+        (void)inkey();
+    }
     q->status = QS_COMPLETED;
     q->completed_lev = (prace_is_(RACE_ANDROID)) ? p_ptr->lev : p_ptr->max_plv;
     q->completed_turn = game_turn;
@@ -224,14 +251,20 @@ void quest_fail(quest_ptr q)
     q->completed_turn = game_turn;
     msg_format("You have <color:v>failed</color> the quest: <color:R>%s</color>.", kayttonimi(q));
     virtue_add(VIRTUE_VALOUR, -2);
-    fame_on_failure();
+    if (!(q->flags & QF_PURPLE)) fame_on_failure();
     if (!(q->flags & QF_TOWN))
         q->status = QS_FAILED_DONE;
-    if ((q->flags & QF_RANDOM) && (q->goal == QG_KILL_MON))
+    if ((q->flags & (QF_RANDOM | QF_PURPLE)) && (q->goal == QG_KILL_MON))
     {
         monster_race *r_ptr = &r_info[q->goal_idx];
         if (r_ptr) r_ptr->flagsx &= ~(RFX_QUESTOR);
     }
+    if (q->flags & QF_PURPLE)
+    {
+        if (disciple_is_(DISCIPLE_KARROT)) karrot_quest_finished(q, FALSE);
+        else if (disciple_is_(DISCIPLE_TROIKA)) troika_quest_finished(q, FALSE);
+    }
+    else if ((q->flags & QF_TOWN) && (disciple_is_(DISCIPLE_TROIKA))) troika_punish_quest_fail();
 }
 
 /************************************************************************
@@ -402,7 +435,7 @@ bool quest_post_generate(quest_ptr q)
             q->status = QS_FINISHED;
             return TRUE;
         }
-        else if ((r_ptr->flags1 & RF1_UNIQUE) && (unique_is_friend(q->goal_idx))) /* this can happen at least with Eric if you befriend him in his quest */
+        else if ((r_ptr->flags1 & RF1_UNIQUE) && (unique_is_friend(q->goal_idx)) && (!(q->flags & QF_PURPLE))) /* this can happen at least with Eric if you befriend him in his quest */
         {
             int i, ct = (q->level/(coffee_break ? 13 : 25)) + 1;
             cmsg_format(TERM_L_BLUE, "Your friend %s, protector of this level, allows you free passage and gives you presents.", r_name + r_ptr->name);
@@ -467,6 +500,14 @@ bool quest_post_generate(quest_ptr q)
                                 m_list[pack_ptr->leader_idx].mflag2 |= MFLAG2_QUESTOR;
                             }
                         }
+                        if (!resolved) /* Check for chameleon questors */
+                        {
+                            if ((q->goal_idx == MON_CHAMELEON) && (m_list[hack_m_idx_ii].mflag2 & MFLAG2_CHAMELEON))
+                            {
+                                resolved = TRUE;
+                                m_list[hack_m_idx_ii].mflag2 |= MFLAG2_QUESTOR;
+                            }
+                        }
                         if (!resolved) msg_print("Failed to mark questor correctly!");
                     }
                     else m_list[hack_m_idx_ii].mflag2 |= MFLAG2_QUESTOR;
@@ -477,7 +518,40 @@ bool quest_post_generate(quest_ptr q)
             /* Failed to place */
             if (!j) return FALSE;
         }
-        if (ct == 1)
+        if (q->flags & QF_PURPLE)
+        {
+            if (disciple_is_(DISCIPLE_KARROT))
+            {
+                if (ct != 1)
+                {
+                    char name[MAX_NLEN];
+                    strcpy(name, r_name + r_ptr->name);
+                    plural_aux(name);
+                    if (one_in_(2)) msg_format("The voice of Karrot booms out: <color:v>Behold, this level is the vile nest of %d %s! Destroy them all, my %s, and I shall be most pleased with thee.</color>", ct, name, p_ptr->psex == SEX_FEMALE ? "daughter" : "son");
+                    else msg_format("The voice of Karrot booms out: <color:v>Behold, this level is the vile nest of %d %s! Prove thyself, %s, and bring them down.</color>", ct, name, strlen(player_name) > 2 ? player_name : "my servant");
+                }
+                else
+                {
+                    msg_format("The voice of Karrot booms out: <color:v>Behold, this level is the foul home of %s! The Destiny that guideth us both hath brought thee here, my %s, that thou mightest slay this enemy and cleanse this place.</color>", r_name + r_ptr->name, p_ptr->psex == SEX_FEMALE ? "daughter" : "son");
+                }
+            }
+            else /* Assume Troika disciple... */
+            {
+                if (ct == 1)
+                {
+                    msg_format("The voice of Sohoglyth booms out: <color:v>Slay now our vile enemy, %s, who dwelleth on this level!</color>", r_name + r_ptr->name);
+                }
+                else
+                {
+                    char name[MAX_NLEN];
+                    strcpy(name, r_name + r_ptr->name);
+                    plural_aux(name);
+                    if (one_in_(19)) msg_format("The voice of Sohoglyth booms out: <color:v>Yo, dawg, there's like %d %s on this level, can has them killed plz?</color>", ct, name);
+                    else msg_format("The voice of Sohoglyth booms out: <color:v>Behold, this level is home to %d %s: kill them, and I shall reward thee well.</color>", ct, name);
+                }
+            }
+        }
+        else if (ct == 1)
             cmsg_format(TERM_VIOLET, "Beware, this level is protected by %s!", r_name + r_ptr->name);
         else
         {
@@ -494,7 +568,6 @@ bool quest_post_generate(quest_ptr q)
  * Quests (cf q_info.txt)
  ***********************************************************************/
 static int_map_ptr _quests = NULL;
-static int         _current = 0;
 
 static errr _parse_q_info(char *line, int options)
 {
@@ -516,6 +589,7 @@ static errr _parse_q_info(char *line, int options)
         quest->id = atoi(zz[0]);
         quest->level = atoi(zz[1]);
         quest->danger_level = quest->level;
+        quest->substitute = 0;
         int_map_add(_quests, quest->id, quest);
     }
     /* T:TOWN | GENERATE */
@@ -541,8 +615,14 @@ static errr _parse_q_info(char *line, int options)
                 quest->flags |= QF_ANYWHERE;
             else if (streq(flag, "NO_MSG"))
                 quest->flags |= QF_NO_MSG;
+            else if (streq(flag, "INVIS"))
+                quest->flags |= QF_INVIS;
+            else if (streq(flag, "PURPLE"))
+                quest->flags |= QF_PURPLE;
             else if (1 == sscanf(flag, "DANGER_LEVEL_%d", &fake_lev))
                 quest->danger_level = fake_lev;
+            else if (1 == sscanf(flag, "SUBSTITUTE_%d", &fake_lev))
+                quest->substitute = fake_lev;
             else
             {
                 msg_format("Error: Invalid quest flag %s.", flag);
@@ -644,10 +724,47 @@ void quests_cleanup(void)
     _current = 0;
 }
 
+static int _substitute_hack = 0;
+
+static errr _parse_substitute(char *line, int options)
+{
+    if (line[0] == 'K' && line[1] == ':')
+    {
+        if (1 == sscanf(line, "K:%d", &_substitute_hack)) return 0;
+        /* let's return 0 anyway and not crash needlessly */
+    }
+    return 0;
+}
+
+quest_ptr _quest_map_find(int which)
+{
+    quest_ptr q = int_map_find(_quests, which);
+    static bool _lukko = FALSE;
+    if (_lukko) return q;
+    if ((!q) || (!q->file) || (!q->substitute)) return q;
+    if (!p_ptr->quest_seed) return q; /* This also ensures we don't return an inappropriate result if quest_map_find is called before p_ptr->quest_seed is loaded (as actually happens during loading of saved games) */
+//    msg_format("Quest seed: %d Substitute: %d", p_ptr->quest_seed, q->substitute);
+    if (q->substitute > 0)
+    {
+        _substitute_hack = 0;
+        _lukko = TRUE;
+        if ((parse_edit_file(q->file, _parse_substitute, 0) != ERROR_SUCCESS) || (!_substitute_hack))
+        {
+            q->substitute = 0;
+            _lukko = FALSE;
+            return q;
+        }
+        q->substitute = 0 - _substitute_hack;
+        _lukko = FALSE;
+    }
+    if (q->substitute < 0) return int_map_find(_quests, 0 - q->substitute);
+    return q;
+}
+
 quest_ptr quests_get_current(void)
 {
     if (!_current) return NULL;
-    return int_map_find(_quests, _current);
+    return _quest_map_find(_current);
 }
 
 int quest_id_current(void)
@@ -657,7 +774,7 @@ int quest_id_current(void)
 
 quest_ptr quests_get(int id)
 {
-    return int_map_find(_quests, id);
+    return _quest_map_find(id);
 }
 
 cptr quests_get_name(int id)
@@ -707,7 +824,7 @@ static vec_ptr _quests_get(quest_p p)
 }
 
 
-static bool _is_active(quest_ptr q) { return q->status == QS_TAKEN || q->status == QS_IN_PROGRESS || q->status == QS_COMPLETED; }
+static bool _is_active(quest_ptr q) { return ((q->status == QS_TAKEN || q->status == QS_IN_PROGRESS || q->status == QS_COMPLETED) && (!(q->flags & QF_INVIS))); }
 static bool _is_finished(quest_ptr q) { return q->status == QS_FINISHED; }
 static bool _is_failed(quest_ptr q) { return q->status == QS_FAILED || q->status == QS_FAILED_DONE; }
 static bool _is_hidden(quest_ptr q) { return (q->flags & QF_RANDOM) && q->status == QS_UNTAKEN; }
@@ -802,6 +919,7 @@ static void _get_questor(quest_ptr q)
         if (r_ptr->flags7 & RF7_FRIENDLY) continue;
         if (r_ptr->flags7 & RF7_AQUATIC) continue;
         if (r_ptr->flags8 & RF8_WILD_ONLY) continue;
+        if (r_ptr->flags7 & (RF7_UNIQUE2 | RF7_NAZGUL)) continue;
         if (r_ptr->level > max_lev) continue;
         if (r_ptr->level > min_lev || attempt > 5000)
         {
@@ -813,6 +931,104 @@ static void _get_questor(quest_ptr q)
             }
             else
                 q->goal_count = rand_range(10, 20);
+            q->goal_current = 0;
+            break;
+        }
+    }
+}
+
+void get_purple_questor(quest_ptr q)
+{
+    int           r_idx = 0;
+    monster_race *r_ptr;
+    int           attempt;
+    bool          force_unique = FALSE;
+    bool          prevent_unique = FALSE;
+
+    if (q->dungeon == DUNGEON_ARENA) force_unique = TRUE;
+    else if (magik(MIN(90, q->level * 3 / 5 + 24)))
+    {
+        get_mon_num_prep(_r_can_quest, _r_is_unique);
+        force_unique = TRUE;
+    }
+    else
+    {
+        get_mon_num_prep(_r_can_quest, _r_is_nonunique);
+        prevent_unique = TRUE;
+    }
+
+    for(attempt = 0;; attempt++)
+    {
+        int min_lev = q->level + 1;
+        int max_lev = q->level + ((disciple_is_(DISCIPLE_TROIKA)) ? 9 : MIN(9, MAX(6, q->level / 3)));
+        int mon_lev;
+        if (q->level < 10)
+            max_lev -= 2;
+        else if (q->level < 20)
+            max_lev -= 1;
+        else if (q->level > 80)
+            max_lev += 2;
+        else if (q->level > 70)
+            max_lev += 1;
+        mon_lev = (min_lev + max_lev + 1) / 2;
+        mon_lev += randint0(max_lev - mon_lev + 1);
+        if ((mon_lev < 37) && (prevent_unique)) mon_lev += MIN(3, (44 - mon_lev) / 8);
+        if ((disciple_is_(DISCIPLE_KARROT)) && (mon_lev > 34) && (mon_lev > q->level + 4))
+        {
+            if (prevent_unique) mon_lev -= randint1(mon_lev - (q->level + 4));
+            else mon_lev -= 1;
+            max_lev -= 1;
+            min_lev -= 1;
+            if (max_lev > mon_lev + 4) max_lev -= randint1(max_lev - (mon_lev + 4));
+        }
+
+        unique_count = 0; /* Hack: get_mon_num assume level generation and restricts uniques per level */
+        r_idx = get_mon_num(mon_lev);
+        r_ptr = &r_info[r_idx];
+
+        /* Try to enforce preferences, but it's virtually impossible to prevent
+           high level quests for uniques */
+        if (attempt < 4000)
+        {
+            if (prevent_unique && (r_ptr->flags1 & RF1_UNIQUE)) continue;
+            if (force_unique && !(r_ptr->flags1 & RF1_UNIQUE)) continue;
+        }
+
+        if (r_ptr->flagsx & RFX_QUESTOR) continue;
+        if (r_ptr->flags1 & RF1_NO_QUEST) continue;
+        if (r_ptr->rarity > 100) continue;
+        if (r_ptr->flags7 & RF7_FRIENDLY) continue;
+        if (r_ptr->flags7 & RF7_AQUATIC) continue;
+        if (r_ptr->flags8 & RF8_WILD_ONLY) continue;
+        if (r_ptr->flags7 & (RF7_UNIQUE2 | RF7_NAZGUL)) continue;
+        if (r_ptr->flagsx & RFX_SUPPRESS) continue; /* paranoia */
+        if ((r_ptr->flags1 & RF1_ESCORT) && (!force_unique)) continue;
+        if (r_ptr->level > max_lev) continue;
+        if ((q->level <= 15) && (r_ptr->flags2 & RF2_INVISIBLE)) continue;
+        if (r_ptr->level > min_lev || attempt > 5000)
+        {
+            q->goal_idx = r_idx;
+            if (r_ptr->flags1 & RF1_UNIQUE)
+            {
+                r_ptr->flagsx |= RFX_QUESTOR;
+                q->goal_count = 1;
+            }
+            else
+            {
+                q->goal_count = rand_range(4, 8) + MAX(0, MIN(2, (54 - q->level) / 10));
+                if ((q->level > 70) && (q->goal_count > 6)) q->goal_count--;
+                if ((q->level > 85) && (q->goal_count > 6)) q->goal_count -= randint1(3);
+                if ((disciple_is_(DISCIPLE_KARROT)) && (r_ptr->level > 37) && (q->goal_count > 5)) q->goal_count--;
+                if (r_ptr->flags1 & RF1_FRIENDS)
+                {
+                    if (r_ptr->pack_dice)
+                    {
+                        q->goal_count *= isompi(3, damroll(r_ptr->pack_dice, r_ptr->pack_sides));
+                        q->goal_count /= 3;
+                    }
+                    else q->goal_count *= 2;
+                }
+            }
             q->goal_current = 0;
             break;
         }
@@ -862,6 +1078,12 @@ void quests_on_birth(void)
 
     quests_get(QUEST_SERPENT)->status = QS_TAKEN;
     r_info[MON_SERPENT].flagsx |= RFX_QUESTOR;
+
+    if (!no_wilderness)
+    {
+        quests_get(QUEST_METATRON)->status = QS_TAKEN;
+        r_info[MON_METATRON].flagsx |= RFX_QUESTOR;
+    }
 }
 
 /************************************************************************
@@ -930,6 +1152,12 @@ void quests_on_generate(int dungeon, int level)
 	if ((_current > 0) && (!q || !q->id)) { int ongelma = _current;
 		_current = 0; q = quests_get(ongelma); q->status = QS_TAKEN;
 	}
+
+    if ((!_current) && (!q) && (p_ptr->pclass == CLASS_DISCIPLE))
+    {
+        q = disciple_get_quest(dungeon, level);
+        if ((q) && (q->id)) _current = q->id;
+    }
 
     /* N.B. level_gen() might fail for some reason, resulting in multiple
      * consecutive calls here. We can either add another hook to notice the
@@ -1098,10 +1326,10 @@ void quests_on_kill_mon(mon_ptr mon)
     /* handle monsters summoned *after* the quest was completed ... */
     if (q->status == QS_COMPLETED) return;
 
-    if (q->goal == QG_KILL_MON && mon->r_idx == q->goal_idx)
+    if ((q->goal == QG_KILL_MON) && (mon->r_idx == q->goal_idx))
     {
         if ((q->goal_count > 1) && (mon->mflag2 & MFLAG2_COUNTED_KILLED)) return;
-        q->goal_current++;
+        if (!(mon->mflag & MFLAG_BORN2)) q->goal_current++;
         if (q->goal_current >= q->goal_count)
             quest_complete(q, point(mon->fx, mon->fy));
     }
@@ -1341,13 +1569,14 @@ void quests_on_leave(void)
 
 bool quests_allow_downstairs(void)
 {
-    return !_current;
+    if (_current) return ((quests_get_current()->flags & QF_PURPLE) ? TRUE : FALSE);
+    return TRUE;
 }
 
 bool quests_allow_downshaft(void)
 {
     quest_ptr q;
-    if (_current) return FALSE;
+    if (!quests_allow_downstairs()) return FALSE;
     q = _find_quest(dungeon_type, dun_level + 1);
     if (q) return FALSE;
     return TRUE;
@@ -1407,10 +1636,10 @@ void quests_display(void)
                         doc_printf(doc, "    <indent>Kill %d %s (%d killed so far)</indent>\n",
                             q->goal_count, name, q->goal_current);
                     }
-                    else if (q->flags & QF_RANDOM)
+                    else if (q->flags & (QF_RANDOM | QF_PURPLE))
                         doc_printf(doc, "    Kill %s\n", r_name + r_ptr->name);
                 }
-                if (!(q->flags & QF_RANDOM))
+                if (!(q->flags & (QF_RANDOM | QF_PURPLE)))
                 {
                     string_ptr s = quest_get_description(q);
                     doc_printf(doc, "    <indent>%s</indent>", string_buffer(s));
@@ -1578,7 +1807,7 @@ void quests_load(savefile_ptr file)
         else q->completed_turn = savefile_read_u32b(file);
         q->goal_current = savefile_read_s16b(file);
         q->seed  = savefile_read_u32b(file);
-        if (q->flags & QF_RANDOM)
+        if ((q->flags & QF_RANDOM) || (q->flags & QF_PURPLE))
         {
             q->level = savefile_read_s16b(file);
             q->danger_level = q->level;
@@ -1590,6 +1819,16 @@ void quests_load(savefile_ptr file)
             a_info[q->goal_idx].gen_flags |= OFG_QUESTITEM;
     }
     _current = savefile_read_s16b(file);
+    if ((savefile_is_older_than(file, 7, 1, 1, 1)) && (!no_wilderness) && (r_info[MON_METATRON].max_num == 1))
+    {
+        quest_ptr q = quests_get(QUEST_METATRON);
+        assert(q);
+        if (q->status == QS_UNTAKEN)
+        {
+            q->status = QS_TAKEN;
+            r_info[MON_METATRON].flagsx |= RFX_QUESTOR;
+        }
+    }
 }
 
 void quests_save(savefile_ptr file)
@@ -1606,7 +1845,7 @@ void quests_save(savefile_ptr file)
         savefile_write_u32b(file, q->completed_turn);
         savefile_write_s16b(file, q->goal_current);
         savefile_write_u32b(file, q->seed);
-        if (q->flags & QF_RANDOM)
+        if ((q->flags & QF_RANDOM) || (q->flags & QF_PURPLE))
         {
             savefile_write_s16b(file, q->level); /* in case I randomize later ... */
             savefile_write_s32b(file, q->goal_idx);
@@ -1998,6 +2237,7 @@ static void _status_cmd(_ui_context_ptr context, int status)
 }
 static void _reward_cmd(_ui_context_ptr context)
 {
+    no_karrot_hack = TRUE;
     for (;;)
     {
         char cmd;
@@ -2055,6 +2295,7 @@ static void _reward_cmd(_ui_context_ptr context)
             }
         }
     }
+    no_karrot_hack = FALSE;
 }
 static errr _parse_debug(char *line, int options)
 {

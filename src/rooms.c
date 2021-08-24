@@ -1629,6 +1629,9 @@ static room_grid_ptr _find_room_grid(room_ptr room, char letter)
          * Currently, @ is not defined in room_letters, so this check
          * is simply paranoia. */
     }
+    else if ((room->type == ROOM_VAULT) && (wacky_rooms) && ((letter == '8') || (letter == '9')))
+    {   /* Use legacy code */
+    }
     else if (!grid1)
         grid1 = int_map_find(room_letters, letter);
     return grid1;
@@ -1671,12 +1674,15 @@ static bool _obj_kind_hook(int k_idx)
 
 static void _apply_room_grid_feat(point_t p, room_grid_ptr grid, u16b room_flags)
 {
+    bool make_floor = FALSE;
     cave_type *c_ptr = &cave[p.y][p.x];
+
+    if ((grid->feat_pct) && (randint0(100) >= grid->feat_pct)) make_floor = TRUE;
 
     /* Feature */
     if (grid->cave_feat)
     {
-        c_ptr->feat = conv_dungeon_feat(grid->cave_feat);
+        c_ptr->feat = conv_dungeon_feat(make_floor ? feat_floor : grid->cave_feat);
         c_ptr->info = (c_ptr->info & (CAVE_MASK | CAVE_TEMP)) | grid->cave_info;
 
         if (grid->flags & ROOM_GRID_SPECIAL)
@@ -1924,6 +1930,7 @@ obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
     else if (grid->object)
     {
         int k_idx;
+        bool is_gold = FALSE;
 
         if (grid->flags & ROOM_GRID_OBJ_TYPE)
         {
@@ -1947,7 +1954,19 @@ obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
         else
             k_idx = grid->object;
 
-        if (k_idx)
+        if ((k_idx) && (!(grid->flags & ROOM_GRID_OBJ_TYPE)))
+        {
+            object_kind *k_ptr = &k_info[k_idx];
+            if ((k_ptr) && (k_ptr->tval == TV_GOLD))
+            {
+                is_gold = TRUE;
+                coin_type = k_ptr->sval;
+                make_gold(&forge, TRUE);
+                coin_type = 0;
+            }
+        }
+
+        if ((k_idx) && (!is_gold))
         {
             int mode = 0;
 
@@ -1999,11 +2018,18 @@ obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
                 apply_magic(&forge, object_level, mode);
                 if (grid->extra2 > 0)
                 {
-                    int luku = MIN(grid->extra2, 99); /* sanity check */
-                    object_kind *k_ptr = &k_info[forge.k_idx];
-                    forge.number = luku;
-                    k_ptr->counts.generated += luku - 1;
-                    if (forge.name2) e_info[forge.name2].counts.generated += luku - 1;
+                    if ((forge.tval == TV_STATUE) || (forge.tval == TV_FIGURINE))
+                    {
+                        forge.pval = grid->extra2;
+                    }
+                    else
+                    {
+                        int luku = MIN(grid->extra2, 99); /* sanity check */
+                        object_kind *k_ptr = &k_info[forge.k_idx];
+                        forge.number = luku;
+                        k_ptr->counts.generated += luku - 1;
+                        if (forge.name2) e_info[forge.name2].counts.generated += luku - 1;
+                    }
                 }
                 else
                 {
@@ -2611,6 +2637,28 @@ void build_room_template_aux(room_ptr room, transform_ptr xform, wild_scroll_ptr
                         monster_level = base_level;
                     }
                     break;
+                case '8':
+                    if ((room->type == ROOM_VAULT) && (wacky_rooms))
+                    {
+                        monster_level = base_level + 40;
+                        place_monster(p.y, p.x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
+                        monster_level = base_level;
+                        object_level = base_level + 40;
+                        place_object(p.y, p.x, AM_GOOD | AM_GREAT, ORIGIN_VAULT);
+                        object_level = base_level;
+                        break;
+                    }
+                case '9':
+                    if ((room->type == ROOM_VAULT) && (wacky_rooms))
+                    {
+                        monster_level = base_level + 9;
+                        place_monster(p.y, p.x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
+                        monster_level = base_level;
+                        object_level = base_level + 9;
+                        place_object(p.y, p.x, AM_GOOD, ORIGIN_VAULT);
+                        object_level = base_level;
+                        break;
+                    }
                 case 'A':
                     /* Reward for Pattern walk */
                     object_level = base_level + 12;
@@ -2624,7 +2672,7 @@ void build_room_template_aux(room_ptr room, transform_ptr xform, wild_scroll_ptr
 
 static bool _room_is_allowed(room_ptr room, int type, int subtype)
 {
-    if (base_level < room->level) return FALSE;  /* Note: dun_level is 0 for wilderness encounters! */
+    if ((!wacky_rooms) && (base_level < room->level)) return FALSE;  /* Note: dun_level is 0 for wilderness encounters! */
     if (room->max_level && room->max_level < base_level) return FALSE;
     if (room->type != type) return FALSE;
     if (subtype && room->subtype != subtype) return FALSE;
@@ -4310,8 +4358,20 @@ bool generate_rooms(void)
      * XXX -- Various dungeon types and options.
      */
 
+    if ((wacky_rooms) && (!(d_info[dungeon_type].flags1 & (DF1_CHAMELEON))))
+    {
+        for (i = 0; i < ROOM_T_MAX; i++)
+        {
+            if (i == ROOM_T_GREATER_VAULT)
+                prob_list[i] = 4;
+            else if ((i == ROOM_T_LESSER_VAULT) && ((cur_hgt * cur_wid) <= 1452))
+                prob_list[i] = 1;
+            else prob_list[i] = 0;
+        }
+    }
+
     /* Forbidden vaults */
-    if (d_info[dungeon_type].flags1 & DF1_NO_VAULT)
+    else if (d_info[dungeon_type].flags1 & DF1_NO_VAULT)
     {
         prob_list[ROOM_T_LESSER_VAULT] = 0;
         prob_list[ROOM_T_GREATER_VAULT] = 0;

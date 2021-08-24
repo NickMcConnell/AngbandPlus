@@ -210,6 +210,7 @@ void do_cmd_go_down(void)
                 /* Create a way back ... maybe */
                 if ( p_ptr->enter_dungeon
                   && down_num >= 20
+                  && !wacky_rooms
                   && !(d_info[dungeon_type].flags1 & DF1_RANDOM)
                   && !(d_info[dungeon_type].initial_guardian && !(dungeon_flags[dungeon_type] & DUNGEON_NO_GUARDIAN))
                   && one_in_(14) )
@@ -255,11 +256,13 @@ void do_cmd_search(void)
     search();
 }
 
+#define _CHEST_CLOSED 0x01
+#define _CHEST_TRAPPED 0x02
 
 /*
  * Determine if a grid contains a chest
  */
-static s16b chest_check(int y, int x)
+static s16b chest_check(int y, int x, int mode)
 {
     cave_type *c_ptr = &cave[y][x];
 
@@ -281,7 +284,13 @@ static s16b chest_check(int y, int x)
         /* if (!(o_ptr->marked & OM_FOUND)) continue; */
 
         /* Check for chest */
-        if (o_ptr->tval == TV_CHEST) return (this_o_idx);
+        if (o_ptr->tval == TV_CHEST)
+        {
+            if ((mode & _CHEST_TRAPPED) && (!object_is_known(o_ptr) || o_ptr->pval < 0 ||
+                !chest_traps[o_ptr->pval])) continue;
+            if ((mode & _CHEST_CLOSED) && (!o_ptr->pval)) continue;
+            return (this_o_idx);
+        }
     }
 
     /* No chest */
@@ -737,7 +746,7 @@ static int count_dt(int *y, int *x, bool (*test)(int feat), bool under)
  * Return the number of chests around (or under) the character.
  * If requested, count only trapped chests.
  */
-static int count_chests(int *y, int *x, bool trapped)
+static int count_chests(int *y, int *x, int mode)
 {
     int d, count, o_idx;
 
@@ -754,18 +763,13 @@ static int count_chests(int *y, int *x, bool trapped)
         int xx = px + ddx_ddd[d];
 
         /* No (visible) chest is there */
-        if ((o_idx = chest_check(yy, xx)) == 0) continue;
+        if ((o_idx = chest_check(yy, xx, mode)) == 0) continue;
 
         /* Grab the object */
         o_ptr = &o_list[o_idx];
 
         /* Already open */
         if (o_ptr->pval == 0) continue;
-
-        /* No (known) traps here
-           CTK: pval is negative if chest is disarmed. Don't read out of bounds!! */
-        if (trapped && (!object_is_known(o_ptr) || o_ptr->pval < 0 ||
-            !chest_traps[o_ptr->pval])) continue;
 
         /* OK */
         ++count;
@@ -831,7 +835,7 @@ static bool do_cmd_open_aux(int y, int x)
     {
         /* Stuck */
         msg_format("The %s appears to be stuck.", f_name + f_info[get_feat_mimic(c_ptr)].name);
-
+        if (travel.run) flush();
     }
 
     /* Locked door */
@@ -873,7 +877,7 @@ static bool do_cmd_open_aux(int y, int x)
         else
         {
             /* Failure */
-            if (flush_failure) flush();
+            if ((flush_failure) && (!travel.run)) flush();
 
             /* Message */
             msg_print("You failed to pick the lock.");
@@ -931,7 +935,7 @@ void do_cmd_open(void)
         num_doors = count_dt(&y, &x, is_closed_door, FALSE);
 
         /* Count chests (locked) */
-        num_chests = count_chests(&y, &x, FALSE);
+        num_chests = count_chests(&y, &x, _CHEST_CLOSED);
 
         /* See if only one target */
         if (num_doors || num_chests)
@@ -974,7 +978,7 @@ void do_cmd_open(void)
         feat = get_feat_mimic(c_ptr);
 
         /* Check for chest */
-        o_idx = chest_check(y, x);
+        o_idx = chest_check(y, x, _CHEST_CLOSED);
 
         /* Nothing useful */
         if (!have_flag(f_info[feat].flags, FF_OPEN) && !o_idx)
@@ -1017,7 +1021,7 @@ void do_cmd_open(void)
     }
 
     /* Cancel repeat unless we may continue */
-    if (!more) disturb(0, 0);
+    if ((!more) && (!travel.run)) disturb(0, 0);
 }
 
 
@@ -1304,6 +1308,9 @@ static bool do_cmd_tunnel_aux(int y, int x)
         /* Keep trying */
         else
         {
+            /* Don't continue if it's completely futile */
+            if (p_ptr->skill_dig > power) more = TRUE;
+
             if (tree)
             {
                 /* We may continue chopping */
@@ -1313,11 +1320,9 @@ static bool do_cmd_tunnel_aux(int y, int x)
             }
             else
             {
-                /* We may continue tunelling */
-                msg_format("You tunnel into the %s.", name);
+                /* We may continue tunnelling */
+                msg_format("You %stunnel into the %s.", more ? "" : "futilely attempt to ", name);
             }
-
-            more = TRUE;
         }
     }
 
@@ -1326,6 +1331,8 @@ static bool do_cmd_tunnel_aux(int y, int x)
         /* Occasional Search XXX XXX */
         if (randint0(100) < 25) search();
     }
+
+    p_inc_fatigue(MUT_EASY_TIRING2, 3);
 
     /* Result */
     return more;
@@ -1498,7 +1505,7 @@ bool easy_open_door(int y, int x, int dir)
         else
         {
             /* Failure */
-            if (flush_failure) flush();
+            if ((flush_failure) && (!travel.run)) flush();
 
             /* Message */
             msg_print("You failed to pick the lock.");
@@ -1755,7 +1762,7 @@ void do_cmd_disarm(void)
         num_traps = count_dt(&y, &x, is_trap, TRUE);
 
         /* Count chests (trapped) */
-        num_chests = count_chests(&y, &x, TRUE);
+        num_chests = count_chests(&y, &x, _CHEST_TRAPPED);
 
         /* See if only one target */
         if (num_traps || num_chests)
@@ -1798,7 +1805,7 @@ void do_cmd_disarm(void)
         feat = get_feat_mimic(c_ptr);
 
         /* Check for chests */
-        o_idx = chest_check(y, x);
+        o_idx = chest_check(y, x, _CHEST_TRAPPED);
 
         /* Disarm a trap */
         if (!is_trap(feat) && !o_idx)
@@ -2304,8 +2311,10 @@ void do_cmd_walk(bool pickup)
         if (!is_daytime())
             tmp /= 2;
 
-        if ( lvl + 5 > p_ptr->lev / 2
-          && randint0(tmp) < 21 - p_ptr->skills.stl )
+        if (( lvl + 5 > p_ptr->lev / 2
+          && randint0(tmp) < 21 - p_ptr->skills.stl ) ||
+            ((thrall_mode) && (wilderness[py][px].terrain == TERRAIN_DEEP_WATER)
+             && (one_in_(MAX(3, p_ptr->pspeed - 110)))))
         {
             /* Inform the player of his horrible fate :=) */
             msg_print("You are ambushed!");
@@ -2318,7 +2327,7 @@ void do_cmd_walk(bool pickup)
             /* Give first move to monsters */
             energy_use = 100;
 
-            /* Hack -- set the encouter flag for the wilderness generation */
+            /* Hack -- set the encounter flag for the wilderness generation */
             generate_encounter = TRUE;
         }
     }
@@ -2336,7 +2345,7 @@ void do_cmd_run(void)
 {
     int dir;
 
-    if ((!online_macros) && ((++run_count) == 4))
+    if ((!online_macros) && ((++run_count) == 4) && (!rogue_like_commands))
     {
         msg_print("The game has detected multiple calls to the 'Run' command");
         msg_print("without any calls to the 'Walk' command, a possible sign");
@@ -2434,6 +2443,10 @@ static bool _travel_next_obj(int mode)
                     return FALSE;
                 continue; /* paranoia ... we should have destroyed this object */
             }
+
+            /* Avoid loop when we try to destroy indestructible items */
+            if ((!(autopick_list[j].action & DO_AUTOPICK)) && (object_is_artifact(o_ptr)) && ((obj_is_identified(o_ptr)) || (o_ptr->ident & IDENT_SENSE)))
+                continue;
         }
 
         dist = distance(py, px, o_ptr->loc.y, o_ptr->loc.x);
@@ -2458,8 +2471,7 @@ void do_cmd_get(void)
 {
     if (!cave[py][px].o_idx)
         msg_print("You see no objects here. Try <color:keypress>^G</color> to auto-get nearby objects.");
-    if (pack_get_floor())
-        energy_use = 100;
+    (void)pack_get_floor();
 }
 void do_cmd_autoget(void)
 {
@@ -2468,10 +2480,7 @@ void do_cmd_autoget(void)
      * enter a shop) */
     if (cave[py][px].o_idx || p_ptr->wizard)
     {
-        if (pack_get_floor())
-            energy_use = 100;
-        else /* Pack is full or the user canceled the easy_floor menu */
-            return;
+        if (!pack_get_floor()) return;
     }
     /* Now, auto pickup nearby objects by iterating
      * the travel command */
@@ -3862,8 +3871,11 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
     /* Sniper - Repeat shooting when double shots */
     }
 
-    /* Sniper - Loose his/her concentration after any shot */
+    /* Sniper - Lose concentration after any shot */
     if (p_ptr->concent) reset_concentration(FALSE);
+
+    /* Check for easy tiring */
+    p_inc_fatigue(MUT_EASY_TIRING2, 7500 / NUM_SHOTS);
 }
 
 
@@ -3960,6 +3972,22 @@ void forget_travel_flow(void)
     }
 }
 
+static byte _travel_flow_bonus(feature_type *f_ptr)
+{
+    if ((have_flag(f_ptr->flags, FF_LAVA)) && (!elemental_is_(ELEMENTAL_FIRE)) && (res_pct(RES_FIRE) < 100))
+    {
+        int bonus = (have_flag(f_ptr->flags, FF_DEEP)) ? 16 : 1;
+        if (p_ptr->levitation) bonus /= 2;
+        if (res_pct(RES_FIRE) <= 50) bonus *= 4;
+        return bonus;
+    }
+    else if ((!p_ptr->levitation) && (!p_ptr->can_swim) && (have_flag(f_ptr->flags, FF_WATER)) && (have_flag(f_ptr->flags, FF_DEEP)) && (!elemental_is_(ELEMENTAL_WATER)) && (py_total_weight() > weight_limit()))
+    {
+        return 4;
+    }
+    else return 0;
+}
+
 static bool travel_flow_aux(int y, int x, int n, bool wall)
 {
     cave_type *c_ptr = &cave[y][x];
@@ -3977,13 +4005,15 @@ static bool travel_flow_aux(int y, int x, int n, bool wall)
      * route around the trap anyway ... */
     if (is_known_trap(c_ptr)) return wall;
 
+    n += _travel_flow_bonus(f_ptr);
+
     /* Ignore "pre-stamped" entries */
-    if (travel.cost[y][x] != TRAVEL_UNABLE) return wall;
+    if ((travel.cost[y][x] > TRAVEL_UNABLE) || ((travel.cost[y][x] < TRAVEL_UNABLE) && (travel.cost[y][x] <= n))) return wall;
 
     /* Ignore "walls" and "rubble" (include "secret doors") */
     if (have_flag(f_ptr->flags, FF_WALL) ||
         have_flag(f_ptr->flags, FF_CAN_DIG) ||
-        (have_flag(f_ptr->flags, FF_DOOR) && cave[y][x].mimic) ||
+        is_hidden_door(c_ptr) ||
         (!have_flag(f_ptr->flags, FF_MOVE) && have_flag(f_ptr->flags, FF_CAN_FLY) && !p_ptr->levitation))
     {
         if (!wall) return wall;
@@ -4174,7 +4204,7 @@ void travel_cancel_fully(void)
 void travel_end(void)
 {
     travel.run = 0;
-    if (travel.mode != TRAVEL_MODE_NORMAL && _travel_next_obj(travel.mode))
+    if ((travel.mode != TRAVEL_MODE_NORMAL) && (!p_ptr->confused) && (!p_ptr->move_random) && (_travel_next_obj(travel.mode)))
     {
         /* paranoia ... but don't get stuck */
         if (travel.x == px && travel.y == py)
@@ -4194,4 +4224,70 @@ void do_cmd_travel(void)
     travel_begin(TRAVEL_MODE_NORMAL, x, y);
 }
 
+void do_cmd_get_nearest(void)
+{
+    int old_y = travel.y;
+    int old_x = travel.x;
+    int by = 0, bx = 0;
+    int i, _itms = 0;
+    int best = TRAVEL_UNABLE;
+    travel_cancel_fully();
+    for (i = 0; i < max_o_idx; i++)
+    {
+        object_type       *o_ptr = &o_list[i];
+        int                auto_pick_idx;
+        int                tulos;
+
+        if (!o_ptr->k_idx) continue;
+        if (!(o_ptr->marked & OM_FOUND)) continue;
+        if (o_ptr->tval == TV_GOLD) continue;
+        if (obj_is_known(o_ptr)) continue;
+        if ((o_ptr->ident & IDENT_SENSE) &&
+            (!obj_is_device(o_ptr)) &&
+            (o_ptr->feeling != FEEL_EXCELLENT) &&
+            (o_ptr->feeling != FEEL_SPECIAL) &&
+            (o_ptr->feeling != FEEL_AWFUL) &&
+            (o_ptr->feeling != FEEL_TERRIBLE) &&
+            (o_ptr->feeling != FEEL_ENCHANTED)) continue;
+        if (!in_bounds(o_ptr->loc.y, o_ptr->loc.x)) continue; /* paranoia */
+        _itms++;
+        if ((by) && (MAX(ABS(py - o_ptr->loc.y), ABS(px - o_ptr->loc.x)) >= best)) continue;
+        if ((o_ptr->loc.y == py) && (o_ptr->loc.x == px)) continue;
+        if ((o_ptr->loc.y == by) && (o_ptr->loc.x == bx)) continue;
+
+        if ((max_autopick > 1) && (!no_mogaminator))
+        {
+            auto_pick_idx = is_autopick(o_ptr);
+            if ((auto_pick_idx < 0) ||
+                (!(autopick_list[auto_pick_idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK))))
+            {
+                _itms--;
+                continue;
+            }
+        }
+        forget_travel_flow();
+        travel_flow(o_ptr->loc.y, o_ptr->loc.x);
+        tulos = travel.cost[py][px];
+//        msg_format("Tulos: %d (%d,%d)", tulos, o_ptr->loc.y, o_ptr->loc.x);
+        if (tulos < best)
+        {
+            best = tulos;
+            by = o_ptr->loc.y;
+            bx = o_ptr->loc.x;
+        }
+    }
+    forget_travel_flow();
+    if (best < TRAVEL_UNABLE)
+    {
+        travel_begin(TRAVEL_MODE_NORMAL, bx, by);
+        return;
+    }
+    else
+    {
+        travel.y = old_y;
+        travel.x = old_x;
+        if (!_itms) msg_print("You are not aware of any interesting unidentified items.");
+        else if (best >= TRAVEL_UNABLE) msg_print("You cannot find a route to any interesting object.");
+    }
+}
 

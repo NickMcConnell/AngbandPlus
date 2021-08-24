@@ -84,6 +84,7 @@ bool teleport_away(int m_idx, int dis, u32b mode)
         (4+randint1(5) < ((p_ptr->chp * 10) / p_ptr->mhp)))
     {
         virtue_add(VIRTUE_VALOUR, -1);
+        if (disciple_is_(DISCIPLE_TROIKA)) troika_effect(TROIKA_VILLAINY);
     }
 
     /* Look until done */
@@ -1798,6 +1799,7 @@ static bool _counter_allows_trap(int feature)
 {
     char *s1, *s2, *s3;
     if (p_ptr->pclass == CLASS_ROGUE) return TRUE; /* Rogues are overpowered by design */
+    if (feature == feat_shadow_zap) return TRUE;
     if (feature == feat_glyph)
     {
         s1 = "inscribe";
@@ -1894,7 +1896,7 @@ bool explosive_rune(void)
 static void _identify_obj(obj_ptr obj)
 {
     identify_item(obj);
-    autopick_alter_obj(obj, FALSE);
+    if ((obj) && (obj->k_idx)) autopick_alter_obj(obj, FALSE);
 }
 
 void identify_pack(void)
@@ -2440,6 +2442,7 @@ bool identify_item(object_type *o_ptr)
     {
         obj_identify(o_ptr);
     }
+    if ((!o_ptr) || (!o_ptr->k_idx)) return old_known;
     stats_on_identify(o_ptr);
     o_ptr->marked |= OM_TOUCHED;
     gear_notice_id(o_ptr);
@@ -2483,6 +2486,8 @@ bool ident_spell(object_p p)
 
     old_known = identify_item(prompt.obj);
 
+    if ((!prompt.obj) || (!prompt.obj->k_idx)) return TRUE;
+
     object_desc(o_name, prompt.obj, OD_COLOR_CODED);
 
     msg_format("You identify %s.", o_name);
@@ -2514,13 +2519,18 @@ bool mundane_spell(bool only_equip)
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
 
-    if ((prompt.obj->discount == 99) && (object_is_ego(prompt.obj)))
+    if ((prompt.obj->discount == 99) && (object_is_ego(prompt.obj)) && (!(prompt.obj->curse_flags & OFC_PERMA_CURSE)))
     {
         char o_name[MAX_NLEN];
         object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_NAME_ONLY | OD_SINGULAR));
         
         msg_format("The masterful craftsmanship of the %s resists mundanization!", o_name);
         return FALSE;
+    }
+
+    if (object_is_dragon_armor(prompt.obj))
+    {
+        if (!get_check("All resists on this object will be lost. Proceed anyway? ")) return FALSE;
     }
 
     if (prompt.obj->name1 == ART_HAND_OF_VECNA || prompt.obj->name1 == ART_EYE_OF_VECNA)
@@ -2611,6 +2621,7 @@ bool identify_fully(object_p p)
 
     old_known = identify_item(prompt.obj); /* For the stat tracking and old_known ... */
     obj_identify_fully(prompt.obj);
+    if ((!prompt.obj) || (!prompt.obj->k_idx)) return TRUE;
 
     if ( p_ptr->prace == RACE_MON_POSSESSOR
       && prompt.obj->tval == TV_CORPSE
@@ -2643,7 +2654,7 @@ static bool _obj_recharge_dest(object_type *o_ptr)
     switch (o_ptr->tval)
     {
     case TV_WAND: case TV_ROD: case TV_STAFF:
-        if (device_sp(o_ptr) < device_max_sp(o_ptr))
+        if ((device_sp(o_ptr) < device_max_sp(o_ptr)) && (o_ptr->activation.type != EFFECT_RESTORE_MANA))
             return TRUE;
         break;
     }
@@ -2662,7 +2673,7 @@ static bool _obj_recharge_src(object_type *o_ptr)
     return FALSE;
 }
 
-static void _recharge_aux(object_type *o_ptr, int amt, int power)
+static void _recharge_aux(object_type *o_ptr, int amt, int power, bool from_player)
 {
     int fail_odds = 0;
     int lev = o_ptr->activation.difficulty;
@@ -2682,6 +2693,7 @@ static void _recharge_aux(object_type *o_ptr, int amt, int power)
          * I plan on removing the town recharging service to compensate for this
          * generosity, though. */
          msg_print("Failed!");
+         if ((from_player) && (device_sp(o_ptr) > 0)) device_decrease_sp(o_ptr, device_sp(o_ptr));
          return;
     }
 
@@ -2742,11 +2754,11 @@ bool recharge_from_player(int power)
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
     }
     else if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-        take_hit(DAMAGE_NOESCAPE, amt, "recharging");
+        take_hit(DAMAGE_USELIFE, amt, "recharging");
     else
         sp_player(-amt);
 
-    _recharge_aux(prompt.obj, amt, power);
+    _recharge_aux(prompt.obj, amt, power, TRUE);
     obj_release(prompt.obj, 0);
     return TRUE;
 }
@@ -2809,7 +2821,7 @@ bool recharge_from_device(int power)
         destroy = FALSE;
     }
 
-    _recharge_aux(dest_ptr, amt, power);
+    _recharge_aux(dest_ptr, amt, power, FALSE);
 
     if (destroy)
     {
@@ -4348,6 +4360,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
             case RACE_DUNADAN:
             case RACE_DEMIGOD:
             case RACE_EINHERI:
+            case RACE_BEORNING:
                 summon_kin_type = 'p';
                 break;
             case RACE_TONBERRY:
@@ -4360,6 +4373,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
             case RACE_MIND_FLAYER:
             case RACE_KUTAR:
             case RACE_SHADOW_FAIRY:
+            case RACE_TOMTE:
                 summon_kin_type = 'h';
                 break;
             case RACE_SNOTLING:
