@@ -3247,7 +3247,7 @@ void obj_create_armor(object_type *o_ptr, int level, int power, int mode)
 void obj_create_quiver(object_type *o_ptr, int level, int power, int mode)
 {
     /* Mage quivers are for mages only */
-    if (o_ptr->sval == SV_QUIVER_MAGE && !plr_mage_bonus())
+    if (o_ptr->sval == SV_QUIVER_MAGE && !plr_allow_mage_quiver())
     {
         o_ptr->sval = SV_QUIVER_AMMO;
         o_ptr->k_idx = lookup_kind(TV_QUIVER, SV_QUIVER_AMMO);

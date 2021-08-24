@@ -329,7 +329,8 @@ bool point_is_adjacent(point_t p1, point_t p2)
     int dx = p2.x - p1.x;
     int dy = p2.y - p1.y;
     return (-2 < dx && dx < 2)
-        && (-2 < dy && dy < 2);
+        && (-2 < dy && dy < 2)
+        && (dx || dy);
 }
 point_t size_create(int cx, int cy)
 {

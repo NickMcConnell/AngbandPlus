@@ -1374,31 +1374,6 @@ player_sex sex_info[MAX_SEXES] =
     }
 };
 
-/* Warlock Pacts */
-player_pact pact_info[WARLOCK_MAX] =
-{
-    {
-        "Undead",
-        "LWVzs"
-    },
-    {
-        "Dragon",
-        "Dd"
-    },
-    {
-        "Angel",
-        "A"
-    },
-    {
-        "Demon",
-        "Uu"
-    },
-    {
-        "Aberrations",
-        "hp"
-    },
-};
-
 magic_type technic_info[NUM_TECHNIC][32] =
 {
     {

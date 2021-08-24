@@ -271,7 +271,7 @@ static void _animate(plr_shoot_ptr context, point_t pos)
 static int _breakage_chance(plr_shoot_ptr context)
 {
     int chance = breakage_chance(context->ammo);
-    if (context->info.breakage > 0)
+    if (context->info.breakage >= 0)
         chance = chance * context->info.breakage / 100;
     return chance;
 }

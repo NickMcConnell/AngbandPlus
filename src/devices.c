@@ -1480,24 +1480,7 @@ static cptr _do_scroll(int sval, int mode)
         if (cast)
         {
             char Rumor[1024];
-            errr err = 0;
-
-            switch (randint1(20))
-            {
-            case 1:
-                err = get_rnd_line("chainswd.txt", 0, Rumor);
-                break;
-            case 2:
-                err = get_rnd_line("error.txt", 0, Rumor);
-                break;
-            case 3:
-            case 4:
-            case 5:
-                err = get_rnd_line("death.txt", 0, Rumor);
-                break;
-            default:
-                err = get_rnd_line("rumors.txt", 0, Rumor);
-            }
+            errr err = get_rnd_line("rumors.txt", 0, Rumor);
 
             if (err) strcpy(Rumor, "Some rumors are wrong.");
             msg_format("<color:B>There is message on the scroll. It says:</color> %s", Rumor);

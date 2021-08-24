@@ -60,6 +60,7 @@ static _race_info_t _race_tbl[] = {
     {RACE_WOOD_ELF, "Wood-Elf", wood_elf_get_race, NULL, 0},
     {RACE_DOPPELGANGER, "Doppelganger", doppelganger_get_race, NULL, _RACE_NO_POLY},
     {RACE_DRIDER, "Drider", drider_get_race, NULL, 0},
+    {RACE_TENGU, "Tengu", tengu_get_race, NULL, 0},
 
     {RACE_MON_JELLY, "Jelly", mon_jelly_get_race, NULL, _RACE_IS_MONSTER | _RACE_NO_POLY},
     {RACE_MON_SPIDER, "Spider", NULL, mon_spider_get_race, _RACE_IS_MONSTER | _RACE_NO_POLY},

@@ -587,6 +587,7 @@ static bool _allow(dun_ptr dun, point_t pos, u32b flag)
 }
 static void _set_old_view(dun_ptr dun, point_t pos)
 {
+    if (!rect_contains_point(dun->rect, pos)) return; /* D_SURFACE teleport */
     point_vec_add(temp_pts, pos);
     dun_grid_at(dun, pos)->flags |= CELL_TEMP;
 }
@@ -1501,6 +1502,7 @@ dun_blast_ptr dun_blast_burst(dun_ptr dun, point_t src, int rad, int gf)
 static dun_bmp_ptr _nocto;
 static void _set_old_nocto(dun_ptr dun, point_t pos)
 {
+    if (!rect_contains_point(dun->rect, pos)) return; /* D_SURFACE teleport */
     point_vec_add(temp_pts, pos);
     dun_grid_at(dun, pos)->flags |= CELL_TEMP;
 }

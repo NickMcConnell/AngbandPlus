@@ -245,8 +245,11 @@ Perception is the ability to notice something without actively seeking it out. T
   <indent><color:B>Searching (Searching Ability)</color>
 To search is to actively look for secret doors, floor traps, and traps on chests. Rogues are the best at searching, but magi, rangers, and priests are also good at it. This skill is based entirely upon race and class, and will never improve unless magically enhanced.</indent>
 
-  <indent><color:B>Infra-vision</color>
-Infra-vision is the ability to see heat sources. Since most of the dungeon is cool or cold, infra-vision will not allow the player to see walls and objects. Infra-vision will allow a character to see any warm-blooded creatures up to a certain distance. This ability works equally well with or with out a light source. The majority of monsters are cold-blooded, and will not be detected unless lit up by a light source. Most non-human races have innate infra-vision ability. Humans can gain infra-vision only if it is magically enhanced.</indent>
+  <indent><color:B>Infravision</color>
+Infravision is the ability to see heat sources. Since most of the dungeon is cool or cold, infravision will not allow the player to see walls and objects. Infravision will allow a character to see any warm-blooded creatures up to a certain distance. This ability works equally well with or with out a light source. The majority of monsters are cold-blooded, and will not be detected unless lit up by a light source. Most non-human races have innate infravision ability. Humans can gain infravision only if it is magically enhanced.</indent>
+
+  <indent><color:B>Noctovision</color>
+Noctovision is a rare ability to see without the use of any lightsource. Normally restricted to undead races and the ninja (an assassin that hides in shadows), this ability is not available to most players. The range of this ability is limited in many cases, but ninjas and all of the monster mode races with this ability have no range restriction. With one evil exception, this ability cannot be magically enhanced.</indent>
 
 <topic:Proficiency><style:heading>Proficiency Levels</style>
 In PosChengband, characters possess different proficiency levels or experiences for each weapon type, spells, and a few other skills. The starting proficiency levels and the maximum proficiency levels of a character are based upon class. Each proficiency level may increase when you practice with it, and can be checked by the 'Check various information' command (~).

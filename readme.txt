@@ -51,7 +51,6 @@ Mythology once I finish re-coding the game engine.
   (Thanks to Nick McConnell for implementing and improving building under Linux/MAC!)
 
   (ALT: For development, doing an install is undesirable. Try the following instead:
-    $ sudo apt-get install clang-3.5 llvm-3.5
     $ sh autogen.sh
     $ ./configure --with-no-install
     $ cd src

@@ -570,10 +570,10 @@ void confusing_lights(int power) /* EFFECT_CONFUSING_LIGHT */
 {
     /* XXX Cloak of Invisibility does not block */
     _project_visual(GF_SLOW, power * 2);
-    _project_visual(GF_STUN,     5 + power/2);
+    _project_visual(GF_STUN, 5 + power/2);
     _project_visual(GF_OLD_CONF, power * 2);
     _project_visual(GF_FEAR, power * 2);
-    _project_visual(GF_STASIS,   power * 3 / 4);
+    _project_visual(GF_STASIS, power * 3 / 4);
 }
 static void _jump(int gf, int dam)
 {

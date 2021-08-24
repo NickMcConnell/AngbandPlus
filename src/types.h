@@ -542,14 +542,6 @@ struct player_sex
     cptr winner;        /* Name of winner */
 };
 
-typedef struct player_pact player_pact;
-
-struct player_pact
-{
-    cptr title;
-    cptr alliance;
-};
-
 /*
  * Most of the "player" information goes here.
  *
@@ -585,6 +577,7 @@ struct player_type
     point_t pos;       /* current position in dun_id */
     point_t old_pos;   /* last position in D_SURFACE for recall */
     point_t new_pos;   /* D_QUEST position: setting pos too early can break savefiles on panic_save */
+    point_t last_pos;  /* D_SURFACE pursuit ai ... cf _move_hostile and process_player */
     u32b turn;
 
     plr_tim_ptr timers;
@@ -932,8 +925,6 @@ struct player_type
 
     bool ryoute;
 
-    bool no_flowed;
-
     int birth_mutation;
 
     s16b ac;            /* Base ac */
@@ -986,17 +977,6 @@ struct kamae
     cptr    desc;       /* A verbose kamae description */
     int     min_level;  /* Minimum level to use */
     cptr    info;
-};
-
-/*
- * Sort-array element
- */
-typedef struct tag_type tag_type;
-
-struct tag_type
-{
-    int     tag;
-    int     value;
 };
 
 typedef bool (*monster_hook_type)(int r_idx);

@@ -19,8 +19,8 @@
 /* Current Version */
 #define VER_MAJOR 7
 #define VER_MINOR 3
-#define VER_PATCH 4
-#define VER_EXTRA 1
+#define VER_PATCH 5
+#define VER_EXTRA 0
 
 /* Oldest Supported Version (cf rd_savefile_new_aux) */
 #define MIN_VER_MAJOR 7
@@ -1606,7 +1606,7 @@ enum summon_specific_e {
 #define MFLAG2_NOPET            0x00000002    /* Cannot make monster pet */
 #define MFLAG2_NOGENO           0x00000004    /* Cannot genocide */
 #define MFLAG2_CHAMELEON        0x00000008    /* Monster is chameleon */
-#define MFLAG2_NOFLOW           0x00000010    /* Monster is in no_flow_by_smell mode */
+#define MFLAG2_XXX5             0x00000010
 #define MFLAG2_SHOW             0x00000020    /* Monster is recently memorized */
 #define MFLAG2_MARK             0x00000040    /* Monster is currently memorized */
 #define MFLAG2_TRIPPED          0x00000080

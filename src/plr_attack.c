@@ -1168,6 +1168,8 @@ bool plr_attack_begin(plr_attack_ptr context, point_t pos)
      * relying on an actual call to project. */
 
     context->mon = mon;
+    if (point_fast_distance(plr->pos, mon->pos) > 1)
+        context->flags |= PAC_NO_AURA;
     _init_race(context);
     context->mon_pos = pos;
     context->plr_pos = plr->pos;
@@ -2312,9 +2314,15 @@ static void _apply_auras(plr_attack_ptr context)
 void plr_on_hit_mon(plr_attack_ptr context)
 {
     /* beholders gaze on their enemies without touching (even as a ranged attack())
-     * staffmasters gain a quick strike that avoids monster auras
-     * other classes, like samurai, have a range 2 attack, but this is still a touch */
+     * staffmasters gain a quick strike that avoids monster auras */
     if (plr->prace == RACE_MON_BEHOLDER || plr->lightning_reflexes)
+        return;
+
+    /* Some classes have speciality attacks that are ranged: Samurai, Archaeologist, ...
+     * These now skip all auras, not just retaliation. This makes more sense. For example,
+     * the "Extended Crack" ability is a more distant melee attack, and the player never
+     * gets close enough to the monster to get burned, etc. */
+    if (context->flags & PAC_NO_AURA)
         return;
 
     if ( !mon_attack_current() /* avoid retaliatory cycles */
@@ -2322,7 +2330,6 @@ void plr_on_hit_mon(plr_attack_ptr context)
       && context->retaliation_ct < 1 + context->blow_ct/3
       && !mon_tim_find(context->mon, T_CONFUSED)
       && !mon_tim_find(context->mon, T_PARALYZED)
-      && point_fast_distance(context->plr_pos, context->mon_pos) < 2  /* e.g. Samurai's Tobi Izuna */
       && randint0(150) < context->race->alloc.lvl )
     {
         mon_retaliate_plr(context->mon);

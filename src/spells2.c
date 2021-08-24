@@ -134,6 +134,10 @@ void self_knowledge(void)
         doc_insert(doc, "You can learn some spells/prayers.\n");
     if (plr->see_infra)
         doc_insert(doc, "Your eyes are sensitive to infrared light.\n");
+    if (plr->see_nocto == DUN_VIEW_MAX)
+        doc_insert(doc, "You can see in the dark.\n");
+    else if (plr->see_nocto)
+        doc_printf(doc, "You can see in the dark (%d').\n", plr->see_nocto * 10);
     if (plr->see_inv)
         doc_insert(doc, "You can see invisible creatures.\n");
     if (plr->levitation)

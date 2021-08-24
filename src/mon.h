@@ -168,6 +168,9 @@ extern int  mon_res_calc_dam(mon_ptr mon, int gf, int dam);
 /************************************************************************
  * Motion
  ************************************************************************/
+extern int  mon_move_range(mon_ptr mon);
+extern int  mon_race_move_range(mon_race_ptr race);
+
 extern bool mon_never_move(mon_ptr mon);
 extern bool mon_race_never_move(mon_race_ptr race);
 extern void mon_lore_never_move(mon_ptr mon);

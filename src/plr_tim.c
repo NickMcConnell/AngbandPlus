@@ -3896,7 +3896,6 @@ static void _wraith_off(plr_tim_ptr timer)
 static void _wraith_bonus(plr_tim_ptr timer)
 {
     res_add_immune(GF_DARK);
-    res_add_vuln(GF_LIGHT);
     plr->reflect = TRUE;
     plr->pass_wall = TRUE;
     plr->no_passwall_dam = TRUE;
@@ -3904,7 +3903,6 @@ static void _wraith_bonus(plr_tim_ptr timer)
 static void _wraith_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
     add_flag(flags, OF_IM_(GF_DARK));
-    add_flag(flags, OF_VULN_(GF_LIGHT));
     add_flag(flags, OF_REFLECT);
 }
 static status_display_t _wraith_display(plr_tim_ptr timer)

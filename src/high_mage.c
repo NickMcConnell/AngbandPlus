@@ -54,6 +54,34 @@ static void _birth(void)
     plr_birth_spellbooks();
 }
 
+/* XXX future: scan each "plr->realm->spells" for SF_AUTO_ID or SF_AUTO_DETECT */
+#define SORCERY_DETECT_TRAPS 2
+#define SORCERY_IDENTIFY 9
+/* XXX in progress ... I'm adding as I playtest */
+static bool _auto_id_aux(obj_ptr obj, int realm, int spell)
+{
+    int cost = plr_can_auto_cast(realm, spell);
+    if (cost)
+    {
+        /* plr_auto_cast would prompt for the object via do_spell(SPELL_CAST)
+         * do it by hand */
+        sp_player(-cost);
+        identify_item(obj);
+        spell_stats_on_cast_old(realm, spell);
+        return TRUE;
+    }
+    return FALSE;
+}
+extern bool mage_auto_id(obj_ptr obj);
+extern bool mage_auto_detect(void);
+bool mage_auto_id(obj_ptr obj)
+{
+    return _auto_id_aux(obj, REALM_SORCERY, SORCERY_IDENTIFY);
+}
+bool mage_auto_detect(void)
+{
+    return plr_auto_cast(REALM_SORCERY, SORCERY_DETECT_TRAPS);
+}
 plr_class_ptr high_mage_get_class(void)
 {
     static plr_class_ptr me = NULL;
@@ -96,6 +124,8 @@ plr_class_ptr high_mage_get_class(void)
         me->hooks.caster_info = _caster_info;
         me->hooks.get_powers = _get_powers;
         me->hooks.character_dump = spellbook_character_dump;
+        me->hooks.auto_id = mage_auto_id;
+        me->hooks.auto_detect = mage_auto_detect;
     }
     return me;
 }

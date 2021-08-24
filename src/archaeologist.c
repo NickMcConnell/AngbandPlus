@@ -482,11 +482,11 @@ static void _pharaohs_curse_spell(int cmd, var_ptr res)
     case SPELL_CAST:
         {
             int power = spell_power(plr->lev * 4);
-            plr_project_los(GF_PHARAOHS_CURSE, plr->lev + randint1(plr->lev));
+            plr_project_los(GF_PHARAOHS_CURSE, plr->lev + _1d(plr->lev));
             if (plr->lev >= 46) plr_project_los(GF_OLD_CONF, power);
             if (plr->lev >= 47) plr_project_los(GF_SLOW, power);
             if (plr->lev >= 48) plr_project_los(GF_FEAR, power);
-            if (plr->lev >= 49) plr_project_los(GF_STUN, 5 + plr->lev/5);
+            if (plr->lev >= 49) plr_project_los(GF_STUN, 5 + 2*plr->lev/5);
             if (one_in_(5))
             {
                 int mode = 0;
@@ -497,7 +497,7 @@ static void _pharaohs_curse_spell(int cmd, var_ptr res)
                     msg_print("You have disturbed the rest of an ancient pharaoh!");
                 }
             }
-            take_hit(DAMAGE_USELIFE, plr->lev + randint1(plr->lev), "the Pharaoh's Curse");
+            take_hit(DAMAGE_USELIFE, plr->lev + _1d(plr->lev), "the Pharaoh's Curse");
             var_set_bool(res, TRUE);
         }
         break;
@@ -590,7 +590,7 @@ static spell_info _spells[] =
     { 35,  80, 70, _ancient_protection_spell },
     { 40, 150, 80, polish_shield_spell },
     { 42,  30, 50, _evacuation_spell },
-    { 45,  50, 75, _pharaohs_curse_spell }, /* No wizardstaff. No spell skills! So, 3% best possible fail.*/
+    { 45,  50, 75, _pharaohs_curse_spell },
     { -1,  -1, -1, NULL }
 };
 
@@ -709,7 +709,28 @@ void _get_object(obj_ptr obj)
         }
     }
 }
+static bool _auto_detect(void)
+{
+    if (plr->lev >= 10 && plr->csp >= 3)
+    {
+        detect_traps(DETECT_RAD_DEFAULT, TRUE);
+        sp_player(-3);
+        return TRUE;
+    }
+    return FALSE;
+}
+static status_display_t _status_display(void)
+{
+    status_display_t d = {0};
 
+    if (plr->sense_artifact)
+    {
+        d.color = TERM_L_BLUE;
+        d.name = "Special";
+        d.abbrev = "Art";
+    }
+    return d;
+}
 plr_class_ptr archaeologist_get_class(void)
 {
     static plr_class_ptr me = NULL;
@@ -751,6 +772,8 @@ plr_class_ptr archaeologist_get_class(void)
         me->hooks.get_spells = _get_spells;
         me->hooks.character_dump = _character_dump;
         me->hooks.get_object = _get_object;
+        me->hooks.auto_detect = _auto_detect;
+        me->hooks.status_display = _status_display;
     }
 
     return me;

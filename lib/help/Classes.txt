@@ -434,9 +434,9 @@ Rogues can select one realm from Sorcery, Death, Trump, Arcane, Craft, or Burgla
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +2</color>        Disarming   <color:g>Superb       </color>
-Intelligence <color:w> +1</color>        Device      <color:G>Excellent    </color>
+Intelligence <color:v> +1</color>        Device      <color:G>Excellent    </color>
 Wisdom       <color:w> -1</color>        Save        <color:o>Fair         </color>
-Dexterity    <color:v> +3</color>        Stealth     <color:G>Excellent    </color>
+Dexterity    <color:w> +3</color>        Stealth     <color:G>Excellent    </color>
 Constitution <color:w> +1</color>        Searching   <color:y>Good         </color>
 Charisma     <color:w> +1</color>        Perception  <color:o>Fair         </color>
 Life Rating  110%       Melee       <color:G>Excellent    </color>
@@ -766,7 +766,7 @@ Magic-Eater    -1   +2   +1   +2   -2   -2  103%   +6  130%
 Priest         -1   -3 <color:v>  +3 </color>  -1   +0   +2  100%   +4  120%
 High-Priest    -2   -3 <color:v>  +4 </color>  -1   -1   +2   98%   +4  135%
 Ninja          +0   -1   -1 <color:v>  +3 </color>  +2   +2  100%   +4  120%
-Rogue          +2   +1   -1 <color:v>  +3 </color>  +1   +1  110%  +12  125%
+Rogue          +2 <color:v>  +1 </color>  -1   +3   +1   +1  110%  +12  125%
 Scout          +1   -1 <color:v>  +2 </color>  +3   +0   +0  104%   +8  130%
 Chaos-Warrior  +2 <color:v>  +1 </color>  -1   +0   +2   +1  111%  +12  125%
 Paladin        +3   -3 <color:v>  +1 </color>  +0   +2   +2  111%  +12  135%
@@ -887,4 +887,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.3.4.</color>
+<color:s>Automatically generated for PosChengband 7.3.5.</color>

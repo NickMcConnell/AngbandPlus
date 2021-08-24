@@ -707,7 +707,7 @@ static void _prt_effects(doc_ptr doc)
         doc_newline(doc);
     }
 }
-status_display_t _status_display(void)
+static status_display_t _status_display(void)
 {
     status_display_t d = {0};
 

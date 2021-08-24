@@ -1102,9 +1102,8 @@ static void _process_mon(dun_ptr dun, mon_ptr mon)
 static vec_ptr _monsters = NULL; /* monsters getting a move this turn */
 static void _preprocess_mon(dun_ptr dun, mon_ptr mon)
 {
-    mon_race_ptr race;
-    int          radius = 0, speed;
-    bool         test = FALSE;
+    int  radius = 0, speed;
+    bool test = FALSE;
 
     assert(cave == dun);
     if (!mon_is_valid(mon)) return; /* XXX bug */
@@ -1131,27 +1130,19 @@ static void _preprocess_mon(dun_ptr dun, mon_ptr mon)
         }
     }
 
-    /* Flow by smell is allowed */
-    if (!plr->no_flowed)
-        mon->mflag2 &= ~MFLAG2_NOFLOW;
-
     /* Assume no move */
     test = FALSE;
 
     /* Handle "sensing radius" */
-    race = mon->race;
-    radius = race->move.range;
-    if (mon_is_pet(mon) && radius > MAX_SIGHT)
-        radius = MAX_SIGHT;
-    else if ( plr->prace == RACE_MON_RING
-           && !plr->riding
-           && !is_aware(mon)
-           && mon_is_type(mon->race, SUMMON_RING_BEARER) )
+    radius = mon_move_range(mon);
+
+    if ( plr->prace == RACE_MON_RING
+      && !plr->riding
+      && !is_aware(mon)
+      && mon_is_type(mon->race, SUMMON_RING_BEARER) )
     {
         radius = AAF_LIMIT_RING;
     }
-    else if (plr_on_surface())
-        radius *= 3;
 
     if (mon->cdis + dun->plr_dis <= radius)
         test = TRUE;
@@ -1226,8 +1217,6 @@ static void dun_process_monsters(dun_ptr dun)
             mon_tim_fast_tick(mon); /* timers go after monster moves (e.g. T_PARALYZED) */
 
         mon->pain = 0; /* XXX pain cancels fear hack; avoid msg spam and bool *fear parameters ... */
-        if (plr->no_flowed && one_in_(3)) /* Give up flow_by_smell when it might useless */
-            mon->mflag2 |= MFLAG2_NOFLOW;
 
         if (!plr->playing || plr->is_dead) break;
         if (cave != dun) break; /* XXX nexus travel or some such ... need to remove "cave" */
@@ -1938,6 +1927,7 @@ void dun_mgr_plr_change_dun(dun_ptr new_dun, point_t new_pos)
     cave = new_dun;
     plr->dun_id = new_dun->id;
     plr->pos = new_pos;
+    plr->last_pos = plr->pos;
     if (mount)
     {
         dun_detach_mon(mount->dun, mount->id);
@@ -2475,6 +2465,7 @@ void dun_mgr_load(savefile_ptr file)
     plr->world_id = savefile_read_u16b(file);
     plr->dun_id = savefile_read_u16b(file);
     plr->pos = _point_load(file);
+    plr->last_pos = plr->pos;
     plr->old_pos = _point_load(file);
     plr->turn = savefile_read_u32b(file);
 

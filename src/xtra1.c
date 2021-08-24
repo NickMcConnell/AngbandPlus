@@ -2834,7 +2834,6 @@ void calc_bonuses(void)
     plr->melt_armor = FALSE;
 
     plr->ryoute = FALSE;
-    plr->no_flowed = FALSE;
 
     plr->return_ammo = FALSE;
     plr->painted_target = FALSE;
@@ -3855,10 +3854,6 @@ void calc_bonuses(void)
         monk_notify_aux = monk_armour_aux;
         plr->redraw |= PR_EFFECTS;
     }
-
-    /* Can someone please explain the purpose of this?
-    if (plr->pass_wall && !plr->kill_wall) plr->no_flowed = TRUE;
-    */
 
     /* Apply some maximums ... Note: Rune-Knights must limit to just 15%
      * Otherwise, they could use double or even triple {absorption}! */

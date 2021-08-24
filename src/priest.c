@@ -250,6 +250,7 @@ static void _high_priest_calc_bonuses(void)
         /* cf _max_vampiric_drain in plr_attack.c */
         if (plr->lev >= 30)
             res_add(GF_NETHER);
+        plr->see_nocto = MAX(plr->see_nocto, 2 + plr->lev/13);
         break;
     case REALM_DAEMON:
         plr->skills.dev += 10;

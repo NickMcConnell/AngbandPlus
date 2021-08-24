@@ -508,6 +508,13 @@ design.
   by orcs, hounds and trolls, they can be more efficiently dispatched 
   when you can kill them by eights instead of by ones!
 
+  Noctovision
+  This power allows you to see in the dark without the use of a torch 
+  or lantern. With this ability, you will be able to equip Dark Stones. 
+  In addition, you will be able to explore large darkened cavern rooms 
+  without the need to illuminate the room first, which often wakes 
+  monsters up. This ability is a good choice for stealthy characters.
+
   Panic Hit
   With this power you will understand how thieves feel. After attacking 
   an adjacent enemy with your normal melee attacks, you will be 
@@ -534,6 +541,10 @@ design.
   monster. If successful, you may tame yourself a new mount to ride. 
   But often such an attempt ends in utter humiliation. Perhaps you've 
   heard a certain saying?
+
+  Rush Attack
+  This power allows you to leap in to attack nearby monsters, all in a 
+  single action.
 
   Stone Skin
   This power temporarily grants increased armor class, making you 

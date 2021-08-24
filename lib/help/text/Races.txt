@@ -114,7 +114,9 @@ Elves
   attacks, the Dark Elves have a long tradition and knowledge of magic. 
   They have an inherent magic missile attack available to them at a low 
   level. With their keen sight, they also learn to see invisible things 
-  as their relatives High-Elves do, but at a higher level.
+  as their relatives High-Elves do, but at a higher level. Being 
+  accustomed to the dark places of the world, they can also see a short 
+  range without the need of light.
   
     Stats                   Skills
     Strength      -1        Disarming   Good         
@@ -138,7 +140,8 @@ Elves
   spiders, they are unhampered by sticky webs and may even eventually 
   weave webs of their own. Strong in magic, the drider makes a 
   formidable mage but their melee and health are somewhat lower than 
-  average.
+  average. Being accustomed to the dark places of the world, driders 
+  can also see a short range without the need of light.
   
     Stats                   Skills
     Strength      -1        Disarming   Good         
@@ -384,6 +387,23 @@ Angels/Demons
     Base HP       19        Bows        Fair         
     Experience    90%       Infravision 30'
     
+  Tengu
+  Tengu are fast-moving demons that blink quickly in and out of 
+  existence. Their mastery of teleportation is unmatched. Eventually, 
+  they will even resist being teleported by their enemies. Being 
+  demons, they are rather unsuited for the priestly professions.
+  
+    Stats                   Skills
+    Strength      +0        Disarming   Fair         
+    Intelligence  +1        Device      Fair         
+    Wisdom        -3        Save        Bad          
+    Dexterity     +2        Stealth     Fair         
+    Constitution  +0        Searching   Very Bad     
+    Charisma      -1        Perception  Superb       
+    Life Rating   99%       Melee       Poor         
+    Base HP       19        Bows        Excellent    
+    Experience   140%       Infravision 30'
+    
   
 Orcs/Trolls/Giants
   Cyclops
@@ -521,13 +541,14 @@ The Undead
   skeletons, and the spell-using skeletons, which are also called 
   liches. As undead beings, skeletons need to worry very little about 
   poison or attacks that can drain life. They do not really use eyes 
-  for perceiving things, and are thus not fooled by invisibility. Their 
-  bones are resistant to sharp shrapnel, and they will quickly become 
-  resistant to cold. Although the magical effects of these will affect 
-  the skeleton even without entering the skeleton's (non-existent) 
-  belly, the potion or food itself will fall through the skeleton's 
-  jaws, giving no nutritional benefit. They can absorb mana from staves 
-  and wands as their energy source.
+  for perceiving things, and are thus not fooled by invisibility. Being 
+  undead, skeletons can also see a short distance without the need for 
+  light. Their bones are resistant to sharp shrapnel, and they will 
+  quickly become resistant to cold. Although the magical effects of 
+  these will affect the skeleton even without entering the skeleton's 
+  (non-existent) belly, the potion or food itself will fall through the 
+  skeleton's jaws, giving no nutritional benefit. They can absorb mana 
+  from staves and wands as their energy source.
   
     Stats                   Skills
     Strength      +0        Disarming   Bad          
@@ -549,7 +570,9 @@ The Undead
   force, see invisible, and resist poison and cold. They also resist 
   nether. Spectres make superb spellcasters, but their physical form is 
   very weak. They gain very little nutrition from the food of mortals, 
-  but can absorb mana from staves and wands as their energy source.
+  but can absorb mana from staves and wands as their energy source. 
+  Being undead, spectres can also see a short distance without the need 
+  for light.
   
     Stats                   Skills
     Strength      -5        Disarming   Excellent    
@@ -571,7 +594,8 @@ The Undead
   has a firm hold on its life force, and resists nether attacks. The 
   Vampire also resists cold and poison based attacks. It is, however, 
   susceptible to its perpetual hunger for fresh blood, which can only 
-  be satiated by sucking the blood from a nearby monster.
+  be satiated by sucking the blood from a nearby monster. Being undead, 
+  vampires can also see a short distance without the need for light.
   
     Stats                   Skills
     Strength      +3        Disarming   Fair         
@@ -589,7 +613,8 @@ The Undead
   of the netherworld. The grave is cold but this does not bother the 
   undead and poison scarcely affects the unliving. Zombies gain little 
   nutrition from ordinary food. Instead, they must absorb mana from 
-  magical devices to maintain their undead existence.
+  magical devices to maintain their undead existence. Being undead, 
+  zombies can also see a short distance without the need for light.
   
     Stats                   Skills
     Strength      +2        Disarming   Bad          
@@ -857,6 +882,7 @@ Sprite        -4   +3   +3   +3   -2   -2   92%  +14  135%   90%
 Archon        +2   +0   +4   +1   +2   +3  103%  +22  200%   90%
 Balrog        +4   +2  -10   +2   +3   +2  106%  +24  180%  140%
 Imp           +0   -1   -1   +1   +2   -1   99%  +19   90%  120%
+Tengu         +0   +1   -3   +2   +0   -1   99%  +19  140%  120%
 Cyclops       +4   -3   -2   -3   +4   -1  108%  +24  155%  135%
 Half-Giant    +4   -2   -2   -2   +3   +0  108%  +26  150%  125%
 Half-Ogre     +3   -2   +0   -1   +3   +1  106%  +23  140%  125%
@@ -903,6 +929,7 @@ Sprite       Excellent     Good          Good          Very Good
 Archon       Poor          Very Good     Very Good     Fair         
 Balrog       Bad           Very Good     Superb        Bad          
 Imp          Bad           Fair          Poor          Fair         
+Tengu        Fair          Fair          Bad           Fair         
 Cyclops      Bad           Bad           Bad           Bad          
 Half-Giant   Very Bad      Bad           Bad           Bad          
 Half-Ogre    Bad           Bad           Bad           Bad          
@@ -949,6 +976,7 @@ Sprite       Superb        Superb        Very Bad      Fair            40'
 Archon       Poor          Superb        Excellent     Excellent       30'
 Balrog       Bad           Excellent     Superb        Fair            50'
 Imp          Very Bad      Superb        Good          Fair            30'
+Tengu        Very Bad      Superb        Poor          Excellent       30'
 Cyclops      Very Bad      Good          Superb        Superb          10'
 Half-Giant   Very Bad      Good          Heroic        Very Good       30'
 Half-Ogre    Very Bad      Good          Superb        Fair            30'
@@ -975,5 +1003,5 @@ Yeek         Good          Heroic        Bad           Fair            20'
 
 
 
-Automatically generated for PosChengband 7.3.4.
+Automatically generated for PosChengband 7.3.5.
 

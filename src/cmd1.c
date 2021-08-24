@@ -62,6 +62,7 @@ void death_scythe_miss(object_type *o_ptr, int hand, int skill)
                 case RACE_HALF_TITAN:
                 case RACE_CYCLOPS:
                 case RACE_IMP:
+                case RACE_TENGU:
                 case RACE_SKELETON:
                 case RACE_ZOMBIE:
                 case RACE_VAMPIRE:
@@ -281,6 +282,8 @@ static bool _auto_detect_traps(void)
 {
     slot_t slot;
     if (!auto_detect_traps) return FALSE;
+    if (cave->type->id == D_SURFACE) return FALSE;
+
     /* Hooks go first. For example, the Necromancer prefers Undead Sight which throws
      * magic mapping into the bargain. They might also carry -Detection to locate monsters
      * and we should only used that as a last resort. */

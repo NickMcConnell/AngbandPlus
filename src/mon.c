@@ -830,6 +830,21 @@ int mon_res_calc_dam(mon_ptr mon, int gf, int dam)
 /************************************************************************
  * Motion
  ************************************************************************/
+int mon_move_range(mon_ptr mon)
+{
+    int r = mon_race_move_range(mon->race);
+    if (mon_is_pet(mon) && r > MAX_SIGHT)
+        r = MAX_SIGHT;
+    return r;
+}
+int mon_race_move_range(mon_race_ptr race)
+{
+    int r = race->move.range;
+    if (plr_on_surface())
+        r *= 5;
+    return r;
+}
+
 bool mon_never_move(mon_ptr mon) { return mon_race_never_move(mon->race); }
 bool mon_race_never_move(mon_race_ptr race) { return BOOL(race->move.flags & RFM_NEVER); }
 void mon_lore_never_move(mon_ptr mon) { mon_lore_move(mon, RFM_NEVER); }

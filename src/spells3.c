@@ -1848,6 +1848,11 @@ static void _recharge_aux(object_type *o_ptr, int amt, int power)
     if (power > lev/2)
         fail_odds = (power - lev/2) / div;
 
+    if (fail_odds <= 1)
+    {
+         msg_print("You are not powerful enough to recharge that item!");
+         return;
+    }
     if (one_in_(fail_odds))
     {
         /* Do nothing for now. My experience is that players get too conservative
@@ -3382,6 +3387,7 @@ bool summon_kin_player(int level, point_t pos, u32b mode)
                 summon_kin_type = 'k';
                 break;
             case RACE_IMP:
+            case RACE_TENGU:
                 if (one_in_(13)) summon_kin_type = 'U';
                 else summon_kin_type = 'u';
                 break;

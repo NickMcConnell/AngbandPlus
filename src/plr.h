@@ -47,6 +47,7 @@ extern equip_template_ptr plr_equip_template(void);
 extern int     plr_can_auto_cast(int realm, int spell); /* return cost of spell (0 => FALSE) */
 extern bool    plr_auto_cast(int realm, int spell); /* helper for Auto-ID and Auto-Detect (Spellbook Magic Only) */
 extern bool    plr_mage_bonus(void);
+extern bool    plr_allow_mage_quiver(void);
 extern bool    plr_see_nocto(point_t pos);
 extern int     plr_skill_sav(who_t who);
 extern int     plr_ac(mon_ptr who);

@@ -400,6 +400,7 @@ void virtue_init(void)
         plr->vir_types[i++] = VIRTUE_PATIENCE;
         break;
     case RACE_IMP:
+    case RACE_TENGU:
         plr->vir_types[i++] = VIRTUE_FAITH;
         break;
     case RACE_ZOMBIE: case RACE_SKELETON:

@@ -1719,8 +1719,39 @@ static bool _move_hostile(mon_ptr mon)
     {
         /* Double check out of range processing. For example, monsters are battling far away,
          * but my target has blinked out of view. Keep my target, don't move, and wait until
-         * my target reappears to continue the battle (cf AI_HUNT) */
-        if (mon_dis(mon) > mon->race->move.range && !_plr_project(dun, mon->pos)) return TRUE;
+         * my target reappears to continue the battle (cf AI_HUNT). XXX Only do this check
+         * if mon has a target (direct, via mon->target, or pack based via mon->pack->prey).
+         * On D_SURFACE, or if the plr is OFC_AGGRAVATE'ing, then range is temporarily increased
+         * but mon is still after plr. cf _preprocess_mon XXX */
+        bool target = mon_has_valid_target(mon);
+        if (!target && mon->pack && mon->pack->ai == AI_HUNT)
+            target = TRUE;
+        if (target && mon_dis(mon) > mon_move_range(mon) && !_plr_project(dun, mon->pos))
+            return TRUE;
+
+        #if 1
+        /* XXX On surface, try to lead a moving target. This will override normal flow
+         * behaviour, but flows only really matter inside the town walls. */
+        if ( mon->dun->id == plr->dun_id
+          && mon->dun->type->id == D_SURFACE
+       /* && running */
+          && !plr_in_town()
+          && point_is_adjacent(plr->pos, plr->last_pos) )
+        {
+            point_t v = point_subtract(plr->pos, plr->last_pos);
+            line_t l = line_create(plr->pos, point_add(plr->pos, point_scale(v, DUN_VIEW_MAX)));
+            int d = 0;
+            
+            if (line_is_valid(l))
+                d = point_distance_to_line(mon->pos, l);
+
+            if (d > 0)
+            {
+                point_t p = point_add(plr->pos, point_scale(v, d));
+                if (_move_towards(mon, p)) return TRUE;
+            }
+        }
+        #endif
 
         /* Now we flow or move towards plr */
         if (mon_will_flow(mon) && _flow_towards(mon, dun->flow)) return TRUE;

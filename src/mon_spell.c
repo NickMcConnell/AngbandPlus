@@ -1526,10 +1526,6 @@ static void _spell_cast_init_plr(mon_spell_cast_ptr cast, mon_race_ptr race)
 
 static bool _can_cast(mon_ptr mon)
 {
-    if (mon_tim_find(mon, T_BLIND))
-    {
-        return dun_pos_interior(mon->dun, mon->last_enemy_pos);
-    }
     if (!mon_is_hostile(mon)) return FALSE;
     if (!is_aware(mon)) return FALSE;
     if (plr->dun_id != cave->id) return FALSE;
@@ -1538,6 +1534,10 @@ static bool _can_cast(mon_ptr mon)
     if (!mon->turns && mon_has_worthy_attack_spell(mon))
         return FALSE;
 
+    if (mon_tim_find(mon, T_BLIND))
+    {
+        return dun_pos_interior(mon->dun, mon->last_enemy_pos);
+    }
     return TRUE;
 }
 
@@ -4022,7 +4022,10 @@ static bool _default_ai(mon_spell_cast_ptr cast)
         /* XXX I think this logic got lost during the 7.0 mon_spell re-write.
          * Note that _ai_think_mon will currently assert projectability, since
          * I haven't implemented splash AI for mon vs mon fighting. */
-        if (plr->riding && mon_project(cast->mon, cast->dest) && one_in_(2))
+        if ( plr->riding 
+          && point_equals(cast->dest, plr->pos) /* XXX not confused or blinded */
+          && mon_project(cast->mon, cast->dest)
+          && one_in_(2) )
         {
             cast->flags &= ~MSC_DEST_PLAYER;
             cast->flags |= MSC_DEST_MONSTER | MSC_DEST_MOUNT;

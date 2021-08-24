@@ -525,7 +525,6 @@ static int _vampire_lord_get_powers(spell_info* spells, int max)
 }
 static void _vampire_lord_calc_bonuses(void)
 {
-    res_add(GF_DARK);
     res_add_immune(GF_DARK);
     plr->hold_life++;
     res_add(GF_NETHER);
@@ -545,9 +544,7 @@ static void _vampire_lord_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_IM_(GF_DARK));
 
     add_flag(flgs, OF_HOLD_LIFE);
-    add_flag(flgs, OF_RES_(GF_DARK));
     add_flag(flgs, OF_RES_(GF_NETHER));
-    if (plr->pclass != CLASS_NINJA) add_flag(flgs, OF_LIGHT);
     add_flag(flgs, OF_RES_(GF_POIS));
     add_flag(flgs, OF_RES_(GF_COLD));
     add_flag(flgs, OF_SEE_INVIS);

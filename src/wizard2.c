@@ -1898,7 +1898,12 @@ void do_cmd_debug(void)
         doc_display(doc, "Symbols", 0);
         screen_load();
         doc_free(doc);
-        sym_test();
+        #else
+        if (plr->riding)
+        {
+            mon_tim_add(plr_riding_mon(), T_BLIND, 100);
+            mon_tim_add(plr_riding_mon(), T_CONFUSED, 100);
+        }
         #endif
         #if 0
         int i, k_idx = lookup_kind(TV_CORPSE, SV_SKELETON);

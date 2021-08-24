@@ -2205,13 +2205,8 @@ static bool _kind_is_(int k_idx, int tval, int sval)
     return FALSE;
 }
 static bool _kind_theme_warrior(int k_idx) {
-    if ( _kind_is_(k_idx, TV_POTION, SV_POTION_BERSERK_STRENGTH)
-      || _kind_is_(k_idx, TV_POTION, SV_POTION_HEROISM) )
-    {
-        return TRUE;
-    }
-
-    switch (k_info[k_idx].tval)
+    obj_kind_ptr k = &k_info[k_idx];
+    switch (k->tval)
     {
     case TV_SWORD:
         if (k_info[k_idx].sval >= SV_SABRE && k_info[k_idx].sval < SV_POISON_NEEDLE)
@@ -2228,6 +2223,18 @@ static bool _kind_theme_warrior(int k_idx) {
     case TV_RING:
     case TV_AMULET:
         return one_in_(3);
+    case TV_POTION:
+        switch (k->sval)
+        {
+        case SV_POTION_HEROISM:
+        case SV_POTION_BERSERK_STRENGTH:
+            return TRUE;
+        case SV_POTION_INC_STR:
+        case SV_POTION_INC_DEX:
+        case SV_POTION_INC_CON:
+            return TRUE; /* one_in_(2) */;
+        }
+        return FALSE;
     }
     return FALSE;
 }
@@ -2287,12 +2294,7 @@ static bool _kind_theme_mage(int k_idx) {
         case SV_POTION_INVULNERABILITY:
         case SV_POTION_CLARITY:
         case SV_POTION_GREAT_CLARITY:
-        case SV_POTION_INC_STR:
         case SV_POTION_INC_INT:
-        case SV_POTION_INC_WIS:
-        case SV_POTION_INC_DEX:
-        case SV_POTION_INC_CON:
-        case SV_POTION_INC_CHR:
             return TRUE;
         }
     }
@@ -2350,6 +2352,8 @@ static bool _kind_theme_priest(int k_idx) {
         case SV_POTION_RES_DEX:
         case SV_POTION_RES_CON:
         case SV_POTION_RES_CHR:
+        case SV_POTION_INC_WIS:
+        case SV_POTION_INC_CHR:
             return TRUE;
         }
     }
@@ -2378,6 +2382,16 @@ static bool _kind_theme_priest_evil(int k_idx) {
     case TV_DAEMON_BOOK:
     case TV_AMULET:
         return TRUE;
+    }
+    if (k_info[k_idx].tval == TV_POTION)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_POTION_DEATH:
+        case SV_POTION_INC_WIS:
+        case SV_POTION_INC_CHR:
+            return TRUE;
+        }
     }
     if (k_info[k_idx].tval == TV_SCROLL)
     {
@@ -2409,6 +2423,9 @@ static bool _kind_theme_paladin(int k_idx) {
         case SV_POTION_HEALING:
         case SV_POTION_STAR_HEALING:
         case SV_POTION_LIFE:
+        case SV_POTION_INC_STR:
+        case SV_POTION_INC_WIS:
+        case SV_POTION_INC_CHR:
             return TRUE;
         }
     }
@@ -2434,6 +2451,17 @@ static bool _kind_theme_paladin_evil(int k_idx) {
     case TV_RING:
     case TV_AMULET:
         return TRUE;
+    }
+    if (k_info[k_idx].tval == TV_POTION)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_POTION_DEATH:
+        case SV_POTION_INC_STR:
+        case SV_POTION_INC_WIS:
+        case SV_POTION_INC_CHR:
+            return TRUE;
+        }
     }
     if (k_info[k_idx].tval == TV_SCROLL)
     {
@@ -2461,6 +2489,15 @@ static bool _kind_theme_samurai(int k_idx) {
     case TV_HISSATSU_BOOK:
         return TRUE;
     }
+    if (k_info[k_idx].tval == TV_POTION)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_POTION_INC_STR:
+        case SV_POTION_INC_WIS:
+            return TRUE;
+        }
+    }
     return FALSE;
 }
 static bool _kind_theme_ninja(int k_idx) {
@@ -2477,6 +2514,14 @@ static bool _kind_theme_ninja(int k_idx) {
     case TV_AMULET:
     case TV_SPIKE:
         return TRUE;
+    }
+    if (k_info[k_idx].tval == TV_POTION)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_POTION_INC_DEX:
+            return TRUE;
+        }
     }
     return FALSE;
 }
@@ -2498,6 +2543,14 @@ static bool _kind_theme_rogue(int k_idx) {
         if (k_info[k_idx].weight < 50)
             return TRUE;
         return FALSE;
+    }
+    if (k_info[k_idx].tval == TV_POTION)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_POTION_INC_DEX:
+            return TRUE;
+        }
     }
     return FALSE;
 }

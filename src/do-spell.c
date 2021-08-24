@@ -1074,7 +1074,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 7:
         if (name) return "Recharging";
         if (desc) return "It attempts to recharge a device using your mana for power.";
-        dice.base = 3*plr->lev;
+        dice.base = 30 + 120*plr->lev/50; /* cf _recharge_aux: spell should have some chance of working at CL5 */
         if (info) return dice_info_power(dice);
         if (cast && !recharge_from_player(dice_roll(dice))) return NULL;
         break;

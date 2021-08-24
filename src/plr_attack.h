@@ -143,6 +143,7 @@ enum {
 #define PAC_DISPLAY       0x0010 /* hack for character sheet display ... no attack forthcoming! */
 #define PAC_ANIMATE       0x0020
 #define PAC_ONE_BLOW      0x0040 /* this common case is hard for clients to do correctly */
+#define PAC_NO_AURA       0x0080 /* "ranged melee" should not burn the plr (e.g. Tobi Izuna) */
 
 /* We will handle a (hopefully) small number of special attack codes (context->type).
  * Everything else should be handled thru hooks */

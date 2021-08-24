@@ -790,6 +790,8 @@ int gf_affect_p(who_t who, int type, int dam, int flags)
             break;
         }
         dam = res_calc_dam(GF_LIGHT, dam);
+        if (plr_tim_find(T_WRAITH)) /* cf take_hit, which will do dam /= 2. We want the plr to take */
+            dam *= 2;               /* full damage from this hit (but don't want annoying torch damage) */
         if (dam)
         {
             if (touch) msg_print("You are <color:y>dazzled</color>!");

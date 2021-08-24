@@ -1879,6 +1879,7 @@ static void _build_statistics(doc_ptr doc)
         _device_counts_imp(doc, TV_STAFF, EFFECT_SPEED);
         _device_counts_imp(doc, TV_STAFF, EFFECT_IDENTIFY_FULL);
         _device_counts_imp(doc, TV_STAFF, EFFECT_DESTRUCTION);
+        _device_counts_imp(doc, TV_STAFF, EFFECT_CONFUSING_LIGHT);
         _device_counts_imp(doc, TV_STAFF, EFFECT_HEAL_CURING);
         _device_counts_imp(doc, TV_STAFF, EFFECT_GENOCIDE);
         _device_counts_imp(doc, TV_STAFF, EFFECT_MANA_STORM);

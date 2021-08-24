@@ -2564,6 +2564,11 @@ void process_player(void)
     if (plr->energy_need > 0) return;
     if (!command_rep) prt_time();
 
+    /* allow surface monsters to lead the plr ... cf _move_hostile
+     * note: we reset before each move so that non-moving turns can
+     * resort to default pursuit ai. */
+    plr->last_pos = plr->pos;
+
     /*** Check for interupts ***/
 
     /* Complete resting */

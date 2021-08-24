@@ -364,6 +364,11 @@ bool plr_mage_bonus(void)
     plr_class_ptr c = plr_class();
     return (r->flags & RACE_MAGE_BONUS) || (c->flags & CLASS_MAGE_BONUS);
 }
+bool plr_allow_mage_quiver(void)
+{
+    if (plr->pclass == CLASS_DEVICEMASTER) return TRUE;
+    return plr_mage_bonus();
+}
 int plr_skill_sav(who_t who)
 {
     int sav = plr->skills.sav;
@@ -603,6 +608,14 @@ int plr_feeling_delay(dun_ptr dun)
 /************************************************************************
  * Player Spells
  ************************************************************************/
+static bool _known_spell(int realm, int spell)
+{
+    if (plr->realm1 == realm)
+        return BOOL(plr->spell_learned1 & (1U << spell));
+    else if (plr->realm2 == realm)
+        return BOOL(plr->spell_learned2 & (1U << spell));
+    return FALSE;
+}
 /* Helper for Auto-ID and Auto-Detect. Plrs with reliable Identify spells,
  * for example, should not want to also carry _Identify. This is for the '?'
  * auto-picker directive. This helper is for book-based magic only. */
@@ -616,12 +629,12 @@ int plr_can_auto_cast(int realm, int spell)
 
     /* assume normal book based magic */
     assert(is_magic(realm));
-    assert(plr->realm1 == realm || plr->realm2 == realm); /* XXX Old spell system */
 
     /* never automatically hurt the plr ... mana only! */
     if (caster_ptr && (caster_ptr->options & CASTER_USE_HP)) return 0;
 
-    /* need the book */
+    /* spell must be learned and the plr must have the required book */
+    if (!_known_spell(realm, spell)) return 0;
     if (!pack_find_obj(tval, sval)) return 0;
 
     /* need the mana */

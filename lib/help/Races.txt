@@ -79,7 +79,7 @@ Experience   100%       Infravision 0'
 </indent>
 <style:heading>Elves</style>
   <indent><topic:Dark-Elf><color:o>Dark-Elf</color>
-Another dark, cave-dwelling race, likewise unhampered by darkness attacks, the Dark Elves have a long tradition and knowledge of magic. They have an inherent magic missile attack available to them at a low level. With their keen sight, they also learn to see invisible things as their relatives High-Elves do, but at a higher level.
+Another dark, cave-dwelling race, likewise unhampered by darkness attacks, the Dark Elves have a long tradition and knowledge of magic. They have an inherent magic missile attack available to them at a low level. With their keen sight, they also learn to see invisible things as their relatives High-Elves do, but at a higher level. Being accustomed to the dark places of the world, they can also see a short range without the need of light.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      -1        Disarming   <color:y>Good         </color>
@@ -95,7 +95,7 @@ Experience   155%       Infravision 50'
 <topic:Drider><color:o>Drider</color>
 Driders combine the bloated body of a giant spider with the head, arms and torso of a dark elf. Due to their body type they are unable to wear boots and can only equip the breast plate portion of body armor on their humanoid torso. Hence they tend to have a lower armor class than other races.
 
-Like dark elves, they prefer the dark places of the world. Like spiders, they are unhampered by sticky webs and may even eventually weave webs of their own. Strong in magic, the drider makes a formidable mage but their melee and health are somewhat lower than average.
+Like dark elves, they prefer the dark places of the world. Like spiders, they are unhampered by sticky webs and may even eventually weave webs of their own. Strong in magic, the drider makes a formidable mage but their melee and health are somewhat lower than average. Being accustomed to the dark places of the world, driders can also see a short range without the need of light.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      -1        Disarming   <color:y>Good         </color>
@@ -282,6 +282,20 @@ Life Rating   99%       Melee       <color:y>Good         </color>
 Base HP       19        Bows        <color:o>Fair         </color>
 Experience    90%       Infravision 30'
 </style></indent>
+<topic:Tengu><color:o>Tengu</color>
+Tengu are fast-moving demons that blink quickly in and out of existence. Their mastery of teleportation is unmatched. Eventually, they will even resist being teleported by their enemies. Being demons, they are rather unsuited for the priestly professions.
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength      +0        Disarming   <color:o>Fair         </color>
+Intelligence  +1        Device      <color:o>Fair         </color>
+Wisdom        -3        Save        <color:r>Bad          </color>
+Dexterity     +2        Stealth     <color:o>Fair         </color>
+Constitution  +0        Searching   <color:D>Very Bad     </color>
+Charisma      -1        Perception  <color:g>Superb       </color>
+Life Rating   99%       Melee       <color:R>Poor         </color>
+Base HP       19        Bows        <color:G>Excellent    </color>
+Experience   140%       Infravision 30'
+</style></indent>
 </indent>
 <style:heading>Orcs/Trolls/Giants</style>
   <indent><topic:Cyclops><color:o>Cyclops</color>
@@ -385,7 +399,7 @@ Experience    45%       Infravision 20'
 </indent>
 <style:heading>The Undead</style>
   <indent><topic:Skeleton><color:o>Skeleton</color>
-There are two types of skeletons: the ordinary, warrior-like skeletons, and the spell-using skeletons, which are also called liches. As undead beings, skeletons need to worry very little about poison or attacks that can drain life. They do not really use eyes for perceiving things, and are thus not fooled by invisibility. Their bones are resistant to sharp shrapnel, and they will quickly become resistant to cold. Although the magical effects of these will affect the skeleton even without entering the skeleton's (non-existent) belly, the potion or food itself will fall through the skeleton's jaws, giving no nutritional benefit. They can absorb mana from staves and wands as their energy source.
+There are two types of skeletons: the ordinary, warrior-like skeletons, and the spell-using skeletons, which are also called liches. As undead beings, skeletons need to worry very little about poison or attacks that can drain life. They do not really use eyes for perceiving things, and are thus not fooled by invisibility. Being undead, skeletons can also see a short distance without the need for light. Their bones are resistant to sharp shrapnel, and they will quickly become resistant to cold. Although the magical effects of these will affect the skeleton even without entering the skeleton's (non-existent) belly, the potion or food itself will fall through the skeleton's jaws, giving no nutritional benefit. They can absorb mana from staves and wands as their energy source.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +0        Disarming   <color:r>Bad          </color>
@@ -399,7 +413,7 @@ Base HP       21        Bows        <color:o>Fair         </color>
 Experience   115%       Infravision 20'
 </style></indent>
 <topic:Spectre><color:o>Spectre</color>
-Another powerful undead creature: the Spectre is a ghastly apparition, surrounded by an unearthly green glow. They exist only partially on our plane of existence: half-corporeal, they can pass through walls, although the density of the wall will hurt them in the process of doing this. As undead, they have a firm hold on their life force, see invisible, and resist poison and cold. They also resist nether. Spectres make superb spellcasters, but their physical form is very weak. They gain very little nutrition from the food of mortals, but can absorb mana from staves and wands as their energy source.
+Another powerful undead creature: the Spectre is a ghastly apparition, surrounded by an unearthly green glow. They exist only partially on our plane of existence: half-corporeal, they can pass through walls, although the density of the wall will hurt them in the process of doing this. As undead, they have a firm hold on their life force, see invisible, and resist poison and cold. They also resist nether. Spectres make superb spellcasters, but their physical form is very weak. They gain very little nutrition from the food of mortals, but can absorb mana from staves and wands as their energy source. Being undead, spectres can also see a short distance without the need for light.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      -5        Disarming   <color:G>Excellent    </color>
@@ -413,7 +427,7 @@ Base HP       13        Bows        <color:R>Poor         </color>
 Experience   250%       Infravision 50'
 </style></indent>
 <topic:Vampire><color:o>Vampire</color>
-One of the mightier undead creatures, the Vampire is an awe-inspiring sight. Yet this dread creature has a serious weakness: the bright rays of sun are its bane, and it will need to flee the surface to the deep recesses of earth until the sun finally sets. Darkness, on the other hand, only makes the Vampire stronger. As undead, the Vampire has a firm hold on its life force, and resists nether attacks. The Vampire also resists cold and poison based attacks. It is, however, susceptible to its perpetual hunger for fresh blood, which can only be satiated by sucking the blood from a nearby monster.
+One of the mightier undead creatures, the Vampire is an awe-inspiring sight. Yet this dread creature has a serious weakness: the bright rays of sun are its bane, and it will need to flee the surface to the deep recesses of earth until the sun finally sets. Darkness, on the other hand, only makes the Vampire stronger. As undead, the Vampire has a firm hold on its life force, and resists nether attacks. The Vampire also resists cold and poison based attacks. It is, however, susceptible to its perpetual hunger for fresh blood, which can only be satiated by sucking the blood from a nearby monster. Being undead, vampires can also see a short distance without the need for light.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +3        Disarming   <color:o>Fair         </color>
@@ -427,7 +441,7 @@ Base HP       22        Bows        <color:o>Fair         </color>
 Experience   200%       Infravision 50'
 </style></indent>
 <topic:Zombie><color:o>Zombie</color>
-Zombies are undead horrors, resistant to life draining and the forces of the netherworld. The grave is cold but this does not bother the undead and poison scarcely affects the unliving. Zombies gain little nutrition from ordinary food. Instead, they must absorb mana from magical devices to maintain their undead existence.
+Zombies are undead horrors, resistant to life draining and the forces of the netherworld. The grave is cold but this does not bother the undead and poison scarcely affects the unliving. Zombies gain little nutrition from ordinary food. Instead, they must absorb mana from magical devices to maintain their undead existence. Being undead, zombies can also see a short distance without the need for light.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +2        Disarming   <color:r>Bad          </color>
@@ -621,6 +635,7 @@ Sprite        -4   +3   +3   +3   -2   -2   92%  +14  135%   90%
 Archon        +2   +0   +4   +1   +2   +3  103%  +22  200%   90%
 Balrog        +4   +2  -10   +2   +3   +2  106%  +24  180%  140%
 Imp           +0   -1   -1   +1   +2   -1   99%  +19   90%  120%
+Tengu         +0   +1   -3   +2   +0   -1   99%  +19  140%  120%
 Cyclops       +4   -3   -2   -3   +4   -1  108%  +24  155%  135%
 Half-Giant    +4   -2   -2   -2   +3   +0  108%  +26  150%  125%
 Half-Ogre     +3   -2   +0   -1   +3   +1  106%  +23  140%  125%
@@ -667,6 +682,7 @@ Sprite       <color:G>Excellent    </color> <color:y>Good         </color> <colo
 Archon       <color:R>Poor         </color> <color:y>Very Good    </color> <color:y>Very Good    </color> <color:o>Fair         </color>
 Balrog       <color:r>Bad          </color> <color:y>Very Good    </color> <color:g>Superb       </color> <color:r>Bad          </color>
 Imp          <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color>
+Tengu        <color:o>Fair         </color> <color:o>Fair         </color> <color:r>Bad          </color> <color:o>Fair         </color>
 Cyclops      <color:r>Bad          </color> <color:r>Bad          </color> <color:r>Bad          </color> <color:r>Bad          </color>
 Half-Giant   <color:D>Very Bad     </color> <color:r>Bad          </color> <color:r>Bad          </color> <color:r>Bad          </color>
 Half-Ogre    <color:r>Bad          </color> <color:r>Bad          </color> <color:r>Bad          </color> <color:r>Bad          </color>
@@ -713,6 +729,7 @@ Sprite       <color:g>Superb       </color> <color:g>Superb       </color> <colo
 Archon       <color:R>Poor         </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:G>Excellent    </color>   30'
 Balrog       <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:o>Fair         </color>   50'
 Imp          <color:D>Very Bad     </color> <color:g>Superb       </color> <color:y>Good         </color> <color:o>Fair         </color>   30'
+Tengu        <color:D>Very Bad     </color> <color:g>Superb       </color> <color:R>Poor         </color> <color:G>Excellent    </color>   30'
 Cyclops      <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:g>Superb       </color>   10'
 Half-Giant   <color:D>Very Bad     </color> <color:y>Good         </color> <color:b>Heroic       </color> <color:y>Very Good    </color>   30'
 Half-Ogre    <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:o>Fair         </color>   30'
@@ -739,4 +756,4 @@ Yeek         <color:y>Good         </color> <color:b>Heroic       </color> <colo
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.3.4.</color>
+<color:s>Automatically generated for PosChengband 7.3.5.</color>

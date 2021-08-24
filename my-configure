@@ -12,7 +12,7 @@ elif [ "$1" == "install" ]; then
 elif [ "$1" == "profile" ]; then
     ./configure CC=gcc-6 CFLAGS="-g -pg -O0 -DNDEBUG" LDFLAGS="-pg" --with-no-install
 elif [ "$1" == "release" ]; then
-    ./configure CC=gcc-6 CFLAGS="-g -DDEVELOPER -DNDEBUG -O2" --with-no-install
+    ./configure CC=gcc-6 CFLAGS="-g -DNDEBUG -O2" --with-no-install
 elif [ "$1" == "debug" ]; then
     ./configure CC=gcc-6 CFLAGS="-g -pedantic-errors -DDEVELOPER -O0" --with-no-install
 elif [ "$1" == "clang" ]; then

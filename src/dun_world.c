@@ -841,14 +841,17 @@ static void _gen_monsters(dun_ptr dun, dun_page_ptr page)
             mode |= PM_FORCE_FRIENDLY;
         ct = rand_range(3, 10);
     }
-    else if (world_grid->flags & CELL_ROAD)
-    {
-        if (one_in_(2))
-            ct = randint0(_1d(4));
-    }
     else
     {
-        ct = randint0(_1d(7));
+        if (world_grid->flags & CELL_ROAD)
+        {
+            if (_1d(200) <= lvl)
+                ct = _1d(4);
+        }
+        else if (_1d(80) <= lvl)
+        {
+            ct = _2d(3);
+        }
     }
 
     {
@@ -892,7 +895,7 @@ static void _gen_monsters(dun_ptr dun, dun_page_ptr page)
         point_t pos = {0};
         mon_race_ptr race = NULL;
 
-        if ((world_grid->flags & CELL_TOWN) || one_in_(2))
+        if ((world_grid->flags & CELL_TOWN) || _1d(40) > lvl)
             mode |= PM_ALLOW_SLEEP;
         else
             mode &= ~PM_ALLOW_SLEEP;

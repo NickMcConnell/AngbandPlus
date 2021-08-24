@@ -316,6 +316,7 @@ says, 'Do you know how the Orcs first came into being? They were elves once ...'
 says, 'Time? What time do you think we have?'
 says, 'The hour is later than you think. Sauron's forces are already moving. The Nine have left Minas Morgul.'
 says, 'Moria... You fear to go into those mines. The dwarves delved too greedily and too deep.'
+says, 'There will be no dawn for men.'
 
 N:p.Gandalf
 says, 'I am a Wielder of the Flame of Anor, you cannot pass.'

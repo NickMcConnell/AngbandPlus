@@ -850,7 +850,8 @@ plr_race_ptr dark_elf_get_race(void)
                     "the Dark Elves have a long tradition and knowledge of magic. They have an "
                     "inherent magic missile attack available to them at a low level. With their "
                     "keen sight, they also learn to see invisible things as their relatives "
-                    "High-Elves do, but at a higher level.";
+                    "High-Elves do, but at a higher level. Being accustomed to the dark places "
+                    "of the world, they can also see a short range without the need of light.";
 
         me->stats[A_STR] = -1;
         me->stats[A_INT] =  3;
@@ -1462,7 +1463,9 @@ plr_race_ptr drider_get_race(void)
                     "Like dark elves, they prefer the dark places of the world. Like spiders, "
                     "they are unhampered by sticky webs and may even eventually weave webs of "
                     "their own. Strong in magic, the drider makes a formidable mage but their "
-                    "melee and health are somewhat lower than average.";
+                    "melee and health are somewhat lower than average. Being accustomed to the "
+                    "dark places of the world, driders can also see a short range without the "
+                    "need of light.";
 
         me->stats[A_STR] = -1;
         me->stats[A_INT] =  3;

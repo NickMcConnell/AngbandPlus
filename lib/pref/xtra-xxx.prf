@@ -51,7 +51,7 @@ R:@.player:0:0x93
 R:@.player:0:0x94
 ?:[EQU $RACE Mindflayer]
 R:@.player:0:0x95
-?:[EQU $RACE Imp]
+?:[EQU $RACE Imp Tengu]
 R:@.player:0:0x96
 ?:[EQU $RACE Golem]
 R:@.player:0:0x97

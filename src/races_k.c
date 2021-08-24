@@ -438,6 +438,7 @@ static void _skeleton_calc_bonuses(void)
     plr->see_inv++;
     res_add(GF_POIS);
     if (plr->lev >= 10) res_add(GF_COLD);
+    plr->see_nocto = MAX(plr->see_nocto, 2 + plr->lev/13);
 }
 static void _skeleton_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -465,6 +466,7 @@ plr_race_ptr skeleton_get_race(void)
                     "spell-using skeletons, which are also called liches. As undead beings, skeletons "
                     "need to worry very little about poison or attacks that can drain life. They do "
                     "not really use eyes for perceiving things, and are thus not fooled by invisibility. "
+                    "Being undead, skeletons can also see a short distance without the need for light. "
                     "Their bones are resistant to sharp shrapnel, and they will quickly become resistant "
                     "to cold. Although the magical effects of these will affect the skeleton even "
                     "without entering the skeleton's (non-existent) belly, the potion or food itself "
@@ -618,6 +620,7 @@ static void _spectre_calc_bonuses(void)
     plr->slow_digest = TRUE;
     res_add(GF_COLD);
     plr->pass_wall = TRUE;
+    plr->see_nocto = MAX(plr->see_nocto, 2 + plr->lev/13);
 }
 static void _spectre_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -649,7 +652,8 @@ plr_race_ptr spectre_get_race(void)
                     "on their life force, see invisible, and resist poison and cold. They also resist "
                     "nether. Spectres make superb spellcasters, but their physical form is very weak. "
                     "They gain very little nutrition from the food of mortals, but can absorb mana "
-                    "from staves and wands as their energy source.";
+                    "from staves and wands as their energy source. "
+                    "Being undead, spectres can also see a short distance without the need for light.";
 
         me->stats[A_STR] = -5;
         me->stats[A_INT] =  4;
@@ -754,6 +758,75 @@ plr_race_ptr sprite_get_race(void)
 }
 
 /****************************************************************
+ * Tengu
+ ****************************************************************/
+static power_info _tengu_powers[] =
+{
+    { A_DEX, {1,  2, 50, phase_door_spell} },
+    { A_DEX, {15, 8, 60, teleport_spell} },
+    { -1, {-1, -1, -1, NULL} }
+};
+static int _tengu_get_powers(spell_info* spells, int max)
+{
+    return get_powers_aux(spells, max, _tengu_powers);
+}
+static void _tengu_calc_bonuses(void)
+{
+    plr->pspeed += 2;
+    if (plr->lev >= 20)
+        res_add(GF_TELEPORT);
+}
+static void _tengu_get_flags(u32b flgs[OF_ARRAY_SIZE])
+{
+    add_flag(flgs, OF_SPEED);
+    if (plr->lev >= 20)
+        add_flag(flgs, OF_RES_(GF_TELEPORT));
+}
+plr_race_ptr tengu_get_race(void)
+{
+    static plr_race_ptr me = NULL;
+
+    if (!me)
+    {
+        me = plr_race_alloc(RACE_TENGU);
+        me->name = "Tengu";
+        me->desc = "Tengu are fast-moving demons that blink quickly in and out of existence. "
+                   "Their mastery of teleportation is unmatched. Eventually, they will even "
+                   "resist being teleported by their enemies. Being demons, they are rather "
+                   "unsuited for the priestly professions.";
+
+        me->stats[A_STR] =  0;
+        me->stats[A_INT] =  1;
+        me->stats[A_WIS] = -3;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] =  0;
+        me->stats[A_CHR] = -1;
+
+        me->skills.dis = 2;
+        me->skills.dev = 3;
+        me->skills.sav = -2;
+        me->skills.stl = 2;
+        me->skills.srh = -1;
+        me->skills.fos = 10;
+        me->skills.thn = 0;
+        me->skills.thb = 5;
+
+        me->life = 99;
+        me->base_hp = 19;
+        me->exp = 140;
+        me->infra = 3;
+        me->flags = RACE_IS_DEMON;
+        me->shop_adjust = 120;
+
+        me->hooks.calc_bonuses = _tengu_calc_bonuses;
+        me->hooks.get_powers = _tengu_get_powers;
+        me->hooks.get_flags = _tengu_get_flags;
+    }
+
+    return me;
+}
+
+/****************************************************************
  * Vampire
  ****************************************************************/
 static power_info _vampire_powers[] =
@@ -804,7 +877,8 @@ plr_race_ptr vampire_get_race(void)
                     "Vampire has a firm hold on its life force, and resists nether attacks. The Vampire "
                     "also resists cold and poison based attacks. It is, however, susceptible to its "
                     "perpetual hunger for fresh blood, which can only be satiated by sucking the blood "
-                    "from a nearby monster.";
+                    "from a nearby monster. "
+                    "Being undead, vampires can also see a short distance without the need for light.";
 
         me->stats[A_STR] =  3;
         me->stats[A_INT] =  3;
@@ -1034,6 +1108,7 @@ static void _zombie_calc_bonuses(void)
     res_add(GF_POIS);
     plr->slow_digest = TRUE;
     if (plr->lev >= 5) res_add(GF_COLD);
+    plr->see_nocto = MAX(plr->see_nocto, 2 + plr->lev/13);
 }
 static void _zombie_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -1062,7 +1137,8 @@ plr_race_ptr zombie_get_race(void)
             "of the netherworld. The grave is cold but this does not bother the undead and "
             "poison scarcely affects the unliving. Zombies gain little nutrition from "
             "ordinary food. Instead, they must absorb mana from magical devices to maintain "
-            "their undead existence.";
+            "their undead existence. "
+            "Being undead, zombies can also see a short distance without the need for light.";
 
         me->stats[A_STR] =  2;
         me->stats[A_INT] = -6;
