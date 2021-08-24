@@ -27,33 +27,16 @@ output to the screen).
 (or on) after the game has started!
   
   
-<a name="easy_id"></a>  </font><font color="#c08040">Easy Identify </font><font color="#404040">(easy_id)
-  </font><font color="#ffffff">With this option enabled, all objects are automatically fully 
-  identified on walkover, and items, spells and town services of 
-  Identify/*Identify* become unnecessary.
+<a name="no_id"></a>  </font><font color="#c08040">Items come Pre-Identified </font><font color="#404040">(no_id)
+  </font><font color="#ffffff">With this option enabled, all objects are automatically identified on 
+  creation, and items, spells and town services of Identify become 
+  unnecessary. Experimental, mainly for testing what a persistent game 
+  world might be like.
   
-<a name="easy_lore"></a>  </font><font color="#c08040">Easy Lore </font><font color="#404040">(easy_lore)
-  </font><font color="#ffffff">With this option enabled, the player will be born with complete 
-  knowledge of monster lore, including the various attacks and nasty 
-  surprises that many monsters usually offer to the uninitiated. This 
-  is a bit of a spoiler option, but is available for those who don't 
-  enjoy learning each of the many monsters present in the game. </font><font color="#c08040">Easy 
-  Lore </font><font color="#ffffff">also renders a few aspects of the game non-functional or 
-  pointless, including the ability to </font><font color="#ff0000">Probe </font><font color="#ffffff">monsters to learn about 
-  them as you encounter them, and the </font><font color="#ff0000">Research Monster </font><font color="#ffffff">town service to 
-  learn about monsters before you see them (for a price, of course).
-  
-<a name="easy_damage"></a>  </font><font color="#c08040">Easy monster health and damage information </font><font color="#404040">(easy_damage)
+<a name="show_damage"></a>  </font><font color="#c08040">Show damage information </font><font color="#404040">(show_damage)
   </font><font color="#ffffff">Also known as "Fnord-mode", this option allows the player to see the 
-  exact damage delivered by each attack, and to receive additional 
-  information about monster health and debuffs through a percentage 
-  display. Player health bars are also converted to use percentages. 
-  This is a very powerful easy-mode, and using it gives a score 
-  penalty.
-  
-<a name="allow_spoilers"></a>  </font><font color="#c08040">Allow spoilers </font><font color="#404040">(allow_spoilers)
-  </font><font color="#ffffff">Enabling this option allows the player to view some spoiler files 
-  in-game with the </font><font color="#ff8000">^Z </font><font color="#ffffff">command.
+  exact damage delivered by each attack or spell. This is on by default 
+  and does not affect score in Oposband.
   
 <a name="power_tele"></a>  </font><font color="#c08040">Use enhanced telepathy </font><font color="#404040">(power_tele)
   </font><font color="#ffffff">With this option off ("fuzzy telepathy"), telepathy only reveals the 
@@ -62,14 +45,6 @@ output to the screen).
   color and race of telepathically detected monsters the same way as 
   with normal sight.
   
-<a name="easy_thalos"></a>  </font><font color="#c08040">Allow easy teleportation to Thalos </font><font color="#404040">(easy_thalos)
-  </font><font color="#ffffff">If this option is on, inns will start offering teleportation to the 
-  town of </font><font color="#ff0000">Thalos </font><font color="#ffffff">as soon as at least one out of Anambar, Angwil, 
-  Morivant or Telmora has been visited by the player. Since Thalos is 
-  located on an island, travelling there by foot is very dangerous for 
-  a low-level character, especially at night. This option makes it 
-  possible to reach Thalos safely earlier in the game.
-  
 <a name="never_forget"></a>  </font><font color="#c08040">Easy Labyrinth and no amnesia </font><font color="#404040">(never_forget)
   </font><font color="#ffffff">This option removes amnesia attacks from the game, and allows the 
   player to map the normally unmappable </font><font color="#ff0000">Labyrinth </font><font color="#ffffff">dungeon in the same 
@@ -77,17 +52,6 @@ output to the screen).
   necessarily make the game easier, since monsters who might normally 
   use the annoying but ultimately harmless Amnesia spell will instead 
   select one of their other, more dangerous spell options.)
-  
-<a name="empty_lore"></a>  </font><font color="#c08040">Always forget item lore between games </font><font color="#404040">(empty_lore)
-  </font><font color="#ffffff">With this option off, a new game started by opening a dead 
-  character's savefile inherits the dead character's ability to 
-  recognize attributes on excellent items and artifacts. Turning this 
-  option on empties this item lore, allowing savefile re-use without 
-  meta-progression.
-  
-<a name="smart_learn"></a>  </font><font color="#c08040">Monsters learn from their mistakes </font><font color="#404040">(smart_learn)
-  </font><font color="#ffffff">Allow monsters to learn which spell attacks you are resistant to, and 
-  to use this information to choose the best spells.
   
 <a name="smart_cheat"></a>  </font><font color="#c08040">Monsters exploit player's weaknesses </font><font color="#404040">(smart_cheat)
   </font><font color="#ffffff">Allow monsters to know which spell attacks you are resistant to, and 
@@ -100,11 +64,6 @@ output to the screen).
   </font><font color="#ff0000">Angband</font><font color="#ffffff">. Turning this option on manually is </font><font color="#ff00ff">not recommended</font><font color="#ffffff">; it is 
   intended to be used together with the Coffee-Break and Instant-Coffee 
   game speed settings, which activate it automatically.
-  
-<a name="ironman_shops"></a>  </font><font color="#c08040">Stores are permanently closed </font><font color="#404040">(ironman_shops)
-  </font><font color="#ffffff">This option closes all shops, forcing you to survive off what you 
-  find in the dungeon. Your home will still function normally, and 
-  additional town services remain available.
   
 <a name="ironman_downward"></a>  </font><font color="#c08040">Disable recall and use of up stairs </font><font color="#404040">(ironman_downward)
   </font><font color="#ffffff">With this option on, you are not allowed to climb upwards or (at 
@@ -169,34 +128,6 @@ output to the screen).
   </font><font color="#ffffff">option is on, since the best rewards would then be completely 
   inaccessible.
   
-<a name="preserve_mode"></a>  </font><font color="#c08040">Preserve artifacts </font><font color="#404040">(preserve_mode)
-  </font><font color="#ffffff">With this option off, once a standard artifact is generated (either 
-  on the dungeon floor or in a monster drop), it will never be 
-  generated again during that game; if you miss the artifact, it is 
-  gone forever. With the option on, undiscovered standard artifacts can 
-  generate again on subsequent levels; this makes it safer to leave a 
-  level before it has been completely explored. (Standard artifacts 
-  that have been discovered and left behind will never generate again, 
-  regardless of whether this option is off or on.)
-  
-<a name="allow_friendly_monster"></a>  </font><font color="#c08040">Allow friendly monsters </font><font color="#404040">(allow_friendly_monster)
-  </font><font color="#ffffff">This option allows some monsters to generate as friendly. A few 
-  monster races are friendly by default; turning virtues on allows 
-  additional monsters of specific types to spawn friendly if the 
-  player's virtues are appropriately aligned with their type.
-  
-<a name="allow_hostile_monster"></a>  </font><font color="#c08040">Allow monsters hostile to each other </font><font color="#404040">(allow_hostile_monster)
-  </font><font color="#ffffff">If this option is on, monster infighting is disallowed except when 
-  one of the monsters is a pet or friendly monster. With the option on, 
-  infighting can also occur between hostile (or friendly) monsters of 
-  opposite alignments.
-  
-<a name="allow_pets"></a>  </font><font color="#c08040">Allow player to summon/charm monsters </font><font color="#404040">(allow_pets)
-  </font><font color="#ffffff">This option allows the player to summon pets or turn hostile monsters 
-  into pets (see <a href="monster.html#Pets"></font><font color="#00ff00">[b]</a></font><font color="#ffffff">). Turning this option off is generally not 
-  recommended, and would make pet-based characters like Quylthulgs, 
-  Beastmasters and Cavalry essentially unplayable.
-  
 <a name="quest_unique"></a>  </font><font color="#c08040">Random quests for unique monsters only </font><font color="#404040">(quest_unique)
   </font><font color="#ffffff">With this option turned on, the ten </font><font color="#ff0000">random quests </font><font color="#ffffff">in the Pits of 
   Angband will all require you to kill a unique monster. With the 
@@ -243,7 +174,7 @@ output to the screen).
   
 <a name="always_small_levels"></a>  </font><font color="#c08040">Level size </font><font color="#404040">(always_small_levels)
   </font><font color="#ffffff">This option allows you to select from a variety of different 
-  level-size selection methods. See <a href="small_lv.html"></font><font color="#00ff00">[c]</a> </font><font color="#ffffff">for more details.
+  level-size selection methods. See <a href="small_lv.html"></font><font color="#00ff00">[b]</a> </font><font color="#ffffff">for more details.
   
 <a name="increase_density"></a>  </font><font color="#c08040">Increase monster density on small levels </font><font color="#404040">(increase_density)
   </font><font color="#ffffff">This option switches to the old PosChengband 6.1.0 monster density 
@@ -260,7 +191,7 @@ output to the screen).
   higher) width-to-height ratio are sometimes re-shaped to have the 
   same total area but different proportions.
   
-<a name="no_chris"></a>  </font><font color="#c08040">Nexus attacks never teleport to another dungeon </font><font color="#404040">(no_chris)
+<a name="no_nexus_warp"></a>  </font><font color="#c08040">Nexus attacks never teleport to another dungeon </font><font color="#404040">(no_nexus_warp)
   </font><font color="#ffffff">Turning on this option disables the "Chris effect" (a nexus attack 
   effect that teleports the player to another dungeon, potentially one 
   that's highly dangerous and was never previously visited by the 
@@ -293,7 +224,7 @@ output to the screen).
 <a name="rogue_like_commands"></a>  </font><font color="#c08040">Rogue-like commands </font><font color="#404040">(rogue_like_commands)
   </font><font color="#ffffff">Activates the </font><font color="#ff0000">roguelike </font><font color="#ffffff">keyset, an alternative way of mapping 
   keystrokes to underlying game commands. The roguelike keyset is 
-  recommended for players who lack a numpad on their keyboard (see <a href="command.html#RogueKeyset"></font><font color="#00ff00">[d]</a> 
+  recommended for players who lack a numpad on their keyboard (see <a href="command.html#RogueKeyset"></font><font color="#00ff00">[c]</a> 
   </font><font color="#ffffff">for more information).
   
 <a name="always_pickup"></a>  </font><font color="#c08040">Pick things up by default </font><font color="#404040">(always_pickup)
@@ -355,7 +286,7 @@ output to the screen).
 <a name="always_repeat"></a>  </font><font color="#c08040">Repeat obvious commands </font><font color="#404040">(always_repeat)
   </font><font color="#ffffff">Tells the game that when you attempt to </font><font color="#ff0000">open </font><font color="#ffffff">a door or chest, </font><font color="#ff0000">bash </font><font color="#ffffff">a 
   door, </font><font color="#ff0000">tunnel </font><font color="#ffffff">through walls, or </font><font color="#ff0000">disarm </font><font color="#ffffff">traps or chests, that you wish 
-  to repeat the command 99 times (see <a href="command.html#CommandCounts"></font><font color="#00ff00">[e]</a></font><font color="#ffffff">). Turning this option off is 
+  to repeat the command 99 times (see <a href="command.html#CommandCounts"></font><font color="#00ff00">[d]</a></font><font color="#ffffff">). Turning this option off is 
   not recommended, and would make the game very tedious without 
   providing any real advantages.
   
@@ -442,7 +373,16 @@ output to the screen).
   of another scroll, the appearance (or disappearance) of a potion or 
   spellbook would have no effect on its label. (Either way, the only 
   fully reliable way to ensure items retain their expected slots is to 
-  inscribe them accordingly; see <a href="objects.html#Inscriptions"></font><font color="#00ff00">[f]</a> </font><font color="#ffffff">for help.)
+  inscribe them accordingly; see <a href="objects.html#Inscriptions"></font><font color="#00ff00">[e]</a> </font><font color="#ffffff">for help.)
+  
+<a name="unified_use"></a>  </font><font color="#c08040">Unified Use Command </font><font color="#404040">(unified_use)
+  </font><font color="#ffffff">This option changes the behavior of the 'a' command in both regular 
+  and roguelike command sets to allow the player to 'a'ctivate or use 
+  any usable item. Artifacts with activations, consumables like scrolls 
+  and potions, magic devices like wands and staves, etc. With this 
+  option turned off, the 'a' command only lets you use wands (regular 
+  commands) or rods (roguelike commands).
+  
   
 <a name="MapScreen"></a></font><font color="#c00000">Map &amp; Screen Options
   
@@ -612,10 +552,6 @@ output to the screen).
   your current state of hunger. For example:
     </font><font color="#c08040">,</font><font color="#ffffff">[</font><font color="#ff0000">**</font><font color="#ffffff">-------]
   
-<a name="decimal_stats"></a>  </font><font color="#c08040">Display stats as decimals </font><font color="#404040">(decimal_stats)
-  </font><font color="#ffffff">Displays stats above 18 as decimals (for example, </font><font color="#00ff00">39.7 </font><font color="#ffffff">instead of 
-  </font><font color="#00ff00">18/217</font><font color="#ffffff">). New players sometimes find this format more intuitive.
-  
 <a name="show_rogue_keys"></a>  </font><font color="#c08040">Display roguelike movement keys as reminder </font><font color="#404040">(show_rogue_keys)
   </font><font color="#ffffff">Displays the movement keys of the roguelike keyset in the main screen 
   sidebar, provided that there is enough room for them to be displayed 
@@ -635,11 +571,11 @@ output to the screen).
   to have from its kind or ego type; for example, Boots of Levitation 
   might have an extra resistance to Shards, but the levitation itself 
   would not be an extra attribute since all Boots of Levitation have 
-  it. See <a href="objects.html#InscriptionAbbrev"></font><font color="#00ff00">[g]</a> </font><font color="#ffffff">for a list of abbreviations.
+  it. See <a href="objects.html#InscriptionAbbrev"></font><font color="#00ff00">[f]</a> </font><font color="#ffffff">for a list of abbreviations.
   
 <a name="abbrev_all"></a>  </font><font color="#c08040">Describe all object attributes by abbreviation </font><font color="#404040">(abbrev_all)
   </font><font color="#ffffff">If this option is on, all attributes on an object will be added to 
-  its description as a fake inscription. See <a href="objects.html#InscriptionAbbrev"></font><font color="#00ff00">[h]</a> </font><font color="#ffffff">for a list of 
+  its description as a fake inscription. See <a href="objects.html#InscriptionAbbrev"></font><font color="#00ff00">[g]</a> </font><font color="#ffffff">for a list of 
   abbreviations.
   
 <a name="exp_need"></a>  </font><font color="#c08040">Show the experience needed for the next level </font><font color="#404040">(exp_need)
@@ -781,12 +717,6 @@ output to the screen).
   this option is not on, a simple "You die" message is displayed 
   instead.
   
-<a name="allow_debug_opts"></a>  </font><font color="#c08040">Allow use of debug/cheat options </font><font color="#404040">(allow_debug_opts)
-  </font><font color="#ffffff">Enables use of the debug command (</font><font color="#ff8000">^A</font><font color="#ffffff">), wizard mode (</font><font color="#ff8000">^W</font><font color="#ffffff">) and cheat 
-  options (</font><font color="#ff8000">C </font><font color="#ffffff">in the main options menu). Using any of these irrevocably 
-  marks the character as a cheater; having the option off ensures they 
-  cannot be triggered accidentally.
-  
   
 <a name="Disturbance"></a></font><font color="#c00000">Disturbance Options
   
@@ -916,7 +846,7 @@ output to the screen).
   one or more of the </font><font color="#ff0000">leave_* </font><font color="#ffffff">options discussed below.
   
     </font><font color="#00ff00">Note: The </font><font color="#ff0000">Easy Auto-Destroyer </font><font color="#00ff00">is a simpler version of 
-    the full-featured </font><font color="#ff0000">Mogaminator </font><font color="#00ff00">discussed at <a href="editor.html">[i]</a>. It is 
+    the full-featured </font><font color="#ff0000">Mogaminator </font><font color="#00ff00">discussed at <a href="editor.html">[h]</a>. It is 
     designed for those who feel the full version is too 
     complicated to use. However, you really should only use 
     one or the other; if you are using the Mogaminator, 
@@ -1034,7 +964,7 @@ other catastrophic crash:
 
 </font><font color="#ffffff">Some platforms support </font><font color="#ff0000">subwindows</font><font color="#ffffff">, which are additional, automatically 
 updating terminals used to keep useful information on permanent display 
-(see <a href="subwin.html"></font><font color="#00ff00">[j]</a> </font><font color="#ffffff">for more information). These window flags can be used to 
+(see <a href="subwin.html"></font><font color="#00ff00">[i]</a> </font><font color="#ffffff">for more information). These window flags can be used to 
 specify what information each subwindow displays; the possible choices 
 should be fairly obvious.
   
@@ -1114,7 +1044,31 @@ should be fairly obvious.
   character's data when they die.
   
 
-</font><font color="#404040">Original   : Ben Harrison
+
+<a name="Oposband"></a></font><font color="#c00000">Option Changes from FrogComposband
+
+</font><font color="#404040">The following options have been built in to Oposband and are no longer 
+optional:
+allow_debug_opts
+easy_lore
+allow_spoilers
+smart_learn
+preserve_mode
+allow_friendly_monster (allow some monsters to be friendly to the 
+player)
+allow_hostile_monster (Allow opposite-aligned monsters to fight each 
+other)
+allow_pets (Allow pets)
+
+The following options have been removed and no longer exist (as if they 
+are always off):
+decimal_stats (stats increase linearly now past 18: 19, 20, 21, ...)
+easy_id (replaced with no_id above)
+easy_damage (replaced with show_damage, which does not affect score and 
+is on by default)
+easy_thalos (replaced by building service to get ferry ride to Thalos)
+
+Original   : Ben Harrison
 Updated    : Zangband 2.1.* by Topi Ylinen
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
@@ -1123,6 +1077,7 @@ Updated    : PosChengband 4.0.0
 Updated    : FrogComposband 7.0.nougat
 Updated    : FrogComposband 7.1.chocolate
 Updated    : FrogComposband 7.1.liquorice
+Updated    : Oposband 0.3.5
 
 
 </font></pre></body></html>

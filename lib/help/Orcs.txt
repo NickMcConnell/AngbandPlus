@@ -53,4 +53,4 @@ Orc shaman        <color:o>Fair         </color> <color:R>Poor         </color> 
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.3.4.</color>
+<color:s>Automatically generated for Oposband 0.3.5.</color>

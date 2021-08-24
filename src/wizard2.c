@@ -143,7 +143,7 @@ void strip_name(char *buf, int k_idx)
 void do_cmd_rerate_aux(void)
 {
 	/*Min 87%, max 117%*/
-	p_ptr->life_rating = 87 + randint0(117 +1);
+	p_ptr->life_rating = 87 + randint0(31);
 }
 
 void do_cmd_rerate(bool display)

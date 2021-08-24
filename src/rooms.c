@@ -4494,7 +4494,7 @@ bool generate_rooms(void)
 /*
  * Generate helper -- fill a rectangle with a table
  */
-static int generate_table_room(int y1, int x1, int y2, int x2)
+int generate_table_room(int y1, int x1, int y2, int x2)
 {
 	int y, x;
 	int success = 0;

@@ -327,4 +327,4 @@ Protects your mind from hallucination and Eldritch Horrors.</indent>
 
 
 
-<color:s>Automatically generated for Oposband 0.3.4.</color>
+<color:s>Automatically generated for Oposband 0.3.5.</color>

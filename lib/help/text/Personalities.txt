@@ -404,5 +404,5 @@ Split        Fair          Fair          Fair          Fair
 
 
 
-Automatically generated for Oposband 0.3.4.
+Automatically generated for Oposband 0.3.5.
 

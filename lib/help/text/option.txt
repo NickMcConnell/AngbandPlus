@@ -24,33 +24,16 @@ The birth options can only be accessed while creating a new character
 (or on) after the game has started!
   
   
-  Easy Identify (easy_id)
-  With this option enabled, all objects are automatically fully 
-  identified on walkover, and items, spells and town services of 
-  Identify/*Identify* become unnecessary.
+  Items come Pre-Identified (no_id)
+  With this option enabled, all objects are automatically identified on 
+  creation, and items, spells and town services of Identify become 
+  unnecessary. Experimental, mainly for testing what a persistent game 
+  world might be like.
   
-  Easy Lore (easy_lore)
-  With this option enabled, the player will be born with complete 
-  knowledge of monster lore, including the various attacks and nasty 
-  surprises that many monsters usually offer to the uninitiated. This 
-  is a bit of a spoiler option, but is available for those who don't 
-  enjoy learning each of the many monsters present in the game. Easy 
-  Lore also renders a few aspects of the game non-functional or 
-  pointless, including the ability to Probe monsters to learn about 
-  them as you encounter them, and the Research Monster town service to 
-  learn about monsters before you see them (for a price, of course).
-  
-  Easy monster health and damage information (easy_damage)
+  Show damage information (show_damage)
   Also known as "Fnord-mode", this option allows the player to see the 
-  exact damage delivered by each attack, and to receive additional 
-  information about monster health and debuffs through a percentage 
-  display. Player health bars are also converted to use percentages. 
-  This is a very powerful easy-mode, and using it gives a score 
-  penalty.
-  
-  Allow spoilers (allow_spoilers)
-  Enabling this option allows the player to view some spoiler files 
-  in-game with the ^Z command.
+  exact damage delivered by each attack or spell. This is on by default 
+  and does not affect score in Oposband.
   
   Use enhanced telepathy (power_tele)
   With this option off ("fuzzy telepathy"), telepathy only reveals the 
@@ -59,14 +42,6 @@ The birth options can only be accessed while creating a new character
   color and race of telepathically detected monsters the same way as 
   with normal sight.
   
-  Allow easy teleportation to Thalos (easy_thalos)
-  If this option is on, inns will start offering teleportation to the 
-  town of Thalos as soon as at least one out of Anambar, Angwil, 
-  Morivant or Telmora has been visited by the player. Since Thalos is 
-  located on an island, travelling there by foot is very dangerous for 
-  a low-level character, especially at night. This option makes it 
-  possible to reach Thalos safely earlier in the game.
-  
   Easy Labyrinth and no amnesia (never_forget)
   This option removes amnesia attacks from the game, and allows the 
   player to map the normally unmappable Labyrinth dungeon in the same 
@@ -74,17 +49,6 @@ The birth options can only be accessed while creating a new character
   necessarily make the game easier, since monsters who might normally 
   use the annoying but ultimately harmless Amnesia spell will instead 
   select one of their other, more dangerous spell options.)
-  
-  Always forget item lore between games (empty_lore)
-  With this option off, a new game started by opening a dead 
-  character's savefile inherits the dead character's ability to 
-  recognize attributes on excellent items and artifacts. Turning this 
-  option on empties this item lore, allowing savefile re-use without 
-  meta-progression.
-  
-  Monsters learn from their mistakes (smart_learn)
-  Allow monsters to learn which spell attacks you are resistant to, and 
-  to use this information to choose the best spells.
   
   Monsters exploit player's weaknesses (smart_cheat)
   Allow monsters to know which spell attacks you are resistant to, and 
@@ -97,11 +61,6 @@ The birth options can only be accessed while creating a new character
   Angband. Turning this option on manually is not recommended; it is 
   intended to be used together with the Coffee-Break and Instant-Coffee 
   game speed settings, which activate it automatically.
-  
-  Stores are permanently closed (ironman_shops)
-  This option closes all shops, forcing you to survive off what you 
-  find in the dungeon. Your home will still function normally, and 
-  additional town services remain available.
   
   Disable recall and use of up stairs (ironman_downward)
   With this option on, you are not allowed to climb upwards or (at 
@@ -166,34 +125,6 @@ The birth options can only be accessed while creating a new character
   option is on, since the best rewards would then be completely 
   inaccessible.
   
-  Preserve artifacts (preserve_mode)
-  With this option off, once a standard artifact is generated (either 
-  on the dungeon floor or in a monster drop), it will never be 
-  generated again during that game; if you miss the artifact, it is 
-  gone forever. With the option on, undiscovered standard artifacts can 
-  generate again on subsequent levels; this makes it safer to leave a 
-  level before it has been completely explored. (Standard artifacts 
-  that have been discovered and left behind will never generate again, 
-  regardless of whether this option is off or on.)
-  
-  Allow friendly monsters (allow_friendly_monster)
-  This option allows some monsters to generate as friendly. A few 
-  monster races are friendly by default; turning virtues on allows 
-  additional monsters of specific types to spawn friendly if the 
-  player's virtues are appropriately aligned with their type.
-  
-  Allow monsters hostile to each other (allow_hostile_monster)
-  If this option is on, monster infighting is disallowed except when 
-  one of the monsters is a pet or friendly monster. With the option on, 
-  infighting can also occur between hostile (or friendly) monsters of 
-  opposite alignments.
-  
-  Allow player to summon/charm monsters (allow_pets)
-  This option allows the player to summon pets or turn hostile monsters 
-  into pets (see [b]). Turning this option off is generally not 
-  recommended, and would make pet-based characters like Quylthulgs, 
-  Beastmasters and Cavalry essentially unplayable.
-  
   Random quests for unique monsters only (quest_unique)
   With this option turned on, the ten random quests in the Pits of 
   Angband will all require you to kill a unique monster. With the 
@@ -240,7 +171,7 @@ The birth options can only be accessed while creating a new character
   
   Level size (always_small_levels)
   This option allows you to select from a variety of different 
-  level-size selection methods. See [c] for more details.
+  level-size selection methods. See [b] for more details.
   
   Increase monster density on small levels (increase_density)
   This option switches to the old PosChengband 6.1.0 monster density 
@@ -257,7 +188,7 @@ The birth options can only be accessed while creating a new character
   higher) width-to-height ratio are sometimes re-shaped to have the 
   same total area but different proportions.
   
-  Nexus attacks never teleport to another dungeon (no_chris)
+  Nexus attacks never teleport to another dungeon (no_nexus_warp)
   Turning on this option disables the "Chris effect" (a nexus attack 
   effect that teleports the player to another dungeon, potentially one 
   that's highly dangerous and was never previously visited by the 
@@ -290,7 +221,7 @@ Input Options
   Rogue-like commands (rogue_like_commands)
   Activates the roguelike keyset, an alternative way of mapping 
   keystrokes to underlying game commands. The roguelike keyset is 
-  recommended for players who lack a numpad on their keyboard (see [d] 
+  recommended for players who lack a numpad on their keyboard (see [c] 
   for more information).
   
   Pick things up by default (always_pickup)
@@ -352,7 +283,7 @@ Input Options
   Repeat obvious commands (always_repeat)
   Tells the game that when you attempt to open a door or chest, bash a 
   door, tunnel through walls, or disarm traps or chests, that you wish 
-  to repeat the command 99 times (see [e]). Turning this option off is 
+  to repeat the command 99 times (see [d]). Turning this option off is 
   not recommended, and would make the game very tedious without 
   providing any real advantages.
   
@@ -439,7 +370,16 @@ Input Options
   of another scroll, the appearance (or disappearance) of a potion or 
   spellbook would have no effect on its label. (Either way, the only 
   fully reliable way to ensure items retain their expected slots is to 
-  inscribe them accordingly; see [f] for help.)
+  inscribe them accordingly; see [e] for help.)
+  
+  Unified Use Command (unified_use)
+  This option changes the behavior of the 'a' command in both regular 
+  and roguelike command sets to allow the player to 'a'ctivate or use 
+  any usable item. Artifacts with activations, consumables like scrolls 
+  and potions, magic devices like wands and staves, etc. With this 
+  option turned off, the 'a' command only lets you use wands (regular 
+  commands) or rods (roguelike commands).
+  
   
 Map & Screen Options
   
@@ -609,10 +549,6 @@ Text Display Options
   your current state of hunger. For example:
     ,[**-------]
   
-  Display stats as decimals (decimal_stats)
-  Displays stats above 18 as decimals (for example, 39.7 instead of 
-  18/217). New players sometimes find this format more intuitive.
-  
   Display roguelike movement keys as reminder (show_rogue_keys)
   Displays the movement keys of the roguelike keyset in the main screen 
   sidebar, provided that there is enough room for them to be displayed 
@@ -632,11 +568,11 @@ Text Display Options
   to have from its kind or ego type; for example, Boots of Levitation 
   might have an extra resistance to Shards, but the levitation itself 
   would not be an extra attribute since all Boots of Levitation have 
-  it. See [g] for a list of abbreviations.
+  it. See [f] for a list of abbreviations.
   
   Describe all object attributes by abbreviation (abbrev_all)
   If this option is on, all attributes on an object will be added to 
-  its description as a fake inscription. See [h] for a list of 
+  its description as a fake inscription. See [g] for a list of 
   abbreviations.
   
   Show the experience needed for the next level (exp_need)
@@ -778,12 +714,6 @@ Game Play Options
   this option is not on, a simple "You die" message is displayed 
   instead.
   
-  Allow use of debug/cheat options (allow_debug_opts)
-  Enables use of the debug command (^A), wizard mode (^W) and cheat 
-  options (C in the main options menu). Using any of these irrevocably 
-  marks the character as a cheater; having the option off ensures they 
-  cannot be triggered accidentally.
-  
   
 Disturbance Options
   
@@ -913,7 +843,7 @@ Easy Auto-Destroyer Options
   one or more of the leave_* options discussed below.
   
     Note: The Easy Auto-Destroyer is a simpler version of 
-    the full-featured Mogaminator discussed at [i]. It is 
+    the full-featured Mogaminator discussed at [h]. It is 
     designed for those who feel the full version is too 
     complicated to use. However, you really should only use 
     one or the other; if you are using the Mogaminator, 
@@ -1031,7 +961,7 @@ Window Flags
 
 Some platforms support subwindows, which are additional, automatically 
 updating terminals used to keep useful information on permanent display 
-(see [j] for more information). These window flags can be used to 
+(see [i] for more information). These window flags can be used to 
 specify what information each subwindow displays; the possible choices 
 should be fairly obvious.
   
@@ -1111,6 +1041,30 @@ should be fairly obvious.
   character's data when they die.
   
 
+
+Option Changes from FrogComposband
+
+The following options have been built in to Oposband and are no longer 
+optional:
+allow_debug_opts
+easy_lore
+allow_spoilers
+smart_learn
+preserve_mode
+allow_friendly_monster (allow some monsters to be friendly to the 
+player)
+allow_hostile_monster (Allow opposite-aligned monsters to fight each 
+other)
+allow_pets (Allow pets)
+
+The following options have been removed and no longer exist (as if they 
+are always off):
+decimal_stats (stats increase linearly now past 18: 19, 20, 21, ...)
+easy_id (replaced with no_id above)
+easy_damage (replaced with show_damage, which does not affect score and 
+is on by default)
+easy_thalos (replaced by building service to get ferry ride to Thalos)
+
 Original   : Ben Harrison
 Updated    : Zangband 2.1.* by Topi Ylinen
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
@@ -1120,5 +1074,6 @@ Updated    : PosChengband 4.0.0
 Updated    : FrogComposband 7.0.nougat
 Updated    : FrogComposband 7.1.chocolate
 Updated    : FrogComposband 7.1.liquorice
+Updated    : Oposband 0.3.5
 
 

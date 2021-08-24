@@ -860,4 +860,4 @@ Icky thing   <color:G>Excellent    </color> <color:y>Good         </color> <colo
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.3.4.</color>
+<color:s>Automatically generated for Oposband 0.3.5.</color>

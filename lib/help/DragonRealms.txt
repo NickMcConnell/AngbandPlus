@@ -163,4 +163,4 @@ Death          <color:R>Poor         </color> <color:R>Poor         </color> <co
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.3.4.</color>
+<color:s>Automatically generated for Oposband 0.3.5.</color>

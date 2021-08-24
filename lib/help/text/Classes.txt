@@ -1585,5 +1585,5 @@ Wild-Talent   Fair          Poor          Good          Excellent
 
 
 
-Automatically generated for Oposband 0.3.4.
+Automatically generated for Oposband 0.3.5.
 

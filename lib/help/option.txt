@@ -13,41 +13,23 @@ Various concepts are mentioned in the descriptions below, including <color:keywo
 The birth options can only be accessed while creating a new character (press <color:keypress>=</color> during character creation). There is no way to turn them off (or on) after the game has started!
   <indent>
 
-<topic:easy_id><color:U>Easy Identify</color> <color:D>(easy_id)</color>
-With this option enabled, all objects are automatically fully identified on walkover, and items, spells and town services of Identify/*Identify* become unnecessary.
+<topic:no_id><color:U>Items come Pre-Identified</color> <color:D>(no_id)</color>
+With this option enabled, all objects are automatically identified on creation, and items, spells and town services of Identify become unnecessary. Experimental, mainly for testing what a persistent game world might be like.
 
-<topic:easy_lore><color:U>Easy Lore</color> <color:D>(easy_lore)</color>
-With this option enabled, the player will be born with complete knowledge of monster lore, including the various attacks and nasty surprises that many monsters usually offer to the uninitiated. This is a bit of a spoiler option, but is available for those who don't enjoy learning each of the many monsters present in the game. <color:U>Easy Lore</color> also renders a few aspects of the game non-functional or pointless, including the ability to <color:keyword>Probe</color> monsters to learn about them as you encounter them, and the <color:keyword>Research Monster</color> town service to learn about monsters before you see them (for a price, of course).
-
-<topic:easy_damage><color:U>Easy monster health and damage information</color> <color:D>(easy_damage)</color>
-Also known as "Fnord-mode", this option allows the player to see the exact damage delivered by each attack, and to receive additional information about monster health and debuffs through a percentage display. Player health bars are also converted to use percentages. This is a very powerful easy-mode, and using it gives a score penalty.
-
-<topic:allow_spoilers><color:U>Allow spoilers</color> <color:D>(allow_spoilers)</color>
-Enabling this option allows the player to view some spoiler files in-game with the <color:keypress>^Z</color> command.
+<topic:show_damage><color:U>Show damage information</color> <color:D>(show_damage)</color>
+Also known as "Fnord-mode", this option allows the player to see the exact damage delivered by each attack or spell. This is on by default and does not affect score in Oposband.
 
 <topic:power_tele><color:U>Use enhanced telepathy</color> <color:D>(power_tele)</color>
 With this option off ("fuzzy telepathy"), telepathy only reveals the "species" (default display character) of a monster; its color and race are hidden. Turning on this option allows the player to see the color and race of telepathically detected monsters the same way as with normal sight.
 
-<topic:easy_thalos><color:U>Allow easy teleportation to Thalos</color> <color:D>(easy_thalos)</color>
-If this option is on, inns will start offering teleportation to the town of <color:keyword>Thalos</color> as soon as at least one out of Anambar, Angwil, Morivant or Telmora has been visited by the player. Since Thalos is located on an island, travelling there by foot is very dangerous for a low-level character, especially at night. This option makes it possible to reach Thalos safely earlier in the game.
-
 <topic:never_forget><color:U>Easy Labyrinth and no amnesia</color> <color:D>(never_forget)</color>
 This option removes amnesia attacks from the game, and allows the player to map the normally unmappable <color:keyword>Labyrinth</color> dungeon in the same way as all other dungeons. (Turning this option on does not necessarily make the game easier, since monsters who might normally use the annoying but ultimately harmless Amnesia spell will instead select one of their other, more dangerous spell options.)
-
-<topic:empty_lore><color:U>Always forget item lore between games</color> <color:D>(empty_lore)</color>
-With this option off, a new game started by opening a dead character's savefile inherits the dead character's ability to recognize attributes on excellent items and artifacts. Turning this option on empties this item lore, allowing savefile re-use without meta-progression.
-
-<topic:smart_learn><color:U>Monsters learn from their mistakes</color> <color:D>(smart_learn)</color>
-Allow monsters to learn which spell attacks you are resistant to, and to use this information to choose the best spells.
 
 <topic:smart_cheat><color:U>Monsters exploit player's weaknesses</color> <color:D>(smart_cheat)</color>
 Allow monsters to know which spell attacks you are resistant to, and to use this information to choose the best spells; essentially, this option gives Easy Lore to the monsters.
 
 <topic:no_wilderness><color:U>Play without a wilderness</color> <color:D>(no_wilderness)</color>
 This option disables the wilderness, forcing you to play with a single special town level. The only dungeon available will be <color:keyword>Angband</color>. Turning this option on manually is <color:v>not recommended</color>; it is intended to be used together with the Coffee-Break and Instant-Coffee game speed settings, which activate it automatically.
-
-<topic:ironman_shops><color:U>Stores are permanently closed</color> <color:D>(ironman_shops)</color>
-This option closes all shops, forcing you to survive off what you find in the dungeon. Your home will still function normally, and additional town services remain available.
 
 <topic:ironman_downward><color:U>Disable recall and use of up stairs</color> <color:D>(ironman_downward)</color>
 With this option on, you are not allowed to climb upwards or (at Normal game speed) recall home. All stairs are downstairs, and every level-teleport will take you to a deeper level. (Coffee-Break Mode and Instant-Coffee Mode activate this option automatically, but do allow you to recall home.)
@@ -75,18 +57,6 @@ Turns on the virtue system. Virtues can help or hinder the player; among other t
 
 <topic:no_wanted_points><color:U>Deeper wanted uniques give better rewards</color> <color:D>(no_wanted_points)</color>
 With this option on, the reward for turning in a wanted corpse depends on the unique's position on the list of all wanted uniques (deeper uniques give better rewards); with the option off, the rewards depend on the total number of wanted uniques turned in. Turning the option off is not recommended if the <color:keyword>reduce_uniques</color> option is on, since the best rewards would then be completely inaccessible.
-
-<topic:preserve_mode><color:U>Preserve artifacts</color> <color:D>(preserve_mode)</color>
-With this option off, once a standard artifact is generated (either on the dungeon floor or in a monster drop), it will never be generated again during that game; if you miss the artifact, it is gone forever. With the option on, undiscovered standard artifacts can generate again on subsequent levels; this makes it safer to leave a level before it has been completely explored. (Standard artifacts that have been discovered and left behind will never generate again, regardless of whether this option is off or on.)
-
-<topic:allow_friendly_monster><color:U>Allow friendly monsters</color> <color:D>(allow_friendly_monster)</color>
-This option allows some monsters to generate as friendly. A few monster races are friendly by default; turning virtues on allows additional monsters of specific types to spawn friendly if the player's virtues are appropriately aligned with their type.
-
-<topic:allow_hostile_monster><color:U>Allow monsters hostile to each other</color> <color:D>(allow_hostile_monster)</color>
-If this option is on, monster infighting is disallowed except when one of the monsters is a pet or friendly monster. With the option on, infighting can also occur between hostile (or friendly) monsters of opposite alignments.
-
-<topic:allow_pets><color:U>Allow player to summon/charm monsters</color> <color:D>(allow_pets)</color>
-This option allows the player to summon pets or turn hostile monsters into pets (see <link:monster.txt#Pets>). Turning this option off is generally not recommended, and would make pet-based characters like Quylthulgs, Beastmasters and Cavalry essentially unplayable.
 
 <topic:quest_unique><color:U>Random quests for unique monsters only</color> <color:D>(quest_unique)</color>
 With this option turned on, the ten <color:keyword>random quests</color> in the Pits of Angband will all require you to kill a unique monster. With the option off, some of them (especially the early ones) may feature groups of non-unique monsters instead, similarly to the fixed Warg Quest.
@@ -121,7 +91,7 @@ If this option is enabled, small levels can generate even in dungeons that norma
 <topic:even_proportions><color:U>Sometimes reshape very flat "pipe" levels</color> <color:D>(even_proportions)</color>
 If this option is turned on, levels with a very high (6-to-1 or higher) width-to-height ratio are sometimes re-shaped to have the same total area but different proportions.
 
-<topic:no_chris><color:U>Nexus attacks never teleport to another dungeon</color> <color:D>(no_chris)</color>
+<topic:no_nexus_warp><color:U>Nexus attacks never teleport to another dungeon</color> <color:D>(no_nexus_warp)</color>
 Turning on this option disables the "Chris effect" (a nexus attack effect that teleports the player to another dungeon, potentially one that's highly dangerous and was never previously visited by the player). As a substitute for the Chris effect, the player's stats will be scrambled; or if stat scrambling is also disabled, the Baby Foul Curse (a less deadly version of the infamous Ancient Foul Curse) will trigger. This option has no effect (or, rather, is effectively always on) in no-wilderness mode, since no-wilderness mode only has the one dungeon.
 
 <topic:no_scrambling><color:U>Disallow stat scrambling from monster attacks</color> <color:D>(no_scrambling)</color>
@@ -200,6 +170,10 @@ If this option is on, numpad keys are interpreted as cursor-movement keys rather
 
 <topic:use_pack_slots><color:U>Retain backpack slot labels in other inventories</color> <color:D>(use_pack_slots)</color>
 If this option is on, inventory items will have the same default label keys in all object prompts; for example, if a scroll is the ninth item in your backpack and accordingly labeled <color:B>i)</color> for the Show Inventory command, then it will also be labeled <color:B>i)</color> for the Read Scroll command, even if you have no other scrolls. If this option is off, each object prompt recomputes the labels, counting the relevant items only; the example scroll would still be <color:B>i)</color> for Show Inventory, but <color:B>a)</color> in the Read Scroll prompt. Having the option off reduces the risk of objects unexpectedly changing labels between successive calls to a command; the scroll could only be bumped to <color:B>b)</color> by the addition of another scroll, the appearance (or disappearance) of a potion or spellbook would have no effect on its label. (Either way, the only fully reliable way to ensure items retain their expected slots is to inscribe them accordingly; see <link:objects.txt#Inscriptions> for help.)
+
+<topic:unified_use><color:U>Unified Use Command</color> <color:D>(unified_use)</color>
+This option changes the behavior of the 'a' command in both regular and roguelike command sets to allow the player to 'a'ctivate or use any usable item. Artifacts with activations, consumables like scrolls and potions, magic devices like wands and staves, etc. With this option turned off, the 'a' command only lets you use wands (regular commands) or rods (roguelike commands).
+
 </indent>
 <topic:MapScreen><style:heading>Map & Screen Options</style>
   <indent>
@@ -293,9 +267,6 @@ This option will display a status bar on the main screen that details your curre
 This option will display a status bar on the main screen that details your current state of hunger. For example:
   <color:U>,</color>[<color:R>**</color>-------]
 
-<topic:decimal_stats><color:U>Display stats as decimals</color> <color:D>(decimal_stats)</color>
-Displays stats above 18 as decimals (for example, <color:G>39.7</color> instead of <color:G>18/217</color>). New players sometimes find this format more intuitive.
-
 <topic:show_rogue_keys><color:U>Display roguelike movement keys as reminder</color> <color:D>(show_rogue_keys)</color>
 Displays the movement keys of the roguelike keyset in the main screen sidebar, provided that there is enough room for them to be displayed and that the roguelike keyset is on. This option is intended for very new players, or at least players new to the roguelike keyset, and is on by default in Beginner Mode.
 
@@ -375,9 +346,6 @@ If this option is set, boundaries of dungeon floors will explicitly look like pe
 
 <topic:last_words><color:U>Leave last words when your character dies</color> <color:D>(last_words)</color>
 Allows you to speak a few last words when your character dies. If this option is not on, a simple "You die" message is displayed instead.
-
-<topic:allow_debug_opts><color:U>Allow use of debug/cheat options</color> <color:D>(allow_debug_opts)</color>
-Enables use of the debug command (<color:keypress>^A</color>), wizard mode (<color:keypress>^W</color>) and cheat options (<color:keypress>C</color> in the main options menu). Using any of these irrevocably marks the character as a cheater; having the option off ensures they cannot be triggered accidentally.
 
 </indent>
 <topic:Disturbance><style:heading>Disturbance Options</style>
@@ -596,6 +564,25 @@ Cheaters never win. But they can cheat death.
 Cheaters never win. But they can choose whether to save the character's data when they die.
 </indent>
 <color:D>
+
+<topic:Oposband><style:heading>Option Changes from FrogComposband</style>
+
+The following options have been built in to Oposband and are no longer optional:
+allow_debug_opts
+easy_lore
+allow_spoilers
+smart_learn
+preserve_mode
+allow_friendly_monster (allow some monsters to be friendly to the player)
+allow_hostile_monster (Allow opposite-aligned monsters to fight each other)
+allow_pets (Allow pets)
+
+The following options have been removed and no longer exist (as if they are always off):
+decimal_stats (stats increase linearly now past 18: 19, 20, 21, ...)
+easy_id (replaced with no_id above)
+easy_damage (replaced with show_damage, which does not affect score and is on by default)
+easy_thalos (replaced by building service to get ferry ride to Thalos)
+
 Original   : Ben Harrison
 Updated    : Zangband 2.1.* by Topi Ylinen
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
@@ -605,4 +592,5 @@ Updated    : PosChengband 4.0.0
 Updated    : FrogComposband 7.0.nougat
 Updated    : FrogComposband 7.1.chocolate
 Updated    : FrogComposband 7.1.liquorice
+Updated    : Oposband 0.3.5
 </color>
