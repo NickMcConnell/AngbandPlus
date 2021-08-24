@@ -132,11 +132,13 @@ void track_object(struct player_upkeep *upkeep, struct object *obj);
 void track_object_kind(struct player_upkeep *upkeep, struct object_kind *kind);
 void track_object_cancel(struct player_upkeep *upkeep);
 bool tracked_object_is(struct player_upkeep *upkeep, struct object *obj);
+int burden_weight(struct player *p);
 
 void notice_stuff(struct player *p);
 void update_stuff(struct player *p);
 void redraw_stuff(struct player *p);
 void handle_stuff(struct player *p);
 int weight_remaining(struct player *p);
+int class_to_stat(int stat);
 
 #endif /* !PLAYER_CALCS_H */

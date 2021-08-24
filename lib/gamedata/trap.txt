@@ -189,18 +189,6 @@ dice:1d3M2
 desc:A magical rune which calls the undead to attack you.
 msg:A sense of dread washes over you...
 
-# rune -- summon dragons
-
-name:strange rune:rune of dragonsong
-graphics:^:B
-appear:1:20:0
-visibility:0
-flags:TRAP | FLOOR | ONETIME | MAGICAL
-effect:SUMMON:DRAGON
-dice:1d3
-desc:A magical rune which calls dragons to attack you.
-msg:You hear a dragon's call!
-
 # rune -- summon demons
 
 name:strange rune:hellhole

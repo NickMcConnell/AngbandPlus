@@ -19,6 +19,7 @@
 #include "angband.h"
 #include "cave.h"
 #include "datafile.h"
+#include "init.h"
 #include "mon-group.h"
 #include "mon-make.h"
 #include "mon-summon.h"
@@ -375,10 +376,103 @@ static int call_monster(struct loc grid)
 	return (mon->race->level);
 }
 
+/* Find a place to summon on.
+ * Returns true if successful
+ */
+static bool summon_get_place(struct loc grid, struct loc *near)
+{
+	int i;
+
+	/* Look for a location, allow up to 4 squares away */
+	for (i = 0; i < 60; ++i) {
+		/* Pick a distance */
+		int d = (i / 15) + 1;
+
+		/* Pick a location */
+		scatter(cave, near, grid, d, true);
+
+		/* Require "empty" floor grid */
+		if (!square_isempty(cave, *near)) continue;
+
+		/* No summon on glyphs */
+		if (square_iswarded(cave, *near) || square_isdecoyed(cave, *near)) {
+			continue;
+		}
+
+		/* Okay */
+		break;
+	}
+
+	/* Failure */
+	if (i == 60)
+		return false;
+
+	return true;
+}
+
+/* Try to summon a named monster (by case insensitive matching).
+ * While this can be used to find a specific monster, it can also
+ * be used to match a class (especially one not defined by a flag).
+ */
+int summon_named_near(struct loc grid, const char *name)
+{
+	struct loc near;
+
+	/* Find a place to summon at */
+	if (!summon_get_place(grid, &near))
+		return (0);
+
+	/* Get an array of matches */
+	int *race = mem_zalloc(sizeof(int) * (1+z_info->r_max));
+	int n_ok = 0;
+	for(int i=0;i<z_info->r_max; i++) {
+		if ((r_info[i].name) && (my_stristr(r_info[i].name, name))) {
+			race[n_ok++] = i;
+		}
+	}
+
+	/* Possible? */
+	if (!n_ok)
+		return(0);
+
+	/* Select one closest to your level (erring low) */
+	int race_i = 0;
+	if (n_ok == 1) {
+		race_i = 0;
+	} else {
+		int best = 1e9;
+		int target = player->lev;
+		for(int i=0;i<n_ok; i++) {
+			int l = r_info[race[i]].level;
+			int score;
+			if (l > target) {
+				score = (l - target) * 5;
+			} else {
+				score = target - l;
+			}
+			if (score < best) {
+				best = score;
+				race_i = i;
+			}
+		}
+	}
+
+	struct monster_race *mon_race = r_info + race[race_i];
+	mem_free(race);
+
+	/* Attempt to place the monster (awake, don't allow groups) */
+	struct monster_group_info info = { 0, 0 };
+	if (!place_new_monster(cave, near, mon_race, false, false, info,
+						   ORIGIN_DROP_SUMMON)) {
+		return (0);
+	}
+
+	return (1);
+}
 
 /**
  * Places a monster (of the specified "type") near the given
- * location.  Return the siummoned monster's level iff a monster was
+ * location.  Return the summoned monster's level iff a monster was
  * actually summoned.
  *
  * We will attempt to place the monster up to 10 times before giving up.
@@ -399,34 +493,14 @@ static int call_monster(struct loc grid)
  */
 int summon_specific(struct loc grid, int lev, int type, bool delay, bool call)
 {
-	int i;
 	struct loc near;
 	struct monster *mon;
 	struct monster_race *race;
 	struct monster_group_info info = { 0, 0 };
 
-	/* Look for a location, allow up to 4 squares away */
-	for (i = 0; i < 60; ++i) {
-		/* Pick a distance */
-		int d = (i / 15) + 1;
-
-		/* Pick a location */
-		scatter(cave, &near, grid, d, true);
-
-		/* Require "empty" floor grid */
-		if (!square_isempty(cave, near)) continue;
-
-		/* No summon on glyphs */
-		if (square_iswarded(cave, near) || square_isdecoyed(cave, near)) {
-			continue;
-		}
-
-		/* Okay */
-		break;
-	}
-
-	/* Failure */
-	if (i == 60) return (0);
+	/* Find a place to summon at */
+	if (!summon_get_place(grid, &near))
+		return (0);
 
 	/* Save the "summon" type */
 	summon_specific_type = type;
@@ -457,10 +531,8 @@ int summon_specific(struct loc grid, int lev, int type, bool delay, bool call)
 	}
 
 	/* Attempt to place the monster (awake, don't allow groups) */
-	if (!place_new_monster(cave, near, race, false, false, info,
-						   ORIGIN_DROP_SUMMON)) {
+	if (!place_new_monster(cave, near, race, false, false, info, ORIGIN_DROP_SUMMON))
 		return (0);
-	}
 
 	/* Success, return the level of the monster */
 	mon = square_monster(cave, near);

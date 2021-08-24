@@ -45,13 +45,18 @@ enum
 
 #define PF_SIZE                FLAG_SIZE(PF_MAX)
 
+/* Maximum size of a momemtum-speed array */
+#define MOM_SPEED_MAX		16
+
 #include "guid.h"
 #include "obj-properties.h"
 #include "object.h"
 #include "option.h"
 
-#define player_hookz(X)			if (player->class->X) { player->class->X(); } if (player->race->X) { player->race->X(); } if (player->extension->X) { player->extension->X(); }
-#define player_hook(X, ...)		if (player->class->X) { player->class->X(__VA_ARGS__); } if (player->race->X) player->race->X(__VA_ARGS__); if (player->extension->X) player->extension->X(__VA_ARGS__);
+extern struct player_class **ordered_classes(void);
+
+#define player_hookz(X)			{ struct player_class *c = classes; while (c) { if (c->X) { c->X(); } c=c->next; } } if (player->race->X) { player->race->X(); } if (player->extension->X) { player->extension->X(); }
+#define player_hook(X, ...)		{ struct player_class *c = classes; while (c) { if (c->X) { c->X(__VA_ARGS__); } c=c->next; } } if (player->race->X) player->race->X(__VA_ARGS__); if (player->extension->X) player->extension->X(__VA_ARGS__);
 
 #define pf_has(f, flag)        flag_has_dbg(f, PF_SIZE, flag, #f, #flag)
 #define pf_next(f, flag)       flag_next(f, PF_SIZE, flag)
@@ -123,6 +128,7 @@ enum {
 	SKILL_SEARCH,			/* Searching ability */
 	SKILL_STEALTH,			/* Stealth factor */
 	SKILL_TO_HIT_MELEE,		/* To hit (normal) */
+	SKILL_TO_HIT_MARTIAL,	/* To hit (unarmed) */
 	SKILL_TO_HIT_GUN,		/* To hit (shooting) */
 	SKILL_TO_HIT_THROW,		/* To hit (throwing) */
 	SKILL_DIGGING,			/* Digging */
@@ -309,6 +315,7 @@ struct start_item {
 	int min;	/**< Minimum starting amount */
 	int max;	/**< Maximum starting amount */
 	struct ego_item *ego;		/** Ego to apply, or NULL */
+	int *eopts;     /**< Indices (zero terminated array) for birth options which can exclude item */
 	struct start_item *next;
 };
 
@@ -363,8 +370,8 @@ struct player_class {
 	int tp_base;				/** Talent points at birth */
 	int tp_max;					/** Talent points gained by max level */
 
-	bitflag flags[OF_SIZE];		/**< (Object) flags */
-	bitflag pflags[PF_SIZE];	/**< (Player) flags */
+	bitflag flags[PY_MAX_LEVEL][OF_SIZE];	/**< (Object) flags */
+	bitflag pflags[PY_MAX_LEVEL][PF_SIZE];	/**< (Player) flags */
 
 	int max_attacks;			/**< Maximum possible attacks */
 	int min_weight;				/**< Minimum weapon weight for calculations */
@@ -566,8 +573,9 @@ struct player {
 	struct player_class *class;
 
 	struct loc grid;/* Player location */
+	struct loc grid_last_1;/* Player previous location */
+	struct loc grid_last_2;/* Player second previous location */
 
-	u32b hitdie;	/* Hit dice (sides) */
 	u16b expfact_low;	/* Experience factor (low and high level) */
 	u16b expfact_high;
 
@@ -595,7 +603,10 @@ struct player {
 	u16b chp_frac;	/* Cur hit frac (times 2^16) */
 
 	u16b talent_points;			/* Current talent points */
-	byte talent_gain[PY_MAX_LEVEL];	/* TP to gain per level */
+	byte *talent_gain;			/* TP to gain per level */
+
+	byte lev_class[PY_MAX_LEVEL+1];	/* Class gained per level */
+	byte switch_class;				/* Class to switch to at next level up */
 
 	s16b stat_max[STAT_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[STAT_MAX];	/* Current "natural" stat values */
@@ -605,6 +616,7 @@ struct player {
 
 	s16b word_recall;			/* Word of recall counter */
 	s16b deep_descent;			/* Deep Descent counter */
+	u16b momentum;				/* Number of turns spent moving in the same direction */
 
 	s16b energy;				/* Current energy */
 	u32b total_energy;			/* Total energy used (including resting) */
@@ -621,9 +633,12 @@ struct player {
 	char died_from[80];					/* Cause of death */
 	char *history;						/* Player history */
 	struct quest *quests;				/* Quest history */
+
+	bool flying;						/* Currently flying (using a Pilot ability) */
 	s32b active_quest;					/* Currently active quest */
 	u16b total_winner;					/* Total winner */
 	s32b bm_faction;					/* Faction with the black market */
+	s32b cyber_faction;					/* with the cyber salon */
 	s32b town_faction;					/* and with the rest of town */
 
 	u16b noscore;				/* Cheating flags */
@@ -632,7 +647,7 @@ struct player {
 
 	bool wizard;				/* Player is in wizard mode */
 
-	s16b player_hp[PY_MAX_LEVEL];		/* HP gained per level */
+	s16b *player_hp;			/* HP gained per level */
 
 	/* Saved values for quickstart */
 	s32b au_birth;						/* Birth gold when option birth_money is false */

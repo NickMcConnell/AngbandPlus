@@ -385,13 +385,14 @@ int test_sound(void *state) {
 	eq(st->n_bell, 0);
 	eq(st->n_other, 0);
 
+#ifdef SOUND
 	player->opts.opt[OPT_use_sound] = true;
 	sound(MSG_MISS);
 	eq(st->n_msg, 0);
 	eq(st->n_sound, 1);
 	eq(st->n_bell, 0);
 	eq(st->n_other, 0);
-
+#endif
 	ok;
 }
 
@@ -476,6 +477,7 @@ int test_msgt(void *state)
 	eq(st->n_bell, 0);
 	eq(st->n_other, 0);
 
+#ifdef SOUND
 	player->opts.opt[OPT_use_sound] = true;
 	msgt(MSG_WALK, "%s", expected2);
 	n = messages_num();
@@ -493,7 +495,7 @@ int test_msgt(void *state)
 	eq(st->n_sound, 1);
 	eq(st->n_bell, 0);
 	eq(st->n_other, 0);
-
+#endif
 	ok;
 }
 

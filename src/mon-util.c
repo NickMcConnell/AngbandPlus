@@ -48,6 +48,10 @@
 #include "trap.h"
 #include "z-set.h"
 
+
+static void gain_mon_exp(const struct monster *mon, bool funny);
+static void exp_gain_unscaled(double new_exp);
+
 /**
  * ------------------------------------------------------------------------
  * Lore utilities
@@ -307,6 +311,8 @@ void update_mon(struct monster *mon, struct chunk *c, bool full)
 
 	/* ESP permitted */
 	bool telepathy_ok = player_of_has(player, OF_TELEPATHY);
+	bool sense_animal = player_of_has(player, OF_SENSE_ANIMAL);
+	bool sense_metal = player_of_has(player, OF_SENSE_METAL);
 
 	assert(mon != NULL);
 
@@ -339,18 +345,32 @@ void update_mon(struct monster *mon, struct chunk *c, bool full)
 	/* Detected */
 	if (mflag_has(mon->mflag, MFLAG_MARK)) flag = true;
 
-	/* Check if telepathy works here */
+	/* Check if telepathy (or other distant sensing) works here */
 	if (square_isno_esp(c, mon->grid) || square_isno_esp(c, pgrid)) {
 		telepathy_ok = false;
+		sense_animal = false;
 	}
 
 	/* Nearby */
+	bool seen_esp = false;
+	bool seen_animal = false;
+	bool seen_metal = false;
 	if (d <= z_info->max_sight) {
 		/* Basic telepathy */
-		if (telepathy_ok && monster_is_esp_detectable(mon)) {
-			/* Detectable */
+		if ((telepathy_ok) && (monster_is_esp_detectable(mon))) {
+			/* Detectable by ESP */
 			flag = true;
-
+			seen_esp = true;
+		} else if ((sense_animal) && (monster_is_animal(mon))) {
+			/* Detectable by animal sensing */
+			flag = true;
+			seen_animal = true;
+		} else if ((sense_metal) && (monster_is_metal(mon))) {
+			/* Detectable by metal sensing */
+			flag = true;
+			seen_metal = true;
+		}
+		if (flag) {
 			/* Check for LOS so that MFLAG_VIEW is set later */
 			if (square_isview(c, mon->grid)) easy = true;
 		}
@@ -403,8 +423,12 @@ void update_mon(struct monster *mon, struct chunk *c, bool full)
 	if (flag) {
 		/* Learn about the monster's mind */
 		if (telepathy_ok) {
-			flags_set(lore->flags, RF_SIZE, RF_EMPTY_MIND, RF_WEIRD_MIND,
-					  RF_SMART, RF_STUPID, FLAG_END);
+			if (seen_esp)
+				flags_set(lore->flags, RF_SIZE, RF_EMPTY_MIND, RF_WEIRD_MIND, RF_SMART, RF_STUPID, FLAG_END);
+			else if (seen_animal)
+				flags_set(lore->flags, RF_ANIMAL);
+			else if (seen_metal)
+				flags_set(lore->flags, RF_METAL);
 		}
 
 		/* It was previously unseen */
@@ -481,6 +505,9 @@ void update_mon(struct monster *mon, struct chunk *c, bool full)
 void update_monsters(bool full)
 {
 	int i;
+
+	if (!cave)
+		return;
 
 	/* Update each (live) monster */
 	for (i = 1; i < cave_monster_max(cave); i++) {
@@ -1033,15 +1060,46 @@ double mon_exp_value(const struct monster_race *race)
 	return (gain * mul) / div;
 }
 
+double apply_funny_factor(double offset, double new_exp)
+{
+	int lev = levels_in_class(get_class_by_name("Clown")->cidx);
+	if (lev > 0) {
+		/* +50% at level 1, +100% at level 10, +150% at level 50 */
+		double funny_factor = 0.5 + offset;
+		if (lev > 10) {
+			funny_factor += 0.5 + ((double)lev - 10.0) / 80;
+		} else {
+			funny_factor += ((double)lev - 1.0) / 20;
+		}
+		new_exp *= funny_factor;
+		msg("LOL!");
+		return new_exp;
+	}
+	return new_exp * offset;
+}
+
 /**
  * Gain experience related to a monster.
  * This is modified based on the monster's level vs. yours
+ * If 'funny' and you are a Clown, increase the amount of exp.
  */
-static void gain_mon_exp(const struct monster *mon)
+static void gain_mon_exp(const struct monster *mon, bool funny)
 {
 	/* Experience to gain */
 	double new_exp = mon_exp_value(mon->race);
 
+	/* If funny, increase by a factor which increases on later levels
+	 * (as the funny methods don't scale up, so it gets difficult -
+	 * and to reduce the gain from taking 1 level of Clown)
+	 */
+	if (funny)
+		new_exp = apply_funny_factor(1.0, new_exp);
+
+	exp_gain_unscaled(new_exp);
+}
+
+static void exp_gain_unscaled(double new_exp)
+{
 	/* Convert back to integer and fractional components */
 	s32b int_exp = new_exp;
 	assert(int_exp >= 0);
@@ -1067,7 +1125,7 @@ static void gain_mon_exp(const struct monster *mon)
 /**
  * Handle the consequences of the killing of a monster by the player
  */
-static void player_kill_monster(struct monster *mon, const char *note)
+static void player_kill_monster(struct monster *mon, const char *note, bool funny)
 {
 	struct monster_lore *lore = get_lore(mon->race);
 	char m_name[80];
@@ -1124,7 +1182,7 @@ static void player_kill_monster(struct monster *mon, const char *note)
 	}
 
 	/* Give some experience for the kill */
-	gain_mon_exp(mon);
+	gain_mon_exp(mon, funny);
 
 	/* When the player kills a Unique, it stays dead */
 	if (rf_has(mon->race->flags, RF_UNIQUE)) {
@@ -1230,7 +1288,8 @@ static bool monster_scared_by_damage(struct monster *mon, int dam)
  */
 bool mon_take_nonplayer_hit(int dam, struct monster *t_mon,
 							enum mon_messages hurt_msg,
-							enum mon_messages die_msg)
+							enum mon_messages die_msg,
+							bool funny)
 {
 	assert(t_mon);
 
@@ -1252,6 +1311,20 @@ bool mon_take_nonplayer_hit(int dam, struct monster *t_mon,
 
 	/* Dead or damaged monster */
 	if (t_mon->hp < 0) {
+
+		/* If the player has levels in Clown and this was done
+		 * within LOS of the player by a 'funny' method (basically
+		 * terrain), gain exp.
+		 */
+		if (funny) {
+			if (square_isseen(cave, t_mon->grid)) {
+				/* Experience to gain */
+				double new_exp = mon_exp_value(t_mon->race);
+				new_exp = apply_funny_factor(0.0, new_exp);
+				exp_gain_unscaled(new_exp);
+			}
+		}
+
 		/* Death message */
 		add_monster_message(t_mon, die_msg, false);
 
@@ -1278,6 +1351,12 @@ bool mon_take_nonplayer_hit(int dam, struct monster *t_mon,
 	return false;
 }
 
+/** As below, but not in a funny way :( */
+bool mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note)
+{
+	return do_mon_take_hit(mon, dam, fear, note, false);
+}
+
 /**
  * Decreases a monster's hit points by `dam` and handle monster death.
  *
@@ -1285,6 +1364,9 @@ bool mon_take_nonplayer_hit(int dam, struct monster *t_mon,
  *
  * We announce monster death (using an optional "death message" (`note`)
  * if given, and a otherwise a generic killed/destroyed message).
+ * 
+ * If funny is true, this is a hit which for a Clown gives extra exp if
+ * it kills.
  *
  * Returns true if the monster has been killed (and deleted).
  *
@@ -1294,7 +1376,7 @@ bool mon_take_nonplayer_hit(int dam, struct monster *t_mon,
  * worth more than subsequent monsters.  This would also need to
  * induce changes in the monster recall code.  XXX XXX XXX
  **/
-bool mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note)
+bool do_mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note, bool funny)
 {
 	bool dummy;
 	if (!fear)
@@ -1306,7 +1388,6 @@ bool mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note)
 
 	/* Wake it up, make it aware of the player */
 	monster_wake(mon, false, 100);
-	mon_clear_timed(mon, MON_TMD_HOLD, MON_TMD_FLG_NOTIFY);
 
 	/* Become aware of its presence */
 	if (monster_is_camouflaged(mon))
@@ -1330,7 +1411,7 @@ bool mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note)
 		}
 
 		/* It is dead now */
-		player_kill_monster(mon, note);
+		player_kill_monster(mon, note, funny);
 
 		/* Not afraid */
 		(*fear) = false;
@@ -1352,13 +1433,13 @@ void kill_arena_monster(struct monster *mon)
 	assert(old_mon);
 	update_mon(old_mon, cave, true);
 	old_mon->hp = -1;
-	player_kill_monster(old_mon, " is defeated!");
+	player_kill_monster(old_mon, " is defeated!", false);
 	if (!((cave)->depth)) {
 		delete_monster(old_mon->grid);
 	} else {
 		update_mon(old_mon, cave, true);
 		old_mon->hp = -1;
-		player_kill_monster(old_mon, " is defeated!");
+		player_kill_monster(old_mon, " is defeated!", false);
 	}
 }
 
@@ -1373,7 +1454,7 @@ void monster_take_terrain_damage(struct monster *mon)
 
 		if (!rf_has(mon->race->flags, RF_IM_FIRE)) {
 			mon_take_nonplayer_hit(100 + randint1(100), mon, MON_MSG_CATCH_FIRE,
-								   MON_MSG_DISINTEGRATES);
+								   MON_MSG_DISINTEGRATES, true);
 		}
 
 		if (fear && monster_is_visible(mon)) {
@@ -1387,7 +1468,7 @@ void monster_take_terrain_damage(struct monster *mon)
 
 		if (!rf_has(mon->race->flags, RF_IM_RADIATION)) {
 			mon_take_nonplayer_hit(20 + randint1(40), mon, MON_MSG_LOOKS_SICK,
-								   MON_MSG_COLLAPSES);
+								   MON_MSG_COLLAPSES, true);
 		}
 
 		if (fear && monster_is_visible(mon)) {
@@ -1399,7 +1480,7 @@ void monster_take_terrain_damage(struct monster *mon)
 	if (square_iswater(cave, mon->grid)) {
 		if (!rf_has(mon->race->flags, RF_IM_WATER)) {
 			mon_take_nonplayer_hit(10 + randint1(20), mon, MON_MSG_STRUGGLES,
-								   MON_MSG_DROWNS);
+								   MON_MSG_DROWNS, true);
 		}
 	}	
 }

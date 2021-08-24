@@ -453,6 +453,25 @@ void wr_world(void)
 	rdwr_world();
 }
 
+void rdwr_player(void)
+{
+	/* Total energy used so far */
+	rdwr_u32b(&player->total_energy);
+	/* # of turns spent resting */
+	rdwr_u32b(&player->resting_turn);
+
+	/* Quest currently active */
+	rdwr_s32b(&player->active_quest);
+
+	/* Flying? */
+	rdwr_bool(&player->flying);
+
+	/* Factions */
+	rdwr_s32b(&player->bm_faction);
+	rdwr_s32b(&player->town_faction);
+	rdwr_s32b(&player->cyber_faction);
+}
+
 void wr_player(void)
 {
 	int i;
@@ -470,7 +489,6 @@ void wr_player(void)
 	wr_string(player->class->name);
 	wr_byte(player->opts.name_suffix);
 
-	wr_u32b(player->hitdie);
 	wr_u16b(player->expfact_low);
 	wr_u16b(player->expfact_high);
 
@@ -500,25 +518,9 @@ void wr_player(void)
 	/* Padding */
 	wr_u32b(0);
 
-	wr_u32b(player->au);
-
-
-	wr_u32b(player->max_exp);
-	wr_u32b(player->exp);
-	wr_u16b(player->exp_frac);
 	wr_s16b(player->lev);
 
-	wr_s16b(player->mhp);
-	wr_s16b(player->chp);
-	wr_u16b(player->chp_frac);
-
-	wr_u16b(player->talent_points);
-
-	/* Max Player and Dungeon Levels */
-	wr_s16b(player->max_lev);
-	wr_s16b(player->max_depth);
-	wr_s16b(player->recall_depth);
-	wr_s16b(player->danger);
+	rdwr_player_levels();
 
 	RDWR_PTR(&(player->town), t_info);
 
@@ -543,17 +545,7 @@ void wr_player(void)
 	for (i = 0; i < TMD_MAX; i++)
 		wr_s16b(player->timed[i]);
 
-	/* Total energy used so far */
-	wr_u32b(player->total_energy);
-	/* # of turns spent resting */
-	wr_u32b(player->resting_turn);
-
-	/* Quest currently active */
-	wr_s32b(player->active_quest);
-
-	/* Factions */
-	wr_s32b(player->bm_faction);
-	wr_s32b(player->town_faction);
+	rdwr_player();
 
 	/* Player flags */
 	for(i=0; i < (int)PF_SIZE; i++)
@@ -744,8 +736,8 @@ void wr_player_hp(void)
 {
 	int i;
 
-	wr_u16b(PY_MAX_LEVEL);
-	for (i = 0; i < PY_MAX_LEVEL; i++)
+	wr_u16b(PY_MAX_LEVEL * (classes->cidx + 1));
+	for (i = 0; i < (int)(PY_MAX_LEVEL * (classes->cidx + 1)); i++)
 		wr_s16b(player->player_hp[i]);
 }
 
@@ -754,12 +746,12 @@ void wr_player_spells(void)
 {
 	int i;
 
-	wr_u16b(player->class->magic.total_spells);
+	wr_u16b(total_spells);
 
-	for (i = 0; i < player->class->magic.total_spells; i++)
+	for (i = 0; i < total_spells; i++)
 		wr_byte(player->spell_flags[i]);
 
-	for (i = 0; i < player->class->magic.total_spells; i++)
+	for (i = 0; i < total_spells; i++)
 		wr_byte(player->spell_order[i]);
 }
 
@@ -804,6 +796,24 @@ void wr_stores(void)
 
 			/* Save the current owner */
 			wr_byte(store->owner->oidx);
+
+			/* Save the number of owners */
+			if (t == 0) {
+				int n = 0;
+				struct owner *own = store->owners;
+				while (own) {
+					n++;
+					own = own->next;
+				}
+				wr_byte(n);
+
+				/* Save the owners' names */
+				own = store->owners;
+				while (own) {
+					wr_string(own->name);
+					own = own->next;
+				}
+			}
 
 			/* Save the current and maximum stock size */
 			wr_u16b(store->stock_num);
@@ -1034,6 +1044,11 @@ void wr_dungeon(void)
 	wr_u16b(daycount);
 	wr_u16b(player->grid.y);
 	wr_u16b(player->grid.x);
+	wr_s32b(player->grid_last_1.y);
+	wr_s32b(player->grid_last_1.x);
+	wr_s32b(player->grid_last_2.y);
+	wr_s32b(player->grid_last_2.x);
+	wr_u16b(player->momentum);
 	wr_byte(SQUARE_SIZE);
 
 	if (player->is_dead)

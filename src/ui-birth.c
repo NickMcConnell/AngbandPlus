@@ -235,7 +235,9 @@ static void skill_help(const int r_skills[], const int c_skills[], int mhp, int 
 	for (i = 0; i < SKILL_MAX ; ++i)
 		skills[i] = (r_skills ? r_skills[i] : 0 ) + (c_skills ? c_skills[i] : 0);
 
-	text_out_e("Hit/Shoot/Throw: %+d/%+d/%+d   \n", skills[SKILL_TO_HIT_MELEE],
+	text_out_e("Weapon / Unarmed Melee: %+d/%+d   \n", skills[SKILL_TO_HIT_MELEE],
+			   skills[SKILL_TO_HIT_MARTIAL]);
+	text_out_e("Shooting / Throwing: %+d/%+d   \n",
 			   skills[SKILL_TO_HIT_GUN], skills[SKILL_TO_HIT_THROW]);
 	if (exp == exphigh)
 		text_out_e("Hit die: %2d   XP mod: %d%%\n", mhp, exp);
@@ -372,10 +374,10 @@ static void class_help(int i, void *db, const region *l)
 	for (ability = player_abilities; ability; ability = ability->next) {
 		if (n_flags >= flag_space) break;
 		if (streq(ability->type, "object") &&
-			!of_has(c->flags, ability->index)) {
+			!of_has(c->flags[1], ability->index)) {
 			continue;
 		} else if (streq(ability->type, "player") &&
-				   !pf_has(c->pflags, ability->index)) {
+				   !pf_has(c->pflags[1], ability->index)) {
 			continue;
 		} else if (streq(ability->type, "element")) {
 			continue;

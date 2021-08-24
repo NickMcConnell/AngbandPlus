@@ -18,6 +18,7 @@
 
 #include "effects.h"
 #include "init.h"
+#include "obj-knowledge.h"
 #include "obj-pile.h"
 #include "obj-util.h"
 #include "player-ability.h"
@@ -27,6 +28,7 @@
 #include "player-quest.h"
 #include "player-spell.h"
 #include "player-timed.h"
+#include "player-util.h"
 #include "z-color.h"
 #include "z-util.h"
 
@@ -197,9 +199,27 @@ s32b exp_to_gain(s32b level)
 	/* Base exp to advance, ignoring exp factors */
 	double exp = player_exp[level-2];
 
-	/* Level-1 and max-level factors */
-	double exp_low = exp * player->expfact_low;
-	double exp_high = exp * player->expfact_high;
+	/* Avoid division by 0 - probably can't happen, though */
+	if (level <= 1)
+		return 0;
+
+	/* Class exp factor - average of all levels' classes' exp factors */
+	s32b c_exp = 0;
+	for(int l=1; l<level; l++) {
+		c_exp += get_class_by_idx(player->lev_class[l])->c_exp;
+	}
+	double t_exp = c_exp;
+	t_exp /= (level-1);
+
+	/* Level-1 and max-level race/ext factors */
+	double exp_low = player->expfact_low;
+	exp_low += t_exp;
+	double exp_high = player->expfact_high;
+	exp_high += t_exp;
+
+	/* Base exp */
+	exp_low *= exp;
+	exp_high *= exp;
 
 	/* Fractional factors */
 	double prop_high = (level - 2) / (PY_MAX_LEVEL - 2);
@@ -229,6 +249,9 @@ static s32b exp_to_lev(s32b exp)
 
 static void adjust_level(struct player *p, bool verbose)
 {
+	char buf[80];
+	bool message = false;
+
 	if (p->exp < 0)
 		p->exp = 0;
 
@@ -257,7 +280,6 @@ static void adjust_level(struct player *p, bool verbose)
 
 	while ((p->lev < PY_MAX_LEVEL) &&
 	       (p->exp >= exp_to_gain(p->lev+1))) {
-		char buf[80];
 
 		p->lev++;
 
@@ -265,14 +287,7 @@ static void adjust_level(struct player *p, bool verbose)
 		if (p->lev > p->max_lev)
 			p->max_lev = p->lev;
 
-		if (verbose) {
-			/* Log level updates */
-			strnfmt(buf, sizeof(buf), "Reached level %d", p->lev);
-			history_add(p, buf, HIST_GAIN_LEVEL);
-
-			/* Message */
-			msgt(MSG_LEVEL, "Welcome to level %d.",	p->lev);
-		}
+		message = true;
 
 		for(int i=0;i<STAT_MAX;i++)
 			effect_simple(EF_RESTORE_STAT, source_none(), "0", STAT_STR+i, 0, 0, 0, 0, NULL);
@@ -282,10 +297,68 @@ static void adjust_level(struct player *p, bool verbose)
 	       (p->max_exp >= (exp_to_gain(p->max_lev+1))))
 		p->max_lev++;
 
+	int newexp = exp_to_gain(p->max_lev-1);
+
+	if (p->max_lev > max_from) {
+		for(int i=max_from+1; i<=p->max_lev; i++)
+			p->lev_class[i] = p->switch_class;
+	}
+
+	/* Switch class */
+	if ((p->max_lev > max_from) && (p->switch_class != p->lev_class[max_from])) {
+		if (verbose) {
+			const char *c = get_class_by_idx(p->switch_class)->name;
+
+			/* Log class change */
+			strnfmt(buf, sizeof(buf), "Level up, changed to %s", c);
+			history_add(p, buf, HIST_GAIN_LEVEL);
+
+			msgt(MSG_LEVEL, "You are now training as a %s.", c);
+		}
+		p->exp = p->max_exp = newexp;
+
+		while ((p->lev > 1) &&
+			   (p->exp < (exp_to_gain(p->lev))))
+			p->lev--;
+
+		while ((p->lev < PY_MAX_LEVEL) &&
+			   (p->exp >= exp_to_gain(p->lev+1)))
+			p->lev++;
+
+		if (p->lev > p->max_lev)
+			p->max_lev = p->lev;
+	} else {
+		if (verbose && message ) {
+			/* Log level updates */
+			strnfmt(buf, sizeof(buf), "Reached level %d", p->lev);
+			history_add(p, buf, HIST_GAIN_LEVEL);
+
+			/* Message */
+			msgt(MSG_LEVEL, "Welcome to level %d.",	p->lev);
+		}
+	}
+
+	set_primary_class();
+
 	if (p->max_lev > max_from) {
 		ability_levelup(p, max_from, p->max_lev);
 		player_hook(levelup, max_from, p->max_lev);
 	}
+
+	/* You may have new intrinsics.
+	 * Notice them.
+	 */
+	for (struct player_class *c = classes; c; c = c->next) {
+		int levels = levels_in_class(c->cidx);
+		if (levels) {
+			for (int i=0;i<OF_MAX;i++) {
+				if (of_has(c->flags[levels], i)) {
+					player_learn_flag(p, i);
+				}
+			}
+		}
+	}
+	update_player_object_knowledge(p);
 
 	p->upkeep->update |= (PU_BONUS | PU_HP | PU_SPELLS);
 	p->upkeep->redraw |= (PR_LEV | PR_TITLE | PR_EXP | PR_STATS);
@@ -302,7 +375,7 @@ static void adjust_level(struct player *p, bool verbose)
 s32b player_exp_scale(s32b amount)
 {
 	struct player *p = player;
-	
+
 	/* Two levels above your maximum (one level above would be the amount needed to gain the next level)
 	 * is the first point to care about
 	 */
@@ -371,7 +444,14 @@ void player_flags(struct player *p, bitflag f[OF_SIZE])
 {
 	/* Add racial flags */
 	memcpy(f, p->race->flags, sizeof(p->race->flags));
-	of_union(f, p->class->flags);
+	memcpy(f, p->extension->flags, sizeof(p->race->flags));
+
+	/* Add object-flags from class */
+	for (struct player_class *c = classes; c; c = c->next) {
+		int levels = levels_in_class(c->cidx);
+		if (levels)
+			of_union(f, c->flags[levels]);
+	}
 
 	/* Some classes become immune to fear at a certain plevel */
 	if (player_has(p, PF_BRAVERY_30) && p->lev >= 30) {

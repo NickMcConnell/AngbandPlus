@@ -39,7 +39,9 @@ extern struct file_parser randart_parser;
 extern struct file_parser object_property_parser;
 
 extern const char *obj_mods[];
+extern const struct object_material material[];
 
-enum parser_error parse_getweight(struct parser *p, const char *field, int *grams) ;
+enum parser_error parse_getweight(struct parser *p, const char *field, int *grams);
+const struct object_material *get_material_by_name(const char *name);
 
 #endif /* OBJECT_INIT_H_ */

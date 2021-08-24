@@ -115,7 +115,7 @@ age:14:6
 height:69:4
 weight:1650
 weightmod:350
-desc:The race with average abilities, from a human perspective at least. While you won't have bulletproof skin or [bla], there's a reason that is has primarily been humans who have colonized the galaxy - in a word, adaptability. That shows in the lowest experience requirement and the most specialization through talents.
+desc:The race with average abilities, from a human perspective at least. While you won't have bulletproof skin, X-ray vision or exotic abilities like that, there's a reason that it has primarily been humans who have colonized the galaxy - in a word, adaptability. That shows in the lowest experience requirement and the most specialization through talents.
 
 name:Android
 body:HumanoidNoImplants

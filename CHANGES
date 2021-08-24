@@ -2,6 +2,45 @@ This is a summary of major changes made to Xygos by release.
 For changes pulled in from Vanilla, see changes.txt.
 For more detail, see the git history.
 
+Xygos 0.0.3
+===========
+
+Multiclassing: You can select with G which class to gain at the next level up. Your abilities
+will be a mix of the classes - averaging stats and skills (etc.), and with class specific
+abilities (techniques, etc) using the number of levels you have in that class rather than the
+overall level.
+
+Object allocation changes. They now fade linearly with increasing level as egos do, to reduce
+the amount of junk - while it is now possible (but less likely, by 1/difference) to see a
+higher level object below the minimum level, to address low-level consumables becoming rare.
+
+Move the resists about in the second character screen, because the slots list was too wide to
+fit, one list was too long to fit, and both problems would end up getting worse. This removes
+the top left and top right areas, but that's not a big loss as they are present on the first
+character screen. It will also make use of bigger terminals than 80x24 (with less abbreviated
+labels) if it can.
+
+Cybersalon has its own faction, affecting prices and quality and quantity of available items.
+There is nothing available until you become a member - by selling them an item. The more you
+sell, the more you'll have available to you.
+
+Wrestler, Pilot, Clown, Spelunker. The Wrestler is a melee class that fights best unarmed and
+lightly armored (and gains resists, sustains and critical hits to make this more reasonable).
+The Pilot gets a speed bonus when moving in a straight line (and some evolutions at later
+levels). The Clown gets an exp bonus when it uses exploding fruit or makes an opponent fall
+into the water. The Spelunker gets a Climb ability (go up a level, if you are adjacent to a
+wall).
+
+Fixes brought in from V 4.2.2.
+Some things can go BANG if you throw them.
+Random names for store owners
+Some faction talents
+Sense Animals and Metal (which work like telepathy)
+Remove some dragon-related monsters
+Add lightsabers and similar things 
+Removes / replaces old headgear
+Quests: "Hunter, in Darkness" to kill the wumpus
+
 Xygos 0.0.2
 ===========
 

@@ -16,6 +16,8 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
 #include <windowsx.h>
 #include "ui-prefs.h"

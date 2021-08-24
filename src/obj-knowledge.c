@@ -192,15 +192,45 @@ static void init_icon(void)
  */
 static int icon_index(size_t variety, int index)
 {
-	size_t i;
+	static int *cache;
+	static int max_var = 0;
+	static int max_index = 0;
 
-	/* Look for the icon */
-	for (i = 0; i < icon_max; i++)
-		if ((icon_list[i].variety == variety) && (icon_list[i].index == index))
-			return i;
+	/* A cache of icon varieties / indexes is used to avoid linear search.
+	 * Performance matters as this is called over 4M times at game exit - when
+	 * this was a linear search, this caused a noticeable delay.
+	 * 
+	 * First time, build the table
+	 **/
+	if (!cache) {
+		/* Find the maximum variety and index, and allocate an array to cache them */
+		for(int i=0; i < (int)icon_max; i++) {
+			if ((int)icon_list[i].variety > max_var)
+				max_var = icon_list[i].variety;
+			if (icon_list[i].index > max_index)
+				max_index = icon_list[i].index;
+		}
+		max_var++;
+		max_index++;
+		cache = mem_alloc(sizeof(*cache) * max_var * max_index);
 
-	/* Can't find it */
-	return -1;
+		/* Fill it with -1 for entries that are missing */
+		for(int i=0; i < max_var * max_index; i++)
+			cache[i] = -1;
+
+		/* Fill all entries that would hit with the index */
+		for(int i=0; i < (int)icon_max; i++) {
+			int cachei = (max_index * icon_list[i].variety) + icon_list[i].index;
+			cache[cachei] = i;
+		}
+	}
+
+	/* Read it from the table */
+	unsigned cindex = (max_index * (int)variety) + index;
+	if (cindex < (unsigned)(max_var * max_index))
+		return cache[cindex];
+	else
+		return -1;
 }
 
 /**
@@ -770,18 +800,20 @@ bool object_fully_known(const struct object *obj)
 
 
 /**
- * Checks whether the player knows whether an object has a given flag
+ * Checks whether a player knows whether an object has a given flag
  *
+ * \param p is the player
  * \param obj is the object
  * \param flag is the flag
  */
-bool object_flag_is_known(const struct object *obj, int flag)
+bool object_flag_is_known(const struct player *p, const struct object *obj,
+	int flag)
 {
 	/* Object fully known means OK */
 	if (object_fully_known(obj)) return true;
 
 	/* Player knows the flag means OK */
-	if (of_has(player->obj_k->flags, flag)) return true;
+	if (of_has(p->obj_k->flags, flag)) return true;
 
 	/* Object has had a chance to display the flag means OK */
 	if (of_has(obj->known->flags, flag)) return true;
@@ -790,12 +822,14 @@ bool object_flag_is_known(const struct object *obj, int flag)
 }
 
 /**
- * Checks whether the player knows the given element properties of an object
+ * Checks whether a player knows the given element properties of an object
  *
+ * \param p is the player
  * \param obj is the object
  * \param element is the element
  */
-bool object_element_is_known(const struct object *obj, int element)
+bool object_element_is_known(const struct player *p, const struct object *obj,
+	int element)
 {
 	if (element < 0 || element >= ELEM_MAX) return false;
 
@@ -803,7 +837,7 @@ bool object_element_is_known(const struct object *obj, int element)
 	if (object_fully_known(obj)) return true;
 
 	/* Player knows the element means OK */
-	if (player->obj_k->el_info[element].res_level) return true;
+	if (p->obj_k->el_info[element].res_level) return true;
 
 	/* Object has been exposed to the element means OK */
 	if (obj->known->el_info[element].res_level) return true;

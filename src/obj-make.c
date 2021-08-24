@@ -31,7 +31,9 @@
 #include "obj-slays.h"
 #include "obj-tval.h"
 #include "obj-util.h"
+
 #include <math.h>
+#include <time.h>
 
 /** Let the stats see into the artifact probability table */
 extern double *wiz_stats_prob;
@@ -42,25 +44,25 @@ extern double *wiz_stats_prob;
  * obj_alloc[ilv * (z_info->k_max + 1) + z_info->k_max], that an item whose
  * index is less than itm occurs at level, ilv.
  */
-static u32b *obj_alloc;
+static double *obj_alloc;
 
 /**
  * Has the same layout and interpretation as obj_alloc, but only items that
  * are good or better contribute to the cumulative probability distribution.
  */
-static u32b *obj_alloc_great;
+static double *obj_alloc_great;
 
 /**
  * Store the total allocation value for each tval by level.  The value at
  * ilv * TV_MAX + tval is the total for tval at the level, ilv.
  */
-static u32b *obj_total_tval;
+static double *obj_total_tval;
 
 /**
  * Same layout and interpretation as obj_total_tval, but only items that are
  * good or better contribute.
  */
-static u32b *obj_total_tval_great;
+static double *obj_total_tval_great;
 
 static alloc_entry *alloc_ego_table;
 
@@ -71,6 +73,8 @@ struct money {
 
 static struct money *money_type;
 static int num_money_types;
+
+static bool kind_is_good(const struct object_kind *kind, int level);
 
 /*
  * Initialize object allocation info
@@ -100,21 +104,29 @@ static void alloc_init_objects(void) {
 
 		/* Go through all the dungeon levels */
 		for (lev = 0; lev <= z_info->max_obj_depth; lev++) {
-			int rarity = kind->alloc_prob;
+			double rarity = kind->alloc_prob;
 
 			/* Add to the cumulative prob. in the standard table */
-			if ((lev < min) || (lev > max)) rarity = 0;
-			assert(rarity >= 0 && obj_alloc[(lev * (k_max + 1)) + item] <= (u32b)-1 - rarity);
+			double scale = 0.0;
+			if (max > min) {
+				if (lev > max) {
+					;
+				} else if (lev >= min) {
+					scale = 1.0 - ((double)(lev - min) / (double)(max - min));
+				} else {
+					scale = 1.0 / (1.0 + (min - lev));
+				}
+			}
+			rarity *= scale;
 			obj_alloc[(lev * (k_max + 1)) + item + 1] =
 				obj_alloc[(lev * (k_max + 1)) + item] + rarity;
 
 			obj_total_tval[lev * TV_MAX + kind->tval] += rarity;
-
 			/* Add to the cumulative prob. in the "great" table */
-			if (!kind_is_good(kind)) rarity = 0;
+			if (!kind_is_good(kind, lev))
+				rarity = 0;
 			obj_alloc_great[(lev * (k_max + 1)) + item + 1] =
 				obj_alloc_great[(lev * (k_max + 1)) + item] + rarity;
-
 			obj_total_tval_great[lev * TV_MAX + kind->tval] += rarity;
 		}
 	}
@@ -271,7 +283,7 @@ static int random_high_resist(struct object *obj, int *resist)
  * tbl[i] <= p < tbl[i + 1].  p must be less than tbl[n - 1] and tbl[0] must be
  * zero.
  */
-static int binary_search_probtable(const u32b *tbl, int n, u32b p)
+static int binary_search_probtable(const double *tbl, int n, double p)
 {
 	int ilow = 0, ihigh = n;
 
@@ -962,9 +974,17 @@ int apply_magic(struct object *obj, int lev, bool allow_artifacts, bool good,
  * the actual object to be faulty.  We do explicitly forbid objects
  * which are known to be boring or which start out somewhat damaged.
  */
-bool kind_is_good(const struct object_kind *kind)
+static bool kind_is_good(const struct object_kind *kind, int level)
 {
 	/* Some item types are (almost) always good */
+
+	/* Anything with a high base cost */
+	if (kind->cost > 150 + (level*200))
+		return true;
+
+	/* Anything with the GOOD flag */
+	if (kf_has(kind->kind_flags, KF_GOOD))
+		return true;
 
 	/* Armor -- Good unless damaged */
 	if (kind_tval_is_armor(kind)) {
@@ -972,16 +992,16 @@ bool kind_is_good(const struct object_kind *kind)
 		return true;
 	}
 
-	/* Weapons, including melee, guns and ammo -- Good unless damaged */
+	/* Weapons, including melee, guns and ammo -- Good unless damaged
+	 * Having a to hit penalty doesn't mean that is damaged, though.
+	 * So assume that anything that is supposed to have a penalty and still
+	 * be good has already exited by now.
+	 */
 	if (kind_tval_is_weapon(kind)) {
 		if (randcalc(kind->to_h, 0, MINIMISE) < 0) return (false);
 		if (randcalc(kind->to_d, 0, MINIMISE) < 0) return (false);
 		return true;
 	}
-
-	/* Anything with the GOOD flag */
-	if (kf_has(kind->kind_flags, KF_GOOD))
-		return true;
 
 	/* Assume not good */
 	return (false);
@@ -993,7 +1013,7 @@ bool kind_is_good(const struct object_kind *kind)
  */
 static struct object_kind *get_obj_num_by_kind(int level, bool good, int tval)
 {
-	const u32b *objects;
+	const double *objects;
 	u32b total = 0;
 	u32b value;
 	int item;
@@ -1013,7 +1033,7 @@ static struct object_kind *get_obj_num_by_kind(int level, bool good, int tval)
 	if (!total) return NULL;
 
 	/* Pick an object */
-	value = randint0(total);
+	value = Rand_double(total);
 
 	/*
 	 * Find it.  Having a loop to calculate the cumulative probability
@@ -1023,7 +1043,7 @@ static struct object_kind *get_obj_num_by_kind(int level, bool good, int tval)
 	 */
 	for (item = 0; item < z_info->k_max; item++) {
 		if (objkind_byid(item)->tval == tval) {
-			u32b prob = objects[item + 1] - objects[item];
+			double prob = objects[item + 1] - objects[item];
 
 			if (value < prob) break;
 			value -= prob;
@@ -1041,8 +1061,8 @@ static struct object_kind *get_obj_num_by_kind(int level, bool good, int tval)
  */
 struct object_kind *get_obj_num(int level, bool good, int tval)
 {
-	const u32b *objects;
-	u32b value;
+	const double *objects;
+	double value;
 	int item;
 
 	/* Occasional level boost */
@@ -1066,7 +1086,8 @@ struct object_kind *get_obj_num(int level, bool good, int tval)
 	if (!objects[z_info->k_max]) {
 		return NULL;
 	}
-	value = randint0(objects[z_info->k_max]);
+
+	value = Rand_double(objects[z_info->k_max]);
 
 	/* Find it with a binary search. */
 	item = binary_search_probtable(objects, z_info->k_max + 1, value);
@@ -1169,6 +1190,65 @@ static double ego_prob(double depth, bool good, bool great)
 		return 0.15;										/* 15% */
 	else
 		return 0.0325 + ((MIN(depth, 40) / 40.0) * 0.0675);	/* 3.25% at level 0, 10% at level 40+ */
+}
+
+/* Anonymous Gregorian Algorithm (Nature, 1876).
+ * This calculates the date of Easter Sunday.
+ * The function treats the whole long weekend as Easter, so -2 to +1 day.
+ **/
+bool its_easter(void)
+{
+	struct tm *t;
+	time_t now;
+	time(&now);
+	t = gmtime(&now);
+
+	int y = t->tm_year + 1900;
+	int a = y % 19;
+	int b = y / 100;
+	int c = y % 100;
+	int d = b / 4;
+	int e = b % 4;
+	int f = (b + 8) / 25;
+	int g = (b - f + 1) / 3;
+	int h = ((19 * a) + b - d - g + 15) % 30;
+	int i = c / 4;
+	int k = c % 4;
+	int l = (32 + (2 * e) + (2 * i) - h - k) % 7;
+	int m = (a + (11 * h) + (22 * l)) / 451;
+	int month = (h + l - (7 * m) + 114) / 31;
+	int day = ((h + l - (7 * m) + 114) % 31) + 1;
+
+	/* Date of Easter Sunday as an offset from March 1 */
+	int easter = day;
+	if (month == 4)
+		easter += 31;
+
+	/* Current date as an offset from March 1 */
+	int today = t->tm_mday;
+	if (t->tm_mon == 3)
+		today += 31;
+	else if (t->tm_mon != 2)
+		return false;
+
+	int offset = today - easter;
+
+	return ((offset <= 1) && (offset >= -2));
+}
+
+/* Called for non-artifact items with the SPECIAL_GEN kind flag set.
+ * These can't always be generated, with the conditions varying per object.
+ * Returns true if it is OK to generate the item.
+ */
+bool special_item_can_gen(struct object_kind *kind)
+{
+	/* Seasonal silliness */
+	if (strstr(kind->name, "chocolate egg")) {
+		return its_easter();
+	}
+
+	/* Default to OK */
+	return true;
 }
 
 /**
@@ -1284,6 +1364,10 @@ struct object *make_object_named(struct chunk *c, int lev, bool good, bool great
 			}
 		}
 		if (!kind)
+			return NULL;
+
+		/* Discard special cases */
+		if ((kf_has(kind->kind_flags, KF_SPECIAL_GEN)) && (!special_item_can_gen(kind)))
 			return NULL;
 
 		/* Make the object, prep it and apply magic */

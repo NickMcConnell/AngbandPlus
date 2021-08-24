@@ -27,9 +27,9 @@
 #         flag or a nonzero value for a modifier or resistance).  When not set,
 #         the value (0 for off flag, 1 for on flag, value for modifier,
 #         resistance level for a resistance) is sent.  bindui is currently only
-#         used for parts of the second character screen.  This field can appear
-#         multiple times to bind a property to more than one user interface
-#         element.
+#         used for parts of the second character screen and the equippable
+#         comparison.  This field can appear multiple times to bind a property
+#         to more than one user interface element.
 # desc: an extra piece of descriptive text used in object information
 
 name:strength
@@ -388,6 +388,24 @@ type-mult:boots:2
 power:35
 bindui:esp_ui_compact_0:0
 desc:Grants telepathy
+
+name:animal sense
+type:flag
+subtype:misc ability
+id-type:on wield
+code:SENSE_ANIMAL
+power:10
+bindui:sense_animal_ui_compact_0:0:0
+desc:Grants the ability to sense animals
+
+name:metal sense
+type:flag
+subtype:misc ability
+id-type:on wield
+code:SENSE_METAL
+power:10
+bindui:sense_metal_ui_compact_0:0:0
+desc:Grants the ability to sense metal
 
 name:see invisible
 type:flag

@@ -347,7 +347,7 @@ void monster_list_show_subwindow(int height, int width)
 	monster_list_t *list;
 	int i;
 
-	if (height < 1 || width < 1)
+	if (height < 1 || width < 1 || !cave)
 		return;
 
 	tb = textblock_new();

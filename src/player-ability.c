@@ -25,6 +25,7 @@
 #include "player.h"
 #include "player-ability.h"
 #include "player-calcs.h"
+#include "player-util.h"
 #include "project.h"
 #include "ui-display.h"
 #include "ui-input.h"
@@ -82,6 +83,20 @@ static enum parser_error parse_ability_forbid(struct parser *p) {
 
 	/* Locate by name and set the flag. It's done this way to avoid needing a second pass with the names read. */
 	#define PF(N) if (!my_stricmp(#N, forbid)) { a->forbid[index] = true; return PARSE_ERROR_NONE; } index++;
+	#include "list-player-flags.h"
+	#undef PF
+
+	return PARSE_ERROR_INVALID_PLAYER_FLAG;
+}
+
+static enum parser_error parse_ability_cancel(struct parser *p) {
+	struct ability *a = parser_priv(p);
+	assert(a);
+	const char *cancel = parser_getstr(p, "cancel");
+	int index = 0;
+
+	/* Locate by name and set the flag. It's done this way to avoid needing a second pass with the names read. */
+	#define PF(N) if (!my_stricmp(#N, cancel)) { a->cancel[index] = true; return PARSE_ERROR_NONE; } index++;
 	#include "list-player-flags.h"
 	#undef PF
 
@@ -212,6 +227,39 @@ static enum parser_error parse_ability_todam(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
+static enum parser_error parse_ability_mom_speed(struct parser *p) {
+	struct ability *a = parser_priv(p);
+	assert(a);
+
+	/* Read a string and extract a list of numbers.
+	 * If there are less than MOM_SPEED_MAX, the last one given is duplicated to fill the array.
+	 * If there are more, the excess are ignored.
+	 **/
+	const char *text = parser_getstr(p, "speed");
+	if (!text)
+		return PARSE_ERROR_INVALID_VALUE;
+	char *input = string_make(text);
+	long speed = 0;
+	for(int i=0; i<MOM_SPEED_MAX; i++) {
+		char *token = strtok(i ? NULL : input, " \t,:");
+		if (token) {
+			char *endptr = NULL;
+			speed = strtol(token, &endptr, 10);
+			if ((!endptr) || (*endptr)) {
+				string_free(input);
+				return PARSE_ERROR_INVALID_VALUE;
+			}
+			if ((speed < -127) || (speed > 127)) {
+				string_free(input);
+				return PARSE_ERROR_INVALID_VALUE;
+			}
+		}
+		a->mom_speed[i] = speed;
+	}
+	string_free(input);
+	return PARSE_ERROR_NONE;
+}
+
 static enum parser_error parse_ability_flag(struct parser *p) {
 	struct ability *a = parser_priv(p);
 
@@ -229,6 +277,8 @@ static enum parser_error parse_ability_flag(struct parser *p) {
 		flag = AF_TALENT;
 	if (!my_stricmp(text, "nasty"))
 		flag = AF_NASTY;
+	if (!my_stricmp(text, "flying"))
+		flag = AF_FLYING;
 
 	if (flag)
 		a->flags |= flag;
@@ -403,9 +453,11 @@ struct parser *init_parse_ability(void) {
 	parser_reg(p, "brief str brief", parse_ability_brief);
 	parser_reg(p, "forbid str forbid", parse_ability_forbid);
 	parser_reg(p, "require str require", parse_ability_require);
+	parser_reg(p, "cancel str cancel", parse_ability_cancel);
 	parser_reg(p, "desc str desc", parse_ability_desc);
 	parser_reg(p, "class str class", parse_ability_class);
 	parser_reg(p, "ac int ac", parse_ability_ac);
+	parser_reg(p, "mom-speed str speed", parse_ability_mom_speed);
 	parser_reg(p, "tohit int tohit", parse_ability_tohit);
 	parser_reg(p, "todam int todam", parse_ability_todam);
 	parser_reg(p, "desc_future str desc_future", parse_ability_desc_future);
@@ -500,11 +552,32 @@ static bool ability_allowed(unsigned a, bool gain) {
 		}
 	}
 
+	/* No class? Use overall level */
+	int min = ability[a]->minlevel;
+	int max = ability[a]->maxlevel;
+	int highest = player->lev;
+	int lowest = player->lev;
+
+	/* Class? Use highest / lowest level-in-class */
+	if (ability[a]->class) {
+		lowest = PY_MAX_LEVEL;
+		highest = 0;
+		for(struct player_class *class = classes; class; class = class->next) {
+			int l = levels_in_class(class->cidx);
+			if (l && my_stristr(ability[a]->class, class->name)) {
+				if (l < lowest)
+					lowest = l;
+				if (l > highest)
+					highest = l;
+			}
+		}
+	}
+
 	/* Check minimum and maximum level and class */
-	if (player->lev < ability[a]->minlevel) {
+	if (highest < min) {
 		return false;
 	}
-	if ((ability[a]->maxlevel) && (player->lev > ability[a]->maxlevel)) {
+	if ((max) && (lowest > max)) {
 		return false;
 	}
 	if ((ability[a]->class) && (!my_stristr(ability[a]->class, player->class->name))) {
@@ -569,7 +642,7 @@ void changed_abilities(void) {
  * This does not care about talent points & so could be used for mutations, etc.
  * Can fail if already present or blocked.
  */
-static bool gain_ability(unsigned a, bool birth) {
+bool gain_ability(unsigned a, bool birth) {
 	assert(a < PF_MAX);
 	assert(ability[a]);
 
@@ -1050,42 +1123,84 @@ int cmd_abilities(struct player *p, bool birth, int selected, bool *flip) {
 /* Complete init of player talents (roll out TP-gain levels)
  * This must be done after birth talents (including Patience etc.) have been fixed.
  **/
-void init_talent(int tp) {
-	int bp = player->race->tp_base + player->class->tp_base;
-	memset(player->talent_gain, 0, sizeof(player->talent_gain));
+void init_talent(int initial_tp, int orig_tp) {
 
-	/* Distribute fairly evenly between level 2 and maximum.
-	 * (Or max/2 and maximum for Patience, or level 3 and 90% of max for Unknown)
+	/* Get an empty array of talent gain counts */
+	int n_classes = 0;
+	for (struct player_class *c = classes; c; c = c->next)
+		if ((int)c->cidx > n_classes)
+			n_classes = c->cidx;
+	n_classes++;
+
+	if (player->talent_gain)
+		mem_free(player->talent_gain);
+	player->talent_gain = mem_zalloc(n_classes * PY_MAX_LEVEL);
+
+	/* For each class, get a TP gain array */
+	for (int cl = 0; cl < n_classes; cl++) {
+		struct player_class *c = get_class_by_idx(cl);
+
+		/* Determine effective TP.
+		 * This is the TP for that class plus an offset intended to cancel the level-gain and base TP.
+		 * Also change the minimum level for classes with less base TP.
+		 */
+		int bp = player->race->tp_base + c->tp_base + orig_tp - player->class->tp_base;
+		int tp = player->race->tp_max + c->tp_max;
+
+		/* Distribute fairly evenly between level 2 and maximum.
+		 * (Or max/2 and maximum for Patience, or level 3 and 90% of max for Unknown)
+		 */
+		int min = 2;
+		int max = PY_MAX_LEVEL - 1;
+
+		/* Patience = more TP, but later */
+		if (player_has(player, PF_PATIENCE)) {
+			tp += (((bp * 3) + 1) / 2) + 1;
+			min = PY_MAX_LEVEL / 2;
+			bp = 0;
+		}
+
+		/* This doesn't require that all talents *must* be taken immediately */
+		if (player_has(player, PF_PRECOCITY)) {
+			bp = ((tp * 2) + 2) / 3;
+			tp = 0;
+		}
+
+		/* Avoid getting TP close to max level for unknown talents */
+		if (player_has(player, PF_UNKNOWN_TALENTS)) {
+			min++;
+			max -= (PY_MAX_LEVEL / 10);
+		}
+
+		/* If there are any level-gain TP level, spread them.
+		 * FIXME: try to be more equally spaced? (e.g. minimise the difference between pairs, including ends)
+		 **/
+		for (int i = 0; i < tp; i++)
+			player->talent_gain[(cl * PY_MAX_LEVEL) + rand_range(min, max)]++;
+	}
+
+	//player->talent_points = player->race->tp_base + player->class->tp_base;
+
+	/* Talent points are now determined.
+	 * Birth effects of talents follow:
 	 */
-	int min = 2;
-	int max = PY_MAX_LEVEL - 1;
 
-	/* Patience = more TP, but later */
-	if (player_has(player, PF_PATIENCE)) {
-		tp += (((bp * 3) + 1) / 2) + 1;
-		min = PY_MAX_LEVEL / 2;
-		bp = 0;
+	/* Cash and town faction */
+	if (player_has(player, PF_TRADE_CONNECTION)) {
+		player->au += 1000 + damroll(3, 500);
+		player->town_faction++;
 	}
 
-	/* This doesn't require that all talents *must* be taken immediately */
-	if (player_has(player, PF_PRECOCITY)) {
-		bp = ((tp * 2) + 2) / 3;
-		tp = 0;
+	/* Cash and BM faction */
+	if (player_has(player, PF_MOB_CONNECTION)) {
+		player->au += 500 + damroll(3, 300);
+		player->bm_faction++;
 	}
 
-	/* Avoid getting TP close to max level for unknown talents */
-	if (player_has(player, PF_UNKNOWN_TALENTS)) {
-		min++;
-		max -= (PY_MAX_LEVEL / 10);
+	/* Salon faction */
+	if (player_has(player, PF_NET_CONNECTION)) {
+		player->cyber_faction += 100;
 	}
-
-	/* If there are any level-gain TP level, spread them.
-	 * FIXME: try to be more equally spaced? (e.g. minimise the difference between pairs, including ends)
-	 **/
-	for (int i = 0; i < tp; i++)
-		player->talent_gain[rand_range(min, max)]++;
-
-	player->talent_points = bp;
 }
 
 /* Handle ability gain at level up.
@@ -1096,8 +1211,10 @@ void init_talent(int tp) {
 bool ability_levelup(struct player *p, int from, int to)
 {
 	/* For all levels gained, sum TP per level */
-	for(int level = from+1; level <= to; level++)
-		p->talent_points += p->talent_gain[level-1];
+	for(int level = from+1; level <= to; level++) {
+		int lc = p->lev_class[level];
+		p->talent_points += p->talent_gain[(PY_MAX_LEVEL * lc)+(level-1)];
+	}
 
 	int gains = p->talent_points;
 	if (gains == 0)
@@ -1182,7 +1299,7 @@ bool ability_levelup(struct player *p, int from, int to)
 		}
 	} else {
 		/* Not Unknown Talents. There is no need to force a decision immediately, though. */
-		msgt(MSG_LEVEL, "You may now gain new talents. Press Ctrl-T at any time to browse and gain talents.");
+		msgt(MSG_LEVEL, "You may now gain new talents. Press Shift-S at any time to browse and gain talents.");
 	}
 
 	return true;

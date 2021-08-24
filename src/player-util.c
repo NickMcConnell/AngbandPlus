@@ -43,9 +43,92 @@
 #include "store.h"
 #include "target.h"
 #include "trap.h"
+#include "ui-input.h"
 
 /* List of death messages */
 struct death_msg *death;
+
+/** Returns the number of levels you have in a given class */
+int levels_in_class(int c)
+{
+	int l = 0;
+	for(int i=1; i<=player->lev; i++) {
+		if (player->lev_class[i] == c)
+			l++;
+	}
+	return l;
+}
+
+static int compar_class(const void *av, const void *bv)
+{
+	const struct player_class *a = *(const struct player_class **)av;
+	const struct player_class *b = *(const struct player_class **)bv;
+
+	int lev_a = levels_in_class(a->cidx);
+	int lev_b = levels_in_class(b->cidx);
+
+	if (lev_a != lev_b) return lev_b - lev_a;
+
+	for(int i=1; i<(int)sizeof(player->lev_class); i++) {
+		if (player->lev_class[i] == (a->cidx))
+			return 1;
+		if (player->lev_class[i] == (b->cidx))
+			return -1;
+	}
+	return 0;
+}
+
+/** Returns the class with the given cidx, of NULL if there is none.
+ */
+struct player_class *get_class_by_idx(int cidx)
+{
+	for (struct player_class *c = classes; c; c = c->next) {
+		if ((int)(c->cidx) == cidx)
+			return c;
+	}
+	return NULL;
+}
+
+/** Returns a (static) list of classes, from most levelled to least.
+ * The sort order is by total number of levels first, and the first level gained in that class second
+ * (earlier = first).
+ */
+struct player_class **ordered_classes(void)
+{
+	static struct player_class **order = NULL;
+	static int n_classes = 0;
+	if (!order) {
+		for (struct player_class *c = classes; c; c = c->next)
+			n_classes++;
+		order = mem_zalloc(sizeof(*order) * (n_classes + 1));	// +1 so there is always a terminator
+	}
+
+	/* Get all classes */
+	int n = 0;
+	for (struct player_class *c = classes; c; c = c->next) {
+		order[n] = c;
+		n++;
+	}
+
+	/* Sort */
+	qsort(order, n, sizeof(*order), compar_class);
+
+	/* Wipe unused ones */
+	for (int i=0; i<n; i++) {
+		if (levels_in_class(order[i]->cidx) == 0) {
+			order[i] = NULL;
+		}
+	}
+
+	return order;
+}
+
+/** Set the primary class, based on the level-class array */
+void set_primary_class(void)
+{
+	struct player_class **order = ordered_classes();
+	player->class = order[0];
+}
 
 /** Return an effective depth for difficulty of monster generation, etc.
  * based on physical depth and additional difficulty over time.
@@ -76,7 +159,7 @@ static const char *random_death_msg(void)
 }
 
 /**
- * Increment to the next or decrement to the preceeding level
+ * Increment to the next or decrement to the preceding level
    accounting for the stair skip value in constants
    Keep in mind to check all intermediate level for unskippable
    quests
@@ -364,17 +447,21 @@ int energy_per_move(struct player *p)
 bool stat_check(int stat, int mid)
 {
 	// Get the 'internal' value (3..18, then 18/10 = 18+10 etc.)
-	int val = player->stat_cur[stat];
-	
+	int val = player->stat_cur[stat] + 3;
+
 	// Translate it to a linear form
 	if (val < 18) val = ((val - 18) * 10) + 18;
-	
+
 	// Translate the midpoint
 	if (mid < 18) mid = ((mid - 18) * 10) + 18;
-	
+
+	// Keep them +ve
+	val += 180;
+	mid += 180;
+
 	// Generate a random value
 	int check = Rand_normal(val, val / 2);
-	
+
 	// Return true if it's at least equal to mid
 	if (check >= mid)
 		return true;
@@ -463,7 +550,7 @@ void player_regen_hp(struct player *p)
 		percent *= 2;
 
 	/* Some things slow it down */
-	if (player_of_has(p, OF_IMPAIR_HP) || player_has(p, PF_COMBAT_REGEN))
+	if (player_of_has(p, OF_IMPAIR_HP))
 		percent /= 2;
 
 	/* Various things interfere with physical healing */
@@ -534,7 +621,7 @@ void light_special_activation(struct object *obj)
 	memcpy(&effect, obj->effect, sizeof(effect));
 	effect.x = obj->grid.x;
 	effect.y = obj->grid.y;
-	effect_do(&effect, source_object(obj), NULL, &ident, was_aware, dir, 0, 0, NULL);
+	effect_do(&effect, source_object(obj), NULL, &ident, was_aware, dir, 0, 0, NULL, 0);
 }
 
 void light_timeout(struct object *obj)
@@ -920,6 +1007,38 @@ struct player_shape *player_shape_by_idx(int index)
 }
 
 /**
+ * Give shapechanged players a choice of returning to normal shape and
+ * performing a command, just returning to normal shape without acting, or
+ * canceling.
+ *
+ * \param p the player
+ * \param cmd the command being performed
+ * \return true if the player wants to proceed with their command
+ */
+bool player_get_resume_normal_shape(struct player *p, struct command *cmd)
+{
+	if (player_is_shapechanged(player)) {
+		msg("You cannot do this while in %s form.",	player->shape->name);
+		char prompt[100];
+		strnfmt(prompt, sizeof(prompt),
+		        "Change back and %s (y/n) or (r)eturn to normal? ",
+		        cmd_verb(cmd->code));
+		char p = get_char(prompt, "yrn", 3, 'n');
+
+		// Change back to normal shape
+		if (p == 'y' || p == 'r') {
+			player_resume_normal_shape(player);
+		}
+
+		// Players may only act if they return to normal shape
+		return p == 'y';
+	}
+
+	// Normal shape players can proceed as usual
+	return true;
+}
+
+/**
  * Revert to normal shape
  */
 void player_resume_normal_shape(struct player *p)
@@ -1050,7 +1169,8 @@ bool player_can_refuel(struct player *p, bool show_msg)
 }
 
 /**
- * Prerequiste function for command. See struct cmd_info in cmd-process.c.
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
  */
 bool player_can_cast_prereq(void)
 {
@@ -1058,7 +1178,8 @@ bool player_can_cast_prereq(void)
 }
 
 /**
- * Prerequiste function for command. See struct cmd_info in cmd-process.c.
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
  */
 bool player_can_run_prereq(void)
 {
@@ -1066,7 +1187,8 @@ bool player_can_run_prereq(void)
 }
 
 /**
- * Prerequiste function for command. See struct cmd_info in cmd-process.c.
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
  */
 bool player_can_fire_prereq(void)
 {
@@ -1074,7 +1196,8 @@ bool player_can_fire_prereq(void)
 }
 
 /**
- * Prerequiste function for command. See struct cmd_info in cmd-process.c.
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
  */
 bool player_can_refuel_prereq(void)
 {

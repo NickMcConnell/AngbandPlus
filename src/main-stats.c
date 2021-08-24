@@ -198,13 +198,13 @@ static void generate_player_for_stats()
 	player->expfact_high = player->expfact_low;
 
 	/* Hitdice */
-	player->hitdie = player->race->r_mhp + player->class->c_mhp + player->extension->r_mhp;
+	int hitdie = player->race->r_mhp + player->class->c_mhp + player->extension->r_mhp;
 
 	/* Initial hitpoints -- high just to be safe */
 	player->mhp = player->chp = 2000;
 
 	/* Pre-calculate level 1 hitdice */
-	player->player_hp[0] = (2 * player->hitdie) / PY_MAX_LEVEL;
+	player->player_hp[0] = (2 * hitdie) / PY_MAX_LEVEL;
 
 	/* Set age/height/weight */
 	player->ht = player->ht_birth = 66;
@@ -762,7 +762,7 @@ static int stats_dump_lists(void)
 	char *object_flag_names[] =
 	{
 		"NONE",
-		#define OF(a) #a,
+		#define OF(a, b) #a,
 		#include "list-object-flags.h"
 		#undef OF
 	};

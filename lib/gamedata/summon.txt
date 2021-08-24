@@ -107,12 +107,6 @@ uniques:0
 race-flag:UNDEAD
 desc:undead
 
-name:DRAGON
-msgt:SUM_DRAGON
-uniques:0
-race-flag:DRAGON
-desc:dragons
-
 name:HI_DEMON
 msgt:SUM_HI_DEMON
 uniques:1
@@ -126,12 +120,6 @@ base:vampire
 base:wraith
 base:lich
 desc:greater undead
-
-name:HI_DRAGON
-msgt:SUM_HI_DRAGON
-uniques:1
-base:ancient dragon
-desc:ancient dragons
 
 name:WRAITH
 msgt:SUM_WRAITH

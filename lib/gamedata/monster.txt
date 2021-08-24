@@ -599,6 +599,32 @@ flags:RAND_25
 flags:NO_FEAR
 desc:Lemmings hung with weights for their dive from the cliff tops.
 
+
+##### QUADRUPEDS #####
+
+name:wumpus
+base:quadruped
+color:DarkGreen
+speed:100
+hit-points:450
+hearing:4
+smell:4
+armor-class:50
+sleepiness:200
+depth:38
+rarity:5
+experience:500
+blow:CRUSH:HURT:10d12
+flags:SMART | COLD_BLOOD | WEIRD_MIND | RAND_25 | BASH_DOOR | KILL_BODY | KILL_ITEM
+
+
+
+
+
+
+
+
+
 ### Dungeon level 0 ###
 
 name:filthy street urchin
@@ -5198,29 +5224,6 @@ friends:100:2d7:Same
 desc:Liquid footprints follow this hound as it pads around the dungeon.  An
 desc: acrid smell of acid rises from the dog's pelt.
 
-name:chimaera
-base:hybrid
-color:r
-speed:110
-hit-points:160
-hearing:12
-smell:20
-armor-class:22
-sleepiness:30
-depth:20
-rarity:2
-experience:200
-blow:BUTT:HURT:2d8
-blow:BITE:HURT:2d10
-blow:BITE:FIRE:2d6
-flags:BASH_DOOR
-flags:IM_FIRE
-flags:FORCE_SLEEP
-innate-freq:10
-spells:BR_FIRE
-desc:It is a strange concoction of goat, lion and dragon, with the heads of all
-desc: three beasts.
-
 name:quylthulg
 base:quylthulg
 color:y
@@ -9233,7 +9236,7 @@ spell-freq:2
 spells:BLIND | BLINK | WOUND | CONF | TELE_TO | TRAPS
 spells:BA_COLD | BA_FIRE
 spells:BO_ACID
-spells:S_DRAGON | S_MONSTER | S_UNDEAD
+spells:S_MONSTER | S_UNDEAD
 friends:30:1d1:Master thief
 friends:30:1d1:Ranger chieftain
 friends:30:1d1:Patriarch
@@ -10004,23 +10007,6 @@ spells:S_DEMON
 desc:A pile of pulsing flesh that glows with an inner hellish fire.  The world
 desc: itself seems to cry out against it.
 
-name:draconic quylthulg
-base:quylthulg
-color:g
-speed:120
-hit-points:420
-hearing:20
-armor-class:1
-sleepiness:0
-depth:45
-rarity:1
-experience:3000
-spell-freq:2
-spells:BLINK | TPORT
-spells:S_DRAGON
-desc:It looks like it was once a dragon corpse, now deeply infected with magical
-desc: bacteria that make it pulse in a foul and degrading way.
-
 name:greater basilisk
 base:reptile
 color:D
@@ -10411,7 +10397,7 @@ spells:BLIND | BLINK | WOUND | CONF | DARKNESS | HEAL
 spells:TELE_TO
 spells:BA_ACID | BA_COLD | BA_ELEC | BA_FIRE | BA_RADI
 spells:BO_MANA
-spells:S_DEMON | S_DRAGON | S_MONSTERS | S_UNDEAD
+spells:S_DEMON | S_MONSTERS | S_UNDEAD
 desc:A lord of the Teleri, Eöl is a mighty metalsmith, the only one to ever
 desc: forge weapons of meteorite iron.  The mortal enemy of the Eldar, he is
 desc: currently fleeing their wrath, following the murder of Princess Aredhel of
@@ -11288,7 +11274,7 @@ spells:BLIND | WOUND | FORGET | HASTE | HEAL | MIND_BLAST
 spells:SCARE | TELE_AWAY | TPORT | TRAPS
 spells:BA_ACID | BA_COLD | BA_FIRE | BA_WATE
 spells:BO_ICE
-spells:S_ANIMAL | S_DEMON | S_HI_DRAGON | S_MONSTERS | S_UNDEAD
+spells:S_ANIMAL | S_DEMON | S_MONSTERS | S_UNDEAD
 friends:100:1d1:Wormtongue, Agent of Saruman:servant
 desc:Originally known as the White, Saruman fell prey to Sauron's wiles.  He
 desc: seeks to emulate him and breeds orcs and trolls to fight for him.  He
@@ -12073,24 +12059,6 @@ spells:BLINK | TELE_TO
 spells:S_HI_DEMON
 desc:A massive pulsating mound of flesh, glowing with a hellish light.
 
-name:greater draconic quylthulg
-base:quylthulg
-color:G
-speed:120
-hit-points:1320
-hearing:20
-armor-class:1
-sleepiness:0
-depth:71
-rarity:2
-experience:10500
-flags:ATTR_FLICKER
-spell-freq:2
-spells:BLINK | TELE_TO
-spells:S_HI_DRAGON
-desc:A massive mound of scaled flesh, throbbing and pulsating with multi-hued
-desc: light.
-
 name:greater rotting quylthulg
 base:quylthulg
 color:U
@@ -12392,7 +12360,7 @@ experience:15000
 flags:ATTR_FLICKER
 spell-freq:1
 spells:BLINK | TELE_TO
-spells:S_ANIMAL | S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_MONSTERS
+spells:S_ANIMAL | S_HI_DEMON | S_HI_UNDEAD | S_MONSTERS
 desc:A giant seething mass of flesh, overwhelming you with monster after
 desc: monster.
 
@@ -12477,7 +12445,7 @@ spell-freq:8
 spells:WOUND | SCARE
 spells:BA_FIRE
 spells:BR_CHAO | BR_FIRE | BR_POIS
-spells:S_HI_DEMON | S_HI_DRAGON
+spells:S_HI_DEMON
 desc:Appearing as a giant, clawed and winged humanoid with a scaly red body and
 desc: massive fangs dripping a foul green liquid, the pit fiend is a dreadful
 desc: enemy from the lowest depths of the hells.  They are often the commanders
@@ -12578,7 +12546,7 @@ flags:UNIQUE
 flags:DROP_4 | DROP_GOOD | ONLY_ITEM
 flags:ATTR_MULTI
 spell-freq:1
-spells:S_AINU | S_ANIMAL | S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_HOUND
+spells:S_AINU | S_ANIMAL | S_HI_DEMON | S_HI_UNDEAD | S_HOUND
 spells:S_HYDRA | S_KIN | S_MONSTERS | S_SPIDER | S_UNIQUE
 desc:A gigantic seething mass of flesh, Qlzqqlzuup changes colours in front of
 desc: your eyes.  Pulsating first one colour then the next, it knows only it
@@ -12721,7 +12689,7 @@ flags:KILL_WALL | MOVE_BODY
 flags:IM_COLD | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_SLEEP
 spell-freq:6
-spells:S_ANIMAL | S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_MONSTERS | S_UNIQUE
+spells:S_ANIMAL | S_HI_DEMON | S_HI_UNDEAD | S_MONSTERS | S_UNIQUE
 desc:The son of Eöl the Dark Elf, Maeglin is every bit as evil as his father and
 desc: more.  His greed for gold led him to betray the Hidden Kingdom of
 desc: Gondolin to Morgoth's forces.  He is a mighty warrior himself, and some of
@@ -12987,7 +12955,7 @@ spell-freq:2
 spells:BLIND | BRAIN_SMASH | WOUND | HOLD | SCARE | TELE_AWAY
 spells:BA_RADI
 spells:BO_MANA
-spells:S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_KIN | S_MONSTERS | S_WRAITH
+spells:S_HI_DEMON | S_HI_UNDEAD | S_KIN | S_MONSTERS | S_WRAITH
 friends:50:1d1:Winged Horror
 desc:The most fell of all Sauron's captains: King of Angmar, Sorcerer,
 desc: Ringwraith, Lord of the Nazgûl, a spear of terror in the hand of Sauron,
@@ -13289,7 +13257,7 @@ spells:BRAIN_SMASH | WOUND | TELE_LEVEL | TPORT
 spells:BA_DARK | BA_FIRE | BA_RADI
 spells:BO_ICE | BO_MANA | BO_PLAS
 spells:SHAPECHANGE
-spells:S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_UNIQUE | S_WRAITH
+spells:S_HI_DEMON | S_HI_UNDEAD | S_UNIQUE | S_WRAITH
 friends:100:1d1:Khamûl, the Black Easterling:servant
 friends:100:1d1:The Witch-King of Angmar:servant
 shape:Wolf-Sauron
@@ -13325,7 +13293,7 @@ spell-power:105
 spells:BLINK | TPORT | TELE_LEVEL | TELE_SELF_TO
 spells:BLIND | CONF | SCARE | WOUND
 spells:BR_FIRE | BR_RADI | BA_DARK
-spells:S_HOUND | S_DRAGON | S_HI_DEMON | S_HI_UNDEAD
+spells:S_HOUND | S_HI_DEMON | S_HI_UNDEAD
 desc:Sauron's form as the mightiest wolf to walk the world.
 
 name:Serpent-Sauron
@@ -13353,7 +13321,7 @@ spells:BLINK | TPORT | TELE_LEVEL | TELE_SELF_TO
 spells:BLIND | CONF | SCARE | WOUND
 spells:BRAIN_SMASH | FORGET
 spells:BR_POIS | BR_CHAO | BR_ACID
-spells:S_DRAGON | S_HI_DEMON | S_HI_UNDEAD
+spells:S_HI_DEMON | S_HI_UNDEAD
 desc:Sauron's form as a serpent: poisonous, biting, spitting, and threatening
 desc: to crush you in its mighty coils.
 
@@ -13380,7 +13348,7 @@ spells:BLINK | TPORT | TELE_LEVEL | BLIND | CONF
 spells:BRAIN_SMASH | FORGET
 spells:BO_ICE | BO_PLAS | BE_RADI
 spells:BA_RADI | STORM | BA_DARK | BA_POIS | BA_ACID
-spells:S_DRAGON | S_HI_DEMON | S_HI_UNDEAD
+spells:S_HI_DEMON | S_HI_UNDEAD
 desc:Sauron's form as a vampire, great as a dark cloud across the moon.
 
 ### Dungeon level 100 ###
@@ -13410,7 +13378,7 @@ spell-freq:3
 spells:BRAIN_SMASH
 spells:BA_MANA | BA_RADI
 spells:BO_MANA
-spells:S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_MONSTERS | S_UNIQUE
+spells:S_HI_DEMON | S_HI_UNDEAD | S_MONSTERS | S_UNIQUE
 desc:He is the Master of the Pits of Angband.  His figure is like a black
 desc: mountain crowned with lightning.  He rages with everlasting anger, his
 desc: body scarred by Fingolfin's eight mighty wounds.  He can never rest from

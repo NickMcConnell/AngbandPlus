@@ -164,9 +164,14 @@ static void prt_stat(int stat, int row, int col)
 		put_str("!", row, col + 3);
 }
 
+int title_idx_of_class(struct player_class *cl, int level)
+{
+	return (MAX(level, 1) - 1) * cl->titles / PY_MAX_LEVEL;
+}
+
 int title_idx(int level)
 {
-	return (level - 1) * player->class->titles / PY_MAX_LEVEL;
+	return (MAX(level, 1) - 1) * player->class->titles / PY_MAX_LEVEL;
 }
 
 const char *player_title(void)

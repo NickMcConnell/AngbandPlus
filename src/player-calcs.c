@@ -31,6 +31,7 @@
 #include "obj-gear.h"
 #include "obj-ignore.h"
 #include "obj-knowledge.h"
+#include "obj-pile.h"
 #include "obj-power.h"
 #include "obj-tval.h"
 #include "obj-util.h"
@@ -939,6 +940,8 @@ void calc_inventory(struct player_upkeep *upkeep, struct object *gear,
 {
 	int i;
 	int old_inven_cnt = upkeep->inven_cnt;
+	int n_stack_split = 0;
+	int n_pack_remaining = z_info->pack_size - pack_slots_used(player);
 	struct object **old_quiver = mem_zalloc(z_info->quiver_size *
 												sizeof(struct object *));
 	struct object **old_pack = mem_zalloc(z_info->pack_size *
@@ -963,29 +966,59 @@ void calc_inventory(struct player_upkeep *upkeep, struct object *gear,
 
 		/* Find the first quiver object with the correct label */
 		for (current = gear; current; current = current->next) {
-			bool throwing = of_has(current->flags, OF_THROWING);
-
-			/* Only allow ammo and throwing weapons */
-			if (!(tval_is_ammo(current) || throwing)) continue;
-
 			/* Allocate inscribed objects if it's the right slot */
-			if (current->note) {
-				const char *s = strchr(quark_str(current->note), '@');
-				if (s && (s[1] == 'f' || s[1] == 'v')) {
-					int choice = s[2] - '0';
+			if (preferred_quiver_slot(current) == i) {
+				int mult = tval_is_ammo(current) ?
+					1 : z_info->thrown_quiver_mult;
+				struct object *to_quiver;
 
-					/* Correct slot, fill it straight away */
-					if (choice == i) {
-						int mult = tval_is_ammo(current) ? 1 : 5;
-						upkeep->quiver[i] = current;
-						upkeep->quiver_cnt += current->number * mult;
+				/*
+				 * Split the stack if necessary.  Don't allow
+				 * splitting if it could result in overfilling
+				 * the pack by more than one slot.
+				 */
+				if (current->number * mult <=
+						z_info->quiver_slot_size) {
+					to_quiver = current;
+				} else {
+					int nsplit = z_info->quiver_slot_size /
+						mult;
 
-						/* In the quiver counts as worn */
-						object_learn_on_wield(player, current);
-
-						/* Done with this slot */
-						break;
+					assert(nsplit < current->number);
+					if (nsplit > 0 && n_stack_split <=
+							n_pack_remaining) {
+						/*
+						 * Split off the portion that
+						 * go to the pack.  Since the
+						 * stack in the quiver is
+						 * earlier in the gear list
+						 * it will prefer to remain
+						 * in the quiver in future
+						 * calls to calc_inventory()
+						 * and will be the preferential
+						 * destination for merges in
+						 * combine_pack().
+						 */
+						to_quiver = current;
+						gear_insert_end(object_split(
+							current, current->number
+							- nsplit));
+						++n_stack_split;
+					} else {
+						to_quiver = NULL;
 					}
+				}
+
+				if (to_quiver) {
+					upkeep->quiver[i] = to_quiver;
+					upkeep->quiver_cnt +=
+						to_quiver->number * mult;
+
+					/* In the quiver counts as worn */
+					object_learn_on_wield(player, to_quiver);
+
+					/* Done with this slot */
+					break;
 				}
 			}
 		}
@@ -993,7 +1026,7 @@ void calc_inventory(struct player_upkeep *upkeep, struct object *gear,
 
 	/* Now fill the rest of the slots in order */
 	for (i = 0; i < z_info->quiver_size; i++) {
-		struct object *current, *first = NULL;
+		struct object *current, *to_quiver, *first = NULL;
 		int j;
 
 		/* If the slot is full, move on */
@@ -1021,12 +1054,30 @@ void calc_inventory(struct player_upkeep *upkeep, struct object *gear,
 		/* Stop looking if there's nothing left */
 		if (!first) break;
 
-		/* If we have an item, slot it */
-		upkeep->quiver[i] = first;
-		upkeep->quiver_cnt += first->number;
+		/* If we have an item, slot it, splitting if needed, to fit. */
+		if (first->number <= z_info->quiver_slot_size) {
+			to_quiver = first;
+		} else if (z_info->quiver_slot_size > 0 &&
+				n_stack_split <= n_pack_remaining) {
+			/*
+			 * As above, split off the portion that goes to the
+			 * pack.
+			 */
+			to_quiver = first;
+			gear_insert_end(object_split(first,
+				first->number - z_info->quiver_slot_size));
+			++n_stack_split;
+		} else {
+			to_quiver = NULL;
+		}
 
-		/* In the quiver counts as worn */
-		object_learn_on_wield(player, first);
+		if (to_quiver) {
+			upkeep->quiver[i] = to_quiver;
+			upkeep->quiver_cnt += to_quiver->number;
+
+			/* In the quiver counts as worn */
+			object_learn_on_wield(player, to_quiver);
+		}
 	}
 
 	/* Note reordering */
@@ -1109,8 +1160,25 @@ static void calc_hitpoints(struct player *p)
 	/* Get "1/100th hitpoint bonus per level" value */
 	bonus = adj_con_mhp[p->state.stat_ind[STAT_CON]];
 
-	/* Calculate hitpoints */
-	mhp = p->player_hp[p->lev-1] + (bonus * p->lev / 100);
+	/* Calculate hitpoints from classes' player_hp tables.
+	 * The aim is to produce a weighted average of the classes' hp tables,
+	 * proportional to the number of levels per class.
+	 **/
+	double total = 0;
+	for (struct player_class *c = classes; c; c = c->next) {
+		int levels = levels_in_class(c->cidx);
+		if (levels) {
+			double scale = levels;
+			scale /= player->lev;
+			double part_hp = player->player_hp[(player->lev - 1) + (PY_MAX_LEVEL * c->cidx)];
+			part_hp *= scale;
+			total += part_hp;
+		}
+	}
+	mhp = total;
+
+	/* This is independent of class */
+	mhp += (bonus * p->lev / 100);
 
 	/* Always have at least one hitpoint per level */
 	if (mhp < p->lev + 1) mhp = p->lev + 1;
@@ -1217,7 +1285,7 @@ void calc_digging_chances(struct player_state *state, int chances[DIGGING_MAX])
  *
  * \param obj is the object for which we are calculating blows
  * \param state is the player state for which we are calculating blows
- * \param extra_blows is the number of +blows available from this object and
+ * \param extra_blows is the number of +blows (x100) available from this object and
  * this state
  *
  * N.B. state->num_blows is now 100x the number of blows.
@@ -1253,8 +1321,7 @@ int calc_blows(struct player *p, const struct object *obj,
 	blows = MIN((10000 / blow_energy), (100 * p->class->max_attacks));
 
 	/* Require at least one blow, two for O-combat */
-	return MAX(blows + (100 * extra_blows),
-			   OPT(p, birth_percent_damage) ? 200 : 100);
+	return MAX(blows + extra_blows, OPT(p, birth_percent_damage) ? 200 : 100);
 }
 
 
@@ -1385,6 +1452,78 @@ static void apply_modifiers(struct player *p, struct player_state *state, s16b *
 		* p->obj_k->modifiers[OBJ_MOD_MOVES];
 }
 
+/* Return the + to a given stat from classes stat bonuses, mixed according to their weights.
+ */
+int class_to_stat(int stat)
+{
+	int total = 0;
+
+	/* Sum */
+	for(int i=1; i<=player->max_lev; i++)
+		total += get_class_by_idx(player->lev_class[i])->c_adj[stat];
+
+	/* Round to nearest */
+	total *= 2;
+	total += player->max_lev;
+	return total / (player->max_lev * 2);
+}
+
+int effective_ac_of(struct object *obj, int slot)
+{
+	const int wlev = levels_in_class(get_class_by_name("Wrestler")->cidx);
+	/* No bonus if not a wrestler or using a melee weapon */
+
+	if ((!wlev) || (equipped_item_by_slot_name(player, "weapon")))
+		return obj ? obj->ac : 0;
+	int ac = obj ? obj->ac : 0;
+
+	/* Increase AC for wrestlers */
+	int weight = slot_table[slot].weight;
+	if (weight) {
+		/* At the specified weight, there is no AC gain */
+		int armweight = obj ? obj->weight : 0;
+		if (armweight < weight) {
+			int bonus = slot_table[slot].ac;	/* AC if slot is empty and max level */
+			bonus *= (wlev * (weight - armweight));
+			bonus /= (PY_MAX_LEVEL * weight);
+			if (obj && obj->to_h < 0)
+				bonus >>= -obj->to_h;
+			ac += bonus;
+		}
+	}
+
+	return ac;
+}
+
+/** Return the current burden weight, grams */
+int burden_weight(struct player *p)
+{
+	int j = p->upkeep->total_weight;
+
+	/* Add ballast if you are dragging a plane
+	 * (= you have flying talents, but are not flying)
+	 * Weight is guessed from the number of talents (this could be moved out to the ability.txt)
+	 **/
+	if (!player->flying) {
+		int flying_talents = 0;
+		for (int i=0;i<PF_MAX;i++) {
+			if (ability[i]) {
+				if (player_has(p, i)) {
+					if (ability[i]->flags & AF_FLYING) {
+						flying_talents++;
+					}
+				}
+			}
+		}
+		/* 40kg for basic, 50kg for mid-level, 60kg for top-tier */
+		if (flying_talents) {
+			j += (30000 + (10000 * flying_talents));
+		}
+	}
+
+	return j;
+}
+
 /**
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
@@ -1413,6 +1552,8 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	bitflag f[OF_SIZE];
 	bitflag collect_f[OF_SIZE];
 	bool vuln[ELEM_MAX];
+	char mom_speed[MOM_SPEED_MAX];
+	memset(mom_speed, 0, sizeof(mom_speed));
 
 	/* Hack to allow calculating hypothetical blows for extra STR, DEX - NRM */
 	int str_ind = state->stat_ind[STAT_STR];
@@ -1431,7 +1572,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	/* Extract race/class info */
 	state->see_infra = p->race->infra + p->extension->infra;
 	for (i = 0; i < SKILL_MAX; i++) {
-		state->skills[i] = p->race->r_skills[i]	+ p->extension->r_skills[i] + p->class->c_skills[i];
+		state->skills[i] = p->race->r_skills[i]	+ p->extension->r_skills[i];
 	}
 	for (i = 0; i < ELEM_MAX; i++) {
 		vuln[i] = false;
@@ -1442,13 +1583,59 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		}
 	}
 
+	/* Modify skills from level/class.
+	 * The per-level skill (x_skills) is proportional directly to the number of levels you have in that class.
+	 * The base skill (c_skills) is instead proportional to the fraction of total levels that you have in that class.
+	 **/
+	for (i = 0; i < SKILL_MAX; i++) {
+		double total = 0;
+		for (struct player_class *c = classes; c; c = c->next) {
+			int levels = levels_in_class(c->cidx);
+			if (levels) {
+				double x_skill = c->x_skills[i] * levels;
+				x_skill /= 10;
+				double c_skill = c->c_skills[i] * levels;
+				c_skill /= p->lev;
+				total += x_skill;
+				total += c_skill;
+			}
+		}
+		state->skills[i] += total;
+	}
+
 	/* Base pflags = from player only, ignoring equipment and timed effects */
 	pf_wipe(state->pflags_base);
 	pf_copy(state->pflags_base, p->race->pflags);
 	pf_union(state->pflags_base, p->extension->pflags);
-	pf_union(state->pflags_base, p->class->pflags);
+
+	for (struct player_class *c = classes; c; c = c->next) {
+		int levels = levels_in_class(c->cidx);
+		if (levels)
+			pf_union(state->pflags_base, c->pflags[levels]);
+	}
+
 	pf_union(state->pflags_base, p->ability_pflags);
 	pf_union(state->pflags_base, p->shape->pflags);
+
+	/* Remove cancelled flags.
+	 * Use state->pflags_base not the more general player_has, to avoid being
+	 * dependent on the last run (and so ending up with a glitch on the first
+	 * turn after restoring, for example)
+	 **/
+	bool cancel[PF_MAX];
+	memset(cancel, 0, sizeof(cancel));
+	for (i = 0; i < PF_MAX; i++) {
+		if (ability[i]) {
+			if (pf_has(state->pflags_base, i)) {
+				for (j = 0; j < PF_MAX; j++)
+					cancel[j] |= ability[i]->cancel[j];
+			}
+		}
+	}
+	for (i = 0; i < PF_MAX; i++) {
+		if (cancel[i])
+			pf_off(state->pflags_base, i);
+	}
 
 	/* Extract the player flags */
 	player_flags(p, collect_f);
@@ -1532,28 +1719,36 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	for (i = 0; i < PF_MAX; i++) {
 		if (ability[i]) {
 			if (player_has(p, i)) {
-				state->ac += ability[i]->ac;
-				state->to_h += ability[i]->tohit;
-				state->to_d += ability[i]->todam;
+				if ((player->flying) || (!(ability[i]->flags & AF_FLYING))) {
+					state->ac += ability[i]->ac;
+					state->to_h += ability[i]->tohit;
+					state->to_d += ability[i]->todam;
 
-				/* Add to both base and combined pflags */
-				pf_union(state->pflags_base, ability[i]->pflags);
-				pf_union(state->pflags, ability[i]->pflags);
+					/* Add to both base and combined pflags */
+					pf_union(state->pflags_base, ability[i]->pflags); 
+					pf_union(state->pflags, ability[i]->pflags);
 
-				of_union(collect_f, ability[i]->oflags);
+					of_union(collect_f, ability[i]->oflags);
 
-				/* Apply element info, noting vulnerabilites for later processing */
-				for (j = 0; j < ELEM_MAX; j++) {
-					if (ability[i]->el_info[j].res_level) {
-						if (ability[i]->el_info[j].res_level == -1)
-							vuln[j] = true;
+					/* Sum abilities giving speed based on momentum */
+					if (ability[i]->mom_speed) {
+						for(int j=0;j<MOM_SPEED_MAX;j++)
+							mom_speed[j] += ability[i]->mom_speed[j];
+					}
 
-						/* OK because res_level hasn't included vulnerability yet */
-						if (ability[i]->el_info[j].res_level > state->el_info[j].res_level)
-							state->el_info[j].res_level = ability[i]->el_info[j].res_level;
+					/* Apply element info, noting vulnerabilites for later processing */
+					for (j = 0; j < ELEM_MAX; j++) {
+						if (ability[i]->el_info[j].res_level) {
+							if (ability[i]->el_info[j].res_level == -1)
+								vuln[j] = true;
 
-						/* Apply modifiers */
-						apply_modifiers(p, state, ability[i]->modifiers, &extra_blows, &extra_shots, &extra_might, &extra_moves);
+							/* OK because res_level hasn't included vulnerability yet */
+							if (ability[i]->el_info[j].res_level > state->el_info[j].res_level)
+								state->el_info[j].res_level = ability[i]->el_info[j].res_level;
+
+							/* Apply modifiers */
+							apply_modifiers(p, state, ability[i]->modifiers, &extra_blows, &extra_shots, &extra_might, &extra_moves);
+						}
 					}
 				}
 			}
@@ -1565,6 +1760,10 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		int index = 0;
 		struct object *obj = slot_object(p, i);
 		struct fault_data *fault = obj ? obj->faults : NULL;
+
+		/* Apply AC bonus even if there is no object, because Wrestlers */
+		if (!obj)
+			state->ac += effective_ac_of(obj, i);
 
 		while (obj) {
 			int dig = 0;
@@ -1602,7 +1801,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 			}
 
 			/* Apply combat bonuses */
-			state->ac += obj->ac;
+			state->ac += effective_ac_of(obj, i);
 			if (!known_only || obj->known->to_a)
 				state->to_a += obj->to_a;
 			if (!slot_type_is(i, EQUIP_WEAPON) && !slot_type_is(i, EQUIP_GUN)) {
@@ -1675,10 +1874,59 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		state->el_info[ELEM_DARK].res_level = 1;
 	}
 
-	/* Combat Regeneration */
-	if (player_has(p, PF_COMBAT_REGEN) && character_dungeon) {
-		of_on(state->flags, OF_IMPAIR_HP);
+	/* Evil */
+	if (player_has(p, PF_EVIL) && character_dungeon) {
+		state->el_info[ELEM_HOLY_ORB].res_level = -1;
 	}
+
+	/* Calculate the various stat values */
+	for (i = 0; i < STAT_MAX; i++) {
+		int add, use, ind;
+
+		add = state->stat_add[i];
+		add += (p->race->r_adj[i] + p->extension->r_adj[i] + class_to_stat(i));
+		add += ability_to_stat(i);
+		state->stat_top[i] =  modify_stat_value(p->stat_max[i], add);
+		use = modify_stat_value(p->stat_cur[i], add);
+
+		state->stat_use[i] = use;
+
+		if (use <= 3) {/* Values: n/a */
+			ind = 0;
+		} else if (use <= 18) {/* Values: 3, 4, ..., 18 */
+			ind = (use - 3);
+		} else if (use <= 18+219) {/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
+			ind = (15 + (use - 18) / 10);
+		} else {/* Range: 18/220+ */
+			ind = (37);
+		}
+
+		assert((0 <= ind) && (ind < STAT_RANGE));
+
+		/* Hack for hypothetical blows - NRM */
+		if (!update) {
+			if (i == STAT_STR) {
+				ind += str_ind;
+				ind = MIN(ind, 37);
+				ind = MAX(ind, 3);
+			} else if (i == STAT_DEX) {
+				ind += dex_ind;
+				ind = MIN(ind, 37);
+				ind = MAX(ind, 3);
+			}
+		}
+
+		/* Save the new index */
+		state->stat_ind[i] = ind;
+	}
+
+	/* Modify skills from stats */
+	state->skills[SKILL_DISARM_PHYS] += adj_dex_dis[state->stat_ind[STAT_DEX]];
+	state->skills[SKILL_DISARM_MAGIC] += adj_int_dis[state->stat_ind[STAT_INT]];
+	state->skills[SKILL_DEVICE] += adj_int_dev[state->stat_ind[STAT_INT]];
+	state->skills[SKILL_SAVE] += adj_wis_sav[state->stat_ind[STAT_WIS]];
+	state->skills[SKILL_DIGGING] += adj_str_dig[state->stat_ind[STAT_STR]];
+	state->speed += (state->stat_ind[STAT_SPD] - 7);
 
 	/* Effects of food outside the "Fed" range */
 	if (!player_timed_grade_eq(p, TMD_FOOD, "Fed")) {
@@ -1726,49 +1974,6 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		}
 	}
 
-	/* Calculate the various stat values */
-	for (i = 0; i < STAT_MAX; i++) {
-		int add, use, ind;
-
-		add = state->stat_add[i];
-		add += (p->race->r_adj[i] + p->extension->r_adj[i] + p->class->c_adj[i]);
-		add += ability_to_stat(i);
-		state->stat_top[i] =  modify_stat_value(p->stat_max[i], add);
-		use = modify_stat_value(p->stat_cur[i], add);
-
-		state->stat_use[i] = use;
-
-		if (use <= 3) {/* Values: n/a */
-			ind = 0;
-		} else if (use <= 18) {/* Values: 3, 4, ..., 18 */
-			ind = (use - 3);
-		} else if (use <= 18+219) {/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
-			ind = (15 + (use - 18) / 10);
-		} else {/* Range: 18/220+ */
-			ind = (37);
-		}
-
-		assert((0 <= ind) && (ind < STAT_RANGE));
-
-		/* Hack for hypothetical blows - NRM */
-		if (!update) {
-			if (i == STAT_STR) {
-				ind += str_ind;
-				ind = MIN(ind, 37);
-				ind = MAX(ind, 3);
-			} else if (i == STAT_DEX) {
-				ind += dex_ind;
-				ind = MIN(ind, 37);
-				ind = MAX(ind, 3);
-			}
-		}
-
-		/* Save the new index */
-		state->stat_ind[i] = ind;
-	}
-
-	state->speed += (state->stat_ind[STAT_SPD] - 7);
-
 	/* Other timed effects */
 	player_flags_timed(p, state->flags);
 
@@ -1804,6 +2009,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	}
 	if (p->timed[TMD_SHERO]) {
 		state->skills[SKILL_TO_HIT_MELEE] += 75;
+		state->skills[SKILL_TO_HIT_MARTIAL] += 90;
 		state->to_a -= 10;
 		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 9 / 10;
 	}
@@ -1854,6 +2060,19 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		state->skills[SKILL_STEALTH] += 10;
 	}
 
+	/* Wrestlers get extra blows, + to hit, and + to damage */
+	extra_blows *= 100;
+	const int wlev = levels_in_class(get_class_by_name("Wrestler")->cidx);
+	if ((wlev) && (!equipped_item_by_slot_name(player, "weapon"))) {
+		extra_blows += (wlev * 5) + ((wlev * wlev) / 10);
+		state->to_d += wlev;
+		state->to_h += wlev / 3;
+	}
+
+	/* Pilots (or anyone with a suitable ability) get extra speed */
+	if (player->flying)
+		state->speed += mom_speed[MIN((size_t)player->momentum, sizeof(mom_speed)-1)];
+
 	/* Analyze flags - check for fear */
 	if (of_has(state->flags, OF_AFRAID)) {
 		state->to_h -= 20;
@@ -1862,7 +2081,8 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	}
 
 	/* Analyze weight */
-	j = p->upkeep->total_weight;
+	j = burden_weight(p);
+
 	i = weight_limit(state);
 	int burden = ((j * BURDEN_RANGE) / i) - BURDEN_RANGE;
 	if (burden >= 0) {
@@ -1881,16 +2101,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	state->to_h += adj_dex_th[state->stat_ind[STAT_DEX]];
 	state->to_h += adj_str_th[state->stat_ind[STAT_STR]];
 
-
-	/* Modify skills */
-	state->skills[SKILL_DISARM_PHYS] += adj_dex_dis[state->stat_ind[STAT_DEX]];
-	state->skills[SKILL_DISARM_MAGIC] += adj_int_dis[state->stat_ind[STAT_INT]];
-	state->skills[SKILL_DEVICE] += adj_int_dev[state->stat_ind[STAT_INT]];
-	state->skills[SKILL_SAVE] += adj_wis_sav[state->stat_ind[STAT_WIS]];
-	state->skills[SKILL_DIGGING] += adj_str_dig[state->stat_ind[STAT_STR]];
-	for (i = 0; i < SKILL_MAX; i++)
-		state->skills[i] += (p->class->x_skills[i] * p->lev / 10);
-
+	/* Bound skills */
 	if (state->skills[SKILL_DIGGING] < 1) state->skills[SKILL_DIGGING] = 1;
 	if (state->skills[SKILL_STEALTH] > 30) state->skills[SKILL_STEALTH] = 30;
 	if (state->skills[SKILL_STEALTH] < 0) state->skills[SKILL_STEALTH] = 0;
@@ -1979,7 +2190,6 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		/* Require at least one shot */
 		if (state->num_shots < 10) state->num_shots = 10;
 	}
-
 
 	/* Analyze weapon */
 	state->heavy_wield = false;
@@ -2081,6 +2291,11 @@ static void update_bonuses(struct player *p)
 	if (p->state.cur_light != state.cur_light) {
 		/* Update the visuals */
 		p->upkeep->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+	}
+
+	/* Notice changes to the weight limit. */
+	if (weight_limit(&p->state) != weight_limit(&state)) {
+		p->upkeep->redraw |= (PR_INVEN);
 	}
 
 	/* Hack -- handle partial mode */

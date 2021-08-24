@@ -5,6 +5,7 @@
 #include "obj-pile.h"
 #include "obj-power.h"
 #include "player.h"
+#include "player-ability.h"
 #include "player-calcs.h"
 #include "savefile.h"
 #include "z-util.h"
@@ -19,6 +20,9 @@ static void cyborg_init(void)
 
 	/* Initialise saved state */
 	player->race->state = NULL;
+
+	/* Add the Net Connection talent */
+	gain_ability(PF_NET_CONNECTION, true);
 
 	/* Generate initial equipment.
 	 * This has a minimum and maximum price - so

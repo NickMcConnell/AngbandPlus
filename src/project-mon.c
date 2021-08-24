@@ -243,6 +243,7 @@ typedef struct project_monster_handler_context_s {
 	u16b flag;
 	int do_poly;
 	int teleport_distance;
+	int proj_flags;
 	enum mon_messages hurt_msg;
 	enum mon_messages die_msg;
 	int mon_timed[MON_TMD_MAX];
@@ -1091,7 +1092,7 @@ static bool project_m_player_attack(project_monster_handler_context_t *context)
 	/* No damage is now going to mean the monster is not hit - and hence
 	 * is not woken or released from holding */
 	if (dam) {
-		mon_died = mon_take_hit(mon, dam, &fear, "");
+		mon_died = do_mon_take_hit(mon, dam, &fear, "", (context->proj_flags & PROJECT_LOL));
 	}
 
 	/* If the monster didn't die, provide additional messages about how it was
@@ -1296,6 +1297,7 @@ void project_m(struct source origin, int r, struct loc grid, int dam, int typ,
 		0, /* flag */
 		0, /* do_poly */
 		0, /* teleport_distance */
+		flg, /* projection flags */
 		MON_MSG_NONE, /* hurt_msg */
 		MON_MSG_DIE, /* die_msg */
 		{0, 0, 0, 0, 0, 0},

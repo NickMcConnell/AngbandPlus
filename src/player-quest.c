@@ -930,10 +930,23 @@ void quest_reward(struct quest *q, bool success)
 				string_free(q->succeed);
 				q->succeed = msg;
 			}
+		} else if (streq(n, "Hunter, in Darkness")) {
+			/* The boom-stick!
+			 * This is a bit wimpy. Maybe it should be a randart? Or add some ammo.
+			 **/
+			add_item(si, TV_GUN, "12mm rifle (automatic)", 1, 1);
+			add_item(si, TV_AMMO_12, "12mm bullet (guided)", 32, 39);
+			if (player->bm_faction < 0)
+				player->bm_faction = 0;
 		}
 		quest_remove_specials();
 	} else {
 		quest_remove_flags();
+	}
+	if (streq(n, "Hunter, in Darkness")) {
+		/* The traditional 3 "broken arrows" */
+		add_item(si, TV_AMMO_12, "12mm bullet (damaged)", 3, 3);
+		player->bm_faction++;
 	}
 
 	if (si[0].max) {
@@ -941,6 +954,18 @@ void quest_reward(struct quest *q, bool success)
 	}
 	player->au += au;
 }
+
+/** Return the quest intro text.
+ * This is commonly q->intro, but some change it depending on conditions such as faction.
+ */
+const char *quest_get_intro(const struct quest *q) {
+	if (streq(q->name, "Hunter, in Darkness")) {
+		if (player->bm_faction > 0)
+			return "No, you still aren't seeing the best stuff. That's not for everyone. Go kill something big to show us you aren't all talk. There's a wumpus in the bat cave. That would do nicely.";
+	}
+	return q->intro;
+}
+
 
 /** Return true if the item is a target of the quest */
 static bool item_is_target(const struct quest *q, const struct object *obj) {

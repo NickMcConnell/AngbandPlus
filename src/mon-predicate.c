@@ -59,6 +59,13 @@ bool monster_is_destroyed(const struct monster *mon)
 	return (monster_is_nonliving(mon) || rf_has(mon->race->flags, RF_STUPID));
 }
 
+/**
+ * Metal monster
+ */
+bool monster_is_metal(const struct monster *mon)
+{
+	return rf_has(mon->race->flags, RF_METAL);
+}
 
 /**
  * Monster can pass through walls
@@ -99,6 +106,14 @@ bool monster_is_unique(const struct monster *mon)
 bool monster_is_stupid(const struct monster *mon)
 {
 	return rf_has(mon->race->flags, RF_STUPID);
+}
+
+/**
+ * Monster is an animal
+ */
+bool monster_is_animal(const struct monster *mon)
+{
+	return rf_has(mon->race->flags, RF_ANIMAL);
 }
 
 /**

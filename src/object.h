@@ -184,10 +184,11 @@ struct object_base {
 	int break_perc;
 	int max_stack;
 	int num_svals;
+	byte material;	/** Material */
 };
 
 extern struct object_base *kb_info;
-#define MATERIAL(T, N, D, C) MAT_##T,
+#define MATERIAL(T, N, D, C, M) MAT_##T,
 enum {
 #include "list-materials.h"
 };
@@ -197,6 +198,7 @@ struct object_material {
 	char *name;
 	int density;
 	int cost;
+	bool metal;
 };
 
 /**
@@ -493,8 +495,9 @@ struct object {
 	bitflag flags[OF_SIZE];					/**< Object flags */
 	s16b modifiers[OBJ_MOD_MAX];			/**< Object modifiers*/
 	struct element_info el_info[ELEM_MAX];	/**< Object element info */
-	bool *brands;							/**< Array of brand structures */
-	bool *slays;							/**< Array of slay structures */
+
+	bool *brands;							/**< Flag absence/presence of each brand */
+	bool *slays;							/**< Flag absence/presence of each slay */
 	struct fault_data *faults;				/**< Array of fault powers and timeouts */
 
 	struct effect *effect;	/**< Effect this item produces (effects.c) */

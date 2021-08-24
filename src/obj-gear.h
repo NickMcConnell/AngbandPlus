@@ -27,11 +27,24 @@
  */
 enum
 {
-	#define EQUIP(a, b, c, d, e, f) EQUIP_##a,
+	#define EQUIP(a, b, c, d, e, f, g, h) EQUIP_##a,
 	#include "list-equip-slots.h"
 	#undef EQUIP
 	EQUIP_MAX
 };
+
+struct slot_info {
+	int index;
+	bool acid_vuln;
+	bool name_in_desc;
+	int weight;
+	int ac;
+	const char *mention;
+	const char *heavy_describe;
+	const char *describe;
+};
+
+extern const struct slot_info slot_table[];
 
 int slot_by_name(struct player *p, const char *name);
 bool slot_type_is(int slot, int type);
@@ -40,12 +53,15 @@ struct object *equipped_item_by_slot_name(struct player *p, const char *name);
 int object_slot(struct player_body body, const struct object *obj);
 bool object_is_equipped(struct player_body body, const struct object *obj);
 bool object_is_carried(struct player *p, const struct object *obj);
+bool object_is_in_quiver(struct player *p, const struct object *obj);
+int pack_slots_used(struct player *p);
 const char *equip_mention(struct player *p, int slot);
 const char *equip_describe(struct player *p, int slot);
 int wield_slot(const struct object *obj);
 bool minus_ac(struct player *p);
 char gear_to_label(struct object *obj);
 struct object *gear_last_item(void);
+void gear_insert_end(struct object *obj);
 struct object *gear_object_for_use(struct object *obj, int num, bool message,
 								   bool *none_left);
 int inven_carry_num(const struct object *obj, bool stack);
@@ -62,6 +78,7 @@ void combine_pack(void);
 bool pack_is_full(void);
 bool pack_is_overfull(void);
 void pack_overflow(struct object *obj);
+int preferred_quiver_slot(const struct object *obj);
 
 
 #endif /* OBJECT_GEAR_H */

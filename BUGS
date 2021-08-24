@@ -1,13 +1,30 @@
 BUGS
 ====
+BUG: Bombs (e.g. pineapple) give excess messages - "The X fails to harm the Y." "The X detonates!" "The Y screams!".
+	The first should be removed.
 
+BUG: "You failed to concentrate hard enough" may be inappropriate. Per spell?
+		- with a default per primary stat? With concentrate for INT.
+	- also the 'fail' field doesn't appear to influence fail rate
 
-BUG After the success/failure message from a quest, ESC is the only way to get back out.
+BUG: "You knock out the MlM" -> "The MlM flees in terror!" -> "The MlM can move again" (after making a move!)
+
+BUG: Delete the savefile, make a new character, check a store's name.
+	  Save, reload. The store name will sometimes have changed.
+	  Save, reload again and it won't.
+	  It does this with or without random names being used for that store,
+	  although it has only been tested with the random name diff in place.
+	  Doesnt happen with a newly rolled char, only a 'based on last' - and the name is then the same as the previous character.
+
+BUG: After the success/failure message from a quest, ESC is the only way to get back out.
 
 BUG: "no position"
 
 Defer
 =====
+
+BUG: Gain a talent (e.g. Cavespeeder Pilot) and you (sometimes) end up Starving (0%)
+	UTR easily (for watchpoints)
 
 BUG:/home/msearle/rogl/angband/v-xygos/angband/src/xygos: Error in flag_on(lore->flags, b->resist_flag): FlagID[0] Size[11] FlagOff[4294967295] FlagBV[128]
 	(Hit a lizard with a laser knife)
@@ -22,15 +39,6 @@ BUG: Lock up at start (occasionally)
 BUG?? - In quests, multiplying monsters are handled OK.
 	But not newly spawned monsters that happen to be of the same type, or monsters removed through genocide or kill-body - and at least some of that could occur
 	and could be fixed, although probably not in any quest currently in use.
-
-BUG: Resists screen is >80 wide (Also, the per-slot stats only label only displays a to l)
-	Remove ':' lines?
-	Currently the second screen retains the Name..HP and sum-stats blocks. Would removing them help? (A third screen is another option)
-	Would want to retain the stat labels if this is done (or move them to the left of the slot-stats)
-	This might result in a 3, not 4 column display. Giving 26 not 19 chars (plus the intermediate blanks), enough for a few more in both description and slots.
-	But will there end up with more, or less slots? Rings and amulets will disappear. OTOH, a form with more slots might appear...
-	Adapting to large terminals is also a possibility, but can't be the only way to play.
-	So best to leave alone for now?
 
 BUG: "angband: gen-cave.c:2009: town_gen: Assertion `grid.x > 0' failed." (= the x,y are 0, 0.)
 	- Can be triggered by Time Lord regeneration putting you in town, but has also been seen entering the town normally by <.
@@ -71,6 +79,39 @@ BUG: m-techniques top label is wonky (move the level 1 to the right, and the cos
 
 Fixed
 =====
+BUG: "You can't use that technique again for another *1 turns*"
+	Fixed: 0dda55596112c6aa25a757a5f71b3a9d099a97c0
+
+BUG: effect_handler_CLIMBING is incomplete
+	Fixed bd37da1ef492704f91388b975cc73e506d0e0188
+
+BUG: Classes don't have + to TP defined in the .txt, they should.
+	Fixed  6fb05ea53fb3061c1fd240c19ab5a76b4c251c95
+
+BUG: Rare Card: sometimes has wrong info (dur 12d17453895, cost 9), and XP for learn (and "untried")
+		happens iff you reload a save. The 40 exp is also wrong.
+	- doesn't take effect eithera
+	Fixed: de93d655a724e0e3bffc136f5cfb286551a42624
+
+BUG: "You cannot carry that many items" in store with 1 item - presumably caused by the pulled fix and the reason that the unit tests fail
+	Fixed ffff8218968f3e0d47e80ae89b2a0bafe8f92603
+
+BUG: The info on how to gani new talents is wrong:
+	'Alt-T' or Ctrl-T, not S not gain talents "at any time"
+	Fixed 64e37b29094475ff217aff2b01a8d975d209d069
+
+BUG: New Character sheet doesn't show stat names
+	ui-player.c, display_player_sust_info
+	Fixed 64e37b29094475ff217aff2b01a8d975d209d069
+
+BUG: on 28/3 the BM had a choc egg - also seen one 17/4 in initial inventory
+	- BM fixed earlier
+	- Start items fixed f86b37dab902c014b0659e005093faf8601c16f3 
+
+BUG:a & snozzcumber~snozzcumber in starting inve
+	%s%s%s, "a ", "& snozzcumber~", "" ( & so snozzcumber after this line, presumably by obj_desc_name_format)
+	Fixed: 86084f5568409e01da8faa85502c9e2b5358212a
+
 BUG "How to handle forbids/requires, on equipment/temporary player flags?"
 	- Innate <=> innate forbids are already handled (although they assume that all abilities are innate).
 	- Equipment/Temporary: If forbidden by innate, other equipment, or temporary effects then it doesn't take effect.
@@ -224,6 +265,25 @@ BUG Crash at player-birth.c:463 (bodies is linked)
 
 BUG: Failed the Msing Pills, returned to the Pharmacy, got "nothing needs to be done"
 	Fixed: 83cc48d181f80ae337e9a78ef930941733d83821
+
+BUG: Resists screen is >80 wide (Also, the per-slot stats only label only displays a to l)
+	Remove ':' lines?
+	Currently the second screen retains the Name..HP and sum-stats blocks. Would removing them help? (A third screen is another option)
+	Would want to retain the stat labels if this is done (or move them to the left of the slot-stats)
+	This might result in a 3, not 4 column display. Giving 26 not 19 chars (plus the intermediate blanks), enough for a few more in both description and slots.
+	But will there end up with more, or less slots? Rings and amulets will disappear. OTOH, a form with more slots might appear...
+	Adapting to large terminals is also a possibility, but can't be the only way to play.
+	So best to leave alone for now?
+	Fixed 2430aa0eafb895dc09b62c0d4297e8e300b71b25
+
+BUG: Long pause after character death
+	Almost all from death_knowledge->player_learn_all_icons->player->learn_icon->update_player_object_knowledge->player_learn_icon->object_fully_known->object_icons_known->object_non_fault_icons_known->icon_index.
+	There are 112 calls to player_learn_icon (expected, that many icons)
+	108 to update_player_object_knowledge (OK, that many unlearned)
+	40K to player_know_object (why so many? There are probably about 1000 items in stores)
+	and 4.3M calls to icon_index (wat?)
+	Fixed 682927715e713dd70ae544c29f5e20631a0465bd
+
 
 Theme
 =====

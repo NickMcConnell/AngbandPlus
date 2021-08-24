@@ -77,6 +77,7 @@ enum
  *   INFO: Use believed map rather than truth for player ui
  *   SHORT: Use one quarter of max_range
  *   SELF: May affect the player, even when cast by the player
+ *   LOL: Bonus for Clowns
  */
 enum
 {
@@ -97,6 +98,7 @@ enum
 	PROJECT_SHORT = 0x2000,
 	PROJECT_SELF  = 0x4000,
 	PROJECT_ROCK  = 0x8000,
+	PROJECT_LOL   = 0x10000,
 };
 
 /* Display attrs and chars */

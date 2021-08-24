@@ -658,6 +658,46 @@ int rd_world(void)
 	return 0;
 }
 
+void rdwr_player_levels(void)
+{
+	rdwr_s32b(&player->au);
+
+	/* XP */
+	rdwr_s32b(&player->max_exp);
+	rdwr_s32b(&player->exp);
+	rdwr_u16b(&player->exp_frac);
+
+	/* HP */
+	rdwr_s16b(&player->mhp);
+	rdwr_s16b(&player->chp);
+	rdwr_u16b(&player->chp_frac);
+
+	/* Talents */
+	rdwr_u16b(&player->talent_points);
+	
+	/* Get an empty array of talent gain counts */
+	int n_classes = 0;
+	for (struct player_class *c = classes; c; c = c->next)
+		if ((int)c->cidx > n_classes)
+			n_classes = c->cidx;
+	n_classes++;
+	if (!player->talent_gain)
+		player->talent_gain = mem_alloc(PY_MAX_LEVEL * n_classes);
+	for(int i=0;i<PY_MAX_LEVEL * n_classes;i++)
+		rdwr_byte(&player->talent_gain[i]);
+
+	/* Level by class */
+	for(int i=0;i<(int)sizeof(player->lev_class);i++)
+		rdwr_byte(&player->lev_class[i]);
+	rdwr_byte(&player->switch_class);
+
+	/* Max Player and Dungeon Levels */
+	rdwr_s16b(&player->max_lev);
+	rdwr_s16b(&player->max_depth);
+	rdwr_s16b(&player->recall_depth);
+	rdwr_s16b(&player->danger);
+}
+
 /**
  * Read the player information
  */
@@ -739,7 +779,6 @@ int rd_player(void)
 	rd_byte(&player->opts.name_suffix);
 
 	/* Special Race/Class info */
-	rd_u32b(&player->hitdie);
 	rd_u16b(&player->expfact_low);
 	rd_u16b(&player->expfact_high);
 
@@ -783,12 +822,6 @@ int rd_player(void)
 
 	strip_bytes(4);
 
-	rd_s32b(&player->au);
-
-	rd_s32b(&player->max_exp);
-	rd_s32b(&player->exp);
-	rd_u16b(&player->exp_frac);
-
 	rd_s16b(&player->lev);
 
 	/* Verify player level */
@@ -797,15 +830,8 @@ int rd_player(void)
 		return (-1);
 	}
 
-	rd_s16b(&player->mhp);
-	rd_s16b(&player->chp);
-	rd_u16b(&player->chp_frac);
-
-	rd_u16b(&player->talent_points);
-	rd_s16b(&player->max_lev);
-	rd_s16b(&player->max_depth);
-	rd_s16b(&player->recall_depth);
-	rd_s16b(&player->danger);
+	rdwr_player_levels();
+	set_primary_class();
 
 	/* Player town */
 	RDWR_PTR(&player->town, t_info);
@@ -858,17 +884,7 @@ int rd_player(void)
 		note("Discarded unsupported timed effects");
 	}
 
-	/* Total energy used so far */
-	rd_u32b(&player->total_energy);
-	/* # of turns spent resting */
-	rd_u32b(&player->resting_turn);
-
-	/* Quest currently active */
-	rd_s32b(&player->active_quest);
-
-	/* Factions */
-	rd_s32b(&player->bm_faction);
-	rd_s32b(&player->town_faction);
+	rdwr_player();
 
 	/* Player flags */
 	for(i=0; i < (int)PF_SIZE; i++)
@@ -1108,10 +1124,12 @@ int rd_player_hp(void)
 
 	/* Read the player_hp array */
 	rd_u16b(&tmp16u);
-	if (tmp16u > PY_MAX_LEVEL) {
-		note(format("Too many (%u) hitpoint entries!", tmp16u));
+	if (tmp16u != PY_MAX_LEVEL * (classes->cidx + 1)) {
+		note(format("Wrong (%u, not %u) hitpoint entries!", tmp16u, PY_MAX_LEVEL * (classes->cidx + 1)));
 		return (-1);
 	}
+	if (!player->player_hp)
+		player->player_hp = mem_alloc(sizeof(s16b) * tmp16u);
 
 	/* Read the player_hp array */
 	for (i = 0; i < tmp16u; i++)
@@ -1133,7 +1151,7 @@ int rd_player_spells(void)
 	
 	/* Read the number of spells */
 	rd_u16b(&tmp16u);
-	if (tmp16u > player->class->magic.total_spells) {
+	if (tmp16u > total_spells) {
 		note(format("Too many player spells (%d).", tmp16u));
 		return (-1);
 	}
@@ -1255,9 +1273,28 @@ static int rd_stores_aux(rd_item_t rd_item_version)
 
 			byte own;
 			u16b num;
+			byte n_owners;
 
 			/* Read the basic info */
 			rd_byte(&own);
+
+			if (t == 0) {
+				/* Load the number of owners */
+				rd_byte(&n_owners);
+
+				/* Load the owners' names */
+				struct owner *o = store->owners;
+				for(int i=0;i<n_owners;i++) {
+					char buf[32];
+					rd_string(buf, sizeof(buf));
+					if (o->name) {
+						string_free(o->name);
+					}
+					o->name = string_make(buf);
+					o = o->next;
+				}
+			}
+
 			rd_u16b(&num);
 			rd_s16b(&store->stock_size);
 
@@ -1571,6 +1608,11 @@ int rd_dungeon(void)
 	rd_u16b(&daycount);
 	rd_u16b(&py);
 	rd_u16b(&px);
+	rd_s32b(&player->grid_last_1.y);
+	rd_s32b(&player->grid_last_1.x);
+	rd_s32b(&player->grid_last_2.y);
+	rd_s32b(&player->grid_last_2.x);
+	rd_u16b(&player->momentum);
 	rd_byte(&square_size);
 
 	/* Only if the player's alive */

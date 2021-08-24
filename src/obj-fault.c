@@ -320,7 +320,7 @@ bool do_fault_effect(int i, struct object *obj)
 	if (fault->obj->effect_msg) {
 		msgt(MSG_GENERIC, fault->obj->effect_msg);
 	}
-	effect_do(effect, source_object(obj), NULL, &ident, was_aware, dir, 0, 0, NULL);
+	effect_do(effect, source_object(obj), NULL, &ident, was_aware, dir, 0, 0, NULL, 0);
 	fault->obj->known->effect = fault->obj->effect;
 	disturb(player);
 	return !was_aware && ident;

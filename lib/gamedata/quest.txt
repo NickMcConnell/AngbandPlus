@@ -83,6 +83,17 @@ desc:Find the Black Market's agent, return the recipe
 succeed:Here's the last batch and - if you can keep it quiet - the secret ingredients!
 failure:So why did I trust you again?
 
+name:Hunter, in Darkness
+level:25
+race:wumpus
+number:1
+entryfeature:granite wall
+store:Soldier, Sailor, Chef, Pie:Black Market
+intro:No, you aren't seeing the good stuff. That's not for everyone. Go kill something big to show us you aren't all talk. There's a wumpus in the bat cave. That would do nicely.
+desc:Hunt the Wumpus
+succeed:The traditional wumpus hunter's prize isn't worth much, but I think you'll like this boomstick!
+failure:Well, I saw you walking boldly into the wumpus's den - so I will admit that although you didn't manage to defeat it, you aren't just a poseur. So I'll reluctantly allow you in to see more stuff, but you can't expect a real reward. You do still get the traditional wumpus hunter's prize, though, for what that's worth.
+
 name:Sauron
 level:99
 race:Sauron, the Sorcerer

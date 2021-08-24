@@ -323,11 +323,15 @@ static size_t obj_desc_name(char *buf, size_t max, size_t end,
 				end = obj_desc_name_prefix(buf, max, end, obj, basename, modstr, terse);
 		}
 
+		/* Append extra names of various kinds */
+		if ((object_is_known_artifact(obj)) && (obj->artifact->name[0] == '<'))
+			strnfcat(buf, max, &end, "%s ", obj->artifact->name + 1);
+
 		/* Base name */
 		end = obj_desc_name_format(buf, max, end, basename, modstr, plural);
 
 		/* Append extra names of various kinds */
-		if (object_is_known_artifact(obj))
+		if ((object_is_known_artifact(obj)) && (obj->artifact->name[0] != '<'))
 			strnfcat(buf, max, &end, " %s", obj->artifact->name);
 		else if ((obj->known->ego && !(mode & ODESC_NOEGO)) || (obj->ego && store))
 			strnfcat(buf, max, &end, " %s", obj->ego->name);

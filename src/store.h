@@ -109,6 +109,17 @@ struct store {
 extern struct store *stores;
 extern struct store *stores_init;
 
+/**
+ * The first name array
+ */
+extern struct hint *firstnames;
+
+/**
+ * The second name array
+ */
+extern struct hint *secondnames;
+
+
 void store_delete(struct store *s, struct object *obj, int amt);
 struct store *get_store_by_idx(int idx);
 struct store *get_store_by_name(const char *name);
@@ -125,11 +136,13 @@ void store_shuffle(struct store *store);
 void store_update(void);
 int price_item(struct store *store, const struct object *obj,
 			   bool store_buying, int qty);
-
+void random_shk_name(char *buf, int len);
 bool store_will_buy_tester(const struct object *obj);
 bool store_check_num(struct store *store, const struct object *obj);
 int find_inven(const struct object *obj);
 void stores_copy(struct store *src);
+int store_faction(struct store *store);
+int store_cyber_rank(void);
 
 extern struct owner *store_ownerbyidx(struct store *s, unsigned int idx);
 

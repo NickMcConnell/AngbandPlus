@@ -55,6 +55,15 @@ struct source source_object(struct object *object)
 	return src;
 }
 
+struct source source_object_at(struct object *object, struct loc grid)
+{
+	struct source src;
+	src.what = SRC_OBJECT_AT;
+	src.which.object = object;
+	src.grid = grid;
+	return src;
+}
+
 struct source source_chest_trap(struct chest_trap *chest_trap)
 {
 	struct source src;

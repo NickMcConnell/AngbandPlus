@@ -192,7 +192,7 @@ static void kind_info(char *buf, size_t buf_len, char *dam, size_t dam_len,
 /**
  * Create a spoiler file for items
  */
-static void spoil_obj_desc(const char *fname)
+void spoil_obj_desc(const char *fname)
 {
 	int i, k, s, t, n = 0;
 	u16b *who;
@@ -364,7 +364,7 @@ static const grouper group_artifact[] =
 /**
  * Create a spoiler file for artifacts
  */
-static void spoil_artifact(const char *fname)
+void spoil_artifact(const char *fname)
 {
 	int i, j;
 	char buf[1024];
@@ -475,7 +475,7 @@ static void spoil_artifact(const char *fname)
 /**
  * Create a brief spoiler file for monsters
  */
-static void spoil_mon_desc(const char *fname)
+void spoil_mon_desc(const char *fname)
 {
 	int i, n = 0;
 
@@ -610,7 +610,7 @@ static void spoil_mon_desc(const char *fname)
 /**
  * Create a spoiler file for monsters (-SHAWN-)
  */
-static void spoil_mon_info(const char *fname)
+void spoil_mon_info(const char *fname)
 {
 	char buf[1024];
 	int i, n;

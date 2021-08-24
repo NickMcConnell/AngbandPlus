@@ -2,7 +2,7 @@
 
 # Configure user interface elements to combine one or more object or player
 # properties and display them.  Currently only used for parts of the second
-# character screen.
+# character screen and the equippable comparison.
 
 # Descriptions can be edited without bad effects.
 # The name is used to link the element from bindui fields in
@@ -21,7 +21,7 @@
 # parameter is set, the undecorated name is not entered into the list of user
 # interface elements and can not be successfully referenced from bindui in
 # other files or template fields in this one.
-# The template field specifies that entry with that name be used as the
+# The template field specifies that the entry with that name be used as the
 # default values for the fields in this entry.  The template field is optional.
 # The renderer must be one of those set in ui_entry_renderer.txt.
 # The label defines a label to be shown for the element.  Changing its value
@@ -174,7 +174,7 @@ priority:0
 
 name:pblind_ui_compact_0
 template:good_flag_ui_compact_0
-label:Blindess resistance
+label:Blindness resistance
 label5:pBlnd
 priority:-1
 
@@ -206,45 +206,55 @@ template:good_flag_ui_compact_0
 label:ESP
 priority:-6
 
+name:sense_animal_ui_compact_0
+template:good_flag_ui_compact_0
+label:sAnim
+priority:-7
+
+name:sense_metal_ui_compact_0
+template:good_flag_ui_compact_0
+label:sMeta
+priority:-8
+
 name:see_invis_ui_compact_0
 template:good_flag_ui_compact_0
 label:See invisible
 label5:S.Inv
 label2:SI
-priority:-7
+priority:-9
 
 name:free_action_ui_compact_0
 template:good_flag_ui_compact_0
 label:Free action
 label5:FrAct
 label2:FA
-priority:-8
+priority:-10
 
 name:feather_falling_ui_compact_0
 template:good_flag_ui_compact_0
 label:Feather falling
 label5:Feath
 label2:Ft
-priority:-9
+priority:-11
 
 name:slow_digestion_ui_compact_0
 template:good_flag_ui_compact_0
 label:Slow digestion
 label5:S.Dig
 label2:SD
-priority:-10
+priority:-12
 
 name:trap_immunity_ui_compact_0
 template:good_flag_ui_compact_0
 label:Trap immunity
 label5:TrpIm
 label2:TI
-priority:-11
+priority:-13
 
 name:bless_ui_compact_0
 template:good_flag_ui_compact_0
 label:Bless
-priority:-12
+priority:-14
 
 # The following use other_flag_ui_compact_0 from ui_entry_base.txt.
 

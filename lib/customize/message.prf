@@ -118,8 +118,8 @@ message:HITPOINT_WARN:o
 # MSG_ACT_ARTIFACT
 message:ACT_ARTIFACT:w
 
-# MSG_USE_STAFF (sound only)
-message:USE_STAFF:w
+# MSG_USE_DEVICE (sound only)
+message:USE_DEVICE:w
 
 # MSG_DESTROY
 message:DESTROY:w

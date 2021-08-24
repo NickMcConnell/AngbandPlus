@@ -828,9 +828,10 @@ bool project_p(struct source origin, int r, struct loc grid, int dam, int typ,
 			break;
 		}
 
+		case SRC_OBJECT_AT:
 		case SRC_OBJECT: {
 			struct object *obj = origin.which.object;
-			object_desc(killer, sizeof(killer), obj, ODESC_PREFIX | ODESC_BASE);
+			object_desc(killer, sizeof(killer), obj, ODESC_PREFIX | ODESC_BASE | ODESC_SINGULAR);
 			break;
 		}
 
@@ -862,10 +863,6 @@ bool project_p(struct source origin, int r, struct loc grid, int dam, int typ,
 							 res_level,
 							 true);
 	if (context.dam) {
-		/* Self-inflicted damage is scaled down */
-		if (self && (origin.what != SRC_OBJECT)) {
-			context.dam /= 10;
-		}
 		take_hit(player, context.dam, killer);
 	}
 

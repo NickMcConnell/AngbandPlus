@@ -7,8 +7,8 @@
 
 int setup_tests(void **state) {
 	z_info = mem_zalloc(sizeof(struct angband_constants));
-	z_info->max_sight = 20;
 	*state = init_parse_monster();
+	z_info->max_sight = 20;
 	return !*state;
 }
 

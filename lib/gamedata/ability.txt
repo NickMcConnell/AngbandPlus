@@ -23,6 +23,8 @@
 #								take it), but also see the "birth" flag.
 # class:<class>			-	If present, this talent cam only be gained by this class (multiple classes can be given, as one line
 #								e.g. class:Marksman,Soldier
+#						-	If min/maxlevel and class(es) are present for a multiclassed character, the highest per-class level
+#								is used.
 
 ### - interactions - ###
 # forbid:<talent>		-	This forbids another ability from being gained if this ability is already present. This may be
@@ -30,6 +32,7 @@
 #							forbid:B on A), although this is not required.
 # require:<talent>		-	This prevents this ability from being gained unless this ability is already present. This may be
 #							given any number of times.
+# cancel:<talent>		-	This prevents another ability from taking effect if this ability is present.
 
 ### - misc - ###
 # flag:<flag>			- Set any one (but only one per line) of the following flags:
@@ -37,6 +40,9 @@
 #						-	mutation	- If set, the ability can be gained as a mutation.
 #						-	talent		- If set, the ability may be gained as a talent.
 #						-	nasty		- This talent may be considered harmful (for at least some characters)
+#						-	flying		- This talent only takes effect (for flags and mom-speed) when flying.
+#										  This also means that the first book is accessible only when not flying, and
+#										  the second book is accessible only when flying. Later books are always available.
 # stats:<7 stats>		- List of stats bonuses
 # ac:<bonus to ac>
 # tohit:<bonus to hit>
@@ -49,6 +55,96 @@
 # obj-flags-off:object flags	- prevent one or more object flags
 # player-flags:player flags	- add one or more player flags
 # values:					values is for object modifiers which take a value
+
+######### Pilot Skill Abilities ##############
+# These are available only to the Pilot class
+#
+
+name:Cavespeeder_Pilot
+gain:You are now flying a cavespeeder. Up, up and away!
+lose:You are no longer able to fly a cavespeeder.
+brief:You are a cavespeeder pilot.
+desc:You are a cavespeeder pilot, able to move quickly and fly above obstacles.
+desc_future:you would be a cavespeeder pilot, able to move quickly and fly above obstacles.
+flag:talent
+flag:flying
+obj-flags:AGGRAVATE | FEATHER
+minlevel:3
+class:Pilot
+mom-speed:0:1:2:3:3:4:4:4:4:5
+cost:0
+
+book:[Cavespeeder]
+spell:Take off:1:2:3:3:0:0
+seffect:TAKEOFF
+sdesc:Get into your cavespeeder and fly away.
+
+book:[Cavespeeder]
+spell:Land:1:2:3:3:0:0
+seffect:LAND
+sdesc:Land your cavespeeder and drag it along with you.
+
+name:Cavefighter_Pilot
+gain:You are now flying a cavefighter. Pew, pew, pew!
+lose:You are no longer able to fly a cavefighter.
+brief:You are a cavefighter pilot.
+desc:You are a cavefighter pilot, able to move quickly and fly above obstacles - or blast them into plasma!
+desc_future:you would be a cavefighter pilot, able to move quickly and fly above obstacles - or blast them into plasma!
+flag:talent
+flag:flying
+minlevel:25
+obj-flags:AGGRAVATE | FEATHER
+class:Pilot
+require:Cavespeeder_Pilot
+cancel:Cavespeeder_Pilot
+forbid:Caveracer_Pilot
+forbid:Cavespeeder_Pilot
+mom-speed:0:1:2:3:3:4:4:4:4:5
+cost:0
+
+book:[Cavefighter]
+spell:Take off:1:22:50:3:0:0
+seffect:TAKEOFF
+sdesc:Get into your cavefighter and fly away.
+
+book:[Cavefighter]
+spell:Land:1:22:50:3:0:0
+seffect:LAND
+sdesc:Land your cavefighter and drag it along with you.
+
+spell:Laser:1:22:50:3:0:4d3
+seffect:BEAM:LIGHT:0:-10
+sdice:$Dd$E
+sexpr:D:PLAYER_LEVEL:/ 7
+sexpr:E:PLAYER_LEVEL:* 3 / 2 + 3
+sdesc:Pow - fire the main laser!
+
+name:Caveracer_Pilot
+gain:You are now flying a caveracer. Spee-eeed!
+lose:You are no longer able to fly a caveracer.
+brief:You are a caveracer pilot.
+desc:You are a caveracer pilot, able to outfly almost anything.
+desc_future:you would be a caveracer pilot, able to outfly almost anything.
+flag:talent
+flag:flying
+minlevel:25
+obj-flags:AGGRAVATE | FEATHER
+class:Pilot
+require:Cavespeeder_Pilot
+cancel:Cavespeeder_Pilot
+forbid:Cavefighter_Pilot
+mom-speed:0:2:4:6:7:8:8:9:9:9:10
+cost:0
+
+book:[Caveracer]
+spell:Take off:1:22:50:3:0:0
+seffect:TAKEOFF
+sdesc:Get into your caveracer and fly away.
+
+book:[Caveracer]
+spell:Land:1:22:50:3:0:0
+seffect:LAND
+sdesc:Land your caveracer and drag it along with you.
 
 ######### Marksman Skill Abilities ###########
 # These are available only to the Marksman class
@@ -164,6 +260,41 @@ cost:0
 
 
 ######## Generally available talents ##########
+
+# +$, +town faction
+name:Trade_Connection
+gain:You have 1 new connection on LinkedUp!
+lose:You have no new connections on LinkedUp.
+brief:You have a connection in business.
+desc:You can buy and sell items and obtain services at great prices. Plus, you start with plenty of cash-ola!
+desc_future:you could buy and sell items and obtain services at great prices. Plus, you start with plenty of cash-ola!
+flag:talent
+flag:birth
+forbid:Mob_Connection
+cost:1
+
+# +$, +BM faction
+name:Mob_Connection
+gain:You realize how good you look in sunglasses.
+lose:You realize that sunglasses are a bad idea in a cave.
+brief:You have a friend in the Family.
+desc:You gain some dodgy skills and few thieves will dare to bother you. You also start with a wad of ill-gotten gains.
+desc_future:you would gain some dodgy skills and few thieves would dare to bother you. You would also start with a wad of ill-gotten gains.
+flag:talent
+flag:birth
+forbid:Trade_Connection
+cost:1
+
+# +cyber faction
+name:Net_Connection
+gain:You realize that chrome will never really go out of fashion.
+lose:You sense that somebody has cut the hard link.
+brief:You know a member of the Cyber Salon.
+desc:You begin as a member of the Cyber Salon, and so can buy implants there immediately.
+desc_future:you would begin as a member of the Cyber Salon, and so could buy implants there immediately.
+flag:talent
+flag:birth
+cost:1
 
 name:Emotional_Intelligence
 # this gain msg is naff

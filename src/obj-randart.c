@@ -1403,6 +1403,8 @@ void artifact_prep(struct artifact *art, const struct object_kind *kind,
 	art->brands = NULL;
 	copy_brands(&art->brands, kind->brands);
 	art->activation = NULL;
+	string_free(art->alt_msg);
+	art->alt_msg = NULL;
 	for (i = 0; i < OBJ_MOD_MAX; i++) {
 		art->modifiers[i] = randcalc(kind->modifiers[i], 0, MINIMISE);
 	}
@@ -2587,6 +2589,8 @@ static void design_artifact(struct artifact_set_data *data, int tv, int *aidx)
 		kf_has(kind->kind_flags, KF_QUEST_ART)) {
 		(*aidx)++;
 		if ((*aidx) >= z_info->a_max) {
+			string_free(new_name);
+			mem_free(a_old);
 			return;
 		}
 		art = &a_info[*aidx];
@@ -2845,7 +2849,7 @@ void write_randart_entry(ang_file *fff, struct artifact *art)
 
 	static const char *obj_flags[] = {
 		"NONE",
-		#define OF(a) #a,
+		#define OF(a, b) #a,
 		#include "list-object-flags.h"
 		#undef OF
 		NULL

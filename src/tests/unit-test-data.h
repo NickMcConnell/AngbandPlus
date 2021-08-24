@@ -23,7 +23,14 @@
 #include "player-timed.h"
 #include "project.h"
 
-static s16b TEST_DATA test_timed[TMD_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 
+/* 53 = TMD_MAX */
+static s16b TEST_DATA test_timed[53] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0
 };
 
 static struct object_base TEST_DATA sword_base = {
@@ -628,8 +635,8 @@ static struct player_race TEST_DATA test_race = {
 		[SKILL_DIGGING] = 0,
 	},
 
-	.r_mhp = 10,
 	.r_exp = 110,
+	.r_mhp = 200,
 
 	.b_age = 14,
 	.m_age = 6,
@@ -709,7 +716,7 @@ static struct player_class TEST_DATA test_class = {
 		[SKILL_DIGGING] = 0,
 	},
 
-	.c_mhp = 9,
+	.c_mhp = 90,
 	.c_exp = 0,
 
 	.max_attacks = 6,
@@ -1066,12 +1073,16 @@ static struct object TEST_DATA test_player_knowledge = {
 	.note = 0,
 };
 
+static struct player_shape TEST_DATA test_player_shape = {
+	.name = "normal",
+};
+
 
 static struct player TEST_DATA test_player = {
 	.grid = { 1, 1 },
 	.race = &test_race,
 	.class = &test_class,
-	.hitdie = 10,
+	//.hitdie = 10,
 	.expfact_low = 100,
 	.expfact_high = 100,
 	.age = 12,
@@ -1103,13 +1114,13 @@ static struct player TEST_DATA test_player = {
 	.timed = test_timed,
 	.word_recall = 0,
 	.energy = 100,
-	.player_hp = {
+	/*.player_hp = {
 		  5,  10,  15,  20,  25,  30,  35,  40,  45,  50,
 		 55,  60,  65,  70,  75,  80,  85,  90,  95, 100,
 		105, 110, 115, 120, 125, 130, 135, 140, 145, 150,
 		155, 160, 165, 170, 175, 180, 185, 190, 195, 200,
 		205, 210, 215, 220, 225, 230, 235, 240, 245, 250
-	},
+	},*/
 	.history = "no history",
 	.is_dead = 0,
 	.wizard = 0,

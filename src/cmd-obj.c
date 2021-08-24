@@ -120,7 +120,7 @@ static int beam_chance(int tval)
 /**
  * Print an artifact activation message.
  */
-static void activation_message(struct object *obj)
+void activation_message(struct object *obj)
 {
 	const char *message;
 
@@ -150,8 +150,9 @@ void do_cmd_uninscribe(struct command *cmd)
 {
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get arguments */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -179,8 +180,9 @@ void do_cmd_inscribe(struct command *cmd)
 	char prompt[1024];
 	char o_name[80];
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get arguments */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -234,8 +236,9 @@ void do_cmd_takeoff(struct command *cmd)
 {
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get arguments */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -266,15 +269,16 @@ void do_cmd_wield(struct command *cmd)
 	int slot;
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get arguments */
 	if (cmd_get_item(cmd, "item", &obj,
 			/* Prompt */ "Wear or wield which item?",
 			/* Error  */ "You have nothing to wear or wield.",
 			/* Filter */ obj_can_wear,
-			/* Choice */ USE_INVEN | USE_FLOOR) != CMD_OK)
+			/* Choice */ USE_INVEN | USE_FLOOR | USE_QUIVER) != CMD_OK)
 		return;
 
 	/* Get the slot the object wants to go in, and the item currently there */
@@ -354,8 +358,9 @@ void do_cmd_drop(struct command *cmd)
 	int amt;
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get arguments */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -394,7 +399,7 @@ enum use {
  * Use an object the right way.
  */
 static void use_aux(struct command *cmd, struct object *obj, enum use use,
-					int snd)
+					int snd, int alternate)
 {
 	struct effect *effect = object_effect(obj);
 	bool can_use = true;
@@ -516,7 +521,8 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 							dir,
 							beam,
 							boost,
-							cmd);
+							cmd,
+							alternate);
 		target_release();
 
 		if (!used) {
@@ -619,6 +625,15 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 	}
 }
 
+int card_level(const struct object *obj)
+{
+	int level = ((obj->kind->level * 6) / 10) + 5;
+	if (level > 40)
+		level -= (level - 40) / 2;
+	if (level > 50)
+		level = 50;
+	return level;
+}
 
 /**
  * Run a card
@@ -627,8 +642,9 @@ void do_cmd_run_card(struct command *cmd)
 {
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Check player can use card */
 	if (!player_can_run(player, true))
@@ -641,7 +657,20 @@ void do_cmd_run_card(struct command *cmd)
 			tval_is_card,
 			USE_INVEN | USE_FLOOR) != CMD_OK) return;
 
-	use_aux(cmd, obj, USE_SINGLE, MSG_GENERIC);
+	int alt = 0;
+	if (player->timed[TMD_RARE_CARD]) {
+		player_set_timed(player, TMD_RARE_CARD, 0, false);
+		int cardlevel = card_level(obj);
+		int yourlevel = levels_in_class(get_class_by_name("Clown")->cidx);
+		if (yourlevel >= cardlevel) {
+			alt = 1;
+			msg("You pull out a rare card!");
+		} else {
+			msg("You don't have the skill to switch this card.");
+		}
+	}
+
+	use_aux(cmd, obj, USE_SINGLE, MSG_GENERIC, alt);
 }
 
 /**
@@ -651,8 +680,9 @@ void do_cmd_use_device(struct command *cmd)
 {
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -666,7 +696,7 @@ void do_cmd_use_device(struct command *cmd)
 		return;
 	}
 
-	use_aux(cmd, obj, USE_CHARGE, MSG_USE_DEVICE);
+	use_aux(cmd, obj, USE_CHARGE, MSG_USE_DEVICE, 0);
 }
 
 /**
@@ -676,8 +706,9 @@ void do_cmd_aim_wand(struct command *cmd)
 {
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -691,7 +722,7 @@ void do_cmd_aim_wand(struct command *cmd)
 		return;
 	}
 
-	use_aux(cmd, obj, USE_CHARGE, MSG_ZAP_ROD);
+	use_aux(cmd, obj, USE_CHARGE, MSG_ZAP_ROD, 0);
 }
 
 /**
@@ -701,8 +732,9 @@ void do_cmd_zap_rod(struct command *cmd)
 {
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -716,7 +748,7 @@ void do_cmd_zap_rod(struct command *cmd)
 		return;
 	}
 
-	use_aux(cmd, obj, USE_TIMEOUT, MSG_ZAP_ROD);
+	use_aux(cmd, obj, USE_TIMEOUT, MSG_ZAP_ROD, 0);
 }
 
 /**
@@ -726,8 +758,9 @@ void do_cmd_activate(struct command *cmd)
 {
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -764,7 +797,7 @@ void do_cmd_activate(struct command *cmd)
 			do_inven_wield(equip_obj, slot, false, true);
 		return;
 	} else {
-		use_aux(cmd, obj, USE_TIMEOUT, MSG_ACT_ARTIFACT);
+		use_aux(cmd, obj, USE_TIMEOUT, MSG_ACT_ARTIFACT, 0);
 	}
 }
 
@@ -803,20 +836,7 @@ void do_cmd_eat_food(struct command *cmd)
 				USE_INVEN | USE_FLOOR) != CMD_OK) return;
 	}
 
-	use_aux(cmd, obj, use, MSG_EAT);
-}
-
-static bool check_shapechanged(void)
-{
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return true;
-		}
-	}
-	return false;
+	use_aux(cmd, obj, use, MSG_EAT, 0);
 }
 
 /**
@@ -826,8 +846,9 @@ void do_cmd_quaff_pill(struct command *cmd)
 {
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -836,7 +857,7 @@ void do_cmd_quaff_pill(struct command *cmd)
 			tval_is_pill,
 			USE_INVEN | USE_FLOOR) != CMD_OK) return;
 
-	use_aux(cmd, obj, USE_SINGLE, MSG_QUAFF);
+	use_aux(cmd, obj, USE_SINGLE, MSG_QUAFF, 0);
 }
 
 /**
@@ -846,8 +867,9 @@ void do_cmd_use_printer(struct command *cmd)
 {
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -858,7 +880,7 @@ void do_cmd_use_printer(struct command *cmd)
 
 	/* Hack */
 	obj->pval = 1;
-	use_aux(cmd, obj, USE_CHARGE, MSG_PRINT);
+	use_aux(cmd, obj, USE_CHARGE, MSG_PRINT, 0);
 	obj->pval = 0;
 }
 
@@ -869,8 +891,9 @@ void do_cmd_use(struct command *cmd)
 {
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -979,15 +1002,16 @@ void do_cmd_refill(struct command *cmd)
 	struct object *light = equipped_item_by_slot_name(player, "light");
 	struct object *obj;
 
-	if (check_shapechanged())
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
+	}
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
 			"Recharge from which battery? ",
 			"You have nothing you can recharge with.",
 			obj_can_refill,
-			USE_INVEN | USE_FLOOR) != CMD_OK) return;
+			USE_INVEN | USE_FLOOR | USE_QUIVER) != CMD_OK) return;
 
 	/* Check what we're wielding. */
 	if (!light || !tval_is_light(light)) {
@@ -1038,16 +1062,7 @@ void do_cmd_cast(struct command *cmd)
 	/* Maybe some still work?
 	 * Most should make this check, though.
 	 */
-	if (player_is_shapechanged(player)) {
-		/* Count the abilities - if you don't have any, prompt to change back */
-		if (n_spells == 0) {
-			if (get_check("Change back to your original form? " )) {
-				player_resume_normal_shape(player);
-			}
-			return;
-		}
-	} else if (n_spells == 0) {
-		msg(error);
+	if (!player_get_resume_normal_shape(player, cmd)) {
 		return;
 	}
 
@@ -1061,7 +1076,11 @@ void do_cmd_cast(struct command *cmd)
 
 	/* Cool down? */
 	if (player->cooldown[spell_index] > 0) {
-		msg("You can't use that technique for another %d turns.", player->cooldown[spell_index]);
+		if (player->cooldown[spell_index] > 1) {
+			msg("You can't use that technique for another %d turns.", player->cooldown[spell_index]);
+		} else {
+			msg("You can't use that technique until next turn.", player->cooldown[spell_index]);
+		}
 		return;
 	}
 

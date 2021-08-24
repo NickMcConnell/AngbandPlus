@@ -172,14 +172,6 @@ time:1d1000
 msg:Your equipment grabs you!
 desc:paralyses you every now and then
 
-name:dragon summon
-type:dragon armor
-effect:SUMMON:DRAGON
-dice:1
-time:1d500
-msg:Your armour lets out a cry...
-desc:sometimes summons a dragon
-
 name:demon summon
 type:digger
 type:hafted

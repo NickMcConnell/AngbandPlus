@@ -42,12 +42,12 @@ static void soldier_loadsave(bool complete) {
 		struct store *store = get_store_by_name("Field HQ");
 		if (store->owner->name)
 			mem_free(store->owner->name);
-		state = (struct soldier_state *)player->class->state;
+		state = (struct soldier_state *)get_class_by_name("Soldier")->state;
 		store->owner->name = string_make(state->storename);
 	} else {
-		if (player->class->state == NULL)
-			player->class->state = mem_zalloc(sizeof(struct soldier_state));
-		state = (struct soldier_state *)player->class->state;
+		if (get_class_by_name("Soldier")->state == NULL)
+			get_class_by_name("Soldier")->state = mem_zalloc(sizeof(struct soldier_state));
+		state = (struct soldier_state *)get_class_by_name("Soldier")->state;
 		rdwr_s32b(&state->gift_waiting);
 		rdwr_s32b(&state->gift_given);
 		/* This only happens when saving at quit - the state has already gone away.
@@ -66,15 +66,16 @@ static void soldier_loadsave(bool complete) {
 static void soldier_init(void)
 {
 	/* Initialise saved state */
-	player->class->state = mem_zalloc(sizeof(struct soldier_state));
+	struct soldier_state *state = get_class_by_name("Soldier")->state = mem_zalloc(sizeof(struct soldier_state));
 
 	/* Allow access to HQ */
-	get_store_by_name("Field HQ")->open = true;
+	if (player->class == get_class_by_name("Soldier"))
+		get_store_by_name("Field HQ")->open = true;
 
 	/* Set a random owner */
 	char buf[256];
 	char name[256];
-	const char *races[] = {
+	static const char *races[] = {
 		"Human",
 		"Bogon",
 		"Kzin",
@@ -88,16 +89,31 @@ static void soldier_init(void)
 	name[0] = toupper(name[0]);
 	strnfmt(buf, sizeof(buf), "General %s (%s)", name, race);
 	get_store_by_name("Field HQ")->owner->name = string_make(buf);
-	struct soldier_state *state = (struct soldier_state *)player->class->state;
 	state->storename = string_make(buf);
 }
 
 /* FIXME: called-from clears hooks, etc. A final is called if there one but if it's just a single block, the wrapper can do it */
 
-/* Gain a new level (or levels) for the first time */
+/* Gain a new level (or levels) for the first time.
+ * Use the levels in class, not overall level
+ **/
 static void soldier_levelup(int from, int to)
 {
-	struct soldier_state *state = (struct soldier_state *)player->class->state;
+	struct soldier_state *state = get_class_by_name("Soldier")->state;
+
+	/* While only the current (not previous) class-level is directly known,
+	 * the added levels are always of the current class.
+	 * So if the current class is not Soldier no levels have been gained in
+	 * Soldier and can exit now.
+	 * The current class is p->switch_class (this is not always true, but
+	 * is at this point)
+	 */
+	if (player->switch_class != get_class_by_name("Soldier")->cidx)
+		return;
+
+	/* Allow access to HQ */
+	get_store_by_name("Field HQ")->open = true;
+
 	if (!OPT(player, birth_no_recall)) {
 		if (title_idx(from) != title_idx(to)) {
 			const char *promo = "Congratulations on your promotion";
@@ -113,10 +129,14 @@ static void soldier_levelup(int from, int to)
 	}
 }
 
-/* Enter or exit a town building (return false by AND of the optional parameter on entering to replace the default behaviour. This is ignored as default behavious is always wanted) */
+/* Enter or exit a town building (return false by AND of the optional parameter on entering to replace the default behaviour. This is ignored as default behavious is always wanted)
+ *
+ * While any character with at least one level in Soldier can access the HQ, only primary class
+ * Soldiers get the promotion gift.
+ **/
 static void soldier_building(int store, bool entering, bool *do_default)
 {
-	struct soldier_state *state = (struct soldier_state *)player->class->state;
+	struct soldier_state *state = get_class_by_name("Soldier")->state;
 	if (!streq(get_store_by_idx(store)->name, "Field HQ"))
 		return;
 	/* HQ: is a promotion gift available? Only give one, for the messages to make sense */

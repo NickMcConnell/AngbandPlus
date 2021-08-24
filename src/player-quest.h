@@ -39,5 +39,6 @@ void quest_changing_level(void);
 bool quest_is_rewardable(const struct quest *q);
 bool quest_special_endings(struct store_context *ctx);
 bool quest_selling_object(struct object *obj, struct store_context *ctx);
+const char *quest_get_intro(const struct quest *q);
 
 #endif /* QUEST_H */

@@ -1063,16 +1063,6 @@ lore-color-base:Orange
 message-vis:{name} summons the undead.
 message-invis:You hear something creepy appear nearby!
 
-name:S_DRAGON
-msgt:SUM_DRAGON
-hit:100
-effect:SUMMON:DRAGON
-dice:1
-lore:summon a dragon
-lore-color-base:Orange
-message-vis:{name} summons a dragon.
-message-invis:You hear something appear nearby!
-
 name:S_HI_DEMON
 msgt:SUM_HI_DEMON
 hit:100
@@ -1092,16 +1082,6 @@ lore:summon greater undead
 lore-color-base:Light Red
 message-vis:{name} summons fiends of darkness.
 message-invis:You hear creepy things appear nearby!
-
-name:S_HI_DRAGON
-msgt:SUM_HI_DRAGON
-hit:100
-effect:SUMMON:HI_DRAGON
-dice:8
-lore:summon ancient dragons
-lore-color-base:Light Red
-message-vis:{name} summons ancient dragons.
-message-invis:You hear powerful things appear nearby!
 
 name:S_WRAITH
 msgt:SUM_WRAITH

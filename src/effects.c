@@ -41,6 +41,7 @@
 #include "obj-make.h"
 #include "obj-pile.h"
 #include "obj-power.h"
+#include "obj-slays.h"
 #include "obj-tval.h"
 #include "obj-util.h"
 #include "player-ability.h"
@@ -62,6 +63,8 @@
 
 #include <math.h>
 
+static void shapechange(const char *shapename, bool verbose);
+
 /**
  * ------------------------------------------------------------------------
  * Structures and helper functions for effects
@@ -77,6 +80,7 @@ typedef struct effect_handler_context_s {
 	const random_value value;
 	const int subtype, radius, other, y, x;
 	const char *msg;
+	const int alternate;
 	bool ident;
 	struct command *cmd;
 } effect_handler_context_t;
@@ -286,6 +290,7 @@ static bool repair_object(struct object *obj, int strength, random_value value)
 {
 	int index = 0;
 	bool remove = false;
+	bool success = false;
 
 	if (get_fault(&index, obj, value)) {
 		struct fault_data fault = obj->faults[index];
@@ -298,6 +303,7 @@ static bool repair_object(struct object *obj, int strength, random_value value)
 			/* Successfully removed this fault */
 			remove_object_fault(obj->known, index, false);
 			remove_object_fault(obj, index, true);
+			success = true;
 		} else if (kf_has(obj->kind->kind_flags, KF_ACT_FAILED)) {
 			light_special_activation(obj);
 			remove = true;
@@ -328,8 +334,9 @@ static bool repair_object(struct object *obj, int strength, random_value value)
 				square_delete_object(cave, obj->grid, obj, true, true);
 			}
 		} else {
-			/* Non-destructive failure */
-			msg("The repair fails.");
+			/* Success (message already printed) / Non-destructive failure */
+			if (!success)
+				msg("The repair fails.");
 		}
 	} else {
 		return false;
@@ -676,7 +683,7 @@ bool effect_handler_DAMAGE(effect_handler_context_t *context)
 			if (t_mon) {
 				bool fear = false;
 
-				mon_take_nonplayer_hit(dam, t_mon, MON_MSG_NONE, MON_MSG_DIE);
+				mon_take_nonplayer_hit(dam, t_mon, MON_MSG_NONE, MON_MSG_DIE, false);
 				if (fear && monster_is_visible(t_mon)) {
 					add_monster_message(t_mon, MON_MSG_FLEE_IN_TERROR, true);
 				}
@@ -700,7 +707,8 @@ bool effect_handler_DAMAGE(effect_handler_context_t *context)
 			break;
 		}
 
-		case SRC_OBJECT: {
+		case SRC_OBJECT:
+		case SRC_OBJECT_AT: {
 			/* Must be a faulty weapon */
 			struct object *obj = context->origin.which.object;
 			object_desc(killer, sizeof(killer), obj, ODESC_PREFIX | ODESC_BASE);
@@ -972,7 +980,6 @@ bool effect_handler_HABANERO(effect_handler_context_t *context)
 /* Check WIS, and if it passes you swallowed it.
  * In that case, feed you (to max, including slowing) and transform into a giant!
  */
-static void shapechange(const char *shapename, bool verbose);
 bool effect_handler_SNOZZCUMBER(effect_handler_context_t *context)
 {
 	if (stat_check(STAT_WIS, 17)) {
@@ -1195,7 +1202,8 @@ bool effect_handler_WEB(effect_handler_context_t *context)
 	/* Check within the radius for clear floor */
 	for (grid.y = mon->grid.y - rad; grid.y <= mon->grid.y + rad; grid.y++) {
 		for (grid.x = mon->grid.x - rad; grid.x <= mon->grid.x + rad; grid.x++){
-			if (distance(grid, mon->grid) > rad) continue;
+			if (distance(grid, mon->grid) > rad ||
+				!square_in_bounds_fully(cave, grid)) continue;
 
 			/* Require a floor grid with no existing traps or glyphs */
 			if (!square_iswebbable(cave, grid)) continue;
@@ -1893,7 +1901,7 @@ bool effect_handler_DETECT_GOLD(effect_handler_context_t *context)
  * effect_handler_DETECT_OBJECTS to remove remembered objects at locations
  * sensed or detected as empty.
  */
-static void forget_remembered_objects(struct chunk *c, struct chunk *knownc, struct loc grid)
+void forget_remembered_objects(struct chunk *c, struct chunk *knownc, struct loc grid)
 {
 	struct object *obj = square_object(knownc, grid);
 
@@ -3243,20 +3251,15 @@ bool effect_handler_TELEPORT_TO(effect_handler_context_t *context)
 	return true;
 }
 
-/**
- * Teleport the player one level up or down (random when legal)
- */
-bool effect_handler_TELEPORT_LEVEL(effect_handler_context_t *context)
+static bool effect_change_level(effect_handler_context_t *context, const char *rise, const char *sink, bool up, bool down, bool teleport)
 {
-	bool up = true;
-	bool down = true;
 	int target_depth = dungeon_get_next_level(player->max_depth, 1);
 	struct monster *t_mon = monster_target_monster(context);
 	struct loc decoy = cave_find_decoy(cave);
 
 	context->ident = true;
 
-	/* No teleporting in arena levels */
+	/* No changing level in arena levels */
 	if (player->upkeep->arena_level) return true;
 
 	/* Check for monster targeting another monster */
@@ -3273,24 +3276,26 @@ bool effect_handler_TELEPORT_LEVEL(effect_handler_context_t *context)
 		return true;
 	}
 
-	/* Check for a no teleport grid */
-	if (square_isno_teleport(cave, player->grid)) {
-		msg("Teleportation forbidden!");
-		return true;
-	}
+	if (teleport) {
+		/* Check for a no teleport grid */
+		if (square_isno_teleport(cave, player->grid)) {
+			msg("Teleportation forbidden!");
+			return true;
+		}
 
-	/* Check for a no teleport fault */
-	if (player_of_has(player, OF_NO_TELEPORT)) {
-		equip_learn_flag(player, OF_NO_TELEPORT);
-		msg("Teleportation forbidden!");
-		return true;
-	}
+		/* Check for a no teleport fault */
+		if (player_of_has(player, OF_NO_TELEPORT)) {
+			equip_learn_flag(player, OF_NO_TELEPORT);
+			msg("Teleportation forbidden!");
+			return true;
+		}
 
-	/* Resist hostile teleport */
-	if (context->origin.what == SRC_MONSTER &&
-			player_resists(player, ELEM_NEXUS)) {
-		msg("You resist the effect!");
-		return true;
+		/* Resist hostile teleport */
+		if (context->origin.what == SRC_MONSTER &&
+				player_resists(player, ELEM_NEXUS)) {
+			msg("You resist the effect!");
+			return true;
+		}
 	}
 
 	/* No going up with force_descend or in the town */
@@ -3315,11 +3320,11 @@ bool effect_handler_TELEPORT_LEVEL(effect_handler_context_t *context)
 
 	/* Now actually do the level change */
 	if (up) {
-		msgt(MSG_TPLEVEL, "You rise up through the ceiling.");
+		msgt(MSG_TPLEVEL, rise ? rise : "You rise up through the ceiling.");
 		target_depth = dungeon_get_next_level(player->depth, -1);
 		dungeon_change_level(player, target_depth);
 	} else if (down) {
-		msgt(MSG_TPLEVEL, "You sink through the floor.");
+		msgt(MSG_TPLEVEL, sink ? sink : "You sink through the floor.");
 
 		if (OPT(player, birth_force_descend)) {
 			target_depth = dungeon_get_next_level(player->max_depth, 1);
@@ -3333,6 +3338,14 @@ bool effect_handler_TELEPORT_LEVEL(effect_handler_context_t *context)
 	}
 
 	return true;
+}
+
+/**
+ * Teleport the player one level up or down (random when legal)
+ */
+bool effect_handler_TELEPORT_LEVEL(effect_handler_context_t *context)
+{
+	return effect_change_level(context, NULL, NULL, true, true, true);
 }
 
 /**
@@ -3931,6 +3944,9 @@ bool effect_handler_SPOT(effect_handler_context_t *context)
 				pgrid = cave_monster(cave, context->origin.which.object->held_m_idx)->grid;
 			}
 		}
+		flg |= PROJECT_JUMP;
+	} else if (context->origin.what == SRC_OBJECT_AT) {
+		pgrid = context->origin.grid;
 		flg |= PROJECT_JUMP;
 	} else if (context->origin.what == SRC_MONSTER) {
 		int midx = context->origin.which.monster;
@@ -4914,7 +4930,7 @@ bool effect_handler_SHAPECHANGE(effect_handler_context_t *context)
 	/* Do effect */
 	if (shape->effect) {
 		(void) effect_do(shape->effect, source_player(), NULL, &ident, true,
-						 0, 0, 0, NULL);
+						 0, 0, 0, NULL, context->alternate);
 	}
 
 	return true;
@@ -6131,6 +6147,40 @@ bool effect_handler_HORNS(effect_handler_context_t *context)
 	return (true);
 }
 
+bool effect_handler_BANANA(effect_handler_context_t *context)
+{
+	/* May have a spider in it */
+	if (one_in_(20)) {
+		int mon = summon_named_near(player->grid, "spider");
+		if (mon) {
+			msg("It begins to move of its own accord, and bursts open! There's a SPIDER in it!");
+			return (true);
+		}
+	}
+
+	/* If not (or if the monster summoning couldn't find one), it's just food */
+	msg("That tastes good.");
+	player_inc_timed(player, TMD_FOOD, 10 * z_info->food_value, false, false);
+
+	return (true);
+}
+
+/* It shouldn't be possible to land or takeoff in the wrong state */
+bool effect_handler_LAND(effect_handler_context_t *context)
+{
+	/* Thes messages will needs to be modified if jetpacks are used */
+	msg("You settle to the ground and climb out.");
+	player->flying = false;
+	return (true);
+}
+
+bool effect_handler_TAKEOFF(effect_handler_context_t *context)
+{
+	msg("You get in and take off.");
+	player->flying = true;
+	return (true);
+}
+
 /**
  * Time Lord regeneration
  **/
@@ -6156,12 +6206,136 @@ bool effect_handler_RUMOR(effect_handler_context_t *context)
  */
 bool effect_handler_CLIMBING(effect_handler_context_t *context)
 {
-	int fail = effect_calculate_value(context, false);
-	if (fail > 0) {
-		msg("Failed");
+	/* Is there a wall next to you? */
+	if (!square_num_walls_adjacent(cave, player->grid)) {
+		msg("You need an adjacent rock face to climb up.");
 	} else {
-		msg("Success");
+		bool fail = (!stat_check(STAT_DEX, 12));
+		if (fail) {
+			/* You tried and fell off.
+			 * FF will always save you, otherwise make a DEX check.
+			 **/
+			if (player_of_has(player, OF_FEATHER)) {
+				msg("You lose your grip, and float gently to the ground.");
+				player_learn_icon(player, OF_FEATHER, true);
+			} else if (!stat_check(STAT_DEX, 18)) {
+				msg("You lose your grip and fall. Ouch!");
+				take_hit(player, randint1(6)+randint1(20), "falling");
+			} else {
+				msg("You lose your grip, but are unhurt.");
+			}
+		} else {
+			/* The climb attempt was successful but the level change may not be.
+			 * You should always get some message from this, so long as it's only used by the player.
+			 * Although the "Nothing happens" message might be best replaced with something more descriptive.
+			 **/
+			return effect_change_level(context, "You climb through a crack above you.", NULL, true, false, false);
+		}
 	}
+	return (true);
+}
+
+/**
+ * Next effect (do nothing here)
+ */
+bool effect_handler_NEXT(effect_handler_context_t *context)
+{
+	return (true);
+}
+
+/**
+ * Prismatic Lightsaber
+ */
+bool effect_handler_PRISMATIC(effect_handler_context_t *context)
+{
+	assert(context->obj);
+	struct object *obj = (struct object *)context->obj;
+	if (!(obj->brands))
+		return (true);
+
+	#define n_brands 5
+
+	static const char *flip[] = {
+		"flip",
+		"switch",
+		"convert",
+		"dial",
+		"transform",
+	};
+
+	/* The brands to switch between */
+	static const char *message[n_brands*2] = {
+		"a brilliant dual lightsaber.",
+		"a dimsaber's twin chaotic maelstroms.",
+		"an ominous red dual darksaber.",
+		"a pair of shimmering phantom blades.",
+		"invisible dual X-ray beams.",
+		"a brilliant lightsaber.",
+		"a dimsaber's chaotic maelstrom.",
+		"an ominous red darksaber.",
+		"an uncannily shimmering phantom blade.",
+		"an invisible X-ray beam.",
+	};
+
+	static const char *brand_name[n_brands*2] =	{	"LIGHT_2", "CHAOS_2", "DARK_2", "NEXUS_2", "RADIATION_2",
+										"LIGHT_3", "CHAOS_3", "DARK_3", "NEXUS_3", "RADIATION_3" };
+	int resist_idx[n_brands] = { ELEM_LIGHT, ELEM_CHAOS, ELEM_DARK, ELEM_NEXUS, ELEM_RADIATION };
+	int brand_idx[n_brands*2];
+	int brand = 0;
+
+	/* Find the brand indexes */
+	for(int i=0;i<n_brands*2;i++) {
+		brand_idx[i] = get_brand_by_name(brand_name[i]);
+		if (brand_idx[i] < 0) {
+			msg("Whoops. What's %s?", brand_name[i]);
+			return (true);
+		}
+		if (obj->brands[brand_idx[i]])
+			brand = i;
+	}
+
+	/* Turn off the other brands and resistances */
+	for(int i=0;i<n_brands*2;i++) {
+		obj->brands[brand_idx[i]] = false;
+		if (obj->known->brands)
+			obj->known->brands[brand_idx[i]] = false;
+		obj->el_info[resist_idx[i % n_brands]].res_level = 0;
+	}
+	obj->modifiers[OBJ_MOD_LIGHT] = 0;
+
+	/* The new one */
+	brand++;
+	if ((brand % n_brands) == 0)
+		brand -= n_brands;
+
+	/* Turn on this one */
+	obj->brands[brand_idx[brand]] = true;
+	obj->el_info[resist_idx[brand % n_brands]].res_level = 1;
+
+	/* A lightsaber glows, the others don't */
+	if ((brand % n_brands) == 0)
+		obj->modifiers[OBJ_MOD_LIGHT] = 1;
+
+	/* X-sabers are hard to use.
+	 * But a reversible penalty (of say -20) would allow you to enhance it to +15 and then
+	 * switch it back to a +35 lightsaber! So just assume that the X-mode has a visible guide
+	 * beam.
+	 **/
+
+	/* Print a message */
+	msg("You %s your weapon into %s", flip[randint0(sizeof(flip)/sizeof(*flip))], message[brand]);
+
+	/* Learn, as if wielded */
+	object_learn_on_wield(player, obj);
+	player_know_object(player, obj);
+	update_player_object_knowledge(player);
+
+	/* Update */
+	player->upkeep->update |= (PU_TORCH);
+	update_stuff(player);
+
+	#undef n_brands
+
 	return (true);
 }
 
@@ -6434,6 +6608,7 @@ int effect_subtype(int index, const char *type)
  *               command can use the same information without prompting the
  *               player again.  Use NULL for this if not invoked as part of
  *               a command.
+ * \param alternate	- select which alternate form. 0 is the first (and the default).
  */
 bool effect_do(struct effect *effect,
 		struct source origin,
@@ -6443,11 +6618,29 @@ bool effect_do(struct effect *effect,
 		int dir,
 		int beam,
 		int boost,
-		struct command *cmd)
+		struct command *cmd,
+		int alternate)
 {
 	bool completed = false;
 	effect_handler_f handler;
 	random_value value = { 0, 0, 0, 0 };
+
+	/* Move effect forward to the first effect after 'alternate' NEXTs */
+	struct effect *first = effect;
+	for (int i=0; i<alternate; i++) {
+		do {
+			effect = effect->next;
+		} while (effect && (effect->index != EF_NEXT));
+	}
+	if ((effect) && (effect->index == EF_NEXT))
+		effect = effect->next;
+	/* If the alternate is not present, default to the first. This is not
+	 * an error - it allows the alternate form of cards (for example) to
+	 * work even though not every card has an alternate form.
+	 */
+	if (!effect) {
+		effect = first;
+	}
 
 	do {
 		int random_choices = 0, leftover = 0;
@@ -6493,6 +6686,7 @@ bool effect_do(struct effect *effect,
 				effect->y,
 				effect->x,
 				effect->msg,
+				alternate,
 				*ident,
 				cmd
 			};
@@ -6508,7 +6702,7 @@ bool effect_do(struct effect *effect,
 				effect = effect->next;
 		else
 			effect = effect->next;
-	} while (effect);
+	} while (effect && (effect->index != EF_NEXT));
 
 	return completed;
 }
@@ -6552,6 +6746,6 @@ void effect_simple(int index,
 		ident = &dummy_ident;
 	}
 
-	effect_do(&effect, origin, NULL, ident, true, dir, 0, 0, NULL);
+	effect_do(&effect, origin, NULL, ident, true, dir, 0, 0, NULL, 0);
 	dice_free(effect.dice);
 }

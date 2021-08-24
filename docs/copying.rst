@@ -45,6 +45,8 @@ With the following exceptions:
 
 * The sounds are licenced under the Creative Commons Attribution-NonCommercial-Sharealike licence.  They were created by Dubtrain <angband@dubtrain.com>. You can find them in Wave format at http://www.dubtrain.com/angband/.
 
+* The namelists first.txt and second.txt are derived from Random Player/Ship Names OXZ. This is maintained by Mika Spåra and is licenced under the CC-BY-NC-SA 4.0 license. See the first.txt and second.txt files for more details.
+
 * The font files are all by Leon Marrick and/or Sheldon Simms III and/or Nick McConnell, all of whom have agreed to their Angband work being released under the GPL.
 
 It is considered good practice to retain this statement for derivatives, rather than (e.g.) redistributing Adam Bolt's tiles under the GPL, or choosing to make a variant which is only under one of the Angband or GPL licences.  This allows easier sharing of changes between variants.

@@ -364,13 +364,16 @@ brand:POIS_3
 
 # The "Slay" weapons (8)
 
-name:of Slay Animal
+name:(mighty hunter)
 info:3000:18
 alloc:100:1 to 30
 type:sword
 type:polearm
 type:hafted
+flags:SENSE_ANIMAL
+values:STEALTH[-1+d4] | INFRA[-1+d4] | INT[-1+d2]
 slay:ANIMAL_2
+desc:This bloodthirsty {basename} is death to all animals, and will guide its wielder to them.
 
 name:of Slay Evil
 info:3000:18
@@ -382,16 +385,18 @@ slay:EVIL_2
 
 # The *Slay* weapons (8)
 
-name:of *Slay Animal*
+name:(*mighty hunter*)
 info:6000:20
 alloc:40:1 to 45
+combat:d2:d2:0
 type:sword
 type:polearm
 type:hafted
-flags:RAND_RES_POWER
-values:INT[d2]
-min-values:INT[0]
+flags:SENSE_ANIMAL | RAND_RES_POWER
+values:STEALTH[d4] | INFRA[d4] | INT[d2]
+min-values:INT[0] | INFRA[0] | STEALTH[0]
 slay:ANIMAL_2
+desc:This bloodthirsty {basename} is death to all animals, and will guide its wielder to them.
 
 name:of *Slay Evil*
 info:5000:20
@@ -588,7 +593,6 @@ alloc:10:10 to 100
 type:6mm ammo
 type:9mm ammo
 type:12mm ammo
-flags:IGNORE_FIRE
 brand:FIRE_3
 desc:This ammunition bursts into a tiny but intense fireball on impact, capable of setting almost anything alight.
 
@@ -602,14 +606,14 @@ flags:IGNORE_COLD
 brand:COLD_3
 desc:These exotic bullets freeze their target solid on contact.
 
-#name:of Wounding
-#info:20:5
-#alloc:15:15 to 127
-#combat:3+d5:3+d5:0
-#type:6mm ammo
-#type:9mm ammo
-#type:12mm ammo
-#desc:Ammunition of Wounding often has unusually high to-hit and to-dam values.
+name:(guided)
+info:20:5
+alloc:15:15 to 127
+combat:10+d9M10:3+d5:0
+type:6mm ammo
+type:9mm ammo
+type:12mm ammo
+desc:Guided ammunition lets you "spray and pray" with a high chance of still hitting the mark.
 
 name:(damaged)
 info:0:0
@@ -701,7 +705,7 @@ values:RES_NEXUS[1]
 
 ### Crowns and Helms ###
 
-name:of Intelligence
+name:(brain booster)
 info:500:13
 alloc:100:1 to 40
 type:helm
@@ -755,12 +759,12 @@ flags:PROT_BLIND | SEE_INVIS
 values:SEARCH[d5]
 min-values:SEARCH[0]
 
-name:of Infravision
+name:(infravisor)
 info:500:11
 alloc:100:1 to 20
 type:helm
 values:INFRA[d5]
-min-values:INFRA[0]
+min-values:INFRA[1]
 
 name:(lamp)
 info:400:4
@@ -991,35 +995,35 @@ flags:FREE_ACT
 values:STR[d2] | CON[d2]
 min-values:STR[1] | CON[1]
 
-name:of Resist Acid
+name:(stainless)
 info:1000:16
 alloc:100:1 to 30
 type:shield
 flags:IGNORE_ACID
 values:RES_ACID[1]
 
-name:of Resist Lightning
+name:(shockproof)
 info:400:10
 alloc:100:1 to 30
 type:shield
 flags:IGNORE_ELEC
 values:RES_ELEC[1]
 
-name:of Resist Fire
+name:(fireproof)
 info:800:14
 alloc:100:1 to 30
 type:shield
 flags:IGNORE_FIRE
 values:RES_FIRE[1]
 
-name:of Resist Cold
+name:(polarized)
 info:600:12
 alloc:100:1 to 30
 type:shield
 flags:IGNORE_COLD
 values:RES_COLD[1]
 
-name:of Resistance
+name:(resistant)
 info:12500:20
 alloc:50:10 to 100
 combat:0:0:d10

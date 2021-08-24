@@ -63,7 +63,7 @@ const char *r_info_spell_flags[] =
 static const char *obj_flags[] =
 {
 	"NONE",
-	#define OF(a) #a,
+	#define OF(a, b) #a,
 	#include "list-object-flags.h"
 	#undef OF
     ""
@@ -916,6 +916,10 @@ static errr run_parse_mon_spell(struct parser *p) {
 static errr finish_parse_mon_spell(struct parser *p) {
 	monster_spells = parser_priv(p);
 	parser_destroy(p);
+	/* +1 because of the NONE entry */
+	if (monster_spells->index + 1 != RSF_MAX) {
+		msg("Warning! list-mon-spells.h (%d) != monster_spells + 1 (%d)", RSF_MAX, monster_spells->index + 1);
+	}
 	return 0;
 }
 

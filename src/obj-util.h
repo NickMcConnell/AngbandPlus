@@ -21,7 +21,7 @@
 
 #include "obj-ignore.h"
 
-/* An item's pval (for charges, amount of gold, etc) is limited to s16b */
+/* An item's pval (for charges, amount of cash, etc) is limited to s16b */
 #define MAX_PVAL  32767
 
 void flavor_init(void);
@@ -53,6 +53,8 @@ bool obj_can_takeoff(const struct object *obj);
 bool obj_can_wear(const struct object *obj);
 bool obj_can_fire(const struct object *obj);
 bool obj_is_throwing(const struct object *obj);
+const struct object_material *obj_material(const struct object *obj);
+bool obj_is_metal(const struct object *obj);
 bool obj_is_known_artifact(const struct object *obj);
 bool obj_has_inscrip(const struct object *obj);
 bool obj_has_flag(const struct object *obj, int flag);
@@ -66,7 +68,7 @@ bool obj_is_pack_activatable(const struct object *obj);
 void distribute_charges(struct object *source, struct object *dest, int amt);
 int number_charging(const struct object *obj);
 bool recharge_timeout(struct object *obj);
-bool verify_object(const char *prompt, struct object *obj);
+bool verify_object(const char *prompt, const struct object *obj);
 void print_custom_message(struct object *obj, const char *string, int msg_type);
 
 

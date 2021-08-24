@@ -481,16 +481,16 @@ void show_inven(int mode, item_tester tester)
 
 	bool in_term = (mode & OLIST_WINDOW) ? true : false;
 
-	/* Intialize */
+	/* Initialize */
 	wipe_obj_list();
 
 	/* Include burden for term windows */
 	if (in_term) {
 		strnfmt(items[num_obj].label, sizeof(items[num_obj].label),
-		        "Burden %d.%d lb (%d.%d lb %s) ",
-		        player->upkeep->total_weight / 10,
-				player->upkeep->total_weight % 10,
-		        abs(diff) / 10, abs(diff) % 10,
+		        "Burden %d.%d kg (%d.%d kg %s) ",
+		        player->upkeep->total_weight / 1000,
+				(player->upkeep->total_weight % 1000) / 100,
+		        abs(diff) / 1000, (abs(diff) % 1000) / 100,
 		        (diff < 0 ? "overweight" : "remaining"));
 
 		items[num_obj].object = NULL;
@@ -665,8 +665,7 @@ bool get_item_allow(const struct object *obj, unsigned char ch, cmd_code cmd,
 
 		/* Prompt for confirmation n times */
 		while (n--) {
-			if (!verify_object(prompt_buf, (struct object *) obj))
-				return (false);
+			if (!verify_object(prompt_buf, obj)) return (false);
 		}
 	}
 
@@ -951,7 +950,7 @@ bool get_item_action(struct menu *menu, const ui_event *event, int oid, bool *it
 	int mode = OPT(player, rogue_like_commands) ? KEYMAP_MODE_ROGUE : KEYMAP_MODE_ORIG;
 
 	if (event->type == EVT_SELECT) {
-		if (get_item_allow(choice[oid].object, cmd_lookup_key(item_cmd, mode),
+		if (choice[oid].object && get_item_allow(choice[oid].object, cmd_lookup_key(item_cmd, mode),
 						   item_cmd, is_harmless))
 			selection = choice[oid].object;
 	}

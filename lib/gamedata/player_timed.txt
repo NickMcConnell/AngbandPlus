@@ -383,3 +383,9 @@ desc:free action
 grade:G:10000:FrAct:Your limbs fill with energy!
 on-end:Your limbs return to normal.
 on-increase:Your limbs feel more energetic!
+
+name:RARE_CARD
+desc:rare card
+grade:G:10000:RareCard:You feel tricky!
+on-end:You lose the moment.
+on-increase:You feel trickier!

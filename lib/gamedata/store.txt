@@ -23,13 +23,17 @@
 
 # General ('convenience'?) store
 store:1:General Store
-owner:8:5000:Bilbo the Friendly (Hobbit)
-owner:10:10000:Rincewind the Chicken (Human)
-owner:12:20000:Snafu the Midget (Gnome)
-owner:15:30000:Lyar-el the Comely (Elf)
-owner:15:30000:Lyar-el the Comely (Elf)
-owner:15:30000:Lyar-el the Comely (Elf)
-owner:15:30000:Lyar-el the Comely (Elf)
+owner:8:5000:*
+owner:9:8000:*
+owner:10:10000:*
+owner:11:12000:*
+owner:10:12000:*
+owner:11:15000:*
+owner:12:20000:*
+owner:13:30000:*
+owner:14:20000:*
+owner:15:25000:*
+owner:16:30000:*
 owner:0:0:-
 slots:0:4
 turnover:2
@@ -64,32 +68,34 @@ buy:ammo_12
 
 # Armoury
 store:2:Armoury
-owner:8:5000:Kon-Dar the Ugly (Half-Orc)
-owner:10:10000:Darg-Low the Grim (Human)
-owner:12:25000:Decado the Handsome (Dunadan)
-owner:14:30000:Mauglin the Grumpy (Dwarf)
-owner:14:30000:Mauglin the Grumpy (Dwarf)
-owner:14:30000:Mauglin the Grumpy (Dwarf)
-owner:14:30000:Mauglin the Grumpy (Dwarf)
-owner:14:30000:Mauglin the Grumpy (Dwarf)
+owner:8:5000:*
+owner:8:15000:*
+owner:9:12000:*
+owner:10:10000:*
+owner:10:12000:*
+owner:10:15000:*
+owner:10:18000:*
+owner:11:15000:*
+owner:12:25000:*
+owner:11:25000:*
+owner:12:30000:*
+owner:14:30000:*
 owner:0:0:-
 slots:6:18
 turnover:9
 danger:72:90
-normal:boots:pair of combat boots
-normal:boots:pair of work boots
-normal:boots:pair of armored boots
-normal:helm:Hard Leather Cap
-normal:helm:Metal Cap
-normal:helm:Iron Helm
+normal:boots
+normal:boots
+normal:boots
+normal:helm
+normal:helm
+normal:helm
 normal:soft armour
 normal:soft armour
 normal:hard armour
-normal:gloves:Set of Leather Gloves
-normal:gloves:Set of Gauntlets
-normal:shield:Wicker Shield
-normal:shield:Small Metal Shield
-normal:shield:Leather Shield
+normal:gloves
+normal:gloves
+normal:shield
 buy:boots
 buy:gloves
 buy:crown
@@ -102,16 +108,19 @@ buy:dragon armor
 
 # Weaponsmith
 store:3:Weapon Smiths
-owner:8:5000:Ithyl-Mak the Beastly (Half-Troll)
-owner:10:10000:Arndal Beast-Slayer (Half-Elf)
-owner:12:25000:Tarl Beast-Master (Hobbit)
-owner:14:30000:Oglign Dragon-Slayer (Dwarf)
-owner:14:30000:Oglign Dragon-Slayer (Dwarf)
-owner:14:30000:Oglign Dragon-Slayer (Dwarf)
-owner:14:30000:Oglign Dragon-Slayer (Dwarf)
-owner:14:30000:Oglign Dragon-Slayer (Dwarf)
-owner:14:30000:Oglign Dragon-Slayer (Dwarf)
-owner:14:30000:Oglign Dragon-Slayer (Dwarf)
+owner:8:5000:*
+owner:10:8000:*
+owner:11:10000:*
+owner:11:25000:*
+owner:12:20000:*
+owner:13:17500:*
+owner:13:25000:*
+owner:13:30000:*
+owner:13:27500:*
+owner:14:30000:*
+owner:14:27500:*
+owner:15:30000:*
+owner:16:30000:*
 owner:0:0:-
 slots:3:14
 turnover:9
@@ -140,16 +149,18 @@ buy:hafted
 
 # Electronics Outlet
 store:4:Electronics
-owner:8:15000:Ludwig the Humble (Human)
-owner:10:20000:Gunnar the Paladin (Human)
-owner:12:25000:Delilah the Pure (Elf)
-owner:14:30000:Bosk the Wise (Dwarf)
-owner:14:30000:Bosk the Wise (Dwarf)
-owner:14:30000:Bosk the Wise (Dwarf)
-owner:14:30000:Bosk the Wise (Dwarf)
-owner:14:30000:Bosk the Wise (Dwarf)
-owner:14:30000:Bosk the Wise (Dwarf)
-owner:14:30000:Bosk the Wise (Dwarf)
+owner:7:15000:*
+owner:8:15000:*
+owner:8:17500:*
+owner:9:20000:*
+owner:10:20000:*
+owner:11:25000:*
+owner:12:30000:*
+owner:11:20000:*
+owner:12:25000:*
+owner:13:30000:*
+owner:14:25000:*
+owner:14:30000:*
 owner:0:0:-
 slots:0:2
 turnover:9
@@ -169,15 +180,18 @@ buy:block
 
 # Pharmacy
 store:5:Pharmacy
-owner:8:10000:Mauser the Chemist (Half-Elf)
-owner:10:10000:Wizzle the Chaotic (Hobbit)
-owner:12:15000:Ga-nat the Greedy (Gnome)
-owner:14:15000:Vella the Slender (Human)
-owner:14:15000:Vella the Slender (Human)
-owner:14:15000:Vella the Slender (Human)
-owner:14:15000:Vella the Slender (Human)
-owner:14:15000:Vella the Slender (Human)
-owner:14:15000:Vella the Slender (Human)
+owner:7:10000:*
+owner:8:12000:*
+owner:9:10000:*
+owner:10:12000:*
+owner:10:10000:*
+owner:11:15000:*
+owner:11:15000:*
+owner:12:12000:*
+owner:12:15000:*
+owner:13:18000:*
+owner:14:20000:*
+owner:15:25000:*
 owner:0:0:-
 slots:4:6
 turnover:2
@@ -201,16 +215,20 @@ buy:pill
 
 # Magic-user's
 store:6:Magic Shop
-owner:8:15000:Ariel the Sorceress (Half-Elf)
-owner:10:20000:Buggerby the Great (Gnome)
-owner:12:25000:Inglorian the Mage (Human)
-owner:14:30000:Luthien Starshine (High-Elf)
-owner:14:30000:Luthien Starshine (High-Elf)
-owner:14:30000:Luthien Starshine (High-Elf)
-owner:14:30000:Luthien Starshine (High-Elf)
-owner:14:30000:Luthien Starshine (High-Elf)
-owner:14:30000:Luthien Starshine (High-Elf)
-owner:14:30000:Luthien Starshine (High-Elf)
+owner:8:15000:*
+owner:9:15000:*
+owner:10:18000:*
+owner:10:20000:*
+owner:10:22000:*
+owner:10:20000:*
+owner:11:25000:*
+owner:11:22000:*
+owner:12:25000:*
+owner:12:30000:*
+owner:13:30000:*
+owner:13:27500:*
+owner:14:30000:*
+owner:14:32500:*
 owner:0:0:-
 slots:4:14
 turnover:9
@@ -235,16 +253,21 @@ buy:gadget
 
 # Black Market - no stock given but we still need slot/turnover info
 store:7:Black Market
-owner:8:15000:Lo-Hak the Awful (Half-Troll)
-owner:10:20000:Histor the Goblin (Kobold)
-owner:12:25000:Durwin the Shifty (Half-Orc)
-owner:14:30000:Drago the Fair (Elf)
-owner:12:25000:Durwin the Shifty (Half-Orc)
-owner:14:30000:Drago the Fair (Elf)
-owner:12:25000:Durwin the Shifty (Half-Orc)
-owner:14:30000:Drago the Fair (Elf)
-owner:12:25000:Durwin the Shifty (Half-Orc)
-owner:14:30000:Drago the Fair (Elf)
+owner:8:15000:*
+owner:9:18000:*
+owner:10:20000:*
+owner:10:15000:*
+owner:11:16000:*
+owner:11:20000:*
+owner:12:30000:*
+owner:12:20000:*
+owner:12:25000:*
+owner:12:28000:*
+owner:13:30000:*
+owner:13:35000:*
+owner:13:40000:*
+owner:14:35000:*
+owner:14:50000:*
 owner:0:0:-
 slots:4:12
 turnover:6
@@ -293,19 +316,24 @@ owner:0:0:Bounce Air
 danger:99:99
 
 store:11:Cyber Salon
-owner:0:0:95% (Meta-Human)
-owner:0:0:Neo (Trans-Human)
-owner:0:0:Fran (Neo-Human)
-owner:0:0:Jimmy (Mostly Human)
-owner:0:0:Neo (Trans-Human)
-owner:0:0:Fran (Neo-Human)
-owner:0:0:95% (Meta-Human)
-owner:0:0:Neo (Trans-Human)
-owner:0:0:Fran (Neo-Human)
-slots:2:5
+owner:1:0:*
+owner:1:0:*
+owner:2:0:*
+owner:2:0:*
+owner:2:0:*
+owner:3:0:*
+owner:3:0:*
+owner:3:0:*
+owner:3:0:*
+owner:4:0:*
+owner:4:0:*
+owner:4:0:*
+owner:5:0:*
+owner:5:0:*
+slots:8:16
 turnover:1
 normal:legs
-#normal:arms:0
+normal:arms
 buy:arms
 buy:legs
 danger:85:95

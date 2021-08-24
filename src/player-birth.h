@@ -27,8 +27,13 @@ extern void player_generate(struct player *p, struct player_race *r, struct play
 extern char *get_history(struct history_chart *h);
 extern void add_start_items(struct player *p, const struct start_item *si, bool skip, bool pay, int origin);
 extern void wield_all(struct player *p);
+
 extern void get_height_weight(struct player *p);
 extern void roll_hp(void);
+extern int hitdie_class(const struct player_class *c);
+
+extern bool player_make_simple(const char *nrace, const char *next, const char *nclass,
+	const char *nplayer);
 
 void do_cmd_birth_init(struct command *cmd);
 void do_cmd_birth_reset(struct command *cmd);

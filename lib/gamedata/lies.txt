@@ -135,6 +135,7 @@ R:Don't play drunk... unless you play better drunk, then don't play sober.
 R:Don't press the space bar!!!
 R:Don't tell a soul you found a secret door, otherwise it isn't a secret anymore.
 R:Don't turn your back.  Don't look away.  And don't blink...  Good luck.
+R:Don't wear your pants on yuor head.
 R:Drain resistance prevents you from falling through an open manhole.
 R:Drain you of your sanity: Face the Thing That Should Not Be!
 R:Drain you of your sanity: in front do the thing that does not have to be.
@@ -428,6 +429,7 @@ R:They say that if you start at the bottom the only place to go is up.
 R:They say that if you step on a crack you could break your mother's back.
 R:They say that if you step on a square you'll marry a bear.
 R:They say that if you once enter a shop in a loud shirt, you'll always be CHR 3.
+R:They say that it is not safe to turn off your computer.
 R:They say that it's all a fake - wake up, sheeple!
 R:They say that it's all done with magnets.
 R:They say that it's all smoke and mirrors.
@@ -570,7 +572,7 @@ R:To say it blunt: you *cannot* afford another mistake. - What you say, really?
 R:Troll the World!
 R:Trololololololololololololololololol
 R:True.
-R:Try inscribing the name of the first monster killed by it in the weapon!
+R:Try inscribing the name of the first monster killed by it on the weapon!
 R:Try using a food-scan card while hallucinating.
 R:Uh oh.
 R:Ulch!  That meat was painted!
@@ -649,6 +651,7 @@ R:You must be three times as resistant to {illegible} than other elements.
 R:You must eat a great dessert, you must eat it all alone...
 R:You seem inoffensive, a mere joker, a light-weight. But your eyes ..?
 R:You transform into an amoeba.
+R:You turn into a wumpus! Your armor breaks apart!
 R:You undergo a freakish metamorphosis!
 R:You walk like you're dead!
 R:You will die in 1289 turns.

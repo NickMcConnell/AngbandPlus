@@ -166,6 +166,19 @@ void combine_book(const struct class_book *src, int *count, int *spells, int *ma
 		if (src->spells[i].slevel > player->lev)
 			continue;
 
+		/* Ignore duplicate spells */
+		bool ignore = false;
+		if ((spellps) && (spells)) {
+			for(int j=0; j < index; j++) {
+				if (streq(src->spells[i].name, spellps[spells[j]]->name)) {
+					ignore = true;
+					break;
+				}
+			}
+		}
+		if (ignore)
+			continue;
+
 		/* Spell is OK to add */
 		if (spells) {
 			/* Second pass, fill in the spells array */
@@ -206,7 +219,21 @@ void combine_books(int *count, int *spells, int *maxidx, struct class_spell **sp
 		
 		for(int i=0;i<PF_MAX;i++) {
 			if (ability[i] && player_has(player, i)) {
-				combine_class_books(&ability[i]->magic, count, spells, maxidx, spellps);
+				/* If this ability has the flying flag, the first book is for use when
+				 * not flying, the second for use when flying and any further books
+				 * can be used at any time.
+				 */
+				if (ability[i]->flags & AF_FLYING) {
+					struct class_magic *cmagic = &ability[i]->magic;
+					if ((cmagic->num_books > 0) && (player->flying == false))
+						combine_book(&cmagic->books[0], count, spells, maxidx, spellps);
+					if ((cmagic->num_books > 1) && (player->flying == true))
+						combine_book(&cmagic->books[1], count, spells, maxidx, spellps);
+					for(int i=2;i<cmagic->num_books;i++)
+						combine_book(&cmagic->books[i], count, spells, maxidx, spellps);
+				} else {
+					combine_class_books(&ability[i]->magic, count, spells, maxidx, spellps);
+				}
 			}
 		}
 		for (struct object *obj = player->gear; obj; obj = obj->next) {
@@ -221,6 +248,11 @@ void combine_books(int *count, int *spells, int *maxidx, struct class_spell **sp
 	}
 }
 
+/**
+ * Collect spells from a book into the spells[] array, allocating
+ * appropriate memory (by calling combine_books twice, first to
+ * get the size then again to fill the newly allocated array).
+ */
 static int collect_from_book(int **spells, struct class_spell ***spellps, int *n_i)
 {
 	int n_spells = 0;
@@ -243,7 +275,7 @@ static int collect_from_book(int **spells, struct class_spell ***spellps, int *n
 	if (spells)
 		*spells = mem_zalloc(n_spells * sizeof(*spells));
 	if (spellps && n_i)
-		*spellps = mem_zalloc((*n_i + 100) * sizeof(*spellps));
+		*spellps = mem_zalloc((*n_i + 100) * sizeof(*spellps)); //@FIXME
 
 	/* Write the spells */
 	n_spells = 0;
@@ -273,11 +305,6 @@ const struct class_spell *spell_by_index(int index)
 	return ret;
 }
 
-/**
- * Collect spells from a book into the spells[] array, allocating
- * appropriate memory (by calling combine_books twice, first to
- * get the size then again to fill the newly allocated array).
- */
 int spell_collect_from_book(int **spells)
 {
 	return collect_from_book(spells, NULL, NULL);
@@ -431,7 +458,7 @@ bool spell_cast(int spell_index, int dir, struct command *cmd)
 	} else {
 		/* Cast the spell */
 		if (!effect_do(spell->effect, source_player(), NULL, ident, true, dir,
-					   beam, 0, cmd)) {
+					   beam, 0, cmd, 0)) {
 			mem_free(ident);
 			return false;
 		}
@@ -499,7 +526,7 @@ size_t append_random_value_string(char *buffer, size_t size, const random_value 
 static void spell_effect_append_value_info(const struct effect *effect,
 										   char *p, size_t len)
 {
-	random_value rv;
+	random_value rv = {0, 0, 0, 0};
 	const char *type = NULL;
 	const char *special = NULL;
 	size_t offset = strlen(p);

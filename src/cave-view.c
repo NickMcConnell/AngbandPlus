@@ -19,8 +19,10 @@
 #include "angband.h"
 #include "cave.h"
 #include "cmds.h"
+#include "effects.h"
 #include "init.h"
 #include "monster.h"
+#include "obj-util.h"
 #include "player-calcs.h"
 #include "player-timed.h"
 #include "player-util.h"
@@ -537,6 +539,55 @@ static void calc_lighting(struct chunk *c, struct player *p)
 	}
 }
 
+static void sense_metal(struct chunk *c, struct loc grid, struct player *p, int radius)
+{
+	/* Pick an area to sense */
+	int y1 = grid.y - radius;
+	int y2 = grid.y + radius;
+	int x1 = grid.x - radius;
+	int x2 = grid.x + radius;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
+	if (y2 > c->height - 1) y2 = c->height - 1;
+	if (x2 > c->width - 1) x2 = c->width - 1;
+
+	int radius2 = radius*radius;
+
+	/* Scan the area for objects */
+	for (int y = y1; y <= y2; y++) {
+		for (int x = x1; x <= x2; x++) {
+			int distance = ((x - grid.x) * (x - grid.x)) + ((y - grid.y) * (y - grid.y));
+			if (distance <= radius2) {
+				struct loc grid = loc(x, y);
+				struct object *obj = square_object(c, grid);
+				struct object *iobj = obj;
+				bool metal = false;
+
+				/* Set metal to true if any object in the stack's material is metal. */
+				while (obj) {
+					if (obj_is_metal(obj)) {
+						metal = true;
+						break;
+					}
+					obj = obj->next;
+				}
+
+				if (metal) {
+					/* Mark the pile as aware */
+					square_sense_pile(c, grid);
+				} else if (!iobj) {
+					/* If empty, remove any remembered objects. */
+					forget_remembered_objects(c, p->cave, grid);
+				}
+			}
+		}
+	}
+
+	/* Redraw whole map, monster list */
+	player->upkeep->redraw |= PR_ITEMLIST;
+}
+
 /**
  * Make a square part of the current view
  */
@@ -684,18 +735,41 @@ void update_view(struct chunk *c, struct player *p)
 {
 	int x, y;
 
+	if (!c)
+		return;
+
 	/* Record the current view */
 	mark_wasseen(c);
 
+	/* Calculate light levels */
+	calc_lighting(c, p);
+
 	/* Assume we can view the player grid */
 	sqinfo_on(square(c, p->grid)->info, SQUARE_VIEW);
-	if (p->state.cur_light > 0 || square_isglow(c, p->grid) ||
+	if (p->state.cur_light > 0 || square_islit(c, p->grid) ||
 		player_has(p, PF_UNLIGHT)) {
 		sqinfo_on(square(c, p->grid)->info, SQUARE_SEEN);
 	}
 
 	/* Calculate light levels */
 	calc_lighting(c, p);
+
+	/* Detect metal.
+	 * This is more difficult than detecting moving metal (monsters).
+	 * So you need to be unimpaired (mentally: blindness doesn't matter, as
+	 * you aren't actually seeing them), and the radius depends on searching
+	 * skill
+	 **/
+	if (player_of_has(player, OF_SENSE_METAL)) {
+		if ((!p->timed[TMD_CONFUSED]) && (!p->timed[TMD_IMAGE])) {
+			int radius = 4 + (p->state.skills[SKILL_SEARCH] / 6);
+			if (radius > 20)
+				radius = 20;
+			if (radius < 4)
+				radius = 4;
+			sense_metal(c, p->grid, p, radius);
+		}
+	}
 
 	/* Squares we have LOS to get marked as in the view, and perhaps seen */
 	for (y = 0; y < c->height; y++)

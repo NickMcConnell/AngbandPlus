@@ -1969,6 +1969,7 @@ static void AngbandUpdateWindowVisibility(void)
      * It doesn't change between calls, as the flags themselves are hardcoded
      */
     static u32b validWindowFlagsMask = 0;
+    BOOL anyChanged = NO;
 
     if( validWindowFlagsMask == 0 )
     {
@@ -2004,11 +2005,13 @@ static void AngbandUpdateWindowVisibility(void)
             {
                 [angbandContext.primaryWindow orderFront: nil];
                 angbandContext.windowVisibilityChecked = YES;
+                anyChanged = YES;
             }
-            else
+            else if ([angbandContext.primaryWindow isVisible])
             {
                 [angbandContext.primaryWindow close];
                 angbandContext.windowVisibilityChecked = NO;
+                anyChanged = YES;
             }
         }
         else
@@ -2020,20 +2023,24 @@ static void AngbandUpdateWindowVisibility(void)
                 [angbandContext.primaryWindow close];
                 angbandContext.hasSubwindowFlags = NO;
                 [angbandContext saveWindowVisibleToDefaults: NO];
+                anyChanged = YES;
             }
             else if( !angbandContext.hasSubwindowFlags && termHasSubwindowFlags )
             {
                 [angbandContext.primaryWindow orderFront: nil];
                 angbandContext.hasSubwindowFlags = YES;
                 [angbandContext saveWindowVisibleToDefaults: YES];
+                anyChanged = YES;
             }
         }
     }
 
     /* Make the main window key so that user events go to the right spot */
-    AngbandContext *mainWindow =
-	(__bridge AngbandContext*) (angband_term[0]->data);
-    [mainWindow.primaryWindow makeKeyAndOrderFront: nil];
+    if (anyChanged) {
+        AngbandContext *mainWindow =
+	    (__bridge AngbandContext*) (angband_term[0]->data);
+        [mainWindow.primaryWindow makeKeyAndOrderFront: nil];
+    }
 }
 
 /**
@@ -2315,10 +2322,15 @@ static int compare_advances(const void *ap, const void *bp)
     }
 
     /*
-     * Record the tile size.  Round both values up to have tile boundaries
-     * match pixel boundaries.
+     * Record the tile size.  Round the values (height rounded up; width to
+     * nearest unless that would be zero) to have tile boundaries match pixel
+     * boundaries.
      */
-    self->_tileSize.width = ceil(medianAdvance);
+    if (medianAdvance < 1.0) {
+	self->_tileSize.width = 1.0;
+    } else {
+	self->_tileSize.width = floor(medianAdvance + 0.5);
+    }
     self->_tileSize.height = ceil(self.fontAscender - self.fontDescender);
 
     /*
@@ -4289,13 +4301,6 @@ static void Term_init_cocoa(term *t)
 
 	    if( termIdx == 0 )
 	    {
-		/*
-		 * The height and width adjustments were determined
-		 * experimentally, so that the rest of the windows line up
-		 * nicely without overlapping.
-		 */
-		windowFrame.size.width += 7.0;
-		windowFrame.size.height += 9.0;
 		windowFrame.origin.x = NSMinX( overallBoundingRect );
 		windowFrame.origin.y =
 		    NSMaxY( overallBoundingRect ) - NSHeight( windowFrame );
@@ -5589,28 +5594,28 @@ static void load_prefs(void)
 
 	switch (i) {
 	case 0:
-	    columns = 129;
-	    rows = 32;
+	    columns = 100;
+	    rows = 30;
 	    break;
 	case 1:
-	    columns = 84;
-	    rows = 20;
+	    columns = 66;
+	    rows = 10;
 	    break;
 	case 2:
-	    columns = 42;
+	    columns = 38;
 	    rows = 24;
 	    break;
 	case 3:
-	    columns = 42;
-	    rows = 20;
+	    columns = 38;
+	    rows = 10;
 	    break;
 	case 4:
-	    columns = 42;
-	    rows = 16;
+	    columns = 38;
+	    rows = 15;
 	    break;
 	case 5:
-	    columns = 84;
-	    rows = 20;
+	    columns = 66;
+	    rows = 10;
 	    break;
 	default:
 	    columns = 80;
@@ -5743,6 +5748,16 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
     }
 
     return result;
+}
+
+/**
+ * Perform (as ui-game.c's reinit_hook) platform-specific actions necessary
+ * when restarting without exiting.  Also called directly at startup.
+ */
+static void cocoa_reinit(void)
+{
+    /* Register the sound hook */
+    event_add_handler(EVENT_SOUND, play_sound, NULL);
 }
 
 /**
@@ -5983,8 +5998,12 @@ static bool cocoa_get_file(const char *suggested_name, char *path, size_t len)
 	init_angband();
 	textui_init();
 
-	/* Register the sound hook */
-	event_add_handler(EVENT_SOUND, play_sound, (__bridge void*) self);
+	/*
+	 * Set action that needs to be done if restarting without exiting.
+	 * Also need to do it now.
+	 */
+	reinit_hook = cocoa_reinit;
+	cocoa_reinit();
 
 	/* Initialize some save file stuff */
 	player_egid = getegid();

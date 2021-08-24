@@ -13,4 +13,8 @@ extern struct hint *hints; /* store.c */
 
 extern struct hint *lies; /* store.c */
 
+extern struct hint *first; /* store.c */
+
+extern struct hint *second; /* store.c */
+
 #endif /* HINT_H */

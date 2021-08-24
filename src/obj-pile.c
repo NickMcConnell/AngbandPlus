@@ -435,8 +435,8 @@ bool object_stackable(const struct object *obj1, const struct object *obj2,
 
 		/* ... otherwise ok */
 	} else if (tval_has_variable_power(obj1)) {
-		bool obj1_is_known = object_fully_known((struct object *)obj1);
-		bool obj2_is_known = object_fully_known((struct object *)obj2);
+		bool obj1_is_known = object_fully_known(obj1);
+		bool obj2_is_known = object_fully_known(obj2);
 
 		/* Require identical values */
 		if (obj1->ac != obj2->ac) return false;
@@ -491,8 +491,24 @@ bool object_similar(const struct object *obj1, const struct object *obj2,
 	int total = obj1->number + obj2->number;
 
 	/* Check against stacking limit - except in stores which absorb anyway */
-	if (!(mode & OSTACK_STORE) && (total > obj1->kind->base->max_stack))
-		return false;
+	if (!(mode & OSTACK_STORE)) {
+		if (total > obj1->kind->base->max_stack) {
+			return false;
+		}
+		/* The quiver can impose stricter limits. */
+		if (mode & OSTACK_QUIVER) {
+			if (tval_is_ammo(obj1)) {
+				if (total > z_info->quiver_slot_size) {
+					return false;
+				}
+			} else {
+				if (total > z_info->quiver_slot_size /
+						z_info->thrown_quiver_mult) {
+					return false;
+				}
+			}
+		}
+	}
 
 	return object_stackable(obj1, obj2, mode);
 }
@@ -582,14 +598,61 @@ static void object_absorb_merge(struct object *obj1, const struct object *obj2)
 
 /**
  * Merge a smaller stack into a larger stack, leaving two uneven stacks.
+ * \param obj1 Is the first of the stacks to combine.  When the stacking
+ * limits (from mode1 and mode2) are the same, this stack will be larger
+ * when the function returns.
+ * \param obj2 Is the second of the stacks to combine.
+ * \param mode1 Describes the behavior, most notably the upper limit on size,
+ * for the first stack. Can not include OSTACK_STORE, which typically has no
+ * limit on the stack size.
+ * \param mode2 Describes the behavior, most notable the upper limit on size,
+ * for the second stack.  Can not include OSTACK_STORE, which typically has
+ * no limit on the stack size.
  */
-void object_absorb_partial(struct object *obj1, struct object *obj2)
+void object_absorb_partial(struct object *obj1, struct object *obj2,
+	object_stack_t mode1, object_stack_t mode2)
 {
 	int smallest = MIN(obj1->number, obj2->number);
 	int largest = MAX(obj1->number, obj2->number);
-	int difference = obj1->kind->base->max_stack - largest;
-	obj1->number = largest + difference;
-	obj2->number = smallest - difference;
+	int newsz1, newsz2;
+
+	assert(!(mode1 & OSTACK_STORE) && !(mode2 & OSTACK_STORE));
+
+	/* The quiver can have stricter limits. */
+	if (mode1 & OSTACK_QUIVER) {
+		int limit = z_info->quiver_slot_size /
+			(tval_is_ammo(obj1) ?
+			1 : z_info->thrown_quiver_mult);
+
+		if (mode2 & OSTACK_QUIVER) {
+			int difference = limit - largest;
+
+			newsz1 = largest + difference;
+			newsz2 = smallest - difference;
+		} else {
+			/* Handle the possibly different limits. */
+			newsz1 = limit;
+			newsz2 = (largest + smallest) - limit;
+			assert(newsz2 < obj1->kind->base->max_stack);
+		}
+	} else if (mode2 & OSTACK_QUIVER) {
+		/* Handle the possibly different limits. */
+		int limit = z_info->quiver_slot_size /
+			(tval_is_ammo(obj2) ?
+			1 : z_info->thrown_quiver_mult);
+
+		newsz1 = (largest + smallest) - limit;
+		newsz2 = limit;
+		assert(newsz1 < obj1->kind->base->max_stack);
+	} else {
+		int difference = obj1->kind->base->max_stack - largest;
+
+		newsz1 = largest + difference;
+		newsz2 = smallest - difference;
+	}
+
+	obj1->number = newsz1;
+	obj2->number = newsz2;
 
 	object_absorb_merge(obj1, obj2);
 }
@@ -910,22 +973,79 @@ bool floor_carry(struct chunk *c, struct loc grid, struct object *drop,
 	return true;
 }
 
-/* Return true if something interesting has happended (and a message printed) */
+/* Return true if something interesting has happened (and a message printed) */
 bool object_destroyed(struct object *obj, struct loc loc)
 {
 	static bool first = true;
 	static int atomic;
+	static int durian;
+	static int hydrogen;
+	static int lithium;
+	static int alcohol;
+	static int pineapple;
+	static int pie;
 	if (first) {
 		atomic = lookup_sval(TV_BATTERY, "atomic cell");
+		hydrogen = lookup_sval(TV_BATTERY, "hydrogen cell");
+		alcohol = lookup_sval(TV_BATTERY, "alcohol cell");
+		lithium = lookup_sval(TV_BATTERY, "lithium battery");
+		pineapple = lookup_sval(TV_FOOD, "pineapple");
+		durian = lookup_sval(TV_FOOD, "durian");
+		pie = lookup_sval(TV_FOOD, "Hunter's pie");
 	}
 
 	int sv = obj->kind->sval;
 	switch(obj->kind->tval) {
 		case TV_BATTERY: {
-			if (sv == atomic) {
+			if (sv == hydrogen) {
+				msg("The hydrogen cell explodes in a ball of fire!");
+				project(source_object(obj), 5, loc, 30 + damroll(1, 30), ELEM_FIRE,  PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_PLAY, 0, 20, obj);
+				return true;
+			}
+			else if (sv == alcohol) {
+				msg("The alcohol cell explodes into blue flames!");
+				project(source_object(obj), 3, loc, 15 + damroll(1, 15), ELEM_FIRE,  PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_PLAY, 0, 20, obj);
+				return true;
+			}
+			else if (sv == lithium) {
+				msg("The lithium battery goes up in flames!");
+				project(source_object(obj), 2, loc, 12 + damroll(1, 12), ELEM_FIRE,  PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_PLAY, 0, 20, obj);
+				return true;
+			}
+			else if (sv == atomic) {
 				msg("The atomic cell breaks open!");
 				project(source_object(obj), 6, loc, 150 + damroll(1, 20), ELEM_RADIATION,  PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_PLAY, 0, 20, obj);
 				return true;
+			}
+			break;
+		}
+		case TV_FOOD: {
+			if (sv == pineapple) {
+				msg("The pineapple detonates!");
+				project(source_object(obj), 5, loc, 10 + damroll(2, 20), ELEM_SHARD,  PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_PLAY | PROJECT_LOL, 0, 20, obj);
+				return true;
+			}
+			else if (sv == durian) {
+				msg("The durian splatters!");
+				project(source_object(obj), 3, loc, 8 + damroll(2, 10), ELEM_POIS,  PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_PLAY | PROJECT_LOL, 0, 20, obj);
+				return true;
+			}
+			else if (sv == pie) {
+				msg("The pie goes splat!");
+				project(source_object(obj), 1, loc, 15 + damroll(2, 15), PROJ_MON_CONF,  PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_PLAY | PROJECT_LOL, 0, 20, obj);
+				return true;
+			}
+			break;
+		}
+		case TV_LIGHT: {
+			if ((obj->ego) && (streq(obj->ego->name, "(RTG mod)"))) {
+				msg("The light's RTG breaks open!");
+				project(source_object(obj), 6, loc, 150 + damroll(1, 20), ELEM_RADIATION,  PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_PLAY, 0, 20, obj);
+				return true;
+			}
+			else if (object_effect(obj) && (of_has(obj->flags, OF_NO_ACTIVATION))) {
+				// you may not know what it is, and it should ID as if you were holding it in view?
+				light_timeout(obj);
 			}
 		}
 	}
@@ -1101,6 +1221,11 @@ void drop_near(struct chunk *c, struct object **dropped, int chance,
 
 	/* Handle normal breakage */
 	if (!((*dropped)->artifact) && (randint0(100) < chance)) {
+		if (of_has((*dropped)->flags, OF_EXPLODE)) {
+			if ((*dropped)->kind->effect) {
+				thrown_explodes(NULL, *dropped, grid);
+			}
+		}
 		floor_carry_fail(*dropped, true, object_destroyed(*dropped, grid) || (chance == 100));
 		return;
 	}

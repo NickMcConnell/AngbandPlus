@@ -112,6 +112,22 @@ power:161
 vuln-flag:HURT_LIGHT
 resist-flag:IM_LIGHT
 
+code:DARK_2
+name:dark
+verb:chill
+multiplier:2
+o-multiplier:15
+power:130
+vuln-flag:HURT_LIGHT
+resist-flag:IM_LIGHT
+
+code:DARK_3
+name:dark
+verb:freeze
+multiplier:3
+o-multiplier:25
+power:161
+
 code:NEXUS_2
 name:nexus
 verb:warp
@@ -127,6 +143,22 @@ multiplier:3
 o-multiplier:25
 power:161
 resist-flag:IM_NEXUS
+
+code:CHAOS_2
+name:chaos
+verb:tear
+multiplier:2
+o-multiplier:15
+power:130
+resist-flag:IM_CHAOS
+
+code:CHAOS_3
+name:chaos
+verb:disrupt
+multiplier:3
+o-multiplier:25
+power:161
+resist-flag:IM_CHAOS
 
 code:RADIATION_2
 name:radiation

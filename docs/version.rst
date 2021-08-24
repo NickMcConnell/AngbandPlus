@@ -2,7 +2,7 @@
 Version Information
 ===================
 
-Xygos is a variant of Angband. The current version is 0.0.2.
+Xygos is a variant of Angband. The current version is 0.0.3.
 It was forked from Angband part way through 4.2.1; most of the contributions
 to 4.2.2 have also been merged in.
 

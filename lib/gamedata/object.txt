@@ -18,13 +18,13 @@
 # alloc: commonness : min to max level
 # charges: charges
 # pile: chance of being generated in a pile : dice for number of items
-# power: power of the effect for object power eveluations
+# power: power of the effect for object power evaluations
 # msg: message on using the object
 # vis-msg: message on using the object, only when player is not blind
-# effect: effect when used : parameter (maybe) : paramater (maybe)
+# effect: effect when used : subtype (optional) : radius (optional) : parameter (optional)
 # effect-yx: y value for effect : x value for effect
 # dice:dice string
-# expr:dice expression
+# expr:substitution code:base value:expression
 # flags: flag | flag | etc.
 # values: label[value] | label[value] | etc.
 # pval: pval
@@ -71,9 +71,9 @@
 # 'type' is for the base type of item, from object_base.txt.
 
 # 'level' defines how "advanced" the object is, when determining how easy it
-# is to use a wand, device or rod.
+# is to use a device, gun or gadget.
 
-# 'weight' is in tenth-pounds.
+# 'weight' is in tenth-pounds, grams or kg (if a g or kg suffix is used).
 
 # 'cost' is the item's base value.
 
@@ -118,8 +118,11 @@
 # 'msg' is any message printed on using the object.
 
 # 'effect' is for the effect when an object is eaten, activated or whatever.
-# Fields are the name of the effect (as found in src/list-effects.h) and
-# possibly one or two parameters to the effect.
+# Fields are the name of the effect (as found in src/list-effects.h), the
+# subtype which is either an index or a name (look at effect_subtype()
+# in src/effects.c for more information about the available subtypes), the
+# radius, and the other parameter.  The effect name is required.  The others
+# are optional, and the trailing ones that are unused can be omitted.
 
 # 'effect-yx' is y and x values for an effect if necessary
 
@@ -326,6 +329,35 @@ material:titanium
 # Capstone?
 # (But consider FBCs)
 
+##### Thrown Weapons #####
+
+# Thrown weapons - molotov, fr[ao]g grenade, EMP grenade, thermal detonator, energy bomb, flash grenade, smoke bomb, vortex bomb, gas grenade, plasmacon, sonic stun[ner]...
+# If thrown these are assumed armed, most should be launchable to greater distance (and contact fused?) with a grenade launcher.
+# How much of this should be base and how much ego?
+# The different names (and weights, radii etc) suggest that all the above (and other) type be different base items,
+# with egos mostly being applicable to all of them.
+# You can arm them without throwing and get faster - or arm them and get caught.
+# This group includes some heavy weapons (satchel charge) that aren't really meant for throwing, although a strong character could throw them a small distance.
+# There may be some (thermal detonator) that are somewhere in between.
+# Egos may include: crawler (will move after being thrown towards closest target, including you), contact, 'persist' (remains in place until touched)
+# Preferably thrown items should rebound.
+# Combat information here is for typical damage at ground zero - damage is much less at range.
+# Even small explosions should cause secondaries and especially fling stuff around which goes off when it hits the wall/monster.
+
+name:& fire bomb~
+type:bomb
+graphics:*:Brown
+level:1
+weight:800g
+cost:20
+pile:10:3
+alloc:6:0 to 14
+flags:EXPLODE
+msg:The {flavor} explodes!
+effect:SPOT:FIRE:3
+dice:2d10
+desc:A 'Molotov Cocktail' - a beer bottle filled with highly flammable fuel. It's not a sophisticated weapon, but it can still be effective.
+material:glass
 
 ##### Lights #####
 
@@ -343,6 +375,7 @@ pval:1500
 time:1500
 flags:BURNS_OUT | LIGHT_2
 desc:A wax candle.
+material:wax
 
 name:& firecracker~
 type:light
@@ -361,6 +394,7 @@ msg:The {flavor} explodes!
 effect:SPOT:SHARD:3
 dice:4d10
 desc:A candle-shaped firework. Light the blue touch paper and after a 15 second delay - BANG.
+material:paper
 
 name:& flare~
 type:light
@@ -377,6 +411,7 @@ time:40
 flags:BURNS_OUT | LIGHT_5 | MIMIC_KNOW
 msg:The {kind} fizzles out.
 desc:A small candle-shaped flare, intended to be safely hand held. It gives a very bright white light for the short time it burns for.
+material:paper
 
 name:& stick~ of dynamite
 type:light
@@ -396,7 +431,8 @@ effect:SPOT:SHARD:6
 dice:4d20
 effect:SPOT:KILL_DOOR:2
 dice:4d40
-desc:A candle-shaped explosive charge with a 15-second fuze.
+desc:A candle-shaped explosive charge with a 15-second fuze. It's not intended as a weapon but could be thrown, with the explosion typically covering a 60m radius. But the long fuze could be a problem, and you can't fire it from a grenade launcher.
+material:paper
 
 name:& keyfob light~
 type:light
@@ -506,6 +542,7 @@ desc:A BogStan brand D-cell, sealed in plastic and claiming to be ultra-long-lif
 msg:You drain the cell dry.
 effect:NOURISH:INC_BY
 dice:30
+material:steel
 
 name:& lithium batter|y|ies|
 type:battery
@@ -522,6 +559,7 @@ desc:A Flammacell D-size battery, sealed in plastic and not too far past its sel
 msg:You drain the cell dry.
 effect:NOURISH:INC_BY
 dice:75
+material:steel
 
 name:& alcohol cell~
 type:battery
@@ -538,6 +576,7 @@ desc:A D-size Bendacell battery, based on an alcohol fuel cell. It lasts much lo
 msg:You drain the cell dry. Hic!
 effect:NOURISH:INC_BY
 dice:100
+material:titanium
 
 name:& hydrogen cell~
 type:battery
@@ -554,6 +593,7 @@ desc:A D-size Flammacell battery, based on a hydrogen fuel cell. It lasts a grea
 msg:You drain the cell dry.
 effect:NOURISH:INC_BY
 dice:100
+material:titanium
 
 # cooldown, reusable
 name:& atomic cell~
@@ -572,6 +612,7 @@ desc:A Bettacell atomic battery which can be used like conventional D cells, to 
 msg:You recharge from the atomic cell.
 effect:NOURISH:INC_BY
 dice:100
+material:titanium
 
 # no or much shorter cooldown, higher pval
 # Should be scarce (e.g. 10), but not unique
@@ -591,6 +632,7 @@ desc:The iconic dustbin-sized fusion reactor that powers cars and homes, now shr
 msg:You recharge from Mr Fusion.
 effect:NOURISH:INC_BY
 dice:100
+material:unobtainium
 
 ##### Chunks #####
 # Chunks (blocks) are raw materials in 1 kg blocks, used for item creation.
@@ -689,10 +731,10 @@ effect:NOURISH:INC_BY
 dice:10
 desc:A fresh shiny green apple.
 
-#A fruit resembling an apple, but you don't want to eat it.
+# A fruit resembling an apple, but you don't want to eat it.
 # ID should work (or you could eat ID it), but as it has the same name as the apple it won't stack.
 # This looks cheesy, so maybe this and any other mimic item carried at once should auto-ID (on the basis that it is easier to identify
-# it when there is a real apple next to it to compare it to? Could have red and green apples, but that wouldn't help much.
+# it when there is a real apple next to it to compare it to)? Could have red and green apples, but that wouldn't help much.
 name:& choke-apple~
 type:food
 graphics:,:G
@@ -761,23 +803,35 @@ cost:6
 alloc:6:0 to 20
 pile:90:1d5
 power:0
-msg:That tastes good.
-effect:NOURISH:INC_BY
-dice:10
+effect:BANANA
 desc:A bendy banana.
 
 name:& pineapple~
 type:food
 graphics:,:y
-level:0
+level:1
 weight:900g
 cost:9
-alloc:5:0 to 20
-power:0
+alloc:4:0 to 30
+power:1
 msg:That tastes good.
 effect:NOURISH:INC_BY
 dice:25
 desc:A spiky pineapple.
+
+name:& durian~
+type:food
+graphics:,:y
+level:1
+weight:2500g
+cost:40
+alloc:3:0 to 25
+power:1
+msg:That tastes... well, better than it smells, anyway.
+carried-flags:AGGRAVATE
+effect:NOURISH:INC_BY
+dice:90
+desc:Known as the king of fruits - perhaps because it smells like you are in the "throne room".
 
 name:& melon~
 type:food
@@ -855,6 +909,7 @@ cost:650
 alloc:2:1 to 100
 power:0
 effect:SNOZZCUMBER
+flags:MIMIC_KNOW
 desc:A vegetable resembling a long dark green cucumber. But if you can get past 
 desc:the truly foul taste, it does much more for you than your average salad!
 
@@ -1353,6 +1408,7 @@ attack:1d12:0:0
 armor:0:0
 brand:LIGHT_2
 values:LIGHT[1]
+flags:GOOD
 desc:A line of green laser light forms a long knife that cuts through armour easily.
 material:aluminium
 
@@ -1365,6 +1421,7 @@ alloc:4:15 to 56
 attack:1d8:8+d5M10:0
 armor:0:0
 brand:NEXUS_2
+flags:GOOD
 desc:A line of shimmering points of light - a blade of pure phased energy for which armor doesn't exist.
 material:aluminium
 
@@ -1383,8 +1440,65 @@ weight:350g
 attack:1d14:0:0
 armor:0:0
 brand:LIGHT_3
-values:LIGHT[1]
+flags:GOOD
+values:LIGHT[1] | RES_LIGHT[1]
 desc:A line of green laser light extends from a saber's hilt, a powerful weapon that cuts through armour easily.
+material:aluminium
+
+name:& phantom lightsaber~
+type:sword
+graphics:|:Cyan
+level:31
+alloc:3:27 to 67
+weight:350g
+attack:1d16:0:0
+armor:0:0
+brand:NEXUS_3
+values:RES_NEXUS[1]
+desc:A line of shimmering points of light marks the path of a blade of pure phased energy, moving through solid rock without leaving a trace to reach its target.
+material:aluminium
+
+name:& darksaber~
+type:sword
+graphics:|:Red
+level:33
+alloc:3:28 to 65
+weight:350g
+attack:1d14:0:0
+armor:0:0
+brand:DARK_3
+values:RES_DARK[1]
+flags:GOOD
+desc:A glowing red absorption beam extends from a saber's hilt, a powerful weapon that shrieks as air rushes into it.
+material:aluminium
+
+name:& dimsaber~
+type:sword
+graphics:|:Yellow
+level:35
+alloc:3:30 to 70
+weight:350g
+attack:1d14:0:0
+armor:0:0
+brand:CHAOS_3
+values:RES_CHAOS[1]
+flags:GOOD
+desc:A swirling blade of disruption extends from a saber's hilt, a powerful weapon that twists space about it.
+material:aluminium
+
+name:& prismatic lightsaber~
+type:sword
+graphics:|:Violet
+level:37
+alloc:3:33 to 72
+weight:350g
+attack:1d15:0:0
+armor:0:0
+brand:LIGHT_3
+values:LIGHT[1] | RES_LIGHT[1]
+flags:GOOD
+effect:PRISMATIC
+desc:A weapon for the Jedi who can never decide what to pack. The prismatic lightsaber switches at the touch of a button between a laser weapon, an absorption beam, a blade of disruption, an invisible X-ray beam and a phantom blade of phased energy.
 material:aluminium
 
 name:& dual lightsaber~
@@ -1396,8 +1510,66 @@ weight:1250g
 attack:2d14:-5:0
 armor:0:0
 brand:LIGHT_2
-values:LIGHT[1]
+values:LIGHT[1] | RES_LIGHT[1]
+flags:GOOD
 desc:Two lines of green laser light extend in each direction from a saber's hilt, a powerful weapon that cuts through armour easily - though it's considerably heavier and more unwieldy than the single type.
+material:aluminium
+
+name:& dual darksaber~
+type:sword
+graphics:|:Red
+level:43
+alloc:2:38 to 78
+weight:1250g
+attack:2d14:-5:0
+armor:0:0
+brand:DARK_2
+values:RES_DARK[1]
+flags:GOOD
+desc:Twin absorption beams, glowing deep red, extending in both directions, a powerful weapon that cuts through armour easily - though it's considerably heavier and more unwieldy than the single type.
+material:aluminium
+
+name:& dual dimsaber~
+type:sword
+graphics:|:Yellow
+level:45
+alloc:2:40 to 80
+weight:1250g
+attack:2d14:0:0
+armor:0:0
+brand:CHAOS_2
+values:RES_CHAOS[1]
+flags:GOOD
+desc:Two swirling blades of disruption, extending in opposite directions - a powerful weapon that cuts through armour easily.
+material:aluminium
+
+name:& dual phantom lightsaber~
+type:sword
+graphics:|:Cyan
+level:45
+alloc:2:40 to 80
+weight:1250g
+attack:2d14:0:0
+armor:0:0
+brand:NEXUS_2
+values:RES_NEXUS[1]
+flags:GOOD
+desc:Two lines of shimmering points of light mark the path of blades of pure phased energy, moving through solid rock without leaving a trace to reach its target.
+material:aluminium
+
+name:& dual prismatic lightsaber~
+type:sword
+graphics:|:Violet
+level:47
+alloc:2:42 to 82
+weight:1250g
+attack:2d15:0:0
+armor:0:0
+brand:LIGHT_2
+values:LIGHT[1] | RES_LIGHT[1]
+flags:GOOD
+effect:PRISMATIC
+desc:A weapon for the Jedi who can never decide what to pack. This dual prismatic lightsaber can switch at the touch of a button between laser weapons, absorption beams, blades of disruption, invisible X-ray beams and phantom blades of phased energy.
 material:aluminium
 
 name:& X-rated lightsaber~
@@ -1409,6 +1581,8 @@ weight:350g
 attack:1d18:-20:0
 armor:0:0
 brand:RADIATION_3
+values:RES_RADIATION[1]
+flags:GOOD
 desc:A line of invisible radiation extends from a saber's hilt, a powerful weapon - if you can hit anything with it.
 
 name:& X-rated dual lightsaber~
@@ -1420,6 +1594,8 @@ weight:1250g
 attack:2d18:-25:0
 armor:0:0
 brand:RADIATION_2
+values:RES_RADIATION[1]
+flags:GOOD
 desc:Two lines of invisible radiation extend in each direction from a saber's hilt, a powerful weapon that cuts through armour easily - though it's considerably heavier and more unwieldy than the single type, and so is even less easy to hit with.
 
 
@@ -1440,6 +1616,7 @@ attack:1d16:0:0
 armor:0:0
 values:RES_SOUND[1]
 brand:SOUND_3
+flags:GOOD
 desc:A long knife of glossy black crystal, which buzzes faintly as you hold it.
 material:glass
 
@@ -1453,6 +1630,7 @@ attack:1d17:0:0
 armor:0:0
 values:RES_LIGHT[1]
 brand:LIGHT_3
+flags:GOOD
 desc:A long knife of brilliant crystal, flashing thousands of colours.
 material:glass
 
@@ -1466,6 +1644,7 @@ attack:1d15:10+2d4M10:0
 armor:0:0
 values:RES_NEXUS[1]
 brand:NEXUS_3
+flags:GOOD
 desc:A long knife of greyish crystal, which doesn't seem to be all quite there...
 material:glass
 
@@ -1538,7 +1717,7 @@ material:steel
 
 name:& fire axe~
 type:polearm
-graphics:/:s
+graphics:/:Red
 level:15
 weight:1450g
 cost:408
@@ -1764,7 +1943,7 @@ level:20
 weight:2750g
 cost:350
 alloc:20:18 to 100
-attack:1d1:0:1
+attack:1d1:-1:1
 armor:7:0
 flags:IGNORE_FIRE
 material:steel
@@ -1909,7 +2088,7 @@ level:52
 alloc:1:40 to 100
 weight:1100g
 cost:3000
-attack:1d1:-4:0
+attack:1d1:0:0
 armor:4:10+2d5M50
 flags:IGNORE_ACID
 desc:Close fitting, telescoping titanium chains, which cross over your chest and back between a collar and belt. They don't look as if they could offer much protection, but are in fact the equivalent of the more common belt forcefield generators and can be very effective.
@@ -1947,7 +2126,7 @@ alloc:4:6 to 45
 armor:0:11+d5M4
 weight:120g
 flags:IGNORE_ACID
-desc:A small device that clips to your belt and radiates a force field that turns away blows, or at least reduces their impact.
+desc:A small device that clips to your belt and radiates a protective force field.  It's Reflex's take on the standard personal forcefield generator, and is considerably more effective than the basic model.
 material:plastic
 
 name:& Rebound forcefield generator~
@@ -2049,6 +2228,7 @@ alloc:20:1 to 100
 attack:0d0:0:0
 armor:1:0
 desc:Leather hand protection, with an open palm for gripping weapons.
+material:leather
 
 name:& Set~ of Gauntlets
 type:gloves
@@ -2060,6 +2240,7 @@ alloc:20:10 to 100
 attack:1d1:0:0
 armor:3:0
 desc:A set of gloves that completely covers the hand and wrist in steel plating.
+material:steel
 
 ### Shields ###
 
@@ -2191,7 +2372,7 @@ effect:IDENTIFY
 ### Enchantments ###
 
 #precision/power?
-name:Enchant Weapon To-Hit
+name:enhanced precision
 type:card
 graphics:-:Deep Light Blue
 level:15
@@ -2202,8 +2383,9 @@ pile:25:2
 power:15
 effect:ENCHANT:TOHIT
 dice:1
+desc:Attempts to make weapons or ammunition a little more precise, more likely to hit its target.
 
-name:Enchant Weapon To-Dam
+name:enhanced power
 type:card
 graphics:-:Deep Light Blue
 level:15
@@ -2214,8 +2396,9 @@ pile:25:2
 power:20
 effect:ENCHANT:TODAM
 dice:1
+desc:Attempts to make weapons or ammunition a little more powerful, more capable of striking truly.
 
-name:Enchant Armour
+name:enhanced protection
 type:card
 graphics:-:Deep Light Blue
 level:15
@@ -2226,8 +2409,9 @@ pile:25:2
 power:12
 effect:ENCHANT:TOAC
 dice:1
+desc:Attempts to make armour or other worn equipment a little more protective.
 
-name:*Enchant Weapon*
+name:enhanced potency
 type:card
 graphics:-:Deep Light Blue
 level:50
@@ -2238,9 +2422,9 @@ pile:25:2
 power:22
 effect:ENCHANT:TOBOTH
 dice:1d3
+desc:Attempts to make weapons or ammunition more precise and powerful, more capable of striking forcefully and accurately.
 
-
-name:*Enchant Armour*
+name:enhanced preservation
 type:card
 graphics:-:Deep Light Blue
 level:50
@@ -2251,7 +2435,7 @@ pile:25:2
 power:15
 effect:ENCHANT:TOAC
 dice:2+1d3
-
+desc:Attempts to make armour or other worn equipment considerably more protective.
 
 name:repair
 type:card
@@ -2264,7 +2448,6 @@ pile:25:2
 power:8
 effect:REMOVE_FAULT
 dice:20+d20
-
 
 name:major repair
 type:card
@@ -2280,7 +2463,7 @@ dice:50+d50
 
 ### Summoning ###
 
-name:Summon Monster
+name:summoning
 type:card
 graphics:-:Deep Light Blue
 level:1
@@ -2291,18 +2474,19 @@ pile:70:1d3
 power:0
 effect:SUMMON:ANY
 dice:1d3
+desc:It's a form of teleportation. It transports monsters from off the level to your side.
 
-name:Summon Undead
-type:card
-graphics:-:Deep Light Blue
-level:15
-weight:5g
-cost:0
-alloc:10:15 to 100
-pile:70:1d3
-power:0
-effect:SUMMON:UNDEAD
-dice:1d3
+#name:Summon Undead
+#type:card
+#graphics:-:Deep Light Blue
+#level:15
+#weight:5g
+#cost:0
+#alloc:10:15 to 100
+#pile:70:1d3
+#power:0
+#effect:SUMMON:UNDEAD
+#dice:1d3
 
 name:local acquisition
 type:card
@@ -4900,134 +5084,167 @@ desc:A suit of utterly black scales, against which no metal or wood can rest.
 name:bottle caps
 type:cash
 graphics:$:SteelBlue
+material:steel
 
 name:mountain money
 type:cash
 graphics:$:I
+material:paper
 
 name:wooden nickels
 type:cash
 graphics:$:Burlywood
+material:wood
 
 name:chocolate coins
 type:cash
 graphics:$:Gold
+material:aluminium
 
 name:monopoly money
 type:cash
 graphics:$:i
+material:paper
 
 name:sequins
 type:cash
 graphics:$:i
+material:plastic
 
 name:lottery tickets
 type:cash
 graphics:$:i
+material:paper
 
 name:arcade tokens
 type:cash
 graphics:$:Brass
+material:copper
 
 name:swarovskite
 type:cash
 graphics:$:y
+material:glass
 
 name:postage stamps
 type:cash
 graphics:$:i
+material:paper
 
 name:small change
 type:cash
 graphics:$:Copper
+material:copper
 
 name:book tokens
 type:cash
 graphics:$:T
+material:paper
 
 name:cubic zirconia
 type:cash
 graphics:$:w
+material:stone
 
 name:gift cards
 type:cash
 graphics:$:y
+material:paper
 
 name:ethelcoins
 type:cash
 graphics:$:Brass
+material:copper
 
 name:used bills
 type:cash
 graphics:$:ForestGreen
+material:paper
 
 name:santo gold
 type:cash
 graphics:$:Goldenrod
+material:copper
 
 name:liquor certificates
 type:cash
 graphics:$:Tan
+material:paper
 
 name:silver nuggets
 type:cash
 graphics:$:w
+material:silver
 
 name:pearls
 type:cash
 graphics:$:W
+material:organic
 
 name:space-miles
 type:cash
 graphics:$:SkyBlue
+material:paper
 
 name:opals
 type:cash
 graphics:$:W
+material:stone
 
 name:sapphires
 type:cash
 graphics:$:b
+material:stone
 
 name:gold dust
 type:cash
 graphics:$:Gold
+material:gold
 
 name:emeralds
 type:cash
 graphics:$:g
+material:stone
 
 name:rare coins
 type:cash
 graphics:$:Gold
+material:gold
 
 name:tiberium
 type:cash
 graphics:$:G
+material:metal
 
 name:rubies
 type:cash
 graphics:$:r
+material:stone
 
 name:platinum bars
 type:cash
 graphics:$:Grey75
+material:platinum
 
 name:diamonds
 type:cash
 graphics:$:w
+material:stone
 
 name:gold-pressed latinum
 type:cash
 graphics:$:Gold
+material:gold
 
 name:dilithium crystals
 type:cash
 graphics:$:w
+material:stone
 
 name:unobtainium wafers
 type:cash
 graphics:$:AliceBlue
+material:unobtainium
 
 
 ##### "Morgoth Artifacts" #####
@@ -5058,3 +5275,16 @@ flags:INSTA_ART | QUEST_ART
 
 #The "Special Artifacts" are now automatically generated from artifact.txt
 
+name:& chocolate egg~
+type:food
+graphics:,:Violet
+level:0
+weight:200g
+cost:25
+alloc:15:0 to 20
+power:0
+flags:SPECIAL_GEN
+msg:That tastes good.
+effect:NOURISH:INC_BY
+dice:50
+desc:A chocolate egg, covered in shiny purple foil.

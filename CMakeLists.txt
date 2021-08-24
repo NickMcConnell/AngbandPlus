@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5 FATAL_ERROR)
-PROJECT(Xygos VERSION 0.0.2 LANGUAGES C)
+PROJECT(Xygos VERSION 0.0.3 LANGUAGES C)
 
 IF (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     MESSAGE(FATAL_ERROR "Not support to CMake in Windows")
@@ -9,6 +9,7 @@ OPTION(SUPPORT_NCURSES_FRONTEND "Support to NCurses Frontend." OFF)
 OPTION(SUPPORT_SDL_FRONTEND "Support to SDL Frontend." OFF)
 OPTION(SUPPORT_X11_FRONTEND "Support to X11 Frontend." ON)
 OPTION(SUPPORT_SDL_SOUND "Support to Sound System with SDL." OFF)
+OPTION(SUPPORT_SPOIL_FRONTEND "Support for Spoiler Generation." ON)
 
 # For default, X11 is the frontend, if the user want specific
 # a new frontend is needed set to false (OFF) the frontend X11
@@ -55,6 +56,7 @@ ADD_EXECUTABLE(Xygos
 #        src/main-nds.c
         $<$<BOOL:${SUPPORT_SDL_FRONTEND}>:src/main-sdl.c>
 #        src/main-sdl2.c
+        $<$<BOOL:${SUPPORT_SPOIL_FRONTEND}>:src/main-spoil.c>
 #        src/main-stats.c
 #        src/main-test.c
 #        src/main-win.c
@@ -210,6 +212,13 @@ ELSEIF(SUPPORT_SDL_FRONTEND)
         CONFIGURE_SDL_SOUND(Xygos)
 
     ENDIF()
+
+ENDIF()
+
+IF (SUPPORT_SPOIL_FRONTEND)
+
+    INCLUDE(src/cmake/macros/SPOIL_Frontend.cmake)
+    CONFIGURE_SPOIL_FRONTEND(Xygos)
 
 ENDIF()
 

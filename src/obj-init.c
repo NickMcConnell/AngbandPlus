@@ -56,7 +56,7 @@ static const char *mon_race_flags[] =
 
 static const char *obj_flags[] = {
 	"NONE",
-	#define OF(a) #a,
+	#define OF(a, b) #a,
 	#include "list-object-flags.h"
 	#undef OF
 	NULL
@@ -83,6 +83,13 @@ static const char *py_flags[] =
 	#undef PF
 	NULL
 };
+
+/* If this struct gets much more than a name, read it from a config file */
+#define MATERIAL(T, N, D, C, M) { N, D, C, M },
+const struct object_material material[] = {
+#include "list-materials.h"
+};
+#undef MATERIAL
 
 static bool grab_element_flag(struct element_info *info, const char *flag_name)
 {
@@ -572,6 +579,21 @@ static enum parser_error parse_object_base_flags(struct parser *p) {
 	return t ? PARSE_ERROR_INVALID_FLAG : PARSE_ERROR_NONE;
 }
 
+static enum parser_error parse_object_base_material(struct parser *p) {
+	struct kb_parsedata *d = parser_priv(p);
+	struct object_base *kb = d->kb;
+	const char *s = parser_getsym(p, "name");
+	const struct object_material *m = get_material_by_name(s);
+	assert(kb);
+
+	if (!m) {
+		return PARSE_ERROR_UNRECOGNISED_MATERIAL;
+	}
+	kb->material = m-material;
+
+	return PARSE_ERROR_NONE;
+}
+
 struct parser *init_parse_object_base(void) {
 	struct parser *p = parser_new();
 
@@ -584,6 +606,7 @@ struct parser *init_parse_object_base(void) {
 	parser_reg(p, "break int breakage", parse_object_base_break);
 	parser_reg(p, "max-stack int size", parse_object_base_max_stack);
 	parser_reg(p, "flags str flags", parse_object_base_flags);
+	parser_reg(p, "material sym name", parse_object_base_material);
 	return p;
 }
 
@@ -2005,13 +2028,6 @@ static enum parser_error parse_object_fault(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-/* If this struct gets much more than a name, read it from a config file */
-#define MATERIAL(T, N, D, C) { N, D, C },
-const struct object_material material[] = {
-#include "list-materials.h"
-};
-#undef MATERIAL
-
 /* Looks up a material by name - returns the material struct, or NULL if not recognized */
 const struct object_material *get_material_by_name(const char *name)
 {
@@ -2098,6 +2114,10 @@ static errr finish_parse_object(struct parser *p) {
 		memcpy(&k_info[kidx], k, sizeof(*k));
 		k_info[kidx].kidx = kidx;
 
+		/* Add material from base */
+		if (!k_info[kidx].material)
+			k_info[kidx].material = kb_info[k->tval].material;
+
 		/* Add base [kind] flags to kind [kind] flags */
 		kf_union(k_info[kidx].kind_flags, kb_info[k->tval].kind_flags);
 		of_union(k_info[kidx].flags, kb_info[k->tval].flags);
@@ -2117,6 +2137,9 @@ static errr finish_parse_object(struct parser *p) {
 		k = &k_info[i];
 		assert(k->name);
 		assert(k->base);
+		if ((!k->material) && (k->tval)) {
+			fprintf(stderr,"WARNING: %s has no material\n", k->name);
+		}
 	}
 
 	parser_destroy(p);

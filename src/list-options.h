@@ -101,4 +101,5 @@ OP(birth_percent_damage,  "To-damage is a percentage of dice (experimental)",
 BIRTH, false)
 OP(birth_time_limit,      "Difficulty increases over time",
 BIRTH, true)
-
+OP(birth_multi_class,     "Allow switching classes at level up",
+BIRTH, true)

@@ -8,6 +8,7 @@
 
 int setup_tests(void **state) {
 	struct player *p = mem_zalloc(sizeof *p);
+	player = p;
 	z_info = mem_zalloc(sizeof(struct angband_constants));
 	z_info->pack_size = 23;
 	z_info->quiver_size = 10;

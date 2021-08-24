@@ -14,6 +14,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
+#include "cmds.h"
 #include "effects-info.h"
 #include "effects.h"
 #include "init.h"
@@ -21,6 +22,7 @@
 #include "mon-summon.h"
 #include "obj-info.h"
 #include "player-timed.h"
+#include "player-util.h"
 #include "project.h"
 #include "z-color.h"
 #include "z-form.h"
@@ -68,6 +70,28 @@ static void format_dice_string(const random_value *v, int multiplier,
 }
 
 
+/**
+ * Appends a message describing the magical device skill bonus and the average
+ * damage. Average damage is only displayed if there is variance or a magical
+ * device bonus.
+ */
+static void append_damage(char *buffer, size_t buffer_size, random_value value,
+	int dev_skill_boost)
+{
+	if (dev_skill_boost != 0) {
+		my_strcat(buffer, format(", which your device skill increases by %d%%",
+			dev_skill_boost), buffer_size);
+	}
+
+	if (randcalc_varies(value) || dev_skill_boost > 0) {
+		// Ten times the average damage, for 1 digit of precision
+		int dam = (100 + dev_skill_boost) * randcalc(value, 0, AVERAGE) / 10;
+		my_strcat(buffer, format(" for an average of %d.%d damage", dam / 10,
+			dam % 10), buffer_size);
+	}
+}
+
+
 static void copy_to_textblock_with_coloring(textblock *tb, const char *s)
 {
 	while (*s) {
@@ -91,6 +115,7 @@ static void copy_to_textblock_with_coloring(textblock *tb, const char *s)
  * effect that could be described.  Otherwise, returns NULL.
  */
 static textblock *create_random_effect_description(const struct effect *e,
+	const struct object *obj,
 	int count, const char *prefix, int dev_skill_boost,
 	const struct effect **nexte)
 {
@@ -204,12 +229,8 @@ static textblock *create_random_effect_description(const struct effect *e,
 			dice_string);
 		strnfmt(desc, sizeof(desc), effect_desc(efirst), breaths,
 			efirst->other, dice_string);
-		if (dev_skill_boost != 0 && efirst->index != EF_BREATH) {
-			my_strcat(desc,
-				format(", which your device skill increases by %d per cent",
-					dev_skill_boost),
-				sizeof(desc));
-		}
+		append_damage(desc, sizeof(desc), first_rv,
+			efirst->index == EF_BREATH ? 0 : dev_skill_boost);
 
 		res = textblock_new();
 		if (prefix) {
@@ -222,7 +243,7 @@ static textblock *create_random_effect_description(const struct effect *e,
 		textblock *tb;
 		int ivalid;
 		
-		tb = effect_describe(efirst, "randomly ", dev_skill_boost,
+		tb = effect_describe(efirst, obj, "randomly ", dev_skill_boost,
 			true);
 		if (tb) {
 			ivalid = 1;
@@ -244,7 +265,7 @@ static textblock *create_random_effect_description(const struct effect *e,
 			if (!effect_desc(e) || e->index == EF_RANDOM) {
 				continue;
 			}
-			tb = effect_describe(e,
+			tb = effect_describe(e, obj,
 				(ivalid == 0) ? "randomly " : NULL,
 				dev_skill_boost, true);
 			if (!tb) {
@@ -275,6 +296,39 @@ static textblock *create_random_effect_description(const struct effect *e,
 }
 
 
+/** Returns true if the alternate should display in an object's information.
+ * This doesn't mean that the alternate effect is actually in use now, just
+ * that it is something which you could do (perhaps only in the future) and
+ * so should care about.
+ **/
+bool effect_display_alternate(int alternate)
+{
+	switch(alternate) {
+		case 1:
+			return (levels_in_class(get_class_by_name("Clown")->cidx) > 0);
+		default:
+			return true;
+	}
+}
+
+/** Returns a prefix to describe an alternate mode.
+ * This may be in a static buffer that is reused between calls
+ **/
+const char *effect_prefix_alternate(const struct object *obj, int alternate)
+{
+	static char buf[128];
+	switch(alternate) {
+		case 1: {
+			assert(obj);
+			int level = card_level(obj);
+			strnfmt(buf, sizeof(buf), ", or when using the Rare Card technique at level %d or above it ", level);
+			return buf;
+		}
+		default:
+			return ", or ";
+	}
+}
+
 /**
  * Creates a new textblock which has a description of the effect in *e (and
  * any linked to it because e->index == EF_RANDOM) if only_first is true or
@@ -285,249 +339,363 @@ static textblock *create_random_effect_description(const struct effect *e,
  * the descriptions.  dev_skill_boost is the percent increase from the device
  * skill to show in the descriptions.
  */
-textblock *effect_describe(const struct effect *e, const char *prefix,
+textblock *effect_describe(const struct effect *e, const struct object *obj, const char *prefix,
 	int dev_skill_boost, bool only_first)
 {
 	textblock *tb = NULL;
-	int nadded = 0;
-	char desc[200];
+	char desc[250];
+	int alt = 0;
 
-	while (e) {
-		const char* edesc = effect_desc(e);
-		int roll = 0;
-		random_value value = { 0, 0, 0, 0 };
-		bool boosted = false;
-		char dice_string[20];
+	do {
 
-		if (e->dice != NULL) {
-			roll = dice_roll(e->dice, &value);
+		int nadded = 0;
+		const char *altprefix = effect_prefix_alternate(obj, alt);
+		if (effect_display_alternate(alt++)) {
+			while (e && (e->index != EF_NEXT)) {
+				const char* edesc = effect_desc(e);
+				int roll = 0;
+				random_value value = { 0, 0, 0, 0 };
+				char dice_string[20];
+
+				if (e->dice != NULL) {
+					roll = dice_roll(e->dice, &value);
+				}
+
+				/* Deal with special random effect. */
+				if (e->index == EF_RANDOM) {
+					const struct effect *nexte;
+					textblock *tbe = create_random_effect_description(
+						e->next, obj, roll, (nadded == 0) ? prefix : NULL,
+						dev_skill_boost, &nexte);
+
+					e = (only_first) ? NULL : nexte;
+					if (tbe) {
+						if (tb) {
+							textblock_append(tb,
+								e ? ", " : " and ");
+							textblock_append_textblock(tb, tbe);
+							textblock_free(tbe);
+						} else {
+							tb = tbe;
+						}
+						++nadded;
+					}
+					continue;
+				}
+
+				if (!edesc) {
+					e = (only_first) ? NULL : e->next;
+					continue;
+				}
+
+				format_dice_string(&value, 1, sizeof(dice_string), dice_string);
+
+				/* Check all the possible types of description format. */
+				switch (base_descs[e->index].efinfo_flag) {
+				case EFINFO_DICE:
+					strnfmt(desc, sizeof(desc), edesc, dice_string);
+					break;
+
+				case EFINFO_HEAL:
+					/* Healing sometimes has a minimum percentage. */
+					{
+						char min_string[50];
+
+						if (value.m_bonus) {
+							strnfmt(min_string, sizeof(min_string),
+								" (or %d%%, whichever is greater)",
+								value.m_bonus);
+						} else {
+							strnfmt(min_string, sizeof(min_string),
+								"");
+						}
+						strnfmt(desc, sizeof(desc), edesc, dice_string,
+							min_string);
+					}
+					break;
+
+				case EFINFO_CONST:
+					strnfmt(desc, sizeof(desc), edesc, value.base / 2);
+					break;
+
+				case EFINFO_FOOD:
+					{
+						const char *fed = e->subtype ?
+							(e->subtype == 1 ? "uses enough food value" : 
+							 "leaves you nourished") : "feeds you";
+						char turn_dice_string[20];
+
+						format_dice_string(&value, z_info->food_value,
+							sizeof(turn_dice_string),
+							turn_dice_string);
+
+						strnfmt(desc, sizeof(desc), edesc, fed,
+							turn_dice_string, dice_string);
+					}
+					break;
+
+				case EFINFO_CURE:
+					strnfmt(desc, sizeof(desc), edesc,
+						timed_effects[e->subtype].desc);
+					break;
+
+				case EFINFO_TIMED:
+					strnfmt(desc, sizeof(desc), edesc,
+						timed_effects[e->subtype].desc,
+						dice_string);
+					break;
+
+				case EFINFO_STAT:
+					{
+						int stat = e->subtype;
+
+						strnfmt(desc, sizeof(desc), edesc,
+							lookup_obj_property(OBJ_PROPERTY_STAT, stat)->name);
+					}
+					break;
+
+				case EFINFO_SEEN:
+					strnfmt(desc, sizeof(desc), edesc,
+						projections[e->subtype].desc);
+					break;
+
+				case EFINFO_SUMM:
+					strnfmt(desc, sizeof(desc), edesc,
+						summon_desc(e->subtype));
+					break;
+
+				case EFINFO_TELE:
+					/*
+					 * Only currently used for the player, but can handle
+					 * monsters.
+					 */
+					{
+						char dist[32];
+
+						if (value.m_bonus) {
+							strnfmt(dist, sizeof(dist),
+								"a level-dependent distance");
+						} else {
+							strnfmt(dist, sizeof(dist),
+								"%d grids", value.base);
+						}
+						strnfmt(desc, sizeof(desc), edesc,
+							(e->subtype) ? "a monster" : "you",
+							dist);
+					}
+					break;
+
+				case EFINFO_QUAKE:
+					strnfmt(desc, sizeof(desc), edesc, e->radius);
+					break;
+
+				case EFINFO_BALL:
+					strnfmt(desc, sizeof(desc), edesc,
+						projections[e->subtype].player_desc,
+						e->radius, dice_string);
+					append_damage(desc, sizeof(desc), value, dev_skill_boost);
+					break;
+
+				case EFINFO_SPOT:
+					{
+						int i_radius = e->other ? e->other : e->radius;
+
+						strnfmt(desc, sizeof(desc), edesc,
+							projections[e->subtype].player_desc,
+							e->radius, i_radius, dice_string);
+						append_damage(desc, sizeof(desc), value, dev_skill_boost);
+					}
+					break;
+
+				case EFINFO_BREATH:
+					strnfmt(desc, sizeof(desc), edesc,
+						projections[e->subtype].player_desc, e->other,
+						dice_string);
+					append_damage(desc, sizeof(desc), value,
+						e->index == EF_BREATH ? 0 : dev_skill_boost);
+					break;
+
+				case EFINFO_SHORT:
+					strnfmt(desc, sizeof(desc), edesc,
+						projections[e->subtype].player_desc,
+						e->radius +
+							(e->other ? e->other / player->lev : 0),
+						dice_string);
+					break;
+
+				case EFINFO_LASH:
+					strnfmt(desc, sizeof(desc), edesc,
+						projections[e->subtype].lash_desc, e->subtype);
+					break;
+
+				case EFINFO_BOLT:
+					/* Bolt that inflict status */
+					strnfmt(desc, sizeof(desc), edesc,
+						projections[e->subtype].desc);
+					break;
+
+				case EFINFO_BOLTD:
+					/* Bolts and beams that damage */
+					strnfmt(desc, sizeof(desc), edesc,
+						projections[e->subtype].desc, dice_string);
+					append_damage(desc, sizeof(desc), value, dev_skill_boost);
+					break;
+
+				case EFINFO_TOUCH:
+					strnfmt(desc, sizeof(desc), edesc,
+						projections[e->subtype].desc);
+					break;
+
+				case EFINFO_NONE:
+					strnfmt(desc, sizeof(desc), edesc);
+					break;
+
+				default:
+					strnfmt(desc, sizeof(desc), "");
+					msg("Bad effect description passed to effect_info().  Please report this bug.");
+					break;
+				}
+
+				e = (only_first) ? NULL : e->next;
+
+				if (desc[0] != '\0') {
+					if (tb) {
+						if (nadded == 0) {
+							textblock_append(tb, altprefix);
+						} else {
+							if (e && (e->index != EF_NEXT)) {
+								textblock_append(tb, ", ");
+							} else {
+								textblock_append(tb, " and ");
+							}
+						}
+					} else {
+						tb = textblock_new();
+						if (prefix) {
+							textblock_append(tb, "%s", prefix);
+						}
+					}
+					copy_to_textblock_with_coloring(tb, desc);
+
+					++nadded;
+				}
+			}
+		} else {
+			while ((e) && (e->index != EF_NEXT))
+				e = e->next;
+		}
+		if (e)
+			e = e->next;
+	} while (e);
+
+	return tb;
+}
+
+/**
+ * Returns a pointer to the next effect in the effect stack, skipping over
+ * all the sub-effects from random effects
+ */
+struct effect *effect_next(struct effect *effect)
+{
+	if (effect->index == EF_RANDOM) {
+		struct effect *e = effect;
+		int num_subeffects = dice_evaluate(effect->dice, 0, AVERAGE, NULL);
+		// Skip all the sub-effects, plus one to advance beyond current
+		for (int i = 0; e != NULL && i < num_subeffects + 1; i++) {
+			e = e->next;
+		}
+		return e;
+	} else {
+		return effect->next;
+	}
+}
+
+/**
+ * Checks if the effect deals damage, by checking the effect's info string.
+ * Random effects are considered to deal damage if any sub-effect deals
+ * damage.
+ */
+bool effect_damages(const struct effect *effect)
+{
+	if (effect->index == EF_RANDOM) {
+		// Random effect
+		struct effect *e = effect->next;
+		int num_subeffects = dice_evaluate(effect->dice, 0, AVERAGE, NULL);
+
+		// Check if any of the subeffects do damage
+		for (int i = 0; e != NULL && i < num_subeffects; i++) {
+			if (effect_damages(e)) {
+				return true;
+			}
+			e = e->next;
+		}
+		return false;
+	} else {
+		// Non-random effect, check the info string for damage
+		return effect_info(effect) != NULL &&
+			streq(effect_info(effect), "dam");
+	}
+}
+
+/**
+ * Calculates the average damage of the effect. Random effects return an
+ * average of all sub-effect averages.
+ */
+int effect_avg_damage(const struct effect *effect)
+{
+	if (effect->index == EF_RANDOM) {
+		// Random effect, check the sub-effects to accumulate damage
+		int total = 0;
+		struct effect *e = effect->next;
+		int num_subeffects = dice_evaluate(effect->dice, 0, AVERAGE, NULL);
+		for (int i = 0; e != NULL && i < num_subeffects; i++) {
+			total += effect_avg_damage(e);
+			e = e->next;
+		}
+		// Return an average of the sub-effects' average damages
+		return total / num_subeffects;
+	} else {
+		// Non-random effect, calculate the average damage
+		return effect_damages(effect) ?
+			dice_evaluate(effect->dice, 0, AVERAGE, NULL)
+			: 0;
+	}
+}
+
+/**
+ * Returns the projection of the effect, or an empty string if it has none.
+ * Random effects only return a projection if all sub-effects have the same
+ * projection.
+ */
+const char *effect_projection(const struct effect *effect)
+{
+	if (effect->index == EF_RANDOM) {
+		// Random effect
+		int num_subeffects = dice_evaluate(effect->dice, 0, AVERAGE, NULL);
+		struct effect *e = effect->next;
+		const char *subeffect_proj = effect_projection(e);
+
+		// Check if all subeffects have the same projection, and if not just
+		// give up on it
+		for (int i = 0; e != NULL && i < num_subeffects; i++) {
+			if (!streq(subeffect_proj, effect_projection(e))) {
+				return "";
+			}
+			e = e->next;
 		}
 
-		/* Deal with special random effect. */
-		if (e->index == EF_RANDOM) {
-			const struct effect *nexte;
-			textblock *tbe = create_random_effect_description(
-				e->next, roll, (nadded == 0) ? prefix : NULL,
-				dev_skill_boost, &nexte);
-
-			e = (only_first) ? NULL : nexte;
-			if (tbe) {
-				if (tb) {
-					textblock_append(tb,
-						e ? ", " : " and ");
-					textblock_append_textblock(tb, tbe);
-					textblock_free(tbe);
-				} else {
-					tb = tbe;
-				}
-				++nadded;
-			}
-			continue;
-		}
-
-		if (!edesc) {
-			e = (only_first) ? NULL : e->next;
-			continue;
-		}
-
-		format_dice_string(&value, 1, sizeof(dice_string), dice_string);
-
-		/* Check all the possible types of description format. */
-		switch (base_descs[e->index].efinfo_flag) {
-		case EFINFO_HURT:
-			strnfmt(desc, sizeof(desc), edesc, dice_string);
-			break;
-
-		case EFINFO_HEAL:
-			/* Healing sometimes has a minimum percentage. */
-			{
-				char min_string[50];
-
-				if (value.m_bonus) {
-					strnfmt(min_string, sizeof(min_string),
-						" (or %d%%, whichever is greater)",
-						value.m_bonus);
-				} else {
-					strnfmt(min_string, sizeof(min_string),
-						"");
-				}
-				strnfmt(desc, sizeof(desc), edesc, dice_string,
-					min_string);
-			}
-			break;
-
-		case EFINFO_CONST:
-			strnfmt(desc, sizeof(desc), edesc, value.base / 2);
-			break;
-
-		case EFINFO_FOOD:
-			{
-				const char *fed = e->subtype ?
-					(e->subtype == 1 ? "uses enough food value" : 
-					 "leaves you nourished") : "feeds you";
-				char turn_dice_string[20];
-
-				format_dice_string(&value, z_info->food_value,
-					sizeof(turn_dice_string),
-					turn_dice_string);
-
-				strnfmt(desc, sizeof(desc), edesc, fed,
-					turn_dice_string, dice_string);
-			}
-			break;
-
-		case EFINFO_CURE:
-			strnfmt(desc, sizeof(desc), edesc,
-				timed_effects[e->subtype].desc);
-			break;
-
-		case EFINFO_TIMED:
-			strnfmt(desc, sizeof(desc), edesc,
-				timed_effects[e->subtype].desc,
-				dice_string);
-			break;
-
-		case EFINFO_STAT:
-			{
-				int stat = e->subtype;
-
-				strnfmt(desc, sizeof(desc), edesc,
-					lookup_obj_property(OBJ_PROPERTY_STAT, stat)->name);
-			}
-			break;
-
-		case EFINFO_SEEN:
-			strnfmt(desc, sizeof(desc), edesc,
-				projections[e->subtype].desc);
-			break;
-
-		case EFINFO_SUMM:
-			strnfmt(desc, sizeof(desc), edesc,
-				summon_desc(e->subtype));
-			break;
-
-		case EFINFO_TELE:
-			/*
-			 * Only currently used for the player, but can handle
-			 * monsters.
-			 */
-			{
-				char dist[32];
-
-				if (value.m_bonus) {
-					strnfmt(dist, sizeof(dist),
-						"a level-dependent distance");
-				} else {
-					strnfmt(dist, sizeof(dist),
-						"%d grids", value.base);
-				}
-				strnfmt(desc, sizeof(desc), edesc,
-					(e->subtype) ? "a monster" : "you",
-					dist);
-			}
-			break;
-
-		case EFINFO_QUAKE:
-			strnfmt(desc, sizeof(desc), edesc, e->radius);
-			break;
-
-		case EFINFO_BALL:
-			strnfmt(desc, sizeof(desc), edesc,
-				projections[e->subtype].player_desc,
-				e->radius, dice_string);
-			boosted = (dev_skill_boost != 0);
-			break;
-
-		case EFINFO_SPOT:
-			{
-				int i_radius = e->other ? e->other : e->radius;
-
-				strnfmt(desc, sizeof(desc), edesc,
-					projections[e->subtype].player_desc,
-					e->radius, i_radius, dice_string);
-			}
-			break;
-
-		case EFINFO_BREATH:
-			strnfmt(desc, sizeof(desc), edesc,
-				projections[e->subtype].player_desc, e->other,
-				dice_string);
-			boosted = (dev_skill_boost != 0 &&
-				e->index != EF_BREATH);
-			break;
-
-		case EFINFO_SHORT:
-			strnfmt(desc, sizeof(desc), edesc,
-				projections[e->subtype].player_desc,
-				e->radius +
-					(e->other ? e->other / player->lev : 0),
-				dice_string);
-			break;
-
-		case EFINFO_LASH:
-			strnfmt(desc, sizeof(desc), edesc,
-				projections[e->subtype].lash_desc, e->subtype);
-			break;
-
-		case EFINFO_BOLT:
-			/* Bolt that inflict status */
-			strnfmt(desc, sizeof(desc), edesc,
-				projections[e->subtype].desc);
-			break;
-
-		case EFINFO_BOLTD:
-			/* Bolts and beams that damage */
-			strnfmt(desc, sizeof(desc), edesc,
-				projections[e->subtype].desc, dice_string);
-			boosted = (dev_skill_boost != 0);
-			break;
-
-		case EFINFO_TOUCH:
-			strnfmt(desc, sizeof(desc), edesc,
-				projections[e->subtype].desc);
-			break;
-
-		case EFINFO_TAP:
-			strnfmt(desc, sizeof(desc), edesc, dice_string);
-			break;
-
-		case EFINFO_NONE:
-			strnfmt(desc, sizeof(desc), edesc);
-			break;
-
-		default:
-			strnfmt(desc, sizeof(desc), "");
-			msg("Bad effect description passed to effect_info().  Please report this bug.");
-			break;
-		}
-
-		if (boosted) {
-			my_strcat(desc,
-				format(", which your device skill increases by %d per cent",
-					 dev_skill_boost),
-				sizeof(desc));
-		}
-
-		e = (only_first) ? NULL : e->next;
-
-		if (desc[0] != '\0') {
-			if (tb) {
-				if (e) {
-					textblock_append(tb, ", ");
-				} else {
-					textblock_append(tb, " and ");
-				}
-			} else {
-				tb = textblock_new();
-				if (prefix) {
-					textblock_append(tb, "%s", prefix);
-				}
-			}
-			copy_to_textblock_with_coloring(tb, desc);
-
-			++nadded;
+		return subeffect_proj;
+	} else if (projections[effect->subtype].player_desc != NULL) {
+		// Non-random effect, extract the projection if there is one
+		switch (base_descs[effect->index].efinfo_flag) {
+			case EFINFO_BALL:
+			case EFINFO_BOLTD:
+			case EFINFO_BREATH:
+			case EFINFO_SHORT:
+			case EFINFO_SPOT:
+				return projections[effect->subtype].player_desc;
 		}
 	}
 
-	return tb;
+	return "";
 }

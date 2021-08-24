@@ -10,7 +10,9 @@
 # name: tval:name
 # graphics: default attr for inventory display
 # break: breakage chance when thrown
+# max-stack: maximum number that can appear in a stack
 # flags: default flags
+# material: default material
 
 default:break-chance:10
 default:max-stack:99
@@ -36,6 +38,7 @@ break:25
 # max-stack:40
 flags:HATES_ACID | HATES_FIRE
 flags:SHOW_DICE
+material:lead
 
 name:9mm ammo:9mm ammo
 graphics:light umber
@@ -43,42 +46,54 @@ break:35
 # max-stack:40
 flags:HATES_ACID | HATES_FIRE
 flags:SHOW_DICE
+material:lead
 
 name:12mm ammo:12mm ammo
 graphics:light umber
 break:25
-# max-stack:40
 flags:HATES_ACID | HATES_FIRE
 flags:SHOW_DICE
+material:lead
+
+name:bomb:bomb~
+graphics:light umber
+break:100
+# max-stack:40
+flags:HATES_FIRE
 
 name:gun:gun~
 graphics:umber
 # max-stack:1
 flags:HATES_ACID
 flags:SHOW_MULT
+material:steel
 
 name:digger:Digger~
 graphics:slate
 # max-stack:1
 flags:SHOW_DICE
+material:steel
 
 name:hafted:Hafted weapon~
 graphics:white
 # max-stack:1
 flags:HATES_ACID | HATES_FIRE
 flags:SHOW_DICE
+material:steel
 
 name:polearm:Polearm~
 graphics:white
 # max-stack:1
 flags:HATES_ACID | HATES_FIRE
 flags:SHOW_DICE
+material:steel
 
 name:sword:Bladed weapon~
 graphics:white
 # max-stack:1
 flags:HATES_ACID
 flags:SHOW_DICE
+material:steel
 
 name:boots:Boot~
 graphics:light umber
@@ -94,40 +109,48 @@ name:helm:Helm~
 graphics:light umber
 # max-stack:1
 flags:HATES_ACID
+material:steel
 
 name:crown:Crown~
 graphics:light umber
 # max-stack:1
 flags:HATES_ACID
+material:gold
 
 name:belt:Belt~
 graphics:light green
 # max-stack:1
 flags:HATES_ELEC | HATES_FIRE
+material:plastic
 
 name:shield:Shield~
 graphics:light umber
 # max-stack:1
 flags:HATES_ACID
+material:leather
 
 name:cloak:Cloak~
 graphics:light umber
 # max-stack:1
 flags:HATES_ACID | HATES_FIRE
+material:cloth
 
 name:soft armor:Soft Armor~
 graphics:slate
 # max-stack:1
 flags:HATES_ACID | HATES_FIRE
+material:leather
 
 name:hard armor:Hard Armor~
 graphics:slate
 # max-stack:1
 flags:HATES_ACID
+material:steel
 
 name:dragon armor:Dragon Armor~
 graphics:slate
 # max-stack:1
+material:leather
 
 name:light:Light~
 graphics:yellow
@@ -139,21 +162,25 @@ name:device:Device~
 graphics:light umber
 # max-stack:5
 flags:HATES_ACID | HATES_FIRE | EASY_KNOW
+material:plastic
 
 name:wand:Wand~
 graphics:green
 # max-stack:5
 flags:HATES_ELEC | EASY_KNOW
+material:plastic
 
 name:gadget:gadget~
 graphics:light purple
 # max-stack:5
 flags:HATES_ELEC | EASY_KNOW
+material:plastic
 
 name:card:card~
 graphics:deep light blue
 # max-stack:20
 flags:HATES_ACID | HATES_FIRE | HATES_ELEC | EASY_KNOW
+material:plastic
 
 name:pill:Pill~
 graphics:magenta-pink
@@ -161,6 +188,7 @@ break:10
 # max-stack:20
 flags:HATES_ACID | HATES_FIRE
 flags:EASY_KNOW
+material:organic
 
 name:battery:batter|y|ies|
 graphics:orange
@@ -174,12 +202,14 @@ graphics:light umber
 break:100
 # max-stack:10
 flags:EASY_KNOW
+material:organic
 
 name:mushroom:Mushroom~
 graphics:light umber
 break:100
 # max-stack:10
 flags:EASY_KNOW
+material:organic
 
 name:cash
 graphics:light yellow
@@ -189,9 +219,11 @@ graphics:white
 break:0
 flags:HATES_FIRE | HATES_ELEC
 flags:EASY_KNOW | NO_EQUIP
+material:titanium
 
 name:arms:arm implant~
 graphics:white
 break:0
 flags:HATES_FIRE | HATES_ELEC
 flags:EASY_KNOW | NO_EQUIP
+material:titanium

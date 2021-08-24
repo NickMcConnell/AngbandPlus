@@ -64,6 +64,12 @@ bool arg_wizard;			/* Command arg -- Request wizard mode */
  */
 char savefile[1024];
 
+/**
+ * Set by the front end to perform necessary actions when restarting after death
+ * without exiting.  May be NULL.
+ */
+void (*reinit_hook)(void) = NULL;
+
 
 /**
  * Here are lists of commands, stored in this format so that they can be
@@ -158,6 +164,7 @@ struct cmd_info cmd_util[] =
 {
 	{ "Interact with options", { '=' }, CMD_NULL, do_cmd_xxx_options, NULL },
 
+	{ "Change class", { 'G' }, CMD_NULL, do_cmd_change_class, NULL },
 	{ "Save and don't quit", { KTRL('S') }, CMD_NULL, save_game, NULL },
 	{ "Save and quit", { KTRL('X') }, CMD_NULL, textui_quit, NULL },
 	{ "Kill character and quit", { 'Q' }, CMD_NULL, textui_cmd_suicide, NULL },
@@ -455,6 +462,9 @@ void play_game(bool new_game)
 		init_display();
 		init_angband();
 		textui_init();
+		if (reinit_hook != NULL) {
+			(*reinit_hook)();
+		}
 		play_game(true);
 	}
 }

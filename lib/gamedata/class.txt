@@ -11,7 +11,8 @@
 # Format:
 # name:class number:class name
 # stats:str:int:wis:dex:con
-# skill-disarm:base:increment
+# skill-disarm-phys:base:increment
+# skill-disarm-magic:base:increment
 # skill-device:base:increment
 # skill-save:base:increment
 # skill-stealth:base:increment
@@ -20,12 +21,17 @@
 # skill-shoot:base:increment
 # skill-throw:base:increment
 # skill-dig:base:increment
-# info:mhp:exp
-# attack:max_attacks:min_weight:att_multiply
+# hitdie:increment
+# exp:percent
+# max-attacks:count
+# min-weight:weight in tenths of pounds
+# strength-multiplier:multiplicative factor
 # title:title
 # hitdie:hp
-# equip:tval:sval:min:max
-# player-flags:class flags
+# equip:tval:sval:min:max:eopts
+# level-from:level
+# obj-flags:object property flags
+# player-flags:player property flags
 # magic:spell_first:spell_weight:num_books
 # book:name
 # spell:name:level:fail:exp:stat:hp:cooldown
@@ -55,14 +61,31 @@
 # 'info' is for extra info - max. hitpoints gained per level, experience
 # factor in percent.
 
-# 'attack' is for attack info - maximum possible number of attacks, minimum
-# weapon weight for calculating the number of attacks, multiplier for
-# attack calculations.
+# 'exp' sets the classes additive contribution, in percent, to the experience
+# point penalty.  The original classes don't set this and get the default of
+# no experience point penalty.
+
+# 'max-attacks' sets the maximum possible number of blows per round.
+
+# 'min-weight' is the minimum, in tenths of pounds, imposed on a weapon's weight
+# when computing the number of blows per round.
+
+# 'strength-multiplier' is the multiplier for strength's contribution to the
+# number of blows per round; a bigger value grants more blows.
 
 # 'equip' is for starting equipment - tval of the item, sval of the item,
-# minimum amount, maximum amount.
+# minimum amount, maximum amount, names of birth options separated by spaces
+# or | (or none for no exclusion rules) which will exclude the item if set
+# (or, if the name of the option is preceded by NOT-, will exclude the item if
+# not set).
 
-# 'flags' is for class flags.
+# 'level-from' is the first level which the following flags apply to
+
+# 'obj-flags' is for object properties (from object_property.txt) that the
+# class has.
+
+# 'player-flags' is for player properties (from player_property.txt) that the
+# class has.
 
 # 'title' is for class titles.
 # There can be any number of them - max 12 chars if possible (13 would mean
@@ -83,6 +106,10 @@
 # 'effect' defines the spell effect (as listed in src/list-effects.h),
 # and optionally parameters for effect subtype, effect radius and
 # an extra parameter for various things
+
+# 'effect-yx' sets the y (i.e. vertical) range and x (i.e. horizontal) range
+# about the effect's centre.  Only some effects (often detections) use those
+# ranges.
 
 # 'dice' provides a random value to be used by an effect (for damage,
 # healing, etc).  As well as the normal random value fields described above,
@@ -112,22 +139,24 @@ skill-save:18:10
 skill-stealth:0:0
 skill-search:10:12
 skill-melee:70:45
+skill-martial:40:35
 skill-shoot:55:45
 skill-throw:55:45
 skill-dig:0:0
 hitdie:275
 exp:20
+talents:-2:-1
 max-attacks:6
 min-weight:30
 strength-multiplier:5
-equip:food:random:1:3
-equip:food:random:1:3
-equip:food:random:1:3
-##equip:light:Wooden Torch:1:3
-equip:pill:Berserk Strength:1:1
-equip:sword:survival knife:1:1
-#equip:soft armour:Soft Leather Armour:1:1
-equip:card:Word of Recall:1:1
+equip:food:random:1:3:none
+equip:food:random:1:3:none
+equip:food:random:1:3:none
+#equip:light:Wooden Torch:1:3:none
+equip:pill:Berserk Strength:1:1:none
+equip:sword:survival knife:1:1:none
+#equip:soft armour:Soft Leather Armour:1:1:none
+equip:card:Word of Recall:1:1:none
 player-flags:BRAVERY_30 | SHIELD_BASH
 title:Cadet
 title:Private
@@ -170,18 +199,128 @@ skill-save:18:10
 skill-stealth:0:0
 skill-search:10:12
 skill-melee:45:40
+skill-martial:25:30
 skill-shoot:72:45
 skill-throw:66:30
 skill-dig:0:0
 exp:0
+talents:0:0
 hitdie:130
 max-attacks:5
 min-weight:40
 strength-multiplier:3
-equip:food:random:1:3
-equip:gun:6mm handgun:1:1
-equip:6mm ammo:6mm bullet:30:40
+equip:food:random:1:3:none
+equip:gun:6mm handgun:1:1:none
+equip:6mm ammo:6mm bullet:30:40:none
 cdesc:A civilian weapon expert, reasonably skilled with all ranged weapons and the best of any role with your chosen specialty. Being used to firing at paper targets which rarely fire back though, your melee combat and stealth are not so hot. You'll start being able to recognize all weapon mods.
+
+############### WRESTLER ##############
+name:Wrestler
+stats:5:-3:-3:2:4:0:0
+title:Wrestler
+skill-disarm-phys:25:20
+skill-disarm-magic:10:10
+skill-device:10:7
+skill-save:24:10
+skill-stealth:0:0
+skill-search:10:12
+skill-martial:75:60
+skill-melee:25:20
+skill-shoot:15:20
+skill-throw:15:30
+exp:5
+talents:-1:-1
+hitdie:330
+max-attacks:4
+min-weight:40
+strength-multiplier:4
+equip:food:random:2:3:none
+equip:food:random:1:1:none
+level-from:15
+obj-flags:REGEN
+level-from:20
+obj-flags:PROT_FEAR
+level-from:25
+obj-flags:FREE_ACT
+level-from:30
+obj-flags:PROT_STUN
+level-from:35
+obj-flags:PROT_CONF | SUST_STR | SUST_CON
+level-from:40
+obj-flags:SUST_DEX | SUST_SPD
+level-from:45
+obj-flags:HOLD_LIFE
+#padded armor? martial arts weapon?
+cdesc:It sounds crazy at first - to fight only with bare hands and in your skivvies to boot. But with the right training it works surprisingly well, though you'll still be hoping for a green belt (as in mil-spec forcefield kit) and similar unencumbering protection.
+
+############### CLOWN #################
+name:Clown
+stats:0:-1:-2:2:0:3:0
+title:Mascot
+title:Sidekick
+title:Clown
+title:Entertainer
+title:Conjurer
+title:Magician
+title:Mentalist
+#Puppetmaster? 
+exp:10
+talents:-1:0
+hitdie:50
+skill-disarm-phys:15:30
+skill-disarm-magic:15:25
+skill-device:20:15
+skill-save:0:0
+skill-stealth:0:0
+skill-search:0:5
+skill-martial:35:25
+skill-melee:30:15
+skill-shoot:25:20
+skill-throw:40:20
+skill-dig:5:10
+max-attacks:5
+min-weight:30
+strength-multiplier:3
+equip:food:durian:1:1:none
+equip:food:pineapple:1:1:none
+equip:food:Hunter's pie:1:1:none
+equip:food:random:2:3:none
+cdesc:A master of deception, misdirection and custard pies. You can perform impressive card tricks and are a great shot with a thrown knife or more exotic weapons (it's always best to kill your enemies in a humorous way, after all). And when it turns out that you shouldn't have brought a pie to a gun fight, some useful athletic techniques may speed your escape.
+
+magic:1:300
+book:[Clown]
+# spell:name:level:fail:exp:stat:hp:cooldown
+spell:Rare Card:5:20:8:5:1:10d2
+seffect:TIMED_INC:RARE_CARD
+sdice:4d2
+sdesc:Some cards have a hidden mode - using this technique before running the card will allow you to access it, if you are high enough level. The object information for the card will tell you what it does.
+
+
+############### MEDIC #################
+
+############### PILOT #################
+name:Pilot
+stats:0:1:1:2:0:1:0
+title:Trainee
+title:Student
+title:Rider
+title:Pilot
+title:Instructor
+title:Aviator
+title:Ace
+title:Hunter
+title:Bounder
+title:Shadowlord
+exp:10
+talents:-1:1
+hitdie:90
+# FIXME: skills
+max-attacks:5
+min-weight:40
+strength-multiplier:3
+# light armor - maybe more? mapping card?
+equip:food:random:1:3:none
+cdesc:You fly a cavespeeder, giving you increased speed (in straight lines) which improves with your skill. You can also avoid pits, lava and similar hazards but must be aware that a jet engine wakes the heaviest sleepers. Later you'll be able to upgrade to a fighter, equipped with a plasma cannon.
 
 ############### TOURIST ###############
 name:Tourist
@@ -206,25 +345,27 @@ skill-save:30:9
 skill-stealth:2:0
 skill-search:10:12
 skill-melee:15:25
+skill-martial:1:25
 skill-shoot:20:15
 skill-throw:25:35
 skill-dig:0:0
 hitdie:30
 exp:-30
+talents:-2:3
 max-attacks:5
 min-weight:40
 strength-multiplier:4
 cdesc:You are well equipped, for the beach. You are in fact rather out of your depth here - this is definitely going to be a challenge. But you do have some advantages - a universal map, a winning smile, some spending money and (due to being the least experienced role) the best experience and talent gain rates.
-equip:food:random:1:1
-equip:food:random:1:1
-equip:food:random:1:1
-equip:food:random:1:1
-equip:food:random:1:1
-equip:food:random:1:1
-equip:gadget:galactic map:1:1
-equip:boots:flip flops:1:1
-equip:helm:sun hat:1:1
-equip:soft armor:loud shirt:1:1
+equip:food:random:1:1:none
+equip:food:random:1:1:none
+equip:food:random:1:1:none
+equip:food:random:1:1:none
+equip:food:random:1:1:none
+equip:food:random:1:1:none
+equip:gadget:galactic map:1:1:none
+equip:boots:flip flops:1:1:none
+equip:helm:sun hat:1:1:none
+equip:soft armor:loud shirt:1:1:none
 
 ############### SPELUNKER ###############
 name:Spelunker
@@ -233,7 +374,8 @@ hitdie:190
 max-attacks:5
 min-weight:40
 exp:5
-#Digger, climber, diver, explorer, mapper, pathfinder, cave finder...
+talents:0:0
+#Digger, climber, diver, excavator, explorer, mapper, pathfinder, cave finder...
 title:Climber
 title:Spelunker
 title:Caver
@@ -248,10 +390,10 @@ skill-melee:40:35
 skill-shoot:25:45
 skill-throw:55:45
 skill-dig:20:20
-equip:helm:hard hat (lamp):1:1
-equip:light:glowstick:2:4
-equip:light:electric torch:1:1
-equip:battery:alkaline battery:4:6
+equip:helm:hard hat (lamp):1:1:none
+equip:light:glowstick:2:4:none
+equip:light:electric torch:1:1:none
+equip:battery:alkaline battery:4:6:none
 # FF clothes?
 # spikes have disappeared
 
@@ -276,6 +418,7 @@ title:Knight
 title:Master
 title:Grand Master
 exp:20
+talents:0:1
 cdesc:Jedi are famous for skill with a lightsaber - you'll excel with melee energy weapons and do well with other melee weapons. Eventually you'll even be able to construct your own. Ranged weapons are not you, but you'll be supported by a number of subtle powers as you advance. There are also Dark Jedi... who are powerful, yes, but at a cost!
 
 ############### ENGINEER #####################
@@ -301,21 +444,11 @@ skill-throw:20:15
 skill-dig:0:0
 hitdie:0
 exp:0
+talents:1:2
 max-attacks:4
 min-weight:40
 strength-multiplier:2
-equip:sword:pocket knife:1:1
-
-#magic:1:300
-#book:[Engineer]
-#spell:Magic Missile:1:22:4:1:4:10
-#seffect:BOLT_OR_BEAM:MISSILE:0:-10
-#sdice:$Dd4
-#sexpr:D:PLAYER_LEVEL:- 1 / 5 + 3
-#sdesc:Fires a magic missile that always hits its target and does
-#sdesc: unresistable damage.
-#sdesc:  Sometimes a beam is fired instead that hurts each monster
-#sdesc: in its path.
-#sdesc:  The chance to get a beam goes up with your character level.
+equip:sword:pocket knife:1:1:none
 
 cdesc:Devices are your strength - you'll know most on sight, and know how to get the best out of them too. While you aren't much of a fighter in general, you do know energy weapons (melee and ranged) and can see any machine or cyborg's weak points. You also excel with printers and item related cards, and will gain a few skills to use items in unexpected ways.
+

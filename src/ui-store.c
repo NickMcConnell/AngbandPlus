@@ -124,6 +124,12 @@ static const char *random_hint(void)
 	return random_rumor(100);
 }
 
+/* Build a random shopkeeper name */
+void random_shk_name(char *buf, int len)
+{
+	strnfmt(buf, len, "%s %s", random_line(firstnames), random_line(secondnames));
+}
+
 /* Return a random hint from the global hints or lies list,
  * with a minimum and maximum length. It is also checked for being
  * "saying like" - that is, the first character is alphanumeric.
@@ -179,7 +185,12 @@ static void prt_welcome(struct store *store)
 	/* Truncate the name */
 	short_name[j] = '\0';
 
-	int faction = (store->sidx == STORE_B_MARKET) ? player->bm_faction : player->town_faction;
+	int faction = store_faction(store);
+	if (store->sidx == STORE_CYBER) {
+		faction = store_cyber_rank();
+		if (faction > 0)
+			faction = (faction >= 3) ? 2 : 1;
+	}
 	if (one_in_(3)) {
 		size_t i = randint0(N_ELEMENTS(comment_hint));
 
@@ -957,14 +968,19 @@ static bool store_purchase(struct store_context *ctx, int item, bool single)
 			/* Limit to the number that can be carried */
 			amt = MIN(amt, inven_carry_num(obj, false));
 
-			/* Fail if there is no room */
-			if ((amt <= 0) || (!object_flavor_is_aware(obj) && pack_is_full())) {
+			/* Fail if there is no room.  Don't leak information about
+			 * unknown flavors for a purchase (getting it from home doesn't
+			 * leak information since it doesn't show the true flavor). */
+			bool flavor_aware = object_flavor_is_aware(obj);
+			if (amt <= 0 || (!flavor_aware && store->sidx != STORE_HOME &&
+								   pack_is_full())) {
 				msg("You cannot carry that many items.");
 				return false;
 			}
 
-			/* Find the number of this item in the inventory */
-			if (!object_flavor_is_aware(obj))
+			/* Find the number of this item in the inventory.  As above,
+			 * avoid leaking information about unknown flavors. */
+			if (!flavor_aware && store->sidx != STORE_HOME)
 				num = 0;
 			else
 				num = find_inven(obj);
@@ -1742,7 +1758,7 @@ static void store_quest(struct store_context *ctx)
 			if (!(q->flags & (QF_ACTIVE | QF_FAILED | QF_SUCCEEDED | QF_UNREWARDED))) {
 				/* Take new quest - ask first */
 				screen_save();
-				int response = store_get_long_check(ctx, q->intro);
+				int response = store_get_long_check(ctx, quest_get_intro(q));
 				screen_load();
 				if (response) {
 					/* Accepted TODO message */

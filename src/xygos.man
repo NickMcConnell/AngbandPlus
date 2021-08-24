@@ -54,7 +54,7 @@ in the vein of
 .I nethack, 
 and 
 .I moria.
-.B Xygos 0.0.2 is pre-alpha.
+.B Xygos 0.0.3 is pre-alpha.
 .PP
 This version of
 .B Xygos

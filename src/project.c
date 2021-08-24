@@ -417,6 +417,7 @@ struct loc origin_get_loc(struct source origin)
 		}
 
 		case SRC_PLAYER:
+		case SRC_OBJECT_AT:
 		case SRC_OBJECT:	/* Currently only worn faulty objects use this */
 		case SRC_CHEST_TRAP:
 			return player->grid;

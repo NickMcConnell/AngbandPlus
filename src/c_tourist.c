@@ -22,19 +22,12 @@ struct tourist_state {
 
 /* Save or load state, according to the global saving flag */
 static void tourist_loadsave(bool complete) {
-	if (player->class->state == NULL)
-		player->class->state = mem_zalloc(sizeof(struct tourist_state));
 
-	struct tourist_state *state = (struct tourist_state *)player->class->state;
-	/* rdwr_xxx */
 }
 
-/* Start a new character as a X */
+/* Start a new character as a Tourist */
 static void tourist_init(void)
 {
-	/* Initialise saved state */
-	player->class->state = mem_zalloc(sizeof(struct tourist_state));
-
 	/* Some extra spending money (generously, because the expensive mapping
 	 * device means that au will probably be 0 at this point. The MAX is in
 	 * case of an ability giving cash or the no-start-kit option)
@@ -44,34 +37,38 @@ static void tourist_init(void)
 
 	/* Possible random item */
 	struct start_item item = { 0, 0, 1, 1, NULL };
+	bool items = false;
 	switch(randint0(10)) {
 		case 0:
 			item.tval = TV_LIGHT;
 			item.sval = lookup_sval(TV_LIGHT, "firecracker");
+			items = true;
 			break;
 		case 1:
 		case 2:
 			item.tval = TV_CARD;
 			item.sval = lookup_sval(TV_LIGHT, "rumor");
 			item.max = randint1(6);
+			items = true;
 			break;
 		default:
 			player->au += 30;
 	}
 	player->au_birth = player->au;
-	add_start_items(player, &item, (!OPT(player, birth_start_kit)), false, ORIGIN_BIRTH);
+	if (items)
+		add_start_items(player, &item, (!OPT(player, birth_start_kit)), false, ORIGIN_BIRTH);
 }
 
 /* Gain a new level (or levels) for the first time */
 static void tourist_levelup(int from, int to)
 {
-	struct tourist_state *state = (struct tourist_state *)player->class->state;
+
 }
 
 /* Enter or exit a town building */
 static void tourist_building(int store, bool entering, bool *do_default)
 {
-	struct tourist_state *state = (struct tourist_state *)player->class->state;
+
 }
 
 /* Install hooks */

@@ -422,18 +422,19 @@ static bool describe_brands(textblock *tb, const struct object *obj)
 
 	if (!b) return false;
 
-	if (tval_is_weapon(obj) || tval_is_fuel(obj))
-		textblock_append(tb, "Branded with ");
-	else
-		textblock_append(tb, "It brands your melee attacks with ");
-
 	for (i = 1; i < z_info->brand_max; i++) {
 		if (b[i]) {
 			count++;
 		}
 	}
 
-	assert(count >= 1);
+	if (!count) return false;
+
+	if (tval_is_weapon(obj) || tval_is_fuel(obj))
+		textblock_append(tb, "Branded with ");
+	else
+		textblock_append(tb, "It brands your melee attacks with ");
+
 	for (i = 1; i < z_info->brand_max; i++) {
 		if (!b[i]) continue;
 
@@ -469,7 +470,7 @@ static void calculate_melee_crits(struct player_state *state, int weight,
 {
 	weight = (weight * 10) / 454;
 	int k, to_crit = weight + 5 * (state->to_h + plus) +
-		3 * state->skills[SKILL_TO_HIT_MELEE] - 60;
+		3 * weapon_skill(player) - 60;
 	to_crit = MIN(5000, MAX(0, to_crit));
 
 	*mult = *add = 0;
@@ -498,8 +499,7 @@ static int o_calculate_melee_crits(struct player_state state,
 								   const struct object *obj)
 {
 	int dice = 0;
-	int chance = BTH_PLUS_ADJ * (state.to_h + obj->known->to_h) +
-		state.skills[SKILL_TO_HIT_MELEE];
+	int chance = BTH_PLUS_ADJ * (state.to_h + obj->known->to_h) + weapon_skill(player);
 	chance = (100 * chance) / (chance + 240);
 	dice = (537 * chance) / 240;
 
@@ -1764,7 +1764,7 @@ static bool describe_effect(textblock *tb, const struct object *obj,
 			else
 				prefix = "When activated, it ";
 
-			tbe = effect_describe(effect, prefix, boost, false);
+			tbe = effect_describe(effect, obj, prefix, boost, false);
 			if (! tbe) {
 				return false;
 			}

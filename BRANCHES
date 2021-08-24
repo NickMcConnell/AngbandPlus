@@ -1,6 +1,7 @@
 master
+borg		active, experimental	Porting the Borg
 artifacts	active, experimental	Randarts / halfarts etc.
-sliding		active, experimental	Sliding (mixed) classes
+sliding		inactive, merged		Sliding (mixed) classes
 champions	active, experimental	Champions (ghosts)
 world		inactive, merged		Multi-town world
 ego			inactive, merged		New ego item allocation method

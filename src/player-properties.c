@@ -20,6 +20,7 @@
 #include "angband.h"
 #include "player-ability.h"
 #include "player-calcs.h"
+#include "player-util.h"
 #include "ui-input.h"
 #include "ui-menu.h"
 
@@ -35,13 +36,14 @@ enum {
 };
 
 bool class_has_ability(const struct player_class *class,
-					   struct player_ability *ability)
+					   struct player_ability *ability,
+					   int level)
 {
 	if (streq(ability->type, "player") &&
-		pf_has(class->pflags, ability->index)) {
+		pf_has(class->pflags[level], ability->index)) {
 		return true;
 	} else if (streq(ability->type, "object") &&
-			   of_has(class->flags, ability->index)) {
+			   of_has(class->flags[level], ability->index)) {
 		return true;
 	}
 	return false;
@@ -199,7 +201,8 @@ static bool view_abilities(void)
 
 	/* Count the number of class powers we have */
 	for (ability = player_abilities; ability; ability = ability->next) {
-		if (class_has_ability(player->class, ability)) {
+		int level = levels_in_class(player->class->cidx);
+		if (class_has_ability(player->class, ability, level)) {
 			memcpy(&ability_list[num_abilities], ability,
 				   sizeof(struct player_ability));
 			ability_list[num_abilities++].group = PLAYER_FLAG_CLASS;

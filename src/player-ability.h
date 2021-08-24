@@ -16,13 +16,13 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
- 
+
 struct attack {
 	char *msg;								/**< "You "smack" the foo */
 	random_value damage;					/**< for 6d6 of */
 	int element;							/**< fire damage */
 };
- 
+
 struct ability {
 	char *name;
 	char *gain;
@@ -45,7 +45,9 @@ struct ability {
 	struct attack *attacks;
 	bool forbid[PF_MAX];
 	bool require[PF_MAX];
+	bool cancel[PF_MAX];
 	int a_adj[STAT_MAX];
+	s16b mom_speed[MOM_SPEED_MAX];			/**< Momentum - to - speed */
 	bitflag oflags[OF_SIZE];				/**< Racial (object) flags */
 	bitflag oflags_off[OF_SIZE];			/**< Racial (object) flags (turn off) */
 	bitflag pflags[PF_SIZE];				/**< Racial (player) flags */
@@ -58,6 +60,7 @@ struct ability {
 #define AF_NASTY		0x00000002		/* has at least some negatives to some characters */
 #define AF_TALENT		0x00000004		/* can be bought as a talent */
 #define AF_MUTATION		0x00000008		/* can be gained as a mutation */
+#define AF_FLYING		0x00000010		/* flags and speed take effect only when in flight. Books are ground/flight/both. */
 
 /* The ability array */
 extern struct ability *ability[];
@@ -69,6 +72,7 @@ bool ability_levelup(struct player *p, int from, int to);
 int setup_talents(void);
 int cmd_abilities(struct player *p, bool birth, int selected, bool *flip);
 int ability_to_stat(int stat);
-void init_talent(int tp);
+void init_talent(int initial_tp, int orig_tp);
 bool get_mutation(unsigned long flags, bool allow_loss);
 bool mutate(void);
+bool gain_ability(unsigned a, bool birth);

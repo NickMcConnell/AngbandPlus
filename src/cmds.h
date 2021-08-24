@@ -51,6 +51,7 @@ void do_cmd_abilities(void);
 void do_cmd_wizard(void);
 void do_cmd_suicide(struct command *cmd);
 void do_cmd_note(void);
+void do_cmd_change_class(void);
 
 /* cmd-obj.c */
 void do_cmd_uninscribe(struct command *cmd);
@@ -70,6 +71,8 @@ void do_cmd_use(struct command *cmd);
 void do_cmd_refill(struct command *cmd);
 void do_cmd_cast(struct command *cmd);
 void do_cmd_use_printer(struct command *cmd);
+void activation_message(struct object *obj);
+int card_level(const struct object *obj);
 
 /* cmd-pickup.c */
 int do_autopickup(struct player *p);

@@ -91,60 +91,6 @@ alloc:1:65
 obj-rarity:0
 mon-base:giant
 
-name:Acid dragons
-room:1
-alloc:6:85
-obj-rarity:0
-mon-base:dragon
-mon-base:ancient dragon
-spell-req:BR_ACID
-spell-ban:BR_ELEC
-
-name:Electric dragons
-room:1
-alloc:6:85
-obj-rarity:0
-mon-base:dragon
-mon-base:ancient dragon
-spell-req:BR_ELEC
-spell-ban:BR_ACID
-
-name:Fire dragons
-room:1
-alloc:6:85
-obj-rarity:0
-mon-base:dragon
-mon-base:ancient dragon
-spell-req:BR_FIRE
-spell-ban:BR_COLD
-
-name:Ice dragons
-room:1
-alloc:6:85
-obj-rarity:0
-mon-base:dragon
-mon-base:ancient dragon
-spell-req:BR_COLD
-spell-ban:BR_FIRE
-
-name:Poison dragons
-room:1
-alloc:6:85
-obj-rarity:0
-mon-base:dragon
-mon-base:ancient dragon
-spell-req:BR_POIS
-spell-ban:BR_FIRE
-
-name:Multi-hued dragons
-room:1
-alloc:6:85
-obj-rarity:0
-mon-base:dragon
-mon-base:ancient dragon
-spell-req:BR_ACID | BR_ELEC | BR_FIRE
-spell-req:BR_COLD | BR_POIS
-
 name:Demons
 room:1
 alloc:1:105
@@ -326,15 +272,6 @@ mon-base:golem
 flags-ban:DRAGON
 flags-ban:UNDEAD
 flags-ban:DEMON
-
-name:Gold dragons
-room:1
-alloc:6:85
-obj-rarity:0
-mon-base:dragon
-mon-base:ancient dragon
-spell-req:BR_SOUN
-spell-ban:BR_SHAR
 
 name:Ainur
 room:1

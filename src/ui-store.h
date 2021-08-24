@@ -63,5 +63,6 @@ const char *random_rumor(s32b real);
 int store_roundup(int);
 bool store_get_long_check(struct store_context *ctx, const char *prompt);
 void store_long_text(struct store_context *ctx, const char *text);
+void random_shk_name(char *buf, int len);
 
 #endif /* INCLUDED_UI_STORE_H */

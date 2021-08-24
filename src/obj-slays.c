@@ -221,6 +221,20 @@ int brand_count(bool *brands)
 	return count;
 }
 
+/**
+ * Get the index of a named brand, or -1 if not known
+ * \param name The brand name (code, such as SOUND_2)
+ */
+int get_brand_by_name(const char *name)
+{
+	for (int i = 0; i < z_info->brand_max; i++) {
+		if (brands[i].code)
+			if (strstr(brands[i].code, name))
+				return i;
+	}
+
+	return -1;
+}
 
 /**
  * Count a set of slays
@@ -392,7 +406,9 @@ void improve_attack_modifier(struct object *obj, const struct monster *mon,
 
 			/* Learn about the monster */
 			if (monster_is_visible(mon)) {
-				rf_on(lore->flags, b->resist_flag);
+				if (b->resist_flag) {
+					rf_on(lore->flags, b->resist_flag);
+				}
 				if (b->vuln_flag) {
 					rf_on(lore->flags, b->vuln_flag);
 				}
@@ -400,7 +416,9 @@ void improve_attack_modifier(struct object *obj, const struct monster *mon,
 		} else if (player_knows_brand(player, i)) {
 			/* Learn about resistant and vulnerable monsters */
 			if (monster_is_visible(mon)) {
-				rf_on(lore->flags, b->resist_flag);
+				if (b->resist_flag) {
+					rf_on(lore->flags, b->resist_flag);
+				}
 				if (b->vuln_flag) {
 					rf_on(lore->flags, b->vuln_flag);
 				}

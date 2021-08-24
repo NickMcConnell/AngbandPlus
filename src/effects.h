@@ -56,7 +56,8 @@ bool effect_do(struct effect *effect,
 	int dir,
 	int beam,
 	int boost,
-	struct command *cmd);
+	struct command *cmd,
+	int alternate);
 void effect_simple(int index,
 	struct source origin,
 	const char *dice_string,
@@ -67,5 +68,6 @@ void effect_simple(int index,
 	int x,
 	bool *ident);
 int recharge_failure_chance(const struct object *obj, int strength);
+void forget_remembered_objects(struct chunk *c, struct chunk *knownc, struct loc grid);
 
 #endif /* INCLUDED_EFFECTS_H */

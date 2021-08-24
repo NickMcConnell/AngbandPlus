@@ -279,15 +279,15 @@ static void get_stats(int stat_use[STAT_MAX])
 	}
 }
 
-/* Worst (= most negative) negative deviation, as a proportion of the expected value
+/** Worst (= most negative) negative deviation, as a proportion of the expected value
  * in 10000ths
  */
-int hp_roll_worst(int *level)
+int hp_roll_worst(int hitdie, int *level)
 {
 	int worst = 0;
 	int rdev = 0;
 	for(int i=1; i<PY_MAX_LEVEL-10; i++) {
-		int mean = (i / 2) + ((player->hitdie * i) / (PY_MAX_LEVEL - 1)); 
+		int mean = (i / 2) + ((hitdie * i) / (PY_MAX_LEVEL - 1));
 		rdev += level[i];
 		if (i >= 5) {
 			int dev = rdev - mean;
@@ -300,13 +300,13 @@ int hp_roll_worst(int *level)
 	return worst;
 }
 
-/* Sum of squares of of negative deviations */
-int hp_roll_score(int *level)
+/** Sum of squares of of negative deviations */
+int hp_roll_score(int hitdie, int *level)
 {
 	int sum = 0;
 	int rdev = 0;
 	for(int i=1; i<PY_MAX_LEVEL; i++) {
-		int mean = (i / 2) + ((player->hitdie * i) / (PY_MAX_LEVEL - 1)); 
+		int mean = (i / 2) + ((hitdie * i) / (PY_MAX_LEVEL - 1));
 		rdev += level[i];
 		int dev = rdev - mean;
 		if (dev < 0)
@@ -315,16 +315,16 @@ int hp_roll_score(int *level)
 	return sum;
 }
 
-/* Produce hitpoints which are random at all levels except the first
+/** Produce hitpoints which are random at all levels except the first
  * which always gets max hit points, but which at maximum level always
  * has the same value (the average value of 49 hitdie rolls, + 1 max).
  * It should also not deviate too far from the average at any other
  * level.
  */
-void roll_hp(void)
+static void roll_hp_class(int hitdie, s16b *player_hp)
 {
 	/* Average expected HP - ignoring the first level */
-	int target = player->hitdie;
+	int target = hitdie;
 
 	/* Roll all hitpoints */
 	int level[PY_MAX_LEVEL];
@@ -363,15 +363,14 @@ void roll_hp(void)
 	 * happen with some unexpected inputs, such as a very low hitdie.
 	 */
 	int runrolls = 0;
-	int worst;
 	do {
-		int before = hp_roll_score(level);
+		int before = hp_roll_score(hitdie, level);
 		int from = randint1(PY_MAX_LEVEL-1);
 		int to = randint1(PY_MAX_LEVEL-1);
 		int tmp = level[from];
 		level[from] = level[to];
 		level[to] = tmp;
-		int after = hp_roll_score(level);
+		int after = hp_roll_score(hitdie, level);
 		if (before <= after) {
 			// revert it - this has increased the deviation
 			tmp = level[from];
@@ -381,15 +380,22 @@ void roll_hp(void)
 			runrolls = 0;
 		}
 		runrolls++;
-		worst = hp_roll_worst(level);
-	} while ((worst < -500) && (runrolls < 100000)); // 5%
+	} while ((hp_roll_worst(hitdie, level) < -500) && (runrolls < 100000)); // 5%
 
 	/* Copy into the player's hitpoints */
-	player->player_hp[0] = (2 * player->hitdie) / PY_MAX_LEVEL;
+	player_hp[0] = (2 * hitdie) / PY_MAX_LEVEL;
 	for (int i = 1; i < PY_MAX_LEVEL; i++)
-		player->player_hp[i] = player->player_hp[i-1] + level[i];
+		player_hp[i] = player_hp[i-1] + level[i];
 }
 
+/** Roll hitpoints for all classes */
+void roll_hp(void)
+{
+	for (struct player_class *c = classes; c; c = c->next) {
+		int hitdie = hitdie_class(c);
+		roll_hp_class(hitdie, player->player_hp + (PY_MAX_LEVEL * c->cidx));
+	}
+}
 
 static void get_bonuses(void)
 {
@@ -605,24 +611,66 @@ void add_start_items(struct player *p, const struct start_item *si, bool skip, b
 	for (; si; si = si->next) {
 		int num = rand_range(si->min, si->max);
 		struct object_kind *kind;
-		if (si->sval > SV_UNKNOWN)
-			kind = lookup_kind(si->tval, si->sval);
-		else
-			kind = get_obj_num(0, false, si->tval);
-		assert(kind);
+		bool ok = true;
+		bool ignore = false;
 
-		/* Without start_kit, only start with 1 food and 1 light */
-		if (skip) {
-			if (!tval_is_food_k(kind) && !tval_is_light_k(kind))
-				continue;
+		/* Loop until success. Failing because of a 'special case' here allows generation
+		 * again: this is a property of the object and only occurs randomly so won't cause
+		 * further looping. Start_kit and no_food OTOH cause the item to be ignored.
+		 */
+		do {
+			ok = true;
 
-			num = 1;
-		}
+			if (si->sval > SV_UNKNOWN)
+				kind = lookup_kind(si->tval, si->sval);
+			else
+				kind = get_obj_num(0, false, si->tval);
+			assert(kind);
 
-		/* If you can't eat food, don't start with it */
-		if (tval_is_food_k(kind))
-			if (player_has(p, PF_NO_FOOD))
-				continue;
+			/* Without start_kit, only start with 1 food and 1 light */
+			if (skip) {
+				if (!tval_is_food_k(kind) && !tval_is_light_k(kind)) {
+					ignore = true;
+					break;
+				}
+
+				num = 1;
+			}
+
+			/* If you can't eat food, don't start with it */
+			if (tval_is_food_k(kind))
+				if (player_has(p, PF_NO_FOOD)) {
+					ignore = true;
+					break;
+				}
+
+			/* Exclude if configured to do so based on birth options. */
+			if (si->eopts) {
+				bool included = true;
+				int eind = 0;
+
+				while (si->eopts[eind] && included) {
+					if (si->eopts[eind] > 0) {
+						if (p->opts.opt[si->eopts[eind]]) {
+							included = false;
+						}
+					} else {
+						if (!p->opts.opt[-si->eopts[eind]]) {
+							included = false;
+						}
+					}
+					++eind;
+				}
+				if (!included) continue;
+			}
+
+			/* Discard special cases */
+			if ((kf_has(kind->kind_flags, KF_SPECIAL_GEN)) && (!special_item_can_gen(kind)))
+				ok = false;
+		} while (!ok);
+
+		if (ignore)
+			continue;
 
 		/* Prepare a new item */
 		obj = object_new();
@@ -644,6 +692,108 @@ void add_start_items(struct player *p, const struct start_item *si, bool skip, b
 		inven_carry(p, obj, true, false);
 		kind->everseen = true;
 	}
+}
+
+/**
+ * Initialize the global player as if the full birth process happened.
+ * \param nrace Is the name of the race to use.  It may be NULL to use *races.
+ * \param nclass Is the name of the class to use.  It may be NULL to use
+ * *classes.
+ * \param nplayer Is the name to use for the player.  It may be NULL.
+ * \return The return value will be true if the full birth process will be
+ * successful.  It will be false if the process failed.  One reason for that
+ * would be that the requested race or class could not be found.
+ * Requires a prior call to init_angband().  Intended for use by test cases
+ * or stub front ends that need a fully initialized player.
+ */
+bool player_make_simple(const char *nrace, const char *next, const char *nclass,
+	const char* nplayer)
+{
+	int ir = 0, ic = 0, ie = 0;
+
+	if (nrace) {
+		const struct player_race *rc = races;
+		int nr = 0;
+
+		while (rc != extensions) {
+			if (!rc) return false;
+			if (streq(rc->name, nrace)) break;
+			rc = rc->next;
+			++ir;
+			++nr;
+		}
+		while (rc != extensions) {
+			rc = rc->next;
+			++nr;
+		}
+		ir = nr - ir  - 1;
+	} else {
+		const struct player_race *rc = races;
+		while (rc != extensions) {
+			rc = rc->next;
+			++ir;
+		}
+		--ir;
+	}
+
+	if (next) {
+		const struct player_race *ec = extensions;
+		int ne = 0;
+
+		while (1) {
+			if (!ec) return false;
+			if (streq(ec->name, next)) break;
+			ec = ec->next;
+			++ie;
+			++ne;
+		}
+		while (ec) {
+			ec = ec->next;
+			++ne;
+		}
+		ie = ne - ie  - 1;
+	} else {
+		const struct player_race *rc = races;
+		while (rc != extensions) {
+			rc = rc->next;
+			++ie;
+		}
+	}
+
+	if (nclass) {
+		const struct player_class *cc = classes;
+		int nc = 0;
+
+		while (1) {
+			if (!cc) return false;
+			if (streq(cc->name, nclass)) break;
+			cc = cc->next;
+			++ic;
+			++nc;
+		}
+		while (cc) {
+			cc = cc->next;
+			++nc;
+		}
+		ic = nc - ic - 1;
+	}
+
+	cmdq_push(CMD_BIRTH_INIT);
+	cmdq_push(CMD_BIRTH_RESET);
+	cmdq_push(CMD_CHOOSE_RACE);
+	cmd_set_arg_choice(cmdq_peek(), "choice", ir);
+	cmdq_push(CMD_CHOOSE_EXT);
+	cmd_set_arg_choice(cmdq_peek(), "choice", ie);
+	cmdq_push(CMD_CHOOSE_CLASS);
+	cmd_set_arg_choice(cmdq_peek(), "choice", ic);
+	cmdq_push(CMD_ROLL_STATS);
+	cmdq_push(CMD_NAME_CHOICE);
+	cmd_set_arg_string(cmdq_peek(), "name",
+		(nplayer == NULL) ? "Simple" : nplayer);
+	cmdq_push(CMD_ACCEPT_CHARACTER);
+	cmdq_execute(CTX_BIRTH);
+
+	return true;
 }
 
 /**
@@ -984,6 +1134,12 @@ static void generate_stats(int stats[STAT_MAX], int points_spent[STAT_MAX],
 	recalculate_stats(stats, *points_left);
 }
 
+int hitdie_class(const struct player_class *c)
+{
+	return player->race->r_mhp + player->extension->r_mhp + c->c_mhp;
+}
+
+
 /**
  * This fleshes out a full player based on the choices currently made,
  * and so is called whenever things like race or class are chosen.
@@ -1007,27 +1163,42 @@ void player_generate(struct player *p, struct player_race *r, struct player_race
 	/* Level 1 */
 	p->max_lev = p->lev = 1;
 
+	/* Set all class levels to the initial class */
+	memset(p->lev_class, p->class->cidx, sizeof(p->lev_class));
+	p->switch_class = p->class->cidx;
+
+	/* Primary class */
+	set_primary_class();
+
 	/* Experience factor */
-	p->expfact_low = p->race->r_exp + p->extension->r_exp + p->class->c_exp;
-	p->expfact_high = p->race->r_high_exp + p->extension->r_high_exp + p->class->c_exp;
+	p->expfact_low = p->race->r_exp + p->extension->r_exp;
+	p->expfact_high = p->race->r_high_exp + p->extension->r_high_exp;
 
-	/* Hitdice */
-	p->hitdie = p->race->r_mhp + p->extension->r_mhp + p->class->c_mhp;
+	/* HP array */
+	if (!(p->player_hp))
+		p->player_hp = mem_alloc(sizeof(s16b) * PY_MAX_LEVEL * (1 + classes->cidx));
 
-	/* Pre-calculate level 1 hitdice */
-	p->player_hp[0] = (p->hitdie * 2) / PY_MAX_LEVEL;
+	/* For each class... */
+	for (struct player_class *c = classes; c; c = c->next) {
+		/* Hitdice */
+		int hitdie = hitdie_class(c);
+		s16b *player_hp = player->player_hp + (PY_MAX_LEVEL * c->cidx);
 
-	/*
-	 * Fill in overestimates of hitpoints for additional levels.  Do not
-	 * do the actual rolls so the player can not reset the birth screen
-	 * to get a desirable set of initial rolls.
-	 */
-	for (i = 1; i < p->lev; i++) {
-		p->player_hp[i] = p->player_hp[i - 1] + (p->hitdie / PY_MAX_LEVEL);
+		/* Pre-calculate level 1 hitdice */
+		player_hp[0] = (hitdie * 2) / PY_MAX_LEVEL;
+
+		/*
+		 * Fill in overestimates of hitpoints for additional levels.  Do not
+		 * do the actual rolls so the player can not reset the birth screen
+		 * to get a desirable set of initial rolls.
+		 */
+		for (i = 1; i < p->lev; i++) {
+			player_hp[i] = player_hp[i - 1] + (hitdie / PY_MAX_LEVEL);
+		}
 	}
 
 	/* Initial hitpoints */
-	p->mhp = p->player_hp[p->lev - 1];
+	p->mhp = p->player_hp[(PY_MAX_LEVEL * p->class->cidx)];
 
 	/* Roll for age/height/weight */
 	get_ahw(p);
@@ -1260,8 +1431,9 @@ void do_cmd_accept_character(struct command *cmd)
 
 	/* Prompt for birth talents and roll out per-level talent points */
 	int level_tp = setup_talents();
+	int orig_tp = player->talent_points;
 	cmd_abilities(player, true, player->talent_points, NULL);
-	init_talent(level_tp);
+	init_talent(level_tp, orig_tp);
 
 	/* No quest in progress */
 	player->active_quest = -1;
@@ -1304,7 +1476,6 @@ void do_cmd_accept_character(struct command *cmd)
 	player->obj_k->modifiers[OBJ_MOD_USE_ENERGY] = 1;
 
 	/* Initialise the stores, dungeon */
-	store_reset();
 	chunk_list_max = 0;
 
 	/* Player learns innate icons */
