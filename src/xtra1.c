@@ -207,7 +207,7 @@ static int calc_adj_dex_ta(void)
  */
 void cnv_stat(int val, char *out_val)
 {
-    sprintf(out_val, "    %2d", val);
+	sprintf(out_val, "    %2d", val);
 }
 
 
@@ -1552,6 +1552,8 @@ static void prt_depth(void)
             sprintf(buf, "%s", "Monster Arena");
         else if (p_ptr->town_num)
             sprintf(buf, "%s", town_name(p_ptr->town_num));
+        else if (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].entrance)
+            sprintf(buf, "Wilderness (%s): L%d", d_name+d_info[wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].entrance].name, base_level);
         else
             sprintf(buf, "Wilderness: L%d", base_level);
     }
@@ -1696,7 +1698,7 @@ static void prt_state(void)
             }
             case ACTION_LEARN:
             {
-                strcpy(text, "Learn");
+                strcpy(text, "Lern");
                 if (new_mane) attr = TERM_L_RED;
                 break;
             }
@@ -1788,6 +1790,7 @@ static bool prt_speed(int row, int col)
         else if ((is_fast && !hitaus) || IS_LIGHT_SPEED() || psion_speed()) attr = TERM_YELLOW;
         else if (hitaus && !is_fast) attr = TERM_VIOLET;
         else if ((is_fast) && (hitaus) && (hitaus != 10)) attr = ((hitaus > 10) ? TERM_VIOLET : TERM_YELLOW);
+        else if ((is_fast) && (hitaus) && (hitaus == 10)) attr = TERM_L_RED;
         else if (p_ptr->filibuster) attr = TERM_ORANGE;
         else attr = TERM_L_GREEN;
         if (effective_speed) sprintf(buf, "Fast (%d.%dx)", SPEED_TO_ENERGY(i) / 10, SPEED_TO_ENERGY(i) % 10);
@@ -2013,8 +2016,25 @@ static void prt_effects(void)
         sprintf(tmp, "Study (%d)", p_ptr->new_spells);
         c_put_str(TERM_L_BLUE, tmp, row++, col);
     }
-	else if (p_ptr->pclass == CLASS_IMITATOR && p_ptr->mane_num)
-		c_put_str(TERM_L_BLUE, "Imitate", row++, col);
+    if ((rogue_like_commands) && (show_rogue_keys) && (row < Term->hgt - 3))
+    {
+        if (row < Term->hgt - 5)
+        {
+            Term_erase(col, row++, r.cx);
+        }
+        c_put_str(TERM_YELLOW, "  y  k  u   ", row++, col);
+        c_put_str(TERM_YELLOW, "  h  5  l   ", row++, col);
+        c_put_str(TERM_YELLOW, "  b  j  n   ", row++, col);
+        p_ptr->redraw |= PR_ROGUE_KEYS;
+    }
+    else if (p_ptr->redraw & (PR_ROGUE_KEYS))
+    {
+        for (i = row + 1; i < Term->hgt - 1; i++)
+        {
+            Term_erase(col, i, r.cx);
+        }
+        if (!show_rogue_keys) p_ptr->redraw &= ~PR_ROGUE_KEYS;
+    }
 }
 
 /*****************************************************************************
@@ -2175,69 +2195,46 @@ static void prt_mon_health_bar(int m_idx, int row, int col)
         else
             Term_queue_bigchar(col, row, r_ptr->x_attr, r_ptr->x_char, 0, 0);
 
-        if (pct >= 100) attr = TERM_L_GREEN;
-        else if (pct >= 60) attr = TERM_YELLOW;
-        else if (pct >= 25) attr = TERM_ORANGE;
-        else if (pct >= 10) attr = TERM_L_RED;
+        /*Show HP% by color. Blue means unharmed */
+        if (pct <= 5)       attr = TERM_RED;
+        else if (pct <= 25) attr = TERM_L_RED;
+        else if (pct <= 45) attr = TERM_ORANGE;
+        else if (pct <= 65) attr = TERM_YELLOW;
+        else if (pct <= 85) attr = TERM_L_GREEN;
+        else if (pct <= 99) attr = TERM_GREEN;
+        else attr = TERM_BLUE;
 
-        if (p_ptr->wizard)
+        char buf[20];
+        sprintf(buf, "HP:%5d", m_ptr->hp);
+        Term_putstr(col, row, strlen(buf), attr, buf);
+        col += strlen(buf) + 1;
+        if (MON_STUNNED(m_ptr))
         {
-            char buf[20];
-            sprintf(buf, "%3d%%", pct);
-            col += 2;
-            Term_putstr(col, row, strlen(buf), attr, buf);
+            sprintf(buf, "%d%%", MON_STUNNED(m_ptr));
+            Term_putstr(col, row, strlen(buf), TERM_L_BLUE, buf);
             col += strlen(buf) + 1;
-            if (MON_STUNNED(m_ptr))
-            {
-                sprintf(buf, "%d%%", MON_STUNNED(m_ptr));
-                Term_putstr(col, row, strlen(buf), TERM_L_BLUE, buf);
-                col += strlen(buf) + 1;
-            }
-            if (m_idx == target_who)
-                Term_queue_char(col++, row, TERM_L_RED, '*', 0, 0);
-            if (m_idx == p_ptr->riding)
-                Term_queue_char(col++, row, TERM_L_BLUE, '@', 0, 0);
-            if (MON_INVULNER(m_ptr))
-                Term_queue_char(col++, row, TERM_WHITE, 'I', 0, 0);
-            if (MON_PARALYZED(m_ptr))
-                Term_queue_char(col++, row, TERM_BLUE, 'P', 0, 0);
-            if (MON_CSLEEP(m_ptr))
-                Term_queue_char(col++, row, TERM_BLUE, 'Z', 0, 0); /* ZZZ */
-            if (MON_CONFUSED(m_ptr))
-                Term_queue_char(col++, row, TERM_UMBER, 'C', 0, 0);
-            if (MON_MONFEAR(m_ptr))
-                Term_queue_char(col++, row, TERM_VIOLET, 'F', 0, 0);
         }
-        else
-        {
-			char buf[20];
+        if (m_idx == target_who)
+            Term_queue_char(col++, row, TERM_L_RED, '*', 0, 0);
+        if (m_idx == p_ptr->riding)
+            Term_queue_char(col++, row, TERM_L_BLUE, '@', 0, 0);
+        if (MON_INVULNER(m_ptr))
+            Term_queue_char(col++, row, TERM_WHITE, 'I', 0, 0);
+        if (MON_PARALYZED(m_ptr))
+            Term_queue_char(col++, row, TERM_BLUE, 'P', 0, 0);
+        if (MON_CSLEEP(m_ptr))
+            Term_queue_char(col++, row, TERM_BLUE, 'Z', 0, 0); /* ZZZ */
+        if (MON_CONFUSED(m_ptr))
+            Term_queue_char(col++, row, TERM_UMBER, 'C', 0, 0);
+        if (MON_MONFEAR(m_ptr))
+            Term_queue_char(col++, row, TERM_VIOLET, 'F', 0, 0);
 
-			if (MON_INVULNER(m_ptr)) attr = TERM_WHITE;
-			else if (MON_PARALYZED(m_ptr)) attr = TERM_BLUE;
-			else if (MON_CSLEEP(m_ptr)) attr = TERM_BLUE;
-			else if (MON_CONFUSED(m_ptr)) attr = TERM_UMBER;
-			else if (MON_STUNNED(m_ptr)) attr = TERM_L_BLUE;
-			else if (MON_MONFEAR(m_ptr)) attr = TERM_VIOLET;
-			else if (m_ptr->ego_whip_ct) attr = TERM_L_UMBER;
+        /* Label pet or target */
+		if (m_idx == p_ptr->riding)
+			Term_putstr(col++, row, 1, TERM_GREEN, ">");
 
-			/* Label pet or target */
-			if (m_idx == target_who)
-				Term_putstr(col++, row, 1, TERM_RED, "*");
-			else if (m_idx == p_ptr->riding)
-				Term_putstr(col++, row, 1, TERM_GREEN, ">");
-
-            Term_putstr(col, row, 11, TERM_WHITE, "     /     ");
-			
-			/* Current / max hp */
-			sprintf(buf, "%5d", m_ptr->hp);
-			Term_putstr(col, row, 5, attr, buf);
-			sprintf(buf, "%d", m_ptr->maxhp);
-			Term_putstr(col + 6, row, 5, attr, buf);
-			/*if (m_ptr->ego_whip_ct)
-                Term_putstr(col + 2, row, len, attr, "wwwwwwwww");
-            else
-                Term_putstr(col + 2, row, len, attr, "*********");*/
-        }
+        if (m_ptr->ego_whip_ct)
+            Term_putstr(col++, row, 1, TERM_ORANGE, "W");
     }
 }
 
@@ -2686,6 +2683,7 @@ static void calc_spells(void)
 {
     int            j, k, levels;
     int            num_allowed;
+    int                     num_boukyaku = 0;
 
     magic_type        *s_ptr;
     int bonus = 0;
@@ -3071,7 +3069,7 @@ int py_prorata_level_aux(int amt, int w1, int w2, int w3)
 
 /* Experimental: Adjust the non-linearity of extra hp distribution based on class.
    It's probably best to have all this in one place. See also the hp.ods design doc. */
-static int _calc_xtra_hp(int amt)
+static int _calc_xtra_hp_aux(int amt)
 {
     int w1 = 1, w2 = 1, w3 = 1;
     int class_idx = get_class_idx();
@@ -3125,9 +3123,9 @@ static int _calc_xtra_hp(int amt)
 
     case CLASS_LAWYER:
     case CLASS_RED_MAGE:
-	case CLASS_BLUE_MAGE:
     case CLASS_MIRROR_MASTER:
     case CLASS_TIME_LORD:
+    case CLASS_BLUE_MAGE:
     case CLASS_BLOOD_MAGE:
     case CLASS_NECROMANCER:
     case CLASS_POLITICIAN:
@@ -3186,6 +3184,27 @@ static int _calc_xtra_hp(int amt)
     }
 
     return py_prorata_level_aux(amt, w1, w2, w3);
+}
+
+int calc_xtra_hp_fake(int lev)
+{
+    int real_lev = p_ptr->lev;
+    int _hp;
+    p_ptr->lev = lev;
+    _hp = _calc_xtra_hp_aux(304);
+    p_ptr->lev = real_lev;
+    return _hp;
+}
+
+static int _calc_xtra_hp(int amt)
+{
+    int tulos = _calc_xtra_hp_aux(amt);
+    if ((coffee_break == SPEED_INSTA_COFFEE) && (tulos < p_ptr->lev * amt / 50))
+    {
+        tulos -= (tulos / 3);
+        tulos += (p_ptr->lev * amt / 150);
+    }
+    return tulos;
 }
 
 /*
@@ -3431,6 +3450,7 @@ void calc_bonuses(void)
     bool old_esp_unique = p_ptr->esp_unique;
     bool old_esp_magical = p_ptr->esp_magical;
     s16b old_see_inv = p_ptr->see_inv;
+    bool icky_lock = FALSE;
 
     /* Save the old armor class */
     s16b old_dis_ac = p_ptr->dis_ac;
@@ -3790,7 +3810,7 @@ void calc_bonuses(void)
         p_ptr->dis_to_a += 100;
     }
     /* Temporary shield */
-    else if (p_ptr->tsubureru || IS_STONE_SKIN() || p_ptr->magicdef)
+    else if (IS_STONE_SKIN() || p_ptr->magicdef)
     {
         int bonus = 10 + 40*p_ptr->lev/50;
         if (!(p_ptr->special_defense & KATA_MUSOU))
@@ -3798,6 +3818,12 @@ void calc_bonuses(void)
             p_ptr->to_a += bonus;
             p_ptr->dis_to_a += bonus;
         }
+    }
+
+    if (p_ptr->tsubureru)
+    {
+        p_ptr->to_a += 35;
+        p_ptr->dis_to_a += 35;
     }
 
     if (IS_OPPOSE_ACID()) res_add(RES_ACID);
@@ -3878,7 +3904,9 @@ void calc_bonuses(void)
     if (class_ptr->calc_stats)
         class_ptr->calc_stats(stats); /* after equip_calc_bonuses, which might dismiss the current posture */
 
-    if (race_ptr->calc_stats)
+    /* Hack - Igors calculate their body stats elsewhere, but have calc_stats
+     * for py_info to call */
+    if ((race_ptr->calc_stats) && (!prace_is_(RACE_IGOR)))
         race_ptr->calc_stats(stats);
 
     for (i = 0; i < MAX_STATS; i++)
@@ -4658,6 +4686,34 @@ void calc_bonuses(void)
     if (race_ptr->calc_innate_attacks && !p_ptr->innate_attack_lock)
         race_ptr->calc_innate_attacks();
 
+    /* Gain a punch attack if body has weapon/shield slots but no wielded weapons */
+    if (p_ptr->weapon_ct == 0 && equip_can_wield_kind(TV_SWORD, SV_DAGGER) && p_ptr->monk_lvl < 1)
+    {
+        innate_attack_t a = { 0 };
+        a.dd = 1;
+        a.ds = 2;
+        a.weight = 12; /* Dagger weight */
+        a.to_h = -1;
+        a.to_d = 0;
+        a.blows = 100;
+        a.msg = "You punch";
+        a.name = "Fist";
+
+        /* Hack - ghouls have better unarmed attacks */
+        if (p_ptr->prace == RACE_GHOUL)
+        {
+            a.blows = 200;
+            a.to_h = 1;
+            a.to_d = 1;
+            a.ds = 5;
+            a.msg = "You claw";
+            a.name = "Claw";
+            a.effect[1] = GF_STASIS;
+        }
+
+        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+    }
+
     /* Adjust Innate Attacks for Proficiency */
     for (i = 0; i < p_ptr->innate_attack_ct; i++)
     {
@@ -4971,14 +5027,22 @@ void calc_bonuses(void)
 
         if (p_ptr->old_icky_wield[i] != p_ptr->weapon_info[i].icky_wield)
         {
-            if (p_ptr->weapon_info[i].icky_wield)
+            if (p_ptr->pclass == CLASS_WEAPONMASTER) /* Special messages elsewhere */
             {
-                msg_print("You do not feel comfortable with your weapon.");
+                icky_lock = TRUE;
+            }
+            else if (p_ptr->weapon_info[i].icky_wield)
+            {
+                if (!icky_lock) msg_print("You do not feel comfortable with your weapon.");
+                icky_lock = TRUE;
                 if (hack_mind)
                     virtue_add(VIRTUE_FAITH, -1);
             }
             else if (p_ptr->weapon_info[i].wield_how != WIELD_NONE)
-                msg_print("You feel comfortable with your weapon.");
+            {
+                if (!icky_lock) msg_print("You feel comfortable with your weapon.");
+                icky_lock = TRUE;
+            }
             else
                 msg_print("You feel more comfortable after removing your weapon.");
 
@@ -5329,6 +5393,10 @@ void redraw_stuff(void)
     if (p_ptr->redraw & (PR_EFFECTS))
     {
         p_ptr->redraw &= ~PR_EFFECTS;
+        prt_effects();
+    }
+    else if (((bool)(p_ptr->redraw & (PR_ROGUE_KEYS))) != show_rogue_keys) /* Hack */
+    {
         prt_effects();
     }
 

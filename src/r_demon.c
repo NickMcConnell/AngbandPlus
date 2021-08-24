@@ -1,14 +1,13 @@
 #include "angband.h"
 
 static cptr _desc =
-    "Demons are powerful servants of evil and come in many forms. Being monsters, they "
-    "may not choose a normal class. Instead, they rely on their devilish powers or their "
-    "brutish strength to survive.\n \n"
-    "The various demonic races include the Balrog, powerful demons of fire; the Servants "
+    "Demons are powerful servants of evil and come in many forms. They rely on their "
+    "devilish powers or their brutish strength to survive.\n \n"
+    "The various demonic races include the Balrogs, powerful demons of fire; the Servants "
     "of Khorne, mighty warriors of destruction; the Tanar'ri, weaker demons whose ultimate "
     "form has three sets of arms, but prefers to fight naked; and Cyberdemons, whose firepower "
     "is unsurpassable.\n \n"
-    "All demon races cannot eat normal food, but must feast upon the remains of their human "
+    "Demons cannot eat normal food, but must feast upon the remains of their human "
     "enemies. They are unaffected by the Eldritch Horror.";
 
 static caster_info * _caster_info(void)
@@ -397,7 +396,7 @@ static void _marilith_birth(void) {
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_MUMAK_HIDE_ARMOR));
     py_birth_obj(&forge);
 
-    object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
+    object_prep(&forge, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
     forge.to_h = 2;
     py_birth_obj(&forge);
 
@@ -421,6 +420,28 @@ static void _marilith_calc_innate_attacks(void) {
         a.name = "Tail";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+    }
+}
+
+static void _marilith_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+{
+    int slot;
+    if (p_ptr->current_r_idx != MON_MARILITH) return;
+    if ((!o_ptr) || (!o_ptr->k_idx)) return; /* paranoia */
+
+    /* Penalize shields */
+    for (slot = equip_find_first(object_is_shield); slot; slot = equip_find_next(object_is_shield, slot))
+    {
+        int kasi = equip_which_hand(o_ptr);
+        info_ptr->icky_wield = TRUE;
+        info_ptr->to_h -= 20;
+        info_ptr->to_d -= 10;
+
+        /* Extra-penalize the weapon in the same pair of arms */
+        if ((kasi != HAND_NONE) && ((kasi / 2) == (equip_which_hand(equip_obj(slot)) / 2)))
+        {
+            info_ptr->to_h -= 24;
+        }
     }
 }
 
@@ -571,6 +592,7 @@ static race_t *_marilith_get_race_t(void)
         me.calc_innate_attacks = _marilith_calc_innate_attacks;
         me.get_spells = _marilith_get_spells;
         me.calc_bonuses = _marilith_calc_bonuses;
+        me.calc_weapon_bonuses = _marilith_calc_weapon_bonuses;
         me.get_flags = _marilith_get_flags;
         me.gain_level = _marilith_gain_level;
         me.caster_info = _caster_info;
@@ -716,7 +738,7 @@ static race_t *_balrog_get_race_t(void)
 
 
         me.subdesc = "Balrogs are demons of shadow and flame. Their evil knows no bounds. Their spells are "
-        "the most powerful of all demonkind and at very high levels they may even call forth "
+        "the most powerful of all demonkind, and at very high levels they may even call forth "
         "fires directly from hell.";
 
         me.skills = bs;
@@ -857,11 +879,14 @@ static void _cyber_get_flags(u32b flgs[OF_ARRAY_SIZE])
 static void _cyber_move_player(void)
 {
     /* Cyberdemons move erratically (cf get_rep_dir()) and make a lot of noise */
-    if (one_in_(66))
+    if ((one_in_(66)) &&
+        (!cave_have_flag_bold(py, px, FF_WATER)) &&
+        (!cave_have_flag_bold(py, px, FF_LAVA)) &&
+        (!cave_have_flag_bold(py, px, FF_ACID)))
     {
         int i;
 
-        cmsg_print(TERM_RED, "The dungeon trembles!");
+        cmsg_print(TERM_RED, py_in_dungeon() ? "The dungeon trembles!" : "The ground trembles!");
         if (disturb_minor)
             disturb(0, 0);
 
@@ -889,7 +914,10 @@ static race_t *_cyber_get_race_t(void)
         me.subname = "Cyberdemon";
         me.subdesc = "Cyberdemons are giant humanoid forms, half demon and half machine. They are a bit "
         "slow and move erratically, but their immense bodies and unsurpassable firepower "
-        "more than make up for this. The walls of the dungeon reverberate with their heavy steps!";
+        "more than make up for this. The walls of the dungeon reverberate with their heavy steps!\n\n"
+        "Cyberdemons are one of the very few monster races not to undergo evolution, and so almost all "
+        "their might is available from the beginning, although they do gain even more "
+        "strength later on and their offense becomes stronger with experience.";
         me.skills = bs;
         me.extra_skills = xs;
 

@@ -83,7 +83,7 @@ void _smash_trap_spell(int cmd, variant *res)
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
-
+/*  TODO: Take away their scroll powers and make them eat scrolls for the effect - 67% chance to work */
 static spell_info _spells[] = 
 {
    /*lvl cst fail  spell */
@@ -111,7 +111,7 @@ static void _calc_bonuses(void)
     p_ptr->sustain_dex = TRUE;
     p_ptr->sustain_con = TRUE;
     p_ptr->regen += 100;
-    p_ptr->free_act++;
+    p_ptr->free_act += 3;
     p_ptr->pspeed += 2;
     if (p_ptr->lev >= 30) p_ptr->pspeed++;
     if (p_ptr->lev >= 40) p_ptr->pspeed++;
@@ -229,26 +229,19 @@ class_t *berserker_get_class(void)
         me.name = "Berserker";
         me.desc = "A Berserker is a fearful fighter indeed, immune to fear and "
                     "paralysis. At high levels, Berserkers can reflect bolt spells "
-                    "with their tough flesh. Furthermore, they can fight without "
-                    "weapons, can remove cursed equipment by force, and can even use "
-                    "their special combat techniques when surrounded by an anti-magic "
-                    "barrier. Berserkers, however, cannot use any magical devices or "
-                    "read any scrolls, and are hopeless at all non-combat skills. "
-                    "Since Berserker Spectres are quite easy to *win* with, their "
-                    "scores are lowered.\n \n"
-                    "Berserkers use a unique system of techniques called 'Rage'. They "
-                    "gain more techniques as they gain levels. They use no magic: "
-                    "indeed, they cannot use any magic devices or activate any "
-                    "artifacts, and cannot read scrolls. To offset these great "
-                    "disadvantages, Berserkers are allowed to have an important class "
-                    "power - 'Recall'.";
+                    "with their tough flesh. Furthermore, they can remove cursed equipment "
+                    "by force, and their special combat techniques are not affected by "
+                    "anti-magic barriers. Berserkers cannot, however, use any magical devices "
+                    "or read any scrolls, and are hopeless at all non-combat skills. To "
+                    "offset these great disadvantages, they gain an important class power - "
+                    "'Recall' - very early.";
 
         me.stats[A_STR] =   8;
         me.stats[A_INT] = -20;
         me.stats[A_WIS] = -20;
         me.stats[A_DEX] =   4;
         me.stats[A_CON] =   4;
-        me.stats[A_CHR] =   -5;
+        me.stats[A_CHR] =  -5;
         me.base_skills = bs;
         me.extra_skills = xs;
         me.life = 200;

@@ -100,7 +100,7 @@ race_t *colossus_get_race(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] = -4;
         me.stats[A_CON] =  7;
-        me.stats[A_CHR] =  2;
+        me.stats[A_CHR] =  4;
         
         me.skills.dis =  0;
         me.skills.dev =  0;
@@ -175,7 +175,7 @@ race_t *demon_get_race(void)
         me.stats[A_WIS] =  2;
         me.stats[A_DEX] =  3;
         me.stats[A_CON] =  4;
-        me.stats[A_CHR] =  -3;
+        me.stats[A_CHR] =  0;
         
         me.skills.dis = -5;
         me.skills.dev = 18;
@@ -275,7 +275,7 @@ race_t *demon_lord_get_race(void)
         me.stats[A_WIS] = 10;
         me.stats[A_DEX] = 10;
         me.stats[A_CON] = 10;
-        me.stats[A_CHR] = -5;
+        me.stats[A_CHR] =  5;
         
         me.skills.dis = 20;
         me.skills.dev = 20;

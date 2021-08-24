@@ -1940,12 +1940,14 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
     {
         byte t_y, t_x;
         int max_attempts = 10;
+        static bool _lukko = FALSE;
 
         if (blind) msg_print("Something bounces!");
         else msg_print("The attack bounces!");
 
         equip_learn_flag(OF_REFLECT);
-        
+        update_smart_learn(who, SM_REFLECTION);
+
         /* Choose 'new' target */
         if (who > 0)
         {
@@ -1969,7 +1971,16 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
             t_x = px - 2 + randint0(5);
         }
 
+        imitator_learn_spell();
+        if ((p_ptr->action == ACTION_LEARN) && (!_lukko) && (who > 0))
+        {
+            blue_mage_learn_spell();
+            _lukko = TRUE;
+        }
+
         project(0, 0, t_y, t_x, dam, typ, (PROJECT_STOP|PROJECT_KILL|PROJECT_REFLECTABLE));
+
+        _lukko = FALSE;
 
         disturb(1, 0);
         return TRUE;
@@ -2757,8 +2768,19 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
     /* Hack -- Handle stuff */
     handle_stuff();
 
-    /* Giga-Hack SEEKER & SUPER_RAY */
+    /* Hack -- Track spell type */
+    while ((who == PROJECT_WHO_PLAYER) && (typ > GF_NONE) && (attack_spell_hack == ASH_UNKNOWN))
+    {
+        gf_info_ptr _tyyppi = gf_lookup(typ);
+        if ((!_tyyppi) || (!_tyyppi->name)) break;
+        if (!(_tyyppi->flags & (GFF_ATTACK | GFF_STATUS))) attack_spell_hack = ASH_NOT_ATTACK;
+        else if (_tyyppi->flags & (GFF_TERRAIN | GFF_UTILITY)) attack_spell_hack = ASH_NOT_ATTACK;
+        else if (_tyyppi->flags & GFF_STATUS) attack_spell_hack = ASH_UNASSESSED_1;
+        else attack_spell_hack = ASH_UNASSESSED_2;
+        break;
+    }
 
+    /* Giga-Hack SEEKER & SUPER_RAY */
     if( typ == GF_SEEKER )
     {
         int j;

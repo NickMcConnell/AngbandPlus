@@ -348,7 +348,6 @@ static caster_info * _shaman_caster_info(void)
     if (!init)
     {
         me.magic_desc = "spell";
-        /*me.options = CASTER_USE_HP;*/
         me.which_stat = A_INT;
         init = TRUE;
     }

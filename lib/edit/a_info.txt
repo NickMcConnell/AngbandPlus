@@ -23,7 +23,8 @@
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost
-# P: base armor class : base damage : plus to-hit & dam : plus to-ac
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus
+# to-ac
 # F: flag | flag |etc
 
 # 'N' indicates the beginning of an entry. The serial number must
@@ -63,7 +64,7 @@ N:2:of Elendil
 I:39:5:1
 W:50:25:5:32500
 P:0:1d1:0:0
-F:SEE_INVIS | HOLD_LIFE | INSTA_ART | SPEED
+F:SEE_INVIS | HOLD_LIFE | INSTA_ART | SPEED | CON | CHR | REGEN
 E:LITE_MAP_AREA:30:25
 E:The star shines brightly...
 D:The shining Star of the West, a famed heirloom of Elendil's house.
@@ -249,7 +250,7 @@ D:understanding as you stare into its depths.
 N:18:of Faramir
 I:40:0:3
 W:30:30:2:20000
-P:0:0d0:0:0
+P:0:0d0:6:0
 F:STEALTH | SHOW_MODS | HIDE_TYPE |
 F:RES_CONF | SUST_DEX |
 E:PESTICIDE:10:5
@@ -817,7 +818,7 @@ D:A dagger covered in sparks and finely balanced for deadly throws.
 N:69:of Rilia
 I:26:4:1
 W:15:15:12:35000
-P:0:3d5:6:0
+P:0:3d5:7:0
 F:SLAY_ORC | RES_POIS | RES_DISEN | SHOW_MODS | BRAND_POIS | THROWING
 F:SPEED
 E:BALL_POIS:5:6:12
@@ -842,7 +843,7 @@ E:Your dagger is covered in frost...
 N:71:'Calris'
 I:23:21:5
 W:50:15:140:100000
-P:0:5d5:20:0
+P:0:5d5:20:-20
 F:CON | HIDE_TYPE |
 F:KILL_DRAGON | SLAY_EVIL | SLAY_DEMON | SLAY_TROLL | RES_DISEN | SLAY_HUMAN |
 F:DEC_STEALTH | CURSED | HEAVY_CURSE | SHOW_MODS | VULN_FIRE
@@ -855,7 +856,7 @@ D:peril.
 N:72:'Grayswandir'
 I:26:11:4
 W:45:45:50:125000
-P:0:2d9:12:0
+P:0:2d9:16:0
 F:STR | DEX | CON | SUST_CON | SUST_STR |
 F:REGEN | FREE_ACT | SEE_INVIS |
 F:RES_CHAOS | RES_NETHER | HOLD_LIFE |
@@ -1247,7 +1248,7 @@ D:to resist and endure lie ready for he who shall wield it once more.
 N:104:'Lotharang'
 I:25:22:1
 W:10:5:170:21000
-P:0:2d9:8:0
+P:0:2d9:9:0
 F:STR | DEX | HIDE_TYPE |
 F:SLAY_TROLL | SLAY_ORC | SHOW_MODS
 E:HEAL:10:4:30
@@ -1492,10 +1493,10 @@ D:of the Undead!
 
 # The Lucerne Hammer 'Turmil'
 
-N:122:'Turmil'
+N:122:'Soulstone'
 I:22:12:4
 W:20:10:120:30000
-P:0:2d6:6:8
+P:0:2d6:8:8
 F:WIS | INFRA | HIDE_TYPE | BLESSED |
 F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN |
 F:SHOW_MODS | XTRA_H_RES
@@ -1635,7 +1636,7 @@ F:KILL_DRAGON | ESP_DRAGON | IM_FIRE | XTRA_RES_OR_POWER
 D:At the Nirnaeth the Dwarves stayed the onslaught of Glaurung, and
 D:Azaghal their lord drove this short blade into the drake's belly before
 D:he was trampled underfoot. The black blood of the Father of Dragons
-D:now serves as a rememberance for all dragons that come near it.
+D:now serves as a remembrance for all dragons that come near it.
 
 N:136:'Mjollnir'
 I:21:8:4
@@ -1645,7 +1646,7 @@ F:BRAND_ELEC | IM_ELEC | STR | DEX | THROWING | SLAY_GIANT
 D:The famous throwing hammer of the Norse god Thor, it crackles with
 D:lightning as you swing it at your opponents.
 
-N:137:'Goln Nova'
+N:137:'Nova Blade'
 I:23:17:2
 W:30:50:150:100000
 P:0:2d6:15:0
@@ -2091,7 +2092,7 @@ E:CHARM_ANIMAL:25:200
 N:189:of Destruction
 I:26:33:4
 W:70:8:30:100000
-P:0:3d7:25:0
+P:0:3d7:25:-25
 F:STR | DEX | BLOWS | BRAND_CHAOS | CURSED | HEAVY_CURSE | TY_CURSE | AGGRAVATE
 F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | BRAND_ACID | BRAND_POIS | SPEED
 
@@ -2102,6 +2103,7 @@ P:0:6d6:16:0
 F:BRAND_VAMP | STR | CON | FREE_ACT | HOLD_LIFE | RES_NETHER | RES_CONF |
 F:RES_CHAOS | QUESTITEM
 F:SLAY_HUMAN | SLAY_GOOD
+D:Death is all. Beware, cursed is the wielder.
 
 N:191:'Narsil'
 I:23:8:3
@@ -2181,7 +2183,7 @@ F:FREE_ACT | SEE_INVIS
 E:RESISTANCE:30:111
 E:Your armor glows many colors ...
 
-N:202:'Ama-no-NumaHoko'
+N:202:of the Red Rooster
 I:22:5:4
 W:50:40:240:150000
 P:0:2d10:20:0
@@ -2695,7 +2697,7 @@ N:254:'Big Punch'
 I:21:15:0
 W:50:50:800:150000
 P:0:8d6:3:-6
-F:HIDE_TYPE | SHOW_MODS |
+F:HIDE_TYPE | SHOW_MODS | RES_SOUND
 D:This gigantic, dull-gray mace was rumored to be a gift
 D:from an ancient dwarven king to an adventurer for saving
 D:his people from a fearsome demon.

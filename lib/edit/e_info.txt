@@ -15,7 +15,7 @@
 
 # N: ego_id : descriptive name
 # T: type | type | etc
-# C: max plus : max to-ac : pval
+# C: max to-hit : max to-dam : max to-ac : pval
 # W: depth : max_depth : rarity
 # F: flag | flag | etc
 # E: effect : level : timeout
@@ -311,7 +311,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:61:(Orcish)
 T:SHIELD
 W:10:*:3
-C:6:10:3
+C:5:10:3
 F:STR | RES_DARK | XTRA_E_RES
 F:DEC_INT | DEC_STEALTH | VULN_LITE |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -578,7 +578,7 @@ F:CON | SUST_CON
 N:114:of the Kobold
 T:HELMET
 W:10:70:4
-C:5:0:2
+C:4:0:2
 F:STR | RES_POIS | DEC_CHR | SHOW_MODS
 
 N:115:of the Troll
@@ -619,7 +619,7 @@ E:HEROISM:15:50
 N:120:of Rage
 T:HELMET
 W:40:*:32
-C:10:-10:3
+C:5:-10:3
 F:STR | RES_FEAR
 F:DEC_INT | DEC_WIS
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -629,7 +629,7 @@ E:BERSERK:10:50
 N:121:of the Tomte
 T:HELMET
 W:10:*:2
-C:-8:3:5
+C:4:3:5
 F:STEALTH |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:SHOW_MODS
@@ -693,13 +693,13 @@ F:SHOW_MODS | AWARE
 N:136:of the Thief
 T:GLOVES
 W:10:*:3
-C:-5:0:4
+C:2:0:4
 F:DEX | STEALTH | SUST_DEX | HIDE_TYPE
 
 N:137:of the Giant
 T:GLOVES
 W:40:*:6
-C:10:0:4
+C:8:0:4
 F:STR | CON | SHOW_MODS | HIDE_TYPE | SUST_STR |
 F:DEC_INT
 
@@ -719,7 +719,7 @@ F:RES_ACID | IGNORE_ACID
 N:140:of Genji
 T:GLOVES
 W:60:*:16
-C:0:0:3
+C:8:0:3
 F:DEX | SHOW_MODS | HIDE_TYPE | DUAL_WIELDING
 
 N:141:of the Sniper
@@ -820,7 +820,7 @@ F:STR
 N:163:of Extra Shots
 T:BOW
 W:10:*:2
-C:2:0:0
+C:3:0:0
 F:XTRA_SHOTS | AWARE
 
 N:164:of Lothlorien
@@ -840,14 +840,14 @@ F:IGNORE_ACID | IGNORE_FIRE
 N:166:of Buckland
 T:BOW
 W:30:*:3
-C:5:0:3
+C:10:0:3
 F:SPEED | XTRA_SHOTS |
 F:IGNORE_ACID | IGNORE_FIRE
 
 N:167:of the Hunter
 T:BOW
 W:20:*:3
-C:5:0:4
+C:10:0:4
 F:STEALTH
 
 ############
@@ -949,7 +949,7 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 N:211:of the Dwarves
 T:RING
 W:70:*:0
-C:13:0:2
+C:11:0:2
 F:STR | CON | TUNNEL | DEC_STEALTH
 F:REGEN | RES_BLIND | XTRA_H_RES
 F:RANDOM_CURSE2 | DRAIN_EXP | HEAVY_CURSE

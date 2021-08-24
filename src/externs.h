@@ -106,8 +106,6 @@ extern cptr exp_level_str[5];
 extern cptr silly_attacks[MAX_SILLY_ATTACK];
 extern cptr ident_info[];
 extern byte feature_action_flags[FF_FLAG_MAX];
-extern monster_power monster_powers[MAX_MONSPELLS];
-extern cptr monster_powers_short[MAX_MONSPELLS];
 extern cptr PROFICIENCIES[MAX_PROFICIENCIES];
 
 /* variable.c */
@@ -138,6 +136,7 @@ extern bool character_xtra;
 extern bool creating_savefile;
 extern u32b seed_flavor;
 extern u32b seed_town;
+extern u32b chaotic_py_seed;
 extern s16b command_cmd;
 extern s16b command_arg;
 extern s16b command_rep;
@@ -188,7 +187,9 @@ extern s16b m_cnt;
 extern s16b hack_m_idx;
 extern s16b hack_m_idx_ii;
 extern s16b warning_hack_hp;
+extern s16b shuffling_hack_hp;
 extern byte poison_warning_hack;
+extern bool spawn_hack;
 extern s16b run_count;
 extern int hack_max_m_dam;
 extern int total_friends;
@@ -200,12 +201,30 @@ extern byte summon_pantheon_hack;
 extern bool quest_reward_drop_hack;
 extern bool very_nice_summon_hack;
 extern bool predictable_energy_hack;
-extern bool delay_autopick_hack;
+extern byte delay_autopick_hack;
+extern bool obj_list_autopick_hack;
 extern bool monsters_damaged_hack;
 extern bool shop_exit_hack;
 extern bool no_karrot_hack;
+extern bool allow_special3_hack;
+extern bool temporary_name_hack;
+extern bool online_macro_hack;
+extern bool recall_stairs_hack;
+extern byte attack_spell_hack;
+enum
+{
+    ASH_NONE = 0,
+    ASH_UNKNOWN,
+    ASH_NOT_ATTACK,
+    ASH_USEFUL_ATTACK,
+    ASH_UNASSESSED_1,
+    ASH_UNASSESSED_2,
+    ASH_USELESS_ATTACK
+};
 extern byte troika_spell_hack;
 extern byte spell_problem;
+extern s16b vampirism_hack;
+extern byte autopick_inkey_hack;
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
@@ -267,7 +286,7 @@ extern bool plain_descriptions;    /* Plain object descriptions */
 extern bool always_show_list;    /* Always show list when choosing items */
 extern bool depth_in_feet;    /* Show dungeon level in feet */
 extern bool effective_speed;  /* Use Ighalli's speed display */
-extern bool show_labels;    /* Show labels in object listings */
+extern bool describe_slots;    /* Show equipment slot descriptions */
 extern bool show_weights;    /* Show weights in object listings */
 extern bool show_discounts;
 extern bool show_item_graph;    /* Show items graphics */
@@ -288,11 +307,14 @@ extern bool show_discovery; /* Show pickup time */
 extern bool final_dump_origins; /* Show equipment origins in final dumps */
 extern bool always_dump_origins; /* Show equipment origins in all dumps */
 extern bool list_stairs; /* Display stairs in the object list */
+extern bool show_future_powers; /* Include future powers in lists */
+extern bool show_future_spells; /* Include future spells in lists */
 extern bool display_skill_num; /* Give skills numerically in char sheet */
 extern bool reforge_details; /* Show statistics before reforge */
 extern bool auto_sticky_labels; /* Automatically make power labels sticky */
 extern bool show_damage; /* Show the exact damage dealt and taken - no longer a score modifier */
 extern bool show_power; /* Display device powers in inventory */
+extern bool show_rogue_keys; /* Display roguelike keys if possible */
 
 /*** Game-Play Options ***/
 
@@ -304,7 +326,6 @@ extern bool bound_walls_perm;    /* Boundary walls become 'permanent wall' */
 extern bool delay_autopick;  /* Always use delayed autopick */
 extern bool last_words;    /* Leave last words when your character dies */
 extern bool unified_use;	/* Use a single 'a' command to use any item */
-
 #ifdef WORLD_SCORE
 extern bool send_score;    /* Send score dump to the world score server */
 #endif
@@ -315,6 +336,7 @@ extern bool find_ignore_stairs;    /* Run past stairs */
 extern bool find_ignore_doors;    /* Run through open doors */
 extern bool find_ignore_veins;  /* Run past gold veins */
 extern bool find_cut;    /* Run past known corners */
+extern bool travel_ignore_items;  /* Ignore identified items while travelling */
 extern bool check_abort;    /* Check for user abort while continuous command */
 extern bool flush_failure;    /* Flush input on various failures */
 extern bool flush_disturb;    /* Flush input whenever disturbed */
@@ -337,10 +359,10 @@ extern bool alert_poison;       /* Alert on poisoning */
 
 /*** Birth Options ***/
 
-extern bool coffee_break;   /* Coffeebreak mode */
-extern bool no_id;        /* No ID needed */
+extern byte coffee_break;   /* Coffeebreak mode */
+extern bool no_id;        /* All items / flavors IDed at start */
 extern bool power_tele;     /* Use old-style, non-fuzzy telepathy */
-extern bool xp_penalty_to_score;    /* XP modifiers used to modify score instead. Was smart_learn. (*) */
+extern bool xp_penalty_to_score;    /* XP modifiers used to modify score instead. (*) */
 extern bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
 extern bool no_wilderness;  /* Play without a normal wilderness */
 extern bool ironman_shops;    /* Stores are permanently closed (*) */
@@ -369,6 +391,9 @@ extern bool even_proportions;
 extern bool no_big_dungeons;
 extern bool thrall_mode;
 extern bool wacky_rooms;
+extern bool melee_challenge;
+extern bool no_melee_challenge;
+extern bool no_wanted_points;
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -383,6 +408,7 @@ extern bool leave_wanted;    /* Auto-destroyer leaves wanted corpses */
 extern bool leave_corpse;    /* Auto-destroyer leaves corpses and skeletons */
 extern bool leave_junk;    /* Auto-destroyer leaves junk */
 extern bool leave_special;    /* Auto-destroyer leaves items your race/class needs */
+extern bool leave_mogaminator; /* Read "destroy" as "leave" */
 extern bool no_mogaminator;
 
 extern bool cheat_peek;
@@ -410,6 +436,7 @@ extern int player_euid;
 extern int player_egid;
 extern char player_name[32];
 extern char player_base[32];
+extern char pref_save_base[32];
 extern char savefile[1024];
 extern char savefile_base[40];
 extern s16b lite_n;
@@ -615,6 +642,7 @@ extern s16b feat_swamp;
 extern s16b feat_undetected;
 extern s16b feat_dark_pit;
 extern s16b feat_web;
+extern s16b feat_table;
 
 extern byte dungeon_type;
 extern s16b *max_dlv;
@@ -635,16 +663,20 @@ extern s32b now_turn;
 extern bool use_menu;
 
 /* autopick.c */
+#define ALP_DISP_MES 0x01
+#define ALP_CHECK_NUMERALS 0x02
+#define ALP_NEW_GAME 0x04
+extern void autopick_load_pref(byte mode);
 extern bool_hack simple_item_check(object_type *o_ptr);
-extern void autopick_load_pref(bool disp_mes);
 extern errr process_autopick_file_command(char *buf);
 #define AUTOPICK_COLOR_CODED 0x01
 extern string_ptr autopick_line_from_entry(autopick_type *entry, int options);
 extern int is_autopick(object_type *o_ptr);
 extern void autopick_alter_obj(obj_ptr o_ptr, bool allow_destroy);
-extern void autopick_get_floor(void);
+extern void autopick_get_floor(bool allow_identified);
 extern bool autopick_autoregister(object_type *o_ptr);
 extern void do_cmd_edit_autopick(void);
+extern bool object_is_icky(object_type *o_ptr, bool assume_id);
 
 /* birth.c */
 extern cptr realm_jouhou[VALID_REALM];
@@ -665,6 +697,11 @@ extern void py_birth_obj_aux(int tval, int sval, int qty);
 extern void py_birth_food(void);
 extern void py_birth_light(void);
 extern void py_birth_spellbooks(void);
+extern int find_roman_numeral(char *nimi);
+extern int find_arabic_numeral(char *nimi, int *paikka);
+extern bool num_to_roman(int _num, char *buf);
+extern void bump_numeral(char *nimi, int muutos);
+extern bool name_is_numbered(char *nimi);
 
 /* cave.c */
 extern int distance(int y1, int x1, int y2, int x2);
@@ -720,6 +757,7 @@ extern void object_kind_track(int k_idx);
 extern void disturb(int stop_search, int flush_output);
 extern void glow_deep_lava_and_bldg(void);
 extern void py_get_display_char_attr(char *c, byte *a);
+extern bool floor_find_obj(int y, int x, int tval, int sval);
 
 /* cmd1.c */
 extern void death_scythe_miss(object_type *o_ptr, int hand, int mode);
@@ -740,6 +778,7 @@ extern critical_t critical_throw(int weight, int plus);
 
 extern s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, int mode, bool thrown);
 extern void search(void);
+extern bool no_melee_check(void);
 extern bool py_attack(int y, int x, int mode);
 extern bool pattern_seq(int c_y, int c_x, int n_y, int n_x);
 extern bool player_can_enter(s16b feature, u16b mode);
@@ -956,6 +995,7 @@ extern cptr info_radius(int rad);
 extern cptr info_power(int power);
 extern cptr info_delay(int base, int sides);
 extern cptr info_weight(int weight);
+extern cptr info_dist(int dist);
 extern bool cast_summon_greater_demon(void);
 extern bool cast_wrath_of_the_god(int dam, int rad);
 bool trump_summoning(int num, bool pet, int y, int x, int lev, int type, u32b mode);
@@ -975,9 +1015,11 @@ extern s32b turn_real(s32b hoge);
 extern void prevent_turn_overflow(void);
 extern void process_world_aux_movement(void);  /* yuk!  refactor the recall code instead */
 extern void fame_on_failure(void);
+extern void gain_fame(int amt);
 extern byte coffeebreak_recall_level(bool laskuri);
 extern void recharged_notice(object_type *o_ptr, unsigned char neula);
 extern byte value_check_aux1(object_type *o_ptr); /* pseudo-id */
+extern void load_user_pref_files(void);
 
 /* files.c */
 extern bool check_score(void);
@@ -1081,8 +1123,8 @@ extern cptr err_str[PARSE_ERROR_MAX];
 extern errr init_buildings(void);
 extern s16b f_tag_to_index_in_init(cptr str);
 extern void init_angband(void);
-extern void display_news_win(int n);
 extern void display_news(void);
+extern void display_news_win(int n);
 
 /* load.c */
 extern errr rd_savefile_new(void);
@@ -1219,6 +1261,7 @@ extern bool alloc_monster(int dis, u32b mode);
 extern bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode);
 extern bool summon_named_creature (int who, int oy, int ox, int r_idx, u32b mode);
 extern bool multiply_monster(int m_idx, bool clone, u32b mode);
+extern void update_smart_learn(int m_idx, int what);
 extern void choose_new_monster(int m_idx, bool born, int r_idx);
 extern byte get_mspeed(monster_race *r_ptr);
 extern bool player_place(int y, int x);
@@ -1732,6 +1775,7 @@ extern int  weight_limit(void);
 extern int  py_total_weight(void);
 extern void calc_bonuses(void);
 extern void calc_innate_blows(innate_attack_ptr a, int max);
+extern int  calc_xtra_hp_fake(int lev);
 extern void notice_stuff(void);
 extern void update_stuff(void);
 extern void redraw_stuff(void);
@@ -1891,7 +1935,7 @@ extern cptr extract_note_dies(monster_race *r_ptr);
 extern void monster_death(int m_idx, bool drop_item);
 extern bool get_monster_drop(int m_idx, object_type *o_ptr);
 extern byte get_monster_drop_ct(monster_type *m_ptr);
-extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool sentence);
+extern bool mon_take_hit(int m_idx, int dam, int type, bool *fear, cptr note);
 extern void mon_check_kill_unique(int m_idx);
 extern void resize_map(void);
 extern void redraw_window(void);
@@ -2000,14 +2044,6 @@ extern int  anti_magic_check(void);
 extern bool direct_beam(int y1, int x1, int y2, int x2, monster_type *m_ptr);
 extern bool breath_direct(int y1, int x1, int y2, int x2, int rad, int typ, bool friend);
 extern void get_project_point(int sy, int sx, int *ty, int *tx, int flg);
-
-/* blue_mage.c */
-extern byte blue_mage_mask[MS_MAX];
-
-/* mspells3.c */
-extern bool do_cmd_cast_learned(void);
-extern int get_monspell(byte type, s16b effect);
-extern void learn_monster_spell(int monspell);
 
 /* artifact.c */
 extern int original_score;
@@ -2262,6 +2298,13 @@ extern bool magic_barrier_aux(mon_ptr m_ptr);
 extern bool multiply_barrier(int m_idx);
 
 /* personalities.c */
+extern bool personality_is_(int idx);
+extern bool personality_includes_(int idx);
+extern void split_shuffle(bool birth);
+extern void split_copy_status(byte status[MAX_PERSONALITIES], bool uusi);
+extern void split_save(savefile_ptr file);
+extern void split_load(savefile_ptr file);
+extern void split_dump(doc_ptr doc, int mode);
 extern personality_ptr get_personality_aux(int index);
 extern personality_ptr get_personality(void);
 
@@ -2311,23 +2354,30 @@ extern race_t *draconian_get_race(int psubrace);
 extern race_t *dunadan_get_race(void);
 extern race_t *dwarf_get_race(void);
 extern race_t *einheri_get_race(void);
-extern race_t *ent_get_race(void);
+extern race_t* ent_get_race(void);
+extern race_t *ghoul_get_race(void);
 extern race_t *gnome_get_race(void);
 extern race_t *golem_get_race(void);
 extern race_t *half_giant_get_race(void);
-extern race_t *half_ogre_get_race(void);
 extern race_t *half_orc_get_race(void);
 extern race_t *half_titan_get_race(void);
 extern race_t *half_troll_get_race(void);
 extern race_t *high_elf_get_race(void);
 extern race_t *hobbit_get_race(void);
 extern race_t *human_get_race(void);
+extern s32b    igor_cost(object_type *o_ptr, int options);
+extern race_t *igor_get_race(void);
+extern void    igor_body_bonuses(void);
+extern bool    igor_dissect_corpse(object_type *w_ptr);
+extern slot_t  igor_find_art(int which);
 extern race_t *imp_get_race(void);
+extern race_t *icky_thing_get_race(void);
 extern race_t *klackon_get_race(void);
 extern race_t *kobold_get_race(void);
 extern race_t *kutar_get_race(void);
 extern race_t *mindflayer_get_race(void);
 extern race_t *nibelung_get_race(void);
+extern race_t *ogre_get_race(void);
 extern race_t *shadow_fairy_get_race(void);
 extern race_t *skeleton_get_race(void);
 extern race_t *snotling_get_race(void);
@@ -2405,7 +2455,7 @@ extern void    possessor_on_take_hit(void);
 extern void    possessor_on_birth(void);
 extern bool    possessor_can_attack(void);
 extern void    possessor_attack(point_t where, bool *fear, bool *mdeath, int mode);
-extern void    possessor_cast(void);
+extern void    possessor_cast();
 extern
 caster_info   *possessor_caster_info(void);
 extern void    possessor_calc_bonuses(void);
@@ -2479,6 +2529,7 @@ extern race_t *wolf_get_race(void);
 /* classes.c */
 extern class_t *get_class(void);
 extern class_t *get_class_aux(int pclass, int psubclass);
+extern bool class_is_deprecated(int i);
 extern int lookup_class_idx(cptr name);
 extern int get_class_idx(void);
 extern caster_info *get_caster_info(void);
@@ -2526,7 +2577,7 @@ extern void     troika_punish_quest_fail(void);
 extern bool     troika_allow_equip_item(object_type *o_ptr);
 extern bool     troika_allow_use_device(object_type *o_ptr);
 extern void     troika_bonus_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
-extern void nonlethal_ty_substitute(bool do_dec);
+extern void     nonlethal_ty_substitute(bool do_dec);
 
 /* duelist.c */
 extern cptr duelist_current_challenge(void);
@@ -2700,7 +2751,7 @@ extern void     rune_calc_stats(object_type *o_ptr, s16b stats[MAX_STATS]);
 extern class_t *rune_knight_get_class(void);
 extern int      rune_knight_absorption(int m_idx, int type, int dam);
 
-/* samurai.c */
+/* samurai.c */																	 
 extern void     samurai_concentration_spell(int cmd, variant *res);
 extern void     cast_concentration(void);
 extern bool     samurai_can_concentrate(void);
@@ -2770,6 +2821,7 @@ extern void     dungeon_statup_load(savefile_ptr file);
 extern void     dungeon_statup_save(savefile_ptr file);
 
 /* skills.c */
+extern skill_table *s_info; /* deprecated ... in process of removing naked table reads*/
 extern void skills_add(skills_t *dest, skills_t *src);
 extern void skills_scale(skills_t *dest, int num, int denom);
 extern void skills_init(skills_t *dest);
@@ -2785,6 +2837,7 @@ extern void monster_proficiencies(void);
 
 extern int skills_bow_current(int sval);
 extern int skills_bow_max(int sval);
+extern void skills_bow_gain(int sval, int rlvl);
 extern int skills_bow_calc_bonus(int sval);
 extern cptr skills_bow_describe_current(int sval);
 
@@ -2865,7 +2918,10 @@ extern void wild_reset_counter(int power);
 extern void change_realm_power(int cmd, variant* res);
 
 /* chaos_patron.c */
-extern void     chaos_choose_effect(int);
-extern bool		worships_chaos();
-extern cptr     chaos_patron_name(int);
+extern void chaos_choose_effect(int);
+extern bool worships_chaos();
+extern cptr chaos_patron_name(int);
 extern void chaos_patron_reward(int category);
+
+/* imitator.c */
+extern bool double_revenge;

@@ -170,7 +170,6 @@ cptr do_law_spell(int spell, int mode)
     case 6:
         if (name) return "Identify";
         if (desc) return "Identifies an item.";
-
         {
             if (cast)
             {
@@ -557,13 +556,13 @@ cptr do_law_spell(int spell, int mode)
                 if (r_ptr->flagsr & RFR_RES_ALL)
                 {
                     mon_lore_r(m_ptr, RFR_RES_TELE);
-                    msg_format("%s is unaffected!", m_name);
+                    msg_format("%^s is unaffected!", m_name);
                     break;
                 }
                 else if (r_ptr->level > (p_ptr->pclass == CLASS_LAWYER ? randint1(100) + plev : randint1(100)))
                 {
                     mon_lore_r(m_ptr, RFR_RES_TELE);
-                    msg_format("%s resists!", m_name);
+                    msg_format("%^s resists!", m_name);
                     break;
                 }
             }
@@ -688,7 +687,7 @@ class_t *lawyer_get_class(void)
                   " avoid dangerous fights, to acquire knowledge about the world around"
                   " him, and to make friends and influence people. As he relies on his"
                   " familiarity with Law and with tricks and approaches that have"
-                  " worked in the past, the lawyer uses WIS as his spellcasting stat.";
+                  " worked in the past, the lawyer uses Wisdom as his spellcasting stat.";
 
         me.stats[A_STR] = -3;
         me.stats[A_INT] =  2;

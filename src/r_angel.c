@@ -1,17 +1,14 @@
 #include "angband.h"
 
 static cptr _desc =
-    "Angels are heavenly beings on a holy mission. They are winged creatures able "
-    "to fly over chasms and pits. They also become resistant to the elements as they "
-    "mature and are not fooled by invisibility. Their stats are truly awe-inspiring "
-    "making them one of the most powerful monster races.\n \n"
-    "Angels are monsters so cannot choose a normal class. Instead, they rely on their "
-    "divine powers which function like spells but need not be learned or cast from books. "
-    "These powers can be used while blinded, but not while confused and they are also "
-    "blocked by Anti-magic. The divine powers of the angel are quite powerful offering good "
-    "offense combined with detection, healing and melee enhancement. Wisdom is the "
-    "primary spell stat.\n \n"
-    "Angels use the same equipment slots as normal player races and have no innate attacks.";
+    "Angels are heavenly beings on a holy mission. Their wings allow them to "
+    "fly over chasms and pits. They are rarely fooled by invisibility, and "
+    "become resistant to the elements as they mature. Their stats are truly awe-inspiring, "
+    "and their divine magic extremely strong, offering good offense combined with detection, "
+    "healing, melee enhancement and utility. Angels are one of the most powerful "
+    "races, but they also gain levels extremely slowly.\n \n"
+    "Angels have a humanoid body type; they use the same equipment slots as most normal "
+    "player races, and have no innate melee attacks. Wisdom is their primary spell stat.";
 
 static void _birth(void)
 {
@@ -35,7 +32,6 @@ static void _birth(void)
 /******************************************************************************
  *              10           20        30        40        45          50
  * Angel: Angel -> Archangel -> Cherub -> Seraph -> Archon -> Planetar -> Solar
- * Celestial: Lesser -> Normal -> Astral -> Planar -> Solar -> Galactic -> Cosmic
  ******************************************************************************/
 static void _psycho_spear_spell(int cmd, variant *res)
 {
@@ -170,37 +166,37 @@ static void _gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_ANGEL && new_level >= 10)
     {
         p_ptr->current_r_idx = MON_ARCHANGEL;
-        msg_print("You have evolved into a Celestial.");
+        msg_print("You have evolved into an Archangel.");
         p_ptr->redraw |= PR_MAP;
     }
     if (p_ptr->current_r_idx == MON_ARCHANGEL && new_level >= 20)
     {
         p_ptr->current_r_idx = MON_CHERUB;
-        msg_print("You have evolved into an Astral Celestial.");
+        msg_print("You have evolved into a Cherub.");
         p_ptr->redraw |= PR_MAP;
     }
     if (p_ptr->current_r_idx == MON_CHERUB && new_level >= 30)
     {
         p_ptr->current_r_idx = MON_SERAPH;
-        msg_print("You have evolved into a Planar Celestial");
+        msg_print("You have evolved into a Seraph.");
         p_ptr->redraw |= PR_MAP;
     }
     if (p_ptr->current_r_idx == MON_SERAPH && new_level >= 40)
     {
         p_ptr->current_r_idx = MON_ARCHON;
-        msg_print("You have evolved into a Solar Celestial");
+        msg_print("You have evolved into an Archon.");
         p_ptr->redraw |= PR_MAP;
     }
     if (p_ptr->current_r_idx == MON_ARCHON && new_level >= 45)
     {
         p_ptr->current_r_idx = MON_PLANETAR;
-        msg_print("You have evolved into a Galactic Celestial.");
+        msg_print("You have evolved into a Planetar.");
         p_ptr->redraw |= PR_MAP;
     }
     if (p_ptr->current_r_idx == MON_PLANETAR && new_level >= 50)
     {
         p_ptr->current_r_idx = MON_SOLAR;
-        msg_print("You have evolved into a Cosmic Celestial.");
+        msg_print("You have evolved into a Solar.");
         p_ptr->redraw |= PR_MAP;
     }
 }
@@ -208,7 +204,7 @@ static race_t *_solar_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[7] =  {"Lesser Celestial", "Celestial", "Astral Celestial", "Planar Celestial", "Solar Celestial", "Galactic Celestial", "Cosmic Celestial"};
+    static cptr   titles[7] =  {"Angel", "Archangel", "Cherub", "Seraph", "Archon", "Planetar", "Solar"};
     int           rank = 0;
 
     if (p_ptr->lev >= 10) rank++;
@@ -255,7 +251,7 @@ static caster_info * _caster_info(void)
     static bool init = FALSE;
     if (!init)
     {
-        me.magic_desc = "cosmic power";
+        me.magic_desc = "angelic power";
         me.which_stat = A_WIS;
         me.encumbrance.max_wgt = 450;
         me.encumbrance.weapon_pct = 67;
@@ -279,7 +275,7 @@ race_t *mon_angel_get_race(void)
         result = _solar_get_race_t();
     }
 
-    result->name = "Celestial";
+    result->name = "Angel";
     result->desc = _desc;
     result->flags = RACE_IS_MONSTER;
     result->birth = _birth;

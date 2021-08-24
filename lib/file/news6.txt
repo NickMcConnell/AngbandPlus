@@ -1,0 +1,27 @@
+<color:y>Oposband <$:version></color>
+<style:screenshot>
+<color:s>The Sexy Swimsuit of the Valkyrie [0,+13]</color>                                       
+  <color:G>+3</color> to STR, DEX, CON                                               LEVEL <color:G>    50</color>
+  Resist <color:G>Poison</color>, <color:D>Dark</color>, <color:R>Confusion</color>, <color:R>Fear</color>                              EXP <color:G>   15.1M</color>
+  <color:B>See Invisible</color>                                                     AU  <color:G>   4.96M</color>
+                                                                    <color:d>            </color>
+  <color:U>Activation:</color> <color:B>Stone Skin</color>                                            STR!: <color:G>18/210</color>
+  <color:U>Info:</color>       Dur d20 + 20                                          INT!: <color:G> 18/90</color>
+  <color:U>Fail:</color>       1.6%                                                  WIS!: <color:G>18/200</color>
+  <color:U>Timeout:</color>    150                                                   DEX!: <color:G>18/160</color>
+                                                                    CON!: <color:G>18/210</color>
+  <color:r>Aggravates</color>                                                        CHR!: <color:G>18/150</color>
+  <color:B>It cannot be harmed by the elements.</color>                              AC     <color:G>  239</color>
+  <color:B>Score:</color> <color:u>28.7k</color> (L52)                                                HP <color:G>1148</color>/<color:G>1148</color>
+                                                                    SP <color:y> 225</color>/<color:G> 409</color>
+                                                                                
+<color:B>[Press </color><color:y>Any Key</color><color:B> to Continue]</color>                                         @ <color:G>100%</color>      
+                                                                    <color:W>?</color> <color:y> 55%</color>      
+                                                                    <color:U>,</color> <color:G>143%</color>      
+                                                                                
+...####....##########.#              #######...#               #.<color:s>%</color>              
+...#  ####...<color:y>"</color>#...<color:D>^</color>...#                    ###.#               #.#              
+...#     ####...###...#                      #<color:U>'</color>#               #.#  <color:y>Fast (+29)</color>  
+####   #######........#                     ##.#               <color:s>%</color>.<color:s>%</color>  <color:G>Full</color>        
+<color:B>Angband: L73</color>                  <color:y>Ultima</color> <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>                   
+</style>

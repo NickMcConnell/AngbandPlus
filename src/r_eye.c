@@ -327,6 +327,7 @@ static void _gain_level(int new_level) {
         p_ptr->current_r_idx = MON_UNDEAD_BEHOLDER;
         msg_print("You have evolved into an Undead Beholder.");
         equip_on_change_race();
+        lp_player(1000); /* undead - no life drain */
         p_ptr->redraw |= PR_MAP | PR_BASIC;
     }
     if (p_ptr->current_r_idx == MON_UNDEAD_BEHOLDER && new_level >= 45)
@@ -376,19 +377,18 @@ race_t *mon_beholder_get_race(void)
                     "even paralyzes their foes. They are unable to wield normal weapons or armor, but "
                     "may equip a single ring on each of their eyestalks, and the number of eyestalks "
                     "increases as the beholder evolves.\n \n"
-                    "Beholders are monsters so cannot choose a normal class. Instead, they gain powers "
-                    "as they evolve, including some limited offensive capabilities. But the beholders "
-                    "primary offense will always be their powerful gaze. Intelligence is the primary "
-                    "spell stat and beholders are quite intelligent indeed. Their searching and "
-                    "perception are legendary and they are quite capable with magical devices. "
-                    "However, they are not very strong and won't be able to stand long against "
-                    "multiple foes.\n \n"
+                    "Beholders gain powers as they evolve, including some strong offensive spells; "
+                    "but their primary offense will always be their powerful gaze. Intelligence is their "
+                    "spell stat, and beholders are quite intelligent indeed. Their searching and "
+                    "perception are legendary, and they are quite capable with magical devices. "
+                    "However, they are not very strong and must be careful when surrounded by "
+                    "foes.\n \n"
                     "The attack of the beholder is unique. Since their gaze is not a normal physical "
                     "attack, they receive no benefit to melee from their Strength and Dexterity. Also, "
                     "the number of attacks is determined by level rather than the normal way: in this "
                     "respect, they resemble monks. Finally, the beholder need not be next to their foes "
-                    "in order to attack with melee. They may gaze at distant monsters, though the range "
-                    "of their gaze is somewhat restricted.";
+                    "in order to attack with melee; they may gaze at distant monsters, though the range "
+                    "of their gaze is somewhat restricted, and prolonged long-distant gazing will tire them out.";
 
         me.skills = bs;
         me.extra_skills = xs;
@@ -408,7 +408,6 @@ race_t *mon_beholder_get_race(void)
         me.get_flags = _get_flags;
         me.gain_level = _gain_level;
 
-        me.flags = RACE_IS_MONSTER;
         me.boss_r_idx = MON_OMARAX;
         init = TRUE;
     }
@@ -423,6 +422,11 @@ race_t *mon_beholder_get_race(void)
     me.stats[A_CHR] =  0 + rank/2;
 
     me.pseudo_class_idx = CLASS_MAGE;
+    me.flags = RACE_IS_MONSTER;
+    if (p_ptr->current_r_idx == MON_UNDEAD_BEHOLDER)
+    {
+        me.flags |= (RACE_IS_NONLIVING | RACE_IS_UNDEAD);
+    }
 
     me.equip_template = mon_get_equip_template();
 

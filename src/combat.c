@@ -14,7 +14,7 @@ int hit_chance_innate(int to_h, int ac)
         ac = ac * (100 - p_ptr->lev) / 100;
 
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
-    if (p_ptr->personality == PERS_LAZY) odds = (19 * odds + 10) / 20;
+    if (personality_is_(PERS_LAZY)) odds = (19 * odds + 10) / 20;
     if (odds < 50) odds = 50;
     return (odds+5)/10;
 }
@@ -31,7 +31,7 @@ int hit_chance(int hand, int to_h, int ac)
     if (chance <= 0) return 0;
 
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
-    if (p_ptr->personality == PERS_LAZY) odds = (19 * odds + 10) / 20;
+    if (personality_is_(PERS_LAZY)) odds = (19 * odds + 10) / 20;
     if (odds < 50) odds = 50;
     return (odds+5)/10;
 }
@@ -44,9 +44,10 @@ int throw_hit_chance(int to_h, int ac, int range)
     if (p_ptr->stun)
         chance -= chance * MIN(100, p_ptr->stun) / 150;
     if (chance <= 0) return 0;
+    if (melee_challenge) return 0;
 
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
-    if (p_ptr->personality == PERS_LAZY) odds = (19 * odds + 10) / 20;
+    if (personality_is_(PERS_LAZY)) odds = (19 * odds + 10) / 20;
     if (odds < 50) odds = 50;
     return (odds+5)/10;
 }
@@ -60,6 +61,8 @@ int bow_hit_chance(int to_h, int ac)
     if (p_ptr->stun)
         chance -= chance * MIN(100, p_ptr->stun) / 150;
     if (chance <= 0) return 0;
+    if (melee_challenge) return 0;
+
     if (p_ptr->concent)
     {
         ac *= (10 - p_ptr->concent);
@@ -67,7 +70,7 @@ int bow_hit_chance(int to_h, int ac)
     }
 
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
-    if (p_ptr->personality == PERS_LAZY) odds = (19 * odds + 10) / 20;
+    if (personality_is_(PERS_LAZY)) odds = (19 * odds + 10) / 20;
     if (odds < 50) odds = 50;
     return (odds+5)/10;
 }
@@ -109,6 +112,11 @@ int race_melee_mult(bool attack_is_innate)
         {
             if (elemental_is_(ELEMENTAL_WATER)) return 75 + (water_flow_rate() / 2);
             return 100;
+        }
+        case RACE_IGOR:
+        {
+            if (!attack_is_innate) return 100;
+            return MIN(115, MAX(66, 61 + (get_class()->base_skills.thn * 3 / 5)));
         }
         case RACE_MON_ORC:
         case RACE_BOIT: return 95;
@@ -155,10 +163,10 @@ void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
     case CLASS_NECROMANCER:
     case CLASS_BLOOD_MAGE:
     case CLASS_HIGH_MAGE:
-	case CLASS_BLUE_MAGE:
+	case CLASS_CHAOS_MAGE:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
-	case CLASS_CHAOS_MAGE:
+    case CLASS_BLUE_MAGE:
         info_ptr->blows_calc.max = 400;
         info_ptr->blows_calc.wgt = 100;
         info_ptr->blows_calc.mult = 20;
@@ -491,6 +499,14 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
 
     if (p_ptr->pclass == CLASS_MAULER)
         result = 100 + (result - 100)*2/5;
+    else if (p_ptr->pclass == CLASS_WEAPONMASTER)
+    {
+        if ((weaponmaster_is_(WEAPONMASTER_POLEARMS)) ||
+            (weaponmaster_is_(WEAPONMASTER_STAVES)) ||
+            (weaponmaster_is_(WEAPONMASTER_CLUBS)) ||
+            (weaponmaster_is_(WEAPONMASTER_AXES)))
+        result = 100 + (result - 100)*4/5;
+    }
 
     if (result > info_ptr->blows_calc.max)
         result = info_ptr->blows_calc.max;
@@ -609,13 +625,13 @@ void display_weapon_info(doc_ptr doc, int hand)
 
     if (p_ptr->weapon_info[hand].wield_how == WIELD_NONE) return;
     if (!o_ptr) return;
+    if (no_melee_challenge) return;
 
     dd = o_ptr->dd + p_ptr->weapon_info[hand].to_dd;
     ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
     if (object_is_known(o_ptr))
     {
-        to_d = o_ptr->to_h;
-        to_h = o_ptr->to_h;
+        to_d = to_h = o_ptr->to_h;
     }
 
     switch (display_weapon_mode)
@@ -811,9 +827,9 @@ void display_weapon_info(doc_ptr doc, int hand)
         _display_weapon_slay(mult, SLAY_MULT_LIVING, force, num_blow, dd, ds, to_d, "Living", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, OF_KILL_HUMAN))
-        _display_weapon_slay(mult, KILL_MULT_HUMAN, force, num_blow, dd, ds, to_d, "Human", TERM_YELLOW, cols[0]);
+        _display_weapon_slay(mult, KILL_MULT_HUMAN, force, num_blow, dd, ds, to_d, "Humans", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_HUMAN))
-        _display_weapon_slay(mult, SLAY_MULT_HUMAN, force, num_blow, dd, ds, to_d, "Human", TERM_YELLOW, cols[0]);
+        _display_weapon_slay(mult, SLAY_MULT_HUMAN, force, num_blow, dd, ds, to_d, "Humans", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, OF_KILL_UNDEAD))
         _display_weapon_slay(mult, KILL_MULT_UNDEAD, force, num_blow, dd, ds, to_d, "Undead", TERM_YELLOW, cols[0]);
@@ -1223,8 +1239,7 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
 
     if (object_is_known(bow))
     {
-        to_h_bow = bow->to_h;
-        to_d_bow = bow->to_h;
+        to_h_bow = to_d_bow = bow->to_h;
     }
     to_h_bow += skills_bow_calc_bonus(bow->sval);
 
@@ -1447,7 +1462,7 @@ void display_shooter_info(doc_ptr doc)
 
     if (object_is_known(bow_ptr))
     {
-        to_d = to_h = bow_ptr->to_h;
+        to_h = to_d = bow_ptr->to_h;
     }
     to_h += skills_bow_calc_bonus(bow_ptr->sval);
 

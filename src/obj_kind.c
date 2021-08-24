@@ -71,15 +71,17 @@ bool object_is_shoukinkubi(object_type *o_ptr)
 {
     /* Require corpse or skeleton */
     if (o_ptr->tval != TV_CORPSE) return FALSE;
+    if ((o_ptr->sval > SV_BODY_HEAD) && (o_ptr->sval != SV_BODY_EARS)) return FALSE;
 
     /* Today's wanted */
-    if (p_ptr->today_mon > 0 && (streq(r_name + r_info[o_ptr->pval].name, r_name + r_info[today_mon].name))) return TRUE;
+    if ((p_ptr->today_mon > 0 && (streq(r_name + r_info[o_ptr->pval].name, r_name + r_info[today_mon].name)))
+     && (o_ptr->sval < SV_BODY_HEAD)) return TRUE;
 
     /* Tsuchinoko */
-    if (o_ptr->pval == MON_TSUCHINOKO) return TRUE;
+    if ((o_ptr->pval == MON_TSUCHINOKO) && (o_ptr->sval < SV_BODY_HEAD)) return TRUE;
 
     /* Unique monster */
-    if (mon_is_wanted(o_ptr->pval)) return TRUE;
+    if (mon_is_wanted((o_ptr->sval == SV_BODY_HEAD) ? o_ptr->xtra4 : o_ptr->pval)) return TRUE;
 
     /* Implorington */
     if ((!no_wilderness) && (o_ptr->pval == MON_IMPLORINGTON)) return TRUE;

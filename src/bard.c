@@ -48,7 +48,7 @@ void bard_check_music(void)
             p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
         }
     }
-    
+
     /* Do any effects of continual song */
     do_spell(REALM_MUSIC, spell, SPELL_CONT);
 }
@@ -166,22 +166,6 @@ static void _birth(void)
     py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_spellbooks();
-
-    p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
-
-    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_SKILLED;
-    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_SKILLED;
-    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_SKILLED;
-    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_SKILLED;
-    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_SKILLED;
-    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_SKILLED;
-    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_SKILLED;
-    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_BEGINNER;
 }
 
 class_t *bard_get_class(void)
@@ -195,16 +179,13 @@ class_t *bard_get_class(void)
     skills_t xs = {  8,  13,  11,   0,   0,   0,  10,   8};
 
         me.name = "Bard";
-        me.desc = "Bards are something like traditional musicians. Their magical "
-                    "attacks are sound-based, and last as long as the Bard has mana. "
-                    "Although a bard cannot sing two or more songs at the same time, he "
-                    "or she does have the advantage that many songs affect all areas in "
-                    "sight. A bard's prime statistic is charisma.\n \n"
-                    "The songs are found in four songbooks, of which two are sold in "
-                    "town. There is a special feature of music; many songs continue to "
-                    "be sung until either the Bard chooses to stop, or he runs out of "
-                    "the energy required to sing that type of song. Bards have a class "
-                    "power - 'Stop Singing'.";
+        me.desc = "Bards are traditional musicians, and songs and sound are the "
+                    "foundation of their magic. Four songbooks are available to a Bard, "
+                    "two of them sold in towns. Some songs are over in a quick yelp, "
+                    "consuming no more time than a magic spell would; but most continue to be "
+                    "sung, with continuing effects, until the bard either chooses to stop or "
+                    "runs out of mental energy. A bard can only ever sing one tune at "
+                    "a time. The primary spell stat of a bard is Charisma.";
 
         me.stats[A_STR] = -2;
         me.stats[A_INT] =  1;

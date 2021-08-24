@@ -72,6 +72,12 @@ your system early!)
 Do not fight monsters in melee if they have highly dangerous (or 
 annoying) melee attacks but no way to hurt you from range.
 
+Try to reach new towns and dungeons in the safest way possible - stick 
+to roads, minimize the time spent in dangerous areas, and travel 
+through the overworld rather than the raw wilderness. Not only are you 
+less likely to get lost on the overworld map, but travelling there is 
+safer too - though you should still prepare for ambushes!
+
 
 Middle-Game Mistakes and Needs
 
@@ -119,7 +125,8 @@ Do not completely neglect items useful in niche situations, especially
 if you know where those situations will happen. You might not carry 
 Potions of Resist Heat and Cold all the time, but it's still a good 
 idea to take some to the Smaug and Utgard-Loke fights. Similarly, 
-Potions of Vigor will be highly valuable in the Micro$oft quest.
+Potions of Vigor will be highly valuable in the Micro$oft quest, and 
+Staves of Starlight can be handy in Old Watchtower.
 
 Do not underestimate mushrooms, especially Mushrooms of Cure Poison 
 (the game's most effective means to neutralize poison) and the 
@@ -154,7 +161,7 @@ Teleport Other, Destruction or Dimension Door (or simply Healing or
 too much on any one method.
 
 Do not forget about reforging. Do not use mid-level, 50K weapons or 
-armor as reforge source items. (As long as you're reforging into 
+armour as reforge source items. (As long as you're reforging into 
 lower-value slots, a 40K bow, a 30K pair of gloves or even a 25K lamp 
 will give better results more cheaply.)
 

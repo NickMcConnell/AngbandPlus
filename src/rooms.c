@@ -813,6 +813,11 @@ static bool build_type1(void)
         place_random_door(yval, xval, TRUE);
         if (curtain2) cave[yval][xval].feat = feat_door[DOOR_CURTAIN].closed;
     }
+	/* Hack, occasionally put a table in a room */
+	else if (0 == randint0(3))
+	{
+		generate_table_room(y1+1, x1+1, y2-1, x2-1);
+	}
 
     return TRUE;
 }
@@ -1791,6 +1796,9 @@ static void _apply_room_grid_mon(point_t p, room_grid_ptr grid, room_ptr room)
     if (room->flags & ROOM_THEME_FRIENDLY)
         mode |= PM_FORCE_FRIENDLY;
 
+    if (room->type == ROOM_QUEST)
+        mode |= PM_NATIVE;
+
     /* The NIGHT theme is designed for wilderness cemeteries and 
        such, which should be populated with foul undead, but only
        in the deep, dark hours of night! */
@@ -2646,8 +2654,8 @@ void build_room_template_aux(room_ptr room, transform_ptr xform, wild_scroll_ptr
                         object_level = base_level + 40;
                         place_object(p.y, p.x, AM_GOOD | AM_GREAT, ORIGIN_VAULT);
                         object_level = base_level;
-                        break;
                     }
+                    break;
                 case '9':
                     if ((room->type == ROOM_VAULT) && (wacky_rooms))
                     {
@@ -2657,8 +2665,8 @@ void build_room_template_aux(room_ptr room, transform_ptr xform, wild_scroll_ptr
                         object_level = base_level + 9;
                         place_object(p.y, p.x, AM_GOOD, ORIGIN_VAULT);
                         object_level = base_level;
-                        break;
                     }
+                    break;
                 case 'A':
                     /* Reward for Pattern walk */
                     object_level = base_level + 12;
@@ -4483,3 +4491,109 @@ bool generate_rooms(void)
     return TRUE;
 }
 
+/*
+ * Generate helper -- fill a rectangle with a table
+ */
+static int generate_table_room(int y1, int x1, int y2, int x2)
+{
+	int y, x;
+	int success = 0;
+	int height = y2 - y1 + 1;
+	int width = x2 - x1 + 1;
+
+	/* Make tables a bit shorter */
+	if ((x2 - x1) > 1)
+	{
+		if (randint0(100) < 50) x1++;
+		else x2--;
+	}
+
+	/* 3*3 or bigger tables look funny */
+	for (y = 0; y < 8; y++)
+	{
+		/* Occasionally allow exactly 3*3 tables */
+		if (((x2 - x1) == 2) && ((y2 - y1) == 2) && (randint0(100) < 25))
+		{
+			break;
+		}
+
+		if (((x2 - x1) > 1) && ((y2 - y1) > 1))
+		{
+			if (randint0(100) < 40)
+			{
+				if (randint0(100) < 50) y1++;
+				else y2--;
+			}
+			else
+			{
+				if (randint0(100) < 50) x1++;
+				else x2--;
+			}
+		}
+	}
+
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			if (cave_clean_bold(y, x))
+			{
+				/* Create a table */
+				cave[y][x].feat = feat_table;
+
+				/* No longer "FLOOR" */
+				cave[y][x].info &= ~(CAVE_FLOOR);
+			}
+		}
+	}
+
+	return(TRUE);
+}
+
+/* check if a tile is in cover - i.e. it is adjacent to a table */
+bool in_cover(int x, int y, int dir_x, int dir_y)
+{
+	/* Not in cover if on a table */
+	if (have_flag(f_info[cave[y][x].feat].flags, FF_TABLE)) return FALSE;
+
+	bool cover = FALSE;
+
+	/* The table needs to be between the shooter and the target 
+	 * to provide cover. If dir_x / dir_y are both zero any direction counts */
+	if (dir_x == 0 && dir_y != 0)
+	{
+		if (dir_y < 0) cover = have_flag(f_info[cave[y + 1][x].feat].flags, FF_TABLE);
+		else if (dir_y > 0) cover = have_flag(f_info[cave[y - 1][x].feat].flags, FF_TABLE);
+	}
+	else if (dir_x != 0 && dir_y == 0)
+	{
+		if (dir_x < 0) cover = have_flag(f_info[cave[y][x+1].feat].flags, FF_TABLE);
+		else if (dir_x > 0) cover = have_flag(f_info[cave[y][x - 1].feat].flags, FF_TABLE);
+	}
+	else
+	{
+		for (int dx = -1; dx <= 1; dx++)
+		{
+			for (int dy = -1; dy <= 1; dy++)
+			{
+				/* skip our square */
+				if (dx == 0 && dy == 0) continue;
+
+				/* shots from the left don't car about cover on the right*/
+				if (dir_x < 0 && dx == -1) continue;
+				if (dir_x > 0 && dx == 1) continue;
+				if (dir_y < 0 && dy == -1) continue;
+				if (dir_y > 0 && dy == 1) continue;
+
+				/* If cover, then we're done */
+				if (have_flag(f_info[cave[y + dy][x + dx].feat].flags, FF_TABLE))
+				{
+					cover = TRUE;
+					dx = dy = 2;
+				}
+			}
+		}
+	}
+
+	return cover;
+}

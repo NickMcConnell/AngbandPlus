@@ -44,7 +44,9 @@ static void _build_general1(doc_ptr doc)
 
     doc_printf(doc, " Name       : <color:B>%s</color>\n", player_name);
     doc_printf(doc, " Sex        : <color:B>%s</color>\n", sex_info[p_ptr->psex].title);
-    doc_printf(doc, " Personality: <color:B>%s</color>\n", pers_ptr->name);
+    if (p_ptr->personality == PERS_SPLIT)
+        split_dump(doc, 0);
+    else doc_printf(doc, " Personality: <color:B>%s</color>\n", pers_ptr->name);
 
     if (race_ptr->mimic)
         doc_printf(doc, " Race       : <color:B>[%s]</color>\n", race_ptr->name);
@@ -235,9 +237,6 @@ static void _build_general2(doc_ptr doc)
 	else
 		doc_printf(doc, "<tab:9>AC   : %3d  <color:G>(%d%c)</color>\n", ac, ac_percentage, '%');
 
-/*	doc_printf(doc, "<tab:9>AC   : %3d<color:G>(%2d%c)</color>\n", ac, ac_percentage, '%');*/
-	/*doc_printf(doc, "<tab:9>AC   : <color:G>%9d</color>\n", p_ptr->dis_ac + p_ptr->dis_to_a);*/
-
     /* Dump speed ... What a monster! */
     {
         int  tmp_speed = 0;
@@ -410,6 +409,7 @@ static _flagzilla_ptr _flagzilla_alloc(void)
         if (o_ptr)
         {
             obj_flags_display(o_ptr, flagzilla->obj_flgs[i]);
+            remove_opposite_flags(flagzilla->obj_flgs[i]);
             switch (o_ptr->rune)
             {
             case RUNE_ABSORPTION:
@@ -697,6 +697,7 @@ static void _display_known_count(doc_ptr doc, int total, int flg)
 }
 static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
 {
+    int _tmp;
     _equippy_chars(doc, 14);
     _equippy_heading(doc, "Abilities", 14);
 
@@ -730,22 +731,22 @@ static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
     _build_flags_imp(doc, "Magic Skill", OF_MAGIC_MASTERY, OF_DEC_MAGIC_MASTERY, flagzilla);
     if (p_ptr->device_power)
     {
-        int pow = device_power_aux(100, p_ptr->device_power) - 100;
-        doc_printf(doc, " %+3d%%", pow);
+        _tmp = device_power_aux(100, p_ptr->device_power) - 100;
+        doc_printf(doc, " %+3d%%", _tmp);
     }
     doc_newline(doc);
 
     if (_build_flags_imp(doc, "Spell Power", OF_SPELL_POWER, OF_DEC_SPELL_POWER, flagzilla))
     {
-        int  pow = spell_power_aux(100, p_ptr->spell_power) - 100;
-        doc_printf(doc, " %+3d%%", pow);
+        _tmp = spell_power_aux(100, p_ptr->spell_power) - 100;
+        doc_printf(doc, " %+3d%%", _tmp);
     }
     doc_newline(doc);
 
     if (_build_flags_imp(doc, "Spell Cap", OF_SPELL_CAP, OF_DEC_SPELL_CAP, flagzilla))
     {
-        int cap = spell_cap_aux(100, p_ptr->spell_cap) - 100;
-        doc_printf(doc, " %+3d%%", cap);
+        _tmp = spell_cap_aux(100, p_ptr->spell_cap) - 100;
+        doc_printf(doc, " %+3d%%", _tmp);
     }
     doc_newline(doc);
 
@@ -1034,13 +1035,11 @@ static void _build_equipment(doc_ptr doc)
 /****************************** Combat ************************************/
 static void _build_melee(doc_ptr doc)
 {
-    doc_insert(doc, "<topic:Melee>==================================== <color:keypress>M</color>elee ====================================\n\n");
-
+	doc_insert(doc, "<topic:Melee>==================================== <color:keypress>M</color>elee ====================================\n\n");
     if (p_ptr->prace == RACE_MON_RING) return;
     if (possessor_can_attack() && !p_ptr->weapon_ct && !p_ptr->innate_attack_ct) return;
     {
         int i;
-        
         for (i = 0; i < MAX_HANDS; i++)
         {
             if (p_ptr->weapon_info[i].wield_how == WIELD_NONE) continue;
@@ -1291,9 +1290,15 @@ static void _build_uniques(doc_ptr doc)
         ct_uniques_dead = vec_length(v);
         if (ct_uniques_dead)
         {
-            doc_printf(doc, "You have defeated %d %s including %d unique monster%s in total. ",
+            doc_printf(doc, "You have defeated %d %s including %d unique monster%s in total",
                 ct, ct == 1 ? "enemy" : "enemies",
                 ct_uniques_dead, ct_uniques_dead == 1 ? "" : "s");
+
+            if ((coffee_break == SPEED_INSTA_COFFEE) && (p_ptr->lv_kills))
+            {
+                doc_printf(doc, " and %d monster%s on this level. ", p_ptr->lv_kills, p_ptr->lv_kills == 1 ? "" : "s");
+            }
+            else doc_printf(doc, ". ");
 
             if (ct_uniques_alive == 1)
                 doc_insert(doc, "There is 1 unique remaining.");
@@ -1419,8 +1424,8 @@ static void _build_pets(doc_ptr doc)
         doc_printf(doc, "  Allow cast attack spell:            %s\n", (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow cast summon spell:            %s\n", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow involve player in area spell: %s\n", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
-        doc_printf(doc, "  Riding Skill:                       %d\n", skills_riding_current());
-        
+		doc_printf(doc, "  Riding Skill:                       %d\n", skills_riding_current());
+
         doc_newline(doc);
     }
 }
@@ -2235,6 +2240,7 @@ static void _build_statistics(doc_ptr doc)
         _device_counts_imp(doc, TV_STAFF, EFFECT_HEAL);
         _device_counts_imp(doc, TV_STAFF, EFFECT_TELEPATHY);
         _device_counts_imp(doc, TV_STAFF, EFFECT_SPEED);
+/*        _device_counts_imp(doc, TV_STAFF, EFFECT_IDENTIFY_FULL); */
         _device_counts_imp(doc, TV_STAFF, EFFECT_DESTRUCTION);
         _device_counts_imp(doc, TV_STAFF, EFFECT_HEAL_CURING);
         _device_counts_imp(doc, TV_STAFF, EFFECT_GENOCIDE);
@@ -2453,6 +2459,12 @@ static cptr _game_mode_text[GAME_MODE_MAX] = {
     "XXX", 
     "<color:r>Monster</color>"
 };
+static cptr _game_speed_text[GAME_SPEED_MAX] = {
+    "Normal",
+    "<color:U>Coffeebreak</color>",
+    "<color:U>Instant Coffee</color>"
+};
+
 static void _build_options(doc_ptr doc)
 {
     doc_printf(doc, "<topic:Options>=================================== <color:keypress>O</color>ptions ===================================\n\n");
@@ -2461,7 +2473,7 @@ static void _build_options(doc_ptr doc)
         doc_printf(doc, " Game Mode:          %s\n", _game_mode_text[game_mode]);
 
     if (coffee_break)
-        doc_printf(doc, " Coffeebreak Mode:   On\n");
+        doc_printf(doc, " Game Speed:         %s\n", _game_speed_text[coffee_break]);
 
     if ((p_ptr->coffee_lv_revisits) || (coffee_break && p_ptr->total_winner))
     {
@@ -2493,6 +2505,12 @@ static void _build_options(doc_ptr doc)
 
     if (wacky_rooms)
         doc_printf(doc, " Wacky Rooms:        On\n");
+
+    if (melee_challenge)
+        doc_printf(doc, " Melee Challenge:    On\n");
+
+    if (no_melee_challenge)
+        doc_printf(doc, " No-Melee Challenge: On\n");
 
     if (increase_density)
         doc_printf(doc, " Dense Small Levels: On\n");
@@ -2595,7 +2613,7 @@ static bool _is_retired(void)
 
 char *version_modifier(void)
 {
-    return format("%s%s%s", coffee_break ? " (coffee)" : "", thrall_mode ? " (thrall)" : "", wacky_rooms ? " (wacky)" : "");
+    return format("%s%s%s", coffee_break ? (coffee_break == SPEED_INSTA_COFFEE ? " (insta-coffee)" : " (coffee)") : "", thrall_mode ? " (thrall)" : "", wacky_rooms ? " (wacky)" : "");
 }
 
 static void _add_html_header(doc_ptr doc)
@@ -2653,6 +2671,7 @@ void py_display_character_sheet(doc_ptr doc)
     doc_newline(doc);
 
     _build_general(doc);
+    if (p_ptr->personality == PERS_SPLIT) split_dump(doc, 1);
     _build_equipment(doc);
     _build_melee(doc);
     _build_shooting(doc);

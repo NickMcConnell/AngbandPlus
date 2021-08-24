@@ -1809,7 +1809,31 @@ void sound(int val)
     Term_xtra(TERM_XTRA_SOUND, val);
 }
 
+/*
+ * Cancel macro action on the queue
+ */
+static void forget_macro_action(void)
+{
+    if (!parse_macro) return;
 
+    /* Drop following macro action string */
+    while (TRUE)
+    {
+        char ch;
+
+        /* End loop if no key ready */
+        if (Term_inkey(&ch, FALSE, TRUE)) break;
+
+        /* End loop if no key ready */
+        if (ch == 0) break;
+
+        /* End of "macro action" */
+        if (ch == 30) break;
+    }
+
+    /* No longer inside "macro action" */
+    parse_macro = FALSE;
+}
 
 /*
  * Helper function called only from "inkey()"
@@ -1985,12 +2009,37 @@ static char inkey_aux(void)
     /* Get the length of the action */
     n = strlen(act);
 
+    if ((autopick_inkey_hack == 1) && (n == 2) && ((act[0] == '.') || (act[0] == ';')))
+    {
+        int skey = 0;
+        switch (act[1])
+        {
+            case '8': skey = (SKEY_UP & ~SKEY_MASK); break;
+            case '2': skey = (SKEY_DOWN & ~SKEY_MASK); break;
+            case '4': skey = (SKEY_LEFT & ~SKEY_MASK); break;
+            case '6': skey = (SKEY_RIGHT & ~SKEY_MASK); break;
+            default: break;
+        }
+        if (skey)
+        {
+            autopick_inkey_hack = 2;
+            forget_macro_action();
+            return ((char)skey);
+        }
+    }
+
+    autopick_inkey_hack = 0;
+
     /* Push the macro "action" onto the key queue */
     while (n > 0)
     {
         /* Mega-Hack - allow numlockless players to play on angband.live */
         char my_key = act[--n];
-        if ((online_macros) && (my_key == '.')) my_key = ';';
+        if ((online_macros) && (my_key == '.'))
+        {
+            my_key = ';';
+            if (online_macro_hack) return (0); /* skip key entirely */
+        }
         
         /* Push the key, notice over-flow */
         if (Term_key_push(my_key)) return (0);
@@ -2000,34 +2049,6 @@ static char inkey_aux(void)
     /* Hack -- Force "inkey()" to call us again */
     return (0);
 }
-
-
-/*
- * Cancel macro action on the queue
- */
-static void forget_macro_action(void)
-{
-    if (!parse_macro) return;
-
-    /* Drop following macro action string */
-    while (TRUE)
-    {
-        char ch;
-
-        /* End loop if no key ready */
-        if (Term_inkey(&ch, FALSE, TRUE)) break;
-
-        /* End loop if no key ready */
-        if (ch == 0) break;
-
-        /* End of "macro action" */
-        if (ch == 30) break;
-    }
-
-    /* No longer inside "macro action" */
-    parse_macro = FALSE;
-}
-
 
 /*
  * Mega-Hack -- special "inkey_next" pointer. XXX XXX XXX
@@ -3236,10 +3257,10 @@ menu_naiyou menu_info[10][10] =
         {"Items(use)", 3, FALSE},
         {"Items(other)", 4, FALSE},
         {"Equip", 5, FALSE},
-        {"Door/Box", 6, FALSE},
-        {"Informations", 7, FALSE},
+        {"Door", 6, FALSE},
+        {"Information", 7, FALSE},
         {"Options", 8, FALSE},
-        {"Other commands", 9, FALSE},
+        {"Save/Exit/Help", 9, FALSE},
         {"", 0, FALSE},
     },
 
@@ -3266,7 +3287,7 @@ menu_naiyou menu_info[10][10] =
         {"Go up stairs(<)", '<', TRUE},
         {"Go down stairs(>)", '>', TRUE},
         {"Command pets(p)", 'p', TRUE},
-        {"Search mode ON/OFF(S/#)", 'S', TRUE}
+        {"Toggle searching(S/#)", 'S', TRUE}
     },
 
     {
@@ -3286,12 +3307,12 @@ menu_naiyou menu_info[10][10] =
         {"Get items(g)", 'g', TRUE},
         {"Drop an item(d)", 'd', TRUE},
         {"Destroy an item(k/^d)", 'k', TRUE},
-        {"Inscribe an item({)", '{', TRUE},
+        {"Inscribe an item(Z/{)", 'Z', TRUE},
         {"Uninscribe an item(})", '}', TRUE},
-        {"Info about an item(I)", 'I', TRUE},
+        {"Inspect an item(I)", 'I', TRUE},
         {"Inventory list(i)", 'i', TRUE},
-        {"", 0, FALSE},
-        {"", 0, FALSE},
+        {"Travel to item(H/^E)", 'H', TRUE},
+        {"Resume travel(J/())", 'J', TRUE},
         {"", 0, FALSE}
     },
 
@@ -3300,7 +3321,7 @@ menu_naiyou menu_info[10][10] =
         {"Take off(t/T)", 't', TRUE},
         {"Refuel(F)", 'F', TRUE},
         {"Equipment list(e)", 'e', TRUE},
-        {"", 0, FALSE},
+        {"Switch ring fingers", 'W', TRUE},
         {"", 0, FALSE},
         {"", 0, FALSE},
         {"", 0, FALSE},
@@ -3322,16 +3343,16 @@ menu_naiyou menu_info[10][10] =
     },
 
     {
+        {"List monsters(Y/[)", 'Y', TRUE},
+        {"List objects(O/])", ']', TRUE},
+        {"Character sheet(C)", 'C', TRUE},
         {"Full map(M)", 'M', TRUE},
         {"Map(L/W)", 'L', TRUE},
         {"Level feeling(^f)", KTRL('F'), TRUE},
-        {"Character status(C)", 'C', TRUE},
         {"Identify symbol(/)", '/', TRUE},
         {"Show prev messages(^p)", KTRL('P'), TRUE},
         {"Current time(^t/')", KTRL('T'), TRUE},
-        {"Various informations(~)", '~', TRUE},
-        {"Play record menu(|)", '|', TRUE},
-        {"", 0, FALSE}
+        {"Knowledge menu(~)", '~', TRUE}
     },
 
     {
@@ -3340,7 +3361,7 @@ menu_naiyou menu_info[10][10] =
         {"Interact w/ visuals(%)", '%', TRUE},
         {"Interact with colors(&)", '&', TRUE},
         {"Enter a user pref(\")", '\"', TRUE},
-        {"Reload auto-pick pref($)", '$', TRUE},
+        {"Edit Mogaminator(_)", '_', TRUE},
         {"", 0, FALSE},
         {"", 0, FALSE},
         {"", 0, FALSE},
@@ -3350,7 +3371,7 @@ menu_naiyou menu_info[10][10] =
     {
         {"Save and quit(^x)", KTRL('X'), TRUE},
         {"Save(^s)", KTRL('S'), TRUE},
-        {"Help(obsoleted)(?)", '?', TRUE},
+        {"Help(?)", '?', TRUE},
         {"Redraw(^r)", KTRL('R'), TRUE},
         {"Take note(:)", ':', TRUE},
         {"Dump screen dump(()", ')', TRUE},
@@ -3376,7 +3397,6 @@ typedef struct
 special_menu_naiyou special_menu_info[] =
 {
     {"MindCraft/Special", 0, 0, MENU_CLASS, CLASS_MINDCRAFTER},
-	{ "Imitation/Special", 0, 0, MENU_CLASS, CLASS_IMITATOR },
     {"Song/Special", 0, 0, MENU_CLASS, CLASS_BARD},
     {"Technique/Special", 0, 0, MENU_CLASS, CLASS_SAMURAI},
     {"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_FORCETRAINER},
@@ -3627,9 +3647,10 @@ void request_command(int shopping)
             /* Reset */
             command_arg = 0;
 
+            online_macro_hack = TRUE;
+
             /* Begin the input */
             prt("Count: ", 0, 0);
-
 
             /* Get a command count */
             while (1)
@@ -3676,6 +3697,7 @@ void request_command(int shopping)
                 /* Exit on "unusable" input */
                 else
                 {
+                    online_macro_hack = FALSE;
                     break;
                 }
             }
@@ -4771,6 +4793,13 @@ int inkey_special(bool numpad_cursor)
 
     /* Get a keypress */
     key = inkey();
+
+    if (autopick_inkey_hack == 2)
+    {
+        autopick_inkey_hack = 0;
+        return (((int)key) | SKEY_MASK);
+    }
+    else autopick_inkey_hack = 0;
 
     /* Examine trigger string */
     trig_len = strlen(inkey_macro_trigger_string);

@@ -136,6 +136,8 @@ void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb)
 
     update_mon(mon->id, FALSE);
     lite_spot(mon->fy, mon->fx);
+
+    p_ptr->window |= (PW_MONSTER_LIST);
 }
 
 static bool _monster_save(monster_race* r_ptr, int power)
@@ -884,27 +886,23 @@ class_t *time_lord_get_class(void)
 
         me.name = "Time-Lord";
         me.desc = "Time-Lords are masters of temporal magic, altering the flow of time "
-                  "to their advantage. They don't learn spells from books, but rather "
-                  "gain new powers as they grow more experienced. They are the only class "
-                  "that can affect monsters with time based attacks. Not only do these damage "
-                  "their foes, but they also inflict a wide variety of possible effects, from "
-                  "slowing to amnesia, from evolution to devolution, from weakening to stasis. "
-                  "In addition to temporal attacks, the Time-Lord gains great powers of speed, and "
-                  "they grow faster with experience. It is said that masters of time can even see "
-                  "the future, avoiding attacks that would otherwise prove fatal! Also, legend "
-                  "has it that the greatest Time-Lords are able to take multiple actions in a single "
-                  "turn.\n \n"
-                  "Time-Lords are mediocre fighters and not good at archery at all. They are OK with "
-                  "magical devices, but nowhere near as proficient as are mages. They have midling "
-                  "stealth. At high levels, they become resistant to time. The Time-Lord's primary "
-                  "magic stat is Wisdom.";
+                  "to their advantage. They gain new powers as their experience grows, "
+                  "and are unique in their ability to use time-based spells against monsters. "
+                  "Not only do these attacks damage a foe, they also inflict a wide variety of possible effects, "
+                  "from slowing to amnesia, from evolution to devolution, from weakening to stasis. "
+                  "In addition to temporal attacks, Time-Lords gain great powers of speed, and "
+                  "become naturally faster with experience. Legend has it that masters of time can even see "
+                  "into the future, avoiding attacks that would otherwise prove fatal!\n \n"
+                  "Time-Lords are fairly proficient with magical devices, but are mediocre fighters and not "
+                  "good at archery at all. At high levels, they become resistant to time. "
+                  "Time-Lords' primary stat is Wisdom.";
 
         me.stats[A_STR] = -1;
         me.stats[A_INT] =  0;
         me.stats[A_WIS] =  3;
         me.stats[A_DEX] = -1;
         me.stats[A_CON] = -1;
-        me.stats[A_CHR] =  1;
+        me.stats[A_CHR] =  0;
 
         me.base_skills = bs;
         me.extra_skills = xs;

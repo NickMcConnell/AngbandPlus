@@ -889,7 +889,6 @@ static void _birth(void)
     
     object_prep(&forge, lookup_kind(TV_CAPTURE, 0));
     py_birth_obj(&forge);
-    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_WHISTLE, 1));
     py_birth_obj(&forge);

@@ -758,6 +758,7 @@ void teleport_level(int m_idx)
             }
 
             /* Leaving */
+            quests_on_leave();
             p_ptr->leaving = TRUE;
             p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
         }
@@ -810,6 +811,7 @@ void teleport_level(int m_idx)
             prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 
             /* Leaving */
+            quests_on_leave();
             p_ptr->leaving = TRUE;
             p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
         }
@@ -1269,7 +1271,7 @@ void apply_nexus(monster_type *m_ptr)
                 msg_print("Your body starts to scramble...");
                 wild_talent_scramble();
             }
-            else if (no_wilderness || no_nexus_warp || quest_id_current())
+            else if (no_wilderness || no_nexus_warp || ironman_downward || quest_id_current())
             {
                 if (!no_scrambling) msg_print("Your body starts to scramble...");
                 mutate_player();
@@ -2283,8 +2285,8 @@ bool item_tester_hook_nameless_weapon_armor(object_type *o_ptr)
         return FALSE;
 
     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD) return FALSE;
-    if (o_ptr->tval == TV_DAGGER && o_ptr->sval == SV_POISON_NEEDLE) return FALSE;
-
+	if (o_ptr->tval == TV_DAGGER && o_ptr->sval == SV_POISON_NEEDLE) return FALSE;
+    
     return TRUE;
 }
 
@@ -2340,7 +2342,7 @@ bool artifact_scroll(void)
     {
         if (prompt.obj->number > 1)
         {
-            msg_print("Not enough enough energy to enchant more than one object!");
+            msg_print("Not enough energy to enchant more than one object!");
             msg_format("%d of your %s %s destroyed!",(prompt.obj->number)-1, o_name, (prompt.obj->number>2?"were":"was"));
             prompt.obj->number = 1;
         }
@@ -2366,6 +2368,7 @@ bool artifact_scroll(void)
         msg_print("The enchantment failed.");
 
         if (one_in_(3)) virtue_add(VIRTUE_ENCHANTMENT, -1);
+        return (FALSE);
     }
     else
     {
@@ -2396,12 +2399,12 @@ bool identify_item(object_type *o_ptr)
             virtue_add(VIRTUE_KNOWLEDGE, 1);
     }
 
-    obj_identify_fully(o_ptr);
-    if ( p_ptr->prace == RACE_MON_POSSESSOR
-        && o_ptr->tval == TV_CORPSE
-        && o_ptr->sval == SV_CORPSE )
-        (void)lore_do_probe(o_ptr->pval);
-    
+	obj_identify_fully(o_ptr);
+	if ( p_ptr->prace == RACE_MON_POSSESSOR
+	  && o_ptr->tval == TV_CORPSE
+	  && o_ptr->sval == SV_CORPSE )
+		(void)lore_do_probe(o_ptr->pval);
+
     if ((!o_ptr) || (!o_ptr->k_idx)) return old_known;
     stats_on_identify(o_ptr);
     o_ptr->marked |= OM_TOUCHED;
@@ -3017,7 +3020,6 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
         case SV_POTION_DEC_DEX:
         case SV_POTION_DEC_CON:
         case SV_POTION_DEC_CHR:
-        
         case SV_POTION_APPLE_JUICE:
             return TRUE;
 
@@ -3379,7 +3381,7 @@ bool spell_okay(int spell, bool learned, bool study_pray, int use_realm, bool br
 	if (p_ptr->realm1 != use_realm && p_ptr->realm2 != use_realm) return (FALSE);
 
     /* Spell is learned */
-    return TRUE;
+	return TRUE;
 }
 
 
@@ -3509,7 +3511,7 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
 
             line_attr = TERM_L_BLUE;
         }
-		else
+        else
 		{
 			if (vaikeustaso > p_ptr->max_plv)
 			{
@@ -3947,7 +3949,7 @@ bool rustproof(void)
 }
 
 /*
- * Helper for Cursing Equipment (?Curse Armor and ?Curse Weapn)
+ * Helper for Cursing Equipment (?Curse Armor and ?Curse Weapon)
  * Also used when sacrificing a worn piece of equipment.
  */
 
@@ -3963,8 +3965,8 @@ void blast_object(object_type *o_ptr)
     o_ptr->name1 = 0;
     o_ptr->name2 = EGO_SPECIAL_BLASTED;
     o_ptr->name3 = 0;
-    o_ptr->to_a = 0;
-    o_ptr->to_h = 0;
+    o_ptr->to_a = MIN(o_ptr->to_a, 0);
+    o_ptr->to_h = MIN(o_ptr->to_h, 0);
     o_ptr->ac = 0;
     o_ptr->dd = 0;
     o_ptr->ds = 0;
@@ -3976,6 +3978,9 @@ void blast_object(object_type *o_ptr)
     {
         o_ptr->to_h -= randint1(5) + randint1(5);
     }
+
+    if (o_ptr->to_a < -66) o_ptr->to_a = -66;
+    if (o_ptr->to_h < -66) o_ptr->to_h = -66;
 
     for (i = 0; i < OF_ARRAY_SIZE; i++)
         o_ptr->flags[i] = 0;
@@ -4265,6 +4270,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
             case RACE_DEMIGOD:
             case RACE_EINHERI:
             case RACE_BEORNING:
+            case RACE_IGOR:
                 summon_kin_type = 'p';
                 break;
             case RACE_TONBERRY:

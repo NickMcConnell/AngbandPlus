@@ -93,22 +93,21 @@ class_t *high_mage_get_class(void)
 
         me.name = "High-Mage";
         me.desc = "High-Mages are mages who specialize in one particular field of "
-                    "magic and learn it very well - much better than the ordinary mage. "
-                    "A High-Mage's prime statistic is intelligence as this determines "
-                    "his spell casting ability.\n \n"
+                    "magic and learn it very well - much better than an ordinary mage.\n\n"
                     "For the price of giving up a second realm of magic, High-Mages "
                     "gain substantial benefits in the mana costs, power, minimum levels, and "
                     "failure rates of the spells in their speciality realm. They are also the "
                     "only class able to cast Hex spells. High-Mages have a class power - "
                     "'Eat Magic' - which absorbs mana from wands, staves, or rods; although "
-                    "this power is not available to those who choose the Hex realm.";
+                    "this power is not available to those who choose the Hex realm. Their "
+                    "primary spellcasting stat is Intelligence.";
 
         me.stats[A_STR] = -4;
         me.stats[A_INT] =  4;
         me.stats[A_WIS] =  0;
         me.stats[A_DEX] =  0;
         me.stats[A_CON] = -2;
-        me.stats[A_CHR] = 1;
+        me.stats[A_CHR] =  1;
         me.base_skills = bs;
         me.extra_skills = xs;
         me.life = 94;

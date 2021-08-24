@@ -21,11 +21,11 @@ controlling armies of lesser orcs.
   Strength      -1        Disarming   Fair         
   Intelligence  -4        Device      Very Bad     
   Wisdom        -5        Save        Poor         
-  Dexterity     +0        Stealth     Fair         
+  Dexterity     +0        Stealth     Poor         
   Constitution  +0        Searching   Poor         
   Charisma      -5        Perception  Bad          
-  Life Rating   99%       Melee       Good         
-  Base HP       30        Bows        Good         
+  Life Rating   99%       Melee       Excellent    
+  Base HP       30        Archery     Excellent    
   Experience   100%       Infravision 30'
   
 Orc shaman
@@ -40,11 +40,11 @@ trouble when the going really gets tough.
   Strength      -1        Disarming   Fair         
   Intelligence  -1        Device      Poor         
   Wisdom        -5        Save        Fair         
-  Dexterity     -1        Stealth     Fair         
+  Dexterity     -1        Stealth     Poor         
   Constitution  -1        Searching   Fair         
   Charisma      -5        Perception  Poor         
-  Life Rating   92%       Melee       Fair         
-  Base HP       28        Bows        Fair         
+  Life Rating   92%       Melee       Good         
+  Base HP       28        Archery     Good         
   Experience   100%       Infravision 30'
   
 Table 1 - Orc Statistic Bonus Table
@@ -57,18 +57,18 @@ Orc shaman         -1   -1   -5   -1   -1   -5   92%  +28  100%  140%
 Table 2 - Orc Skill Bonus Table I
 
                   Disarming     Device        Save          Stealth      
-Orc fighter       Fair          Very Bad      Poor          Fair         
-Orc shaman        Fair          Poor          Fair          Fair         
+Orc fighter       Fair          Very Bad      Poor          Poor         
+Orc shaman        Fair          Poor          Fair          Poor         
 
 
 Table 3 - Orc Skill Bonus Table II
 
-                  Searching     Perception    Melee         Bows          Infra
-Orc fighter       Poor          Bad           Good          Good            30'
-Orc shaman        Fair          Poor          Fair          Fair            30'
+                  Searching     Perception    Melee         Archery       Infra
+Orc fighter       Poor          Bad           Excellent     Excellent       30'
+Orc shaman        Fair          Poor          Good          Good            30'
 
 
 
 
-Automatically generated for Oposband 0.3.2.
+Automatically generated for Oposband 0.3.3.
 

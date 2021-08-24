@@ -166,7 +166,7 @@ static cptr f_info_flags[] =
     "FLOOR",
     "WALL",
     "PERMANENT",
-    "XXX00",
+    "PLATFORM",
     "XXX01",
     "XXX02",
     "HIT_TRAP",
@@ -1237,7 +1237,7 @@ static parse_tbl_t _summon_type_tbl[] = {
 	{ SUMMON_WEREWOLF, "Werewolf", TERM_WHITE, "", "WEREWOLF", 5},
 	{ SUMMON_WEREWORM, "Wereworm", TERM_WHITE, "", "WEREWORM", 5},
 	{ SUMMON_WEREBEAR, "Werebear", TERM_WHITE, "", "WEREBEAR", 5},
-    { 0 }
+	{ 0 }
 };
 
 parse_tbl_ptr parse_tbl_parse(parse_tbl_ptr tbl, cptr token)
@@ -3362,7 +3362,8 @@ errr parse_e_info(char *buf, header *head)
         int th, ta, pv;
 
         /* Scan for the values */
-        if (3 != sscanf(buf+2, "%d:%d:%d", &th, &ta, &pv)) return (1);
+        if (3 != sscanf(buf+2, "%d:%d:%d",
+                &th, &ta, &pv)) return (1);
 
         e_ptr->max_to_h = th;
         e_ptr->max_to_a = ta;
@@ -5022,7 +5023,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
             else if (streq(b+1, "SUBRACE"))
             {
                 v = get_true_race()->subname;
-
+				
 				/*Hack: Code doesn't handle spaces here (i.e. Elemental monsters), so substitute dashes*/
 				if (!v) v = "why are we here";
 				else
@@ -5150,6 +5151,13 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
                     sprintf(tmp, "NONE");
                 else
                     sprintf(tmp, "NORMAL");
+                v = tmp;
+            }
+
+            /* Game speed */
+            else if (streq(b+1, "SPEED"))
+            {
+                sprintf(tmp, "%d", coffee_break);
                 v = tmp;
             }
 

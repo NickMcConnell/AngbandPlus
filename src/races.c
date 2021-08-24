@@ -124,6 +124,9 @@ race_t *get_race_aux(int prace, int psubrace)
     case RACE_ENT:
         result = ent_get_race();
         break;
+    case RACE_GHOUL:
+        result = ghoul_get_race();
+        break;
     case RACE_GNOME:
         result = gnome_get_race();
         break;
@@ -133,10 +136,7 @@ race_t *get_race_aux(int prace, int psubrace)
     case RACE_HALF_GIANT:
         result = half_giant_get_race();
         break;
-    case RACE_OGRE:
-        result = half_ogre_get_race();
-        break;
-	case RACE_HALF_ORC:
+    case RACE_HALF_ORC:
 		result = half_orc_get_race();
 		break;
     case RACE_HALF_TITAN:
@@ -154,9 +154,15 @@ race_t *get_race_aux(int prace, int psubrace)
     case RACE_HUMAN:
         result = human_get_race();
         break;
+    case RACE_IGOR:
+        result = igor_get_race();
+        break;
     case RACE_IMP:
         result = imp_get_race();
         break;
+	case RACE_ICKY_THING:
+		result = icky_thing_get_race();
+		break;
     case RACE_KLACKON:
         result = klackon_get_race();
         break;
@@ -249,6 +255,9 @@ race_t *get_race_aux(int prace, int psubrace)
         break;
     case RACE_NIBELUNG:
         result = nibelung_get_race();
+        break;
+    case RACE_OGRE:
+        result = ogre_get_race();
         break;
     case RACE_SHADOW_FAIRY:
         result = shadow_fairy_get_race();

@@ -912,8 +912,7 @@ static bool gamble_comm(int cmd)
     if (cmd == BACT_GAMBLE_RULES)
     {
         /* Peruse the gambling help file */
-        (void)show_file(TRUE, "gambling.txt", NULL, 0, 0);
-
+        doc_display_help("gambling.txt", "Gambling");
     }
     else
     {
@@ -1801,9 +1800,8 @@ static bool _is_wanted_monster(int r_idx)
     if (idx >= 0) return TRUE;
     return FALSE;
 }
-static void _forge_wanted_monster_prize(obj_ptr obj, int r_idx)
+static void _forge_wanted_monster_prize(obj_ptr obj, int r_idx, int idx)
 {
-    int idx = _wanted_monster_idx(r_idx);
     int tval = prize_list[idx].tval;
     int sval = prize_list[idx].sval;
 
@@ -1816,9 +1814,9 @@ static void _forge_wanted_monster_prize(obj_ptr obj, int r_idx)
 }
 static bool _is_wanted_corpse(obj_ptr obj)
 {
-    if (obj->tval == TV_CORPSE && _is_wanted_monster(obj->pval))
-        return TRUE;
-    return FALSE;
+    if (obj->tval != TV_CORPSE) return FALSE;
+    if ((obj->sval < SV_BODY_HEAD) || (obj->sval == SV_BODY_EARS)) return (_is_wanted_monster(obj->pval));
+    return ((obj->sval == SV_BODY_HEAD) && (_is_wanted_monster(obj->xtra4)));
 }
 static bool _is_wanted_captureball(obj_ptr obj)
 {
@@ -1831,7 +1829,7 @@ static void _process_wanted_corpse(obj_ptr obj)
     char  name[MAX_NLEN];
     char  buf[MAX_NLEN+30];
     obj_t prize;
-    int   r_idx = obj->pval;
+    int   r_idx = ((object_is_(obj, TV_CORPSE, SV_BODY_HEAD)) ? obj->xtra4 : obj->pval);
     int   num, k, kubi_idx = _wanted_monster_idx(r_idx);
 
     ++_prize_count;
@@ -1840,7 +1838,16 @@ static void _process_wanted_corpse(obj_ptr obj)
     sprintf(buf, "Hand %s over? ", name);
     if (!get_check(buf)) return;
 
-    _forge_wanted_monster_prize(&prize, r_idx);
+    kubi_r_idx[kubi_idx] += 10000;
+
+    /* Count number of unique corpses already handed */
+    for (num = 0, k = 0; k < MAX_KUBI; k++)
+    {
+        if (kubi_r_idx[k] >= 10000) num++;
+    }
+
+    _forge_wanted_monster_prize(&prize, r_idx, no_wanted_points ? kubi_idx : num - 1);
+
     if (obj->tval == TV_CAPTURE)
     {
         r_info[r_idx].max_num = 0;
@@ -1855,15 +1862,11 @@ static void _process_wanted_corpse(obj_ptr obj)
 
     virtue_add(VIRTUE_JUSTICE, 5);
     p_ptr->fame++;
-    kubi_r_idx[kubi_idx] += 10000;
 
-    /* Count number of unique corpses already handed */
-    for (num = 0, k = 0; k < MAX_KUBI; k++)
+    if (!no_wanted_points)
     {
-        if (kubi_r_idx[k] >= 10000) num++;
+        msg_format("You have turned in %d wanted monster%s.", num, num > 1 ? "s" : "");
     }
-
-    msg_format("You earned %d point%s total.", num, num > 1 ? "s" : "");
 
     object_desc(name, &prize, OD_COLOR_CODED);
     /*msg_format("You get %s.", name);*/
@@ -2141,7 +2144,9 @@ static bool inn_comm(int cmd)
     switch (cmd)
     {
         case BACT_FOOD: /* Buy food & drink */
-            msg_print("The barkeep gives you some gruel and a beer.");
+            if ((prace_is_(RACE_BALROG)) || (prace_is_(RACE_MON_DEMON)))
+                msg_print("The barkeep offers you some very fresh meat, which you gratefully wolf down.");
+            else msg_print("The barkeep gives you some gruel and a beer.");
 
             (void)set_food(PY_FOOD_MAX - 1);
             break;
@@ -2191,7 +2196,11 @@ static bool inn_comm(int cmd)
 
                     _recharge_player_items();
 
-                    if (prev_hour >= 6 && prev_hour <= 17)
+                    if ((prace_is_(RACE_MON_POSSESSOR)) && (p_ptr->current_r_idx == MON_AUDE))
+                    {
+                        msg_format("You awaken smiling and much refreshed after a good%s... sleep?%s", (prev_hour >= 6 && prev_hour <= 17) ? " evening's" : " night's", mut_present(MUT_NO_INHIBITIONS) ? " (You really like that No Inhibitions mutation!)" : "");
+                    }
+                    else if (prev_hour >= 6 && prev_hour <= 17)
                         msg_print("You awake refreshed for the evening.");
                     else
                         msg_print("You awake refreshed for the new day.");
@@ -2319,7 +2328,7 @@ static void town_history(void)
     screen_save();
 
     /* Peruse the building help file */
-    (void)show_file(TRUE, "bldg.txt", NULL, 0, 0);
+    doc_display_help("town.txt#TheShops", NULL);
 
 
     /* Load screen */
@@ -2723,8 +2732,9 @@ int reforge_limit(void)
 static bool _reforge_artifact(void)
 {
     int  cost, extra_cost = 0, value;
+    bool is_copy = FALSE;
     char o_name[MAX_NLEN];
-    object_type *src, *dest;
+    object_type *src, *dest, copy;
     int src_max_power = reforge_limit();
     int dest_max_power = 0;
     int src_weight = 80;
@@ -2778,12 +2788,6 @@ static bool _reforge_artifact(void)
 
     dest = _get_reforge_dest(dest_max_power);
     if (!dest) return FALSE;
-
-    if (dest->number > 1)
-    {
-        msg_print("Don't be greedy! You may only reforge a single object.");
-        return _reforge_artifact_exit();
-    }
 
     if (object_is_artifact(dest))
     {
@@ -2846,6 +2850,8 @@ static bool _reforge_artifact(void)
             }
         }
     }
+
+    clear_bldg(5, 18);
 
     if (reforge_details)
     {
@@ -2971,7 +2977,7 @@ static bool _reforge_artifact(void)
             adjustment -= MAX(0, ((nval / 2) - ABS(min_power - nval)) / 720);
         }
 
-        if (object_is_(dest, TV_STAVES, SV_WIZSTAFF))
+        if (object_is_(dest, TV_HAFTED, SV_WIZSTAFF))
         {
             int muutos = ((8500 - ABS(min_power - 14000)) / 100);
             if (muutos < 0) muutos /= 4;
@@ -3098,7 +3104,7 @@ static bool _reforge_artifact(void)
             obj_identify_fully(&forge);
             score = obj_value_real(&forge);
             total += score;
-            object_desc(buf, &forge, OD_COLOR_CODED);
+            object_desc(buf, &forge, OD_COLOR_CODED | OD_SINGULAR);
             doc_printf(doc, "%d) <indent><style:indent>%s (%d%%)</style></indent>\n",
                 i + 1, buf, score * 100 / base);
         }
@@ -3108,11 +3114,23 @@ static bool _reforge_artifact(void)
         doc_free(doc);
         return FALSE;
     }
+    if ((dest->number > 1) && (!p_ptr->wizard))
+    {
+        copy = *dest;
+        obj_dec_number(&copy, 1, TRUE);
+        is_copy = TRUE;
+/*        msg_print("Don't be greedy! You may only reforge a single object.");
+        return _reforge_artifact_exit();*/
+    }
+
+
     if (!reforge_artifact(src, dest, p_ptr->fame))
     {
         msg_print("The reforging failed!");
         return _reforge_artifact_exit();
     }
+    else
+        dest->number = 1;
 
     src->number = 0;
     obj_release(src, OBJ_RELEASE_QUIET);
@@ -3162,6 +3180,17 @@ static bool _reforge_artifact(void)
 
     obj_identify_fully(dest);
     gear_notice_enchant(dest);
+
+    if (is_copy)
+    {
+        if (pack_is_full()) /* This should never happen since using a source artifact ought to give us an empty slot... */
+        {
+            msg_print("<color:v>Your pack is overflowing!</color>");
+            pack_carry(&copy);
+        }
+        else pack_carry(&copy);
+    }
+
     handle_stuff();
 
     obj_display(dest);
@@ -3292,15 +3321,16 @@ static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_
 
                 unit_cost_add *= m;
                 unit_cost_sum += unit_cost_add;
-                unit_cost = unit_cost_sum;
 
-                unit_cost = town_service_price(unit_cost);
+                unit_cost = town_service_price(unit_cost_sum);
 
                 if (unit_cost < min_cost)
                     unit_cost = min_cost;
 
                 if (is_guild)
                     unit_cost = (unit_cost + 1)/2;
+
+                unit_cost = unit_cost * copy.number;
 
                 if (unit_cost >= 10000)
                     choices[i].cost = big_num_round(unit_cost, 3);
@@ -3427,7 +3457,6 @@ bool tele_town(void)
         char buf[80];
 
         if (i == p_ptr->town_num) continue;
-        
         if (!town_visited(i) && !p_ptr->wizard) continue;
 
         sprintf(buf,"%c) %-20s", I2A(i-1), town_name(i));
@@ -3943,7 +3972,7 @@ static void bldg_process_command(building_type *bldg, int i)
         paid = ident_spell(NULL);
         break;
     case BACT_LEARN:
-		msg_print("You don't have to learn spells!");
+        msg_print("You don't have to learn spells!");
         break;
     case BACT_HEALING: /* needs work */
         hp_player(200);
@@ -4002,6 +4031,7 @@ static void bldg_process_command(building_type *bldg, int i)
             if (quests_get(QUEST_OBERON)->status != QS_FINISHED) max_depth = 98;
             else if(quests_get(QUEST_SERPENT)->status != QS_FINISHED) max_depth = 99;
         }
+        else if ((select_dungeon == DUNGEON_HEAVEN) && (quests_get(QUEST_METATRON)->status != QS_FINISHED)) max_depth = 585;
 
         amt = get_quantity(format("Teleport to which level of %s? ", d_name + d_info[select_dungeon].name), max_depth);
         if (amt > 0)

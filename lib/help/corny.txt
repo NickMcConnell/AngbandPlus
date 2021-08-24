@@ -1,6 +1,6 @@
 <style:title>Cornucopia Banking and Insurance Services - Terms and Conditions</style>
 
-Cornucopia of Anambar ("Cornucopia") is your only option for personal banking, highly interesting loans and item insurance. By using any Cornucopia product or service, such as the Cornucopia Banking and Insurance Services ("Services") or the Cornucopia Official Help File ("Terms" or "Terms and Conditions"), you signify your agreement to all terms and conditions set out herein, which may be revised by Cornucopia or by the Oposband Maintainer (the "Maintainer") from time to time without explicit notice.
+Cornucopia of Anambar ("Cornucopia") is your only option for personal banking, highly interesting loans and item insurance. By using any Cornucopia product or service, such as the Cornucopia Banking and Insurance Services ("Services") or the Cornucopia Official Help File ("Terms" or "Terms and Conditions"), you signify your agreement to all terms and conditions set out herein, which may be revised by Cornucopia or by the FrogComposband Maintainer (the "Maintainer") from time to time without explicit notice.
 
 <topic:Deposits><style:heading>Deposit Accounts</style>
 
@@ -20,9 +20,9 @@ Cornucopia offers two basic types of item insurance policy ("Policies"): insuran
 <color:B>Normal Weapon</color>    1        2        3        2
 <color:B>Ego Weapon</color>       2        4        6        20
 <color:B>Artifact Weapon</color>  4        8        12       40
-<color:B>Normal Armor</color>    3        6        1        2
-<color:B>Ego Armor</color>       6        12       2        20
-<color:B>Artifact Armor</color>  12       24       4        40
+<color:B>Normal Armour</color>    3        6        1        2
+<color:B>Ego Armour</color>       6        12       2        20
+<color:B>Artifact Armour</color>  12       24       4        40
 
 No Compensation shall be paid for any damages that can be easily repaired by the Customer. The following damages shall be considered easily repairable: any damage that can be repaired at the Fighters' Hall, at the time the damage is suffered; for users of the Craft realm, any damage that can be repaired with the Enchantment spell; for weaponsmiths, any damage that can be repaired by a level 50 weaponsmith.
 
@@ -44,7 +44,7 @@ The Limits were set up in response to the substantial losses incurred by Cornuco
 
 <topic:Disclaimer><style:heading>Disclaimer</style>
 
-IN NO EVENT SHALL CORNUCOPIA OF ANAMBAR, ANY OF ITS EMPLOYEES OR REPRESENTATIVES, ANY OTHER PERSON OR ENTITY ASSOCIATED WITH CORNUCOPIA, OR THE OPOSBAND MAINTAINER BE LIABLE FOR ANY INCIDENTAL, CONSEQUENTIAL, PUNITIVE OR ANY OTHER DAMAGES WHATSOEVER RESULTING FROM YOUR USE OF, OR INABILITY TO USE, ANY CORNUCOPIA SERVICES, WHETHER BASED ON WARRANTY, CONTRACT, TORT, EXTORT OR ANY OTHER LEGAL THEORY, AND WHETHER OR NOT CORNUCOPIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES, EXCEPT WHERE OTHERWISE SPECIFIED IN THE TERMS AND CONDITIONS.
+IN NO EVENT SHALL CORNUCOPIA OF ANAMBAR, ANY OF ITS EMPLOYEES OR REPRESENTATIVES, ANY OTHER PERSON OR ENTITY ASSOCIATED WITH CORNUCOPIA, OR THE FROGCOMPOSBAND MAINTAINER BE LIABLE FOR ANY INCIDENTAL, CONSEQUENTIAL, PUNITIVE OR ANY OTHER DAMAGES WHATSOEVER RESULTING FROM YOUR USE OF, OR INABILITY TO USE, ANY CORNUCOPIA SERVICES, WHETHER BASED ON WARRANTY, CONTRACT, TORT, EXTORT OR ANY OTHER LEGAL THEORY, AND WHETHER OR NOT CORNUCOPIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES, EXCEPT WHERE OTHERWISE SPECIFIED IN THE TERMS AND CONDITIONS.
 
 <topic:Dispute Resolution><style:heading>Dispute Resolution</style>
 
@@ -52,6 +52,5 @@ The Terms and Conditions, and your relationship with Cornucopia under the Terms,
 
 <color:D>
 Last updated  : FrogComposband 7.1.toffee
-Last updated  : Oposband 0.1.0
 </color>
 

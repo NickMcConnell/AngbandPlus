@@ -89,7 +89,7 @@ static bool _create_shots(void)
 
     if (!have_flag(f_info[get_feat_mimic(c_ptr)].flags, FF_CAN_DIG))
     {
-        msg_print("You need pile of rubble.");
+        msg_print("You need a pile of rubble.");
         return FALSE;
     }
 
@@ -227,7 +227,7 @@ static void _birth(void)
     py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
     py_birth_obj_aux(TV_QUIVER, 0, 1);
     py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(30, 50));
-
+	
     p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
     p_ptr->proficiency[PROF_BOW] = WEAPON_EXP_BEGINNER;
     p_ptr->proficiency[PROF_CROSSBOW] = WEAPON_EXP_BEGINNER;
@@ -263,9 +263,8 @@ class_t *archer_get_class(void)
                     "ammunition, but will learn how to make it from junk found in the "
                     "dungeon. An archer is better than a warrior at stealth, "
                     "perception, searching and magical devices.\n \n"
-                    "Archers have a class power - 'Create Ammo' - which creates stones "
-                    "or shots from pile of rubble, and arrows and crossbow bolts from "
-                    "bones.";
+                    "Archers have a class power - 'Create Ammo' - which creates pebbles "
+                    "or shots from rubble, and arrows and crossbow bolts from bones.";
 
         me.stats[A_STR] =  2;
         me.stats[A_INT] = -1;

@@ -48,7 +48,7 @@ M:######################################
 R:OBJ(studded leather armor)
 
 ?:[EQU $CLASS Monk Mystic Force-Trainer Ninja Ninja-Lawyer Scout]
-R:OBJ(padded armor)
+R:OBJ(leather armor)
 
 ?:[EQU $CLASS Warrior Blood-Knight Mauler Samurai]
 R:OBJ(set of studded leather gloves)

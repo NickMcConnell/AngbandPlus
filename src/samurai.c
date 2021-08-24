@@ -301,7 +301,7 @@ cptr do_hissatsu_spell(int spell, int mode)
         if (desc) return "Identifies a weapon or armor.";
         if (cast)
         {
-            if (!ident_spell(object_is_weapon_armor_ammo)) return NULL;
+			if (!ident_spell(object_is_weapon_armor_ammo)) return NULL;
         }
         break;
 
@@ -903,293 +903,329 @@ cptr do_hissatsu_spell(int spell, int mode)
  ***********************************************************************/
 void samurai_posture_calc_bonuses(void)
 {
-	if (p_ptr->special_defense & KATA_FUUJIN)
-	{
-		/* see project_p for special handling ... review?
-		if (!p_ptr->blind)
-		p_ptr->reflect = TRUE; */
-	}
-	if (p_ptr->special_defense & KATA_KOUKIJIN)
-	{
-		p_ptr->to_a -= 50;
-		p_ptr->dis_to_a -= 50;
-		res_add_vuln(RES_ACID);
-		res_add_vuln(RES_ELEC);
-		res_add_vuln(RES_FIRE);
-		res_add_vuln(RES_COLD);
-	}
+    if (p_ptr->special_defense & KATA_FUUJIN)
+    {
+        /* see project_p for special handling ... review?
+        if (!p_ptr->blind)
+            p_ptr->reflect = TRUE; */
+    }
+    if (p_ptr->special_defense & KATA_KOUKIJIN)
+    {
+        p_ptr->to_a -= 50;
+        p_ptr->dis_to_a -= 50;
+        res_add_vuln(RES_ACID);
+        res_add_vuln(RES_ELEC);
+        res_add_vuln(RES_FIRE);
+        res_add_vuln(RES_COLD);
+    }
 
-	if (p_ptr->special_defense & KATA_MUSOU)
-	{
-		p_ptr->see_inv++;
-		p_ptr->free_act++;
-		p_ptr->slow_digest = TRUE;
-		p_ptr->regen += 100;
-		p_ptr->levitation = TRUE;
-		p_ptr->hold_life++;
-		p_ptr->sustain_str = TRUE;
-		p_ptr->sustain_int = TRUE;
-		p_ptr->sustain_wis = TRUE;
-		p_ptr->sustain_con = TRUE;
-		p_ptr->sustain_dex = TRUE;
-		p_ptr->sustain_chr = TRUE;
-		p_ptr->telepathy = TRUE;
-		p_ptr->lite = TRUE;
-		res_add_all();
-		p_ptr->reflect = TRUE;
-		p_ptr->sh_fire++;
-		p_ptr->sh_elec++;
-		p_ptr->sh_cold++;
-		p_ptr->to_a += 100;
-		p_ptr->dis_to_a += 100;
-	}
+    if (p_ptr->special_defense & KATA_MUSOU)
+    {
+        p_ptr->see_inv++;
+        p_ptr->free_act++;
+        p_ptr->slow_digest = TRUE;
+        p_ptr->regen += 100;
+        p_ptr->levitation = TRUE;
+        p_ptr->hold_life++;
+        p_ptr->sustain_str = TRUE;
+        p_ptr->sustain_int = TRUE;
+        p_ptr->sustain_wis = TRUE;
+        p_ptr->sustain_con = TRUE;
+        p_ptr->sustain_dex = TRUE;
+        p_ptr->sustain_chr = TRUE;
+        p_ptr->telepathy = TRUE;
+        p_ptr->lite = TRUE;
+        res_add_all();
+        p_ptr->reflect = TRUE;
+        p_ptr->sh_fire++;
+        p_ptr->sh_elec++;
+        p_ptr->sh_cold++;
+        p_ptr->to_a += 100;
+        p_ptr->dis_to_a += 100;
+    }
 }
 
 void samurai_posture_calc_stats(s16b stats[MAX_STATS])
 {
-	if (p_ptr->special_defense & KATA_KOUKIJIN)
-	{
-		int i;
-		for (i = 0; i < MAX_STATS; i++)
-			stats[i] += 5;
-	}
+    if (p_ptr->special_defense & KATA_KOUKIJIN)
+    {
+        int i;
+        for (i = 0; i < MAX_STATS; i++)
+            stats[i] += 5;
+    }
 }
 
 void samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-	if (p_ptr->special_defense & KATA_FUUJIN)
-		add_flag(flgs, OF_REFLECT);
+    if (p_ptr->special_defense & KATA_FUUJIN)
+        add_flag(flgs, OF_REFLECT);
 
-	if (p_ptr->special_defense & KATA_MUSOU)
-	{
-		add_flag(flgs, OF_RES_FEAR);
-		add_flag(flgs, OF_RES_LITE);
-		add_flag(flgs, OF_RES_DARK);
-		add_flag(flgs, OF_RES_BLIND);
-		add_flag(flgs, OF_RES_CONF);
-		add_flag(flgs, OF_RES_SOUND);
-		add_flag(flgs, OF_RES_SHARDS);
-		add_flag(flgs, OF_RES_NETHER);
-		add_flag(flgs, OF_RES_NEXUS);
-		add_flag(flgs, OF_RES_CHAOS);
-		add_flag(flgs, OF_RES_DISEN);
-		add_flag(flgs, OF_RES_TIME);
-		add_flag(flgs, OF_REFLECT);
-		add_flag(flgs, OF_HOLD_LIFE);
-		add_flag(flgs, OF_FREE_ACT);
-		add_flag(flgs, OF_AURA_FIRE);
-		add_flag(flgs, OF_AURA_ELEC);
-		add_flag(flgs, OF_AURA_COLD);
-		add_flag(flgs, OF_LEVITATION);
-		add_flag(flgs, OF_LITE);
-		add_flag(flgs, OF_SEE_INVIS);
-		add_flag(flgs, OF_TELEPATHY);
-		add_flag(flgs, OF_SLOW_DIGEST);
-		add_flag(flgs, OF_REGEN);
-		add_flag(flgs, OF_SUST_STR);
-		add_flag(flgs, OF_SUST_INT);
-		add_flag(flgs, OF_SUST_WIS);
-		add_flag(flgs, OF_SUST_DEX);
-		add_flag(flgs, OF_SUST_CON);
-		add_flag(flgs, OF_SUST_CHR);
-	}
+    if (p_ptr->special_defense & KATA_MUSOU)
+    {
+        add_flag(flgs, OF_RES_FEAR);
+        add_flag(flgs, OF_RES_LITE);
+        add_flag(flgs, OF_RES_DARK);
+        add_flag(flgs, OF_RES_BLIND);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_SOUND);
+        add_flag(flgs, OF_RES_SHARDS);
+        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_NEXUS);
+        add_flag(flgs, OF_RES_CHAOS);
+        add_flag(flgs, OF_RES_DISEN);
+        add_flag(flgs, OF_RES_TIME);
+        add_flag(flgs, OF_REFLECT);
+        add_flag(flgs, OF_HOLD_LIFE);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_AURA_FIRE);
+        add_flag(flgs, OF_AURA_ELEC);
+        add_flag(flgs, OF_AURA_COLD);
+        add_flag(flgs, OF_LEVITATION);
+        add_flag(flgs, OF_LITE);
+        add_flag(flgs, OF_SEE_INVIS);
+        add_flag(flgs, OF_TELEPATHY);
+        add_flag(flgs, OF_SLOW_DIGEST);
+        add_flag(flgs, OF_REGEN);
+        add_flag(flgs, OF_SUST_STR);
+        add_flag(flgs, OF_SUST_INT);
+        add_flag(flgs, OF_SUST_WIS);
+        add_flag(flgs, OF_SUST_DEX);
+        add_flag(flgs, OF_SUST_CON);
+        add_flag(flgs, OF_SUST_CHR);
+    }
 
-	if (p_ptr->special_defense & KATA_KOUKIJIN)
-	{
-		add_flag(flgs, OF_VULN_ACID);
-		add_flag(flgs, OF_VULN_ELEC);
-		add_flag(flgs, OF_VULN_FIRE);
-		add_flag(flgs, OF_VULN_COLD);
-	}
+    if (p_ptr->special_defense & KATA_KOUKIJIN)
+    {
+        add_flag(flgs, OF_VULN_ACID);
+        add_flag(flgs, OF_VULN_ELEC);
+        add_flag(flgs, OF_VULN_FIRE);
+        add_flag(flgs, OF_VULN_COLD);
+    }
 }
 
 static bool _choose_kata(void)
 {
-	char choice;
-	int new_kata = 0;
-	int i;
-	char buf[80];
+    char choice;
+    int new_kata = 0;
+    int i;
+    char buf[80];
 
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused.");
-		return FALSE;
-	}
-	if (p_ptr->stun)
-	{
-		msg_print("You are not clear headed");
-		return FALSE;
-	}
-	if (p_ptr->afraid)
-	{
-		msg_print("You are trembling with fear!");
-		return FALSE;
-	}
+    if (p_ptr->confused)
+    {
+        msg_print("You are too confused.");
+        return FALSE;
+    }
+    if (p_ptr->stun)
+    {
+        msg_print("You are not clear headed");
+        return FALSE;
+    }
+    if (p_ptr->afraid)
+    {
+        msg_print("You are trembling with fear!");
+        return FALSE;
+    }
 
-	screen_save();
+    screen_save();
 
-	prt(" a) No Form", 2, 20);
+    prt(" a) No Form", 2, 20);
 
-	for (i = 0; i < MAX_KATA; i++)
-	{
-		if (p_ptr->lev >= kata_shurui[i].min_level)
-		{
-			sprintf(buf, " %c) Form of %-12s  %s", I2A(i + 1), kata_shurui[i].desc, kata_shurui[i].info);
-			prt(buf, 3 + i, 20);
-		}
-	}
+    for (i = 0; i < MAX_KATA; i++)
+    {
+        if (p_ptr->lev >= kata_shurui[i].min_level)
+        {
+            sprintf(buf," %c) Form of %-12s  %s",I2A(i+1), kata_shurui[i].desc, kata_shurui[i].info);
+            prt(buf, 3+i, 20);
+        }
+    }
 
-	prt("", 1, 0);
-	prt("        Choose Form: ", 1, 14);
+    prt("", 1, 0);
+    prt("        Choose Form: ", 1, 14);
 
-	for (;;)
-	{
-		choice = inkey();
+    for(;;)
+    {
+        choice = inkey();
 
-		if (choice == ESCAPE)
-		{
-			screen_load();
-			return FALSE;
-		}
-		else if ((choice == 'a') || (choice == 'A'))
-		{
-			if (p_ptr->action == ACTION_KATA)
-				set_action(ACTION_NONE);
-			else
-				msg_print("You are not assuming posture.");
+        if (choice == ESCAPE)
+        {
+            screen_load();
+            return FALSE;
+        }
+        else if ((choice == 'a') || (choice == 'A'))
+        {
+            if (p_ptr->action == ACTION_KATA)
+                set_action(ACTION_NONE);
+            else
+                msg_print("You are not assuming posture.");
 
-			screen_load();
-			return TRUE;
-		}
-		else if ((choice == 'b') || (choice == 'B'))
-		{
-			new_kata = 0;
-			break;
-		}
-		else if (((choice == 'c') || (choice == 'C')) && (p_ptr->lev > 29))
-		{
-			new_kata = 1;
-			break;
-		}
-		else if (((choice == 'd') || (choice == 'D')) && (p_ptr->lev > 34))
-		{
-			new_kata = 2;
-			break;
-		}
-		else if (((choice == 'e') || (choice == 'E')) && (p_ptr->lev > 39))
-		{
-			new_kata = 3;
-			break;
-		}
-	}
-	set_action(ACTION_KATA);
+            screen_load();
+            return TRUE;
+        }
+        else if ((choice == 'b') || (choice == 'B'))
+        {
+            new_kata = 0;
+            break;
+        }
+        else if (((choice == 'c') || (choice == 'C')) && (p_ptr->lev > 29))
+        {
+            new_kata = 1;
+            break;
+        }
+        else if (((choice == 'd') || (choice == 'D')) && (p_ptr->lev > 34))
+        {
+            new_kata = 2;
+            break;
+        }
+        else if (((choice == 'e') || (choice == 'E')) && (p_ptr->lev > 39))
+        {
+            new_kata = 3;
+            break;
+        }
+    }
+    set_action(ACTION_KATA);
 
-	if (p_ptr->special_defense & (KATA_IAI << new_kata))
-	{
-		msg_print("You reassume a posture.");
-	}
-	else
-	{
-		p_ptr->special_defense &= ~(KATA_MASK);
-		p_ptr->update |= (PU_BONUS);
-		p_ptr->update |= (PU_MONSTERS);
-		msg_format("You assume a posture of %s form.", kata_shurui[new_kata].desc);
-		p_ptr->special_defense |= (KATA_IAI << new_kata);
-	}
-	p_ptr->redraw |= (PR_STATE);
-	p_ptr->redraw |= (PR_STATUS);
-	screen_load();
-	return TRUE;
+    if (p_ptr->special_defense & (KATA_IAI << new_kata))
+    {
+        msg_print("You reassume a posture.");
+    }
+    else
+    {
+        p_ptr->special_defense &= ~(KATA_MASK);
+        p_ptr->update |= (PU_BONUS);
+        p_ptr->update |= (PU_MONSTERS);
+        msg_format("You assume a posture of %s form.",kata_shurui[new_kata].desc);
+        p_ptr->special_defense |= (KATA_IAI << new_kata);
+    }
+    p_ptr->redraw |= (PR_STATE);
+    p_ptr->redraw |= (PR_STATUS);
+    screen_load();
+    return TRUE;
 }
 
 static int _max_sp(void)
 {
-	return MAX(p_ptr->msp * 4, p_ptr->lev * 5 + 5);
+    return MAX(p_ptr->msp*4, p_ptr->lev*5+5);
 }
 
 void cast_concentration(void)
 {
-	int max_csp = _max_sp();
-	if (total_friends)
-		return;
-	if (p_ptr->special_defense & KATA_MASK)
-		return;
+    int max_csp = _max_sp();
+    if (total_friends)
+        return;
+    if (p_ptr->special_defense & KATA_MASK)
+        return;
+        
+    msg_print("You concentrate to charge your power.");
 
-	msg_print("You concentrate to charge your power.");
+    p_ptr->csp += p_ptr->msp / 2;
+    if (p_ptr->csp >= max_csp)
+    {
+        p_ptr->csp = max_csp;
+        p_ptr->csp_frac = 0;
+    }
 
-	p_ptr->csp += p_ptr->msp / 2;
-	if (p_ptr->csp >= max_csp)
-	{
-		p_ptr->csp = max_csp;
-		p_ptr->csp_frac = 0;
-	}
-
-	p_ptr->redraw |= (PR_MANA);
+    p_ptr->redraw |= (PR_MANA);
 }
 
 void samurai_concentration_spell(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Concentration");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "");
-		break;
-	case SPELL_CAST:
-	{
-		var_set_bool(res, FALSE);
-		if (total_friends)
-		{
-			msg_print("You need concentration on the pets now.");
-			return;
-		}
-		if (p_ptr->special_defense & KATA_MASK)
-		{
-			msg_print("You need concentration on your form.");
-			return;
-		}
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Concentration");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "");
+        break;
+    case SPELL_CAST:
+    {
+        var_set_bool(res, FALSE);
+        if (total_friends)
+        {
+            msg_print("You need concentration on the pets now.");
+            return;
+        }
+        if (p_ptr->special_defense & KATA_MASK)
+        {
+            msg_print("You need concentration on your form.");
+            return;
+        }
 
-		cast_concentration();
-		var_set_bool(res, TRUE);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+        cast_concentration();
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
 void samurai_posture_spell(int cmd, variant *res)
 {
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Assume a Guard Position");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "");
-		break;
-	case SPELL_CAST:
-		var_set_bool(res, FALSE);
-		if (!equip_find_first(object_is_melee_weapon))
-		{
-			msg_print("You need to wield a weapon.");
-			return;
-		}
-		if (!_choose_kata()) return;
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Assume a Guard Position");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (!equip_find_first(object_is_melee_weapon))
+        {
+            msg_print("You need to wield a weapon.");
+            return;
+        }
+        if (!_choose_kata()) return;
 
-		p_ptr->update |= (PU_BONUS);
-		var_set_bool(res, TRUE);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
+        p_ptr->update |= (PU_BONUS);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
 }
 
+static void _calc_bonuses(void)
+{
+    samurai_posture_calc_bonuses();
+    if (p_ptr->lev >= 30)
+        res_add(RES_FEAR);
+}
 
+static void _calc_stats(s16b stats[MAX_STATS])
+{
+    samurai_posture_calc_stats(stats);
+}
+
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
+{
+    samurai_posture_get_flags(flgs);
+    if (p_ptr->lev >= 30)
+        add_flag(flgs, OF_RES_FEAR);
+}
+
+static int _get_powers(spell_info* spells, int max)
+{
+    int ct = 0;
+
+    spell_info* spell = &spells[ct++];
+    spell->level = 1;
+    spell->cost = 0;
+    spell->fail = 0;
+    spell->fn = samurai_concentration_spell;
+
+    spell = &spells[ct++];
+    spell->level = 25;
+    spell->cost = 0;
+    spell->fail = 0;
+    spell->fn = samurai_posture_spell;
+
+    return ct;
+}
 
 static caster_info * _caster_info(void)
 {
@@ -1198,141 +1234,103 @@ static caster_info * _caster_info(void)
     if (!init)
     {
         me.magic_desc = "technique";
-		me.which_stat = A_WIS;
+        me.which_stat = A_WIS;
         me.encumbrance.max_wgt = 3000;
         me.encumbrance.weapon_pct = 0;
         me.encumbrance.enc_wgt = 1200;
-		me.options = CASTER_SUPERCHARGE_MANA;
+        me.options = CASTER_SUPERCHARGE_MANA;
         init = TRUE;
     }
     return &me;
 }
 
-static void _calc_bonuses(void)
-{
-	samurai_posture_calc_bonuses();
-	if (p_ptr->lev >= 30)
-		res_add(RES_FEAR);
-}
-
-static void _calc_stats(s16b stats[MAX_STATS])
-{
-	samurai_posture_calc_stats(stats);
-}
-
-static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
-{
-	samurai_posture_get_flags(flgs);
-	if (p_ptr->lev >= 30)
-		add_flag(flgs, OF_RES_FEAR);
-}
-
-static int _get_powers(spell_info* spells, int max)
-{
-	int ct = 0;
-
-	spell_info* spell = &spells[ct++];
-	spell->level = 1;
-	spell->cost = 0;
-	spell->fail = 0;
-	spell->fn = samurai_concentration_spell;
-
-	spell = &spells[ct++];
-	spell->level = 25;
-	spell->cost = 0;
-	spell->fail = 0;
-	spell->fn = samurai_posture_spell;
-
-	return ct;
-}
-
 static void _birth(void)
 {
-	py_birth_obj_aux(TV_SWORD, SV_KATANA, 1);
-	py_birth_obj_aux(TV_HARD_ARMOR, SV_USED_SAMURAI_ARMOR, 1);
+    py_birth_obj_aux(TV_SWORD, SV_KATANA, 1);
+    py_birth_obj_aux(TV_HARD_ARMOR, SV_USED_SAMURAI_ARMOR, 1);
     py_birth_spellbooks();
 
-	p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
-	p_ptr->proficiency[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
-	p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
-	p_ptr->proficiency[PROF_STAVE] = WEAPON_EXP_BEGINNER;
-	p_ptr->proficiency[PROF_AXE] = WEAPON_EXP_BEGINNER;
-	p_ptr->proficiency[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_STAVE] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_AXE] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
 
-	p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_SKILLED;
-	p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_MASTER;
-	p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_MASTER;
-	p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_MASTER;
-	p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_MASTER;
-	p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_MASTER;
-	p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_MASTER;
-	p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_SKILLED;
-	p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_SKILLED;
-	p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_SKILLED;
-	p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_BEGINNER;
-	p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_MASTER;
-	p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_MARTIAL_ARTS] = WEAPON_EXP_BEGINNER;
+    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_RIDING] = RIDING_EXP_SKILLED;
 }
 
 class_t *samurai_get_class(void)
 {
-	static class_t me = { 0 };
-	static bool init = FALSE;
+    static class_t me = {0};
+    static bool init = FALSE;
 
-	if (!init)
-	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-		skills_t bs = { 25,  18,  32,   2,  16,   6,  70,  40 };
-		skills_t xs = { 12,   7,  10,   0,   0,   0,  23,  18 };
+    if (!init)
+    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
+    skills_t bs = { 25,  18,  32,   2,  16,   6,  70,  40};
+    skills_t xs = { 12,   7,  10,   0,   0,   0,  23,  18};
 
 
-		me.name = "Samurai";
-		me.desc = "Samurai, masters of the art of the blade, are the next strongest "
-			"fighters after Warriors, and can use various special combat "
-			"techniques. Samurai are not good at most other skills, and many "
-			"magical devices may be too difficult for them to use. Wisdom "
-			"determines a Samurai's ability to use the special combat "
-			"techniques available to him.\n \n"
-			"Samurai use the art of the blade called Kendo (or Bugei). Books "
-			"of Kendo are similar to spellbooks, but Samurai don't need to "
-			"carry them around; the books are needed only when they study new "
-			"combat techniques. Samurai need a weapon wielded to use the "
-			"techniques of Kendo, and most techniques will add powerful special "
-			"properties to their blows; such as flaming, poisoning, vampiric, "
-			"etc... Their maximum spellpoints don't depend on their level but "
-			"solely on wisdom, and they can use the class power 'Concentration' "
-			"to temporarily increase SP beyond its usual maximum value. They "
-			"have one more class power - 'Assume a Posture'. They can choose "
-			"different forms of posture in different situations.";
+        me.name = "Samurai";
+        me.desc = "Samurai, masters of the art of the blade, are among the strongest "
+                    "fighters and can use various special combat techniques. "
+                    "Samurai are not good at most non-combat skills, and many "
+                    "magical devices in particular may be too difficult for them to use. "
+                    "Wisdom determines a Samurai's ability to use the special combat "
+                    "techniques available.\n \n"
+                    "Samurai use the art of the blade called Kendo (or Bugei). Books "
+                    "of Kendo are similar to spellbooks, but do not need to be carried "
+                    "around; they are only required for studying new combat techniques. "
+                    "Samurai need to wield a weapon to use Kendo, and many of their techniques will "
+                    "add special properties to their blows; these are often slays or brands such as "
+                    "flaming or poisoning, but can be much more powerful than a normal brand. "
+                    "The mana pool of a Samurai does not depend on their level but "
+                    "solely on wisdom; and they can use the class power 'Concentration' "
+                    "to temporarily increase their mana beyond its usual maximum value. The other "
+                    "Samurai class power, 'Assume a Posture', allows them to choose "
+                    "different postures depending on the needs of a situation.";
 
-		me.stats[A_STR] = 3;
-		me.stats[A_INT] = -2;
-		me.stats[A_WIS] = 1;
-		me.stats[A_DEX] = 2;
-		me.stats[A_CON] = 1;
-		me.stats[A_CHR] = 0;
-		me.base_skills = bs;
-		me.extra_skills = xs;
-		me.life = 109;
-		me.base_hp = 12;
-		me.exp = 130;
-		me.pets = 40;
-		me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
+        me.stats[A_STR] =  2;
+        me.stats[A_INT] = -2;
+        me.stats[A_WIS] =  1;
+        me.stats[A_DEX] =  2;
+        me.stats[A_CON] =  1;
+        me.stats[A_CHR] =  1;
+        me.base_skills = bs;
+        me.extra_skills = xs;
+        me.life = 107;
+        me.base_hp = 12;
+        me.exp = 130;
+        me.pets = 40;
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
-		me.birth = _birth;
-		me.caster_info = _caster_info;
-		me.calc_bonuses = _calc_bonuses;
-		me.calc_stats = _calc_stats;
-		me.get_flags = _get_flags;
-		me.get_powers = _get_powers;
-		me.character_dump = spellbook_character_dump;
-		init = TRUE;
-	}
+        me.birth = _birth;
+        me.caster_info = _caster_info;
+        me.calc_bonuses = _calc_bonuses;
+        me.calc_stats = _calc_stats;
+        me.get_flags = _get_flags;
+        me.get_powers = _get_powers;
+        me.character_dump = spellbook_character_dump;
+        init = TRUE;
+    }
 
-	return &me;
+    return &me;
 }
 
 bool samurai_can_concentrate(void)
-{
+ {
 	caster_info *caster_ptr = get_caster_info();
 	if (!(caster_ptr && (caster_ptr->options & CASTER_SUPERCHARGE_MANA))) return FALSE;
 	if (p_ptr->csp >= _max_sp()) return FALSE;

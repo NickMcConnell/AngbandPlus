@@ -284,6 +284,8 @@ int anti_magic_check(void)
         return 0;
 
     case CLASS_TOURIST:
+        return 10;
+
     case CLASS_DUELIST:
         return 10;
 

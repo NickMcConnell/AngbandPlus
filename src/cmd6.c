@@ -470,6 +470,8 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
     {
         obj->number--;
         obj_release(obj, 0);
+        p_ptr->window |= (PW_INVEN);
+        p_ptr->update |= (PU_BONUS);
     }
 }
 
@@ -845,6 +847,7 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
                  case SV_SCROLL_SUMMON_KIN:
                  case SV_SCROLL_CRAFTING:
                  case SV_SCROLL_MUNDANITY:
+                 case SV_SCROLL_ARTIFACT:
                  {
                      energy_use = 0;
                      break;
@@ -1163,7 +1166,7 @@ void do_cmd_use_staff(void)
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_STAFF, SV_ANY))
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_STAFF, SV_ANY) && !floor_find_obj(py, px, TV_STAFF, SV_ANY))
     {
         magic_eater_cast(TV_STAFF);
         return;
@@ -1182,6 +1185,7 @@ void do_cmd_use_staff(void)
     do_cmd_device_aux(prompt.obj);
 }
 
+
 void do_cmd_aim_wand(void)
 {
     obj_prompt_t prompt = {0};
@@ -1189,7 +1193,7 @@ void do_cmd_aim_wand(void)
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_WAND, SV_ANY))
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_WAND, SV_ANY) && !floor_find_obj(py, px, TV_WAND, SV_ANY))
     {
         magic_eater_cast(TV_WAND);
         return;
@@ -1215,7 +1219,7 @@ void do_cmd_zap_rod(void)
     if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_ROD, SV_ANY))
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_ROD, SV_ANY) && !floor_find_obj(py, px, TV_ROD, SV_ANY))
     {
         magic_eater_cast(TV_ROD);
         return;
@@ -1522,9 +1526,6 @@ static void _do_capture_ball(object_type *o_ptr)
  * Activate a wielded object. Wielded objects never stack.
  * And even if they did, activatable objects never stack.
  *
- * Currently, only (some) artifacts, and Dragon Scale Mail, can be activated.
- * But one could, for example, easily make an activatable "Ring of Plasma".
- *
  * Note that it always takes a turn to activate an artifact, even if
  * the user hits "escape" at the "direction" prompt.
  */
@@ -1603,6 +1604,7 @@ void do_cmd_activate(void)
     prompt.error = "You have nothing to activate.";
     prompt.filter = _activate_p;
     prompt.where[0] = INV_EQUIP;
+    if (get_race()->bonus_pack2) prompt.where[1] = INV_SPECIAL3;
     prompt.flags = INV_SHOW_FAIL_RATES;
 
     obj_prompt(&prompt);

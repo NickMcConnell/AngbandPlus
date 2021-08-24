@@ -355,7 +355,7 @@ static bool _skip_effect(int which)
     switch (which)
     {
     case RBE_CUT:
-	case RBE_DRAIN_EXP: case RBE_HALLUCINATE:
+    case RBE_DRAIN_EXP:  case RBE_HALLUCINATE:
     case RBE_LOSE_STR: case RBE_LOSE_INT: case RBE_LOSE_WIS:
     case RBE_LOSE_DEX: case RBE_LOSE_CON: case RBE_LOSE_CHR:
     case RBE_LOSE_ALL:
@@ -374,6 +374,7 @@ void possessor_attack(point_t where, bool *fear, bool *mdeath, int mode)
 
     if (!possessor_can_attack()) return;
     if (!foe) return;
+    if (no_melee_check()) return;
 
     set_monster_csleep(foe->id, 0);
     monster_desc(m_name_subject, foe, MD_PRON_VISIBLE);
@@ -470,7 +471,7 @@ void possessor_attack(point_t where, bool *fear, bool *mdeath, int mode)
                     dam = mon_damage_mod(foe, dam, FALSE);
                     if (dam > 0)
                         anger_monster(foe);
-                    *mdeath = mon_take_hit(foe->id, dam, fear, NULL, TRUE);
+                    *mdeath = mon_take_hit(foe->id, dam, DAM_TYPE_MELEE, fear, NULL);
                     break;
                 case RBE_EAT_GOLD:
                 case RBE_EAT_ITEM:
@@ -522,13 +523,34 @@ void possessor_attack(point_t where, bool *fear, bool *mdeath, int mode)
 /**********************************************************************
  * Spells
  **********************************************************************/
-void possessor_cast(void)
+void possessor_cast()
 {
-    mon_race_ptr race = &r_info[p_ptr->current_r_idx];
+    mon_race_ptr race = &r_info[(p_ptr->pclass == CLASS_BLUE_MAGE || p_ptr->pclass == CLASS_IMITATOR) ? MON_SEXY_SWIMSUIT : p_ptr->current_r_idx];
     if (!race->spells)
     {
-        msg_print("Your current body has no spells.");
+        if (p_ptr->pclass == CLASS_BLUE_MAGE) msg_print("You have not learned any spells yet.");
+        if (p_ptr->pclass == CLASS_IMITATOR) msg_print("You don't remember any actions to imitate.");
+        else msg_print("Your current body has no spells.");
         return;
+    }
+    /* Imitators forget spells, and may end up without them */
+    if (p_ptr->pclass == CLASS_IMITATOR && r_info[MON_SEXY_SWIMSUIT].spells)
+    {
+        bool has_spells = FALSE;
+        for (int i = 0; i < MST_COUNT; i++)
+        {
+            if (r_info[MON_SEXY_SWIMSUIT].spells->groups[i] && r_info[MON_SEXY_SWIMSUIT].spells->groups[i]->count > 0)
+            {
+                has_spells = TRUE;
+                i = MST_COUNT;
+            }
+        }
+
+        if (!has_spells) 
+        {
+            msg_print("You don't remember any actions to imitate.");
+            return;
+        }
     }
     if (p_ptr->confused)
     {
@@ -537,7 +559,9 @@ void possessor_cast(void)
     }
     if (pelko()) return;
     if (mon_spell_cast_possessor(race))
+    {
         energy_use = 100;
+    }
 }
 
 /**********************************************************************
@@ -1232,18 +1256,16 @@ race_t *mon_possessor_get_race(void)
                     "are capable of possessing the corpses of monsters they have slain, and gain powers and "
                     "abilities based on their current body. As such, they can become quite powerful indeed! "
                     "Unfortunately, not every type of monster will drop a corpse, and getting suitable corspes "
-                    "to inhabit can be difficult. If the possessor ever leaves their current body then all of "
-                    "their equipment will be removed (except a "
-                    "light source) and they will temporarily be in their native, vulnerable state. Finally, "
-                    "leaving their current body will destroy that corpse most of the time, so the possessor "
-                    "should only do so if they have a better corpse on hand (and also only if there are no "
-                    "monsters nearby!).\n \n"
-                    "Possessors are monsters and do not choose a normal class. Their stats, skills, resistances "
-                    "and spells are completely determined by the body they inhabit. Their current body also "
-                    "determines their spell stat (e.g. a novice priest uses wisdom, a novice mage uses intelligence). "
-                    "Their current body may offer innate powers (e.g. breath weapons or rockets) in addition to or in lieu "
-                    "of magical powers (e.g. mana storms and frost bolts). Be sure to check both the racial power "
-                    "command ('U') and the magic command ('m') after possessing a new body.";
+                    "to inhabit can be difficult. If the possessor ever leaves their current body, all of "
+                    "their equipment will be removed (except a light source) and they will temporarily return "
+                    "to their native, vulnerable state. Finally, leaving their current body will destroy that "
+                    "corpse most of the time, so the possessor should only do so if they have a better corpse "
+                    "on hand (and also only if there are no monsters nearby!). Possessors normally have full "
+                    "control of the body they inhabit; but at very low health this control becomes hard to "
+                    "maintain, and a possessor who suffers serious damage has a small chance of being ejected from the body.\n \n"
+                    "The stats, skills, spells, resistances and innate powers of a possessor are determined by the body they inhabit; "
+                    "be sure to check both the racial power command (<color:keypress>U</color>/<color:keypress>O</color>) and the magic command (<color:keypress>m</color>) after possessing a new body. "
+                    "The current body also determines the spell stat; for example, a novice priest possessor uses wisdom, while a novice mage possessor relies on intelligence.";
 
         me.exp = 250;
         me.shop_adjust = 110; /* Really should depend on current form */

@@ -22,6 +22,109 @@
 #define CYBERNOISE 20
 
 /*
+ * Urgh... Eaten from regular travel code
+ */
+int _flow_head = 0;
+int _flow_tail = 0;
+static byte _temp2_x[MAX_SHORT];
+static byte _temp2_y[MAX_SHORT];
+byte _hinta[MAX_HGT][MAX_WID];
+
+static bool _mon_travel_flow_aux(monster_race *r_ptr, int y, int x, int n, bool wall, bool okay)
+{
+    cave_type *c_ptr = &cave[y][x];
+    int old_head = _flow_head;
+
+    n = n % 199;
+
+    if (!okay)
+    {
+        /* Ignore out of bounds or undiscovered terrain */
+        if (!in_bounds(y, x)) return wall;
+        if (!monster_can_enter(y, x, r_ptr, 0)) return wall;
+        if (!(c_ptr->info & CAVE_AWARE)) return wall;
+        if (is_mon_trap_grid(c_ptr)) return wall;
+
+        /* Ignore "pre-stamped" entries */
+        if ((_hinta[y][x] > 199) || ((_hinta[y][x] < 199) && (_hinta[y][x] <= n))) return wall;
+    }
+    else
+    {
+        wall = (n < 30);
+    }
+
+    /* Save the flow cost */
+    _hinta[y][x] = n;
+    if (wall) _hinta[y][x] += 199;
+
+    /* Enqueue that entry */
+    _temp2_y[_flow_head] = y;
+    _temp2_x[_flow_head] = x;
+
+    /* Advance the queue */
+    if (++_flow_head == MAX_SHORT) _flow_head = 0;
+
+    /* Hack -- notice overflow by forgetting new entry */
+    if (_flow_head == _flow_tail) _flow_head = old_head;
+
+    return wall;
+}
+
+static bool _mon_travel_flow(monster_type *m_ptr, int *ty, int *tx)
+{
+    int x, y, d, best = 199;
+    bool wall = FALSE;
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+    /* Reset the "queue" */
+    _flow_head = _flow_tail = 0;
+    for (y = 0; y < MAX_HGT; y++)
+    {
+        for (x = 0; x < MAX_WID; x++)
+        {
+            _hinta[y][x] = 199;
+        }
+    }
+
+    /* Add the target destination grid to the queue */
+    (void)_mon_travel_flow_aux(r_ptr, *ty, *tx, 0, wall, TRUE);
+    _hinta[*ty][*tx] = 0;
+
+    /* Now process the queue */
+    while (_flow_head != _flow_tail)
+    {
+        /* Extract the next entry */
+        y = _temp2_y[_flow_tail];
+        x = _temp2_x[_flow_tail];
+
+        /* Forget that entry */
+        if (++_flow_tail == MAX_SHORT) _flow_tail = 0;
+
+        /* Add the "children" */
+        for (d = 0; d < 8; d++)
+        {
+            /* Add that child if "legal" */
+            wall = _mon_travel_flow_aux(r_ptr, y + ddy_ddd[d], x + ddx_ddd[d], _hinta[y][x] + 1, wall, FALSE);
+        }
+    }
+
+    for (d = 0; d < 8; d++)
+    {
+        y = m_ptr->fy + ddy_ddd[d];
+        x = m_ptr->fx + ddx_ddd[d];
+        if (!in_bounds(y, x)) continue;
+        if (_hinta[y][x] < best)
+        {
+            *ty = ddy_ddd[d];
+            *tx = ddx_ddd[d];
+            best = _hinta[y][x];
+        }
+    }
+
+    return (best != 199);
+}
+
+/*
  * Calculate the direction to the next enemy
  */
 static bool get_enemy_dir(int m_idx, int *mm)
@@ -31,6 +134,7 @@ static bool get_enemy_dir(int m_idx, int *mm)
     int t_idx;
     int start;
     int plus = 1;
+    bool valmis = FALSE;
 
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -46,6 +150,11 @@ static bool get_enemy_dir(int m_idx, int *mm)
     {
         y = m_list[pet_t_m_idx].fy;
         x = m_list[pet_t_m_idx].fx;
+        if ((!projectable(m_ptr->fy, m_ptr->fx, y, x)) && (distance(m_ptr->fy, m_ptr->fx, y, x) < 15))
+        { /* Pathfind aggressively
+           * Potentially slow, so only applied in specific situations */
+            if (_mon_travel_flow(m_ptr, &y, &x)) valmis = TRUE;
+        }
     }
     else
     {
@@ -116,15 +225,18 @@ static bool get_enemy_dir(int m_idx, int *mm)
         if (!x && !y) return FALSE;
     }
 
-    /* Extract the direction */
-    x -= m_ptr->fx;
-    y -= m_ptr->fy;
-
-    /* Check for long melee */
-    if ((r_ptr->flags7 & RF7_RANGED_MELEE) && (MAX(ABS(x), ABS(y)) == 2) && (MIN(ABS(x), ABS(y)) < 2) && (very_clean_shot(m_ptr->fy, m_ptr->fx, m_ptr->fy + y, m_ptr->fx + x)))
+    if (!valmis)
     {
-        mm[0] = mm[1] = mm[2] = (30 - (5 * x) - y);
-        return (TRUE);
+        /* Extract the direction */
+        x -= m_ptr->fx;
+        y -= m_ptr->fy;
+
+        /* Check for long melee */
+        if ((r_ptr->flags7 & RF7_RANGED_MELEE) && (MAX(ABS(x), ABS(y)) == 2) && (MIN(ABS(x), ABS(y)) < 2) && (very_clean_shot(m_ptr->fy, m_ptr->fx, m_ptr->fy + y, m_ptr->fx + x)))
+        {
+            mm[0] = mm[1] = mm[2] = (30 - (5 * x) - y);
+            return (TRUE);
+        }
     }
 
     /* North */
@@ -224,6 +336,8 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
 
     if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
+    if ((melee_challenge) && (!is_pet(m_ptr))) dam = 0;
+
     if (MON_INVULNER(m_ptr) && randint0(PENETRATE_INVULNERABILITY))
     {
         if (seen)
@@ -257,11 +371,13 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
     /* It is dead now... or is it? */
     if (m_ptr->hp < 0)
     {
-        if ( ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL) || (m_ptr->mflag2 & MFLAG2_QUESTOR))
-          && !p_ptr->inside_battle
-          && !prace_is_(RACE_MON_QUYLTHULG))
+        /* CJR - Experimental: Lets pets/friendlies kill questors/uniques as well, also make it obvious whenever they die */
+        if /*(*/ ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL) || (m_ptr->mflag2 & MFLAG2_QUESTOR))
+          /*&& !p_ptr->inside_battle
+          && !prace_is_(RACE_MON_QUYLTHULG))*/
         {
-            m_ptr->hp = 1;
+            known = TRUE; seen = TRUE;
+            /*m_ptr->hp = 1;*/
         }
         else
         {
@@ -358,9 +474,9 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
 
 #endif /* ALLOW_FEAR */
 
-    if ((dam > 0) && !is_pet(m_ptr) && !is_friendly(m_ptr) && (who != m_idx))
+    if ((dam > 0) && !is_pet(m_ptr) && !is_friendly(m_ptr) && (who != m_idx) && (m_ptr->cdis > 1))
     {
-        if (is_pet(&m_list[who]) && !player_bold(m_ptr->target_y, m_ptr->target_x))
+        if (!is_hostile(&m_list[who]) && !player_bold(m_ptr->target_y, m_ptr->target_x))
         {
             set_target(m_ptr, m_list[who].fy, m_list[who].fx);
         }
@@ -587,6 +703,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
     if ( p_ptr->action == ACTION_GLITTER
+      && !m_ptr->parent_m_idx
       && mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER) )
     {
         rng = AAF_LIMIT_RING;
@@ -1145,6 +1262,14 @@ static bool get_moves(int m_idx, int *mm)
             if ((allow_long_melee) && (ABS(y) < 3) && (ABS(x) < 3) && ((ABS(y) == 2) || (ABS(x) == 2)) && (very_clean_shot(m_ptr->fy, m_ptr->fx, m_ptr->target_y, m_ptr->target_x))) use_long_melee = TRUE;
             done = TRUE;
         }
+
+        /* TODO: Improve pet pathfinding */
+        if ((!done) && (is_pet(m_ptr)) && (t_m_idx) && (are_enemies(m_ptr, &m_list[t_m_idx])) && (distance(m_ptr->fy, m_ptr->fx, m_ptr->target_y, m_ptr->target_x) < 15))
+        {
+            y = m_ptr->fy - m_ptr->target_y;
+            x = m_ptr->fx - m_ptr->target_x;
+            done = TRUE;
+        }
     }
 
     /* Handle Packs ... */
@@ -1577,6 +1702,8 @@ bool mon_attack_mon(int m_idx, int t_idx)
 
     if (d_info[dungeon_type].flags1 & DF1_NO_MELEE) return (FALSE);
 
+    if ((melee_challenge) && (!is_pet(t_ptr))) return FALSE;
+
     /* Total armor */
     ac = mon_ac(t_ptr);
 
@@ -1623,7 +1750,7 @@ bool mon_attack_mon(int m_idx, int t_idx)
     monster_desc(t_name, t_ptr, MD_PRON_VISIBLE);
 
     /* Scan through all four blows */
-    for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+    for (ap_cnt = 0; ap_cnt < MAX_MON_BLOWS; ap_cnt++)
     {
         int method;
         int power = 0;
@@ -2064,6 +2191,22 @@ static bool check_hp_for_feat_destruction(feature_type *f_ptr, monster_type *m_p
            (m_ptr->hp >= MAX(m_ptr->maxhp / 3, 200));
 }
 
+/* Most monsters have 40% chance to hop up on tables, slow ones are 20% */
+static int monster_jump_chance(monster_race *r_ptr, monster_type *m_ptr)
+{
+	/* FLyers ignore tables*/
+	if (r_ptr->flags7 & RF7_CAN_FLY) return 100;
+
+	/* Passwall monsters ignore tables */
+	if (r_ptr->flags2 & RF2_PASS_WALL) return 100;
+
+	/*Climbers are very good at climbing*/
+	if (r_ptr->flags7 & RF7_CAN_CLIMB) return 80;
+
+
+	/* Default chance is 40% */
+	return 40;
+}
 /*
  * Process a monster
  *
@@ -2162,6 +2305,7 @@ static void process_monster(int m_idx)
         while ((upkeep_factor > SAFE_UPKEEP_PCT) && (p_ptr->upset_okay)) /* Neglected pets */
         {
             if (unique_is_friend(m_ptr->r_idx)) break;
+            if (m_ptr->r_idx == MON_MONKEY_CLONE) break;
             if (p_ptr->csp * 3 > p_ptr->msp) 
             {
                  if (randint0(p_ptr->msp) < p_ptr->csp) break;
@@ -2228,7 +2372,7 @@ static void process_monster(int m_idx)
         /* Its parent have gone, it also goes away.
            Hack: Only for pets.
         */
-        if (!is_pet(m_ptr))
+        if ((!is_pet(m_ptr)) || (is_riding_mon))
         {
             mon_set_parent(m_ptr, 0);
         }
@@ -2290,7 +2434,10 @@ static void process_monster(int m_idx)
         return;
 
     if (m_ptr->r_idx == MON_SHURYUUDAN)
+    {
         mon_take_hit_mon(m_idx, 1, &fear, " explodes into tiny shreds.", m_idx);
+        if (!m_list[m_idx].r_idx) return;
+    }
 
     if (((is_pet(m_ptr)) || (is_friendly(m_ptr))) && (!p_ptr->inside_battle))
     {
@@ -2361,6 +2508,7 @@ static void process_monster(int m_idx)
     /* Hack: Rings wake up potential ring bearers */
     if ( MON_CSLEEP(m_ptr)
       && p_ptr->action == ACTION_GLITTER
+      && !m_ptr->parent_m_idx
       && mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER) )
     {
         set_monster_csleep(m_idx, 0);
@@ -2871,7 +3019,6 @@ static void process_monster(int m_idx)
     did_pass_wall = FALSE;
     did_kill_wall = FALSE;
 
-
     /* Take a zero-terminated array of "directions" */
     for (i = 0; mm[i]; i++)
     {
@@ -2898,6 +3045,9 @@ static void process_monster(int m_idx)
 
         /* Ignore locations off of edge */
         if (!in_bounds2(ny, nx)) continue;
+
+        /* Don't bump into the player */
+        if ((is_pet(m_ptr)) && (player_bold(ny, nx))) continue;
 
         /* Access that cave grid */
         c_ptr = &cave[ny][nx];
@@ -3383,6 +3533,28 @@ static void process_monster(int m_idx)
                     cave_set_feat(ny, nx, floor_type[randint0(100)]);
                 }
             }
+
+			/* Moving onto tables can fail, wasting a turn */
+			if (have_flag(f_ptr->flags, FF_TABLE))
+			{
+				feature_type* of_ptr = &f_info[cave[oy][ox].feat];
+				/*If you are on the table already, no problem */
+				/* Otherwise, you have to pass a jumping test */
+				if (!have_flag(of_ptr->flags, FF_TABLE))
+				{
+					if (randint1(100) > monster_jump_chance(r_ptr, m_ptr))
+					{
+						if (see_m)
+						{
+							char m_name[80];
+							monster_desc(m_name, m_ptr, is_pet(m_ptr) ? MD_ASSUME_VISIBLE : 0);
+							msg_format("%^s fails to climb onto the table!", m_name);
+						}
+						return;
+					}
+						
+				}
+			}
 
             if (!is_riding_mon)
             {
@@ -4472,23 +4644,33 @@ void monster_gain_exp(int m_idx, int s_idx)
     if (!dun_level) new_exp /= 5;
 
     /* Experimental: Share the xp with the player */
+    /* CJR: do not subtract % from pet, they should get full xp from kill */
     if (is_pet(m_ptr))
     {
         int  div = 5;
-        bool penalty = TRUE;
         int  exp;
+        int  pmult = 1;
 
-        if ( prace_is_(RACE_MON_QUYLTHULG)
-          || (prace_is_(RACE_MON_RING) && p_ptr->riding == m_idx) )
+        if ( prace_is_(RACE_MON_QUYLTHULG) || (prace_is_(RACE_MON_RING) && p_ptr->riding == m_idx) 
+            || ((prace_is_(RACE_ICKY_THING) && p_ptr->riding == m_idx) && r_info[m_ptr->r_idx].flags1 & (RF1_NEVER_MOVE))
+            )
         {
             div = 1;
-            penalty = FALSE;
+        }
+
+        if ((coffee_break) && (p_ptr->lev < 50))
+        {
+            if (py_in_dungeon()) pmult = coffee_break + 1;
+            if ((prace_is_(RACE_MON_QUYLTHULG))
+                    || (prace_is_(RACE_MON_RING) && p_ptr->riding == m_idx)
+                    || ((prace_is_(RACE_ICKY_THING) && p_ptr->riding == m_idx) && r_info[m_ptr->r_idx].flags1 & (RF1_NEVER_MOVE))) 
+                pmult += (py_in_dungeon() ? 2 : (coffee_break - 1));
         }
 
         exp = new_exp / div;
-        gain_exp(exp);
-        if (penalty)
-            new_exp -= exp;
+        gain_exp(exp * pmult);
+        p_ptr->pet_lv_kills++;
+        if (pmult > 1) new_exp *= 2;
         if (new_exp < 0) new_exp = 0;
     }
 

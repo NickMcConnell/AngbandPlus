@@ -69,7 +69,7 @@ void _blood_spray_spell(int cmd, variant *res)
         var_set_string(res, "Cuts yourself, splattering nearby enemies.");
         break;
     case SPELL_SPOIL_DESC:
-        var_set_string(res, "Generates a radius 3 blood ball centered on the player for 2*(3d5+L+L/5) damage. Radius is increased to 4 at L30.");
+        var_set_string(res, "Generates a radius 3 blood ball centered on the player for 2*(3d5+L+L/4) damage. Radius is increased to 4 at L30.");
         break;
     case SPELL_INFO:
         var_set_string(res, info_damage(3, 5, p_ptr->lev + p_ptr->lev/4));
@@ -550,25 +550,26 @@ class_t *blood_knight_get_class(void)
     skills_t xs = { 12,   7,  10,   0,   0,   0,  23,  15};
 
         me.name = "Blood-Knight";
-        me.desc = "A Blood-Knight is a fighter who has delved into the dark arts and can perform "
-                  "a limited number of offensive effects using his own health. In addition to the "
-                  "HP cost, using an ability also causes bleeding/wounds, with an amount proportional "
-                  "to the cost of the ability. Their primary stat for abilities is Con.\n \n"
-                  "Blood-Knights are strong in melee, but are very unusual in the fact that the more "
-                  "wounded they are, the stronger they become. When damaged, they gain additional "
-                  "melee attacks and damage, and moreso the more wounded and cut they become. Indeed, when on the "
+        me.desc = "Blood-Knights are fighters who have delved into the dark arts and can perform "
+                  "some special offensive effects using their own health. In addition to the "
+                  "HP cost, using such an ability causes bleeding, with an amount proportional "
+                  "to the cost of the ability. These special abilities rely on Constitution.\n \n"
+                  "Blood-Knights are very unusual in that cuts and low health make them more powerful; at "
+                  "full health their melee is nothing special, but the more damaged and wounded they are, "
+                  "the faster and deadlier their attacks become. On the "
                   "brink of death they are the strongest fighters imaginable, and stories of their "
-                  "legendary feats abound. Of course, with great power comes great risk of death, "
+                  "legendary feats abound; but with great power comes great risk of death, "
                   "and you don't recall ever meeting one of these heroes of legend in person!\n \n"
-                  "Since the Blood-Knight relies on their own blood for their power, they are restricted "
-                  "to only certain races. No non-living race may walk the red path.";
+                  "Blood-Knights, like Blood-Mages, receive reduced benefits from healing magic. "
+                  "Since a Blood-Knight relies on their own blood for their power, this class is restricted "
+                  "to certain races; no non-living race may walk the red path.";
 
         me.stats[A_STR] =  2;
         me.stats[A_INT] = -2;
         me.stats[A_WIS] = -2;
         me.stats[A_DEX] =  0;
         me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  -2;
+        me.stats[A_CHR] = -2;
         
         me.base_skills = bs;
         me.extra_skills = xs;

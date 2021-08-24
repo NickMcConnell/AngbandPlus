@@ -1157,14 +1157,52 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         /* Corpses */
         case TV_CORPSE:
         {
-            monster_race *r_ptr = &r_info[o_ptr->pval];
-
-            modstr = r_name + r_ptr->name;
-
-            if (r_ptr->flags1 & RF1_UNIQUE)
-                basenm = "& % of #";
+            if (o_ptr->sval >= SV_BODY_HEAD)
+            {
+                int luku = (o_ptr->sval == SV_BODY_EARS) ? o_ptr->pval : o_ptr->xtra4;
+                if ((luku) && (luku < max_r_idx))
+                {
+                    monster_race *r_ptr = &r_info[luku];
+                    if (r_ptr->name)
+                    {
+                        if (r_ptr->flags1 & RF1_UNIQUE)
+                        {
+                            modstr = r_name + r_ptr->name;
+                            basenm = "The % of #";
+                        }
+                        else
+                        {
+                            modstr = r_name + r_ptr->name;
+                            if (is_a_vowel(modstr[0])) basenm = "the % of an #";
+                            else basenm = "the % of a #";
+                        }
+                    }
+                    else
+                    {
+                        modstr = "a Software bug";
+                        basenm = "the % of #";
+                    }
+                }
+                else
+                {
+                    modstr = "an Igor";
+                    basenm = "the % of #";
+                }
+                /* Body parts cannot be piled, so it's usually safe to use the
+                 * article "the"... but it is possible to have 0 of them */
+                if ((!number) || (mode & OD_OMIT_PREFIX)) basenm += 4;
+            }
             else
-                basenm = "& # %";
+            {
+                monster_race *r_ptr = &r_info[o_ptr->pval];
+
+                modstr = r_name + r_ptr->name;
+
+                if (r_ptr->flags1 & RF1_UNIQUE)
+                    basenm = "& % of #";
+                else
+                    basenm = "& # %";
+            }
             break;
         }
 
@@ -1611,7 +1649,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         else if (*s == '~')
         {
             /* Add a plural if needed */
-            if (!(mode & OD_NO_PLURAL) && (number != 1))
+            if (!(mode & OD_NO_PLURAL) && ((number != 1) || (have_flag(o_ptr->flags, OF_PLURAL))))
             {
                 char k = t[-1];
 
@@ -1648,8 +1686,16 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         /* Is it a new random artifact ? */
         if (o_ptr->art_name)
         {
-            t = object_desc_chr(t, ' ');
-            t = object_desc_str(t, quark_str(o_ptr->art_name));
+            if (o_ptr->art_name == 1) /* Out-of-room emergency quark */
+            {
+                char tmpbuf[20] = " 'Nameless Thing'";
+                t = object_desc_str(t, tmpbuf);
+            }
+            else
+            {
+                t = object_desc_chr(t, ' ');
+                t = object_desc_str(t, quark_str(o_ptr->art_name));
+            }
         }
 
         /* Grab any artifact name */
@@ -1814,8 +1860,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     if (have_flag(flgs, OF_SHOW_MODS)) show_weapon = TRUE;
 
     /* Display the item like a weapon */
-    if (o_ptr->to_h) show_weapon = TRUE;
-
+    if (o_ptr->to_h != 0) show_weapon = TRUE;
+    
     /* Display the item like armor */
     if (o_ptr->ac) show_armor = TRUE;
 
@@ -1865,12 +1911,24 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             t = object_desc_chr(t, p1);
             t = object_desc_num(t, dd);
             t = object_desc_chr(t, 'd');
-			t = object_desc_num(t, ds);
+            t = object_desc_num(t, ds);
 			t = object_desc_str(t, plus);
-			t = object_desc_chr(t, p2);
+            t = object_desc_chr(t, p2);
         }
         /* All done */
         break;
+    case TV_CORPSE:
+    {
+        if ((!o_ptr->dd) || (!o_ptr->xtra4)) break;
+        /* Append a "damage" string */
+        t = object_desc_chr(t, ' ');
+        t = object_desc_chr(t, p1);
+        t = object_desc_num(t, o_ptr->dd);
+        t = object_desc_chr(t, 'd');
+        t = object_desc_num(t, o_ptr->ds);
+        t = object_desc_chr(t, p2);
+        break;
+    }
     /* Bows get a special "damage string" */
     case TV_BOW:
     {
@@ -2083,7 +2141,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
     if (have_flag(known_flgs, OF_DEVICE_POWER))
     {
-        int pct = device_power_aux(100, o_ptr->pval) - 100;
+        int pct = device_power_aux(100, (((prace_is_(RACE_MON_ARMOR)) && (o_ptr->loc.where == INV_EQUIP)) ? rag_effect_pval(o_ptr, -1, OF_DEVICE_POWER, FALSE) : o_ptr->pval)) - 100;
         if (pct >= 0)
             t = object_desc_str(t, format(" {+%d%%}", pct));
         else
@@ -2188,11 +2246,21 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         strcat(tmp_val2, buf);
     }
 
+    if ((o_ptr->tval == TV_CORPSE) && (o_ptr->xtra5))
+    {
+        gf_info_ptr gf = gf_lookup(o_ptr->xtra5);
+        char buf[255];
+        sprintf(buf, "%sU:Breathe %s%s", (mode & OD_COLOR_CODED) ? "<color:G>" : "", gf ? gf->name : "Buggy", (mode & OD_COLOR_CODED) ? "</color>" : "");
+        if (strlen(tmp_val2) > 0)
+            strcat(tmp_val2, " ");
+        strcat(tmp_val2, buf);
+    }
+
     if (object_is_device(o_ptr) && obj_is_identified_fully(o_ptr))
     {
         int  fail = device_calc_fail_rate(o_ptr);
         strcat(tmp_val2, format("%d%%", (fail + 5)/10));
-        if (statistics_hack || (mode & OD_SHOW_DEVICE_INFO))
+        if ((statistics_hack) || ((!show_power) && (mode & OD_SHOW_DEVICE_INFO)))
         {
             cptr info = do_device(o_ptr, SPELL_INFO, 0);
             if (info && strlen(info))
@@ -2242,7 +2310,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 *u++ = ' ';
                 while (*t)
                 {
-                    if (*t == '\'' || *t == '&')
+                    if (*t == '\'' || *t == '&' || *t == '~')
                         t++;
                     else
                         *u++ = *t++;

@@ -69,7 +69,8 @@ static obj_ptr _get_obj(int type)
     {
         prompt.where[0] = INV_PACK;
         prompt.where[1] = INV_EQUIP;
-        prompt.where[2] = INV_FLOOR;
+        prompt.where[2] = INV_QUIVER;
+        prompt.where[3] = INV_FLOOR;
     }
     obj_prompt(&prompt);
     return prompt.obj;
@@ -274,6 +275,7 @@ bool _hit_mon(py_throw_ptr context, int m_idx)
 
         /***** The Damage Calculation!!! *****/
         tdam = damroll(context->obj->dd + context->to_dd, context->obj->ds);
+        if (context->obj->tval == TV_CORPSE) tdam /= 10; /* Igor innate attack dice **/
         tdam = tot_dam_aux(context->obj, tdam, m_ptr, 0, 0, TRUE);
         if (have_flag(context->flags, OF_VORPAL) || have_flag(context->flags, OF_VORPAL2))
         {
@@ -330,12 +332,12 @@ bool _hit_mon(py_throw_ptr context, int m_idx)
         if (tdam < 0) tdam = 0;
         tdam = mon_damage_mod(m_ptr, tdam, FALSE);
         context->dam = tdam;
-
-		/* Moved stuff around so that vampirism works even if you kill the monster */
+		
+        /* Moved stuff around so that vampirism works even if you kill the monster */
 		char m_name[80];
 		monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
 
-		bool slain = mon_take_hit(m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr)), TRUE);
+		bool slain = mon_take_hit(m_idx, tdam, DAM_TYPE_ARCHERY, &fear, extract_note_dies(real_r_ptr(m_ptr)));
 		if (have_flag(context->flags, OF_BRAND_VAMP))
 		{
 			int  heal = MIN(30, damroll(3, tdam / 8));

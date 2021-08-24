@@ -145,7 +145,7 @@ struct object_kind
 
     s16b pval;            /* Object extra info */
 
-    s16b to_h;            /* Bonus to hit */
+    s16b to_h;            /* Bonus to hit/damage */
     s16b to_a;            /* Bonus to armor */
 
     s16b ac;            /* Base armor */
@@ -437,7 +437,7 @@ typedef struct {
     s16b sav;            /* saving throw */
     s16b stl;            /* stealth */
     s16b srh;            /* search ability */
-    s16b fos;            /* search frequency */
+    s16b fos;            /* search frequency */ /* navigation skill? */
     s16b thn;            /* combat (normal) */
     s16b thb;            /* combat (shooting) */
 } skills_t, *skills_ptr;
@@ -732,7 +732,7 @@ struct monster_type
 
     u32b exp;
 
-    u32b smart;            /* Field for "smart_learn" */
+    u32b smart;            /* Field for learned resistances */
 
     s16b parent_m_idx;
     s16b pack_idx;
@@ -1010,6 +1010,7 @@ struct player_type
     byte psubrace;      /* e.g. Parentage on Demigods */
     s16b current_r_idx;
 
+
     u16b expfact;       /* XP requirement multiplier -OR- with xp_penalty_to_score option it is score divisor */
 
     s32b au;            /* Current Gold */
@@ -1237,6 +1238,8 @@ struct player_type
     byte minislow;
     u16b mini_energy;
     byte py_summon_kills;
+    s16b lv_kills;
+    s16b pet_lv_kills;
 
     s16b energy_need;      /* Energy needed for next move */
 
@@ -1247,7 +1250,6 @@ struct player_type
     byte action;          /* Current action */
 
     u32b rage_spells_learned;      /* bit mask of spells learned */
-
     byte spell_order[64];      /* order spells learned/remembered/forgotten */
 
     /*********************************************/
@@ -1506,6 +1508,7 @@ typedef struct birther birther;
 struct birther
 {
     byte game_mode;
+    byte coffee_break;
     byte psex;         /* Sex index */
     byte prace;        /* Race index */
     byte psubrace;
@@ -1524,13 +1527,13 @@ s16b sc;
     s32b au;
 
     s16b stat_max[6];        /* Current "maximal" stat values */
-s16b stat_max_max[6];    /* Maximal "maximal" stat values */
-s16b life_rating;		/* Multiplier Percentage of Base HD */
-                        /* See calc_hitpoints() in xtra1.c for details */
-s16b chaos_patron;
-int  mutation;
+	s16b stat_max_max[6];    /* Maximal "maximal" stat values */
+	s16b life_rating;		/* Multiplier Percentage of Base HD */
+                              /* See calc_hitpoints() in xtra1.c for details */
+	s16b chaos_patron;
+	int  mutation;
 
-s16b vir_types[8];
+	s16b vir_types[8];
 
     bool quick_ok;
 };
@@ -1776,10 +1779,12 @@ struct dungeon_info_type {
 /*
  *  A structure type for entry of auto-picker/destroyer
  */
+#define AUTOPICK_FLAG_SIZE 2
+
 typedef struct {
     cptr name;          /* Items which have 'name' as part of its name match */
     cptr insc;          /* Items will be auto-inscribed as 'insc' */
-    u32b flag[2];       /* Misc. keyword to be matched */
+    u32b flag[AUTOPICK_FLAG_SIZE]; /* Misc. keyword to be matched */
     byte action;        /* Auto-pickup or Destroy or Leave items */
     byte dice;          /* Weapons which have more than 'dice' dice match */
     byte bonus;         /* Items which have more than 'bonus' magical bonus match */
@@ -2049,6 +2054,7 @@ typedef struct {
     s16b                    pseudo_class_idx; /* For the "Monster" class ... */
     s16b                    shop_adjust;
     inv_ptr                 bonus_pack;
+    inv_ptr                 bonus_pack2;
 } race_t, *race_ptr;
 
 typedef struct {
@@ -2123,7 +2129,6 @@ struct pantheon_type
     char short_name[5];
     char plural[20];
 };
-
 
 typedef struct {
 	cptr name;

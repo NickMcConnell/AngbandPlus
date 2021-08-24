@@ -26,6 +26,7 @@ of the Alps
 of Polar Wind
 of Forochel
 of Winter Nights
+of the Tundra
 'Royal Anorak'
 
 N: 5:BIAS_ACID
@@ -41,12 +42,13 @@ of the Void
 of Loopiness
 'Day of the Dove'
 'Nameless Thing'
+'Revengebender'
 
 N:14:BIAS_NECROMANTIC
 of Rituals
 of Tynian
 'Necrologia'
-'Spirit Armor'
+'Spirit Armour'
 'Black Mail'
 
 N:15:BIAS_LAW
@@ -83,6 +85,7 @@ of Bladorthin
 of Daisy
 of Ynci
 of Golfimbul
+'Alpha Mail'
 
 N:19:BIAS_RANGER
 N:10:BIAS_CON

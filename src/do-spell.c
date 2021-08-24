@@ -174,6 +174,15 @@ cptr info_weight(int weight)
     return format("max wgt %d", weight/10);
 }
 
+/*
+ * Generate distance info string such as "dist 100"
+ */
+
+cptr info_dist(int dist)
+{
+    return format("dist %d", dist);
+}
+
 
 /*
  * Prepare standard probability to become beam for fire_bolt_or_beam()
@@ -1469,7 +1478,6 @@ static cptr do_life_spell(int spell, int mode)
         break;
 
     case 30:
-
         if (name) return "Day of the Dove";
         if (desc) return "Attempts to charm all monsters in sight.";
         {
@@ -1757,7 +1765,7 @@ static cptr do_sorcery_spell(int spell, int mode)
         {
             int power = spell_power(plev * 2);
 
-            if (info) return info_power(power);
+            if (info) return info_dist(power);
 
             if (cast)
             {
@@ -1804,7 +1812,6 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 15:
 		if (name) return "Conjure Elemental";
         if (desc) return "Summons an elemental";
-
         {
             if (cast)
             {
@@ -2966,7 +2973,7 @@ static cptr do_chaos_spell(int spell, int mode)
 
     case 9:
         if (name) return "Chaos Bolt";
-        if (desc) return "Fires a bolt or ball of chaos.";
+        if (desc) return "Fires a bolt or beam of chaos.";
 
         {
             int dice = 10 + (plev - 5) / 4;
@@ -3058,7 +3065,7 @@ static cptr do_chaos_spell(int spell, int mode)
         {
             int power = spell_power(plev*2);
 
-            if (info) return info_power(power);
+            if (info) return info_dist(power);
 
             if (cast)
             {
@@ -3997,7 +4004,7 @@ static cptr do_death_spell(int spell, int mode)
         {
             if (cast)
             {
-				if (!ident_spell(NULL)) return NULL;
+                if (!ident_spell(NULL)) return NULL;
             }
         }
         break;
@@ -4157,10 +4164,7 @@ static cptr do_trump_spell(int spell, int mode)
 
             if (cast)
             {
-                /*if (TRUE || get_check("Are you sure you wish to shuffle?"))*/
-                    cast_shuffle();
-                /*else
-                    return NULL;*/
+                cast_shuffle();
             }
         }
         break;
@@ -4219,7 +4223,7 @@ static cptr do_trump_spell(int spell, int mode)
         {
             int power = spell_power(plev*2);
 
-            if (info) return info_power(power);
+            if (info) return info_dist(power);
 
             if (cast)
             {
@@ -5210,7 +5214,7 @@ static cptr do_arcane_spell(int spell, int mode)
         {
             int power = spell_power(plev);
 
-            if (info) return info_power(power);
+            if (info) return info_dist(power);
 
             if (cast)
             {
@@ -5789,7 +5793,6 @@ static cptr do_craft_spell(int spell, int mode)
     case 26:
         if (name) return "Create Golem";
         if (desc) return "Creates a golem.";
-
         {
             if (cast)
             {
@@ -5799,7 +5802,7 @@ static cptr do_craft_spell(int spell, int mode)
 				}
 				else
 				{
-					msg_print("No Golems arrive.");
+					msg_print("You fail to enchant the rubble.");
 				}
             }
         }
@@ -6651,7 +6654,7 @@ static cptr do_crusade_spell(int spell, int mode)
         {
             int power = MAX_SIGHT * 5;
 
-            if (info) return info_power(power);
+            if (info) return info_dist(power);
 
             if (cast)
             {
@@ -8227,8 +8230,8 @@ static cptr do_hex_spell(int spell, int mode)
                     project(0, rad, py, px, power, GF_HELL_FIRE,
                         (PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
                 }
-				msg_format("You return %d damages.", power);
-                
+                msg_format("You return %d damage.", power);
+
                 /* Reset */
                 p_ptr->magic_num2[1] = 0;
                 p_ptr->magic_num2[2] = 0;
@@ -8408,7 +8411,7 @@ static cptr do_hex_spell(int spell, int mode)
             u32b f[OF_ARRAY_SIZE];
 
             prompt.prompt = "Which piece of armor do you curse?";
-            prompt.error = "You wield no piece of armors.";
+            prompt.error = "You are not wearing any armor pieces.";
             prompt.filter = object_is_armor;
             prompt.where[0] = INV_EQUIP;
 
@@ -8554,6 +8557,7 @@ static cptr do_hex_spell(int spell, int mode)
             bool flag = FALSE;
             int d = (p_ptr->max_exp - p_ptr->exp);
             int r = (p_ptr->exp / 20);
+            int l = (1000 - p_ptr->clp);
             int i;
 
             if (d > 0)
@@ -8568,12 +8572,20 @@ static cptr do_hex_spell(int spell, int mode)
 
                 flag = TRUE;
             }
+            if (l > 0)
+            {
+                lp_player(MIN(l, 15));
+                flag = TRUE;
+            }
             for (i = A_STR; i < 6; i ++)
             {
                 if (p_ptr->stat_cur[i] < p_ptr->stat_max[i])
                 {
                     p_ptr->stat_cur[i]++;
-                    
+					
+                    if (p_ptr->stat_cur[i] > p_ptr->stat_max[i])
+                        p_ptr->stat_cur[i] = p_ptr->stat_max[i];
+
                     /* Recalculate bonuses */
                     p_ptr->update |= (PU_BONUS);
 
@@ -8733,7 +8745,7 @@ static cptr do_hex_spell(int spell, int mode)
         {
             int r;
             int a = 3 - (p_ptr->pspeed - 100) / 10;
-            r = 1 + randint1(2) + MAX(0, MIN(3, a));
+            r = 3 + randint1(2) + MAX(0, MIN(3, a));
 
             if (p_ptr->magic_num2[2] > 0)
             {
@@ -8743,7 +8755,7 @@ static cptr do_hex_spell(int spell, int mode)
 
             p_ptr->magic_num2[1] = 2;
             p_ptr->magic_num2[2] = r;
-            msg_format("You pronounce your revenge. %d turns left.", r);
+            msg_format("You pronounce your revenge. %d turns left.", r - 1);
             add = FALSE;
         }
         if (cont)
@@ -8766,7 +8778,7 @@ static cptr do_hex_spell(int spell, int mode)
 
                     fire_ball(GF_HELL_FIRE, dir, power, 1);
 
-                    msg_format("You return %d damages.", power);
+                    msg_format("You return %d damage.", power);
                 }
                 else
                 {

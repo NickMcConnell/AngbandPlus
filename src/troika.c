@@ -237,8 +237,8 @@ static void _birth(void)
     _troika_ini_quests();
     _troika_ini_spells();
     troika_wipe_timeouts();
-
-    p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_MASTER;
+	p_ptr->proficiency[PROF_DUAL_WIELDING] = WEAPON_EXP_BEGINNER;
+	p_ptr->proficiency_cap[PROF_DUAL_WIELDING] = WEAPON_EXP_MASTER;
 }
 
 static void _make_troika_weapon(int sval)

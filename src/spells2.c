@@ -256,7 +256,7 @@ void self_knowledge(void)
     }
     if (p_ptr->cursed & OFC_DRAIN_MANA)
     {
-        info[i++] = "You brain is drained.";
+        info[i++] = "Your brain is drained.";
 
     }
     if (IS_BLESSED())
@@ -2142,7 +2142,7 @@ bool symbol_genocide(int power, bool player_cast)
     /* Mega-Hack -- Get a monster symbol */
     while (!okay)
     {
-        if (!get_com("Choose a monster race (by symbol) to genocide: ", &typ, FALSE))
+        if (!get_com("Choose a monster species (by symbol; '?' for help) to genocide: ", &typ, FALSE))
             return FALSE;
         if (typ == 'n') /* naga hack */
         {
@@ -2152,6 +2152,13 @@ bool symbol_genocide(int power, bool player_cast)
         {
             if (msg_prompt("Really genocide Xorns? <color:y>[Y/N]</color>", "NY", PROMPT_DEFAULT) != 'Y') continue;
         }
+        else if (typ == '?')
+        {
+            screen_save();
+            doc_display_help("monster.txt#Genocide", NULL);
+            screen_load();
+            continue;
+        } 
         else if (!isalpha(typ))
         {
             if (msg_prompt("Confirm genocide? <color:y>[Y/N]</color>", "NY", PROMPT_DEFAULT) != 'Y') continue;
@@ -2414,49 +2421,49 @@ bool destroy_area(int y1, int x1, int r, int power)
             }
 
             /* During generation, destroyed artifacts are "preserved" */
-            s16b this_o_idx, next_o_idx = 0;
+			s16b this_o_idx, next_o_idx = 0;
 
-            /* Scan all objects in the grid */
-            for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-            {
-                object_type *o_ptr;
+			/* Scan all objects in the grid */
+			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *o_ptr;
 
-                /* Acquire object */
-                o_ptr = &o_list[this_o_idx];
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
 
-                /* Acquire next object */
-                next_o_idx = o_ptr->next_o_idx;
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
 
-                /* Hack -- Preserve unknown artifacts */
-                if (object_is_fixed_artifact(o_ptr) && (!object_is_known(o_ptr) || in_generate))
-                {
-                    /* Mega-Hack -- Preserve the artifact */
-                    a_info[o_ptr->name1].generated = FALSE;
+				/* Hack -- Preserve unknown artifacts */
+				if (object_is_fixed_artifact(o_ptr) && (!object_is_known(o_ptr) || in_generate))
+				{
+					/* Mega-Hack -- Preserve the artifact */
+					a_info[o_ptr->name1].generated = FALSE;
 
-                    if (in_generate && cheat_peek)
-                    {
-                        char o_name[MAX_NLEN];
-                        object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
-                        msg_format("Artifact (%s) was *destroyed* during generation.", o_name);
-                    }
-                }
-                else if (random_artifacts && o_ptr->name3 && (!object_is_known(o_ptr) || in_generate))
-                {
-                    /* Mega-Hack -- Preserve the artifact */
-                    a_info[o_ptr->name3].generated = FALSE;
+					if (in_generate && cheat_peek)
+					{
+						char o_name[MAX_NLEN];
+						object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
+						msg_format("Artifact (%s) was *destroyed* during generation.", o_name);
+					}
+				}
+				else if (random_artifacts && o_ptr->name3 && (!object_is_known(o_ptr) || in_generate))
+				{
+					/* Mega-Hack -- Preserve the artifact */
+					a_info[o_ptr->name3].generated = FALSE;
 
-                    if (in_generate && cheat_peek)
-                    {
-                        char o_name[MAX_NLEN];
-                        object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
-                        msg_format("Artifact (%s) was *destroyed* during generation.", o_name);
-                    }
-                }
-                else if (in_generate && cheat_peek && o_ptr->art_name)
-                {
-                    msg_print("One of the random artifacts was *destroyed* during generation.");
-                }
-            }
+					if (in_generate && cheat_peek)
+					{
+						char o_name[MAX_NLEN];
+						object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
+						msg_format("Artifact (%s) was *destroyed* during generation.", o_name);
+					}
+				}
+				else if (in_generate && cheat_peek && o_ptr->art_name)
+				{
+					msg_print("One of the random artifacts was *destroyed* during generation.");
+				}
+			}
 
             /* Delete objects */
             delete_object(y, x);
@@ -3547,7 +3554,7 @@ bool lite_area(int dam, int rad)
 
     if (d_info[dungeon_type].flags1 & DF1_DARKNESS)
     {
-        msg_print("The darkness of this dungeon absorb your light.");
+        msg_print("The darkness of this dungeon absorbs your light.");
         return FALSE;
     }
 
@@ -3922,6 +3929,7 @@ bool lite_line(int dir)
 bool drain_life(int dir, int dam)
 {
     int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
+    if (melee_challenge) return FALSE;
     return (project_hook(GF_OLD_DRAIN, dir, dam, flg));
 }
 

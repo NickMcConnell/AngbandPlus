@@ -268,6 +268,7 @@ static void _ares_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SUST_STR);
 }
+
 static void _ares_birth(void)
 {
     py_birth_food();
@@ -421,8 +422,6 @@ static void _poseidon_birth(void)
     py_birth_obj_aux(TV_POLEARM, SV_TRIDENT, 1);
     p_ptr->proficiency[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
     p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_MASTER;
-
-
     py_birth_food();
     py_birth_light();
 }
@@ -511,6 +510,7 @@ race_t *demigod_get_race(int psubrace)
         me.calc_bonuses = NULL;
         me.get_powers = NULL;
         me.get_flags = NULL;
+        me.flags = RACE_DEMI_TALENT;
 
         me.subname = NULL;
         me.subdesc = NULL;

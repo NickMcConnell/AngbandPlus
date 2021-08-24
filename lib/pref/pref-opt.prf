@@ -34,10 +34,10 @@ X:center_player
 X:center_running
 X:view_yellow_lite
 Y:view_bright_lite
-X:view_granite_lite
+Y:view_granite_lite
 Y:view_special_lite
 Y:view_perma_grids
-Y:view_torch_grids
+X:view_torch_grids
 X:view_unsafe_grids
 Y:fresh_before
 X:fresh_after
@@ -50,7 +50,7 @@ Y:display_path
 Y:plain_descriptions
 Y:always_show_list
 X:depth_in_feet
-Y:show_labels
+Y:describe_slots
 Y:show_weights
 Y:show_item_graph
 Y:equippy_chars
@@ -105,6 +105,7 @@ X:ironman_shops
 X:ironman_downward
 X:ironman_empty_levels
 X:ironman_nightmare
+Y:no_selling
 
 ##### Easy Object Auto-Destroyer #####
 

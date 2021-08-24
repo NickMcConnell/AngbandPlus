@@ -613,21 +613,7 @@ cptr do_burglary_spell(int spell, int mode)
             m_ptr = &m_list[cave[target_row][target_col].m_idx];
             r_ptr = &r_info[m_ptr->r_idx];
             monster_desc(m_name, m_ptr, 0);
-            if (r_ptr->flagsr & RFR_RES_TELE)
-            {
-                if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flagsr & RFR_RES_ALL))
-                {
-                    mon_lore_r(m_ptr, RFR_RES_TELE);
-                    msg_format("%s is unaffected!", m_name);
-                    break;
-                }
-                else if (r_ptr->level > randint1(100))
-                {
-                    mon_lore_r(m_ptr, RFR_RES_TELE);
-                    msg_format("%s resists!", m_name);
-                    break;
-                }
-            }
+            if (mon_save_tele_to(m_ptr, m_name, TRUE)) break;
             msg_format("You command %s to return.", m_name);
             teleport_monster_to(cave[target_row][target_col].m_idx, py, px, 100, TELEPORT_PASSIVE);
         }
@@ -826,31 +812,31 @@ class_t *rogue_get_class(void)
     skills_t xs = { 15,  12,  10,   0,   0,   0,  21,  14};
 
         me.name = "Rogue";
-        me.desc = "A Rogue is a character that prefers to live by his cunning, but is "
-                    "capable of fighting his way out of a tight spot. Rogues are good "
-                    "at locating hidden traps and doors and are masters of "
-                    "disarming traps and picking locks. A rogue has a high stealth "
-                    "allowing him to sneak around many creatures without having to "
-                    "fight, or to get in a telling first blow. A rogue may also "
-                    "backstab a fleeing monster. Rogues also gain shooting bonuses "
-                    "when using a sling.\n \n"
-                    "Rogues can select one realm - Sorcery, Death, Trump, Arcane, Craft, Law,"
+        me.desc = "A Rogue is a character who prefers to live by their cunning, yet is "
+                    "capable of fighting their way out of a tight spot when necessary. Rogues "
+                    "are good at locating secret doors and hidden traps, and are masters of "
+                    "trap-disarming and lockpicking. Their exceptional stealth allows "
+                    "rogues to sneak around sleeping creatures without having to fight; "
+                    "they can also backstab a fleeing monster or surprise an "
+                    "enemy with a telling first blow. Rogues are fairly good at ranged combat, "
+                    "and receive special bonuses when shooting with a sling.\n \n"
+                    "Rogues can select one realm - Sorcery, Death, Trump, Arcane, Craft, Law, "
                     "or Burglary. Except for this last realm, rogues have certain limitations " 
-                    "on which spells they can learn, and they do not learn new spells "
-                    "very quickly. The Burglary Realm however is unique to the rogue and "
+                    "on which spells they can learn, and they do not learn new spells very quickly. "
+                    "The Burglary realm is unique to the rogue, and the speciality of the class; it "
                     "offers spells for setting traps, picking pockets, negotiating with "
                     "other thieves, and escaping from a tight spot. Burglary rogues are "
                     "agents of the Black Market and receive favorable pricing from "
-                    "that shop. A Burglary rogue uses DEX as their spellcasting stat, "
-                    "and may learn spells beginning at level 1. For other realms, however, "
-                    "the rogue uses INT as the spellcasting stat, and won't be able to "
-                    "learn spells until level 5.";
+                    "that shop. Burglary rogues use Dexterity as their spellcasting stat, "
+                    "and can use this special art from the beginning of their adventures; rogues of other "
+                    "realms, however, rely on Intelligence and cannot learn magic spells before they "
+                    "reach level 5.";
 
-        me.stats[A_STR] =  2;
+        me.stats[A_STR] =  1;
         me.stats[A_INT] =  1;
         me.stats[A_WIS] = -1;
         me.stats[A_DEX] =  3;
-        me.stats[A_CON] =  1;
+        me.stats[A_CON] =  0;
         me.stats[A_CHR] = -1;
         me.base_skills = bs;
         me.extra_skills = xs;

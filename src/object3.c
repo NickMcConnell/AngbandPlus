@@ -26,7 +26,7 @@ static double _calc_cost(double cost, int count)
     /*return cost * (1.0 + c/5.0 + c*c/25.0);*/
 }
 
-static s32b _check_flag_and_score(u32b flgs[OF_ARRAY_SIZE], u32b flg, u32b score, int *count)
+static double _check_flag_and_score(u32b flgs[OF_ARRAY_SIZE], u32b flg, u32b score, int *count)
 {
     double result = 0.0;
     if (have_flag(flgs, flg))
@@ -34,7 +34,7 @@ static s32b _check_flag_and_score(u32b flgs[OF_ARRAY_SIZE], u32b flg, u32b score
         (*count)++;
         result += _calc_cost(score, *count);
     }
-    return (s32b)result;
+    return result;
 }
 
 static s32b _activation_p(u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
@@ -60,7 +60,7 @@ static s32b _activation_p(u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
 
 static s32b _aura_p(u32b flgs[OF_ARRAY_SIZE])
 {
-    double cost = 0;
+    s32b cost = 0;
     int count = 0;
 
     cost += _check_flag_and_score(flgs, OF_AURA_FIRE,     1452, &count);
@@ -69,8 +69,7 @@ static s32b _aura_p(u32b flgs[OF_ARRAY_SIZE])
     cost += _check_flag_and_score(flgs, OF_AURA_SHARDS,   2420, &count);
     cost += _check_flag_and_score(flgs, OF_AURA_REVENGE,  6050, &count);
 
-    s32b final_cost = (s32b)cost;
-    return final_cost;
+    return cost;
 }
 
 static s32b _stats_q(u32b flgs[OF_ARRAY_SIZE], int pval)
@@ -222,11 +221,11 @@ static s32b _brands_q(u32b flgs[OF_ARRAY_SIZE])
     cost += _check_brand_and_score(flgs, OF_SLAY_EVIL, 10000, &count);
     cost += _check_brand_and_score(flgs, OF_BRAND_POIS, 8500, &count);
     cost += _check_brand_and_score(flgs, OF_SLAY_LIVING, 8500, &count);
-    cost += _check_brand_and_score(flgs, OF_BRAND_ELEC, 7500, &count);
     cost += _check_brand_and_score(flgs, OF_SLAY_DEMON, 7500, &count);
     cost += _check_brand_and_score(flgs, OF_SLAY_UNDEAD, 7500, &count);
     cost += _check_brand_and_score(flgs, OF_SLAY_HUMAN, 7500, &count);
     cost += _check_brand_and_score(flgs, OF_BRAND_ACID, 7000, &count);
+    cost += _check_brand_and_score(flgs, OF_BRAND_ELEC, 7000, &count);
     cost += _check_brand_and_score(flgs, OF_KILL_ANIMAL, 6500, &count);
     cost += _check_brand_and_score(flgs, OF_SLAY_DRAGON, 6500, &count);
     cost += _check_brand_and_score(flgs, OF_BRAND_FIRE, 6000, &count);
@@ -975,10 +974,9 @@ s32b quiver_cost(object_type *o_ptr, int options)
 s32b armor_cost(object_type *o_ptr, int options)
 {
     s32b a, y, q, p;
-	int to_h = k_info[o_ptr->k_idx].to_h;
-	int	to_a = k_info[o_ptr->k_idx].to_a; 
+    int  to_h = k_info[o_ptr->k_idx].to_h; 
+	int to_a = k_info[o_ptr->k_idx].to_a;
 	int pval = 0;
-
     u32b flgs[OF_ARRAY_SIZE];
     char dbg_msg[512];
 
@@ -1104,6 +1102,7 @@ s32b armor_cost(object_type *o_ptr, int options)
     y = 0;
     if (have_flag(flgs, OF_SEARCH)) y += 200;
     if (have_flag(flgs, OF_INFRA)) y += 400;
+    if (have_flag(flgs, OF_TUNNEL)) y += 800;
 
     if (y != 0)
     {
@@ -1275,7 +1274,7 @@ s32b weapon_cost(object_type *o_ptr, int options)
 		else if (have_flag(flgs, OF_SLAY_GOOD)) s += _inc_slay(1.0 * 0.1, &ct);
 
         if (have_flag(flgs, OF_BRAND_ACID)) s += _inc_slay(1.5 * 0.15, &ct);
-        if (have_flag(flgs, OF_BRAND_ELEC)) s += _inc_slay(1.5 * 0.2, &ct);
+        if (have_flag(flgs, OF_BRAND_ELEC)) s += _inc_slay(1.5 * 0.15, &ct);
         if (have_flag(flgs, OF_BRAND_FIRE)) s += _inc_slay(1.5 * 0.1, &ct);
         if (have_flag(flgs, OF_BRAND_COLD)) s += _inc_slay(1.5 * 0.1, &ct);
         if (have_flag(flgs, OF_BRAND_DARK)) s += _inc_slay(3.0 * 0.1, &ct);
@@ -1556,7 +1555,7 @@ s32b bow_cost(object_type *o_ptr, int options)
 
     if ((options & COST_REAL) || object_is_known(o_ptr))
     {
-		to_d = to_h = o_ptr->to_h;
+        to_d = to_h = o_ptr->to_h;
         to_a = o_ptr->to_a;
     }
     pval = o_ptr->pval;

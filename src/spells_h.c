@@ -162,7 +162,7 @@ void healing_I_spell(int cmd, variant *res)
         var_set_string(res, "Powerful healing magic:  heals hitpoints, cuts and stun.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("Heals %d", spell_power(300)));
+        var_set_string(res, info_heal(0, 0, spell_power(300)));
         break;
     case SPELL_CAST:
         hp_player(spell_power(300));
@@ -187,7 +187,7 @@ void healing_II_spell(int cmd, variant *res)
         var_set_string(res, "Powerful healing magic:  heals hitpoints, cuts and stun.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("Heals %d", spell_power(500)));
+        var_set_string(res, info_heal(0, 0, spell_power(500)));
         break;
     case SPELL_CAST:
         hp_player(spell_power(500));
@@ -547,7 +547,7 @@ void kutar_expand_spell(int cmd, variant *res)
         var_set_string(res, "Expand Horizontally");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Expand like a cat, gaining +50 AC but becoming more susceptible to magical attacks.");
+        var_set_string(res, "Expand like a kutar, temporarily giving +35 AC but a very poor saving throw.");
         break;
     case SPELL_CAST:
         set_tsubureru(randint1(20) + 30, FALSE);

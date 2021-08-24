@@ -490,7 +490,7 @@ static void _identify_spell(int cmd, variant *res)
         var_set_string(res, "Identify");
         break;
     case SPELL_DESC:
-        var_set_string(res, "New Treasure!  You examine your new discovery and learn its deepest truths.");
+            var_set_string(res, "New Treasure!  You examine your new discovery and learn its deepest truths.");
         break;
     case SPELL_SPOIL_DESC:
         var_set_string(res, "Identifies an object.");

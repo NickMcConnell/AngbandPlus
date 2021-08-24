@@ -42,7 +42,7 @@ static void _load(savefile_ptr file)
                 _essences[k][j] += n;
         }
     }
-//    if ((p_ptr->personality == PERS_SEXY) && (equip_obj(equip_find_first(object_is_body_armor)).sval == SV_SWIMSUIT)) _sup_triggered = TRUE;
+//    if ((p_ptr->personality == PERS_SEXY) && (equip_obj(equip_find_first(object_is_body_armor)).sval == SV_ABUNAI_MIZUGI)) _sup_triggered = TRUE;
 }
 
 static void _save(savefile_ptr file)
@@ -525,6 +525,7 @@ void armor_calc_obj_bonuses(object_type *o_ptr, bool get_flags)
     p_ptr->regen += _manage_my_pval(o_ptr, slot, get_flags, OF_REGEN, 50);
     p_ptr->see_inv += _manage_my_pval(o_ptr, slot, get_flags, OF_SEE_INVIS, 1);
     p_ptr->free_act += _manage_my_pval(o_ptr, slot, get_flags, OF_FREE_ACT, 1);
+    p_ptr->hold_life += _manage_my_pval(o_ptr, slot, get_flags, OF_HOLD_LIFE, 1);
     p_ptr->sh_fire += _manage_my_pval(o_ptr, slot, get_flags, OF_AURA_FIRE, 1);
     p_ptr->sh_elec += _manage_my_pval(o_ptr, slot, get_flags, OF_AURA_ELEC, 1);
     p_ptr->sh_cold += _manage_my_pval(o_ptr, slot, get_flags, OF_AURA_COLD, 1);
@@ -804,7 +805,7 @@ static void _judge_spell(int cmd, variant *res)
         var_set_string(res, "Identifies gloves, boots or body armor.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, ident_spell(_object_is_rag_usable));
+		var_set_bool(res, ident_spell(_object_is_rag_usable));
         break;
     default:
         default_spell(cmd, res);
@@ -954,6 +955,7 @@ static void _character_dump(doc_ptr doc)
     _dump_flag(doc, OF_INFRA, "Infravision", FALSE);
     _dump_flag(doc, OF_TUNNEL, "Digging", FALSE);
     _dump_flag(doc, OF_MAGIC_MASTERY, "Magic Mastery", FALSE);
+    _dump_flag(doc, OF_DEVICE_POWER, "Device Power", FALSE);
     _dump_flag(doc, OF_LITE, "Light", FALSE);
  
     doc_printf(doc, "\n   <color:G>%-22.22s    Rag       Gloves       Boots     Bonus</color>\n", "Slays");

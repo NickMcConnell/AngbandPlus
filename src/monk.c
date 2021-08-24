@@ -127,7 +127,7 @@ int monk_get_attack_idx(void)
     return _get_attack_idx(p_ptr->monk_lvl, p_ptr->special_defense);
 }
 
-static int _calc_damage_per_hit(int dice_dmg, int xtra_dmg, int mult, int force)
+static int _calc_damage_per_hit(int dice_dmg, int xtra_dmg, int mult, bool force)
 {
     if (force)
         mult = mult * 12 / 10 + 5;
@@ -752,20 +752,21 @@ class_t *monk_get_class(void)
     skills_t xs = { 15,  10,  10,   0,   0,   0,  18,  18};
 
         me.name = "Monk";
-        me.desc = "The Monk character class is very different from all other classes. "
-                    "Their training in martial arts makes them much more powerful with "
-                    "no armor or weapons. To gain the resistances necessary for "
-                    "survival a monk may need to wear some kind of armor, but if the "
-                    "armor he wears is too heavy, it will severely disturb his martial "
-                    "arts maneuvers. As the monk advances levels, new, powerful forms "
-                    "of attack become available. Their defensive capabilities increase "
-                    "likewise, but if armor is being worn, this effect decreases. "
-                    "Wisdom determines a Monk's spell casting ability.\n \n"
-                    "The different sects of monks are devoted to different areas of "
-                    "magic. They select a realm from Life, Nature, Craft, Trump and Death. "
-                    "They will eventually learn all prayers in the discipline of their "
-                    "choice. They have two class powers - 'Assume a Posture' and "
-                    "'Double Attack'. They can choose different forms of postures in "
+        me.desc = "Monks are very different from most other classes in that they prefer "
+                    "to fight unarmed; while they can use a few select weapons reasonably "
+                    "well, their training in martial arts makes them more powerful with "
+                    "no weapons. Monks also gain bonuses from empty armor slots; to gain the "
+                    "resistances necessary for survival, some kind of armor will still be "
+                    "eventually needed, but if the armor is too heavy it will severely "
+                    "disturb the Monk's martial arts maneuvers. As the Monk gains levels, more "
+                    "powerful forms of unarmed attack will become available, and the defensive bonuses "
+                    "for having empty armor slots likewise increase.\n\n"
+                    "The various sects of monks are devoted to different areas of "
+                    "magic; they select one realm from Life, Nature, Craft, Trump and Death. "
+                    "Monks will eventually learn all prayers in the discipline of their "
+                    "choice. Wisdom determines their spellcasting ability.\n\n"
+                    "Monks have two class powers, 'Assume a Posture' and "
+                    "'Double Attack'; they can choose different postures for "
                     "different situations, and use powerful combinations of attacks for "
                     "the finishing blow.";
 

@@ -40,14 +40,14 @@ rarer abilities...
 Karrot's disciples depend on Intelligence to make their spells work.
 
   Stats                   Skills
-  Strength      -1        Disarming   Poor         
-  Intelligence  +1        Device      Good         
-  Wisdom        -1        Save        Fair         
+  Strength      -1        Disarming   Fair         
+  Intelligence  +1        Device      Excellent    
+  Wisdom        -1        Save        Good         
   Dexterity     +0        Stealth     Fair         
   Constitution  -1        Searching   Fair         
   Charisma      +1        Perception  Poor         
-  Life Rating   95%       Melee       Fair         
-  Base HP       14        Bows        Fair         
+  Life Rating   95%       Melee       Good         
+  Base HP       14        Archery     Good         
   Experience   125%
   
 Yeqrezh
@@ -75,14 +75,14 @@ push-the-envelope approach. Yeqrezh's disciples, like Karrot's, rely on
 Intelligence to power their spells.
 
   Stats                   Skills
-  Strength      +0        Disarming   Poor         
+  Strength      +0        Disarming   Fair         
   Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Poor         
+  Wisdom        +1        Save        Fair         
   Dexterity     +0        Stealth     Fair         
   Constitution  -3        Searching   Poor         
   Charisma      +0        Perception  Poor         
   Life Rating   90%       Melee       Good         
-  Base HP       12        Bows        Good         
+  Base HP       12        Archery     Excellent    
   Experience   115%
   
 Troika
@@ -119,8 +119,8 @@ Troika disciple.
   Dexterity     +1        Stealth     Fair         
   Constitution  +2        Searching   Poor         
   Charisma      +0        Perception  Poor         
-  Life Rating  108%       Melee       Good         
-  Base HP       23        Bows        Fair         
+  Life Rating  108%       Melee       Excellent    
+  Base HP       23        Archery     Good         
   Experience   150%
   
 TIP: The special random quests for Karrot and Troika disciples can only 
@@ -141,17 +141,17 @@ Troika             +1   +0   -1   +1   +2   +0  108%  +23  150%
 Table 2 - Disciple Skill Bonus Table I
 
                   Disarming     Device        Save          Stealth      
-Karrot            Poor          Good          Fair          Fair         
-Yeqrezh           Poor          Fair          Poor          Fair         
+Karrot            Fair          Excellent     Good          Fair         
+Yeqrezh           Fair          Fair          Fair          Fair         
 Troika            Good          Bad           Bad           Fair         
 
 
 Table 3 - Disciple Skill Bonus Table II
 
-                  Searching     Perception    Melee         Bows         
-Karrot            Fair          Poor          Fair          Fair         
-Yeqrezh           Poor          Poor          Good          Good         
-Troika            Poor          Poor          Good          Fair         
+                  Searching     Perception    Melee         Archery      
+Karrot            Fair          Poor          Good          Good         
+Yeqrezh           Poor          Poor          Good          Excellent    
+Troika            Poor          Poor          Excellent     Good         
 
 
 Table 4 - Yeqrezh Talents
@@ -233,5 +233,5 @@ which gifts to choose for your character.
 
 
 
-Automatically generated for Oposband 0.3.2.
+Automatically generated for Oposband 0.3.3.
 

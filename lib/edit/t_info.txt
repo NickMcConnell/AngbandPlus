@@ -2,7 +2,7 @@
 ?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NONE] ]
 %:t_lite.txt
 ?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NORMAL] ]
-%:t_outp.txt
+%:t_rampart.txt
 ?:1
 
 ?:[EQU $TOWN 2]

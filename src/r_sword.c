@@ -890,7 +890,7 @@ static void _gain_level(int new_level)
         else
         {
             o_ptr->to_h++;
-            msg_print("You grow more deadly!");
+            msg_print("You grow deadlier!");
         }
     }
 }
@@ -1050,9 +1050,9 @@ race_t *mon_sword_get_race(void)
         me.extra_skills = xs;
 
         me.name = "Death-Sword";
-        me.desc = "Death Swords are mighty weapons animated by magical means. As such, "
-                    "they are unable to use equipment the way other players can. Instead, "
-                    "they simply are a weapon of their current form. But never fear, Death "
+        me.desc = "Death-Swords are mighty weapons animated by magical means. As such, "
+                    "they are unable to use equipment the way other players can; instead, "
+                    "they simply are a weapon of their current form. But never fear: Death "
                     "Swords have the power to absorb magical essences from the weapons they "
                     "find, gaining power in the process.";
 

@@ -24,6 +24,8 @@ The number of possible mistakes and bad ideas in the game is essentially unlimit
 
 <color:r>Do not</color> fight monsters in melee if they have highly dangerous (or annoying) melee attacks but no way to hurt you from range.
 
+<color:y>Try to</color> reach new towns and dungeons in the safest way possible - stick to roads, minimize the time spent in dangerous areas, and travel through the overworld rather than the raw wilderness. Not only are you less likely to get lost on the overworld map, but travelling there is safer too - though you should still prepare for ambushes!
+
 
 <topic:Middle-Game Mistakes><style:heading>Middle-Game Mistakes and Needs</style>
 
@@ -43,7 +45,7 @@ The number of possible mistakes and bad ideas in the game is essentially unlimit
 
 <color:r>Do not</color> invest all your stat-ups in a single stat. No character lives entirely off one stat - melee characters need Strength, Dexterity and Constitution; pure spellcasters are very reliant on their casting stat, but will still want some Strength for carrying items and Constitution for staying alive, even if they do no melee at all. Investing several consecutive stat-ups in a single key stat is not necessarily a bad idea, but as the stat cap (somewhere between 18/70 and 18/130) is approached, the returns diminish rapidly. The best returns are offered when a stat's base value is close to 18.
 
-<color:r>Do not</color> completely neglect items useful in niche situations, especially if you know where those situations will happen. You might not carry <color:B>Potions of Resist Heat and Cold</color> all the time, but it's still a good idea to take some to the Smaug and Utgard-Loke fights. Similarly, <color:B>Potions of Vigor</color> will be highly valuable in the Micro$oft quest.
+<color:r>Do not</color> completely neglect items useful in niche situations, especially if you know where those situations will happen. You might not carry <color:B>Potions of Resist Heat and Cold</color> all the time, but it's still a good idea to take some to the Smaug and Utgard-Loke fights. Similarly, <color:B>Potions of Vigor</color> will be highly valuable in the Micro$oft quest, and <color:U>Staves of Starlight</color> can be handy in Old Watchtower.
 
 <color:r>Do not</color> underestimate mushrooms, especially <color:U>Mushrooms of Cure Poison</color> (the game's most effective means to neutralize poison) and the always-handy <color:U>Mushrooms of Fast Recovery</color>.
 
@@ -62,7 +64,7 @@ The number of possible mistakes and bad ideas in the game is essentially unlimit
 
 <color:G>Always</color> choose appropriate escapes. The best way to deal with a dangerous situation can be any of Phase Door, Teleport, Teleport Level, Teleport Other, Destruction or Dimension Door (or simply Healing or *Healing*), depending on the particulars of the situation; do not rely too much on any one method.
 
-<color:r>Do not</color> forget about reforging. <color:r>Do not</color> use mid-level, 50K weapons or armor as reforge source items. (As long as you're reforging into lower-value slots, a 40K bow, a 30K pair of gloves or even a 25K lamp will give better results more cheaply.)
+<color:r>Do not</color> forget about reforging. <color:r>Do not</color> use mid-level, 50K weapons or armour as reforge source items. (As long as you're reforging into lower-value slots, a 40K bow, a 30K pair of gloves or even a 25K lamp will give better results more cheaply.)
 
 <color:r>Do not</color> hang around in open areas where many dangerous high-level monsters simultaneously have you in their lines of sight, unless there's a reason you know it to be safe (for example, if the monsters are safely confused Cyberdemons and unlikely to recover for some time).
 

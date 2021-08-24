@@ -326,7 +326,7 @@ static int _item_disenchantment_value(object_type *o_ptr, int tyyppi, int muutos
     {
         int lahto_arvo = o_ptr->to_a;
         int uusi_arvo;
-        if (tyyppi == _DISEN_TO_D || tyyppi == _DISEN_TO_H) lahto_arvo = o_ptr->to_h;
+        if (tyyppi == _DISEN_TO_H) lahto_arvo = o_ptr->to_h;
         if (was_applied) lahto_arvo += muutos; /* The disenchantment was already applied to the item - we want the situation before */
         uusi_arvo = MAX(lahto_arvo - muutos, _allow_disen_limit());
         muutos = MAX(0, lahto_arvo - uusi_arvo);

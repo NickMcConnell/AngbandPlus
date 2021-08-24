@@ -319,9 +319,6 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 }
 
 
-
-
-
 static void wild_magic(int spell)
 {
     switch (randint1(spell) + randint0(8))
@@ -538,10 +535,10 @@ void do_cmd_cast(void)
         return;
     }
 
-    if (p_ptr->pclass == CLASS_SAMURAI && !equip_find_first(object_is_melee_weapon))
+    if ((p_ptr->pclass == CLASS_BLOOD_MAGE) && ((get_race()->flags & RACE_IS_NONLIVING) || (p_ptr->no_cut)))
     {
-        if (flush_failure) flush();
-        msg_print("You need to wield a weapon!");
+        if (get_true_race()->flags & RACE_IS_NONLIVING) msg_print("You can no longer use blood magic!");
+        else msg_print("You cannot use blood magic while transformed into a nonliving creature.");
         return;
     }
 
@@ -597,6 +594,13 @@ void do_cmd_cast(void)
     handle_stuff();
 
     use_realm = tval2realm(book->tval);
+
+	if (use_realm == REALM_HISSATSU && !equip_find_first(object_is_melee_weapon))
+    {
+        if (flush_failure) flush();
+        msg_print("You need to wield a weapon!");
+        return;
+    }
 
     /* Ask for a spell */
     if (!get_spell(&spell, spl_verb, book->sval, TRUE, use_realm, FALSE))
@@ -751,6 +755,7 @@ void do_cmd_cast(void)
     /* Process spell */
     else
     {
+        attack_spell_hack = ASH_UNKNOWN;
         /* Canceled spells cost neither a turn nor mana */
         if (!do_spell(use_realm, spell, SPELL_CAST))
         {
@@ -759,6 +764,7 @@ void do_cmd_cast(void)
                 p_ptr->csp += take_mana;
             energy_use = 0;
             p_ptr->redraw |= PR_MANA;
+            attack_spell_hack = ASH_USELESS_ATTACK;
             return;
         }
 
@@ -779,6 +785,19 @@ void do_cmd_cast(void)
         /* A spell was cast */
 
         virtue_on_cast_spell(use_realm, need_mana, chance);
+
+        switch (attack_spell_hack)
+        {
+            case ASH_NONE:
+            case ASH_UNKNOWN: attack_spell_hack = ASH_NOT_ATTACK; break;
+            case ASH_NOT_ATTACK: break;
+            case ASH_USEFUL_ATTACK: break;
+            case ASH_UNASSESSED_1:
+            case ASH_UNASSESSED_2: attack_spell_hack = ASH_USELESS_ATTACK; break;
+            default: break;
+        }
+
+        attack_spell_hack = ASH_USELESS_ATTACK;
     }
 
     /* In general, we already charged the players sp. However, in the event the
@@ -1235,7 +1254,15 @@ bool rakuba(int dam, bool force)
 
     if (!p_ptr->riding) return FALSE;
     if (p_ptr->prace == RACE_MON_RING) return FALSE; /* cf ring_process_m instead ... */
+	if ((!force || !dam) && p_ptr->prace == RACE_ICKY_THING && r_ptr->flags1 & (RF1_NEVER_MOVE)) return FALSE; /*It's stuck on you*/
     if (p_ptr->wild_mode) return FALSE;
+
+	/* Don't lose our symbiote unless it dies */
+	if (p_ptr->prace == RACE_ICKY_THING && r_ptr->flags1 & (RF1_NEVER_MOVE))
+	{
+		if (m_ptr->hp >= 0 && !force)
+			return FALSE;
+	}
 
     if (dam >= 0 || force)
     {
@@ -1354,6 +1381,7 @@ bool do_riding(bool force)
     int x, y, dir = 0;
     cave_type *c_ptr;
     monster_type *m_ptr;
+	bool symbiosis = FALSE;
 
     if (!get_rep_dir2(&dir)) return FALSE;
     y = py + ddy[dir];
@@ -1399,6 +1427,9 @@ bool do_riding(bool force)
 
         m_ptr = &m_list[c_ptr->m_idx];
 
+		/* Special rules / dialogue for symbiosis as opposed to normal riding */
+		symbiosis = p_ptr->prace == RACE_ICKY_THING && r_info[m_ptr->r_idx].flags1 & (RF1_NEVER_MOVE);
+
         if (!c_ptr->m_idx || !m_ptr->ml)
         {
             msg_print("Here is no monster.");
@@ -1414,31 +1445,10 @@ bool do_riding(bool force)
 
         if (m_ptr->r_idx == MON_AUDE)
         {
-            int noppa = randint0(9);
-            switch (noppa)
-            {
-             case 0: 
-             case 1: { msg_print("In your dreams."); break; }
-             case 2: 
-             case 3: { msg_print("No can do."); break; }
-             case 4: { msg_print("What game do you think you're playing, Leisure Suit Larry?"); break; }
-             case 5: { msg_print("What game do you think you're playing, Frogspawn?"); break; }
-             default: { msg_print("Feature turned off due to the controversy aroused by the release of Oposband 6.9.cream."); break; }
-            }
+			msg_print("In your dreams.");
             return FALSE;
         }
 
-        if (m_ptr->r_idx == MON_SHEEP)
-        {
-            int noppa = randint0(3);
-            switch (noppa)
-            {
-             case 0: { msg_print("Aivan sairas kaveri kun tuollaista aikoo puuhata!"); break; }
-             case 1: { msg_print("I'm not going to judge you, but... what the hell, I'm going to judge you. WHAT THE HELL?"); break; }
-             default: { msg_print("Holy bleating bleatity bleat!"); break; }
-            }
-            return FALSE;
-        }
         if (p_ptr->prace == RACE_MON_RING)
         {
             if (!mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER))
@@ -1449,13 +1459,13 @@ bool do_riding(bool force)
         }
         else
         {
-            if (!(r_info[m_ptr->r_idx].flags7 & RF7_RIDING))
+            if (!(r_info[m_ptr->r_idx].flags7 & RF7_RIDING) && !symbiosis)
             {
                 msg_print("This monster doesn't seem suitable for riding.");
 
                 return FALSE;
             }
-            if (warlock_is_(WARLOCK_DRAGONS) && !(r_info[m_ptr->r_idx].flags3 & RF3_DRAGON))
+            if (warlock_is_(WARLOCK_DRAGONS) && !(r_info[m_ptr->r_idx].flags3 & RF3_DRAGON) && !symbiosis)
             {
                 msg_print("You are a dragon rider!");
                 return FALSE;
@@ -1463,6 +1473,12 @@ bool do_riding(bool force)
         }
 
         if (!pattern_seq(py, px, y, x)) return FALSE;
+
+        if (m_ptr->parent_m_idx > 0)
+        {
+            msg_print("That monster has divided loyalties, and would not be a trustworthy mount!");
+            return FALSE;
+        }
 
         if (!player_can_ride_aux(c_ptr, TRUE))
         {
@@ -1475,7 +1491,7 @@ bool do_riding(bool force)
 
             return FALSE;
         }
-        if ( p_ptr->prace != RACE_MON_RING
+        if ( p_ptr->prace != RACE_MON_RING && !symbiosis
           && r_info[m_ptr->r_idx].level > randint1((skills_riding_current() / 50 + p_ptr->lev / 2 + 20)))
         {
             if (r_info[m_ptr->r_idx].level > (skills_riding_current() / 50 + p_ptr->lev / 2 + 20))
@@ -1749,14 +1765,24 @@ void do_cmd_pet(void)
     {
         if (p_ptr->pet_extra_flags & PF_HILITE)
         {
-            power_desc[num] = "highlight pets (now On)";
+            power_desc[num] = "highlight pets on map (now On)";
         }
         else
         {
-            power_desc[num] = "highlight pets (now Off)";
+            power_desc[num] = "highlight pets on map (now Off)";
         }
         powers[num++] = PET_HILITE;
     }
+
+    if (p_ptr->pet_extra_flags & PF_HILITE_LISTS)
+    {
+        power_desc[num] = "highlight pets in lists (now On)";
+    }
+    else
+    {
+        power_desc[num] = "highlight pets in lists (now Off)";
+    }
+    powers[num++] = PET_HILITE_LISTS;
 
 #ifdef ALLOW_REPEAT
     if (!(repeat_pull(&i) && (i >= 0) && (i < num)))
@@ -2087,6 +2113,13 @@ void do_cmd_pet(void)
             if (p_ptr->pet_extra_flags & PF_HILITE) p_ptr->pet_extra_flags &= ~(PF_HILITE);
             else p_ptr->pet_extra_flags |= PF_HILITE;
             p_ptr->redraw |= PR_MAP;
+            break;
+        }
+        case PET_HILITE_LISTS:
+        {
+            if (p_ptr->pet_extra_flags & PF_HILITE_LISTS) p_ptr->pet_extra_flags &= ~(PF_HILITE_LISTS);
+            else p_ptr->pet_extra_flags |= PF_HILITE_LISTS;
+            p_ptr->window |= PW_MONSTER_LIST;
             break;
         }
     }

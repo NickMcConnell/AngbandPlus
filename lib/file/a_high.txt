@@ -139,7 +139,7 @@ of Yavanna
 
 N:10:BIAS_CON
 'Heart of Ahriman'
-'Living Armor'
+'Living Armour'
 'Life Matrix'
 'Orb of Destiny'
 'Amber Prison'
@@ -161,7 +161,7 @@ N:*:Default
 'Destiny Star'
 'Lawmaster'
 of Diamond
-'Living Armor'
+'Living Armour'
 'Living Wall'
 of Malachite
 of Sverdlovsk

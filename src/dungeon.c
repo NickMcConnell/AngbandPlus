@@ -273,6 +273,8 @@ static void pattern_teleport(void)
     int min_level = 1;
     int max_level = 99;
 
+    if (!dungeon_type) return;
+
     /* Ask for level */
     if (get_check("Teleport level? "))
 
@@ -839,6 +841,17 @@ void fame_on_failure(void)
     p_ptr->fame -= dec;
 }
 
+void gain_fame(int amt)
+{
+    if (coffee_break == SPEED_INSTA_COFFEE)
+    {
+        amt *= 6;
+        amt += randint0(4);
+        amt /= 4;
+    }
+    p_ptr->fame += amt;
+}
+
 byte coffeebreak_recall_level(bool laskuri)
 {
     byte taso = (byte)max_dlv[DUNGEON_ANGBAND];
@@ -846,6 +859,14 @@ byte coffeebreak_recall_level(bool laskuri)
     {
         taso++;
         if (!level_is_questlike(DUNGEON_ANGBAND, taso)) taso++;
+        if (coffee_break == SPEED_INSTA_COFFEE)
+        {
+            while (!level_is_questlike(DUNGEON_ANGBAND, taso))
+            {
+                taso++;
+                if (taso >= 100) break;
+            }
+        }
     }
     else if ((taso == 99) && (!level_is_questlike(DUNGEON_ANGBAND, taso))) taso++;
     if ((p_ptr->total_winner) && (taso < d_info[DUNGEON_ANGBAND].maxdepth)) taso++;
@@ -1302,7 +1323,7 @@ static void process_world_aux_hp_and_sp(void)
         if (!IS_INVULN() && !IS_WRAITH())
         {
             int dam;
-			cptr dam_desc = NULL;
+            cptr dam_desc = NULL;
 
             dam = 1 + p_ptr->lev/5;
             /* Passwall now takes more energy ...
@@ -2377,6 +2398,8 @@ static void process_world_aux_recharge(void)
  */
 void process_world_aux_movement(void)
 {
+    recall_stairs_hack = FALSE;
+
     /* Delayed Word-of-Recall */
     if (p_ptr->word_recall)
     {
@@ -2396,6 +2419,8 @@ void process_world_aux_movement(void)
         /* Activate the recall */
         if (!p_ptr->word_recall)
         {
+            recall_stairs_hack = TRUE;
+
             /* Disturbing! */
             disturb(0, 0);
 
@@ -2624,7 +2649,8 @@ static byte get_dungeon_feeling(void)
         if (object_is_artifact(o_ptr))
             return 1;
 
-        if ( object_is_ego(o_ptr)
+        if ( object_is_artifact(o_ptr)
+          || object_is_ego(o_ptr)
           || o_ptr->tval == TV_DRAG_ARMOR
           || object_is_dragon_armor(o_ptr) )
         {
@@ -2634,6 +2660,9 @@ static byte get_dungeon_feeling(void)
             if (cost > 10000L) delta += 10 * base;
             if (cost > 50000L) delta += 10 * base;
             if (cost > 100000L) delta += 10 * base;
+
+            if (object_is_artifact(o_ptr))
+                return 1;
         }
 
         /* Out-of-depth objects */
@@ -2959,10 +2988,12 @@ static void process_world(void)
 
         if (one_in_(chance))
         {
+            spawn_hack = TRUE;
             if (p_ptr->action == ACTION_GLITTER && one_in_(3))
                 ring_summon_ring_bearer();
             else
                 alloc_monster(MAX_SIGHT + 5, 0);
+            spawn_hack = FALSE;
         }
     }
     /* It's too easy to get stuck playing a race that can't move! Sigh ... */
@@ -3269,6 +3300,14 @@ static void _dispatch_command(int old_now_turn)
         }
 
 #endif /* ALLOW_WIZARD */
+
+
+#ifdef ALLOW_SPOILERS
+		case KTRL('Z'):
+			/*  v~~~ ^Z(d|D) is useful info for game design ... */
+			do_cmd_spoilers();
+			break;
+#endif /* ALLOW_SPOILERS */
 		
         /*** Inventory Commands ***/
 
@@ -3400,17 +3439,17 @@ static void _dispatch_command(int old_now_turn)
         /* Stay still (usually pick things up) */
         case ',':
         {
-            delay_autopick_hack = TRUE;
+            delay_autopick_hack = 1;
             do_cmd_stay(always_pickup);
-            delay_autopick_hack = FALSE;
+            delay_autopick_hack = 0;
             break;
         }
 
         case 'g':
         {
-            delay_autopick_hack = TRUE;
+            delay_autopick_hack = 2;
             do_cmd_get();
-            delay_autopick_hack = FALSE;
+            delay_autopick_hack = 0;
             break;
         }
 
@@ -3553,8 +3592,8 @@ static void _dispatch_command(int old_now_turn)
                 ring_browse();
             else if (p_ptr->pclass == CLASS_MAGIC_EATER)
                 magic_eater_browse();
-			else if (p_ptr->pclass == CLASS_RAGE_MAGE)
-				rage_mage_browse_spell();
+            else if (p_ptr->pclass == CLASS_RAGE_MAGE)
+                rage_mage_browse_spell();
             else if (p_ptr->pclass == CLASS_SKILLMASTER)
                 skillmaster_browse();
             else if (p_ptr->pclass == CLASS_ALCHEMIST)
@@ -3603,7 +3642,7 @@ static void _dispatch_command(int old_now_turn)
                 flush();
                 /*energy_use = 100;*/
             }
-            else if ((beorning_is_(BEORNING_FORM_BEAR)) && (p_ptr->pclass != CLASS_DUELIST))
+            else if ((beorning_is_(BEORNING_FORM_BEAR)) && (p_ptr->pclass != CLASS_DUELIST) && (p_ptr->pclass != CLASS_RAGE_MAGE))
             {
                 msg_print("You cannot use magic in bear shape!");
                 flush();
@@ -3665,16 +3704,13 @@ static void _dispatch_command(int old_now_turn)
                 spell_problem = 0;
                 if (p_ptr->prace == RACE_MON_RING)
                     ring_cast();
-                else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+                else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC || 
+                        p_ptr->pclass == CLASS_BLUE_MAGE || p_ptr->pclass == CLASS_IMITATOR)
                     possessor_cast();
-				else if (p_ptr->pclass == CLASS_IMITATOR)
-					imitator_cast(FALSE);
                 else if (p_ptr->pclass == CLASS_MAGIC_EATER)
                     magic_eater_cast(0);
                 else if (p_ptr->pclass == CLASS_SKILLMASTER)
                     skillmaster_cast();
-				else if (p_ptr->pclass == CLASS_BLUE_MAGE)
-					do_cmd_cast_learned();
                 else if (p_ptr->pclass == CLASS_GRAY_MAGE)
                     gray_mage_cast_spell();
                 else if (p_ptr->pclass == CLASS_ALCHEMIST)
@@ -3700,10 +3736,10 @@ static void _dispatch_command(int old_now_turn)
                             p_ptr->pclass == CLASS_PSION ||
                             p_ptr->pclass == CLASS_SNIPER ||
                             p_ptr->pclass == CLASS_DISCIPLE ||
-                            p_ptr->pclass == CLASS_TIME_LORD)
+                            p_ptr->pclass == CLASS_TIME_LORD )
                 {
                     /* This is the preferred entrypoint for spells ...
-                        I'm still working on coverting everything else */
+                        I'm still working on converting everything else */
                     do_cmd_spell();
                 }
                 else
@@ -3791,14 +3827,14 @@ static void _dispatch_command(int old_now_turn)
         }
 
         /* Aim a wand */
-		/* ...or unified use command */
+		/* ...or unified use command. Device command in both keysets */
         case 'a':
         {
             if (!p_ptr->wild_mode)
             {
 				if (unified_use)
 				{
-					/* SLightly different order here, as the item chosen to use may or may not work 
+					/* Slightly different order here, as the item chosen to use may or may not work 
 					*  depending on the devicemaster speciality. But if not a devicemaster, it certainly won't work */
 					if (p_ptr->inside_arena && p_ptr->pclass != CLASS_DEVICEMASTER)
 					{
@@ -3822,7 +3858,6 @@ static void _dispatch_command(int old_now_turn)
 						do_cmd_aim_wand();
 					}
 				}
-                
             }
             break;
         }
@@ -3958,6 +3993,7 @@ static void _dispatch_command(int old_now_turn)
         case '*':
         {
             if (!p_ptr->wild_mode) do_cmd_target();
+            else do_cmd_look();
             break;
         }
 
@@ -4068,15 +4104,15 @@ static void _dispatch_command(int old_now_turn)
             break;
         }
 
-        /* Show previous messages */
-        case KTRL('P'):
+        /* Show previous messages - used to be Ctrl+P */
+        case 'P':
         {
             do_cmd_messages(old_now_turn);
             break;
         }
 
-        /* Show quest status -KMW- */
-        case KTRL('Q'):
+        /* Show quest status -used to be Ctrl+Q */
+        case 'Q':
         {
             quests_display();
             break;
@@ -4115,8 +4151,8 @@ static void _dispatch_command(int old_now_turn)
             break;
         }
 
-        /* Quit (commit suicide) */
-        case 'Q':
+        /* Quit (commit suicide) -used to be 'Q' */
+		case KTRL('Q'):
         {
             do_cmd_suicide();
             break;
@@ -4187,6 +4223,8 @@ static void process_command(void)
     if (p_ptr->pclass == CLASS_SNIPER && p_ptr->concent)
         reset_concent = TRUE;
 
+    online_macro_hack = TRUE;
+
     switch (command_cmd)
     {
     case SPECIAL_KEY_STORE:
@@ -4218,6 +4256,8 @@ static void process_command(void)
         _dispatch_command(old_now_turn);
         pack_unlock();
     }
+
+    online_macro_hack = FALSE;
 
     if (!energy_use)
         now_turn = old_now_turn;
@@ -4558,6 +4598,15 @@ static void process_player(void)
         }
     }
 
+    if (load) /* Mega-hack */
+    {
+        race_t *race_ptr = ((p_ptr->prace == RACE_DOPPELGANGER) ? get_race() : get_true_race());
+        if ((race_ptr != NULL) && (race_ptr->flags & RACE_DEMI_TALENT) && (race_ptr->gain_level != NULL))
+        {
+            race_ptr->gain_level(p_ptr->lev);
+        }
+    }
+
     load = FALSE;
 
     /*** Handle actual user input ***/
@@ -4569,6 +4618,7 @@ static void process_player(void)
         p_ptr->counter = FALSE;
         monsters_damaged_hack = FALSE;
         p_ptr->nice = FALSE;
+        shuffling_hack_hp = p_ptr->chp;
 
         player_turn++;
 
@@ -4803,6 +4853,12 @@ static void process_player(void)
                 p_ptr->energy_need += amt;
             }
 
+            if ((p_ptr->wizard) && (p_ptr->word_recall))
+            {
+                rect_t r = ui_char_info_rect();
+                c_put_str(TERM_WHITE, format("R:%3d", p_ptr->word_recall - 1), r.y + r.cy - 3, r.x);
+            }
+
             /* Hack -- constant hallucination */
             if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
 
@@ -4868,7 +4924,8 @@ static void process_player(void)
             }
 			if (p_ptr->pclass == CLASS_IMITATOR)
 			{
-				if (p_ptr->mane_num > (p_ptr->lev > 44 ? 3 : p_ptr->lev > 29 ? 2 : 1))
+				/* TODO: Fix this - roll off older spells as newer ones are learned */
+				/*if (p_ptr->mane_num > (p_ptr->lev > 44 ? 3 : p_ptr->lev > 29 ? 2 : 1))
 				{
 					p_ptr->mane_num--;
 					for (i = 0; i < p_ptr->mane_num; i++)
@@ -4878,7 +4935,7 @@ static void process_player(void)
 					}
 				}
 				new_mane = FALSE;
-				p_ptr->redraw |= PR_EFFECTS;
+				p_ptr->redraw |= PR_EFFECTS;*/
 			}
             if (p_ptr->action == ACTION_LEARN)
             {
@@ -5061,7 +5118,7 @@ static void dungeon(bool load_game)
         if (mon_available_num(&r_info[d_info[dungeon_type].final_guardian]))
         {
             cmsg_format(
-                TERM_YELLOW, "%^s lives in this level as the keeper of %s.",
+                TERM_YELLOW, "%^s lives on this level as the keeper of %s.",
                 r_name + r_info[d_info[dungeon_type].final_guardian].name,
                 d_name + d_info[dungeon_type].name);
         }
@@ -5204,14 +5261,7 @@ static void dungeon(bool load_game)
     write_level = TRUE;
 }
 
-
-/*
- * Load some "user pref files"
- *
- * Modified by Arcum Dagsson to support
- * separate macro files for different realms.
- */
-static void load_all_pref_files(void)
+void load_user_pref_files(void)
 {
     char buf[1024];
 
@@ -5226,6 +5276,21 @@ static void load_all_pref_files(void)
 
     /* Process that file */
     process_pref_file(buf);
+}
+
+/*
+ * Load some "user pref files"
+ *
+ * Modified by Arcum Dagsson to support
+ * separate macro files for different realms.
+ */
+static void load_all_pref_files(bool new_game)
+{
+    char buf[1024];
+    int alp_mode = ALP_CHECK_NUMERALS;
+
+    /* Load user pref files */
+    load_user_pref_files();
 
     /* Access the "race" pref file */
     sprintf(buf, "%s.prf", get_true_race()->name);
@@ -5242,8 +5307,33 @@ static void load_all_pref_files(void)
     /* Access the "character" pref file */
     sprintf(buf, "%s.prf", player_base);
 
-    /* Process that file */
-    process_pref_file(buf);
+    strcpy(pref_save_base, player_base);
+
+    /* Process that file, look for old files */
+    if ((process_pref_file(buf) < 0) && (name_is_numbered(player_name)))
+    {
+        char old_py_name[32];
+        strcpy(old_py_name, player_name);
+        temporary_name_hack = TRUE;
+
+        while (1)
+        {
+            bump_numeral(player_name, -1);
+            process_player_name(FALSE);
+
+            sprintf(buf, "%s.prf", player_base);
+
+            if (process_pref_file(buf) >= 0)
+            {
+                strcpy(pref_save_base, player_base);
+                break;
+            }
+            if (!name_is_numbered(player_name)) break;
+        }
+        strcpy(player_name, old_py_name);
+        process_player_name(FALSE);
+        temporary_name_hack = FALSE;
+    }
 
     /* Access the "realm 1" pref file */
     if (p_ptr->realm1 != REALM_NONE)
@@ -5263,9 +5353,10 @@ static void load_all_pref_files(void)
         process_pref_file(buf);
     }
 
+    if (new_game) alp_mode |= ALP_NEW_GAME;
 
     /* Load an autopick preference file */
-    autopick_load_pref(FALSE);
+    autopick_load_pref(alp_mode);
 }
 
 
@@ -5473,6 +5564,10 @@ void play_game(bool new_game)
         /* Hack -- seed for town layout */
         seed_town = randint0(0x10000000);
 
+        /* Load system pref files before displaying anything */
+        load_user_pref_files();
+        Term_xtra(TERM_XTRA_REACT, 0);
+
         /* Roll up a new character */
         player_birth();
 
@@ -5485,20 +5580,6 @@ void play_game(bool new_game)
 
         /* Initialize object array */
         wipe_o_list();
-
-        /* Confirm unusual settings
-         * (players who play both coffee-break and normal games and start
-         * new games by loading old savefiles sometimes turn coffee-break off,
-         * but forget to turn no_wilderness and ironman_downward off) */
-        if ((!coffee_break) && (ironman_downward))
-        {
-            bool okei = get_check("Really play with ironman stairs? ");
-            if (!okei)
-            {
-                ironman_downward = FALSE;
-                if ((no_wilderness) && (!get_check("Really play with no wilderness? "))) no_wilderness = FALSE;
-            }
-        }
 
         /* After the last opportunity to modify birth options... */
         birth_location();
@@ -5618,7 +5699,7 @@ void play_game(bool new_game)
     reset_visuals();
 
     /* Load the "pref" files */
-    load_all_pref_files();
+    load_all_pref_files(new_game);
 
     /* Turn on easy mimics */
     toggle_easy_mimics(easy_mimics);
@@ -5681,21 +5762,9 @@ void play_game(bool new_game)
             py_birth_food();
             py_birth_light();
         }
+        if ((coffee_break) && (!thrall_mode) && (p_ptr->pclass != CLASS_BERSERKER)) 
+            py_birth_obj_aux(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, 1);
 
-        /* TODO Where should this go? */
-        if (p_ptr->pclass == CLASS_MONSTER)
-        {
-            monster_proficiencies();
-        }
-
-        /* TODO Hack: This should be put in personality birth but can't until we can move it after the race/class birth functions for weapon proficiencies */
-        if (p_ptr->personality == PERS_SEXY)
-        {
-            p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
-            p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_MASTER;
-        }
-
-        if ((coffee_break) && (!thrall_mode) && (p_ptr->pclass != CLASS_BERSERKER)) py_birth_obj_aux(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, 1);
         if (thrall_mode)
         {
             if (p_ptr->pclass == CLASS_BERSERKER)
@@ -5763,7 +5832,7 @@ void play_game(bool new_game)
                             paras = tulos;
                             ties = 0;
                         }
-                        if ((tulos <= paras) && (one_in_(++ties)))
+                        if ((tulos <= paras) && (randint0(++ties) == 0))
                         {
                             my = py + dmy;
                             mx = px + dmx;

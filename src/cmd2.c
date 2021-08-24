@@ -112,6 +112,8 @@ void do_cmd_go_down(void)
         return;
     }
 
+    if ((quest_id_current()) && !quests_check_leave()) return;
+
     if (have_flag(f_ptr->flags, FF_TRAP)) fall_trap = TRUE;
 
     /* Quest entrance */
@@ -2237,20 +2239,24 @@ static void do_cmd_walk_aux(int dir, bool pickup)
 
     /* Hack -- In small scale wilderness it takes MUCH more time to move */
     if (p_ptr->wild_mode) energy_use *= ((MAX_HGT + MAX_WID) / 2);
+    if (!p_ptr->riding)
+    {
+        if (mut_present(MUT_LIMP)) energy_use += (energy_use / 9);
 
-    if (p_ptr->action == ACTION_QUICK_WALK) energy_use = (p_ptr->pclass == CLASS_NINJA_LAWYER) ? 
-         energy_use * (60-(p_ptr->lev/2)) / 100 : energy_use * (45-(p_ptr->lev/2)) / 100;
-    if (p_ptr->action == ACTION_STALK) energy_use = energy_use * (150 - p_ptr->lev) / 100;
-    if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
-        energy_use = energy_use * (45-(p_ptr->lev/2)) / 100;
+        if (p_ptr->action == ACTION_QUICK_WALK) energy_use = (p_ptr->pclass == CLASS_NINJA_LAWYER) ? 
+             energy_use * (60-(p_ptr->lev/2)) / 100 : energy_use * (45-(p_ptr->lev/2)) / 100;
+        if (p_ptr->action == ACTION_STALK) energy_use = energy_use * (150 - p_ptr->lev) / 100;
+        if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
+            energy_use = energy_use * (45-(p_ptr->lev/2)) / 100;
 
-    if (p_ptr->quick_walk)
-        energy_use = energy_use * 60 / 100;
+        if (p_ptr->quick_walk)
+            energy_use = energy_use * 60 / 100;
 
-    if (p_ptr->personality == PERS_CRAVEN) energy_use = energy_use * 21 / 25;
+        if (personality_is_(PERS_CRAVEN)) energy_use = energy_use * 21 / 25;
 
-    if (prace_is_(RACE_MON_GOLEM))
-        energy_use *= 2;
+        if (prace_is_(RACE_MON_GOLEM))
+            energy_use *= 2;
+    }
 
     move_player(dir, pickup, FALSE);
 }
@@ -3462,6 +3468,8 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                     }
                 }
 
+                if (melee_challenge) hit = FALSE;
+
                 if (hit)
                 {
                     bool fear = FALSE;
@@ -3504,7 +3512,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                             char m_name[80];
                             monster_desc(m_name, m_ptr, 0);
                             tdam = m_ptr->hp + 1;
-                            msg_format("Your shot hit a fatal spot of %s", m_name);
+                            msg_format("(!) Your shot hit a fatal spot of %s", m_name);
                         }
                         else
                             tdam = 1;
@@ -3517,7 +3525,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                             char m_name[MAX_NLEN];
                             monster_desc(m_name, m_ptr, 0);
                             tdam = m_ptr->hp + 1;
-                            msg_format("Your shot hit a fatal spot of %s", m_name);
+                            msg_format("(!) Your shot hit a fatal spot of %s", m_name);
                         }
                         else
                             tdam = 1;
@@ -3618,7 +3626,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                     }
                     if (p_ptr->stun)
                         tdam -= tdam * MIN(100, p_ptr->stun) / 150;
-                    if (mon_take_hit(c_ptr->m_idx, tdam, &fear, NULL, TRUE))
+                    if (mon_take_hit(c_ptr->m_idx, tdam, DAM_TYPE_ARCHERY, &fear, NULL))
                     {
                         /* Dead monster ... abort firing additional shots */
                         i = num_shots;
@@ -3980,6 +3988,13 @@ static byte _travel_flow_bonus(feature_type *f_ptr)
         int bonus = (have_flag(f_ptr->flags, FF_DEEP)) ? 16 : 1;
         if (p_ptr->levitation) bonus /= 2;
         if (res_pct(RES_FIRE) <= 50) bonus *= 4;
+        return bonus;
+    }
+    else if (have_flag(f_ptr->flags, FF_ACID))
+    {
+        int bonus = (have_flag(f_ptr->flags, FF_DEEP)) ? 12 : 6;
+        if (p_ptr->levitation) bonus /= 2;
+        if (res_pct(RES_ACID) <= 50) bonus *= 4;
         return bonus;
     }
     else if ((!p_ptr->levitation) && (!p_ptr->can_swim) && (have_flag(f_ptr->flags, FF_WATER)) && (have_flag(f_ptr->flags, FF_DEEP)) && (!elemental_is_(ELEMENTAL_WATER)) && (py_total_weight() > weight_limit()))

@@ -733,16 +733,16 @@ class_t *mauler_get_class(void)
         "The Mauler favors extremely heavy weapons, and possesses powerful abilities whose "
             "effectiveness depends on the weight of the weapon. While they only gain a limited "
             "number of blows which can never be magically increased, they are capable of "
-            "hitting opponents very hard to make the most of each strike. The Mauler is "
-            "required to use both hands on a single weapon when wielding if they wish their "
-            "talents to function properly.",
+            "hitting opponents exceptionally hard to make the most of each strike. Maulers "
+            "must wield a single weapon with two hands for their talents to "
+            "function properly.",
 
         me.stats[A_STR] =  5;
         me.stats[A_INT] = -2;
         me.stats[A_WIS] = -2;
         me.stats[A_DEX] = -1;
         me.stats[A_CON] =  3;
-        me.stats[A_CHR] =  -1;
+        me.stats[A_CHR] = -1;
         me.base_skills = bs;
         me.extra_skills = xs;
         me.life = 110;

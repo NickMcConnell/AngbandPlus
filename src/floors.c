@@ -361,21 +361,12 @@ static void preserve_pet(void)
     {
         monster_type *m_ptr = &m_list[p_ptr->riding];
 
-        /* Pet of other pet don't follow. */
-        if (m_ptr->parent_m_idx)
-        {
-            p_ptr->riding = 0;
-            p_ptr->pet_extra_flags &= ~(PF_RYOUTE);
-            p_ptr->riding_ryoute = p_ptr->old_riding_ryoute = FALSE;
-        }
-        else
-        {
-            m_ptr->pack_idx = 0;
-            COPY(&party_mon[0], m_ptr, monster_type);
+        m_ptr->parent_m_idx = 0;
+        m_ptr->pack_idx = 0;
+        COPY(&party_mon[0], m_ptr, monster_type);
 
-            /* Delete from this floor */
-            delete_monster_idx(p_ptr->riding);
-        }
+        /* Delete from this floor */
+        delete_monster_idx(p_ptr->riding);
     }
 
     /* Teleport Level and Alter Reality loses all pets except your mount, and no monsters may follow. */
@@ -935,6 +926,12 @@ void leave_floor(void)
     /* New floor is not yet prepared */
     new_floor_id = 0;
 
+    /* Hack - fix bug with recalling and taking stairs at the same time */
+    if (recall_stairs_hack)
+    {
+        change_floor_mode = (dun_level ? CFM_FIRST_FLOOR : 0);
+    }
+
     /* Temporary get a floor_id (for Arena) */
     if (!p_ptr->floor_id &&
         (change_floor_mode & CFM_SAVE_FLOORS) &&
@@ -1007,6 +1004,10 @@ void leave_floor(void)
                     move_num = coffeebreak_recall_level(TRUE);
                 else
                     move_num = d_info[dungeon_type].mindepth;
+            }
+            else if (coffee_break == SPEED_INSTA_COFFEE)
+            {
+                move_num = coffeebreak_recall_level(TRUE) - dun_level;
             }
         }
         else if (change_floor_mode & CFM_UP)
@@ -1445,6 +1446,10 @@ void change_floor(void)
     /* No dungeon feeling yet */
     p_ptr->feeling_turn = old_turn;
     p_ptr->feeling = 0;
+
+    /* No kills yet */
+    p_ptr->lv_kills = 0;
+    p_ptr->pet_lv_kills = 0;
 
     /* Clear all flags */
     change_floor_mode = 0L;

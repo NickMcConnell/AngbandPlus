@@ -2209,7 +2209,7 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
                 add_flag(o_ptr->flags, OF_RES_FEAR);
             break;
         case EGO_WEAPON_NOLDOR:
-            if ( (o_ptr->tval != TV_SWORD && o_ptr->tval != TV_DAGGER)
+            if ( (o_ptr->tval != TV_SWORD)
               || o_ptr->sval == SV_BLADE_OF_CHAOS
               || o_ptr->dd * o_ptr->ds < 10 )
             {
@@ -2386,8 +2386,8 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
 void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
 {
     int tohit1 = randint1(5) + m_bonus(5, level);
-
     int tohit2 = m_bonus(10, level);
+
     bool crafting = (mode & AM_CRAFTING) ? TRUE : FALSE;
 
     if (object_is_(o_ptr, TV_SWORD, SV_DIAMOND_EDGE))
@@ -2405,6 +2405,7 @@ void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
         if (power == -1)
         {
             o_ptr->to_h -= tohit1;
+
             if (power < -1)
             {
                 o_ptr->to_h -= tohit2;
@@ -2415,6 +2416,7 @@ void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
         else if (power)
         {
             o_ptr->to_h += tohit1;
+
             if (power > 1 || power < -1)
             {
                 o_ptr->to_h += tohit2;

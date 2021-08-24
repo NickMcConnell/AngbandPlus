@@ -1007,7 +1007,7 @@ static int _smith_enchant_weapon(object_type *o_ptr)
     int    max = _enchant_limit();
     int    to_h = o_ptr->to_h;
     int    avail_h = _get_essence(_ESSENCE_TO_HIT);
-    int    cost_h = 0, cost_d = 0;
+    int    cost_h = 0;
 
     if (to_h < max)
     {
@@ -1030,14 +1030,15 @@ static int _smith_enchant_weapon(object_type *o_ptr)
         doc_clear(_doc);
         obj_display_smith(o_ptr, _doc);
 
-        doc_printf(_doc, " <color:%c>  E</color>) Enchant to ", (cost_h > avail_h) ? 'D' : 'y');
+        doc_printf(_doc, " <color:%c>  E</color>) Enchant to ",
+            (cost_h > avail_h) ? 'D' : 'y');
 
         if (to_h == o_ptr->to_h) color = 'w';
         else if (to_h == max) color = 'r';
         else color = 'R';
         doc_printf(_doc, "(<color:%c>%+d</color>", color, to_h);
 
-        doc_insert(_doc, "      Use h/H to adjust the amount of accuracy to add.\n");
+        doc_insert(_doc, "      Use h/H to adjust the amount of attack bonus to add.\n");
 
         if (cost_h > avail_h) color = 'r';
         else color = 'G';
@@ -1072,7 +1073,6 @@ static int _smith_enchant_weapon(object_type *o_ptr)
                 break;
             o_ptr->to_h = to_h;
             _add_essence(_ESSENCE_TO_HIT, -cost_h);
-            _add_essence(_ESSENCE_TO_DAM, -cost_d);
             return _OK;
         }
     }
@@ -1152,7 +1152,7 @@ static int _smith_add_slaying(object_type *o_ptr)
         else color = 'R';
         doc_printf(_doc, ",<color:%c>%+d</color>)\n", color, to_d);
 
-        doc_insert(_doc, "      Use h/H to adjust the amount of bonus accuracy/damage to add.\n");
+        doc_insert(_doc, "      Use h/H to adjust the amount of accuracy to add.\n");
 
         if (cost_h > avail_h) color = 'r';
         else color = 'G';

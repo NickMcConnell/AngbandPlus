@@ -1,4 +1,81 @@
--Rejiggered the weapon types, adding a couple of new axes and removing a number of weapons that were outclassed by other weapons of the same type that were better and shallower / less rare.
+0.4.0
+A:Implement tables from Halls of Mist
+X-Define Feature 
+X-Generate on maps 
+-Monster jumping modifiers
+-Player Jumping skill
+-Jumping check to move onto table (but not on table)
+-Melee dodge modifier
+-Projectile hits table
+-Shoot from table edge without problem (from cover)
+
+B:Move Class gen stuff to new c_info.txt file (all in one place, ease adding new skills
+
+C:Halls of Mist-esque dungeon diving
+-Upstairs take you back to surface, rename exit
+-? Maybe use the up shafts on DL1 with trees and light deeper, as kind of the standard exit
+-Rare for upstairs to spawn, Guaranteed upstairs on bottom floor when guardian is defeated.
+-Maybe checkpoints every 5 levels with a guaranteed exit (if no guardian) 
+-Downstairs let you choose to go 1-3 levels down
+-Replace perception with Navigation skill (Mapping?): ranges from 0-100, % chance to generate an exit when you enter a level. If check is passed (exit generated), make another check to detect doors/stairs and another to magic map the area.
+-When you enter a dungeon from the surface, or use Word of Recall to recall to it, you can select whether to enter the first floor, halfway down (if you have explored that deep), or the lowest floor you have visited.
+
+D:Reworked skills
+-Skills are tiered based on the descriptive names. 
+-Spells no longer have custom fails/costs/levels for each class/spell combo, instead the classes have skill ranks of the books they could cast from if its their realm. Beastmaster undead summoning prevention will become a caster flag that either causes the spell to fail or always summons them as hostile
+
+E:Reserving mana
+-Persistent buffs: common buffs like blessing, etc no longer have a duration. Instead they reserve (reduce max mana by) their cost (adjusted by duration) and remain up until cancelled (by casting again or through a new command menu to dismiss buffs). Buffs that can't be up all the time (Globe of Invulnerability, Berserk) will still have a duration. Dispelling can still dismiss buffs.
+-Scrolls and potions that buff will persist for the current dungeon level, and have a 50% chance to expire whenever you take the stairs or an exit.
+
+F:Summons reworks
+-Persistent summons: Summon spells can be either SAFE (failed summon results in no creatures) or PERILOUS (failed summon summons hostile monsters). Summon spells have a limit per spell of the creatures they can summon, and the player will also have an overall limit on pets allowed. Summoning will not work if you are at either cap (and player will be informed and cancel the spell, like trying to walk into a wall). Summons will be thralls (unable to get angry) but will not drop items or give any XP. Summoning spells also reserve mana.
+*Example: Sorcery spell "Conjure Elemental" 
+-Summons will be able to kill guardians and uniques, even if you're not a Q.
+-Charisma affects your total pet limit as well as providing a bonus to the hit and damage of your minions.
+-Charming monsters will fall under the total pet limit.
+-Add scrolls of Conjure Weapon that summon a mobile deathblade to help you
+-Should monster summons work similarly, where they summon one group, or just have a long cooldown on the summoning?
+
+G:Itemization changes
+-Clear differentiation between clothing, light armor, and heavy armor. Penalties for wearing too heavy of an armor would include mana % reduction, stealth penalty, etc. Off-hand items (tomes, orbs, etc) would provide a clothing equivalent to shields. Basic gear would be available on the surface, while 
+-Two-handed weapons: some weapons will be two-handed, requiring both weapon slots to wield. Giants (and similar) would be able to treat two-handed weapons as one-handed.
+-Tiered gear: better
+-Instead of getting a single ego, weapons can gain affixes (prefixes and affixes). White items have none, just the base item type. Prefix->Green, Suffix->Blue, Both->gold, etc
+-This system would also replace artifacts. Unique properties of artifacts could either be made into affixes or be intrinsic properties of rare base item types.
+-Items would be the color of their tier. Or maybe let the player color them based on rules about affixes and level?
+-Cursed items would be red and would be very powerful (blue or gold level) but would add misfortune. Misfortune would give a chance to spawn nightmare monsters on levels, which would be extremely dangerous. Higher misfortune counts would allow even more dangerous monsters to spawn.
+-Themed chest - chests would be immovable, would generate some items (2d3?) of the same type (a helmet chest, weapon chest, scroll chest, jewelry chest). Chests could be enchanted to give better loot, or could be cursed and summon a pack of monsters when opened, but not dropping any loot for X turns or until you kill the monsters.
+-Put digging tools in the light slot and call it the tool slot. Players have a base light radius of 1 (unless they need the dark, like vampires or ninjas, which is added to the light of other items.
+-Remove durations on torches and lanterns and greatly increase the cost of lanterns so you don't 1.go to general store 2.buy lantern 3. kill serpent; you have to earn up the money to use it.
+-Instead of individual ammo have quivers with charges like devices. Quivers would have ammo type (arrows, seeker quarrels, etc) and capacity. They would slowly refill over time, maybe faster if you walk on a corpse ("you retrieve your arrows). "Bottomless" quivers would have unlimited uses and never need to recharge. Current ego types would still exist - seeker arrow quiver of slay troll, etc
+-Some slays are very narrow - orc and troll, for instance. Maybe slay goblinoid would slay goblins, orcs, trolls, and ogres. Bugslayer weapons would slay insects, lice, spiders, scorpions, etc. Dragon, Undead, and Demon slayers are still useful. 
+-Brands could create a radius-1 ball effect on a crit, giving multiple brands a use.
+
+H:World Changes
+-Wilderness levels when you ">" from the world map.
+-A FAAngband world setup, with towns and dungeons separated by wilderness levels. The world map will be visible in knowledge menu, and will closely follow the existing world structure.
+-Special scrolls of word of recall would allow you to twist a dungeon, increasing its danger (only while you are there) but also the value of loot generated.
+-Add the Flow dungeon from Portralis, which allows you to put an item into a device that generates a random dungeon. You always start on an exit, but taking it will destroy the item. Every 5 (?) floors there will be a room of exits with different flow bonuses that will be applied to the item, letting you pick the result, or a downstairs that lets you continue accumulating power at the risk of greater and greater danger.  Items improved by the flow will be their own color and can only be boosted once.
+
+I:Monster Changes
+-gaze attack changes: gaze becomes ranged ability. Floating eyes attack make the player Slowed rather than frozen. Add eyes of destruction with acid gazes, and eyes of annihilation with disintegration gazes. Beholders could split into several eyes on death like how pinl horrors split.
+-Ego monsters: occasionally monsters will get affixes as well.
+-Add constricting attacks to appropriate snakes and tentacled monsters. Prevents you from moving away, damages each turn. Maybe prevent teleport away, but have a chance to escape if you try to move away (or stand in place if nowhere to move to)
+-Add the big bad wolf (break down doors, wind attack (like a tengu?))
+
+J: New Races & Classes
+-Add Naga race: good at duel-wielding, poison boost (poison bite attack, poison attacks and spells do more damage), cannot wear shoes. Can constrict enemies (preventing them from leaving after stealing or from fleeing). Tough and stealthy
+-Add Elemental Lord class from Portralis
+-Add Soul Guardian class from Portralis
+-Icky Thing race: Poorer stats but resists poison and acid. Has the symbiosis power from ToME, allowing it to hypnotise immobile creatures and wear them (ride them basically, but you move instead of them). Maybe stealthy since monsters do not fear you.
+-Add symbiosis from ToME, as some sort of race that can wear (ride) an immobile create
+
+K: Speed changes
+-Split speed into movement speed, blows (melee attack speed), shots (ranged attack speed), casting speed (yellow mages ability, rare otherwise). Monsters will be rebalanced, fast caster monsters will probably be normal move speed but have a casting bonus.
+
+0.3.X
+Rejiggered the weapon types, adding a couple of new axes and removing a number of weapons that were outclassed by other weapons of the same type that were better and shallower / less rare.
 Removed / replaced *Identify* spells: 
 -Archeologists, Lawyers, Filthy Rags, Rings, Deathswords, Samurai, and Weaponmasters all had ID spells that eventually did *ID*, now they just always ID (which is the same as the old *ID*, so a buff anyways).
 -Building's Research Item does a regular ID. TODO: Fix costing

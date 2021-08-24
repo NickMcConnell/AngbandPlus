@@ -306,6 +306,7 @@ static void rd_quick_start(savefile_ptr file)
     int i;
 
     previous_char.game_mode = savefile_read_byte(file);
+    previous_char.coffee_break = savefile_read_byte(file);
     previous_char.psex = savefile_read_byte(file);
     previous_char.prace = savefile_read_byte(file);
     previous_char.psubrace = savefile_read_byte(file);
@@ -338,6 +339,7 @@ static void rd_extra(savefile_ptr file)
     rd_quick_start(file);
 
     game_mode = savefile_read_s32b(file);
+    coffee_break = savefile_read_byte(file);
     game_pantheon = savefile_read_byte(file);
 
     p_ptr->prace = savefile_read_byte(file);
@@ -440,8 +442,8 @@ static void rd_extra(savefile_ptr file)
     p_ptr->slow = savefile_read_s16b(file);
     p_ptr->minislow = savefile_read_byte(file);
     p_ptr->mini_energy = savefile_read_u16b(file);
-
     p_ptr->unwell = savefile_read_byte(file);
+
     p_ptr->afraid = savefile_read_s16b(file);
     p_ptr->cut = savefile_read_s16b(file);
     p_ptr->stun = savefile_read_s16b(file);
@@ -611,6 +613,7 @@ static void rd_extra(savefile_ptr file)
 
     seed_flavor = savefile_read_u32b(file);
     seed_town = savefile_read_u32b(file);
+    if (p_ptr->personality == PERS_SPLIT) split_load(file);
     p_ptr->panic_save = savefile_read_u16b(file);
     p_ptr->total_winner = savefile_read_u16b(file);
     p_ptr->noscore = savefile_read_u16b(file);
@@ -651,6 +654,8 @@ static void rd_extra(savefile_ptr file)
     p_ptr->filibuster = savefile_read_byte(file) ? TRUE : FALSE;
     p_ptr->upset_okay = savefile_read_byte(file) ? TRUE : FALSE;
     p_ptr->py_summon_kills = savefile_read_byte(file);
+    p_ptr->lv_kills = savefile_read_s16b(file);
+    p_ptr->pet_lv_kills = savefile_read_s16b(file);
     for (i = 0; i < 16; i++) (void)savefile_read_s32b(file);
     wipe_labels();
     for (i = 0; i < MAX_POWER_LABEL; i++)
@@ -1232,7 +1237,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     /* Important -- Initialize stuff */
     mp_ptr = &m_info[p_ptr->pclass];
     /* Hack ... external files always make easy stuff hard ... Burglary is natural for rogues!!!*/
-    /* Note: Class and Realm are read in in rd_extra a few lines back */
+    /* Note: Class and Realm are read in rd_extra a few lines back */
     if (p_ptr->pclass == CLASS_ROGUE)
     {
         if (p_ptr->realm1 == REALM_BURGLARY)

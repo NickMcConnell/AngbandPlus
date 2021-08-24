@@ -112,7 +112,7 @@ enum _keyword_e {
     FLG_CORPSES,
     FLG_SKELETONS,
 
-    FLG_MAX,
+    FLG_MAX, /* watch out for AUTOPICK_FLAG_SIZE */
 };
 
 #define FLG_ADJECTIVE_BEGIN     FLG_ALL
@@ -204,6 +204,7 @@ static char KEY_JUNKS[] = "junk";
 static char KEY_CORPSES[] = "corpses";
 static char KEY_SKELETONS[] = "skeletons";
 
+static bool _inscribe_pack_hack = FALSE;
 
 #define MATCH_KEY(KEY) (!strncmp(ptr, KEY, sizeof(KEY)-1)\
      ? (ptr += sizeof(KEY)-1, (' '==*ptr) ? ptr++ : 0, TRUE) : FALSE)
@@ -579,12 +580,12 @@ static bool autopick_new_entry(autopick_type *entry, cptr str, bool allow_defaul
 }
 
 /* Check object's ickiness */
-static bool _object_is_icky(object_type *o_ptr)
+bool object_is_icky(object_type *o_ptr, bool assume_id)
 {
     if (!object_is_wearable(o_ptr)) return FALSE;
     else {
         class_t *class_ptr = get_class();
-        if ((o_ptr->tval == TV_GLOVES) && (class_ptr->caster_info) && ((obj_is_identified(o_ptr)) || (o_ptr->feeling == FEEL_AVERAGE) || (o_ptr->feeling == FEEL_GOOD)))
+        if ((o_ptr->tval == TV_GLOVES) && (class_ptr->caster_info) && ((assume_id) || (obj_is_identified(o_ptr)) || (o_ptr->feeling == FEEL_AVERAGE) || (o_ptr->feeling == FEEL_GOOD)))
         {
             if (get_caster_info()->options & CASTER_GLOVE_ENCUMBRANCE)
             {
@@ -597,6 +598,8 @@ static bool _object_is_icky(object_type *o_ptr)
         return FALSE;
     }
 }
+
+static void _inscribe_pack(void);
 
 /*
  * Get auto-picker entry from o_ptr.
@@ -790,7 +793,7 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
         name = FALSE;
     }
 
-    if (_object_is_icky(o_ptr)) ADD_FLG(FLG_ICKY);
+    if (object_is_icky(o_ptr, FALSE)) ADD_FLG(FLG_ICKY);
 
     if (o_ptr->tval >= TV_LIFE_BOOK && 0 == o_ptr->sval)
         ADD_FLG(FLG_FIRST);
@@ -910,6 +913,7 @@ static void init_autopick(void)
 #define PT_DEFAULT 0
 #define PT_WITH_PNAME 1
 #define PT_WITH_OTHERNAME 2
+#define PT_USERDEFAULT 3
 
 /*
  *  Get file name for autopick preference
@@ -922,6 +926,9 @@ static cptr pickpref_filename(int filename_mode, char *other_base)
     {
     case PT_DEFAULT:
         return format("%s.prf", namebase);
+
+    case PT_USERDEFAULT:
+        return format("%s-UserDefault.prf", namebase);
 
     case PT_WITH_PNAME:
         return format("%s-%s.prf", namebase, player_base);
@@ -938,14 +945,19 @@ static cptr pickpref_filename(int filename_mode, char *other_base)
     }
 }
 
+static bool write_text_lines(cptr filename, cptr *lines_list);
+static cptr *read_text_lines(cptr filename);
+static void free_text_lines(cptr *lines_list);
 
 /*
  * Load an autopick preference file
  */
-void autopick_load_pref(bool disp_mes)
+void autopick_load_pref(byte mode)
 {
     char buf[80];
     errr err;
+    bool disp_mes = (mode & ALP_DISP_MES) ? TRUE : FALSE;
+    bool new_game = (mode & ALP_NEW_GAME) ? TRUE : FALSE;
 
     /* Free old entries */
     init_autopick();
@@ -962,7 +974,9 @@ void autopick_load_pref(bool disp_mes)
         msg_format("Loaded '%s'.", buf);
     }
 
-    /* No file found */
+    /* NOTE: This does not look for either the regular pickpref.prf file
+     * in lib/pref, nor does it look for lib/user/pickpref-UserDefault.prf.
+     * It looks for a copy of pickpref.prf in lib/user */
     if (0 > err)
     {
         /* Use default name */
@@ -978,10 +992,92 @@ void autopick_load_pref(bool disp_mes)
         }
     }
 
+    /* Load old preferences after ordinal bump */
+    if ((err) && (mode & ALP_CHECK_NUMERALS) && (name_is_numbered(player_name)))
+    {
+        char old_py_name[32];
+        cptr *lines_list = NULL;
+        strcpy(old_py_name, player_name);
+        temporary_name_hack = TRUE;
+
+        while (err != 0)
+        {
+            bump_numeral(player_name, -1);
+            process_player_name(FALSE);
+
+            /* Try a filename with old player name */
+            my_strcpy(buf, pickpref_filename(PT_WITH_PNAME, NULL), sizeof(buf));
+
+            /* Load the file */
+            err = process_autopick_file(buf);
+            if (err == 0 && disp_mes)
+            {
+                /* Success */
+                msg_format("Loaded '%s'.", buf);
+            }
+            if (err == 0)
+            {
+                lines_list = read_text_lines(buf);
+                if (!lines_list) err = 1;
+            }
+            if (!name_is_numbered(player_name)) break;
+        }
+        strcpy(player_name, old_py_name);
+        process_player_name(FALSE);
+        temporary_name_hack = FALSE;
+        if ((!err) && (lines_list))
+        {
+            my_strcpy(buf, pickpref_filename(PT_WITH_PNAME, NULL), sizeof(buf));
+            (void)write_text_lines(buf, lines_list);
+        }
+        if (lines_list)
+        {
+            free_text_lines(lines_list);
+        }
+    }
+
+    if ((err) && (new_game)) /* Check for class-specific preferences */
+    {
+        char _fake_name[32];
+        cptr *lines_list = NULL;
+
+        strcpy(_fake_name, get_class()->name);
+        if (streq("Monster", _fake_name)) strcpy(_fake_name, get_true_race()->name);
+
+        /* Try a filename with class name */
+        my_strcpy(buf, pickpref_filename(PT_WITH_OTHERNAME, _fake_name), sizeof(buf));
+
+        /* Load the file */
+        err = process_autopick_file(buf);
+        if (err == 0 && disp_mes)
+        {
+            /* Success */
+            msg_format("Loaded '%s'.", buf);
+        }
+        if (err == 0)
+        {
+            lines_list = read_text_lines(buf);
+            if (!lines_list) err = 1;
+        }
+        if ((!err) && (lines_list))
+        {
+            my_strcpy(buf, pickpref_filename(PT_WITH_PNAME, NULL), sizeof(buf));
+            (void)write_text_lines(buf, lines_list);
+        }
+        if (lines_list)
+        {
+            free_text_lines(lines_list);
+        }
+    }
+
     if (err && disp_mes)
     {
         /* Failed */
         msg_print("Failed to reload autopick preference.");
+    }
+    else if ((!err) && (new_game))
+    {
+        _inscribe_pack();
     }
 }
 
@@ -1445,7 +1541,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         return FALSE;
 
     /*** Icky items ***/
-    if (IS_FLG(FLG_ICKY) && !_object_is_icky(o_ptr))
+    if (IS_FLG(FLG_ICKY) && !object_is_icky(o_ptr, FALSE))
         return FALSE;
 
     /*** Artifact object ***/
@@ -1504,6 +1600,10 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
             {
                 is_special = TRUE;
             }
+        }
+        if (p_ptr->prace == RACE_IGOR)
+        {
+            if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval >= SV_CORPSE)) is_special = TRUE;
         }
         if (p_ptr->pclass == CLASS_ARCHER)
         {
@@ -1962,6 +2062,26 @@ int is_autopick(object_type *o_ptr)
     {
         autopick_type *entry = &autopick_list[i];
 
+        /* Hack - ignore the entry "items" if obj_list_autopick_hack is on */
+        if ((obj_list_autopick_hack) && (entry)  && (entry->action == (DO_AUTOPICK | DO_DISPLAY)) &&
+            ((!entry->name) || (!entry->name[0])) &&
+            (!entry->insc) && (!entry->level) && (!entry->dice) && (!entry->weight) &&
+            (!entry->charges) && (!entry->value) && (!entry->bonus))
+        {
+            u32b cmp_liput[AUTOPICK_FLAG_SIZE] = {0};
+            int ii;
+            bool notsame = FALSE;
+            cmp_liput[FLG_ITEMS / 32] |= (1L << (FLG_ITEMS % 32));
+            for (ii = 0; ii < AUTOPICK_FLAG_SIZE; ii++)
+            {
+                if (cmp_liput[ii] != entry->flag[ii])
+                {
+                    notsame = TRUE;
+                    break;
+                }
+            }
+            if (!notsame) continue;
+        }
         if (is_autopick_aux(o_ptr, entry, o_name))
             return i;
     }
@@ -1989,6 +2109,17 @@ static void auto_inscribe_item(object_type *o_ptr, int idx)
     p_ptr->update |= (PU_BONUS);
 }
 
+static void _inscribe_pack_aux(object_type *o_ptr)
+{
+    int idx = is_autopick(o_ptr);
+    if (idx >= 0) auto_inscribe_item(o_ptr, idx);
+}
+
+static void _inscribe_pack(void)
+{
+    pack_for_each(_inscribe_pack_aux);
+    _inscribe_pack_hack = FALSE;
+}
 
 /*
  * Automatically destroy items in this grid.
@@ -2040,6 +2171,10 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
                 return FALSE;
         }
         if (p_ptr->prace == RACE_MON_POSSESSOR && o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE)
+        {
+            return FALSE;
+        }
+        if ((p_ptr->prace == RACE_IGOR) && (o_ptr->tval == TV_CORPSE) && (o_ptr->sval != SV_SKELETON))
         {
             return FALSE;
         }
@@ -2110,12 +2245,12 @@ static void auto_destroy_obj(object_type *o_ptr, int autopick_idx)
     if (is_opt_confirm_destroy(o_ptr)) destroy = TRUE;
 
     /* Protected by auto-picker (2nd priotity) */
-    if (autopick_idx >= 0 &&
-        !(autopick_list[autopick_idx].action & DO_AUTODESTROY))
+    if ((!no_mogaminator) && (autopick_idx >= 0) &&
+        (!(autopick_list[autopick_idx].action & DO_AUTODESTROY)))
         destroy = FALSE;
 
     /* Auto-destroyer works only when !always_pickup */
-    if (!always_pickup)
+    if ((!always_pickup) && (!no_mogaminator) && (!leave_mogaminator))
     {
         /* Auto-picker/destroyer (1st priority) */
         if (autopick_idx >= 0 &&
@@ -2126,7 +2261,7 @@ static void auto_destroy_obj(object_type *o_ptr, int autopick_idx)
     /* Not to be destroyed */
     if (!destroy)
     {
-        if (destroy_debug && autopick_idx >= 0 && (autopick_list[autopick_idx].action & DONT_AUTOPICK))
+        if (destroy_debug && !no_mogaminator && autopick_idx >= 0 && (autopick_list[autopick_idx].action & DONT_AUTOPICK))
             msg_autopick(autopick_idx, "Leave");
         return;
     }
@@ -2155,8 +2290,11 @@ static void auto_destroy_obj(object_type *o_ptr, int autopick_idx)
         int idx = is_autopick(o_ptr);
         msg_autopick(idx, "Destroy");
     }
-    object_desc(name, o_ptr, OD_COLOR_CODED);
-    msg_format("Auto-destroying %s.", name);
+    if (o_ptr->k_idx)
+    {
+        object_desc(name, o_ptr, OD_COLOR_CODED);
+        msg_format("Auto-destroying %s.", name);
+    }
     /* Note: It turns out to be convenient to delay destruction after
      * all. But rather than waiting until notice_stuff(), we need
      * only wait until obj_release(). Otherwise, clients need to think
@@ -2297,8 +2435,17 @@ static void _get_obj(obj_ptr obj)
         equip_learn_flag(OF_LORE1);
     }
 
-    if (no_mogaminator) return;
     if ((!obj) || (!obj->k_idx)) return;
+
+    if (no_mogaminator)
+    {
+        if ((destroy_items) && (obj->loc.where != INV_EQUIP))
+        {
+            auto_destroy_obj(obj, -1);
+            obj_release(obj, OBJ_RELEASE_QUIET);
+        }
+        return;
+    }
 
     idx = is_autopick(obj);
 
@@ -2368,9 +2515,34 @@ static void _get_obj(obj_ptr obj)
     obj_release(obj, OBJ_RELEASE_QUIET);
 }
 
-void autopick_get_floor(void)
+static bool _obj_allows_unid_pickup(obj_ptr obj)
 {
-    inv_ptr floor = inv_filter_floor(point(px, py), NULL);
+    int j;
+    if ((!obj) || (!obj->k_idx)) return FALSE;
+    if (obj->tval == TV_GOLD) return TRUE;
+    if ((obj->tval == TV_POTION) && /* Mega-hack - disturb for healing potions */
+       ((obj->sval == SV_POTION_HEALING) ||
+        (obj->sval == SV_POTION_STAR_HEALING) ||
+        (obj->sval == SV_POTION_LIFE))) return TRUE;
+    /* Check if we are carrying an identical item */
+    for (j = 1; j <= pack_max(); j++)
+    {
+        obj_ptr o_ptr = pack_obj(j);
+        if (o_ptr && obj_can_combine(o_ptr, obj, 0))
+            return TRUE;
+    }
+    if (obj->marked & OM_FOUND) return FALSE;
+    if (obj_is_known(obj)) return FALSE;
+    if ((obj->ident & IDENT_SENSE) && (!obj_is_device(obj)) &&
+        (obj->feeling != FEEL_EXCELLENT) && (obj->feeling != FEEL_SPECIAL) &&
+        (obj->feeling != FEEL_TERRIBLE) && (obj->feeling != FEEL_ENCHANTED) &&
+        (obj->feeling != FEEL_AWFUL)) return FALSE;
+    return TRUE;
+}
+
+void autopick_get_floor(bool allow_identified)
+{
+    inv_ptr floor = inv_filter_floor(point(px, py), allow_identified ? NULL : _obj_allows_unid_pickup);
     inv_for_each(floor, _get_obj);
     inv_free(floor);
 }
@@ -2394,6 +2566,12 @@ static bool clear_auto_register(void)
 
     path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_WITH_PNAME, NULL));
     pref_fff = my_fopen(pref_file, "r");
+
+    if (!pref_fff)
+    {
+        path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_USERDEFAULT, NULL));
+        pref_fff = my_fopen(pref_file, "r");
+    }
 
     if (!pref_fff)
     {
@@ -2492,6 +2670,7 @@ static bool clear_auto_register(void)
     return okay;
 }
 
+static void prepare_default_pickpref(bool silent);
 
 /*
  *  Automatically register an auto-destroy preference line
@@ -2560,13 +2739,20 @@ bool autopick_autoregister(object_type *o_ptr)
 
     if (!pref_fff)
     {
-        /* Use default name */
-        path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_DEFAULT, NULL));
+        prepare_default_pickpref(TRUE);
         pref_fff = my_fopen(pref_file, "r");
         if (!pref_fff)
         {
-            msg_print("Initialize the auto-pick preferences first (Type '_').");
+            msg_print("Initialize Mogaminator preferences first (press '_').");
             return FALSE;
+        }
+        else
+        {
+            char buf[80];
+            my_strcpy(buf, pickpref_filename(PT_WITH_PNAME, NULL), sizeof(buf));
+            msg_print("Mogaminator preferences initialized. Turn on the <color:o>no_mogaminator</color> option if you wish to deactivate the Mogaminator.");
+            process_autopick_file(buf);
+            _inscribe_pack();
         }
     }
 
@@ -2759,7 +2945,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
     {
         before_str[before_n++] = "very rare";
         body_str = "equipments";
-        after_str[after_n++] = "such like Dragon armors, Blades of Chaos, etc.";
+        after_str[after_n++] = "like Dragon armors, Blades of Chaos, etc.";
     }
 
     /*** Common equipments ***/
@@ -2805,7 +2991,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
     if (IS_FLG(FLG_CURSED))
     {
         body_str = "equipment";
-        which_str[which_n++] = "is cursed";
+        which_str[which_n++] = "are cursed";
     }
 
     if (IS_FLG(FLG_SPECIAL))
@@ -2824,7 +3010,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
     if (IS_FLG(FLG_NAMELESS))
     {
         body_str = "equipment";
-        which_str[which_n++] = "is neither ego-item nor artifact";
+        which_str[which_n++] = "are neither ego-item nor artifact";
     }
 
     /*** Average ***/
@@ -2867,7 +3053,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
     if (IS_FLG(FLG_MORE_LEVEL))
     {
         static char more_level_desc_str[50];
-        sprintf(more_level_desc_str, "level is bigger than %d", entry->level);
+        sprintf(more_level_desc_str, "level is higher than %d", entry->level);
         whose_str[whose_n++] = more_level_desc_str;
     }
     if (IS_FLG(FLG_MORE_WEIGHT))
@@ -2893,7 +3079,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
     if (IS_FLG(FLG_WANTED))
     {
         body_str = "corpse or skeletons";
-        which_str[which_n++] = "is wanted at the Hunter's Office";
+        which_str[which_n++] = "are wanted at the Hunter's Office";
     }
 
     /*** Human corpse/skeletons (for Daemon magic) ***/
@@ -3021,7 +3207,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
         {
             str++;
             top = TRUE;
-            whose_str[whose_n++] = "name is beginning with \"";
+            whose_str[whose_n++] = "name begins with \"";
         }
         else
             which_str[which_n++] = "have \"";
@@ -3036,7 +3222,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
     else if (act & DO_QUERY_AUTOPICK)
         strcpy(buff, "Ask to pick up ");
     else
-        strcpy(buff, "Pickup ");
+        strcpy(buff, "Pick up ");
 
     if (act & DO_AUTO_ID)
         strcat(buff, "and automatically identify ");
@@ -3093,7 +3279,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
 
     /* whose ..., and which .... */
     if (whose_n && which_n)
-        strcat(buff, ", and ");
+        strcat(buff, ", and");
 
     /* which ... */
     for (i = 0; i < which_n && which_str[i]; i++)
@@ -3110,22 +3296,17 @@ static void describe_autopick(char *buff, autopick_type *entry)
     if (*str && !top)
     {
         strncat(buff, str, 80);
-        strcat(buff, "\" as part of its name");
+        strcat(buff, "\" as part of their name");
     }
     strcat(buff, ".");
 
     /* Describe whether it will be displayed on the full map or not */
-    if (act & DO_DISPLAY)
+    if (act & (DO_AUTOPICK | DO_QUERY_AUTOPICK))
     {
-        if (act & DONT_AUTOPICK)
-            strcat(buff, "  Display these items when you press the N key in the full 'M'ap.");
-        else if (act & DO_AUTODESTROY)
-            strcat(buff, "  Display these items when you press the K key in the full 'M'ap.");
-        else
-            strcat(buff, "  Display these items when you press the M key in the full 'M'ap.");
+        strcat(buff, " Display these items as wanted in object list.");
     }
     else
-        strcat(buff, " Not displayed in the full map.");
+        strcat(buff, " Do not display as wanted.");
 
 }
 
@@ -3171,29 +3352,32 @@ static cptr *read_text_lines(cptr filename)
 /*
  * Copy the default autopick file to the user directory
  */
-static void prepare_default_pickpref(void)
+static void prepare_default_pickpref(bool silent)
 {
     static char *messages[] = {
-        "You have activated the Auto-Picker Editor for the first time.",
-        "Since user pref file for autopick is not yet created,",
-        "the default setting is loaded from lib/pref/pickpref.prf .",
+        "You have activated the Mogaminator for the first time.",
+        "Since user preferences have not yet been created,",
+        "the default settings are loaded from lib/pref/pickpref.prf.",
+        NULL
+    };
+
+    static char *usermessages[] = {
+        "Mogaminator user preferences loaded from lib/user/UserDefault.prf.",
         NULL
     };
 
     char buf[1024];
     char buf_src[255];
+    char buf_usersrc[255];
     char buf_dest[255];
+    bool use_user_defaults = TRUE;
     FILE *pref_fp;
     FILE *user_fp;
     int i;
 
+    sprintf(buf_usersrc, "%s", pickpref_filename(PT_USERDEFAULT, NULL));
     sprintf(buf_src, "%s", pickpref_filename(PT_DEFAULT, NULL));
     sprintf(buf_dest, "%s", pickpref_filename(PT_WITH_PNAME, NULL));
-
-    /* Display messages */
-    for (i = 0; messages[i]; i++) msg_print(messages[i]);
-    msg_print(NULL);
-
 
     /* Open new file */
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, buf_dest);
@@ -3202,18 +3386,24 @@ static void prepare_default_pickpref(void)
     /* Failed */
     if (!user_fp) return;
 
-    /* Write header messages for a notification */
-    fprintf(user_fp, "#***\n");
-    for (i = 0; messages[i]; i++)
-    {
-        fprintf(user_fp, "#***  %s\n", messages[i]);
-    }
-    fprintf(user_fp, "#***\n\n\n");
-
-
-    /* Open the default file */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, buf_src);
+    /* Open the user-default file */
+    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, buf_usersrc);
     pref_fp = my_fopen(buf, "r");
+
+    if (!pref_fp)
+    {
+        /* Open the default file */
+        path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, buf_src);
+        pref_fp = my_fopen(buf, "r");
+        use_user_defaults = FALSE;
+    }
+
+    /* Display messages */
+    if (!silent)
+    {
+        for (i = 0; use_user_defaults ? usermessages[i] : messages[i]; i++) msg_print(use_user_defaults ? usermessages[i] : messages[i]);
+        msg_print(NULL);
+    }
 
     /* Failed */
     if (!pref_fp)
@@ -3222,12 +3412,21 @@ static void prepare_default_pickpref(void)
         return;
     }
 
+    /* Write header messages for a notification */
+    fprintf(user_fp, "#***\n");
+    for (i = 0; use_user_defaults ? usermessages[i] : messages[i]; i++)
+    {
+        fprintf(user_fp, "#***  %s\n", use_user_defaults ? usermessages[i] : messages[i]);
+    }
+    fprintf(user_fp, "#***\n\n\n");
+
     /* Copy the contents of default file */
     while (!my_fgets(pref_fp, buf, sizeof(buf)))
         fprintf(user_fp, "%s\n", buf);
 
     my_fclose(user_fp);
     my_fclose(pref_fp);
+    _inscribe_pack_hack = TRUE;
 }
 
 /*
@@ -3254,6 +3453,21 @@ static cptr *read_pickpref_text_lines(int *filename_mode_p, char *other_base)
     if (!lines_list)
     {
         /* Use default name */
+        *filename_mode_p = PT_USERDEFAULT;
+        strcpy(buf, pickpref_filename(*filename_mode_p, NULL));
+        lines_list = read_text_lines(buf);
+
+        if (lines_list)
+        {
+            *filename_mode_p = PT_WITH_PNAME;
+            prepare_default_pickpref(FALSE);
+            return lines_list;
+        }
+    }
+
+    if (!lines_list)
+    {
+        /* Use default name */
         *filename_mode_p = PT_DEFAULT;
         strcpy(buf, pickpref_filename(*filename_mode_p, NULL));
         lines_list = read_text_lines(buf);
@@ -3261,7 +3475,7 @@ static cptr *read_pickpref_text_lines(int *filename_mode_p, char *other_base)
         if (lines_list)
         {
             *filename_mode_p = PT_WITH_PNAME;
-            prepare_default_pickpref();
+            prepare_default_pickpref(FALSE);
             return lines_list;
         }
     }
@@ -3273,7 +3487,7 @@ static cptr *read_pickpref_text_lines(int *filename_mode_p, char *other_base)
         strcpy(buf, pickpref_filename(*filename_mode_p, NULL));
 
         /* Copy the default autopick file to the user directory */
-        prepare_default_pickpref();
+        prepare_default_pickpref(FALSE);
 
         /* Use default name again */
         lines_list = read_text_lines(buf);
@@ -4156,6 +4370,7 @@ enum {
     EC_SAVEQUIT,
     EC_REVERT,
     EC_LOAD,
+    EC_SAVE,
     EC_HELP,
     EC_RETURN,
     EC_LEFT,
@@ -4260,6 +4475,7 @@ static char MN_QUIT[] = "Quit without save";
 static char MN_SAVEQUIT[] = "Save & Quit";
 static char MN_REVERT[] = "Revert all changes";
 static char MN_LOAD[] = "Load preferences";
+static char MN_SAVE[] = "Save as";
 static char MN_HELP[] = "Help";
 
 static char MN_MOVE[] =   "Move cursor";
@@ -4298,13 +4514,13 @@ static char MN_INSERT_BLOCK[] = "Insert conditional block";
 static char MN_INSERT_MACRO[] = "Insert a macro definition";
 static char MN_INSERT_KEYMAP[] = "Insert a keymap definition";
 
-static char MN_COMMAND_LETTER[] = "Command letter";
-static char MN_CL_AUTOPICK[] = "' ' (Auto pick)";
-static char MN_CL_DESTROY[] = "'!' (Auto destroy)";
-static char MN_CL_LEAVE[] = "'~' (Leave it on the floor)";
+static char MN_COMMAND_LETTER[] = "Action letter";
+static char MN_CL_AUTOPICK[] = "' ' (Pick up)";
+static char MN_CL_DESTROY[] = "'!' (Destroy)";
+static char MN_CL_LEAVE[] = "'~' (Leave on the floor)";
 static char MN_CL_QUERY[] = "';' (Query to pick up)";
-static char MN_CL_NO_DISP[] = "'(' (No display on the large map)";
-static char MN_CL_AUTO_ID[] = "'?' (Auto identify)";
+static char MN_CL_NO_DISP[] = "'(' (Hide on M map)";
+static char MN_CL_AUTO_ID[] = "'?' (Identify)";
 
 static char MN_ADJECTIVE_GEN[] = "Adjective (general)";
 static char MN_RARE[] = "rare (equipments)";
@@ -4349,6 +4565,7 @@ command_menu_type menu_data[] =
     {MN_SAVEQUIT, 0, KTRL('w'), EC_SAVEQUIT},
     {MN_REVERT, 0, KTRL('z'), EC_REVERT},
     {MN_LOAD, 0, KTRL('j'), EC_LOAD},
+    {MN_SAVE, 0, KTRL('r'), EC_SAVE},
 
     {MN_EDIT, 0, -1, -1},
     {MN_CUT, 1, KTRL('x'), EC_CUT},
@@ -4363,7 +4580,7 @@ command_menu_type menu_data[] =
     {MN_SEARCH, 0, -1, -1},
     {MN_SEARCH_STR, 1, KTRL('s'), EC_SEARCH_STR},
     {MN_SEARCH_FORW, 1, -1, EC_SEARCH_FORW},
-    {MN_SEARCH_BACK, 1, KTRL('r'), EC_SEARCH_BACK},
+    {MN_SEARCH_BACK, 1, -1, EC_SEARCH_BACK},
     {MN_SEARCH_OBJ, 1, KTRL('y'), EC_SEARCH_OBJ},
     {MN_SEARCH_DESTROYED, 1, -1, EC_SEARCH_DESTROYED},
 
@@ -5057,7 +5274,7 @@ static void draw_text_editor(text_body_type *tb)
             default:
                 if (tb->states[tb->cy] & LSTAT_AUTOREGISTER)
                 {
-                    str2 = "This line will be delete later.";
+                    str2 = "This line will be deleted later.";
                 }
 
                 else if (tb->states[tb->cy] & LSTAT_BYPASS)
@@ -5079,7 +5296,7 @@ static void draw_text_editor(text_body_type *tb)
 
             if (tb->states[tb->cy] & LSTAT_AUTOREGISTER)
             {
-                strcat(buf, "  This line will be delete later.");
+                strcat(buf, "  This line will be deleted later.");
             }
 
             if (tb->states[tb->cy] & LSTAT_BYPASS)
@@ -5368,6 +5585,30 @@ static bool do_editor_command(text_body_type *tb, int com_id)
             tb->filename_mode = PT_WITH_PNAME;
             break;
         }
+    case EC_SAVE:
+        {
+            char buf[80], temp[80];
+            int pituus;
+            if (!(tb->lines_list)) break;
+            strcpy(temp, get_class()->name);
+            if (streq("Monster", temp)) strcpy(temp, get_true_race()->name);
+            if (!get_string("Save as: ", temp, 78)) break;
+            pituus = strlen(temp);
+
+            /* Identify format
+             * Acceptable formats include [charname], [charname.prf],
+             * [pickpref-charname] and [pickpref-charname.prf] */
+            if (pituus > 9)
+            {
+                if (clip_and_locate("pickpref-", temp)) pituus -= 9;
+            }
+            if (pituus > 4 && strcmp(temp + pituus - 4, ".prf") == 0) temp[pituus - 4] = '\0';
+            if (streq(temp, "pickpref")) strcpy(temp, "UserDefault"); /* paranoia - avoid overwriting actual default pickprefs */
+            my_strcpy(buf, pickpref_filename(PT_WITH_OTHERNAME, temp), sizeof(buf));
+            (void)write_text_lines(buf, tb->lines_list);
+            break;
+        }
+
 
     case EC_HELP:
         /* Peruse the main help file */
@@ -6440,6 +6681,8 @@ void do_cmd_edit_autopick(void)
         tb->old_wid = tb->wid;
         tb->old_hgt = tb->hgt;
 
+        if (numpad_as_cursorkey) autopick_inkey_hack = 1;
+
         /* Get a command */
         key = inkey_special(TRUE);
 
@@ -6507,6 +6750,8 @@ void do_cmd_edit_autopick(void)
 
     /* Reload autopick pref */
     process_autopick_file(buf);
+
+    if (_inscribe_pack_hack) _inscribe_pack();
 
     /* HACK -- reset start_time so that playtime is not increase while edit */
     start_time = time(NULL);

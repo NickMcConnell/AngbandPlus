@@ -1,17 +1,17 @@
-Oposband FAQ
+FrogComposband FAQ
 
 Q: I'd like to move one square at a time, but every time I press a key 
 my character moves halfway across the screen. Help!
 
 A: You are somehow triggering the Run command instead of the Walk 
-command. In addition to normal running (with the '.' command), Oposband 
-uses preference files to support shiftrunning (running by using the 
-Shift key), which is preferred by some players. This mechanic sometimes 
-leads to unwanted running, especially on the angband.live online server 
-which has some very odd default settings. If you are playing there, see 
-if toggling Num Lock helps you stop running, turn on the online_macros 
-option in the Input Options menu (the '=' key), or else request help in 
-the server chat.
+command. In addition to normal running (with the '.' command), 
+FrogComposband uses preference files to support shiftrunning (running 
+by using the Shift key), which is preferred by some players. This 
+mechanic sometimes leads to unwanted running, especially on the 
+angband.live online server which has some very odd default settings. If 
+you are playing there, see if toggling Num Lock helps you stop running, 
+turn on the online_macros option in the Input Options menu (the '=' 
+key), or else request help in the server chat.
 
 
 Q: All right, I have a character up and walking. What should I do?
@@ -56,17 +56,24 @@ mode.
 Q: What is "coffee-break mode"? How does it differ from normal play?
 
 A: Coffee-break mode is a quicker, simpler and more streamlined version 
-of the game. There is no wilderness, only one town (the "Light Town" 
+of the game. There is no wilderness, only one town (the "Lite-Town" 
 version of Outpost) and only one dungeon (Angband). Experience gain 
 (and many forms of proficiency gain) are greatly accelerated, monster 
 drops are improved, and the player receives bonus fame for reforging 
 purposes. All stairs in the dungeon are two-level shafts, and forced 
 descent is turned on. Small levels generate more often in the early 
 part of the game, but become rarer (and less small) towards the 
-endgame. Unlike normal forced-descent play, the player is allowed to 
+endgame. Unlike other forced-descent play, the player is allowed to 
 recall back to town, as well as to skip random dungeon quests by 
 recalling (although recalling out of a quest incurs a large fame 
 penalty).
+
+Coffee-break mode is a birth option; it is automatically turned on for 
+players who select the 'Beginner' option at character creation, but can 
+also be selected the normal way by non-beginners. Coffee-break mode is 
+not an easy-mode; it is activated for beginners because it is simpler 
+and allows faster progress, not because it is easy.
+
 
 Q: I can't find any up staircases, only down staircases! Is there any 
 way I can get back to town?
@@ -84,6 +91,25 @@ you've left it.
 
 In normal play every down staircase is matched by an up staircase, so 
 you can simply walk back, though recalling is still usually faster.
+
+
+Q: How do I search for things in the help system (or on my character 
+sheet, or in my Recent Messages)?
+
+A: First, locate the right document. Then press '/' if you want to 
+search forward in the document, and '\' if you want to search backward; 
+after this, type the search term and press ENTER. Note that searches 
+are case-sensitive. To search for the next occurrence of the same term, 
+simply press '/' (or '\') again and then ENTER; the search term does 
+not need to be typed in again.
+
+A successful search moves you to the part of the document where the 
+search term appears, and highlights the term in yellow. If this does 
+not happen, the term you searched for does not appear in the document, 
+at least not in that direction. (If your search term was very long, you 
+can try a shorter search term and see if it makes any difference.)
+
+Press '?' for other commands that can be used within the help system.
 
 
 Q: I keep dying! What am I doing wrong?
@@ -159,6 +185,15 @@ strong options and are good "default" picks if you don't feel
 comfortable selecting something more exotic.
 
 
+Q: My nice sword is described as (2d6) (+10,+15) [+5] (+4) - what are 
+all those weird numbers?
+
+A: In this particular example, 2d6 are your damage dice (you roll two 
+6-sided dice), +10 is a bonus to accuracy, +15 is a bonus to damage, 
+[+5] is a bonus to armor class and (+4) indicates the size of various 
+other bonuses. See [a] and [b] for more generic answers.
+
+
 Q: I have found lots of cool items, but the monsters I meet keep 
 destroying them! Am I doing something wrong?
 
@@ -183,12 +218,12 @@ cannot be harmed by acid.
 
 Q: I got bored in Outpost so I headed into the wilderness... and I'm 
 still there searching endlessly down one road after another looking for 
-a town.  Where are other towns and dungeons?
+a town. Where are other towns and dungeons?
 
 A: You need to use the global wilderness map (press the < key on the 
-ground level).  This gives you a scaled map of the world (often called 
+ground level). This gives you a scaled map of the world (often called 
 the "overworld map"), where you can travel to other towns and dungeons 
-more easily.  It is possible to reach any location in the game without 
+more easily. It is possible to reach any location in the game without 
 using the overworld map (most roads do lead somewhere); but such an 
 approach will take you much longer and also entail more risk, since 
 monsters won't attack you as often if you travel through the overworld 
@@ -239,51 +274,85 @@ haven't moved out of the right area, and then try again.
 
 
 Q: I want to play as an Android, Balrog, Golem, Skeleton, Zombie, 
-Spectre, or Ent.  But I can't find any scrolls of satisfy hunger. And 
-Berserkers no longer have racial ability of satisfy hunger. How do I 
-avoid starvation?
+Spectre, or Ent. But normal food doesn't seem to work for me, and there 
+are no reliable sources of Satisfy Hunger. How do I avoid starvation?
 
-A: Scrolls of Satisfy Hunger and the Berserker ability of Satisfy 
-Hunger are obsoleted, and races which previously relied on Satisfy 
-Hunger have new sources of nutrition now. Androids can quaff oil.  
-Balrogs can sacrifice human corpses using the 'E'at command.  Golems, 
-Skeletons, Zombies, and Spectres can absorb mana from staves and wands 
-using the 'E'at command.  Ents can gain enough nutrition from potions.
+A: These races have special sources of nutrition. Androids can quaff 
+oil; Balrogs can eat human corpses; Golems, Skeletons, Zombies, and 
+Spectres can absorb mana from staves and wands using the 'E'at command; 
+Ents can gain enough nutrition from potions. (Note that many of these 
+races do also get some sustenance from normal food, just not very 
+much.)
 
 
-Q: I'm playing as a berserker, and cannot read scrolls.  How do I 
-remove a curse?
+Q: I'm playing as a berserker, and cannot read scrolls. How do I remove 
+a curse?
 
-A: You can simply 't'ake off the cursed equipment.  Since cursed items 
+A: You can simply 't'ake off the cursed equipment. Since cursed items 
 will attempt to stick, you may need to try the 't'ake off command more 
 than once.
 
 
-Q: I know Berserkers cannot use scrolls, and rods.  How do I recall 
-from dungeon?  Maybe I need to travel completely on foot!?
+Q: Berserkers cannot use scrolls or rods. How do I get out of the 
+dungeon on a Berserker?
 
-A: Berserkers gain the class power 'Recall' at level 10.  Press 'U' 
+A: Berserkers gain the class power 'Recall' at level 10. Press 'U' 
 (original keyset) or 'O' (Roguelike keyset) to use class powers.
+
+
+Q: What are the main advantages and disadvantages of the various types 
+of magical item (potions, scrolls, rods, wands and staves) compared to 
+each other?
+
+A: Scrolls are relatively plentiful, bypass fear checks, and cannot be 
+drained by charge-drainers like rods, wands and staves; but they're 
+vulnerable to destruction from fire and acid, are consumed on use, 
+cannot be used while blind or confused, and have a slightly higher 
+minimum fail rate. An individual scroll doesn't weigh much, but a large 
+pile of scrolls will be heavier than a single rod or staff with the 
+same purpose would.
+
+Rods have few charges, and many of the best rods have high fail rates, 
+but they are indestructible and recharge faster than wands and staves 
+do. Rods are also somewhat less susceptible to charge-draining than 
+staves and wands.
+
+Staves and wands are fairly similar to each other in principle - both 
+have more charges than rods, but don't recharge as fast. Direct 
+comparison between a staff and a wand is seldom necessary, as they have 
+different effects with different purposes. (As a general rule, wands 
+have effects aimed at a particular target, staves have effects that do 
+not need to be aimed, and rods may have either type of effect.) Wands 
+can be destroyed by electricity and chaos, while staves can be 
+destroyed by acid, fire, toxic waste or chaos. Staves are the device 
+most likely to be used while confused or blind, although rods and wands 
+can also be used this way if needed.
+
+Potions are the only magical item that can always be used with no 
+possibility of failing, making them highly valuable in emergencies. But 
+a potion is easily destroyed as three separate resists - cold, sound 
+and shards - must be covered to keep it safe from all elements; and 
+your supply of really good potions, once lost, is not easy to 
+replenish.
 
 
 Q: Why do Ninjas start the game with Iron Spikes?
 
 A: Ninjas (and Ninja-Lawyers) can use Iron Spikes as shuriken; use the 
-'v' command to throw a spike. (Other classes can also use spikes as 
-throwing weapons, but will only do marginal damage; they are much more 
-useful for a ninja.)
+'v' command to throw a spike. (Other classes can technically also use 
+spikes as throwing weapons, but will only do marginal damage.)
 
 
 Q: I'm at normal speed (+0). But normal speed monsters sometimes 
 double-move me!
 
-A: In Oposband, the amount of energy needed for a move is somewhat 
-randomized (though less so than in its predecessor PosChengband). This 
-method of speed system is an important feature of Oposband and 
-simulates real fighting. Usually a monster with the same speed as you 
-will only get one move in, but always prepare for the possibility that 
-they might get two moves! Don't fight when your HP is low unless you 
-have a death wish.
+A: In FrogComposband, the amount of energy needed for a move is 
+somewhat randomized (though less so than in its predecessor 
+PosChengband). This method of speed system is an important feature of 
+FrogComposband and simulates real fighting. Usually a monster with the 
+same speed as you will only get one move in, but always prepare for the 
+possibility that they might get two moves! Don't fight when your HP is 
+low unless you have a death wish.
 
 Also, monsters don't always move at their listed speed; watch out in 
 particular for hasted monsters, who receive a temporary +10 speed 
@@ -330,7 +399,7 @@ you wield a single weapon with both hands, both rings will apply to
 it.)
 
 
-Q: How does Free Action work in Oposband?
+Q: How does Free Action work in FrogComposband?
 
 A: Free Action provides protection from paralysis, a potentially lethal 
 condition. One level of Free Action provides partial protection and 
@@ -349,7 +418,7 @@ levels of Free Action.
 In many other Angband variants one source of Free Action is enough to 
 give complete paralysis immunity; if you've played such variants, be 
 careful not to rely too much on a single Free Action source in 
-Oposband.
+FrogComposband.
 
 
 Q: Is there any way to gain paralysis immunity even against the Ancient 
@@ -362,7 +431,7 @@ throw up to this level, but can be inconvenient for characters that
 rely heavily on magic.
 
 
-Q: How does See Invisible work in Oposband?
+Q: How does See Invisible work in FrogComposband?
 
 A: Every level of See Invisible improves your chances of noticing an 
 invisible creature. How good those chances become depends on the level 
@@ -374,20 +443,30 @@ invisible creatures, you may need either Telepathy or an item that
 improves your Searching skill.
 
 
+Q: Do I need to use the Mogaminator?
+
+A: There is no need to use the Mogaminator, although most players 
+eventually do. If it feels too complicated to begin with, start with 
+the easy auto-destroyer and move to the Mogaminator once you have the 
+rest of the game figured out. If you don't like the Mogaminator 
+destroying so many items, you can turn on the always_pickup input 
+option or the leave_mogaminator auto-destroyer option.
+
+
 Q: I tried to dual wield two weapons. But I couldn't hit anything!
 
 A: You need to practice your dual-wielding skill (proficiency level) 
-and your weapon skills.  Hitting high level monsters many times will 
-improve your skills.  Note that the information command '~' reveals 
-your proficiency levels.  Some classes are very bad at dual-wielding, 
-while others are much more adept at it or can become so with enough 
-training. If you try to dual-wield on a sniper and it doesn't work out, 
-don't let that discourage you from dual-wielding on a ninja.
+and your weapon skills. Hitting high level monsters many times will 
+improve your skills. Note that the information command '~' reveals your 
+proficiency levels. Some classes are very bad at dual-wielding, while 
+others are much more adept at it or can become so with enough training. 
+If you try to dual-wield on a sniper and it doesn't work out, don't let 
+that discourage you from dual-wielding on a ninja.
 
 Wearing gloves of Genji or gaining the Ambidexterity demigod talent 
 will give you bonuses to dual-wielding (though these bonuses will not 
-stack with each other). Sword-speciality Weaponmasters will also 
-receive a dual-wielding bonus once they reach level 45.
+stack with each other). Mariliths and Dagger-speciality Weaponmasters 
+also receive a dual-wielding bonus.
 
 Dual-wielding works best with relatively light weapons. Even fully 
 proficient dual-wielders will struggle to hit high-AC monsters with a 
@@ -423,10 +502,10 @@ bonus has no effect.
 Q: How do skills (proficiency levels) work?
 
 A: Weapon proficiency levels and dual wielding proficiency levels 
-increase your to-hit bonus.  Spell proficiency levels decrease fail 
-rate and mana consumption rate of spells.  Riding proficiency level 
-gives you more speed when you are riding on a high speed monster, and 
-decreases risk of falling from your mount.
+increase your to-hit bonus. Spell proficiency levels decrease fail rate 
+and mana consumption rate of spells. Riding proficiency level gives you 
+more speed when you are riding on a high speed monster, and decreases 
+risk of falling from your mount.
 
 
 Q: How do I increase my proficiency level?
@@ -488,7 +567,6 @@ including icky ones. However, the icky weapons will still be considered
 icky and incur the same icky-wield penalties.
 
 
-
 Q: Some weapons have slays (like Slay Orc) or brands (like Viper's 
 Fang). What do these mean?
 
@@ -527,11 +605,11 @@ A: Equip it and activate ('A') to a dying monster.
 
 
 Q: I cannot hold a weapon and a shield without losing control of my 
-horse.  My horse runs aimlessly!
+horse. My horse runs aimlessly!
 
 A: You cannot directly control your mount unless you use one hand to 
-control your mount.  But you can command your mount.  Just use 'p' 
-command, and give your mount a target.  The horse which was given a 
+control your mount. But you can command your mount. Just use 'p' 
+command, and give your mount a target. The horse which was given a 
 target will no longer run around aimlessly.
 
 
@@ -545,6 +623,13 @@ a good mutation, with the bad one staying in place...
 
 Potions of New Life also cure mutations among their other effects, and 
 potions of Polymorph both give and cure mutations at random.
+
+Having too many mutations gives a penalty to HP regeneration; the more 
+mutations you have, the worse the penalty. Beastmen are penalized less, 
+and can have a large number of mutations before triggering the penalty 
+at all. Permanent mutations (such as demigod powers or the White Aura 
+from the Lucky personality) do not count towards this penalty. Mana 
+regeneration is not affected by mutations.
 
 
 Q: How important is Telepathy?
@@ -578,6 +663,38 @@ is never really absolutely needed. Early on, it's particularly useful
 in the Camelot dungeon, which has many dangerous bolt casters.
 
 
+Q: What does Levitation do? How important is it?
+
+A: Levitation gives access to dark pits and mountainous wilderness, 
+prevents overburdened characters from drowning in deep water, reduces 
+damage from standing in (or over) deep lava or toxic waste, reduces 
+damage from gravity, helps against the side-effects of gravity and 
+storm winds, eliminates movement speed penalties in wooded areas, and 
+allows you to harmlessly fly over some types of floor traps. It is a 
+necessity for entering mountainous areas (and a practical necessity for 
+entering deep seas on an overburdened character); it is very handy, but 
+not strictly necessary, for navigating the Cloning Pits quest as well 
+as dungeons with dark pits or deep water. In other situations it is not 
+very important; items that give levitation but are otherwise not that 
+great can be left at home to be shuffled in when needed.
+
+
+Q: What is Warning? Is it something I need... and what do the strange 
+messages it's giving me mean?!
+
+A: Warning has two purposes. Firstly, it alerts you when you are about 
+to walk into an undetected trap, giving you the chance to avoid that 
+trap. Secondly, it alerts you when a new unique appears on the current 
+level, having either generated randomly or been summoned. This alert 
+takes the form "The warning-giving item glows pink!", where the color 
+provides you some rough information about how dangerous the unique is. 
+White and pink aren't much to worry about; but if the item glows red, 
+purple or (worst of all) black, it's best to pay attention.
+
+Warning is convenient, especially if you don't detect traps regularly, 
+but it is not at all something that any character needs.
+
+
 Q: Some elements don't just deal damage, but also cause status effects 
 like confusion or blindness. How much resistance do I need to be safe 
 from status effects?
@@ -597,8 +714,9 @@ Rockets or Toxic Waste that aren't listed on my character sheet?
 
 A: In most cases, you cannot resist the raw damage from such exotic 
 elements. (There are a few exceptions - Toxic Waste can be resisted 
-through poison resistance; Rockets have shard-based damage; and Bombs 
-are combined sound and shards and can be resisted accordingly.)
+through poison resistance; Rockets have shard-based damage; Levitation 
+effectively provides resistance to Gravity; and Bombs are combined 
+sound and shards and can be resisted accordingly.)
 
 However, many side-effects of exotic elements can be blocked or 
 mitigated by resisting appropriate normal elements. For example, Shard 
@@ -608,18 +726,41 @@ destruction from Water, and Cold resistance works against potion
 destruction from Ice.
 
 
+Q: My scrolls of Enchant Armor and Enchant Weapon keep failing! What's 
+wrong?
+
+A: Scrolls of Enchant Armor and Enchant Weapon can only enchant items 
+up to +15. (Unlike item-enchantment spells and the town service, this 
+limit is fixed and independent of your character level.) The closer you 
+get to +15, the less likely it is that the scroll will work; in 
+practice you can view +10 or +11 as a soft limit, due to how difficult 
+enchanting items beyond that is. Trying to enchant an artifact or a 
+pile of multiple items raises the failure probability even higher.
+
+
+Q: Staves of Destruction are supposed to be great, yet mine doesn't 
+seem to do anything when I use it! What's wrong?
+
+A: A number of items and spells do nothing when used on a town quest 
+level (any quest level not located inside a dungeon). In addition to 
+Destruction, this includes all Genocide, Mass Genocide and Annihilation 
+effects, as well as Teleport Level.
+
+Destruction also does not work in the wilderness or in the Witch Wood. 
+This is because outdoors there's no ceiling to bring down!
+
+
 Q: What do monsters' vampiric attacks do?
 
-A: They drain life from you, thereby healing the monster, increasing 
-its maximum HP and consuming your life points.
+A: They drain life from you, thereby healing the monster and consuming 
+your life points.
 
 
 Q: Are Unlife attacks the same as vampiric attacks?
 
 A: Unlife attacks are very similar to vampiric attacks, but instead of 
-healing the monster or increasing its maximum HP they make the monster 
-more powerful. A powerful monster has a higher AC, hits harder and 
-casts more dangerous spells, but its maximum HP is not increased.
+healing the monster they make the monster more powerful. A powerful 
+monster has a higher AC, hits harder and casts more dangerous spells.
 
 
 Q: What do the player's vampiric attacks do?
@@ -739,7 +880,7 @@ high rolls early on and lower rolls for the late levels, and your new
 life might be the opposite.
 
 The other possible explanation is that you rolled a lower CON stat cap 
-and your constitution went down as a result.
+and your constitution decreased as a result.
 
 
 Q: How do internal stat caps (for STR, INT, WIS etc.) work?
@@ -800,7 +941,8 @@ terms; this way, less power is lost to a slot downgrade. (For example,
 if you want a lamp, and you have artifact gloves with a 40K score and 
 artifact armor with a 70K score, use the gloves; the two items will 
 produce similar lamps, but the armor will produce a much better armor 
-or weapon since none of its power is lost to a slot downgrade.)
+or weapon since none of its power is lost to a slot downgrade. It is 
+also much cheaper to use the gloves.)
 
 If possible, use a destination item that's already good in some useful 
 way - for example, dragon wings that already have resistances you'd 
@@ -892,25 +1034,26 @@ Should I use a TXT dump or an HTML dump?
 A: Use an HTML dump.
 
 
-Q: What is the genesis of Oposband?
+Q: What is the genesis of FrogComposband?
 
-A: Oposband is a fork of FrogComposband, a fork of ComPosband, a fork 
-of PosChengband, which was based on Chengband, which was based on 
-Hengband, which was based on Japanese ZAngband, which was based on 
-regular ZAngband, a fork of Angband, which was based on Moria and 
-Umoria. (Whew!)
+A: FrogComposband is a fork of ComPosband, a fork of PosChengband, 
+which was based on Chengband, which was based on Hengband, which was 
+based on Japanese ZAngband, which was based on regular ZAngband, a fork 
+of Angband, which was based on Moria and Umoria. (Whew!)
 
-In addition to these direct ancestors, Oposband and its "family" have 
-been strongly influenced by a number of other Angband variants, like 
-KAngband, Posband, ToME and OAngband. Oposband
+In addition to these direct ancestors, FrogComposband and its "family" 
+have been strongly influenced by a number of other Angband variants, 
+like KAngband, Posband, ToME and OAngband. FrogComposband specifically 
+has also inherited quite a bit of content - starting with its name - 
+from Frogspawn, an unpublished fork of vanilla Angband.
 
 
-Q: What is the design philosophy of Oposband?
+Q: What is the design philosophy of FrogComposband?
 
-A: Above all else, Oposband aims to be 1) fun and 2) challenging. (It 
-also aims to sneakily bring about Armageddon and the ascendancy of 
+A: Above all else, FrogComposband aims to be 1) fun and 2) challenging. 
+(It also aims to sneakily bring about Armageddon and the ascendancy of 
 hyperintelligent robots.)
-[TODO: Update for Oposband]
+
 The pursuit of a fun game involves quite a few things. The game tries 
 to be fair to the player - unavoidable deaths out of nowhere should be 
 unknown or at least extremely rare, and non-lethal attacks should add 
@@ -953,13 +1096,13 @@ Q: Who wrote Hengband?
 A: Hengband is mainly based on ZAngband 2.2.8 Japanese version. 
 ZAngband 2.2.8 Japanese version was developed by Mitsuhiro Itakura, 
 based on both ZAngband 2.2.8 and Angband 2.8.3 Japanese version, and 
-has some original features, for example, Auto-picker, in addition to 
+has some original features, for example the auto-picker, in addition to 
 simple translation.
 
-Hengband also includes codes from many other variants including ToME, 
-OAngband, etc.  Mr.Hoge wrote the first original part of Hengband.  And 
-currently, it is maintained by Hengband Development Team including 
-Mr.Hoge, Habu, Henkma, iks, Kuwa, Mogami and nsk.
+Hengband also includes codes from many other variants, such as ToME and 
+OAngband. Mr.Hoge wrote the first original part of Hengband. It was 
+maintained by the Hengband Development Team including Mr.Hoge, Habu, 
+Henkma, iks, Kuwa, Mogami and nsk.
 
 
 Q: So is that why there is so much Japanese content in this game?
@@ -984,6 +1127,6 @@ Updated    : FrogComposband 7.0.peppermint
 Updated    : FrogComposband 7.0.nougat
 Updated    : FrogComposband 7.1.toffee
 Updated    : FrogComposband 7.1.chocolate
-Updated    : Oposband 0.1.0
+Updated    : FrogComposband 7.1.liquorice
 
 

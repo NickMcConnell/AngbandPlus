@@ -93,7 +93,7 @@ class_t *warrior_get_class(void)
         me.stats[A_WIS] = -2;
         me.stats[A_DEX] =  2;
         me.stats[A_CON] =  2;
-        me.stats[A_CHR] = -1;
+        me.stats[A_CHR] =  0;
         me.base_skills = bs;
         me.extra_skills = xs;
         me.life = 115;

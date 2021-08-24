@@ -172,7 +172,7 @@ int device_calc_fail_rate(object_type *o_ptr)
     return fail;
 }
 
-/* Hack: When using an unkown rod we force the user to target. Also
+/* Hack: When using an unknown rod we force the user to target. Also
    Trap Location should not spoil with the view_unsafe_grids option. */
 bool device_known = FALSE;
 
@@ -181,7 +181,7 @@ bool device_known = FALSE;
  * but that is handled elsewhere. We deal solely with OFL_DEVICE_POWER. */
 bool device_lore = FALSE;
 
-/* Hack: When using an unkown device, was there an observable effect?
+/* Hack: When using an unknown device, was there an observable effect?
    If so, identify the device. */
 bool device_noticed = FALSE;
 
@@ -195,13 +195,14 @@ int  device_extra_power = 0;
 int  device_available_charges = 0; /* How many can we do? */
 int  device_used_charges = 0;      /* How many did we do? */
 static bool _use_charges = FALSE;
+static bool _multi_charge_lock = FALSE;
 
 static void _do_identify_aux(obj_ptr obj)
 {
     char name[MAX_NLEN];
     bool old_known;
 
-    if (_use_charges && device_used_charges >= device_available_charges) return;
+    if ((_use_charges) && (device_used_charges >= device_available_charges)) return;
 
     old_known = identify_item(obj);
     object_desc(name, obj, OD_COLOR_CODED);
@@ -236,10 +237,12 @@ void mass_identify(bool use_charges) /* shared with Sorcery spell */
     inv_ptr floor = inv_filter_floor(point(px, py), obj_exists);
 
     _use_charges = use_charges;
+    _multi_charge_lock = TRUE;
     pack_for_each_that(_do_identify_aux, obj_is_unknown);
     equip_for_each_that(_do_identify_aux, obj_is_unknown);
     quiver_for_each_that(_do_identify_aux, obj_is_unknown);
     inv_for_each_that(floor, _do_identify_aux, obj_is_unknown);
+    _multi_charge_lock = FALSE;
 
     inv_free(floor);
 }
@@ -329,7 +332,7 @@ static cptr _do_potion(int sval, int mode)
     switch (sval)
     {
     case SV_POTION_WATER:
-		if (desc)
+        if (desc)
 		{
 			if (p_ptr->pclass == CLASS_PRIEST)
 				return "It is holy water, blessed by the gods to remove curses and cleanse the mind";
@@ -347,8 +350,7 @@ static cptr _do_potion(int sval, int mode)
 				set_hero(25, FALSE);
 			}
 			else 
-				msg_print("You feel less thirsty.");
-
+            msg_print("You feel less thirsty.");
             device_noticed = TRUE;
         }
         break;
@@ -1200,7 +1202,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_CURSE_WEAPON:
-        if (desc) return "It makes your wielding weapon (Shattered) when you read it.";
+        if (desc) return "It blasts your current melee weapon when you read it.";
         if (cast)
         {
             int slot = equip_random_slot(object_is_melee_weapon);
@@ -1338,7 +1340,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_ENCHANT_ARMOR:
-        if (desc) return "It increases an armor's to-AC by 1 when you read it.";
+        if (desc) return "It increases an armor's to-AC when you read it.";
         if (cast)
         {
             if (!enchant_spell(0, 1)) return NULL;
@@ -1346,7 +1348,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_ENCHANT_WEAPON:
-        if (desc) return "It increases a weapon's attack bonus by 1 when you read it.";
+        if (desc) return "It increases a weapon's attack bonus when you read it.";
         if (cast)
         {
             if (!enchant_spell(1, 0)) return NULL;
@@ -1354,7 +1356,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_STAR_ENCHANT_ARMOR:
-        if (desc) return "It increases an armor's to-ac by 3-6 when you read it.";
+        if (desc) return "It increases an armor's to-ac powerfully when you read it.";
         if (cast)
         {
             if (!enchant_spell(0, randint1(3) + 3)) return NULL;
@@ -1362,7 +1364,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_STAR_ENCHANT_WEAPON:
-        if (desc) return "It increases a weapon's attack bonus by 3-6 when you read it.";
+        if (desc) return "It increases a weapon's attack bonus powerfully when you read it.";
         if (cast)
         {
             if (!enchant_spell(randint1(3) + 3, 0)) return NULL;
@@ -1534,7 +1536,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_SPELL:
-        if (desc) return "It increases the number you can study spells when you read. If you are the class can't study or don't need to study, it has no effect.";
+        if (desc) return "Increases the number of spells you can study. Only has an effect for classes who study spells.";
         if (cast)
         {
             if (!class_uses_spell_scrolls(p_ptr->pclass))
@@ -1570,7 +1572,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_ACQUIREMENT:
-        if (desc) return "It creates one great item when you read it.";
+        if (desc) return "It creates one great item when you read it. Gives better results on deep levels.";
         if (cast)
         {
             acquirement(py, px, 1, TRUE, FALSE, ORIGIN_ACQUIRE);
@@ -1578,7 +1580,7 @@ static cptr _do_scroll(int sval, int mode)
         }
         break;
     case SV_SCROLL_STAR_ACQUIREMENT:
-        if (desc) return "It creates some great items when you read it.";
+        if (desc) return "It creates some great items when you read it. Gives better results on deep levels.";
         if (cast)
         {
             acquirement(py, px, _scroll_power(randint1(2) + 1), TRUE, FALSE, ORIGIN_ACQUIRE);
@@ -1632,13 +1634,13 @@ static cptr _do_scroll(int sval, int mode)
             }
 
             if (err) strcpy(Rumor, "Some rumors are wrong.");
-            msg_format("<color:B>There is message on the scroll. It says:</color> %s", Rumor);
+            msg_format("<color:B>There is a message on the scroll. It says:</color> %s", Rumor);
             msg_print("The scroll disappears in a puff of smoke!");
             device_noticed = TRUE;
         }
         break;
     case SV_SCROLL_ARTIFACT:
-        if (desc) return "It creates an artifact from a nameless weapon or armor when you read it. Don't be greedy - you will get only one artifact.";
+        if (desc) return "It creates an artifact from a nameless weapon or armor when you read it. Gives better results on deeper levels. Don't be greedy - you will get only one artifact.";
         if (cast)
         {
             device_noticed = TRUE;
@@ -1800,7 +1802,7 @@ cptr do_device(object_type *o_ptr, int mode, int boost)
     cptr result = NULL;
 
     device_noticed = FALSE;
-    device_used_charges = 0;
+    if (!_multi_charge_lock) device_used_charges = 0;
     device_lore = FALSE;
 
     if (o_ptr->activation.type)
@@ -1828,7 +1830,7 @@ cptr do_device(object_type *o_ptr, int mode, int boost)
     }
     device_known = FALSE;
     device_extra_power = 0;
-    device_available_charges = 0;
+    if (!_multi_charge_lock) device_available_charges = 0;
     return result;
 }
 
@@ -2514,7 +2516,7 @@ device_effect_info_t staff_effect_table[] =
     {EFFECT_DETECT_EVIL,            7,   5,     1,  30,    10,  0, 0},
     {EFFECT_HASTE_MONSTERS,        10,   5,     1,  30,    50, 10, 0},
     {EFFECT_SUMMON_ANGRY_MONSTERS, 10,   5,     1,  30,    50, 10, 0},
-    {EFFECT_IDENTIFY,              40,  20,     4,   0,    10,  0, 0},
+    {EFFECT_IDENTIFY,              10,   4,     0,   0,    10,  0, 0/*_STOCK_TOWN | _COMMON*/},
     {EFFECT_SLEEP_MONSTERS,        10,   6,     1,  40,    33,  0, 0},
     {EFFECT_SLOW_MONSTERS,         10,   6,     1,  40,    33,  0, 0},
     {EFFECT_CONFUSE_MONSTERS,      15,   8,     1,  40,    33,  0, 0},
@@ -2527,13 +2529,13 @@ device_effect_info_t staff_effect_table[] =
     {EFFECT_SUMMON_HOUNDS,         27,  25,     2,   0,    10,  0, 0},
     {EFFECT_SUMMON_HYDRAS,         27,  25,     3,   0,    10,  0, 0},
     {EFFECT_SUMMON_ANTS,           27,  20,     2,   0,    10,  0, 0},
-    {EFFECT_PROBING,               30,  15,     0,  70,    10,  0, 0},
+    {EFFECT_PROBING,               30,  15,     0,   0,    10,  0, 0},
     {EFFECT_TELEPATHY,             30,  16,     2,   0,    10,  0, 0},
     {EFFECT_SUMMON_MONSTERS,       32,  30,     2,   0,    33,  0, 0},
     {EFFECT_ANIMATE_DEAD,          35,  17,     2,  70,    33,  0, 0},
     {EFFECT_SLOWNESS,              40,  19,     3,  70,    50, 10, 0},
     {EFFECT_SPEED,                 40,  19,     2,   0,    10,  0, _COMMON},
-    {EFFECT_IDENTIFY_FULL,         40,  20,     0,   0,    10,  0, _COMMON},
+    {EFFECT_IDENTIFY,              40,  20,     3,   0,    10,  0, _COMMON},
     {EFFECT_REMOVE_CURSE,          40,  20,     4,   0,    10,  0, 0},
     {EFFECT_DISPEL_DEMON,          45,  10,     2,   0,    50, 10, 0},
     {EFFECT_DISPEL_UNDEAD,         45,  10,     2,   0,    50, 10, 0},
@@ -2652,6 +2654,7 @@ static void _device_pick_effect(object_type *o_ptr, device_effect_info_ptr table
         if ((mode & AM_GOOD) && !(entry->flags & _DROP_GOOD)) continue;
         if ((mode & AM_GREAT) && !(entry->flags & _DROP_GREAT)) continue;
         if ((mode & AM_STOCK_TOWN) && !(entry->flags & _STOCK_TOWN)) continue;
+		if (entry->type == EFFECT_IDENTIFY_FULL) continue;
 		if (entry->type == EFFECT_PROBING) continue;
 
         entry->prob = 64 / rarity;
@@ -6791,9 +6794,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     case EFFECT_HEAL_MONSTER:
+    {
+        int dd = _extra(effect, 10 + effect->power / 10);
         if (name) return "Heal Monster";
         if (desc) return "It heals a monster when you use it.";
-        if (value) return format("%d", 5);
+        if (info) return format("heal %dd10", dd);
+        if (value) return format("%d", dd / 2);
         if (cast)
         {
             bool old_target_pet = target_pet;
@@ -6804,10 +6810,11 @@ cptr do_effect(effect_t *effect, int mode, int boost)
                 return NULL;
             }
             target_pet = old_target_pet;
-            if (heal_monster(dir, _BOOST(damroll(10, 10))))
+            if (heal_monster(dir, _BOOST(damroll(dd, 10))))
                 device_noticed = TRUE;
         }
         break;
+    }
     case EFFECT_HASTE_MONSTER:
         if (name) return "Haste Monster";
         if (desc) return "It hastes a monster when you use it.";

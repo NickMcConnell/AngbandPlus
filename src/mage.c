@@ -1,6 +1,5 @@
 #include "angband.h"
 
-
 static int _get_powers(spell_info* spells, int max)
 {
     int ct = 0;
@@ -21,10 +20,9 @@ static int _get_powers(spell_info* spells, int max)
         spell2->fail = 0;
         spell2->fn = change_realm_power;
     }
-
+	
     return ct;
 }
-
 
 static caster_info * _caster_info(void)
 {
@@ -78,29 +76,22 @@ class_t *mage_get_class(void)
     skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
 
         me.name = "Mage";
-        me.desc = "A Mage is a spell caster that must live by his wits as he cannot "
+        me.desc = "A Mage is a spellcaster who must live by his wits, as he cannot "
                     "hope to simply hack his way through the dungeon like a warrior. "
-                    "In addition to his spellbooks, a Mage should carry a range of "
-                    "magical devices to help him in his endeavors which he can master "
-                    "far more easily than anyone else. A Mage's prime statistic is "
-                    "Intelligence as this determines his spell casting ability.\n \n"
-                    "Mages have the least restrictions in choosing and learning spells. "
-                    "They can freely choose any two realms when a character is created. "
-                    "Their natural inclination makes Life magic fairly hard to learn. "
-                    "Otherwise, a mage tends to learn and cast all the spells in his or "
-                    "her realms better than any other character. The ability to choose "
-                    "second realm of magic has a special meaning: Only the "
-                    "second realm can be changed in the middle of the game. You can "
-                    "change second realm with a class power 'Change 2nd Magic Realm' and "
-                    "a spellbook of the new realm. They have another class power - "
-                    "'Eat Magic' - which absorbs mana from wands, staves or rods.";
+                    "A Mage always carries his spellbooks with him, but also relies "
+                    "on magical devices, which he can master easily. The primary "
+                    "spellcasting statistic of a Mage is Intelligence.\n\n"
+                    "Mages have few restrictions in choosing and learning spells; "
+                    "they can freely choose any two realms when a character is created, "
+                    "although their natural inclinations make Life magic fairly hard to learn. "
+                    "See <link:magic.txt> for more information on magic, realms and book spellcasting.";
 
         me.stats[A_STR] = -4;
         me.stats[A_INT] =  3;
         me.stats[A_WIS] =  0;
         me.stats[A_DEX] =  1;
         me.stats[A_CON] = -2;
-        me.stats[A_CHR] = 1;
+        me.stats[A_CHR] =  1;
         me.base_skills = bs;
         me.extra_skills = xs;
         me.life = 95;

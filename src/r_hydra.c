@@ -3,18 +3,17 @@
 
 static cptr _desc = 
     "Hydras are monsters with multiple heads. As they evolve, they grow "
-    "additional heads granting the potential for extra attacks as well "
-    "as the ability to wear more equipment (helmets and amulets). While "
-    "not every head may wear a helmet and an amulet (This would be too "
-    "powerful), each head is capable of attacking. So the 11-headed hydra "
-    "can attack up to 11 times per round, provided it has enough strength "
+    "additional heads, giving them extra attacks as well as the ability to "
+    "wear more equipment (helmets and amulets). While not every head may "
+    "wear a helmet and an amulet (imagine how powerful that would be!), "
+    "each head is capable of attacking; so an 11-headed hydra can attack "
+    "up to 11 times per round, provided it has enough strength "
     "and dexterity to command such a fearsome arsenal.\n \n"
-    "Hydras are monsters so do not choose a normal class. Instead, they play "
-    "much like warriors with a few limited abilities. All hydras regenerate quickly "
-    "and 5 and 7-headed hydras resist poison and gain a few poison based attacks. "
-    "9 and 11-headed hydras are creatures of flame: Their attacks burn and they are "
-    "capable of breathing fire among other flame based attacks. They resist fire as "
-    "well.";
+    "Hydras are not very magical, and so play much like warriors but with a "
+    "few extra abilities. Five- and seven-headed hydras resist poison and gain a few poison-based attacks. "
+    "Nine- and eleven-headed hydras are creatures of flame: they resist fire, their attacks burn, and "
+    "they are capable of breathing fire among other flame-based attacks. All hydras "
+    "regenerate extremely rapidly.";
 
 static void _birth(void) 
 { 
@@ -122,8 +121,17 @@ static void _breathe_spell(int cmd, variant *res)
         var_set_string(res, "Breathe");
         break;
     case SPELL_DESC:
-        var_set_string(res, format("Breathes %s at your opponent.", gf_name(_breath_effect())));
+    {
+        char elname[32] = "software bugs";
+        gf_info_ptr gf = gf_lookup(_breath_effect());
+        if ((gf) && (gf->name))
+        {
+           strcpy(elname, gf->name);
+           str_tolower(elname);
+        }
+        var_set_string(res, format("Breathes %s at your opponent.", elname));
         break;
+    }
     case SPELL_INFO:
         var_set_string(res, info_damage(0, 0, _breath_amount()));
         break;
@@ -306,8 +314,8 @@ race_t *mon_hydra_get_race(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  21,  35,   1,  10,   7,  62,  30};
-    skills_t xs = { 12,  10,  10,   0,   0,   0,  25,   7};
+    skills_t bs = { 25,  19,  35,   1,  10,   7,  58,  30};
+    skills_t xs = { 12,  10,  10,   0,   0,   0,  16,   7};
 
         me.skills = bs;
         me.extra_skills = xs;

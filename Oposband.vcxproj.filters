@@ -173,9 +173,6 @@
     <ClInclude Include="src\z-virt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\alky.c">
@@ -329,9 +326,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\hex_mage.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\hexblade.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\high_mage.c">
@@ -589,9 +583,6 @@
     <ClCompile Include="src\racial.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\rage-mage.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\randname.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -688,9 +679,6 @@
     <ClCompile Include="src\tables.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\time_lord.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\tourist.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -778,16 +766,22 @@
     <ClCompile Include="src\z-virt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\mspells3.c">
+    <ClCompile Include="src\chaos_patron.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\blue_mage.c">
+    <ClCompile Include="src\bluemage.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ragemage.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\igor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\timelord.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\imitator.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\chaos_patron.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -228,4 +228,7 @@ extern void coord_trans(int *x, int *y, int xoffset, int yoffset, int transno);
 extern bool vault_aux_chapel_g(int r_idx);
 extern bool vault_aux_chapel_e(int r_idx);
 
+/* Special feature rooms */
+extern int generate_table_room(int y1, int x1, int y2, int x2);
+
 #endif

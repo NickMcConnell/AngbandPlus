@@ -93,7 +93,7 @@
       <PreprocessorDefinitions>WINDOWS;_CRT_NONSTDC_NO_DEPRECATE;WIN32;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -167,7 +167,6 @@
     <ClInclude Include="src\readdib.h" />
     <ClInclude Include="src\rect.h" />
     <ClInclude Include="src\resist.h" />
-    <ClInclude Include="src\resource.h" />
     <ClInclude Include="src\rooms.h" />
     <ClInclude Include="src\savefile.h" />
     <ClInclude Include="src\scores.h" />
@@ -199,7 +198,7 @@
     <ClCompile Include="src\bldg.c" />
     <ClCompile Include="src\blood_knight.c" />
     <ClCompile Include="src\blood_mage.c" />
-    <ClCompile Include="src\blue_mage.c" />
+    <ClCompile Include="src\bluemage.c" />
     <ClCompile Include="src\c-string.c" />
     <ClCompile Include="src\c-vec.c" />
     <ClCompile Include="src\cavalry.c" />
@@ -237,10 +236,10 @@
     <ClCompile Include="src\gray_mage.c" />
     <ClCompile Include="src\grid.c" />
     <ClCompile Include="src\hex.c" />
-    <ClCompile Include="src\hexblade.c" />
     <ClCompile Include="src\hex_mage.c" />
     <ClCompile Include="src\high_mage.c" />
     <ClCompile Include="src\home.c" />
+    <ClCompile Include="src\igor.c" />
     <ClCompile Include="src\imitator.c" />
     <ClCompile Include="src\init1.c" />
     <ClCompile Include="src\init2.c" />
@@ -268,7 +267,6 @@
     <ClCompile Include="src\mon_info.c" />
     <ClCompile Include="src\mspells1.c" />
     <ClCompile Include="src\mspells2.c" />
-    <ClCompile Include="src\mspells3.c" />
     <ClCompile Include="src\mut.c" />
     <ClCompile Include="src\mut_a.c" />
     <ClCompile Include="src\mystic.c" />
@@ -298,7 +296,7 @@
     <ClCompile Include="src\races_k.c" />
     <ClCompile Include="src\races_mimic.c" />
     <ClCompile Include="src\racial.c" />
-    <ClCompile Include="src\rage-mage.c" />
+    <ClCompile Include="src\ragemage.c" />
     <ClCompile Include="src\randname.c" />
     <ClCompile Include="src\ranger.c" />
     <ClCompile Include="src\readdib.c" />
@@ -359,7 +357,7 @@
     <ClCompile Include="src\str-map.c" />
     <ClCompile Include="src\streams.c" />
     <ClCompile Include="src\tables.c" />
-    <ClCompile Include="src\time_lord.c" />
+    <ClCompile Include="src\timelord.c" />
     <ClCompile Include="src\tourist.c" />
     <ClCompile Include="src\troika.c" />
     <ClCompile Include="src\util.c" />

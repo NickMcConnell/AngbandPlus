@@ -479,6 +479,17 @@ static int _opposite_flag(int i)
         loydetty[i - 1] = tulos;
         return tulos;
     }
+    if (i == OF_LIFE)
+    {
+        loydetty[i - 1] = OF_DEC_LIFE;
+        return OF_DEC_LIFE;
+    }
+    if (i == OF_DEC_LIFE)
+    {
+        loydetty[i - 1] = OF_LIFE;
+        return OF_LIFE;
+    }
+  
     loydetty[i - 1] = OF_INVALID;
     return OF_INVALID;
 }
@@ -1088,7 +1099,9 @@ static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr
 
     if (o_ptr->name3)
     {
-        cptr nimi = a_name + a_info[o_ptr->name3].name;
+        char nimi[80];
+        strcpy(nimi, a_name + a_info[o_ptr->name3].name);
+        (void)clip_and_locate("~", nimi);
         doc_printf(doc, "It reminds you of the artifact <color:R>%s</color>.\n", ((nimi[0] == '&') && (strlen(nimi) > 2)) ? nimi + 2 : nimi);
     }
 }

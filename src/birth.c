@@ -115,6 +115,11 @@ int calc_exp_factor(void)
         exp = exp * realm->exp / 100;
     }
 
+    if (coffee_break == SPEED_INSTA_COFFEE) /* Does not really lend itself to extreme XP mods - flatten the scale a bit */
+    {
+        exp = ((exp + 50) * 2 / 3);
+    }
+
     return exp;
 }
 
@@ -158,6 +163,13 @@ static void a_info_reset(bool empty)
             for (j = 0; j < OF_ARRAY_SIZE; j++) a_ptr->known_flags[j] = 0;
         }
     }
+}
+
+void empty_lore_wipe(void)
+{
+    e_info_reset(TRUE);
+    k_info_reset(TRUE);
+    a_info_reset(TRUE);
 }
 
 /*
@@ -222,7 +234,7 @@ static void player_wipe(void)
     /* Hack -- Well fed player */
     p_ptr->food = PY_FOOD_FULL - 1;
 
-	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
+    for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
     p_ptr->learned_spells = 0;
     p_ptr->add_spells = 0;
     p_ptr->knowledge = 0;
@@ -268,7 +280,7 @@ static void player_wipe(void)
 
     /* Default pet command settings */
     p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
-    p_ptr->pet_extra_flags = (PF_TELEPORT | PF_ATTACK_SPELL | PF_SUMMON_SPELL);
+    p_ptr->pet_extra_flags = (PF_TELEPORT | PF_ATTACK_SPELL | PF_SUMMON_SPELL | PF_HILITE_LISTS);
 
     /* Wipe the recall depths */
     for (i = 0; i < max_d_idx; i++)

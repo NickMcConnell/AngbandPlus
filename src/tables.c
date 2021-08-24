@@ -1322,7 +1322,7 @@ arena_type arena_info[MAX_ARENA_MONS + 2] =
     { MON_TIGER,         0,         0                             },
     { MON_DRUID,         0,         0                             },
     { MON_HILL_GIANT,    TV_POTION, SV_POTION_SPEED               },
-    { MON_WERERAT1,      0,         0                             },
+    { MON_WERERAT2,      0,         0                             },
     { MON_ORC_CAPTAIN,   0,         0                             },
     { MON_BERSERKER,     TV_ROD,    EFFECT_DETECT_TRAPS           },
     { MON_STONE_GIANT,   0,         0                             },
@@ -1335,7 +1335,7 @@ arena_type arena_info[MAX_ARENA_MONS + 2] =
     { MON_SPIRIT_NAGA,   0,         0                             },
     { MON_BASILISK,      0,         0                             },
     { MON_MITHRIL_GOLEM, TV_WAND,   EFFECT_BALL_ACID              },
-    { MON_SHADOW_DRAKE,  0,         0                             },
+    { MON_SHADOW_DRAKE,  TV_WAND,   EFFECT_CONFUSE_MONSTER        },
     { MON_OGRE_SHAMAN,   TV_SCROLL, SV_SCROLL_ACQUIREMENT         },
     { MON_BICLOPS,       TV_POTION, SV_POTION_SELF_KNOWLEDGE      },
     { MON_ETHER_DRAKE,   TV_SCROLL, SV_SCROLL_RUNE_OF_PROTECTION  },
@@ -1737,8 +1737,8 @@ s32b realm_choices1[MAX_CLASS] =
     (CH_NONE),                              /* Magic eater */
     (CH_MUSIC),                             /* Bard */
     (CH_NONE),                              /* Red Mage */
-	(CH_HISSATSU),                          /* Samurai */
-	(CH_LIFE | CH_NATURE | CH_DEATH |
+    (CH_HISSATSU),                          /* Samurai */
+    (CH_LIFE | CH_NATURE | CH_DEATH |
      CH_ENCHANT | CH_CRUSADE),                 /* ForceTrainer */
     (CH_NONE),                              /* Blue Mage */
     (CH_NONE),                /* Cavalry */
@@ -1965,126 +1965,6 @@ int chest_traps[64] =
     (CHEST_EXPLODE | CHEST_SUMMON),
 };
 
-monster_power monster_powers[MAX_MONSPELLS] =
-{
-	/*lv,  sp,fail,  dam,fail,  stat,  name */
-	{ 1,   1,  10,    0,  15, A_CON,  "shriek" },
-	{ 10,   4,  35,   89,  40, A_INT,  "something" },
-	{ 40,  35,  85,    0,  40, A_INT,  "dispel-magic" },
-	{ 35,  30,  80,  800,  70, A_STR,  "rocket" },
-	{ 2,   1,  15,   10,  15, A_DEX,  "arrow" },
-	{ 5,   2,  20,   18,  20, A_DEX,  "arrows" },
-	{ 12,   3,  25,   30,  25, A_DEX,  "missile" },
-	{ 35,  18,  80,  300,  95, A_CON,  "breathe storm" },
-	{ 20,  15,  55, 1600,  95, A_CON,  "breathe acid" },
-	{ 20,  15,  55, 1600,  95, A_CON,  "breathe lightning" },
-	{ 20,  15,  55, 1600,  95, A_CON,  "breathe fire" },
-	{ 20,  15,  55, 1600,  95, A_CON,  "breathe cold" },
-	{ 20,  15,  55,  800,  95, A_CON,  "breathe poison" },
-	{ 20,  15,  70,  550,  95, A_CON,  "breathe nether" },
-	{ 20,  16,  70,  400,  95, A_CON,  "breathe light" },
-	{ 20,  16,  70,  400,  95, A_CON,  "breathe dark" },
-	{ 20,  20,  70,  450,  95, A_CON,  "breathe confusion" },
-	{ 20,  20,  70,  450,  95, A_CON,  "breathe sound" },
-	{ 20,  20,  70,  600,  95, A_CON,  "breathe chaos" },
-	{ 20,  16,  70,  500,  95, A_CON,  "breathe disenchantment" },
-	{ 30,  25,  80,  250,  95, A_CON,  "breathe nexus" },
-	{ 35,  18,  80,  150,  95, A_CON,  "breathe time" },
-	{ 30,  25,  80,  200,  95, A_CON,  "breathe inertia" },
-	{ 30,  28,  90,  200,  95, A_CON,  "breathe gravity" },
-	{ 20,  15,  70,  500,  95, A_CON,  "breathe shards" },
-	{ 35,  15,  80,  150,  95, A_CON,  "breathe plasma" },
-	{ 30,  18,  70,  200,  95, A_CON,  "breathe force" },
-	{ 30,  28,  80,  250,  95, A_CON,  "breathe mana" },
-	{ 25,  20,  95,  320,  80, A_INT,  "nuke ball" },
-	{ 25,  15,  70,  800,  95, A_CON,  "breathe nuke" },
-	{ 30,  32,  85,  400,  80, A_INT,  "raw Logrus" },
-	{ 35,  40,  95,  150,  95, A_CON,  "breathe disintegrate" },
-	{ 18,  13,  55,  630,  80, A_INT,  "acid ball" },
-	{ 14,  10,  45,  316,  60, A_INT,  "lightning ball" },
-	{ 20,  14,  60,  720,  80, A_INT,  "fire ball" },
-	{ 15,  11,  50,  320,  60, A_INT,  "frost ball" },
-	{ 5,   3,  40,   48,  20, A_INT,  "stinking cloud" },
-	{ 25,  18,  70,  350,  80, A_INT,  "nether ball" },
-	{ 30,  22,  75,  350,  80, A_INT,  "water ball" },
-	{ 44,  45,  85,  550,  95, A_INT,  "mana storm" },
-	{ 40,  42,  90,  550,  95, A_INT,  "darkness storm" },
-	{ 10,   5,  50,    0,  25, A_INT,  "drain mana" },
-	{ 25,  10,  60,    0,  30, A_INT,  "mind blast" },
-	{ 30,  14,  65,    0,  30, A_INT,  "brain smash" },
-	{ 3,   1,  25,   24,  20, A_INT,  "cause light wounds" },
-	{ 12,   2,  35,   64,  25, A_INT,  "cause serious wounds" },
-	{ 22,   6,  50,  150,  30, A_INT,  "cause critical wounds" },
-	{ 32,  10,  70,  225,  35, A_INT,  "cause mortal wounds" },
-	{ 13,   7,  40,  178,  40, A_INT,  "acid bolt" },
-	{ 10,   5,  35,  130,  35, A_INT,  "lightning bolt" },
-	{ 15,   9,  50,  210,  45, A_INT,  "fire bolt" },
-	{ 12,   6,  35,  162,  40, A_INT,  "frost bolt" },
-	{ 40,  42,  90,  550,  95, A_INT,  "starburst" },
-	{ 25,  17,  60,  255,  60, A_INT,  "nether bolt" },
-	{ 25,  20,  65,  250,  60, A_INT,  "water bolt" },
-	{ 25,  24,  90,  400,  80, A_INT,  "mana bolt" },
-	{ 25,  20,  80,  216,  60, A_INT,  "plasma bolt" },
-	{ 25,  16,  60,  186,  60, A_INT,  "ice bolt" },
-	{ 3,   1,  25,   12,  20, A_INT,  "magic missile" },
-	{ 5,   3,  35,    0,  20, A_INT,  "scare" },
-	{ 10,   5,  40,    0,  20, A_INT,  "blind" },
-	{ 10,   5,  40,    0,  20, A_INT,  "confuse" },
-	{ 10,   5,  40,    0,  20, A_INT,  "slow" },
-	{ 10,   5,  40,    0,  20, A_INT,  "sleep" },
-	{ 20,  10,  70,    0,  40, A_INT,  "speed" },
-	{ 45, 120,  95,    0,  60, A_INT,  "the Hand of Doom" },
-	{ 20,  15,  70,    0,  20, A_WIS,  "heal-self" },
-	{ 45,  65,  80,    0,  60, A_INT,  "make invulnerable" },
-	{ 5,   1,  30,    0,  20, A_INT,  "blink-self" },
-	{ 15,   8,  40,    0,  30, A_INT,  "teleport-self" },
-	{ 40, 999,  99,    0,  80, A_INT,  "The world" },
-	{ 1,   0,   0,    0,  15, A_INT,  "something" },
-	{ 15,   8,  50,    0,  30, A_INT,  "teleport to" },
-	{ 20,  13,  80,    0,  30, A_INT,  "teleport away" },
-	{ 30,  40,  95,    0,  40, A_INT,  "teleport level" },
-	{ 35,  30,  80,  350,  70, A_INT,  "psycho-spear" },
-	{ 5,   1,  20,    0,  15, A_INT,  "create darkness" },
-	{ 5,   1,  20,    0,  15, A_DEX,  "create traps" },
-	{ 15,   3,  40,    0,  30, A_INT,  "cause amnesia" },
-	{ 30,  30,  70,    0,  40, A_INT,  "raise dead" },
-	{ 40,  70,  85,    0,  45, A_INT,  "summon aid" },
-	{ 45,  90,  90,    0,  50, A_INT,  "summon Cyberdemons" },
-	{ 25,  20,  65,    0,  30, A_INT,  "summon a monster" },
-	{ 35,  30,  75,    0,  40, A_INT,  "summon monsters" },
-	{ 25,  25,  65,    0,  25, A_INT,  "summon ants" },
-	{ 25,  20,  60,    0,  25, A_INT,  "summon spiders" },
-	{ 35,  26,  75,    0,  40, A_INT,  "summon hounds" },
-	{ 30,  23,  70,    0,  35, A_INT,  "summon hydras" },
-	{ 40,  50,  85,    0,  40, A_INT,  "summon an angel" },
-	{ 35,  50,  80,    0,  35, A_INT,  "summon a daemon" },
-	{ 30,  30,  75,    0,  35, A_INT,  "summon an undead" },
-	{ 39,  70,  80,    0,  40, A_INT,  "summon a dragon" },
-	{ 43,  85,  85,    0,  45, A_INT,  "summon Greater Undead" },
-	{ 46,  90,  85,    0,  45, A_INT,  "summon Ancient Dragon" },
-	{ 48, 120,  90,    0,  50, A_INT,  "summon Lords of Amber" },
-	{ 50, 150,  95,    0,  50, A_INT,  "summon Unique Monsters" },
-};
-
-
-cptr monster_powers_short[MAX_MONSPELLS] = {
-
-	"Shriek", "Something", "Dispel-magic", "Rocket", "Arrow", "Arrows", "Missile", "Storm",
-	"Acid", "Lightning", "Fire", "Cold", "Poison", "Nether", "Light", "Dark",
-	"Confusion", "Sound", "Chaos", "Disenchantment", "Nexus", "Time", "Inertia", "Gravity",
-	"Shards", "Plasma", "Force", "Mana", "Nuke", "Nuke", "Logrus", "Disintergrate",
-
-	"Acid", "Lightning", "Fire", "Frost", "Stinking Cloud", "Nether", "Water", "Mana storm",
-	"Darkness storm", "Drain mana", "Mind blast", "Brain smash", "Cause Light Wound", "Cause Serious Wound", "Cause Critical Wound", "Cause Mortal Wound",
-	"Acid", "Lightning", "Fire", "Frost", "Starburst", "Nether", "Water", "Mana",
-	"Plasm", "Ice", "Magic missile", "Scare", "Blind", "Confuse", "Slow", "Sleep",
-
-	"Speed", "Hand of doom", "Heal-self", "Invulnerable", "Blink", "Teleport", "The world", "Something",
-	"Teleport to", "Teleport away", "Teleport level", "Psycho-spear", "Create darkness", "Create traps", "Amnesia", "Raise dead",
-	"Aid", "Cyberdeamons", "A monster", "Monsters", "Ants", "Spiders", "Hounds", "Hydras",
-	"Angel", "Daemon", "Undead", "Dragon", "Greater Undead", "Ancient Dragon", "Lords of Amber", "Unique monsters"
-
-};
 
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
@@ -2170,11 +2050,11 @@ cptr window_flag_desc[32] =
     "Display monster list",
     "Display messages",
 
-    "Display overhead view (*SLOW*)",
+    "Display overhead view",
 
     "Display monster recall",
 
-    "Display object recall",
+    "Display spell recall",
 
     "Display dungeon view",
 
@@ -2182,9 +2062,10 @@ cptr window_flag_desc[32] =
 
     NULL,
     NULL,
-    "Display borg messages",
-
-    "Display borg status",
+//    "Display borg messages",
+//    "Display borg status",
+    NULL,
+    NULL,
 
     NULL,
     NULL,
@@ -2208,236 +2089,246 @@ cptr window_flag_desc[32] =
 /*
  * Available Options
  *
+ * 0,* and 1,* space are now fully occupied
  */
 option_type option_info[] =
 {
-	/*** Input Options ***/
+    /*** Input Options ***/
 
-	{ &rogue_like_commands,         FALSE, OPT_PAGE_INPUT, 0, 0,
-	"rogue_like_commands",          "Rogue-like commands" },
+    { &rogue_like_commands,         FALSE, OPT_PAGE_INPUT, 0, 0,
+    "rogue_like_commands",          "Rogue-like commands" },
 
-	{ &always_pickup,               FALSE, OPT_PAGE_INPUT, 0, 5,
-	"always_pickup",                "Pick things up by default" },
+    { &always_pickup,               FALSE, OPT_PAGE_INPUT, 0, 5,
+    "always_pickup",                "Pick things up by default" },
 
-	{ &online_macros,               FALSE, OPT_PAGE_INPUT, 1, 11,
-	"online_macros",                "Substitute Walk for Run in macros" },
+    { &online_macros,               FALSE, OPT_PAGE_INPUT, 1, 11,
+    "online_macros",                "Substitute Walk for Run in macros" },
 
-	{ &quick_messages,              TRUE,  OPT_PAGE_INPUT, 0, 1,
-	"quick_messages",               "Activate quick messages" },
+    { &quick_messages,              TRUE,  OPT_PAGE_INPUT, 0, 1,
+    "quick_messages",               "Activate quick messages" },
 
-	{ &command_menu,                TRUE,  OPT_PAGE_INPUT, 2, 7,
-	"command_menu",                 "Enable command selection menu" },
+    { &command_menu,                TRUE,  OPT_PAGE_INPUT, 2, 7,
+    "command_menu",                 "Enable command selection menu" },
 
-	{ &use_old_target,              FALSE, OPT_PAGE_INPUT, 0, 4,
-	"use_old_target",               "Use old target by default" },
+    { &use_old_target,              FALSE, OPT_PAGE_INPUT, 0, 4,
+    "use_old_target",               "Use old target by default" },
 
-	{ &auto_target,                 FALSE, OPT_PAGE_INPUT, 0, 15,
-	"auto_target",                  "Automatically target nearest monster" },
+    { &auto_target,                 FALSE, OPT_PAGE_INPUT, 0, 15,
+    "auto_target",                  "Automatically target nearest monster" },
 
-	{ &always_repeat,               TRUE,  OPT_PAGE_INPUT, 0, 6,
-	"always_repeat",                "Repeat obvious commands" },
+    { &always_repeat,               TRUE,  OPT_PAGE_INPUT, 0, 6,
+    "always_repeat",                "Repeat obvious commands" },
 
-	{ &confirm_destroy,             FALSE, OPT_PAGE_INPUT, 5, 3,
-	"confirm_destroy",              "Prompt for destruction of known worthless items" },
+    { &confirm_destroy,             FALSE, OPT_PAGE_INPUT, 5, 3,
+    "confirm_destroy",              "Prompt for destruction of known worthless items" },
 
-	{ &confirm_wear,                TRUE,  OPT_PAGE_INPUT, 5, 4,
-	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
+    { &confirm_wear,                TRUE,  OPT_PAGE_INPUT, 5, 4,
+    "confirm_wear",                 "Confirm to wear/wield known cursed items" },
 
-	{ &target_pet,                  FALSE, OPT_PAGE_INPUT, 2, 5,
-	"target_pet",                   "Allow targetting pets" },
+    { &target_pet,                  FALSE, OPT_PAGE_INPUT, 2, 5,
+    "target_pet",                   "Allow targetting pets" },
 
 #ifdef ALLOW_EASY_OPEN
-	{ &easy_open,                   TRUE,  OPT_PAGE_INPUT, 5, 7,
-	"easy_open",                    "Automatically open doors" },
+    { &easy_open,                   TRUE,  OPT_PAGE_INPUT, 5, 7,
+    "easy_open",                    "Automatically open doors" },
 #endif /* ALLOW_EASY_OPEN */
 
 #ifdef ALLOW_EASY_DISARM
-	{ &easy_disarm,                 TRUE,  OPT_PAGE_INPUT, 5, 8,
-	"easy_disarm",                  "Automatically disarm traps" },
+    { &easy_disarm,                 TRUE,  OPT_PAGE_INPUT, 5, 8,
+    "easy_disarm",                  "Automatically disarm traps" },
 #endif /* ALLOW_EASY_DISARM */
 
-	{ &auto_get_ammo,               FALSE, OPT_PAGE_INPUT, 6, 5,
-	"auto_get_ammo",                "Automatically get nearby ammo with get cmd" },
+    { &auto_detect_traps,           FALSE, OPT_PAGE_INPUT, 6, 9,
+    "auto_detect_traps",            "Automatically detect traps while running" },
 
-	{ &auto_get_objects,            FALSE, OPT_PAGE_INPUT, 6, 7,
-	"auto_get_objects",             "Automatically get autopick objects with get cmd" },
+    { &auto_map_area,               FALSE, OPT_PAGE_INPUT, 6, 10,
+    "auto_map_area",                "Automatically map area while running" },
 
-	{ &auto_detect_traps,           FALSE, OPT_PAGE_INPUT, 6, 9,
-	"auto_detect_traps",            "Automatically detect traps while running" },
+    { &auto_get_ammo,               FALSE, OPT_PAGE_INPUT, 6, 5,
+    "auto_get_ammo",                "Ctrl-G automatically gets nearby ammo" },
 
-	{ &auto_map_area,               FALSE, OPT_PAGE_INPUT, 6, 10,
-	"auto_map_area",                "Automatically map area while running" },
+    { &auto_get_objects,            FALSE, OPT_PAGE_INPUT, 6, 7,
+    "auto_get_objects",             "Ctrl-G automatically gets nearby wanted objects" },
 
-	{ &numpad_as_cursorkey,         TRUE, OPT_PAGE_INPUT, 2, 31,
-	"numpad_as_cursorkey",          "Use numpad keys as cursor keys in editor mode" },
+    { &numpad_as_cursorkey,         TRUE, OPT_PAGE_INPUT, 2, 31,
+    "numpad_as_cursorkey",          "Use numpad keys as cursor keys in editor mode" },
 
-	{ &use_pack_slots,              TRUE,  OPT_PAGE_INPUT, 0, 3,
-	"use_pack_slots",               "Use/Display slots in your inventory" },
-	/*** Map Screen Options ***/
+    { &use_pack_slots,              TRUE,  OPT_PAGE_INPUT, 0, 3,
+    "use_pack_slots",               "Retain backpack slot labels in other inventories" },
+    /*** Map Screen Options ***/
 
-	{ &center_player,               FALSE, OPT_PAGE_MAPSCREEN, 5, 11,
-	"center_player",                "Center map while walking (*slow*)" },
+    { &center_player,               FALSE, OPT_PAGE_MAPSCREEN, 5, 11,
+    "center_player",                "Center map on player while walking"},
 
-	{ &center_running,              TRUE,  OPT_PAGE_MAPSCREEN, 5, 12,
-	"center_running",               "Centering even while running" },
+    { &center_running,              TRUE,  OPT_PAGE_MAPSCREEN, 5, 12,
+    "center_running",               "Center map even while running" },
 
-	{ &view_yellow_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 28,
-	"view_yellow_lite",             "Use special colors for torch-lit grids" },
+    { &view_yellow_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 28,
+    "view_yellow_lite",             "Use special colors for torch-lit grids" },
 
-	{ &view_bright_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 29,
-	"view_bright_lite",             "Use special colors for 'viewable' grids" },
+    { &view_bright_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 29,
+    "view_bright_lite",             "Use special colors for 'viewable' grids" },
 
-	{ &view_granite_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 30,
-	"view_granite_lite",            "Use special colors for wall grids (slow)" },
+    { &view_granite_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 30,
+    "view_granite_lite",            "Use special colors for wall grids (slow)" },
 
-	{ &view_special_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 31,
-	"view_special_lite",            "Use special colors for floor grids (slow)" },
+    { &view_special_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 31,
+    "view_special_lite",            "Use special colors for floor grids (slow)" },
 
-	{ &view_perma_grids,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 6,
-	"view_perma_grids",             "Map remembers all perma-lit grids" },
+    { &view_perma_grids,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 6,
+    "view_perma_grids",             "Map remembers all perma-lit grids" },
 
-	{ &view_torch_grids,            FALSE, OPT_PAGE_MAPSCREEN, 1, 7,
-	"view_torch_grids",             "Map remembers all torch-lit grids" },
+    { &view_torch_grids,            FALSE, OPT_PAGE_MAPSCREEN, 1, 7,
+    "view_torch_grids",             "Map remembers all torch-lit grids" },
 
-	{ &view_unsafe_grids,           FALSE, OPT_PAGE_MAPSCREEN, 1, 8,
-	"view_unsafe_grids",            "Map marked by detect traps" },
+    { &view_unsafe_grids,           FALSE, OPT_PAGE_MAPSCREEN, 1, 8,
+    "view_unsafe_grids",            "Map marked by detect traps" },
 
-	{ &fresh_before,                TRUE,  OPT_PAGE_MAPSCREEN, 1, 23,
-	"fresh_before",                 "Flush output while continuous command" },
+    { &fresh_before,                TRUE,  OPT_PAGE_MAPSCREEN, 1, 23,
+    "fresh_before",                 "Fresh screen before automated input" },
 
-	{ &fresh_after,                 FALSE, OPT_PAGE_MAPSCREEN, 1, 24,
-	"fresh_after",                  "Flush output after monster's move" },
+    { &fresh_after,                 FALSE, OPT_PAGE_MAPSCREEN, 1, 24,
+    "fresh_after",                  "Fresh screen after processing monsters" },
 
-	{ &fresh_message,               FALSE, OPT_PAGE_MAPSCREEN, 1, 25,
-	"fresh_message",                "Flush output after every message" },
+    { &fresh_message,               FALSE, OPT_PAGE_MAPSCREEN, 1, 25,
+    "fresh_message",                "Fresh screen after every message" },
 
-	{ &hilite_player,               FALSE, OPT_PAGE_MAPSCREEN, 1, 27,
-	"hilite_player",                "Hilite the player with the cursor" },
+    { &hilite_player,               FALSE, OPT_PAGE_MAPSCREEN, 1, 27,
+    "hilite_player",                "Hilite the player with the cursor" },
 
-	{ &display_path,                FALSE, OPT_PAGE_MAPSCREEN, 2, 8,
-	"display_path",                 "Display actual path before shooting" },
+    { &display_path,                FALSE, OPT_PAGE_MAPSCREEN, 2, 8,
+    "display_path",                 "Display actual path before shooting" },
 
-	{ &square_delays,               FALSE, OPT_PAGE_MAPSCREEN, 5, 23,
-	"square_delays",                "Use square-based delay factors" },
+    { &square_delays,               FALSE, OPT_PAGE_MAPSCREEN, 5, 23,
+    "square_delays",                "Use square-based delay factors" },
 
-	/*** Text Display Options ***/
+    /*** Text Display Options ***/
 
-	{ &plain_descriptions,          TRUE,  OPT_PAGE_TEXT, 5, 1,
-	"plain_descriptions",           "Plain object descriptions" },
+    { &plain_descriptions,          TRUE,  OPT_PAGE_TEXT, 5, 1,
+    "plain_descriptions",           "Plain object descriptions" },
 
-	{ &always_show_list,            TRUE,  OPT_PAGE_TEXT, 4, 0,
-	"always_show_list",             "Always show list when choosing items" },
+    { &always_show_list,            TRUE,  OPT_PAGE_TEXT, 4, 0,
+    "always_show_list",             "Always show list when choosing spells" },
 
-	{ &depth_in_feet,               FALSE, OPT_PAGE_TEXT, 0, 7,
-	"depth_in_feet",                "Show dungeon level in feet" },
+    { &depth_in_feet,               FALSE, OPT_PAGE_TEXT, 0, 7,
+    "depth_in_feet",                "Show dungeon level in feet" },
 
-	{ &effective_speed,             FALSE, OPT_PAGE_TEXT, 0, 29,
-	"effective_speed",              "Show speeds as energy multipliers" },
+    { &effective_speed,             FALSE, OPT_PAGE_TEXT, 0, 29,
+    "effective_speed",              "Show speeds as energy multipliers" },
 
-	{ &show_labels,                 TRUE,  OPT_PAGE_TEXT, 0, 10,
-	"show_labels",                  "Show labels in object listings" },
+    { &describe_slots,              TRUE,  OPT_PAGE_TEXT, 0, 10,
+    "describe_slots",               "Show equipment slot descriptions" },
 
-	{ &show_weights,                TRUE,  OPT_PAGE_TEXT, 0, 11,
-	"show_weights",                 "Show weights in object listings" },
+    { &show_weights,                TRUE,  OPT_PAGE_TEXT, 0, 11,
+    "show_weights",                 "Show weights in object listings" },
 
-	{ &show_discounts,              TRUE,  OPT_PAGE_TEXT, 0, 12,
-	"show_discounts",               "Show discounts in object listings" },
+    { &show_discounts,              TRUE,  OPT_PAGE_TEXT, 0, 12,
+    "show_discounts",               "Show discounts in object listings" },
 
-	{ &show_power,                  FALSE, OPT_PAGE_TEXT, 2, 14,
-	"show_power",                   "Show device power in object listings (if known)" },
+    { &show_power,                  FALSE, OPT_PAGE_TEXT, 2, 14,
+    "show_power",                   "Show device power in object listings (if known)" },
 
-	{ &show_item_graph,             TRUE,  OPT_PAGE_TEXT, 2, 0,
-	"show_item_graph",              "Show item graphics in object listings" },
+    { &show_item_graph,             TRUE,  OPT_PAGE_TEXT, 2, 0,
+    "show_item_graph",              "Show item graphics in object listings" },
 
-	{ &equippy_chars,               TRUE,  OPT_PAGE_TEXT, 1, 12,
-	"equippy_chars",                "Display 'equippy' chars" },
+    { &equippy_chars,               TRUE,  OPT_PAGE_TEXT, 1, 12,
+    "equippy_chars",                "Display 'equippy' chars" },
 
-	{ &display_hp_bar,              FALSE,  OPT_PAGE_TEXT, 1, 1,
-	"display_hp_bar",               "Display player hp bar" },
+    { &display_hp_bar,              FALSE,  OPT_PAGE_TEXT, 1, 1,
+    "display_hp_bar",               "Display player hp bar" },
 
-	{ &display_sp_bar,              FALSE,  OPT_PAGE_TEXT, 1, 2,
-	"display_sp_bar",               "Display player sp bar" },
+    { &display_sp_bar,              FALSE,  OPT_PAGE_TEXT, 1, 2,
+    "display_sp_bar",               "Display player sp bar" },
 
-	{ &display_food_bar,            FALSE,  OPT_PAGE_TEXT, 1, 13,
-	"display_food_bar",             "Display detailed food status" },
+    { &display_food_bar,            FALSE,  OPT_PAGE_TEXT, 1, 13,
+    "display_food_bar",             "Display detailed food status" },
 
-	//    { &display_percentages,         FALSE,  OPT_PAGE_TEXT, 1, 10,
-	//    "display_percentages",          "Display percentages rather than status bars" },
+    { &show_rogue_keys,		    FALSE, OPT_PAGE_TEXT, 6, 3,
+    "show_rogue_keys",		    "Display roguelike movement keys as reminder" },
 
-		{ &compress_savefile,           FALSE, OPT_PAGE_TEXT, 1, 26,
-		"compress_savefile",            "Compress messages in savefiles" },
+//    { &display_percentages,         FALSE,  OPT_PAGE_TEXT, 1, 10,
+//    "display_percentages",          "Display percentages rather than status bars" },
 
-		{ &abbrev_extra,                FALSE, OPT_PAGE_TEXT, 2, 10,
-		"abbrev_extra",                 "Describe obj's extra resistances by abbreviation" },
+    { &compress_savefile,           FALSE, OPT_PAGE_TEXT, 1, 26,
+    "compress_savefile",            "Compress messages in savefiles" },
 
-		{ &abbrev_all,                  FALSE, OPT_PAGE_TEXT, 2, 11,
-		"abbrev_all",                   "Describe obj's all resistances by abbreviation" },
+    { &abbrev_extra,                FALSE, OPT_PAGE_TEXT, 2, 10,
+    "abbrev_extra",                 "Describe extra object attributes by abbreviation" },
 
-		{ &exp_need,                    FALSE, OPT_PAGE_TEXT, 2, 12,
-		"exp_need",                     "Show the experience needed for next level" },
+    { &abbrev_all,                  FALSE, OPT_PAGE_TEXT, 2, 11,
+    "abbrev_all",                   "Describe all object attributes by abbreviation" },
 
-		{ &ignore_unview,               FALSE, OPT_PAGE_TEXT, 2, 13,
-		"ignore_unview",                "Ignore actions of out of sight monsters" },
+    { &exp_need,                    FALSE, OPT_PAGE_TEXT, 2, 12,
+    "exp_need",                     "Show the experience needed for next level" },
 
-		{ &display_distance,            FALSE,  OPT_PAGE_TEXT, 1, 4,
-		"display_distance",             "Display distance in monster list" },
+    { &ignore_unview,               FALSE, OPT_PAGE_TEXT, 2, 13,
+    "ignore_unview",                "Ignore actions of out of sight monsters" },
 
-		{ &display_race,		        TRUE, OPT_PAGE_TEXT, 2, 29,
-		"display_race",                 "Player character depends on race" },
+    { &display_distance,            FALSE,  OPT_PAGE_TEXT, 1, 4,
+    "display_distance",             "Display distance in monster list" },
 
-		{ &show_origins,		        TRUE, OPT_PAGE_TEXT, 2, 28,
-		"show_origins",                 "Show object origins on examination" },
+    { &display_race,		        TRUE, OPT_PAGE_TEXT, 2, 29,
+    "display_race",                 "Player character depends on race" },
 
-		{ &show_discovery,		        FALSE, OPT_PAGE_TEXT, 2, 26,
-		"show_discovery",                 "Show time of discovery on examination" },
+    { &show_origins,		        TRUE, OPT_PAGE_TEXT, 2, 28,
+    "show_origins",                 "Show object origins on examination" },
 
-		{ &final_dump_origins,		TRUE, OPT_PAGE_TEXT, 2, 18,
-		"final_dump_origins",             "Show origins in final character dumps" },
+    { &show_discovery,		        FALSE, OPT_PAGE_TEXT, 2, 26,
+    "show_discovery",                 "Show time of discovery on examination" },
 
-		{ &always_dump_origins,		FALSE, OPT_PAGE_TEXT, 2, 19,
-		"always_dump_origins",             "Show origins in all character dumps" },
+    { &final_dump_origins,		TRUE, OPT_PAGE_TEXT, 2, 18,
+    "final_dump_origins",             "Show origins in final character dumps" },
 
-		{ &easy_mimics,		        FALSE, OPT_PAGE_TEXT, 2, 27,
-		"easy_mimics",                  "Use 'x' for monsters that look like things" },
+    { &always_dump_origins,		FALSE, OPT_PAGE_TEXT, 2, 19,
+    "always_dump_origins",             "Show origins in all character dumps" },
 
-		{ &list_stairs,                  FALSE,  OPT_PAGE_TEXT, 1, 10,
-		"list_stairs",                  "Display stairs in the object list" },
+    { &easy_mimics,		        FALSE, OPT_PAGE_TEXT, 2, 27,
+    "easy_mimics",                  "Use 'x' for monsters that look like things" },
 
-		{ &display_skill_num,            FALSE,  OPT_PAGE_TEXT, 2, 22,
-		"display_skill_num",            "Display skills as numbers in character sheet" },
+    { &list_stairs,                  FALSE,  OPT_PAGE_TEXT, 1, 10,
+    "list_stairs",                  "Display stairs in the object list" },
 
-		{ &reforge_details,              TRUE,  OPT_PAGE_TEXT, 2, 16,
-		"reforge_details",              "Show statistics before proceeding with a reforge" },
+    { &show_future_powers,           TRUE,  OPT_PAGE_TEXT, 1, 0,
+    "show_future_powers",           "Include known future race/class powers in lists" },
 
-		{ &auto_sticky_labels,           TRUE,  OPT_PAGE_TEXT, 2, 17,
-		"auto_sticky_labels",           "Automatically make all power labels sticky" },
+    { &show_future_spells,           TRUE,  OPT_PAGE_TEXT, 2, 20,
+    "show_future_spells",           "Include known future class spells in lists" },
 
-		{ &show_damage,                  TRUE, OPT_PAGE_TEXT, 2, 12,
-		"show_damage",					"Show damage amounts in messages" },
+    { &show_damage,                  TRUE, OPT_PAGE_TEXT, 2, 12,
+	"show_damage",					"Show damage amounts in messages" },
+
+    { &display_skill_num,            FALSE,  OPT_PAGE_TEXT, 2, 22,
+    "display_skill_num",            "Display skills as numbers in character sheet" },
+
+    { &reforge_details,              TRUE,  OPT_PAGE_TEXT, 2, 16,
+    "reforge_details",              "Show statistics before proceeding with a reforge" },
+
+    { &auto_sticky_labels,           TRUE,  OPT_PAGE_TEXT, 2, 17,
+    "auto_sticky_labels",           "Automatically make all power labels sticky" },
 
 
-		/*** Game-Play ***/
+    /*** Game-Play ***/
 
-		{ &stack_force_notes,           TRUE,  OPT_PAGE_GAMEPLAY, 0, 8,
-		"stack_force_notes",            "Merge inscriptions when stacking" },
+    { &stack_force_notes,           TRUE,  OPT_PAGE_GAMEPLAY, 0, 8,
+    "stack_force_notes",            "Merge inscriptions when stacking" },
 
-		{ &stack_force_costs,           TRUE, OPT_PAGE_GAMEPLAY, 0, 9,
-		"stack_force_costs",            "Merge discounts when stacking" },
+    { &stack_force_costs,           TRUE, OPT_PAGE_GAMEPLAY, 0, 9,
+    "stack_force_costs",            "Merge discounts when stacking" },
 
-		{ &expand_list,                 TRUE,  OPT_PAGE_GAMEPLAY, 1, 5,
-		"expand_list",                  "Expand the power of the list commands" },
+    { &expand_list,                 TRUE,  OPT_PAGE_GAMEPLAY, 1, 5,
+    "expand_list",                  "Allow query option lists to loop to beginning" },
 
-		{ &empty_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 31,
-		"empty_levels",                 "Allow empty 'arena' levels" },
+    { &empty_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 31,
+    "empty_levels",                 "Allow empty 'arena' levels" },
 
-		{ &bound_walls_perm,            FALSE, OPT_PAGE_GAMEPLAY, 2, 1,
-		"bound_walls_perm",             "Boundary walls become 'permanent wall'" },
+    { &bound_walls_perm,            FALSE, OPT_PAGE_GAMEPLAY, 2, 1,
+    "bound_walls_perm",             "Display dungeon boundaries as permanent walls" },
 
-		{ &last_words,                  TRUE,  OPT_PAGE_GAMEPLAY, 0, 28,
-		"last_words",                   "Leave last words when your character dies" },
+    { &last_words,                  TRUE,  OPT_PAGE_GAMEPLAY, 0, 28,
+    "last_words",                   "Leave last words when your character dies" },
 
-		{ &unified_use,					FALSE, OPT_PAGE_GAMEPLAY, 0, 19,
-		"unified_use_command",			"Use 'a' for using any item type" },
+	{ &unified_use,					FALSE, OPT_PAGE_GAMEPLAY, 0, 19,
+	"unified_use_command",			"Use 'a' for using any item type" },
 
     /*** Disturbance ***/
 
@@ -2453,8 +2344,11 @@ option_type option_info[] =
     { &find_cut,                    FALSE, OPT_PAGE_DISTURBANCE, 0, 18,
     "find_cut",                     "Run past known corners" },
 
+    { &travel_ignore_items,         TRUE, OPT_PAGE_DISTURBANCE, 2, 30,
+    "travel_ignore_items",          "Ignore identified items while travelling" },
+
     { &check_abort,                 TRUE,  OPT_PAGE_DISTURBANCE, 1, 18,
-    "check_abort",                  "Check for user abort while continuous command" },
+    "check_abort",                  "Check for user abort of automated input" },
 
     { &flush_failure,               TRUE,  OPT_PAGE_DISTURBANCE, 1, 20,
     "flush_failure",                "Flush input on various failures" },
@@ -2490,13 +2384,13 @@ option_type option_info[] =
     "town_no_disturb",              "Never disturb when a town monster moves" },
 
     { &ring_bell,                   FALSE, OPT_PAGE_DISTURBANCE, 0, 14,
-    "ring_bell",                    "Audible bell (on errors, etc)" },
+    "ring_bell",                    "Audible bell (on errors, etc.)" },
 
     { &disturb_trap_detect,         TRUE,  OPT_PAGE_DISTURBANCE, 0, 27,
-    "disturb_trap_detect",          "Disturb when leaving trap detected area" },
+    "disturb_trap_detect",          "Disturb when leaving trap-detected area" },
 
     { &alert_trap_detect,           FALSE, OPT_PAGE_DISTURBANCE, 0, 25,
-    "alert_trap_detect",            "Alert when leaving trap detected area" },
+    "alert_trap_detect",            "Alert when leaving trap-detected area" },
 
     { &alert_device_gone,           TRUE,  OPT_PAGE_DISTURBANCE, 0, 13,
     "alert_device_gone",            "Alert when carried device is destroyed or stolen" },
@@ -2512,20 +2406,20 @@ option_type option_info[] =
 
     /*** Birth Options ***/
 
-	{ &coffee_break,		FALSE, OPT_PAGE_BIRTH, 6, 3,
-	"coffee_break",			"Coffee-break mode (accelerated game) (*)" },
+//	{ &coffee_break,		FALSE, OPT_PAGE_BIRTH, 6, 3,
+//	"coffee_break",			"Coffee-break mode (accelerated game) (*)" },
 
 	{ &no_id,			FALSE, OPT_PAGE_BIRTH, 6, 31,
-	"no_id",			"No ID is needed (*)" },
-
+	"no_id",			"Objects created IDed (*)" },
+	
 	{ &power_tele,			FALSE, OPT_PAGE_BIRTH, 6, 6,
 	"power_tele",			"Use enhanced telepathy" },
 
 	{ &never_forget,		FALSE, OPT_PAGE_BIRTH, 6, 27,
 	"never_forget",			"Easy Labyrinth and no amnesia" },
 
-    { &xp_penalty_to_score,                 TRUE,  OPT_PAGE_BIRTH, 1, 14,
-    "xp_penalty_to_score",                  "Exp multiplier affect score instead (*)" },
+	{ &xp_penalty_to_score,			FALSE, OPT_PAGE_BIRTH, 1, 14,
+	"xp_penalty_to_score",			"Exp multiplier affect score instead (*)" },
 
     { &smart_cheat,                 FALSE, OPT_PAGE_BIRTH, 1, 15,
     "smart_cheat",                  "Monsters exploit player's weaknesses (*)" },
@@ -2551,14 +2445,23 @@ option_type option_info[] =
     { &wacky_rooms,                 FALSE, OPT_PAGE_BIRTH, 1, 22,
     "wacky_rooms",                  "Always generate very unusual rooms (*)" },
 
+    { &melee_challenge,             FALSE, OPT_PAGE_BIRTH, 2, 21,
+    "melee_challenge",              "Monsters can only be damaged in melee (*)" },
+
+    { &no_melee_challenge,          FALSE, OPT_PAGE_BIRTH, 2, 23,
+    "no_melee_challenge",           "Monsters cannot be damaged in melee (*)" },
+
     { &enable_virtues,              FALSE, OPT_PAGE_BIRTH, 6, 13,
     "enable_virtues",               "Enable the virtue system" },
+
+    { &no_wanted_points,            TRUE, OPT_PAGE_BIRTH, 2, 24,
+    "no_wanted_points",             "Deeper wanted uniques give better rewards" },
 
     { &quest_unique,                TRUE, OPT_PAGE_BIRTH, 6, 21,
     "quest_unique",                 "Random quests for unique monsters only" },
 
     { &random_artifacts,            FALSE, OPT_PAGE_BIRTH, 6, 23,
-    "random_artifacts",             "Randomize Standard Artifacts" },
+    "random_artifacts",             "Randomize standard artifacts" },
 
     { &no_artifacts,                FALSE, OPT_PAGE_BIRTH, 6, 24,
     "no_artifacts",                 "Never create artifacts" },
@@ -2566,7 +2469,7 @@ option_type option_info[] =
     { &no_egos,                     FALSE, OPT_PAGE_BIRTH, 6, 25,
     "no_egos",                      "Never create non-jewelry ego items" },
 
-    { &no_selling,                  FALSE, OPT_PAGE_BIRTH, 6, 22,
+    { &no_selling,                  TRUE, OPT_PAGE_BIRTH, 6, 22,
     "no_selling",                   "Disable selling but increase gold drops" },
 
     { &reduce_uniques,              FALSE, OPT_PAGE_BIRTH, 6, 26,
@@ -2612,6 +2515,9 @@ option_type option_info[] =
 
     { &no_mogaminator,              FALSE, OPT_PAGE_AUTODESTROY, 7, 11,
     "no_mogaminator",               "Never apply the Mogaminator" },
+
+    { &leave_mogaminator,           FALSE, OPT_PAGE_AUTODESTROY, 7, 12,
+    "leave_mogaminator",            "Leave items the Mogaminator wants to destroy" },
 
     { &delay_autopick,              FALSE, OPT_PAGE_AUTODESTROY, 1, 9,
     "delay_autopick",               "Allow manual pickup before applying auto-pickup" },

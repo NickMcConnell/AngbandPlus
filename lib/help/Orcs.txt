@@ -9,11 +9,11 @@ The most common and familiar type of orc, fighter orcs are feared around the wor
 Strength     <color:w> -1</color>        Disarming   <color:o>Fair         </color>
 Intelligence <color:w> -4</color>        Device      <color:D>Very Bad     </color>
 Wisdom       <color:w> -5</color>        Save        <color:R>Poor         </color>
-Dexterity    <color:w> +0</color>        Stealth     <color:o>Fair         </color>
+Dexterity    <color:w> +0</color>        Stealth     <color:R>Poor         </color>
 Constitution <color:w> +0</color>        Searching   <color:R>Poor         </color>
 Charisma     <color:w> -5</color>        Perception  <color:r>Bad          </color>
-Life Rating   99%       Melee       <color:y>Good         </color>
-Base HP       30        Bows        <color:y>Good         </color>
+Life Rating   99%       Melee       <color:G>Excellent    </color>
+Base HP       30        Archery     <color:G>Excellent    </color>
 Experience   100%       Infravision 30'
 </style></indent>
 <topic:Orc shaman><color:o>Orc shaman</color>
@@ -23,11 +23,11 @@ Orc shamans and warlocks are more cunning than the average orc and have learned 
 Strength     <color:w> -1</color>        Disarming   <color:o>Fair         </color>
 Intelligence <color:v> -1</color>        Device      <color:R>Poor         </color>
 Wisdom       <color:w> -5</color>        Save        <color:o>Fair         </color>
-Dexterity    <color:w> -1</color>        Stealth     <color:o>Fair         </color>
+Dexterity    <color:w> -1</color>        Stealth     <color:R>Poor         </color>
 Constitution <color:w> -1</color>        Searching   <color:o>Fair         </color>
 Charisma     <color:w> -5</color>        Perception  <color:R>Poor         </color>
-Life Rating   92%       Melee       <color:o>Fair         </color>
-Base HP       28        Bows        <color:o>Fair         </color>
+Life Rating   92%       Melee       <color:y>Good         </color>
+Base HP       28        Archery     <color:y>Good         </color>
 Experience   100%       Infravision 30'
 </style></indent>
 <topic:Tables><style:heading>Table 1 - Orc Statistic Bonus Table</style>
@@ -40,17 +40,17 @@ Orc shaman         -1   -1   -5   -1   -1   -5   92%  +28  100%  140%
 <topic:Skills1><style:heading>Table 2 - Orc Skill Bonus Table I</style>
 <style:table>
                   <color:w>Disarming     Device        Save          Stealth      </color>
-Orc fighter       <color:o>Fair         </color> <color:D>Very Bad     </color> <color:R>Poor         </color> <color:o>Fair         </color>
-Orc shaman        <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:o>Fair         </color>
+Orc fighter       <color:o>Fair         </color> <color:D>Very Bad     </color> <color:R>Poor         </color> <color:R>Poor         </color>
+Orc shaman        <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 
 </style>
 <topic:Skills2><style:heading>Table 3 - Orc Skill Bonus Table II</style>
 <style:table>
-                  <color:w>Searching     Perception    Melee         Bows          Infra</color>
-Orc fighter       <color:R>Poor         </color> <color:r>Bad          </color> <color:y>Good         </color> <color:y>Good         </color>   30'
-Orc shaman        <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:o>Fair         </color>   30'
+                  <color:w>Searching     Perception    Melee         Archery       Infra</color>
+Orc fighter       <color:R>Poor         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color>   30'
+Orc shaman        <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Good         </color> <color:y>Good         </color>   30'
 
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.3.1.</color>
+<color:s>Automatically generated for Oposband 0.3.3.</color>

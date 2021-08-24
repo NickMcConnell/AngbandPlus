@@ -376,7 +376,7 @@ static void compact_monsters_aux(int i1, int i2)
 
             if (m2_ptr->parent_m_idx == i1)
             {
-                /* Don't call mon_set_parent() ... its the same parent! */
+                /* Don't call mon_set_parent() ... it's the same parent! */
                 m2_ptr->parent_m_idx = i2;
             }
         }
@@ -677,10 +677,10 @@ void pack_choose_ai(int m_idx)
         {
             switch(randint1(10))
             {
-            case 1: case 2: case 3: case 4: case 5:
+            case 1: case 2: case 3: case 4: case 5: case 6:
                 pack_ptr->ai = AI_LURE;
                 break;
-			case 6: case 7: case 8:
+            case 7: case 8:
                 pack_ptr->ai = AI_SEEK;
                 break;
             case 9:
@@ -859,6 +859,7 @@ static bool summon_ring_bearer = FALSE;
 static bool summon_summoner_okay = FALSE;
 static bool summon_friendly_unique_okay = FALSE;
 static bool summon_check_alignment = FALSE;
+static bool no_summon_mark_hack = FALSE;
 
 static bool summon_specific_aux(int r_idx)
 {
@@ -3488,13 +3489,15 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
 
     if (cloned)
         m_ptr->smart |= (1U << SM_CLONED);
-    if (who > 0)
+    if ((who > 0) && (!no_summon_mark_hack))
         m_ptr->smart |= (1U << SM_SUMMONED);
 
     if (who == SUMMON_WHO_PLAYER)
         m_ptr->mflag2 |= (MFLAG2_PLAYER_SUMMONED | MFLAG2_DIRECT_PY_SUMMON);
     else if ((who > 0) && ((is_pet_idx(who)) || (is_friendly_idx(who)) || (m_list[who].mflag2 & MFLAG2_PLAYER_SUMMONED)))
         m_ptr->mflag2 |= MFLAG2_PLAYER_SUMMONED;
+
+    if (spawn_hack) m_ptr->mflag2 |= MFLAG2_SPAWN;
 
     /* Place the monster at the location */
     m_ptr->fy = y;
@@ -3656,13 +3659,18 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
     m_ptr->mpower = 1000;
 
     /* Discourage level repetitions in coffee-break mode */
-    if ((coffee_break) && (m_ptr->r_idx == MON_SERPENT) && (p_ptr->coffee_lv_revisits))
+    if ((coffee_break) && ((m_ptr->r_idx == MON_SERPENT) || (coffee_break == SPEED_INSTA_COFFEE)) && (p_ptr->coffee_lv_revisits) && (is_hostile(m_ptr)))
     {
-        m_ptr->mpower += MIN(600, p_ptr->coffee_lv_revisits * 15);
-        m_ptr->mspeed += MIN(30, p_ptr->coffee_lv_revisits / 2);
+        m_ptr->mpower += MIN(600, p_ptr->coffee_lv_revisits * coffee_break * 15);
+        m_ptr->mspeed += MIN(30, p_ptr->coffee_lv_revisits * coffee_break / 2);
     }
 
     if (mode & PM_HASTE) (void)set_monster_fast(c_ptr->m_idx, 100);
+
+    if (mode & PM_NATIVE)
+    {
+        m_ptr->mflag2 |= MFLAG2_NATIVE;
+    }
 
     /* Give a random starting energy */
     if (!ironman_nightmare)
@@ -3788,8 +3796,8 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
 
 static bool mon_scatter(int r_idx, int *yp, int *xp, int y, int x, int max_dist)
 {
-    int place_x[MON_SCAT_MAXD];
-    int place_y[MON_SCAT_MAXD];
+	int place_x[MON_SCAT_MAXD] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int place_y[MON_SCAT_MAXD] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     int num[MON_SCAT_MAXD];
     int i;
     int nx, ny;
@@ -4097,8 +4105,12 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
                 /* Handle failure */
                 if (!z) break;
 
+                no_summon_mark_hack = (who <= 0);
+
                 /* Place a single escort */
                 (void)place_monster_one(place_monster_m_idx, ny, nx, z, pack_idx, mode);
+
+                no_summon_mark_hack = FALSE;
             }
             pack_choose_ai(m_idx);
         }
@@ -4693,8 +4705,6 @@ bool multiply_monster(int m_idx, bool clone, u32b mode)
 
 /*
  * Dump a message describing a monster's reaction to damage
- *
- * Technically should attempt to treat "Beholder"'s as jelly's
  */
 void message_pain(int m_idx, int dam)
 {
@@ -4711,7 +4721,7 @@ void message_pain(int m_idx, int dam)
     monster_desc(m_name, m_ptr, 0);
 
     /* Notice non-damage */
-    if (dam == 0)
+    if ((dam == 0) || (melee_challenge)) /* Assume only called from spells/ranged attacks */
     {
         msg_format("%^s is unharmed.", m_name);
 
@@ -5047,6 +5057,31 @@ void message_pain(int m_idx, int dam)
             msg_format("%^s cries out feebly.", m_name);
 
     }
+}
+
+
+/*
+ * Learn about an "observed" resistance.
+ */
+void update_smart_learn(int m_idx, int what)
+{
+    monster_type *m_ptr;
+    monster_race *r_ptr;
+
+    if (m_idx <= 0) return; /* paranoia */
+
+    m_ptr = &m_list[m_idx];
+    r_ptr = &r_info[m_ptr->r_idx];
+
+    /* Too stupid to learn anything */
+    if (r_ptr->flags2 & (RF2_STUPID)) return;
+
+    /* Not intelligent, only learn sometimes */
+    if (!(r_ptr->flags2 & (RF2_SMART)) && (randint0(100) < 50)) return;
+
+    /* Analyze the knowledge */
+    assert(0 <= what && what < 32);
+    m_ptr->smart |= (1U << what);
 }
 
 

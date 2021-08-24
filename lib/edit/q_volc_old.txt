@@ -1,0 +1,49 @@
+?:[EQU $QUEST6 Taken InProgress]
+D:A volcano has been rumbling in the eastern part of our
+D:territory. But, we do not think it is natural.
+D:Now, it is time to eliminate all creatures that are
+D:making their home at the volcano. You must exterminate
+D:them all if we are to avoid having lava ruin our crops!
+?:1
+
+?:[EQU $QUEST6 Completed]
+D:Here is a reward for your good work.
+?:1
+
+?:[EQU $QUEST6 Failed]
+D:You have failed me, beware you do not do so again!
+?:1
+
+T:QUEST:NORMAL
+L:<:UP_STAIR
+L:#:PERMANENT
+L:.:FLOOR
+L:L:DEEP_LAVA
+L:K:SHALLOW_LAVA
+L:a:MON(lava golem)
+L:b:MON(fire vortex)
+L:c:MON(fire elemental)
+L:d:MON(magma elemental)
+L:e:MON(efreeti)
+
+M:######################################################################
+M:#####..##..#####<.##..a.###########..........KKKKKKKLLKKKKKKK......###
+M:##..b........#.............#####...b....KKLLLLLKKKKLLLKKKKKKKK......##
+M:##..........................#........KKKKKKKKLLLKKKLLLKKKKKKKKKK....##
+M:###.......a............c............KKKKKKKKKKLLLKLLLLKKKKKKKKKKKK...#
+M:##................................KKKKKKKKKKKLLLLLLLLLLKKKKKKKKKKK...#
+M:##.............d....................bKKKKLLLLLLLLLLLLLKKKKKKKKKKK....#
+M:##..................................KKKKKKKKKKLLLLLLLLKKKKKKKKKK.....#
+M:#......c.................b..........KKKKKKKKKLLLKKKLLLKKKKKKKKK.....##
+M:#..............a......................KKKKKKLLLKKKKLLLKKKKKKKKKK.....#
+M:##....................................KKKKKLKKKKKKKLLLKKKKKKK........#
+M:##.......................a..............KKKKKKKKKKLLLKKKKKKK........##
+M:##.........................................KKKKKKKLLLKKKKKK.........##
+M:###..b...........c.............................KKLLKKKKKKK...........#
+M:##.................#..................e...........KKKKKKK............#
+M:#...............#####....###.....b..................................##
+M:##############################...####...#####....##########.......####
+M:######################################################################
+R:OBJ(cloak):EGO(immolation)
+
+

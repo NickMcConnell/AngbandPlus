@@ -1,4 +1,4 @@
 #!/bin/bash
 make -j4
-cp oposband ..
+cp poschengband ..
 ls -lah ../pos*

@@ -121,8 +121,8 @@ F:CAVE | MONSTER_DIV_0 | CAVERN | LAKE_LAVA | LAVA_RIVER | DESTROY
 F:INITIAL_GUARDIAN_940 | FINAL_GUARDIAN_972 | FINAL_OBJECT_55_0 | FINAL_EGO_560
 M:IM_FIRE | CAN_FLY | WILD_VOLCANO
 
-N:9:CoUrTs oF cHaOs
-D:a black road to Chaos
+N:9:Nether Realm
+D:the stairway to the Nether Realm
 P:62:94
 W:666:696:50:1:14:160:90:77:0x0188:0x0280
 L:SHALLOW_LAVA:80:DEEP_LAVA:20:FLOOR:0:0
@@ -131,8 +131,8 @@ F:CAVERN | MONSTER_DIV_0 | LAKE_LAVA | LAVA_RIVER | WINNER
 F:BIG | FINAL_GUARDIAN_1195
 M:IM_FIRE | EVIL
 
-N:10:Infinity Palace
-D:opulent gates to the Infinity Palace
+N:10:Astral Plane
+D:the translucent gates to the Astral Plane
 P:2:94
 W:555:586:50:1:18:160:85:35:0x0040:0x0104
 L:FLOOR:100:FLOOR:0:FLOOR:0:1000
@@ -376,8 +376,8 @@ F:FINAL_GUARDIAN_431 | FINAL_OBJECT_75_68 | CAVE | WATER_RIVER | LAKE_WATER | CA
 F:MONSTER_DIV_16
 M:CAN_SWIM | WILD_SHORE | AQUATIC
 
-N:34:Forbidden Pyramid
-D:dark steps leading into a black pyramid
+N:34:Nameless Pyramid
+D:forbidding steps leading into a nameless pyramid
 P:37:77
 W:64:92:50:3:14:160:90:40:0xFFFF:0xFFFF
 L:FLOOR:100:FLOOR:0:FLOOR:0:8

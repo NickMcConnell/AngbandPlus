@@ -144,9 +144,9 @@ class_t *disciple_get_class(int psubclass)
 /* Bad things, but not ty_curse bad (or at least not ty_curse insta-deadly) */
 void nonlethal_ty_substitute(bool do_dec)
 {
-	bool old_nos = no_scrambling;
-	no_scrambling = TRUE;
-	mutate_player();
-	no_scrambling = old_nos;
-	if (do_dec) dec_stat(randint0(MAX_STATS), 12 + randint1(6), TRUE);
+    bool old_nos = no_scrambling;
+    no_scrambling = TRUE;
+    mutate_player();
+    no_scrambling = old_nos;
+    if (do_dec) dec_stat(randint0(MAX_STATS), 12 + randint1(6), TRUE);
 }

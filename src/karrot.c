@@ -633,7 +633,7 @@ quest_ptr karrot_get_quest(int dungeon, int level)
     _kt_quests[_q_idx].goal_idx = q->goal_idx;
     _kt_quests[_q_idx].goal_ct = q->goal_count;
     _kt_quests[_q_idx].dungeon = q->dungeon;
-    _kt_quests[_q_idx].start_lev = (byte_hack)p_ptr->max_plv;
+    _kt_quests[_q_idx].start_lev = p_ptr->max_plv;
     _kt_quests[_q_idx].killed = 0;
     _kt_quests[_q_idx].completed_lev = 0;
     _kt_quests[_q_idx].completed_turn = 0;

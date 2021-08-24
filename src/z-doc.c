@@ -745,7 +745,8 @@ static void _doc_process_var(doc_ptr doc, cptr name)
     if (strcmp(name, "version") == 0)
     {
         string_ptr s = string_alloc_format("%d.%d.%d", VER_MAJOR, VER_MINOR, VER_PATCH);
-        if (coffee_break) string_append_s(s, "<color:U> (Coffee)</color>");
+        if (coffee_break == SPEED_COFFEE) string_append_s(s, "<color:U> (Coffee)</color>");
+        if (coffee_break == SPEED_INSTA_COFFEE) string_append_s(s, "<color:U> (Instant Coffee)</color>");
         if (thrall_mode) string_append_s(s, "<color:R> (Thrall)</color>");
         if (wacky_rooms) string_append_s(s, "<color:v> (Wacky)</color>");
         if (VERSION_IS_DEVELOPMENT)
@@ -1727,10 +1728,19 @@ int doc_display_aux(doc_ptr doc, cptr caption, int top, rect_t display)
                     done = TRUE;
             }
             break;
+        case '!':
+            if (!strstr(caption, "start.txt"))
+            {
+                rc = doc_display_help_aux("start.txt", NULL, display);
+                if (rc == _UNWIND)
+                    done = TRUE;
+            }
+            break;
         case ESCAPE:
             done = TRUE;
             break;
         case 'q':
+        case 'Q':
             done = TRUE;
             rc = _UNWIND;
             break;
@@ -1939,7 +1949,7 @@ int weapon_exp_display(doc_ptr doc, cptr caption, int *top)
         c_put_str(TERM_L_GREEN, format("[%s, Line %d/%d]", caption, *top, doc->cursor.y), display.y, display.x);
         doc_sync_term(doc, doc_region_create(0, *top, doc->width, *top + page_size - 1), doc_pos_create(display.x, display.y + 2));
         Term_erase(display.x, display.y + display.cy - 1, display.cx);
-        c_put_str(TERM_L_GREEN, "[Press ESC to exit. Press ? for help]", display.y + display.cy - 1, display.x);
+        c_put_str(TERM_L_GREEN, "[Press ESC to exit. Press M to toggle mode. Press ? for help]", display.y + display.cy - 1, display.x);
 
         cmd = inkey_special(TRUE);
 
@@ -2112,6 +2122,11 @@ int weapon_exp_display(doc_ptr doc, cptr caption, int *top)
                 }
             }
             else strcpy(finder_str, back_str);
+            break;
+        case 'm':
+        case 'M':
+            change_mode = TRUE;
+            done = TRUE;
             break;
         default:
             break;

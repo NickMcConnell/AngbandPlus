@@ -392,7 +392,7 @@ bool make_attack_normal(int m_idx)
                 {
                     act = silly_attacks[randint0(MAX_SILLY_ATTACK)];
                 }
-                msg_format("%^s %s%s%s", m_name, act, do_silly_attack ? " you" : "", retaliation_hack ? ".<color:g>)</color>" : "");
+                msg_format("%^s %s%s%s", m_name, act, do_silly_attack ? " you" : "", retaliation_hack ? "<color:g>)</color>" : "");
             }
 
             /* Hack -- assume all attacks are obvious */
@@ -791,7 +791,6 @@ bool make_attack_normal(int m_idx)
 					set_image(effect_dam, FALSE);
 					obvious = TRUE;
 					break;
-
                 case RBE_DISEASE:
                     effect_dam = reduce_melee_dam_p(effect_dam);
                     blow_dam += take_hit(DAMAGE_ATTACK, effect_dam, ddesc);
@@ -856,7 +855,7 @@ bool make_attack_normal(int m_idx)
             if (explode)
             {
                 sound(SOUND_EXPLODE);
-                if (mon_take_hit(m_idx, m_ptr->hp + 1, &fear, NULL, FALSE))
+                if (mon_take_hit(m_idx, m_ptr->hp + 1, DAM_TYPE_WIZARD, &fear, NULL))
                 {
                     blinked = FALSE;
                     alive = FALSE;
@@ -940,8 +939,9 @@ bool make_attack_normal(int m_idx)
                     dam = mon_damage_mod(m_ptr, dam, FALSE);
                     if (dam > 0)
                     {
-                        msg_format("%^s feels your blood vengeance", m_name);
-                        if (mon_take_hit(m_idx, dam, &fear, " turns into a pool of blood.", TRUE))
+                        msg_format("%^s feels your bloody revenge", m_name);
+                        if (mon_take_hit(m_idx, dam, DAM_TYPE_MELEE, &fear,
+                            " turns into a pool of blood."))
                         {
                             blinked = FALSE;
                             alive = FALSE;
@@ -960,7 +960,8 @@ bool make_attack_normal(int m_idx)
 
                         msg_format("%^s is <color:r>burned</color>", m_name);
 
-                        if (mon_take_hit(m_idx, dam, &fear, " turns into a pile of ash.", TRUE))
+                        if (mon_take_hit(m_idx, dam, DAM_TYPE_AURA, &fear,
+                            " turns into a pile of ash."))
 
                         {
                             blinked = FALSE;
@@ -984,7 +985,8 @@ bool make_attack_normal(int m_idx)
 
                         msg_format("%^s is <color:b>zapped</color>", m_name);
 
-                        if (mon_take_hit(m_idx, dam, &fear, " turns into a pile of cinder.", TRUE))
+                        if (mon_take_hit(m_idx, dam, DAM_TYPE_AURA, &fear,
+                            " turns into a pile of cinder."))
 
                         {
                             blinked = FALSE;
@@ -1008,7 +1010,8 @@ bool make_attack_normal(int m_idx)
 
                         msg_format("%^s is <color:w>frozen</color>", m_name);
 
-                        if (mon_take_hit(m_idx, dam, &fear," was frozen.", TRUE))
+                        if (mon_take_hit(m_idx, dam, DAM_TYPE_AURA, &fear,
+                            " was frozen."))
 
                         {
                             blinked = FALSE;
@@ -1030,7 +1033,7 @@ bool make_attack_normal(int m_idx)
 
                         dam = mon_damage_mod(m_ptr, dam, FALSE);
                         msg_format("%^s is <color:u>shredded</color>", m_name);
-                        if (mon_take_hit(m_idx, dam, &fear," was torn to pieces.", TRUE))
+                        if (mon_take_hit(m_idx, dam, DAM_TYPE_AURA, &fear," was torn to pieces."))
                         {
                             blinked = FALSE;
                             alive = FALSE;
@@ -1106,9 +1109,10 @@ bool make_attack_normal(int m_idx)
                             /* Modify the damage */
                             dam = mon_damage_mod(m_ptr, dam, FALSE);
 
-                            msg_format("%^s is struck by holy power", m_name);
+                            msg_format("%^s is injured by holy power", m_name);
 
-                            if (mon_take_hit(m_idx, dam, &fear," is destroyed.", TRUE))
+                            if (mon_take_hit(m_idx, dam, DAM_TYPE_AURA, &fear,
+                                " is destroyed."))
                             {
                                 blinked = FALSE;
                                 alive = FALSE;
@@ -1133,7 +1137,8 @@ bool make_attack_normal(int m_idx)
 
                         msg_format("%^s is injured by the <color:B>Force</color>", m_name);
 
-                        if (mon_take_hit(m_idx, dam, &fear," is destroyed.", TRUE))
+                        if (mon_take_hit(m_idx, dam, DAM_TYPE_AURA, &fear,
+                            " is destroyed."))
 
                         {
                             blinked = FALSE;
@@ -1178,7 +1183,7 @@ bool make_attack_normal(int m_idx)
 
                         msg_format("Enveloped shadows attack %^s", m_name);
 
-                        if (mon_take_hit(m_idx, dam, &fear, " is destroyed.", TRUE))
+                        if (mon_take_hit(m_idx, dam, DAM_TYPE_AURA, &fear, " is destroyed."))
                         {
                             blinked = FALSE;
                             alive = FALSE;

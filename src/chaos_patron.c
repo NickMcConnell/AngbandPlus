@@ -185,6 +185,7 @@ void chaos_forge_weapon() {
 
 	drop_near(&forge, -1, py, px);
 }
+
 void chaos_gift_device() {
 	object_type forge;
 	int         dummy = 0;

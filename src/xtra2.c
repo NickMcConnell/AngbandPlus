@@ -248,10 +248,20 @@ void check_experience(void)
         handle_stuff();
     }
 
+    /* Heal player by as many HP as they gain */
+    int old_maxhp = p_ptr->mhp;
+    int old_maxsp = p_ptr->msp;
+
     /* Gain levels while possible */
     while ((p_ptr->lev < PY_MAX_LEVEL) &&
            (p_ptr->exp >= exp_requirement(p_ptr->lev)))
     {
+        if (level_inc_stat) /* check for delays from weird stuff */
+        {
+            gain_chosen_stat();
+            level_inc_stat = FALSE;
+        }
+
         p_ptr->lev++;
 
         if (p_ptr->pclass == CLASS_WILD_TALENT) wild_talent_fix_up();
@@ -263,23 +273,18 @@ void check_experience(void)
 
             p_ptr->max_plv = p_ptr->lev;
 
-			/* Oposband: FUll heal / recharge */
-			int healed = p_ptr->mhp - p_ptr->chp;
-			if (healed) msg_format("Healed <color:g>%d</color>.", healed);
-			p_ptr->chp = p_ptr->mhp;
-			p_ptr->chp_frac = 0;
-			p_ptr->csp = p_ptr->msp;
-			p_ptr->csp_frac = 0;
-
             sound(SOUND_LEVEL);
             cmsg_format(TERM_L_GREEN, "Welcome to level %d.", p_ptr->lev);
+
+            if ((p_ptr->max_plv % 5) == 0) level_inc_stat = TRUE;
 
             if (class_ptr->gain_level != NULL)
                 (class_ptr->gain_level)(p_ptr->lev);
 
-            level_inc_stat = TRUE;
-
 			if (worships_chaos()) chaos_choose_effect(PATRON_LEVEL_UP);
+
+            if (p_ptr->personality == PERS_SPLIT)
+                split_shuffle(FALSE);
 
             /* N.B. The class hook or the Chaos Gift mutation may result in a race
                change (stupid Chaos-Warriors), so we better always requery the player's
@@ -295,6 +300,13 @@ void check_experience(void)
             }
         }
 
+        /* Regain some HP and SP if we leveled up */
+        if (old_maxhp < p_ptr->mhp) {
+            hp_player(p_ptr->mhp - old_maxhp);
+        }
+        if (old_maxsp < p_ptr->msp) {
+            sp_player(p_ptr->msp - old_maxsp);
+        }
 
         /* Update some stuff */
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -314,11 +326,8 @@ void check_experience(void)
 
         if (level_inc_stat)
         {
-            if(p_ptr->max_plv % 5 == 0)
-            {
-                gain_chosen_stat();
-                level_inc_stat = FALSE;
-            }
+            gain_chosen_stat();
+            level_inc_stat = FALSE;
         }
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
         p_ptr->redraw |= (PR_LEV);
@@ -336,7 +345,7 @@ void check_experience(void)
         if (race_ptr->change_level)
             race_ptr->change_level(old_lev, p_ptr->lev);
 
-        autopick_load_pref(FALSE);
+        autopick_load_pref(0);
     }
 }
 
@@ -520,6 +529,9 @@ byte get_monster_drop_ct(monster_type *m_ptr)
     int number = 0;
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+    if ((coffee_break == SPEED_INSTA_COFFEE) && (m_ptr->mflag2 & MFLAG2_PLAYER_SUMMONED)) return 0;
+    if (is_pet(m_ptr) || p_ptr->inside_battle || p_ptr->inside_arena) return 0; /* Pets drop nothing */
+
     if ((r_ptr->flags1 & RF1_DROP_60) && (randint0(100) < 60)) number++;
     if ((r_ptr->flags1 & RF1_DROP_90) && ((r_ptr->flags1 & RF1_UNIQUE) || randint0(100) < 90)) number++;
     if  (r_ptr->flags1 & RF1_DROP_1D2) number += damroll(1, 2);
@@ -536,17 +548,39 @@ byte get_monster_drop_ct(monster_type *m_ptr)
         number = 2 + (number - 2) / 2;
     }
 
-    if ((number) && (coffee_break) && (py_in_dungeon()))
+    if ((number) && (coffee_break))
     {
-        number *= 2;
-        if (number > 7) number -= (number / 7);
-        if (((dun_level >= 46) || (p_ptr->max_plv >= 38)) && (number > 5) && (!(r_ptr->flags1 & RF1_DROP_GREAT))
-            && (!(r_ptr->flags1 & RF1_UNIQUE)) && (!(r_ptr->flags1 & RF1_ONLY_GOLD)) && (magik(MAX(10, (p_ptr->max_plv - 35) * 3)))) number -= 1;
+        if (py_in_dungeon() && (!(r_ptr->flags2 & RF2_MULTIPLY)))
+        {
+            number *= 2;
+            if (number > 7) number -= (number / 7);
+            if (((dun_level >= 46) || (p_ptr->max_plv >= 38)) && (number > 5) && (!(r_ptr->flags1 & RF1_DROP_GREAT))
+                && (!(r_ptr->flags1 & RF1_UNIQUE)) && (!(r_ptr->flags1 & RF1_ONLY_GOLD)) && (magik(MAX(10, (p_ptr->max_plv - 35) * 3)))) number -= 1;
+        }
+        if (coffee_break == SPEED_INSTA_COFFEE)
+        {
+            int cap = (p_ptr->coffee_lv_revisits) ? 40 : MAX(40, 15 + (dun_level * 2 / 3));
+            int tapot = (p_ptr->lv_kills + p_ptr->pet_lv_kills);
+            bool _is_summon = (m_ptr->smart & (1U << SM_SUMMONED)) ? TRUE : FALSE;
+            if (((tapot > cap) || (m_ptr->mflag2 & MFLAG2_SPAWN)) && ((_is_summon) || (py_in_dungeon())))
+            {
+                int lisays = _is_summon ? MAX(50, 75 + cap - tapot) : MAX(125, 150 + cap - tapot);
+                int vahennys = ((number * tapot) / (tapot + lisays));
+                if (randint0(tapot + lisays) < ((number * tapot) % (tapot + lisays))) vahennys++;
+//                msg_format("Tiputuksia: %d->%d Monster %s", number, number - vahennys, _is_summon ? "summoned" : "not summoned");
+                number = MAX(0, number - vahennys);
+                if (m_ptr->mflag2 & MFLAG2_SPAWN) /* Can random monsters even spawn in insta-coffee mode? Maybe in the town... */
+                {
+                    number /= 2;
+                }
+            }
+            else if ((py_in_dungeon()) && (!_is_summon) && (randint0(number) > 1)) number++;
+        }
     }
 
     if (is_pet(m_ptr) || p_ptr->inside_battle || p_ptr->inside_arena)
         number = 0; /* Pets drop no stuff */
-    else if (m_ptr->mflag2 & MFLAG2_WASPET)
+    if (m_ptr->mflag2 & MFLAG2_WASPET)
     {
         number /= 8;
     }
@@ -558,7 +592,7 @@ byte get_monster_drop_ct(monster_type *m_ptr)
         if (r_ptr->flags1 & RF1_ONLY_GOLD)
             cap = 200; /* About 110k gp at DL21 */
         if (no_selling) cap /= 2; /* Gold drops are bigger with no_selling */
-        if (coffee_break) cap /= 2; /* More drops in coffee_break mode */
+        if (coffee_break) cap /= (coffee_break * 2); /* More drops in coffee_break mode */
         if (r_ptr->flags1 & RF1_NEVER_MOVE) cap /= 2;
         if (r_ptr->r_akills > cap)
             number = 0;
@@ -580,7 +614,7 @@ byte get_monster_drop_ct(monster_type *m_ptr)
                 max_kills = 100;
 
             if ((no_selling) && (r_ptr->flags1 & RF1_ONLY_GOLD)) max_kills /= 2;
-            if (coffee_break) max_kills /=2;
+            if (coffee_break) max_kills /= (coffee_break * 2);
 
             if (pr_ptr->r_skills > max_kills)
                 number = 0;
@@ -779,7 +813,7 @@ static bool _kind_is_utility(int k_idx)
             return TRUE;
         case SV_SCROLL_IDENTIFY:
 			return no_id ? FALSE : TRUE;
-		case SV_SCROLL_STAR_IDENTIFY:
+        case SV_SCROLL_STAR_IDENTIFY:
 			return FALSE;
         }
         break;
@@ -924,7 +958,7 @@ void monster_death(int m_idx, bool drop_item)
         else
         {
             msg_print("Victorious! You're on your way to becoming Champion.");
-            p_ptr->fame++;
+            gain_fame(1);
         }
 
         if (arena_info[p_ptr->arena_number].tval)
@@ -987,7 +1021,7 @@ void monster_death(int m_idx, bool drop_item)
         }
     }
 
-    if (p_ptr->prace == RACE_MON_MIMIC && !(m_ptr->smart & SM_CLONED))
+    if ((p_ptr->prace == RACE_MON_MIMIC) && (!cloned))
         mimic_on_kill_monster(m_ptr->r_idx);
 
     if ( vampiric_drain_hack
@@ -1002,9 +1036,30 @@ void monster_death(int m_idx, bool drop_item)
     if (p_ptr->prace == RACE_MON_POSSESSOR && p_ptr->current_r_idx == MON_POSSESSOR_SOUL)
         corpse_chance = 2;
 
+    if (prace_is_(RACE_IGOR))
+    {
+        if (coffee_break == SPEED_INSTA_COFFEE)
+        {
+            if ((!(r_ptr->flags1 & RF1_UNIQUE)) || (m_ptr->smart & (1U << SM_SUMMONED)))
+            {
+                int ylim = (p_ptr->lv_kills + p_ptr->pet_lv_kills) - MAX(40, 15 + dun_level / 2);
+                if (ylim > 0)
+                {
+                    corpse_chance += ylim;
+                    if ((m_ptr->smart & (1U << SM_SUMMONED)) && (!(r_ptr->flags1 & RF1_UNIQUE))) corpse_chance *= 3;
+                }
+            }
+            else if ((p_ptr->lv_kills + p_ptr->pet_lv_kills < 40) && (!(r_ptr->flags2 & RF2_MULTIPLY))) corpse_chance = 2;
+        }
+        if (r_ptr->flags2 & RF2_MULTIPLY)
+        {
+            corpse_chance = MAX(corpse_chance + 1, r_ptr->r_akills + 1);
+        }
+    }
+
     if ( (_mon_is_wanted(m_idx) || (one_in_(corpse_chance) && !do_vampire_servant))
       && (r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON))
-      && !(p_ptr->inside_arena || p_ptr->inside_battle || cloned || ((m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
+      && !(p_ptr->inside_arena || p_ptr->inside_battle || cloned || (((m_ptr->r_idx == today_mon) || (prace_is_(RACE_IGOR))) && (is_pet(m_ptr)))))
     {
         /* Assume skeleton */
         bool corpse = FALSE;
@@ -1320,7 +1375,7 @@ void monster_death(int m_idx, bool drop_item)
     case MON_MORGOTH:
     case MON_ONE_RING:
         /* Reward for "lazy" player */
-        if (p_ptr->personality == PERS_LAZY)
+        if (personality_is_(PERS_LAZY))
         {
             int a_idx = 0, yritys = 0;
             artifact_type *a_ptr = NULL;
@@ -1599,6 +1654,22 @@ void monster_death(int m_idx, bool drop_item)
             break;
         }
         break;
+    }
+
+    if ((coffee_break == SPEED_INSTA_COFFEE) && (r_ptr->flags1 & RF1_UNIQUE) && (monster_pantheon(r_ptr)))
+    {
+        /* Get local object */
+        q_ptr = &forge;
+
+        object_prep(q_ptr, lookup_kind(TV_POTION, one_in_(7) ? SV_POTION_STAR_HEALING : SV_POTION_HEALING));
+
+        object_origins(q_ptr, ORIGIN_DROP);
+        q_ptr->origin_xtra = m_ptr->r_idx;
+
+        if (q_ptr->number > 3) q_ptr->number = 3;
+
+        /* Drop it in the dungeon */
+        (void)drop_near(q_ptr, -1, y, x);
     }
 
     if (drop_chosen_item && (m_ptr->mflag2 & MFLAG2_DROP_MASK))
@@ -2135,7 +2206,7 @@ void monster_death(int m_idx, bool drop_item)
         if (race_ptr->boss_r_idx && race_ptr->boss_r_idx == m_ptr->r_idx)
         {
             msg_print("Congratulations! You have killed the boss of your race!");
-            p_ptr->fame += 10;
+            gain_fame(10);
             chance = 100;
             p_ptr->update |= PU_BONUS; /* Player is now a "Hero" (cf IS_HERO()) */
             p_ptr->redraw |= PR_STATUS;
@@ -2168,7 +2239,7 @@ void monster_death(int m_idx, bool drop_item)
     }
 
     /* Re-roll drop count (leprechaun nerf) */
-    if ((r_ptr->r_akills > 40) || (r_ptr->flags1 & RF1_ONLY_GOLD)) m_ptr->drop_ct = MAX(m_ptr->stolen_ct, get_monster_drop_ct(m_ptr));
+    if ((r_ptr->r_akills > 40) || (r_ptr->flags1 & RF1_ONLY_GOLD) || (coffee_break == SPEED_INSTA_COFFEE)) m_ptr->drop_ct = MAX(m_ptr->stolen_ct, get_monster_drop_ct(m_ptr));
 
     /* Determine how much we can drop */
     number = m_ptr->drop_ct - m_ptr->stolen_ct;
@@ -2359,6 +2430,7 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr, bool mon_dead)
 
     if (!m_ptr->r_idx) return;
     if (is_pet(m_ptr) || p_ptr->inside_battle || (m_ptr->mflag2 & MFLAG2_WASPET)) return;
+    if ((coffee_break == SPEED_INSTA_COFFEE) && (m_ptr->mflag2 & MFLAG2_PLAYER_SUMMONED)) return;
 
     /*
      * - Ratio of monster's level to player's level effects
@@ -2519,13 +2591,64 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr, bool mon_dead)
         int coffee_mult = 2;
         if (p_ptr->lev < 50)
         {
-           coffee_mult = 3;
+//           coffee_mult = 3;
            if (!(r_ptr->flags2 & RF2_MULTIPLY)) coffee_mult = (((p_ptr->lev / 10) == 1) || ((p_ptr->lev >= 38))) ? 7 : 8;
            if (p_ptr->lev >= 42) coffee_mult = MIN(coffee_mult, 6);
            if (p_ptr->lev >= 47) coffee_mult = MIN(coffee_mult, 5);
         }
         s64b_mul(&new_exp, &new_exp_frac, 0, coffee_mult);
     }
+
+    if ((coffee_break == SPEED_INSTA_COFFEE))
+    {
+        int exp_div = 40;
+        int cap = 40;
+        int mult = ((p_ptr->lev / 14) == 2) ? 5 : 4;
+        int tapot = (p_ptr->lv_kills + p_ptr->pet_lv_kills);
+        bool _is_summon = (m_ptr->smart & (1U << SM_SUMMONED)) ? TRUE : FALSE;
+//        int mult = 4;
+        if (!py_in_dungeon()) mult = 7;
+        if (m_ptr->mflag2 & MFLAG2_NATIVE)
+        {
+            tapot = MIN(tapot, 60);
+        }
+        if ((dun_level >= 99) && (p_ptr->lev < 50)) mult = 6;
+        else if ((mult < 7) && (dun_level > 5) && (tapot <= cap) && (quest_get_rnd_num(NULL) * 4 > p_ptr->lev - 11))
+        { /* Player is really low-level for the current quest, help him along a bit */
+            mult += ((quest_get_rnd_num(NULL) * 4) + 11 - p_ptr->lev);
+            if (mult > 10) mult = 10;
+        }
+        s64b_mul(&new_exp, &new_exp_frac, 0, mult);
+        s64b_div(&new_exp, &new_exp_frac, 0, (p_ptr->lev < 10) ? 4 : 3);
+        if ((tapot > cap) && (!(r_ptr->flags1 & RF1_UNIQUE)))
+        {
+            exp_div += (tapot / 4);
+            if (m_ptr->mflag2 & MFLAG2_SPAWN) exp_div += MAX(exp_div, 100);
+            s64b_mul(&new_exp, &new_exp_frac, 0, 40);
+            s64b_div(&new_exp, &new_exp_frac, 0, exp_div);
+        }
+        else if ((tapot < 40) && (p_ptr->lev < 44)) /* Speed up mage-type XP gain to limit desire to grind */
+        {
+            int _fake_hp = calc_xtra_hp_fake(33);
+            exp_div = 36;
+            mult = exp_div + 8 + ((200 - _fake_hp) / 5);
+            if ((_is_summon) || ((!py_in_dungeon()) && (((p_ptr->lev + 10) / 20) != 1))) exp_div = 44;
+            if (mult != exp_div)
+            {
+                s64b_mul(&new_exp, &new_exp_frac, 0, mult);
+                s64b_div(&new_exp, &new_exp_frac, 0, exp_div);
+            }
+        }
+        if ((tapot > MAX(cap, 19 + dun_level * 4 / 9)) && (_is_summon))
+        {
+            mult = (r_ptr->flags1 & RF1_UNIQUE) ? 30 : 10;
+            exp_div = mult + tapot - (MAX(cap, dun_level * 2 / 3));
+            s64b_mul(&new_exp, &new_exp_frac, 0, mult);
+            s64b_div(&new_exp, &new_exp_frac, 0, exp_div);
+        }
+    }
+
+    if ((new_exp > 0) && (mon_dead)) p_ptr->lv_kills++;
 
     /* Gain experience */
     gain_exp_64(new_exp, new_exp_frac);
@@ -2546,9 +2669,9 @@ void mon_check_kill_unique(int m_idx)
 
             if (one_in_(3) || r_ptr->level >= 80)
             {
-                p_ptr->fame++;
+                gain_fame(1);
                 if (r_ptr->level >= 90)
-                    p_ptr->fame++;
+                    gain_fame(1);
             }
 
             /* Mega-Hack -- Banor & Lupart */
@@ -2610,9 +2733,8 @@ void mon_check_kill_unique(int m_idx)
  * instead of simply "(m_exp * m_lev) / (p_lev)", to make the first
  * monster worth more than subsequent monsters. This would also need
  * to induce changes in the monster recall code.
- * "aoe" marker was added for message modification.
  */
-bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool sentence)
+bool mon_take_hit(int m_idx, int dam, int type, bool *fear, cptr note)
 {
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
@@ -2643,6 +2765,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool sentence)
         }
     }
 
+    if ((melee_challenge) && (dam > 0) && (type != DAM_TYPE_MELEE) && (type != DAM_TYPE_WIZARD) && (type != DAM_TYPE_AURA))
+    {
+        dam = 0;
+    }
+    if ((no_melee_challenge) && (dam > 0) && (type == DAM_TYPE_MELEE)) dam = 0;
+
     if (!(r_ptr->flags7 & RF7_KILL_EXP))
     {
         expdam = (m_ptr->hp > dam) ? dam : m_ptr->hp;
@@ -2672,7 +2800,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool sentence)
 
 	if (show_damage && dam > 0)
 	{
-		if (sentence)
+		if (type != DAM_TYPE_SPELL)
 			msg_format("for <color:y>%d</color>.", dam); 
 		else
 			msg_format("(<color:y>%d</color>)", dam);
@@ -2685,8 +2813,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool sentence)
     {
         char m_name[MAX_NLEN];
         monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
-		m_ptr->ac_adj -= randint1(2);
-		msg_format("%^s armor melts (now %d).", m_name, mon_ac(m_ptr));
+        m_ptr->ac_adj -= randint1(2);
+        if (p_ptr->wizard || cheat_xtra || show_damage)
+			msg_format("%^s armor melts (now %d).", m_name, mon_ac(m_ptr));
+		else
+			msg_format("%^s armor melts.", m_name);
     }
 
     /* Rage Mage: "Blood Lust" */
@@ -2749,9 +2880,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool sentence)
 
                 if (one_in_(3) || r_ptr->level >= 80)
                 {
-                    p_ptr->fame++;
+                    gain_fame(1);
                     if (r_ptr->level >= 90)
-                        p_ptr->fame++;
+                        gain_fame(1);
                 }
 
                 /* Mega-Hack -- Banor & Lupart */
@@ -2951,8 +3082,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool sentence)
         {
             if (r_ptr->flags1 & RF1_UNIQUE)
                 virtue_add(VIRTUE_JUSTICE, 3);
-            else if (1+((r_ptr->level) / 10 + (2 * dun_level))
-                >= randint1(100))
+            else if (((r_ptr->level) / 10 + (2 * dun_level))
+                >= randint0(100))
                 virtue_add(VIRTUE_JUSTICE, 1);
         }
         else if (innocent)
@@ -4342,6 +4473,7 @@ bool target_set(int mode)
     int        x = px;
     bool       done = FALSE;
     bool       flag = TRUE;
+    bool       travel_tgt = FALSE;
     char       query;
     char       info[80];
 
@@ -4385,15 +4517,13 @@ bool target_set(int mode)
             if ( target_able(c_ptr->m_idx)
              || ((mode & (TARGET_MARK|TARGET_DISI|TARGET_XTRA)) && m_list[c_ptr->m_idx].ml))
             {
-                strcpy(info, "q,t,p,o,x,+,-,?,<dir>");
-
+                strcpy(info, rogue_like_commands ? "q,t,p,o,x,(,+,-,?,<dir>" : "q,t,p,o,x,j,+,-,?,<dir>");
             }
 
             /* Dis-allow target */
             else
             {
-                strcpy(info, "q,p,o,x,+,-,?,<dir>");
-
+                strcpy(info, rogue_like_commands ? "q,p,o,x,(,+,-,?,<dir>" : "q,p,o,x,j,+,-,?,<dir>");
             }
 
             /* Describe and Prompt */
@@ -4410,12 +4540,14 @@ bool target_set(int mode)
                 if (query == '\r') query = 't';
             }
 
+            if (((query == 'j') || (query == 'J')) && (!rogue_like_commands)) query = '(';
+
             /* Analyze */
             switch (query)
             {
                 case '?':
                     screen_save();
-                    show_file(TRUE, "context_targetting.txt", NULL, 0, 0);
+                    doc_display_help("context_targetting.txt", "Targetting");
                     screen_load();
                     break;
                 case ESCAPE:
@@ -4499,6 +4631,22 @@ bool target_set(int mode)
 
                 case 'm':
                 {
+                    break;
+                }
+
+                case '(':
+                {
+                    if ((!p_ptr->wild_mode) && (in_bounds(y,x)) && (cave[y][x].info & CAVE_MARK) && ((y != py) || (x != px)) && (player_can_enter(cave[y][x].feat, 0)))
+                    {
+                        travel_cancel_fully();
+                        travel.y = y;
+                        travel.x = x;
+                        if (mode & TARGET_TRVL)
+                        {
+                            travel_tgt = TRUE;
+                            done = TRUE;
+                        }
+                    }
                     break;
                 }
 
@@ -4628,9 +4776,9 @@ bool target_set(int mode)
             c_ptr = &cave[y][x];
 
             if ((mode & TARGET_MARK) && !m_list[c_ptr->m_idx].ml)
-                strcpy(info, "q,p,o,x,+,-,?,<dir>");
+                strcpy(info, rogue_like_commands ? "q,p,o,x,(,+,-,?,<dir>" : "q,p,o,x,j,+,-,?,<dir>");
             else
-                strcpy(info, "q,t,p,m,x,+,-,?,<dir>");
+                strcpy(info, rogue_like_commands ? "q,t,p,m,x,(,+,-,?,<dir>" : "q,t,p,m,x,j,+,-,?,<dir>");
 
 
             /* Describe and Prompt (enable "TARGET_LOOK") */
@@ -4647,12 +4795,14 @@ bool target_set(int mode)
                 if (query == '\r') query = 't';
             }
 
+            if (((query == 'j') || (query == 'J')) && (!rogue_like_commands)) query = '(';
+
             /* Analyze the keypress */
             switch (query)
             {
                 case '?':
                     screen_save();
-                    show_file(TRUE, "context_targetting.txt", NULL, 0, 0);
+                    doc_display_help("context_targetting.txt", "Targetting");
                     screen_load();
                     break;
                 case ESCAPE:
@@ -4738,6 +4888,22 @@ bool target_set(int mode)
                     /* Nothing interesting */
                     if (bd == 999) flag = FALSE;
 
+                    break;
+                }
+
+                case '(':
+                {
+                    if ((!p_ptr->wild_mode) && (in_bounds(y,x)) && (cave[y][x].info & CAVE_MARK) && ((y != py) || (x != px)) && (player_can_enter(cave[y][x].feat, 0)))
+                    {
+                        travel_cancel_fully();
+                        travel.y = y;
+                        travel.x = x;
+                        if (mode & TARGET_TRVL)
+                        {
+                            travel_tgt = TRUE;
+                            done = TRUE;
+                        }
+                    }
                     break;
                 }
 
@@ -4827,13 +4993,17 @@ bool target_set(int mode)
     handle_stuff();
     redraw_hack = FALSE;
 
+    if (travel_tgt)
+    {
+        travel_begin(TRAVEL_MODE_NORMAL, travel.x, travel.y);
+    }
+
     /* Failure to set target */
     if (!target_who) return (FALSE);
 
     /* Success */
     return (TRUE);
 }
-
 
 /*
  * Get an "aiming direction" from the user.
@@ -5732,6 +5902,7 @@ int weapon_exp_level(int weapon_xp)
     else return EXP_LEVEL_MASTER;
 }
 
+
 /*
  * Return proficiency level of riding
  */
@@ -5741,5 +5912,18 @@ int riding_exp_level(int riding_exp)
     else if (riding_exp < RIDING_EXP_SKILLED) return EXP_LEVEL_BEGINNER;
     else if (riding_exp < RIDING_EXP_EXPERT) return EXP_LEVEL_SKILLED;
     else if (riding_exp < RIDING_EXP_MASTER) return EXP_LEVEL_EXPERT;
+    else return EXP_LEVEL_MASTER;
+}
+
+
+/*
+ * Return proficiency level of spells
+ */
+int spell_exp_level(int spell_exp)
+{
+    if (spell_exp < SPELL_EXP_BEGINNER) return EXP_LEVEL_UNSKILLED;
+    else if (spell_exp < SPELL_EXP_SKILLED) return EXP_LEVEL_BEGINNER;
+    else if (spell_exp < SPELL_EXP_EXPERT) return EXP_LEVEL_SKILLED;
+    else if (spell_exp < SPELL_EXP_MASTER) return EXP_LEVEL_EXPERT;
     else return EXP_LEVEL_MASTER;
 }
